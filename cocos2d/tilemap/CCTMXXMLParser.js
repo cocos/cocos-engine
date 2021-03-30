@@ -851,6 +851,9 @@ cc.TMXMapInfo.prototype = {
             // If this is an external tileset then start parsing that
             let tsxName = selTileset.getAttribute('source');
             if (tsxName) {
+                if (tsxName.indexOf('./') === 0) {
+                    tsxName = tsxName.substring(2);
+                }
                 let currentFirstGID = parseInt(selTileset.getAttribute('firstgid'));
                 let tsxXmlString = this._tsxMap[tsxName];
                 if (tsxXmlString) {
@@ -861,7 +864,10 @@ cc.TMXMapInfo.prototype = {
                 let collection = images.length > 1;
                 let firstImage = images[0];
                 let firstImageName = firstImage.getAttribute('source');
-                firstImageName = firstImageName.replace(/\\/g, '\/');
+                if (firstImageName.indexOf('./') === 0) {
+                    firstImageName = firstImageName.substring(2);
+                }
+                firstImageName = firstImageName.replace(/\\/g, '/');
 
                 let tiles = selTileset.getElementsByTagName('tile');
                 let tileCount = tiles && tiles.length || 1;
@@ -932,7 +938,10 @@ cc.TMXMapInfo.prototype = {
                     if (tileImages && tileImages.length > 0) {
                         let image = tileImages[0];
                         let imageName = image.getAttribute('source');
-                        imageName = imageName.replace(/\\/g, '\/');
+                        if (imageName.indexOf('./') === 0) {
+                            imageName = imageName.substring(2);
+                        }
+                        imageName = imageName.replace(/\\/g, '/');
 
                         tileset.imageName = imageName;
                         tileset.imageSize.width = parseFloat(image.getAttribute('width')) || 0;
@@ -1026,6 +1035,9 @@ cc.TMXMapInfo.prototype = {
 
         let data = datas[0];
         let source = data.getAttribute('source');
+        if (source.indexOf('./') === 0) {
+            source = source.substring(2);
+        }
         imageLayer.sourceImage = this._imageLayerTextures[source];
         imageLayer.width = parseInt(data.getAttribute('width')) || 0;
         imageLayer.height = parseInt(data.getAttribute('height')) || 0;
