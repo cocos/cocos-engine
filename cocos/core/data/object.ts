@@ -48,7 +48,6 @@ const Deactivating = 1 << 8;
 const LockedInEditor = 1 << 9;
 // var HideInGame = 1 << 9;
 const HideInHierarchy = 1 << 10;
-const All = DontSave | EditorOnly | LockedInEditor | HideInHierarchy;
 
 const IsOnEnableCalled = 1 << 11;
 const IsEditorOnEnableCalled = 1 << 12;
@@ -70,6 +69,9 @@ const PersistentMask = ~(ToDestroy | Dirty | Destroying | DontDestroy | Deactiva
                        | IsOnEnableCalled | IsEditorOnEnableCalled
                        | IsRotationLocked | IsScaleLocked | IsAnchorLocked | IsSizeLocked | IsPositionLocked
 /* RegisteredInEditor */);
+
+// all the hideFlags
+const AllHideMask = DontSave | EditorOnly | LockedInEditor | HideInHierarchy;
 
 const objectsToDestroy: any = [];
 let deferredDestroyTimer = null;
@@ -229,7 +231,7 @@ class CCObject {
      * @zh 为节点提供：该对象将不会被保存,构建项目时，该对象将不会被保存, 锁定节点，锁定后场景内不能点击, 在编辑器中隐藏该对象，等设置。
      */
     public set hideFlags (hideFlags: CCObject.HideFlags) {
-        this._objFlags = (this._objFlags & ~CCObject.HideFlags.All) | hideFlags;
+        this._objFlags = (this._objFlags & ~CCObject.HideFlags.AllHideMask) | hideFlags;
     }
     public get hideFlags () {
         return this._objFlags;
@@ -463,7 +465,7 @@ js.value(CCObject, 'HideFlags', {
     EditorOnly,
     LockedInEditor,
     HideInHierarchy,
-    All,
+    AllHideMask,
 });
 
 declare namespace CCObject {
@@ -572,7 +574,7 @@ declare namespace CCObject {
          * cannot be clicked in the scene,and The object will not be saved when building a player.
          * @zh 该对象将不会被保存,构建项目时，该对象将不会被保存, 锁定节点，锁定后场景内不能点击, 在编辑器中隐藏该对象。
          */
-        All
+        AllHideMask
     }
 
     // for @ccclass
