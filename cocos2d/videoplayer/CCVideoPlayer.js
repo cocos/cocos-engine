@@ -150,8 +150,8 @@ let VideoPlayer = cc.Class({
             type: cc.VideoClip
         },
         /**
-         * !#en The local video full path.
-         * !#zh 本地视频的 URL
+         * !#en The local video clip.
+         * !#zh 本地视频剪辑
          * @property {VideoClip} clip
          */
         clip: {
