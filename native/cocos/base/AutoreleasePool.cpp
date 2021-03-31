@@ -31,10 +31,8 @@
 namespace cc {
 
 AutoreleasePool::AutoreleasePool()
-: _name("")
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
-  ,
-  _isClearing(false)
+: _isClearing(false)
 #endif
 {
     _managedObjectArray.reserve(150);
@@ -79,8 +77,9 @@ void AutoreleasePool::clear() {
 
 bool AutoreleasePool::contains(Ref *object) const {
     for (const auto &obj : _managedObjectArray) {
-        if (obj == object)
+        if (obj == object) {
             return true;
+        }
     }
     return false;
 }
@@ -100,20 +99,18 @@ void AutoreleasePool::dump() {
 //
 //--------------------------------------------------------------------
 
-PoolManager *PoolManager::s_singleInstance = nullptr;
+PoolManager *PoolManager::_singleInstance = nullptr;
 
 PoolManager *PoolManager::getInstance() {
-    if (s_singleInstance == nullptr) {
-        s_singleInstance = new (std::nothrow) PoolManager();
-        // Add the first auto release pool
-        new (std::nothrow) AutoreleasePool("autorelease pool");
+    if (_singleInstance == nullptr) {
+        _singleInstance = new (std::nothrow) PoolManager();
     }
-    return s_singleInstance;
+    return _singleInstance;
 }
 
 void PoolManager::destroyInstance() {
-    delete s_singleInstance;
-    s_singleInstance = nullptr;
+    delete _singleInstance;
+    _singleInstance = nullptr;
 }
 
 PoolManager::PoolManager() {
@@ -136,8 +133,9 @@ AutoreleasePool *PoolManager::getCurrentPool() const {
 
 bool PoolManager::isObjectInPools(Ref *obj) const {
     for (const auto &pool : _releasePoolStack) {
-        if (pool->contains(obj))
+        if (pool->contains(obj)) {
             return true;
+        }
     }
     return false;
 }

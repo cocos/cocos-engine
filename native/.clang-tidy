@@ -24,23 +24,18 @@ Checks: >
   modernize-*,
   misc-*,
   portability-*,
-  cppcoreguidelines-*,
   google-explicit-constructor,
   -modernize-use-trailing-return-type,
   -fuchsia-trailing-return,
   -readability-implicit-bool-conversion,
   -readability-implicit-bool-cast,
-  -cppcoreguidelines-pro-type-vararg,
-  -cppcoreguidelines-pro-type-static-cast-downcast,
   -readability-function-cognitive-complexity,
-  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
-  -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
   -misc-non-private-member-variables-in-classes,
   -readability-uppercase-literal-suffix,
-  -cppcoreguidelines-no-malloc,
-  -cppcoreguidelines-owning-memory,
-  -cppcoreguidelines-non-private-member-variables-in-classes,
-  -readability-use-anyofallof
+  -readability-use-anyofallof,
+  -readability-magic-numbers,
+  -modernize-pass-by-value,
+  -modernize-concat-nested-namespaces
 
 CheckOptions:
 ################## readability identifier naming ################################

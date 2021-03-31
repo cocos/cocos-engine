@@ -25,13 +25,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <stdint.h>
+#include <cstdint>
 
-#ifndef __ASTC_H__
-    #define __ASTC_H__
+#pragma once
 
-typedef unsigned char astc_byte;
-typedef unsigned int astc_uint32;
+using astc_byte = unsigned char;
+using astc_uint32 = unsigned int;
 
 // Size of a ASTC header
 
@@ -50,5 +49,3 @@ int astcGetWidth(const astc_byte *pHeader);
 // Read the image height from a ASTC header
 
 int astcGetHeight(const astc_byte *pHeader);
-
-#endif

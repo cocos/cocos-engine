@@ -59,11 +59,11 @@ namespace CSSColorParser {
 
 // http://www.w3.org/TR/css3-color/
 struct NamedColor {
-    const char *const name;
-    const Color color;
+    const char * name;
+    Color color;
 };
 
-const std::vector<NamedColor> namedColors = {
+const std::vector<NamedColor> NAMED_COLORS = {
     {"transparent", {0, 0, 0, 0}},
     {"aliceblue", {240, 248, 255, 1}},
     {"antiquewhite", {250, 235, 215, 1}},
@@ -214,13 +214,13 @@ const std::vector<NamedColor> namedColors = {
     {"yellowgreen", {154, 205, 50, 1}}};
 
 template <typename T>
-uint8_t clamp_css_byte(T i) { // Clamp to integer 0 .. 255.
+uint8_t clampCssByte(T i) { // Clamp to integer 0 .. 255.
     i = static_cast<T>(::round(i));           // Seems to be what Chrome does (vs truncation).
     return static_cast<uint8_t>(i < 0 ? 0 : i > 255 ? 255 : i);
 }
 
 template <typename T>
-float clamp_css_float(T f) { // Clamp to float 0.0 .. 1.0.
+float clampCssFloat(T f) { // Clamp to float 0.0 .. 1.0.
     return f < 0 ? 0 : f > 1 ? 1 : float(f);
 }
 
@@ -232,23 +232,21 @@ int64_t parseInt(const std::string &str, uint8_t base = 10) {
     return strtoll(str.c_str(), nullptr, base);
 }
 
-uint8_t parse_css_int(const std::string &str) { // int or percentage.
+uint8_t parseCssInt(const std::string &str) { // int or percentage.
     if (str.length() && str.back() == '%') {
-        return clamp_css_byte(parseFloat(str) / 100.0f * 255.0f);
-    } else {
-        return clamp_css_byte(parseInt(str));
+        return clampCssByte(parseFloat(str) / 100.0f * 255.0f);
     }
+    return clampCssByte(parseInt(str));
+ }
+
+float parseCssFloat(const std::string &str) { // float or percentage.
+    if (str.length() && str.back() == '%') {
+        return clampCssFloat(parseFloat(str) / 100.0f);
+    }
+    return clampCssFloat(parseFloat(str));
 }
 
-float parse_css_float(const std::string &str) { // float or percentage.
-    if (str.length() && str.back() == '%') {
-        return clamp_css_float(parseFloat(str) / 100.0f);
-    } else {
-        return clamp_css_float(parseFloat(str));
-    }
-}
-
-float css_hue_to_rgb(float m1, float m2, float h) {
+float cssHueToRgb(float m1, float m2, float h) {
     if (h < 0.0f) {
         h += 1.0f;
     } else if (h > 1.0f) {
@@ -277,8 +275,8 @@ std::vector<std::string> split(const std::string &s, char delim) {
     return elems;
 }
 
-Color parse(const std::string &css_str) {
-    std::string str = css_str;
+Color parse(const std::string &cssStr) {
+    std::string str = cssStr;
 
     // Remove all whitespace, not compliant, but should just be more accepting.
     str.erase(std::remove(str.begin(), str.end(), ' '), str.end());
@@ -286,9 +284,9 @@ Color parse(const std::string &css_str) {
     // Convert to lowercase.
     std::transform(str.begin(), str.end(), str.begin(), ::tolower);
 
-    for (size_t i = 0; i < namedColors.size(); i++) {
-        if (str == namedColors[i].name) {
-            return {namedColors[i].color};
+    for (const auto &namedColor : NAMED_COLORS) {
+        if (str == namedColor.name) {
+            return namedColor.color;
         }
     }
 
@@ -299,28 +297,30 @@ Color parse(const std::string &css_str) {
                 parseInt(str.substr(1), 16); // REFINE(deanm): Stricter parsing.
             if (!(iv >= 0 && iv <= 0xfff)) {
                 return {};
-            } else {
-                return Color(
-                    static_cast<uint8_t>(((iv & 0xf00) >> 4) | ((iv & 0xf00) >> 8)),
-                    static_cast<uint8_t>((iv & 0xf0) | ((iv & 0xf0) >> 4)),
-                    static_cast<uint8_t>((iv & 0xf) | ((iv & 0xf) << 4)), 1);
-            }
-        } else if (str.length() == 7) {
-            int64_t iv =
-                parseInt(str.substr(1), 16); // REFINE(deanm): Stricter parsing.
+            } 
+            
+            return Color(
+                static_cast<uint8_t>(((iv & 0xf00) >> 4) | ((iv & 0xf00) >> 8)),
+                static_cast<uint8_t>((iv & 0xf0) | ((iv & 0xf0) >> 4)),
+                static_cast<uint8_t>((iv & 0xf) | ((iv & 0xf) << 4)), 1);
+        } 
+
+        if (str.length() == 7) {
+            int64_t iv = parseInt(str.substr(1), 16); // REFINE(deanm): Stricter parsing.
             if (!(iv >= 0 && iv <= 0xffffff)) {
                 return {}; // Covers NaN.
-            } else {
-                return Color(static_cast<uint8_t>((iv & 0xff0000) >> 16),
-                             static_cast<uint8_t>((iv & 0xff00) >> 8),
-                             static_cast<uint8_t>(iv & 0xff), 1);
             }
+
+            return Color(static_cast<uint8_t>((iv & 0xff0000) >> 16),
+                        static_cast<uint8_t>((iv & 0xff00) >> 8),
+                        static_cast<uint8_t>(iv & 0xff), 1);
         }
 
         return Color();
     }
 
-    size_t op = str.find_first_of('('), ep = str.find_first_of(')');
+    size_t op = str.find_first_of('(');
+    size_t ep = str.find_first_of(')');
     if (op != std::string::npos && ep + 1 == str.length()) {
         const std::string fname = str.substr(0, op);
         const std::vector<std::string> params =
@@ -333,22 +333,24 @@ Color parse(const std::string &css_str) {
                 if (params.size() != 4) {
                     return {};
                 }
-                alpha = parse_css_float(params.back());
+                alpha = parseCssFloat(params.back());
             } else {
                 if (params.size() != 3) {
                     return {};
                 }
             }
 
-            return Color(parse_css_int(params[0]), parse_css_int(params[1]),
-                         parse_css_int(params[2]), alpha);
+            return Color(parseCssInt(params[0]), parseCssInt(params[1]),
+                         parseCssInt(params[2]), alpha);
 
-        } else if (fname == "hsla" || fname == "hsl") {
+        } 
+
+        if (fname == "hsla" || fname == "hsl") {
             if (fname == "hsla") {
                 if (params.size() != 4) {
                     return {};
                 }
-                alpha = parse_css_float(params.back());
+                alpha = parseCssFloat(params.back());
             } else {
                 if (params.size() != 3) {
                     return {};
@@ -356,23 +358,25 @@ Color parse(const std::string &css_str) {
             }
 
             float h = parseFloat(params[0]) / 360.0f;
-            while (h < 0.0f)
-                h++;
-            while (h > 1.0f)
-                h--;
+            while (h < 0.0f) {
+                ++h;
+            }
+            while (h > 1.0f) {
+                --h;
+            }
 
             // NOTE(deanm): According to the CSS spec s/l should only be
             // percentages, but we don't bother and let float or percentage.
-            float s = parse_css_float(params[1]);
-            float l = parse_css_float(params[2]);
+            float s = parseCssFloat(params[1]);
+            float l = parseCssFloat(params[2]);
 
             float m2 = l <= 0.5f ? l * (s + 1.0f) : l + s - l * s;
             float m1 = l * 2.0f - m2;
 
             return Color(
-                clamp_css_byte(css_hue_to_rgb(m1, m2, h + 1.0f / 3.0f) * 255.0f),
-                clamp_css_byte(css_hue_to_rgb(m1, m2, h) * 255.0f),
-                clamp_css_byte(css_hue_to_rgb(m1, m2, h - 1.0f / 3.0f) * 255.0f),
+                clampCssByte(cssHueToRgb(m1, m2, h + 1.0f / 3.0f) * 255.0f),
+                clampCssByte(cssHueToRgb(m1, m2, h) * 255.0f),
+                clampCssByte(cssHueToRgb(m1, m2, h - 1.0f / 3.0f) * 255.0f),
                 alpha);
         }
     }

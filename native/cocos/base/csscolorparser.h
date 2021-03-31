@@ -47,19 +47,17 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 // IN THE SOFTWARE.
 
-#ifndef CSS_COLOR_PARSER_CPP
-#define CSS_COLOR_PARSER_CPP
+#pragma once
 
 #include <string>
-#include <math.h>
+#include <cmath>
 
 namespace CSSColorParser {
 
 struct Color {
-    inline Color() {
-    }
-    inline Color(unsigned char r_, unsigned char g_, unsigned char b_, float a_)
-    : r(r_), g(g_), b(b_), a(a_ > 1 ? 1 : a_ < 0 ? 0 : a_) {
+    inline Color() = default;
+    inline Color(unsigned char red, unsigned char green, unsigned char blue, float alpha)
+    : r(red), g(green), b(blue), a(alpha > 1 ? 1 : alpha < 0 ? 0 : alpha) {
     }
     unsigned char r = 0, g = 0, b = 0;
     float a = 1.0f;
@@ -73,8 +71,6 @@ inline bool operator!=(const Color &lhs, const Color &rhs) {
     return !(lhs == rhs);
 }
 
-Color parse(const std::string &css_str);
+Color parse(const std::string &cssStr);
 
 } // namespace CSSColorParser
-
-#endif

@@ -27,13 +27,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __CCCONFIG_H__
-#define __CCCONFIG_H__
-
-/**
- * @file
- * cocos2d (cc) configuration file.
-*/
+#pragma once
 
 // disable module if you didn't need it, this will reduce package size
 
@@ -117,5 +111,3 @@
 #ifndef CC_ENABLE_CACHE_JSB_FUNC_RESULT
     #define CC_ENABLE_CACHE_JSB_FUNC_RESULT 1
 #endif
-
-#endif // __CCCONFIG_H__
