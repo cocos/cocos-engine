@@ -261,6 +261,20 @@ function _flipDiamondTileTexture (inGrid, gid, shrink) {
 
 export default class TmxAssembler extends Assembler {
 
+<<<<<<< HEAD
+=======
+    constructor() {
+        super();
+
+        this._flipTexture = null;
+
+        // this._renderDataList = new cc.TiledMapRenderDataList();
+        // this._buffer = new cc.TiledMapBuffer(renderer._handle, vfmtPosUv);
+        // this._bufferWithColor = new cc.TiledMapBuffer(renderer._handle, vfmtPosUvColor);
+
+    }
+
+>>>>>>> 429b5175b (不再提前释放tmx文件资源.)
     updateRenderData (comp) {
         if (!comp._renderDataList) {
             if (comp._buffer) {
@@ -373,8 +387,6 @@ export default class TmxAssembler extends Assembler {
         _vbuf = null;
         _uintbuf = null;
     }
-
-    _flipTexture = null
 
     // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
     // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
