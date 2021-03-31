@@ -147,6 +147,8 @@ export enum ModelLocalBindings {
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
 
+    UBO_UI_LOCAL,
+
     COUNT,
 }
 const LOCAL_UBO_COUNT = ModelLocalBindings.SAMPLER_JOINTS;
@@ -478,6 +480,19 @@ export class UBOMorph {
 }
 localDescriptorSetLayout.layouts[UBOMorph.NAME] = UBOMorph.LAYOUT;
 localDescriptorSetLayout.bindings[UBOMorph.BINDING] = UBOMorph.DESCRIPTOR;
+
+// UI uniform 数据填充的 UBO
+export class UBOUILocal {
+    public static readonly NAME = 'CCUILocal';
+    public static readonly BINDING = ModelLocalBindings.UBO_UI_LOCAL;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOUILocal.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOUILocal.BINDING, UBOUILocal.NAME, [
+        new Uniform('cc_local_data1', Type.FLOAT4, 1),
+        new Uniform('cc_local_data2', Type.FLOAT4, 1),
+        new Uniform('cc_local_data3', Type.FLOAT4, 1),
+        new Uniform('cc_local_data4', Type.FLOAT4, 1),
+    ], 1);
+}
 
 /**
  * @en The sampler for joint texture

@@ -151,6 +151,11 @@ export class Batcher2D {
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
 
+    public _currNodes:Node[] = []; // 存一个批次的 Node数据
+    public _currOffset = 0; // 记一下偏移量
+
+    public builtinUniformNum = 0; // 可用 uniform 的数量
+
     constructor (private _root: Root) {
         this.device = _root.device;
         this._batches = new CachedArray(64);
@@ -382,8 +387,18 @@ export class Batcher2D {
 
         const blendTargetHash = renderComp.blendHash;
         const depthStencilStateStage = renderComp.stencilStage;
+        if (this._currMaterial.hash !== mat?.hash) {
+            // 材质不同的时候才需要更新
+            // 但是这个用户 uniform 的数量怎么取？
+            // this.builtinUniformNum -= customUniformNum;
+        }
 
-        if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
+        // 这儿要用 material Hash 了，那 uniform 不同怎么合批？
+        // 这里需要一个 额外的 机制，判断还能不能放得下这些 uniform？
+        // 需要一个条件，这个条件是我排除用户 uniform 之后可用的 uniform 数量
+        // 可配置，怎么配置？给个变量？倒是可以随意变
+        if (this._currScene !== renderScene || this._currLayer !== comp.node.layer
+            || this._currMaterial.hash !== mat?.hash || this.builtinUniformNum < (this._currOffset * 4)// 这儿改成 hash 了，因为就算实例化了也可以合
              || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
              || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
             this.autoMergeBatches(this._currComponent!);
@@ -398,10 +413,15 @@ export class Batcher2D {
             this._currBlendTargetHash = blendTargetHash;
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
+            // 这批合完了，清调缓存数组和偏移量
+            this._currNodes = [];
+            this._currOffset = 0;
         }
 
         if (assembler) {
-            assembler.fillBuffers(renderComp, this);
+            assembler.fillBuffers(renderComp, this);// 这里更新不填充
+            this._currNodes[this._currOffset] = comp.node; // 记录了个更新的 Node
+            this._applyOpacity(renderComp);
         }
     }
 
@@ -452,7 +472,7 @@ export class Batcher2D {
             curDrawBatch.sampler = null;
             curDrawBatch.useLocalData = null;
             if (!depthStencil) { depthStencil = null; }
-            curDrawBatch.fillPasses(mat, depthStencil, dssHash, null, 0, subModel.patches);
+            curDrawBatch.fillPasses(mat, depthStencil, dssHash, null, 0, subModel.patches, this);
             curDrawBatch.hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
             curDrawBatch.hInputAssembler = SubModelPool.get(subModel.handle, SubModelView.INPUT_ASSEMBLER);
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
@@ -524,7 +544,7 @@ export class Batcher2D {
         curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
-        curDrawBatch.fillPasses(mat, depthStencil, dssHash, blendState, bsHash, null);
+        curDrawBatch.fillPasses(mat, depthStencil, dssHash, blendState, bsHash, null, this);
 
         this._batches.push(curDrawBatch);
 
@@ -802,6 +822,12 @@ class DescriptorSetCache {
             this._localDescriptorSetCache.push(localDs);
             return localDs.handle as DescriptorSetHandle;
         } else {
+            // 创建并返回缓存
+            // 双层 Map 不再适用，需要使用 hash 值了
+            // 这儿需要一个 简单且快的 hash 算法，把这个两层的 map 缩减为一层
+            // texture hash 位数不定
+            // simpler hash genSamplerHash 得来，28+ 位
+            // UBO hash 可能只要两三位就够
             const descriptorSetTextureMap = this._descriptorSetCache.get(batch.textureHash);
             if (descriptorSetTextureMap && descriptorSetTextureMap.has(batch.samplerHash)) {
                 return descriptorSetTextureMap.get(batch.samplerHash)!;

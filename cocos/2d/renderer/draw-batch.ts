@@ -39,7 +39,7 @@ import { Batcher2D } from './batcher-2d';
 import { NULL_HANDLE, BatchHandle2D, BatchPool2D, BatchView2D, PassPool } from '../../core/renderer/core/memory-pools';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
-import { Pass } from '../../core/renderer/core/pass';
+import { UILocalBuffer } from './render-uniform-buffer';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -82,6 +82,11 @@ export class DrawBatch2D {
     private _handle: BatchHandle2D = NULL_HANDLE;
     private _passes: Pass[] = [];
 
+    // 这里有两个情况
+    // 1、batches 放不下的情况
+    // 2、batches 放不满的情况
+    private _drawcalls; // 类型是？// 加了这个属性之后就是一个batch多个 drawcall 了
+
     constructor () {
         this._handle = BatchPool2D.alloc();
         BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, UI_VIS_FLAG);
@@ -116,7 +121,7 @@ export class DrawBatch2D {
     }
 
     // object version
-    public fillPasses (mat: Material | null, dss, dssHash, bs, bsHash, patches) {
+    public fillPasses (mat: Material | null, dss, dssHash, bs, bsHash, patches, batcher: Batcher2D) {
         if (mat) {
             const passes = mat.passes;
             if (!passes) { return; }
