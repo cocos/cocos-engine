@@ -28,7 +28,7 @@
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 
     #include "platform/Device.h"
-    #include <string.h>
+    #include <cstring>
     #include <android/log.h>
     #include <jni.h>
     #include <android_native_app_glue.h>
@@ -40,11 +40,11 @@
     #include "platform/android/jni/JniHelper.h"
 
     #ifndef JCLS_HELPER
-        #define JCLS_HELPER "com/cocos/lib/CocosHelper"
+        constexpr auto JCLS_HELPER = "com/cocos/lib/CocosHelper";
     #endif
 
     #ifndef JCLS_SENSOR
-        #define JCLS_SENSOR "com/cocos/lib/CocosSensorHandler"
+        constexpr auto JCLS_SENSOR = "com/cocos/lib/CocosSensorHandler";
     #endif
 
 namespace {
@@ -69,7 +69,8 @@ int Device::getDPI() {
         AConfiguration_fromAssetManager(config, cocosApp.assetManager);
         int32_t density = AConfiguration_getDensity(config);
         AConfiguration_delete(config);
-        dpi = density * 160;
+        const int stdDpi = 160;
+        dpi = density * stdDpi;
     }
     return dpi;
 }
@@ -111,16 +112,20 @@ Device::Orientation Device::getDeviceOrientation() {
             return Orientation::PORTRAIT_UPSIDE_DOWN;
         case ROTATION_270:
             return Orientation::LANDSCAPE_LEFT;
+        default: 
+            break;
     }
+    return Orientation::PORTRAIT;
 }
 
 std::string Device::getDeviceModel() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getDeviceModel");
 }
 
-void Device::setKeepScreenOn(bool value) {
+void Device::setKeepScreenOn(bool keepScreenOn) {
     // JniHelper::callStaticVoidMethod(JCLS_HELPER, "setKeepScreenOn", value);
     //    ANativeActivity_setWindowFlags(JniHelper::getAndroidApp()->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
+    CC_UNUSED_PARAM(keepScreenOn);
 }
 
 void Device::vibrate(float duration) {

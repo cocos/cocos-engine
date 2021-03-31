@@ -447,15 +447,15 @@ cocos_source_files(
 
 ##### network
 cocos_source_files(
-    NO_WERROR    cocos/network/Downloader.cpp
+                 cocos/network/Downloader.cpp
                  cocos/network/Downloader.h
                  cocos/network/DownloaderImpl.h
                  cocos/network/HttpClient.h
-    NO_WERROR    cocos/network/HttpCookie.cpp
+                 cocos/network/HttpCookie.cpp
                  cocos/network/HttpCookie.h
                  cocos/network/HttpRequest.h
                  cocos/network/HttpResponse.h
-    NO_WERROR    cocos/network/Uri.cpp
+                 cocos/network/Uri.cpp
                  cocos/network/Uri.h
     )
 
@@ -494,9 +494,9 @@ endif()
 
 if(ANDROID)
     cocos_source_files(
-        NO_WERROR    cocos/network/Downloader-android.cpp
+                     cocos/network/Downloader-android.cpp
                      cocos/network/Downloader-android.h
-        NO_WERROR    cocos/network/HttpClient-android.cpp
+                     cocos/network/HttpClient-android.cpp
     )
 endif()
 
@@ -552,12 +552,12 @@ if(WINDOWS)
     )
 elseif(ANDROID)
     cocos_source_files(
-        NO_WERROR    cocos/platform/android/Application-android.cpp
-        NO_WERROR    cocos/platform/android/CanvasRenderingContext2D-android.cpp
-        NO_WERROR    cocos/platform/android/Device-android.cpp
-        NO_WERROR    cocos/platform/android/FileUtils-android.cpp
+                     cocos/platform/android/Application-android.cpp
+                     cocos/platform/android/CanvasRenderingContext2D-android.cpp
+                     cocos/platform/android/Device-android.cpp
+                     cocos/platform/android/FileUtils-android.cpp
                      cocos/platform/android/FileUtils-android.h
-        NO_WERROR    cocos/platform/android/View.cpp
+                     cocos/platform/android/View.cpp
                      cocos/platform/android/View.h
     )
     set(CC_JNI_SRC_FILES
