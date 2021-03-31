@@ -60,7 +60,18 @@ let TiledMapRenderDataList = cc.Class({
 
     reset () {
         this._offset = 0;
+    },
+
+    cleanup (){
+        this._dataList.length = 0;
+        this._offset = 0;
+    },
+
+    destroy() {
+        this._dataList = null;
+        this._offset = 0;
     }
+
 });
 
 cc.TiledMapRenderDataList = module.exports = TiledMapRenderDataList;

@@ -35,7 +35,7 @@ const vfmtPosUvColor = require('../core/renderer/webgl/vertex-format').vfmtPosUv
 const vfmtPosUv = require('../core/renderer/webgl/vertex-format').vfmtPosUv;
 
 
-const MaxGridsLimit = parseInt(65535 / 6);
+const MaxGridsLimit = Math.floor(65535 / 6);
 const RenderOrder = TiledMap.RenderOrder;
 
 import { Mat4, Vec3 } from '../core/value-types';
@@ -88,6 +88,22 @@ function _flush () {
         _ia = _renderData.ia;
     }
     _renderData.material = _curMaterial;
+}
+
+function _renderNodesList (nodesRenderList) {
+    let nodesList;
+    _renderer.worldMatDirty++;
+    for (let j = 0; j < nodesRenderList.length; j++) {
+        nodesList = nodesRenderList[j];
+        if (!nodesList) continue;
+        for (let idx = 0; idx < nodesList.length; idx++) {
+            let dataComp = nodesList[idx];
+            if (!dataComp) continue;
+            _visitUserNode(dataComp.node);
+        }
+    }
+    _renderer.worldMatDirty--;
+    _renderer._flush();
 }
 
 function _renderNodes (nodeRow, nodeCol) {
@@ -261,8 +277,6 @@ function _flipDiamondTileTexture (inGrid, gid, shrink) {
 
 export default class TmxAssembler extends Assembler {
 
-<<<<<<< HEAD
-=======
     constructor() {
         super();
 
@@ -274,14 +288,13 @@ export default class TmxAssembler extends Assembler {
 
     }
 
->>>>>>> 429b5175b (不再提前释放tmx文件资源.)
     updateRenderData (comp) {
         if (!comp._renderDataList) {
+            comp._renderDataList = new cc.TiledMapRenderDataList();
             if (comp._buffer) {
                 comp._buffer.destroy();
             }
             comp._buffer = new cc.TiledMapBuffer(renderer._handle, comp._withColor ? vfmtPosUvColor : vfmtPosUv);
-            comp._renderDataList = new cc.TiledMapRenderDataList();
         }
     }
 
@@ -327,45 +340,34 @@ export default class TmxAssembler extends Assembler {
             switch (comp.renderOrder) {
                 // left top to right down, col add, row sub,
                 case RenderOrder.RightDown:
-                    this.traverseGrids(leftDown, rightTop, -1, 1, comp);
+                    this.traverseGrids(leftDown, rightTop, -1, 1);
                     break;
                 // right top to left down, col sub, row sub
                 case RenderOrder.LeftDown:
-                    this.traverseGrids(leftDown, rightTop, -1, -1, comp);
+                    this.traverseGrids(leftDown, rightTop, -1, -1);
                     break;
                 // left down to right up, col add, row add
                 case RenderOrder.RightUp:
-                    this.traverseGrids(leftDown, rightTop, 1, 1, comp);
+                    this.traverseGrids(leftDown, rightTop, 1, 1);
                     break;
                 // right down to left up, col sub, row add
                 case RenderOrder.LeftUp:
-                    this.traverseGrids(leftDown, rightTop, 1, -1, comp);
+                    this.traverseGrids(leftDown, rightTop, 1, -1);
                     break;
             }
+
             comp._setCullingDirty(false);
             comp._setUserNodeDirty(false);
 
         } else if (!CC_NATIVERENDERER) {
             let renderData = null;
             let nodesRenderList = null;
-            let nodesList = null;
 
             for (let i = 0; i < _renderDataList._offset; i++) {
                 renderData = _renderDataList._dataList[i];
                 nodesRenderList = renderData.nodesRenderList;
                 if (nodesRenderList.length > 0) {
-                    renderer.worldMatDirty++;
-                    for (let j = 0; j < nodesRenderList.length; j++) {
-                        nodesList = nodesRenderList[j];
-                        if (!nodesList) continue;
-                        for (let idx = 0; idx < nodesList.length; idx++) {
-                            let dataComp = nodesList[idx];
-                            if (!dataComp) continue;
-                            _visitUserNode(dataComp.node);
-                        }
-                    }
-                    renderer.worldMatDirty--;
-                    renderer._flush();
+                    _renderNodesList(nodesRenderList);
                 }
                 if (renderData.ia._count > 0) {
                     renderer.material = renderData.material;
@@ -390,7 +392,8 @@ export default class TmxAssembler extends Assembler {
 
     // rowMoveDir is -1 or 1, -1 means decrease, 1 means increase
     // colMoveDir is -1 or 1, -1 means decrease, 1 means increase
-    traverseGrids (leftDown, rightTop, rowMoveDir, colMoveDir, comp) {
+    traverseGrids(leftDown, rightTop, rowMoveDir, colMoveDir) {
+
         _renderDataList.reset();
 
         // show nothing
@@ -427,7 +430,7 @@ export default class TmxAssembler extends Assembler {
         let tiledNode = null, curTexIdx = -1, matIdx;
         let colNodesCount = 0, checkColRange = true;
 
-        let diamondTile = comp._diamondTile;
+        let diamondTile = _comp._diamondTile;
 
         this._flipTexture = diamondTile ? _flipDiamondTileTexture : _flipTexture;
 
@@ -542,7 +545,7 @@ export default class TmxAssembler extends Assembler {
                     }
                 }
 
-                this._flipTexture(grid, gid, comp.shrink || 0);
+                this._flipTexture(grid, gid, _comp.shrink || 0);
 
                 // lt/ct -> a
                 _vbuf[_vfOffset + 2] = _uva.x;

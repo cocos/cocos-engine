@@ -215,11 +215,12 @@ let TiledLayer = cc.Class({
                 if (this._withColor !== value) {
                     this._tileChanged = true;
                     this._withColor = value;
-                    this._texIdToMatIndex = {};
-                    this._materials = [];
                     if (this._renderDataList) {
+                        this._renderDataList.destroy();
                         this._renderDataList = null;
                     }
+                    this._texIdToMatIndex = {};
+                    this._materials = [];
                     this._activateMaterial();
                 }
             },
@@ -457,15 +458,6 @@ let TiledLayer = cc.Class({
         this._cullingDirty = true;
     },
 
-    onDestroy () {
-        this._super();
-        if (this._buffer) {
-            this._buffer.destroy();
-            this._buffer = null;
-        }
-        this._renderDataList = null;
-    },
-
     /**
      * !#en Gets the layer name.
      * !#zh 获取层的名称。
@@ -597,12 +589,8 @@ let TiledLayer = cc.Class({
 
         let index = Math.floor(col) + Math.floor(row) * this._layerSize.width;
         let gid = this._tiles[index];
-        let offset;
-        if (this._texGrids[gid]) {
-            offset = this._texGrids[gid].tileset.tileOffset;
-        } else {
-            offset = { x: 0, y: 0 }
-        }
+        let tileset = this._texGrids[gid].tileset;
+        let offset = tileset.tileOffset;
 
         let odd_even = (this._staggerIndex === cc.TiledMap.StaggerIndex.STAGGERINDEX_ODD) ? 1 : -1;
         let x = 0,
