@@ -814,6 +814,10 @@ let TiledLayer = cc.Class({
         this._viewPort.width = width;
         this._viewPort.height = height;
 
+        this._computeCullingRect();
+    },
+
+    _computeCullingRect () {
         // if map's type is iso, reserve bottom line is 2 to avoid show empty grid because of iso grid arithmetic
         let reserveLine = 1;
         if (this._layerOrientation === cc.TiledMap.Orientation.ISO) {
@@ -825,8 +829,8 @@ let TiledLayer = cc.Class({
 
         let leftDownX = vpx - this._leftOffset;
         let leftDownY = vpy - this._downOffset;
-        let rightTopX = vpx + width + this._rightOffset;
-        let rightTopY = vpy + height + this._topOffset;
+        let rightTopX = vpx + this._viewPort.width + this._rightOffset;
+        let rightTopY = vpy + this._viewPort.height + this._topOffset;
 
         let leftDown = this._cullingRect.leftDown;
         let rightTop = this._cullingRect.rightTop;
