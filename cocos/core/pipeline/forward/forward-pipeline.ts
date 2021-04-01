@@ -33,7 +33,7 @@ import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
+import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, PipelineType } from '../define';
 import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, Feature, ClearFlagBit, ClearFlags, Filter, Address, StoreOp, AccessType } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
@@ -42,6 +42,7 @@ import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
+import { game } from '../../game';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -63,10 +64,6 @@ export class ForwardPipeline extends RenderPipeline {
     @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
 
-    @type([MaterialConfig])
-    @serializable
-    @displayOrder(3)
-    protected materials: MaterialConfig[] = [];
     protected _renderPasses = new Map<ClearFlags, RenderPass>();
 
     public initialize (info: IRenderPipelineInfo): boolean {
@@ -86,8 +83,8 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        this._macros = {};
-
+        game._pipelineType = PipelineType.FORWARD;
+        this._macros = { CC_PIPELINE_TYPE: game._pipelineType };
         if (!super.activate()) {
             return false;
         }

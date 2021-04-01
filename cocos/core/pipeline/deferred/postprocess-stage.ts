@@ -28,7 +28,6 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { builtinResMgr } from '../../builtin';
 import { Camera } from '../../renderer/scene';
 import { SetIndex, IRenderPass } from '../define';
 import { Color, Rect, Shader, PipelineState, ClearFlagBit, BlendFactor } from '../../gfx';
@@ -39,7 +38,6 @@ import { DeferredPipeline } from './deferred-pipeline';
 import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
-import { Pass } from '../../renderer';
 import { UIPhase } from '../forward/ui-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
@@ -47,7 +45,6 @@ import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization'
 import { getPhaseID } from '../pass-phase';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
-const POSTPROCESSPASS_INDEX = 0;
 
 /**
  * @en The postprocess render stage
@@ -71,7 +68,7 @@ export class PostprocessStage extends RenderStage {
     @type(Material)
     @serializable
     @displayOrder(3)
-    private _postprocessMaterial: Material | null = null;
+    private _postProcessMaterial: Material | null = null;
 
     @type([RenderQueueDesc])
     @serializable
@@ -81,14 +78,6 @@ export class PostprocessStage extends RenderStage {
     private _uiPhase: UIPhase;
     private _phaseID = getPhaseID('default');
     private _renderQueues: RenderQueue[] = [];
-
-    set material (val) {
-        if (this._postprocessMaterial === val) {
-            return;
-        }
-
-        this._postprocessMaterial = val;
-    }
 
     constructor () {
         super();
@@ -131,6 +120,8 @@ export class PostprocessStage extends RenderStage {
                 sortFunc,
             });
         }
+
+        if (this._postProcessMaterial) { pipeline.pipelineSceneData.deferredPostMat = this._postProcessMaterial; }
     }
 
     public destroy () {
@@ -139,7 +130,7 @@ export class PostprocessStage extends RenderStage {
     public render (camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
         const device = pipeline.device;
-
+        const sceneData = pipeline.pipelineSceneData;
         const cmdBuff = pipeline.commandBuffers[0];
 
         pipeline.pipelineUBO.updateCameraUBO(camera, camera.window!.hasOffScreenAttachments);
@@ -147,8 +138,8 @@ export class PostprocessStage extends RenderStage {
         const vp = camera.viewport;
         this._renderArea.x = vp.x * camera.width;
         this._renderArea.y = vp.y * camera.height;
-        this._renderArea.width = vp.width * camera.width * pipeline.pipelineSceneData.shadingScale;
-        this._renderArea.height = vp.height * camera.height * pipeline.pipelineSceneData.shadingScale;
+        this._renderArea.width = vp.width * camera.width * sceneData.shadingScale;
+        this._renderArea.height = vp.height * camera.height * sceneData.shadingScale;
 
         const framebuffer = camera.window!.framebuffer;
         const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag);
@@ -167,16 +158,9 @@ export class PostprocessStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Postprocess
-        let pass: Pass;
-        let shader: Shader;
-        const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
-        if (builtinPostProcess) {
-            pass = builtinPostProcess.passes[0];
-            shader = ShaderPool.get(pass.getShaderVariant());
-        } else {
-            pass = this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX];
-            shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
-        }
+        const builtinPostProcess = sceneData.deferredPostMat;
+        const pass = builtinPostProcess.passes[0];
+        const shader = ShaderPool.get(pass.getShaderVariant());
 
         const inputAssembler = camera.window!.hasOffScreenAttachments ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
         let pso:PipelineState|null = null;
@@ -184,8 +168,8 @@ export class PostprocessStage extends RenderStage {
             pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
         }
 
-        const renderObjects = pipeline.pipelineSceneData.renderObjects;
-        if (pso != null && pipeline.pipelineSceneData.renderObjects.length > 0) {
+        const renderObjects = sceneData.renderObjects;
+        if (pso != null && sceneData.renderObjects.length > 0) {
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);

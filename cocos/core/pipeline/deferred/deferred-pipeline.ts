@@ -41,10 +41,11 @@ import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, Store
     RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType, Framebuffer,
     TextureInfo, TextureType, TextureUsageBit, FramebufferInfo } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING,
-    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
+    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING, PipelineType } from '../define';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
+import { game } from '../../game';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -92,11 +93,6 @@ export class DeferredPipeline extends RenderPipeline {
     @serializable
     @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
-
-    @type([MaterialConfig])
-    @serializable
-    @displayOrder(3)
-    protected materials: MaterialConfig[] = [];
     protected _renderPasses = new Map<ClearFlags, RenderPass>();
 
     /**
@@ -132,7 +128,8 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        this._macros = { CC_PIPELINE_TYPE: 1 };
+        game._pipelineType = PipelineType.DEFERRED;
+        this._macros = { CC_PIPELINE_TYPE: game._pipelineType };
 
         if (!super.activate()) {
             return false;

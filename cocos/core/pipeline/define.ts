@@ -64,6 +64,15 @@ export enum RenderPriority {
 }
 
 /**
+ * @en The pipeline render type.
+ * @zh 渲染管线类型。
+ */
+export enum PipelineType {
+    FORWARD = 0,
+    DEFERRED = 1,
+}
+
+/**
  * @en Render object interface
  * @zh 渲染对象接口。
  */

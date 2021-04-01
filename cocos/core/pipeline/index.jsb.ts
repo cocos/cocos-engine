@@ -30,6 +30,7 @@ import { getPhaseID } from './pass-phase'
 import { setClassName } from '../../core/utils/js';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { legacyCC } from '../../core/global-exports';
+import { PipelineType } from '../pipeline/define';
 
 nr.getPhaseID = getPhaseID;
 
@@ -78,6 +79,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
     }
 
     public activate () {
+        legacyCC.game._pipelineType = PipelineType.FORWARD;
         return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
     }
 
@@ -198,6 +200,7 @@ export class DeferredPipeline extends nr.DeferredPipeline {
   }
 
   public activate () {
+    legacyCC.game._pipelineType = PipelineType.DEFERRED;
     return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
   }
 

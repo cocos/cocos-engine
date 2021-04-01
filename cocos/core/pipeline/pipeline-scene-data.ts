@@ -27,13 +27,14 @@ import { Fog } from '../renderer/scene/fog';
 import { Ambient } from '../renderer/scene/ambient';
 import { Skybox } from '../renderer/scene/skybox';
 import { Shadows } from '../renderer/scene/shadows';
-import { IRenderObject } from './define';
+import { IRenderObject, PipelineType } from './define';
 import { Device, Framebuffer } from '../gfx';
 import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
 import { PipelineSceneDataPool, PipelineSceneDataHandle, PipelineSceneDataView, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
 import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Material } from '../assets';
+import { legacyCC } from '../global-exports';
 
 export class PipelineSceneData {
     public get handle () {
@@ -61,10 +62,30 @@ export class PipelineSceneData {
     public get fpScale () {
         return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.FP_SCALE);
     }
-
     public set fpScale (val: number) {
         PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.FP_SCALE, val);
     }
+
+    public get deferredLightingMat () {
+        return this._deferredLightingMat;
+    }
+
+    public set deferredLightingMat (mat: Material) {
+        if (this._deferredLightingMat === mat) return;
+        this._deferredLightingMat = (mat && mat.effectAsset) ? mat : builtinResMgr.get<Material>('builtin-deferred-material');
+        this.updateDeferredPassInfo();
+    }
+
+    public get deferredPostMat () {
+        return this._deferredPostMat;
+    }
+
+    public set deferredPostMat (mat: Material) {
+        if (this._deferredPostMat === mat) return;
+        this._deferredPostMat = (mat && mat.effectAsset) ? mat : builtinResMgr.get<Material>('builtin-post-process-material');
+        this.updateDeferredPassInfo();
+    }
+
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
     public skybox: Skybox = new Skybox();
@@ -79,6 +100,8 @@ export class PipelineSceneData {
     protected declare _device: Device;
     protected declare _pipeline: RenderPipeline;
     protected declare _handle: PipelineSceneDataHandle;
+    protected declare _deferredLightingMat: Material;
+    protected declare _deferredPostMat: Material;
 
     constructor () {
         this._handle = PipelineSceneDataPool.alloc();
@@ -91,56 +114,24 @@ export class PipelineSceneData {
         PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.FP_SCALE, 1.0 / 1024.0);
     }
 
-    public get deferredLightPassHandle (): PassHandle {
-        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS);
-    }
-
-    public get deferredLightPassShaderHandle (): ShaderHandle {
-        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER);
-    }
-
-    public get deferredPostPassHandle (): PassHandle {
-        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS);
-    }
-
-    public get deferredPostPassShaderHandle (): ShaderHandle  {
-        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER);
-    }
-
-    public initDeferredPassInfo () {
-        const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
-        if (builinDeferred) {
-            const passLit = builinDeferred.passes[0];
-            passLit.beginChangeStatesSilently();
-            passLit.tryCompile();
-            passLit.endChangeStatesSilently();
+    public onGlobalPipelineStateChanged () {
+        if (legacyCC.game.pipelineType === PipelineType.DEFERRED) {
+            this.updateDeferredPassInfo();
         }
+    }
 
-        const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
-        if (builtinPostProcess) {
-            const passPost = builtinPostProcess.passes[0];
-            passPost.beginChangeStatesSilently();
-            passPost.tryCompile();
-            passPost.endChangeStatesSilently();
-        }
-
-        if (builinDeferred) {
-            const passLit = builinDeferred.passes[0];
-            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS, passLit.handle);
-            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER, passLit.getShaderVariant());
-        }
-
-        if (builtinPostProcess) {
-            const passPost = builtinPostProcess.passes[0];
-            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS, passPost.handle);
-            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER, passPost.getShaderVariant());
+    public initPipelinePassInfo () {
+        if (legacyCC.game.pipelineType === PipelineType.DEFERRED) {
+            this._deferredLightingMat = builtinResMgr.get<Material>('builtin-deferred-material');
+            this._deferredPostMat = builtinResMgr.get<Material>('builtin-post-process-material');
+            this.updateDeferredPassInfo();
         }
     }
 
     public activate (device: Device, pipeline: RenderPipeline) {
         this._device = device;
         this._pipeline = pipeline;
-        this.initDeferredPassInfo();
+        this.initPipelinePassInfo();
         return true;
     }
 
@@ -152,5 +143,34 @@ export class PipelineSceneData {
         if (this._handle) {
             PipelineSceneDataPool.free(this._handle);
         }
+    }
+
+    private updateDeferredPassInfo () {
+        this.updateDeferredLightPass();
+        this.updateDeferredPostPass();
+    }
+
+    private updateDeferredLightPass () {
+        if (!this._deferredLightingMat) return;
+
+        const passLit = this._deferredLightingMat.passes[0];
+        passLit.beginChangeStatesSilently();
+        passLit.tryCompile();
+        passLit.endChangeStatesSilently();
+
+        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS, passLit.handle);
+        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER, passLit.getShaderVariant());
+    }
+
+    private updateDeferredPostPass () {
+        if (!this.deferredPostMat) return;
+
+        const passPost = this.deferredPostMat.passes[0];
+        passPost.beginChangeStatesSilently();
+        passPost.tryCompile();
+        passPost.endChangeStatesSilently();
+
+        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS, passPost.handle);
+        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER, passPost.getShaderVariant());
     }
 }

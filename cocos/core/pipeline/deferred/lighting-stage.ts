@@ -28,7 +28,6 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
-import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Camera } from '../../renderer/scene';
 import { localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight } from '../define';
 import { getPhaseID } from '../pass-phase';
@@ -45,10 +44,8 @@ import { PipelineStateManager } from '../pipeline-state-manager';
 import { sphere, intersect } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
 import { SRGBToLinear } from '../pipeline-funcs';
-import { Pass } from '../../renderer/core/pass';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
-const LIGHTINGPASS_INDEX = 1;
 
 /**
  * @en The lighting render stage
@@ -75,20 +72,10 @@ export class LightingStage extends RenderStage {
         priority: DeferredStagePriority.LIGHTING,
         tag: 0,
     };
-
-    set material (val) {
-        if (this._deferredMaterial === val) {
-            return;
-        }
-
-        this._deferredMaterial = val;
-    }
-
     public initialize (info: IRenderStageInfo): boolean {
         super.initialize(info);
         return true;
     }
-
     public gatherLights (camera: Camera) {
         const pipeline = this._pipeline as DeferredPipeline;
         const cmdBuff = pipeline.commandBuffers[0];
@@ -204,6 +191,8 @@ export class LightingStage extends RenderStage {
         this._descriptorSet.bindBuffer(UBOForwardLight.BINDING, deferredLitsBufView);
 
         this._planarQueue = new PlanarShadowQueue(this._pipeline as DeferredPipeline);
+
+        if (this._deferredMaterial) { pipeline.pipelineSceneData.deferredLightingMat = this._deferredMaterial; }
     }
 
     public destroy () {
@@ -217,8 +206,8 @@ export class LightingStage extends RenderStage {
         const device = pipeline.device;
 
         const cmdBuff = pipeline.commandBuffers[0];
-
-        const renderObjects = pipeline.pipelineSceneData.renderObjects;
+        const sceneData = pipeline.pipelineSceneData;
+        const renderObjects = sceneData.renderObjects;
         if (renderObjects.length === 0) {
             return;
         }
@@ -237,13 +226,13 @@ export class LightingStage extends RenderStage {
         const h = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
         this._renderArea.x = vp.x * w;
         this._renderArea.y = vp.y * h;
-        this._renderArea.width = vp.width * w * pipeline.pipelineSceneData.shadingScale;
-        this._renderArea.height = vp.height * h * pipeline.pipelineSceneData.shadingScale;
+        this._renderArea.width = vp.width * w * sceneData.shadingScale;
+        this._renderArea.height = vp.height * h * sceneData.shadingScale;
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
-            if (pipeline.pipelineSceneData.isHDR) {
+            if (sceneData.isHDR) {
                 SRGBToLinear(colors[0], camera.clearColor);
-                const scale = pipeline.pipelineSceneData.fpScale / camera.exposure;
+                const scale = sceneData.fpScale / camera.exposure;
                 colors[0].x *= scale;
                 colors[0].y *= scale;
                 colors[0].z *= scale;
@@ -265,16 +254,10 @@ export class LightingStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Lighting
-        let pass: Pass;
-        let shader: Shader;
-        const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
-        if (builinDeferred) {
-            pass = builinDeferred.passes[0];
-            shader = ShaderPool.get(pass.getShaderVariant());
-        } else {
-            pass = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX];
-            shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
-        }
+        const lightingMat = sceneData.deferredLightingMat;
+        const pass = lightingMat.passes[0];
+        const shader = ShaderPool.get(pass.getShaderVariant());
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
         const inputAssembler = pipeline.quadIAOffscreen;
         let pso:PipelineState|null = null;
