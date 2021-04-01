@@ -433,7 +433,6 @@ async function doBuild ({
             output: {
                 beautify: !doUglify,
             },
-            sourcemap: !!options.sourceMap,
 
             // https://github.com/rollup/rollup/issues/3315
             // We only do this for CommonJS.
