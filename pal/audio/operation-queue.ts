@@ -69,7 +69,7 @@ export function EnqueueOperationDecorator<TFunction extends Constructor<any>>(ta
         }
 
         seek (time: number): Promise<void> {
-            return this._wrapOperation('seek');
+            return this._wrapOperation('seek', time);
         }
     }
 }
