@@ -106,10 +106,10 @@ namespace {
         uintptr_t windowHandle = reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
         std::stringstream commandBuf;
         commandBuf << "window.innerWidth = " << viewLogicalSize.x 
-                   << " window.innerHeight = " << viewLogicalSize.y 
-                   << " window.nativeWidth= " << nativeWidth
-                   << " window.nativeHeight = " << nativeHeight
-                   << " window.windowHandler = " << windowHandle;
+                   << "; window.innerHeight = " << viewLogicalSize.y 
+                   << "; window.nativeWidth= " << nativeWidth
+                   << "; window.nativeHeight = " << nativeHeight
+                   << "; window.windowHandler = " << windowHandle << ";";
 
         se::ScriptEngine* se = se::ScriptEngine::getInstance();
         se->evalString(commandBuf.str().c_str());

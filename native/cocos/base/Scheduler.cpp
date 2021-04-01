@@ -152,9 +152,8 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
     CCASSERT(!key.empty(), "key should not be empty!");
 
     HashTimerEntry *element = nullptr;
-    auto            iter    = _hashForTimers.find(&target);
-    if (iter == _hashForTimers.end()) {
-        element         = new HashTimerEntry();
+    if (_hashForTimers.count(target) > 0) {
+        element         = static_cast<HashTimerEntry *>(calloc(sizeof(*element), 1));
         element->target = target;
 
         _hashForTimers[target] = element;
@@ -181,7 +180,6 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
     auto *timer = new (std::nothrow) TimerTargetCallback();
     timer->initWithCallback(this, callback, target, key, interval, repeat, delay);
     element->timers.push_back(timer);
-    timer->release();
 }
 
 void Scheduler::unschedule(const std::string &key, void *target) {

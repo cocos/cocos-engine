@@ -66,8 +66,9 @@ void Ref::release() {
 
     if (_referenceCount == 0) {
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
-        auto poolManager = PoolManager::getInstance();
-        if (!poolManager->getCurrentPool()->isClearing() && poolManager->isObjectInPools(this)) {
+        auto *poolManager = PoolManager::getInstance();
+        auto *currentPool = poolManager->getCurrentPool();
+        if (currentPool && !currentPool->isClearing() && poolManager->isObjectInPools(this)) {
             // Trigger an assert if the reference count is 0 but the Ref is still in autorelease pool.
             // This happens when 'autorelease/release' were not used in pairs with 'new/retain'.
             //

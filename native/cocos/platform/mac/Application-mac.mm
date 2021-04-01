@@ -101,8 +101,8 @@ bool setCanvasCallback(se::Object *global) {
 
     std::stringstream commandBuf;
     commandBuf << "window.innerWidth = " << viewLogicalSize.x
-               << " window.innerHeight = " << viewLogicalSize.y
-               << " window.windowHandler = " << reinterpret_cast<uintptr_t>(view);
+               << "; window.innerHeight = " << viewLogicalSize.y
+               << "; window.windowHandler = " << reinterpret_cast<uintptr_t>(view) << ";";
     se->evalString(commandBuf.str().c_str());
 
     gfx::DeviceInfo deviceInfo;
