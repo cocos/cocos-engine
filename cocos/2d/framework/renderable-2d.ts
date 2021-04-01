@@ -33,7 +33,7 @@ import { Color } from '../../core/math';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../core/value-types/enum';
 import { builtinResMgr } from '../../core/builtin';
-import { Material, RenderTexture } from '../../core/assets';
+import { Material } from '../../core/assets';
 import { BlendFactor } from '../../core/gfx/define';
 import { IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { IAssembler, IAssemblerManager } from '../renderer/base';
@@ -48,7 +48,6 @@ import { warnID } from '../../core/platform/debug';
 import { BlendState, BlendTarget } from '../../core/gfx/pipeline-state';
 import { legacyCC } from '../../core/global-exports';
 import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
-import { Sprite } from '..';
 
 // hack
 ccenum(BlendFactor);
@@ -174,7 +173,7 @@ export class Renderable2D extends RenderableComponent {
             this._blendHash = -1; // a flag to check merge
             return;
         }
-        const mat = this._updateBuiltinMaterial();
+        const mat = this.updateBuiltinMaterial();
         this.setMaterial(mat, 0);
         this._updateBlendFunc();
     }
@@ -504,7 +503,7 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
-    private _updateBuiltinMaterial () : Material {
+    protected updateBuiltinMaterial () : Material {
         let mat : Material;
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:
@@ -522,15 +521,6 @@ export class Renderable2D extends RenderableComponent {
         default:
             mat = builtinResMgr.get('ui-sprite-material');
             break;
-        }
-        if (this instanceof Sprite && this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
-            const defines = { SAMPLE_FROM_RT: true, ...mat.passes[0].defines };
-            const renderMat = new Material();
-            renderMat.initialize({
-                effectAsset: mat.effectAsset,
-                defines,
-            });
-            return renderMat;
         }
         return mat;
     }
