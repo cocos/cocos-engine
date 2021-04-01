@@ -222,9 +222,6 @@ export class AudioPlayerWeb {
         return new Promise((resolve) => {
             const context = AudioPlayerWeb._context;
             this._runContext().then(() => {
-                if (this._state === AudioState.PLAYING) {
-                    this.stop().then(resolve).catch((e) => {});
-                }
                 // one AudioBufferSourceNode can't start twice
                 this._sourceNode = context.createBufferSource();
                 this._sourceNode.buffer = this._audioBuffer!;
