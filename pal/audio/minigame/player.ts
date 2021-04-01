@@ -94,7 +94,7 @@ export class AudioPlayer {
     }
 
     get src () {
-        return this._innerAudioContext ? this._innerAudioContext.src : '';
+        return this._innerAudioContext ? <string> this._innerAudioContext.src : '';
     }
     get type (): AudioType {
         return AudioType.MINIGAME_AUDIO;
