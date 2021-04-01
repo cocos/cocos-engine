@@ -304,6 +304,9 @@ export class MeshRenderer extends RenderableComponent {
         if (this._morphInstance) {
             this._morphInstance.destroy();
         }
+        if (this._mesh) {
+            this._mesh.destroyRenderingMesh();
+        }
     }
 
     public setWeights (weights: number[], subMeshIndex: number) {
