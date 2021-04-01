@@ -218,50 +218,39 @@ export class AudioPlayerWeb {
         return oneShotAudio;
     }
 
-    private _ensureStop (): Promise<void> {
-        return new Promise((resolve) => {
-            /* sometimes there is no way to update the playing state
-            especially when player unplug earphones and the audio automatically stops
-            so we need to force updating the playing state by pausing audio */
-            if (this._state === AudioState.PLAYING) {
-                this.stop().then(resolve).catch((e) => {});
-            } else {
-                resolve();
-            }
-        });
-    }
     play (): Promise<void> {
         return new Promise((resolve) => {
             const context = AudioPlayerWeb._context;
             this._runContext().then(() => {
-                this._ensureStop().then(() => {
-                    // one AudioBufferSourceNode can't start twice
-                    this._sourceNode = context.createBufferSource();
-                    this._sourceNode.buffer = this._audioBuffer!;
-                    this._sourceNode.connect(this._gainNode);
-                    this._sourceNode.start(0, this._offset);
+                if (this._state === AudioState.PLAYING) {
+                    this.stop().then(resolve).catch((e) => {});
+                }
+                // one AudioBufferSourceNode can't start twice
+                this._sourceNode = context.createBufferSource();
+                this._sourceNode.buffer = this._audioBuffer!;
+                this._sourceNode.connect(this._gainNode);
+                this._sourceNode.start(0, this._offset);
 
-                    this._state = AudioState.PLAYING;
-                    this._startTime = context.currentTime;
+                this._state = AudioState.PLAYING;
+                this._startTime = context.currentTime;
 
-                    /* still not supported by all platforms *
-                    this._sourceNode.onended = this._onEnded;
-                    /* doing it manually for now */
-                    const checkEnded = () => {
-                        if (this.loop) {
-                            this._currentTimer = window.setInterval(checkEnded, this._audioBuffer!.duration * 1000);
-                        } else {  // do ended
-                            this._eventTarget.emit(AudioEvent.ENDED);
-                            clearInterval(this._currentTimer);
-                            this._offset = 0;
-                            this._startTime = context.currentTime;
-                            this._state = AudioState.INIT;
-                        }
-                    };
-                    clearInterval(this._currentTimer);
-                    this._currentTimer = window.setInterval(checkEnded, (this._audioBuffer!.duration - this._offset) * 1000);
-                    resolve();
-                }).catch((e) => {});
+                /* still not supported by all platforms *
+                this._sourceNode.onended = this._onEnded;
+                /* doing it manually for now */
+                const checkEnded = () => {
+                    if (this.loop) {
+                        this._currentTimer = window.setInterval(checkEnded, this._audioBuffer!.duration * 1000);
+                    } else {  // do ended
+                        this._eventTarget.emit(AudioEvent.ENDED);
+                        clearInterval(this._currentTimer);
+                        this._offset = 0;
+                        this._startTime = context.currentTime;
+                        this._state = AudioState.INIT;
+                    }
+                };
+                clearInterval(this._currentTimer);
+                this._currentTimer = window.setInterval(checkEnded, (this._audioBuffer!.duration - this._offset) * 1000);
+                resolve();
             }).catch((e) => {});
         });
     }

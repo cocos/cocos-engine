@@ -193,26 +193,12 @@ export class AudioPlayerDOM {
         return oneShotAudio;
     }
 
-    private _ensureStop (): Promise<void> {
-        return new Promise((resolve) => {
-            /* sometimes there is no way to update the playing state
-            especially when player unplug earphones and the audio automatically stops
-            so we need to force updating the playing state by pausing audio */
-            if (this._state === AudioState.PLAYING) {
-                this.stop().then(resolve).catch((e) => {});
-            } else {
-                resolve();
-            }
-        });
-    }
     play (): Promise<void> {
         return new Promise((resolve) => {
-            this._ensureStop().then(() => {
-                this._ensurePlaying(this._domAudio!).then(() => {
-                    this._state = AudioState.PLAYING;
-                    resolve();
-                }).catch((e)  => {});
-            }).catch((e) => {});
+            this._ensurePlaying(this._domAudio!).then(() => {
+                this._state = AudioState.PLAYING;
+                resolve();
+            }).catch((e)  => {});
         });
     }
     pause (): Promise<void> {

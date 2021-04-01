@@ -197,6 +197,22 @@ export class AudioSource extends Component {
         this.stop();
     }
 
+    private _ensureStop (): Promise<void> {
+        return new Promise((resolve) => {
+            if (!this._player) {
+                return resolve();
+            }
+            /* sometimes there is no way to update the playing state
+            especially when player unplug earphones and the audio automatically stops
+            so we need to force updating the playing state by stopping audio */
+            if (this.state === AudioState.PLAYING) {
+                this._player.stop().then(resolve).catch((e) => {});
+            } else {
+                resolve();
+            }
+        });
+    }
+    
     /**
      * @en
      * Play the clip.<br>
@@ -213,8 +229,11 @@ export class AudioSource extends Component {
             return;
         }
         audioManager.discardOnePlayingIfNeeded();
-        this._player?.play().then(() => {
-            audioManager.addPlaying(this._player!);
+        // Replay if the audio is playing
+        this._ensureStop().then(() => {
+            this._player?.play().then(() => {
+                audioManager.addPlaying(this._player!);
+            }).catch((e) => {});
         }).catch((e) => {});
     }
 
