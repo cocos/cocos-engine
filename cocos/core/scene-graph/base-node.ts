@@ -28,7 +28,7 @@
  * @module scene-graph
  */
 
-import { ccclass, editable, editorOnly, serializable } from 'cc.decorator';
+import { ccclass, editable, serializable } from 'cc.decorator';
 import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { Component } from '../components/component';
 import { property } from '../data/decorators/property';
