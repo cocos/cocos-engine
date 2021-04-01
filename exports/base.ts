@@ -45,3 +45,6 @@ legacyCC.renderer = renderer;
 export * from '../extensions/ccpool/node-pool';
 
 export { legacyCC as cclegacy };
+
+export * from './a';
+export * from './b';
