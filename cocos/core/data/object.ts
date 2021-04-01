@@ -230,7 +230,7 @@ class CCObject {
      * @zh 在继承 CCObject 对象后，控制是否需要隐藏，锁定，序列化等功能。
      */
     public set hideFlags (hideFlags: CCObject.Flags) {
-        if (DEBUG) {
+        if (DEBUG && !EDITOR) {
             hideFlags &= CCObject.Flags.AllHideMasks;
         }
 
