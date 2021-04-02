@@ -47,6 +47,9 @@ export default class RotationOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         radian: true,
+        visible: function (this) {
+            return this._separateAxes;
+        }
     })
     x = new CurveRange();
 
@@ -59,6 +62,9 @@ export default class RotationOvertimeModule {
         type: CurveRange,
         range: [-1, 1],
         radian: true,
+        visible: function (this) {
+            return this._separateAxes;
+        }
     })
     y = new CurveRange();
 

@@ -60,6 +60,9 @@ export default class LimitVelocityOvertimeModule {
     @property({
         type: CurveRange,
         range: [-1, 1],
+        visible: function (this) {
+            return !this.separateAxes;
+        }
     })
     limit = new CurveRange();
 
@@ -71,6 +74,9 @@ export default class LimitVelocityOvertimeModule {
     @property({
         type: CurveRange,
         range: [-1, 1],
+        visible: function (this) {
+            return this.separateAxes;
+        }
     })
     limitX = new CurveRange();
 
@@ -82,6 +88,9 @@ export default class LimitVelocityOvertimeModule {
     @property({
         type: CurveRange,
         range: [-1, 1],
+        visible: function (this) {
+            return this.separateAxes;
+        }
     })
     limitY = new CurveRange();
 
@@ -93,6 +102,9 @@ export default class LimitVelocityOvertimeModule {
     @property({
         type: CurveRange,
         range: [-1, 1],
+        visible: function (this) {
+            return this.separateAxes;
+        }
     })
     limitZ = new CurveRange();
 

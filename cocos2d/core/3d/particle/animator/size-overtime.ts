@@ -36,6 +36,9 @@ export default class SizeOvertimeModule {
      */
     @property({
         type: CurveRange,
+        visible: function (this) {
+            return !this.separateAxes;
+        }
     })
     size = new CurveRange();
 
@@ -46,6 +49,9 @@ export default class SizeOvertimeModule {
      */
     @property({
         type: CurveRange,
+        visible: function (this) {
+            return this.separateAxes;
+        }
     })
     x = new CurveRange();
 
@@ -56,6 +62,9 @@ export default class SizeOvertimeModule {
      */
     @property({
         type: CurveRange,
+        visible: function (this) {
+            return this.separateAxes;
+        }
     })
     y = new CurveRange();
 
@@ -66,6 +75,9 @@ export default class SizeOvertimeModule {
      */
     @property({
         type: CurveRange,
+        visible: function (this) {
+            return this.separateAxes;
+        }
     })
     z = new CurveRange();
 
