@@ -47,6 +47,44 @@ minigame.onAccelerometerChange = function (cb) {
     ral.stopAccelerometer();
 };
 
+minigame.createInnerAudioContext = function (): InnerAudioContext {
+    let audioContext = ral.createInnerAudioContext();
+
+    // HACK: onSeeked method doesn't work on runtime
+    let originalSeek = audioContext.seek;
+    let _onSeekCB: Function | null = null;
+    audioContext.onSeeked = function (cb: Function) {
+        _onSeekCB = cb;
+    };
+    audioContext.seek = function (time: number) {
+        originalSeek.call(audioContext, time);
+        _onSeekCB?.();
+    };
+
+    // HACK: onPause method doesn't work on runtime
+    let originalPause = audioContext.pause;
+    let _onPauseCB: Function | null = null;
+    audioContext.onPause = function (cb: Function) {
+        _onPauseCB = cb;
+    };
+    audioContext.pause = function () {
+        originalPause.call(audioContext);
+        _onPauseCB?.();
+    };
+
+    // HACK: onStop method doesn't work on runtime
+    let originalStop = audioContext.stop;
+    let _onStopCB: Function | null = null;
+    audioContext.onStop = function (cb: Function) {
+        _onStopCB = cb;
+    };
+    audioContext.stop = function () {
+        originalStop.call(audioContext);
+        _onStopCB?.();
+    };
+    return audioContext;
+};
+
 // safeArea
 // origin point on the top-left corner
 // FIX_ME: wrong safe area when orientation is landscape left
