@@ -48,12 +48,12 @@ minigame.onAccelerometerChange = function (cb) {
 };
 
 minigame.createInnerAudioContext = function (): InnerAudioContext {
-    let audioContext = ral.createInnerAudioContext();
+    const audioContext: InnerAudioContext = ral.createInnerAudioContext();
 
     // HACK: onSeeked method doesn't work on runtime
-    let originalSeek = audioContext.seek;
-    let _onSeekCB: Function | null = null;
-    audioContext.onSeeked = function (cb: Function) {
+    const originalSeek = audioContext.seek;
+    let _onSeekCB: (()=> void) | null = null;
+    audioContext.onSeeked = function (cb: ()=> void) {
         _onSeekCB = cb;
     };
     audioContext.seek = function (time: number) {
@@ -62,9 +62,9 @@ minigame.createInnerAudioContext = function (): InnerAudioContext {
     };
 
     // HACK: onPause method doesn't work on runtime
-    let originalPause = audioContext.pause;
-    let _onPauseCB: Function | null = null;
-    audioContext.onPause = function (cb: Function) {
+    const originalPause = audioContext.pause;
+    let _onPauseCB: (()=> void) | null = null;
+    audioContext.onPause = function (cb: ()=> void) {
         _onPauseCB = cb;
     };
     audioContext.pause = function () {
@@ -73,9 +73,9 @@ minigame.createInnerAudioContext = function (): InnerAudioContext {
     };
 
     // HACK: onStop method doesn't work on runtime
-    let originalStop = audioContext.stop;
-    let _onStopCB: Function | null = null;
-    audioContext.onStop = function (cb: Function) {
+    const originalStop = audioContext.stop;
+    let _onStopCB: (()=> void) | null = null;
+    audioContext.onStop = function (cb: ()=> void) {
         _onStopCB = cb;
     };
     audioContext.stop = function () {

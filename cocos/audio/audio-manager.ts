@@ -36,13 +36,13 @@ export class AudioManager {
     private _audioInfoList: AudioInfo[] = [];
 
     private _findIndex (audio: ManagedAudio): number {
-        return this._audioInfoList.findIndex(audioInfo => audioInfo.audio === audio);
+        return this._audioInfoList.findIndex((audioInfo) => audioInfo.audio === audio);
     }
 
     public addPlaying (audio: ManagedAudio) {
         const idx = this._findIndex(audio);
         if (idx > -1) {
-            let audioInfo = this._audioInfoList[idx];
+            const audioInfo = this._audioInfoList[idx];
             // update play time
             audioInfo.playTime = performance.now();
             return;
@@ -57,7 +57,7 @@ export class AudioManager {
     public removePlaying (audio: ManagedAudio) {
         const idx = this._findIndex(audio);
         if (idx > -1) {
-            let lastIdx = this._audioInfoList.length - 1;
+            const lastIdx = this._audioInfoList.length - 1;
             if (lastIdx !== idx) {
                 this._audioInfoList[idx] = this._audioInfoList[lastIdx];
             }
@@ -73,21 +73,17 @@ export class AudioManager {
         // TODO: support discard policy for audio source
         let audioInfoToDiscard: AudioInfo | undefined;
         let foundOneShotAudio = false;
-        this._audioInfoList.forEach(audioInfo => {
+        this._audioInfoList.forEach((audioInfo) => {
             // discard one shot audio as a priority
             if (foundOneShotAudio) {
                 if (audioInfo.isOneShotAudio && audioInfo.playTime < audioInfoToDiscard!.playTime) {
                     audioInfoToDiscard = audioInfo;
                 }
-            }
-            else {
-                if (audioInfo.isOneShotAudio) {
-                    audioInfoToDiscard = audioInfo;
-                    foundOneShotAudio = true;
-                }
-                else if (!audioInfoToDiscard || audioInfo.playTime < audioInfoToDiscard.playTime) {
-                    audioInfoToDiscard = audioInfo;
-                }
+            } else if (audioInfo.isOneShotAudio) {
+                audioInfoToDiscard = audioInfo;
+                foundOneShotAudio = true;
+            } else if (!audioInfoToDiscard || audioInfo.playTime < audioInfoToDiscard.playTime) {
+                audioInfoToDiscard = audioInfo;
             }
         });
         if (audioInfoToDiscard) {

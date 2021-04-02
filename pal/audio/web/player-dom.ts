@@ -207,7 +207,7 @@ export class AudioPlayerDOM {
         return Promise.resolve();
     }
     stop (): Promise<void> {
-        return new Promise(resolve => {
+        return new Promise((resolve) => {
             this._domAudio!.pause();
             this._domAudio!.currentTime = 0;
             this._state = AudioState.STOPPED;

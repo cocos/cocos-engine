@@ -67,7 +67,7 @@ export class AudioSource extends Component {
 
     // An operation queue to store the operations before loading the AudioPlayer.
     private _operationsBeforeLoading: string[] = [];
-    private _isLoaded: boolean = false;
+    private _isLoaded = false;
 
     /**
      * @en
@@ -119,7 +119,7 @@ export class AudioSource extends Component {
                 audioManager.addPlaying(player);
             });
             this._syncStates();
-        });
+        }).catch((e) => {});
     }
 
     /**
@@ -198,7 +198,7 @@ export class AudioSource extends Component {
     public onDestroy () {
         this.stop();
     }
-    
+
     /**
      * @en
      * Play the clip.<br>
@@ -217,7 +217,7 @@ export class AudioSource extends Component {
         audioManager.discardOnePlayingIfNeeded();
         // Replay if the audio is playing
         if (this.state === AudioState.PLAYING) {
-            this._player?.stop();
+            this._player?.stop().catch((e) => {});
         }
         this._player?.play().then(() => {
             audioManager.addPlaying(this._player!);
@@ -284,7 +284,7 @@ export class AudioSource extends Component {
             if (this._player) {
                 this._player.loop = this._loop;
                 this._player.volume = this._volume;
-                this._operationsBeforeLoading.forEach(opName => this[opName]?.());
+                this._operationsBeforeLoading.forEach((opName) => { this[opName]?.(); });
                 this._operationsBeforeLoading.length = 0;
             }
         }).catch((e) => {});
@@ -331,7 +331,7 @@ export class AudioSource extends Component {
      * 获取当前音频状态。
      */
     get state (): AudioState {
-        return this._player ? this._player.state : AudioState.INIT;
+        return (this._player ? this._player.state : AudioState.INIT) as AudioState;
     }
 
     /**
