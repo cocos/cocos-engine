@@ -20,22 +20,20 @@
 Checks: >
   -*,
   readability-*,
-  performance-*,
-  modernize-*,
-  misc-*,
-  portability-*,
-  google-explicit-constructor,
-  -modernize-use-trailing-return-type,
-  -fuchsia-trailing-return,
-  -readability-implicit-bool-conversion,
-  -readability-implicit-bool-cast,
-  -readability-function-cognitive-complexity,
-  -misc-non-private-member-variables-in-classes,
-  -readability-uppercase-literal-suffix,
-  -readability-use-anyofallof,
-  -readability-magic-numbers,
-  -modernize-pass-by-value,
-  -modernize-concat-nested-namespaces
+  modernize-use-override,
+  modernize-use-auto,
+  modernize-use-emplace,
+  modernize-use-equals-delete,
+  modernize-use-equals-default,
+  modernize-use-noexcept,
+  modernize-use-nullptr,
+  modernize-redundant-void-arg,
+  modernize-raw-string-literal,
+  modernize-pass-by-value,
+  modernize-loop-convert,
+  modernize-avoid-c-arrays,
+  modernize-use-using,
+  google-explicit-constructor
 
 CheckOptions:
 ################## readability identifier naming ################################
