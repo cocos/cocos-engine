@@ -290,9 +290,9 @@ export class TiledObjectGroup extends Component {
 
                 // Delete image nodes implemented as private nodes
                 // Use cc.Node to implement node-level requirements
-                if (imgNode instanceof Node) {
+                if (imgNode && (imgNode._objFlags & CCObject.Flags.HideInHierarchy)) {
                     imgNode.removeFromParent();
-                    imgNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
+                    imgNode.hideFlags |= CCObject.Flags.DontSave;
                     imgNode.destroy();
                     imgNode = null;
                 }

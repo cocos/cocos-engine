@@ -237,7 +237,7 @@ class CCObject {
         this._objFlags = (this._objFlags & ~CCObject.Flags.AllHideMasks) | hideFlags;
     }
     public get hideFlags () {
-        return this._objFlags;
+        return this._objFlags & CCObject.Flags.AllHideMasks;
     }
 
     /**
