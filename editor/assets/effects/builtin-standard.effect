@@ -10,11 +10,11 @@ CCEffect %{
         tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        occlusion:      { value: 1.0, target: pbrParams.x }
-        roughness:      { value: 0.8, target: pbrParams.y }
-        metallic:       { value: 0.6, target: pbrParams.z }
-        normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP } }
+        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusion:      { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 }  }
+        roughness:      { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 }  }
+        metallic:       { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
         emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
