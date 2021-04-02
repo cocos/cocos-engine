@@ -331,9 +331,6 @@ export class BaseNode extends CCObject implements ISchedulable {
     // record scene's id when set this node as persist node
     public _originalSceneId = '';
 
-    // restore the PrefabInstance Node when this node is the mounted child node of it.
-    public _mountedRoot?: Node;
-
     /**
      * Set `_scene` field of this node.
      * The derived `Scene` overrides this method to behavior differently.

@@ -190,9 +190,6 @@ class Component extends CCObject {
 
     // private __scriptUuid = '';
 
-    // restore the PrefabInstance Node when this component is the mounted component under it.
-    public _mountedRoot?: Node
-
     /**
      * @private
      */

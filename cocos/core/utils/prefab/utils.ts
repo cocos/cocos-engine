@@ -189,6 +189,7 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     // @ts-expect-error private member access
                     childNode._parent = target;
                     if (EDITOR) {
+                        // @ts-expect-error editor polyfill
                         childNode._mountedRoot = node;
                     }
                     // mounted node need to add to the target map
@@ -223,6 +224,7 @@ export function applyMountedComponents (node: Node, mountedComponents: MountedCo
 
                     comp.node = target;
                     if (EDITOR) {
+                        // @ts-expect-error editor polyfill
                         comp._mountedRoot = node;
                     }
                     // @ts-expect-error private member access
