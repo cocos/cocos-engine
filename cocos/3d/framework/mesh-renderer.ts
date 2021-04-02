@@ -303,7 +303,7 @@ export class MeshRenderer extends RenderableComponent {
         }
         if (this._morphInstance) {
             this._morphInstance.destroy();
-        }      
+        }
     }
 
     public setWeights (weights: number[], subMeshIndex: number) {
