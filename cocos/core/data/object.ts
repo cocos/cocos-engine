@@ -230,11 +230,8 @@ class CCObject {
      * @zh 在继承 CCObject 对象后，控制是否需要隐藏，锁定，序列化等功能。
      */
     public set hideFlags (hideFlags: CCObject.Flags) {
-        if (DEBUG && !EDITOR) {
-            hideFlags &= CCObject.Flags.AllHideMasks;
-        }
-
-        this._objFlags = (this._objFlags & ~CCObject.Flags.AllHideMasks) | hideFlags;
+        const flags = hideFlags & CCObject.Flags.AllHideMasks;
+        this._objFlags = (this._objFlags & ~CCObject.Flags.AllHideMasks) | flags;
     }
     public get hideFlags () {
         return this._objFlags & CCObject.Flags.AllHideMasks;
@@ -449,6 +446,7 @@ js.value(CCObject, 'Flags', {
     Deactivating,
     LockedInEditor,
     HideInHierarchy,
+    AllHideMasks,
     IsPreloadStarted,
     IsOnLoadStarted,
     IsOnLoadCalled,
