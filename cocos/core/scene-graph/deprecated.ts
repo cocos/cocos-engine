@@ -226,11 +226,3 @@ removeProperty(Layers.BitMask, 'Layers.BitMask', [
         name: 'ALWAYS',
     },
 ]);
-
-/**
- * Alias of [[Node]]
- * @deprecated Since v3.1
- */
-export { Node as PrivateNode };
-legacyCC.PrivateNode = Node;
-js.setClassAlias(Node, 'cc.PrivateNode');
