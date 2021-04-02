@@ -223,6 +223,7 @@ export class AudioPlayerWeb {
             const context = AudioPlayerWeb._context;
             this._runContext().then(() => {
                 // one AudioBufferSourceNode can't start twice
+                this._sourceNode?.stop();
                 this._sourceNode = context.createBufferSource();
                 this._sourceNode.buffer = this._audioBuffer!;
                 this._sourceNode.connect(this._gainNode);

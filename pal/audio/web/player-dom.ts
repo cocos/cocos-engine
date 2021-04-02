@@ -207,9 +207,12 @@ export class AudioPlayerDOM {
         return Promise.resolve();
     }
     stop (): Promise<void> {
-        this._domAudio!.pause();
-        this._state = AudioState.STOPPED;
-        return this.seek(0);
+        return new Promise(resolve => {
+            this._domAudio!.pause();
+            this._domAudio!.currentTime = 0;
+            this._state = AudioState.STOPPED;
+            resolve();
+        });
     }
 
     onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
