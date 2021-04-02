@@ -28,22 +28,17 @@
 
 #include "base/Utils.h"
 
-#include <functional>
-#include <memory>
-#include <thread>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <vector>
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
+#include <functional>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <thread>
+#include <vector>
 
 namespace cc {
-
-/**
- * @addtogroup base
- * @{
- */
 
 class CC_DLL LegacyThreadPool {
 public:
@@ -70,7 +65,7 @@ public:
      * @note The return value has to be delete while it doesn't needed
      */
     static LegacyThreadPool *newCachedThreadPool(int minThreadNum, int maxThreadNum, int shrinkInterval,
-                                           int shrinkStep, int stretchStep);
+                                                 int shrinkStep, int stretchStep);
 
     /*
      * Creates a thread pool with fixed thread count
@@ -126,11 +121,11 @@ private:
 
     LegacyThreadPool(const LegacyThreadPool &);
 
-    LegacyThreadPool(LegacyThreadPool &&);
+    LegacyThreadPool(LegacyThreadPool &&) noexcept;
 
     LegacyThreadPool &operator=(const LegacyThreadPool &);
 
-    LegacyThreadPool &operator=(LegacyThreadPool &&);
+    LegacyThreadPool &operator=(LegacyThreadPool &&) noexcept;
 
     void init();
 
@@ -150,7 +145,7 @@ private:
 
     void stretchPool(int count);
 
-    std::vector<std::unique_ptr<std::thread>> _threads;
+    std::vector<std::unique_ptr<std::thread>>       _threads;
     std::vector<std::shared_ptr<std::atomic<bool>>> _abortFlags;
     std::vector<std::shared_ptr<std::atomic<bool>>> _idleFlags;
     std::vector<std::shared_ptr<std::atomic<bool>>> _initedFlags;
@@ -175,51 +170,50 @@ private:
         }
 
         bool empty() const {
-            auto thiz = const_cast<ThreadSafeQueue *>(this);
+            auto                         thiz = const_cast<ThreadSafeQueue *>(this);
             std::unique_lock<std::mutex> lock(thiz->mutex);
             return this->q.empty();
         }
 
         size_t size() const {
-            auto thiz = const_cast<ThreadSafeQueue *>(this);
+            auto                         thiz = const_cast<ThreadSafeQueue *>(this);
             std::unique_lock<std::mutex> lock(thiz->mutex);
             return this->q.size();
         }
 
     private:
         std::queue<T> q;
-        std::mutex mutex;
+        std::mutex    mutex;
     };
 
     struct Task {
-        TaskType type;
+        TaskType                  type;
         std::function<void(int)> *callback;
     };
 
+    static LegacyThreadPool *_instance;
+
     ThreadSafeQueue<Task> _taskQueue;
-    std::atomic<bool> _isDone;
-    std::atomic<bool> _isStop;
+    std::atomic<bool>     _isDone{false};
+    std::atomic<bool>     _isStop{false};
 
     //IDEA: std::atomic<int> isn't supported by ndk-r10e while compiling with `armeabi` arch.
     // So using a mutex here instead.
-    int _idleThreadNum; // how many threads are waiting
+    int        _idleThreadNum{0}; // how many threads are waiting
     std::mutex _idleThreadNumMutex;
 
-    std::mutex _mutex;
+    std::mutex              _mutex;
     std::condition_variable _cv;
 
-    int _minThreadNum;
-    int _maxThreadNum;
-    int _initedThreadNum;
+    int _minThreadNum{0};
+    int _maxThreadNum{0};
+    int _initedThreadNum{0};
 
     std::chrono::time_point<std::chrono::high_resolution_clock> _lastShrinkTime;
-    float _shrinkInterval;
-    int _shrinkStep;
-    int _stretchStep;
-    bool _isFixedSize;
+    float                                                       _shrinkInterval{5};
+    int                                                         _shrinkStep{2};
+    int                                                         _stretchStep{2};
+    bool                                                        _isFixedSize{false};
 };
-
-// end of base group
-/// @}
 
 } // namespace cc

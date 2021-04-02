@@ -227,8 +227,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #define CC_FORMAT_PRINTF(formatPos, argPos)
 #endif
 
-#define CC_CORE_CORE_DEF_H_
-
 // Initial compiler-related stuff to set.
 #define CC_COMPILER_MSVC  1
 #define CC_COMPILER_CLANG 2
@@ -337,11 +335,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #define CC_CPU_ARCH CC_CPU_ARCH_64
 #else
     #define CC_CPU_ARCH CC_CPU_ARCH_32
-#endif
-
-#if (__cplusplus >= 201103L)
-    #define CC_C11
-    #define register
 #endif
 
 // C11 features

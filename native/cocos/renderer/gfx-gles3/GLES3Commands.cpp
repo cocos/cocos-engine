@@ -1076,7 +1076,7 @@ void GLES3CmdFuncCreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         }
 
         GL_CHECK(gpuStage.glShader = glCreateShader(glShaderStage));
-        String      shaderSource = StringUtil::Format("#version %u es\n", version) + gpuStage.source;
+        String      shaderSource = StringUtil::format("#version %u es\n", version) + gpuStage.source;
         const char *source       = shaderSource.c_str();
         GL_CHECK(glShaderSource(gpuStage.glShader, 1, (const GLchar **)&source, nullptr));
         GL_CHECK(glCompileShader(gpuStage.glShader));

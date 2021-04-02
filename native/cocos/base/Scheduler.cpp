@@ -32,6 +32,7 @@
 #include <vector>
 
 #include "base/Macros.h"
+#include "base/Log.h"
 
 namespace {
 constexpr unsigned CC_REPEAT_FOREVER{UINT_MAX - 1};
@@ -151,9 +152,10 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
     CCASSERT(target, "Argument target must be non-nullptr");
     CCASSERT(!key.empty(), "key should not be empty!");
 
+    auto iter = _hashForTimers.find(target);
     HashTimerEntry *element = nullptr;
-    if (_hashForTimers.count(target) > 0) {
-        element         = static_cast<HashTimerEntry *>(calloc(sizeof(*element), 1));
+    if (iter == _hashForTimers.end()) {
+        element         = new HashTimerEntry();
         element->target = target;
 
         _hashForTimers[target] = element;
@@ -161,6 +163,7 @@ void Scheduler::schedule(const ccSchedulerFunc &callback, void *target, float in
         // Is this the 1st element ? Then set the pause level to all the selectors of this target
         element->paused = paused;
     } else {
+        element = iter->second;
         CCASSERT(element->paused == paused, "element's paused should be paused!");
     }
 

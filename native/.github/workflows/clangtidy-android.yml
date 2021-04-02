@@ -29,6 +29,8 @@ jobs:
               - added|modified: '**/*.mm'
               - added|modified: '**/*.c'
               - exclude: 'cocos/editor-support/dragonbones/**'
+              - exclude: 'cocos/base/etc1.*'
+              - exclude: 'cocos/base/etc2.*'
             allChanges:
               - added|modified|deleted: '**'
             skipedDebug:

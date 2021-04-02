@@ -87,7 +87,7 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     bindRenderContext(true);
 
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
-    _extensions   = StringUtil::Split(extStr, " ");
+    _extensions   = StringUtil::split(extStr, " ");
 
     if (checkExtension("GL_OES_texture_float")) {
         _features[static_cast<uint>(Feature::TEXTURE_FLOAT)] = true;

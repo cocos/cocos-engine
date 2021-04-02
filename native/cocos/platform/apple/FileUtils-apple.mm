@@ -156,7 +156,7 @@ static cc::Value convertNSObjectToCCValue(id item) {
         return Value(subArray);
     }
 
-    return Value::Null;
+    return Value::VALUE_NULL;
 }
 
 static void addNSObjectToCCVector(id item, ValueVector &array) {

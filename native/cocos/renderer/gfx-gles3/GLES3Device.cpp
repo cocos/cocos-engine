@@ -89,7 +89,7 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
     bindRenderContext(true);
 
     String extStr = (const char *)glGetString(GL_EXTENSIONS);
-    _extensions   = StringUtil::Split(extStr, " ");
+    _extensions   = StringUtil::split(extStr, " ");
 
     _features[static_cast<uint>(Feature::TEXTURE_FLOAT)]           = true;
     _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)]      = true;

@@ -221,37 +221,6 @@ bool seval_to_native_ptr(const se::Value &v, T *ret) {
 }
 
 template <typename T>
-bool seval_to_Vector(const se::Value &v, cc::Vector<T> *ret) {
-    assert(ret != nullptr);
-    assert(v.isObject());
-    se::Object *obj = v.toObject();
-    assert(obj->isArray());
-
-    bool ok = true;
-    uint32_t len = 0;
-    ok = obj->getArrayLength(&len);
-    if (!ok) {
-        ret->clear();
-        return false;
-    }
-
-    se::Value tmp;
-    for (uint32_t i = 0; i < len; ++i) {
-        ok = obj->getArrayElement(i, &tmp);
-        if (!ok || !tmp.isObject()) {
-            ret->clear();
-            return false;
-        }
-
-        T nativeObj = (T)tmp.toObject()->getPrivateData();
-
-        ret->pushBack(nativeObj);
-    }
-
-    return true;
-}
-
-template <typename T>
 typename std::enable_if<std::is_class<T>::value && !std::is_same<T, std::string>::value, T>::type
 seval_to_type(const se::Value &v, bool &ok) {
     if (!v.isObject()) {

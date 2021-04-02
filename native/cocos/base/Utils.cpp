@@ -34,7 +34,7 @@
 #endif
 
 #include <cmath>
-#include <stdlib.h>
+#include <cstdlib>
 
 #define BOOST_STACKTRACE_GNU_SOURCE_NOT_REQUIRED
 #include "boost/stacktrace.hpp"

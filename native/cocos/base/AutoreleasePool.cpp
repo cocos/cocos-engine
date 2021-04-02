@@ -128,6 +128,9 @@ PoolManager::~PoolManager() {
 }
 
 AutoreleasePool *PoolManager::getCurrentPool() const {
+    if (_releasePoolStack.empty()) {
+        return nullptr;
+    }
     return _releasePoolStack.back();
 }
 

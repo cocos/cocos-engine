@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_KERNEL_OBJECT_H_
-#define CC_CORE_KERNEL_OBJECT_H_
+#pragma once
 
 #include "memory/AllocatedObj.h"
 #include "memory/MemDef.h"
@@ -32,8 +31,6 @@
 namespace cc {
 
 // Now define all the base classes for each allocation
-typedef AllocatedObject<GAP> Object;
+using Object = AllocatedObject<GAP>;
 
 } // namespace cc
-
-#endif // CC_CORE_KERNEL_OBJECT_H_

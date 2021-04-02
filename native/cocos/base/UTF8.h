@@ -25,13 +25,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __cocos2dx__ccUTF8__
-#define __cocos2dx__ccUTF8__
+#pragma once
 
 #include "base/Macros.h"
-#include <vector>
-#include <string>
 #include <sstream>
+#include <string>
+#include <vector>
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "platform/android/jni/JniHelper.h"
@@ -190,16 +189,16 @@ class CC_DLL StringUTF8 {
 public:
     struct CharUTF8 {
         std::string _char;
-        bool isAnsi() { return _char.size() == 1; }
+        bool        isAnsi() { return _char.size() == 1; }
     };
-    typedef std::vector<CharUTF8> CharUTF8Store;
+    using CharUTF8Store = std::vector<CharUTF8>;
 
-    StringUTF8();
-    StringUTF8(const std::string &newStr);
-    ~StringUTF8();
+    StringUTF8() = default;
+    explicit StringUTF8(const std::string &newStr);
+    ~StringUTF8() = default;
 
     std::size_t length() const;
-    void replace(const std::string &newStr);
+    void        replace(const std::string &newStr);
 
     std::string getAsCharSequence() const;
 
@@ -216,5 +215,3 @@ private:
 } // namespace StringUtils
 
 } // namespace cc
-
-#endif /** defined(__cocos2dx__ccUTF8__) */

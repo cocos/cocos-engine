@@ -390,7 +390,7 @@ String MapVendorName(uint32_t vendorID) {
         case 0x5143: return "Qualcomm Incorporated";
         case 0x8086: return "Intel Corporation";
     }
-    return StringUtil::Format("Unknown VendorID %d", vendorID);
+    return StringUtil::format("Unknown VendorID %d", vendorID);
 }
 
 void MapDepthStencilBits(Format format, uint &depthBits, uint &stencilBits) {

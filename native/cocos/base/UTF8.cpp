@@ -26,11 +26,12 @@
 ****************************************************************************/
 
 #include "base/UTF8.h"
-#include "base/Log.h"
-#include "ConvertUTF/ConvertUTF.h"
 
-#include <stdarg.h>
-#include <stdlib.h>
+#include <cstdarg>
+#include <cstdlib>
+
+#include "ConvertUTF/ConvertUTF.h"
+#include "base/Log.h"
 
 namespace cc {
 
@@ -65,8 +66,11 @@ unsigned int getIndexOfLastNotChar16(const std::vector<char16_t> &str, char16_t 
     int len = static_cast<int>(str.size());
 
     int i = len - 1;
-    for (; i >= 0; --i)
-        if (str[i] != c) return i;
+    for (; i >= 0; --i) {
+        if (str[i] != c) {
+            return i;
+        }
+    }
 
     return i;
 }
@@ -81,8 +85,9 @@ unsigned int getIndexOfLastNotChar16(const std::vector<char16_t> &str, char16_t 
  * */
 static void trimUTF16VectorFromIndex(std::vector<char16_t> &str, int index) {
     int size = static_cast<int>(str.size());
-    if (index >= size || index < 0)
+    if (index >= size || index < 0) {
         return;
+    }
 
     str.erase(str.begin() + index, str.begin() + size);
 }
@@ -112,39 +117,43 @@ bool isCJKUnicode(char16_t ch) {
 void trimUTF16Vector(std::vector<char16_t> &str) {
     int len = static_cast<int>(str.size());
 
-    if (len <= 0)
+    if (len <= 0) {
         return;
+    }
 
-    int last_index = len - 1;
+    int lastIndex = len - 1;
 
     // Only start trimming if the last character is whitespace..
-    if (isUnicodeSpace(str[last_index])) {
-        for (int i = last_index - 1; i >= 0; --i) {
-            if (isUnicodeSpace(str[i]))
-                last_index = i;
-            else
+    if (isUnicodeSpace(str[lastIndex])) {
+        for (int i = lastIndex - 1; i >= 0; --i) {
+            if (isUnicodeSpace(str[i])) {
+                lastIndex = i;
+            }
+
+            else {
                 break;
+            }
         }
 
-        trimUTF16VectorFromIndex(str, last_index);
+        trimUTF16VectorFromIndex(str, lastIndex);
     }
 }
 
 template <typename T>
 struct ConvertTrait {
-    typedef T ArgType;
+    using ArgType = T;
 };
 template <>
 struct ConvertTrait<char> {
-    typedef UTF8 ArgType;
+    using ArgType = UTF8;
 };
 template <>
 struct ConvertTrait<char16_t> {
-    typedef UTF16 ArgType;
+    using ArgType = UTF16;
 };
 template <>
 struct ConvertTrait<char32_t> {
-    typedef UTF32 ArgType;
+    using ArgType = UTF32;
 };
 
 template <typename From, typename To, typename FromTrait = ConvertTrait<From>, typename ToTrait = ConvertTrait<To>>
@@ -162,10 +171,10 @@ bool utfConvert(
     }
 
     // See: http://unicode.org/faq/utf_bom.html#gen6
-    static const int most_bytes_per_character = 4;
+    static const int mostBytesPerCharacter = 4;
 
     const size_t maxNumberOfChars = from.length(); // all UTFs at most one element represents one character.
-    const size_t numberOfOut = maxNumberOfChars * most_bytes_per_character / sizeof(To);
+    const size_t numberOfOut      = maxNumberOfChars * mostBytesPerCharacter / sizeof(To);
 
     std::basic_string<To> working(numberOfOut, 0);
 
@@ -174,9 +183,10 @@ bool utfConvert(
 
     auto outbeg = reinterpret_cast<typename ToTrait::ArgType *>(&working[0]);
     auto outend = outbeg + working.length();
-    auto r = cvtfunc(&inbeg, inend, &outbeg, outend, strictConversion);
-    if (r != conversionOK)
+    auto r      = cvtfunc(&inbeg, inend, &outbeg, outend, strictConversion);
+    if (r != conversionOK) {
         return false;
+    }
 
     working.resize(reinterpret_cast<To *>(outbeg) - &working[0]);
     to = std::move(working);
@@ -185,9 +195,9 @@ bool utfConvert(
 };
 
 CC_DLL void UTF8LooseFix(const std::string &in, std::string &out) {
-    const UTF8 *p = (const UTF8 *)in.c_str();
-    const UTF8 *end = (const UTF8 *)(in.c_str() + in.size());
-    unsigned ucharLen = 0;
+    const UTF8 *p        = (const UTF8 *)in.c_str();
+    const UTF8 *end      = (const UTF8 *)(in.c_str() + in.size());
+    unsigned    ucharLen = 0;
     while (p < end) {
         ucharLen = getNumBytesForUTF8(*p);
         if (isLegalUTF8Sequence(p, p + ucharLen)) {
@@ -227,11 +237,11 @@ bool UTF32ToUTF16(const std::u32string &utf32, std::u16string &outUtf16) {
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
 std::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
-    std::string utf8Str;
-    const unsigned short *unicodeChar = (const unsigned short *)env->GetStringChars(srcjStr, nullptr);
-    size_t unicodeCharLength = env->GetStringLength(srcjStr);
+    std::string          utf8Str;
+    auto *               unicodeChar       = static_cast<const unsigned short *>(env->GetStringChars(srcjStr, nullptr));
+    size_t               unicodeCharLength = env->GetStringLength(srcjStr);
     const std::u16string unicodeStr((const char16_t *)unicodeChar, unicodeCharLength);
-    bool flag = UTF16ToUTF8(unicodeStr, utf8Str);
+    bool                 flag = UTF16ToUTF8(unicodeStr, utf8Str);
 
     if (ret) {
         *ret = flag;
@@ -246,7 +256,7 @@ std::string getStringUTFCharsJNI(JNIEnv *env, jstring srcjStr, bool *ret) {
 
 jstring newStringUTFJNI(JNIEnv *env, const std::string &utf8Str, bool *ret) {
     std::u16string utf16Str;
-    bool flag = cc::StringUtils::UTF8ToUTF16(utf8Str, utf16Str);
+    bool           flag = cc::StringUtils::UTF8ToUTF16(utf8Str, utf16Str);
 
     if (ret) {
         *ret = flag;
@@ -268,14 +278,8 @@ long getCharacterCountInUTF8String(const std::string &utf8) {
     return getUTF8StringLength((const UTF8 *)utf8.c_str());
 }
 
-StringUTF8::StringUTF8() {
-}
-
 StringUTF8::StringUTF8(const std::string &newStr) {
     replace(newStr);
-}
-
-StringUTF8::~StringUTF8() {
 }
 
 std::size_t StringUTF8::length() const {
@@ -320,9 +324,8 @@ bool StringUTF8::deleteChar(std::size_t pos) {
     if (pos < _str.size()) {
         _str.erase(_str.begin() + pos);
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 bool StringUTF8::insert(std::size_t pos, const std::string &insertStr) {
@@ -336,9 +339,8 @@ bool StringUTF8::insert(std::size_t pos, const StringUTF8 &insertStr) {
         _str.insert(_str.begin() + pos, insertStr._str.begin(), insertStr._str.end());
 
         return true;
-    } else {
-        return false;
     }
+    return false;
 }
 
 } // namespace StringUtils

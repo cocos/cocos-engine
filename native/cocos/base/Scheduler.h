@@ -33,9 +33,10 @@
 #include <mutex>
 #include <set>
 #include <unordered_map>
+#include <vector>
 
 #include "base/Ref.h"
-#include "base/Vector.h"
+//#include "base/Vector.h"
 
 namespace cc {
 

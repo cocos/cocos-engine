@@ -25,11 +25,10 @@
 
 #pragma once
 
-typedef unsigned int uint;
-typedef unsigned short ushort;
-typedef unsigned long ulong;
-
-typedef unsigned int FlagBits;
+using uint = unsigned int;
+using ushort = unsigned short;
+using ulong = unsigned long;
+using FlagBits = unsigned int;
 
 #define CC_ENUM_OPERATORS(type_)                                                                                                                                                             \
     CC_INLINE type_ operator|(type_ lhs, type_ rhs) { return (type_)(static_cast<std::underlying_type<type_>::type /**/>(lhs) | static_cast<std::underlying_type<type_>::type /**/>(rhs)); } \

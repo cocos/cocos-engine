@@ -24,11 +24,13 @@
 ****************************************************************************/
 
 #include "jsb_conversions.h"
-#include "base/TypeDef.h"
-#include "math/Math.h"
-#include "gfx-base/GFXDef.h"
+
 #include <regex>
 #include <sstream>
+
+#include "base/TypeDef.h"
+#include "gfx-base/GFXDef.h"
+#include "math/Math.h"
 
 // seval to native
 
@@ -37,7 +39,8 @@ bool seval_to_int32(const se::Value &v, int32_t *ret) {
     if (v.isNumber()) {
         *ret = v.toInt32();
         return true;
-    } else if (v.isBoolean()) {
+    }
+    if (v.isBoolean()) {
         *ret = v.toBoolean() ? 1 : 0;
         return true;
     }
@@ -50,7 +53,8 @@ bool seval_to_uint32(const se::Value &v, uint32_t *ret) {
     if (v.isNumber()) {
         *ret = v.toUint32();
         return true;
-    } else if (v.isBoolean()) {
+    }
+    if (v.isBoolean()) {
         *ret = v.toBoolean() ? 1 : 0;
         return true;
     }
@@ -63,7 +67,8 @@ bool seval_to_uint(const se::Value &v, unsigned int *ret) {
     if (v.isNumber()) {
         *ret = v.toUint();
         return true;
-    } else if (v.isBoolean()) {
+    }
+    if (v.isBoolean()) {
         *ret = v.toBoolean() ? 1 : 0;
         return true;
     }
@@ -76,7 +81,8 @@ bool seval_to_int8(const se::Value &v, int8_t *ret) {
     if (v.isNumber()) {
         *ret = v.toInt8();
         return true;
-    } else if (v.isBoolean()) {
+    }
+    if (v.isBoolean()) {
         *ret = v.toBoolean() ? 1 : 0;
         return true;
     }
@@ -89,7 +95,8 @@ bool seval_to_uint8(const se::Value &v, uint8_t *ret) {
     if (v.isNumber()) {
         *ret = v.toUint8();
         return true;
-    } else if (v.isBoolean()) {
+    }
+    if (v.isBoolean()) {
         *ret = v.toBoolean() ? 1 : 0;
         return true;
     }
@@ -102,7 +109,8 @@ bool seval_to_int16(const se::Value &v, int16_t *ret) {
     if (v.isNumber()) {
         *ret = v.toInt16();
         return true;
-    } else if (v.isBoolean()) {
+    }
+    if (v.isBoolean()) {
         *ret = v.toBoolean() ? 1 : 0;
         return true;
     }
@@ -115,7 +123,8 @@ bool seval_to_uint16(const se::Value &v, uint16_t *ret) {
     if (v.isNumber()) {
         *ret = v.toUint16();
         return true;
-    } else if (v.isBoolean()) {
+    }
+    if (v.isBoolean()) {
         *ret = v.toBoolean() ? 1 : 0;
         return true;
     }
@@ -128,13 +137,13 @@ bool seval_to_boolean(const se::Value &v, bool *ret) {
     if (v.isBoolean()) {
         *ret = v.toBoolean();
     } else if (v.isNumber()) {
-        *ret = v.toInt32() != 0 ? true : false;
+        *ret = v.toInt32() != 0;
     } else if (v.isNullOrUndefined()) {
         *ret = false;
     } else if (v.isObject()) {
         *ret = true;
     } else if (v.isString()) {
-        *ret = v.toString().empty() ? false : true;
+        *ret = !v.toString().empty();
     } else {
         *ret = false;
         assert(false);
@@ -147,8 +156,9 @@ bool seval_to_float(const se::Value &v, float *ret) {
     assert(ret != nullptr);
     if (v.isNumber()) {
         *ret = v.toFloat();
-        if (!std::isnan(*ret))
+        if (!std::isnan(*ret)) {
             return true;
+        }
     }
     *ret = 0.0f;
     return false;
@@ -157,8 +167,9 @@ bool seval_to_float(const se::Value &v, float *ret) {
 bool seval_to_double(const se::Value &v, double *ret) {
     if (v.isNumber()) {
         *ret = v.toNumber();
-        if (!std::isnan(*ret))
+        if (!std::isnan(*ret)) {
             return true;
+        }
     }
     *ret = 0.0;
     return false;
@@ -214,9 +225,9 @@ bool seval_to_Vec2(const se::Value &v, cc::Vec2 *pt) {
     assert(pt != nullptr);
     SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Vec2 failed!");
     se::Object *obj = v.toObject();
-    se::Value x;
-    se::Value y;
-    bool ok = obj->getProperty("x", &x);
+    se::Value   x;
+    se::Value   y;
+    bool        ok = obj->getProperty("x", &x);
     SE_PRECONDITION3(ok && x.isNumber(), false, *pt = cc::Vec2::ZERO);
     ok = obj->getProperty("y", &y);
     SE_PRECONDITION3(ok && y.isNumber(), false, *pt = cc::Vec2::ZERO);
@@ -229,10 +240,10 @@ bool seval_to_Vec3(const se::Value &v, cc::Vec3 *pt) {
     assert(pt != nullptr);
     SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Vec3 failed!");
     se::Object *obj = v.toObject();
-    se::Value x;
-    se::Value y;
-    se::Value z;
-    bool ok = obj->getProperty("x", &x);
+    se::Value   x;
+    se::Value   y;
+    se::Value   z;
+    bool        ok = obj->getProperty("x", &x);
     SE_PRECONDITION3(ok && x.isNumber(), false, *pt = cc::Vec3::ZERO);
     ok = obj->getProperty("y", &y);
     SE_PRECONDITION3(ok && y.isNumber(), false, *pt = cc::Vec3::ZERO);
@@ -248,12 +259,12 @@ bool seval_to_Vec4(const se::Value &v, cc::Vec4 *pt) {
     assert(pt != nullptr);
     SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Vec4 failed!");
     pt->x = pt->y = pt->z = pt->w = 0.0f;
-    se::Object *obj = v.toObject();
-    se::Value x;
-    se::Value y;
-    se::Value z;
-    se::Value w;
-    bool ok = obj->getProperty("x", &x);
+    se::Object *obj               = v.toObject();
+    se::Value   x;
+    se::Value   y;
+    se::Value   z;
+    se::Value   w;
+    bool        ok = obj->getProperty("x", &x);
     SE_PRECONDITION3(ok && x.isNumber(), false, *pt = cc::Vec4::ZERO);
     ok = obj->getProperty("y", &y);
     SE_PRECONDITION3(ok && y.isNumber(), false, *pt = cc::Vec4::ZERO);
@@ -274,7 +285,7 @@ bool seval_to_mat(const se::Value &v, int length, float *out) {
     se::Object *obj = v.toObject();
 
     se::Value tmp;
-    char propName[3] = {0};
+    char      propName[3] = {0};
     for (int i = 0; i < length; ++i) {
         snprintf(propName, 3, "m%2d", i);
         obj->getProperty(propName, &tmp);
@@ -293,14 +304,14 @@ bool seval_to_Mat4(const se::Value &v, cc::Mat4 *mat) {
         // typed array
         SE_PRECONDITION2(obj->isTypedArray(), false, "Convert parameter to Matrix4 failed!");
 
-        size_t length = 0;
-        uint8_t *ptr = nullptr;
+        size_t   length = 0;
+        uint8_t *ptr    = nullptr;
         obj->getTypedArrayData(&ptr, &length);
 
         memcpy(mat->m, ptr, length);
     } else {
-        bool ok = false;
-        se::Value tmp;
+        bool        ok = false;
+        se::Value   tmp;
         std::string prefix = "m";
         for (uint32_t i = 0; i < 16; ++i) {
             std::string name;
@@ -333,11 +344,11 @@ bool seval_to_Uint8Array(const se::Value &v, uint8_t *ret) {
     se::Object *obj = v.toObject();
     SE_PRECONDITION2(obj->isArray(), false, "Convert parameter to Array failed!");
 
-    CC_UNUSED bool ok = true;
-    uint32_t length = 0;
+    CC_UNUSED bool ok     = true;
+    uint32_t       length = 0;
     obj->getArrayLength(&length);
     se::Value value;
-    uint8_t data = 0;
+    uint8_t   data = 0;
     for (uint32_t i = 0; i < length; ++i) {
         if (obj->getArrayElement(i, &value)) {
             ok = seval_to_uint8(value, &data);
@@ -363,14 +374,14 @@ bool seval_to_Size(const se::Value &v, cc::Size *size) {
     assert(size != nullptr);
     SE_PRECONDITION2(v.isObject(), false, "Convert parameter to Size failed!");
     se::Object *obj = v.toObject();
-    se::Value width;
-    se::Value height;
+    se::Value   width;
+    se::Value   height;
 
     bool ok = obj->getProperty("width", &width);
     SE_PRECONDITION3(ok && width.isNumber(), false, *size = cc::Size::ZERO);
     ok = obj->getProperty("height", &height);
     SE_PRECONDITION3(ok && height.isNumber(), false, *size = cc::Size::ZERO);
-    size->width = width.toFloat();
+    size->width  = width.toFloat();
     size->height = height.toFloat();
     return true;
 }
@@ -384,13 +395,13 @@ bool seval_to_ccvalue(const se::Value &v, cc::Value *ret) {
             // It's a normal js object.
             cc::ValueMap dictVal;
             ok = seval_to_ccvaluemap(v, &dictVal);
-            SE_PRECONDITION3(ok, false, *ret = cc::Value::Null);
+            SE_PRECONDITION3(ok, false, *ret = cc::Value::VALUE_NULL);
             *ret = cc::Value(dictVal);
         } else {
             // It's a js array object.
             cc::ValueVector arrVal;
             ok = seval_to_ccvaluevector(v, &arrVal);
-            SE_PRECONDITION3(ok, false, *ret = cc::Value::Null);
+            SE_PRECONDITION3(ok, false, *ret = cc::Value::VALUE_NULL);
             *ret = cc::Value(arrVal);
         }
     } else if (v.isString()) {
@@ -400,7 +411,7 @@ bool seval_to_ccvalue(const se::Value &v, cc::Value *ret) {
     } else if (v.isBoolean()) {
         *ret = v.toBoolean();
     } else if (v.isNullOrUndefined()) {
-        *ret = cc::Value::Null;
+        *ret = cc::Value::VALUE_NULL;
     } else {
         SE_PRECONDITION2(false, false, "type not supported!");
     }
@@ -426,7 +437,7 @@ bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret) {
     std::vector<std::string> allKeys;
     SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
 
-    bool ok = false;
+    bool      ok = false;
     se::Value value;
     cc::Value ccvalue;
     for (const auto &key : allKeys) {
@@ -441,8 +452,9 @@ bool seval_to_ccvaluemap(const se::Value &v, cc::ValueMap *ret) {
 
 static bool isNumberString(const std::string &str) {
     for (const auto &c : str) {
-        if (!isdigit(c))
+        if (!isdigit(c)) {
             return false;
+        }
     }
     return true;
 }
@@ -464,7 +476,7 @@ bool seval_to_ccvaluemapintkey(const se::Value &v, cc::ValueMapIntKey *ret) {
     std::vector<std::string> allKeys;
     SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
 
-    bool ok = false;
+    bool      ok = false;
     se::Value value;
     cc::Value ccvalue;
     for (const auto &key : allKeys) {
@@ -496,7 +508,7 @@ bool seval_to_ccvaluevector(const se::Value &v, cc::ValueVector *ret) {
     uint32_t len = 0;
     obj->getArrayLength(&len);
 
-    bool ok = false;
+    bool      ok = false;
     se::Value value;
     cc::Value ccvalue;
     for (uint32_t i = 0; i < len; ++i) {
@@ -511,7 +523,7 @@ bool seval_to_ccvaluevector(const se::Value &v, cc::ValueVector *ret) {
 }
 
 bool sevals_variadic_to_ccvaluevector(const se::ValueArray &args, cc::ValueVector *ret) {
-    bool ok = false;
+    bool      ok = false;
     cc::Value ccvalue;
 
     for (const auto &arg : args) {
@@ -558,10 +570,10 @@ bool seval_to_std_vector_int(const se::Value &v, std::vector<int> *ret) {
             return true;
         }
     } else if (obj->isTypedArray()) {
-        size_t bytesPerElements = 0;
-        uint8_t *data = nullptr;
-        size_t dataBytes = 0;
-        se::Object::TypedArrayType type = obj->getTypedArrayType();
+        size_t                     bytesPerElements = 0;
+        uint8_t *                  data             = nullptr;
+        size_t                     dataBytes        = 0;
+        se::Object::TypedArrayType type             = obj->getTypedArrayType();
 
 #define SE_UINT8_PTR_TO_INT(ptr)  (*((uint8_t *)(ptr)))
 #define SE_UINT16_PTR_TO_INT(ptr) (*((uint16_t *)(ptr)))
@@ -623,10 +635,10 @@ bool seval_to_std_vector_uint16(const se::Value &v, std::vector<uint16_t> *ret) 
             return true;
         }
     } else if (obj->isTypedArray()) {
-        size_t bytesPerElements = 0;
-        uint8_t *data = nullptr;
-        size_t dataBytes = 0;
-        se::Object::TypedArrayType type = obj->getTypedArrayType();
+        size_t                     bytesPerElements = 0;
+        uint8_t *                  data             = nullptr;
+        size_t                     dataBytes        = 0;
+        se::Object::TypedArrayType type             = obj->getTypedArrayType();
 
         if (obj->getTypedArrayData(&data, &dataBytes)) {
             for (size_t i = 0; i < dataBytes; i += bytesPerElements) {
@@ -678,7 +690,7 @@ bool seval_to_std_vector_Vec2(const se::Value &v, std::vector<cc::Vec2> *ret) {
     uint32_t len = 0;
     if (obj->getArrayLength(&len)) {
         se::Value value;
-        cc::Vec2 pt;
+        cc::Vec2  pt;
         for (uint32_t i = 0; i < len; ++i) {
             SE_PRECONDITION3(obj->getArrayElement(i, &value) && seval_to_Vec2(value, &pt), false, ret->clear());
             ret->push_back(pt);
@@ -706,8 +718,8 @@ bool seval_to_std_map_string_string(const se::Value &v, std::map<std::string, st
     std::vector<std::string> allKeys;
     SE_PRECONDITION3(obj->getAllKeys(&allKeys), false, ret->clear());
 
-    bool ok = false;
-    se::Value value;
+    bool        ok = false;
+    se::Value   value;
     std::string strValue;
     for (const auto &key : allKeys) {
         SE_PRECONDITION3(obj->getProperty(key.c_str(), &value), false, ret->clear());
@@ -722,9 +734,9 @@ bool seval_to_std_map_string_string(const se::Value &v, std::map<std::string, st
 bool seval_to_Data(const se::Value &v, cc::Data *ret) {
     assert(ret != nullptr);
     SE_PRECONDITION2(v.isObject() && v.toObject()->isTypedArray(), false, "Convert parameter to Data failed!");
-    uint8_t *ptr = nullptr;
-    size_t length = 0;
-    bool ok = v.toObject()->getTypedArrayData(&ptr, &length);
+    uint8_t *ptr    = nullptr;
+    size_t   length = 0;
+    bool     ok     = v.toObject()->getTypedArrayData(&ptr, &length);
     if (ok) {
         ret->copy(ptr, length);
     } else {
@@ -735,12 +747,12 @@ bool seval_to_Data(const se::Value &v, cc::Data *ret) {
 }
 
 bool seval_to_DownloaderHints(const se::Value &v, cc::network::DownloaderHints *ret) {
-    static cc::network::DownloaderHints ZERO = {0, 0, ""};
+    const static cc::network::DownloaderHints ZERO{0, 0, ""};
     assert(ret != nullptr);
     SE_PRECONDITION2(v.isObject(), false, "Convert parameter to DownloaderHints failed!");
-    se::Value tmp;
+    se::Value   tmp;
     se::Object *obj = v.toObject();
-    bool ok = false;
+    bool        ok  = false;
 
     ok = obj->getProperty("countOfMaxProcessingTasks", &tmp);
     SE_PRECONDITION3(ok && tmp.isNumber(), false, *ret = ZERO);
@@ -946,13 +958,14 @@ bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret) {
     assert(ret != nullptr);
 
     se::HandleObject obj(se::Object::createPlainObject());
-    bool ok = true;
+    bool             ok = true;
     for (const auto &e : v) {
-        const std::string &key = e.first;
-        const cc::Value &value = e.second;
+        const std::string &key   = e.first;
+        const cc::Value &  value = e.second;
 
-        if (key.empty())
+        if (key.empty()) {
             continue;
+        }
 
         se::Value tmp;
         if (!ccvalue_to_seval(value, &tmp)) {
@@ -963,8 +976,9 @@ bool ccvaluemap_to_seval(const cc::ValueMap &v, se::Value *ret) {
 
         obj->setProperty(key.c_str(), tmp);
     }
-    if (ok)
+    if (ok) {
         ret->setObject(obj);
+    }
 
     return ok;
 }
@@ -973,15 +987,16 @@ bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) {
     assert(ret != nullptr);
 
     se::HandleObject obj(se::Object::createPlainObject());
-    bool ok = true;
+    bool             ok = true;
     for (const auto &e : v) {
         std::stringstream keyss;
         keyss << e.first;
-        std::string key = keyss.str();
+        std::string      key   = keyss.str();
         const cc::Value &value = e.second;
 
-        if (key.empty())
+        if (key.empty()) {
             continue;
+        }
 
         se::Value tmp;
         if (!ccvalue_to_seval(value, &tmp)) {
@@ -992,8 +1007,9 @@ bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) {
 
         obj->setProperty(key.c_str(), tmp);
     }
-    if (ok)
+    if (ok) {
         ret->setObject(obj);
+    }
 
     return ok;
 }
@@ -1001,7 +1017,7 @@ bool ccvaluemapintkey_to_seval(const cc::ValueMapIntKey &v, se::Value *ret) {
 bool ccvaluevector_to_seval(const cc::ValueVector &v, se::Value *ret) {
     assert(ret != nullptr);
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
-    bool ok = true;
+    bool             ok = true;
 
     uint32_t i = 0;
     for (const auto &value : v) {
@@ -1015,8 +1031,9 @@ bool ccvaluevector_to_seval(const cc::ValueVector &v, se::Value *ret) {
         obj->setArrayElement(i, tmp);
         ++i;
     }
-    if (ok)
+    if (ok) {
         ret->setObject(obj);
+    }
 
     return ok;
 }
@@ -1027,7 +1044,7 @@ template <typename T>
 bool std_vector_T_to_seval(const std::vector<T> &v, se::Value *ret) {
     assert(ret != nullptr);
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
-    bool ok = true;
+    bool             ok = true;
 
     uint32_t i = 0;
     for (const auto &value : v) {
@@ -1039,8 +1056,9 @@ bool std_vector_T_to_seval(const std::vector<T> &v, se::Value *ret) {
         ++i;
     }
 
-    if (ok)
+    if (ok) {
         ret->setObject(obj);
+    }
 
     return ok;
 }
@@ -1067,13 +1085,14 @@ bool std_map_string_string_to_seval(const std::map<std::string, std::string> &v,
     assert(ret != nullptr);
 
     se::HandleObject obj(se::Object::createPlainObject());
-    bool ok = true;
+    bool             ok = true;
     for (const auto &e : v) {
-        const std::string &key = e.first;
+        const std::string &key   = e.first;
         const std::string &value = e.second;
 
-        if (key.empty())
+        if (key.empty()) {
             continue;
+        }
 
         se::Value tmp;
         if (!std_string_to_seval(value, &tmp)) {
@@ -1085,8 +1104,9 @@ bool std_map_string_string_to_seval(const std::map<std::string, std::string> &v,
         obj->setProperty(key.c_str(), tmp);
     }
 
-    if (ok)
+    if (ok) {
         ret->setObject(obj);
+    }
 
     return ok;
 }
@@ -1098,9 +1118,9 @@ enum class DataType {
 };
 
 void toVec2(void *data, DataType type, se::Value *ret) {
-    int32_t *intptr = (int32_t *)data;
-    float *floatptr = (float *)data;
-    cc::Vec2 vec2;
+    auto *intptr                                   = static_cast<int32_t *>(data);
+    auto *                                floatptr = static_cast<float *>(data);
+    cc::Vec2                              vec2;
     if (DataType::INT == type) {
         vec2.x = static_cast<float>(intptr[0]);
         vec2.y = static_cast<float>(intptr[1]);
@@ -1113,8 +1133,8 @@ void toVec2(void *data, DataType type, se::Value *ret) {
 }
 
 void toVec3(void *data, DataType type, se::Value *ret) {
-    int32_t *intptr = (int32_t *)data;
-    float *floatptr = (float *)data;
+    auto *   intptr   = static_cast<int32_t *>(data);
+    auto *   floatptr = static_cast<float *>(data);
     cc::Vec3 vec3;
     if (DataType::INT == type) {
         vec3.x = static_cast<float>(intptr[0]);
@@ -1130,8 +1150,8 @@ void toVec3(void *data, DataType type, se::Value *ret) {
 }
 
 void toVec4(void *data, DataType type, se::Value *ret) {
-    int32_t *intptr = (int32_t *)data;
-    float *floatptr = (float *)data;
+    auto *   intptr   = static_cast<int32_t *>(data);
+    auto *   floatptr = static_cast<float *>(data);
     cc::Vec4 vec4;
     if (DataType::INT == type) {
         vec4.x = static_cast<float>(intptr[0]);
@@ -1153,10 +1173,13 @@ void toMat(float *data, int num, se::Value *ret) {
 
     char propName[4] = {0};
     for (int i = 0; i < num; ++i) {
-        if (i < 10)
+        if (i < 10) {
             snprintf(propName, 3, "m0%d", i);
-        else
+        }
+
+        else {
             snprintf(propName, 3, "m%d", i);
+        }
 
         obj->setProperty(propName, se::Value(*(data + i)));
     }
@@ -1257,9 +1280,9 @@ bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se
     se::Object *obj = v.toObject();
     assert(obj->isArray());
 
-    bool ok = true;
+    bool     ok  = true;
     uint32_t len = 0;
-    ok = obj->getArrayLength(&len);
+    ok           = obj->getArrayLength(&len);
     if (!ok) {
         ret->clear();
         return false;
@@ -1289,7 +1312,7 @@ bool nativevalue_to_se(const spine::String &obj, se::Value &val, se::Object *) {
 template <>
 bool nativevalue_to_se(const spine::Vector<spine::String> &v, se::Value &ret, se::Object *) {
     se::HandleObject obj(se::Object::createArrayObject(v.size()));
-    bool ok = true;
+    bool             ok = true;
 
     spine::Vector<spine::String> tmpv = v;
     for (uint32_t i = 0, count = (uint32_t)tmpv.size(); i < count; i++) {
@@ -1313,7 +1336,7 @@ bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middle
     se::Object *obj = v.toObject();
 
     std::vector<std::string> allKeys;
-    bool ok = obj->getAllKeys(&allKeys);
+    bool                     ok = obj->getAllKeys(&allKeys);
     if (!ok) {
         ret->clear();
         return false;
@@ -1322,7 +1345,9 @@ bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middle
     se::Value tmp;
     for (const auto &key : allKeys) {
         auto pngPos = key.find(".png");
-        if (pngPos == key.npos) continue;
+        if (pngPos == std::string::npos) {
+            continue;
+        }
 
         ok = obj->getProperty(key.c_str(), &tmp);
         if (!ok || !tmp.isObject()) {
@@ -1330,7 +1355,7 @@ bool seval_to_Map_string_key(const se::Value &v, cc::Map<std::string, cc::middle
             return false;
         }
 
-        cc::middleware::Texture2D *nativeObj = (cc::middleware::Texture2D *)tmp.toObject()->getPrivateData();
+        auto *nativeObj = static_cast<cc::middleware::Texture2D *>(tmp.toObject()->getPrivateData());
         ret->insert(key, nativeObj);
     }
 

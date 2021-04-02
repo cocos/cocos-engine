@@ -40,10 +40,6 @@
 #include "base/Random.h"
 #include "base/Ref.h"
 
-/**
- * @addtogroup base
- * @{
- */
 namespace cc {
 
 /**
@@ -57,7 +53,7 @@ template <class K, class V>
 class Map {
 public:
 #if USE_STD_UNORDERED_MAP
-    typedef std::unordered_map<K, V> RefMap;
+    using RefMap = std::unordered_map<K, V>;
 #else
     typedef std::map<K, V> RefMap;
 #endif
@@ -67,9 +63,9 @@ public:
     // ------------------------------------------
 
     /** Iterator, can be used to loop the Map. */
-    typedef typename RefMap::iterator iterator;
+    using iterator = typename RefMap::iterator;
     /** Const iterator, can be used to loop the Map. */
-    typedef typename RefMap::const_iterator const_iterator;
+    using const_iterator = typename RefMap::const_iterator;
 
     /** Return iterator to beginning. */
     iterator begin() { return _data.begin(); }
@@ -110,7 +106,7 @@ public:
     }
 
     /** Move constructor. */
-    Map<K, V>(Map<K, V> &&other) {
+    Map<K, V>(Map<K, V> &&other) noexcept {
         static_assert(std::is_convertible<V, Ref *>::value, "Invalid Type for cc::Map<K, V>!");
         CC_LOG_INFO("In the move constructor of Map!");
         _data = std::move(other._data);
@@ -213,17 +209,11 @@ public:
      *  @param key Key value of the element whose mapped value is accessed.
      *       Member type K is the keys for the elements in the container. defined in Map<K, V> as an alias of its first template parameter (Key).
      */
-    const V at(const K &key) const {
-        auto iter = _data.find(key);
-        if (iter != _data.end())
-            return iter->second;
-        return nullptr;
-    }
-
     V at(const K &key) {
         auto iter = _data.find(key);
-        if (iter != _data.end())
+        if (iter != _data.end()) {
             return iter->second;
+        }
         return nullptr;
     }
 
@@ -316,38 +306,13 @@ public:
      */
     V getRandomObject() const {
         if (!_data.empty()) {
-            ssize_t randIdx = RandomHelper::random_int<int>(0, static_cast<int>(_data.size()) - 1);
+            auto randIdx = RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1);
             const_iterator randIter = _data.begin();
             std::advance(randIter, randIdx);
             return randIter->second;
         }
         return nullptr;
     }
-
-    // Don't uses operator since we could not decide whether it needs 'retain'/'release'.
-    //    V& operator[] ( const K& key )
-    //    {
-    //        CC_LOG_DEBUG("copy: [] ref");
-    //        return _data[key];
-    //    }
-    //
-    //    V& operator[] ( K&& key )
-    //    {
-    //        CC_LOG_DEBUG("move [] ref");
-    //        return _data[key];
-    //    }
-
-    //    const V& operator[] ( const K& key ) const
-    //    {
-    //        CC_LOG_DEBUG("const copy []");
-    //        return _data.at(key);
-    //    }
-    //
-    //    const V& operator[] ( K&& key ) const
-    //    {
-    //        CC_LOG_DEBUG("const move []");
-    //        return _data.at(key);
-    //    }
 
     /** Copy assignment operator. */
     Map<K, V> &operator=(const Map<K, V> &other) {
@@ -361,7 +326,7 @@ public:
     }
 
     /** Move assignment operator. */
-    Map<K, V> &operator=(Map<K, V> &&other) {
+    Map<K, V> &operator=(Map<K, V> &&other) noexcept {
         if (this != &other) {
             CC_LOG_INFO("In the move assignment operator of Map!");
             clear();
@@ -382,5 +347,3 @@ protected:
 };
 
 } // namespace cc
-// end group
-/// @}

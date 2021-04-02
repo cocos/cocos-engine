@@ -25,22 +25,23 @@
 ****************************************************************************/
 
 #include "base/Value.h"
-#include "base/Utils.h"
 
+#include <cfloat>
 #include <cmath>
-#include <sstream>
+#include <cstdlib>
 #include <iomanip>
-#include <float.h>
-#include <stdlib.h>
 #include <memory.h>
+#include <sstream>
+
+#include "base/Utils.h"
 
 namespace cc {
 
-const ValueVector ValueVectorNull;
-const ValueMap ValueMapNull;
-const ValueMapIntKey ValueMapIntKeyNull;
+const ValueVector    VALUE_VECTOR_NULL;
+const ValueMap       VALUE_MAP_NULL;
+const ValueMapIntKey VALUE_MAP_INT_KEY_NULL;
 
-const Value Value::Null;
+const Value Value::VALUE_NULL;
 
 Value::Value()
 : _type(Type::NONE) {
@@ -87,43 +88,43 @@ Value::Value(const char *v)
 
 Value::Value(const std::string &v)
 : _type(Type::STRING) {
-    _field.strVal = new (std::nothrow) std::string();
+    _field.strVal  = new (std::nothrow) std::string();
     *_field.strVal = v;
 }
 
 Value::Value(const ValueVector &v)
 : _type(Type::VECTOR) {
-    _field.vectorVal = new (std::nothrow) ValueVector();
+    _field.vectorVal  = new (std::nothrow) ValueVector();
     *_field.vectorVal = v;
 }
 
 Value::Value(ValueVector &&v)
 : _type(Type::VECTOR) {
-    _field.vectorVal = new (std::nothrow) ValueVector();
+    _field.vectorVal  = new (std::nothrow) ValueVector();
     *_field.vectorVal = std::move(v);
 }
 
 Value::Value(const ValueMap &v)
 : _type(Type::MAP) {
-    _field.mapVal = new (std::nothrow) ValueMap();
+    _field.mapVal  = new (std::nothrow) ValueMap();
     *_field.mapVal = v;
 }
 
 Value::Value(ValueMap &&v)
 : _type(Type::MAP) {
-    _field.mapVal = new (std::nothrow) ValueMap();
+    _field.mapVal  = new (std::nothrow) ValueMap();
     *_field.mapVal = std::move(v);
 }
 
 Value::Value(const ValueMapIntKey &v)
 : _type(Type::INT_KEY_MAP) {
-    _field.intKeyMapVal = new (std::nothrow) ValueMapIntKey();
+    _field.intKeyMapVal  = new (std::nothrow) ValueMapIntKey();
     *_field.intKeyMapVal = v;
 }
 
 Value::Value(ValueMapIntKey &&v)
 : _type(Type::INT_KEY_MAP) {
-    _field.intKeyMapVal = new (std::nothrow) ValueMapIntKey();
+    _field.intKeyMapVal  = new (std::nothrow) ValueMapIntKey();
     *_field.intKeyMapVal = std::move(v);
 }
 
@@ -132,7 +133,7 @@ Value::Value(const Value &other)
     *this = other;
 }
 
-Value::Value(Value &&other)
+Value::Value(Value &&other) noexcept
 : _type(Type::NONE) {
     *this = std::move(other);
 }
@@ -195,7 +196,7 @@ Value &Value::operator=(const Value &other) {
     return *this;
 }
 
-Value &Value::operator=(Value &&other) {
+Value &Value::operator=(Value &&other) noexcept {
     if (this != &other) {
         clear();
         switch (other._type) {
@@ -337,9 +338,18 @@ bool Value::operator==(const Value &v) {
     return t == v;
 }
 bool Value::operator==(const Value &v) const {
-    if (this == &v) return true;
-    if (v._type != this->_type) return false;
-    if (this->isNull()) return true;
+    if (this == &v) {
+        return true;
+    }
+
+    if (v._type != this->_type) {
+        return false;
+    }
+
+    if (this->isNull()) {
+        return true;
+    }
+
     switch (_type) {
         case Type::BYTE: return v._field.byteVal == this->_field.byteVal;
         case Type::INTEGER: return v._field.intVal == this->_field.intVal;
@@ -349,12 +359,14 @@ bool Value::operator==(const Value &v) const {
         case Type::FLOAT: return std::abs(v._field.floatVal - this->_field.floatVal) <= FLT_EPSILON;
         case Type::DOUBLE: return std::abs(v._field.doubleVal - this->_field.doubleVal) <= DBL_EPSILON;
         case Type::VECTOR: {
-            const auto &v1 = *(this->_field.vectorVal);
-            const auto &v2 = *(v._field.vectorVal);
-            const auto size = v1.size();
+            const auto &v1   = *(this->_field.vectorVal);
+            const auto &v2   = *(v._field.vectorVal);
+            const auto  size = v1.size();
             if (size == v2.size()) {
                 for (size_t i = 0; i < size; i++) {
-                    if (v1[i] != v2[i]) return false;
+                    if (v1[i] != v2[i]) {
+                        return false;
+                    }
                 }
                 return true;
             }
@@ -566,27 +578,27 @@ bool Value::asBool() const {
     }
 
     if (_type == Type::BYTE) {
-        return _field.byteVal == 0 ? false : true;
+        return _field.byteVal != 0;
     }
 
     if (_type == Type::STRING) {
-        return (*_field.strVal == "0" || *_field.strVal == "false") ? false : true;
+        return *_field.strVal != "0" || *_field.strVal != "false";
     }
 
     if (_type == Type::INTEGER) {
-        return _field.intVal == 0 ? false : true;
+        return _field.intVal != 0;
     }
 
     if (_type == Type::UNSIGNED) {
-        return _field.unsignedVal == 0 ? false : true;
+        return _field.unsignedVal != 0;
     }
 
     if (_type == Type::FLOAT) {
-        return _field.floatVal == 0.0f ? false : true;
+        return _field.floatVal != 0.0f;
     }
 
     if (_type == Type::DOUBLE) {
-        return _field.doubleVal == 0.0 ? false : true;
+        return _field.doubleVal != 0.0;
     }
 
     return false;
@@ -671,8 +683,9 @@ static std::string visit(const Value &v, int depth);
 static std::string visitVector(const ValueVector &v, int depth) {
     std::stringstream ret;
 
-    if (depth > 0)
+    if (depth > 0) {
         ret << "\n";
+    }
 
     ret << getTabs(depth) << "[\n";
 
@@ -691,8 +704,9 @@ template <class T>
 static std::string visitMap(const T &v, int depth) {
     std::stringstream ret;
 
-    if (depth > 0)
+    if (depth > 0) {
         ret << "\n";
+    }
 
     ret << getTabs(depth) << "{\n";
 
@@ -784,8 +798,9 @@ void Value::clear() {
 }
 
 void Value::reset(Type type) {
-    if (_type == type)
+    if (_type == type) {
         return;
+    }
 
     clear();
 

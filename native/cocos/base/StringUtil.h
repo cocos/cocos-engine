@@ -33,10 +33,10 @@ namespace cc {
 
 class CC_DLL StringUtil {
 public:
-    static int VPrintf(char *buf, char *last, const char *fmt, va_list args);
-    static int Printf(char *buf, char *last, const char *fmt, ...);
-    static String Format(const char *fmt, ...);
-    static StringArray Split(const String &str, const String &delims, uint max_splits = 0);
+    static int vprintf(char *buf, const char *last, const char *fmt, va_list args);
+    static int printf(char *buf, const char *last, const char *fmt, ...);
+    static String format(const char *fmt, ...);
+    static StringArray split(const String &str, const String &delims, uint maxSplits = 0);
 };
 
 } // namespace cc

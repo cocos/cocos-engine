@@ -25,43 +25,31 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __BASE_CCREF_H__
-#define __BASE_CCREF_H__
+#pragma once
 
 #include "base/Macros.h"
 #include "base/Config.h"
 
 #define CC_REF_LEAK_DETECTION 0
 
-/**
- * @addtogroup base
- * @{
- */
 namespace cc {
 
 class Ref;
 
 /**
   * Interface that defines how to clone an Ref.
-  * @lua NA
-  * @js NA
   */
 class CC_DLL Clonable {
 public:
     /** Returns a copy of the Ref. */
     virtual Clonable *clone() const = 0;
 
-    /**
-     * @js NA
-     * @lua NA
-     */
-    virtual ~Clonable(){};
+    virtual ~Clonable() = default;
 };
 
 /**
  * Ref is used for reference count management. If a class inherits from Ref,
  * then it is easy to be shared in different places.
- * @js NA
  */
 class CC_DLL Ref {
 public:
@@ -71,7 +59,6 @@ public:
      * This increases the Ref's reference count.
      *
      * @see release, autorelease
-     * @js NA
      */
     void retain();
 
@@ -84,7 +71,6 @@ public:
      * destructed.
      *
      * @see retain, autorelease
-     * @js NA
      */
     void release();
 
@@ -100,8 +86,6 @@ public:
      * @returns The Ref itself.
      *
      * @see AutoreleasePool, retain, release
-     * @js NA
-     * @lua NA
      */
     Ref *autorelease();
 
@@ -109,7 +93,6 @@ public:
      * Returns the Ref's current reference count.
      *
      * @returns The Ref's reference count.
-     * @js NA
      */
     unsigned int getReferenceCount() const;
 
@@ -118,16 +101,9 @@ protected:
      * Constructor
      *
      * The Ref's reference count is 1 after construction.
-     * @js NA
      */
     Ref();
 
-    /**
-     * Destructor
-     *
-     * @js NA
-     * @lua NA
-     */
     virtual ~Ref();
 
 protected:
@@ -144,7 +120,3 @@ public:
 };
 
 } // namespace cc
-// end of base group
-/** @} */
-
-#endif // __BASE_CCREF_H__

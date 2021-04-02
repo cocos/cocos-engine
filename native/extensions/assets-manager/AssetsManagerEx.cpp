@@ -24,11 +24,13 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "AssetsManagerEx.h"
-#include "base/UTF8.h"
-#include "AsyncTaskPool.h"
 
 #include <stdio.h>
 #include <errno.h>
+
+#include "base/UTF8.h"
+#include "AsyncTaskPool.h"
+#include "base/Log.h"
 
 #ifdef MINIZIP_FROM_SYSTEM
     #include <minizip/unzip.h>

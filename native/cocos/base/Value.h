@@ -33,13 +33,13 @@ namespace cc {
 
 class Value;
 
-typedef vector<Value> ValueVector;
-typedef unordered_map<String, Value> ValueMap;
-typedef unordered_map<int, Value> ValueMapIntKey;
+using ValueVector = vector<Value>;
+using ValueMap = unordered_map<String, Value>;
+using ValueMapIntKey = unordered_map<int, Value>;
 
-CC_DLL extern const ValueVector ValueVectorNull;
-CC_DLL extern const ValueMap ValueMapNull;
-CC_DLL extern const ValueMapIntKey ValueMapIntKeyNull;
+CC_DLL extern const ValueVector VALUE_VECTOR_NULL;
+CC_DLL extern const ValueMap VALUE_MAP_NULL;
+CC_DLL extern const ValueMapIntKey VALUE_MAP_INT_KEY_NULL;
 
 /*
  * This class is provide as a wrapper of basic types, such as int and bool.
@@ -47,7 +47,7 @@ CC_DLL extern const ValueMapIntKey ValueMapIntKeyNull;
 class CC_DLL Value {
 public:
     /** A predefined Value that has not value. */
-    static const Value Null;
+    static const Value VALUE_NULL;
 
     /** Default constructor. */
     Value();
@@ -94,7 +94,7 @@ public:
     /** Create a Value by another Value object. */
     Value(const Value &other);
     /** Create a Value by a Value object. It will use std::move internally. */
-    Value(Value &&other);
+    Value(Value &&other) noexcept;
 
     /** Destructor. */
     ~Value();
@@ -102,7 +102,7 @@ public:
     /** Assignment operator, assign from Value to Value. */
     Value &operator=(const Value &other);
     /** Assignment operator, assign from Value to Value. It will use std::move internally. */
-    Value &operator=(Value &&other);
+    Value &operator=(Value &&other) noexcept;
 
     /** Assignment operator, assign from unsigned char to Value. */
     Value &operator=(unsigned char v);

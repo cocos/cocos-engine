@@ -25,18 +25,13 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __ccRandom_H_
-#define __ccRandom_H_
+#pragma once
 
 #include <random>
 #include <cstdlib>
 
 #include "base/Macros.h"
 
-/**
-* @addtogroup base
-* @{
-*/
 namespace cc {
 
 /**
@@ -46,14 +41,14 @@ namespace cc {
 class CC_DLL RandomHelper {
 public:
     template <typename T>
-    static inline T random_real(T min, T max) {
+    static inline T randomReal(T min, T max) {
         std::uniform_real_distribution<T> dist(min, max);
         auto &mt = RandomHelper::getEngine();
         return dist(mt);
     }
 
     template <typename T>
-    static inline T random_int(T min, T max) {
+    static inline T randomInt(T min, T max) {
         std::uniform_int_distribution<T> dist(min, max);
         auto &mt = RandomHelper::getEngine();
         return dist(mt);
@@ -61,8 +56,8 @@ public:
 
 private:
     static inline std::mt19937 &getEngine() {
-        static std::random_device seed_gen;
-        static std::mt19937 engine(seed_gen());
+        static std::random_device seedGen;
+        static std::mt19937 engine(seedGen());
         return engine;
     }
 };
@@ -72,22 +67,22 @@ private:
  */
 template <typename T>
 inline T random(T min, T max) {
-    return RandomHelper::random_int<T>(min, max);
+    return RandomHelper::randomInt<T>(min, max);
 }
 
 template <>
 inline float random(float min, float max) {
-    return RandomHelper::random_real(min, max);
+    return RandomHelper::randomReal(min, max);
 }
 
 template <>
 inline long double random(long double min, long double max) {
-    return RandomHelper::random_real(min, max);
+    return RandomHelper::randomReal(min, max);
 }
 
 template <>
 inline double random(double min, double max) {
-    return RandomHelper::random_real(min, max);
+    return RandomHelper::randomReal(min, max);
 }
 
 /**
@@ -101,7 +96,7 @@ inline int random() {
  * Returns a random float between -1 and 1.
  * It can be seeded using std::srand(seed);
  */
-inline float rand_minus1_1() {
+inline float randMinus1_1() {
     // IDEA: using the new c++11 random engine generator
     // without a proper way to set a seed is not useful.
     // Resorting to the old random method since it can
@@ -115,7 +110,7 @@ inline float rand_minus1_1() {
  * Returns a random float between 0 and 1.
  * It can be seeded using std::srand(seed);
  */
-inline float rand_0_1() {
+inline float rand0_1() {
     // IDEA: using the new c++11 random engine generator
     // without a proper way to set a seed is not useful.
     // Resorting to the old random method since it can
@@ -126,6 +121,3 @@ inline float rand_0_1() {
 };
 
 } // namespace cc
-// end group
-/// @}
-#endif //__ccRandom_H_

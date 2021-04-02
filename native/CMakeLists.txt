@@ -338,7 +338,6 @@ cocos_source_files(
     cocos/base/Macros.h
     cocos/base/Map.h
     cocos/base/Object.h
-    cocos/base/Random.cpp
     cocos/base/Random.h
     cocos/base/Ref.cpp
     cocos/base/Ref.h

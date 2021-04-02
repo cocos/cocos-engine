@@ -37,7 +37,7 @@
 namespace cc {
 
 #if defined(_WIN32)
-int StringUtil::VPrintf(char *buf, char *last, const char *fmt, va_list args) {
+int StringUtil::vprintf(char *buf, const char *last, const char *fmt, va_list args) {
     if (last <= buf) return 0;
 
     int count = (int)(last - buf);
@@ -53,56 +53,61 @@ int StringUtil::VPrintf(char *buf, char *last, const char *fmt, va_list args) {
     }
 }
 #else
-int StringUtil::VPrintf(char *buf, char *last, const char *fmt, va_list args) {
-    if (last <= buf) return 0;
+int StringUtil::vprintf(char *buf, const char *last, const char *fmt, va_list args) {
+    if (last <= buf) {
+        return 0;
+    }
 
     int count = (int)(last - buf);
     int ret   = vsnprintf(buf, count, fmt, args);
     if (ret >= count - 1) {
         return count - 1;
-    } else if (ret < 0) {
+    }
+    if (ret < 0) {
         return 0;
     }
     return ret;
 }
 #endif
 
-int StringUtil::Printf(char *buf, char *last, const char *fmt, ...) {
+int StringUtil::printf(char *buf, const char *last, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    int ret = VPrintf(buf, last, fmt, args);
+    int ret = vprintf(buf, last, fmt, args);
     va_end(args);
     return ret;
 }
 
-String StringUtil::Format(const char *fmt, ...) {
+String StringUtil::format(const char *fmt, ...) {
     char    sz[4096];
     va_list args;
     va_start(args, fmt);
-    VPrintf(sz, sz + sizeof(sz) - 1, fmt, args);
+    vprintf(sz, sz + sizeof(sz) - 1, fmt, args);
     va_end(args);
     return sz;
 }
 
-StringArray StringUtil::Split(const String &str, const String &delims, uint max_splits) {
+StringArray StringUtil::split(const String &str, const String &delims, uint maxSplits) {
     StringArray strs;
-    if (str.empty())
+    if (str.empty()) {
         return strs;
+    }
 
     // Pre-allocate some space for performance
-    strs.reserve(max_splits ? max_splits + 1 : 16); // 16 is guessed capacity for most case
+    strs.reserve(maxSplits ? maxSplits + 1 : 16); // 16 is guessed capacity for most case
 
-    uint num_splits = 0;
+    uint numSplits = 0;
 
     // Use STL methods
-    size_t start, pos;
+    size_t start;
+    size_t pos;
     start = 0;
     do {
         pos = str.find_first_of(delims, start);
         if (pos == start) {
             // Do nothing
             start = pos + 1;
-        } else if (pos == String::npos || (max_splits && num_splits == max_splits)) {
+        } else if (pos == String::npos || (maxSplits && numSplits == maxSplits)) {
             // Copy the rest of the string
             strs.push_back(str.substr(start));
             break;
@@ -113,7 +118,7 @@ StringArray StringUtil::Split(const String &str, const String &delims, uint max_
         }
         // parse up to next real data
         start = str.find_first_not_of(delims, start);
-        ++num_splits;
+        ++numSplits;
     } while (pos != String::npos);
 
     return strs;

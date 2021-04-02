@@ -424,7 +424,7 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
     uint32_t apiVersion = gpuContext->physicalDeviceProperties.apiVersion;
     _renderer           = gpuContext->physicalDeviceProperties.deviceName;
     _vendor             = MapVendorName(gpuContext->physicalDeviceProperties.vendorID);
-    _version            = StringUtil::Format("%d.%d.%d", VK_VERSION_MAJOR(apiVersion),
+    _version            = StringUtil::format("%d.%d.%d", VK_VERSION_MAJOR(apiVersion),
                                   VK_VERSION_MINOR(apiVersion), VK_VERSION_PATCH(apiVersion));
 
     CC_LOG_INFO("Vulkan device initialized.");

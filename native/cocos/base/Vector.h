@@ -28,26 +28,21 @@
 
 #pragma once
 
-#include <vector>
-#include <functional>
 #include <algorithm> // for std::find
+#include <functional>
+#include <vector>
 
+#include "base/Log.h"
 #include "base/Macros.h"
 #include "base/Random.h"
 #include "base/Ref.h"
-#include "base/Log.h"
 
-/**
- * @addtogroup base
- * @{
- */
 namespace cc {
 
 /*
  * Similar to std::vector, but it will manage reference count automatically internally.
  * Which means it will invoke Ref::retain() when adding an element, and invoke Ref::release() when removing an element.
  * @warn The element should be `Ref` or its sub-class.
- * @lua NA
  */
 template <class T>
 class Vector {
@@ -149,7 +144,7 @@ public:
     }
 
     /** Constructor with std::move semantic. */
-    Vector<T>(Vector<T> &&other) {
+    Vector<T>(Vector<T> &&other) noexcept {
         static_assert(std::is_convertible<T, Ref *>::value, "Invalid Type for cc::Vector<T>!");
         CC_LOG_INFO("In the move constructor of Vector!");
         _data = std::move(other._data);
@@ -167,7 +162,7 @@ public:
     }
 
     /** Copy assignment operator with std::move semantic. */
-    Vector<T> &operator=(Vector<T> &&other) {
+    Vector<T> &operator=(Vector<T> &&other) noexcept {
         if (this != &other) {
             CC_LOG_INFO("In the move assignment operator!");
             clear();
@@ -175,17 +170,6 @@ public:
         }
         return *this;
     }
-
-    // Don't uses operator since we could not decide whether it needs 'retain'/'release'.
-    //    T& operator[](int index)
-    //    {
-    //        return _data[index];
-    //    }
-    //
-    //    const T& operator[](int index) const
-    //    {
-    //        return _data[index];
-    //    }
 
     /**
      * Requests that the vector capacity be at least enough to contain n elements.
@@ -220,15 +204,16 @@ public:
     }
 
     /** Returns the maximum number of elements that the Vector can hold. */
-    ssize_t max_size() const {
+    ssize_t maxSize() const {
         return _data.max_size();
     }
 
     /** Returns index of a certain object, return UINT_MAX if doesn't contain the object */
     ssize_t getIndex(T object) const {
         auto iter = std::find(_data.begin(), _data.end(), object);
-        if (iter != _data.end())
+        if (iter != _data.end()) {
             return iter - _data.begin();
+        }
 
         return -1;
     }
@@ -270,7 +255,7 @@ public:
     /** Returns a random element of the Vector. */
     T getRandomObject() const {
         if (!_data.empty()) {
-            ssize_t randIdx = RandomHelper::random_int<int>(0, static_cast<int>(_data.size()) - 1);
+            auto randIdx = static_cast<ssize_t>(RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1));
             return *(_data.begin() + randIdx);
         }
         return nullptr;
@@ -292,8 +277,9 @@ public:
      */
     bool equals(const Vector<T> &other) const {
         ssize_t s = this->size();
-        if (s != other.size())
+        if (s != other.size()) {
             return false;
+        }
 
         for (ssize_t i = 0; i < s; i++) {
             if (this->at(i) != other.at(i)) {
@@ -463,8 +449,5 @@ protected:
 
     std::vector<T> _data;
 };
-
-// end of base group
-/** @} */
 
 } // namespace cc

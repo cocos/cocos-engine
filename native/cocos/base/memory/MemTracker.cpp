@@ -85,7 +85,7 @@ static int HashNodeCompare(const void *arg, const void *obj) {
 static void HashNodeListAndFree(void *arg, void *obj) {
     AllocHashNode *node = (AllocHashNode *)obj;
     AllocListParam *param = (AllocListParam *)arg;
-    int len = StringUtil::Printf(param->buf, param->last, "%s(%u): {%u bytes} functions: %s\n", (node->filename ? node->filename : "(unknown source)"),
+    int len = StringUtil::printf(param->buf, param->last, "%s(%u): {%u bytes} functions: %s\n", (node->filename ? node->filename : "(unknown source)"),
                                  node->line, node->bytes, (node->function ? node->function : ""));
     param->buf += len;
     FreeHashNode(node);

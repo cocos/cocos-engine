@@ -25,12 +25,11 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __CCDATA_H__
-#define __CCDATA_H__
+#pragma once
 
 #include "base/Macros.h"
-#include <stdint.h> // for ssize_t on android
-#include <string>   // for ssize_t on linux
+#include <cstdint> // for ssize_t on android
+#include <string>  // for ssize_t on linux
 
 /**
  * @addtogroup base
@@ -46,7 +45,7 @@ public:
     /**
      * This parameter is defined for convenient reference if a null Data object is needed.
      */
-    static const Data Null;
+    static const Data NULL_DATA;
 
     /**
      * Constructor of Data.
@@ -61,7 +60,7 @@ public:
     /**
      * Copy constructor of Data.
      */
-    Data(Data &&other);
+    Data(Data &&other) noexcept;
 
     /**
      * Destructor of Data.
@@ -76,7 +75,7 @@ public:
     /**
      * Overloads of operator=.
      */
-    Data &operator=(Data &&other);
+    Data &operator=(Data &&other) noexcept;
 
     /**
      * Gets internal bytes of Data. It will return the pointer directly used in Data, so don't delete it.
@@ -97,7 +96,7 @@ public:
      *        Developer should free the pointer after invoking this method.
      *  @see Data::fastSet
      */
-    void copy(const unsigned char *bytes, const ssize_t size);
+    void copy(const unsigned char *bytes, ssize_t size);
 
     /** Fast set the buffer pointer and its size. Please use it carefully.
      *  @param bytes The buffer pointer, note that it have to be allocated by 'malloc' or 'calloc',
@@ -106,7 +105,7 @@ public:
      *        2. The pointer should not be used outside after it was passed to this method.
      *  @see Data::copy
      */
-    void fastSet(unsigned char *bytes, const ssize_t size);
+    void fastSet(unsigned char *bytes, ssize_t size);
 
     /**
      * Clears data, free buffer and reset data size.
@@ -147,10 +146,7 @@ private:
 
 private:
     unsigned char *_bytes;
-    ssize_t _size;
+    ssize_t        _size;
 };
 
 } // namespace cc
-
-/** @} */
-#endif // __CCDATA_H__
