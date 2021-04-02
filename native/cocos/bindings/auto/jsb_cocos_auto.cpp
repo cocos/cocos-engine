@@ -339,7 +339,7 @@ static bool js_engine_FileUtils_getValueMapFromData(se::State& s)
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromData : Error processing arguments");
-        cc::ValueMap result = cobj->getValueMapFromData(arg0.value(), arg1.value());
+        std::unordered_map<std::string, cc::Value> result = cobj->getValueMapFromData(arg0.value(), arg1.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromData : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -361,7 +361,7 @@ static bool js_engine_FileUtils_getValueMapFromFile(se::State& s)
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromFile : Error processing arguments");
-        cc::ValueMap result = cobj->getValueMapFromFile(arg0.value());
+        std::unordered_map<std::string, cc::Value> result = cobj->getValueMapFromFile(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueMapFromFile : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -383,7 +383,7 @@ static bool js_engine_FileUtils_getValueVectorFromFile(se::State& s)
         HolderType<std::string, true> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueVectorFromFile : Error processing arguments");
-        cc::ValueVector result = cobj->getValueVectorFromFile(arg0.value());
+        std::vector<cc::Value> result = cobj->getValueVectorFromFile(arg0.value());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_engine_FileUtils_getValueVectorFromFile : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -744,7 +744,7 @@ static bool js_engine_FileUtils_writeToFile(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        HolderType<cc::ValueMap, true> arg0 = {};
+        HolderType<std::unordered_map<std::string, cc::Value>, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -768,7 +768,7 @@ static bool js_engine_FileUtils_writeValueMapToFile(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        HolderType<cc::ValueMap, true> arg0 = {};
+        HolderType<std::unordered_map<std::string, cc::Value>, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
@@ -792,7 +792,7 @@ static bool js_engine_FileUtils_writeValueVectorToFile(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 2) {
-        HolderType<cc::ValueVector, true> arg0 = {};
+        HolderType<std::vector<cc::Value>, true> arg0 = {};
         HolderType<std::string, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
