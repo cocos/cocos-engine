@@ -144,7 +144,7 @@ export class AnimationCurve {
         type: cc.Enum(WrapMode),
         visible: false,
     })
-    preWrapMode = WrapMode.Loop;
+    preWrapMode = WrapMode.ClampForever;
     /**
      * !#en Post-wrap mode.
      * !#zh 后置循环模式。
@@ -154,7 +154,7 @@ export class AnimationCurve {
         type: cc.Enum(WrapMode),
         visible: false,
     })
-    postWrapMode = WrapMode.Loop;
+    postWrapMode = WrapMode.ClampForever;
 
     cachedKey = null;
 
@@ -242,17 +242,15 @@ export class AnimationCurve {
                 wrappedTime = clamp(time, startTime, endTime);
                 break;
         }
-        if (wrappedTime >= this.cachedKey.time && wrappedTime < this.cachedKey.endTime) {
-            return this.cachedKey.evaluate(wrappedTime);
-        } else {
-            const leftIndex = this.findIndex(this.cachedKey, wrappedTime);
-            let rightIndex = leftIndex + 1;
-            if (rightIndex === this.keyFrames.length) {
-                rightIndex -= 1;
+        if (!CC_EDITOR) {
+            if (wrappedTime >= this.cachedKey.time && wrappedTime < this.cachedKey.endTime) {
+                return this.cachedKey.evaluate(wrappedTime);
             }
-            this.calcOptimizedKey(this.cachedKey, leftIndex, rightIndex);
-            return this.cachedKey.evaluate(wrappedTime);
         }
+        const leftIndex = this.findIndex(this.cachedKey, wrappedTime);
+        const rightIndex = Math.min(leftIndex + 1, this.keyFrames!.length - 1);
+        this.calcOptimizedKey(this.cachedKey, leftIndex, rightIndex);
+        return this.cachedKey.evaluate(wrappedTime);
     }
 
     calcOptimizedKey (optKey, leftIndex, rightIndex) {
@@ -277,33 +275,33 @@ export class AnimationCurve {
     findIndex (optKey, t) {
         const cachedIndex = optKey.index;
         if (cachedIndex !== -1) {
-            const cachedTime = this.keyFrames[cachedIndex].time;
+            const cachedTime = this.keyFrames![cachedIndex].time;
             if (t > cachedTime) {
                 for (let i = 0; i < LOOK_FORWARD; i++) {
                     const currIndex = cachedIndex + i;
-                    if (currIndex + 1 < this.keyFrames.length && this.keyFrames[currIndex + 1].time > t) {
+                    if (currIndex + 1 < this.keyFrames!.length && this.keyFrames![currIndex + 1].time > t) {
                         return currIndex;
                     }
                 }
             } else {
                 for (let i = 0; i < LOOK_FORWARD; i++) {
                     const currIndex = cachedIndex - i;
-                    if (currIndex >= 0 && this.keyFrames[currIndex - 1].time <= t) {
+                    if ((currIndex - 1) >= 0 && this.keyFrames![currIndex - 1].time <= t) {
                         return currIndex - 1;
                     }
                 }
             }
         }
         let left = 0;
-        let right = this.keyFrames.length;
-        let mid = Math.floor((left + right) / 2);
+        let right = this.keyFrames!.length;
+        let mid;
         while (right - left > 1) {
-            if (this.keyFrames[mid].time >= t) {
+            mid = Math.floor((left + right) / 2);
+            if (this.keyFrames![mid].time >= t) {
                 right = mid;
             } else {
-                left = mid + 1;
+                left = mid;
             }
-            mid = Math.floor((left + right) / 2);
         }
         return left;
     }

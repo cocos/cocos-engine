@@ -35,12 +35,7 @@ export default class RotationOvertimeModule {
     }
 
     set separateAxes (val) {
-        if (!val) {
-            this._separateAxes = val;
-        }
-        else {
-            console.error('rotation overtime separateAxes is not supported!');
-        }
+        this._separateAxes = val;
     }
 
     /**
@@ -87,8 +82,7 @@ export default class RotationOvertimeModule {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         if (!this._separateAxes) {
             p.rotation.x += this.z.evaluate(normalizedTime, pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET)) * dt;
-        }
-        else {
+        } else {
             // TODO: separateAxes is temporarily not supported!
             const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
             p.rotation.x += this.x.evaluate(normalizedTime, rotationRand) * dt;
