@@ -331,7 +331,7 @@ export class AudioSource extends Component {
      * 获取当前音频状态。
      */
     get state (): AudioState {
-        return (this._player ? this._player.state : AudioState.INIT) as AudioState;
+        return this._player ? this._player.state : AudioState.INIT;
     }
 
     /**
