@@ -65,8 +65,8 @@ export class AudioSource extends Component {
 
     private _cachedCurrentTime = 0;
 
-    // An operation queue to store the operations before loaded the AudioPlayer.
-    private _operationQueue: Function[] = [];
+    // An operation queue to store the operations before loading the AudioPlayer.
+    private _operationsBeforeLoading: string[] = [];
     private _isLoaded: boolean = false;
 
     /**
@@ -211,7 +211,7 @@ export class AudioSource extends Component {
      */
     public play () {
         if (!this._isLoaded) {
-            this._operationQueue.push(this.play.bind(this));
+            this._operationsBeforeLoading.push('play');
             return;
         }
         audioManager.discardOnePlayingIfNeeded();
@@ -232,7 +232,7 @@ export class AudioSource extends Component {
      */
     public pause () {
         if (!this._isLoaded) {
-            this._operationQueue.push(this.pause.bind(this));
+            this._operationsBeforeLoading.push('pause');
             return;
         }
         this._player?.pause().then(() => {
@@ -248,7 +248,7 @@ export class AudioSource extends Component {
      */
     public stop () {
         if (!this._isLoaded) {
-            this._operationQueue.push(this.stop.bind(this));
+            this._operationsBeforeLoading.push('stop');
             return;
         }
         this._player?.stop().then(() => {
@@ -284,8 +284,8 @@ export class AudioSource extends Component {
             if (this._player) {
                 this._player.loop = this._loop;
                 this._player.volume = this._volume;
-                this._operationQueue.forEach(operation => operation());
-                this._operationQueue.length = 0;
+                this._operationsBeforeLoading.forEach(opName => this[opName]?.());
+                this._operationsBeforeLoading.length = 0;
             }
         }).catch((e) => {});
     }
