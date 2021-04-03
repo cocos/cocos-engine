@@ -39,7 +39,8 @@ import { Batcher2D } from './batcher-2d';
 import { NULL_HANDLE, BatchHandle2D, BatchPool2D, BatchView2D, PassPool } from '../../core/renderer/core/memory-pools';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
-import { UILocalBuffer } from './render-uniform-buffer';
+import { UILocalBuffer, UILocalUBOManger } from './render-uniform-buffer';
+import { Pass } from '../../core/renderer/core/pass';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -53,12 +54,7 @@ export class DrawBatch2D {
     public set hInputAssembler (handle) {
         BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, handle);
     }
-    public get hDescriptorSet () {
-        return BatchPool2D.get(this._handle, BatchView2D.DESCRIPTOR_SET);
-    }
-    public set hDescriptorSet (handle) {
-        BatchPool2D.set(this._handle, BatchView2D.DESCRIPTOR_SET, handle);
-    }
+
     public get visFlags () {
         return BatchPool2D.get(this._handle, BatchView2D.VIS_FLAGS);
     }
@@ -69,7 +65,7 @@ export class DrawBatch2D {
         return this._passes;
     }
 
-    public bufferBatch: MeshBuffer | null = null;
+    public bufferBatch: MeshBuffer | null = null; // 这里可以知道对象数吗？// 需要新的数据结构存顶点数据
     public camera: Camera | null = null;
     public renderScene: RenderScene | null = null;
     public model: Model | null = null;
@@ -85,7 +81,7 @@ export class DrawBatch2D {
     // 这里有两个情况
     // 1、batches 放不下的情况
     // 2、batches 放不满的情况
-    private _drawcalls; // 类型是？// 加了这个属性之后就是一个batch多个 drawcall 了
+    public _drawcalls: drawCall[] = []; // 类型是？// 加了这个属性之后就是一个batch多个 drawcall 了
 
     constructor () {
         this._handle = BatchPool2D.alloc();
@@ -110,7 +106,7 @@ export class DrawBatch2D {
     public clear () {
         this.bufferBatch = null;
         this.hInputAssembler = NULL_HANDLE;
-        this.hDescriptorSet = NULL_HANDLE;
+        // this.hDescriptorSet = NULL_HANDLE;
         this.camera = null;
         this.texture = null;
         this.sampler = null;
@@ -151,5 +147,47 @@ export class DrawBatch2D {
                 BatchPool2D.set(this._handle, shaderOffset, passInUse.getShaderVariant(patches));
             }
         }
+    }
+
+    public objectArray : Node[] = [];
+
+    public splitDrawbatch () {
+        // 将一个 drawBatch 分割为多个 drawCall
+        // batch 有 drawCall 数组
+        // 分割条件， uboHash 要一致，buffer View 要一致
+        // batch 需要有一个 存对象的信息在以供 ubo 的 upload 和 更新使用
+        // 先假设 batch 里有对象数组 objectArray
+        const length = this.objectArray.length;
+        for (let i = 0; i < length; i++) {
+            const comp = this.objectArray[i];
+            // 从 Node 里取 TRS，comp 上取 to 和 color
+            const localBuffer = UILocalUBOManger.manager!.upload(t, r, s, to, c, 16);
+            // 能同 draw call 的条件： UBOIndex 相同，ubohash 相同
+        }
+    }
+}
+
+class drawCall {
+    public uboHash = 0; // 每个 DC 一个
+    // 那岂不是每个每个 batch 会有多个 DS
+
+    dynamicOffset; // 偏移用
+    vertexCount; // 多一个就加 4
+
+    private _batch;
+
+    public get hDescriptorSet () {
+        return BatchPool2D.get(this._batch._handle, BatchView2D.DESCRIPTOR_SET);
+    }
+    public set hDescriptorSet (handle) {
+        BatchPool2D.set(this._batch._handle, BatchView2D.DESCRIPTOR_SET, handle);
+    }
+
+    public clear () {
+        this.hDescriptorSet = NULL_HANDLE;
+    }
+
+    constructor (batch) {
+        this._batch = batch;
     }
 }

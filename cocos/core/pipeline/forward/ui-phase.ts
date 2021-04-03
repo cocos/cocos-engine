@@ -62,12 +62,12 @@ export class UIPhase {
                 const shaderHandle = BatchPool2D.get(handle, BatchView2D.SHADER_0 + j);
                 const shader = ShaderPool.get(shaderHandle);
                 const inputAssembler = IAPool.get(batch.hInputAssembler);
-                const ds = DSPool.get(batch.hDescriptorSet);
                 const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
                 cmdBuff.bindInputAssembler(inputAssembler);
                 for (batch.drawcalls) {
+                    const ds = DSPool.get(batch.drawcalls[i].hDescriptorSet);
                     cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds, batch.drawcalls[i].dynamicOffset);
                     inputAssembler.vertexCount = batch.drawcalls[i].vertexCount;
                     cmdBuff.draw(inputAssembler);

@@ -49,6 +49,7 @@ import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
+import { UILocalUBOManger } from './render-uniform-buffer';
 import { value } from '../../core/utils/js-typed';
 
 const _dsInfo = new DescriptorSetInfo(null!);
@@ -270,7 +271,9 @@ export class Batcher2D {
                         subModels[j].priority = batchPriority++;
                     }
                 } else {
-                    batch.hDescriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
+                    for (let i = 0; i < batch._drawcalls.length; i++) {
+                        batch._drawcalls[i].hDescriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch._drawcalls[i]);
+                    }
                 }
                 batch.renderScene.addBatch(batch);
             }
@@ -546,6 +549,7 @@ export class Batcher2D {
         curDrawBatch.samplerHash = this._currSamplerHash;
         curDrawBatch.fillPasses(mat, depthStencil, dssHash, blendState, bsHash, null, this);
 
+        // 这儿填充？？
         this._batches.push(curDrawBatch);
 
         buffer.vertexStart = buffer.vertexOffset;
@@ -799,7 +803,8 @@ class LocalDescriptorSet  {
 }
 
 class DescriptorSetCache {
-    private _descriptorSetCache = new Map<number, Map<number, DescriptorSetHandle>>();
+    // private _descriptorSetCache = new Map<number, Map<number, DescriptorSetHandle>>();
+    private _descriptorSetCache = new Map<number, DescriptorSetHandle>();
     private _localDescriptorSetCache: LocalDescriptorSet[] = [];
     private _localCachePool: Pool<LocalDescriptorSet>;
 
@@ -807,8 +812,9 @@ class DescriptorSetCache {
         this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16);
     }
 
-    public getDescriptorSet (batch): DescriptorSetHandle {
+    public getDescriptorSet (batch: DrawBatch2D, drawCall): DescriptorSetHandle {
         const root = legacyCC.director.root;
+        let hash;
         if (batch.useLocalData) {
             const caches = this._localDescriptorSetCache;
             for (let i = 0, len = caches.length; i < len; i++) {
@@ -828,25 +834,46 @@ class DescriptorSetCache {
             // texture hash 位数不定
             // simpler hash genSamplerHash 得来，28+ 位
             // UBO hash 可能只要两三位就够
-            const descriptorSetTextureMap = this._descriptorSetCache.get(batch.textureHash);
-            if (descriptorSetTextureMap && descriptorSetTextureMap.has(batch.samplerHash)) {
-                return descriptorSetTextureMap.get(batch.samplerHash)!;
+            // 两个 hash + 一个拼接 hash 可以用 ^
+            hash = batch.textureHash ^ batch.samplerHash ^ drawCall.uboHash;
+            if (this._descriptorSetCache.has(hash)) {
+                return this._descriptorSetCache.get(hash)!;
             } else {
+                // 添加了新UBO 的缓存如何创建？
                 _dsInfo.layout = batch.passes[0].localSetLayout;
                 const handle = DSPool.alloc(root.device, _dsInfo);
                 const descriptorSet = DSPool.get(handle);
                 const binding = ModelLocalBindings.SAMPLER_SPRITE;
                 descriptorSet.bindTexture(binding, batch.texture!);
                 descriptorSet.bindSampler(binding, batch.sampler!);
+                // 这儿需要处理一下返回值为空的情况
+                const localBufferView = UILocalUBOManger.manager!.getBufferByHash(16, drawCall.uboHash)?.getBufferView();
+                descriptorSet.bindBuffer(ModelLocalBindings.UBO_LOCAL, localBufferView!);// 这儿绑定的是 bufferView
                 descriptorSet.update();
 
-                if (descriptorSetTextureMap) {
-                    this._descriptorSetCache.get(batch.textureHash)!.set(batch.samplerHash, handle);
-                } else {
-                    this._descriptorSetCache.set(batch.textureHash, new Map([[batch.samplerHash, handle]]));
-                }
+                this._descriptorSetCache.set(hash, handle);
+
                 return handle;
             }
+            // const descriptorSetTextureMap = this._descriptorSetCache.get(batch.textureHash);
+            // if (descriptorSetTextureMap && descriptorSetTextureMap.has(batch.samplerHash)) {
+            //     return descriptorSetTextureMap.get(batch.samplerHash)!;
+            // } else {
+            //     _dsInfo.layout = batch.passes[0].localSetLayout;
+            //     const handle = DSPool.alloc(root.device, _dsInfo);
+            //     const descriptorSet = DSPool.get(handle);
+            //     const binding = ModelLocalBindings.SAMPLER_SPRITE;
+            //     descriptorSet.bindTexture(binding, batch.texture!);
+            //     descriptorSet.bindSampler(binding, batch.sampler!);
+            //     descriptorSet.update();
+
+            //     if (descriptorSetTextureMap) {
+            //         this._descriptorSetCache.get(batch.textureHash)!.set(batch.samplerHash, handle);
+            //     } else {
+            //         this._descriptorSetCache.set(batch.textureHash, new Map([[batch.samplerHash, handle]]));
+            //     }
+            //     return handle;
+            // }
         }
     }
 
