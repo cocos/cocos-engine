@@ -233,6 +233,9 @@ export class ImageAsset extends Asset {
     }
 
     public destroy () {
+        if (this._tex && this._tex.image == this && this._tex.destroy) {
+            this._tex.destroy()
+        } 
         if (this.data && this.data instanceof HTMLImageElement) {
             this.data.src = '';
             this._setRawAsset('');
