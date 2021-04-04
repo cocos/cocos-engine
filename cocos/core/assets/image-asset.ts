@@ -55,7 +55,7 @@ export interface IMemoryImageSource {
  */
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
-function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
+function isImageBitmap (imageSource: any): boolean {
     return legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap;
 }
 
@@ -156,7 +156,7 @@ export class ImageAsset extends Asset {
         this._tex = tex;
     }
 
-    get _texture () {
+    get _texture () : legacyCC.Texture2D | null {
         if (!this._tex) {
             const tex = new legacyCC.Texture2D();
             tex.name = this.nativeUrl;
@@ -249,7 +249,7 @@ export class ImageAsset extends Asset {
 
     // SERIALIZATION
 
-    public _serialize () {
+    public _serialize () : any {
         if (EDITOR || TEST) {
             let targetExtensions = this._exportedExts;
             if (!targetExtensions && this._native) {
@@ -272,6 +272,7 @@ export class ImageAsset extends Asset {
             }
             return { fmt: extensionIndices.join('_'), w: this.width, h: this.height };
         }
+        return '';
     }
 
     public _deserialize (data: any) {
@@ -341,7 +342,7 @@ export class ImageAsset extends Asset {
 
 function _getGlobalDevice (): Device | null {
     if (legacyCC.director.root) {
-        return legacyCC.director.root.device;
+        return legacyCC.director.root.device as Device;;
     }
     return null;
 }
