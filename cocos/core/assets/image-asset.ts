@@ -156,14 +156,14 @@ export class ImageAsset extends Asset {
         this._tex = tex;
     }
 
-    get _texture () : any {
+    get _texture () : legacyCC.Texture2D | null {
         if (!this._tex) {
             const tex = new legacyCC.Texture2D();
             tex.name = this.nativeUrl;
             tex.image = this;
             this._tex = tex;
         }
-        return this._tex;
+        return this._tex as legacyCC.Texture2D;
     }
 
     private static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.astc'];
