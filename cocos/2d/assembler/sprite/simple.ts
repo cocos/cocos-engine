@@ -92,7 +92,7 @@ export const simple: IAssembler = {
         //     sprite.renderData!.indicesCount,
         // );
         // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
-        const dataList: IRenderData[] = sprite.renderData!.data;// 四个顶点数据
+        const dataList: IRenderData[] = sprite.renderData!.data; // 四个顶点数据
         const node = sprite.node;
 
         let buffer = renderer.acquireBufferBatch()!; // 申请了 vfmtPosUvColor 格式的 buffer，即 3 2 4

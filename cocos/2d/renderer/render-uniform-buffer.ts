@@ -11,7 +11,7 @@ export class UILocalBuffer {
     private static UBO_COUNT = 100; // 一个里可以放多少个 view
 
     private _device: Device;
-    private _capacityPerUBO: number;// 目前是 16，就是说每个 batch 可以放得下 16 个，但是 如果是用户材质的话就不够 16 个，device 不同的话可能会更多
+    private _capacityPerUBO: number; // 目前是 16，就是说每个 batch 可以放得下 16 个，但是 如果是用户材质的话就不够 16 个，device 不同的话可能会更多
     private _uniformBufferStride: number;
 
     private _uniformBufferElementCount: number;
@@ -42,7 +42,7 @@ export class UILocalBuffer {
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             this._uniformBufferStride * UILocalBuffer.UBO_COUNT,
-            this._uniformBufferStride,
+            this._uniformBufferStride
         ));
 
         // 数据 view
@@ -100,7 +100,6 @@ export class UILocalBuffer {
     }
 
     getBufferView () {
-        // 怎么做偏移？// 怎么和buffer相关？
         return this._firstUniformBufferView;
     }
 
@@ -144,10 +143,10 @@ export class UILocalUBOManger {
         return localBuffer;
     }
 
-    getBufferByHash (capacity, hash): UILocalBuffer | null {
+    getBufferByHash (capacity, index): UILocalBuffer | null {
         const localBuffers = this._localBuffers.get(capacity);
         if (!localBuffers) return null;
-        return localBuffers[hash];
+        return localBuffers[index];
     }
 }
 

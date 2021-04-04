@@ -68,9 +68,8 @@ export class UIPhase {
                 cmdBuff.bindInputAssembler(inputAssembler);
                 for (batch.drawcalls) {
                     const ds = DSPool.get(batch.drawcalls[i].hDescriptorSet);
-                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds, batch.drawcalls[i].dynamicOffset);
-                    inputAssembler.vertexCount = batch.drawcalls[i].vertexCount;
-                    cmdBuff.draw(inputAssembler);
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds, batch.drawcalls[i].dynamicOffsets);
+                    cmdBuff.draw(batch.drawcalls[i].drawInfo);
                 }
             }
         }

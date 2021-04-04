@@ -51,6 +51,7 @@ import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
 import { UILocalUBOManger } from './render-uniform-buffer';
 import { value } from '../../core/utils/js-typed';
+import { DummyIA } from './dummy-ia';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -133,7 +134,7 @@ export class Batcher2D {
     private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _meshBufferUseCount: Map<number, number> = new Map();
     private _batches: CachedArray<DrawBatch2D>;
-    private _doUploadBuffersCall: Map<any, ((ui:Batcher2D) => void)> = new Map();
+    private _doUploadBuffersCall: Map<any, ((ui: Batcher2D) => void)> = new Map();
     private _emptyMaterial = new Material();
     private _currScene: RenderScene | null = null;
     private _currMaterial: Material = this._emptyMaterial;
@@ -151,8 +152,9 @@ export class Batcher2D {
     private _currIsStatic = false;
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
+    private _dummyIA;
 
-    public _currNodes:Node[] = []; // 存一个批次的 Node数据
+    public _currNodes: Node[] = []; // 存一个批次的 Node数据
     public _currOffset = 0; // 记一下偏移量
 
     public builtinUniformNum = 0; // 可用 uniform 的数量
@@ -161,6 +163,7 @@ export class Batcher2D {
         this.device = _root.device;
         this._batches = new CachedArray(64);
         this._drawBatchPool = new Pool(() => new DrawBatch2D(), 128);
+        this._dummyIA = new DummyIA(this.device);
     }
 
     public initialize () {
@@ -241,7 +244,7 @@ export class Batcher2D {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc (target: any, func: ((ui:Batcher2D) => void)) {
+    public addUploadBuffersFunc (target: any, func: ((ui: Batcher2D) => void)) {
         this._doUploadBuffersCall.set(target, func);
     }
 
@@ -401,9 +404,9 @@ export class Batcher2D {
         // 需要一个条件，这个条件是我排除用户 uniform 之后可用的 uniform 数量
         // 可配置，怎么配置？给个变量？倒是可以随意变
         if (this._currScene !== renderScene || this._currLayer !== comp.node.layer
-            || this._currMaterial.hash !== mat?.hash || this.builtinUniformNum < (this._currOffset * 4)// 这儿改成 hash 了，因为就算实例化了也可以合
-             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
-             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
+            || this._currMaterial.hash !== mat?.hash || this.builtinUniformNum < (this._currOffset * 4) // 这儿改成 hash 了，因为就算实例化了也可以合
+            || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
+            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
             this.autoMergeBatches(this._currComponent!);
             this._currScene = renderScene;
             this._currComponent = renderComp;
@@ -422,7 +425,7 @@ export class Batcher2D {
         }
 
         if (assembler) {
-            assembler.fillBuffers(renderComp, this);// 这里更新不填充
+            // assembler.fillBuffers(renderComp, this); // 这里更新不填充
             this._currNodes[this._currOffset] = comp.node; // 记录了个更新的 Node
             this._applyOpacity(renderComp);
         }
@@ -517,9 +520,8 @@ export class Batcher2D {
      */
     public autoMergeBatches (renderComp?: Renderable2D) {
         const buffer = this.currBufferBatch;
-        const hIA = buffer?.recordBatch();
         const mat = this._currMaterial;
-        if (!hIA || !mat || !buffer) {
+        if (!mat || !buffer) {
             return;
         }
         let blendState;
@@ -543,7 +545,6 @@ export class Batcher2D {
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
-        curDrawBatch.hInputAssembler = hIA;
         curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
@@ -724,7 +725,7 @@ class LocalDescriptorSet  {
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             UBOLocal.SIZE,
-            UBOLocal.SIZE,
+            UBOLocal.SIZE
         ));
     }
 
@@ -848,7 +849,7 @@ class DescriptorSetCache {
                 descriptorSet.bindSampler(binding, batch.sampler!);
                 // 这儿需要处理一下返回值为空的情况
                 const localBufferView = UILocalUBOManger.manager!.getBufferByHash(16, drawCall.uboHash)?.getBufferView();
-                descriptorSet.bindBuffer(ModelLocalBindings.UBO_LOCAL, localBufferView!);// 这儿绑定的是 bufferView
+                descriptorSet.bindBuffer(ModelLocalBindings.UBO_LOCAL, localBufferView!); // 这儿绑定的是 bufferView
                 descriptorSet.update();
 
                 this._descriptorSetCache.set(hash, handle);
