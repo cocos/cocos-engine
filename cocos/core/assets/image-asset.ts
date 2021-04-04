@@ -56,7 +56,7 @@ export interface IMemoryImageSource {
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
 function isImageBitmap (imageSource: any): boolean {
-    return legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap;
+    return (legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap) == true;
 }
 
 function fetchImageSource (imageSource: ImageSource) {
@@ -156,7 +156,7 @@ export class ImageAsset extends Asset {
         this._tex = tex;
     }
 
-    get _texture () : legacyCC.Texture2D | null {
+    get _texture () : any {
         if (!this._tex) {
             const tex = new legacyCC.Texture2D();
             tex.name = this.nativeUrl;
@@ -342,7 +342,7 @@ export class ImageAsset extends Asset {
 
 function _getGlobalDevice (): Device | null {
     if (legacyCC.director.root) {
-        return legacyCC.director.root.device as Device;;
+        return legacyCC.director.root.device as Device;
     }
     return null;
 }
