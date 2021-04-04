@@ -28,63 +28,80 @@
  * @module ui
  */
  import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit, Device, Format, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
+import { IAPool, InputAssemblerHandle, NULL_HANDLE } from '../../core/renderer';
 
  export class DummyIA {
     private _buffer: Buffer;
-    private _ia: InputAssembler;
+    private _ia: InputAssemblerHandle;
 
     get ia() { return this._ia; }
 
     constructor (device: Device) {
-        const elementCount = (/*position*/3 + /*texCoord*/2 + /*instanceID*/1) * /*vertexPerQuad*/4;
-        const stride = elementCount * Float32Array.BYTES_PER_ELEMENT;
-        const maxQuadPerDrawcall = device.capabilities.maxVertexUniformVectors / 4; // 现在是写死的最多用 16 个
+        const elementPerVertex = (/*position*/3 + /*texCoord*/2 + /*instanceID*/1);
+        const vertexPerQuad = 6;
+        const elementsPerQuad = elementPerVertex * vertexPerQuad;
+        const stride = elementPerVertex * Float32Array.BYTES_PER_ELEMENT;
+        const maxQuadPerDrawcall = Math.floor(device.capabilities.maxVertexUniformVectors / 4); // 现在是写死的最多用 16 个
 
         this._buffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX,
             MemoryUsageBit.DEVICE,
-            stride * maxQuadPerDrawcall,
+            stride * vertexPerQuad * maxQuadPerDrawcall,
             stride
         ));
 
-        const data = new Float32Array(elementCount * maxQuadPerDrawcall);
+        const data = new Float32Array(elementsPerQuad * maxQuadPerDrawcall);
         for (let i = 0; i < maxQuadPerDrawcall; ++i) {
-            data[i +  0] = -0.5;
-            data[i +  1] = -0.5;
-            data[i +  2] = 0;
-            data[i +  3] = 0;
-            data[i +  4] = 0;
-            data[i +  5] = i;
+            data[i * elementsPerQuad +  0] = -0.5;
+            data[i * elementsPerQuad +  1] = -0.5;
+            data[i * elementsPerQuad +  2] = 0;
+            data[i * elementsPerQuad +  3] = 0;
+            data[i * elementsPerQuad +  4] = 1;
+            data[i * elementsPerQuad +  5] = i;
 
-            data[i +  6] = -0.5;
-            data[i +  7] = 0.5;
-            data[i +  8] = 0;
-            data[i +  9] = 0;
-            data[i + 10] = 1;
-            data[i + 11] = i;
+            data[i * elementsPerQuad +  6] = 0.5;
+            data[i * elementsPerQuad +  7] = -0.5;
+            data[i * elementsPerQuad +  8] = 0;
+            data[i * elementsPerQuad +  9] = 1;
+            data[i * elementsPerQuad + 10] = 1;
+            data[i * elementsPerQuad + 11] = i;
 
-            data[i + 12] = 0.5;
-            data[i + 13] = -0.5;
-            data[i + 14] = 0;
-            data[i + 15] = 1;
-            data[i + 16] = 0;
-            data[i + 17] = i;
+            data[i * elementsPerQuad + 12] = -0.5;
+            data[i * elementsPerQuad + 13] = 0.5;
+            data[i * elementsPerQuad + 14] = 0;
+            data[i * elementsPerQuad + 15] = 0;
+            data[i * elementsPerQuad + 16] = 0;
+            data[i * elementsPerQuad + 17] = i;
 
-            data[i + 18] = 0.5;
-            data[i + 19] = 0.5;
-            data[i + 20] = 0;
-            data[i + 21] = 1;
-            data[i + 22] = 1;
-            data[i + 23] = i;
+            data[i * elementsPerQuad + 18] = -0.5;
+            data[i * elementsPerQuad + 19] = 0.5;
+            data[i * elementsPerQuad + 20] = 0;
+            data[i * elementsPerQuad + 21] = 0;
+            data[i * elementsPerQuad + 22] = 0;
+            data[i * elementsPerQuad + 23] = i;
+
+            data[i * elementsPerQuad + 24] = 0.5;
+            data[i * elementsPerQuad + 25] = -0.5;
+            data[i * elementsPerQuad + 26] = 0;
+            data[i * elementsPerQuad + 27] = 1;
+            data[i * elementsPerQuad + 28] = 1;
+            data[i * elementsPerQuad + 29] = i;
+
+            data[i * elementsPerQuad + 30] = 0.5;
+            data[i * elementsPerQuad + 31] = 0.5;
+            data[i * elementsPerQuad + 32] = 0;
+            data[i * elementsPerQuad + 33] = 1;
+            data[i * elementsPerQuad + 34] = 0;
+            data[i * elementsPerQuad + 35] = i;
         }
 
         this._buffer.update(data);
 
-        this._ia = device.createInputAssembler(new InputAssemblerInfo(
+        this._ia = IAPool.alloc(device, new InputAssemblerInfo(
             [
-                new Attribute(AttributeName.ATTR_POSITION,  Format.RGB32F, false, 0, false, 0),
-                new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F,  false, 0, false, 1),
-                new Attribute(AttributeName.ATTR_BATCH_ID,  Format.R32F,   false, 0, false, 2),
+                new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, 0, false, 0),
+                new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F, false, 0, false, 1),
+                new Attribute(AttributeName.ATTR_BATCH_ID,   Format.R32F, false, 0, false, 2),
             ],
             [this._buffer]
         ));
@@ -92,8 +109,8 @@
 
     destroy() {
         if (this._ia) {
-            this._ia.destroy();
-            this._ia = null!;
+            IAPool.free(this._ia);
+            this._ia = NULL_HANDLE;
         }
 
         if (this._buffer) {

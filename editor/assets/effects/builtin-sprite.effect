@@ -24,9 +24,9 @@ CCProgram sprite-vs %{
   #include <cc-global>
   #define CC_UI_PER_BATCH 16
 
-  in float a_instanceID;
   in vec3 a_position;
   in vec2 a_texCoord;
+  in float a_batch_id;
 
   out vec4 color;
   out vec2 uv0;
@@ -48,16 +48,17 @@ CCProgram sprite-vs %{
   };
 
   void getUIData(out UIData o) {
-    int instanceID = int(a_instanceID);
+    int instanceID = int(a_batch_id);
     vec4 data1 = cc_local_data1[instanceID];
     vec4 data3 = cc_local_data3[instanceID];
-    float rg = data3.w;
+    float rg = data1.w;
+    float r = floor(rg);
 
     o.rotation = cc_local_data2[instanceID];
     o.tilingOffset = cc_local_data4[instanceID];
     o.translation = data1.xyz;
     o.scale = vec3(data3.xy, 1.0);
-    o.color = vec4(floor(rg) * (1.0 / 255.0), fract(rg), data3.zw);
+    o.color = vec4(r * (1.0 / 255.0), rg - r, data3.zw);
   }
 
   vec3 VectorTransformQuat (vec3 v, vec4 Q) {
@@ -68,7 +69,7 @@ CCProgram sprite-vs %{
     UIData i;
     getUIData(i);
 
-    vec4 pos = vec4(VectorTransformQuat(a_position * i.scale, i.rotation) + i.translation, 1.0);
+    vec4 pos = vec4(VectorTransformQuat(a_position * i.scale * 80.0, i.rotation) + i.translation, 1.0);
     uv0 = a_texCoord * i.tilingOffset.xy + i.tilingOffset.zw;
     color = i.color;
 

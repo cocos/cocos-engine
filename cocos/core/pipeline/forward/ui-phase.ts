@@ -66,7 +66,7 @@ export class UIPhase {
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
                 cmdBuff.bindInputAssembler(inputAssembler);
-                for (batch.drawcalls) {
+                for (let i = 0; i < batch.drawcalls.length; i++) {
                     const ds = DSPool.get(batch.drawcalls[i].hDescriptorSet);
                     cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds, batch.drawcalls[i].dynamicOffsets);
                     cmdBuff.draw(batch.drawcalls[i].drawInfo);

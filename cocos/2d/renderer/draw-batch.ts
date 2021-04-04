@@ -39,30 +39,51 @@ import { Batcher2D } from './batcher-2d';
 import { NULL_HANDLE, BatchHandle2D, BatchPool2D, BatchView2D, PassPool, DescriptorSetHandle, InputAssemblerHandle } from '../../core/renderer/core/memory-pools';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
-import { UILocalBuffer, UILocalUBOManger } from './render-uniform-buffer';
+import { UILocalUBOManger } from './render-uniform-buffer';
 import { Pass } from '../../core/renderer/core/pass';
 import { Renderable2D } from '../framework';
+import { Sprite } from '../components';
+import { RecyclePool } from '../../core';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
+class DrawCall {
+    // UBO info
+    public bufferHash = 0;
+    public bufferUboIndex = 0;
+    public bufferView!: Buffer; // 直接存 ubo
+
+    // actual draw call info
+    public hDescriptorSet: DescriptorSetHandle = NULL_HANDLE;
+    public dynamicOffsets = [0]; // 偏移用 // uboindex * _uniformBufferStride
+    public drawInfo = new DrawInfo();
+}
+
 export class DrawBatch2D {
-    public get handle () {
+
+    static drawcallPool = new RecyclePool(() => new DrawCall(), 100);
+
+    get handle () {
         return this._handle;
     }
-    public get hInputAssembler () {
+
+    get hInputAssembler () {
         return BatchPool2D.get(this._handle, BatchView2D.INPUT_ASSEMBLER);
     }
-    public set hInputAssembler (handle) {
+
+    set hInputAssembler (handle) {
         BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, handle);
     }
 
-    public get visFlags () {
+    get visFlags () {
         return BatchPool2D.get(this._handle, BatchView2D.VIS_FLAGS);
     }
-    public set visFlags (vis) {
+
+    set visFlags (vis) {
         BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, vis);
     }
-    public get passes () {
+
+    get passes () {
         return this._passes;
     }
 
@@ -83,6 +104,7 @@ export class DrawBatch2D {
     // 1、batches 放不下的情况
     // 2、batches 放不满的情况
     public _drawcalls: DrawCall[] = []; // 类型是？// 加了这个属性之后就是一个batch多个 drawcall 了
+    private _dcIndex = -1;
 
     get drawcalls () { return this._drawcalls; }
 
@@ -117,6 +139,7 @@ export class DrawBatch2D {
         this.isStatic = false;
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
+        this._drawcalls.length = 0;
     }
 
     // object version
@@ -152,25 +175,44 @@ export class DrawBatch2D {
         }
     }
 
-    public fillBuffers (renderComp: Renderable2D) {
+    public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger) {
         // 将一个 drawBatch 分割为多个 drawCall
         // batch 有 drawCall 数组
         // 分割条件， uboHash 要一致，buffer View 要一致
         // batch 需要有一个 存对象的信息在以供 ubo 的 upload 和 更新使用
         // 先假设 batch 里有对象数组 objectArray
         // 从 Node 里取 TRS，comp 上取 to 和 color
-        const localBuffer = UILocalUBOManger.manager!.upload(t, r, s, to, c, 16);
+        renderComp.node.updateWorldTransform();
+        // 需要加工锚点和 rect
+        // @ts-expect-error using private members
+        const { _pos: t, _rot: r, _scale: s } = renderComp.node;
+        const sprite = renderComp as Sprite;
+        const uv = sprite.spriteFrame?.uv!;
+        // T 为 w h O 为右上的 XY 四个数字
+        const c = renderComp.color;
+        // 16 的定值为 device 查出的 capacity
+
+        const localBuffer = UBOManager.upload(t, r, s, uv, c, 16);
         // 能同 draw call 的条件： UBOIndex 相同，ubohash 相同
+
+        let dc = this._drawcalls[this._dcIndex];
+        if (dc && (dc.bufferHash !== localBuffer.hash || dc.bufferUboIndex !== localBuffer.prevUBOIndex)) { // 存在但不能合批
+            this._dcIndex++; // 索引加一
+            dc = this._drawcalls[this._dcIndex]; // 再取取不到
+        }
+        if (!dc) {
+            dc = DrawBatch2D.drawcallPool.add();
+            // make sure to assign initial values to all members here
+            dc.bufferHash = localBuffer.hash;
+            dc.bufferUboIndex = localBuffer.prevUBOIndex;
+            dc.bufferView = localBuffer.getBufferView();
+            dc.dynamicOffsets[0] = localBuffer.prevUBOIndex * localBuffer.uniformBufferStride;
+            dc.drawInfo.firstVertex = localBuffer.prevInstanceID * 6;
+            dc.drawInfo.vertexCount = 0;
+            this._dcIndex = this._drawcalls.length;
+
+            this._drawcalls.push(dc);
+        }
+        dc.drawInfo.vertexCount += 6;
     }
-}
-
-class DrawCall {
-    // UBO info
-    public bufferHash = 0;
-    public bufferView!: Buffer;
-
-    // actual draw call info
-    public hDescriptorSet: DescriptorSetHandle = NULL_HANDLE;
-    public dynamicOffsets = [0]; // 偏移用
-    public drawInfo = new DrawInfo();
 }

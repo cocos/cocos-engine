@@ -1,14 +1,14 @@
 // Uniform 数据传输结构体
 
 import legacyCC from '../../../predefine';
-import { Color, murmurhash2_32_gc } from '../../core';
+import { Color, murmurhash2_32_gc, RecyclePool } from '../../core';
 import { Buffer } from '../../core/gfx';
 import { BufferInfo, BufferUsageBit, BufferViewInfo, MemoryUsageBit } from '../../core/gfx/base/define';
 import { Device } from '../../core/gfx/base/device';
 import { UBOUILocal } from '../../core/pipeline/define';
 
 export class UILocalBuffer {
-    private static UBO_COUNT = 100; // 一个里可以放多少个 view
+    private static UBO_COUNT = 10; // 一个里可以放多少个 view
 
     private _device: Device;
     private _capacityPerUBO: number; // 目前是 16，就是说每个 batch 可以放得下 16 个，但是 如果是用户材质的话就不够 16 个，device 不同的话可能会更多
@@ -20,13 +20,25 @@ export class UILocalBuffer {
     private _uniformBufferData: Float32Array;
 
     // 现在已经存了多少 UI 信息 // index = instanceID + uboIndex * _capacityPerUBO
-    private _uboIndex: number;
-    private _instanceID: number;
+    private _prevUBOIndex: number = 0;
+    private _prevInstanceID: number = -1;
 
     // 缺一个能放下多少顶点的属性
 
     // hash值
     public hash: number;
+
+    get prevUBOIndex () {
+        return this._prevUBOIndex;
+    }
+
+    get uniformBufferStride () {
+        return this._uniformBufferStride;
+    }
+
+    get prevInstanceID () {
+        return this._prevInstanceID;
+    }
 
     constructor (device: Device, hash: number, capacityPerUBO: number) {
         this._capacityPerUBO = capacityPerUBO;
@@ -50,27 +62,21 @@ export class UILocalBuffer {
 
         // 实际保存数据的地方// 一个,长度为 100 个 ubo 的长度
         this._uniformBufferData = new Float32Array(this._uniformBufferElementCount * UILocalBuffer.UBO_COUNT);
-
-        this._uboIndex = 0;
-        this._instanceID = 0;
     }
 
     checkFull () {
-        if (this._uboIndex >= UILocalBuffer.UBO_COUNT) {
-            return true;
-        }
-        return false;
+        return this._prevUBOIndex >= UILocalBuffer.UBO_COUNT - 1 && this._prevInstanceID >= this._capacityPerUBO - 1;
     }
 
     updateIndex () {
         // 更新现有的索引值，通过这两个值实际上是能够得到总数的
         // instanceID + uboIndex * _capacityPerUBO
         // 干脆在 upload 里更新吧
-        if (this._instanceID + 1 >= this._capacityPerUBO) {
-            this._uboIndex++;
-            this._instanceID = 0;
+        if (this._prevInstanceID + 1 >= this._capacityPerUBO) {
+            this._prevUBOIndex++;
+            this._prevInstanceID = 0;
         } else {
-            this._instanceID++;
+            this._prevInstanceID++;
         }
     }
 
@@ -82,57 +88,88 @@ export class UILocalBuffer {
         // 注意是密集排列，所以这里是要根据第几个来存
         this.updateIndex();
         // 先根据 uboIndex 做 ubo 的偏移
-        const uboOffset = (this._capacityPerUBO * 4) * this._uboIndex;
+        const data = this._uniformBufferData;
         // 只负责根据数据填充
         // trans & RG
-        const colorRG = c.r + c.g / 255;
-        this._uniformBufferData.set([t.x, t.y, t.z, colorRG], this._instanceID * 4 + uboOffset);
-        // rotation & BA
-        this._uniformBufferData.set([r.x, r.y, r.z, r.w], (this._capacityPerUBO + this._instanceID) * 4 + uboOffset);
-        // scale
-        this._uniformBufferData.set([s.x, s.y, c.b, c.a], (this._capacityPerUBO * 2 + this._instanceID) * 4 + uboOffset);
-        // tilling
-        this._uniformBufferData.set([to.x, to.y, to.z, to.w], (this._capacityPerUBO * 3 + this._instanceID) * 4 + uboOffset);
-    }
-
-    getInstanceID () {
-        return this._instanceID;
+        let offset = this._prevInstanceID * 4 + this._uniformBufferElementCount * this._prevUBOIndex;
+        data[offset + 0] = t.x;
+        data[offset + 1] = t.y;
+        data[offset + 2] = t.z;
+        data[offset + 3] = c.r + Math.min(c.y, 0.999);
+        // rotation
+        offset += this._capacityPerUBO * 4;
+        data[offset + 0] = r.x;
+        data[offset + 1] = r.y;
+        data[offset + 2] = r.z;
+        data[offset + 3] = r.w;
+        // scale & BA
+        offset += this._capacityPerUBO * 4;
+        data[offset + 0] = s.x;
+        data[offset + 1] = s.y;
+        data[offset + 2] = c.z;
+        data[offset + 3] = c.w;
+        // tilling offset
+        offset += this._capacityPerUBO * 4;
+        if (to) {
+            data[offset + 0] = to[2] - to[0];
+            data[offset + 1] = to[1] - to[5];
+            data[offset + 2] = to[4];
+            data[offset + 3] = to[5];
+        } else {
+            data[offset + 0] = 1;
+            data[offset + 1] = 1;
+            data[offset + 2] = 0;
+            data[offset + 3] = 0;
+        }
     }
 
     getBufferView () {
         return this._firstUniformBufferView;
     }
 
-    clear () {
+    updateBuffer() {
+        this._uniformBuffer.update(this._uniformBufferData);
+    }
+
+    reset () {
         // 清掉现有的数据
-        this._uboIndex = 0;
-        this._instanceID = 0;
+        this._prevUBOIndex = 0;
+        this._prevInstanceID = -1;
     }
 }
 
-export class UILocalUBOManger {
-    public static manager: UILocalUBOManger | null = null;
+interface ILocalBufferPool {
+    pool: UILocalBuffer[];
+    currentIdx: number;
+}
 
-    private _localBuffers = new Map<number, UILocalBuffer[]>(); // capacity -> buffer[]
-    private _device = legacyCC.director.root.device;
+export class UILocalUBOManger {
+    private _localBuffers = new Map<number,  ILocalBufferPool>(); // capacity -> buffer[]
+    private _device: Device;
+
+    constructor (device: Device) {
+        this._device = device;
+    }
 
     // 一个面片调用一次
     upload (t, r, s, to, c, capacity) { // 1 16
         // 根据 capacity 查找/创建 UILocalBuffer
         // capacity 实际是个结构标识
         // 先取一次这个 数组，之后处理
-        let localBuffers = this._localBuffers.get(capacity);
-        if (!localBuffers) {
-            localBuffers = [];
+        if (!this._localBuffers.has(capacity)) {
+            this._localBuffers.set(capacity, {
+                pool: [this._createLocalBuffer(capacity, 0)],
+                currentIdx: 0,
+            });
         }
-        const length = localBuffers.length;
-        if (length === 0 || (length !== 0 && localBuffers[length - 1].checkFull())) {
-            const idx = length;
-            // 如需创建，hash 根据 capacity 和数组下标
-            const hash = murmurhash2_32_gc(`UIUBO-${capacity}-${idx}`, 666);
-            localBuffers.push(new UILocalBuffer(this._device, hash, capacity));
+        const localBufferPool = this._localBuffers.get(capacity)!;
+        while (localBufferPool.pool[localBufferPool.currentIdx].checkFull()) {
+            if (++localBufferPool.currentIdx >= localBufferPool.pool.length) {
+                localBufferPool.pool.push(this._createLocalBuffer(capacity, localBufferPool.currentIdx));
+            }
         }
-        const localBuffer = localBuffers[localBuffers.length - 1]; // 取出实际要填充的对象
+        // 如需创建，hash 根据 capacity 和数组下标
+        const localBuffer = localBufferPool.pool[localBufferPool.currentIdx]; // 取出实际要填充的对象
         // 缺 currIndex 来记录往哪里填充// 密集排列填充 // 避免内存浪费
         // 所以这里需要把这个加上之后，更新索引值（不必传入 instanceID）// 直接在 upload 中更新吧
         // 推导 uboIdx
@@ -143,11 +180,31 @@ export class UILocalUBOManger {
         return localBuffer;
     }
 
-    getBufferByHash (capacity, index): UILocalBuffer | null {
-        const localBuffers = this._localBuffers.get(capacity);
-        if (!localBuffers) return null;
-        return localBuffers[index];
+    public updateBuffer() {
+        const it = this._localBuffers.values();
+        let res = it.next();
+        while (!res.done) {
+            for (let i = 0; i <= res.value.currentIdx; ++i) {
+                res.value.pool[i].updateBuffer();
+            }
+            res = it.next();
+        }
+    }
+
+    public reset () {
+        const it = this._localBuffers.values();
+        let res = it.next();
+        while (!res.done) {
+            for (let i = 0; i <= res.value.currentIdx; ++i) {
+                res.value.pool[i].reset();
+            }
+            res.value.currentIdx = 0;
+            res = it.next();
+        }
+    }
+
+    private _createLocalBuffer(capacity, idx) {
+        const hash = murmurhash2_32_gc(`UIUBO-${capacity}-${idx}`, 666);
+        return new UILocalBuffer(this._device, hash, capacity);
     }
 }
-
-UILocalUBOManger.manager = new UILocalUBOManger();

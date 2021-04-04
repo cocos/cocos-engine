@@ -152,7 +152,7 @@ export class WebGL2Buffer extends Buffer {
             this._gpuBuffer!,
             buffer,
             0,
-            buffSize,
+            buffSize
         );
     }
 }

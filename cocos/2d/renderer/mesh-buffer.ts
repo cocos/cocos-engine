@@ -87,7 +87,7 @@ export class MeshBuffer {
                 BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 vbStride,
-                vbStride,
+                vbStride
             )));
         }
 
@@ -98,7 +98,7 @@ export class MeshBuffer {
                 BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
                 MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
                 ibStride,
-                ibStride,
+                ibStride
             ));
         }
 

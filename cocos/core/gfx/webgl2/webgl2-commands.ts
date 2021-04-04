@@ -1379,14 +1379,14 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                         gl.COLOR_ATTACHMENT0 + i,
                         colorTexture.glTarget,
                         colorTexture.glTexture,
-                        0,
+                        0
                     ); // level should be 0.
                 } else {
                     gl.framebufferRenderbuffer(
                         gl.FRAMEBUFFER,
                         gl.COLOR_ATTACHMENT0 + i,
                         gl.RENDERBUFFER,
-                        colorTexture.glRenderbuffer,
+                        colorTexture.glRenderbuffer
                     );
                 }
 
@@ -1403,14 +1403,14 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
                     glAttachment,
                     dst.glTarget,
                     dst.glTexture,
-                    0,
+                    0
                 ); // level must be 0
             } else {
                 gl.framebufferRenderbuffer(
                     gl.FRAMEBUFFER,
                     glAttachment,
                     gl.RENDERBUFFER,
-                    dst.glRenderbuffer,
+                    dst.glRenderbuffer
                 );
             }
         }
@@ -1794,7 +1794,7 @@ export function WebGL2CmdFuncBeginRenderPass (
     renderArea: Rect,
     clearColors: Color[],
     clearDepth: number,
-    clearStencil: number,
+    clearStencil: number
 ) {
     const { gl } = device;
     const cache = device.stateCache;
@@ -1966,7 +1966,7 @@ export function WebGL2CmdFuncBindStates (
     blendConstants: number[],
     depthBounds: IWebGL2DepthBounds | null,
     stencilWriteMask: IWebGL2StencilWriteMask | null,
-    stencilCompareMask: IWebGL2StencilCompareMask | null,
+    stencilCompareMask: IWebGL2StencilCompareMask | null
 ) {
     const { gl } = device;
     const cache = device.stateCache;
@@ -2073,7 +2073,7 @@ export function WebGL2CmdFuncBindStates (
                     gl.FRONT,
                     WebGLCmpFuncs[dss.stencilFuncFront],
                     dss.stencilRefFront,
-                    dss.stencilReadMaskFront,
+                    dss.stencilReadMaskFront
                 );
 
                 cache.dss.stencilFuncFront = dss.stencilFuncFront;
@@ -2088,7 +2088,7 @@ export function WebGL2CmdFuncBindStates (
                     gl.FRONT,
                     WebGLStencilOps[dss.stencilFailOpFront],
                     WebGLStencilOps[dss.stencilZFailOpFront],
-                    WebGLStencilOps[dss.stencilPassOpFront],
+                    WebGLStencilOps[dss.stencilPassOpFront]
                 );
 
                 cache.dss.stencilFailOpFront = dss.stencilFailOpFront;
@@ -2109,7 +2109,7 @@ export function WebGL2CmdFuncBindStates (
                     gl.BACK,
                     WebGLCmpFuncs[dss.stencilFuncBack],
                     dss.stencilRefBack,
-                    dss.stencilReadMaskBack,
+                    dss.stencilReadMaskBack
                 );
 
                 cache.dss.stencilFuncBack = dss.stencilFuncBack;
@@ -2124,7 +2124,7 @@ export function WebGL2CmdFuncBindStates (
                     gl.BACK,
                     WebGLStencilOps[dss.stencilFailOpBack],
                     WebGLStencilOps[dss.stencilZFailOpBack],
-                    WebGLStencilOps[dss.stencilPassOpBack],
+                    WebGLStencilOps[dss.stencilPassOpBack]
                 );
 
                 cache.dss.stencilFailOpBack = dss.stencilFailOpBack;
@@ -2189,7 +2189,7 @@ export function WebGL2CmdFuncBindStates (
                     WebGLBlendFactors[target0.blendSrc],
                     WebGLBlendFactors[target0.blendDst],
                     WebGLBlendFactors[target0.blendSrcAlpha],
-                    WebGLBlendFactors[target0.blendDstAlpha],
+                    WebGLBlendFactors[target0.blendDstAlpha]
                 );
 
                 target0Cache.blendSrc = target0.blendSrc;
@@ -2203,7 +2203,7 @@ export function WebGL2CmdFuncBindStates (
                     (target0.blendColorMask & ColorMask.R) !== ColorMask.NONE,
                     (target0.blendColorMask & ColorMask.G) !== ColorMask.NONE,
                     (target0.blendColorMask & ColorMask.B) !== ColorMask.NONE,
-                    (target0.blendColorMask & ColorMask.A) !== ColorMask.NONE,
+                    (target0.blendColorMask & ColorMask.A) !== ColorMask.NONE
                 );
 
                 target0Cache.blendColorMask = target0.blendColorMask;
@@ -2522,7 +2522,7 @@ export function WebGL2CmdFuncBindStates (
                                 gl.FRONT,
                                 WebGLCmpFuncs[cache.dss.stencilFuncFront],
                                 stencilCompareMask.reference,
-                                stencilCompareMask.compareMask,
+                                stencilCompareMask.compareMask
                             );
                             cache.dss.stencilRefFront = stencilCompareMask.reference;
                             cache.dss.stencilReadMaskFront = stencilCompareMask.compareMask;
@@ -2536,7 +2536,7 @@ export function WebGL2CmdFuncBindStates (
                                 gl.BACK,
                                 WebGLCmpFuncs[cache.dss.stencilFuncBack],
                                 stencilCompareMask.reference,
-                                stencilCompareMask.compareMask,
+                                stencilCompareMask.compareMask
                             );
                             cache.dss.stencilRefBack = stencilCompareMask.reference;
                             cache.dss.stencilReadMaskBack = stencilCompareMask.compareMask;
@@ -2551,7 +2551,7 @@ export function WebGL2CmdFuncBindStates (
                             gl.stencilFunc(
                                 WebGLCmpFuncs[cache.dss.stencilFuncBack],
                                 stencilCompareMask.reference,
-                                stencilCompareMask.compareMask,
+                                stencilCompareMask.compareMask
                             );
                             cache.dss.stencilRefFront = stencilCompareMask.reference;
                             cache.dss.stencilReadMaskFront = stencilCompareMask.compareMask;
@@ -2674,7 +2674,7 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
     device: WebGL2Device,
     texImages: TexImageSource[],
     gpuTexture: IWebGL2GPUTexture,
-    regions: BufferTextureCopy[],
+    regions: BufferTextureCopy[]
 ) {
     const { gl } = device;
     const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
@@ -2722,7 +2722,7 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     device: WebGL2Device,
     buffers: ArrayBufferView[],
     gpuTexture: IWebGL2GPUTexture,
-    regions: BufferTextureCopy[],
+    regions: BufferTextureCopy[]
 ) {
     const { gl } = device;
     const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
@@ -2802,7 +2802,7 @@ export function WebGL2CmdFuncBlitFramebuffer (
     dst: IWebGL2GPUFramebuffer,
     srcRect: Rect,
     dstRect: Rect,
-    filter: Filter,
+    filter: Filter
 ) {
     const { gl } = device;
 
@@ -2833,7 +2833,7 @@ export function WebGL2CmdFuncBlitFramebuffer (
     gl.blitFramebuffer(
         srcRect.x, srcRect.y, srcRect.x + srcRect.width, srcRect.y + srcRect.height,
         dstRect.x, dstRect.y, dstRect.x + dstRect.width, dstRect.y + dstRect.height,
-        mask, glFilter,
+        mask, glFilter
     );
 
     if (rebindFBO) {
