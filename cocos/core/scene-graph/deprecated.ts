@@ -237,7 +237,7 @@ const DontSave = CCObject.Flags.DontSave;
 export class PrivateNode extends Node {
     constructor (name?: string) {
         super(name);
-        warnID(4500, this.name);
+        warnID(12003, this.name);
 
         this.hideFlags |= DontSave | HideInHierarchy;
     }
