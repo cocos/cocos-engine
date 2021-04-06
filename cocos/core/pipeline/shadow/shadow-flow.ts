@@ -215,22 +215,14 @@ export class ShadowFlow extends RenderFlow {
 
             if (!frameBuffer) { return; }
 
-            const renderTargets = frameBuffer.colorTextures;
-            if (renderTargets && renderTargets.length > 0) {
-                for (let j = 0; j < renderTargets.length; j++) {
-                    const renderTarget = renderTargets[j];
-                    if (renderTarget) {
-                        const format = shadowInfo.packing ? Format.RGBA8 : Format.RGBA16F;
-                        renderTarget.initialize(new TextureInfo(
-                            TextureType.TEX2D,
-                            TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                            format,
-                            width,
-                            height,
-                        ));
-                    }
-                }
-            }
+            const renderTargets: Texture[] = [];
+            renderTargets.push(pipeline.device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                shadowInfo.packing ? Format.RGBA8 : Format.RGBA16F,
+                width,
+                width,
+            )));
 
             const depth = frameBuffer.depthStencilTexture;
             if (depth) { depth.resize(width, height); }
