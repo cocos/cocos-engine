@@ -8,7 +8,7 @@ import {
     parseModuleOption,
 } from './index';
 
-async function main() {
+async function main () {
     yargs.parserConfiguration({
         'boolean-negation': false,
     });
@@ -44,13 +44,11 @@ async function main() {
     yargs.option('no-deprecated-features', {
         description: `Whether to remove deprecated features. You can specify boolean or a version string(in semver)`,
         type: 'string',
-        coerce: (arg: string | boolean) => {
-            return typeof arg !== 'string' ?
-                arg :
-                ((arg === 'true' || arg.length === 0) ? true : (
-                    arg === 'false' ? false : arg
-                ));
-        },
+        coerce: (arg: string | boolean) => (typeof arg !== 'string'
+            ? arg
+            : ((arg === 'true' || arg.length === 0) ? true : (
+                arg === 'false' ? false : arg
+            ))),
     });
     yargs.option('destination', {
         type: 'string',
@@ -117,7 +115,7 @@ async function main() {
 
     const buildTimeConstants = setupBuildTimeConstants({
         mode: yargs.argv.buildMode as (string | undefined),
-        platform: yargs.argv.platform as unknown as string,
+        platform: yargs.argv.platform as string,
         flags,
     });
 
@@ -133,11 +131,11 @@ async function main() {
         progress: yargs.argv.progress as (boolean | undefined),
         incremental: yargs.argv['watch-files'] as (string | undefined),
         ammoJsWasm: yargs.argv['ammojs-wasm'] as (boolean | undefined | 'fallback'),
-        noDeprecatedFeatures: noDeprecatedFeatures,
+        noDeprecatedFeatures,
         buildTimeConstants,
     };
     if (yargs.argv.module) {
-        options.moduleFormat = parseModuleOption(yargs.argv['module'] as unknown as string);
+        options.moduleFormat = parseModuleOption(yargs.argv.module as string);
     }
 
     if (yargs.argv.visualize) {
@@ -157,8 +155,12 @@ async function main() {
         await fs.ensureDir(ps.dirname(metaFile));
         await fs.writeJson(metaFile, result, { spaces: 2 });
     }
+
+    return result.hasCriticalWarns ? 1 : 0;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 (async () => {
-    await main();
+    const retVal = await main();
+    process.exit(retVal);
 })();
