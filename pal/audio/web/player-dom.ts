@@ -9,7 +9,7 @@ import { enqueueOperationDecorator } from '../operation-queue';
 let DecoratedAudioPlayer: typeof AudioPlayerDOM;
 @enqueueOperationDecorator
 export class AudioPlayerDOM {
-    private _domAudio?: HTMLAudioElement;
+    private _domAudio: HTMLAudioElement;
     private _eventTarget: EventTarget = new EventTarget();
     private _state: AudioState = AudioState.INIT;
     private _onGesture?: () => void;
@@ -64,9 +64,10 @@ export class AudioPlayerDOM {
             this._onHide = undefined;
         }
         if (this._onEnded) {
-            this._domAudio!.removeEventListener('ended', this._onEnded);
+            this._domAudio.removeEventListener('ended', this._onEnded);
             this._onEnded = undefined;
         }
+        // @ts-expect-error need to release DOM Audio instance
         this._domAudio = undefined;
     }
     static load (url: string): Promise<AudioPlayerDOM> {
@@ -126,27 +127,27 @@ export class AudioPlayerDOM {
         return this._state;
     }
     get loop (): boolean {
-        return this._domAudio!.loop;
+        return this._domAudio.loop;
     }
     set loop (val: boolean) {
-        this._domAudio!.loop = val;
+        this._domAudio.loop = val;
     }
     get volume (): number {
-        return this._domAudio!.volume;
+        return this._domAudio.volume;
     }
     set volume (val: number) {
         val = clamp01(val);
-        this._domAudio!.volume = val;
+        this._domAudio.volume = val;
     }
     get duration (): number {
-        return this._domAudio!.duration;
+        return this._domAudio.duration;
     }
     get currentTime (): number {
-        return this._domAudio!.currentTime;
+        return this._domAudio.currentTime;
     }
     seek (time: number): Promise<void> {
         time = clamp(time, 0, this.duration);
-        this._domAudio!.currentTime = time;
+        this._domAudio.currentTime = time;
         return Promise.resolve();
     }
 
@@ -169,7 +170,7 @@ export class AudioPlayerDOM {
         let onPlayCb: () => void;
         let onEndedCb: () => void;
         let domAudio: HTMLAudioElement;
-        AudioPlayerDOM.loadNative(this._domAudio!.src).then((res) => {
+        AudioPlayerDOM.loadNative(this._domAudio.src).then((res) => {
             domAudio = res;
             domAudio.volume = volume;
             onEndedCb && domAudio.addEventListener('ended', onEndedCb);
@@ -202,14 +203,14 @@ export class AudioPlayerDOM {
         });
     }
     pause (): Promise<void> {
-        this._domAudio!.pause();
+        this._domAudio.pause();
         this._state = AudioState.PAUSED;
         return Promise.resolve();
     }
     stop (): Promise<void> {
         return new Promise((resolve) => {
-            this._domAudio!.pause();
-            this._domAudio!.currentTime = 0;
+            this._domAudio.pause();
+            this._domAudio.currentTime = 0;
             this._state = AudioState.STOPPED;
             resolve();
         });

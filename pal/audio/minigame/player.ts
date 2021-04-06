@@ -10,7 +10,7 @@ import { enqueueOperationDecorator } from '../operation-queue';
 let DecoratedAudioPlayer: typeof AudioPlayer;
 @enqueueOperationDecorator
 export class AudioPlayer {
-    private _innerAudioContext?: any;
+    private _innerAudioContext: any;
     private _eventTarget: EventTarget;
     private _state: AudioState = AudioState.INIT;
 

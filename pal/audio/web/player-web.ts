@@ -14,7 +14,7 @@ let DecoratedAudioPlayer: typeof AudioPlayerWeb;
 export class AudioPlayerWeb {
     private _src: string;
     private static _context: AudioContext = AudioContextClass && new AudioContextClass();
-    private _audioBuffer?: AudioBuffer;
+    private _audioBuffer: AudioBuffer;
     private _sourceNode?: AudioBufferSourceNode;
     private _gainNode: GainNode;
     private _currentTimer = 0;
@@ -60,6 +60,7 @@ export class AudioPlayerWeb {
     }
     destroy () {
         if (this._audioBuffer) {
+            // @ts-expect-error need to release AudioBuffer instance
             this._audioBuffer = undefined;
         }
         if (this._onGesture) {
@@ -144,7 +145,7 @@ export class AudioPlayerWeb {
         }
     }
     get duration (): number {
-        return this._audioBuffer!.duration;
+        return this._audioBuffer.duration;
     }
     get currentTime (): number {
         if (this._state !== AudioState.PLAYING) { return this._offset; }
@@ -152,7 +153,7 @@ export class AudioPlayerWeb {
     }
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            this._offset = clamp(time, 0, this._audioBuffer!.duration);
+            this._offset = clamp(time, 0, this._audioBuffer.duration);
             if (this._state === AudioState.PLAYING) {
                 this.stop().then(() => {
                     this.play().catch((e) => {});
@@ -199,7 +200,7 @@ export class AudioPlayerWeb {
                 sourceNode.connect(gainNode);
                 sourceNode.start();
                 onPlayCb && onPlayCb();
-                onEndedCb && setTimeout(onEndedCb, this._audioBuffer!.duration * 1000);
+                onEndedCb && setTimeout(onEndedCb, this._audioBuffer.duration * 1000);
             }).catch((e) => {});
         }, 0);
         const oneShotAudio: OneShotAudio = {
@@ -237,7 +238,7 @@ export class AudioPlayerWeb {
                 /* doing it manually for now */
                 const checkEnded = () => {
                     if (this.loop) {
-                        this._currentTimer = window.setInterval(checkEnded, this._audioBuffer!.duration * 1000);
+                        this._currentTimer = window.setInterval(checkEnded, this._audioBuffer.duration * 1000);
                     } else {  // do ended
                         this._eventTarget.emit(AudioEvent.ENDED);
                         clearInterval(this._currentTimer);
@@ -247,7 +248,7 @@ export class AudioPlayerWeb {
                     }
                 };
                 clearInterval(this._currentTimer);
-                this._currentTimer = window.setInterval(checkEnded, (this._audioBuffer!.duration - this._offset) * 1000);
+                this._currentTimer = window.setInterval(checkEnded, (this._audioBuffer.duration - this._offset) * 1000);
                 resolve();
             }).catch((e) => {});
         });
