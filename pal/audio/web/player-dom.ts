@@ -3,11 +3,11 @@ import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
-import { EnqueueOperationDecorator } from '../operation-queue';
+import { enqueueOperationDecorator } from '../operation-queue';
 
 // NOTE: fix wrong type in static method
 let DecoratedAudioPlayer: typeof AudioPlayerDOM;
-@EnqueueOperationDecorator
+@enqueueOperationDecorator
 export class AudioPlayerDOM {
     private _domAudio?: HTMLAudioElement;
     private _eventTarget: EventTarget = new EventTarget();

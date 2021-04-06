@@ -15,14 +15,14 @@ let operationId = 0;
  * Note: the decorated class need to implement a private property `_eventTarget: EventTarget`
  * and each operation function should be declared as `(...args: any[]): Promise<void>`
  *
- * When you apply `EnqueueOperationDecorator` on a class, remember to provide a pure operation implementation.
+ * When you apply `enqueueOperationDecorator` on a class, remember to provide a pure operation implementation.
  * It means that, for example, you can't call stop in the implementation of play operation,
  * because that would cause the operation deadlock.
  *
  * @param operationList operation name array that need to be queued when called concurrently
  * @returns Function
  */
-export function EnqueueOperationDecorator<TFunction extends Constructor<any>> (target: TFunction): TFunction | void {
+export function enqueueOperationDecorator<TFunction extends Constructor<any>> (target: TFunction): TFunction | void {
     return class DecoratedPlayer extends target {
         private _operationQueue: OperationInfo[] = [];
         private _tryCallingRecursively (opInfo: OperationInfo) {

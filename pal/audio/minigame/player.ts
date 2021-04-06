@@ -4,11 +4,11 @@ import { legacyCC } from '../../../cocos/core/global-exports';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
-import { EnqueueOperationDecorator } from '../operation-queue';
+import { enqueueOperationDecorator } from '../operation-queue';
 
 // NOTE: fix wrong type in static method
 let DecoratedAudioPlayer: typeof AudioPlayer;
-@EnqueueOperationDecorator
+@enqueueOperationDecorator
 export class AudioPlayer {
     private _innerAudioContext?: any;
     private _eventTarget: EventTarget;

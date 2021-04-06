@@ -3,14 +3,14 @@ import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
-import { EnqueueOperationDecorator } from '../operation-queue';
+import { enqueueOperationDecorator } from '../operation-queue';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
 // NOTE: fix wrong type in static method
 let DecoratedAudioPlayer: typeof AudioPlayerWeb;
-@EnqueueOperationDecorator
+@enqueueOperationDecorator
 export class AudioPlayerWeb {
     private _src: string;
     private static _context: AudioContext = AudioContextClass && new AudioContextClass();
