@@ -5,6 +5,7 @@ module.exports = {
     'cc.PolygonCollider2D': join(__dirname, './components/polygon-collider.js'),
     'cc.PrefabLink': join(__dirname, './components/prefab-link.js'),
     'cc.PageView': join(__dirname, './components/page-view.js'),
+    'cc.ParticleSystem2D': join(__dirname, './components/particle-system-2d.js'),
     'cc.WebView': join(__dirname, './components/webview.js'),
     'cc.VideoPlayer': join(__dirname, './components/video-player.js'),
     'cc.Layout': join(__dirname, './components/layout.js'),
