@@ -26,7 +26,7 @@ const document = {
     if (tagName === 'canvas') {
       return new Canvas()
     } else if (tagName === 'audio') {
-      return __globalAdapter.isDevTool ? originalDocumentCreateElement('audio') : new Audio()
+      return new Audio()
     } else if (tagName === 'img') {
       return new Image()
     }else if (tagName === 'video') {
