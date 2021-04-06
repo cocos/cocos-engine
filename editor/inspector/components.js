@@ -6,6 +6,7 @@ module.exports = {
     'cc.PrefabLink': join(__dirname, './components/prefab-link.js'),
     'cc.PageView': join(__dirname, './components/page-view.js'),
     'cc.VideoPlayer': join(__dirname, './components/video-player.js'),
+    'cc.Layout': join(__dirname, './components/layout.js'),
     'cc.Button': join(__dirname, './components/button.js'),
     'cc.SkinnedMeshBatchRenderer': join(__dirname, './components/batched-skinning-model.js'),
     'cc.Button': join(__dirname, './components/button.js'),
