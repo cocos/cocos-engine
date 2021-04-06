@@ -196,7 +196,7 @@ export class AudioPlayerDOM {
 
     play (): Promise<void> {
         return new Promise((resolve) => {
-            this._ensurePlaying(this._domAudio!).then(() => {
+            this._ensurePlaying(this._domAudio).then(() => {
                 this._state = AudioState.PLAYING;
                 resolve();
             }).catch((e)  => {});

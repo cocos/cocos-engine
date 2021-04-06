@@ -192,7 +192,7 @@ export class AudioPlayerWeb {
         setTimeout(() => {
             this._runContext().then(() => {
                 sourceNode = context.createBufferSource();
-                sourceNode.buffer = this._audioBuffer!;
+                sourceNode.buffer = this._audioBuffer;
                 sourceNode.loop = false;
                 const gainNode = context.createGain();
                 gainNode.connect(context.destination);
@@ -226,7 +226,7 @@ export class AudioPlayerWeb {
                 // one AudioBufferSourceNode can't start twice
                 this._sourceNode?.stop();
                 this._sourceNode = context.createBufferSource();
-                this._sourceNode.buffer = this._audioBuffer!;
+                this._sourceNode.buffer = this._audioBuffer;
                 this._sourceNode.connect(this._gainNode);
                 this._sourceNode.start(0, this._offset);
 
