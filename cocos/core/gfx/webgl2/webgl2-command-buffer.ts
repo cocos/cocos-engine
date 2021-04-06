@@ -157,7 +157,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         renderArea: Rect,
         clearColors: Color[],
         clearDepth: number,
-        clearStencil: number
+        clearStencil: number,
     ) {
         const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGL2CmdBeginRenderPass);
         cmd.gpuRenderPass = (renderPass as WebGL2RenderPass).gpuRenderPass;

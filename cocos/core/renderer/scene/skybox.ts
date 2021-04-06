@@ -35,6 +35,7 @@ import { legacyCC } from '../../global-exports';
 import { DescriptorSet } from '../../gfx';
 import { SkyboxPool, NULL_HANDLE, SkyboxView, SkyboxHandle } from '../core/memory-pools';
 import { SkyboxInfo } from '../../scene-graph/scene-globals';
+import { Root } from '../../root';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
@@ -103,7 +104,7 @@ export class Skybox {
     set envmap (val: TextureCube | null) {
         this._envmap = val || this._default;
         if (this._envmap) {
-            legacyCC.director.root.pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmap.mipmapLevel;
+            (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmap.mipmapLevel;
             this._updateGlobalBinding();
         }
     }
@@ -165,7 +166,7 @@ export class Skybox {
 
     protected _updatePipeline () {
         const value = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
-        const root = legacyCC.director.root;
+        const root = legacyCC.director.root as Root;
         const pipeline = root.pipeline;
         const current = pipeline.macros.CC_USE_IBL;
         if (current === value) { return; }
