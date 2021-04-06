@@ -44,6 +44,7 @@ import { Pass } from '../../core/renderer/core/pass';
 import { Renderable2D } from '../framework';
 import { Sprite } from '../components';
 import { RecyclePool } from '../../core';
+import { Vec3 } from '../../core/math/vec3';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -60,7 +61,6 @@ class DrawCall {
 }
 
 export class DrawBatch2D {
-
     static drawcallPool = new RecyclePool(() => new DrawCall(), 100);
 
     get handle () {
@@ -99,6 +99,9 @@ export class DrawBatch2D {
     public samplerHash = 0;
     private _handle: BatchHandle2D = NULL_HANDLE;
     private _passes: Pass[] = [];
+
+    private _tempRect;
+    private _tempScale = new Vec3();
 
     // 这里有两个情况
     // 1、batches 放不下的情况
@@ -186,13 +189,16 @@ export class DrawBatch2D {
         // 需要加工锚点和 rect
         // @ts-expect-error using private members
         const { _pos: t, _rot: r, _scale: s } = renderComp.node;
+        this._tempRect = renderComp.node._uiProps.uiTransformComp!;
+        this._tempScale.x = s.x * this._tempRect.width;
+        this._tempScale.y = s.y * this._tempRect.height;
         const sprite = renderComp as Sprite;
-        const uv = sprite.spriteFrame?.uv!;
+        const uv = sprite.spriteFrame?.uv;
         // T 为 w h O 为右上的 XY 四个数字
         const c = renderComp.color;
         // 16 的定值为 device 查出的 capacity
 
-        const localBuffer = UBOManager.upload(t, r, s, uv, c, 16);
+        const localBuffer = UBOManager.upload(t, r, this._tempScale, uv, c, 16);
         // 能同 draw call 的条件： UBOIndex 相同，ubohash 相同
 
         let dc = this._drawcalls[this._dcIndex];

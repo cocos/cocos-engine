@@ -31,7 +31,7 @@ CCProgram sprite-vs %{
   out vec4 color;
   out vec2 uv0;
 
-  struct UIData {
+  struct UILocalData {
     vec4 rotation;
     vec4 tilingOffset;
     vec4 color;
@@ -41,24 +41,25 @@ CCProgram sprite-vs %{
 
   #pragma builtin(local)
   layout(set = 2, binding = 0) uniform CCUILocal {
-    highp vec4 cc_local_data1[CC_UI_PER_BATCH]; // xyz: translation w: color R.G
-    highp vec4 cc_local_data2[CC_UI_PER_BATCH]; // xyzw: quat rotation
-    highp vec4 cc_local_data3[CC_UI_PER_BATCH]; // xy: scale zw: color BA
-    highp vec4 cc_local_data4[CC_UI_PER_BATCH]; // xy: tiling zw: offset
+    // xyz: translation w: color R.G
+    // xyzw: quat rotation
+    // xy: scale zw: color BA
+    // xy: tiling zw: offset
+    mat4 cc_local_data[CC_UI_PER_BATCH];
   };
 
-  void getUIData(out UIData o) {
-    int instanceID = int(a_batch_id);
-    vec4 data1 = cc_local_data1[instanceID];
-    vec4 data3 = cc_local_data3[instanceID];
-    float rg = data1.w;
+  void getUILocalData(out UILocalData o) {
+    mat4 data = cc_local_data[int(a_batch_id)];
+    vec4 data0 = data[0];
+    vec4 data2 = data[2];
+    float rg = data0.w;
     float r = floor(rg);
 
-    o.rotation = cc_local_data2[instanceID];
-    o.tilingOffset = cc_local_data4[instanceID];
-    o.translation = data1.xyz;
-    o.scale = vec3(data3.xy, 1.0);
-    o.color = vec4(r * (1.0 / 255.0), rg - r, data3.zw);
+    o.rotation = data[1];
+    o.tilingOffset = data[3];
+    o.translation = data0.xyz;
+    o.scale = vec3(data2.xy, 1.0);
+    o.color = vec4(r * (1.0 / 255.0), rg - r, data2.zw);
   }
 
   vec3 VectorTransformQuat (vec3 v, vec4 Q) {
@@ -66,10 +67,10 @@ CCProgram sprite-vs %{
   }
 
   vec4 vert () {
-    UIData i;
-    getUIData(i);
+    UILocalData i;
+    getUILocalData(i);
 
-    vec4 pos = vec4(VectorTransformQuat(a_position * i.scale * 80.0, i.rotation) + i.translation, 1.0);
+    vec4 pos = vec4(VectorTransformQuat(a_position * i.scale, i.rotation) + i.translation, 1.0);
     uv0 = a_texCoord * i.tilingOffset.xy + i.tilingOffset.zw;
     color = i.color;
 

@@ -20,8 +20,8 @@ export class UILocalBuffer {
     private _uniformBufferData: Float32Array;
 
     // 现在已经存了多少 UI 信息 // index = instanceID + uboIndex * _capacityPerUBO
-    private _prevUBOIndex: number = 0;
-    private _prevInstanceID: number = -1;
+    private _prevUBOIndex = 0;
+    private _prevInstanceID = -1;
 
     // 缺一个能放下多少顶点的属性
 
@@ -54,7 +54,7 @@ export class UILocalBuffer {
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             this._uniformBufferStride * UILocalBuffer.UBO_COUNT,
-            this._uniformBufferStride
+            this._uniformBufferStride,
         ));
 
         // 数据 view
@@ -91,25 +91,25 @@ export class UILocalBuffer {
         const data = this._uniformBufferData;
         // 只负责根据数据填充
         // trans & RG
-        let offset = this._prevInstanceID * 4 + this._uniformBufferElementCount * this._prevUBOIndex;
+        let offset = this._prevInstanceID * 16 + this._uniformBufferElementCount * this._prevUBOIndex;
         data[offset + 0] = t.x;
         data[offset + 1] = t.y;
         data[offset + 2] = t.z;
         data[offset + 3] = c.r + Math.min(c.y, 0.999);
         // rotation
-        offset += this._capacityPerUBO * 4;
+        offset += 4;
         data[offset + 0] = r.x;
         data[offset + 1] = r.y;
         data[offset + 2] = r.z;
         data[offset + 3] = r.w;
         // scale & BA
-        offset += this._capacityPerUBO * 4;
+        offset += 4;
         data[offset + 0] = s.x;
         data[offset + 1] = s.y;
         data[offset + 2] = c.z;
         data[offset + 3] = c.w;
         // tilling offset
-        offset += this._capacityPerUBO * 4;
+        offset += 4;
         if (to) {
             data[offset + 0] = to[2] - to[0];
             data[offset + 1] = to[1] - to[5];
@@ -127,7 +127,7 @@ export class UILocalBuffer {
         return this._firstUniformBufferView;
     }
 
-    updateBuffer() {
+    updateBuffer () {
         this._uniformBuffer.update(this._uniformBufferData);
     }
 
@@ -180,7 +180,7 @@ export class UILocalUBOManger {
         return localBuffer;
     }
 
-    public updateBuffer() {
+    public updateBuffer () {
         const it = this._localBuffers.values();
         let res = it.next();
         while (!res.done) {
@@ -203,7 +203,7 @@ export class UILocalUBOManger {
         }
     }
 
-    private _createLocalBuffer(capacity, idx) {
+    private _createLocalBuffer (capacity, idx) {
         const hash = murmurhash2_32_gc(`UIUBO-${capacity}-${idx}`, 666);
         return new UILocalBuffer(this._device, hash, capacity);
     }

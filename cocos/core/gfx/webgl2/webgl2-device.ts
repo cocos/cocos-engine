@@ -375,7 +375,7 @@ export class WebGL2Device extends Device {
             Format.RGBA8,
             2,
             2,
-            TextureFlagBit.GEN_MIPMAP
+            TextureFlagBit.GEN_MIPMAP,
         )) as WebGL2Texture;
 
         this.nullTexCube = new WebGL2Texture(this);
@@ -386,7 +386,7 @@ export class WebGL2Device extends Device {
             2,
             2,
             TextureFlagBit.GEN_MIPMAP,
-            6
+            6,
         ));
 
         const nullTexRegion = new BufferTextureCopy();
@@ -400,7 +400,7 @@ export class WebGL2Device extends Device {
         nullTexRegion.texSubres.layerCount = 6;
         this.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
-            this.nullTexCube, [nullTexRegion]
+            this.nullTexCube, [nullTexRegion],
         );
 
         return true;
@@ -598,27 +598,27 @@ export class WebGL2Device extends Device {
             this,
             buffers,
             (texture as WebGL2Texture).gpuTexture,
-            regions
+            regions,
         );
     }
 
     public copyTexImagesToTexture (
         texImages: TexImageSource[],
         texture: Texture,
-        regions: BufferTextureCopy[]
+        regions: BufferTextureCopy[],
     ) {
         WebGL2CmdFuncCopyTexImagesToTexture(
             this,
             texImages,
             (texture as WebGL2Texture).gpuTexture,
-            regions
+            regions,
         );
     }
 
     public copyFramebufferToBuffer (
         srcFramebuffer: Framebuffer,
         dstBuffer: ArrayBuffer,
-        regions: BufferTextureCopy[]
+        regions: BufferTextureCopy[],
     ) {
         const gl = this._webGL2RC as WebGL2RenderingContext;
         const gpuFramebuffer = (srcFramebuffer as WebGL2Framebuffer).gpuFramebuffer;
@@ -659,7 +659,7 @@ export class WebGL2Device extends Device {
             dstFBO,
             srcRect,
             dstRect,
-            filter
+            filter,
         );
     }
 

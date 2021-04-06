@@ -27,17 +27,17 @@
  * @packageDocumentation
  * @module ui
  */
- import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit, Device, Format, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
+import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit, Device, Format, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
 import { IAPool, InputAssemblerHandle, NULL_HANDLE } from '../../core/renderer';
 
- export class DummyIA {
+export class DummyIA {
     private _buffer: Buffer;
     private _ia: InputAssemblerHandle;
 
-    get ia() { return this._ia; }
+    get ia () { return this._ia; }
 
     constructor (device: Device) {
-        const elementPerVertex = (/*position*/3 + /*texCoord*/2 + /*instanceID*/1);
+        const elementPerVertex = (/* position */3 + /* texCoord */2 + /* instanceID */1);
         const vertexPerQuad = 6;
         const elementsPerQuad = elementPerVertex * vertexPerQuad;
         const stride = elementPerVertex * Float32Array.BYTES_PER_ELEMENT;
@@ -47,7 +47,7 @@ import { IAPool, InputAssemblerHandle, NULL_HANDLE } from '../../core/renderer';
             BufferUsageBit.VERTEX,
             MemoryUsageBit.DEVICE,
             stride * vertexPerQuad * maxQuadPerDrawcall,
-            stride
+            stride,
         ));
 
         const data = new Float32Array(elementsPerQuad * maxQuadPerDrawcall);
@@ -103,11 +103,11 @@ import { IAPool, InputAssemblerHandle, NULL_HANDLE } from '../../core/renderer';
                 new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F, false, 0, false, 1),
                 new Attribute(AttributeName.ATTR_BATCH_ID,   Format.R32F, false, 0, false, 2),
             ],
-            [this._buffer]
+            [this._buffer],
         ));
     }
 
-    destroy() {
+    destroy () {
         if (this._ia) {
             IAPool.free(this._ia);
             this._ia = NULL_HANDLE;
