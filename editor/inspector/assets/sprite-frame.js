@@ -201,7 +201,7 @@ const Elements = {
                 for (const prop in Elements) {
                     const element = Elements[prop];
                     if (element.update) {
-                        element.update.bind(this)();
+                        element.update.call(this);
                     }
                 }
             });
@@ -434,7 +434,7 @@ const Elements = {
             if (panel.assetList.length > 1) {
                 panel.$.editButton.style.display = 'none';
             } else {
-                panel.$.editButton.style.display = 'block';
+                panel.$.editButton.style.display = 'inline-block';
             }
         },
         close() {
@@ -459,7 +459,7 @@ exports.update = function (assetList, metaList) {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.update) {
-            element.update.bind(this)();
+            element.update.call(this);
         }
     }
 };
@@ -471,7 +471,7 @@ exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
-            element.ready.bind(this)();
+            element.ready.call(this);
         }
     }
 };
@@ -480,7 +480,7 @@ exports.close = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
-            element.close.bind(this)();
+            element.close.call(this);
         }
     }
 };

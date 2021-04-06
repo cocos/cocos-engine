@@ -1,9 +1,9 @@
 exports.template = `
-<section class="asset-audioclip">
+<section class="asset-audio-clip">
 </section>
 `;
 exports.style = `
-.asset-audioclip .audio {
+.asset-audio-clip .audio {
     outline: none;
     width: 100%;
     height: 32px;
@@ -11,12 +11,12 @@ exports.style = `
 }
 `;
 exports.$ = {
-    constainer: '.asset-audioclip',
+    constainer: '.asset-audio-clip',
 };
 exports.update = function (assetList, metaList) {
     // 支持多选时列表显示，限制显示条数
     let html = '';
-    const maxShowNumber = 5000;
+    const maxShowNumber = 1000;
 
     assetList.forEach((asset, index) => {
         if (!asset.file || index > maxShowNumber) {

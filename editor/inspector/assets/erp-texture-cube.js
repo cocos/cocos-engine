@@ -152,7 +152,8 @@ const Elements = {
         ready () {
             this.$.faceSize.addEventListener('change', this.dataChange.bind(this, 'faceSize'));
         },
-        update () {
+        update() {
+            
             this.$.faceSize.value = this.meta.userData.faceSize;
             this.updateInvalid(this.$.faceSize, 'faceSize');
             this.updateReadonly(this.$.faceSize);

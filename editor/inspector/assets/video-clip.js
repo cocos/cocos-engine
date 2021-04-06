@@ -1,26 +1,37 @@
+exports.template = `
+<section class="asset-video-clip">
+</section>
+`;
+
 exports.style = `
 .asset-video-clip .video {
     width: 100%;
     outline: none;
+    width: 100%;
+    margin-bottom: 16px;
 }
 `;
 
-exports.template = `
-<section class="asset-video-clip">
-    <div class="content">
-        <video class="video" controls="controls"
-        id="video"        
-        ></video>
-    </div>
-</section>
-`;
 exports.$ = {
-    video: '#video',
+    constainer: '.asset-video-clip',
 };
+
 exports.update = function (assetList, metaList) {
-    this.metas = metaList;
-    this.meta = metaList[0];
-    this.assetInfo = assetList[0];
-    this.assetInfos = assetList;
-    this.$.video.src = this.assetInfo.file;
+    // 支持多选时列表显示，限制显示条数
+    let html = '';
+    const maxShowNumber = 1000;
+
+    assetList.forEach((asset, index) => {
+        if (!asset.file || index > maxShowNumber) {
+            return;
+        }
+
+        if (assetList.length > 1) {
+            html += `<div>${asset.name}</div>`;
+        }
+
+        html += `<video class="video" controls="controls" src="${asset.file}"></video>`;
+    });
+
+    this.$.constainer.innerHTML = html;
 };

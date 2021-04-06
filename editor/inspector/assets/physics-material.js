@@ -17,7 +17,7 @@ exports.methods = {
     async apply() {
         await Editor.Message.request('scene', 'apply-physics-material', this.asset.uuid, this.physicsMaterial);
     },
-    async onDataChanged() {
+    async dataChange() {
         await Editor.Message.request('scene', 'change-physics-material', this.physicsMaterial);
         this.dispatch('change');
     },
@@ -50,12 +50,11 @@ exports.update = async function (assetList, metaList) {
         if (!this.$[key]) {
             this.$[key] = document.createElement('ui-prop');
             this.$[key].setAttribute('type', 'dump');
+            this.$[key].addEventListener('change-dump', this.dataChange.bind(this));
         }
 
         this.$.container.appendChild(this.$[key]);
         this.updateReadonly(this.$[key]);
         this.$[key].render(dump);
-
-        this.$[key].addEventListener('change-dump', this.onDataChanged.bind(this));
     }
 };

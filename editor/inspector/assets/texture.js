@@ -258,7 +258,7 @@ const Elements = {
             this.$.image = document.createElement('ui-image');
             
             this.$.image.$img.addEventListener('load', () => {
-                Elements.warnWords.update.bind(this)();
+                Elements.warnWords.update.call(this);
             });
         },
         update() {
@@ -303,7 +303,7 @@ exports.update = function (assetList, metaList) {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.update) {
-            element.update.bind(this)();
+            element.update.call(this);
         }
     }
 };
@@ -315,7 +315,7 @@ exports.ready = function () {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
-            element.ready.bind(this)();
+            element.ready.call(this);
         }
     }
 };
