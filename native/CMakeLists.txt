@@ -208,7 +208,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
 ##### audio
 if(USE_AUDIO)
     cocos_source_files(
-        NO_WERROR    cocos/audio/AudioEngine.cpp
+                     cocos/audio/AudioEngine.cpp
                      cocos/audio/include/AudioEngine.h
                      cocos/audio/include/Export.h
     )
@@ -364,16 +364,16 @@ cocos_source_files(
 
 ##### memory
 cocos_source_files(
-    NO_WERROR    cocos/base/memory/AllocatedObj.cpp
+                 cocos/base/memory/AllocatedObj.cpp
                  cocos/base/memory/AllocatedObj.h
-    NO_WERROR    cocos/base/memory/JeAlloc.cpp
+                 cocos/base/memory/JeAlloc.cpp
                  cocos/base/memory/JeAlloc.h
                  cocos/base/memory/MemDef.h
-    NO_WERROR    cocos/base/memory/Memory.cpp
+                 cocos/base/memory/Memory.cpp
                  cocos/base/memory/Memory.h
-    NO_WERROR    cocos/base/memory/MemTracker.cpp
+                 cocos/base/memory/MemTracker.cpp
                  cocos/base/memory/MemTracker.h
-    NO_WERROR    cocos/base/memory/NedPooling.cpp
+                 cocos/base/memory/NedPooling.cpp
                  cocos/base/memory/NedPooling.h
                  cocos/base/memory/StdAlloc.h
                  cocos/base/memory/StlAlloc.h
@@ -382,17 +382,17 @@ cocos_source_files(
 ##### threading
 cocos_source_files(
                  cocos/base/threading/ConditionVariable.h
-    NO_WERROR    cocos/base/threading/ConditionVariable.cpp
+                 cocos/base/threading/ConditionVariable.cpp
                  cocos/base/threading/Event.h
                  cocos/base/threading/MessageQueue.h
-    NO_WERROR    cocos/base/threading/MessageQueue.cpp
+                 cocos/base/threading/MessageQueue.cpp
                  cocos/base/threading/Semaphore.h
-    NO_WERROR    cocos/base/threading/Semaphore.cpp
+                 cocos/base/threading/Semaphore.cpp
                  cocos/base/threading/ThreadPool.h
-    NO_WERROR    cocos/base/threading/ThreadPool.cpp
+                 cocos/base/threading/ThreadPool.cpp
                  cocos/base/threading/ThreadSafeCounter.h
                  cocos/base/threading/ThreadSafeLinearAllocator.h
-    NO_WERROR    cocos/base/threading/ThreadSafeLinearAllocator.cpp
+                 cocos/base/threading/ThreadSafeLinearAllocator.cpp
 )
 
 ##### job system
@@ -400,14 +400,14 @@ cocos_source_files(
                  cocos/base/job-system/JobSystem.h
 
                  cocos/base/job-system/job-system-taskflow/TFJobGraph.h
-    NO_WERROR    cocos/base/job-system/job-system-taskflow/TFJobGraph.cpp
+                 cocos/base/job-system/job-system-taskflow/TFJobGraph.cpp
                  cocos/base/job-system/job-system-taskflow/TFJobSystem.h
-    NO_WERROR    cocos/base/job-system/job-system-taskflow/TFJobSystem.cpp
+                 cocos/base/job-system/job-system-taskflow/TFJobSystem.cpp
 
                  cocos/base/job-system/job-system-tbb/TBBJobGraph.h
-    NO_WERROR    cocos/base/job-system/job-system-tbb/TBBJobGraph.cpp
+                 cocos/base/job-system/job-system-tbb/TBBJobGraph.cpp
                  cocos/base/job-system/job-system-tbb/TBBJobSystem.h
-    NO_WERROR    cocos/base/job-system/job-system-tbb/TBBJobSystem.cpp
+                 cocos/base/job-system/job-system-tbb/TBBJobSystem.cpp
 )
 
 ##### math
@@ -1594,23 +1594,23 @@ if(ANDROID)
 elseif(MACOSX)
     if(USE_EDIT_BOX)
         cocos_source_files(
-            NO_WERROR    cocos/ui/edit-box/EditBox-mac.mm
+                         cocos/ui/edit-box/EditBox-mac.mm
         )
     endif()
 elseif(IOS)
     if(USE_EDIT_BOX)
         cocos_source_files(
-            NO_WERROR    cocos/ui/edit-box/EditBox-ios.mm
+                         cocos/ui/edit-box/EditBox-ios.mm
         )
     endif()
     if(USE_VIDEO)
         cocos_source_files(
-            NO_WERROR    cocos/ui/videoplayer/VideoPlayer-ios.mm
+                         cocos/ui/videoplayer/VideoPlayer-ios.mm
         )
     endif()
     if(USE_WEBVIEW)
        cocos_source_files(
-           NO_WERROR    cocos/ui/webview/WebViewImpl-ios.mm
+            NO_WERROR    cocos/ui/webview/WebViewImpl-ios.mm
        )
    endif()
 elseif(WIN32)
