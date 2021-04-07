@@ -19,7 +19,7 @@
 #
 Checks: >
   -*,
-  readability-*,
+  readability-identifier-*,
   modernize-use-override,
   modernize-use-auto,
   modernize-use-emplace,
