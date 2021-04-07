@@ -1069,9 +1069,9 @@ export class TMXMapInfo {
 
     static getShortName (name: string) {
         name = name.replace(/\\/g, '/');
-        const splashIndex = name.lastIndexOf('/') + 1;
+        const slashIndex = name.lastIndexOf('/') + 1;
         let dotIndex = name.lastIndexOf('.');
         dotIndex = dotIndex < 0 ? name.length : dotIndex;
-        return name.substring(splashIndex, dotIndex);
+        return name.substring(slashIndex, dotIndex);
     }
 }
