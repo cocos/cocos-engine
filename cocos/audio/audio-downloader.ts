@@ -29,7 +29,7 @@
  */
 
 import { AudioPlayer } from 'pal/audio';
-import { AudioClip } from './assets/clip';
+import { AudioClip } from './audio-clip';
 import { CompleteCallback, IDownloadParseOptions } from '../core/asset-manager/shared';
 import downloader from '../core/asset-manager/downloader';
 import factory from '../core/asset-manager/factory';

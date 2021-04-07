@@ -33,7 +33,7 @@ import { ccclass, help, menu, tooltip, type, range, serializable } from 'cc.deco
 import { AudioState } from '../../pal/audio/type';
 import { Component } from '../core/components/component';
 import { clamp } from '../core/math';
-import { AudioClip } from './assets/clip';
+import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
 
 /**

@@ -30,7 +30,7 @@
 
 import { AudioSource } from './audio-source';
 import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
-import { AudioClip } from './assets/clip';
+import { AudioClip } from './audio-clip';
 
 replaceProperty(AudioClip, 'AudioClip', [
     {
