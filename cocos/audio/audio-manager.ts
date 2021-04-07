@@ -24,6 +24,7 @@
  */
 
 import { AudioPlayer, OneShotAudio } from 'pal/audio';
+import { fastRemoveAt } from '../core/utils/array';
 
 type ManagedAudio = AudioPlayer | OneShotAudio;
 interface AudioInfo {
@@ -56,13 +57,7 @@ export class AudioManager {
 
     public removePlaying (audio: ManagedAudio) {
         const idx = this._findIndex(audio);
-        if (idx > -1) {
-            const lastIdx = this._audioInfoList.length - 1;
-            if (lastIdx !== idx) {
-                this._audioInfoList[idx] = this._audioInfoList[lastIdx];
-            }
-            this._audioInfoList.length--;
-        }
+        fastRemoveAt(this._audioInfoList, idx);
     }
 
     public discardOnePlayingIfNeeded () {
