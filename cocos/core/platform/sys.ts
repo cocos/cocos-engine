@@ -824,10 +824,11 @@ export const sys: Record<string, any> = {
         sys.browserType = sys.BROWSER_TYPE_UNKNOWN;
         /* Determine the browser type */
         (function () {
+            const typeReg0 = /wechat|weixin|micromessenger/i;
             const typeReg1 = /mqqbrowser|micromessenger|qqbrowser|sogou|qzone|liebao|maxthon|ucbs|360 aphone|360browser|baiduboxapp|baidubrowser|maxthon|mxbrowser|miuibrowser/i;
             const typeReg2 = /qq|qqbrowser|ucbrowser|ubrowser|edge|HuaweiBrowser/i;
             const typeReg3 = /chrome|safari|firefox|trident|opera|opr\/|oupeng/i;
-            const browserTypes = typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
+            const browserTypes = typeReg0.exec(ua) || typeReg1.exec(ua) || typeReg2.exec(ua) || typeReg3.exec(ua);
 
             let browserType = browserTypes ? browserTypes[0].toLowerCase() : sys.BROWSER_TYPE_UNKNOWN;
             if (browserType === 'safari' && isAndroid) {
@@ -837,6 +838,8 @@ export const sys: Record<string, any> = {
             }
             const typeMap = {
                 micromessenger: sys.BROWSER_TYPE_WECHAT,
+                wechat: sys.BROWSER_TYPE_WECHAT,
+                weixin: sys.BROWSER_TYPE_WECHAT,
                 trident: sys.BROWSER_TYPE_IE,
                 edge: sys.BROWSER_TYPE_EDGE,
                 '360 aphone': sys.BROWSER_TYPE_360,
@@ -845,12 +848,6 @@ export const sys: Record<string, any> = {
                 ubrowser: sys.BROWSER_TYPE_UC,
                 huaweibrowser: sys.BROWSER_TYPE_HUAWEI,
             };
-
-            if (browserType === "qqbrowser" || browserType === "mqqbrowser") {
-                if (ua.match(/wechat|micromessenger/i)) {
-                    browserType = sys.BROWSER_TYPE_WECHAT;
-                }
-            }
 
             sys.browserType = typeMap[browserType] || browserType;
         }());
