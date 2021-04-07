@@ -32,6 +32,7 @@ import { legacyCC } from '../global-exports';
 import { Shadows, ShadowType } from '../renderer/scene/shadows';
 import { getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
+import { SpotLight } from '../renderer/scene';
 
 const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
@@ -262,7 +263,7 @@ export class PipelineUBO {
             Mat4.toArray(sv, (light as any).node.getWorldMatrix(), UBOShadow.MAT_LIGHT_VIEW_OFFSET);
             Mat4.invert(matShadowView, (light as any).node.getWorldMatrix());
 
-            vec4ShadowInfo.set(shadowInfo.near, shadowInfo.far, shadowInfo.linear ? 1.0 : 0.0, shadowInfo.selfShadow ? 1.0 : 0.0);
+            vec4ShadowInfo.set(0.01, (light as SpotLight).range, shadowInfo.linear ? 1.0 : 0.0, shadowInfo.selfShadow ? 1.0 : 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET);
 
             vec4ShadowInfo.set(1.0, shadowInfo.packing ? 1.0 : 0.0, 0.0, 0.0);
