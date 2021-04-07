@@ -104,7 +104,7 @@ export class AudioSource extends Component {
             console.error('Invalid audio clip');
             return;
         }
-        AudioPlayer.load(clip._nativeAsset.src, {
+        AudioPlayer.load(clip._nativeAsset.url, {
             audioLoadMode: clip.loadMode,
         }).then((player) => {
             this._isLoaded = true;
