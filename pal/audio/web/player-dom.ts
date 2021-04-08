@@ -3,20 +3,21 @@ import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
-import { enqueueOperationDecorator } from '../operation-queue';
+import { createEnqueueOperationDecorator, OperationInfo, OperationQueueable } from '../operation-queue';
 
-// NOTE: fix wrong type in static method
-let DecoratedAudioPlayer: typeof AudioPlayerDOM;
-@enqueueOperationDecorator
-export class AudioPlayerDOM {
+const enqueueOperation = createEnqueueOperationDecorator();
+export class AudioPlayerDOM implements OperationQueueable {
     private _domAudio: HTMLAudioElement;
-    private _eventTarget: EventTarget = new EventTarget();
     private _state: AudioState = AudioState.INIT;
     private _onGesture?: () => void;
     private _onHide?: () => void;
     private _onShow?: () => void;
     private _onEnded?: () => void;
-
+    
+    // NOTE: the implemented interface properties need to be public access
+    public _eventTarget: EventTarget = new EventTarget();
+    public _operationQueue: OperationInfo[] = [];
+    
     constructor (nativeAudio: HTMLAudioElement) {
         this._domAudio = nativeAudio;
 
@@ -49,6 +50,7 @@ export class AudioPlayerDOM {
         };
         this._domAudio.addEventListener('ended', this._onEnded);
     }
+    
     destroy () {
         if (this._onGesture) {
             legacyCC.game.canvas.removeEventListener('touchend', this._onGesture);
@@ -73,7 +75,7 @@ export class AudioPlayerDOM {
     static load (url: string): Promise<AudioPlayerDOM> {
         return new Promise((resolve) => {
             AudioPlayerDOM.loadNative(url).then((domAudio) => {
-                resolve(new DecoratedAudioPlayer(domAudio));
+                resolve(new AudioPlayerDOM(domAudio));
             }).catch((e) => {});
         });
     }
@@ -145,6 +147,8 @@ export class AudioPlayerDOM {
     get currentTime (): number {
         return this._domAudio.currentTime;
     }
+
+    @enqueueOperation
     seek (time: number): Promise<void> {
         time = clamp(time, 0, this.duration);
         this._domAudio.currentTime = time;
@@ -194,6 +198,7 @@ export class AudioPlayerDOM {
         return oneShotAudio;
     }
 
+    @enqueueOperation
     play (): Promise<void> {
         return new Promise((resolve) => {
             this._ensurePlaying(this._domAudio).then(() => {
@@ -202,11 +207,15 @@ export class AudioPlayerDOM {
             }).catch((e)  => {});
         });
     }
+
+    @enqueueOperation
     pause (): Promise<void> {
         this._domAudio.pause();
         this._state = AudioState.PAUSED;
         return Promise.resolve();
     }
+
+    @enqueueOperation
     stop (): Promise<void> {
         return new Promise((resolve) => {
             this._domAudio.pause();
@@ -223,5 +232,3 @@ export class AudioPlayerDOM {
     onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
     offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }
-
-DecoratedAudioPlayer = AudioPlayerDOM;

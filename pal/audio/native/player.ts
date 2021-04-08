@@ -3,24 +3,25 @@ import { AudioType, AudioState, AudioEvent } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
-import { enqueueOperationDecorator } from '../operation-queue';
+import { createEnqueueOperationDecorator, OperationInfo, OperationQueueable } from '../operation-queue';
 
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
 const INVALID_AUDIO_ID = -1;
 
-// NOTE: fix wrong type in static method
-let DecoratedAudioPlayer: typeof AudioPlayer;
 // TODO: set state before playing
-@enqueueOperationDecorator
-export class AudioPlayer {
+const enqueueOperation = createEnqueueOperationDecorator();
+export class AudioPlayer implements OperationQueueable{
     private _url: string;
     private _id: number = INVALID_AUDIO_ID;
-    private _eventTarget: EventTarget = new EventTarget();
     private _state: AudioState = AudioState.INIT;
 
     private _onHide?: () => void;
     private _onShow?: () => void;
+
+    // NOTE: the implemented interface properties need to be public access
+    public _eventTarget: EventTarget = new EventTarget();
+    public _operationQueue: OperationInfo[] = [];
 
     private _beforePlaying = {
         duration: 0, // wrong value before playing
@@ -68,7 +69,7 @@ export class AudioPlayer {
     static load (url: string): Promise<AudioPlayer> {
         return new Promise((resolve, reject) => {
             AudioPlayer.loadNative(url).then((url) => {
-                resolve(new DecoratedAudioPlayer(url as string));
+                resolve(new AudioPlayer(url as string));
             }).catch((err) => reject(err));
         });
     }
@@ -137,6 +138,8 @@ export class AudioPlayer {
         }
         return audioEngine.getCurrentTime(this._id);
     }
+
+    @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
             time = clamp(time, 0, this.duration);
@@ -173,6 +176,8 @@ export class AudioPlayer {
             },
         };
     }
+
+    @enqueueOperation
     play (): Promise<void> {
         return new Promise((resolve) => {
             if (this._isValid) {
@@ -200,6 +205,8 @@ export class AudioPlayer {
             resolve();
         });
     }
+
+    @enqueueOperation
     pause (): Promise<void> {
         return new Promise((resolve) => {
             if (this._isValid) {
@@ -209,6 +216,8 @@ export class AudioPlayer {
             resolve();
         });
     }
+
+    @enqueueOperation
     stop (): Promise<void> {
         return new Promise((resolve) => {
             if (this._isValid) {
@@ -227,6 +236,5 @@ export class AudioPlayer {
     offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }
 
-DecoratedAudioPlayer = AudioPlayer;
 // REMOVE_ME
 legacyCC.AudioPlayer = AudioPlayer;

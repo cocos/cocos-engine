@@ -3,15 +3,13 @@ import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
-import { enqueueOperationDecorator } from '../operation-queue';
+import { createEnqueueOperationDecorator, OperationInfo, OperationQueueable } from '../operation-queue';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
-// NOTE: fix wrong type in static method
-let DecoratedAudioPlayer: typeof AudioPlayerWeb;
-@enqueueOperationDecorator
-export class AudioPlayerWeb {
+let enqueueOperation = createEnqueueOperationDecorator();
+export class AudioPlayerWeb implements OperationQueueable {
     private _src: string;
     private static _context: AudioContext = AudioContextClass && new AudioContextClass();
     private _audioBuffer: AudioBuffer;
@@ -22,8 +20,11 @@ export class AudioPlayerWeb {
     private _loop = false;
     private _startTime = 0;
     private _offset = 0;
-    private _eventTarget: EventTarget = new EventTarget();
     private _state: AudioState = AudioState.INIT;
+
+    // NOTE: the implemented interface properties need to be public access
+    public _eventTarget: EventTarget = new EventTarget();
+    public _operationQueue: OperationInfo[] = [];
 
     private _onGesture?: () => void;
     private _onHide?: () => void;
@@ -80,7 +81,7 @@ export class AudioPlayerWeb {
     static load (url: string): Promise<AudioPlayerWeb> {
         return new Promise((resolve) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
-                resolve(new DecoratedAudioPlayer(audioBuffer, url));
+                resolve(new AudioPlayerWeb(audioBuffer, url));
             }).catch((e) => {});
         });
     }
@@ -151,6 +152,8 @@ export class AudioPlayerWeb {
         if (this._state !== AudioState.PLAYING) { return this._offset; }
         return AudioPlayerWeb._context.currentTime - this._startTime + this._offset;
     }
+
+    @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
             this._offset = clamp(time, 0, this._audioBuffer.duration);
@@ -219,6 +222,7 @@ export class AudioPlayerWeb {
         return oneShotAudio;
     }
 
+    @enqueueOperation
     play (): Promise<void> {
         return new Promise((resolve) => {
             const context = AudioPlayerWeb._context;
@@ -253,6 +257,8 @@ export class AudioPlayerWeb {
             }).catch((e) => {});
         });
     }
+
+    @enqueueOperation
     pause (): Promise<void> {
         if (this._state !== AudioState.PLAYING || !this._sourceNode) {
             return Promise.resolve();
@@ -263,6 +269,8 @@ export class AudioPlayerWeb {
         this._sourceNode.stop();
         return Promise.resolve();
     }
+
+    @enqueueOperation
     stop (): Promise<void> {
         if (!this._sourceNode) {
             return Promise.resolve();
@@ -281,5 +289,3 @@ export class AudioPlayerWeb {
     onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
     offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }
-
-DecoratedAudioPlayer = AudioPlayerWeb;
