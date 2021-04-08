@@ -28,7 +28,6 @@
  * @module component/audio
  */
 
-import { AudioPlayer } from 'pal/audio';
 import {
     ccclass, type, serializable, override,
 } from 'cc.decorator';
