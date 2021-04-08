@@ -26,18 +26,20 @@
 ****************************************************************************/
 
 #include "audio/include/AudioEngine.h"
-#include "base/Scheduler.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "platform/Application.h"
+
+#import <AppKit/AppKit.h>
 #include <algorithm>
 #include <mutex>
 #include <sstream>
 
+#include "base/Scheduler.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
+#include "platform/Application.h"
+#include "platform/Device.h"
+
 #include "pipeline/Define.h"
 #include "pipeline/RenderPipeline.h"
 #include "renderer/GFXDeviceManager.h"
-
-#import <AppKit/AppKit.h>
 
 @interface MyTimer : NSObject {
     cc::Application *_app;
@@ -109,8 +111,8 @@ bool setCanvasCallback(se::Object *global) {
     deviceInfo.windowHandle       = (uintptr_t)view;
     deviceInfo.width              = viewLogicalSize.x;
     deviceInfo.height             = viewLogicalSize.y;
-    deviceInfo.nativeWidth        = viewLogicalSize.x;
-    deviceInfo.nativeHeight       = viewLogicalSize.y;
+    deviceInfo.nativeWidth        = viewLogicalSize.x * Device::getDevicePixelRatio();
+    deviceInfo.nativeHeight       = viewLogicalSize.y * Device::getDevicePixelRatio();
     deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
 
     gfx::DeviceManager::create(deviceInfo);

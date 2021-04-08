@@ -39,8 +39,8 @@ AutoreleasePool::AutoreleasePool()
     PoolManager::getInstance()->push(this);
 }
 
-AutoreleasePool::AutoreleasePool(const std::string &name)
-: _name(name)
+AutoreleasePool::AutoreleasePool(std::string name)
+: _name(std::move(name))
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
   ,
   _isClearing(false)
@@ -104,6 +104,7 @@ PoolManager *PoolManager::_singleInstance = nullptr;
 PoolManager *PoolManager::getInstance() {
     if (_singleInstance == nullptr) {
         _singleInstance = new (std::nothrow) PoolManager();
+        _singleInstance->push(new AutoreleasePool());
     }
     return _singleInstance;
 }

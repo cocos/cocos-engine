@@ -118,8 +118,8 @@ namespace {
         deviceInfo.windowHandle = windowHandle;
         deviceInfo.width        = viewLogicalSize.x;
         deviceInfo.height       = viewLogicalSize.y;
-        deviceInfo.nativeWidth  = nativeWidth;
-        deviceInfo.nativeHeight = nativeHeight;
+        deviceInfo.nativeWidth  = nativeWidth * Device::getDevicePixelRatio();
+        deviceInfo.nativeHeight = nativeHeight * Device::getDevicePixelRatio();
         deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
 
         gfx::DeviceManager::create(deviceInfo);

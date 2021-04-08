@@ -49,7 +49,7 @@ public:
      *
      * @param name The name of created autorelease pool.
      */
-    explicit AutoreleasePool(const std::string &name);
+    explicit AutoreleasePool(std::string name);
 
     ~AutoreleasePool();
 
