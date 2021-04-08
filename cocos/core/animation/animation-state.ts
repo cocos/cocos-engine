@@ -40,6 +40,7 @@ import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from '../
 import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { IValueProxyFactory } from './value-proxy';
+import { assertIsTrue } from '../data/utils/asserts';
 
 /**
  * @en The event type supported by Animation
@@ -269,6 +270,29 @@ export class AnimationState extends Playable {
     public duration = 1;
 
     /**
+     * @en
+     * Gets or sets the playback range.
+     * The `min` and `max` field of the range are measured in seconds.
+     * While setting, the range object should be a valid range.
+     * The actual playback range would be the inclusion of this field and [0, duration].
+     * @zh
+     * 获取或设置播放范围。
+     * 范围的 `min`、`max` 字段都是以秒为单位的。
+     * 设置时，应当指定一个有效的范围；实际的播放范围是该字段和 [0, 周期] 之间的交集。
+     * 设置播放范围时将重置累计播放时间。
+     */
+    get playbackRange (): Readonly<{ min: number; max: number; }> {
+        return this._playbackRange;
+    }
+
+    set playbackRange (value) {
+        assertIsTrue(value.max > value.min);
+        this._playbackRange.min = value.min;
+        this._playbackRange.max = value.max;
+        this.setTime(0.0);
+    }
+
+    /**
      * @en The animation's playback speed. 1 is normal playback speed.
      * @zh 播放速率。
      * @default: 1.0
@@ -348,11 +372,16 @@ export class AnimationState extends Playable {
         weight: 0,
         enabled: false,
     };
+    private _playbackRange: { min: number; max: number; };
 
     constructor (clip: AnimationClip, name = '') {
         super();
         this._clip = clip;
         this._name = name || (clip && clip.name);
+        this._playbackRange = {
+            min: 0,
+            max: this._clip.duration,
+        };
     }
 
     /**
@@ -378,6 +407,10 @@ export class AnimationState extends Playable {
         this.speed = clip.speed;
         this.wrapMode = clip.wrapMode;
         this.frameRate = clip.sample;
+        this._playbackRange = {
+            min: 0,
+            max: clip.duration,
+        };
 
         if ((this.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
             this.repeatCount = Infinity;
@@ -726,10 +759,13 @@ export class AnimationState extends Playable {
     }
 
     private simpleProcess () {
-        const duration = this.duration;
-        let time = this.time % duration;
-        if (time < 0) { time += duration; }
-        const ratio = time / duration;
+        const playbackStart = this._getPlaybackStart();
+        const playbackEnd = this._getPlaybackEnd();
+        const playbackDuration = playbackEnd - playbackStart;
+
+        let time = this.time % playbackDuration;
+        if (time < 0) { time += playbackDuration; }
+        const ratio = (playbackStart + time) / this.duration;
         this._sampleCurves(ratio);
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
@@ -778,11 +814,14 @@ export class AnimationState extends Playable {
     private getWrappedInfo (time: number, info?: WrappedInfo) {
         info = info || new WrappedInfo();
 
+        const playbackStart = this._getPlaybackStart();
+        const playbackEnd = this._getPlaybackEnd();
+        const playbackDuration = playbackEnd - playbackStart;
+
         let stopped = false;
-        const duration = this.duration;
         const repeatCount = this.repeatCount;
 
-        let currentIterations = time > 0 ? (time / duration) : -(time / duration);
+        let currentIterations = time > 0 ? (time / playbackDuration) : -(time / playbackDuration);
         if (currentIterations >= repeatCount) {
             currentIterations = repeatCount;
 
@@ -791,15 +830,15 @@ export class AnimationState extends Playable {
             if (tempRatio === 0) {
                 tempRatio = 1;  // 如果播放过，动画不复位
             }
-            time = tempRatio * duration * (time > 0 ? 1 : -1);
+            time = tempRatio * playbackDuration * (time > 0 ? 1 : -1);
         }
 
-        if (time > duration) {
-            const tempTime = time % duration;
-            time = tempTime === 0 ? duration : tempTime;
+        if (time > playbackDuration) {
+            const tempTime = time % playbackDuration;
+            time = tempTime === 0 ? playbackDuration : tempTime;
         } else if (time < 0) {
-            time %= duration;
-            if (time !== 0) { time += duration; }
+            time %= playbackDuration;
+            if (time !== 0) { time += playbackDuration; }
         }
 
         let needReverse = false;
@@ -815,16 +854,24 @@ export class AnimationState extends Playable {
 
         // calculate wrapped time
         if (shouldWrap && needReverse) {
-            time = duration - time;
+            time = playbackDuration - time;
         }
 
-        info.ratio = time / duration;
-        info.time = time;
+        info.time = playbackStart + time;
+        info.ratio = info.time / this.duration;
         info.direction = direction;
         info.stopped = stopped;
         info.iterations = currentIterations;
 
         return info;
+    }
+
+    private _getPlaybackStart () {
+        return Math.max(this._playbackRange.min, 0);
+    }
+
+    private _getPlaybackEnd () {
+        return Math.min(this._playbackRange.max, this.duration);
     }
 
     private _sampleEvents (wrapInfo: WrappedInfo) {
