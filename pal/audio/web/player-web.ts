@@ -8,7 +8,7 @@ import { createEnqueueOperationDecorator, OperationInfo, OperationQueueable } fr
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
 
-let enqueueOperation = createEnqueueOperationDecorator();
+const enqueueOperation = createEnqueueOperationDecorator();
 export class AudioPlayerWeb implements OperationQueueable {
     private _src: string;
     private static _context: AudioContext = AudioContextClass && new AudioContextClass();

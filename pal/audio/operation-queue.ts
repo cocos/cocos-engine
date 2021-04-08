@@ -1,4 +1,4 @@
-import { EventTarget } from "../../cocos/core";
+import { EventTarget } from '../../cocos/core';
 
 export interface OperationInfo {
     id: number;
@@ -29,12 +29,12 @@ let operationId = 0;
  * When you apply `enqueueOperation` on a method, remember to provide a pure operation implementation.
  * It means that, for example, you can't call stop in the implementation of play operation,
  * because that would cause the operation deadlock.
- * 
+ *
  * @returns MethodDecorator
  */
 export function createEnqueueOperationDecorator () {
-    let originalOperationMap: OriginalOperationMap = {};
-    function _tryCallingRecursively<T extends OperationQueueable>(target: T, opInfo: OperationInfo) {
+    const originalOperationMap: OriginalOperationMap = {};
+    function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo: OperationInfo) {
         if (opInfo.invoking) {
             return;
         }
@@ -45,15 +45,15 @@ export function createEnqueueOperationDecorator () {
             target._eventTarget.emit(opInfo.id.toString());
             const nextOpInfo: OperationInfo = target._operationQueue[0];
             nextOpInfo && _tryCallingRecursively(target, nextOpInfo);
-        });
+        }).catch((e) => {});
     }
 
-    return function enqueueOperation<T extends OperationQueueable>(target: T, propertyKey: string, descriptor: TypedPropertyDescriptor<OperationMethod>): void {
+    return function enqueueOperation<T extends OperationQueueable> (target: T, propertyKey: string, descriptor: TypedPropertyDescriptor<OperationMethod>): void {
         originalOperationMap[propertyKey] = descriptor.value;
-        descriptor.value = function (...args: any[]): Promise<void> { 
+        descriptor.value = function (...args: any[]): Promise<void> {
             return new Promise((resolve) => {
                 const id = operationId++;
-                let instance = this as OperationQueueable;
+                const instance = this as OperationQueueable;
                 instance._operationQueue.push({
                     id,
                     name: propertyKey,
@@ -66,5 +66,5 @@ export function createEnqueueOperationDecorator () {
                 _tryCallingRecursively(instance, opInfo);
             });
         };
-    }
+    };
 }

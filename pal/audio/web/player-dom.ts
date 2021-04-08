@@ -13,11 +13,11 @@ export class AudioPlayerDOM implements OperationQueueable {
     private _onHide?: () => void;
     private _onShow?: () => void;
     private _onEnded?: () => void;
-    
+
     // NOTE: the implemented interface properties need to be public access
     public _eventTarget: EventTarget = new EventTarget();
     public _operationQueue: OperationInfo[] = [];
-    
+
     constructor (nativeAudio: HTMLAudioElement) {
         this._domAudio = nativeAudio;
 
@@ -50,7 +50,7 @@ export class AudioPlayerDOM implements OperationQueueable {
         };
         this._domAudio.addEventListener('ended', this._onEnded);
     }
-    
+
     destroy () {
         if (this._onGesture) {
             legacyCC.game.canvas.removeEventListener('touchend', this._onGesture);

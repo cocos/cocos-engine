@@ -11,7 +11,7 @@ const INVALID_AUDIO_ID = -1;
 
 // TODO: set state before playing
 const enqueueOperation = createEnqueueOperationDecorator();
-export class AudioPlayer implements OperationQueueable{
+export class AudioPlayer implements OperationQueueable {
     private _url: string;
     private _id: number = INVALID_AUDIO_ID;
     private _state: AudioState = AudioState.INIT;
