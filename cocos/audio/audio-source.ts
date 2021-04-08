@@ -90,16 +90,15 @@ export class AudioSource extends Component {
     private _syncPlayer () {
         const clip = this._clip;
         this._isLoaded = false;
-        if (!clip) {
-            if (this._player) {
-                this._player.offEnded();
-                this._player.offInterruptionBegin();
-                this._player.offInterruptionBegin();
-                this._player.destroy();
-                this._player = null;
-            }
-            return;
+        // clear old player
+        if (this._player) {
+            this._player.offEnded();
+            this._player.offInterruptionBegin();
+            this._player.offInterruptionEnd();
+            this._player.destroy();
+            this._player = null;
         }
+        if (!clip) { return; }
         if (!clip._nativeAsset) {
             console.error('Invalid audio clip');
             return;
