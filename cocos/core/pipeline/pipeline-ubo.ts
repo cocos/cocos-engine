@@ -37,7 +37,6 @@ const matShadowView = new Mat4();
 const matShadowViewProj = new Mat4();
 const vec3_center = new Vec3();
 const vec4ShadowInfo = new Vec4();
-const _shadowCameraView = new Mat4();
 
 export class PipelineUBO {
     public static updateGlobalUBOView (pipeline: RenderPipeline, bufferView: Float32Array) {
@@ -235,7 +234,7 @@ export class PipelineUBO {
                 _far = shadowInfo.far;
             }
 
-            Mat4.invert(matShadowView, _shadowCameraView);
+            Mat4.invert(matShadowView, shadowCameraView!);
 
             Mat4.ortho(matShadowViewProj, -_x, _x, -_y, _y, shadowInfo.near, _far,
                 device.capabilities.clipSpaceMinZ, device.capabilities.screenSpaceSignY * device.capabilities.UVSpaceSignY);
