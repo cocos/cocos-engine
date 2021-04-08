@@ -22,7 +22,6 @@ CCEffect %{
 CCProgram sprite-vs %{
   precision highp float;
   #include <cc-global>
-  #define CC_UI_PER_BATCH 16
 
   in vec3 a_position;
   in vec2 a_texCoord;
@@ -39,13 +38,15 @@ CCProgram sprite-vs %{
     vec3 scale;
   };
 
+  // #define CC_UI_COUNT_PER_DRAW (CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS - CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4
+  #define CC_UI_COUNT_PER_DRAW 16
   #pragma builtin(local)
   layout(set = 2, binding = 0) uniform CCUILocal {
     // xyz: translation w: color R.G
     // xyzw: quat rotation
     // xy: scale zw: color BA
     // xy: tiling zw: offset
-    mat4 cc_local_data[CC_UI_PER_BATCH];
+    mat4 cc_local_data[CC_UI_COUNT_PER_DRAW];
   };
 
   void getUILocalData(out UILocalData o) {

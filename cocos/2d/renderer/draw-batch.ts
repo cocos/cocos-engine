@@ -198,6 +198,8 @@ export class DrawBatch2D {
         const c = renderComp.color;
         // 16 的定值为 device 查出的 capacity
 
+        // capacityPerUBO = Math.floor((device.capabilities.maxVertexUniformVectors -  pass.shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4)
+        // capacityPerUBO(目前为16)
         const localBuffer = UBOManager.upload(t, r, this._tempScale, uv, c, 16);
         // 能同 draw call 的条件： UBOIndex 相同，ubohash 相同
 
