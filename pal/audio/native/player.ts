@@ -3,14 +3,13 @@ import { AudioType, AudioState, AudioEvent } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
-import { createEnqueueOperationDecorator, OperationInfo, OperationQueueable } from '../operation-queue';
+import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
 const INVALID_AUDIO_ID = -1;
 
 // TODO: set state before playing
-const enqueueOperation = createEnqueueOperationDecorator();
 export class AudioPlayer implements OperationQueueable {
     private _url: string;
     private _id: number = INVALID_AUDIO_ID;

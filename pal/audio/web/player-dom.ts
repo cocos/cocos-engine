@@ -3,9 +3,8 @@ import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
-import { createEnqueueOperationDecorator, OperationInfo, OperationQueueable } from '../operation-queue';
+import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
-const enqueueOperation = createEnqueueOperationDecorator();
 export class AudioPlayerDOM implements OperationQueueable {
     private _domAudio: HTMLAudioElement;
     private _state: AudioState = AudioState.INIT;

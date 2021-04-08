@@ -4,9 +4,8 @@ import { legacyCC } from '../../../cocos/core/global-exports';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
-import { createEnqueueOperationDecorator, OperationInfo, OperationQueueable } from '../operation-queue';
+import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
-const enqueueOperation = createEnqueueOperationDecorator();
 export class AudioPlayer implements OperationQueueable {
     private _innerAudioContext: any;
     private _state: AudioState = AudioState.INIT;
