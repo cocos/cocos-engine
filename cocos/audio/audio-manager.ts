@@ -27,60 +27,84 @@ import { AudioPlayer, OneShotAudio } from 'pal/audio';
 import { fastRemoveAt } from '../core/utils/array';
 
 type ManagedAudio = AudioPlayer | OneShotAudio;
-interface AudioInfo {
-    audio: ManagedAudio;
+interface AudioInfo<T> {
+    audio: T;
     playTime: number;
-    isOneShotAudio: boolean;
 }
 
 export class AudioManager {
-    private _audioInfoList: AudioInfo[] = [];
+    private _oneShotAudioInfoList: AudioInfo<OneShotAudio>[] = [];
+    private _audioPlayerInfoList: AudioInfo<AudioPlayer>[] = [];
 
-    private _findIndex (audio: ManagedAudio): number {
-        return this._audioInfoList.findIndex((audioInfo) => audioInfo.audio === audio);
+    private _findIndex(audioInfoList: AudioInfo<ManagedAudio>[], audio: ManagedAudio) {
+        return audioInfoList.findIndex(item => item.audio === audio);
     }
 
-    public addPlaying (audio: ManagedAudio) {
-        const idx = this._findIndex(audio);
+    private _tryAddPlaying (audioInfoList: AudioInfo<ManagedAudio>[], audio: ManagedAudio): boolean {
+        let idx = this._findIndex(audioInfoList, audio);
         if (idx > -1) {
-            const audioInfo = this._audioInfoList[idx];
             // update play time
-            audioInfo.playTime = performance.now();
-            return;
+            audioInfoList[idx].playTime = performance.now();
+            return false;
         }
-        this._audioInfoList.push({
+        audioInfoList.push({
             audio,
             playTime: performance.now(),
-            isOneShotAudio: !(audio instanceof AudioPlayer),
         });
+        return true;
+    }
+    public addPlaying (audio: ManagedAudio) {
+        if (audio instanceof AudioPlayer) {
+            if (this._tryAddPlaying(this._audioPlayerInfoList, audio)) {
+                return;
+            }
+        }
+        else {
+            this._tryAddPlaying(this._oneShotAudioInfoList, audio);
+        }
     }
 
+    private _tryRemovePlaying (audioInfoList: AudioInfo<ManagedAudio>[], audio: ManagedAudio): boolean {
+        let idx = this._findIndex(audioInfoList, audio);
+        if (idx === -1) {
+            return false;
+        }
+        fastRemoveAt(audioInfoList, idx);
+        return true;
+    }
     public removePlaying (audio: ManagedAudio) {
-        const idx = this._findIndex(audio);
-        fastRemoveAt(this._audioInfoList, idx);
+        if (audio instanceof AudioPlayer) {
+            if (this._tryRemovePlaying(this._audioPlayerInfoList, audio)) {
+                return;
+            }
+        }
+        else {
+            this._tryRemovePlaying(this._oneShotAudioInfoList, audio);
+        }
+
     }
 
     public discardOnePlayingIfNeeded () {
-        if (this._audioInfoList.length < AudioPlayer.maxAudioChannel) {
+        if (this._audioPlayerInfoList.length + this._oneShotAudioInfoList.length < AudioPlayer.maxAudioChannel) {
             return;
         }
 
         // TODO: support discard policy for audio source
-        let audioInfoToDiscard: AudioInfo | undefined;
-        let foundOneShotAudio = false;
-        this._audioInfoList.forEach((audioInfo) => {
-            // discard one shot audio as a priority
-            if (foundOneShotAudio) {
-                if (audioInfo.isOneShotAudio && audioInfo.playTime < audioInfoToDiscard!.playTime) {
+        let audioInfoToDiscard: AudioInfo<ManagedAudio> | undefined;
+        if (this._oneShotAudioInfoList.length > 0) {
+            this._oneShotAudioInfoList.forEach(audioInfo => {
+                if (!audioInfoToDiscard || audioInfo.playTime < audioInfoToDiscard.playTime) {
                     audioInfoToDiscard = audioInfo;
                 }
-            } else if (audioInfo.isOneShotAudio) {
-                audioInfoToDiscard = audioInfo;
-                foundOneShotAudio = true;
-            } else if (!audioInfoToDiscard || audioInfo.playTime < audioInfoToDiscard.playTime) {
-                audioInfoToDiscard = audioInfo;
-            }
-        });
+            });
+        }
+        else {
+            this._audioPlayerInfoList.forEach(audioInfo => {
+                if (!audioInfoToDiscard || audioInfo.playTime < audioInfoToDiscard.playTime) {
+                    audioInfoToDiscard = audioInfo;
+                }
+            });
+        }
         if (audioInfoToDiscard) {
             audioInfoToDiscard.audio.stop();
             this.removePlaying(audioInfoToDiscard.audio);
