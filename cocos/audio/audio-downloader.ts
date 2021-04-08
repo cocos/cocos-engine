@@ -43,6 +43,7 @@ export function loadAudioPlayer (url: string, options: IDownloadParseOptions, on
             duration: player.duration,
             type: player.type
         };
+        player.destroy();
         onComplete(null, audioMeta);
     }).catch((err) => {
         onComplete(err);
