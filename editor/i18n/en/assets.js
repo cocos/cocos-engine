@@ -76,9 +76,6 @@ module.exports = {
             flipVerticalTip: 'Flip Vertical',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
-            useCompressTexture: 'Use Compress Texture',
-            useCompressTextureTip: 'Use Compress Texture',
-        },
         spriteFrame: {
             packable: 'Packable',
             packableTip: 'Packable',

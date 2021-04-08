@@ -16,10 +16,6 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.image.isRGBE" tooltip="i18n:ENGINE.assets.image.isRGBETip"></ui-label>
         <ui-checkbox slot="content" class="isRGBE-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-prop>
-        <ui-label slot="label" value="i18n:ENGINE.assets.image.useCompressTexture" tooltip="i18n:ENGINE.assets.image.useCompressTextureTip"></ui-label>
-        <ui-checkbox slot="content" class="useCompressTexture-checkbox"></ui-checkbox>
-    </ui-prop>
 
     <ui-section expand class="sub-panel-section">
         <ui-label class="sub-panel-name" slot="header"></ui-label>

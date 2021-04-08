@@ -35,22 +35,22 @@ exports.template = `
 `;
 
 exports.style = `
-    .asset-texture { 
+    .asset-texture {
         display: flex;
         flex: 1;
         flex-direction: column;
      }
-    .asset-texture > .content {  
+    .asset-texture > .content {
         padding-bottom: 15px;
         flex: 1;
     }
     .asset-texture > .content > ui-prop {
         margin: 4px 0;
     }
-    .asset-texture > .content > ui-prop.warn {  
+    .asset-texture > .content > ui-prop.warn {
         color: var(--color-warn-fill);
     }
-    .asset-texture > .content > ui-prop.warn ui-select {  
+    .asset-texture > .content > ui-prop.warn ui-select {
         border-color: var(--color-warn-fill);
     }
     .asset-texture > .content > .warn-words {
@@ -99,8 +99,8 @@ const Elements = {
             const panel = this;
 
             panel.$.anisotropyInput.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
-                    meta.userData.anisotropy = event.target.value;
+                panel.userDataList.forEach((userData) => {
+                    userData.anisotropy = event.target.value;
                 });
                 panel.dispatch('change');
             });
@@ -108,7 +108,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            panel.$.anisotropyInput.value = panel._meta.userData.anisotropy;
+            panel.$.anisotropyInput.value = panel.userData.anisotropy;
 
             panel.updateInvalid(panel.$.anisotropyInput, 'anisotropy');
             panel.updateReadonly(panel.$.anisotropyInput);
@@ -119,8 +119,8 @@ const Elements = {
             const panel = this;
 
             panel.$.minfilterSelect.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
-                    meta.userData.minfilter = event.target.value;
+                panel.userDataList.forEach((userData) => {
+                    userData.minfilter = event.target.value;
                 });
                 panel.dispatch('change');
             });
@@ -135,7 +135,7 @@ const Elements = {
             });
             panel.$.minfilterSelect.innerHTML = optionsHtml;
 
-            panel.$.minfilterSelect.value = panel._meta.userData.minfilter;
+            panel.$.minfilterSelect.value = panel.userData.minfilter;
 
             panel.updateInvalid(panel.$.minfilterSelect, 'minfilter');
             panel.updateReadonly(panel.$.minfilterSelect);
@@ -146,8 +146,8 @@ const Elements = {
             const panel = this;
 
             panel.$.magfilterSelect.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
-                    meta.userData.magfilter = event.target.value;
+                panel.userDataList.forEach((userData) => {
+                    userData.magfilter = event.target.value;
                 });
                 panel.dispatch('change');
             });
@@ -162,7 +162,7 @@ const Elements = {
             });
             panel.$.magfilterSelect.innerHTML = optionsHtml;
 
-            panel.$.magfilterSelect.value = panel._meta.userData.magfilter;
+            panel.$.magfilterSelect.value = panel.userData.magfilter;
 
             panel.updateInvalid(panel.$.magfilterSelect, 'magfilter');
             panel.updateReadonly(panel.$.magfilterSelect);
@@ -173,8 +173,8 @@ const Elements = {
             const panel = this;
 
             panel.$.mipfilterSelect.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
-                    meta.userData.mipfilter = event.target.value;
+                panel.userDataList.forEach((userData) => {
+                    userData.mipfilter = event.target.value;
                 });
                 panel.dispatch('change');
             });
@@ -189,7 +189,7 @@ const Elements = {
             });
             panel.$.mipfilterSelect.innerHTML = optionsHtml;
 
-            panel.$.mipfilterSelect.value = panel._meta.userData.mipfilter;
+            panel.$.mipfilterSelect.value = panel.userData.mipfilter;
 
             panel.updateInvalid(panel.$.mipfilterSelect, 'mipfilter');
             panel.updateReadonly(panel.$.mipfilterSelect);
@@ -200,8 +200,8 @@ const Elements = {
             const panel = this;
 
             panel.$.wrapModeSSelect.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
-                    meta.userData.wrapModeS = event.target.value;
+                panel.userDataList.forEach((userData) => {
+                    userData.wrapModeS = event.target.value;
                 });
                 panel.dispatch('change');
             });
@@ -216,7 +216,7 @@ const Elements = {
             });
             panel.$.wrapModeSSelect.innerHTML = optionsHtml;
 
-            panel.$.wrapModeSSelect.value = panel._meta.userData.wrapModeS;
+            panel.$.wrapModeSSelect.value = panel.userData.wrapModeS;
 
             panel.updateInvalid(panel.$.wrapModeSSelect, 'wrapModeS');
             panel.updateReadonly(panel.$.wrapModeSSelect);
@@ -227,8 +227,8 @@ const Elements = {
             const panel = this;
 
             panel.$.wrapModeTSelect.addEventListener('change', (event) => {
-                panel._metaList.forEach((meta) => {
-                    meta.userData.wrapModeT = event.target.value;
+                panel.userData.forEach((userData) => {
+                    userData.wrapModeT = event.target.value;
                 });
                 panel.dispatch('change');
             });
@@ -243,7 +243,7 @@ const Elements = {
             });
             panel.$.wrapModeTSelect.innerHTML = optionsHtml;
 
-            panel.$.wrapModeTSelect.value = panel._meta.userData.wrapModeT;
+            panel.$.wrapModeTSelect.value = panel.userData.wrapModeT;
 
             panel.updateInvalid(panel.$.wrapModeTSelect, 'wrapModeT');
             panel.updateReadonly(panel.$.wrapModeTSelect);
@@ -256,7 +256,7 @@ const Elements = {
     warnWords: {
         ready() {
             this.$.image = document.createElement('ui-image');
-            
+
             this.$.image.$img.addEventListener('load', () => {
                 Elements.warnWords.update.call(this);
             });
@@ -264,9 +264,9 @@ const Elements = {
         update() {
             const panel = this;
 
-            this.$.image.value = this._asset.uuid;
+            this.$.image.value = this.asset.uuid;
 
-            const { wrapModeT, wrapModeS } = panel._meta.userData;
+            const { wrapModeT, wrapModeS } = panel.userData;
 
             const { naturalWidth, naturalHeight } = panel.$.image.$img;
 
@@ -288,25 +288,7 @@ const Elements = {
         },
     },
 };
-
-/**
- * 自动渲染组件的方法
- * @param assetList
- * @param metaList
- */
-exports.update = function (assetList, metaList) {
-    this._assetList = assetList;
-    this._metaList = metaList;
-    this._asset = assetList[0];
-    this._meta = metaList[0];
-
-    for (const prop in Elements) {
-        const element = Elements[prop];
-        if (element.update) {
-            element.update.call(this);
-        }
-    }
-};
+exports.Elements = Elements;
 
 /**
  * 初始化界面的方法
@@ -325,8 +307,8 @@ exports.methods = {
      * 更新多选状态下某个数据是否可编辑
      */
     updateInvalid(element, prop) {
-        const invalid = this._metaList.some((meta) => {
-            return meta.userData[prop] !== this._meta.userData[prop];
+        const invalid = this.userDataList.some((userData) => {
+            return userData[prop] !== this.userData[prop];
         });
         element.invalid = invalid;
     },
@@ -334,7 +316,7 @@ exports.methods = {
      * 更新只读状态
      */
     updateReadonly(element) {
-        if (this._asset.readonly) {
+        if (this.asset.readonly) {
             element.setAttribute('disabled', true);
         } else {
             element.removeAttribute('disabled');
