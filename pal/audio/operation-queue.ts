@@ -41,7 +41,7 @@ function _tryCallingRecursively<T extends OperationQueueable> (target: T, opInfo
  * because that would cause the operation deadlock.
  */
 export function enqueueOperation<T extends OperationQueueable> (target: T, propertyKey: string, descriptor: TypedPropertyDescriptor<OperationMethod>): void {
-    let originalOperation = descriptor.value!;
+    const originalOperation = descriptor.value!;
     descriptor.value = function (...args: any[]): Promise<void> {
         return new Promise((resolve) => {
             const id = operationId++;
