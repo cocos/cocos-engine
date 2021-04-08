@@ -38,10 +38,10 @@ export function loadAudioPlayer (url: string, options: IDownloadParseOptions, on
     AudioPlayer.load(url, {
         audioLoadMode: options.audioLoadMode,
     }).then((player) => {
-        let audioMeta: AudioMeta = {
+        const audioMeta: AudioMeta = {
             url,
             duration: player.duration,
-            type: player.type
+            type: player.type,
         };
         player.destroy();
         onComplete(null, audioMeta);
