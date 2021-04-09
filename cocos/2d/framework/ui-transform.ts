@@ -28,7 +28,7 @@
  * @module ui
  */
 
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component } from '../../core/components';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
@@ -37,7 +37,7 @@ import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
 import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
-import { director } from '../../core/director';
+import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 
 const _vec2a = new Vec2();
@@ -197,7 +197,7 @@ export class UITransform extends Component {
      * @zh
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      */
-    @tooltip('i18n:ui_transform.priority')
+    @visible(false)
     get priority () {
         return this._priority;
     }
@@ -213,8 +213,7 @@ export class UITransform extends Component {
         }
 
         this._priority = value;
-        this._checkAndSortSiblings();
-        this.node.parent!._updateSiblingIndex();
+        this._priorityDirty = true;
     }
 
     @serializable
@@ -246,21 +245,22 @@ export class UITransform extends Component {
     @serializable
     protected _anchorPoint = new Vec2(0.5, 0.5);
 
+    private _priorityDirty = false;
+
     public __preload () {
         this.node._uiProps.uiTransformComp = this;
     }
 
     public onEnable () {
         this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
+        director.on(Director.EVENT_AFTER_UPDATE, this._sortSiblings, this);
 
-        const changed = this._checkAndSortSiblings();
-        if (changed) {
-            this.node.parent!._updateSiblingIndex();
-        }
+        this._priorityDirty = true;
     }
 
     public onDisable () {
         this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
+        director.off(Director.EVENT_AFTER_UPDATE, this._sortSiblings, this);
     }
 
     public onDestroy () {
@@ -643,7 +643,7 @@ export class UITransform extends Component {
             return;
         }
 
-        this._checkAndSortSiblings();
+        this._priorityDirty = true;
     }
 
     protected _checkAndSortSiblings () {
@@ -666,5 +666,16 @@ export class UITransform extends Component {
         }
 
         return changed;
+    }
+
+    protected _sortSiblings () {
+        if (this._priorityDirty) {
+            const changed = this._checkAndSortSiblings();
+            if (changed && this.node.parent) {
+                this.node.parent._updateSiblingIndex();
+            }
+            this.node.emit('SiblingChange');
+            this._priorityDirty = false;
+        }
     }
 }
