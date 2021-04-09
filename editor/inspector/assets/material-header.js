@@ -36,14 +36,14 @@ exports.$ = {
 exports.methods = {
     async refreshPreview() {
 
-        if (this._waitRefreshNum > 0) {
-            this._waitRefreshNum++;
+        if (this.waitRefreshNum > 0) {
+            this.waitRefreshNum++;
             return;
         }
-        this._waitRefreshNum = 1;
+        this.waitRefreshNum = 1;
 
         await glPreview.init({ width: this.$.canvas.clientWidth, height: this.$.canvas.clientHeight });
-        await Editor.Message.request('scene', 'preview-material', this._assetList[0].uuid);
+        await Editor.Message.request('scene', 'preview-material', this.asset.uuid);
 
         const width = this.$.canvas.clientWidth;
         const height = this.$.canvas.clientHeight;
@@ -65,11 +65,11 @@ exports.methods = {
         } catch (e) {
             console.warn(e);
         }
-        if (this._waitRefreshNum > 1) {
-            this._waitRefreshNum = 0;
+        if (this.waitRefreshNum > 1) {
+            this.waitRefreshNum = 0;
             this.refreshPreview();
         } else {
-            this._waitRefreshNum = 0;
+            this.waitRefreshNum = 0;
         }
     },
 };
@@ -80,10 +80,12 @@ exports.methods = {
  * @param metaList 
  */
 exports.update = async function(assetList, metaList) {
-    this._assetList = assetList;
-    this._metaList = metaList;
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
 
-    this._waitRefreshNum = 0;
+    this.waitRefreshNum = 0;
 
     this.refreshPreview();
 };

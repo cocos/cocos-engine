@@ -51,9 +51,11 @@ const Elements = {
     pipeline: {
         async update() {
             const panel = this;
-
+            
             panel.pipeline = await panel.query(panel.asset.uuid);
             panel.$.pipelinesSelect.value = panel.pipelines.findIndex(one => one.name === panel.pipeline.name);
+
+            this.$.content.innerText = '';
 
             for (const key in panel.pipeline.value) {
                 const dump = panel.pipeline.value[key];
@@ -115,11 +117,11 @@ exports.methods = {
 
     },
     async apply () {
-        await Editor.Message.request('scene', 'apply-render-pipeline', this.asset.uuid, this.renderTexture);
+        await Editor.Message.request('scene', 'apply-render-pipeline', this.asset.uuid, this.pipeline);
     },
 
     async dataChange () {
-        await Editor.Message.request('scene', 'change-render-pipeline', this.renderTexture);
+        await Editor.Message.request('scene', 'change-render-pipeline', this.pipeline);
         this.dispatch('change');
     },
 };

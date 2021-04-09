@@ -47,7 +47,7 @@ exports.methods = {
      * 自定义保存
      */
     async apply() {
-        await Editor.Message.request('scene', 'apply-material', this._assetList[0].uuid, this._material);
+        await Editor.Message.request('scene', 'apply-material', this.asset.uuid, this.material);
     },
 
     /**
@@ -58,11 +58,11 @@ exports.methods = {
         // passes 里的数据不全是需要渲染的 value
         // 所以在这里整理一次，但这不合理
         // 合理的方式应该在查询 material 的时候，返回的数据就应该是一个正常的 dump 数据
-        if (!this._material.data[this._material.technique]) {
-            this._material.technique = 0;
+        if (!this.material.data[this.material.technique]) {
+            this.material.technique = 0;
         }
-        const technique = materialTechniquePolyfill(this._material.data[this._material.technique]);
-        this._technique = technique;
+        const technique = materialTechniquePolyfill(this.material.data[this.material.technique]);
+        this.technique = technique;
     
         if (technique.useInstancing) {
             this.$.useInstancing.render(technique.useInstancing);
@@ -107,7 +107,7 @@ exports.methods = {
      */
     updateTechniqueOptions() {
         let techniqueOption = '';
-        this._material.data.forEach((technique, index) => {
+        this.material.data.forEach((technique, index) => {
             techniqueOption += `<option value="${index}">${index} - ${technique.name}</option>`;
         });
         this.$.technique.innerHTML = techniqueOption;
@@ -120,18 +120,17 @@ exports.methods = {
  * @param metaList 
  */
 exports.update = async function(assetList, metaList) {
-    this._assetList = assetList;
-    this._metaList = metaList;
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.asset = assetList[0];
+    this.meta = metaList[0];
 
-    const asset = assetList[0];
-
-    const material = await Editor.Message.request('scene', 'query-material', asset.uuid);
-    this._material = material;
+    this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
 
     // effect 选择框
-    this.$.effect.value = this._material.effect;
+    this.$.effect.value = this.material.effect;
     // technique 选择框
-    this.$.technique.value = this._material.technique;
+    this.$.technique.value = this.material.technique;
 
     this.updateTechniqueOptions();
     this.updatePasses();
@@ -143,14 +142,14 @@ exports.update = async function(assetList, metaList) {
 exports.ready = async function() {
     // material 内容修改的时候触发的事件
     this.$.materialDump.addEventListener('change-dump', (event) => {
-        Editor.Message.request('scene', 'preview-material', this._assetList[0].uuid, this._material);
+        Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
         this.dispatch('change');
     });
 
     // 使用的 effect 修改的时候，触发的事件
     this.$.effect.addEventListener('change', async (event) => {
-        this._material.effect = event.target.value;
-        this._material.data = await Editor.Message.request('scene', 'query-effect', this._material.effect);
+        this.material.effect = event.target.value;
+        this.material.data = await Editor.Message.request('scene', 'query-effect', this.material.effect);
 
         this.updateTechniqueOptions();
         this.updatePasses();
@@ -159,7 +158,7 @@ exports.ready = async function() {
 
     // 使用的 technique 更改的时候触发的事件
     this.$.technique.addEventListener('change', async (event) => {
-        this._material.technique = event.target.value;
+        this.material.technique = event.target.value;
 
         this.updatePasses();
         this.dispatch('change');
@@ -167,7 +166,7 @@ exports.ready = async function() {
 
     // useInstancing 这个特殊属性修改的时候触发的事件
     this.$.useInstancing.addEventListener('change-dump', (event) => {
-        const technique = this._technique;
+        const technique = this.technique;
         // 替换 passes 中的数据
         technique.passes.forEach((pass) => {
             if (pass.childMap.USE_INSTANCING) {
@@ -179,7 +178,7 @@ exports.ready = async function() {
 
     // useBatching 这个特殊属性修改的时候触发的事件
     this.$.useBatching.addEventListener('change-dump', (event) => {
-        const technique = this._technique;
+        const technique = this.technique;
         // 替换 passes 中的数据
         technique.passes.forEach((pass) => {
             if (pass.childMap.USE_BATCHING) {

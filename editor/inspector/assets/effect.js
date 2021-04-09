@@ -114,6 +114,10 @@ const Elements = {
 
             panel.$.shaderSelect.value = panel.shadersIndex;
 
+            if (panel.shaders[panel.shadersIndex]) {
+                panel.$.shaderSelect.setAttribute('tooltip', panel.shaders[panel.shadersIndex].name);
+            }
+
             panel.updateReadonly(panel.$.shaderSelect);
         },
     },

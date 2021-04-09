@@ -6,40 +6,25 @@ const MAX_LENGTH = 20000;
 
 exports.template = `
 <section class="asset-effect-header">
-    <ui-code language="glsl"
-        id="code"
-    >
-    </ui-code>
+    <ui-code language="glsl"></ui-code>
 </section>
 `;
 
 exports.style = `
-:host > .asset-effect-header > ui-code[hidden] {
-    display: none;
-}
-
 .asset-effect-header {
+    flex: 1;
     display: flex;
     flex-direction: column;
-    overflow: auto;
+    height: 0px; // it is necessary
 }
-
-.asset-effect-header ui-code {
+.asset-effect-header > ui-code {
     flex: 1;
-    position: relative;
-    overflow: auto;
-    border: 1px solid var(--color-normal-border);
-    background: var(--color-normal-fill-emphasis);
-    margin: 0;
-    padding: 10px;
-    font-size: 12px;
-    -webkit-user-select: text;
-    cursor: auto;
 }
 `;
 
 exports.$ = {
-    code: '#code',
+    container: '.asset-effect-header',
+    code: 'ui-code',
 };
 
 exports.ready = function () {
@@ -47,42 +32,59 @@ exports.ready = function () {
 };
 
 exports.update = function (assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.meta = metaList[0];
+    this.asset = assetList[0];
+
+    let display = 'none';
     if (assetList.length === 1) {
-        this.code.hidden = false;
-        const info = assetList[0];
-        if (info.importer !== 'effect-header') {
-            return;
-        }
-        const readStream = createReadStream(info.file, { encoding: 'utf-8' });
-        // Displays 400 lines or 20,000 characters
-        let remainLines = MAX_LINES;
-        let remainLength = MAX_LENGTH;
-        let text = '';
-        const readLineStream = ReadLine.createInterface({ input: readStream, setEncoding: 'utf-8' });
-        readLineStream.on('line', (line) => {
-            const lineLength = line.length;
-            if (lineLength > remainLength) {
-                line = line.substr(0, remainLength);
-                remainLength = 0;
-            } else {
-                remainLength -= lineLength;
-            }
-
-            remainLines--;
-            text += `${line}\n`;
-
-            if (remainLines <= 0 || remainLength <= 0) {
-                text += '...\n';
-            }
-        });
-        readLineStream.on('close', (err) => {
-            if (err) {
-                throw err;
-            }
-            this.code.innerHTML = text;
-        });
-    } else {
-        this.code.innerText = '';
-        this.code.hidden = true;
+        display = 'flex';
     }
+    this.$.container.style.display = display;
+
+    if (display === 'none') {
+        return;
+    }
+
+    // Displays 400 lines or 20,000 characters
+    const readStream = createReadStream(this.asset.file, {
+        encoding: 'utf-8',
+    });
+
+    let remainLines = MAX_LINES;
+    let remainLength = MAX_LENGTH;
+    let text = '';
+
+    const readLineStream = ReadLine.createInterface({
+        input: readStream,
+        setEncoding: 'utf-8',
+    });
+
+    readLineStream.on('line', (line) => {
+        const lineLength = line.length;
+        if (lineLength > remainLength) {
+            line = line.substr(0, remainLength);
+            remainLength = 0;
+        } else {
+            remainLength -= lineLength;
+        }
+
+        remainLines--;
+        text += `${line}\n`;
+
+        if (remainLines <= 0 || remainLength <= 0) {
+            text += '...\n';
+            readLineStream.close();
+            readStream.close();
+        }
+    });
+
+    readLineStream.on('close', (err) => {
+        if (err) {
+            throw err;
+        }
+
+        this.code.textContent = text;
+    });
 };

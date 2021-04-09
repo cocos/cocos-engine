@@ -184,6 +184,10 @@ const Elements = {
             }
             this.$.dependencies.style.display = display;
 
+            if (display === 'none') {
+                return;
+            }
+
             if (!Array.isArray(this.meta.userData.dependencies)) {
                 this.meta.userData.dependencies = [];
             }
@@ -250,6 +254,11 @@ const Elements = {
             }
 
             this.$.executionScopeEnclosedProp.style.display = display;
+
+            if (display === 'none') {
+                return;
+            }
+
             this.$.executionScopeEnclosedInput.value = Array.isArray(this.meta.userData.simulateGlobals)
                 ? this.meta.userData.simulateGlobals.join(';')
                 : '';
@@ -284,57 +293,61 @@ const Elements = {
     },
     code: {
         update() {
-            if (this.metaList.length === 1) {
-                this.$.code.style.display = 'flex';
-
-                let remainLines = MAX_LINES;
-                let remainLength = MAX_LENGTH;
-
-                let text = '';
-
-                const readStream = createReadStream(this.asset.file, {
-                    encoding: 'utf-8',
-                });
-
-                const readLineStream = ReadLine.createInterface({
-                    input: readStream,
-                    setEncoding: 'utf-8',
-                });
-
-                readLineStream.on('line', (line) => {
-                    const lineLength = line.length;
-                    if (lineLength > remainLength) {
-                        line = line.substr(0, remainLength);
-                        remainLength = 0;
-                    } else {
-                        remainLength -= lineLength;
-                    }
-
-                    remainLines--;
-                    text += `${line}\n`;
-
-                    if (remainLines <= 0 || remainLength <= 0) {
-                        text += '...\n';
-                        readLineStream.close();
-                    }
-                });
-
-                readLineStream.on('close', (err) => {
-                    if (err) {
-                        throw err;
-                    }
-                    this.$.code.innerHTML = text;
-                });
-            } else {
-                this.$.code.innerText = '';
-                this.$.code.style.display = 'none';
+            let display = 'none';
+            if (this.assetList.length === 1) {
+                display = 'flex';
             }
+            this.$.code.style.display = display;
+
+            if (display === 'none') {
+                return;
+            }
+
+            let remainLines = MAX_LINES;
+            let remainLength = MAX_LENGTH;
+            let text = '';
+
+            const readStream = createReadStream(this.asset.file, {
+                encoding: 'utf-8',
+            });
+
+            const readLineStream = ReadLine.createInterface({
+                input: readStream,
+                setEncoding: 'utf-8',
+            });
+
+            readLineStream.on('line', (line) => {
+                const lineLength = line.length;
+                if (lineLength > remainLength) {
+                    line = line.substr(0, remainLength);
+                    remainLength = 0;
+                } else {
+                    remainLength -= lineLength;
+                }
+
+                remainLines--;
+                text += `${line}\n`;
+
+                if (remainLines <= 0 || remainLength <= 0) {
+                    text += '...\n';
+                    readLineStream.close();
+                    readStream.close();
+                }
+            });
+
+            readLineStream.on('close', (err) => {
+                if (err) {
+                    throw err;
+                }
+
+                this.$.code.textContent  = text;
+            });
         },
     },
 };
 
 exports.update = function (assetList, metaList) {
-    this.metaList = assetList;
+    this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];

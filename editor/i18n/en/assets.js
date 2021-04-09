@@ -76,6 +76,7 @@ module.exports = {
             flipVerticalTip: 'Flip Vertical',
             isRGBE: 'Is RGBE',
             isRGBETip: 'Is RGBE',
+        },
         spriteFrame: {
             packable: 'Packable',
             packableTip: 'Packable',

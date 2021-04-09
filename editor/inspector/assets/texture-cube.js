@@ -105,7 +105,7 @@ const Elements = {
             const panel = this;
 
             for (const key in Direction) {
-                panel.$[`${key}-asset`].value = panel.meta.userData[key];
+                panel.$[`${key}-asset`].value = panel.meta.userData[key] || '';
                 panel.updateInvalid(panel.$[`${key}-asset`], key);
                 panel.updateReadonly(panel.$[`${key}-asset`]);
             }
@@ -142,7 +142,7 @@ const Elements = {
             const panel = this;
 
             for (const key in Direction) {
-                panel.$[`${key}-image`].value = panel.meta.userData[key];
+                panel.$[`${key}-image`].value = panel.meta.userData[key] || '';
                 panel.updateInvalid(panel.$[`${key}-image`], key);
                 panel.updateReadonly(panel.$[`${key}-image`]);
             }

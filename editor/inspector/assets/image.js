@@ -46,7 +46,6 @@ exports.$ = {
     flipVerticalCheckbox: '.flipVertical-checkbox',
     isRGBEProp: '.isRGBE-prop',
     isRGBECheckbox: '.isRGBE-checkbox',
-    useCompressTextureCheckbox: '.useCompressTexture-checkbox',
 };
 
 /**
@@ -127,26 +126,6 @@ const Elements = {
             } else {
                 panel.$.isRGBEProp.style.display = 'none';
             }
-        },
-    },
-    useCompressTexture: {
-        ready() {
-            const panel = this;
-
-            panel.$.useCompressTextureCheckbox.addEventListener('change', (event) => {
-                panel.metaList.forEach((meta) => {
-                    meta.userData.useCompressTexture = event.target.value;
-                });
-                panel.dispatch('change');
-            });
-        },
-        update() {
-            const panel = this;
-
-            panel.$.useCompressTextureCheckbox.value = panel.meta.userData.useCompressTexture;
-
-            panel.updateInvalid(panel.$.useCompressTextureCheckbox, 'useCompressTexture');
-            panel.updateReadonly(panel.$.useCompressTextureCheckbox);
         },
     },
 };

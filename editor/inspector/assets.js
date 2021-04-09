@@ -12,6 +12,8 @@ module.exports = {
     'label-atlas': join(__dirname, './assets/label-atlas.js'),
     particle: join(__dirname, './assets/particle.js'),
     json: join(__dirname, './assets/json.js'),
+    'dragonbones-atlas': join(__dirname, './assets/json.js'), // 复用
+    'dragonbones': join(__dirname, './assets/json.js'),  // 复用
     texture: join(__dirname, './assets/texture/index.js'),
     'auto-atlas': join(__dirname, './assets/texture/auto-atlas.js'), // 复用
     material: join(__dirname, './assets/material.js'),

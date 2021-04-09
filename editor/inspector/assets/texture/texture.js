@@ -264,7 +264,7 @@ const Elements = {
         update() {
             const panel = this;
 
-            this.$.image.value = this.asset.uuid;
+            this.$.image.value = panel.asset.uuid;
 
             const { wrapModeT, wrapModeS } = panel.userData;
 
@@ -288,6 +288,7 @@ const Elements = {
         },
     },
 };
+
 exports.Elements = Elements;
 
 /**

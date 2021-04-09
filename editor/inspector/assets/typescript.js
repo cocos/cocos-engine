@@ -27,16 +27,20 @@ exports.style = `
 `;
 
 exports.update = function (assetList, metaList) {
+    this.assetList = assetList;
+    this.metaList = metaList;
+    this.meta = metaList[0];
+    this.asset = assetList[0];
+
     let display = 'none';
     if (assetList.length === 1) {
         display = 'flex';
     }
     this.$.container.style.display = display;
 
-    this.assetList = assetList;
-    this.metaList = metaList;
-    this.meta = metaList[0];
-    this.asset = assetList[0];
+    if (display === 'none') {
+        return;
+    }
 
     // Displays 400 lines or 20,000 characters
     const readStream = createReadStream(this.asset.file, {
@@ -67,6 +71,7 @@ exports.update = function (assetList, metaList) {
         if (remainLines <= 0 || remainLength <= 0) {
             text += '...\n';
             readLineStream.close();
+            readStream.close();
         }
     });
 
@@ -75,6 +80,6 @@ exports.update = function (assetList, metaList) {
             throw err;
         }
 
-        this.$.code.innerHTML = text;
+        this.$.code.textContent = text;
     });
 };
