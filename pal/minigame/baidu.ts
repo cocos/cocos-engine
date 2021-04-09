@@ -4,23 +4,23 @@ import { cloneObject } from '../utils';
 
 declare let swan: any;
 
-// @ts-expect-error can't init mg when it's declared
-const mg: IMiniGame = {};
-cloneObject(mg, swan);
+// @ts-expect-error can't init minigame when it's declared
+const minigame: IMiniGame = {};
+cloneObject(minigame, swan);
 
 // SystemInfo
-if (mg.getSystemInfoSync) {
-    const systemInfo = mg.getSystemInfoSync();
-    mg.isDevTool = systemInfo.platform === 'devtools';
-    mg.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
+if (minigame.getSystemInfoSync) {
+    const systemInfo = minigame.getSystemInfoSync();
+    minigame.isDevTool = systemInfo.platform === 'devtools';
+    minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
 } else {
     // can't define window in devtool
     const descriptor = Object.getOwnPropertyDescriptor(global, 'window');
-    mg.isDevTool = !(!descriptor || descriptor.configurable === true);
-    mg.isLandscape = false;
+    minigame.isDevTool = !(!descriptor || descriptor.configurable === true);
+    minigame.isLandscape = false;
 }
-mg.isSubContext = (mg.getOpenDataContext === undefined);
-let orientation = mg.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
+minigame.isSubContext = (minigame.getOpenDataContext === undefined);
+let orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
 
 // Accelerometer
 swan.onDeviceOrientationChange((res) => {
@@ -31,11 +31,11 @@ swan.onDeviceOrientationChange((res) => {
     }
 });
 
-mg.onAccelerometerChange = function (cb) {
+minigame.onAccelerometerChange = function (cb) {
     swan.onAccelerometerChange((res) => {
         let x = res.x;
         let y = res.y;
-        if (mg.isLandscape) {
+        if (minigame.isLandscape) {
             const orientationFactor = orientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
             const tmp = x;
             x = -y * orientationFactor;
@@ -53,10 +53,10 @@ mg.onAccelerometerChange = function (cb) {
     swan.stopAccelerometer();
 };
 
-mg.getSafeArea = function () {
+minigame.getSafeArea = function () {
     console.warn('getSafeArea is not supported on this platform');
-    if (mg.getSystemInfoSync) {
-        const systemInfo =  mg.getSystemInfoSync();
+    if (minigame.getSystemInfoSync) {
+        const systemInfo =  minigame.getSystemInfoSync();
         return {
             top: 0,
             left: 0,
@@ -76,4 +76,4 @@ mg.getSafeArea = function () {
     };
 };
 
-export { mg };
+export { minigame };

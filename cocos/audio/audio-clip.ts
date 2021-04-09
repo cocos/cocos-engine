@@ -28,13 +28,18 @@
  * @module component/audio
  */
 
-import { AudioPlayer } from 'pal/audio';
 import {
     ccclass, type, serializable, override,
 } from 'cc.decorator';
-import { Asset } from '../../core/assets/asset';
-import { legacyCC } from '../../core/global-exports';
-import { AudioType } from '../../../pal/audio/type';
+import { Asset } from '../core/assets/asset';
+import { legacyCC } from '../core/global-exports';
+import { AudioType } from '../../pal/audio/type';
+
+export interface AudioMeta {
+    url: string;
+    type: AudioType;
+    duration: number;
+}
 
 /**
  * @en
@@ -58,26 +63,21 @@ export class AudioClip extends Asset {
 
     protected _loadMode = AudioType.UNKNOWN_AUDIO;
 
-    protected _player: AudioPlayer | null = null;
+    protected _meta: AudioMeta | null = null;
 
     constructor () {
         super();
         this.loaded = false;
     }
 
-    public destroy () {
-        if (this._player) { this._player.destroy(); }
-        return super.destroy();
-    }
-
-    set _nativeAsset (player: AudioPlayer | null) {
-        this._player = player;
-        if (player) {
+    set _nativeAsset (meta: AudioMeta | null) {
+        this._meta = meta;
+        if (meta) {
             this.loaded = true;
-            this._loadMode = player.type;
+            this._loadMode = meta.type;
             this.emit('load');
         } else {
-            this._player = null;
+            this._meta = null;
             this._loadMode = AudioType.UNKNOWN_AUDIO;
             this._duration = 0;
             this.loaded = false;
@@ -85,7 +85,7 @@ export class AudioClip extends Asset {
     }
 
     get _nativeAsset () {
-        return this._player;
+        return this._meta;
     }
 
     @override
@@ -102,7 +102,7 @@ export class AudioClip extends Asset {
         return this._loadMode;
     }
 
-    public getDuration () { return this._player ? this._player.duration : this._duration; }
+    public getDuration () { return this._meta ? this._meta.duration : this._duration; }
 }
 
 legacyCC.AudioClip = AudioClip;

@@ -41,6 +41,7 @@ export class AudioPlayer {
     }
     static readonly maxAudioChannel = 24;
 
+    get src (): string { return this._player.src; }
     get type (): AudioType { return this._player.type; }
     get state (): AudioState { return this._player.state; }
     get loop (): boolean { return this._player.loop; }

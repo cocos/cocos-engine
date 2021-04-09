@@ -1,5 +1,5 @@
 declare module 'pal/minigame' {
-    export const mg: IMiniGame;
+    export const minigame: IMiniGame;
     export interface IMiniGame {
         // system
         isSubContext: boolean;

@@ -4,15 +4,15 @@ import { cloneObject } from '../utils';
 
 declare let my: any;
 
-// @ts-expect-error can't init mg when it's declared
-const mg: IMiniGame = {};
-cloneObject(mg, my);
+// @ts-expect-error can't init minigame when it's declared
+const minigame: IMiniGame = {};
+cloneObject(minigame, my);
 
-const systemInfo = mg.getSystemInfoSync();
-mg.isSubContext = false;  // sub context not supported
-mg.isDevTool = window.navigator && (/AlipayIDE/.test(window.navigator.userAgent));
-mg.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
-// let orientation = mg.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
+const systemInfo = minigame.getSystemInfoSync();
+minigame.isSubContext = false;  // sub context not supported
+minigame.isDevTool = window.navigator && (/AlipayIDE/.test(window.navigator.userAgent));
+minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
+// let orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
 
 // TouchEvent
 // my.onTouchStart register touch event listner on body
@@ -38,7 +38,7 @@ mg.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
 //     });
 // };
 
-mg.createInnerAudioContext = function (): InnerAudioContext {
+minigame.createInnerAudioContext = function (): InnerAudioContext {
     const audio: InnerAudioContext = my.createInnerAudioContext();
     // @ts-expect-error InnerAudioContext has onCanPlay
     audio.onCanplay = audio.onCanPlay.bind(audio);
@@ -52,17 +52,17 @@ mg.createInnerAudioContext = function (): InnerAudioContext {
 };
 
 // Font
-mg.loadFont = function (url) {
+minigame.loadFont = function (url) {
     // my.loadFont crash when url is not in user data path
     return 'Arial';
 };
 
 // Accelerometer
-mg.onAccelerometerChange = function (cb) {
+minigame.onAccelerometerChange = function (cb) {
     my.onAccelerometerChange((res) => {
         let x = res.x;
         let y = res.y;
-        if (mg.isLandscape) {
+        if (minigame.isLandscape) {
             // NOTE: onDeviceOrientationChangeis not supported on alipay platform
             const tmp = x;
             x = -y;
@@ -80,10 +80,10 @@ mg.onAccelerometerChange = function (cb) {
     my.stopAccelerometer();
 };
 
-mg.getSafeArea = function () {
+minigame.getSafeArea = function () {
     console.warn('getSafeArea is not supported on this platform');
-    if (mg.getSystemInfoSync) {
-        const systemInfo =  mg.getSystemInfoSync();
+    if (minigame.getSystemInfoSync) {
+        const systemInfo =  minigame.getSystemInfoSync();
         return {
             top: 0,
             left: 0,
@@ -103,4 +103,4 @@ mg.getSafeArea = function () {
     };
 };
 
-export { mg };
+export { minigame };

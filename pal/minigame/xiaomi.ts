@@ -4,15 +4,15 @@ import { cloneObject } from '../utils';
 
 declare let qg: any;
 
-// @ts-expect-error can't init mg when it's declared
-const mg: IMiniGame = {};
-cloneObject(mg, qg);
+// @ts-expect-error can't init minigame when it's declared
+const minigame: IMiniGame = {};
+cloneObject(minigame, qg);
 
-const systemInfo = mg.getSystemInfoSync();
-mg.isSubContext = false;  // sub context not supported
-mg.isDevTool = false;
-mg.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
-let orientation = mg.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
+const systemInfo = minigame.getSystemInfoSync();
+minigame.isSubContext = false;  // sub context not supported
+minigame.isDevTool = false;
+minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
+let orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
 
 // // TouchEvent
 // globalAdapter.onTouchStart = function (cb) {
@@ -43,11 +43,11 @@ qg.onDeviceOrientationChange((res) => {
     }
 });
 
-mg.onAccelerometerChange = function (cb) {
+minigame.onAccelerometerChange = function (cb) {
     qg.onAccelerometerChange((res) => {
         let x = res.x;
         let y = res.y;
-        if (mg.isLandscape) {
+        if (minigame.isLandscape) {
             const orientationFactor = orientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
             const tmp = x;
             x = -y * orientationFactor;
@@ -65,10 +65,10 @@ mg.onAccelerometerChange = function (cb) {
     qg.stopAccelerometer();
 };
 
-mg.getSafeArea = function () {
+minigame.getSafeArea = function () {
     console.warn('getSafeArea is not supported on this platform');
-    if (mg.getSystemInfoSync) {
-        const systemInfo =  mg.getSystemInfoSync();
+    if (minigame.getSystemInfoSync) {
+        const systemInfo =  minigame.getSystemInfoSync();
         return {
             top: 0,
             left: 0,
@@ -88,4 +88,4 @@ mg.getSafeArea = function () {
     };
 };
 
-export { mg };
+export { minigame };
