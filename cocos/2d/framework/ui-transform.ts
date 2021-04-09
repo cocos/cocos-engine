@@ -69,7 +69,7 @@ export class UITransform extends Component {
      * 内容尺寸。
      */
     @displayOrder(0)
-    @tooltip('内容尺寸')
+    @tooltip('i18n:ui_transform.conten_size')
     // @constget
     get contentSize (): Readonly<Size> {
         return this._contentSize;
@@ -148,7 +148,7 @@ export class UITransform extends Component {
      * 锚点位置。
      */
     @displayOrder(1)
-    @tooltip('锚点位置')
+    @tooltip('i18n:ui_transform.anchor_point')
     // @constget
     get anchorPoint (): Readonly<Vec2> {
         return this._anchorPoint;
@@ -197,7 +197,7 @@ export class UITransform extends Component {
      * @zh
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      */
-    @tooltip('渲染排序优先级')
+    @tooltip('i18n:ui_transform.priority')
     get priority () {
         return this._priority;
     }
@@ -269,22 +269,37 @@ export class UITransform extends Component {
 
     /**
      * @en
-     * Sets the untransformed size of the node.<br/>
+     * Sets the untransformed size of the ui transform.<br/>
      * The contentSize remains the same no matter if the node is scaled or rotated.<br/>
-     * All nodes have a size. Layer and Scene have the same size of the screen.
-     *
      * @zh
-     * 设置节点原始大小，不受该节点是否被缩放或者旋转的影响。
+     * 设置节点 UI Transform 的原始大小，不受该节点是否被缩放或者旋转的影响。
      *
-     * @param size - 节点内容变换的尺寸或者宽度。
-     * @param height - 节点内容未变换的高度。
+     * @param size - The size of the UI transformation.
      * @example
      * ```ts
      * import { Size } from 'cc';
      * node.setContentSize(new Size(100, 100));
+     * ```
+     */
+    public setContentSize(size: Size) : void;
+
+    /**
+     * @en
+     * Sets the untransformed size of the ui transform.<br/>
+     * The contentSize remains the same no matter if the node is scaled or rotated.<br/>
+     * @zh
+     * 设置节点 UI Transform 的原始大小，不受该节点是否被缩放或者旋转的影响。
+     *
+     * @param width - The width of the UI transformation.
+     * @param height - The height of the UI transformation.
+     * @example
+     * ```ts
+     * import { Size } from 'cc';
      * node.setContentSize(100, 100);
      * ```
      */
+    public setContentSize(width: number, height: number) : void;
+
     public setContentSize (size: Size | number, height?: number) {
         const locContentSize = this._contentSize;
         let clone: Size;

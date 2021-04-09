@@ -151,11 +151,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     public clear () {
+        super.clear();
         this._particles!.reset();
         if (this._particleSystem._trailModule) {
             this._particleSystem._trailModule.clear();
         }
         this.updateRenderData();
+        this._model!.enabled = false;
     }
 
     public updateRenderMode () {

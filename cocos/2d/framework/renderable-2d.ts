@@ -47,6 +47,7 @@ import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { BlendState, BlendTarget } from '../../core/gfx/pipeline-state';
 import { legacyCC } from '../../core/global-exports';
+import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 
 // hack
 ccenum(BlendFactor);
@@ -172,7 +173,7 @@ export class Renderable2D extends RenderableComponent {
             this._blendHash = -1; // a flag to check merge
             return;
         }
-        const mat = this._updateBuiltinMaterial();
+        const mat = this.updateBuiltinMaterial();
         this.setMaterial(mat, 0);
         this._updateBlendFunc();
     }
@@ -188,7 +189,7 @@ export class Renderable2D extends RenderableComponent {
     @visible(function (this: Renderable2D) { if (this._customMaterial) { return false; } return true; })
     @type(BlendFactor)
     @displayOrder(0)
-    @tooltip('Source blend factor')
+    @tooltip('i18n:renderable2D.srcBlendFactor')
     get srcBlendFactor () {
         if (!EDITOR && this._customMaterial) {
             warnID(12001);
@@ -220,7 +221,7 @@ export class Renderable2D extends RenderableComponent {
     @visible(function (this: Renderable2D) { if (this._customMaterial) { return false; } return true; })
     @type(BlendFactor)
     @displayOrder(1)
-    @tooltip('destination blend factor')
+    @tooltip('i18n:renderable2D.dstBlendFactor')
     get dstBlendFactor () {
         if (!EDITOR && this._customMaterial) {
             warnID(12001);
@@ -246,7 +247,7 @@ export class Renderable2D extends RenderableComponent {
      * @zh 渲染颜色，一般情况下会和贴图颜色相乘。
      */
     @displayOrder(2)
-    @tooltip('渲染颜色')
+    @tooltip('i18n:renderable2D.color')
     get color (): Readonly<Color> {
         return this._color;
     }
@@ -320,7 +321,7 @@ export class Renderable2D extends RenderableComponent {
     }
 
     public updateBlendHash () {
-        const dst = this._blendState.targets[0].blendDst << 16;
+        const dst = this._blendState.targets[0].blendDst << 4;
         this._blendHash = dst | this._blendState.targets[0].blendSrc;
     }
 
@@ -502,7 +503,7 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
-    private _updateBuiltinMaterial () : Material {
+    protected updateBuiltinMaterial () : Material {
         let mat : Material;
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:

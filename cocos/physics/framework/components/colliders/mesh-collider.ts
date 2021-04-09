@@ -36,6 +36,7 @@ import {
     type,
     editable,
     serializable,
+    tooltip,
 } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
@@ -63,6 +64,7 @@ export class MeshCollider extends Collider {
      * 获取或设置此碰撞体引用的网格资源.
      */
     @type(Mesh)
+    @tooltip('i18n:physics3d.collider.mesh_mesh')
     get mesh () {
         return this._mesh;
     }
@@ -79,6 +81,7 @@ export class MeshCollider extends Collider {
      * 获取或设置此碰撞体是否用凸形状代替网格.
      */
     @editable
+    @tooltip('i18n:physics3d.collider.mesh_convex')
     get convex () {
         return this._convex;
     }

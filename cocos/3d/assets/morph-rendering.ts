@@ -70,12 +70,7 @@ export class StdMorphRendering implements MorphRendering {
                 continue;
             }
 
-            if (subMeshMorph.targets.length > UBOMorph.MAX_MORPH_TARGET_COUNT) {
-                warnID(10002, UBOMorph.MAX_MORPH_TARGET_COUNT, subMeshMorph.targets.length);
-                continue;
-            }
-
-            if (preferCpuComputing) {
+            if (preferCpuComputing || subMeshMorph.targets.length > UBOMorph.MAX_MORPH_TARGET_COUNT) {
                 this._subMeshRenderings[iSubMesh] = new CpuComputing(
                     this._mesh,
                     iSubMesh,
@@ -109,7 +104,7 @@ export class StdMorphRendering implements MorphRendering {
                 const subMeshMorph = this._mesh.struct.morph.subMeshMorphs[subMeshIndex];
                 const subMeshRenderingInstance = subMeshInstances[subMeshIndex];
                 if (subMeshRenderingInstance === null) {
-                    return;
+                    return undefined;
                 }
                 assertIsNonNullable(subMeshMorph);
                 const patches: IMacroPatch[] = [
@@ -375,7 +370,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                         valueView[4 * iVertex + 1] = targetDisplacements[3 * iVertex + 1] * weight;
                         valueView[4 * iVertex + 2] = targetDisplacements[3 * iVertex + 2] * weight;
                     }
-                } else {
+                } else if (weight !== 0.0) {
                     for (let iVertex = 0; iVertex < nVertices; ++iVertex) {
                         valueView[4 * iVertex + 0] += targetDisplacements[3 * iVertex + 0] * weight;
                         valueView[4 * iVertex + 1] += targetDisplacements[3 * iVertex + 1] * weight;
@@ -483,17 +478,17 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
     let pixelRequired: number;
     let pixelFormat: PixelFormat;
     let pixelBytes: number;
-    let updateViewConstructor: typeof Float32Array | typeof Uint8Array;
+    let UpdateViewConstructor: typeof Float32Array | typeof Uint8Array;
     if (hasFeatureFloatTexture) {
         pixelRequired = vec4Capacity;
         pixelBytes = 16;
         pixelFormat = Texture2D.PixelFormat.RGBA32F;
-        updateViewConstructor = Float32Array;
+        UpdateViewConstructor = Float32Array;
     } else {
         pixelRequired = 4 * vec4Capacity;
         pixelBytes = 4;
         pixelFormat = Texture2D.PixelFormat.RGBA8888;
-        updateViewConstructor = Uint8Array;
+        UpdateViewConstructor = Uint8Array;
     }
 
     const { width, height } = bestSizeToHavePixels(pixelRequired);
@@ -505,7 +500,7 @@ function createVec4TextureFactory (gfxDevice: Device, vec4Capacity: number) {
         create: () => {
             const arrayBuffer = new ArrayBuffer(width * height * pixelBytes);
             const valueView = new Float32Array(arrayBuffer);
-            const updateView = updateViewConstructor === Float32Array ? valueView : new updateViewConstructor(arrayBuffer);
+            const updateView = UpdateViewConstructor === Float32Array ? valueView : new UpdateViewConstructor(arrayBuffer);
             const image = new ImageAsset({
                 width,
                 height,

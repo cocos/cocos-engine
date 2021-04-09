@@ -339,6 +339,9 @@ class EventManager {
 
         let isFound = false;
         const locListener = this._listenersMap;
+        if (listener === this._currentTouchListener) {
+            this._currentTouchListener = this._currentTouch = null;
+        }
         for (const selKey in locListener) {
             const listeners = locListener[selKey];
             const fixedPriorityListeners = listeners.getFixedPriorityListeners();
@@ -759,7 +762,13 @@ class EventManager {
         }
 
         // After sort: priority < 0, > 0
-        listeners.getSceneGraphPriorityListeners().sort(this._sortEventListenersOfSceneGraphPriorityDes);
+        const eventListeners = listeners.getSceneGraphPriorityListeners();
+        eventListeners.forEach((listener) => {
+            const node: any = listener._getSceneGraphPriority();
+            const trans = node._uiProps.uiTransformComp;
+            listener._cameraPriority = trans.cameraPriority;
+        });
+        eventListeners.sort(this._sortEventListenersOfSceneGraphPriorityDes);
     }
 
     private _sortEventListenersOfSceneGraphPriorityDes (l1: EventListener, l2: EventListener) {
@@ -773,10 +782,8 @@ class EventManager {
         }
 
         let p1 = node1; let p2 = node2; let ex = false;
-        const trans1 = node1._uiProps.uiTransformComp;
-        const trans2 = node2._uiProps.uiTransformComp;
-        if (trans1.cameraPriority !== trans2.cameraPriority) {
-            return trans2.cameraPriority - trans1.cameraPriority;
+        if (l1._cameraPriority !== l2._cameraPriority) {
+            return l2._cameraPriority - l1._cameraPriority;
         }
         while (p1.parent._id !== p2.parent._id) {
             p1 = p1.parent.parent === null ? (ex = true) && node2 : p1.parent;
@@ -952,7 +959,7 @@ class EventManager {
             }
             if (listener.onTouchBegan) {
                 isClaimed = listener.onTouchBegan(selTouch, event);
-                if (isClaimed && listener._isRegistered()) {
+                if (isClaimed && listener._isRegistered() && !listener._isPaused()) {
                     listener._claimedTouches.push(selTouch);
                     if (macro.ENABLE_MULTI_TOUCH || !eventManager._currentTouch) {
                         eventManager._currentTouch = selTouch;

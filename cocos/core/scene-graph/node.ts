@@ -44,7 +44,7 @@ import {
     NULL_HANDLE, NodeHandle, NodePool, NodeView,
 } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
-import { applyMountedChildren, applyPropertyOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab-utils';
+import { applyMountedChildren, applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
 import { Component } from '../components';
 
 const v3_a = new Vec3();
@@ -148,6 +148,7 @@ export class Node extends BaseNode {
     constructor (name?: string) {
         super(name);
         this._poolHandle = NodePool.alloc();
+        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
     }
 
     /**
@@ -388,6 +389,11 @@ export class Node extends BaseNode {
         this.invalidateChildren(TransformBit.TRS);
     }
 
+    protected _onHierarchyChanged (oldParent: this | null) {
+        this.eventProcessor.reattach();
+        super._onHierarchyChangedBase(oldParent);
+    }
+
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         super._onBatchCreated(dontSyncChildPrefab);
 
@@ -409,22 +415,24 @@ export class Node extends BaseNode {
         // apply mounted children and property overrides after all the nodes in prefabAsset are instantiated
         if (!dontSyncChildPrefab && prefabInstance) {
             const targetMap: Record<string, any | Node | Component> = {};
+            prefabInstance.targetMap = targetMap;
             generateTargetMap(this, targetMap, true);
 
             applyMountedChildren(this, prefabInstance.mountedChildren, targetMap);
             applyPropertyOverrides(this, prefabInstance.propertyOverrides, targetMap);
         }
+
+        applyTargetOverrides(this);
     }
 
     public _onBeforeSerialize () {
-        // eslint-disable-next-line no-unused-expressions
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         this.eulerAngles; // make sure we save the correct eulerAngles
     }
 
     public _onPostActivated (active: boolean) {
         if (active) { // activated
             eventManager.resumeTarget(this);
-            this.eventProcessor.reattach();
             // in case transform updated during deactivated period
             this.invalidateChildren(TransformBit.TRS);
         } else { // deactivated

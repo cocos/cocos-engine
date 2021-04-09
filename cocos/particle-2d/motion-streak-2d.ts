@@ -24,6 +24,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module particle2d
+ */
+
 import { ccclass, executeInEditMode, serializable, playOnFocus, menu, help, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Renderable2D } from '../2d/framework';
@@ -67,7 +72,7 @@ class Point {
 @ccclass('cc.MotionStreak')
 @executeInEditMode
 @playOnFocus
-@menu('UI/Render/MotionStreak')
+@menu('Effects/MotionStreak')
 @help('i18n:COMPONENT.help_url.motionStreak')
 export class MotionStreak extends Renderable2D {
     public static Point = Point;

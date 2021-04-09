@@ -26,9 +26,10 @@
 import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { RenderPriority } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
-import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE } from '../core/memory-pools';
+import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE, ShaderHandle } from '../core/memory-pools';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler } from '../../gfx';
 import { legacyCC } from '../../global-exports';
+import { ForwardPipeline } from '../../pipeline';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 
@@ -97,6 +98,18 @@ export class SubModel {
         return this._patches;
     }
 
+    // This is a temporary solution
+    // It should not be written in a fixed way, or modified by the user
+    get planarShaderHandle (): ShaderHandle {
+        return SubModelPool.get(this._handle, SubModelView.PLANAR_SHADER);
+    }
+
+    // This is a temporary solution
+    // It should not be written in a fixed way, or modified by the user
+    get planarInstanceShaderHandle (): ShaderHandle {
+        return SubModelPool.get(this._handle, SubModelView.PLANAR_INSTANCE_SHADER);
+    }
+
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
         this._device = legacyCC.director.root.device as Device;
 
@@ -118,6 +131,24 @@ export class SubModel {
 
         this._inputAssembler = IAPool.get(iaHandle);
         this._descriptorSet = DSPool.get(dsHandle);
+    }
+
+    // This is a temporary solution
+    // It should not be written in a fixed way, or modified by the user
+    public initPlanarShadowShader () {
+        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+        const shadowInfo = pipeline.shadows;
+        const shaderHandle = shadowInfo.getPlanarShader(this._patches);
+        SubModelPool.set(this._handle, SubModelView.PLANAR_SHADER, shaderHandle);
+    }
+
+    // This is a temporary solution
+    // It should not be written in a fixed way, or modified by the user
+    public initPlanarShadowInstanceShader () {
+        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+        const shadowInfo = pipeline.shadows;
+        const shaderHandle = shadowInfo.getPlanarInstanceShader(this._patches);
+        SubModelPool.set(this._handle, SubModelView.PLANAR_INSTANCE_SHADER, shaderHandle);
     }
 
     public destroy (): void {

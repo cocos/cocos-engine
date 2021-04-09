@@ -515,7 +515,9 @@ const cacheManager = require('./jsb-cache-manager');
 
     let _onEnable = superProto.onEnable;
     armatureDisplayProto.onEnable = function () {
-        _onEnable.call(this);
+        if(_onEnable) {
+            _onEnable.call(this);
+        }
         if (this._armature && !this.isAnimationCached()) {
             this._factory.add(this._armature);
         }
@@ -524,9 +526,12 @@ const cacheManager = require('./jsb-cache-manager');
         middleware.retain();
     };
 
-    let _onDisable = superProto.onDisable;
+    let _onDisable = superProto.onEnable;
     armatureDisplayProto.onDisable = function () {
-        _onDisable.call(this);
+        if(_onDisable) {
+            _onDisable.call(this);
+        }
+        
         if (this._armature && !this.isAnimationCached()) {
             this._factory.remove(this._armature);
         }
@@ -620,8 +625,9 @@ const cacheManager = require('./jsb-cache-manager');
         }
     }
 
-
-    armatureDisplayProto.update = function () {
+    const _lateUpdate = armatureDisplayProto.lateUpdate;
+    armatureDisplayProto.lateUpdate = function () {
+        if(_lateUpdate) _lateUpdate.call(this);
         let nativeDisplay = this._nativeDisplay;
         if (!nativeDisplay) return;
 
@@ -768,9 +774,8 @@ const cacheManager = require('./jsb-cache-manager');
             realTextureIndex = renderInfo[renderInfoOffset + materialIdx++];
             realTexture = this.dragonAtlasAsset.getTextureByIndex(realTextureIndex);
             if (!realTexture) return;
-
-            // SpineMaterialType.TWO_COLORED 2
-            // SpineMaterialType.COLORED_TEXTURED 0
+            //HACK
+            const mat = this.material;
             // cache material
             this.material = this.getMaterialForBlend(
                 renderInfo[renderInfoOffset + materialIdx++], 
@@ -790,6 +795,7 @@ const cacheManager = require('./jsb-cache-manager');
             }
 
             ui.commitComp(this, realTexture._texture, this._assembler, null);
+            this.material = mat;
         }
     }
 

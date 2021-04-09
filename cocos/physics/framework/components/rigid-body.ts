@@ -82,7 +82,7 @@ export class RigidBody extends Component {
      */
     @type(PhysicsSystem.PhysicsGroup)
     @displayOrder(-2)
-    @tooltip('设置分组')
+    @tooltip('i18n:physics3d.rigidbody.group')
     public get group (): number {
         return this._group;
     }
@@ -103,7 +103,7 @@ export class RigidBody extends Component {
      */
     @type(ERigidBodyType)
     @displayOrder(-1)
-    @tooltip('刚体的类型')
+    @tooltip('i18n:physics3d.rigidbody.type')
     public get type (): ERigidBodyType {
         return this._type;
     }
@@ -124,7 +124,7 @@ export class RigidBody extends Component {
      */
     @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(0)
-    @tooltip('刚体的质量')
+    @tooltip('i18n:physics3d.rigidbody.mass')
     public get mass () {
         return this._mass;
     }
@@ -146,7 +146,7 @@ export class RigidBody extends Component {
      */
     @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(0.5)
-    @tooltip('是否允许休眠')
+    @tooltip('i18n:physics3d.rigidbody.allowSleep')
     public get allowSleep (): boolean {
         return this._allowSleep;
     }
@@ -166,7 +166,7 @@ export class RigidBody extends Component {
      */
     @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(1)
-    @tooltip('线性阻尼')
+    @tooltip('i18n:physics3d.rigidbody.linearDamping')
     public get linearDamping () {
         return this._linearDamping;
     }
@@ -186,7 +186,7 @@ export class RigidBody extends Component {
      */
     @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(2)
-    @tooltip('旋转阻尼')
+    @tooltip('i18n:physics3d.rigidbody.angularDamping')
     public get angularDamping () {
         return this._angularDamping;
     }
@@ -206,7 +206,7 @@ export class RigidBody extends Component {
      */
     @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(4)
-    @tooltip('刚体是否使用重力')
+    @tooltip('i18n:physics3d.rigidbody.useGravity')
     public get useGravity () {
         return this._useGravity;
     }
@@ -226,7 +226,7 @@ export class RigidBody extends Component {
      */
     @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(6)
-    @tooltip('线性速度的因子，可以用来控制每个轴方向上的速度的缩放')
+    @tooltip('i18n:physics3d.rigidbody.linearFactor')
     public get linearFactor () {
         return this._linearFactor;
     }
@@ -246,7 +246,7 @@ export class RigidBody extends Component {
      */
     @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(7)
-    @tooltip('旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放')
+    @tooltip('i18n:physics3d.rigidbody.angularFactor')
     public get angularFactor () {
         return this._angularFactor;
     }

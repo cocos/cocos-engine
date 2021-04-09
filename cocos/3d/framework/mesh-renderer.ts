@@ -157,7 +157,7 @@ class ModelLightmapSettings {
 @ccclass('cc.MeshRenderer')
 @help('i18n:cc.MeshRenderer')
 @executionOrder(100)
-@menu('Components/MeshRenderer')
+@menu('Mesh/MeshRenderer')
 @executeInEditMode
 export class MeshRenderer extends RenderableComponent {
     public static ShadowCastingMode = ModelShadowCastingMode;

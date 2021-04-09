@@ -43,7 +43,7 @@ The engine is naturally integrated within Cocos Creator, designed to only be the
 ### Prerequisite
 
 - Install [node.js v9.11.2 +](https://nodejs.org/)
-- Install [gulp-cli v3.9.0 +](https://github.com/gulpjs/gulp/tree/master/docs/getting-started)
+- Install [gulp-cli v2.3.0 +](https://github.com/gulpjs/gulp/tree/master/docs/getting-started)
 
 ### Install
 
@@ -63,13 +63,13 @@ This is all you have to do to setup engine development environment.
 - Outside the editor, you need to run the following command to build:
 
   ```bash
-  npm run build:dev
+  npm run build
   ```
 
 ## Example Project
 
 - [Example Cases](https://github.com/cocos-creator/example-3d): Simple yet expressive demo scenes for baseline testing and topic-specific case study.
-- [Mind Your Steip 3D](https://github.com/cocos-creator/tutorial-mind-your-step-3d): Beginner's step-by-step tutorial project repo.
+- [Mind Your Step 3D](https://github.com/cocos-creator/tutorial-mind-your-step-3d): Beginner's step-by-step tutorial project repo.
 - [UI Demo](https://github.com/cocos-creator/demo-ui/tree/3d): use cases for various kinds of UI components.
 - [Test Cases](https://github.com/cocos-creator/test-cases-3d): Unit test scenes for every engine module.
 

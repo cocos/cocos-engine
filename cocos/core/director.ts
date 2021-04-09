@@ -307,7 +307,7 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public convertToGL (uiPoint: Vec2) {
-        const container = legacyCC.game.container;
+        const container = legacyCC.game.container as Element;
         const view = legacyCC.view;
         const box = container.getBoundingClientRect();
         const left = box.left + window.pageXOffset - container.clientLeft;
@@ -326,7 +326,7 @@ export class Director extends EventTarget {
      * @deprecated since v2.0
      */
     public convertToUI (glPoint: Vec2) {
-        const container = legacyCC.game.container;
+        const container = legacyCC.game.container as Element;
         const view = legacyCC.view;
         const box = container.getBoundingClientRect();
         const left = box.left + window.pageXOffset - container.clientLeft;
@@ -463,7 +463,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('InitScene');
         }
-        // @ts-expect-error
+        // @ts-expect-error run private method
         scene._load();  // ensure scene initialized
         if (BUILD && DEBUG) {
             console.timeEnd('InitScene');
@@ -472,17 +472,18 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(legacyCC.game._persistRootNodes).map((x) => legacyCC.game._persistRootNodes[x]);
+        const persistNodeList = Object.keys(legacyCC.game._persistRootNodes).map((x) => legacyCC.game._persistRootNodes[x] as Node);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(legacyCC.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
-            const existNode = scene.getChildByUuid(node.uuid);
+            const existNode = scene.uuid === node._originalSceneId && scene.getChildByUuid(node.uuid);
             if (existNode) {
                 // scene also contains the persist node, select the old one
                 const index = existNode.getSiblingIndex();
                 existNode._destroyImmediate();
                 scene.insertChild(node, index);
             } else {
+                // @ts-expect-error insert to new scene
                 node.parent = scene;
             }
         }
@@ -503,7 +504,7 @@ export class Director extends EventTarget {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, persistNodeList);
+            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, legacyCC.game._persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
@@ -526,7 +527,7 @@ export class Director extends EventTarget {
         if (BUILD && DEBUG) {
             console.time('Activate');
         }
-        // @ts-expect-error
+        // @ts-expect-error run private method
         scene._activate();
         if (BUILD && DEBUG) {
             console.timeEnd('Activate');
@@ -558,7 +559,7 @@ export class Director extends EventTarget {
         assertID(scene instanceof Scene, 1216);
 
         // ensure scene initialized
-        // @ts-expect-error
+        // @ts-expect-error run private method
         scene._load();
 
         // Delay run / replace scene to the end of the frame
@@ -580,7 +581,7 @@ export class Director extends EventTarget {
             warnID(1208, sceneName, this._loadingScene);
             return false;
         }
-        const bundle = legacyCC.assetManager.bundles.find((bundle) => bundle.getSceneInfo(sceneName));
+        const bundle = legacyCC.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
             this.emit(legacyCC.Director.EVENT_BEFORE_SCENE_LOADING, sceneName);
             this._loadingScene = sceneName;
@@ -638,7 +639,7 @@ export class Director extends EventTarget {
         onProgress?: Director.OnLoadSceneProgress | Director.OnSceneLoaded,
         onLoaded?: Director.OnSceneLoaded,
     ) {
-        const bundle = legacyCC.assetManager.bundles.find((bundle) => bundle.getSceneInfo(sceneName));
+        const bundle = legacyCC.assetManager.bundles.find((bundle) => !!bundle.getSceneInfo(sceneName));
         if (bundle) {
             bundle.preloadScene(sceneName, null, onProgress, onLoaded);
         } else {

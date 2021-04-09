@@ -1,12 +1,16 @@
 Object.assign(cc.sys, {
-    __init () {
+    __init() {
         this.isNative = false;
         this.isBrowser = false;
         this.isMobile = true;
-        this.language = jsb.language.substr(0, 2);
-        this.languageCode = jsb.language.toLowerCase();
-        var system = jsb.system.toLowerCase();
-        var platform = jsb.platform.toLowerCase();
+
+        let sysInfo = ral.getSystemInfoSync();
+        // TODO: remove __getCurrentLanguage call
+        let language = sysInfo.language || (__getCurrentLanguage && __getCurrentLanguage());
+        this.language = language.substr(0, 2);
+        this.languageCode = language.toLowerCase();
+        var system = sysInfo.system.toLowerCase();
+        var platform = sysInfo.platform.toLowerCase();
 
         if (platform === "android") {
             this.os = this.OS_ANDROID;
@@ -27,9 +31,9 @@ Object.assign(cc.sys, {
         this.browserType = null;
         this.browserVersion = null;
 
-        var w = jsb.width;
-        var h = jsb.height;
-        var ratio = jsb.pixelRatio || 1;
+        var w = sysInfo.screenWidth;
+        var h = sysInfo.screenHeight;
+        var ratio = sysInfo.pixelRatio || 1;
         this.windowPixelResolution = {
             width: ratio * w,
             height: ratio * h
@@ -61,13 +65,13 @@ Object.assign(cc.sys, {
             format: ['.mp3']
         };
     },
-    
-    openURL (url) {
-        jsb.openURL(url);
+
+    openURL(url) {
+        console.warn("unspport openURL");
     },
 
-    getBatteryLevel () {
-        const batteryInfo = jsb.getBatteryInfoSync();
+    getBatteryLevel() {
+        const batteryInfo = ral.getBatteryInfoSync();
         return batteryInfo && batteryInfo.level;
     },
 });

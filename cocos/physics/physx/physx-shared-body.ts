@@ -34,7 +34,10 @@ import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
-import { copyPhysXTransform, getTempTransform, physXEqualsCocosQuat, physXEqualsCocosVec3, PX, setMassAndUpdateInertia } from './export-physx';
+import {
+    addActorToScene, copyPhysXTransform, getTempTransform, physXEqualsCocosQuat,
+    physXEqualsCocosVec3, PX, setMassAndUpdateInertia,
+} from './export-physx';
 import { VEC3_0 } from '../utils/util';
 import { ERigidBodyType, PhysicsSystem } from '../framework';
 import { PhysXJoint } from './joints/physx-joint';
@@ -80,14 +83,15 @@ export class PhysXSharedBody {
     get filterData () { return this._filterData; }
     get impl (): any {
         this._initActor();
-        return this._impl;
+        return this.isStatic ? this._staticActor : this._dynamicActor;
     }
 
     private _index = -1;
     private _ref = 0;
     private _isStatic = false;
     private _isKinematic = false;
-    private _impl!: PhysX.RigidActor | any;
+    private _dynamicActor!: PhysX.RigidActor | any;
+    private _staticActor!: PhysX.RigidActor | any;
     private _wrappedBody: PhysXRigidBody | null = null;
     private _filterData: any;
 
@@ -125,37 +129,79 @@ export class PhysXSharedBody {
     }
 
     private _initActor (): void {
-        if (this._impl) return;
-        const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
+        const st = this._isStatic;
         const wb = this.wrappedBody;
         if (wb) {
             const rb = wb.rigidBody;
             if (rb.type === ERigidBodyType.STATIC) {
                 this._isStatic = true;
-                this._impl = this.wrappedWorld.physics.createRigidStatic(t);
+                this._isKinematic = false;
+                this._initStaticActor();
             } else {
                 this._isStatic = false;
-                this._impl = this.wrappedWorld.physics.createRigidDynamic(t);
-                this._impl.setMass(rb.mass);
-                this._impl.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
-                this.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, rb.isKinematic);
-                this._impl.setLinearDamping(rb.linearDamping);
-                this._impl.setAngularDamping(rb.angularDamping);
-                const lf = rb.linearFactor;
-                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
-                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
-                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Z, !lf.z);
-                const af = rb.angularFactor;
-                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !af.x);
-                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !af.y);
-                this._impl.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !af.z);
+                this._initDynamicActor();
             }
         } else {
             this._isStatic = true;
-            this._impl = this.wrappedWorld.physics.createRigidStatic(t);
+            this._isKinematic = false;
+            this._initStaticActor();
         }
-        if (this._impl && this._impl.$$) {
-            PX.IMPL_PTR[this._impl.$$.ptr] = this;
+        if (st !== this._isStatic) { this._switchActor(st); }
+    }
+
+    private _initStaticActor () {
+        if (this._staticActor) return;
+        const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
+        this._staticActor = this.wrappedWorld.physics.createRigidStatic(t);
+        if (this._staticActor.$$) PX.IMPL_PTR[this._staticActor.$$.ptr] = this;
+    }
+
+    private _initDynamicActor () {
+        if (this._dynamicActor) return;
+        const t = getTempTransform(this.node.worldPosition, this.node.worldRotation);
+        this._dynamicActor = this.wrappedWorld.physics.createRigidDynamic(t);
+        if (this._dynamicActor.$$) PX.IMPL_PTR[this._dynamicActor.$$.ptr] = this;
+        const wb = this.wrappedBody;
+        if (wb) {
+            const rb = wb.rigidBody;
+            this._dynamicActor.setMass(rb.mass);
+            this._dynamicActor.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
+            this.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, rb.isKinematic);
+            this._dynamicActor.setLinearDamping(rb.linearDamping);
+            this._dynamicActor.setAngularDamping(rb.angularDamping);
+            const lf = rb.linearFactor;
+            this._dynamicActor.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
+            this._dynamicActor.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
+            this._dynamicActor.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Z, !lf.z);
+            const af = rb.angularFactor;
+            this._dynamicActor.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_X, !af.x);
+            this._dynamicActor.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Y, !af.y);
+            this._dynamicActor.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_ANGULAR_Z, !af.z);
+        }
+    }
+
+    private _switchActor (isStaticBefore: boolean) {
+        if (!this._staticActor || !this._dynamicActor) return;
+        const a0 = isStaticBefore ? this._staticActor : this._dynamicActor;
+        const a1 = !isStaticBefore ? this._staticActor : this._dynamicActor;
+        if (this._index >= 0) {
+            this.wrappedWorld.scene.removeActor(a0, false);
+            addActorToScene(this.wrappedWorld.scene, a1);
+        }
+        for (let i = 0; i < this.wrappedShapes.length; i++) {
+            const ws = this.wrappedShapes[i];
+            a0.detachShape(ws.impl, false);
+            a1.attachShape(ws.impl);
+        }
+        if (isStaticBefore) {
+            const da = this._dynamicActor;
+            setMassAndUpdateInertia(da, this._wrappedBody!.rigidBody.mass);
+            const center = VEC3_0;
+            center.set(0, 0, 0);
+            for (let i = 0; i < this.wrappedShapes.length; i++) {
+                center.subtract(this.wrappedShapes[i].collider.center);
+            }
+            da.setCMassLocalPose(getTempTransform(center, Quat.IDENTITY));
         }
     }
 
@@ -212,10 +258,22 @@ export class PhysXSharedBody {
         setMassAndUpdateInertia(this.impl, v);
     }
 
-    setRigidBodyFlag (v: any, b: boolean): void {
-        if (v === PX.RigidBodyFlag.eKINEMATIC) {
-            this._isKinematic = b;
+    setType (v: ERigidBodyType): void {
+        this._initActor();
+        if (this.isStatic) return;
+        switch (v) {
+        case ERigidBodyType.DYNAMIC:
+            this.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, false);
+            break;
+        case ERigidBodyType.KINEMATIC:
+        default:
+            this.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, true);
+            break;
         }
+    }
+
+    setRigidBodyFlag (v: any, b: boolean): void {
+        if (v === PX.RigidBodyFlag.eKINEMATIC) this._isKinematic = b;
         this.impl.setRigidBodyFlag(v, b);
     }
 
@@ -225,9 +283,9 @@ export class PhysXSharedBody {
             if (node.hasChangedFlags & TransformBit.SCALE) this.syncScale();
             const trans = getTempTransform(node.worldPosition, node.worldRotation);
             if (this._isKinematic) {
-                this._impl.setKinematicTarget(trans);
+                this.impl.setKinematicTarget(trans);
             } else {
-                this._impl.setGlobalPose(trans, true);
+                this.impl.setGlobalPose(trans, true);
             }
         }
     }
@@ -238,22 +296,22 @@ export class PhysXSharedBody {
             if (node.hasChangedFlags & TransformBit.SCALE) this.syncScale();
             const wp = node.worldPosition;
             const wr = node.worldRotation;
-            const pose = this._impl.getGlobalPose();
+            const pose = this.impl.getGlobalPose();
             const DontUpdate = physXEqualsCocosVec3(pose, wp) && physXEqualsCocosQuat(pose, wr);
             if (!DontUpdate) {
                 const trans = getTempTransform(node.worldPosition, node.worldRotation);
                 if (this._isKinematic) {
-                    this._impl.setKinematicTarget(trans);
+                    this.impl.setKinematicTarget(trans);
                 } else {
-                    this._impl.setGlobalPose(trans, true);
+                    this.impl.setGlobalPose(trans, true);
                 }
             }
         }
     }
 
     syncPhysicsToScene (): void {
-        if (this._isStatic || this._impl.isSleeping()) return;
-        const transform = this._impl.getGlobalPose();
+        if (this._isStatic || this._dynamicActor.isSleeping()) return;
+        const transform = this._dynamicActor.getGlobalPose();
         copyPhysXTransform(this.node, transform);
     }
 
@@ -315,13 +373,14 @@ export class PhysXSharedBody {
     }
 
     updateCenterOfMass (): void {
-        if (!this.impl || this._isStatic) return;
+        this._initActor();
+        if (this._isStatic) return;
         const center = VEC3_0;
         center.set(0, 0, 0);
         for (let i = 0; i < this.wrappedShapes.length; i++) {
             center.subtract(this.wrappedShapes[i].collider.center);
         }
-        this._impl.setCMassLocalPose(getTempTransform(center, Quat.IDENTITY));
+        this.impl.setCMassLocalPose(getTempTransform(center, Quat.IDENTITY));
     }
 
     clearForces (): void {
@@ -339,12 +398,24 @@ export class PhysXSharedBody {
     }
 
     destroy (): void {
-        if (this._impl && this._impl.$$) {
-            PX.IMPL_PTR[this._impl.$$.ptr] = null;
-            delete PX.IMPL_PTR[this._impl.$$.ptr];
+        if (this._dynamicActor) {
+            if (this._dynamicActor.$$) {
+                PX.IMPL_PTR[this._dynamicActor.$$.ptr] = null;
+                delete PX.IMPL_PTR[this._dynamicActor.$$.ptr];
+            }
+            this._dynamicActor.release();
+            this._dynamicActor = null;
         }
-        this._impl.release();
-        this._impl = null;
+
+        if (this._staticActor) {
+            if (this._staticActor.$$) {
+                PX.IMPL_PTR[this._staticActor.$$.ptr] = null;
+                delete PX.IMPL_PTR[this._staticActor.$$.ptr];
+            }
+            this._staticActor.release();
+            this._staticActor = null;
+        }
+
         PhysXSharedBody.sharedBodesMap.delete(this.node.uuid);
     }
 }

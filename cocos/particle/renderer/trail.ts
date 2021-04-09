@@ -54,9 +54,9 @@ const _temp_vec3 = new Vec3();
 const _temp_vec3_1 = new Vec3();
 const _temp_color = new Color();
 
-const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
+// const barycentric = [1, 0, 0, 0, 1, 0, 0, 0, 1]; // <wireframe debug>
 
-const _bcIdx = 0;
+// let _bcIdx = 0; // <wireframe debug>
 
 interface ITrailElement {
     position: Vec3;
@@ -102,9 +102,9 @@ class TrailSegment {
         return this.trailElements[idx];
     }
 
-    public addElement (): ITrailElement {
+    public addElement (): ITrailElement | null {
         if (this.trailElements.length === 0) {
-            return null as any;
+            return null;
         }
         if (this.start === -1) {
             this.start = 0;
@@ -128,7 +128,7 @@ class TrailSegment {
         return this.trailElements[newEleLoc];
     }
 
-    public iterateElement (target: object, f: (target: object, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
+    public iterateElement (target: TrailModule, f: (target: TrailModule, e: ITrailElement, p: Particle, dt: number) => boolean, p: Particle, dt: number) {
         const end = this.start >= this.end ? this.end + this.trailElements.length : this.end;
         for (let i = this.start; i < end; i++) {
             if (f(target, this.trailElements[i % this.trailElements.length], p, dt)) {
@@ -182,7 +182,7 @@ export default class TrailModule {
         }
         if (val && !this._enable) {
             this._enable = val;
-            this._particleSystem.processor.updateTrailMaterial();
+            if (this._particleSystem.processor) this._particleSystem.processor.updateTrailMaterial();
         }
         if (val && !this._trailModel) {
             this._createModel();
@@ -205,7 +205,7 @@ export default class TrailModule {
     @type(TrailMode)
     @serializable
     @displayOrder(1)
-    @tooltip('Particle在每个粒子的运动轨迹上形成拖尾效果')
+    @tooltip('i18n:trailSegment.mode')
     public mode = TrailMode.Particles;
 
     /**
@@ -214,7 +214,7 @@ export default class TrailModule {
     @type(CurveRange)
     @serializable
     @displayOrder(3)
-    @tooltip('拖尾的生命周期')
+    @tooltip('i18n:trailSegment.lifeTime')
     public lifeTime = new CurveRange();
 
     @serializable
@@ -224,7 +224,7 @@ export default class TrailModule {
      * 每个轨迹粒子之间的最小间距。
      */
     @displayOrder(5)
-    @tooltip('粒子每生成一个拖尾节点所运行的最短距离')
+    @tooltip('i18n:trailSegment.minParticleDistance')
     public get minParticleDistance () {
         return this._minParticleDistance;
     }
@@ -236,15 +236,16 @@ export default class TrailModule {
 
     @type(Space)
     @displayOrder(6)
-    @tooltip('拖尾所在的坐标系，World在世界坐标系中运行，Local在本地坐标系中运行')
+    @tooltip('i18n:trailSegment.space')
     public get space () {
         return this._space;
     }
 
     public set space (val) {
         this._space = val;
-        if (this._particleSystem) {
-            this._particleSystem.processor.updateTrailMaterial();
+        const ps = this._particleSystem;
+        if (ps && ps.processor) {
+            ps.processor.updateTrailMaterial();
         }
     }
 
@@ -260,12 +261,12 @@ export default class TrailModule {
     @type(TextureMode)
     @serializable
     @displayOrder(8)
-    @tooltip('贴图在拖尾上的展开形式，Stretch贴图覆盖在整条拖尾上，Repeat贴图覆盖在一段拖尾上')
+    @tooltip('i18n:trailSegment.textureMode')
     public textureMode = TextureMode.Stretch;
 
     @serializable
     @displayOrder(9)
-    @tooltip('拖尾宽度继承自粒子大小')
+    @tooltip('i18n:trailSegment.widthFromParticle')
     public widthFromParticle = true;
 
     /**
@@ -274,24 +275,24 @@ export default class TrailModule {
     @type(CurveRange)
     @serializable
     @displayOrder(10)
-    @tooltip('拖尾宽度，如果继承自粒子则是粒子大小的比例')
+    @tooltip('i18n:trailSegment.widthRatio')
     public widthRatio = new CurveRange();
 
     @serializable
     @displayOrder(11)
-    @tooltip('拖尾颜色是否继承自粒子')
+    @tooltip('i18n:trailSegment.colorFromParticle')
     public colorFromParticle = false;
 
     @type(GradientRange)
     @serializable
     @displayOrder(12)
-    @tooltip('拖尾颜色随拖尾自身长度的颜色渐变')
+    @tooltip('i18n:trailSegment.colorOverTrail')
     public colorOverTrail = new GradientRange();
 
     @type(GradientRange)
     @serializable
     @displayOrder(13)
-    @tooltip('拖尾颜色随时间的颜色渐变')
+    @tooltip('i18n:trailSegment.colorOvertime')
     public colorOvertime = new GradientRange();
 
     /**
@@ -394,6 +395,12 @@ export default class TrailModule {
         }
     }
 
+    public play () {
+        if (this._trailModel && this._enable) {
+            this._trailModel.enabled = true;
+        }
+    }
+
     public clear () {
         if (this.enable) {
             const trailIter = this._particleTrail.values();
@@ -404,6 +411,7 @@ export default class TrailModule {
             }
             this._particleTrail.clear();
             this.updateRenderData();
+            if (this._trailModel) this._trailModel.enabled = false;
         }
     }
 
@@ -561,6 +569,7 @@ export default class TrailModule {
                 this._fillVertexBuffer(_temp_trailEle, this.colorOverTrail.evaluate(0, 1), indexOffset, 0, trailNum, PRE_TRIANGLE_INDEX);
             }
         }
+        this._trailModel!.enabled = this.ibOffset > 0;
     }
 
     public updateIA (count: number) {

@@ -42,6 +42,7 @@ import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
+import { Material, RenderTexture } from '../../core';
 
 /**
  * @en
@@ -176,7 +177,7 @@ enum EventType {
 @ccclass('cc.Sprite')
 @help('i18n:cc.Sprite')
 @executionOrder(110)
-@menu('UI/Render/Sprite')
+@menu('2D/Sprite')
 export class Sprite extends Renderable2D {
     /**
      * @en
@@ -187,7 +188,7 @@ export class Sprite extends Renderable2D {
      */
     @type(SpriteAtlas)
     @displayOrder(4)
-    @tooltip('图片资源所属的 Atlas 图集资源')
+    @tooltip('i18n:sprite.atlas')
     get spriteAtlas () {
         return this._atlas;
     }
@@ -210,7 +211,7 @@ export class Sprite extends Renderable2D {
      */
     @type(SpriteFrame)
     @displayOrder(5)
-    @tooltip('渲染 Sprite 使用的 SpriteFrame 图片资源')
+    @tooltip('i18n:sprite.sprite_frame')
     get spriteFrame () {
         return this._spriteFrame;
     }
@@ -245,9 +246,7 @@ export class Sprite extends Renderable2D {
      */
     @type(SpriteType)
     @displayOrder(6)
-    @tooltip('渲染模式：\n- 普通（Simple）：修改尺寸会整体拉伸图像，适用于序列帧动画和普通图像 \n'
-    + '- 九宫格（Sliced）：修改尺寸时四个角的区域不会拉伸，适用于 UI 按钮和面板背景 \n'
-    + '- 填充（Filled）：设置一定的填充起始位置和方向，能够以一定比率剪裁显示图片')
+    @tooltip('i18n:sprite.type')
     get type () {
         return this._type;
     }
@@ -272,7 +271,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @type(FillType)
-    @tooltip('填充方向，可以选择横向（Horizontal），纵向（Vertical）和扇形（Radial）三种方向')
+    @tooltip('i18n:sprite.fill_type')
     get fillType () {
         return this._fillType;
     }
@@ -303,7 +302,7 @@ export class Sprite extends Renderable2D {
      * sprite.fillCenter = new Vec2(0, 0);
      * ```
      */
-    @tooltip('扇形填充时，指定扇形的中心点，取值范围 0 ~ 1')
+    @tooltip('i18n:sprite.fill_center')
     get fillCenter () {
         return this._fillCenter;
     }
@@ -329,7 +328,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @range([0, 1, 0.1])
-    @tooltip('填充起始位置，输入一个 0 ~ 1 之间的小数表示起始位置的百分比')
+    @tooltip('i18n:sprite.fill_start')
     get fillStart () {
         return this._fillStart;
     }
@@ -356,7 +355,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @range([-1, 1, 0.1])
-    @tooltip('填充总量，取值范围 0 ~ 1 指定显示图像范围的百分比')
+    @tooltip('i18n:sprite.fill_range')
     get fillRange () {
         return this._fillRange;
     }
@@ -381,7 +380,7 @@ export class Sprite extends Renderable2D {
      * ```
      */
     @displayOrder(8)
-    @tooltip('节点约束框内是否包括透明像素区域，勾选此项会去除节点约束框内的透明区域')
+    @tooltip('i18n:sprite.trim')
     get trim () {
         return this._isTrimmedMode;
     }
@@ -430,7 +429,7 @@ export class Sprite extends Renderable2D {
      */
     @type(SizeMode)
     @displayOrder(7)
-    @tooltip('指定 Sprite 所在节点的尺寸，CUSTOM 表示自定义尺寸，TRIMMED 表示取原始图片剪裁透明像素后的尺寸，RAW 表示取原始图片未剪裁的尺寸')
+    @tooltip('i18n:sprite.size_mode')
     get sizeMode () {
         return this._sizeMode;
     }
@@ -485,6 +484,7 @@ export class Sprite extends Renderable2D {
 
         if (this._spriteFrame) {
             this._spriteFrame.on('load', this._markForUpdateUvDirty, this);
+            this._spriteFrame.on('changed', this._onTextureLoaded, this);
             this._markForUpdateUvDirty();
         }
     }
@@ -566,6 +566,20 @@ export class Sprite extends Renderable2D {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
         this.updateMaterial();
+    }
+
+    protected updateBuiltinMaterial () {
+        let mat = super.updateBuiltinMaterial();
+        if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
+            const defines = { SAMPLE_FROM_RT: true, ...mat.passes[0].defines };
+            const renderMat = new Material();
+            renderMat.initialize({
+                effectAsset: mat.effectAsset,
+                defines,
+            });
+            mat = renderMat;
+        }
+        return mat;
     }
 
     protected _render (render: Batcher2D) {
@@ -730,10 +744,12 @@ export class Sprite extends Renderable2D {
         if (this._renderData) {
             if (oldFrame) {
                 oldFrame.off('load', this._markForUpdateUvDirty);
+                oldFrame.off('changed', this._onTextureLoaded);
             }
 
             if (spriteFrame) {
                 spriteFrame.on('load', this._markForUpdateUvDirty, this);
+                spriteFrame.on('changed', this._onTextureLoaded, this);
             }
 
             if (!this._renderData.uvDirty) {

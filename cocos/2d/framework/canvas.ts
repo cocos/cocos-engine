@@ -95,7 +95,7 @@ export class Canvas extends RenderRoot2D {
     }
 
     @type(Camera)
-    @tooltip('2D渲染相机')
+    @tooltip('i18n:canvas.camera')
     get cameraComponent () {
         return this._cameraComponent;
     }
@@ -108,7 +108,7 @@ export class Canvas extends RenderRoot2D {
         this._onResizeCamera();
     }
 
-    @tooltip('是否自动为 camera 计算参数')
+    @tooltip('i18n:canvas.align')
     get alignCanvasWithScreen () {
         return this._alignCanvasWithScreen;
     }
@@ -177,9 +177,9 @@ export class Canvas extends RenderRoot2D {
             }
         }
 
-        if (EDITOR) {
-            this._onResizeCamera();
+        this._onResizeCamera();
 
+        if (EDITOR) {
             // Constantly align canvas node in edit mode
             legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this._fitDesignResolution!, this);
 

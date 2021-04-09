@@ -25,7 +25,9 @@ CCProgram sprite-vs %{
   #if USE_LOCAL
     #include <cc-local>
   #endif
-
+  #if SAMPLE_FROM_RT
+    #include <common>
+  #endif
   in vec3 a_position;
   in vec2 a_texCoord;
   in vec4 a_color;
@@ -49,7 +51,9 @@ CCProgram sprite-vs %{
     #endif
 
     uv0 = a_texCoord;
-
+    #if SAMPLE_FROM_RT
+      CC_HANDLE_RT_SAMPLE_FLIP(uv0);
+    #endif
     color = a_color;
 
     return pos;
@@ -73,7 +77,7 @@ CCProgram sprite-fs %{
     vec4 o = vec4(1, 1, 1, 1);
 
     #if USE_TEXTURE
-      o *= CCSampleTexture(cc_spriteTexture, uv0);
+      o *= CCSampleWithAlphaSeparated(cc_spriteTexture, uv0);
       #if IS_GRAY
         float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;
         o.r = o.g = o.b = gray;

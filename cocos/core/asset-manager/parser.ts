@@ -316,7 +316,7 @@ export class Parser {
 
     public parseImport (file: Record<string, any>, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset>) {
         if (!file) {
-            onComplete(new Error('Json is empty'));
+            onComplete(new Error(`The json file of asset ${options.__uuid__ as string} is empty or missing`));
             return;
         }
         let result: Asset | null = null;

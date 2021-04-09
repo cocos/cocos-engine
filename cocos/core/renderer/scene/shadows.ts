@@ -28,8 +28,9 @@ import { Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
-import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle } from '../core/memory-pools';
+import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle, ShaderHandle } from '../core/memory-pools';
 import { ShadowsInfo } from '../../scene-graph/scene-globals';
+import { IMacroPatch } from '../core/pass';
 
 /**
  * @zh 阴影类型。
@@ -312,6 +313,26 @@ export class Shadows {
         this._handle = ShadowsPool.alloc();
     }
 
+    public getPlanarShader (patches: IMacroPatch[] | null): ShaderHandle {
+        if (!this._material) {
+            this._material = new Material();
+            this._material.initialize({ effectName: 'planar-shadow' });
+            ShadowsPool.set(this._handle, ShadowsView.PLANAR_PASS, this._material.passes[0].handle);
+        }
+
+        return this._material.passes[0].getShaderVariant(patches);
+    }
+
+    public getPlanarInstanceShader (patches: IMacroPatch[] | null): ShaderHandle {
+        if (!this._instancingMaterial) {
+            this._instancingMaterial = new Material();
+            this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
+            ShadowsPool.set(this._handle, ShadowsView.INSTANCE_PASS, this._instancingMaterial.passes[0].handle);
+        }
+
+        return this._instancingMaterial.passes[0].getShaderVariant(patches);
+    }
+
     public initialize (shadowsInfo: ShadowsInfo) {
         ShadowsPool.set(this._handle, ShadowsView.TYPE, shadowsInfo.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE);
         ShadowsPool.set(this._handle, ShadowsView.NEAR, shadowsInfo.near);
@@ -352,7 +373,6 @@ export class Shadows {
             this._material = new Material();
             this._material.initialize({ effectName: 'planar-shadow' });
             ShadowsPool.set(this._handle, ShadowsView.PLANAR_PASS, this._material.passes[0].handle);
-            ShadowsPool.set(this._handle, ShadowsView.PLANAR_SHADER, this._material.passes[0].getShaderVariant(null));
         }
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();

@@ -54,7 +54,7 @@ import { BlendFactor } from '../../core/gfx';
  */
 @ccclass('cc.UIStaticBatch')
 @help('i18n:cc.UIStaticBatch')
-@menu('UI/Render/UIStaticBatch')
+@menu('2D/UIStaticBatch')
 @executionOrder(110)
 export class UIStaticBatch extends Renderable2D {
     @override
@@ -136,6 +136,7 @@ export class UIStaticBatch extends Renderable2D {
     }
 
     public updateAssembler (render: Batcher2D) {
+        render.currIsStatic = true;
         if (this._dirty) {
             render.finishMergeBatches();
             this._lastMeshBuffer = render.currBufferBatch;
@@ -160,6 +161,7 @@ export class UIStaticBatch extends Renderable2D {
 
             this._meshBuffer!.uploadBuffers();
         }
+        render.currIsStatic = false;
     }
 
     /**

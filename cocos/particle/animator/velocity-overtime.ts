@@ -67,7 +67,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(2)
-    @tooltip('X 轴方向上的速度分量')
+    @tooltip('i18n:velocityOvertimeModule.x')
     public x = new CurveRange();
 
     /**
@@ -77,7 +77,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(3)
-    @tooltip('Y 轴方向上的速度分量')
+    @tooltip('i18n:velocityOvertimeModule.y')
     public y = new CurveRange();
 
     /**
@@ -87,7 +87,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(4)
-    @tooltip('Z 轴方向上的速度分量')
+    @tooltip('i18n:velocityOvertimeModule.z')
     public z = new CurveRange();
 
     /**
@@ -97,7 +97,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(5)
-    @tooltip('速度修正系数（只支持 CPU 粒子）')
+    @tooltip('i18n:velocityOvertimeModule.speedModifier')
     public speedModifier = new CurveRange();
 
     /**
@@ -106,7 +106,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @type(Space)
     @serializable
     @displayOrder(1)
-    @tooltip('速度计算时采用的坐标系')
+    @tooltip('i18n:velocityOvertimeModule.space')
     public space = Space.Local;
 
     private rotation: Quat;

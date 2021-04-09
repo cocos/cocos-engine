@@ -215,7 +215,9 @@ export class AmmoSharedBody {
         const localInertia = new Ammo.btVector3(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         const bodyShape = new Ammo.btCompoundShape();
         let mass = 0;
-        if (this._wrappedBody && this._wrappedBody.rigidBody.isDynamic) mass = this._wrappedBody.rigidBody.mass;
+        if (this._wrappedBody && this._wrappedBody.rigidBody.enabled && this._wrappedBody.rigidBody.isDynamic) {
+            mass = this._wrappedBody.rigidBody.mass;
+        }
         if (mass === 0) localInertia.setValue(0, 0, 0);
         const rbInfo = new Ammo.btRigidBodyConstructionInfo(mass, motionState, AmmoConstant.instance.EMPTY_SHAPE, localInertia);
         const body = new Ammo.btRigidBody(rbInfo);

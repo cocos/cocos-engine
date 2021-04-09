@@ -42,7 +42,7 @@ import { AudioClip } from './assets/clip';
  */
 @ccclass('cc.AudioSource')
 @help('i18n:cc.AudioSource')
-@menu('Components/AudioSource')
+@menu('Audio/AudioSource')
 export class AudioSource extends Component {
     @type(AudioClip)
     protected _clip: AudioClip | null = null;
@@ -135,7 +135,10 @@ export class AudioSource extends Component {
     }
 
     public onEnable () {
-        if (this._playOnAwake) { this.play(); }
+        // audio source component may be played before
+        if (this._playOnAwake && !this.playing) {
+            this.play();
+        }
     }
 
     public onDisable () {

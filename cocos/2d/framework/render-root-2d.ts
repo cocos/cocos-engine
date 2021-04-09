@@ -36,7 +36,7 @@ import { UITransform } from './ui-transform';
 
 @ccclass('cc.RenderRoot2D')
 @executionOrder(100)
-@menu('UI/RenderRoot2D')
+@menu('2D/RenderRoot2D')
 @requireComponent(UITransform)
 @disallowMultiple
 @executeInEditMode

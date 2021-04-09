@@ -1,4 +1,10 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { EDITOR } from 'internal:constants';
+import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from '@cocos/dragonbones-js';
 import { Component, director, Game, game, ISchedulable, Node, RenderTexture, Scheduler, systemEvent, SystemEventType } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { CCTextureAtlasData } from './CCTextureData';
@@ -6,11 +12,6 @@ import { TextureBase } from '../core/assets/texture-base';
 import { CCSlot } from './CCSlot';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
-import { Armature, BaseObject, Animation, BaseFactory, DragonBones } from './lib/dragonBones';
-
-/**
- * @module dragonBones
-*/
 
 /**
  * DragonBones factory

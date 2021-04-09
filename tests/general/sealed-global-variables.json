@@ -293,6 +293,7 @@
         "cc.BufferAsset",
         "cc.resources",
         "cc.assetManager",
-        "cc.AssetManager"
+        "cc.AssetManager",
+        "cc.physics"
     ]
 }

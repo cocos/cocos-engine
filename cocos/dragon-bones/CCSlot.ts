@@ -1,7 +1,12 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
+import { BoneType, BinaryOffset, Slot } from '@cocos/dragonbones-js';
 import { Color, ImageAsset, mat4, Mat4, Texture2D } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { CCTextureData } from './CCTextureData';
-import { BoneType, BinaryOffset, Slot } from './lib/dragonBones.js';
 
 // @skipLibCheck
 

@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
+
 import { Joint2D } from './joint-2d';
 import { ccclass, property, menu, type } from '../../../../core/data/class-decorator';
 import { IMouseJoint } from '../../../spec/i-physics-joint';

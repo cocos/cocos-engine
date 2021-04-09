@@ -1,9 +1,14 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { EDITOR } from 'internal:constants';
 
 /**
- * !#en
+ * @en
  * The global time scale of DragonBones.
- * !#zh
+ * @zh
  * DragonBones 全局时间缩放率。
  * @example
  * dragonBones.timeScale = 0.8;
@@ -85,4 +90,4 @@ export * from './ArmatureDisplay';
 export * from './AttachUtil';
 export * from './assembler';
 
-export * from './lib/dragonBones.js';
+export * from '@cocos/dragonbones-js';

@@ -69,7 +69,7 @@ const stride = getAttributeStride(attributes);
 @ccclass('cc.Graphics')
 @help('i18n:cc.Graphics')
 @executionOrder(110)
-@menu('UI/Render/Graphics')
+@menu('2D/Graphics')
 export class Graphics extends Renderable2D {
     /**
      * @en
@@ -99,7 +99,7 @@ export class Graphics extends Renderable2D {
      * 用来设置2个长度不为0的相连部分（线段，圆弧，曲线）如何连接在一起的属性。
      */
     @type(LineJoin)
-    @tooltip('两条线相交时，所创建的拐角类型')
+    @tooltip('i18n:graphics.lineJoin')
     get lineJoin () {
         return this._lineJoin;
     }
@@ -121,7 +121,7 @@ export class Graphics extends Renderable2D {
      * 指定如何绘制每一条线段末端。
      */
     @type(LineCap)
-    @tooltip('线条的结束端点样式')
+    @tooltip('i18n:graphics.lineCap')
     get lineCap () {
         return this._lineCap;
     }
@@ -137,12 +137,12 @@ export class Graphics extends Renderable2D {
 
     /**
      * @en
-     * Stroke color.
+     * Brush stroke color.
      *
      * @zh
-     * 线段颜色。
+     * 笔触的颜色。
      */
-    @tooltip('笔触的颜色')
+    @tooltip('i18n:graphics.strokeColor')
     // @constget
     get strokeColor (): Readonly<Color> {
         return this._strokeColor;
@@ -159,12 +159,12 @@ export class Graphics extends Renderable2D {
 
     /**
      * @en
-     * Fill color.
+     * Fill paint color.
      *
      * @zh
-     * 填充颜色。
+     * 填充绘画的颜色。
      */
-    @tooltip('填充绘画的颜色')
+    @tooltip('i18n:graphics.fillColor')
     // @constget
     get fillColor (): Readonly<Color> {
         return this._fillColor;
@@ -181,12 +181,12 @@ export class Graphics extends Renderable2D {
 
     /**
      * @en
-     * Sets the miter limit ratio.
+     * Set the miter limit ratio.
      *
      * @zh
      * 设置斜接面限制比例。
      */
-    @tooltip('最大斜接长度')
+    @tooltip('i18n:graphics.miterLimit')
     get miterLimit () {
         return this._miterLimit;
     }

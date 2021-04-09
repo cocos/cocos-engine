@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module physics2d
+ */
+
 import { Vec2 } from '../../core';
 import { Collider2D } from '../framework/components/colliders/collider-2d';
 

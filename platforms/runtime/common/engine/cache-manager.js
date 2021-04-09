@@ -18,12 +18,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  ****************************************************************************/
-const { getUserDataPath, readJsonSync, makeDirSync, writeFileSync, copyFile, downloadFile, deleteFile, rmdirSync, unzip } = jsb.fsUtils;
+const { getUserDataPath, readJsonSync, makeDirSync, writeFileSync, copyFile, downloadFile, deleteFile, rmdirSync, unzip, isOutOfStorage } = require('./fs-utils');
 
 var checkNextPeriod = false;
 var writeCacheFileList = null;
 var cleaning = false;
-var errTest = /the maximum size of the file storage/;
 var suffix = 0;
 const REGEX = /^https?:\/\/.*/;
 
@@ -122,7 +121,7 @@ var cacheManager = {
 
         function callback(err) {
             if (err) {
-                if (errTest.test(err.message)) {
+                if (isOutOfStorage(err.message)) {
                     self.outOfStorage = true;
                     self.autoClear && self.clearLRU();
                     return;
@@ -239,7 +238,7 @@ var cacheManager = {
         unzip(zipFilePath, targetPath, function (err) {
             if (err) {
                 rmdirSync(targetPath, true);
-                if (errTest.test(err.message)) {
+                if (isOutOfStorage(err.message)) {
                     self.outOfStorage = true;
                     self.autoClear && self.clearLRU();
                 }

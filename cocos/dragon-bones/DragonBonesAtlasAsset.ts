@@ -1,18 +1,19 @@
 /**
+ * @packageDocumentation
  * @module dragonBones
  */
 import { JSB } from 'internal:constants';
+import { TextureAtlasData } from '@cocos/dragonbones-js';
 import { Asset, Texture2D, Node } from '../core';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { ArmatureCache } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCFactory } from './CCFactory';
-import { TextureAtlasData } from './lib/dragonBones.js';
 import { legacyCC } from '../core/global-exports';
 
 /**
- * !#en The skeleton atlas data of dragonBones.
- * !#zh dragonBones 的骨骼纹理数据。
+ * @en The skeleton atlas data of dragonBones.
+ * @zh dragonBones 的骨骼纹理数据。
  * @class DragonBonesAtlasAsset
  * @extends Asset
  */

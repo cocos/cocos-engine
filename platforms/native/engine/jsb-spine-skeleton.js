@@ -377,18 +377,23 @@ const cacheManager = require('./jsb-cache-manager');
 
     let _onEnable = skeleton.onEnable;
     skeleton.onEnable = function () {
-        _onEnable.call(this);
-        this.syncTransform(true);
+        if (_onEnable) {
+            _onEnable.call(this);
+        }
 
         if (this._nativeSkeleton) {
             this._nativeSkeleton.onEnable();
         }
+        this.syncTransform(true);
         middleware.retain();
     };
 
     let _onDisable = skeleton.onDisable;
     skeleton.onDisable = function () {
-        _onDisable.call(this);
+        if(_onDisable) {
+            _onDisable.call(this);
+        }
+
         if (this._nativeSkeleton) {
             this._nativeSkeleton.onDisable();
         }
@@ -431,7 +436,9 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    skeleton.update = function () {
+    let _lateUpdate = skeleton.lateUpdate;
+    skeleton.lateUpdate = function () {
+        if (_lateUpdate) _lateUpdate.call(this);
         let nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
 
@@ -866,6 +873,8 @@ const cacheManager = require('./jsb-cache-manager');
 
             // SpineMaterialType.TWO_COLORED 2
             // SpineMaterialType.COLORED_TEXTURED 0
+            //HACK
+            const mat = this.material;
             // cache material
             this.material = this.getMaterialForBlendAndTint(
                 renderInfo[renderInfoOffset + materialIdx++], 
@@ -886,6 +895,7 @@ const cacheManager = require('./jsb-cache-manager');
             }
 
             ui.commitComp(this, realTexture._texture, this._assembler, null);
+            this.material = mat;
         }
     }
 

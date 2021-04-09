@@ -43,7 +43,7 @@ import { baseNodePolyfill } from './base-node-dev';
 import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import type { Scene } from './scene';
-import { PrefabInfo } from '../utils/prefab-utils';
+import { PrefabInfo } from '../utils/prefab/prefab-info';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
@@ -327,6 +327,9 @@ export class BaseNode extends CCObject implements ISchedulable {
     protected _eventMask = 0;
 
     protected _siblingIndex = 0;
+
+    // record scene's id when set this node as persist node
+    public _originalSceneId = '';
 
     /**
      * Set `_scene` field of this node.

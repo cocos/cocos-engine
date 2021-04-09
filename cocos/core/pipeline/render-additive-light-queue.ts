@@ -28,7 +28,7 @@
  * @module pipeline
  */
 import { BatchedBuffer } from './batched-buffer';
-import { BatchingSchemes } from '../renderer/core/pass';
+import { BatchingSchemes, Pass } from '../renderer/core/pass';
 import { ForwardPipeline } from './forward/forward-pipeline';
 import { InstancedBuffer } from './instanced-buffer';
 import { Model } from '../renderer/scene/model';
@@ -47,7 +47,8 @@ import { SpotLight } from '../renderer/scene/spot-light';
 import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
-import { IRenderObject, SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
+import { IRenderObject, SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
+    UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
 import { legacyCC } from '../global-exports';
 import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
 import { builtinResMgr } from '../builtin/builtin-res-mgr';
@@ -215,35 +216,10 @@ export class RenderAdditiveLightQueue {
 
     public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer) {
         const validLights = this._validLights;
-        const { sphereLights } = camera.scene!;
 
         this.clear();
 
-        for (let i = 0; i < sphereLights.length; i++) {
-            const light = sphereLights[i];
-            if (light.baked) {
-                continue;
-            }
-
-            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
-                validLights.push(light);
-                this._getOrCreateDescriptorSet(light);
-            }
-        }
-        const { spotLights } = camera.scene!;
-        for (let i = 0; i < spotLights.length; i++) {
-            const light = spotLights[i];
-            if (light.baked) {
-                continue;
-            }
-
-            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
-                validLights.push(light);
-                this._getOrCreateDescriptorSet(light);
-            }
-        }
+        this._gatherValidLights(camera, validLights);
 
         if (!validLights.length) { return; }
 
@@ -257,22 +233,8 @@ export class RenderAdditiveLightQueue {
             if (!getLightPassIndices(subModels, _lightPassIndices)) { continue; }
 
             _lightIndices.length = 0;
-            for (let l = 0; l < validLights.length; l++) {
-                const light = validLights[l];
-                let isCulled = false;
-                switch (light.type) {
-                case LightType.SPHERE:
-                    isCulled = cullSphereLight(light as SphereLight, model);
-                    break;
-                case LightType.SPOT:
-                    isCulled = cullSpotLight(light as SpotLight, model);
-                    break;
-                default:
-                }
-                if (!isCulled) {
-                    _lightIndices.push(l);
-                }
-            }
+
+            this._lightCulling(model, validLights);
 
             if (!_lightIndices.length) { continue; }
 
@@ -281,37 +243,10 @@ export class RenderAdditiveLightQueue {
                 if (lightPassIdx < 0) { continue; }
                 const subModel = subModels[j];
                 const pass = subModel.passes[lightPassIdx];
-                const { batchingScheme } = pass;
                 subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstLightBufferView);
                 subModel.descriptorSet.update();
 
-                if (batchingScheme === BatchingSchemes.INSTANCING) { // instancing
-                    for (let l = 0; l < _lightIndices.length; l++) {
-                        const idx = _lightIndices[l];
-                        const buffer = InstancedBuffer.get(pass, idx);
-                        buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
-                        buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
-                        this._instancedQueue.queue.add(buffer);
-                    }
-                } else if (batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
-                    for (let l = 0; l < _lightIndices.length; l++) {
-                        const idx = _lightIndices[l];
-                        const buffer = BatchedBuffer.get(pass, idx);
-                        buffer.merge(subModel, lightPassIdx, model);
-                        buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
-                        this._batchedQueue.queue.add(buffer);
-                    }
-                } else { // standard draw
-                    const lp = _lightPassPool.alloc();
-                    lp.subModel = subModel;
-                    lp.passIdx = lightPassIdx;
-                    for (let l = 0; l < _lightIndices.length; l++) {
-                        lp.lights.push(validLights[l]);
-                        lp.dynamicOffsets.push(this._lightBufferStride * _lightIndices[l]);
-                    }
-
-                    this._lightPasses.push(lp);
-                }
+                this._addRenderQueue(pass, subModel, model, lightPassIdx, validLights);
             }
         }
         this._instancedQueue.uploadBuffers(cmdBuff);
@@ -343,6 +278,89 @@ export class RenderAdditiveLightQueue {
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, localDS, _dynamicOffsets);
                 cmdBuff.draw(ia);
             }
+        }
+    }
+
+    // gather validLights
+    protected _gatherValidLights (camera: Camera, validLights: Light[]) {
+        const { sphereLights } = camera.scene!;
+        for (let i = 0; i < sphereLights.length; i++) {
+            const light = sphereLights[i];
+            if (light.baked) {
+                continue;
+            }
+
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                validLights.push(light);
+                this._getOrCreateDescriptorSet(light);
+            }
+        }
+        const { spotLights } = camera.scene!;
+        for (let i = 0; i < spotLights.length; i++) {
+            const light = spotLights[i];
+            if (light.baked) {
+                continue;
+            }
+
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                validLights.push(light);
+                this._getOrCreateDescriptorSet(light);
+            }
+        }
+    }
+
+    // light culling
+    protected _lightCulling (model:Model, validLights: Light[]) {
+        for (let l = 0; l < validLights.length; l++) {
+            const light = validLights[l];
+            let isCulled = false;
+            switch (light.type) {
+            case LightType.SPHERE:
+                isCulled = cullSphereLight(light as SphereLight, model);
+                break;
+            case LightType.SPOT:
+                isCulled = cullSpotLight(light as SpotLight, model);
+                break;
+            default:
+            }
+            if (!isCulled) {
+                _lightIndices.push(l);
+            }
+        }
+    }
+
+    // add renderQueue
+    protected _addRenderQueue (pass: Pass, subModel: SubModel, model: Model, lightPassIdx: number, validLights: Light[]) {
+        const { batchingScheme } = pass;
+        if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
+            for (let l = 0; l < _lightIndices.length; l++) {
+                const idx = _lightIndices[l];
+                const buffer = InstancedBuffer.get(pass, idx);
+                buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
+                buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
+                this._instancedQueue.queue.add(buffer);
+            }
+        } else if (batchingScheme === BatchingSchemes.VB_MERGING) {     // vb-merging
+            for (let l = 0; l < _lightIndices.length; l++) {
+                const idx = _lightIndices[l];
+                const buffer = BatchedBuffer.get(pass, idx);
+                buffer.merge(subModel, lightPassIdx, model);
+                buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
+                this._batchedQueue.queue.add(buffer);
+            }
+        } else {                                                         // standard draw
+            const lp = _lightPassPool.alloc();
+            lp.subModel = subModel;
+            lp.passIdx = lightPassIdx;
+            for (let l = 0; l < _lightIndices.length; l++) {
+                const idx = _lightIndices[l];
+                lp.lights.push(validLights[idx]);
+                lp.dynamicOffsets.push(this._lightBufferStride * idx);
+            }
+
+            this._lightPasses.push(lp);
         }
     }
 
@@ -488,11 +506,7 @@ export class RenderAdditiveLightQueue {
         Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
         Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
         Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
-        let projectionSignY = device.screenSpaceSignY;
-        if (camera.window!.hasOffScreenAttachments) {
-            projectionSignY *= device.UVSpaceSignY; // need flipping if drawing on render targets
-        }
-        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = projectionSignY;
+        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = pipeline.getCombineSignY();
 
         const skyColor = ambient.colorArray;
         if (this._isHDR) {
@@ -503,17 +517,15 @@ export class RenderAdditiveLightQueue {
         cv.set(skyColor, UBOCamera.AMBIENT_SKY_OFFSET);
         cv.set(ambient.albedoArray, UBOCamera.AMBIENT_GROUND_OFFSET);
 
-        if (fog.enabled) {
-            cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
+        cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
 
-            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
-            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
-            cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
+        cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET] = fog.fogStart;
+        cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 1] = fog.fogEnd;
+        cv[UBOCamera.GLOBAL_FOG_BASE_OFFSET + 2] = fog.fogDensity;
 
-            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
-            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
-            cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
-        }
+        cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET] = fog.fogTop;
+        cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 1] = fog.fogRange;
+        cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
     }
 
     protected _updateUBOs (camera: Camera, cmdBuff: CommandBuffer) {

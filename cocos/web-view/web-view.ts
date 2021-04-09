@@ -24,7 +24,8 @@
  */
 
 /**
- * @category component/web-view
+ * @packageDocumentation
+ * @module component/web-view
  */
 
 import { ccclass, help, executeInEditMode, menu, tooltip, type, displayOrder, serializable, requireComponent } from 'cc.decorator';
@@ -48,7 +49,7 @@ import type { WebViewImpl  } from './web-view-impl';
  */
 @ccclass('cc.WebView')
 @help('i18n:cc.WebView')
-@menu('Components/WebView')
+@menu('Miscellaneous/WebView')
 @requireComponent(UITransform)
 @executeInEditMode
 export class WebView extends Component {

@@ -73,7 +73,7 @@ export class LabelShadow extends Component {
      * labelShadow.color = new Color(0.5, 0.3, 0.7, 1.0);
      * ```
      */
-    @tooltip('描边的颜色')
+    @tooltip('i18n:labelShadow.color')
     get color (): Readonly<Color> {
         return this._color;
     }
@@ -100,7 +100,7 @@ export class LabelShadow extends Component {
      * labelShadow.offset = new Vec2(2, 2);
      * ```
      */
-    @tooltip('字体与阴影的偏移')
+    @tooltip('i18n:labelShadow.offset')
     get offset () {
         return this._offset;
     }
@@ -122,7 +122,7 @@ export class LabelShadow extends Component {
      * labelShadow.blur = 2;
      * ```
      */
-    @tooltip('阴影的模糊程度')
+    @tooltip('i18n:labelShadow.blur')
     get blur () {
         return this._blur;
     }
