@@ -221,7 +221,7 @@ export class ShadowFlow extends RenderFlow {
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
                 shadowInfo.packing ? Format.RGBA8 : Format.RGBA16F,
                 width,
-                width,
+                height,
             )));
 
             const depth = frameBuffer.depthStencilTexture;

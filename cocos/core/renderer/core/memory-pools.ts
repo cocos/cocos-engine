@@ -1198,13 +1198,14 @@ export enum ShadowsView {
     PACKING,            // boolean
     LINEAR,             // boolean
     SELF_SHADOW,        // boolean
+    NORMAL_BIAS,
     ORTHO_SIZE,
     AUTO_ADAPT,         // boolean
-    COLOR = 17,         // Vec4
-    SIZE = 21,          // Vec2
-    NORMAL = 23,        // Vec3
-    MAT_LIGHT = 26,     // Mat4
-    COUNT = 42
+    COLOR = 18,         // Vec4
+    SIZE = 22,          // Vec2
+    NORMAL = 24,        // Vec3
+    MAT_LIGHT = 27,     // Mat4
+    COUNT = 43
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1222,6 +1223,7 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.PACKING]: number;
     [ShadowsView.LINEAR]: number;
     [ShadowsView.SELF_SHADOW]: number;
+    [ShadowsView.NORMAL_BIAS]: number;
     [ShadowsView.ORTHO_SIZE]: number;
     [ShadowsView.AUTO_ADAPT]: number;
     [ShadowsView.COLOR]: Color;
@@ -1246,6 +1248,7 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.PACKING]: BufferDataType.UINT32,
     [ShadowsView.LINEAR]: BufferDataType.UINT32,
     [ShadowsView.SELF_SHADOW]: BufferDataType.UINT32,
+    [ShadowsView.NORMAL_BIAS]: BufferDataType.FLOAT32,
     [ShadowsView.ORTHO_SIZE]: BufferDataType.FLOAT32,
     [ShadowsView.AUTO_ADAPT]: BufferDataType.UINT32,
     [ShadowsView.COLOR]: BufferDataType.FLOAT32,

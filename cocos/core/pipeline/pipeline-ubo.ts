@@ -202,10 +202,10 @@ export class PipelineUBO {
                 sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = shadowInfo.pcf;
                 sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
 
-                sv[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 0] = 0.0;
-                sv[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
-                sv[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 2] = 0.0;
-                sv[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 3] = 0.0;
+                sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 0.0;
+                sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
+                sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
+                sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
             } else if (mainLight && shadowInfo.type === ShadowType.Planar) {
                 updatePlanarPROJ(shadowInfo, mainLight, sv);
             }
@@ -252,8 +252,8 @@ export class PipelineUBO {
             vec4ShadowInfo.set(shadowInfo.near, _far, shadowInfo.linear ? 1.0 : 0.0, shadowInfo.selfShadow ? 1.0 : 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET);
 
-            vec4ShadowInfo.set(0.0, shadowInfo.packing ? 1.0 : 0.0, 0.0, 0.0);
-            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET);
+            vec4ShadowInfo.set(0.0, shadowInfo.packing ? 1.0 : 0.0, shadowInfo.normalBias, 0.0);
+            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
 
             Mat4.ortho(matShadowViewProj, -_x, _x, -_y, _y, shadowInfo.near, _far,
                 device.capabilities.clipSpaceMinZ, device.capabilities.screenSpaceSignY * device.capabilities.UVSpaceSignY);
@@ -266,8 +266,8 @@ export class PipelineUBO {
             vec4ShadowInfo.set(0.01, (light as SpotLight).range, shadowInfo.linear ? 1.0 : 0.0, shadowInfo.selfShadow ? 1.0 : 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET);
 
-            vec4ShadowInfo.set(1.0, shadowInfo.packing ? 1.0 : 0.0, 0.0, 0.0);
-            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET);
+            vec4ShadowInfo.set(1.0, shadowInfo.packing ? 1.0 : 0.0, shadowInfo.normalBias, 0.0);
+            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
 
             // light proj
             Mat4.perspective(matShadowViewProj, (light as any).spotAngle, (light as any).aspect, 0.001, (light as any).range);

@@ -90,7 +90,7 @@ function cullSpotLight (light: SpotLight, model: Model) {
         && (!intersect.aabbWithAABB(model.worldBounds, light.aabb) || !intersect.aabbFrustum(model.worldBounds, light.frustum)));
 }
 
-const _phaseID = getPhaseID('lighting');
+const _phaseID = getPhaseID('forward-add');
 const _lightPassIndices: number[] = [];
 function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[]) {
     lightPassIndices.length = 0;
@@ -365,10 +365,10 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = shadowInfo.pcf;
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
 
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 0] = 2.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 2] = 0.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 3] = 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 2.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
 
                 // Reserve sphere light shadow interface
                 Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
@@ -400,10 +400,10 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = shadowInfo.pcf;
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
 
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 0] = 1.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 2] = 0.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NULL_NULL_INFO_OFFSET + 3] = 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 1.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
 
                 Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
 

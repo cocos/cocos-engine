@@ -298,6 +298,17 @@ export class Shadows {
     }
 
     /**
+     * @en get or set normal bias.
+     * @zh 设置或者获取法线偏移。
+     */
+    public get normalBias (): number {
+        return ShadowsPool.get(this._handle, ShadowsView.NORMAL_BIAS);
+    }
+    public set normalBias (val: number) {
+        ShadowsPool.set(this._handle, ShadowsView.NORMAL_BIAS, val);
+    }
+
+    /**
      * @en get or set shadow auto control.
      * @zh 获取或者设置阴影是否自动控制。
      */
@@ -387,6 +398,7 @@ export class Shadows {
         ShadowsPool.set(this._handle, ShadowsView.PACKING, shadowsInfo.packing ? 1 : 0);
         ShadowsPool.set(this._handle, ShadowsView.LINEAR, shadowsInfo.linear ? 1 : 0);
         ShadowsPool.set(this._handle, ShadowsView.SELF_SHADOW, shadowsInfo.selfShadow ? 1 : 0);
+        ShadowsPool.set(this._handle, ShadowsView.NORMAL_BIAS, shadowsInfo.normalBias);
         ShadowsPool.set(this._handle, ShadowsView.ENABLE, shadowsInfo.enabled ? 1 : 0);
         this.maxReceived = shadowsInfo.maxReceived;
         ShadowsPool.set(this._handle, ShadowsView.AUTO_ADAPT, shadowsInfo.autoAdapt ? 1 : 0);

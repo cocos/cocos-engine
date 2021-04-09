@@ -403,6 +403,8 @@ export class ShadowsInfo {
     @serializable
     protected _selfShadow = false;
     @serializable
+    protected _normalBias = 0.1;
+    @serializable
     protected _near = 1;
     @serializable
     protected _far = 30;
@@ -581,6 +583,20 @@ export class ShadowsInfo {
     }
     get selfShadow () {
         return this._selfShadow;
+    }
+
+    /**
+     * @en on or off Self-shadowing.
+     * @zh 打开或者关闭自阴影。
+     */
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._selfShadow === true; })
+    set normalBias (val: number) {
+        this._normalBias = val;
+        if (this._resource) { this._resource.normalBias = val; }
+    }
+    get normalBias () {
+        return this._normalBias;
     }
 
     /**
