@@ -97,6 +97,7 @@ export class ToggleContainer extends Component {
             if (toggle && toggle.enabled) {
                 return toggle;
             }
+            return null;
         }).filter(Boolean);
     }
 

@@ -515,6 +515,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             elem.style.textAlign = 'right';
             break;
         default:
+            break;
         }
     }
 
@@ -562,6 +563,7 @@ export class EditBoxImpl extends EditBoxImplBase {
             horizontalAlign = 'right';
             break;
         default:
+            break;
         }
 
         styleEl!.innerHTML = `#${this._domId}::-webkit-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`

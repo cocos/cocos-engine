@@ -749,6 +749,7 @@ export class Button extends Component {
             this._disabledSprite = spriteFrame;
             break;
         default:
+            break;
         }
     }
 
@@ -773,6 +774,7 @@ export class Button extends Component {
             this._disabledColor = color;
             break;
         default:
+            break;
         }
     }
 
