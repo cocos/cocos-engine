@@ -581,6 +581,17 @@ SE_DECLARE_FUNC(js_gfx_Buffer_resize);
 SE_DECLARE_FUNC(js_gfx_Buffer_computeHash);
 SE_DECLARE_FUNC(js_gfx_Buffer_Buffer);
 
+extern se::Object* __jsb_cc_gfx_InputAssembler_proto;
+extern se::Class* __jsb_cc_gfx_InputAssembler_class;
+
+bool js_register_cc_gfx_InputAssembler(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::InputAssembler);
+SE_DECLARE_FUNC(js_gfx_InputAssembler_destroy);
+SE_DECLARE_FUNC(js_gfx_InputAssembler_initialize);
+SE_DECLARE_FUNC(js_gfx_InputAssembler_InputAssembler);
+
 extern se::Object* __jsb_cc_gfx_CommandBuffer_proto;
 extern se::Class* __jsb_cc_gfx_CommandBuffer_class;
 
@@ -684,17 +695,6 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::GlobalBarrier);
 SE_DECLARE_FUNC(js_gfx_GlobalBarrier_info);
 SE_DECLARE_FUNC(js_gfx_GlobalBarrier_computeHash);
 SE_DECLARE_FUNC(js_gfx_GlobalBarrier_GlobalBarrier);
-
-extern se::Object* __jsb_cc_gfx_InputAssembler_proto;
-extern se::Class* __jsb_cc_gfx_InputAssembler_class;
-
-bool js_register_cc_gfx_InputAssembler(se::Object* obj);
-bool register_all_gfx(se::Object* obj);
-
-JSB_REGISTER_OBJECT_TYPE(cc::gfx::InputAssembler);
-SE_DECLARE_FUNC(js_gfx_InputAssembler_destroy);
-SE_DECLARE_FUNC(js_gfx_InputAssembler_initialize);
-SE_DECLARE_FUNC(js_gfx_InputAssembler_InputAssembler);
 
 extern se::Object* __jsb_cc_gfx_PipelineLayout_proto;
 extern se::Class* __jsb_cc_gfx_PipelineLayout_class;
