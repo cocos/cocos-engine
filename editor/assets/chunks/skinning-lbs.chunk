@@ -2,7 +2,7 @@
 #include <cc-skinning>
 
 #if CC_USE_BAKED_ANIMATION
-  #if CC_SUPPORT_FLOAT_TEXTURE
+  #if CC_DEVICE_SUPPORT_FLOAT_TEXTURE
     mat4 getJointMatrix (float i) {
       CCGetJointTextureCoords(3.0, i, j, x, y, invSize);
       vec4 v1 = texture(cc_jointTexture, vec2((x + 0.5) * invSize, y));

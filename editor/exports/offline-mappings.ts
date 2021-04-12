@@ -274,7 +274,7 @@ const effectStructure = {
 };
 
 export {
-  murmurhash2_32_gc as murmurhash2_32_gc,
+  murmurhash2_32_gc,
   SamplerInfoIndex,
   genSamplerHash,
   effectStructure,
