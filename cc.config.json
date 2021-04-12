@@ -53,7 +53,8 @@
             "isVirtualModule": true,
             "overrides": {
                 "pal/minigame": "pal/minigame/non-minigame.ts",
-                "pal/audio": "pal/audio/web/player.ts"
+                "pal/audio": "pal/audio/web/player.ts",
+                "pal/app": "pal/app/web/index.ts"
             }
         },
         {
