@@ -25,8 +25,7 @@
 
 #pragma once
 
-#include "memory/AllocatedObj.h"
-#include "memory/MemDef.h"
+#include "memory/Memory.h"
 
 namespace cc {
 

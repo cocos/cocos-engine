@@ -33,9 +33,7 @@
 namespace cc {
 namespace gfx {
 
-GLES3Queue::GLES3Queue()
-: Queue() {
-}
+GLES3Queue::GLES3Queue() = default;
 
 GLES3Queue::~GLES3Queue() {
     destroy();
@@ -49,12 +47,12 @@ void GLES3Queue::doDestroy() {
 
 void GLES3Queue::submit(CommandBuffer *const *cmdBuffs, uint count) {
     for (uint i = 0; i < count; ++i) {
-        GLES3CommandBuffer *cmdBuff = (GLES3CommandBuffer *)cmdBuffs[i];
+        auto *cmdBuff = static_cast<GLES3CommandBuffer *>(cmdBuffs[i]);
 
         if (!cmdBuff->_pendingPackages.empty()) {
             GLES3CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
 
-            GLES3CmdFuncExecuteCmds(GLES3Device::getInstance(), cmdPackage);
+            cmdFuncGLES3ExecuteCmds(GLES3Device::getInstance(), cmdPackage);
 
             cmdBuff->_pendingPackages.pop();
             cmdBuff->_freePackages.push(cmdPackage);

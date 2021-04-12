@@ -35,8 +35,7 @@ PipelineLayout::PipelineLayout()
 : GFXObject(ObjectType::PIPELINE_LAYOUT) {
 }
 
-PipelineLayout::~PipelineLayout() {
-}
+PipelineLayout::~PipelineLayout() = default;
 
 void PipelineLayout::initialize(const PipelineLayoutInfo& info) {
     _setLayouts = info.setLayouts;

@@ -32,15 +32,13 @@
 namespace cc {
 namespace gfx {
 
-GLES2Shader::GLES2Shader()
-: Shader() {
-}
+GLES2Shader::GLES2Shader() = default;
 
 GLES2Shader::~GLES2Shader() {
     destroy();
 }
 
-void GLES2Shader::doInit(const ShaderInfo &info) {
+void GLES2Shader::doInit(const ShaderInfo & /*info*/) {
     _gpuShader           = CC_NEW(GLES2GPUShader);
     _gpuShader->name     = _name;
     _gpuShader->blocks   = _blocks;
@@ -50,12 +48,12 @@ void GLES2Shader::doInit(const ShaderInfo &info) {
         _gpuShader->gpuStages.emplace_back(std::move(gpuShaderStage));
     }
 
-    GLES2CmdFuncCreateShader(GLES2Device::getInstance(), _gpuShader);
+    cmdFuncGLES2CreateShader(GLES2Device::getInstance(), _gpuShader);
 }
 
 void GLES2Shader::doDestroy() {
     if (_gpuShader) {
-        GLES2CmdFuncDestroyShader(GLES2Device::getInstance(), _gpuShader);
+        cmdFuncGLES2DestroyShader(GLES2Device::getInstance(), _gpuShader);
         CC_DELETE(_gpuShader);
         _gpuShader = nullptr;
     }

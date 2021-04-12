@@ -25,6 +25,9 @@
 
 #pragma once
 
+#include <utility>
+
+#include "base/Object.h"
 #include "gfx-base/GFXDef.h"
 #include "GLES2Wrangler.h"
 
@@ -43,13 +46,13 @@ public:
     uint8_t *buffer = nullptr;
     DrawInfoList indirects;
 };
-typedef vector<GLES2GPUBuffer *> GLES2GPUBufferList;
+using GLES2GPUBufferList = vector<GLES2GPUBuffer *>;
 
 class GLES2GPUBufferView final : public Object {
 public:
     GLES2GPUBuffer *gpuBuffer = nullptr;
-    uint offset = 0u;
-    uint range = 0u;
+    uint offset = 0U;
+    uint range = 0U;
 };
 
 class GLES2GPUTexture final : public Object {
@@ -78,7 +81,7 @@ public:
     GLenum glMagFilter = 0;
 };
 
-typedef vector<GLES2GPUTexture *> GLES2GPUTextureList;
+using GLES2GPUTextureList = vector<GLES2GPUTexture *>;
 
 class GLES2GPUSampler final : public Object {
 public:
@@ -105,7 +108,7 @@ struct GLES2GPUInput final {
     GLenum glType = 0;
     GLint glLoc = -1;
 };
-typedef vector<GLES2GPUInput> GLES2GPUInputList;
+using GLES2GPUInputList = vector<GLES2GPUInput>;
 
 struct GLES2GPUUniform final {
     uint binding = GFX_INVALID_BINDING;
@@ -119,7 +122,7 @@ struct GLES2GPUUniform final {
     GLint glLoc = -1;
     uint8_t *buff = nullptr;
 
-    GLES2GPUUniform() {}
+    GLES2GPUUniform() = default;
     GLES2GPUUniform(const GLES2GPUUniform &rhs) {
         *this = rhs;
     }
@@ -137,10 +140,11 @@ struct GLES2GPUUniform final {
             if (size != rhs.size) {
                 size = rhs.size;
                 CC_SAFE_FREE(buff);
-                buff = (uint8_t *)CC_MALLOC(size);
+                buff = static_cast<uint8_t *>(CC_MALLOC(size));
             }
-            if (buff && rhs.buff)
+            if (buff && rhs.buff) {
                 memcpy(buff, rhs.buff, size);
+}
         }
         return *this;
     }
@@ -149,7 +153,7 @@ struct GLES2GPUUniform final {
         CC_SAFE_FREE(buff);
     }
 };
-typedef vector<GLES2GPUUniform> GLES2GPUUniformList;
+using GLES2GPUUniformList = vector<GLES2GPUUniform>;
 
 struct GLES2GPUUniformBlock final {
     uint set = 0;
@@ -160,29 +164,29 @@ struct GLES2GPUUniformBlock final {
     GLES2GPUUniformList glUniforms;
     GLES2GPUUniformList glActiveUniforms;
 };
-typedef vector<GLES2GPUUniformBlock> GLES2GPUUniformBlockList;
+using GLES2GPUUniformBlockList = vector<GLES2GPUUniformBlock>;
 
 struct GLES2GPUUniformSampler final {
     uint set = 0;
     uint binding = 0;
     String name;
     Type type = Type::UNKNOWN;
-    uint count = 0u;
+    uint count = 0U;
 
     vector<int> units;
     GLenum glType = 0;
     GLint glLoc = -1;
 };
-typedef vector<GLES2GPUUniformSampler> GLES2GPUUniformSamplerList;
+using GLES2GPUUniformSamplerList = vector<GLES2GPUUniformSampler>;
 
 struct GLES2GPUShaderStage final {
     GLES2GPUShaderStage(ShaderStageFlagBit t, String s, GLuint shader = 0)
-    : type(t), source(s), glShader(shader) {}
+    : type(t), source(std::move(std::move(s))), glShader(shader) {}
     ShaderStageFlagBit type;
     String source;
     GLuint glShader = 0;
 };
-typedef vector<GLES2GPUShaderStage> GLES2GPUShaderStageList;
+using GLES2GPUShaderStageList = vector<GLES2GPUShaderStage>;
 
 class GLES2GPUShader final : public Object {
 public:
@@ -208,7 +212,7 @@ struct GLES2GPUAttribute final {
     bool isInstanced = false;
     uint offset = 0;
 };
-typedef vector<GLES2GPUAttribute> GLES2GPUAttributeList;
+using GLES2GPUAttributeList = vector<GLES2GPUAttribute>;
 
 class GLES2GPUInputAssembler final : public Object {
 public:
@@ -243,9 +247,9 @@ public:
 
     vector<uint> bindingIndices;
     vector<uint> descriptorIndices;
-    uint descriptorCount = 0u;
+    uint descriptorCount = 0U;
 };
-typedef vector<GLES2GPUDescriptorSetLayout *> GLES2GPUDescriptorSetLayoutList;
+using GLES2GPUDescriptorSetLayoutList = vector<GLES2GPUDescriptorSetLayout *>;
 
 class GLES2GPUPipelineLayout final : public Object {
 public:
@@ -278,7 +282,7 @@ struct GLES2GPUDescriptor final {
     GLES2GPUTexture *gpuTexture = nullptr;
     GLES2GPUSampler *gpuSampler = nullptr;
 };
-typedef vector<GLES2GPUDescriptor> GLES2GPUDescriptorList;
+using GLES2GPUDescriptorList = vector<GLES2GPUDescriptor>;
 
 class GLES2GPUDescriptorSet final : public Object {
 public:
@@ -291,7 +295,7 @@ public:
 };
 
 struct GLES2ObjectCache final {
-    size_t numClearColors = 0u;
+    size_t numClearColors = 0U;
     GLES2GPURenderPass *gpuRenderPass = nullptr;
     GLES2GPUFramebuffer *gpuFramebuffer = nullptr;
     GLES2GPUPipelineState *gpuPipelineState = nullptr;
@@ -325,7 +329,7 @@ public:
     GLES2ObjectCache gfxStateCache;
 
     void initialize(size_t texUnits, size_t vertexAttributes) {
-        glTextures.resize(texUnits, 0u);
+        glTextures.resize(texUnits, 0U);
         glEnabledAttribLocs.resize(vertexAttributes, false);
         glCurrentAttribLocs.resize(vertexAttributes, false);
     }
@@ -336,10 +340,10 @@ public:
         glUniformBuffer = 0;
         glVAO = 0;
         texUint = 0;
-        glTextures.assign(glTextures.size(), 0u);
+        glTextures.assign(glTextures.size(), 0U);
         glProgram = 0;
-        glEnabledAttribLocs.assign(glEnabledAttribLocs.size(), 0u);
-        glCurrentAttribLocs.assign(glCurrentAttribLocs.size(), 0u);
+        glEnabledAttribLocs.assign(glEnabledAttribLocs.size(), false);
+        glCurrentAttribLocs.assign(glCurrentAttribLocs.size(), false);
         glFramebuffer = 0;
         glReadFBO = 0;
         isCullFaceEnabled = true;
@@ -352,19 +356,19 @@ public:
         bs = BlendState();
 
         gfxStateCache.gpuPipelineState = nullptr;
-        gfxStateCache.numClearColors = 0u;
+        gfxStateCache.numClearColors = 0U;
         gfxStateCache.gpuRenderPass = nullptr;
         gfxStateCache.gpuFramebuffer = nullptr;
         gfxStateCache.gpuInputAssembler = nullptr;
-        gfxStateCache.glPrimitive = 0u;
+        gfxStateCache.glPrimitive = 0U;
         gfxStateCache.reverseCW = false;
     }
 };
 
-constexpr size_t chunkSize = 16 * 1024 * 1024; // 16M per block by default
+constexpr size_t CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default
 class GLES2GPUStagingBufferPool final : public Object {
 public:
-    ~GLES2GPUStagingBufferPool() {
+    ~GLES2GPUStagingBufferPool() override {
         for (Buffer &buffer : _pool) {
             CC_FREE(buffer.mappedData);
         }
@@ -374,9 +378,9 @@ public:
     uint8_t *alloc(size_t size) {
         size_t bufferCount = _pool.size();
         Buffer *buffer = nullptr;
-        for (size_t idx = 0u; idx < bufferCount; idx++) {
+        for (size_t idx = 0U; idx < bufferCount; idx++) {
             Buffer *cur = &_pool[idx];
-            if (chunkSize - cur->curOffset >= size) {
+            if (CHUNK_SIZE - cur->curOffset >= size) {
                 buffer = cur;
                 break;
             }
@@ -384,7 +388,7 @@ public:
         if (!buffer) {
             _pool.resize(bufferCount + 1);
             buffer = &_pool.back();
-            buffer->mappedData = (uint8_t *)CC_MALLOC(chunkSize);
+            buffer->mappedData = static_cast<uint8_t *>(CC_MALLOC(CHUNK_SIZE));
         }
         uint8_t *data = buffer->mappedData + buffer->curOffset;
         buffer->curOffset += size;
@@ -393,14 +397,14 @@ public:
 
     void reset() {
         for (Buffer &buffer : _pool) {
-            buffer.curOffset = 0u;
+            buffer.curOffset = 0U;
         }
     }
 
 private:
     struct Buffer {
         uint8_t *mappedData = nullptr;
-        size_t curOffset = 0u;
+        size_t curOffset = 0U;
     };
     vector<Buffer> _pool;
 };

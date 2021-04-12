@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include <cstdint>
+#include <type_traits>
 #include "base/CachedArray.h"
 
 namespace cc {
@@ -48,8 +50,8 @@ public:
     GLESCmdType type;
     uint refCount = 0;
 
-    GLESCmd(GLESCmdType _type) : type(_type) {}
-    virtual ~GLESCmd() {}
+    explicit GLESCmd(GLESCmdType type) : type(type) {}
+    ~GLESCmd() override = default;
 
     virtual void clear() = 0;
 };

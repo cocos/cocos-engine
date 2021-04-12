@@ -35,8 +35,7 @@ PipelineState::PipelineState()
 : GFXObject(ObjectType::PIPELINE_STATE) {
 }
 
-PipelineState::~PipelineState() {
-}
+PipelineState::~PipelineState() = default;
 
 void PipelineState::initialize(const PipelineStateInfo &info) {
     _primitive         = info.primitive;

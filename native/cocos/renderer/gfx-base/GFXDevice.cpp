@@ -32,19 +32,19 @@
 namespace cc {
 namespace gfx {
 
-Device *Device::_instance = nullptr;
+Device *Device::instance = nullptr;
 
 Device *Device::getInstance() {
-    return Device::_instance;
+    return Device::instance;
 }
 
 Device::Device() {
-    Device::_instance = this;
+    Device::instance = this;
     memset(_features, 0, sizeof(_features));
 }
 
 Device::~Device() {
-    Device::_instance = nullptr;
+    Device::instance = nullptr;
 }
 
 Format Device::getColorFormat() const {
@@ -78,7 +78,7 @@ void Device::destroy() {
 
     _bindingMappingInfo.bufferOffsets.clear();
     _bindingMappingInfo.samplerOffsets.clear();
-    _width = _height = _nativeWidth = _nativeHeight = _windowHandle = 0u;
+    _width = _height = _nativeWidth = _nativeHeight = _windowHandle = 0U;
 }
 
 } // namespace gfx

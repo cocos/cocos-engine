@@ -32,15 +32,13 @@
 namespace cc {
 namespace gfx {
 
-GLES3Texture::GLES3Texture()
-: Texture() {
-}
+GLES3Texture::GLES3Texture() = default;
 
 GLES3Texture::~GLES3Texture() {
     destroy();
 }
 
-void GLES3Texture::doInit(const TextureInfo &info) {
+void GLES3Texture::doInit(const TextureInfo & /*info*/) {
     _gpuTexture = CC_NEW(GLES3GPUTexture);
     _gpuTexture->type = _type;
     _gpuTexture->format = _format;
@@ -55,16 +53,16 @@ void GLES3Texture::doInit(const TextureInfo &info) {
     _gpuTexture->flags = _flags;
     _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
 
-    GLES3CmdFuncCreateTexture(GLES3Device::getInstance(), _gpuTexture);
+    cmdFuncGLES3CreateTexture(GLES3Device::getInstance(), _gpuTexture);
 }
 
-void GLES3Texture::doInit(const TextureViewInfo &info) {
+void GLES3Texture::doInit(const TextureViewInfo & /*info*/) {
     CC_LOG_ERROR("GLES3 doesn't support texture view.");
 }
 
 void GLES3Texture::doDestroy() {
     if (_gpuTexture) {
-        GLES3CmdFuncDestroyTexture(GLES3Device::getInstance(), _gpuTexture);
+        cmdFuncGLES3DestroyTexture(GLES3Device::getInstance(), _gpuTexture);
         CC_DELETE(_gpuTexture);
         _gpuTexture = nullptr;
     }
@@ -74,7 +72,7 @@ void GLES3Texture::doResize(uint width, uint height, uint size) {
     _gpuTexture->width = width;
     _gpuTexture->height = height;
     _gpuTexture->size = size;
-    GLES3CmdFuncResizeTexture(GLES3Device::getInstance(), _gpuTexture);
+    cmdFuncGLES3ResizeTexture(GLES3Device::getInstance(), _gpuTexture);
 }
 
 } // namespace gfx

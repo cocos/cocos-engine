@@ -33,14 +33,14 @@ namespace cc {
 
 class alignas(16) ThreadSafeLinearAllocator final {
 public:
-    explicit ThreadSafeLinearAllocator(uint32_t const size) noexcept;
+    explicit ThreadSafeLinearAllocator(uint32_t size) noexcept;
     ~ThreadSafeLinearAllocator();
     ThreadSafeLinearAllocator(ThreadSafeLinearAllocator const &) = delete;
     ThreadSafeLinearAllocator(ThreadSafeLinearAllocator &&)      = delete;
     ThreadSafeLinearAllocator &operator=(ThreadSafeLinearAllocator const &) = delete;
     ThreadSafeLinearAllocator &operator=(ThreadSafeLinearAllocator &&) = delete;
 
-    void *allocate(size_t const size, size_t const alignment) noexcept;
+    void *allocate(size_t size, size_t alignment) noexcept;
 
     inline void *   getBuffer() const noexcept { return _buffer; }
     inline uint32_t getCapacity() const noexcept { return _capacity; }

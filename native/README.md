@@ -8,7 +8,7 @@ It is the native backend of [Cocos Creator](https://www.cocos.com/en/creator). I
 Coding format and coding style
 ---------------------------------
 
-The coding format file is `.clang-format`, and the coding style fomat file is `.clang-tidy`. Please use [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format the codes and use [clang-tidy](http://clang.llvm.org/extra/index.html) to fix the coding style before commiting codes.
+The coding format file is `.clang-format`, and the coding style fomat file is `.clang-tidy`. Please use [clang-format](https://clang.llvm.org/docs/ClangFormat.html) to format the codes and use [clang-tidy](http://clang.llvm.org/extra/index.html) to fix the coding style before commiting codes. See the [linter auto-fix guide](docs/LINTER_AUTOFIX_GUIDE.md) for more information.
 
 Documentations
 --------------------------------

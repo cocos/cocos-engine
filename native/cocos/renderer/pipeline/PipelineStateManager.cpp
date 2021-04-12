@@ -25,9 +25,6 @@
 
 #include "PipelineStateManager.h"
 #include "gfx-base/GFXDevice.h"
-#include "gfx-base/GFXInputAssembler.h"
-#include "gfx-base/GFXRenderPass.h"
-#include "gfx-base/GFXShader.h"
 #include "helper/SharedMemory.h"
 
 namespace cc {
@@ -45,10 +42,11 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const PassVie
     const auto shaderID       = shader->getID();
     const auto hash           = passHash ^ renderPassHash ^ iaHash ^ shaderID;
 
-    auto pso = _PSOHashMap[hash];
+    auto *pso = _PSOHashMap[hash];
     if (!pso) {
-        auto                   pipelineLayout = pass->getPipelineLayout();
-        gfx::PipelineStateInfo info           = {
+        auto *pipelineLayout = pass->getPipelineLayout();
+
+        pso = gfx::Device::getInstance()->createPipelineState({
             shader,
             pipelineLayout,
             renderPass,
@@ -57,9 +55,9 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineState(const PassVie
             *(pass->getDepthStencilState()),
             *(pass->getBlendState()),
             pass->getPrimitive(),
-            pass->getDynamicState()};
+            pass->getDynamicState(),
+        });
 
-        pso               = gfx::Device::getInstance()->createPipelineState(std::move(info));
         _PSOHashMap[hash] = pso;
     }
 
@@ -70,7 +68,7 @@ gfx::PipelineState *PipelineStateManager::getOrCreatePipelineStateByJS(uint32_t 
                                                                        gfx::Shader *        shader,
                                                                        gfx::InputAssembler *inputAssembler,
                                                                        gfx::RenderPass *    renderPass) {
-    const auto pass = GET_PASS(passHandle);
+    const auto *pass = GET_PASS(passHandle);
     CC_ASSERT(pass);
     return PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
 }

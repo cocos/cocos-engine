@@ -33,20 +33,17 @@
 namespace cc {
 namespace gfx {
 
-CCVKPipelineLayout::CCVKPipelineLayout()
-: PipelineLayout() {
-}
+CCVKPipelineLayout::CCVKPipelineLayout() = default;
 
 CCVKPipelineLayout::~CCVKPipelineLayout() {
     destroy();
 }
 
-void CCVKPipelineLayout::doInit(const PipelineLayoutInfo &info) {
+void CCVKPipelineLayout::doInit(const PipelineLayoutInfo & /*info*/) {
     _gpuPipelineLayout = CC_NEW(CCVKGPUPipelineLayout);
 
-    int offset = 0u;
-    for (uint i = 0u; i < _setLayouts.size(); i++) {
-        DescriptorSetLayout *setLayout = _setLayouts[i];
+    int offset = 0U;
+    for (auto *setLayout : _setLayouts) {
         CCVKGPUDescriptorSetLayout *gpuSetLayout = static_cast<CCVKDescriptorSetLayout *>(setLayout)->gpuDescriptorSetLayout();
         size_t dynamicCount = gpuSetLayout->dynamicBindings.size();
         _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
@@ -56,7 +53,7 @@ void CCVKPipelineLayout::doInit(const PipelineLayoutInfo &info) {
     _gpuPipelineLayout->dynamicOffsetOffsets.push_back(offset);
     _gpuPipelineLayout->dynamicOffsetCount = offset;
 
-    CCVKCmdFuncCreatePipelineLayout(CCVKDevice::getInstance(), _gpuPipelineLayout);
+    cmdFuncCCVKCreatePipelineLayout(CCVKDevice::getInstance(), _gpuPipelineLayout);
 }
 
 void CCVKPipelineLayout::doDestroy() {

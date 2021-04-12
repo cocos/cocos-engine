@@ -55,7 +55,7 @@ CCMTLDevice *CCMTLDevice::getInstance() {
 }
 
 CCMTLDevice::CCMTLDevice() {
-    _API = API::METAL;
+    _api = API::METAL;
     _deviceName = "Metal";
 
     _caps.clipSpaceMinZ = 0.0f;
@@ -229,9 +229,9 @@ void CCMTLDevice::doDestroy() {
 void CCMTLDevice::resize(uint w, uint h) {
     this->_width = w;
     this->_height = h;
-    
+
     [id<MTLTexture>(_dssTex) release];
-    
+
     MTLTextureDescriptor *dssDescriptor = [[MTLTextureDescriptor alloc] init];
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     dssDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(id<MTLDevice>(this->_mtlDevice), gpuFamily, _caps.depthBits);

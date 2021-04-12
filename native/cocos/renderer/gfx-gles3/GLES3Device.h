@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "GLES3Std.h"
 #include "gfx-base/GFXDevice.h"
 
 namespace cc {
@@ -68,18 +69,15 @@ public:
     inline uint                         getThreadID() const { return _threadID; }
 
     inline bool checkExtension(const String &extension) const {
-        for (size_t i = 0; i < _extensions.size(); ++i) {
-            if (_extensions[i].find(extension) != String::npos) {
-                return true;
-            }
-        }
-        return false;
+        return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
+            return ext.find(extension) != String::npos;
+        });
     }
 
     uint getMinorVersion() const;
 
 protected:
-    static GLES3Device *_instance;
+    static GLES3Device *instance;
 
     friend class DeviceManager;
     friend class GLES3Context;
@@ -119,7 +117,7 @@ protected:
 
     StringArray _extensions;
 
-    uint _threadID = 0u;
+    uint _threadID = 0U;
 };
 
 } // namespace gfx

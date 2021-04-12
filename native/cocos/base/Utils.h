@@ -32,40 +32,46 @@
 #include <string>
 #include <vector>
 
-/** @file ccUtils.h
-Misc free functions
-*/
-
 namespace cc {
-
-/*
-utils::nextPOT function is licensed under the same license that is used in Texture2D.m.
-*/
-
-/** Returns the Next Power of Two value.
-
-Examples:
-- If "value" is 15, it will return 16.
-- If "value" is 16, it will return 16.
-- If "value" is 17, it will return 32.
-@param value The value to get next power of two.
-@return Returns the next power of two value.
-@since v0.99.5
-*/
-
 namespace utils {
 
 CC_DLL std::string getStacktrace(uint skip = 0, uint maxDepth = UINT_MAX);
 
-CC_DLL int nextPOT(int x);
-/** Same to ::atof, but strip the string, remain 7 numbers after '.' before call atof.
-     * Why we need this? Because in android c++_static, atof ( and std::atof ) is unsupported for numbers have long decimal part and contain
-     * several numbers can approximate to 1 ( like 90.099998474121094 ), it will return inf. This function is used to fix this bug.
-     * @param str The string be to converted to double.
-     * @return Returns converted value of a string.
-     */
+/**
+ * Returns the Next Power of Two value.
+ * Examples:
+ * - If "value" is 15, it will return 16.
+ * - If "value" is 16, it will return 16.
+ * - If "value" is 17, it will return 32.
+ * @param value The value to get next power of two.
+ * @return Returns the next power of two value.
+ * @since v0.99.5
+*/
+CC_DLL uint nextPOT(uint x);
+
+/**
+ * Same to ::atof, but strip the string, remain 7 numbers after '.' before call atof.
+ * Why we need this? Because in android c++_static, atof ( and std::atof ) is unsupported for numbers have long decimal part and contain
+ * several numbers can approximate to 1 ( like 90.099998474121094 ), it will return inf. This function is used to fix this bug.
+ * @param str The string be to converted to double.
+ * @return Returns converted value of a string.
+ */
 CC_DLL double atof(const char *str);
 
-} // namespace utils
+template <typename T, size_t Size>
+char (*countOfHelper(T (&array)[Size]))[Size];
 
+#define COUNTOF(array) (sizeof(*countOfHelper(array)) + 0)
+
+template <class T>
+uint toUint(T value) {
+    static_assert(std::is_arithmetic<T>::value, "T must be numeric");
+
+    CCASSERT(static_cast<uintmax_t>(value) <= static_cast<uintmax_t>(std::numeric_limits<uint>::max()),
+             "value is too big to be converted to uint");
+
+    return static_cast<uint>(value);
+}
+
+} // namespace utils
 } // namespace cc

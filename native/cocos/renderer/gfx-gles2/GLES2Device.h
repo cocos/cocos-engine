@@ -25,6 +25,8 @@
 
 #pragma once
 
+#include "GLES2Std.h"
+
 #include "gfx-base/GFXDevice.h"
 
 #ifndef GL_COMPRESSED_RGB8_ETC2
@@ -69,27 +71,24 @@ public:
     void acquire() override;
     void present() override;
 
-    CC_INLINE bool useVAO() const { return _useVAO; }
-    CC_INLINE bool useDrawInstanced() const { return _useDrawInstanced; }
-    CC_INLINE bool useInstancedArrays() const { return _useInstancedArrays; }
-    CC_INLINE bool useDiscardFramebuffer() const { return _useDiscardFramebuffer; }
+    inline bool useVAO() const { return _useVAO; }
+    inline bool useDrawInstanced() const { return _useDrawInstanced; }
+    inline bool useInstancedArrays() const { return _useInstancedArrays; }
+    inline bool useDiscardFramebuffer() const { return _useDiscardFramebuffer; }
 
-    CC_INLINE GLES2GPUStateCache *stateCache() const { return _gpuStateCache; }
-    CC_INLINE GLES2GPUStagingBufferPool *stagingBufferPool() const { return _gpuStagingBufferPool; }
+    inline GLES2GPUStateCache *       stateCache() const { return _gpuStateCache; }
+    inline GLES2GPUStagingBufferPool *stagingBufferPool() const { return _gpuStagingBufferPool; }
 
-    CC_INLINE bool checkExtension(const String &extension) const {
-        for (size_t i = 0; i < _extensions.size(); ++i) {
-            if (_extensions[i].find(extension) != String::npos) {
-                return true;
-            }
-        }
-        return false;
+    inline bool checkExtension(const String &extension) const {
+        return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
+            return ext.find(extension) != String::npos;
+        });
     }
 
-    CC_INLINE uint getThreadID() const { return _threadID; }
+    inline uint getThreadID() const { return _threadID; }
 
 protected:
-    static GLES2Device * _instance;
+    static GLES2Device *instance;
 
     friend class DeviceManager;
     friend class GLES2Context;
@@ -118,7 +117,7 @@ protected:
     void bindRenderContext(bool bound) override;
     void bindDeviceContext(bool bound) override;
 
-    bool checkForETC2() const;
+    static bool checkForETC2();
 
     GLES2Context *             _renderContext        = nullptr;
     GLES2Context *             _deviceContext        = nullptr;
@@ -132,7 +131,7 @@ protected:
     bool _useInstancedArrays    = false;
     bool _useDiscardFramebuffer = false;
 
-    uint _threadID = 0u;
+    uint _threadID = 0U;
 };
 
 } // namespace gfx

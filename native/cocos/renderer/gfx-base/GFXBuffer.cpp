@@ -36,15 +36,14 @@ Buffer::Buffer()
 : GFXObject(ObjectType::BUFFER) {
 }
 
-Buffer::~Buffer() {
-}
+Buffer::~Buffer() = default;
 
 uint Buffer::computeHash(const BufferInfo &info) {
     uint seed = 4;
-    seed ^= (uint)(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.memUsage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.size) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint>(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint>(info.memUsage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint>(info.size) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint>(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     return seed;
 }
 
@@ -53,7 +52,7 @@ void Buffer::initialize(const BufferInfo &info) {
     _memUsage = info.memUsage;
     _size     = info.size;
     _flags    = info.flags;
-    _stride   = std::max(info.stride, 1u);
+    _stride   = std::max(info.stride, 1U);
     _count    = _size / _stride;
 
     Device::getInstance()->getMemoryStatus().bufferSize += _size;
@@ -67,7 +66,7 @@ void Buffer::initialize(const BufferViewInfo &info) {
     _flags    = info.buffer->getFlags();
     _offset   = info.offset;
     _size = _stride = info.range;
-    _count          = 1u;
+    _count          = 1U;
     _isBufferView   = true;
 
     doInit(info);
@@ -78,7 +77,7 @@ void Buffer::destroy() {
 
     Device::getInstance()->getMemoryStatus().bufferSize -= _size;
 
-    _offset = _size = _stride = _count = 0u;
+    _offset = _size = _stride = _count = 0U;
 }
 
 void Buffer::resize(uint size) {

@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_ALLOCATED_OBJ_H_
-#define CC_CORE_ALLOCATED_OBJ_H_
+#pragma once
 
 #include "../Macros.h"
 
@@ -47,8 +46,8 @@ namespace cc {
 template <class Alloc>
 class CC_DLL AllocatedObject {
 public:
-    explicit AllocatedObject() {}
-    ~AllocatedObject() {}
+    explicit AllocatedObject() = default;
+    virtual ~AllocatedObject() = default;
 
     // operator new, with debug line info
     void *operator new(size_t sz, const char *file, int line, const char *func) {
@@ -81,12 +80,12 @@ public:
     }
 
     // Corresponding operator for placement delete (second param same as the first)
-    void operator delete(void *ptr, void *) {
+    void operator delete(void *ptr, void * /*unused*/) {
         Alloc::DeallocateBytes(ptr);
     }
 
     // only called if there is an exception in corresponding 'new'
-    void operator delete(void *ptr, const char *, int, const char *) {
+    void operator delete(void *ptr, const char * /*unused*/, int /*unused*/, const char * /*unused*/) {
         Alloc::DeallocateBytes(ptr);
     }
 
@@ -94,11 +93,9 @@ public:
         Alloc::DeallocateBytes(ptr);
     }
 
-    void operator delete[](void *ptr, const char *, int, const char *) {
+    void operator delete[](void *ptr, const char * /*unused*/, int /*unused*/, const char * /*unused*/) {
         Alloc::DeallocateBytes(ptr);
     }
 };
 
 } // namespace cc
-
-#endif // CC_CORE_ALLOCATED_OBJ_H_

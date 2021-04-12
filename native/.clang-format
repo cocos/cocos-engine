@@ -1,33 +1,18 @@
-BasedOnStyle: LLVM
+---
 
-IndentWidth: 4
+BasedOnStyle:                         Google
 
-BreakBeforeBraces: Attach
+AccessModifierOffset:                 -4
+AlignConsecutiveMacros:               true
+AlignConsecutiveAssignments:          true
+AlignConsecutiveDeclarations:         true
+AllowShortCaseLabelsOnASingleLine:    true
+ColumnLimit:                          0
+ConstructorInitializerIndentWidth:    0
+IncludeBlocks:                        Preserve
+IndentPPDirectives:                   BeforeHash
+IndentWidth:                          4
+SpacesBeforeTrailingComments:         1
 
-AllowShortIfStatementsOnASingleLine: true
-
-AllowShortLoopsOnASingleLine: true
-
-IndentCaseLabels: true
-
-ObjCBlockIndentWidth: 4
-
-ObjCSpaceAfterProperty: true
-
-ColumnLimit: 0
-
-AlignTrailingComments: true
-
-AllowShortCaseLabelsOnASingleLine: true
-AllowAllConstructorInitializersOnNextLine: false
-
-AccessModifierOffset: -4
-
-ConstructorInitializerIndentWidth: 0
-ConstructorInitializerAllOnOneLineOrOnePerLine: true
-
-AlignConsecutiveMacros: true
-AlignConsecutiveAssignments: true
-AlignConsecutiveDeclarations: true
-
-IndentPPDirectives: BeforeHash
+ObjCBlockIndentWidth:                 4
+ObjCSpaceAfterProperty:               true

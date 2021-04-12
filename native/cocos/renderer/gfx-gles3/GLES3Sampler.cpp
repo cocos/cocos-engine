@@ -32,15 +32,13 @@
 namespace cc {
 namespace gfx {
 
-GLES3Sampler::GLES3Sampler()
-: Sampler() {
-}
+GLES3Sampler::GLES3Sampler() = default;
 
 GLES3Sampler::~GLES3Sampler() {
     destroy();
 }
 
-void GLES3Sampler::doInit(const SamplerInfo &info) {
+void GLES3Sampler::doInit(const SamplerInfo & /*info*/) {
     _gpuSampler            = CC_NEW(GLES3GPUSampler);
     _gpuSampler->minFilter = _minFilter;
     _gpuSampler->magFilter = _magFilter;
@@ -49,12 +47,12 @@ void GLES3Sampler::doInit(const SamplerInfo &info) {
     _gpuSampler->addressV  = _addressV;
     _gpuSampler->addressW  = _addressW;
 
-    GLES3CmdFuncCreateSampler(GLES3Device::getInstance(), _gpuSampler);
+    cmdFuncGLES3CreateSampler(GLES3Device::getInstance(), _gpuSampler);
 }
 
 void GLES3Sampler::doDestroy() {
     if (_gpuSampler) {
-        GLES3CmdFuncDestroySampler(GLES3Device::getInstance(), _gpuSampler);
+        cmdFuncGLES3DestroySampler(GLES3Device::getInstance(), _gpuSampler);
         CC_DELETE(_gpuSampler);
         _gpuSampler = nullptr;
     }

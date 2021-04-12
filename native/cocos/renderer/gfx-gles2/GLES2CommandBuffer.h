@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "gfx-base/GFXCommandBuffer.h"
 #include "GLES2Commands.h"
+#include "gfx-base/GFXCommandBuffer.h"
 
 namespace cc {
 namespace gfx {
@@ -35,8 +35,8 @@ class GLES2GPUCommandAllocator;
 
 class CC_GLES2_API GLES2CommandBuffer : public CommandBuffer {
 public:
-    GLES2CommandBuffer();
-    ~GLES2CommandBuffer();
+    GLES2CommandBuffer() = default;
+    ~GLES2CommandBuffer() override;
 
     friend class GLES2Queue;
 
@@ -55,7 +55,7 @@ public:
     void setDepthBound(float minBounds, float maxBounds) override;
     void setStencilWriteMask(StencilFace face, uint mask) override;
     void setStencilCompareMask(StencilFace face, int ref, uint mask) override;
-    void draw(InputAssembler *ia) override;
+    void draw(const DrawInfo &info) override;
     void updateBuffer(Buffer *buff, const void *data, uint size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
@@ -67,26 +67,26 @@ protected:
     void doInit(const CommandBufferInfo &info) override;
     void doDestroy() override;
 
-    void BindStates();
+    virtual void bindStates();
 
-    GLES2GPUCommandAllocator *_cmdAllocator = nullptr;
-    GLES2CmdPackage *_curCmdPackage = nullptr;
-    queue<GLES2CmdPackage *> _pendingPackages, _freePackages;
+    GLES2GPUCommandAllocator *_cmdAllocator  = nullptr;
+    GLES2CmdPackage *         _curCmdPackage = nullptr;
+    queue<GLES2CmdPackage *>  _pendingPackages, _freePackages;
 
-    bool _isInRenderPass = false;
-    GLES2GPUPipelineState *_curGPUPipelineState = nullptr;
+    bool                            _isInRenderPass      = false;
+    GLES2GPUPipelineState *         _curGPUPipelineState = nullptr;
     vector<GLES2GPUDescriptorSet *> _curGPUDescriptorSets;
-    vector<vector<uint>> _curDynamicOffsets;
-    GLES2GPUInputAssembler *_curGPUInputAssember = nullptr;
-    Viewport _curViewport;
-    Rect _curScissor;
-    float _curLineWidth = 1.0f;
-    GLES2DepthBias _curDepthBias;
-    Color _curBlendConstants;
-    GLES2DepthBounds _curDepthBounds;
-    GLES2StencilWriteMask _curStencilWriteMask;
-    GLES2StencilCompareMask _curStencilCompareMask;
-    bool _isStateInvalid = false;
+    vector<vector<uint>>            _curDynamicOffsets;
+    GLES2GPUInputAssembler *        _curGPUInputAssember = nullptr;
+    Viewport                        _curViewport;
+    Rect                            _curScissor;
+    float                           _curLineWidth = 1.0F;
+    GLES2DepthBias                  _curDepthBias;
+    Color                           _curBlendConstants;
+    GLES2DepthBounds                _curDepthBounds;
+    GLES2StencilWriteMask           _curStencilWriteMask;
+    GLES2StencilCompareMask         _curStencilCompareMask;
+    bool                            _isStateInvalid = false;
 };
 
 } // namespace gfx

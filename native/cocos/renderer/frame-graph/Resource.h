@@ -41,14 +41,14 @@ namespace framegraph {
 
 template <typename DescriptorType>
 struct ResourceDescriptorHasher final {
-    CC_INLINE uint32_t operator()(const DescriptorType &desc) const noexcept {
+    CC_INLINE uint32_t operator()(const DescriptorType &desc) const {
         return 1;
     }
 };
 
 template <typename DeviceResourceType, typename DescriptorType>
 struct DeviceResourceCreator final {
-    CC_INLINE DeviceResourceType *operator()(const DescriptorType &desc) const noexcept {
+    CC_INLINE DeviceResourceType *operator()(const DescriptorType &desc) const {
         return nullptr;
     }
 };
@@ -64,13 +64,13 @@ public:
     using Descriptor       = DescriptorType;
     using DescriptorHasher = DescriptorHasherType;
 
-    Resource() noexcept = default;
+    Resource() = default;
     explicit Resource(const Descriptor &desc) noexcept;
-    ~Resource()                = default;
-    Resource(const Resource &) = default;
-    Resource(Resource &&)      = default;
+    ~Resource()                    = default;
+    Resource(const Resource &)     = default;
+    Resource(Resource &&) noexcept = default;
     Resource &operator=(const Resource &) = default;
-    Resource &operator=(Resource &&) = default;
+    Resource &operator=(Resource &&) noexcept = default;
 
     void      createTransient() noexcept;
     void      createPersistent() noexcept;
@@ -145,22 +145,22 @@ void Resource<DeviceResourceType, DescriptorType, DeviceResourceCreatorType, Des
 
 //////////////////////////////////////////////////////////////////////////
 
-#define DEFINE_GFX_RESOURCE(Type)                                                     \
-    template <>                                                                       \
-    struct ResourceDescriptorHasher<gfx::Type##Info> final {                          \
-        CC_INLINE uint32_t operator()(const gfx::Type##Info &desc) const noexcept {   \
-            return gfx::Type::computeHash(desc);                                      \
-        }                                                                             \
-    };                                                                                \
-                                                                                      \
-    template <>                                                                       \
-    struct DeviceResourceCreator<gfx::Type, gfx::Type##Info> final {                  \
-        CC_INLINE gfx::Type *operator()(const gfx::Type##Info &desc) const noexcept { \
-            return gfx::Device::getInstance()->create##Type(desc);                    \
-        }                                                                             \
-    };                                                                                \
-                                                                                      \
-    using Type         = Resource<gfx::Type, gfx::Type##Info>;                        \
+#define DEFINE_GFX_RESOURCE(Type)                                                                           \
+    template <>                                                                                             \
+    struct ResourceDescriptorHasher<gfx::Type##Info> final {                                                \
+        CC_INLINE uint32_t operator()(const gfx::Type##Info &desc) const {                                  \
+            return gfx::Type::computeHash(desc);                                                            \
+        }                                                                                                   \
+    };                                                                                                      \
+                                                                                                            \
+    template <>                                                                                             \
+    struct DeviceResourceCreator<gfx::Type, gfx::Type##Info> final {                                        \
+        CC_INLINE gfx::Type *operator()(const gfx::Type##Info &desc) const {                                \
+            return gfx::Device::getInstance()->create##Type(desc);                                          \
+        }                                                                                                   \
+    };                                                                                                      \
+                                                                                                            \
+    using Type         = Resource<gfx::Type, gfx::Type##Info>; /* NOLINT(bugprone-macro-parentheses) N/A */ \
     using Type##Handle = TypedHandle<Type>;
 
 DEFINE_GFX_RESOURCE(Buffer)

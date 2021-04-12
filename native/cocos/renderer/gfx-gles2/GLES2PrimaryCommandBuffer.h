@@ -26,26 +26,29 @@
 #pragma once
 
 #include "GLES2CommandBuffer.h"
+#include "GLES2Std.h"
 
 namespace cc {
 namespace gfx {
 
 class CC_GLES2_API GLES2PrimaryCommandBuffer final : public GLES2CommandBuffer {
 public:
-    GLES2PrimaryCommandBuffer();
-    ~GLES2PrimaryCommandBuffer();
+    GLES2PrimaryCommandBuffer() = default;
+    ~GLES2PrimaryCommandBuffer() override;
 
     void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
     void end() override;
     void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
     void endRenderPass() override;
-    void draw(InputAssembler *ia) override;
+    void draw(const DrawInfo &info) override;
     void updateBuffer(Buffer *buff, const void *data, uint size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
 
 protected:
     friend class GLES2Queue;
+
+    void bindStates() override;
 };
 
 } // namespace gfx

@@ -35,15 +35,13 @@
 namespace cc {
 namespace gfx {
 
-CCVKPipelineState::CCVKPipelineState()
-: PipelineState() {
-}
+CCVKPipelineState::CCVKPipelineState() = default;
 
 CCVKPipelineState::~CCVKPipelineState() {
     destroy();
 }
 
-void CCVKPipelineState::doInit(const PipelineStateInfo &info) {
+void CCVKPipelineState::doInit(const PipelineStateInfo & /*info*/) {
     _gpuPipelineState = CC_NEW(CCVKGPUPipelineState);
     _gpuPipelineState->bindPoint = _bindPoint;
     _gpuPipelineState->primitive = _primitive;
@@ -56,15 +54,15 @@ void CCVKPipelineState::doInit(const PipelineStateInfo &info) {
     if (_renderPass) _gpuPipelineState->gpuRenderPass = static_cast<CCVKRenderPass *>(_renderPass)->gpuRenderPass();
 
     for (uint i = 0; i < 31; i++) {
-        if ((uint)_dynamicStates & (1 << i)) {
-            _gpuPipelineState->dynamicStates.push_back((DynamicStateFlagBit)(1 << i));
+        if (static_cast<uint>(_dynamicStates) & (1 << i)) {
+            _gpuPipelineState->dynamicStates.push_back(static_cast<DynamicStateFlagBit>(1 << i));
         }
     }
 
     if (_bindPoint == PipelineBindPoint::GRAPHICS) {
-        CCVKCmdFuncCreateGraphicsPipelineState(CCVKDevice::getInstance(), _gpuPipelineState);
+        cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice::getInstance(), _gpuPipelineState);
     } else {
-        CCVKCmdFuncCreateComputePipelineState(CCVKDevice::getInstance(), _gpuPipelineState);
+        cmdFuncCCVKCreateComputePipelineState(CCVKDevice::getInstance(), _gpuPipelineState);
     }
 }
 

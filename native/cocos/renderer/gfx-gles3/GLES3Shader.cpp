@@ -32,15 +32,13 @@
 namespace cc {
 namespace gfx {
 
-GLES3Shader::GLES3Shader()
-: Shader() {
-}
+GLES3Shader::GLES3Shader() = default;
 
 GLES3Shader::~GLES3Shader() {
     destroy();
 }
 
-void GLES3Shader::doInit(const ShaderInfo &info) {
+void GLES3Shader::doInit(const ShaderInfo & /*info*/) {
     _gpuShader                  = CC_NEW(GLES3GPUShader);
     _gpuShader->name            = _name;
     _gpuShader->blocks          = _blocks;
@@ -55,12 +53,12 @@ void GLES3Shader::doInit(const ShaderInfo &info) {
         _gpuShader->gpuStages.emplace_back(std::move(gpuShaderStage));
     }
 
-    GLES3CmdFuncCreateShader(GLES3Device::getInstance(), _gpuShader);
+    cmdFuncGLES3CreateShader(GLES3Device::getInstance(), _gpuShader);
 }
 
 void GLES3Shader::doDestroy() {
     if (_gpuShader) {
-        GLES3CmdFuncDestroyShader(GLES3Device::getInstance(), _gpuShader);
+        cmdFuncGLES3DestroyShader(GLES3Device::getInstance(), _gpuShader);
         CC_DELETE(_gpuShader);
         _gpuShader = nullptr;
     }

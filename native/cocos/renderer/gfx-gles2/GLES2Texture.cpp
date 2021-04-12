@@ -25,56 +25,54 @@
 
 #include "GLES2Std.h"
 
+#include "GLES2Commands.h"
 #include "GLES2Device.h"
 #include "GLES2Texture.h"
-#include "GLES2Commands.h"
 
 namespace cc {
 namespace gfx {
 
-GLES2Texture::GLES2Texture()
-: Texture() {
-}
+GLES2Texture::GLES2Texture() = default;
 
 GLES2Texture::~GLES2Texture() {
     destroy();
 }
 
-void GLES2Texture::doInit(const TextureInfo &info) {
-    _gpuTexture = CC_NEW(GLES2GPUTexture);
-    _gpuTexture->type = _type;
-    _gpuTexture->format = _format;
-    _gpuTexture->usage = _usage;
-    _gpuTexture->width = _width;
-    _gpuTexture->height = _height;
-    _gpuTexture->depth = _depth;
-    _gpuTexture->size = _size;
+void GLES2Texture::doInit(const TextureInfo & /*info*/) {
+    _gpuTexture             = CC_NEW(GLES2GPUTexture);
+    _gpuTexture->type       = _type;
+    _gpuTexture->format     = _format;
+    _gpuTexture->usage      = _usage;
+    _gpuTexture->width      = _width;
+    _gpuTexture->height     = _height;
+    _gpuTexture->depth      = _depth;
+    _gpuTexture->size       = _size;
     _gpuTexture->arrayLayer = _layerCount;
-    _gpuTexture->mipLevel = _levelCount;
-    _gpuTexture->samples = _samples;
-    _gpuTexture->flags = _flags;
+    _gpuTexture->mipLevel   = _levelCount;
+    _gpuTexture->samples    = _samples;
+    _gpuTexture->flags      = _flags;
     _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
 
-    GLES2CmdFuncCreateTexture(GLES2Device::getInstance(), _gpuTexture);
+    cmdFuncGLES2CreateTexture(GLES2Device::getInstance(), _gpuTexture);
 }
 
-void GLES2Texture::doInit(const TextureViewInfo &info) {
+void GLES2Texture::doInit(const TextureViewInfo & /*info*/) {
     CC_LOG_ERROR("GLES2 doesn't support texture view");
 }
 
 void GLES2Texture::doDestroy() {
     if (_gpuTexture) {
-        GLES2CmdFuncDestroyTexture(GLES2Device::getInstance(), _gpuTexture);
+        cmdFuncGLES2DestroyTexture(GLES2Device::getInstance(), _gpuTexture);
         CC_DELETE(_gpuTexture);
         _gpuTexture = nullptr;
     }
 }
 
 void GLES2Texture::doResize(uint width, uint height, uint size) {
-    _gpuTexture->width = width;
+    _gpuTexture->width  = width;
     _gpuTexture->height = height;
-    _gpuTexture->size = size;
-    GLES2CmdFuncResizeTexture(GLES2Device::getInstance(), _gpuTexture);
+    _gpuTexture->size   = size;
+    cmdFuncGLES2ResizeTexture(GLES2Device::getInstance(), _gpuTexture);
 }
 
 } // namespace gfx

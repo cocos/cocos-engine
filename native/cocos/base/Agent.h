@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "Macros.h"
 #include <memory>
 
 namespace cc {
@@ -34,7 +35,7 @@ class CC_DLL Agent : public Actor {
 public:
     Agent() noexcept = delete;
 
-    Agent(Actor *const actor) noexcept
+    explicit Agent(Actor *const actor) noexcept
     : Actor(), _actor(actor) {}
 
     ~Agent() override {}

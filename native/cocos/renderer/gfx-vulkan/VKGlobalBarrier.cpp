@@ -31,9 +31,7 @@
 namespace cc {
 namespace gfx {
 
-CCVKGlobalBarrier::CCVKGlobalBarrier()
-: GlobalBarrier() {
-}
+CCVKGlobalBarrier::CCVKGlobalBarrier() = default;
 
 CCVKGlobalBarrier::~CCVKGlobalBarrier() {
     CC_SAFE_DELETE(_gpuBarrier);
@@ -43,12 +41,12 @@ void CCVKGlobalBarrier::doInit(const GlobalBarrierInfo &info) {
     _gpuBarrier = CC_NEW(CCVKGPUGlobalBarrier);
     _gpuBarrier->accessTypes.resize(info.prevAccesses.size() + info.nextAccesses.size());
 
-    uint index = 0u;
+    uint index = 0U;
     for (AccessType type : info.prevAccesses) {
-        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[(uint)type];
+        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[static_cast<uint>(type)];
     }
     for (AccessType type : info.nextAccesses) {
-        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[(uint)type];
+        _gpuBarrier->accessTypes[index++] = THSVS_ACCESS_TYPES[static_cast<uint>(type)];
     }
 
     _gpuBarrier->barrier.prevAccessCount = info.prevAccesses.size();

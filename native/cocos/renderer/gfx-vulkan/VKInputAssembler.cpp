@@ -26,16 +26,14 @@
 #include "VKStd.h"
 
 #include "VKBuffer.h"
-#include "VKDevice.h"
 #include "VKCommands.h"
+#include "VKDevice.h"
 #include "VKInputAssembler.h"
 
 namespace cc {
 namespace gfx {
 
-CCVKInputAssembler::CCVKInputAssembler()
-: InputAssembler() {
-}
+CCVKInputAssembler::CCVKInputAssembler() = default;
 
 CCVKInputAssembler::~CCVKInputAssembler() {
     destroy();
@@ -44,12 +42,12 @@ CCVKInputAssembler::~CCVKInputAssembler() {
 void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
     size_t vbCount = _vertexBuffers.size();
 
-    _gpuInputAssembler = CC_NEW(CCVKGPUInputAssembler);
+    _gpuInputAssembler             = CC_NEW(CCVKGPUInputAssembler);
     _gpuInputAssembler->attributes = _attributes;
     _gpuInputAssembler->gpuVertexBuffers.resize(vbCount);
 
-    for (size_t i = 0u; i < vbCount; ++i) {
-        CCVKBuffer *vb = (CCVKBuffer *)_vertexBuffers[i];
+    for (size_t i = 0U; i < vbCount; ++i) {
+        auto *vb                                = static_cast<CCVKBuffer *>(_vertexBuffers[i]);
         _gpuInputAssembler->gpuVertexBuffers[i] = vb->gpuBuffer();
     }
 
@@ -64,8 +62,8 @@ void CCVKInputAssembler::doInit(const InputAssemblerInfo &info) {
     _gpuInputAssembler->vertexBuffers.resize(vbCount);
     _gpuInputAssembler->vertexBufferOffsets.resize(vbCount);
 
-    for (size_t i = 0u; i < vbCount; i++) {
-        _gpuInputAssembler->vertexBuffers[i] = _gpuInputAssembler->gpuVertexBuffers[i]->vkBuffer;
+    for (size_t i = 0U; i < vbCount; i++) {
+        _gpuInputAssembler->vertexBuffers[i]       = _gpuInputAssembler->gpuVertexBuffers[i]->vkBuffer;
         _gpuInputAssembler->vertexBufferOffsets[i] = _gpuInputAssembler->gpuVertexBuffers[i]->startOffset;
     }
 }

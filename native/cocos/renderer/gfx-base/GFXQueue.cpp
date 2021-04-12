@@ -35,8 +35,7 @@ Queue::Queue()
 : GFXObject(ObjectType::QUEUE) {
 }
 
-Queue::~Queue() {
-}
+Queue::~Queue() = default;
 
 void Queue::initialize(const QueueInfo& info) {
     _type = info.type;

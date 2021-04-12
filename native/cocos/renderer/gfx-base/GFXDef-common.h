@@ -283,36 +283,36 @@ enum class Format {
     PVRTC2_4BPP,
 
     // ASTC (Adaptive Scalable Texture Compression)
-    ASTC_RGBA_4x4,
-    ASTC_RGBA_5x4,
-    ASTC_RGBA_5x5,
-    ASTC_RGBA_6x5,
-    ASTC_RGBA_6x6,
-    ASTC_RGBA_8x5,
-    ASTC_RGBA_8x6,
-    ASTC_RGBA_8x8,
-    ASTC_RGBA_10x5,
-    ASTC_RGBA_10x6,
-    ASTC_RGBA_10x8,
-    ASTC_RGBA_10x10,
-    ASTC_RGBA_12x10,
-    ASTC_RGBA_12x12,
+    ASTC_RGBA_4X4,
+    ASTC_RGBA_5X4,
+    ASTC_RGBA_5X5,
+    ASTC_RGBA_6X5,
+    ASTC_RGBA_6X6,
+    ASTC_RGBA_8X5,
+    ASTC_RGBA_8X6,
+    ASTC_RGBA_8X8,
+    ASTC_RGBA_10X5,
+    ASTC_RGBA_10X6,
+    ASTC_RGBA_10X8,
+    ASTC_RGBA_10X10,
+    ASTC_RGBA_12X10,
+    ASTC_RGBA_12X12,
 
     // ASTC (Adaptive Scalable Texture Compression) SRGB
-    ASTC_SRGBA_4x4,
-    ASTC_SRGBA_5x4,
-    ASTC_SRGBA_5x5,
-    ASTC_SRGBA_6x5,
-    ASTC_SRGBA_6x6,
-    ASTC_SRGBA_8x5,
-    ASTC_SRGBA_8x6,
-    ASTC_SRGBA_8x8,
-    ASTC_SRGBA_10x5,
-    ASTC_SRGBA_10x6,
-    ASTC_SRGBA_10x8,
-    ASTC_SRGBA_10x10,
-    ASTC_SRGBA_12x10,
-    ASTC_SRGBA_12x12,
+    ASTC_SRGBA_4X4,
+    ASTC_SRGBA_5X4,
+    ASTC_SRGBA_5X5,
+    ASTC_SRGBA_6X5,
+    ASTC_SRGBA_6X6,
+    ASTC_SRGBA_8X5,
+    ASTC_SRGBA_8X6,
+    ASTC_SRGBA_8X8,
+    ASTC_SRGBA_10X5,
+    ASTC_SRGBA_10X6,
+    ASTC_SRGBA_10X8,
+    ASTC_SRGBA_10X10,
+    ASTC_SRGBA_12X10,
+    ASTC_SRGBA_12X12,
 
     // Total count
     COUNT,
@@ -695,37 +695,37 @@ using ClearFlags = ClearFlagBit;
 CC_ENUM_OPERATORS(ClearFlagBit);
 
 struct Size {
-    uint x = 0u;
-    uint y = 0u;
-    uint z = 0u;
+    uint x = 0U;
+    uint y = 0U;
+    uint z = 0U;
 };
 
 struct DeviceCaps {
-    uint maxVertexAttributes            = 0u;
-    uint maxVertexUniformVectors        = 0u;
-    uint maxFragmentUniformVectors      = 0u;
-    uint maxTextureUnits                = 0u;
-    uint maxImageUnits                  = 0u;
-    uint maxVertexTextureUnits          = 0u;
-    uint maxColorRenderTargets          = 0u;
-    uint maxShaderStorageBufferBindings = 0u;
-    uint maxShaderStorageBlockSize      = 0u;
-    uint maxUniformBufferBindings       = 0u;
-    uint maxUniformBlockSize            = 0u;
-    uint maxTextureSize                 = 0u;
-    uint maxCubeMapTextureSize          = 0u;
-    uint depthBits                      = 0u;
-    uint stencilBits                    = 0u;
-    uint uboOffsetAlignment             = 1u;
+    uint maxVertexAttributes            = 0U;
+    uint maxVertexUniformVectors        = 0U;
+    uint maxFragmentUniformVectors      = 0U;
+    uint maxTextureUnits                = 0U;
+    uint maxImageUnits                  = 0U;
+    uint maxVertexTextureUnits          = 0U;
+    uint maxColorRenderTargets          = 0U;
+    uint maxShaderStorageBufferBindings = 0U;
+    uint maxShaderStorageBlockSize      = 0U;
+    uint maxUniformBufferBindings       = 0U;
+    uint maxUniformBlockSize            = 0U;
+    uint maxTextureSize                 = 0U;
+    uint maxCubeMapTextureSize          = 0U;
+    uint depthBits                      = 0U;
+    uint stencilBits                    = 0U;
+    uint uboOffsetAlignment             = 1U;
 
-    uint maxComputeSharedMemorySize     = 0u;
-    uint maxComputeWorkGroupInvocations = 0u;
+    uint maxComputeSharedMemorySize     = 0U;
+    uint maxComputeWorkGroupInvocations = 0U;
     Size maxComputeWorkGroupSize;
     Size maxComputeWorkGroupCount;
 
-    float clipSpaceMinZ    = -1.0f;
-    float screenSpaceSignY = 1.0f;
-    float UVSpaceSignY     = -1.0f;
+    float clipSpaceMinZ    = -1.0F;
+    float screenSpaceSignY = 1.0F;
+    float UVSpaceSignY     = -1.0F;
 };
 
 struct Offset {
@@ -737,41 +737,38 @@ struct Offset {
 struct Rect {
     int  x      = 0;
     int  y      = 0;
-    uint width  = 0u;
-    uint height = 0u;
+    uint width  = 0U;
+    uint height = 0U;
 
-    bool operator==(const Rect &rs) {
-        if (x == rs.x &&
-            y == rs.y &&
-            width == rs.width &&
-            height == rs.height) {
-            return true;
-        } else
-            return false;
+    bool operator==(const Rect &rs) const {
+        return x == rs.x &&
+               y == rs.y &&
+               width == rs.width &&
+               height == rs.height;
     }
 
-    bool operator!=(const Rect &rs) {
+    bool operator!=(const Rect &rs) const {
         return !(*this == rs);
     }
 };
 
 struct Extent {
-    uint width  = 0u;
-    uint height = 0u;
-    uint depth  = 1u;
+    uint width  = 0U;
+    uint height = 0U;
+    uint depth  = 1U;
 };
 
 struct TextureSubresLayers {
-    uint mipLevel       = 0u;
-    uint baseArrayLayer = 0u;
-    uint layerCount     = 1u;
+    uint mipLevel       = 0U;
+    uint baseArrayLayer = 0U;
+    uint layerCount     = 1U;
 };
 
 struct TextureSubresRange {
-    uint baseMipLevel   = 0u;
-    uint levelCount     = 1u;
-    uint baseArrayLayer = 0u;
-    uint layerCount     = 1u;
+    uint baseMipLevel   = 0U;
+    uint levelCount     = 1U;
+    uint baseArrayLayer = 0U;
+    uint layerCount     = 1U;
 };
 
 struct TextureCopy {
@@ -806,10 +803,10 @@ struct Viewport {
     int   top      = 0;
     uint  width    = 0;
     uint  height   = 0;
-    float minDepth = 0.0f;
-    float maxDepth = 1.0f;
+    float minDepth = 0.0F;
+    float maxDepth = 1.0F;
 
-    bool operator==(const Viewport &rs) {
+    bool operator==(const Viewport &rs) const {
         return (left == rs.left &&
                 top == rs.top &&
                 width == rs.width &&
@@ -818,18 +815,18 @@ struct Viewport {
                 math::IsEqualF(maxDepth, maxDepth));
     }
 
-    bool operator!=(const Viewport &rs) {
+    bool operator!=(const Viewport &rs) const {
         return !(*this == rs);
     }
 };
 
 struct Color {
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
-    float w = 0.0f;
+    float x = 0.0F;
+    float y = 0.0F;
+    float z = 0.0F;
+    float w = 0.0F;
 
-    bool operator==(const Color &rhs) {
+    bool operator==(const Color &rhs) const {
         return (math::IsEqualF(x, rhs.x) &&
                 math::IsEqualF(y, rhs.y) &&
                 math::IsEqualF(z, rhs.z) &&
@@ -852,42 +849,42 @@ using ColorList = vector<Color>;
 struct BindingMappingInfo {
     std::vector<int> bufferOffsets;
     std::vector<int> samplerOffsets;
-    uint             flexibleSet = 0u;
+    uint             flexibleSet = 0U;
 };
 
 struct BufferInfo {
     BufferUsage usage    = BufferUsageBit::NONE;
     MemoryUsage memUsage = MemoryUsageBit::NONE;
-    uint        size     = 0u;
-    uint        stride   = 0u; // in bytes
+    uint        size     = 0U;
+    uint        stride   = 0U; // in bytes
     BufferFlags flags    = BufferFlagBit::NONE;
 };
 
 struct BufferViewInfo {
     Buffer *buffer = nullptr;
-    uint    offset = 0u;
-    uint    range  = 0u;
+    uint    offset = 0U;
+    uint    range  = 0U;
 };
 
 struct DrawInfo {
-    uint vertexCount   = 0u;
-    uint firstVertex   = 0u;
-    uint indexCount    = 0u;
-    uint firstIndex    = 0u;
-    uint vertexOffset  = 0u;
-    uint instanceCount = 0u;
-    uint firstInstance = 0u;
+    uint vertexCount   = 0U;
+    uint firstVertex   = 0U;
+    uint indexCount    = 0U;
+    uint firstIndex    = 0U;
+    uint vertexOffset  = 0U;
+    uint instanceCount = 0U;
+    uint firstInstance = 0U;
 };
 
 using DrawInfoList = vector<DrawInfo>;
 
 struct DispatchInfo {
-    uint groupCountX = 0u;
-    uint groupCountY = 0u;
-    uint groupCountZ = 0u;
+    uint groupCountX = 0U;
+    uint groupCountY = 0U;
+    uint groupCountZ = 0U;
 
     Buffer *indirectBuffer = nullptr; // @ts-nullable
-    uint    indirectOffset = 0u;
+    uint    indirectOffset = 0U;
 };
 
 using DispatchInfoList = vector<DispatchInfo>;
@@ -900,23 +897,23 @@ struct TextureInfo {
     TextureType  type       = TextureType::TEX2D;
     TextureUsage usage      = TextureUsageBit::NONE;
     Format       format     = Format::UNKNOWN;
-    uint         width      = 0u;
-    uint         height     = 0u;
+    uint         width      = 0U;
+    uint         height     = 0U;
     TextureFlags flags      = TextureFlagBit::NONE;
-    uint         layerCount = 1u;
-    uint         levelCount = 1u;
+    uint         layerCount = 1U;
+    uint         levelCount = 1U;
     SampleCount  samples    = SampleCount::X1;
-    uint         depth      = 1u;
+    uint         depth      = 1U;
 };
 
 struct TextureViewInfo {
     Texture *   texture    = nullptr;
     TextureType type       = TextureType::TEX2D;
     Format      format     = Format::UNKNOWN;
-    uint        baseLevel  = 0u;
-    uint        levelCount = 1u;
-    uint        baseLayer  = 0u;
-    uint        layerCount = 1u;
+    uint        baseLevel  = 0U;
+    uint        levelCount = 1U;
+    uint        baseLayer  = 0U;
+    uint        layerCount = 1U;
 };
 
 struct SamplerInfo {
@@ -926,85 +923,85 @@ struct SamplerInfo {
     Address        addressU      = Address::WRAP;
     Address        addressV      = Address::WRAP;
     Address        addressW      = Address::WRAP;
-    uint           maxAnisotropy = 0u;
+    uint           maxAnisotropy = 0U;
     ComparisonFunc cmpFunc       = ComparisonFunc::ALWAYS;
     Color          borderColor;
-    float          mipLODBias = 0.0f;
+    float          mipLODBias = 0.0F;
 };
 
 struct Uniform {
     String name;
     Type   type  = Type::UNKNOWN;
-    uint   count = 0u;
+    uint   count = 0U;
 };
 
 using UniformList = vector<Uniform>;
 
 struct UniformBlock {
-    uint        set     = 0u;
-    uint        binding = 0u;
+    uint        set     = 0U;
+    uint        binding = 0U;
     String      name;
     UniformList members;
-    uint        count = 0u;
+    uint        count = 0U;
 };
 
 using UniformBlockList = vector<UniformBlock>;
 
 struct UniformSamplerTexture {
-    uint   set     = 0u;
-    uint   binding = 0u;
+    uint   set     = 0U;
+    uint   binding = 0U;
     String name;
     Type   type  = Type::UNKNOWN;
-    uint   count = 0u;
+    uint   count = 0U;
 };
 
 using UniformSamplerTextureList = vector<UniformSamplerTexture>;
 
 struct UniformSampler {
-    uint   set     = 0u;
-    uint   binding = 0u;
+    uint   set     = 0U;
+    uint   binding = 0U;
     String name;
-    uint   count = 0u;
+    uint   count = 0U;
 };
 
 using UniformSamplerList = vector<UniformSampler>;
 
 struct UniformTexture {
-    uint   set     = 0u;
-    uint   binding = 0u;
+    uint   set     = 0U;
+    uint   binding = 0U;
     String name;
     Type   type  = Type::UNKNOWN;
-    uint   count = 0u;
+    uint   count = 0U;
 };
 
 using UniformTextureList = vector<UniformTexture>;
 
 struct UniformStorageImage {
-    uint         set     = 0u;
-    uint         binding = 0u;
+    uint         set     = 0U;
+    uint         binding = 0U;
     String       name;
     Type         type         = Type::UNKNOWN;
-    uint         count        = 0u;
+    uint         count        = 0U;
     MemoryAccess memoryAccess = MemoryAccessBit::READ_WRITE;
 };
 
 using UniformStorageImageList = vector<UniformStorageImage>;
 
 struct UniformStorageBuffer {
-    uint         set     = 0u;
-    uint         binding = 0u;
+    uint         set     = 0U;
+    uint         binding = 0U;
     String       name;
-    uint         count        = 0u;
+    uint         count        = 0U;
     MemoryAccess memoryAccess = MemoryAccessBit::READ_WRITE;
 };
 
 using UniformStorageBufferList = vector<UniformStorageBuffer>;
 
 struct UniformInputAttachment {
-    uint   set     = 0u;
-    uint   binding = 0u;
+    uint   set     = 0U;
+    uint   binding = 0U;
     String name;
-    uint   count = 0u;
+    uint   count = 0U;
 };
 
 using UniformInputAttachmentList = vector<UniformInputAttachment>;
@@ -1054,23 +1051,6 @@ struct ColorAttachment {
     StoreOp                 storeOp     = StoreOp::STORE;
     std::vector<AccessType> beginAccesses;
     std::vector<AccessType> endAccesses{AccessType::PRESENT};
-
-    // vector constructor with initializer list is not noexcept
-    //ColorAttachment() noexcept = default; // this does not work for MSVC intellisense
-    ColorAttachment(
-        Format                  format_        = Format::UNKNOWN,
-        SampleCount             sampleCount_   = SampleCount::X1,
-        LoadOp                  loadOp_        = LoadOp::CLEAR,
-        StoreOp                 storeOp_       = StoreOp::STORE,
-        std::vector<AccessType> beginAccesses_ = {},
-        std::vector<AccessType> endAccesses_   = {AccessType::PRESENT}) noexcept {
-        format        = format_;
-        sampleCount   = sampleCount_;
-        loadOp        = loadOp_;
-        storeOp       = storeOp_;
-        beginAccesses = beginAccesses_;
-        endAccesses   = endAccesses_;
-    }
 };
 
 using ColorAttachmentList = vector<ColorAttachment>;
@@ -1084,27 +1064,6 @@ struct DepthStencilAttachment {
     StoreOp                 stencilStoreOp = StoreOp::STORE;
     std::vector<AccessType> beginAccesses;
     std::vector<AccessType> endAccesses{AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
-
-    // vector constructor with initializer list is not noexcept
-    //DepthStencilAttachment() noexcept = default; // this does not work for MSVC intellisense
-    DepthStencilAttachment(
-        Format                  format_         = Format::UNKNOWN,
-        SampleCount             sampleCount_    = SampleCount::X1,
-        LoadOp                  depthLoadOp_    = LoadOp::CLEAR,
-        StoreOp                 depthStoreOp_   = StoreOp::STORE,
-        LoadOp                  stencilLoadOp_  = LoadOp::CLEAR,
-        StoreOp                 stencilStoreOp_ = StoreOp::STORE,
-        std::vector<AccessType> beginAccesses_  = {},
-        std::vector<AccessType> endAccesses_    = {AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE}) noexcept {
-        format         = format_;
-        sampleCount    = sampleCount_;
-        depthLoadOp    = depthLoadOp_;
-        depthStoreOp   = depthStoreOp_;
-        stencilLoadOp  = stencilLoadOp_;
-        stencilStoreOp = stencilStoreOp_;
-        beginAccesses  = beginAccesses_;
-        endAccesses    = endAccesses_;
-    }
 };
 
 struct SubpassInfo {
@@ -1181,12 +1140,12 @@ struct RasterizerState {
     CullMode    cullMode         = CullMode::BACK;
     uint        isFrontFaceCCW   = 1;
     uint        depthBiasEnabled = 0;
-    float       depthBias        = 0.0f;
-    float       depthBiasClamp   = 0.0f;
-    float       depthBiasSlop    = 0.0f;
+    float       depthBias        = 0.0F;
+    float       depthBiasClamp   = 0.0F;
+    float       depthBiasSlop    = 0.0F;
     uint        isDepthClip      = 1;
     uint        isMultisample    = 0;
-    float       lineWidth        = 1.0f;
+    float       lineWidth        = 1.0F;
 };
 
 // Use uint for all boolean values to convert memory to DepthStencilState* in shared memory.

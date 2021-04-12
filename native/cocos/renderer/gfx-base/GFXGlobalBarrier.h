@@ -33,7 +33,7 @@ namespace gfx {
 class CC_DLL GlobalBarrier : public GFXObject {
 public:
     GlobalBarrier();
-    virtual ~GlobalBarrier();
+    ~GlobalBarrier() override;
 
     static uint computeHash(const GlobalBarrierInfo &info);
 
@@ -44,7 +44,9 @@ protected:
 
     virtual void doInit(const GlobalBarrierInfo &info) {}
 
-    void initialize(const GlobalBarrierInfo &info) { _info = info; doInit(info); }
+    void initialize(const GlobalBarrierInfo &info) {
+        _info = info; doInit(info);
+    }
 
     GlobalBarrierInfo _info;
 };

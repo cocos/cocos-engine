@@ -37,21 +37,20 @@ Texture::Texture()
     _textureID = generateTextureID();
 }
 
-Texture::~Texture() {
-}
+Texture::~Texture() = default;
 
 uint Texture::computeHash(const TextureInfo &info) {
     uint seed = 10;
-    seed ^= (uint)(info.type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.width) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.height) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.layerCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.levelCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.samples) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-    seed ^= (uint)(info.depth) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint>(info.type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint>(info.usage) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint>(info.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (info.width) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (info.height) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint>(info.flags) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (info.layerCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (info.levelCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= static_cast<uint>(info.samples) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= (info.depth) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     return seed;
 }
 
@@ -66,7 +65,7 @@ void Texture::initialize(const TextureInfo &info) {
     _levelCount = info.levelCount;
     _samples    = info.samples;
     _flags      = info.flags;
-    _size       = FormatSize(_format, _width, _height, _depth);
+    _size       = formatSize(_format, _width, _height, _depth);
 
     Device::getInstance()->getMemoryStatus().textureSize += _size;
 
@@ -88,7 +87,7 @@ void Texture::initialize(const TextureViewInfo &info) {
     _depth         = info.texture->getDepth();
     _samples       = info.texture->getSamples();
     _flags         = info.texture->getFlags();
-    _size          = FormatSize(_format, _width, _height, _depth);
+    _size          = formatSize(_format, _width, _height, _depth);
     _isTextureView = true;
 
     doInit(info);
@@ -105,7 +104,7 @@ void Texture::destroy() {
 
 void Texture::resize(uint width, uint height) {
     if (_width != width || _height != height) {
-        uint size = FormatSize(_format, width, height, _depth);
+        uint size = formatSize(_format, width, height, _depth);
         doResize(width, height, size);
 
         Device::getInstance()->getMemoryStatus().textureSize -= _size;

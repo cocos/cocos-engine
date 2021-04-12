@@ -88,15 +88,15 @@ public:
     uint             getNumTris() const override { return _actor->getNumTris(); }
 
     inline void enableRecording(bool recording) { _recording = recording; }
-    inline bool isRecording() { return _recording; }
-    inline uint currentFrame() { return _currentFrame; }
+    inline bool isRecording() const { return _recording; }
+    inline uint currentFrame() const { return _currentFrame; }
 
 protected:
-    static DeviceValidator *_instance;
+    static DeviceValidator *instance;
 
     friend class DeviceManager;
 
-    DeviceValidator(Device *device);
+    explicit DeviceValidator(Device *device);
 
     bool doInit(const DeviceInfo &info) override;
     void doDestroy() override;
@@ -108,7 +108,7 @@ protected:
     void bindDeviceContext(bool bound) override { _actor->bindDeviceContext(bound); }
 
     bool _recording{false};
-    uint _currentFrame{1u};
+    uint _currentFrame{1U};
 };
 
 } // namespace gfx

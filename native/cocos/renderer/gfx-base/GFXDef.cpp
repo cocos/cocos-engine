@@ -44,7 +44,7 @@ const DescriptorType DESCRIPTOR_TEXTURE_TYPE = DescriptorType::SAMPLER_TEXTURE |
 const DescriptorType DESCRIPTOR_DYNAMIC_TYPE = DescriptorType::DYNAMIC_STORAGE_BUFFER |
                                                DescriptorType::DYNAMIC_UNIFORM_BUFFER;
 
-const uint DRAW_INFO_SIZE = 28u;
+const uint DRAW_INFO_SIZE = 28U;
 
 const FormatInfo GFX_FORMAT_INFOS[] = {
     {"UNKNOWN", 0, 0, FormatType::NONE, false, false, false, false},
@@ -148,136 +148,134 @@ const FormatInfo GFX_FORMAT_INFOS[] = {
     {"PVRTC2_2BPP", 2, 4, FormatType::UNORM, true, false, false, true},
     {"PVRTC2_4BPP", 2, 4, FormatType::UNORM, true, false, false, true},
 
-    {"ASTC_RGBA_4x4", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_5x4", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_5x5", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_6x5", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_6x6", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_8x5", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_8x6", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_8x8", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_10x5", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_10x6", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_10x8", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_10x10", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_12x10", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_RGBA_12x12", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_4X4", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_5X4", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_5X5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_6X5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_6X6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_8X5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_8X6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_8X8", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_10X5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_10X6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_10X8", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_10X10", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_12X10", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_RGBA_12X12", 1, 4, FormatType::UNORM, true, false, false, true},
 
-    {"ASTC_SRGBA_4x4", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_5x4", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_5x5", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_6x5", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_6x6", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_8x5", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_8x6", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_8x8", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_10x5", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_10x6", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_10x8", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_10x10", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_12x10", 1, 4, FormatType::UNORM, true, false, false, true},
-    {"ASTC_SRGBA_12x12", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_4X4", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_5X4", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_5X5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_6X5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_6X6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_8X5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_8X6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_8X8", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_10X5", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_10X6", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_10X8", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_10X10", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_12X10", 1, 4, FormatType::UNORM, true, false, false, true},
+    {"ASTC_SRGBA_12X12", 1, 4, FormatType::UNORM, true, false, false, true},
 };
 
 bool isCombinedImageSampler(Type type) { return type >= Type::SAMPLER1D && type <= Type::SAMPLER_CUBE; }
 bool isSampledImage(Type type) { return type >= Type::TEXTURE1D && type <= Type::TEXTURE_CUBE; }
 bool isStorageImage(Type type) { return type >= Type::IMAGE1D && type <= Type::IMAGE_CUBE; }
 
-uint FormatSize(Format format, uint width, uint height, uint depth) {
+uint ceilDiv(uint x, uint y) { return (x - 1) / y + 1; }
 
-    if (!GFX_FORMAT_INFOS[(uint)format].isCompressed) {
-        return (width * height * depth * GFX_FORMAT_INFOS[(uint)format].size);
-    } else {
-        switch (format) {
-            case Format::BC1:
-            case Format::BC1_ALPHA:
-            case Format::BC1_SRGB:
-            case Format::BC1_SRGB_ALPHA:
-                return (uint)std::ceil(width / 4) * (uint)std::ceil(height / 4) * 8 * depth;
-            case Format::BC2:
-            case Format::BC2_SRGB:
-            case Format::BC3:
-            case Format::BC3_SRGB:
-            case Format::BC4:
-            case Format::BC4_SNORM:
-            case Format::BC6H_SF16:
-            case Format::BC6H_UF16:
-            case Format::BC7:
-            case Format::BC7_SRGB:
-                return (uint)std::ceil(width / 4) * (uint)std::ceil(height / 4) * 16 * depth;
-            case Format::BC5:
-            case Format::BC5_SNORM:
-                return (uint)std::ceil(width / 4) * (uint)std::ceil(height / 4) * 32 * depth;
+uint formatSize(Format format, uint width, uint height, uint depth) {
+    if (!GFX_FORMAT_INFOS[static_cast<uint>(format)].isCompressed) {
+        return (width * height * depth * GFX_FORMAT_INFOS[static_cast<uint>(format)].size);
+    }
+    switch (format) {
+        case Format::BC1:
+        case Format::BC1_ALPHA:
+        case Format::BC1_SRGB:
+        case Format::BC1_SRGB_ALPHA:
+            return ceilDiv(width, 4) * ceilDiv(height, 4) * 8 * depth;
+        case Format::BC2:
+        case Format::BC2_SRGB:
+        case Format::BC3:
+        case Format::BC3_SRGB:
+        case Format::BC4:
+        case Format::BC4_SNORM:
+        case Format::BC6H_SF16:
+        case Format::BC6H_UF16:
+        case Format::BC7:
+        case Format::BC7_SRGB:
+            return ceilDiv(width, 4) * ceilDiv(height, 4) * 16 * depth;
+        case Format::BC5:
+        case Format::BC5_SNORM:
+            return ceilDiv(width, 4) * ceilDiv(height, 4) * 32 * depth;
 
-            case Format::ETC_RGB8:
-            case Format::ETC2_RGB8:
-            case Format::ETC2_SRGB8:
-            case Format::ETC2_RGB8_A1:
-            case Format::EAC_R11:
-            case Format::EAC_R11SN:
-                return (uint)std::ceil((float)width / 4) * (uint)std::ceil((float)height / 4) * 8 * depth;
-            case Format::ETC2_RGBA8:
-            case Format::ETC2_SRGB8_A1:
-            case Format::EAC_RG11:
-            case Format::EAC_RG11SN:
-                return (uint)std::ceil((float)width / 4) * (uint)std::ceil((float)height / 4) * 16 * depth;
+        case Format::ETC_RGB8:
+        case Format::ETC2_RGB8:
+        case Format::ETC2_SRGB8:
+        case Format::ETC2_RGB8_A1:
+        case Format::EAC_R11:
+        case Format::EAC_R11SN:
+            return ceilDiv(width, 4) * ceilDiv(height, 4) * 8 * depth;
+        case Format::ETC2_RGBA8:
+        case Format::ETC2_SRGB8_A1:
+        case Format::EAC_RG11:
+        case Format::EAC_RG11SN:
+            return ceilDiv(width, 4) * ceilDiv(height, 4) * 16 * depth;
 
-            case Format::PVRTC_RGB2:
-            case Format::PVRTC_RGBA2:
-            case Format::PVRTC2_2BPP:
-                return (uint)std::ceil(std::max(width, 16U) * std::max(height, 8U) / 4) * depth;
-            case Format::PVRTC_RGB4:
-            case Format::PVRTC_RGBA4:
-            case Format::PVRTC2_4BPP:
-                return (uint)std::ceil(std::max(width, 16U) * std::max(height, 8U) / 2) * depth;
+        case Format::PVRTC_RGB2:
+        case Format::PVRTC_RGBA2:
+        case Format::PVRTC2_2BPP:
+            return ceilDiv(std::max(width, 16U) * std::max(height, 8U), 4) * depth;
+        case Format::PVRTC_RGB4:
+        case Format::PVRTC_RGBA4:
+        case Format::PVRTC2_4BPP:
+            return ceilDiv(std::max(width, 16U) * std::max(height, 8U), 2) * depth;
 
-            case Format::ASTC_RGBA_4x4:
-            case Format::ASTC_SRGBA_4x4:
-                return (uint)std::ceil((float)width / 4) * (uint)std::ceil((float)height / 4) * 16 * depth;
-            case Format::ASTC_RGBA_5x4:
-            case Format::ASTC_SRGBA_5x4:
-                return (uint)std::ceil((float)width / 5) * (uint)std::ceil((float)height / 4) * 16 * depth;
-            case Format::ASTC_RGBA_5x5:
-            case Format::ASTC_SRGBA_5x5:
-                return (uint)std::ceil((float)width / 5) * (uint)std::ceil((float)height / 5) * 16 * depth;
-            case Format::ASTC_RGBA_6x5:
-            case Format::ASTC_SRGBA_6x5:
-                return (uint)std::ceil((float)width / 6) * (uint)std::ceil((float)height / 5) * 16 * depth;
-            case Format::ASTC_RGBA_6x6:
-            case Format::ASTC_SRGBA_6x6:
-                return (uint)std::ceil((float)width / 6) * (uint)std::ceil((float)height / 6) * 16 * depth;
-            case Format::ASTC_RGBA_8x5:
-            case Format::ASTC_SRGBA_8x5:
-                return (uint)std::ceil((float)width / 8) * (uint)std::ceil((float)height / 5) * 16 * depth;
-            case Format::ASTC_RGBA_8x6:
-            case Format::ASTC_SRGBA_8x6:
-                return (uint)std::ceil((float)width / 8) * (uint)std::ceil((float)height / 6) * 16 * depth;
-            case Format::ASTC_RGBA_8x8:
-            case Format::ASTC_SRGBA_8x8:
-                return (uint)std::ceil((float)width / 8) * (uint)std::ceil((float)height / 8) * 16 * depth;
-            case Format::ASTC_RGBA_10x5:
-            case Format::ASTC_SRGBA_10x5:
-                return (uint)std::ceil((float)width / 10) * (uint)std::ceil((float)height / 5) * 16 * depth;
-            case Format::ASTC_RGBA_10x6:
-            case Format::ASTC_SRGBA_10x6:
-                return (uint)std::ceil((float)width / 10) * (uint)std::ceil((float)height / 6) * 16 * depth;
-            case Format::ASTC_RGBA_10x8:
-            case Format::ASTC_SRGBA_10x8:
-                return (uint)std::ceil((float)width / 10) * (uint)std::ceil((float)height / 8) * 16 * depth;
-            case Format::ASTC_RGBA_10x10:
-            case Format::ASTC_SRGBA_10x10:
-                return (uint)std::ceil((float)width / 10) * (uint)std::ceil((float)height / 10) * 16 * depth;
-            case Format::ASTC_RGBA_12x10:
-            case Format::ASTC_SRGBA_12x10:
-                return (uint)std::ceil((float)width / 12) * (uint)std::ceil((float)height / 10) * 16 * depth;
-            case Format::ASTC_RGBA_12x12:
-            case Format::ASTC_SRGBA_12x12:
-                return (uint)std::ceil((float)width / 12) * (uint)std::ceil((float)height / 12) * 16 * depth;
-
-            default: {
-                return 0;
-            }
-        }
+        case Format::ASTC_RGBA_4X4:
+        case Format::ASTC_SRGBA_4X4:
+            return ceilDiv(width, 4) * ceilDiv(height, 4) * 16 * depth;
+        case Format::ASTC_RGBA_5X4:
+        case Format::ASTC_SRGBA_5X4:
+            return ceilDiv(width, 5) * ceilDiv(height, 4) * 16 * depth;
+        case Format::ASTC_RGBA_5X5:
+        case Format::ASTC_SRGBA_5X5:
+            return ceilDiv(width, 5) * ceilDiv(height, 5) * 16 * depth;
+        case Format::ASTC_RGBA_6X5:
+        case Format::ASTC_SRGBA_6X5:
+            return ceilDiv(width, 6) * ceilDiv(height, 5) * 16 * depth;
+        case Format::ASTC_RGBA_6X6:
+        case Format::ASTC_SRGBA_6X6:
+            return ceilDiv(width, 6) * ceilDiv(height, 6) * 16 * depth;
+        case Format::ASTC_RGBA_8X5:
+        case Format::ASTC_SRGBA_8X5:
+            return ceilDiv(width, 8) * ceilDiv(height, 5) * 16 * depth;
+        case Format::ASTC_RGBA_8X6:
+        case Format::ASTC_SRGBA_8X6:
+            return ceilDiv(width, 8) * ceilDiv(height, 6) * 16 * depth;
+        case Format::ASTC_RGBA_8X8:
+        case Format::ASTC_SRGBA_8X8:
+            return ceilDiv(width, 8) * ceilDiv(height, 8) * 16 * depth;
+        case Format::ASTC_RGBA_10X5:
+        case Format::ASTC_SRGBA_10X5:
+            return ceilDiv(width, 10) * ceilDiv(height, 5) * 16 * depth;
+        case Format::ASTC_RGBA_10X6:
+        case Format::ASTC_SRGBA_10X6:
+            return ceilDiv(width, 10) * ceilDiv(height, 6) * 16 * depth;
+        case Format::ASTC_RGBA_10X8:
+        case Format::ASTC_SRGBA_10X8:
+            return ceilDiv(width, 10) * ceilDiv(height, 8) * 16 * depth;
+        case Format::ASTC_RGBA_10X10:
+        case Format::ASTC_SRGBA_10X10:
+            return ceilDiv(width, 10) * ceilDiv(height, 10) * 16 * depth;
+        case Format::ASTC_RGBA_12X10:
+        case Format::ASTC_SRGBA_12X10:
+            return ceilDiv(width, 12) * ceilDiv(height, 10) * 16 * depth;
+        case Format::ASTC_RGBA_12X12:
+        case Format::ASTC_SRGBA_12X12:
+            return ceilDiv(width, 12) * ceilDiv(height, 12) * 16 * depth;
+        default:
+            return 0;
     }
 }
 
@@ -316,12 +314,11 @@ const uint GFX_TYPE_SIZES[] = {
     4,  // SAMPLER_CUBE
 };
 
-uint FormatSurfaceSize(Format format, uint width, uint height, uint depth, uint mips) {
-
+uint formatSurfaceSize(Format format, uint width, uint height, uint depth, uint mips) {
     uint size = 0;
 
     for (uint i = 0; i < mips; ++i) {
-        size += FormatSize(format, width, height, depth);
+        size += formatSize(format, width, height, depth);
         width  = std::max(width >> 1, 1U);
         height = std::max(height >> 1, 1U);
     }

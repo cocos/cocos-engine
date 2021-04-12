@@ -35,18 +35,17 @@ DescriptorSetLayout::DescriptorSetLayout()
 : GFXObject(ObjectType::DESCRIPTOR_SET_LAYOUT) {
 }
 
-DescriptorSetLayout::~DescriptorSetLayout() {
-}
+DescriptorSetLayout::~DescriptorSetLayout() = default;
 
 void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
     _bindings         = info.bindings;
     uint bindingCount = _bindings.size();
-    _descriptorCount  = 0u;
+    _descriptorCount  = 0U;
 
     if (bindingCount) {
-        uint         maxBinding = 0u;
+        uint         maxBinding = 0U;
         vector<uint> flattenedIndices(bindingCount);
-        for (uint i = 0u; i < bindingCount; i++) {
+        for (uint i = 0U; i < bindingCount; i++) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
             flattenedIndices[i]                       = _descriptorCount;
             _descriptorCount += binding.count;
@@ -55,7 +54,7 @@ void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
 
         _bindingIndices.resize(maxBinding + 1, GFX_INVALID_BINDING);
         _descriptorIndices.resize(maxBinding + 1, GFX_INVALID_BINDING);
-        for (uint i = 0u; i < bindingCount; i++) {
+        for (uint i = 0U; i < bindingCount; i++) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
             _bindingIndices[binding.binding]          = i;
             _descriptorIndices[binding.binding]       = flattenedIndices[i];
@@ -69,7 +68,7 @@ void DescriptorSetLayout::destroy() {
     doDestroy();
 
     _bindings.clear();
-    _descriptorCount = 0u;
+    _descriptorCount = 0U;
     _bindingIndices.clear();
     _descriptorIndices.clear();
 }

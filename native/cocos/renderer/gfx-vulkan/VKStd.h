@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __CC_GFXVULKAN_VK_STD_H__
-#define __CC_GFXVULKAN_VK_STD_H__
+#pragma once
 
 #include "base/CoreStd.h"
 
@@ -54,6 +53,4 @@
 
 #else
 #define VK_CHECK(x) x
-#endif
-
 #endif

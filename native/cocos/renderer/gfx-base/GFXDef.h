@@ -55,11 +55,11 @@ enum class VsyncMode {
 };
 
 struct DeviceInfo {
-    uintptr_t          windowHandle = 0;
-    uint               width        = 0;
-    uint               height       = 0;
-    uint               nativeWidth  = 0;
-    uint               nativeHeight = 0;
+    uintptr_t          windowHandle = 0U;
+    uint               width        = 0U;
+    uint               height       = 0U;
+    uint               nativeWidth  = 0U;
+    uint               nativeHeight = 0U;
     BindingMappingInfo bindingMappingInfo;
 };
 
@@ -72,14 +72,14 @@ struct ContextInfo {
 extern const DescriptorType DESCRIPTOR_BUFFER_TYPE;
 extern const DescriptorType DESCRIPTOR_TEXTURE_TYPE;
 extern const DescriptorType DESCRIPTOR_DYNAMIC_TYPE;
-extern const uint DRAW_INFO_SIZE;
+extern const uint           DRAW_INFO_SIZE;
 
 extern const FormatInfo GFX_FORMAT_INFOS[];
 extern const uint       GFX_TYPE_SIZES[];
 
-extern uint FormatSize(Format format, uint width, uint height, uint depth);
+extern uint formatSize(Format format, uint width, uint height, uint depth);
 
-extern uint FormatSurfaceSize(Format format, uint width, uint height, uint depth, uint mips);
+extern uint formatSurfaceSize(Format format, uint width, uint height, uint depth, uint mips);
 
 } // namespace gfx
 } // namespace cc

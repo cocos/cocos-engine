@@ -131,7 +131,7 @@ void CommandBufferValidator::execute(CommandBuffer *const *cmdBuffs, uint32_t co
     static vector<CommandBuffer *> cmdBuffActors;
     cmdBuffActors.resize(count);
 
-    for (uint i = 0u; i < count; ++i) {
+    for (uint i = 0U; i < count; ++i) {
         cmdBuffActors[i] = static_cast<CommandBufferValidator *>(cmdBuffs[i])->getActor();
     }
 
@@ -182,19 +182,19 @@ void CommandBufferValidator::setStencilCompareMask(StencilFace face, int ref, ui
     _actor->setStencilCompareMask(face, ref, mask);
 }
 
-void CommandBufferValidator::draw(InputAssembler *ia) {
+void CommandBufferValidator::draw(const DrawInfo &info) {
     CCASSERT(_insideRenderPass, "Command 'draw' must be recorded inside render passes.");
 
     /////////// execute ///////////
 
-    _actor->draw(static_cast<InputAssemblerValidator *>(ia)->getActor());
+    _actor->draw(info);
 }
 
 void CommandBufferValidator::updateBuffer(Buffer *buff, const void *data, uint size) {
     CCASSERT(_type == CommandBufferType::PRIMARY, "Command 'updateBuffer' must be recorded in primary command buffers.");
     CCASSERT(!_insideRenderPass, "Command 'updateBuffer' must be recorded outside render passes.");
 
-    auto bufferValidator = static_cast<BufferValidator *>(buff);
+    auto *bufferValidator = static_cast<BufferValidator *>(buff);
     bufferValidator->updateRedundencyCheck();
 
     /////////// execute ///////////
@@ -206,7 +206,7 @@ void CommandBufferValidator::copyBuffersToTexture(const uint8_t *const *buffers,
     CCASSERT(_type == CommandBufferType::PRIMARY, "Command 'copyBuffersToTexture' must be recorded in primary command buffers.");
     CCASSERT(!_insideRenderPass, "Command 'copyBuffersToTexture' must be recorded outside render passes.");
 
-    auto textureValidator = static_cast<TextureValidator *>(texture);
+    auto *textureValidator = static_cast<TextureValidator *>(texture);
     textureValidator->updateRedundencyCheck();
 
     /////////// execute ///////////
@@ -248,7 +248,7 @@ void CommandBufferValidator::pipelineBarrier(const GlobalBarrier *barrier, const
     Texture **actorTextures = nullptr;
     if (textureBarrierCount) {
         actorTextures = textureActors.data();
-        for (uint i = 0u; i < textureBarrierCount; ++i) {
+        for (uint i = 0U; i < textureBarrierCount; ++i) {
             actorTextures[i] = textures[i] ? static_cast<const TextureValidator *>(textures[i])->getActor() : nullptr;
         }
     }

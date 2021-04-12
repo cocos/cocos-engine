@@ -39,15 +39,11 @@
 namespace cc {
 namespace gfx {
 
-GLES3PrimaryCommandBuffer::GLES3PrimaryCommandBuffer()
-: GLES3CommandBuffer() {
-}
-
 GLES3PrimaryCommandBuffer::~GLES3PrimaryCommandBuffer() {
     destroy();
 }
 
-void GLES3PrimaryCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+void GLES3PrimaryCommandBuffer::begin(RenderPass * /*renderPass*/, uint /*subpass*/, Framebuffer * /*frameBuffer*/) {
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
@@ -59,45 +55,44 @@ void GLES3PrimaryCommandBuffer::begin(RenderPass *renderPass, uint subpass, Fram
 
 void GLES3PrimaryCommandBuffer::end() {
     if (_isStateInvalid) {
-        BindStates();
+        bindStates();
     }
     _isInRenderPass = false;
 }
 
-void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
+void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
     _isInRenderPass                     = true;
     GLES3GPURenderPass * gpuRenderPass  = static_cast<GLES3RenderPass *>(renderPass)->gpuRenderPass();
     GLES3GPUFramebuffer *gpuFramebuffer = static_cast<GLES3Framebuffer *>(fbo)->gpuFBO();
 
-    GLES3CmdFuncBeginRenderPass(GLES3Device::getInstance(), gpuRenderPass, gpuFramebuffer,
+    cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), gpuRenderPass, gpuFramebuffer,
                                 renderArea, gpuRenderPass->colorAttachments.size(), colors, depth, stencil);
 }
 
 void GLES3PrimaryCommandBuffer::endRenderPass() {
-    GLES3CmdFuncEndRenderPass(GLES3Device::getInstance());
+    cmdFuncGLES3EndRenderPass(GLES3Device::getInstance());
     _isInRenderPass = false;
 }
 
-void GLES3PrimaryCommandBuffer::draw(InputAssembler *ia) {
+void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {
     if (_isStateInvalid) {
-        BindStates();
+        bindStates();
     }
 
-    DrawInfo drawInfo;
-    ia->extractDrawInfo(drawInfo);
-    GLES3CmdFuncDraw(GLES3Device::getInstance(), drawInfo);
+    cmdFuncGLES3Draw(GLES3Device::getInstance(), info);
 
     ++_numDrawCalls;
-    _numInstances += ia->getInstanceCount();
+    _numInstances += info.instanceCount;
     if (_curGPUPipelineState) {
+        uint indexCount = info.indexCount ? info.indexCount : info.vertexCount;
         switch (_curGPUPipelineState->glPrimitive) {
             case GL_TRIANGLES: {
-                _numTriangles += ia->getIndexCount() / 3 * std::max(ia->getInstanceCount(), 1U);
+                _numTriangles += indexCount / 3 * std::max(info.instanceCount, 1U);
                 break;
             }
             case GL_TRIANGLE_STRIP:
             case GL_TRIANGLE_FAN: {
-                _numTriangles += (ia->getIndexCount() - 2) * std::max(ia->getInstanceCount(), 1U);
+                _numTriangles += (indexCount - 2) * std::max(info.instanceCount, 1U);
                 break;
             }
             default:
@@ -109,14 +104,14 @@ void GLES3PrimaryCommandBuffer::draw(InputAssembler *ia) {
 void GLES3PrimaryCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
     GLES3GPUBuffer *gpuBuffer = static_cast<GLES3Buffer *>(buff)->gpuBuffer();
     if (gpuBuffer) {
-        GLES3CmdFuncUpdateBuffer(GLES3Device::getInstance(), gpuBuffer, data, 0u, size);
+        cmdFuncGLES3UpdateBuffer(GLES3Device::getInstance(), gpuBuffer, data, 0U, size);
     }
 }
 
 void GLES3PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
     GLES3GPUTexture *gpuTexture = static_cast<GLES3Texture *>(texture)->gpuTexture();
     if (gpuTexture) {
-        GLES3CmdFuncCopyBuffersToTexture(GLES3Device::getInstance(), buffers, gpuTexture, regions, count);
+        cmdFuncGLES3CopyBuffersToTexture(GLES3Device::getInstance(), buffers, gpuTexture, regions, count);
     }
 }
 
@@ -126,17 +121,17 @@ void GLES3PrimaryCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTex
     if (srcTexture) gpuTextureSrc = static_cast<GLES3Texture *>(srcTexture)->gpuTexture();
     if (dstTexture) gpuTextureDst = static_cast<GLES3Texture *>(dstTexture)->gpuTexture();
 
-    GLES3CmdFuncBlitTexture(GLES3Device::getInstance(), gpuTextureSrc, gpuTextureDst, regions, count, filter);
+    cmdFuncGLES3BlitTexture(GLES3Device::getInstance(), gpuTextureSrc, gpuTextureDst, regions, count, filter);
 }
 
 void GLES3PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
-        GLES3PrimaryCommandBuffer *cmdBuff = (GLES3PrimaryCommandBuffer *)cmdBuffs[i];
+        auto *cmdBuff = static_cast<GLES3PrimaryCommandBuffer *>(cmdBuffs[i]);
 
         if (!cmdBuff->_pendingPackages.empty()) {
             GLES3CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
 
-            GLES3CmdFuncExecuteCmds(GLES3Device::getInstance(), cmdPackage);
+            cmdFuncGLES3ExecuteCmds(GLES3Device::getInstance(), cmdPackage);
 
             cmdBuff->_pendingPackages.pop();
             cmdBuff->_freePackages.push(cmdPackage);
@@ -150,16 +145,16 @@ void GLES3PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t
     }
 }
 
-void GLES3PrimaryCommandBuffer::BindStates() {
+void GLES3PrimaryCommandBuffer::bindStates() {
     vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
     vector<uint> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
-    for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
+    for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
         size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
         //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
         count = std::min(count, _curDynamicOffsets[i].size());
         if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
     }
-    GLES3CmdFuncBindState(GLES3Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
+    cmdFuncGLES3BindState(GLES3Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
                           _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
 
     _isStateInvalid = false;
@@ -167,7 +162,7 @@ void GLES3PrimaryCommandBuffer::BindStates() {
 
 void GLES3PrimaryCommandBuffer::dispatch(const DispatchInfo &info) {
     if (_isStateInvalid) {
-        BindStates();
+        bindStates();
     }
 
     GLES3GPUDispatchInfo gpuInfo;
@@ -179,14 +174,14 @@ void GLES3PrimaryCommandBuffer::dispatch(const DispatchInfo &info) {
         gpuInfo.groupCountY = info.groupCountY;
         gpuInfo.groupCountZ = info.groupCountZ;
     }
-    GLES3CmdFuncDispatch(GLES3Device::getInstance(), gpuInfo);
+    cmdFuncGLES3Dispatch(GLES3Device::getInstance(), gpuInfo);
 }
 
-void GLES3PrimaryCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
+void GLES3PrimaryCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const * /*textureBarriers*/, const Texture *const * /*textures*/, uint /*textureBarrierCount*/) {
     if (!barrier) return;
 
-    auto gpuBarrier = static_cast<const GLES3GlobalBarrier *>(barrier)->gpuBarrier();
-    GLES3CmdFuncMemoryBarrier(GLES3Device::getInstance(), gpuBarrier->glBarriers, gpuBarrier->glBarriersByRegion);
+    const auto *gpuBarrier = static_cast<const GLES3GlobalBarrier *>(barrier)->gpuBarrier();
+    cmdFuncGLES3MemoryBarrier(GLES3Device::getInstance(), gpuBarrier->glBarriers, gpuBarrier->glBarriersByRegion);
 }
 
 } // namespace gfx

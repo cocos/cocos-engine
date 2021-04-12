@@ -46,9 +46,7 @@ jobs:
           EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
           rm external/config.json
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
-          echo -e "cmake_minimum_required(VERSION 3.8)\nproject(engine_native CXX)\nenable_language(C ASM)" | cat - CMakeLists.txt > tmp.txt
-          mv tmp.txt CMakeLists.txt
-          cmake -Bbuild -DCC_USE_GLES2=ON -DCC_USE_VULKAN=ON -DCC_USE_GLES3=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake"  -DANDROID_PLATFORM=android-21 -G"Unix Makefiles"
+          utils/generate_compile_commands_android.sh
 
       - name: Generate clang-fix.yaml
         shell: bash
@@ -59,7 +57,7 @@ jobs:
           if [[ "$FILTERED-xxx" == "-xxx" ]]; then
             echo "no source files match"
           else
-            clang-tidy-11 --format-style=file -p ./build --export-fixes=clang-fixes.yaml $FILTERED
+            clang-tidy-11 --format-style=file --export-fixes=clang-fixes.yaml $FILTERED
           fi
       - name: clang-tidy-action
         uses: PatriceJiang/clang-tidy-action@master

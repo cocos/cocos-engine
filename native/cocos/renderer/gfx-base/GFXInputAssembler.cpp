@@ -36,8 +36,7 @@ InputAssembler::InputAssembler()
 : GFXObject(ObjectType::INPUT_ASSEMBLER) {
 }
 
-InputAssembler::~InputAssembler() {
-}
+InputAssembler::~InputAssembler() = default;
 
 void InputAssembler::extractDrawInfo(DrawInfo &drawInfo) const {
     drawInfo.vertexCount   = _vertexCount;
@@ -55,13 +54,13 @@ uint InputAssembler::computeAttributesHash() const {
     std::size_t seed = _attributes.size() * 6;
     for (const auto &attribute : _attributes) {
         seed ^= std::hash<std::string>{}(attribute.name) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)(attribute.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(attribute.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attribute.isNormalized + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attribute.stream + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attribute.isInstanced + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attribute.location + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
-    return static_cast<uint>(seed);
+    return seed;
 }
 
 void InputAssembler::initialize(const InputAssemblerInfo &info) {
@@ -73,7 +72,7 @@ void InputAssembler::initialize(const InputAssemblerInfo &info) {
     if (_indexBuffer) {
         _indexCount = _indexBuffer->getCount();
         _firstIndex = 0;
-    } else if (_vertexBuffers.size()) {
+    } else if (!_vertexBuffers.empty()) {
         _vertexCount  = _vertexBuffers[0]->getCount();
         _firstVertex  = 0;
         _vertexOffset = 0;
@@ -88,7 +87,7 @@ void InputAssembler::destroy() {
     _vertexBuffers.clear();
     _indexBuffer    = nullptr;
     _indirectBuffer = nullptr;
-    _indexCount = _firstIndex = _vertexCount = _firstVertex = _vertexOffset = _attributesHash = 0u;
+    _indexCount = _firstIndex = _vertexCount = _firstVertex = _vertexOffset = _attributesHash = 0U;
 }
 
 } // namespace gfx

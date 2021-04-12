@@ -49,7 +49,7 @@ class CC_DLL Device : public Object {
 public:
     static Device *getInstance();
 
-    virtual ~Device();
+    ~Device() override;
 
     bool initialize(const DeviceInfo &info);
     void destroy();
@@ -96,7 +96,7 @@ public:
     inline Queue *           getQueue() const { return _queue; }
     inline CommandBuffer *   getCommandBuffer() const { return _cmdBuff; }
     inline const DeviceCaps &getCapabilities() const { return _caps; }
-    inline API               getGfxAPI() const { return _API; }
+    inline API               getGfxAPI() const { return _api; }
     inline const String &    getDeviceName() const { return _deviceName; }
     inline const String &    getRenderer() const { return _renderer; }
     inline const String &    getVendor() const { return _vendor; }
@@ -108,7 +108,7 @@ public:
     Format getDepthStencilFormat() const;
 
 protected:
-    static Device *_instance;
+    static Device *instance;
 
     friend class DeviceAgent;
     friend class DeviceValidator;
@@ -146,7 +146,7 @@ protected:
 
     inline Context *getContext() const { return _context; }
 
-    API                _API       = API::UNKNOWN;
+    API                _api       = API::UNKNOWN;
     SurfaceTransform   _transform = SurfaceTransform::IDENTITY;
     String             _deviceName;
     String             _renderer;
@@ -162,9 +162,9 @@ protected:
     Context *          _context      = nullptr;
     Queue *            _queue        = nullptr;
     CommandBuffer *    _cmdBuff      = nullptr;
-    uint               _numDrawCalls = 0u;
-    uint               _numInstances = 0u;
-    uint               _numTriangles = 0u;
+    uint               _numDrawCalls = 0U;
+    uint               _numInstances = 0U;
+    uint               _numTriangles = 0U;
     BindingMappingInfo _bindingMappingInfo;
     DeviceCaps         _caps;
 };
@@ -274,15 +274,15 @@ TextureBarrier *Device::createTextureBarrier(const TextureBarrierInfo &info) {
 }
 
 void Device::copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions) {
-    copyBuffersToTexture(buffers.data(), dst, regions.data(), static_cast<uint>(regions.size()));
+    copyBuffersToTexture(buffers.data(), dst, regions.data(), utils::toUint(regions.size()));
 }
 
 void Device::flushCommands(const vector<CommandBuffer *> &cmdBuffs) {
-    flushCommands(cmdBuffs.data(), static_cast<uint>(cmdBuffs.size()));
+    flushCommands(cmdBuffs.data(), utils::toUint(cmdBuffs.size()));
 }
 
 void Device::flushCommandsForJS(const vector<CommandBuffer *> &cmdBuffs) {
-    flushCommands(cmdBuffs.data(), static_cast<uint>(cmdBuffs.size()));
+    flushCommands(cmdBuffs.data(), utils::toUint(cmdBuffs.size()));
 }
 
 } // namespace gfx

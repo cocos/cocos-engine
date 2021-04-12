@@ -32,14 +32,14 @@ namespace gfx {
 
 class CC_GLES3_API GLES3PrimaryCommandBuffer final : public GLES3CommandBuffer {
 public:
-    GLES3PrimaryCommandBuffer();
-    ~GLES3PrimaryCommandBuffer();
+    GLES3PrimaryCommandBuffer() = default;
+    ~GLES3PrimaryCommandBuffer() override;
 
     void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
     void end() override;
     void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
     void endRenderPass() override;
-    void draw(InputAssembler *ia) override;
+    void draw(const DrawInfo &info) override;
     void updateBuffer(Buffer *buff, const void *data, uint size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
@@ -50,7 +50,7 @@ public:
 protected:
     friend class GLES3Queue;
 
-    void BindStates() override;
+    void bindStates() override;
 };
 
 } // namespace gfx

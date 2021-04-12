@@ -36,10 +36,9 @@ DescriptorSet::DescriptorSet()
 : GFXObject(ObjectType::DESCRIPTOR_SET) {
 }
 
-DescriptorSet::~DescriptorSet() {
-}
+DescriptorSet::~DescriptorSet() = default;
 
-void DescriptorSet::initialize(const DescriptorSetInfo& info) {
+void DescriptorSet::initialize(const DescriptorSetInfo &info) {
     CCASSERT(info.layout, "Invalid set layout");
 
     _layout              = info.layout;

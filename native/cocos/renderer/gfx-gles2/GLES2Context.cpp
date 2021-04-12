@@ -91,12 +91,9 @@ void GL_APIENTRY GLES2EGLDebugProc(GLenum source,
 
 #endif
 
-GLES2Context::GLES2Context()
-: Context() {
-}
+GLES2Context::GLES2Context() = default;
 
-GLES2Context::~GLES2Context() {
-}
+GLES2Context::~GLES2Context() = default;
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 
@@ -219,10 +216,10 @@ bool GLES2Context::doInit(const ContextInfo &info) {
 
         uint width  = GLES2Device::getInstance()->getWidth();
         uint height = GLES2Device::getInstance()->getHeight();
-        ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
+        ANativeWindow_setBuffersGeometry(reinterpret_cast<ANativeWindow *>(_windowHandle), width, height, nFmt);
     #endif
 
-        EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, reinterpret_cast<EGLNativeWindowType>(_windowHandle), NULL));
+        EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, reinterpret_cast<EGLNativeWindowType>(_windowHandle), nullptr));
         if (_eglSurface == EGL_NO_SURFACE) {
             CC_LOG_ERROR("Window surface created failed.");
             return false;
@@ -255,7 +252,7 @@ bool GLES2Context::doInit(const ContextInfo &info) {
             ctxAttribs[n]   = EGL_NONE;
         }
 
-        EGL_CHECK(_eglContext = eglCreateContext(_eglDisplay, _eglConfig, NULL, ctxAttribs));
+        EGL_CHECK(_eglContext = eglCreateContext(_eglDisplay, _eglConfig, nullptr, ctxAttribs));
         if (!_eglContext) {
             CC_LOG_ERROR("Create EGL context failed.");
             return false;
@@ -271,7 +268,7 @@ bool GLES2Context::doInit(const ContextInfo &info) {
 
         // guaranteed to be invoked in the order they were added
         EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [=](const CustomEvent &event) -> void {
-            _windowHandle = (uintptr_t)event.args->ptrVal;
+            _windowHandle = reinterpret_cast<uintptr_t>(event.args->ptrVal);
 
             EGLint nFmt = 0;
             if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
@@ -280,15 +277,15 @@ bool GLES2Context::doInit(const ContextInfo &info) {
             }
             uint width  = GLES2Device::getInstance()->getWidth();
             uint height = GLES2Device::getInstance()->getHeight();
-            ANativeWindow_setBuffersGeometry((ANativeWindow *)_windowHandle, width, height, nFmt);
+            ANativeWindow_setBuffersGeometry(reinterpret_cast<ANativeWindow *>(_windowHandle), width, height, nFmt);
 
-            EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, NULL));
+            EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, nullptr));
             if (_eglSurface == EGL_NO_SURFACE) {
                 CC_LOG_ERROR("Recreate window surface failed.");
                 return;
             }
 
-            ((GLES2Context *)GLES2Device::getInstance()->getContext())->MakeCurrent();
+            static_cast<GLES2Context *>(GLES2Device::getInstance()->getContext())->MakeCurrent();
             GLES2Device::getInstance()->stateCache()->reset();
         });
     #endif
@@ -296,7 +293,7 @@ bool GLES2Context::doInit(const ContextInfo &info) {
         _eglSharedContext = _eglContext;
 
     } else {
-        GLES2Context *sharedCtx = static_cast<GLES2Context *>(info.sharedCtx);
+        auto *sharedCtx = static_cast<GLES2Context *>(info.sharedCtx);
 
         _majorVersion     = sharedCtx->major_ver();
         _minorVersion     = sharedCtx->minor_ver();
@@ -377,7 +374,7 @@ void GLES2Context::doDestroy() {
 
     _isPrimaryContex = false;
     _windowHandle    = 0;
-    _nativeDisplay   = 0;
+    _nativeDisplay   = 0; // NOLINT(modernize-use-nullptr) portability issues
     _vsyncMode       = VsyncMode::OFF;
     _isInitialized   = false;
 }
@@ -411,7 +408,7 @@ bool GLES2Context::MakeCurrent(bool bound) {
             int interval = 1;
             switch (_vsyncMode) {
                 case VsyncMode::OFF: interval = 0; break;
-                case VsyncMode::ON: interval = 1; break;
+                case VsyncMode::ON:
                 case VsyncMode::RELAXED: interval = 1; break;
                 case VsyncMode::MAILBOX: interval = 0; break;
                 case VsyncMode::HALF: interval = 2; break;
@@ -471,14 +468,13 @@ bool GLES2Context::MakeCurrent(bool bound) {
         GL_CHECK(glBlendEquationSeparate(GL_FUNC_ADD, GL_FUNC_ADD));
         GL_CHECK(glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO));
         GL_CHECK(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
-        GL_CHECK(glBlendColor(0.0f, 0.0f, 0.0f, 0.0f));
+        GL_CHECK(glBlendColor(0.0F, 0.0F, 0.0F, 0.0F));
 
         CC_LOG_DEBUG("eglMakeCurrent() - SUCCEEDED, Context: 0x%p", this);
         return true;
-    } else {
-        CC_LOG_ERROR("MakeCurrent() - FAILED, Context: 0x%p", this);
-        return false;
     }
+    CC_LOG_ERROR("MakeCurrent() - FAILED, Context: 0x%p", this);
+    return false;
 }
 
 bool GLES2Context::CheckExtension(const String &extension) const {

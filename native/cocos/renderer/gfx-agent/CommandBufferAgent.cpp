@@ -24,8 +24,8 @@
 ****************************************************************************/
 
 #include "base/CoreStd.h"
-#include "base/threading/MessageQueue.h"
 #include "base/job-system/JobSystem.h"
+#include "base/threading/MessageQueue.h"
 
 #include "BufferAgent.h"
 #include "CommandBufferAgent.h"
@@ -48,17 +48,17 @@ void CommandBufferAgent::flushCommands(uint count, CommandBufferAgent *const *cm
 
     if (count > workForThisThread + 1 && multiThreaded) { // more than one job to dispatch
         JobGraph g(JobSystem::getInstance());
-        g.createForEachIndexJob(workForThisThread, count, 1u, [cmdBuffs](uint i) {
+        g.createForEachIndexJob(workForThisThread, count, 1U, [cmdBuffs](uint i) {
             cmdBuffs[i]->getMessageQueue()->flushMessages();
         });
         g.run();
 
-        for (uint i = 0u; i < workForThisThread; ++i) {
+        for (uint i = 0U; i < workForThisThread; ++i) {
             cmdBuffs[i]->getMessageQueue()->flushMessages();
         }
         g.waitForAll();
     } else {
-        for (uint i = 0u; i < count; ++i) {
+        for (uint i = 0U; i < count; ++i) {
             cmdBuffs[i]->getMessageQueue()->flushMessages();
         }
     }
@@ -78,7 +78,7 @@ CommandBufferAgent::~CommandBufferAgent() {
 void CommandBufferAgent::initMessageQueue() {
     _allocatorPools.resize(MAX_CPU_FRAME_AHEAD + 1);
 
-    for (uint i = 0u; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
+    for (uint i = 0U; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
         _allocatorPools[i] = CC_NEW(LinearAllocatorPool);
     }
     DeviceAgent *device = DeviceAgent::getInstance();
@@ -195,7 +195,7 @@ void CommandBufferAgent::endRenderPass() {
 void CommandBufferAgent::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     if (!count) return;
 
-    CommandBuffer **actorCmdBuffs = getAllocator()->allocate<CommandBuffer *>(count);
+    auto **actorCmdBuffs = getAllocator()->allocate<CommandBuffer *>(count);
     for (uint i = 0; i < count; ++i) {
         actorCmdBuffs[i] = static_cast<CommandBufferAgent *>(cmdBuffs[i])->getActor();
     }
@@ -335,20 +335,20 @@ void CommandBufferAgent::setStencilCompareMask(StencilFace face, int ref, uint m
         });
 }
 
-void CommandBufferAgent::draw(InputAssembler *ia) {
+void CommandBufferAgent::draw(const DrawInfo &info) {
     ENQUEUE_MESSAGE_2(
         _messageQueue, CommandBufferDraw,
         actor, getActor(),
-        ia, static_cast<InputAssemblerAgent *>(ia)->getActor(),
+        info, info,
         {
-            actor->draw(ia);
+            actor->draw(info);
         });
 }
 
 void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint size) {
     MessageQueue *queue = _messageQueue;
 
-    uint8_t *actorData = getAllocator()->allocate<uint8_t>(size);
+    auto *actorData = getAllocator()->allocate<uint8_t>(size);
     memcpy(actorData, data, size);
 
     ENQUEUE_MESSAGE_4(
@@ -365,19 +365,19 @@ void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint size)
 void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
     LinearAllocatorPool *allocator = getAllocator();
 
-    BufferTextureCopy *actorRegions = allocator->allocate<BufferTextureCopy>(count);
+    auto *actorRegions = allocator->allocate<BufferTextureCopy>(count);
     memcpy(actorRegions, regions, count * sizeof(BufferTextureCopy));
 
-    uint bufferCount = 0u;
-    for (uint i = 0u; i < count; i++) {
+    uint bufferCount = 0U;
+    for (uint i = 0U; i < count; i++) {
         bufferCount += regions[i].texSubres.layerCount;
     }
-    const uint8_t **actorBuffers = allocator->allocate<const uint8_t *>(bufferCount);
-    for (uint i = 0u, n = 0u; i < count; i++) {
+    const auto **actorBuffers = allocator->allocate<const uint8_t *>(bufferCount);
+    for (uint i = 0U, n = 0U; i < count; i++) {
         const BufferTextureCopy &region = regions[i];
-        uint                     size   = FormatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
+        uint                     size   = formatSize(texture->getFormat(), region.texExtent.width, region.texExtent.height, 1);
         for (uint l = 0; l < region.texSubres.layerCount; l++) {
-            uint8_t *buffer = allocator->allocate<uint8_t>(size);
+            auto *buffer = allocator->allocate<uint8_t>(size);
             memcpy(buffer, buffers[n], size);
             actorBuffers[n++] = buffer;
         }
@@ -401,7 +401,7 @@ void CommandBufferAgent::blitTexture(Texture *srcTexture, Texture *dstTexture, c
     if (srcTexture) actorSrcTexture = static_cast<TextureAgent *>(srcTexture)->getActor();
     if (dstTexture) actorDstTexture = static_cast<TextureAgent *>(dstTexture)->getActor();
 
-    TextureBlit *actorRegions = getAllocator()->allocate<TextureBlit>(count);
+    auto *actorRegions = getAllocator()->allocate<TextureBlit>(count);
     memcpy(actorRegions, regions, count * sizeof(TextureBlit));
 
     ENQUEUE_MESSAGE_6(
@@ -436,10 +436,10 @@ void CommandBufferAgent::pipelineBarrier(const GlobalBarrier *barrier, const Tex
 
     if (textureBarrierCount) {
         actorTextureBarriers = getAllocator()->allocate<TextureBarrier *>(textureBarrierCount);
-        memcpy(actorTextureBarriers, textureBarriers, textureBarrierCount * sizeof(TextureBarrier *));
+        memcpy(actorTextureBarriers, textureBarriers, textureBarrierCount * sizeof(uintptr_t));
 
         actorTextures = getAllocator()->allocate<Texture *>(textureBarrierCount);
-        for (uint i = 0u; i < textureBarrierCount; ++i) {
+        for (uint i = 0U; i < textureBarrierCount; ++i) {
             actorTextures[i] = textures[i] ? static_cast<const TextureAgent *>(textures[i])->getActor() : nullptr;
         }
     }

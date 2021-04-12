@@ -23,22 +23,24 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_CORE_KERNEL_CACHED_ARRAY_H_
-#define CC_CORE_KERNEL_CACHED_ARRAY_H_
+#pragma once
+
+#include "base/Object.h"
+#include "base/TypeDef.h"
 
 namespace cc {
 
 template <typename T>
 class CachedArray : public Object {
 public:
-    CachedArray(uint size = 1u) {
+    explicit CachedArray(uint size = 1U) {
         _size = 0;
         _capacity = std::max(size, 1u);
         _array = CC_NEW_ARRAY(T, _capacity);
     }
 
     // The rule of five applies here
-    ~CachedArray() {
+    ~CachedArray() override {
         CC_SAFE_DELETE_ARRAY(_array);
     }
 
@@ -47,6 +49,7 @@ public:
         memcpy(_array, other._array, _size * sizeof(T));
     }
 
+    // NOLINTNEXTLINE(bugprone-unhandled-self-assignment) false positive
     CachedArray &operator=(const CachedArray &other) noexcept {
         if (this != &other) {
             CC_DELETE_ARRAY(_array);
@@ -59,7 +62,7 @@ public:
     }
 
     CachedArray(CachedArray &&other)
-    : _size(other._size), _capacity(other._capacity), _array(other._array) {
+ noexcept     : _size(other._size), _capacity(other._capacity), _array(other._array) {
         other._size = 0;
         other._capacity = 0;
         other._array = nullptr;
@@ -161,5 +164,3 @@ private:
 };
 
 } // namespace cc
-
-#endif // CC_CORE_KERNEL_CACHED_ARRAY_H_

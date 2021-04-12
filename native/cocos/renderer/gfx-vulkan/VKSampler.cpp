@@ -32,15 +32,13 @@
 namespace cc {
 namespace gfx {
 
-CCVKSampler::CCVKSampler()
-: Sampler() {
-}
+CCVKSampler::CCVKSampler() = default;
 
 CCVKSampler::~CCVKSampler() {
     destroy();
 }
 
-void CCVKSampler::doInit(const SamplerInfo &info) {
+void CCVKSampler::doInit(const SamplerInfo & /*info*/) {
     _gpuSampler = CC_NEW(CCVKGPUSampler);
     _gpuSampler->minFilter = _minFilter;
     _gpuSampler->magFilter = _magFilter;
@@ -53,7 +51,7 @@ void CCVKSampler::doInit(const SamplerInfo &info) {
     _gpuSampler->borderColor = _borderColor;
     _gpuSampler->mipLODBias = _mipLODBias;
 
-    CCVKCmdFuncCreateSampler(CCVKDevice::getInstance(), _gpuSampler);
+    cmdFuncCCVKCreateSampler(CCVKDevice::getInstance(), _gpuSampler);
 }
 
 void CCVKSampler::doDestroy() {

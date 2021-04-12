@@ -32,15 +32,13 @@
 namespace cc {
 namespace gfx {
 
-GLES2Buffer::GLES2Buffer()
-: Buffer() {
-}
+GLES2Buffer::GLES2Buffer() = default;
 
 GLES2Buffer::~GLES2Buffer() {
     destroy();
 }
 
-void GLES2Buffer::doInit(const BufferInfo &info) {
+void GLES2Buffer::doInit(const BufferInfo & /*info*/) {
     _gpuBuffer           = CC_NEW(GLES2GPUBuffer);
     _gpuBuffer->usage    = _usage;
     _gpuBuffer->memUsage = _memUsage;
@@ -52,11 +50,11 @@ void GLES2Buffer::doInit(const BufferInfo &info) {
         _gpuBuffer->indirects.resize(_count);
     }
 
-    GLES2CmdFuncCreateBuffer(GLES2Device::getInstance(), _gpuBuffer);
+    cmdFuncGLES2CreateBuffer(GLES2Device::getInstance(), _gpuBuffer);
 }
 
 void GLES2Buffer::doInit(const BufferViewInfo &info) {
-    GLES2Buffer *buffer       = (GLES2Buffer *)info.buffer;
+    auto *buffer              = static_cast<GLES2Buffer *>(info.buffer);
     _gpuBufferView            = CC_NEW(GLES2GPUBufferView);
     _gpuBufferView->gpuBuffer = buffer->gpuBuffer();
     _gpuBufferView->range     = _size;
@@ -65,7 +63,7 @@ void GLES2Buffer::doInit(const BufferViewInfo &info) {
 
 void GLES2Buffer::doDestroy() {
     if (_gpuBuffer) {
-        GLES2CmdFuncDestroyBuffer(GLES2Device::getInstance(), _gpuBuffer);
+        cmdFuncGLES2DestroyBuffer(GLES2Device::getInstance(), _gpuBuffer);
         CC_DELETE(_gpuBuffer);
         _gpuBuffer = nullptr;
     }
@@ -76,11 +74,11 @@ void GLES2Buffer::doDestroy() {
 void GLES2Buffer::doResize(uint size, uint count) {
     _gpuBuffer->size  = size;
     _gpuBuffer->count = count;
-    GLES2CmdFuncResizeBuffer(GLES2Device::getInstance(), _gpuBuffer);
+    cmdFuncGLES2ResizeBuffer(GLES2Device::getInstance(), _gpuBuffer);
 }
 
 void GLES2Buffer::update(void *buffer, uint size) {
-    GLES2CmdFuncUpdateBuffer(GLES2Device::getInstance(), _gpuBuffer, buffer, 0u, size);
+    cmdFuncGLES2UpdateBuffer(GLES2Device::getInstance(), _gpuBuffer, buffer, 0U, size);
 }
 
 } // namespace gfx

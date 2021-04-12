@@ -35,14 +35,13 @@ RenderPass::RenderPass()
 : GFXObject(ObjectType::RENDER_PASS) {
 }
 
-RenderPass::~RenderPass() {
-}
+RenderPass::~RenderPass() = default;
 
 // Based on render pass compatibility
 uint RenderPass::computeHash() {
     // https://stackoverflow.com/questions/20511347/a-good-hash-function-for-a-vector
     uint seed = 0;
-    if (_subpasses.size()) {
+    if (!_subpasses.empty()) {
         for (const SubpassInfo &subPass : _subpasses) {
             for (const uint iaIndex : subPass.inputs) {
                 if (iaIndex >= _colorAttachments.size()) break;
@@ -68,41 +67,41 @@ uint RenderPass::computeHash() {
             for (const uint iaIndex : subPass.inputs) {
                 if (iaIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ia = _colorAttachments[iaIndex];
-                seed ^= (uint)(ia.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= (uint)ia.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint>(ia.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint>(ia.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
             for (const uint caIndex : subPass.colors) {
                 if (caIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ca = _colorAttachments[caIndex];
-                seed ^= (uint)(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= (uint)ca.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint>(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint>(ca.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
             for (const uint raIndex : subPass.resolves) {
                 if (raIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ca = _colorAttachments[raIndex];
-                seed ^= (uint)(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= (uint)ca.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint>(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint>(ca.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
             for (const uint paIndex : subPass.preserves) {
                 if (paIndex >= _colorAttachments.size()) break;
                 const ColorAttachment &ca = _colorAttachments[paIndex];
-                seed ^= (uint)(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= (uint)ca.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint>(ca.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint>(ca.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
             if (subPass.depthStencil < _colorAttachments.size()) {
                 const ColorAttachment &ds = _colorAttachments[subPass.depthStencil];
-                seed ^= (uint)(ds.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-                seed ^= (uint)ds.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint>(ds.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+                seed ^= static_cast<uint>(ds.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             }
         }
     } else {
         seed = _colorAttachments.size() * 2 + 2;
         for (const ColorAttachment &colorAttachment : _colorAttachments) {
-            seed ^= (uint)(colorAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-            seed ^= (uint)colorAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint>(colorAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint>(colorAttachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
-        seed ^= (uint)(_depthStencilAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)_depthStencilAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(_depthStencilAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(_depthStencilAttachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
 
     return seed;
@@ -110,19 +109,19 @@ uint RenderPass::computeHash() {
 
 uint RenderPass::computeHash(const RenderPassInfo &info) {
     static auto computeAttachmentHash = [](const ColorAttachment &attachment, uint &seed) {
-        seed ^= (uint)attachment.format + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)attachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)attachment.loadOp + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)attachment.storeOp + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(attachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(attachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(attachment.loadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(attachment.storeOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         for (AccessType type : attachment.beginAccesses) {
-            seed ^= (uint)type + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
         for (AccessType type : attachment.endAccesses) {
-            seed ^= (uint)type + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
     };
     uint seed = 0;
-    if (info.subpasses.size()) {
+    if (!info.subpasses.empty()) {
         for (const SubpassInfo &subPass : info.subpasses) {
             for (const uint iaIndex : subPass.inputs) {
                 if (iaIndex >= info.colorAttachments.size()) break;
@@ -179,17 +178,17 @@ uint RenderPass::computeHash(const RenderPassInfo &info) {
         for (const ColorAttachment &ca : info.colorAttachments) {
             computeAttachmentHash(ca, seed);
         }
-        seed ^= (uint)info.depthStencilAttachment.format + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)info.depthStencilAttachment.sampleCount + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)info.depthStencilAttachment.depthLoadOp + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)info.depthStencilAttachment.depthStoreOp + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)info.depthStencilAttachment.stencilLoadOp + 0x9e3779b9 + (seed << 6) + (seed >> 2);
-        seed ^= (uint)info.depthStencilAttachment.stencilStoreOp + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(info.depthStencilAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(info.depthStencilAttachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(info.depthStencilAttachment.depthLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(info.depthStencilAttachment.depthStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(info.depthStencilAttachment.stencilLoadOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= static_cast<uint>(info.depthStencilAttachment.stencilStoreOp) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         for (AccessType type : info.depthStencilAttachment.beginAccesses) {
-            seed ^= (uint)type + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
         for (AccessType type : info.depthStencilAttachment.endAccesses) {
-            seed ^= (uint)type + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+            seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         }
     }
 
@@ -210,7 +209,7 @@ void RenderPass::destroy() {
 
     _colorAttachments.clear();
     _subpasses.clear();
-    _hash = 0u;
+    _hash = 0U;
 }
 
 } // namespace gfx

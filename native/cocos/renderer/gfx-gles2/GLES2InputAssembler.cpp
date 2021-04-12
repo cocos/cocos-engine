@@ -33,9 +33,7 @@
 namespace cc {
 namespace gfx {
 
-GLES2InputAssembler::GLES2InputAssembler()
-: InputAssembler() {
-}
+GLES2InputAssembler::GLES2InputAssembler() = default;
 
 GLES2InputAssembler::~GLES2InputAssembler() {
     destroy();
@@ -46,21 +44,23 @@ void GLES2InputAssembler::doInit(const InputAssemblerInfo &info) {
     _gpuInputAssembler->attributes = _attributes;
     _gpuInputAssembler->gpuVertexBuffers.resize(_vertexBuffers.size());
     for (size_t i = 0; i < _gpuInputAssembler->gpuVertexBuffers.size(); ++i) {
-        GLES2Buffer *vb                         = (GLES2Buffer *)_vertexBuffers[i];
+        auto *vb                                = static_cast<GLES2Buffer *>(_vertexBuffers[i]);
         _gpuInputAssembler->gpuVertexBuffers[i] = vb->gpuBuffer();
     }
-    if (info.indexBuffer)
+    if (info.indexBuffer) {
         _gpuInputAssembler->gpuIndexBuffer = static_cast<GLES2Buffer *>(info.indexBuffer)->gpuBuffer();
+    }
 
-    if (info.indirectBuffer)
+    if (info.indirectBuffer) {
         _gpuInputAssembler->gpuIndirectBuffer = static_cast<GLES2Buffer *>(info.indirectBuffer)->gpuBuffer();
+    }
 
-    GLES2CmdFuncCreateInputAssembler(GLES2Device::getInstance(), _gpuInputAssembler);
+    cmdFuncGLES2CreateInputAssembler(GLES2Device::getInstance(), _gpuInputAssembler);
 }
 
 void GLES2InputAssembler::doDestroy() {
     if (_gpuInputAssembler) {
-        GLES2CmdFuncDestroyInputAssembler(GLES2Device::getInstance(), _gpuInputAssembler);
+        cmdFuncGLES2DestroyInputAssembler(GLES2Device::getInstance(), _gpuInputAssembler);
         CC_DELETE(_gpuInputAssembler);
         _gpuInputAssembler = nullptr;
     }

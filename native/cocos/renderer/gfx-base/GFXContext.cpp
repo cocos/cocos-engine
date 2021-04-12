@@ -30,11 +30,9 @@
 namespace cc {
 namespace gfx {
 
-Context::Context() {
-}
+Context::Context() = default;
 
-Context::~Context() {
-}
+Context::~Context() = default;
 
 bool Context::initialize(const ContextInfo& info) {
     _vsyncMode    = info.vsyncMode;

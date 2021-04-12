@@ -37,8 +37,7 @@ Shader::Shader()
     _shaderID = generateShaderID();
 }
 
-Shader::~Shader() {
-}
+Shader::~Shader() = default;
 
 void Shader::initialize(const ShaderInfo &info) {
     _name            = info.name;

@@ -38,15 +38,11 @@
 namespace cc {
 namespace gfx {
 
-GLES2PrimaryCommandBuffer::GLES2PrimaryCommandBuffer()
-: GLES2CommandBuffer() {
-}
-
 GLES2PrimaryCommandBuffer::~GLES2PrimaryCommandBuffer() {
     destroy();
 }
 
-void GLES2PrimaryCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
+void GLES2PrimaryCommandBuffer::begin(RenderPass * /*renderPass*/, uint /*subpass*/, Framebuffer * /*frameBuffer*/) {
     _curGPUPipelineState = nullptr;
     _curGPUInputAssember = nullptr;
     _curGPUDescriptorSets.assign(_curGPUDescriptorSets.size(), nullptr);
@@ -58,56 +54,55 @@ void GLES2PrimaryCommandBuffer::begin(RenderPass *renderPass, uint subpass, Fram
 
 void GLES2PrimaryCommandBuffer::end() {
     if (_isStateInvalid) {
-        BindStates();
+        bindStates();
     }
     _isInRenderPass = false;
 }
 
-void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
-    _isInRenderPass = true;
-    GLES2GPURenderPass *gpuRenderPass = static_cast<GLES2RenderPass *>(renderPass)->gpuRenderPass();
+void GLES2PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
+    _isInRenderPass                     = true;
+    GLES2GPURenderPass * gpuRenderPass  = static_cast<GLES2RenderPass *>(renderPass)->gpuRenderPass();
     GLES2GPUFramebuffer *gpuFramebuffer = static_cast<GLES2Framebuffer *>(fbo)->gpuFBO();
 
-    GLES2CmdFuncBeginRenderPass(GLES2Device::getInstance(), gpuRenderPass, gpuFramebuffer,
+    cmdFuncGLES2BeginRenderPass(GLES2Device::getInstance(), gpuRenderPass, gpuFramebuffer,
                                 renderArea, gpuRenderPass->colorAttachments.size(), colors, depth, stencil);
 }
 
 void GLES2PrimaryCommandBuffer::endRenderPass() {
-    GLES2CmdFuncEndRenderPass(GLES2Device::getInstance());
+    cmdFuncGLES2EndRenderPass(GLES2Device::getInstance());
     _isInRenderPass = false;
 }
 
-void GLES2PrimaryCommandBuffer::draw(InputAssembler *ia) {
+void GLES2PrimaryCommandBuffer::draw(const DrawInfo &info) {
     if (_isStateInvalid) {
         vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
-        vector<uint> &dynamicOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
-        for (size_t i = 0u; i < _curDynamicOffsets.size(); i++) {
+        vector<uint> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+        for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
             size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
             //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
             count = std::min(count, _curDynamicOffsets[i].size());
             if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
         }
-        GLES2CmdFuncBindState(GLES2Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
-                                _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
+        cmdFuncGLES2BindState(GLES2Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
+                              _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
 
         _isStateInvalid = false;
     }
 
-    DrawInfo drawInfo;
-    ia->extractDrawInfo(drawInfo);
-    GLES2CmdFuncDraw(GLES2Device::getInstance(), drawInfo);
+    cmdFuncGLES2Draw(GLES2Device::getInstance(), info);
 
     ++_numDrawCalls;
-    _numInstances += ia->getInstanceCount();
+    _numInstances += info.instanceCount;
+    uint indexCount = info.indexCount ? info.indexCount : info.vertexCount;
     if (_curGPUPipelineState) {
         switch (_curGPUPipelineState->glPrimitive) {
             case GL_TRIANGLES: {
-                _numTriangles += ia->getIndexCount() / 3 * std::max(ia->getInstanceCount(), 1U);
+                _numTriangles += indexCount / 3 * std::max(info.instanceCount, 1U);
                 break;
             }
             case GL_TRIANGLE_STRIP:
             case GL_TRIANGLE_FAN: {
-                _numTriangles += (ia->getIndexCount() - 2) * std::max(ia->getInstanceCount(), 1U);
+                _numTriangles += (indexCount - 2) * std::max(info.instanceCount, 1U);
                 break;
             }
             default:
@@ -119,25 +114,25 @@ void GLES2PrimaryCommandBuffer::draw(InputAssembler *ia) {
 void GLES2PrimaryCommandBuffer::updateBuffer(Buffer *buff, const void *data, uint size) {
     GLES2GPUBuffer *gpuBuffer = static_cast<GLES2Buffer *>(buff)->gpuBuffer();
     if (gpuBuffer) {
-        GLES2CmdFuncUpdateBuffer(GLES2Device::getInstance(), gpuBuffer, data, 0u, size);
+        cmdFuncGLES2UpdateBuffer(GLES2Device::getInstance(), gpuBuffer, data, 0U, size);
     }
 }
 
 void GLES2PrimaryCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
     GLES2GPUTexture *gpuTexture = static_cast<GLES2Texture *>(texture)->gpuTexture();
     if (gpuTexture) {
-        GLES2CmdFuncCopyBuffersToTexture(GLES2Device::getInstance(), buffers, gpuTexture, regions, count);
+        cmdFuncGLES2CopyBuffersToTexture(GLES2Device::getInstance(), buffers, gpuTexture, regions, count);
     }
 }
 
 void GLES2PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
-        GLES2PrimaryCommandBuffer *cmdBuff = (GLES2PrimaryCommandBuffer *)cmdBuffs[i];
+        auto *cmdBuff = static_cast<GLES2PrimaryCommandBuffer *>(cmdBuffs[i]);
 
         if (!cmdBuff->_pendingPackages.empty()) {
             GLES2CmdPackage *cmdPackage = cmdBuff->_pendingPackages.front();
 
-            GLES2CmdFuncExecuteCmds(GLES2Device::getInstance(), cmdPackage);
+            cmdFuncGLES2ExecuteCmds(GLES2Device::getInstance(), cmdPackage);
 
             cmdBuff->_pendingPackages.pop();
             cmdBuff->_freePackages.push(cmdPackage);
@@ -149,6 +144,21 @@ void GLES2PrimaryCommandBuffer::execute(CommandBuffer *const *cmdBuffs, uint32_t
         _numInstances += cmdBuff->_numInstances;
         _numTriangles += cmdBuff->_numTriangles;
     }
+}
+
+void GLES2PrimaryCommandBuffer::bindStates() {
+    vector<uint> &dynamicOffsetOffsets = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsetOffsets;
+    vector<uint> &dynamicOffsets       = _curGPUPipelineState->gpuPipelineLayout->dynamicOffsets;
+    for (size_t i = 0U; i < _curDynamicOffsets.size(); i++) {
+        size_t count = dynamicOffsetOffsets[i + 1] - dynamicOffsetOffsets[i];
+        //CCASSERT(_curDynamicOffsets[i].size() >= count, "missing dynamic offsets?");
+        count = std::min(count, _curDynamicOffsets[i].size());
+        if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
+    }
+    cmdFuncGLES2BindState(GLES2Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
+                          _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
+
+    _isStateInvalid = false;
 }
 
 } // namespace gfx

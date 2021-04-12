@@ -27,7 +27,7 @@
 #include "base/Macros.h"
 #include "base/memory/Memory.h"
 
-using namespace se;
+namespace se {
 
 cc::map<PoolType, BufferPool *> BufferPool::_poolMap;
 
@@ -52,7 +52,7 @@ BufferPool::~BufferPool() {
 }
 
 Object *BufferPool::allocateNewChunk() {
-    Object *jsObj = _allocator.alloc((uint)_chunks.size(), _bytesPerChunk);
+    Object *jsObj = _allocator.alloc(static_cast<uint>(_chunks.size()), _bytesPerChunk);
 
     uint8_t *realPtr = nullptr;
     size_t len = 0;
@@ -61,3 +61,5 @@ Object *BufferPool::allocateNewChunk() {
 
     return jsObj;
 }
+
+} // namespace se

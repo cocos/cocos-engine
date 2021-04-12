@@ -97,7 +97,6 @@ protected:
     bool initWithETC2Data(const unsigned char *data, ssize_t dataLen);
     bool initWithASTCData(const unsigned char *data, ssize_t dataLen);
 
-protected:
     unsigned char *_data = nullptr;
     ssize_t _dataLen = 0;
     int _width = 0;
@@ -107,27 +106,18 @@ protected:
     std::string _filePath;
     bool _isCompressed = false;
 
-protected:
-    // noncopyable
-    Image(const Image &) = delete;
-    Image &operator=(const Image &) = delete;
+    ~Image() override;
 
-    // nonmoveable
-    Image(Image &&) = delete;
-    Image &operator=(Image &&) = delete;
+    static Format detectFormat(const unsigned char *data, ssize_t dataLen);
+    static bool isPng(const unsigned char *data, ssize_t dataLen);
+    static bool isJpg(const unsigned char *data, ssize_t dataLen);
+    static bool isWebp(const unsigned char *data, ssize_t dataLen);
+    static bool isPvr(const unsigned char *data, ssize_t dataLen);
+    static bool isEtc(const unsigned char *data, ssize_t dataLen);
+    static bool isEtc2(const unsigned char *data, ssize_t dataLen);
+    static bool isASTC(const unsigned char *data, ssize_t detaLen);
 
-    virtual ~Image();
-
-    Format detectFormat(const unsigned char *data, ssize_t dataLen);
-    bool isPng(const unsigned char *data, ssize_t dataLen);
-    bool isJpg(const unsigned char *data, ssize_t dataLen);
-    bool isWebp(const unsigned char *data, ssize_t dataLen);
-    bool isPvr(const unsigned char *data, ssize_t dataLen);
-    bool isEtc(const unsigned char *data, ssize_t dataLen);
-    bool isEtc2(const unsigned char *data, ssize_t dataLen);
-    bool isASTC(const unsigned char *data, ssize_t detaLen);
-
-    gfx::Format getASTCFormat(const unsigned char *pHeader) const;
+    static gfx::Format getASTCFormat(const unsigned char *pHeader);
 };
 
 } //namespace cc

@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXQueue.h"
 
 namespace cc {
@@ -35,7 +36,7 @@ class CCVKGPUQueue;
 class CC_VULKAN_API CCVKQueue final : public Queue {
 public:
     CCVKQueue();
-    ~CCVKQueue();
+    ~CCVKQueue() override;
 
     void submit(CommandBuffer *const *cmdBuffs, uint count) override;
 

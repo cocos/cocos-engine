@@ -99,12 +99,9 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT      fl
 #endif
 } // namespace
 
-CCVKContext::CCVKContext()
-: Context() {
-}
+CCVKContext::CCVKContext() = default;
 
-CCVKContext::~CCVKContext() {
-}
+CCVKContext::~CCVKContext() = default;
 
 bool CCVKContext::doInit(const ContextInfo &info) {
     if (!info.sharedCtx) {
@@ -226,9 +223,9 @@ bool CCVKContext::doInit(const ContextInfo &info) {
 
         VkInstanceCreateInfo instanceInfo{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
         instanceInfo.pApplicationInfo        = &app;
-        instanceInfo.enabledExtensionCount   = toUint(_extensions.size());
+        instanceInfo.enabledExtensionCount   = utils::toUint(_extensions.size());
         instanceInfo.ppEnabledExtensionNames = _extensions.data();
-        instanceInfo.enabledLayerCount       = toUint(_layers.size());
+        instanceInfo.enabledLayerCount       = utils::toUint(_layers.size());
         instanceInfo.ppEnabledLayerNames     = _layers.data();
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
@@ -276,15 +273,15 @@ bool CCVKContext::doInit(const ContextInfo &info) {
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
         VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
-        surfaceCreateInfo.window = (ANativeWindow *)_windowHandle;
+        surfaceCreateInfo.window = reinterpret_cast<ANativeWindow *>(_windowHandle);
         VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 
-        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &event) -> void {
+        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &/*event*/) -> void {
             if (_gpuContext && _gpuContext->vkSurface != VK_NULL_HANDLE) {
 
                 CCVKDevice *device = CCVKDevice::getInstance();
 
-                CCVKQueue *queue = (CCVKQueue *)device->getQueue();
+                auto *queue = static_cast<CCVKQueue *>(device->getQueue());
 
                 uint fenceCount = device->gpuFencePool()->size();
                 if (fenceCount) {
@@ -301,12 +298,11 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         });
 
         EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [this](const CustomEvent &event) -> void {
-            _windowHandle = (uintptr_t)event.args->ptrVal;
+            _windowHandle = reinterpret_cast<uintptr_t>(event.args->ptrVal);
 
             if (_gpuContext && _gpuContext->vkSurface == VK_NULL_HANDLE) {
-                VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{
-                    VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
-                surfaceCreateInfo.window = (ANativeWindow *)_windowHandle;
+                VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
+                surfaceCreateInfo.window = reinterpret_cast<ANativeWindow *>(_windowHandle);
                 VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo,
                                                    nullptr, &_gpuContext->vkSurface));
 
@@ -315,22 +311,22 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         });
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
         VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
-        surfaceCreateInfo.hinstance = (HINSTANCE)GetModuleHandle(0);
-        surfaceCreateInfo.hwnd      = (HWND)_windowHandle;
+        surfaceCreateInfo.hinstance = static_cast<HINSTANCE>(GetModuleHandle(0));
+        surfaceCreateInfo.hwnd      = reinterpret_cast<HWND>(_windowHandle);
         VK_CHECK(vkCreateWin32SurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 #elif defined(VK_USE_PLATFORM_METAL_EXT)
         VkMetalSurfaceCreateInfoEXT surfaceCreateInfo{VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT};
-        surfaceCreateInfo.pLayer = (CAMetalLayer *)_windowHandle;
+        surfaceCreateInfo.pLayer = static_cast<CAMetalLayer *>(_windowHandle);
         VK_CHECK(vkCreateMetalSurfaceEXT(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
         VkWaylandSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR};
         surfaceCreateInfo.display = nullptr; // TODO
-        surfaceCreateInfo.surface = (wl_surface *)_windowHandle;
+        surfaceCreateInfo.surface = static_cast<wl_surface *>(_windowHandle);
         VK_CHECK(vkCreateWaylandSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
         VkXcbSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR};
         surfaceCreateInfo.connection = nullptr; // TODO
-        surfaceCreateInfo.window     = (xcb_window_t)_windowHandle;
+        surfaceCreateInfo.window     = static_cast<xcb_window_t>(_windowHandle);
         VK_CHECK(vkCreateXcbSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 #else
     #pragma error Platform not supported
@@ -352,12 +348,12 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         vector<VkPhysicalDeviceProperties> physicalDeviceProperties(physicalDeviceCount);
 
         uint deviceIndex;
-        for (deviceIndex = 0u; deviceIndex < physicalDeviceCount; ++deviceIndex) {
+        for (deviceIndex = 0U; deviceIndex < physicalDeviceCount; ++deviceIndex) {
             VkPhysicalDeviceProperties &properties = physicalDeviceProperties[deviceIndex];
             vkGetPhysicalDeviceProperties(physicalDeviceHandles[deviceIndex], &properties);
         }
 
-        for (deviceIndex = 0u; deviceIndex < physicalDeviceCount; ++deviceIndex) {
+        for (deviceIndex = 0U; deviceIndex < physicalDeviceCount; ++deviceIndex) {
             VkPhysicalDeviceProperties &properties = physicalDeviceProperties[deviceIndex];
             if (properties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU) {
                 break;
@@ -406,12 +402,12 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         VkSurfaceCapabilitiesKHR surfaceCapabilities{};
         vkGetPhysicalDeviceSurfaceCapabilitiesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &surfaceCapabilities);
 
-        uint surfaceFormatCount = 0u;
+        uint surfaceFormatCount = 0U;
         VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &surfaceFormatCount, nullptr));
         vector<VkSurfaceFormatKHR> surfaceFormats(surfaceFormatCount);
         VK_CHECK(vkGetPhysicalDeviceSurfaceFormatsKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &surfaceFormatCount, surfaceFormats.data()));
 
-        uint presentModeCount = 0u;
+        uint presentModeCount = 0U;
         VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &presentModeCount, nullptr));
         vector<VkPresentModeKHR> presentModes(presentModeCount);
         VK_CHECK(vkGetPhysicalDeviceSurfacePresentModesKHR(_gpuContext->physicalDevice, _gpuContext->vkSurface, &presentModeCount, presentModes.data()));
@@ -478,7 +474,7 @@ bool CCVKContext::doInit(const ContextInfo &info) {
             case VsyncMode::ON: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_FIFO_KHR}); break;
             case VsyncMode::RELAXED: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_FIFO_RELAXED_KHR, VK_PRESENT_MODE_FIFO_KHR}); break;
             case VsyncMode::MAILBOX: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_MAILBOX_KHR, VK_PRESENT_MODE_IMMEDIATE_KHR, VK_PRESENT_MODE_FIFO_KHR}); break;
-            case VsyncMode::HALF: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_FIFO_KHR}); break; // TODO
+            case VsyncMode::HALF: presentModePriorityList.insert(presentModePriorityList.end(), {VK_PRESENT_MODE_FIFO_KHR}); break; // no easy fallback
         }
 
         VkPresentModeKHR swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
@@ -490,13 +486,13 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         }
 
         // Determine the number of images
-        uint desiredNumberOfSwapchainImages = std::max(3u, surfaceCapabilities.minImageCount + 1);
+        uint desiredNumberOfSwapchainImages = std::max(3U, surfaceCapabilities.minImageCount + 1);
 
         if ((surfaceCapabilities.maxImageCount > 0) && (desiredNumberOfSwapchainImages > surfaceCapabilities.maxImageCount)) {
             desiredNumberOfSwapchainImages = surfaceCapabilities.maxImageCount;
         }
 
-        VkExtent2D                    imageExtent  = {1u, 1u};
+        VkExtent2D                    imageExtent  = {1U, 1U};
         VkSurfaceTransformFlagBitsKHR preTransform = VK_SURFACE_TRANSFORM_IDENTITY_BIT_KHR;
 
         // Find a supported composite alpha format (not all devices support alpha opaque)
@@ -538,12 +534,12 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         _gpuContext->swapchainCreateInfo.clipped          = VK_TRUE; // Setting clipped to VK_TRUE allows the implementation to discard rendering outside of the surface area
 
     } else {
-        CCVKContext *sharedCtx = (CCVKContext *)info.sharedCtx;
-        _majorVersion          = sharedCtx->majorVersion();
-        _minorVersion          = sharedCtx->minorVersion();
-        _layers                = sharedCtx->getLayers();
-        _extensions            = sharedCtx->getExtensions();
-        _gpuContext            = sharedCtx->gpuContext();
+        auto *sharedCtx = static_cast<CCVKContext *>(info.sharedCtx);
+        _majorVersion   = sharedCtx->majorVersion();
+        _minorVersion   = sharedCtx->minorVersion();
+        _layers         = sharedCtx->getLayers();
+        _extensions     = sharedCtx->getExtensions();
+        _gpuContext     = sharedCtx->gpuContext();
     }
 
     return true;

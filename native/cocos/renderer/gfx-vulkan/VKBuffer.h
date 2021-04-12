@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXBuffer.h"
 
 namespace cc {
@@ -36,9 +37,9 @@ class CCVKGPUBufferView;
 class CC_VULKAN_API CCVKBuffer final : public Buffer {
 public:
     CCVKBuffer();
-    ~CCVKBuffer();
+    ~CCVKBuffer() override;
 
-    void update(void *buffer, uint offset) override;
+    void update(void *buffer, uint size) override;
 
     CC_INLINE CCVKGPUBuffer *gpuBuffer() const { return _gpuBuffer; }
     CC_INLINE CCVKGPUBufferView *gpuBufferView() const { return _gpuBufferView; }

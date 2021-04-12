@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXDevice.h"
 
 namespace cc {
@@ -75,30 +76,29 @@ public:
     void acquire() override;
     void present() override;
 
-    CC_INLINE bool checkExtension(const String &extension) const {
-        return std::find_if(_extensions.begin(), _extensions.end(),
-                            [extension](const char *device_extension) {
-                                return std::strcmp(device_extension, extension.c_str()) == 0;
-                            }) != _extensions.end();
+    inline bool checkExtension(const String &extension) const {
+        return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
+            return std::strcmp(ext, extension.c_str()) == 0;
+        });
     }
 
-    CCVKGPUContext *gpuContext() const;
-    CC_INLINE CCVKGPUDevice *gpuDevice() const { return _gpuDevice; }
-    CC_INLINE CCVKGPUSwapchain *gpuSwapchain() { return _gpuSwapchain; }
+    CCVKGPUContext *         gpuContext() const;
+    inline CCVKGPUDevice *   gpuDevice() const { return _gpuDevice; }
+    inline CCVKGPUSwapchain *gpuSwapchain() { return _gpuSwapchain; }
 
-    CC_INLINE CCVKGPUBufferHub *gpuBufferHub() { return _gpuBufferHub; }
-    CC_INLINE CCVKGPUTransportHub *gpuTransportHub() { return _gpuTransportHub; }
-    CC_INLINE CCVKGPUDescriptorHub *gpuDescriptorHub() { return _gpuDescriptorHub; }
-    CC_INLINE CCVKGPUSemaphorePool *gpuSemaphorePool() { return _gpuSemaphorePool; }
-    CC_INLINE CCVKGPUBarrierManager *gpuBarrierManager() { return _gpuBarrierManager; }
-    CC_INLINE CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() { return _gpuDescriptorSetHub; }
+    inline CCVKGPUBufferHub *       gpuBufferHub() { return _gpuBufferHub; }
+    inline CCVKGPUTransportHub *    gpuTransportHub() { return _gpuTransportHub; }
+    inline CCVKGPUDescriptorHub *   gpuDescriptorHub() { return _gpuDescriptorHub; }
+    inline CCVKGPUSemaphorePool *   gpuSemaphorePool() { return _gpuSemaphorePool; }
+    inline CCVKGPUBarrierManager *  gpuBarrierManager() { return _gpuBarrierManager; }
+    inline CCVKGPUDescriptorSetHub *gpuDescriptorSetHub() { return _gpuDescriptorSetHub; }
 
     CCVKGPUFencePool *        gpuFencePool();
     CCVKGPURecycleBin *       gpuRecycleBin();
     CCVKGPUStagingBufferPool *gpuStagingBufferPool();
 
 protected:
-    static CCVKDevice *_instance;
+    static CCVKDevice *instance;
 
     friend class DeviceManager;
 

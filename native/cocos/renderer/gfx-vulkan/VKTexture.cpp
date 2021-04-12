@@ -33,15 +33,13 @@
 namespace cc {
 namespace gfx {
 
-CCVKTexture::CCVKTexture()
-: Texture() {
-}
+CCVKTexture::CCVKTexture() = default;
 
 CCVKTexture::~CCVKTexture() {
     destroy();
 }
 
-void CCVKTexture::doInit(const TextureInfo &info) {
+void CCVKTexture::doInit(const TextureInfo & /*info*/) {
     _gpuTexture              = CC_NEW(CCVKGPUTexture);
     _gpuTexture->type        = _type;
     _gpuTexture->format      = _format;
@@ -55,7 +53,7 @@ void CCVKTexture::doInit(const TextureInfo &info) {
     _gpuTexture->samples     = _samples;
     _gpuTexture->flags       = _flags;
 
-    CCVKCmdFuncCreateTexture(CCVKDevice::getInstance(), _gpuTexture);
+    cmdFuncCCVKCreateTexture(CCVKDevice::getInstance(), _gpuTexture);
 
     _gpuTextureView = CC_NEW(CCVKGPUTextureView);
     createTextureView();
@@ -76,7 +74,7 @@ void CCVKTexture::createTextureView() {
     _gpuTextureView->levelCount = _levelCount;
     _gpuTextureView->baseLayer  = _baseLayer;
     _gpuTextureView->layerCount = _layerCount;
-    CCVKCmdFuncCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);
+    cmdFuncCCVKCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);
 }
 
 void CCVKTexture::doDestroy() {
@@ -104,9 +102,9 @@ void CCVKTexture::doResize(uint width, uint height, uint size) {
     _gpuTexture->width  = width;
     _gpuTexture->height = height;
     _gpuTexture->size   = size;
-    CCVKCmdFuncCreateTexture(CCVKDevice::getInstance(), _gpuTexture);
+    cmdFuncCCVKCreateTexture(CCVKDevice::getInstance(), _gpuTexture);
 
-    CCVKCmdFuncCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);
+    cmdFuncCCVKCreateTextureView(CCVKDevice::getInstance(), _gpuTextureView);
 }
 
 } // namespace gfx

@@ -45,24 +45,24 @@
 namespace cc {
 namespace gfx {
 
-GLES2Device *GLES2Device::_instance = nullptr;
+GLES2Device *GLES2Device::instance = nullptr;
 
 GLES2Device *GLES2Device::getInstance() {
-    return GLES2Device::_instance;
+    return GLES2Device::instance;
 }
 
 GLES2Device::GLES2Device() {
-    _API        = API::GLES2;
+    _api        = API::GLES2;
     _deviceName = "GLES2";
 
-    GLES2Device::_instance = this;
+    GLES2Device::instance = this;
 }
 
 GLES2Device::~GLES2Device() {
-    GLES2Device::_instance = nullptr;
+    GLES2Device::instance = nullptr;
 }
 
-bool GLES2Device::doInit(const DeviceInfo &info) {
+bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
 
@@ -86,7 +86,7 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
 
     bindRenderContext(true);
 
-    String extStr = (const char *)glGetString(GL_EXTENSIONS);
+    String extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
     _extensions   = StringUtil::split(extStr, " ");
 
     if (checkExtension("GL_OES_texture_float")) {
@@ -105,28 +105,34 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
         _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)] = true;
     }
 
-    if (checkExtension("color_buffer_float"))
+    if (checkExtension("color_buffer_float")) {
         _features[static_cast<uint>(Feature::COLOR_FLOAT)] = true;
+    }
 
-    if (checkExtension("color_buffer_half_float"))
+    if (checkExtension("color_buffer_half_float")) {
         _features[static_cast<uint>(Feature::COLOR_HALF_FLOAT)] = true;
+    }
 
-    if (checkExtension("texture_float_linear"))
+    if (checkExtension("texture_float_linear")) {
         _features[static_cast<uint>(Feature::TEXTURE_FLOAT_LINEAR)] = true;
+    }
 
-    if (checkExtension("texture_half_float_linear"))
+    if (checkExtension("texture_half_float_linear")) {
         _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
+    }
 
-    if (checkExtension("draw_buffers"))
+    if (checkExtension("draw_buffers")) {
         _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
+    }
 
-    if (checkExtension("blend_minmax"))
+    if (checkExtension("blend_minmax")) {
         _features[static_cast<uint>(Feature::BLEND_MINMAX)] = true;
+    }
 
     _useVAO             = checkExtension("vertex_array_object");
     _useDrawInstanced   = checkExtension("draw_instanced");
     _useInstancedArrays = _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)] = checkExtension("instanced_arrays");
-    _useDiscardFramebuffer                                          = checkExtension("discard_framebuffer");
+    _useDiscardFramebuffer                                                        = checkExtension("discard_framebuffer");
 
     String compressedFmts;
 
@@ -161,9 +167,9 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
         _features[static_cast<uint>(Feature::FORMAT_D24S8)] = checkExtension("packed_depth_stencil");
     }
 
-    _renderer = (const char *)glGetString(GL_RENDERER);
-    _vendor   = (const char *)glGetString(GL_VENDOR);
-    _version  = (const char *)glGetString(GL_VERSION);
+    _renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
+    _vendor   = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+    _version  = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 
     CC_LOG_INFO("GLES2 device initialized.");
     CC_LOG_INFO("RENDERER: %s", _renderer.c_str());
@@ -174,15 +180,15 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     CC_LOG_INFO("USE_VAO: %s", _useVAO ? "true" : "false");
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
 
-    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, (GLint *)&_caps.maxVertexAttributes);
-    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, (GLint *)&_caps.maxVertexUniformVectors);
-    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, (GLint *)&_caps.maxFragmentUniformVectors);
-    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, (GLint *)&_caps.maxTextureUnits);
-    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, (GLint *)&_caps.maxVertexTextureUnits);
-    glGetIntegerv(GL_MAX_TEXTURE_SIZE, (GLint *)&_caps.maxTextureSize);
-    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, (GLint *)&_caps.maxCubeMapTextureSize);
-    glGetIntegerv(GL_DEPTH_BITS, (GLint *)&_caps.depthBits);
-    glGetIntegerv(GL_STENCIL_BITS, (GLint *)&_caps.stencilBits);
+    glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&_caps.maxVertexAttributes));
+    glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxVertexUniformVectors));
+    glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxFragmentUniformVectors));
+    glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint *>(&_caps.maxTextureUnits));
+    glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint *>(&_caps.maxVertexTextureUnits));
+    glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxTextureSize));
+    glGetIntegerv(GL_MAX_CUBE_MAP_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxCubeMapTextureSize));
+    glGetIntegerv(GL_DEPTH_BITS, reinterpret_cast<GLint *>(&_caps.depthBits));
+    glGetIntegerv(GL_STENCIL_BITS, reinterpret_cast<GLint *>(&_caps.stencilBits));
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxVertexAttributes);
 
@@ -209,10 +215,10 @@ void GLES2Device::acquire() {
 }
 
 void GLES2Device::present() {
-    GLES2Queue *queue = (GLES2Queue *)_queue;
-    _numDrawCalls     = queue->_numDrawCalls;
-    _numInstances     = queue->_numInstances;
-    _numTriangles     = queue->_numTriangles;
+    auto *queue   = static_cast<GLES2Queue *>(_queue);
+    _numDrawCalls = queue->_numDrawCalls;
+    _numInstances = queue->_numInstances;
+    _numTriangles = queue->_numTriangles;
 
     _context->present();
 
@@ -312,19 +318,20 @@ TextureBarrier *GLES2Device::createTextureBarrier() {
 }
 
 void GLES2Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
-    GLES2CmdFuncCopyBuffersToTexture(this, buffers, static_cast<GLES2Texture *>(dst)->gpuTexture(), regions, count);
+    cmdFuncGLES2CopyBuffersToTexture(this, buffers, static_cast<GLES2Texture *>(dst)->gpuTexture(), regions, count);
 }
 
-bool GLES2Device::checkForETC2() const {
+bool GLES2Device::checkForETC2() {
     GLint numFormats = 0;
     glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, &numFormats);
-    GLint *formats = new GLint[numFormats];
+    auto *formats = new GLint[numFormats];
     glGetIntegerv(GL_COMPRESSED_TEXTURE_FORMATS, formats);
 
     int supportNum = 0;
     for (GLint i = 0; i < numFormats; ++i) {
-        if (formats[i] == GL_COMPRESSED_RGB8_ETC2 || formats[i] == GL_COMPRESSED_RGBA8_ETC2_EAC)
+        if (formats[i] == GL_COMPRESSED_RGB8_ETC2 || formats[i] == GL_COMPRESSED_RGBA8_ETC2_EAC) {
             supportNum++;
+        }
     }
     delete[] formats;
 

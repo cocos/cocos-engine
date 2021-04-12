@@ -36,8 +36,8 @@ class GLES3GPUCommandAllocator;
 
 class CC_GLES3_API GLES3CommandBuffer : public CommandBuffer {
 public:
-    GLES3CommandBuffer();
-    ~GLES3CommandBuffer();
+    GLES3CommandBuffer() = default;
+    ~GLES3CommandBuffer() override;
 
     void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
     void end() override;
@@ -54,7 +54,7 @@ public:
     void setDepthBound(float minBounds, float maxBounds) override;
     void setStencilWriteMask(StencilFace face, uint mask) override;
     void setStencilCompareMask(StencilFace face, int ref, uint mask) override;
-    void draw(InputAssembler *ia) override;
+    void draw(const DrawInfo &info) override;
     void updateBuffer(Buffer *buff, const void *data, uint size) override;
     void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) override;
     void blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) override;
@@ -68,7 +68,7 @@ protected:
     void doInit(const CommandBufferInfo &info) override;
     void doDestroy() override;
 
-    virtual void BindStates();
+    virtual void bindStates();
 
     GLES3GPUCommandAllocator *_cmdAllocator = nullptr;
     GLES3CmdPackage *_curCmdPackage = nullptr;
@@ -81,7 +81,7 @@ protected:
     vector<vector<uint>> _curDynamicOffsets;
     Viewport _curViewport;
     Rect _curScissor;
-    float _curLineWidth = 1.0f;
+    float _curLineWidth = 1.0F;
     GLES3DepthBias _curDepthBias;
     Color _curBlendConstants;
     GLES3DepthBounds _curDepthBounds;

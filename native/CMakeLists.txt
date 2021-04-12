@@ -1021,9 +1021,10 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/VKTexture.h
         NO_WERROR    cocos/renderer/gfx-vulkan/VKTextureBarrier.cpp
                      cocos/renderer/gfx-vulkan/VKTextureBarrier.h
+        NO_WERROR    cocos/renderer/gfx-vulkan/VKUtils.cpp
                      cocos/renderer/gfx-vulkan/VKUtils.h
-                     cocos/renderer/gfx-vulkan/volk.h
         NO_WERROR    cocos/renderer/gfx-vulkan/volk.c
+                     cocos/renderer/gfx-vulkan/volk.h
     )
 endif()
 

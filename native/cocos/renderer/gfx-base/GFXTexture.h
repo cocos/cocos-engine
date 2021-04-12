@@ -33,7 +33,7 @@ namespace gfx {
 class CC_DLL Texture : public GFXObject {
 public:
     Texture();
-    virtual ~Texture();
+    ~Texture() override;
 
     static uint computeHash(const TextureInfo &info);
 
@@ -58,8 +58,8 @@ public:
 
 protected:
     static uint generateTextureID() noexcept {
-        static uint _idGen = 0;
-        return _idGen++;
+        static uint idGen = 0;
+        return idGen++;
     }
 
     virtual void doInit(const TextureInfo &info)              = 0;
@@ -71,14 +71,14 @@ protected:
     TextureType  _type          = TextureType::TEX2D;
     TextureUsage _usage         = TextureUsageBit::NONE;
     Format       _format        = Format::UNKNOWN;
-    uint         _width         = 0u;
-    uint         _height        = 0u;
-    uint         _depth         = 1u;
-    uint         _baseLevel     = 0u;
-    uint         _levelCount    = 1u;
-    uint         _baseLayer     = 0u;
-    uint         _layerCount    = 1u;
-    uint         _size          = 0u;
+    uint         _width         = 0U;
+    uint         _height        = 0U;
+    uint         _depth         = 1U;
+    uint         _baseLevel     = 0U;
+    uint         _levelCount    = 1U;
+    uint         _baseLayer     = 0U;
+    uint         _layerCount    = 1U;
+    uint         _size          = 0U;
     SampleCount  _samples       = SampleCount::X1;
     TextureFlags _flags         = TextureFlagBit::NONE;
     bool         _isTextureView = false;

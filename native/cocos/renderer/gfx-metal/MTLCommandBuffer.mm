@@ -262,13 +262,13 @@ void CCMTLCommandBuffer::setStencilCompareMask(StencilFace /*face*/, int /*ref*/
     CC_LOG_ERROR("Don't support change stencil compare mask here.");
 }
 
-void CCMTLCommandBuffer::draw(InputAssembler *ia) {
+void CCMTLCommandBuffer::draw(const DrawInfo &info) {
     if (_firstDirtyDescriptorSet < _GPUDescriptorSets.size()) {
         bindDescriptorSets();
     }
 
-    const auto *indirectBuffer = static_cast<CCMTLBuffer *>(ia->getIndirectBuffer());
-    const auto *indexBuffer = static_cast<CCMTLBuffer *>(ia->getIndexBuffer());
+    const auto *indirectBuffer = static_cast<CCMTLBuffer *>(_inputAssembler->getIndirectBuffer());
+    const auto *indexBuffer = static_cast<CCMTLBuffer *>(_inputAssembler->getIndexBuffer());
     auto mtlEncoder = _renderEncoder.getMTLEncoder();
 
     if (indirectBuffer) {
@@ -328,47 +328,46 @@ void CCMTLCommandBuffer::draw(InputAssembler *ia) {
             }
         }
     } else {
-        DrawInfo drawInfo;
-        static_cast<CCMTLInputAssembler *>(ia)->extractDrawInfo(drawInfo);
-        if (drawInfo.indexCount > 0) {
+        if (info.indexCount > 0) {
             uint offset = 0;
-            offset += drawInfo.firstIndex * indexBuffer->getStride();
-            if (drawInfo.instanceCount == 0) {
+            offset += info.firstIndex * indexBuffer->getStride();
+            if (info.instanceCount == 0) {
                 [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                        indexCount:drawInfo.indexCount
+                                        indexCount:info.indexCount
                                         indexType:indexBuffer->getIndexType()
                                         indexBuffer:indexBuffer->getMTLBuffer()
                                 indexBufferOffset:offset];
             } else {
                 [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                        indexCount:drawInfo.indexCount
+                                        indexCount:info.indexCount
                                         indexType:indexBuffer->getIndexType()
                                         indexBuffer:indexBuffer->getMTLBuffer()
                                 indexBufferOffset:offset
-                                    instanceCount:drawInfo.instanceCount];
+                                    instanceCount:info.instanceCount];
             }
-        } else if (drawInfo.vertexCount) {
-            if (drawInfo.instanceCount == 0) {
+        } else if (info.vertexCount) {
+            if (info.instanceCount == 0) {
                 [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                vertexStart:drawInfo.firstIndex
-                                vertexCount:drawInfo.vertexCount];
+                                vertexStart:info.firstIndex
+                                vertexCount:info.vertexCount];
             } else {
                 [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                vertexStart:drawInfo.firstIndex
-                                vertexCount:drawInfo.vertexCount
-                                instanceCount:drawInfo.instanceCount];
+                                vertexStart:info.firstIndex
+                                vertexCount:info.vertexCount
+                                instanceCount:info.instanceCount];
             }
         }
-        _numInstances += drawInfo.instanceCount;
+
+        _numInstances += info.instanceCount;
         _numDrawCalls++;
         if (_gpuPipelineState) {
-            uint indexCount = drawInfo.indexCount ? drawInfo.indexCount : drawInfo.vertexCount;
+            uint indexCount = info.indexCount ? info.indexCount : info.vertexCount;
             switch (_mtlPrimitiveType) {
                 case MTLPrimitiveTypeTriangle:
-                    _numTriangles += indexCount / 3 * std::max(drawInfo.instanceCount, 1U);
+                    _numTriangles += indexCount / 3 * std::max(info.instanceCount, 1U);
                     break;
                 case MTLPrimitiveTypeTriangleStrip:
-                    _numTriangles += (indexCount - 2) * std::max(drawInfo.instanceCount, 1U);
+                    _numTriangles += (indexCount - 2) * std::max(info.instanceCount, 1U);
                     break;
                 default: break;
             }
@@ -414,7 +413,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         auto h = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
         bufferSize[i] = w * h;
         stagingRegion.sourceBytesPerRow = mu::getBytesPerRow(convertedFormat, w);
-        stagingRegion.sourceBytesPerImage = FormatSize(convertedFormat, w, h, region.texExtent.depth);
+        stagingRegion.sourceBytesPerImage = formatSize(convertedFormat, w, h, region.texExtent.depth);
         stagingRegion.sourceSize = {w, h, region.texExtent.depth};
         stagingRegion.destinationSlice = region.texSubres.baseArrayLayer;
         stagingRegion.destinationLevel = region.texSubres.mipLevel;
@@ -525,7 +524,7 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
             _renderEncoder.setFragmentTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
             _renderEncoder.setFragmentSampler(gpuDescriptor.sampler->getMTLSamplerState(), sampler.samplerBinding);
         }
-        
+
         if(sampler.stages & ShaderStageFlagBit::COMPUTE) {
             _computeEncoder.setTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
         }
@@ -544,11 +543,11 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
         } else {
             dst = static_cast<CCMTLTexture*>(dstTexture)->getMTLTexture();
         }
-        
+
         if([src pixelFormat] != device->preferredPixelFormat()) {
             src = [src newTextureViewWithPixelFormat:(MTLPixelFormat)device->preferredPixelFormat()];
         }
-        
+
         for (uint i = 0; i < count; ++i) {
             [encoder copyFromTexture:src
                          sourceSlice:regions[i].srcSubres.baseArrayLayer

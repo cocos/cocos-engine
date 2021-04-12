@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef CC_GFXVULKAN_CONTEXT_H_
-#define CC_GFXVULKAN_CONTEXT_H_
+#pragma once
 
+#include "VKStd.h"
 #include "gfx-base/GFXContext.h"
 
 namespace cc {
@@ -40,22 +40,21 @@ class CCVKGPUSemaphorePool;
 class CC_VULKAN_API CCVKContext final : public Context {
 public:
     CCVKContext();
-    ~CCVKContext();
+    ~CCVKContext() override;
 
     void present() override {}
 
-    CC_INLINE bool checkExtension(const String &extension) const {
-        return std::find_if(_extensions.begin(), _extensions.end(),
-                            [extension](const char *device_extension) {
-                                return std::strcmp(device_extension, extension.c_str()) == 0;
-                            }) != _extensions.end();
+    inline bool checkExtension(const String &extension) const {
+        return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
+            return std::strcmp(ext, extension.c_str()) == 0;
+        });
     }
 
-    CC_INLINE int majorVersion() const { return _majorVersion; }
-    CC_INLINE int minorVersion() const { return _minorVersion; }
-    CC_INLINE CCVKGPUContext *gpuContext() { return _gpuContext; }
-    CC_INLINE const vector<const char *> &getLayers() const { return _layers; }
-    CC_INLINE const vector<const char *> &getExtensions() const { return _extensions; }
+    inline int                         majorVersion() const { return _majorVersion; }
+    inline int                         minorVersion() const { return _minorVersion; }
+    inline CCVKGPUContext *            gpuContext() { return _gpuContext; }
+    inline const vector<const char *> &getLayers() const { return _layers; }
+    inline const vector<const char *> &getExtensions() const { return _extensions; }
 
 protected:
     bool doInit(const ContextInfo &info) override;
@@ -71,5 +70,3 @@ protected:
 
 } // namespace gfx
 } // namespace cc
-
-#endif // CC_GFXVULKAN_CONTEXT_H_

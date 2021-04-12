@@ -26,17 +26,17 @@
 ****************************************************************************/
 
 #include "Image.h"
-#include <string>
-#include <ctype.h>
-#include <assert.h>
 #include "base/Config.h" // CC_USE_JPEG, CC_USE_WEBP
+#include <cassert>
+#include <cctype>
+#include <string>
 #if CC_USE_JPEG
     #include "jpeg/jpeglib.h"
 #endif // CC_USE_JPEG
 
+#include "base/CoreStd.h"
 #include "base/Data.h"
 #include "base/Utils.h"
-#include "base/CoreStd.h"
 #include "gfx-base/GFXDef.h"
 
 extern "C" {
@@ -54,8 +54,8 @@ extern "C" {
     #include "webp/decode.h"
 #endif // CC_USE_WEBP
 
-#include "platform/FileUtils.h"
 #include "base/ZipUtils.h"
+#include "platform/FileUtils.h"
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "platform/android/FileUtils-android.h"
 #endif
@@ -68,22 +68,22 @@ namespace cc {
 //struct and data for pvr structure
 
 namespace {
-static const int PVR_TEXTURE_FLAG_TYPE_MASK = 0xff;
+const int PVR_TEXTURE_FLAG_TYPE_MASK = 0xff;
 
 // Values taken from PVRTexture.h from http://www.imgtec.com
 enum class PVR2TextureFlag {
-    Mipmap = (1 << 8),        // has mip map levels
-    Twiddle = (1 << 9),       // is twiddled
-    Bumpmap = (1 << 10),      // has normals encoded for a bump map
-    Tiling = (1 << 11),       // is bordered for tiled pvr
-    Cubemap = (1 << 12),      // is a cubemap/skybox
-    FalseMipCol = (1 << 13),  // are there false colored MIP levels
-    Volume = (1 << 14),       // is this a volume texture
-    Alpha = (1 << 15),        // v2.1 is there transparency info in the texture
-    VerticalFlip = (1 << 16), // v2.1 is the texture vertically flipped
+    MIPMAP        = (1 << 8),  // has mip map levels
+    TWIDDLE       = (1 << 9),  // is twiddled
+    BUMPMAP       = (1 << 10), // has normals encoded for a bump map
+    TILING        = (1 << 11), // is bordered for tiled pvr
+    CUBEMAP       = (1 << 12), // is a cubemap/skybox
+    FALSE_MIP_COL = (1 << 13), // are there false colored MIP levels
+    VOLUME        = (1 << 14), // is this a volume texture
+    ALPHA         = (1 << 15), // v2.1 is there transparency info in the texture
+    VERTICAL_FLIP = (1 << 16), // v2.1 is the texture vertically flipped
 };
 
-static const char gPVRTexIdentifier[5] = "PVR!";
+const char G_PVR_TEX_IDENTIFIER[5] = "PVR!";
 
 // v2
 enum class PVR2TexturePixelFormat : unsigned char {
@@ -103,99 +103,97 @@ enum class PVR2TexturePixelFormat : unsigned char {
 
 // v3
 enum class PVR3TexturePixelFormat : uint64_t {
-    PVRTC2BPP_RGB = 0ULL,
-    PVRTC2BPP_RGBA = 1ULL,
-    PVRTC4BPP_RGB = 2ULL,
-    PVRTC4BPP_RGBA = 3ULL,
-    PVRTC2_2BPP_RGBA = 4ULL,
-    PVRTC2_4BPP_RGBA = 5ULL,
-    ETC1 = 6ULL,
-    DXT1 = 7ULL,
-    DXT2 = 8ULL,
-    DXT3 = 9ULL,
-    DXT4 = 10ULL,
-    DXT5 = 11ULL,
-    BC1 = 7ULL,
-    BC2 = 9ULL,
-    BC3 = 11ULL,
-    BC4 = 12ULL,
-    BC5 = 13ULL,
-    BC6 = 14ULL,
-    BC7 = 15ULL,
-    UYVY = 16ULL,
-    YUY2 = 17ULL,
-    BW1bpp = 18ULL,
-    R9G9B9E5 = 19ULL,
-    RGBG8888 = 20ULL,
-    GRGB8888 = 21ULL,
-    ETC2_RGB = 22ULL,
-    ETC2_RGBA = 23ULL,
-    ETC2_RGBA1 = 24ULL,
-    EAC_R11_Unsigned = 25ULL,
-    EAC_R11_Signed = 26ULL,
-    EAC_RG11_Unsigned = 27ULL,
-    EAC_RG11_Signed = 28ULL,
+    PVRTC2BPP_RGB      = 0ULL,
+    PVRTC2BPP_RGBA     = 1ULL,
+    PVRTC4BPP_RGB      = 2ULL,
+    PVRTC4BPP_RGBA     = 3ULL,
+    PVRTC2_2BPP_RGBA   = 4ULL,
+    PVRTC2_4BPP_RGBA   = 5ULL,
+    ETC1               = 6ULL,
+    DXT1               = 7ULL,
+    DXT2               = 8ULL,
+    DXT3               = 9ULL,
+    DXT4               = 10ULL,
+    DXT5               = 11ULL,
+    BC1                = 7ULL,
+    BC2                = 9ULL,
+    BC3                = 11ULL,
+    BC4                = 12ULL,
+    BC5                = 13ULL,
+    BC6                = 14ULL,
+    BC7                = 15ULL,
+    UYVY               = 16ULL,
+    YUY2               = 17ULL,
+    B_W1BPP            = 18ULL,
+    R9G9B9E5           = 19ULL,
+    RGBG8888           = 20ULL,
+    GRGB8888           = 21ULL,
+    ETC2_RGB           = 22ULL,
+    ETC2_RGBA          = 23ULL,
+    ETC2_RGBA1         = 24ULL,
+    EAC_R11_UNSIGNED   = 25ULL,
+    EAC_R11_SIGNED     = 26ULL,
+    EAC_R_G11_UNSIGNED = 27ULL,
+    EAC_R_G11_SIGNED   = 28ULL,
 
     BGRA8888 = 0x0808080861726762ULL,
     RGBA8888 = 0x0808080861626772ULL,
     RGBA4444 = 0x0404040461626772ULL,
     RGBA5551 = 0x0105050561626772ULL,
-    RGB565 = 0x0005060500626772ULL,
-    RGB888 = 0x0008080800626772ULL,
-    A8 = 0x0000000800000061ULL,
-    L8 = 0x000000080000006cULL,
-    LA88 = 0x000008080000616cULL,
+    RGB565   = 0x0005060500626772ULL,
+    RGB888   = 0x0008080800626772ULL,
+    A8       = 0x0000000800000061ULL,
+    L8       = 0x000000080000006cULL,
+    LA88     = 0x000008080000616cULL,
 };
 
 // v2
-typedef const std::map<PVR2TexturePixelFormat, gfx::Format> _pixel2_formathash;
+using _pixel2_formathash = const std::map<PVR2TexturePixelFormat, gfx::Format>;
 
-static const _pixel2_formathash::value_type v2_pixel_formathash_value[] =
-    {
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::BGRA8888, gfx::Format::BGRA8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA8888, gfx::Format::RGBA8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA4444, gfx::Format::RGBA4),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA5551, gfx::Format::RGB5A1),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB565, gfx::Format::R5G6B5),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB888, gfx::Format::RGB8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::A8, gfx::Format::A8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::I8, gfx::Format::L8),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::AI88, gfx::Format::LA8),
+const _pixel2_formathash::value_type V2_PIXEL_FORMATHASH_VALUE[] = {
+    _pixel2_formathash::value_type(PVR2TexturePixelFormat::BGRA8888, gfx::Format::BGRA8),
+    _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA8888, gfx::Format::RGBA8),
+    _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA4444, gfx::Format::RGBA4),
+    _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGBA5551, gfx::Format::RGB5A1),
+    _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB565, gfx::Format::R5G6B5),
+    _pixel2_formathash::value_type(PVR2TexturePixelFormat::RGB888, gfx::Format::RGB8),
+    _pixel2_formathash::value_type(PVR2TexturePixelFormat::A8, gfx::Format::A8),
+    _pixel2_formathash::value_type(PVR2TexturePixelFormat::I8, gfx::Format::L8),
+    _pixel2_formathash::value_type(PVR2TexturePixelFormat::AI88, gfx::Format::LA8),
 
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC2BPP_RGBA, gfx::Format::PVRTC_RGBA2),
-        _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC4BPP_RGBA, gfx::Format::PVRTC_RGBA4),
+    _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC2BPP_RGBA, gfx::Format::PVRTC_RGBA2),
+    _pixel2_formathash::value_type(PVR2TexturePixelFormat::PVRTC4BPP_RGBA, gfx::Format::PVRTC_RGBA4),
 };
 
-static const int PVR2_MAX_TABLE_ELEMENTS = sizeof(v2_pixel_formathash_value) / sizeof(v2_pixel_formathash_value[0]);
-static const _pixel2_formathash v2_pixel_formathash(v2_pixel_formathash_value, v2_pixel_formathash_value + PVR2_MAX_TABLE_ELEMENTS);
+const int                PVR2_MAX_TABLE_ELEMENTS = sizeof(V2_PIXEL_FORMATHASH_VALUE) / sizeof(V2_PIXEL_FORMATHASH_VALUE[0]);
+const _pixel2_formathash V2_PIXEL_FORMATHASH(V2_PIXEL_FORMATHASH_VALUE, V2_PIXEL_FORMATHASH_VALUE + PVR2_MAX_TABLE_ELEMENTS);
 
 // v3
-typedef const std::map<PVR3TexturePixelFormat, gfx::Format> _pixel3_formathash;
-static _pixel3_formathash::value_type v3_pixel_formathash_value[] =
-    {
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::BGRA8888, gfx::Format::BGRA8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA8888, gfx::Format::RGBA8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA4444, gfx::Format::RGBA4),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA5551, gfx::Format::RGB5A1),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB565, gfx::Format::R5G6B5),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB888, gfx::Format::RGB8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::A8, gfx::Format::A8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::L8, gfx::Format::L8),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::LA88, gfx::Format::LA8),
+using _pixel3_formathash                                = const std::map<PVR3TexturePixelFormat, gfx::Format>;
+_pixel3_formathash::value_type v3PixelFormathashValue[] = {
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::BGRA8888, gfx::Format::BGRA8),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA8888, gfx::Format::RGBA8),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA4444, gfx::Format::RGBA4),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGBA5551, gfx::Format::RGB5A1),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB565, gfx::Format::R5G6B5),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::RGB888, gfx::Format::RGB8),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::A8, gfx::Format::A8),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::L8, gfx::Format::L8),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::LA88, gfx::Format::LA8),
 
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGB, gfx::Format::PVRTC_RGB2),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGBA, gfx::Format::PVRTC_RGBA2),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGB, gfx::Format::PVRTC_RGB4),
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGBA, gfx::Format::PVRTC_RGBA4),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGB, gfx::Format::PVRTC_RGB2),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC2BPP_RGBA, gfx::Format::PVRTC_RGBA2),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGB, gfx::Format::PVRTC_RGB4),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::PVRTC4BPP_RGBA, gfx::Format::PVRTC_RGBA4),
 
-        _pixel3_formathash::value_type(PVR3TexturePixelFormat::ETC1, gfx::Format::ETC_RGB8),
+    _pixel3_formathash::value_type(PVR3TexturePixelFormat::ETC1, gfx::Format::ETC_RGB8),
 };
 
-static const int PVR3_MAX_TABLE_ELEMENTS = sizeof(v3_pixel_formathash_value) / sizeof(v3_pixel_formathash_value[0]);
+const int PVR3_MAX_TABLE_ELEMENTS = sizeof(v3PixelFormathashValue) / sizeof(v3PixelFormathashValue[0]);
 
-static const _pixel3_formathash v3_pixel_formathash(v3_pixel_formathash_value, v3_pixel_formathash_value + PVR3_MAX_TABLE_ELEMENTS);
+const _pixel3_formathash V3_PIXEL_FORMATHASH(v3PixelFormathashValue, v3PixelFormathashValue + PVR3_MAX_TABLE_ELEMENTS);
 
-typedef struct _PVRTexHeader {
+using PVRv2TexHeader = struct PvrTexHeader {
     unsigned int headerLength;
     unsigned int height;
     unsigned int width;
@@ -209,13 +207,12 @@ typedef struct _PVRTexHeader {
     unsigned int bitmaskAlpha;
     unsigned int pvrTag;
     unsigned int numSurfs;
-} PVRv2TexHeader;
+};
 
 #ifdef _MSC_VER
     #pragma pack(push, 1)
 #endif
-typedef struct
-{
+using PVRv3TexHeader = struct {
     uint32_t version;
     uint32_t flags;
     uint64_t pixelFormat;
@@ -229,31 +226,30 @@ typedef struct
     uint32_t numberOfMipmaps;
     uint32_t metadataLength;
 #ifdef _MSC_VER
-} PVRv3TexHeader;
+};
     #pragma pack(pop)
 #else
-} __attribute__((packed)) PVRv3TexHeader;
+} __attribute__((packed));
 #endif
 } // namespace
 //pvr structure end
 
 namespace {
-typedef struct
-{
+using tImageSource = struct {
     const unsigned char *data;
-    ssize_t size;
-    int offset;
-} tImageSource;
+    ssize_t              size;
+    int                  offset;
+};
 
 #ifdef CC_USE_PNG
-static void pngReadCallback(png_structp png_ptr, png_bytep data, png_size_t length) {
-    tImageSource *isource = (tImageSource *)png_get_io_ptr(png_ptr);
+void pngReadCallback(png_structp pngPtr, png_bytep data, png_size_t length) {
+    auto *isource = static_cast<tImageSource *>(png_get_io_ptr(pngPtr));
 
-    if ((int)(isource->offset + length) <= isource->size) {
+    if (static_cast<int>(isource->offset + length) <= isource->size) {
         memcpy(data, isource->data + isource->offset, length);
         isource->offset += length;
     } else {
-        png_error(png_ptr, "pngReaderCallback failed");
+        png_error(pngPtr, "pngReaderCallback failed");
     }
 }
 #endif //CC_USE_PNG
@@ -292,7 +288,7 @@ bool Image::initWithImageData(const unsigned char *data, ssize_t dataLen) {
         CC_BREAK_IF(!data || dataLen <= 0);
 
         unsigned char *unpackedData = nullptr;
-        ssize_t unpackedLen = 0;
+        ssize_t        unpackedLen  = 0;
 
         //detect and unzip the compress file
         if (ZipUtils::isCCZBuffer(data, dataLen)) {
@@ -301,7 +297,7 @@ bool Image::initWithImageData(const unsigned char *data, ssize_t dataLen) {
             unpackedLen = ZipUtils::inflateMemory(const_cast<unsigned char *>(data), dataLen, &unpackedData);
         } else {
             unpackedData = const_cast<unsigned char *>(data);
-            unpackedLen = dataLen;
+            unpackedLen  = dataLen;
         }
 
         _fileType = detectFormat(unpackedData, unpackedLen);
@@ -335,7 +331,7 @@ bool Image::initWithImageData(const unsigned char *data, ssize_t dataLen) {
         if (unpackedData != data) {
             free(unpackedData);
         }
-    } while (0);
+    } while (false);
 
     return ret;
 }
@@ -350,16 +346,16 @@ bool Image::isPng(const unsigned char *data, ssize_t dataLen) {
     return memcmp(PNG_SIGNATURE, data, sizeof(PNG_SIGNATURE)) == 0;
 }
 
-bool Image::isEtc(const unsigned char *data, ssize_t dataLen) {
-    return etc1_pkm_is_valid((etc1_byte *)data) ? true : false;
+bool Image::isEtc(const unsigned char *data, ssize_t /*dataLen*/) {
+    return etc1_pkm_is_valid(const_cast<etc1_byte *>(data)) != 0;
 }
 
-bool Image::isEtc2(const unsigned char *data, ssize_t dataLen) {
-    return etc2_pkm_is_valid((etc2_byte *)data) ? true : false;
+bool Image::isEtc2(const unsigned char *data, ssize_t /*dataLen*/) {
+    return etc2_pkm_is_valid(const_cast<etc2_byte *>(data)) != 0;
 }
 
-bool Image::isASTC(const unsigned char *data, ssize_t dataLen) {
-    return astcIsValid((astc_byte *)data) ? true : false;
+bool Image::isASTC(const unsigned char *data, ssize_t /*dataLen*/) {
+    return astcIsValid(const_cast<astc_byte *>(data));
 }
 
 bool Image::isJpg(const unsigned char *data, ssize_t dataLen) {
@@ -377,10 +373,10 @@ bool Image::isWebp(const unsigned char *data, ssize_t dataLen) {
         return false;
     }
 
-    static const char *WEBP_RIFF = "RIFF";
-    static const char *WEBP_WEBP = "WEBP";
+    static const char *webpRiff = "RIFF";
+    static const char *webpWebp = "WEBP";
 
-    return memcmp(data, WEBP_RIFF, 4) == 0 && memcmp(static_cast<const unsigned char *>(data) + 8, WEBP_WEBP, 4) == 0;
+    return memcmp(data, webpRiff, 4) == 0 && memcmp(static_cast<const unsigned char *>(data) + 8, webpWebp, 4) == 0;
 }
 
 bool Image::isPvr(const unsigned char *data, ssize_t dataLen) {
@@ -388,122 +384,109 @@ bool Image::isPvr(const unsigned char *data, ssize_t dataLen) {
         return false;
     }
 
-    const PVRv2TexHeader *headerv2 = static_cast<const PVRv2TexHeader *>(static_cast<const void *>(data));
-    const PVRv3TexHeader *headerv3 = static_cast<const PVRv3TexHeader *>(static_cast<const void *>(data));
+    const auto *headerv2 = static_cast<const PVRv2TexHeader *>(static_cast<const void *>(data));
+    const auto *headerv3 = static_cast<const PVRv3TexHeader *>(static_cast<const void *>(data));
 
-    return memcmp(&headerv2->pvrTag, gPVRTexIdentifier, strlen(gPVRTexIdentifier)) == 0 || CC_SWAP_INT32_BIG_TO_HOST(headerv3->version) == 0x50565203;
+    return memcmp(&headerv2->pvrTag, G_PVR_TEX_IDENTIFIER, strlen(G_PVR_TEX_IDENTIFIER)) == 0 || CC_SWAP_INT32_BIG_TO_HOST(headerv3->version) == 0x50565203;
 }
 
 Image::Format Image::detectFormat(const unsigned char *data, ssize_t dataLen) {
     if (isPng(data, dataLen)) {
         return Format::PNG;
-    } else if (isJpg(data, dataLen)) {
-        return Format::JPG;
-    } else if (isWebp(data, dataLen)) {
-        return Format::WEBP;
-    } else if (isPvr(data, dataLen)) {
-        return Format::PVR;
-    } else if (isEtc(data, dataLen)) {
-        return Format::ETC;
-    } else if (isEtc2(data, dataLen)) {
-        return Format::ETC2;
-    } else if (isASTC(data, dataLen)) {
-        return Format::ASTC;
-    } else {
-        return Format::UNKNOWN;
     }
+    if (isJpg(data, dataLen)) {
+        return Format::JPG;
+    }
+    if (isWebp(data, dataLen)) {
+        return Format::WEBP;
+    }
+    if (isPvr(data, dataLen)) {
+        return Format::PVR;
+    }
+    if (isEtc(data, dataLen)) {
+        return Format::ETC;
+    }
+    if (isEtc2(data, dataLen)) {
+        return Format::ETC2;
+    }
+    if (isASTC(data, dataLen)) {
+        return Format::ASTC;
+    }
+    return Format::UNKNOWN;
 }
 
-gfx::Format Image::getASTCFormat(const unsigned char *pHeader) const {
+gfx::Format Image::getASTCFormat(const unsigned char *pHeader) {
     int xdim = pHeader[ASTC_HEADER_MAGIC];
     int ydim = pHeader[ASTC_HEADER_MAGIC + 1];
 
-    if (xdim == 4) {
-        return gfx::Format::ASTC_RGBA_4x4;
-    } else if (xdim == 5) {
-        if (ydim == 4) {
-            return gfx::Format::ASTC_RGBA_5x4;
-        } else {
-            return gfx::Format::ASTC_RGBA_5x5;
-        }
-    } else if (xdim == 6) {
-        if (ydim == 5) {
-            return gfx::Format::ASTC_RGBA_6x5;
-        } else {
-            return gfx::Format::ASTC_RGBA_6x6;
-        }
-    } else if (xdim == 8) {
-        if (ydim == 5) {
-            return gfx::Format::ASTC_RGBA_8x5;
-        } else if (ydim == 6) {
-            return gfx::Format::ASTC_RGBA_8x6;
-        } else {
-            return gfx::Format::ASTC_RGBA_8x8;
-        }
-    } else if (xdim == 10) {
-        if (ydim == 5) {
-            return gfx::Format::ASTC_RGBA_10x5;
-        } else if (ydim == 6) {
-            return gfx::Format::ASTC_RGBA_10x6;
-        } else if (ydim == 8) {
-            return gfx::Format::ASTC_RGBA_10x8;
-        } else {
-            return gfx::Format::ASTC_RGBA_10x10;
-        }
-    } else {
-        if (ydim == 10) {
-            return gfx::Format::ASTC_RGBA_12x10;
-        } else {
-            return gfx::Format::ASTC_RGBA_12x12;
-        }
+    if (xdim == 4) return gfx::Format::ASTC_RGBA_4X4;
+    if (xdim == 5) {
+        if (ydim == 4) return gfx::Format::ASTC_RGBA_5X4;
+        return gfx::Format::ASTC_RGBA_5X5;
     }
+    if (xdim == 6) {
+        if (ydim == 5) return gfx::Format::ASTC_RGBA_6X5;
+        return gfx::Format::ASTC_RGBA_6X6;
+    }
+    if (xdim == 8) {
+        if (ydim == 5) return gfx::Format::ASTC_RGBA_8X5;
+        if (ydim == 6) return gfx::Format::ASTC_RGBA_8X6;
+        return gfx::Format::ASTC_RGBA_8X8;
+    }
+    if (xdim == 10) {
+        if (ydim == 5) return gfx::Format::ASTC_RGBA_10X5;
+        if (ydim == 6) return gfx::Format::ASTC_RGBA_10X6;
+        if (ydim == 8) return gfx::Format::ASTC_RGBA_10X8;
+        return gfx::Format::ASTC_RGBA_10X10;
+    }
+    if (ydim == 10) return gfx::Format::ASTC_RGBA_12X10;
+    return gfx::Format::ASTC_RGBA_12X12;
 }
 
 namespace {
 /*
-     * ERROR HANDLING:
-     *
-     * The JPEG library's standard error handler (jerror.c) is divided into
-     * several "methods" which you can override individually.  This lets you
-     * adjust the behavior without duplicating a lot of code, which you might
-     * have to update with each future release.
-     *
-     * We override the "error_exit" method so that control is returned to the
-     * library's caller when a fatal error occurs, rather than calling exit()
-     * as the standard error_exit method does.
-     *
-     * We use C's setjmp/longjmp facility to return control.  This means that the
-     * routine which calls the JPEG library must first execute a setjmp() call to
-     * establish the return point.  We want the replacement error_exit to do a
-     * longjmp().  But we need to make the setjmp buffer accessible to the
-     * error_exit routine.  To do this, we make a private extension of the
-     * standard JPEG error handler object.  (If we were using C++, we'd say we
-     * were making a subclass of the regular error handler.)
-     *
-     * Here's the extended error handler struct:
-     */
+ * ERROR HANDLING:
+ *
+ * The JPEG library's standard error handler (jerror.c) is divided into
+ * several "methods" which you can override individually.  This lets you
+ * adjust the behavior without duplicating a lot of code, which you might
+ * have to update with each future release.
+ *
+ * We override the "error_exit" method so that control is returned to the
+ * library's caller when a fatal error occurs, rather than calling exit()
+ * as the standard error_exit method does.
+ *
+ * We use C's setjmp/longjmp facility to return control.  This means that the
+ * routine which calls the JPEG library must first execute a setjmp() call to
+ * establish the return point.  We want the replacement error_exit to do a
+ * longjmp().  But we need to make the setjmp buffer accessible to the
+ * error_exit routine.  To do this, we make a private extension of the
+ * standard JPEG error handler object.  (If we were using C++, we'd say we
+ * were making a subclass of the regular error handler.)
+ *
+ * Here's the extended error handler struct:
+ */
 #if CC_USE_JPEG
 struct MyErrorMgr {
-    struct jpeg_error_mgr pub; /* "public" fields */
-    jmp_buf setjmp_buffer;     /* for return to caller */
+    struct jpeg_error_mgr pub;           /* "public" fields */
+    jmp_buf               setjmp_buffer; /* for return to caller */
 };
 
-typedef struct MyErrorMgr *MyErrorPtr;
+using MyErrorPtr = struct MyErrorMgr *;
 
 /*
-     * Here's the routine that will replace the standard error_exit method:
-     */
+ * Here's the routine that will replace the standard error_exit method:
+ */
 
-METHODDEF(void)
-myErrorExit(j_common_ptr cinfo) {
+void myErrorExit(j_common_ptr cinfo) {
     /* cinfo->err really points to a MyErrorMgr struct, so coerce pointer */
-    MyErrorPtr myerr = (MyErrorPtr)cinfo->err;
+    auto *myerr = reinterpret_cast<MyErrorPtr>(cinfo->err);
 
     /* Always display the message. */
     /* We could postpone this until after returning, if we chose. */
     /* internal message function can't show error message in some platforms, so we rewrite it here.
-         * edit it if has version conflict.
-         */
+     * edit it if has version conflict.
+     */
     //(*cinfo->err->output_message) (cinfo);
     char buffer[JMSG_LENGTH_MAX];
     (*cinfo->err->format_message)(cinfo, buffer);
@@ -525,13 +508,13 @@ bool Image::initWithJpgData(const unsigned char *data, ssize_t dataLen) {
      */
     struct MyErrorMgr jerr;
     /* libjpeg data structure for storing one row, that is, scanline of an image */
-    JSAMPROW row_pointer[1] = {0};
-    unsigned long location = 0;
+    JSAMPROW rowPointer[1] = {nullptr};
+    uint32_t location      = 0;
 
     bool ret = false;
     do {
         /* We set up the normal JPEG error routines, then override error_exit. */
-        cinfo.err = jpeg_std_error(&jerr.pub);
+        cinfo.err           = jpeg_std_error(&jerr.pub);
         jerr.pub.error_exit = myErrorExit;
         /* Establish the setjmp return context for MyErrorExit to use. */
         if (setjmp(jerr.setjmp_buffer)) {
@@ -556,11 +539,11 @@ bool Image::initWithJpgData(const unsigned char *data, ssize_t dataLen) {
     #endif
 
         // we only support RGB or grayscale
-        if (cinfo.jpeg_color_space == JCS_GRAYSCALE)
+        if (cinfo.jpeg_color_space == JCS_GRAYSCALE) {
             _renderFormat = gfx::Format::L8;
-        else {
+        } else {
             cinfo.out_color_space = JCS_RGB;
-            _renderFormat = gfx::Format::RGB8;
+            _renderFormat         = gfx::Format::RGB8;
         }
 
         /* Start decompression jpeg here */
@@ -568,18 +551,18 @@ bool Image::initWithJpgData(const unsigned char *data, ssize_t dataLen) {
 
         /* init image info */
         _isCompressed = false;
-        _width = cinfo.output_width;
-        _height = cinfo.output_height;
-        _dataLen = cinfo.output_width * cinfo.output_height * cinfo.output_components;
-        _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
+        _width        = cinfo.output_width;
+        _height       = cinfo.output_height;
+        _dataLen      = cinfo.output_width * cinfo.output_height * cinfo.output_components;
+        _data         = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         CC_BREAK_IF(!_data);
 
         /* now actually read the jpeg into the raw buffer */
         /* read one scan line at a time */
         while (cinfo.output_scanline < cinfo.output_height) {
-            row_pointer[0] = _data + location;
+            rowPointer[0] = _data + location;
             location += cinfo.output_width * cinfo.output_components;
-            jpeg_read_scanlines(&cinfo, row_pointer, 1);
+            jpeg_read_scanlines(&cinfo, rowPointer, 1);
         }
 
         /* When read image file with broken data, jpeg_finish_decompress() may cause error.
@@ -591,7 +574,7 @@ bool Image::initWithJpgData(const unsigned char *data, ssize_t dataLen) {
         jpeg_destroy_decompress(&cinfo);
         /* wrap up decompression, destroy objects, free pointers and close open files */
         ret = true;
-    } while (0);
+    } while (false);
 
     return ret;
 #endif // CC_USE_JPEG
@@ -601,10 +584,10 @@ bool Image::initWithPngData(const unsigned char *data, ssize_t dataLen) {
 #if CC_USE_PNG
     // length of bytes to check if it is a valid png file
     #define PNGSIGSIZE 8
-    bool ret = false;
-    png_byte header[PNGSIGSIZE] = {0};
-    png_structp png_ptr = 0;
-    png_infop info_ptr = 0;
+    bool        ret                = false;
+    png_byte    header[PNGSIGSIZE] = {0};
+    png_structp pngPtr             = nullptr;
+    png_infop   infoPtr            = nullptr;
 
     do {
         // png header len is 8 bytes
@@ -615,64 +598,64 @@ bool Image::initWithPngData(const unsigned char *data, ssize_t dataLen) {
         CC_BREAK_IF(png_sig_cmp(header, 0, PNGSIGSIZE));
 
         // init png_struct
-        png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0);
-        CC_BREAK_IF(!png_ptr);
+        pngPtr = png_create_read_struct(PNG_LIBPNG_VER_STRING, nullptr, nullptr, nullptr);
+        CC_BREAK_IF(!pngPtr);
 
         // init png_info
-        info_ptr = png_create_info_struct(png_ptr);
-        CC_BREAK_IF(!info_ptr);
+        infoPtr = png_create_info_struct(pngPtr);
+        CC_BREAK_IF(!infoPtr);
 
-        CC_BREAK_IF(setjmp(png_jmpbuf(png_ptr)));
+        CC_BREAK_IF(setjmp(png_jmpbuf(pngPtr)));
 
         // set the read call back function
         tImageSource imageSource;
-        imageSource.data = (unsigned char *)data;
-        imageSource.size = dataLen;
+        imageSource.data   = const_cast<unsigned char *>(data);
+        imageSource.size   = dataLen;
         imageSource.offset = 0;
-        png_set_read_fn(png_ptr, &imageSource, pngReadCallback);
+        png_set_read_fn(pngPtr, &imageSource, pngReadCallback);
 
         // read png header info
 
         // read png file info
-        png_read_info(png_ptr, info_ptr);
+        png_read_info(pngPtr, infoPtr);
 
-        _isCompressed = false;
-        _width = png_get_image_width(png_ptr, info_ptr);
-        _height = png_get_image_height(png_ptr, info_ptr);
-        png_byte bit_depth = png_get_bit_depth(png_ptr, info_ptr);
-        png_uint_32 color_type = png_get_color_type(png_ptr, info_ptr);
+        _isCompressed         = false;
+        _width                = png_get_image_width(pngPtr, infoPtr);
+        _height               = png_get_image_height(pngPtr, infoPtr);
+        png_byte    bitDepth  = png_get_bit_depth(pngPtr, infoPtr);
+        png_uint_32 colorType = png_get_color_type(pngPtr, infoPtr);
 
         //CC_LOG_DEBUG("color type %u", color_type);
 
         // force palette images to be expanded to 24-bit RGB
         // it may include alpha channel
-        if (color_type == PNG_COLOR_TYPE_PALETTE) {
-            png_set_palette_to_rgb(png_ptr);
+        if (colorType == PNG_COLOR_TYPE_PALETTE) {
+            png_set_palette_to_rgb(pngPtr);
         }
         // low-bit-depth grayscale images are to be expanded to 8 bits
-        if (color_type == PNG_COLOR_TYPE_GRAY && bit_depth < 8) {
-            bit_depth = 8;
-            png_set_expand_gray_1_2_4_to_8(png_ptr);
+        if (colorType == PNG_COLOR_TYPE_GRAY && bitDepth < 8) {
+            bitDepth = 8;
+            png_set_expand_gray_1_2_4_to_8(pngPtr);
         }
         // expand any tRNS chunk data into a full alpha channel
-        if (png_get_valid(png_ptr, info_ptr, PNG_INFO_tRNS)) {
-            png_set_tRNS_to_alpha(png_ptr);
+        if (png_get_valid(pngPtr, infoPtr, PNG_INFO_tRNS)) {
+            png_set_tRNS_to_alpha(pngPtr);
         }
         // reduce images with 16-bit samples to 8 bits
-        if (bit_depth == 16) {
-            png_set_strip_16(png_ptr);
+        if (bitDepth == 16) {
+            png_set_strip_16(pngPtr);
         }
 
         // Expanded earlier for grayscale, now take care of palette and rgb
-        if (bit_depth < 8) {
-            png_set_packing(png_ptr);
+        if (bitDepth < 8) {
+            png_set_packing(pngPtr);
         }
         // update info
-        png_read_update_info(png_ptr, info_ptr);
-        bit_depth = png_get_bit_depth(png_ptr, info_ptr);
-        color_type = png_get_color_type(png_ptr, info_ptr);
+        png_read_update_info(pngPtr, infoPtr);
+        bitDepth  = png_get_bit_depth(pngPtr, infoPtr);
+        colorType = png_get_color_type(pngPtr, infoPtr);
 
-        switch (color_type) {
+        switch (colorType) {
             case PNG_COLOR_TYPE_GRAY:
                 _renderFormat = gfx::Format::L8;
                 break;
@@ -691,64 +674,65 @@ bool Image::initWithPngData(const unsigned char *data, ssize_t dataLen) {
 
         // read png data
         png_size_t rowbytes;
-        png_bytep *row_pointers = (png_bytep *)malloc(sizeof(png_bytep) * _height);
+        auto *     rowPointers = static_cast<png_bytep *>(malloc(sizeof(png_bytep) * _height));
 
-        rowbytes = png_get_rowbytes(png_ptr, info_ptr);
+        rowbytes = png_get_rowbytes(pngPtr, infoPtr);
 
         _dataLen = rowbytes * _height;
-        _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
+        _data    = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         if (!_data) {
-            if (row_pointers != nullptr) {
-                free(row_pointers);
+            if (rowPointers != nullptr) {
+                free(rowPointers);
             }
             break;
         }
 
-        for (unsigned short i = 0; i < _height; ++i) {
-            row_pointers[i] = _data + i * rowbytes;
+        for (int i = 0; i < _height; ++i) {
+            rowPointers[i] = _data + i * rowbytes;
         }
-        png_read_image(png_ptr, row_pointers);
-        png_read_end(png_ptr, nullptr);
+        png_read_image(pngPtr, rowPointers);
+        png_read_end(pngPtr, nullptr);
 
-        if (row_pointers != nullptr) {
-            free(row_pointers);
+        if (rowPointers != nullptr) {
+            free(rowPointers);
         }
 
         ret = true;
-    } while (0);
+    } while (false);
 
-    if (png_ptr) {
-        png_destroy_read_struct(&png_ptr, (info_ptr) ? &info_ptr : 0, 0);
+    if (pngPtr) {
+        png_destroy_read_struct(&pngPtr, (infoPtr) ? &infoPtr : nullptr, nullptr);
     }
     return ret;
 #endif //CC_USE_PNG
 }
 
 bool Image::initWithPVRv2Data(const unsigned char *data, ssize_t dataLen) {
-    int width = 0, height = 0;
+    int width  = 0;
+    int height = 0;
 
     //Cast first sizeof(PVRTexHeader) bytes of data stream as PVRTexHeader
-    const PVRv2TexHeader *header = static_cast<const PVRv2TexHeader *>(static_cast<const void *>(data));
+    const auto *header = static_cast<const PVRv2TexHeader *>(static_cast<const void *>(data));
 
     //Make sure that tag is in correct formatting
-    if (memcmp(&header->pvrTag, gPVRTexIdentifier, strlen(gPVRTexIdentifier)) != 0) {
+    if (memcmp(&header->pvrTag, G_PVR_TEX_IDENTIFIER, strlen(G_PVR_TEX_IDENTIFIER)) != 0) {
         return false;
     }
 
-    unsigned int flags = CC_SWAP_INT32_LITTLE_TO_HOST(header->flags);
-    PVR2TexturePixelFormat formatFlags = static_cast<PVR2TexturePixelFormat>(flags & PVR_TEXTURE_FLAG_TYPE_MASK);
-    bool flipped = (flags & (unsigned int)PVR2TextureFlag::VerticalFlip) ? true : false;
+    unsigned int flags       = CC_SWAP_INT32_LITTLE_TO_HOST(header->flags);
+    auto         formatFlags = static_cast<PVR2TexturePixelFormat>(flags & PVR_TEXTURE_FLAG_TYPE_MASK);
+    bool         flipped     = (flags & static_cast<unsigned int>(PVR2TextureFlag::VERTICAL_FLIP)) != 0;
     if (flipped) {
         CC_LOG_DEBUG("initWithPVRv2Data: WARNING: Image is flipped. Regenerate it using PVRTexTool");
     }
 
-    if (v2_pixel_formathash.find(formatFlags) == v2_pixel_formathash.end()) {
+    if (V2_PIXEL_FORMATHASH.find(formatFlags) == V2_PIXEL_FORMATHASH.end()) {
         CC_LOG_DEBUG("initWithPVRv2Data: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
         return false;
     }
 
-    auto it = v2_pixel_formathash.find(formatFlags);
-    if (it == v2_pixel_formathash.end()) {
+    auto it = V2_PIXEL_FORMATHASH.find(formatFlags);
+    if (it == V2_PIXEL_FORMATHASH.end()) {
         CC_LOG_DEBUG("initWithPVRv2Data: WARNING: Unsupported PVR Pixel Format: 0x%02X. Re-encode it with a OpenGL pixel format variant", (int)formatFlags);
         return false;
     }
@@ -758,12 +742,12 @@ bool Image::initWithPVRv2Data(const unsigned char *data, ssize_t dataLen) {
     //Get size of mipmap
     _width = width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
     _height = height = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
-    _isCompressed = true;
+    _isCompressed    = true;
 
     //Move by size of header
     _dataLen = dataLen - sizeof(PVRv2TexHeader);
-    _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
-    memcpy(_data, (unsigned char *)data + sizeof(PVRv2TexHeader), _dataLen);
+    _data    = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
+    memcpy(_data, const_cast<unsigned char *>(data) + sizeof(PVRv2TexHeader), _dataLen);
 
     return true;
 }
@@ -773,7 +757,7 @@ bool Image::initWithPVRv3Data(const unsigned char *data, ssize_t dataLen) {
         return false;
     }
 
-    const PVRv3TexHeader *header = static_cast<const PVRv3TexHeader *>(static_cast<const void *>(data));
+    const auto *header = static_cast<const PVRv3TexHeader *>(static_cast<const void *>(data));
 
     // validate version
     if (CC_SWAP_INT32_BIG_TO_HOST(header->version) != 0x50565203) {
@@ -782,16 +766,16 @@ bool Image::initWithPVRv3Data(const unsigned char *data, ssize_t dataLen) {
     }
 
     // parse pixel format
-    PVR3TexturePixelFormat pixelFormat = static_cast<PVR3TexturePixelFormat>(header->pixelFormat);
+    auto pixelFormat = static_cast<PVR3TexturePixelFormat>(header->pixelFormat);
 
-    if (v3_pixel_formathash.find(pixelFormat) == v3_pixel_formathash.end()) {
+    if (V3_PIXEL_FORMATHASH.find(pixelFormat) == V3_PIXEL_FORMATHASH.end()) {
         CC_LOG_DEBUG("initWithPVRv3Data: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
                      static_cast<unsigned long long>(pixelFormat));
         return false;
     }
 
-    auto it = v3_pixel_formathash.find(pixelFormat);
-    if (it == v3_pixel_formathash.end()) {
+    auto it = V3_PIXEL_FORMATHASH.find(pixelFormat);
+    if (it == V3_PIXEL_FORMATHASH.end()) {
         CC_LOG_DEBUG("initWithPVRv3Data: WARNING: Unsupported PVR Pixel Format: 0x%016llX. Re-encode it with a OpenGL pixel format variant",
                      static_cast<unsigned long long>(pixelFormat));
         return false;
@@ -800,27 +784,27 @@ bool Image::initWithPVRv3Data(const unsigned char *data, ssize_t dataLen) {
     _renderFormat = it->second;
 
     // sizing
-    _width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
-    _height = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
+    _width        = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
+    _height       = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
     _isCompressed = true;
 
     _dataLen = dataLen - (sizeof(PVRv3TexHeader) + header->metadataLength);
-    _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
+    _data    = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
     memcpy(_data, static_cast<const unsigned char *>(data) + sizeof(PVRv3TexHeader) + header->metadataLength, _dataLen);
 
     return true;
 }
 
 bool Image::initWithETCData(const unsigned char *data, ssize_t dataLen) {
-    const etc1_byte *header = static_cast<const etc1_byte *>(data);
+    const auto *header = static_cast<const etc1_byte *>(data);
 
     //check the data
     if (!etc1_pkm_is_valid(header)) {
         return false;
     }
 
-    _width = etc1_pkm_get_width(header);
-    _height = etc1_pkm_get_height(header);
+    _width        = etc1_pkm_get_width(header);
+    _height       = etc1_pkm_get_height(header);
     _isCompressed = true;
 
     if (0 == _width || 0 == _height) {
@@ -828,22 +812,22 @@ bool Image::initWithETCData(const unsigned char *data, ssize_t dataLen) {
     }
 
     _renderFormat = gfx::Format::ETC_RGB8;
-    _dataLen = dataLen - ETC_PKM_HEADER_SIZE;
-    _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
+    _dataLen      = dataLen - ETC_PKM_HEADER_SIZE;
+    _data         = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
     memcpy(_data, static_cast<const unsigned char *>(data) + ETC_PKM_HEADER_SIZE, _dataLen);
     return true;
 }
 
 bool Image::initWithETC2Data(const unsigned char *data, ssize_t dataLen) {
-    const etc2_byte *header = static_cast<const etc2_byte *>(data);
+    const auto *header = static_cast<const etc2_byte *>(data);
 
     //check the data
     if (!etc2_pkm_is_valid(header)) {
         return false;
     }
 
-    _width = etc2_pkm_get_width(header);
-    _height = etc2_pkm_get_height(header);
+    _width        = etc2_pkm_get_width(header);
+    _height       = etc2_pkm_get_height(header);
     _isCompressed = true;
 
     if (0 == _width || 0 == _height) {
@@ -851,27 +835,28 @@ bool Image::initWithETC2Data(const unsigned char *data, ssize_t dataLen) {
     }
 
     etc2_uint32 format = etc2_pkm_get_format(header);
-    if (format == ETC2_RGB_NO_MIPMAPS)
+    if (format == ETC2_RGB_NO_MIPMAPS) {
         _renderFormat = gfx::Format::ETC2_RGB8;
-    else
+    } else {
         _renderFormat = gfx::Format::ETC2_RGBA8;
+    }
 
     _dataLen = dataLen - ETC2_PKM_HEADER_SIZE;
-    _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
+    _data    = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
     memcpy(_data, static_cast<const unsigned char *>(data) + ETC2_PKM_HEADER_SIZE, _dataLen);
     return true;
 }
 
 bool Image::initWithASTCData(const unsigned char *data, ssize_t dataLen) {
-    const astc_byte *header = static_cast<const astc_byte *>(data);
+    const auto *header = static_cast<const astc_byte *>(data);
 
     //check the data
     if (!astcIsValid(header)) {
         return false;
     }
 
-    _width = astcGetWidth(header);
-    _height = astcGetHeight(header);
+    _width        = astcGetWidth(header);
+    _height       = astcGetHeight(header);
     _isCompressed = true;
 
     if (0 == _width || 0 == _height) {
@@ -881,7 +866,7 @@ bool Image::initWithASTCData(const unsigned char *data, ssize_t dataLen) {
     _renderFormat = getASTCFormat(header);
 
     _dataLen = dataLen - ASTC_HEADER_SIZE;
-    _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
+    _data    = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
     memcpy(_data, static_cast<const unsigned char *>(data) + ASTC_HEADER_SIZE, _dataLen);
     // if (_data == nullptr) {
     //     CCLOG("initWithASTCData: ERROR: Image _data is null!");
@@ -906,17 +891,17 @@ bool Image::initWithWebpData(const unsigned char *data, ssize_t dataLen) {
         if (config.input.width == 0 || config.input.height == 0) break;
 
         config.output.colorspace = config.input.has_alpha ? MODE_rgbA : MODE_RGB;
-        _renderFormat = config.input.has_alpha ? gfx::Format::RGBA8 : gfx::Format::RGB8;
-        _width = config.input.width;
-        _height = config.input.height;
-        _isCompressed = false;
+        _renderFormat            = config.input.has_alpha ? gfx::Format::RGBA8 : gfx::Format::RGB8;
+        _width                   = config.input.width;
+        _height                  = config.input.height;
+        _isCompressed            = false;
 
         _dataLen = _width * _height * (config.input.has_alpha ? 4 : 3);
-        _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
+        _data    = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
 
-        config.output.u.RGBA.rgba = static_cast<uint8_t *>(_data);
-        config.output.u.RGBA.stride = _width * (config.input.has_alpha ? 4 : 3);
-        config.output.u.RGBA.size = _dataLen;
+        config.output.u.RGBA.rgba        = static_cast<uint8_t *>(_data);
+        config.output.u.RGBA.stride      = _width * (config.input.has_alpha ? 4 : 3);
+        config.output.u.RGBA.size        = _dataLen;
         config.output.is_external_memory = 1;
 
         if (WebPDecode(static_cast<const uint8_t *>(data), dataLen, &config) != VP8_STATUS_OK) {
@@ -926,30 +911,30 @@ bool Image::initWithWebpData(const unsigned char *data, ssize_t dataLen) {
         }
 
         ret = true;
-    } while (0);
+    } while (false);
     return ret;
 #endif // CC_USE_WEBP
 }
 
-bool Image::initWithRawData(const unsigned char *data, ssize_t dataLen, int width, int height, int bitsPerComponent, bool preMulti) {
+bool Image::initWithRawData(const unsigned char *data, ssize_t /*dataLen*/, int width, int height, int /*bitsPerComponent*/, bool /*preMulti*/) {
     bool ret = false;
     do {
         CC_BREAK_IF(0 == width || 0 == height);
 
-        _height = height;
-        _width = width;
+        _height       = height;
+        _width        = width;
         _renderFormat = gfx::Format::RGBA8;
         _isCompressed = false;
 
         // only RGBA8888 supported
         int bytesPerComponent = 4;
-        _dataLen = height * width * bytesPerComponent;
-        _data = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
+        _dataLen              = height * width * bytesPerComponent;
+        _data                 = static_cast<unsigned char *>(malloc(_dataLen * sizeof(unsigned char)));
         CC_BREAK_IF(!_data);
         memcpy(_data, data, _dataLen);
 
         ret = true;
-    } while (0);
+    } while (false);
 
     return ret;
 }

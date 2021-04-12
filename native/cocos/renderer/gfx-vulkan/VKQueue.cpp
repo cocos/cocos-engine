@@ -33,18 +33,16 @@
 namespace cc {
 namespace gfx {
 
-CCVKQueue::CCVKQueue()
-: Queue() {
-}
+CCVKQueue::CCVKQueue() = default;
 
 CCVKQueue::~CCVKQueue() {
     destroy();
 }
 
-void CCVKQueue::doInit(const QueueInfo &info) {
+void CCVKQueue::doInit(const QueueInfo & /*info*/) {
     _gpuQueue       = CC_NEW(CCVKGPUQueue);
     _gpuQueue->type = _type;
-    CCVKCmdFuncGetDeviceQueue(CCVKDevice::getInstance(), _gpuQueue);
+    cmdFuncCCVKGetDeviceQueue(CCVKDevice::getInstance(), _gpuQueue);
 }
 
 void CCVKQueue::doDestroy() {
@@ -67,8 +65,8 @@ void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
         _gpuQueue->commandBuffers.push(device->gpuTransportHub()->packageForFlight());
     }
 
-    for (uint i = 0u; i < count; ++i) {
-        CCVKCommandBuffer *cmdBuff = (CCVKCommandBuffer *)cmdBuffs[i];
+    for (uint i = 0U; i < count; ++i) {
+        auto *cmdBuff = static_cast<CCVKCommandBuffer *>(cmdBuffs[i]);
         if (!cmdBuff->_pendingQueue.empty()) {
             _gpuQueue->commandBuffers.push(cmdBuff->_pendingQueue.front());
             cmdBuff->_pendingQueue.pop();

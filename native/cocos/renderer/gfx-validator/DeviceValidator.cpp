@@ -44,19 +44,19 @@
 namespace cc {
 namespace gfx {
 
-DeviceValidator *DeviceValidator::_instance = nullptr;
+DeviceValidator *DeviceValidator::instance = nullptr;
 
 DeviceValidator *DeviceValidator::getInstance() {
-    return DeviceValidator::_instance;
+    return DeviceValidator::instance;
 }
 
 DeviceValidator::DeviceValidator(Device *device) : Agent(device) {
-    DeviceValidator::_instance = this;
+    DeviceValidator::instance = this;
 }
 
 DeviceValidator::~DeviceValidator() {
     CC_SAFE_DELETE(_actor);
-    DeviceValidator::_instance = nullptr;
+    DeviceValidator::instance = nullptr;
 }
 
 bool DeviceValidator::doInit(const DeviceInfo &info) {
@@ -65,7 +65,7 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
     }
 
     _context                                                = _actor->getContext();
-    _API                                                    = _actor->getGfxAPI();
+    _api                                                    = _actor->getGfxAPI();
     _deviceName                                             = _actor->getDeviceName();
     _queue                                                  = CC_NEW(QueueValidator(_actor->getQueue()));
     _cmdBuff                                                = CC_NEW(CommandBufferValidator(_actor->getCommandBuffer()));
@@ -231,7 +231,7 @@ TextureBarrier *DeviceValidator::createTextureBarrier() {
 }
 
 void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
-    auto textureValidator = static_cast<TextureValidator *>(dst);
+    auto *textureValidator = static_cast<TextureValidator *>(dst);
     textureValidator->updateRedundencyCheck();
 
     _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);
@@ -245,7 +245,7 @@ void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint count) 
     static vector<CommandBuffer *> cmdBuffActors;
     cmdBuffActors.resize(count);
 
-    for (uint i = 0u; i < count; ++i) {
+    for (uint i = 0U; i < count; ++i) {
         cmdBuffActors[i] = static_cast<CommandBufferValidator *>(cmdBuffs[i])->getActor();
     }
 

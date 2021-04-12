@@ -33,14 +33,13 @@ namespace gfx {
 
 Sampler::Sampler()
 : GFXObject(ObjectType::SAMPLER) {
-    _borderColor.x = 0.0f;
-    _borderColor.y = 0.0f;
-    _borderColor.z = 0.0f;
-    _borderColor.w = 0.0f;
+    _borderColor.x = 0.0F;
+    _borderColor.y = 0.0F;
+    _borderColor.z = 0.0F;
+    _borderColor.w = 0.0F;
 }
 
-Sampler::~Sampler() {
-}
+Sampler::~Sampler() = default;
 
 void Sampler::initialize(const SamplerInfo &info) {
     _minFilter     = info.minFilter;
