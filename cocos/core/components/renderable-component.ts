@@ -138,7 +138,7 @@ export class RenderableComponent extends Component {
      * new material instance will be created automatically if the sub-model is already using one.
      * @zh 设置指定子模型的 sharedMaterial，如果对应位置有材质实例则会创建一个对应的材质实例。
      */
-    public setMaterial (material: Material | null, index: number) {
+    public setMaterial (material: Material | null, index = 0) {
         if (material && material instanceof MaterialInstance) {
             console.error('Can\'t set a material instance to a sharedMaterial slot');
         }
@@ -160,9 +160,6 @@ export class RenderableComponent extends Component {
     }
 
     set material (val) {
-        if (this._materials.length === 1 && this._materials[0] === val) {
-            return;
-        }
         this.setMaterialInstance(0, val);
     }
 
@@ -191,11 +188,9 @@ export class RenderableComponent extends Component {
      */
     public setMaterialInstance (index: number, matInst: Material | null) {
         if (matInst && matInst.parent) {
-            if (matInst !== this._materialInstances[index]) {
-                this._materialInstances[index] = matInst as MaterialInstance;
-                this._onMaterialModified(index, matInst);
-            }
-        } else if (matInst !== this._materials[index]) {
+            this._materialInstances[index] = matInst as MaterialInstance;
+            this._onMaterialModified(index, matInst);
+        } else {
             this.setMaterial(matInst as Material, index);
         }
     }
