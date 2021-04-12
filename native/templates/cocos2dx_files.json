@@ -1003,6 +1003,7 @@
         "cocos/ui/webview/WebViewImpl-android.h", 
         "cocos/ui/webview/WebViewImpl-ios.h", 
         "cocos/ui/webview/WebViewImpl-ios.mm", 
+        "docs/CODING_STYLE.md", 
         "docs/LINTER_AUTOFIX_GUIDE.md", 
         "docs/imgs/LLVM.png", 
         "docs/imgs/NDK.png", 
