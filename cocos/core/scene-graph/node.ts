@@ -44,7 +44,8 @@ import {
     NULL_HANDLE, NodeHandle, NodePool, NodeView,
 } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
-import { applyMountedChildren, applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
+import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
+    applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
 import { Component } from '../components';
 
 const v3_a = new Vec3();
@@ -419,6 +420,8 @@ export class Node extends BaseNode {
             generateTargetMap(this, targetMap, true);
 
             applyMountedChildren(this, prefabInstance.mountedChildren, targetMap);
+            applyRemovedComponents(this, prefabInstance.removedComponents, targetMap);
+            applyMountedComponents(this, prefabInstance.mountedComponents, targetMap);
             applyPropertyOverrides(this, prefabInstance.propertyOverrides, targetMap);
         }
 
