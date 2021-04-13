@@ -31,7 +31,7 @@
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
-import { NetworkType, LanguageCode, OS, Platform, BrowserType } from '../../../pal/sys/enum-type';
+import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/sys/enum-type';
 import { system } from 'pal/sys';
 
 const viewSize = system.getViewSize();
@@ -57,7 +57,7 @@ export const sys: Record<string, any> = {
      * @zh
      * 语言码类型枚举
      */
-    LanguageCode,
+    Language,
 
     /**
      * @en

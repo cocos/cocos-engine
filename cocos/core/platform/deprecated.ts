@@ -46,7 +46,7 @@ removeProperty(View.prototype, 'View.prototype', [
 'POLISH', 'TURKISH', 'UKRAINIAN', 'ROMANIAN', 'BULGARIAN'].forEach(item => {
     Object.defineProperty(sys, `LANGUAGE_${item}`, {
         get () {
-            warnID(1400, `sys.LANGUAGE_${item}`, `sys.LanguageCode.${item}`);
+            warnID(1400, `sys.LANGUAGE_${item}`, `sys.Language.${item}`);
             return sys.LanguageCode[item];
         }
     });
