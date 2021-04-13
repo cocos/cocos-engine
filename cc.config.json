@@ -54,7 +54,7 @@
             "overrides": {
                 "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/web/player.ts",
-                "pal/app": "pal/app/web/index.ts"
+                "pal/sys": "pal/sys/web/index.ts"
             }
         },
         {

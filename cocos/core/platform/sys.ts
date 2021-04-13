@@ -31,11 +31,11 @@
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
-import { NetworkType, LanguageCode, OS, Platform, BrowserType } from '../../../pal/app/enum-type';
-import { app } from 'pal/app';
+import { NetworkType, LanguageCode, OS, Platform, BrowserType } from '../../../pal/sys/enum-type';
+import { system } from 'pal/sys';
 
-const viewSize = app.getViewSize();
-const ratio = app.pixelRatio;
+const viewSize = system.getViewSize();
+const ratio = system.pixelRatio;
 
 /**
  * @en A set of system related variables
@@ -87,37 +87,37 @@ export const sys: Record<string, any> = {
      * @en Whether the running platform is native app
      * @zh 指示运行平台是否是原生平台
      */
-    isNative: app.isNative,
+    isNative: system.isNative,
 
     /**
      * @en Whether the running platform is browser
      * @zh 指示运行平台是否是浏览器
      */
-    isBrowser: app.isBrowser,
+    isBrowser: system.isBrowser,
 
     /**
      * @en Indicate whether the current running context is a mobile system
      * @zh 指示当前运行平台是否是移动端平台
      */
-    isMobile: app.isMobile,
+    isMobile: system.isMobile,
 
     /**
      * @en Whether the endianness of current platform is little endian
      * @zh 当前平台字节顺序是否是小端序
      */
-    isLittleEndian: app.isLittleEndian,
+    isLittleEndian: system.isLittleEndian,
 
     /**
      * @en The running platform
      * @zh 当前运行平台或环境
      */
-    platform: app.platform,
+    platform: system.platform,
 
     /**
      * @en Indicate the current language of the running system
      * @zh 指示当前运行环境的语言
      */
-    language: app.languageCode,
+    language: system.languageCode,
 
     /**
      * @en
@@ -130,37 +130,37 @@ export const sys: Record<string, any> = {
      * 有效的语言代码包括 "zh-tw"、"en"、"en-us"、"fr"、"fr-fr"、"es-es "等。
      * 实际值完全取决于目的地平台提供的结果。
      */
-    languageCode: app.nativeLanguageCode,
+    languageCode: system.nativeLanguageCode,
 
     /**
      * @en Indicate the running os name
      * @zh 指示当前运行系统
      */
-    os: app.os,
+    os: system.os,
 
     /**
      * @en Indicate the running os version string
      * @zh 指示当前运行系统版本字符串
      */
-    osVersion: app.osVersion,
+    osVersion: system.osVersion,
 
     /**
      * @en Indicate the running os main version
      * @zh 指示当前系统主版本
      */
-    osMainVersion: app.osMainVersion,
+    osMainVersion: system.osMainVersion,
 
     /**
      * @en Indicate the running browser type
      * @zh 指示当前运行的浏览器类型
      */
-    browserType: app.browserType,
+    browserType: system.browserType,
 
     /**
      * @en Indicate the running browser version
      * @zh 指示当前运行的浏览器版本
      */
-    browserVersion: app.browserVersion,
+    browserVersion: system.browserVersion,
 
     /**
      * @en Indicate the real pixel resolution of the whole game window
@@ -176,10 +176,10 @@ export const sys: Record<string, any> = {
      * @zh 当前平台的功能可用性
      */
     capabilities: {
-        canvas: app.supportCapability.canvas,
-        opengl: app.supportCapability.gl,
-        webp: app.supportCapability.webp,
-        imageBitmap: app.supportCapability.imageBitmap,
+        canvas: system.supportCapability.canvas,
+        opengl: system.supportCapability.gl,
+        webp: system.supportCapability.webp,
+        imageBitmap: system.supportCapability.imageBitmap,
         // TODO: move into pal/input
         touches: false,
         mouse: false,
@@ -198,7 +198,7 @@ export const sys: Record<string, any> = {
      * @zh 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 `sys.NetworkType.LAN`
      */
     getNetworkType (): NetworkType {
-        return app.networkType;
+        return system.networkType;
     },
 
     /**
@@ -207,7 +207,7 @@ export const sys: Record<string, any> = {
      * @return - 0.0 ~ 1.0
      */
     getBatteryLevel (): number {
-        return app.getBatteryLevel();
+        return system.getBatteryLevel();
     },
 
     /**
@@ -215,7 +215,7 @@ export const sys: Record<string, any> = {
      * @zh 强制进行 JS 内存垃圾回收，尽在原生平台有效
      */
     garbageCollect () {
-        app.triggerGC();
+        system.triggerGC();
     },
 
     /**
@@ -257,7 +257,7 @@ export const sys: Record<string, any> = {
      * @zh 尝试打开一个 web 页面，并非在所有平台都有效
      */
     openURL (url) {
-        app.openURL(url);
+        system.openURL(url);
     },
 
     /**
@@ -265,7 +265,7 @@ export const sys: Record<string, any> = {
      * @zh 获取当前时间（毫秒为单位）
      */
     now () {
-        return app.now();
+        return system.now();
     },
 
     /**
@@ -273,7 +273,7 @@ export const sys: Record<string, any> = {
      * @private
      */
     restartVM () {
-        app.restartJSVM();
+        system.restartJSVM();
     },
 
     /**
@@ -325,7 +325,7 @@ export const sys: Record<string, any> = {
         }
 
         // HACK: this private property only needed on web
-        sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && app.isBrowser
+        sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && system.isBrowser
             && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
     },
 };

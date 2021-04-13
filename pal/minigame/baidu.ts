@@ -1,5 +1,5 @@
 import { IMiniGame } from 'pal/minigame';
-import { Orientation } from '../app/enum-type/orientation';
+import { Orientation } from '../sys/enum-type/orientation';
 import { cloneObject } from '../utils';
 
 declare let swan: any;

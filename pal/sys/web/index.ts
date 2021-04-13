@@ -2,9 +2,9 @@ import { EDITOR, TEST } from "internal:constants";
 import { EventTarget } from "../../../cocos/core/event/event-target";
 import { Rect, Size } from "../../../cocos/core";
 import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, LanguageCode } from "../enum-type";
-import { SupportCapability } from "pal/app";
+import { SupportCapability } from "pal/sys";
 
-class App {
+class System {
     public readonly networkType: NetworkType;
     public readonly isNative: boolean;
     public readonly isBrowser: boolean;
@@ -318,4 +318,4 @@ class App {
     }
 }
 
-export const app = new App();
+export const system = new System();

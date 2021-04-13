@@ -43,7 +43,7 @@ import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
-import { app } from 'pal/app';
+import { system } from 'pal/sys';
 
 interface ISceneInfo {
     url: string;
@@ -838,11 +838,11 @@ export class Game extends EventTarget {
     }
 
     private _initEvents () {
-        app.onShow(() => {
+        system.onShow(() => {
             this.emit(Game.EVENT_SHOW);
             this.pause();
         });
-        app.onHide(() => {
+        system.onHide(() => {
             this.emit(Game.EVENT_HIDE);
             this.resume();
         });

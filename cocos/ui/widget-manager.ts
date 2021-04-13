@@ -40,7 +40,7 @@ import { array } from '../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
 import { legacyCC } from '../core/global-exports';
-import { app } from 'pal/app';
+import { system } from 'pal/sys';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -352,7 +352,7 @@ export const widgetManager = legacyCC._widgetManager = {
         if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
-            app.onOrientationChange(thisOnResized);
+            system.onOrientationChange(thisOnResized);
         }
     },
     add (widget: Widget) {

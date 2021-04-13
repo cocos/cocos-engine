@@ -39,7 +39,7 @@ import visibleRect from './visible-rect';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
 import { sys } from './sys';
-import { app } from 'pal/app';
+import { system } from 'pal/sys';
 
 class BrowserGetter {
     public html: HTMLHtmlElement | undefined;
@@ -229,14 +229,14 @@ export class View extends EventTarget {
             // enable
             if (!this._resizeWithBrowserSize) {
                 this._resizeWithBrowserSize = true;
-                app.onViewResize(this._resizeEvent);
-                app.onOrientationChange(this._orientationChange);
+                system.onViewResize(this._resizeEvent);
+                system.onOrientationChange(this._orientationChange);
             }
         } else if (this._resizeWithBrowserSize) {
             // disable
             this._resizeWithBrowserSize = false;
-            app.offViewResize(this._resizeEvent);
-            app.offOrientationChange(this._orientationChange);
+            system.offViewResize(this._resizeEvent);
+            system.offOrientationChange(this._orientationChange);
         }
     }
 
