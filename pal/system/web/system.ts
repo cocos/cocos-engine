@@ -1,6 +1,6 @@
-import { EDITOR, TEST } from "internal:constants";
+import { DEBUG, EDITOR, TEST } from "internal:constants";
 import { EventTarget } from "../../../cocos/core/event/event-target";
-import { Rect, Size } from "../../../cocos/core";
+import { Rect, Size, warn } from "../../../cocos/core";
 import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from "../enum-type";
 import { SupportCapability } from "pal/system";
 
@@ -23,16 +23,21 @@ class System {
 
     private _eventTarget: EventTarget = new EventTarget();
     private _html;
+    private _battery?: any;
 
     constructor () {
         const nav = window.navigator;
         const ua = nav.userAgent.toLowerCase();
         this._html = document.getElementsByTagName('html')[0];
+        // @ts-ignore getBattery is not totally supported
+        nav.getBattery?.().then(battery => {
+            this._battery = battery;
+        });
 
 
         this.networkType = NetworkType.LAN;  // TODO
         this.isNative = false;
-        this.isBrowser = typeof window === 'object' && typeof document === 'object';
+        this.isBrowser = true;
 
         // init isMobile and platform
         if (EDITOR) {
@@ -272,7 +277,13 @@ class System {
         throw new Error('TODO');
     }
     public getBatteryLevel (): number {
-        return 100;  // TODO
+        if (this._battery) {
+            return this._battery.level;
+        }
+        else {
+            if (DEBUG) { warn('getBatteryLevel is not supported') };
+            return 1;
+        }
     }
     public triggerGC (): void {
         console.warn('triggerGC is not supported.');
