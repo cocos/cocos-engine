@@ -359,12 +359,11 @@ CCProgram shadow-caster-fs %{
 
     // spot use linear
     if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
+      // enabled linear depth
       if (cc_shadowNFLSInfo.z > 0.000001) {
-        // Linear depth
         vec4 viewStartPos = cc_matLightView * v_worldPos;
         float dist = length(viewStartPos.xyz);
-        float linear_depth = cc_shadowNFLSInfo.x + (-dist / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x));
-        depth = linear_depth;
+        depth = cc_shadowNFLSInfo.x + (-dist / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x));
       }
     }
 

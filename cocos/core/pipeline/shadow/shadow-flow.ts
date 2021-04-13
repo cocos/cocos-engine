@@ -144,7 +144,7 @@ export class ShadowFlow extends RenderFlow {
 
         if (!this._shadowRenderPass) {
             const colorAttachment = new ColorAttachment();
-            colorAttachment.format = Format.RGBA8;
+            colorAttachment.format = shadows.packing ? Format.RGBA8 : Format.RGBA16F;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.sampleCount = 1;
@@ -165,7 +165,7 @@ export class ShadowFlow extends RenderFlow {
         shadowRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA8,
+            shadows.packing ? Format.RGBA8 : Format.RGBA16F,
             shadowMapSize.x,
             shadowMapSize.y,
         )));
