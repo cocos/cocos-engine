@@ -44,7 +44,7 @@ declare module 'pal/audio' {
          * Asynchronously load a native audio for playing one shot.
          * @param url URL to the audio.
          * @param opts Load options.
-         * @returns The one shot player.
+         * @returns The native audio such as HTMLAudioElement or AudioBuffer.
          */
         static loadNative (url: string, opts?: import('pal/audio/type').AudioLoadOptions): Promise<unknown>;
 
