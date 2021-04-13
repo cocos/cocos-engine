@@ -71,7 +71,8 @@
             "isVirtualModule": true,
             "overrides": {
                 "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
-                "pal/audio": "pal/audio/minigame/player.ts"
+                "pal/audio": "pal/audio/minigame/player.ts",
+                "pal/system": "pal/system/minigame/system.ts"
             }
         },
         {
@@ -79,7 +80,8 @@
             "isVirtualModule": true,
             "overrides": {
                 "pal/minigame": "pal/minigame/runtime.ts",
-                "pal/audio": "pal/audio/minigame/player.ts"
+                "pal/audio": "pal/audio/minigame/player.ts",
+                "pal/system": "pal/system/minigame/system.ts"
             }
         }
     ]

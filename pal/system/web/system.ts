@@ -281,12 +281,16 @@ class System {
             return this._battery.level;
         }
         else {
-            if (DEBUG) { warn('getBatteryLevel is not supported') };
+            if (DEBUG) {
+                warn('getBatteryLevel is not supported')
+            };
             return 1;
         }
     }
     public triggerGC (): void {
-        console.warn('triggerGC is not supported.');
+        if (DEBUG) {
+            warn('triggerGC is not supported.');
+        }
     }
     public openURL (url: string): void {
         window.open(url);
@@ -299,7 +303,9 @@ class System {
         return +(new Date());
     }
     public restartJSVM (): void {
-        console.warn('restartJSVM is not supported.');
+        if (DEBUG) {
+            warn('restartJSVM is not supported.');
+        }
     }
 
     public onHide (cb: () => void) {

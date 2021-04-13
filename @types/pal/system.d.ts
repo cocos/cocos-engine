@@ -55,6 +55,8 @@ declare module 'pal/system' {
         public offShow (cb?: () => void);
         public offViewResize (cb?: () => void);
         public offOrientationChange (cb?: () => void);
+
+        // TODO: support onError
     }
 
     export const system: System;
