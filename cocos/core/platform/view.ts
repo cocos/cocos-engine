@@ -39,7 +39,7 @@ import visibleRect from './visible-rect';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
 import { sys } from './sys';
-import { system } from 'pal/sys';
+import { system } from 'pal/system';
 
 class BrowserGetter {
     public html: HTMLHtmlElement | undefined;

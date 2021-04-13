@@ -31,8 +31,8 @@
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
-import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/sys/enum-type';
-import { system } from 'pal/sys';
+import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/system/enum-type';
+import { system } from 'pal/system';
 
 const viewSize = system.getViewSize();
 const ratio = system.pixelRatio;

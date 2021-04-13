@@ -1,4 +1,4 @@
-declare module 'pal/sys' {
+declare module 'pal/system' {
     export interface SupportCapability {
         readonly webp: boolean;
         readonly gl: boolean;
@@ -7,7 +7,7 @@ declare module 'pal/sys' {
     }
 
     class System {
-        public readonly networkType: import('pal/sys/enum-type/network-type').NetworkType;
+        public readonly networkType: import('pal/system/enum-type/network-type').NetworkType;
         public readonly isNative: boolean;
         public readonly isBrowser: boolean;
         public readonly isMobile: boolean;
@@ -18,26 +18,26 @@ declare module 'pal/sys' {
          * It may point to a phone brand like vivo or OPPO.
          * Also it may point to an app channel like WeChat or ByteDance.
          */
-        public readonly platform: import('pal/sys/enum-type').Platform;
+        public readonly platform: import('pal/system/enum-type').Platform;
         /**
          * This is the language code typed as `Language`.
          */
-        public readonly language: import('pal/sys/enum-type').Language;
+        public readonly language: import('pal/system/enum-type').Language;
         /**
          * This is the native value return by platform
          * The valid value can be 'zh-tw','en','en-us','fr','fr-fr','es-es' and so on.
          */
         public readonly nativeLanguage: string;
-        public readonly os: import('pal/sys/enum-type').OS;
+        public readonly os: import('pal/system/enum-type').OS;
         public readonly osVersion: string;
         public readonly osMainVersion: number;
-        public readonly browserType: import('pal/sys/enum-type').BrowserType;
+        public readonly browserType: import('pal/system/enum-type').BrowserType;
         public readonly browserVersion: string;
         public readonly pixelRatio: number;
         public readonly supportCapability: SupportCapability;
 
         public getViewSize (): import('cocos/core/math').Size;
-        public getOrientation (): import('pal/sys/enum-type').Orientation;
+        public getOrientation (): import('pal/system/enum-type').Orientation;
         public getSafeAreaRect (): import('cocos/core/math').Rect;
         public getBatteryLevel (): number;
 

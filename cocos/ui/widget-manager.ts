@@ -40,7 +40,7 @@ import { array } from '../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
 import { legacyCC } from '../core/global-exports';
-import { system } from 'pal/sys';
+import { system } from 'pal/system';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();

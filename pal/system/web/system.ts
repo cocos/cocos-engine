@@ -2,7 +2,7 @@ import { EDITOR, TEST } from "internal:constants";
 import { EventTarget } from "../../../cocos/core/event/event-target";
 import { Rect, Size } from "../../../cocos/core";
 import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from "../enum-type";
-import { SupportCapability } from "pal/sys";
+import { SupportCapability } from "pal/system";
 
 class System {
     public readonly networkType: NetworkType;

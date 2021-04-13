@@ -43,7 +43,7 @@ import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
-import { system } from 'pal/sys';
+import { system } from 'pal/system';
 
 interface ISceneInfo {
     url: string;
