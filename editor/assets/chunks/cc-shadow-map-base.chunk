@@ -45,9 +45,9 @@
     float offsetx = 1.0 / cc_shadowWHPBInfo.x;
     float offsety = 1.0 / cc_shadowWHPBInfo.y;
     float shadow = 0.0;
-    float closestDepth = 0.0;
 
     if (cc_shadowLPNNInfo.y > 0.000001) {
+      float closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x - offsetx, clipPos.y - offsety)));
       shadow += step(closestDepth, clipPos.z - cc_shadowWHPBInfo.w);
       closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x - offsetx, clipPos.y + offsety)));
       shadow += step(closestDepth, clipPos.z - cc_shadowWHPBInfo.w);
@@ -58,6 +58,7 @@
       closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x + offsetx, clipPos.y + offsety)));
       shadow += step(closestDepth, clipPos.z - cc_shadowWHPBInfo.w);
     } else {
+      float closestDepth = texture(cc_shadowMap, vec2(clipPos.x - offsetx, clipPos.y - offsety)).x;
       shadow += step(closestDepth, clipPos.z - cc_shadowWHPBInfo.w);
       closestDepth = texture(cc_shadowMap, vec2(clipPos.x - offsetx, clipPos.y + offsety)).x;
       shadow += step(closestDepth, clipPos.z - cc_shadowWHPBInfo.w);
@@ -68,7 +69,6 @@
       closestDepth = texture(cc_shadowMap, vec2(clipPos.x + offsetx, clipPos.y + offsety)).x;
       shadow += step(closestDepth, clipPos.z - cc_shadowWHPBInfo.w);
     }
-
 
     return shadow / 5.0;
   }
