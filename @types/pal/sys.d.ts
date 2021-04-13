@@ -20,14 +20,14 @@ declare module 'pal/sys' {
          */
         public readonly platform: import('pal/sys/enum-type').Platform;
         /**
-         * This is the language code typed as `LanguageCode`.
+         * This is the language code typed as `Language`.
          */
-        public readonly languageCode: import('pal/sys/enum-type').LanguageCode;
+        public readonly language: import('pal/sys/enum-type').Language;
         /**
          * This is the native value return by platform
          * The valid value can be 'zh-tw','en','en-us','fr','fr-fr','es-es' and so on.
          */
-        public readonly nativeLanguageCode: string;
+        public readonly nativeLanguage: string;
         public readonly os: import('pal/sys/enum-type').OS;
         public readonly osVersion: string;
         public readonly osMainVersion: number;

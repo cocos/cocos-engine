@@ -117,7 +117,7 @@ export const sys: Record<string, any> = {
      * @en Indicate the current language of the running system
      * @zh 指示当前运行环境的语言
      */
-    language: system.languageCode,
+    language: system.language,
 
     /**
      * @en
@@ -130,7 +130,7 @@ export const sys: Record<string, any> = {
      * 有效的语言代码包括 "zh-tw"、"en"、"en-us"、"fr"、"fr-fr"、"es-es "等。
      * 实际值完全取决于目的地平台提供的结果。
      */
-    languageCode: system.nativeLanguageCode,
+    languageCode: system.nativeLanguage,
 
     /**
      * @en Indicate the running os name

@@ -1,7 +1,7 @@
 import { EDITOR, TEST } from "internal:constants";
 import { EventTarget } from "../../../cocos/core/event/event-target";
 import { Rect, Size } from "../../../cocos/core";
-import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, LanguageCode } from "../enum-type";
+import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from "../enum-type";
 import { SupportCapability } from "pal/sys";
 
 class System {
@@ -11,8 +11,8 @@ class System {
     public readonly isMobile: boolean;
     public readonly isLittleEndian: boolean;
     public readonly platform: Platform;
-    public readonly languageCode: LanguageCode;
-    public readonly nativeLanguageCode: string;
+    public readonly language: Language;
+    public readonly nativeLanguage: string;
     public readonly os: OS;
     public readonly osVersion: string;
     public readonly osMainVersion: number;
@@ -55,10 +55,10 @@ class System {
 
         // init languageCode and language
         let currLanguage = nav.language;
-        this.nativeLanguageCode = currLanguage.toLowerCase();
+        this.nativeLanguage = currLanguage.toLowerCase();
         currLanguage = currLanguage || (nav as any).browserLanguage;
-        currLanguage = currLanguage ? currLanguage.split('-')[0] : LanguageCode.ENGLISH;
-        this.languageCode = currLanguage as LanguageCode;
+        currLanguage = currLanguage ? currLanguage.split('-')[0] : Language.ENGLISH;
+        this.language = currLanguage as Language;
 
 
         // init os, osVersion and osMainVersion

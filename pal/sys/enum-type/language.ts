@@ -1,4 +1,4 @@
-export enum LanguageCode {
+export enum Language {
     /**
      * @en Unknown language code
      * @zh 语言代码 - 未知
