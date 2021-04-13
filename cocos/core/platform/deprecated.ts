@@ -78,7 +78,7 @@ removeProperty(View.prototype, 'View.prototype', [
 
 // deprecate platform field
 ['UNKNOWN', 'EDITOR_PAGE', 'EDITOR_CORE', 'MOBILE_BROWSER', 'DESKTOP_BROWSER', 'WIN32', 'MACOS', 'IOS', 'ANDROID',
-'WECHAT_GAME', 'QQ_PLAY', 'FB_PLAYABLE_ADS', 'BAIDU_MINI_GAME', 'XIAOMI_QUICK_GAME', 'ALIPAY_MINI_GAME', 'BYTEDANCE_MINI_GAME',
+'WECHAT_GAME', 'BAIDU_MINI_GAME', 'XIAOMI_QUICK_GAME', 'ALIPAY_MINI_GAME', 'BYTEDANCE_MINI_GAME',
 'OPPO_MINI_GAME', 'VIVO_MINI_GAME', 'HUAWEI_QUICK_GAME', 'COCOSPLAY',  'LINKSURE_MINI_GAME', 'QTT_MINI_GAME'].forEach(item => {
     Object.defineProperty(sys, item, {
         get () {
@@ -92,7 +92,8 @@ removeProperty(View.prototype, 'View.prototype', [
 // remove platform field
 removeProperty(sys, 'sys', 
     ['LINUX',  'IPHONE', 'IPAD', 'BLACKBERRY',
-    'NACL', 'EMSCRIPTEN', 'TIZEN', 'WINRT', 'WP8'].map(item => ({
+    'NACL', 'EMSCRIPTEN', 'TIZEN', 'WINRT', 'WP8',
+    'QQ_PLAY', 'FB_PLAYABLE_ADS'].map(item => ({
         name: item,
     })
 ));
