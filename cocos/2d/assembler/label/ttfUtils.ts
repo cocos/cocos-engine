@@ -39,6 +39,7 @@ import { UITransform } from '../../framework/ui-transform';
 import { legacyCC } from '../../../core/global-exports';
 import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
+import { BlendFactor } from '../../../core/gfx';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
@@ -111,7 +112,7 @@ export const ttfUtils =  {
         this._calculateLabelFont();
         this._updateLabelDimensions();
         this._resetDynamicAtlas(comp);
-        this._updateTexture();
+        this._updateTexture(comp);
         this._calDynamicAtlas(comp);
 
         comp.actualFontSize = _fontSize;
@@ -265,19 +266,23 @@ export const ttfUtils =  {
         _startPosition.set(labelX + _canvasPadding.x, firstLinelabelY + _canvasPadding.y);
     },
 
-    _updateTexture () {
+    _updateTexture (comp: Label) {
         if (!_context || !_canvas) {
             return;
         }
 
+        _context.clearRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
         this._calculateFillTextStartPosition();
         const lineHeight = this._getLineHeight();
         // use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
-        _context.fillRect(0, 0, _canvas.width, _canvas.height);
+        // to keep the one model same as before
+        if (comp.srcBlendFactor === BlendFactor.SRC_ALPHA) {
+            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
+            _context.fillRect(0, 0, _canvas.width, _canvas.height);
+        }
         _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
         const drawTextPosX = _startPosition.x;
         let drawTextPosY = 0;
