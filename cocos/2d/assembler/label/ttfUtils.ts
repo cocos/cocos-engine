@@ -43,6 +43,7 @@ import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
 const _BASELINE_OFFSET = getBaselineOffset();
+const _invisibleAlpha = (1 / 255).toFixed(3);
 
 let _context: CanvasRenderingContext2D | null = null;
 let _canvas: HTMLCanvasElement | null = null;
@@ -269,13 +270,14 @@ export const ttfUtils =  {
             return;
         }
 
-        _context.clearRect(0, 0, _canvas.width, _canvas.height);
         _context.font = _fontDesc;
 
         this._calculateFillTextStartPosition();
         const lineHeight = this._getLineHeight();
         // use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
+        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
+        _context.fillRect(0, 0, _canvas.width, _canvas.height);
         _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
         const drawTextPosX = _startPosition.x;
         let drawTextPosY = 0;
