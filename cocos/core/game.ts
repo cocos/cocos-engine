@@ -838,14 +838,18 @@ export class Game extends EventTarget {
     }
 
     private _initEvents () {
-        system.onShow(() => {
-            this.emit(Game.EVENT_SHOW);
-            this.pause();
-        });
-        system.onHide(() => {
-            this.emit(Game.EVENT_HIDE);
-            this.resume();
-        });
+        system.onShow(this._onShow.bind(this));
+        system.onHide(this._onHide.bind(this));
+    }
+
+    private _onHide () {
+        this.emit(Game.EVENT_HIDE);
+        this.pause();
+    }
+    
+    private _onShow () {
+        this.emit(Game.EVENT_SHOW);
+        this.resume();
     }
 
     private _setRenderPipelineNShowSplash () {
