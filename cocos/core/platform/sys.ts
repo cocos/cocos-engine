@@ -35,7 +35,7 @@ import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/s
 import { system } from 'pal/system';
 
 const viewSize = system.getViewSize();
-const ratio = system.pixelRatio;
+const pixelRatio = system.pixelRatio;
 
 /**
  * @en A set of system related variables
@@ -167,8 +167,8 @@ export const sys: Record<string, any> = {
      * @zh 指示游戏窗口的像素分辨率
      */
     windowPixelResolution: {
-        width: ratio * viewSize.width,
-        height: ratio * viewSize.height,    
+        width: viewSize.width * pixelRatio,
+        height: viewSize.height * pixelRatio,    
     },
 
     /**
@@ -327,6 +327,14 @@ export const sys: Record<string, any> = {
         // HACK: this private property only needed on web
         sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && system.isBrowser
             && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
+        
+        system.onViewResize(() => {
+            let viewSize = system.getViewSize();
+            sys.windowPixelResolution = {
+                width: viewSize.width * pixelRatio,
+                height: viewSize.height * pixelRatio,
+            };
+        });
     },
 };
 

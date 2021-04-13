@@ -4,6 +4,22 @@
  * Homepage: https://github.com/haroel/creatorexDTS
  */
 declare namespace jsb {
+    export namespace device {
+        export function getBatteryLevel(): number;
+        export function getDevicePixelRatio(): number;
+        export function getDeviceMotionValue(): any;  // TODO: interface type
+        export function getDeviceOrientation(): number;  // TODO: enum type
+        export function getNetworkType(): number; // TODO: enum type
+        export function getSafeAreaEdge(): any;  // TODO: interface type
+    }
+
+    export let onResize: (size: {width: number, height: number}) => void | undefined;
+    export let onOrientationChanged: (event: {orientation: number}) => void | undefined;  // TODO: enum orientation type
+    export let onResume: () => void | undefined;
+    export let onPause: () => void | undefined;
+    export function openURL(url: string): void;
+    export function garbageCollect(): void;
+
     export namespace AudioEngine {
         export function preload (url: string, cb: (isSuccess: boolean) => void);
         export function play2d (url: string, loop: boolean, volume: number): number;
