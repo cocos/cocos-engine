@@ -113,13 +113,6 @@
     float offsetx = 1.0 / cc_shadowWHPBInfo.x;
     float offsety = 1.0 / cc_shadowWHPBInfo.y;
     float shadow = 0.0;
-    float closestDepth = 0.0;
-
-    if (cc_shadowLPNNInfo.y > 0.000001) {
-      closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
-    } else {
-      closestDepth = texture(cc_shadowMap, clipPos.xy).x;
-    }
 
     if (cc_shadowLPNNInfo.y > 0.000001) {
       for (int i = -2; i <= 2; i++) {
