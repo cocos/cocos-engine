@@ -13,7 +13,7 @@
   float CCGetLinearDepth (vec3 worldPos) {
     vec4 viewStartPos = cc_matLightView * vec4(worldPos.xyz, 1.0);
     float dist = length(viewStartPos.xyz);
-    return cc_shadowNFLSInfo.x + (dist / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x));
+    return cc_shadowNFLSInfo.x + (-dist / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x));
   }
 
   float CCGetShadowFactorX1 (vec4 shadowPos) {
