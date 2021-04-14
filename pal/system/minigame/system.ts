@@ -117,7 +117,8 @@ class System {
     }
 
     public getViewSize (): Size {
-        throw new Error('TODO');
+        let sysInfo = minigame.getSystemInfoSync();
+        return new Size(sysInfo.screenWidth, sysInfo.screenHeight);
     }
     public getOrientation (): Orientation {
         throw new Error('TODO');
