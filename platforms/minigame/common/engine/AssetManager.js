@@ -73,7 +73,13 @@ function loadInnerAudioContext (url) {
 
 function loadAudioPlayer (url, options, onComplete) {
     cc.AudioPlayer.load(url).then(player => {
-        onComplete(null, player);
+        const audioMeta = {
+            url,
+            duration: player.duration,
+            type: player.type,
+        };
+        player.destroy();
+        onComplete(null, audioMeta);
     }).catch(err => {
         onComplete(err);
     });
