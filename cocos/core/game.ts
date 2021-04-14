@@ -29,6 +29,7 @@
  */
 
 import { EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
+import { system } from 'pal/system';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
@@ -43,7 +44,6 @@ import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
-import { system } from 'pal/system';
 
 interface ISceneInfo {
     url: string;
@@ -846,7 +846,7 @@ export class Game extends EventTarget {
         this.emit(Game.EVENT_HIDE);
         this.pause();
     }
-    
+
     private _onShow () {
         this.emit(Game.EVENT_SHOW);
         this.resume();

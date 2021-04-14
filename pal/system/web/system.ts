@@ -258,13 +258,13 @@ class System {
     public getViewSize (): Size {
         const element = document.getElementById('GameDiv');
         if (this.isMobile || !element || element === this._html) {
-            let res: Size = {
+            const res: Size = {
                 width: window.innerWidth,
                 height: window.innerHeight,
             };
             return res;
         } else {
-            let res: Size = {
+            const res: Size = {
                 width: element.clientWidth,
                 height: element.clientHeight,
             };

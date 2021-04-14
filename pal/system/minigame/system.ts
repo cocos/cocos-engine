@@ -115,7 +115,7 @@ class System {
 
     public getViewSize (): Size {
         const sysInfo = minigame.getSystemInfoSync();
-        let res: Size = {
+        const res: Size = {
             width: sysInfo.screenWidth,
             height: sysInfo.screenHeight,
         };

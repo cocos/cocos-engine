@@ -110,7 +110,7 @@ class System {
     }
 
     public getViewSize (): Size {
-        let res: Size = {
+        const res: Size = {
             width: this._viewSize.width,
             height: this._viewSize.height,
         };
