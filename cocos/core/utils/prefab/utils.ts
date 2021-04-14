@@ -173,6 +173,8 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     // @ts-expect-error private member access
                     childNode._parent = target;
                     // siblingIndex update is in _onBatchCreated function, and it needs a parent.
+                    // @ts-expect-error private member access
+                    childNode._siblingIndex = i;
                     childNode._onBatchCreated(false);
                 }
             }

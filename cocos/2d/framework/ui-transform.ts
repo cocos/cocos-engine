@@ -213,7 +213,9 @@ export class UITransform extends Component {
         }
 
         this._priority = value;
-        this._priorityDirty = true;
+        if (this.node.parent) {
+            UITransform.insertChangeMap(this.node.parent);
+        }
     }
 
     @serializable
@@ -245,22 +247,20 @@ export class UITransform extends Component {
     @serializable
     protected _anchorPoint = new Vec2(0.5, 0.5);
 
-    private _priorityDirty = false;
-
     public __preload () {
         this.node._uiProps.uiTransformComp = this;
     }
 
     public onEnable () {
         this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
-        director.on(Director.EVENT_AFTER_UPDATE, this._sortSiblings, this);
 
-        this._priorityDirty = true;
+        if (this.node.parent) {
+            UITransform.insertChangeMap(this.node.parent);
+        }
     }
 
     public onDisable () {
         this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
-        director.off(Director.EVENT_AFTER_UPDATE, this._sortSiblings, this);
     }
 
     public onDestroy () {
@@ -643,39 +643,44 @@ export class UITransform extends Component {
             return;
         }
 
-        this._priorityDirty = true;
+        if (this.node.parent) {
+            UITransform.insertChangeMap(this.node.parent);
+        }
     }
 
-    protected _checkAndSortSiblings () {
-        const siblings = this.node.parent && this.node.parent.children;
-        let changed = false;
+    private static priorityChangeNodeMap = new Map<string, Node>();
+
+    private static insertChangeMap (node: Node) {
+        const key = node.uuid;
+        if (!UITransform.priorityChangeNodeMap.has(key)) {
+            UITransform.priorityChangeNodeMap.set(key, node);
+        }
+    }
+
+    private static _sortChildrenSibling (node) {
+        const siblings = node.children;
         if (siblings) {
             siblings.sort((a, b) => {
                 const aComp = a._uiProps.uiTransformComp;
                 const bComp = b._uiProps.uiTransformComp;
                 const ca = aComp ? aComp.priority : 0;
                 const cb = bComp ? bComp.priority : 0;
-                let diff = ca - cb;
-                if (diff === 0) {
-                    diff = a.getSiblingIndex() - b.getSiblingIndex();
-                }
-
-                changed = diff > 0;
+                const diff = ca - cb;
                 return diff;
             });
         }
-
-        return changed;
     }
 
-    protected _sortSiblings () {
-        if (this._priorityDirty) {
-            const changed = this._checkAndSortSiblings();
-            if (changed && this.node.parent) {
-                this.node.parent._updateSiblingIndex();
-            }
-            this.node.emit('SiblingChange');
-            this._priorityDirty = false;
-        }
+    public static _sortSiblings () {
+        UITransform.priorityChangeNodeMap.forEach((node, ID) => {
+        // 这个 dirty 是由子节点带来 dirty，其实是指的是子节点要不要重排 // 如果子节点要重排就在这里排
+            UITransform._sortChildrenSibling(node);
+            node._updateSiblingIndex();
+            node.emit('SiblingChange');
+        });
+        UITransform.priorityChangeNodeMap.clear();
     }
 }
+
+// HACK
+director.on(Director.EVENT_AFTER_UPDATE, UITransform._sortSiblings);

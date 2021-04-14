@@ -395,8 +395,6 @@ export class Node extends BaseNode {
     }
 
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
-        super._onBatchCreated(dontSyncChildPrefab);
-
         NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
         NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
 
@@ -409,6 +407,7 @@ export class Node extends BaseNode {
         this._dirtyFlags = TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
+            this._children[i]._siblingIndex = i;
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
 
