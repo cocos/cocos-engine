@@ -39,10 +39,10 @@ GLES2Shader::~GLES2Shader() {
 }
 
 void GLES2Shader::doInit(const ShaderInfo & /*info*/) {
-    _gpuShader           = CC_NEW(GLES2GPUShader);
-    _gpuShader->name     = _name;
-    _gpuShader->blocks   = _blocks;
-    _gpuShader->samplers = _samplers;
+    _gpuShader                  = CC_NEW(GLES2GPUShader);
+    _gpuShader->name            = _name;
+    _gpuShader->blocks          = _blocks;
+    _gpuShader->samplerTextures = _samplerTextures;
     for (const auto &stage : _stages) {
         GLES2GPUShaderStage gpuShaderStage = {stage.stage, stage.source};
         _gpuShader->gpuStages.emplace_back(std::move(gpuShaderStage));
