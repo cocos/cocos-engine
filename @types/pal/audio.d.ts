@@ -50,7 +50,7 @@ declare module 'pal/audio' {
 
         /**
          * Max audio channel count allowed on current platform.
-         * if the amount of playing audios exceeds the limit,
+         * If the amount of playing audios exceeds the limit,
          * some audio instances would be discarded by audio manager.
          */
         static readonly maxAudioChannel: number;
