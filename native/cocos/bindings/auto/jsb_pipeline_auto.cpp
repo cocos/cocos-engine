@@ -2044,6 +2044,25 @@ static bool js_pipeline_RenderPipeline_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_destroy)
 
+static bool js_pipeline_RenderPipeline_getConstantMacros(se::State& s)
+{
+    cc::pipeline::RenderPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
+    SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getConstantMacros : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const cc::String& result = cobj->getConstantMacros();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_pipeline_RenderPipeline_getConstantMacros : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_PROP_GET(js_pipeline_RenderPipeline_getConstantMacros)
+
 static bool js_pipeline_RenderPipeline_getDescriptorSet(se::State& s)
 {
     cc::pipeline::RenderPipeline* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
@@ -2229,6 +2248,7 @@ bool js_register_pipeline_RenderPipeline(se::Object* obj)
 
     cls->defineProperty("descriptorSet", _SE(js_pipeline_RenderPipeline_getDescriptorSet), nullptr);
     cls->defineProperty("descriptorSetLayout", _SE(js_pipeline_RenderPipeline_getDescriptorSetLayout), nullptr);
+    cls->defineProperty("constantMacros", _SE(js_pipeline_RenderPipeline_getConstantMacros), nullptr);
     cls->defineFunction("activate", _SE(js_pipeline_RenderPipeline_activate));
     cls->defineFunction("destroy", _SE(js_pipeline_RenderPipeline_destroy));
     cls->defineFunction("getDevice", _SE(js_pipeline_RenderPipeline_getDevice));
