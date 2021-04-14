@@ -68,6 +68,7 @@ polyfillCC.CommandBuffer = gfx.CommandBuffer;
 polyfillCC.Queue = gfx.Queue;
 legacyCC.gfx = polyfillCC;
 
+export const Attribute = gfx.Attribute;
 // TODO: remove these after state info refactor
 export const BlendTarget = pso.BlendTarget;
 export const BlendState = pso.BlendState;

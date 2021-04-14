@@ -43,7 +43,7 @@ import {
     StencilFace,
     CommandBufferType,
     CommandBufferInfo,
-    BufferTextureCopy, Color, Rect, Viewport,
+    BufferTextureCopy, Color, Rect, Viewport, DrawInfo,
 } from './define';
 import { GlobalBarrier } from './global-barrier';
 import { TextureBarrier } from './texture-barrier';
@@ -235,9 +235,9 @@ export abstract class CommandBuffer extends Obj {
     /**
      * @en Draw the specified primitives.
      * @zh 绘制。
-     * @param inputAssembler The target input assembler.
+     * @param info The draw call information.
      */
-    public abstract draw (inputAssembler: InputAssembler): void;
+    public abstract draw (info: DrawInfo | InputAssembler): void;
 
     /**
      * @en Update buffer.

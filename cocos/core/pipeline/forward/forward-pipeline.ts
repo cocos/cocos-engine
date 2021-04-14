@@ -86,8 +86,6 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        this._macros = {};
-
         if (!super.activate()) {
             return false;
         }
@@ -163,10 +161,6 @@ export class ForwardPipeline extends RenderPipeline {
         this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, shadowMapSampler);
         this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.update();
-
-        // update global defines when all states initialized.
-        this.macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
-        this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(Feature.TEXTURE_FLOAT);
 
         return true;
     }

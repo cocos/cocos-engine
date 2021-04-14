@@ -1,126 +1,162 @@
 declare module 'pal/audio' {
     /**
-     * each audio instance needs to be managed, but not take up too much memory
-     * this is a lite version of audio interface designed for audio manager
+     * Each audio instance needs to be managed, but should not take up too much memory.
+     * The `OneShotAudio` is a lite version of audio interface designed for audio manager.
      */
     export interface OneShotAudio {
         /**
-         * stop playing one shot audio
+         * Stops playing the audio.
          */
-        stop ();
+        stop (): void;
+
         /**
-         * register the play finish callback
-         * @param cb
+         * Register an callback which would be called when the play starts.
+         * @param cb The callback.
+         * @returns This audio.
          */
-        onPlay (cb): OneShotAudio;
+        onPlay (cb: () => void): OneShotAudio;
+
         /**
-         * register the end callback
-         * @param cb
+         * Register an callback which would be called when the play ends.
+         * @param cb The callback.
+         * @returns This audio.
          */
-        onEnded (cb): OneShotAudio;
+        onEnded (cb: () => void): OneShotAudio;
     }
+
     export class AudioPlayer {
         private constructor (nativeAudio: unknown);
+
         /**
-         * destroy AudioPlayer
+         * Destroys the player.
          */
-        destroy ();
+        destroy (): void;
+
         /**
-         * load AudioPlayer
-         * @param url
-         * @param opts
+         * Asynchronously creates an audio player to load an audio.
+         * @param url URL to the audio.
+         * @param opts Load options.
+         * @returns The audio player.
          */
         static load (url: string, opts?: import('pal/audio/type').AudioLoadOptions): Promise<AudioPlayer>;
+
         /**
-         * load native audio for playing one shot
-         * @param url
-         * @param opts
+         * Asynchronously load a native audio for playing one shot.
+         * @param url URL to the audio.
+         * @param opts Load options.
+         * @returns The native audio such as `HTMLAudioElement` or `AudioBuffer`.
          */
         static loadNative (url: string, opts?: import('pal/audio/type').AudioLoadOptions): Promise<unknown>;
+
         /**
-         * max audio channel, if the amount of playing audios exceeds maxAudioChannel, some audio instances should be discarded by audio manager
+         * Max audio channel count allowed on current platform.
+         * If the amount of playing audios exceeds the limit,
+         * some audio instances would be discarded by audio manager.
          */
         static readonly maxAudioChannel: number;
 
         /**
-         * type of AudioPlayer，there are WEB_AUDIO and DOM_AUDIO for web platform
+         * Readonly property to get the url of audio src.
+         */
+        get src (): string;
+        
+        /**
+         * The type of this player.
+         * For WEB platform, it can be `WEB_AUDIO` or `DOM_AUDIO`.
          */
         get type (): import('pal/audio/type').AudioType;
+
         /**
-         * state of AudioPlayer，restores to INIT when the audio ended playing
+         * The state of this player.
+         * The state would be restored to `INIT` when the audio finished its playing.
          */
         get state (): import('pal/audio/type').AudioState;
+
         /**
-         * whether to loop
+         * Gets or sets whether if the playing audio should be looped.
          */
         get loop (): boolean;
         set loop (val: boolean);
+
         /**
-         * volume of AudioPlayer, ranged from 0 to 1
+         * The volume of this player, ranged from 0 to 1.
          */
         get volume (): number;
         set volume (val: number);
+
         /**
-         * duration of AudioPlayer
+         * The duration of this audio player.
          */
         get duration (): number;
+
         /**
-         * read only current time of AudioPlayer, if you want to set the current time, please call the seek() method
-         * it displays in seconds, ranged from 0 to its total duration
+         * The current time of this player, in seconds, ranged from 0 to its total duration.
+         * Note this field is immutable, if you want to set the current time, please call the seek() method instead.
          */
         get currentTime (): number;
+
         /**
-         * seek the currentTime，the returned Promise is to ensure the completion of asynchronous operation
-         * @param time
+         * Asynchronously seeks the player's playing time onto specified location.
+         * @param time Desired playing time.
          */
         seek (time: number): Promise<void>;
+
         /**
-         * play one shot of the audio，the returned OneShotAudio can be managed by audio manager
-         * @param volume
+         * Plays one shot of the audio, the returned `OneShotAudio` can be managed by audio manager.
+         * @param volume Specifies the volume. If not specified...
+         * @returns The one shot audio.
          */
         playOneShot (volume?: number): OneShotAudio;
+
         /**
-         * play audio or resume audio when it is paused, the returned Promise is to ensure the completion of asynchronous operation
+         * Asynchronously plays the audio or resumes the audio while it is paused.
          */
         play (): Promise<void>;
+
         /**
-         * pause audio, the returned Promise is to ensure the completion of asynchronous operation
+         * Asynchronously pauses the playing.
          */
         pause (): Promise<void>;
         /**
-         * stop audio, the returned Promise is to ensure the completion of asynchronous operation
+         * Asynchronously stops the playing.
          */
         stop (): Promise<void>;
 
         /**
-         * register the InterruptionBegin callback，the Interruption includes the show/hide events, phone call/alarm, unpluging earphones
-         * @param cb
+         * Registers an callback which would be called at an interruption begin.
+         * The interruption includes the show/hide events, phone call/alarm, earphones un-plugging.
+         * @param cb The callback.
          */
-        onInterruptionBegin (cb: () => void);
+        onInterruptionBegin (cb: () => void): void;
+
         /**
-         * unregister the InterruptionBegin callback
-         * @param cb unregister all callbacks if cb is undefined
+         * Unregister the callback that registered to `onInterruptionBegin`.
+         * @param cb  The callback. If not specified, all callback would be unregistered.
          */
-        offInterruptionBegin (cb?: () => void);
+        offInterruptionBegin (cb?: () => void): void;
+
         /**
-         * register the InterruptionEnd callback
-         * @param cb
+         * Register an callback which would be called at an interruption end.
+         * @param cb The callback.
          */
-        onInterruptionEnd (cb: () => void);
+        onInterruptionEnd (cb: () => void): void;
+
         /**
-         * unregister the InterruptionEnd callback
-         * @param cb unregister all callbacks if cb is undefined
+         * Unregister the callback that registered to `onInterruptionEnd`.
+         * @param cb The callback. If not specified, all callback would be unregistered.
          */
-        offInterruptionEnd (cb?: () => void);
+        offInterruptionEnd (cb?: () => void): void;
+
         /**
-         * register the end event callback
-         * @param cb
+         * Register an callback which would be called when the player finished its playing.
+         * @param cb The callback.
          */
-        onEnded (cb: () => void);
+        onEnded (cb: () => void): void;
+
         /**
-         * unregister the end event callback
-         * @param cb unregister all callbacks if cb is undefined
+         * Unregister the callback that registered to `onEnded`.
+         * @param cb The callback. If not specified, all callback would be unregistered.
          */
-        offEnded (cb?: () => void);
+        offEnded (cb?: () => void): void;
     }
 }

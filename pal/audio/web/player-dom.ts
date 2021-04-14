@@ -3,15 +3,19 @@ import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
+import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
-export class AudioPlayerDOM {
-    private _domAudio?: HTMLAudioElement;
-    private _eventTarget: EventTarget = new EventTarget();
+export class AudioPlayerDOM implements OperationQueueable {
+    private _domAudio: HTMLAudioElement;
     private _state: AudioState = AudioState.INIT;
     private _onGesture?: () => void;
     private _onHide?: () => void;
     private _onShow?: () => void;
     private _onEnded?: () => void;
+
+    // NOTE: the implemented interface properties need to be public access
+    public _eventTarget: EventTarget = new EventTarget();
+    public _operationQueue: OperationInfo[] = [];
 
     constructor (nativeAudio: HTMLAudioElement) {
         this._domAudio = nativeAudio;
@@ -45,6 +49,7 @@ export class AudioPlayerDOM {
         };
         this._domAudio.addEventListener('ended', this._onEnded);
     }
+
     destroy () {
         if (this._onGesture) {
             legacyCC.game.canvas.removeEventListener('touchend', this._onGesture);
@@ -60,9 +65,10 @@ export class AudioPlayerDOM {
             this._onHide = undefined;
         }
         if (this._onEnded) {
-            this._domAudio!.removeEventListener('ended', this._onEnded);
+            this._domAudio.removeEventListener('ended', this._onEnded);
             this._onEnded = undefined;
         }
+        // @ts-expect-error need to release DOM Audio instance
         this._domAudio = undefined;
     }
     static load (url: string): Promise<AudioPlayerDOM> {
@@ -112,6 +118,9 @@ export class AudioPlayerDOM {
         });
     }
 
+    get src (): string {
+        return this._domAudio ? this._domAudio.src : '';
+    }
     get type (): AudioType {
         return AudioType.DOM_AUDIO;
     }
@@ -119,27 +128,29 @@ export class AudioPlayerDOM {
         return this._state;
     }
     get loop (): boolean {
-        return this._domAudio!.loop;
+        return this._domAudio.loop;
     }
     set loop (val: boolean) {
-        this._domAudio!.loop = val;
+        this._domAudio.loop = val;
     }
     get volume (): number {
-        return this._domAudio!.volume;
+        return this._domAudio.volume;
     }
     set volume (val: number) {
         val = clamp01(val);
-        this._domAudio!.volume = val;
+        this._domAudio.volume = val;
     }
     get duration (): number {
-        return this._domAudio!.duration;
+        return this._domAudio.duration;
     }
     get currentTime (): number {
-        return this._domAudio!.currentTime;
+        return this._domAudio.currentTime;
     }
+
+    @enqueueOperation
     seek (time: number): Promise<void> {
         time = clamp(time, 0, this.duration);
-        this._domAudio!.currentTime = time;
+        this._domAudio.currentTime = time;
         return Promise.resolve();
     }
 
@@ -162,7 +173,7 @@ export class AudioPlayerDOM {
         let onPlayCb: () => void;
         let onEndedCb: () => void;
         let domAudio: HTMLAudioElement;
-        AudioPlayerDOM.loadNative(this._domAudio!.src).then((res) => {
+        AudioPlayerDOM.loadNative(this._domAudio.src).then((res) => {
             domAudio = res;
             domAudio.volume = volume;
             onEndedCb && domAudio.addEventListener('ended', onEndedCb);
@@ -186,37 +197,31 @@ export class AudioPlayerDOM {
         return oneShotAudio;
     }
 
-    private _ensureStop (): Promise<void> {
-        return new Promise((resolve) => {
-            /* sometimes there is no way to update the playing state
-            especially when player unplug earphones and the audio automatically stops
-            so we need to force updating the playing state by pausing audio */
-            if (this._state === AudioState.PLAYING) {
-                this.stop().then(resolve).catch((e) => {});
-            } else {
-                resolve();
-            }
-        });
-    }
+    @enqueueOperation
     play (): Promise<void> {
         return new Promise((resolve) => {
-            this._ensureStop().then(() => {
-                this._ensurePlaying(this._domAudio!).then(() => {
-                    this._state = AudioState.PLAYING;
-                    resolve();
-                }).catch((e)  => {});
-            }).catch((e) => {});
+            this._ensurePlaying(this._domAudio).then(() => {
+                this._state = AudioState.PLAYING;
+                resolve();
+            }).catch((e)  => {});
         });
     }
+
+    @enqueueOperation
     pause (): Promise<void> {
-        this._domAudio!.pause();
+        this._domAudio.pause();
         this._state = AudioState.PAUSED;
         return Promise.resolve();
     }
+
+    @enqueueOperation
     stop (): Promise<void> {
-        this._domAudio!.pause();
-        this._state = AudioState.STOPPED;
-        return this.seek(0);
+        return new Promise((resolve) => {
+            this._domAudio.pause();
+            this._domAudio.currentTime = 0;
+            this._state = AudioState.STOPPED;
+            resolve();
+        });
     }
 
     onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }

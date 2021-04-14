@@ -173,6 +173,8 @@ namespace build {
         exports: Record<string, string>;
 
         dependencyGraph?: Record<string, string[]>;
+
+        hasCriticalWarns: boolean;
     }
 
     export async function transform (code: string, moduleOption: ModuleOption, loose?: boolean) {
@@ -410,7 +412,10 @@ async function doBuild ({
             sourceMap: false,
         }),
 
-        rpBabel(babelOptions),
+        rpBabel({
+            skipPreflightCheck: true,
+            ...babelOptions,
+        }),
     );
 
     if (options.progress) {
@@ -433,7 +438,6 @@ async function doBuild ({
             output: {
                 beautify: !doUglify,
             },
-            sourcemap: !!options.sourceMap,
 
             // https://github.com/rollup/rollup/issues/3315
             // We only do this for CommonJS.
@@ -463,10 +467,23 @@ async function doBuild ({
         }
     }
 
+    let hasCriticalWarns = false;
+
+    const rollupWarningHandler: rollup.WarningHandlerWithDefault = (warning, defaultHandler) => {
+        if (typeof warning !== 'string') {
+            if (warning.code === 'CIRCULAR_DEPENDENCY') {
+                hasCriticalWarns = true;
+            }
+        }
+
+        defaultHandler(warning);
+    };
+
     const rollupOptions: rollup.InputOptions = {
         input: rollupEntries,
         plugins: rollupPlugins,
         cache: false,
+        onwarn: rollupWarningHandler,
     };
 
     const ammoJsAsmJsModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.js');
@@ -516,6 +533,7 @@ export { isWasm, wasmBinaryURL };
 
     const result: build.Result = {
         exports: {},
+        hasCriticalWarns: false,
     };
 
     const rollupOutputOptions: rollup.OutputOptions = {
@@ -550,6 +568,8 @@ export { isWasm, wasmBinaryURL };
             result.dependencyGraph[output.fileName] = output.imports.concat(output.dynamicImports);
         }
     }
+
+    result.hasCriticalWarns = hasCriticalWarns;
 
     return result;
 
