@@ -1,7 +1,6 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SupportCapability } from 'pal/system';
+import { SafeAreaEdge, Size, SupportCapability } from 'pal/system';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { Rect, Size, warn } from '../../../cocos/core';
 import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
 
 class System {
@@ -259,15 +258,23 @@ class System {
     public getViewSize (): Size {
         const element = document.getElementById('GameDiv');
         if (this.isMobile || !element || element === this._html) {
-            return new Size(window.innerWidth, window.innerHeight);
+            let res: Size = {
+                width: window.innerWidth,
+                height: window.innerHeight,
+            };
+            return res;
         } else {
-            return new Size(element.clientWidth, element.clientHeight);
+            let res: Size = {
+                width: element.clientWidth,
+                height: element.clientHeight,
+            };
+            return res;
         }
     }
     public getOrientation (): Orientation {
         throw new Error('TODO');
     }
-    public getSafeAreaRect (): Rect {
+    public getSafeAreaEdge (): SafeAreaEdge {
         throw new Error('TODO');
     }
     public getBatteryLevel (): number {
@@ -275,14 +282,14 @@ class System {
             return this._battery.level as number;
         } else {
             if (DEBUG) {
-                warn('getBatteryLevel is not supported');
+                console.warn('getBatteryLevel is not supported');
             }
             return 1;
         }
     }
     public triggerGC (): void {
         if (DEBUG) {
-            warn('triggerGC is not supported.');
+            console.warn('triggerGC is not supported.');
         }
     }
     public openURL (url: string): void {
@@ -297,7 +304,7 @@ class System {
     }
     public restartJSVM (): void {
         if (DEBUG) {
-            warn('restartJSVM is not supported.');
+            console.warn('restartJSVM is not supported.');
         }
     }
 

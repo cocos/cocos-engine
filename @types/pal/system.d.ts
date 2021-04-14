@@ -36,9 +36,9 @@ declare module 'pal/system' {
         public readonly pixelRatio: number;
         public readonly supportCapability: SupportCapability;
 
-        public getViewSize (): import('cocos/core/math').Size;
+        public getViewSize (): Size;
         public getOrientation (): import('pal/system/enum-type').Orientation;
-        public getSafeAreaRect (): import('cocos/core/math').Rect;
+        public getSafeAreaEdge (): SafeAreaEdge;
         public getBatteryLevel (): number;
 
         public triggerGC (): void;
@@ -60,4 +60,16 @@ declare module 'pal/system' {
     }
 
     export const system: System;
+
+    export interface Size {
+        width: number;
+        height: number;
+    }
+
+    export interface SafeAreaEdge {
+        left: number;
+        right: number;
+        top: number;
+        bottom: number;
+    }
 }

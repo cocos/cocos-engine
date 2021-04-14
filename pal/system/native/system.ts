@@ -1,6 +1,5 @@
-import { SupportCapability } from 'pal/system';
+import { SafeAreaEdge, Size, SupportCapability } from 'pal/system';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { Rect, Size } from '../../../cocos/core';
 import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
 
 // these value is defined in the native layer
@@ -32,7 +31,7 @@ class System {
     // TODO: need to wrap the function __isObjectValid()
 
     private _eventTarget: EventTarget = new EventTarget();
-    private _viewSize: Size = Size.ZERO;
+    private _viewSize: Size = { width: 0, height: 0 };
     private _orientation: Orientation = Orientation.LANDSCAPE_LEFT;
 
     public get networkType (): NetworkType {
@@ -111,12 +110,16 @@ class System {
     }
 
     public getViewSize (): Size {
-        return this._viewSize.clone();
+        let res: Size = {
+            width: this._viewSize.width,
+            height: this._viewSize.height,
+        };
+        return res;
     }
     public getOrientation (): Orientation {
         return this._orientation;
     }
-    public getSafeAreaRect (): Rect {
+    public getSafeAreaEdge (): SafeAreaEdge {
         // jsb.device.getSafeAreaEdge()
         throw new Error('TODO');
     }

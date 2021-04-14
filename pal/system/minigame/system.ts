@@ -1,9 +1,8 @@
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
 
-import { SupportCapability } from 'pal/system';
+import { SafeAreaEdge, Size, SupportCapability } from 'pal/system';
 import { minigame } from 'pal/minigame';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { Rect, Size, warn } from '../../../cocos/core';
 import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
 
 // NOTE: register minigame platform here
@@ -116,12 +115,16 @@ class System {
 
     public getViewSize (): Size {
         const sysInfo = minigame.getSystemInfoSync();
-        return new Size(sysInfo.screenWidth, sysInfo.screenHeight);
+        let res: Size = {
+            width: sysInfo.screenWidth,
+            height: sysInfo.screenHeight,
+        };
+        return res;
     }
     public getOrientation (): Orientation {
         throw new Error('TODO');
     }
-    public getSafeAreaRect (): Rect {
+    public getSafeAreaEdge (): SafeAreaEdge {
         throw new Error('TODO');
     }
     public getBatteryLevel (): number {
@@ -132,7 +135,7 @@ class System {
     }
     public openURL (url: string): void {
         if (DEBUG) {
-            warn('openURL is not supported');
+            console.warn('openURL is not supported');
         }
     }
     public now (): number {
@@ -144,7 +147,7 @@ class System {
     }
     public restartJSVM (): void {
         if (DEBUG) {
-            warn('restartJSVM is not supported.');
+            console.warn('restartJSVM is not supported.');
         }
     }
 
