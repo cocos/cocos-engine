@@ -629,5 +629,10 @@ export class TiledMap extends Component {
             }
             texGrids.set(aniGID, frame.grid!);
         }
+        for (const layer of this.getLayers()) {
+            if (layer.hasAnimation()) {
+                layer.markForUpdateRenderData();
+            }
+        }
     }
 }
