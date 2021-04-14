@@ -1,14 +1,14 @@
-import { EventTarget } from "../../../cocos/core/event/event-target";
-import { Rect, Size } from "../../../cocos/core";
-import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from "../enum-type";
-import { SupportCapability } from "pal/system";
+import { SupportCapability } from 'pal/system';
+import { EventTarget } from '../../../cocos/core/event/event-target';
+import { Rect, Size } from '../../../cocos/core';
+import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
 
 // these value is defined in the native layer
 const orientationMap: Record<string, Orientation> = {
-    '0': Orientation.PORTRAIT,
+    0: Orientation.PORTRAIT,
     '-90': Orientation.LANDSCAPE_LEFT,
-    '90': Orientation.LANDSCAPE_RIGHT,
-    '180': Orientation.PORTRAIT_UPSIDE_DOWN,
+    90: Orientation.LANDSCAPE_RIGHT,
+    180: Orientation.PORTRAIT_UPSIDE_DOWN,
 };
 const networkTypeMap: Record<string, NetworkType> = {
     // TODO
@@ -43,8 +43,8 @@ class System {
         this.isNative = true;
         this.isBrowser = false;
 
-        // @ts-ignore __getPlatform() 
-        let platform = __getPlatform();  // TODO: need a platform map
+        // @ts-expect-error __getPlatform()
+        const platform = __getPlatform();  // TODO: need a platform map
         this.isMobile = false;  // TODO
         this.platform = Platform.MAC; // TODO
 
@@ -56,10 +56,9 @@ class System {
             return new Int16Array(buffer)[0] === 256;
         })();
 
-
         // init languageCode and language
         // @ts-expect-error __getCurrentLanguageCode() defined in JSB
-        let currLanguage = __getCurrentLanguageCode();
+        const currLanguage = __getCurrentLanguageCode();
         this.nativeLanguage = currLanguage ? currLanguage.toLowerCase() : Language.UNKNOWN;
         // @ts-expect-error __getCurrentLanguage() defined in JSB
         this.language = __getCurrentLanguage();
@@ -98,7 +97,6 @@ class System {
             // TODO: remove this function calling
             window.resize(size.width, size.height);
             this._eventTarget.emit(AppEvent.RESIZE);
-
         };
         jsb.onOrientationChanged = (event) => {
             this._orientation = orientationMap[event.orientation.toString()];
@@ -156,16 +154,16 @@ class System {
         this._eventTarget.on(AppEvent.ORIENTATION_CHANGE, cb);
     }
 
-    public offHide (cb?: () => void){
+    public offHide (cb?: () => void) {
         this._eventTarget.off(AppEvent.HIDE, cb);
     }
-    public offShow (cb?: () => void){
+    public offShow (cb?: () => void) {
         this._eventTarget.off(AppEvent.SHOW, cb);
     }
-    public offViewResize (cb?: () => void){
+    public offViewResize (cb?: () => void) {
         this._eventTarget.off(AppEvent.RESIZE, cb);
     }
-    public offOrientationChange (cb?: () => void){
+    public offOrientationChange (cb?: () => void) {
         this._eventTarget.off(AppEvent.ORIENTATION_CHANGE, cb);
     }
 }

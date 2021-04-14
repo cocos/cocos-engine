@@ -1,4 +1,3 @@
-
 export enum Platform {
     UNKNOWN = 'UNKNOWN',
     // Web Based

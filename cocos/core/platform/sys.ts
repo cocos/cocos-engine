@@ -28,11 +28,11 @@
  * @packageDocumentation
  * @module core
  */
+import { system } from 'pal/system';
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/system/enum-type';
-import { system } from 'pal/system';
 
 const viewSize = system.getViewSize();
 const pixelRatio = system.pixelRatio;
@@ -168,7 +168,7 @@ export const sys: Record<string, any> = {
      */
     windowPixelResolution: {
         width: viewSize.width * pixelRatio,
-        height: viewSize.height * pixelRatio,    
+        height: viewSize.height * pixelRatio,
     },
 
     /**
@@ -327,9 +327,9 @@ export const sys: Record<string, any> = {
         // HACK: this private property only needed on web
         sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && system.isBrowser
             && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
-        
+
         system.onViewResize(() => {
-            let viewSize = system.getViewSize();
+            const viewSize = system.getViewSize();
             sys.windowPixelResolution = {
                 width: viewSize.width * pixelRatio,
                 height: viewSize.height * pixelRatio,

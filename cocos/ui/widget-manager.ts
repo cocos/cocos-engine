@@ -30,6 +30,7 @@
  */
 
 import { EDITOR, DEV } from 'internal:constants';
+import { system } from 'pal/system';
 import { Director, director } from '../core/director';
 import { Vec2, Vec3 } from '../core/math';
 import { View } from '../core/platform/view';
@@ -40,7 +41,6 @@ import { array } from '../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
 import { legacyCC } from '../core/global-exports';
-import { system } from 'pal/system';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();

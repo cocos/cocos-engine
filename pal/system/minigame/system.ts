@@ -1,10 +1,10 @@
-import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI } from "internal:constants";
-import { DEBUG, EDITOR, TEST } from "internal:constants";
-import { EventTarget } from "../../../cocos/core/event/event-target";
-import { Rect, Size, warn } from "../../../cocos/core";
-import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from "../enum-type";
-import { SupportCapability } from "pal/system";
-import { minigame } from "pal/minigame";
+import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
+
+import { SupportCapability } from 'pal/system';
+import { minigame } from 'pal/minigame';
+import { EventTarget } from '../../../cocos/core/event/event-target';
+import { Rect, Size, warn } from '../../../cocos/core';
+import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;
@@ -40,7 +40,7 @@ class System {
     private _eventTarget: EventTarget = new EventTarget();
 
     constructor () {
-        let minigameSysInfo = minigame.getSystemInfoSync();
+        const minigameSysInfo = minigame.getSystemInfoSync();
         this.networkType = NetworkType.LAN;  // TODO
         this.isNative = false;
         this.isBrowser = false;
@@ -62,14 +62,12 @@ class System {
         this.language = minigameSysInfo.language.substr(0, 2) as Language;
 
         // init os, osVersion and osMainVersion
-        let minigamePlatform = minigameSysInfo.platform.toLocaleLowerCase();
-        if (minigamePlatform = 'android') {
+        const minigamePlatform = minigameSysInfo.platform.toLocaleLowerCase();
+        if (minigamePlatform === 'android') {
             this.os = OS.ANDROID;
-        }
-        else if (minigamePlatform = 'ios') {
+        } else if (minigamePlatform === 'ios') {
             this.os = OS.IOS;
-        }
-        else {
+        } else {
             // TODO: pc-game ?
             this.os = OS.UNKNOWN;
         }
@@ -78,7 +76,7 @@ class System {
         if (minigameSystem === 'android p') {
             minigameSystem = 'android p 9.0';
         }
-        let version = /[\d\.]+/.exec(minigameSystem);
+        const version = /[\d\.]+/.exec(minigameSystem);
         this.osVersion = version ? version[0] : minigameSystem;
         this.osMainVersion = parseInt(this.osVersion);
 
@@ -117,7 +115,7 @@ class System {
     }
 
     public getViewSize (): Size {
-        let sysInfo = minigame.getSystemInfoSync();
+        const sysInfo = minigame.getSystemInfoSync();
         return new Size(sysInfo.screenWidth, sysInfo.screenHeight);
     }
     public getOrientation (): Orientation {
@@ -163,16 +161,16 @@ class System {
         this._eventTarget.on(AppEvent.ORIENTATION_CHANGE, cb);
     }
 
-    public offHide (cb?: () => void){
+    public offHide (cb?: () => void) {
         this._eventTarget.off(AppEvent.HIDE, cb);
     }
-    public offShow (cb?: () => void){
+    public offShow (cb?: () => void) {
         this._eventTarget.off(AppEvent.SHOW, cb);
     }
-    public offViewResize (cb?: () => void){
+    public offViewResize (cb?: () => void) {
         this._eventTarget.off(AppEvent.RESIZE, cb);
     }
-    public offOrientationChange (cb?: () => void){
+    public offOrientationChange (cb?: () => void) {
         this._eventTarget.off(AppEvent.ORIENTATION_CHANGE, cb);
     }
 }

@@ -4,7 +4,7 @@ export enum Language {
      * @zh 语言代码 - 未知
      */
     UNKNOWN = 'unknown',
-    
+
     /**
      * @en English language code
      * @zh 语言代码 - 英语

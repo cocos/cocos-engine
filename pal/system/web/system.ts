@@ -1,8 +1,8 @@
-import { DEBUG, EDITOR, TEST } from "internal:constants";
-import { EventTarget } from "../../../cocos/core/event/event-target";
-import { Rect, Size, warn } from "../../../cocos/core";
-import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from "../enum-type";
-import { SupportCapability } from "pal/system";
+import { DEBUG, EDITOR, TEST } from 'internal:constants';
+import { SupportCapability } from 'pal/system';
+import { EventTarget } from '../../../cocos/core/event/event-target';
+import { Rect, Size, warn } from '../../../cocos/core';
+import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
 
 class System {
     public readonly networkType: NetworkType;
@@ -29,11 +29,10 @@ class System {
         const nav = window.navigator;
         const ua = nav.userAgent.toLowerCase();
         this._html = document.getElementsByTagName('html')[0];
-        // @ts-ignore getBattery is not totally supported
-        nav.getBattery?.().then(battery => {
+        // @ts-expect-error getBattery is not totally supported
+        nav.getBattery?.().then((battery) => {
             this._battery = battery;
         });
-
 
         this.networkType = NetworkType.LAN;  // TODO
         this.isNative = false;
@@ -43,8 +42,7 @@ class System {
         if (EDITOR) {
             this.isMobile = false;
             this.platform = Platform.EDITOR_PAGE;  // TODO
-        }
-        else {
+        } else {
             this.isMobile = /mobile|android|iphone|ipad/.test(ua);
             this.platform = this.isMobile ? Platform.MOBILE_BROWSER : Platform.DESKTOP_BROWSER;
         }
@@ -57,14 +55,12 @@ class System {
             return new Int16Array(buffer)[0] === 256;
         })();
 
-
         // init languageCode and language
         let currLanguage = nav.language;
         this.nativeLanguage = currLanguage.toLowerCase();
         currLanguage = currLanguage || (nav as any).browserLanguage;
         currLanguage = currLanguage ? currLanguage.split('-')[0] : Language.ENGLISH;
         this.language = currLanguage as Language;
-
 
         // init os, osVersion and osMainVersion
         let isAndroid = false; let iOS = false; let osVersion = ''; let osMajorVersion = 0;
@@ -109,7 +105,6 @@ class System {
         this.os = osName;
         this.osVersion = osVersion;
         this.osMainVersion = osMajorVersion;
-
 
         // TODO: use dack-type to determine the browserType
         // init browserType and browserVersion
@@ -208,19 +203,19 @@ class System {
         }
 
         let hidden = false;
-        let onHidden = () => {
+        const onHidden = () => {
             if (!hidden) {
                 hidden = true;
                 this._eventTarget.emit(AppEvent.HIDE);
             }
-        }
+        };
         // In order to adapt the most of platforms the onshow API.
-        let onShown = (arg0?, arg1?, arg2?, arg3?, arg4?) => {
+        const onShown = (arg0?, arg1?, arg2?, arg3?, arg4?) => {
             if (hidden) {
                 hidden = false;
                 this._eventTarget.emit(AppEvent.SHOW, arg0, arg1, arg2, arg3, arg4);
             }
-        }
+        };
 
         if (hiddenPropName) {
             const changeList = [
@@ -262,11 +257,10 @@ class System {
     }
 
     public getViewSize (): Size {
-        let element = document.getElementById('GameDiv');
+        const element = document.getElementById('GameDiv');
         if (this.isMobile || !element || element === this._html) {
             return new Size(window.innerWidth, window.innerHeight);
-        }
-        else {
+        } else {
             return new Size(element.clientWidth, element.clientHeight);
         }
     }
@@ -278,12 +272,11 @@ class System {
     }
     public getBatteryLevel (): number {
         if (this._battery) {
-            return this._battery.level;
-        }
-        else {
+            return this._battery.level as number;
+        } else {
             if (DEBUG) {
-                warn('getBatteryLevel is not supported')
-            };
+                warn('getBatteryLevel is not supported');
+            }
             return 1;
         }
     }
@@ -321,16 +314,16 @@ class System {
         this._eventTarget.on(AppEvent.ORIENTATION_CHANGE, cb);
     }
 
-    public offHide (cb?: () => void){
+    public offHide (cb?: () => void) {
         this._eventTarget.off(AppEvent.HIDE, cb);
     }
-    public offShow (cb?: () => void){
+    public offShow (cb?: () => void) {
         this._eventTarget.off(AppEvent.SHOW, cb);
     }
-    public offViewResize (cb?: () => void){
+    public offViewResize (cb?: () => void) {
         this._eventTarget.off(AppEvent.RESIZE, cb);
     }
-    public offOrientationChange (cb?: () => void){
+    public offOrientationChange (cb?: () => void) {
         this._eventTarget.off(AppEvent.ORIENTATION_CHANGE, cb);
     }
 }

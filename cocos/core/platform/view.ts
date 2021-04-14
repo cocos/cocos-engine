@@ -31,6 +31,7 @@
  */
 
 import '../data/class';
+import { system } from 'pal/system';
 import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { EventTarget } from '../event/event-target';
 import '../game';
@@ -39,7 +40,6 @@ import visibleRect from './visible-rect';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
 import { sys } from './sys';
-import { system } from 'pal/system';
 
 class BrowserGetter {
     public html: HTMLHtmlElement | undefined;
