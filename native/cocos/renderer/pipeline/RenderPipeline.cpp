@@ -34,23 +34,25 @@
 
 namespace cc {
 namespace pipeline {
-RenderPipeline *RenderPipeline::_instance = nullptr;
+
+RenderPipeline *RenderPipeline::instance = nullptr;
 
 RenderPipeline *RenderPipeline::getInstance() {
-    return RenderPipeline::_instance;
+    return RenderPipeline::instance;
 }
 
 RenderPipeline::RenderPipeline()
 : _device(gfx::Device::getInstance()) {
-    RenderPipeline::_instance = this;
+    RenderPipeline::instance = this;
 
     setDescriptorSetLayout();
+    generateConstantMacros();
+
     _pipelineUBO       = new PipelineUBO();
     _pipelineSceneData = new PipelineSceneData();
 }
 
-RenderPipeline::~RenderPipeline() {
-}
+RenderPipeline::~RenderPipeline() = default;
 
 #define INIT_GLOBAL_DESCSET_LAYOUT(info)                                      \
     do {                                                                      \
@@ -130,8 +132,9 @@ bool RenderPipeline::activate() {
     _pipelineUBO->activate(_device, this);
     _pipelineSceneData->activate(_device, this);
 
-    for (const auto flow : _flows)
+    for (auto *const flow : _flows) {
         flow->activate(this);
+    }
 
     // has not initBuiltinRes,
     // create temporary default Texture to binding sampler2d
@@ -140,8 +143,8 @@ bool RenderPipeline::activate() {
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
             gfx::Format::RGBA8,
-            1u,
-            1u,
+            1U,
+            1U,
         });
     }
 
@@ -149,16 +152,16 @@ bool RenderPipeline::activate() {
 }
 
 void RenderPipeline::render(const vector<uint> &cameras) {
-    for (const auto flow : _flows) {
+    for (auto *const flow : _flows) {
         for (const auto cameraID : cameras) {
-            Camera *camera = GET_CAMERA(cameraID);
+            auto *camera = GET_CAMERA(cameraID);
             flow->render(camera);
         }
     }
 }
 
 void RenderPipeline::destroy() {
-    for (auto flow : _flows) {
+    for (auto *flow : _flows) {
         flow->destroy();
     }
     _flows.clear();
@@ -168,7 +171,7 @@ void RenderPipeline::destroy() {
     CC_SAFE_DESTROY(_pipelineUBO);
     CC_SAFE_DESTROY(_pipelineSceneData);
 
-    for (const auto cmdBuffer : _commandBuffers) {
+    for (auto *const cmdBuffer : _commandBuffers) {
         cmdBuffer->destroy();
     }
     _commandBuffers.clear();
@@ -183,6 +186,18 @@ void RenderPipeline::destroy() {
 
 void RenderPipeline::setPipelineSharedSceneData(uint handle) {
     _pipelineSceneData->setPipelineSharedSceneData(handle);
+}
+
+void RenderPipeline::generateConstantMacros() {
+    _constantMacros = StringUtil::format(
+        R"(
+#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE %d
+#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS %d
+#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS $d
+        )",
+        _device->hasFeature(gfx::Feature::TEXTURE_FLOAT) ? 1 : 0,
+        _device->getCapabilities().maxVertexUniformVectors,
+        _device->getCapabilities().maxFragmentUniformVectors);
 }
 
 } // namespace pipeline

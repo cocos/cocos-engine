@@ -11,7 +11,7 @@ else
     exit 1
 fi
 cp CMakeLists.txt CMakeLists-bak.txt
-echo -e "cmake_minimum_required(VERSION 3.8)\nproject(engine_native CXX)\nenable_language(C ASM)" | cat - CMakeLists-bak.txt > CMakeLists.txt
+cat utils/CMakeLists.header.txt CMakeLists-bak.txt > CMakeLists.txt
 cmake -Bbuild -DCC_USE_GLES2=ON -DCC_USE_VULKAN=ON -DCC_USE_GLES3=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_TOOLCHAIN_FILE="$ndk_path/build/cmake/android.toolchain.cmake"  -DANDROID_PLATFORM=android-21 -G"Unix Makefiles"
 mv CMakeLists-bak.txt CMakeLists.txt
 cp build/compile_commands.json .

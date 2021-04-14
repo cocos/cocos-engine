@@ -37,10 +37,10 @@ namespace gfx {
 class CommandBuffer;
 class DescriptorSet;
 class DescriptorSetLayout;
-struct Camera;
 } // namespace gfx
 namespace pipeline {
 class DefineMap;
+struct Camera;
 
 struct CC_DLL RenderPipelineInfo {
     uint           tag = 0;
@@ -52,38 +52,43 @@ public:
     static RenderPipeline *getInstance();
 
     RenderPipeline();
-    virtual ~RenderPipeline();
+    ~RenderPipeline() override;
 
     virtual bool activate();
     virtual void destroy();
     virtual bool initialize(const RenderPipelineInfo &info);
     virtual void render(const vector<uint> &cameras);
-    virtual void resize(uint width, uint height) {};
-    
+    virtual void resize(uint width, uint height){};
+
     void setPipelineSharedSceneData(uint handle);
 
-    CC_INLINE const RenderFlowList &getFlows() const { return _flows; }
-    CC_INLINE uint                  getTag() const { return _tag; }
-    CC_INLINE const map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
-    CC_INLINE const DefineMap &getMacros() const { return _macros; }
-    CC_INLINE void             setValue(const String &name, bool value) { _macros.setValue(name, value); }
-    CC_INLINE gfx::DescriptorSet *getDescriptorSet() const { return _descriptorSet; }
-    CC_INLINE gfx::DescriptorSetLayout *getDescriptorSetLayout() const { return _descriptorSetLayout; }
-    CC_INLINE gfx::Texture *getDefaultTexture() const { return _defaultTexture; }
-    CC_INLINE PipelineSceneData *getPipelineSceneData() const { return _pipelineSceneData; }
-    CC_INLINE const gfx::CommandBufferList &getCommandBuffers() const { return _commandBuffers; }
-    CC_INLINE PipelineUBO *getPipelineUBO() const { return _pipelineUBO; }
-    CC_INLINE gfx::Device *getDevice() { return _device; }
+    inline const RenderFlowList &                  getFlows() const { return _flows; }
+    inline uint                                    getTag() const { return _tag; }
+    inline const map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
+    inline const DefineMap &                       getMacros() const { return _macros; }
+    inline void                                    setValue(const String &name, bool value) { _macros.setValue(name, value); }
+    inline gfx::DescriptorSet *                    getDescriptorSet() const { return _descriptorSet; }
+    inline gfx::DescriptorSetLayout *              getDescriptorSetLayout() const { return _descriptorSetLayout; }
+    inline gfx::Texture *                          getDefaultTexture() const { return _defaultTexture; }
+    inline PipelineSceneData *                     getPipelineSceneData() const { return _pipelineSceneData; }
+    inline const gfx::CommandBufferList &          getCommandBuffers() const { return _commandBuffers; }
+    inline PipelineUBO *                           getPipelineUBO() const { return _pipelineUBO; }
+    inline const String &                          getConstantMacros() { return _constantMacros; }
+    inline gfx::Device *                           getDevice() { return _device; }
 
 protected:
-    static RenderPipeline *_instance;
-    void                   setDescriptorSetLayout();
+    static RenderPipeline *instance;
+
+    static void setDescriptorSetLayout();
+
+    void generateConstantMacros();
 
     gfx::CommandBufferList           _commandBuffers;
     RenderFlowList                   _flows;
     map<String, InternalBindingInst> _globalBindings;
     DefineMap                        _macros;
     uint                             _tag = 0;
+    String                           _constantMacros;
 
     gfx::Device *             _device              = nullptr;
     gfx::DescriptorSetLayout *_descriptorSetLayout = nullptr;
