@@ -88,7 +88,7 @@ export class DeferredPipeline extends RenderPipeline {
     private _lightingRenderPass: RenderPass | null = null;
     private _width = 0;
     private _height = 0;
-    private _lastUsedRenderArea: Rect = new Rect;
+    private _lastUsedRenderArea: Rect = new Rect();
 
     @type([RenderTextureConfig])
     @serializable
@@ -433,20 +433,20 @@ export class DeferredPipeline extends RenderPipeline {
         }
 
         this._lastUsedRenderArea = renderArea;
-        let offData = this.genQuadVertexData(SurfaceTransform.IDENTITY, renderArea);
+        const offData = this.genQuadVertexData(SurfaceTransform.IDENTITY, renderArea);
         this._quadVBOffscreen!.update(offData);
 
-        let onData = this.genQuadVertexData(this.device.surfaceTransform, renderArea);
+        const onData = this.genQuadVertexData(this.device.surfaceTransform, renderArea);
         this._quadVBOnscreen!.update(onData);
     }
 
     protected genQuadVertexData(surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
         const vbData = new Float32Array(4 * 4);
 
-        let minX = renderArea.x / this.device.width;
-        let maxX = (renderArea.x + renderArea.width) / this.device.width;
-        let minY = renderArea.y / this.device.height;
-        let maxY = (renderArea.y + renderArea.height) / this.device.height;
+        const minX = renderArea.x / this.device.width;
+        const maxX = (renderArea.x + renderArea.width) / this.device.width;
+        const minY = renderArea.y / this.device.height;
+        const maxY = (renderArea.y + renderArea.height) / this.device.height;
 
         let n = 0;
         switch (surfaceTransform) {
