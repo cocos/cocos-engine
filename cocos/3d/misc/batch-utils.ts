@@ -112,7 +112,7 @@ export class BatchingUtility {
             if (batchedModel.mesh) {
                 batchedModel.mesh.destroyRenderingMesh();
             }
-            batchedModel.destroy(); 
+            batchedModel.destroy();
         }
         return true;
     }
