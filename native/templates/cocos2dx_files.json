@@ -18508,7 +18508,16 @@
         "unit-test/README", 
         "unit-test/src/CMakeLists.txt", 
         "unit-test/src/main.cpp", 
-        "unit-test/src/math_vec2_test.cpp"
+        "unit-test/src/math_geometry_test.cpp", 
+        "unit-test/src/math_mat3_test.cpp", 
+        "unit-test/src/math_mat4_test.cpp", 
+        "unit-test/src/math_quaternion_test.cpp", 
+        "unit-test/src/math_utils_test.cpp", 
+        "unit-test/src/math_vec2_test.cpp", 
+        "unit-test/src/math_vec3_test.cpp", 
+        "unit-test/src/math_vec4_test.cpp", 
+        "unit-test/src/math_vertex_test.cpp", 
+        "unit-test/src/utils.h"
     ], 
     "js": [
         "cocos/bindings/auto/jsb_audio_auto.cpp", 
