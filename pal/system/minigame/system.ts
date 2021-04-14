@@ -1,7 +1,7 @@
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
-
-import { SafeAreaEdge, Size, SupportCapability } from 'pal/system';
+import { SafeAreaEdge, SupportCapability } from 'pal/system';
 import { minigame } from 'pal/minigame';
+import { Size } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
 
@@ -115,11 +115,7 @@ class System {
 
     public getViewSize (): Size {
         const sysInfo = minigame.getSystemInfoSync();
-        const res: Size = {
-            width: sysInfo.screenWidth,
-            height: sysInfo.screenHeight,
-        };
-        return res;
+        return new Size(sysInfo.screenWidth, sysInfo.screenHeight);
     }
     public getOrientation (): Orientation {
         throw new Error('TODO');

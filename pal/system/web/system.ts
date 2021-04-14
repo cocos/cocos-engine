@@ -1,5 +1,6 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SafeAreaEdge, Size, SupportCapability } from 'pal/system';
+import { SafeAreaEdge, SupportCapability } from 'pal/system';
+import { Size } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
 
@@ -258,17 +259,9 @@ class System {
     public getViewSize (): Size {
         const element = document.getElementById('GameDiv');
         if (this.isMobile || !element || element === this._html) {
-            const res: Size = {
-                width: window.innerWidth,
-                height: window.innerHeight,
-            };
-            return res;
+            return new Size(window.innerWidth, window.innerHeight);
         } else {
-            const res: Size = {
-                width: element.clientWidth,
-                height: element.clientHeight,
-            };
-            return res;
+            return new Size(element.clientWidth, element.clientHeight);
         }
     }
     public getOrientation (): Orientation {
