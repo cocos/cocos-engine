@@ -53,8 +53,6 @@ namespace cc {
 
 namespace network {
 
-class WebSocketFrame;
-
 /**
  * WebSocket is wrapper of the libwebsockets-protocol, let the develop could call the websocket easily.
  * Please note that all public methods of WebSocket have to be invoked on Cocos Thread.
@@ -81,23 +79,19 @@ private:
      * @js NA
      * @lua NA
      */
-    virtual ~WebSocket();
+    ~WebSocket() override;
 
 public:
     /**
      * Data structure for message
      */
     struct Data {
-        Data() : bytes(nullptr),
-                 len(0),
-                 issued(0),
-                 isBinary(false),
-                 ext(nullptr) {}
-        char *bytes;
-        ssize_t len, issued;
-        bool isBinary;
-        void *ext;
-        ssize_t getRemain() { return std::max((ssize_t)0, len - issued); }
+        Data() = default;
+        char *bytes{nullptr};
+        ssize_t len{0}, issued{0};
+        bool isBinary{false};
+        void *ext{nullptr};
+        ssize_t getRemain() const { return std::max(static_cast<ssize_t>(0), len - issued); }
     };
 
     /**
@@ -128,7 +122,7 @@ public:
     class Delegate {
     public:
         /** Destructor of Delegate. */
-        virtual ~Delegate() {}
+        virtual ~Delegate() = default;
         /**
          * This function to be called after the client connection complete a handshake with the remote server.
          * This means that the WebSocket connection is ready to send and receive data.

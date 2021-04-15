@@ -13,6 +13,7 @@
 # -readability-implicit-bool-conversion: We omit explicit bool conversion for brevity
 # -readability-implicit-bool-cast: We omit explicit bool conversion for brevity
 # -readability-magic-numbers: There will be lots of constants
+# -bugprone-branch-clone: two branches may only print debug message, then will be treat as the same logic.
 
 Checks: >
     -*,
@@ -35,6 +36,7 @@ Checks: >
     -readability-implicit-bool-conversion,
     -readability-implicit-bool-cast,
     -readability-magic-numbers,
+    -bugprone-branch-clone,
 
 CheckOptions:
     - { key: readability-identifier-naming.NamespaceCase,          value: lower_case }
