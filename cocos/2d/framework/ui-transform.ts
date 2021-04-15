@@ -674,10 +674,9 @@ export class UITransform extends Component {
 
     public static _sortSiblings () {
         UITransform.priorityChangeNodeMap.forEach((node, ID) => {
-        // 这个 dirty 是由子节点带来 dirty，其实是指的是子节点要不要重排 // 如果子节点要重排就在这里排
             UITransform._sortChildrenSibling(node);
             node._updateSiblingIndex();
-            node.emit('SiblingChange');
+            node.emit('childrenSiblingOrderChanged');
         });
         UITransform.priorityChangeNodeMap.clear();
     }

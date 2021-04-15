@@ -717,7 +717,7 @@ export class Layout extends Component {
         this.node.on(NodeEvent.CHILD_ADDED, this._childAdded, this);
         this.node.on(NodeEvent.CHILD_REMOVED, this._childRemoved, this);
         this.node.on(NodeEvent.SIBLING_ORDER_CHANGED, this._childrenChanged, this);
-        this.node.on('SiblingChange', this.updateLayout, this);
+        this.node.on('childrenSiblingOrderChanged', this.updateLayout, this);
         this._addChildrenEventListeners();
     }
 
