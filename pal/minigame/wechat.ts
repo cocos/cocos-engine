@@ -1,5 +1,5 @@
 import { IMiniGame } from 'pal/minigame';
-import { Orientation } from '../orientation';
+import { Orientation } from '../system/enum-type/orientation';
 import { cloneObject } from '../utils';
 
 declare let wx: any;
