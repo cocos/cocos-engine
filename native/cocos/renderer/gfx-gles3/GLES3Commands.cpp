@@ -1372,7 +1372,6 @@ void cmdFuncGLES3DestroyShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
 }
 
 void cmdFuncGLES3CreateInputAssembler(GLES3Device *device, GLES3GPUInputAssembler *gpuInputAssembler) {
-
     if (gpuInputAssembler->gpuIndexBuffer) {
         switch (gpuInputAssembler->gpuIndexBuffer->stride) {
             case 1: gpuInputAssembler->glIndexType = GL_UNSIGNED_BYTE; break;
@@ -1781,7 +1780,7 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
             cache->rs.cullMode = gpuPipelineState->rs.cullMode;
         }
         bool isFrontFaceCCW = gpuPipelineState->rs.isFrontFaceCCW != gfxStateCache.reverseCW;
-        if (cache->rs.isFrontFaceCCW != isFrontFaceCCW) {
+        if (static_cast<bool>(cache->rs.isFrontFaceCCW) != isFrontFaceCCW) {
             GL_CHECK(glFrontFace(isFrontFaceCCW ? GL_CCW : GL_CW));
             cache->rs.isFrontFaceCCW = isFrontFaceCCW;
         }
@@ -1893,7 +1892,6 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
             cache->bs.blendColor.y != gpuPipelineState->bs.blendColor.y ||
             cache->bs.blendColor.z != gpuPipelineState->bs.blendColor.z ||
             cache->bs.blendColor.w != gpuPipelineState->bs.blendColor.w) {
-
             GL_CHECK(glBlendColor(gpuPipelineState->bs.blendColor.x,
                                   gpuPipelineState->bs.blendColor.y,
                                   gpuPipelineState->bs.blendColor.z,
@@ -1942,7 +1940,6 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
 
     // bind descriptor sets
     if (gpuPipelineState && gpuPipelineState->gpuShader && gpuPipelineState->gpuPipelineLayout) {
-
         const vector<vector<int>> &dynamicOffsetIndices = gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices;
 
         size_t bufferLen = gpuPipelineState->gpuShader->glBuffers.size();
@@ -2176,7 +2173,7 @@ void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipeli
                     }
                     break;
                 case DynamicStateFlagBit::DEPTH_BIAS:
-                    if (cache->rs.depthBiasEnabled != depthBiasEnabled) {
+                    if (static_cast<bool>(cache->rs.depthBiasEnabled) != depthBiasEnabled) {
                         if (depthBiasEnabled) {
                             GL_CHECK(glEnable(GL_POLYGON_OFFSET_FILL));
                         } else {

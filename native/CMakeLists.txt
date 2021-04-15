@@ -807,7 +807,7 @@ cocos_source_files(
                  cocos/renderer/gfx-gles-common/GLESCommandPool.h
     NO_WERROR    cocos/renderer/gfx-gles-common/eglw.cpp
     NO_WERROR    cocos/renderer/gfx-gles-common/gles2w.cpp
-    NO_WERROR    cocos/renderer/gfx-gles-common/gles3w.cpp
+                 cocos/renderer/gfx-gles-common/gles3w.cpp
 )
 endif()
 
@@ -873,44 +873,44 @@ endif()
 if(CC_USE_GLES3)
     cocos_source_files(
                      cocos/renderer/gfx-gles3/GFXGLES3.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3Buffer.cpp
+                     cocos/renderer/gfx-gles3/GLES3Buffer.cpp
                      cocos/renderer/gfx-gles3/GLES3Buffer.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3CommandBuffer.cpp
+                     cocos/renderer/gfx-gles3/GLES3CommandBuffer.cpp
                      cocos/renderer/gfx-gles3/GLES3CommandBuffer.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3Commands.cpp
+                     cocos/renderer/gfx-gles3/GLES3Commands.cpp
                      cocos/renderer/gfx-gles3/GLES3Commands.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3Context.cpp
+                     cocos/renderer/gfx-gles3/GLES3Context.cpp
                      cocos/renderer/gfx-gles3/GLES3Context.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3Device.cpp
+                     cocos/renderer/gfx-gles3/GLES3Device.cpp
                      cocos/renderer/gfx-gles3/GLES3Device.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3Framebuffer.cpp
+                     cocos/renderer/gfx-gles3/GLES3Framebuffer.cpp
                      cocos/renderer/gfx-gles3/GLES3Framebuffer.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3GlobalBarrier.cpp
+                     cocos/renderer/gfx-gles3/GLES3GlobalBarrier.cpp
                      cocos/renderer/gfx-gles3/GLES3GlobalBarrier.h
                      cocos/renderer/gfx-gles3/GLES3GPUObjects.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3InputAssembler.cpp
+                     cocos/renderer/gfx-gles3/GLES3InputAssembler.cpp
                      cocos/renderer/gfx-gles3/GLES3InputAssembler.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3DescriptorSet.cpp
+                     cocos/renderer/gfx-gles3/GLES3DescriptorSet.cpp
                      cocos/renderer/gfx-gles3/GLES3DescriptorSet.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3DescriptorSetLayout.cpp
+                     cocos/renderer/gfx-gles3/GLES3DescriptorSetLayout.cpp
                      cocos/renderer/gfx-gles3/GLES3DescriptorSetLayout.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3PipelineLayout.cpp
+                     cocos/renderer/gfx-gles3/GLES3PipelineLayout.cpp
                      cocos/renderer/gfx-gles3/GLES3PipelineLayout.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3PipelineState.cpp
+                     cocos/renderer/gfx-gles3/GLES3PipelineState.cpp
                      cocos/renderer/gfx-gles3/GLES3PipelineState.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3PrimaryCommandBuffer.cpp
+                     cocos/renderer/gfx-gles3/GLES3PrimaryCommandBuffer.cpp
                      cocos/renderer/gfx-gles3/GLES3PrimaryCommandBuffer.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3Queue.cpp
+                     cocos/renderer/gfx-gles3/GLES3Queue.cpp
                      cocos/renderer/gfx-gles3/GLES3Queue.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3RenderPass.cpp
+                     cocos/renderer/gfx-gles3/GLES3RenderPass.cpp
                      cocos/renderer/gfx-gles3/GLES3RenderPass.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3Sampler.cpp
+                     cocos/renderer/gfx-gles3/GLES3Sampler.cpp
                      cocos/renderer/gfx-gles3/GLES3Sampler.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3Shader.cpp
+                     cocos/renderer/gfx-gles3/GLES3Shader.cpp
                      cocos/renderer/gfx-gles3/GLES3Shader.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3Std.cpp
+                     cocos/renderer/gfx-gles3/GLES3Std.cpp
                      cocos/renderer/gfx-gles3/GLES3Std.h
-        NO_WERROR    cocos/renderer/gfx-gles3/GLES3Texture.cpp
+                     cocos/renderer/gfx-gles3/GLES3Texture.cpp
                      cocos/renderer/gfx-gles3/GLES3Texture.h
                      cocos/renderer/gfx-gles3/GLES3Wrangler.h
     )
@@ -920,7 +920,7 @@ if(CC_USE_GLES3)
         )
     else()
         cocos_source_files(
-            NO_WERROR    cocos/renderer/gfx-gles3/GLES3Wrangler.cpp
+                         cocos/renderer/gfx-gles3/GLES3Wrangler.cpp
         )
     endif()
     if(IOS)
