@@ -218,7 +218,6 @@ export class UITransform extends Component {
         }
     }
 
-    @serializable
     protected _priority = 0;
 
     /**
@@ -251,12 +250,14 @@ export class UITransform extends Component {
         this.node._uiProps.uiTransformComp = this;
     }
 
-    public onEnable () {
-        this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
-
+    public onLoad () {
         if (this.node.parent) {
             UITransform.insertChangeMap(this.node.parent);
         }
+    }
+
+    public onEnable () {
+        this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
     }
 
     public onDisable () {
