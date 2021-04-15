@@ -3,6 +3,7 @@
         ".browserslistrc", 
         ".clang-format", 
         ".clang-tidy", 
+        ".github/workflows/clang-format.yml", 
         ".github/workflows/clangtidy-android.yml", 
         ".github/workflows/cmake.yml", 
         ".github/workflows/filter_by_cdb.js", 
