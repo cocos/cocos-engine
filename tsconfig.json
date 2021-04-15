@@ -34,7 +34,8 @@
         // pal
         "./@types/pal/system",
         "./@types/pal/minigame",
-        "./@types/pal/audio"
+        "./@types/pal/audio",
+        "./@types/pal/input"
       ]
     },
     "include": [

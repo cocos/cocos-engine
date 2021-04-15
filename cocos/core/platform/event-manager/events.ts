@@ -32,7 +32,7 @@
 import Event from '../../event/event';
 import { Vec2 } from '../../math/vec2';
 import { Touch } from './touch';
-import { Acceleration } from './input-manager';
+import { Acceleration } from './acceleration';
 import { legacyCC } from '../../global-exports';
 
 const _vec2 = new Vec2();
