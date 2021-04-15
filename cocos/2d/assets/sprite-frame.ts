@@ -42,7 +42,6 @@ import { ImageAsset, ImageSource } from '../../core/assets/image-asset';
 import { Texture2D } from '../../core/assets/texture-2d';
 import { errorID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
-import { builtinResMgr } from '../../core/builtin/builtin-res-mgr';
 import { js } from '../../core/utils/js';
 
 const INSET_LEFT = 0;
@@ -1296,7 +1295,9 @@ export class SpriteFrame extends Asset {
 
     public initPlaceHolder () {
         super.initPlaceHolder();
-        this._refreshTexture(builtinResMgr.get<Texture2D>('black-texture'));
+        const texture = new Texture2D();
+        texture.initPlaceHolder();
+        this._refreshTexture(texture);
         this._calculateUV();
     }
 

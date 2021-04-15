@@ -39,6 +39,7 @@ import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { legacyCC } from '../global-exports';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
+import { Color } from '../math/color';
 
 /**
  * @en The basic infos for material initialization.
@@ -477,8 +478,11 @@ export class Material extends Asset {
 
     public initPlaceHolder () {
         super.initPlaceHolder();
-        const missing = builtinResMgr.get<Material>('missing-effect-material');
-        if (missing) { this._passes = missing._passes.slice(); }
+        this.initialize({
+            effectName: 'unlit',
+            defines: { USE_COLOR: true },
+        });
+        this.setProperty('mainColor', new Color('#ff00ff'));
     }
 
     public validate () {

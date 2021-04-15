@@ -289,7 +289,9 @@ export class Texture2D extends SimpleTexture {
 
     public initPlaceHolder () {
         super.initPlaceHolder();
-        this.image = builtinResMgr.get<Texture2D>('default-texture').image;
+        const imageAsset = new ImageAsset();
+        imageAsset.initPlaceHolder();
+        this.image = imageAsset;
     }
 
     public validate () {

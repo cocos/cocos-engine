@@ -1037,18 +1037,13 @@ export class Mesh extends Asset {
 
     public initPlaceHolder () {
         super.initPlaceHolder();
-        createMesh({
-            primitiveMode: PrimitiveMode.TRIANGLE_LIST,
-            positions: [],
-            uvs: [],
-            colors: [],
-            attributes: [
-                new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
-                new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
-                new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8UI, true),
-            ],
-            indices: [],
-        }, this);
+        this.reset({
+            struct: {
+                vertexBundles: [],
+                primitives: [],
+            },
+            data: globalEmptyMeshBuffer,
+        });
     }
 
     public validate () {

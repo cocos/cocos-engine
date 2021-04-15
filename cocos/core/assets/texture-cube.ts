@@ -285,7 +285,16 @@ export class TextureCube extends SimpleTexture {
 
     public initPlaceHolder () {
         super.initPlaceHolder();
-        this.mipmaps = builtinResMgr.get<TextureCube>('default-cube-texture').mipmaps;
+        const imageAsset = new ImageAsset();
+        imageAsset.initPlaceHolder();
+        this.mipmaps = [{
+            front: imageAsset,
+            back: imageAsset,
+            top: imageAsset,
+            bottom: imageAsset,
+            left: imageAsset,
+            right: imageAsset,
+        }];
     }
 
     public validate () {

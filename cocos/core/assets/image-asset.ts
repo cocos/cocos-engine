@@ -36,7 +36,8 @@ import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { legacyCC } from '../global-exports';
 import { warnID, getError } from '../platform/debug';
-import { builtinResMgr, Texture2D } from '..';
+import { Texture2D } from '..';
+import { builtinResMgr } from '../builtin/builtin-res-mgr';
 
 /**
  * @en Image source in memory
@@ -338,7 +339,12 @@ export class ImageAsset extends Asset {
 
     public initPlaceHolder () {
         super.initPlaceHolder();
-        this.reset(builtinResMgr.get<Texture2D>('black-texture').image!._nativeAsset);
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d')!;
+        const l = canvas.width = canvas.height = 2;
+        context.fillStyle = '#000';
+        context.fillRect(0, 0, l, l);
+        this.reset(canvas);
     }
 
     public validate () {
