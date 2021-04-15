@@ -42,8 +42,7 @@ struct Ambient;
 struct Skybox;
 struct Shadows;
 struct Sphere;
-class Framebuffer;
-class Camera;
+struct Camera;
 
 struct CC_DLL DeferredRenderData {
     gfx::TextureList gbufferRenderTargets;
@@ -56,13 +55,13 @@ struct CC_DLL DeferredRenderData {
 class CC_DLL DeferredPipeline : public RenderPipeline {
 public:
     DeferredPipeline() = default;
-    ~DeferredPipeline() = default;
+    ~DeferredPipeline() override = default;
 
-    virtual bool initialize(const RenderPipelineInfo &info) override;
-    virtual void destroy() override;
-    virtual bool activate() override;
-    virtual void render(const vector<uint> &cameras) override;
-    virtual void resize(uint width, uint height) override;
+    bool initialize(const RenderPipelineInfo &info) override;
+    void destroy() override;
+    bool activate() override;
+    void render(const vector<uint> &cameras) override;
+    void resize(uint width, uint height) override;
 
     gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
 
@@ -73,18 +72,18 @@ public:
     CC_INLINE const UintList &getLightIndices() const { return _lightIndices; }
     gfx::InputAssembler *getQuadIAOnScreen(){return _quadIAOnscreen;}
     gfx::InputAssembler *getQuadIAOffScreen(){return _quadIAOffscreen;}
-    gfx::Rect getRenderArea(Camera *view, bool onScreen);
+    gfx::Rect getRenderArea(Camera *camera, bool onScreen);
     CC_INLINE DeferredRenderData *getDeferredRenderData(){return _deferredRenderData; };
 
 private:
     bool activeRenderer();
-    bool createQuadInputAssembler(gfx::Buffer* &quadIB, gfx::Buffer* &quadVB, gfx::InputAssembler* &quadIA,
+    bool createQuadInputAssembler(gfx::Buffer* quadIB, gfx::Buffer* quadVB, gfx::InputAssembler* quadIA,
         gfx::SurfaceTransform surfaceTransform);
     void destroyQuadInputAssembler();
     void destroyDeferredData();
     void generateDeferredRenderData();
 
-private:
+
     gfx::Buffer *_lightsUBO = nullptr;
     LightList _validLights;
     gfx::BufferList _lightBuffers;

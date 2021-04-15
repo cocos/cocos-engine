@@ -32,7 +32,7 @@ namespace pipeline {
 
 class CC_DLL RenderQueue : public Object {
 public:
-    RenderQueue(const RenderQueueCreateInfo &desc);
+    explicit RenderQueue(RenderQueueCreateInfo desc);
 
     void clear();
     bool insertRenderPass(const RenderObject &renderObj, uint subModelIdx, uint passIdx);

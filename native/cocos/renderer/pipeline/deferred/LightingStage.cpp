@@ -43,29 +43,28 @@
 namespace cc {
 namespace pipeline {
 namespace {
-void SRGBToLinear(gfx::Color &out, const gfx::Color &gamma) {
-    out.x = gamma.x * gamma.x;
-    out.y = gamma.y * gamma.y;
-    out.z = gamma.z * gamma.z;
+void srgbToLinear(gfx::Color *out, const gfx::Color &gamma) {
+    out->x = gamma.x * gamma.x;
+    out->y = gamma.y * gamma.y;
+    out->z = gamma.z * gamma.z;
 }
 
-void LinearToSRGB(gfx::Color &out, const gfx::Color &linear) {
-    out.x = std::sqrt(linear.x);
-    out.y = std::sqrt(linear.y);
-    out.z = std::sqrt(linear.z);
+void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
+    out->x = std::sqrt(linear.x);
+    out->y = std::sqrt(linear.y);
+    out->z = std::sqrt(linear.z);
 }
 } // namespace
 
-RenderStageInfo LightingStage::_initInfo = {
+RenderStageInfo LightingStage::initInfo = {
     "LightingStage",
     static_cast<uint>(DeferredStagePriority::LIGHTING),
     static_cast<uint>(RenderFlowTag::SCENE),
 };
 
-const RenderStageInfo &LightingStage::getInitializeInfo() { return LightingStage::_initInfo; }
+const RenderStageInfo &LightingStage::getInitializeInfo() { return LightingStage::initInfo; }
 
-LightingStage::LightingStage() : RenderStage() {
-}
+LightingStage::LightingStage()  = default;
 
 LightingStage::~LightingStage() {
     _deferredLitsBufs->destroy();
@@ -82,31 +81,31 @@ bool LightingStage::initialize(const RenderStageInfo &info) {
 }
 
 void LightingStage::gatherLights(Camera *camera) {
-    DeferredPipeline *pipeline = dynamic_cast<DeferredPipeline *>(_pipeline);
+    auto *pipeline = dynamic_cast<DeferredPipeline *>(_pipeline);
     if (!pipeline) {
         return;
     }
 
-    const auto sceneData = _pipeline->getPipelineSceneData();
-    const auto sharedData = sceneData->getSharedData();
+    auto *const sceneData = _pipeline->getPipelineSceneData();
+    auto *const sharedData = sceneData->getSharedData();
 
     gfx::CommandBuffer *cmdBuf = pipeline->getCommandBuffers()[0];
-    auto scene = camera->getScene();
-    const auto sphereLightArrayID = scene->getSphereLightArrayID();
+    const auto *scene = camera->getScene();
+    const auto *const sphereLightArrayID = scene->getSphereLightArrayID();
     auto sphereCount = sphereLightArrayID ? sphereLightArrayID[0] : 0;
-    const auto spotLightArrayID = scene->getSpotLightArrayID();
+    const auto *const spotLightArrayID = scene->getSpotLightArrayID();
     auto spotCount = spotLightArrayID ? spotLightArrayID[0] : 0;
 
     Sphere sphere;
     auto exposure = camera->exposure;
-    int idx = 0;
+    uint idx = 0;
     int elementLen = sizeof(cc::Vec4) / sizeof(float);
-    int fieldLen = elementLen * _maxDeferredLights;
+    uint fieldLen = elementLen * _maxDeferredLights;
     uint offset = 0;
     cc::Vec4 tmpArray;
 
-    for (int i = 1; i <= sphereCount && idx < _maxDeferredLights; i++, idx++) {
-        const auto light = scene->getSphereLight(sphereLightArrayID[i]);
+    for (uint i = 1; i <= sphereCount && idx < _maxDeferredLights; i++, idx++) {
+        const auto *const light = scene->getSphereLight(sphereLightArrayID[i]);
         sphere.setCenter(light->position);
         sphere.setRadius(light->range);
         if (!sphere_frustum(&sphere, camera->getFrustum())) {
@@ -146,8 +145,8 @@ void LightingStage::gatherLights(Camera *camera) {
         _lightBufferData[offset + 2] = 0;
     }
 
-    for (int i = 1; i <= spotCount && idx < _maxDeferredLights; i++, idx++) {
-        const auto light = scene->getSpotLight(spotLightArrayID[i]);
+    for (uint i = 1; i <= spotCount && idx < _maxDeferredLights; i++, idx++) {
+        const auto *const light = scene->getSpotLight(spotLightArrayID[i]);
         sphere.setCenter(light->position);
         sphere.setRadius(light->range);
         if (!sphere_frustum(&sphere, camera->getFrustum())) {
@@ -194,16 +193,16 @@ void LightingStage::gatherLights(Camera *camera) {
     }
 
     // the count of lights is set to cc_lightDir[0].w
-    _lightBufferData[fieldLen * 3 + 3] = idx;
+    _lightBufferData[fieldLen * 3 + 3] = static_cast<float>(idx);
     cmdBuf->updateBuffer(_deferredLitsBufs, _lightBufferData.data());
 }
 
 void LightingStage::initLightingBuffer() {
-    const auto device = _pipeline->getDevice();
+    auto *const device = _pipeline->getDevice();
 
     // color/pos/dir/angle 都是vec4存储, 最后一个vec4只要x存储光源个数
     uint totalSize = sizeof(Vec4) * 4 * _maxDeferredLights;
-    totalSize      = std::ceil((float)totalSize / device->getCapabilities().uboOffsetAlignment) * device->getCapabilities().uboOffsetAlignment;
+    totalSize      = static_cast<uint>(std::ceil(static_cast<float>(totalSize) / device->getCapabilities().uboOffsetAlignment) * device->getCapabilities().uboOffsetAlignment);
 
     // create lighting buffer and view
     if (_deferredLitsBufs == nullptr) {
@@ -230,7 +229,7 @@ void LightingStage::initLightingBuffer() {
 void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
-    const auto device = pipeline->getDevice();
+    auto *const device = pipeline->getDevice();
 
     // create descriptorset/layout
     gfx::DescriptorSetLayoutInfo layoutInfo = {localDescriptorSetLayout.bindings};
@@ -251,16 +250,16 @@ void LightingStage::destroy() {
 }
 
 void LightingStage::render(Camera *camera) {
-    auto pipeline = static_cast<DeferredPipeline *>(_pipeline);
-    const auto sceneData = _pipeline->getPipelineSceneData();
-    const auto sharedData = sceneData->getSharedData();
+    auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
+    auto *const sceneData = _pipeline->getPipelineSceneData();
+    auto *const sharedData = sceneData->getSharedData();
     const auto &renderObjects = sceneData->getRenderObjects();
 
     if (renderObjects.empty()) {
         return;
     }
 
-    auto cmdBuff = pipeline->getCommandBuffers()[0];
+    auto *cmdBuff = pipeline->getCommandBuffers()[0];
 
     // lighting info
     gatherLights(camera);
@@ -275,7 +274,7 @@ void LightingStage::render(Camera *camera) {
     gfx::Color clearColor = {0.0, 0.0, 0.0, 1.0};
     if (camera->clearFlag & static_cast<uint>( gfx::ClearFlagBit::COLOR)) {
         if (sharedData->isHDR) {
-            SRGBToLinear(clearColor, camera->clearColor);
+            srgbToLinear(&clearColor, camera->clearColor);
             const auto scale = sharedData->fpScale / camera->exposure;
             clearColor.x *= scale;
             clearColor.y *= scale;
@@ -287,9 +286,9 @@ void LightingStage::render(Camera *camera) {
 
     clearColor.w = 0;
     
-    const auto deferredData = pipeline->getDeferredRenderData();
-    auto frameBuffer = deferredData->lightingFrameBuff;
-    auto renderPass = frameBuffer->getRenderPass();
+    auto *const deferredData = pipeline->getDeferredRenderData();
+    auto *frameBuffer = deferredData->lightingFrameBuff;
+    auto *renderPass = frameBuffer->getRenderPass();
 
     cmdBuff->beginRenderPass(renderPass, frameBuffer, renderArea, &clearColor,
        camera->clearDepth, camera->clearStencil);

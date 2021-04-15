@@ -48,16 +48,15 @@ BatchedBuffer::BatchedBuffer(const PassView *pass)
   _device(gfx::Device::getInstance()) {
 }
 
-BatchedBuffer::~BatchedBuffer() {
-}
+BatchedBuffer::~BatchedBuffer() = default;
 
 void BatchedBuffer::destroy() {
     for (auto &batch : _batches) {
-        for (auto vb : batch.vbs) {
+        for (auto *vb : batch.vbs) {
             vb->destroy();
         }
 
-        for (auto data : batch.vbDatas) {
+        for (auto *data : batch.vbDatas) {
             CC_FREE(data);
         }
 
@@ -71,28 +70,27 @@ void BatchedBuffer::destroy() {
 }
 
 void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const ModelView *model) {
-    const auto subMesh          = subModel->getSubMesh();
-    const auto flatBuffersID    = subMesh->getFlatBufferArrayID();
+    const auto *const subMesh          = subModel->getSubMesh();
+    const auto *const flatBuffersID    = subMesh->getFlatBufferArrayID();
     const auto flatBuffersCount = flatBuffersID ? flatBuffersID[0] : 0;
     if (flatBuffersCount == 0) {
         return;
     }
 
-    const auto flatBuffer    = subMesh->getFlatBuffer(flatBuffersID[1]);
-    auto       vbSize        = 0;
-    auto       indexSize     = 0;
+    const auto *const flatBuffer    = subMesh->getFlatBuffer(flatBuffersID[1]);
+    uint       vbSize        = 0;
+    uint       indexSize     = 0;
     const auto vbCount       = flatBuffer->count;
-    const auto pass          = subModel->getPassView(passIdx);
-    const auto shader        = subModel->getShader(passIdx);
-    const auto descriptorSet = subModel->getDescriptorSet();
+    const auto *const pass          = subModel->getPassView(passIdx);
+    auto *const       shader        = subModel->getShader(passIdx);
+    auto *const       descriptorSet = subModel->getDescriptorSet();
     bool       isBatchExist  = false;
 
-    for (auto i = 0; i < _batches.size(); ++i) {
-        auto &batch = _batches[i];
+    for (auto &batch : _batches) {
         if (batch.vbs.size() == flatBuffersCount && batch.mergeCount < UBOLocalBatched::BATCHING_COUNT) {
             isBatchExist = true;
-            for (auto j = 0; j < flatBuffersCount; ++j) {
-                const auto vb = batch.vbs[j];
+            for (uint j = 0; j < flatBuffersCount; ++j) {
+                auto *const vb = batch.vbs[j];
                 if (vb->getStride() != subMesh->getFlatBuffer(flatBuffersID[j + 1])->stride) {
                     isBatchExist = false;
                     break;
@@ -100,14 +98,14 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Mode
             }
 
             if (isBatchExist) {
-                for (auto j = 0; j < flatBuffersCount; ++j) {
-                    const auto flatBuffer   = subMesh->getFlatBuffer(flatBuffersID[j + 1]);
-                    auto       batchVB      = batch.vbs[j];
-                    auto       vbData       = batch.vbDatas[j];
-                    const auto vbBufSizeOld = batchVB->getSize();
+                for (uint j = 0; j < flatBuffersCount; ++j) {
+                    const auto *const flatBuffer   = subMesh->getFlatBuffer(flatBuffersID[j + 1]);
+                    auto *            batchVB      = batch.vbs[j];
+                    auto *            vbData       = batch.vbDatas[j];
+                    const uint vbBufSizeOld = batchVB->getSize();
                     vbSize                  = (vbCount + batch.vbCount) * flatBuffer->stride;
                     if (vbSize > vbBufSizeOld) {
-                        uint8_t *vbDataNew = static_cast<uint8_t *>(CC_MALLOC(vbSize));
+                        auto *vbDataNew = static_cast<uint8_t *>(CC_MALLOC(vbSize));
                         memcpy(vbDataNew, vbData, vbBufSizeOld);
                         batchVB->resize(vbSize);
                         CC_FREE(vbData);
@@ -115,17 +113,16 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Mode
                         vbData           = vbDataNew;
                     }
 
-                    auto       size   = 0u;
+                    auto        size   = 0U;
                     auto       offset = batch.vbCount * flatBuffer->stride;
-                    const auto data   = flatBuffer->getBuffer(&size);
+                    auto *const data   = flatBuffer->getBuffer(&size);
                     memcpy(vbData + offset, data, size);
                 }
 
-                auto indexData = batch.indexData;
+                auto *indexData = batch.indexData;
                 indexSize      = (vbCount + batch.vbCount) * sizeof(float);
                 if (indexSize > batch.indexBuffer->getSize()) {
-
-                    auto newIndexData = static_cast<float *>(CC_MALLOC(indexSize));
+                    auto *newIndexData = static_cast<float *>(CC_MALLOC(indexSize));
                     memcpy(newIndexData, indexData, batch.indexBuffer->getSize());
                     CC_FREE(indexData);
                     batch.indexData = newIndexData;
@@ -138,7 +135,7 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Mode
                 const auto mergeCount = batch.mergeCount;
                 if (indexData[start] != mergeCount || indexData[end - 1] != mergeCount) {
                     for (auto j = start; j < end; j++) {
-                        indexData[j] = mergeCount + 0.1f; // guard against underflow
+                        indexData[j] = mergeCount + 0.1F; // guard against underflow
                     }
                 }
 
@@ -166,19 +163,19 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Mode
 
     // Create a new batch
     vector<gfx::Buffer *> vbs(flatBuffersCount, nullptr);
-    vector<uint8_t *>     vbDatas(flatBuffersCount, 0);
+    vector<uint8_t *>     vbDatas(flatBuffersCount, nullptr);
     vector<gfx::Buffer *> totalVBs(flatBuffersCount + 1, nullptr);
 
-    for (auto i = 0; i < flatBuffersCount; ++i) {
-        const auto flatBuffer = subMesh->getFlatBuffer(flatBuffersID[i + 1]);
-        auto       newVB      = _device->createBuffer({
+    for (uint i = 0; i < flatBuffersCount; ++i) {
+        const auto *const flatBuffer = subMesh->getFlatBuffer(flatBuffersID[i + 1]);
+        auto *            newVB      = _device->createBuffer({
             gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
             gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
             flatBuffer->count * flatBuffer->stride,
             flatBuffer->stride,
         });
-        auto       size       = 0u;
-        auto       data       = flatBuffer->getBuffer(&size);
+        auto              size       = 0U;
+        auto *            data       = flatBuffer->getBuffer(&size);
         newVB->update(data, size);
 
         vbs[i]     = newVB;
@@ -188,15 +185,15 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Mode
     }
 
     const auto indexBufferSize = vbCount * sizeof(float);
-    auto       indexBuffer     = _device->createBuffer({
+    auto *     indexBuffer     = _device->createBuffer({
         gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
         static_cast<uint>(indexBufferSize),
         sizeof(float),
     });
-    float *    indexData       = static_cast<float *>(CC_MALLOC(indexBufferSize));
+    auto *     indexData       = static_cast<float *>(CC_MALLOC(indexBufferSize));
     memset(indexData, 0, indexBufferSize);
-    indexBuffer->update(indexData, indexBufferSize);
+    indexBuffer->update(indexData, static_cast<uint>(indexBufferSize));
     totalVBs[flatBuffersCount] = indexBuffer;
 
     vector<gfx::Attribute> attributes = subModel->getInputAssembler()->getAttributes();
@@ -208,9 +205,9 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Mode
     };
     attributes.emplace_back(std::move(attrib));
 
-    auto ia = _device->createInputAssembler({std::move(attributes), std::move(totalVBs)});
+    auto *ia = _device->createInputAssembler({std::move(attributes), std::move(totalVBs)});
 
-    auto ubo = _device->createBuffer({
+    auto *ubo = _device->createBuffer({
         gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
         UBOLocalBatched::SIZE,
@@ -232,7 +229,7 @@ void BatchedBuffer::merge(const SubModelView *subModel, uint passIdx, const Mode
         1,                               //mergeCount
         ia,                              //ia
         ubo,                             //ubo
-        std::move(uboData),              //uboData
+        uboData,                         //uboData
         descriptorSet,                   //descriptorSet
         pass,                            //pass
         shader,                          //shader

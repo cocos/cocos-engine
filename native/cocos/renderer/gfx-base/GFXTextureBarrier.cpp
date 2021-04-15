@@ -39,7 +39,7 @@ TextureBarrier::TextureBarrier()
 TextureBarrier::~TextureBarrier() = default;
 
 uint TextureBarrier::computeHash(const TextureBarrierInfo &info) {
-    uint seed = info.prevAccesses.size() + info.nextAccesses.size() + 3;
+    uint seed = static_cast<uint>(info.prevAccesses.size() + info.nextAccesses.size() + 3);
 
     for (const AccessType type : info.prevAccesses) {
         seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);

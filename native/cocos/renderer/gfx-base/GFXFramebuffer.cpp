@@ -38,7 +38,7 @@ Framebuffer::Framebuffer()
 Framebuffer::~Framebuffer() = default;
 
 uint Framebuffer::computeHash(const FramebufferInfo &info) {
-    uint seed = info.colorTextures.size() + info.colorMipmapLevels.size() + 2;
+    uint seed = static_cast<uint>(info.colorTextures.size() + info.colorMipmapLevels.size() + 2);
     for (const Texture *attachment : info.colorTextures) {
         seed ^= attachment->getTextureID() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }

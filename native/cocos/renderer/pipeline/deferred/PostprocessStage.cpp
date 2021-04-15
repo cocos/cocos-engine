@@ -35,14 +35,14 @@
 
 namespace cc {
 namespace pipeline {
-RenderStageInfo PostprocessStage::_initInfo = {
+RenderStageInfo PostprocessStage::initInfo = {
     "PostprocessStage",
     static_cast<uint>(DeferredStagePriority::POSTPROCESS),
     0,
     {{true, RenderQueueSortMode::BACK_TO_FRONT, {"default"}}},
 };
 
-PostprocessStage::PostprocessStage() : RenderStage() {
+PostprocessStage::PostprocessStage()  {
     _uiPhase = CC_NEW(UIPhase);
 }
 
@@ -83,7 +83,7 @@ void PostprocessStage::destroy() {
 }
 
 void PostprocessStage::render(Camera *camera) {
-    DeferredPipeline *pp = dynamic_cast<DeferredPipeline *>(_pipeline);
+    auto *pp = dynamic_cast<DeferredPipeline *>(_pipeline);
     assert(pp != nullptr);
     gfx::Device *device = pp->getDevice();
     gfx::CommandBuffer *cmdBf = pp->getCommandBuffers()[0];
@@ -101,14 +101,14 @@ void PostprocessStage::render(Camera *camera) {
 
     gfx::Framebuffer *fb = camera->getWindow()->getFramebuffer();
     const auto &colorTextures = fb->getColorTextures();
-    gfx::RenderPass *rp = colorTextures.size() && colorTextures[0] ? 
+    gfx::RenderPass *rp = !colorTextures.empty() && colorTextures[0] ? 
         fb->getRenderPass() : pp->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->clearFlag));
 
     cmdBf->beginRenderPass(rp, fb, renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
     cmdBf->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pp->getDescriptorSet());
 
     // post proces
-    const auto sceneData = _pipeline->getPipelineSceneData();
+    auto *const sceneData = _pipeline->getPipelineSceneData();
     PassView *pv = sceneData->getSharedData()->getDeferredPostPass();
     gfx::Shader *sd = sceneData->getSharedData()->getDeferredPostPassShader();
     const auto &renderObjects = sceneData->getRenderObjects();
@@ -124,22 +124,22 @@ void PostprocessStage::render(Camera *camera) {
     }
     
     // transparent
-    for (auto queue : _renderQueues) {
+    for (auto *queue : _renderQueues) {
         queue->clear();
     }
 
-    uint m = 0, p = 0;
+    uint m = 0;
+    uint p = 0;
     size_t k = 0;
-    for (size_t i = 0; i < renderObjects.size(); ++i) {
-        const auto &ro = renderObjects[i];
-        const auto model = ro.model;
-        const auto subModelID = model->getSubModelID();
+    for (auto ro : renderObjects) {
+        const auto *const model = ro.model;
+        const auto *const subModelID = model->getSubModelID();
         const auto subModelCount = subModelID[0];
         for (m = 1; m <= subModelCount; ++m) {
-            auto subModel = model->getSubModelView(subModelID[m]);
+            const auto *subModel = model->getSubModelView(subModelID[m]);
             for (p = 0; p < subModel->passCount; ++p) {
                 const PassView *pass = subModel->getPassView(p);
-                // TODO: need fallback of ulit and gizmo material.
+                // TODO(xwx): need fallback of ulit and gizmo material.
                 if (pass->phase != _phaseID) continue;
                 for (k = 0; k < _renderQueues.size(); k++) {
                     _renderQueues[k]->insertRenderPass(ro, m, p);
@@ -148,7 +148,7 @@ void PostprocessStage::render(Camera *camera) {
         }
     }
     
-    for (auto queue : _renderQueues) {
+    for (auto *queue : _renderQueues) {
         queue->sort();
         queue->recordCommandBuffer(_device, rp, cmdBf);
     }

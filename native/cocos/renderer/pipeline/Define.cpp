@@ -227,7 +227,7 @@ const gfx::UniformBlock UBOSkinning::LAYOUT = {
     1,
 };
 
-const uint                            UBOMorph::COUNT_BASE_4_BYTES = 4 * std::ceil(UBOMorph::MAX_MORPH_TARGET_COUNT / 4) + 4;
+const uint                            UBOMorph::COUNT_BASE_4_BYTES = static_cast<uint>(4 * std::ceil(UBOMorph::MAX_MORPH_TARGET_COUNT / 4) + 4);
 const uint                            UBOMorph::SIZE               = UBOMorph::COUNT_BASE_4_BYTES * 4;
 const String                          UBOMorph::NAME               = "CCMorph";
 const gfx::DescriptorSetLayoutBinding UBOMorph::DESCRIPTOR         = {
@@ -493,9 +493,9 @@ gfx::Sampler *SamplerLib::getSampler(uint hash) {
     info.addressW      = static_cast<gfx::Address>((hash >> 10) & 3);
     info.maxAnisotropy = ((hash >> 12) & 15);
     info.cmpFunc       = static_cast<gfx::ComparisonFunc>((hash >> 16) & 15);
-    info.mipLODBias    = ((hash >> 28) & 15);
+    info.mipLODBias    = static_cast<float>((hash >> 28) & 15);
 
-    return _samplerCache[hash] = gfx::Device::getInstance()->createSampler(std::move(info));
+    return _samplerCache[hash] = gfx::Device::getInstance()->createSampler(info);
 }
 
 void SamplerLib::destroyAll() {

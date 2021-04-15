@@ -53,7 +53,7 @@ unsigned int __idIndex = 0;
 using namespace cc;
 
 AudioCache::AudioCache()
-: _totalFrames(0), _framesRead(0), _format(-1), _duration(0.0f), _alBufferId(INVALID_AL_BUFFER_ID), _pcmData(nullptr), _queBufferFrames(0), _state(State::INITIAL), _isDestroyed(std::make_shared<bool>(false)), _id(++__idIndex), _isLoadingFinished(false), _isSkipReadDataTask(false) {
+: _format(-1), _sampleRate(0), _duration(0.0f), _totalFrames(0), _framesRead(0), _alBufferId(INVALID_AL_BUFFER_ID), _pcmData(nullptr), _queBufferFrames(0), _state(State::INITIAL), _isDestroyed(std::make_shared<bool>(false)), _id(++__idIndex), _isLoadingFinished(false), _isSkipReadDataTask(false) {
     ALOGVV("AudioCache() %p, id=%u", this, _id);
     for (int i = 0; i < QUEUEBUFFER_NUM; ++i) {
         _queBuffers[i] = nullptr;
@@ -161,6 +161,8 @@ void AudioCache::readDataTask(unsigned int selfId) {
             BREAK_IF_ERR_LOG(!decoder->seek(0), "AudioDecoder::seek(0) failed!");
 
             _pcmData = (char *)malloc(dataSize);
+
+            CC_ASSERT(_pcmData);
             memset(_pcmData, 0x00, dataSize);
 
             if (adjustFrames > 0) {
@@ -211,7 +213,7 @@ void AudioCache::readDataTask(unsigned int selfId) {
 
             _state = State::READY;
         } else {
-            _queBufferFrames = sampleRate * QUEUEBUFFER_TIME_STEP;
+            _queBufferFrames = static_cast<uint32_t>(sampleRate * QUEUEBUFFER_TIME_STEP);
             BREAK_IF_ERR_LOG(_queBufferFrames == 0, "_queBufferFrames == 0");
 
             const uint32_t queBufferBytes = _queBufferFrames * bytesPerFrame;

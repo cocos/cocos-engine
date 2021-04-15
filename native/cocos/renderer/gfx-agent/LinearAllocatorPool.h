@@ -49,7 +49,7 @@ uint nextPowerOf2(uint v) {
 class CC_DLL LinearAllocatorPool final {
 public:
     LinearAllocatorPool(size_t defaultBlockSize = DEFAULT_BLOCK_SIZE): _defaultBlockSize(defaultBlockSize) {
-        _allocators.emplace_back(CC_NEW(ThreadSafeLinearAllocator(_defaultBlockSize)));
+        _allocators.emplace_back(CC_NEW(ThreadSafeLinearAllocator(static_cast<uint32_t>(_defaultBlockSize))));
     }
 
     ~LinearAllocatorPool() {
@@ -69,8 +69,8 @@ public:
             res = reinterpret_cast<T*>(allocator->allocate(size, alignment));
             if (res) return res;
         }
-        size_t capacity = nextPowerOf2(std::max(DEFAULT_BLOCK_SIZE, size + alignment)); // reserve enough padding space for alignment
-        _allocators.emplace_back(CC_NEW(ThreadSafeLinearAllocator(capacity)));
+        uint capacity = nextPowerOf2(static_cast<uint>(std::max(DEFAULT_BLOCK_SIZE, size + static_cast<size_t>(alignment)))); // reserve enough padding space for alignment
+        _allocators.emplace_back(CC_NEW(ThreadSafeLinearAllocator(static_cast<uint32_t>(capacity))));
         return reinterpret_cast<T*>(_allocators.back()->allocate(size, alignment));
     }
 

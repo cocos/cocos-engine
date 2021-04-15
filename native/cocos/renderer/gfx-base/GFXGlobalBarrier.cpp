@@ -38,7 +38,7 @@ GlobalBarrier::GlobalBarrier()
 GlobalBarrier::~GlobalBarrier() = default;
 
 uint GlobalBarrier::computeHash(const GlobalBarrierInfo &info) {
-    uint seed = info.prevAccesses.size() + info.nextAccesses.size();
+    uint seed = static_cast<uint>(info.prevAccesses.size() + info.nextAccesses.size());
 
     for (const AccessType type : info.prevAccesses) {
         seed ^= static_cast<uint>(type) + 0x9e3779b9 + (seed << 6) + (seed >> 2);

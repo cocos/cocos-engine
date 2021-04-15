@@ -95,7 +95,7 @@ uint RenderPass::computeHash() {
             }
         }
     } else {
-        seed = _colorAttachments.size() * 2 + 2;
+        seed = static_cast<uint>(_colorAttachments.size() * 2 + 2);
         for (const ColorAttachment &colorAttachment : _colorAttachments) {
             seed ^= static_cast<uint>(colorAttachment.format) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
             seed ^= static_cast<uint>(colorAttachment.sampleCount) + 0x9e3779b9 + (seed << 6) + (seed >> 2);

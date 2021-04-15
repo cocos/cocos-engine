@@ -33,12 +33,12 @@
 
 namespace cc {
 namespace pipeline {
-map<uint, map<uint, InstancedBuffer *>> InstancedBuffer::_buffers;
+map<uint, map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
 InstancedBuffer *                       InstancedBuffer::get(uint pass) {
     return InstancedBuffer::get(pass, 0);
 }
 InstancedBuffer *InstancedBuffer::get(uint pass, uint extraKey) {
-    auto &record = _buffers[pass];
+    auto &record = buffers[pass];
     auto &buffer = record[extraKey];
     if (buffer == nullptr) buffer = CC_NEW(InstancedBuffer(GET_PASS(pass)));
 
@@ -50,8 +50,7 @@ InstancedBuffer::InstancedBuffer(const PassView *pass)
   _device(gfx::Device::getInstance()) {
 }
 
-InstancedBuffer::~InstancedBuffer() {
-}
+InstancedBuffer::~InstancedBuffer() = default;
 
 void InstancedBuffer::destroy() {
     for (auto &instance : _instances) {
@@ -68,17 +67,16 @@ void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel
 
 void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel, uint passIdx, gfx::Shader *shaderImplant) {
     uint       stride          = 0;
-    const auto instancedBuffer = model->getInstancedBuffer(&stride);
+    const auto *const instancedBuffer = model->getInstancedBuffer(&stride);
 
     if (!stride) return; // we assume per-instance attributes are always present
-    auto sourceIA      = subModel->getInputAssembler();
-    auto lightingMap   = subModel->getDescriptorSet()->getTexture(LIGHTMAP_TEXTURE::BINDING);
-    auto shader        = shaderImplant;
+    auto *sourceIA      = subModel->getInputAssembler();
+    auto *lightingMap   = subModel->getDescriptorSet()->getTexture(LIGHTMAP_TEXTURE::BINDING);
+    auto *shader        = shaderImplant;
     if (!shader) { shader = subModel->getShader(passIdx); }
 
-    auto descriptorSet = subModel->getDescriptorSet();
-    for (int i = 0; i < _instances.size(); i++) {
-        auto &instance = _instances[i];
+    auto *descriptorSet = subModel->getDescriptorSet();
+    for (auto & instance : _instances) {
         if (instance.ia->getIndexBuffer() != sourceIA->getIndexBuffer() || instance.count >= MAX_CAPACITY) {
             continue;
         }
@@ -94,8 +92,8 @@ void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel
         if (instance.count >= instance.capacity) { // resize buffers
             instance.capacity <<= 1;
             const auto newSize = instance.stride * instance.capacity;
-            const auto oldData = instance.data;
-            instance.data      = (uint8_t *)CC_MALLOC(newSize);
+            auto *const oldData = instance.data;
+            instance.data      = static_cast<uint8_t *>(CC_MALLOC(newSize));
             memcpy(instance.data, oldData, instance.vb->getSize());
             instance.vb->resize(newSize);
             CC_FREE(oldData);
@@ -113,7 +111,7 @@ void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel
 
     // Create a new instance
     auto newSize = stride * INITIAL_CAPACITY;
-    auto vb      = _device->createBuffer({
+    auto *vb      = _device->createBuffer({
         gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
         static_cast<uint>(newSize),
@@ -122,23 +120,23 @@ void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel
 
     auto vertexBuffers = sourceIA->getVertexBuffers();
     auto attributes    = sourceIA->getAttributes();
-    auto indexBuffer   = sourceIA->getIndexBuffer();
+    auto *indexBuffer   = sourceIA->getIndexBuffer();
 
-    const auto attributesID = model->getInstancedAttributeID();
+    const auto *const attributesID = model->getInstancedAttributeID();
     const auto lenght       = attributesID[0];
-    for (auto i = 1; i <= lenght; i++) {
-        const auto     attribute = model->getInstancedAttribute(attributesID[i]);
+    for (uint i = 1; i <= lenght; i++) {
+        auto *const      attribute = model->getInstancedAttribute(attributesID[i]);
         gfx::Attribute newAttr   = {attribute->name, attribute->format, attribute->isNormalized, static_cast<uint>(vertexBuffers.size()), true, attribute->location};
         attributes.emplace_back(std::move(newAttr));
     }
 
-    uint8_t *data = (uint8_t *)CC_MALLOC(newSize);
+    auto *data = static_cast<uint8_t *>(CC_MALLOC(newSize));
     memcpy(data, instancedBuffer, stride);
     vertexBuffers.emplace_back(vb);
     gfx::InputAssemblerInfo iaInfo = {attributes, vertexBuffers, indexBuffer};
-    auto                    ia     = _device->createInputAssembler(iaInfo);
+    auto *                    ia     = _device->createInputAssembler(iaInfo);
     InstancedItem           item   = {1, INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet, lightingMap};
-    _instances.emplace_back(std::move(item));
+    _instances.emplace_back(item);
     _hasPendingModels = true;
 }
 

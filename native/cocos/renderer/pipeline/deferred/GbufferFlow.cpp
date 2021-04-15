@@ -34,22 +34,21 @@
 
 namespace cc {
 namespace pipeline {
-RenderFlowInfo GbufferFlow::_initInfo = {
+RenderFlowInfo GbufferFlow::initInfo = {
     "GbufferFlow",
     static_cast<uint>(DeferredFlowPriority::GBUFFER),
     static_cast<uint>(RenderFlowTag::SCENE),
     {},
 };
-const RenderFlowInfo &GbufferFlow::getInitializeInfo() { return GbufferFlow::_initInfo; }
+const RenderFlowInfo &GbufferFlow::getInitializeInfo() { return GbufferFlow::initInfo; }
 
-GbufferFlow::~GbufferFlow() {
-}
+GbufferFlow::~GbufferFlow() = default;
 
 bool GbufferFlow::initialize(const RenderFlowInfo &info) {
     RenderFlow::initialize(info);
 
-    if (_stages.size() == 0) {
-        GbufferStage *gbufferStage = CC_NEW(GbufferStage);
+    if (_stages.empty()) {
+        auto *gbufferStage = CC_NEW(GbufferStage);
         gbufferStage->initialize(GbufferStage::getInitializeInfo());
         _stages.emplace_back(gbufferStage);
     }
@@ -62,7 +61,7 @@ void GbufferFlow::activate(RenderPipeline *pipeline) {
 }
 
 void GbufferFlow::render(Camera *camera) {
-    auto pipeline = static_cast<DeferredPipeline *>(_pipeline);
+    auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
     sceneCulling(pipeline, camera);
     RenderFlow::render(camera);
 }

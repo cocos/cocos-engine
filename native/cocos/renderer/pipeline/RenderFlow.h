@@ -44,16 +44,16 @@ struct CC_DLL RenderFlowInfo {
 class CC_DLL RenderFlow : public Object {
 public:
     RenderFlow() = default;
-    virtual ~RenderFlow();
+    ~RenderFlow() override;
 
     virtual bool initialize(const RenderFlowInfo &info);
     virtual void activate(RenderPipeline *pipeline);
     virtual void render(Camera *camera);
     virtual void destroy();
 
-    CC_INLINE const String &getName() const { return _name; }
-    CC_INLINE uint getPriority() const { return _priority; }
-    CC_INLINE uint getTag() const { return _tag; }
+    inline const String &getName() const { return _name; }
+    inline uint getPriority() const { return _priority; }
+    inline uint getTag() const { return _tag; }
 
 protected:
     RenderStageList _stages;

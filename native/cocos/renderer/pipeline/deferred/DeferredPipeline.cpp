@@ -44,14 +44,14 @@ namespace cc {
 namespace pipeline {
 namespace {
 #define TO_VEC3(dst, src, offset) \
-    dst[offset]     = src.x;      \
-    dst[offset + 1] = src.y;      \
-    dst[offset + 2] = src.z;
+    dst[offset]     = (src).x;      \
+    (dst)[(offset) + 1] = (src).y;      \
+    (dst)[(offset) + 2] = (src).z;
 #define TO_VEC4(dst, src, offset) \
-    dst[offset]     = src.x;      \
-    dst[offset + 1] = src.y;      \
-    dst[offset + 2] = src.z;      \
-    dst[offset + 3] = src.w;
+    dst[offset]     = (src).x;      \
+    (dst)[(offset) + 1] = (src).y;      \
+    (dst)[(offset) + 2] = (src).z;      \
+    (dst)[(offset) + 3] = (src).w;
 } // namespace
 
 gfx::RenderPass *DeferredPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFlags) {
@@ -59,7 +59,7 @@ gfx::RenderPass *DeferredPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFl
         return _renderPasses[clearFlags];
     }
 
-    auto                        device = gfx::Device::getInstance();
+    auto *                        device = gfx::Device::getInstance();
     gfx::ColorAttachment        colorAttachment;
     gfx::DepthStencilAttachment depthStencilAttachment;
     colorAttachment.format                = device->getColorFormat();
@@ -82,7 +82,7 @@ gfx::RenderPass *DeferredPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFl
         depthStencilAttachment.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
     }
 
-    auto renderPass           = device->createRenderPass({
+    auto *renderPass           = device->createRenderPass({
         {colorAttachment},
         depthStencilAttachment,
     });
@@ -94,16 +94,16 @@ gfx::RenderPass *DeferredPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFl
 bool DeferredPipeline::initialize(const RenderPipelineInfo &info) {
     RenderPipeline::initialize(info);
 
-    if (_flows.size() == 0) {
-        auto shadowFlow = CC_NEW(ShadowFlow);
+    if (_flows.empty()) {
+        auto *shadowFlow = CC_NEW(ShadowFlow);
         shadowFlow->initialize(ShadowFlow::getInitializeInfo());
         _flows.emplace_back(shadowFlow);
 
-        auto gbufferFlow = CC_NEW(GbufferFlow);
+        auto *gbufferFlow = CC_NEW(GbufferFlow);
         gbufferFlow->initialize(GbufferFlow::getInitializeInfo());
         _flows.emplace_back(gbufferFlow);
 
-        auto lightingFlow = CC_NEW(LightingFlow);
+        auto *lightingFlow = CC_NEW(LightingFlow);
         lightingFlow->initialize(LightingFlow::getInitializeInfo());
         _flows.emplace_back(lightingFlow);
     }
@@ -128,13 +128,13 @@ bool DeferredPipeline::activate() {
 }
 
 void DeferredPipeline::render(const vector<uint> &cameras) {
-    if (cameras.size() == 0) return;
+    if (cameras.empty()) return;
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO();
     for (const auto cameraId : cameras) {
-        Camera *camera = GET_CAMERA(cameraId);
+        auto *camera = GET_CAMERA(cameraId);
         _pipelineUBO->updateCameraUBO(camera, true);
-        for (const auto flow : _flows) {
+        for (auto *const flow : _flows) {
             flow->render(camera);
         }
     }
@@ -143,7 +143,7 @@ void DeferredPipeline::render(const vector<uint> &cameras) {
     _device->getQueue()->submit(_commandBuffers);
 }
 
-bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer *&quadIB, gfx::Buffer *&quadVB, gfx::InputAssembler *&quadIA, gfx::SurfaceTransform surfaceTransform) {
+bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer *quadVB, gfx::InputAssembler *quadIA, gfx::SurfaceTransform surfaceTransform) {
     // step 1 create vertex buffer
     uint vbStride = sizeof(float) * 4;
     uint vbSize   = vbStride * 4;
@@ -259,28 +259,25 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer *&quadIB, gfx::Buffe
     info.vertexBuffers.push_back(quadVB);
     info.indexBuffer = quadIB;
     quadIA           = _device->createInputAssembler(info);
-    if (!quadIA) {
-        return false;
-    }
-
-    return true;
+    return quadIA != nullptr;
 }
 
 gfx::Rect DeferredPipeline::getRenderArea(Camera *camera, bool onScreen) {
     gfx::Rect renderArea;
-    uint      w, h;
+    uint      w;
+    uint      h;
     if (onScreen) {
-        w = camera->getWindow()->hasOnScreenAttachments && (uint)_device->getSurfaceTransform() % 2 ? camera->height : camera->width;
-        h = camera->getWindow()->hasOnScreenAttachments && (uint)_device->getSurfaceTransform() % 2 ? camera->width : camera->height;
+        w = camera->getWindow()->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
+        h = camera->getWindow()->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
     } else {
         w = camera->width;
         h = camera->height;
     }
 
-    renderArea.x      = camera->viewportX * w;
-    renderArea.y      = camera->viewportY * h;
-    renderArea.width  = camera->viewportWidth * w * _pipelineSceneData->getSharedData()->shadingScale;
-    renderArea.height = camera->viewportHeight * h * _pipelineSceneData->getSharedData()->shadingScale;
+    renderArea.x      = static_cast<int>(camera->viewportX * w);
+    renderArea.y      = static_cast<int>(camera->viewportY * h);
+    renderArea.width  = static_cast<uint>(camera->viewportWidth * w * _pipelineSceneData->getSharedData()->shadingScale);
+    renderArea.height = static_cast<uint>(camera->viewportHeight * h * _pipelineSceneData->getSharedData()->shadingScale);
     return renderArea;
 }
 
@@ -313,7 +310,7 @@ void DeferredPipeline::destroyQuadInputAssembler() {
 
 bool DeferredPipeline::activeRenderer() {
     _commandBuffers.push_back(_device->getCommandBuffer());
-    const auto sharedData = _pipelineSceneData->getSharedData();
+    auto *const sharedData = _pipelineSceneData->getSharedData();
 
     gfx::SamplerInfo info{
         gfx::Filter::LINEAR,
@@ -323,8 +320,8 @@ bool DeferredPipeline::activeRenderer() {
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
     };
-    const auto samplerHash = SamplerLib::genSamplerHash(std::move(info));
-    const auto sampler     = SamplerLib::getSampler(samplerHash);
+    const auto samplerHash = SamplerLib::genSamplerHash(info);
+    auto *const sampler     = SamplerLib::getSampler(samplerHash);
 
     // Main light sampler binding
     this->_descriptorSet->bindSampler(SHADOWMAP::BINDING, sampler);

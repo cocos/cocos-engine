@@ -41,34 +41,33 @@
 namespace cc {
 namespace pipeline {
 namespace {
-void SRGBToLinear(gfx::Color &out, const gfx::Color &gamma) {
-    out.x = gamma.x * gamma.x;
-    out.y = gamma.y * gamma.y;
-    out.z = gamma.z * gamma.z;
+void srgbToLinear(gfx::Color *out, const gfx::Color &gamma) {
+    out->x = gamma.x * gamma.x;
+    out->y = gamma.y * gamma.y;
+    out->z = gamma.z * gamma.z;
 }
 
-void LinearToSRGB(gfx::Color &out, const gfx::Color &linear) {
-    out.x = std::sqrt(linear.x);
-    out.y = std::sqrt(linear.y);
-    out.z = std::sqrt(linear.z);
+void linearToSrgb(gfx::Color *out, const gfx::Color &linear) {
+    out->x = std::sqrt(linear.x);
+    out->y = std::sqrt(linear.y);
+    out->z = std::sqrt(linear.z);
 }
 } // namespace
 
-RenderStageInfo GbufferStage::_initInfo = {
+RenderStageInfo GbufferStage::initInfo = {
     "GbufferStage",
     static_cast<uint>(DeferredStagePriority::GBUFFER),
     static_cast<uint>(RenderFlowTag::SCENE),
     {{false, RenderQueueSortMode::FRONT_TO_BACK, {"default"}},
      {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
-const RenderStageInfo &GbufferStage::getInitializeInfo() { return GbufferStage::_initInfo; }
+const RenderStageInfo &GbufferStage::getInitializeInfo() { return GbufferStage::initInfo; }
 
-GbufferStage::GbufferStage() : RenderStage() {
+GbufferStage::GbufferStage() {
     _batchedQueue = CC_NEW(RenderBatchedQueue);
     _instancedQueue = CC_NEW(RenderInstancedQueue);
 }
 
-GbufferStage::~GbufferStage() {
-}
+GbufferStage::~GbufferStage() = default;
 
 bool GbufferStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
@@ -113,35 +112,35 @@ void GbufferStage::destroy() {
 void GbufferStage::render(Camera *camera) {
     _instancedQueue->clear();
     _batchedQueue->clear();
-    auto pipeline = static_cast<DeferredPipeline *>(_pipeline);
+    auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
     const auto &renderObjects = _pipeline->getPipelineSceneData()->getRenderObjects();
     if (renderObjects.empty()) {
         return;
     }
 
-    for (auto queue : _renderQueues) {
+    for (auto *queue : _renderQueues) {
         queue->clear();
     }
 
-    uint m = 0, p = 0;
+    uint m = 0;
+    uint p = 0;
     size_t k = 0;
-    for (size_t i = 0; i < renderObjects.size(); ++i) {
-        const auto &ro = renderObjects[i];
-        const auto model = ro.model;
-        const auto subModelID = model->getSubModelID();
+    for (auto ro : renderObjects) {
+        const auto *const model = ro.model;
+        const auto *const subModelID = model->getSubModelID();
         const auto subModelCount = subModelID[0];
         for (m = 1; m <= subModelCount; ++m) {
-            auto subModel = model->getSubModelView(subModelID[m]);
+            const auto *subModel = model->getSubModelView(subModelID[m]);
             for (p = 0; p < subModel->passCount; ++p) {
                 const PassView *pass = subModel->getPassView(p);
 
                 if (pass->phase != _phaseID) continue;
                 if (pass->getBatchingScheme() == BatchingSchemes::INSTANCING) {
-                    auto instancedBuffer = InstancedBuffer::get(subModel->passID[p]);
+                    auto *instancedBuffer = InstancedBuffer::get(subModel->passID[p]);
                     instancedBuffer->merge(model, subModel, p);
                     _instancedQueue->add(instancedBuffer);
                 } else if (pass->getBatchingScheme() == BatchingSchemes::VB_MERGING) {
-                    auto batchedBuffer = BatchedBuffer::get(subModel->passID[p]);
+                    auto *batchedBuffer = BatchedBuffer::get(subModel->passID[p]);
                     batchedBuffer->merge(subModel, p, model);
                     _batchedQueue->add(batchedBuffer);
                 } else {
@@ -152,11 +151,11 @@ void GbufferStage::render(Camera *camera) {
             }
         }
     }
-    for (auto queue : _renderQueues) {
+    for (auto *queue : _renderQueues) {
         queue->sort();
     }
 
-    auto cmdBuff = pipeline->getCommandBuffers()[0];
+    auto *cmdBuff = pipeline->getCommandBuffers()[0];
 
     _instancedQueue->uploadBuffers(cmdBuff);
     _batchedQueue->uploadBuffers(cmdBuff);
@@ -164,9 +163,9 @@ void GbufferStage::render(Camera *camera) {
     // render area is not oriented
     _renderArea = pipeline->getRenderArea(camera, false);
     
-    const auto deferredData = pipeline->getDeferredRenderData();
-    auto framebuffer = deferredData->gbufferFrameBuffer;
-    auto renderPass = framebuffer->getRenderPass();
+    auto *const deferredData = pipeline->getDeferredRenderData();
+    auto *framebuffer = deferredData->gbufferFrameBuffer;
+    auto *renderPass = framebuffer->getRenderPass();
 
     cmdBuff->beginRenderPass(renderPass, framebuffer, _renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
     cmdBuff->bindDescriptorSet(GLOBAL_SET, _pipeline->getDescriptorSet());

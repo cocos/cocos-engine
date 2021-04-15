@@ -39,7 +39,7 @@ DescriptorSetLayout::~DescriptorSetLayout() = default;
 
 void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
     _bindings         = info.bindings;
-    uint bindingCount = _bindings.size();
+    uint bindingCount = static_cast<uint>(_bindings.size());
     _descriptorCount  = 0U;
 
     if (bindingCount) {

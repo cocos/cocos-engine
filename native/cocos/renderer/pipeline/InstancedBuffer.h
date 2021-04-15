@@ -53,8 +53,8 @@ struct CC_DLL InstancedItem {
     gfx::DescriptorSet *descriptorSet = nullptr;
     gfx::Texture *lightingMap = nullptr;
 };
-typedef vector<InstancedItem> InstancedItemList;
-typedef vector<uint> DynamicOffsetList;
+using InstancedItemList = vector<InstancedItem>;
+using DynamicOffsetList = vector<uint>;
 
 class InstancedBuffer : public Object {
 public:
@@ -63,8 +63,8 @@ public:
     static InstancedBuffer *get(uint pass);
     static InstancedBuffer *get(uint pass, uint extraKey);
 
-    InstancedBuffer(const PassView *pass);
-    virtual ~InstancedBuffer();
+    explicit InstancedBuffer(const PassView *pass);
+    ~InstancedBuffer() override;
 
     void destroy();
     void merge(const ModelView *, const SubModelView *, uint);
@@ -79,7 +79,7 @@ public:
     CC_INLINE const DynamicOffsetList &dynamicOffsets() const { return _dynamicOffsets; }
 
 private:
-    static map<uint, map<uint, InstancedBuffer *>> _buffers;
+    static map<uint, map<uint, InstancedBuffer *>> buffers;
     InstancedItemList _instances;
     const PassView *_pass = nullptr;
     bool _hasPendingModels = false;

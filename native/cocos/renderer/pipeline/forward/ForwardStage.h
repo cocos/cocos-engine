@@ -44,15 +44,15 @@ public:
     static const RenderStageInfo &getInitializeInfo();
 
     ForwardStage();
-    ~ForwardStage();
+    ~ForwardStage() override;
 
-    virtual bool initialize(const RenderStageInfo &info) override;
-    virtual void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
-    virtual void destroy() override;
-    virtual void render(Camera *camera) override;
+    bool initialize(const RenderStageInfo &info) override;
+    void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
+    void destroy() override;
+    void render(Camera *camera) override;
 
 private:
-    static RenderStageInfo _initInfo;
+    static RenderStageInfo initInfo;
     ForwardPipeline *_forwrdPipeline = nullptr;
     PlanarShadowQueue *_planarShadowQueue = nullptr;
     RenderBatchedQueue *_batchedQueue = nullptr;

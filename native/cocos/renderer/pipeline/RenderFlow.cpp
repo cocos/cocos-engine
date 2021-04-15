@@ -29,14 +29,13 @@
 namespace cc {
 namespace pipeline {
 
-RenderFlow::~RenderFlow() {
-}
+RenderFlow::~RenderFlow() = default;
 
 bool RenderFlow::initialize(const RenderFlowInfo &info) {
-    _name = info.name;
+    _name     = info.name;
     _priority = info.priority;
-    _tag = info.tag;
-    _stages = info.stages;
+    _tag      = info.tag;
+    _stages   = info.stages;
     return true;
 }
 
@@ -47,18 +46,21 @@ void RenderFlow::activate(RenderPipeline *pipeline) {
         return s1->getPriority() - s2->getPriority();
     });
 
-    for (const auto stage : _stages)
+    for (auto *const stage : _stages) {
         stage->activate(pipeline, this);
+    }
 }
 
 void RenderFlow::render(Camera *camera) {
-    for (const auto stage : _stages)
+    for (auto *const stage : _stages) {
         stage->render(camera);
+    }
 }
 
 void RenderFlow::destroy() {
-    for (const auto stage : _stages)
+    for (auto *const stage : _stages) {
         stage->destroy();
+    }
 
     _stages.clear();
 }

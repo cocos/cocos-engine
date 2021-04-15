@@ -50,7 +50,7 @@ struct CC_DLL RenderStageInfo {
 class CC_DLL RenderStage : public Object {
 public:
     RenderStage();
-    virtual ~RenderStage();
+    ~RenderStage() override;
 
     virtual void activate(RenderPipeline *pipeline, RenderFlow *flow);
     virtual bool initialize(const RenderStageInfo &info);
@@ -58,10 +58,10 @@ public:
     virtual void destroy();
     virtual void render(Camera *camera) = 0;
 
-    CC_INLINE const String &getName() const { return _name; }
-    CC_INLINE uint getPriority() const { return _priority; }
-    CC_INLINE uint getTag() const { return _tag; }
-    CC_INLINE RenderFlow *getFlow() const {return _flow;}
+    inline const String &getName() const { return _name; }
+    inline uint getPriority() const { return _priority; }
+    inline uint getTag() const { return _tag; }
+    inline RenderFlow *getFlow() const {return _flow;}
 
 protected:
     RenderQueueDescList _renderQueueDescriptors;
@@ -72,7 +72,7 @@ protected:
     String _name;
     uint _priority = 0;
     uint _tag = 0;
-    gfx::ColorList _clearColors = {{0, 0, 0, 0.0f}, {0, 0, 0, 0.0f}, {0, 0, 0, 0.0f}, {0, 0, 0, 0.0f}};
+    gfx::ColorList _clearColors = {{0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}, {0.0F, 0.0F, 0.0F, 0.0F}};
 };
 
 } // namespace pipeline

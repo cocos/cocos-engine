@@ -60,7 +60,7 @@ uint InputAssembler::computeAttributesHash() const {
         seed ^= attribute.isInstanced + 0x9e3779b9 + (seed << 6) + (seed >> 2);
         seed ^= attribute.location + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
-    return seed;
+    return static_cast<uint>(seed);
 }
 
 void InputAssembler::initialize(const InputAssemblerInfo &info) {

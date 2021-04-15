@@ -30,7 +30,7 @@
 namespace cc {
 namespace pipeline {
 
-class Camera;
+struct Camera;
 class GbufferStage;
 
 class CC_DLL GbufferFlow : public RenderFlow {
@@ -38,16 +38,15 @@ public:
     static const RenderFlowInfo &getInitializeInfo();
 
     GbufferFlow() = default;
-    virtual ~GbufferFlow();
+    ~GbufferFlow() override;
 
-    virtual bool initialize(const RenderFlowInfo &info) override;
-    virtual void activate(RenderPipeline *pipeline) override;
-    virtual void destroy() override;
-    virtual void render(Camera *camera) override;
+    bool initialize(const RenderFlowInfo &info) override;
+    void activate(RenderPipeline *pipeline) override;
+    void destroy() override;
+    void render(Camera *camera) override;
 
 private:
-    static RenderFlowInfo _initInfo;
-    GbufferStage *_GbufferStage = nullptr;
+    static RenderFlowInfo initInfo;
 };
 
 } // namespace pipeline
