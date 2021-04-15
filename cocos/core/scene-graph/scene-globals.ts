@@ -399,11 +399,11 @@ export class ShadowsInfo {
     @serializable
     protected _packing = false;
     @serializable
-    protected _linear = false;
+    protected _linear = true;
     @serializable
     protected _selfShadow = false;
     @serializable
-    protected _normalBias = 0.1;
+    protected _normalBias = 0.0;
     @serializable
     protected _near = 1;
     @serializable
