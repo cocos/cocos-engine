@@ -88,41 +88,21 @@ export function retry (process: RetryFunction, times: number, wait: number, onCo
 }
 
 export function getDepends (uuid: string, data: Asset | Record<string, any>, exclude: Record<string, any>,
-    depends: any[], preload: boolean, asyncLoadAssets: boolean, config: Config): void {
+    depends: any[], config: Config): void {
     try {
         const info = dependUtil.parse(uuid, data);
-        let includeNative = true;
-        if (data instanceof Asset && (!data.__nativeDepend__)) { includeNative = false; }
-        if (!preload) {
-            asyncLoadAssets = !EDITOR && (!!(data as SceneAsset|Prefab).asyncLoadAssets || (asyncLoadAssets && !info.preventDeferredLoadDependents));
-            for (let i = 0, l = info.deps.length; i < l; i++) {
-                const dep = info.deps[i];
-                if (!(dep in exclude)) {
-                    exclude[dep] = true;
-                    depends.push({ uuid: dep, __asyncLoadAssets__: asyncLoadAssets, bundle: config && config.name });
-                }
+        for (let i = 0, l = info.deps.length; i < l; i++) {
+            const dep = info.deps[i];
+            if (!(dep in exclude)) {
+                exclude[dep] = true;
+                depends.push({ uuid: dep, bundle: config && config.name });
             }
-
-            if (includeNative && !asyncLoadAssets && !info.preventPreloadNativeObject && info.nativeDep) {
-                if (config) {
-                    info.nativeDep.bundle = config.name;
-                }
-                depends.push({ ...info.nativeDep });
+        }
+        if (info.nativeDep) {
+            if (config) {
+                info.nativeDep.bundle = config.name;
             }
-        } else {
-            for (let i = 0, l = info.deps.length; i < l; i++) {
-                const dep = info.deps[i];
-                if (!(dep in exclude)) {
-                    exclude[dep] = true;
-                    depends.push({ uuid: dep, bundle: config && config.name });
-                }
-            }
-            if (includeNative && info.nativeDep) {
-                if (config) {
-                    info.nativeDep.bundle = config.name;
-                }
-                depends.push({ ...info.nativeDep });
-            }
+            depends.push({ ...info.nativeDep });
         }
     } catch (e) {
         error(e.message, e.stack);
@@ -151,7 +131,10 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                         // eslint-disable-next-line new-cap
                         missingAssetReporter = new EditorExtends.MissingReporter.object(asset);
                     }
-                    missingAssetReporter.stashByOwner(depend.owner, depend.prop, EditorExtends.serialize.asAsset(depend.uuid));
+                    const placeHolder = EditorExtends.serialize.asAsset(depend.uuid, depend.type);
+                    placeHolder.initPlaceHolder();
+                    missingAssetReporter.stashByOwner(depend.owner, depend.prop, placeHolder);
+                    if (depend.type) { depend.owner[depend.prop] = placeHolder; }
                 } else {
                     error(`The asset ${depend.uuid} is missing!`);
                 }

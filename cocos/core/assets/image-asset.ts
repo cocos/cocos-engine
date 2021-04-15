@@ -36,6 +36,7 @@ import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { legacyCC } from '../global-exports';
 import { warnID, getError } from '../platform/debug';
+import { builtinResMgr, Texture2D } from '..';
 
 /**
  * @en Image source in memory
@@ -333,6 +334,15 @@ export class ImageAsset extends Asset {
     public _onDataComplete () {
         this.loaded = true;
         this.emit('load');
+    }
+
+    public initPlaceHolder () {
+        super.initPlaceHolder();
+        this.reset(builtinResMgr.get<Texture2D>('black-texture').image!._nativeAsset);
+    }
+
+    public validate () {
+        return !!this.data;
     }
 }
 

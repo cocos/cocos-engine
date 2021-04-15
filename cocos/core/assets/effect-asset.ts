@@ -231,6 +231,10 @@ export class EffectAsset extends Asset {
         EffectAsset.remove(this.name);
         return super.destroy();
     }
+
+    public validate () {
+        return this.techniques.length > 0 && this.shaders.length > 0 && this.combinations.length > 0;
+    }
 }
 
 legacyCC.EffectAsset = EffectAsset;

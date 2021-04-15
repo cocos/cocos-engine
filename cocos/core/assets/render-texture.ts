@@ -196,6 +196,15 @@ export class RenderTexture extends Asset {
             this._window = root.createWindow(_windowInfo);
         }
     }
+
+    public initPlaceHolder () {
+        this._width = this._height = 1;
+        this._initWindow();
+    }
+
+    public validate () {
+        return this.width >= 1 && this.width <= 2048 && this.height >= 1 && this.height <= 2048;
+    }
 }
 
 legacyCC.RenderTexture = RenderTexture;

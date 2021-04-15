@@ -38,8 +38,6 @@ export interface IDependencies {
     nativeDep?: Record<string, any>;
     deps: string[];
     parsedFromExistAsset?: boolean;
-    preventPreloadNativeObject?: boolean;
-    preventDeferredLoadDependents?: boolean;
     persistDeps?: string[];
 }
 
@@ -187,8 +185,6 @@ export class DependUtil {
         const out: IDependencies = {
             deps: [],
             parsedFromExistAsset: true,
-            preventPreloadNativeObject: (asset.constructor as typeof Asset).preventPreloadNativeObject,
-            preventDeferredLoadDependents: (asset.constructor as typeof Asset).preventDeferredLoadDependents,
         };
         const deps = asset.__depends__ as IDependProp[];
         for (let i = 0, l = deps.length; i < l; i++) {

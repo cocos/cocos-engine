@@ -44,6 +44,7 @@ import {
 } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { Morph, MorphRendering, createMorphRendering } from './morph';
+import { createMesh } from '../misc';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {
@@ -1032,6 +1033,26 @@ export class Mesh extends Asset {
             }
             return vertexBuffer;
         });
+    }
+
+    public initPlaceHolder () {
+        super.initPlaceHolder();
+        createMesh({
+            primitiveMode: PrimitiveMode.TRIANGLE_LIST,
+            positions: [],
+            uvs: [],
+            colors: [],
+            attributes: [
+                new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+                new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
+                new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8UI, true),
+            ],
+            indices: [],
+        }, this);
+    }
+
+    public validate () {
+        return this.renderingSubMeshes.length > 0;
     }
 }
 legacyCC.Mesh = Mesh;

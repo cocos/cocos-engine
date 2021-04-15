@@ -110,15 +110,6 @@ class Prefab extends Asset {
     @editable
     public optimizationPolicy = OptimizationPolicy.AUTO;
 
-    /**
-     * @en Indicates the native assets of this prefab can be load after prefab loaded.
-     * @zh 指示该 Prefab 依赖的资源可否在 Prefab 加载后再延迟加载。
-     * @default false
-     */
-    @serializable
-    @editable
-    public asyncLoadAssets = false;
-
     // Cache function to optimize instance creation.
     private _createFunction: Function | null;
     private _instantiatedTimes: number;
@@ -188,6 +179,15 @@ class Prefab extends Asset {
         ++this._instantiatedTimes;
 
         return node;
+    }
+
+    public initPlaceHolder () {
+        super.initPlaceHolder();
+        this.data = new Node();
+    }
+
+    public validate () {
+        return !!this.data;
     }
 }
 

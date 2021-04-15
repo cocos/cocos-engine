@@ -159,15 +159,11 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 }
             } else if (!options.reloadAsset && assets.has(uuid)) {
                 const asset = assets.get(uuid)!;
-                if (options.__asyncLoadAssets__ || !asset.__asyncLoadAssets__) {
-                    item.content = asset.addRef();
-                    if (progress.canInvoke) {
-                        task.dispatch('progress', ++progress.finish, progress.total, item);
-                    }
-                    done();
-                } else {
-                    loadDepends(task, asset, done, false);
+                item.content = asset.addRef();
+                if (progress.canInvoke) {
+                    task.dispatch('progress', ++progress.finish, progress.total, item);
                 }
+                done();
             } else {
                 options.__uuid__ = uuid;
                 parser.parse(id, file, 'import', options, (err, asset: Asset) => {
@@ -175,24 +171,24 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                         done(err);
                         return;
                     }
-                    loadDepends(task, asset, done, true);
+                    loadDepends(task, asset, done);
                 });
             }
         }
     },
 ]);
 
-function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, init: boolean) {
+function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
     const { input: item, progress } = task;
     const { uuid, id, options, config } = item as RequestItem;
-    const { __asyncLoadAssets__, cacheAsset } = options;
+    const { cacheAsset } = options;
 
     const depends = [];
     // add reference avoid being released during loading dependencies
     if (asset.addRef) {
         asset.addRef();
     }
-    getDepends(uuid, asset, Object.create(null), depends, false, __asyncLoadAssets__, config!);
+    getDepends(uuid, asset, Object.create(null), depends, config!);
     if (progress.canInvoke) {
         task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
     }
@@ -209,7 +205,6 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
             if (asset.decRef) {
                 asset.decRef(false);
             }
-            asset.__asyncLoadAssets__ = __asyncLoadAssets__;
             repeatItem.finish = true;
             repeatItem.err = err;
 
@@ -221,31 +216,22 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
                     map[dependAsset instanceof Asset ? `${dependAsset._uuid}@import` : `${uuid}@native`] = dependAsset;
                 }
 
-                if (!init) {
-                    if (asset.__nativeDepend__) {
-                        setProperties(uuid, asset, map);
-                        try {
-                            if (typeof asset.onLoaded === 'function' && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
-                                asset.onLoaded();
-                                asset.__onLoadedInvoked__ = true;
-                            }
-                        } catch (e) {
-                            error(e.message, e.stack);
-                        }
+                setProperties(uuid, asset, map);
+                try {
+                    if (typeof asset.onLoaded === 'function' && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
+                        asset.onLoaded();
+                        asset.__onLoadedInvoked__ = true;
                     }
-                } else {
-                    setProperties(uuid, asset, map);
-                    try {
-                        if (typeof asset.onLoaded === 'function' && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
-                            asset.onLoaded();
-                            asset.__onLoadedInvoked__ = true;
-                        }
-                    } catch (e) {
-                        error(e.message, e.stack);
-                    }
-                    files.remove(id);
-                    parsed.remove(id);
+                } catch (e) {
+                    error(e.message, e.stack);
+                    asset.initPlaceHolder();
+                }
+                files.remove(id);
+                parsed.remove(id);
+                if (asset.validate()) {
                     cache(uuid, asset, cacheAsset);
+                } else {
+                    asset.initPlaceHolder();
                 }
                 subTask.recycle();
             }

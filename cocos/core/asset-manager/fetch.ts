@@ -46,16 +46,19 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
 
     const { options, progress } = task;
     const depends = [];
-    const total = progress.total;
-    options!.__exclude__ = options!.__exclude__ || Object.create(null);
+    const total = progress.total as number;
+    const exclude = options!.__exclude__ = options!.__exclude__ || Object.create(null);
 
     task.output = [];
 
     forEach(task.input as RequestItem[], (item, cb) => {
         if (!item.isNative && assets.has(item.uuid)) {
             const asset = assets.get(item.uuid);
-            asset!.addRef();
-            handle(item, task, asset, null, asset!.__asyncLoadAssets__, depends, total);
+            item.content = asset!.addRef();
+            task.output.push(item);
+            if (progress.canInvoke) {
+                task.dispatch('progress', ++progress.finish, progress.total, item);
+            }
             cb();
             return;
         }
@@ -68,11 +71,23 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
                         progress.canInvoke = false;
                         done(err);
                     } else {
-                        handle(item, task, null, null, false, depends, total);
+                        task.output.push(item);
+                        if (progress.canInvoke) {
+                            task.dispatch('progress', ++progress.finish, progress.total, item);
+                        }
                     }
                 }
             } else if (!task.isFinish) {
-                handle(item, task, null, data, !item.isNative, depends, total);
+                item.file = data;
+                task.output.push(item);
+                if (!item.isNative) {
+                    exclude[item.uuid] = true;
+                    getDepends(item.uuid, data, exclude, depends, item.config!);
+                    progress.total = total + depends.length;
+                }
+                if (progress.canInvoke) {
+                    task.dispatch('progress', ++progress.finish, progress.total, item);
+                }
             }
             cb();
         });
@@ -113,24 +128,5 @@ function decreaseRef (task: Task) {
         if (output[i].content) {
             (output[i].content as Asset).decRef(false);
         }
-    }
-}
-
-function handle (item: RequestItem, task: Task, content: any, file: any, loadDepends: boolean, depends: any[], last: number) {
-    const exclude = task.options!.__exclude__;
-    const progress = task.progress;
-
-    item.content = content;
-    item.file = file;
-    task.output.push(item);
-
-    if (loadDepends) {
-        exclude[item.uuid] = true;
-        getDepends(item.uuid, file || content, exclude, depends, true, false, item.config!);
-        progress.total = last + depends.length;
-    }
-
-    if (progress.canInvoke) {
-        task.dispatch('progress', ++progress.finish, progress.total, item);
     }
 }

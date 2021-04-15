@@ -474,6 +474,16 @@ export class Material extends Asset {
         this._defines.length = 0;
         this._states.length = 0;
     }
+
+    public initPlaceHolder () {
+        super.initPlaceHolder();
+        const missing = builtinResMgr.get<Material>('missing-effect-material');
+        if (missing) { this._passes = missing._passes.slice(); }
+    }
+
+    public validate () {
+        return !!this._effectAsset && this.passes.length > 0;
+    }
 }
 
 legacyCC.Material = Material;

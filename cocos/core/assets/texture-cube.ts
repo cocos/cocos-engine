@@ -35,6 +35,8 @@ import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../global-exports';
+import { js } from '../utils/js';
+import { builtinResMgr } from '../builtin/builtin-res-mgr';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 
@@ -262,12 +264,13 @@ export class TextureCube extends SimpleTexture {
                 bottom: new ImageAsset(),
             };
             const mipmap = data.mipmaps[i];
-            handle.result.push(this._mipmaps[i], `front`, mipmap.front);
-            handle.result.push(this._mipmaps[i], `back`, mipmap.back);
-            handle.result.push(this._mipmaps[i], `left`, mipmap.left);
-            handle.result.push(this._mipmaps[i], `right`, mipmap.right);
-            handle.result.push(this._mipmaps[i], `top`, mipmap.top);
-            handle.result.push(this._mipmaps[i], `bottom`, mipmap.bottom);
+            const imageAssetClassId = js._getClassId(ImageAsset);
+            handle.result.push(this._mipmaps[i], `front`, mipmap.front, imageAssetClassId);
+            handle.result.push(this._mipmaps[i], `back`, mipmap.back, imageAssetClassId);
+            handle.result.push(this._mipmaps[i], `left`, mipmap.left, imageAssetClassId);
+            handle.result.push(this._mipmaps[i], `right`, mipmap.right, imageAssetClassId);
+            handle.result.push(this._mipmaps[i], `top`, mipmap.top, imageAssetClassId);
+            handle.result.push(this._mipmaps[i], `bottom`, mipmap.bottom, imageAssetClassId);
         }
     }
 
@@ -278,6 +281,15 @@ export class TextureCube extends SimpleTexture {
         texInfo.layerCount = 6;
         Object.assign(texInfo, presumed);
         return texInfo;
+    }
+
+    public initPlaceHolder () {
+        super.initPlaceHolder();
+        this.mipmaps = builtinResMgr.get<TextureCube>('default-cube-texture').mipmaps;
+    }
+
+    public validate () {
+        return this._mipmaps.length !== 0 && !this._mipmaps.find((x) => !(x.top && x.bottom && x.front && x.back && x.left && x.right));
     }
 }
 
