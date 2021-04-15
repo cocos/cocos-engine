@@ -412,7 +412,10 @@ async function doBuild ({
             sourceMap: false,
         }),
 
-        rpBabel(babelOptions),
+        rpBabel({
+            skipPreflightCheck: true,
+            ...babelOptions,
+        }),
     );
 
     if (options.progress) {

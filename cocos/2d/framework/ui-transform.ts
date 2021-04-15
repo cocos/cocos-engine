@@ -28,7 +28,7 @@
  * @module ui
  */
 
-import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple } from 'cc.decorator';
+import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component } from '../../core/components';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
@@ -37,7 +37,7 @@ import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
 import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
-import { director } from '../../core/director';
+import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 
 const _vec2a = new Vec2();
@@ -197,7 +197,7 @@ export class UITransform extends Component {
      * @zh
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      */
-    @tooltip('i18n:ui_transform.priority')
+    @visible(false)
     get priority () {
         return this._priority;
     }
@@ -213,11 +213,11 @@ export class UITransform extends Component {
         }
 
         this._priority = value;
-        this._checkAndSortSiblings();
-        this.node.parent!._updateSiblingIndex();
+        if (this.node.parent) {
+            UITransform.insertChangeMap(this.node.parent);
+        }
     }
 
-    @serializable
     protected _priority = 0;
 
     /**
@@ -250,13 +250,14 @@ export class UITransform extends Component {
         this.node._uiProps.uiTransformComp = this;
     }
 
+    public onLoad () {
+        if (this.node.parent) {
+            UITransform.insertChangeMap(this.node.parent);
+        }
+    }
+
     public onEnable () {
         this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
-
-        const changed = this._checkAndSortSiblings();
-        if (changed) {
-            this.node.parent!._updateSiblingIndex();
-        }
     }
 
     public onDisable () {
@@ -643,28 +644,43 @@ export class UITransform extends Component {
             return;
         }
 
-        this._checkAndSortSiblings();
+        if (this.node.parent) {
+            UITransform.insertChangeMap(this.node.parent);
+        }
     }
 
-    protected _checkAndSortSiblings () {
-        const siblings = this.node.parent && this.node.parent.children;
-        let changed = false;
+    private static priorityChangeNodeMap = new Map<string, Node>();
+
+    private static insertChangeMap (node: Node) {
+        const key = node.uuid;
+        if (!UITransform.priorityChangeNodeMap.has(key)) {
+            UITransform.priorityChangeNodeMap.set(key, node);
+        }
+    }
+
+    private static _sortChildrenSibling (node) {
+        const siblings = node.children;
         if (siblings) {
             siblings.sort((a, b) => {
                 const aComp = a._uiProps.uiTransformComp;
                 const bComp = b._uiProps.uiTransformComp;
                 const ca = aComp ? aComp.priority : 0;
                 const cb = bComp ? bComp.priority : 0;
-                let diff = ca - cb;
-                if (diff === 0) {
-                    diff = a.getSiblingIndex() - b.getSiblingIndex();
-                }
-
-                changed = diff > 0;
+                const diff = ca - cb;
                 return diff;
             });
         }
+    }
 
-        return changed;
+    public static _sortSiblings () {
+        UITransform.priorityChangeNodeMap.forEach((node, ID) => {
+            UITransform._sortChildrenSibling(node);
+            node._updateSiblingIndex();
+            node.emit('childrenSiblingOrderChanged');
+        });
+        UITransform.priorityChangeNodeMap.clear();
     }
 }
+
+// HACK
+director.on(Director.EVENT_AFTER_UPDATE, UITransform._sortSiblings);

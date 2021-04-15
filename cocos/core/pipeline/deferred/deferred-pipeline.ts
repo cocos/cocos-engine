@@ -37,11 +37,12 @@ import { LightingFlow } from './lighting-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, StoreOp, Filter, Address,
-    SurfaceTransform, Feature, ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
+    SurfaceTransform, ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType, Framebuffer,
     TextureInfo, TextureType, TextureUsageBit, FramebufferInfo } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING,
-    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
+    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING,
+    UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
@@ -132,7 +133,7 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        this._macros = { CC_PIPELINE_TYPE: 1 };
+        this._macros.CC_PIPELINE_TYPE = 1;
 
         if (!super.activate()) {
             return false;
@@ -219,10 +220,6 @@ export class DeferredPipeline extends RenderPipeline {
         this._descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, sampler);
         this._descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
         this._descriptorSet.update();
-
-        // update global defines when all states initialized.
-        this.macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
-        this.macros.CC_SUPPORT_FLOAT_TEXTURE = this.device.hasFeature(Feature.TEXTURE_FLOAT);
 
         let inputAssemblerDataOffscreen = new InputAssemblerData();
         inputAssemblerDataOffscreen = this.createQuadInputAssembler(SurfaceTransform.IDENTITY);

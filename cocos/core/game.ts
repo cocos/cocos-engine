@@ -29,6 +29,7 @@
  */
 
 import { EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
+import { system } from 'pal/system';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
@@ -837,81 +838,18 @@ export class Game extends EventTarget {
     }
 
     private _initEvents () {
-        const win = window;
-        let hiddenPropName: string;
+        system.onShow(this._onShow.bind(this));
+        system.onHide(this._onHide.bind(this));
+    }
 
-        if (typeof document.hidden !== 'undefined') {
-            hiddenPropName = 'hidden';
-        } else if (typeof document.mozHidden !== 'undefined') {
-            hiddenPropName = 'mozHidden';
-        } else if (typeof document.msHidden !== 'undefined') {
-            hiddenPropName = 'msHidden';
-        } else if (typeof document.webkitHidden !== 'undefined') {
-            hiddenPropName = 'webkitHidden';
-        }
+    private _onHide () {
+        this.emit(Game.EVENT_HIDE);
+        this.pause();
+    }
 
-        let hidden = false;
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const me = this;
-
-        function onHidden () {
-            if (!hidden) {
-                hidden = true;
-                me.emit(Game.EVENT_HIDE);
-            }
-        }
-        // In order to adapt the most of platforms the onshow API.
-        function onShown (arg0?, arg1?, arg2?, arg3?, arg4?) {
-            if (hidden) {
-                hidden = false;
-                me.emit(Game.EVENT_SHOW, arg0, arg1, arg2, arg3, arg4);
-            }
-        }
-
-        if (hiddenPropName!) {
-            const changeList = [
-                'visibilitychange',
-                'mozvisibilitychange',
-                'msvisibilitychange',
-                'webkitvisibilitychange',
-                'qbrowserVisibilityChange',
-            ];
-
-            for (let i = 0; i < changeList.length; i++) {
-                document.addEventListener(changeList[i], (event) => {
-                    let visible = document[hiddenPropName];
-                    // @ts-expect-error QQ App
-                    visible = visible || event.hidden;
-                    if (visible) {
-                        onHidden();
-                    } else {
-                        onShown();
-                    }
-                });
-            }
-        } else {
-            win.addEventListener('blur', onHidden);
-            win.addEventListener('focus', onShown);
-        }
-
-        if (window.navigator.userAgent.indexOf('MicroMessenger') > -1) {
-            win.onfocus = onShown;
-        }
-
-        if ('onpageshow' in window && 'onpagehide' in window) {
-            win.addEventListener('pagehide', onHidden);
-            win.addEventListener('pageshow', onShown);
-            // Taobao UIWebKit
-            document.addEventListener('pagehide', onHidden);
-            document.addEventListener('pageshow', onShown);
-        }
-
-        this.on(Game.EVENT_HIDE, () => {
-            this.pause();
-        });
-        this.on(Game.EVENT_SHOW, () => {
-            this.resume();
-        });
+    private _onShow () {
+        this.emit(Game.EVENT_SHOW);
+        this.resume();
     }
 
     private _setRenderPipelineNShowSplash () {
