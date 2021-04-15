@@ -195,6 +195,8 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     // mounted node need to add to the target map
                     generateTargetMap(childNode, curTargetMap, false);
                     // siblingIndex update is in _onBatchCreated function, and it needs a parent.
+                    // @ts-expect-error private member access
+                    childNode._siblingIndex = target._children.length - 1;
                     childNode._onBatchCreated(false);
                 }
             }
