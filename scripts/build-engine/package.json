@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.2.3",
+  "version": "4.2.4",
   "description": "",
   "repository": {
     "type": "git",
@@ -31,7 +31,7 @@
     "rollup-plugin-progress": "^1.1.1",
     "rollup-plugin-terser": "^7.0.2",
     "semver": "^7.3.2",
-    "tfig": "^3.0.1",
+    "tfig": "^3.1.1",
     "typescript": "^4.2.3",
     "yargs": "^15.1.0"
   },
