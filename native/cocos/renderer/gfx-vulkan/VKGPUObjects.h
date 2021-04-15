@@ -366,13 +366,12 @@ public:
 private:
     friend class CCVKDevice;
 
-    /* */
     using CommandBufferPools = tbb::concurrent_unordered_map<
         std::thread::id, CCVKGPUCommandBufferPool *, std::hash<std::thread::id>>;
-    /* *
+    /*
     using CommandBufferPools = unordered_map<std::thread::id, CCVKGPUCommandBufferPool *>;
     std::mutex mutex;
-    /* */
+    */
 
     CommandBufferPools _commandBufferPools;
 

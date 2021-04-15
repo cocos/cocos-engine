@@ -56,7 +56,7 @@ void insertVkDynamicStates(vector<VkDynamicState> *out, const vector<DynamicStat
     for (DynamicStateFlagBit dynamicState : dynamicStates) {
         switch (dynamicState) {
             case DynamicStateFlagBit::VIEWPORT:
-            case DynamicStateFlagBit::SCISSOR: break;  // we make this dynamic by default
+            case DynamicStateFlagBit::SCISSOR: break; // we make this dynamic by default
             case DynamicStateFlagBit::LINE_WIDTH: out->push_back(VK_DYNAMIC_STATE_LINE_WIDTH); break;
             case DynamicStateFlagBit::DEPTH_BIAS: out->push_back(VK_DYNAMIC_STATE_DEPTH_BIAS); break;
             case DynamicStateFlagBit::BLEND_CONSTANTS: out->push_back(VK_DYNAMIC_STATE_BLEND_CONSTANTS); break;
@@ -201,14 +201,13 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
         bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
     } else if (gpuBuffer->memUsage == (MemoryUsage::HOST | MemoryUsage::DEVICE)) {
-        /* *
+        /*
         gpuBuffer->instanceSize = roundUp(gpuBuffer->size, device->getCapabilities().uboOffsetAlignment);
         bufferInfo.size = gpuBuffer->instanceSize * device->gpuDevice()->backBufferCount;
         allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
         bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        /* */
+        */
         bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        /* */
         allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
     }
 

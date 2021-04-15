@@ -981,76 +981,76 @@ if(CC_USE_VULKAN)
     cocos_source_files(
                      cocos/renderer/gfx-vulkan/GFXVulkan.h
                      cocos/renderer/gfx-vulkan/vk_mem_alloc.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKBuffer.cpp
+                     cocos/renderer/gfx-vulkan/VKBuffer.cpp
                      cocos/renderer/gfx-vulkan/VKBuffer.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKCommandBuffer.cpp
+                     cocos/renderer/gfx-vulkan/VKCommandBuffer.cpp
                      cocos/renderer/gfx-vulkan/VKCommandBuffer.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKCommands.cpp
+                     cocos/renderer/gfx-vulkan/VKCommands.cpp
                      cocos/renderer/gfx-vulkan/VKCommands.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKContext.cpp
+                     cocos/renderer/gfx-vulkan/VKContext.cpp
                      cocos/renderer/gfx-vulkan/VKContext.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKDevice.cpp
+                     cocos/renderer/gfx-vulkan/VKDevice.cpp
                      cocos/renderer/gfx-vulkan/VKDevice.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKFramebuffer.cpp
+                     cocos/renderer/gfx-vulkan/VKFramebuffer.cpp
                      cocos/renderer/gfx-vulkan/VKFramebuffer.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKGlobalBarrier.cpp
+                     cocos/renderer/gfx-vulkan/VKGlobalBarrier.cpp
                      cocos/renderer/gfx-vulkan/VKGlobalBarrier.h
                      cocos/renderer/gfx-vulkan/VKGPUObjects.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKInputAssembler.cpp
+                     cocos/renderer/gfx-vulkan/VKInputAssembler.cpp
                      cocos/renderer/gfx-vulkan/VKInputAssembler.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKDescriptorSet.cpp
+                     cocos/renderer/gfx-vulkan/VKDescriptorSet.cpp
                      cocos/renderer/gfx-vulkan/VKDescriptorSet.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKDescriptorSetLayout.cpp
+                     cocos/renderer/gfx-vulkan/VKDescriptorSetLayout.cpp
                      cocos/renderer/gfx-vulkan/VKDescriptorSetLayout.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKPipelineLayout.cpp
+                     cocos/renderer/gfx-vulkan/VKPipelineLayout.cpp
                      cocos/renderer/gfx-vulkan/VKPipelineLayout.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKPipelineState.cpp
+                     cocos/renderer/gfx-vulkan/VKPipelineState.cpp
                      cocos/renderer/gfx-vulkan/VKPipelineState.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKQueue.cpp
+                     cocos/renderer/gfx-vulkan/VKQueue.cpp
                      cocos/renderer/gfx-vulkan/VKQueue.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKRenderPass.cpp
+                     cocos/renderer/gfx-vulkan/VKRenderPass.cpp
                      cocos/renderer/gfx-vulkan/VKRenderPass.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKSampler.cpp
+                     cocos/renderer/gfx-vulkan/VKSampler.cpp
                      cocos/renderer/gfx-vulkan/VKSampler.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKShader.cpp
+                     cocos/renderer/gfx-vulkan/VKShader.cpp
                      cocos/renderer/gfx-vulkan/VKShader.h
                      cocos/renderer/gfx-vulkan/VKSPIRV.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKStd.cpp
+                     cocos/renderer/gfx-vulkan/VKStd.cpp
                      cocos/renderer/gfx-vulkan/VKStd.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKTexture.cpp
+                     cocos/renderer/gfx-vulkan/VKTexture.cpp
                      cocos/renderer/gfx-vulkan/VKTexture.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKTextureBarrier.cpp
+                     cocos/renderer/gfx-vulkan/VKTextureBarrier.cpp
                      cocos/renderer/gfx-vulkan/VKTextureBarrier.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/VKUtils.cpp
+                     cocos/renderer/gfx-vulkan/VKUtils.cpp
                      cocos/renderer/gfx-vulkan/VKUtils.h
-        NO_WERROR    cocos/renderer/gfx-vulkan/volk.c
+                     cocos/renderer/gfx-vulkan/volk.c
                      cocos/renderer/gfx-vulkan/volk.h
     )
 endif()
 
 cocos_source_files(
-    cocos/renderer/frame-graph/Blackboard.h
-    cocos/renderer/frame-graph/CallbackPass.h
-    cocos/renderer/frame-graph/DevicePass.cpp
-    cocos/renderer/frame-graph/DevicePass.h
-    cocos/renderer/frame-graph/DevicePassResourceTable.cpp
-    cocos/renderer/frame-graph/DevicePassResourceTable.h
-    cocos/renderer/frame-graph/FrameGraph.cpp
-    cocos/renderer/frame-graph/FrameGraph.h
-    cocos/renderer/frame-graph/Handle.h
-    cocos/renderer/frame-graph/PassInsertPointManager.cpp
-    cocos/renderer/frame-graph/PassInsertPointManager.h
-    cocos/renderer/frame-graph/PassNode.cpp
-    cocos/renderer/frame-graph/PassNode.h
-    cocos/renderer/frame-graph/PassNodeBuilder.cpp
-    cocos/renderer/frame-graph/PassNodeBuilder.h
-    cocos/renderer/frame-graph/RenderTargetAttachment.h
-    cocos/renderer/frame-graph/Resource.h
-    cocos/renderer/frame-graph/ResourceAllocator.h
-    cocos/renderer/frame-graph/ResourceEntry.h
-    cocos/renderer/frame-graph/ResourceNode.h
-    cocos/renderer/frame-graph/VirtualResource.cpp
-    cocos/renderer/frame-graph/VirtualResource.h
+                 cocos/renderer/frame-graph/Blackboard.h
+                 cocos/renderer/frame-graph/CallbackPass.h
+                 cocos/renderer/frame-graph/DevicePass.cpp
+                 cocos/renderer/frame-graph/DevicePass.h
+                 cocos/renderer/frame-graph/DevicePassResourceTable.cpp
+                 cocos/renderer/frame-graph/DevicePassResourceTable.h
+                 cocos/renderer/frame-graph/FrameGraph.cpp
+                 cocos/renderer/frame-graph/FrameGraph.h
+                 cocos/renderer/frame-graph/Handle.h
+                 cocos/renderer/frame-graph/PassInsertPointManager.cpp
+                 cocos/renderer/frame-graph/PassInsertPointManager.h
+                 cocos/renderer/frame-graph/PassNode.cpp
+                 cocos/renderer/frame-graph/PassNode.h
+                 cocos/renderer/frame-graph/PassNodeBuilder.cpp
+                 cocos/renderer/frame-graph/PassNodeBuilder.h
+                 cocos/renderer/frame-graph/RenderTargetAttachment.h
+                 cocos/renderer/frame-graph/Resource.h
+                 cocos/renderer/frame-graph/ResourceAllocator.h
+                 cocos/renderer/frame-graph/ResourceEntry.h
+                 cocos/renderer/frame-graph/ResourceNode.h
+                 cocos/renderer/frame-graph/VirtualResource.cpp
+                 cocos/renderer/frame-graph/VirtualResource.h
 )
 
 ##### script bindings
