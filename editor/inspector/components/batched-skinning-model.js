@@ -1,81 +1,44 @@
-/* eslint-disable @typescript-eslint/no-unsafe-return */
-const propUtils = require('../utils/prop');
+const { template, $, update } = require('./base');
 
-exports.template = `
-<div class="batched-skinning-component">
-    <ui-prop>
-        <ui-label slot="label" value="Operation"></ui-label>
-        <ui-button id="button" class="green" slot="content">Cook</ui-button>
-    </ui-prop>
-    <div id="customProps"></div>
-</div>
-`;
+exports.template = template;
+exports.$ = $;
+exports.update = update;
 
-exports.methods = {
-    _onApplyClick () {
-        Editor.Message.send('scene', 'execute-component-method', {
-            uuid: this.dump.value.uuid.value,
-            name: 'cook',
-            args: [],
+exports.ready = function () {
+    const $prop = document.createElement('ui-prop');
+    this.$.componentContainer.before($prop);
+
+    const $label = document.createElement('ui-label');
+    $label.setAttribute('slot', 'label');
+    $label.value = 'Operation';
+    $prop.appendChild($label);
+
+    const $button = document.createElement('ui-button');
+    $button.setAttribute('slot', 'content');
+    $button.setAttribute('class', 'blue');
+    $button.innerText = 'Cook';
+    $prop.appendChild($button);
+
+    $button.addEventListener('confirm', () => {
+        let values = [this.dump.value];
+        if (this.dump.values) {
+            values = this.dump.values;
+        }
+
+        values.forEach((item) => {
+            Editor.Message.send('scene', 'execute-component-method', {
+                uuid: item.uuid.value,
+                name: 'cook',
+                args: [],
+            });
         });
 
-        this.dump.values && this.dump.values.forEach((dump) => {
+        values.forEach((item) => {
             Editor.Message.send('scene', 'execute-component-method', {
-                uuid: dump.value.uuid.value,
+                uuid: item.uuid.value,
                 name: 'combine',
                 args: [],
             });
         });
-    },
-};
-
-const uiElements = {
-    button: {
-        ready () {
-            this.$.button.addEventListener('confirm', (event) => {
-                this._onApplyClick();
-            });
-        },
-    },
-    customProps: {
-        update () {
-            this.$.customProps.replaceChildren(...propUtils.getCustomPropElements([], this.dump, (element, prop) => {
-                element.className = 'customProp';
-                const isShow = prop.dump.visible;
-                if (isShow) {
-                    element.render(prop.dump);
-                }
-                element.style = isShow ? '' : 'display:none;';
-            }));
-        },
-    },
-};
-
-exports.ready = function () {
-    for (const key in uiElements) {
-        const element = uiElements[key];
-        if (typeof element.ready === 'function') {
-            element.ready.call(this);
-        }
-    }
-};
-exports.$ = {
-    customProps: '#customProps',
-    button: '#button',
-};
-
-exports.update = function (dump) {
-    for (const key in dump.value) {
-        const info = dump.value[key];
-        if (dump.values) {
-            info.values = dump.values.map((value) => value[key].value);
-        }
-    }
-    this.dump = dump;
-    for (const key in uiElements) {
-        const element = uiElements[key];
-        if (typeof element.update === 'function') {
-            element.update.call(this);
-        }
-    }
+    });
 };

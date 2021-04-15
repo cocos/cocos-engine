@@ -29,11 +29,9 @@ exports.template = `
     margin: 0 auto;
 }
 .widget-component[layout='horizontal']>.layout .rect {
-    top: 0;
-    left: -10;
-    height: 165px;
-    width: 150px;
- 
+    position: absolute;
+    top: calc(50% - 65px);
+    left: -10px;
 }
 .widget-component .m20-t {
     margin-top: 20px;
@@ -179,7 +177,7 @@ exports.template = `
 .widget-component>.layout .rect .widget-rect>.center>ui-icon[top] {
     position: absolute;
     top: -12px;
-    left: calc(45%);
+    left: calc(50% - 5px);
     font-size: 11px;
     line-height: 10px;
 }
@@ -188,7 +186,7 @@ exports.template = `
     transform: rotate(90deg);
     position: absolute;
     right: -13px;
-    top: calc(45%);
+    top: calc(50% - 5px);
     font-size: 11px;
     line-height: 11px;
 }
@@ -196,7 +194,7 @@ exports.template = `
 .widget-component>.layout .rect .widget-rect>.center>ui-icon[bottom] {
     position: absolute;
     bottom: -12px;
-    left: calc(45%);
+    left: calc(50% - 5px);
     font-size: 11px;
     line-height: 10px;
 }
@@ -205,7 +203,7 @@ exports.template = `
     transform: rotate(90deg);
     position: absolute;
     left: -13px;
-    top: calc(45%);
+    top: calc(50% - 5px);
     font-size: 11px;
     line-height: 11px;
 }

@@ -1,3 +1,5 @@
+const { setDisabled, loopSetAssetDumpDataReadonly } = require('../utils/prop');
+
 exports.template = `
 <section class="asset-render-pipeline">
     <div class="header">
@@ -10,7 +12,6 @@ exports.template = `
     </div>
 </section>
 `;
-
 
 exports.$ = {
     container: '.asset-render-pipeline',
@@ -46,6 +47,8 @@ const Elements = {
                 optionsHtml += `<option value="${index}">${pipeline.name}</option>`;
             });
             panel.$.pipelinesSelect.innerHTML = optionsHtml;
+
+            setDisabled(panel.asset.readonly, panel.$.pipelinesSelect);
         }
     },
     pipeline: {
@@ -59,6 +62,9 @@ const Elements = {
 
             for (const key in panel.pipeline.value) {
                 const dump = panel.pipeline.value[key];
+                if (panel.asset.readonly) {
+                    loopSetAssetDumpDataReadonly(dump);
+                }
         
                 if (!dump.visible) {
                     continue;
@@ -68,7 +74,6 @@ const Elements = {
                 this.$.content.appendChild(prop);
                 
                 prop.setAttribute('type', 'dump');
-                this.updateReadonly(prop);
                 prop.render(dump);
                 prop.addEventListener('change-dump', this.dataChange.bind(this));
             }
@@ -105,13 +110,6 @@ exports.ready = function () {
 }
 
 exports.methods = {
-    updateReadonly(element) {
-        if (this.asset.readonly) {
-            element.setAttribute('disabled', true);
-        } else {
-            element.removeAttribute('disabled');
-        }
-    },
     async query(uuid) {
         return await Editor.Message.request('scene', 'query-render-pipeline', uuid);
 

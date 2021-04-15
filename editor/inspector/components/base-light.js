@@ -8,20 +8,23 @@ const { setHidden, isMultipleInvalid } = require('../utils/prop');
 
 exports.ready = function () {
     this.elements = {
-        resourceType: {
+        term: {
             displayOrder: 0,
         },
-        remoteURL: {
+        luminousPower: {
             displayOrder: 1,
             update(element, dump) {
-                setHidden(isMultipleInvalid(dump.resourceType) || dump.resourceType.value !== 0, element);
+                setHidden(isMultipleInvalid(dump.term) || dump.term.value !== 0, element);
             },
         },
-        clip: {
+        luminance: {
             displayOrder: 1,
             update(element, dump) {
-                setHidden(isMultipleInvalid(dump.resourceType) || dump.resourceType.value === 0, element);
+                setHidden(isMultipleInvalid(dump.term) || dump.term.value !== 1, element);
             },
         },
-    }
+        staticSettings: {
+            displayOrder: 110,
+        },
+    };
 };
