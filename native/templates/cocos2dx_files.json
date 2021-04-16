@@ -1011,6 +1011,7 @@
         "docs/imgs/auto-fix.gif", 
         "docs/imgs/auto-format.gif", 
         "docs/imgs/clangd.png", 
+        "docs/imgs/command-runner.png", 
         "docs/imgs/compile_commands.png", 
         "docs/imgs/extensions.png", 
         "docs/imgs/format.png", 
