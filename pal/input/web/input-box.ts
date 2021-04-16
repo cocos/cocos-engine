@@ -4,23 +4,23 @@ export class InputBox {
     constructor () {
         this.support =  true;
     }
-    
-    show(): Promise<void> {
+
+    show (): Promise<void> {
         throw new Error('Method not implemented.');
     }
-    hide(): Promise<void> {
+    hide (): Promise<void> {
         throw new Error('Method not implemented.');
     }
-    onChange() {
+    onChange () {
         throw new Error('Method not implemented.');
     }
-    onComplete() {
+    onComplete () {
         throw new Error('Method not implemented.');
     }
-    offChange() {
+    offChange () {
         throw new Error('Method not implemented.');
     }
-    offComplete() {
+    offComplete () {
         throw new Error('Method not implemented.');
-    }    
+    }
 }

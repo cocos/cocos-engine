@@ -1,8 +1,8 @@
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
+import { system } from 'pal/system';
 import { EventMouse } from '../../../cocos/core/platform/event-manager/events';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Rect, Vec2 } from '../../../cocos/core/math';
-import { system } from 'pal/system';
 
 type MouseEventNames = 'mousedown' | 'mouseup' | 'mousemove' | 'wheel';
 
@@ -42,7 +42,7 @@ export class MouseInputSource {
             const canvasRect = this._getCanvasRect();
             const location = this._getLocation(event);
             const wheelSensitivityFactor = 5;
-            let inputEvent: MouseWheelInputEvent = {
+            const inputEvent: MouseWheelInputEvent = {
                 type: EventMouse.SCROLL,
                 x: location.x - canvasRect.x,
                 y: canvasRect.y + canvasRect.height - location.y,
@@ -60,7 +60,7 @@ export class MouseInputSource {
     _registerEventOnWindowAndCanvas (eventName: MouseEventNames, eventCb: (event: MouseEvent) => void) {
         window.addEventListener(eventName, eventCb);
         this._canvas?.addEventListener(eventName,  eventCb);
-    };
+    }
 
     private _createCallback (eventType: number) {
         return (event: MouseEvent) => {
@@ -79,19 +79,19 @@ export class MouseInputSource {
             this._eventTarget.emit(eventType.toString(), inputEvent);
         };
     }
-    
+
     // TODO: eventType need to be typed as string
 
-    onDown(cb: MouseCallback) {
+    onDown (cb: MouseCallback) {
         this._eventTarget.on(EventMouse.DOWN.toString(), cb);
     }
-    onMove(cb: MouseCallback) {
+    onMove (cb: MouseCallback) {
         this._eventTarget.on(EventMouse.MOVE.toString(), cb);
     }
-    onUp(cb: MouseCallback) {
+    onUp (cb: MouseCallback) {
         this._eventTarget.on(EventMouse.UP.toString(), cb);
     }
-    onWheel(cb: MouseWheelCallback) {
-        this._eventTarget.on(EventMouse.SCROLL.toString(), cb)
+    onWheel (cb: MouseWheelCallback) {
+        this._eventTarget.on(EventMouse.SCROLL.toString(), cb);
     }
 }

@@ -2,7 +2,7 @@
  * @en the device accelerometer reports values for each axis in units of g-force.
  * @zh 设备重力传感器传递的各个轴的数据。
  */
- export class Acceleration {
+export class Acceleration {
     public x: number;
     public y: number;
     public z: number;

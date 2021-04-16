@@ -1,10 +1,10 @@
-import { EDITOR } from "internal:constants";
-import { BaseInputEvent } from "pal/input";
-import { AccelerometerInputSource } from "./accelerometer";
-import { InputBox } from "./input-box";
-import { KeyboardInputSource } from "./keyboard";
-import { MouseInputSource } from "./mouse";
-import { TouchInputSource } from "./touch";
+import { EDITOR } from 'internal:constants';
+import { BaseInputEvent } from 'pal/input';
+import { AccelerometerInputSource } from './accelerometer';
+import { InputBox } from './input-box';
+import { KeyboardInputSource } from './keyboard';
+import { MouseInputSource } from './mouse';
+import { TouchInputSource } from './touch';
 
 export class Input {
     public _touch = new TouchInputSource();
@@ -17,11 +17,12 @@ export class Input {
     constructor () {
         this._registerEvent();
     }
-    
+
     private _registerEvent () {
         if (EDITOR) {
             return;
         }
+        // TODO: implement event main loop
         // if (this._touch.support) {
         //     this._touch.onStart(this._pushEvent);
         //     this._touch.onMove(this._pushEvent);
@@ -62,7 +63,7 @@ export class Input {
     // public onInputBoxChange (cb: Function);
     // public onInputBoxComplete (cb: Function);
 
-    public pollEvent(): BaseInputEvent | undefined {
+    public pollEvent (): BaseInputEvent | undefined {
         return this._inputEventList.shift();
     }
 }

@@ -1,5 +1,5 @@
 import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
-import { Rect, Vec2 }from '../../../cocos/core/math';
+import { Rect, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventTouch } from '../../../cocos/core/platform/event-manager/events';
 import { legacyCC } from '../../../cocos/core/global-exports';
@@ -28,12 +28,12 @@ export class TouchInputSource {
 
     private _createCallback (eventType: number) {
         return (event: TouchEvent) => {
-            let canvasRect = this._getCanvasRect();
-            let touchDataList: TouchData[] = [];
-            let length = event.changedTouches.length;
+            const canvasRect = this._getCanvasRect();
+            const touchDataList: TouchData[] = [];
+            const length = event.changedTouches.length;
             for (let i = 0; i < length; ++i) {
-                let touch = event.changedTouches[i];
-                let location = this._getLocation(touch);
+                const touch = event.changedTouches[i];
+                const location = this._getLocation(touch);
                 let x = location.x - canvasRect.x;
                 let y = canvasRect.y + canvasRect.height - location.y;
                 // TODO: should not call engine API
@@ -43,14 +43,15 @@ export class TouchInputSource {
                     y = tmp;
                 }
 
-                let touchData: TouchData = {
+                const touchData: TouchData = {
                     identifier: touch.identifier,
-                    x, y,
+                    x,
+                    y,
                     force: touch.force,
                 };
                 touchDataList.push(touchData);
             }
-            let inputEvent: TouchInputEvent = {
+            const inputEvent: TouchInputEvent = {
                 type: eventType,
                 changedTouches: touchDataList,
                 timestamp: performance.now(),
@@ -74,16 +75,16 @@ export class TouchInputSource {
         return new Vec2(event.clientX, event.clientY);
     }
 
-    public onStart(cb: TouchCallback) {
+    public onStart (cb: TouchCallback) {
         this._eventTarget.on(EventTouch.BEGAN.toString(), cb);
     }
-    public onMove(cb: TouchCallback) {
+    public onMove (cb: TouchCallback) {
         this._eventTarget.on(EventTouch.MOVED.toString(), cb);
     }
-    public onEnd(cb: TouchCallback) {
+    public onEnd (cb: TouchCallback) {
         this._eventTarget.on(EventTouch.ENDED.toString(), cb);
     }
-    public onCancel(cb: TouchCallback) {
+    public onCancel (cb: TouchCallback) {
         this._eventTarget.on(EventTouch.CANCELLED.toString(), cb);
     }
 }

@@ -15,11 +15,11 @@ export class KeyboardInputSource {
     private _registerEvent () {
         window.addEventListener('keydown', this._createCallback(SystemEventType.KEY_DOWN));
         window.addEventListener('keyup', this._createCallback(SystemEventType.KEY_UP));
-    };
+    }
 
     private _createCallback (eventType: string) {
         return (event: KeyboardEvent) => {
-            let inputEvent: KeyboardInputEvent = {
+            const inputEvent: KeyboardInputEvent = {
                 type: eventType,
                 code: event.keyCode,  // TODO: keyCode is deprecated on Web standard
                 timestamp: performance.now(),

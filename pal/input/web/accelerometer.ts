@@ -1,8 +1,8 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
+import { system } from 'pal/system';
 import { clamp01, SystemEventType } from '../../../cocos/core';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { BrowserType, OS } from '../../system/enum-type';
-import { system } from 'pal/system';
 import { legacyCC } from '../../../cocos/core/global-exports';
 
 export class AccelerometerInputSource {
@@ -39,7 +39,7 @@ export class AccelerometerInputSource {
     }
 
     private _didAccelerate (event: DeviceMotionEvent | DeviceOrientationEvent) {
-        let now = performance.now();
+        const now = performance.now();
         if (now - this._accelTimer < this._accelInterval) {
             return;
         }
@@ -60,7 +60,7 @@ export class AccelerometerInputSource {
             y = -((deviceOrientationEvent.beta || 0) / 90) * 0.981;
             z = ((deviceOrientationEvent.alpha || 0) / 90) * 0.981;
         }
-        
+
         // TODO: should not call engine API
         if (legacyCC.view._isRotated) {
             const tmp = x;
@@ -92,26 +92,28 @@ export class AccelerometerInputSource {
             x = -x;
             y = -y;
         }
-        let accelerometer: AccelerometerInputEvent = {
+        const accelerometer: AccelerometerInputEvent = {
             type: SystemEventType.DEVICEMOTION,
-            x, y, z,
+            x,
+            y,
+            z,
             timestamp: performance.now(),
         };
 
         this._eventTarget.emit(SystemEventType.DEVICEMOTION, accelerometer);
     }
 
-    public start() {
+    public start () {
         this._registerEvent();
     }
-    public stop() {
+    public stop () {
         this._unregisterEvent();
     }
     public setInterval (interval: number) {
         interval = clamp01(interval);
         this._accelInterval = interval;
     }
-    public onChange(cb: AccelerometerCallback) {
+    public onChange (cb: AccelerometerCallback) {
         this._eventTarget.on(SystemEventType.DEVICEMOTION, cb);
     }
 }

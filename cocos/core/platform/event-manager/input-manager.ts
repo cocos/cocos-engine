@@ -29,6 +29,7 @@
  * @hidden
  */
 
+import { AccelerometerInputEvent, input, MouseInputEvent, TouchInputEvent } from 'pal/input';
 import { Vec2 } from '../../math/index';
 import { macro } from '../macro';
 import eventManager from './event-manager';
@@ -36,7 +37,6 @@ import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './even
 import { Touch } from './touch';
 import { legacyCC } from '../../global-exports';
 import { logID } from '../debug';
-import { AccelerometerInputEvent, input, MouseInputEvent, TouchInputEvent } from 'pal/input';
 import { Acceleration } from './acceleration';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
@@ -69,7 +69,7 @@ class InputManager {
     // TODO: remove this property
     private _glView: IView | null = null;
 
-    //#region Touch Handle
+    // #region Touch Handle
     public handleTouchesBegin (touches: Touch[]) {
         const handleTouches: Touch[] = [];
         const locTouchIntDict = this._touchesIntegerDict;
@@ -254,11 +254,11 @@ class InputManager {
         const length = inputEvent.changedTouches.length;
         const pixelRatio = this._getViewPixelRatio();
         for (let i = 0; i < length; i++) {
-            let touchData = inputEvent.changedTouches[i];
-            let x = touchData.x * pixelRatio;
-            let y = touchData.y * pixelRatio;
+            const touchData = inputEvent.changedTouches[i];
+            const x = touchData.x * pixelRatio;
+            const y = touchData.y * pixelRatio;
             // TODO: what if touchData.identifier is undefined
-            let touch = new Touch(x, y, touchData.identifier);
+            const touch = new Touch(x, y, touchData.identifier);
             this._getPreTouch(touch).getLocation(_preLocation);
             touch.setPrevPoint(_preLocation.x, _preLocation.y);
             this._setPreTouch(touch);
@@ -326,20 +326,19 @@ class InputManager {
 
         return touches;
     }
-    //#endregion Touch Handle
+    // #endregion Touch Handle
 
-    //#region Accelerometer Handle
+    // #region Accelerometer Handle
     /**
      * Whether enable accelerometer event.
      */
     public setAccelerometerEnabled (isEnable: boolean) {
         if (isEnable) {
             input._accelerometer.start();
-        }
-        else {
+        } else {
             input._accelerometer.stop();
         }
-        
+
         // if (JSB) {
         //     // @ts-expect-error
         //     jsb.device.setMotionEnabled(isEnable);
@@ -361,9 +360,9 @@ class InputManager {
         //     }
         // }
     }
-    //#endregion Accelerometer Handle
+    // #endregion Accelerometer Handle
 
-    //#region Event Register
+    // #region Event Register
     public registerSystemEvent (element: HTMLElement | null) {
         if (this._isRegisterEvent || !element) {
             return;
@@ -393,45 +392,45 @@ class InputManager {
 
     private _registerMouseEvents () {
         input._mouse.onDown((inputEvent) => {
-            let mouseEvent = this._getMouseEvent(inputEvent);
-            let touch =  this._getTouch(inputEvent);
+            const mouseEvent = this._getMouseEvent(inputEvent);
+            const touch =  this._getTouch(inputEvent);
             this.handleTouchesBegin([touch]);
             eventManager.dispatchEvent(mouseEvent);
         });
         input._mouse.onMove((inputEvent) => {
-            let mouseEvent = this._getMouseEvent(inputEvent);
-            let touch =  this._getTouch(inputEvent);
+            const mouseEvent = this._getMouseEvent(inputEvent);
+            const touch =  this._getTouch(inputEvent);
             this.handleTouchesMove([touch]);
             eventManager.dispatchEvent(mouseEvent);
         });
         input._mouse.onUp((inputEvent) => {
-            let mouseEvent = this._getMouseEvent(inputEvent);
-            let touch =  this._getTouch(inputEvent);
+            const mouseEvent = this._getMouseEvent(inputEvent);
+            const touch =  this._getTouch(inputEvent);
             this.handleTouchesEnd([touch]);
             eventManager.dispatchEvent(mouseEvent);
         });
         input._mouse.onWheel((inputEvent) => {
-            let mouseEvent = this._getMouseEvent(inputEvent);
+            const mouseEvent = this._getMouseEvent(inputEvent);
             mouseEvent.setScrollData(inputEvent.deltaX, inputEvent.deltaY);
-            eventManager.dispatchEvent(mouseEvent);            
+            eventManager.dispatchEvent(mouseEvent);
         });
     }
 
     private _registerTouchEvents () {
         input._touch.onStart((inputEvent) => {
-            let touchList = this._getTouchList(inputEvent);
+            const touchList = this._getTouchList(inputEvent);
             this.handleTouchesBegin(touchList);
         });
         input._touch.onMove((inputEvent) => {
-            let touchList = this._getTouchList(inputEvent);
+            const touchList = this._getTouchList(inputEvent);
             this.handleTouchesMove(touchList);
         });
         input._touch.onEnd((inputEvent) => {
-            let touchList = this._getTouchList(inputEvent);
+            const touchList = this._getTouchList(inputEvent);
             this.handleTouchesEnd(touchList);
         });
         input._touch.onCancel((inputEvent) => {
-            let touchList = this._getTouchList(inputEvent);
+            const touchList = this._getTouchList(inputEvent);
             this.handleTouchesCancel(touchList);
         });
     }
@@ -447,11 +446,11 @@ class InputManager {
 
     private _registerAccelerometerEvent () {
         input._accelerometer.onChange((inputEvent: AccelerometerInputEvent) => {
-            let {x, y, z, timestamp} = inputEvent;
+            const { x, y, z, timestamp } = inputEvent;
             eventManager.dispatchEvent(new EventAcceleration(new Acceleration(x, y, z, timestamp)));
         });
     }
-    //#endregion Event Register
+    // #endregion Event Register
 }
 
 const inputManager = new InputManager();
