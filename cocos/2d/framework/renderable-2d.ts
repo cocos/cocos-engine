@@ -354,7 +354,7 @@ export class Renderable2D extends RenderableComponent {
         this.destroyRenderData();
         if (this._materialInstances) {
             for (let i = 0; i < this._materialInstances.length; i++) {
-                this._materialInstances[i]!.destroy();
+                this._materialInstances[i] && this._materialInstances[i]!.destroy();
             }
         }
         this._renderData = null;
