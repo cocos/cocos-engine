@@ -45,7 +45,7 @@ import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPO
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
-import { game } from '../../game';
+import { legacyCC } from '../../global-exports';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -129,8 +129,8 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        game._pipelineType = PipelineType.DEFERRED;
-        this._macros = { CC_PIPELINE_TYPE: game._pipelineType };
+        legacyCC.game._pipelineType = PipelineType.DEFERRED;
+        this._macros = { CC_PIPELINE_TYPE: PipelineType.DEFERRED };
 
         if (!super.activate()) {
             return false;

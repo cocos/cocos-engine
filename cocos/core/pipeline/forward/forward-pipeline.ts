@@ -42,7 +42,7 @@ import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
-import { game } from '../../game';
+import { legacyCC } from '../../global-exports';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -83,8 +83,8 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        game._pipelineType = PipelineType.FORWARD;
-        this._macros = { CC_PIPELINE_TYPE: game._pipelineType };
+        legacyCC.game._pipelineType = PipelineType.FORWARD;
+        this._macros = { CC_PIPELINE_TYPE: PipelineType.FORWARD };
 
         if (!super.activate()) {
             return false;
