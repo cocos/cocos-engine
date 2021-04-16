@@ -193,7 +193,7 @@ void RenderPipeline::generateConstantMacros() {
         R"(
 #define CC_DEVICE_SUPPORT_FLOAT_TEXTURE %d
 #define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS %d
-#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS $d
+#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS %d
         )",
         _device->hasFeature(gfx::Feature::TEXTURE_FLOAT) ? 1 : 0,
         _device->getCapabilities().maxVertexUniformVectors,
