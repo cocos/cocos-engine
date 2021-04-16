@@ -33,7 +33,7 @@ import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
 import { RenderFlow } from './render-flow';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo, Feature } from '../gfx';
+import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo, Feature, Rect } from '../gfx';
 import { globalDescriptorSetLayout } from './define';
 import { Camera } from '../renderer/scene/camera';
 import { PipelineUBO } from './pipeline-ubo';
@@ -159,6 +159,26 @@ export abstract class RenderPipeline extends Asset {
         this._flows = info.flows;
         if (info.tag) { this._tag = info.tag; }
         return true;
+    }
+
+    /**
+     * @en generate renderArea by camera
+     * @zh 生成renderArea
+     * @param camera the camera
+     * @returns
+     */
+    public generateRenderArea (camera: Camera): Rect {
+        const res = new Rect();
+        const vp = camera.viewport;
+        const sceneData = this.pipelineSceneData;
+        // render area is not oriented
+        const w = camera.window!.hasOnScreenAttachments && this.device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = camera.window!.hasOnScreenAttachments && this.device.surfaceTransform % 2 ? camera.width : camera.height;
+        res.x = vp.x * w;
+        res.y = vp.y * h;
+        res.width = vp.width * w * sceneData.shadingScale;
+        res.height = vp.height * h * sceneData.shadingScale;
+        return res;
     }
 
     /**
