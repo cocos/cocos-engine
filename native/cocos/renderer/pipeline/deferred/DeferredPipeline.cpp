@@ -143,123 +143,146 @@ void DeferredPipeline::render(const vector<uint> &cameras) {
     _device->getQueue()->submit(_commandBuffers);
 }
 
-bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer *quadIB, gfx::Buffer *quadVB, gfx::InputAssembler *quadIA, gfx::SurfaceTransform surfaceTransform) {
-    // step 1 create vertex buffer
-    uint vbStride = sizeof(float) * 4;
-    uint vbSize   = vbStride * 4;
-    quadVB        = _device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-                                    gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, vbSize, vbStride});
-    if (!quadVB) {
-        return false;
-    }
+void DeferredPipeline::updateQuadVertexData(const gfx::Rect &renderArea) {
+     if (_lastUsedRenderArea == renderArea) {
+         return;
+     }
 
-    float vbData[16] = {0};
+     _lastUsedRenderArea = renderArea;
+     float vbData[16] = {0};
+     genQuadVertexData(gfx::SurfaceTransform::IDENTITY, renderArea, vbData);
+     _commandBuffers[0]->updateBuffer(_quadVBOffscreen, vbData);
+
+     genQuadVertexData(_device->getSurfaceTransform(), renderArea, vbData);
+     _commandBuffers[0]->updateBuffer(_quadVBOnscreen, vbData);
+}
+
+void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform surfaceTransform, const gfx::Rect &renderArea, float *vbData) {
+    float minX = float(renderArea.x) / _device->getWidth();
+    float maxX = float(renderArea.x + renderArea.width) / _device->getWidth();
+    float minY = float(renderArea.y) / _device->getHeight();
+    float maxY = float(renderArea.y + renderArea.height) / _device->getHeight();
+
     int   n          = 0;
     switch (surfaceTransform) {
         case (gfx::SurfaceTransform::IDENTITY):
             n           = 0;
             vbData[n++] = -1.0;
             vbData[n++] = -1.0;
-            vbData[n++] = 0.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = -1.0;
-            vbData[n++] = 1.0;
+            vbData[n++] = minX;  // uv
+            vbData[n++] = maxY;
             vbData[n++] = 1.0;
             vbData[n++] = -1.0;
+            vbData[n++] = maxX;
+            vbData[n++] = maxY;
+            vbData[n++] = -1.0;
             vbData[n++] = 1.0;
-            vbData[n++] = 0.0;
-            vbData[n++] = 0.0;
+            vbData[n++] = minX;
+            vbData[n++] = minY;
             vbData[n++] = 1.0;
             vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = 0.0;
+            vbData[n++] = maxX;
+            vbData[n++] = minY;
             break;
         case (gfx::SurfaceTransform::ROTATE_90):
             n           = 0;
             vbData[n++] = -1.0;
             vbData[n++] = -1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
+            vbData[n++] = maxX;  // uv
+            vbData[n++] = maxY;
             vbData[n++] = 1.0;
             vbData[n++] = -1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = 0.0;
+            vbData[n++] = maxX;
+            vbData[n++] = minY;
             vbData[n++] = -1.0;
             vbData[n++] = 1.0;
-            vbData[n++] = 0.0;
+            vbData[n++] = minX;
+            vbData[n++] = maxY;
             vbData[n++] = 1.0;
             vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = 0.0;
-            vbData[n++] = 0.0;
+            vbData[n++] = minX;
+            vbData[n++] = minY;
             break;
         case (gfx::SurfaceTransform::ROTATE_180):
             n           = 0;
             vbData[n++] = -1.0;
             vbData[n++] = -1.0;
-            vbData[n++] = 0.0;
-            vbData[n++] = 0.0;
+            vbData[n++] = minX;  // uv
+            vbData[n++] = minY;
             vbData[n++] = 1.0;
             vbData[n++] = -1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = 0.0;
+            vbData[n++] = maxX;
+            vbData[n++] = minY;
             vbData[n++] = -1.0;
             vbData[n++] = 1.0;
-            vbData[n++] = 0.0;
+            vbData[n++] = minX;
+            vbData[n++] = maxY;
             vbData[n++] = 1.0;
             vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
+            vbData[n++] = maxX;
+            vbData[n++] = maxY;
             break;
         case (gfx::SurfaceTransform::ROTATE_270):
             n           = 0;
             vbData[n++] = -1.0;
             vbData[n++] = -1.0;
-            vbData[n++] = 0.0;
-            vbData[n++] = 0.0;
+            vbData[n++] = minX;  // uv
+            vbData[n++] = minY;
             vbData[n++] = 1.0;
             vbData[n++] = -1.0;
-            vbData[n++] = 0.0;
-            vbData[n++] = 1.0;
+            vbData[n++] = minX;
+            vbData[n++] = maxY;
             vbData[n++] = -1.0;
             vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = 0.0;
-            vbData[n++] = 1.0;
-            vbData[n++] = 1.0;
+            vbData[n++] = maxX;
+            vbData[n++] = minY;
             vbData[n++] = 1.0;
             vbData[n++] = 1.0;
+            vbData[n++] = maxX;
+            vbData[n++] = maxY;
             break;
         default:
             break;
     }
+}
 
-    quadVB->update(vbData, sizeof(vbData));
+bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer **quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA) {
+    // step 1 create vertex buffer
+    uint vbStride = sizeof(float) * 4;
+    uint vbSize   = vbStride * 4;
+
+    if (*quadVB == nullptr) {
+        *quadVB = _device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
+                                    gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, vbSize, vbStride});
+    }
+
+    if (*quadVB == nullptr) {
+        return false;
+    }
 
     // step 2 create index buffer
     uint ibStride = 4;
     uint ibSize   = ibStride * 6;
-
-    quadIB = _device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
+    if (*quadIB == nullptr) {
+        *quadIB = _device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
                                     gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
+    }
 
-    if (!quadIB) {
+    if (*quadIB == nullptr) {
         return false;
     }
 
     unsigned int ibData[] = {0, 1, 2, 1, 3, 2};
-    quadIB->update(ibData, sizeof(ibData));
+    (*quadIB)->update(ibData, sizeof(ibData));
 
     // step 3 create input assembler
     gfx::InputAssemblerInfo info;
     info.attributes.push_back({"a_position", gfx::Format::RG32F});
     info.attributes.push_back({"a_texCoord", gfx::Format::RG32F});
-    info.vertexBuffers.push_back(quadVB);
-    info.indexBuffer = quadIB;
-    quadIA           = _device->createInputAssembler(info);
-    return quadIA != nullptr;
+    info.vertexBuffers.push_back(*quadVB);
+    info.indexBuffer = *quadIB;
+    *quadIA = _device->createInputAssembler(info);
+    return (*quadIA) != nullptr;
 }
 
 gfx::Rect DeferredPipeline::getRenderArea(Camera *camera, bool onScreen) {
@@ -337,11 +360,11 @@ bool DeferredPipeline::activeRenderer() {
     _macros.setValue("CC_USE_HDR", static_cast<bool>(sharedData->isHDR));
     _macros.setValue("CC_SUPPORT_FLOAT_TEXTURE", _device->hasFeature(gfx::Feature::TEXTURE_FLOAT));
 
-    if (!createQuadInputAssembler(_quadIB, _quadVBOffscreen, _quadIAOffscreen, gfx::SurfaceTransform::IDENTITY)) {
+    if (!createQuadInputAssembler(&_quadIB, &_quadVBOffscreen, &_quadIAOffscreen)) {
         return false;
     }
 
-    if (!createQuadInputAssembler(_quadIB, _quadVBOnscreen, _quadIAOnscreen, _device->getSurfaceTransform())) {
+    if (!createQuadInputAssembler(&_quadIB, &_quadVBOnscreen, &_quadIAOnscreen)) {
         return false;
     }
 

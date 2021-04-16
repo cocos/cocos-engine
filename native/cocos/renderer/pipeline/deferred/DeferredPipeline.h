@@ -74,11 +74,12 @@ public:
     gfx::InputAssembler *getQuadIAOffScreen(){return _quadIAOffscreen;}
     gfx::Rect getRenderArea(Camera *camera, bool onScreen);
     CC_INLINE DeferredRenderData *getDeferredRenderData(){return _deferredRenderData; };
+    void updateQuadVertexData(const gfx::Rect &renderArea);
+    void genQuadVertexData(gfx::SurfaceTransform surfaceTransform, const gfx::Rect &renderArea, float *data);
 
 private:
     bool activeRenderer();
-    bool createQuadInputAssembler(gfx::Buffer* quadIB, gfx::Buffer* quadVB, gfx::InputAssembler* quadIA,
-        gfx::SurfaceTransform surfaceTransform);
+    bool createQuadInputAssembler(gfx::Buffer **quadIB, gfx::Buffer **quadVB, gfx::InputAssembler **quadIA);
     void destroyQuadInputAssembler();
     void destroyDeferredData();
     void generateDeferredRenderData();
@@ -90,6 +91,7 @@ private:
     UintList _lightIndexOffsets;
     UintList _lightIndices;
     map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
+    gfx::Rect _lastUsedRenderArea;
 
     // light stage
     gfx::Buffer *_quadIB = nullptr;
@@ -97,7 +99,7 @@ private:
     gfx::Buffer *_quadVBOffscreen = nullptr;
     gfx::InputAssembler *_quadIAOnscreen = nullptr;
     gfx::InputAssembler *_quadIAOffscreen = nullptr;
-    
+
     DeferredRenderData *_deferredRenderData = nullptr;
     gfx::RenderPass *_gbufferRenderPass = nullptr;
     gfx::RenderPass *_lightingRenderPass = nullptr;
