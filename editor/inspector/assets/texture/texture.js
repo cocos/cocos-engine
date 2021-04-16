@@ -91,7 +91,7 @@ exports.$ = {
 };
 
 /**
- * 属性对应的编辑元素
+ * attribute corresponds to the edit element
  */
 const Elements = {
     anisotropy: {
@@ -250,8 +250,8 @@ const Elements = {
         },
     },
     /**
-     * 条件检查：图片的宽高是否是 2 的幂次方
-     * 在 wrap mode 值为 repeat 的情况下条件不成立需要给出警告信息
+     * Condition check: whether the width and height of the image is a power of 2
+     * A warning message is required if the wrap mode value is repeat.
      */
     warnWords: {
         ready() {
@@ -270,7 +270,7 @@ const Elements = {
 
             const { naturalWidth, naturalHeight } = panel.$.image.$img;
 
-            // 判断 2 的幂次方算法：(number & number - 1) === 0
+            // Determine the power of 2 algorithm: (number & number - 1) === 0
             const isUnlegal = naturalWidth & (naturalWidth - 1) || naturalHeight & (naturalHeight - 1);
 
             const isUnlegalWrapModeT = isUnlegal && wrapModeT === 'repeat';
@@ -292,7 +292,7 @@ const Elements = {
 exports.Elements = Elements;
 
 /**
- * 初始化界面的方法
+ * Method of initializing the panel
  */
 exports.ready = function () {
     for (const prop in Elements) {
@@ -305,7 +305,7 @@ exports.ready = function () {
 
 exports.methods = {
     /**
-     * 更新多选状态下某个数据是否可编辑
+     * Update whether a data is editable in multi-select state
      */
     updateInvalid(element, prop) {
         const invalid = this.userDataList.some((userData) => {
@@ -314,7 +314,7 @@ exports.methods = {
         element.invalid = invalid;
     },
     /**
-     * 更新只读状态
+     * Update read-only status
      */
     updateReadonly(element) {
         if (this.asset.readonly) {

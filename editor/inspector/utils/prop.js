@@ -52,7 +52,7 @@ exports.getCustomPropElements = function (excludeList, dump, onElementCreated) {
 };
 
 /**
- * 工具函数：循环设置资源数据中的 readonly
+ * Tool function: recursively set readonly in resource data
  */
 exports.loopSetAssetDumpDataReadonly = function (dump) {
     if (typeof dump !== 'object') {
@@ -78,7 +78,7 @@ exports.loopSetAssetDumpDataReadonly = function (dump) {
 };
 
 /**
- * 工具函数：设置不可用
+ * Tool functions: set to unavailable
  * @param {object} data  dump | function
  * @param element
  */
@@ -97,7 +97,7 @@ exports.setDisabled = function (data, element) {
 };
 
 /**
- * 工具函数：设置只读状态
+ * Tool function: Set read-only status
  * @param {object} data  dump | function
  * @param element
  */
@@ -121,7 +121,7 @@ exports.setReadonly = function (data, element) {
 };
 
 /**
- * 工具函数：设置显示状态
+ * Tool function: Set the display status
  * @param {object} data  dump | function
  * @param element
  */
@@ -153,7 +153,7 @@ exports.updatePropByDump = function (panel, dump) {
         const element = panel.elements[key];
 
         if (!panel.$[key]) {
-            // 元素不存在且数据告知不需要显示，终止渲染
+            // element does not exist and the data tells that it does not need to be displayed, terminate rendering
             if (!dumpdata.visible) {
                 return;
             }
@@ -168,8 +168,8 @@ exports.updatePropByDump = function (panel, dump) {
             }
 
             /**
-             * 上升引擎里定义，而自定义排序的范围在 0 - 100;
-             * 引擎里如果定义 displayOrder 为负数，小于 -100，则会优先于自定义的排序
+             * Defined in the ascending engine, while the custom order ranges from 0 - 100;
+             * If displayOrder is defined in the engine as a negative number, less than -100, it will take precedence over the custom ordering
              */
             panel.$[key].displayOrder = dumpdata.displayOrder === undefined ? 0 : Number(dumpdata.displayOrder);
             panel.$[key].displayOrder += 100;
@@ -178,7 +178,7 @@ exports.updatePropByDump = function (panel, dump) {
                 panel.$[key].displayOrder = element.displayOrder;
             }
         } else {
-            // 元素存在，但此时数据告知不需要显示，终止
+            // The element exists, but at this point the data informs that it does not need to be displayed and terminates
             if (!dumpdata.visible) {
                 return;
             }
@@ -193,7 +193,7 @@ exports.updatePropByDump = function (panel, dump) {
         }
     });
 
-    // 重新排序
+    // Reorder
     children.sort((a, b) => a.displayOrder - b.displayOrder);
 
     let $children = Array.from(panel.$.componentContainer.children);
@@ -221,7 +221,7 @@ exports.updatePropByDump = function (panel, dump) {
         const element = panel.elements[key];
         if (element && element.ready) {
             element.ready.call(panel, panel.$[key], dump.value);
-            element.ready = undefined; // ready 只需要执行一次
+            element.ready = undefined; // ready needs to be executed only once
         }
     }
 
@@ -234,7 +234,7 @@ exports.updatePropByDump = function (panel, dump) {
 };
 
 /**
- * 工具函数：检查多选后属性值是否一致
+ * Tool function: check whether the value of the attribute is consistent after multi-selection
  */
 exports.isMultipleInvalid = function (dump) {
     let invalid = false;

@@ -43,7 +43,7 @@ exports.ready = function () {
                 $sync.appendChild($syncLabel);
                 $checkbox.after($sync);
 
-                // Hack: ui-button 有多余的事件，会往上传给 ui-prop ; ui-button 的 change 事件需要后续删除
+                // Hack: ui-button has extra events that are passed up to ui-prop ;
                 $sync.addEventListener('change', async (event) => {
                     event.stopPropagation();
                 });
@@ -64,12 +64,13 @@ exports.ready = function () {
                             item.custom.value = true;
 
                             /**
-                             * TODO Hack: 严重的问题
-                             * 有下划线的数据在引擎中也参与设置，
-                             * 但它的 visible = false，且无法从名称上就断定 file 和 _file 关联，
-                             * 容易导致数据变动时被忽略
-                             * 同下有一处
+                             * TODO Hack: a serious problem
+                             * The data with underscores is also involved in setting in the engine.
+                             * but it's visible = false, and it's impossible to assert the file and _file association from the name.
+                             * easily ignored when data changes
+                             * There is a place under the same
                              */
+
                             item._file.value.uuid = fileUuid;
                             item._custom.value = true;
 
@@ -96,7 +97,6 @@ exports.ready = function () {
                 $export.appendChild($exportLabel);
                 $sync.after($export);
 
-                // Hack: button 多余的事件，后续删除
                 $export.addEventListener('change', async (event) => {
                     event.stopPropagation();
                 });
@@ -115,7 +115,7 @@ exports.ready = function () {
                             item.file.value.uuid = assetInfo.uuid;
                             item.custom.value = false;
 
-                            // 同上说明
+                            // Same instructions as above
                             item._file.value.uuid = assetInfo.uuid;
                             item._custom.value = false;
                         }
@@ -145,7 +145,7 @@ exports.ready = function () {
                     setHidden(hidden, this.$[key]);
                 });
 
-                // 处理属性并排两个
+                // Handling in-line displayed attributes
                 const needToInlines = [
                     'life',
                     'startColor',

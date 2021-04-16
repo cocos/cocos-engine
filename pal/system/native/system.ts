@@ -32,7 +32,6 @@ class System {
     // TODO: need to wrap the function __isObjectValid()
 
     private _eventTarget: EventTarget = new EventTarget();
-    private _viewSize: Size = Size.ZERO;
     private _orientation: Orientation = Orientation.LANDSCAPE_LEFT;
 
     public get networkType (): NetworkType {
@@ -91,8 +90,6 @@ class System {
             if (size.width === 0 || size.height === 0) return;
             size.width /= this.pixelRatio;
             size.height /= this.pixelRatio;
-            this._viewSize.width = size.width;
-            this._viewSize.height = size.height;
 
             // TODO: remove this function calling
             window.resize(size.width, size.height);
@@ -111,7 +108,7 @@ class System {
     }
 
     public getViewSize (): Size {
-        return this._viewSize.clone();
+        return new Size(window.innerWidth, window.innerHeight);
     }
     public getOrientation (): Orientation {
         return this._orientation;

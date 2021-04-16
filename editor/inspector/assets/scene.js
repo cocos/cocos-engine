@@ -18,7 +18,7 @@ exports.$ = {
 };
 
 /**
- * 自动渲染组件的方法
+ * Methods for automatic rendering of components
  * @param assetList
  * @param metaList
  */
@@ -44,7 +44,7 @@ exports.update = function (assetList, metaList) {
 };
 
 /**
- * 初始化界面的方法
+ * Method of initializing the panel
  */
 exports.ready = function () {
     this.$.asyncLoadAssets.addEventListener('change', (event) => {

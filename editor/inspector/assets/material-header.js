@@ -50,7 +50,7 @@ exports.methods = {
         if (this.$.canvas.width !== width || this.$.canvas.height !== height) {
             glPreview.initGL(this.$.canvas, { width, height });
 
-            // 必须要设置 canvas的宽高
+            // The width and height of the canvas must be set
             this.$.canvas.width = width;
             this.$.canvas.height = height;
 
@@ -75,7 +75,7 @@ exports.methods = {
 };
 
 /**
- * 自动渲染组件的方法
+ * Methods for automatic rendering of components
  * @param assetList 
  * @param metaList 
  */
@@ -91,7 +91,7 @@ exports.update = async function(assetList, metaList) {
 };
 
 /**
- * 初始化界面的方法
+ * Method of initializing the panel
  */
 exports.ready = async function() {
     Editor.Message.request('scene', 'set-material-preview-light-enable', true);
