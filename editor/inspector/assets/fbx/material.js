@@ -65,7 +65,7 @@ exports.$ = {
 };
 
 /**
- * 属性对应的编辑元素
+ * attribute corresponds to the edit element
  */
 const Elements = {
     dumpMaterials: {
@@ -95,7 +95,7 @@ const Elements = {
                 const value = event.target.value;
                 panel.materialDumpDir = value;
 
-                // 需要限定在项目路径范围内
+                // Restricted values are in the assets directory
                 const projectAssets = join(Editor.Project.path, 'assets');
                 if (!Editor.Utils.Path.contains(projectAssets, value)) {
                     await Editor.Dialog.warn(Editor.I18n.t('ENGINE.assets.fbx.limitMaterialDumpDir'), {
@@ -123,11 +123,11 @@ const Elements = {
                 return;
             }
 
-            // 同资源在一个父级文件夹下
+            // Same resource in a parent folder
             const filePath = (await Editor.Message.request('asset-db', 'query-path', panel.asset.path)) || '';
             panel.materialDumpDirDefault = dirname(filePath);
 
-            // 同资源在一个父级文件夹下
+            // Same resource in a parent folder
             let materialDumpDir = panel.materialDumpDirDefault;
 
             if (panel.meta.userData.materialDumpDir) {
@@ -194,13 +194,13 @@ const Elements = {
                 const item = panel.meta.userData.imageMetas[name];
                 const imageUuid = item.uri;
 
-                // 处理图片显示
+                // Processing image display
                 let src = '';
-                // 可能为 base64 图片，
+                // may be base64 images.
                 if (item.uri.startsWith('data:')) {
                     src = item.uri;
                 } else {
-                    // 处理是 uuid 的情况
+                    // Handling the case of uuid
                     const imageAsset = await Editor.Message.request('asset-db', 'query-asset-info', imageUuid);
                     if (imageAsset && imageAsset.library) {
                         const key = Object.keys(imageAsset.library).find((key) => key !== '.json');
@@ -211,7 +211,7 @@ const Elements = {
                 }
 
                 let remapUuid = '';
-                // URL 格式
+                // URL format
                 if (item.remap) {
                     remapUuid = await Editor.Message.request('asset-db', 'query-uuid', item.remap);
                 }
@@ -226,7 +226,7 @@ const Elements = {
                 });
             }
 
-            // 生成 dom
+            // Generate dom
             images.forEach((image, index) => {
                 const section = document.createElement('ui-section');
                 section.setAttribute('expand', '');
@@ -357,7 +357,7 @@ exports.methods = {
         this.dispatch('change');
     },
     /**
-     * 更新多选状态下某个数据是否可编辑
+     * Update whether a data is editable in multi-select state
      */
     updateInvalid(element, prop) {
         const invalid = this.metaList.some((meta) => {
@@ -366,7 +366,7 @@ exports.methods = {
         element.invalid = invalid;
     },
     /**
-     * 更新只读状态
+     * Update read-only status
      */
     updateReadonly(element) {
         if (this.asset.readonly) {

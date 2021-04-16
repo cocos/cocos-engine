@@ -49,7 +49,7 @@ exports.$ = {
 };
 
 /**
- * 属性对应的编辑元素
+ * attribute corresponds to the edit element
  */
 const Elements = {
     type: {
@@ -62,7 +62,7 @@ const Elements = {
                 });
                 panel.dispatch('change');
 
-                // 有其他属性的更新依赖它的变动
+                // There are other properties whose updates depend on its changes attribute corresponds to the edit element
                 Elements.isRGBE.update.bind(panel)();
             });
         },
@@ -131,7 +131,7 @@ const Elements = {
 };
 
 /**
- * 自动渲染组件的方法
+ * Methods for automatic rendering of components
  * @param assetList
  * @param metaList
  */
@@ -152,7 +152,7 @@ exports.update = function (assetList, metaList) {
 };
 
 /**
- * 初始化界面的方法
+ * Method of initializing the panel
  */
 exports.ready = function () {
     for (const prop in Elements) {
@@ -165,7 +165,7 @@ exports.ready = function () {
 
 exports.methods = {
     /**
-     * 更新多选状态下某个数据是否可编辑
+     * Update whether a data is editable in multi-select state
      */
     updateInvalid(element, prop) {
         const invalid = this.metaList.some((meta) => {
@@ -174,7 +174,7 @@ exports.methods = {
         element.invalid = invalid;
     },
     /**
-     * 更新只读状态
+     * Update read-only status
      */
     updateReadonly(element) {
         if (this.asset.readonly) {

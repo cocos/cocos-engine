@@ -6,7 +6,7 @@ exports.update = update;
 
 const { setHidden, isMultipleInvalid } = require('../utils/prop');
 
-// 这样写是因为 cc.Toggle 可以复用这块代码
+// export is to allow cc.toggle to reuse this piece of code
 exports.elements = {
     target: {
         displayOrder: 0,

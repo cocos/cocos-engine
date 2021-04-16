@@ -96,7 +96,7 @@ const Elements = {
                 await Editor.Message.request('scene', 'set-model-preview-model', panel.asset.redirect.uuid);
             }
 
-            // await 等待后，面板已经不存在了
+            // After await, the panel no longer exists
             if (!panel.$.canvas) {
                 return;
             }

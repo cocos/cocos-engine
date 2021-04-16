@@ -1,7 +1,7 @@
 'use strict';
 
 /**
- * 传入一个 technique 下的某个 pass 数据，整理成树形结构
+ * Pass the data of a pass under a technique and organize it into a tree structure
  * @param passData
  */
 exports.buildEffect = function(index, passData) {
@@ -20,10 +20,10 @@ exports.buildEffect = function(index, passData) {
     function encode(item) {
         let current = tree;
 
-        /**
-         * USE_INSTANCING 和 USE_BATCHING 是 passes 中每个子项所共用的
-         * 为了方便编辑，将它们提到 passes 的外部
-         * 此时需要把 passes 中逐个设置为不可编辑，设置为不可见
+       /**
+         * USE_INSTANCING and USE_BATCHING are common to every child in passes
+         * To make editing easier, they are referred to the outside of the passes
+         * At this point, you need to set each of the passes to be non-editable and invisible
          */
 
         if (hideAttrs.includes(item.name)) {
@@ -33,7 +33,7 @@ exports.buildEffect = function(index, passData) {
         if (item.defines && item.defines.length) {
             item.defines.forEach((name) => {
 
-                // defines中以 ! 开头的是反向依赖，数据位置不会变动
+                // The defines starting with ! are reverse dependencies, the data position will not change
                 if (name.startsWith('!')) {
                     return;
                 }
@@ -83,7 +83,7 @@ exports.buildEffect = function(index, passData) {
                     };
                 });
                 break;
-            case 'Enum': break; // 修复 item.type === 'Enum' 时被重置为 'ui.Depend' 的问题
+            case 'Enum': break; // Fix the problem that item.type === 'Enum' is reset to 'ui.Depend'
             default:
                 // item.type = 'ui.Depend';
                 item.type = 'Boolean';
@@ -174,7 +174,7 @@ exports.materialTechniquePolyfill = function(origin) {
     let useInstancing;
     let useBatching;
     const passes = origin.passes.map((data, index) => {
-        // 合并 data.defines 和 data.props
+        // Merge data.defines and data.props
         const pass = exports.buildEffect(index, data);
         pass.switch = data.switch;
         pass.propertyIndex = data.propertyIndex;
@@ -193,10 +193,10 @@ exports.materialTechniquePolyfill = function(origin) {
     });
 
     /**
-     * USE_INSTANCING 和 USE_BATCHING 是 passes 中每个子项所共用的
-     * 为了方便编辑，将它们提到 passes 的外部
-     * 外部提供两个变量 useInstancing, useBatching 来对接
-     * 以第一个 pass 的值为准
+     * USE_INSTANCING and USE_BATCHING are common to every child in passes
+     * For ease of editing, they are referred to outside of the passes
+     * Two external variables useInstancing, useBatching are provided to dock
+     * The value of the first pass takes precedence
      */
     const technique = {
         name: origin.name,

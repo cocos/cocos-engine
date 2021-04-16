@@ -100,7 +100,7 @@ exports.$ = {
 };
 
 /**
- * 属性对应的编辑元素
+ * attribute corresponds to the edit element
  */
 const Elements = {
     normals: {
@@ -355,7 +355,7 @@ exports.methods = {
         element.invalid = invalid;
     },
     /**
-     * 更新多选状态下某个数据是否可编辑
+     * Update whether a data is editable in multi-select state
      */
     updateInvalid(element, prop) {
         const invalid = this.metaList.some((meta) => {
@@ -364,7 +364,7 @@ exports.methods = {
         element.invalid = invalid;
     },
     /**
-     * 更新只读状态
+     * Update read-only status
      */
     updateReadonly(element) {
         if (this.asset.readonly) {
