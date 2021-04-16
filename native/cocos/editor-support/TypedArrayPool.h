@@ -35,28 +35,28 @@ MIDDLEWARE_BEGIN
  */
 class TypedArrayPool {
 private:
-    static TypedArrayPool *_instance;
+    static TypedArrayPool *instance;
 
 public:
     static TypedArrayPool *getInstance() {
-        if (_instance == nullptr) {
-            _instance = new TypedArrayPool();
+        if (instance == nullptr) {
+            instance = new TypedArrayPool();
         }
-        return _instance;
+        return instance;
     }
 
     static void destroyInstance() {
-        if (_instance) {
-            delete _instance;
-            _instance = nullptr;
+        if (instance) {
+            delete instance;
+            instance = nullptr;
         }
     }
 
 private:
-    typedef se::Object::TypedArrayType arrayType;
-    typedef std::vector<se::Object *> objPool;
-    typedef std::map<std::size_t, objPool *> fitMap;
-    typedef std::map<arrayType, fitMap *> typeMap;
+    using arrayType = se::Object::TypedArrayType;
+    using objPool = std::vector<se::Object *>;
+    using fitMap = std::map<std::size_t, objPool *>;
+    using typeMap = std::map<arrayType, fitMap *>;
 
     objPool *getObjPool(arrayType type, std::size_t size);
 
@@ -72,9 +72,9 @@ private:
     void afterCleanupHandle();
     void afterInitHandle();
 
-private:
+
     typeMap _pool;
-    bool allowPush = true;
+    bool _allowPush = true;
 
 public:
     /**

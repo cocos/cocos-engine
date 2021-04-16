@@ -51,8 +51,8 @@ MeshBuffer::~MeshBuffer() {
 }
 
 void MeshBuffer::clear() {
-    auto num = _vbArr.size();
-    for (auto i = 0; i < num; i++) {
+    size_t num = _vbArr.size();
+    for (size_t i = 0; i < num; i++) {
         delete _ibArr[i];
         delete _vbArr[i];
     }
@@ -62,46 +62,46 @@ void MeshBuffer::clear() {
 
 void MeshBuffer::afterCleanupHandle() {
     clear();
-    se::ScriptEngine::getInstance()->addAfterInitHook(std::bind(&MeshBuffer::init, this));
+    se::ScriptEngine::getInstance()->addAfterInitHook([this] { init(); });
 }
 
 void MeshBuffer::init() {
-    auto rIB = new IOTypedArray(se::Object::TypedArrayType::UINT16, _ib.getCapacity());
+    auto *rIB = new IOTypedArray(se::Object::TypedArrayType::UINT16, _ib.getCapacity());
     _ibArr.push_back(rIB);
 
-    auto rVB = new IOTypedArray(se::Object::TypedArrayType::FLOAT32, _vb.getCapacity());
+    auto *rVB = new IOTypedArray(se::Object::TypedArrayType::FLOAT32, _vb.getCapacity());
     _vbArr.push_back(rVB);
 
-    se::ScriptEngine::getInstance()->addAfterCleanupHook(std::bind(&MeshBuffer::afterCleanupHandle, this));
+    se::ScriptEngine::getInstance()->addAfterCleanupHook([this] { afterCleanupHandle(); });
 }
 
 void MeshBuffer::uploadVB() {
     auto length = _vb.length();
     if (length == 0) return;
 
-    auto rVB = _vbArr[_bufferPos];
+    auto *rVB = _vbArr[_bufferPos];
     rVB->reset();
-    rVB->writeBytes((const char *)_vb.getBuffer(), _vb.length());
+    rVB->writeBytes(reinterpret_cast<const char *>(_vb.getBuffer()), _vb.length());
 }
 
 void MeshBuffer::uploadIB() {
     auto length = _ib.length();
     if (length == 0) return;
 
-    auto rIB = _ibArr[_bufferPos];
+    auto *rIB = _ibArr[_bufferPos];
     rIB->reset();
-    rIB->writeBytes((const char *)_ib.getBuffer(), _ib.length());
+    rIB->writeBytes(reinterpret_cast<const char *>(_ib.getBuffer()), _ib.length());
 }
 
 void MeshBuffer::next() {
     _bufferPos++;
     if (_ibArr.size() <= _bufferPos) {
-        auto rIB = new IOTypedArray(se::Object::TypedArrayType::UINT16, _ib.getCapacity());
+        auto *rIB = new IOTypedArray(se::Object::TypedArrayType::UINT16, _ib.getCapacity());
         _ibArr.push_back(rIB);
     }
 
     if (_vbArr.size() <= _bufferPos) {
-        auto rVB = new IOTypedArray(se::Object::TypedArrayType::FLOAT32, _vb.getCapacity());
+        auto *rVB = new IOTypedArray(se::Object::TypedArrayType::FLOAT32, _vb.getCapacity());
         _vbArr.push_back(rVB);
     }
 }

@@ -33,7 +33,7 @@ MIDDLEWARE_BEGIN
 
 class MeshBuffer {
 public:
-    MeshBuffer(int vertexFormat);
+    explicit MeshBuffer(int vertexFormat);
     MeshBuffer(int vertexFormat, size_t indexSize, size_t vertexSize);
 
     virtual ~MeshBuffer();
@@ -58,11 +58,11 @@ public:
         return _ibArr[bufferPos]->length();
     }
 
-    std::size_t getBufferCount() {
+    std::size_t getBufferCount() const {
         return _bufferPos + 1;
     }
 
-    std::size_t getBufferPos() {
+    std::size_t getBufferPos() const {
         return _bufferPos;
     }
 
@@ -84,10 +84,8 @@ private:
     void init();
     void afterCleanupHandle();
     
-private:
     std::vector<IOTypedArray *> _ibArr;
     std::vector<IOTypedArray *> _vbArr;
-
     std::size_t _bufferPos = 0;
     IOBuffer _vb;
     IOBuffer _ib;

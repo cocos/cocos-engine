@@ -1104,20 +1104,20 @@ endif()
 
 if(USE_MIDDLEWARE)
     cocos_source_files(
-        NO_WERROR    cocos/editor-support/IOBuffer.cpp
+                     cocos/editor-support/IOBuffer.cpp
                      cocos/editor-support/IOBuffer.h
-        NO_WERROR    cocos/editor-support/IOTypedArray.cpp
+                     cocos/editor-support/IOTypedArray.cpp
                      cocos/editor-support/IOTypedArray.h
-        NO_WERROR    cocos/editor-support/MeshBuffer.cpp
+                     cocos/editor-support/MeshBuffer.cpp
                      cocos/editor-support/MeshBuffer.h
-        NO_WERROR    cocos/editor-support/middleware-adapter.cpp
+                     cocos/editor-support/middleware-adapter.cpp
                      cocos/editor-support/middleware-adapter.h
                      cocos/editor-support/MiddlewareMacro.h
-        NO_WERROR    cocos/editor-support/MiddlewareManager.cpp
+                     cocos/editor-support/MiddlewareManager.cpp
                      cocos/editor-support/MiddlewareManager.h
-        NO_WERROR    cocos/editor-support/SharedBufferManager.cpp
+                     cocos/editor-support/SharedBufferManager.cpp
                      cocos/editor-support/SharedBufferManager.h
-        NO_WERROR    cocos/editor-support/TypedArrayPool.cpp
+                     cocos/editor-support/TypedArrayPool.cpp
                      cocos/editor-support/TypedArrayPool.h
         NO_WERROR    cocos/bindings/auto/jsb_editor_support_auto.cpp
                      cocos/bindings/auto/jsb_editor_support_auto.h
@@ -1453,17 +1453,17 @@ endif()
 if(USE_SE_V8)
     cocos_source_files(
                      cocos/bindings/jswrapper/v8/Base.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/Class.cpp
+                     cocos/bindings/jswrapper/v8/Class.cpp
                      cocos/bindings/jswrapper/v8/Class.h
                      cocos/bindings/jswrapper/v8/HelperMacros.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/Object.cpp
+                     cocos/bindings/jswrapper/v8/Object.cpp
                      cocos/bindings/jswrapper/v8/Object.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/ObjectWrap.cpp
+                     cocos/bindings/jswrapper/v8/ObjectWrap.cpp
                      cocos/bindings/jswrapper/v8/ObjectWrap.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/ScriptEngine.cpp
+                     cocos/bindings/jswrapper/v8/ScriptEngine.cpp
                      cocos/bindings/jswrapper/v8/ScriptEngine.h
                      cocos/bindings/jswrapper/v8/SeApi.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/Utils.cpp
+                     cocos/bindings/jswrapper/v8/Utils.cpp
                      cocos/bindings/jswrapper/v8/Utils.h
     )
     if(USE_V8_DEBUGGER)
@@ -1519,31 +1519,31 @@ if(USE_SE_JSC)
 endif()
 
 cocos_source_files(
-    NO_WERROR    cocos/bindings/jswrapper/config.cpp
+                 cocos/bindings/jswrapper/config.cpp
                  cocos/bindings/jswrapper/config.h
-    NO_WERROR    cocos/bindings/jswrapper/HandleObject.cpp
+                 cocos/bindings/jswrapper/HandleObject.cpp
                  cocos/bindings/jswrapper/HandleObject.h
-    NO_WERROR    cocos/bindings/jswrapper/MappingUtils.cpp
+                 cocos/bindings/jswrapper/MappingUtils.cpp
                  cocos/bindings/jswrapper/MappingUtils.h
                  cocos/bindings/jswrapper/Object.h
-    NO_WERROR    cocos/bindings/jswrapper/RefCounter.cpp
+                 cocos/bindings/jswrapper/RefCounter.cpp
                  cocos/bindings/jswrapper/RefCounter.h
                  cocos/bindings/jswrapper/SeApi.h
-    NO_WERROR    cocos/bindings/jswrapper/State.cpp
+                 cocos/bindings/jswrapper/State.cpp
                  cocos/bindings/jswrapper/State.h
-    NO_WERROR    cocos/bindings/jswrapper/Value.cpp
+                 cocos/bindings/jswrapper/Value.cpp
                  cocos/bindings/jswrapper/Value.h
 )
 
 cocos_source_files(
                  cocos/bindings/event/CustomEventTypes.h
-    NO_WERROR    cocos/bindings/event/EventDispatcher.cpp
+                 cocos/bindings/event/EventDispatcher.cpp
                  cocos/bindings/event/EventDispatcher.h
 )
 
 #### storage
 cocos_source_files(
-    NO_WERROR    cocos/storage/local-storage/LocalStorage.cpp
+                 cocos/storage/local-storage/LocalStorage.cpp
                  cocos/storage/local-storage/LocalStorage.h
 )
 
