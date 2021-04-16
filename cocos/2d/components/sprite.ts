@@ -31,7 +31,6 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { parseConfigFileTextToJson } from 'typescript';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';

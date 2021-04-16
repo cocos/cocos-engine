@@ -475,25 +475,10 @@ export class Material extends Asset {
 
     public initPlaceHolder () {
         super.initPlaceHolder();
-        if (!this._effectAsset) {
-            this.initialize({
-                effectName: 'unlit',
-                defines: { USE_COLOR: true },
-            });
-        } else if (!this._effectAsset.isPlaceHolder) {
-            const effectAsset = new EffectAsset();
-            effectAsset._uuid = this._effectAsset._uuid;
-            effectAsset.initPlaceHolder();
-            this.initialize({
-                effectAsset,
-                defines: { USE_COLOR: true },
-            });
-        } else {
-            this.initialize({
-                effectAsset: this._effectAsset,
-                defines: { USE_COLOR: true },
-            });
-        }
+        this.initialize({
+            effectName: 'unlit',
+            defines: { USE_COLOR: true },
+        });
         this.setProperty('mainColor', new Color('#ff00ff'));
     }
 
