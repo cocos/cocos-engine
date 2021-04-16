@@ -2,6 +2,12 @@
 
 exports.template = `
 <div class="container">
+    <div class="show-type-wrap">
+        <ui-tab class="show-type" value="0">
+            <ui-button>time</ui-button>
+            <ui-button>frame</ui-button>
+        </ui-tab>
+    </div>
     <div class="clips"></div>
     <div class="editor">
         <div class="anim-name">
@@ -67,6 +73,9 @@ exports.style = `
 ui-prop,
 ui-section {
     margin: 4px 0;
+}
+.container > .show-type-wrap {
+    text-align: right;
 }
 .container > .clips {
     padding: 5px;
@@ -286,12 +295,27 @@ exports.$ = {
     controlRight: '.control-right',
     controlVirtual: '.control-virtual',
     controlVirtualNumber: '.control-virtual-number',
+    showType: '.show-type',
 };
 
 /**
  * attribute corresponds to the edit element
  */
 const Elements = {
+    showType: {
+        ready() {
+            const panel = this;
+            panel.animationTimeShowType = panel.$.showType.value === 0 ? 'time' : 'frame';
+            panel.$.showType.addEventListener('change', (event) => {
+                panel.animationTimeShowType = event.target.value === 0 ? 'time' : 'frame';
+                Elements.clips.update.call(panel);
+            });
+        },
+        update() {
+            const panel = this;
+            panel.animationTimeShowType = panel.$.showType.value === 0 ? 'time' : 'frame';
+        },
+    },
     infos: {
         ready() {
             const panel = this;
@@ -401,11 +425,11 @@ const Elements = {
                     line.appendChild(name);
                     const time = document.createElement('div');
                     time.setAttribute('class', 'time');
-                    time.innerHTML = subAnim.from.toFixed(2);
+                    time.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * panel.rawClipInfo.fps);
                     line.appendChild(time);
                     const timeEnd = document.createElement('div');
                     timeEnd.setAttribute('class', 'time end');
-                    timeEnd.innerHTML = subAnim.to.toFixed(2);
+                    timeEnd.innerHTML = panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * panel.rawClipInfo.fps);
                     line.appendChild(timeEnd);
                 });
 
