@@ -45,9 +45,16 @@ export interface IExposedAttributes {
     displayOrder?: number;
 
     /**
-     * 该属性在编辑器中的工具提示内容。
+     * @en Editor tooltip of this property.
+     * @zh 该属性在编辑器中的工具提示内容。
      */
     tooltip?: string;
+
+    /**
+     * @en The tab name where this property is organized into, on property inspector.
+     * @zh 在属性检查器上该属性所属的分类标签名。
+     */
+    tab?: string;
 
     /**
      *

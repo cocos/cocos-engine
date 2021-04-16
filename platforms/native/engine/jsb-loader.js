@@ -211,11 +211,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             if (err) {
                 return onComplete(err, null);
             }
-            downloader.importBundleEntry(bundleName).then(function() {
-                onComplete(null, out);
-            }).catch(function(err) {
-                onComplete(err);
-            });
+            onComplete(null, out);
         });
     });
 };
