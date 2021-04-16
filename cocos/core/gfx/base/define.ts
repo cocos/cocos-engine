@@ -37,7 +37,7 @@ import { Texture } from './texture';
 
 interface ICopyable { copy(info: ICopyable): ICopyable; }
 
-const deepCopy = <T extends ICopyable>(target: Array<T>, source: Array<T>, Ctor: Constructor<T>) => {
+const deepCopy = <T extends ICopyable>(target: T[], source: T[], Ctor: Constructor<T>) => {
     for (let i = 0; i < source.length; ++i) {
         if (target.length <= i) target.push(new Ctor());
         target[i].copy(source[i]);
@@ -404,9 +404,9 @@ export enum TextureUsageBit {
 }
 
 export enum TextureFlagBit {
-    NONE         = 0,
-    GEN_MIPMAP   = 0x1,
-    IMMUTABLE    = 0x2,
+    NONE       = 0,
+    GEN_MIPMAP = 0x1,
+    IMMUTABLE  = 0x2,
 }
 
 export enum SampleCount {

@@ -3019,3 +3019,8 @@ BlendFactors are disabled when using custom material, please modify the blend st
 ### 12002
 
 Can't add renderable component to this node because it already have one.
+
+### 12003
+
+<!-- DEPRECATED -->
+The PrivateNode is deprecated, please use Node directly with CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy flags activated.

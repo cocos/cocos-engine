@@ -34,7 +34,7 @@ vec2 getPixelCoordFromLocation(vec2 location, vec2 textureResolution) {
   return (vec2(location.x, location.y) + .5) / textureResolution;
 }
 
-#if CC_SUPPORT_FLOAT_TEXTURE
+#if CC_DEVICE_SUPPORT_FLOAT_TEXTURE
   #if __VERSION__ >= 300
     vec4 fetchVec3ArrayFromTexture(sampler2D tex, int pixelIndex) {
       ivec2 texSize = textureSize(tex, 0);

@@ -62,6 +62,7 @@ export interface ITemplateInfo {
 export interface IProgramInfo extends IShaderInfo {
     effectName: string;
     defines: IDefineRecord[];
+    constantMacros: string;
     uber: boolean; // macro number exceeds default limits, will fallback to string hash
 }
 
@@ -227,6 +228,11 @@ class ProgramLib {
             offset += cnt;
         }
         if (offset > 31) { tmpl.uber = true; }
+        // generate constant macros
+        tmpl.constantMacros = '';
+        for (const key in tmpl.builtins.statistics) {
+            tmpl.constantMacros += `#define ${key} ${tmpl.builtins.statistics[key]}\n`;
+        }
         // store it
         this._templates[shader.name] = tmpl;
         if (!this._templateInfos[tmpl.hash]) {
@@ -401,7 +407,8 @@ class ProgramLib {
         }
 
         const macroArray = prepareDefines(defines, tmpl.defines);
-        const prefix = `${macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '')}\n`;
+        const prefix = pipeline.constantMacros + tmpl.constantMacros
+            + macroArray.reduce((acc, cur) => `${acc}#define ${cur.name} ${cur.value}\n`, '');
 
         let src = tmpl.glsl3;
         const deviceShaderVersion = getDeviceShaderVersion(device);
@@ -423,7 +430,7 @@ class ProgramLib {
     }
 }
 
-export function getDeviceShaderVersion (device: Device): 'glsl1' | 'glsl3' | 'glsl4' {
+export function getDeviceShaderVersion (device: Device) {
     switch (device.gfxAPI) {
     case API.GLES2:
     case API.WEBGL: return 'glsl1';
