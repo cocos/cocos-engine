@@ -66,11 +66,9 @@ private:
     void                gatherValidLights(const Camera *camera);
     void                addRenderQueue(const PassView *pass, const SubModelView *subModel, const ModelView *model, uint lightPassIdx);
     void                updateUBOs(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    void                updateCameraUBO(const Camera *camera, gfx::CommandBuffer *cmdBuffer, bool hasOffScreenAttachments);
     void                updateLightDescriptorSet(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
-    void                updateGlobalDescriptorSet(const Camera *camera, gfx::CommandBuffer *cmdBuffer);
     bool                getLightPassIndex(const ModelView *model, vector<uint> *lightPassIndices) const;
-    gfx::DescriptorSet *getOrCreateDescriptorSet(const Light *);
+    gfx::DescriptorSet *getOrCreateDescriptorSet(const Light *light);
 
     ForwardPipeline *              _pipeline = nullptr;
     vector<vector<SubModelView *>> _sortedSubModelsArray;
@@ -86,10 +84,8 @@ private:
     gfx::Buffer *                  _firstLightBufferView = nullptr;
     gfx::Sampler *                 _sampler              = nullptr;
 
-    std::unordered_map<const Light *, gfx::DescriptorSet *> _descriptorSetMap;
-    std::array<float, UBOGlobal::COUNT>                     _globalUBO;
-    std::array<float, UBOCamera::COUNT>                     _cameraUBO;
-    std::array<float, UBOShadow::COUNT>                     _shadowUBO;
+    std::unordered_map<const Light *, gfx::DescriptorSet *> _descriptorSetMap{};
+    std::array<float, UBOShadow::COUNT>                     _shadowUBO{};
 
     uint  _lightBufferStride       = 0;
     uint  _lightBufferElementCount = 0;

@@ -47,7 +47,7 @@
 namespace cc {
 namespace pipeline {
 
-RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(static_cast<ForwardPipeline *>(pipeline)),
+RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(dynamic_cast<ForwardPipeline *>(pipeline)),
                                                                                _instancedQueue(CC_NEW(RenderInstancedQueue)),
                                                                                _batchedQueue(CC_NEW(RenderBatchedQueue)) {
     auto *     device        = gfx::Device::getInstance();
@@ -64,20 +64,22 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
     _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
     _dynamicOffsets.resize(1, 0);
 
-    gfx::SamplerInfo info{
+    const gfx::SamplerInfo info{
         gfx::Filter::LINEAR,
         gfx::Filter::LINEAR,
         gfx::Filter::NONE,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
+        {},
+        {},
+        {},
+        {},
     };
     const auto shadowMapSamplerHash = SamplerLib::genSamplerHash(info);
     _sampler                        = SamplerLib::getSampler(shadowMapSamplerHash);
-
     _phaseID = getPhaseID("forward-add");
 
-    _globalUBO.fill(0.F);
     _shadowUBO.fill(0.F);
 }
 
@@ -117,7 +119,7 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::Ren
     }
 }
 
-void RenderAdditiveLightQueue::gatherLightPasses(const Camera *camera, gfx::CommandBuffer *cmdBufferer) {
+void RenderAdditiveLightQueue::gatherLightPasses(const Camera *camera, gfx::CommandBuffer *cmdBuffer) {
     static vector<uint> lightPassIndices;
 
     clear();
@@ -126,8 +128,8 @@ void RenderAdditiveLightQueue::gatherLightPasses(const Camera *camera, gfx::Comm
 
     if (_validLights.empty()) return;
 
-    updateUBOs(camera, cmdBufferer);
-    updateLightDescriptorSet(camera, cmdBufferer);
+    updateUBOs(camera, cmdBuffer);
+    updateLightDescriptorSet(camera, cmdBuffer);
 
     const auto &renderObjects = _pipeline->getPipelineSceneData()->getRenderObjects();
     for (const auto &renderObject : renderObjects) {
@@ -158,14 +160,13 @@ void RenderAdditiveLightQueue::gatherLightPasses(const Camera *camera, gfx::Comm
             addRenderQueue(pass, subModel, model, lightPassIdx);
         }
     }
-    _instancedQueue->uploadBuffers(cmdBufferer);
-    _batchedQueue->uploadBuffers(cmdBufferer);
+    _instancedQueue->uploadBuffers(cmdBuffer);
+    _batchedQueue->uploadBuffers(cmdBuffer);
 }
 
 void RenderAdditiveLightQueue::destroy() {
     for (auto &pair : _descriptorSetMap) {
         auto *descriptorSet = pair.second;
-        descriptorSet->getBuffer(UBOGlobal::BINDING)->destroy();
         descriptorSet->getBuffer(UBOShadow::BINDING)->destroy();
         descriptorSet->getSampler(SHADOWMAP::BINDING)->destroy();
         descriptorSet->getTexture(SHADOWMAP::BINDING)->destroy();
@@ -343,11 +344,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
         descriptorSet->bindTexture(SHADOWMAP::BINDING, _pipeline->getDefaultTexture());
         descriptorSet->update();
 
-        _globalUBO.fill(0.0F);
         _shadowUBO.fill(0.0F);
-
-        PipelineUBO::updateGlobalUBOView(_pipeline, _globalUBO);
-        PipelineUBO::updateCameraUBOView(_pipeline, _cameraUBO, camera, camera->getWindow()->hasOffScreenAttachments);
 
         switch (light->getType()) {
             case LightType::SPOT: {
@@ -387,13 +384,12 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
                 }
                 // Reserve sphere light shadow interface
             } break;
-            default:;
+            default:
+                break;
         }
         descriptorSet->update();
 
         cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOShadow::BINDING), _shadowUBO.data(), UBOShadow::SIZE);
-        cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOGlobal::BINDING), _globalUBO.data(), UBOGlobal::SIZE);
-        cmdBuffer->updateBuffer(descriptorSet->getBuffer(UBOCamera::BINDING), _cameraUBO.data(), UBOCamera::SIZE);
     }
 }
 
@@ -425,23 +421,9 @@ gfx::DescriptorSet *RenderAdditiveLightQueue::getOrCreateDescriptorSet(const Lig
         auto *              device        = gfx::Device::getInstance();
         gfx::DescriptorSet *descriptorSet = device->createDescriptorSet({_pipeline->getDescriptorSetLayout()});
 
-        auto *globalUBO = device->createBuffer({
-            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-            UBOGlobal::SIZE,
-            UBOGlobal::SIZE,
-            gfx::BufferFlagBit::NONE,
-        });
-        descriptorSet->bindBuffer(UBOGlobal::BINDING, globalUBO);
+        descriptorSet->bindBuffer(UBOGlobal::BINDING, _pipeline->getDescriptorSet()->getBuffer(UBOGlobal::BINDING));
 
-        auto *cameraUBO = device->createBuffer({
-            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-            UBOCamera::SIZE,
-            UBOCamera::SIZE,
-            gfx::BufferFlagBit::NONE,
-        });
-        descriptorSet->bindBuffer(UBOCamera::BINDING, cameraUBO);
+        descriptorSet->bindBuffer(UBOCamera::BINDING, _pipeline->getDescriptorSet()->getBuffer(UBOCamera::BINDING));
 
         auto *shadowUBO = device->createBuffer({
             gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
