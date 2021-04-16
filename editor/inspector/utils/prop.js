@@ -196,7 +196,26 @@ exports.updatePropByDump = function (panel, dump) {
     // 重新排序
     children.sort((a, b) => a.displayOrder - b.displayOrder);
 
-    panel.$.componentContainer.replaceChildren(...children);
+    let $children = Array.from(panel.$.componentContainer.children);
+    children.forEach((child, i) => {
+        if (child === $children[i]) {
+            return;
+        }
+
+        if ($children[i]) {
+            $children[i].replaceWith(child);
+        } else {
+            panel.$.componentContainer.appendChild(child);
+        }
+    });
+
+    // delete extra children
+    $children = Array.from(panel.$.componentContainer.children);
+    if ($children.length > children.length) {
+        for (let i = children.length; i < $children.length; i++) {
+            $children[i].remove();
+        }
+    }
 
     for (const key in panel.elements) {
         const element = panel.elements[key];
