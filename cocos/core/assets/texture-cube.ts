@@ -283,18 +283,27 @@ export class TextureCube extends SimpleTexture {
         return texInfo;
     }
 
+    private static _sharedPlaceHolderTexture: TextureCube | null = null;
+
     public initPlaceHolder () {
         super.initPlaceHolder();
-        const imageAsset = new ImageAsset();
-        imageAsset.initPlaceHolder();
-        this.mipmaps = [{
-            front: imageAsset,
-            back: imageAsset,
-            top: imageAsset,
-            bottom: imageAsset,
-            left: imageAsset,
-            right: imageAsset,
-        }];
+
+        if (!TextureCube._sharedPlaceHolderTexture) {
+            const imageAsset = new ImageAsset();
+            imageAsset.initPlaceHolder();
+            this.mipmaps = [{
+                front: imageAsset,
+                back: imageAsset,
+                top: imageAsset,
+                bottom: imageAsset,
+                left: imageAsset,
+                right: imageAsset,
+            }];
+            TextureCube._sharedPlaceHolderTexture = this;
+        } else {
+            this._mipmaps = TextureCube._sharedPlaceHolderTexture._mipmaps;
+            this._gfxTexture = TextureCube._sharedPlaceHolderTexture._gfxTexture;
+        }
     }
 
     public validate () {

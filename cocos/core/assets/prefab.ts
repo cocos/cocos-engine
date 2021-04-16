@@ -35,6 +35,7 @@ import { compile } from '../data/instantiate-jit';
 import { js, obsolete } from '../utils/js';
 import { Enum } from '../value-types';
 import { Asset } from './asset';
+import { Node } from '../scene-graph/node';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import * as utils from '../utils/prefab';

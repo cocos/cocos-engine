@@ -198,6 +198,7 @@ export class RenderTexture extends Asset {
     }
 
     public initPlaceHolder () {
+        super.initPlaceHolder();
         this._width = this._height = 1;
         this._initWindow();
     }

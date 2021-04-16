@@ -232,8 +232,17 @@ export class EffectAsset extends Asset {
         return super.destroy();
     }
 
+    public initPlaceHolder () {
+        super.initPlaceHolder();
+        const effect = EffectAsset.get('unlit');
+        this.name = 'unlit';
+        this.shaders = effect!.shaders;
+        this.combinations = effect!.combinations;
+        this.techniques = effect!.techniques;
+    }
+
     public validate () {
-        return this.techniques.length > 0 && this.shaders.length > 0 && this.combinations.length > 0;
+        return this.techniques.length > 0 && this.shaders.length > 0;
     }
 }
 

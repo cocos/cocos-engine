@@ -337,14 +337,21 @@ export class ImageAsset extends Asset {
         this.emit('load');
     }
 
+    private static _sharedPlaceHolderImageAsset: ImageAsset | null = null;
+
     public initPlaceHolder () {
         super.initPlaceHolder();
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d')!;
-        const l = canvas.width = canvas.height = 2;
-        context.fillStyle = '#000';
-        context.fillRect(0, 0, l, l);
-        this.reset(canvas);
+        if (!ImageAsset._sharedPlaceHolderImageAsset) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d')!;
+            const l = canvas.width = canvas.height = 2;
+            context.fillStyle = '#ff00ff';
+            context.fillRect(0, 0, l, l);
+            this.reset(canvas);
+            ImageAsset._sharedPlaceHolderImageAsset = this;
+        } else {
+            this.reset(ImageAsset._sharedPlaceHolderImageAsset._nativeAsset);
+        }
     }
 
     public validate () {

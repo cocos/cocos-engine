@@ -415,9 +415,6 @@ export class Material extends Asset {
             } else {
                 for (let i = 0; i < this._props.length; i++) { this._props[i] = {}; }
             }
-        } else { // ugly yellow indicating missing effect
-            const missing = builtinResMgr.get<Material>('missing-effect-material');
-            if (missing) { this._passes = missing._passes.slice(); }
         }
         this._hash = Material.getHash(this);
     }
@@ -478,15 +475,30 @@ export class Material extends Asset {
 
     public initPlaceHolder () {
         super.initPlaceHolder();
-        this.initialize({
-            effectName: 'unlit',
-            defines: { USE_COLOR: true },
-        });
+        if (!this._effectAsset) {
+            this.initialize({
+                effectName: 'unlit',
+                defines: { USE_COLOR: true },
+            });
+        } else if (!this._effectAsset.isPlaceHolder) {
+            const effectAsset = new EffectAsset();
+            effectAsset._uuid = this._effectAsset._uuid;
+            effectAsset.initPlaceHolder();
+            this.initialize({
+                effectAsset,
+                defines: { USE_COLOR: true },
+            });
+        } else {
+            this.initialize({
+                effectAsset: this._effectAsset,
+                defines: { USE_COLOR: true },
+            });
+        }
         this.setProperty('mainColor', new Color('#ff00ff'));
     }
 
     public validate () {
-        return !!this._effectAsset && this.passes.length > 0;
+        return !!this._effectAsset && !this._effectAsset.isPlaceHolder && this.passes.length > 0;
     }
 }
 

@@ -30,7 +30,7 @@
  */
 
 import { ccclass, serializable } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { EDITOR, PREVIEW } from 'internal:constants';
 import { property } from '../data/decorators/property';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { Eventify } from '../event';
@@ -159,7 +159,7 @@ export class Asset extends Eventify(CCObject) {
             // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
         });
 
-        if (EDITOR) {
+        if (EDITOR || PREVIEW) {
             Object.defineProperty(this, 'isPlaceHolder', {
                 value: false,
                 writable: true,

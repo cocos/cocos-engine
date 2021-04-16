@@ -26,7 +26,7 @@
  * @packageDocumentation
  * @module asset-manager
  */
-import { BUILD, EDITOR } from 'internal:constants';
+import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { legacyCC } from '../global-exports';
 import { error } from '../platform/debug';
@@ -194,7 +194,7 @@ export class AssetManager {
      * 是否强制加载资源, 如果为 true ，加载资源将会忽略报错
      *
      */
-    public force = !!EDITOR;
+    public force = EDITOR || PREVIEW;
 
     /**
      * @en

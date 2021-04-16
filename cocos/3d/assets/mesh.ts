@@ -1047,7 +1047,7 @@ export class Mesh extends Asset {
     }
 
     public validate () {
-        return this.renderingSubMeshes.length > 0;
+        return this.renderingSubMeshes.length > 0 && this.data.byteLength > 0;
     }
 }
 legacyCC.Mesh = Mesh;

@@ -82,7 +82,7 @@ export default function (json: Record<string, any>, options: Record<string, any>
     const uuidList = tdInfo.uuidList! as string[];
     const objList = tdInfo.uuidObjList!;
     const propList = tdInfo.uuidPropList! as string[];
-    const typeList = (tdInfo.typeList || []) as string[];
+    const typeList = (tdInfo.uuidTypeList || []);
     const depends: IDependProp[] = [];
 
     for (let i = 0; i < uuidList.length; i++) {

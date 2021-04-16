@@ -287,11 +287,19 @@ export class Texture2D extends SimpleTexture {
         }
     }
 
+    private static _sharedPlaceHolderTexture: Texture2D | null = null;
+
     public initPlaceHolder () {
         super.initPlaceHolder();
-        const imageAsset = new ImageAsset();
-        imageAsset.initPlaceHolder();
-        this.image = imageAsset;
+        if (!Texture2D._sharedPlaceHolderTexture) {
+            const imageAsset = new ImageAsset();
+            imageAsset.initPlaceHolder();
+            this.image = imageAsset;
+            Texture2D._sharedPlaceHolderTexture = this;
+        } else {
+            this._mipmaps = Texture2D._sharedPlaceHolderTexture._mipmaps;
+            this._gfxTexture = Texture2D._sharedPlaceHolderTexture._gfxTexture;
+        }
     }
 
     public validate () {

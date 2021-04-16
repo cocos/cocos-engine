@@ -112,7 +112,7 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
 export function cache (id: string, asset: Asset, cacheAsset?: boolean) {
     if (!asset) { return; }
     cacheAsset = cacheAsset !== undefined ? cacheAsset : legacyCC.assetManager.cacheAsset;
-    if (!isScene(asset) && cacheAsset) {
+    if (!isScene(asset) && cacheAsset && !asset.isPlaceHolder) {
         assets.add(id, asset);
     }
 }
@@ -131,12 +131,16 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                         // eslint-disable-next-line new-cap
                         missingAssetReporter = new EditorExtends.MissingReporter.object(asset);
                     }
-                    const placeHolder = EditorExtends.serialize.asAsset(depend.uuid, depend.type);
-                    placeHolder.initPlaceHolder();
-                    missingAssetReporter.stashByOwner(depend.owner, depend.prop, placeHolder);
-                    if (depend.type) { depend.owner[depend.prop] = placeHolder; }
+                    missingAssetReporter.stashByOwner(depend.owner, depend.prop, EditorExtends.serialize.asAsset(depend.uuid));
                 } else {
                     error(`The asset ${depend.uuid} is missing!`);
+                }
+                if (depend.type) {
+                    // eslint-disable-next-line new-cap
+                    const placeHolder = new depend.type();
+                    placeHolder._uuid = depend.uuid;
+                    placeHolder.initPlaceHolder();
+                    depend.owner[depend.prop] = placeHolder;
                 }
                 missingAsset = true;
             } else {
@@ -163,9 +167,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
             asset._nativeAsset = assetsMap[`${uuid}@native`];
         } else {
             missingAsset = true;
-            if (EDITOR) {
-                console.error(`the native asset of ${uuid} is missing!`);
-            }
+            console.error(`the native asset of ${uuid} is missing!`);
         }
         asset.__nativeDepend__ = false;
     }

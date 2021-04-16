@@ -506,7 +506,7 @@ class _Deserializer {
         if (id === undefined) {
             const uuid = jsonObj.__uuid__;
             if (uuid) {
-                this.result.push(obj, propName, uuid, jsonObj.__assettype__);
+                this.result.push(obj, propName, uuid, jsonObj.__placeHolderType__);
                 return true;
             } else if (EDITOR || TEST) {
                 obj[propName] = this._deserializeObject(jsonObj, obj, propName);

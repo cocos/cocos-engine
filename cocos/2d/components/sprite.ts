@@ -31,6 +31,7 @@
 
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range, editable, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { parseConfigFileTextToJson } from 'typescript';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
 import { SystemEventType } from '../../core/platform/event-manager/event-enum';
@@ -614,12 +615,14 @@ export class Sprite extends Renderable2D {
 
     private _applySpriteSize () {
         if (this._spriteFrame) {
-            if (SizeMode.RAW === this._sizeMode) {
-                const size = this._spriteFrame.originalSize;
-                this.node._uiProps.uiTransformComp!.setContentSize(size);
-            } else if (SizeMode.TRIMMED === this._sizeMode) {
-                const rect = this._spriteFrame.getRect();
-                this.node._uiProps.uiTransformComp!.setContentSize(rect.width, rect.height);
+            if (!this._spriteFrame.isPlaceHolder) {
+                if (SizeMode.RAW === this._sizeMode) {
+                    const size = this._spriteFrame.originalSize;
+                    this.node._uiProps.uiTransformComp!.setContentSize(size);
+                } else if (SizeMode.TRIMMED === this._sizeMode) {
+                    const rect = this._spriteFrame.getRect();
+                    this.node._uiProps.uiTransformComp!.setContentSize(rect.width, rect.height);
+                }
             }
 
             this._activateMaterial();

@@ -22,8 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { EDITOR } from 'internal:constants';
-import { Asset } from '../assets';
+import { BUILD } from 'internal:constants';
+import { Asset, SceneAsset } from '../assets';
 import { error, warn } from '../platform/debug';
 import packManager from './pack-manager';
 import parser from './parser';
@@ -73,7 +73,7 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
             onComplete: (err, result) => {
                 if (err && !task.isFinish) {
                     if (!legacyCC.assetManager.force || firstTask) {
-                        if (!EDITOR) {
+                        if (BUILD) {
                             error(err.message, err.stack);
                         }
                         progress.canInvoke = false;
@@ -223,16 +223,18 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
                         asset.__onLoadedInvoked__ = true;
                     }
                 } catch (e) {
-                    error(e.message, e.stack);
-                    asset.initPlaceHolder();
+                    if (BUILD) {
+                        error(e.message, e.stack);
+                    } else if (asset instanceof Asset) {
+                        asset.initPlaceHolder();
+                    } else {
+                        SceneAsset.prototype.initPlaceHolder.call(asset);
+                    }
                 }
                 files.remove(id);
                 parsed.remove(id);
-                if (asset.validate()) {
-                    cache(uuid, asset, cacheAsset);
-                } else {
-                    asset.initPlaceHolder();
-                }
+                if (!BUILD && asset.validate && !asset.validate()) { asset.initPlaceHolder(); }
+                cache(uuid, asset, cacheAsset);
                 subTask.recycle();
             }
 
