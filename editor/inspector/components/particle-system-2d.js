@@ -43,7 +43,7 @@ exports.ready = function () {
                 $sync.appendChild($syncLabel);
                 $checkbox.after($sync);
 
-                // Hack: ui-button has extra events that are passed up to ui-prop ; ui-button's change events need to be removed later
+                // Hack: ui-button has extra events that are passed up to ui-prop ;
                 $sync.addEventListener('change', async (event) => {
                     event.stopPropagation();
                 });
