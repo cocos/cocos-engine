@@ -254,6 +254,10 @@ module.exports = {
                     },
                 },
             },
+            animationBakeRate: {
+                name: 'Animation Bake Rate',
+                title: 'Specify the animation bake rate in frames per second (fps).'
+            },
         },
         textureCube: {
             anisotropy: 'Anisotropy',
