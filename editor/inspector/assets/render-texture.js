@@ -48,7 +48,7 @@ exports.update = async function (assetList, metaList) {
             continue;
         }
 
-        // 复用节点
+        // reuse
         if (!this.$[key]) {
             this.$[key] = document.createElement('ui-prop');
             this.$[key].setAttribute('type', 'dump');

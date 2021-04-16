@@ -14,7 +14,7 @@ exports.$ = {
     constainer: '.asset-audio-clip',
 };
 exports.update = function (assetList, metaList) {
-    // 支持多选时列表显示，限制显示条数
+    // Support multi-select list display, limit the number of display
     let html = '';
     const maxShowNumber = 1000;
 

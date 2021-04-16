@@ -467,7 +467,7 @@ exports.template = `
 <div id="app"></div>
 `;
 const excludeList = ['uuid', 'name', 'enabled', '_name', '_objFlags', '__scriptAsset', 'node', '_enabled', '__prefab', 'target', 'isAlignTop', 'isAlignBottom', 'isAlignLeft', 'isAlignRight', 'isAlignVerticalCenter', 'isAlignHorizontalCenter', 'isStretchWidth', 'isStretchHeight', 'top', 'editorTop', 'bottom', 'editorBottom', 'left', 'editorLeft', 'right', 'editorRight', 'horizontalCenter', 'editorHorizontalCenter', 'verticalCenter', 'editorVerticalCenter', 'isAbsoluteTop', 'isAbsoluteBottom', 'isAbsoluteLeft', 'isAbsoluteRight', 'isAbsoluteHorizontalCenter', 'isAbsoluteVerticalCenter', 'alignMode', 'alignFlags', '_alignFlags', '_target', '_left', '_right', '_top', '_bottom', '_horizontalCenter', '_verticalCenter', '_isAbsLeft', '_isAbsRight', '_isAbsTop', '_isAbsBottom', '_isAbsHorizontalCenter', '_isAbsVerticalCenter', '_originalWidth', '_originalHeight', '_alignMode', '_lockFlags'];
-// 用于是否锁定值
+// Used to determine if the value is locked
 const LockFlags = {
     top: 1 << 0,
     middle: 1 << 1,
@@ -615,7 +615,7 @@ exports.methods = {
     },
 
     select (event) {
-        // 通过委托事件处理
+        // Handling through delegated events
         const button = event.path.find((element) => element && element.classList && element.classList.contains('button'));
 
         if (!button) {
@@ -849,7 +849,7 @@ exports.methods = {
             }
         });
 
-        // 提交数据
+        // Submit data
         this.dump.values && this.dump.values.forEach((dump) => {
             dump.value._lockFlags.value = lockValue;
 

@@ -100,7 +100,7 @@ const Elements = {
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
             await Editor.Message.request('scene', 'set-mesh-preview-mesh', panel.asset.uuid);
 
-            // await 等待后，面板已经不存在了
+            // After await, the panel no longer exists
             if (!panel.$.canvas) {
                 return;
             }

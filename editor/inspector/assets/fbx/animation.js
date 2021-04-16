@@ -289,7 +289,7 @@ exports.$ = {
 };
 
 /**
- * 属性对应的编辑元素
+ * attribute corresponds to the edit element
  */
 const Elements = {
     infos: {
@@ -305,7 +305,7 @@ const Elements = {
 
             if (panel.meta && panel.meta.userData.animationImportSettings) {
                 panel.animationInfos = panel.meta.userData.animationImportSettings;
-                // 收集 clip 名字用于重命名与新建时判断是否重名
+                // Support multiple selection when the list display, limit the number of display clip name collection for renaming and new to determine whether the same name
                 panel.clipNames = new Set();
                 for (const animationInfo of panel.animationInfos) {
                     panel.clipNames.add(animationInfo.name);
@@ -409,7 +409,7 @@ const Elements = {
                     line.appendChild(timeEnd);
                 });
 
-                // 按钮区
+                // Button area
                 const addClip = document.createElement('div');
                 addClip.setAttribute('class', 'add-clip');
                 clip.appendChild(addClip);
@@ -632,7 +632,7 @@ exports.methods = {
     },
     newClipTemplate() {
         const panel = this;
-        // 对名字做验证
+        // Verify the name
         return {
             name: panel.getRightName(panel.rawClipInfo.name),
             from: 0,
@@ -748,7 +748,7 @@ exports.methods = {
         let spacing = rawMinSpacing;
         let step = 1;
         if (rawMinSpacing < config.minSpacing) {
-            // 计算一个最小 spacing 的最小的大于 maxSpacing 倍数的值
+            // Calculates a minimum spacing value that is a multiple of maxSpacing
             step = Math.ceil(config.minSpacing / rawMinSpacing);
             spacing = rawMinSpacing * step;
         }
@@ -796,7 +796,7 @@ exports.methods = {
             return;
         }
 
-        // 超出边界
+        // beyond border
         const { type } = panel.virtualControl;
         let x = event.x - panel.$.rulerMaking.getBoundingClientRect().x;
         if (
@@ -841,7 +841,7 @@ exports.methods = {
         let { type } = panel.virtualControl;
         type = type === 'right' ? 'to' : 'from';
 
-        // 更新数据
+        // refresh data
         const splitInfo = panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex];
         if (splitInfo[type].toFixed(2) !== value.toFixed(2)) {
             const { duration } = panel.rawClipInfo;

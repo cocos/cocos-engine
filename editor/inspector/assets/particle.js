@@ -24,7 +24,7 @@ exports.$ = {
 };
 
 exports.ready = function () {
-    // 备注：目前 2d 粒子的材质不能变更，ui-asset readonly ，所以以下无效
+    // Note: Currently, the material of 2d particles cannot be changed, ui-asset readonly, so the following is not valid
     this.$.asset.addEventListener('confirm', this.onDataChanged.bind(this, 'spriteFrameUuid'));
 };
 

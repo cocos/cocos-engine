@@ -45,7 +45,7 @@ exports.$ = {
 };
 
 /**
- * 属性对应的编辑元素
+ * attribute corresponds to the edit element
  */
 const Elements = {
     imagePreview: {
@@ -69,7 +69,7 @@ const Elements = {
 };
 
 /**
- * 自动渲染组件的方法
+ * Methods for automatic rendering of components
  * @param assetList
  * @param metaList
  */
@@ -88,7 +88,7 @@ exports.update = function (assetList, metaList) {
 };
 
 /**
- * 初始化界面的方法
+ * Method of initializing the panel
  */
 exports.ready = function () {
     for (const prop in Elements) {

@@ -167,7 +167,7 @@ exports.template = `
         <ui-prop type="dump" key="renderer"></ui-prop>
     </div>
 
-    <!-- 渲染其他没有接管的数据 -->
+    <!-- Render other data that has not taken over -->
     <div id="customProps">
     </div>
 </div>
@@ -202,7 +202,7 @@ exports.methods = {
         }
     },
     /**
-     * 根据 dump 数据，获取名字
+     * Get the name based on the dump data
      */
     getName (value) {
         if (!value) {
@@ -223,7 +223,7 @@ exports.methods = {
     },
 
     /**
-     * 根据 dump 数据，获取 tooltip
+     * Get tooltip based on dump data
      * @param value
      */
     getTitle (value) {

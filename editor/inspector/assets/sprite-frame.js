@@ -107,7 +107,7 @@ exports.$ = {
 };
 
 /**
- * 属性对应的编辑元素
+ * attribute corresponds to the edit element
  */
 const Elements = {
     packable: {
@@ -197,7 +197,7 @@ const Elements = {
                 });
                 panel.dispatch('change');
 
-                // 其他项有依赖它的更新，数量较多，所以用了整体 update 一次
+                // Other items have a large number of updates that depend on it, so the whole update is used once
                 for (const prop in Elements) {
                     const element = Elements[prop];
                     if (element.update) {
@@ -446,7 +446,7 @@ const Elements = {
 };
 
 /**
- * 自动渲染组件的方法
+ * Methods for automatic rendering of components
  * @param assetList
  * @param metaList
  */
@@ -465,7 +465,7 @@ exports.update = function (assetList, metaList) {
 };
 
 /**
- * 初始化界面的方法
+ * Method of initializing the panel
  */
 exports.ready = function () {
     for (const prop in Elements) {
@@ -487,7 +487,7 @@ exports.close = function () {
 
 exports.methods = {
     /**
-     * 更新多选状态下某个数据是否可编辑
+     * Update whether a data is editable in multi-select state
      */
     updateInvalid(element, prop) {
         const invalid = this.metaList.some((meta) => {
@@ -496,7 +496,7 @@ exports.methods = {
         element.invalid = invalid;
     },
     /**
-     * 更新只读状态
+     * Update read-only status
      */
     updateReadonly(element) {
         if (this.asset.readonly) {
@@ -506,7 +506,7 @@ exports.methods = {
         }
     },
     /**
-     * 更新业务相关的只读状态
+     * Update the business-related read-only state
      */
     updateReadonlyCustom(element) {
         const isCustom = this.meta.userData.trimType === 'custom';
@@ -518,7 +518,7 @@ exports.methods = {
         }
     },
     /**
-     * 来自九宫格编辑面板的数据更新
+     * Data updates from the Kyushu edit panel
      */
     updateFromBroadcast(data) {
         const panel = this;
