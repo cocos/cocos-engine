@@ -47,26 +47,26 @@ std::unordered_map<int, int> keyCodeMap = {
     {AKEYCODE_DPAD_RIGHT, 1001},
     {AKEYCODE_DPAD_CENTER, 1005}};
 
-void dispatchTouchEvent(int index, AInputEvent *event, cc::TouchEvent &touchEvent) {
+void dispatchTouchEvent(int index, AInputEvent *event, cc::TouchEvent *touchEvent) {
     int pointerID = AMotionEvent_getPointerId(event, index);
-    touchEvent.touches.push_back({AMotionEvent_getX(event, index), // x
-                                  AMotionEvent_getY(event, index), // y
-                                  pointerID});
+    touchEvent->touches.emplace_back(AMotionEvent_getX(event, index), // x
+                                    AMotionEvent_getY(event, index), // y
+                                    pointerID);
 
-    cc::EventDispatcher::dispatchTouchEvent(touchEvent);
-    touchEvent.touches.clear();
+    cc::EventDispatcher::dispatchTouchEvent(*touchEvent);
+    touchEvent->touches.clear();
 }
 
-void dispatchTouchEvents(AInputEvent *event, cc::TouchEvent &touchEvent) {
+void dispatchTouchEvents(AInputEvent *event, cc::TouchEvent *touchEvent) {
     size_t pointerCount = AMotionEvent_getPointerCount(event);
     for (size_t i = 0; i < pointerCount; ++i) {
-        touchEvent.touches.push_back({AMotionEvent_getX(event, i),
-                                      AMotionEvent_getY(event, i),
-                                      AMotionEvent_getPointerId(event, i)});
+        touchEvent->touches.emplace_back(AMotionEvent_getX(event, i),
+                                        AMotionEvent_getY(event, i),
+                                        AMotionEvent_getPointerId(event, i));
     }
 
-    cc::EventDispatcher::dispatchTouchEvent(touchEvent);
-    touchEvent.touches.clear();
+    cc::EventDispatcher::dispatchTouchEvent(*touchEvent);
+    touchEvent->touches.clear();
 }
 } // namespace
 
@@ -90,15 +90,18 @@ void View::engineHandleCmd(int cmd) {
         case APP_CMD_TERM_WINDOW: {
             cc::CustomEvent event;
             event.name = EVENT_DESTROY_WINDOW;
+            event.args->ptrVal = cocosApp.window;
             cc::EventDispatcher::dispatchCustomEvent(event);
         } break;
         case APP_CMD_RESUME:
-            if (Application::getInstance())
+            if (Application::getInstance()) {
                 Application::getInstance()->onResume();
+            }
             break;
         case APP_CMD_PAUSE:
-            if (Application::getInstance())
+            if (Application::getInstance()) {
                 Application::getInstance()->onPause();
+            }
             break;
         case APP_CMD_LOW_MEMORY:
             cc::EventDispatcher::dispatchMemoryWarningEvent();
@@ -111,19 +114,21 @@ void View::engineHandleCmd(int cmd) {
 /**
  * Process the next input event.
  */
-int32_t View::engineHandleInput(struct android_app *app, AInputEvent *event) {
+int32_t View::engineHandleInput(struct android_app * /*app*/, AInputEvent *event) {
     int type = AInputEvent_getType(event);
 
     if (type == AINPUT_EVENT_TYPE_KEY) {
         int action = AKeyEvent_getAction(event);
-        if (action == AKEY_EVENT_ACTION_MULTIPLE)
+        if (action == AKEY_EVENT_ACTION_MULTIPLE) {
             return 0;
+        }
 
         int keyCode = AKeyEvent_getKeyCode(event);
-        if (keyCodeMap.count(keyCode) > 0)
+        if (keyCodeMap.count(keyCode) > 0) {
             keyCode = keyCodeMap[keyCode];
-        else
+        } else {
             keyCode = 0;
+        }
 
         keyboardEvent.key = keyCode;
         keyboardEvent.action = action == AKEY_EVENT_ACTION_DOWN
@@ -132,37 +137,38 @@ int32_t View::engineHandleInput(struct android_app *app, AInputEvent *event) {
         cc::EventDispatcher::dispatchKeyboardEvent(keyboardEvent);
 
         return 1;
-    } else if (type == AINPUT_EVENT_TYPE_MOTION) {
+    }
+    if (type == AINPUT_EVENT_TYPE_MOTION) {
         int action = AMotionEvent_getAction(event);
 
         switch (action & AMOTION_EVENT_ACTION_MASK) {
             case AMOTION_EVENT_ACTION_DOWN:
                 touchEvent.type = cc::TouchEvent::Type::BEGAN;
-                dispatchTouchEvent(0, event, touchEvent);
+                dispatchTouchEvent(0, event, &touchEvent);
                 break;
             case AMOTION_EVENT_ACTION_POINTER_DOWN:
                 touchEvent.type = cc::TouchEvent::Type::BEGAN;
                 dispatchTouchEvent((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT,
                                    event,
-                                   touchEvent);
+                                   &touchEvent);
                 break;
             case AMOTION_EVENT_ACTION_UP:
                 touchEvent.type = cc::TouchEvent::Type::ENDED;
-                dispatchTouchEvent(0, event, touchEvent);
+                dispatchTouchEvent(0, event, &touchEvent);
                 break;
             case AMOTION_EVENT_ACTION_POINTER_UP:
                 touchEvent.type = cc::TouchEvent::Type::ENDED;
                 dispatchTouchEvent((action & AMOTION_EVENT_ACTION_POINTER_INDEX_MASK) >> AMOTION_EVENT_ACTION_POINTER_INDEX_SHIFT,
                                    event,
-                                   touchEvent);
+                                   &touchEvent);
                 break;
             case AMOTION_EVENT_ACTION_MOVE:
                 touchEvent.type = cc::TouchEvent::Type::MOVED;
-                dispatchTouchEvents(event, touchEvent);
+                dispatchTouchEvents(event, &touchEvent);
                 break;
             case AMOTION_EVENT_ACTION_CANCEL:
                 touchEvent.type = cc::TouchEvent::Type::CANCELLED;
-                dispatchTouchEvents(event, touchEvent);
+                dispatchTouchEvents(event, &touchEvent);
                 break;
             default:
                 return 0;

@@ -34,9 +34,6 @@
 
 #include "VKUtils.h"
 
-#include "bindings/event/CustomEventTypes.h"
-#include "bindings/event/EventDispatcher.h"
-
 namespace cc {
 namespace gfx {
 
@@ -267,6 +264,7 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         } else {
             VK_CHECK(vkCreateDebugReportCallbackEXT(_gpuContext->vkInstance, &debugReportCreateInfo, nullptr, &_gpuContext->vkDebugReport));
         }
+        _validationEnabled = true;
 #endif
 
         ///////////////////// Surface Creation /////////////////////
@@ -275,40 +273,6 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
         surfaceCreateInfo.window = reinterpret_cast<ANativeWindow *>(_windowHandle);
         VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
-
-        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [this](const CustomEvent &/*event*/) -> void {
-            if (_gpuContext && _gpuContext->vkSurface != VK_NULL_HANDLE) {
-
-                CCVKDevice *device = CCVKDevice::getInstance();
-
-                auto *queue = static_cast<CCVKQueue *>(device->getQueue());
-
-                uint fenceCount = device->gpuFencePool()->size();
-                if (fenceCount) {
-                    VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, fenceCount,
-                                             device->gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
-                }
-
-                device->destroySwapchain();
-                device->_swapchainReady = false;
-
-                vkDestroySurfaceKHR(_gpuContext->vkInstance, _gpuContext->vkSurface, nullptr);
-                _gpuContext->vkSurface = VK_NULL_HANDLE;
-            }
-        });
-
-        EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [this](const CustomEvent &event) -> void {
-            _windowHandle = reinterpret_cast<uintptr_t>(event.args->ptrVal);
-
-            if (_gpuContext && _gpuContext->vkSurface == VK_NULL_HANDLE) {
-                VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
-                surfaceCreateInfo.window = reinterpret_cast<ANativeWindow *>(_windowHandle);
-                VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo,
-                                                   nullptr, &_gpuContext->vkSurface));
-
-                CCVKDevice::getInstance()->checkSwapchainStatus();
-            }
-        });
 #elif defined(VK_USE_PLATFORM_WIN32_KHR)
         VkWin32SurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR};
         surfaceCreateInfo.hinstance = static_cast<HINSTANCE>(GetModuleHandle(0));
@@ -571,6 +535,40 @@ void CCVKContext::doDestroy() {
         CC_DELETE(_gpuContext);
         _gpuContext = nullptr;
     }
+}
+
+void CCVKContext::releaseSurface(uintptr_t /*windowHandle*/) {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    if (_gpuContext && _gpuContext->vkSurface == VK_NULL_HANDLE) return;
+
+    CCVKDevice *device = CCVKDevice::getInstance();
+
+    uint fenceCount = device->gpuFencePool()->size();
+    if (fenceCount) {
+        VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, fenceCount,
+                                 device->gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
+    }
+
+    device->destroySwapchain();
+    device->_swapchainReady = false;
+
+    vkDestroySurfaceKHR(_gpuContext->vkInstance, _gpuContext->vkSurface, nullptr);
+    _gpuContext->vkSurface = VK_NULL_HANDLE;
+#endif
+}
+
+void CCVKContext::acquireSurface(uintptr_t windowHandle) {
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    _windowHandle = windowHandle;
+    if (_gpuContext && _gpuContext->vkSurface != VK_NULL_HANDLE) return;
+
+    VkAndroidSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR};
+    surfaceCreateInfo.window = reinterpret_cast<ANativeWindow *>(_windowHandle);
+    VK_CHECK(vkCreateAndroidSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo,
+                                       nullptr, &_gpuContext->vkSurface));
+
+    CCVKDevice::getInstance()->checkSwapchainStatus();
+#endif
 }
 
 } // namespace gfx

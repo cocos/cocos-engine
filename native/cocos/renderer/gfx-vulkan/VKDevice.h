@@ -126,6 +126,9 @@ protected:
     void destroySwapchain();
     bool checkSwapchainStatus();
 
+    void releaseSurface(uintptr_t windowHandle) override;
+    void acquireSurface(uintptr_t windowHandle) override;
+
     CCVKGPUDevice *       _gpuDevice    = nullptr;
     CCVKGPUSwapchain *    _gpuSwapchain = nullptr;
     vector<CCVKTexture *> _depthStencilTextures;

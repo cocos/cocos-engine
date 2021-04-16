@@ -1743,6 +1743,10 @@ if(WIN32)
 endif()
 
 if(ANDROID)
+    target_compile_options(cocos2d PRIVATE
+        -Wno-comment # nested block comments are actually useful sometimes
+    )
+
     find_library(LIB_EGL NAMES EGL)
     find_library(LIB_GLESv2 NAMES GLESv2)
     target_link_libraries(cocos2d PUBLIC

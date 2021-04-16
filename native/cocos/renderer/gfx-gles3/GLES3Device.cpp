@@ -101,7 +101,7 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     _features[static_cast<uint>(Feature::BLEND_MINMAX)]            = true;
     _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)]      = true;
 
-    uint minorVersion = static_cast<GLES3Context *>(_context)->minor_ver();
+    uint minorVersion = static_cast<GLES3Context *>(_context)->minorVer();
     if (minorVersion) {
         _features[static_cast<uint>(Feature::COMPUTE_SHADER)] = true;
     }
@@ -239,7 +239,7 @@ void GLES3Device::present() {
 }
 
 void GLES3Device::bindRenderContext(bool bound) {
-    _renderContext->MakeCurrent(bound);
+    _renderContext->makeCurrent(bound);
     _context = bound ? _renderContext : nullptr;
 
     if (bound) {
@@ -257,7 +257,7 @@ void GLES3Device::bindDeviceContext(bool bound) {
         _deviceContext = CC_NEW(GLES3Context);
         _deviceContext->initialize(ctxInfo);
     }
-    _deviceContext->MakeCurrent(bound);
+    _deviceContext->makeCurrent(bound);
     _context = bound ? _deviceContext : nullptr;
 
     if (bound) {
@@ -266,7 +266,7 @@ void GLES3Device::bindDeviceContext(bool bound) {
     }
 }
 
-uint GLES3Device::getMinorVersion() const { return static_cast<GLES3Context *>(_context)->minor_ver(); }
+uint GLES3Device::getMinorVersion() const { return static_cast<GLES3Context *>(_context)->minorVer(); }
 
 CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer);

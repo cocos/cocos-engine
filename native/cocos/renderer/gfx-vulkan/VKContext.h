@@ -56,6 +56,11 @@ public:
     inline const vector<const char *> &getLayers() const { return _layers; }
     inline const vector<const char *> &getExtensions() const { return _extensions; }
 
+    inline bool validationEnabled() const { return _validationEnabled; }
+
+    void releaseSurface(uintptr_t windowHandle);
+    void acquireSurface(uintptr_t windowHandle);
+
 protected:
     bool doInit(const ContextInfo &info) override;
     void doDestroy() override;
@@ -66,6 +71,8 @@ protected:
     int                  _minorVersion    = 0;
     vector<const char *> _layers;
     vector<const char *> _extensions;
+
+    bool _validationEnabled = false;
 };
 
 } // namespace gfx

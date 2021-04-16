@@ -1221,6 +1221,8 @@ public:
 
     void flush(CCVKGPUTransportHub *transportHub) {
         auto &buffers = _buffersToBeUpdated[_device->curBackBufferIndex];
+        if (buffers.empty()) return;
+
         transportHub->checkIn([&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
             VkBufferCopy region;
             for (auto &buffer : buffers) {

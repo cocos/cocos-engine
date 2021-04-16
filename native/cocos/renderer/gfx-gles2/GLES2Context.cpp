@@ -98,7 +98,6 @@ GLES2Context::~GLES2Context() = default;
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 
 bool GLES2Context::doInit(const ContextInfo &info) {
-
     _vsyncMode    = info.vsyncMode;
     _windowHandle = info.windowHandle;
 
@@ -235,7 +234,7 @@ bool GLES2Context::doInit(const ContextInfo &info) {
         EGLint ctxAttribs[32];
         uint   n = 0;
 
-        bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
+        bool hasKHRCreateCtx = checkExtension(CC_TOSTR(EGL_KHR_create_context));
         if (hasKHRCreateCtx) {
     #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION
             ctxAttribs[n++] = EGL_CONTEXT_FLAGS_KHR;
@@ -258,58 +257,26 @@ bool GLES2Context::doInit(const ContextInfo &info) {
             return false;
         }
 
-    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-        EventDispatcher::addCustomEventListener(EVENT_DESTROY_WINDOW, [=](const CustomEvent & /*unused*/) -> void {
-            if (_eglSurface != EGL_NO_SURFACE) {
-                eglDestroySurface(_eglDisplay, _eglSurface);
-                _eglSurface = EGL_NO_SURFACE;
-            }
-        });
-
-        // guaranteed to be invoked in the order they were added
-        EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [=](const CustomEvent &event) -> void {
-            _windowHandle = reinterpret_cast<uintptr_t>(event.args->ptrVal);
-
-            EGLint nFmt = 0;
-            if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
-                CC_LOG_ERROR("Getting configuration attributes failed.");
-                return;
-            }
-            uint width  = GLES2Device::getInstance()->getWidth();
-            uint height = GLES2Device::getInstance()->getHeight();
-            ANativeWindow_setBuffersGeometry(reinterpret_cast<ANativeWindow *>(_windowHandle), width, height, nFmt);
-
-            EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, nullptr));
-            if (_eglSurface == EGL_NO_SURFACE) {
-                CC_LOG_ERROR("Recreate window surface failed.");
-                return;
-            }
-
-            static_cast<GLES2Context *>(GLES2Device::getInstance()->getContext())->MakeCurrent();
-            GLES2Device::getInstance()->stateCache()->reset();
-        });
-    #endif
-
         _eglSharedContext = _eglContext;
 
     } else {
         auto *sharedCtx = static_cast<GLES2Context *>(info.sharedCtx);
 
-        _majorVersion     = sharedCtx->major_ver();
-        _minorVersion     = sharedCtx->minor_ver();
-        _nativeDisplay    = sharedCtx->native_display();
-        _eglDisplay       = sharedCtx->egl_display();
-        _eglConfig        = sharedCtx->egl_config();
-        _eglSharedContext = sharedCtx->egl_shared_ctx();
-        _eglSurface       = sharedCtx->egl_surface();
+        _majorVersion     = sharedCtx->majorVer();
+        _minorVersion     = sharedCtx->minorVer();
+        _nativeDisplay    = sharedCtx->nativeDisplay();
+        _eglDisplay       = sharedCtx->eglDisplay();
+        _eglConfig        = sharedCtx->eglConfig();
+        _eglSharedContext = sharedCtx->eglSharedCtx();
+        _eglSurface       = sharedCtx->eglSurface();
         _colorFmt         = sharedCtx->getColorFormat();
         _depthStencilFmt  = sharedCtx->getDepthStencilFormat();
-        _majorVersion     = sharedCtx->major_ver();
-        _minorVersion     = sharedCtx->minor_ver();
+        _majorVersion     = sharedCtx->majorVer();
+        _minorVersion     = sharedCtx->minorVer();
         _extensions       = sharedCtx->_extensions;
         _isInitialized    = sharedCtx->_isInitialized;
 
-        bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
+        bool hasKHRCreateCtx = checkExtension(CC_TOSTR(EGL_KHR_create_context));
         if (!hasKHRCreateCtx) {
             CC_LOG_INFO(
                 "EGL context creation: EGL_KHR_create_context not supported. Minor version will be discarded, and debug disabled.");
@@ -379,7 +346,40 @@ void GLES2Context::doDestroy() {
     _isInitialized   = false;
 }
 
-bool GLES2Context::MakeCurrentImpl(bool bound) {
+void GLES2Context::releaseSurface(uintptr_t /*windowHandle*/) {
+    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    if (_eglSurface != EGL_NO_SURFACE) {
+        eglDestroySurface(_eglDisplay, _eglSurface);
+        _eglSurface = EGL_NO_SURFACE;
+    }
+    #endif
+}
+
+void GLES2Context::acquireSurface(uintptr_t windowHandle) {
+    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    _windowHandle = windowHandle;
+
+    EGLint nFmt = 0;
+    if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
+        CC_LOG_ERROR("Getting configuration attributes failed.");
+        return;
+    }
+    uint width  = GLES2Device::getInstance()->getWidth();
+    uint height = GLES2Device::getInstance()->getHeight();
+    ANativeWindow_setBuffersGeometry(reinterpret_cast<ANativeWindow *>(_windowHandle), width, height, nFmt);
+
+    EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, (EGLNativeWindowType)_windowHandle, nullptr));
+    if (_eglSurface == EGL_NO_SURFACE) {
+        CC_LOG_ERROR("Recreate window surface failed.");
+        return;
+    }
+
+    static_cast<GLES2Context *>(GLES2Device::getInstance()->getContext())->makeCurrent();
+    GLES2Device::getInstance()->stateCache()->reset();
+    #endif
+}
+
+bool GLES2Context::makeCurrentImpl(bool bound) {
     bool succeeded;
     EGL_CHECK(succeeded = eglMakeCurrent(_eglDisplay,
                                          bound ? _eglSurface : EGL_NO_SURFACE,
@@ -394,15 +394,14 @@ void GLES2Context::present() {
 
 #endif
 
-bool GLES2Context::MakeCurrent(bool bound) {
+bool GLES2Context::makeCurrent(bool bound) {
     if (!bound) {
         CC_LOG_DEBUG("eglMakeCurrent() - UNBOUNDED, Context: 0x%p", this);
-        return MakeCurrentImpl(false);
+        return makeCurrentImpl(false);
     }
 
-    if (MakeCurrentImpl(bound)) {
+    if (makeCurrentImpl(bound)) {
         if (!_isInitialized) {
-
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID)
             // Turn on or off the vertical sync depending on the input bool value.
             int interval = 1;
@@ -477,7 +476,7 @@ bool GLES2Context::MakeCurrent(bool bound) {
     return false;
 }
 
-bool GLES2Context::CheckExtension(const String &extension) const {
+bool GLES2Context::checkExtension(const String &extension) const {
     return (std::find(_extensions.begin(), _extensions.end(), extension) != _extensions.end());
 }
 

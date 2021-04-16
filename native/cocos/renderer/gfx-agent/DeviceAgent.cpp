@@ -84,7 +84,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     }
     static_cast<CommandBufferAgent *>(_cmdBuff)->initMessageQueue();
 
-    //setMultithreaded(true);
+    setMultithreaded(true);
 
     return true;
 }
@@ -194,7 +194,27 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
     }
 }
 
-CommandBuffer *DeviceAgent::createCommandBuffer(const CommandBufferInfo &info, bool  /*hasAgent*/) {
+void DeviceAgent::releaseSurface(uintptr_t windowHandle) {
+    ENQUEUE_MESSAGE_2(
+        _mainEncoder, DeviceReleaseSurface,
+        actor, _actor,
+        windowHandle, windowHandle,
+        {
+            actor->releaseSurface(windowHandle);
+        });
+}
+
+void DeviceAgent::acquireSurface(uintptr_t windowHandle) {
+    ENQUEUE_MESSAGE_2(
+        _mainEncoder, DeviceAcquireSurface,
+        actor, _actor,
+        windowHandle, windowHandle,
+        {
+            actor->acquireSurface(windowHandle);
+        });
+}
+
+CommandBuffer *DeviceAgent::createCommandBuffer(const CommandBufferInfo &info, bool /*hasAgent*/) {
     CommandBuffer *actor = _actor->createCommandBuffer(info, true);
     return CC_NEW(CommandBufferAgent(actor));
 }

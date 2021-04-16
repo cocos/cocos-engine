@@ -91,7 +91,6 @@ GLES3Context::~GLES3Context() = default;
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
 
 bool GLES3Context::doInit(const ContextInfo &info) {
-
     _vsyncMode    = info.vsyncMode;
     _windowHandle = info.windowHandle;
 
@@ -226,7 +225,7 @@ bool GLES3Context::doInit(const ContextInfo &info) {
         EGLint ctxAttribs[32];
         uint   n = 0;
 
-        bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
+        bool hasKHRCreateCtx = checkExtension(CC_TOSTR(EGL_KHR_create_context));
         if (hasKHRCreateCtx) {
             for (int m = 2; m >= 0; --m) {
     #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
@@ -267,19 +266,19 @@ bool GLES3Context::doInit(const ContextInfo &info) {
     } else {
         auto *sharedCtx = static_cast<GLES3Context *>(info.sharedCtx);
 
-        _majorVersion     = sharedCtx->major_ver();
-        _minorVersion     = sharedCtx->minor_ver();
-        _nativeDisplay    = sharedCtx->native_display();
-        _eglDisplay       = sharedCtx->egl_display();
-        _eglConfig        = sharedCtx->egl_config();
-        _eglSharedContext = sharedCtx->egl_shared_ctx();
-        _eglSurface       = sharedCtx->egl_surface();
+        _majorVersion     = sharedCtx->majorVer();
+        _minorVersion     = sharedCtx->minorVer();
+        _nativeDisplay    = sharedCtx->nativeDisplay();
+        _eglDisplay       = sharedCtx->eglDisplay();
+        _eglConfig        = sharedCtx->eglConfig();
+        _eglSharedContext = sharedCtx->eglSharedCtx();
+        _eglSurface       = sharedCtx->eglSurface();
         _colorFmt         = sharedCtx->getColorFormat();
         _depthStencilFmt  = sharedCtx->getDepthStencilFormat();
         _extensions       = sharedCtx->_extensions;
         _isInitialized    = sharedCtx->_isInitialized;
 
-        bool hasKHRCreateCtx = CheckExtension(CC_TOSTR(EGL_KHR_create_context));
+        bool hasKHRCreateCtx = checkExtension(CC_TOSTR(EGL_KHR_create_context));
         if (!hasKHRCreateCtx) {
             CC_LOG_INFO("EGL context creation: EGL_KHR_create_context not supported. Minor version will be discarded, and debug disabled.");
             _minorVersion = 0;
@@ -376,12 +375,12 @@ void GLES3Context::acquireSurface(uintptr_t windowHandle) {
         return;
     }
 
-    static_cast<GLES3Context *>(GLES3Device::getInstance()->getContext())->MakeCurrent();
+    static_cast<GLES3Context *>(GLES3Device::getInstance()->getContext())->makeCurrent();
     GLES3Device::getInstance()->stateCache()->reset();
     #endif
 }
 
-bool GLES3Context::MakeCurrentImpl(bool bound) {
+bool GLES3Context::makeCurrentImpl(bool bound) {
     bool succeeded;
     EGL_CHECK(succeeded = eglMakeCurrent(_eglDisplay,
                                          bound ? _eglSurface : EGL_NO_SURFACE,
@@ -396,13 +395,13 @@ void GLES3Context::present() {
 
 #endif
 
-bool GLES3Context::MakeCurrent(bool bound) {
+bool GLES3Context::makeCurrent(bool bound) {
     if (!bound) {
         CC_LOG_DEBUG("eglMakeCurrent() - UNBOUNDED, Context: 0x%p", this);
-        return MakeCurrentImpl(false);
+        return makeCurrentImpl(false);
     }
 
-    if (MakeCurrentImpl(bound)) {
+    if (makeCurrentImpl(bound)) {
         if (!_isInitialized) {
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID)
             // Turn on or off the vertical sync depending on the input bool value.
@@ -478,7 +477,7 @@ bool GLES3Context::MakeCurrent(bool bound) {
     return false;
 }
 
-bool GLES3Context::CheckExtension(const String &extension) const {
+bool GLES3Context::checkExtension(const String &extension) const {
     return (std::find(_extensions.begin(), _extensions.end(), extension) != _extensions.end());
 }
 

@@ -25,8 +25,9 @@
 
 #pragma once
 
-#include "gfx-base/GFXContext.h"
+#include "GLES2Std.h"
 #include "GLES2Wrangler.h"
+#include "gfx-base/GFXContext.h"
 
 namespace cc {
 namespace gfx {
@@ -34,35 +35,38 @@ namespace gfx {
 class CC_GLES2_API GLES2Context final : public Context {
 public:
     GLES2Context();
-    ~GLES2Context();
+    ~GLES2Context() override;
 
     void present() override;
-    bool MakeCurrent(bool bound);
+    bool makeCurrent(bool bound);
 
-    bool CheckExtension(const String &extension) const;
+    bool checkExtension(const String &extension) const;
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     CC_INLINE intptr_t eagl_context() const { return _eaglContext; }
     CC_INLINE intptr_t eagl_shared_ctx() const { return _eaglSharedContext; }
-    CC_INLINE uint getDefaultFramebuffer() const { return _defaultFBO; }
+    CC_INLINE uint     getDefaultFramebuffer() const { return _defaultFBO; }
 #else
-    CC_INLINE NativeDisplayType native_display() const { return _nativeDisplay; }
-    CC_INLINE EGLDisplay egl_display() const { return _eglDisplay; }
-    CC_INLINE EGLConfig egl_config() const { return _eglConfig; }
-    CC_INLINE EGLSurface egl_surface() const { return _eglSurface; }
-    CC_INLINE EGLContext egl_context() const { return _eglContext; }
-    CC_INLINE EGLContext egl_shared_ctx() const { return _eglSharedContext; }
+    CC_INLINE NativeDisplayType nativeDisplay() const { return _nativeDisplay; }
+    CC_INLINE EGLDisplay        eglDisplay() const { return _eglDisplay; }
+    CC_INLINE EGLConfig         eglConfig() const { return _eglConfig; }
+    CC_INLINE EGLSurface        eglSurface() const { return _eglSurface; }
+    CC_INLINE EGLContext        eglContext() const { return _eglContext; }
+    CC_INLINE EGLContext        eglSharedCtx() const { return _eglSharedContext; }
 #endif
-    CC_INLINE bool MakeCurrent() { return MakeCurrent(true); }
-    CC_INLINE int major_ver() const { return _majorVersion; }
-    CC_INLINE int minor_ver() const { return _minorVersion; }
+    CC_INLINE bool makeCurrent() { return makeCurrent(true); }
+    CC_INLINE int  majorVer() const { return _majorVersion; }
+    CC_INLINE int  minorVer() const { return _minorVersion; }
 
-    bool MakeCurrentImpl(bool bound);
+    bool makeCurrentImpl(bool bound);
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     bool createCustomFrameBuffer();
     void doDestroyCustomFrameBuffer();
 #endif
+
+    void releaseSurface(uintptr_t windowHandle);
+    void acquireSurface(uintptr_t windowHandle);
 
 protected:
     bool doInit(const ContextInfo &info) override;
@@ -70,24 +74,24 @@ protected:
 
     bool _isPrimaryContex = false;
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    intptr_t _eaglContext = 0;
+    intptr_t _eaglContext       = 0;
     intptr_t _eaglSharedContext = 0;
     // iOS needs to created frame buffer and attach color/depth/stencil buffer.
-    uint _defaultFBO = 0;
-    uint _defaultColorBuffer = 0;
+    uint _defaultFBO                = 0;
+    uint _defaultColorBuffer        = 0;
     uint _defaultDepthStencilBuffer = 0;
 #else
-    NativeDisplayType _nativeDisplay = 0;
-    EGLDisplay _eglDisplay = EGL_NO_DISPLAY;
-    EGLConfig _eglConfig = EGL_NO_CONFIG_KHR;
-    EGLSurface _eglSurface = EGL_NO_SURFACE;
-    EGLContext _eglContext = EGL_NO_CONTEXT;
-    EGLContext _eglSharedContext = EGL_NO_CONTEXT;
+    NativeDisplayType _nativeDisplay    = 0; // NOLINT(modernize-use-nullptr) portability issues
+    EGLDisplay        _eglDisplay       = EGL_NO_DISPLAY;
+    EGLConfig         _eglConfig        = EGL_NO_CONFIG_KHR;
+    EGLSurface        _eglSurface       = EGL_NO_SURFACE;
+    EGLContext        _eglContext       = EGL_NO_CONTEXT;
+    EGLContext        _eglSharedContext = EGL_NO_CONTEXT;
 #endif
-    int _majorVersion = 0;
-    int _minorVersion = 0;
+    int         _majorVersion = 0;
+    int         _minorVersion = 0;
     StringArray _extensions;
-    bool _isInitialized = false;
+    bool        _isInitialized = false;
 };
 
 } // namespace gfx

@@ -106,12 +106,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     _gpuDevice->minorVersion = context->minorVersion();
 
     // only enable the absolute essentials for now
-    vector<const char *> requestedValidationLayers{};
-
-#if CC_DEBUG > 0
-    requestedValidationLayers.push_back("VK_LAYER_KHRONOS_validation");
-#endif
-
+    vector<const char *> requestedLayers{};
     vector<const char *> requestedExtensions{
         VK_KHR_SWAPCHAIN_EXTENSION_NAME,
     };
@@ -132,13 +127,14 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     requestedFeatures2.features.depthBounds                = deviceFeatures.depthBounds;
     requestedFeatures2.features.multiDrawIndirect          = deviceFeatures.multiDrawIndirect;
 
-#if CC_DEBUG > 0
-    // GPU-assisted validation
-    requestedFeatures2.features.shaderInt64                    = deviceFeatures.shaderInt64;
-    requestedFeatures2.features.fragmentStoresAndAtomics       = deviceFeatures.fragmentStoresAndAtomics;
-    requestedFeatures2.features.vertexPipelineStoresAndAtomics = deviceFeatures.vertexPipelineStoresAndAtomics;
-    requestedExtensions.push_back(VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME);
-#endif
+    if (context->validationEnabled()) {
+        requestedLayers.push_back("VK_LAYER_KHRONOS_validation");
+        // GPU-assisted validation
+        requestedFeatures2.features.shaderInt64                    = deviceFeatures.shaderInt64;
+        requestedFeatures2.features.fragmentStoresAndAtomics       = deviceFeatures.fragmentStoresAndAtomics;
+        requestedFeatures2.features.vertexPipelineStoresAndAtomics = deviceFeatures.vertexPipelineStoresAndAtomics;
+        requestedExtensions.push_back(VK_KHR_SHADER_NON_SEMANTIC_INFO_EXTENSION_NAME);
+    }
 
     // check extensions
     uint availableLayerCount;
@@ -152,7 +148,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     VK_CHECK(vkEnumerateDeviceExtensionProperties(gpuContext->physicalDevice, nullptr, &availableExtensionCount, _gpuDevice->extensions.data()));
 
     // just filter out the unsupported layers & extensions
-    for (const char *layer : requestedValidationLayers) {
+    for (const char *layer : requestedLayers) {
         if (isLayerSupported(layer, _gpuDevice->layers)) {
             _layers.push_back(layer);
         }
@@ -379,8 +375,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     gpuTransportHub()->checkIn(
         [&barrier](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
             cmdFuncCCVKImageMemoryBarrier(gpuCommandBuffer, barrier);
-        },
-        true); // submit immediately
+        });
 
     _gpuDevice->defaultBuffer.usage    = BufferUsage::UNIFORM;
     _gpuDevice->defaultBuffer.memUsage = MemoryUsage::HOST | MemoryUsage::DEVICE;
@@ -452,27 +447,27 @@ void CCVKDevice::doDestroy() {
     }
 
     for (CCVKTexture *texture : _depthStencilTextures) {
-        CC_SAFE_DESTROY(texture);
+        CC_SAFE_DESTROY(texture)
     }
     _depthStencilTextures.clear();
 
-    CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_cmdBuff);
+    CC_SAFE_DESTROY(_queue)
+    CC_SAFE_DESTROY(_cmdBuff)
 
-    CC_SAFE_DELETE(_gpuBufferHub);
-    CC_SAFE_DELETE(_gpuTransportHub);
-    CC_SAFE_DELETE(_gpuSemaphorePool);
-    CC_SAFE_DELETE(_gpuDescriptorHub);
-    CC_SAFE_DELETE(_gpuBarrierManager);
-    CC_SAFE_DELETE(_gpuDescriptorSetHub);
+    CC_SAFE_DELETE(_gpuBufferHub)
+    CC_SAFE_DELETE(_gpuTransportHub)
+    CC_SAFE_DELETE(_gpuSemaphorePool)
+    CC_SAFE_DELETE(_gpuDescriptorHub)
+    CC_SAFE_DELETE(_gpuBarrierManager)
+    CC_SAFE_DELETE(_gpuDescriptorSetHub)
 
     uint backBufferCount = static_cast<CCVKContext *>(_context)->gpuContext()->swapchainCreateInfo.minImageCount;
     for (uint i = 0U; i < backBufferCount; i++) {
         _gpuRecycleBins[i]->clear();
 
-        CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
-        CC_SAFE_DELETE(_gpuRecycleBins[i]);
-        CC_SAFE_DELETE(_gpuFencePools[i]);
+        CC_SAFE_DELETE(_gpuStagingBufferPools[i])
+        CC_SAFE_DELETE(_gpuRecycleBins[i])
+        CC_SAFE_DELETE(_gpuFencePools[i])
     }
     _gpuStagingBufferPools.clear();
     _gpuRecycleBins.clear();
@@ -517,7 +512,7 @@ void CCVKDevice::doDestroy() {
 
         for (CCVKGPUDevice::CommandBufferPools::iterator it = _gpuDevice->_commandBufferPools.begin();
              it != _gpuDevice->_commandBufferPools.end(); ++it) {
-            CC_SAFE_DELETE(it->second);
+            CC_SAFE_DELETE(it->second)
         }
         _gpuDevice->_commandBufferPools.clear();
         _gpuDevice->_descriptorSetPools.clear();
@@ -531,7 +526,7 @@ void CCVKDevice::doDestroy() {
         _gpuDevice = nullptr;
     }
 
-    CC_SAFE_DESTROY(_context);
+    CC_SAFE_DESTROY(_context)
 }
 
 // no-op since we maintain surface size internally
@@ -814,6 +809,14 @@ void CCVKDevice::destroySwapchain() {
         vkDestroySwapchainKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, nullptr);
         _gpuSwapchain->vkSwapchain = VK_NULL_HANDLE;
     }
+}
+
+void CCVKDevice::releaseSurface(uintptr_t windowHandle) {
+    static_cast<CCVKContext *>(_context)->releaseSurface(windowHandle);
+}
+
+void CCVKDevice::acquireSurface(uintptr_t windowHandle) {
+    static_cast<CCVKContext *>(_context)->acquireSurface(windowHandle);
 }
 
 } // namespace gfx

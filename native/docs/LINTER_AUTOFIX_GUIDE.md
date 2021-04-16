@@ -83,7 +83,7 @@ Another fairly decent choice is to install the `clangd` extension only: (`clangd
 
 ![](imgs/clangd.png)
 
-`clangd` is the official language server by LLVM. Compared to the first approach, it has real-time linting & fixing support (much better performance and IDE integration). However it only supports a portion of clang-tidy rules, so the reports won't be identical to the CI environment and it doesn't provide a 'fix-all' command. But combined with the CLI approach below it still can be of a great help.
+`clangd` is the official language server by LLVM. Compared to the first approach, it has real-time linting & fixing support (much better performance and IDE integration). However it only supports a subset of clang-tidy rules, so the reports won't be identical to the CI environment and it doesn't provide a 'fix-all' command. But combined with the CLI approach below it still can be of a great help.
 
 ## Command Line Interface
 
@@ -101,7 +101,14 @@ utils/tidy-fix-commit.sh HEAD~3..HEAD # run auto-fix on files in the last 3 comm
 
 All the issues will be reported in the standard output. This can be used as local self-test runs for CI checks.
 
-The CLI scripts can(and are recommended to) be used as complements to the VS Code environment.
+Also, you can install the `Command Runner` extension in VSCode:
+
+![](imgs/command-runner.png)
+
+And assign a suitable key binding for fixing the current file:
+```bash
+clang-tidy -fix ${file}
+```
 
 ## Other IDEs
 

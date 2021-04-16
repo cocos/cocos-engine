@@ -8,5 +8,5 @@ filtered=`node .github/workflows/filter_by_cdb.js $changes`
 if [[ "$filtered-xxx" == "-xxx" ]]; then
     echo "No source to be fixed"
 else
-    clang-tidy --format-style=file --fix $filtered
+    clang-tidy --format-style=file --fix $2 $filtered
 fi

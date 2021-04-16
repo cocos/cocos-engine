@@ -60,22 +60,22 @@ public:
         Device *device = nullptr;
 
 #ifdef CC_USE_VULKAN
-        if (tryCreate<CCVKDevice>(info, device)) return device;
+        if (tryCreate<CCVKDevice>(info, &device)) return device;
 #endif
 
 #ifdef CC_USE_METAL
-        if (tryCreate<CCMTLDevice>(info, device)) return device;
+        if (tryCreate<CCMTLDevice>(info, &device)) return device;
 #endif
 
 #ifdef CC_USE_GLES3
-        if (tryCreate<GLES3Device>(info, device)) return device;
+        if (tryCreate<GLES3Device>(info, &device)) return device;
 #endif
 
 #ifdef CC_USE_GLES2
-        if (tryCreate<GLES2Device>(info, device)) return device;
+        if (tryCreate<GLES2Device>(info, &device)) return device;
 #endif
 
-        if (tryCreate<EmptyDevice>(info, device)) return device;
+        if (tryCreate<EmptyDevice>(info, &device)) return device;
 
         return nullptr;
     }
@@ -86,8 +86,8 @@ public:
 
 private:
     template <typename DeviceCtor, typename Enable = std::enable_if_t<std::is_base_of<Device, DeviceCtor>::value>>
-    static bool tryCreate(const DeviceInfo &info, Device *&device) {
-        device = CC_NEW(DeviceCtor);
+    static bool tryCreate(const DeviceInfo &info, Device **pDevice) {
+        Device *device = CC_NEW(DeviceCtor);
 
         device = CC_NEW(gfx::DeviceAgent(device));
 
@@ -108,6 +108,8 @@ private:
         EventDispatcher::addCustomEventListener(EVENT_RECREATE_WINDOW, [device](const CustomEvent &e) -> void {
             device->acquireSurface(reinterpret_cast<uintptr_t>(e.args->ptrVal));
         });
+
+        *pDevice = device;
 
         return true;
     }

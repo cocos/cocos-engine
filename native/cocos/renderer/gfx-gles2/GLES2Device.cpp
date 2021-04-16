@@ -205,6 +205,14 @@ void GLES2Device::doDestroy() {
     CC_SAFE_DESTROY(_renderContext);
 }
 
+void GLES2Device::releaseSurface(uintptr_t windowHandle) {
+    static_cast<GLES2Context *>(_context)->releaseSurface(windowHandle);
+}
+
+void GLES2Device::acquireSurface(uintptr_t windowHandle) {
+    static_cast<GLES2Context *>(_context)->acquireSurface(windowHandle);
+}
+
 void GLES2Device::resize(uint width, uint height) {
     _width  = width;
     _height = height;
@@ -229,7 +237,7 @@ void GLES2Device::present() {
 }
 
 void GLES2Device::bindRenderContext(bool bound) {
-    _renderContext->MakeCurrent(bound);
+    _renderContext->makeCurrent(bound);
     _context = bound ? _renderContext : nullptr;
 
     if (bound) {
@@ -247,7 +255,7 @@ void GLES2Device::bindDeviceContext(bool bound) {
         _deviceContext = CC_NEW(GLES2Context);
         _deviceContext->initialize(ctxInfo);
     }
-    _deviceContext->MakeCurrent(bound);
+    _deviceContext->makeCurrent(bound);
     _context = bound ? _deviceContext : nullptr;
 
     if (bound) {
