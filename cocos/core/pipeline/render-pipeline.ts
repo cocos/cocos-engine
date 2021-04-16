@@ -168,7 +168,7 @@ export abstract class RenderPipeline extends Asset {
      * @returns
      */
     public generateRenderArea (camera: Camera): Rect {
-        let res = new Rect();
+        const res = new Rect();
         const vp = camera.viewport;
         const sceneData = this.pipelineSceneData;
         // render area is not oriented

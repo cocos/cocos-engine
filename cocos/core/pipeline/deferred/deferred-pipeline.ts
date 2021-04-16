@@ -231,7 +231,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._quadVBOffscreen = inputAssemblerDataOffscreen.quadVB;
         this._quadIAOffscreen = inputAssemblerDataOffscreen.quadIA;
 
-        let inputAssemblerDataOnscreen = this.createQuadInputAssembler(device.surfaceTransform);
+        const inputAssemblerDataOnscreen = this.createQuadInputAssembler(device.surfaceTransform);
         if (!inputAssemblerDataOnscreen.quadIB || !inputAssemblerDataOnscreen.quadVB || !inputAssemblerDataOnscreen.quadIA) {
             return false;
         }
