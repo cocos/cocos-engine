@@ -737,6 +737,7 @@ export class Label extends Renderable2D {
     }
 
     protected _updateColor () {
+        // hack for all type
         if (this._font instanceof BitmapFont) {
             this._updateWorldAlpha();
             this._colorDirty = false;

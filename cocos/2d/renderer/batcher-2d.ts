@@ -599,7 +599,7 @@ export class Batcher2D {
 
     private _preProcess (node: Node) {
         const render = node._uiProps.uiComp;
-        if (!render) {
+        if (!render) { // hack for opacity
             const localAlpha = node._uiProps.localOpacity;
             node._uiProps.opacity = (node.parent && node.parent._uiProps) ? node.parent._uiProps.opacity * localAlpha : localAlpha;
         }

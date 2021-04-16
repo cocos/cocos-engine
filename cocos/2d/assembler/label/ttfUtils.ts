@@ -116,8 +116,8 @@ export const ttfUtils =  {
         this._updateTexture(comp);
         if (_alpha !== 1) {
             this.updateOpacity(comp);
-            comp._setCacheAlpha(_alpha);
         }
+        comp._setCacheAlpha(_alpha);
         this._calDynamicAtlas(comp);
 
         comp.actualFontSize = _fontSize;
