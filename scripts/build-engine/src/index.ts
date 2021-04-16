@@ -365,18 +365,12 @@ async function doBuild ({
 
         {
             name: '@cocos/build-engine|module-overrides',
-            async resolveId (source, importer) {
+            resolveId (source, importer) {
                 if (moduleOverrides[source]) {
-                    // return the virtual module
                     return source;
-                }
-                // We need to skip this plugin to avoid an infinite loop
-                const resolution = await this.resolve(source, importer, { skipSelf: true });
-                // If it cannot be resolved, return `null` so that Rollup displays an error
-                if (!resolution) {
+                } else {
                     return null;
                 }
-                return resolution.id;
             },
             load (this, id: string) {
                 const key = makePathEqualityKey(id);
@@ -486,6 +480,12 @@ async function doBuild ({
         onwarn: rollupWarningHandler,
     };
 
+    const perf = true;
+
+    if (perf) {
+        rollupOptions.perf = true;
+    }
+
     const ammoJsAsmJsModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.js');
     const ammoJsWasmModule = await nodeResolveAsync('@cocos/ammo/builds/ammo.wasm.js');
     const wasmBinaryPath = ps.join(ammoJsWasmModule, '..', 'ammo.wasm.wasm');
@@ -514,6 +514,13 @@ export { isWasm, wasmBinaryURL };
     }
 
     const rollupBuild = await rollup.rollup(rollupOptions);
+
+    const timing = rollupBuild.getTimings?.();
+    if (timing) {
+        console.debug(`==== Performance ====`);
+        console.debug(JSON.stringify(timing));
+        console.debug(`====             ====`);
+    }
 
     const { incremental: incrementalFile } = options;
     if (incrementalFile) {
