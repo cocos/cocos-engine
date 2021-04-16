@@ -29,26 +29,17 @@
  * @hidden
  */
 
-import { system } from 'pal/system';
-import { JSB, RUNTIME_BASED } from 'internal:constants';
 import { Vec2 } from '../../math/index';
-import { rect } from '../../math/rect';
 import { macro } from '../macro';
-import { sys } from '../sys';
 import eventManager from './event-manager';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { Touch } from './touch';
 import { legacyCC } from '../../global-exports';
 import { logID } from '../debug';
-import { input, MouseInputEvent, MouseWheelInputEvent, TouchInputEvent } from 'pal/input';
+import { AccelerometerInputEvent, input, MouseInputEvent, TouchInputEvent } from 'pal/input';
 import { Acceleration } from './acceleration';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
-
-const PORTRAIT = 0;
-const LANDSCAPE_LEFT = -90;
-const PORTRAIT_UPSIDE_DOWN = 180;
-const LANDSCAPE_RIGHT = 90;
 
 const _vec2 = new Vec2();
 const _preLocation = new Vec2();
@@ -135,7 +126,6 @@ class InputManager {
             }
         }
         if (handleTouches.length > 0) {
-            // this._glView!._convertTouchesWithScale(handleTouches);
             const touchEvent = new EventTouch(handleTouches, false, EventTouch.MOVED, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
             eventManager.dispatchEvent(touchEvent);
         }
@@ -144,7 +134,6 @@ class InputManager {
     public handleTouchesEnd (touches: Touch[]) {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
-            // this._glView!._convertTouchesWithScale(handleTouches);
             const touchEvent = new EventTouch(handleTouches, false, EventTouch.ENDED, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
             eventManager.dispatchEvent(touchEvent);
         }
@@ -154,7 +143,6 @@ class InputManager {
     public handleTouchesCancel (touches: Touch[]) {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
-            // this._glView!._convertTouchesWithScale(handleTouches);
             const touchEvent = new EventTouch(handleTouches, false, EventTouch.CANCELLED, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
             eventManager.dispatchEvent(touchEvent);
         }
@@ -237,7 +225,6 @@ class InputManager {
         const x = inputEvent.x * pixelRatio;
         const y = inputEvent.y * pixelRatio;
         const touch = new Touch(x, y, 0);
-        //  TODO: what if the view is rotated ?
         touch.setPrevPoint(locPreTouch.x, locPreTouch.y);
         locPreTouch.x = x;
         locPreTouch.y = y;
@@ -270,10 +257,8 @@ class InputManager {
             let touchData = inputEvent.changedTouches[i];
             let x = touchData.x * pixelRatio;
             let y = touchData.y * pixelRatio;
-            // TODO: what if the view is rotated ?
             // TODO: what if touchData.identifier is undefined
             let touch = new Touch(x, y, touchData.identifier);
-            // use Touch Pool
             this._getPreTouch(touch).getLocation(_preLocation);
             touch.setPrevPoint(_preLocation.x, _preLocation.y);
             this._setPreTouch(touch);
@@ -354,93 +339,12 @@ class InputManager {
         else {
             input._accelerometer.stop();
         }
-        // if (this._accelEnabled === isEnable) {
-        //     return;
-        // }
-
-        // this._accelEnabled = isEnable;
-        // const scheduler = legacyCC.director.getScheduler();
-        // scheduler.enableForTarget(this);
-        // if (this._accelEnabled) {
-        //     this._registerAccelerometerEvent();
-        //     this._accelCurTime = 0;
-        //     scheduler.scheduleUpdate(this);
-        // } else {
-        //     this._unregisterAccelerometerEvent();
-        //     this._accelCurTime = 0;
-        //     scheduler.unscheduleUpdate(this);
-        // }
         
         // if (JSB) {
         //     // @ts-expect-error
         //     jsb.device.setMotionEnabled(isEnable);
         // }
     }
-
-    // public didAccelerate (eventData: DeviceMotionEvent | DeviceOrientationEvent) {
-    //     if (!this._accelEnabled) {
-    //         return;
-    //     }
-
-    //     const mAcceleration = this._acceleration!;
-
-    //     let x = 0;
-    //     let y = 0;
-    //     let z = 0;
-
-    //     // TODO
-    //     if (this._accelDeviceEvent === window.DeviceMotionEvent) {
-    //         const deviceMotionEvent = eventData as DeviceMotionEvent;
-    //         const eventAcceleration = deviceMotionEvent.accelerationIncludingGravity;
-    //         if (eventAcceleration) {
-    //             x = this._accelMinus * (eventAcceleration.x || 0) * 0.1;
-    //             y = this._accelMinus * (eventAcceleration.y || 0) * 0.1;
-    //             z = (eventAcceleration.z || 0) * 0.1;
-    //         }
-    //     } else {
-    //         const deviceOrientationEvent = eventData as DeviceOrientationEvent;
-    //         x = ((deviceOrientationEvent.gamma || 0) / 90) * 0.981;
-    //         y = -((deviceOrientationEvent.beta || 0) / 90) * 0.981;
-    //         z = ((deviceOrientationEvent.alpha || 0) / 90) * 0.981;
-    //     }
-
-    //     if (legacyCC.view._isRotated) {
-    //         const tmp = x;
-    //         x = -y;
-    //         y = tmp;
-    //     }
-    //     mAcceleration.x = x;
-    //     mAcceleration.y = y;
-    //     mAcceleration.z = z;
-
-    //     mAcceleration.timestamp = eventData.timeStamp || Date.now();
-
-    //     const tmpX = mAcceleration.x;
-    //     if (window.orientation === LANDSCAPE_RIGHT) {
-    //         mAcceleration.x = -mAcceleration.y;
-    //         mAcceleration.y = tmpX;
-    //     } else if (window.orientation === LANDSCAPE_LEFT) {
-    //         mAcceleration.x = mAcceleration.y;
-    //         mAcceleration.y = -tmpX;
-    //     } else if (window.orientation === PORTRAIT_UPSIDE_DOWN) {
-    //         mAcceleration.x = -mAcceleration.x;
-    //         mAcceleration.y = -mAcceleration.y;
-    //     }
-    //     // fix android acc values are opposite
-    //     if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID
-    //         && legacyCC.sys.browserType !== legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
-    //         mAcceleration.x = -mAcceleration.x;
-    //         mAcceleration.y = -mAcceleration.y;
-    //     }
-    // }
-
-    // public update (dt: number) {
-    //     if (this._accelCurTime > this._accelInterval) {
-    //         this._accelCurTime -= this._accelInterval;
-    //         eventManager.dispatchEvent(new EventAcceleration(this._acceleration!));
-    //     }
-    //     this._accelCurTime += dt;
-    // }
 
     /**
      * set accelerometer interval value
@@ -449,14 +353,13 @@ class InputManager {
      */
     public setAccelerometerInterval (interval) {
         input._accelerometer.setInterval(interval);
-
-            // if (JSB || RUNTIME_BASED) {
-            //     // @ts-expect-error
-            //     if (jsb.device && jsb.device.setMotionInterval) {
-            //         // @ts-expect-error
-            //         jsb.device.setMotionInterval(interval);
-            //     }
-            // }
+        // if (JSB || RUNTIME_BASED) {
+        //     // @ts-expect-error
+        //     if (jsb.device && jsb.device.setMotionInterval) {
+        //         // @ts-expect-error
+        //         jsb.device.setMotionInterval(interval);
+        //     }
+        // }
     }
     //#endregion Accelerometer Handle
 
@@ -543,30 +446,10 @@ class InputManager {
     }
 
     private _registerAccelerometerEvent () {
-        input._accelerometer.onChange((inputEvent) => {
+        input._accelerometer.onChange((inputEvent: AccelerometerInputEvent) => {
             let {x, y, z, timestamp} = inputEvent;
             eventManager.dispatchEvent(new EventAcceleration(new Acceleration(x, y, z, timestamp)));
         });
-        
-        // this._acceleration = new Acceleration();
-        // // TODO
-        // // @ts-expect-error
-        // this._accelDeviceEvent = window.DeviceMotionEvent || window.DeviceOrientationEvent;
-
-        // // TODO fix DeviceMotionEvent bug on QQ Browser version 4.1 and below.
-        // if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
-        //     // TODO
-        // // @ts-expect-error
-        //     this._accelDeviceEvent = window.DeviceOrientationEvent;
-        // }
-
-        // const _deviceEventType =
-        //     // TODO
-        //     this._accelDeviceEvent === window.DeviceMotionEvent ? 'devicemotion' : 'deviceorientation';
-
-        // // @ts-expect-error
-        // _didAccelerateFun = (...args: any[]) => this.didAccelerate(...args);
-        // window.addEventListener(_deviceEventType, _didAccelerateFun, false);
     }
     //#endregion Event Register
 }

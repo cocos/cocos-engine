@@ -1,8 +1,9 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
 import { clamp01, SystemEventType } from '../../../cocos/core';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType } from '../../system/enum-type';
-import { system } from '../../system/minigame/system';
+import { BrowserType, OS } from '../../system/enum-type';
+import { system } from 'pal/system';
+import { legacyCC } from '../../../cocos/core/global-exports';
 
 export class AccelerometerInputSource {
     public support: boolean;
@@ -59,14 +60,38 @@ export class AccelerometerInputSource {
             y = -((deviceOrientationEvent.beta || 0) / 90) * 0.981;
             z = ((deviceOrientationEvent.alpha || 0) / 90) * 0.981;
         }
+        
+        // TODO: should not call engine API
+        if (legacyCC.view._isRotated) {
+            const tmp = x;
+            x = -y;
+            y = tmp;
+        }
 
-        // TODO
-        // if (legacyCC.view._isRotated) {
-        //     const tmp = x;
-        //     x = -y;
-        //     y = tmp;
-        // }
+        // TODO: window.orientation is deprecated: https://developer.mozilla.org/en-US/docs/Web/API/Window/orientation
+        // try to use experimental screen.orientation: https://developer.mozilla.org/en-US/docs/Web/API/Screen/orientation
+        const PORTRAIT = 0;
+        const LANDSCAPE_LEFT = -90;
+        const PORTRAIT_UPSIDE_DOWN = 180;
+        const LANDSCAPE_RIGHT = 90;
+        const tmpX = x;
+        if (window.orientation === LANDSCAPE_RIGHT) {
+            x = -y;
+            y = tmpX;
+        } else if (window.orientation === LANDSCAPE_LEFT) {
+            x = y;
+            y = -tmpX;
+        } else if (window.orientation === PORTRAIT_UPSIDE_DOWN) {
+            x = -x;
+            y = -y;
+        }
 
+        // fix android acc values are opposite
+        if (system.os === OS.ANDROID
+            && system.browserType !== BrowserType.MOBILE_QQ) {
+            x = -x;
+            y = -y;
+        }
         let accelerometer: AccelerometerInputEvent = {
             type: SystemEventType.DEVICEMOTION,
             x, y, z,
@@ -74,23 +99,6 @@ export class AccelerometerInputSource {
         };
 
         this._eventTarget.emit(SystemEventType.DEVICEMOTION, accelerometer);
-        // const tmpX = mAcceleration.x;
-        // if (window.orientation === LANDSCAPE_RIGHT) {
-        //     mAcceleration.x = -mAcceleration.y;
-        //     mAcceleration.y = tmpX;
-        // } else if (window.orientation === LANDSCAPE_LEFT) {
-        //     mAcceleration.x = mAcceleration.y;
-        //     mAcceleration.y = -tmpX;
-        // } else if (window.orientation === PORTRAIT_UPSIDE_DOWN) {
-        //     mAcceleration.x = -mAcceleration.x;
-        //     mAcceleration.y = -mAcceleration.y;
-        // }
-        // // fix android acc values are opposite
-        // if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID
-        //     && legacyCC.sys.browserType !== legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
-        //     mAcceleration.x = -mAcceleration.x;
-        //     mAcceleration.y = -mAcceleration.y;
-        // }
     }
 
     public start() {

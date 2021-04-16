@@ -2,6 +2,7 @@ import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
 import { Rect, Vec2 }from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventTouch } from '../../../cocos/core/platform/event-manager/events';
+import { legacyCC } from '../../../cocos/core/global-exports';
 
 export class TouchInputSource {
     public support: boolean;
@@ -33,10 +34,18 @@ export class TouchInputSource {
             for (let i = 0; i < length; ++i) {
                 let touch = event.changedTouches[i];
                 let location = this._getLocation(touch);
+                let x = location.x - canvasRect.x;
+                let y = canvasRect.y + canvasRect.height - location.y;
+                // TODO: should not call engine API
+                if (legacyCC.view._isRotated) {
+                    const tmp = x;
+                    x = canvasRect.height - y;
+                    y = tmp;
+                }
+
                 let touchData: TouchData = {
                     identifier: touch.identifier,
-                    x: location.x - canvasRect.x,
-                    y: canvasRect.y + canvasRect.height - location.y,
+                    x, y,
                     force: touch.force,
                 };
                 touchDataList.push(touchData);
