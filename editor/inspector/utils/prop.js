@@ -158,9 +158,14 @@ exports.updatePropByDump = function (panel, dump) {
                 return;
             }
 
-            panel.$[key] = document.createElement('ui-prop');
-            panel.$[key].setAttribute('type', 'dump');
-            panel.$[key].render(dumpdata);
+            if (element && element.create) {
+                // when it need to go custom initialize
+                panel.$[key] = element.create.call(panel, dumpdata);
+            } else {
+                panel.$[key] = document.createElement('ui-prop');
+                panel.$[key].setAttribute('type', 'dump');
+                panel.$[key].render(dumpdata);
+            }
 
             /**
              * 上升引擎里定义，而自定义排序的范围在 0 - 100;
@@ -178,10 +183,14 @@ exports.updatePropByDump = function (panel, dump) {
                 return;
             }
 
-            panel.$[key].render(dumpdata);
+            if (panel.$[key].tagName === 'UI-PROP' && panel.$[key].getAttribute('type') === 'dump') {
+                panel.$[key].render(dumpdata);
+            }
         }
 
-        children.push(panel.$[key]);
+        if (panel.$[key]) {
+            children.push(panel.$[key]);
+        }
     });
 
     // 重新排序
@@ -189,24 +198,20 @@ exports.updatePropByDump = function (panel, dump) {
 
     panel.$.componentContainer.replaceChildren(...children);
 
-    children.forEach((child) => {
-        const key = child.dump.name;
+    for (const key in panel.elements) {
         const element = panel.elements[key];
-
         if (element && element.ready) {
             element.ready.call(panel, panel.$[key], dump.value);
             element.ready = undefined; // ready 只需要执行一次
         }
-    });
+    }
 
-    children.forEach((child) => {
-        const key = child.dump.name;
+    for (const key in panel.elements) {
         const element = panel.elements[key];
-
         if (element && element.update) {
             element.update.call(panel, panel.$[key], dump.value);
         }
-    });
+    }
 };
 
 /**
