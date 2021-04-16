@@ -147,7 +147,7 @@ export class RenderableComponent extends Component {
         if (inst) {
             if (inst.parent !== this._materials[index]) {
                 inst.destroy();
-                this._materialInstances.splice(index, 1);
+                this._materialInstances[index] = null;
                 this._onMaterialModified(index, this._materials[index]);
             }
         } else {
