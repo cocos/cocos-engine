@@ -35,7 +35,7 @@ import { legacyCC } from '../core/global-exports';
 import { js } from '../core/utils/js';
 import './deprecated';
 
-export { AudioClip } from './assets/clip';
+export { AudioClip } from './audio-clip';
 
 export { AudioSource };
 

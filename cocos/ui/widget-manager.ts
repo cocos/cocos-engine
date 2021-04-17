@@ -30,6 +30,7 @@
  */
 
 import { EDITOR, DEV } from 'internal:constants';
+import { system } from 'pal/system';
 import { Director, director } from '../core/director';
 import { Vec2, Vec3 } from '../core/math';
 import { View } from '../core/platform/view';
@@ -88,11 +89,11 @@ function align (node: Node, widget: Widget) {
         } else {
             localLeft = -targetAnchor.x * targetWidth;
             localRight = localLeft + targetWidth;
-        }
 
-        // adjust borders according to offsets
-        localLeft += widget.isAbsoluteLeft ? widget.left : widget.left * targetWidth;
-        localRight -= widget.isAbsoluteRight ? widget.right : widget.right * targetWidth;
+            // adjust borders according to offsets
+            localLeft += widget.isAbsoluteLeft ? widget.left : widget.left * targetWidth;
+            localRight -= widget.isAbsoluteRight ? widget.right : widget.right * targetWidth;
+        }
 
         if (hasTarget) {
             localLeft += inverseTranslate.x;
@@ -145,11 +146,11 @@ function align (node: Node, widget: Widget) {
         } else {
             localBottom = -targetAnchor.y * targetHeight;
             localTop = localBottom + targetHeight;
-        }
 
-        // adjust borders according to offsets
-        localBottom += widget.isAbsoluteBottom ? widget.bottom : widget.bottom * targetHeight;
-        localTop -= widget.isAbsoluteTop ? widget.top : widget.top * targetHeight;
+            // adjust borders according to offsets
+            localBottom += widget.isAbsoluteBottom ? widget.bottom : widget.bottom * targetHeight;
+            localTop -= widget.isAbsoluteTop ? widget.top : widget.top * targetHeight;
+        }
 
         if (hasTarget) {
             // transform
@@ -351,7 +352,7 @@ export const widgetManager = legacyCC._widgetManager = {
         if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
-            window.addEventListener('orientationchange', thisOnResized);
+            system.onOrientationChange(thisOnResized);
         }
     },
     add (widget: Widget) {

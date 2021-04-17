@@ -92,7 +92,9 @@ function createBundle (id: string, data: IConfigOption, options: IDownloadParseO
         data.base = data.base || `${id}/`;
         bundle.init(data);
     }
-    onComplete(null, bundle);
+    import(`virtual:///prerequisite-imports/${bundle.name}`).then(() => {
+        onComplete(null, bundle);
+    }).catch(onComplete);
 }
 
 export class Factory {

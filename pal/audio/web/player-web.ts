@@ -3,12 +3,15 @@ import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
+import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
-export class AudioPlayerWeb {
+
+export class AudioPlayerWeb implements OperationQueueable {
+    private _src: string;
     private static _context: AudioContext = AudioContextClass && new AudioContextClass();
-    private _audioBuffer?: AudioBuffer;
+    private _audioBuffer: AudioBuffer;
     private _sourceNode?: AudioBufferSourceNode;
     private _gainNode: GainNode;
     private _currentTimer = 0;
@@ -16,18 +19,22 @@ export class AudioPlayerWeb {
     private _loop = false;
     private _startTime = 0;
     private _offset = 0;
-    private _eventTarget: EventTarget = new EventTarget();
     private _state: AudioState = AudioState.INIT;
+
+    // NOTE: the implemented interface properties need to be public access
+    public _eventTarget: EventTarget = new EventTarget();
+    public _operationQueue: OperationInfo[] = [];
 
     private _onGesture?: () => void;
     private _onHide?: () => void;
     private _onShow?: () => void;
 
-    constructor (audioBuffer: AudioBuffer) {
+    constructor (audioBuffer: AudioBuffer, url: string) {
         const context = AudioPlayerWeb._context;
         this._audioBuffer = audioBuffer;
         this._gainNode = context.createGain();
         this._gainNode.connect(context.destination);
+        this._src = url;
         // event
         // TODO: should not call engine API in pal
         this._onGesture = () => this._eventTarget.emit(AudioEvent.USER_GESTURE);
@@ -53,6 +60,7 @@ export class AudioPlayerWeb {
     }
     destroy () {
         if (this._audioBuffer) {
+            // @ts-expect-error need to release AudioBuffer instance
             this._audioBuffer = undefined;
         }
         if (this._onGesture) {
@@ -72,7 +80,7 @@ export class AudioPlayerWeb {
     static load (url: string): Promise<AudioPlayerWeb> {
         return new Promise((resolve) => {
             AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
-                resolve(new AudioPlayerWeb(audioBuffer));
+                resolve(new AudioPlayerWeb(audioBuffer, url));
             }).catch((e) => {});
         });
     }
@@ -100,6 +108,9 @@ export class AudioPlayerWeb {
         });
     }
 
+    get src (): string {
+        return this._src;
+    }
     get type (): AudioType {
         return AudioType.WEB_AUDIO;
     }
@@ -134,15 +145,17 @@ export class AudioPlayerWeb {
         }
     }
     get duration (): number {
-        return this._audioBuffer!.duration;
+        return this._audioBuffer.duration;
     }
     get currentTime (): number {
         if (this._state !== AudioState.PLAYING) { return this._offset; }
         return AudioPlayerWeb._context.currentTime - this._startTime + this._offset;
     }
+
+    @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            this._offset = clamp(time, 0, this._audioBuffer!.duration);
+            this._offset = clamp(time, 0, this._audioBuffer.duration);
             if (this._state === AudioState.PLAYING) {
                 this.stop().then(() => {
                     this.play().catch((e) => {});
@@ -181,7 +194,7 @@ export class AudioPlayerWeb {
         setTimeout(() => {
             this._runContext().then(() => {
                 sourceNode = context.createBufferSource();
-                sourceNode.buffer = this._audioBuffer!;
+                sourceNode.buffer = this._audioBuffer;
                 sourceNode.loop = false;
                 const gainNode = context.createGain();
                 gainNode.connect(context.destination);
@@ -189,7 +202,7 @@ export class AudioPlayerWeb {
                 sourceNode.connect(gainNode);
                 sourceNode.start();
                 onPlayCb && onPlayCb();
-                onEndedCb && setTimeout(onEndedCb, this._audioBuffer!.duration * 1000);
+                onEndedCb && setTimeout(onEndedCb, this._audioBuffer.duration * 1000);
             }).catch((e) => {});
         }, 0);
         const oneShotAudio: OneShotAudio = {
@@ -208,53 +221,43 @@ export class AudioPlayerWeb {
         return oneShotAudio;
     }
 
-    private _ensureStop (): Promise<void> {
-        return new Promise((resolve) => {
-            /* sometimes there is no way to update the playing state
-            especially when player unplug earphones and the audio automatically stops
-            so we need to force updating the playing state by pausing audio */
-            if (this._state === AudioState.PLAYING) {
-                this.stop().then(resolve).catch((e) => {});
-            } else {
-                resolve();
-            }
-        });
-    }
+    @enqueueOperation
     play (): Promise<void> {
         return new Promise((resolve) => {
             const context = AudioPlayerWeb._context;
             this._runContext().then(() => {
-                this._ensureStop().then(() => {
-                    // one AudioBufferSourceNode can't start twice
-                    this._sourceNode = context.createBufferSource();
-                    this._sourceNode.buffer = this._audioBuffer!;
-                    this._sourceNode.connect(this._gainNode);
-                    this._sourceNode.start(0, this._offset);
+                // one AudioBufferSourceNode can't start twice
+                this._sourceNode?.stop();
+                this._sourceNode = context.createBufferSource();
+                this._sourceNode.buffer = this._audioBuffer;
+                this._sourceNode.connect(this._gainNode);
+                this._sourceNode.start(0, this._offset);
 
-                    this._state = AudioState.PLAYING;
-                    this._startTime = context.currentTime;
+                this._state = AudioState.PLAYING;
+                this._startTime = context.currentTime;
 
-                    /* still not supported by all platforms *
-                    this._sourceNode.onended = this._onEnded;
-                    /* doing it manually for now */
-                    const checkEnded = () => {
-                        if (this.loop) {
-                            this._currentTimer = window.setInterval(checkEnded, this._audioBuffer!.duration * 1000);
-                        } else {  // do ended
-                            this._eventTarget.emit(AudioEvent.ENDED);
-                            clearInterval(this._currentTimer);
-                            this._offset = 0;
-                            this._startTime = context.currentTime;
-                            this._state = AudioState.INIT;
-                        }
-                    };
-                    clearInterval(this._currentTimer);
-                    this._currentTimer = window.setInterval(checkEnded, (this._audioBuffer!.duration - this._offset) * 1000);
-                    resolve();
-                }).catch((e) => {});
+                /* still not supported by all platforms *
+                this._sourceNode.onended = this._onEnded;
+                /* doing it manually for now */
+                const checkEnded = () => {
+                    if (this.loop) {
+                        this._currentTimer = window.setInterval(checkEnded, this._audioBuffer.duration * 1000);
+                    } else {  // do ended
+                        this._eventTarget.emit(AudioEvent.ENDED);
+                        clearInterval(this._currentTimer);
+                        this._offset = 0;
+                        this._startTime = context.currentTime;
+                        this._state = AudioState.INIT;
+                    }
+                };
+                clearInterval(this._currentTimer);
+                this._currentTimer = window.setInterval(checkEnded, (this._audioBuffer.duration - this._offset) * 1000);
+                resolve();
             }).catch((e) => {});
         });
     }
+
+    @enqueueOperation
     pause (): Promise<void> {
         if (this._state !== AudioState.PLAYING || !this._sourceNode) {
             return Promise.resolve();
@@ -265,6 +268,8 @@ export class AudioPlayerWeb {
         this._sourceNode.stop();
         return Promise.resolve();
     }
+
+    @enqueueOperation
     stop (): Promise<void> {
         if (!this._sourceNode) {
             return Promise.resolve();

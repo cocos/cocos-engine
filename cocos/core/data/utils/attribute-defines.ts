@@ -45,9 +45,16 @@ export interface IExposedAttributes {
     displayOrder?: number;
 
     /**
-     * 该属性在编辑器中的工具提示内容。
+     * @en Editor tooltip of this property.
+     * @zh 该属性在编辑器中的工具提示内容。
      */
     tooltip?: string;
+
+    /**
+     * @en The tab name where this property is organized into, on property inspector.
+     * @zh 在属性检查器上该属性所属的分类标签名。
+     */
+    tab?: string;
 
     /**
      *
@@ -56,8 +63,18 @@ export interface IExposedAttributes {
 
     /**
      * 指定该属性是否为可读的。
+     * 将 `readonly` 指定为 `true` 或选项对象时都将标记为该属性是可读的；
+     * 当指定为 `true` 时将应用所有默认的只读性质。
+     * @default false
      */
-    readonly?: boolean;
+    readonly?: boolean | {
+        /**
+         * 如果该属性是对象或数组，指定该对象的属性或该数组的元素是否是只读的。
+         * 若为 `true`，递归的所有属性或元素都将是只读的。
+         * @default true
+         */
+        deep?: boolean;
+    };
 
     /**
      * 当该属性为数值类型时，指定了该属性允许的最小值。

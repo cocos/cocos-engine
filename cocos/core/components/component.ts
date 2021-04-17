@@ -385,11 +385,15 @@ class Component extends CCObject {
         this.node._removeComponent(this);
     }
 
-    public _instantiate (cloned: Component) {
+    public _instantiate (cloned?: Component) {
         if (!cloned) {
             cloned = legacyCC.instantiate._clone(this, this);
         }
-        cloned.node = NullNode;
+
+        if (cloned) {
+            cloned.node = NullNode;
+        }
+
         return cloned;
     }
 

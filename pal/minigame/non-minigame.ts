@@ -1,5 +1,5 @@
 import { IMiniGame } from 'pal/minigame';
 
-// @ts-expect-error can't init mg when it's declared
-const mg: IMiniGame = {};
-export { mg };
+// @ts-expect-error can't init minigame when it's declared
+const minigame: IMiniGame = {};
+export { minigame };

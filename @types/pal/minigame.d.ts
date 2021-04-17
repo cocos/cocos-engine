@@ -1,5 +1,5 @@
 declare module 'pal/minigame' {
-    export const mg: IMiniGame;
+    export const minigame: IMiniGame;
     export interface IMiniGame {
         // system
         isSubContext: boolean;
@@ -11,6 +11,8 @@ declare module 'pal/minigame' {
         onHide(callback: () => void): void;
         offHide(callback: () => void): void;
         getSafeArea(): SafeArea;
+        triggerGC(): void;
+        getBatteryInfoSync(): BatteryInfo;
 
         // render
         getSharedCanvas(): any;
@@ -41,6 +43,11 @@ declare module 'pal/minigame' {
         startAccelerometer(obj: AccelerometerParameter);
         stopAccelerometer(obj: AccelerometerParameter);
     }
+}
+
+declare interface BatteryInfo {
+    level: number;  // ranged from 1-100
+    isCharging: boolean;
 }
 
 type AccelerometerChangeCallback = (res: AccelerometerData) => void;

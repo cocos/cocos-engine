@@ -65,17 +65,17 @@ export class UIOpacity extends Component {
         }
         value = clampf(value, 0, 255);
         this._opacity = value;
-        this.node._uiProps.opacity = value / 255;
+        this.node._uiProps.localOpacity = value / 255;
     }
 
     @serializable
     protected _opacity = 255;
 
     public onEnable () {
-        this.node._uiProps.opacity = this._opacity / 255;
+        this.node._uiProps.localOpacity = this._opacity / 255;
     }
 
     public onDisable () {
-        this.node._uiProps.opacity = 1;
+        this.node._uiProps.localOpacity = 1;
     }
 }

@@ -153,13 +153,9 @@ function downloadBundle(nameOrUrl, options, onComplete) {
                 onComplete(err, null);
                 return;
             }
-            downloader.importBundleEntry(bundleName).then(function () {
-                downloadJson(config, options, function (err, data) {
-                    data && (data.base = `${_subpackagesPath}${bundleName}/`);
-                    onComplete(err, data);
-                });
-            }).catch(function (err) {
-                onComplete(err);
+            downloadJson(config, options, function (err, data) {
+                data && (data.base = `${_subpackagesPath}${bundleName}/`);
+                onComplete(err, data);
             });
         });
     }
@@ -187,33 +183,29 @@ function downloadBundle(nameOrUrl, options, onComplete) {
             loadedScripts[js] = true;
         }
 
-        downloader.importBundleEntry(bundleName).then(function () {
-            options.__cacheBundleRoot__ = bundleName;
-            var config = `${url}/config.${suffix}json`;
-            downloadJson(config, options, function (err, data) {
-                if (err) {
-                    onComplete && onComplete(err);
-                    return;
-                }
-                if (data.isZip) {
-                    let zipVersion = data.zipVersion;
-                    let zipUrl = `${url}/res.${zipVersion ? zipVersion + '.' : ''}zip`;
-                    handleZip(zipUrl, options, function (err, unzipPath) {
-                        if (err) {
-                            onComplete && onComplete(err);
-                            return;
-                        }
-                        data.base = unzipPath + '/res/';
-                        onComplete && onComplete(null, data);
-                    });
-                }
-                else {
-                    data.base = url + '/';
+        options.__cacheBundleRoot__ = bundleName;
+        var config = `${url}/config.${suffix}json`;
+        downloadJson(config, options, function (err, data) {
+            if (err) {
+                onComplete && onComplete(err);
+                return;
+            }
+            if (data.isZip) {
+                let zipVersion = data.zipVersion;
+                let zipUrl = `${url}/res.${zipVersion ? zipVersion + '.' : ''}zip`;
+                handleZip(zipUrl, options, function (err, unzipPath) {
+                    if (err) {
+                        onComplete && onComplete(err);
+                        return;
+                    }
+                    data.base = unzipPath + '/res/';
                     onComplete && onComplete(null, data);
-                }
-            });
-        }).catch(function (err) {
-            onComplete && onComplete(err);
+                });
+            }
+            else {
+                data.base = url + '/';
+                onComplete && onComplete(null, data);
+            }
         });
     }
 };

@@ -44,7 +44,8 @@ struct StandardSurface {
   // emissive
   vec3 emissive;
   // light map
-  vec4 lightmap;
+  vec3 lightmap;
+  float lightmap_test;
   // PBR params
   float roughness;
   float metallic;
@@ -70,7 +71,9 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   vec3 diffuseContrib = diffuse;
 
   #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-    finalColor = s.lightmap.a * s.lightmap.rgb + (1.0 - s.lightmap.a) * finalColor;
+    if (s.lightmap_test > 0.0001) {
+      finalColor = s.lightmap.rgb;
+    }
   #else
     diffuseContrib /= PI;
   #endif

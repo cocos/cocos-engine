@@ -31,7 +31,7 @@ import {
     CommandBufferType,
     StencilFace,
     BufferSource, CommandBufferInfo,
-    BufferTextureCopy, Color, Rect, Viewport,
+    BufferTextureCopy, Color, Rect, Viewport, DrawInfo,
 } from '../base/define';
 import { Framebuffer } from '../base/framebuffer';
 import { InputAssembler } from '../base/input-assembler';
@@ -328,7 +328,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public draw (inputAssembler: InputAssembler) {
+    public draw (info: DrawInfo | InputAssembler) {
         if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass
             || this._type === CommandBufferType.SECONDARY) {
             if (this._isStateInvalied) {
@@ -337,30 +337,30 @@ export class WebGL2CommandBuffer extends CommandBuffer {
 
             const cmd = this._webGLAllocator!.drawCmdPool.alloc(WebGL2CmdDraw);
             // cmd.drawInfo = inputAssembler;
-            cmd.drawInfo.vertexCount = inputAssembler.vertexCount;
-            cmd.drawInfo.firstVertex = inputAssembler.firstVertex;
-            cmd.drawInfo.indexCount = inputAssembler.indexCount;
-            cmd.drawInfo.firstIndex = inputAssembler.firstIndex;
-            cmd.drawInfo.vertexOffset = inputAssembler.vertexOffset;
-            cmd.drawInfo.instanceCount = inputAssembler.instanceCount;
-            cmd.drawInfo.firstInstance = inputAssembler.firstInstance;
+            cmd.drawInfo.vertexCount = info.vertexCount;
+            cmd.drawInfo.firstVertex = info.firstVertex;
+            cmd.drawInfo.indexCount = info.indexCount;
+            cmd.drawInfo.firstIndex = info.firstIndex;
+            cmd.drawInfo.vertexOffset = info.vertexOffset;
+            cmd.drawInfo.instanceCount = info.instanceCount;
+            cmd.drawInfo.firstInstance = info.firstInstance;
             this.cmdPackage.drawCmds.push(cmd);
 
             this.cmdPackage.cmds.push(WebGL2Cmd.DRAW);
 
             ++this._numDrawCalls;
-            this._numInstances += inputAssembler.instanceCount;
-            const indexCount = inputAssembler.indexCount || inputAssembler.vertexCount;
+            this._numInstances += info.instanceCount;
+            const indexCount = info.indexCount || info.vertexCount;
             if (this._curGPUPipelineState) {
                 const glPrimitive = this._curGPUPipelineState.glPrimitive;
                 switch (glPrimitive) {
                 case 0x0004: { // WebGLRenderingContext.TRIANGLES
-                    this._numTris += indexCount / 3 * Math.max(inputAssembler.instanceCount, 1);
+                    this._numTris += indexCount / 3 * Math.max(info.instanceCount, 1);
                     break;
                 }
                 case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
                 case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
-                    this._numTris += (indexCount - 2) * Math.max(inputAssembler.instanceCount, 1);
+                    this._numTris += (indexCount - 2) * Math.max(info.instanceCount, 1);
                     break;
                 }
                 default:

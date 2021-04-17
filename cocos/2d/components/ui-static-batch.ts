@@ -69,8 +69,6 @@ export class UIStaticBatch extends Renderable2D {
         }
 
         this._color.set(value);
-        this._updateColor();
-        this.markForUpdateRenderData();
     }
 
     get drawBatchList () {

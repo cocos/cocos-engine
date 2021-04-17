@@ -31,6 +31,7 @@
  */
 
 import '../data/class';
+import { system } from 'pal/system';
 import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
 import { EventTarget } from '../event/event-target';
 import '../game';
@@ -228,14 +229,14 @@ export class View extends EventTarget {
             // enable
             if (!this._resizeWithBrowserSize) {
                 this._resizeWithBrowserSize = true;
-                window.addEventListener('resize', this._resizeEvent);
-                window.addEventListener('orientationchange', this._orientationChange);
+                system.onViewResize(this._resizeEvent);
+                system.onOrientationChange(this._orientationChange);
             }
         } else if (this._resizeWithBrowserSize) {
             // disable
             this._resizeWithBrowserSize = false;
-            window.removeEventListener('resize', this._resizeEvent);
-            window.removeEventListener('orientationchange', this._orientationChange);
+            system.offViewResize(this._resizeEvent);
+            system.offOrientationChange(this._orientationChange);
         }
     }
 
