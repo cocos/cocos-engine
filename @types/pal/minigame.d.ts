@@ -40,9 +40,11 @@ declare module 'pal/minigame' {
         // device
         onAccelerometerChange(cb: AccelerometerChangeCallback);
         offAccelerometerChange(cb?: AccelerometerChangeCallback);
-        startAccelerometer(obj: AccelerometerParameter);
-        stopAccelerometer(obj: AccelerometerParameter);
+        startAccelerometer(obj: AccelerometerStartParameter);
+        stopAccelerometer(obj: AccelerometerStopParameter);
     }
+
+    export type AccelerometerIntevcalMode = 'game' | 'ui' | 'normal';
 }
 
 declare interface BatteryInfo {
@@ -56,7 +58,13 @@ declare interface AccelerometerData {
     y: number,
     z: number,
 }
-declare interface AccelerometerParameter {
+declare interface AccelerometerStartParameter {
+    interval: AccelerometerIntevcalMode,
+    success?: () => void,
+    fail?: (err: any) => void,
+    complete?: () => void,
+}
+declare interface AccelerometerStopParameter {
     success?: () => void,
     fail?: (err: any) => void,
     complete?: () => void,
