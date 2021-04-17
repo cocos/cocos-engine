@@ -55,6 +55,7 @@ enum class VsyncMode {
 };
 
 struct DeviceInfo {
+    bool               isAntiAlias  = false;
     uintptr_t          windowHandle = 0U;
     uint               width        = 0U;
     uint               height       = 0U;
@@ -63,10 +64,18 @@ struct DeviceInfo {
     BindingMappingInfo bindingMappingInfo;
 };
 
+enum class Performance {
+    HIGH_QUALITY,
+    LOW_POWER,
+    //BALANCE,
+};
+
 struct ContextInfo {
-    uintptr_t windowHandle = 0;
-    Context * sharedCtx    = nullptr;
-    VsyncMode vsyncMode    = VsyncMode::RELAXED;
+    bool        msaaEnabled  = false;
+    Performance performance  = Performance::LOW_POWER;
+    VsyncMode   vsyncMode    = VsyncMode::RELAXED;
+    uintptr_t   windowHandle = 0;
+    Context*    sharedCtx    = nullptr;
 };
 
 extern const DescriptorType DESCRIPTOR_BUFFER_TYPE;

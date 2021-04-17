@@ -63,9 +63,11 @@ GLES3Device::~GLES3Device() {
     GLES3Device::instance = nullptr;
 }
 
-bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
+bool GLES3Device::doInit(const DeviceInfo & info) {
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
+    ctxInfo.msaaEnabled  = info.isAntiAlias;
+    ctxInfo.performance  = Performance::HIGH_QUALITY;
 
     _renderContext = CC_NEW(GLES3Context);
     if (!_renderContext->initialize(ctxInfo)) {
@@ -91,11 +93,11 @@ bool GLES3Device::doInit(const DeviceInfo & /*info*/) {
     String extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
     _extensions   = StringUtil::split(extStr, " ");
 
+    _features[static_cast<uint>(Feature::MSAA)]                    = _renderContext->multiSampleCount() > 0;
     _features[static_cast<uint>(Feature::TEXTURE_FLOAT)]           = true;
     _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)]      = true;
     _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)]       = true;
     _features[static_cast<uint>(Feature::FORMAT_D24S8)]            = true;
-    _features[static_cast<uint>(Feature::MSAA)]                    = true;
     _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)]        = true;
     _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
     _features[static_cast<uint>(Feature::BLEND_MINMAX)]            = true;

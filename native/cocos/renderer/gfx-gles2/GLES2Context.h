@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <vector>
 #include "GLES2Std.h"
 #include "GLES2Wrangler.h"
 #include "gfx-base/GFXContext.h"
@@ -54,9 +55,10 @@ public:
     CC_INLINE EGLContext        eglContext() const { return _eglContext; }
     CC_INLINE EGLContext        eglSharedCtx() const { return _eglSharedContext; }
 #endif
-    CC_INLINE bool makeCurrent() { return makeCurrent(true); }
-    CC_INLINE int  majorVer() const { return _majorVersion; }
-    CC_INLINE int  minorVer() const { return _minorVersion; }
+    CC_INLINE bool    makeCurrent() { return makeCurrent(true); }
+    CC_INLINE int     majorVer() const { return _majorVersion; }
+    CC_INLINE int     minorVer() const { return _minorVersion; }
+    CC_INLINE uint8_t multiSampleCount() const { return _sampleCount; }
 
     bool makeCurrentImpl(bool bound);
 
@@ -72,7 +74,10 @@ protected:
     bool doInit(const ContextInfo &info) override;
     void doDestroy() override;
 
-    bool _isPrimaryContex = false;
+    bool    _isPrimaryContex = false;
+    bool    _isInitialized   = false;
+    uint8_t _sampleBuffers   = 0;
+    uint8_t _sampleCount     = 0;
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     intptr_t _eaglContext       = 0;
     intptr_t _eaglSharedContext = 0;
@@ -81,17 +86,17 @@ protected:
     uint _defaultColorBuffer        = 0;
     uint _defaultDepthStencilBuffer = 0;
 #else
-    NativeDisplayType _nativeDisplay    = 0; // NOLINT(modernize-use-nullptr) portability issues
-    EGLDisplay        _eglDisplay       = EGL_NO_DISPLAY;
-    EGLConfig         _eglConfig        = EGL_NO_CONFIG_KHR;
-    EGLSurface        _eglSurface       = EGL_NO_SURFACE;
-    EGLContext        _eglContext       = EGL_NO_CONTEXT;
-    EGLContext        _eglSharedContext = EGL_NO_CONTEXT;
+    NativeDisplayType           _nativeDisplay    = 0; // NOLINT(modernize-use-nullptr) portability issues
+    EGLDisplay                  _eglDisplay       = EGL_NO_DISPLAY;
+    EGLConfig                   _eglConfig        = EGL_NO_CONFIG_KHR;
+    EGLSurface                  _eglSurface       = EGL_NO_SURFACE;
+    EGLContext                  _eglContext       = EGL_NO_CONTEXT;
+    EGLContext                  _eglSharedContext = EGL_NO_CONTEXT;
+    std::vector<EGLConfig>      _vecEGLConfig;
 #endif
     int         _majorVersion = 0;
     int         _minorVersion = 0;
     StringArray _extensions;
-    bool        _isInitialized = false;
 };
 
 } // namespace gfx

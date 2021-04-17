@@ -62,9 +62,11 @@ GLES2Device::~GLES2Device() {
     GLES2Device::instance = nullptr;
 }
 
-bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
+bool GLES2Device::doInit(const DeviceInfo & info) {
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
+    ctxInfo.msaaEnabled  = info.isAntiAlias;
+    ctxInfo.performance  = Performance::HIGH_QUALITY;
 
     _renderContext = CC_NEW(GLES2Context);
     if (!_renderContext->initialize(ctxInfo)) {
@@ -99,7 +101,7 @@ bool GLES2Device::doInit(const DeviceInfo & /*info*/) {
 
     _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)] = true;
     _features[static_cast<uint>(Feature::FORMAT_D24S8)]      = true;
-    _features[static_cast<uint>(Feature::MSAA)]              = true;
+    _features[static_cast<uint>(Feature::MSAA)]              = _renderContext->multiSampleCount() > 0;
 
     if (checkExtension("GL_OES_element_index_uint")) {
         _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)] = true;

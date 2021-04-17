@@ -14638,6 +14638,33 @@ bool js_register_gfx_MemoryStatus(se::Object* obj)
 se::Object* __jsb_cc_gfx_DeviceInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_DeviceInfo_class = nullptr;
 
+static bool js_gfx_DeviceInfo_get_isAntiAlias(se::State& s)
+{
+    cc::gfx::DeviceInfo* cobj = SE_THIS_OBJECT<cc::gfx::DeviceInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DeviceInfo_get_isAntiAlias : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->isAntiAlias, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->isAntiAlias, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_DeviceInfo_get_isAntiAlias)
+
+static bool js_gfx_DeviceInfo_set_isAntiAlias(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::DeviceInfo* cobj = SE_THIS_OBJECT<cc::gfx::DeviceInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DeviceInfo_set_isAntiAlias : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->isAntiAlias, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_DeviceInfo_set_isAntiAlias : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_DeviceInfo_set_isAntiAlias)
+
 static bool js_gfx_DeviceInfo_get_windowHandle(se::State& s)
 {
     cc::gfx::DeviceInfo* cobj = SE_THIS_OBJECT<cc::gfx::DeviceInfo>(s);
@@ -14813,6 +14840,10 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DeviceInfo * to, se::Obje
     }
     se::Value field;
     bool ok = true;
+    json->getProperty("isAntiAlias", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->isAntiAlias), ctx);
+    }
     json->getProperty("windowHandle", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->windowHandle), ctx);
@@ -14876,22 +14907,25 @@ static bool js_gfx_DeviceInfo_constructor(se::State& s)
     {
         cc::gfx::DeviceInfo* cobj = JSB_ALLOC(cc::gfx::DeviceInfo);
         if (argc > 0 && !args[0].isUndefined()) {
-            ok &= sevalue_to_native(args[0], &(cobj->windowHandle), nullptr);
+            ok &= sevalue_to_native(args[0], &(cobj->isAntiAlias), nullptr);
         }
         if (argc > 1 && !args[1].isUndefined()) {
-            ok &= sevalue_to_native(args[1], &(cobj->width), nullptr);
+            ok &= sevalue_to_native(args[1], &(cobj->windowHandle), nullptr);
         }
         if (argc > 2 && !args[2].isUndefined()) {
-            ok &= sevalue_to_native(args[2], &(cobj->height), nullptr);
+            ok &= sevalue_to_native(args[2], &(cobj->width), nullptr);
         }
         if (argc > 3 && !args[3].isUndefined()) {
-            ok &= sevalue_to_native(args[3], &(cobj->nativeWidth), nullptr);
+            ok &= sevalue_to_native(args[3], &(cobj->height), nullptr);
         }
         if (argc > 4 && !args[4].isUndefined()) {
-            ok &= sevalue_to_native(args[4], &(cobj->nativeHeight), nullptr);
+            ok &= sevalue_to_native(args[4], &(cobj->nativeWidth), nullptr);
         }
         if (argc > 5 && !args[5].isUndefined()) {
-            ok &= sevalue_to_native(args[5], &(cobj->bindingMappingInfo), nullptr);
+            ok &= sevalue_to_native(args[5], &(cobj->nativeHeight), nullptr);
+        }
+        if (argc > 6 && !args[6].isUndefined()) {
+            ok &= sevalue_to_native(args[6], &(cobj->bindingMappingInfo), nullptr);
         }
 
         if(!ok) {
@@ -14930,6 +14964,7 @@ bool js_register_gfx_DeviceInfo(se::Object* obj)
 {
     auto cls = se::Class::create("DeviceInfo", obj, nullptr, _SE(js_gfx_DeviceInfo_constructor));
 
+    cls->defineProperty("isAntiAlias", _SE(js_gfx_DeviceInfo_get_isAntiAlias), _SE(js_gfx_DeviceInfo_set_isAntiAlias));
     cls->defineProperty("windowHandle", _SE(js_gfx_DeviceInfo_get_windowHandle), _SE(js_gfx_DeviceInfo_set_windowHandle));
     cls->defineProperty("width", _SE(js_gfx_DeviceInfo_get_width), _SE(js_gfx_DeviceInfo_set_width));
     cls->defineProperty("height", _SE(js_gfx_DeviceInfo_get_height), _SE(js_gfx_DeviceInfo_set_height));
