@@ -118,7 +118,7 @@ class System {
         return new Size(sysInfo.screenWidth, sysInfo.screenHeight);
     }
     public getOrientation (): Orientation {
-        throw new Error('TODO');
+        return minigame.orientation;
     }
     public getSafeAreaEdge (): SafeAreaEdge {
         throw new Error('TODO');

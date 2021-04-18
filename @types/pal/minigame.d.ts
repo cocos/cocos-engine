@@ -5,6 +5,7 @@ declare module 'pal/minigame' {
         isSubContext: boolean;
         isDevTool: boolean;
         isLandscape: boolean;
+        orientation: import('pal/system/enum-type').Orientation;
         getSystemInfoSync(): SystemInfo;
         onShow(callback: () => void): void;
         offShow(callback: () => void): void;
@@ -45,6 +46,18 @@ declare module 'pal/minigame' {
     }
 
     export type AccelerometerIntevcalMode = 'game' | 'ui' | 'normal';
+
+    export interface AccelerometerStartParameter {
+        interval: AccelerometerIntevcalMode,
+        success?: () => void,
+        fail?: (err: any) => void,
+        complete?: () => void,
+    }
+    export interface AccelerometerStopParameter {
+        success?: () => void,
+        fail?: (err: any) => void,
+        complete?: () => void,
+    }
 }
 
 declare interface BatteryInfo {
@@ -57,17 +70,6 @@ declare interface AccelerometerData {
     x: number,
     y: number,
     z: number,
-}
-declare interface AccelerometerStartParameter {
-    interval: AccelerometerIntevcalMode,
-    success?: () => void,
-    fail?: (err: any) => void,
-    complete?: () => void,
-}
-declare interface AccelerometerStopParameter {
-    success?: () => void,
-    fail?: (err: any) => void,
-    complete?: () => void,
 }
 
 declare interface IEventManager<Event> {
@@ -135,6 +137,7 @@ declare interface SystemInfo {
     safeArea: SafeArea;
     locationReducedAccuracy: boolean;
     theme: string;
+    deviceOrientation?: 'portrait' | 'landscape';
 }
 
 declare interface SafeArea {

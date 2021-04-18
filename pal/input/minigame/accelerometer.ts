@@ -6,6 +6,7 @@ import { minigame, AccelerometerIntevcalMode } from 'pal/minigame';
 export class AccelerometerInputSource {
     public support: boolean;
 
+    private _isStarted: boolean = false;
     private _accelMode: AccelerometerIntevcalMode = 'normal';
     private _eventTarget: EventTarget = new  EventTarget();
     private _didAccelerateFunc: (event: AccelerometerData) => void;
@@ -38,10 +39,16 @@ export class AccelerometerInputSource {
         this._registerEvent();
         minigame.startAccelerometer({
             interval: this._accelMode,
+            success: () => {
+                this._isStarted = true;
+            }
         });
     }
     public stop () {
         minigame.stopAccelerometer({
+            success: () => {
+                this._isStarted = false;
+            },
             fail () {
                 console.error('failed to stop accelerometer');
             },
@@ -57,8 +64,11 @@ export class AccelerometerInputSource {
         } else {
             this._accelMode = 'game';
         }
-        this.stop();
-        this.start();
+        if (this._isStarted) {
+            // restart accelerometer
+            this.stop();
+            this.start();
+        }
     }
     public onChange (cb: AccelerometerCallback) {
         this._eventTarget.on(SystemEventType.DEVICEMOTION, cb);

@@ -11,8 +11,22 @@ cloneObject(minigame, qg);
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isSubContext = false;  // sub context not supported
 minigame.isDevTool = false;
+
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
-let orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
+// init landscapeOrientation as LANDSCAPE_RIGHT
+let landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+qg.onDeviceOrientationChange((res) => {
+    if (res.value === 'landscape') {
+        landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+    } else if (res.value === 'landscapeReverse') {
+        landscapeOrientation = Orientation.LANDSCAPE_LEFT;
+    }
+});
+Object.defineProperty(minigame, 'orientation', {
+    get() {
+        return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
+    },
+});
 
 // // TouchEvent
 // globalAdapter.onTouchStart = function (cb) {
@@ -48,7 +62,7 @@ minigame.onAccelerometerChange = function (cb) {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
-            const orientationFactor = orientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
+            const orientationFactor = landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
             const tmp = x;
             x = -y * orientationFactor;
             y = tmp * orientationFactor;
