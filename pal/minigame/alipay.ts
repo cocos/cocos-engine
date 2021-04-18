@@ -13,7 +13,7 @@ minigame.isDevTool = window.navigator && (/AlipayIDE/.test(window.navigator.user
 
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
 // init landscapeOrientation as LANDSCAPE_RIGHT
-let landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
 // NOTE: onDeviceOrientationChange is not supported on this platform
 // my.onDeviceOrientationChange((res) => {
 //     if (res.value === 'landscape') {
@@ -23,7 +23,7 @@ let landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
 //     }
 // });
 Object.defineProperty(minigame, 'orientation', {
-    get() {
+    get () {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });

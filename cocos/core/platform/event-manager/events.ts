@@ -628,18 +628,14 @@ export class EventKeyboard extends Event {
     }
 }
 
-// TODO
-// @ts-expect-error
+// @ts-expect-error TODO
 Event.EventMouse = EventMouse;
 
-// TODO
-// @ts-expect-error
+// @ts-expect-error TODO
 Event.EventTouch = EventTouch;
 
-// TODO
-// @ts-expect-error
+// @ts-expect-error TODO
 Event.EventAcceleration = EventAcceleration;
 
-// TODO
-// @ts-expect-error
+// @ts-expect-error TODO
 Event.EventKeyboard = EventKeyboard;

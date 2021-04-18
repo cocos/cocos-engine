@@ -22,7 +22,7 @@ qg.onDeviceOrientationChange((res) => {
     }
 });
 Object.defineProperty(minigame, 'orientation', {
-    get() {
+    get () {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });

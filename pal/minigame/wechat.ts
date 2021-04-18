@@ -13,7 +13,7 @@ minigame.isDevTool = (systemInfo.platform === 'devtools');
 // NOTE: size and orientation info is wrong at the init phase, especially on iOS device
 Object.defineProperty(minigame, 'isLandscape', {
     get () {
-        return systemInfo.deviceOrientation ? (systemInfo.deviceOrientation === 'landscape'): (systemInfo.screenWidth > systemInfo.screenHeight);
+        return systemInfo.deviceOrientation ? (systemInfo.deviceOrientation === 'landscape') : (systemInfo.screenWidth > systemInfo.screenHeight);
     },
 });
 // init landscapeOrientation as LANDSCAPE_RIGHT
@@ -26,7 +26,7 @@ wx.onDeviceOrientationChange((res) => {
     }
 });
 Object.defineProperty(minigame, 'orientation', {
-    get() {
+    get () {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });
