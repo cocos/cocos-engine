@@ -1,5 +1,5 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
-import { minigame, AccelerometerIntevcalMode } from 'pal/minigame';
+import { minigame, AccelerometerIntervalMode } from 'pal/minigame';
 import { clamp01, SystemEventType } from '../../../cocos/core';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 
@@ -7,7 +7,7 @@ export class AccelerometerInputSource {
     public support: boolean;
 
     private _isStarted = false;
-    private _accelMode: AccelerometerIntevcalMode = 'normal';
+    private _accelMode: AccelerometerIntervalMode = 'normal';
     private _eventTarget: EventTarget = new  EventTarget();
     private _didAccelerateFunc: (event: AccelerometerData) => void;
 

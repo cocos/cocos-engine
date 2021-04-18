@@ -44,10 +44,10 @@ declare module 'pal/minigame' {
         stopAccelerometer(obj: AccelerometerStopParameter);
     }
 
-    export type AccelerometerIntevcalMode = 'game' | 'ui' | 'normal';
+    export type AccelerometerIntervalMode = 'game' | 'ui' | 'normal';
 
     export interface AccelerometerStartParameter {
-        interval: AccelerometerIntevcalMode,
+        interval: AccelerometerIntervalMode,
         success?: () => void,
         fail?: (err: any) => void,
         complete?: () => void,
