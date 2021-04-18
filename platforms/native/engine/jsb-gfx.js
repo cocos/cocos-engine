@@ -50,7 +50,7 @@ let _converters = {
         let width = cc.game.canvas.width,
             height = cc.game.canvas.height,
             handler = window.windowHandler;
-        return new gfx.DeviceInfo(handler, width, height, info.nativeWidth, info.nativeHeight, null, info.bindingMappingInfo);
+        return new gfx.DeviceInfo(info.isAntiAlias, handler, width, height, info.nativeWidth, info.nativeHeight, null, info.bindingMappingInfo);
     }
 };
 
