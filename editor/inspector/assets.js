@@ -7,6 +7,7 @@ module.exports = {
     'dragonbones': join(__dirname, './assets/json.js'),  // reuse
     'effect-header': join(__dirname, './assets/effect-header.js'),
     'erp-texture-cube': join(__dirname, './assets/erp-texture-cube.js'),
+    'gltf-material': join(__dirname, './assets/material.js'), // reuse
     'label-atlas': join(__dirname, './assets/label-atlas.js'),
     'physics-material': join(__dirname, './assets/physics-material.js'),
     'render-pipeline': join(__dirname, './assets/render-pipeline.js'),
