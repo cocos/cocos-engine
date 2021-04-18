@@ -189,12 +189,12 @@ declare module 'pal/input' {
          * The interval is in mileseconds.  
          * @param intervalInMileseconds interval in mileseconds
          */
-        setInterval (intervalInMileseconds: number);
+        public setInterval (intervalInMileseconds: number);
         /**
          * Register the accelerometer change event callback.
          * @param cb 
          */
-        onChange (cb: AccelerometerCallback);
+        public onChange (cb: AccelerometerCallback);
     }
 
     /**
@@ -205,31 +205,31 @@ declare module 'pal/input' {
         /**
          * Asynchronously show the UI input box, also show the soft keyboard on mobile.
          */
-        show (): Promise<void>;
+        public show (): Promise<void>;
         /**
          * Asynchronously hide the UI input box, also hide the soft keyboard on mobile.
          */
-        hide (): Promise<void>;
+        public hide (): Promise<void>;
         /**
          * Register the UI input box change event callback.
          * @param cb 
          */
-        onChange (cb: ()=>void);
+        public onChange (cb: ()=>void);
         /**
          * Register the UI input box complete event callback.
          * @param cb 
          */
-        onComplete (cb: ()=>void);
+        public onComplete (cb: ()=>void);
         /**
          * Unregister the UI input box change event callback.
          * @param cb If not specified, all callback would be unregistered.
          */
-        offChange (cb?: ()=>void);
+        public offChange (cb?: ()=>void);
         /**
          * Unregister the UI input box complete event callback.
          * @param cb If not specified, all callback would be unregistered.
          */
-        offComplete (cb?: ()=>void);
+        public offComplete (cb?: ()=>void);
     }
 
     /**
