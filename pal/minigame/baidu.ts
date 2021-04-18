@@ -11,7 +11,6 @@ cloneObject(minigame, swan);
 // SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = systemInfo.platform === 'devtools';
-minigame.isSubContext = (minigame.getOpenDataContext === undefined);
 
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
 // init landscapeOrientation as LANDSCAPE_RIGHT

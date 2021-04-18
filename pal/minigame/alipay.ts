@@ -9,7 +9,6 @@ const minigame: IMiniGame = {};
 cloneObject(minigame, my);
 
 const systemInfo = minigame.getSystemInfoSync();
-minigame.isSubContext = false;  // sub context not supported
 minigame.isDevTool = window.navigator && (/AlipayIDE/.test(window.navigator.userAgent));
 
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;

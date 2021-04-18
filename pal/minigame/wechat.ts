@@ -9,7 +9,6 @@ const minigame: IMiniGame = {};
 cloneObject(minigame, wx);
 
 const systemInfo = minigame.getSystemInfoSync();
-minigame.isSubContext = minigame.getOpenDataContext !== undefined;
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 // NOTE: size and orientation info is wrong at the init phase, especially on iOS device
 Object.defineProperty(minigame, 'isLandscape', {

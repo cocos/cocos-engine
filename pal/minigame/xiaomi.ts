@@ -9,7 +9,6 @@ const minigame: IMiniGame = {};
 cloneObject(minigame, qg);
 
 const systemInfo = minigame.getSystemInfoSync();
-minigame.isSubContext = false;  // sub context not supported
 minigame.isDevTool = false;
 
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;

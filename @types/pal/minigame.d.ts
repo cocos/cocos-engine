@@ -2,7 +2,6 @@ declare module 'pal/minigame' {
     export const minigame: IMiniGame;
     export interface IMiniGame {
         // system
-        isSubContext: boolean;
         isDevTool: boolean;
         isLandscape: boolean;
         orientation: import('pal/system/enum-type').Orientation;

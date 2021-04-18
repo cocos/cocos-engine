@@ -9,7 +9,6 @@ const minigame: IMiniGame = {};
 cloneObject(minigame, ral);
 
 const systemInfo = minigame.getSystemInfoSync();
-minigame.isSubContext = minigame.getOpenDataContext !== undefined;
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
