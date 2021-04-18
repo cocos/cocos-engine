@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { legacyCC } from '../global-exports';
 import { markAsWarning, removeProperty } from '../utils';
 import { warnID } from './debug';
 import { EventMouse, EventTouch, SystemEventType } from './event-manager';
@@ -58,7 +57,6 @@ Object.defineProperty(EventMouse, 'SCROLL', {
 });
 
 // depracate EventTouch static property
-legacyCC.EventTouch = EventTouch;
 Object.defineProperty(EventTouch, 'BEGAN', {
     get () {
         warnID(1400, `EventMouse.BEGAN`, `SystemEventType.TOUCH_START`);
