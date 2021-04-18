@@ -40,14 +40,9 @@ export class MouseInputSource {
         this._registerEventOnWindowAndCanvas('mouseup', this._createCallback(SystemEventType.MOUSE_UP));
         // register wheel event
         this._canvas?.addEventListener('wheel', (event: WheelEvent) => {
-            const canvasRect = this._getCanvasRect();
-            const location = this._getLocation(event);
             const wheelSensitivityFactor = 5;
             const inputEvent: MouseWheelInputEvent = {
                 type: SystemEventType.MOUSE_WHEEL,
-                x: location.x - canvasRect.x,
-                y: canvasRect.y + canvasRect.height - location.y,
-                button: event.button,  // TODO: what is the button when tracking mouse move ?
                 deltaX: event.deltaX * wheelSensitivityFactor,
                 deltaY: -event.deltaY * wheelSensitivityFactor,
                 timestamp: performance.now(),

@@ -31,7 +31,7 @@ declare module 'pal/input' {
         readonly button: number;  // static property in Event class
     }
     type MouseCallback = (res: MouseInputEvent) => void;
-    export interface MouseWheelInputEvent extends MouseInputEvent {
+    export interface MouseWheelInputEvent extends BaseInputEvent  {
         readonly deltaX: number;
         readonly deltaY: number;
     }
