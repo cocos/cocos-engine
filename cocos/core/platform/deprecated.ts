@@ -23,9 +23,10 @@
  THE SOFTWARE.
  */
 
+import { legacyCC } from '../global-exports';
 import { markAsWarning, removeProperty } from '../utils';
 import { warnID } from './debug';
-import { EventMouse, SystemEventType } from './event-manager';
+import { EventMouse, EventTouch, SystemEventType } from './event-manager';
 import { sys } from './sys';
 import { View } from './view';
 
@@ -53,6 +54,33 @@ Object.defineProperty(EventMouse, 'SCROLL', {
     get () {
         warnID(1400, `EventMouse.SCROLL`, `SystemEventType.MOUSE_WHEEL`);
         return SystemEventType.MOUSE_WHEEL;
+    },
+});
+
+// depracate EventTouch static property
+legacyCC.EventTouch = EventTouch;
+Object.defineProperty(EventTouch, 'BEGAN', {
+    get () {
+        warnID(1400, `EventMouse.BEGAN`, `SystemEventType.TOUCH_START`);
+        return SystemEventType.TOUCH_START;
+    },
+});
+Object.defineProperty(EventTouch, 'MOVED', {
+    get () {
+        warnID(1400, `EventMouse.MOVED`, `SystemEventType.TOUCH_MOVE`);
+        return SystemEventType.TOUCH_MOVE;
+    },
+});
+Object.defineProperty(EventTouch, 'ENDED', {
+    get () {
+        warnID(1400, `EventMouse.ENDED`, `SystemEventType.TOUCH_END`);
+        return SystemEventType.TOUCH_END;
+    },
+});
+Object.defineProperty(EventTouch, 'CANCELLED', {
+    get () {
+        warnID(1400, `EventMouse.CANCELLED`, `SystemEventType.TOUCH_CANCEL`);
+        return SystemEventType.TOUCH_CANCEL;
     },
 });
 

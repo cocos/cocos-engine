@@ -3,7 +3,7 @@ import { system } from 'pal/system';
 import { EventMouse } from '../../../cocos/core/platform/event-manager/events';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Rect, Vec2 } from '../../../cocos/core/math';
-import { SystemEventType } from '../../../cocos/core';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 
 type MouseEventNames = 'mousedown' | 'mouseup' | 'mousemove' | 'wheel';
 

@@ -1,7 +1,7 @@
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
 import { EventMouse } from '../../../cocos/core/platform/event-manager/events';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { SystemEventType } from '../../../cocos/core';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 
 export class MouseInputSource {
     public support: boolean;

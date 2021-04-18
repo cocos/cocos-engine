@@ -4,30 +4,25 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventTouch } from '../../../cocos/core/platform/event-manager/events';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { system } from 'pal/system';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 
 export class TouchInputSource {
     public support: boolean;
-    private _canvas?: HTMLCanvasElement;
     private _eventTarget: EventTarget = new EventTarget();
 
     constructor () {
         this.support = true;
-        this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-        // TODO: init canvas in input root
-        if (!this._canvas) {
-            console.warn('failed to access canvas');
-        }
         this._registerEvent();
     }
 
     private _registerEvent () {
-        jsb.onTouchStart = this._createCallback(EventTouch.BEGAN);
-        jsb.onTouchMove = this._createCallback(EventTouch.MOVED);
-        jsb.onTouchEnd = this._createCallback(EventTouch.ENDED);
-        jsb.onTouchCancel = this._createCallback(EventTouch.CANCELLED);
+        jsb.onTouchStart = this._createCallback(SystemEventType.TOUCH_START);
+        jsb.onTouchMove = this._createCallback(SystemEventType.TOUCH_MOVE);
+        jsb.onTouchEnd = this._createCallback(SystemEventType.TOUCH_END);
+        jsb.onTouchCancel = this._createCallback(SystemEventType.TOUCH_CANCEL);
     }
 
-    private _createCallback (eventType: number) {
+    private _createCallback (eventType: string) {
         return (touchList: TouchList) => {
             const touchDataList: TouchData[] = [];
             const length = touchList.length;
@@ -50,7 +45,7 @@ export class TouchInputSource {
                 changedTouches: touchDataList,
                 timestamp: performance.now(),
             };
-            this._eventTarget.emit(eventType.toString(), inputEvent);
+            this._eventTarget.emit(eventType, inputEvent);
         };
     }
 
@@ -59,15 +54,15 @@ export class TouchInputSource {
     }
 
     public onStart (cb: TouchCallback) {
-        this._eventTarget.on(EventTouch.BEGAN.toString(), cb);
+        this._eventTarget.on(SystemEventType.TOUCH_START, cb);
     }
     public onMove (cb: TouchCallback) {
-        this._eventTarget.on(EventTouch.MOVED.toString(), cb);
+        this._eventTarget.on(SystemEventType.TOUCH_MOVE, cb);
     }
     public onEnd (cb: TouchCallback) {
-        this._eventTarget.on(EventTouch.ENDED.toString(), cb);
+        this._eventTarget.on(SystemEventType.TOUCH_END, cb);
     }
     public onCancel (cb: TouchCallback) {
-        this._eventTarget.on(EventTouch.CANCELLED.toString(), cb);
+        this._eventTarget.on(SystemEventType.TOUCH_CANCEL, cb);
     }
 }

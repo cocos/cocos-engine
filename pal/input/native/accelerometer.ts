@@ -25,7 +25,6 @@ export class AccelerometerInputSource {
         let y = deviceMotionValue[4] * 0.1;
         let z = deviceMotionValue[5] * 0.1;
 
-        // TODO: support window.orientation ?
         let orientation = system.getOrientation();
         const tmpX = x;
         if (orientation === Orientation.LANDSCAPE_RIGHT) {

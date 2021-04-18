@@ -31,11 +31,12 @@
 
 import { Event } from '../../event';
 import { EventTouch } from './events';
-import { EventListener, TouchOneByOne } from './event-listener';
+import { EventListener, TouchOneByOneEventListener } from './event-listener';
 import { Node } from '../../scene-graph';
 import { macro } from '../macro';
 import { legacyCC } from '../../global-exports';
 import { errorID, warnID, logID, assertID } from '../debug';
+import { SystemEventType } from './event-enum';
 
 const ListenerID = EventListener.ListenerID;
 
@@ -936,7 +937,7 @@ class EventManager {
         toRemovedListeners.length = 0;
     }
 
-    private _onTouchEventCallback (listener: TouchOneByOne, argsObj: any) {
+    private _onTouchEventCallback (listener: TouchOneByOneEventListener, argsObj: any) {
         // Skip if the listener was removed.
         if (!listener._isRegistered()) {
             return false;
@@ -949,8 +950,7 @@ class EventManager {
         let isClaimed = false;
         let removedIdx = -1;
         const getCode = event.getEventCode();
-        // const EventTouch = cc.Event.EventTouch;
-        if (getCode === EventTouch.BEGAN) {
+        if (getCode === SystemEventType.TOUCH_START) {
             if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
                 const node = eventManager._currentTouchListener._node;
                 if (!node || node.activeInHierarchy) {
@@ -975,9 +975,9 @@ class EventManager {
                 if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
                     return false;
                 }
-                if (getCode === EventTouch.MOVED && listener.onTouchMoved) {
+                if (getCode === SystemEventType.TOUCH_MOVE && listener.onTouchMoved) {
                     listener.onTouchMoved(selTouch, event);
-                } else if (getCode === EventTouch.ENDED) {
+                } else if (getCode === SystemEventType.TOUCH_END) {
                     if (listener.onTouchEnded) {
                         listener.onTouchEnded(selTouch, event);
                     }
@@ -990,7 +990,7 @@ class EventManager {
                     }
 
                     eventManager._currentTouchListener = null;
-                } else if (getCode === EventTouch.CANCELLED) {
+                } else if (getCode === SystemEventType.TOUCH_CANCEL) {
                     if (listener.onTouchCancelled) {
                         listener.onTouchCancelled(selTouch, event);
                     }
@@ -1068,18 +1068,17 @@ class EventManager {
             return false;
         }
 
-        // const EventTouch = cc.Event.EventTouch;
         const event = callbackParams.event;
         const touches = callbackParams.touches;
         const getCode = event.getEventCode();
         event.currentTarget = listener._getSceneGraphPriority();
-        if (getCode === EventTouch.BEGAN && listener.onTouchesBegan) {
+        if (getCode === SystemEventType.TOUCH_START && listener.onTouchesBegan) {
             listener.onTouchesBegan(touches, event);
-        } else if (getCode === EventTouch.MOVED && listener.onTouchesMoved) {
+        } else if (getCode === SystemEventType.TOUCH_MOVE && listener.onTouchesMoved) {
             listener.onTouchesMoved(touches, event);
-        } else if (getCode === EventTouch.ENDED && listener.onTouchesEnded) {
+        } else if (getCode === SystemEventType.TOUCH_END && listener.onTouchesEnded) {
             listener.onTouchesEnded(touches, event);
-        } else if (getCode === EventTouch.CANCELLED && listener.onTouchesCancelled) {
+        } else if (getCode === SystemEventType.TOUCH_CANCEL && listener.onTouchesCancelled) {
             listener.onTouchesCancelled(touches, event);
         }
 

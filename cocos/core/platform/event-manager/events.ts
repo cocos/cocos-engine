@@ -378,27 +378,6 @@ export class EventTouch extends Event {
     public static MAX_TOUCHES = 5;
 
     /**
-     * @en The event type code of touch began event.
-     * @zh 开始触摸事件。
-     */
-    public static BEGAN = 0;
-    /**
-     * @en The event type code of touch moved event.
-     * @zh 触摸后移动事件。
-     */
-    public static MOVED = 1;
-    /**
-     * @en The event type code of touch ended event.
-     * @zh 结束触摸事件。
-     */
-    public static ENDED = 2;
-    /**
-     * @en The event type code of touch canceled event.
-     * @zh 取消触摸事件。
-     */
-    public static CANCELLED = 3;
-
-    /**
      * @en The current touch object
      * @zh 当前触点对象
      */
@@ -409,7 +388,7 @@ export class EventTouch extends Event {
      */
     public simulate = false;
 
-    private _eventCode: number;
+    private _eventCode: string;
 
     private _touches: Touch[];
 
@@ -420,9 +399,9 @@ export class EventTouch extends Event {
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      * @param eventCode - The type code of the touch event
      */
-    constructor (changedTouches?: Touch[], bubbles?: boolean, eventCode?: number, touches?: Touch[]) {
+    constructor (changedTouches?: Touch[], bubbles?: boolean, eventCode?: string, touches?: Touch[]) {
         super(Event.TOUCH, bubbles);
-        this._eventCode = eventCode || 0;
+        this._eventCode = eventCode || '';
         this._touches = changedTouches || [];
         this._allTouches = touches || [];
     }
