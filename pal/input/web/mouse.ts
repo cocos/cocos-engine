@@ -75,7 +75,7 @@ export class MouseInputSource {
             this._eventTarget.emit(eventType, inputEvent);
         };
     }
-    
+
     onDown (cb: MouseCallback) {
         this._eventTarget.on(SystemEventType.MOUSE_DOWN, cb);
     }

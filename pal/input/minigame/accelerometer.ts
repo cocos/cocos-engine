@@ -1,12 +1,12 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
+import { minigame, AccelerometerIntevcalMode } from 'pal/minigame';
 import { clamp01, SystemEventType } from '../../../cocos/core';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { minigame, AccelerometerIntevcalMode } from 'pal/minigame';
 
 export class AccelerometerInputSource {
     public support: boolean;
 
-    private _isStarted: boolean = false;
+    private _isStarted = false;
     private _accelMode: AccelerometerIntevcalMode = 'normal';
     private _eventTarget: EventTarget = new  EventTarget();
     private _didAccelerateFunc: (event: AccelerometerData) => void;
@@ -25,7 +25,7 @@ export class AccelerometerInputSource {
     }
 
     private _didAccelerate (event: AccelerometerData) {
-        let accelerometer: AccelerometerInputEvent = {
+        const accelerometer: AccelerometerInputEvent = {
             type: SystemEventType.DEVICEMOTION,
             x: event.x,
             y: event.y,
@@ -41,7 +41,7 @@ export class AccelerometerInputSource {
             interval: this._accelMode,
             success: () => {
                 this._isStarted = true;
-            }
+            },
         });
     }
     public stop () {

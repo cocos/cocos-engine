@@ -45,7 +45,7 @@ removeProperty(View.prototype, 'View.prototype', [
     Object.defineProperty(EventMouse, item, {
         get () {
             warnID(1400, `EventMouse.${item}`, `SystemEventType.MOUSE_${item}`);
-            return SystemEventType[`MOUSE_${item}`];
+            return SystemEventType[`MOUSE_${item}`] as string;
         },
     });
 });
@@ -90,7 +90,7 @@ Object.defineProperty(EventTouch, 'CANCELLED', {
     Object.defineProperty(sys, `LANGUAGE_${item}`, {
         get () {
             warnID(1400, `sys.LANGUAGE_${item}`, `sys.Language.${item}`);
-            return sys.Language[item];
+            return sys.Language[item] as string;
         },
     });
 });
@@ -100,7 +100,7 @@ Object.defineProperty(EventTouch, 'CANCELLED', {
     Object.defineProperty(sys, `OS_${item}`, {
         get () {
             warnID(1400, `sys.OS_${item}`, `sys.OS.${item}`);
-            return sys.OS[item];
+            return sys.OS[item] as string;
         },
     });
 });
@@ -113,7 +113,7 @@ Object.defineProperty(EventTouch, 'CANCELLED', {
     Object.defineProperty(sys, `BROWSER_TYPE_${item}`, {
         get () {
             warnID(1400, `sys.BROWSER_TYPE_${item}`, `sys.BrowserType.${item}`);
-            return sys.BrowserType[item];
+            return sys.BrowserType[item] as string;
         },
     });
 });
@@ -125,7 +125,7 @@ Object.defineProperty(EventTouch, 'CANCELLED', {
     Object.defineProperty(sys, item, {
         get () {
             warnID(1400, `sys.${item}`, `sys.Platform.${item}`);
-            return sys.Platform[item];
+            return sys.Platform[item] as string;
         },
     });
 });

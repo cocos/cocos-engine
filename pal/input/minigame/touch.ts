@@ -1,8 +1,8 @@
 import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
+import { minigame } from 'pal/minigame';
 import { Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { EventTouch } from '../../../cocos/core/platform/event-manager/events';
-import { minigame } from 'pal/minigame';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 
 export class TouchInputSource {
@@ -23,7 +23,7 @@ export class TouchInputSource {
 
     private _createCallback (eventType: string) {
         return (event: TouchEvent) => {
-            let sysInfo = minigame.getSystemInfoSync();
+            const sysInfo = minigame.getSystemInfoSync();
             const touchDataList: TouchData[] = [];
             const length = event.changedTouches.length;
             for (let i = 0; i < length; ++i) {

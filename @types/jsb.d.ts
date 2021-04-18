@@ -10,7 +10,7 @@ declare namespace jsb {
     type RotationRateAlpha = number;
     type RotationRateBeta = number;
     type RotationRateGamma = number;
-    type DeviceMotionValue = [AccelerationXYZ, AccelerationXYZ, AccelerationXYZ, 
+    type DeviceMotionValue = [AccelerationXYZ, AccelerationXYZ, AccelerationXYZ,
         AccelerationIncludingGravityXYZ, AccelerationIncludingGravityXYZ, AccelerationIncludingGravityXYZ,
         RotationRateAlpha, RotationRateBeta, RotationRateGamma];
     export namespace device {

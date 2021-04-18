@@ -1,10 +1,9 @@
 declare module 'pal/input' {
-
     interface BaseInputEvent {
         readonly type: string;
         readonly timestamp: number;
     }
-    
+
     interface BaseInputSource {
         readonly support: boolean;
     }
@@ -42,7 +41,7 @@ declare module 'pal/input' {
         onUp (cb: MouseCallback);
         onWheel (cb: MouseWheelCallback);
     }
-    
+
     export interface KeyboardInputEvent extends BaseInputEvent {
         readonly code: number;
     }
@@ -66,13 +65,13 @@ declare module 'pal/input' {
         start ();
         stop ();
         /**
-         * 
+         *
          * @param interval ranged from 0 to 1 in mile seconds
          */
         setInterval (interval: number);
         onChange (cb: AccelerometerCallback);
     }
-    
+
     export interface InputBox extends BaseInputSource {
         show (): Promise<void>;
         hide (): Promise<void>;
@@ -97,7 +96,7 @@ declare module 'pal/input' {
         // input box
         public showInputBox (): Promise<void>;
         public hideInputBox (): Promise<void>;
-        public onInputBoxChange (cb: Function);
+        public onInputBoxChange (cb: Function);  // TODO: don't use Function
         public onInputBoxComplete (cb: Function);
 
         public pollEvent(): BaseInputEvent | undefined;

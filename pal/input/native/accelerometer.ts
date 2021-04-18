@@ -7,25 +7,25 @@ import { Orientation, OS } from '../../system/enum-type';
 export class AccelerometerInputSource {
     public support: boolean;
 
-    private _intervalInSeconds: number = 0.2;
+    private _intervalInSeconds = 0.2;
     private _intervalId? :number;
-    private _isEnabled: boolean = false;
+    private _isEnabled = false;
     private _eventTarget: EventTarget = new  EventTarget();
     private _didAccelerateFunc: () => void;
 
     constructor () {
-        let support = system.isMobile;
+        const support = system.isMobile;
         this.support = support;
         this._didAccelerateFunc = this._didAccelerate.bind(this);
     }
 
     private _didAccelerate () {
-        let deviceMotionValue = jsb.device.getDeviceMotionValue();
+        const deviceMotionValue = jsb.device.getDeviceMotionValue();
         let x = deviceMotionValue[3] * 0.1;
         let y = deviceMotionValue[4] * 0.1;
-        let z = deviceMotionValue[5] * 0.1;
+        const z = deviceMotionValue[5] * 0.1;
 
-        let orientation = system.getOrientation();
+        const orientation = system.getOrientation();
         const tmpX = x;
         if (orientation === Orientation.LANDSCAPE_RIGHT) {
             x = -y;
