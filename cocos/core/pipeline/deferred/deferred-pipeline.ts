@@ -46,6 +46,7 @@ import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPO
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
+import { sceneCulling } from '../scene-culling';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -158,6 +159,7 @@ export class DeferredPipeline extends RenderPipeline {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
+                sceneCulling(this, camera);
                 this._pipelineUBO.updateCameraUBO(camera, true);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
@@ -427,7 +429,7 @@ export class DeferredPipeline extends RenderPipeline {
         return inputAssemblerData;
     }
 
-    public updateQuadVertexData(renderArea: Rect) {
+    public updateQuadVertexData (renderArea: Rect) {
         if (this._lastUsedRenderArea === renderArea) {
             return;
         }
@@ -440,7 +442,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._quadVBOnscreen!.update(onData);
     }
 
-    protected genQuadVertexData(surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
+    protected genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
         const vbData = new Float32Array(4 * 4);
 
         const minX = renderArea.x / this.device.width;
