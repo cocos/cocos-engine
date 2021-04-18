@@ -13,7 +13,6 @@ export class TouchInputSource {
     constructor () {
         this.support = true;
         this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-        // TODO: init canvas in input root
         if (!this._canvas) {
             console.warn('failed to access canvas');
         }
