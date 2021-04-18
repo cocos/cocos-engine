@@ -70,7 +70,7 @@ export class MouseInputSource {
                 type: eventType,
                 x: location.x - canvasRect.x,
                 y: canvasRect.y + canvasRect.height - location.y,
-                button: (event).button,
+                button: event.button,
                 timestamp: performance.now(),
             };
             event.stopPropagation();
