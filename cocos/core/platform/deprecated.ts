@@ -25,6 +25,7 @@
 
 import { markAsWarning, removeProperty } from '../utils';
 import { warnID } from './debug';
+import { EventMouse, SystemEventType } from './event-manager';
 import { sys } from './sys';
 import { View } from './view';
 
@@ -38,6 +39,22 @@ removeProperty(View.prototype, 'View.prototype', [
         suggest: 'The API of Texture2d have been largely modified, no alternative',
     },
 ]);
+
+// depracate EventMouse static property
+['DOWN', 'UP', 'MOVE'].forEach((item) => {
+    Object.defineProperty(EventMouse, item, {
+        get () {
+            warnID(1400, `EventMouse.${item}`, `SystemEventType.MOUSE_${item}`);
+            return SystemEventType[`MOUSE_${item}`];
+        },
+    });
+});
+Object.defineProperty(EventMouse, 'SCROLL', {
+    get () {
+        warnID(1400, `EventMouse.SCROLL`, `SystemEventType.MOUSE_WHEEL`);
+        return SystemEventType.MOUSE_WHEEL;
+    },
+});
 
 // deprecate languageCode field
 ['UNKNOWN', 'ENGLISH', 'CHINESE', 'FRENCH', 'ITALIAN',

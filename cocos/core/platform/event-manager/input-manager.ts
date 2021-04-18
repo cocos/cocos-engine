@@ -233,7 +233,7 @@ class InputManager {
 
     private _getMouseEvent (inputEvent: MouseInputEvent): EventMouse {
         const locPreMouse = this._prevMousePoint;
-        const mouseEvent = new EventMouse(inputEvent.type as number, false, locPreMouse);
+        const mouseEvent = new EventMouse(inputEvent.type, false, locPreMouse);
         const pixelRatio = this._getViewPixelRatio();
         // update previous location
         locPreMouse.x = inputEvent.x * pixelRatio;

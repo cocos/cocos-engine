@@ -1,8 +1,7 @@
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
 import { EventMouse } from '../../../cocos/core/platform/event-manager/events';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-
-type MouseEventNames = 'mousedown' | 'mouseup' | 'mousemove' | 'wheel';
+import { SystemEventType } from '../../../cocos/core';
 
 export class MouseInputSource {
     public support: boolean;
@@ -12,18 +11,16 @@ export class MouseInputSource {
         this.support = false;  // TODO: pc-wechat
     }
 
-    // TODO: eventType need to be typed as string
-
     onDown (cb: MouseCallback) {
-        this._eventTarget.on(EventMouse.DOWN.toString(), cb);
+        this._eventTarget.on(SystemEventType.MOUSE_DOWN, cb);
     }
     onMove (cb: MouseCallback) {
-        this._eventTarget.on(EventMouse.MOVE.toString(), cb);
+        this._eventTarget.on(SystemEventType.MOUSE_MOVE, cb);
     }
     onUp (cb: MouseCallback) {
-        this._eventTarget.on(EventMouse.UP.toString(), cb);
+        this._eventTarget.on(SystemEventType.MOUSE_UP, cb);
     }
     onWheel (cb: MouseWheelCallback) {
-        this._eventTarget.on(EventMouse.SCROLL.toString(), cb);
+        this._eventTarget.on(SystemEventType.MOUSE_WHEEL, cb);
     }
 }

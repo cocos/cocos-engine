@@ -42,38 +42,6 @@ const _vec2 = new Vec2();
  * @zh 鼠标事件类型
  */
 export class EventMouse extends Event {
-    // Inner event types of MouseEvent
-
-    /**
-     * @en The none event code of mouse event.
-     * @zh 无效事件代码
-     */
-    public static NONE = 0;
-
-    /**
-     * @en The event code of mouse down event.
-     * @zh 鼠标按下事件代码。
-     */
-    public static DOWN = 1;
-
-    /**
-     * @en The event code of mouse up event.
-     * @zh 鼠标按下后释放事件代码。
-     */
-    public static UP = 2;
-
-    /**
-     * @en The event code of mouse move event.
-     * @zh 鼠标移动事件。
-     */
-    public static MOVE = 3;
-
-    /**
-     * @en The event code of mouse scroll event.
-     * @zh 鼠标滚轮事件。
-     */
-    public static SCROLL = 4;
-
     /**
      * @en The default tag when no button is pressed
      * @zh 按键默认的缺省状态
@@ -144,7 +112,7 @@ export class EventMouse extends Event {
      * @en The type of the event, possible values are UP, DOWN, MOVE, SCROLL
      * @zh 鼠标事件类型，可以是 UP, DOWN, MOVE, CANCELED。
      */
-    public eventType: number;
+    public eventType: string;
 
     private _button: number = EventMouse.BUTTON_MISSING;
 
@@ -164,7 +132,7 @@ export class EventMouse extends Event {
      * @param eventType - The type of the event, possible values are UP, DOWN, MOVE, SCROLL
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
-    constructor (eventType: number, bubbles?: boolean, prevLoc?: Vec2) {
+    constructor (eventType: string, bubbles?: boolean, prevLoc?: Vec2) {
         super(Event.MOUSE, bubbles);
         this.eventType = eventType;
         if (prevLoc) {

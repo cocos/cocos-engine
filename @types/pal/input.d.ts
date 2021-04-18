@@ -1,7 +1,7 @@
 declare module 'pal/input' {
 
     interface BaseInputEvent {
-        readonly type: number | string;  // static property in Event class
+        readonly type: string;
         readonly timestamp: number;
     }
     

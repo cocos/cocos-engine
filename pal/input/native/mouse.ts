@@ -3,6 +3,7 @@ import { system } from 'pal/system';
 import { EventMouse } from '../../../cocos/core/platform/event-manager/events';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Vec2 } from '../../../cocos/core/math';
+import { SystemEventType } from '../../../cocos/core';
 
 export class MouseInputSource {
     public support: boolean;
@@ -18,15 +19,15 @@ export class MouseInputSource {
     }
 
     private _registerEvent () {
-        jsb.onMouseDown = this._createCallback(EventMouse.DOWN);
-        jsb.onMouseMove = this._createCallback(EventMouse.MOVE);
-        jsb.onMouseUp =  this._createCallback(EventMouse.UP);
+        jsb.onMouseDown = this._createCallback(SystemEventType.MOUSE_DOWN);
+        jsb.onMouseMove = this._createCallback(SystemEventType.MOUSE_MOVE);
+        jsb.onMouseUp =  this._createCallback(SystemEventType.MOUSE_UP);
         jsb.onMouseWheel = (event: jsb.MouseWheelEvent) => {
             const location = this._getLocation(event);
             const viewSize = system.getViewSize();
             const matchStandardFactor = 120;
             const inputEvent: MouseWheelInputEvent = {
-                type: EventMouse.SCROLL,
+                type: SystemEventType.MOUSE_WHEEL,
                 x: location.x,
                 y: viewSize.height - location.y,
                 button: event.button,
@@ -34,11 +35,11 @@ export class MouseInputSource {
                 deltaY: event.wheelDeltaY * matchStandardFactor,
                 timestamp: performance.now(),
             };
-            this._eventTarget.emit(EventMouse.SCROLL.toString(), inputEvent);
+            this._eventTarget.emit(SystemEventType.MOUSE_WHEEL, inputEvent);
         };
     }
 
-    private _createCallback (eventType: number) {
+    private _createCallback (eventType: string) {
         return (event: jsb.MouseEvent) => {
             const location = this._getLocation(event);
             const viewSize = system.getViewSize();
@@ -50,22 +51,20 @@ export class MouseInputSource {
                 timestamp: performance.now(),
             };
             // emit web mouse event
-            this._eventTarget.emit(eventType.toString(), inputEvent);
+            this._eventTarget.emit(eventType, inputEvent);
         };
     }
 
-    // TODO: eventType need to be typed as string
-
     onDown (cb: MouseCallback) {
-        this._eventTarget.on(EventMouse.DOWN.toString(), cb);
+        this._eventTarget.on(SystemEventType.MOUSE_DOWN, cb);
     }
     onMove (cb: MouseCallback) {
-        this._eventTarget.on(EventMouse.MOVE.toString(), cb);
+        this._eventTarget.on(SystemEventType.MOUSE_MOVE, cb);
     }
     onUp (cb: MouseCallback) {
-        this._eventTarget.on(EventMouse.UP.toString(), cb);
+        this._eventTarget.on(SystemEventType.MOUSE_UP, cb);
     }
     onWheel (cb: MouseWheelCallback) {
-        this._eventTarget.on(EventMouse.SCROLL.toString(), cb);
+        this._eventTarget.on(SystemEventType.MOUSE_WHEEL, cb);
     }
 }

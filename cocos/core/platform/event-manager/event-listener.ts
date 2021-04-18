@@ -34,6 +34,7 @@ import { EventKeyboard, EventAcceleration, EventMouse } from './events';
 import { Component } from '../../components';
 import { legacyCC } from '../../global-exports';
 import { logID, assertID } from '../debug';
+import { SystemEventType } from './event-enum';
 
 export interface IEventListenerCreateInfo {
     event?: number;
@@ -359,24 +360,23 @@ export class MouseEventListener extends EventListener {
     }
 
     public _callback (event: EventMouse) {
-        const eventType = legacyCC.Event.EventMouse;
         switch (event.eventType) {
-        case eventType.DOWN:
+        case SystemEventType.MOUSE_DOWN:
             if (this.onMouseDown) {
                 this.onMouseDown(event);
             }
             break;
-        case eventType.UP:
+        case SystemEventType.MOUSE_UP:
             if (this.onMouseUp) {
                 this.onMouseUp(event);
             }
             break;
-        case eventType.MOVE:
+        case SystemEventType.MOUSE_MOVE:
             if (this.onMouseMove) {
                 this.onMouseMove(event);
             }
             break;
-        case eventType.SCROLL:
+        case SystemEventType.MOUSE_WHEEL:
             if (this.onMouseScroll) {
                 this.onMouseScroll(event);
             }
