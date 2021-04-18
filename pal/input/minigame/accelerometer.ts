@@ -56,6 +56,7 @@ export class AccelerometerInputSource {
         this._unregisterEvent();
     }
     public setInterval (intervalInMileseconds: number) {
+        // reference: https://developers.weixin.qq.com/minigame/dev/api/device/accelerometer/wx.startAccelerometer.html
         if (intervalInMileseconds >= 200) {
             this._accelMode = 'normal';
         } else if (intervalInMileseconds >= 60) {

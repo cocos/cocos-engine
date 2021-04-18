@@ -21,7 +21,7 @@ export class KeyboardInputSource {
         return (event: jsb.KeyboardEvent) => {
             const inputEvent: KeyboardInputEvent = {
                 type: eventType,
-                code: event.keyCode,  // TODO: keyCode is deprecated on Web standard
+                code: event.keyCode,
                 timestamp: performance.now(),
             };
             this._eventTarget.emit(eventType, inputEvent);

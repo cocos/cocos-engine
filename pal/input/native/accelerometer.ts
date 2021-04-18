@@ -58,7 +58,7 @@ export class AccelerometerInputSource {
         if (this._intervalId) {
             clearInterval(this._intervalId);
         }
-        this._intervalId = setInterval(this._didAccelerateFunc);
+        this._intervalId = setInterval(this._didAccelerateFunc, this._intervalInSeconds * 1000);
         jsb.device.setAccelerometerInterval(this._intervalInSeconds);
         jsb.device.setAccelerometerEnabled(true);
         this._isEnabled = true;
@@ -72,8 +72,8 @@ export class AccelerometerInputSource {
         this._isEnabled = false;
     }
     public setInterval (intervalInMileseconds: number) {
-        const intervalInSeconds = intervalInMileseconds / 1000;
-        jsb.device.setAccelerometerInterval(intervalInSeconds);
+        this._intervalInSeconds = intervalInMileseconds / 1000;
+        jsb.device.setAccelerometerInterval(this._intervalInSeconds);
         if (this._isEnabled) {
             // restart accelerometer
             jsb.device.setAccelerometerEnabled(false);

@@ -8,7 +8,7 @@ import { legacyCC } from '../../../cocos/core/global-exports';
 export class AccelerometerInputSource {
     public support: boolean;
 
-    private _accelInterval = 1 / 5;
+    private _intervalInMileseconds = 200;
     private _accelTimer = 0;
     private _eventTarget: EventTarget = new  EventTarget();
     private _deviceEventName: 'devicemotion' |'deviceorientation';
@@ -40,7 +40,7 @@ export class AccelerometerInputSource {
 
     private _didAccelerate (event: DeviceMotionEvent | DeviceOrientationEvent) {
         const now = performance.now();
-        if (now - this._accelTimer < this._accelInterval) {
+        if (now - this._accelTimer < this._intervalInMileseconds) {
             return;
         }
         this._accelTimer = now;
@@ -110,7 +110,7 @@ export class AccelerometerInputSource {
         this._unregisterEvent();
     }
     public setInterval (intervalInMileseconds: number) {
-        this._accelInterval = intervalInMileseconds;
+        this._intervalInMileseconds = intervalInMileseconds;
     }
     public onChange (cb: AccelerometerCallback) {
         this._eventTarget.on(SystemEventType.DEVICEMOTION, cb);

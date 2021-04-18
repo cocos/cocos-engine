@@ -20,6 +20,7 @@ export class TouchInputSource {
     }
 
     private _registerEvent () {
+        // IDEA: need to register on window ?
         this._canvas?.addEventListener('touchstart', this._createCallback(SystemEventType.TOUCH_START));
         this._canvas?.addEventListener('touchmove', this._createCallback(SystemEventType.TOUCH_MOVE));
         this._canvas?.addEventListener('touchend', this._createCallback(SystemEventType.TOUCH_END));

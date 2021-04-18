@@ -358,8 +358,8 @@ class InputManager {
     // #endregion Accelerometer Handle
 
     // #region Event Register
-    public registerSystemEvent (element: HTMLElement | null) {
-        if (this._isRegisterEvent || !element) {
+    public registerSystemEvent () {
+        if (this._isRegisterEvent) {
             return;
         }
 
