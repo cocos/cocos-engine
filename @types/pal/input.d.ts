@@ -66,9 +66,9 @@ declare module 'pal/input' {
         stop ();
         /**
          *
-         * @param interval ranged from 0 to 1 in mile seconds
+         * @param intervalInMileseconds interval in mileseconds
          */
-        setInterval (interval: number);
+        setInterval (intervalInMileseconds: number);
         onChange (cb: AccelerometerCallback);
     }
 

@@ -1,6 +1,6 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
 import { system } from 'pal/system';
-import { SystemEventType } from '../../../cocos/core';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Orientation, OS } from '../../system/enum-type';
 
@@ -71,8 +71,9 @@ export class AccelerometerInputSource {
         jsb.device.setAccelerometerEnabled(false);
         this._isEnabled = false;
     }
-    public setInterval (interval: number) {
-        jsb.device.setAccelerometerInterval(interval / 1000);
+    public setInterval (intervalInMileseconds: number) {
+        let intervalInSeconds = intervalInMileseconds / 1000;
+        jsb.device.setAccelerometerInterval(intervalInSeconds);
         if (this._isEnabled) {
             // restart accelerometer
             jsb.device.setAccelerometerEnabled(false);

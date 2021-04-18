@@ -1,6 +1,6 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
 import { system } from 'pal/system';
-import { clamp01, SystemEventType } from '../../../cocos/core';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { BrowserType, OS } from '../../system/enum-type';
 import { legacyCC } from '../../../cocos/core/global-exports';
@@ -109,9 +109,8 @@ export class AccelerometerInputSource {
     public stop () {
         this._unregisterEvent();
     }
-    public setInterval (interval: number) {
-        interval = clamp01(interval);
-        this._accelInterval = interval;
+    public setInterval (intervalInMileseconds: number) {
+        this._accelInterval = intervalInMileseconds;
     }
     public onChange (cb: AccelerometerCallback) {
         this._eventTarget.on(SystemEventType.DEVICEMOTION, cb);

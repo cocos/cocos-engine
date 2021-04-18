@@ -1,6 +1,6 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
 import { minigame, AccelerometerIntervalMode } from 'pal/minigame';
-import { clamp01, SystemEventType } from '../../../cocos/core';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 
 export class AccelerometerInputSource {
@@ -55,11 +55,10 @@ export class AccelerometerInputSource {
         });
         this._unregisterEvent();
     }
-    public setInterval (interval: number) {
-        interval = clamp01(interval);
-        if (interval >= 0.2) {
+    public setInterval (intervalInMileseconds: number) {
+        if (intervalInMileseconds >= 200) {
             this._accelMode = 'normal';
-        } else if (interval >= 0.06) {
+        } else if (intervalInMileseconds >= 60) {
             this._accelMode = 'ui';
         } else {
             this._accelMode = 'game';

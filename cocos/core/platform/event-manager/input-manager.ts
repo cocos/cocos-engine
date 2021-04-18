@@ -345,27 +345,15 @@ class InputManager {
         } else {
             input._accelerometer.stop();
         }
-
-        // if (JSB) {
-        //     // @ts-expect-error
-        //     jsb.device.setMotionEnabled(isEnable);
-        // }
     }
 
     /**
-     * set accelerometer interval value
+     * set accelerometer interval value in mileseconds
      * @method setAccelerometerInterval
-     * @param {Number} interval
+     * @param {Number} intervalInMileseconds
      */
-    public setAccelerometerInterval (interval) {
-        input._accelerometer.setInterval(interval);
-        // if (JSB || RUNTIME_BASED) {
-        //     // @ts-expect-error
-        //     if (jsb.device && jsb.device.setMotionInterval) {
-        //         // @ts-expect-error
-        //         jsb.device.setMotionInterval(interval);
-        //     }
-        // }
+    public setAccelerometerInterval (intervalInMileseconds) {
+        input._accelerometer.setInterval(intervalInMileseconds);
     }
     // #endregion Accelerometer Handle
 
