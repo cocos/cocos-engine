@@ -72,7 +72,7 @@ export class AccelerometerInputSource {
         this._isEnabled = false;
     }
     public setInterval (intervalInMileseconds: number) {
-        let intervalInSeconds = intervalInMileseconds / 1000;
+        const intervalInSeconds = intervalInMileseconds / 1000;
         jsb.device.setAccelerometerInterval(intervalInSeconds);
         if (this._isEnabled) {
             // restart accelerometer
