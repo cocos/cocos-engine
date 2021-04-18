@@ -91,6 +91,9 @@ CCProgram unlit-vs %{
 
     #if USE_TEXTURE
       v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+      #if SAMPLE_FROM_RT
+        CC_HANDLE_RT_SAMPLE_FLIP(v_uv);
+      #endif
     #endif
 
     #if USE_VERTEX_COLOR

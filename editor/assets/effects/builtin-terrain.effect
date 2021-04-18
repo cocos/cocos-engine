@@ -254,7 +254,7 @@ CCProgram terrain-fs %{
       s.lightmap = UnpackLightingmap(lightColor);
       s.lightmap_test = luv.z; /*u scale*/
     #else
-      s.lightmap = vec4(0.0, 0.0, 0.0, 0.0);
+      s.lightmap = vec3(0.0, 0.0, 0.0);
     #endif
   }
 

@@ -692,7 +692,7 @@ export class DeviceCaps {
         public maxComputeWorkGroupCount: Size = new Size(),
         public clipSpaceMinZ: number = -1,
         public screenSpaceSignY: number = 1,
-        public UVSpaceSignY: number = -1,
+        public clipSpaceSignY: number = 1,
     ) {}
 
     public copy (info: DeviceCaps) {
@@ -718,7 +718,7 @@ export class DeviceCaps {
         this.maxComputeWorkGroupCount.copy(info.maxComputeWorkGroupCount);
         this.clipSpaceMinZ = info.clipSpaceMinZ;
         this.screenSpaceSignY = info.screenSpaceSignY;
-        this.UVSpaceSignY = info.UVSpaceSignY;
+        this.clipSpaceSignY = info.clipSpaceSignY;
         return this;
     }
 }
