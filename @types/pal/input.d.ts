@@ -44,7 +44,7 @@ declare module 'pal/input' {
     }
     
     export interface KeyboardInputEvent extends BaseInputEvent {
-        readonly code: number; // TODO: enum
+        readonly code: number;
     }
     type KeyboardCallback = (res: KeyboardInputEvent) => void;
     export interface KeyboardInputSource extends BaseInputSource {
