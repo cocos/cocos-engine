@@ -219,6 +219,23 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         view[index++] = vec3.x; view[index++] = vec3.y; view[index] = vec3.z;
     }
 
+    public getVec3<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec3: Extract<M[K], IVec3Like>) {
+        // Web engine has Vec3 property, don't record it in shared memory.
+        if (!JSB) { return; }
+
+        const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
+        const entry = this._entryMask & handle as unknown as number;
+        const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
+        if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
+            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            console.warn('invalid buffer pool handle');
+            return;
+        }
+        let index = element as unknown as number;
+        const view = bufferViews[chunk][entry];
+        vec3.x = view[index++]; vec3.y = view[index++]; vec3.z = view[index];
+    }
+
     public setVec4<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec4: Extract<M[K], IVec4Like>) {
         // Web engine has Vec4 property, don't record it in shared memory.
         if (!JSB) { return; }
@@ -235,6 +252,24 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const view = bufferViews[chunk][entry];
         view[index++] = vec4.x; view[index++] = vec4.y;
         view[index++] = vec4.z; view[index] = vec4.w;
+    }
+
+    public getVec4<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec4: Extract<M[K], IVec4Like>) {
+        // Web engine has Vec4 property, don't record it in shared memory.
+        if (!JSB) { return; }
+
+        const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
+        const entry = this._entryMask & handle as unknown as number;
+        const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
+        if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
+            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            console.warn('invalid buffer pool handle');
+            return;
+        }
+        let index = element as unknown as number;
+        const view = bufferViews[chunk][entry];
+        vec4.x = view[index++]; vec4.y = view[index++];
+        vec4.z = view[index++]; vec4.w = view[index];
     }
 
     public setMat4<K extends E[keyof E]> (handle: IHandle<P>, element: K, mat4: Extract<M[K], IMat4Like>) {
@@ -1336,13 +1371,13 @@ export enum LightView {
 interface ILightViewType extends BufferTypeManifest<typeof LightView> {
     [LightView.USE_COLOR_TEMPERATURE]: number;
     [LightView.ILLUMINANCE]: number;
-    [LightView.NODE]:NodeHandle;
-    [LightView.RANGE]:number;
-    [LightView.TYPE]:number;
-    [LightView.AABB]:AABBHandle;
-    [LightView.FRUSTUM]:FrustumHandle;
-    [LightView.SIZE]:number;
-    [LightView.SPOT_ANGLE]:number;
+    [LightView.NODE]: NodeHandle;
+    [LightView.RANGE]: number;
+    [LightView.TYPE]: number;
+    [LightView.AABB]: AABBHandle;
+    [LightView.FRUSTUM]: FrustumHandle;
+    [LightView.SIZE]: number;
+    [LightView.SPOT_ANGLE]: number;
     [LightView.ASPECT]: number;
     [LightView.DIRECTION]: Vec3;
     [LightView.COLOR]: Vec3;

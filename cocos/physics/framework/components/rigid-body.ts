@@ -43,9 +43,9 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
-import { EDITOR } from 'internal:constants';
+import { DEBUG, EDITOR } from 'internal:constants';
 import { Vec3 } from '../../../core/math';
-import { Component, error } from '../../../core';
+import { Component, error, warn } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { createRigidBody } from '../instance';
 import { ERigidBodyType } from '../physics-enum';
@@ -84,12 +84,17 @@ export class RigidBody extends Component {
     @displayOrder(-2)
     @tooltip('i18n:physics3d.rigidbody.group')
     public get group (): number {
-        return this._group;
+        if (EDITOR) {
+            return this._group;
+        } else {
+            return this.getGroup();
+        }
     }
 
     public set group (v: number) {
-        if (this._group === v) return;
+        if (DEBUG && !Number.isInteger(Math.log2(v >>> 0))) warn('[Physics]: The group should only have one bit.');
         this._group = v;
+        if (!EDITOR && this.getGroup() === v) return;
         if (this._body) {
             this._body.setGroup(v);
         }
@@ -654,7 +659,7 @@ export class RigidBody extends Component {
      */
     public setGroup (v: number): void {
         if (this._assertOnLoadCalled) {
-            this.group = v;
+            this._body!.setGroup(v);
         }
     }
 
