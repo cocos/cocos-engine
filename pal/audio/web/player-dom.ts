@@ -1,10 +1,10 @@
+import { system } from 'pal/system';
 import { OneShotAudio } from 'pal/audio';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import { system } from 'pal/system';
 import { BrowserType, OS } from '../../system/enum-type';
 
 export class AudioPlayerDOM implements OperationQueueable {

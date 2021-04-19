@@ -29,6 +29,7 @@
  */
 
 /* eslint-disable no-restricted-globals */
+import { system } from 'pal/system';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
@@ -46,7 +47,6 @@ import { Root } from './root';
 import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
 import { error } from './platform';
-import { system } from 'pal/system';
 import { OS } from '../../pal/system/enum-type';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';

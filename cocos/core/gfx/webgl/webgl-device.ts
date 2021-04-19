@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { system } from 'pal/system';
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
 import { macro, warnID, warn } from '../../platform';
 import { sys } from '../../platform/sys';
@@ -64,7 +65,6 @@ import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersTo
     WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
-import { system } from 'pal/system';
 import { BrowserType, OS } from '../../../../pal/system/enum-type';
 
 const eventWebGLContextLost = 'webglcontextlost';

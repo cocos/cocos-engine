@@ -28,6 +28,7 @@
  * @module component/video
  */
 
+import { system } from 'pal/system';
 import { mat4 } from '../core/math';
 import { sys, view, screen, warn } from '../core/platform';
 import { game } from '../core';
@@ -36,7 +37,6 @@ import { EventType, READY_STATE } from './video-player-enums';
 import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../core/gfx';
 import visibleRect from '../core/platform/visible-rect';
-import { system } from 'pal/system';
 import { BrowserType, OS } from '../../pal/system/enum-type';
 
 const MIN_ZINDEX = -(2 ** 15);

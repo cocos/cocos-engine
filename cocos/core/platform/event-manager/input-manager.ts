@@ -29,6 +29,7 @@
  * @hidden
  */
 
+import { system } from 'pal/system';
 import { JSB, RUNTIME_BASED } from 'internal:constants';
 import { Vec2 } from '../../math/index';
 import { rect } from '../../math/rect';
@@ -39,7 +40,6 @@ import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './even
 import { Touch } from './touch';
 import { legacyCC } from '../../global-exports';
 import { logID } from '../debug';
-import { system } from 'pal/system';
 import { BrowserType, OS } from '../../../../pal/system/enum-type';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;

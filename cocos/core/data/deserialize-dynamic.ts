@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { system } from 'pal/system';
 import { EDITOR, TEST, DEV, BUILD, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
@@ -37,7 +38,6 @@ import { CCClass } from './class';
 import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
-import { system } from 'pal/system';
 import { Platform } from '../../../pal/system/enum-type';
 
 // TODO remove default support

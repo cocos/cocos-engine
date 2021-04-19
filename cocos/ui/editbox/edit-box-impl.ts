@@ -31,6 +31,7 @@
  * @hidden
  */
 
+import { system } from 'pal/system';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../core/director';
 import { game } from '../../core/game';
@@ -47,7 +48,6 @@ import visibleRect from '../../core/platform/visible-rect';
 import { Node } from '../../core/scene-graph';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { legacyCC } from '../../core/global-exports';
-import { system } from 'pal/system';
 import { BrowserType, OS } from '../../../pal/system/enum-type';
 
 // https://segmentfault.com/q/1010000002914610
