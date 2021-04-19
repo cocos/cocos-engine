@@ -37,6 +37,8 @@ import { CCClass } from './class';
 import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
+import { system } from 'pal/system';
+import { Platform } from '../../../pal/system/enum-type';
 
 // TODO remove default support
 
@@ -623,7 +625,7 @@ _Deserializer.pool.get = function (result, classFinder, customEnv, ignoreEditorO
 export function deserializeDynamic (data, details: Details, options) {
     options = options || {};
     const classFinder = options.classFinder || js._getClassById;
-    const createAssetRefs = options.createAssetRefs || legacyCC.sys.platform === legacyCC.sys.EDITOR_CORE;
+    const createAssetRefs = options.createAssetRefs || system.platform === Platform.EDITOR_CORE;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
 
