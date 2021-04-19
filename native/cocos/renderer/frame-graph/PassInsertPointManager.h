@@ -25,9 +25,9 @@
 
 #pragma once
 
+#include <vector>
 #include "Handle.h"
 #include "base/Macros.h"
-#include <vector>
 
 namespace cc {
 namespace framegraph {
@@ -43,14 +43,14 @@ public:
 
     static PassInsertPointManager &getInstance() noexcept;
 
-    PassInsertPoint record(const char *const name, const PassInsertPoint point) noexcept;
-    PassInsertPoint get(const char *const name) const noexcept;
+    PassInsertPoint record(const char *name, PassInsertPoint point) noexcept;
+    PassInsertPoint get(const char *name) const noexcept;
 
 private:
-    PassInsertPointManager() noexcept = default;
-    ~PassInsertPointManager()         = default;
+    PassInsertPointManager()  = default;
+    ~PassInsertPointManager() = default;
 
-    CC_INLINE PassInsertPoint get(const StringHandle name) const noexcept;
+    CC_INLINE PassInsertPoint get(StringHandle name) const noexcept;
 
     StringPool                   _stringPool;
     std::vector<PassInsertPoint> _insertPoints{};

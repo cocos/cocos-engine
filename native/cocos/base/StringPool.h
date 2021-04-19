@@ -25,12 +25,12 @@
 
 #pragma once
 
-#include "StringHandle.h"
-#include "threading/ReadWriteLock.h"
 #include <cassert>
 #include <cstring>
 #include <map>
 #include <vector>
+#include "StringHandle.h"
+#include "threading/ReadWriteLock.h"
 
 namespace cc {
 
@@ -43,7 +43,7 @@ struct StringCompare final {
 template <bool ThreadSafe>
 class StringPool final {
 public:
-    StringPool() noexcept = default;
+    StringPool() = default;
     ~StringPool();
     StringPool(const StringPool &) = delete;
     StringPool(StringPool &&)      = delete;
@@ -76,7 +76,7 @@ StringPool<ThreadSafe>::~StringPool() {
 template <bool ThreadSafe>
 inline StringHandle StringPool<ThreadSafe>::stringToHandle(const char *str) noexcept {
     if (ThreadSafe) {
-        return _readWriteLock.LockWrite([this, str]() {
+        return _readWriteLock.lockWrite([this, str]() {
             return doStringToHandle(str);
         });
     }
@@ -86,7 +86,7 @@ inline StringHandle StringPool<ThreadSafe>::stringToHandle(const char *str) noex
 template <bool ThreadSafe>
 inline char const *StringPool<ThreadSafe>::handleToString(const StringHandle &handle) const noexcept {
     if (ThreadSafe) {
-        return _readWriteLock.LockRead([this, handle]() {
+        return _readWriteLock.lockRead([this, handle]() {
             return doHandleToString(handle);
         });
     }
@@ -96,7 +96,7 @@ inline char const *StringPool<ThreadSafe>::handleToString(const StringHandle &ha
 template <bool ThreadSafe>
 StringHandle StringPool<ThreadSafe>::find(const char *str) const noexcept {
     if (ThreadSafe) {
-        return _readWriteLock.LockRead([this, str]() {
+        return _readWriteLock.lockRead([this, str]() {
             return doFind(str);
         });
     }
