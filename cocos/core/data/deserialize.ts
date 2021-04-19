@@ -597,7 +597,7 @@ export class Details {
         this.uuidObjList!.push(obj);
         this.uuidPropList!.push(propName);
         this.uuidList!.push(uuid);
-        this.uuidTypeList.push(type || js._getClassId(Asset));
+        this.uuidTypeList.push(type || '');
     }
 }
 Details.pool.get = function () {

@@ -91,7 +91,7 @@ export default function (json: Record<string, any>, options: Record<string, any>
             uuid: decodeUuid(dependUuid),
             owner: objList[i],
             prop: propList[i],
-            type: (js._getClassById(typeList[i]) || Asset) as Constructor<Asset>,
+            type: js._getClassById(typeList[i]) as Constructor<Asset>,
         };
     }
 

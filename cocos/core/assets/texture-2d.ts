@@ -37,7 +37,6 @@ import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';
-import { builtinResMgr } from '..';
 
 /**
  * @en The create information for [[Texture2D]]

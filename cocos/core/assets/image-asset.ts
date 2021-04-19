@@ -36,8 +36,6 @@ import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { legacyCC } from '../global-exports';
 import { warnID, getError } from '../platform/debug';
-import { Texture2D } from '..';
-import { builtinResMgr } from '../builtin/builtin-res-mgr';
 
 /**
  * @en Image source in memory
@@ -337,20 +335,20 @@ export class ImageAsset extends Asset {
         this.emit('load');
     }
 
-    private static _sharedPlaceHolderImageAsset: ImageAsset | null = null;
+    private static _sharedPlaceHolderCanvas: HTMLCanvasElement | null = null;
 
     public initPlaceHolder () {
         super.initPlaceHolder();
-        if (!ImageAsset._sharedPlaceHolderImageAsset) {
+        if (!ImageAsset._sharedPlaceHolderCanvas) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d')!;
             const l = canvas.width = canvas.height = 2;
             context.fillStyle = '#ff00ff';
             context.fillRect(0, 0, l, l);
             this.reset(canvas);
-            ImageAsset._sharedPlaceHolderImageAsset = this;
+            ImageAsset._sharedPlaceHolderCanvas = canvas;
         } else {
-            this.reset(ImageAsset._sharedPlaceHolderImageAsset._nativeAsset);
+            this.reset(ImageAsset._sharedPlaceHolderCanvas);
         }
     }
 
