@@ -1,6 +1,6 @@
+import { EDITOR } from 'internal:constants';
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
 import { system } from 'pal/system';
-import { EventMouse } from '../../../cocos/core/platform/event-manager/events';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
@@ -13,12 +13,14 @@ export class MouseInputSource {
     private _eventTarget: EventTarget = new EventTarget();
 
     constructor () {
-        this.support = !system.isMobile;
-        this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-        if (!this._canvas) {
-            console.warn('failed to access canvas');
+        this.support = !system.isMobile && !EDITOR;
+        if (this.support) {
+            this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+            if (!this._canvas) {
+                console.warn('failed to access canvas');
+            }
+            this._registerEvent();
         }
-        this._registerEvent();
     }
 
     private _getCanvasRect (): Rect {
