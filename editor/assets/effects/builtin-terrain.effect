@@ -253,8 +253,6 @@ CCProgram terrain-fs %{
       vec4 lightColor = texture(lightMap, luv.xy);
       s.lightmap = UnpackLightingmap(lightColor);
       s.lightmap_test = luv.z; /*u scale*/
-    #else
-      s.lightmap = vec4(0.0, 0.0, 0.0, 0.0);
     #endif
   }
 
