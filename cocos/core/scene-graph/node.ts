@@ -1104,11 +1104,25 @@ export class Node extends BaseNode {
         eventManager.resumeTarget(this, recursive);
     }
 
+    /**
+     * @en
+     * clear all node dirty state.
+     * 
+     * @zh
+     * 清除所有节点的脏标记。
+     */
     public static clearBooks () {
         bookOfChange.forEach((v, k, m) => { if (k.isValid) k.hasChangedFlags = TransformBit.NONE; });
         bookOfChange.clear();
     }
 
+    /**
+     * @en
+     * Synchronize the js transform to the native layer.
+     * 
+     * @zh
+     * js 变换信息同步到原生层。
+     */
     public syncToNativeTransform () {
         const v = this.hasChangedFlags;
         if (v) {
@@ -1118,6 +1132,13 @@ export class Node extends BaseNode {
         }
     }
 
+    /**
+     * @en
+     * Synchronize the native transform to the js layer.
+     * 
+     * @zh
+     * 原生变换信息同步到 js 层。
+     */
     public syncFromNativeTransform () {
         const v = NodePool.get(this._poolHandle, NodeView.FLAGS_CHANGED);
         if (v) {
