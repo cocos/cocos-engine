@@ -118,8 +118,6 @@ export declare namespace AnimationClip {
  */
 @ccclass('cc.AnimationClip')
 export class AnimationClip extends Asset {
-    public static preventDeferredLoadDependents = true;
-
     public static WrapMode = AnimationWrapMode;
 
     /**
@@ -432,6 +430,10 @@ export class AnimationClip extends Asset {
                 curve.data.values = curve.data.values.decompress(binaryBuffer);
             }
         }
+    }
+
+    public validate () {
+        return this.keys.length > 0 && this.curves.length > 0;
     }
 }
 

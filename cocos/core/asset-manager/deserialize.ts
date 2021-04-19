@@ -31,6 +31,7 @@ import { Asset } from '../assets/asset';
 import MissingScript from '../components/missing-script';
 import { deserialize, Details } from '../data/deserialize';
 import { error } from '../platform/debug';
+import { js } from '../utils/js';
 import { decodeUuid } from './helper';
 
 const missingClass = EDITOR && EditorExtends.MissingReporter.classInstance;
@@ -39,6 +40,7 @@ export interface IDependProp {
     uuid: string;
     owner: any;
     prop: string;
+    type?: Constructor<Asset>;
 }
 
 export default function (json: Record<string, any>, options: Record<string, any>): Asset {
@@ -80,6 +82,7 @@ export default function (json: Record<string, any>, options: Record<string, any>
     const uuidList = tdInfo.uuidList! as string[];
     const objList = tdInfo.uuidObjList!;
     const propList = tdInfo.uuidPropList! as string[];
+    const typeList = (tdInfo.uuidTypeList || []);
     const depends: IDependProp[] = [];
 
     for (let i = 0; i < uuidList.length; i++) {
@@ -88,6 +91,7 @@ export default function (json: Record<string, any>, options: Record<string, any>
             uuid: decodeUuid(dependUuid),
             owner: objList[i],
             prop: propList[i],
+            type: js._getClassById(typeList[i]) as Constructor<Asset>,
         };
     }
 

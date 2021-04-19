@@ -49,14 +49,14 @@ export default class SceneAsset extends Asset {
     @serializable
     public scene: Scene | null = null;
 
-    /**
-     * @en Indicates the native assets of this scene can be load after scene launched.
-     * @zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
-     * @default false
-     */
-    @editable
-    @serializable
-    public asyncLoadAssets = false;
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
+        this.scene = new Scene('New Scene');
+    }
+
+    public validate () {
+        return !!this.scene;
+    }
 }
 
 legacyCC.SceneAsset = SceneAsset;

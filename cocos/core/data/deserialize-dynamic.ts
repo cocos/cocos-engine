@@ -291,6 +291,7 @@ function unlinkUnusedPrefab (self, serialized, obj) {
             self.result.uuidList.pop();
             self.result.uuidObjList.pop();
             self.result.uuidPropList.pop();
+            self.result.uuidTypeList.pop();
         } else {
             warnID(4935);
         }
@@ -507,7 +508,7 @@ class _Deserializer {
         if (id === undefined) {
             const uuid = jsonObj.__uuid__;
             if (uuid) {
-                this.result.push(obj, propName, uuid);
+                this.result.push(obj, propName, uuid, jsonObj.__expectedType__);
                 return true;
             } else if (EDITOR || TEST) {
                 obj[propName] = this._deserializeObject(jsonObj, obj, propName);
