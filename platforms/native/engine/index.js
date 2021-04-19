@@ -35,3 +35,5 @@ require('./jsb-safearea.js');
 require('./jsb-editor-support.js')
 require('./jsb-spine-skeleton.js')
 require('./jsb-dragonbones.js')
+
+require('./jsb-physics.js');

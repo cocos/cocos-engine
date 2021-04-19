@@ -69,6 +69,10 @@
                     "label": "i18n:ENGINE.features.physics_cannon.label",
                     "description": "i18n:ENGINE.features.physics_cannon.description"
                 },
+                "physics-physx": {
+                    "label": "i18n:ENGINE.features.physics_physx.label",
+                    "description": "i18n:ENGINE.features.physics_physx.description"
+                },
                 "physics-builtin": {
                     "label": "i18n:ENGINE.features.physics_builtin.label",
                     "description": "i18n:ENGINE.features.physics_builtin.description"

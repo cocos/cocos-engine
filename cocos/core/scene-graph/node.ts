@@ -716,7 +716,7 @@ export class Node extends BaseNode {
 
         if (y === undefined) {
             Vec3.copy(this._euler, val as Vec3);
-            Quat.fromEuler(this._lrot, (val as Vec3).x, (val as Vec3).y,  (val as Vec3).z);
+            Quat.fromEuler(this._lrot, (val as Vec3).x, (val as Vec3).y, (val as Vec3).z);
         } else {
             Vec3.set(this._euler, val as number, y, z);
             Quat.fromEuler(this._lrot, val as number, y, z);
@@ -1102,6 +1102,24 @@ export class Node extends BaseNode {
      */
     public resumeSystemEvents (recursive: boolean): void {
         eventManager.resumeTarget(this, recursive);
+    }
+
+    public syncNativeTransform () {
+        const v = NodePool.get(this._poolHandle, NodeView.FLAGS_CHANGED);
+        if (v) {
+            if (v & TransformBit.POSITION) {
+                NodePool.getVec3(this._poolHandle, NodeView.WORLD_POSITION, v3_a);
+                this.setWorldPosition(v3_a);
+            }
+            if (v & TransformBit.ROTATION) {
+                NodePool.getVec4(this._poolHandle, NodeView.WORLD_ROTATION, q_a);
+                this.setWorldRotation(q_a);
+            }
+            if (v & TransformBit.SCALE) {
+                NodePool.getVec3(this._poolHandle, NodeView.WORLD_SCALE, v3_a);
+                this.setWorldScale(v3_a);
+            }
+        }
     }
 }
 

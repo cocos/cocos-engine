@@ -169,6 +169,10 @@ export function setMassAndUpdateInertia (impl: any, mass: number): void {
 }
 
 export function copyPhysXTransform (node: Node, transform: any): void {
+    const wp = node.worldPosition;
+    const wr = node.worldRotation;
+    const DontUpdate = physXEqualsCocosVec3(transform, wp) && physXEqualsCocosQuat(transform, wr);
+    if (DontUpdate) return;
     if (USE_BYTEDANCE) {
         const pos = transform.getPosition();
         const rot = transform.getQuaternion();
