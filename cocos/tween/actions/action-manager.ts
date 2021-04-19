@@ -136,7 +136,7 @@ export class ActionManager {
         let element = this._hashTargets.get(target);
         // if doesn't exists, create a hashelement and push in mpTargets
         if (!element) {
-            element = this._getElement(target, paused);
+            element = this._getElement(target as any, paused);
             this._hashTargets.set(target, element);
             this._arrayTargets.push(element);
         } else if (!element.actions) {
