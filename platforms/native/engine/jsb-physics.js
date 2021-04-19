@@ -207,11 +207,19 @@ class RigidBody {
         v.node.updateWorldTransform();
         this._com = v;
         this._impl.initialize(v.node.handle);
+        this.setType(this._com.type);
         bookNode(v.node);
     }
 
     onEnable () {
-        this._impl.setType(this._com.type);
+        this.setType(this._com.type);
+        this.setMass(this._com.mass);
+        this.setAllowSleep(this._com.allowSleep);
+        this.setLinearDamping(this._com.linearDamping);
+        this.setAngularDamping(this._com.angularDamping);
+        this.setLinearFactor(this._com.linearFactor);
+        this.setAngularFactor(this._com.angularFactor);
+        this.useGravity(this._com.useGravity);
         this._impl.onEnable();
     }
     onDisable () { this._impl.onDisable(); }
@@ -235,8 +243,8 @@ class RigidBody {
     setLinearDamping (v) { this._impl.setLinearDamping(v); }
     setAngularDamping (v) { this._impl.setAngularDamping(v); }
     useGravity (v) { this._impl.useGravity(v); }
-    setLinearFactor (v) { this.setLinearFactor(v.x, v.y, v.z); }
-    setAngularFactor (v) { this.setAngularFactor(v.x, v.y, v.z); }
+    setLinearFactor (v) { this._impl.setLinearFactor(v.x, v.y, v.z); }
+    setAngularFactor (v) { this._impl.setAngularFactor(v.x, v.y, v.z); }
     wakeUp () { this._impl.wakeUp(); }
     sleep () { this._impl.sleep(); }
     clearState () { this._impl.clearState(); }
