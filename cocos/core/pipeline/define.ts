@@ -241,19 +241,25 @@ globalDescriptorSetLayout.bindings[UBOCamera.BINDING] = UBOCamera.DESCRIPTOR;
  */
 export class UBOShadow {
     public static readonly MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
-    public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
-    public static readonly SHADOW_COLOR_OFFSET = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    public static readonly SHADOW_INFO_OFFSET: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
-    public static readonly COUNT: number = UBOShadow.SHADOW_INFO_OFFSET + 4;
+    public static readonly MAT_LIGHT_VIEW_OFFSET = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow.MAT_LIGHT_VIEW_OFFSET + 16;
+    public static readonly SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET: number = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
+    public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET: number = UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 4;
+    public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET: number = UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
+    public static readonly SHADOW_COLOR_OFFSET = UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
+    public static readonly COUNT: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
     public static readonly SIZE = UBOShadow.COUNT * 4;
     public static readonly NAME = 'CCShadow';
     public static readonly BINDING = PipelineGlobalBindings.UBO_SHADOW;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOShadow.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
     public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOShadow.BINDING, UBOShadow.NAME, [
         new Uniform('cc_matLightPlaneProj', Type.MAT4, 1),
+        new Uniform('cc_matLightView', Type.MAT4, 1),
         new Uniform('cc_matLightViewProj', Type.MAT4, 1),
+        new Uniform('cc_shadowNFLSInfo', Type.FLOAT4, 1),
+        new Uniform('cc_shadowWHPBInfo', Type.FLOAT4, 1),
+        new Uniform('cc_shadowLPNNInfo', Type.FLOAT4, 1),
         new Uniform('cc_shadowColor', Type.FLOAT4, 1),
-        new Uniform('cc_shadowInfo', Type.FLOAT4, 1),
     ], 1);
 }
 globalDescriptorSetLayout.layouts[UBOShadow.NAME] = UBOShadow.LAYOUT;

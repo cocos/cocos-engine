@@ -9,34 +9,32 @@ const minigame: IMiniGame = {};
 cloneObject(minigame, swan);
 
 // SystemInfo
-if (minigame.getSystemInfoSync) {
-    const systemInfo = minigame.getSystemInfoSync();
-    minigame.isDevTool = systemInfo.platform === 'devtools';
-    minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
-} else {
-    // can't define window in devtool
-    const descriptor = Object.getOwnPropertyDescriptor(global, 'window');
-    minigame.isDevTool = !(!descriptor || descriptor.configurable === true);
-    minigame.isLandscape = false;
-}
-minigame.isSubContext = (minigame.getOpenDataContext === undefined);
-let orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
+const systemInfo = minigame.getSystemInfoSync();
+minigame.isDevTool = systemInfo.platform === 'devtools';
 
-// Accelerometer
+minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
+// init landscapeOrientation as LANDSCAPE_RIGHT
+let landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
 swan.onDeviceOrientationChange((res) => {
     if (res.value === 'landscape') {
-        orientation = Orientation.LANDSCAPE_RIGHT;
+        landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
     } else if (res.value === 'landscapeReverse') {
-        orientation = Orientation.LANDSCAPE_LEFT;
+        landscapeOrientation = Orientation.LANDSCAPE_LEFT;
     }
 });
+Object.defineProperty(minigame, 'orientation', {
+    get () {
+        return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
+    },
+});
 
+// Accelerometer
 minigame.onAccelerometerChange = function (cb) {
     swan.onAccelerometerChange((res) => {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
-            const orientationFactor = orientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
+            const orientationFactor = landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
             const tmp = x;
             x = -y * orientationFactor;
             y = tmp * orientationFactor;

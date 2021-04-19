@@ -183,7 +183,7 @@ export default class TrailModule {
         }
         if (val && !this._enable) {
             this._enable = val;
-            this._particleSystem.processor.updateTrailMaterial();
+            if (this._particleSystem.processor) this._particleSystem.processor.updateTrailMaterial();
         }
         if (val && !this._trailModel) {
             this._createModel();
@@ -245,8 +245,9 @@ export default class TrailModule {
 
     public set space (val) {
         this._space = val;
-        if (this._particleSystem) {
-            this._particleSystem.processor.updateTrailMaterial();
+        const ps = this._particleSystem;
+        if (ps && ps.processor) {
+            ps.processor.updateTrailMaterial();
         }
     }
 

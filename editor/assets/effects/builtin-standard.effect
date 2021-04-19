@@ -306,6 +306,7 @@ CCProgram shadow-caster-vs %{
 
   out vec2 v_uv;
   out vec2 v_uv1;
+  out vec4 v_worldPos;
 
   out float v_clip_depth;
 
@@ -316,8 +317,8 @@ CCProgram shadow-caster-vs %{
     mat4 matWorld, matWorldIT;
     CCGetWorldMatrixFull(matWorld, matWorldIT);
 
-    vec4 worldPos = matWorld * In.position;
-    vec4 clipPos = cc_matLightViewProj * worldPos;
+    v_worldPos = matWorld * In.position;
+    vec4 clipPos = cc_matLightViewProj * v_worldPos;
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
     #if HAS_SECOND_UV
@@ -334,9 +335,11 @@ CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
   #include <packing>
+  #include <cc-shadow>
 
   in vec2 v_uv;
   in vec2 v_uv1;
+  in vec4 v_worldPos;
   in float v_clip_depth;
 
   #if USE_ALBEDO_MAP
@@ -359,6 +362,22 @@ CCProgram shadow-caster-fs %{
       if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
-    return packDepthToRGBA(v_clip_depth);
+    // spot use linear
+    if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
+      // enabled linear depth
+      if (cc_shadowNFLSInfo.z > 0.000001) {
+        vec4 viewStartPos = cc_matLightView * v_worldPos;
+        float dist = length(viewStartPos.xyz);
+        float linearDepth = cc_shadowNFLSInfo.x + (-dist / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x));
+
+        return vec4(linearDepth, 1.0, 1.0, 1.0);
+      }
+    }
+
+    if (cc_shadowLPNNInfo.y > 0.000001) {
+      return packDepthToRGBA(v_clip_depth);
+    }
+  
+    return vec4(v_clip_depth, 1.0, 1.0, 1.0);
   }
 }%
