@@ -45,7 +45,7 @@ let ID_COUNTER = 0;
  */
 class HashElement {
     actions = [];
-    target: object | null = null; // ccobject
+    target: Record<string, unknown> | null = null; // ccobject
     actionIndex = 0;
     currentAction = null; // CCAction
     paused = false;
@@ -77,14 +77,14 @@ export class ActionManager {
     private _currentTarget!: HashElement;
     private _elementPool: HashElement[] = [];
 
-    private _searchElementByTarget (arr: HashElement[], target: object) {
+    private _searchElementByTarget (arr: HashElement[], target: Record<string, unknown>) {
         for (let k = 0; k < arr.length; k++) {
             if (target === arr[k].target) return arr[k];
         }
         return null;
     }
 
-    private _getElement (target: object, paused: boolean) {
+    private _getElement (target: Record<string, unknown>, paused: boolean) {
         let element = this._elementPool.pop();
         if (!element) {
             element = new HashElement();
@@ -108,7 +108,8 @@ export class ActionManager {
      * @en
      * Adds an action with a target.<br/>
      * If the target is already present, then the action will be added to the existing target.
-     * If the target is not present, a new instance of this target will be created either paused or not, and the action will be added to the newly created target.
+     * If the target is not present, a new instance of this target will be created either paused or not,
+     * and the action will be added to the newly created target.
      * When the target is paused, the queued actions won't be 'ticked'.
      * @zh
      * 增加一个动作，同时还需要提供动作的目标对象，目标对象是否暂停作为参数。<br/>
@@ -135,7 +136,7 @@ export class ActionManager {
         let element = this._hashTargets.get(target);
         // if doesn't exists, create a hashelement and push in mpTargets
         if (!element) {
-            element = this._getElement(target, paused);
+            element = this._getElement(target as any, paused);
             this._hashTargets.set(target, element);
             this._arrayTargets.push(element);
         } else if (!element.actions) {
@@ -225,7 +226,7 @@ export class ActionManager {
      * @param {Node} target
      */
     removeActionByTag (tag: number, target?: Node) {
-        if (tag === legacyCC.Action.TAG_INVALID) logID(1002);
+        if (tag === Action.TAG_INVALID) logID(1002);
 
         const hashTargets = this._hashTargets;
         if (target) {
@@ -249,14 +250,16 @@ export class ActionManager {
      * @return {Action|null}  return the Action with the given tag on success
      */
     getActionByTag (tag: number, target: Node): Action | null {
-        if (tag === legacyCC.Action.TAG_INVALID) logID(1004);
+        if (tag === Action.TAG_INVALID) logID(1004);
 
         const element = this._hashTargets.get(target);
         if (element) {
             if (element.actions != null) {
                 for (let i = 0; i < element.actions.length; ++i) {
                     const action = element.actions[i];
-                    if (action && action.getTag() === tag) return action;
+                    if (action && action.getTag() === tag) {
+                        return action as Action;
+                    }
                 }
             }
             logID(1005, tag);
@@ -284,7 +287,9 @@ export class ActionManager {
      */
     getNumberOfRunningActionsInTarget (target: Node): number {
         const element = this._hashTargets.get(target);
-        if (element) return (element.actions) ? element.actions.length : 0;
+        if (element) {
+            return (element.actions) ? element.actions.length as number : 0;
+        }
 
         return 0;
     }
@@ -316,7 +321,7 @@ export class ActionManager {
      * @return {Array}  a list of targets whose actions were paused.
      */
     pauseAllRunningActions (): Array<any> {
-        const idsWithActions: object[] = [];
+        const idsWithActions: Record<string, unknown>[] = [];
         const locTargets = this._arrayTargets;
         for (let i = 0; i < locTargets.length; i++) {
             const element = locTargets[i];
@@ -446,7 +451,9 @@ export class ActionManager {
             }
             // only delete currentTarget if no actions were scheduled during the cycle (issue #481)
             if (locCurrTarget.actions.length === 0) {
-                this._deleteHashElement(locCurrTarget) && elt--;
+                if (this._deleteHashElement(locCurrTarget)) {
+                    elt--;
+                }
             }
         }
     }
