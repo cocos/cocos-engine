@@ -13,6 +13,12 @@ jsbPhy['CACHE'] = {
 jsbPhy['OBJECT'] = {
     books: [],
     ptrToObj: {},
+    raycastOptions: {
+        origin: null, unitDir: null,
+        distance: 0,
+        mask: 0,
+        queryTrigger: true,
+    },
 };
 
 jsbPhy['CONFIG'] = {
@@ -21,6 +27,7 @@ jsbPhy['CONFIG'] = {
 
 const books = jsbPhy['OBJECT'].books;
 const ptrToObj = jsbPhy['OBJECT'].ptrToObj;
+const raycastOptions = jsbPhy['OBJECT'].raycastOptions;
 
 const TriggerEventObject = {
     type: 'onTriggerEnter',
@@ -141,19 +148,55 @@ class PhysicsWorld {
         books.forEach((v) => { v.syncToNativeTransform(); });
         this._impl.step(f);
     }
-    raycast (worldRay, options, pool, results) { return false }
-    raycastClosest (worldRay, options, out) { return false }
+
+    raycast (r, o, p, rs) {
+        raycastOptions.origin = r.o;
+        raycastOptions.unitDir = r.d;
+        raycastOptions.mask = o.mask >>> 0;
+        raycastOptions.distance = o.maxDistance;
+        raycastOptions.queryTrigger = !!o.queryTrigger;
+        const isHit = this._impl.raycast(raycastOptions);
+        if (isHit) {
+            const hits = this._impl.raycastResult();
+            for (let i = 0; i < hits.length; i++) {
+                const hit = hits[i];
+                const out = p.add();
+                out._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
+                rs.push(out);
+            }
+        }
+        return isHit;
+    }
+
+    raycastClosest (r, o, out) {
+        raycastOptions.origin = r.o;
+        raycastOptions.unitDir = r.d;
+        raycastOptions.mask = o.mask >>> 0;
+        raycastOptions.distance = o.maxDistance;
+        raycastOptions.queryTrigger = !!o.queryTrigger;
+        const isHit = this._impl.raycastClosest(raycastOptions);
+        if (isHit) {
+            const hit = this._impl.raycastClosestResult();
+            out._assign(hit.hitPoint, hit.distance, ptrToObj[hit.shape].collider, hit.hitNormal);
+        }
+        return isHit;
+    }
+
     emitEvents () {
         this.emitTriggerEvent();
         this.emitCollisionEvent();
         this._impl.emitEvents();
     }
+
     syncSceneToPhysics () { this._impl.syncSceneToPhysics() }
+
     syncAfterEvents () {
         books.forEach((v) => { v.syncFromNativeTransform(); });
         // this._impl.syncSceneToPhysics() 
     }
+
     destroy () { this._impl.destroy() }
+
     emitTriggerEvent () {
         const teps = this._impl.getTriggerEventPairs();
         const len = teps.length / 3;
@@ -175,6 +218,7 @@ class PhysicsWorld {
         }
 
     }
+
     emitCollisionEvent () {
         const ceps = this._impl.getContactEventPairs();
         const len2 = ceps.length / 4;
