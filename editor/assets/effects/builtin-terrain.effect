@@ -15,11 +15,22 @@ CCEffect %{
         detailMap1:   { value: grey }
         detailMap2:   { value: grey }
         detailMap3:   { value: grey }
-        normalMap0:   { value: normal-texture }
-        normalMap1:   { value: normal-texture }
-        normalMap2:   { value: normal-texture }
-        normalMap3:   { value: normal-texture }
+        normalMap0:   { value: normal }
+        normalMap1:   { value: normal }
+        normalMap2:   { value: normal }
+        normalMap3:   { value: normal }
         lightMap:     { value: grey }
+    - vert: terrain-vs
+      frag: terrain-fs
+      phase: deferred
+      propertyIndex: 0
+      blendState:
+        targets:
+        - blend: false
+        - blend: false
+        - blend: false
+        - blend: false
+      properties: *props
     - vert: terrain-vs
       frag: terrain-fs
       phase: forward-add
