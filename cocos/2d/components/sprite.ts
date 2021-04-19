@@ -42,6 +42,7 @@ import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
+import { Material, RenderTexture } from '../../core';
 
 /**
  * @en
@@ -564,6 +565,20 @@ export class Sprite extends Renderable2D {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
         this.updateMaterial();
+    }
+
+    protected _updateBuiltinMaterial () {
+        let mat = super._updateBuiltinMaterial();
+        if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
+            const defines = { SAMPLE_FROM_RT: true, ...mat.passes[0].defines };
+            const renderMat = new Material();
+            renderMat.initialize({
+                effectAsset: mat.effectAsset,
+                defines,
+            });
+            mat = renderMat;
+        }
+        return mat;
     }
 
     protected _render (render: Batcher2D) {

@@ -405,7 +405,7 @@ export class SplashScreen {
         }
 
         // doing the screen adaptation here will not support dynamic screen orientation changes
-        const ySign = this.device.capabilities.screenSpaceSignY;
+        const ySign = this.device.capabilities.clipSpaceSignY;
         const preTransform = preTransforms[this.device.surfaceTransform];
         for (let i = 0; i < verts.length; i += 4) {
             const x = verts[i] / this.screenWidth * 2 - 1;
@@ -489,7 +489,7 @@ export class SplashScreen {
         }
 
         // doing the screen adaptation here will not support dynamic screen orientation changes
-        const ySign = this.device.capabilities.screenSpaceSignY;
+        const ySign = this.device.capabilities.clipSpaceSignY;
         const preTransform = preTransforms[this.device.surfaceTransform];
         for (let i = 0; i < verts.length; i += 4) {
             const x = verts[i] / this.screenWidth * 2 - 1;

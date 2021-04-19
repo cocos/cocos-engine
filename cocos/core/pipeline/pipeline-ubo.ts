@@ -129,13 +129,13 @@ export class PipelineUBO {
             Mat4.toArray(cv, camera.matProjInvOffscreen, UBOCamera.MAT_PROJ_INV_OFFSET);
             Mat4.toArray(cv, camera.matViewProjOffscreen, UBOCamera.MAT_VIEW_PROJ_OFFSET);
             Mat4.toArray(cv, camera.matViewProjInvOffscreen, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
-            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = device.capabilities.screenSpaceSignY * device.capabilities.UVSpaceSignY;
+            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
         } else {
             Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
             Mat4.toArray(cv, camera.matProjInv, UBOCamera.MAT_PROJ_INV_OFFSET);
             Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
             Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
-            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = device.capabilities.screenSpaceSignY;
+            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
         }
 
         cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
@@ -186,9 +186,8 @@ export class PipelineUBO {
                 Mat4.toArray(sv, shadowCameraView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
                 Mat4.invert(matShadowView, shadowCameraView!);
 
-                const projectionSignY = device.capabilities.screenSpaceSignY * device.capabilities.UVSpaceSignY; // always offscreen
                 Mat4.ortho(matShadowViewProj, -x, x, -y, y, shadowInfo.near, far,
-                    device.capabilities.clipSpaceMinZ, projectionSignY);
+                    device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
@@ -256,7 +255,7 @@ export class PipelineUBO {
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
 
             Mat4.ortho(matShadowViewProj, -_x, _x, -_y, _y, shadowInfo.near, _far,
-                device.capabilities.clipSpaceMinZ, device.capabilities.screenSpaceSignY * device.capabilities.UVSpaceSignY);
+                device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
             break;
         case LightType.SPOT:
             // light view
@@ -288,13 +287,32 @@ export class PipelineUBO {
     protected _globalUBO = new Float32Array(UBOGlobal.COUNT);
     protected _cameraUBO = new Float32Array(UBOCamera.COUNT);
     protected _shadowUBO = new Float32Array(UBOShadow.COUNT);
+    static _combineSignY = 0;
     protected declare _device: Device;
     protected declare _pipeline: RenderPipeline;
+
+    /**
+     *|combinedSignY|clipSpaceSignY|screenSpaceSignY| Backends |
+     *|    :--:     |    :--:      |      :--:      |   :--:   |
+     *|      0      |      -1      |      -1        |  Vulkan  |
+     *|      1      |       1      |      -1        |  Metal   |
+     *|      2      |      -1      |       1        |          |
+     *|      3      |       1      |       1        |  GL-like |
+     */
+    public static getCombineSignY () {
+        return PipelineUBO._combineSignY;
+    }
+
+    private _initCombineSignY () {
+        const device = this._device;
+        PipelineUBO._combineSignY = (device.capabilities.screenSpaceSignY * 0.5 + 0.5) << 1 | (device.capabilities.clipSpaceSignY * 0.5 + 0.5);
+    }
 
     public activate (device: Device, pipeline: RenderPipeline) {
         this._device = device;
         this._pipeline = pipeline;
         const ds = this._pipeline.descriptorSet;
+        this._initCombineSignY();
 
         const globalUBO = device.createBuffer(new BufferInfo(
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
