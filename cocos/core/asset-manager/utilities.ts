@@ -138,7 +138,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                 if (depend.type) {
                     // eslint-disable-next-line new-cap
                     const placeHolder = new depend.type();
-                    placeHolder.normalize(uuid);
+                    placeHolder.initDefault(uuid);
                     depend.owner[depend.prop] = placeHolder;
                 }
                 missingAsset = true;
