@@ -122,7 +122,7 @@ export class PhysicsMaterial extends Asset {
         }
     }
 
-    readonly ID: number;
+    readonly id: number;
     private static _idCounter = 0;
 
     @serializable
@@ -140,8 +140,8 @@ export class PhysicsMaterial extends Asset {
     constructor () {
         super();
         PhysicsMaterial.allMaterials.push(this);
-        this.ID = PhysicsMaterial._idCounter++;
-        if (!this._uuid) this._uuid = `pm_${this.ID}`;
+        this.id = PhysicsMaterial._idCounter++;
+        if (!this._uuid) this._uuid = `pm_${this.id}`;
     }
 
     /**

@@ -71,35 +71,35 @@ export class CannonTerrainShape extends CannonShape implements ITerrainShape {
                 const sizeI = terrain.getVertexCountI();
                 const sizeJ = terrain.getVertexCountJ();
                 this._terrainID = terrain._uuid;
-                this.DATA.length = sizeI - 1;
+                this.data.length = sizeI - 1;
                 for (let i = 0; i < sizeI; i++) {
-                    if (this.DATA[i] == null) this.DATA[i] = [];
-                    this.DATA[i].length = sizeJ - 1;
+                    if (this.data[i] == null) this.data[i] = [];
+                    this.data[i].length = sizeJ - 1;
                     for (let j = 0; j < sizeJ; j++) {
-                        this.DATA[i][j] = terrain.getHeight(i, sizeJ - 1 - j);
+                        this.data[i][j] = terrain.getHeight(i, sizeJ - 1 - j);
                     }
                 }
-                this.OPTIONS.elementSize = terrain.tileSize;
-                this.updateProperties(this.DATA, this.OPTIONS.elementSize);
+                this.options.elementSize = terrain.tileSize;
+                this.updateProperties(this.data, this.options.elementSize);
             }
         } else if (this._terrainID !== '') {
             this._terrainID = '';
-            this.DATA.length = 1;
-            this.DATA[0] = this.DATA[0] || [];
-            this.DATA[0].length = 0;
-            this.OPTIONS.elementSize = 0;
-            this.updateProperties(this.DATA, this.OPTIONS.elementSize);
+            this.data.length = 1;
+            this.data[0] = this.data[0] || [];
+            this.data[0].length = 0;
+            this.options.elementSize = 0;
+            this.updateProperties(this.data, this.options.elementSize);
         }
     }
 
-    readonly DATA: number[][];
-    readonly OPTIONS: CANNON.IHightfield;
+    readonly data: number[][];
+    readonly options: CANNON.IHightfield;
     private _terrainID: string;
 
     constructor () {
         super();
-        this.DATA = [[]];
-        this.OPTIONS = { elementSize: 0 };
+        this.data = [[]];
+        this.options = { elementSize: 0 };
         this._terrainID = '';
     }
 
@@ -109,16 +109,16 @@ export class CannonTerrainShape extends CannonShape implements ITerrainShape {
             const sizeI = terrain.getVertexCountI();
             const sizeJ = terrain.getVertexCountJ();
             for (let i = 0; i < sizeI; i++) {
-                if (this.DATA[i] == null) this.DATA[i] = [];
+                if (this.data[i] == null) this.data[i] = [];
                 for (let j = 0; j < sizeJ; j++) {
-                    this.DATA[i][j] = terrain.getHeight(i, sizeJ - 1 - j);
+                    this.data[i][j] = terrain.getHeight(i, sizeJ - 1 - j);
                 }
             }
-            this.OPTIONS.elementSize = terrain.tileSize;
+            this.options.elementSize = terrain.tileSize;
             this._terrainID = terrain._uuid;
         }
 
-        this._shape = new CANNON.Heightfield(this.DATA, this.OPTIONS);
+        this._shape = new CANNON.Heightfield(this.data, this.options);
     }
 
     onLoad () {

@@ -384,10 +384,10 @@ class Shape {
     setMaterial (v) {
         const ins = cc.PhysicsSystem.instance;
         if (!v) v = ins.defaultMaterial;
-        if (!jsbPhy['CACHE'].material[v.ID]) {
-            jsbPhy['CACHE'].material[v.ID] = ins.physicsWorld.impl.createMaterial(v.ID, v.friction, v.friction, v.restitution, 2, 2);
+        if (!jsbPhy['CACHE'].material[v.id]) {
+            jsbPhy['CACHE'].material[v.id] = ins.physicsWorld.impl.createMaterial(v.id, v.friction, v.friction, v.restitution, 2, 2);
         }
-        this._impl.setMaterial(v.ID, v.friction, v.friction, v.restitution, 2, 2);
+        this._impl.setMaterial(v.id, v.friction, v.friction, v.restitution, 2, 2);
     }
     setAsTrigger (v) { this._impl.setAsTrigger(v); }
     setCenter (v) { this._impl.setCenter(v.x, v.y, v.z); }

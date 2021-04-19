@@ -137,15 +137,15 @@ export class PhysXShape implements IBaseShape {
     }
 
     protected getSharedMaterial (v: PhysicsMaterial): any {
-        if (!PX.CACHE_MAT[v.ID]) {
+        if (!PX.CACHE_MAT[v.id]) {
             const physics = this._sharedBody.wrappedWorld.physics;
             const mat = physics.createMaterial(v.friction, v.friction, v.restitution);
             mat.setFrictionCombineMode(PX.CombineMode.eMULTIPLY);
             mat.setRestitutionCombineMode(PX.CombineMode.eMULTIPLY);
-            PX.CACHE_MAT[v.ID] = mat;
+            PX.CACHE_MAT[v.id] = mat;
             return mat;
         }
-        const mat = PX.CACHE_MAT[v.ID];
+        const mat = PX.CACHE_MAT[v.id];
         mat.setStaticFriction(v.friction);
         mat.setDynamicFriction(v.friction);
         mat.setRestitution(v.restitution);

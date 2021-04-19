@@ -71,11 +71,11 @@ export class CannonShape implements IBaseShape {
         if (mat == null) {
             (this._shape.material as unknown) = null;
         } else {
-            if (CannonShape.idToMaterial[mat.ID] == null) {
-                CannonShape.idToMaterial[mat.ID] = new CANNON.Material(mat.ID as any);
+            if (CannonShape.idToMaterial[mat.id] == null) {
+                CannonShape.idToMaterial[mat.id] = new CANNON.Material(mat.id as any);
             }
 
-            this._shape.material = CannonShape.idToMaterial[mat.ID];
+            this._shape.material = CannonShape.idToMaterial[mat.id];
             const smat = this._shape.material;
             smat.friction = mat.friction;
             smat.restitution = mat.restitution;
