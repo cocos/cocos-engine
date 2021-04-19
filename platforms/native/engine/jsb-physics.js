@@ -252,10 +252,10 @@ function bookNode (v) {
 function unBookNode (v) {
     const index = v._physicsBookIndex;
     if (index !== undefined) {
-        v._physicsBookIndex = undefined;
         books[index] = books[books.length - 1];
         books[index]._physicsBookIndex = index;
         books.length -= 1;
+        v._physicsBookIndex = undefined;
     }
 }
 
