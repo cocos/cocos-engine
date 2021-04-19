@@ -313,6 +313,8 @@ export class ProgressBar extends Component {
                 totalWidth = entitySize.width;
                 totalHeight = this._totalLength;
                 break;
+            default:
+                break;
             }
 
             // handling filled mode
