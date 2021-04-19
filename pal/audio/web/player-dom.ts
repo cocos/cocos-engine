@@ -1,9 +1,11 @@
+import { system } from 'pal/system';
 import { OneShotAudio } from 'pal/audio';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
+import { BrowserType, OS } from '../../system/enum-type';
 
 export class AudioPlayerDOM implements OperationQueueable {
     private _domAudio: HTMLAudioElement;
@@ -83,11 +85,11 @@ export class AudioPlayerDOM implements OperationQueueable {
             const domAudio = document.createElement('audio');
             const sys = legacyCC.sys;
             let loadedEvent = 'canplaythrough';
-            if (sys.os === sys.OS_IOS) {
+            if (system.os === OS.IOS) {
                 // iOS no event that used to parse completed callback
                 // this time is not complete, can not play
                 loadedEvent = 'loadedmetadata';
-            } else if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
+            } else if (system.browserType === BrowserType.FIREFOX) {
                 loadedEvent = 'canplay';
             }
 

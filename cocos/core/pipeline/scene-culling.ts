@@ -191,35 +191,6 @@ export function lightCollecting (camera: Camera, lightNumber: number) {
     return _validLights;
 }
 
-export function shadowCollecting (pipeline: RenderPipeline, camera: Camera) {
-    const scene = camera.scene!;
-    const shadows = pipeline.pipelineSceneData.shadows;
-    const shadowObjects = pipeline.pipelineSceneData.shadowObjects;
-    shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
-
-    _castBoundsInited = false;
-
-    const models = scene.models;
-    for (let i = 0; i < models.length; i++) {
-        const model = models[i];
-        // filter model by view visibility
-        if (model.node && ((camera.visibility & model.node.layer) === model.node.layer)
-                || (camera.visibility & model.visFlags)) {
-            // shadow render Object
-            if (model.castShadow && model.worldBounds) {
-                if (!_castBoundsInited) {
-                    _castWorldBounds.copy(model.worldBounds);
-                    _castBoundsInited = true;
-                }
-                AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
-                shadowObjects.push(getCastShadowRenderObject(model, camera));
-            }
-        }
-    }
-
-    if (_castWorldBounds) { AABB.toBoundingSphere(shadows.sphere, _castWorldBounds); }
-}
-
 export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const scene = camera.scene!;
     const mainLight = scene.mainLight;
@@ -230,8 +201,14 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const renderObjects = sceneData.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
 
+    let shadowObjects: IRenderObject[] | null = null;
+    _castBoundsInited = false;
     if (shadows.enabled) {
         pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
+        if (shadows.type === ShadowType.ShadowMap) {
+            shadowObjects = pipeline.pipelineSceneData.shadowObjects;
+            shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
+        }
     }
 
     if (mainLight) {
@@ -253,6 +230,15 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
         if (model.enabled) {
             if (model.node && ((camera.visibility & model.node.layer) === model.node.layer)
                 || (camera.visibility & model.visFlags)) {
+                // shadow render Object
+                if (shadowObjects != null && model.castShadow && model.worldBounds) {
+                    if (!_castBoundsInited) {
+                        _castWorldBounds.copy(model.worldBounds);
+                        _castBoundsInited = true;
+                    }
+                    AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
+                    shadowObjects.push(getCastShadowRenderObject(model, camera));
+                }
                 // frustum culling
                 if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
                     continue;
@@ -262,4 +248,5 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             }
         }
     }
+    if (_castWorldBounds) { AABB.toBoundingSphere(shadows.sphere, _castWorldBounds); }
 }
