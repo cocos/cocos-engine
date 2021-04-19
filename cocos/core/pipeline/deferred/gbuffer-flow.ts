@@ -68,8 +68,6 @@ export class GbufferFlow extends RenderFlow {
     }
 
     public render (camera: Camera) {
-        const pipeline = this._pipeline as DeferredPipeline;
-        sceneCulling(pipeline, camera);
         super.render(camera);
     }
 
