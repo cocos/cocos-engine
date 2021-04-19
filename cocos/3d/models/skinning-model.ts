@@ -33,18 +33,18 @@ import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
 import { AABB } from '../../core/geometry';
-import { BufferUsageBit, MemoryUsageBit } from '../../core/gfx/define';
+import { BufferUsageBit, MemoryUsageBit, DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
 import { Mat4, Vec3 } from '../../core/math';
 import { UBOSkinning } from '../../core/pipeline/define';
 import { Node } from '../../core/scene-graph/node';
 import { ModelType } from '../../core/renderer/scene/model';
 import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { DescriptorSet, Buffer, BufferInfo } from '../../core/gfx';
 import { AABBPool, AABBView } from '../../core/renderer/core/memory-pools';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
+import { IMacroPatch } from '../../core/renderer';
 
-const myPatches = [
+const myPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },
 ];
 
@@ -183,7 +183,7 @@ export class SkinningModel extends MorphModel {
         iaInfo.vertexBuffers = original;
     }
 
-    public getMacroPatches (subModelIndex: number) : any {
+    public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         const superMacroPatches = super.getMacroPatches(subModelIndex);
         if (superMacroPatches) {
             return myPatches.concat(superMacroPatches);

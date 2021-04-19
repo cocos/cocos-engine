@@ -28,12 +28,14 @@
  * @hidden
  */
 
-import { GFXAttributeName, Quat, Vec3 } from '../../../core';
+import { Quat, Vec3 } from '../../../core';
+
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../framework';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { createConvexMesh, createMeshGeometryFlags, createTriangleMesh, PX, _trans } from '../export-physx';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
+import { AttributeName } from '../../../core/gfx';
 
 export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
     geometry: any;
@@ -54,7 +56,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
             if (collider.convex) {
                 if (PX.MESH_CONVEX[v._uuid] == null) {
                     const cooking = wrappedWorld.cooking;
-                    const posBuf = v.readAttribute(0, GFXAttributeName.ATTR_POSITION)! as unknown as Float32Array;
+                    const posBuf = v.readAttribute(0, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
                     PX.MESH_CONVEX[v._uuid] = createConvexMesh(posBuf, cooking, physics);
                 }
                 const convexMesh = PX.MESH_CONVEX[v._uuid];
@@ -62,7 +64,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
             } else {
                 if (PX.MESH_STATIC[v._uuid] == null) {
                     const cooking = wrappedWorld.cooking;
-                    const posBuf = v.readAttribute(0, GFXAttributeName.ATTR_POSITION)! as unknown as Float32Array;
+                    const posBuf = v.readAttribute(0, AttributeName.ATTR_POSITION)! as unknown as Float32Array;
                     const indBuf = v.readIndices(0)! as unknown as Uint32Array; // Uint16Array ?
                     PX.MESH_STATIC[v._uuid] = createTriangleMesh(posBuf, indBuf, cooking, physics);
                 }

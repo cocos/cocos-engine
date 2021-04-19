@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { InputAssembler, InputAssemblerInfo } from '../input-assembler';
+import { InputAssemblerInfo } from '../base/define';
+import { InputAssembler } from '../base/input-assembler';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CmdFuncCreateInputAssember, WebGL2CmdFuncDestroyInputAssembler } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';

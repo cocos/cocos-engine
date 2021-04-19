@@ -3,8 +3,8 @@ CCEffect %{
   techniques:
   - name: opaque
     passes:
-    - vert: terrain-vs:vert
-      frag: terrain-fs:frag
+    - vert: terrain-vs
+      frag: terrain-fs
       properties: &props
         UVScale:      { value: [1, 1, 1, 1] }
         lightMapUVParam: { value: [0, 0, 0, 0] }
@@ -15,13 +15,24 @@ CCEffect %{
         detailMap1:   { value: grey }
         detailMap2:   { value: grey }
         detailMap3:   { value: grey }
-        normalMap0:   { value: normal-texture }
-        normalMap1:   { value: normal-texture }
-        normalMap2:   { value: normal-texture }
-        normalMap3:   { value: normal-texture }
+        normalMap0:   { value: normal }
+        normalMap1:   { value: normal }
+        normalMap2:   { value: normal }
+        normalMap3:   { value: normal }
         lightMap:     { value: grey }
-    - vert: terrain-vs:vert
-      frag: terrain-fs:frag
+    - vert: terrain-vs
+      frag: terrain-fs
+      phase: deferred
+      propertyIndex: 0
+      blendState:
+        targets:
+        - blend: false
+        - blend: false
+        - blend: false
+        - blend: false
+      properties: *props
+    - vert: terrain-vs
+      frag: terrain-fs
       phase: forward-add
       propertyIndex: 0
       embeddedMacros: { CC_FORWARD_ADD: true }
@@ -49,7 +60,7 @@ CCProgram terrain-vs %{
   precision mediump float;
   #include <cc-global>
   #include <cc-local>
-  #include <cc-fog>
+  #include <cc-fog-vs>
   #include <cc-shadow-map-vs>
 
   in vec3 a_position;
@@ -67,16 +78,15 @@ CCProgram terrain-vs %{
   out mediump vec2 uv1;
   out mediump vec2 uv2;
   out mediump vec2 uv3;
-  out mediump vec2 luv;
+  out mediump vec3 luv;
   out mediump vec3 diffuse;
-  out mediump float v_fog_factor;
 
   uniform TexCoords {
     vec4 UVScale;
     vec4 lightMapUVParam;
   };
 
-  vec4 vert () {
+  void main () {
     vec3 worldPos;
     worldPos.x = cc_matWorld[3][0] + a_position.x;
     worldPos.y = cc_matWorld[3][1] + a_position.y;
@@ -84,41 +94,40 @@ CCProgram terrain-vs %{
 
     vec4 pos = vec4(worldPos, 1.0);
     pos = cc_matViewProj * pos;
-    
+
     uvw = a_texCoord;
     uv0 = a_position.xz * UVScale.x;
     uv1 = a_position.xz * UVScale.y;
     uv2 = a_position.xz * UVScale.z;
     uv3 = a_position.xz * UVScale.w;
     #if USE_LIGHTMAP
-      luv = lightMapUVParam.xy + a_texCoord * lightMapUVParam.zw;
+      luv.xy = lightMapUVParam.xy + a_texCoord * lightMapUVParam.zw;
+      luv.z = lightMapUVParam.z;
     #endif
 
     v_position = worldPos;
     v_normal = a_normal;
-    v_fog_factor = CC_TRANSFER_FOG(vec4(worldPos, 1.0));
+    CC_TRANSFER_FOG(vec4(worldPos, 1.0));
 
     #if USE_NORMALMAP
       v_tangent = vec3(1.0, 0.0, 0.0);
       v_binormal = vec3(0.0, 0.0, 1.0);
 
       v_binormal = cross(v_tangent, a_normal);
-      v_tangent = cross(a_normal, v_binormal);      
+      v_tangent = cross(a_normal, v_binormal);
     #endif
 
-    CCPassShadowParams(vec4(worldPos, 1.0));
+    CC_TRANSFER_SHADOW(vec4(worldPos, 1.0));
 
-    return pos;
+    gl_Position = pos;
   }
 }%
 
 CCProgram terrain-fs %{
   precision highp float;
   #include <cc-global>
-  #include <shading-standard>
-  #include <output-standard>
-  #include <gamma>
-  #include <cc-fog>
+  #include <standard-surface-entry>
+  #include <cc-fog-fs>
   #pragma define LAYERS range([0, 4])
 
   in highp vec3 v_position;
@@ -133,8 +142,7 @@ CCProgram terrain-fs %{
   in mediump vec2 uv2;
   in mediump vec2 uv3;
   in mediump vec3 diffuse;
-  in mediump vec2 luv;
-  in mediump float v_fog_factor;
+  in mediump vec3 luv;
 
   uniform PbrParams {
     vec4 metallic;
@@ -253,18 +261,13 @@ CCProgram terrain-fs %{
     s.emissive = vec3(0.0, 0.0, 0.0);
 
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-      s.lightmap = texture(lightMap, luv);
-    #else
-      s.lightmap = vec4(0.0, 0.0, 0.0, 0.0);
+      vec4 lightColor = texture(lightMap, luv.xy);
+      s.lightmap = UnpackLightingmap(lightColor);
+      s.lightmap_test = luv.z; /*u scale*/
     #endif
   }
 
-  vec4 frag () {
-    StandardSurface s; surf(s);
-    vec4 color = CCStandardShading(s);
-    color = CC_APPLY_FOG(color, v_fog_factor);
-    return CCFragOutput(color);
-  }
+  CC_STANDARD_SURFACE_ENTRY()
 }%
 
 CCProgram shadow-caster-vs %{

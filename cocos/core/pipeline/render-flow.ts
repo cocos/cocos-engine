@@ -102,6 +102,14 @@ export abstract class RenderFlow {
     protected _pipeline!: RenderPipeline;
 
     /**
+     * @en Get pipeline
+     * @zh 获取pipeline
+     */
+    public get pipeline (): RenderPipeline {
+        return this._pipeline;
+    }
+
+    /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
      * @param info The render flow information

@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module particle2d
  */
 
 import { ParticleSystem2D } from './particle-system-2d';

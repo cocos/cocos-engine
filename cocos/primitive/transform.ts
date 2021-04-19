@@ -28,7 +28,7 @@
  * @module 3d/primitive
  */
 
-import { PrimitiveMode } from '../core/gfx/define';
+import { PrimitiveMode } from '../core/gfx';
 import { IGeometry } from './define';
 
 /**
@@ -48,9 +48,9 @@ export function translate (geometry: IGeometry, offset: { x?: number; y?: number
         const iX = iVertex * 3;
         const iY = iVertex * 3 + 1;
         const iZ = iVertex * 3 + 2;
-        geometry.positions[iX] = geometry.positions[iX] + x;
-        geometry.positions[iY] = geometry.positions[iY] + y;
-        geometry.positions[iZ] = geometry.positions[iZ] + z;
+        geometry.positions[iX] += x;
+        geometry.positions[iY] += y;
+        geometry.positions[iZ] += z;
     }
     if (geometry.minPos) {
         geometry.minPos.x += x;

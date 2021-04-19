@@ -23,9 +23,10 @@
  THE SOFTWARE.
  */
 
-import { PipelineLayout, PipelineLayoutInfo } from '../pipeline-layout';
+import { PipelineLayout } from '../base/pipeline-layout';
 import { IWebGL2GPUPipelineLayout, IWebGL2GPUDescriptorSetLayout } from './webgl2-gpu-objects';
 import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
+import { PipelineLayoutInfo } from '../base/define';
 
 export class WebGL2PipelineLayout extends PipelineLayout {
     get gpuPipelineLayout () { return this._gpuPipelineLayout!; }

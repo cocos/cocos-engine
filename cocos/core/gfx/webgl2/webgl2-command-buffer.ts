@@ -23,19 +23,20 @@
  THE SOFTWARE.
  */
 
-import { DescriptorSet } from '../descriptor-set';
-import { Buffer, BufferSource } from '../buffer';
-import { CommandBuffer, CommandBufferInfo } from '../command-buffer';
+import { DescriptorSet } from '../base/descriptor-set';
+import { Buffer } from '../base/buffer';
+import { CommandBuffer } from '../base/command-buffer';
 import {
     BufferUsageBit,
     CommandBufferType,
     StencilFace,
-} from '../define';
-import { BufferTextureCopy, Color, Rect, Viewport } from '../define-class';
-import { Framebuffer } from '../framebuffer';
-import { InputAssembler } from '../input-assembler';
-import { PipelineState } from '../pipeline-state';
-import { Texture } from '../texture';
+    BufferSource, CommandBufferInfo,
+    BufferTextureCopy, Color, Rect, Viewport, DrawInfo,
+} from '../base/define';
+import { Framebuffer } from '../base/framebuffer';
+import { InputAssembler } from '../base/input-assembler';
+import { PipelineState } from '../base/pipeline-state';
+import { Texture } from '../base/texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -54,8 +55,10 @@ import { IWebGL2GPUInputAssembler, IWebGL2GPUDescriptorSet, IWebGL2GPUPipelineSt
 import { WebGL2InputAssembler } from './webgl2-input-assembler';
 import { WebGL2PipelineState } from './webgl2-pipeline-state';
 import { WebGL2Texture } from './webgl2-texture';
-import { RenderPass } from '../render-pass';
+import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
+import { GlobalBarrier } from '../base/global-barrier';
+import { TextureBarrier } from '../base/texture-barrier';
 
 export interface IWebGL2DepthBias {
     constantFactor: number;
@@ -325,7 +328,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         }
     }
 
-    public draw (inputAssembler: InputAssembler) {
+    public draw (info: DrawInfo | InputAssembler) {
         if (this._type === CommandBufferType.PRIMARY && this._isInRenderPass
             || this._type === CommandBufferType.SECONDARY) {
             if (this._isStateInvalied) {
@@ -334,30 +337,30 @@ export class WebGL2CommandBuffer extends CommandBuffer {
 
             const cmd = this._webGLAllocator!.drawCmdPool.alloc(WebGL2CmdDraw);
             // cmd.drawInfo = inputAssembler;
-            cmd.drawInfo.vertexCount = inputAssembler.vertexCount;
-            cmd.drawInfo.firstVertex = inputAssembler.firstVertex;
-            cmd.drawInfo.indexCount = inputAssembler.indexCount;
-            cmd.drawInfo.firstIndex = inputAssembler.firstIndex;
-            cmd.drawInfo.vertexOffset = inputAssembler.vertexOffset;
-            cmd.drawInfo.instanceCount = inputAssembler.instanceCount;
-            cmd.drawInfo.firstInstance = inputAssembler.firstInstance;
+            cmd.drawInfo.vertexCount = info.vertexCount;
+            cmd.drawInfo.firstVertex = info.firstVertex;
+            cmd.drawInfo.indexCount = info.indexCount;
+            cmd.drawInfo.firstIndex = info.firstIndex;
+            cmd.drawInfo.vertexOffset = info.vertexOffset;
+            cmd.drawInfo.instanceCount = info.instanceCount;
+            cmd.drawInfo.firstInstance = info.firstInstance;
             this.cmdPackage.drawCmds.push(cmd);
 
             this.cmdPackage.cmds.push(WebGL2Cmd.DRAW);
 
             ++this._numDrawCalls;
-            this._numInstances += inputAssembler.instanceCount;
-            const indexCount = inputAssembler.indexCount || inputAssembler.vertexCount;
+            this._numInstances += info.instanceCount;
+            const indexCount = info.indexCount || info.vertexCount;
             if (this._curGPUPipelineState) {
                 const glPrimitive = this._curGPUPipelineState.glPrimitive;
                 switch (glPrimitive) {
                 case 0x0004: { // WebGLRenderingContext.TRIANGLES
-                    this._numTris += indexCount / 3 * Math.max(inputAssembler.instanceCount, 1);
+                    this._numTris += indexCount / 3 * Math.max(info.instanceCount, 1);
                     break;
                 }
                 case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
                 case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
-                    this._numTris += (indexCount - 2) * Math.max(inputAssembler.instanceCount, 1);
+                    this._numTris += (indexCount - 2) * Math.max(info.instanceCount, 1);
                     break;
                 }
                 default:
@@ -463,6 +466,9 @@ export class WebGL2CommandBuffer extends CommandBuffer {
             this._numInstances += webGL2CmdBuff._numInstances;
             this._numTris += webGL2CmdBuff._numTris;
         }
+    }
+
+    public pipelineBarrier (globalBarrier: GlobalBarrier, textureBarriers: TextureBarrier[]) {
     }
 
     public get webGLDevice (): WebGL2Device {

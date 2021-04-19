@@ -77,7 +77,7 @@ export interface IBlockInfo {
     stageFlags: ShaderStageFlags;
     descriptorType?: DescriptorType;
 }
-export interface ISamplerInfo {
+export interface ISamplerTextureInfo {
     binding: number;
     name: string;
     type: Type;
@@ -101,7 +101,7 @@ export interface IBuiltin {
 }
 export interface IBuiltinInfo {
     blocks: IBuiltin[];
-    samplers: IBuiltin[];
+    samplerTextures: IBuiltin[];
 }
 export interface IShaderInfo {
     name: string;
@@ -109,10 +109,10 @@ export interface IShaderInfo {
     glsl4: { vert: string, frag: string };
     glsl3: { vert: string, frag: string };
     glsl1: { vert: string, frag: string };
-    builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo };
+    builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, statistics: Record<string, number> };
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
-    samplers: ISamplerInfo[];
+    samplerTextures: ISamplerTextureInfo[];
     attributes: IAttributeInfo[];
 }
 export interface IPreCompileInfo {
@@ -212,12 +212,16 @@ export class EffectAsset extends Asset {
             const shader = this.shaders[i];
             const combination = this.combinations[i];
             if (!combination) { continue; }
-            Object.keys(combination).reduce((out, name) => out.reduce((acc, cur) => {
+            const defines = Object.keys(combination).reduce((out, name) => out.reduce((acc, cur) => {
                 const choices = combination[name];
-                const next = [cur].concat([...Array(choices.length - 1)].map(() => ({ ...cur })));
-                next.forEach((defines, idx) => defines[name] = choices[idx]);
-                return acc.concat(next);
-            }, [] as MacroRecord[]), [{}] as MacroRecord[]).forEach(
+                for (let i = 0; i < choices.length; ++i) {
+                    const defines = { ...cur };
+                    defines[name] = choices[i];
+                    acc.push(defines);
+                }
+                return acc;
+            }, [] as MacroRecord[]), [{}] as MacroRecord[]);
+            defines.forEach(
                 (defines) => programLib.getGFXShader(root.device, shader.name, defines, root.pipeline),
             );
         }

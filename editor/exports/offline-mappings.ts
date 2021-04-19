@@ -3,7 +3,7 @@ import {
   Address, BlendFactor, BlendOp, ColorMask, ComparisonFunc, CullMode, DynamicStateFlagBit,
   Filter, Format, FormatInfos, FormatType, GetTypeSize, PolygonMode, PrimitiveMode,
   ShadeModel, ShaderStageFlagBit, StencilOp, Type, DescriptorType,
-} from '../../cocos/core/gfx/define';
+} from '../../cocos/core/gfx/base/define';
 import { RenderQueue } from '../../cocos/core/renderer/core/constants';
 import { RenderPassStage, RenderPriority, SetIndex } from '../../cocos/core/pipeline/define';
 import { murmurhash2_32_gc } from '../../cocos/core/utils/murmurhash2_gc';
@@ -274,7 +274,7 @@ const effectStructure = {
 };
 
 export {
-  murmurhash2_32_gc as murmurhash2_32_gc,
+  murmurhash2_32_gc,
   SamplerInfoIndex,
   genSamplerHash,
   effectStructure,

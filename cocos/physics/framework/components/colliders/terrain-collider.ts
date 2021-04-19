@@ -35,6 +35,7 @@ import {
     menu,
     type,
     serializable,
+    tooltip,
 } from 'cc.decorator';
 import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
@@ -51,7 +52,7 @@ import { EColliderType } from '../../physics-enum';
  */
 @ccclass('cc.TerrainCollider')
 @help('i18n:cc.TerrainCollider')
-@menu('Physics/TerrainCollider(beta)')
+@menu('Physics/TerrainCollider')
 @executeInEditMode
 export class TerrainCollider extends Collider {
     /// PUBLIC PROPERTY GETTER\SETTER ///
@@ -63,6 +64,7 @@ export class TerrainCollider extends Collider {
      * 获取或设置此碰撞体引用的网格资源.
      */
     @type(TerrainAsset)
+    @tooltip('i18n:physics3d.collider.terrain_terrain')
     get terrain () {
         return this._terrain;
     }

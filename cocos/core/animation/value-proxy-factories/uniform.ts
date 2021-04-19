@@ -33,7 +33,7 @@ import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
 import { SpriteFrame } from '../../../2d/assets/sprite-frame';
 import { TextureBase } from '../../assets/texture-base';
-import { Type } from '../../gfx/define';
+import { Type } from '../../gfx';
 import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType, PropertyType } from '../../renderer/core/pass-utils';
 import { samplerLib } from '../../renderer/core/sampler-lib';
@@ -88,10 +88,10 @@ export class UniformProxyFactory implements IValueProxyFactory {
             throw new Error(`Material "${target.name}" has no uniform "${this.uniformName}"`);
         }
         const propertyType = Pass.getPropertyTypeFromHandle(handle);
-        if (propertyType === PropertyType.UBO) {
+        if (propertyType === PropertyType.BUFFER) {
             const realHandle = this.channelIndex === undefined ? handle : pass.getHandle(this.uniformName, this.channelIndex, Type.FLOAT);
             if (!realHandle) {
-                throw new Error(`Uniform "${this.uniformName} (in material ${target.name}) has no channel ${this.channelIndex}"`);
+                throw new Error(`Uniform "${this.uniformName} (in material ${target.name}) has no channel ${this.channelIndex!}"`);
             }
             if (isUniformArray(pass, this.uniformName)) {
                 return {
@@ -105,10 +105,10 @@ export class UniformProxyFactory implements IValueProxyFactory {
                     pass.setUniform(realHandle, value);
                 },
             };
-        } if (propertyType === PropertyType.SAMPLER) {
+        } if (propertyType === PropertyType.TEXTURE) {
             const binding = Pass.getBindingFromHandle(handle);
             const prop = pass.properties[this.uniformName];
-            const texName = prop && prop.value ? `${prop.value}-texture` : getDefaultFromType(prop.type) as string;
+            const texName = prop && prop.value ? `${prop.value as string}-texture` : getDefaultFromType(prop.type) as string;
             let dftTex = builtinResMgr.get<TextureBase>(texName);
             if (!dftTex) {
                 warn(`Illegal texture default value: ${texName}.`);

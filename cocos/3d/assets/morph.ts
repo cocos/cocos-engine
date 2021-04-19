@@ -104,7 +104,7 @@ export interface MorphRenderingInstance {
      */
     adaptPipelineState (subMeshIndex: number, descriptorSet: DescriptorSet): void;
 
-    requiredPatches (subMeshIndex: number): IMacroPatch[] | undefined;
+    requiredPatches (subMeshIndex: number): IMacroPatch[] | null;
 
     /**
      * Destroy the rendering instance.

@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { TextureFlagBit, FormatSurfaceSize } from '../define';
-import { Texture, TextureInfo, IsPowerOf2, TextureViewInfo } from '../texture';
+import { TextureFlagBit, FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo } from '../base/define';
+import { Texture } from '../base/texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUTexture } from './webgl2-gpu-objects';
@@ -55,10 +55,6 @@ export class WebGL2Texture extends Texture {
         this._isPowerOf2 = IsPowerOf2(this._width) && IsPowerOf2(this._height);
         this._size = FormatSurfaceSize(this._format, this.width, this.height,
             this.depth, this._levelCount) * this._layerCount;
-
-        if (this._flags & TextureFlagBit.BAKUP_BUFFER) {
-            this._buffer = new ArrayBuffer(this._size);
-        }
 
         this._gpuTexture = {
             type: this._type,
@@ -100,7 +96,6 @@ export class WebGL2Texture extends Texture {
             this._device.memoryStatus.textureSize -= this._size;
             this._gpuTexture = null;
         }
-        this._buffer = null;
     }
 
     public resize (width: number, height: number) {

@@ -24,26 +24,24 @@
  */
 
 import { macro, warnID, warn } from '../../platform';
-import { DescriptorSet, DescriptorSetInfo } from '../descriptor-set';
-import { DescriptorSetLayout, DescriptorSetLayoutInfo } from '../descriptor-set-layout';
-import { PipelineLayout, PipelineLayoutInfo } from '../pipeline-layout';
-import { Buffer, BufferInfo, BufferViewInfo } from '../buffer';
-import { CommandBuffer, CommandBufferInfo } from '../command-buffer';
-import { Device, DeviceInfo, BindingMappingInfo } from '../device';
-import { Fence, FenceInfo } from '../fence';
-import { Framebuffer, FramebufferInfo } from '../framebuffer';
-import { InputAssembler, InputAssemblerInfo } from '../input-assembler';
-import { PipelineState, PipelineStateInfo } from '../pipeline-state';
-import { Queue, QueueInfo } from '../queue';
-import { RenderPass, RenderPassInfo } from '../render-pass';
-import { Sampler, SamplerInfo } from '../sampler';
-import { Shader, ShaderInfo } from '../shader';
-import { Texture, TextureInfo, TextureViewInfo } from '../texture';
+import { DescriptorSet } from '../base/descriptor-set';
+import { DescriptorSetLayout } from '../base/descriptor-set-layout';
+import { PipelineLayout } from '../base/pipeline-layout';
+import { Buffer } from '../base/buffer';
+import { CommandBuffer } from '../base/command-buffer';
+import { Device } from '../base/device';
+import { Framebuffer } from '../base/framebuffer';
+import { InputAssembler } from '../base/input-assembler';
+import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
+import { Queue } from '../base/queue';
+import { RenderPass } from '../base/render-pass';
+import { Sampler } from '../base/sampler';
+import { Shader } from '../base/shader';
+import { Texture } from '../base/texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
-import { WebGL2Fence } from './webgl2-fence';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2InputAssembler } from './webgl2-input-assembler';
 import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
@@ -56,11 +54,14 @@ import { WebGL2Sampler } from './webgl2-sampler';
 import { WebGL2Shader } from './webgl2-shader';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
-import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos,
-    QueueType, TextureFlagBit, TextureType, TextureUsageBit,  API, Feature } from '../define';
-import { BufferTextureCopy, Rect } from '../define-class';
+import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos, DescriptorSetLayoutInfo, DescriptorSetInfo,
+    PipelineLayoutInfo, BufferViewInfo, CommandBufferInfo, BufferInfo, BindingMappingInfo, FramebufferInfo, InputAssemblerInfo,
+    QueueInfo, RenderPassInfo, SamplerInfo, ShaderInfo, TextureInfo, TextureViewInfo, DeviceInfo, Rect, GlobalBarrierInfo, TextureBarrierInfo,
+    QueueType, TextureFlagBit, TextureType, TextureUsageBit,  API, Feature, BufferTextureCopy  } from '../base/define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
+import { GlobalBarrier } from '../base/global-barrier';
+import { TextureBarrier } from '../base/texture-barrier';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -214,22 +215,22 @@ export class WebGL2Device extends Device {
         }
 
         this._version = gl.getParameter(gl.VERSION);
-        this._maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-        this._maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
-        this._maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-        this._maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._maxUniformBufferBindings = gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS);
-        this._maxUniformBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE);
-        this._maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-        this._maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-        this._uboOffsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
-        this._depthBits = gl.getParameter(gl.DEPTH_BITS);
-        this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
+        this._caps.maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+        this._caps.maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+        this._caps.maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._caps.maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+        this._caps.maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._caps.maxUniformBufferBindings = gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS);
+        this._caps.maxUniformBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE);
+        this._caps.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+        this._caps.maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
+        this._caps.uboOffsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
+        this._caps.depthBits = gl.getParameter(gl.DEPTH_BITS);
+        this._caps.stencilBits = gl.getParameter(gl.STENCIL_BITS);
         // let maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS);
         // let maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS);
 
-        this.stateCache.initialize(this._maxTextureUnits, this._maxUniformBufferBindings, this._maxVertexAttributes);
+        this.stateCache.initialize(this._caps.maxTextureUnits, this._caps.maxUniformBufferBindings, this._caps.maxVertexAttributes);
 
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
         this._width = this._canvas.width;
@@ -239,19 +240,19 @@ export class WebGL2Device extends Device {
 
         this._colorFmt = Format.RGBA8;
 
-        if (this._depthBits === 32) {
-            if (this._stencilBits === 8) {
+        if (this._caps.depthBits === 32) {
+            if (this._caps.stencilBits === 8) {
                 this._depthStencilFmt = Format.D32F_S8;
             } else {
                 this._depthStencilFmt = Format.D32F;
             }
-        } else if (this._depthBits === 24) {
-            if (this._stencilBits === 8) {
+        } else if (this._caps.depthBits === 24) {
+            if (this._caps.stencilBits === 8) {
                 this._depthStencilFmt = Format.D24S8;
             } else {
                 this._depthStencilFmt = Format.D24;
             }
-        } else if (this._stencilBits === 8) {
+        } else if (this._caps.stencilBits === 8) {
             this._depthStencilFmt = Format.D16S8;
         } else {
             this._depthStencilFmt = Format.D16;
@@ -344,16 +345,16 @@ export class WebGL2Device extends Device {
         console.info(`DPR: ${this._devicePixelRatio}`);
         console.info(`SCREEN_SIZE: ${this._width} x ${this._height}`);
         console.info(`NATIVE_SIZE: ${this._nativeWidth} x ${this._nativeHeight}`);
-        console.info(`MAX_VERTEX_ATTRIBS: ${this._maxVertexAttributes}`);
-        console.info(`MAX_VERTEX_UNIFORM_VECTORS: ${this._maxVertexUniformVectors}`);
-        console.info(`MAX_FRAGMENT_UNIFORM_VECTORS: ${this._maxFragmentUniformVectors}`);
-        console.info(`MAX_TEXTURE_IMAGE_UNITS: ${this._maxTextureUnits}`);
-        console.info(`MAX_VERTEX_TEXTURE_IMAGE_UNITS: ${this._maxVertexTextureUnits}`);
-        console.info(`MAX_UNIFORM_BUFFER_BINDINGS: ${this._maxUniformBufferBindings}`);
-        console.info(`MAX_UNIFORM_BLOCK_SIZE: ${this._maxUniformBlockSize}`);
-        console.info(`DEPTH_BITS: ${this._depthBits}`);
-        console.info(`STENCIL_BITS: ${this._stencilBits}`);
-        console.info(`UNIFORM_BUFFER_OFFSET_ALIGNMENT: ${this._uboOffsetAlignment}`);
+        console.info(`MAX_VERTEX_ATTRIBS: ${this._caps.maxVertexAttributes}`);
+        console.info(`MAX_VERTEX_UNIFORM_VECTORS: ${this._caps.maxVertexUniformVectors}`);
+        console.info(`MAX_FRAGMENT_UNIFORM_VECTORS: ${this._caps.maxFragmentUniformVectors}`);
+        console.info(`MAX_TEXTURE_IMAGE_UNITS: ${this._caps.maxTextureUnits}`);
+        console.info(`MAX_VERTEX_TEXTURE_IMAGE_UNITS: ${this._caps.maxVertexTextureUnits}`);
+        console.info(`MAX_UNIFORM_BUFFER_BINDINGS: ${this._caps.maxUniformBufferBindings}`);
+        console.info(`MAX_UNIFORM_BLOCK_SIZE: ${this._caps.maxUniformBlockSize}`);
+        console.info(`DEPTH_BITS: ${this._caps.depthBits}`);
+        console.info(`STENCIL_BITS: ${this._caps.stencilBits}`);
+        console.info(`UNIFORM_BUFFER_OFFSET_ALIGNMENT: ${this._caps.uboOffsetAlignment}`);
         if (this._EXT_texture_filter_anisotropic) {
             console.info(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
         }
@@ -379,12 +380,12 @@ export class WebGL2Device extends Device {
 
         this.nullTexCube = new WebGL2Texture(this);
         this.nullTexCube.initialize(new TextureInfo(
-            TextureType.TEX2D,
+            TextureType.CUBE,
             TextureUsageBit.SAMPLED,
             Format.RGBA8,
             2,
             2,
-            TextureFlagBit.CUBEMAP | TextureFlagBit.GEN_MIPMAP,
+            TextureFlagBit.GEN_MIPMAP,
             6,
         ));
 
@@ -456,6 +457,8 @@ export class WebGL2Device extends Device {
         }
     }
 
+    public flushCommands (cmdBuffs: CommandBuffer[]) {}
+
     public acquire () {
         this.cmdAllocator.releaseCmds();
     }
@@ -469,9 +472,9 @@ export class WebGL2Device extends Device {
     }
 
     public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
-        // const ctor = WebGLCommandBuffer; // opt to instant invocation
-        const ctor = info.type === CommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
-        const cmdBuff = new ctor(this);
+        // const Ctor = WebGLCommandBuffer; // opt to instant invocation
+        const Ctor = info.type === CommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
+        const cmdBuff = new Ctor(this);
         if (cmdBuff.initialize(info)) {
             return cmdBuff;
         }
@@ -566,18 +569,26 @@ export class WebGL2Device extends Device {
         return null!;
     }
 
-    public createFence (info: FenceInfo): Fence {
-        const fence = new WebGL2Fence(this);
-        if (fence.initialize(info)) {
-            return fence;
-        }
-        return null!;
-    }
-
     public createQueue (info: QueueInfo): Queue {
         const queue = new WebGL2Queue(this);
         if (queue.initialize(info)) {
             return queue;
+        }
+        return null!;
+    }
+
+    public createGlobalBarrier (info: GlobalBarrierInfo) {
+        const barrier = new GlobalBarrier(this);
+        if (barrier.initialize(info)) {
+            return barrier;
+        }
+        return null!;
+    }
+
+    public createTextureBarrier (info: TextureBarrierInfo) {
+        const barrier = new TextureBarrier(this);
+        if (barrier.initialize(info)) {
+            return barrier;
         }
         return null!;
     }
@@ -614,7 +625,7 @@ export class WebGL2Device extends Device {
         const format = gpuFramebuffer.gpuColorTextures[0].format;
         const glFormat = GFXFormatToWebGLFormat(format, gl);
         const glType = GFXFormatToWebGLType(format, gl);
-        const ctor = getTypedArrayConstructor(FormatInfos[format]);
+        const Ctor = getTypedArrayConstructor(FormatInfos[format]);
 
         const curFBO = this.stateCache.glFramebuffer;
 
@@ -623,7 +634,7 @@ export class WebGL2Device extends Device {
             this.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
-        const view = new ctor(dstBuffer);
+        const view = new Ctor(dstBuffer);
 
         for (const region of regions) {
             const w = region.texExtent.width;
@@ -657,6 +668,7 @@ export class WebGL2Device extends Device {
         for (let i = 0; i < prefixes.length; ++i) {
             const _ext = this.gl.getExtension(prefixes[i] + ext);
             if (_ext) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return _ext;
             }
         }

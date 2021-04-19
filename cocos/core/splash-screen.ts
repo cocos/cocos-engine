@@ -29,6 +29,7 @@
  */
 
 /* eslint-disable no-restricted-globals */
+import { system } from 'pal/system';
 import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
@@ -46,6 +47,7 @@ import { Root } from './root';
 import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
 import { error } from './platform';
+import { OS } from '../../pal/system/enum-type';
 
 export type SplashEffectType = 'NONE' | 'FADE-INOUT';
 
@@ -194,7 +196,7 @@ export class SplashScreen {
     private init () {
         // adapt for native mac & ios
         if (JSB) {
-            if (sys.os === legacyCC.sys.OS_OSX || sys.os === legacyCC.sys.OS_IOS) {
+            if (system.os === OS.OSX || system.os === OS.IOS) {
                 const width = screen.width * devicePixelRatio;
                 const height = screen.height * devicePixelRatio;
                 this.device.resize(width, height);
@@ -285,7 +287,7 @@ export class SplashScreen {
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
 
-        if (JSB && (sys.os === legacyCC.sys.OS_OSX || sys.os === legacyCC.sys.OS_IOS)) {
+        if (JSB && (system.os === OS.OSX || system.os === OS.IOS)) {
             renderArea.height = device.nativeHeight;
             renderArea.width = device.nativeWidth;
         } else {
@@ -317,6 +319,7 @@ export class SplashScreen {
         cmdBuff.endRenderPass();
         cmdBuff.end();
 
+        device.flushCommands([cmdBuff]);
         device.queue.submit([cmdBuff]);
         device.present();
     }
@@ -398,7 +401,7 @@ export class SplashScreen {
         }
 
         // doing the screen adaptation here will not support dynamic screen orientation changes
-        const ySign = this.device.screenSpaceSignY;
+        const ySign = this.device.capabilities.screenSpaceSignY;
         const preTransform = preTransforms[this.device.surfaceTransform];
         for (let i = 0; i < verts.length; i += 4) {
             const x = verts[i] / this.screenWidth * 2 - 1;
@@ -436,7 +439,7 @@ export class SplashScreen {
 
     private initCMD () {
         const device = this.device;
-        if (JSB && (sys.os === legacyCC.sys.OS_OSX || sys.os === legacyCC.sys.OS_IOS)) {
+        if (JSB && (system.os === OS.OSX || system.os === OS.IOS)) {
             this.renderArea = new Rect(0, 0, device.nativeWidth, device.nativeHeight);
         } else {
             this.renderArea = new Rect(0, 0, device.width, device.height);
@@ -482,7 +485,7 @@ export class SplashScreen {
         }
 
         // doing the screen adaptation here will not support dynamic screen orientation changes
-        const ySign = this.device.screenSpaceSignY;
+        const ySign = this.device.capabilities.screenSpaceSignY;
         const preTransform = preTransforms[this.device.surfaceTransform];
         for (let i = 0; i < verts.length; i += 4) {
             const x = verts[i] / this.screenWidth * 2 - 1;
@@ -527,6 +530,7 @@ export class SplashScreen {
         const samplerInfo = new SamplerInfo();
         samplerInfo.addressU = Address.CLAMP;
         samplerInfo.addressV = Address.CLAMP;
+        samplerInfo.addressW = Address.CLAMP;
         this.sampler = device.createSampler(samplerInfo);
 
         this.texture = device.createTexture(new TextureInfo(

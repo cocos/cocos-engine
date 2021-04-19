@@ -26,7 +26,7 @@
 
 /**
  * @packageDocumentation
- * @hidden
+ * @module event
  */
 
 export { default as Event } from './event';

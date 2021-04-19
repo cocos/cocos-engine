@@ -23,13 +23,12 @@
  THE SOFTWARE.
  */
 
-import { Buffer, BufferSource, DrawInfo } from '../buffer';
-import { CommandBuffer } from '../command-buffer';
-import { BufferUsageBit } from '../define';
-import { BufferTextureCopy, Color, Rect } from '../define-class';
-import { Framebuffer } from '../framebuffer';
-import { InputAssembler } from '../input-assembler';
-import { Texture } from '../texture';
+import { Buffer } from '../base/buffer';
+import { CommandBuffer } from '../base/command-buffer';
+import { BufferUsageBit, BufferTextureCopy, Color, Rect, BufferSource, DrawInfo } from '../base/define';
+import { Framebuffer } from '../base/framebuffer';
+import { InputAssembler } from '../base/input-assembler';
+import { Texture } from '../base/texture';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
 import {
@@ -38,7 +37,7 @@ import {
 import { WebGL2Device } from './webgl2-device';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2Texture } from './webgl2-texture';
-import { RenderPass } from '../render-pass';
+import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 
 const _dynamicOffsets: number[] = [];
@@ -61,27 +60,27 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
         this._isInRenderPass = true;
     }
 
-    public draw (inputAssembler: InputAssembler) {
+    public draw (info: DrawInfo | InputAssembler) {
         if (this._isInRenderPass) {
             if (this._isStateInvalied) {
                 this.bindStates();
             }
 
-            WebGL2CmdFuncDraw(this._device as WebGL2Device, inputAssembler as unknown as DrawInfo);
+            WebGL2CmdFuncDraw(this._device as WebGL2Device, info as DrawInfo);
 
             ++this._numDrawCalls;
-            this._numInstances += inputAssembler.instanceCount;
-            const indexCount = inputAssembler.indexCount || inputAssembler.vertexCount;
+            this._numInstances += info.instanceCount;
+            const indexCount = info.indexCount || info.vertexCount;
             if (this._curGPUPipelineState) {
                 const glPrimitive = this._curGPUPipelineState.glPrimitive;
                 switch (glPrimitive) {
                 case 0x0004: { // WebGLRenderingContext.TRIANGLES
-                    this._numTris += indexCount / 3 * Math.max(inputAssembler.instanceCount, 1);
+                    this._numTris += indexCount / 3 * Math.max(info.instanceCount, 1);
                     break;
                 }
                 case 0x0005: // WebGLRenderingContext.TRIANGLE_STRIP
                 case 0x0006: { // WebGLRenderingContext.TRIANGLE_FAN
-                    this._numTris += (indexCount - 2) * Math.max(inputAssembler.instanceCount, 1);
+                    this._numTris += (indexCount - 2) * Math.max(info.instanceCount, 1);
                     break;
                 }
                 default:

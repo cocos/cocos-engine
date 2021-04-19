@@ -24,30 +24,31 @@
  */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { Buffer } from './buffer';
-import { CommandBuffer } from './command-buffer';
-import { Device } from './device';
-import { Framebuffer } from './framebuffer';
-import { InputAssembler } from './input-assembler';
-import { PipelineState } from './pipeline-state';
-import { Queue } from './queue';
-import { RenderPass } from './render-pass';
-import { Sampler } from './sampler';
-import { Shader } from './shader';
-import { Texture } from './texture';
-import { Address, AttributeName, BlendFactor, BlendOp, BufferAccessBit,
-    BufferFlagBit, BufferUsageBit, ClearFlag, ColorMask, CommandBufferType, ComparisonFunc, CullMode, DescriptorType,
-    DynamicStateFlagBit, Filter, Format, FormatInfo, FormatInfos, FormatSize, FormatSurfaceSize, FormatType,
-    GetTypeSize, LoadOp, MAX_ATTACHMENTS, MemoryStatus, MemoryUsageBit, Obj, ObjectType, PipelineBindPoint, PolygonMode,
-    PrimitiveMode, QueueType, SampleCount, ShadeModel, ShaderStageFlagBit, StencilFace, StencilOp, StoreOp,
-    TextureFlagBit, TextureLayout, TextureType,
-    TextureUsageBit, Type, getTypedArrayConstructor } from './define';
-import { BufferTextureCopy, Color, Extent, Offset, Rect, TextureCopy, TextureSubres, Viewport } from './define-class';
+import { Buffer } from './base/buffer';
+import { CommandBuffer } from './base/command-buffer';
+import { Device } from './base/device';
+import { Framebuffer } from './base/framebuffer';
+import { InputAssembler } from './base/input-assembler';
+import { DescriptorSet } from './base/descriptor-set';
+import { DescriptorSetLayout } from './base/descriptor-set-layout';
+import { PipelineLayout } from './base/pipeline-layout';
+import { PipelineState, PipelineStateInfo, RasterizerState, BlendState, BlendTarget, DepthStencilState } from './base/pipeline-state';
+import { Queue } from './base/queue';
+import { RenderPass } from './base/render-pass';
+import { Sampler } from './base/sampler';
+import { Shader } from './base/shader';
+import { Texture } from './base/texture';
+import { GlobalBarrier } from './base/global-barrier';
+import { TextureBarrier } from './base/texture-barrier';
+import { legacyCC } from '../global-exports';
+import * as defines from './base/define';
 
-export const polyfillCC = { Device,
+const polyfills: Record<string, unknown> = {
+    Device,
     Buffer,
     Texture,
     Sampler,
@@ -55,58 +56,21 @@ export const polyfillCC = { Device,
     InputAssembler,
     RenderPass,
     Framebuffer,
+    DescriptorSet,
+    DescriptorSetLayout,
+    PipelineLayout,
     PipelineState,
     CommandBuffer,
     Queue,
-    FormatSize,
-    FormatSurfaceSize,
-    GetTypeSize,
-    getTypedArrayConstructor,
-    MAX_ATTACHMENTS,
-    ObjectType,
-    Obj,
-    AttributeName,
-    Type,
-    Format,
-    BufferUsageBit,
-    MemoryUsageBit,
-    BufferFlagBit,
-    BufferAccessBit,
-    PrimitiveMode,
-    PolygonMode,
-    ShadeModel,
-    CullMode,
-    ComparisonFunc,
-    StencilOp,
-    BlendOp,
-    BlendFactor,
-    ColorMask,
-    Filter,
-    Address,
-    TextureType,
-    TextureUsageBit,
-    SampleCount,
-    TextureFlagBit,
-    ShaderStageFlagBit,
-    DescriptorType,
-    CommandBufferType,
-    LoadOp,
-    StoreOp,
-    TextureLayout,
-    PipelineBindPoint,
-    DynamicStateFlagBit,
-    StencilFace,
-    QueueType,
-    Rect,
-    Viewport,
-    Color,
-    ClearFlag,
-    Offset,
-    Extent,
-    TextureSubres,
-    TextureCopy,
-    BufferTextureCopy,
-    FormatType,
-    FormatInfo,
-    MemoryStatus,
-    FormatInfos };
+    GlobalBarrier,
+    TextureBarrier,
+
+    RasterizerState,
+    BlendState,
+    BlendTarget,
+    DepthStencilState,
+    PipelineStateInfo,
+};
+
+Object.assign(polyfills, defines);
+legacyCC.gfx = polyfills;

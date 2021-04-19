@@ -39,20 +39,9 @@ import { sys } from '../../core/platform/sys';
 import { warnID } from '../../core/platform/debug';
 import { RenderingSubMesh } from '../../core/assets';
 import {
-    Attribute, Device, InputAssemblerInfo, Buffer, BufferInfo,
+    Attribute, Device, Buffer, BufferInfo, AttributeName, BufferUsageBit, Feature, Format,
+    FormatInfos, FormatType, MemoryUsageBit, PrimitiveMode, getTypedArrayConstructor,
 } from '../../core/gfx';
-import {
-    AttributeName,
-    BufferUsageBit,
-    Feature,
-    Format,
-    FormatInfos,
-    FormatType,
-    MemoryUsageBit,
-    PrimitiveMode,
-    getTypedArrayConstructor,
-} from '../../core/gfx/define';
-
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { Morph, MorphRendering, createMorphRendering } from './morph';
 
@@ -642,6 +631,7 @@ export class Mesh extends Asset {
                             case AttributeName.ATTR_NORMAL:
                                 Vec3.transformQuat(vec3_temp, vec3_temp, rotate!);
                                 break;
+                            default:
                             }
                             f32_temp[0] = vec3_temp.x;
                             f32_temp[1] = vec3_temp.y;
@@ -878,7 +868,7 @@ export class Mesh extends Asset {
         this._accessAttribute(primitiveIndex, attributeName, (vertexBundle, iAttribute) => {
             const vertexCount = vertexBundle.view.count;
             const { format } = vertexBundle.attributes[iAttribute];
-            const storageConstructor = getTypedArrayConstructor(FormatInfos[format]);
+            const StorageConstructor = getTypedArrayConstructor(FormatInfos[format]);
             if (vertexCount === 0) {
                 return;
             }
@@ -890,11 +880,11 @@ export class Mesh extends Asset {
 
             const formatInfo = FormatInfos[format];
             const reader = getReader(inputView, format);
-            if (!storageConstructor || !reader) {
+            if (!StorageConstructor || !reader) {
                 return;
             }
             const componentCount = formatInfo.count;
-            const storage = new storageConstructor(vertexCount * componentCount);
+            const storage = new StorageConstructor(vertexCount * componentCount);
             const inputStride = vertexBundle.view.stride;
             for (let iVertex = 0; iVertex < vertexCount; ++iVertex) {
                 for (let iComponent = 0; iComponent < componentCount; ++iComponent) {
@@ -975,8 +965,8 @@ export class Mesh extends Asset {
             return null;
         }
         const { stride } = primitive.indexView;
-        const ctor = stride === 1 ? Uint8Array : (stride === 2 ? Uint16Array : Uint32Array);
-        return new ctor(this._data.buffer, primitive.indexView.offset, primitive.indexView.count);
+        const Ctor = stride === 1 ? Uint8Array : (stride === 2 ? Uint16Array : Uint32Array);
+        return new Ctor(this._data.buffer, primitive.indexView.offset, primitive.indexView.count);
     }
 
     /**
@@ -1072,6 +1062,7 @@ function getReader (dataView: DataView, format: Format) {
         case 1: return (offset: number) => dataView.getUint8(offset);
         case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
         case 4: return (offset: number) => dataView.getUint32(offset, isLittleEndian);
+        default:
         }
         break;
     }
@@ -1080,6 +1071,7 @@ function getReader (dataView: DataView, format: Format) {
         case 1: return (offset: number) => dataView.getInt8(offset);
         case 2: return (offset: number) => dataView.getInt16(offset, isLittleEndian);
         case 4: return (offset: number) => dataView.getInt32(offset, isLittleEndian);
+        default:
         }
         break;
     }
@@ -1088,6 +1080,7 @@ function getReader (dataView: DataView, format: Format) {
         case 1: return (offset: number) => dataView.getInt8(offset);
         case 2: return (offset: number) => dataView.getInt16(offset, isLittleEndian);
         case 4: return (offset: number) => dataView.getInt32(offset, isLittleEndian);
+        default:
         }
         break;
     }
@@ -1096,12 +1089,14 @@ function getReader (dataView: DataView, format: Format) {
         case 1: return (offset: number) => dataView.getUint8(offset);
         case 2: return (offset: number) => dataView.getUint16(offset, isLittleEndian);
         case 4: return (offset: number) => dataView.getUint32(offset, isLittleEndian);
+        default:
         }
         break;
     }
     case FormatType.FLOAT: {
         return (offset: number) => dataView.getFloat32(offset, isLittleEndian);
     }
+    default:
     }
 
     return null;
@@ -1117,6 +1112,7 @@ function getWriter (dataView: DataView, format: Format) {
         case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
         case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
         case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
+        default:
         }
         break;
     }
@@ -1125,6 +1121,7 @@ function getWriter (dataView: DataView, format: Format) {
         case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
         case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
         case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
+        default:
         }
         break;
     }
@@ -1133,6 +1130,7 @@ function getWriter (dataView: DataView, format: Format) {
         case 1: return (offset: number, value: number) => dataView.setInt8(offset, value);
         case 2: return (offset: number, value: number) => dataView.setInt16(offset, value, isLittleEndian);
         case 4: return (offset: number, value: number) => dataView.setInt32(offset, value, isLittleEndian);
+        default:
         }
         break;
     }
@@ -1141,12 +1139,14 @@ function getWriter (dataView: DataView, format: Format) {
         case 1: return (offset: number, value: number) => dataView.setUint8(offset, value);
         case 2: return (offset: number, value: number) => dataView.setUint16(offset, value, isLittleEndian);
         case 4: return (offset: number, value: number) => dataView.setUint32(offset, value, isLittleEndian);
+        default:
         }
         break;
     }
     case FormatType.FLOAT: {
         return (offset: number, value: number) => dataView.setFloat32(offset, value, isLittleEndian);
     }
+    default:
     }
 
     return null;

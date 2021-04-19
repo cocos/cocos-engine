@@ -177,7 +177,7 @@ export function _resetDebugSetting (mode: DebugMode) {
                 logToWebPage(formatString(message, ...optionalParams));
             };
         }
-    } else if (console && console.log.apply) { // console is null when user doesn't open dev tool on IE9
+    } else if (console) {
         // Log to console.
 
         // For JSB

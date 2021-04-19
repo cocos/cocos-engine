@@ -2,8 +2,8 @@
 
 vec4 CCSampleWithAlphaSeparated(sampler2D tex, vec2 uv) {
 #if CC_USE_EMBEDDED_ALPHA
-    return vec4(texture(tex, uv).rgb, texture(tex, uv + vec2(0.0, 0.5)).r);
+  return vec4(texture(tex, uv).rgb, texture(tex, uv + vec2(0.0, 0.5)).r);
 #else
-    return texture(tex, uv);
+  return texture(tex, uv);
 #endif
 }

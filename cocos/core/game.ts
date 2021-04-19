@@ -28,7 +28,8 @@
  * @module core
  */
 
-import { ALIPAY, EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
+import { EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
+import { system } from 'pal/system';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
@@ -43,6 +44,7 @@ import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
+import { BrowserType } from '../../pal/system/enum-type';
 
 interface ISceneInfo {
     url: string;
@@ -620,7 +622,7 @@ export class Game extends EventTarget {
         this._lastTime = performance.now();
         const frameRate = this.config.frameRate;
         this._frameTime = 1000 / frameRate;
-        if (JSB || RUNTIME_BASED) {
+        if (JSB) {
             // @ts-expect-error JSB Call
             jsb.setPreferredFramesPerSecond(frameRate);
             window.rAF = window.requestAnimationFrame;
@@ -794,20 +796,12 @@ export class Game extends EventTarget {
             const ctors: Constructor<Device>[] = [];
 
             if (JSB && window.gfx) {
-                const os = sys.os;
-                if (os === sys.OS_OSX || os === sys.OS_IOS) {
-                    if (gfx.CCMTLDevice) { ctors.push(gfx.CCMTLDevice); }
-                    if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
-                } else { // windows or android
-                    if (gfx.GLES3Device) { ctors.push(gfx.GLES3Device); }
-                    if (gfx.CCVKDevice) { ctors.push(gfx.CCVKDevice); }
-                    if (gfx.GLES2Device) { ctors.push(gfx.GLES2Device); }
-                }
+                this._gfxDevice = gfx.deviceInstance;
             } else {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
                 if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                    || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't not conform to WebGL2 standard
+                    || system.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
                 ) {
                     useWebGL2 = false;
                 }
@@ -817,20 +811,20 @@ export class Game extends EventTarget {
                 if (legacyCC.WebGLDevice) {
                     ctors.push(legacyCC.WebGLDevice);
                 }
-            }
 
-            const opts = new DeviceInfo(
-                this.canvas as HTMLCanvasElement,
-                EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                false,
-                window.devicePixelRatio,
-                sys.windowPixelResolution.width,
-                sys.windowPixelResolution.height,
-                bindingMappingInfo,
-            );
-            for (let i = 0; i < ctors.length; i++) {
-                this._gfxDevice = new ctors[i]();
-                if (this._gfxDevice.initialize(opts)) { break; }
+                const opts = new DeviceInfo(
+                    this.canvas as HTMLCanvasElement,
+                    EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                    false,
+                    window.devicePixelRatio,
+                    sys.windowPixelResolution.width,
+                    sys.windowPixelResolution.height,
+                    bindingMappingInfo,
+                );
+                for (let i = 0; i < ctors.length; i++) {
+                    this._gfxDevice = new ctors[i]();
+                    if (this._gfxDevice.initialize(opts)) { break; }
+                }
             }
         }
 
@@ -845,81 +839,18 @@ export class Game extends EventTarget {
     }
 
     private _initEvents () {
-        const win = window;
-        let hiddenPropName: string;
+        system.onShow(this._onShow.bind(this));
+        system.onHide(this._onHide.bind(this));
+    }
 
-        if (typeof document.hidden !== 'undefined') {
-            hiddenPropName = 'hidden';
-        } else if (typeof document.mozHidden !== 'undefined') {
-            hiddenPropName = 'mozHidden';
-        } else if (typeof document.msHidden !== 'undefined') {
-            hiddenPropName = 'msHidden';
-        } else if (typeof document.webkitHidden !== 'undefined') {
-            hiddenPropName = 'webkitHidden';
-        }
+    private _onHide () {
+        this.emit(Game.EVENT_HIDE);
+        this.pause();
+    }
 
-        let hidden = false;
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const me = this;
-
-        function onHidden () {
-            if (!hidden) {
-                hidden = true;
-                me.emit(Game.EVENT_HIDE);
-            }
-        }
-        // In order to adapt the most of platforms the onshow API.
-        function onShown (arg0?, arg1?, arg2?, arg3?, arg4?) {
-            if (hidden) {
-                hidden = false;
-                me.emit(Game.EVENT_SHOW, arg0, arg1, arg2, arg3, arg4);
-            }
-        }
-
-        if (hiddenPropName!) {
-            const changeList = [
-                'visibilitychange',
-                'mozvisibilitychange',
-                'msvisibilitychange',
-                'webkitvisibilitychange',
-                'qbrowserVisibilityChange',
-            ];
-
-            for (let i = 0; i < changeList.length; i++) {
-                document.addEventListener(changeList[i], (event) => {
-                    let visible = document[hiddenPropName];
-                    // @ts-expect-error QQ App
-                    visible = visible || event.hidden;
-                    if (visible) {
-                        onHidden();
-                    } else {
-                        onShown();
-                    }
-                });
-            }
-        } else {
-            win.addEventListener('blur', onHidden);
-            win.addEventListener('focus', onShown);
-        }
-
-        if (window.navigator.userAgent.indexOf('MicroMessenger') > -1) {
-            win.onfocus = onShown;
-        }
-
-        if ('onpageshow' in window && 'onpagehide' in window) {
-            win.addEventListener('pagehide', onHidden);
-            win.addEventListener('pageshow', onShown);
-            // Taobao UIWebKit
-            document.addEventListener('pagehide', onHidden);
-            document.addEventListener('pageshow', onShown);
-        }
-
-        this.on(Game.EVENT_HIDE, () => {
-            this.pause();
-        });
-        this.on(Game.EVENT_SHOW, () => {
-            this.resume();
-        });
+    private _onShow () {
+        this.emit(Game.EVENT_SHOW);
+        this.resume();
     }
 
     private _setRenderPipelineNShowSplash () {

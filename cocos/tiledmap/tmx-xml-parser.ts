@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module tiledmap
+ */
+
 import { Label, HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
 import codec from '../../external/compression/ZipUtils.js';
 import zlib from '../../external/compression/zlib.min.js';
@@ -153,7 +158,7 @@ export class TMXMapInfo {
      * Parent element.
      * @property {Object}   parentElement
      */
-    parentElement: Object | null = null;
+    parentElement: Record<string, unknown> | null = null;
 
     /**
      * Parent GID.
@@ -623,7 +628,7 @@ export class TMXMapInfo {
                 const collection = images.length > 1;
                 const firstImage = images[0];
                 let firstImageName: string = firstImage.getAttribute('source')!;
-                firstImageName = firstImageName.replace(/\\/g, '\/');
+                firstImageName = firstImageName.replace(/\\/g, '/');
 
                 const tiles = selTileset.getElementsByTagName('tile');
                 const tileCount = tiles && tiles.length || 1;
@@ -663,13 +668,18 @@ export class TMXMapInfo {
                             tileset.imageSize.height = parseFloat(firstImage.getAttribute('height')!) || 0;
                             tileset.sourceImage = this._spriteFrameMap![firstImageName];
                             if (!tileset.sourceImage) {
-                                const shortName = TMXMapInfo.getShortName(firstImageName);
-                                tileset.imageName = shortName;
-                                tileset.sourceImage = this._spriteFrameMap![shortName];
+                                const nameWithPostfix = TMXMapInfo.getNameWithPostfix(firstImageName);
+                                tileset.imageName = nameWithPostfix;
+                                tileset.sourceImage = this._spriteFrameMap![nameWithPostfix];
                                 if (!tileset.sourceImage) {
-                                    console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
-                                    errorID(7221, firstImageName);
-                                    console.warn(`Please try asset type of ${firstImageName} to 'sprite-frame'`);
+                                    const shortName = TMXMapInfo.getShortName(firstImageName);
+                                    tileset.imageName = shortName;
+                                    tileset.sourceImage = this._spriteFrameMap![shortName];
+                                    if (!tileset.sourceImage) {
+                                        console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
+                                        errorID(7221, firstImageName);
+                                        console.warn(`Please try asset type of ${firstImageName} to 'sprite-frame'`);
+                                    }
                                 }
                             }
                         }
@@ -692,7 +702,7 @@ export class TMXMapInfo {
                     if (tileImages && tileImages.length > 0) {
                         const image = tileImages[0];
                         let imageName = image.getAttribute('source')!;
-                        imageName = imageName.replace(/\\/g, '\/');
+                        imageName = imageName.replace(/\\/g, '/');
 
                         tileset.imageName = imageName;
                         tileset.imageSize.width = parseFloat(image.getAttribute('width')!) || 0;
@@ -703,12 +713,17 @@ export class TMXMapInfo {
 
                         tileset.sourceImage = this._spriteFrameMap![imageName];
                         if (!tileset.sourceImage) {
-                            const shortName = TMXMapInfo.getShortName(imageName);
-                            tileset.imageName = shortName;
-                            tileset.sourceImage = this._spriteFrameMap![shortName];
+                            const nameWithPostfix = TMXMapInfo.getNameWithPostfix(firstImageName);
+                            tileset.imageName = nameWithPostfix;
+                            tileset.sourceImage = this._spriteFrameMap![nameWithPostfix];
                             if (!tileset.sourceImage) {
-                                errorID(7221, imageName);
-                                console.warn(`Please try asset type of ${imageName} to 'sprite-frame'`);
+                                const shortName = TMXMapInfo.getShortName(imageName);
+                                tileset.imageName = shortName;
+                                tileset.sourceImage = this._spriteFrameMap![shortName];
+                                if (!tileset.sourceImage) {
+                                    errorID(7221, imageName);
+                                    console.warn(`Please try asset type of ${imageName} to 'sprite-frame'`);
+                                }
                             }
                         }
 
@@ -841,10 +856,11 @@ export class TMXMapInfo {
         case 'gzip':
             tiles = codec.unzipBase64AsArray(nodeValue, 4);
             break;
-        case 'zlib':
+        case 'zlib': {
             const inflator = new zlib.Inflate(codec.Base64.decodeAsArray(nodeValue, 1));
             tiles = uint8ArrayToUint32Array(inflator.decompress());
             break;
+        }
         case null:
         case '':
             // Uncompressed
@@ -1044,11 +1060,18 @@ export class TMXMapInfo {
         this.currentString = currentString;
     }
 
+    static getNameWithPostfix (name: string) {
+        name = name.replace(/\\/g, '/');
+        const slashIndex = name.lastIndexOf('/') + 1;
+        const strLen = name.length;
+        return name.substring(slashIndex, strLen);
+    }
+
     static getShortName (name: string) {
-        name = name.replace(/\\/g, '\/');
-        const splashIndex = name.lastIndexOf('/') + 1;
+        name = name.replace(/\\/g, '/');
+        const slashIndex = name.lastIndexOf('/') + 1;
         let dotIndex = name.lastIndexOf('.');
         dotIndex = dotIndex < 0 ? name.length : dotIndex;
-        return name.substring(splashIndex, dotIndex);
+        return name.substring(slashIndex, dotIndex);
     }
 }

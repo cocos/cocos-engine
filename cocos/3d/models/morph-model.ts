@@ -33,16 +33,17 @@ import { MorphRenderingInstance } from '../assets/morph';
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { DescriptorSet } from '../../core/gfx';
+import { IMacroPatch } from '../../core/renderer';
 
 export class MorphModel extends Model {
     private _morphRenderingInstance: MorphRenderingInstance | null = null;
     private _usedMaterials = new Set<Material>();
 
-    public getMacroPatches (subModelIndex: number) : any {
+    public getMacroPatches (subModelIndex: number) : IMacroPatch[] | null {
         if (this._morphRenderingInstance) {
             return this._morphRenderingInstance.requiredPatches(subModelIndex);
         } else {
-            return undefined;
+            return null;
         }
     }
 

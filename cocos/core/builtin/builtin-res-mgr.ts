@@ -29,7 +29,7 @@ import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { Texture2D } from '../assets/texture-2d';
 import { TextureCube } from '../assets/texture-cube';
 import { Device } from '../gfx';
-import effects from './effects';
+import { effects } from './effects';
 import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
@@ -62,14 +62,9 @@ class BuiltinResMgr {
         // empty texture
         context.fillStyle = 'rgba(0,0,0,0)';
         context.fillRect(0, 0, l, l);
-        const emptyBuffer = new Uint8Array(4 * 4);
-        for (let i = 0; i < emptyBuffer.length; ++i) {
-            emptyBuffer[i] = 0;
-        }
         const emptyTexture = new Texture2D();
         emptyTexture._uuid = 'empty-texture';
         emptyTexture.image = imgAsset;
-        emptyTexture.uploadData(emptyBuffer);
         resources[emptyTexture._uuid] = emptyTexture;
 
         // black texture
@@ -326,6 +321,19 @@ class BuiltinResMgr {
         });
         resources[spineTwoColorMtl._uuid] = spineTwoColorMtl;
         materialsToBeCompiled.push(spineTwoColorMtl);
+
+        // builtin deferred material
+        const builtinDeferredMtl = new legacyCC.Material();
+        builtinDeferredMtl._uuid = 'builtin-deferred-material';
+        builtinDeferredMtl.initialize({ effectName: 'deferred-lighting' });
+        resources[builtinDeferredMtl._uuid] = builtinDeferredMtl;
+        materialsToBeCompiled.push(builtinDeferredMtl);
+
+        const builtinPostProcessMtl = new legacyCC.Material();
+        builtinPostProcessMtl._uuid = 'builtin-post-process-material';
+        builtinPostProcessMtl.initialize({ effectName: 'post-process' });
+        resources[builtinPostProcessMtl._uuid] = builtinPostProcessMtl;
+        materialsToBeCompiled.push(builtinPostProcessMtl);
 
         legacyCC.game.on(legacyCC.Game.EVENT_RENDERER_INITED, () => {
             for (let i = 0; i < materialsToBeCompiled.length; ++i) {

@@ -28,26 +28,23 @@
  * @module gfx
  */
 
-import { legacyCC } from '../global-exports';
-import { polyfillCC } from './polyfill-legacy-cc';
+import './polyfill-legacy-cc';
 import './deprecated-3.0.0';
 
-export * from './descriptor-set';
-export * from './buffer';
-export * from './command-buffer';
-export * from './define';
-export * from './define-class';
-export * from './device';
-export * from './framebuffer';
-export * from './input-assembler';
-export * from './descriptor-set-layout';
-export * from './pipeline-layout';
-export * from './pipeline-state';
-export * from './fence';
-export * from './queue';
-export * from './render-pass';
-export * from './sampler';
-export * from './shader';
-export * from './texture';
-
-legacyCC.gfx = polyfillCC;
+export * from './base/descriptor-set';
+export * from './base/buffer';
+export * from './base/command-buffer';
+export * from './base/define';
+export * from './base/device';
+export * from './base/framebuffer';
+export * from './base/input-assembler';
+export * from './base/descriptor-set-layout';
+export * from './base/pipeline-layout';
+export * from './base/pipeline-state';
+export * from './base/queue';
+export * from './base/render-pass';
+export * from './base/sampler';
+export * from './base/shader';
+export * from './base/texture';
+export * from './base/global-barrier';
+export * from './base/texture-barrier';

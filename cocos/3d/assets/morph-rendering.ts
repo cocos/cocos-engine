@@ -33,7 +33,8 @@ import { Mesh } from './mesh';
 import { Texture2D } from '../../core/assets/texture-2d';
 import { ImageAsset } from '../../core/assets/image-asset';
 import { samplerLib } from '../../core/renderer/core/sampler-lib';
-import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING, UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../core/pipeline/define';
+import { UBOMorph, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
+    UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING } from '../../core/pipeline/define';
 import { warn, warnID } from '../../core/platform/debug';
 import { Morph, MorphRendering, MorphRenderingInstance, SubMeshMorph } from './morph';
 import { assertIsNonNullable, assertIsTrue } from '../../core/data/utils/asserts';
@@ -95,7 +96,7 @@ export class StdMorphRendering implements MorphRendering {
             subMeshInstances[iSubMesh] = this._subMeshRenderings[iSubMesh]?.createInstance() ?? null;
         }
         return {
-            setWeights: (subMeshIndex: number, weights: number[]) => {
+            setWeights (subMeshIndex: number, weights: number[]) {
                 subMeshInstances[subMeshIndex]?.setWeights(weights);
             },
 
@@ -104,7 +105,7 @@ export class StdMorphRendering implements MorphRendering {
                 const subMeshMorph = this._mesh.struct.morph.subMeshMorphs[subMeshIndex];
                 const subMeshRenderingInstance = subMeshInstances[subMeshIndex];
                 if (subMeshRenderingInstance === null) {
-                    return undefined;
+                    return null;
                 }
                 assertIsNonNullable(subMeshMorph);
                 const patches: IMacroPatch[] = [
@@ -370,7 +371,7 @@ class CpuComputingRenderingInstance implements SubMeshMorphRenderingInstance {
                         valueView[4 * iVertex + 1] = targetDisplacements[3 * iVertex + 1] * weight;
                         valueView[4 * iVertex + 2] = targetDisplacements[3 * iVertex + 2] * weight;
                     }
-                } else {
+                } else if (weight !== 0.0) {
                     for (let iVertex = 0; iVertex < nVertices; ++iVertex) {
                         valueView[4 * iVertex + 0] += targetDisplacements[3 * iVertex + 0] * weight;
                         valueView[4 * iVertex + 1] += targetDisplacements[3 * iVertex + 1] * weight;

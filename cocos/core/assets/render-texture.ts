@@ -29,7 +29,7 @@
  */
 
 import { ccclass, rangeMin, rangeMax, serializable } from 'cc.decorator';
-import { Texture, Sampler, ColorAttachment, DepthStencilAttachment, TextureLayout, RenderPassInfo } from '../gfx';
+import { Texture, Sampler, ColorAttachment, DepthStencilAttachment, AccessType, RenderPassInfo } from '../gfx';
 import { legacyCC } from '../global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
 
@@ -49,7 +49,7 @@ export interface IRenderTextureCreateInfo {
 }
 
 const _colorAttachment = new ColorAttachment();
-_colorAttachment.endLayout = TextureLayout.SHADER_READONLY_OPTIMAL;
+_colorAttachment.endAccesses = [AccessType.FRAGMENT_SHADER_READ_TEXTURE];
 const _depthStencilAttachment = new DepthStencilAttachment();
 const passInfo = new RenderPassInfo([_colorAttachment], _depthStencilAttachment);
 

@@ -23,10 +23,10 @@
  THE SOFTWARE.
  */
 
-import { Format, FormatInfos, FormatType, FormatInfo } from '../../core/gfx/define';
+import { Format, FormatInfos, FormatType, FormatInfo } from '../../core/gfx';
 import { sys } from '../../core/platform/sys';
 
-const _typeMap = {
+const _typeMap: Record<string, string> = {
     [FormatType.UNORM]: 'Uint',
     [FormatType.SNORM]: 'Int',
     [FormatType.UINT]: 'Uint',
@@ -38,7 +38,7 @@ const _typeMap = {
 function _getDataViewType (info: FormatInfo) {
     const type = _typeMap[info.type] || _typeMap.default;
     const bytes = info.size / info.count * 8;
-    return type + bytes;
+    return `${type}${bytes}`;
 }
 
 // default params bahaves just like on an plain, compact Float32Array

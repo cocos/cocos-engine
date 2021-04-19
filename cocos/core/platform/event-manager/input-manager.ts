@@ -29,6 +29,7 @@
  * @hidden
  */
 
+import { system } from 'pal/system';
 import { JSB, RUNTIME_BASED } from 'internal:constants';
 import { Vec2 } from '../../math/index';
 import { rect } from '../../math/rect';
@@ -39,6 +40,7 @@ import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './even
 import { Touch } from './touch';
 import { legacyCC } from '../../global-exports';
 import { logID } from '../debug';
+import { BrowserType, OS } from '../../../../pal/system/enum-type';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -229,9 +231,9 @@ class InputManager {
 
     public getHTMLElementPosition (element: HTMLElement): IHTMLElementPosition {
         const docElem = document.documentElement;
-        let leftOffset = sys.os === sys.OS_IOS && sys.isBrowser ? window.screenLeft : window.pageXOffset;
+        let leftOffset = system.os === OS.IOS && sys.isBrowser ? window.screenLeft : window.pageXOffset;
         leftOffset -= docElem.clientLeft;
-        let topOffset = sys.os === sys.OS_IOS && sys.isBrowser ? window.screenTop : window.pageYOffset;
+        let topOffset = system.os === OS.IOS && sys.isBrowser ? window.screenTop : window.pageYOffset;
         topOffset -= docElem.clientTop;
         if (element.getBoundingClientRect) {
             const box = element.getBoundingClientRect();
@@ -344,7 +346,7 @@ class InputManager {
                 continue;
             }
             let location;
-            if (sys.BROWSER_TYPE_FIREFOX === sys.browserType) {
+            if (system.browserType === BrowserType.FIREFOX) {
                 location = locView!.convertToLocationInView(
                     changedTouch.pageX, changedTouch.pageY, position, _vec2,
                 );
@@ -483,8 +485,8 @@ class InputManager {
             mAcceleration.y = -mAcceleration.y;
         }
         // fix android acc values are opposite
-        if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID
-            && legacyCC.sys.browserType !== legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
+        if (system.os === OS.ANDROID
+            && system.browserType !==  BrowserType.MOBILE_QQ) {
             mAcceleration.x = -mAcceleration.x;
             mAcceleration.y = -mAcceleration.y;
         }
@@ -743,7 +745,7 @@ class InputManager {
         this._accelDeviceEvent = window.DeviceMotionEvent || window.DeviceOrientationEvent;
 
         // TODO fix DeviceMotionEvent bug on QQ Browser version 4.1 and below.
-        if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
+        if (system.browserType === BrowserType.MOBILE_QQ) {
             // TODO
         // @ts-expect-error
             this._accelDeviceEvent = window.DeviceOrientationEvent;

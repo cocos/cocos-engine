@@ -28,7 +28,7 @@
  * @module material
  */
 
-import { Type } from '../../gfx/define';
+import { Type } from '../../gfx';
 import { Color, Mat3, Mat4, Vec2, Vec3, Vec4, Quat, IVec2Like, IVec3Like, IVec4Like, IMat3Like, IMat4Like } from '../../math';
 
 const dtMask      = 0xf0000000; //  4 bits => 16 property types
@@ -45,14 +45,15 @@ export enum PropertyType {
     /**
      * Uniform buffer object
      */
-    UBO,
+    BUFFER,
     /**
      * Texture sampler
      */
-    SAMPLER,
+    TEXTURE,
 }
 
-export const genHandle = (pt: PropertyType, set: number, binding: number, type: Type, offset = 0): number => ((pt << 28) & dtMask) | ((type << 22) & typeMask) | ((set << 20) & setMask) | ((binding << 14) & bindingMask) | (offset & offsetMask);
+export const genHandle = (pt: PropertyType, set: number, binding: number, type: Type, offset = 0): number => ((pt << 28) & dtMask)
+    | ((type << 22) & typeMask) | ((set << 20) & setMask) | ((binding << 14) & bindingMask) | (offset & offsetMask);
 export const getPropertyTypeFromHandle = (handle: number): number => (handle & dtMask) >>> 28;
 export const getTypeFromHandle = (handle: number): number => (handle & typeMask) >>> 22;
 export const getSetIndexFromHandle = (handle: number): number => (handle & setMask) >>> 20;
@@ -129,6 +130,7 @@ export function getDefaultFromType (type: Type): readonly number[] | string {
         return 'default-texture';
     case Type.SAMPLER_CUBE:
         return 'default-cube-texture';
+    default:
     }
     return defaultValues[0];
 }

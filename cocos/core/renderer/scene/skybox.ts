@@ -35,6 +35,7 @@ import { legacyCC } from '../../global-exports';
 import { DescriptorSet } from '../../gfx';
 import { SkyboxPool, NULL_HANDLE, SkyboxView, SkyboxHandle } from '../core/memory-pools';
 import { SkyboxInfo } from '../../scene-graph/scene-globals';
+import { Root } from '../../root';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
@@ -103,7 +104,7 @@ export class Skybox {
     set envmap (val: TextureCube | null) {
         this._envmap = val || this._default;
         if (this._envmap) {
-            legacyCC.director.root.pipeline.ambient.albedoArray[3] = this._envmap.mipmapLevel;
+            (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmap.mipmapLevel;
             this._updateGlobalBinding();
         }
     }
@@ -131,12 +132,13 @@ export class Skybox {
 
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
+        const ambient = pipeline.pipelineSceneData.ambient;
         this._globalDescriptorSet = pipeline.descriptorSet;
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
 
         if (!this._model) {
             this._model = legacyCC.director.root.createModel(legacyCC.renderer.scene.Model) as Model;
-            // @ts-ignore skybox don't need local buffers
+            // @ts-expect-error private member access
             this._model._initLocalDescriptors = () => {};
         }
 
@@ -144,7 +146,7 @@ export class Skybox {
         if (!this._envmap) {
             this._envmap = this._default;
         }
-        pipeline.ambient.groundAlbedo[3] = this._envmap.mipmapLevel;
+        ambient.albedoArray[3] = this._envmap.mipmapLevel;
 
         if (!skybox_material) {
             const mat = new Material();
@@ -164,7 +166,7 @@ export class Skybox {
 
     protected _updatePipeline () {
         const value = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
-        const root = legacyCC.director.root;
+        const root = legacyCC.director.root as Root;
         const pipeline = root.pipeline;
         const current = pipeline.macros.CC_USE_IBL;
         if (current === value) { return; }

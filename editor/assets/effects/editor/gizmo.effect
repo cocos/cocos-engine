@@ -97,7 +97,7 @@ CCProgram gizmo-fs %{
   in vec3 forward;
 
   uniform Constant {
-    vec4 color;
+    vec4 mainColor;
   };
 
   vec4 frag () {
@@ -113,11 +113,11 @@ CCProgram gizmo-fs %{
     points[1] = (forward * 3.0 - right + up) * 40.0;
     points[2] = (forward * 3.0 - right - up) * 40.0;
     points[3] = (forward * 3.0 + right - up) * 40.0;
-    vec3 diffuse = LinearToSRGB(color.rgb * LTC_Evaluate(N, V, pos_l, mat3(1), points));
+    vec3 diffuse = LinearToSRGB(mainColor.rgb * LTC_Evaluate(N, V, pos_l, mat3(1), points));
     #if USE_FORWARD_PIPELINE
-      return CCFragOutput(vec4(diffuse, color.a));
+      return CCFragOutput(vec4(diffuse, mainColor.a));
     #else
-      return vec4(diffuse, color.a);
+      return vec4(diffuse, mainColor.a);
     #endif
   }
 }%
@@ -149,28 +149,28 @@ CCProgram line-fs %{
   #include <output>
 
   uniform Constant {
-    vec4 color;
+    vec4 mainColor;
   };
 
   in float lineDistance;
 
   vec4 front() {
     #if USE_FORWARD_PIPELINE
-      return CCFragOutput(color);
+      return CCFragOutput(mainColor);
     #else
         #if USE_DASHED_LINE
             if (mod(lineDistance, 10.0) > 5.0) {
                 discard;
             }
         #endif
-      return color;
+      return mainColor;
     #endif
   }
   vec4 back() {
     #if USE_FORWARD_PIPELINE
-      return CCFragOutput(vec4(color.rgb, color.a * 0.2));
+      return CCFragOutput(vec4(mainColor.rgb, mainColor.a * 0.2));
     #else
-      return vec4(color.rgb, color.a * 0.2);
+      return vec4(mainColor.rgb, mainColor.a * 0.2);
     #endif
   }
 }%
@@ -201,7 +201,7 @@ CCProgram sprite-fs %{
 
   in vec2 uv0;
   uniform Constant {
-    vec4 color;
+    vec4 mainColor;
   };
 
   uniform sampler2D mainTexture;
@@ -210,7 +210,7 @@ CCProgram sprite-fs %{
     vec4 o = vec4(1, 1, 1, 1);
 
     o *= texture(mainTexture, uv0);
-    o *= color;
+    o *= mainColor;
     return o;
   }
 }%

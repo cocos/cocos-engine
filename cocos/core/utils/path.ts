@@ -29,6 +29,8 @@
  * @module core
  */
 
+import { system } from 'pal/system';
+import { OS } from '../../../pal/system/enum-type';
 import { legacyCC } from '../global-exports';
 
 const EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
@@ -163,5 +165,5 @@ export function stripSep (path: string) {
 }
 
 export function getSeperator () {
-    return legacyCC.sys.os === legacyCC.sys.OS_WINDOWS ? '\\' : '/';
+    return system.os === OS.WINDOWS ? '\\' : '/';
 }

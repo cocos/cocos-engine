@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import b2, { MotorJointDef, Vec2 } from '@cocos/box2d';
 import { IRelativeJoint } from '../../spec/i-physics-joint';
 import { b2Joint } from './joint-2d';

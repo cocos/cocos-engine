@@ -43,9 +43,9 @@ import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, ModelPool,
     ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool,
     RawBufferPool, freeHandleArray, ObjectPool, PoolType } from '../core/memory-pools';
-import { Attribute, DescriptorSet, Device, Buffer, BufferInfo } from '../../gfx';
+import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
+    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
-import { getTypedArrayConstructor, BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx/define';
 
 const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
@@ -364,9 +364,12 @@ export class Model {
             this._subModels[idx].destroy();
         }
         this._subModels[idx].initialize(subMeshData, mat.passes, this.getMacroPatches(idx));
+
         // This is a temporary solution
         // It should not be written in a fixed way, or modified by the user
         this._subModels[idx].initPlanarShadowShader();
+        this._subModels[idx].initPlanarShadowInstanceShader();
+
         this._updateAttributesAndBinding(idx);
         if (isNewSubModel) {
             const hSubModelArray = ModelPool.get(this._handle, ModelView.SUB_MODEL_ARRAY);
@@ -424,7 +427,7 @@ export class Model {
         }
     }
 
-    public getMacroPatches (subModelIndex: number) {
+    public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
         return this.receiveShadow ? shadowMapPatches : null;
     }
 

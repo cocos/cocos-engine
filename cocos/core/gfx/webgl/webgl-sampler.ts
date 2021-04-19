@@ -23,8 +23,8 @@
  THE SOFTWARE.
  */
 
-import { Filter } from '../define';
-import { Sampler, SamplerInfo } from '../sampler';
+import { Filter, SamplerInfo } from '../base/define';
+import { Sampler } from '../base/sampler';
 import { IWebGLGPUSampler } from './webgl-gpu-objects';
 
 const WebGLWraps: GLenum[] = [
@@ -51,8 +51,6 @@ export class WebGLSampler extends Sampler {
         this._maxAnisotropy = info.maxAnisotropy;
         this._cmpFunc = info.cmpFunc;
         this._borderColor = info.borderColor;
-        this._minLOD = info.minLOD;
-        this._maxLOD = info.maxLOD;
         this._mipLODBias = info.mipLODBias;
 
         let glMinFilter = 0;

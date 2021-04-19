@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.1.8",
+  "version": "4.2.5",
   "description": "",
   "repository": {
     "type": "git",
@@ -12,7 +12,7 @@
     "dist/"
   ],
   "dependencies": {
-    "@babel/core": "^7.9.0",
+    "@babel/core": "^7.13.10",
     "@babel/plugin-transform-classes": "^7.8.6",
     "@babel/plugin-transform-for-of": "^7.9.0",
     "@babel/preset-env": "^7.8.7",
@@ -29,10 +29,10 @@
     "resolve": "^1.17.0",
     "rollup": "2.26.6",
     "rollup-plugin-progress": "^1.1.1",
-    "rollup-plugin-terser": "^5.2.0",
+    "rollup-plugin-terser": "^7.0.2",
     "semver": "^7.3.2",
-    "tfig": "^3.0.0",
-    "typescript": "^4.1.2",
+    "tfig": "^3.1.1",
+    "typescript": "^4.2.3",
     "yargs": "^15.1.0"
   },
   "devDependencies": {

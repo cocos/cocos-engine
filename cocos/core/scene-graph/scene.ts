@@ -38,7 +38,7 @@ import { BaseNode } from './base-node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
-import { applyTargetOverrides } from '../utils/prefab-utils';
+import { applyTargetOverrides } from '../utils/prefab/utils';
 
 /**
  * @en
@@ -148,6 +148,7 @@ export class Scene extends BaseNode {
         super._onBatchCreated(dontSyncChildPrefab);
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
+            this.children[i]._siblingIndex = i;
             this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
 

@@ -38,6 +38,7 @@ import downloadScript from './download-script';
 import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadParseOptions, files } from './shared';
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { legacyCC } from '../global-exports';
+import { IConfigOption } from './config';
 
 export type DownloadHandler = (url: string, opitons: IDownloadParseOptions, onComplete: CompleteCallback) => void;
 
@@ -91,41 +92,22 @@ const downloadBundle = (nameOrUrl: string, options: IBundleOptions, onComplete: 
     const version = options.version || downloader.bundleVers![bundleName];
     let count = 0;
     const config = `${url}/config.${version ? `${version}.` : ''}json`;
-    let out: Record<string, any> | null = null;
+    let out: IConfigOption | null = null;
     let error: Error | null = null;
     downloadJson(config, options, (err, response) => {
-        if (err) {
-            error = err;
-        }
-        out = response as Record<string, any>;
+        error = err;
+        out = response as IConfigOption;
         if (out) { out.base = `${url}/`; }
-        count++;
-        if (count === 2) {
+        if (++count === 2) {
             onComplete(error, out);
         }
     });
 
     const jspath = `${url}/index.${version ? `${version}.` : ''}js`;
     downloadScript(jspath, options, (err) => {
-        if (err) {
-            error = err;
-            count++;
-            if (count === 2) {
-                onComplete(err);
-            }
-        } else {
-            downloader.importBundleEntry(bundleName).then(() => {
-                count++;
-                if (count === 2) {
-                    onComplete(error, out);
-                }
-            }).catch((e) => {
-                error = e;
-                count++;
-                if (count === 2) {
-                    onComplete(error);
-                }
-            });
+        error = err;
+        if (++count === 2) {
+            onComplete(err, out);
         }
     });
 };
@@ -311,10 +293,6 @@ export class Downloader {
         } else {
             this._downloaders[type] = handler as DownloadHandler;
         }
-    }
-
-    public importBundleEntry (bundleName: string): Promise<any> {
-        return import(`virtual:///prerequisite-imports/${bundleName}`);
     }
 
     /**

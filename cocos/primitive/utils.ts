@@ -28,7 +28,7 @@
  * @module 3d/primitive
  */
 
-import { PrimitiveMode } from '../core/gfx/define';
+import { PrimitiveMode } from '../core/gfx';
 import { IGeometry } from './define';
 
 /**
@@ -102,7 +102,7 @@ export function toWavefrontOBJ (primitive: IGeometry, scale = 1) {
  * @deprecated
  */
 export function normals (positions: number[], nms: number[], length = 1) {
-    const verts = new Array(2 * positions.length);
+    const verts: number[] = new Array(2 * positions.length);
 
     for (let i = 0; i < positions.length / 3; ++i) {
         const i3 = 3 * i;

@@ -52,7 +52,7 @@ import { EColliderType } from '../../physics-enum';
  */
 @ccclass('cc.PlaneCollider')
 @help('i18n:cc.PlaneCollider')
-@menu('Physics/PlaneCollider(beta)')
+@menu('Physics/PlaneCollider')
 @executeInEditMode
 export class PlaneCollider extends Collider {
     /// PUBLIC PROPERTY GETTER\SETTER ///
@@ -64,7 +64,7 @@ export class PlaneCollider extends Collider {
      * 获取或设置平面在本地坐标系下的法线。
      */
     @type(Vec3)
-    @tooltip('平面的法线')
+    @tooltip('i18n:physics3d.collider.plane_normal')
     public get normal () {
         return this._normal;
     }
@@ -83,6 +83,7 @@ export class PlaneCollider extends Collider {
      * 获取或设置平面在本地坐标系下沿着法线移动的数值。
      */
     @editable
+    @tooltip('i18n:physics3d.collider.plane_constant')
     public get constant () {
         return this._constant;
     }

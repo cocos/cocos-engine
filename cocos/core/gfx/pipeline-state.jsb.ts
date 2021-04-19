@@ -23,6 +23,11 @@
  THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
+
 declare const gfx: any;
 
 declare type RecursivePartial<T> = {
@@ -41,8 +46,8 @@ import {
     PolygonMode,
     ShadeModel,
     StencilOp,
-} from './define';
-import { Color } from './define-class';
+    Color,
+} from './base/define';
 import { BlendTargetArrayPool, NULL_HANDLE, BlendTargetArrayHandle, RasterizerStateHandle, RasterizerStatePool, RasterizerStateView,
     DepthStencilStateHandle, DepthStencilStatePool, DepthStencilStateView, BlendTargetHandle, BlendTargetPool, BlendTargetView,
     BlendStateHandle, BlendStatePool, BlendStateView } from '../renderer/core/memory-pools';
@@ -474,6 +479,5 @@ export class BlendState {
     }
 }
 
-export const PipelineStateInfo = gfx.PipelineStateInfo;
-export const InputState = gfx.InputState;
 export const PipelineState = gfx.PipelineState;
+export const PipelineStateInfo = gfx.PipelineStateInfo;

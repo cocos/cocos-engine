@@ -1,3 +1,7 @@
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 import b2 from '@cocos/box2d';
 import { EDITOR } from 'internal:constants';
 
@@ -91,7 +95,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
 
             const node = new Node('PHYSICS_2D_DEBUG_DRAW');
             // node.zIndex = cc.macro.MAX_ZINDEX;
-            node._objFlags |= CCObject.Flags.DontSave;
+            node.hideFlags |= CCObject.Flags.DontSave;
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
 

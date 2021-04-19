@@ -1,3 +1,8 @@
+/**
+ * @packageDocumentation
+ * @module dragonBones
+ */
+
 import { Armature, BlendMode } from '@cocos/dragonbones-js';
 import { Color, Mat4, RenderTexture, Node, Texture2D, Vec3 } from '../../core';
 import { BlendFactor } from '../../core/gfx';

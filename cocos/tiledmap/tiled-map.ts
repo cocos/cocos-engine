@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @module ui
+ * @module tiledmap
  */
 
 import { ccclass, displayOrder, executeInEditMode, help, menu, requireComponent, type, serializable, editable } from 'cc.decorator';
@@ -628,6 +628,11 @@ export class TiledMap extends Component {
                 frame = frames[animation.frameIdx];
             }
             texGrids.set(aniGID, frame.grid!);
+        }
+        for (const layer of this.getLayers()) {
+            if (layer.hasAnimation()) {
+                layer.markForUpdateRenderData();
+            }
         }
     }
 }

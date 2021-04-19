@@ -24,4 +24,4 @@
  */
 
 export * from './builtin-res-mgr';
-export { default as effects } from './effects';
+export { effects } from './effects';

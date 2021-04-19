@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
-import { CommandBuffer } from '../command-buffer';
-import { Queue, QueueInfo } from '../queue';
-import { Fence } from '../fence';
+import { QueueInfo } from '../base/define';
+import { CommandBuffer } from '../base/command-buffer';
+import { Queue } from '../base/queue';
 
 export class WebGLQueue extends Queue {
     public numDrawCalls = 0;
@@ -41,7 +41,7 @@ export class WebGLQueue extends Queue {
     public destroy () {
     }
 
-    public submit (cmdBuffs: CommandBuffer[], fence?: Fence) {
+    public submit (cmdBuffs: CommandBuffer[]) {
         if (!this._isAsync) {
             const len = cmdBuffs.length;
             for (let i = 0; i < len; i++) {
