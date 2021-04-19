@@ -1,4 +1,3 @@
-/* eslint-disable brace-style */
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
 import { SafeAreaEdge, SupportCapability } from 'pal/system';
 import { minigame } from 'pal/minigame';
@@ -8,17 +7,29 @@ import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;
-if (WECHAT) { currentPlatform = Platform.WECHAT_GAME; }
-else if (BAIDU) { currentPlatform = Platform.BAIDU_MINI_GAME; }
-else if (XIAOMI) { currentPlatform = Platform.XIAOMI_QUICK_GAME; }
-else if (ALIPAY) { currentPlatform = Platform.ALIPAY_MINI_GAME; }
-else if (BYTEDANCE) { currentPlatform = Platform.BYTEDANCE_MINI_GAME; }
-else if (OPPO) { currentPlatform = Platform.OPPO_MINI_GAME; }
-else if (VIVO) { currentPlatform = Platform.VIVO_MINI_GAME; }
-else if (HUAWEI) { currentPlatform = Platform.HUAWEI_QUICK_GAME; }
-else if (COCOSPLAY) { currentPlatform = Platform.COCOSPLAY; }
-else if (LINKSURE) { currentPlatform = Platform.LINKSURE_MINI_GAME; }
-else if (QTT) { currentPlatform = Platform.QTT_MINI_GAME; }
+if (WECHAT) {
+    currentPlatform = Platform.WECHAT_GAME;
+} else if (BAIDU) {
+    currentPlatform = Platform.BAIDU_MINI_GAME;
+} else if (XIAOMI) {
+    currentPlatform = Platform.XIAOMI_QUICK_GAME;
+} else if (ALIPAY) {
+    currentPlatform = Platform.ALIPAY_MINI_GAME;
+} else if (BYTEDANCE) {
+    currentPlatform = Platform.BYTEDANCE_MINI_GAME;
+} else if (OPPO) {
+    currentPlatform = Platform.OPPO_MINI_GAME;
+} else if (VIVO) {
+    currentPlatform = Platform.VIVO_MINI_GAME;
+} else if (HUAWEI) {
+    currentPlatform = Platform.HUAWEI_QUICK_GAME;
+} else if (COCOSPLAY) {
+    currentPlatform = Platform.COCOSPLAY;
+} else if (LINKSURE) {
+    currentPlatform = Platform.LINKSURE_MINI_GAME;
+} else if (QTT) {
+    currentPlatform = Platform.QTT_MINI_GAME;
+}
 
 class System {
     public readonly networkType: NetworkType;
@@ -76,7 +87,7 @@ class System {
         if (minigameSystem === 'android p') {
             minigameSystem = 'android p 9.0';
         }
-        const version = /[\d\.]+/.exec(minigameSystem);
+        const version = /[\d.]+/.exec(minigameSystem);
         this.osVersion = version ? version[0] : minigameSystem;
         this.osMainVersion = parseInt(this.osVersion);
 
