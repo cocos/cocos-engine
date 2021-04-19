@@ -310,59 +310,65 @@ exports.methods = {
 const uiElements = {
     uiSections: {
         ready () {
-            this.$.uiSections = this.$this.shadowRoot.querySelectorAll('ui-section[autoflag="true"]');
+            this.$.uiSections = this.$this.shadowRoot.querySelectorAll('ui-section');
         },
         update () {
             this.$.uiSections.forEach((element) => {
                 const key = element.getAttribute('key');
                 const showflag = element.getAttribute('showflag');
+                const autoflag = element.getAttribute('autoflag');
                 if (showflag) {
                     if (typeof showflag === 'string') {
                         if (showflag.startsWith('!')) {
                             if (this.getObjectByKey(this.dump.value, showflag.slice(1))) {
                                 // continue when don't show
+                                element.style = "display: none;";
                                 return true;
                             }
                         } else if (!this.getObjectByKey(this.dump.value, showflag)) {
                             // continue when don't show
+                            element.style = "display: none;";
                             return true;
                         }
                     }
                 }
-                const children = [];
-                const header = document.createElement('ui-prop');
-                header.setAttribute('slot', 'header');
-                header.setAttribute('type', 'dump');
-                header.setAttribute('empty', 'true');
-                header.className = 'header';
-                header.dump = this.dump;
-                const checkbox = document.createElement('ui-checkbox');
-                checkbox.addEventListener('change', (event) => {
-                    this.getObjectByKey(this.dump.value, key).value.enable.value = event.target.value;
-                    header.dispatch('change-dump');
-                });
-                checkbox.setAttribute('value', this.getObjectByKey(this.dump.value, key).value.enable.value);
-                const label = document.createElement('ui-label');
-                label.setAttribute('value', this.getName(this.getObjectByKey(this.dump.value, key)));
-                label.setAttribute('tooltip', this.getTitle(this.getObjectByKey(this.dump.value, key)));
-                header.replaceChildren(...[checkbox, label]);
-                children.push(header);
-                const propMap = this.getObjectByKey(this.dump.value, key).value;
-                for (const propKey in propMap) {
-                    const dump = propMap[propKey];
-                    if (propKey === 'enable') {
-                        continue;
+                element.style ="";
+                if (autoflag) {
+                    const children = [];
+                    const header = document.createElement('ui-prop');
+                    header.setAttribute('slot', 'header');
+                    header.setAttribute('type', 'dump');
+                    header.setAttribute('empty', 'true');
+                    header.className = 'header';
+                    header.dump = this.dump;
+                    const checkbox = document.createElement('ui-checkbox');
+                    checkbox.addEventListener('change', (event) => {
+                        this.getObjectByKey(this.dump.value, key).value.enable.value = event.target.value;
+                        header.dispatch('change-dump');
+                    });
+                    checkbox.setAttribute('value', this.getObjectByKey(this.dump.value, key).value.enable.value);
+                    const label = document.createElement('ui-label');
+                    label.setAttribute('value', this.getName(this.getObjectByKey(this.dump.value, key)));
+                    label.setAttribute('tooltip', this.getTitle(this.getObjectByKey(this.dump.value, key)));
+                    header.replaceChildren(...[checkbox, label]);
+                    children.push(header);
+                    const propMap = this.getObjectByKey(this.dump.value, key).value;
+                    for (const propKey in propMap) {
+                        const dump = propMap[propKey];
+                        if (propKey === 'enable') {
+                            continue;
+                        }
+                        const uiProp = document.createElement('ui-prop');
+                        uiProp.setAttribute('type', 'dump');
+                        const isShow = dump.visible;
+                        if (isShow) {
+                            uiProp.render(dump);
+                            children.push(uiProp);
+                        }
                     }
-                    const uiProp = document.createElement('ui-prop');
-                    uiProp.setAttribute('type', 'dump');
-                    const isShow = dump.visible;
-                    if (isShow) {
-                        uiProp.render(dump);
-                        children.push(uiProp);
-                    }
+                    children.sort((a, b) => (a.dump.displayOrder ? a.dump.displayOrder : 0 - b.dump.displayOrder ? b.dump.displayOrder : 0));
+                    element.replaceChildren(...children);
                 }
-                children.sort((a, b) => (a.dump.displayOrder ? a.dump.displayOrder : 0 - b.dump.displayOrder ? b.dump.displayOrder : 0));
-                element.replaceChildren(...children);
             });
         },
     },

@@ -41,7 +41,8 @@ import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { Light } from '../../renderer/scene/light';
-import { lightCollecting, shadowCollecting } from '../scene-culling';
+import { lightCollecting } from '../scene-culling';
+import { Vec2 } from '../../math';
 import { Camera } from '../../renderer/scene';
 
 /**
@@ -82,7 +83,6 @@ export class ShadowFlow extends RenderFlow {
         if (!shadowInfo.enabled || shadowInfo.type !== ShadowType.ShadowMap) { return; }
 
         const validLights = lightCollecting(camera, shadowInfo.maxReceived);
-        shadowCollecting(pipeline, camera);
 
         if (shadowObjects.length === 0) {
             this.clearShadowMap(validLights, camera);

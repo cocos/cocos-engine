@@ -307,6 +307,7 @@ export class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemo
             if (!obj) { return 0 as unknown as IHandle<P>; }
             this._array.push(obj);
         }
+        if (JSB) this._nativePool.bind(i, this._array[i] as T);
         return i + this._poolFlag as unknown as IHandle<P>; // guarantees the handle is always not zero
     }
 
