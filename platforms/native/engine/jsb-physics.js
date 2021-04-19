@@ -6,13 +6,17 @@ const jsbPhy = globalThis['jsb.physics'];
 jsbPhy['CACHE'] = {
     trimesh: {},
     convex: {},
-    heightField: {},
+    height: {},
     material: {},
 };
 
 jsbPhy['OBJECT'] = {
     books: [],
     ptrToObj: {},
+};
+
+jsbPhy['CONFIG'] = {
+    heightScale: 1 / 5000,
 };
 
 const books = jsbPhy['OBJECT'].books;
@@ -124,7 +128,7 @@ class PhysicsWorld {
     constructor() { this._impl = new jsbPhy.World(); }
 
     setGravity (v) {
-        this._impl.setGravity(v)
+        this._impl.setGravity(v.x, v.y, v.z);
     }
 
     setAllowSleep (v) {
@@ -421,6 +425,24 @@ function getTriangleMesh (v) {
     return jsbPhy.CACHE.trimesh[v._uuid];
 }
 
+function getHeightField (v) {
+    if (!jsbPhy.CACHE.height[v._uuid]) {
+        const rows = v.getVertexCountI();
+        const columns = v.getVertexCountJ();
+        const samples = new Int16Array(rows * columns);
+        const heightScale = jsbPhy['CONFIG'].heightScale;
+        for (let i = 0; i < rows; i++) {
+            for (let j = 0; j < columns; j++) {
+                samples[j + i * columns] = v.getHeight(i, j) / heightScale;
+            }
+        }
+        const height = { rows, columns, samples };
+        const world = cc.PhysicsSystem.instance.physicsWorld.impl;
+        jsbPhy.CACHE.height[v._uuid] = world.createHeightField(height);
+    }
+    return jsbPhy.CACHE.height[v._uuid];
+}
+
 class CylinderShape extends Shape {
     constructor() { super(); this._impl = new jsbPhy.CylinderShape(); }
     setRadius (v) { this.updateGeometry() }
@@ -481,6 +503,20 @@ class TrimeshShape extends Shape {
     }
 }
 
+class TerrainShape extends Shape {
+    constructor() { super(); this._impl = new jsbPhy.TerrainShape(); }
+    setTerrain (v) {
+        if (!v) return;
+        const handle = getHeightField(v);
+        this._impl.setTerrain(handle, v.tileSize, v.tileSize, jsbPhy['CONFIG'].heightScale);
+    }
+    initialize (v) {
+        this._com = v;
+        this.setTerrain(v.terrain);
+        super.initialize(v);
+    }
+}
+
 cc.physics.selector.select("physx", {
     PhysicsWorld: PhysicsWorld,
     RigidBody: RigidBody,
@@ -491,7 +527,7 @@ cc.physics.selector.select("physx", {
     ConeShape: ConeShape,
     CylinderShape: CylinderShape,
     TrimeshShape: TrimeshShape,
-    // TerrainShape: TerrainShape,
+    TerrainShape: TerrainShape,
     // PointToPointConstraint: DistanceJoint,
     // HingeConstraint: RevoluteJoint
 });
