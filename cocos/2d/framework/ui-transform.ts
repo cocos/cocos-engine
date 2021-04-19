@@ -196,6 +196,7 @@ export class UITransform extends Component {
      *
      * @zh
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
+     * @deprecated
      */
     @visible(false)
     get priority () {
