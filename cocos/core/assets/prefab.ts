@@ -182,8 +182,8 @@ class Prefab extends Asset {
         return node;
     }
 
-    public initPlaceHolder () {
-        super.initPlaceHolder();
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
         this.data = new Node();
     }
 

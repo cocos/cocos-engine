@@ -1034,8 +1034,8 @@ export class Mesh extends Asset {
         });
     }
 
-    public initPlaceHolder () {
-        super.initPlaceHolder();
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
         this.reset({
             struct: {
                 vertexBundles: [],

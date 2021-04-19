@@ -337,8 +337,8 @@ export class ImageAsset extends Asset {
 
     private static _sharedPlaceHolderCanvas: HTMLCanvasElement | null = null;
 
-    public initPlaceHolder () {
-        super.initPlaceHolder();
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
         if (!ImageAsset._sharedPlaceHolderCanvas) {
             const canvas = document.createElement('canvas');
             const context = canvas.getContext('2d')!;

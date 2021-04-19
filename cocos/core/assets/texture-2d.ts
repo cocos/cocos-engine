@@ -286,10 +286,10 @@ export class Texture2D extends SimpleTexture {
         }
     }
 
-    public initPlaceHolder () {
-        super.initPlaceHolder();
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
         const imageAsset = new ImageAsset();
-        imageAsset.initPlaceHolder();
+        imageAsset.initDefault();
         this.image = imageAsset;
     }
 

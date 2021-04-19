@@ -283,11 +283,11 @@ export class TextureCube extends SimpleTexture {
         return texInfo;
     }
 
-    public initPlaceHolder () {
-        super.initPlaceHolder();
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
 
         const imageAsset = new ImageAsset();
-        imageAsset.initPlaceHolder();
+        imageAsset.initDefault();
         this.mipmaps = [{
             front: imageAsset,
             back: imageAsset,

@@ -197,8 +197,8 @@ export class RenderTexture extends Asset {
         }
     }
 
-    public initPlaceHolder () {
-        super.initPlaceHolder();
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
         this._width = this._height = 1;
         this._initWindow();
     }

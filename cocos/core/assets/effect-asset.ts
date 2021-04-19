@@ -232,8 +232,8 @@ export class EffectAsset extends Asset {
         return super.destroy();
     }
 
-    public initPlaceHolder () {
-        super.initPlaceHolder();
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
         const effect = EffectAsset.get('unlit');
         this.name = 'unlit';
         this.shaders = effect!.shaders;

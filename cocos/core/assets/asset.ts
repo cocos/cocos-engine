@@ -287,7 +287,8 @@ export class Asset extends Eventify(CCObject) {
 
     public onLoaded () {}
 
-    public initPlaceHolder () {
+    public initDefault (uuid?: string) {
+        if (uuid) { this._uuid = uuid; }
         this.isPlaceHolder = true;
     }
 

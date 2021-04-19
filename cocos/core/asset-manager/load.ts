@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { BUILD } from 'internal:constants';
+import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
 import { Asset, SceneAsset } from '../assets';
 import { error, warn } from '../platform/debug';
 import packManager from './pack-manager';
@@ -225,15 +225,20 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
                 } catch (e) {
                     if (BUILD) {
                         error(e.message, e.stack);
-                    } else if (asset instanceof Asset) {
-                        asset.initPlaceHolder();
-                    } else {
-                        SceneAsset.prototype.initPlaceHolder.call(asset);
+                    }
+                    if (EDITOR || PREVIEW) {
+                        if (asset instanceof Asset) {
+                            asset.initDefault();
+                        } else {
+                            // TODO: remove it.
+                            // scene asset might be a json in editor or preview
+                            SceneAsset.prototype.initDefault.call(asset);
+                        }
                     }
                 }
                 files.remove(id);
                 parsed.remove(id);
-                if (!BUILD && asset.validate && !asset.validate()) { asset.initPlaceHolder(); }
+                if (!BUILD && asset.validate && !asset.validate()) { asset.initDefault(); }
                 cache(uuid, asset, cacheAsset);
                 subTask.recycle();
             }

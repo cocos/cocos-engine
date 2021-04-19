@@ -1293,10 +1293,10 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    public initPlaceHolder () {
-        super.initPlaceHolder();
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
         const texture = new Texture2D();
-        texture.initPlaceHolder();
+        texture.initDefault();
         this._refreshTexture(texture);
         this._calculateUV();
     }

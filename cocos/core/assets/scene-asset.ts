@@ -49,8 +49,8 @@ export default class SceneAsset extends Asset {
     @serializable
     public scene: Scene | null = null;
 
-    public initPlaceHolder () {
-        super.initPlaceHolder();
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
         this.scene = new Scene('New Scene');
     }
 

@@ -473,8 +473,8 @@ export class Material extends Asset {
         this._states.length = 0;
     }
 
-    public initPlaceHolder () {
-        super.initPlaceHolder();
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
         this.initialize({
             effectName: 'unlit',
             defines: { USE_COLOR: true },
