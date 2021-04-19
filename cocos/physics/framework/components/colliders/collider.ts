@@ -126,7 +126,7 @@ export class Collider extends Eventify(Component) {
     public set material (value) {
         if (this._shape) {
             if (value != null && this._material != null) {
-                if (this._material._uuid !== value._uuid) {
+                if (this._material.ID !== value.ID) {
                     this._material.off('physics_material_update', this._updateMaterial, this);
                     value.on('physics_material_update', this._updateMaterial, this);
                     this._isSharedMaterial = false;
@@ -140,6 +140,8 @@ export class Collider extends Eventify(Component) {
                 this._material = value;
             }
             this._updateMaterial();
+        } else {
+            this._material = value;
         }
     }
 
@@ -415,8 +417,8 @@ export class Collider extends Eventify(Component) {
 
     protected onLoad () {
         if (!EDITOR) {
-            this._shape = createShape(this.TYPE);
             this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+            this._shape = createShape(this.TYPE);
             this._shape.initialize(this);
             this._shape.onLoad!();
         }

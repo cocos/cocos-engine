@@ -1104,6 +1104,10 @@ export class Node extends BaseNode {
         eventManager.resumeTarget(this, recursive);
     }
 
+    public static clearBooks () {
+        bookOfChange.forEach((v, k, m) => { k.hasChangedFlags = TransformBit.NONE; });
+    }
+
     public syncToNativeTransform () {
         const v = this.hasChangedFlags;
         if (v) {

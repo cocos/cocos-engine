@@ -195,19 +195,35 @@ function unBookNode (v) {
     if (idx >= 0) { books.splice(idx, 1); }
 }
 
+function updateCollisionMatrix () {
+    const phy = cc.PhysicsSystem.instance;
+    const world = phy.physicsWorld.impl;
+    const cm = phy.collisionMatrix;
+    if (cm.updateArray && cm.updateArray.length > 0) {
+        cm.updateArray.forEach((e) => {
+            const key = `${1 << e}`;
+            const mask = cm[key];
+            world.setCollisionMatrix(e, mask);
+        });
+        cm.updateArray.length = 0;
+    }
+}
+
 class RigidBody {
     get impl () { return this._impl }
     get rigidBody () { return this._com }
-    get isAwake () { return true }
+    get isAwake () { return this._impl.isAwake(); }
     get isSleepy () { return false }
-    get isSleeping () { return false }
-    constructor() { this._impl = new jsbPhy.RigidBody() }
+    get isSleeping () { return this._impl.isSleeping(); }
+    constructor() {
+        updateCollisionMatrix();
+        this._impl = new jsbPhy.RigidBody()
+    }
 
     initialize (v) {
         v.node.updateWorldTransform();
         this._com = v;
-        this._impl.initialize(v.node.handle);
-        this.setType(this._com.type);
+        this._impl.initialize(v.node.handle, v.type, v._group);
         bookNode(v.node);
     }
 
@@ -230,12 +246,12 @@ class RigidBody {
 
     setGroup (v) { this._impl.setGroup(v); }
     getGroup () { return this._impl.getGroup(); }
-    addGroup (v) { this._impl.addGroup(v); }
-    removeGroup (v) { this._impl.removeGroup(v); }
+    addGroup (v) { this.setGroup(this.getGroup() | v); }
+    removeGroup (v) { this.setGroup(this.getGroup() & ~v); }
     setMask (v) { this._impl.setMask(v); }
     getMask () { return this._impl.getMask(); }
-    addMask (v) { this._impl.addMask(v); }
-    removeMask (v) { this._impl.removeMask(v); }
+    addMask (v) { this.setMask(this.getMask() | v); }
+    removeMask (v) { this.setMask(this.getMask() & ~v); }
 
     setType (v) { this._impl.setType(v); }
     setMass (v) { this._impl.setMass(v); }
@@ -276,7 +292,7 @@ class Shape {
     get impl () { return this._impl; }
     get collider () { return this._com; }
     get attachedRigidBody () { return this._attachedRigidBody; }
-    constructor() { };
+    constructor() { updateCollisionMatrix(); };
     initialize (v) {
         v.node.updateWorldTransform();
         this._com = v;
@@ -285,6 +301,7 @@ class Shape {
         bookNode(v.node);
     }
     onLoad () {
+        this.setMaterial(this._com.sharedMaterial);
         this.setCenter(this._com.center);
         this.setAsTrigger(this._com.isTrigger);
     }
@@ -296,7 +313,10 @@ class Shape {
         delete ptrToObj[this._impl.getImpl()];
         this._impl.onDestroy();
     }
-    setMaterial (v) { }
+    setMaterial (v) {
+        if (!v) v = cc.PhysicsSystem.instance.defaultMaterial;
+        this._impl.setMaterial(v.ID, v.friction, v.friction, v.restitution, 2, 2);
+    }
     setAsTrigger (v) { this._impl.setAsTrigger(v); }
     setCenter (v) { this._impl.setCenter(v.x, v.y, v.z); }
     getAABB (v) { }
@@ -310,12 +330,12 @@ class Shape {
     }
     setGroup (v) { this._impl.setGroup(v); }
     getGroup () { return this._impl.getGroup(); }
-    addGroup (v) { this._impl.addGroup(v); }
-    removeGroup (v) { this._impl.removeGroup(v); }
+    addGroup (v) { this.setGroup(this.getGroup() | v); }
+    removeGroup (v) { this.setGroup(this.getGroup() & ~v); }
     setMask (v) { this._impl.setMask(v); }
     getMask () { return this._impl.getMask(); }
-    addMask (v) { this._impl.addMask(v); }
-    removeMask (v) { this._impl.removeMask(v); }
+    addMask (v) { this.setMask(this.getMask() | v); }
+    removeMask (v) { this.setMask(this.getMask() & ~v); }
 }
 
 class SphereShape extends Shape {
@@ -386,6 +406,51 @@ class ConeShape extends Shape {
     }
 }
 
+jsbPhy['CACHE'] = {
+    trimesh: {},
+    convex: {},
+    heightField: {},
+};
+class TrimeshShape extends Shape {
+    constructor() { super(); this._impl = new jsbPhy.TrimeshShape(); }
+    setConvex (v) { this._impl.useConvex(v); }
+    setMesh (v) {
+        if (!v) return;
+        const isConvex = this._com.convex;
+        this._impl.useConvex(isConvex);
+        let handle = 0;
+        if (isConvex) {
+            if (!jsbPhy.CACHE.convex[v._uuid]) {
+                const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
+                const world = cc.PhysicsSystem.instance.physicsWorld.impl;
+                const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 }
+                jsbPhy.CACHE.convex[v._uuid] = world.createConvex(convex);
+            }
+            handle = jsbPhy.CACHE.convex[v._uuid];
+        } else {
+            if (!jsbPhy.CACHE.trimesh[v._uuid]) {
+                const indArr = v.readIndices(0);
+                const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
+                const world = cc.PhysicsSystem.instance.physicsWorld.impl;
+                const trimesh = {
+                    positions: new Float32Array(posArr), positionLength: posArr.length / 3,
+                    triangles: new Uint16Array(indArr), triangleLength: indArr.length / 3,
+                    isU16: true,
+                }
+                jsbPhy.CACHE.trimesh[v._uuid] = world.createTrimesh(trimesh);
+            }
+            handle = jsbPhy.CACHE.trimesh[v._uuid];
+        }
+        this._impl.setMesh(handle);
+    }
+    initialize (v) {
+        this._com = v;
+        this.setConvex(v.convex);
+        this.setMesh(v.mesh);
+        super.initialize(v);
+    }
+}
+
 cc.physics.selector.select("physx", {
     PhysicsWorld: PhysicsWorld,
     RigidBody: RigidBody,
@@ -395,7 +460,7 @@ cc.physics.selector.select("physx", {
     CapsuleShape: CapsuleShape,
     // ConeShape: PhysXConeShape,
     // CylinderShape: PhysXCylinderShape,
-    // TrimeshShape: PhysXTrimeshShape,
+    TrimeshShape: TrimeshShape,
     // TerrainShape: PhysXTerrainShape,
     // PointToPointConstraint: PhysXDistanceJoint,
     // HingeConstraint: PhysXRevoluteJoint
