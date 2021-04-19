@@ -4,14 +4,60 @@
  * Homepage: https://github.com/haroel/creatorexDTS
  */
 declare namespace jsb {
+
+    type AccelerationXYZ = number;
+    type AccelerationIncludingGravityXYZ = number;
+    type RotationRateAlpha = number;
+    type RotationRateBeta = number;
+    type RotationRateGamma = number;
+    type DeviceMotionValue = [AccelerationXYZ, AccelerationXYZ, AccelerationXYZ,
+        AccelerationIncludingGravityXYZ, AccelerationIncludingGravityXYZ, AccelerationIncludingGravityXYZ,
+        RotationRateAlpha, RotationRateBeta, RotationRateGamma];
     export namespace device {
         export function getBatteryLevel(): number;
         export function getDevicePixelRatio(): number;
-        export function getDeviceMotionValue(): any;  // TODO: interface type
         export function getDeviceOrientation(): number;  // TODO: enum type
         export function getNetworkType(): number; // TODO: enum type
         export function getSafeAreaEdge(): any;  // TODO: interface type
+
+        export function setAccelerometerEnabled(isEnabled: boolean);
+        export function setAccelerometerInterval(intervalInSeconds: number);
+        export function getDeviceMotionValue(): DeviceMotionValue;
     }
+
+    export interface MouseEvent {
+        x: number,
+        y: number,
+        button: number,
+    }
+    type MouseEventCallback = (mouseEvent: MouseEvent) => void;
+    export interface MouseWheelEvent extends MouseEvent {
+        wheelDeltaX: number,
+        wheelDeltaY: number,
+    }
+    type  MouseWheelEventCallback = (mouseEvent: MouseWheelEvent) => void;
+    export let onMouseDown: MouseEventCallback | undefined;
+    export let onMouseMove: MouseEventCallback | undefined;
+    export let onMouseUp: MouseEventCallback | undefined;
+    export let onMouseWheel: MouseWheelEventCallback | undefined;
+
+    type TouchEventCallback = (touchList: TouchList) =>  void;
+    export let onTouchStart: TouchEventCallback | undefined;
+    export let onTouchMove: TouchEventCallback | undefined;
+    export let onTouchEnd: TouchEventCallback | undefined;
+    export let onTouchCancel: TouchEventCallback | undefined;
+
+    export interface KeyboardEvent {
+        altKey: boolean;
+        ctrlKey: boolean;
+        metaKey: boolean;
+        shiftKey: boolean;
+        repeat: boolean;
+        keyCode: number;
+    }
+    type KeyboardEventCallback = (keyboardEvent: KeyboardEvent) => void;
+    export let onKeyDown: KeyboardEventCallback | undefined;
+    export let onKeyUp: KeyboardEventCallback| undefined;
 
     export let onResize: (size: {width: number, height: number}) => void | undefined;
     export let onOrientationChanged: (event: {orientation: number}) => void | undefined;  // TODO: enum orientation type

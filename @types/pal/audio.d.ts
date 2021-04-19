@@ -59,7 +59,7 @@ declare module 'pal/audio' {
          * Readonly property to get the url of audio src.
          */
         get src (): string;
-        
+
         /**
          * The type of this player.
          * For WEB platform, it can be `WEB_AUDIO` or `DOM_AUDIO`.

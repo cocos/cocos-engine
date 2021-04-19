@@ -9,10 +9,24 @@ const minigame: IMiniGame = {};
 cloneObject(minigame, my);
 
 const systemInfo = minigame.getSystemInfoSync();
-minigame.isSubContext = false;  // sub context not supported
 minigame.isDevTool = window.navigator && (/AlipayIDE/.test(window.navigator.userAgent));
+
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
-// let orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
+// init landscapeOrientation as LANDSCAPE_RIGHT
+const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+// NOTE: onDeviceOrientationChange is not supported on this platform
+// my.onDeviceOrientationChange((res) => {
+//     if (res.value === 'landscape') {
+//         landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+//     } else if (res.value === 'landscapeReverse') {
+//         landscapeOrientation = Orientation.LANDSCAPE_LEFT;
+//     }
+// });
+Object.defineProperty(minigame, 'orientation', {
+    get () {
+        return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
+    },
+});
 
 // TouchEvent
 // my.onTouchStart register touch event listner on body
@@ -63,7 +77,7 @@ minigame.onAccelerometerChange = function (cb) {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
-            // NOTE: onDeviceOrientationChangeis not supported on alipay platform
+            // NOTE: onDeviceOrientationChange is not supported on alipay platform
             const tmp = x;
             x = -y;
             y = tmp;

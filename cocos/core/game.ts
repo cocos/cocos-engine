@@ -534,7 +534,7 @@ export class Game extends EventTarget {
         return Promise.resolve(initPromise).then(() => {
             // register system events
             if (!EDITOR && game.config.registerSystemEvent) {
-                inputManager.registerSystemEvent(game.canvas);
+                inputManager.registerSystemEvent();
             }
 
             return this._setRenderPipelineNShowSplash();
