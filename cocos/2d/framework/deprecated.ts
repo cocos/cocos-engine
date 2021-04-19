@@ -125,6 +125,13 @@ markAsWarning(Renderable2D.prototype, 'Renderable2D.prototype', [
     },
 ]);
 
+markAsWarning(UITransform.prototype, 'UITransform.prototype', [
+    {
+        name: 'priority',
+        suggest: `Please use setSiblingIndex to change index of the current node in its parent's children array.`,
+    },
+]);
+
 /**
  * Alias of [[UITransform]]
  * @deprecated Since v1.2
