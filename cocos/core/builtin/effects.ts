@@ -342,7 +342,7 @@ export const effects = [
     "shaders": [
       {
         "name": "standard|standard-vs|standard-fs",
-        "hash": 2671830049,
+        "hash": 1185755493,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 210, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 53 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }] },
@@ -405,7 +405,7 @@ export const effects = [
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "stageFlags": 1, "format": 21, "location": 2 },
           { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "stageFlags": 1, "format": 44, "location": 3 },
           { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "stageFlags": 1, "format": 11, "location": 6 },
-          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 42, "location": 4 },
+          { "name": "a_joints", "type": "u32vec4", "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "location": 4 },
           { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 44, "location": 5 },
           { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 7 },
           { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 8 },
@@ -419,7 +419,7 @@ export const effects = [
       },
       {
         "name": "standard|shadow-caster-vs:vert|shadow-caster-fs:frag",
-        "hash": 3298565212,
+        "hash": 2656074780,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 173, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 6 },
           "globals": { "blocks": [{ "name": "CCShadow", "defines": [] }], "samplerTextures": [] },
@@ -462,7 +462,7 @@ export const effects = [
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "stageFlags": 1, "format": 21, "location": 2 },
           { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "stageFlags": 1, "format": 44, "location": 3 },
           { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "stageFlags": 1, "format": 11, "location": 6 },
-          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 42, "location": 4 },
+          { "name": "a_joints", "type": "u32vec4", "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "location": 4 },
           { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 44, "location": 5 },
           { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 7 },
           { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 8 },
@@ -478,12 +478,12 @@ export const effects = [
   {
     "name": "terrain",
     "techniques": [
-      { "name": "opaque", "passes": [{ "program": "terrain|terrain-vs|terrain-fs", "properties": { "UVScale": { "value": [1, 1, 1, 1], "type": 16 }, "lightMapUVParam": { "value": [0, 0, 0, 0], "type": 16 }, "metallic": { "value": [0, 0, 0, 0], "type": 16 }, "roughness": { "value": [1, 1, 1, 1], "type": 16 }, "weightMap": { "value": "black", "type": 28 }, "detailMap0": { "value": "grey", "type": 28 }, "detailMap1": { "value": "grey", "type": 28 }, "detailMap2": { "value": "grey", "type": 28 }, "detailMap3": { "value": "grey", "type": 28 }, "normalMap0": { "value": "normal-texture", "type": 28 }, "normalMap1": { "value": "normal-texture", "type": 28 }, "normalMap2": { "value": "normal-texture", "type": 28 }, "normalMap3": { "value": "normal-texture", "type": 28 }, "lightMap": { "value": "grey", "type": 28 } } }, { "phase": "forward-add", "propertyIndex": 0, "embeddedMacros": { "CC_FORWARD_ADD": true }, "blendState": { "targets": [{ "blend": true, "blendSrc": 1, "blendDst": 1, "blendSrcAlpha": 0, "blendDstAlpha": 1 }] }, "program": "terrain|terrain-vs|terrain-fs", "depthStencilState": { "depthFunc": 2, "depthTest": true, "depthWrite": false }, "properties": { "UVScale": { "value": [1, 1, 1, 1], "type": 16 }, "lightMapUVParam": { "value": [0, 0, 0, 0], "type": 16 }, "metallic": { "value": [0, 0, 0, 0], "type": 16 }, "roughness": { "value": [1, 1, 1, 1], "type": 16 }, "weightMap": { "value": "black", "type": 28 }, "detailMap0": { "value": "grey", "type": 28 }, "detailMap1": { "value": "grey", "type": 28 }, "detailMap2": { "value": "grey", "type": 28 }, "detailMap3": { "value": "grey", "type": 28 }, "normalMap0": { "value": "normal-texture", "type": 28 }, "normalMap1": { "value": "normal-texture", "type": 28 }, "normalMap2": { "value": "normal-texture", "type": 28 }, "normalMap3": { "value": "normal-texture", "type": 28 }, "lightMap": { "value": "grey", "type": 28 } } }, { "phase": "shadow-add", "propertyIndex": 0, "rasterizerState": { "cullMode": 2 }, "program": "terrain|shadow-caster-vs:vert|shadow-caster-fs:frag" }] }
+      { "name": "opaque", "passes": [{ "program": "terrain|terrain-vs|terrain-fs", "properties": { "UVScale": { "value": [1, 1, 1, 1], "type": 16 }, "lightMapUVParam": { "value": [0, 0, 0, 0], "type": 16 }, "metallic": { "value": [0, 0, 0, 0], "type": 16 }, "roughness": { "value": [1, 1, 1, 1], "type": 16 }, "weightMap": { "value": "black", "type": 28 }, "detailMap0": { "value": "grey", "type": 28 }, "detailMap1": { "value": "grey", "type": 28 }, "detailMap2": { "value": "grey", "type": 28 }, "detailMap3": { "value": "grey", "type": 28 }, "normalMap0": { "value": "normal", "type": 28 }, "normalMap1": { "value": "normal", "type": 28 }, "normalMap2": { "value": "normal", "type": 28 }, "normalMap3": { "value": "normal", "type": 28 }, "lightMap": { "value": "grey", "type": 28 } } }, { "phase": "deferred", "propertyIndex": 0, "blendState": { "targets": [{ "blend": false }, { "blend": false }, { "blend": false }, { "blend": false }] }, "program": "terrain|terrain-vs|terrain-fs", "properties": { "UVScale": { "value": [1, 1, 1, 1], "type": 16 }, "lightMapUVParam": { "value": [0, 0, 0, 0], "type": 16 }, "metallic": { "value": [0, 0, 0, 0], "type": 16 }, "roughness": { "value": [1, 1, 1, 1], "type": 16 }, "weightMap": { "value": "black", "type": 28 }, "detailMap0": { "value": "grey", "type": 28 }, "detailMap1": { "value": "grey", "type": 28 }, "detailMap2": { "value": "grey", "type": 28 }, "detailMap3": { "value": "grey", "type": 28 }, "normalMap0": { "value": "normal", "type": 28 }, "normalMap1": { "value": "normal", "type": 28 }, "normalMap2": { "value": "normal", "type": 28 }, "normalMap3": { "value": "normal", "type": 28 }, "lightMap": { "value": "grey", "type": 28 } } }, { "phase": "forward-add", "propertyIndex": 0, "embeddedMacros": { "CC_FORWARD_ADD": true }, "blendState": { "targets": [{ "blend": true, "blendSrc": 1, "blendDst": 1, "blendSrcAlpha": 0, "blendDstAlpha": 1 }] }, "program": "terrain|terrain-vs|terrain-fs", "depthStencilState": { "depthFunc": 2, "depthTest": true, "depthWrite": false }, "properties": { "UVScale": { "value": [1, 1, 1, 1], "type": 16 }, "lightMapUVParam": { "value": [0, 0, 0, 0], "type": 16 }, "metallic": { "value": [0, 0, 0, 0], "type": 16 }, "roughness": { "value": [1, 1, 1, 1], "type": 16 }, "weightMap": { "value": "black", "type": 28 }, "detailMap0": { "value": "grey", "type": 28 }, "detailMap1": { "value": "grey", "type": 28 }, "detailMap2": { "value": "grey", "type": 28 }, "detailMap3": { "value": "grey", "type": 28 }, "normalMap0": { "value": "normal", "type": 28 }, "normalMap1": { "value": "normal", "type": 28 }, "normalMap2": { "value": "normal", "type": 28 }, "normalMap3": { "value": "normal", "type": 28 }, "lightMap": { "value": "grey", "type": 28 } } }, { "phase": "shadow-add", "propertyIndex": 0, "rasterizerState": { "cullMode": 2 }, "program": "terrain|shadow-caster-vs:vert|shadow-caster-fs:frag" }] }
     ],
     "shaders": [
       {
         "name": "terrain|terrain-vs|terrain-fs",
-        "hash": 3377475418,
+        "hash": 835016669,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 58, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 49 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }] },
@@ -557,7 +557,7 @@ export const effects = [
     "shaders": [
       {
         "name": "unlit|unlit-vs:vert|unlit-fs:frag",
-        "hash": 2253779437,
+        "hash": 3174227885,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 195, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 39 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [] },
@@ -601,7 +601,7 @@ export const effects = [
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "stageFlags": 1, "format": 21, "location": 2 },
           { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "stageFlags": 1, "format": 44, "location": 3 },
           { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "stageFlags": 1, "format": 11, "location": 6 },
-          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 42, "location": 4 },
+          { "name": "a_joints", "type": "u32vec4", "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "location": 4 },
           { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 44, "location": 5 },
           { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 7 },
           { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 8 },
@@ -622,7 +622,7 @@ export const effects = [
     "shaders": [
       {
         "name": "deferred-lighting|lighting-vs|lighting-fs",
-        "hash": 2274322321,
+        "hash": 2235121444,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 37, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 47 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [{ "name": "cc_shadowMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_spotLightingMap", "defines": ["CC_RECEIVE_SHADOW"] }, { "name": "cc_environment", "defines": ["CC_USE_IBL"] }, { "name": "cc_gbuffer_albedoMap", "defines": [] }, { "name": "cc_gbuffer_positionMap", "defines": [] }, { "name": "cc_gbuffer_normalMap", "defines": [] }, { "name": "cc_gbuffer_emissiveMap", "defines": [] }] },
@@ -657,7 +657,7 @@ export const effects = [
     "shaders": [
       {
         "name": "planar-shadow|planar-shadow-vs:vert|planar-shadow-fs:frag",
-        "hash": 3429250961,
+        "hash": 3940098901,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 204, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 47 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }, { "name": "CCShadow", "defines": [] }], "samplerTextures": [] },
@@ -685,7 +685,7 @@ export const effects = [
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "stageFlags": 1, "format": 21, "location": 2 },
           { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "stageFlags": 1, "format": 44, "location": 3 },
           { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "stageFlags": 1, "format": 11, "location": 6 },
-          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 42, "location": 4 },
+          { "name": "a_joints", "type": "u32vec4", "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "location": 4 },
           { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 44, "location": 5 },
           { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 7 },
           { "name": "a_matWorld0", "type": 16, "count": 1, "defines": ["USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 8 },
@@ -705,7 +705,7 @@ export const effects = [
     "shaders": [
       {
         "name": "post-process|post-process-vs|post-process-fs",
-        "hash": 556911960,
+        "hash": 3468200510,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 145, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 37 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [{ "name": "cc_lighting_resultMap", "defines": [] }] },
@@ -730,7 +730,7 @@ export const effects = [
           { "name": "a_texCoord", "type": 14, "count": 1, "defines": [], "stageFlags": 1, "format": 21, "location": 2 },
           { "name": "a_tangent", "type": 16, "count": 1, "defines": [], "stageFlags": 1, "format": 44, "location": 3 },
           { "name": "a_vertexId", "type": 13, "count": 1, "defines": ["CC_USE_MORPH"], "stageFlags": 1, "format": 11, "location": 6 },
-          { "name": "a_joints", "type": 12, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 42, "location": 4 },
+          { "name": "a_joints", "type": "u32vec4", "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "location": 4 },
           { "name": "a_weights", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING"], "stageFlags": 1, "format": 44, "location": 5 },
           { "name": "a_jointAnimInfo", "type": 16, "count": 1, "defines": ["CC_USE_SKINNING", "CC_USE_BAKED_ANIMATION", "USE_INSTANCING"], "stageFlags": 1, "format": 44, "isInstanced": true, "location": 7 }
         ]

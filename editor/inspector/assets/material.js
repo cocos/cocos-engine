@@ -3,6 +3,7 @@
 // TODO Retain the previously modified data when switching pass, etc.
 
 const { materialTechniquePolyfill } = require('../utils/material');
+const { setDisabled, setReadonly, loopSetAssetDumpDataReadonly } = require('../utils/prop');
 
 exports.style = `
 ui-button.location { flex: none; margin-left: 6px; }
@@ -63,21 +64,23 @@ exports.methods = {
         }
         const technique = materialTechniquePolyfill(this.material.data[this.material.technique]);
         this.technique = technique;
-    
+
         if (technique.useInstancing) {
             this.$.useInstancing.render(technique.useInstancing);
             this.$.useInstancing.removeAttribute('hidden');
         } else {
             this.$.useInstancing.setAttribute('hidden', '');
         }
-    
+        setReadonly(this.asset.readonly, this.$.useInstancing);
+
         if (technique.useBatching) {
             this.$.useBatching.render(technique.useBatching);
             this.$.useBatching.removeAttribute('hidden');
         } else {
             this.$.useBatching.setAttribute('hidden', '');
         }
-    
+        setReadonly(this.asset.readonly, this.$.useBatching);
+
         if (technique.passes) {
             const $propList = Array.from(this.$.materialDump.querySelectorAll('ui-prop.pass') || []);
             let i = 0;
@@ -86,6 +89,14 @@ exports.methods = {
                 if (technique.passes[i].propertyIndex !== undefined && technique.passes[i].propertyIndex.value !== i) {
                     continue;
                 }
+
+                // if asset is readonly
+                if (this.asset.readonly) {
+                    for (const key in technique.passes[i].value) {
+                        loopSetAssetDumpDataReadonly(technique.passes[i].value[key]);
+                    }
+                }
+
                 if (!$propList[i]) {
                     $propList[i] = document.createElement('ui-prop');
                     $propList[i].classList.add('pass');
@@ -116,10 +127,10 @@ exports.methods = {
 
 /**
  * Methods for automatic rendering of components
- * @param assetList 
- * @param metaList 
+ * @param assetList
+ * @param metaList
  */
-exports.update = async function(assetList, metaList) {
+exports.update = async function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -129,8 +140,11 @@ exports.update = async function(assetList, metaList) {
 
     // effect <select> tag
     this.$.effect.value = this.material.effect;
+    setDisabled(this.asset.readonly, this.$.effect);
+
     // technique <select> tag
     this.$.technique.value = this.material.technique;
+    setDisabled(this.asset.readonly, this.$.technique);
 
     this.updateTechniqueOptions();
     this.updatePasses();
@@ -139,7 +153,7 @@ exports.update = async function(assetList, metaList) {
 /**
  * Method of initializing the panel
  */
-exports.ready = async function() {
+exports.ready = async function () {
     // The event triggered when the content of material is modified
     this.$.materialDump.addEventListener('change-dump', (event) => {
         Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
@@ -190,19 +204,21 @@ exports.ready = async function() {
 
     // When the page is initialized, all effect lists are queried and then not updated again
     const effectMap = await Editor.Message.request('scene', 'query-all-effects');
-    this._effects = Object.keys(effectMap).filter((name) => {
-        const effect = effectMap[name];
-        return !effect.hideInEditor;
-    }).map((name) => {
-        const effect = effectMap[name];
-        return {
-            name,
-            uuid: effect.uuid,
-        };
-    });
+    this._effects = Object.keys(effectMap)
+        .filter((name) => {
+            const effect = effectMap[name];
+            return !effect.hideInEditor;
+        })
+        .map((name) => {
+            const effect = effectMap[name];
+            return {
+                name,
+                uuid: effect.uuid,
+            };
+        });
     let effectOption = '';
     for (let effect of this._effects) {
         effectOption += `<option>${effect.name}</option>`;
     }
     this.$.effect.innerHTML = effectOption;
-}
+};

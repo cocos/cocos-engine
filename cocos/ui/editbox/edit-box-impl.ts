@@ -31,6 +31,7 @@
  * @hidden
  */
 
+import { system } from 'pal/system';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../core/director';
 import { game } from '../../core/game';
@@ -47,6 +48,7 @@ import visibleRect from '../../core/platform/visible-rect';
 import { Node } from '../../core/scene-graph';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { legacyCC } from '../../core/global-exports';
+import { BrowserType, OS } from '../../../pal/system/enum-type';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -223,7 +225,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _showDomOnMobile () {
-        if (sys.os !== sys.OS_ANDROID) {
+        if (system.os !== OS.ANDROID) {
             return;
         }
 
@@ -240,7 +242,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _hideDomOnMobile () {
-        if (sys.os === sys.OS_ANDROID) {
+        if (system.os === OS.ANDROID) {
             if (this.__autoResize) {
                 view.resizeWithBrowserSize(true);
             }
@@ -267,7 +269,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _scrollBackWindow () {
         setTimeout(() => {
-            if (sys.browserType === sys.BROWSER_TYPE_WECHAT && sys.os === sys.OS_IOS) {
+            if (system.browserType === BrowserType.WECHAT && system.os === OS.IOS) {
                 if (window.top) {
                     window.top.scrollTo(0, 0);
                 }
@@ -567,7 +569,7 @@ export class EditBoxImpl extends EditBoxImplBase {
                             + `#${this._domId}::-ms-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`;
         // EDGE_BUG_FIX: hide clear button, because clearing input box in Edge does not emit input event
         // issue refference: https://github.com/angular/angular/issues/26307
-        if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_EDGE) {
+        if (system.browserType === BrowserType.EDGE) {
             styleEl!.innerHTML += `#${this._domId}::-ms-clear{display: none;}`;
         }
     }

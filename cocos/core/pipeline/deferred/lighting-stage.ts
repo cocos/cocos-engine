@@ -231,14 +231,7 @@ export class LightingStage extends RenderStage {
         const dynamicOffsets: number[] = [0];
         cmdBuff.bindDescriptorSet(SetIndex.LOCAL, this._descriptorSet, dynamicOffsets);
 
-        const vp = camera.viewport;
-        // render area is not oriented
-        const w = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
-        const h = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
-        this._renderArea.x = vp.x * w;
-        this._renderArea.y = vp.y * h;
-        this._renderArea.width = vp.width * w * pipeline.pipelineSceneData.shadingScale;
-        this._renderArea.height = vp.height * h * pipeline.pipelineSceneData.shadingScale;
+        this._renderArea = pipeline.generateRenderArea(camera);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (pipeline.pipelineSceneData.isHDR) {
