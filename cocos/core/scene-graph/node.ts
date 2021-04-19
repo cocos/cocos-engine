@@ -1104,7 +1104,16 @@ export class Node extends BaseNode {
         eventManager.resumeTarget(this, recursive);
     }
 
-    public syncNativeTransform () {
+    public syncToNativeTransform () {
+        const v = this.hasChangedFlags;
+        if (v) {
+            if (v & TransformBit.POSITION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition); }
+            if (v & TransformBit.ROTATION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation); }
+            if (v & TransformBit.SCALE) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this.worldScale); }
+        }
+    }
+
+    public syncFromNativeTransform () {
         const v = NodePool.get(this._poolHandle, NodeView.FLAGS_CHANGED);
         if (v) {
             if (v & TransformBit.POSITION) {
