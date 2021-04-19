@@ -108,7 +108,7 @@ export class ActionManager {
      * @en
      * Adds an action with a target.<br/>
      * If the target is already present, then the action will be added to the existing target.
-     * If the target is not present, a new instance of this target will be created either paused or not, 
+     * If the target is not present, a new instance of this target will be created either paused or not,
      * and the action will be added to the newly created target.
      * When the target is paused, the queued actions won't be 'ticked'.
      * @zh
