@@ -59,8 +59,8 @@ CCMTLDevice::CCMTLDevice() {
     _deviceName = "Metal";
 
     _caps.clipSpaceMinZ = 0.0f;
-    _caps.screenSpaceSignY = 1.0f;
-    _caps.UVSpaceSignY = 1.0f;
+    _caps.screenSpaceSignY = -1.0f;
+    _caps.clipSpaceSignY = 1.0f;
 
     CCMTLDevice::_instance = this;
 }

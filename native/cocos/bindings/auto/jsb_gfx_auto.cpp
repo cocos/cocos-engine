@@ -838,32 +838,32 @@ static bool js_gfx_DeviceCaps_set_screenSpaceSignY(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_DeviceCaps_set_screenSpaceSignY)
 
-static bool js_gfx_DeviceCaps_get_UVSpaceSignY(se::State& s)
+static bool js_gfx_DeviceCaps_get_clipSpaceSignY(se::State& s)
 {
     cc::gfx::DeviceCaps* cobj = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DeviceCaps_get_UVSpaceSignY : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_DeviceCaps_get_clipSpaceSignY : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
     se::Value jsret;
-    ok &= nativevalue_to_se(cobj->UVSpaceSignY, jsret, s.thisObject() /*ctx*/);
+    ok &= nativevalue_to_se(cobj->clipSpaceSignY, jsret, s.thisObject() /*ctx*/);
     s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->UVSpaceSignY, s.thisObject(), s.rval());
+    SE_HOLD_RETURN_VALUE(cobj->clipSpaceSignY, s.thisObject(), s.rval());
     return true;
 }
-SE_BIND_PROP_GET(js_gfx_DeviceCaps_get_UVSpaceSignY)
+SE_BIND_PROP_GET(js_gfx_DeviceCaps_get_clipSpaceSignY)
 
-static bool js_gfx_DeviceCaps_set_UVSpaceSignY(se::State& s)
+static bool js_gfx_DeviceCaps_set_clipSpaceSignY(se::State& s)
 {
     const auto& args = s.args();
     cc::gfx::DeviceCaps* cobj = SE_THIS_OBJECT<cc::gfx::DeviceCaps>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_DeviceCaps_set_UVSpaceSignY : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_gfx_DeviceCaps_set_clipSpaceSignY : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->UVSpaceSignY, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_DeviceCaps_set_UVSpaceSignY : Error processing new value");
+    ok &= sevalue_to_native(args[0], &cobj->clipSpaceSignY, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_DeviceCaps_set_clipSpaceSignY : Error processing new value");
     return true;
 }
-SE_BIND_PROP_SET(js_gfx_DeviceCaps_set_UVSpaceSignY)
+SE_BIND_PROP_SET(js_gfx_DeviceCaps_set_clipSpaceSignY)
 
 
 template<>
@@ -966,9 +966,9 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DeviceCaps * to, se::Obje
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->screenSpaceSignY), ctx);
     }
-    json->getProperty("UVSpaceSignY", &field);
+    json->getProperty("clipSpaceSignY", &field);
     if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->UVSpaceSignY), ctx);
+        ok &= sevalue_to_native(field, &(to->clipSpaceSignY), ctx);
     }
     return ok;
 }
@@ -1075,7 +1075,7 @@ static bool js_gfx_DeviceCaps_constructor(se::State& s)
             ok &= sevalue_to_native(args[21], &(cobj->screenSpaceSignY), nullptr);
         }
         if (argc > 22 && !args[22].isUndefined()) {
-            ok &= sevalue_to_native(args[22], &(cobj->UVSpaceSignY), nullptr);
+            ok &= sevalue_to_native(args[22], &(cobj->clipSpaceSignY), nullptr);
         }
 
         if(!ok) {
@@ -1136,7 +1136,7 @@ bool js_register_gfx_DeviceCaps(se::Object* obj)
     cls->defineProperty("maxComputeWorkGroupCount", _SE(js_gfx_DeviceCaps_get_maxComputeWorkGroupCount), _SE(js_gfx_DeviceCaps_set_maxComputeWorkGroupCount));
     cls->defineProperty("clipSpaceMinZ", _SE(js_gfx_DeviceCaps_get_clipSpaceMinZ), _SE(js_gfx_DeviceCaps_set_clipSpaceMinZ));
     cls->defineProperty("screenSpaceSignY", _SE(js_gfx_DeviceCaps_get_screenSpaceSignY), _SE(js_gfx_DeviceCaps_set_screenSpaceSignY));
-    cls->defineProperty("UVSpaceSignY", _SE(js_gfx_DeviceCaps_get_UVSpaceSignY), _SE(js_gfx_DeviceCaps_set_UVSpaceSignY));
+    cls->defineProperty("clipSpaceSignY", _SE(js_gfx_DeviceCaps_get_clipSpaceSignY), _SE(js_gfx_DeviceCaps_set_clipSpaceSignY));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DeviceCaps_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::DeviceCaps>(cls);

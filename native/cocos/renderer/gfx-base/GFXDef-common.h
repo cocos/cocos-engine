@@ -725,7 +725,7 @@ struct DeviceCaps {
 
     float clipSpaceMinZ    = -1.0F;
     float screenSpaceSignY = 1.0F;
-    float UVSpaceSignY     = -1.0F;
+    float clipSpaceSignY   = 1.0F;
 };
 
 struct Offset {

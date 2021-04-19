@@ -71,7 +71,7 @@ CCVKDevice::CCVKDevice() {
 
     _caps.clipSpaceMinZ    = 0.0F;
     _caps.screenSpaceSignY = -1.0F;
-    _caps.UVSpaceSignY     = 1.0F;
+    _caps.clipSpaceSignY   = -1.0F;
     CCVKDevice::instance   = this;
 }
 

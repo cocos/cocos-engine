@@ -45,7 +45,7 @@ public:
     static void updateCameraUBOView(const RenderPipeline *pipeline, std::array<float, UBOCamera::COUNT> &bufferView, const Camera *camera, bool hasOffScreenAttachments);
     static void updateShadowUBOView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> &bufferView, const Camera *camera);
     static void updateShadowUBOLightView(const RenderPipeline *pipeline, std::array<float, UBOShadow::COUNT> &bufferView, const Light *light);
-
+    static uint8_t getCombineSignY();
 public:
     PipelineUBO() = default;
     virtual ~PipelineUBO() = default;
@@ -57,6 +57,7 @@ public:
     void updateShadowUBOLight(const Light *light);
     void updateShadowUBORange(uint offset, const Mat4* data);
     void destroyShadowFrameBuffers();
+    
 private:
     RenderPipeline *_pipeline = nullptr;
     gfx::Device *_device = nullptr;
@@ -66,6 +67,7 @@ private:
     std::array<float, UBOShadow::COUNT> _shadowUBO;
 
     std::vector<gfx::Buffer *> _ubos;
+    void initCombineSignY();
 };
 
 } // namespace pipeline
