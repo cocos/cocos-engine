@@ -10668,6 +10668,33 @@ static bool js_gfx_RenderPassInfo_set_subpasses(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_RenderPassInfo_set_subpasses)
 
+static bool js_gfx_RenderPassInfo_get_dependencies(se::State& s)
+{
+    cc::gfx::RenderPassInfo* cobj = SE_THIS_OBJECT<cc::gfx::RenderPassInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_RenderPassInfo_get_dependencies : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->dependencies, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->dependencies, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_RenderPassInfo_get_dependencies)
+
+static bool js_gfx_RenderPassInfo_set_dependencies(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::RenderPassInfo* cobj = SE_THIS_OBJECT<cc::gfx::RenderPassInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_RenderPassInfo_set_dependencies : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->dependencies, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_RenderPassInfo_set_dependencies : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_RenderPassInfo_set_dependencies)
+
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::gfx::RenderPassInfo * to, se::Object *ctx)
@@ -10692,6 +10719,10 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::RenderPassInfo * to, se::
     json->getProperty("subpasses", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->subpasses), ctx);
+    }
+    json->getProperty("dependencies", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->dependencies), ctx);
     }
     return ok;
 }
@@ -10740,6 +10771,9 @@ static bool js_gfx_RenderPassInfo_constructor(se::State& s)
         if (argc > 2 && !args[2].isUndefined()) {
             ok &= sevalue_to_native(args[2], &(cobj->subpasses), nullptr);
         }
+        if (argc > 3 && !args[3].isUndefined()) {
+            ok &= sevalue_to_native(args[3], &(cobj->dependencies), nullptr);
+        }
 
         if(!ok) {
             JSB_FREE(cobj);
@@ -10780,6 +10814,7 @@ bool js_register_gfx_RenderPassInfo(se::Object* obj)
     cls->defineProperty("colorAttachments", _SE(js_gfx_RenderPassInfo_get_colorAttachments), _SE(js_gfx_RenderPassInfo_set_colorAttachments));
     cls->defineProperty("depthStencilAttachment", _SE(js_gfx_RenderPassInfo_get_depthStencilAttachment), _SE(js_gfx_RenderPassInfo_set_depthStencilAttachment));
     cls->defineProperty("subpasses", _SE(js_gfx_RenderPassInfo_get_subpasses), _SE(js_gfx_RenderPassInfo_set_subpasses));
+    cls->defineProperty("dependencies", _SE(js_gfx_RenderPassInfo_get_dependencies), _SE(js_gfx_RenderPassInfo_set_dependencies));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_RenderPassInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::RenderPassInfo>(cls);
@@ -16204,6 +16239,21 @@ static bool js_gfx_CommandBuffer_initialize(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_CommandBuffer_initialize)
 
+static bool js_gfx_CommandBuffer_nextSubpass(se::State& s)
+{
+    cc::gfx::CommandBuffer* cobj = SE_THIS_OBJECT<cc::gfx::CommandBuffer>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_CommandBuffer_nextSubpass : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cobj->nextSubpass();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_CommandBuffer_nextSubpass)
+
 static bool js_gfx_CommandBuffer_pipelineBarrier(se::State& s)
 {
     CC_UNUSED bool ok = true;
@@ -16476,6 +16526,7 @@ bool js_register_gfx_CommandBuffer(se::Object* obj)
     cls->defineFunction("getQueue", _SE(js_gfx_CommandBuffer_getQueue));
     cls->defineFunction("getType", _SE(js_gfx_CommandBuffer_getType));
     cls->defineFunction("initialize", _SE(js_gfx_CommandBuffer_initialize));
+    cls->defineFunction("nextSubpass", _SE(js_gfx_CommandBuffer_nextSubpass));
     cls->defineFunction("pipelineBarrier", _SE(js_gfx_CommandBuffer_pipelineBarrier));
     cls->defineFunction("setBlendConstants", _SE(js_gfx_CommandBuffer_setBlendConstants));
     cls->defineFunction("setDepthBias", _SE(js_gfx_CommandBuffer_setDepthBias));
@@ -17999,6 +18050,25 @@ static bool js_gfx_RenderPass_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_gfx_RenderPass_destroy)
 
+static bool js_gfx_RenderPass_getDependencies(se::State& s)
+{
+    cc::gfx::RenderPass* cobj = SE_THIS_OBJECT<cc::gfx::RenderPass>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_RenderPass_getDependencies : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::gfx::SubpassDependency>& result = cobj->getDependencies();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_gfx_RenderPass_getDependencies : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_RenderPass_getDependencies)
+
 static bool js_gfx_RenderPass_getDepthStencilAttachment(se::State& s)
 {
     cc::gfx::RenderPass* cobj = SE_THIS_OBJECT<cc::gfx::RenderPass>(s);
@@ -18128,6 +18198,7 @@ bool js_register_gfx_RenderPass(se::Object* obj)
 
     cls->defineProperty("hash", _SE(js_gfx_RenderPass_getHash), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_RenderPass_destroy));
+    cls->defineFunction("getDependencies", _SE(js_gfx_RenderPass_getDependencies));
     cls->defineFunction("getDepthStencilAttachment", _SE(js_gfx_RenderPass_getDepthStencilAttachment));
     cls->defineFunction("getSubpasses", _SE(js_gfx_RenderPass_getSubpasses));
     cls->defineFunction("initialize", _SE(js_gfx_RenderPass_initialize));

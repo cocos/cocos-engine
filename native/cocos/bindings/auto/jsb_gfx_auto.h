@@ -616,6 +616,7 @@ SE_DECLARE_FUNC(js_gfx_CommandBuffer_getNumTris);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_getQueue);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_getType);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_initialize);
+SE_DECLARE_FUNC(js_gfx_CommandBuffer_nextSubpass);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_pipelineBarrier);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setBlendConstants);
 SE_DECLARE_FUNC(js_gfx_CommandBuffer_setDepthBias);
@@ -741,6 +742,7 @@ bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::RenderPass);
 SE_DECLARE_FUNC(js_gfx_RenderPass_destroy);
+SE_DECLARE_FUNC(js_gfx_RenderPass_getDependencies);
 SE_DECLARE_FUNC(js_gfx_RenderPass_getDepthStencilAttachment);
 SE_DECLARE_FUNC(js_gfx_RenderPass_getSubpasses);
 SE_DECLARE_FUNC(js_gfx_RenderPass_initialize);
