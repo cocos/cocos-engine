@@ -117,7 +117,7 @@ export class SplashScreen {
         if (window._CCSettings && window._CCSettings.splashScreen) {
             const setting: Writable<ISplashSetting> = this.setting = window._CCSettings.splashScreen;
             setting.totalTime = this.setting.totalTime != null ? this.setting.totalTime : 3000;
-            setting.base64src = this.setting.base64src || '';
+            setting.base64src = '';
             setting.effect = this.setting.effect || 'FADE-INOUT';
             setting.clearColor = this.setting.clearColor || new Color(0.88, 0.88, 0.88, 1);
             setting.displayRatio = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
