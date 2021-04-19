@@ -473,11 +473,11 @@ export class Node extends BaseNode {
                 this._lpos.z += trans.z;
             }
         }
-
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
+        NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition);
     }
 
     /**
@@ -500,11 +500,11 @@ export class Node extends BaseNode {
             Quat.multiply(this._lrot, this._lrot, q_b);
         }
         this._eulerDirty = true;
-
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
+        NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation);
     }
 
     /**
