@@ -108,7 +108,8 @@ export class ActionManager {
      * @en
      * Adds an action with a target.<br/>
      * If the target is already present, then the action will be added to the existing target.
-     * If the target is not present, a new instance of this target will be created either paused or not, and the action will be added to the newly created target.
+     * If the target is not present, a new instance of this target will be created either paused or not, 
+     * and the action will be added to the newly created target.
      * When the target is paused, the queued actions won't be 'ticked'.
      * @zh
      * 增加一个动作，同时还需要提供动作的目标对象，目标对象是否暂停作为参数。<br/>
@@ -450,7 +451,9 @@ export class ActionManager {
             }
             // only delete currentTarget if no actions were scheduled during the cycle (issue #481)
             if (locCurrTarget.actions.length === 0) {
-                this._deleteHashElement(locCurrTarget) && elt--;
+                if (this._deleteHashElement(locCurrTarget)) {
+                    elt--;
+                }
             }
         }
     }
