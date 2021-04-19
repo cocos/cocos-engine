@@ -483,7 +483,7 @@ export class Material extends Asset {
     }
 
     public validate () {
-        return !!this._effectAsset && !this._effectAsset.isPlaceHolder && this.passes.length > 0;
+        return !!this._effectAsset && !this._effectAsset.isDefault && this.passes.length > 0;
     }
 }
 

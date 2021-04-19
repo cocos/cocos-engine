@@ -83,7 +83,7 @@ export class Asset extends Eventify(CCObject) {
 
     public declare _uuid: string;
 
-    public declare isPlaceHolder: boolean;
+    public declare isDefault: boolean;
 
     /**
      * @en
@@ -160,7 +160,7 @@ export class Asset extends Eventify(CCObject) {
         });
 
         if (EDITOR || PREVIEW) {
-            Object.defineProperty(this, 'isPlaceHolder', {
+            Object.defineProperty(this, 'isDefault', {
                 value: false,
                 writable: true,
             });
@@ -289,7 +289,7 @@ export class Asset extends Eventify(CCObject) {
 
     public initDefault (uuid?: string) {
         if (uuid) { this._uuid = uuid; }
-        this.isPlaceHolder = true;
+        this.isDefault = true;
     }
 
     public validate (): boolean {

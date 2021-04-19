@@ -112,7 +112,7 @@ export function getDepends (uuid: string, data: Asset | Record<string, any>, exc
 export function cache (id: string, asset: Asset, cacheAsset?: boolean) {
     if (!asset) { return; }
     cacheAsset = cacheAsset !== undefined ? cacheAsset : legacyCC.assetManager.cacheAsset;
-    if (!isScene(asset) && cacheAsset && !asset.isPlaceHolder) {
+    if (!isScene(asset) && cacheAsset && !asset.isDefault) {
         assets.add(id, asset);
     }
 }
@@ -135,7 +135,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                 } else {
                     error(`The asset ${depend.uuid} is missing!`);
                 }
-                if (depend.type) {
+                if (depend.type && depend.type !== Asset) {
                     // eslint-disable-next-line new-cap
                     const placeHolder = new depend.type();
                     placeHolder.initDefault(uuid);

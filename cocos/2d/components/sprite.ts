@@ -614,7 +614,7 @@ export class Sprite extends Renderable2D {
 
     private _applySpriteSize () {
         if (this._spriteFrame) {
-            if (!this._spriteFrame.isPlaceHolder) {
+            if (!this._spriteFrame.isDefault) {
                 if (SizeMode.RAW === this._sizeMode) {
                     const size = this._spriteFrame.originalSize;
                     this.node._uiProps.uiTransformComp!.setContentSize(size);
