@@ -89,6 +89,9 @@ declare module 'pal/input' {
     }
     type MouseCallback = (res: MouseInputEvent) => void;
     export interface MouseWheelInputEvent extends MouseInputEvent {
+        /**
+         * The horizontal scroll amount.
+         */
         readonly deltaX: number;
         /**
          * The vertical scroll amount.
