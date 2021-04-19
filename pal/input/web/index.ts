@@ -19,9 +19,9 @@ export class Input {
     }
 
     private _registerEvent () {
-        if (EDITOR) {
-            return;
-        }
+        // if (EDITOR) {
+        //     return;
+        // }
         // TODO: implement event main loop
         // if (this._touch.support) {
         //     this._touch.onStart(this._pushEvent);

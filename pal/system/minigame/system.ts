@@ -1,3 +1,4 @@
+/* eslint-disable brace-style */
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
 import { SafeAreaEdge, SupportCapability } from 'pal/system';
 import { minigame } from 'pal/minigame';
