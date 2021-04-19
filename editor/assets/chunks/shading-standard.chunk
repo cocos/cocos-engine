@@ -54,6 +54,7 @@ struct StandardSurface {
   float roughness;
   float metallic;
   float occlusion;
+  float IBL;
 };
 
 #if CC_FORWARD_ADD
@@ -148,7 +149,8 @@ struct StandardSurface {
       #else
         vec3 env = SRGBToLinear(envmap.rgb);
       #endif
-      finalColor += env * cc_ambientSky.w * specular;
+     
+      finalColor +=s.IBL* env * cc_ambientSky.w * specular ;
     #endif
 
     finalColor = finalColor * s.occlusion;
