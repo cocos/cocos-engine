@@ -53,11 +53,11 @@ struct ShadowRenderData {
 
 class CC_DLL PlanarShadowQueue : public Object {
 public:
-    PlanarShadowQueue(RenderPipeline *);
-    ~PlanarShadowQueue() = default;
+    explicit PlanarShadowQueue(RenderPipeline *pipeline);
+    ~PlanarShadowQueue() override = default;
 
     void clear();
-    void gatherShadowPasses(Camera *camera , gfx::CommandBuffer *cmdBufferer);
+    void gatherShadowPasses(Camera *camera , gfx::CommandBuffer *cmdBuffer);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
     void destroy();
 

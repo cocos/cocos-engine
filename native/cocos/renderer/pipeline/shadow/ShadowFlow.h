@@ -30,31 +30,31 @@ namespace pipeline {
 class ForwardPipeline;
 struct Light;
 struct Camera;
+struct Shadows;
 
 class CC_DLL ShadowFlow : public RenderFlow {
 public:
     ShadowFlow() = default;
-    virtual ~ShadowFlow();
+    ~ShadowFlow() override;
 
     static const RenderFlowInfo &getInitializeInfo();
 
-    virtual bool initialize(const RenderFlowInfo &info) override;
+    bool initialize(const RenderFlowInfo &info) override;
 
-    virtual void activate(RenderPipeline *pipeline) override;
+    void activate(RenderPipeline *pipeline) override;
 
-    virtual void render(Camera *camera) override;
+    void render(Camera *camera) override;
 
-    virtual void destroy() override;
+    void destroy() override;
 
 private:
     void clearShadowMap(Camera *camera);
 
-    void resizeShadowMap(const Light *light, const uint width, const uint height) const;
+    void resizeShadowMap(const Light *light, const Shadows *shadowInfo) const;
 
     void initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light);
 
-private:
-    static RenderFlowInfo _initInfo;
+    static RenderFlowInfo initInfo;
 
     gfx::RenderPass *_renderPass = nullptr;
 

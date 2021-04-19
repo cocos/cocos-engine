@@ -73,8 +73,8 @@ void RenderPipeline::setDescriptorSetLayout() {
     globalDescriptorSetLayout.bindings[SHADOWMAP::BINDING]         = SHADOWMAP::DESCRIPTOR;
     globalDescriptorSetLayout.samplers[ENVIRONMENT::NAME]          = ENVIRONMENT::LAYOUT;
     globalDescriptorSetLayout.bindings[ENVIRONMENT::BINDING]       = ENVIRONMENT::DESCRIPTOR;
-    globalDescriptorSetLayout.samplers[SPOT_LIGHTING_MAP::NAME]    = SPOT_LIGHTING_MAP::LAYOUT;
-    globalDescriptorSetLayout.bindings[SPOT_LIGHTING_MAP::BINDING] = SPOT_LIGHTING_MAP::DESCRIPTOR;
+    globalDescriptorSetLayout.samplers[SPOTLIGHTINGMAP::NAME]    = SPOTLIGHTINGMAP::LAYOUT;
+    globalDescriptorSetLayout.bindings[SPOTLIGHTINGMAP::BINDING] = SPOTLIGHTINGMAP::DESCRIPTOR;
 
     INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERGBUFFERALBEDOMAP);
     INIT_GLOBAL_DESCSET_LAYOUT(SAMPLERGBUFFERPOSITIONMAP);
@@ -97,18 +97,18 @@ void RenderPipeline::setDescriptorSetLayout() {
     localDescriptorSetLayout.bindings[UBOSkinning::BINDING]          = UBOSkinning::DESCRIPTOR;
     localDescriptorSetLayout.blocks[UBOMorph::NAME]                  = UBOMorph::LAYOUT;
     localDescriptorSetLayout.bindings[UBOMorph::BINDING]             = UBOMorph::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[JOINT_TEXTURE::NAME]           = JOINT_TEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[JOINT_TEXTURE::BINDING]        = JOINT_TEXTURE::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[POSITION_MORPH::NAME]          = POSITION_MORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[POSITION_MORPH::BINDING]       = POSITION_MORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[NORMAL_MORPH::NAME]            = NORMAL_MORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[NORMAL_MORPH::BINDING]         = NORMAL_MORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[TANGENT_MORPH::NAME]           = TANGENT_MORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[TANGENT_MORPH::BINDING]        = TANGENT_MORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[LIGHTMAP_TEXTURE::NAME]        = LIGHTMAP_TEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[LIGHTMAP_TEXTURE::BINDING]     = LIGHTMAP_TEXTURE::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[SPRITE_TEXTURE::NAME]          = SPRITE_TEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[SPRITE_TEXTURE::BINDING]       = SPRITE_TEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[JOINTTEXTURE::NAME]           = JOINTTEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[JOINTTEXTURE::BINDING]        = JOINTTEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[POSITIONMORPH::NAME]          = POSITIONMORPH::LAYOUT;
+    localDescriptorSetLayout.bindings[POSITIONMORPH::BINDING]       = POSITIONMORPH::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[NORMALMORPH::NAME]            = NORMALMORPH::LAYOUT;
+    localDescriptorSetLayout.bindings[NORMALMORPH::BINDING]         = NORMALMORPH::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[TANGENTMORPH::NAME]           = TANGENTMORPH::LAYOUT;
+    localDescriptorSetLayout.bindings[TANGENTMORPH::BINDING]        = TANGENTMORPH::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[LIGHTMAPTEXTURE::NAME]        = LIGHTMAPTEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[LIGHTMAPTEXTURE::BINDING]     = LIGHTMAPTEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[SPRITETEXTURE::NAME]          = SPRITETEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[SPRITETEXTURE::BINDING]       = SPRITETEXTURE::DESCRIPTOR;
 }
 
 bool RenderPipeline::initialize(const RenderPipelineInfo &info) {

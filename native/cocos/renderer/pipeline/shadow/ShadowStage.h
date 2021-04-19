@@ -34,15 +34,15 @@ struct Camera;
 
 class CC_DLL ShadowStage : public RenderStage {
 public:
-    ShadowStage();
-    virtual ~ShadowStage();
+    ShadowStage() = default;
+    ~ShadowStage() override = default;
 
     static const RenderStageInfo &getInitializeInfo();
 
-    virtual bool initialize(const RenderStageInfo &info) override;
-    virtual void destroy() override;
-    virtual void render(Camera *camera) override;
-    virtual void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
+    bool initialize(const RenderStageInfo &info) override;
+    void destroy() override;
+    void render(Camera *camera) override;
+    void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
 
     CC_INLINE void setFramebuffer(gfx::Framebuffer *framebuffer) { _framebuffer = framebuffer; }
     CC_INLINE void setUseData(const Light *light, gfx::Framebuffer *framebuffer) {
@@ -53,7 +53,7 @@ public:
     void clearFramebuffer(Camera *camera);
 
 private:
-    static RenderStageInfo _initInfo;
+    static RenderStageInfo initInfo;
 
     gfx::Rect _renderArea;
     const Light *_light = nullptr;

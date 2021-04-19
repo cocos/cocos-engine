@@ -32,7 +32,6 @@
 #include "RenderInstancedQueue.h"
 #include "RenderPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
-#include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXShader.h"
 #include "helper/SharedMemory.h"
@@ -45,7 +44,7 @@ PlanarShadowQueue::PlanarShadowQueue(RenderPipeline *pipeline)
     _instancedQueue = CC_NEW(RenderInstancedQueue);
 }
 
-void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *cmdBufferer) {
+void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *cmdBuffer) {
     clear();
     auto *const sceneData  = _pipeline->getPipelineSceneData();
     auto *const sharedData = sceneData->getSharedData();
@@ -63,17 +62,15 @@ void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *c
         return;
     }
 
-    const auto *const models          = scene->getModels();
-    const auto        modelCount      = models[0];
-    auto *            instancedBuffer = InstancedBuffer::get(shadowInfo->instancePass);
+    const auto *models          = scene->getModels();
+    const auto modelCount = models[0];
+    auto *instancedBuffer = InstancedBuffer::get(shadowInfo->instancePass);
 
-    uint visibility = 0;
-    uint lenght     = 0;
     for (uint i = 1; i <= modelCount; i++) {
         const auto *model = cc::pipeline::Scene::getModelView(models[i]);
         const auto *node  = model->getNode();
         if (model->enabled && model->castShadow) {
-            visibility = camera->visibility;
+            const auto visibility = camera->visibility;
             if ((model->nodeID && ((visibility & node->layer) == node->layer)) ||
                 (visibility & model->visFlags)) {
                 // frustum culling
@@ -82,8 +79,8 @@ void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *c
                 }
 
                 const auto *attributesID = model->getInstancedAttributeID();
-                lenght                   = attributesID[0];
-                if (lenght > 0) {
+                const auto length                   = attributesID[0];
+                if (length > 0) {
                     const auto *subModelID    = model->getSubModelID();
                     const auto  subModelCount = subModelID[0];
                     for (uint m = 1; m <= subModelCount; ++m) {
@@ -98,7 +95,7 @@ void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *c
         }
     }
 
-    _instancedQueue->uploadBuffers(cmdBufferer);
+    _instancedQueue->uploadBuffers(cmdBuffer);
 }
 
 void PlanarShadowQueue::clear() {
@@ -121,7 +118,7 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
     }
 
     const auto *pass = shadowInfo->getPlanarShadowPass();
-    cmdBuffer->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
+    cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
 
     for (const auto *model : _pendingModels) {
         const auto *const subModelID    = model->getSubModelID();
@@ -133,7 +130,7 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
             auto *const       pso      = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
 
             cmdBuffer->bindPipelineState(pso);
-            cmdBuffer->bindDescriptorSet(LOCAL_SET, subModel->getDescriptorSet());
+            cmdBuffer->bindDescriptorSet(localSet, subModel->getDescriptorSet());
             cmdBuffer->bindInputAssembler(ia);
             cmdBuffer->draw(ia);
         }
@@ -143,5 +140,6 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
 void PlanarShadowQueue::destroy() {
     CC_SAFE_DELETE(_instancedQueue);
 }
+
 } // namespace pipeline
 } // namespace cc

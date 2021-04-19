@@ -136,7 +136,8 @@ void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOS
     matLight.m[15]       = 1;
 
     memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_PLANE_PROJ_OFFSET, matLight.m, sizeof(matLight));
-    memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadows->color, sizeof(Vec4));
+    float color[4] = {shadows->color.x, shadows->color.y, shadows->color.z, shadows->color.w};
+    memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &color, sizeof(float) * 4);
 }
 
 void lightCollecting(Camera *camera, std::vector<const Light *> &validLights) {
@@ -209,7 +210,7 @@ void sceneCulling(RenderPipeline *pipeline, Camera *camera) {
     if (scene->mainLightID) mainLight = scene->getMainLight();
     RenderObjectList renderObjects;
 
-    if (skyBox->enabled && skyBox->modelID && (camera->clearFlag & SKYBOX_FLAG)) {
+    if (skyBox->enabled && skyBox->modelID && (camera->clearFlag & skyboxFlag)) {
         renderObjects.emplace_back(genRenderObject(skyBox->getModel(), camera));
     }
 

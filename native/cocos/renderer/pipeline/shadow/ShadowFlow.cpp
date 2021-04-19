@@ -36,12 +36,13 @@
 #include "../SceneCulling.h"
 
 namespace cc::pipeline {
-RenderFlowInfo ShadowFlow::_initInfo = {
+RenderFlowInfo ShadowFlow::initInfo = {
     "ShadowFlow",
     static_cast<uint>(ForwardFlowPriority::SHADOW),
     static_cast<uint>(RenderFlowTag::SCENE),
-    {}};
-const RenderFlowInfo &ShadowFlow::getInitializeInfo() { return ShadowFlow::_initInfo; }
+    {},
+};
+const RenderFlowInfo &ShadowFlow::getInitializeInfo() { return ShadowFlow::initInfo; }
 
 ShadowFlow::~ShadowFlow() = default;
 
@@ -81,7 +82,7 @@ void ShadowFlow::render(Camera *camera) {
 
         auto *shadowFrameBuffer = shadowFramebufferMap.at(light);
         if (shadowInfo->shadowMapDirty) {
-            resizeShadowMap(light, static_cast<uint>(shadowInfo->size.x), static_cast<uint>(shadowInfo->size.y));
+            resizeShadowMap(light, shadowInfo);
         }
         for (auto *stage : _stages) {
             auto *shadowStage = dynamic_cast<ShadowStage *>(stage);
@@ -112,7 +113,7 @@ void ShadowFlow::clearShadowMap(Camera *camera) {
     }
 }
 
-void ShadowFlow::resizeShadowMap(const Light *light, const uint width, const uint height) const {
+void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo) const {
     auto *sceneData = _pipeline->getPipelineSceneData();
 
     if (sceneData->getShadowFramebufferMap().count(light)) {
@@ -122,14 +123,18 @@ void ShadowFlow::resizeShadowMap(const Light *light, const uint width, const uin
             return;
         }
 
-        const auto &renderTargets = framebuffer->getColorTextures();
-        for (auto *renderTarget : renderTargets) {
-            renderTarget->resize(width, height);
-        }
+        vector<gfx::Texture *> renderTargets;
+        renderTargets.emplace_back(gfx::Device::getInstance()->createTexture({
+            gfx::TextureType::TEX2D,
+            gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
+            static_cast<bool>(shadowInfo->packing) ? gfx::Format::RGBA8 : gfx::Format::RGBA16F,
+            static_cast<uint>(shadowInfo->size.x),
+            static_cast<uint>(shadowInfo->size.y),
+        }));
 
         auto *depth = framebuffer->getDepthStencilTexture();
         if (depth) {
-            depth->resize(width, height);
+            depth->resize(static_cast<uint>(shadowInfo->size.x), static_cast<uint>(shadowInfo->size.y));
         }
 
         framebuffer->destroy();
@@ -181,7 +186,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *li
     renderTargets.emplace_back(device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-        gfx::Format::RGBA8,
+        static_cast<bool>(shadowInfo->packing) ? gfx::Format::RGBA8 : gfx::Format::RGBA16F,
         width,
         height,
     }));

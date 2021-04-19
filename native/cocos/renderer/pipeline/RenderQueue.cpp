@@ -44,7 +44,7 @@ void RenderQueue::clear() {
 
 bool RenderQueue::insertRenderPass(const RenderObject &renderObj, uint subModelIdx, uint passIdx) {
     const auto *const subModelID = renderObj.model->getSubModelID();
-    const auto *const subModel = renderObj.model->getSubModelView(subModelID[subModelIdx]);
+    const auto *const subModel      = cc::pipeline::ModelView::getSubModelView(subModelID[subModelIdx]);
     const auto *const pass = subModel->getPassView(passIdx);
     const bool isTransparent = pass->getBlendState()->targets[0].blend;
 
@@ -74,8 +74,8 @@ void RenderQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass 
 
         auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
         cmdBuff->bindPipelineState(pso);
-        cmdBuff->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
-        cmdBuff->bindDescriptorSet(LOCAL_SET, subModel->getDescriptorSet());
+        cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+        cmdBuff->bindDescriptorSet(localSet, subModel->getDescriptorSet());
         cmdBuff->bindInputAssembler(inputAssembler);
         cmdBuff->draw(inputAssembler);
     }

@@ -37,36 +37,36 @@ void UIPhase::activate(RenderPipeline *pipeline){
 };
 
 void UIPhase::render(Camera *camera, gfx::RenderPass *renderPass){
-    auto pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    auto cmdBuff = pipeline->getCommandBuffers()[0];
+    auto *pipeline = dynamic_cast<ForwardPipeline *>(_pipeline);
+    auto *cmdBuff  = pipeline->getCommandBuffers()[0];
 
-    auto batches = camera->getScene()->getUIBatches();
-    const int batchCount = batches[0];
+    const auto *batches    = camera->getScene()->getUIBatches();
+    const auto  batchCount = batches[0];
     // Notice: The batches[0] is batchCount
-    for (int i = 1; i <= batchCount; ++i) {
-        const auto batch = GET_UI_BATCH(batches[i]);
+    for (uint i = 1; i <= batchCount; ++i) {
+        auto *const batch   = GET_UI_BATCH(batches[i]);
         bool visible = false;
         if (camera->visibility & batch->visFlags) {
             visible = true;
         }
 
         if (!visible) continue;
-        const int count = batch->passCount;
-        for (int j = 0; j < count; j++) {
-            const auto pass = batch->getPassView(j);
+        const auto count = batch->passCount;
+        for (uint j = 0; j < count; j++) {
+            const auto *const pass = batch->getPassView(j);
             if (pass->phase != _phaseID) continue;
-            const auto shader = batch->getShader(j);
-            const auto inputAssembler = batch->getInputAssembler();
-            const auto ds = batch->getDescriptorSet();
-            auto *pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
+            auto *const shader         = batch->getShader(j);
+            auto *const inputAssembler = batch->getInputAssembler();
+            auto *const ds             = batch->getDescriptorSet();
+            auto *pso = cc::pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
             cmdBuff->bindPipelineState(pso);
-            cmdBuff->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
-            cmdBuff->bindDescriptorSet(LOCAL_SET, ds);
+            cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+            cmdBuff->bindDescriptorSet(localSet, ds);
             cmdBuff->bindInputAssembler(inputAssembler);
             cmdBuff->draw(inputAssembler);
         }
     }
 }
 
-}
-}
+} // namespace pipeline
+} // namespace cc

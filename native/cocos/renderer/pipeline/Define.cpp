@@ -31,19 +31,19 @@
 namespace cc {
 namespace pipeline {
 
-int GLOBAL_UBO_COUNT     = static_cast<int>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);
-int GLOBAL_SAMPLER_COUNT = static_cast<int>(PipelineGlobalBindings::COUNT) - GLOBAL_UBO_COUNT;
+int globalUBOCount     = static_cast<int>(PipelineGlobalBindings::SAMPLER_SHADOWMAP);
+int globalSamplerCount = static_cast<int>(PipelineGlobalBindings::COUNT) - globalUBOCount;
 
-int LOCAL_UBO_COUNT     = static_cast<int>(ModelLocalBindings::SAMPLER_JOINTS);
-int LOCAL_SAMPLER_COUNT = static_cast<int>(ModelLocalBindings::COUNT) - LOCAL_UBO_COUNT;
+int localUBOCount     = static_cast<int>(ModelLocalBindings::SAMPLER_JOINTS);
+int localSamplerCount = static_cast<int>(ModelLocalBindings::COUNT) - localUBOCount;
 
-uint GLOBAL_SET   = static_cast<uint>(SetIndex::GLOBAL);
-uint MATERIAL_SET = static_cast<uint>(SetIndex::MATERIAL);
-uint LOCAL_SET    = static_cast<uint>(SetIndex::LOCAL);
+uint globalSet   = static_cast<uint>(SetIndex::GLOBAL);
+uint materialSet = static_cast<uint>(SetIndex::MATERIAL);
+uint localSet    = static_cast<uint>(SetIndex::LOCAL);
 
 gfx::BindingMappingInfo bindingMappingInfo = {
-    {0, GLOBAL_UBO_COUNT + LOCAL_UBO_COUNT, GLOBAL_UBO_COUNT},
-    {-GLOBAL_UBO_COUNT, GLOBAL_SAMPLER_COUNT + LOCAL_SAMPLER_COUNT, GLOBAL_SAMPLER_COUNT - LOCAL_UBO_COUNT},
+    {0, globalUBOCount + localUBOCount, globalUBOCount},
+    {-globalUBOCount, globalSamplerCount + localSamplerCount, globalSamplerCount - localUBOCount},
     1,
 };
 
@@ -55,9 +55,10 @@ const gfx::DescriptorSetLayoutBinding UBOGlobal::DESCRIPTOR = {
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
     gfx::ShaderStageFlagBit::ALL,
+    {},
 };
 const gfx::UniformBlock UBOGlobal::LAYOUT = {
-    GLOBAL_SET,
+    globalSet,
     UBOGlobal::BINDING,
     UBOGlobal::NAME,
     {
@@ -74,9 +75,10 @@ const gfx::DescriptorSetLayoutBinding UBOLocalBatched::DESCRIPTOR = {
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
+    {},
 };
 const gfx::UniformBlock UBOLocalBatched::LAYOUT = {
-    LOCAL_SET,
+    localSet,
     UBOLocalBatched::BINDING,
     UBOLocalBatched::NAME,
     {
@@ -91,9 +93,10 @@ const gfx::DescriptorSetLayoutBinding UBOCamera::DESCRIPTOR = {
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
     gfx::ShaderStageFlagBit::ALL,
+    {},
 };
 const gfx::UniformBlock UBOCamera::LAYOUT = {
-    GLOBAL_SET,
+    globalSet,
     UBOCamera::BINDING,
     UBOCamera::NAME,
     {
@@ -123,16 +126,20 @@ const gfx::DescriptorSetLayoutBinding UBOShadow::DESCRIPTOR = {
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
     gfx::ShaderStageFlagBit::ALL,
+    {},
 };
 const gfx::UniformBlock UBOShadow::LAYOUT = {
-    GLOBAL_SET,
+    globalSet,
     UBOShadow::BINDING,
     UBOShadow::NAME,
     {
         {"cc_matLightPlaneProj", gfx::Type::MAT4, 1},
+        {"cc_matLightView", gfx::Type::MAT4, 1},
         {"cc_matLightViewProj", gfx::Type::MAT4, 1},
+        {"cc_shadowNFLSInfo", gfx::Type::FLOAT4, 1},
+        {"cc_shadowWHPBInfo", gfx::Type::FLOAT4, 1},
+        {"cc_shadowLPNNInfo", gfx::Type::FLOAT4, 1},
         {"cc_shadowColor", gfx::Type::FLOAT4, 1},
-        {"cc_shadowInfo", gfx::Type::FLOAT4, 1},
     },
     1,
 };
@@ -143,9 +150,10 @@ const gfx::DescriptorSetLayoutBinding UBOLocal::DESCRIPTOR = {
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
+    {},
 };
 const gfx::UniformBlock UBOLocal::LAYOUT = {
-    LOCAL_SET,
+    localSet,
     UBOLocal::BINDING,
     UBOLocal::NAME,
     {
@@ -162,9 +170,10 @@ const gfx::DescriptorSetLayoutBinding UBOForwardLight::DESCRIPTOR = {
     gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
 };
 const gfx::UniformBlock UBOForwardLight::LAYOUT = {
-    LOCAL_SET,
+    localSet,
     UBOForwardLight::BINDING,
     UBOForwardLight::NAME,
     {
@@ -182,9 +191,10 @@ const gfx::DescriptorSetLayoutBinding UBOSkinningTexture::DESCRIPTOR = {
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
+    {},
 };
 const gfx::UniformBlock UBOSkinningTexture::LAYOUT = {
-    LOCAL_SET,
+    localSet,
     UBOSkinningTexture::BINDING,
     UBOSkinningTexture::NAME,
     {
@@ -199,9 +209,10 @@ const gfx::DescriptorSetLayoutBinding UBOSkinningAnimation::DESCRIPTOR = {
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
+    {},
 };
 const gfx::UniformBlock UBOSkinningAnimation::LAYOUT = {
-    LOCAL_SET,
+    localSet,
     UBOSkinningAnimation::BINDING,
     UBOSkinningAnimation::NAME,
     {
@@ -216,9 +227,10 @@ const gfx::DescriptorSetLayoutBinding UBOSkinning::DESCRIPTOR = {
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
+    {},
 };
 const gfx::UniformBlock UBOSkinning::LAYOUT = {
-    LOCAL_SET,
+    localSet,
     UBOSkinning::BINDING,
     UBOSkinning::NAME,
     {
@@ -235,9 +247,10 @@ const gfx::DescriptorSetLayoutBinding UBOMorph::DESCRIPTOR         = {
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
+    {},
 };
 const gfx::UniformBlock UBOMorph::LAYOUT = {
-    LOCAL_SET,
+    localSet,
     UBOMorph::BINDING,
     UBOMorph::NAME,
     {
@@ -253,9 +266,10 @@ const gfx::DescriptorSetLayoutBinding SHADOWMAP::DESCRIPTOR = {
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
 };
 const gfx::UniformSamplerTexture SHADOWMAP::LAYOUT = {
-    GLOBAL_SET,
+    globalSet,
     SHADOWMAP::BINDING,
     SHADOWMAP::NAME,
     gfx::Type::SAMPLER2D,
@@ -268,9 +282,10 @@ const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERALBEDOMAP::DESCRIPTOR = {
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
 };
 const gfx::UniformSamplerTexture SAMPLERGBUFFERALBEDOMAP::LAYOUT = {
-    GLOBAL_SET,
+    globalSet,
     SAMPLERGBUFFERALBEDOMAP::BINDING,
     SAMPLERGBUFFERALBEDOMAP::NAME,
     gfx::Type::SAMPLER2D,
@@ -283,9 +298,10 @@ const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERPOSITIONMAP::DESCRIPTOR = {
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
 };
 const gfx::UniformSamplerTexture SAMPLERGBUFFERPOSITIONMAP::LAYOUT = {
-    GLOBAL_SET,
+    globalSet,
     SAMPLERGBUFFERPOSITIONMAP::BINDING,
     SAMPLERGBUFFERPOSITIONMAP::NAME,
     gfx::Type::SAMPLER2D,
@@ -298,9 +314,10 @@ const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFERNORMALMAP::DESCRIPTOR = {
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
 };
 const gfx::UniformSamplerTexture SAMPLERGBUFFERNORMALMAP::LAYOUT = {
-    GLOBAL_SET,
+    globalSet,
     SAMPLERGBUFFERNORMALMAP::BINDING,
     SAMPLERGBUFFERNORMALMAP::NAME,
     gfx::Type::SAMPLER2D,
@@ -313,9 +330,10 @@ const gfx::DescriptorSetLayoutBinding SAMPLERGBUFFEREMISSIVEMAP::DESCRIPTOR = {
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
 };
 const gfx::UniformSamplerTexture SAMPLERGBUFFEREMISSIVEMAP::LAYOUT = {
-    GLOBAL_SET,
+    globalSet,
     SAMPLERGBUFFEREMISSIVEMAP::BINDING,
     SAMPLERGBUFFEREMISSIVEMAP::NAME,
     gfx::Type::SAMPLER2D,
@@ -328,9 +346,10 @@ const gfx::DescriptorSetLayoutBinding SAMPLERLIGHTINGRESULTMAP::DESCRIPTOR = {
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
 };
 const gfx::UniformSamplerTexture SAMPLERLIGHTINGRESULTMAP::LAYOUT = {
-    GLOBAL_SET,
+    globalSet,
     SAMPLERLIGHTINGRESULTMAP::BINDING,
     SAMPLERLIGHTINGRESULTMAP::NAME,
     gfx::Type::SAMPLER2D,
@@ -343,123 +362,131 @@ const gfx::DescriptorSetLayoutBinding ENVIRONMENT::DESCRIPTOR = {
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
 };
 const gfx::UniformSamplerTexture ENVIRONMENT::LAYOUT = {
-    GLOBAL_SET,
+    globalSet,
     ENVIRONMENT::BINDING,
     ENVIRONMENT::NAME,
     gfx::Type::SAMPLER_CUBE,
     1,
 };
 
-const String                          SPOT_LIGHTING_MAP::NAME       = "cc_spotLightingMap";
-const gfx::DescriptorSetLayoutBinding SPOT_LIGHTING_MAP::DESCRIPTOR = {
-    SPOT_LIGHTING_MAP::BINDING,
+const String                          SPOTLIGHTINGMAP::NAME       = "cc_spotLightingMap";
+const gfx::DescriptorSetLayoutBinding SPOTLIGHTINGMAP::DESCRIPTOR = {
+    SPOTLIGHTINGMAP::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
 };
-const gfx::UniformSamplerTexture SPOT_LIGHTING_MAP::LAYOUT = {
-    GLOBAL_SET,
-    SPOT_LIGHTING_MAP::BINDING,
-    SPOT_LIGHTING_MAP::NAME,
+const gfx::UniformSamplerTexture SPOTLIGHTINGMAP::LAYOUT = {
+    globalSet,
+    SPOTLIGHTINGMAP::BINDING,
+    SPOTLIGHTINGMAP::NAME,
     gfx::Type::SAMPLER2D,
     1,
 };
 
-const String                          JOINT_TEXTURE::NAME       = "cc_jointTexture";
-const gfx::DescriptorSetLayoutBinding JOINT_TEXTURE::DESCRIPTOR = {
-    JOINT_TEXTURE::BINDING,
+const String                          JOINTTEXTURE::NAME       = "cc_jointTexture";
+const gfx::DescriptorSetLayoutBinding JOINTTEXTURE::DESCRIPTOR = {
+    JOINTTEXTURE::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
+    {},
 };
-const gfx::UniformSamplerTexture JOINT_TEXTURE::LAYOUT = {
-    LOCAL_SET,
-    JOINT_TEXTURE::BINDING,
-    JOINT_TEXTURE::NAME,
+const gfx::UniformSamplerTexture JOINTTEXTURE::LAYOUT = {
+    localSet,
+    JOINTTEXTURE::BINDING,
+    JOINTTEXTURE::NAME,
     gfx::Type::SAMPLER2D,
     1,
 };
 
-const String                          POSITION_MORPH::NAME       = "cc_PositionDisplacements";
-const gfx::DescriptorSetLayoutBinding POSITION_MORPH::DESCRIPTOR = {
-    POSITION_MORPH::BINDING,
+const String                          POSITIONMORPH::NAME       = "cc_PositionDisplacements";
+const gfx::DescriptorSetLayoutBinding POSITIONMORPH::DESCRIPTOR = {
+    POSITIONMORPH::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
+    {},
 };
-const gfx::UniformSamplerTexture POSITION_MORPH::LAYOUT = {
-    LOCAL_SET,
-    POSITION_MORPH::BINDING,
-    POSITION_MORPH::NAME,
+const gfx::UniformSamplerTexture POSITIONMORPH::LAYOUT = {
+    localSet,
+    POSITIONMORPH::BINDING,
+    POSITIONMORPH::NAME,
     gfx::Type::SAMPLER2D,
     1,
 };
 
-const String                          NORMAL_MORPH::NAME       = "cc_NormalDisplacements";
-const gfx::DescriptorSetLayoutBinding NORMAL_MORPH::DESCRIPTOR = {
-    NORMAL_MORPH::BINDING,
+const String                          NORMALMORPH::NAME       = "cc_NormalDisplacements";
+const gfx::DescriptorSetLayoutBinding NORMALMORPH::DESCRIPTOR = {
+    NORMALMORPH::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
+    {},
 };
-const gfx::UniformSamplerTexture NORMAL_MORPH::LAYOUT = {
-    LOCAL_SET,
-    NORMAL_MORPH::BINDING,
-    NORMAL_MORPH::NAME,
+const gfx::UniformSamplerTexture NORMALMORPH::LAYOUT = {
+    localSet,
+    NORMALMORPH::BINDING,
+    NORMALMORPH::NAME,
     gfx::Type::SAMPLER2D,
     1,
 };
 
-const String                          TANGENT_MORPH::NAME       = "cc_TangentDisplacements";
-const gfx::DescriptorSetLayoutBinding TANGENT_MORPH::DESCRIPTOR = {
-    TANGENT_MORPH::BINDING,
+const String                          TANGENTMORPH::NAME       = "cc_TangentDisplacements";
+const gfx::DescriptorSetLayoutBinding TANGENTMORPH::DESCRIPTOR = {
+    TANGENTMORPH::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::VERTEX,
+    {},
 };
-const gfx::UniformSamplerTexture TANGENT_MORPH::LAYOUT = {
-    LOCAL_SET,
-    TANGENT_MORPH::BINDING,
-    TANGENT_MORPH::NAME,
+const gfx::UniformSamplerTexture TANGENTMORPH::LAYOUT = {
+    localSet,
+    TANGENTMORPH::BINDING,
+    TANGENTMORPH::NAME,
     gfx::Type::SAMPLER2D,
     1,
 };
 
-const String                          LIGHTMAP_TEXTURE::NAME       = "cc_lightingMap";
-const gfx::DescriptorSetLayoutBinding LIGHTMAP_TEXTURE::DESCRIPTOR = {
-    LIGHTMAP_TEXTURE::BINDING,
+const String                          LIGHTMAPTEXTURE::NAME       = "cc_lightingMap";
+const gfx::DescriptorSetLayoutBinding LIGHTMAPTEXTURE::DESCRIPTOR = {
+    LIGHTMAPTEXTURE::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
 };
-const gfx::UniformSamplerTexture LIGHTMAP_TEXTURE::LAYOUT = {
-    LOCAL_SET,
-    LIGHTMAP_TEXTURE::BINDING,
-    LIGHTMAP_TEXTURE::NAME,
+const gfx::UniformSamplerTexture LIGHTMAPTEXTURE::LAYOUT = {
+    localSet,
+    LIGHTMAPTEXTURE::BINDING,
+    LIGHTMAPTEXTURE::NAME,
     gfx::Type::SAMPLER2D,
     1,
 };
 
-const String                          SPRITE_TEXTURE::NAME       = "cc_spriteTexture";
-const gfx::DescriptorSetLayoutBinding SPRITE_TEXTURE::DESCRIPTOR = {
-    SPRITE_TEXTURE::BINDING,
+const String                          SPRITETEXTURE::NAME       = "cc_spriteTexture";
+const gfx::DescriptorSetLayoutBinding SPRITETEXTURE::DESCRIPTOR = {
+    SPRITETEXTURE::BINDING,
     gfx::DescriptorType::SAMPLER_TEXTURE,
     1,
     gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
 };
-const gfx::UniformSamplerTexture SPRITE_TEXTURE::LAYOUT = {
-    LOCAL_SET,
+const gfx::UniformSamplerTexture SPRITETEXTURE::LAYOUT = {
+    localSet,
     static_cast<uint>(ModelLocalBindings::SAMPLER_SPRITE),
     "cc_spriteTexture",
     gfx::Type::SAMPLER2D,
     1,
 };
 
-uint SamplerLib::_defaultSamplerHash{genSamplerHash(gfx::SamplerInfo())};
+uint SamplerLib::defaultSamplerHash{genSamplerHash(gfx::SamplerInfo())};
 
-unordered_map<uint, gfx::Sampler *> SamplerLib::_samplerCache{};
+unordered_map<uint, gfx::Sampler *> SamplerLib::samplerCache{};
 
 uint SamplerLib::genSamplerHash(const gfx::SamplerInfo &info) {
     uint hash = 0;
@@ -477,11 +504,11 @@ uint SamplerLib::genSamplerHash(const gfx::SamplerInfo &info) {
 
 gfx::Sampler *SamplerLib::getSampler(uint hash) {
     if (hash == 0) {
-        hash = _defaultSamplerHash;
+        hash = defaultSamplerHash;
     }
 
-    if (_samplerCache.count(hash)) {
-        return _samplerCache[hash];
+    if (samplerCache.count(hash)) {
+        return samplerCache[hash];
     }
 
     gfx::SamplerInfo info;
@@ -495,17 +522,17 @@ gfx::Sampler *SamplerLib::getSampler(uint hash) {
     info.cmpFunc       = static_cast<gfx::ComparisonFunc>((hash >> 16) & 15);
     info.mipLODBias    = static_cast<float>((hash >> 28) & 15);
 
-    return _samplerCache[hash] = gfx::Device::getInstance()->createSampler(info);
+    return samplerCache[hash] = gfx::Device::getInstance()->createSampler(info);
 }
 
 void SamplerLib::destroyAll() {
-    for (auto &pair : _samplerCache) {
+    for (auto &pair : samplerCache) {
         CC_SAFE_DESTROY(pair.second);
     }
-    _samplerCache.clear();
+    samplerCache.clear();
 }
 
-uint SKYBOX_FLAG = static_cast<uint>(gfx::ClearFlagBit::STENCIL) << 1;
+uint skyboxFlag = static_cast<uint>(gfx::ClearFlagBit::STENCIL) << 1;
 
 uint nextPow2(uint val) {
     --val;

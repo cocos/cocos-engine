@@ -133,8 +133,8 @@ void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::Render
         auto *const       pso      = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
 
         cmdBuffer->bindPipelineState(pso);
-        cmdBuffer->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
-        cmdBuffer->bindDescriptorSet(LOCAL_SET, subModel->getDescriptorSet());
+        cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+        cmdBuffer->bindDescriptorSet(localSet, subModel->getDescriptorSet());
         cmdBuffer->bindInputAssembler(ia);
         cmdBuffer->draw(ia);
     }

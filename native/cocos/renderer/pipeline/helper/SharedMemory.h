@@ -341,10 +341,10 @@ struct CC_DLL UIBatch {
 
 struct CC_DLL Scene {
     uint32_t mainLightID = 0;
-    uint32_t modelsID    = 0; // array pool
-    uint32_t sphereLights;    // array pool
-    uint32_t spotLights;      // array pool
-    uint32_t uiBatches;       // array pool
+    uint32_t modelsID = 0; // array pool
+    uint32_t sphereLights = 0; // array pool
+    uint32_t spotLights   = 0; // array pool
+    uint32_t uiBatches    = 0; // array pool
 
     CC_INLINE const Light *getMainLight() const { return GET_LIGHT(mainLightID); }
     CC_INLINE const uint * getSphereLightArrayID() const { return GET_LIGHT_ARRAY(sphereLights); }
@@ -462,6 +462,10 @@ struct CC_DLL Shadows {
     uint32_t pcfType        = 0;
     uint32_t shadowMapDirty = 0;
     float    bias           = 0.0F;
+    uint32_t packing        = 0;
+    uint32_t linear         = 0;
+    uint32_t selfShadow     = 0;
+    float    normalBias     = 0.0F;
     float    orthoSize      = 0.0F;
     uint32_t autoAdapt      = 0;
 

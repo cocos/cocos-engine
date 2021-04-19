@@ -68,7 +68,7 @@ gfx::RenderPass *DeferredPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFl
     depthStencilAttachment.depthStoreOp   = gfx::StoreOp::DISCARD;
 
     if (!(clearFlags & gfx::ClearFlagBit::COLOR)) {
-        if (clearFlags & static_cast<gfx::ClearFlagBit>(SKYBOX_FLAG)) {
+        if (clearFlags & static_cast<gfx::ClearFlagBit>(skyboxFlag)) {
             colorAttachment.loadOp = gfx::LoadOp::DISCARD;
         } else {
             colorAttachment.loadOp        = gfx::LoadOp::LOAD;
@@ -351,8 +351,8 @@ bool DeferredPipeline::activeRenderer() {
     this->_descriptorSet->bindTexture(SHADOWMAP::BINDING, getDefaultTexture());
 
     // Spot light sampler binding
-    this->_descriptorSet->bindSampler(SPOT_LIGHTING_MAP::BINDING, sampler);
-    this->_descriptorSet->bindTexture(SPOT_LIGHTING_MAP::BINDING, getDefaultTexture());
+    this->_descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, sampler);
+    this->_descriptorSet->bindTexture(SPOTLIGHTINGMAP::BINDING, getDefaultTexture());
 
     _descriptorSet->update();
 
@@ -520,8 +520,8 @@ void DeferredPipeline::destroy() {
         _descriptorSet->getBuffer(UBOShadow::BINDING)->destroy();
         _descriptorSet->getSampler(SHADOWMAP::BINDING)->destroy();
         _descriptorSet->getTexture(SHADOWMAP::BINDING)->destroy();
-        _descriptorSet->getSampler(SPOT_LIGHTING_MAP::BINDING)->destroy();
-        _descriptorSet->getTexture(SPOT_LIGHTING_MAP::BINDING)->destroy();
+        _descriptorSet->getSampler(SPOTLIGHTINGMAP::BINDING)->destroy();
+        _descriptorSet->getTexture(SPOTLIGHTINGMAP::BINDING)->destroy();
     }
 
     for (auto &it : _renderPasses) {

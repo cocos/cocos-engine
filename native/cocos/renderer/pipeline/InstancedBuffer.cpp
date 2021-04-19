@@ -30,6 +30,7 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXInputAssembler.h"
 #include "helper/SharedMemory.h"
+#include "Define.h"
 
 namespace cc {
 namespace pipeline {
@@ -72,7 +73,7 @@ void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel
     if (!stride) return; // we assume per-instance attributes are always present
     auto *sourceIA      = subModel->getInputAssembler();
     auto *descriptorSet = subModel->getDescriptorSet();
-    auto *lightingMap   = descriptorSet->getTexture(LIGHTMAP_TEXTURE::BINDING);
+    auto *lightingMap   = descriptorSet->getTexture(LIGHTMAPTEXTURE::BINDING);
     auto *shader        = shaderImplant;
     if (!shader) {
         shader = subModel->getShader(passIdx);
