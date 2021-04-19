@@ -40,7 +40,7 @@ import visibleRect from './visible-rect';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
 import { sys } from './sys';
-import { BrowserType } from '../../../pal/system/enum-type';
+import { BrowserType, OS } from '../../../pal/system/enum-type';
 
 class BrowserGetter {
     public html: HTMLHtmlElement | undefined;
@@ -76,7 +76,7 @@ class BrowserGetter {
 
 const __BrowserGetter = new BrowserGetter();
 
-if (legacyCC.sys.os === legacyCC.sys.OS_IOS) { // All browsers are WebView
+if (system.os === OS.IOS) { // All browsers are WebView
     __BrowserGetter.adaptationType = BrowserType.SAFARI;
 }
 
@@ -921,7 +921,7 @@ class ContainerStrategy {
         const locCanvas = legacyCC.game.canvas;
         const locContainer = legacyCC.game.container;
 
-        if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID) {
+        if (system.os === OS.ANDROID) {
             document.body.style.width = `${_view._isRotated ? h : w}px`;
             document.body.style.height = `${_view._isRotated ? w : h}px`;
         }

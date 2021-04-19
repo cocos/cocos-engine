@@ -5,7 +5,7 @@ import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { system } from 'pal/system';
-import { BrowserType } from '../../system/enum-type';
+import { BrowserType, OS } from '../../system/enum-type';
 
 export class AudioPlayerDOM implements OperationQueueable {
     private _domAudio: HTMLAudioElement;
@@ -85,7 +85,7 @@ export class AudioPlayerDOM implements OperationQueueable {
             const domAudio = document.createElement('audio');
             const sys = legacyCC.sys;
             let loadedEvent = 'canplaythrough';
-            if (sys.os === sys.OS_IOS) {
+            if (system.os === OS.IOS) {
                 // iOS no event that used to parse completed callback
                 // this time is not complete, can not play
                 loadedEvent = 'loadedmetadata';

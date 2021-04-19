@@ -65,7 +65,7 @@ import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersTo
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
 import { system } from 'pal/system';
-import { BrowserType } from '../../../../pal/system/enum-type';
+import { BrowserType, OS } from '../../../../pal/system/enum-type';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -368,7 +368,7 @@ export class WebGLDevice extends Device {
         // eslint-disable-next-line no-lone-blocks
         {
             // iOS 14 browsers crash on getExtension('WEBGL_compressed_texture_astc')
-            if (sys.os !== sys.OS_IOS || sys.osMainVersion !== 14 || !sys.isBrowser) {
+            if (system.os !== OS.IOS || sys.osMainVersion !== 14 || !sys.isBrowser) {
                 this._WEBGL_compressed_texture_astc = this.getExtension('WEBGL_compressed_texture_astc');
             }
 
@@ -378,7 +378,7 @@ export class WebGLDevice extends Device {
             }
 
             // bytedance ios depth texture implementation doesn't work
-            if (BYTEDANCE && sys.os === sys.OS_IOS) {
+            if (BYTEDANCE && system.os === OS.IOS) {
                 this._WEBGL_depth_texture = null;
             }
 
@@ -390,8 +390,8 @@ export class WebGLDevice extends Device {
             }
 
             // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
-            if ((sys.os === sys.OS_IOS && sys.osMainVersion <= 10)
-                || (WECHAT && sys.os === sys.OS_ANDROID)) {
+            if ((system.os === OS.IOS && sys.osMainVersion <= 10)
+                || (WECHAT && system.os === OS.ANDROID)) {
                 this._destroyShadersImmediately = false;
             }
 

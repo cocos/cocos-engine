@@ -37,7 +37,7 @@ import { VideoPlayerImpl } from './video-player-impl';
 import { ClearFlagBit } from '../core/gfx';
 import visibleRect from '../core/platform/visible-rect';
 import { system } from 'pal/system';
-import { BrowserType } from '../../pal/system/enum-type';
+import { BrowserType, OS } from '../../pal/system/enum-type';
 
 const MIN_ZINDEX = -(2 ** 15);
 
@@ -178,7 +178,7 @@ export class VideoPlayerImplWeb extends VideoPlayerImpl {
             return;
         }
 
-        if (sys.os === sys.OS_IOS && sys.isBrowser) {
+        if (system.os === OS.IOS && sys.isBrowser) {
             if (enabled) {
                 // @ts-expect-error only ios support
                 if (video.webkitEnterFullscreen) {

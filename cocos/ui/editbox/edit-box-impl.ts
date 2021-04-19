@@ -48,7 +48,7 @@ import { Node } from '../../core/scene-graph';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { legacyCC } from '../../core/global-exports';
 import { system } from 'pal/system';
-import { BrowserType } from '../../../pal/system/enum-type';
+import { BrowserType, OS } from '../../../pal/system/enum-type';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -225,7 +225,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _showDomOnMobile () {
-        if (sys.os !== sys.OS_ANDROID) {
+        if (system.os !== OS.ANDROID) {
             return;
         }
 
@@ -242,7 +242,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _hideDomOnMobile () {
-        if (sys.os === sys.OS_ANDROID) {
+        if (system.os === OS.ANDROID) {
             if (this.__autoResize) {
                 view.resizeWithBrowserSize(true);
             }
@@ -269,7 +269,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _scrollBackWindow () {
         setTimeout(() => {
-            if (system.browserType === BrowserType.WECHAT && sys.os === sys.OS_IOS) {
+            if (system.browserType === BrowserType.WECHAT && system.os === OS.IOS) {
                 if (window.top) {
                     window.top.scrollTo(0, 0);
                 }

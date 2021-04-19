@@ -40,7 +40,7 @@ import { Touch } from './touch';
 import { legacyCC } from '../../global-exports';
 import { logID } from '../debug';
 import { system } from 'pal/system';
-import { BrowserType } from '../../../../pal/system/enum-type';
+import { BrowserType, OS } from '../../../../pal/system/enum-type';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -231,9 +231,9 @@ class InputManager {
 
     public getHTMLElementPosition (element: HTMLElement): IHTMLElementPosition {
         const docElem = document.documentElement;
-        let leftOffset = sys.os === sys.OS_IOS && sys.isBrowser ? window.screenLeft : window.pageXOffset;
+        let leftOffset = system.os === OS.IOS && sys.isBrowser ? window.screenLeft : window.pageXOffset;
         leftOffset -= docElem.clientLeft;
-        let topOffset = sys.os === sys.OS_IOS && sys.isBrowser ? window.screenTop : window.pageYOffset;
+        let topOffset = system.os === OS.IOS && sys.isBrowser ? window.screenTop : window.pageYOffset;
         topOffset -= docElem.clientTop;
         if (element.getBoundingClientRect) {
             const box = element.getBoundingClientRect();
@@ -485,7 +485,7 @@ class InputManager {
             mAcceleration.y = -mAcceleration.y;
         }
         // fix android acc values are opposite
-        if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID
+        if (system.os === OS.ANDROID
             && system.browserType !==  BrowserType.MOBILE_QQ) {
             mAcceleration.x = -mAcceleration.x;
             mAcceleration.y = -mAcceleration.y;
