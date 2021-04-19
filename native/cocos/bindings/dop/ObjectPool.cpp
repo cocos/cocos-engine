@@ -27,7 +27,7 @@
 #include "base/memory/Memory.h"
 
 namespace se {
-cc::vector<ObjectPool *> ObjectPool::poolMap(CAST_POOL_TYPE(PoolType::FRAMEBUFFER));
+cc::vector<ObjectPool *> ObjectPool::poolMap(OBJECT_POOL_SIZE);
 
 ObjectPool::ObjectPool(PoolType type, Object *jsArr)
 : _type(type),
