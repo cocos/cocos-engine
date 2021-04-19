@@ -286,7 +286,9 @@ export class ActionManager {
      */
     getNumberOfRunningActionsInTarget (target: Node): number {
         const element = this._hashTargets.get(target);
-        if (element) return (element.actions) ? element.actions.length : 0;
+        if (element) {
+            return (element.actions) ? element.actions.length as number : 0;
+        }
 
         return 0;
     }
