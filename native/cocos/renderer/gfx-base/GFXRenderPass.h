@@ -33,17 +33,18 @@ namespace gfx {
 class CC_DLL RenderPass : public GFXObject {
 public:
     RenderPass();
-    virtual ~RenderPass();
+    ~RenderPass() override;
 
     static uint computeHash(const RenderPassInfo &info);
 
     void initialize(const RenderPassInfo &info);
     void destroy();
 
-    CC_INLINE const ColorAttachmentList &getColorAttachments() const { return _colorAttachments; }
-    CC_INLINE const DepthStencilAttachment &getDepthStencilAttachment() const { return _depthStencilAttachment; }
-    CC_INLINE const SubpassInfoList &getSubpasses() const { return _subpasses; }
-    CC_INLINE uint                   getHash() const { return _hash; }
+    inline const ColorAttachmentList &   getColorAttachments() const { return _colorAttachments; }
+    inline const DepthStencilAttachment &getDepthStencilAttachment() const { return _depthStencilAttachment; }
+    inline const SubpassInfoList &       getSubpasses() const { return _subpasses; }
+    inline const SubpassDependencyList & getDependencies() const { return _dependencies; }
+    inline uint                          getHash() const { return _hash; }
 
 protected:
     uint computeHash();
@@ -54,6 +55,7 @@ protected:
     ColorAttachmentList    _colorAttachments;
     DepthStencilAttachment _depthStencilAttachment;
     SubpassInfoList        _subpasses;
+    SubpassDependencyList  _dependencies;
     uint                   _hash = 0;
 };
 

@@ -36,7 +36,7 @@ public:
     using Agent::Agent;
     ~BufferAgent() override;
 
-    void update(void *buffer, uint size) override;
+    void update(const void *buffer, uint size) override;
 
 protected:
     void doInit(const BufferInfo &info) override;

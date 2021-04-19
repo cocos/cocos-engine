@@ -109,10 +109,9 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.sampleCount = mu::toMTLSampleCount(_samples);
     descriptor.mipmapLevelCount = _levelCount;
     descriptor.arrayLength = _type == TextureType::CUBE ? 1 : _layerCount;
-    if (_usage & TextureUsage::COLOR_ATTACHMENT ||
-        _usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT ||
-        _usage & TextureUsage::INPUT_ATTACHMENT ||
-        _usage & TextureUsage::TRANSIENT_ATTACHMENT) {
+    if (hasFlag(_usage, TextureUsage::COLOR_ATTACHMENT) ||
+        hasFlag(_usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) ||
+        hasFlag(_usage, TextureUsage::INPUT_ATTACHMENT)) {
         descriptor.resourceOptions = MTLResourceStorageModePrivate;
     }
 

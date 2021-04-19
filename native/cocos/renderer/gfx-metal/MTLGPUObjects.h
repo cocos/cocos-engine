@@ -58,9 +58,9 @@ public:
 
 struct CCMTLGPUUniformBlock {
     String name;
-    uint set = GFX_INVALID_BINDING;
-    uint binding = GFX_INVALID_BINDING;
-    uint mappedBinding = GFX_INVALID_BINDING;
+    uint set = INVALID_BINDING;
+    uint binding = INVALID_BINDING;
+    uint mappedBinding = INVALID_BINDING;
     ShaderStageFlags stages = ShaderStageFlagBit::NONE;
     size_t size = 0;
     uint count = 0;
@@ -68,10 +68,10 @@ struct CCMTLGPUUniformBlock {
 
 struct CCMTLGPUSamplerBlock {
     String name;
-    uint set = GFX_INVALID_BINDING;
-    uint binding = GFX_INVALID_BINDING;
-    uint textureBinding = GFX_INVALID_BINDING;
-    uint samplerBinding = GFX_INVALID_BINDING;
+    uint set = INVALID_BINDING;
+    uint binding = INVALID_BINDING;
+    uint textureBinding = INVALID_BINDING;
+    uint samplerBinding = INVALID_BINDING;
     ShaderStageFlags stages = ShaderStageFlagBit::NONE;
     Type type = Type::UNKNOWN;
     uint count = 0;

@@ -25,15 +25,35 @@
 
 #pragma once
 
-using uint = unsigned int;
-using ushort = unsigned short;
-using ulong = unsigned long;
-using FlagBits = unsigned int;
+#include <cstdint>
 
-#define CC_ENUM_OPERATORS(type_)                                                                                                                                                             \
-    CC_INLINE type_ operator|(type_ lhs, type_ rhs) { return (type_)(static_cast<std::underlying_type<type_>::type /**/>(lhs) | static_cast<std::underlying_type<type_>::type /**/>(rhs)); } \
-    CC_INLINE void operator|=(type_ &lhs, type_ rhs) { lhs = (type_)(static_cast<std::underlying_type<type_>::type /**/>(lhs) | static_cast<std::underlying_type<type_>::type /**/>(rhs)); } \
-    CC_INLINE int operator&(type_ lhs, type_ rhs) { return (int)(static_cast<std::underlying_type<type_>::type /**/>(lhs) & static_cast<std::underlying_type<type_>::type /**/>(rhs)); }     \
-    CC_INLINE void operator&=(type_ &lhs, type_ rhs) { lhs = (type_)(static_cast<std::underlying_type<type_>::type /**/>(lhs) & static_cast<std::underlying_type<type_>::type /**/>(rhs)); } \
-    CC_INLINE bool operator||(type_ lhs, type_ rhs) { return (static_cast<std::underlying_type<type_>::type /**/>(lhs) || static_cast<std::underlying_type<type_>::type /**/>(rhs)); }       \
-    CC_INLINE bool operator&&(type_ lhs, type_ rhs) { return (static_cast<std::underlying_type<type_>::type /**/>(lhs) && static_cast<std::underlying_type<type_>::type /**/>(rhs)); }
+using uint     = uint32_t;
+using ushort   = uint16_t;
+using ulong    = uint32_t;
+using FlagBits = uint32_t;
+
+#define CC_ENUM_OPERATORS(T)                                                                                                                                                      \
+    inline T    operator~(const T v) { return static_cast<T>(~static_cast<std::underlying_type<T>::type>(v)); }                                                                   \
+    inline bool operator||(const T lhs, const T rhs) { return (static_cast<std::underlying_type<T>::type>(lhs) || static_cast<std::underlying_type<T>::type>(rhs)); }             \
+    inline bool operator&&(const T lhs, const T rhs) { return (static_cast<std::underlying_type<T>::type>(lhs) && static_cast<std::underlying_type<T>::type>(rhs)); }             \
+    inline T    operator|(const T lhs, const T rhs) { return static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) | static_cast<std::underlying_type<T>::type>(rhs)); } \
+    inline T    operator&(const T lhs, const T rhs) { return static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) & static_cast<std::underlying_type<T>::type>(rhs)); } \
+    inline T    operator^(const T lhs, const T rhs) { return static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) ^ static_cast<std::underlying_type<T>::type>(rhs)); } \
+    inline void operator|=(T &lhs, const T rhs) { lhs = static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) | static_cast<std::underlying_type<T>::type>(rhs)); }      \
+    inline void operator&=(T &lhs, const T rhs) { lhs = static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) & static_cast<std::underlying_type<T>::type>(rhs)); }      \
+    inline void operator^=(T &lhs, const T rhs) { lhs = static_cast<T>(static_cast<std::underlying_type<T>::type>(lhs) ^ static_cast<std::underlying_type<T>::type>(rhs)); }      \
+    inline bool hasFlag(const T flags, const T flagToTest) {                                                                                                                      \
+        using ValueType = std::underlying_type<T>::type;                                                                                                                          \
+        CCASSERT((static_cast<ValueType>(flagToTest) & (static_cast<ValueType>(flagToTest) - 1)) == 0, "More than one flag specified");                                           \
+        return (static_cast<ValueType>(flags) & static_cast<ValueType>(flagToTest)) != 0;                                                                                         \
+    }                                                                                                                                                                             \
+    inline bool hasAnyFlags(const T flags, const T flagsToTest) {                                                                                                                 \
+        using ValueType = std::underlying_type<T>::type;                                                                                                                          \
+        return (static_cast<ValueType>(flags) & static_cast<ValueType>(flagsToTest)) != 0;                                                                                        \
+    }                                                                                                                                                                             \
+    inline bool hasAllFlags(const T flags, const T flagsToTest) {                                                                                                                 \
+        using ValueType = std::underlying_type<T>::type;                                                                                                                          \
+        return (static_cast<ValueType>(flags) & static_cast<ValueType>(flagsToTest)) == static_cast<ValueType>(flagsToTest);                                                      \
+    }                                                                                                                                                                             \
+    inline T addFlags(const T flags, const T flagsToAdd) { return (flags | flagsToAdd); }                                                                                         \
+    inline T removeFlags(const T flags, const T flagsToRemove) { return (flags & ~flagsToRemove); }

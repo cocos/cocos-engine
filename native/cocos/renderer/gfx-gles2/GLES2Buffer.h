@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include "GLES2Std.h"
 #include "gfx-base/GFXBuffer.h"
 
 namespace cc {
@@ -36,9 +37,9 @@ class GLES2GPUBufferView;
 class CC_GLES2_API GLES2Buffer final : public Buffer {
 public:
     GLES2Buffer();
-    ~GLES2Buffer();
+    ~GLES2Buffer() override;
 
-    void update(void *buffer, uint size) override;
+    void update(const void *buffer, uint size) override;
 
     CC_INLINE GLES2GPUBuffer *gpuBuffer() const { return _gpuBuffer; }
     CC_INLINE GLES2GPUBufferView *gpuBufferView() const { return _gpuBufferView; }

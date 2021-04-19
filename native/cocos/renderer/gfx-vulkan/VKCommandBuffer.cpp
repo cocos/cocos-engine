@@ -158,6 +158,8 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     vkCmdBeginRenderPass(_gpuCommandBuffer->vkCommandBuffer, &passBeginInfo,
                          secondaryCBCount ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS : VK_SUBPASS_CONTENTS_INLINE);
 
+    _secondaryRP = secondaryCBCount;
+
     if (!secondaryCBCount) {
         VkViewport viewport{static_cast<float>(renderArea.x), static_cast<float>(renderArea.y), static_cast<float>(renderArea.width), static_cast<float>(renderArea.height), 0.F, 1.F};
         vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &viewport);
@@ -327,6 +329,10 @@ void CCVKCommandBuffer::setStencilCompareMask(StencilFace face, int reference, u
         vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, vkFace, reference);
         vkCmdSetStencilCompareMask(_gpuCommandBuffer->vkCommandBuffer, vkFace, mask);
     }
+}
+
+void CCVKCommandBuffer::nextSubpass() {
+    vkCmdNextSubpass(_gpuCommandBuffer->vkCommandBuffer, _secondaryRP ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS : VK_SUBPASS_CONTENTS_INLINE);
 }
 
 void CCVKCommandBuffer::draw(const DrawInfo &info) {

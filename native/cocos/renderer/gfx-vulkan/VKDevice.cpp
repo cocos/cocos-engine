@@ -389,7 +389,7 @@ bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
     for (uint i = 0U; i < gpuContext->swapchainCreateInfo.minImageCount; i++) {
         TextureInfo depthStencilTexInfo;
         depthStencilTexInfo.type   = TextureType::TEX2D;
-        depthStencilTexInfo.usage  = TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | TextureUsageBit::SAMPLED;
+        depthStencilTexInfo.usage  = TextureUsageBit::DEPTH_STENCIL_ATTACHMENT;
         depthStencilTexInfo.format = _context->getDepthStencilFormat();
         depthStencilTexInfo.width  = _width;
         depthStencilTexInfo.height = _height;

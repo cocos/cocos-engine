@@ -35,15 +35,13 @@
 namespace cc {
 namespace gfx {
 
-GLES2DescriptorSet::GLES2DescriptorSet()
-: DescriptorSet() {
-}
+GLES2DescriptorSet::GLES2DescriptorSet() = default;
 
 GLES2DescriptorSet::~GLES2DescriptorSet() {
     destroy();
 }
 
-void GLES2DescriptorSet::doInit(const DescriptorSetInfo &info) {
+void GLES2DescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
     const GLES2GPUDescriptorSetLayout *gpuDescriptorSetLayout = static_cast<GLES2DescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
     const size_t descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
@@ -54,7 +52,7 @@ void GLES2DescriptorSet::doInit(const DescriptorSetInfo &info) {
 
     _gpuDescriptorSet = CC_NEW(GLES2GPUDescriptorSet);
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
-    for (size_t i = 0u, k = 0u; i < bindingCount; i++) {
+    for (size_t i = 0U, k = 0U; i < bindingCount; i++) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
         for (uint j = 0; j < binding.count; j++, k++) {
             _gpuDescriptorSet->gpuDescriptors[k].type = binding.descriptorType;
@@ -75,8 +73,8 @@ void GLES2DescriptorSet::update() {
     if (_isDirty && _gpuDescriptorSet) {
         const GLES2GPUDescriptorList &descriptors = _gpuDescriptorSet->gpuDescriptors;
         for (size_t i = 0; i < descriptors.size(); i++) {
-            if (descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
-                GLES2Buffer *buffer = (GLES2Buffer *)_buffers[i];
+            if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_BUFFER_TYPE)) {
+                auto *buffer = static_cast<GLES2Buffer *>(_buffers[i]);
                 if (buffer) {
                     if (buffer->gpuBuffer()) {
                         _gpuDescriptorSet->gpuDescriptors[i].gpuBuffer = buffer->gpuBuffer();
@@ -84,7 +82,7 @@ void GLES2DescriptorSet::update() {
                         _gpuDescriptorSet->gpuDescriptors[i].gpuBufferView = buffer->gpuBufferView();
                     }
                 }
-            } else if (descriptors[i].type & DESCRIPTOR_TEXTURE_TYPE) {
+            } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
                 if (_textures[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = static_cast<GLES2Texture *>(_textures[i])->gpuTexture();
                 }

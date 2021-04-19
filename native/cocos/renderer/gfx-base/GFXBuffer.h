@@ -33,7 +33,7 @@ namespace gfx {
 class CC_DLL Buffer : public GFXObject {
 public:
     Buffer();
-    virtual ~Buffer();
+    ~Buffer() override;
 
     static uint computeHash(const BufferInfo &info);
 
@@ -42,7 +42,7 @@ public:
     void resize(uint size);
     void destroy();
 
-    virtual void update(void *buffer, uint size) = 0;
+    virtual void update(const void *buffer, uint size) = 0;
 
     CC_INLINE BufferUsage getUsage() const { return _usage; }
     CC_INLINE MemoryUsage getMemUsage() const { return _memUsage; }
@@ -59,10 +59,10 @@ protected:
 
     BufferUsage _usage        = BufferUsageBit::NONE;
     MemoryUsage _memUsage     = MemoryUsageBit::NONE;
-    uint        _stride       = 0u;
-    uint        _count        = 0u;
-    uint        _size         = 0u;
-    uint        _offset       = 0u;
+    uint        _stride       = 0U;
+    uint        _count        = 0U;
+    uint        _size         = 0U;
+    uint        _offset       = 0U;
     BufferFlags _flags        = BufferFlagBit::NONE;
     bool        _isBufferView = false;
 };

@@ -56,6 +56,7 @@ public:
     virtual void setDepthBound(float minBounds, float maxBounds)                                                                                                                                             = 0;
     virtual void setStencilWriteMask(StencilFace face, uint mask)                                                                                                                                            = 0;
     virtual void setStencilCompareMask(StencilFace face, int ref, uint mask)                                                                                                                                 = 0;
+    virtual void nextSubpass()                                                                                                                                                                               = 0;
     virtual void draw(const DrawInfo &info)                                                                                                                                                                  = 0;
     virtual void updateBuffer(Buffer *buff, const void *data, uint size)                                                                                                                                     = 0;
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count)                                                                         = 0;

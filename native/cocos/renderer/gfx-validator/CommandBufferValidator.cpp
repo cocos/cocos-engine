@@ -182,6 +182,10 @@ void CommandBufferValidator::setStencilCompareMask(StencilFace face, int ref, ui
     _actor->setStencilCompareMask(face, ref, mask);
 }
 
+void CommandBufferValidator::nextSubpass() {
+    _actor->nextSubpass();
+}
+
 void CommandBufferValidator::draw(const DrawInfo &info) {
     CCASSERT(_insideRenderPass, "Command 'draw' must be recorded inside render passes.");
 

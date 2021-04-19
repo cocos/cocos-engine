@@ -77,7 +77,7 @@ public:
     GLES3GPUFramebuffer *gpuFBO        = nullptr;
     Rect                 renderArea;
     size_t               numClearColors = 0;
-    Color                clearColors[GFX_MAX_ATTACHMENTS];
+    Color                clearColors[MAX_ATTACHMENTS];
     float                clearDepth   = 1.0F;
     int                  clearStencil = 0;
 

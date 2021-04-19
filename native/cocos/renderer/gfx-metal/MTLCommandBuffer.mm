@@ -262,6 +262,9 @@ void CCMTLCommandBuffer::setStencilCompareMask(StencilFace /*face*/, int /*ref*/
     CC_LOG_ERROR("Don't support change stencil compare mask here.");
 }
 
+void CCMTLCommandBuffer::nextSubpass() {
+}
+
 void CCMTLCommandBuffer::draw(const DrawInfo &info) {
     if (_firstDirtyDescriptorSet < _GPUDescriptorSets.size()) {
         bindDescriptorSets();
@@ -447,7 +450,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             CC_FREE(convertedData);
         }
     }
-    if (texture->getFlags() & TextureFlags::GEN_MIPMAP && mu::pixelFormatIsColorRenderable(convertedFormat)) {
+    if (hasFlag(texture->getFlags(), TextureFlags::GEN_MIPMAP) && mu::pixelFormatIsColorRenderable(convertedFormat)) {
         [encoder generateMipmapsForTexture:dstTexture];
     }
     [encoder endEncoding];
@@ -515,17 +518,17 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
             continue;
         }
 
-        if (sampler.stages & ShaderStageFlagBit::VERTEX) {
+        if (hasFlag(sampler.stages, ShaderStageFlagBit::VERTEX)) {
             _renderEncoder.setVertexTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
             _renderEncoder.setVertexSampler(gpuDescriptor.sampler->getMTLSamplerState(), sampler.samplerBinding);
         }
 
-        if (sampler.stages & ShaderStageFlagBit::FRAGMENT) {
+        if (hasFlag(sampler.stages, ShaderStageFlagBit::FRAGMENT)) {
             _renderEncoder.setFragmentTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
             _renderEncoder.setFragmentSampler(gpuDescriptor.sampler->getMTLSamplerState(), sampler.samplerBinding);
         }
 
-        if(sampler.stages & ShaderStageFlagBit::COMPUTE) {
+        if(hasFlag(sampler.stages, ShaderStageFlagBit::COMPUTE)) {
             _computeEncoder.setTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
         }
     }

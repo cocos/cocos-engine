@@ -43,7 +43,7 @@ void BufferValidator::doInit(const BufferInfo &info) {
     CCASSERT(info.memUsage != MemoryUsageBit::NONE, "invalid source buffer");
     // CCASSERT(info.size, "zero-sized buffer?"); // be more lenient on this for now
 
-    if (info.usage & BufferUsageBit::VERTEX && !info.stride) {
+    if (hasFlag(info.usage, BufferUsageBit::VERTEX) && !info.stride) {
         CCASSERT(false, "invalid stride for vertex buffer");
     }
 
@@ -64,7 +64,7 @@ void BufferValidator::doInit(const BufferViewInfo &info) {
     _actor->initialize(actorInfo);
 }
 
-void BufferValidator::doResize(uint size, uint count) {
+void BufferValidator::doResize(uint size, uint /*count*/) {
     CCASSERT(!_isBufferView, "cannot resize through buffer views");
     CCASSERT(size, "invalid size");
 
@@ -77,16 +77,16 @@ void BufferValidator::doDestroy() {
     _actor->destroy();
 }
 
-void BufferValidator::update(void *buffer, uint size) {
+void BufferValidator::update(const void *buffer, uint size) {
     CCASSERT(!_isBufferView, "cannot update through buffer views");
     CCASSERT(size && size <= _size, "invalid size");
     CCASSERT(buffer, "invalid buffer data");
 
-    if (_usage & BufferUsageBit::INDIRECT) {
-        DrawInfo *   drawInfo      = static_cast<DrawInfo *>(buffer);
+    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
+        const auto * drawInfo      = static_cast<const DrawInfo *>(buffer);
         const size_t drawInfoCount = size / sizeof(DrawInfo);
         const bool   isIndexed     = drawInfoCount > 0 && drawInfo->indexCount > 0;
-        for (size_t i = 1u; i < drawInfoCount; ++i) {
+        for (size_t i = 1U; i < drawInfoCount; ++i) {
             if ((++drawInfo)->indexCount > 0 != isIndexed) {
                 CCASSERT(false, "inconsistent indirect draw infos on using index buffer");
             }

@@ -52,8 +52,8 @@ void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
             if (binding.binding > maxBinding) maxBinding = binding.binding;
         }
 
-        _bindingIndices.resize(maxBinding + 1, GFX_INVALID_BINDING);
-        _descriptorIndices.resize(maxBinding + 1, GFX_INVALID_BINDING);
+        _bindingIndices.resize(maxBinding + 1, INVALID_BINDING);
+        _descriptorIndices.resize(maxBinding + 1, INVALID_BINDING);
         for (uint i = 0U; i < bindingCount; i++) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
             _bindingIndices[binding.binding]          = i;

@@ -31,25 +31,22 @@
 namespace cc {
 namespace gfx {
 
-GLES2DescriptorSetLayout::GLES2DescriptorSetLayout()
-: DescriptorSetLayout() {
-}
+GLES2DescriptorSetLayout::GLES2DescriptorSetLayout() = default;
 
 GLES2DescriptorSetLayout::~GLES2DescriptorSetLayout() {
     destroy();
 }
 
-void GLES2DescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
+void GLES2DescriptorSetLayout::doInit(const DescriptorSetLayoutInfo& /*info*/) {
     _gpuDescriptorSetLayout = CC_NEW(GLES2GPUDescriptorSetLayout);
     _gpuDescriptorSetLayout->descriptorCount = _descriptorCount;
     _gpuDescriptorSetLayout->bindingIndices = _bindingIndices;
     _gpuDescriptorSetLayout->descriptorIndices = _descriptorIndices;
     _gpuDescriptorSetLayout->bindings = _bindings;
 
-    for (uint i = 0u; i < _bindings.size(); i++) {
-        const DescriptorSetLayoutBinding &binding = _bindings[i];
-        if (binding.descriptorType & DESCRIPTOR_DYNAMIC_TYPE) {
-            for (uint j = 0u; j < binding.count; j++) {
+    for (auto& binding : _bindings) {
+        if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
+            for (uint j = 0U; j < binding.count; j++) {
                 _gpuDescriptorSetLayout->dynamicBindings.push_back(binding.binding);
             }
         }

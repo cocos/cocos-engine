@@ -422,7 +422,7 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
 MTLResourceOptions mu::toMTLResourceOption(MemoryUsage usage) {
     if (usage & MemoryUsage::HOST && usage & MemoryUsage::DEVICE)
         return MTLResourceStorageModeShared;
-    else if (usage & MemoryUsage::DEVICE)
+    else if (hasFlag(usage, MemoryUsage::DEVICE))
         return MTLResourceStorageModePrivate;
     else
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
@@ -790,18 +790,17 @@ MTLTextureUsage mu::toMTLTextureUsage(TextureUsage usage) {
         return MTLTextureUsageUnknown;
 
     MTLTextureUsage ret = MTLTextureUsageUnknown;
-    if (usage & TextureUsage::TRANSFER_SRC)
+    if (hasFlag(usage, TextureUsage::TRANSFER_SRC))
         ret |= MTLTextureUsageShaderRead | MTLTextureUsagePixelFormatView;
-    if (usage & TextureUsage::TRANSFER_DST)
+    if (hasFlag(usage, TextureUsage::TRANSFER_DST))
         ret |= MTLTextureUsageShaderWrite;
-    if (usage & TextureUsage::SAMPLED)
+    if (hasFlag(usage, TextureUsage::SAMPLED))
         ret |= MTLTextureUsageShaderRead;
-    if (usage & TextureUsage::STORAGE)
+    if (hasFlag(usage, TextureUsage::STORAGE))
         ret |= MTLTextureUsageShaderWrite;
-    if (usage & TextureUsage::COLOR_ATTACHMENT ||
-        usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT ||
-        usage & TextureUsage::TRANSIENT_ATTACHMENT ||
-        usage & TextureUsage::INPUT_ATTACHMENT) {
+    if (hasFlag(usage, TextureUsage::COLOR_ATTACHMENT) ||
+        hasFlag(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) ||
+        hasFlag(usage, TextureUsage::INPUT_ATTACHMENT)) {
         ret |= MTLTextureUsageRenderTarget;
     }
 

@@ -176,7 +176,7 @@ void ForwardStage::render(Camera *camera) {
     _renderArea.width = static_cast<uint>(camera->viewportWidth * w * sharedData->shadingScale);
     _renderArea.height = static_cast<uint>(camera->viewportHeight * h * sharedData->shadingScale);
 
-    if (static_cast<gfx::ClearFlags>(camera->clearFlag) & gfx::ClearFlagBit::COLOR) {
+    if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
         if (sharedData->isHDR) {
             srgbToLinear(&_clearColors[0], camera->clearColor);
             auto scale = sharedData->fpScale / camera->exposure;

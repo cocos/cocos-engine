@@ -47,6 +47,7 @@ void PipelineState::initialize(const PipelineStateInfo &info) {
     _blendState        = info.blendState;
     _dynamicStates     = info.dynamicStates;
     _renderPass        = info.renderPass;
+    _subpass           = info.subpass;
     _pipelineLayout    = info.pipelineLayout;
 
     doInit(info);

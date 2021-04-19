@@ -73,6 +73,7 @@ public:
     ColorAttachmentList    colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
     SubpassInfoList        subpasses;
+    SubpassDependencyList  dependencies;
 
     // per attachment
     vector<vector<ThsvsAccessType>> beginAccesses;
@@ -312,6 +313,7 @@ public:
     BlendState             bs;
     DynamicStateList       dynamicStates;
     CCVKGPURenderPass *    gpuRenderPass = nullptr;
+    uint                   subpass       = 0U;
     VkPipeline             vkPipeline    = VK_NULL_HANDLE;
 };
 

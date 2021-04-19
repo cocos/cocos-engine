@@ -35,22 +35,20 @@
 namespace cc {
 namespace gfx {
 
-GLES3DescriptorSet::GLES3DescriptorSet()
-: DescriptorSet() {
-}
+GLES3DescriptorSet::GLES3DescriptorSet() = default;
 
 GLES3DescriptorSet::~GLES3DescriptorSet() {
     destroy();
 }
 
-void GLES3DescriptorSet::doInit(const DescriptorSetInfo &info) {
+void GLES3DescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
     const GLES3GPUDescriptorSetLayout *gpuDescriptorSetLayout = static_cast<GLES3DescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
     const size_t descriptorCount = gpuDescriptorSetLayout->descriptorCount;
     const size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
 
     _gpuDescriptorSet = CC_NEW(GLES3GPUDescriptorSet);
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);
-    for (size_t i = 0u, k = 0u; i < bindingCount; i++) {
+    for (size_t i = 0U, k = 0U; i < bindingCount; i++) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
         for (uint j = 0; j < binding.count; j++, k++) {
             _gpuDescriptorSet->gpuDescriptors[k].type = binding.descriptorType;
@@ -71,11 +69,11 @@ void GLES3DescriptorSet::update() {
     if (_isDirty && _gpuDescriptorSet) {
         const GLES3GPUDescriptorList &descriptors = _gpuDescriptorSet->gpuDescriptors;
         for (size_t i = 0; i < descriptors.size(); i++) {
-            if (descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
+            if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_BUFFER_TYPE)) {
                 if (_buffers[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].gpuBuffer = static_cast<GLES3Buffer *>(_buffers[i])->gpuBuffer();
                 }
-            } else if (descriptors[i].type & DESCRIPTOR_TEXTURE_TYPE) {
+            } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
                 if (_textures[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].gpuTexture = static_cast<GLES3Texture *>(_textures[i])->gpuTexture();
                 }

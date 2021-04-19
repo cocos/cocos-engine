@@ -69,7 +69,7 @@ void DescriptorSetValidator::bindBuffer(uint binding, Buffer *buffer, uint index
     CCASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size(), "Illegal binding");
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
-    CCASSERT(info.descriptorType & DESCRIPTOR_BUFFER_TYPE, "Setting binding is not DESCRIPTOR_BUFFER_TYPE");
+    CCASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_BUFFER_TYPE), "Setting binding is not DESCRIPTOR_BUFFER_TYPE");
 
     /////////// execute ///////////
 
@@ -84,7 +84,7 @@ void DescriptorSetValidator::bindTexture(uint binding, Texture *texture, uint in
     CCASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size(), "Illegal binding");
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
-    CCASSERT(info.descriptorType & DESCRIPTOR_TEXTURE_TYPE, "Setting binding is not DESCRIPTOR_TEXTURE_TYPE");
+    CCASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_TEXTURE_TYPE), "Setting binding is not DESCRIPTOR_TEXTURE_TYPE");
 
     /////////// execute ///////////
 
@@ -99,7 +99,7 @@ void DescriptorSetValidator::bindSampler(uint binding, Sampler *sampler, uint in
     CCASSERT(binding < bindingIndices.size() && bindingIndices[binding] < bindings.size(), "Illegal binding");
 
     const DescriptorSetLayoutBinding &info = bindings[bindingIndices[binding]];
-    CCASSERT(info.descriptorType & DESCRIPTOR_TEXTURE_TYPE, "Setting binding is not DESCRIPTOR_TEXTURE_TYPE");
+    CCASSERT(hasAnyFlags(info.descriptorType, DESCRIPTOR_TEXTURE_TYPE), "Setting binding is not DESCRIPTOR_TEXTURE_TYPE");
 
     /////////// execute ///////////
 

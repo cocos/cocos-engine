@@ -30,22 +30,6 @@
 namespace cc {
 namespace gfx {
 
-const DescriptorType DESCRIPTOR_BUFFER_TYPE = DescriptorType::STORAGE_BUFFER |
-                                              DescriptorType::DYNAMIC_STORAGE_BUFFER |
-                                              DescriptorType::UNIFORM_BUFFER |
-                                              DescriptorType::DYNAMIC_UNIFORM_BUFFER;
-
-const DescriptorType DESCRIPTOR_TEXTURE_TYPE = DescriptorType::SAMPLER_TEXTURE |
-                                               DescriptorType::SAMPLER |
-                                               DescriptorType::TEXTURE |
-                                               DescriptorType::STORAGE_IMAGE |
-                                               DescriptorType::INPUT_ATTACHMENT;
-
-const DescriptorType DESCRIPTOR_DYNAMIC_TYPE = DescriptorType::DYNAMIC_STORAGE_BUFFER |
-                                               DescriptorType::DYNAMIC_UNIFORM_BUFFER;
-
-const uint DRAW_INFO_SIZE = 28U;
-
 const FormatInfo GFX_FORMAT_INFOS[] = {
     {"UNKNOWN", 0, 0, FormatType::NONE, false, false, false, false},
     {"A8", 1, 1, FormatType::UNORM, true, false, false, false},

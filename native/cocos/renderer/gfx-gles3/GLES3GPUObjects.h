@@ -107,7 +107,7 @@ struct GLES3GPUInput final {
 using GLES3GPUInputList = vector<GLES3GPUInput>;
 
 struct GLES3GPUUniform final {
-    uint   binding = GFX_INVALID_BINDING;
+    uint   binding = INVALID_BINDING;
     String name;
     Type   type   = Type::UNKNOWN;
     uint   stride = 0;
@@ -120,8 +120,8 @@ struct GLES3GPUUniform final {
 using GLES3GPUUniformList = vector<GLES3GPUUniform>;
 
 struct GLES3GPUUniformBuffer final {
-    uint   set     = GFX_INVALID_BINDING;
-    uint   binding = GFX_INVALID_BINDING;
+    uint   set     = INVALID_BINDING;
+    uint   binding = INVALID_BINDING;
     String name;
     uint   size      = 0;
     uint   glBinding = 0xffffffff;
@@ -299,7 +299,7 @@ struct GLES3ObjectCache final {
     GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
     uint                    reverseCW         = 0U;
     GLenum                  glPrimitive       = 0;
-    GLenum                  invalidAttachments[GFX_MAX_ATTACHMENTS];
+    GLenum                  invalidAttachments[MAX_ATTACHMENTS];
 };
 
 class GLES3GPUStateCache final : public Object {

@@ -61,11 +61,11 @@ void CCMTLDescriptorSet::update() {
     if (_isDirty && _gpuDescriptorSet) {
         const auto &descriptors = _gpuDescriptorSet->gpuDescriptors;
         for (size_t i = 0; i < descriptors.size(); i++) {
-            if (descriptors[i].type & DESCRIPTOR_BUFFER_TYPE) {
+            if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_BUFFER_TYPE)) {
                 if (_buffers[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].buffer = static_cast<CCMTLBuffer *>(_buffers[i]);
                 }
-            } else if (descriptors[i].type & DESCRIPTOR_TEXTURE_TYPE) {
+            } else if (hasAnyFlags(descriptors[i].type, DESCRIPTOR_TEXTURE_TYPE)) {
                 if (_textures[i]) {
                     _gpuDescriptorSet->gpuDescriptors[i].texture = static_cast<CCMTLTexture *>(_textures[i]);
                 }

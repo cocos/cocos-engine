@@ -43,7 +43,7 @@ void CCMTLDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
 
     for (size_t i = 0; i < _bindings.size(); i++) {
         const auto binding = _bindings[i];
-        if (binding.descriptorType & DESCRIPTOR_DYNAMIC_TYPE) {
+        if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_DYNAMIC_TYPE)) {
             for (uint j = 0; j < binding.count; j++) {
                 _gpuDescriptorSetLayout->dynamicBindings.push_back(binding.binding);
             }

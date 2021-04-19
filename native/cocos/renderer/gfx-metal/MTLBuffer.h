@@ -46,7 +46,7 @@ public:
     CCMTLBuffer &operator=(const CCMTLBuffer &) = default;
     CCMTLBuffer &operator=(CCMTLBuffer &&) = delete;
 
-    void update(void *buffer, uint offset) override;
+    void update(const void *buffer, uint offset) override;
 
     void encodeBuffer(CCMTLCommandEncoder &encoder, uint offset, uint binding, ShaderStageFlags stages);
 
@@ -62,7 +62,7 @@ protected:
     void doResize(uint size, uint count) override;
 
     bool createMTLBuffer(uint size, MemoryUsage usage);
-    void updateMTLBuffer(void *buffer, uint offset, uint size);
+    void updateMTLBuffer(const void *buffer, uint offset, uint size);
 
     id<MTLBuffer> _mtlBuffer = nullptr;
     MTLIndexType _indexType = MTLIndexTypeUInt16;

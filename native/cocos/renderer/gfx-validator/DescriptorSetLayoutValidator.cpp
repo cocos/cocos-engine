@@ -40,7 +40,7 @@ DescriptorSetLayoutValidator::~DescriptorSetLayoutValidator() {
 
 void DescriptorSetLayoutValidator::doInit(const DescriptorSetLayoutInfo &info) {
     for (const DescriptorSetLayoutBinding &binding : info.bindings) {
-        CCASSERT(binding.binding != GFX_INVALID_BINDING, "Invalid binding");
+        CCASSERT(binding.binding != INVALID_BINDING, "Invalid binding");
         CCASSERT(binding.descriptorType != DescriptorType::UNKNOWN, "Invalid binding type");
         CCASSERT(binding.count, "Invalid binding count");
         CCASSERT(binding.stageFlags != ShaderStageFlagBit::NONE, "Invalid binding stage flags");

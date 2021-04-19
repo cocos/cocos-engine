@@ -33,7 +33,7 @@ namespace gfx {
 class CC_DLL PipelineState : public GFXObject {
 public:
     PipelineState();
-    virtual ~PipelineState();
+    ~PipelineState() override;
 
     void initialize(const PipelineStateInfo &info);
     void destroy();
@@ -62,6 +62,7 @@ protected:
     DepthStencilState _depthStencilState;
     BlendState        _blendState;
     RenderPass *      _renderPass     = nullptr;
+    uint              _subpass        = 0U;
     PipelineLayout *  _pipelineLayout = nullptr;
 };
 

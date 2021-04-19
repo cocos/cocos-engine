@@ -616,10 +616,10 @@ const GLenum GL_MEMORY_ACCESS[] = {
 } // namespace
 
 void cmdFuncGLES3CreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
-    GLenum            glUsage       = (gpuBuffer->memUsage & MemoryUsageBit::HOST ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
+    GLenum            glUsage       = hasFlag(gpuBuffer->memUsage, MemoryUsageBit::HOST) ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW;
     GLES3ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
 
-    if (gpuBuffer->usage & BufferUsageBit::VERTEX) {
+    if (hasFlag(gpuBuffer->usage, BufferUsageBit::VERTEX)) {
         gpuBuffer->glTarget = GL_ARRAY_BUFFER;
         GL_CHECK(glGenBuffers(1, &gpuBuffer->glBuffer));
         if (gpuBuffer->size) {
@@ -639,7 +639,7 @@ void cmdFuncGLES3CreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
             device->stateCache()->glArrayBuffer = 0;
         }
-    } else if (gpuBuffer->usage & BufferUsageBit::INDEX) {
+    } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDEX)) {
         gpuBuffer->glTarget = GL_ELEMENT_ARRAY_BUFFER;
         GL_CHECK(glGenBuffers(1, &gpuBuffer->glBuffer));
         if (gpuBuffer->size) {
@@ -659,7 +659,7 @@ void cmdFuncGLES3CreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
             device->stateCache()->glElementArrayBuffer = 0;
         }
-    } else if (gpuBuffer->usage & BufferUsageBit::UNIFORM) {
+    } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::UNIFORM)) {
         gpuBuffer->glTarget = GL_UNIFORM_BUFFER;
         GL_CHECK(glGenBuffers(1, &gpuBuffer->glBuffer));
         if (gpuBuffer->size) {
@@ -671,7 +671,7 @@ void cmdFuncGLES3CreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, 0));
             device->stateCache()->glUniformBuffer = 0;
         }
-    } else if (gpuBuffer->usage & BufferUsageBit::STORAGE) {
+    } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::STORAGE)) {
         gpuBuffer->glTarget = GL_SHADER_STORAGE_BUFFER;
         GL_CHECK(glGenBuffers(1, &gpuBuffer->glBuffer));
         if (gpuBuffer->size) {
@@ -683,10 +683,10 @@ void cmdFuncGLES3CreateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
             device->stateCache()->glShaderStorageBuffer = 0;
         }
-    } else if (gpuBuffer->usage & BufferUsageBit::INDIRECT) {
+    } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
         gpuBuffer->glTarget = GL_NONE;
-    } else if ((gpuBuffer->usage & BufferUsageBit::TRANSFER_DST) ||
-               (gpuBuffer->usage & BufferUsageBit::TRANSFER_SRC)) {
+    } else if ((hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_DST)) ||
+               (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC))) {
         gpuBuffer->buffer   = static_cast<uint8_t *>(CC_MALLOC(gpuBuffer->size));
         gpuBuffer->glTarget = GL_NONE;
     } else {
@@ -699,7 +699,7 @@ void cmdFuncGLES3DestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
     GLES3ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
 
     if (gpuBuffer->glBuffer) {
-        if (gpuBuffer->usage & BufferUsageBit::VERTEX) {
+        if (hasFlag(gpuBuffer->usage, BufferUsageBit::VERTEX)) {
             if (USE_VAO) {
                 if (device->stateCache()->glVAO) {
                     GL_CHECK(glBindVertexArray(0));
@@ -711,7 +711,7 @@ void cmdFuncGLES3DestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
                 GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
                 device->stateCache()->glArrayBuffer = 0;
             }
-        } else if (gpuBuffer->usage & BufferUsageBit::INDEX) {
+        } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDEX)) {
             if (USE_VAO) {
                 if (device->stateCache()->glVAO) {
                     GL_CHECK(glBindVertexArray(0));
@@ -723,7 +723,7 @@ void cmdFuncGLES3DestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
                 GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
                 device->stateCache()->glElementArrayBuffer = 0;
             }
-        } else if (gpuBuffer->usage & BufferUsageBit::UNIFORM) {
+        } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::UNIFORM)) {
             vector<GLuint> &ubo = device->stateCache()->glBindUBOs;
             for (GLuint i = 0; i < ubo.size(); i++) {
                 if (ubo[i] == gpuBuffer->glBuffer) {
@@ -737,7 +737,7 @@ void cmdFuncGLES3DestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
                 device->stateCache()->glUniformBuffer = 0;
             }
         }
-        if (gpuBuffer->usage & BufferUsageBit::STORAGE) {
+        if (hasFlag(gpuBuffer->usage, BufferUsageBit::STORAGE)) {
             vector<GLuint> &ssbo = device->stateCache()->glBindSSBOs;
             for (GLuint i = 0; i < ssbo.size(); i++) {
                 if (ssbo[i] == gpuBuffer->glBuffer) {
@@ -760,9 +760,9 @@ void cmdFuncGLES3DestroyBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
 void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
     GLES3ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
 
-    GLenum glUsage = (gpuBuffer->memUsage & MemoryUsageBit::HOST ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
+    GLenum glUsage = (hasFlag(gpuBuffer->memUsage, MemoryUsageBit::HOST) ? GL_DYNAMIC_DRAW : GL_STATIC_DRAW);
 
-    if (gpuBuffer->usage & BufferUsageBit::VERTEX) {
+    if (hasFlag(gpuBuffer->usage, BufferUsageBit::VERTEX)) {
         gpuBuffer->glTarget = GL_ARRAY_BUFFER;
         if (gpuBuffer->size) {
             if (USE_VAO) {
@@ -781,7 +781,7 @@ void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
             device->stateCache()->glArrayBuffer = 0;
         }
-    } else if (gpuBuffer->usage & BufferUsageBit::INDEX) {
+    } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDEX)) {
         gpuBuffer->glTarget = GL_ELEMENT_ARRAY_BUFFER;
         if (gpuBuffer->size) {
             if (USE_VAO) {
@@ -800,7 +800,7 @@ void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
             device->stateCache()->glElementArrayBuffer = 0;
         }
-    } else if (gpuBuffer->usage & BufferUsageBit::UNIFORM) {
+    } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::UNIFORM)) {
         gpuBuffer->glTarget = GL_UNIFORM_BUFFER;
         if (gpuBuffer->size) {
             if (device->stateCache()->glUniformBuffer != gpuBuffer->glBuffer) {
@@ -811,11 +811,11 @@ void cmdFuncGLES3ResizeBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer) {
             GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, 0));
             device->stateCache()->glUniformBuffer = 0;
         }
-    } else if (gpuBuffer->usage & BufferUsageBit::INDIRECT) {
+    } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
         gpuBuffer->indirects.resize(gpuBuffer->count);
         gpuBuffer->glTarget = GL_NONE;
-    } else if ((gpuBuffer->usage & BufferUsageBit::TRANSFER_DST) ||
-               (gpuBuffer->usage & BufferUsageBit::TRANSFER_SRC)) {
+    } else if ((hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_DST)) ||
+               (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC))) {
         if (gpuBuffer->buffer) {
             CC_FREE(gpuBuffer->buffer);
         }
@@ -844,7 +844,7 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
                 }
                 uint w = gpuTexture->width;
                 uint h = gpuTexture->height;
-                if (gpuTexture->flags & TextureFlagBit::IMMUTABLE) {
+                if (hasFlag(gpuTexture->flags, TextureFlagBit::IMMUTABLE)) {
                     GL_CHECK(glTexStorage2D(GL_TEXTURE_2D, gpuTexture->mipLevel, gpuTexture->glInternelFmt, w, h));
                 } else {
                     if (!GFX_FORMAT_INFOS[static_cast<uint>(gpuTexture->format)].isCompressed) {
@@ -876,7 +876,7 @@ void cmdFuncGLES3CreateTexture(GLES3Device *device, GLES3GPUTexture *gpuTexture)
                 }
                 uint w = gpuTexture->width;
                 uint h = gpuTexture->height;
-                if (gpuTexture->flags & TextureFlagBit::IMMUTABLE) {
+                if (hasFlag(gpuTexture->flags, TextureFlagBit::IMMUTABLE)) {
                     GL_CHECK(glTexStorage2D(GL_TEXTURE_CUBE_MAP, gpuTexture->mipLevel, gpuTexture->glInternelFmt, w, h));
                 } else {
                     if (!GFX_FORMAT_INFOS[static_cast<uint>(gpuTexture->format)].isCompressed) {
@@ -1190,8 +1190,8 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         }
 
         glBlock.name    = glName;
-        glBlock.set     = GFX_INVALID_BINDING;
-        glBlock.binding = GFX_INVALID_BINDING;
+        glBlock.set     = INVALID_BINDING;
+        glBlock.binding = INVALID_BINDING;
         for (size_t b = 0; b < gpuShader->blocks.size(); ++b) {
             UniformBlock &block = gpuShader->blocks[b];
             if (block.name == glBlock.name) {
@@ -1215,8 +1215,8 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         }
 
         glBuffer.name      = glName;
-        glBuffer.set       = GFX_INVALID_BINDING;
-        glBuffer.binding   = GFX_INVALID_BINDING;
+        glBuffer.set       = INVALID_BINDING;
+        glBuffer.binding   = INVALID_BINDING;
         glBuffer.isStorage = true;
         for (size_t b = 0; b < gpuShader->blocks.size(); ++b) {
             UniformStorageBuffer &buffer = gpuShader->buffers[b];
@@ -1442,7 +1442,7 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
             device->stateCache()->glDrawFramebuffer = gpuFBO->glFramebuffer;
         }
 
-        GLenum attachments[GFX_MAX_ATTACHMENTS] = {0};
+        GLenum attachments[MAX_ATTACHMENTS] = {0};
         uint   attachmentCount                  = 0;
 
         size_t colorMipmapLevelCount = gpuFBO->colorMipmapLevels.size();
@@ -1568,7 +1568,7 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRen
                         }
 
                         if (hasBoundFBO) {
-                            static float fColors[4];
+                            static float fColors[4]{};
                             fColors[0] = clearColors[j].x;
                             fColors[1] = clearColors[j].y;
                             fColors[2] = clearColors[j].z;
@@ -2348,9 +2348,9 @@ void cmdFuncGLES3MemoryBarrier(GLES3Device * /*device*/, GLbitfield barriers, GL
 
 void cmdFuncGLES3UpdateBuffer(GLES3Device *device, GLES3GPUBuffer *gpuBuffer, const void *buffer, uint offset, uint size) {
     GLES3ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
-    if (gpuBuffer->usage & BufferUsageBit::INDIRECT) {
+    if (hasFlag(gpuBuffer->usage, BufferUsageBit::INDIRECT)) {
         memcpy(reinterpret_cast<uint8_t *>(gpuBuffer->indirects.data()) + offset, buffer, size);
-    } else if (gpuBuffer->usage & BufferUsageBit::TRANSFER_SRC) {
+    } else if (hasFlag(gpuBuffer->usage, BufferUsageBit::TRANSFER_SRC)) {
         memcpy(gpuBuffer->buffer + offset, buffer, size);
     } else {
         switch (gpuBuffer->glTarget) {
@@ -2559,7 +2559,7 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
             break;
     }
 
-    if (!isCompressed && gpuTexture->flags & TextureFlagBit::GEN_MIPMAP) {
+    if (!isCompressed && hasFlag(gpuTexture->flags, TextureFlagBit::GEN_MIPMAP)) {
         GL_CHECK(glBindTexture(gpuTexture->glTarget, gpuTexture->glTexture));
         GL_CHECK(glGenerateMipmap(gpuTexture->glTarget));
     }

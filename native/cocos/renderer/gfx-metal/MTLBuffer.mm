@@ -42,7 +42,7 @@ CCMTLBuffer::CCMTLBuffer() : Buffer() {
 
 void CCMTLBuffer::doInit(const BufferInfo &info) {
     _isIndirectDrawSupported = CCMTLDevice::getInstance()->isIndirectDrawSupported();
-    if (_usage & BufferUsage::INDEX) {
+    if (hasFlag(_usage, BufferUsage::INDEX)) {
         switch (_stride) {
             case 4: _indexType = MTLIndexTypeUInt32; break;
             case 2: _indexType = MTLIndexTypeUInt16; break;
@@ -52,11 +52,11 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
         }
     }
 
-    if (_usage & BufferUsageBit::VERTEX ||
-        _usage & BufferUsageBit::UNIFORM ||
-        _usage & BufferUsageBit::INDEX) {
+    if (hasFlag(_usage, BufferUsageBit::VERTEX) ||
+        hasFlag(_usage, BufferUsageBit::UNIFORM) ||
+        hasFlag(_usage, BufferUsageBit::INDEX)) {
         createMTLBuffer(_size, _memUsage);
-    } else if (_usage & BufferUsageBit::INDIRECT) {
+    } else if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         if (_isIndirectDrawSupported) {
             createMTLBuffer(_size, _memUsage);
             _primitiveIndirectArguments.resize(_count);
@@ -129,15 +129,15 @@ void CCMTLBuffer::doDestroy() {
 }
 
 void CCMTLBuffer::doResize(uint size, uint count) {
-    if (_usage & BufferUsageBit::VERTEX ||
-        _usage & BufferUsageBit::INDEX ||
-        _usage & BufferUsageBit::UNIFORM) {
+    if (hasFlag(_usage, BufferUsageBit::VERTEX) ||
+        hasFlag(_usage, BufferUsageBit::INDEX) ||
+        hasFlag(_usage, BufferUsageBit::UNIFORM)) {
         createMTLBuffer(size, _memUsage);
     }
 
     _size = size;
     _count = count;
-    if (_usage & BufferUsageBit::INDIRECT) {
+    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         if (_isIndirectDrawSupported) {
             createMTLBuffer(size, _memUsage);
             _primitiveIndirectArguments.resize(_count);
@@ -148,7 +148,7 @@ void CCMTLBuffer::doResize(uint size, uint count) {
     }
 }
 
-void CCMTLBuffer::update(void *buffer, uint size) {
+void CCMTLBuffer::update(const void *buffer, uint size) {
     if (_isBufferView) {
         CC_LOG_WARNING("Cannot update a buffer view.");
         return;
@@ -164,7 +164,7 @@ void CCMTLBuffer::update(void *buffer, uint size) {
         }
     }
 
-    if (_usage & BufferUsageBit::INDIRECT) {
+    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         if (_isIndirectDrawSupported) {
             if (drawInfoCount > 0) {
                 if (_isDrawIndirectByIndex) {
@@ -202,7 +202,7 @@ void CCMTLBuffer::update(void *buffer, uint size) {
     }
 }
 
-void CCMTLBuffer::updateMTLBuffer(void *buffer, uint /*offset*/, uint size) {
+void CCMTLBuffer::updateMTLBuffer(const void *buffer, uint /*offset*/, uint size) {
     if (_mtlBuffer) {
         CommandBuffer *cmdBuffer = CCMTLDevice::getInstance()->getCommandBuffer();
         cmdBuffer->begin();
@@ -220,17 +220,17 @@ void CCMTLBuffer::encodeBuffer(CCMTLCommandEncoder &encoder, uint offset, uint b
         offset += _bufferViewOffset;
     }
 
-    if (stages & ShaderStageFlagBit::VERTEX) {
+    if (hasFlag(stages, ShaderStageFlagBit::VERTEX)) {
         CCMTLRenderCommandEncoder* renderEncoder = static_cast<CCMTLRenderCommandEncoder*>(&encoder);
         renderEncoder->setVertexBuffer(_mtlBuffer, offset, binding);
     }
 
-    if (stages & ShaderStageFlagBit::FRAGMENT) {
+    if (hasFlag(stages, ShaderStageFlagBit::FRAGMENT)) {
         CCMTLRenderCommandEncoder* renderEncoder = static_cast<CCMTLRenderCommandEncoder*>(&encoder);
         renderEncoder->setFragmentBuffer(_mtlBuffer, offset, binding);
     }
-    
-    if(stages & ShaderStageFlagBit::COMPUTE) {
+
+    if(hasFlag(stages, ShaderStageFlagBit::COMPUTE)) {
         CCMTLComputeCommandEncoder* computeEncoder = static_cast<CCMTLComputeCommandEncoder*>(&encoder);
         computeEncoder->setBuffer(_mtlBuffer, offset, binding);
     }

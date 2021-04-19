@@ -68,7 +68,7 @@ void BufferAgent::doInit(const BufferViewInfo &info) {
         });
 }
 
-void BufferAgent::doResize(uint size, uint count) {
+void BufferAgent::doResize(uint size, uint /*count*/) {
     ENQUEUE_MESSAGE_2(
         DeviceAgent::getInstance()->getMessageQueue(),
         BufferResize,
@@ -89,8 +89,8 @@ void BufferAgent::doDestroy() {
         });
 }
 
-void BufferAgent::update(void *buffer, uint size) {
-    uint8_t *actorBuffer = DeviceAgent::getInstance()->getMainAllocator()->allocate<uint8_t>(size);
+void BufferAgent::update(const void *buffer, uint size) {
+    auto *actorBuffer = DeviceAgent::getInstance()->getMainAllocator()->allocate<uint8_t>(size);
     memcpy(actorBuffer, buffer, size);
 
     ENQUEUE_MESSAGE_3(

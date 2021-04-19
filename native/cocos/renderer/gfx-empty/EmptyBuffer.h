@@ -32,7 +32,7 @@ namespace gfx {
 
 class CC_DLL EmptyBuffer final : public Buffer {
 public:
-    void update(void *buffer, uint size) override;
+    void update(const void *buffer, uint size) override;
 
 protected:
     void doInit(const BufferInfo &info) override;

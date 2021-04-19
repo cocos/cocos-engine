@@ -335,6 +335,15 @@ void CommandBufferAgent::setStencilCompareMask(StencilFace face, int ref, uint m
         });
 }
 
+void CommandBufferAgent::nextSubpass() {
+    ENQUEUE_MESSAGE_1(
+        _messageQueue, CommandBufferNextSubpass,
+        actor, getActor(),
+        {
+            actor->nextSubpass();
+        });
+}
+
 void CommandBufferAgent::draw(const DrawInfo &info) {
     ENQUEUE_MESSAGE_2(
         _messageQueue, CommandBufferDraw,

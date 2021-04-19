@@ -39,7 +39,7 @@ public:
     CCVKBuffer();
     ~CCVKBuffer() override;
 
-    void update(void *buffer, uint size) override;
+    void update(const void *buffer, uint size) override;
 
     CC_INLINE CCVKGPUBuffer *gpuBuffer() const { return _gpuBuffer; }
     CC_INLINE CCVKGPUBufferView *gpuBufferView() const { return _gpuBufferView; }

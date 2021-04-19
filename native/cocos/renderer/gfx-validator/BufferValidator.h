@@ -36,7 +36,7 @@ public:
     using Agent::Agent;
     ~BufferValidator() override;
 
-    void update(void *buffer, uint size) override;
+    void update(const void *buffer, uint size) override;
 
     void updateRedundencyCheck();
 
@@ -48,7 +48,7 @@ protected:
 
     vector<uint8_t> _buffer;
 
-    uint _lastUpdateFrame = 0u;
+    uint _lastUpdateFrame = 0U;
 };
 
 } // namespace gfx

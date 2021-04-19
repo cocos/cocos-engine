@@ -111,7 +111,7 @@ struct GLES2GPUInput final {
 using GLES2GPUInputList = vector<GLES2GPUInput>;
 
 struct GLES2GPUUniform final {
-    uint     binding = GFX_INVALID_BINDING;
+    uint     binding = INVALID_BINDING;
     String   name;
     Type     type   = Type::UNKNOWN;
     uint     stride = 0;
@@ -302,7 +302,7 @@ struct GLES2ObjectCache final {
     GLES2GPUInputAssembler *gpuInputAssembler = nullptr;
     bool                    reverseCW         = false;
     GLenum                  glPrimitive       = 0;
-    GLenum                  invalidAttachments[GFX_MAX_ATTACHMENTS];
+    GLenum                  invalidAttachments[MAX_ATTACHMENTS];
 };
 
 class GLES2GPUStateCache final : public Object {

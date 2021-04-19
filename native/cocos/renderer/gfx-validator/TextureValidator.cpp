@@ -42,7 +42,7 @@ unordered_map<Format, Feature> featureCheckMap{
     {Format::D32F_S8, Feature::FORMAT_D32FS8},
     {Format::RGB8, Feature::FORMAT_RGB8},
 };
-}
+}  // namespace
 
 TextureValidator::~TextureValidator() {
     DeviceResourceTracker<Texture>::erase(this);
@@ -51,6 +51,10 @@ TextureValidator::~TextureValidator() {
 
 void TextureValidator::doInit(const TextureInfo &info) {
     CCASSERT(!featureCheckMap.count(_format) || DeviceValidator::getInstance()->hasFeature(featureCheckMap[_format]), "unsupported format");
+
+    // Potentially inefficient
+    static const TextureUsageBit INEFFICIENT_MASK{TextureUsageBit::INPUT_ATTACHMENT | TextureUsageBit::SAMPLED};
+    CCASSERT((info.usage & INEFFICIENT_MASK) != INEFFICIENT_MASK, "Both SAMPLED and INPUT_ATTACHMENT are specified?");
 
     _actor->initialize(info);
 }
@@ -66,7 +70,7 @@ void TextureValidator::doDestroy() {
     _actor->destroy();
 }
 
-void TextureValidator::doResize(uint width, uint height, uint size) {
+void TextureValidator::doResize(uint width, uint height, uint /*size*/) {
     CCASSERT(!_isTextureView, "Cannot resize texture views");
 
     _actor->resize(width, height);

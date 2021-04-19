@@ -64,7 +64,6 @@ class DescriptorSetLayout;
 class PipelineLayout;
 class PipelineState;
 class DescriptorSet;
-class CommandAllocator;
 class CommandBuffer;
 class Queue;
 class Window;
@@ -74,8 +73,9 @@ using TextureBarrierList = vector<TextureBarrier *>;
 using BufferDataList     = vector<const uint8_t *>;
 using CommandBufferList  = vector<CommandBuffer *>;
 
-#define GFX_MAX_ATTACHMENTS 4
-#define GFX_INVALID_BINDING ((uint)-1)
+constexpr uint MAX_ATTACHMENTS  = 4U;
+constexpr uint INVALID_BINDING  = static_cast<uint>(-1);
+constexpr uint SUBPASS_EXTERNAL = static_cast<uint>(-1);
 
 using BufferList              = vector<Buffer *>;
 using TextureList             = vector<Texture *>;
@@ -419,7 +419,7 @@ enum class MemoryUsageBit : FlagBits {
     HOST   = 0x2,
 };
 using MemoryUsage = MemoryUsageBit;
-CC_ENUM_OPERATORS(MemoryUsageBit);
+CC_ENUM_OPERATORS(MemoryUsageBit)
 
 enum class TextureType {
     TEX1D,
@@ -438,11 +438,10 @@ enum class TextureUsageBit : FlagBits {
     STORAGE                  = 0x8,
     COLOR_ATTACHMENT         = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
-    TRANSIENT_ATTACHMENT     = 0x40,
-    INPUT_ATTACHMENT         = 0x80,
+    INPUT_ATTACHMENT         = 0x40,
 };
 using TextureUsage = TextureUsageBit;
-CC_ENUM_OPERATORS(TextureUsageBit);
+CC_ENUM_OPERATORS(TextureUsageBit)
 
 enum class TextureFlagBit : FlagBits {
     NONE       = 0,
@@ -450,7 +449,7 @@ enum class TextureFlagBit : FlagBits {
     IMMUTABLE  = 0x2,
 };
 using TextureFlags = TextureFlagBit;
-CC_ENUM_OPERATORS(TextureFlagBit);
+CC_ENUM_OPERATORS(TextureFlagBit)
 
 enum class SampleCount {
     X1,
@@ -532,7 +531,7 @@ enum class ColorMask : FlagBits {
     A    = 0x8,
     ALL  = R | G | B | A,
 };
-CC_ENUM_OPERATORS(ColorMask);
+CC_ENUM_OPERATORS(ColorMask)
 
 enum class ShaderStageFlagBit : FlagBits {
     NONE       = 0x0,
@@ -545,7 +544,7 @@ enum class ShaderStageFlagBit : FlagBits {
     ALL        = 0x3f,
 };
 using ShaderStageFlags = ShaderStageFlagBit;
-CC_ENUM_OPERATORS(ShaderStageFlagBit);
+CC_ENUM_OPERATORS(ShaderStageFlagBit)
 
 enum class LoadOp {
     LOAD,    // Load the contents from the fbo from previous
@@ -648,7 +647,7 @@ enum class DynamicStateFlagBit : FlagBits {
     STENCIL_COMPARE_MASK = 0x80,
 };
 using DynamicStateFlags = DynamicStateFlagBit;
-CC_ENUM_OPERATORS(DynamicStateFlagBit);
+CC_ENUM_OPERATORS(DynamicStateFlagBit)
 
 using DynamicStateList = vector<DynamicStateFlagBit>;
 
@@ -670,7 +669,7 @@ enum class DescriptorType : FlagBits {
     STORAGE_IMAGE          = 0x80,
     INPUT_ATTACHMENT       = 0x100,
 };
-CC_ENUM_OPERATORS(DescriptorType);
+CC_ENUM_OPERATORS(DescriptorType)
 
 enum class QueueType {
     GRAPHICS,
@@ -692,7 +691,7 @@ enum class ClearFlagBit : FlagBits {
     ALL           = COLOR | DEPTH | STENCIL,
 };
 using ClearFlags = ClearFlagBit;
-CC_ENUM_OPERATORS(ClearFlagBit);
+CC_ENUM_OPERATORS(ClearFlagBit)
 
 struct Size {
     uint x = 0U;
@@ -1071,15 +1070,25 @@ struct SubpassInfo {
     std::vector<uint> colors;
     std::vector<uint> resolves;
     std::vector<uint> preserves;
-    uint              depthStencil = GFX_INVALID_BINDING;
+    uint              depthStencil = INVALID_BINDING;
 };
 
 using SubpassInfoList = vector<SubpassInfo>;
+
+struct SubpassDependency {
+    uint                    srcSubpass = 0U;
+    uint                    dstSubpass = 0U;
+    std::vector<AccessType> srcAccesses;
+    std::vector<AccessType> dstAccesses;
+};
+
+using SubpassDependencyList = vector<SubpassDependency>;
 
 struct RenderPassInfo {
     ColorAttachmentList    colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
     SubpassInfoList        subpasses;
+    SubpassDependencyList  dependencies;
 };
 
 struct GlobalBarrierInfo {
@@ -1108,7 +1117,7 @@ struct FramebufferInfo {
 };
 
 struct DescriptorSetLayoutBinding {
-    uint             binding        = GFX_INVALID_BINDING;
+    uint             binding        = INVALID_BINDING;
     DescriptorType   descriptorType = DescriptorType::UNKNOWN;
     uint             count          = 0;
     ShaderStageFlags stageFlags     = ShaderStageFlagBit::NONE;
@@ -1204,6 +1213,7 @@ struct PipelineStateInfo {
     PrimitiveMode     primitive     = PrimitiveMode::TRIANGLE_LIST;
     DynamicStateFlags dynamicStates = DynamicStateFlagBit::NONE;
     PipelineBindPoint bindPoint     = PipelineBindPoint::GRAPHICS;
+    uint              subpass       = 0U;
 };
 
 struct CommandBufferInfo {

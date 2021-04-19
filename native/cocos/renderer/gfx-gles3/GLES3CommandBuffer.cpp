@@ -242,6 +242,9 @@ void GLES3CommandBuffer::setStencilCompareMask(StencilFace face, int ref, uint m
     }
 }
 
+void GLES3CommandBuffer::nextSubpass() {
+}
+
 void GLES3CommandBuffer::draw(const DrawInfo &info) {
     if (_isStateInvalid) {
         bindStates();

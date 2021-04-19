@@ -91,7 +91,7 @@ void PostprocessStage::render(Camera *camera) {
     _pipeline->getPipelineUBO()->updateCameraUBO(camera, camera->getWindow()->hasOffScreenAttachments);
     gfx::Rect renderArea = pp->getRenderArea(camera, !camera->getWindow()->hasOffScreenAttachments);
 
-    if (static_cast<gfx::ClearFlags>(camera->clearFlag) & gfx::ClearFlagBit::COLOR) {
+    if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
         _clearColors[0].x = camera->clearColor.x;
         _clearColors[0].y = camera->clearColor.y;
         _clearColors[0].z = camera->clearColor.z;
@@ -101,7 +101,7 @@ void PostprocessStage::render(Camera *camera) {
 
     gfx::Framebuffer *fb = camera->getWindow()->getFramebuffer();
     const auto &colorTextures = fb->getColorTextures();
-    gfx::RenderPass *rp = !colorTextures.empty() && colorTextures[0] ? 
+    gfx::RenderPass *rp = !colorTextures.empty() && colorTextures[0] ?
         fb->getRenderPass() : pp->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->clearFlag));
 
     cmdBf->beginRenderPass(rp, fb, renderArea, _clearColors, camera->clearDepth, camera->clearStencil);
@@ -112,7 +112,7 @@ void PostprocessStage::render(Camera *camera) {
     PassView *pv = sceneData->getSharedData()->getDeferredPostPass();
     gfx::Shader *sd = sceneData->getSharedData()->getDeferredPostPassShader();
     const auto &renderObjects = sceneData->getRenderObjects();
-    
+
     if (!renderObjects.empty()) {
         gfx::InputAssembler *ia = camera->getWindow()->hasOffScreenAttachments ? pp->getQuadIAOffScreen() : pp->getQuadIAOnScreen();
         gfx::PipelineState *pso = PipelineStateManager::getOrCreatePipelineState(pv, sd, ia, rp);
@@ -122,7 +122,7 @@ void PostprocessStage::render(Camera *camera) {
         cmdBf->bindInputAssembler(ia);
         cmdBf->draw(ia);
     }
-    
+
     // transparent
     for (auto *queue : _renderQueues) {
         queue->clear();
@@ -136,7 +136,7 @@ void PostprocessStage::render(Camera *camera) {
         const auto *const subModelID = model->getSubModelID();
         const auto subModelCount = subModelID[0];
         for (m = 1; m <= subModelCount; ++m) {
-            const auto *subModel = model->getSubModelView(subModelID[m]);
+            const auto *subModel = cc::pipeline::ModelView::getSubModelView(subModelID[m]);
             for (p = 0; p < subModel->passCount; ++p) {
                 const PassView *pass = subModel->getPassView(p);
                 // TODO(xwx): need fallback of ulit and gizmo material.
@@ -147,7 +147,7 @@ void PostprocessStage::render(Camera *camera) {
             }
         }
     }
-    
+
     for (auto *queue : _renderQueues) {
         queue->sort();
         queue->recordCommandBuffer(_device, rp, cmdBf);

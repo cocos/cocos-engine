@@ -280,12 +280,12 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         VK_CHECK(vkCreateWin32SurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 #elif defined(VK_USE_PLATFORM_METAL_EXT)
         VkMetalSurfaceCreateInfoEXT surfaceCreateInfo{VK_STRUCTURE_TYPE_METAL_SURFACE_CREATE_INFO_EXT};
-        surfaceCreateInfo.pLayer = static_cast<CAMetalLayer *>(_windowHandle);
+        surfaceCreateInfo.pLayer = reinterpret_cast<CAMetalLayer *>(_windowHandle);
         VK_CHECK(vkCreateMetalSurfaceEXT(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 #elif defined(VK_USE_PLATFORM_WAYLAND_KHR)
         VkWaylandSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR};
         surfaceCreateInfo.display = nullptr; // TODO
-        surfaceCreateInfo.surface = static_cast<wl_surface *>(_windowHandle);
+        surfaceCreateInfo.surface = reinterpret_cast<wl_surface *>(_windowHandle);
         VK_CHECK(vkCreateWaylandSurfaceKHR(_gpuContext->vkInstance, &surfaceCreateInfo, nullptr, &_gpuContext->vkSurface));
 #elif defined(VK_USE_PLATFORM_XCB_KHR)
         VkXcbSurfaceCreateInfoKHR surfaceCreateInfo{VK_STRUCTURE_TYPE_XCB_SURFACE_CREATE_INFO_KHR};

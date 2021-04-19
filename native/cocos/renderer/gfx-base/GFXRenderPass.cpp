@@ -199,6 +199,7 @@ void RenderPass::initialize(const RenderPassInfo &info) {
     _colorAttachments       = info.colorAttachments;
     _depthStencilAttachment = info.depthStencilAttachment;
     _subpasses              = info.subpasses;
+    _dependencies           = info.dependencies;
     _hash                   = computeHash();
 
     doInit(info);

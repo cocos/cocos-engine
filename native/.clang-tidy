@@ -5,6 +5,7 @@
 # -modernize-avoid-c-arrays
 #       Legacy reasons
 #
+# -bugprone-macro-parentheses: This conflicts with our usages
 # -modernize-concat-nested-namespaces: More flexible not concated
 # -modernize-use-nodiscard: No C++17 specific rules for now
 # -modernize-use-trailing-return-type: It is acceptable to return a function call at the end of a function
@@ -28,6 +29,7 @@ Checks: >
     -misc-non-private-member-variables-in-classes,
     -modernize-avoid-c-arrays,
 
+    -bugprone-macro-parentheses,
     -modernize-concat-nested-namespaces,
     -modernize-use-nodiscard,
     -modernize-use-trailing-return-type,

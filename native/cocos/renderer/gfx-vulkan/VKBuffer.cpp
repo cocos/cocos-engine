@@ -47,7 +47,7 @@ void CCVKBuffer::doInit(const BufferInfo & /*info*/) {
     _gpuBuffer->stride = _stride;
     _gpuBuffer->count = _count;
 
-    if (_usage & BufferUsageBit::INDIRECT) {
+    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         const size_t drawInfoCount = _size / sizeof(DrawInfo);
         _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
         _gpuBuffer->indirectCmds.resize(drawInfoCount);
@@ -100,14 +100,14 @@ void CCVKBuffer::doResize(uint size, uint count) {
 
     createBufferView();
 
-    if (_usage & BufferUsageBit::INDIRECT) {
+    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         const size_t drawInfoCount = _size / sizeof(DrawInfo);
         _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
         _gpuBuffer->indirectCmds.resize(drawInfoCount);
     }
 }
 
-void CCVKBuffer::update(void *buffer, uint size) {
+void CCVKBuffer::update(const void *buffer, uint size) {
     cmdFuncCCVKUpdateBuffer(CCVKDevice::getInstance(), _gpuBuffer, buffer, size, nullptr);
 }
 

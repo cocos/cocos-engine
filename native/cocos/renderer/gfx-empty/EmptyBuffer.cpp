@@ -40,7 +40,7 @@ void EmptyBuffer::doResize(uint size, uint count) {
 void EmptyBuffer::doDestroy() {
 }
 
-void EmptyBuffer::update(void *buffer, uint size) {
+void EmptyBuffer::update(const void *buffer, uint size) {
 }
 
 } // namespace gfx

@@ -151,11 +151,11 @@ bool CCMTLShader::createMTLFunction(const ShaderStage &stage) {
 }
 
 uint CCMTLShader::getAvailableBufferBindingIndex(ShaderStageFlagBit stage, uint stream) {
-    if (stage & ShaderStageFlagBit::VERTEX) {
+    if (hasFlag(stage, ShaderStageFlagBit::VERTEX)) {
         return _availableVertexBufferBindingIndex.at(stream);
     }
 
-    if (stage & ShaderStageFlagBit::FRAGMENT) {
+    if (hasFlag(stage, ShaderStageFlagBit::FRAGMENT)) {
         return _availableFragmentBufferBindingIndex.at(stream);
     }
 
@@ -169,11 +169,11 @@ void CCMTLShader::setAvailableBufferBindingIndex() {
     uint vertexBindingCount               = 0;
     uint fragmentBindingCount             = 0;
     for (const auto &block : _gpuShader->blocks) {
-        if (block.second.stages & ShaderStageFlagBit::VERTEX) {
+        if (hasFlag(block.second.stages, ShaderStageFlagBit::VERTEX)) {
             vertexBindingCount++;
             usedVertexBufferBindingIndexes |= 1 << block.second.mappedBinding;
         }
-        if (block.second.stages & ShaderStageFlagBit::FRAGMENT) {
+        if (hasFlag(block.second.stages, ShaderStageFlagBit::FRAGMENT)) {
             fragmentBindingCount++;
             usedFragmentBufferBindingIndexes |= 1 << block.second.mappedBinding;
         }
