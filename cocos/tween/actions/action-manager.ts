@@ -256,7 +256,9 @@ export class ActionManager {
             if (element.actions != null) {
                 for (let i = 0; i < element.actions.length; ++i) {
                     const action = element.actions[i];
-                    if (action && action.getTag() === tag) return action;
+                    if (action && action.getTag() === tag) {
+                        return action as Action;
+                    }
                 }
             }
             logID(1005, tag);
