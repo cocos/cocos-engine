@@ -243,13 +243,20 @@ class PhysicsWorld {
 }
 
 function bookNode (v) {
-    const idx = books.indexOf(v);
-    if (idx < 0) { books.push(v); }
+    if (v._physicsBookIndex === undefined) {
+        v._physicsBookIndex = books.length;
+        books.push(v);
+    }
 }
 
 function unBookNode (v) {
-    const idx = books.indexOf(v);
-    if (idx >= 0) { books.splice(idx, 1); }
+    const index = v._physicsBookIndex;
+    if (index !== undefined) {
+        v._physicsBookIndex = undefined;
+        books[index] = books[books.length - 1];
+        books[index]._physicsBookIndex = index;
+        books.length -= 1;
+    }
 }
 
 function updateCollisionMatrix () {
