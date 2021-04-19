@@ -117,7 +117,10 @@ class Shape {
         this._impl.initialize(v.node.handle);
         bookNode(v.node);
     }
-    onLoad () { }
+    onLoad () {
+        this.setCenter(this._com.center);
+        this.setAsTrigger(this._com.isTrigger);
+    }
     onEnable () { this._impl.onEnable(); }
     onDisable () { this._impl.onDisable(); }
     onDestroy () { unBookNode(this._com.node); this._impl.onDestroy(); }
@@ -138,11 +141,19 @@ class Shape {
 class SphereShape extends Shape {
     constructor() { super(); this._impl = new jsbPhy.SphereShape(); }
     setRadius (v) { this._impl.setRadius(v); }
+    onLoad () {
+        super.onLoad();
+        this.setRadius(this._com.radius);
+    }
 }
 
 class BoxShape extends Shape {
     constructor() { super(); this._impl = new jsbPhy.BoxShape(); }
     setSize (v) { this._impl.setSize(v.x, v.y, v.z); }
+    onLoad () {
+        super.onLoad();
+        this.setSize(this._com.size);
+    }
 }
 
 class CapsuleShape extends Shape {
@@ -150,12 +161,49 @@ class CapsuleShape extends Shape {
     setRadius (v) { this._impl.setRadius(v); }
     setDirection (v) { this._impl.setDirection(v); }
     setCylinderHeight (v) { this._impl.setCylinderHeight(v); }
+    onLoad () {
+        super.onLoad();
+        this.setRadius(this._com.radius);
+        this.setDirection(this._com.direction);
+        this.setCylinderHeight(this._com.cylinderHeight);
+    }
 }
 
 class PlaneShape extends Shape {
     constructor() { super(); this._impl = new jsbPhy.PlaneShape(); }
     setConstant (v) { this._impl.setConstant(v); }
     setNormal (v) { this._impl.setNormal(v.x, v.y, v.z); }
+    onLoad () {
+        super.onLoad();
+        this.setNormal(this._com.normal);
+        this.setConstant(this._com.constant);
+    }
+}
+
+class CylinderShape extends Shape {
+    constructor() { super(); this._impl = new jsbPhy.CylinderShape(); }
+    setRadius (v) { this._impl.setRadius(v); }
+    setDirection (v) { this._impl.setDirection(v); }
+    setHeight (v) { this._impl.setHeight(v); }
+    onLoad () {
+        super.onLoad();
+        this.setRadius(this._com.radius);
+        this.setDirection(this._com.direction);
+        this.setHeight(this._com.height);
+    }
+}
+
+class ConeShape extends Shape {
+    constructor() { super(); this._impl = new jsbPhy.ConeShape(); }
+    setRadius (v) { this._impl.setRadius(v); }
+    setDirection (v) { this._impl.setDirection(v); }
+    setHeight (v) { this._impl.setHeight(v); }
+    onLoad () {
+        super.onLoad();
+        this.setRadius(this._com.radius);
+        this.setDirection(this._com.direction);
+        this.setHeight(this._com.height);
+    }
 }
 
 cc.physics.selector.select("physx", {
@@ -163,12 +211,12 @@ cc.physics.selector.select("physx", {
     RigidBody: RigidBody,
     SphereShape: SphereShape,
     BoxShape: BoxShape,
-    // CapsuleShape: PhysXCapsuleShape,
-    // TrimeshShape: PhysXTrimeshShape,
-    // CylinderShape: PhysXCylinderShape,
+    PlaneShape: PlaneShape,
+    CapsuleShape: CapsuleShape,
     // ConeShape: PhysXConeShape,
+    // CylinderShape: PhysXCylinderShape,
+    // TrimeshShape: PhysXTrimeshShape,
     // TerrainShape: PhysXTerrainShape,
-    // PlaneShape: PhysXPlaneShape,
     // PointToPointConstraint: PhysXDistanceJoint,
     // HingeConstraint: PhysXRevoluteJoint
 });
