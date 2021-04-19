@@ -106,7 +106,7 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   finalColor += s.emissive;
 
   #if CC_RECEIVE_SHADOW
-    CC_SHADOW_FACTOR_BASE(finalColor, NL, shadowPos);
+    CC_SHADOW_FACTOR_BASE(finalColor, NL, shadowPos, L, N);
   #endif
 
   return vec4(finalColor, s.albedo.a);
