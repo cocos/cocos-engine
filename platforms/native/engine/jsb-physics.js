@@ -380,37 +380,81 @@ class PlaneShape extends Shape {
     }
 }
 
-class CylinderShape extends Shape {
-    constructor() { super(); this._impl = new jsbPhy.CylinderShape(); }
-    setRadius (v) { this._impl.setRadius(v); }
-    setDirection (v) { this._impl.setDirection(v); }
-    setHeight (v) { this._impl.setHeight(v); }
-    onLoad () {
-        super.onLoad();
-        this.setRadius(this._com.radius);
-        this.setDirection(this._com.direction);
-        this.setHeight(this._com.height);
-    }
-}
-
-class ConeShape extends Shape {
-    constructor() { super(); this._impl = new jsbPhy.ConeShape(); }
-    setRadius (v) { this._impl.setRadius(v); }
-    setDirection (v) { this._impl.setDirection(v); }
-    setHeight (v) { this._impl.setHeight(v); }
-    onLoad () {
-        super.onLoad();
-        this.setRadius(this._com.radius);
-        this.setDirection(this._com.direction);
-        this.setHeight(this._com.height);
-    }
-}
 
 jsbPhy['CACHE'] = {
     trimesh: {},
     convex: {},
     heightField: {},
 };
+
+function getConvexMesh (v) {
+    if (!jsbPhy.CACHE.convex[v._uuid]) {
+        const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
+        const world = cc.PhysicsSystem.instance.physicsWorld.impl;
+        const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 }
+        jsbPhy.CACHE.convex[v._uuid] = world.createConvex(convex);
+    }
+    return jsbPhy.CACHE.convex[v._uuid];
+}
+
+function getTriangleMesh (v) {
+    if (!jsbPhy.CACHE.trimesh[v._uuid]) {
+        const indArr = v.readIndices(0);
+        // const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
+        const posArr = v.readAttribute(0, 'a_position');
+        const world = cc.PhysicsSystem.instance.physicsWorld.impl;
+        const trimesh = {
+            positions: new Float32Array(posArr), positionLength: posArr.length / 3,
+            triangles: new Uint16Array(indArr), triangleLength: indArr.length / 3,
+            isU16: true,
+        }
+        jsbPhy.CACHE.trimesh[v._uuid] = world.createTrimesh(trimesh);
+    }
+    return jsbPhy.CACHE.trimesh[v._uuid];
+}
+
+class CylinderShape extends Shape {
+    constructor() { super(); this._impl = new jsbPhy.CylinderShape(); }
+    setRadius (v) { this.updateGeometry() }
+    setDirection (v) { this.updateGeometry() }
+    setHeight (v) { this.updateGeometry() }
+    updateGeometry () { this._impl.setCylinder(this._com.radius, this._com.height, this._com.direction); }
+    initialize (v) {
+        if (!jsbPhy.CACHE.convex["CYLINDER"]) {
+            const primitive = cc.physics.utils.cylinder(0.5, 0.5, 2, { radialSegments: 32, heightSegments: 1 });
+            const posArr = cc.physics.utils.shrinkPositions(primitive.positions);
+            const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 };
+            const handle = cc.PhysicsSystem.instance.physicsWorld.impl.createConvex(convex);
+            jsbPhy.CACHE.convex["CYLINDER"] = handle;
+        }
+        this._com = v;
+        this._impl.setCylinder(v.radius, v.height, v.direction);
+        this._impl.setConvex(jsbPhy.CACHE.convex["CYLINDER"]);
+        super.initialize(v);
+    }
+}
+
+class ConeShape extends Shape {
+    constructor() { super(); this._impl = new jsbPhy.ConeShape(); }
+    setRadius (v) { this.updateGeometry() }
+    setDirection (v) { this.updateGeometry() }
+    setHeight (v) { this.updateGeometry() }
+    updateGeometry () { this._impl.setCone(this._com.radius, this._com.height, this._com.direction); }
+    initialize (v) {
+        if (!jsbPhy.CACHE.convex["CONE"]) {
+            const primitive = cc.physics.utils.cylinder(0, 0.5, 1, { radialSegments: 32, heightSegments: 1 });
+            const posArr = cc.physics.utils.shrinkPositions(primitive.positions);
+            const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 };
+            const handle = cc.PhysicsSystem.instance.physicsWorld.impl.createConvex(convex);
+            jsbPhy.CACHE.convex["CONE"] = handle;
+        }
+        this._com = v;
+        this._impl.setCone(v.radius, v.height, v.direction);
+        this._impl.setConvex(jsbPhy.CACHE.convex["CONE"]);
+        super.initialize(v);
+    }
+}
+
 class TrimeshShape extends Shape {
     constructor() { super(); this._impl = new jsbPhy.TrimeshShape(); }
     setConvex (v) { this._impl.useConvex(v); }
@@ -418,29 +462,7 @@ class TrimeshShape extends Shape {
         if (!v) return;
         const isConvex = this._com.convex;
         this._impl.useConvex(isConvex);
-        let handle = 0;
-        if (isConvex) {
-            if (!jsbPhy.CACHE.convex[v._uuid]) {
-                const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
-                const world = cc.PhysicsSystem.instance.physicsWorld.impl;
-                const convex = { positions: new Float32Array(posArr), positionLength: posArr.length / 3 }
-                jsbPhy.CACHE.convex[v._uuid] = world.createConvex(convex);
-            }
-            handle = jsbPhy.CACHE.convex[v._uuid];
-        } else {
-            if (!jsbPhy.CACHE.trimesh[v._uuid]) {
-                const indArr = v.readIndices(0);
-                const posArr = cc.physics.utils.shrinkPositions(v.readAttribute(0, 'a_position'));
-                const world = cc.PhysicsSystem.instance.physicsWorld.impl;
-                const trimesh = {
-                    positions: new Float32Array(posArr), positionLength: posArr.length / 3,
-                    triangles: new Uint16Array(indArr), triangleLength: indArr.length / 3,
-                    isU16: true,
-                }
-                jsbPhy.CACHE.trimesh[v._uuid] = world.createTrimesh(trimesh);
-            }
-            handle = jsbPhy.CACHE.trimesh[v._uuid];
-        }
+        const handle = isConvex ? getConvexMesh(v) : getTriangleMesh(v);
         this._impl.setMesh(handle);
     }
     initialize (v) {
@@ -458,10 +480,10 @@ cc.physics.selector.select("physx", {
     BoxShape: BoxShape,
     PlaneShape: PlaneShape,
     CapsuleShape: CapsuleShape,
-    // ConeShape: PhysXConeShape,
-    // CylinderShape: PhysXCylinderShape,
+    ConeShape: ConeShape,
+    CylinderShape: CylinderShape,
     TrimeshShape: TrimeshShape,
-    // TerrainShape: PhysXTerrainShape,
-    // PointToPointConstraint: PhysXDistanceJoint,
-    // HingeConstraint: PhysXRevoluteJoint
+    // TerrainShape: TerrainShape,
+    // PointToPointConstraint: DistanceJoint,
+    // HingeConstraint: RevoluteJoint
 });
