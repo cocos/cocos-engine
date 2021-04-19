@@ -225,7 +225,7 @@ export class ActionManager {
      * @param {Node} target
      */
     removeActionByTag (tag: number, target?: Node) {
-        if (tag === legacyCC.Action.TAG_INVALID) logID(1002);
+        if (tag === Action.TAG_INVALID) logID(1002);
 
         const hashTargets = this._hashTargets;
         if (target) {
@@ -249,7 +249,7 @@ export class ActionManager {
      * @return {Action|null}  return the Action with the given tag on success
      */
     getActionByTag (tag: number, target: Node): Action | null {
-        if (tag === legacyCC.Action.TAG_INVALID) logID(1004);
+        if (tag === Action.TAG_INVALID) logID(1004);
 
         const element = this._hashTargets.get(target);
         if (element) {
