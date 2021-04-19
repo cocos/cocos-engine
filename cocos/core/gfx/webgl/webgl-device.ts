@@ -64,6 +64,8 @@ import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersTo
     WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
+import { system } from 'pal/system';
+import { BrowserType } from '../../../../pal/system/enum-type';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -371,7 +373,7 @@ export class WebGLDevice extends Device {
             }
 
             // UC browser instancing implementation doesn't work
-            if (sys.browserType === sys.BROWSER_TYPE_UC) {
+            if (system.browserType === BrowserType.UC) {
                 this._ANGLE_instanced_arrays = null;
             }
 

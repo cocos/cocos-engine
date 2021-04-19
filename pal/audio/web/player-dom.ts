@@ -4,6 +4,8 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
+import { system } from 'pal/system';
+import { BrowserType } from '../../system/enum-type';
 
 export class AudioPlayerDOM implements OperationQueueable {
     private _domAudio: HTMLAudioElement;
@@ -87,7 +89,7 @@ export class AudioPlayerDOM implements OperationQueueable {
                 // iOS no event that used to parse completed callback
                 // this time is not complete, can not play
                 loadedEvent = 'loadedmetadata';
-            } else if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
+            } else if (system.browserType === BrowserType.FIREFOX) {
                 loadedEvent = 'canplay';
             }
 

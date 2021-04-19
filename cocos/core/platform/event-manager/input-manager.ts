@@ -39,6 +39,8 @@ import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './even
 import { Touch } from './touch';
 import { legacyCC } from '../../global-exports';
 import { logID } from '../debug';
+import { system } from 'pal/system';
+import { BrowserType } from '../../../../pal/system/enum-type';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -344,7 +346,7 @@ class InputManager {
                 continue;
             }
             let location;
-            if (sys.BROWSER_TYPE_FIREFOX === sys.browserType) {
+            if (system.browserType === BrowserType.FIREFOX) {
                 location = locView!.convertToLocationInView(
                     changedTouch.pageX, changedTouch.pageY, position, _vec2,
                 );
@@ -484,7 +486,7 @@ class InputManager {
         }
         // fix android acc values are opposite
         if (legacyCC.sys.os === legacyCC.sys.OS_ANDROID
-            && legacyCC.sys.browserType !== legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
+            && system.browserType !==  BrowserType.MOBILE_QQ) {
             mAcceleration.x = -mAcceleration.x;
             mAcceleration.y = -mAcceleration.y;
         }
@@ -743,7 +745,7 @@ class InputManager {
         this._accelDeviceEvent = window.DeviceMotionEvent || window.DeviceOrientationEvent;
 
         // TODO fix DeviceMotionEvent bug on QQ Browser version 4.1 and below.
-        if (legacyCC.sys.browserType === legacyCC.sys.BROWSER_TYPE_MOBILE_QQ) {
+        if (system.browserType === BrowserType.MOBILE_QQ) {
             // TODO
         // @ts-expect-error
             this._accelDeviceEvent = window.DeviceOrientationEvent;

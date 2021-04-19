@@ -44,6 +44,7 @@ import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
+import { BrowserType } from '../../pal/system/enum-type';
 
 interface ISceneInfo {
     url: string;
@@ -800,7 +801,7 @@ export class Game extends EventTarget {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
                 if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                    || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't conform to WebGL2 standard
+                    || system.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
                 ) {
                     useWebGL2 = false;
                 }
