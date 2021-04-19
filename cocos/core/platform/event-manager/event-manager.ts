@@ -949,8 +949,8 @@ class EventManager {
 
         let isClaimed = false;
         let removedIdx = -1;
-        const getCode = event.getEventCode();
-        if (getCode === SystemEventType.TOUCH_START) {
+        const eventCode = event.getEventCode();
+        if (eventCode === SystemEventType.TOUCH_START) {
             if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
                 const node = eventManager._currentTouchListener._node;
                 if (!node || node.activeInHierarchy) {
@@ -975,9 +975,9 @@ class EventManager {
                 if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
                     return false;
                 }
-                if (getCode === SystemEventType.TOUCH_MOVE && listener.onTouchMoved) {
+                if (eventCode === SystemEventType.TOUCH_MOVE && listener.onTouchMoved) {
                     listener.onTouchMoved(selTouch, event);
-                } else if (getCode === SystemEventType.TOUCH_END) {
+                } else if (eventCode === SystemEventType.TOUCH_END) {
                     if (listener.onTouchEnded) {
                         listener.onTouchEnded(selTouch, event);
                     }
@@ -990,7 +990,7 @@ class EventManager {
                     }
 
                     eventManager._currentTouchListener = null;
-                } else if (getCode === SystemEventType.TOUCH_CANCEL) {
+                } else if (eventCode === SystemEventType.TOUCH_CANCEL) {
                     if (listener.onTouchCancelled) {
                         listener.onTouchCancelled(selTouch, event);
                     }
@@ -1070,15 +1070,15 @@ class EventManager {
 
         const event = callbackParams.event;
         const touches = callbackParams.touches;
-        const getCode = event.getEventCode();
+        const eventCode = event.getEventCode();
         event.currentTarget = listener._getSceneGraphPriority();
-        if (getCode === SystemEventType.TOUCH_START && listener.onTouchesBegan) {
+        if (eventCode === SystemEventType.TOUCH_START && listener.onTouchesBegan) {
             listener.onTouchesBegan(touches, event);
-        } else if (getCode === SystemEventType.TOUCH_MOVE && listener.onTouchesMoved) {
+        } else if (eventCode === SystemEventType.TOUCH_MOVE && listener.onTouchesMoved) {
             listener.onTouchesMoved(touches, event);
-        } else if (getCode === SystemEventType.TOUCH_END && listener.onTouchesEnded) {
+        } else if (eventCode === SystemEventType.TOUCH_END && listener.onTouchesEnded) {
             listener.onTouchesEnded(touches, event);
-        } else if (getCode === SystemEventType.TOUCH_CANCEL && listener.onTouchesCancelled) {
+        } else if (eventCode === SystemEventType.TOUCH_CANCEL && listener.onTouchesCancelled) {
             listener.onTouchesCancelled(touches, event);
         }
 
