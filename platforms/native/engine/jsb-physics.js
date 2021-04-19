@@ -10,9 +10,17 @@ const TriggerEventObject = {
     otherCollider: null,
     impl: null,
 };
+const CollisionEventObject = {
+    type: 'onCollisionEnter',
+    selfCollider: null,
+    otherCollider: null,
+    contacts: [],
+    impl: null,
+};
 
-function emitTriggerEvent (t, c0, c1) {
+function emitTriggerEvent (t, c0, c1, impl) {
     TriggerEventObject.type = t;
+    TriggerEventObject.impl = impl;
     if (c0.needTriggerEvent) {
         TriggerEventObject.selfCollider = c0;
         TriggerEventObject.otherCollider = c1;
@@ -22,6 +30,77 @@ function emitTriggerEvent (t, c0, c1) {
         TriggerEventObject.selfCollider = c1;
         TriggerEventObject.otherCollider = c0;
         c1.emit(t, TriggerEventObject);
+    }
+}
+
+const quat = new cc.Quat();
+const contactsPool = [];
+const contactBufferElementLength = 12;
+class ContactPoint {
+    constructor(e) {
+        this.event = e;
+        this.impl = null;
+        this.colliderA = null;
+        this.colliderB = null;
+        this.index = 0;
+    }
+    get isBodyA () { return this.colliderA.uuid === this.event.selfCollider.uuid; }
+    getLocalPointOnA (o) {
+        this.getWorldPointOnB(o);
+        cc.Vec3.subtract(o, o, this.colliderA.node.worldPosition);
+    }
+    getLocalPointOnB (o) {
+        this.getWorldPointOnB(o);
+        cc.Vec3.subtract(o, o, this.colliderB.node.worldPosition);
+    }
+    getWorldPointOnA (o) {
+        this.getWorldPointOnB(o);
+    }
+    getWorldPointOnB (o) {
+        const i = this.index * contactBufferElementLength;
+        o.x = this.impl[i]; o.y = this.impl[i + 1]; o.z = this.impl[i + 2];
+    }
+    getLocalNormalOnA (o) {
+        this.getWorldNormalOnA(o);
+        cc.Quat.conjugate(quat, this.colliderA.node.worldRotation);
+        cc.Vec3.transformQuat(o, o, quat);
+    }
+    getLocalNormalOnB (o) {
+        this.getWorldNormalOnB(o);
+        cc.Quat.conjugate(quat, this.colliderB.node.worldRotation);
+        cc.Vec3.transformQuat(out, out, quat);
+    }
+    getWorldNormalOnA (o) {
+        this.getWorldNormalOnB(o);
+        if (!this.isBodyA) cc.Vec3.negate(o, o);
+    }
+    getWorldNormalOnB (o) {
+        const i = this.index * contactBufferElementLength + 3;
+        o.x = this.impl[i]; o.y = this.impl[i + 1]; o.z = this.impl[i + 2];
+    }
+}
+
+function emitCollisionEvent (t, c0, c1, impl, b) {
+    CollisionEventObject.type = t;
+    CollisionEventObject.impl = impl;
+    const contacts = CollisionEventObject.contacts;
+    contactsPool.push.apply(contactsPool, contacts);
+    contacts.length = 0;
+    const contactCount = b.length / contactBufferElementLength;
+    for (let i = 0; i < contactCount; i++) {
+        let c = contactsPool.length > 0 ? contactsPool.pop() : new ContactPoint(CollisionEventObject);
+        c.colliderA = c0; c.colliderB = c1;
+        c.impl = b; c.index = i; contacts.push(c);
+    }
+    if (c0.needCollisionEvent) {
+        CollisionEventObject.selfCollider = c0;
+        CollisionEventObject.otherCollider = c1;
+        c0.emit(t, CollisionEventObject);
+    }
+    if (c1.needCollisionEvent) {
+        CollisionEventObject.selfCollider = c1;
+        CollisionEventObject.otherCollider = c0;
+        c1.emit(t, CollisionEventObject);
     }
 }
 
@@ -52,24 +131,8 @@ class PhysicsWorld {
     raycast (worldRay, options, pool, results) { return false }
     raycastClosest (worldRay, options, out) { return false }
     emitEvents () {
-        const teps = this._impl.getTriggerEventPairs();
-        const len = teps.length / 3;
-        for (let i = 0; i < len; i++) {
-            const t = i * 3;
-            const sa = ptrToObj[teps[t + 0]], sb = ptrToObj[teps[t + 1]];
-            if (!sa || !sb) continue;
-            const c0 = sa.collider, c1 = sb.collider;
-            if (!c0.needTriggerEvent && !c1.needTriggerEvent) continue;
-            const state = teps[t + 2];
-            if (state === 1) {
-                emitTriggerEvent('onTriggerStay', c0, c1);
-            } else if (state === 0) {
-                emitTriggerEvent('onTriggerEnter', c0, c1);
-            } else {
-                emitTriggerEvent('onTriggerExit', c0, c1);
-            }
-        }
-
+        this.emitTriggerEvent();
+        this.emitCollisionEvent();
         this._impl.emitEvents();
     }
     syncSceneToPhysics () { this._impl.syncSceneToPhysics() }
@@ -78,6 +141,48 @@ class PhysicsWorld {
         // this._impl.syncSceneToPhysics() 
     }
     destroy () { this._impl.destroy() }
+    emitTriggerEvent () {
+        const teps = this._impl.getTriggerEventPairs();
+        const len = teps.length / 3;
+        for (let i = 0; i < len; i++) {
+            const t = i * 3;
+            const sa = ptrToObj[teps[t + 0]], sb = ptrToObj[teps[t + 1]];
+            if (!sa || !sb) continue;
+            const c0 = sa.collider, c1 = sb.collider;
+            if (!(c0 && c0.isValid && c1 && c1.isValid)) continue;
+            if (!c0.needTriggerEvent && !c1.needTriggerEvent) continue;
+            const state = teps[t + 2];
+            if (state === 1) {
+                emitTriggerEvent('onTriggerStay', c0, c1, teps);
+            } else if (state === 0) {
+                emitTriggerEvent('onTriggerEnter', c0, c1, teps);
+            } else {
+                emitTriggerEvent('onTriggerExit', c0, c1, teps);
+            }
+        }
+
+    }
+    emitCollisionEvent () {
+        const ceps = this._impl.getContactEventPairs();
+        const len2 = ceps.length / 4;
+        for (let i = 0; i < len2; i++) {
+            const t = i * 4;
+            const sa = ptrToObj[ceps[t + 0]], sb = ptrToObj[ceps[t + 1]];
+            if (!sa || !sb) continue;
+            const c0 = sa.collider, c1 = sb.collider;
+            if (!(c0 && c0.isValid && c1 && c1.isValid)) continue;
+            if (!c0.needCollisionEvent && !c1.needCollisionEvent) continue;
+            const state = ceps[t + 2];
+            if (state === 1) {
+                emitCollisionEvent('onCollisionStay', c0, c1, ceps, ceps[t + 3]);
+            } else if (state === 0) {
+                emitCollisionEvent('onCollisionEnter', c0, c1, ceps, ceps[t + 3]);
+            } else {
+                emitCollisionEvent('onCollisionExit', c0, c1, ceps, ceps[t + 3]);
+            }
+        }
+
+    }
 }
 
 function bookNode (v) {
