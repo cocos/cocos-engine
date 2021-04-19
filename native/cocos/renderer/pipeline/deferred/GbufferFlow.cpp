@@ -61,8 +61,6 @@ void GbufferFlow::activate(RenderPipeline *pipeline) {
 }
 
 void GbufferFlow::render(Camera *camera) {
-    auto *pipeline = static_cast<DeferredPipeline *>(_pipeline);
-    sceneCulling(pipeline, camera);
     RenderFlow::render(camera);
 }
 

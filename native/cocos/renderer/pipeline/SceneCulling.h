@@ -44,7 +44,6 @@ struct Shadows;
 RenderObject genRenderObject(Model *, const Camera *);
 
 void lightCollecting(Camera *, std::vector<const Light *>&);
-void shadowCollecting(RenderPipeline *, Camera *);
 void sceneCulling(RenderPipeline *, Camera *);
 void updateSphereLight(Shadows *shadows, const Light *light, std::array<float, UBOShadow::COUNT> &);
 void updateDirLight(Shadows *shadows, const Light *light, std::array<float, UBOShadow::COUNT>&);

@@ -133,6 +133,7 @@ void DeferredPipeline::render(const vector<uint> &cameras) {
     _pipelineUBO->updateGlobalUBO();
     for (const auto cameraId : cameras) {
         auto *camera = GET_CAMERA(cameraId);
+        sceneCulling(this, camera);
         _pipelineUBO->updateCameraUBO(camera, true);
         for (auto *const flow : _flows) {
             flow->render(camera);
