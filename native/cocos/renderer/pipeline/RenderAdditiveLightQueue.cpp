@@ -97,12 +97,12 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::Ren
     for (const auto &lightPass : _lightPasses) {
         const auto *const subModel       = lightPass.subModel;
         const auto *const pass           = lightPass.pass;
-        const auto &dynamicOffsets = lightPass.dynamicOffsets;
-        auto *      shader         = lightPass.shader;
-        const auto  lights         = lightPass.lights;
-        auto *      ia             = subModel->getInputAssembler();
-        auto *      pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
-        auto *      descriptorSet  = subModel->getDescriptorSet();
+        const auto &      dynamicOffsets = lightPass.dynamicOffsets;
+        auto *            shader         = lightPass.shader;
+        const auto        lights         = lightPass.lights;
+        auto *            ia             = subModel->getInputAssembler();
+        auto *            pso            = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
+        auto *            descriptorSet  = subModel->getDescriptorSet();
 
         cmdBuffer->bindPipelineState(pso);
         cmdBuffer->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
@@ -139,7 +139,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const Camera *camera, gfx::Comm
         _lightIndices.clear();
         for (size_t i = 0; i < _validLights.size(); i++) {
             const auto *const light    = _validLights[i];
-            const bool isCulled = cullingLight(light, model);
+            const bool        isCulled = cullingLight(light, model);
             if (!isCulled) {
                 _lightIndices.emplace_back(i);
             }
@@ -147,7 +147,7 @@ void RenderAdditiveLightQueue::gatherLightPasses(const Camera *camera, gfx::Comm
 
         if (_lightIndices.empty()) continue;
         const auto *const subModelArrayID = model->getSubModelID();
-        const auto subModelCount   = subModelArrayID[0];
+        const auto        subModelCount   = subModelArrayID[0];
         for (unsigned j = 1; j <= subModelCount; j++) {
             const auto lightPassIdx = lightPassIndices[j - 1];
             if (lightPassIdx == UINT_MAX) continue;
@@ -192,8 +192,8 @@ void RenderAdditiveLightQueue::clear() {
 void RenderAdditiveLightQueue::gatherValidLights(const Camera *camera) {
     const auto *const scene              = camera->getScene();
     const auto *const sphereLightArrayID = scene->getSphereLightArrayID();
-    auto       count              = sphereLightArrayID ? sphereLightArrayID[0] : 0;
-    Sphere     sphere;
+    auto              count              = sphereLightArrayID ? sphereLightArrayID[0] : 0;
+    Sphere            sphere;
     for (unsigned i = 1; i <= count; i++) {
         const auto *const light = scene->getSphereLight(sphereLightArrayID[i]);
         sphere.setCenter(light->position);
@@ -204,7 +204,7 @@ void RenderAdditiveLightQueue::gatherValidLights(const Camera *camera) {
         }
     }
     const auto *const spotLightArrayID = scene->getSpotLightArrayID();
-    count                       = spotLightArrayID ? spotLightArrayID[0] : 0;
+    count                              = spotLightArrayID ? spotLightArrayID[0] : 0;
     for (unsigned i = 1; i <= count; i++) {
         const auto *const light = scene->getSpotLight(spotLightArrayID[i]);
         sphere.setCenter(light->position);
@@ -219,9 +219,9 @@ void RenderAdditiveLightQueue::gatherValidLights(const Camera *camera) {
 bool RenderAdditiveLightQueue::cullingLight(const Light *light, const ModelView *model) {
     switch (light->getType()) {
         case LightType::SPHERE:
-            return model->worldBoundsID && !aabb_aabb(model->getWorldBounds(), light->getAABB());
+            return model->worldBoundsID && !aabbAabb(model->getWorldBounds(), light->getAABB());
         case LightType::SPOT:
-            return model->worldBoundsID && (!aabb_aabb(model->getWorldBounds(), light->getAABB()) || !aabb_frustum(model->getWorldBounds(), light->getFrustum()));
+            return model->worldBoundsID && (!aabbAabb(model->getWorldBounds(), light->getAABB()) || !aabbFrustum(model->getWorldBounds(), light->getFrustum()));
         default: return false;
     }
 }
@@ -260,8 +260,8 @@ void RenderAdditiveLightQueue::addRenderQueue(const PassView *pass, const SubMod
 }
 
 void RenderAdditiveLightQueue::updateUBOs(const Camera *camera, gfx::CommandBuffer *cmdBuffer) {
-    const auto exposure        = camera->exposure;
-    const auto validLightCount = _validLights.size();
+    const auto  exposure        = camera->exposure;
+    const auto  validLightCount = _validLights.size();
     auto *const sceneData       = _pipeline->getPipelineSceneData();
     auto *const sharedData      = sceneData->getSharedData();
     if (validLightCount > _lightBufferCount) {
@@ -327,9 +327,9 @@ void RenderAdditiveLightQueue::updateUBOs(const Camera *camera, gfx::CommandBuff
 
 void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gfx::CommandBuffer *cmdBuffer) {
     auto *const       sceneData  = _pipeline->getPipelineSceneData();
-    auto *       shadowInfo = sceneData->getSharedData()->getShadows();
+    auto *            shadowInfo = sceneData->getSharedData()->getShadows();
     const auto *const scene      = camera->getScene();
-    const Light *mainLight  = nullptr;
+    const Light *     mainLight  = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
 
     for (const auto *light : _validLights) {
@@ -398,10 +398,10 @@ bool RenderAdditiveLightQueue::getLightPassIndex(const ModelView *model, vector<
     bool hasValidLightPass = false;
 
     const auto *const subModelArrayID = model->getSubModelID();
-    const auto count           = subModelArrayID[0];
+    const auto        count           = subModelArrayID[0];
     for (unsigned i = 1; i <= count; i++) {
         const auto *const subModel       = model->getSubModelView(subModelArrayID[i]);
-        uint       lightPassIndex = UINT_MAX;
+        uint              lightPassIndex = UINT_MAX;
         for (unsigned passIdx = 0; passIdx < subModel->passCount; passIdx++) {
             const auto *const pass = subModel->getPassView(passIdx);
             if (pass->phase == _phaseID) {

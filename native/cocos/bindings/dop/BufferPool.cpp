@@ -29,33 +29,29 @@
 
 namespace se {
 
-cc::map<PoolType, BufferPool *> BufferPool::_poolMap;
+cc::vector<BufferPool *> BufferPool::poolMap(BUFFER_POOL_SIZE);
 
 BufferPool::BufferPool(PoolType type, uint entryBits, uint bytesPerEntry)
 : _allocator(type),
   _entryBits(entryBits),
   _bytesPerEntry(bytesPerEntry),
   _type(type) {
-    CCASSERT(BufferPool::_poolMap.count(type) == 0, "The type of pool is already exist");
-
     _entriesPerChunk = 1 << entryBits;
-    _entryMask = _entriesPerChunk - 1;
-    _chunkMask = 0xffffffff & ~(_entryMask | _poolFlag);
+    _entryMask       = _entriesPerChunk - 1;
+    _chunkMask       = 0xffffffff & ~(_entryMask | POOL_FLAG);
 
     _bytesPerChunk = _bytesPerEntry * _entriesPerChunk;
 
-    BufferPool::_poolMap[type] = this;
+    BufferPool::poolMap[GET_BUFFER_POOL_ID(type)] = this;
 }
 
-BufferPool::~BufferPool() {
-    BufferPool::_poolMap.erase(_type);
-}
+BufferPool::~BufferPool() = default;
 
 Object *BufferPool::allocateNewChunk() {
     Object *jsObj = _allocator.alloc(static_cast<uint>(_chunks.size()), _bytesPerChunk);
 
     uint8_t *realPtr = nullptr;
-    size_t len = 0;
+    size_t   len     = 0;
     jsObj->getArrayBufferData(&realPtr, &len);
     _chunks.push_back(realPtr);
 

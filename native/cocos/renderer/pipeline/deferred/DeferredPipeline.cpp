@@ -43,14 +43,14 @@
 namespace cc {
 namespace pipeline {
 namespace {
-#define TO_VEC3(dst, src, offset) \
-    dst[offset]     = (src).x;      \
-    (dst)[(offset) + 1] = (src).y;      \
+#define TO_VEC3(dst, src, offset)  \
+    dst[offset]         = (src).x; \
+    (dst)[(offset) + 1] = (src).y; \
     (dst)[(offset) + 2] = (src).z;
-#define TO_VEC4(dst, src, offset) \
-    dst[offset]     = (src).x;      \
-    (dst)[(offset) + 1] = (src).y;      \
-    (dst)[(offset) + 2] = (src).z;      \
+#define TO_VEC4(dst, src, offset)  \
+    dst[offset]         = (src).x; \
+    (dst)[(offset) + 1] = (src).y; \
+    (dst)[(offset) + 2] = (src).z; \
     (dst)[(offset) + 3] = (src).w;
 } // namespace
 
@@ -59,7 +59,7 @@ gfx::RenderPass *DeferredPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFl
         return _renderPasses[clearFlags];
     }
 
-    auto *                        device = gfx::Device::getInstance();
+    auto *                      device = gfx::Device::getInstance();
     gfx::ColorAttachment        colorAttachment;
     gfx::DepthStencilAttachment depthStencilAttachment;
     colorAttachment.format                = device->getColorFormat();
@@ -82,7 +82,7 @@ gfx::RenderPass *DeferredPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFl
         depthStencilAttachment.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
     }
 
-    auto *renderPass           = device->createRenderPass({
+    auto *renderPass          = device->createRenderPass({
         {colorAttachment},
         depthStencilAttachment,
     });
@@ -144,17 +144,17 @@ void DeferredPipeline::render(const vector<uint> &cameras) {
 }
 
 void DeferredPipeline::updateQuadVertexData(const gfx::Rect &renderArea) {
-     if (_lastUsedRenderArea == renderArea) {
-         return;
-     }
+    if (_lastUsedRenderArea == renderArea) {
+        return;
+    }
 
-     _lastUsedRenderArea = renderArea;
-     float vbData[16] = {0};
-     genQuadVertexData(gfx::SurfaceTransform::IDENTITY, renderArea, vbData);
-     _commandBuffers[0]->updateBuffer(_quadVBOffscreen, vbData);
+    _lastUsedRenderArea = renderArea;
+    float vbData[16]    = {0};
+    genQuadVertexData(gfx::SurfaceTransform::IDENTITY, renderArea, vbData);
+    _commandBuffers[0]->updateBuffer(_quadVBOffscreen, vbData);
 
-     genQuadVertexData(_device->getSurfaceTransform(), renderArea, vbData);
-     _commandBuffers[0]->updateBuffer(_quadVBOnscreen, vbData);
+    genQuadVertexData(_device->getSurfaceTransform(), renderArea, vbData);
+    _commandBuffers[0]->updateBuffer(_quadVBOnscreen, vbData);
 }
 
 void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform surfaceTransform, const gfx::Rect &renderArea, float *vbData) {
@@ -163,13 +163,13 @@ void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform surfaceTransform,
     float minY = float(renderArea.y) / _device->getHeight();
     float maxY = float(renderArea.y + renderArea.height) / _device->getHeight();
 
-    int   n          = 0;
+    int n = 0;
     switch (surfaceTransform) {
         case (gfx::SurfaceTransform::IDENTITY):
             n           = 0;
             vbData[n++] = -1.0;
             vbData[n++] = -1.0;
-            vbData[n++] = minX;  // uv
+            vbData[n++] = minX; // uv
             vbData[n++] = maxY;
             vbData[n++] = 1.0;
             vbData[n++] = -1.0;
@@ -188,7 +188,7 @@ void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform surfaceTransform,
             n           = 0;
             vbData[n++] = -1.0;
             vbData[n++] = -1.0;
-            vbData[n++] = maxX;  // uv
+            vbData[n++] = maxX; // uv
             vbData[n++] = maxY;
             vbData[n++] = 1.0;
             vbData[n++] = -1.0;
@@ -207,7 +207,7 @@ void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform surfaceTransform,
             n           = 0;
             vbData[n++] = -1.0;
             vbData[n++] = -1.0;
-            vbData[n++] = minX;  // uv
+            vbData[n++] = minX; // uv
             vbData[n++] = minY;
             vbData[n++] = 1.0;
             vbData[n++] = -1.0;
@@ -226,7 +226,7 @@ void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform surfaceTransform,
             n           = 0;
             vbData[n++] = -1.0;
             vbData[n++] = -1.0;
-            vbData[n++] = minX;  // uv
+            vbData[n++] = minX; // uv
             vbData[n++] = minY;
             vbData[n++] = 1.0;
             vbData[n++] = -1.0;
@@ -253,7 +253,7 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer **quadIB, gfx::Buffe
 
     if (*quadVB == nullptr) {
         *quadVB = _device->createBuffer({gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
-                                    gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, vbSize, vbStride});
+                                         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, vbSize, vbStride});
     }
 
     if (*quadVB == nullptr) {
@@ -265,7 +265,7 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer **quadIB, gfx::Buffe
     uint ibSize   = ibStride * 6;
     if (*quadIB == nullptr) {
         *quadIB = _device->createBuffer({gfx::BufferUsageBit::INDEX | gfx::BufferUsageBit::TRANSFER_DST,
-                                    gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
+                                         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE, ibSize, ibStride});
     }
 
     if (*quadIB == nullptr) {
@@ -281,7 +281,7 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer **quadIB, gfx::Buffe
     info.attributes.push_back({"a_texCoord", gfx::Format::RG32F});
     info.vertexBuffers.push_back(*quadVB);
     info.indexBuffer = *quadIB;
-    *quadIA = _device->createInputAssembler(info);
+    *quadIA          = _device->createInputAssembler(info);
     return (*quadIA) != nullptr;
 }
 
@@ -343,7 +343,7 @@ bool DeferredPipeline::activeRenderer() {
         gfx::Address::CLAMP,
         gfx::Address::CLAMP,
     };
-    const auto samplerHash = SamplerLib::genSamplerHash(info);
+    const auto  samplerHash = SamplerLib::genSamplerHash(info);
     auto *const sampler     = SamplerLib::getSampler(samplerHash);
 
     // Main light sampler binding

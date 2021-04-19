@@ -26,22 +26,29 @@
 #include "ObjectPool.h"
 #include "base/memory/Memory.h"
 
-using namespace se;
-
-cc::map<PoolType, ObjectPool *> ObjectPool::_poolMap;
+namespace se {
+cc::vector<ObjectPool *> ObjectPool::poolMap(CAST_POOL_TYPE(PoolType::FRAMEBUFFER));
 
 ObjectPool::ObjectPool(PoolType type, Object *jsArr)
 : _type(type),
   _jsArr(jsArr) {
     CCASSERT(jsArr->isArray(), "ObjectPool: It must be initialized with a JavaScript array");
-    CCASSERT(ObjectPool::_poolMap.count(type) == 0, "This type of ObjectPool already exists.");
 
     _jsArr->incRef();
-    _indexMask = 0xffffffff & ~_poolFlag;
-    ObjectPool::_poolMap.emplace(type, this);
+    _indexMask                                    = 0xffffffff & ~_poolFlag;
+    ObjectPool::poolMap[GET_OBJECT_POOL_ID(type)] = this;
 }
 
 ObjectPool::~ObjectPool() {
     _jsArr->decRef();
-    ObjectPool::_poolMap.erase(_type);
+    _array.clear();
 }
+
+void ObjectPool::bind(uint id, Object *obj) {
+    if (id >= _array.size()) {
+        _array.push_back(obj);
+    } else {
+        _array[id] = obj;
+    }
+}
+} // namespace se

@@ -26,6 +26,24 @@
 #pragma once
 
 namespace se {
+
+#define CAST_POOL_TYPE(type) static_cast<uint>(type)
+
+#define BUFFER_POOL_BEGIN CAST_POOL_TYPE(se::PoolType::PASS)
+#define ARRAY_POOL_BEGIN  CAST_POOL_TYPE(se::PoolType::SUB_MODEL_ARRAY)
+#define RAW_BUFFER_BEGIN  CAST_POOL_TYPE(se::PoolType::RAW_BUFFER)
+
+#define OBJECT_POOL_SIZE      CAST_POOL_TYPE(se::PoolType::FRAMEBUFFER) + 1
+#define BUFFER_POOL_SIZE      CAST_POOL_TYPE(se::PoolType::PIPELINE_SHARED_SCENE_DATA) - BUFFER_POOL_BEGIN + 1
+#define ARRAY_POOL_SIZE       CAST_POOL_TYPE(se::PoolType::UI_BATCH_ARRAY) - ARRAY_POOL_BEGIN + 1
+#define RAW_BUFFER_SIZE       CAST_POOL_TYPE(se::PoolType::RAW_BUFFER) - CAST_POOL_TYPE(se::PoolType::RAW_BUFFER) + 1
+#define BUFFER_ALLOCATOR_SIZE (ARRAY_POOL_SIZE + RAW_BUFFER_SIZE)
+
+#define GET_OBJECT_POOL_ID(type)       CAST_POOL_TYPE(type)
+#define GET_BUFFER_POOL_ID(type)       CAST_POOL_TYPE(type) - BUFFER_POOL_BEGIN
+#define GET_ARRAY_POOL_ID(type)        CAST_POOL_TYPE(type) >= RAW_BUFFER_BEGIN ? (CAST_POOL_TYPE(type) - RAW_BUFFER_BEGIN + ARRAY_POOL_SIZE) : CAST_POOL_TYPE(type) - ARRAY_POOL_BEGIN
+#define IS_BUFFER_ALLOCATOR_TYPE(type) CAST_POOL_TYPE(type) >= ARRAY_POOL_BEGIN
+
 enum class PoolType {
     // objects
     ATTRIBUTE,
@@ -76,4 +94,4 @@ enum class PoolType {
     RAW_BUFFER = 300,
     UNKNOWN
 };
-}
+} // namespace se

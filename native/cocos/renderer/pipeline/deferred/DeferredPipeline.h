@@ -27,10 +27,10 @@
 
 #include <array>
 
-#include "pipeline/RenderPipeline.h"
-#include "pipeline/helper/SharedMemory.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXInputAssembler.h"
+#include "pipeline/RenderPipeline.h"
+#include "pipeline/helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
@@ -45,16 +45,16 @@ struct Sphere;
 struct Camera;
 
 struct CC_DLL DeferredRenderData {
-    gfx::TextureList gbufferRenderTargets;
-    gfx::Framebuffer *gbufferFrameBuffer = nullptr;
-    gfx::Framebuffer *lightingFrameBuff = nullptr;
-    gfx::Texture *lightingRenderTarget = nullptr;
-    gfx::Texture *depthTex = nullptr;
+    gfx::TextureList  gbufferRenderTargets;
+    gfx::Framebuffer *gbufferFrameBuffer   = nullptr;
+    gfx::Framebuffer *lightingFrameBuff    = nullptr;
+    gfx::Texture *    lightingRenderTarget = nullptr;
+    gfx::Texture *    depthTex             = nullptr;
 };
 
 class CC_DLL DeferredPipeline : public RenderPipeline {
 public:
-    DeferredPipeline() = default;
+    DeferredPipeline()           = default;
     ~DeferredPipeline() override = default;
 
     bool initialize(const RenderPipelineInfo &info) override;
@@ -70,12 +70,12 @@ public:
     CC_INLINE const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
     CC_INLINE const UintList &getLightIndexOffsets() const { return _lightIndexOffsets; }
     CC_INLINE const UintList &getLightIndices() const { return _lightIndices; }
-    gfx::InputAssembler *getQuadIAOnScreen(){return _quadIAOnscreen;}
-    gfx::InputAssembler *getQuadIAOffScreen(){return _quadIAOffscreen;}
-    gfx::Rect getRenderArea(Camera *camera, bool onScreen);
-    CC_INLINE DeferredRenderData *getDeferredRenderData(){return _deferredRenderData; };
-    void updateQuadVertexData(const gfx::Rect &renderArea);
-    void genQuadVertexData(gfx::SurfaceTransform surfaceTransform, const gfx::Rect &renderArea, float *data);
+    gfx::InputAssembler *     getQuadIAOnScreen() { return _quadIAOnscreen; }
+    gfx::InputAssembler *     getQuadIAOffScreen() { return _quadIAOffscreen; }
+    gfx::Rect                 getRenderArea(Camera *camera, bool onScreen);
+    CC_INLINE DeferredRenderData *getDeferredRenderData() { return _deferredRenderData; };
+    void                          updateQuadVertexData(const gfx::Rect &renderArea);
+    void                          genQuadVertexData(gfx::SurfaceTransform surfaceTransform, const gfx::Rect &renderArea, float *data);
 
 private:
     bool activeRenderer();
@@ -84,27 +84,26 @@ private:
     void destroyDeferredData();
     void generateDeferredRenderData();
 
-
-    gfx::Buffer *_lightsUBO = nullptr;
-    LightList _validLights;
-    gfx::BufferList _lightBuffers;
-    UintList _lightIndexOffsets;
-    UintList _lightIndices;
+    gfx::Buffer *                           _lightsUBO = nullptr;
+    LightList                               _validLights;
+    gfx::BufferList                         _lightBuffers;
+    UintList                                _lightIndexOffsets;
+    UintList                                _lightIndices;
     map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
-    gfx::Rect _lastUsedRenderArea;
+    gfx::Rect                               _lastUsedRenderArea;
 
     // light stage
-    gfx::Buffer *_quadIB = nullptr;
-    gfx::Buffer *_quadVBOnscreen = nullptr;
-    gfx::Buffer *_quadVBOffscreen = nullptr;
-    gfx::InputAssembler *_quadIAOnscreen = nullptr;
+    gfx::Buffer *        _quadIB          = nullptr;
+    gfx::Buffer *        _quadVBOnscreen  = nullptr;
+    gfx::Buffer *        _quadVBOffscreen = nullptr;
+    gfx::InputAssembler *_quadIAOnscreen  = nullptr;
     gfx::InputAssembler *_quadIAOffscreen = nullptr;
 
     DeferredRenderData *_deferredRenderData = nullptr;
-    gfx::RenderPass *_gbufferRenderPass = nullptr;
-    gfx::RenderPass *_lightingRenderPass = nullptr;
-    uint _width;
-    uint _height;
+    gfx::RenderPass *   _gbufferRenderPass  = nullptr;
+    gfx::RenderPass *   _lightingRenderPass = nullptr;
+    uint                _width;
+    uint                _height;
 };
 
 } // namespace pipeline

@@ -29,11 +29,13 @@
 
 namespace se {
 
-cc::map<PoolType, BufferAllocator *> BufferAllocator::_pools;
+cc::vector<BufferAllocator *> BufferAllocator::pools(BUFFER_ALLOCATOR_SIZE);
 
 BufferAllocator::BufferAllocator(PoolType type)
 : _type(type) {
-    BufferAllocator::_pools[_type] = this;
+    if (IS_BUFFER_ALLOCATOR_TYPE(type)) {
+        BufferAllocator::pools[GET_ARRAY_POOL_ID(type)] = this;
+    }
 }
 
 BufferAllocator::~BufferAllocator() {
@@ -41,7 +43,7 @@ BufferAllocator::~BufferAllocator() {
         buffer.second->decRef();
     }
     _buffers.clear();
-    BufferAllocator::_pools.erase(_type);
+    _caches.clear();
 }
 
 Object *BufferAllocator::alloc(uint index, uint bytes) {
@@ -53,6 +55,11 @@ Object *BufferAllocator::alloc(uint index, uint bytes) {
     obj->incRef();
     _buffers[index] = obj;
 
+    uint8_t *ret = nullptr;
+    size_t   len;
+    obj->getArrayBufferData(static_cast<uint8_t **>(&ret), &len);
+    _caches[index] = ret;
+
     return obj;
 }
 
@@ -61,6 +68,10 @@ void BufferAllocator::free(uint index) {
         Object *oldObj = _buffers[index];
         oldObj->decRef();
         _buffers.erase(index);
+    }
+
+    if (_caches.count(index)) {
+        _caches.erase(index);
     }
 }
 

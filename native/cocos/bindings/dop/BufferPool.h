@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "PoolType.h"
 #include "BufferAllocator.h"
+#include "PoolType.h"
 #include "cocos/base/Macros.h"
 #include "cocos/base/Object.h"
 #include "cocos/base/TypeDef.h"
@@ -39,11 +39,11 @@ class CC_DLL BufferPool final : public cc::Object {
 public:
     using Chunk = uint8_t *;
 
-    CC_INLINE static const cc::map<PoolType, BufferPool *> &getPoolMap() { return BufferPool::_poolMap; }
-    CC_INLINE static const uint getPoolFlag() { return _poolFlag; }
+    CC_INLINE static const cc::vector<BufferPool *> &getPoolMap() { return BufferPool::poolMap; }
+    CC_INLINE static uint                            getPoolFlag() { return POOL_FLAG; }
 
     BufferPool(PoolType type, uint entryBits, uint bytesPerEntry);
-    ~BufferPool();
+    ~BufferPool() override;
 
     template <class T>
     T *getTypedObject(uint id) const {
@@ -56,18 +56,18 @@ public:
     Object *allocateNewChunk();
 
 private:
-    static cc::map<PoolType, BufferPool *> _poolMap;
-    static constexpr uint _poolFlag = 1 << 30;
+    static cc::vector<BufferPool *> poolMap;
+    static constexpr uint           POOL_FLAG = 1 << 30;
 
-    BufferAllocator _allocator;
+    BufferAllocator   _allocator;
     cc::vector<Chunk> _chunks;
-    uint _entryBits = 1 << 8;
-    uint _chunkMask = 0;
-    uint _entryMask = 0;
-    uint _bytesPerChunk = 0;
-    uint _entriesPerChunk = 0;
-    uint _bytesPerEntry = 0;
-    PoolType _type = PoolType::UNKNOWN;
+    uint              _entryBits       = 1 << 8;
+    uint              _chunkMask       = 0;
+    uint              _entryMask       = 0;
+    uint              _bytesPerChunk   = 0;
+    uint              _entriesPerChunk = 0;
+    uint              _bytesPerEntry   = 0;
+    PoolType          _type            = PoolType::UNKNOWN;
 };
 
 } // namespace se

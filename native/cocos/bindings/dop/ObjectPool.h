@@ -25,48 +25,43 @@
 
 #pragma once
 
-#include "cocos/base/Object.h"
-#include "cocos/bindings/jswrapper/Object.h"
-#include "cocos/base/memory/StlAlloc.h"
-#include "cocos/base/Macros.h"
-#include "cocos/base/TypeDef.h"
 #include "PoolType.h"
+#include "cocos/base/Macros.h"
+#include "cocos/base/Object.h"
+#include "cocos/base/TypeDef.h"
+#include "cocos/base/memory/StlAlloc.h"
+#include "cocos/bindings/jswrapper/Object.h"
 
 namespace se {
 
 class CC_DLL ObjectPool final : public cc::Object {
 public:
-    CC_INLINE static const cc::map<PoolType, ObjectPool *> &getPoolMap() { return ObjectPool::_poolMap; }
+    CC_INLINE static const cc::vector<ObjectPool *> &getPoolMap() { return ObjectPool::poolMap; }
 
     ObjectPool(PoolType type, Object *jsArr);
-    ~ObjectPool();
+    ~ObjectPool() override;
 
     template <class Type>
     Type *getTypedObject(uint id) const {
         id = _indexMask & id;
-        bool ok = true;
+
 #ifdef CC_DEBUG
-        uint len = 0;
-        ok = _jsArr->getArrayLength(&len);
-        CCASSERT(ok && id < len, "ObjectPool: Invalid buffer pool entry id");
+        CCASSERT(id < _array.size(), "ObjectPool: Invalid buffer pool entry id");
 #endif
 
-        se::Value jsEntry;
-        ok = _jsArr->getArrayElement(id, &jsEntry);
-        if (!ok || !jsEntry.isObject()) {
-            return nullptr;
-        }
-        Type *entry = (Type *)jsEntry.toObject()->getPrivateData();
-        return entry;
+        return static_cast<Type *>(_array[id]->getPrivateData());
     }
 
-private:
-    static cc::map<PoolType, ObjectPool *> _poolMap;
+    void bind(uint id, Object *);
 
-    PoolType _type = PoolType::SHADER;
-    Object *_jsArr = nullptr;
-    uint _poolFlag = 1 << 29;
-    uint _indexMask = 0;
+private:
+    static cc::vector<ObjectPool *> poolMap;
+
+    cc::vector<Object *> _array;
+    PoolType             _type      = PoolType::SHADER;
+    Object *             _jsArr     = nullptr;
+    uint                 _poolFlag  = 1 << 29;
+    uint                 _indexMask = 0;
 };
 
 } // namespace se
