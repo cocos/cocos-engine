@@ -29,7 +29,7 @@
  * @hidden
  */
 
-import { AccelerometerInputEvent, input, MouseInputEvent, MouseWheelInputEvent, TouchInputEvent } from 'pal/input';
+import { AccelerometerInputEvent, input, MouseInputEvent, TouchInputEvent } from 'pal/input';
 import { Vec2 } from '../../math/index';
 import { macro } from '../macro';
 import eventManager from './event-manager';
@@ -249,12 +249,6 @@ class InputManager {
         return mouseEvent;
     }
 
-    private _getMouseWheelEvent (inputEvent: MouseWheelInputEvent): EventMouse {
-        const mouseEvent = new EventMouse(inputEvent.type, false);
-        mouseEvent.setScrollData(inputEvent.deltaX, inputEvent.deltaY);
-        return mouseEvent;
-    }
-
     private _getTouchList (inputEvent: TouchInputEvent) {
         const touchList: Touch[] = [];
         const locPreTouch = this._preTouchPoint;
@@ -405,7 +399,8 @@ class InputManager {
             eventManager.dispatchEvent(mouseEvent);
         });
         input._mouse.onWheel((inputEvent) => {
-            const mouseEvent = this._getMouseWheelEvent(inputEvent);
+            const mouseEvent = this._getMouseEvent(inputEvent);
+            mouseEvent.setScrollData(inputEvent.deltaX, inputEvent.deltaY);
             eventManager.dispatchEvent(mouseEvent);
         });
     }
