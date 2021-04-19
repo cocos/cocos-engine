@@ -45,7 +45,7 @@ let ID_COUNTER = 0;
  */
 class HashElement {
     actions = [];
-    target: object | null = null; // ccobject
+    target: Record<string, unknown> | null = null; // ccobject
     actionIndex = 0;
     currentAction = null; // CCAction
     paused = false;
@@ -77,14 +77,14 @@ export class ActionManager {
     private _currentTarget!: HashElement;
     private _elementPool: HashElement[] = [];
 
-    private _searchElementByTarget (arr: HashElement[], target: object) {
+    private _searchElementByTarget (arr: HashElement[], target: Record<string, unknown>) {
         for (let k = 0; k < arr.length; k++) {
             if (target === arr[k].target) return arr[k];
         }
         return null;
     }
 
-    private _getElement (target: object, paused: boolean) {
+    private _getElement (target: Record<string, unknown>, paused: boolean) {
         let element = this._elementPool.pop();
         if (!element) {
             element = new HashElement();
@@ -321,7 +321,7 @@ export class ActionManager {
      * @return {Array}  a list of targets whose actions were paused.
      */
     pauseAllRunningActions (): Array<any> {
-        const idsWithActions: object[] = [];
+        const idsWithActions: Record<string, unknown>[] = [];
         const locTargets = this._arrayTargets;
         for (let i = 0; i < locTargets.length; i++) {
             const element = locTargets[i];
