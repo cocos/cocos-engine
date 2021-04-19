@@ -2,14 +2,29 @@
 'use strict';
 
 const jsbPhy = globalThis['jsb.physics'];
-const books = [];
-const ptrToObj = {};
+
+jsbPhy['CACHE'] = {
+    trimesh: {},
+    convex: {},
+    heightField: {},
+    material: {},
+};
+
+jsbPhy['OBJECT'] = {
+    books: [],
+    ptrToObj: {},
+};
+
+const books = jsbPhy['OBJECT'].books;
+const ptrToObj = jsbPhy['OBJECT'].ptrToObj;
+
 const TriggerEventObject = {
     type: 'onTriggerEnter',
     selfCollider: null,
     otherCollider: null,
     impl: null,
 };
+
 const CollisionEventObject = {
     type: 'onCollisionEnter',
     selfCollider: null,
@@ -116,13 +131,7 @@ class PhysicsWorld {
         this._impl.setAllowSleep(v);
     }
 
-    setDefaultMaterial (v) {
-        this._impl.setDefaultMaterial(
-            v.friction,
-            v.rollingFriction,
-            v.restitution,
-        );
-    }
+    setDefaultMaterial (v) { }
 
     step (f, t, m) {
         books.forEach((v) => { v.syncToNativeTransform(); });
@@ -238,7 +247,9 @@ class RigidBody {
         this.useGravity(this._com.useGravity);
         this._impl.onEnable();
     }
+
     onDisable () { this._impl.onDisable(); }
+
     onDestroy () {
         unBookNode(this._com.node);
         this._impl.onDestroy();
@@ -314,7 +325,11 @@ class Shape {
         this._impl.onDestroy();
     }
     setMaterial (v) {
-        if (!v) v = cc.PhysicsSystem.instance.defaultMaterial;
+        const ins = cc.PhysicsSystem.instance;
+        if (!v) v = ins.defaultMaterial;
+        if (!jsbPhy['CACHE'].material[v.ID]) {
+            jsbPhy['CACHE'].material[v.ID] = ins.physicsWorld.impl.createMaterial(v.ID, v.friction, v.friction, v.restitution, 2, 2);
+        }
         this._impl.setMaterial(v.ID, v.friction, v.friction, v.restitution, 2, 2);
     }
     setAsTrigger (v) { this._impl.setAsTrigger(v); }
@@ -379,13 +394,6 @@ class PlaneShape extends Shape {
         this.setConstant(this._com.constant);
     }
 }
-
-
-jsbPhy['CACHE'] = {
-    trimesh: {},
-    convex: {},
-    heightField: {},
-};
 
 function getConvexMesh (v) {
     if (!jsbPhy.CACHE.convex[v._uuid]) {

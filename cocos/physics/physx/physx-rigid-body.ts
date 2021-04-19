@@ -41,9 +41,9 @@ const v3_0 = new Vec3();
 export class PhysXRigidBody implements IRigidBody {
     get impl (): any { return this._sharedBody.impl; }
 
-    get isAwake (): boolean { return !this.impl.isSleeping(); }
+    get isAwake (): boolean { return !this.isStatic && !this.impl.isSleeping(); }
     isSleepy = false;
-    get isSleeping (): boolean { return this.impl.isSleeping(); }
+    get isSleeping (): boolean { return this.isStatic || this.impl.isSleeping(); }
 
     get isEnabled (): boolean { return this._isEnabled; }
     get rigidBody (): RigidBody { return this._rigidBody; }

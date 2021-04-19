@@ -1105,7 +1105,8 @@ export class Node extends BaseNode {
     }
 
     public static clearBooks () {
-        bookOfChange.forEach((v, k, m) => { k.hasChangedFlags = TransformBit.NONE; });
+        bookOfChange.forEach((v, k, m) => { if (k.isValid) k.hasChangedFlags = TransformBit.NONE; });
+        bookOfChange.clear();
     }
 
     public syncToNativeTransform () {
