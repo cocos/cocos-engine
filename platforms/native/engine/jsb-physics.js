@@ -341,10 +341,12 @@ class RigidBody {
 
 const ESHAPE_FLAG = {
     NONE: 0,
-    IS_TRIGGER: 1 << 0,
-    NEED_EVENT: 1 << 1,
-    NEED_CONTACT_DATA: 1 << 2,
-    DETECT_CONTACT_CCD: 1 << 3,
+    QUERY_FILTER: 1 << 0,
+    QUERY_SINGLE_HIT: 1 << 2,
+    DETECT_TRIGGER_EVENT: 1 << 3,
+    DETECT_CONTACT_EVENT: 1 << 4,
+    DETECT_CONTACT_POINT: 1 << 5,
+    DETECT_CONTACT_CCD: 1 << 6,
 }
 
 class Shape {
@@ -561,6 +563,47 @@ class TerrainShape extends Shape {
     }
 }
 
+class Joint {
+    get impl () { return this._impl; }
+    get joint () { return this._com; }
+    setEnableCollision (v) { this._impl.setEnableCollision(v); }
+    setConnectedBody (v) { this._impl.setConnectedBody(v ? v.body.impl.getNodeHandle() : 0); }
+    initialize (v) {
+        this._com = v;
+        this._impl.initialize(v.node.handle);
+        ptrToObj[this._impl.getImpl()] = this;
+        this.onLoad();
+    }
+    onLoad () {
+        this.setConnectedBody(this._com.connectedBody);
+        this.setEnableCollision(this._com.enableCollision);
+    }
+    onEnable () { this._impl.onEnable(); }
+    onDisable () { this._impl.onDisable(); }
+    onDestroy () {
+        ptrToObj[this._impl.getImpl()] = null
+        delete ptrToObj[this._impl.getImpl()];
+        this._impl.onDestroy();
+    }
+}
+
+class DistanceJoint extends Joint {
+
+}
+
+class RevoluteJoint extends Joint {
+    constructor() { super(); this._impl = new jsbPhy.RevoluteJoint(); }
+    setAxis (v) { this._impl.setAxis(v.x, v.y, v.z); }
+    setPivotA (v) { this._impl.setPivotA(v.x, v.y, v.z); }
+    setPivotB (v) { this._impl.setPivotB(v.x, v.y, v.z); }
+    onLoad () {
+        super.onLoad();
+        this.setAxis(this._com.axis);
+        this.setPivotA(this._com.pivotA);
+        this.setPivotB(this._com.pivotB);
+    }
+}
+
 cc.physics.selector.select("physx", {
     PhysicsWorld: PhysicsWorld,
     RigidBody: RigidBody,
@@ -573,5 +616,5 @@ cc.physics.selector.select("physx", {
     TrimeshShape: TrimeshShape,
     TerrainShape: TerrainShape,
     // PointToPointConstraint: DistanceJoint,
-    // HingeConstraint: RevoluteJoint
+    HingeConstraint: RevoluteJoint,
 });
