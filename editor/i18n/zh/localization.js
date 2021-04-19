@@ -9,7 +9,6 @@ module.exports = {
     menu: {
         custom_script: '自定义脚本',
     },
-
     help: {
         cc: {
             Node: `${url}/${version}/manual/zh/concepts/scene/node-component.html`,
@@ -67,7 +66,6 @@ module.exports = {
             Spine: ``,
         },
     },
-
     animation: {
         default_clip: '在勾选自动播放或调用 play() 时默认播放的动画 clip。',
         clips: '通过脚本可以访问并播放的 AnimationClip 列表',

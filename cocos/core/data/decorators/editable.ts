@@ -200,6 +200,18 @@ export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV ? emptyDe
 
 /**
  * @en
+ * Sets the tab where this property is organized into, on property inspector.
+ * @zh
+ * 设置在属性检查器上该属性所属的分类标签。
+ * @param tabName 标签名。
+ */
+export const tab: (tabName: string) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (tabName) => property(makeEditable({
+        tab: tabName,
+    }));
+
+/**
+ * @en
  * Sets the allowed range of the property in editor.
  * @zh
  * 设置该属性在编辑器中允许设置的范围。

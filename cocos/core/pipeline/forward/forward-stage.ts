@@ -183,16 +183,8 @@ export class ForwardStage extends RenderStage {
         this._batchedQueue.uploadBuffers(cmdBuff);
         this._additiveLightQueue.gatherLightPasses(camera, cmdBuff);
         this._planarQueue.gatherShadowPasses(camera, cmdBuff);
-
-        const vp = camera.viewport;
         const sceneData = pipeline.pipelineSceneData;
-        // render area is not oriented
-        const w = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.height : camera.width;
-        const h = camera.window!.hasOnScreenAttachments && device.surfaceTransform % 2 ? camera.width : camera.height;
-        this._renderArea.x = vp.x * w;
-        this._renderArea.y = vp.y * h;
-        this._renderArea.width = vp.width * w * sceneData.shadingScale;
-        this._renderArea.height = vp.height * h * sceneData.shadingScale;
+        this._renderArea = pipeline.generateRenderArea(camera);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (sceneData.isHDR) {

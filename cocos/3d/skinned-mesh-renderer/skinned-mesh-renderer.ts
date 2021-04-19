@@ -142,7 +142,7 @@ export class SkinnedMeshRenderer extends MeshRenderer {
     private _updateModelType () {
         if (!this._skinningRoot) { return; }
         const comp = this._skinningRoot.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
-        if (comp) { this.setUseBakedAnimation(comp.useBakedAnimation); }
+        if (comp) { this.setUseBakedAnimation(comp.useBakedAnimation); } else { this.setUseBakedAnimation(false); }
     }
 
     private _update () {

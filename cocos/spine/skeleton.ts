@@ -10,7 +10,7 @@ import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache'
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, CCClass, CCObject, Color, Enum, Material, PrivateNode, Texture2D, builtinResMgr, ccenum, errorID, logID, warn } from '../core';
+import { Node, CCClass, CCObject, Color, Enum, Material, Texture2D, builtinResMgr, ccenum, errorID, logID, warn } from '../core';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
@@ -572,11 +572,6 @@ export class Skeleton extends Renderable2D {
         // this._super();
         // this.node._renderFlag &= ~FLAG_POST_RENDER;
         this.destroyRenderData();
-    }
-
-    // set blendHash value to skip ui component blend
-    public setBlendHash () {
-        if (this._blendHash !== -1) this._blendHash = -1;
     }
 
     /**
@@ -1323,6 +1318,27 @@ export class Skeleton extends Renderable2D {
         return inst;
     }
 
+    protected updateMaterial () {
+        if (this._customMaterial) {
+            this.setMaterial(this._customMaterial, 0);
+            this._blendHash = -1; // a flag to check merge
+            return;
+        }
+        const mat = this._updateBuiltinMaterial();
+        this.setMaterial(mat, 0);
+        this._updateBlendFunc();
+
+        if (this.premultipliedAlpha) {
+            this._blendHash = -1;
+        }
+    }
+
+    // HACK: set temporary material since Spine do not use internal material but must have one
+    protected _updateBuiltinMaterial () : Material {
+        const mat = builtinResMgr.get('ui-sprite-material');
+        return mat as Material;
+    }
+
     public querySockets () {
         if (!this._skeleton) {
             return [];
@@ -1556,7 +1572,8 @@ export class Skeleton extends Renderable2D {
     protected _updateDebugDraw () {
         if (this.debugBones || this.debugSlots || this.debugMesh) {
             if (!this._debugRenderer) {
-                const debugDrawNode = new PrivateNode('DEBUG_DRAW_NODE');
+                const debugDrawNode = new Node('DEBUG_DRAW_NODE');
+                debugDrawNode.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
                 const debugDraw = debugDrawNode.addComponent(Graphics);
                 debugDraw.lineWidth = 1;
                 debugDraw.strokeColor = new Color(255, 0, 0, 255);

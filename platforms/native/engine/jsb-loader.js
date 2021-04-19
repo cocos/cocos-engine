@@ -211,11 +211,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             if (err) {
                 return onComplete(err, null);
             }
-            downloader.importBundleEntry(bundleName).then(function() {
-                onComplete(null, out);
-            }).catch(function(err) {
-                onComplete(err);
-            });
+            onComplete(null, out);
         });
     });
 };
@@ -248,6 +244,20 @@ parser.parsePKMTex = downloader.downloadDomImage;
 parser.parseASTCTex = downloader.downloadDomImage;
 parser.parsePlist = parsePlist;
 downloader.downloadScript = downloadScript;
+
+function loadAudioPlayer (url, options, onComplete) {
+    cc.AudioPlayer.load(url).then(player => {
+        const audioMeta = {
+            url,
+            duration: player.duration,
+            type: player.type,
+        };
+        player.destroy();
+        onComplete(null, audioMeta);
+    }).catch(err => {
+        onComplete(err);
+    });
+}
 
 downloader.register({
     // JS
@@ -326,6 +336,13 @@ parser.register({
     '.tiff' : downloader.downloadDomImage,
     '.webp' : downloader.downloadDomImage,
     '.image' : downloader.downloadDomImage,
+
+    // Audio
+    '.mp3' : loadAudioPlayer,
+    '.ogg' : loadAudioPlayer,
+    '.wav' : loadAudioPlayer,
+    '.m4a' : loadAudioPlayer,
+
     // compressed texture
     '.pvr': downloader.downloadDomImage,
     '.pkm': downloader.downloadDomImage,

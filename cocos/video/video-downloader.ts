@@ -37,12 +37,6 @@ import { VideoClip } from './assets/video-clip';
 
 // eslint-disable-next-line consistent-return
 export function downloadVideo (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback) {
-    const __videoSupport = sys.__videoSupport;
-    const formatSupport = __videoSupport && __videoSupport.format;
-
-    if (!formatSupport || formatSupport.length === 0) {
-        return onComplete(new Error(getError(7703)));
-    }
     const video = document.createElement('video');
     const source = document.createElement('source');
     video.appendChild(source);
