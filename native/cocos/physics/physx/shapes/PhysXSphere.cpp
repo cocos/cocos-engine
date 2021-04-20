@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,19 +21,42 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
-#ifndef __COCOS2D_EXT_H__
-#define __COCOS2D_EXT_H__
+#include "physics/physx/shapes/PhysXShape.h"
+#include "physics/physx/shapes/PhysXSphere.h"
+#include "physics/physx/PhysXUtils.h"
+#include "physics/physx/PhysXWorld.h"
 
-#ifdef _MSC_VER
-#pragma warning(disable:4996)
-#endif
+namespace cc {
+namespace physics {
 
-#include "ExtensionMacros.h"
+PhysXSphere::PhysXSphere() : _mRadius(0.5F),
+                             PhysXShape(){};
 
-#include "assets-manager/AssetsManagerEx.h"
-#include "assets-manager/EventAssetsManagerEx.h"
-#include "assets-manager/Manifest.h"
+void PhysXSphere::setRadius(float r) {
+    _mRadius = r;
+    updateGeometry();
+    getShape().setGeometry(getPxGeometry<physx::PxSphereGeometry>());
+}
 
-#endif /* __COCOS2D_EXT_H__ */
+void PhysXSphere::onComponentSet() {
+    updateGeometry();
+    _mShape = PxGetPhysics().createShape(getPxGeometry<physx::PxSphereGeometry>(), getDefaultMaterial(), true);
+}
+
+void PhysXSphere::updateScale() {
+    updateGeometry();
+    getShape().setGeometry(getPxGeometry<physx::PxSphereGeometry>());
+    updateCenter();
+}
+
+void PhysXSphere::updateGeometry() {
+    physx::PxVec3 scale;
+    pxSetVec3Ext(scale, getSharedBody().getNode().worldScale);
+    auto &geo = getPxGeometry<physx::PxSphereGeometry>();
+    geo.radius = physx::PxMax(_mRadius * scale.abs().maxElement(), PX_NORMALIZATION_EPSILON);
+}
+
+} // namespace physics
+} // namespace cc

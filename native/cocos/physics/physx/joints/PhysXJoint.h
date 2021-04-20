@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,19 +21,41 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
-#ifndef __COCOS2D_EXT_H__
-#define __COCOS2D_EXT_H__
+#pragma once
 
-#ifdef _MSC_VER
-#pragma warning(disable:4996)
-#endif
+#include "physics/physx/PhysXInc.h"
+#include "physics/spec/IJoint.h"
+#include "base/Macros.h"
 
-#include "ExtensionMacros.h"
+namespace cc {
+namespace physics {
+class PhysXSharedBody;
 
-#include "assets-manager/AssetsManagerEx.h"
-#include "assets-manager/EventAssetsManagerEx.h"
-#include "assets-manager/Manifest.h"
+class PhysXJoint : virtual public IBaseJoint {
+    PX_NOCOPY(PhysXJoint)
+    PhysXJoint() = default;
 
-#endif /* __COCOS2D_EXT_H__ */
+public:
+    ~PhysXJoint() override = default;
+    CC_INLINE uintptr_t getImpl() override { return reinterpret_cast<uintptr_t>(this); }
+    void initialize(uint handle) override;
+    void onEnable() override;
+    void onDisable() override;
+    void onDestroy() override;
+    void setConnectedBody(uint handle) override;
+    void setEnableCollision(bool v) override;
+    virtual void updateScale0() = 0;
+    virtual void updateScale1() = 0;
+
+protected:
+    physx::PxJoint *_mJoint{nullptr};
+    PhysXSharedBody *_mSharedBody{nullptr};
+    PhysXSharedBody *_mConnectedBody{nullptr};
+    bool _mEnableCollision{false};
+    virtual void onComponentSet() = 0;
+};
+
+} // namespace physics
+} // namespace cc

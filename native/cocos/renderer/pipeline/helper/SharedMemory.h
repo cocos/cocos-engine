@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #pragma once
-#include "gfx-base/GFXDef.h"
+#include "renderer/gfx-base/GFXDef.h"
 
 #include "bindings/dop/BufferAllocator.h"
 #include "bindings/dop/BufferPool.h"

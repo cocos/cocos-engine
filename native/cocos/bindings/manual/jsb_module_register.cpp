@@ -92,6 +92,10 @@
 
 #endif // USE_MIDDLEWARE
 
+#if USE_PHYSICS_PHYSX
+    #include "cocos/bindings/auto/jsb_physics_auto.h"
+#endif
+
 using namespace cc;
 
 bool jsb_register_all_modules() {
@@ -155,6 +159,10 @@ bool jsb_register_all_modules() {
     #endif
 
 #endif // USE_MIDDLEWARE
+
+#if USE_PHYSICS_PHYSX
+    se->addRegisterCallback(register_all_physics);
+#endif
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 

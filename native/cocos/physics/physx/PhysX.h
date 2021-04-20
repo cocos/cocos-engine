@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,19 +21,22 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
-#ifndef __COCOS2D_EXT_H__
-#define __COCOS2D_EXT_H__
+#pragma once
 
-#ifdef _MSC_VER
-#pragma warning(disable:4996)
-#endif
+#include "physics/physx/PhysXWorld.h"
 
-#include "ExtensionMacros.h"
+#include "physics/physx/PhysXRigidBody.h"
 
-#include "assets-manager/AssetsManagerEx.h"
-#include "assets-manager/EventAssetsManagerEx.h"
-#include "assets-manager/Manifest.h"
+#include "physics/physx/shapes/PhysXBox.h"
+#include "physics/physx/shapes/PhysXCapsule.h"
+#include "physics/physx/shapes/PhysXCone.h"
+#include "physics/physx/shapes/PhysXCylinder.h"
+#include "physics/physx/shapes/PhysXPlane.h"
+#include "physics/physx/shapes/PhysXSphere.h"
+#include "physics/physx/shapes/PhysXTerrain.h"
+#include "physics/physx/shapes/PhysXTrimesh.h"
 
-#endif /* __COCOS2D_EXT_H__ */
+#include "physics/physx/joints/PhysXDistance.h"
+#include "physics/physx/joints/PhysXRevolute.h"

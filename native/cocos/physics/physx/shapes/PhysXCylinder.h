@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,19 +21,35 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
-#ifndef __COCOS2D_EXT_H__
-#define __COCOS2D_EXT_H__
+#pragma once
 
-#ifdef _MSC_VER
-#pragma warning(disable:4996)
-#endif
+#include "physics/physx/shapes/PhysXShape.h"
 
-#include "ExtensionMacros.h"
+namespace cc {
+namespace physics {
 
-#include "assets-manager/AssetsManagerEx.h"
-#include "assets-manager/EventAssetsManagerEx.h"
-#include "assets-manager/Manifest.h"
+class PhysXCylinder final : public PhysXShape, public ICylinderShape {
+public:
+    PhysXCylinder();
+    ~PhysXCylinder() override = default;
+    void setConvex(uintptr_t handle) override;
+    void setCylinder(float r, float h, EAxisDirection d) override;
+    void updateScale() override;
 
-#endif /* __COCOS2D_EXT_H__ */
+    struct Cylinder {
+        float          radius;
+        float          height;
+        EAxisDirection direction;
+    };
+
+private:
+    physx::PxConvexMesh *_mMesh;
+    Cylinder             _mData;
+    void                 updateGeometry();
+    void         onComponentSet() override;
+};
+
+} // namespace physics
+} // namespace cc

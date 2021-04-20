@@ -853,7 +853,7 @@ bool sevalue_to_native(const se::Value &from, std::array<uint8_t, CNT> *to, se::
         se::Value tmp;
         assert(len >= CNT);
         for (size_t i = 0; i < CNT; i++) {
-            array->getArrayElement(i, &tmp);
+            array->getArrayElement((uint)i, &tmp);
             sevalue_to_native(tmp, &(*to)[i], ctx);
         }
     } else {

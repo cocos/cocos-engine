@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,19 +21,40 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
-#ifndef __COCOS2D_EXT_H__
-#define __COCOS2D_EXT_H__
+#pragma once
 
-#ifdef _MSC_VER
-#pragma warning(disable:4996)
-#endif
+#include "physics/spec/ILifecycle.h"
+#include "renderer/pipeline/helper/SharedMemory.h"
+#include <cstdint>
 
-#include "ExtensionMacros.h"
+namespace cc {
+namespace physics {
 
-#include "assets-manager/AssetsManagerEx.h"
-#include "assets-manager/EventAssetsManagerEx.h"
-#include "assets-manager/Manifest.h"
+class IBaseJoint : virtual public ILifecycle {
+public:
+    ~IBaseJoint() override = default;
+    virtual void initialize(uint h) = 0;
+    virtual uintptr_t getImpl() = 0;
+    virtual void setEnableCollision(bool v) = 0;
+    virtual void setConnectedBody(uint v) = 0;
+};
 
-#endif /* __COCOS2D_EXT_H__ */
+class IDistanceJoint : virtual public IBaseJoint {
+public:
+    ~IDistanceJoint() override = default;
+    virtual void setPivotA(float x, float y, float z) = 0;
+    virtual void setPivotB(float x, float y, float z) = 0;
+};
+
+class IRevoluteJoint : virtual public IBaseJoint {
+public:
+    ~IRevoluteJoint() override = default;
+    virtual void setPivotA(float x, float y, float z) = 0;
+    virtual void setPivotB(float x, float y, float z) = 0;
+    virtual void setAxis(float x, float y, float z) = 0;
+};
+
+} // namespace physics
+} // namespace cc

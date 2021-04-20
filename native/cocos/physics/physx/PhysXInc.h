@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,19 +21,26 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
-#ifndef __COCOS2D_EXT_H__
-#define __COCOS2D_EXT_H__
+#pragma once
 
-#ifdef _MSC_VER
-#pragma warning(disable:4996)
+#if defined(_MSC_VER)
+    #pragma warning(disable : 4250)
+    #pragma warning(disable : 4996)
 #endif
 
-#include "ExtensionMacros.h"
+#include "base/Macros.h"
 
-#include "assets-manager/AssetsManagerEx.h"
-#include "assets-manager/EventAssetsManagerEx.h"
-#include "assets-manager/Manifest.h"
+#if !defined(NDEBUG) ^ defined(_DEBUG)
+    #ifdef CC_DEBUG
+        #define _DEBUG
+    #else
+        #define NDEBUG
+    #endif
+#endif
 
-#endif /* __COCOS2D_EXT_H__ */
+#include <PxConfig.h>
+#include <PxPhysicsAPI.h>
+#include <extensions/PxDefaultAllocator.h>
+#include <extensions/PxDefaultErrorCallback.h>

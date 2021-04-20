@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,19 +21,29 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
-#ifndef __COCOS2D_EXT_H__
-#define __COCOS2D_EXT_H__
+#pragma once
 
-#ifdef _MSC_VER
-#pragma warning(disable:4996)
-#endif
+#include "physics/physx/shapes/PhysXShape.h"
 
-#include "ExtensionMacros.h"
+namespace cc {
+namespace physics {
 
-#include "assets-manager/AssetsManagerEx.h"
-#include "assets-manager/EventAssetsManagerEx.h"
-#include "assets-manager/Manifest.h"
+class PhysXPlane final : public PhysXShape, public IPlaneShape {
+public:
+    PhysXPlane();
+    ~PhysXPlane() override = default;
+    void setConstant(float x) override;
+    void setNormal(float x, float y, float z) override;
+    void updateScale() override;
 
-#endif /* __COCOS2D_EXT_H__ */
+private:
+    physx::PxVec3 _mNormal;
+    physx::PxReal _mConstant;
+    void  updateCenter() override;
+    void  onComponentSet() override;
+};
+
+} // namespace physics
+} // namespace cc
