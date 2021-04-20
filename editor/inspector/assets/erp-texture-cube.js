@@ -228,7 +228,7 @@ exports.methods = {
     },
     dataChange (key, event) {
         this.metaList.forEach((meta) => {
-            meta.userData[key] = event.target.value;
+            meta.userData[key] = event.target.value || undefined;
         });
 
         this.dispatch('change');
