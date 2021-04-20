@@ -39,6 +39,7 @@ import { Node } from '../scene-graph/node';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import * as utils from '../utils/prefab';
+import { PrefabInfo } from '../utils/prefab';
 
 /**
  * @en An enumeration used with the [[Prefab.optimizationPolicy]] to specify how to optimize the instantiate operation.
@@ -185,6 +186,11 @@ class Prefab extends Asset {
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         this.data = new Node();
+        this.data.name = '(Missing Node)';
+        const prefabInfo = new PrefabInfo();
+        prefabInfo.asset = this;
+        prefabInfo.root = this.data;
+        this.data._prefab = prefabInfo;
     }
 
     public validate () {
