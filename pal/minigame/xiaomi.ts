@@ -48,15 +48,7 @@ Object.defineProperty(minigame, 'orientation', {
 //     qg.showKeyboard(res);
 // };
 
-// Accelerometer
-qg.onDeviceOrientationChange((res) => {
-    if (res.value === 'landscape') {
-        orientation = Orientation.LANDSCAPE_RIGHT;
-    } else if (res.value === 'landscapeReverse') {
-        orientation = Orientation.LANDSCAPE_LEFT;
-    }
-});
-
+// Accelerometers
 minigame.onAccelerometerChange = function (cb) {
     qg.onAccelerometerChange((res) => {
         let x = res.x;
