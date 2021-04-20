@@ -13,14 +13,15 @@ minigame.isDevTool = false;
 
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
 // init landscapeOrientation as LANDSCAPE_RIGHT
-let landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
-qg.onDeviceOrientationChange((res) => {
-    if (res.value === 'landscape') {
-        landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
-    } else if (res.value === 'landscapeReverse') {
-        landscapeOrientation = Orientation.LANDSCAPE_LEFT;
-    }
-});
+const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+// NOTE: onDeviceOrientationChange is not supported on this platform
+// qg.onDeviceOrientationChange((res) => {
+//     if (res.value === 'landscape') {
+//         landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+//     } else if (res.value === 'landscapeReverse') {
+//         landscapeOrientation = Orientation.LANDSCAPE_LEFT;
+//     }
+// });
 Object.defineProperty(minigame, 'orientation', {
     get () {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
