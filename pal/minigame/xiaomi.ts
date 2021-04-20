@@ -13,33 +13,34 @@ minigame.isDevTool = false;
 
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
 // init landscapeOrientation as LANDSCAPE_RIGHT
-let landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
-qg.onDeviceOrientationChange((res) => {
-    if (res.value === 'landscape') {
-        landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
-    } else if (res.value === 'landscapeReverse') {
-        landscapeOrientation = Orientation.LANDSCAPE_LEFT;
-    }
-});
+const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+// NOTE: onDeviceOrientationChange is not supported on this platform
+// qg.onDeviceOrientationChange((res) => {
+//     if (res.value === 'landscape') {
+//         landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+//     } else if (res.value === 'landscapeReverse') {
+//         landscapeOrientation = Orientation.LANDSCAPE_LEFT;
+//     }
+// });
 Object.defineProperty(minigame, 'orientation', {
     get () {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });
 
-// // TouchEvent
-// globalAdapter.onTouchStart = function (cb) {
-//     window.canvas.ontouchstart = cb;
-// };
-// globalAdapter.onTouchMove = function (cb) {
-//     window.canvas.ontouchmove = cb;
-// };
-// globalAdapter.onTouchEnd = function (cb) {
-//     window.canvas.ontouchend = cb;
-// };
-// globalAdapter.onTouchCancel = function (cb) {
-//     window.canvas.ontouchcancel = cb;
-// };
+// TouchEvent
+minigame.onTouchStart = function (cb) {
+    window.canvas.ontouchstart = cb;
+};
+minigame.onTouchMove = function (cb) {
+    window.canvas.ontouchmove = cb;
+};
+minigame.onTouchEnd = function (cb) {
+    window.canvas.ontouchend = cb;
+};
+minigame.onTouchCancel = function (cb) {
+    window.canvas.ontouchcancel = cb;
+};
 
 // // Keyboard
 // globalAdapter.showKeyboard = function (res) {
@@ -47,15 +48,7 @@ Object.defineProperty(minigame, 'orientation', {
 //     qg.showKeyboard(res);
 // };
 
-// Accelerometer
-qg.onDeviceOrientationChange((res) => {
-    if (res.value === 'landscape') {
-        orientation = Orientation.LANDSCAPE_RIGHT;
-    } else if (res.value === 'landscapeReverse') {
-        orientation = Orientation.LANDSCAPE_LEFT;
-    }
-});
-
+// Accelerometers
 minigame.onAccelerometerChange = function (cb) {
     qg.onAccelerometerChange((res) => {
         let x = res.x;
