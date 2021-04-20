@@ -1,66 +1,55 @@
 /****************************************************************************
-Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2010-2012 cocos2d-x.org
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __BASE_CCREF_H__
-#define __BASE_CCREF_H__
+#pragma once
 
 #include "base/Macros.h"
 #include "base/Config.h"
 
 #define CC_REF_LEAK_DETECTION 0
 
-/**
- * @addtogroup base
- * @{
- */
 namespace cc {
 
 class Ref;
 
 /**
   * Interface that defines how to clone an Ref.
-  * @lua NA
-  * @js NA
   */
 class CC_DLL Clonable {
 public:
     /** Returns a copy of the Ref. */
     virtual Clonable *clone() const = 0;
 
-    /**
-     * @js NA
-     * @lua NA
-     */
-    virtual ~Clonable(){};
+    virtual ~Clonable() = default;
 };
 
 /**
  * Ref is used for reference count management. If a class inherits from Ref,
  * then it is easy to be shared in different places.
- * @js NA
  */
 class CC_DLL Ref {
 public:
@@ -70,7 +59,6 @@ public:
      * This increases the Ref's reference count.
      *
      * @see release, autorelease
-     * @js NA
      */
     void retain();
 
@@ -83,7 +71,6 @@ public:
      * destructed.
      *
      * @see retain, autorelease
-     * @js NA
      */
     void release();
 
@@ -99,8 +86,6 @@ public:
      * @returns The Ref itself.
      *
      * @see AutoreleasePool, retain, release
-     * @js NA
-     * @lua NA
      */
     Ref *autorelease();
 
@@ -108,7 +93,6 @@ public:
      * Returns the Ref's current reference count.
      *
      * @returns The Ref's reference count.
-     * @js NA
      */
     unsigned int getReferenceCount() const;
 
@@ -117,16 +101,9 @@ protected:
      * Constructor
      *
      * The Ref's reference count is 1 after construction.
-     * @js NA
      */
     Ref();
 
-    /**
-     * Destructor
-     *
-     * @js NA
-     * @lua NA
-     */
     virtual ~Ref();
 
 protected:
@@ -143,7 +120,3 @@ public:
 };
 
 } // namespace cc
-// end of base group
-/** @} */
-
-#endif // __BASE_CCREF_H__

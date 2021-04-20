@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
- 
- http://www.cocos2d-x.org
- 
+ Copyright (c) 2018-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- 
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,7 +21,8 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
+
 #include "EditBox.h"
 #include "platform/Application.h"
 #include "platform/win32/View-win32.h"
@@ -41,8 +43,10 @@ namespace cc {
 ************************************************************************/
 
 namespace {
+bool g_isMultiline = false;
 HWND g_hwndEditBox = nullptr;
 WNDPROC g_prevMainWindowProc = nullptr;
+WNDPROC g_prevEditWindowProc = nullptr;
 se::Value g_textInputCallback;
 
 int getCocosWindowHeight() {
@@ -117,6 +121,22 @@ LRESULT mainWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
 
     return CallWindowProc(g_prevMainWindowProc, hwnd, msg, wParam, lParam);
 }
+
+LRESULT editWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
+        case WM_KEYUP:
+            if (wParam == VK_RETURN && !g_isMultiline) {
+                EditBox::complete();
+                EditBox::hide();
+                SetFocus(cc_get_application_view()->getWindowHandler());
+            }
+            break;
+        default:
+            break;
+    }
+    
+    return CallWindowProc(g_prevEditWindowProc, hwnd, msg, wParam, lParam);
+}
 } // namespace
 
 /*************************************************************************
@@ -126,11 +146,12 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
     int windowHeight = getCocosWindowHeight();
     if (!g_hwndEditBox) {
         HWND parent = cc_get_application_view()->getWindowHandler();
-        g_prevMainWindowProc = (WNDPROC)SetWindowLongPtr(parent, GWL_WNDPROC, (LONG_PTR)mainWindowProc);
 
         UINT32 flags = WS_CHILD | ES_LEFT | WS_TABSTOP | ES_AUTOHSCROLL;
-        if (showInfo.isMultiline)
+        g_isMultiline = showInfo.isMultiline;
+        if (g_isMultiline) {
             flags |= ES_MULTILINE;
+        }
         if (showInfo.inputType == "password")
             flags |= WS_EX_TRANSPARENT;
 
@@ -159,7 +180,11 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
                            NULL);
             std::wstring_convert<std::codecvt_utf8<wchar_t>> convert;
             CC_LOG_DEBUG("Can not create editbox: %s", convert.to_bytes(buffer).c_str());
+            return;
         }
+
+        g_prevMainWindowProc = (WNDPROC)SetWindowLongPtr(parent, GWL_WNDPROC, (LONG_PTR)mainWindowProc);
+        g_prevEditWindowProc = (WNDPROC)SetWindowLongPtr(g_hwndEditBox, GWL_WNDPROC, (LONG_PTR)editWindowProc);
     }
 
     ::SendMessageW(g_hwndEditBox, EM_LIMITTEXT, showInfo.maxLength, 0);
@@ -179,9 +204,10 @@ void EditBox::show(const EditBox::ShowInfo &showInfo) {
 
 void EditBox::hide() {
     DestroyWindow(g_hwndEditBox);
-    g_hwndEditBox = nullptr;
 
     SetWindowLongPtr(cc_get_application_view()->getWindowHandler(), GWL_WNDPROC, (LONG_PTR)g_prevMainWindowProc);
+    SetWindowLongPtr(g_hwndEditBox, GWL_WNDPROC, (LONG_PTR)g_prevEditWindowProc);
+    g_hwndEditBox = nullptr;
 }
 
 bool EditBox::complete() {

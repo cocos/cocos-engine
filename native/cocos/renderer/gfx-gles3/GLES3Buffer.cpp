@@ -1,129 +1,91 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "GLES3Std.h"
 
 #include "GLES3Buffer.h"
 #include "GLES3Commands.h"
+#include "GLES3Device.h"
 
 namespace cc {
 namespace gfx {
 
-GLES3Buffer::GLES3Buffer(Device *device)
-: Buffer(device) {
-}
+GLES3Buffer::GLES3Buffer() = default;
 
 GLES3Buffer::~GLES3Buffer() {
+    destroy();
 }
 
-bool GLES3Buffer::initialize(const BufferInfo &info) {
-    _usage = info.usage;
-    _memUsage = info.memUsage;
-    _size = info.size;
-    _stride = std::max(info.stride, 1U);
-    _count = _size / _stride;
-    _flags = info.flags;
-
-    _gpuBuffer = CC_NEW(GLES3GPUBuffer);
-    if (!_gpuBuffer) {
-        CC_LOG_ERROR("GLES3Buffer: CC_NEW GLES3GPUBuffer failed.");
-        return false;
-    }
-    _gpuBuffer->usage = _usage;
+void GLES3Buffer::doInit(const BufferInfo & /*info*/) {
+    _gpuBuffer           = CC_NEW(GLES3GPUBuffer);
+    _gpuBuffer->usage    = _usage;
     _gpuBuffer->memUsage = _memUsage;
-    _gpuBuffer->size = _size;
-    _gpuBuffer->stride = _stride;
-    _gpuBuffer->count = _count;
+    _gpuBuffer->size     = _size;
+    _gpuBuffer->stride   = _stride;
+    _gpuBuffer->count    = _count;
 
-    if (_usage & BufferUsageBit::INDIRECT) {
+    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         _gpuBuffer->indirects.resize(_count);
     }
 
-    GLES3CmdFuncCreateBuffer((GLES3Device *)_device, _gpuBuffer);
-    _device->getMemoryStatus().bufferSize += _size;
-    
-    return true;
+    cmdFuncGLES3CreateBuffer(GLES3Device::getInstance(), _gpuBuffer);
 }
 
-bool GLES3Buffer::initialize(const BufferViewInfo &info) {
-
-    _isBufferView = true;
-
-    GLES3Buffer *buffer = (GLES3Buffer *)info.buffer;
-
-    _usage = buffer->_usage;
-    _memUsage = buffer->_memUsage;
-    _size = _stride = info.range;
-    _count = 1u;
-    _flags = buffer->_flags;
-
-    _gpuBuffer = CC_NEW(GLES3GPUBuffer);
-    _gpuBuffer->usage = _usage;
-    _gpuBuffer->memUsage = _memUsage;
-    _gpuBuffer->size = _size;
-    _gpuBuffer->stride = _stride;
-    _gpuBuffer->count = _count;
-    _gpuBuffer->glTarget = buffer->_gpuBuffer->glTarget;
-    _gpuBuffer->glBuffer = buffer->_gpuBuffer->glBuffer;
-    _gpuBuffer->glOffset = info.offset;
-    _gpuBuffer->buffer = buffer->_gpuBuffer->buffer;
+void GLES3Buffer::doInit(const BufferViewInfo &info) {
+    auto *buffer          = static_cast<GLES3Buffer *>(info.buffer);
+    _gpuBuffer            = CC_NEW(GLES3GPUBuffer);
+    _gpuBuffer->usage     = _usage;
+    _gpuBuffer->memUsage  = _memUsage;
+    _gpuBuffer->size      = _size;
+    _gpuBuffer->stride    = _stride;
+    _gpuBuffer->count     = _count;
+    _gpuBuffer->glTarget  = buffer->_gpuBuffer->glTarget;
+    _gpuBuffer->glBuffer  = buffer->_gpuBuffer->glBuffer;
+    _gpuBuffer->glOffset  = info.offset;
+    _gpuBuffer->buffer    = buffer->_gpuBuffer->buffer;
     _gpuBuffer->indirects = buffer->_gpuBuffer->indirects;
-
-    return true;
 }
 
-void GLES3Buffer::destroy() {
+void GLES3Buffer::doDestroy() {
     if (_gpuBuffer) {
         if (!_isBufferView) {
-            GLES3CmdFuncDestroyBuffer((GLES3Device *)_device, _gpuBuffer);
-            _device->getMemoryStatus().bufferSize -= _size;
+            cmdFuncGLES3DestroyBuffer(GLES3Device::getInstance(), _gpuBuffer);
         }
         CC_DELETE(_gpuBuffer);
         _gpuBuffer = nullptr;
     }
 }
 
-void GLES3Buffer::resize(uint size) {
-    CCASSERT(!_isBufferView, "Cannot resize buffer views");
-
-    if (_size != size) {
-        const uint oldSize = _size;
-        _size = size;
-        _count = _size / _stride;
-
-        MemoryStatus &status = _device->getMemoryStatus();
-        _gpuBuffer->size = _size;
-        _gpuBuffer->count = _count;
-        GLES3CmdFuncResizeBuffer((GLES3Device *)_device, _gpuBuffer);
-        status.bufferSize -= oldSize;
-        status.bufferSize += _size;
-    }
+void GLES3Buffer::doResize(uint size, uint count) {
+    _gpuBuffer->size  = size;
+    _gpuBuffer->count = count;
+    cmdFuncGLES3ResizeBuffer(GLES3Device::getInstance(), _gpuBuffer);
 }
 
-void GLES3Buffer::update(void *buffer, uint size) {
-    CCASSERT(!_isBufferView, "Cannot update through buffer views");
-
-    GLES3CmdFuncUpdateBuffer((GLES3Device *)_device, _gpuBuffer, buffer, 0u, size);
+void GLES3Buffer::update(const void *buffer, uint size) {
+    cmdFuncGLES3UpdateBuffer(GLES3Device::getInstance(), _gpuBuffer, buffer, 0U, size);
 }
 
 } // namespace gfx

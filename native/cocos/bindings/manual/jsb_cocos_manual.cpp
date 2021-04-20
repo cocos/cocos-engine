@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,13 +21,13 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #include "jsb_cocos_manual.h"
 
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/bindings/manual/jsb_global.h"
+#include "cocos/bindings/manual/jsb_global_init.h"
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
 
 #include "storage/local-storage/LocalStorage.h"
@@ -639,7 +639,7 @@ static bool js_engine_FileUtils_listFilesRecursively(se::State &s) {
         cobj->listFilesRecursively(arg0, &arg1);
         se::Object *list = args[1].toObject();
         SE_PRECONDITION2(args[1].isObject() && list->isArray(), false, "js_engine_FileUtils_listFilesRecursively : 2nd argument should be an Array");
-        for (size_t i = 0; i < arg1.size(); i++) {
+        for (uint i = 0; i < static_cast<uint>(arg1.size()); i++) {
             list->setArrayElement(i, se::Value(arg1[i]));
         }
         list->setProperty("length", se::Value(arg1.size()));

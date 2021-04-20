@@ -1,18 +1,20 @@
 /****************************************************************************
  Copyright (c) 2016-2017 Chukong Technologies Inc.
- 
- http://www.cocos2d-x.org
- 
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- 
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,32 +22,25 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- 
- Inspired by https://github.com/vit-vit/CTPL
- 
- ****************************************************************************/
+****************************************************************************/
+
 #pragma once
 
 #include "base/Utils.h"
 
-#include <functional>
-#include <memory>
-#include <thread>
-#include <queue>
-#include <mutex>
-#include <condition_variable>
-#include <vector>
 #include <atomic>
 #include <chrono>
+#include <condition_variable>
+#include <functional>
+#include <memory>
+#include <mutex>
+#include <queue>
+#include <thread>
+#include <vector>
 
 namespace cc {
 
-/**
- * @addtogroup base
- * @{
- */
-
-class CC_DLL ThreadPool {
+class CC_DLL LegacyThreadPool {
 public:
     enum class TaskType {
         DEFAULT = 0,
@@ -58,7 +53,7 @@ public:
     /*
      * Gets the default thread pool which is a cached thread pool with default parameters.
      */
-    static ThreadPool *getDefaultThreadPool();
+    static LegacyThreadPool *getDefaultThreadPool();
 
     /*
      * Destroys the default thread pool
@@ -69,23 +64,23 @@ public:
      * Creates a cached thread pool
      * @note The return value has to be delete while it doesn't needed
      */
-    static ThreadPool *newCachedThreadPool(int minThreadNum, int maxThreadNum, int shrinkInterval,
-                                           int shrinkStep, int stretchStep);
+    static LegacyThreadPool *newCachedThreadPool(int minThreadNum, int maxThreadNum, int shrinkInterval,
+                                                 int shrinkStep, int stretchStep);
 
     /*
      * Creates a thread pool with fixed thread count
      * @note The return value has to be delete while it doesn't needed
      */
-    static ThreadPool *newFixedThreadPool(int threadNum);
+    static LegacyThreadPool *newFixedThreadPool(int threadNum);
 
     /*
      * Creates a thread pool with only one thread in the pool, it could be used to execute multiply tasks serially in just one thread.
      * @note The return value has to be delete while it doesn't needed
      */
-    static ThreadPool *newSingleThreadPool();
+    static LegacyThreadPool *newSingleThreadPool();
 
     // the destructor waits for all the functions in the queue to be finished
-    ~ThreadPool();
+    ~LegacyThreadPool();
 
     /* Pushs a task to thread pool
      *  @param runnable The callback of the task executed in sub thread
@@ -122,15 +117,15 @@ public:
     bool tryShrinkPool();
 
 private:
-    ThreadPool(int minNum, int maxNum);
+    LegacyThreadPool(int minNum, int maxNum);
 
-    ThreadPool(const ThreadPool &);
+    LegacyThreadPool(const LegacyThreadPool &);
 
-    ThreadPool(ThreadPool &&);
+    LegacyThreadPool(LegacyThreadPool &&) noexcept;
 
-    ThreadPool &operator=(const ThreadPool &);
+    LegacyThreadPool &operator=(const LegacyThreadPool &);
 
-    ThreadPool &operator=(ThreadPool &&);
+    LegacyThreadPool &operator=(LegacyThreadPool &&) noexcept;
 
     void init();
 
@@ -150,7 +145,7 @@ private:
 
     void stretchPool(int count);
 
-    std::vector<std::unique_ptr<std::thread>> _threads;
+    std::vector<std::unique_ptr<std::thread>>       _threads;
     std::vector<std::shared_ptr<std::atomic<bool>>> _abortFlags;
     std::vector<std::shared_ptr<std::atomic<bool>>> _idleFlags;
     std::vector<std::shared_ptr<std::atomic<bool>>> _initedFlags;
@@ -175,51 +170,50 @@ private:
         }
 
         bool empty() const {
-            auto thiz = const_cast<ThreadSafeQueue *>(this);
+            auto                         thiz = const_cast<ThreadSafeQueue *>(this);
             std::unique_lock<std::mutex> lock(thiz->mutex);
             return this->q.empty();
         }
 
         size_t size() const {
-            auto thiz = const_cast<ThreadSafeQueue *>(this);
+            auto                         thiz = const_cast<ThreadSafeQueue *>(this);
             std::unique_lock<std::mutex> lock(thiz->mutex);
             return this->q.size();
         }
 
     private:
         std::queue<T> q;
-        std::mutex mutex;
+        std::mutex    mutex;
     };
 
     struct Task {
-        TaskType type;
+        TaskType                  type;
         std::function<void(int)> *callback;
     };
 
+    static LegacyThreadPool *_instance;
+
     ThreadSafeQueue<Task> _taskQueue;
-    std::atomic<bool> _isDone;
-    std::atomic<bool> _isStop;
+    std::atomic<bool>     _isDone{false};
+    std::atomic<bool>     _isStop{false};
 
     //IDEA: std::atomic<int> isn't supported by ndk-r10e while compiling with `armeabi` arch.
     // So using a mutex here instead.
-    int _idleThreadNum; // how many threads are waiting
+    int        _idleThreadNum{0}; // how many threads are waiting
     std::mutex _idleThreadNumMutex;
 
-    std::mutex _mutex;
+    std::mutex              _mutex;
     std::condition_variable _cv;
 
-    int _minThreadNum;
-    int _maxThreadNum;
-    int _initedThreadNum;
+    int _minThreadNum{0};
+    int _maxThreadNum{0};
+    int _initedThreadNum{0};
 
     std::chrono::time_point<std::chrono::high_resolution_clock> _lastShrinkTime;
-    float _shrinkInterval;
-    int _shrinkStep;
-    int _stretchStep;
-    bool _isFixedSize;
+    float                                                       _shrinkInterval{5};
+    int                                                         _shrinkStep{2};
+    int                                                         _stretchStep{2};
+    bool                                                        _isFixedSize{false};
 };
-
-// end of base group
-/// @}
 
 } // namespace cc

@@ -1,18 +1,20 @@
 /****************************************************************************
  Copyright (c) 2016-2017 Chukong Technologies Inc.
- 
- http://www.cocos2d-x.org
- 
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- 
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,15 +22,12 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- 
- Inspired by https://github.com/vit-vit/CTPL
- 
- ****************************************************************************/
+****************************************************************************/
 
 #include "base/ThreadPool.h"
 #include "platform/StdC.h"
-#include <memory>
 #include <chrono>
+#include <memory>
 
 #ifdef __ANDROID__
     #include <android/log.h>
@@ -45,31 +44,31 @@ namespace cc {
 #define DEFAULT_THREAD_POOL_MIN_NUM (4)
 #define DEFAULT_THREAD_POOL_MAX_NUM (20)
 
-#define DEFAULT_SHRINK_INTERVAL (5.0f)
+#define DEFAULT_SHRINK_INTERVAL (5)
 #define DEFAULT_SHRINK_STEP     (2)
 #define DEFAULT_STRETCH_STEP    (2)
 
-static ThreadPool *__defaultThreadPool = nullptr;
+LegacyThreadPool *LegacyThreadPool::_instance = nullptr;
 
-ThreadPool *ThreadPool::getDefaultThreadPool() {
-    if (__defaultThreadPool == nullptr) {
-        __defaultThreadPool = newCachedThreadPool(DEFAULT_THREAD_POOL_MIN_NUM,
-                                                  DEFAULT_THREAD_POOL_MAX_NUM,
-                                                  DEFAULT_SHRINK_INTERVAL, DEFAULT_SHRINK_STEP,
-                                                  DEFAULT_STRETCH_STEP);
+LegacyThreadPool *LegacyThreadPool::getDefaultThreadPool() {
+    if (LegacyThreadPool::_instance == nullptr) {
+        LegacyThreadPool::_instance = newCachedThreadPool(DEFAULT_THREAD_POOL_MIN_NUM,
+                                                          DEFAULT_THREAD_POOL_MAX_NUM,
+                                                          DEFAULT_SHRINK_INTERVAL, DEFAULT_SHRINK_STEP,
+                                                          DEFAULT_STRETCH_STEP);
     }
 
-    return __defaultThreadPool;
+    return LegacyThreadPool::_instance;
 }
 
-void ThreadPool::destroyDefaultThreadPool() {
-    delete __defaultThreadPool;
-    __defaultThreadPool = nullptr;
+void LegacyThreadPool::destroyDefaultThreadPool() {
+    delete LegacyThreadPool::_instance;
+    LegacyThreadPool::_instance = nullptr;
 }
 
-ThreadPool *ThreadPool::newCachedThreadPool(int minThreadNum, int maxThreadNum, int shrinkInterval,
-                                            int shrinkStep, int stretchStep) {
-    ThreadPool *pool = new (std::nothrow) ThreadPool(minThreadNum, maxThreadNum);
+LegacyThreadPool *LegacyThreadPool::newCachedThreadPool(int minThreadNum, int maxThreadNum, int shrinkInterval,
+                                                        int shrinkStep, int stretchStep) {
+    auto *pool = new (std::nothrow) LegacyThreadPool(minThreadNum, maxThreadNum);
     if (pool != nullptr) {
         pool->setFixedSize(false);
         pool->setShrinkInterval(shrinkInterval);
@@ -79,40 +78,41 @@ ThreadPool *ThreadPool::newCachedThreadPool(int minThreadNum, int maxThreadNum, 
     return pool;
 }
 
-ThreadPool *ThreadPool::newFixedThreadPool(int threadNum) {
-    ThreadPool *pool = new (std::nothrow) ThreadPool(threadNum, threadNum);
+LegacyThreadPool *LegacyThreadPool::newFixedThreadPool(int threadNum) {
+    auto *pool = new (std::nothrow) LegacyThreadPool(threadNum, threadNum);
     if (pool != nullptr) {
         pool->setFixedSize(true);
     }
     return pool;
 }
 
-ThreadPool *ThreadPool::newSingleThreadPool() {
-    ThreadPool *pool = new (std::nothrow) ThreadPool(1, 1);
+LegacyThreadPool *LegacyThreadPool::newSingleThreadPool() {
+    auto *pool = new (std::nothrow) LegacyThreadPool(1, 1);
     if (pool != nullptr) {
         pool->setFixedSize(true);
     }
     return pool;
 }
 
-ThreadPool::ThreadPool(int minNum, int maxNum)
-: _isDone(false), _isStop(false), _idleThreadNum(0), _minThreadNum(minNum), _maxThreadNum(maxNum), _initedThreadNum(0), _shrinkInterval(DEFAULT_SHRINK_INTERVAL), _shrinkStep(DEFAULT_SHRINK_STEP), _stretchStep(DEFAULT_STRETCH_STEP), _isFixedSize(false) {
+LegacyThreadPool::LegacyThreadPool(int minNum, int maxNum)
+: _minThreadNum(minNum),
+  _maxThreadNum(maxNum) {
     init();
 }
 
 // the destructor waits for all the functions in the queue to be finished
-ThreadPool::~ThreadPool() {
+LegacyThreadPool::~LegacyThreadPool() {
     stop();
 }
 
 // number of idle threads
-int ThreadPool::getIdleThreadNum() const {
-    ThreadPool *thiz = const_cast<ThreadPool *>(this);
+int LegacyThreadPool::getIdleThreadNum() const {
+    auto *                      thiz = const_cast<LegacyThreadPool *>(this);
     std::lock_guard<std::mutex> lk(thiz->_idleThreadNumMutex);
     return _idleThreadNum;
 }
 
-void ThreadPool::init() {
+void LegacyThreadPool::init() {
     _lastShrinkTime = std::chrono::high_resolution_clock::now();
 
     _maxThreadNum = std::max(_minThreadNum, _maxThreadNum);
@@ -130,19 +130,19 @@ void ThreadPool::init() {
             _initedFlags[i] = std::make_shared<std::atomic<bool>>(true);
             ++_initedThreadNum;
         } else {
-            _abortFlags[i] = std::make_shared<std::atomic<bool>>(true);
+            _abortFlags[i]  = std::make_shared<std::atomic<bool>>(true);
             _initedFlags[i] = std::make_shared<std::atomic<bool>>(false);
         }
     }
 }
 
-bool ThreadPool::tryShrinkPool() {
+bool LegacyThreadPool::tryShrinkPool() {
     LOGD("shrink pool, _idleThreadNum = %d \n", getIdleThreadNum());
 
     auto before = std::chrono::high_resolution_clock::now();
 
     std::vector<int> threadIDsToJoin;
-    int maxThreadNumToJoin = std::min(_initedThreadNum - _minThreadNum, _shrinkStep);
+    int              maxThreadNumToJoin = std::min(_initedThreadNum - _minThreadNum, _shrinkStep);
 
     for (int i = 0; i < _maxThreadNum; ++i) {
         if ((int)threadIDsToJoin.size() >= maxThreadNumToJoin) {
@@ -177,13 +177,10 @@ bool ThreadPool::tryShrinkPool() {
 
     LOGD("shrink %d threads, waste: %f seconds\n", (int)threadIDsToJoin.size(), seconds);
 
-    if (_initedThreadNum <= _minThreadNum)
-        return true;
-
-    return false;
+    return (_initedThreadNum <= _minThreadNum);
 }
 
-void ThreadPool::stretchPool(int count) {
+void LegacyThreadPool::stretchPool(int count) {
     auto before = std::chrono::high_resolution_clock::now();
 
     int oldThreadCount = _initedThreadNum;
@@ -203,7 +200,7 @@ void ThreadPool::stretchPool(int count) {
     }
 
     if (newThreadCount > 0) {
-        auto after = std::chrono::high_resolution_clock::now();
+        auto  after   = std::chrono::high_resolution_clock::now();
         float seconds = TIME_MINUS(after, before);
 
         LOGD("stretch pool from %d to %d, waste %f seconds\n", oldThreadCount, _initedThreadNum,
@@ -211,8 +208,8 @@ void ThreadPool::stretchPool(int count) {
     }
 }
 
-void ThreadPool::pushTask(const std::function<void(int)> &runnable,
-                          TaskType type /* = DEFAULT*/) {
+void LegacyThreadPool::pushTask(const std::function<void(int)> &runnable,
+                                TaskType                        type /* = DEFAULT*/) {
     if (!_isFixedSize) {
         _idleThreadNumMutex.lock();
         int idleNum = _idleThreadNum;
@@ -220,7 +217,7 @@ void ThreadPool::pushTask(const std::function<void(int)> &runnable,
 
         if (idleNum > _minThreadNum) {
             if (_taskQueue.empty()) {
-                auto now = std::chrono::high_resolution_clock::now();
+                auto  now     = std::chrono::high_resolution_clock::now();
                 float seconds = TIME_MINUS(now, _lastShrinkTime);
                 if (seconds > _shrinkInterval) {
                     tryShrinkPool();
@@ -237,9 +234,9 @@ void ThreadPool::pushTask(const std::function<void(int)> &runnable,
     });
 
     Task task;
-    task.type = type;
+    task.type     = type;
     task.callback = callback;
-    _taskQueue.push(std::move(task));
+    _taskQueue.push(task);
 
     {
         std::unique_lock<std::mutex> lock(_mutex);
@@ -247,14 +244,14 @@ void ThreadPool::pushTask(const std::function<void(int)> &runnable,
     }
 }
 
-void ThreadPool::stopAllTasks() {
+void LegacyThreadPool::stopAllTasks() {
     Task task;
     while (_taskQueue.pop(task)) {
         delete task.callback; // empty the queue
     }
 }
 
-void ThreadPool::stopTasksByType(TaskType type) {
+void LegacyThreadPool::stopTasksByType(TaskType type) {
     Task task;
 
     std::vector<Task> notStopTasks;
@@ -275,7 +272,7 @@ void ThreadPool::stopTasksByType(TaskType type) {
     }
 }
 
-void ThreadPool::joinThread(int tid) {
+void LegacyThreadPool::joinThread(int tid) {
     if (tid < 0 || tid >= (int)_threads.size()) {
         LOGD("Invalid thread id %d\n", tid);
         return;
@@ -289,32 +286,37 @@ void ThreadPool::joinThread(int tid) {
     }
 }
 
-int ThreadPool::getTaskNum() const {
+int LegacyThreadPool::getTaskNum() const {
     return (int)_taskQueue.size();
 }
 
-void ThreadPool::setFixedSize(bool isFixedSize) {
+void LegacyThreadPool::setFixedSize(bool isFixedSize) {
     _isFixedSize = isFixedSize;
 }
 
-void ThreadPool::setShrinkInterval(int seconds) {
-    if (seconds >= 0)
-        _shrinkInterval = (float)seconds;
+void LegacyThreadPool::setShrinkInterval(int seconds) {
+    if (seconds >= 0) {
+        _shrinkInterval = static_cast<float>(seconds);
+    }
 }
 
-void ThreadPool::setShrinkStep(int step) {
-    if (step > 0)
+void LegacyThreadPool::setShrinkStep(int step) {
+    if (step > 0) {
         _shrinkStep = step;
+    }
 }
 
-void ThreadPool::setStretchStep(int step) {
-    if (step > 0)
+void LegacyThreadPool::setStretchStep(int step) {
+    if (step > 0) {
         _stretchStep = step;
+    }
 }
 
-void ThreadPool::stop() {
-    if (_isDone || _isStop)
+void LegacyThreadPool::stop() {
+    if (_isDone || _isStop) {
         return;
+    }
+
     _isDone = true; // give the waiting threads a command to finish
 
     {
@@ -332,22 +334,23 @@ void ThreadPool::stop() {
     _abortFlags.clear();
 }
 
-void ThreadPool::setThread(int tid) {
-    std::shared_ptr<std::atomic<bool>> abort_ptr(
+void LegacyThreadPool::setThread(int tid) {
+    std::shared_ptr<std::atomic<bool>> abortPtr(
         _abortFlags[tid]); // a copy of the shared ptr to the flag
-    auto f = [this, tid, abort_ptr /* a copy of the shared ptr to the abort */]() {
-        std::atomic<bool> &abort = *abort_ptr;
-        Task task;
-        bool isPop = _taskQueue.pop(task);
+    auto f = [this, tid, abortPtr /* a copy of the shared ptr to the abort */]() {
+        std::atomic<bool> &abort = *abortPtr;
+        Task               task;
+        bool               isPop = _taskQueue.pop(task);
         while (true) {
             while (isPop) { // if there is anything in the queue
                 std::unique_ptr<std::function<void(int)>> func(
                     task.callback); // at return, delete the function even if an exception occurred
                 (*task.callback)(tid);
-                if (abort)
+                if (abort) {
                     return; // the thread is wanted to stop, return even if the queue is not empty yet
-                else
-                    isPop = _taskQueue.pop(task);
+                }
+
+                isPop = _taskQueue.pop(task);
             }
             // the queue is empty here, wait for the next command
             std::unique_lock<std::mutex> lock(_mutex);
@@ -365,8 +368,9 @@ void ThreadPool::setThread(int tid) {
             --_idleThreadNum;
             _idleThreadNumMutex.unlock();
 
-            if (!isPop)
+            if (!isPop) {
                 return; // if the queue is empty and isDone == true or *flag then return
+            }
         }
     };
     _threads[tid].reset(

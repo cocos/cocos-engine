@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
- 
- http://www.cocos2d-x.org
- 
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- 
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,36 +21,43 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
+
 #import "View.h"
 #import "KeyCodeHelper.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #include "platform/Application.h"
 #import <AppKit/NSEvent.h>
 #import <AppKit/NSTouch.h>
+#import <AppKit/NSScreen.h>
+#import <QuartzCore/QuartzCore.h>
 
 @implementation View {
     cc::MouseEvent _mouseEvent;
     cc::KeyboardEvent _keyboardEvent;
 }
 
+#ifdef CC_USE_METAL
+- (CALayer *)makeBackingLayer
+{
+    return [CAMetalLayer layer];
+}
+#endif
+
 - (instancetype)initWithFrame:(NSRect)frameRect {
     if (self = [super initWithFrame:frameRect]) {
         [self.window makeFirstResponder:self];
 
-        // Add tracking area to receive mouse move events.
-        CGSize viewDrawableSize = self.drawableSize;
-        NSRect rect = {0, 0, viewDrawableSize.width, viewDrawableSize.height};
-        NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:rect
-                                                                    options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow)
-                                                                      owner:self
-                                                                   userInfo:nil];
-        [self addTrackingArea:trackingArea];
-
 #ifdef CC_USE_METAL
-        self.device = MTLCreateSystemDefaultDevice();
-        self.framebufferOnly = YES;
-        self.delegate = self;
+        int pixelRatio = [[NSScreen mainScreen] backingScaleFactor];
+        CGSize size = CGSizeMake(frameRect.size.width * pixelRatio, frameRect.size.height * pixelRatio);
+        // Create CAMetalLayer
+        self.wantsLayer = YES;
+        // Config metal layer
+        CAMetalLayer *layer = (CAMetalLayer*)self.layer;
+        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+        layer.device = self.device = MTLCreateSystemDefaultDevice();
+        layer.drawableSize = size;
 #endif
     }
     return self;
@@ -64,12 +72,6 @@
     cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(size.width), static_cast<int>(size.height));
 }
 #endif
-
-- (void)start {
-#ifdef CC_USE_METAL
-    self.delegate = self;
-#endif
-}
 
 - (void)keyDown:(NSEvent *)event {
     _keyboardEvent.key = translateKeycode(event.keyCode);

@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #pragma once
 
 #include "Define.h"
@@ -51,8 +53,8 @@ struct CC_DLL InstancedItem {
     gfx::DescriptorSet *descriptorSet = nullptr;
     gfx::Texture *lightingMap = nullptr;
 };
-typedef vector<InstancedItem> InstancedItemList;
-typedef vector<uint> DynamicOffsetList;
+using InstancedItemList = vector<InstancedItem>;
+using DynamicOffsetList = vector<uint>;
 
 class InstancedBuffer : public Object {
 public:
@@ -61,11 +63,12 @@ public:
     static InstancedBuffer *get(uint pass);
     static InstancedBuffer *get(uint pass, uint extraKey);
 
-    InstancedBuffer(const PassView *pass);
-    virtual ~InstancedBuffer();
+    explicit InstancedBuffer(const PassView *pass);
+    ~InstancedBuffer() override;
 
     void destroy();
     void merge(const ModelView *, const SubModelView *, uint);
+    void merge(const ModelView *, const SubModelView *, uint, gfx::Shader *);
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);
     void clear();
     void setDynamicOffset(uint idx, uint value);
@@ -76,7 +79,7 @@ public:
     CC_INLINE const DynamicOffsetList &dynamicOffsets() const { return _dynamicOffsets; }
 
 private:
-    static map<uint, map<uint, InstancedBuffer *>> _buffers;
+    static map<uint, map<uint, InstancedBuffer *>> buffers;
     InstancedItemList _instances;
     const PassView *_pass = nullptr;
     bool _hasPendingModels = false;

@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "MTLStd.h"
 
 #include "MTLDevice.h"
@@ -34,30 +36,18 @@ THE SOFTWARE.
 
 #import <Metal/MTLDevice.h>
 #import <Metal/MTLVertexDescriptor.h>
+#import <Metal/MTLComputePipeline.h>
 
 namespace cc {
 namespace gfx {
 
-CCMTLPipelineState::CCMTLPipelineState(Device *device) : PipelineState(device) {}
+CCMTLPipelineState::CCMTLPipelineState() : PipelineState() {}
 
-bool CCMTLPipelineState::initialize(const PipelineStateInfo &info) {
-    _primitive = info.primitive;
-    _shader = info.shader;
-    _inputState = info.inputState;
-    _rasterizerState = info.rasterizerState;
-    _depthStencilState = info.depthStencilState;
-    _blendState = info.blendState;
-    _dynamicStates = info.dynamicStates;
-    _renderPass = info.renderPass;
-    _pipelineLayout = info.pipelineLayout;
-
-    if (!createGPUPipelineState()) {
-        return false;
-    }
-    return true;
+void CCMTLPipelineState::doInit(const PipelineStateInfo &info) {
+    createGPUPipelineState();
 }
 
-void CCMTLPipelineState::destroy() {
+void CCMTLPipelineState::doDestroy() {
     CC_SAFE_DELETE(_GPUPipelineState);
 
     id<MTLRenderPipelineState> renderPipelineState = _mtlRenderPipelineState;
@@ -82,24 +72,52 @@ bool CCMTLPipelineState::createGPUPipelineState() {
         CC_LOG_ERROR("CCMTLPipelineState: CC_NEW CCMTLGPUPipelineState failed.");
         return false;
     }
+    
+    if(_bindPoint == PipelineBindPoint::GRAPHICS) {
+        if (!createMTLRenderPipelineState()) {
+            return false;
+        }
+        // Application can run with wrong depth/stencil state.
+        if (!createMTLDepthStencilState()) {
+            return false;
+        }
 
-    if (!createMTLRenderPipelineState()) return false;
+        _GPUPipelineState->mtlDepthStencilState = _mtlDepthStencilState;
+        _GPUPipelineState->mtlRenderPipelineState = _mtlRenderPipelineState;
+        _GPUPipelineState->cullMode = mu::toMTLCullMode(_rasterizerState.cullMode);
+        _GPUPipelineState->fillMode = mu::toMTLTriangleFillMode(_rasterizerState.polygonMode);
+        _GPUPipelineState->depthClipMode = mu::toMTLDepthClipMode(_rasterizerState.isDepthClip != 0);
+        _GPUPipelineState->winding = mu::toMTLWinding(_rasterizerState.isFrontFaceCCW != 0);
+        _GPUPipelineState->stencilRefFront = _depthStencilState.stencilRefFront;
+        _GPUPipelineState->stencilRefBack = _depthStencilState.stencilRefBack;
+        _GPUPipelineState->primitiveType = mu::toMTLPrimitiveType(_primitive);
+        if (_pipelineLayout)
+            _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
+        _GPUPipelineState->gpuShader = static_cast<CCMTLShader *>(_shader)->gpuShader();
+    }
+    else if (_bindPoint == PipelineBindPoint::COMPUTE) {
+        if (!createMTLComputePipelineState()) {
+            return false;
+        }
+        _GPUPipelineState->mtlComputePipelineState = _mtlComputePipeline;
+        _GPUPipelineState->gpuShader = static_cast<CCMTLShader *>(_shader)->gpuShader();
+        if (_pipelineLayout)
+            _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
+    }
+    
+    return true;
+}
 
-    // Application can run with wrong depth/stencil state.
-    if (!createMTLDepthStencilState()) return false;
-
-    _GPUPipelineState->mtlDepthStencilState = _mtlDepthStencilState;
-    _GPUPipelineState->mtlRenderPipelineState = _mtlRenderPipelineState;
-    _GPUPipelineState->cullMode = mu::toMTLCullMode(_rasterizerState.cullMode);
-    _GPUPipelineState->fillMode = mu::toMTLTriangleFillMode(_rasterizerState.polygonMode);
-    _GPUPipelineState->depthClipMode = mu::toMTLDepthClipMode(_rasterizerState.isDepthClip != 0);
-    _GPUPipelineState->winding = mu::toMTLWinding(_rasterizerState.isFrontFaceCCW != 0);
-    _GPUPipelineState->stencilRefFront = _depthStencilState.stencilRefFront;
-    _GPUPipelineState->stencilRefBack = _depthStencilState.stencilRefBack;
-    _GPUPipelineState->primitiveType = mu::toMTLPrimitiveType(_primitive);
-    if (_pipelineLayout)
-        _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
-    _GPUPipelineState->gpuShader = static_cast<CCMTLShader *>(_shader)->gpuShader();
+bool CCMTLPipelineState::createMTLComputePipelineState() {
+    //create with function
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
+    NSError* err;
+    _mtlComputePipeline = [mtlDevice newComputePipelineStateWithFunction:((CCMTLShader *)_shader)->getComputeMTLFunction()
+                                                                   error:&err];
+    if (!_mtlComputePipeline) {
+        CC_LOG_ERROR("Create compute pipeline failed: %s", [err.localizedDescription UTF8String]);
+        return false;
+    }
     return true;
 }
 
@@ -139,7 +157,7 @@ bool CCMTLPipelineState::createMTLDepthStencilState() {
         descriptor.backFaceStencil = nil;
     }
 
-    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
     _mtlDepthStencilState = [mtlDevice newDepthStencilStateWithDescriptor:descriptor];
     [descriptor release];
 
@@ -172,7 +190,7 @@ void CCMTLPipelineState::setVertexDescriptor(MTLRenderPipelineDescriptor *descri
 
     vector<std::tuple<int /**vertexBufferBindingIndex*/, uint /**stream*/>> layouts;
     unordered_map<int /**vertexBufferBindingIndex*/, std::tuple<uint /**stride*/, bool /**isInstanced*/>> map;
-    vector<uint> streamOffsets(_device->getMaxVertexAttributes(), 0u);
+    vector<uint> streamOffsets(CCMTLDevice::getInstance()->getCapabilities().maxVertexAttributes, 0u);
     vector<bool> activeAttribIdx(activeAttributes.size(), false);
     for (const auto &inputAttrib : _inputState.attributes) {
         auto bufferIndex = static_cast<CCMTLShader *>(_shader)->getAvailableBufferBindingIndex(ShaderStageFlagBit::VERTEX, inputAttrib.stream);
@@ -271,7 +289,7 @@ void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor *descriptor)
 }
 
 bool CCMTLPipelineState::createMTLRenderPipeline(MTLRenderPipelineDescriptor *descriptor) {
-    id<MTLDevice> mtlDevice = id<MTLDevice>(((CCMTLDevice *)_device)->getMTLDevice());
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
     NSError *nsError = nil;
     _mtlRenderPipelineState = [mtlDevice newRenderPipelineStateWithDescriptor:descriptor error:&nsError];
     if (!_mtlRenderPipelineState) {

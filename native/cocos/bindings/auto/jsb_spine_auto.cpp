@@ -1,3 +1,28 @@
+/****************************************************************************
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #include "cocos/bindings/auto/jsb_spine_auto.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
@@ -132,7 +157,6 @@ bool js_register_spine_Animation(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_TrackEntry_proto = nullptr;
 se::Class* __jsb_spine_TrackEntry_class = nullptr;
 
@@ -948,7 +972,6 @@ bool js_register_spine_TrackEntry(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_AnimationState_proto = nullptr;
 se::Class* __jsb_spine_AnimationState_class = nullptr;
 
@@ -1339,7 +1362,6 @@ bool js_register_spine_AnimationState(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_AnimationStateData_proto = nullptr;
 se::Class* __jsb_spine_AnimationStateData_class = nullptr;
 
@@ -1491,7 +1513,6 @@ bool js_register_spine_AnimationStateData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_Attachment_proto = nullptr;
 se::Class* __jsb_spine_Attachment_class = nullptr;
 
@@ -1603,7 +1624,6 @@ bool js_register_spine_Attachment(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_Timeline_proto = nullptr;
 se::Class* __jsb_spine_Timeline_class = nullptr;
 
@@ -1643,7 +1663,6 @@ bool js_register_spine_Timeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_AttachmentTimeline_proto = nullptr;
 se::Class* __jsb_spine_AttachmentTimeline_class = nullptr;
 
@@ -1808,7 +1827,6 @@ bool js_register_spine_AttachmentTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_Bone_proto = nullptr;
 se::Class* __jsb_spine_Bone_class = nullptr;
 
@@ -3046,7 +3064,6 @@ bool js_register_spine_Bone(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_BoneData_proto = nullptr;
 se::Class* __jsb_spine_BoneData_class = nullptr;
 
@@ -3526,7 +3543,6 @@ bool js_register_spine_BoneData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_VertexAttachment_proto = nullptr;
 se::Class* __jsb_spine_VertexAttachment_class = nullptr;
 
@@ -3687,7 +3703,6 @@ bool js_register_spine_VertexAttachment(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_BoundingBoxAttachment_proto = nullptr;
 se::Class* __jsb_spine_BoundingBoxAttachment_class = nullptr;
 
@@ -3728,7 +3743,6 @@ bool js_register_spine_BoundingBoxAttachment(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_ClippingAttachment_proto = nullptr;
 se::Class* __jsb_spine_ClippingAttachment_class = nullptr;
 
@@ -3809,7 +3823,6 @@ bool js_register_spine_ClippingAttachment(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_Color_proto = nullptr;
 se::Class* __jsb_spine_Color_class = nullptr;
 
@@ -3961,7 +3974,6 @@ bool js_register_spine_Color(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_CurveTimeline_proto = nullptr;
 se::Class* __jsb_spine_CurveTimeline_class = nullptr;
 
@@ -4138,7 +4150,6 @@ bool js_register_spine_CurveTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_ColorTimeline_proto = nullptr;
 se::Class* __jsb_spine_ColorTimeline_class = nullptr;
 
@@ -4269,7 +4280,6 @@ bool js_register_spine_ColorTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_ConstraintData_proto = nullptr;
 se::Class* __jsb_spine_ConstraintData_class = nullptr;
 
@@ -4389,7 +4399,6 @@ bool js_register_spine_ConstraintData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_DeformTimeline_proto = nullptr;
 se::Class* __jsb_spine_DeformTimeline_class = nullptr;
 
@@ -4530,7 +4539,6 @@ bool js_register_spine_DeformTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_DrawOrderTimeline_proto = nullptr;
 se::Class* __jsb_spine_DrawOrderTimeline_class = nullptr;
 
@@ -4611,7 +4619,6 @@ bool js_register_spine_DrawOrderTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_Event_proto = nullptr;
 se::Class* __jsb_spine_Event_class = nullptr;
 
@@ -4871,7 +4878,6 @@ bool js_register_spine_Event(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_EventData_proto = nullptr;
 se::Class* __jsb_spine_EventData_class = nullptr;
 
@@ -5151,7 +5157,6 @@ bool js_register_spine_EventData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_EventTimeline_proto = nullptr;
 se::Class* __jsb_spine_EventTimeline_class = nullptr;
 
@@ -5274,7 +5279,6 @@ bool js_register_spine_EventTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_IkConstraint_proto = nullptr;
 se::Class* __jsb_spine_IkConstraint_class = nullptr;
 
@@ -5650,7 +5654,6 @@ bool js_register_spine_IkConstraint(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_IkConstraintData_proto = nullptr;
 se::Class* __jsb_spine_IkConstraintData_class = nullptr;
 
@@ -5971,7 +5974,6 @@ bool js_register_spine_IkConstraintData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_IkConstraintTimeline_proto = nullptr;
 se::Class* __jsb_spine_IkConstraintTimeline_class = nullptr;
 
@@ -6044,7 +6046,6 @@ bool js_register_spine_IkConstraintTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_MeshAttachment_proto = nullptr;
 se::Class* __jsb_spine_MeshAttachment_class = nullptr;
 
@@ -6901,7 +6902,6 @@ bool js_register_spine_MeshAttachment(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_PathAttachment_proto = nullptr;
 se::Class* __jsb_spine_PathAttachment_class = nullptr;
 
@@ -7042,7 +7042,6 @@ bool js_register_spine_PathAttachment(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_PathConstraint_proto = nullptr;
 se::Class* __jsb_spine_PathConstraint_class = nullptr;
 
@@ -7394,7 +7393,6 @@ bool js_register_spine_PathConstraint(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_PathConstraintData_proto = nullptr;
 se::Class* __jsb_spine_PathConstraintData_class = nullptr;
 
@@ -7795,7 +7793,6 @@ bool js_register_spine_PathConstraintData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_PathConstraintMixTimeline_proto = nullptr;
 se::Class* __jsb_spine_PathConstraintMixTimeline_class = nullptr;
 
@@ -7836,7 +7833,6 @@ bool js_register_spine_PathConstraintMixTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_PathConstraintPositionTimeline_proto = nullptr;
 se::Class* __jsb_spine_PathConstraintPositionTimeline_class = nullptr;
 
@@ -7901,7 +7897,6 @@ bool js_register_spine_PathConstraintPositionTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_PathConstraintSpacingTimeline_proto = nullptr;
 se::Class* __jsb_spine_PathConstraintSpacingTimeline_class = nullptr;
 
@@ -7942,7 +7937,6 @@ bool js_register_spine_PathConstraintSpacingTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_PointAttachment_proto = nullptr;
 se::Class* __jsb_spine_PointAttachment_class = nullptr;
 
@@ -8103,7 +8097,6 @@ bool js_register_spine_PointAttachment(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_RegionAttachment_proto = nullptr;
 se::Class* __jsb_spine_RegionAttachment_class = nullptr;
 
@@ -8808,7 +8801,6 @@ bool js_register_spine_RegionAttachment(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_RotateTimeline_proto = nullptr;
 se::Class* __jsb_spine_RotateTimeline_class = nullptr;
 
@@ -8933,7 +8925,6 @@ bool js_register_spine_RotateTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_TranslateTimeline_proto = nullptr;
 se::Class* __jsb_spine_TranslateTimeline_class = nullptr;
 
@@ -9000,7 +8991,6 @@ bool js_register_spine_TranslateTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_ScaleTimeline_proto = nullptr;
 se::Class* __jsb_spine_ScaleTimeline_class = nullptr;
 
@@ -9041,7 +9031,6 @@ bool js_register_spine_ScaleTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_ShearTimeline_proto = nullptr;
 se::Class* __jsb_spine_ShearTimeline_class = nullptr;
 
@@ -9082,7 +9071,6 @@ bool js_register_spine_ShearTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_Skeleton_proto = nullptr;
 se::Class* __jsb_spine_Skeleton_class = nullptr;
 
@@ -9925,7 +9913,6 @@ bool js_register_spine_Skeleton(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_SkeletonBounds_proto = nullptr;
 se::Class* __jsb_spine_SkeletonBounds_class = nullptr;
 
@@ -10174,7 +10161,6 @@ bool js_register_spine_SkeletonBounds(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_Polygon_proto = nullptr;
 se::Class* __jsb_spine_Polygon_class = nullptr;
 
@@ -10194,7 +10180,6 @@ bool js_register_spine_Polygon(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_SkeletonData_proto = nullptr;
 se::Class* __jsb_spine_SkeletonData_class = nullptr;
 
@@ -11067,7 +11052,6 @@ bool js_register_spine_SkeletonData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_Skin_proto = nullptr;
 se::Class* __jsb_spine_Skin_class = nullptr;
 
@@ -11258,7 +11242,6 @@ bool js_register_spine_Skin(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_Slot_proto = nullptr;
 se::Class* __jsb_spine_Slot_class = nullptr;
 
@@ -11514,7 +11497,6 @@ bool js_register_spine_Slot(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_SlotData_proto = nullptr;
 se::Class* __jsb_spine_SlotData_class = nullptr;
 
@@ -11754,7 +11736,6 @@ bool js_register_spine_SlotData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_TransformConstraint_proto = nullptr;
 se::Class* __jsb_spine_TransformConstraint_class = nullptr;
 
@@ -12106,7 +12087,6 @@ bool js_register_spine_TransformConstraint(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_TransformConstraintData_proto = nullptr;
 se::Class* __jsb_spine_TransformConstraintData_class = nullptr;
 
@@ -12407,7 +12387,6 @@ bool js_register_spine_TransformConstraintData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_TransformConstraintTimeline_proto = nullptr;
 se::Class* __jsb_spine_TransformConstraintTimeline_class = nullptr;
 
@@ -12478,7 +12457,6 @@ bool js_register_spine_TransformConstraintTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_TwoColorTimeline_proto = nullptr;
 se::Class* __jsb_spine_TwoColorTimeline_class = nullptr;
 
@@ -12595,7 +12573,6 @@ bool js_register_spine_TwoColorTimeline(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_VertexEffect_proto = nullptr;
 se::Class* __jsb_spine_VertexEffect_class = nullptr;
 
@@ -12615,7 +12592,6 @@ bool js_register_spine_VertexEffect(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_JitterVertexEffect_proto = nullptr;
 se::Class* __jsb_spine_JitterVertexEffect_class = nullptr;
 
@@ -12716,7 +12692,6 @@ bool js_register_spine_JitterVertexEffect(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_SwirlVertexEffect_proto = nullptr;
 se::Class* __jsb_spine_SwirlVertexEffect_class = nullptr;
 
@@ -12977,7 +12952,6 @@ bool js_register_spine_SwirlVertexEffect(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_VertexEffectDelegate_proto = nullptr;
 se::Class* __jsb_spine_VertexEffectDelegate_class = nullptr;
 
@@ -13187,7 +13161,6 @@ bool js_register_spine_VertexEffectDelegate(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_SkeletonRenderer_proto = nullptr;
 se::Class* __jsb_spine_SkeletonRenderer_class = nullptr;
 
@@ -14143,7 +14116,6 @@ bool js_register_spine_SkeletonRenderer(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_SkeletonAnimation_proto = nullptr;
 se::Class* __jsb_spine_SkeletonAnimation_class = nullptr;
 
@@ -15222,7 +15194,6 @@ bool js_register_spine_SkeletonAnimation(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_SkeletonCacheAnimation_proto = nullptr;
 se::Class* __jsb_spine_SkeletonCacheAnimation_class = nullptr;
 
@@ -16060,7 +16031,6 @@ bool js_register_spine_SkeletonCacheAnimation(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_SkeletonCacheMgr_proto = nullptr;
 se::Class* __jsb_spine_SkeletonCacheMgr_class = nullptr;
 
@@ -16168,7 +16138,6 @@ bool js_register_spine_SkeletonCacheMgr(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_spine_SkeletonDataMgr_proto = nullptr;
 se::Class* __jsb_spine_SkeletonDataMgr_class = nullptr;
 
@@ -16280,7 +16249,6 @@ bool js_register_spine_SkeletonDataMgr(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 bool register_all_spine(se::Object* obj)
 {
     // Get the ns

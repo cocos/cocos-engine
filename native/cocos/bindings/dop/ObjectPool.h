@@ -1,71 +1,67 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos.com
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
 
 #pragma once
 
-#include "cocos/base/Object.h"
-#include "cocos/bindings/jswrapper/Object.h"
-#include "cocos/base/memory/StlAlloc.h"
-#include "cocos/base/Macros.h"
-#include "cocos/base/TypeDef.h"
 #include "PoolType.h"
+#include "cocos/base/Macros.h"
+#include "cocos/base/Object.h"
+#include "cocos/base/TypeDef.h"
+#include "cocos/base/memory/StlAlloc.h"
+#include "cocos/bindings/jswrapper/Object.h"
 
 namespace se {
 
 class CC_DLL ObjectPool final : public cc::Object {
 public:
-    CC_INLINE static const cc::map<PoolType, ObjectPool *> &getPoolMap() { return ObjectPool::_poolMap; }
+    CC_INLINE static const cc::vector<ObjectPool *> &getPoolMap() { return ObjectPool::poolMap; }
 
     ObjectPool(PoolType type, Object *jsArr);
-    ~ObjectPool();
+    ~ObjectPool() override;
 
     template <class Type>
     Type *getTypedObject(uint id) const {
         id = _indexMask & id;
-        bool ok = true;
+
 #ifdef CC_DEBUG
-        uint len = 0;
-        ok = _jsArr->getArrayLength(&len);
-        CCASSERT(ok && id < len, "ObjectPool: Invalid buffer pool entry id");
+        CCASSERT(id < _array.size(), "ObjectPool: Invalid buffer pool entry id");
 #endif
 
-        se::Value jsEntry;
-        ok = _jsArr->getArrayElement(id, &jsEntry);
-        if (!ok || !jsEntry.isObject()) {
-            return nullptr;
-        }
-        Type *entry = (Type *)jsEntry.toObject()->getPrivateData();
-        return entry;
+        return static_cast<Type *>(_array[id]->getPrivateData());
     }
 
-private:
-    static cc::map<PoolType, ObjectPool *> _poolMap;
+    void bind(uint id, Object *);
 
-    PoolType _type = PoolType::SHADER;
-    Object *_jsArr = nullptr;
-    uint _poolFlag = 1 << 29;
-    uint _indexMask = 0;
+private:
+    static cc::vector<ObjectPool *> poolMap;
+
+    cc::vector<Object *> _array;
+    PoolType             _type      = PoolType::SHADER;
+    Object *             _jsArr     = nullptr;
+    uint                 _poolFlag  = 1 << 29;
+    uint                 _indexMask = 0;
 };
 
 } // namespace se

@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2014-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos2d-x.org
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +22,8 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
+
 #define LOG_TAG "AudioCache"
 
 #include "audio/win32/AudioCache.h"
@@ -51,7 +53,7 @@ unsigned int __idIndex = 0;
 using namespace cc;
 
 AudioCache::AudioCache()
-: _totalFrames(0), _framesRead(0), _format(-1), _duration(0.0f), _alBufferId(INVALID_AL_BUFFER_ID), _pcmData(nullptr), _queBufferFrames(0), _state(State::INITIAL), _isDestroyed(std::make_shared<bool>(false)), _id(++__idIndex), _isLoadingFinished(false), _isSkipReadDataTask(false) {
+: _format(-1), _sampleRate(0), _duration(0.0f), _totalFrames(0), _framesRead(0), _alBufferId(INVALID_AL_BUFFER_ID), _pcmData(nullptr), _queBufferFrames(0), _state(State::INITIAL), _isDestroyed(std::make_shared<bool>(false)), _id(++__idIndex), _isLoadingFinished(false), _isSkipReadDataTask(false) {
     ALOGVV("AudioCache() %p, id=%u", this, _id);
     for (int i = 0; i < QUEUEBUFFER_NUM; ++i) {
         _queBuffers[i] = nullptr;
@@ -159,6 +161,8 @@ void AudioCache::readDataTask(unsigned int selfId) {
             BREAK_IF_ERR_LOG(!decoder->seek(0), "AudioDecoder::seek(0) failed!");
 
             _pcmData = (char *)malloc(dataSize);
+
+            CC_ASSERT(_pcmData);
             memset(_pcmData, 0x00, dataSize);
 
             if (adjustFrames > 0) {
@@ -209,7 +213,7 @@ void AudioCache::readDataTask(unsigned int selfId) {
 
             _state = State::READY;
         } else {
-            _queBufferFrames = sampleRate * QUEUEBUFFER_TIME_STEP;
+            _queBufferFrames = static_cast<uint32_t>(sampleRate * QUEUEBUFFER_TIME_STEP);
             BREAK_IF_ERR_LOG(_queBufferFrames == 0, "_queBufferFrames == 0");
 
             const uint32_t queBufferBytes = _queBufferFrames * bytesPerFrame;

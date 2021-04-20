@@ -1,59 +1,64 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include <array>
 
 #include "BatchedBuffer.h"
 #include "Define.h"
 #include "InstancedBuffer.h"
+#include "PipelineSceneData.h"
 #include "PipelineStateManager.h"
+#include "PipelineUBO.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
+#include "SceneCulling.h"
 #include "ShadowMapBatchedQueue.h"
 #include "forward/ForwardPipeline.h"
-#include "forward/SceneCulling.h"
-#include "gfx/GFXCommandBuffer.h"
-#include "gfx/GFXDescriptorSet.h"
-#include "gfx/GFXDevice.h"
+#include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-base/GFXDevice.h"
 #include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
 ShadowMapBatchedQueue::ShadowMapBatchedQueue(ForwardPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
-    _pipeline = pipeline;
-    _buffer = pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING);
+    _pipeline       = pipeline;
+    _buffer         = pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING);
     _instancedQueue = CC_NEW(RenderInstancedQueue);
-    _batchedQueue = CC_NEW(RenderBatchedQueue);
+    _batchedQueue   = CC_NEW(RenderBatchedQueue);
 }
 
 void ShadowMapBatchedQueue::gatherLightPasses(const Light *light, gfx::CommandBuffer *cmdBufferer) {
     clear();
 
-    const auto *shadowInfo = _pipeline->getShadows();
-    const auto &shadowObjects = _pipeline->getShadowObjects();
+    const auto *sceneData     = _pipeline->getPipelineSceneData();
+    const auto *shadowInfo    = sceneData->getSharedData()->getShadows();
+    const auto &shadowObjects = sceneData->getShadowObjects();
     if (light && shadowInfo->enabled && shadowInfo->getShadowType() == ShadowType::SHADOWMAP) {
-        updateUBOs(light, cmdBufferer);
+        _pipeline->getPipelineUBO()->updateShadowUBOLight(light);
 
         for (const auto ro : shadowObjects) {
             const auto *model = ro.model;
@@ -64,8 +69,8 @@ void ShadowMapBatchedQueue::gatherLightPasses(const Light *light, gfx::CommandBu
                     break;
                 case LightType::SPOT:
                     if (model->getWorldBounds() &&
-                        (aabb_aabb(model->getWorldBounds(), light->getAABB()) ||
-                         aabb_frustum(model->getWorldBounds(), light->getFrustum()))) {
+                        (aabbAabb(model->getWorldBounds(), light->getAABB()) ||
+                         aabbFrustum(model->getWorldBounds(), light->getFrustum()))) {
                         add(model, cmdBufferer);
                     }
                     break;
@@ -90,12 +95,12 @@ void ShadowMapBatchedQueue::add(const ModelView *model, gfx::CommandBuffer *cmdB
         return;
     }
 
-    const auto subModelID = model->getSubModelID();
-    const auto subModelCount = subModelID[0];
+    const auto *const subModelID    = model->getSubModelID();
+    const auto        subModelCount = subModelID[0];
     for (unsigned m = 1; m <= subModelCount; ++m) {
-        const auto subModel = model->getSubModelView(subModelID[m]);
-        const auto pass = subModel->getPassView(shadowPassIdx);
-        const auto batchingScheme = pass->getBatchingScheme();
+        const auto *const subModel       = cc::pipeline::ModelView::getSubModelView(subModelID[m]);
+        const auto *const pass           = subModel->getPassView(shadowPassIdx);
+        const auto        batchingScheme = pass->getBatchingScheme();
 
         if (batchingScheme == BatchingSchemes::INSTANCING) {
             auto *instancedBuffer = InstancedBuffer::get(subModel->passID[shadowPassIdx]);
@@ -121,15 +126,15 @@ void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::Render
     _batchedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
 
     for (size_t i = 0; i < _subModels.size(); i++) {
-        const auto subModel = _subModels[i];
-        const auto shader = _shaders[i];
-        const auto pass = _passes[i];
-        const auto ia = subModel->getInputAssembler();
-        const auto pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
+        const auto *const subModel = _subModels[i];
+        auto *const       shader   = _shaders[i];
+        const auto *const pass     = _passes[i];
+        auto *const       ia       = subModel->getInputAssembler();
+        auto *const       pso      = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
 
         cmdBuffer->bindPipelineState(pso);
-        cmdBuffer->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
-        cmdBuffer->bindDescriptorSet(LOCAL_SET, subModel->getDescriptorSet());
+        cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+        cmdBuffer->bindDescriptorSet(localSet, subModel->getDescriptorSet());
         cmdBuffer->bindInputAssembler(ia);
         cmdBuffer->draw(ia);
     }
@@ -143,74 +148,15 @@ void ShadowMapBatchedQueue::destroy() {
     _buffer = nullptr;
 }
 
-void ShadowMapBatchedQueue::updateUBOs(const Light *light, gfx::CommandBuffer *cmdBufferer) const {
-    const auto *shadowInfo = _pipeline->getShadows();
-    auto shadowUBO = _pipeline->getShadowUBO();
-    auto *device = gfx::Device::getInstance();
-
-    switch (light->getType()) {
-        case LightType::DIRECTIONAL: {
-            cc::Mat4 matShadowCamera;
-
-            float x = 0.0f, y = 0.0f, farClamp = 0.0f;
-            if (shadowInfo->autoAdapt) {
-                Vec3 tmpCenter;
-                getShadowWorldMatrix(_pipeline->getSphere(), light->getNode()->worldRotation, light->direction, matShadowCamera, tmpCenter);
-
-                const auto radius = _pipeline->getSphere()->radius;
-                x = radius * shadowInfo->aspect;
-                y = radius;
-
-                const float halfFar = tmpCenter.distance(_pipeline->getSphere()->center);
-                farClamp = std::min(halfFar * COEFFICIENT_OF_EXPANSION, SHADOW_CAMERA_MAX_FAR);
-            } else {
-                matShadowCamera = light->getNode()->worldMatrix;
-
-                x = shadowInfo->orthoSize * shadowInfo->aspect;
-                y = shadowInfo->orthoSize;
-
-                farClamp = shadowInfo->farValue;
-            }
-
-            const auto matShadowView = matShadowCamera.getInversed();
-
-            cc::Mat4 matShadowViewProj;
-            const auto projectionSinY = device->getScreenSpaceSignY() * device->getUVSpaceSignY();
-            Mat4::createOrthographicOffCenter(-x, x, -y, y, shadowInfo->nearValue, farClamp, device->getClipSpaceMinZ(), projectionSinY, &matShadowViewProj);
-
-            matShadowViewProj.multiply(matShadowView);
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
-        } break;
-        case LightType::SPOT: {
-            const auto &matShadowCamera = light->getNode()->worldMatrix;
-
-            const auto matShadowView = matShadowCamera.getInversed();
-
-            cc::Mat4 matShadowViewProj;
-            cc::Mat4::createPerspective(light->spotAngle, light->aspect, 0.001f, light->range, &matShadowViewProj);
-
-            matShadowViewProj.multiply(matShadowView);
-            memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
-        } break;
-        default: break;
-    }
-
-    float shadowInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, (float)shadowInfo->pcfType, shadowInfo->bias};
-    memcpy(shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &shadowInfo->color, sizeof(Vec4));
-    memcpy(shadowUBO.data() + UBOShadow::SHADOW_INFO_OFFSET, &shadowInfos, sizeof(shadowInfos));
-
-    cmdBufferer->updateBuffer(_pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING), shadowUBO.data(), UBOShadow::SIZE);
-}
-
 int ShadowMapBatchedQueue::getShadowPassIndex(const ModelView *model) const {
-    const auto subModelArrayID = model->getSubModelID();
-    const auto count = subModelArrayID[0];
+    const auto *const subModelArrayID = model->getSubModelID();
+    const auto        count           = subModelArrayID[0];
     for (unsigned i = 1; i <= count; i++) {
-        const auto subModel = model->getSubModelView(subModelArrayID[i]);
+        const auto *const subModel = cc::pipeline::ModelView::getSubModelView(subModelArrayID[i]);
         for (unsigned passIdx = 0; passIdx < subModel->passCount; passIdx++) {
-            const auto pass = subModel->getPassView(passIdx);
+            const auto *const pass = subModel->getPassView(passIdx);
             if (pass->phase == _phaseID) {
-                return passIdx;
+                return static_cast<int>(passIdx);
             }
         }
     }

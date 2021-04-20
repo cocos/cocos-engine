@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "MTLStd.h"
 
 #include "MTLBuffer.h"
@@ -30,7 +32,6 @@ THE SOFTWARE.
 #include "MTLDescriptorSet.h"
 #include "MTLDescriptorSetLayout.h"
 #include "MTLDevice.h"
-#include "MTLFence.h"
 #include "MTLFramebuffer.h"
 #include "MTLInputAssembler.h"
 #include "MTLPipelineLayout.h"
@@ -47,111 +48,135 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-CCMTLDevice::CCMTLDevice() {
-    _clipSpaceMinZ = 0.0f;
-    _screenSpaceSignY = 1.0f;
-    _UVSpaceSignY = 1.0f;
+CCMTLDevice *CCMTLDevice::_instance = nullptr;
+
+CCMTLDevice *CCMTLDevice::getInstance() {
+    return CCMTLDevice::_instance;
 }
 
-bool CCMTLDevice::initialize(const DeviceInfo &info) {
-    _API = API::METAL;
+CCMTLDevice::CCMTLDevice() {
+    _api = API::METAL;
     _deviceName = "Metal";
-    _width = info.width;
-    _height = info.height;
-    _nativeWidth = info.nativeWidth;
-    _nativeHeight = info.nativeHeight;
-    _windowHandle = info.windowHandle;
 
-    _bindingMappingInfo = info.bindingMappingInfo;
-    if (!_bindingMappingInfo.bufferOffsets.size()) {
-        _bindingMappingInfo.bufferOffsets.push_back(0);
-    }
-    if (!_bindingMappingInfo.samplerOffsets.size()) {
-        _bindingMappingInfo.samplerOffsets.push_back(0);
-    }
+    _caps.clipSpaceMinZ = 0.0f;
+    _caps.screenSpaceSignY = -1.0f;
+    _caps.clipSpaceSignY = 1.0f;
 
+    CCMTLDevice::_instance = this;
+}
+
+CCMTLDevice::~CCMTLDevice() {
+    CCMTLDevice::_instance = nullptr;
+}
+
+bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _inFlightSemaphore = CC_NEW(CCMTLSemaphore(MAX_FRAMES_IN_FLIGHT));
     _currentFrameIndex = 0;
 
-    _mtkView = (MTKView *)_windowHandle;
-    id<MTLDevice> mtlDevice = ((MTKView *)_mtkView).device;
+#if CC_PLATFORM == CC_PLATFORM_MAC_OSX
+    NSView *view = (NSView *)_windowHandle;
+#else
+    UIView *view = (UIView *)_windowHandle;
+#endif
+
+#ifdef CC_USE_METAL
+    CAMetalLayer *layer = static_cast<CAMetalLayer *>(view.layer);
+#else
+    CAMetalLayer *layer = static_cast<CAMetalLayer *>(view);
+#endif
+    _mtlLayer = layer;
+    layer.framebufferOnly = NO;
+    id<MTLDevice> mtlDevice = (id<MTLDevice>)layer.device;
     _mtlDevice = mtlDevice;
-    _mtlCommandQueue = [mtlDevice newCommandQueue];
+    _mtlCommandQueue = [mtlDevice newCommandQueueWithMaxCommandBufferCount: MAX_COMMAND_BUFFER_COUNT];
 
     _mtlFeatureSet = mu::highestSupportedFeatureSet(mtlDevice);
     const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
     _indirectDrawSupported = mu::isIndirectDrawSupported(gpuFamily);
-    _maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
-    _maxTextureUnits = _maxVertexTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
+    _caps.maxVertexAttributes = mu::getMaxVertexAttributes(gpuFamily);
+    _caps.maxTextureUnits = _caps.maxVertexTextureUnits = mu::getMaxEntriesInTextureArgumentTable(gpuFamily);
     _maxSamplerUnits = mu::getMaxEntriesInSamplerStateArgumentTable(gpuFamily);
-    _maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
-    _maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
+    _caps.maxTextureSize = mu::getMaxTexture2DWidthHeight(gpuFamily);
+    _caps.maxCubeMapTextureSize = mu::getMaxCubeMapTextureWidthHeight(gpuFamily);
+    _caps.maxColorRenderTargets = mu::getMaxColorRenderTarget(gpuFamily);
+    _caps.uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
+    _caps.maxComputeWorkGroupInvocations = mu::getMaxThreadsPerGroup(gpuFamily);
     _maxBufferBindingIndex = mu::getMaxEntriesInBufferArgumentTable(gpuFamily);
-    _uboOffsetAlignment = mu::getMinBufferOffsetAlignment(gpuFamily);
+    _icbSuppored = mu::isIndirectCommandBufferSupported(MTLFeatureSet(_mtlFeatureSet));
     _isSamplerDescriptorCompareFunctionSupported = mu::isSamplerDescriptorCompareFunctionSupported(gpuFamily);
-    MTKView *view = static_cast<MTKView *>(_mtkView);
-    if (view.colorPixelFormat == MTLPixelFormatInvalid) view.colorPixelFormat = MTLPixelFormatBGRA8Unorm;
-    view.depthStencilPixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _depthBits);
 
-    _stencilBits = 8;
+    if (layer.pixelFormat == MTLPixelFormatInvalid) {
+        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+    }
+    // Persistent depth stencil texture
+    MTLTextureDescriptor *dssDescriptor = [[MTLTextureDescriptor alloc] init];
+    dssDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _caps.depthBits);
+    dssDescriptor.width = info.nativeWidth;
+    dssDescriptor.height = info.nativeHeight;
+    dssDescriptor.storageMode = MTLStorageModePrivate;
+    dssDescriptor.usage = MTLTextureUsageRenderTarget;
+    _dssTex = [mtlDevice newTextureWithDescriptor:dssDescriptor];
+    _caps.stencilBits = 8;
 
-    ContextInfo contextCreateInfo;
-    contextCreateInfo.windowHandle = _windowHandle;
-    contextCreateInfo.sharedCtx = info.sharedCtx;
-    _context = CC_NEW(CCMTLContext(this));
-    if (!_context->initialize(contextCreateInfo)) {
+    ContextInfo ctxInfo;
+    ctxInfo.windowHandle = _windowHandle;
+
+    _context = CC_NEW(CCMTLContext);
+    if (!_context->initialize(ctxInfo)) {
         destroy();
         return false;
     }
 
-    QueueInfo queue_info;
-    queue_info.type = QueueType::GRAPHICS;
-    _queue = createQueue(queue_info);
+    QueueInfo queueInfo;
+    queueInfo.type = QueueType::GRAPHICS;
+    _queue         = createQueue(queueInfo);
 
     CommandBufferInfo cmdBuffInfo;
-    cmdBuffInfo.type = CommandBufferType::PRIMARY;
+    cmdBuffInfo.type  = CommandBufferType::PRIMARY;
     cmdBuffInfo.queue = _queue;
-    _cmdBuff = createCommandBuffer(cmdBuffInfo);
+    _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         _gpuStagingBufferPools[i] = CC_NEW(CCMTLGPUStagingBufferPool(mtlDevice));
     }
 
-    _features[static_cast<int>(Feature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
-    _features[static_cast<int>(Feature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);
-    _features[static_cast<int>(Feature::TEXTURE_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
-    _features[static_cast<int>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
+    _features[static_cast<uint>(Feature::COLOR_FLOAT)] = mu::isColorBufferFloatSupported(gpuFamily);
+    _features[static_cast<uint>(Feature::COLOR_HALF_FLOAT)] = mu::isColorBufferHalfFloatSupported(gpuFamily);
+    _features[static_cast<uint>(Feature::TEXTURE_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
+    _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = mu::isLinearTextureSupported(gpuFamily);
 
     String compressedFormats;
     if (mu::isPVRTCSuppported(gpuFamily)) {
-        _features[static_cast<int>(Feature::FORMAT_PVRTC)] = true;
+        _features[static_cast<uint>(Feature::FORMAT_PVRTC)] = true;
         compressedFormats += "pvrtc ";
     }
     if (mu::isEAC_ETCCSuppported(gpuFamily)) {
-        _features[static_cast<int>(Feature::FORMAT_ETC2)] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ETC2)] = true;
         compressedFormats += "etc2 ";
     }
     if (mu::isASTCSuppported(gpuFamily)) {
-        _features[static_cast<int>(Feature::FORMAT_ASTC)] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ASTC)] = true;
         compressedFormats += "astc ";
     }
     if (mu::isBCSupported(gpuFamily)) {
-        _features[static_cast<int>(Feature::FORMAT_ASTC)] = true;
+        _features[static_cast<uint>(Feature::FORMAT_ASTC)] = true;
         compressedFormats += "dxt ";
     }
 
-    _features[(int)Feature::TEXTURE_FLOAT] = true;
-    _features[(int)Feature::TEXTURE_HALF_FLOAT] = true;
-    _features[(int)Feature::FORMAT_R11G11B10F] = true;
-    _features[(int)Feature::MSAA] = true;
-    _features[(int)Feature::INSTANCED_ARRAYS] = true;
-    _features[(int)Feature::MULTIPLE_RENDER_TARGETS] = true;
-    _features[(uint)Feature::BLEND_MINMAX] = true;
+    _features[static_cast<uint>(Feature::TEXTURE_FLOAT)] = true;
+    _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)] = true;
+    _features[static_cast<uint>(Feature::MSAA)] = true;
+    _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)] = true;
+    _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
+    _features[static_cast<uint>(Feature::BLEND_MINMAX)] = true;
+    _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)] = true;
     _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = false;
     _features[static_cast<uint>(Feature::LINE_WIDTH)] = false;
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = false;
     _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = false;
     _features[static_cast<uint>(Feature::MULTITHREADED_SUBMISSION)] = true;
+    _features[static_cast<uint>(Feature::COMPUTE_SHADER)] = true;
 
     _features[static_cast<uint>(Feature::FORMAT_RGB8)] = false;
     _features[static_cast<uint>(Feature::FORMAT_D16)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D16, gpuFamily);
@@ -160,7 +185,7 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::FORMAT_D32F)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F, gpuFamily);
     _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F_S8, gpuFamily);
 
-    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
+//    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
 
     CCMTLGPUGarbageCollectionPool::getInstance()->initialize(std::bind(&CCMTLDevice::currentFrameIndex, this));
 
@@ -169,10 +194,14 @@ bool CCMTLDevice::initialize(const DeviceInfo &info) {
     return true;
 }
 
-void CCMTLDevice::destroy() {
-    if (_memoryAlarmListenerId != 0) {
-        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
-        _memoryAlarmListenerId = 0;
+void CCMTLDevice::doDestroy() {
+//    if (_memoryAlarmListenerId != 0) {
+//        EventDispatcher::removeCustomEventListener(EVENT_MEMORY_WARNING, _memoryAlarmListenerId);
+//        _memoryAlarmListenerId = 0;
+//    }
+    if (_autoreleasePool) {
+        [(NSAutoreleasePool*)_autoreleasePool drain];
+        _autoreleasePool = nullptr;
     }
 
     CCMTLGPUGarbageCollectionPool::getInstance()->flush();
@@ -197,11 +226,29 @@ void CCMTLDevice::destroy() {
     }
 }
 
-void CCMTLDevice::resize(uint /*width*/, uint /*height*/) {}
+void CCMTLDevice::resize(uint w, uint h) {
+    this->_width = w;
+    this->_height = h;
+
+    [id<MTLTexture>(_dssTex) release];
+
+    MTLTextureDescriptor *dssDescriptor = [[MTLTextureDescriptor alloc] init];
+    const auto gpuFamily = mu::getGPUFamily(MTLFeatureSet(_mtlFeatureSet));
+    dssDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(id<MTLDevice>(this->_mtlDevice), gpuFamily, _caps.depthBits);
+    dssDescriptor.width = w;
+    dssDescriptor.height = h;
+    dssDescriptor.storageMode = MTLStorageModePrivate;
+    dssDescriptor.usage = MTLTextureUsageRenderTarget;
+    _dssTex = [id<MTLDevice>(this->_mtlDevice) newTextureWithDescriptor:dssDescriptor];
+}
 
 void CCMTLDevice::acquire() {
     _inFlightSemaphore->wait();
 
+    if (!_autoreleasePool) {
+        _autoreleasePool = [[NSAutoreleasePool alloc] init];
+//        CC_LOG_INFO("POOL: %p ALLOCED", _autoreleasePool);
+    }
     // Clear queue stats
     CCMTLQueue *queue = static_cast<CCMTLQueue *>(_queue);
     queue->_numDrawCalls = 0;
@@ -216,76 +263,100 @@ void CCMTLDevice::present() {
     _numTriangles = queue->_numTriangles;
 
     //hold this pointer before update _currentFrameIndex
-    CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentFrameIndex];
-    uint triggeredFrameIndex = _currentFrameIndex;
+    _currentBufferPoolId = _currentFrameIndex;
     _currentFrameIndex = (_currentFrameIndex + 1) % MAX_FRAMES_IN_FLIGHT;
 
-    auto mtlCommandBuffer = static_cast<CCMTLCommandBuffer *>(_cmdBuff)->getMTLCommandBuffer();
-    auto mtkView = static_cast<MTKView *>(_mtkView);
-    [mtlCommandBuffer presentDrawable:mtkView.currentDrawable];
-    [mtlCommandBuffer addCompletedHandler:^(id<MTLCommandBuffer> commandBuffer) {
-        [commandBuffer release];
-        bufferPool->reset();
-        CCMTLGPUGarbageCollectionPool::getInstance()->clear(triggeredFrameIndex);
-        _inFlightSemaphore->signal();
-    }];
-    [mtlCommandBuffer commit];
+    if (_autoreleasePool) {
+//        CC_LOG_INFO("POOL: %p RELEASED", _autoreleasePool);
+        [(NSAutoreleasePool*)_autoreleasePool drain];
+        _autoreleasePool = nullptr;
+    }
 }
 
-Fence *CCMTLDevice::createFence() {
-    return CC_NEW(CCMTLFence(this));
+void CCMTLDevice::onPresentCompleted() {
+    if (_currentBufferPoolId >= 0 && _currentBufferPoolId < MAX_FRAMES_IN_FLIGHT) {
+        CCMTLGPUStagingBufferPool *bufferPool = _gpuStagingBufferPools[_currentBufferPoolId];
+        if (bufferPool) {
+            bufferPool->reset();
+            CCMTLGPUGarbageCollectionPool::getInstance()->clear(_currentBufferPoolId);
+        }
+    }
+    _inFlightSemaphore->signal();
+}
+
+void *CCMTLDevice::getCurrentDrawable() {
+    if (!_activeDrawable)    {
+        CAMetalLayer *layer = (CAMetalLayer*)getMTLLayer();
+        _activeDrawable = [[layer nextDrawable] retain];
+    }
+    return _activeDrawable;
+}
+
+void CCMTLDevice::disposeCurrentDrawable() {
+    if (_activeDrawable) {
+        [(id<CAMetalDrawable>)_activeDrawable release];
+        _activeDrawable = nil;
+    }
 }
 
 Queue *CCMTLDevice::createQueue() {
-    return CC_NEW(CCMTLQueue(this));
+    return CC_NEW(CCMTLQueue);
 }
 
-CommandBuffer *CCMTLDevice::doCreateCommandBuffer(const CommandBufferInfo &info, bool /*hasAgent*/) {
-    return CC_NEW(CCMTLCommandBuffer(this));
+CommandBuffer *CCMTLDevice::createCommandBuffer(const CommandBufferInfo &info, bool /*hasAgent*/) {
+    return CC_NEW(CCMTLCommandBuffer);
 }
 
 Buffer *CCMTLDevice::createBuffer() {
-    return CC_NEW(CCMTLBuffer(this));
+    return CC_NEW(CCMTLBuffer);
 }
 
 Texture *CCMTLDevice::createTexture() {
-    return CC_NEW(CCMTLTexture(this));
+    return CC_NEW(CCMTLTexture);
 }
 
 Sampler *CCMTLDevice::createSampler() {
-    return CC_NEW(CCMTLSampler(this));
+    return CC_NEW(CCMTLSampler);
 }
 
 Shader *CCMTLDevice::createShader() {
-    return CC_NEW(CCMTLShader(this));
+    return CC_NEW(CCMTLShader);
 }
 
 InputAssembler *CCMTLDevice::createInputAssembler() {
-    return CC_NEW(CCMTLInputAssembler(this));
+    return CC_NEW(CCMTLInputAssembler);
 }
 
 RenderPass *CCMTLDevice::createRenderPass() {
-    return CC_NEW(CCMTLRenderPass(this));
+    return CC_NEW(CCMTLRenderPass);
 }
 
 Framebuffer *CCMTLDevice::createFramebuffer() {
-    return CC_NEW(CCMTLFramebuffer(this));
+    return CC_NEW(CCMTLFramebuffer);
 }
 
 DescriptorSet *CCMTLDevice::createDescriptorSet() {
-    return CC_NEW(CCMTLDescriptorSet(this));
+    return CC_NEW(CCMTLDescriptorSet);
 }
 
 DescriptorSetLayout *CCMTLDevice::createDescriptorSetLayout() {
-    return CC_NEW(CCMTLDescriptorSetLayout(this));
+    return CC_NEW(CCMTLDescriptorSetLayout);
 }
 
 PipelineLayout *CCMTLDevice::createPipelineLayout() {
-    return CC_NEW(CCMTLPipelineLayout(this));
+    return CC_NEW(CCMTLPipelineLayout);
 }
 
 PipelineState *CCMTLDevice::createPipelineState() {
-    return CC_NEW(CCMTLPipelineState(this));
+    return CC_NEW(CCMTLPipelineState);
+}
+
+GlobalBarrier *CCMTLDevice::createGlobalBarrier() {
+    return CC_NEW(GlobalBarrier);
+}
+
+TextureBarrier *CCMTLDevice::createTextureBarrier() {
+    return CC_NEW(TextureBarrier);
 }
 
 void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {
@@ -302,6 +373,10 @@ void CCMTLDevice::onMemoryWarning() {
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         _gpuStagingBufferPools[i]->shrinkSize();
     }
+}
+
+uint CCMTLDevice::preferredPixelFormat() {
+    return static_cast<uint>([((CAMetalLayer*)_mtlLayer) pixelFormat]);
 }
 
 } // namespace gfx

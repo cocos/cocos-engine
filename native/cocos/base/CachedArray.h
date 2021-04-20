@@ -1,19 +1,46 @@
-#ifndef CC_CORE_KERNEL_CACHED_ARRAY_H_
-#define CC_CORE_KERNEL_CACHED_ARRAY_H_
+/****************************************************************************
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
+#pragma once
+
+#include "base/Object.h"
+#include "base/TypeDef.h"
 
 namespace cc {
 
 template <typename T>
 class CachedArray : public Object {
 public:
-    CachedArray(uint size = 1u) {
+    explicit CachedArray(uint size = 1U) {
         _size = 0;
         _capacity = std::max(size, 1u);
         _array = CC_NEW_ARRAY(T, _capacity);
     }
 
     // The rule of five applies here
-    ~CachedArray() {
+    ~CachedArray() override {
         CC_SAFE_DELETE_ARRAY(_array);
     }
 
@@ -22,6 +49,7 @@ public:
         memcpy(_array, other._array, _size * sizeof(T));
     }
 
+    // NOLINTNEXTLINE(bugprone-unhandled-self-assignment) false positive
     CachedArray &operator=(const CachedArray &other) noexcept {
         if (this != &other) {
             CC_DELETE_ARRAY(_array);
@@ -34,7 +62,7 @@ public:
     }
 
     CachedArray(CachedArray &&other)
-    : _size(other._size), _capacity(other._capacity), _array(other._array) {
+ noexcept     : _size(other._size), _capacity(other._capacity), _array(other._array) {
         other._size = 0;
         other._capacity = 0;
         other._array = nullptr;
@@ -136,5 +164,3 @@ private:
 };
 
 } // namespace cc
-
-#endif // CC_CORE_KERNEL_CACHED_ARRAY_H_

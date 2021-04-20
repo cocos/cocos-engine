@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,47 +21,42 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
+
 #include "jsb_global.h"
-#include "jsb_conversions.h"
-#include "xxtea/xxtea.h"
-#include "base/ZipUtils.h"
+#include "base/CoreStd.h"
 #include "base/Scheduler.h"
 #include "base/ThreadPool.h"
+#include "base/ZipUtils.h"
 #include "base/base64.h"
+#include "gfx-base/GFXDef.h"
+#include "jsb_conversions.h"
 #include "network/HttpClient.h"
 #include "platform/Application.h"
 #include "platform/Image.h"
-#include "renderer/core/Core.h"
 #include "ui/edit-box/EditBox.h"
+#include "xxtea/xxtea.h"
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
     #include "platform/android/jni/JniImp.h"
 #endif
 
-#include <regex>
 #include <chrono>
+#include <regex>
 #include <sstream>
 
 using namespace cc;
 
-se::Object *__jsbObj = nullptr;
-se::Object *__glObj = nullptr;
+static LegacyThreadPool *__threadPool = nullptr;
 
-static ThreadPool *__threadPool = nullptr;
-
-static std::shared_ptr<cc::network::Downloader> _localDownloader = nullptr;
+static std::shared_ptr<cc::network::Downloader>                                               _localDownloader = nullptr;
 static std::map<std::string, std::function<void(const std::string &, unsigned char *, uint)>> _localDownloaderHandlers;
-static uint64_t _localDownloaderTaskId = 1000000;
-static std::string xxteaKey = "";
-void jsb_set_xxtea_key(const std::string &key) {
-    xxteaKey = key;
-}
+static uint64_t                                                                               _localDownloaderTaskId = 1000000;
 
 static cc::network::Downloader *localDownloader() {
     if (!_localDownloader) {
-        _localDownloader = std::make_shared<cc::network::Downloader>();
-        _localDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask &task,
+        _localDownloader                    = std::make_shared<cc::network::Downloader>();
+        _localDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask & task,
                                                   const std::vector<unsigned char> &data) {
             if (data.empty()) {
                 SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
@@ -73,8 +68,8 @@ static cc::network::Downloader *localDownloader() {
                 SE_REPORT_ERROR("Getting image from (%s), callback not found!!", task.requestURL.c_str());
                 return;
             }
-            size_t imageBytes = data.size();
-            unsigned char *imageData = (unsigned char *)malloc(imageBytes);
+            size_t         imageBytes = data.size();
+            unsigned char *imageData  = (unsigned char *)malloc(imageBytes);
             memcpy(imageData, data.data(), imageBytes);
 
             (callback->second)("", imageData, static_cast<uint>(imageBytes));
@@ -82,9 +77,9 @@ static cc::network::Downloader *localDownloader() {
             _localDownloaderHandlers.erase(callback);
         };
         _localDownloader->onTaskError = [=](const cc::network::DownloadTask &task,
-                                            int errorCode,
-                                            int errorCodeInternal,
-                                            const std::string &errorStr) {
+                                            int                              errorCode,
+                                            int                              errorCodeInternal,
+                                            const std::string &              errorStr) {
             SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
             _localDownloaderHandlers.erase(task.identifier);
         };
@@ -95,150 +90,14 @@ static cc::network::Downloader *localDownloader() {
 static void localDownloaderCreateTask(const std::string &url, std::function<void(const std::string &, unsigned char *, int)> callback) {
     std::stringstream ss;
     ss << "jsb_loadimage_" << (_localDownloaderTaskId++);
-    std::string key = ss.str();
-    auto task = localDownloader()->createDownloadDataTask(url, key);
+    std::string key  = ss.str();
+    auto        task = localDownloader()->createDownloadDataTask(url, key);
     _localDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
-}
-
-static const char *BYTE_CODE_FILE_EXT = ".jsc";
-
-static std::string removeFileExt(const std::string &filePath) {
-    size_t pos = filePath.rfind('.');
-    if (0 < pos) {
-        return filePath.substr(0, pos);
-    }
-    return filePath;
-}
-
-void jsb_init_file_operation_delegate() {
-    static se::ScriptEngine::FileOperationDelegate delegate;
-    if (!delegate.isValid()) {
-        delegate.onGetDataFromFile = [](const std::string &path, const std::function<void(const uint8_t *, size_t)> &readCallback) -> void {
-            assert(!path.empty());
-
-            Data fileData;
-
-            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
-            if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
-                fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
-
-                size_t dataLen = 0;
-                uint8_t *data = xxtea_decrypt((unsigned char *)fileData.getBytes(), (uint32_t)fileData.getSize(), (unsigned char *)xxteaKey.c_str(), (uint32_t)xxteaKey.size(), (uint32_t *)&dataLen);
-
-                if (data == nullptr) {
-                    SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
-                    return;
-                }
-
-                if (ZipUtils::isGZipBuffer(data, dataLen)) {
-                    uint8_t *unpackedData;
-                    ssize_t unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
-
-                    if (unpackedData == nullptr) {
-                        SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
-                        return;
-                    }
-
-                    readCallback(unpackedData, unpackedLen);
-                    free(data);
-                    free(unpackedData);
-                } else {
-                    readCallback(data, dataLen);
-                    free(data);
-                }
-
-                return;
-            }
-
-            fileData = FileUtils::getInstance()->getDataFromFile(path);
-            readCallback(fileData.getBytes(), fileData.getSize());
-        };
-
-        delegate.onGetStringFromFile = [](const std::string &path) -> std::string {
-            assert(!path.empty());
-
-            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
-            if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
-                Data fileData = FileUtils::getInstance()->getDataFromFile(byteCodePath);
-
-                uint32_t dataLen;
-                uint8_t *data = xxtea_decrypt((uint8_t *)fileData.getBytes(), (uint32_t)fileData.getSize(), (uint8_t *)xxteaKey.c_str(), (uint32_t)xxteaKey.size(), &dataLen);
-
-                if (data == nullptr) {
-                    SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
-                    return "";
-                }
-
-                if (ZipUtils::isGZipBuffer(data, dataLen)) {
-                    uint8_t *unpackedData;
-                    ssize_t unpackedLen = ZipUtils::inflateMemory(data, dataLen, &unpackedData);
-                    if (unpackedData == nullptr) {
-                        SE_REPORT_ERROR("Can't decrypt code for %s", byteCodePath.c_str());
-                        return "";
-                    }
-
-                    std::string ret(reinterpret_cast<const char *>(unpackedData), unpackedLen);
-                    free(unpackedData);
-                    free(data);
-
-                    return ret;
-                } else {
-                    std::string ret(reinterpret_cast<const char *>(data), dataLen);
-                    free(data);
-                    return ret;
-                }
-            }
-
-            if (FileUtils::getInstance()->isFileExist(path)) {
-                return FileUtils::getInstance()->getStringFromFile(path);
-            } else {
-                SE_LOGE("ScriptEngine::onGetStringFromFile %s not found, possible missing file.\n", path.c_str());
-            }
-            return "";
-        };
-
-        delegate.onGetFullPath = [](const std::string &path) -> std::string {
-            assert(!path.empty());
-            std::string byteCodePath = removeFileExt(path) + BYTE_CODE_FILE_EXT;
-            if (FileUtils::getInstance()->isFileExist(byteCodePath)) {
-                return FileUtils::getInstance()->fullPathForFilename(byteCodePath);
-            }
-            return FileUtils::getInstance()->fullPathForFilename(path);
-        };
-
-        delegate.onCheckFileExist = [](const std::string &path) -> bool {
-            assert(!path.empty());
-            return FileUtils::getInstance()->isFileExist(path);
-        };
-
-        assert(delegate.isValid());
-
-        se::ScriptEngine::getInstance()->setFileOperationDelegate(delegate);
-    }
-}
-
-bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect) {
-    if (debuggerServerAddr.empty() || port == 0)
-        return false;
-
-    auto se = se::ScriptEngine::getInstance();
-    se->enableDebugger(debuggerServerAddr.c_str(), port, isWaitForConnect);
-
-    // For debugger main loop
-    class SimpleRunLoop {
-    public:
-        void update(float dt) {
-            se::ScriptEngine::getInstance()->mainLoopUpdate();
-        }
-    };
-    //    static SimpleRunLoop runLoop;
-    //cjh IDEA:    Director::getInstance()->getScheduler()->scheduleUpdate(&runLoop, 0, false);
-    return true;
 }
 
 bool jsb_set_extend_property(const char *ns, const char *clsName) {
     se::Object *globalObj = se::ScriptEngine::getInstance()->getGlobalObject();
-    se::Value nsVal;
+    se::Value   nsVal;
     if (globalObj->getProperty(ns, &nsVal) && nsVal.isObject()) {
         se::Value ccVal;
         if (globalObj->getProperty("cc", &ccVal) && ccVal.isObject()) {
@@ -263,7 +122,7 @@ std::unordered_map<std::string, se::Value> __moduleCache;
 
 static bool require(se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
     assert(argc >= 1);
     assert(args[0].isString());
 
@@ -301,7 +160,7 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
                 secondPath += ".js";
         }
 
-        fullPath = fileOperationDelegate.onGetFullPath(secondPath);
+        fullPath     = fileOperationDelegate.onGetFullPath(secondPath);
         scriptBuffer = fileOperationDelegate.onGetStringFromFile(fullPath);
     } else {
         fullPath = fileOperationDelegate.onGetFullPath(pathWithSuffix);
@@ -317,7 +176,7 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
         std::string currentScriptFileDir = FileUtils::getInstance()->getFileDir(fullPath);
 
         // Add closure for evalutate the script
-        char prefix[] = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = {}; ";
+        char prefix[]    = "(function(currentScriptDir){ window.module = window.module || {}; var exports = window.module.exports = {}; ";
         char suffix[512] = {0};
         snprintf(suffix, sizeof(suffix), "\nwindow.module.exports = window.module.exports || exports;\n})('%s'); ", currentScriptFileDir.c_str());
 
@@ -344,8 +203,8 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
 
         //            RENDERER_LOGD("Evaluate: %s", fullPath.c_str());
 
-        auto se = se::ScriptEngine::getInstance();
-        bool succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());
+        auto      se      = se::ScriptEngine::getInstance();
+        bool      succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());
         se::Value moduleVal;
         if (succeed && se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject()) {
             se::Value exportsVal;
@@ -373,7 +232,7 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
 
 static bool moduleRequire(se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
     assert(argc >= 2);
     assert(args[0].isString());
     assert(args[1].isString());
@@ -403,7 +262,7 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) {
 
     struct NamePtrStruct {
         const char *name;
-        void *ptr;
+        void *      ptr;
     };
 
     std::vector<NamePtrStruct> namePtrArray;
@@ -413,12 +272,12 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) {
         assert(jsobj->_getClass() != nullptr);
         NamePtrStruct tmp;
         tmp.name = jsobj->_getClass()->getName();
-        tmp.ptr = e.first;
+        tmp.ptr  = e.first;
         namePtrArray.push_back(tmp);
     }
 
     std::sort(namePtrArray.begin(), namePtrArray.end(), [](const NamePtrStruct &a, const NamePtrStruct &b) -> bool {
-        std::string left = a.name;
+        std::string left  = a.name;
         std::string right = b.name;
         for (std::string::const_iterator lit = left.begin(), rit = right.begin(); lit != left.end() && rit != right.end(); ++lit, ++rit)
             if (::tolower(*lit) < ::tolower(*rit))
@@ -473,7 +332,7 @@ static bool JSBCore_os(se::State &s) {
 SE_BIND_FUNC(JSBCore_os)
 
 static bool JSBCore_getCurrentLanguage(se::State &s) {
-    std::string languageStr;
+    std::string               languageStr;
     Application::LanguageType language = Application::getInstance()->getCurrentLanguage();
     switch (language) {
         case Application::LanguageType::ENGLISH:
@@ -565,7 +424,7 @@ SE_BIND_FUNC(JSB_core_restartVM)
 
 static bool JSB_isObjectValid(se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
     if (argc == 1) {
         void *nativePtr = nullptr;
         seval_to_native_ptr(args[0], &nativePtr);
@@ -580,7 +439,7 @@ SE_BIND_FUNC(JSB_isObjectValid)
 
 static bool JSB_setCursorEnabled(se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments");
     bool ok = true, value = true;
     ok &= seval_to_boolean(args[0], &value);
@@ -593,9 +452,9 @@ SE_BIND_FUNC(JSB_setCursorEnabled)
 
 static bool JSB_saveByteCode(se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = (int)args.size();
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments");
-    bool ok = true;
+    bool        ok = true;
     std::string srcfile;
     std::string dstfile;
     ok &= seval_to_std_string(args[0], &srcfile);
@@ -624,7 +483,7 @@ static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::O
 }
 
 static bool js_performance_now(se::State &s) {
-    auto now = std::chrono::steady_clock::now();
+    auto now   = std::chrono::steady_clock::now();
     auto micro = std::chrono::duration_cast<std::chrono::microseconds>(now - se::ScriptEngine::getInstance()->getStartTime()).count();
     s.rval().setNumber((double)micro * 0.001);
     return true;
@@ -633,19 +492,19 @@ SE_BIND_FUNC(js_performance_now)
 
 namespace {
 struct ImageInfo {
-    uint32_t length = 0;
-    uint32_t width = 0;
-    uint32_t height = 0;
-    uint8_t *data = nullptr;
-    cc::gfx::Format format = cc::gfx::Format::UNKNOWN;
-    bool hasAlpha = false;
-    bool compressed = false;
+    uint32_t        length     = 0;
+    uint32_t        width      = 0;
+    uint32_t        height     = 0;
+    uint8_t *       data       = nullptr;
+    cc::gfx::Format format     = cc::gfx::Format::UNKNOWN;
+    bool            hasAlpha   = false;
+    bool            compressed = false;
 };
 
 uint8_t *convertRGB2RGBA(uint32_t length, uint8_t *src) {
     uint8_t *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
-        dst[i] = *src++;
+        dst[i]     = *src++;
         dst[i + 1] = *src++;
         dst[i + 2] = *src++;
         dst[i + 3] = 255;
@@ -656,7 +515,7 @@ uint8_t *convertRGB2RGBA(uint32_t length, uint8_t *src) {
 uint8_t *convertIA2RGBA(uint32_t length, uint8_t *src) {
     uint8_t *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
-        dst[i] = *src;
+        dst[i]     = *src;
         dst[i + 1] = *src;
         dst[i + 2] = *src++;
         dst[i + 3] = *src++;
@@ -667,7 +526,7 @@ uint8_t *convertIA2RGBA(uint32_t length, uint8_t *src) {
 uint8_t *convertI2RGBA(uint32_t length, uint8_t *src) {
     uint8_t *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
-        dst[i] = *src;
+        dst[i]     = *src;
         dst[i + 1] = *src;
         dst[i + 2] = *src++;
         dst[i + 3] = 255;
@@ -677,11 +536,11 @@ uint8_t *convertI2RGBA(uint32_t length, uint8_t *src) {
 
 struct ImageInfo *createImageInfo(Image *img) {
     struct ImageInfo *imgInfo = new struct ImageInfo();
-    imgInfo->length = (uint32_t)img->getDataLen();
-    imgInfo->width = img->getWidth();
-    imgInfo->height = img->getHeight();
+    imgInfo->length           = (uint32_t)img->getDataLen();
+    imgInfo->width            = img->getWidth();
+    imgInfo->height           = img->getHeight();
     img->takeData(&imgInfo->data);
-    imgInfo->format = img->getRenderFormat();
+    imgInfo->format     = img->getRenderFormat();
     imgInfo->compressed = img->isCompressed();
 
     // Convert to RGBA888 because standard web api will return only RGBA888.
@@ -691,9 +550,9 @@ struct ImageInfo *createImageInfo(Image *img) {
     // format, or it will cause 0x502 error on OpenGL ES 2.
     if (!imgInfo->compressed && imgInfo->format != cc::gfx::Format::RGBA8) {
         imgInfo->length = img->getWidth() * img->getHeight() * 4;
-        uint8_t *dst = nullptr;
+        uint8_t *dst    = nullptr;
         uint32_t length = imgInfo->length;
-        uint8_t *src = imgInfo->data;
+        uint8_t *src    = imgInfo->data;
         switch (imgInfo->format) {
             case cc::gfx::Format::A8:
             case cc::gfx::Format::LA8:
@@ -713,7 +572,7 @@ struct ImageInfo *createImageInfo(Image *img) {
         }
 
         if (dst != imgInfo->data) free(imgInfo->data);
-        imgInfo->data = dst;
+        imgInfo->data     = dst;
         imgInfo->hasAlpha = true;
     }
 
@@ -754,8 +613,8 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
 
             Application::getInstance()->getScheduler()->performFunctionInCocosThread([=]() {
                 se::AutoHandleScope hs;
-                se::ValueArray seArgs;
-                se::Value dataVal;
+                se::ValueArray      seArgs;
+                se::Value           dataVal;
 
                 if (loadSucceed) {
                     se::HandleObject retObj(se::Object::createPlainObject());
@@ -780,12 +639,12 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
         localDownloaderCreateTask(path, initImageFunc);
 
     } else if (path.find("data:") == 0 && (pos = path.find("base64,")) != std::string::npos) {
-        int imageBytes = 0;
-        unsigned char *imageData = nullptr;
-        size_t dataStartPos = pos + strlen("base64,");
-        const char *base64Data = path.data() + dataStartPos;
-        size_t dataLen = path.length() - dataStartPos;
-        imageBytes = base64Decode((const unsigned char *)base64Data, (unsigned int)dataLen, &imageData);
+        int            imageBytes   = 0;
+        unsigned char *imageData    = nullptr;
+        size_t         dataStartPos = pos + strlen("base64,");
+        const char *   base64Data   = path.data() + dataStartPos;
+        size_t         dataLen      = path.length() - dataStartPos;
+        imageBytes                  = base64Decode((const unsigned char *)base64Data, (unsigned int)dataLen, &imageData);
         if (imageBytes <= 0 || imageData == nullptr) {
             SE_REPORT_ERROR("Decode base64 image data failed!");
             return false;
@@ -806,9 +665,9 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
 }
 
 static bool js_loadImage(se::State &s) {
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 2) {
         std::string path;
         ok &= seval_to_std_string(args[0], &path);
@@ -826,9 +685,9 @@ static bool js_loadImage(se::State &s) {
 SE_BIND_FUNC(js_loadImage)
 
 static bool js_destroyImage(se::State &s) {
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
         unsigned long data = 0;
         ok &= seval_to_ulong(args[0], &data);
@@ -843,9 +702,9 @@ static bool js_destroyImage(se::State &s) {
 SE_BIND_FUNC(js_destroyImage)
 
 static bool JSB_openURL(se::State &s) {
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc > 0) {
         std::string url;
         ok = seval_to_std_string(args[0], &url);
@@ -860,9 +719,9 @@ static bool JSB_openURL(se::State &s) {
 SE_BIND_FUNC(JSB_openURL)
 
 static bool JSB_copyTextToClipboard(se::State &s) {
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc > 0) {
         std::string text;
         ok = seval_to_std_string(args[0], &text);
@@ -877,9 +736,9 @@ static bool JSB_copyTextToClipboard(se::State &s) {
 SE_BIND_FUNC(JSB_copyTextToClipboard)
 
 static bool JSB_setPreferredFramesPerSecond(se::State &s) {
-    const auto &args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto &   args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc > 0) {
         int32_t fps;
         ok = seval_to_int32(args[0], &fps);
@@ -897,10 +756,10 @@ SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
 #if CC_USE_EDITBOX
 static bool JSB_showInputBox(se::State &s) {
     const auto &args = s.args();
-    size_t argc = args.size();
+    size_t      argc = args.size();
     if (argc == 1) {
-        bool ok;
-        se::Value tmp;
+        bool        ok;
+        se::Value   tmp;
         const auto &obj = args[0].toObject();
 
         cc::EditBox::ShowInfo showInfo;
@@ -978,7 +837,7 @@ SE_BIND_FUNC(JSB_hideInputBox)
 #endif
 
 bool jsb_register_global_variables(se::Object *global) {
-    __threadPool = ThreadPool::newFixedThreadPool(3);
+    __threadPool = LegacyThreadPool::newFixedThreadPool(3);
 
     global->defineFunction("require", _SE(require));
     global->defineFunction("requireModule", _SE(moduleRequire));

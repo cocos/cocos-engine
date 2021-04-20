@@ -3,13 +3,13 @@
 #set methods = $current_class.methods_clean()
 #set st_methods = $current_class.static_methods_clean()
 #set public_fields = $current_class.public_fields
-#if $current_class.methods.has_key('constructor')
+#if $current_class.is_struct
+#set has_constructor = True
+${current_class.generate_struct_constructor()}
+#elif $current_class.methods.has_key('constructor')
 #set has_constructor = True
 #set constructor = $current_class.methods.constructor
 ${current_class.methods.constructor.generate_code($current_class)}
-#elif $current_class.is_struct
-#set has_constructor = True
-${current_class.generate_struct_constructor()}
 #end if
 
 #if $generator.in_listed_extend_classed($current_class.class_name) and $has_constructor
@@ -136,4 +136,3 @@ bool js_register_${generator.prefix}_${current_class.class_name}(se::Object* obj
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-

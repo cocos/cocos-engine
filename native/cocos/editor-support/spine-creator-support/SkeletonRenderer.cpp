@@ -35,7 +35,7 @@
 #include "base/memory/Memory.h"
 #include "math/Math.h"
 #include "math/Vec3.h"
-#include "core/gfx/GFXDef.h"
+#include "gfx-base/GFXDef.h"
 #include "spine-creator-support/AttachmentVertices.h"
 #include "spine-creator-support/spine-cocos2dx.h"
 #include <algorithm>
