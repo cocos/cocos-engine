@@ -226,7 +226,7 @@ export class StatsQuery {
     private _evalTest<T> (test: Test, context: Context) {
         // eslint-disable-next-line @typescript-eslint/no-implied-eval,no-new-func
         const result = new Function('context', `return ${test}`)(context) as T;
-        console.debug(`Eval "${test}" to ${result}`);
+        // console.debug(`Eval "${test}" to ${result}`);
         return result;
     }
 
