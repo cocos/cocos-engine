@@ -688,7 +688,7 @@ static bool js_physics_RigidBody_getImpl(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const uintptr_t result = cobj->getImpl();
+        uintptr_t result = cobj->getImpl();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_RigidBody_getImpl : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -745,7 +745,7 @@ static bool js_physics_RigidBody_getNodeHandle(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const unsigned int result = cobj->getNodeHandle();
+        unsigned int result = cobj->getNodeHandle();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_RigidBody_getNodeHandle : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -4353,7 +4353,7 @@ static bool js_physics_RevoluteJoint_getImpl(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const uintptr_t result = cobj->getImpl();
+        uintptr_t result = cobj->getImpl();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_RevoluteJoint_getImpl : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -4597,7 +4597,7 @@ static bool js_physics_DistanceJoint_getImpl(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        const uintptr_t result = cobj->getImpl();
+        uintptr_t result = cobj->getImpl();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_physics_DistanceJoint_getImpl : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
