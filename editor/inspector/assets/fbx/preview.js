@@ -49,9 +49,9 @@ exports.style = `
 `;
 
 const PLAY_STATE = {
-    STOP: 0, // 停止
-    PLAYING: 1, // 播放中
-    PAUSE: 2, // 暂停
+    STOP: 0,
+    PLAYING: 1,
+    PAUSE: 2,
 };
 
 exports.$ = {

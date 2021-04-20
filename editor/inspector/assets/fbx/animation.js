@@ -623,7 +623,7 @@ exports.update = function (assetList, metaList) {
 
     if (this.meta && this.meta.userData.animationImportSettings) {
         this.animationInfos = this.meta.userData.animationImportSettings;
-        // 收集 clip 名字用于重命名与新建时判断是否重名
+        // Collect clip names for renaming and creating to determine whether the name is repeated
         this.clipNames = new Set();
         for (const animationInfo of this.animationInfos) {
             this.clipNames.add(animationInfo.name);
