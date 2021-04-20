@@ -1,4 +1,4 @@
-import { IMiniGame } from 'pal/minigame';
+import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { Orientation } from '../system/enum-type/orientation';
 import { cloneObject } from '../utils';
 
@@ -31,26 +31,33 @@ Object.defineProperty(minigame, 'orientation', {
 // TouchEvent
 // my.onTouchStart register touch event listner on body
 // need to register on canvas
-// globalAdapter.onTouchStart = function (cb) {
-//     window.canvas.addEventListener('touchstart', function (res) {
-//       cb && cb(res);
-//     });
-// };
-// globalAdapter.onTouchMove = function (cb) {
-//     window.canvas.addEventListener('touchmove', function (res) {
-//       cb && cb(res);
-//     });
-// };
-// globalAdapter.onTouchEnd = function (cb) {
-//     window.canvas.addEventListener('touchend', function (res) {
-//       cb && cb(res);
-//     });
-// };
-// globalAdapter.onTouchCancel = function (cb) {
-//     window.canvas.addEventListener('touchcancel', function (res) {
-//       cb && cb(res);
-//     });
-// };
+minigame.onTouchStart = function (cb) {
+    window.canvas.addEventListener('touchstart', (res) => {
+        cb && cb(res);
+    });
+};
+minigame.onTouchMove = function (cb) {
+    window.canvas.addEventListener('touchmove', (res) => {
+        cb && cb(res);
+    });
+};
+minigame.onTouchEnd = function (cb) {
+    window.canvas.addEventListener('touchend', (res) => {
+        cb && cb(res);
+    });
+};
+minigame.onTouchCancel = function (cb) {
+    window.canvas.addEventListener('touchcancel', (res) => {
+        cb && cb(res);
+    });
+};
+
+minigame.getSystemInfoSync = function (): SystemInfo {
+    const sys = my.getSystemInfoSync() as SystemInfo;
+    sys.screenWidth = sys.windowWidth;
+    sys.screenHeight = sys.windowHeight;
+    return sys;
+};
 
 minigame.createInnerAudioContext = function (): InnerAudioContext {
     const audio: InnerAudioContext = my.createInnerAudioContext();
