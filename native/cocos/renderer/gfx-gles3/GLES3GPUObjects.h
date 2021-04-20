@@ -297,7 +297,6 @@ struct GLES3ObjectCache final {
     GLES3GPUFramebuffer *   gpuFramebuffer    = nullptr;
     GLES3GPUPipelineState * gpuPipelineState  = nullptr;
     GLES3GPUInputAssembler *gpuInputAssembler = nullptr;
-    uint                    reverseCW         = 0U;
     GLenum                  glPrimitive       = 0;
     GLenum                  invalidAttachments[MAX_ATTACHMENTS];
 };
@@ -380,7 +379,6 @@ public:
         gfxStateCache.gpuPipelineState  = nullptr;
         gfxStateCache.gpuInputAssembler = nullptr;
         gfxStateCache.glPrimitive       = 0U;
-        gfxStateCache.reverseCW         = false;
     }
 };
 

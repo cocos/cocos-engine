@@ -171,6 +171,7 @@ bool GLES3Device::doInit(const DeviceInfo & info) {
     glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxFragmentUniformVectors));
     glGetIntegerv(GL_MAX_UNIFORM_BUFFER_BINDINGS, reinterpret_cast<GLint *>(&_caps.maxUniformBufferBindings));
     glGetIntegerv(GL_MAX_UNIFORM_BLOCK_SIZE, reinterpret_cast<GLint *>(&_caps.maxUniformBlockSize));
+    glGetIntegerv(GL_MAX_DRAW_BUFFERS, reinterpret_cast<GLint *>(&_caps.maxColorRenderTargets));
     glGetIntegerv(GL_MAX_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint *>(&_caps.maxTextureUnits));
     glGetIntegerv(GL_MAX_VERTEX_TEXTURE_IMAGE_UNITS, reinterpret_cast<GLint *>(&_caps.maxVertexTextureUnits));
     glGetIntegerv(GL_MAX_TEXTURE_SIZE, reinterpret_cast<GLint *>(&_caps.maxTextureSize));
@@ -199,14 +200,14 @@ bool GLES3Device::doInit(const DeviceInfo & info) {
 }
 
 void GLES3Device::doDestroy() {
-    CC_SAFE_DELETE(_gpuFramebufferCacheMap);
-    CC_SAFE_DELETE(_gpuStagingBufferPool);
-    CC_SAFE_DELETE(_gpuStateCache);
+    CC_SAFE_DELETE(_gpuFramebufferCacheMap)
+    CC_SAFE_DELETE(_gpuStagingBufferPool)
+    CC_SAFE_DELETE(_gpuStateCache)
 
-    CC_SAFE_DESTROY(_cmdBuff);
-    CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_deviceContext);
-    CC_SAFE_DESTROY(_renderContext);
+    CC_SAFE_DESTROY(_cmdBuff)
+    CC_SAFE_DESTROY(_queue)
+    CC_SAFE_DESTROY(_deviceContext)
+    CC_SAFE_DESTROY(_renderContext)
 }
 
 void GLES3Device::releaseSurface(const uintptr_t windowHandle) {

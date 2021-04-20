@@ -125,6 +125,7 @@ bool GLES2Device::doInit(const DeviceInfo & info) {
 
     if (checkExtension("draw_buffers")) {
         _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
+        glGetIntegerv(GL_MAX_DRAW_BUFFERS_EXT, reinterpret_cast<GLint *>(&_caps.maxColorRenderTargets));
     }
 
     if (checkExtension("blend_minmax")) {
@@ -198,13 +199,13 @@ bool GLES2Device::doInit(const DeviceInfo & info) {
 }
 
 void GLES2Device::doDestroy() {
-    CC_SAFE_DELETE(_gpuStagingBufferPool);
-    CC_SAFE_DELETE(_gpuStateCache);
+    CC_SAFE_DELETE(_gpuStagingBufferPool)
+    CC_SAFE_DELETE(_gpuStateCache)
 
-    CC_SAFE_DESTROY(_cmdBuff);
-    CC_SAFE_DESTROY(_queue);
-    CC_SAFE_DESTROY(_deviceContext);
-    CC_SAFE_DESTROY(_renderContext);
+    CC_SAFE_DESTROY(_cmdBuff)
+    CC_SAFE_DESTROY(_queue)
+    CC_SAFE_DESTROY(_deviceContext)
+    CC_SAFE_DESTROY(_renderContext)
 }
 
 void GLES2Device::releaseSurface(uintptr_t windowHandle) {
