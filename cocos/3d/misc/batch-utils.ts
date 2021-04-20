@@ -102,13 +102,18 @@ export class BatchingUtility {
      * @param batchedRoot the target output node
      */
     public static unbatchStaticModel (staticModelRoot: Node, batchedRoot: Node) {
-        const models = staticModelRoot.getComponentsInChildren('cc.MeshRenderer');
+        const models = staticModelRoot.getComponentsInChildren(MeshRenderer);
         for (let i = 0; i < models.length; i++) {
             const comp = models[i];
             comp.enabled = true;
         }
-        const batchedModel = batchedRoot.getComponent('cc.MeshRenderer');
-        if (batchedModel) { batchedModel.destroy(); }
+        const batchedModel = batchedRoot.getComponent(MeshRenderer);
+        if (batchedModel) {
+            if (batchedModel.mesh) {
+                batchedModel.mesh.destroyRenderingMesh();
+            }
+            batchedModel.destroy();
+        }
         return true;
     }
 }

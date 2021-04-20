@@ -93,9 +93,11 @@ const Elements = {
             const panel = this;
 
             panel.$.canvas.addEventListener('mousedown', (event) => {
+
                 // event.target.requestPointerLock();
                 Editor.Message.send('scene', 'on-model-preview-mouse-down', { x: event.x, y: event.y });
                 function mousemove (event) {
+
                     Editor.Message.send('scene', 'on-model-preview-mouse-move', {
                         movementX: event.movementX,
                         movementY: event.movementY,
@@ -104,8 +106,10 @@ const Elements = {
                     panel.isPreviewDataDirty = true;
                 }
 
+
                 function mouseup (event) {
                     // document.exitPointerLock();
+
 
                     Editor.Message.send('scene', 'on-model-preview-mouse-up', {
                         x: event.x,
@@ -131,14 +135,13 @@ const Elements = {
         async update () {
             const panel = this;
 
+            if (!panel.$.canvas) {
+                return;
+            }
+
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
             if (panel.asset.redirect) {
                 await Editor.Message.request('scene', 'set-model-preview-model', panel.asset.redirect.uuid);
-            }
-
-            // After await, the panel no longer exists
-            if (!panel.$.canvas) {
-                return;
             }
 
             panel.refreshPreview();
@@ -232,6 +235,7 @@ exports.methods = {
     async refreshPreview () {
         const panel = this;
 
+        // After await, the panel no longer exists
         if (!panel.$.canvas) {
             return;
         }

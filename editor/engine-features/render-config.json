@@ -71,6 +71,7 @@
                 },
                 "physics-physx": {
                     "label": "i18n:ENGINE.features.physics_physx.label",
+                    "native": "USE_PHYSICS_PHYSX",
                     "description": "i18n:ENGINE.features.physics_physx.description"
                 },
                 "physics-builtin": {

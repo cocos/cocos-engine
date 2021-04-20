@@ -83,6 +83,10 @@ exports.loopSetAssetDumpDataReadonly = function (dump) {
  * @param element
  */
 exports.setDisabled = function (data, element) {
+    if (!element) {
+        return;
+    }
+    
     let disabled = data;
 
     if (typeof data === 'function') {
@@ -102,6 +106,10 @@ exports.setDisabled = function (data, element) {
  * @param element
  */
 exports.setReadonly = function (data, element) {
+    if (!element) {
+        return;
+    }
+
     let readonly = data;
 
     if (typeof data === 'function') {
@@ -126,6 +134,10 @@ exports.setReadonly = function (data, element) {
  * @param element
  */
 exports.setHidden = function (data, element) {
+    if (!element) {
+        return;
+    }
+
     let hidden = data;
 
     if (typeof data === 'function') {

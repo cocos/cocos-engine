@@ -52,6 +52,25 @@ exports.methods = {
     },
 
     /**
+     * Detection of data changes only determines the currently selected technique
+     */
+    setDirtyData() {
+        this.materialRealtime = JSON.stringify({
+            effect: this.material.effect,
+            technique: this.material.technique,
+            techniqueData: this.material.data[this.material.technique],
+        });
+
+        if (!this.materialOrigin) {
+            this.materialOrigin = this.materialRealtime;
+        }
+    },
+
+    isDirty() {
+        return this.materialOrigin !== this.materialRealtime;
+    },
+
+    /**
      * Update the pass data that is finally displayed in the panel
      */
     updatePasses() {
@@ -111,6 +130,8 @@ exports.methods = {
                 $prop.parentElement.removeChild($prop);
             }
         }
+
+        this.setDirtyData();
     },
 
     /**
@@ -158,6 +179,7 @@ exports.ready = async function () {
     this.$.materialDump.addEventListener('change-dump', (event) => {
         Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
         this.dispatch('change');
+        this.setDirtyData();
     });
 
     // The event that is triggered when the effect used is modified
@@ -188,6 +210,7 @@ exports.ready = async function () {
             }
         });
         this.dispatch('change');
+        this.setDirtyData();
     });
 
     //  The event is triggered when the useBatching is modified
@@ -200,6 +223,7 @@ exports.ready = async function () {
             }
         });
         this.dispatch('change');
+        this.setDirtyData();
     });
 
     // When the page is initialized, all effect lists are queried and then not updated again
@@ -221,4 +245,10 @@ exports.ready = async function () {
         effectOption += `<option>${effect.name}</option>`;
     }
     this.$.effect.innerHTML = effectOption;
+};
+
+exports.close = function () {
+    // Used to determine whether the material has been modified in isDirty()
+    this.materialOrigin = '';
+    this.materialRealtime = '';
 };
