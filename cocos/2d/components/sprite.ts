@@ -484,6 +484,7 @@ export class Sprite extends Renderable2D {
 
         if (this._spriteFrame) {
             this._spriteFrame.on('load', this._markForUpdateUvDirty, this);
+            this._spriteFrame.on('uv-updated', this._markForUpdateUvDirty, this);
             this._markForUpdateUvDirty();
         }
     }
@@ -520,6 +521,7 @@ export class Sprite extends Renderable2D {
         }
 
         if (this._spriteFrame) {
+            this._spriteFrame.off('uv-updated', this._markForUpdateUvDirty, this);
             this._spriteFrame.off('load');
         }
         super.onDestroy();
@@ -745,10 +747,12 @@ export class Sprite extends Renderable2D {
         if (this._renderData) {
             if (oldFrame) {
                 oldFrame.off('load', this._markForUpdateUvDirty);
+                oldFrame.off('uv-updated', this._markForUpdateUvDirty, this);
             }
 
             if (spriteFrame) {
                 spriteFrame.on('load', this._markForUpdateUvDirty, this);
+                spriteFrame.on('uv-updated', this._markForUpdateUvDirty, this);
             }
 
             if (!this._renderData.uvDirty) {

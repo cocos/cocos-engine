@@ -1105,6 +1105,7 @@ export class SpriteFrame extends Asset {
         this._rect.x = frame.x;
         this._rect.y = frame.y;
         this._calculateUV();
+        this.emit('uv-updated');
     }
 
     public _resetDynamicAtlasFrame () {
