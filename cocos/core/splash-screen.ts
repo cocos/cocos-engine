@@ -119,7 +119,11 @@ export class SplashScreen {
         if (window._CCSettings && window._CCSettings.splashScreen) {
             const setting: Writable<ISplashSetting> = this.setting = window._CCSettings.splashScreen;
             setting.totalTime = this.setting.totalTime != null ? this.setting.totalTime : 3000;
-            setting.base64src = this.setting.base64src || '';
+            if (JSB) {
+                setting.base64src = '';
+            } else {
+                setting.base64src = this.setting.base64src || '';
+            }
             setting.effect = this.setting.effect || 'FADE-INOUT';
             setting.clearColor = this.setting.clearColor || new Color(0.88, 0.88, 0.88, 1);
             setting.displayRatio = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
@@ -401,7 +405,7 @@ export class SplashScreen {
         }
 
         // doing the screen adaptation here will not support dynamic screen orientation changes
-        const ySign = this.device.capabilities.screenSpaceSignY;
+        const ySign = this.device.capabilities.clipSpaceSignY;
         const preTransform = preTransforms[this.device.surfaceTransform];
         for (let i = 0; i < verts.length; i += 4) {
             const x = verts[i] / this.screenWidth * 2 - 1;
@@ -485,7 +489,7 @@ export class SplashScreen {
         }
 
         // doing the screen adaptation here will not support dynamic screen orientation changes
-        const ySign = this.device.capabilities.screenSpaceSignY;
+        const ySign = this.device.capabilities.clipSpaceSignY;
         const preTransform = preTransforms[this.device.surfaceTransform];
         for (let i = 0; i < verts.length; i += 4) {
             const x = verts[i] / this.screenWidth * 2 - 1;

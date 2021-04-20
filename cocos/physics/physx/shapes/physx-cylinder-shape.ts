@@ -109,5 +109,6 @@ export class PhysXCylinderShape extends PhysXShape implements ICylinderShape {
         meshScale.setScale(scale);
         meshScale.setRotation(quat);
         this.geometry.setScale(meshScale);
+        Quat.copy(this._rotation, quat);
     }
 }

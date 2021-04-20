@@ -16,14 +16,15 @@ CCProgram lighting-vs %{
   precision highp float;
   #include <decode>
   #include <cc-global>
+  #include <common>
 
   out vec2 v_uv;
 
   void main () {
     vec4 position;
     CCDecode(position);
-
-    gl_Position = vec4(position.x, position.y * cc_cameraPos[3], 1.0, 1.0);
+    CC_HANDLE_GET_CLIP_FLIP(position.xy);
+    gl_Position = vec4(position.x, position.y, 1.0, 1.0);
     v_uv = a_texCoord;
   }
 }%

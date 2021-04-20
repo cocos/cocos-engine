@@ -25,6 +25,7 @@
 
 import { markAsWarning, removeProperty } from '../utils';
 import { warnID } from './debug';
+import { EventMouse, EventTouch, SystemEventType } from './event-manager';
 import { sys } from './sys';
 import { View } from './view';
 
@@ -39,6 +40,48 @@ removeProperty(View.prototype, 'View.prototype', [
     },
 ]);
 
+// depracate EventMouse static property
+['DOWN', 'UP', 'MOVE'].forEach((item) => {
+    Object.defineProperty(EventMouse, item, {
+        get () {
+            warnID(1400, `EventMouse.${item}`, `SystemEventType.MOUSE_${item}`);
+            return SystemEventType[`MOUSE_${item}`] as string;
+        },
+    });
+});
+Object.defineProperty(EventMouse, 'SCROLL', {
+    get () {
+        warnID(1400, `EventMouse.SCROLL`, `SystemEventType.MOUSE_WHEEL`);
+        return SystemEventType.MOUSE_WHEEL;
+    },
+});
+
+// depracate EventTouch static property
+Object.defineProperty(EventTouch, 'BEGAN', {
+    get () {
+        warnID(1400, `EventMouse.BEGAN`, `SystemEventType.TOUCH_START`);
+        return SystemEventType.TOUCH_START;
+    },
+});
+Object.defineProperty(EventTouch, 'MOVED', {
+    get () {
+        warnID(1400, `EventMouse.MOVED`, `SystemEventType.TOUCH_MOVE`);
+        return SystemEventType.TOUCH_MOVE;
+    },
+});
+Object.defineProperty(EventTouch, 'ENDED', {
+    get () {
+        warnID(1400, `EventMouse.ENDED`, `SystemEventType.TOUCH_END`);
+        return SystemEventType.TOUCH_END;
+    },
+});
+Object.defineProperty(EventTouch, 'CANCELLED', {
+    get () {
+        warnID(1400, `EventMouse.CANCELLED`, `SystemEventType.TOUCH_CANCEL`);
+        return SystemEventType.TOUCH_CANCEL;
+    },
+});
+
 // deprecate languageCode field
 ['UNKNOWN', 'ENGLISH', 'CHINESE', 'FRENCH', 'ITALIAN',
     'GERMAN', 'SPANISH', 'DUTCH', 'RUSSIAN', 'KOREAN',
@@ -47,7 +90,7 @@ removeProperty(View.prototype, 'View.prototype', [
     Object.defineProperty(sys, `LANGUAGE_${item}`, {
         get () {
             warnID(1400, `sys.LANGUAGE_${item}`, `sys.Language.${item}`);
-            return sys.Language[item];
+            return sys.Language[item] as string;
         },
     });
 });
@@ -57,7 +100,7 @@ removeProperty(View.prototype, 'View.prototype', [
     Object.defineProperty(sys, `OS_${item}`, {
         get () {
             warnID(1400, `sys.OS_${item}`, `sys.OS.${item}`);
-            return sys.OS[item];
+            return sys.OS[item] as string;
         },
     });
 });
@@ -70,7 +113,7 @@ removeProperty(View.prototype, 'View.prototype', [
     Object.defineProperty(sys, `BROWSER_TYPE_${item}`, {
         get () {
             warnID(1400, `sys.BROWSER_TYPE_${item}`, `sys.BrowserType.${item}`);
-            return sys.BrowserType[item];
+            return sys.BrowserType[item] as string;
         },
     });
 });
@@ -82,7 +125,7 @@ removeProperty(View.prototype, 'View.prototype', [
     Object.defineProperty(sys, item, {
         get () {
             warnID(1400, `sys.${item}`, `sys.Platform.${item}`);
-            return sys.Platform[item];
+            return sys.Platform[item] as string;
         },
     });
 });

@@ -107,7 +107,7 @@ export function getWrapShape<T> (pxShape: any): T {
 }
 
 /**
- * f32 x3  position.x,position.y,position.z,
+ * f32 x3 position.x,position.y,position.z,
  * f32 x3 normal.x,normal.y,normal.z,
  * f32 x3 impulse.x,impulse.y,impulse.z,
  * f32 separation,
@@ -169,6 +169,10 @@ export function setMassAndUpdateInertia (impl: any, mass: number): void {
 }
 
 export function copyPhysXTransform (node: Node, transform: any): void {
+    const wp = node.worldPosition;
+    const wr = node.worldRotation;
+    const dontUpdate = physXEqualsCocosVec3(transform, wp) && physXEqualsCocosQuat(transform, wr);
+    if (dontUpdate) return;
     if (USE_BYTEDANCE) {
         const pos = transform.getPosition();
         const rot = transform.getQuaternion();

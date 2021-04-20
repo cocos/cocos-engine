@@ -9,26 +9,35 @@ const minigame: IMiniGame = {};
 cloneObject(minigame, wx);
 
 const systemInfo = minigame.getSystemInfoSync();
-minigame.isSubContext = minigame.getOpenDataContext !== undefined;
 minigame.isDevTool = (systemInfo.platform === 'devtools');
-minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
-let orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
-
-// Accelerometer
+// NOTE: size and orientation info is wrong at the init phase, especially on iOS device
+Object.defineProperty(minigame, 'isLandscape', {
+    get () {
+        return systemInfo.deviceOrientation ? (systemInfo.deviceOrientation === 'landscape') : (systemInfo.screenWidth > systemInfo.screenHeight);
+    },
+});
+// init landscapeOrientation as LANDSCAPE_RIGHT
+let landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
 wx.onDeviceOrientationChange((res) => {
     if (res.value === 'landscape') {
-        orientation = Orientation.LANDSCAPE_RIGHT;
+        landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
     } else if (res.value === 'landscapeReverse') {
-        orientation = Orientation.LANDSCAPE_LEFT;
+        landscapeOrientation = Orientation.LANDSCAPE_LEFT;
     }
 });
+Object.defineProperty(minigame, 'orientation', {
+    get () {
+        return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
+    },
+});
 
+// Accelerometer
 minigame.onAccelerometerChange = function (cb) {
     wx.onAccelerometerChange((res) => {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
-            const orientationFactor = orientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
+            const orientationFactor = (landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1);
             const tmp = x;
             x = -y * orientationFactor;
             y = tmp * orientationFactor;

@@ -22,8 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { EDITOR } from 'internal:constants';
-import { Asset } from '../assets';
+import { BUILD, EDITOR, PREVIEW } from 'internal:constants';
+import { Asset, SceneAsset } from '../assets';
 import { error, warn } from '../platform/debug';
 import packManager from './pack-manager';
 import parser from './parser';
@@ -73,7 +73,7 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
             onComplete: (err, result) => {
                 if (err && !task.isFinish) {
                     if (!legacyCC.assetManager.force || firstTask) {
-                        if (!EDITOR) {
+                        if (BUILD) {
                             error(err.message, err.stack);
                         }
                         progress.canInvoke = false;
@@ -159,15 +159,11 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                 }
             } else if (!options.reloadAsset && assets.has(uuid)) {
                 const asset = assets.get(uuid)!;
-                if (options.__asyncLoadAssets__ || !asset.__asyncLoadAssets__) {
-                    item.content = asset.addRef();
-                    if (progress.canInvoke) {
-                        task.dispatch('progress', ++progress.finish, progress.total, item);
-                    }
-                    done();
-                } else {
-                    loadDepends(task, asset, done, false);
+                item.content = asset.addRef();
+                if (progress.canInvoke) {
+                    task.dispatch('progress', ++progress.finish, progress.total, item);
                 }
+                done();
             } else {
                 options.__uuid__ = uuid;
                 parser.parse(id, file, 'import', options, (err, asset: Asset) => {
@@ -175,24 +171,24 @@ const loadOneAssetPipeline = new Pipeline('loadOneAsset', [
                         done(err);
                         return;
                     }
-                    loadDepends(task, asset, done, true);
+                    loadDepends(task, asset, done);
                 });
             }
         }
     },
 ]);
 
-function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, init: boolean) {
+function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
     const { input: item, progress } = task;
     const { uuid, id, options, config } = item as RequestItem;
-    const { __asyncLoadAssets__, cacheAsset } = options;
+    const { cacheAsset } = options;
 
     const depends = [];
     // add reference avoid being released during loading dependencies
     if (asset.addRef) {
         asset.addRef();
     }
-    getDepends(uuid, asset, Object.create(null), depends, false, __asyncLoadAssets__, config!);
+    getDepends(uuid, asset, Object.create(null), depends, config!);
     if (progress.canInvoke) {
         task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
     }
@@ -209,7 +205,6 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
             if (asset.decRef) {
                 asset.decRef(false);
             }
-            asset.__asyncLoadAssets__ = __asyncLoadAssets__;
             repeatItem.finish = true;
             repeatItem.err = err;
 
@@ -221,32 +216,30 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData, in
                     map[dependAsset instanceof Asset ? `${dependAsset._uuid}@import` : `${uuid}@native`] = dependAsset;
                 }
 
-                if (!init) {
-                    if (asset.__nativeDepend__) {
-                        setProperties(uuid, asset, map);
-                        try {
-                            if (typeof asset.onLoaded === 'function' && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
-                                asset.onLoaded();
-                                asset.__onLoadedInvoked__ = true;
-                            }
-                        } catch (e) {
-                            error(e.message, e.stack);
-                        }
+                setProperties(uuid, asset, map);
+                try {
+                    if (typeof asset.onLoaded === 'function' && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
+                        asset.onLoaded();
+                        asset.__onLoadedInvoked__ = true;
                     }
-                } else {
-                    setProperties(uuid, asset, map);
-                    try {
-                        if (typeof asset.onLoaded === 'function' && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
-                            asset.onLoaded();
-                            asset.__onLoadedInvoked__ = true;
-                        }
-                    } catch (e) {
+                } catch (e) {
+                    if (BUILD) {
                         error(e.message, e.stack);
                     }
-                    files.remove(id);
-                    parsed.remove(id);
-                    cache(uuid, asset, cacheAsset);
+                    if (EDITOR || PREVIEW) {
+                        if (asset instanceof Asset) {
+                            asset.initDefault();
+                        } else {
+                            // TODO: remove it.
+                            // scene asset might be a json in editor or preview
+                            SceneAsset.prototype.initDefault.call(asset);
+                        }
+                    }
                 }
+                files.remove(id);
+                parsed.remove(id);
+                if (!BUILD && asset.validate && !asset.validate()) { asset.initDefault(); }
+                cache(uuid, asset, cacheAsset);
                 subTask.recycle();
             }
 

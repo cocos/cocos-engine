@@ -473,11 +473,11 @@ export class Node extends BaseNode {
                 this._lpos.z += trans.z;
             }
         }
-
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
+        NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition);
     }
 
     /**
@@ -500,11 +500,11 @@ export class Node extends BaseNode {
             Quat.multiply(this._lrot, this._lrot, q_b);
         }
         this._eulerDirty = true;
-
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
+        NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation);
     }
 
     /**
@@ -716,7 +716,7 @@ export class Node extends BaseNode {
 
         if (y === undefined) {
             Vec3.copy(this._euler, val as Vec3);
-            Quat.fromEuler(this._lrot, (val as Vec3).x, (val as Vec3).y,  (val as Vec3).z);
+            Quat.fromEuler(this._lrot, (val as Vec3).x, (val as Vec3).y, (val as Vec3).z);
         } else {
             Vec3.set(this._euler, val as number, y, z);
             Quat.fromEuler(this._lrot, val as number, y, z);
@@ -1102,6 +1102,59 @@ export class Node extends BaseNode {
      */
     public resumeSystemEvents (recursive: boolean): void {
         eventManager.resumeTarget(this, recursive);
+    }
+
+    /**
+     * @en
+     * clear all node dirty state.
+     * 
+     * @zh
+     * 清除所有节点的脏标记。
+     */
+    public static clearBooks () {
+        bookOfChange.forEach((v, k, m) => { if (k.isValid) k.hasChangedFlags = TransformBit.NONE; });
+        bookOfChange.clear();
+    }
+
+    /**
+     * @en
+     * Synchronize the js transform to the native layer.
+     * 
+     * @zh
+     * js 变换信息同步到原生层。
+     */
+    public syncToNativeTransform () {
+        const v = this.hasChangedFlags;
+        if (v) {
+            if (v & TransformBit.POSITION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition); }
+            if (v & TransformBit.ROTATION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation); }
+            if (v & TransformBit.SCALE) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this.worldScale); }
+        }
+    }
+
+    /**
+     * @en
+     * Synchronize the native transform to the js layer.
+     * 
+     * @zh
+     * 原生变换信息同步到 js 层。
+     */
+    public syncFromNativeTransform () {
+        const v = NodePool.get(this._poolHandle, NodeView.FLAGS_CHANGED);
+        if (v) {
+            if (v & TransformBit.POSITION) {
+                NodePool.getVec3(this._poolHandle, NodeView.WORLD_POSITION, v3_a);
+                this.setWorldPosition(v3_a);
+            }
+            if (v & TransformBit.ROTATION) {
+                NodePool.getVec4(this._poolHandle, NodeView.WORLD_ROTATION, q_a);
+                this.setWorldRotation(q_a);
+            }
+            if (v & TransformBit.SCALE) {
+                NodePool.getVec3(this._poolHandle, NodeView.WORLD_SCALE, v3_a);
+                this.setWorldScale(v3_a);
+            }
+        }
     }
 }
 

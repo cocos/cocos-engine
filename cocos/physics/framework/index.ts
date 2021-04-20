@@ -51,6 +51,7 @@ import { PointToPointConstraint } from './components/constraints/point-to-point-
 
 import { legacyCC } from '../../core/global-exports';
 import { selector } from './physics-selector';
+import * as utils from '../utils/util';
 
 export {
     PhysicsSystem,
@@ -76,6 +77,7 @@ export {
     ConstantForce,
 
     selector,
+    utils,
 };
 
 legacyCC.PhysicsSystem = PhysicsSystem;

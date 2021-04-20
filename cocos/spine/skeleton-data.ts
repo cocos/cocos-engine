@@ -20,8 +20,6 @@ import { legacyCC } from '../core/global-exports';
  */
 @ccclass('sp.SkeletonData')
 export class SkeletonData extends Asset {
-    public static preventDeferredLoadDependents = true;
-
     @serializable
     public _skeletonJson: spine.SkeletonJson | null = null;
 

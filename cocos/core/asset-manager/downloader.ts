@@ -26,7 +26,7 @@
  * @packageDocumentation
  * @module asset-manager
  */
-import { EDITOR } from 'internal:constants';
+import { BUILD, EDITOR } from 'internal:constants';
 import { sys } from '../platform/sys';
 import { js } from '../utils';
 import { callInNextTick } from '../utils/misc';
@@ -172,7 +172,7 @@ export class Downloader {
      * @property maxRetryCount
      * @type {Number}
      */
-    public maxRetryCount = EDITOR ? 0 : 3;
+    public maxRetryCount = BUILD ? 3 : 0;
 
     public appendTimeStamp = !!EDITOR;
 

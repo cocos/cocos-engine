@@ -1033,6 +1033,21 @@ export class Mesh extends Asset {
             return vertexBuffer;
         });
     }
+
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
+        this.reset({
+            struct: {
+                vertexBundles: [],
+                primitives: [],
+            },
+            data: globalEmptyMeshBuffer,
+        });
+    }
+
+    public validate () {
+        return this.renderingSubMeshes.length > 0 && this.data.byteLength > 0;
+    }
 }
 legacyCC.Mesh = Mesh;
 

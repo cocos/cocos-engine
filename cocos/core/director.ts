@@ -906,7 +906,7 @@ export class Director extends EventTarget {
             this.emit(Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
-            Node.bookOfChange.clear();
+            Node.clearBooks();
             this._totalFrames++;
         }
     }

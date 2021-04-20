@@ -68,15 +68,14 @@ export class CannonShape implements IBaseShape {
     get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
     setMaterial (mat: PhysicsMaterial | null) {
-        if (!this._shape) return;
         if (mat == null) {
             (this._shape.material as unknown) = null;
         } else {
-            if (CannonShape.idToMaterial[mat._uuid] == null) {
-                CannonShape.idToMaterial[mat._uuid] = new CANNON.Material(mat._uuid);
+            if (CannonShape.idToMaterial[mat.id] == null) {
+                CannonShape.idToMaterial[mat.id] = new CANNON.Material(mat.id as any);
             }
 
-            this._shape.material = CannonShape.idToMaterial[mat._uuid];
+            this._shape.material = CannonShape.idToMaterial[mat.id];
             const smat = this._shape.material;
             smat.friction = mat.friction;
             smat.restitution = mat.restitution;

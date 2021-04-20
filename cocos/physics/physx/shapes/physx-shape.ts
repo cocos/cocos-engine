@@ -83,7 +83,6 @@ export class PhysXShape implements IBaseShape {
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(v.node);
         this._sharedBody.reference = true;
         this.onComponentSet();
-        this.setMaterial(this._collider.sharedMaterial);
         if (this._impl) {
             if (this._impl.$$) {
                 PX.IMPL_PTR[this._impl.$$.ptr] = this;
@@ -104,6 +103,7 @@ export class PhysXShape implements IBaseShape {
     updateScale (): void { }
 
     onLoad (): void {
+        this.setMaterial(this._collider.sharedMaterial);
         this.setCenter(this._collider.center);
     }
 
@@ -131,22 +131,21 @@ export class PhysXShape implements IBaseShape {
     }
 
     setMaterial (v: PhysicsMaterial | null): void {
-        if (!this._impl) return;
         if (v == null) v = PhysicsSystem.instance.defaultMaterial;
         const mat = this.getSharedMaterial(v);
         this._impl.setMaterials(getShapeMaterials(mat));
     }
 
     protected getSharedMaterial (v: PhysicsMaterial): any {
-        if (!PX.CACHE_MAT[v._uuid]) {
+        if (!PX.CACHE_MAT[v.id]) {
             const physics = this._sharedBody.wrappedWorld.physics;
             const mat = physics.createMaterial(v.friction, v.friction, v.restitution);
             mat.setFrictionCombineMode(PX.CombineMode.eMULTIPLY);
             mat.setRestitutionCombineMode(PX.CombineMode.eMULTIPLY);
-            PX.CACHE_MAT[v._uuid] = mat;
+            PX.CACHE_MAT[v.id] = mat;
             return mat;
         }
-        const mat = PX.CACHE_MAT[v._uuid];
+        const mat = PX.CACHE_MAT[v.id];
         mat.setStaticFriction(v.friction);
         mat.setDynamicFriction(v.friction);
         mat.setRestitution(v.restitution);
@@ -174,7 +173,9 @@ export class PhysXShape implements IBaseShape {
         Quat.copy(rot, this._rotation);
         const trans = getTempTransform(pos, rot);
         this._impl.setLocalPose(trans);
-        if (this._collider.enabled) this._sharedBody.updateCenterOfMass();
+        if (this._collider.enabled && !this._collider.isTrigger) {
+            this._sharedBody.updateCenterOfMass();
+        }
     }
 
     getAABB (v: AABB): void {

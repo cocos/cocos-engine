@@ -29,7 +29,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW, UNIFORM_SHADOWMAP_BINDING } from '../define';
+import { PIPELINE_FLOW_SHADOW } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
@@ -39,12 +39,11 @@ import { RenderPass, LoadOp, StoreOp,
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
-import { ShadowType } from '../../renderer/scene/shadows';
+import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { Light } from '../../renderer/scene/light';
 import { lightCollecting } from '../scene-culling';
 import { Vec2 } from '../../math';
 import { Camera } from '../../renderer/scene';
-import { legacyCC } from '../../global-exports';
 
 /**
  * @en Shadow map render flow
@@ -97,7 +96,7 @@ export class ShadowFlow extends RenderFlow {
                 this._initShadowFrameBuffer(pipeline, light);
             }
             const shadowFrameBuffer = shadowFrameBufferMap.get(light);
-            if (shadowInfo.shadowMapDirty) { this.resizeShadowMap(light, shadowInfo.size); }
+            if (shadowInfo.shadowMapDirty) { this.resizeShadowMap(light, shadowInfo); }
 
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
@@ -145,7 +144,7 @@ export class ShadowFlow extends RenderFlow {
 
         if (!this._shadowRenderPass) {
             const colorAttachment = new ColorAttachment();
-            colorAttachment.format = Format.RGBA8;
+            colorAttachment.format = shadows.packing ? Format.RGBA8 : Format.RGBA16F;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.sampleCount = 1;
@@ -166,7 +165,7 @@ export class ShadowFlow extends RenderFlow {
         shadowRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA8,
+            shadows.packing ? Format.RGBA8 : Format.RGBA16F,
             shadowMapSize.x,
             shadowMapSize.y,
         )));
@@ -205,9 +204,9 @@ export class ShadowFlow extends RenderFlow {
         }
     }
 
-    private resizeShadowMap (light: Light, size: Vec2) {
-        const width = size.x;
-        const height = size.y;
+    private resizeShadowMap (light: Light, shadowInfo: Shadows) {
+        const width = shadowInfo.size.x;
+        const height = shadowInfo.size.y;
         const pipeline = this._pipeline;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
 
@@ -216,13 +215,14 @@ export class ShadowFlow extends RenderFlow {
 
             if (!frameBuffer) { return; }
 
-            const renderTargets = frameBuffer.colorTextures;
-            if (renderTargets && renderTargets.length > 0) {
-                for (let j = 0; j < renderTargets.length; j++) {
-                    const renderTarget = renderTargets[j];
-                    if (renderTarget) { renderTarget.resize(width, height); }
-                }
-            }
+            const renderTargets: Texture[] = [];
+            renderTargets.push(pipeline.device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                shadowInfo.packing ? Format.RGBA8 : Format.RGBA16F,
+                width,
+                height,
+            )));
 
             const depth = frameBuffer.depthStencilTexture;
             if (depth) { depth.resize(width, height); }

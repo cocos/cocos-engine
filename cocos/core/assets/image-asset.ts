@@ -334,6 +334,27 @@ export class ImageAsset extends Asset {
         this.loaded = true;
         this.emit('load');
     }
+
+    private static _sharedPlaceHolderCanvas: HTMLCanvasElement | null = null;
+
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
+        if (!ImageAsset._sharedPlaceHolderCanvas) {
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d')!;
+            const l = canvas.width = canvas.height = 2;
+            context.fillStyle = '#ff00ff';
+            context.fillRect(0, 0, l, l);
+            this.reset(canvas);
+            ImageAsset._sharedPlaceHolderCanvas = canvas;
+        } else {
+            this.reset(ImageAsset._sharedPlaceHolderCanvas);
+        }
+    }
+
+    public validate () {
+        return !!this.data;
+    }
 }
 
 function _getGlobalDevice (): Device | null {

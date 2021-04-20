@@ -86,6 +86,10 @@ replaceProperty(Collider.prototype, 'Collider.prototype', [
         name: 'attachedRigidbody',
         newName: 'attachedRigidBody',
     },
+    {
+        name: 'TYPE',
+        newName: 'type',
+    },
 ]);
 
 replaceProperty(Collider, 'Collider', [

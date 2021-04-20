@@ -61,7 +61,7 @@ export class PhysXSharedBody {
         }
         if (wrappedBody) {
             newSB._wrappedBody = wrappedBody;
-            const g = wrappedBody.rigidBody.group;
+            const g = (wrappedBody.rigidBody as any)._group;
             const m = PhysicsSystem.instance.collisionMatrix[g];
             newSB.filterData.word0 = g;
             newSB.filterData.word1 = m;
@@ -199,7 +199,8 @@ export class PhysXSharedBody {
             const center = VEC3_0;
             center.set(0, 0, 0);
             for (let i = 0; i < this.wrappedShapes.length; i++) {
-                center.subtract(this.wrappedShapes[i].collider.center);
+                const collider = this.wrappedShapes[i].collider;
+                if (!collider.isTrigger) center.subtract(collider.center);
             }
             da.setCMassLocalPose(getTempTransform(center, Quat.IDENTITY));
         }
@@ -378,7 +379,8 @@ export class PhysXSharedBody {
         const center = VEC3_0;
         center.set(0, 0, 0);
         for (let i = 0; i < this.wrappedShapes.length; i++) {
-            center.subtract(this.wrappedShapes[i].collider.center);
+            const collider = this.wrappedShapes[i].collider;
+            if (!collider.isTrigger) center.subtract(collider.center);
         }
         this.impl.setCMassLocalPose(getTempTransform(center, Quat.IDENTITY));
     }

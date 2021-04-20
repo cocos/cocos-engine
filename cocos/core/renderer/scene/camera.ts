@@ -177,7 +177,7 @@ export class Camera {
         this._aspect = this.screenScale = 1;
 
         if (!correctionMatrices.length) {
-            const ySign = device.capabilities.screenSpaceSignY;
+            const ySign = device.capabilities.clipSpaceSignY;
             correctionMatrices[SurfaceTransform.IDENTITY] = new Mat4(1, 0, 0, 0, 0, ySign);
             correctionMatrices[SurfaceTransform.ROTATE_90] = new Mat4(0, 1, 0, 0, -ySign, 0);
             correctionMatrices[SurfaceTransform.ROTATE_180] = new Mat4(-1, 0, 0, 0, 0, -ySign);
@@ -277,7 +277,7 @@ export class Camera {
         const orientation = this._device.surfaceTransform;
         if (this._isProjDirty || this._curTransform !== orientation) {
             this._curTransform = orientation;
-            const projectionSignY = this._device.capabilities.screenSpaceSignY;
+            const projectionSignY = this._device.capabilities.clipSpaceSignY;
             if (this._proj === CameraProjection.PERSPECTIVE) {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
@@ -285,7 +285,7 @@ export class Camera {
                 Mat4.perspective(this._matProjOffscreen, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL,
                     this._device.capabilities.clipSpaceMinZ,
-                    projectionSignY * this._device.capabilities.UVSpaceSignY,
+                    projectionSignY,
                     SurfaceTransform.IDENTITY);
             } else {
                 const x = this._orthoHeight * this._aspect; // aspect is already oriented
@@ -294,7 +294,7 @@ export class Camera {
                     this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
 
                 Mat4.ortho(this._matProjOffscreen, -x, x, -y, y, this._nearClip, this._farClip,
-                    this._device.capabilities.clipSpaceMinZ, projectionSignY * this._device.capabilities.UVSpaceSignY, SurfaceTransform.IDENTITY);
+                    this._device.capabilities.clipSpaceMinZ, projectionSignY, SurfaceTransform.IDENTITY);
             }
             Mat4.invert(this._matProjInv, this._matProj);
             Mat4.invert(this._matProjInvOffscreen, this._matProjOffscreen);
@@ -410,7 +410,7 @@ export class Camera {
 
     set viewport (val) {
         const { x, width, height } = val;
-        const y = this._device.capabilities.screenSpaceSignY < 0 ? 1 - val.y - height : val.y;
+        const y = this._device.capabilities.clipSpaceSignY < 0 ? 1 - val.y - height : val.y;
 
         switch (this._device.surfaceTransform) {
         case SurfaceTransform.ROTATE_90:
@@ -699,7 +699,7 @@ export class Camera {
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
         const isProj = this._proj === CameraProjection.PERSPECTIVE;
-        const ySign = this._device.capabilities.screenSpaceSignY;
+        const ySign = this._device.capabilities.clipSpaceSignY;
         const preTransform = preTransforms[this._curTransform];
 
         Vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, isProj ? 1 : -1);
@@ -732,7 +732,7 @@ export class Camera {
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
-        const ySign = this._device.capabilities.screenSpaceSignY;
+        const ySign = this._device.capabilities.clipSpaceSignY;
         const preTransform = preTransforms[this._curTransform];
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
@@ -779,7 +779,7 @@ export class Camera {
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
-        const ySign = this._device.capabilities.screenSpaceSignY;
+        const ySign = this._device.capabilities.clipSpaceSignY;
         const preTransform = preTransforms[this._curTransform];
 
         Vec3.transformMat4(out, worldPos, this._matViewProj);

@@ -397,6 +397,14 @@ export class ShadowsInfo {
     @serializable
     protected _bias = 0.00001;
     @serializable
+    protected _packing = false;
+    @serializable
+    protected _linear = true;
+    @serializable
+    protected _selfShadow = false;
+    @serializable
+    protected _normalBias = 0.0;
+    @serializable
     protected _near = 1;
     @serializable
     protected _far = 30;
@@ -493,6 +501,104 @@ export class ShadowsInfo {
     get pcf () {
         return this._pcf;
     }
+
+    /**
+     * @en get or set shadow max received
+     * @zh 获取或者设置阴影接收的最大光源数量
+     */
+    @type(CCInteger)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set maxReceived (val: number) {
+        this._maxReceived = val;
+        if (this._resource) { this._resource.maxReceived = val; }
+    }
+    get maxReceived () {
+        return this._maxReceived;
+    }
+
+    /**
+     * @en get or set shadow map sampler offset
+     * @zh 获取或者设置阴影纹理偏移值
+     */
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set bias (val: number) {
+        this._bias = val;
+        if (this._resource) { this._resource.bias = val; }
+    }
+    get bias () {
+        return this._bias;
+    }
+
+    /**
+     * @en on or off packing depth.
+     * @zh 打开或者关闭深度压缩。降低阴影质量，提高性能。与 liner depth 互斥。
+     */
+    @type(CCBoolean)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set packing (val) {
+        this._packing = val;
+        if (val) {
+            this._linear = this._linear ? false : this._linear;
+            if (this._resource) { this._resource.linear = this._linear; }
+        }
+
+        if (this._resource) {
+            this._resource.packing = val;
+            this._resource.shadowMapDirty = true;
+        }
+    }
+    get packing () {
+        return this._packing;
+    }
+
+    /**
+     * @en on or off linear depth.
+     * @zh 打开或者关闭线性深度。提高阴影质量，降低性能。与 packing depth 互斥。
+     */
+    @type(CCBoolean)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set linear (val) {
+        this._linear = val;
+        if (val) {
+            this._packing = this._packing ? false : this._packing;
+            if (this._resource) { this._resource.packing = this._packing; }
+        }
+
+        if (this._resource) { this._resource.linear = val; }
+    }
+    get linear () {
+        return this._linear;
+    }
+
+    /**
+     * @en on or off Self-shadowing.
+     * @zh 打开或者关闭自阴影。
+     */
+    @type(CCBoolean)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set selfShadow (val) {
+        this._selfShadow = val;
+        if (this._resource) { this._resource.selfShadow = val; }
+    }
+    get selfShadow () {
+        return this._selfShadow;
+    }
+
+    /**
+     * @en on or off Self-shadowing.
+     * @zh 打开或者关闭自阴影。
+     */
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._selfShadow === true; })
+    set normalBias (val: number) {
+        this._normalBias = val;
+        if (this._resource) { this._resource.normalBias = val; }
+    }
+    get normalBias () {
+        return this._normalBias;
+    }
+
     /**
      * @en get or set shadow Map sampler auto adapt
      * @zh 阴影纹理生成是否自适应
@@ -550,21 +656,7 @@ export class ShadowsInfo {
     }
 
     /**
-     * @en get or set shadow max received
-     * @zh 获取或者设置阴影接收的最大光源数量
-     */
-    @type(CCInteger)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
-    set maxReceived (val: number) {
-        this._maxReceived = val;
-        if (this._resource) { this._resource.maxReceived = val; }
-    }
-    get maxReceived () {
-        return this._maxReceived;
-    }
-
-    /**
-     * @en get or set shadow camera orthoSize
+     * @en get or set shadow map size
      * @zh 获取或者设置阴影纹理大小
      */
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
@@ -580,8 +672,8 @@ export class ShadowsInfo {
     }
 
     /**
-     * @en get or set shadow camera orthoSize
-     * @zh 获取或者设置阴影纹理大小
+     * @en get or set shadow camera aspect.
+     * @zh 获取或者设置阴影相机的宽高比。
      */
     @type(CCFloat)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
@@ -591,20 +683,6 @@ export class ShadowsInfo {
     }
     get aspect () {
         return this._aspect;
-    }
-
-    /**
-     * @en get or set shadow map sampler offset
-     * @zh 获取或者设置阴影纹理偏移值
-     */
-    @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
-    set bias (val: number) {
-        this._bias = val;
-        if (this._resource) { this._resource.bias = val; }
-    }
-    get bias () {
-        return this._bias;
     }
 
     /**

@@ -31,6 +31,8 @@ import { equals, Vec3 } from '../../core';
 import { IVec3Like, IQuatLike } from '../../core/math/type-define';
 import { Collider, CollisionEventType, IContactEquation, TriggerEventType } from '../framework';
 
+export { cylinder } from '../../primitive';
+
 interface IWrapped<T> {
     __cc_wrapper__: T;
 }
