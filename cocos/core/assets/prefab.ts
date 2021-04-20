@@ -39,6 +39,7 @@ import { Node } from '../scene-graph/node';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import * as utils from '../utils/prefab';
+import { PrefabInfo } from '../utils/prefab';
 
 /**
  * @en An enumeration used with the [[Prefab.optimizationPolicy]] to specify how to optimize the instantiate operation.
@@ -112,7 +113,7 @@ class Prefab extends Asset {
     public optimizationPolicy = OptimizationPolicy.AUTO;
 
     // Cache function to optimize instance creation.
-    private _createFunction: Function | null;
+    private _createFunction: ((...arg: any[]) => Node) | null;
     private _instantiatedTimes: number;
     constructor () {
         super();
@@ -121,7 +122,7 @@ class Prefab extends Asset {
         this._instantiatedTimes = 0;
     }
 
-    public createNode (cb: Function): void {
+    public createNode (cb: (err: Error | null, node: Node) => void): void {
         const node = legacyCC.instantiate(this);
         node.name = this.name;
         cb(null, node);
@@ -155,8 +156,8 @@ class Prefab extends Asset {
         return this._createFunction!(rootToRedirect);  // this.data._instantiate();
     }
 
-    private _instantiate () {
-        let node;
+    private _instantiate (): Node {
+        let node: Node;
         let useJit = false;
         if (SUPPORT_JIT) {
             if (this.optimizationPolicy === OptimizationPolicy.SINGLE_INSTANCE) {
@@ -185,6 +186,11 @@ class Prefab extends Asset {
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         this.data = new Node();
+        this.data.name = '(Missing Node)';
+        const prefabInfo = new PrefabInfo();
+        prefabInfo.asset = this;
+        prefabInfo.root = this.data;
+        this.data._prefab = prefabInfo;
     }
 
     public validate () {
