@@ -23,8 +23,6 @@ module.exports = {
     json: join(__dirname, './assets/json.js'),
     material: join(__dirname, './assets/material.js'),
     particle: join(__dirname, './assets/particle.js'),
-    prefab: join(__dirname, './assets/scene.js'), // reuse
-    scene: join(__dirname, './assets/scene.js'),
     text: join(__dirname, './assets/text.js'),
     texture: join(__dirname, './assets/texture/index.js'),
     typescript: join(__dirname, './assets/typescript.js'),

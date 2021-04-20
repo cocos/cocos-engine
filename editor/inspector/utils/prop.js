@@ -122,7 +122,7 @@ exports.setReadonly = function (data, element) {
         element.removeAttribute('readonly');
     }
 
-    if (element.render) {
+    if (element.render && element.dump) {
         element.dump.readonly = readonly;
         element.render();
     }

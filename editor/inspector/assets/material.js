@@ -49,25 +49,27 @@ exports.methods = {
      */
     async apply() {
         await Editor.Message.request('scene', 'apply-material', this.asset.uuid, this.material);
+        this.dirtyData.origin = this.dirtyData.realtime = '';
     },
 
     /**
      * Detection of data changes only determines the currently selected technique
      */
     setDirtyData() {
-        this.materialRealtime = JSON.stringify({
+        this.dirtyData.realtime = JSON.stringify({
             effect: this.material.effect,
             technique: this.material.technique,
             techniqueData: this.material.data[this.material.technique],
         });
 
-        if (!this.materialOrigin) {
-            this.materialOrigin = this.materialRealtime;
+        if (!this.dirtyData.origin) {
+            this.dirtyData.origin = this.dirtyData.realtime;
         }
     },
 
     isDirty() {
-        return this.materialOrigin !== this.materialRealtime;
+        const isDirty = this.dirtyData.origin !== this.dirtyData.realtime;
+        return isDirty;
     },
 
     /**
@@ -130,8 +132,6 @@ exports.methods = {
                 $prop.parentElement.removeChild($prop);
             }
         }
-
-        this.setDirtyData();
     },
 
     /**
@@ -157,6 +157,11 @@ exports.update = async function (assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
+    if (this.dirtyData.uuid !== this.asset.uuid) {
+        this.dirtyData.uuid = this.asset.uuid;
+        this.dirtyData.origin = '';
+    }
+
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
 
     // effect <select> tag
@@ -169,17 +174,25 @@ exports.update = async function (assetList, metaList) {
 
     this.updateTechniqueOptions();
     this.updatePasses();
+    this.setDirtyData();
 };
 
 /**
  * Method of initializing the panel
  */
 exports.ready = async function () {
+    // Used to determine whether the material has been modified in isDirty()
+    this.dirtyData = {
+        uuid: '',
+        origin: '',
+        realtime: '',
+    };
+
     // The event triggered when the content of material is modified
     this.$.materialDump.addEventListener('change-dump', (event) => {
         Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
-        this.dispatch('change');
         this.setDirtyData();
+        this.dispatch('change');
     });
 
     // The event that is triggered when the effect used is modified
@@ -189,6 +202,7 @@ exports.ready = async function () {
 
         this.updateTechniqueOptions();
         this.updatePasses();
+        this.setDirtyData();
         this.dispatch('change');
     });
 
@@ -197,6 +211,7 @@ exports.ready = async function () {
         this.material.technique = event.target.value;
 
         this.updatePasses();
+        this.setDirtyData();
         this.dispatch('change');
     });
 
@@ -209,8 +224,8 @@ exports.ready = async function () {
                 pass.childMap.USE_INSTANCING.value = event.target.value;
             }
         });
-        this.dispatch('change');
         this.setDirtyData();
+        this.dispatch('change');
     });
 
     //  The event is triggered when the useBatching is modified
@@ -222,8 +237,8 @@ exports.ready = async function () {
                 pass.childMap.USE_BATCHING.value = event.target.value;
             }
         });
-        this.dispatch('change');
         this.setDirtyData();
+        this.dispatch('change');
     });
 
     // When the page is initialized, all effect lists are queried and then not updated again
@@ -249,6 +264,9 @@ exports.ready = async function () {
 
 exports.close = function () {
     // Used to determine whether the material has been modified in isDirty()
-    this.materialOrigin = '';
-    this.materialRealtime = '';
+    this.dirtyData = {
+        uuid: '',
+        origin: '',
+        realtime: '',
+    };
 };
