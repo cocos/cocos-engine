@@ -55,19 +55,20 @@ exports.methods = {
      * Detection of data changes only determines the currently selected technique
      */
     setDirtyData() {
-        this.materialRealtime = JSON.stringify({
+        this.dirtyData.realtime = JSON.stringify({
             effect: this.material.effect,
             technique: this.material.technique,
             techniqueData: this.material.data[this.material.technique],
         });
 
-        if (!this.materialOrigin) {
-            this.materialOrigin = this.materialRealtime;
+        if (!this.dirtyData.origin) {
+            this.dirtyData.origin = this.dirtyData.realtime;
         }
     },
 
     isDirty() {
-        return this.materialOrigin !== this.materialRealtime;
+        const isDirty = this.dirtyData.origin !== this.dirtyData.realtime;
+        return isDirty;
     },
 
     /**
@@ -130,8 +131,6 @@ exports.methods = {
                 $prop.parentElement.removeChild($prop);
             }
         }
-
-        this.setDirtyData();
     },
 
     /**
@@ -157,6 +156,11 @@ exports.update = async function (assetList, metaList) {
     this.asset = assetList[0];
     this.meta = metaList[0];
 
+    if (this.dirtyData.uuid !== this.asset.uuid) {
+        this.dirtyData.uuid = this.asset.uuid;
+        this.dirtyData.origin = '';
+    }
+
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
 
     // effect <select> tag
@@ -169,12 +173,20 @@ exports.update = async function (assetList, metaList) {
 
     this.updateTechniqueOptions();
     this.updatePasses();
+    this.setDirtyData();
 };
 
 /**
  * Method of initializing the panel
  */
 exports.ready = async function () {
+    // Used to determine whether the material has been modified in isDirty()
+    this.dirtyData = {
+        uuid: '',
+        origin: '',
+        realtime: '',
+    };
+    
     // The event triggered when the content of material is modified
     this.$.materialDump.addEventListener('change-dump', (event) => {
         Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
@@ -190,6 +202,7 @@ exports.ready = async function () {
         this.updateTechniqueOptions();
         this.updatePasses();
         this.dispatch('change');
+        this.setDirtyData();
     });
 
     // Event triggered when the technique being used is changed
@@ -198,6 +211,7 @@ exports.ready = async function () {
 
         this.updatePasses();
         this.dispatch('change');
+        this.setDirtyData();
     });
 
     // The event is triggered when the useInstancing is modified
@@ -249,6 +263,9 @@ exports.ready = async function () {
 
 exports.close = function () {
     // Used to determine whether the material has been modified in isDirty()
-    this.materialOrigin = '';
-    this.materialRealtime = '';
+    this.dirtyData = {
+        uuid: '',
+        origin: '',
+        realtime: '',
+    };
 };
