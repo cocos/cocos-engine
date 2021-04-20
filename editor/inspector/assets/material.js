@@ -103,7 +103,11 @@ exports.methods = {
         setReadonly(this.asset.readonly, this.$.useBatching);
 
         if (technique.passes) {
-            const $propList = Array.from(this.$.materialDump.querySelectorAll('ui-prop.pass') || []);
+            // TODO: hack
+            // const $propList = Array.from(this.$.materialDump.querySelectorAll('ui-prop.pass') || []);
+            this.$.materialDump.innerText = '';
+            const $propList = [];
+
             let i = 0;
             for (i; i < technique.passes.length; i++) {
                 // If the propertyIndex is not equal to the current pass index, then do not render
@@ -126,6 +130,31 @@ exports.methods = {
                     this.$.materialDump.appendChild($propList[i]);
                 }
                 $propList[i].render(technique.passes[i]);
+
+                $propList[i].querySelectorAll('ui-prop').forEach(($prop) => {
+                    const dump = $prop.dump;
+                    if (dump && dump.childMap && dump.children.length) {
+                        if (!$prop.$children) {
+                            $prop.$children = document.createElement('section');
+
+                            for (const childName in dump.childMap) {
+                                $prop.$children[childName] = document.createElement('ui-prop');
+                                $prop.$children[childName].setAttribute('type', 'dump');
+                                $prop.$children[childName].render(dump.childMap[childName]);
+
+                                $prop.$children.appendChild($prop.$children[childName]);
+                            }
+
+                            $prop.after($prop.$children);
+                        }
+
+                        if (dump.value) {
+                            $prop.$children.removeAttribute('hidden');
+                        } else {
+                            $prop.$children.setAttribute('hidden', '');
+                        }
+                    }
+                });
             }
             for (i; i < $propList.length; i++) {
                 const $prop = $propList[i];
@@ -191,6 +220,17 @@ exports.ready = async function () {
     // The event triggered when the content of material is modified
     this.$.materialDump.addEventListener('change-dump', (event) => {
         Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
+
+        // show its children
+        const dump = event.target.dump;
+        if (dump && dump.childMap && dump.children.length) {
+            if (dump.value) {
+                event.target.$children.removeAttribute('hidden');
+            } else {
+                event.target.$children.setAttribute('hidden', '');
+            }
+        }
+
         this.setDirtyData();
         this.dispatch('change');
     });
