@@ -57,6 +57,40 @@ declare module 'pal/minigame' {
         fail?: (err: any) => void,
         complete?: () => void,
     }
+
+    export interface SystemInfo {
+        brand: string;
+        model: string;
+        pixelRatio: number;
+        screenWidth: number;
+        screenHeight: number;
+        windowWidth: number;
+        windowHeight: number;
+        statusBarHeight: number;
+        language: string;
+        version: string;
+        system: string;
+        platform: string;
+        fontSizeSetting: number;
+        SDKVersion: string;
+        benchmarkLevel: number;
+        albumAuthorized: boolean;
+        cameraAuthorized: boolean;
+        locationAuthorized: boolean;
+        microphoneAuthorized: boolean;
+        notificationAuthorized: boolean;
+        notificationAlertAuthorized: boolean;
+        notificationBadgeAuthorized: boolean;
+        notificationSoundAuthorized: boolean;
+        bluetoothEnabled: boolean;
+        locationEnabled: boolean;
+        wifiEnabled: boolean;
+        safeArea: SafeArea;
+        locationReducedAccuracy: boolean;
+        theme: string;
+        deviceOrientation?: 'portrait' | 'landscape';
+    }
+
 }
 
 declare interface BatteryInfo {
@@ -105,40 +139,6 @@ declare class FileSystemManager {
     writeFile(obj: any);
     writeFileSync();
 }
-
-declare interface SystemInfo {
-    brand: string;
-    model: string;
-    pixelRatio: number;
-    screenWidth: number;
-    screenHeight: number;
-    windowWidth: number;
-    windowHeight: number;
-    statusBarHeight: number;
-    language: string;
-    version: string;
-    system: string;
-    platform: string;
-    fontSizeSetting: number;
-    SDKVersion: string;
-    benchmarkLevel: number;
-    albumAuthorized: boolean;
-    cameraAuthorized: boolean;
-    locationAuthorized: boolean;
-    microphoneAuthorized: boolean;
-    notificationAuthorized: boolean;
-    notificationAlertAuthorized: boolean;
-    notificationBadgeAuthorized: boolean;
-    notificationSoundAuthorized: boolean;
-    bluetoothEnabled: boolean;
-    locationEnabled: boolean;
-    wifiEnabled: boolean;
-    safeArea: SafeArea;
-    locationReducedAccuracy: boolean;
-    theme: string;
-    deviceOrientation?: 'portrait' | 'landscape';
-}
-
 declare interface SafeArea {
     left: number;
     right: number;
