@@ -49,6 +49,7 @@ exports.methods = {
      */
     async apply() {
         await Editor.Message.request('scene', 'apply-material', this.asset.uuid, this.material);
+        this.dirtyData.origin = this.dirtyData.realtime = '';
     },
 
     /**
@@ -186,12 +187,12 @@ exports.ready = async function () {
         origin: '',
         realtime: '',
     };
-    
+
     // The event triggered when the content of material is modified
     this.$.materialDump.addEventListener('change-dump', (event) => {
         Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
-        this.dispatch('change');
         this.setDirtyData();
+        this.dispatch('change');
     });
 
     // The event that is triggered when the effect used is modified
@@ -201,8 +202,8 @@ exports.ready = async function () {
 
         this.updateTechniqueOptions();
         this.updatePasses();
-        this.dispatch('change');
         this.setDirtyData();
+        this.dispatch('change');
     });
 
     // Event triggered when the technique being used is changed
@@ -210,8 +211,8 @@ exports.ready = async function () {
         this.material.technique = event.target.value;
 
         this.updatePasses();
-        this.dispatch('change');
         this.setDirtyData();
+        this.dispatch('change');
     });
 
     // The event is triggered when the useInstancing is modified
@@ -223,8 +224,8 @@ exports.ready = async function () {
                 pass.childMap.USE_INSTANCING.value = event.target.value;
             }
         });
-        this.dispatch('change');
         this.setDirtyData();
+        this.dispatch('change');
     });
 
     //  The event is triggered when the useBatching is modified
@@ -236,8 +237,8 @@ exports.ready = async function () {
                 pass.childMap.USE_BATCHING.value = event.target.value;
             }
         });
-        this.dispatch('change');
         this.setDirtyData();
+        this.dispatch('change');
     });
 
     // When the page is initialized, all effect lists are queried and then not updated again

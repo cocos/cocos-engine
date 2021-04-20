@@ -33,14 +33,20 @@ const Elements = {
         ready() {
             const panel = this;
 
-            panel.$.pipelinesSelect.addEventListener('confirm', (event) => {
+            panel.$.pipelinesSelect.addEventListener('change', async (event) => {
+                panel.$.content.removeAttribute('hidden');
+
                 panel.pipelineIndex = event.target.value;
+
+                panel.pipeline = await Editor.Message.request('scene', 'select-render-pipeline', panel.pipelines[panel.pipelineIndex].name);
+                Elements.pipeline.update.call(panel);
+
+                panel.setDirtyData();
+                panel.dispatch('change');
             });
         },
         async update() {
             const panel = this;
-            
-            panel.pipelines = await Editor.Message.request('scene', 'query-all-render-pipelines');
 
             let optionsHtml = '';
             panel.pipelines.forEach((pipeline, index) => {
@@ -48,38 +54,44 @@ const Elements = {
             });
             panel.$.pipelinesSelect.innerHTML = optionsHtml;
 
+            panel.$.pipelinesSelect.value = panel.pipelines.findIndex((one) => one.name === panel.pipeline.name);
+
             setDisabled(panel.asset.readonly, panel.$.pipelinesSelect);
-        }
+        },
     },
     pipeline: {
         async update() {
             const panel = this;
-            
-            panel.pipeline = await panel.query(panel.asset.uuid);
-            panel.$.pipelinesSelect.value = panel.pipelines.findIndex(one => one.name === panel.pipeline.name);
 
             this.$.content.innerText = '';
+
+            if (panel.$.pipelinesSelect.value === '-1') {
+                panel.$.content.setAttribute('hidden', '');
+                return;
+            } else {
+                panel.$.content.removeAttribute('hidden');
+            }
 
             for (const key in panel.pipeline.value) {
                 const dump = panel.pipeline.value[key];
                 if (panel.asset.readonly) {
                     loopSetAssetDumpDataReadonly(dump);
                 }
-        
+
                 if (!dump.visible) {
                     continue;
                 }
-        
+
                 const prop = document.createElement('ui-prop');
                 this.$.content.appendChild(prop);
-                
+
                 prop.setAttribute('type', 'dump');
                 prop.render(dump);
                 prop.addEventListener('change-dump', this.dataChange.bind(this));
             }
-        }
-    }
-}
+        },
+    },
+};
 
 exports.update = async function (assetList, metaList) {
     this.assetList = assetList;
@@ -88,9 +100,19 @@ exports.update = async function (assetList, metaList) {
     this.asset = this.assetList[0];
 
     if (assetList.length !== 1) {
-        this.$.container.innerText = '';
+        this.$.container.setAttribute('hidden', '');
         return;
+    } else {
+        this.$.container.removeAttribute('hidden');
     }
+
+    if (this.dirtyData.uuid !== this.asset.uuid) {
+        this.dirtyData.uuid = this.asset.uuid;
+        this.dirtyData.origin = '';
+    }
+
+    this.pipeline = await this.query(this.asset.uuid);
+    this.pipelines = await Editor.Message.request('scene', 'query-all-render-pipelines');
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -98,28 +120,64 @@ exports.update = async function (assetList, metaList) {
             await element.update.call(this);
         }
     }
+
+    this.setDirtyData();
 };
 
 exports.ready = function () {
+    // Used to determine whether the material has been modified in isDirty()
+    this.dirtyData = {
+        uuid: '',
+        origin: '',
+        realtime: '',
+    };
+
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
             element.ready.call(this);
         }
     }
-}
+};
+
+exports.close = function () {
+    // Used to determine whether the material has been modified in isDirty()
+    this.dirtyData = {
+        uuid: '',
+        origin: '',
+        realtime: '',
+    };
+};
 
 exports.methods = {
     async query(uuid) {
         return await Editor.Message.request('scene', 'query-render-pipeline', uuid);
-
     },
+
     async apply () {
         await Editor.Message.request('scene', 'apply-render-pipeline', this.asset.uuid, this.pipeline);
+        this.dirtyData.origin = this.dirtyData.realtime = '';
     },
 
-    async dataChange () {
+    async dataChange() {
         await Editor.Message.request('scene', 'change-render-pipeline', this.pipeline);
+        this.setDirtyData();
         this.dispatch('change');
+    },
+
+    /**
+     * Detection of data changes only determines the currently selected technique
+     */
+    setDirtyData() {
+        this.dirtyData.realtime = JSON.stringify(this.pipeline);
+
+        if (!this.dirtyData.origin) {
+            this.dirtyData.origin = this.dirtyData.realtime;
+        }
+    },
+
+    isDirty() {
+        const isDirty = this.dirtyData.origin !== this.dirtyData.realtime;
+        return isDirty;
     },
 };

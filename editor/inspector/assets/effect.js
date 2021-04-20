@@ -172,6 +172,7 @@ const Elements = {
                             button.setAttribute('checked', 'true');
                         }
 
+                        panel.dataChange();
                         panel.dispatch('change');
                     });
                 });
@@ -194,6 +195,7 @@ const Elements = {
                 const section = document.createElement('ui-section');
                 panel.$.codes.appendChild(section);
                 section.setAttribute('class', 'config');
+                section.setAttribute('expand', '');
 
                 const glslName = panel.glslNames[glslKey];
 
@@ -380,7 +382,7 @@ exports.methods = {
             element.removeAttribute('disabled');
         }
     },
-    apply() {
+    dataChange() {
         const panel = this;
 
         // Need to exclude empty arrays, otherwise scene will report an error
