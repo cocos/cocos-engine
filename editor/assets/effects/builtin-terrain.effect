@@ -128,6 +128,9 @@ CCProgram terrain-fs %{
   #include <cc-global>
   #include <standard-surface-entry>
   #include <cc-fog-fs>
+  #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
+    #include <lightingmap-fs>
+  #endif
   #pragma define LAYERS range([0, 4])
 
   in highp vec3 v_position;
