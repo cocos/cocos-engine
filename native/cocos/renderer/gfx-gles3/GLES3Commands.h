@@ -76,16 +76,16 @@ public:
     GLES3GPURenderPass * gpuRenderPass = nullptr;
     GLES3GPUFramebuffer *gpuFBO        = nullptr;
     Rect                 renderArea;
-    size_t               numClearColors = 0;
     Color                clearColors[MAX_ATTACHMENTS];
     float                clearDepth   = 1.0F;
     int                  clearStencil = 0;
+    uint                 subpassIdx   = 0U;
 
     GLES3CmdBeginRenderPass() : GLESCmd(GLESCmdType::BEGIN_RENDER_PASS) {}
 
     void clear() override {
-        gpuFBO         = nullptr;
-        numClearColors = 0;
+        gpuRenderPass = nullptr;
+        gpuFBO        = nullptr;
     }
 };
 
@@ -288,8 +288,12 @@ CC_GLES3_API void cmdFuncGLES3DestroyInputAssembler(GLES3Device *device, GLES3GP
 CC_GLES3_API void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
 CC_GLES3_API void cmdFuncGLES3DestroyFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpuFBO);
 
-CC_GLES3_API void cmdFuncGLES3BeginRenderPass(GLES3Device *device, GLES3GPURenderPass *gpuRenderPass, GLES3GPUFramebuffer *gpuFramebuffer,
-                                              const Rect &renderArea, size_t numClearColors, const Color *clearColors, float clearDepth, int clearStencil);
+CC_GLES3_API void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint subpassIdx,
+                                              GLES3GPURenderPass * gpuRenderPass  = nullptr,
+                                              GLES3GPUFramebuffer *gpuFramebuffer = nullptr,
+                                              const Rect *         renderArea     = nullptr,
+                                              const Color *        clearColors    = nullptr,
+                                              float clearDepth = 1.F, int clearStencil = 0);
 CC_GLES3_API void cmdFuncGLES3EndRenderPass(GLES3Device *device);
 CC_GLES3_API void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipelineState, GLES3GPUInputAssembler *gpuInputAssembler,
                                         const vector<GLES3GPUDescriptorSet *> &gpuDescriptorSets, const vector<uint> &dynamicOffsets,

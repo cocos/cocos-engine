@@ -78,7 +78,7 @@ GLenum mapGLInternalFormat(Format format) {
         case Format::RGB32UI:
         case Format::RGB32F: return GL_RGB;
 #if CC_PLATFORM == CC_PLATFORM_WINDOWS
-        case Format::RGBA32F: return GL_RGBA32F_EXT; // driver issue
+        case Format::RGBA32F: return GL_RGBA32F_EXT; // PVRVFrame issue
 #else
         case Format::RGBA32F:
 #endif
@@ -929,7 +929,6 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
             GL_CHECK(glGetShaderInfoLog(gpuStage.glShader, logSize, nullptr, logs));
 
             CC_LOG_ERROR("%s in %s compilation failed.", shaderTypeStr.c_str(), gpuShader->name.c_str());
-            CC_LOG_ERROR("Shader source:%s", shaderSrc);
             CC_LOG_ERROR(logs);
             CC_FREE(logs);
             GL_CHECK(glDeleteShader(gpuStage.glShader));
@@ -1256,7 +1255,7 @@ void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpu
             swapchainImageIndices |= (1 << i);
         }
     }
-    bool hasDepth = gpuFBO->gpuRenderPass->depthStencilAttachment.format == device->getDepthStencilFormat();
+    bool hasDepth = gpuFBO->gpuRenderPass->depthStencilAttachment.format != Format::UNKNOWN;
     if (hasDepth && !gpuFBO->gpuDepthStencilTexture) {
         swapchainImageIndices |= (1 << colorViewCount);
     }
@@ -1270,7 +1269,7 @@ void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpu
         }
 
         GLenum attachments[MAX_ATTACHMENTS] = {0};
-        uint   attachmentCount                  = 0;
+        uint   attachmentCount              = 0;
 
         for (size_t i = 0; i < gpuFBO->gpuColorTextures.size(); ++i) {
             GLES2GPUTexture *gpuColorTexture = gpuFBO->gpuColorTextures[i];

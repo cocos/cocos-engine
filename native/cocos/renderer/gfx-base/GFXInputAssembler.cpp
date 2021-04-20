@@ -90,6 +90,8 @@ void InputAssembler::destroy() {
     _indexBuffer    = nullptr;
     _indirectBuffer = nullptr;
     _indexCount = _firstIndex = _vertexCount = _firstVertex = _vertexOffset = _attributesHash = 0U;
+
+    doDestroy();
 }
 
 } // namespace gfx

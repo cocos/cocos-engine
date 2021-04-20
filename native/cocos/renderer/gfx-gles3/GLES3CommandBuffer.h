@@ -71,24 +71,24 @@ protected:
 
     virtual void bindStates();
 
-    GLES3GPUCommandAllocator *_cmdAllocator = nullptr;
-    GLES3CmdPackage *_curCmdPackage = nullptr;
-    queue<GLES3CmdPackage *> _pendingPackages, _freePackages;
+    GLES3GPUCommandAllocator *_cmdAllocator  = nullptr;
+    GLES3CmdPackage *         _curCmdPackage = nullptr;
+    queue<GLES3CmdPackage *>  _pendingPackages, _freePackages;
 
-    bool _isInRenderPass = false;
-    GLES3GPUPipelineState *_curGPUPipelineState = nullptr;
-    GLES3GPUInputAssembler *_curGPUInputAssember = nullptr;
+    GLES3GPUPipelineState *         _curGPUPipelineState = nullptr;
+    GLES3GPUInputAssembler *        _curGPUInputAssember = nullptr;
     vector<GLES3GPUDescriptorSet *> _curGPUDescriptorSets;
-    vector<vector<uint>> _curDynamicOffsets;
-    Viewport _curViewport;
-    Rect _curScissor;
-    float _curLineWidth = 1.0F;
-    GLES3DepthBias _curDepthBias;
-    Color _curBlendConstants;
-    GLES3DepthBounds _curDepthBounds;
-    GLES3StencilWriteMask _curStencilWriteMask;
-    GLES3StencilCompareMask _curStencilCompareMask;
-    bool _isStateInvalid = false;
+    vector<vector<uint>>            _curDynamicOffsets;
+    Viewport                        _curViewport;
+    Rect                            _curScissor;
+    float                           _curLineWidth = 1.0F;
+    GLES3DepthBias                  _curDepthBias;
+    Color                           _curBlendConstants;
+    GLES3DepthBounds                _curDepthBounds;
+    GLES3StencilWriteMask           _curStencilWriteMask;
+    GLES3StencilCompareMask         _curStencilCompareMask;
+    bool                            _isStateInvalid = false;
+    uint                            _curSubpassIdx  = 0U;
 };
 
 } // namespace gfx

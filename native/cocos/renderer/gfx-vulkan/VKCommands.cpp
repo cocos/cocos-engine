@@ -318,67 +318,51 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     size_t subpassCount = gpuRenderPass->subpasses.size();
     attachmentReferences.clear();
 
-    if (subpassCount) { // pass on user-specified subpasses
-        for (auto &subpassInfo : gpuRenderPass->subpasses) {
-            for (uint input : subpassInfo.inputs) {
-                attachmentReferences.push_back({input, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
-            }
-            for (uint color : subpassInfo.colors) {
-                attachmentReferences.push_back({color, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
-            }
-            for (uint resolve : subpassInfo.resolves) {
-                attachmentReferences.push_back({resolve, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
-            }
-            if (hasDepth && subpassInfo.depthStencil == INVALID_BINDING) {
-                subpassInfo.depthStencil = static_cast<uint>(colorAttachmentCount);
-            }
-            attachmentReferences.push_back({subpassInfo.depthStencil, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
+    for (const auto &subpassInfo : gpuRenderPass->subpasses) {
+        for (uint input : subpassInfo.inputs) {
+            attachmentReferences.push_back({input, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+        }
+        for (uint color : subpassInfo.colors) {
+            attachmentReferences.push_back({color, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
+        }
+        for (uint resolve : subpassInfo.resolves) {
+            attachmentReferences.push_back({resolve, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL});
+        }
+        attachmentReferences.push_back({subpassInfo.depthStencil, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
+    }
+
+    uint offset{0U};
+    subpassDescriptions.resize(subpassCount, {});
+    for (uint i = 0U; i < gpuRenderPass->subpasses.size(); ++i) {
+        const SubpassInfo subpassInfo = gpuRenderPass->subpasses[i];
+
+        VkSubpassDescription &desc = subpassDescriptions[i];
+        desc.pipelineBindPoint     = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+        if (!subpassInfo.inputs.empty()) {
+            desc.inputAttachmentCount = subpassInfo.inputs.size();
+            desc.pInputAttachments    = attachmentReferences.data() + offset;
+            offset += subpassInfo.inputs.size();
         }
 
-        uint offset{0U};
-        subpassDescriptions.resize(subpassCount, {});
-        for (uint i = 0U; i < gpuRenderPass->subpasses.size(); ++i) {
-            const SubpassInfo subpassInfo = gpuRenderPass->subpasses[i];
-
-            VkSubpassDescription &desc = subpassDescriptions[i];
-            desc.pipelineBindPoint     = VK_PIPELINE_BIND_POINT_GRAPHICS;
-
-            if (!subpassInfo.inputs.empty()) {
-                desc.inputAttachmentCount = subpassInfo.inputs.size();
-                desc.pInputAttachments    = attachmentReferences.data() + offset;
-                offset += subpassInfo.inputs.size();
-            }
-
-            if (!subpassInfo.colors.empty()) {
-                desc.colorAttachmentCount = subpassInfo.colors.size();
-                desc.pColorAttachments    = attachmentReferences.data() + offset;
-                offset += subpassInfo.colors.size();
-                if (!subpassInfo.resolves.empty()) {
-                    desc.pResolveAttachments = attachmentReferences.data() + offset;
-                    offset += subpassInfo.resolves.size();
-                }
-            }
-
-            if (!subpassInfo.preserves.empty()) {
-                desc.preserveAttachmentCount = subpassInfo.preserves.size();
-                desc.pPreserveAttachments    = subpassInfo.preserves.data();
-            }
-
-            if (subpassInfo.depthStencil != INVALID_BINDING) {
-                desc.pDepthStencilAttachment = attachmentReferences.data() + offset++;
+        if (!subpassInfo.colors.empty()) {
+            desc.colorAttachmentCount = subpassInfo.colors.size();
+            desc.pColorAttachments    = attachmentReferences.data() + offset;
+            offset += subpassInfo.colors.size();
+            if (!subpassInfo.resolves.empty()) {
+                desc.pResolveAttachments = attachmentReferences.data() + offset;
+                offset += subpassInfo.resolves.size();
             }
         }
-    } else { // generate a default subpass from attachment info
-        subpassCount = 1U;
-        subpassDescriptions.resize(subpassCount, {});
-        for (size_t i = 0U; i < colorAttachmentCount; ++i) {
-            attachmentReferences.push_back({static_cast<uint32_t>(i), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL});
+
+        if (!subpassInfo.preserves.empty()) {
+            desc.preserveAttachmentCount = subpassInfo.preserves.size();
+            desc.pPreserveAttachments    = subpassInfo.preserves.data();
         }
-        attachmentReferences.push_back({static_cast<uint32_t>(colorAttachmentCount), VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL});
-        subpassDescriptions[0].pipelineBindPoint    = VK_PIPELINE_BIND_POINT_GRAPHICS;
-        subpassDescriptions[0].colorAttachmentCount = attachmentReferences.size() - 1;
-        subpassDescriptions[0].pColorAttachments    = attachmentReferences.data();
-        if (hasDepth) subpassDescriptions[0].pDepthStencilAttachment = &attachmentReferences.back();
+
+        if (subpassInfo.depthStencil != INVALID_BINDING) {
+            desc.pDepthStencilAttachment = attachmentReferences.data() + offset++;
+        }
     }
 
     size_t dependencyCount = gpuRenderPass->dependencies.size();
@@ -395,7 +379,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
             }
         }
 
-        uint          offset{0U};
+        offset = 0U;
         VkImageLayout imageLayout{VK_IMAGE_LAYOUT_UNDEFINED};
         bool          hasWriteAccess{false};
 

@@ -57,21 +57,25 @@ void GLES3PrimaryCommandBuffer::end() {
     if (_isStateInvalid) {
         bindStates();
     }
-    _isInRenderPass = false;
 }
 
 void GLES3PrimaryCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
-    _isInRenderPass                     = true;
+    _curSubpassIdx = 0U;
+
     GLES3GPURenderPass * gpuRenderPass  = static_cast<GLES3RenderPass *>(renderPass)->gpuRenderPass();
     GLES3GPUFramebuffer *gpuFramebuffer = static_cast<GLES3Framebuffer *>(fbo)->gpuFBO();
 
-    cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), gpuRenderPass, gpuFramebuffer,
-                                renderArea, gpuRenderPass->colorAttachments.size(), colors, depth, stencil);
+    cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), _curSubpassIdx, gpuRenderPass, gpuFramebuffer,
+                                &renderArea, colors, depth, stencil);
 }
 
 void GLES3PrimaryCommandBuffer::endRenderPass() {
     cmdFuncGLES3EndRenderPass(GLES3Device::getInstance());
-    _isInRenderPass = false;
+}
+
+void GLES3PrimaryCommandBuffer::nextSubpass() {
+    cmdFuncGLES3EndRenderPass(GLES3Device::getInstance());
+    cmdFuncGLES3BeginRenderPass(GLES3Device::getInstance(), ++_curSubpassIdx);
 }
 
 void GLES3PrimaryCommandBuffer::draw(const DrawInfo &info) {

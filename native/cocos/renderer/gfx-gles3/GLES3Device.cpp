@@ -63,7 +63,7 @@ GLES3Device::~GLES3Device() {
     GLES3Device::instance = nullptr;
 }
 
-bool GLES3Device::doInit(const DeviceInfo & info) {
+bool GLES3Device::doInit(const DeviceInfo &info) {
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
     ctxInfo.msaaEnabled  = info.isAntiAlias;
@@ -124,6 +124,18 @@ bool GLES3Device::doInit(const DeviceInfo & info) {
         _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
     }
 
+    // PVRVFrame has issues on their PLS support
+#if CC_PLATFORM != CC_PLATFORM_WINDOWS && CC_PLATFORM != CC_PLATFORM_MAC_OSX
+    if (checkExtension("pixel_local_storage")) {
+        if (checkExtension("pixel_local_storage2")) {
+            _hasPLS = 2U;
+        } else {
+            _hasPLS = 1U;
+        }
+        glGetIntegerv(GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_SIZE_EXT, reinterpret_cast<GLint *>(&_sizePLS));
+    }
+#endif
+
     String compressedFmts;
 
     if (checkExtension("compressed_ETC1")) {
@@ -165,6 +177,7 @@ bool GLES3Device::doInit(const DeviceInfo & info) {
     CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
     CC_LOG_INFO("NATIVE_SIZE: %d x %d", _nativeWidth, _nativeHeight);
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
+    CC_LOG_INFO("PIXEL_LOCAL_STORAGE: level %d, size %d", _hasPLS, _sizePLS);
 
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&_caps.maxVertexAttributes));
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxVertexUniformVectors));

@@ -67,6 +67,8 @@ public:
     inline GLES3GPUStagingBufferPool *  stagingBufferPool() const { return _gpuStagingBufferPool; }
     inline GLES3GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
     inline uint                         getThreadID() const { return _threadID; }
+    inline uint                         hasPLS() const { return _hasPLS; }
+    inline uint                         getPLSSize() const { return _sizePLS; }
 
     inline bool checkExtension(const String &extension) const {
         return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
@@ -75,6 +77,7 @@ public:
     }
 
     uint getMinorVersion() const;
+
 
 protected:
     static GLES3Device *instance;
@@ -116,6 +119,9 @@ protected:
     GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap = nullptr;
 
     StringArray _extensions;
+
+    uint _hasPLS = 0U;
+    uint _sizePLS = 0U;
 
     uint _threadID = 0U;
 };

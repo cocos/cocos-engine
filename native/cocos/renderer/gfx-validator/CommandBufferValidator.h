@@ -73,6 +73,7 @@ protected:
 
     bool _insideRenderPass{false};
     bool _commandsFlushed{false};
+    uint _curSubpass{0U};
 };
 
 } // namespace gfx
