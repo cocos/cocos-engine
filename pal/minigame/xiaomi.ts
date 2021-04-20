@@ -28,19 +28,19 @@ Object.defineProperty(minigame, 'orientation', {
     },
 });
 
-// // TouchEvent
-// globalAdapter.onTouchStart = function (cb) {
-//     window.canvas.ontouchstart = cb;
-// };
-// globalAdapter.onTouchMove = function (cb) {
-//     window.canvas.ontouchmove = cb;
-// };
-// globalAdapter.onTouchEnd = function (cb) {
-//     window.canvas.ontouchend = cb;
-// };
-// globalAdapter.onTouchCancel = function (cb) {
-//     window.canvas.ontouchcancel = cb;
-// };
+// TouchEvent
+minigame.onTouchStart = function (cb) {
+    window.canvas.ontouchstart = cb;
+};
+minigame.onTouchMove = function (cb) {
+    window.canvas.ontouchmove = cb;
+};
+minigame.onTouchEnd = function (cb) {
+    window.canvas.ontouchend = cb;
+};
+minigame.onTouchCancel = function (cb) {
+    window.canvas.ontouchcancel = cb;
+};
 
 // // Keyboard
 // globalAdapter.showKeyboard = function (res) {
