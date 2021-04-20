@@ -113,7 +113,7 @@ class Prefab extends Asset {
     public optimizationPolicy = OptimizationPolicy.AUTO;
 
     // Cache function to optimize instance creation.
-    private _createFunction: Function | null;
+    private _createFunction: ((...arg: any[]) => Node) | null;
     private _instantiatedTimes: number;
     constructor () {
         super();
@@ -122,7 +122,7 @@ class Prefab extends Asset {
         this._instantiatedTimes = 0;
     }
 
-    public createNode (cb: Function): void {
+    public createNode (cb: (err: Error | null, node: Node) => void): void {
         const node = legacyCC.instantiate(this);
         node.name = this.name;
         cb(null, node);
@@ -156,8 +156,8 @@ class Prefab extends Asset {
         return this._createFunction!(rootToRedirect);  // this.data._instantiate();
     }
 
-    private _instantiate () {
-        let node;
+    private _instantiate (): Node {
+        let node: Node;
         let useJit = false;
         if (SUPPORT_JIT) {
             if (this.optimizationPolicy === OptimizationPolicy.SINGLE_INSTANCE) {
