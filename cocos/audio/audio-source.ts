@@ -257,24 +257,27 @@ export class AudioSource extends Component {
 
     /**
      * @en
-     * Plays an AudioClip, and scales volume by volumeScale.<br>
-     * Note: for multiple playback on the same clip, the actual behavior is platform-specific.<br>
-     * Re-start style fallback will be used if the underlying platform doesn't support it.
+     * Plays an AudioClip, and scales volume by volumeScale. The result volume is `audioSource.volume * volumeScale`. <br>
      * @zh
-     * 以指定音量播放一个音频一次。<br>
-     * 注意，对同一个音频片段，不同平台多重播放效果存在差异。<br>
-     * 对不支持的平台，如前一次尚未播完，则会立即重新播放。
+     * 以指定音量倍数播放一个音频一次。最终播放的音量为 `audioSource.volume * volumeScale`。 <br>
      * @param clip The audio clip to be played.
      * @param volumeScale volume scaling factor wrt. current value.
      */
     public playOneShot (clip: AudioClip, volumeScale = 1) {
-        audioManager.discardOnePlayingIfNeeded();
-        const oneShotAudio = this._player?.playOneShot(this._volume * volumeScale);
-        oneShotAudio?.onPlay(() => {
-            audioManager.addPlaying(oneShotAudio);
-        }).onEnded(() => {
-            audioManager.removePlaying(oneShotAudio);
-        });
+        if (!clip._nativeAsset) {
+            console.error('Invalid audio clip');
+            return;
+        }
+        AudioPlayer.loadOneShotAudio(clip._nativeAsset.url, this._volume * volumeScale, {
+            audioLoadMode: clip.loadMode,
+        }).then((oneShotAudio) => {
+            audioManager.discardOnePlayingIfNeeded();
+            oneShotAudio.play(() => {
+                audioManager.addPlaying(oneShotAudio);
+            }, () => {
+                audioManager.removePlaying(oneShotAudio);
+            });
+        }).catch((e) => {});
     }
 
     protected _syncStates () {
