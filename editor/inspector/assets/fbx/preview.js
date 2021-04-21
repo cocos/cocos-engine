@@ -209,7 +209,6 @@ exports.ready = function () {
         if (clipInfo) {
             await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setEditClip', clipInfo.clipUUID);
             this.setCurEditClipInfo(clipInfo);
-            console.log('clip info', clipInfo);
         }
     };
     Editor.Message.addBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateCallback);
@@ -290,7 +289,6 @@ exports.methods = {
     },
     async onPlayButtonClick (event) {
         event.stopPropagation();
-        console.log('play button clicked', this.curEditClipInfo);
         if (this.curEditClipInfo) {
             switch (this.curPlayState) {
             case PLAY_STATE.PAUSE:
