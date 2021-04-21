@@ -3017,3 +3017,7 @@ Can't add renderable component to this node because it already have one.
 
 <!-- DEPRECATED -->
 The PrivateNode is deprecated, please use Node directly with CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy flags activated.
+
+### 12004
+
+SubModel can only support %d passes.
