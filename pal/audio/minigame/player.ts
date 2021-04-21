@@ -1,10 +1,26 @@
 import { minigame } from 'pal/minigame';
-import { OneShotAudio } from 'pal/audio';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
+
+class OneShotAudio {
+    private _innerAudioContext: InnerAudioContext;
+
+    private constructor (nativeAudio: InnerAudioContext, volume: number) {
+        this._innerAudioContext = nativeAudio;
+        nativeAudio.volume = volume;
+    }
+    public play (onPlayCb: () => void, onEndCb: () => void): void {
+        this._innerAudioContext.onCanplay(onPlayCb);
+        this._innerAudioContext.onEnded(onEndCb);
+        this._innerAudioContext.play();
+    }
+    public stop (): void {
+        this._innerAudioContext.stop();
+    }
+}
 
 export class AudioPlayer implements OperationQueueable {
     private _innerAudioContext: any;
@@ -133,6 +149,14 @@ export class AudioPlayer implements OperationQueueable {
             innerAudioContext.src = url;
         });
     }
+    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudio> {
+        return new Promise((resolve, reject) => {
+            AudioPlayer.loadNative(url).then((innerAudioContext) => {
+                // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
+                resolve(new OneShotAudio(innerAudioContext, volume));
+            }).catch(reject);
+        });
+    }
     static readonly maxAudioChannel = 10;
 
     get state (): AudioState {
@@ -165,33 +189,6 @@ export class AudioPlayer implements OperationQueueable {
             this._eventTarget.once(AudioEvent.SEEKED, resolve);
             this._innerAudioContext.seek(time);
         });
-    }
-
-    playOneShot (volume = 1): OneShotAudio {
-        let innerAudioContext;
-        let onPlayCb: () => void;
-        let onEndedCb: () => void;
-        AudioPlayer.loadNative(this._innerAudioContext.src).then((res) => {
-            innerAudioContext = res;
-            innerAudioContext.volume = volume;
-            onPlayCb && innerAudioContext.onPlay(onPlayCb);
-            onEndedCb && innerAudioContext.onEnded(onEndedCb);
-            innerAudioContext.play();
-        }).catch((e) => {});
-        const oneShotAudio: OneShotAudio = {
-            stop () {
-                innerAudioContext && innerAudioContext.stop();
-            },
-            onPlay (cb) {
-                onPlayCb = cb;
-                return this;
-            },
-            onEnded (cb) {
-                onEndedCb = cb;
-                return this;
-            },
-        };
-        return oneShotAudio;
     }
 
     @enqueueOperation
