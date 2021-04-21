@@ -1,53 +1,56 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "SharedMemory.h"
-#include "../math/MathUtil.h"
-#include "renderer/core/gfx/GFXDef.h"
+#include "gfx-base/GFXDef.h"
+#include "math/MathUtil.h"
 
 namespace cc {
 namespace pipeline {
 
-const se::PoolType ModelView::type = se::PoolType::MODEL;
-const se::PoolType SubModelView::type = se::PoolType::SUB_MODEL;
-const se::PoolType PassView::type = se::PoolType::PASS;
-const se::PoolType Camera::type = se::PoolType::CAMERA;
-const se::PoolType AABB::type = se::PoolType::AABB;
-const se::PoolType Frustum::type = se::PoolType::FRUSTUM;
-const se::PoolType Scene::type = se::PoolType::SCENE;
-const se::PoolType Light::type = se::PoolType::LIGHT;
-const se::PoolType Ambient::type = se::PoolType::AMBIENT;
-const se::PoolType Fog::type = se::PoolType::FOG;
-const se::PoolType Skybox::type = se::PoolType::SKYBOX;
-const se::PoolType InstancedAttributeView::type = se::PoolType::INSTANCED_ATTRIBUTE;
-const se::PoolType FlatBufferView::type = se::PoolType::FLAT_BUFFER;
-const se::PoolType RenderingSubMesh::type = se::PoolType::SUB_MESH;
-const se::PoolType Node::type = se::PoolType::NODE;
-const se::PoolType Root::type = se::PoolType::ROOT;
-const se::PoolType RenderWindow::type = se::PoolType::RENDER_WINDOW;
-const se::PoolType Shadows::type = se::PoolType::SHADOW;
-const se::PoolType Sphere::type = se::PoolType::SPHERE;
-const se::PoolType UIBatch::type = se::PoolType::UI_BATCH;
+const se::PoolType ModelView::TYPE               = se::PoolType::MODEL;
+const se::PoolType SubModelView::TYPE            = se::PoolType::SUB_MODEL;
+const se::PoolType PassView::TYPE                = se::PoolType::PASS;
+const se::PoolType Camera::TYPE                  = se::PoolType::CAMERA;
+const se::PoolType AABB::TYPE                    = se::PoolType::AABB;
+const se::PoolType Frustum::TYPE                 = se::PoolType::FRUSTUM;
+const se::PoolType Scene::TYPE                   = se::PoolType::SCENE;
+const se::PoolType Light::TYPE                   = se::PoolType::LIGHT;
+const se::PoolType Ambient::TYPE                 = se::PoolType::AMBIENT;
+const se::PoolType Fog::TYPE                     = se::PoolType::FOG;
+const se::PoolType Skybox::TYPE                  = se::PoolType::SKYBOX;
+const se::PoolType InstancedAttributeView::TYPE  = se::PoolType::INSTANCED_ATTRIBUTE;
+const se::PoolType FlatBufferView::TYPE          = se::PoolType::FLAT_BUFFER;
+const se::PoolType RenderingSubMesh::TYPE        = se::PoolType::SUB_MESH;
+const se::PoolType Node::TYPE                    = se::PoolType::NODE;
+const se::PoolType Root::TYPE                    = se::PoolType::ROOT;
+const se::PoolType RenderWindow::TYPE            = se::PoolType::RENDER_WINDOW;
+const se::PoolType Shadows::TYPE                 = se::PoolType::SHADOW;
+const se::PoolType Sphere::TYPE                  = se::PoolType::SPHERE;
+const se::PoolType UIBatch::TYPE                 = se::PoolType::UI_BATCH;
+const se::PoolType PipelineSharedSceneData::TYPE = se::PoolType::PIPELINE_SHARED_SCENE_DATA;
 
 void AABB::getBoundary(cc::Vec3 &minPos, cc::Vec3 &maxPos) const {
     minPos = center - halfExtents;
@@ -59,19 +62,20 @@ void AABB::merge(const AABB &aabb) {
     cc::Vec3 minB = aabb.center - aabb.halfExtents;
     cc::Vec3 maxA = center + halfExtents;
     cc::Vec3 maxB = aabb.center + aabb.halfExtents;
-    cc::Vec3 maxP, minP;
+    cc::Vec3 maxP;
+    cc::Vec3 minP;
     cc::Vec3::max(maxA, maxB, &maxP);
     cc::Vec3::min(minA, minB, &minP);
 
     cc::Vec3 addP = maxP + minP;
     cc::Vec3 subP = maxP - minP;
-    center = addP * 0.5f;
-    halfExtents = subP * 0.5f;
+    center        = addP * 0.5F;
+    halfExtents   = subP * 0.5F;
 }
 
 int Sphere::interset(const Plane &plane) const {
     const float dot = plane.normal.dot(center);
-    const float r = radius * plane.normal.length();
+    const float r   = radius * plane.normal.length();
     if (dot + r < plane.distance) {
         return -1;
     }
@@ -84,7 +88,7 @@ int Sphere::interset(const Plane &plane) const {
 }
 
 bool Sphere::interset(const Frustum &frustum) const {
-    for (const auto &plane : frustum.planes) {
+    for (const auto &plane : frustum.planes) { // NOLINT
         if (this->interset(plane) == -1) {
             return false;
         }
@@ -94,17 +98,17 @@ bool Sphere::interset(const Frustum &frustum) const {
 }
 
 void Sphere::mergePoint(const cc::Vec3 &point) {
-    if (radius < 0.0f) {
+    if (radius < 0.0F) {
         center = point;
         radius = 0.0;
         return;
     }
 
-    auto offset = point - center;
+    auto offset   = point - center;
     auto distance = offset.length();
 
     if (distance > radius) {
-        auto half = (distance - radius) * 0.5f;
+        auto half = (distance - radius) * 0.5F;
         radius += half;
         offset.scale(half / distance);
         center += offset;
@@ -112,52 +116,58 @@ void Sphere::mergePoint(const cc::Vec3 &point) {
 }
 
 void Sphere::define(const AABB &aabb) {
-    cc::Vec3 minPos, maxPos;
+    cc::Vec3 minPos;
+    cc::Vec3 maxPos;
     aabb.getBoundary(minPos, maxPos);
 
     // Initialize sphere
     center.set(minPos);
-    radius = 0.0f;
+    radius = 0.0F;
 
     // Calculate sphere
     const cc::Vec3 offset = maxPos - center;
-    const float dist = offset.length();
+    const float    dist   = offset.length();
 
-    const float half = dist * 0.5f;
-    radius += dist * 0.5f;
+    const float half = dist * 0.5F;
+    radius += dist * 0.5F;
     center += (half / dist) * offset;
 }
 
 void Sphere::mergeAABB(const AABB *aabb) {
-    cc::Vec3 minPos, maxPos;
+    cc::Vec3 minPos;
+    cc::Vec3 maxPos;
     aabb->getBoundary(minPos, maxPos);
     mergePoint(minPos);
     mergePoint(maxPos);
 }
 
-int sphere_plane(const Sphere *sphere, const Plane *plane) {
+int spherePlane(const Sphere *sphere, const Plane *plane) {
     const auto dot = cc::Vec3::dot(plane->normal, sphere->center);
-    const auto r = sphere->radius * plane->normal.length();
+    const auto r   = sphere->radius * plane->normal.length();
     if (dot + r < plane->distance) {
         return -1;
-    } else if (dot - r > plane->distance) {
+    }
+    if (dot - r > plane->distance) {
         return 0;
     }
     return 1;
 };
 
-bool sphere_frustum(const Sphere *sphere, const Frustum *frustum) {
-    for (auto i = 0; i < PLANE_LENGTH; i++) {
+bool sphere_frustum(const Sphere *sphere, const Frustum *frustum) { // NOLINT
+    for (const auto &plane : frustum->planes) {
         // frustum plane normal points to the inside
-        if (sphere_plane(sphere, &frustum->planes[i]) == -1) {
+        if (spherePlane(sphere, &plane) == -1) {
             return false;
         }
     } // completely outside
     return true;
 }
 
-bool aabb_aabb(const AABB *aabb1, const AABB *aabb2) {
-    cc::Vec3 aMin, aMax, bMin, bMax;
+bool aabbAabb(const AABB *aabb1, const AABB *aabb2) {
+    cc::Vec3 aMin;
+    cc::Vec3 aMax;
+    cc::Vec3 bMin;
+    cc::Vec3 bMax;
     cc::Vec3::subtract(aabb1->center, aabb1->halfExtents, &aMin);
     cc::Vec3::add(aabb1->center, aabb1->halfExtents, &aMax);
     cc::Vec3::subtract(aabb2->center, aabb2->halfExtents, &bMin);
@@ -167,39 +177,40 @@ bool aabb_aabb(const AABB *aabb1, const AABB *aabb2) {
            (aMin.z <= bMax.z && aMax.z >= bMin.z);
 }
 
-int aabb_plane(const AABB *aabb, const Plane *plane) {
+int aabbPlane(const AABB *aabb, const Plane *plane) {
     const auto &halfExtents = aabb->halfExtents;
-    auto r = halfExtents.x * std::abs(plane->normal.x) +
+    auto        r           = halfExtents.x * std::abs(plane->normal.x) +
              halfExtents.y * std::abs(plane->normal.y) +
              halfExtents.z * std::abs(plane->normal.z);
     auto dot = Vec3::dot(plane->normal, aabb->center);
     if (dot + r < plane->distance) {
         return -1;
-    } else if (dot - r > plane->distance) {
+    }
+    if (dot - r > plane->distance) {
         return 0;
     }
     return 1;
 };
 
-bool aabb_frustum(const AABB *aabb, const Frustum *frustum) {
-    for (size_t i = 0; i < PLANE_LENGTH; i++) {
+bool aabbFrustum(const AABB *aabb, const Frustum *frustum) {
+    for (const auto &plane : frustum->planes) {
         // frustum plane normal points to the inside
-        if (aabb_plane(aabb, &frustum->planes[i]) == -1) {
-            return 0;
+        if (aabbPlane(aabb, &plane) == -1) {
+            return false;
         }
     } // completely outside
-    return 1;
+    return true;
 }
 
 gfx::BlendState *getBlendStateImpl(uint index) {
     static gfx::BlendState blendState;
-    auto buffer = SharedMemory::getBuffer<uint32_t>(se::PoolType::BLEND_STATE, index);
-    memcpy(&blendState, buffer, 24);
+    auto *                 buffer = SharedMemory::getBuffer<uint32_t>(se::PoolType::BLEND_STATE, index);
+    memcpy(&blendState, buffer, 24); // NOLINT
 
-    uint32_t targetArrayHandle = *(buffer + 6);
-    const auto targetsHandle = GET_BLEND_TARGET_ARRAY(targetArrayHandle);
-    uint32_t targetLen = targetsHandle[0];
-    auto &targets = blendState.targets;
+    uint32_t    targetArrayHandle = *(buffer + 6);
+    auto *const targetsHandle     = GET_BLEND_TARGET_ARRAY(targetArrayHandle);
+    uint32_t    targetLen         = targetsHandle[0];
+    auto &      targets           = blendState.targets;
     targets.resize(targetLen);
     for (uint32_t i = 1; i <= targetLen; ++i) {
         memcpy(&targets[i - 1], GET_BLEND_TARGET(targetsHandle[i]), sizeof(gfx::BlendTarget));

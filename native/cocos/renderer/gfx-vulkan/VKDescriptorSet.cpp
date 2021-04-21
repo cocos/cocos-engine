@@ -1,34 +1,36 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "VKStd.h"
 
 #include "VKBuffer.h"
 #include "VKCommands.h"
 #include "VKDescriptorSet.h"
 #include "VKDescriptorSetLayout.h"
-#include "VKPipelineLayout.h"
 #include "VKDevice.h"
+#include "VKPipelineLayout.h"
 #include "VKSampler.h"
 #include "VKShader.h"
 #include "VKTexture.h"
@@ -36,57 +38,79 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-CCVKDescriptorSet::CCVKDescriptorSet(Device *device)
-: DescriptorSet(device) {
-}
+CCVKDescriptorSet::CCVKDescriptorSet() = default;
 
 CCVKDescriptorSet::~CCVKDescriptorSet() {
+    destroy();
 }
 
-bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
-
-    _layout = info.layout;
-
-    CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout = ((CCVKDescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
-    const uint bindingCount = gpuDescriptorSetLayout->bindings.size();
-    const uint descriptorCount = gpuDescriptorSetLayout->descriptorCount;
-
-    _buffers.resize(descriptorCount);
-    _textures.resize(descriptorCount);
-    _samplers.resize(descriptorCount);
+void CCVKDescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
+    CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout = static_cast<CCVKDescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
+    const uint                  bindingCount           = gpuDescriptorSetLayout->bindings.size();
+    const uint                  descriptorCount        = gpuDescriptorSetLayout->descriptorCount;
 
     _gpuDescriptorSet = CC_NEW(CCVKGPUDescriptorSet);
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount, {});
+    _gpuDescriptorSet->layoutID = gpuDescriptorSetLayout->id;
 
-    for (size_t i = 0u, k = 0u; i < bindingCount; ++i) {
+    for (size_t i = 0U, k = 0U; i < bindingCount; ++i) {
         const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
         for (uint j = 0; j < binding.count; ++j, ++k) {
-            _gpuDescriptorSet->gpuDescriptors[k].type = binding.descriptorType;
+            CCVKGPUDescriptor &gpuDescriptor = _gpuDescriptorSet->gpuDescriptors[k];
+            gpuDescriptor.type               = binding.descriptorType;
+            switch (binding.descriptorType) {
+                case DescriptorType::UNIFORM_BUFFER:
+                case DescriptorType::DYNAMIC_UNIFORM_BUFFER:
+                    if (hasFlag(binding.stageFlags, ShaderStageFlags::COMPUTE)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_COMPUTE_SHADER_READ_UNIFORM_BUFFER);
+                    if (hasFlag(binding.stageFlags, ShaderStageFlags::VERTEX)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_VERTEX_SHADER_READ_UNIFORM_BUFFER);
+                    if (hasFlag(binding.stageFlags, ShaderStageFlags::FRAGMENT)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_FRAGMENT_SHADER_READ_UNIFORM_BUFFER);
+                    break;
+                case DescriptorType::STORAGE_BUFFER:
+                case DescriptorType::DYNAMIC_STORAGE_BUFFER:
+                case DescriptorType::STORAGE_IMAGE:
+                    // here we don't handle write accesses, which should be handled manually
+                    if (hasFlag(binding.stageFlags, ShaderStageFlags::COMPUTE)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_COMPUTE_SHADER_READ_OTHER);
+                    if (hasFlag(binding.stageFlags, ShaderStageFlags::VERTEX)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_VERTEX_SHADER_READ_OTHER);
+                    if (hasFlag(binding.stageFlags, ShaderStageFlags::FRAGMENT)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_FRAGMENT_SHADER_READ_OTHER);
+                    break;
+                case DescriptorType::SAMPLER_TEXTURE:
+                case DescriptorType::TEXTURE:
+                    if (hasFlag(binding.stageFlags, ShaderStageFlags::COMPUTE)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_COMPUTE_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER);
+                    if (hasFlag(binding.stageFlags, ShaderStageFlags::VERTEX)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_VERTEX_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER);
+                    if (hasFlag(binding.stageFlags, ShaderStageFlags::FRAGMENT)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_FRAGMENT_SHADER_READ_SAMPLED_IMAGE_OR_UNIFORM_TEXEL_BUFFER);
+                    break;
+                case DescriptorType::INPUT_ATTACHMENT:
+                    gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_FRAGMENT_SHADER_READ_COLOR_INPUT_ATTACHMENT);
+                    break;
+                case DescriptorType::SAMPLER:
+                default:
+                    break;
+            }
         }
     }
 
-    CCVKGPUDevice *gpuDevice = ((CCVKDevice *)_device)->gpuDevice();
-    if (gpuDevice->useDescriptorUpdateTemplate) {
-        _gpuDescriptorSet->pUpdateTemplate = &gpuDescriptorSetLayout->vkDescriptorUpdateTemplate;
-    }
+    CCVKGPUDevice *gpuDevice     = CCVKDevice::getInstance()->gpuDevice();
+    _gpuDescriptorSet->gpuLayout = gpuDescriptorSetLayout;
     _gpuDescriptorSet->instances.resize(gpuDevice->backBufferCount);
 
-    for (size_t t = 0u; t < gpuDevice->backBufferCount; ++t) {
-        CCVKGPUDescriptorSet::DescriptorSetInstance &instance = _gpuDescriptorSet->instances[t];
-        instance.vkDescriptorSet = gpuDescriptorSetLayout->pool.request(t);
+    for (size_t t = 0U; t < gpuDevice->backBufferCount; ++t) {
+        CCVKGPUDescriptorSet::Instance &instance = _gpuDescriptorSet->instances[t];
+        instance.vkDescriptorSet                 = gpuDevice->getDescriptorSetPool(_gpuDescriptorSet->layoutID)->request(t);
         instance.descriptorInfos.resize(descriptorCount, {});
 
-        for (size_t i = 0u, k = 0u; i < bindingCount; ++i) {
+        for (size_t i = 0U, k = 0U; i < bindingCount; ++i) {
             const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
             for (uint j = 0; j < binding.count; ++j, ++k) {
-                if ((uint)binding.descriptorType & DESCRIPTOR_BUFFER_TYPE) {
+                if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_BUFFER_TYPE)) {
                     instance.descriptorInfos[k].buffer.buffer = gpuDevice->defaultBuffer.vkBuffer;
                     instance.descriptorInfos[k].buffer.offset = gpuDevice->defaultBuffer.startOffset;
-                    instance.descriptorInfos[k].buffer.range = gpuDevice->defaultBuffer.size;
-                } else if ((uint)binding.descriptorType & DESCRIPTOR_SAMPLER_TYPE) {
-                    instance.descriptorInfos[k].image.sampler = gpuDevice->defaultSampler.vkSampler;
-                    instance.descriptorInfos[k].image.imageView = gpuDevice->defaultTextureView.vkImageView;
-                    instance.descriptorInfos[k].image.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    instance.descriptorInfos[k].buffer.range  = gpuDevice->defaultBuffer.size;
+                } else if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_TEXTURE_TYPE)) {
+                    instance.descriptorInfos[k].image.sampler     = gpuDevice->defaultSampler.vkSampler;
+                    instance.descriptorInfos[k].image.imageView   = gpuDevice->defaultTextureView.vkImageView;
+                    instance.descriptorInfos[k].image.imageLayout = binding.descriptorType == DescriptorType::STORAGE_IMAGE
+                                                                        ? VK_IMAGE_LAYOUT_GENERAL
+                                                                        : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 }
             }
         }
@@ -95,14 +119,14 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
             vector<VkWriteDescriptorSet> &entries = instance.descriptorUpdateEntries;
             entries.resize(descriptorCount, {VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET});
 
-            for (size_t i = 0u, j = 0u; i < descriptorCount; i++) {
+            for (size_t i = 0U, j = 0U; i < bindingCount; i++) {
                 const VkDescriptorSetLayoutBinding &descriptor = gpuDescriptorSetLayout->vkBindings[i];
-                for (size_t k = 0u; k < descriptor.descriptorCount; k++, j++) {
-                    entries[j].dstSet = instance.vkDescriptorSet;
-                    entries[j].dstBinding = descriptor.binding;
+                for (size_t k = 0U; k < descriptor.descriptorCount; k++, j++) {
+                    entries[j].dstSet          = instance.vkDescriptorSet;
+                    entries[j].dstBinding      = descriptor.binding;
                     entries[j].dstArrayElement = k;
                     entries[j].descriptorCount = 1; // better not to assume that the descriptor infos would be contiguous
-                    entries[j].descriptorType = descriptor.descriptorType;
+                    entries[j].descriptorType  = descriptor.descriptorType;
                     switch (entries[j].descriptorType) {
                         case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER:
                         case VK_DESCRIPTOR_TYPE_STORAGE_BUFFER:
@@ -127,19 +151,17 @@ bool CCVKDescriptorSet::initialize(const DescriptorSetInfo &info) {
             }
         }
     }
-
-    return true;
 }
 
-void CCVKDescriptorSet::destroy() {
+void CCVKDescriptorSet::doDestroy() {
     if (_gpuDescriptorSet) {
-        CCVKGPUDescriptorHub *descriptorHub = ((CCVKDevice *)_device)->gpuDescriptorHub();
-        CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout = ((CCVKDescriptorSetLayout *)_layout)->gpuDescriptorSetLayout();
+        CCVKGPUDevice *       gpuDevice     = CCVKDevice::getInstance()->gpuDevice();
+        CCVKGPUDescriptorHub *descriptorHub = CCVKDevice::getInstance()->gpuDescriptorHub();
 
-        for (size_t t = 0u; t < _gpuDescriptorSet->instances.size(); ++t) {
-            CCVKGPUDescriptorSet::DescriptorSetInstance &instance = _gpuDescriptorSet->instances[t];
+        for (size_t t = 0U; t < _gpuDescriptorSet->instances.size(); ++t) {
+            CCVKGPUDescriptorSet::Instance &instance = _gpuDescriptorSet->instances[t];
 
-            for (uint i = 0u; i < _gpuDescriptorSet->gpuDescriptors.size(); i++) {
+            for (uint i = 0U; i < _gpuDescriptorSet->gpuDescriptors.size(); i++) {
                 CCVKGPUDescriptor &binding = _gpuDescriptorSet->gpuDescriptors[i];
 
                 CCVKDescriptorInfo &descriptorInfo = instance.descriptorInfos[i];
@@ -154,36 +176,32 @@ void CCVKDescriptorSet::destroy() {
                 }
             }
 
-            if (gpuDescriptorSetLayout && instance.vkDescriptorSet) {
-                gpuDescriptorSetLayout->pool.yield(instance.vkDescriptorSet, t);
+            if (instance.vkDescriptorSet) {
+                gpuDevice->getDescriptorSetPool(_gpuDescriptorSet->layoutID)->yield(instance.vkDescriptorSet, t);
             }
         }
 
-        ((CCVKDevice *)_device)->gpuDescriptorSetHub()->erase(_gpuDescriptorSet);
+        CCVKDevice::getInstance()->gpuDescriptorSetHub()->erase(_gpuDescriptorSet);
 
         CC_DELETE(_gpuDescriptorSet);
         _gpuDescriptorSet = nullptr;
     }
-
-    // do remember to clear these or else it might not be properly updated when reused
-    _buffers.clear();
-    _textures.clear();
-    _samplers.clear();
 }
 
 void CCVKDescriptorSet::update() {
     if (_isDirty && _gpuDescriptorSet) {
-        CCVKGPUDescriptorHub *descriptorHub = ((CCVKDevice *)_device)->gpuDescriptorHub();
-        uint descriptorCount = _gpuDescriptorSet->gpuDescriptors.size();
+        CCVKGPUDescriptorHub * descriptorHub   = CCVKDevice::getInstance()->gpuDescriptorHub();
+        CCVKGPUBarrierManager *layoutMgr       = CCVKDevice::getInstance()->gpuBarrierManager();
+        uint                   descriptorCount = _gpuDescriptorSet->gpuDescriptors.size();
 
-        for (size_t i = 0u; i < descriptorCount; i++) {
+        for (size_t i = 0U; i < descriptorCount; i++) {
             CCVKGPUDescriptor &binding = _gpuDescriptorSet->gpuDescriptors[i];
 
-            if ((uint)binding.type & DESCRIPTOR_BUFFER_TYPE) {
+            if (hasAnyFlags(binding.type, DESCRIPTOR_BUFFER_TYPE)) {
                 if (_buffers[i]) {
-                    CCVKGPUBufferView *bufferView = ((CCVKBuffer *)_buffers[i])->gpuBufferView();
+                    CCVKGPUBufferView *bufferView = static_cast<CCVKBuffer *>(_buffers[i])->gpuBufferView();
                     if (binding.gpuBufferView != bufferView) {
-                        for (size_t t = 0u; t < _gpuDescriptorSet->instances.size(); ++t) {
+                        for (size_t t = 0U; t < _gpuDescriptorSet->instances.size(); ++t) {
                             CCVKDescriptorInfo &descriptorInfo = _gpuDescriptorSet->instances[t].descriptorInfos[i];
 
                             if (binding.gpuBufferView) {
@@ -197,28 +215,29 @@ void CCVKDescriptorSet::update() {
                         binding.gpuBufferView = bufferView;
                     }
                 }
-            } else if ((uint)binding.type & DESCRIPTOR_SAMPLER_TYPE) {
+            } else if (hasAnyFlags(binding.type, DESCRIPTOR_TEXTURE_TYPE)) {
                 if (_textures[i]) {
-                    CCVKGPUTextureView *textureView = ((CCVKTexture *)_textures[i])->gpuTextureView();
+                    CCVKGPUTextureView *textureView = static_cast<CCVKTexture *>(_textures[i])->gpuTextureView();
                     if (binding.gpuTextureView != textureView) {
-                        for (size_t t = 0u; t < _gpuDescriptorSet->instances.size(); ++t) {
-                            CCVKDescriptorInfo &descriptorInfo = _gpuDescriptorSet->instances[t].descriptorInfos[i];
+                        for (auto &instance : _gpuDescriptorSet->instances) {
+                            CCVKDescriptorInfo &descriptorInfo = instance.descriptorInfos[i];
                             if (binding.gpuTextureView) {
                                 descriptorHub->disengage(binding.gpuTextureView, &descriptorInfo.image);
                             }
                             if (textureView) {
                                 descriptorHub->connect(_gpuDescriptorSet, textureView, &descriptorInfo.image);
                                 descriptorHub->update(textureView, &descriptorInfo.image);
+                                layoutMgr->checkIn(textureView->gpuTexture, binding.accessTypes.data(), binding.accessTypes.size());
                             }
                         }
                         binding.gpuTextureView = textureView;
                     }
                 }
                 if (_samplers[i]) {
-                    CCVKGPUSampler *sampler = ((CCVKSampler *)_samplers[i])->gpuSampler();
+                    CCVKGPUSampler *sampler = static_cast<CCVKSampler *>(_samplers[i])->gpuSampler();
                     if (binding.gpuSampler != sampler) {
-                        for (size_t t = 0u; t < _gpuDescriptorSet->instances.size(); ++t) {
-                            CCVKDescriptorInfo &descriptorInfo = _gpuDescriptorSet->instances[t].descriptorInfos[i];
+                        for (auto &instance : _gpuDescriptorSet->instances) {
+                            CCVKDescriptorInfo &descriptorInfo = instance.descriptorInfos[i];
                             if (binding.gpuSampler) {
                                 descriptorHub->disengage(binding.gpuSampler, &descriptorInfo.image);
                             }
@@ -232,7 +251,7 @@ void CCVKDescriptorSet::update() {
                 }
             }
         }
-        ((CCVKDevice *)_device)->gpuDescriptorSetHub()->record(_gpuDescriptorSet);
+        CCVKDevice::getInstance()->gpuDescriptorSetHub()->record(_gpuDescriptorSet);
         _isDirty = false;
     }
 }

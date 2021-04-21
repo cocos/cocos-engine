@@ -1,18 +1,19 @@
 /****************************************************************************
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos2d-x.org
+ http://www.cocos.com
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,7 +22,8 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
+
 #pragma once
 
 #include "base/Macros.h"
@@ -31,13 +33,13 @@ namespace cc {
 
 class Value;
 
-typedef vector<Value> ValueVector;
-typedef unordered_map<String, Value> ValueMap;
-typedef unordered_map<int, Value> ValueMapIntKey;
+using ValueVector = vector<Value>;
+using ValueMap = unordered_map<String, Value>;
+using ValueMapIntKey = unordered_map<int, Value>;
 
-CC_DLL extern const ValueVector ValueVectorNull;
-CC_DLL extern const ValueMap ValueMapNull;
-CC_DLL extern const ValueMapIntKey ValueMapIntKeyNull;
+CC_DLL extern const ValueVector VALUE_VECTOR_NULL;
+CC_DLL extern const ValueMap VALUE_MAP_NULL;
+CC_DLL extern const ValueMapIntKey VALUE_MAP_INT_KEY_NULL;
 
 /*
  * This class is provide as a wrapper of basic types, such as int and bool.
@@ -45,7 +47,7 @@ CC_DLL extern const ValueMapIntKey ValueMapIntKeyNull;
 class CC_DLL Value {
 public:
     /** A predefined Value that has not value. */
-    static const Value Null;
+    static const Value VALUE_NULL;
 
     /** Default constructor. */
     Value();
@@ -92,7 +94,7 @@ public:
     /** Create a Value by another Value object. */
     Value(const Value &other);
     /** Create a Value by a Value object. It will use std::move internally. */
-    Value(Value &&other);
+    Value(Value &&other) noexcept;
 
     /** Destructor. */
     ~Value();
@@ -100,7 +102,7 @@ public:
     /** Assignment operator, assign from Value to Value. */
     Value &operator=(const Value &other);
     /** Assignment operator, assign from Value to Value. It will use std::move internally. */
-    Value &operator=(Value &&other);
+    Value &operator=(Value &&other) noexcept;
 
     /** Assignment operator, assign from unsigned char to Value. */
     Value &operator=(unsigned char v);

@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "VKStd.h"
 
 #include "VKBuffer.h"
@@ -31,21 +33,13 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-CCVKBuffer::CCVKBuffer(Device *device)
-: Buffer(device) {
-}
+CCVKBuffer::CCVKBuffer() = default;
 
 CCVKBuffer::~CCVKBuffer() {
+    destroy();
 }
 
-bool CCVKBuffer::initialize(const BufferInfo &info) {
-    _usage = info.usage;
-    _memUsage = info.memUsage;
-    _size = info.size;
-    _stride = std::max(info.stride, 1u);
-    _count = _size / _stride;
-    _flags = info.flags;
-
+void CCVKBuffer::doInit(const BufferInfo & /*info*/) {
     _gpuBuffer = CC_NEW(CCVKGPUBuffer);
     _gpuBuffer->usage = _usage;
     _gpuBuffer->memUsage = _memUsage;
@@ -53,115 +47,68 @@ bool CCVKBuffer::initialize(const BufferInfo &info) {
     _gpuBuffer->stride = _stride;
     _gpuBuffer->count = _count;
 
-    if (_usage & BufferUsageBit::INDIRECT) {
+    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
         const size_t drawInfoCount = _size / sizeof(DrawInfo);
         _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
         _gpuBuffer->indirectCmds.resize(drawInfoCount);
     }
 
-    CCVKCmdFuncCreateBuffer((CCVKDevice *)_device, _gpuBuffer);
-    _device->getMemoryStatus().bufferSize += _size;
+    cmdFuncCCVKCreateBuffer(CCVKDevice::getInstance(), _gpuBuffer);
 
     _gpuBufferView = CC_NEW(CCVKGPUBufferView);
     createBufferView();
-
-    return true;
 }
 
-bool CCVKBuffer::initialize(const BufferViewInfo &info) {
-    _isBufferView = true;
-
-    CCVKBuffer *buffer = (CCVKBuffer *)info.buffer;
-
-    _usage = buffer->_usage;
-    _memUsage = buffer->_memUsage;
-    _size = _stride = info.range;
-    _count = 1u;
-    _flags = buffer->_flags;
-    _offset = info.offset;
-
-    _gpuBuffer = ((CCVKBuffer *)info.buffer)->gpuBuffer();
+void CCVKBuffer::doInit(const BufferViewInfo &info) {
+    auto *buffer = static_cast<CCVKBuffer *>(info.buffer);
+    _gpuBuffer = buffer->gpuBuffer();
     _gpuBufferView = CC_NEW(CCVKGPUBufferView);
     createBufferView();
-
-    return true;
 }
 
 void CCVKBuffer::createBufferView() {
     _gpuBufferView->gpuBuffer = _gpuBuffer;
     _gpuBufferView->offset = _offset;
     _gpuBufferView->range = _size;
-    ((CCVKDevice *)_device)->gpuDescriptorHub()->update(_gpuBufferView);
+    CCVKDevice::getInstance()->gpuDescriptorHub()->update(_gpuBufferView);
 }
 
-void CCVKBuffer::destroy() {
+void CCVKBuffer::doDestroy() {
     if (_gpuBufferView) {
-        ((CCVKDevice *)_device)->gpuDescriptorHub()->disengage(_gpuBufferView);
+        CCVKDevice::getInstance()->gpuDescriptorHub()->disengage(_gpuBufferView);
         CC_DELETE(_gpuBufferView);
         _gpuBufferView = nullptr;
     }
 
     if (_gpuBuffer) {
         if (!_isBufferView) {
-            ((CCVKDevice *)_device)->gpuBufferHub()->erase(_gpuBuffer);
-            ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuBuffer);
-            _device->getMemoryStatus().bufferSize -= _size;
+            CCVKDevice::getInstance()->gpuBufferHub()->erase(_gpuBuffer);
+            CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
+            CCVKDevice::getInstance()->gpuBarrierManager()->cancel(_gpuBuffer);
             CC_DELETE(_gpuBuffer);
         }
         _gpuBuffer = nullptr;
     }
 }
 
-void CCVKBuffer::resize(uint size) {
-    CCASSERT(!_isBufferView, "Cannot resize buffer views");
+void CCVKBuffer::doResize(uint size, uint count) {
+    CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
 
-    if (_size != size) {
-        const uint oldSize = _size;
-        _size = size;
-        _count = _size / _stride;
+    _gpuBuffer->size = size;
+    _gpuBuffer->count = count;
+    cmdFuncCCVKCreateBuffer(CCVKDevice::getInstance(), _gpuBuffer);
 
-        ((CCVKDevice *)_device)->gpuRecycleBin()->collect(_gpuBuffer);
+    createBufferView();
 
-        _gpuBuffer->size = _size;
-        _gpuBuffer->count = _count;
-        CCVKCmdFuncCreateBuffer((CCVKDevice *)_device, _gpuBuffer);
-
-        createBufferView();
-
-        MemoryStatus &status = _device->getMemoryStatus();
-        status.bufferSize -= oldSize;
-        status.bufferSize += _size;
-
-        if (_usage & BufferUsageBit::INDIRECT) {
-            const size_t drawInfoCount = _size / sizeof(DrawInfo);
-            _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
-            _gpuBuffer->indirectCmds.resize(drawInfoCount);
-        }
+    if (hasFlag(_usage, BufferUsageBit::INDIRECT)) {
+        const size_t drawInfoCount = _size / sizeof(DrawInfo);
+        _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
+        _gpuBuffer->indirectCmds.resize(drawInfoCount);
     }
 }
 
-void CCVKBuffer::update(void *buffer, uint size) {
-    CCASSERT(!_isBufferView, "Cannot update through buffer views");
-    if (!size) return;
-
-#if CC_DEBUG > 0
-    if (_usage & BufferUsageBit::INDIRECT) {
-        DrawInfo *drawInfo = static_cast<DrawInfo *>(buffer);
-        const size_t drawInfoCount = size / sizeof(DrawInfo);
-        const bool isIndexed = drawInfoCount > 0 && drawInfo->indexCount > 0;
-        for (size_t i = 1u; i < drawInfoCount; i++) {
-            if ((++drawInfo)->indexCount > 0 != isIndexed) {
-                CC_LOG_WARNING("Inconsistent indirect draw infos on using index buffer");
-                return;
-            }
-        }
-    }
-#endif
-
-    CommandBuffer *cmdBuff = _device->getCommandBuffer();
-    cmdBuff->begin();
-    const CCVKGPUCommandBuffer *gpuCommandBuffer = ((CCVKCommandBuffer *)cmdBuff)->gpuCommandBuffer();
-    CCVKCmdFuncUpdateBuffer((CCVKDevice *)_device, _gpuBuffer, buffer, size, gpuCommandBuffer);
+void CCVKBuffer::update(const void *buffer, uint size) {
+    cmdFuncCCVKUpdateBuffer(CCVKDevice::getInstance(), _gpuBuffer, buffer, size, nullptr);
 }
 
 } // namespace gfx

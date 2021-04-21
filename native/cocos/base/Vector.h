@@ -1,51 +1,48 @@
 /****************************************************************************
-Copyright (c) 2010 ForzeField Studios S.L. http://forzefield.com
-Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2010 ForzeField Studios S.L. http://forzefield.com
+ Copyright (c) 2010-2012 cocos2d-x.org
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #pragma once
 
-#include <vector>
-#include <functional>
 #include <algorithm> // for std::find
+#include <functional>
+#include <vector>
 
+#include "base/Log.h"
 #include "base/Macros.h"
 #include "base/Random.h"
 #include "base/Ref.h"
-#include "base/Log.h"
 
-/**
- * @addtogroup base
- * @{
- */
 namespace cc {
 
 /*
  * Similar to std::vector, but it will manage reference count automatically internally.
  * Which means it will invoke Ref::retain() when adding an element, and invoke Ref::release() when removing an element.
  * @warn The element should be `Ref` or its sub-class.
- * @lua NA
  */
 template <class T>
 class Vector {
@@ -147,7 +144,7 @@ public:
     }
 
     /** Constructor with std::move semantic. */
-    Vector<T>(Vector<T> &&other) {
+    Vector<T>(Vector<T> &&other) noexcept {
         static_assert(std::is_convertible<T, Ref *>::value, "Invalid Type for cc::Vector<T>!");
         CC_LOG_INFO("In the move constructor of Vector!");
         _data = std::move(other._data);
@@ -165,7 +162,7 @@ public:
     }
 
     /** Copy assignment operator with std::move semantic. */
-    Vector<T> &operator=(Vector<T> &&other) {
+    Vector<T> &operator=(Vector<T> &&other) noexcept {
         if (this != &other) {
             CC_LOG_INFO("In the move assignment operator!");
             clear();
@@ -173,17 +170,6 @@ public:
         }
         return *this;
     }
-
-    // Don't uses operator since we could not decide whether it needs 'retain'/'release'.
-    //    T& operator[](int index)
-    //    {
-    //        return _data[index];
-    //    }
-    //
-    //    const T& operator[](int index) const
-    //    {
-    //        return _data[index];
-    //    }
 
     /**
      * Requests that the vector capacity be at least enough to contain n elements.
@@ -218,15 +204,16 @@ public:
     }
 
     /** Returns the maximum number of elements that the Vector can hold. */
-    ssize_t max_size() const {
+    ssize_t maxSize() const {
         return _data.max_size();
     }
 
     /** Returns index of a certain object, return UINT_MAX if doesn't contain the object */
     ssize_t getIndex(T object) const {
         auto iter = std::find(_data.begin(), _data.end(), object);
-        if (iter != _data.end())
+        if (iter != _data.end()) {
             return iter - _data.begin();
+        }
 
         return -1;
     }
@@ -268,7 +255,7 @@ public:
     /** Returns a random element of the Vector. */
     T getRandomObject() const {
         if (!_data.empty()) {
-            ssize_t randIdx = RandomHelper::random_int<int>(0, static_cast<int>(_data.size()) - 1);
+            auto randIdx = static_cast<ssize_t>(RandomHelper::randomInt<int>(0, static_cast<int>(_data.size()) - 1));
             return *(_data.begin() + randIdx);
         }
         return nullptr;
@@ -290,8 +277,9 @@ public:
      */
     bool equals(const Vector<T> &other) const {
         ssize_t s = this->size();
-        if (s != other.size())
+        if (s != other.size()) {
             return false;
+        }
 
         for (ssize_t i = 0; i < s; i++) {
             if (this->at(i) != other.at(i)) {
@@ -461,8 +449,5 @@ protected:
 
     std::vector<T> _data;
 };
-
-// end of base group
-/** @} */
 
 } // namespace cc

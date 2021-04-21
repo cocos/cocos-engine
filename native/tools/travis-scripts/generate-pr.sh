@@ -23,7 +23,7 @@ COMMITTAG="[ci skip][AUTO]: updating jsbinding automatically: ${TRAVIS_COMMIT:0:
 ELAPSEDSECS=`date +%s`
 COCOS_BRANCH="update_js_bindings_$ELAPSEDSECS"
 COCOS_ROBOT_REMOTE="https://${GH_USER}:${GH_PASSWORD}@github.com/${GH_USER}/cocos2d-x-lite.git"
-PULL_REQUEST_REPO="https://api.github.com/repos/cocos-creator/cocos2d-x-lite/pulls"
+PULL_REQUEST_REPO="https://api.github.com/repos/cocos-creator/engine-native/pulls"
 FETCH_REMOTE_BRANCH=$1
 JS_COMMIT_PATH="cocos/bindings/auto"
 JS_COMMIT_CCFILES="templates/cocos2dx_files.json"
@@ -133,6 +133,9 @@ git commit -m "$COMMITTAG"
 
 #Set remotes
 git remote add upstream "$COCOS_ROBOT_REMOTE" 2> /dev/null > /dev/null
+if $(git rev-parse --is-shallow-repository); then
+    git fetch --unshallow 
+fi
 git fetch upstream --no-recurse-submodules
 
 echo "Pushing to Robot's repo ..."
@@ -144,8 +147,9 @@ echo "  finish push ..."
 # set +x
 
 # 7.
+ENCODED_MESSAGE=$(python -c "import urllib; print urllib.quote('''$TRAVIS_COMMIT_MESSAGE''')")
 echo "Sending Pull Request to base repo ..."
-curl -H "Authorization: token $GH_TOKEN"  --request POST --data "{ \"title\": \"$COMMITTAG\", \"body\": \"> $TRAVIS_COMMIT_MESSAGE\", \"head\": \"${GH_USER}:${COCOS_BRANCH}\", \"base\": \"${TRAVIS_BRANCH}\"}" "${PULL_REQUEST_REPO}" # 2> /dev/null > /dev/null
+curl -H "Authorization: token $GH_TOKEN"  --request POST --data "{ \"title\": \"$COMMITTAG\", \"body\": \"> $ENCODED_MESSAGE\", \"head\": \"${GH_USER}:${COCOS_BRANCH}\", \"base\": \"${TRAVIS_BRANCH}\"}" "${PULL_REQUEST_REPO}" # 2> /dev/null > /dev/null
 
 echo "  finish sending PR ..."
 

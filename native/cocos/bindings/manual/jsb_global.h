@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,15 +21,11 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
-#include "base/memory/Memory.h"
-#include "renderer/core/CoreStd.h"
-#include <string>
-#include <type_traits>
-#include <utility>
+#include "jsb_global_init.h"
 
 template <typename T, class... Args>
 inline typename std::enable_if<std::is_base_of<cc::Object, T>::value, T>::type *
@@ -63,22 +59,14 @@ jsb_override_delete(T *arg) {
 #define JSB_FREE(kls)       jsb_override_delete(kls)
 
 namespace se {
-class Object;
 class Class;
 class Value;
 } // namespace se
 
-extern se::Object *__jsbObj;
-extern se::Object *__glObj;
-
 bool jsb_register_global_variables(se::Object *global);
 
-void jsb_init_file_operation_delegate();
-bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect = false);
 bool jsb_set_extend_property(const char *ns, const char *clsName);
 bool jsb_run_script(const std::string &filePath, se::Value *rval = nullptr);
 bool jsb_run_script_module(const std::string &filePath, se::Value *rval = nullptr);
-
-void jsb_set_xxtea_key(const std::string &key);
 
 bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal);

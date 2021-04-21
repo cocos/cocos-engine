@@ -34,7 +34,7 @@
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
 #include "math/Math.h"
-#include "core/gfx/GFXDef.h"
+#include "gfx-base/GFXDef.h"
 
 USING_NS_MW;
 

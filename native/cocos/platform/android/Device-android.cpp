@@ -1,33 +1,34 @@
 /****************************************************************************
-Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2010-2012 cocos2d-x.org
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
 
     #include "platform/Device.h"
-    #include <string.h>
+    #include <cstring>
     #include <android/log.h>
     #include <jni.h>
     #include <android_native_app_glue.h>
@@ -39,11 +40,11 @@ THE SOFTWARE.
     #include "platform/android/jni/JniHelper.h"
 
     #ifndef JCLS_HELPER
-        #define JCLS_HELPER "com/cocos/lib/CocosHelper"
+        constexpr auto JCLS_HELPER = "com/cocos/lib/CocosHelper";
     #endif
 
     #ifndef JCLS_SENSOR
-        #define JCLS_SENSOR "com/cocos/lib/CocosSensorHandler"
+        constexpr auto JCLS_SENSOR = "com/cocos/lib/CocosSensorHandler";
     #endif
 
 namespace {
@@ -68,7 +69,8 @@ int Device::getDPI() {
         AConfiguration_fromAssetManager(config, cocosApp.assetManager);
         int32_t density = AConfiguration_getDensity(config);
         AConfiguration_delete(config);
-        dpi = density * 160;
+        const int stdDpi = 160;
+        dpi = density * stdDpi;
     }
     return dpi;
 }
@@ -110,16 +112,20 @@ Device::Orientation Device::getDeviceOrientation() {
             return Orientation::PORTRAIT_UPSIDE_DOWN;
         case ROTATION_270:
             return Orientation::LANDSCAPE_LEFT;
+        default: 
+            break;
     }
+    return Orientation::PORTRAIT;
 }
 
 std::string Device::getDeviceModel() {
     return JniHelper::callStaticStringMethod(JCLS_HELPER, "getDeviceModel");
 }
 
-void Device::setKeepScreenOn(bool value) {
+void Device::setKeepScreenOn(bool keepScreenOn) {
     // JniHelper::callStaticVoidMethod(JCLS_HELPER, "setKeepScreenOn", value);
     //    ANativeActivity_setWindowFlags(JniHelper::getAndroidApp()->activity, AWINDOW_FLAG_KEEP_SCREEN_ON, 0);
+    CC_UNUSED_PARAM(keepScreenOn);
 }
 
 void Device::vibrate(float duration) {

@@ -1,42 +1,45 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "InstancedBuffer.h"
-#include "gfx/GFXBuffer.h"
-#include "gfx/GFXCommandBuffer.h"
-#include "gfx/GFXDescriptorSet.h"
-#include "gfx/GFXDevice.h"
-#include "gfx/GFXInputAssembler.h"
+#include "gfx-base/GFXBuffer.h"
+#include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXInputAssembler.h"
 #include "helper/SharedMemory.h"
+#include "Define.h"
 
 namespace cc {
 namespace pipeline {
-map<uint, map<uint, InstancedBuffer *>> InstancedBuffer::_buffers;
-InstancedBuffer *InstancedBuffer::get(uint pass) {
+map<uint, map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
+InstancedBuffer *                       InstancedBuffer::get(uint pass) {
     return InstancedBuffer::get(pass, 0);
 }
 InstancedBuffer *InstancedBuffer::get(uint pass, uint extraKey) {
-    auto &record = _buffers[pass];
+    auto &record = buffers[pass];
     auto &buffer = record[extraKey];
     if (buffer == nullptr) buffer = CC_NEW(InstancedBuffer(GET_PASS(pass)));
 
@@ -48,8 +51,7 @@ InstancedBuffer::InstancedBuffer(const PassView *pass)
   _device(gfx::Device::getInstance()) {
 }
 
-InstancedBuffer::~InstancedBuffer() {
-}
+InstancedBuffer::~InstancedBuffer() = default;
 
 void InstancedBuffer::destroy() {
     for (auto &instance : _instances) {
@@ -61,16 +63,23 @@ void InstancedBuffer::destroy() {
 }
 
 void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel, uint passIdx) {
-    uint stride = 0;
-    const auto instancedBuffer = model->getInstancedBuffer(&stride);
+    merge(model, subModel, passIdx, nullptr);
+}
+
+void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel, uint passIdx, gfx::Shader *shaderImplant) {
+    uint              stride          = 0;
+    const auto *const instancedBuffer = model->getInstancedBuffer(&stride);
 
     if (!stride) return; // we assume per-instance attributes are always present
-    auto sourceIA = subModel->getInputAssembler();
-    auto lightingMap = subModel->getDescriptorSet()->getTexture(LIGHTMAP_TEXTURE::BINDING);
-    auto shader = subModel->getShader(passIdx);
-    auto descriptorSet = subModel->getDescriptorSet();
-    for (int i = 0; i < _instances.size(); i++) {
-        auto &instance = _instances[i];
+    auto *sourceIA      = subModel->getInputAssembler();
+    auto *descriptorSet = subModel->getDescriptorSet();
+    auto *lightingMap   = descriptorSet->getTexture(LIGHTMAPTEXTURE::BINDING);
+    auto *shader        = shaderImplant;
+    if (!shader) {
+        shader = subModel->getShader(passIdx);
+    }
+
+    for (auto &instance : _instances) {
         if (instance.ia->getIndexBuffer() != sourceIA->getIndexBuffer() || instance.count >= MAX_CAPACITY) {
             continue;
         }
@@ -85,9 +94,9 @@ void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel
         }
         if (instance.count >= instance.capacity) { // resize buffers
             instance.capacity <<= 1;
-            const auto newSize = instance.stride * instance.capacity;
-            const auto oldData = instance.data;
-            instance.data = (uint8_t *)CC_MALLOC(newSize);
+            const auto  newSize = instance.stride * instance.capacity;
+            auto *const oldData = instance.data;
+            instance.data       = static_cast<uint8_t *>(CC_MALLOC(newSize));
             memcpy(instance.data, oldData, instance.vb->getSize());
             instance.vb->resize(newSize);
             CC_FREE(oldData);
@@ -104,33 +113,33 @@ void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel
     }
 
     // Create a new instance
-    auto newSize = stride * INITIAL_CAPACITY;
-    auto vb = _device->createBuffer({
+    auto  newSize = stride * INITIAL_CAPACITY;
+    auto *vb      = _device->createBuffer({
         gfx::BufferUsageBit::VERTEX | gfx::BufferUsageBit::TRANSFER_DST,
         gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
         static_cast<uint>(newSize),
         static_cast<uint>(stride),
     });
 
-    auto vertexBuffers = sourceIA->getVertexBuffers();
-    auto attributes = sourceIA->getAttributes();
-    auto indexBuffer = sourceIA->getIndexBuffer();
+    auto  vertexBuffers = sourceIA->getVertexBuffers();
+    auto  attributes    = sourceIA->getAttributes();
+    auto *indexBuffer   = sourceIA->getIndexBuffer();
 
-    const auto attributesID = model->getInstancedAttributeID();
-    const auto lenght = attributesID[0];
-    for (auto i = 1; i <= lenght; i++) {
-        const auto attribute = model->getInstancedAttribute(attributesID[i]);
-        gfx::Attribute newAttr = {attribute->name, attribute->format, attribute->isNormalized, static_cast<uint>(vertexBuffers.size()), true, attribute->location};
+    const auto *const attributesID = model->getInstancedAttributeID();
+    const auto        lenght       = attributesID[0];
+    for (uint i = 1; i <= lenght; i++) {
+        auto *const    attribute = ModelView::getInstancedAttribute(attributesID[i]);
+        gfx::Attribute newAttr   = {attribute->name, attribute->format, attribute->isNormalized, static_cast<uint>(vertexBuffers.size()), true, attribute->location};
         attributes.emplace_back(std::move(newAttr));
     }
 
-    uint8_t *data = (uint8_t *)CC_MALLOC(newSize);
+    auto *data = static_cast<uint8_t *>(CC_MALLOC(newSize));
     memcpy(data, instancedBuffer, stride);
     vertexBuffers.emplace_back(vb);
     gfx::InputAssemblerInfo iaInfo = {attributes, vertexBuffers, indexBuffer};
-    auto ia = _device->createInputAssembler(iaInfo);
-    InstancedItem item = {1, INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet, lightingMap};
-    _instances.emplace_back(std::move(item));
+    auto *                  ia     = _device->createInputAssembler(iaInfo);
+    InstancedItem           item   = {1, INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet, lightingMap};
+    _instances.emplace_back(item);
     _hasPendingModels = true;
 }
 

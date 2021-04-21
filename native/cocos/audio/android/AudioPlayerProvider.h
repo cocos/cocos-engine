@@ -42,7 +42,7 @@ class UrlAudioPlayer;
 class AudioMixerController;
 class ICallerThreadUtils;
 class AssetFd;
-class ThreadPool;
+class LegacyThreadPool;
 
 class AudioPlayerProvider {
 public:
@@ -116,7 +116,7 @@ private:
     PcmAudioService *_pcmAudioService;
     AudioMixerController *_mixController;
 
-    ThreadPool *_threadPool;
+    LegacyThreadPool *_threadPool;
 };
 
 } // namespace cc

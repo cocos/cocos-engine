@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "MTLStd.h"
 #include "MTLUtils.h"
 
@@ -321,34 +323,34 @@ GPUFamily getMacGPUFamily(MTLFeatureSet featureSet) {
 
 bool isASTCFormat(Format format) {
     switch (format) {
-        case Format::ASTC_RGBA_4x4:
-        case Format::ASTC_SRGBA_4x4:
-        case Format::ASTC_RGBA_5x4:
-        case Format::ASTC_SRGBA_5x4:
-        case Format::ASTC_RGBA_5x5:
-        case Format::ASTC_SRGBA_5x5:
-        case Format::ASTC_RGBA_6x5:
-        case Format::ASTC_SRGBA_6x5:
-        case Format::ASTC_RGBA_6x6:
-        case Format::ASTC_SRGBA_6x6:
-        case Format::ASTC_RGBA_8x5:
-        case Format::ASTC_SRGBA_8x5:
-        case Format::ASTC_RGBA_8x6:
-        case Format::ASTC_SRGBA_8x6:
-        case Format::ASTC_RGBA_8x8:
-        case Format::ASTC_SRGBA_8x8:
-        case Format::ASTC_RGBA_10x5:
-        case Format::ASTC_SRGBA_10x5:
-        case Format::ASTC_RGBA_10x6:
-        case Format::ASTC_SRGBA_10x6:
-        case Format::ASTC_RGBA_10x8:
-        case Format::ASTC_SRGBA_10x8:
-        case Format::ASTC_RGBA_10x10:
-        case Format::ASTC_SRGBA_10x10:
-        case Format::ASTC_RGBA_12x10:
-        case Format::ASTC_SRGBA_12x10:
-        case Format::ASTC_RGBA_12x12:
-        case Format::ASTC_SRGBA_12x12:
+        case Format::ASTC_RGBA_4X4:
+        case Format::ASTC_SRGBA_4X4:
+        case Format::ASTC_RGBA_5X4:
+        case Format::ASTC_SRGBA_5X4:
+        case Format::ASTC_RGBA_5X5:
+        case Format::ASTC_SRGBA_5X5:
+        case Format::ASTC_RGBA_6X5:
+        case Format::ASTC_SRGBA_6X5:
+        case Format::ASTC_RGBA_6X6:
+        case Format::ASTC_SRGBA_6X6:
+        case Format::ASTC_RGBA_8X5:
+        case Format::ASTC_SRGBA_8X5:
+        case Format::ASTC_RGBA_8X6:
+        case Format::ASTC_SRGBA_8X6:
+        case Format::ASTC_RGBA_8X8:
+        case Format::ASTC_SRGBA_8X8:
+        case Format::ASTC_RGBA_10X5:
+        case Format::ASTC_SRGBA_10X5:
+        case Format::ASTC_RGBA_10X6:
+        case Format::ASTC_SRGBA_10X6:
+        case Format::ASTC_RGBA_10X8:
+        case Format::ASTC_SRGBA_10X8:
+        case Format::ASTC_RGBA_10X10:
+        case Format::ASTC_SRGBA_10X10:
+        case Format::ASTC_RGBA_12X10:
+        case Format::ASTC_SRGBA_12X10:
+        case Format::ASTC_RGBA_12X12:
+        case Format::ASTC_SRGBA_12X12:
             return true;
         default:
             return false;
@@ -420,7 +422,7 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
 MTLResourceOptions mu::toMTLResourceOption(MemoryUsage usage) {
     if (usage & MemoryUsage::HOST && usage & MemoryUsage::DEVICE)
         return MTLResourceStorageModeShared;
-    else if (usage & MemoryUsage::DEVICE)
+    else if (hasFlag(usage, MemoryUsage::DEVICE))
         return MTLResourceStorageModePrivate;
     else
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
@@ -588,35 +590,35 @@ MTLPixelFormat mu::toMTLPixelFormat(Format format) {
         case Format::BC3: return MTLPixelFormatBC3_RGBA;
         case Format::BC3_SRGB: return MTLPixelFormatBC3_RGBA_sRGB;
 #else
-        case Format::ASTC_RGBA_4x4: return MTLPixelFormatASTC_4x4_LDR;
-        case Format::ASTC_RGBA_5x4: return MTLPixelFormatASTC_5x4_LDR;
-        case Format::ASTC_RGBA_5x5: return MTLPixelFormatASTC_5x5_LDR;
-        case Format::ASTC_RGBA_6x5: return MTLPixelFormatASTC_6x5_LDR;
-        case Format::ASTC_RGBA_6x6: return MTLPixelFormatASTC_6x6_LDR;
-        case Format::ASTC_RGBA_8x5: return MTLPixelFormatASTC_8x5_LDR;
-        case Format::ASTC_RGBA_8x6: return MTLPixelFormatASTC_8x6_LDR;
-        case Format::ASTC_RGBA_8x8: return MTLPixelFormatASTC_8x8_LDR;
-        case Format::ASTC_RGBA_10x5: return MTLPixelFormatASTC_10x5_LDR;
-        case Format::ASTC_RGBA_10x6: return MTLPixelFormatASTC_10x6_LDR;
-        case Format::ASTC_RGBA_10x8: return MTLPixelFormatASTC_10x8_LDR;
-        case Format::ASTC_RGBA_10x10: return MTLPixelFormatASTC_10x10_LDR;
-        case Format::ASTC_RGBA_12x10: return MTLPixelFormatASTC_12x10_LDR;
-        case Format::ASTC_RGBA_12x12: return MTLPixelFormatASTC_12x12_LDR;
+        case Format::ASTC_RGBA_4X4: return MTLPixelFormatASTC_4x4_LDR;
+        case Format::ASTC_RGBA_5X4: return MTLPixelFormatASTC_5x4_LDR;
+        case Format::ASTC_RGBA_5X5: return MTLPixelFormatASTC_5x5_LDR;
+        case Format::ASTC_RGBA_6X5: return MTLPixelFormatASTC_6x5_LDR;
+        case Format::ASTC_RGBA_6X6: return MTLPixelFormatASTC_6x6_LDR;
+        case Format::ASTC_RGBA_8X5: return MTLPixelFormatASTC_8x5_LDR;
+        case Format::ASTC_RGBA_8X6: return MTLPixelFormatASTC_8x6_LDR;
+        case Format::ASTC_RGBA_8X8: return MTLPixelFormatASTC_8x8_LDR;
+        case Format::ASTC_RGBA_10X5: return MTLPixelFormatASTC_10x5_LDR;
+        case Format::ASTC_RGBA_10X6: return MTLPixelFormatASTC_10x6_LDR;
+        case Format::ASTC_RGBA_10X8: return MTLPixelFormatASTC_10x8_LDR;
+        case Format::ASTC_RGBA_10X10: return MTLPixelFormatASTC_10x10_LDR;
+        case Format::ASTC_RGBA_12X10: return MTLPixelFormatASTC_12x10_LDR;
+        case Format::ASTC_RGBA_12X12: return MTLPixelFormatASTC_12x12_LDR;
 
-        case Format::ASTC_SRGBA_4x4: return MTLPixelFormatASTC_4x4_sRGB;
-        case Format::ASTC_SRGBA_5x4: return MTLPixelFormatASTC_5x4_sRGB;
-        case Format::ASTC_SRGBA_5x5: return MTLPixelFormatASTC_5x5_sRGB;
-        case Format::ASTC_SRGBA_6x5: return MTLPixelFormatASTC_6x5_sRGB;
-        case Format::ASTC_SRGBA_6x6: return MTLPixelFormatASTC_6x6_sRGB;
-        case Format::ASTC_SRGBA_8x5: return MTLPixelFormatASTC_8x5_sRGB;
-        case Format::ASTC_SRGBA_8x6: return MTLPixelFormatASTC_8x6_sRGB;
-        case Format::ASTC_SRGBA_8x8: return MTLPixelFormatASTC_8x8_sRGB;
-        case Format::ASTC_SRGBA_10x5: return MTLPixelFormatASTC_10x5_sRGB;
-        case Format::ASTC_SRGBA_10x6: return MTLPixelFormatASTC_10x6_sRGB;
-        case Format::ASTC_SRGBA_10x8: return MTLPixelFormatASTC_10x8_sRGB;
-        case Format::ASTC_SRGBA_10x10: return MTLPixelFormatASTC_10x10_sRGB;
-        case Format::ASTC_SRGBA_12x10: return MTLPixelFormatASTC_12x10_sRGB;
-        case Format::ASTC_SRGBA_12x12: return MTLPixelFormatASTC_12x12_sRGB;
+        case Format::ASTC_SRGBA_4X4: return MTLPixelFormatASTC_4x4_sRGB;
+        case Format::ASTC_SRGBA_5X4: return MTLPixelFormatASTC_5x4_sRGB;
+        case Format::ASTC_SRGBA_5X5: return MTLPixelFormatASTC_5x5_sRGB;
+        case Format::ASTC_SRGBA_6X5: return MTLPixelFormatASTC_6x5_sRGB;
+        case Format::ASTC_SRGBA_6X6: return MTLPixelFormatASTC_6x6_sRGB;
+        case Format::ASTC_SRGBA_8X5: return MTLPixelFormatASTC_8x5_sRGB;
+        case Format::ASTC_SRGBA_8X6: return MTLPixelFormatASTC_8x6_sRGB;
+        case Format::ASTC_SRGBA_8X8: return MTLPixelFormatASTC_8x8_sRGB;
+        case Format::ASTC_SRGBA_10X5: return MTLPixelFormatASTC_10x5_sRGB;
+        case Format::ASTC_SRGBA_10X6: return MTLPixelFormatASTC_10x6_sRGB;
+        case Format::ASTC_SRGBA_10X8: return MTLPixelFormatASTC_10x8_sRGB;
+        case Format::ASTC_SRGBA_10X10: return MTLPixelFormatASTC_10x10_sRGB;
+        case Format::ASTC_SRGBA_12X10: return MTLPixelFormatASTC_12x10_sRGB;
+        case Format::ASTC_SRGBA_12X12: return MTLPixelFormatASTC_12x12_sRGB;
 
         case Format::ETC2_RGB8: return MTLPixelFormatETC2_RGB8;
         case Format::ETC2_SRGB8: return MTLPixelFormatETC2_RGB8_sRGB;
@@ -788,18 +790,17 @@ MTLTextureUsage mu::toMTLTextureUsage(TextureUsage usage) {
         return MTLTextureUsageUnknown;
 
     MTLTextureUsage ret = MTLTextureUsageUnknown;
-    if (usage & TextureUsage::TRANSFER_SRC)
-        ret |= MTLTextureUsageShaderRead;
-    if (usage & TextureUsage::TRANSFER_DST)
+    if (hasFlag(usage, TextureUsage::TRANSFER_SRC))
+        ret |= MTLTextureUsageShaderRead | MTLTextureUsagePixelFormatView;
+    if (hasFlag(usage, TextureUsage::TRANSFER_DST))
         ret |= MTLTextureUsageShaderWrite;
-    if (usage & TextureUsage::SAMPLED)
+    if (hasFlag(usage, TextureUsage::SAMPLED))
         ret |= MTLTextureUsageShaderRead;
-    if (usage & TextureUsage::STORAGE)
+    if (hasFlag(usage, TextureUsage::STORAGE))
         ret |= MTLTextureUsageShaderWrite;
-    if (usage & TextureUsage::COLOR_ATTACHMENT ||
-        usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT ||
-        usage & TextureUsage::TRANSIENT_ATTACHMENT ||
-        usage & TextureUsage::INPUT_ATTACHMENT) {
+    if (hasFlag(usage, TextureUsage::COLOR_ATTACHMENT) ||
+        hasFlag(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) ||
+        hasFlag(usage, TextureUsage::INPUT_ATTACHMENT)) {
         ret |= MTLTextureUsageRenderTarget;
     }
 
@@ -879,7 +880,7 @@ String mu::compileGLSLShader2Msl(const String &src,
                                  Device *device,
                                  CCMTLGPUShader *gpuShader) {
 #if CC_USE_METAL
-    String shaderSource("#version 310 es\n");
+    String shaderSource("#version 460\n");
     shaderSource.append(src);
     const auto &spv = GLSL2SPIRV(shaderType, shaderSource);
     if (spv.size() == 0)
@@ -895,10 +896,34 @@ String mu::compileGLSLShader2Msl(const String &src,
     spirv_cross::ShaderResources resources = msl.get_shader_resources(active);
     msl.set_enabled_interface_variables(std::move(active));
 
+    // TODO: bindings from shader just kind of validation, cannot be directly input
     // Get all uniform buffers in the shader.
     uint maxBufferBindingIndex = static_cast<CCMTLDevice *>(device)->getMaximumBufferBindingIndex();
     const auto &bufferBindingOffset = device->bindingMappingInfo().bufferOffsets;
     for (const auto &ubo : resources.uniform_buffers) {
+        auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
+        auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
+        auto size = msl.get_declared_struct_size(msl.get_type(ubo.base_type_id));
+
+        if (binding >= maxBufferBindingIndex) {
+            CC_LOG_ERROR("Implementation limits: %s binding at %d, should not use more than %d entries in the buffer argument table", ubo.name.c_str(), binding, maxBufferBindingIndex);
+        }
+        auto mappedBinding = binding + bufferBindingOffset[set];
+        newBinding.desc_set = set;
+        newBinding.binding = binding;
+        newBinding.msl_buffer = mappedBinding;
+        newBinding.msl_texture = 0;
+        newBinding.msl_sampler = 0;
+        msl.add_msl_resource_binding(newBinding);
+
+        if (gpuShader->blocks.find(mappedBinding) == gpuShader->blocks.end())
+            gpuShader->blocks[mappedBinding] = {ubo.name, set, binding, mappedBinding, shaderType, size};
+        else {
+            gpuShader->blocks[mappedBinding].stages |= shaderType;
+        }
+    }
+
+    for (const auto &ubo : resources.storage_buffers) {
         auto set = msl.get_decoration(ubo.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(ubo.id, spv::DecorationBinding);
         auto size = msl.get_declared_struct_size(msl.get_type(ubo.base_type_id));
@@ -933,7 +958,7 @@ String mu::compileGLSLShader2Msl(const String &src,
     for (const auto &sampler : resources.sampled_images) {
         auto set = msl.get_decoration(sampler.id, spv::DecorationDescriptorSet);
         auto binding = msl.get_decoration(sampler.id, spv::DecorationBinding);
-        int size = 1, s = -1;
+        int size = 1;
         const spirv_cross::SPIRType &type = msl.get_type(sampler.type_id);
         if (type.array_size_literal[0]) {
             size = type.array[0];
@@ -957,7 +982,6 @@ String mu::compileGLSLShader2Msl(const String &src,
             samplerIndex++;
         }
     }
-
     // Set some options.
     spirv_cross::CompilerMSL::Options options;
     //    options.set_msl_version(2, 0);
@@ -1150,6 +1174,21 @@ uint mu::getMaxCubeMapTextureWidthHeight(uint family) {
         case GPUFamily::Mac1:
         case GPUFamily::Mac2:
             return 16384;
+    }
+}
+
+uint mu::getMaxThreadsPerGroup(uint family) {
+    switch (static_cast<GPUFamily>(family)) {
+        case GPUFamily::Apple1:
+        case GPUFamily::Apple2:
+        case GPUFamily::Apple3:
+            return 512;
+        case GPUFamily::Apple4:
+        case GPUFamily::Apple5:
+        case GPUFamily::Apple6:
+        case GPUFamily::Mac1:
+        case GPUFamily::Mac2:
+            return 1024;
     }
 }
 
@@ -1385,34 +1424,34 @@ const uint8_t *const mu::convertData(const uint8_t *source, uint length, Format 
 
 uint mu::getBlockSize(Format format) {
     switch (format) {
-        case Format::ASTC_RGBA_4x4:
-        case Format::ASTC_SRGBA_4x4:
-        case Format::ASTC_RGBA_5x4:
-        case Format::ASTC_SRGBA_5x4:
-        case Format::ASTC_RGBA_5x5:
-        case Format::ASTC_SRGBA_5x5:
-        case Format::ASTC_RGBA_6x5:
-        case Format::ASTC_SRGBA_6x5:
-        case Format::ASTC_RGBA_6x6:
-        case Format::ASTC_SRGBA_6x6:
-        case Format::ASTC_RGBA_8x5:
-        case Format::ASTC_SRGBA_8x5:
-        case Format::ASTC_RGBA_8x6:
-        case Format::ASTC_SRGBA_8x6:
-        case Format::ASTC_RGBA_8x8:
-        case Format::ASTC_SRGBA_8x8:
-        case Format::ASTC_RGBA_10x5:
-        case Format::ASTC_SRGBA_10x5:
-        case Format::ASTC_RGBA_10x6:
-        case Format::ASTC_SRGBA_10x6:
-        case Format::ASTC_RGBA_10x8:
-        case Format::ASTC_SRGBA_10x8:
-        case Format::ASTC_RGBA_10x10:
-        case Format::ASTC_SRGBA_10x10:
-        case Format::ASTC_RGBA_12x10:
-        case Format::ASTC_SRGBA_12x10:
-        case Format::ASTC_RGBA_12x12:
-        case Format::ASTC_SRGBA_12x12:
+        case Format::ASTC_RGBA_4X4:
+        case Format::ASTC_SRGBA_4X4:
+        case Format::ASTC_RGBA_5X4:
+        case Format::ASTC_SRGBA_5X4:
+        case Format::ASTC_RGBA_5X5:
+        case Format::ASTC_SRGBA_5X5:
+        case Format::ASTC_RGBA_6X5:
+        case Format::ASTC_SRGBA_6X5:
+        case Format::ASTC_RGBA_6X6:
+        case Format::ASTC_SRGBA_6X6:
+        case Format::ASTC_RGBA_8X5:
+        case Format::ASTC_SRGBA_8X5:
+        case Format::ASTC_RGBA_8X6:
+        case Format::ASTC_SRGBA_8X6:
+        case Format::ASTC_RGBA_8X8:
+        case Format::ASTC_SRGBA_8X8:
+        case Format::ASTC_RGBA_10X5:
+        case Format::ASTC_SRGBA_10X5:
+        case Format::ASTC_RGBA_10X6:
+        case Format::ASTC_SRGBA_10X6:
+        case Format::ASTC_RGBA_10X8:
+        case Format::ASTC_SRGBA_10X8:
+        case Format::ASTC_RGBA_10X10:
+        case Format::ASTC_SRGBA_10X10:
+        case Format::ASTC_RGBA_12X10:
+        case Format::ASTC_SRGBA_12X10:
+        case Format::ASTC_RGBA_12X12:
+        case Format::ASTC_SRGBA_12X12:
             return 16u;
         case Format::PVRTC_RGB2:
         case Format::PVRTC_RGBA2:
@@ -1441,44 +1480,44 @@ uint mu::getBytesPerRow(Format format, uint width) {
     uint blockSize = getBlockSize(format);
     uint widthInBlock = 1u;
     switch (format) {
-        case Format::ASTC_RGBA_4x4:
-        case Format::ASTC_SRGBA_4x4:
+        case Format::ASTC_RGBA_4X4:
+        case Format::ASTC_SRGBA_4X4:
             widthInBlock = (width + 3) / 4;
             break;
-        case Format::ASTC_RGBA_5x4:
-        case Format::ASTC_SRGBA_5x4:
-        case Format::ASTC_RGBA_5x5:
-        case Format::ASTC_SRGBA_5x5:
+        case Format::ASTC_RGBA_5X4:
+        case Format::ASTC_SRGBA_5X4:
+        case Format::ASTC_RGBA_5X5:
+        case Format::ASTC_SRGBA_5X5:
             widthInBlock = (width + 4) / 5;
             break;
-        case Format::ASTC_RGBA_6x5:
-        case Format::ASTC_SRGBA_6x5:
-        case Format::ASTC_RGBA_6x6:
-        case Format::ASTC_SRGBA_6x6:
+        case Format::ASTC_RGBA_6X5:
+        case Format::ASTC_SRGBA_6X5:
+        case Format::ASTC_RGBA_6X6:
+        case Format::ASTC_SRGBA_6X6:
             widthInBlock = (width + 5) / 6;
             break;
-        case Format::ASTC_RGBA_8x5:
-        case Format::ASTC_SRGBA_8x5:
-        case Format::ASTC_RGBA_8x6:
-        case Format::ASTC_SRGBA_8x6:
-        case Format::ASTC_RGBA_8x8:
-        case Format::ASTC_SRGBA_8x8:
+        case Format::ASTC_RGBA_8X5:
+        case Format::ASTC_SRGBA_8X5:
+        case Format::ASTC_RGBA_8X6:
+        case Format::ASTC_SRGBA_8X6:
+        case Format::ASTC_RGBA_8X8:
+        case Format::ASTC_SRGBA_8X8:
             widthInBlock = (width + 7) / 8;
             break;
-        case Format::ASTC_RGBA_10x5:
-        case Format::ASTC_SRGBA_10x5:
-        case Format::ASTC_RGBA_10x6:
-        case Format::ASTC_SRGBA_10x6:
-        case Format::ASTC_RGBA_10x8:
-        case Format::ASTC_SRGBA_10x8:
-        case Format::ASTC_RGBA_10x10:
-        case Format::ASTC_SRGBA_10x10:
+        case Format::ASTC_RGBA_10X5:
+        case Format::ASTC_SRGBA_10X5:
+        case Format::ASTC_RGBA_10X6:
+        case Format::ASTC_SRGBA_10X6:
+        case Format::ASTC_RGBA_10X8:
+        case Format::ASTC_SRGBA_10X8:
+        case Format::ASTC_RGBA_10X10:
+        case Format::ASTC_SRGBA_10X10:
             widthInBlock = (width + 9) / 10;
             break;
-        case Format::ASTC_RGBA_12x10:
-        case Format::ASTC_SRGBA_12x10:
-        case Format::ASTC_RGBA_12x12:
-        case Format::ASTC_SRGBA_12x12:
+        case Format::ASTC_RGBA_12X10:
+        case Format::ASTC_SRGBA_12X10:
+        case Format::ASTC_RGBA_12X12:
+        case Format::ASTC_SRGBA_12X12:
             widthInBlock = (width + 11) / 12;
             break;
         case Format::PVRTC_RGB2:
@@ -1520,7 +1559,7 @@ bool mu::pixelFormatIsColorRenderable(Format format) {
 #endif
     BOOL is422Format = (pixelFormat == MTLPixelFormatGBGR422 || pixelFormat == MTLPixelFormatBGRG422);
 
-    return !isCompressedFormat && !is422Format && (pixelFormat != MTLPixelFormatInvalid);
+    return !isCompressedFormat && !is422Format && !(pixelFormat == MTLPixelFormatInvalid);
 }
 
 //CompareFunction of MTLSamplerDescriptor is only supported on MTLFeatureSet_iOS_GPUFamily3_v1 and later

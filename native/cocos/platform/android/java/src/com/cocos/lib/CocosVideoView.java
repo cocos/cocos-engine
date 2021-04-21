@@ -18,6 +18,7 @@
 
 package com.cocos.lib;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -26,6 +27,7 @@ import android.content.res.Resources;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.net.Uri;
+import android.os.Build;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -35,6 +37,7 @@ import android.app.Activity;
 import android.graphics.Point;
 
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.util.Map;
 
 public class CocosVideoView extends SurfaceView {
@@ -286,8 +289,19 @@ public class CocosVideoView extends SurfaceView {
                 mMediaPlayer == null) {
             return;
         }
-
-        mMediaPlayer.seekTo(ms);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            try {
+                Method seekTo = mMediaPlayer.getClass().getMethod("seekTo", long.class, int.class);
+                // The mode argument added in API level 26, 3 = MediaPlayer.SEEK_CLOSEST
+                // https://developer.android.com/reference/android/media/MediaPlayer#seekTo(int)
+                seekTo.invoke(mMediaPlayer, ms, 3);
+            } catch (Exception e) {
+                mMediaPlayer.seekTo(ms);
+            }
+        }
+        else {
+            mMediaPlayer.seekTo(ms);
+        }
     }
 
     public void fixSize() {

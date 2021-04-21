@@ -1,83 +1,64 @@
-# Here is an explanation for why some of the checks are disabled:
+---
+# Here are the reasons for disabled checks:
 #
-#  -modernize-use-trailing-return-type, -fuchsia-trailing-return: return a function call
-#     at the end of a function is normal usage.
+# -misc-non-private-member-variables-in-classes
+# -modernize-avoid-c-arrays
+#       Legacy reasons
 #
-#  -readability-implicit-bool-conversion, -readability-implicit-bool-cast: if (_usage & BufferUsageBit::VERTEX)
-#     is normal usage
-#
-#  -cppcoreguidelines-pro-type-vararg: use it in macro define, such as Log functions. May use
-#     template instead in future.
-#
-#  -cppcoreguidelines-pro-type-static-cast-downcast: sub class of gfx device should use static_cast<xxx>() to
-#     cast to derived class.
-#
-#  -readability-function-cognitive-complexity: it will limit function size.
-#
-#  -cppcoreguidelines-pro-bounds-pointer-arithmetic, cppcoreguidelines-pro-bounds-array-to-pointer-decay:
-#    JS pass data by pointer, so it is common to use pointer arithmetic.
-#
-Checks: >
-  -*,
-  readability-*,
-  performance-*,
-  modernize-*,
-  misc-*,
-  portability-*,
-  cppcoreguidelines-*,
-  google-explicit-constructor,
-  -modernize-use-trailing-return-type,
-  -fuchsia-trailing-return,
-  -readability-implicit-bool-conversion,
-  -readability-implicit-bool-cast,
-  -cppcoreguidelines-pro-type-vararg,
-  -cppcoreguidelines-pro-type-static-cast-downcast,
-  -readability-function-cognitive-complexity,
-  -cppcoreguidelines-pro-bounds-pointer-arithmetic,
-  -cppcoreguidelines-pro-bounds-array-to-pointer-decay
+# -bugprone-macro-parentheses: This conflicts with our usages
+# -modernize-concat-nested-namespaces: More flexible not concated
+# -modernize-use-nodiscard: No C++17 specific rules for now
+# -modernize-use-trailing-return-type: It is acceptable to return a function call at the end of a function
+# -readability-braces-around-statements: Simple single statement can be without braces
+# -readability-function-cognitive-complexity: This will limit function size
+# -readability-implicit-bool-conversion: We omit explicit bool conversion for brevity
+# -readability-implicit-bool-cast: We omit explicit bool conversion for brevity
+# -readability-magic-numbers: There will be lots of constants
+# -bugprone-branch-clone: two branches may only print debug message, then will be treat as the same logic.
 
+Checks: >
+    -*,
+    bugprone-*,
+    google-*,
+    misc-*,
+    modernize-*,
+    performance-*,
+    portability-*,
+    readability-*,
+
+    -misc-non-private-member-variables-in-classes,
+    -modernize-avoid-c-arrays,
+
+    -bugprone-macro-parentheses,
+    -modernize-concat-nested-namespaces,
+    -modernize-use-nodiscard,
+    -modernize-use-trailing-return-type,
+    -readability-braces-around-statements,
+    -readability-function-cognitive-complexity,
+    -readability-implicit-bool-conversion,
+    -readability-implicit-bool-cast,
+    -readability-magic-numbers,
+    -bugprone-branch-clone,
 
 CheckOptions:
-################## readability identifier naming ################################
-# class
-  - key:      readability-identifier-naming.ClassCase
-    value:    CamelCase
-  - key:      readability-identifier-naming.ClassMemberCase
-    value:    camelBack
-  - key:      readability-identifier-naming.ClassMemberPrefix
-    value:    _
-  - key:      readability-identifier-naming.ClassMethodCase
-    value:    camelBack
-  - key:      readability-identifier-naming.ClassConstantCase
-    value:    UPPER_CASE
-  - key:      readability-identifier-naming.ClassConstantCasePrefix
-    value:    _
-# enum
-  - key:      readability-identifier-naming.EnumCase
-    value:    CamelCase
-  - key:      readability-identifier-naming.ScopedEnumConstantCase
-    value:    UPPER_CASE
-  - key:      readability-identifier-naming.EnumConstantCase
-    value:    UPPER_CASE
-# others
-  - key:      readability-identifier-naming.FunctionCase
-    value:    camelBack
-  - key:      readability-identifier-naming.ConstantCase
-    value:    UPPER_CASE
-  - key:      readability-identifier-naming.GlobalConstantCase
-    value:    UPPER_CASE
-  - key:      readability-identifier-naming.LocalConstantCase
-    value:    camelBack
-  - key:      readability-identifier-naming.LocalVariableCase
-    value:    camelBack
-  - key:      readability-identifier-naming.MacroDefinitionCase
-    value:    UPPER_CASE
-  - key:      readability-identifier-naming.ParameterCase
-    value:    camelBack
-  - key:      readability-identifier-naming.StaticConstantCase
-    value:    UPPER_CASE
-  - key:      readability-identifier-naming.VariableCase
-    value:    camelBack
-  - key:      readability-identifier-naming.StructCase
-    value:    CamelBack
+    - { key: readability-identifier-naming.NamespaceCase,          value: lower_case }
+    - { key: readability-identifier-naming.StructCase,             value: CamelCase  }
+    - { key: readability-identifier-naming.ClassCase,              value: CamelCase  }
+    - { key: readability-identifier-naming.ClassMethodCase,        value: camelBack  }
+    - { key: readability-identifier-naming.ClassConstantCase,      value: UPPER_CASE }
+    - { key: readability-identifier-naming.ClassMemberCase,        value: camelBack  }
+    - { key: readability-identifier-naming.ProtectedMemberPrefix,  value: _          }
+    - { key: readability-identifier-naming.PrivateMemberPrefix,    value: _          }
 
+    - { key: readability-identifier-naming.EnumCase,               value: CamelCase  }
+    - { key: readability-identifier-naming.ScopedEnumConstantCase, value: UPPER_CASE }
+    - { key: readability-identifier-naming.EnumConstantCase,       value: UPPER_CASE }
+
+    - { key: readability-identifier-naming.FunctionCase,           value: camelBack  }
+    - { key: readability-identifier-naming.GlobalConstantCase,     value: UPPER_CASE }
+    - { key: readability-identifier-naming.LocalConstantCase,      value: camelBack  }
+    - { key: readability-identifier-naming.LocalVariableCase,      value: camelBack  }
+    - { key: readability-identifier-naming.MacroDefinitionCase,    value: UPPER_CASE }
+    - { key: readability-identifier-naming.ParameterCase,          value: camelBack  }
+    - { key: readability-identifier-naming.StaticConstantCase,     value: UPPER_CASE }
+    - { key: readability-identifier-naming.VariableCase,           value: camelBack  }

@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "MTLStd.h"
 
 #include "MTLBuffer.h"
@@ -33,38 +35,62 @@ THE SOFTWARE.
 #include "MTLRenderPass.h"
 #include "MTLSampler.h"
 #include "MTLTexture.h"
+#include <QuartzCore/CAMetalLayer.h>
 
 namespace cc {
 namespace gfx {
 
-CCMTLCommandBuffer::CCMTLCommandBuffer(Device *device)
-: CommandBuffer(device),
-  _mtlDevice(static_cast<CCMTLDevice *>(device)),
-  _mtlCommandQueue(id<MTLCommandQueue>((static_cast<CCMTLDevice *>(device))->getMTLCommandQueue())),
-  _mtkView(static_cast<MTKView *>((static_cast<CCMTLDevice *>(device)->getMTKView()))),
-  _indirectDrawSuppotred(static_cast<CCMTLDevice *>(device)->isIndirectDrawSupported()) {
-    const auto setCount = device->bindingMappingInfo().bufferOffsets.size();
+CCMTLCommandBuffer::CCMTLCommandBuffer()
+: CommandBuffer(),
+  _mtlDevice(CCMTLDevice::getInstance()) {
+    _mtlCommandQueue = id<MTLCommandQueue>(_mtlDevice->getMTLCommandQueue());
+    _indirectDrawSuppotred = _mtlDevice->isIndirectDrawSupported();
+
+    const auto setCount = _mtlDevice->bindingMappingInfo().bufferOffsets.size();
     _GPUDescriptorSets.resize(setCount);
     _dynamicOffsets.resize(setCount);
+    _indirectDrawSuppotred = _mtlDevice->isIndirectDrawSupported();
 }
 
-bool CCMTLCommandBuffer::initialize(const CommandBufferInfo &info) {
-    _type = info.type;
-    _queue = info.queue;
-    return true;
+void CCMTLCommandBuffer::doInit(const CommandBufferInfo &info) {
 }
 
-void CCMTLCommandBuffer::destroy() {
+void CCMTLCommandBuffer::doDestroy() {
+    if (_autoreleasePool) {
+        [_autoreleasePool release];
+        _autoreleasePool = nullptr;
+    }
 }
 
-void CCMTLCommandBuffer::begin(RenderPass * /*renderPass*/, uint /*subPass*/, Framebuffer * /*frameBuffer*/, int /*submitIndex*/) {
+bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass) {
+    const int num = renderPass->getColorRenderTargetNums();
+    if (num == 0) {
+        return true;
+    }
+    const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
+    return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
+}
+
+void CCMTLCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) {
     if (_commandBufferBegan) {
         return;
     }
 
-    _mtlCommandBuffer = [_mtlCommandQueue commandBuffer];
-    [_mtlCommandBuffer retain];
-    [_mtlCommandBuffer enqueue];
+    _isSecondary = renderPass != nullptr && _mtlCommandBuffer;
+    if (!_isSecondary) {
+        // Only primary command buffer should request command buffer explicitly
+        _mtlCommandBuffer = [[_mtlCommandQueue commandBuffer] retain];
+        [_mtlCommandBuffer enqueue];
+    }
+    else {
+        // Secondary command buffer is likely to be recorded in a separated thread
+        if (_autoreleasePool) {
+            [_autoreleasePool drain];
+            _autoreleasePool = nil;
+        }
+        _autoreleasePool = [[NSAutoreleasePool alloc] init];
+    //    CC_LOG_INFO("%d CB POOL: %p ALLOCED for %p", [NSThread currentThread], _autoreleasePool, this);
+    }
     _numTriangles = 0;
     _numDrawCalls = 0;
     _numInstances = 0;
@@ -83,22 +109,32 @@ void CCMTLCommandBuffer::end() {
     }
 
     _commandBufferBegan = false;
-}
 
-bool CCMTLCommandBuffer::isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass) {
-    const int num = renderPass->getColorRenderTargetNums();
-    if (num == 0) {
-        return true;
+    if (_isSecondary) {
+        // Secondary command buffer should end encoding here
+        _renderEncoder.endEncoding();
+
+        if (_autoreleasePool) {
+    //        CC_LOG_INFO("%d CB POOL: %p RELEASED for %p", [NSThread currentThread], _autoreleasePool, this);
+            [_autoreleasePool drain];
+            _autoreleasePool = nullptr;
+        }
     }
-    const auto &renderTargetSize = renderPass->getRenderTargetSizes()[0];
-    return rect.x == 0 && rect.y == 0 && rect.width == renderTargetSize.x && rect.height == renderTargetSize.y;
 }
 
-void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, bool /*fromSecondaryCB*/) {
+void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
+    // Sub CommandBuffer shouldn't call begin render pass
+    if (_isSecondary)
+    {
+        return;
+    }
+
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen) {
-        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, _mtkView.currentDrawable.texture, 0);
-        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(_mtkView.depthStencilTexture, 0);
+        id<CAMetalDrawable> drawable = (id<CAMetalDrawable>)_mtlDevice->getCurrentDrawable();
+        id<MTLTexture> dssTex = (id<MTLTexture>)_mtlDevice->getDSSTexture();
+        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, drawable.texture, 0);
+        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(dssTex, 0);
     }
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
     if (!isRenderingEntireDrawable(renderArea, static_cast<CCMTLRenderPass *>(renderPass))) {
@@ -118,28 +154,55 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
     }
 
-    _commandEncoder.initialize(_mtlCommandBuffer, mtlRenderPassDescriptor);
-    _commandEncoder.setViewport(renderArea);
-    _commandEncoder.setScissor(renderArea);
+    if (secondaryCBCount > 0) {
+        _parallelEncoder = [[_mtlCommandBuffer parallelRenderCommandEncoderWithDescriptor:mtlRenderPassDescriptor] retain];
+        // Create command encoders from parallel encoder and assign to command buffers
+        for (uint i = 0u; i < secondaryCBCount; ++i) {
+            CCMTLCommandBuffer *cmdBuff = (CCMTLCommandBuffer *)secondaryCBs[i];
+            cmdBuff->_renderEncoder.initialize(_parallelEncoder);
+            cmdBuff->_mtlCommandBuffer = _mtlCommandBuffer;
+        }
+    }
+    else {
+        _renderEncoder.initialize(_mtlCommandBuffer, mtlRenderPassDescriptor);
+    }
+    _renderEncoder.setViewport(renderArea);
+    _renderEncoder.setScissor(renderArea);
 }
 
 void CCMTLCommandBuffer::endRenderPass() {
-    _commandEncoder.endEncoding();
+    if (_parallelEncoder) {
+        [_parallelEncoder endEncoding];
+        [_parallelEncoder release];
+        _parallelEncoder = nil;
+    }
+    else {
+        _renderEncoder.endEncoding();
+    }
 }
 
 void CCMTLCommandBuffer::bindPipelineState(PipelineState *pso) {
-    _gpuPipelineState = static_cast<CCMTLPipelineState *>(pso)->getGPUPipelineState();
-    _mtlPrimitiveType = _gpuPipelineState->primitiveType;
+    PipelineBindPoint bindPoint = pso->getBindPoint();
+    if (bindPoint == PipelineBindPoint::GRAPHICS) {
+        _gpuPipelineState = static_cast<CCMTLPipelineState *>(pso)->getGPUPipelineState();
+        _mtlPrimitiveType = _gpuPipelineState->primitiveType;
 
-    _commandEncoder.setCullMode(_gpuPipelineState->cullMode);
-    _commandEncoder.setFrontFacingWinding(_gpuPipelineState->winding);
-    _commandEncoder.setDepthClipMode(_gpuPipelineState->depthClipMode);
-    _commandEncoder.setTriangleFillMode(_gpuPipelineState->fillMode);
-    _commandEncoder.setRenderPipelineState(_gpuPipelineState->mtlRenderPipelineState);
+        _renderEncoder.setCullMode(_gpuPipelineState->cullMode);
+        _renderEncoder.setFrontFacingWinding(_gpuPipelineState->winding);
+        _renderEncoder.setDepthClipMode(_gpuPipelineState->depthClipMode);
+        _renderEncoder.setTriangleFillMode(_gpuPipelineState->fillMode);
+        _renderEncoder.setRenderPipelineState(_gpuPipelineState->mtlRenderPipelineState);
 
-    if (_gpuPipelineState->mtlDepthStencilState) {
-        _commandEncoder.setStencilFrontBackReferenceValue(_gpuPipelineState->stencilRefFront, _gpuPipelineState->stencilRefBack);
-        _commandEncoder.setDepthStencilState(_gpuPipelineState->mtlDepthStencilState);
+        if (_gpuPipelineState->mtlDepthStencilState) {
+            _renderEncoder.setStencilFrontBackReferenceValue(_gpuPipelineState->stencilRefFront, _gpuPipelineState->stencilRefBack);
+            _renderEncoder.setDepthStencilState(_gpuPipelineState->mtlDepthStencilState);
+        }
+    } else if (bindPoint == PipelineBindPoint::COMPUTE) {
+        if (!_computeEncoder.isInitialized()) {
+            _computeEncoder.initialize(_mtlCommandBuffer);
+        }
+        _gpuPipelineState = static_cast<CCMTLPipelineState *>(pso)->getGPUPipelineState();
+        _computeEncoder.setComputePipelineState(_gpuPipelineState->mtlComputePipelineState);
     }
 }
 
@@ -168,11 +231,11 @@ void CCMTLCommandBuffer::bindInputAssembler(InputAssembler *ia) {
 }
 
 void CCMTLCommandBuffer::setViewport(const Viewport &vp) {
-    _commandEncoder.setViewport(vp);
+    _renderEncoder.setViewport(vp);
 }
 
 void CCMTLCommandBuffer::setScissor(const Rect &rect) {
-    _commandEncoder.setScissor(rect);
+    _renderEncoder.setScissor(rect);
 }
 
 void CCMTLCommandBuffer::setLineWidth(float /*width*/) {
@@ -180,11 +243,11 @@ void CCMTLCommandBuffer::setLineWidth(float /*width*/) {
 }
 
 void CCMTLCommandBuffer::setDepthBias(float constant, float clamp, float slope) {
-    _commandEncoder.setDepthBias(constant, clamp, slope);
+    _renderEncoder.setDepthBias(constant, clamp, slope);
 }
 
 void CCMTLCommandBuffer::setBlendConstants(const Color &constants) {
-    _commandEncoder.setBlendColor(constants);
+    _renderEncoder.setBlendColor(constants);
 }
 
 void CCMTLCommandBuffer::setDepthBound(float /*minBounds*/, float /*maxBounds*/) {
@@ -199,124 +262,119 @@ void CCMTLCommandBuffer::setStencilCompareMask(StencilFace /*face*/, int /*ref*/
     CC_LOG_ERROR("Don't support change stencil compare mask here.");
 }
 
-void CCMTLCommandBuffer::draw(InputAssembler *ia) {
+void CCMTLCommandBuffer::nextSubpass() {
+}
+
+void CCMTLCommandBuffer::draw(const DrawInfo &info) {
     if (_firstDirtyDescriptorSet < _GPUDescriptorSets.size()) {
         bindDescriptorSets();
     }
 
-    const auto *indirectBuffer = static_cast<CCMTLBuffer *>(ia->getIndirectBuffer());
-    const auto *indexBuffer = static_cast<CCMTLBuffer *>(ia->getIndexBuffer());
-    auto mtlEncoder = _commandEncoder.getMTLEncoder();
+    const auto *indirectBuffer = static_cast<CCMTLBuffer *>(_inputAssembler->getIndirectBuffer());
+    const auto *indexBuffer = static_cast<CCMTLBuffer *>(_inputAssembler->getIndexBuffer());
+    auto mtlEncoder = _renderEncoder.getMTLEncoder();
 
-    if (_type == CommandBufferType::PRIMARY) {
-        if (indirectBuffer) {
-            const auto indirectMTLBuffer = indirectBuffer->getMTLBuffer();
+    if (indirectBuffer) {
+        const auto indirectMTLBuffer = indirectBuffer->getMTLBuffer();
 
-            if (_indirectDrawSuppotred) {
-                ++_numDrawCalls;
-                if (indirectBuffer->isDrawIndirectByIndex()) {
-                    [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                            indexType:_indexType
-                                          indexBuffer:indexBuffer->getMTLBuffer()
-                                    indexBufferOffset:0
-                                       indirectBuffer:indirectMTLBuffer
-                                 indirectBufferOffset:0];
-                } else {
-                    [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                indirectBuffer:indirectMTLBuffer
-                          indirectBufferOffset:0];
-                }
+        if (_indirectDrawSuppotred) {
+            ++_numDrawCalls;
+            if (indirectBuffer->isDrawIndirectByIndex()) {
+                [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                        indexType:indexBuffer->getIndexType()
+                                        indexBuffer:indexBuffer->getMTLBuffer()
+                                indexBufferOffset:0
+                                    indirectBuffer:indirectMTLBuffer
+                                indirectBufferOffset:0];
             } else {
-                uint stride = indirectBuffer->getStride();
-                uint offset = 0;
-                uint drawInfoCount = indirectBuffer->getCount();
-                const auto &drawInfos = indirectBuffer->getDrawInfos();
-                _numDrawCalls += drawInfoCount;
+                [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                            indirectBuffer:indirectMTLBuffer
+                        indirectBufferOffset:0];
+            }
+        } else {
+            uint stride = indirectBuffer->getStride();
+            uint offset = 0;
+            uint drawInfoCount = indirectBuffer->getCount();
+            const auto &drawInfos = indirectBuffer->getDrawInfos();
+            _numDrawCalls += drawInfoCount;
 
-                for (uint i = 0; i < drawInfoCount; ++i) {
-                    const auto &drawInfo = drawInfos[i];
-                    offset += drawInfo.firstIndex * stride;
-                    if (indirectBuffer->isDrawIndirectByIndex()) {
-                        if (drawInfo.instanceCount == 0) {
-                            [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                                   indexCount:drawInfo.indexCount
-                                                    indexType:_indexType
-                                                  indexBuffer:indexBuffer->getMTLBuffer()
-                                            indexBufferOffset:offset];
-                        } else {
-                            [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                                   indexCount:drawInfo.indexCount
-                                                    indexType:_indexType
-                                                  indexBuffer:indexBuffer->getMTLBuffer()
-                                            indexBufferOffset:offset
-                                                instanceCount:drawInfo.instanceCount];
-                        }
+            for (uint i = 0; i < drawInfoCount; ++i) {
+                const auto &drawInfo = drawInfos[i];
+                offset += drawInfo.firstIndex * stride;
+                if (indirectBuffer->isDrawIndirectByIndex()) {
+                    if (drawInfo.instanceCount == 0) {
+                        [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                                indexCount:drawInfo.indexCount
+                                                indexType:indexBuffer->getIndexType()
+                                                indexBuffer:indexBuffer->getMTLBuffer()
+                                        indexBufferOffset:offset];
                     } else {
-                        if (drawInfo.instanceCount == 0) {
-                            [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                           vertexStart:drawInfo.firstIndex
-                                           vertexCount:drawInfo.vertexCount];
-                        } else {
-                            [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                           vertexStart:drawInfo.firstIndex
-                                           vertexCount:drawInfo.vertexCount
-                                         instanceCount:drawInfo.instanceCount];
-                        }
+                        [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                                indexCount:drawInfo.indexCount
+                                                indexType:indexBuffer->getIndexType()
+                                                indexBuffer:indexBuffer->getMTLBuffer()
+                                        indexBufferOffset:offset
+                                            instanceCount:drawInfo.instanceCount];
+                    }
+                } else {
+                    if (drawInfo.instanceCount == 0) {
+                        [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                        vertexStart:drawInfo.firstIndex
+                                        vertexCount:drawInfo.vertexCount];
+                    } else {
+                        [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                        vertexStart:drawInfo.firstIndex
+                                        vertexCount:drawInfo.vertexCount
+                                        instanceCount:drawInfo.instanceCount];
                     }
                 }
             }
-        } else {
-            DrawInfo drawInfo;
-            static_cast<CCMTLInputAssembler *>(ia)->extractDrawInfo(drawInfo);
-            if (drawInfo.indexCount > 0) {
-                uint offset = 0;
-                offset += drawInfo.firstIndex * indexBuffer->getStride();
-                if (drawInfo.instanceCount == 0) {
-                    [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                           indexCount:drawInfo.indexCount
-                                            indexType:_indexType
-                                          indexBuffer:indexBuffer->getMTLBuffer()
-                                    indexBufferOffset:offset];
-                } else {
-                    [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
-                                           indexCount:drawInfo.indexCount
-                                            indexType:_indexType
-                                          indexBuffer:indexBuffer->getMTLBuffer()
-                                    indexBufferOffset:offset
-                                        instanceCount:drawInfo.instanceCount];
-                }
-            } else if (drawInfo.vertexCount) {
-                if (drawInfo.instanceCount == 0) {
-                    [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                   vertexStart:drawInfo.firstIndex
-                                   vertexCount:drawInfo.vertexCount];
-                } else {
-                    [mtlEncoder drawPrimitives:_mtlPrimitiveType
-                                   vertexStart:drawInfo.firstIndex
-                                   vertexCount:drawInfo.vertexCount
-                                 instanceCount:drawInfo.instanceCount];
-                }
+        }
+    } else {
+        if (info.indexCount > 0) {
+            uint offset = 0;
+            offset += info.firstIndex * indexBuffer->getStride();
+            if (info.instanceCount == 0) {
+                [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                        indexCount:info.indexCount
+                                        indexType:indexBuffer->getIndexType()
+                                        indexBuffer:indexBuffer->getMTLBuffer()
+                                indexBufferOffset:offset];
+            } else {
+                [mtlEncoder drawIndexedPrimitives:_mtlPrimitiveType
+                                        indexCount:info.indexCount
+                                        indexType:indexBuffer->getIndexType()
+                                        indexBuffer:indexBuffer->getMTLBuffer()
+                                indexBufferOffset:offset
+                                    instanceCount:info.instanceCount];
             }
-            _numInstances += drawInfo.instanceCount;
-            _numDrawCalls++;
-            if (_gpuPipelineState) {
-                uint indexCount = drawInfo.indexCount ? drawInfo.indexCount : drawInfo.vertexCount;
-                switch (_mtlPrimitiveType) {
-                    case MTLPrimitiveTypeTriangle:
-                        _numTriangles += indexCount / 3 * std::max(drawInfo.instanceCount, 1U);
-                        break;
-                    case MTLPrimitiveTypeTriangleStrip:
-                        _numTriangles += (indexCount - 2) * std::max(drawInfo.instanceCount, 1U);
-                        break;
-                    default: break;
-                }
+        } else if (info.vertexCount) {
+            if (info.instanceCount == 0) {
+                [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                vertexStart:info.firstIndex
+                                vertexCount:info.vertexCount];
+            } else {
+                [mtlEncoder drawPrimitives:_mtlPrimitiveType
+                                vertexStart:info.firstIndex
+                                vertexCount:info.vertexCount
+                                instanceCount:info.instanceCount];
             }
         }
 
-    } else if (_type == CommandBufferType::SECONDARY) {
-        CC_LOG_ERROR("CommandBufferType::SECONDARY not implemented.");
-    } else {
-        CC_LOG_ERROR("Command 'draw' must be recorded inside a render pass.");
+        _numInstances += info.instanceCount;
+        _numDrawCalls++;
+        if (_gpuPipelineState) {
+            uint indexCount = info.indexCount ? info.indexCount : info.vertexCount;
+            switch (_mtlPrimitiveType) {
+                case MTLPrimitiveTypeTriangle:
+                    _numTriangles += indexCount / 3 * std::max(info.instanceCount, 1U);
+                    break;
+                case MTLPrimitiveTypeTriangleStrip:
+                    _numTriangles += (indexCount - 2) * std::max(info.instanceCount, 1U);
+                    break;
+                default: break;
+            }
+        }
     }
 }
 
@@ -358,7 +416,7 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
         auto h = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
         bufferSize[i] = w * h;
         stagingRegion.sourceBytesPerRow = mu::getBytesPerRow(convertedFormat, w);
-        stagingRegion.sourceBytesPerImage = FormatSize(convertedFormat, w, h, region.texExtent.depth);
+        stagingRegion.sourceBytesPerImage = formatSize(convertedFormat, w, h, region.texExtent.depth);
         stagingRegion.sourceSize = {w, h, region.texExtent.depth};
         stagingRegion.destinationSlice = region.texSubres.baseArrayLayer;
         stagingRegion.destinationLevel = region.texSubres.mipLevel;
@@ -392,13 +450,13 @@ void CCMTLCommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
             CC_FREE(convertedData);
         }
     }
-    if (texture->getFlags() & TextureFlags::GEN_MIPMAP && mu::pixelFormatIsColorRenderable(convertedFormat)) {
+    if (hasFlag(texture->getFlags(), TextureFlags::GEN_MIPMAP) && mu::pixelFormatIsColorRenderable(convertedFormat)) {
         [encoder generateMipmapsForTexture:dstTexture];
     }
     [encoder endEncoding];
 }
 
-void CCMTLCommandBuffer::execute(const CommandBuffer *const *commandBuffs, uint32_t count) {
+void CCMTLCommandBuffer::execute(CommandBuffer *const *commandBuffs, uint32_t count) {
     for (uint i = 0; i < count; ++i) {
         const auto *commandBuffer = static_cast<const CCMTLCommandBuffer *>(commandBuffs[i]);
         _numDrawCalls += commandBuffer->_numDrawCalls;
@@ -412,7 +470,7 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
     for (const auto &bindingInfo : _gpuPipelineState->vertexBufferBindingInfo) {
         auto index = std::get<0>(bindingInfo);
         auto stream = std::get<1>(bindingInfo);
-        static_cast<CCMTLBuffer *>(vertexBuffers[stream])->encodeBuffer(_commandEncoder, 0, index, ShaderStageFlagBit::VERTEX);
+        static_cast<CCMTLBuffer *>(vertexBuffers[stream])->encodeBuffer(_renderEncoder, 0, index, ShaderStageFlagBit::VERTEX);
     }
 
     const auto &dynamicOffsetIndices = _gpuPipelineState->gpuPipelineLayout->dynamicOffsetIndices;
@@ -432,15 +490,22 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
         auto dynamicOffsetIndex = (block.binding < dynamicOffset.size()) ? dynamicOffset[block.binding] : -1;
         if (gpuDescriptor.buffer) {
             uint offset = (dynamicOffsetIndex >= 0) ? _dynamicOffsets[block.set][dynamicOffsetIndex] : 0;
-            gpuDescriptor.buffer->encodeBuffer(_commandEncoder,
-                                               offset,
-                                               block.mappedBinding,
-                                               block.stages);
+            // compute pipeline and render pipeline mutually exlusive
+            if(_gpuPipelineState->mtlComputePipelineState) {
+                gpuDescriptor.buffer->encodeBuffer(_computeEncoder,
+                                                   offset,
+                                                   block.mappedBinding,
+                                                   block.stages);
+            } else {
+                gpuDescriptor.buffer->encodeBuffer(_renderEncoder,
+                                                   offset,
+                                                   block.mappedBinding,
+                                                   block.stages);
+            }
         }
     }
 
     const auto &samplers = _gpuPipelineState->gpuShader->samplers;
-    auto mtlEncoder = _commandEncoder.getMTLEncoder();
     for (const auto &iter : samplers) {
         const auto &sampler = iter.second;
 
@@ -453,16 +518,70 @@ void CCMTLCommandBuffer::bindDescriptorSets() {
             continue;
         }
 
-        if (sampler.stages & ShaderStageFlagBit::VERTEX) {
-            _commandEncoder.setVertexTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
-            _commandEncoder.setVertexSampler(gpuDescriptor.sampler->getMTLSamplerState(), sampler.samplerBinding);
+        if (hasFlag(sampler.stages, ShaderStageFlagBit::VERTEX)) {
+            _renderEncoder.setVertexTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
+            _renderEncoder.setVertexSampler(gpuDescriptor.sampler->getMTLSamplerState(), sampler.samplerBinding);
         }
 
-        if (sampler.stages & ShaderStageFlagBit::FRAGMENT) {
-            _commandEncoder.setFragmentTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
-            _commandEncoder.setFragmentSampler(gpuDescriptor.sampler->getMTLSamplerState(), sampler.samplerBinding);
+        if (hasFlag(sampler.stages, ShaderStageFlagBit::FRAGMENT)) {
+            _renderEncoder.setFragmentTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
+            _renderEncoder.setFragmentSampler(gpuDescriptor.sampler->getMTLSamplerState(), sampler.samplerBinding);
+        }
+
+        if(hasFlag(sampler.stages, ShaderStageFlagBit::COMPUTE)) {
+            _computeEncoder.setTexture(gpuDescriptor.texture->getMTLTexture(), sampler.textureBinding);
         }
     }
+}
+
+void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, const TextureBlit *regions, uint count, Filter filter) {
+    if(srcTexture && regions) {
+        id<MTLBlitCommandEncoder> encoder = [_mtlCommandBuffer blitCommandEncoder];
+        id<MTLTexture> src = static_cast<CCMTLTexture*>(srcTexture)->getMTLTexture();
+        id<MTLTexture> dst = nil;
+        CCMTLDevice* device = CCMTLDevice::getInstance();
+        if(!dstTexture) {
+            id<CAMetalDrawable> currentDrawable = (id<CAMetalDrawable>)device->getCurrentDrawable();
+            dst = [currentDrawable texture];
+        } else {
+            dst = static_cast<CCMTLTexture*>(dstTexture)->getMTLTexture();
+        }
+
+        if([src pixelFormat] != device->preferredPixelFormat()) {
+            src = [src newTextureViewWithPixelFormat:(MTLPixelFormat)device->preferredPixelFormat()];
+        }
+
+        for (uint i = 0; i < count; ++i) {
+            [encoder copyFromTexture:src
+                         sourceSlice:regions[i].srcSubres.baseArrayLayer
+                         sourceLevel:regions[i].srcSubres.mipLevel
+                        sourceOrigin:MTLOriginMake(regions[i].srcOffset.x, regions[i].srcOffset.y, regions[i].srcOffset.z)
+                          sourceSize:MTLSizeMake(regions[i].srcExtent.width, regions[i].srcExtent.height, regions[i].srcExtent.depth)
+                           toTexture:dst
+                    destinationSlice:regions[i].dstSubres.baseArrayLayer
+                    destinationLevel:regions[i].srcSubres.mipLevel
+                   destinationOrigin:MTLOriginMake(regions[i].dstOffset.x, regions[i].dstOffset.y, regions[i].dstOffset.z)];
+        }
+        [encoder endEncoding];
+    }
+}
+
+void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
+    if(_firstDirtyDescriptorSet < _GPUDescriptorSets.size()) {
+        bindDescriptorSets();
+    }
+    MTLSize groupsPerGrid = MTLSizeMake(info.groupCountX, info.groupCountY, info.groupCountZ);
+    if(info.indirectBuffer) {
+        _computeEncoder.dispatch(((CCMTLBuffer*)info.indirectBuffer)->getMTLBuffer(), info.indirectOffset, groupsPerGrid);
+    }
+    else {
+        _computeEncoder.dispatch(groupsPerGrid);
+    }
+    _computeEncoder.endEncoding();
+}
+
+void CCMTLCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
+    // Metal tracks non-heap resources automatically, which means no need to add a barrier same encoder.
 }
 
 } // namespace gfx

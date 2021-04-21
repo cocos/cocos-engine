@@ -1,89 +1,91 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include <array>
 
-#include "PlanarShadowQueue.h"
-#include "RenderPipeline.h"
-#include "BatchedBuffer.h"
 #include "Define.h"
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
-#include "RenderBatchedQueue.h"
+#include "PlanarShadowQueue.h"
 #include "RenderInstancedQueue.h"
-#include "gfx/GFXCommandBuffer.h"
+#include "RenderPipeline.h"
+#include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXShader.h"
 #include "helper/SharedMemory.h"
-#include "forward/ForwardPipeline.h"
-#include "gfx/GFXDescriptorSet.h"
-#include "gfx/GFXDevice.h"
-#include "gfx/GFXShader.h"
 
 namespace cc {
 namespace pipeline {
 
 PlanarShadowQueue::PlanarShadowQueue(RenderPipeline *pipeline)
-:_pipeline(static_cast<ForwardPipeline *>(pipeline)){
+: _pipeline(pipeline) {
     _instancedQueue = CC_NEW(RenderInstancedQueue);
 }
 
-void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *cmdBufferer) {
+void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *cmdBuffer) {
     clear();
-    const auto *shadowInfo = _pipeline->getShadows();
-    if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR) { return; }
+    auto *const sceneData  = _pipeline->getPipelineSceneData();
+    auto *const sharedData = sceneData->getSharedData();
+    const auto *shadowInfo = sharedData->getShadows();
+    if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR) {
+        return;
+    }
 
-    _pipeline->updateShadowUBO(camera);
+    auto *const pipelineUBO = _pipeline->getPipelineUBO();
+    pipelineUBO->updateShadowUBO(camera);
+    const auto *scene         = camera->getScene();
+    const bool  shadowVisible = camera->visibility & static_cast<uint>(LayerList::DEFAULT);
 
-    const auto *scene = camera->getScene();
-    const bool shadowVisible = camera->visibility & static_cast<uint>(LayerList::DEFAULT);
+    if (!scene->getMainLight() || !shadowVisible) {
+        return;
+    }
 
-    if (!scene->getMainLight() || !shadowVisible) { return; }
-    
-    const auto models = scene->getModels();
+    const auto *models          = scene->getModels();
     const auto modelCount = models[0];
-    auto *instancedBuffer = InstancedBuffer::get(shadowInfo->planarPass);
+    auto *instancedBuffer = InstancedBuffer::get(shadowInfo->instancePass);
 
-    uint visibility = 0, lenght = 0;
     for (uint i = 1; i <= modelCount; i++) {
-        const auto *model = scene->getModelView(models[i]);
-        const auto *node = model->getNode();
+        const auto *model = cc::pipeline::Scene::getModelView(models[i]);
+        const auto *node  = model->getNode();
         if (model->enabled && model->castShadow) {
-            visibility = camera->visibility;
+            const auto visibility = camera->visibility;
             if ((model->nodeID && ((visibility & node->layer) == node->layer)) ||
                 (visibility & model->visFlags)) {
-
                 // frustum culling
-                if ((model->worldBoundsID) && !aabb_frustum(model->getWorldBounds(), camera->getFrustum())) {
+                if ((model->worldBoundsID) && !aabbFrustum(model->getWorldBounds(), camera->getFrustum())) {
                     continue;
                 }
 
                 const auto *attributesID = model->getInstancedAttributeID();
-                lenght = attributesID[0];
-                if (lenght > 0) {
-                    const auto *subModelID = model->getSubModelID();
-                    const auto subModelCount = subModelID[0];
+                const auto length                   = attributesID[0];
+                if (length > 0) {
+                    const auto *subModelID    = model->getSubModelID();
+                    const auto  subModelCount = subModelID[0];
                     for (uint m = 1; m <= subModelCount; ++m) {
-                        const auto *subModel = model->getSubModelView(subModelID[m]);
-                        instancedBuffer->merge(model, subModel, m - 1);
+                        const auto *subModel = cc::pipeline::ModelView::getSubModelView(subModelID[m]);
+                        instancedBuffer->merge(model, subModel, m - 1, subModel->getPlanarInstanceShader());
                         _instancedQueue->add(instancedBuffer);
                     }
                 } else {
@@ -93,7 +95,7 @@ void PlanarShadowQueue::gatherShadowPasses(Camera *camera, gfx::CommandBuffer *c
         }
     }
 
-    _instancedQueue->uploadBuffers(cmdBufferer);
+    _instancedQueue->uploadBuffers(cmdBuffer);
 }
 
 void PlanarShadowQueue::clear() {
@@ -102,25 +104,33 @@ void PlanarShadowQueue::clear() {
 }
 
 void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    const auto *shadowInfo = _pipeline->getShadows();
-    if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR || _pendingModels.empty()) { return; }
+    auto *const sceneData  = _pipeline->getPipelineSceneData();
+    auto *const sharedData = sceneData->getSharedData();
+    const auto *shadowInfo = sharedData->getShadows();
+    if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::PLANAR) {
+        return;
+    }
 
     _instancedQueue->recordCommandBuffer(device, renderPass, cmdBuffer);
 
-    const auto *pass = shadowInfo->getPlanarShadowPass();
-    cmdBuffer->bindDescriptorSet(MATERIAL_SET, pass->getDescriptorSet());
+    if (_pendingModels.empty()) {
+        return;
+    }
 
-    for (auto model : _pendingModels) {
-        const auto subModelID = model->getSubModelID();
-        const auto subModelCount = subModelID[0];
+    const auto *pass = shadowInfo->getPlanarShadowPass();
+    cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
+
+    for (const auto *model : _pendingModels) {
+        const auto *const subModelID    = model->getSubModelID();
+        const auto        subModelCount = subModelID[0];
         for (unsigned m = 1; m <= subModelCount; ++m) {
-            const auto subModel = model->getSubModelView(subModelID[m]);
-            const auto shader = subModel->getPlanarShader();
-            const auto ia = subModel->getInputAssembler();
-            const auto pso = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
+            const auto *const subModel = cc::pipeline::ModelView::getSubModelView(subModelID[m]);
+            auto *const       shader   = subModel->getPlanarShader();
+            auto *const       ia       = subModel->getInputAssembler();
+            auto *const       pso      = PipelineStateManager::getOrCreatePipelineState(pass, shader, ia, renderPass);
 
             cmdBuffer->bindPipelineState(pso);
-            cmdBuffer->bindDescriptorSet(LOCAL_SET, subModel->getDescriptorSet());
+            cmdBuffer->bindDescriptorSet(localSet, subModel->getDescriptorSet());
             cmdBuffer->bindInputAssembler(ia);
             cmdBuffer->draw(ia);
         }
@@ -130,5 +140,6 @@ void PlanarShadowQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass
 void PlanarShadowQueue::destroy() {
     CC_SAFE_DELETE(_instancedQueue);
 }
-}
+
+} // namespace pipeline
 } // namespace cc

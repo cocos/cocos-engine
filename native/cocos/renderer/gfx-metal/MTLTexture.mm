@@ -1,26 +1,28 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "MTLStd.h"
 
 #include "MTLDevice.h"
@@ -31,20 +33,9 @@ THE SOFTWARE.
 namespace cc {
 namespace gfx {
 
-CCMTLTexture::CCMTLTexture(Device *device) : Texture(device) {}
+CCMTLTexture::CCMTLTexture() : Texture() {}
 
-bool CCMTLTexture::initialize(const TextureInfo &info) {
-    _type = info.type;
-    _usage = info.usage;
-    _format = info.format;
-    _width = info.width;
-    _height = info.height;
-    _depth = info.depth;
-    _layerCount = info.layerCount;
-    _levelCount = info.levelCount;
-    _samples = info.samples;
-    _flags = info.flags;
-    _size = FormatSize(_format, _width, _height, _depth);
+void CCMTLTexture::doInit(const TextureInfo &info) {
     _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;
     if (_format == Format::PVRTC_RGB2 ||
         _format == Format::PVRTC_RGBA2 ||
@@ -55,77 +46,13 @@ bool CCMTLTexture::initialize(const TextureInfo &info) {
         _isPVRTC = true;
     }
 
-#if CC_DEBUG > 0
-    switch (_format) { // device feature validation
-        case Format::D16:
-            if (_device->hasFeature(Feature::FORMAT_D16)) break;
-            CC_LOG_ERROR("D16 texture format is not supported on this backend");
-            return false;
-        case Format::D16S8:
-            if (_device->hasFeature(Feature::FORMAT_D16S8)) break;
-            CC_LOG_WARNING("D16S8 texture format is not supported on this backend");
-            return false;
-        case Format::D24:
-            if (_device->hasFeature(Feature::FORMAT_D24)) break;
-            CC_LOG_WARNING("D24 texture format is not supported on this backend");
-            return false;
-        case Format::D24S8:
-            if (_device->hasFeature(Feature::FORMAT_D24S8)) break;
-            CC_LOG_WARNING("D24S8 texture format is not supported on this backend");
-            return false;
-        case Format::D32F:
-            if (_device->hasFeature(Feature::FORMAT_D32F)) break;
-            CC_LOG_WARNING("D32F texture format is not supported on this backend");
-            return false;
-        case Format::D32F_S8:
-            if (_device->hasFeature(Feature::FORMAT_D32FS8)) break;
-            CC_LOG_WARNING("D32FS8 texture format is not supported on this backend");
-            return false;
-        case Format::RGB8:
-            if (_device->hasFeature(Feature::FORMAT_RGB8)) break;
-            CC_LOG_WARNING("RGB8 texture format is not supported on this backend");
-            return false;
-        default:
-            break;
-    }
-#endif
-
-    if (_flags & TextureFlags::BAKUP_BUFFER) {
-        _buffer = (uint8_t *)CC_MALLOC(_size);
-        if (!_buffer) {
-            CC_LOG_ERROR("CCMTLTexture: CC_MALLOC backup buffer failed.");
-            return false;
-        }
-        _device->getMemoryStatus().textureSize += _size;
-    }
-
     if (!createMTLTexture()) {
         CC_LOG_ERROR("CCMTLTexture: create MTLTexture failed.");
-        return false;
+        return;
     }
-
-    _device->getMemoryStatus().textureSize += _size;
-    return true;
 }
 
-bool CCMTLTexture::initialize(const TextureViewInfo &info) {
-    _isTextureView = true;
-
-    if (!info.texture) {
-        return false;
-    }
-
-    _type = info.type;
-    _usage = info.texture->getUsage();
-    _format = info.format;
-    _width = info.texture->getWidth();
-    _height = info.texture->getHeight();
-    _depth = info.texture->getDepth();
-    _layerCount = info.texture->getLayerCount();
-    _levelCount = info.texture->getLevelCount();
-    _samples = info.texture->getSamples();
-    _flags = info.texture->getFlags();
-    _size = info.texture->getSize();
+void CCMTLTexture::doInit(const TextureViewInfo &info) {
     _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;
     if (_format == Format::PVRTC_RGB2 ||
         _format == Format::PVRTC_RGBA2 ||
@@ -141,11 +68,6 @@ bool CCMTLTexture::initialize(const TextureViewInfo &info) {
                                                                   textureType:mtlTextureType
                                                                        levels:NSMakeRange(info.baseLevel, info.levelCount)
                                                                        slices:NSMakeRange(info.baseLayer, info.layerCount)];
-    if (!_mtlTexture) {
-        return false;
-    }
-
-    return true;
 }
 
 bool CCMTLTexture::createMTLTexture() {
@@ -186,50 +108,37 @@ bool CCMTLTexture::createMTLTexture() {
     descriptor.textureType = mu::toMTLTextureType(_type);
     descriptor.sampleCount = mu::toMTLSampleCount(_samples);
     descriptor.mipmapLevelCount = _levelCount;
-    descriptor.arrayLength = _flags & TextureFlagBit::CUBEMAP ? 1 : _layerCount;
-    if (_usage & TextureUsage::COLOR_ATTACHMENT ||
-        _usage & TextureUsage::DEPTH_STENCIL_ATTACHMENT ||
-        _usage & TextureUsage::INPUT_ATTACHMENT ||
-        _usage & TextureUsage::TRANSIENT_ATTACHMENT) {
+    descriptor.arrayLength = _type == TextureType::CUBE ? 1 : _layerCount;
+    if (hasFlag(_usage, TextureUsage::COLOR_ATTACHMENT) ||
+        hasFlag(_usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) ||
+        hasFlag(_usage, TextureUsage::INPUT_ATTACHMENT)) {
         descriptor.resourceOptions = MTLResourceStorageModePrivate;
     }
 
-    id<MTLDevice> mtlDevice = id<MTLDevice>(static_cast<CCMTLDevice *>(_device)->getMTLDevice());
+    id<MTLDevice> mtlDevice = id<MTLDevice>(CCMTLDevice::getInstance()->getMTLDevice());
     _mtlTexture = [mtlDevice newTextureWithDescriptor:descriptor];
 
     return _mtlTexture != nil;
 }
 
-void CCMTLTexture::destroy() {
+void CCMTLTexture::doDestroy() {
     if (_isTextureView) {
         return;
     }
 
-    if (_buffer) {
-        CC_FREE(_buffer);
-        _device->getMemoryStatus().textureSize -= _size;
-        _buffer = nullptr;
-    }
-
-    Device *device = _device;
     id<MTLTexture> mtlTexure = _mtlTexture;
     _mtlTexture = nil;
-    uint size = _size;
 
     std::function<void(void)> destroyFunc = [=]() {
         if (mtlTexure) {
             [mtlTexure release];
-            device->getMemoryStatus().textureSize -= size;
         }
     };
     //gpu object only
     CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
 }
 
-void CCMTLTexture::resize(uint width, uint height) {
-    if (_width == width && _height == height)
-        return;
-
+void CCMTLTexture::doResize(uint width, uint height, uint size) {
     auto oldSize = _size;
     auto oldWidth = _width;
     auto oldHeight = _height;
@@ -237,7 +146,7 @@ void CCMTLTexture::resize(uint width, uint height) {
 
     _width = width;
     _height = height;
-    _size = FormatSize(_format, _width, _height, _depth);
+    _size = size;
     if (!createMTLTexture()) {
         _width = oldWidth;
         _height = oldHeight;
@@ -248,32 +157,15 @@ void CCMTLTexture::resize(uint width, uint height) {
     }
 
     if (oldMTLTexture) {
-        Device *device = _device;
         std::function<void(void)> destroyFunc = [=]() {
             if (oldMTLTexture) {
                 [oldMTLTexture release];
-                device->getMemoryStatus().bufferSize -= oldSize;
             }
         };
         //gpu object only
         CCMTLGPUGarbageCollectionPool::getInstance()->collect(destroyFunc);
     }
-
-    _device->getMemoryStatus().textureSize -= oldSize;
-    if (_flags & TextureFlags::BAKUP_BUFFER) {
-        const uint8_t *oldBuffer = _buffer;
-        uint8_t *buffer = (uint8_t *)CC_MALLOC(_size);
-        if (!buffer) {
-            CC_LOG_ERROR("CCMTLTexture: CC_MALLOC backup buffer failed when try to resize the texture.");
-            return;
-        }
-        CC_FREE(oldBuffer);
-        _buffer = buffer;
-        _device->getMemoryStatus().textureSize -= oldSize;
-        _device->getMemoryStatus().textureSize += _size;
-    }
-
-    _device->getMemoryStatus().textureSize += _size;
 }
+
 } // namespace gfx
 } // namespace cc

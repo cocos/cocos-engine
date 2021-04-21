@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,7 +21,7 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
 
 #pragma once
 
@@ -218,37 +218,6 @@ bool seval_to_native_ptr(const se::Value &v, T *ret) {
     // If js value isn't null, undefined and Object, mark the convertion fails.
     *ret = nullptr;
     return false;
-}
-
-template <typename T>
-bool seval_to_Vector(const se::Value &v, cc::Vector<T> *ret) {
-    assert(ret != nullptr);
-    assert(v.isObject());
-    se::Object *obj = v.toObject();
-    assert(obj->isArray());
-
-    bool ok = true;
-    uint32_t len = 0;
-    ok = obj->getArrayLength(&len);
-    if (!ok) {
-        ret->clear();
-        return false;
-    }
-
-    se::Value tmp;
-    for (uint32_t i = 0; i < len; ++i) {
-        ok = obj->getArrayElement(i, &tmp);
-        if (!ok || !tmp.isObject()) {
-            ret->clear();
-            return false;
-        }
-
-        T nativeObj = (T)tmp.toObject()->getPrivateData();
-
-        ret->pushBack(nativeObj);
-    }
-
-    return true;
 }
 
 template <typename T>
@@ -884,7 +853,7 @@ bool sevalue_to_native(const se::Value &from, std::array<uint8_t, CNT> *to, se::
         se::Value tmp;
         assert(len >= CNT);
         for (size_t i = 0; i < CNT; i++) {
-            array->getArrayElement(i, &tmp);
+            array->getArrayElement((uint)i, &tmp);
             sevalue_to_native(tmp, &(*to)[i], ctx);
         }
     } else {
@@ -1248,7 +1217,6 @@ inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) {
         to.setNumber((double)static_cast<std::conditional_t<sizeof(T) == 4, int32_t, int64_t>>(from));
         return true;
     } else {
-        static_assert(!std::is_const<T>::value, "Only non-const value accepted here");
         return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
     }
     return false;

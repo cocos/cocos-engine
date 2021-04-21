@@ -40,6 +40,7 @@
 #include "platform/Application.h"
 #include "base/Scheduler.h"
 #include "base/UTF8.h"
+#include "base/Log.h"
 #include "platform/android/FileUtils-android.h"
 #include "platform/android/jni/JniImp.h"
 #include "platform/android/jni/JniHelper.h"

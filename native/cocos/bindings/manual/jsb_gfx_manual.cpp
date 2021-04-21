@@ -1,42 +1,36 @@
+/****************************************************************************
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #include "jsb_gfx_manual.h"
 #include "bindings/auto/jsb_gfx_auto.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "bindings/manual/jsb_conversions.h"
 #include "bindings/manual/jsb_global.h"
 
-#if !(defined(CC_USE_GLES2) || defined(CC_USE_GLES3) || defined(CC_USE_VULKAN) || defined(CC_USE_METAL))
-    #error "gfx backend is not defined!"
-#endif
-
-#ifdef CC_USE_VULKAN
-    #include "bindings/auto/jsb_vk_auto.h"
-    #include "renderer/gfx-vulkan/GFXVulkan.h"
-#endif
-
-#ifdef CC_USE_METAL
-    #include "bindings/auto/jsb_mtl_auto.h"
-    #include "renderer/gfx-metal/GFXMTL.h"
-#endif
-
-#ifdef CC_USE_GLES3
-    #include "bindings/auto/jsb_gles3_auto.h"
-    #include "renderer/gfx-gles3/GFXGLES3.h"
-#endif
-
-#ifdef CC_USE_GLES2
-    #include "bindings/auto/jsb_gles2_auto.h"
-    #include "renderer/gfx-gles2/GFXGLES2.h"
-#endif
-
 #include <fstream>
 #include <sstream>
-
-#define GFX_MAX_VERTEX_ATTRIBUTES 16
-#define GFX_MAX_TEXTURE_UNITS     16
-#define GFX_MAX_ATTACHMENTS       4
-#define GFX_MAX_BUFFER_BINDINGS   24
-#define GFX_INVALID_BINDING       ((uint8_t)-1)
-#define GFX_INVALID_HANDLE        ((uint)-1)
 
 bool js_gfx_Device_copyBuffersToTexture(se::State &s) {
     cc::gfx::Device *cobj = (cc::gfx::Device *)s.nativeThisObject();
@@ -217,10 +211,10 @@ static bool js_gfx_Buffer_initialize(se::State &s) {
 
         if (initWithBufferViewInfo) {
             auto bufferViewInfo = (cc::gfx::BufferViewInfo *)(args[0].toObject()->getPrivateData());
-            ok &= cobj->initialize(*bufferViewInfo);
+            cobj->initialize(*bufferViewInfo);
         } else {
             auto bufferInfo = (cc::gfx::BufferInfo *)(args[0].toObject()->getPrivateData());
-            ok &= cobj->initialize(*bufferInfo);
+            cobj->initialize(*bufferInfo);
         }
 
         ok &= boolean_to_seval(ok, &s.rval());
@@ -246,10 +240,10 @@ static bool js_gfx_Texture_initialize(se::State &s) {
 
         if (initWithTextureViewInfo) {
             auto textureViewInfo = (cc::gfx::TextureViewInfo *)(args[0].toObject()->getPrivateData());
-            ok &= cobj->initialize(*textureViewInfo);
+            cobj->initialize(*textureViewInfo);
         } else {
             auto textureInfo = (cc::gfx::TextureInfo *)(args[0].toObject()->getPrivateData());
-            ok &= cobj->initialize(*textureInfo);
+            cobj->initialize(*textureInfo);
         }
 
         ok &= boolean_to_seval(ok, &s.rval());
@@ -491,20 +485,11 @@ bool register_all_gfx_manual(se::Object *obj) {
     }
     se::Object *ns = nsVal.toObject();
 
-    //    js_register_gfx_SubPass(ns);
-
-#ifdef CC_USE_VULKAN
-    register_all_vk(obj);
-#endif
-#ifdef CC_USE_GLES3
-    register_all_gles3(obj);
-#endif
-#ifdef CC_USE_GLES2
-    register_all_gles2(obj);
-#endif
-#ifdef CC_USE_METAL
-    register_all_mtl(obj);
-#endif
+    {
+        se::Value jsret;
+        nativevalue_to_se(cc::gfx::Device::getInstance(), jsret, nullptr);
+        ns->setProperty("deviceInstance", jsret);
+    }
 
     return true;
 }

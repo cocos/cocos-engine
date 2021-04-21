@@ -1,5 +1,31 @@
-#include "CoreStd.h"
+/****************************************************************************
+ Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #include "StringUtil.h"
+#include "memory/Memory.h"
+#include <string>
 
 #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     #ifndef WIN32_LEAN_AND_MEAN
@@ -11,11 +37,11 @@
 namespace cc {
 
 #if defined(_WIN32)
-int StringUtil::VPrintf(char *buf, char *last, const char *fmt, va_list args) {
+int StringUtil::vprintf(char *buf, const char *last, const char *fmt, va_list args) {
     if (last <= buf) return 0;
 
     int count = (int)(last - buf);
-    int ret = _vsnprintf_s(buf, count, _TRUNCATE, fmt, args);
+    int ret   = _vsnprintf_s(buf, count, _TRUNCATE, fmt, args);
     if (ret < 0) {
         if (errno == 0) {
             return count - 1;
@@ -27,56 +53,61 @@ int StringUtil::VPrintf(char *buf, char *last, const char *fmt, va_list args) {
     }
 }
 #else
-int StringUtil::VPrintf(char *buf, char *last, const char *fmt, va_list args) {
-    if (last <= buf) return 0;
+int StringUtil::vprintf(char *buf, const char *last, const char *fmt, va_list args) {
+    if (last <= buf) {
+        return 0;
+    }
 
     int count = (int)(last - buf);
-    int ret = vsnprintf(buf, count, fmt, args);
+    int ret   = vsnprintf(buf, count, fmt, args);
     if (ret >= count - 1) {
         return count - 1;
-    } else if (ret < 0) {
+    }
+    if (ret < 0) {
         return 0;
     }
     return ret;
 }
 #endif
 
-int StringUtil::Printf(char *buf, char *last, const char *fmt, ...) {
+int StringUtil::printf(char *buf, const char *last, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    int ret = VPrintf(buf, last, fmt, args);
+    int ret = vprintf(buf, last, fmt, args);
     va_end(args);
     return ret;
 }
 
-String StringUtil::Format(const char *fmt, ...) {
-    char sz[4096];
+String StringUtil::format(const char *fmt, ...) {
+    char    sz[4096];
     va_list args;
     va_start(args, fmt);
-    VPrintf(sz, sz + sizeof(sz) - 1, fmt, args);
+    vprintf(sz, sz + sizeof(sz) - 1, fmt, args);
     va_end(args);
     return sz;
 }
 
-StringArray StringUtil::Split(const String &str, const String &delims, uint max_splits) {
+StringArray StringUtil::split(const String &str, const String &delims, uint maxSplits) {
     StringArray strs;
-    if (str.empty())
+    if (str.empty()) {
         return strs;
+    }
 
     // Pre-allocate some space for performance
-    strs.reserve(max_splits ? max_splits + 1 : 16); // 16 is guessed capacity for most case
+    strs.reserve(maxSplits ? maxSplits + 1 : 16); // 16 is guessed capacity for most case
 
-    uint num_splits = 0;
+    uint numSplits = 0;
 
     // Use STL methods
-    size_t start, pos;
+    size_t start;
+    size_t pos;
     start = 0;
     do {
         pos = str.find_first_of(delims, start);
         if (pos == start) {
             // Do nothing
             start = pos + 1;
-        } else if (pos == String::npos || (max_splits && num_splits == max_splits)) {
+        } else if (pos == String::npos || (maxSplits && numSplits == maxSplits)) {
             // Copy the rest of the string
             strs.push_back(str.substr(start));
             break;
@@ -87,7 +118,7 @@ StringArray StringUtil::Split(const String &str, const String &delims, uint max_
         }
         // parse up to next real data
         start = str.find_first_not_of(delims, start);
-        ++num_splits;
+        ++numSplits;
     } while (pos != String::npos);
 
     return strs;

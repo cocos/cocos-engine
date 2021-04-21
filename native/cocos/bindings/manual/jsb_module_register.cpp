@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,7 +21,8 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
+
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_module_register.h"
 #include "cocos/bindings/auto/jsb_cocos_auto.h"
@@ -91,6 +92,10 @@
 
 #endif // USE_MIDDLEWARE
 
+#if USE_PHYSICS_PHYSX
+    #include "cocos/bindings/auto/jsb_physics_auto.h"
+#endif
+
 using namespace cc;
 
 bool jsb_register_all_modules() {
@@ -154,6 +159,10 @@ bool jsb_register_all_modules() {
     #endif
 
 #endif // USE_MIDDLEWARE
+
+#if USE_PHYSICS_PHYSX
+    se->addRegisterCallback(register_all_physics);
+#endif
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
 

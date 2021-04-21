@@ -1,54 +1,61 @@
 /****************************************************************************
-Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2010-2012 cocos2d-x.org
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "platform/Application.h"
 #include "platform/StdC.h" // need it to include Windows.h
-#include <algorithm>
-#include <memory>
-#include <sstream>
-#include <array>
-#include <shellapi.h>
-#include <MMSystem.h>
+
+#include "audio/include/AudioEngine.h"
+#include "base/AutoreleasePool.h"
+#include "base/Scheduler.h"
+#include "cocos/bindings/event/EventDispatcher.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "platform/FileUtils.h"
 #include "platform/win32/View-win32.h"
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/event/EventDispatcher.h"
-#include "base/Scheduler.h"
-#include "base/AutoreleasePool.h"
-#include "audio/include/AudioEngine.h"
+#include <MMSystem.h>
+#include <algorithm>
+#include <array>
+#include <memory>
+#include <shellapi.h>
+#include <sstream>
+
+#include "pipeline/Define.h"
+#include "pipeline/RenderPipeline.h"
+#include "renderer/GFXDeviceManager.h"
 
 extern std::shared_ptr<cc::View> cc_get_application_view();
 
 namespace cc {
 
-Application *Application::_instance = nullptr;
+Application *              Application::_instance  = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
 Application::Application(int width, int height) {
     Application::_instance = this;
-    _scheduler = std::make_shared<Scheduler>();
+    _scheduler             = std::make_shared<Scheduler>();
 
     FileUtils::getInstance()->addSearchPath("Resources", true);
 
@@ -62,8 +69,12 @@ Application::~Application() {
     AudioEngine::end();
 #endif
 
+    pipeline::RenderPipeline::getInstance()->destroy();
+
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
+
+    gfx::DeviceManager::destroy();
 
     Application::_instance = nullptr;
 }
@@ -75,6 +86,19 @@ bool Application::init() {
 
     se::ScriptEngine::getInstance()->cleanup();
 
+    auto view     = cc_get_application_view();
+    auto viewSize = view->getViewSize();
+
+    gfx::DeviceInfo deviceInfo;
+    deviceInfo.windowHandle       = (uintptr_t)view->getWindowHandler();
+    deviceInfo.width              = viewSize[0];
+    deviceInfo.height             = viewSize[1];
+    deviceInfo.nativeWidth        = viewSize[0];
+    deviceInfo.nativeHeight       = viewSize[1];
+    deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
+
+    gfx::DeviceManager::create(deviceInfo);
+
     return true;
 }
 
@@ -82,14 +106,14 @@ void Application::setPreferredFramesPerSecond(int fps) {
     if (fps == 0)
         return;
 
-    _fps = fps;
+    _fps                            = fps;
     _prefererredNanosecondsPerFrame = (long)(1.0 / _fps * NANOSECONDS_PER_SECOND);
 }
 
 Application::LanguageType Application::getCurrentLanguage() const {
     LanguageType ret = LanguageType::ENGLISH;
 
-    LCID localeID = GetUserDefaultLCID();
+    LCID           localeID          = GetUserDefaultLCID();
     unsigned short primaryLanguageID = localeID & 0xFF;
 
     switch (primaryLanguageID) {
@@ -156,9 +180,9 @@ Application::LanguageType Application::getCurrentLanguage() const {
 }
 
 std::string Application::getCurrentLanguageCode() const {
-    LANGID lid = GetUserDefaultUILanguage();
+    LANGID     lid       = GetUserDefaultUILanguage();
     const LCID locale_id = MAKELCID(lid, SORT_DEFAULT);
-    int length = GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, nullptr, 0);
+    int        length    = GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, nullptr, 0);
 
     char *tempCode = new char[length];
     GetLocaleInfoA(locale_id, LOCALE_SISO639LANGNAME, tempCode, length);
@@ -170,15 +194,15 @@ std::string Application::getCurrentLanguageCode() const {
 
 bool Application::isDisplayStats() {
     se::AutoHandleScope hs;
-    se::Value ret;
-    char commandBuf[100] = "cc.profiler.isShowingStats();";
+    se::Value           ret;
+    char                commandBuf[100] = "cc.profiler.isShowingStats();";
     se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
     return ret.toBoolean();
 }
 
 void Application::setDisplayStats(bool isShow) {
     se::AutoHandleScope hs;
-    char commandBuf[100] = {0};
+    char                commandBuf[100] = {0};
     sprintf(commandBuf, isShow ? "cc.profiler.showStats();" : "cc.profiler.hideStats();");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
@@ -192,9 +216,9 @@ Application::Platform Application::getPlatform() const {
 }
 
 bool Application::openURL(const std::string &url) {
-    WCHAR *temp = new WCHAR[url.size() + 1];
-    int wchars_num = MultiByteToWideChar(CP_UTF8, 0, url.c_str(), url.size() + 1, temp, url.size() + 1);
-    HINSTANCE r = ShellExecuteW(NULL, L"open", temp, NULL, NULL, SW_SHOWNORMAL);
+    WCHAR *   temp       = new WCHAR[url.size() + 1];
+    int       wchars_num = MultiByteToWideChar(CP_UTF8, 0, url.c_str(), url.size() + 1, temp, url.size() + 1);
+    HINSTANCE r          = ShellExecuteW(NULL, L"open", temp, NULL, NULL, SW_SHOWNORMAL);
     delete[] temp;
     return (size_t)r > 32;
 }

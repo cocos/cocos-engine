@@ -1,18 +1,19 @@
 /****************************************************************************
- Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
- 
- http://www.cocos2d-x.org
- 
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to deal
- in the Software without restriction, including without limitation the rights
- to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
- copies of the Software, and to permit persons to whom the Software is
- furnished to do so, subject to the following conditions:
- 
- The above copyright notice and this permission notice shall be included in
- all copies or substantial portions of the Software.
- 
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -20,7 +21,8 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
+
 #include "TypedArrayPool.h"
 #include "MiddlewareMacro.h"
 #include "base/Log.h"
@@ -36,17 +38,17 @@
         fflush(stdout);               \
     } while (false)
 #else
-#define PoolLog(...)
+#define POOL_LOG(...)
 #endif
 
 MIDDLEWARE_BEGIN
 
-const static std::size_t maxPoolSize = 50;
+const static std::size_t MAX_POOL_SIZE = 50;
 
-TypedArrayPool *TypedArrayPool::_instance = nullptr;
+TypedArrayPool *TypedArrayPool::instance = nullptr;
 
 TypedArrayPool::TypedArrayPool() {
-    se::ScriptEngine::getInstance()->addAfterCleanupHook(std::bind(&TypedArrayPool::afterCleanupHandle, this));
+    se::ScriptEngine::getInstance()->addAfterCleanupHook([this] { afterCleanupHandle(); });
 }
 
 TypedArrayPool::~TypedArrayPool() {
@@ -54,30 +56,30 @@ TypedArrayPool::~TypedArrayPool() {
 }
 
 void TypedArrayPool::afterCleanupHandle() {
-    this->allowPush = false;
+    this->_allowPush = false;
     clearPool();
-    se::ScriptEngine::getInstance()->addAfterInitHook(std::bind(&TypedArrayPool::afterInitHandle, this));
+    se::ScriptEngine::getInstance()->addAfterInitHook([this] { afterInitHandle(); });
 }
 
 void TypedArrayPool::afterInitHandle() {
-    this->allowPush = true;
-    se::ScriptEngine::getInstance()->addAfterCleanupHook(std::bind(&TypedArrayPool::afterCleanupHandle, this));
+    this->_allowPush = true;
+    se::ScriptEngine::getInstance()->addAfterCleanupHook([this] { afterCleanupHandle(); });
 }
 
 void TypedArrayPool::clearPool() {
-    PoolLog("*****clearPool TypeArray pool begin");
+    POOL_LOG("*****clearPool TypeArray pool begin");
 
     //map
-    for (auto it = _pool.begin(); it != _pool.end(); it++) {
+    for (auto & it : _pool) {
         //map
-        fitMap &mapPool = *(it->second);
-        for (auto itMapPool = mapPool.begin(); itMapPool != mapPool.end(); itMapPool++) {
+        fitMap &mapPool = *(it.second);
+        for (auto & itMapPool : mapPool) {
             //vector
-            objPool &itFitPool = *(itMapPool->second);
-            PoolLog("clear arrayType:%d,fitSize:%lu,objSize:%lu\n", it->first, itMapPool->first, itFitPool.size());
-            for (auto itFit = itFitPool.begin(); itFit != itFitPool.end(); itFit++) {
-                (*itFit)->unroot();
-                (*itFit)->decRef();
+            objPool &itFitPool = *(itMapPool.second);
+            POOL_LOG("clear arrayType:%d,fitSize:%lu,objSize:%lu\n", it->first, itMapPool->first, itFitPool.size());
+            for (auto & itFit : itFitPool) {
+                itFit->unroot();
+                itFit->decRef();
             }
             delete &itFitPool;
         }
@@ -85,36 +87,36 @@ void TypedArrayPool::clearPool() {
     }
     _pool.clear();
 
-    PoolLog("*****clearPool TypeArray pool end");
+    POOL_LOG("*****clearPool TypeArray pool end");
 }
 
 void TypedArrayPool::dump() {
     //map
-    for (auto it = _pool.begin(); it != _pool.end(); it++) {
+    for (auto & it : _pool) {
         //map
-        fitMap &mapPool = *(it->second);
-        for (auto itMapPool = mapPool.begin(); itMapPool != mapPool.end(); itMapPool++) {
+        fitMap &mapPool = *(it.second);
+        for (auto & itMapPool : mapPool) {
             //vector
-            CC_UNUSED objPool &itFitPool = *(itMapPool->second);
-            PoolLog("arrayType:%d,fitSize:%lu,objSize:%lu\n", it->first, itMapPool->first, itFitPool.size());
+            CC_UNUSED objPool &itFitPool = *(itMapPool.second);
+            POOL_LOG("arrayType:%d,fitSize:%lu,objSize:%lu\n", it->first, itMapPool->first, itFitPool.size());
         }
     }
 }
 
 se::Object *TypedArrayPool::pop(arrayType type, std::size_t size) {
-    std::size_t fitSize = ceil(size / float(MIN_TYPE_ARRAY_SIZE)) * MIN_TYPE_ARRAY_SIZE;
+    auto fitSize = static_cast<std::size_t>(ceil(size / float(MIN_TYPE_ARRAY_SIZE)) * MIN_TYPE_ARRAY_SIZE);
     objPool *objPoolPtr = getObjPool(type, fitSize);
 
-    if (objPoolPtr->size() > 0) {
+    if (!objPoolPtr->empty()) {
         se::Object *obj = objPoolPtr->back();
         objPoolPtr->pop_back();
-        PoolLog("TypedArrayPool:pop result:success,type:%d,fitSize:%lu,objSize:%lu\n", (int)type, fitSize, objPoolPtr->size());
+        POOL_LOG("TypedArrayPool:pop result:success,type:%d,fitSize:%lu,objSize:%lu\n", (int)type, fitSize, objPoolPtr->size());
         return obj;
     }
 
-    PoolLog("TypedArrayPool:pop result:empty,type:%d,fitSize:%lu,objSize:%lu\n", (int)type, fitSize, objPoolPtr->size());
+    POOL_LOG("TypedArrayPool:pop result:empty,type:%d,fitSize:%lu,objSize:%lu\n", (int)type, fitSize, objPoolPtr->size());
     se::AutoHandleScope hs;
-    auto typeArray = se::Object::createTypedArray(type, nullptr, fitSize);
+    auto *typeArray = se::Object::createTypedArray(type, nullptr, fitSize);
     typeArray->root();
     return typeArray;
 }
@@ -145,24 +147,24 @@ void TypedArrayPool::push(arrayType type, std::size_t arrayCapacity, se::Object 
     if (object == nullptr) return;
 
     // If script engine is cleaning,delete object directly
-    if (!allowPush) {
+    if (!_allowPush) {
         object->unroot();
         object->decRef();
         object = nullptr;
-        PoolLog("TypedArrayPool:push result:not allow,type:%d,arrayCapacity:%lu\n", (int)type, arrayCapacity);
+        POOL_LOG("TypedArrayPool:push result:not allow,type:%d,arrayCapacity:%lu\n", (int)type, arrayCapacity);
         return;
     }
 
     objPool *objPoolPtr = getObjPool(type, arrayCapacity);
     auto it = std::find(objPoolPtr->begin(), objPoolPtr->end(), object);
     if (it != objPoolPtr->end()) {
-        PoolLog("TypedArrayPool:push result:repeat\n");
+        POOL_LOG("TypedArrayPool:push result:repeat\n");
         return;
     }
 
-    if (objPoolPtr->size() < maxPoolSize) {
+    if (objPoolPtr->size() < MAX_POOL_SIZE) {
         objPoolPtr->push_back(object);
-        PoolLog("TypedArrayPool:push result:success,type:%d,arrayCapacity:%lu,objSize:%lu\n", (int)type, arrayCapacity, objPoolPtr->size());
+        POOL_LOG("TypedArrayPool:push result:success,type:%d,arrayCapacity:%lu,objSize:%lu\n", (int)type, arrayCapacity, objPoolPtr->size());
     } else {
         object->unroot();
         object->decRef();

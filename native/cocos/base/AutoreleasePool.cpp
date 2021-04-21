@@ -1,46 +1,46 @@
 /****************************************************************************
-Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2010-2012 cocos2d-x.org
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "base/AutoreleasePool.h"
 #include "base/Log.h"
 
 namespace cc {
 
 AutoreleasePool::AutoreleasePool()
-: _name("")
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
-  ,
-  _isClearing(false)
+: _isClearing(false)
 #endif
 {
     _managedObjectArray.reserve(150);
     PoolManager::getInstance()->push(this);
 }
 
-AutoreleasePool::AutoreleasePool(const std::string &name)
-: _name(name)
+AutoreleasePool::AutoreleasePool(std::string name)
+: _name(std::move(name))
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
   ,
   _isClearing(false)
@@ -77,8 +77,9 @@ void AutoreleasePool::clear() {
 
 bool AutoreleasePool::contains(Ref *object) const {
     for (const auto &obj : _managedObjectArray) {
-        if (obj == object)
+        if (obj == object) {
             return true;
+        }
     }
     return false;
 }
@@ -98,20 +99,19 @@ void AutoreleasePool::dump() {
 //
 //--------------------------------------------------------------------
 
-PoolManager *PoolManager::s_singleInstance = nullptr;
+PoolManager *PoolManager::_singleInstance = nullptr;
 
 PoolManager *PoolManager::getInstance() {
-    if (s_singleInstance == nullptr) {
-        s_singleInstance = new (std::nothrow) PoolManager();
-        // Add the first auto release pool
-        new (std::nothrow) AutoreleasePool("autorelease pool");
+    if (_singleInstance == nullptr) {
+        _singleInstance = new (std::nothrow) PoolManager();
+        _singleInstance->push(new AutoreleasePool());
     }
-    return s_singleInstance;
+    return _singleInstance;
 }
 
 void PoolManager::destroyInstance() {
-    delete s_singleInstance;
-    s_singleInstance = nullptr;
+    delete _singleInstance;
+    _singleInstance = nullptr;
 }
 
 PoolManager::PoolManager() {
@@ -129,13 +129,17 @@ PoolManager::~PoolManager() {
 }
 
 AutoreleasePool *PoolManager::getCurrentPool() const {
+    if (_releasePoolStack.empty()) {
+        return nullptr;
+    }
     return _releasePoolStack.back();
 }
 
 bool PoolManager::isObjectInPools(Ref *obj) const {
     for (const auto &pool : _releasePoolStack) {
-        if (pool->contains(obj))
+        if (pool->contains(obj)) {
             return true;
+        }
     }
     return false;
 }

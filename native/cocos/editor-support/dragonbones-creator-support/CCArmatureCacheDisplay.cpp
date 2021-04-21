@@ -29,7 +29,7 @@
 #include "base/TypeDef.h"
 #include "base/memory/Memory.h"
 #include "math/Math.h"
-#include "core/gfx/GFXDef.h"
+#include "gfx-base/GFXDef.h"
 
 using namespace cc;
 using namespace cc::gfx;

@@ -1,5 +1,5 @@
 /****************************************************************************
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -21,18 +21,20 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
- ****************************************************************************/
+****************************************************************************/
+
 #include "base/Config.h"
 
 #if (USE_SOCKET > 0) && (USE_WEBSOCKET_SERVER > 0)
 
-    #include <atomic>
-    #include <cassert>
     #include <iostream>
+    #include <cassert>
+    #include <atomic>
 
-    #include "cocos/base/Scheduler.h"
     #include "cocos/network/WebSocketServer.h"
     #include "cocos/platform/Application.h"
+    #include "cocos/base/Scheduler.h"
+    #include "cocos/base/Log.h"
 
     #define MAX_MSG_PAYLOAD 2048
     #define SEND_BUFF       1024
@@ -540,7 +542,7 @@ void WebSocketServerConnection::onHTTP() {
         if (!len) {
             n++;
             continue;
-        } else if (len + 1 > (int)buf.size()) {
+        } else if (len + 1 > buf.size()) {
             buf.resize(len + 1);
         }
         lws_hdr_copy(_wsi, buf.data(), buf.size(), idx);

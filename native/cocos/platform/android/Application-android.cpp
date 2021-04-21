@@ -1,28 +1,30 @@
 /****************************************************************************
-Copyright (c) 2010-2012 cocos2d-x.org
-Copyright (c) 2013-2016 Chukong Technologies Inc.
-Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2010-2012 cocos2d-x.org
+ Copyright (c) 2013-2016 Chukong Technologies Inc.
+ Copyright (c) 2017-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "platform/Application.h"
 #include <cstring>
 #include <android_native_app_glue.h>
@@ -33,6 +35,10 @@ THE SOFTWARE.
 #include "cocos/bindings/event/EventDispatcher.h"
 #include "platform/android/jni/JniHelper.h"
 #include "platform/android/jni/JniCocosActivity.h"
+
+#include "pipeline/Define.h"
+#include "pipeline/RenderPipeline.h"
+#include "renderer/GFXDeviceManager.h"
 
 #define LOG_APP_TAG "Application_android Debug"
 #define LOGD(...)   __android_log_print(ANDROID_LOG_DEBUG, LOG_APP_TAG, __VA_ARGS__)
@@ -45,7 +51,10 @@ extern "C" size_t __ctype_get_mb_cur_max(void) {
 }
 #endif
 
+namespace cc {
+
 namespace {
+
 bool setCanvasCallback(se::Object *global) {
     auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
     se::AutoHandleScope scope;
@@ -57,11 +66,20 @@ bool setCanvasCallback(se::Object *global) {
             (uintptr_t)cc::cocosApp.window);
     se->evalString(commandBuf);
 
+    gfx::DeviceInfo deviceInfo;
+    deviceInfo.windowHandle = (uintptr_t)cc::cocosApp.window;
+    deviceInfo.width        = viewLogicalSize.x;
+    deviceInfo.height       = viewLogicalSize.y;
+    deviceInfo.nativeWidth  = viewLogicalSize.x;
+    deviceInfo.nativeHeight = viewLogicalSize.y;
+    deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
+
+    gfx::DeviceManager::create(deviceInfo);
+
     return true;
 }
-} // namespace
 
-namespace cc {
+} // namespace
 
 Application *Application::_instance = nullptr;
 std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
@@ -78,8 +96,12 @@ Application::~Application() {
     AudioEngine::end();
 #endif
 
+    pipeline::RenderPipeline::getInstance()->destroy();
+
     EventDispatcher::destroy();
     se::ScriptEngine::destroyInstance();
+
+    gfx::DeviceManager::destroy();
 
     Application::_instance = nullptr;
 }

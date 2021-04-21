@@ -147,7 +147,7 @@ void Mat4::createOrthographicOffCenter(float left, float right, float bottom, fl
     GP_ASSERT(top != bottom);
     GP_ASSERT(zFarPlane != zNearPlane);
 
-    memset(dst, 0.0f, MATRIX_SIZE);
+    memset(dst, 0, MATRIX_SIZE);
     dst->m[0] = 2.0f / (right - left);
     dst->m[5] = 2.0f / (top - bottom) * projectionSignY;
     dst->m[10] = (1.0f - minClipZ) / (zNearPlane - zFarPlane);

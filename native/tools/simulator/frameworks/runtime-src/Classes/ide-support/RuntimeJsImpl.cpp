@@ -29,6 +29,12 @@
 //
 //
 
+// NOTE: fix the conflict typedef 'byte' between C++17 and one Windows header named 'rpcndr.h'
+// reference: https://studiofreya.com/2018/01/06/visual-studio-2017-with-cpp17-and-boost/#stdbyte-ambiguous-symbol-and-rpcndr.h
+#ifdef WIN32
+#define _HAS_STD_BYTE 0
+#endif
+
 #include "RuntimeJsImpl.h"
 
 #if (CC_CODE_IDE_DEBUG_SUPPORT > 0)

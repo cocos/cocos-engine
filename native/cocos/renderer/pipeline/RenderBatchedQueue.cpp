@@ -1,51 +1,54 @@
 /****************************************************************************
-Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2020-2021 Xiamen Yaji Software Co., Ltd.
 
-http://www.cocos2d-x.org
+ http://www.cocos.com
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 ****************************************************************************/
+
 #include "RenderBatchedQueue.h"
 #include "BatchedBuffer.h"
 #include "PipelineStateManager.h"
-#include "gfx/GFXBuffer.h"
-#include "gfx/GFXCommandBuffer.h"
+#include "gfx-base/GFXDevice.h"
+#include "gfx-base/GFXCommandBuffer.h"
+#include "gfx-base/GFXRenderPass.h"
 #include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
 
 void RenderBatchedQueue::clear() {
-    for (auto it : _queues) {
+    for (auto *it : _queues) {
         it->clear();
     }
     _queues.clear();
 }
 
 void RenderBatchedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
-    for (auto batchedBuffer : _queues) {
-        auto &batches = batchedBuffer->getBatches();
-        for (auto &batch : batches) {
+    for (auto *batchedBuffer : _queues) {
+        const auto &batches = batchedBuffer->getBatches();
+        for (const auto &batch : batches) {
             if (!batch.mergeCount) continue;
 
-            auto i = 0u;
-            for (auto vb : batch.vbs) {
+            auto i = 0U;
+            for (auto *vb : batch.vbs) {
                 cmdBuffer->updateBuffer(vb, batch.vbDatas[i++], vb->getSize());
             }
             cmdBuffer->updateBuffer(batch.indexBuffer, batch.indexData, batch.indexBuffer->getSize());
@@ -54,20 +57,20 @@ void RenderBatchedQueue::uploadBuffers(gfx::CommandBuffer *cmdBuffer) {
     }
 }
 
-void RenderBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
-    for (auto batchedBuffer : _queues) {
+void RenderBatchedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
+    for (auto *batchedBuffer : _queues) {
         bool boundPSO = false;
         const auto &batches = batchedBuffer->getBatches();
         for (const auto &batch : batches) {
             if (!batch.mergeCount) continue;
             if (!boundPSO) {
-                auto pso = PipelineStateManager::getOrCreatePipelineState(batch.pass, batch.shader, batch.ia, renderPass);
+                auto *pso = PipelineStateManager::getOrCreatePipelineState(batch.pass, batch.shader, batch.ia, renderPass);
                 cmdBuffer->bindPipelineState(pso);
-                cmdBuffer->bindDescriptorSet(MATERIAL_SET, batch.pass->getDescriptorSet());
+                cmdBuffer->bindDescriptorSet(materialSet, batch.pass->getDescriptorSet());
                 boundPSO = true;
             }
 
-            cmdBuffer->bindDescriptorSet(LOCAL_SET, batch.descriptorSet, batchedBuffer->getDynamicOffset());
+            cmdBuffer->bindDescriptorSet(localSet, batch.descriptorSet, batchedBuffer->getDynamicOffset());
             cmdBuffer->bindInputAssembler(batch.ia);
             cmdBuffer->draw(batch.ia);
         }

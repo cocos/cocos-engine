@@ -1,3 +1,28 @@
+/****************************************************************************
+ Copyright (c) 2019-2021 Xiamen Yaji Software Co., Ltd.
+
+ http://www.cocos.com
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+****************************************************************************/
+
 #include "cocos/bindings/auto/jsb_dragonbones_auto.h"
 #if USE_DRAGONBONES > 0
 #include "cocos/bindings/manual/jsb_conversions.h"
@@ -88,7 +113,6 @@ bool js_register_dragonbones_BaseObject(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_Rectangle_proto = nullptr;
 se::Class* __jsb_dragonBones_Rectangle_class = nullptr;
 
@@ -149,7 +173,6 @@ bool js_register_dragonbones_Rectangle(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_Matrix_proto = nullptr;
 se::Class* __jsb_dragonBones_Matrix_class = nullptr;
 
@@ -337,7 +360,6 @@ bool js_register_dragonbones_Matrix(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_Transform_proto = nullptr;
 se::Class* __jsb_dragonBones_Transform_class = nullptr;
 
@@ -546,7 +568,6 @@ bool js_register_dragonbones_Transform(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_TextureAtlasData_proto = nullptr;
 se::Class* __jsb_dragonBones_TextureAtlasData_class = nullptr;
 
@@ -658,7 +679,6 @@ bool js_register_dragonbones_TextureAtlasData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_TextureData_proto = nullptr;
 se::Class* __jsb_dragonBones_TextureData_class = nullptr;
 
@@ -797,7 +817,6 @@ bool js_register_dragonbones_TextureData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_ArmatureData_proto = nullptr;
 se::Class* __jsb_dragonBones_ArmatureData_class = nullptr;
 
@@ -1209,7 +1228,6 @@ bool js_register_dragonbones_ArmatureData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_BoneData_proto = nullptr;
 se::Class* __jsb_dragonBones_BoneData_class = nullptr;
 
@@ -1346,7 +1364,6 @@ bool js_register_dragonbones_BoneData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_SlotData_proto = nullptr;
 se::Class* __jsb_dragonBones_SlotData_class = nullptr;
 
@@ -1503,7 +1520,6 @@ bool js_register_dragonbones_SlotData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_DragonBonesData_proto = nullptr;
 se::Class* __jsb_dragonBones_DragonBonesData_class = nullptr;
 
@@ -1635,7 +1651,6 @@ bool js_register_dragonbones_DragonBonesData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_SkinData_proto = nullptr;
 se::Class* __jsb_dragonBones_SkinData_class = nullptr;
 
@@ -1684,7 +1699,6 @@ bool js_register_dragonbones_SkinData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_AnimationData_proto = nullptr;
 se::Class* __jsb_dragonBones_AnimationData_class = nullptr;
 
@@ -1950,7 +1964,6 @@ bool js_register_dragonbones_AnimationData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_Armature_proto = nullptr;
 se::Class* __jsb_dragonBones_Armature_class = nullptr;
 
@@ -2469,7 +2482,6 @@ bool js_register_dragonbones_Armature(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_TransformObject_proto = nullptr;
 se::Class* __jsb_dragonBones_TransformObject_class = nullptr;
 
@@ -2606,7 +2618,6 @@ bool js_register_dragonbones_TransformObject(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_AnimationState_proto = nullptr;
 se::Class* __jsb_dragonBones_AnimationState_class = nullptr;
 
@@ -3251,7 +3262,6 @@ bool js_register_dragonbones_AnimationState(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_Bone_proto = nullptr;
 se::Class* __jsb_dragonBones_Bone_class = nullptr;
 
@@ -3509,7 +3519,6 @@ bool js_register_dragonbones_Bone(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_Slot_proto = nullptr;
 se::Class* __jsb_dragonBones_Slot_class = nullptr;
 
@@ -3861,7 +3870,6 @@ bool js_register_dragonbones_Slot(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_WorldClock_proto = nullptr;
 se::Class* __jsb_dragonBones_WorldClock_class = nullptr;
 
@@ -3991,7 +3999,6 @@ bool js_register_dragonbones_WorldClock(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_Animation_proto = nullptr;
 se::Class* __jsb_dragonBones_Animation_class = nullptr;
 
@@ -4659,7 +4666,6 @@ bool js_register_dragonbones_Animation(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_EventObject_proto = nullptr;
 se::Class* __jsb_dragonBones_EventObject_class = nullptr;
 
@@ -4928,7 +4934,6 @@ bool js_register_dragonbones_EventObject(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_BaseFactory_proto = nullptr;
 se::Class* __jsb_dragonBones_BaseFactory_class = nullptr;
 
@@ -5426,7 +5431,6 @@ bool js_register_dragonbones_BaseFactory(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_CCSlot_proto = nullptr;
 se::Class* __jsb_dragonBones_CCSlot_class = nullptr;
 
@@ -5463,7 +5467,6 @@ bool js_register_dragonbones_CCSlot(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_CCArmatureDisplay_proto = nullptr;
 se::Class* __jsb_dragonBones_CCArmatureDisplay_class = nullptr;
 
@@ -6060,7 +6063,6 @@ bool js_register_dragonbones_CCArmatureDisplay(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_ArmatureCacheMgr_proto = nullptr;
 se::Class* __jsb_dragonBones_ArmatureCacheMgr_class = nullptr;
 
@@ -6172,7 +6174,6 @@ bool js_register_dragonbones_ArmatureCacheMgr(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_CCArmatureCacheDisplay_proto = nullptr;
 se::Class* __jsb_dragonBones_CCArmatureCacheDisplay_class = nullptr;
 
@@ -6717,7 +6718,6 @@ bool js_register_dragonbones_CCArmatureCacheDisplay(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_CCFactory_proto = nullptr;
 se::Class* __jsb_dragonBones_CCFactory_class = nullptr;
 
@@ -7197,7 +7197,6 @@ bool js_register_dragonbones_CCFactory(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_CCTextureAtlasData_proto = nullptr;
 se::Class* __jsb_dragonBones_CCTextureAtlasData_class = nullptr;
 
@@ -7218,7 +7217,6 @@ bool js_register_dragonbones_CCTextureAtlasData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 se::Object* __jsb_dragonBones_CCTextureData_proto = nullptr;
 se::Class* __jsb_dragonBones_CCTextureData_class = nullptr;
 
@@ -7239,7 +7237,6 @@ bool js_register_dragonbones_CCTextureData(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
-
 bool register_all_dragonbones(se::Object* obj)
 {
     // Get the ns
