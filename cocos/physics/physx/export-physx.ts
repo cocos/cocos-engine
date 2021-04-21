@@ -55,25 +55,23 @@ if (globalThis.PhysX) {
         onRuntimeInitialized () {
             console.log('PhysX loaded');
             // adapt
-            if (!USE_BYTEDANCE) {
-                PX.VECTOR_MAT = new PX.PxMaterialVector();
-                PX.QueryHitType = PX.PxQueryHitType;
-                PX.ShapeFlag = PX.PxShapeFlag;
-                PX.ActorFlag = PX.PxActorFlag;
-                PX.RigidBodyFlag = PX.PxRigidBodyFlag;
-                PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
-                PX.CombineMode = PX.PxCombineMode;
-                PX.ForceMode = PX.PxForceMode;
-                PX.SphereGeometry = PX.PxSphereGeometry;
-                PX.BoxGeometry = PX.PxBoxGeometry;
-                PX.CapsuleGeometry = PX.PxCapsuleGeometry;
-                PX.PlaneGeometry = PX.PxPlaneGeometry;
-                PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
-                PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
-                PX.MeshScale = PX.PxMeshScale;
-                PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
-                PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
-            }
+            PX.VECTOR_MAT = new PX.PxMaterialVector();
+            PX.QueryHitType = PX.PxQueryHitType;
+            PX.ShapeFlag = PX.PxShapeFlag;
+            PX.ActorFlag = PX.PxActorFlag;
+            PX.RigidBodyFlag = PX.PxRigidBodyFlag;
+            PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
+            PX.CombineMode = PX.PxCombineMode;
+            PX.ForceMode = PX.PxForceMode;
+            PX.SphereGeometry = PX.PxSphereGeometry;
+            PX.BoxGeometry = PX.PxBoxGeometry;
+            PX.CapsuleGeometry = PX.PxCapsuleGeometry;
+            PX.PlaneGeometry = PX.PxPlaneGeometry;
+            PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
+            PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
+            PX.MeshScale = PX.PxMeshScale;
+            PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
+            PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
         },
     });
 }
@@ -169,7 +167,7 @@ export function addActorToScene (scene: any, actor: any) {
 
 export function setJointActors (joint: any, actor0: any, actor1: any): void {
     if (USE_BYTEDANCE) {
-        // eslint-disable-next-line no-unused-expressions
+        // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         actor1 ? joint.setActors(actor0, actor1) : joint.setActors(actor0);
     } else {
         joint.setActors(actor0, actor1);
