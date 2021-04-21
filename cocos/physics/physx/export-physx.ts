@@ -35,57 +35,60 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import { BYTEDANCE } from 'internal:constants';
+// import PhysX from '@cocos/physx';
 import { IQuatLike, IVec3Like, Node, Quat, RecyclePool, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
-import { Ray } from '../../core/geometry';
+import { AABB, Ray } from '../../core/geometry';
 import { IRaycastOptions } from '../spec/i-physics-world';
 import { PhysicsRayResult } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
-// import PhysX from '@cocos/physx';
 
+let USE_BYTEDANCE = false;
+if (BYTEDANCE) USE_BYTEDANCE = true;
 const globalThis = legacyCC._global;
+// globalThis.PhysX = PhysX;
 
-if (PhysX) {
+if (globalThis.PhysX) {
     globalThis.PhysX = (PhysX as any)({
         onRuntimeInitialized () {
             console.log('PhysX loaded');
-            if (PX) {
-                PX.CACHE_MAT = {};
-                PX.IMPL_PTR = {};
-                PX.MESH_CONVEX = {};
-                PX.MESH_STATIC = {};
-                PX.TERRAIN_STATIC = {};
-                if (!USE_BYTEDANCE) {
-                    PX.VECTOR_MAT = new PX.PxMaterialVector();
-                    PX.QueryHitType = PX.PxQueryHitType;
-                    PX.ShapeFlag = PX.PxShapeFlag;
-                    PX.ActorFlag = PX.PxActorFlag;
-                    PX.RigidBodyFlag = PX.PxRigidBodyFlag;
-                    PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
-                    PX.CombineMode = PX.PxCombineMode;
-                    PX.ForceMode = PX.PxForceMode;
-                    PX.SphereGeometry = PX.PxSphereGeometry;
-                    PX.BoxGeometry = PX.PxBoxGeometry;
-                    PX.CapsuleGeometry = PX.PxCapsuleGeometry;
-                    PX.PlaneGeometry = PX.PxPlaneGeometry;
-                    PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
-                    PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
-                    PX.MeshScale = PX.PxMeshScale;
-                    PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
-                    PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
-                }
+            // adapt
+            if (!USE_BYTEDANCE) {
+                PX.VECTOR_MAT = new PX.PxMaterialVector();
+                PX.QueryHitType = PX.PxQueryHitType;
+                PX.ShapeFlag = PX.PxShapeFlag;
+                PX.ActorFlag = PX.PxActorFlag;
+                PX.RigidBodyFlag = PX.PxRigidBodyFlag;
+                PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
+                PX.CombineMode = PX.PxCombineMode;
+                PX.ForceMode = PX.PxForceMode;
+                PX.SphereGeometry = PX.PxSphereGeometry;
+                PX.BoxGeometry = PX.PxBoxGeometry;
+                PX.CapsuleGeometry = PX.PxCapsuleGeometry;
+                PX.PlaneGeometry = PX.PxPlaneGeometry;
+                PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
+                PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
+                PX.MeshScale = PX.PxMeshScale;
+                PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
+                PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
             }
         },
     });
 }
 
-let USE_BYTEDANCE = false;
-if (BYTEDANCE) USE_BYTEDANCE = true;
 let _px = globalThis.PhysX as any;
 if (USE_BYTEDANCE && globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
 export const PX = _px;
+
+if (PX) {
+    PX.CACHE_MAT = {};
+    PX.IMPL_PTR = {};
+    PX.MESH_CONVEX = {};
+    PX.MESH_STATIC = {};
+    PX.TERRAIN_STATIC = {};
+}
 
 /// enum ///
 
@@ -265,11 +268,14 @@ export function getShapeFlags (isTrigger: boolean): any {
     return new PX.PxShapeFlags(flag);
 }
 
-export function getShapeWorldBounds (shape: any, actor: any, i = 1.01) {
+export function getShapeWorldBounds (shape: any, actor: any, i = 1.01, out: AABB) {
     if (USE_BYTEDANCE) {
-        return PX.RigidBodyExt.getWorldBounds(shape, actor, i);
+        const b3 = PX.RigidActorExt.getWorldBounds(shape, actor, i);
+        Vec3.copy(out.center, b3.getCenter());
+        Vec3.copy(out.halfExtents, b3.getExtents());
     } else {
-        return shape.getWorldBounds(actor, i);
+        const b3 = shape.getWorldBounds(actor, i);
+        AABB.fromPoints(out, b3.minimum, b3.maximum);
     }
 }
 
