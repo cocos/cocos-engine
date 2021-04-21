@@ -40,7 +40,8 @@ import { PhysXRigidBody } from './physx-rigid-body';
 import { PhysXShape } from './shapes/physx-shape';
 import { PhysXContactEquation } from './physx-contact-equation';
 import { CollisionEventObject, TriggerEventObject } from '../utils/util';
-import { addActorToScene, getContactData, raycastAll, getWrapShape, PX, simulateScene, initializeWorld, raycastClosest } from './export-physx';
+import { addActorToScene, getContactData, raycastAll, getWrapShape, PX, simulateScene,
+    initializeWorld, raycastClosest, EFilterDataWord3 } from './export-physx';
 import { fastRemoveAt } from '../../core/utils/array';
 import { TupleDictionary } from '../utils/tuple-dictionary';
 
@@ -222,7 +223,6 @@ const eventCallback = {
         const wpb = getWrapShape<PhysXShape>(b);
         onTrigger('onTriggerExit', wpa, wpb);
     },
-    // onTriggerPersist: (...a: any) => { console.log('onTriggerPersist', a); },
 };
 
 // eNONE = 0,   //!< the query should ignore this shape
@@ -230,14 +230,12 @@ const eventCallback = {
 // eBLOCK = 2   //!< a hit on the shape blocks the query (does not block overlap queries)
 const queryCallback = {
     preFilter (filterData: any, shape: any, _actor: any, _out: any): number {
-        // 0 for mask filter
-        // 1 for trigger toggle
-        // 2 for single hit
         const shapeFlags = shape.getFlags();
-        if ((filterData.word3 & 2) && (shapeFlags & PX.ShapeFlag.eTRIGGER_SHAPE)) {
+        if ((filterData.word3 & EFilterDataWord3.QUERY_CHECK_TRIGGER)
+            && (shapeFlags & PX.ShapeFlag.eTRIGGER_SHAPE)) {
             return PX.QueryHitType.eNONE;
         }
-        return filterData.word3 & 4 ? PX.QueryHitType.eBLOCK : PX.QueryHitType.eTOUCH;
+        return filterData.word3 & EFilterDataWord3.QUERY_SINGLE_HIT ? PX.QueryHitType.eBLOCK : PX.QueryHitType.eTOUCH;
     },
 };
 

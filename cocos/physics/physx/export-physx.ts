@@ -33,6 +33,7 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable no-tabs */
 
 import { BYTEDANCE } from 'internal:constants';
 // import PhysX from '@cocos/physx';
@@ -98,6 +99,48 @@ export enum EFilterDataWord3 {
     DETECT_CONTACT_EVENT = 1 << 4,
     DETECT_CONTACT_POINT = 1 << 5,
     DETECT_CONTACT_CCD = 1 << 6,
+}
+
+export enum PxHitFlag {
+    ePOSITION					= (1 << 0),	//! < "position" member of #PxQueryHit is valid
+    eNORMAL						= (1 << 1),	//! < "normal" member of #PxQueryHit is valid
+    eUV							= (1 << 3),	//! < "u" and "v" barycentric coordinates of #PxQueryHit are valid. Not applicable to sweep queries.
+    eASSUME_NO_INITIAL_OVERLAP	= (1 << 4),	//! < Performance hint flag for sweeps when it is known upfront there's no initial overlap.
+                                            //! < NOTE: using this flag may cause undefined results if shapes are initially overlapping.
+    eMESH_MULTIPLE				= (1 << 5),	//! < Report all hits for meshes rather than just the first. Not applicable to sweep queries.
+    eMESH_ANY					= (1 << 6),	//! < Report any first hit for meshes. If neither eMESH_MULTIPLE nor eMESH_ANY is specified,
+                                            //! < a single closest hit will be reported for meshes.
+    eMESH_BOTH_SIDES			= (1 << 7),	//! < Report hits with back faces of mesh triangles. Also report hits for raycast
+                                            //! < originating on mesh surface and facing away from the surface normal. Not applicable to sweep queries.
+                                            //! < Please refer to the user guide for heightfield-specific differences.
+    ePRECISE_SWEEP				= (1 << 8),	//! < Use more accurate but slower narrow phase sweep tests.
+                                            //! < May provide better compatibility with PhysX 3.2 sweep behavior.
+    eMTD						= (1 << 9),	//! < Report the minimum translation depth, normal and contact point.
+    eFACE_INDEX					= (1 << 10),	//! < "face index" member of #PxQueryHit is valid
+
+    eDEFAULT					= PxHitFlag.ePOSITION | PxHitFlag.eNORMAL | PxHitFlag.eFACE_INDEX,
+
+    /** \brief Only this subset of flags can be modified by pre-filter. Other modifications will be discarded. */
+    eMODIFIABLE_FLAGS			= PxHitFlag.eMESH_MULTIPLE | PxHitFlag.eMESH_BOTH_SIDES | PxHitFlag.eASSUME_NO_INITIAL_OVERLAP | PxHitFlag.ePRECISE_SWEEP
+}
+
+export enum PxQueryFlag
+{
+    eSTATIC				= (1 << 0),	//! < Traverse static shapes
+
+    eDYNAMIC			= (1 << 1),	//! < Traverse dynamic shapes
+
+    ePREFILTER			= (1 << 2),	//! < Run the pre-intersection-test filter (see #PxQueryFilterCallback::preFilter())
+
+    ePOSTFILTER			= (1 << 3),	//! < Run the post-intersection-test filter (see #PxQueryFilterCallback::postFilter())
+
+    eANY_HIT			= (1 << 4),	//! < Abort traversal as soon as any hit is found and return it via callback.block.
+                                    //! < Helps query performance. Both eTOUCH and eBLOCK hitTypes are considered hits with this flag.
+
+    eNO_BLOCK			= (1 << 5),	//! < All hits are reported as touching. Overrides eBLOCK returned from user filters with eTOUCH.
+                                    //! < This is also an optimization hint that may improve query performance.
+
+    eRESERVED			= (1 << 15)	//! < Reserved for internal use
 }
 
 /// adapters ///
@@ -468,12 +511,13 @@ export function simulateScene (scene: any, deltaTime: number) {
 export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastOptions,
     pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
     const maxDistance = options.maxDistance;
-    const flags = (1 << 0) | (1 << 1) | (1 << 10);
-    const word3 = 1 | (options.queryTrigger ? 0 : 2);
+    const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
+    const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER);
+    const queryFlags = PxQueryFlag.eSTATIC | PxQueryFlag.eDYNAMIC | PxQueryFlag.ePREFILTER | PxQueryFlag.eNO_BLOCK;
     if (USE_BYTEDANCE) {
         world.queryfilterData.data.word3 = word3;
         world.queryfilterData.data.word0 = options.mask >>> 0;
-        world.queryfilterData.flags = (1 << 0) | (1 << 1) | (1 << 2) | (1 << 5);
+        world.queryfilterData.flags = queryFlags;
         const r = PX.SceneQueryExt.raycastMultiple(world.scene, worldRay.o, worldRay.d, maxDistance, flags,
             world.mutipleResultSize, world.queryfilterData, world.queryFilterCB);
 
@@ -488,9 +532,9 @@ export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastO
             return true;
         }
     } else {
-        world.queryfilterData.setWords(word3, 3);
         world.queryfilterData.setWords(options.mask >>> 0, 0);
-        world.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2) | (1 << 5));
+        world.queryfilterData.setWords(word3, 3);
+        world.queryfilterData.setFlags(queryFlags);
         const blocks = world.mutipleResults;
         const r = world.scene.raycastMultiple(worldRay.o, worldRay.d, maxDistance, flags,
             blocks, blocks.size(), world.queryfilterData, world.queryFilterCB, null);
@@ -514,12 +558,14 @@ export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastO
 
 export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
     const maxDistance = options.maxDistance;
-    const flags = (1 << 0) | (1 << 1); // | (1 << 10);
-    const word3 = 1 | (options.queryTrigger ? 0 : 2) | 4;
+    const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
+    const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER)
+        | EFilterDataWord3.QUERY_SINGLE_HIT;
+    const queryFlags = PxQueryFlag.eSTATIC | PxQueryFlag.eDYNAMIC | PxQueryFlag.ePREFILTER;
     if (USE_BYTEDANCE) {
         world.queryfilterData.data.word3 = word3;
         world.queryfilterData.data.word0 = options.mask >>> 0;
-        world.queryfilterData.flags = (1 << 0) | (1 << 1) | (1 << 2);
+        world.queryfilterData.flags = queryFlags;
         const block = PX.SceneQueryExt.raycastSingle(world.scene, worldRay.o, worldRay.d, maxDistance,
             flags, world.queryfilterData, world.queryFilterCB);
         if (block) {
@@ -530,7 +576,7 @@ export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRayc
     } else {
         world.queryfilterData.setWords(options.mask >>> 0, 0);
         world.queryfilterData.setWords(word3, 3);
-        world.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2));
+        world.queryfilterData.setFlags(queryFlags);
         const block = world.singleResult;
         const r = world.scene.raycastSingle(worldRay.o, worldRay.d, options.maxDistance, flags,
             block, world.queryfilterData, world.queryFilterCB, null);
