@@ -186,7 +186,6 @@ const excludeList = [
 ];
 
 exports.methods = {
-
     getObjectByKey (target, key) {
         let params = [];
         if (typeof key === 'string') {
@@ -235,23 +234,6 @@ exports.methods = {
         }
 
         return this.getName(value);
-    },
-
-    _onApplyClick () {
-        Editor.Message.send('scene', 'execute-component-method', {
-            uuid: this.dump.value.uuid.value,
-            name: 'cook',
-            args: [],
-        });
-
-        this.dump.values
-            && this.dump.values.forEach((dump) => {
-                Editor.Message.send('scene', 'execute-component-method', {
-                    uuid: dump.value.uuid.value,
-                    name: 'combine',
-                    args: [],
-                });
-            });
     },
 
     getEnumName (type, value) {

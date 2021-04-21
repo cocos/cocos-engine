@@ -162,7 +162,7 @@ const Elements = {
         ready() {
             const panel = this;
 
-            panel.$.depthWriteInAlphaModeBlendCheckbox.addEventListener('change', panel.setProp.bind(panel, 'useVertexColors'));
+            panel.$.depthWriteInAlphaModeBlendCheckbox.addEventListener('change', panel.setProp.bind(panel, 'depthWriteInAlphaModeBlend'));
         },
         update() {
             const panel = this;

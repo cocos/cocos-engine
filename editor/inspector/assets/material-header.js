@@ -41,6 +41,8 @@ exports.methods = {
         }
 
         if (panel.isPreviewDataDirty) {
+            panel.isPreviewDataDirty = false;
+
             try {
                 const canvas = panel.$.canvas;
 
@@ -62,8 +64,6 @@ exports.methods = {
             } catch (e) {
                 console.warn(e);
             }
-
-            panel.isPreviewDataDirty = false;
         }
 
         cancelAnimationFrame(panel.animationId);

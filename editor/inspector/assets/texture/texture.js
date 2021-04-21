@@ -27,7 +27,7 @@ exports.template = `
             <ui-label slot="label" value="i18n:ENGINE.assets.texture.wrapModeT" tooltip="i18n:ENGINE.assets.texture.wrapModeTTip"></ui-label>
             <ui-select slot="content" class="wrapModeT-select"></ui-select>
         </ui-prop>
-        <ui-prop class="warn-words">
+        <ui-prop class="warn-words" style="display:none;">
             <ui-label value="i18n:ENGINE.assets.texture.modeWarn"></ui-label>
         </ui-prop>
     </div>
@@ -41,7 +41,6 @@ exports.style = `
         flex-direction: column;
      }
     .asset-texture > .content {
-        padding-bottom: 15px;
         flex: 1;
     }
     .asset-texture > .content > ui-prop {
@@ -86,8 +85,6 @@ exports.$ = {
     wrapModeTProp: '.wrapModeT-prop',
     wrapModeTSelect: '.wrapModeT-select',
     warnWords: '.warn-words',
-    image: '.preview-image',
-    imageSize: '.preview-image-size',
 };
 
 /**
@@ -203,6 +200,7 @@ const Elements = {
                 panel.userDataList.forEach((userData) => {
                     userData.wrapModeS = event.target.value;
                 });
+                Elements.warnWords.update.call(panel);
                 panel.dispatch('change');
             });
         },
@@ -227,9 +225,10 @@ const Elements = {
             const panel = this;
 
             panel.$.wrapModeTSelect.addEventListener('change', (event) => {
-                panel.userData.forEach((userData) => {
+                panel.userDataList.forEach((userData) => {
                     userData.wrapModeT = event.target.value;
                 });
+                Elements.warnWords.update.call(panel);
                 panel.dispatch('change');
             });
         },
@@ -266,15 +265,19 @@ const Elements = {
 
             this.$.image.value = panel.asset.uuid;
 
-            const { wrapModeT, wrapModeS } = panel.userData;
+            let isUnlegalWrapModeT = false;
+            let isUnlegalWrapModeS = false;
 
-            const { naturalWidth, naturalHeight } = panel.$.image.$img;
+            if (panel.$.image.$img.src) {
+                const { naturalWidth, naturalHeight } = panel.$.image.$img;
+                const { wrapModeT, wrapModeS } = panel.userData;
 
-            // Determine the power of 2 algorithm: (number & number - 1) === 0
-            const isUnlegal = naturalWidth & (naturalWidth - 1) || naturalHeight & (naturalHeight - 1);
+                // Determine the power of 2 algorithm: (number & number - 1) === 0
+                const isUnlegal = naturalWidth & (naturalWidth - 1) || naturalHeight & (naturalHeight - 1);
 
-            const isUnlegalWrapModeT = isUnlegal && wrapModeT === 'repeat';
-            const isUnlegalWrapModeS = isUnlegal && wrapModeS === 'repeat';
+                isUnlegalWrapModeT = isUnlegal && wrapModeT === 'repeat';
+                isUnlegalWrapModeS = isUnlegal && wrapModeS === 'repeat';
+            }
 
             if (isUnlegalWrapModeT || isUnlegalWrapModeS) {
                 this.$.warnWords.style.display = 'block';

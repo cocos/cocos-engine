@@ -32,6 +32,7 @@ exports.style = `
 }
 .preview > .model-info {
     padding-top: 5px;
+    display: none;
 }
 .preview > .model-info > ui-label {
     margin-right: 6px;
@@ -230,6 +231,7 @@ exports.close = function () {
     Editor.Message.removeBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateBind);
     Editor.Message.removeBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
     Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
+    Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
 };
 
 exports.methods = {
@@ -277,8 +279,8 @@ exports.methods = {
     async onTabChanged(activeTab) {
         if (typeof activeTab === 'string') {
             this.activeTab = activeTab;
-            this.$.animationInfo.style.display = this.activeTab === 'animation' ? '' : 'none';
-            this.$.modelInfo.style.display = this.activeTab === 'model' ? '' : 'none';
+            this.$.animationInfo.style.display = this.activeTab === 'animation' ? 'flex' : 'none';
+            this.$.modelInfo.style.display = this.activeTab === 'model' ? 'block' : 'none';
             await this.stopAnimation();
         }
     },
