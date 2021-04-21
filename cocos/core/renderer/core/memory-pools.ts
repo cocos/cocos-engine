@@ -737,10 +737,18 @@ export enum SubModelView {
     PASS_1,                 // handle
     PASS_2,                 // handle
     PASS_3,                 // handle
+    PASS_4,                 // handle
+    PASS_5,                 // handle
+    PASS_6,                 // handle
+    PASS_7,                 // handle
     SHADER_0,               // handle
     SHADER_1,               // handle
     SHADER_2,               // handle
     SHADER_3,               // handle
+    SHADER_4,               // handle
+    SHADER_5,               // handle
+    SHADER_6,               // handle
+    SHADER_7,               // handle
     PLANAR_SHADER,          // handle
     PLANAR_INSTANCE_SHADER, // handle
     DESCRIPTOR_SET,         // handle
@@ -755,10 +763,18 @@ interface ISubModelViewType extends BufferTypeManifest<typeof SubModelView> {
     [SubModelView.PASS_1]: PassHandle;
     [SubModelView.PASS_2]: PassHandle;
     [SubModelView.PASS_3]: PassHandle;
+    [SubModelView.PASS_4]: PassHandle;
+    [SubModelView.PASS_5]: PassHandle;
+    [SubModelView.PASS_6]: PassHandle;
+    [SubModelView.PASS_7]: PassHandle;
     [SubModelView.SHADER_0]: ShaderHandle;
     [SubModelView.SHADER_1]: ShaderHandle;
     [SubModelView.SHADER_2]: ShaderHandle;
     [SubModelView.SHADER_3]: ShaderHandle;
+    [SubModelView.SHADER_4]: ShaderHandle;
+    [SubModelView.SHADER_5]: ShaderHandle;
+    [SubModelView.SHADER_6]: ShaderHandle;
+    [SubModelView.SHADER_7]: ShaderHandle;
     [SubModelView.PLANAR_SHADER]: ShaderHandle;
     [SubModelView.PLANAR_INSTANCE_SHADER]: ShaderHandle;
     [SubModelView.DESCRIPTOR_SET]: DescriptorSetHandle;
@@ -773,10 +789,18 @@ const subModelViewDataType: BufferDataTypeManifest<typeof SubModelView> = {
     [SubModelView.PASS_1]: BufferDataType.UINT32,
     [SubModelView.PASS_2]: BufferDataType.UINT32,
     [SubModelView.PASS_3]: BufferDataType.UINT32,
+    [SubModelView.PASS_4]: BufferDataType.UINT32,
+    [SubModelView.PASS_5]: BufferDataType.UINT32,
+    [SubModelView.PASS_6]: BufferDataType.UINT32,
+    [SubModelView.PASS_7]: BufferDataType.UINT32,
     [SubModelView.SHADER_0]: BufferDataType.UINT32,
     [SubModelView.SHADER_1]: BufferDataType.UINT32,
     [SubModelView.SHADER_2]: BufferDataType.UINT32,
     [SubModelView.SHADER_3]: BufferDataType.UINT32,
+    [SubModelView.SHADER_4]: BufferDataType.UINT32,
+    [SubModelView.SHADER_5]: BufferDataType.UINT32,
+    [SubModelView.SHADER_6]: BufferDataType.UINT32,
+    [SubModelView.SHADER_7]: BufferDataType.UINT32,
     [SubModelView.PLANAR_SHADER]: BufferDataType.UINT32,
     [SubModelView.PLANAR_INSTANCE_SHADER]: BufferDataType.UINT32,
     [SubModelView.DESCRIPTOR_SET]: BufferDataType.UINT32,

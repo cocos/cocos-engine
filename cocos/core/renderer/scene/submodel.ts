@@ -32,7 +32,7 @@ import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from '../../pipeline';
 
 const _dsInfo = new DescriptorSetInfo(null!);
-
+const MAX_PASS_COUNT = 8;
 export class SubModel {
     protected _device: Device | null = null;
     protected _passes: Pass[] | null = null;
@@ -44,6 +44,11 @@ export class SubModel {
     protected _descriptorSet: DescriptorSet | null = null;
 
     set passes (passes) {
+        const passLengh = passes.length;
+        if (passLengh > MAX_PASS_COUNT) {
+            console.error('SubModel can support up to ' + MAX_PASS_COUNT + ' passes.');
+            return;
+        }
         this._passes = passes;
         this._flushPassInfo();
 
