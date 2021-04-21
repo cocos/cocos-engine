@@ -376,6 +376,7 @@ class BufferAllocator<P extends PoolType> implements IMemoryPool<P> {
     protected _poolFlag: number;
 
     protected _bufferIdxMask: number;
+    protected _freelist: number[] = [];
 
     constructor (poolType: P) {
         this._poolFlag = 1 << 30;
@@ -384,7 +385,15 @@ class BufferAllocator<P extends PoolType> implements IMemoryPool<P> {
     }
 
     public alloc (size: number): IHandle<P> {
-        const bufferIdx = this._nextBufferIdx++;
+        const freelist = this._freelist;
+        let bufferIdx = -1;
+        if (freelist.length) {
+            bufferIdx = freelist[freelist.length - 1];
+            freelist.length--;
+        } else {
+            bufferIdx = this._nextBufferIdx++;
+        }
+
         const buffer = this._nativeBufferAllocator.alloc(bufferIdx, size);
         this._buffers.set(bufferIdx, buffer);
         return (bufferIdx | this._poolFlag) as unknown as IHandle<P>;
@@ -398,6 +407,7 @@ class BufferAllocator<P extends PoolType> implements IMemoryPool<P> {
         }
         this._nativeBufferAllocator.free(bufferIdx);
         this._buffers.delete(bufferIdx);
+        this._freelist.push(bufferIdx);
     }
 
     public getBuffer (handle: IHandle<P>): ArrayBuffer {
