@@ -1,6 +1,6 @@
 'use strict';
 
-const { readJSONSync, existsSync } = require('fs-extra');
+const { readFileSync, existsSync } = require('fs');
 
 exports.template = `
 <div class="asset-effect">
@@ -304,7 +304,7 @@ exports.methods = {
             return false;
         }
 
-        const dataSource = readJSONSync(fileSource);
+        const dataSource = JSON.parse(readFileSync(fileSource, 'utf8'));
 
         if (!dataSource) {
             console.error('Read effect json file in library failed.');
