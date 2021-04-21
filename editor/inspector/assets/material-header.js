@@ -115,19 +115,20 @@ exports.ready = async function () {
         panel.isPreviewDataDirty = true;
     });
 
-    panel.$.canvas.addEventListener('mousedown', (event) => {
-        Editor.Message.request('scene', 'on-material-preview-mouse-down', { x: event.x, y: event.y });
+    panel.$.canvas.addEventListener('mousedown', async (event) => {
+        await Editor.Message.request('scene', 'on-material-preview-mouse-down', { x: event.x, y: event.y });
 
-        function mousemove(event) {
-            Editor.Message.request('scene', 'on-material-preview-mouse-move', {
+        async function mousemove(event) {
+            await Editor.Message.request('scene', 'on-material-preview-mouse-move', {
                 movementX: event.movementX,
                 movementY: event.movementY,
             });
 
             panel.isPreviewDataDirty = true;
         }
-        function mouseup(event) {
-            Editor.Message.request('scene', 'on-material-preview-mouse-up', {
+
+        async function mouseup(event) {
+            await Editor.Message.request('scene', 'on-material-preview-mouse-up', {
                 x: event.x,
                 y: event.y,
             });
