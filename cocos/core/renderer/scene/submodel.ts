@@ -30,6 +30,7 @@ import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from '../../pipeline';
+import { errorID } from '../../platform';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
@@ -46,7 +47,7 @@ export class SubModel {
     set passes (passes) {
         const passLengh = passes.length;
         if (passLengh > MAX_PASS_COUNT) {
-            console.error('SubModel can support up to ' + MAX_PASS_COUNT + ' passes.');
+            errorID(12004, MAX_PASS_COUNT);
             return;
         }
         this._passes = passes;
