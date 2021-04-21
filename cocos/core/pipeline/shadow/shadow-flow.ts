@@ -42,7 +42,6 @@ import { RenderPipeline } from '..';
 import { Shadows, ShadowType } from '../../renderer/scene/shadows';
 import { Light } from '../../renderer/scene/light';
 import { lightCollecting } from '../scene-culling';
-import { Vec2 } from '../../math';
 import { Camera } from '../../renderer/scene';
 
 /**

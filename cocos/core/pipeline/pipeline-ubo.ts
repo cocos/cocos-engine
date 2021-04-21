@@ -362,6 +362,7 @@ export class PipelineUBO {
         const sceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
         if (!shadowInfo.enabled) return;
+
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
