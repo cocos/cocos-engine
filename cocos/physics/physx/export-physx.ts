@@ -35,14 +35,53 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 
 import { BYTEDANCE } from 'internal:constants';
-import { IQuatLike, IVec3Like, Node, Quat, Vec3 } from '../../core';
+import { IQuatLike, IVec3Like, Node, Quat, RecyclePool, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
+import { Ray } from '../../core/geometry';
+import { IRaycastOptions } from '../spec/i-physics-world';
+import { PhysicsRayResult } from '../framework';
+import { PhysXWorld } from './physx-world';
+import { PhysXShape } from './shapes/physx-shape';
 // import PhysX from '@cocos/physx';
-const globalThis = legacyCC._global;
-// globalThis.PX = PhysX;
 
-export let USE_BYTEDANCE = false;
+const globalThis = legacyCC._global;
+
+if (PhysX) {
+    globalThis.PhysX = (PhysX as any)({
+        onRuntimeInitialized () {
+            console.log('PhysX loaded');
+            if (PX) {
+                PX.CACHE_MAT = {};
+                PX.IMPL_PTR = {};
+                PX.MESH_CONVEX = {};
+                PX.MESH_STATIC = {};
+                PX.TERRAIN_STATIC = {};
+                if (!USE_BYTEDANCE) {
+                    PX.VECTOR_MAT = new PX.PxMaterialVector();
+                    PX.QueryHitType = PX.PxQueryHitType;
+                    PX.ShapeFlag = PX.PxShapeFlag;
+                    PX.ActorFlag = PX.PxActorFlag;
+                    PX.RigidBodyFlag = PX.PxRigidBodyFlag;
+                    PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
+                    PX.CombineMode = PX.PxCombineMode;
+                    PX.ForceMode = PX.PxForceMode;
+                    PX.SphereGeometry = PX.PxSphereGeometry;
+                    PX.BoxGeometry = PX.PxBoxGeometry;
+                    PX.CapsuleGeometry = PX.PxCapsuleGeometry;
+                    PX.PlaneGeometry = PX.PxPlaneGeometry;
+                    PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
+                    PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
+                    PX.MeshScale = PX.PxMeshScale;
+                    PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
+                    PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
+                }
+            }
+        },
+    });
+}
+
+let USE_BYTEDANCE = false;
 if (BYTEDANCE) USE_BYTEDANCE = true;
 let _px = globalThis.PhysX as any;
 if (USE_BYTEDANCE && globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
@@ -68,32 +107,6 @@ export const _trans = {
 };
 
 export const _pxtrans = USE_BYTEDANCE && PX ? new PX.Transform({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }) : _trans;
-
-if (PX) {
-    PX.CACHE_MAT = {};
-    PX.IMPL_PTR = {};
-    PX.MESH_CONVEX = {};
-    PX.MESH_STATIC = {};
-    PX.TERRAIN_STATIC = {};
-    if (!USE_BYTEDANCE) {
-        PX.VECTOR_MAT = new PX.PxMaterialVector();
-        PX.ShapeFlag = PX.PxShapeFlag;
-        PX.ActorFlag = PX.PxActorFlag;
-        PX.RigidBodyFlag = PX.PxRigidBodyFlag;
-        PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
-        PX.CombineMode = PX.PxCombineMode;
-        PX.ForceMode = PX.PxForceMode;
-        PX.SphereGeometry = PX.PxSphereGeometry;
-        PX.BoxGeometry = PX.PxBoxGeometry;
-        PX.CapsuleGeometry = PX.PxCapsuleGeometry;
-        PX.PlaneGeometry = PX.PxPlaneGeometry;
-        PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
-        PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
-        PX.MeshScale = PX.PxMeshScale;
-        PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
-        PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
-    }
-}
 
 export function getImplPtr (impl: any): any {
     if (USE_BYTEDANCE) {
@@ -438,4 +451,174 @@ export function createHeightFieldGeometry (hf: any, flags: number, hs: number, x
     }
     return new PX.PxHeightFieldGeometry(hf, new PX.PxMeshGeometryFlags(flags),
         hs, xs, zs);
+}
+
+export function simulateScene (scene: any, deltaTime: number) {
+    if (USE_BYTEDANCE) {
+        scene.simulate(deltaTime);
+    } else {
+        scene.simulate(deltaTime, true);
+    }
+}
+
+export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastOptions,
+    pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
+    const maxDistance = options.maxDistance;
+    const flags = (1 << 0) | (1 << 1) | (1 << 10);
+    const word3 = 1 | (options.queryTrigger ? 0 : 2);
+    if (USE_BYTEDANCE) {
+        world.queryfilterData.data.word3 = word3;
+        world.queryfilterData.data.word0 = options.mask >>> 0;
+        world.queryfilterData.flags = (1 << 0) | (1 << 1) | (1 << 2) | (1 << 5);
+        const r = PX.SceneQueryExt.raycastMultiple(world.scene, worldRay.o, worldRay.d, maxDistance, flags,
+            world.mutipleResultSize, world.queryfilterData, world.queryFilterCB);
+
+        if (r) {
+            for (let i = 0; i < r.length; i++) {
+                const block = r[i];
+                const collider = getWrapShape<PhysXShape>(block.shape).collider;
+                const result = pool.add();
+                result._assign(block.position, block.distance, collider, block.normal);
+                results.push(result);
+            }
+            return true;
+        }
+    } else {
+        world.queryfilterData.setWords(word3, 3);
+        world.queryfilterData.setWords(options.mask >>> 0, 0);
+        world.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2) | (1 << 5));
+        const blocks = world.mutipleResults;
+        const r = world.scene.raycastMultiple(worldRay.o, worldRay.d, maxDistance, flags,
+            blocks, blocks.size(), world.queryfilterData, world.queryFilterCB, null);
+
+        if (r > 0) {
+            for (let i = 0; i < r; i++) {
+                const block = blocks.get(i);
+                const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+                const result = pool.add();
+                result._assign(block.position, block.distance, collider, block.normal);
+                results.push(result);
+            }
+            return true;
+        } if (r === -1) {
+            // eslint-disable-next-line no-console
+            console.error('not enough memory.');
+        }
+    }
+    return false;
+}
+
+export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
+    const maxDistance = options.maxDistance;
+    const flags = (1 << 0) | (1 << 1); // | (1 << 10);
+    const word3 = 1 | (options.queryTrigger ? 0 : 2) | 4;
+    if (USE_BYTEDANCE) {
+        world.queryfilterData.data.word3 = word3;
+        world.queryfilterData.data.word0 = options.mask >>> 0;
+        world.queryfilterData.flags = (1 << 0) | (1 << 1) | (1 << 2);
+        const block = PX.SceneQueryExt.raycastSingle(world.scene, worldRay.o, worldRay.d, maxDistance,
+            flags, world.queryfilterData, world.queryFilterCB);
+        if (block) {
+            const collider = getWrapShape<PhysXShape>(block.shape).collider;
+            result._assign(block.position, block.distance, collider, block.normal);
+            return true;
+        }
+    } else {
+        world.queryfilterData.setWords(options.mask >>> 0, 0);
+        world.queryfilterData.setWords(word3, 3);
+        world.queryfilterData.setFlags((1 << 0) | (1 << 1) | (1 << 2));
+        const block = world.singleResult;
+        const r = world.scene.raycastSingle(worldRay.o, worldRay.d, options.maxDistance, flags,
+            block, world.queryfilterData, world.queryFilterCB, null);
+        if (r) {
+            const collider = getWrapShape<PhysXShape>(block.getShape()).collider;
+            result._assign(block.position, block.distance, collider, block.normal);
+            return true;
+        }
+    }
+    return false;
+}
+
+export function initializeWorld (world: any, eventCallback: any, queryCallback: any, onCollision: any, onTrigger: any) {
+    if (USE_BYTEDANCE) {
+        // const physics = PX.createPhysics();
+        const physics = PX.physics;
+        const cp = new PX.CookingParams();
+        const cooking = PX.createCooking(cp);
+        const sceneDesc = physics.createSceneDesc();
+        const simulation = new PX.SimulationEventCallback();
+        simulation.setOnContact((_header: any, pairs: any) => {
+            const shapes = _header.shapes as any[];
+            // uint16   ContactPairFlags
+            // uint16   PairFlags
+            // uint16   ContactCount
+            const pairBuf = _header.pairBuffer as ArrayBuffer;
+            const pairL = shapes.length / 2;
+            const ui16View = new Uint16Array(pairBuf, 0, pairL * 3);
+            for (let i = 0; i < pairL; i++) {
+                const flags = ui16View[0];
+                if (flags & 3) continue;
+                const shape0 = shapes[2 * i];
+                const shape1 = shapes[2 * i + 1];
+                if (!shape0 || !shape1) continue;
+                const shapeA = getWrapShape<PhysXShape>(shape0);
+                const shapeB = getWrapShape<PhysXShape>(shape1);
+                const events = ui16View[1];
+                const contactCount = ui16View[2];
+                const contactBuffer = _header.contactBuffer as ArrayBuffer;
+                if (events & 4) {
+                    onCollision('onCollisionEnter', shapeA, shapeB, contactCount, contactBuffer, 0);
+                } else if (events & 8) {
+                    onCollision('onCollisionStay', shapeA, shapeB, contactCount, contactBuffer, 0);
+                } else if (events & 16) {
+                    onCollision('onCollisionExit', shapeA, shapeB, contactCount, contactBuffer, 0);
+                }
+            }
+        });
+        simulation.setOnTrigger((pairs: any, pairsBuf: ArrayBuffer) => {
+            const length = pairs.length / 4;
+            const ui16View = new Uint16Array(pairsBuf);
+            for (let i = 0; i < length; i++) {
+                const flags = ui16View[i];
+                if (flags & 3) continue;
+                const events = ui16View[i + 1];
+                const ca = pairs[i * 4 + 1];
+                const cb = pairs[i * 4 + 3];
+                const shapeA = getWrapShape<PhysXShape>(ca);
+                const shapeB = getWrapShape<PhysXShape>(cb);
+                if (events & 4) {
+                    onTrigger('onTriggerEnter', shapeA, shapeB);
+                } else if (events & 16) {
+                    onTrigger('onTriggerExit', shapeA, shapeB);
+                }
+            }
+        });
+        world.simulationCB = simulation;
+        world.queryFilterCB = new PX.QueryFilterCallback();
+        world.queryFilterCB.setPreFilter(queryCallback.preFilter);
+        world.queryfilterData = { data: { word0: 0, word1: 0, word2: 0, word3: 1 }, flags: 0 };
+        sceneDesc.setSimulationEventCallback(simulation);
+        const scene = physics.createScene(sceneDesc);
+        world.physics = physics;
+        world.cooking = cooking;
+        world.scene = scene;
+    } else {
+        world.singleResult = new PX.PxRaycastHit();
+        world.mutipleResults = new PX.PxRaycastHitVector();
+        world.mutipleResults.resize(world.mutipleResultSize, world.singleResult);
+        world.queryfilterData = new PX.PxQueryFilterData();
+        world.simulationCB = PX.PxSimulationEventCallback.implement(eventCallback);
+        world.queryFilterCB = PX.PxQueryFilterCallback.implement(queryCallback);
+        const version = PX.PX_PHYSICS_VERSION;
+        const defaultErrorCallback = new PX.PxDefaultErrorCallback();
+        const allocator = new PX.PxDefaultAllocator();
+        const foundation = PX.PxCreateFoundation(version, allocator, defaultErrorCallback);
+        const scale = new PX.PxTolerancesScale();
+        world.cooking = PX.PxCreateCooking(version, foundation, new PX.PxCookingParams(scale));
+        world.physics = PX.PxCreatePhysics(version, foundation, scale, false, null);
+        PX.PxInitExtensions(world.physics, null);
+        const sceneDesc = PX.getDefaultSceneDesc(world.physics.getTolerancesScale(), 0, world.simulationCB);
+        world.scene = world.physics.createScene(sceneDesc);
+        PX.physics = world.physics;
+    }
 }
