@@ -147,7 +147,8 @@ const Elements = {
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
             if (panel.asset.redirect) {
-                await Editor.Message.request('scene', 'set-model-preview-model', panel.asset.redirect.uuid);
+                const info = await Editor.Message.request('scene', 'set-model-preview-model', panel.asset.redirect.uuid);
+                panel.infoUpdate(info);
             }
 
             panel.refreshPreview();
@@ -156,7 +157,6 @@ const Elements = {
     modelInfo: {
         ready() {
             this.infoUpdate = Elements.modelInfo.update.bind(this);
-            Editor.Message.addBroadcastListener('scene:model-preview-model-info', this.infoUpdate);
         },
         update(info) {
             if (!info) {
@@ -166,8 +166,7 @@ const Elements = {
             this.$.triangles.value = `Triangles:${info.polygons}`;
             this.isPreviewDataDirty = true;
         },
-        close() {
-            Editor.Message.removeBroadcastListener('scene:model-preview-model-info', this.infoUpdate);
+        close () {
             Editor.Message.send('scene', 'hide-model-preview');
         },
     },
@@ -244,7 +243,7 @@ exports.methods = {
             return;
         }
 
-        if (panel.isPreviewDataDirty) {
+        if (panel.isPreviewDataDirty || this.curPlayState === PLAY_STATE.PLAYING) {
             try {
                 const canvas = panel.$.canvas;
                 const image = panel.$.image;
