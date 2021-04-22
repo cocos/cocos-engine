@@ -7,6 +7,7 @@
         ".github/workflows/clangtidy-android.yml", 
         ".github/workflows/cmake.yml", 
         ".github/workflows/filter_by_cdb.js", 
+        ".github/workflows/simulator.yml", 
         ".vscode/c_cpp_properties.json", 
         "CMakeLists.txt", 
         "cocos/audio/AudioEngine.cpp", 
