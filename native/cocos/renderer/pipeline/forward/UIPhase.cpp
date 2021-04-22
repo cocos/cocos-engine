@@ -24,28 +24,26 @@
 ****************************************************************************/
 
 #include "UIPhase.h"
-#include "ForwardPipeline.h"
-#include "pipeline/PipelineStateManager.h"
 #include "gfx-base/GFXCommandBuffer.h"
+#include "pipeline/PipelineStateManager.h"
 
 namespace cc {
 namespace pipeline {
 
-void UIPhase::activate(RenderPipeline *pipeline){
+void UIPhase::activate(RenderPipeline *pipeline) {
     _pipeline = pipeline;
-    _phaseID = getPhaseID("default");
+    _phaseID  = getPhaseID("default");
 };
 
-void UIPhase::render(Camera *camera, gfx::RenderPass *renderPass){
-    auto *pipeline = dynamic_cast<ForwardPipeline *>(_pipeline);
-    auto *cmdBuff  = pipeline->getCommandBuffers()[0];
+void UIPhase::render(Camera *camera, gfx::RenderPass *renderPass) {
+    auto *cmdBuff = _pipeline->getCommandBuffers()[0];
 
     const auto *batches    = camera->getScene()->getUIBatches();
     const auto  batchCount = batches[0];
     // Notice: The batches[0] is batchCount
     for (uint i = 1; i <= batchCount; ++i) {
         auto *const batch   = GET_UI_BATCH(batches[i]);
-        bool visible = false;
+        bool        visible = false;
         if (camera->visibility & batch->visFlags) {
             visible = true;
         }
@@ -58,7 +56,7 @@ void UIPhase::render(Camera *camera, gfx::RenderPass *renderPass){
             auto *const shader         = batch->getShader(j);
             auto *const inputAssembler = batch->getInputAssembler();
             auto *const ds             = batch->getDescriptorSet();
-            auto *pso = cc::pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
+            auto *      pso            = cc::pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
             cmdBuff->bindPipelineState(pso);
             cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
             cmdBuff->bindDescriptorSet(localSet, ds);

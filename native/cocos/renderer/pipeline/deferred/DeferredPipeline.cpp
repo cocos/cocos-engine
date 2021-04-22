@@ -128,7 +128,6 @@ bool DeferredPipeline::activate() {
 }
 
 void DeferredPipeline::render(const vector<uint> &cameras) {
-    if (cameras.empty()) return;
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO();
     for (const auto cameraId : cameras) {
