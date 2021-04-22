@@ -69,6 +69,7 @@ export class AudioSource extends Component {
     private _operationsBeforeLoading: string[] = [];
     private _isLoaded = false;
 
+    private _lastSetClip?: AudioClip;
     /**
      * @en
      * The default AudioClip to be played for this audio source.
@@ -90,23 +91,31 @@ export class AudioSource extends Component {
     private _syncPlayer () {
         const clip = this._clip;
         this._isLoaded = false;
-        // clear old player
-        if (this._player) {
-            this._player.offEnded();
-            this._player.offInterruptionBegin();
-            this._player.offInterruptionEnd();
-            this._player.destroy();
-            this._player = null;
+        if (!clip || this._lastSetClip === clip) {
+            return;
         }
-        if (!clip) { return; }
         if (!clip._nativeAsset) {
             console.error('Invalid audio clip');
             return;
         }
+        this._lastSetClip = clip;
         AudioPlayer.load(clip._nativeAsset.url, {
             audioLoadMode: clip.loadMode,
         }).then((player) => {
+            if (this._lastSetClip !== clip) {
+                // In case the developers set AudioSource.clip concurrently,
+                // we should choose the last one player of AudioClip set to AudioSource.clip
+                // instead of the last loaded one.
+                return;
+            }
             this._isLoaded = true;
+            // clear old player
+            if (this._player) {
+                this._player.offEnded();
+                this._player.offInterruptionBegin();
+                this._player.offInterruptionEnd();
+                this._player.destroy();
+            }
             this._player = player;
             player.onEnded(() => {
                 audioManager.removePlaying(player);
