@@ -197,8 +197,8 @@ export class SplashScreen {
         // adapt for native mac & ios
         if (JSB) {
             if (system.os === OS.OSX || system.os === OS.IOS) {
-                const width = screen.width * devicePixelRatio;
-                const height = screen.height * devicePixelRatio;
+                const width = Math.round(screen.width * devicePixelRatio);
+                const height = Math.round(screen.height * devicePixelRatio);
                 this.device.resize(width, height);
                 this.screenWidth = this.device.width;
                 this.screenHeight = this.device.height;
