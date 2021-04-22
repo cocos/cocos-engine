@@ -1,6 +1,6 @@
 import { IMiniGame } from 'pal/minigame';
 import { Orientation } from '../system/enum-type/orientation';
-import { cloneObject } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let wx: any;
 
@@ -53,6 +53,13 @@ minigame.onAccelerometerChange = function (cb) {
     // onAccelerometerChange would start accelerometer, need to mannually stop it
     wx.stopAccelerometer();
 };
+
+minigame.createInnerAudioContext = createInnerAudioContextPolyfill(wx, {
+    onPlay: true,
+    onPause: true,
+    onStop: true,
+    onSeek: false,
+});
 
 // safeArea
 // origin point on the top-left corner
