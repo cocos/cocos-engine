@@ -1596,7 +1596,12 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer
 
     id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
     [renderEncoder setViewport:(MTLViewport){0, 0, renderTargetWidth, renderTargetHeight}];
-    [renderEncoder setScissorRect:(MTLScissorRect){0, 0, static_cast<uint>(renderTargetWidth), static_cast<uint>(renderTargetHeight)}];
+    MTLScissorRect scissorArea = {static_cast<NSUInteger>(renderArea.x), static_cast<NSUInteger>(renderArea.y), static_cast<NSUInteger>(renderArea.width), static_cast<NSUInteger>(renderArea.height)};
+#if defined(CC_DEBUG) && (CC_DEBUG > 0)
+    scissorArea.width = MIN(scissorArea.width, renderTargetWidth - scissorArea.x);
+    scissorArea.height = MIN(scissorArea.height, renderTargetHeight - scissorArea.y);
+#endif
+    [renderEncoder setScissorRect:scissorArea];
     [renderEncoder setRenderPipelineState:gpuPSO->mtlRenderPipelineState];
     if (gpuPSO->mtlDepthStencilState) {
         [renderEncoder setStencilFrontReferenceValue:gpuPSO->stencilRefFront

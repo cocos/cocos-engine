@@ -128,13 +128,14 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     {
         return;
     }
-
+    
+    auto *ccMtlRenderPass = static_cast<CCMTLRenderPass *>(renderPass);
     auto isOffscreen = static_cast<CCMTLFramebuffer *>(fbo)->isOffscreen();
     if (!isOffscreen) {
         id<CAMetalDrawable> drawable = (id<CAMetalDrawable>)_mtlDevice->getCurrentDrawable();
         id<MTLTexture> dssTex = (id<MTLTexture>)_mtlDevice->getDSSTexture();
-        static_cast<CCMTLRenderPass *>(renderPass)->setColorAttachment(0, drawable.texture, 0);
-        static_cast<CCMTLRenderPass *>(renderPass)->setDepthStencilAttachment(dssTex, 0);
+        ccMtlRenderPass->setColorAttachment(0, drawable.texture, 0);
+        ccMtlRenderPass->setDepthStencilAttachment(dssTex, 0);
     }
     MTLRenderPassDescriptor *mtlRenderPassDescriptor = static_cast<CCMTLRenderPass *>(renderPass)->getMTLRenderPassDescriptor();
     if (!isRenderingEntireDrawable(renderArea, static_cast<CCMTLRenderPass *>(renderPass))) {
@@ -153,7 +154,7 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
         mtlRenderPassDescriptor.depthAttachment.clearDepth = depth;
         mtlRenderPassDescriptor.stencilAttachment.clearStencil = stencil;
     }
-
+    
     if (secondaryCBCount > 0) {
         _parallelEncoder = [[_mtlCommandBuffer parallelRenderCommandEncoderWithDescriptor:mtlRenderPassDescriptor] retain];
         // Create command encoders from parallel encoder and assign to command buffers
@@ -166,8 +167,15 @@ void CCMTLCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fb
     else {
         _renderEncoder.initialize(_mtlCommandBuffer, mtlRenderPassDescriptor);
     }
-    _renderEncoder.setViewport(renderArea);
-    _renderEncoder.setScissor(renderArea);
+
+    Rect       scissorArea      = renderArea;
+#if defined(CC_DEBUG) && (CC_DEBUG > 0)
+    const Vec2 renderTargetSize = ccMtlRenderPass->getRenderTargetSizes()[0];
+    scissorArea.width           = MIN(scissorArea.width, renderTargetSize.x - scissorArea.x);
+    scissorArea.height          = MIN(scissorArea.height, renderTargetSize.y - scissorArea.y);
+#endif
+    _renderEncoder.setViewport(scissorArea);
+    _renderEncoder.setScissor(scissorArea);
 }
 
 void CCMTLCommandBuffer::endRenderPass() {
