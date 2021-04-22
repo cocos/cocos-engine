@@ -156,7 +156,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *li
 
     if (!_renderPass) {
         const gfx::ColorAttachment colorAttachment = {
-            gfx::Format::RGBA8,
+            static_cast<bool>(shadowInfo->packing) ? gfx::Format::RGBA8 : gfx::Format::RGBA16F,
             gfx::SampleCount::X1,
             gfx::LoadOp::CLEAR,
             gfx::StoreOp::STORE,
