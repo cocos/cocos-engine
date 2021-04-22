@@ -109,8 +109,10 @@ void BufferValidator::updateRedundencyCheck() {
     uint cur = DeviceValidator::getInstance()->currentFrame();
 
     if (cur == _lastUpdateFrame) {
-        CC_LOG_WARNING(utils::getStacktraceJS().c_str());
-        CC_LOG_WARNING("performance warning: buffer updated more than once per frame");
+        // FIXME: minggo: as current implementation need to update some buffers more than once, so disable it.
+        // Should enable it when it is fixed.
+        // CC_LOG_WARNING(utils::getStacktraceJS().c_str());
+        // CC_LOG_WARNING("performance warning: buffer updated more than once per frame");
     }
 
     _lastUpdateFrame = cur;
