@@ -62,7 +62,7 @@ minigame.onAccelerometerChange = function (cb) {
 };
 
 minigame.createInnerAudioContext = createInnerAudioContextPolyfill(ral, {
-    onPlay: false,
+    onPlay: true,  // polyfill for vivo
     onPause: true,
     onStop: true,
     onSeek: true,
