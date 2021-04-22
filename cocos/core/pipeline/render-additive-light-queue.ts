@@ -38,7 +38,7 @@ import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView,
 import { Vec3, nextPow2, Mat4, Color } from '../math';
 import { Sphere, intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
-    BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet, DescriptorSetInfo } from '../gfx';
+    BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet, DescriptorSetInfo, Feature } from '../gfx';
 import { Pool } from '../memop';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
@@ -343,10 +343,14 @@ export class RenderAdditiveLightQueue {
 
     // update light DescriptorSet
     protected _updateLightDescriptorSet (camera: Camera, cmdBuff: CommandBuffer) {
+        const device = this._pipeline.device;
         const sceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
+        const isHalfFloatPrecision = device.hasFeature(Feature.COLOR_HALF_FLOAT | Feature.TEXTURE_HALF_FLOAT);
+        const linear = (shadowInfo.linear && isHalfFloatPrecision) ? 1.0 : 0.0;
+        const packing = shadowInfo.packing ? 1.0 : (isHalfFloatPrecision ? 0.0 : 1.0);
 
         PipelineUBO.updateGlobalUBOView(this._pipeline, this._globalUBO);
         PipelineUBO.updateCameraUBOView(this._pipeline, this._cameraUBO, camera, camera.window!.hasOffScreenAttachments);
@@ -366,7 +370,7 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
 
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 2.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
 
@@ -392,7 +396,7 @@ export class RenderAdditiveLightQueue {
 
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 0] = 0.01;
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 1] = (light as SpotLight).range;
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 2] = shadowInfo.linear ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 2] = linear;
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
 
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
@@ -401,7 +405,7 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
 
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 1.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
 

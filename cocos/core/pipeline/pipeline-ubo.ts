@@ -24,7 +24,7 @@
  */
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING } from './define';
-import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../gfx';
+import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, Feature } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
@@ -191,9 +191,11 @@ export class PipelineUBO {
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
+                const isHalfFloatPrecision = device.hasFeature(Feature.COLOR_HALF_FLOAT | Feature.TEXTURE_HALF_FLOAT);
+                const linear = (shadowInfo.linear && isHalfFloatPrecision) ? 1.0 : 0.0;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 0] = shadowInfo.near;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 1] = far;
-                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 2] = shadowInfo.linear ? 1.0 : 0.0;
+                sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 2] = linear;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
 
                 sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
@@ -201,8 +203,9 @@ export class PipelineUBO {
                 sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = shadowInfo.pcf;
                 sv[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
 
+                const packing = shadowInfo.packing ? 1.0 : (isHalfFloatPrecision ? 0.0 : 1.0);
                 sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 0.0;
-                sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
+                sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
                 sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
                 sv[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
             } else if (mainLight && shadowInfo.type === ShadowType.Planar) {
@@ -217,6 +220,9 @@ export class PipelineUBO {
         const device = pipeline.device;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const sv = bufferView;
+        const isHalfFloatPrecision = device.hasFeature(Feature.COLOR_HALF_FLOAT | Feature.TEXTURE_HALF_FLOAT);
+        const linear = (shadowInfo.linear && isHalfFloatPrecision) ? 1.0 : 0.0;
+        const packing = shadowInfo.packing ? 1.0 : (isHalfFloatPrecision ? 0.0 : 1.0);
         let _x = 0; let _y = 0; let _far = 0;
         let shadowCameraView: Mat4;
         switch (light.type) {
@@ -248,10 +254,10 @@ export class PipelineUBO {
             Mat4.toArray(sv, shadowCameraView!, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
             Mat4.invert(matShadowView, shadowCameraView!);
 
-            vec4ShadowInfo.set(shadowInfo.near, _far, shadowInfo.linear ? 1.0 : 0.0, shadowInfo.selfShadow ? 1.0 : 0.0);
+            vec4ShadowInfo.set(shadowInfo.near, _far, linear, shadowInfo.selfShadow ? 1.0 : 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET);
 
-            vec4ShadowInfo.set(0.0, shadowInfo.packing ? 1.0 : 0.0, shadowInfo.normalBias, 0.0);
+            vec4ShadowInfo.set(0.0, packing, shadowInfo.normalBias, 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
 
             Mat4.ortho(matShadowViewProj, -_x, _x, -_y, _y, shadowInfo.near, _far,
@@ -262,10 +268,10 @@ export class PipelineUBO {
             Mat4.toArray(sv, (light as any).node.getWorldMatrix(), UBOShadow.MAT_LIGHT_VIEW_OFFSET);
             Mat4.invert(matShadowView, (light as any).node.getWorldMatrix());
 
-            vec4ShadowInfo.set(0.01, (light as SpotLight).range, shadowInfo.linear ? 1.0 : 0.0, shadowInfo.selfShadow ? 1.0 : 0.0);
+            vec4ShadowInfo.set(0.01, (light as SpotLight).range, linear, shadowInfo.selfShadow ? 1.0 : 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET);
 
-            vec4ShadowInfo.set(1.0, shadowInfo.packing ? 1.0 : 0.0, shadowInfo.normalBias, 0.0);
+            vec4ShadowInfo.set(1.0, packing, shadowInfo.normalBias, 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
 
             // light proj
