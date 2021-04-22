@@ -104,7 +104,6 @@ const Elements = {
         ready () {
             const panel = this;
 
-
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 await Editor.Message.request('scene', 'on-model-preview-mouse-down', { x: event.x, y: event.y });
 
@@ -232,9 +231,9 @@ exports.close = function () {
         }
     }
 
-    Editor.Message.removeBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateCallback);
-    Editor.Message.removeBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedCallback);
-    Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedCallback);
+    Editor.Message.removeBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateBind);
+    Editor.Message.removeBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
+    Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
     Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
 };
 
