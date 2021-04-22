@@ -192,7 +192,7 @@ exports.update = async function (assetList, metaList) {
     if (this.animationInfos) {
         this.rawClipIndex = 0;
         this.splitClipIndex = 0;
-        await this.setCurEditClipInfo(this.getCurClipInfo());
+        await this.setCurEditClipInfo(animation.methods.getCurClipInfo.call(this));
     }
     this.setCurPlayState(PLAY_STATE.STOP);
     this.isPreviewDataDirty = true;
@@ -245,40 +245,6 @@ exports.close = function () {
 };
 
 exports.methods = {
-    getCurClipInfo () {
-        const animInfo = this.animationInfos[this.rawClipIndex];
-        const splitInfo = animInfo.splits[this.splitClipIndex];
-
-        if (!animInfo) {
-            return;
-        }
-
-        const clipUUID = this.animationNameToUUIDMap.get(animInfo.name);
-        let duration = animInfo.duration;
-        let fps = animInfo.fps;
-        let from = 0;
-        let to = duration;
-        if (splitInfo) {
-            from = splitInfo.from;
-            to = splitInfo.to;
-            duration = to - from;
-            if (splitInfo.fps !== undefined) {
-                fps = splitInfo.fps;
-            }
-
-            // if (this.animationNameToUUIDMap.has(splitInfo.name)) {
-            //     clipUUID = this.animationNameToUUIDMap.get(splitInfo.name);
-            // }
-        }
-
-        return {
-            clipUUID,
-            duration,
-            fps,
-            from,
-            to,
-        };
-    },
     async refreshPreview () {
         const panel = this;
 
