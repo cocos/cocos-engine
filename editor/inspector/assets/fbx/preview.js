@@ -93,11 +93,9 @@ const Elements = {
             const panel = this;
 
             panel.$.canvas.addEventListener('mousedown', (event) => {
-
                 // event.target.requestPointerLock();
                 Editor.Message.send('scene', 'on-model-preview-mouse-down', { x: event.x, y: event.y });
                 function mousemove (event) {
-
                     Editor.Message.send('scene', 'on-model-preview-mouse-move', {
                         movementX: event.movementX,
                         movementY: event.movementY,
@@ -106,10 +104,8 @@ const Elements = {
                     panel.isPreviewDataDirty = true;
                 }
 
-
                 function mouseup (event) {
                     // document.exitPointerLock();
-
 
                     Editor.Message.send('scene', 'on-model-preview-mouse-up', {
                         x: event.x,
@@ -167,7 +163,7 @@ const Elements = {
     },
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = async function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -179,6 +175,8 @@ exports.update = function (assetList, metaList) {
             element.update.call(this);
         }
     }
+    this.initAnimationNameToUUIDMap();
+    await this.initAnimationInfos();
     this.setCurPlayState(PLAY_STATE.STOP);
     this.refreshPreview();
 };
@@ -209,7 +207,6 @@ exports.ready = function () {
         if (clipInfo) {
             await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setEditClip', clipInfo.clipUUID);
             this.setCurEditClipInfo(clipInfo);
-            console.log('clip info', clipInfo);
         }
     };
     Editor.Message.addBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateCallback);
@@ -225,13 +222,80 @@ exports.close = function () {
             element.close.call(this);
         }
     }
-
     Editor.Message.removeBroadcastListener('scene:model-preview-animation-time-change', this.onModelAnimationUpdateCallback);
     Editor.Message.removeBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedCallback);
     Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedCallback);
 };
 
 exports.methods = {
+    /** animation name -> uuid */
+    initAnimationNameToUUIDMap () {
+        if (this.meta && this.meta.subMetas) {
+            const animationNameToUUIDMap = new Map();
+            Object.keys(this.meta.subMetas).forEach((id) => {
+                const subMeta = this.meta.subMetas[id];
+                if (subMeta.importer === 'gltf-animation') {
+                    const sourceName = subMeta.name;
+                    const animName = sourceName.slice(0, sourceName.lastIndexOf('.'));
+                    animationNameToUUIDMap.set(animName, subMeta.uuid);
+                }
+            });
+
+            this.animationNameToUUIDMap = animationNameToUUIDMap;
+        }
+    },
+    async initAnimationInfos () {
+        if (this.meta && this.meta.userData.animationImportSettings) {
+            this.animationInfos = this.meta.userData.animationImportSettings;
+            // Collect clip names for renaming and creating to determine whether the name is repeated
+            this.clipNames = new Set();
+            for (const animationInfo of this.animationInfos) {
+                this.clipNames.add(animationInfo.name);
+                for (const subAnimInfo of animationInfo.splits) {
+                    this.clipNames.add(subAnimInfo.name);
+                }
+            }
+            this.rawClipIndex = 0;
+            this.splitClipIndex = 0;
+            await this.setCurEditClipInfo(this.getCurClipInfo());
+        } else {
+            this.animationInfos = null;
+        }
+    },
+    getCurClipInfo () {
+        const animInfo = this.animationInfos[this.rawClipIndex];
+        const splitInfo = animInfo.splits[this.splitClipIndex];
+
+        if (!animInfo) {
+            return;
+        }
+
+        const clipUUID = this.animationNameToUUIDMap.get(animInfo.name);
+        let duration = animInfo.duration;
+        let fps = animInfo.fps;
+        let from = 0;
+        let to = duration;
+        if (splitInfo) {
+            from = splitInfo.from;
+            to = splitInfo.to;
+            duration = to - from;
+            if (splitInfo.fps !== undefined) {
+                fps = splitInfo.fps;
+            }
+
+            // if (this.animationNameToUUIDMap.has(splitInfo.name)) {
+            //     clipUUID = this.animationNameToUUIDMap.get(splitInfo.name);
+            // }
+        }
+
+        return {
+            clipUUID,
+            duration,
+            fps,
+            from,
+            to,
+        };
+    },
     async refreshPreview () {
         const panel = this;
 
