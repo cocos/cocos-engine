@@ -1,3 +1,5 @@
+const animation = require('./animation');
+
 exports.template = `
 <div class="preview">
     <div class="animation-info">
@@ -185,8 +187,13 @@ exports.update = async function (assetList, metaList) {
             element.update.call(this);
         }
     }
-    this.initAnimationNameToUUIDMap();
-    await this.initAnimationInfos();
+    animation.methods.initAnimationNameToUUIDMap.call(this);
+    animation.methods.initAnimationInfos.call(this);
+    if (this.animationInfos) {
+        this.rawClipIndex = 0;
+        this.splitClipIndex = 0;
+        await this.setCurEditClipInfo(this.getCurClipInfo());
+    }
     this.setCurPlayState(PLAY_STATE.STOP);
     this.isPreviewDataDirty = true;
     this.refreshPreview();
@@ -238,40 +245,6 @@ exports.close = function () {
 };
 
 exports.methods = {
-    /** animation name -> uuid */
-    initAnimationNameToUUIDMap () {
-        if (this.meta && this.meta.subMetas) {
-            const animationNameToUUIDMap = new Map();
-            Object.keys(this.meta.subMetas).forEach((id) => {
-                const subMeta = this.meta.subMetas[id];
-                if (subMeta.importer === 'gltf-animation') {
-                    const sourceName = subMeta.name;
-                    const animName = sourceName.slice(0, sourceName.lastIndexOf('.'));
-                    animationNameToUUIDMap.set(animName, subMeta.uuid);
-                }
-            });
-
-            this.animationNameToUUIDMap = animationNameToUUIDMap;
-        }
-    },
-    async initAnimationInfos () {
-        if (this.meta && this.meta.userData.animationImportSettings) {
-            this.animationInfos = this.meta.userData.animationImportSettings;
-            // Collect clip names for renaming and creating to determine whether the name is repeated
-            this.clipNames = new Set();
-            for (const animationInfo of this.animationInfos) {
-                this.clipNames.add(animationInfo.name);
-                for (const subAnimInfo of animationInfo.splits) {
-                    this.clipNames.add(subAnimInfo.name);
-                }
-            }
-            this.rawClipIndex = 0;
-            this.splitClipIndex = 0;
-            await this.setCurEditClipInfo(this.getCurClipInfo());
-        } else {
-            this.animationInfos = null;
-        }
-    },
     getCurClipInfo () {
         const animInfo = this.animationInfos[this.rawClipIndex];
         const splitInfo = animInfo.splits[this.splitClipIndex];
