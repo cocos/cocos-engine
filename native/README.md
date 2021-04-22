@@ -23,7 +23,7 @@ Build Requirements
 - macOS 10.14+, Xcode 11.5+ to build mac games
 - with iOS 12.0+ to build iOS games
 - or Windows 7+, Visual Studio 2017 15.7+ / Visual Studio 2019 to build win32 games
-- NDK 17-21 is required to build Android games (22+ is not supported)
+- NDK 18-21 is required to build Android games (22+ is not supported)
 - Python 2.7+ (NOT Python 3) is needed to run scripts
 - Cmake 3.8+ is required
 
