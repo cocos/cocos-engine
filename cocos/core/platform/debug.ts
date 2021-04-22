@@ -50,6 +50,8 @@ let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
     }
 };
 
+let ccDebug = ccLog;
+
 function formatString (message?: any, ...optionalParams: any[]) {
     return legacyCC.js.formatStr.apply(null, [message].concat(optionalParams));
 }
@@ -113,9 +115,17 @@ export function assert (value: any, message?: string, ...optionalParams: any[]) 
     return ccAssert(value, message, ...optionalParams);
 }
 
+/**
+ * @en Outputs a message at the "debug" log level.
+ * @zh 输出一条“调试”日志等级的消息。
+ */
+export function debug (...data: any[]) {
+    return ccDebug(...data);
+}
+
 export function _resetDebugSetting (mode: DebugMode) {
     // reset
-    ccLog = ccWarn = ccError = ccAssert = () => {
+    ccLog = ccWarn = ccError = ccAssert = ccDebug = () => {
     };
 
     if (mode === DebugMode.NONE) {
@@ -235,6 +245,13 @@ export function _resetDebugSetting (mode: DebugMode) {
             ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
         }
     }
+
+    if (mode <= DebugMode.VERBOSE) {
+        if (typeof console.debug === 'function') {
+            const vendorDebug = console.debug;
+            ccDebug = (...data: any[]) => vendorDebug(...data);
+        }
+    }
 }
 
 export function _throw (error_: any) {
@@ -285,30 +302,36 @@ export function assertID (condition: any, id: number, ...optionalParams: any[]) 
 
 /**
  * @en Enum for debug modes.
- * @zh 调试模式
+ * @zh 调试模式。
  */
 export enum DebugMode {
     /**
      * @en The debug mode none.
-     * @zh 禁止模式，禁止显示任何日志信息。
+     * @zh 禁止模式，禁止显示任何日志消息。
      */
     NONE = 0,
 
     /**
-     * @en The debug mode info.
-     * @zh 信息模式，在 console 中显示所有日志。
+     * @en The debug mode none.
+     * @zh 调试模式，显示所有日志消息。
+     */
+    VERBOSE = 0.5,
+
+    /**
+     * @en Information mode, which display messages with level higher than "information" level.
+     * @zh 信息模式，显示“信息”级别以上的日志消息。
      */
     INFO = 1,
 
     /**
-     * @en The debug mode warn.
-     * @zh 警告模式，在 console 中只显示 warn 级别以上的（包含 error）日志。
+     * @en Information mode, which display messages with level higher than "warning" level.
+     * @zh 警告模式，显示“警告”级别以上的日志消息。
      */
     WARN = 2,
 
     /**
-     * @en The debug mode error.
-     * @zh 错误模式，在 console 中只显示 error 日志。
+     * @en Information mode, which display only messages with "error" level.
+     * @zh 错误模式，仅显示“错误”级别的日志消息。
      */
     ERROR = 3,
 

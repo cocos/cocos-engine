@@ -41,6 +41,7 @@ import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { IValueProxyFactory } from './value-proxy';
 import { assertIsTrue } from '../data/utils/asserts';
+import { debug } from '../platform/debug';
 
 /**
  * @en The event type supported by Animation
@@ -386,6 +387,9 @@ export class AnimationState extends Playable {
             max: this._clip.duration,
         };
         this._playbackDuration = clip.duration;
+        if (!clip.duration) {
+            debug(`Clip ${clip.name} has zero duration.`);
+        }
     }
 
     /**
