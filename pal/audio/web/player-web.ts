@@ -17,8 +17,13 @@ export class AudioContextAgent {
         return this._context.currentTime;
     }
 
-    public decodeAudioData (audioData: ArrayBuffer) {
-        return this._context.decodeAudioData(audioData);
+    public decodeAudioData (audioData: ArrayBuffer): Promise<AudioBuffer> {
+        return new Promise((resolve) => {
+            const promise = this._context.decodeAudioData(audioData, (audioBuffer) => {
+                resolve(audioBuffer);
+            });
+            promise?.catch((e) => {});  // Safari doesn't support the promise based decodeAudioData
+        });
     }
 
     public runContext (): Promise<void> {
