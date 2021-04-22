@@ -54,6 +54,7 @@ void CCVKBuffer::doInit(const BufferInfo & /*info*/) {
     }
 
     cmdFuncCCVKCreateBuffer(CCVKDevice::getInstance(), _gpuBuffer);
+    CCVKDevice::getInstance()->getMemoryStatus().bufferSize += _size;
 
     _gpuBufferView = CC_NEW(CCVKGPUBufferView);
     createBufferView();
@@ -86,12 +87,14 @@ void CCVKBuffer::doDestroy() {
             CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
             CCVKDevice::getInstance()->gpuBarrierManager()->cancel(_gpuBuffer);
             CC_DELETE(_gpuBuffer);
+            CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
         }
         _gpuBuffer = nullptr;
     }
 }
 
 void CCVKBuffer::doResize(uint size, uint count) {
+    CCVKDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
     CCVKDevice::getInstance()->gpuRecycleBin()->collect(_gpuBuffer);
 
     _gpuBuffer->size = size;
@@ -105,6 +108,7 @@ void CCVKBuffer::doResize(uint size, uint count) {
         _gpuBuffer->indexedIndirectCmds.resize(drawInfoCount);
         _gpuBuffer->indirectCmds.resize(drawInfoCount);
     }
+    CCVKDevice::getInstance()->getMemoryStatus().bufferSize += size;
 }
 
 void CCVKBuffer::update(const void *buffer, uint size) {

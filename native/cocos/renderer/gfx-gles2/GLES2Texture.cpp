@@ -54,6 +54,8 @@ void GLES2Texture::doInit(const TextureInfo & /*info*/) {
     _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
 
     cmdFuncGLES2CreateTexture(GLES2Device::getInstance(), _gpuTexture);
+
+    GLES2Device::getInstance()->getMemoryStatus().textureSize += _size;
 }
 
 void GLES2Texture::doInit(const TextureViewInfo & /*info*/) {
@@ -61,6 +63,8 @@ void GLES2Texture::doInit(const TextureViewInfo & /*info*/) {
 }
 
 void GLES2Texture::doDestroy() {
+    GLES2Device::getInstance()->getMemoryStatus().textureSize -= _size;
+
     if (_gpuTexture) {
         cmdFuncGLES2DestroyTexture(GLES2Device::getInstance(), _gpuTexture);
         CC_DELETE(_gpuTexture);
@@ -69,10 +73,14 @@ void GLES2Texture::doDestroy() {
 }
 
 void GLES2Texture::doResize(uint width, uint height, uint size) {
+    GLES2Device::getInstance()->getMemoryStatus().textureSize -= _size;
+
     _gpuTexture->width  = width;
     _gpuTexture->height = height;
     _gpuTexture->size   = size;
     cmdFuncGLES2ResizeTexture(GLES2Device::getInstance(), _gpuTexture);
+
+    GLES2Device::getInstance()->getMemoryStatus().textureSize += size;
 }
 
 } // namespace gfx

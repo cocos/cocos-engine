@@ -65,6 +65,7 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
             _drawInfos.resize(_count);
         }
     }
+    CCMTLDevice::getInstance()->getMemoryStatus().bufferSize += _size;
 }
 
 void CCMTLBuffer::doInit(const BufferViewInfo &info) {
@@ -102,6 +103,8 @@ void CCMTLBuffer::doDestroy() {
         return;
     }
 
+    CCMTLDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
+
     if (!_indexedPrimitivesIndirectArguments.empty()) {
         _indexedPrimitivesIndirectArguments.clear();
     }
@@ -134,6 +137,9 @@ void CCMTLBuffer::doResize(uint size, uint count) {
         hasFlag(_usage, BufferUsageBit::UNIFORM)) {
         createMTLBuffer(size, _memUsage);
     }
+
+    CCMTLDevice::getInstance()->getMemoryStatus().bufferSize -= _size;
+    CCMTLDevice::getInstance()->getMemoryStatus().bufferSize += size;
 
     _size = size;
     _count = count;

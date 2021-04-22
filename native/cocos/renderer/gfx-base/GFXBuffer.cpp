@@ -55,8 +55,6 @@ void Buffer::initialize(const BufferInfo &info) {
     _stride   = std::max(info.stride, 1U);
     _count    = _size / _stride;
 
-    Device::getInstance()->getMemoryStatus().bufferSize += _size;
-
     doInit(info);
 }
 
@@ -75,8 +73,6 @@ void Buffer::initialize(const BufferViewInfo &info) {
 void Buffer::destroy() {
     doDestroy();
 
-    Device::getInstance()->getMemoryStatus().bufferSize -= _size;
-
     _offset = _size = _stride = _count = 0U;
 }
 
@@ -85,12 +81,8 @@ void Buffer::resize(uint size) {
         uint count = size / _stride;
         doResize(size, count);
 
-        Device::getInstance()->getMemoryStatus().bufferSize -= _size;
-
         _size  = size;
         _count = count;
-
-        Device::getInstance()->getMemoryStatus().bufferSize += _size;
     }
 }
 

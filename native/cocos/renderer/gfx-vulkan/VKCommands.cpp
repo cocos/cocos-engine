@@ -145,9 +145,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
         allocInfo.usage  = VMA_MEMORY_USAGE_GPU_LAZILY_ALLOCATED;
         VkResult result  = vmaCreateImage(device->gpuDevice()->memoryAllocator, &createInfo, &allocInfo, &gpuTexture->vkImage, &gpuTexture->vmaAllocation, &res);
         if (!result) {
-            CC_LOG_INFO("Created memoryless texture: %s-%dx%d",
-                        GFX_FORMAT_INFOS[static_cast<uint>(gpuTexture->format)].name.c_str(),
-                        gpuTexture->width, gpuTexture->height);
+            gpuTexture->memoryless = true;
             return;
         }
 
@@ -156,6 +154,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
         allocInfo.usage  = VMA_MEMORY_USAGE_GPU_ONLY;
     }
 
+    gpuTexture->memoryless = false;
     VK_CHECK(vmaCreateImage(device->gpuDevice()->memoryAllocator, &createInfo, &allocInfo, &gpuTexture->vkImage, &gpuTexture->vmaAllocation, &res));
     //CC_LOG_DEBUG("Allocated texture: %llu %llx %llx %llu %x", res.size, gpuTexture->vkImage, res.deviceMemory, res.offset, res.pMappedData);
 }

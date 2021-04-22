@@ -54,6 +54,10 @@ void GLES3Texture::doInit(const TextureInfo & /*info*/) {
     _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
 
     cmdFuncGLES3CreateTexture(GLES3Device::getInstance(), _gpuTexture);
+
+    if (!_gpuTexture->memoryless) {
+        GLES3Device::getInstance()->getMemoryStatus().textureSize += _size;
+    }
 }
 
 void GLES3Texture::doInit(const TextureViewInfo & /*info*/) {
@@ -61,6 +65,10 @@ void GLES3Texture::doInit(const TextureViewInfo & /*info*/) {
 }
 
 void GLES3Texture::doDestroy() {
+    if (!_gpuTexture->memoryless) {
+        GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
+    }
+
     if (_gpuTexture) {
         cmdFuncGLES3DestroyTexture(GLES3Device::getInstance(), _gpuTexture);
         CC_DELETE(_gpuTexture);
@@ -69,10 +77,18 @@ void GLES3Texture::doDestroy() {
 }
 
 void GLES3Texture::doResize(uint width, uint height, uint size) {
+    if (!_gpuTexture->memoryless) {
+        GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
+    }
+
     _gpuTexture->width = width;
     _gpuTexture->height = height;
     _gpuTexture->size = size;
     cmdFuncGLES3ResizeTexture(GLES3Device::getInstance(), _gpuTexture);
+
+    if (!_gpuTexture->memoryless) {
+        GLES3Device::getInstance()->getMemoryStatus().textureSize += size;
+    }
 }
 
 } // namespace gfx
