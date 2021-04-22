@@ -140,6 +140,11 @@ function emitTriggerEvent () {
 
 const contactEventDic = new TupleDictionary();
 const contactEventsPool: ICollisionEventItem[] = [];
+/**
+ * @param c the contact count, how many the contacts in this pair
+ * @param d the contact buffer, the buffer stores all contacts
+ * @param o the data offset, the first contact offset in the contact buffer
+ */
 function onCollision (type: CollisionEventType, wpa: PhysXShape, wpb: PhysXShape, c: number, d: any, o: number): void {
     if (wpa && wpb) {
         if (wpa.collider.needCollisionEvent || wpb.collider.needCollisionEvent) {
