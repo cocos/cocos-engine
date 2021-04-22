@@ -12,15 +12,32 @@ export class OneShotAudio {
     private _id: number = INVALID_AUDIO_ID;
     private _url: string;
     private _volume: number;
+    private _onPlayCb?: () => void;
+    get onPlay () {
+        return this._onPlayCb;
+    }
+    set onPlay (cb) {
+        this._onPlayCb = cb;
+    }
+
+    private _onEndCb?: () => void;
+    get onEnd () {
+        return this._onEndCb;
+    }
+    set onEnd (cb) {
+        this._onEndCb = cb;
+    }
 
     private constructor (url: string, volume: number)  {
         this._url = url;
         this._volume = volume;
     }
-    public play (onPlayCb: () => void, onEndCb: () => void): void {
+    public play (): void {
         this._id = jsb.AudioEngine.play2d(this._url, false, this._volume);
-        jsb.AudioEngine.setFinishCallback(this._id, onEndCb);
-        onPlayCb();
+        jsb.AudioEngine.setFinishCallback(this._id, () => {
+            this.onEnd?.();
+        });
+        this.onPlay?.();
     }
     public stop (): void {
         if (this._id === INVALID_AUDIO_ID) {

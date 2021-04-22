@@ -15,15 +15,25 @@ declare module 'pal/audio' {
 
         /**
          * Play the audio.
-         * @param onPlayCb Init the on play callback.
-         * @param onEndCb Init the on ended callback.
          */
-        public play (onPlayCb: () => void, onEndCb: () => void): void;
+        public play (): void;
 
         /**
          * Stops playing the audio.
          */
         public stop (): void;
+
+        /**
+         * Get or set the onPlay callback.
+         */
+        get onPlay (): () => void | undefined;
+        set onPlay (cb: () => void | undefined);
+
+        /**
+         * Get or set the onEnd callback.
+         */
+        get onEnd (): () => void | undefined;
+        set onEnd (cb: () => void | undefined);
     }
 
     export class AudioPlayer {

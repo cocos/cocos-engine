@@ -7,14 +7,39 @@ import { enqueueOperation, OperationInfo, OperationQueueable } from '../operatio
 
 class OneShotAudio {
     private _innerAudioContext: InnerAudioContext;
+    private _onPlayCb?: () => void;
+    get onPlay () {
+        return this._onPlayCb;
+    }
+    set onPlay (cb) {
+        if (this._onPlayCb) {
+            this._innerAudioContext.offPlay(this._onPlayCb);
+        }
+        this._onPlayCb = cb;
+        if (cb) {
+            this._innerAudioContext.onPlay(cb);
+        }
+    }
+
+    private _onEndCb?: () => void;
+    get onEnd () {
+        return this._onEndCb;
+    }
+    set onEnd (cb) {
+        if (this._onEndCb) {
+            this._innerAudioContext.offEnded(this._onEndCb);
+        }
+        this._onEndCb = cb;
+        if (cb) {
+            this._innerAudioContext.onEnded(cb);
+        }
+    }
 
     private constructor (nativeAudio: InnerAudioContext, volume: number) {
         this._innerAudioContext = nativeAudio;
         nativeAudio.volume = volume;
     }
-    public play (onPlayCb: () => void, onEndCb: () => void): void {
-        this._innerAudioContext.onCanplay(onPlayCb);
-        this._innerAudioContext.onEnded(onEndCb);
+    public play (): void {
         this._innerAudioContext.play();
     }
     public stop (): void {

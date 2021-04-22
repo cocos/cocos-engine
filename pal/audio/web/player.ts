@@ -8,12 +8,25 @@ type AbstractAudioPlayer = AudioPlayerDOM | AudioPlayerWeb;
 
 export class OneShotAudio {
     private _audio:  AbstractOneShotAudio;
+    get onPlay () {
+        return this._audio.onPlay;
+    }
+    set onPlay (v) {
+        this._audio.onPlay = v;
+    }
+
+    get onEnd () {
+        return this._audio.onEnd;
+    }
+    set onEnd (v) {
+        this._audio.onEnd = v;
+    }
 
     private constructor (audio: AbstractOneShotAudio) {
         this._audio = audio;
     }
-    public play (onPlayCb: () => void, onEndCb: () => void): void {
-        this._audio.play(onPlayCb, onEndCb);
+    public play (): void {
+        this._audio.play();
     }
     public stop (): void {
         this._audio.stop();

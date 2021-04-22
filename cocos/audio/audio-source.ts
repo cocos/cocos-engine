@@ -272,11 +272,13 @@ export class AudioSource extends Component {
             audioLoadMode: clip.loadMode,
         }).then((oneShotAudio) => {
             audioManager.discardOnePlayingIfNeeded();
-            oneShotAudio.play(() => {
+            oneShotAudio.onPlay = () => {
                 audioManager.addPlaying(oneShotAudio);
-            }, () => {
+            };
+            oneShotAudio.onEnd = () => {
                 audioManager.removePlaying(oneShotAudio);
-            });
+            };
+            oneShotAudio.play();
         }).catch((e) => {});
     }
 

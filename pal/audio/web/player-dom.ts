@@ -27,13 +27,36 @@ function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
 
 export class OneShotAudioDOM {
     private _domAudio: HTMLAudioElement;
+    private _onPlayCb?: () => void;
+    get onPlay () {
+        return this._onPlayCb;
+    }
+    set onPlay (cb) {
+        this._onPlayCb = cb;
+    }
+
+    private _onEndCb?: () => void;
+    get onEnd () {
+        return this._onEndCb;
+    }
+    set onEnd (cb) {
+        if (this._onEndCb) {
+            this._domAudio.removeEventListener('ended', this._onEndCb);
+        }
+        this._onEndCb = cb;
+        if (cb) {
+            this._domAudio.addEventListener('ended', cb);
+        }
+    }
+
     private constructor (nativeAudio: HTMLAudioElement, volume: number) {
         this._domAudio = nativeAudio;
         nativeAudio.volume =  volume;
     }
-    public play (onPlayCb: () => void, onEndCb: () => void): void {
-        this._domAudio.addEventListener('ended', onEndCb);
-        ensurePlaying(this._domAudio).then(onPlayCb).catch((e) => {});
+    public play (): void {
+        ensurePlaying(this._domAudio).then(() => {
+            this.onPlay?.();
+        }).catch((e) => {});
     }
     public stop (): void {
         this._domAudio.pause();

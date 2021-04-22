@@ -97,6 +97,21 @@ if (AudioContextAgent.support) {
 export class OneShotAudioWeb {
     private _duration: number;
     private _bufferSourceNode: AudioBufferSourceNode;
+    private _onPlayCb?: () => void;
+    get onPlay () {
+        return this._onPlayCb;
+    }
+    set onPlay (cb) {
+        this._onPlayCb = cb;
+    }
+
+    private _onEndCb?: () => void;
+    get onEnd () {
+        return this._onEndCb;
+    }
+    set onEnd (cb) {
+        this._onEndCb = cb;
+    }
 
     private constructor (audioBuffer: AudioBuffer, volume: number) {
         this._duration = audioBuffer.duration;
@@ -106,12 +121,14 @@ export class OneShotAudioWeb {
         audioContextAgent!.connectContext(gainNode);
     }
 
-    public play (onPlayCb: () => void, onEndCb: () => void): void {
+    public play (): void {
         // audioContextAgent does exist
         audioContextAgent!.runContext().then(() => {
             this._bufferSourceNode.start();
-            onPlayCb();
-            setTimeout(onEndCb, this._duration * 1000);
+            this.onPlay?.();
+            setTimeout(() => {
+                this.onEnd?.();
+            }, this._duration * 1000);
         }).catch((e) => {});
     }
 
