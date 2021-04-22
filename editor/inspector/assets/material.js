@@ -10,7 +10,7 @@ ui-button.location { flex: none; margin-left: 6px; }
 `;
 
 exports.template = `
-<header>
+<header class="header">
     <ui-prop>
         <ui-label slot="label">Effect</ui-label>
         <ui-select class="effect" slot="content"></ui-select>
@@ -23,7 +23,7 @@ exports.template = `
         <ui-select class="technique" slot="content"></ui-select>
     </ui-prop>
 </header>
-<section>
+<section class="section">
     <ui-prop class="useInstancing" type="dump"></ui-prop>
     <ui-prop class="useBatching" type="dump"></ui-prop>
 </section>
@@ -34,7 +34,8 @@ exports.$ = {
     section: 'section',
     asyncLoadAssets: '.asyncLoadAssets',
     pass: '.pass',
-
+    header: '.header',
+    section: '.section',
     effect: '.effect',
     technique: '.technique',
 
@@ -173,6 +174,11 @@ exports.methods = {
         });
         this.$.technique.innerHTML = techniqueOption;
     },
+    hideAllContent(hide){
+        this.$.header.style = hide ? "display:none" : '';
+        this.$.section.style = hide ? "display:none" : '';
+        this.$.materialDump.style = hide ? "display:none" : '';
+    }
 };
 
 /**
@@ -185,7 +191,11 @@ exports.update = async function (assetList, metaList) {
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
-
+    const isMultiple = assetList.length > 1;
+    this.hideAllContent(isMultiple);
+    if (isMultiple) {
+        return;
+    }
     if (this.dirtyData.uuid !== this.asset.uuid) {
         this.dirtyData.uuid = this.asset.uuid;
         this.dirtyData.origin = '';
