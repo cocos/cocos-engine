@@ -472,6 +472,8 @@ export class Sprite extends Renderable2D {
     protected _atlas: SpriteAtlas | null = null;
     // static State = State;
 
+    public _currVersion = -1;
+
     public __preload () {
         this.changeMaterialForDefine();
 
@@ -483,8 +485,6 @@ export class Sprite extends Renderable2D {
         }
 
         if (this._spriteFrame) {
-            this._spriteFrame.on('load', this._markForUpdateUvDirty, this);
-            this._spriteFrame.on('uv-updated', this._markForUpdateUvDirty, this);
             this._markForUpdateUvDirty();
         }
     }
@@ -745,16 +745,6 @@ export class Sprite extends Renderable2D {
         // }
 
         if (this._renderData) {
-            if (oldFrame) {
-                oldFrame.off('load', this._markForUpdateUvDirty);
-                oldFrame.off('uv-updated', this._markForUpdateUvDirty, this);
-            }
-
-            if (spriteFrame) {
-                spriteFrame.on('load', this._markForUpdateUvDirty, this);
-                spriteFrame.on('uv-updated', this._markForUpdateUvDirty, this);
-            }
-
             if (!this._renderData.uvDirty) {
                 if (oldFrame && spriteFrame) {
                     this._renderData.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
@@ -769,11 +759,8 @@ export class Sprite extends Renderable2D {
         if (spriteFrame) {
             if (!oldFrame || spriteFrame !== oldFrame) {
                 // this._material.setProperty('mainTexture', spriteFrame);
-                if (spriteFrame.loaded) {
-                    this._onTextureLoaded();
-                } else {
-                    spriteFrame.once('load', this._onTextureLoaded, this);
-                }
+                this._onTextureLoaded();
+                this._currVersion = -1;
             }
         }
         /*
@@ -791,6 +778,18 @@ export class Sprite extends Renderable2D {
         if (this._renderData) {
             this._renderData.uvDirty = true;
             this._renderDataFlag = true;
+        }
+    }
+
+    // Overloading this function for check spriteFrame version change
+    protected _checkAndUpdateRenderData () {
+        if (this._currVersion !== this._spriteFrame!._versionDirty) {
+            this._markForUpdateUvDirty();
+            this._currVersion = this._spriteFrame!._versionDirty;
+        }
+        if (this._renderDataFlag) {
+            this._assembler!.updateRenderData!(this);
+            this._renderDataFlag = false;
         }
     }
 }

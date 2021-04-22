@@ -505,6 +505,8 @@ export class SpriteFrame extends Asset {
      */
     public uvSliced: IUV[] = [];
 
+    public _versionDirty = 0;
+
     // the location of the sprite on rendering texture
     protected _rect = new Rect();
 
@@ -785,7 +787,7 @@ export class SpriteFrame extends Asset {
 
     public onLoaded () {
         this.loaded = true;
-        this.emit('load');
+        this._versionDirty++;
     }
 
     public destroy () {
@@ -1105,7 +1107,7 @@ export class SpriteFrame extends Asset {
         this._rect.x = frame.x;
         this._rect.y = frame.y;
         this._calculateUV();
-        this.emit('uv-updated');
+        this._versionDirty++;
     }
 
     public _resetDynamicAtlasFrame () {
@@ -1115,6 +1117,7 @@ export class SpriteFrame extends Asset {
         this._texture = this._original._texture;
         this._original = null;
         this._calculateUV();
+        this._versionDirty++;
     }
 
     public _checkPackable () {
