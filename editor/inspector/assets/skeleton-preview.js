@@ -46,11 +46,11 @@ const Elements = {
         ready() {
             const panel = this;
 
-            panel.$.canvas.addEventListener('mousedown', (event) => {
-                Editor.Message.request('scene', 'on-skeleton-preview-mouse-down', { x: event.x, y: event.y });
+            panel.$.canvas.addEventListener('mousedown', async (event) => {
+                await Editor.Message.request('scene', 'on-skeleton-preview-mouse-down', { x: event.x, y: event.y });
 
-                function mousemove(event) {
-                    Editor.Message.send('scene', 'on-skeleton-preview-mouse-move', {
+                async function mousemove(event) {
+                    await Editor.Message.request('scene', 'on-skeleton-preview-mouse-move', {
                         movementX: event.movementX,
                         movementY: event.movementY,
                     });
@@ -58,8 +58,8 @@ const Elements = {
                     panel.isPreviewDataDirty = true;
                 }
 
-                function mouseup(event) {
-                    Editor.Message.send('scene', 'on-skeleton-preview-mouse-up', {
+                async function mouseup(event) {
+                    await Editor.Message.request('scene', 'on-skeleton-preview-mouse-up', {
                         x: event.x,
                         y: event.y,
                     });
@@ -174,6 +174,8 @@ exports.methods = {
         }
 
         if (panel.isPreviewDataDirty) {
+            panel.isPreviewDataDirty = false;
+
             try {
                 const canvas = panel.$.canvas;
                 const image = panel.$.image;
@@ -197,8 +199,6 @@ exports.methods = {
             } catch (e) {
                 console.warn(e);
             }
-
-            panel.isPreviewDataDirty = false;
         }
 
         cancelAnimationFrame(panel.animationId);

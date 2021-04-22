@@ -1,4 +1,4 @@
-const { createReadStream } = require('fs-extra');
+const { createReadStream } = require('fs');
 const ReadLine = require('readline');
 
 const MAX_LINES = 400;
