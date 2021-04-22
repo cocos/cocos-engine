@@ -53,6 +53,7 @@ let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
 let ccDebug = ccLog;
 
 function formatString (message?: any, ...optionalParams: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return legacyCC.js.formatStr.apply(null, [message].concat(optionalParams));
 }
 
@@ -208,6 +209,7 @@ export function _resetDebugSetting (mode: DebugMode) {
             if (!condition) {
                 const errorText = formatString(message, ...optionalParams);
                 if (DEV) {
+                    // eslint-disable-next-line no-debugger
                     debugger;
                 } else {
                     throw new Error(errorText);
@@ -231,7 +233,7 @@ export function _resetDebugSetting (mode: DebugMode) {
         ccLog = console.log.bind(console);
     } else if (mode === DebugMode.INFO) {
         if (JSB) {
-            // @ts-expect-error
+            // @ts-expect-error We have no typing for this
             if (scriptEngineType === 'JavaScriptCore') {
                 // console.log has to use `console` as its context for iOS 8~9. Therefore, apply it.
                 ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
@@ -264,6 +266,7 @@ export function _throw (error_: any) {
         } else {
             error(error_);
         }
+        return undefined;
     }
 }
 
@@ -273,6 +276,7 @@ function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert') {
         if (args.length === 0) {
             return msg;
         }
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return DEBUG ? formatString(msg, ...args) : `${msg} Arguments: ${args.join(', ')}`;
     };
 }
@@ -359,6 +363,7 @@ export enum DebugMode {
  * @zh 通过 error id 和必要的参数来获取错误信息。
  */
 export function getError (errorId: number, ...param: any[]): string {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return errorFormatter(errorId, ...param);
 }
 
@@ -367,6 +372,7 @@ export function getError (errorId: number, ...param: any[]): string {
  * @zh 是否显示 FPS 信息和部分调试信息。
  */
 export function isDisplayStats (): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return legacyCC.profiler ? legacyCC.profiler.isShowingStats() : false;
 }
 
