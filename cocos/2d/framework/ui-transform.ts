@@ -681,7 +681,12 @@ export class UITransform extends Component {
         });
         UITransform.priorityChangeNodeMap.clear();
     }
+
+    public static _cleanChangeMap () {
+        UITransform.priorityChangeNodeMap.clear();
+    }
 }
 
 // HACK
 director.on(Director.EVENT_AFTER_UPDATE, UITransform._sortSiblings);
+director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, UITransform._cleanChangeMap);
