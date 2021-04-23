@@ -31,13 +31,11 @@ exports.template = `
 `;
 
 exports.$ = {
-    asyncLoadAssets: '.asyncLoadAssets',
     pass: '.pass',
     header: '.header',
     section: '.section',
     effect: '.effect',
     technique: '.technique',
-
     materialDump: '.material-dump',
     useInstancing: '.useInstancing',
     useBatching: '.useBatching',
