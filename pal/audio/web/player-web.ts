@@ -264,7 +264,7 @@ export class AudioPlayerWeb implements OperationQueueable {
     }
     get currentTime (): number {
         if (this._state !== AudioState.PLAYING) { return this._offset; }
-        return audioContextAgent!.currentTime - this._startTime + this._offset;
+        return (audioContextAgent!.currentTime - this._startTime + this._offset) % this._audioBuffer.duration;
     }
 
     @enqueueOperation
