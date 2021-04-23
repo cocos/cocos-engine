@@ -415,6 +415,11 @@ export const _trans = {
     rotation: { x: 0, y: 0, z: 0, w: 1 },
 };
 
+const _jstrans = {
+    p: _trans.translation,
+    q: _trans.rotation,
+};
+
 export const _pxtrans = USE_BYTEDANCE && PX ? new PX.Transform({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }) : _trans;
 
 export function getImplPtr (impl: any): any {
@@ -465,6 +470,12 @@ export function getTempTransform (pos: IVec3Like, quat: IQuatLike): any {
     return _pxtrans;
 }
 
+export function getJsTransform (pos: IVec3Like, quat: IQuatLike): any {
+    Vec3.copy(_jstrans.p, pos);
+    Quat.copy(_jstrans.q, quat);
+    return _jstrans;
+}
+
 export function addActorToScene (scene: any, actor: any) {
     if (USE_BYTEDANCE) {
         scene.addActor(actor);
@@ -504,6 +515,15 @@ export function copyPhysXTransform (node: Node, transform: any): void {
         node.setWorldPosition(transform.translation);
         node.setWorldRotation(transform.rotation);
     }
+}
+
+export function copyJsTransform (node: Node, transform: any): void {
+    const wp = node.worldPosition;
+    const wr = node.worldRotation;
+    const dontUpdate = Vec3.equals(transform.p, wp) && Quat.equals(transform.q, wr);
+    if (dontUpdate) return;
+    node.setWorldPosition(transform.p);
+    node.setWorldRotation(transform.q);
 }
 
 export function physXEqualsCocosVec3 (trans: any, v3: IVec3Like): boolean {
