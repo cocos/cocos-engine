@@ -31,7 +31,6 @@ exports.template = `
 `;
 
 exports.$ = {
-    section: 'section',
     asyncLoadAssets: '.asyncLoadAssets',
     pass: '.pass',
     header: '.header',
@@ -191,9 +190,9 @@ exports.update = async function (assetList, metaList) {
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
-    const isMultiple = assetList.length > 1;
-    this.hideAllContent(isMultiple);
-    if (isMultiple) {
+    const notOnlyOne = assetList.length !== 1;
+    this.hideAllContent(notOnlyOne);
+    if (notOnlyOne) {
         return;
     }
     if (this.dirtyData.uuid !== this.asset.uuid) {

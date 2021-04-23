@@ -33,7 +33,7 @@ exports.$ = {
 
 exports.methods = {
     hideAllContent (hide) {
-        this.$.container.style= hide ? "display:none" : '';
+        this.$.container.style= hide ? 'display:none' : '';
     },
     async refreshPreview() {
         const panel = this;
@@ -88,9 +88,9 @@ exports.update = async function (assetList, metaList) {
     panel.metaList = metaList;
     panel.asset = assetList[0];
     panel.meta = metaList[0];
-    const isMultiple = assetList.length > 1;
-    this.hideAllContent(isMultiple);
-    if (isMultiple) {
+    const notOnlyOne = assetList.length !== 1;
+    this.hideAllContent(notOnlyOne);
+    if (notOnlyOne) {
         return;
     }
     if (!panel.$.canvas) {
