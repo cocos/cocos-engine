@@ -331,8 +331,8 @@ export const sys: Record<string, any> = {
         system.onViewResize(() => {
             const viewSize = system.getViewSize();
             sys.windowPixelResolution = {
-                width: viewSize.width * pixelRatio,
-                height: viewSize.height * pixelRatio,
+                width: Math.round(viewSize.width * pixelRatio),
+                height: Math.round(viewSize.height * pixelRatio),
             };
         });
     },
