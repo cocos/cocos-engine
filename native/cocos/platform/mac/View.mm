@@ -90,7 +90,15 @@
     [super setFrameSize:newSize];
     layer.drawableSize = nativeSize;
     [self viewDidChangeBackingProperties];
-
+    
+    // Add tracking area to receive mouse move events.
+    NSRect rect = {0, 0, nativeSize.width, nativeSize.height};
+    NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:rect
+                                                                options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow)
+                                                                  owner:self
+                                                               userInfo:nil];
+    [self addTrackingArea:trackingArea];
+    
     if (cc::EventDispatcher::initialized())
         cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(nativeSize.width), static_cast<int>(nativeSize.height));
 }
