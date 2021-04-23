@@ -929,7 +929,6 @@ exports.methods = {
         cancelAnimationFrame(panel.animationId);
         panel.animationId = requestAnimationFrame(() => {
             panel.updateVirtualControl();
-            panel.dispatch('change');
         });
     },
     onMouseUp() {
@@ -940,7 +939,6 @@ exports.methods = {
         }
         document.removeEventListener('mousemove', panel.onMouseMoveBind);
         document.removeEventListener('mouseup', panel.onMouseUpBind);
-
         const { value } = panel.virtualControl;
         let { type } = panel.virtualControl;
         type = type === 'right' ? 'to' : 'from';
@@ -961,6 +959,7 @@ exports.methods = {
         panel.$.controlVirtual.style.display = 'none';
         const curClipInfo = panel.getCurClipInfo();
         Editor.Message.broadcast('fbx-inspector:animation-change', curClipInfo);
+        panel.dispatch('change');
     },
     updateVirtualControl() {
         const panel = this;
