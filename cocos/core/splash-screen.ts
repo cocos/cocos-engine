@@ -29,7 +29,6 @@
  */
 
 /* eslint-disable no-restricted-globals */
-import { JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
 import { clamp01 } from './math/utils';
@@ -257,7 +256,7 @@ export class SplashScreen {
     private hide () {
         cancelAnimationFrame(this.handle);
         this.cancelAnimate = true;
-        // here delay destroy：because ios immediately destroy input assmebler will crash & native renderer will mess.
+        // The reason for delay destroy here is that immediate destroy input assmebler in ios will be crash
         setTimeout(this.destroy.bind(this));
     }
 
@@ -365,7 +364,7 @@ export class SplashScreen {
         this.root = null!;
         this.device = null!;
         this.clearColors = null!;
-        if (JSB) (this.logoImage as any).destroy();
+        if ((this.logoImage as any).destroy) (this.logoImage as any).destroy();
         this.logoImage = null!;
         this.framebuffer = null!;
         this.renderArea = null!;
