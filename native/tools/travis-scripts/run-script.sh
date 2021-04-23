@@ -25,6 +25,9 @@ export ANDROID_HOME=$ANDROID_SDK
 export ANDROID_NDK=$NDK_ROOT       #installed in generate-bindings.sh
 export ANDROID_NDK_HOME=$NDK_ROOT
 
+# Enable treat warning as error in CMakeList.txt
+export COCOS_ENGINE_DEV=1 
+
 generate_bindings_glue_codes()
 {
     echo "Create auto-generated jsbinding glue codes."

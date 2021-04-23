@@ -59,9 +59,15 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 set(CWD ${CMAKE_CURRENT_LIST_DIR})
 set(COCOS2D_SOURCE_LIST)
 
-set(WERROR_FLAGS "-Werror")
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-  set(WERROR_FLAGS "/WX")
+if("$ENV{COCOS_ENGINE_DEV}" EQUAL "1")
+    set(WERROR_FLAGS "-Werror")
+    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+        set(WERROR_FLAGS "/WX")
+    endif()
+    message(STATUS "Enable NO_WERROR")
+else()
+    set(WERROR_FLAGS "")
+    message(STATUS "Ignore NO_WERROR")
 endif()
 
 # Should be enable someday in the future
