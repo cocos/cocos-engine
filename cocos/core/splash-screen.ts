@@ -223,8 +223,8 @@ export class SplashScreen {
             // update logo uniform
             if (this.startTime < 0) this.startTime = time;
             const elapsedTime = time - this.startTime;
-            const PERCENT = clamp01(elapsedTime / settings.totalTime);
-            let u_p = easing.cubicOut(PERCENT);
+            const percent = clamp01(elapsedTime / settings.totalTime);
+            let u_p = easing.cubicOut(percent);
             if (settings.effect === 'NONE') u_p = 1.0;
             const logoTW = this.logoTexture.width; const logoTH = this.logoTexture.height;
             const logoW = refW * settings.displayRatio;
