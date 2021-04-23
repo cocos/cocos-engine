@@ -35,7 +35,7 @@ import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
 import { RenderPass, LoadOp, StoreOp,
     Format, Texture, TextureType, TextureUsageBit, ColorAttachment,
-    DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo } from '../../gfx';
+    DepthStencilAttachment, RenderPassInfo, TextureInfo, FramebufferInfo, Feature } from '../../gfx';
 import { RenderFlowTag } from '../pipeline-serialization';
 import { ForwardPipeline } from '../forward/forward-pipeline';
 import { RenderPipeline } from '..';
@@ -141,10 +141,12 @@ export class ShadowFlow extends RenderFlow {
         const shadows = pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
+        const format = device.hasFeature(Feature.TEXTURE_HALF_FLOAT) ? (
+            shadows.packing ? Format.RGBA8 : Format.RGBA16F) : Format.RGBA8;
 
         if (!this._shadowRenderPass) {
             const colorAttachment = new ColorAttachment();
-            colorAttachment.format = shadows.packing ? Format.RGBA8 : Format.RGBA16F;
+            colorAttachment.format = format;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.sampleCount = 1;
@@ -165,7 +167,7 @@ export class ShadowFlow extends RenderFlow {
         shadowRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            shadows.packing ? Format.RGBA8 : Format.RGBA16F,
+            format,
             shadowMapSize.x,
             shadowMapSize.y,
         )));
@@ -208,7 +210,10 @@ export class ShadowFlow extends RenderFlow {
         const width = shadowInfo.size.x;
         const height = shadowInfo.size.y;
         const pipeline = this._pipeline;
+        const device = pipeline.device;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
+        const format = device.hasFeature(Feature.TEXTURE_HALF_FLOAT) ? (
+            shadowInfo.packing ? Format.RGBA8 : Format.RGBA16F) : Format.RGBA8;
 
         if (shadowFrameBufferMap.has(light)) {
             const frameBuffer = shadowFrameBufferMap.get(light);
@@ -219,7 +224,7 @@ export class ShadowFlow extends RenderFlow {
             renderTargets.push(pipeline.device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                shadowInfo.packing ? Format.RGBA8 : Format.RGBA16F,
+                format,
                 width,
                 height,
             )));
