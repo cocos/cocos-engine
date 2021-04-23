@@ -88,6 +88,7 @@ export class ICurveInstance {
     private _boundTarget: IBoundTarget;
     private _rootTargetProperty?: string;
     private _curveDetail: Omit<IRuntimeCurve, 'sampler'>;
+    private declare _shouldLerp: boolean;
 
     constructor (
         runtimeCurve: Omit<IRuntimeCurve, 'sampler'>,
@@ -98,14 +99,12 @@ export class ICurveInstance {
         this._curveDetail = runtimeCurve;
 
         this._boundTarget = boundTarget;
+        this._shouldLerp = runtimeCurve.curve.hasLerp();
     }
 
-    public applySample (ratio: number, index: number, lerpRequired: boolean, samplerResultCache, weight: number) {
-        if (this._curve.empty()) {
-            return;
-        }
+    public applySample (ratio: number, index: number, inBetween: boolean, samplerResultCache, weight: number) {
         let value: any;
-        if (!this._curve.hasLerp() || !lerpRequired) {
+        if (!this._shouldLerp || !inBetween) {
             value = this._curve.valueAt(index);
         } else {
             value = this._curve.valueBetween(
@@ -477,6 +476,9 @@ export class AnimationState extends Playable {
         }
         for (let iPropertyCurve = 0; iPropertyCurve < propertyCurves.length; ++iPropertyCurve) {
             const propertyCurve = propertyCurves[iPropertyCurve];
+            if (propertyCurve.curve.empty()) {
+                continue;
+            }
             let samplerSharedGroup = this._samplerSharedGroups.find((value) => value.sampler === propertyCurve.sampler);
             if (!samplerSharedGroup) {
                 samplerSharedGroup = makeSamplerSharedGroup(propertyCurve.sampler);
@@ -722,7 +724,7 @@ export class AnimationState extends Playable {
                 const curveInstance = curves[iCurveInstance];
                 curveInstance.applySample(ratio, index, lerpRequired, samplerResultCache, this.weight);
                 if (curveInstance.commonTargetIndex !== undefined) {
-                    const commonTargetStatus = this._commonTargetStatuses[curveInstance.commonTargetIndex];
+                    const commonTargetStatus = commonTargetStatuses[curveInstance.commonTargetIndex];
                     if (commonTargetStatus) {
                         commonTargetStatus.changed = true;
                     }

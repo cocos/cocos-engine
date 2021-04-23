@@ -45,24 +45,21 @@ export interface IBufferedTarget extends IBoundTarget {
 }
 
 export function createBoundTarget (target: any, modifiers: TargetPath[], valueAdapter?: IValueProxyFactory): null | IBoundTarget {
-    let ap: {
-        isProxy: false;
-        object: any;
-        property: PropertyPath;
-    } | {
-        isProxy: true;
-        proxy: IValueProxy;
-    };
     const lastPath = modifiers[modifiers.length - 1];
     if (modifiers.length !== 0 && isPropertyPath(lastPath) && !valueAdapter) {
         const resultTarget = evaluatePath(target, ...modifiers.slice(0, modifiers.length - 1));
         if (resultTarget === null) {
             return null;
         }
-        ap = {
-            isProxy: false,
-            object: resultTarget,
-            property: lastPath,
+        return {
+            setValue: (value) => {
+                resultTarget[lastPath] = value;
+            },
+            // eslint-disable-next-line arrow-body-style
+            getValue: () => {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                return resultTarget[lastPath];
+            },
         };
     } else if (!valueAdapter) {
         error(`Empty animation curve.`);
@@ -72,33 +69,22 @@ export function createBoundTarget (target: any, modifiers: TargetPath[], valueAd
         if (resultTarget === null) {
             return null;
         }
-        ap = {
-            isProxy: true,
-            proxy: valueAdapter.forTarget(resultTarget),
-        };
-    }
-
-    return {
-        setValue: (value) => {
-            if (ap.isProxy) {
-                ap.proxy.set(value);
-            } else {
-                ap.object[ap.property] = value;
-            }
-        },
-        getValue: () => {
-            if (ap.isProxy) {
-                if (!ap.proxy.get) {
+        const proxy = valueAdapter.forTarget(resultTarget);
+        return {
+            setValue: (value) => {
+                proxy.set(value);
+            },
+            getValue: () => {
+                if (!proxy.get) {
                     error(`Target doesn't provide a get method.`);
                     return null;
                 } else {
-                    return ap.proxy.get();
+                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+                    return proxy.get();
                 }
-            } else {
-                return ap.object[ap.property];
-            }
-        },
-    };
+            },
+        };
+    }
 }
 
 export function createBufferedTarget (target: any, modifiers: TargetPath[], valueAdapter?: IValueProxyFactory): null | IBufferedTarget {
