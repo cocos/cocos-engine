@@ -137,13 +137,8 @@ void RenderAdditiveLightQueue::gatherLightPasses(const Camera *camera, gfx::Comm
         if (!getLightPassIndex(model, &lightPassIndices)) continue;
 
         _lightIndices.clear();
-        for (size_t i = 0; i < _validLights.size(); i++) {
-            const auto *const light    = _validLights[i];
-            const bool        isCulled = cullingLight(light, model);
-            if (!isCulled) {
-                _lightIndices.emplace_back(i);
-            }
-        }
+
+        lightCulling(model);
 
         if (_lightIndices.empty()) continue;
         const auto *const subModelArrayID = model->getSubModelID();
@@ -216,14 +211,12 @@ void RenderAdditiveLightQueue::gatherValidLights(const Camera *camera) {
     }
 }
 
-bool RenderAdditiveLightQueue::cullingLight(const Light *light, const ModelView *model) {
-    switch (light->getType()) {
-        case LightType::SPHERE:
-            return model->worldBoundsID && !aabbAabb(model->getWorldBounds(), light->getAABB());
-        case LightType::SPOT:
-            return model->worldBoundsID && (!aabbAabb(model->getWorldBounds(), light->getAABB()) || !aabbFrustum(model->getWorldBounds(), light->getFrustum()));
-        default: return false;
-    }
+bool RenderAdditiveLightQueue::cullSphereLight(const Light *light, const ModelView *model) {
+    return model->worldBoundsID && !aabbAabb(model->getWorldBounds(), light->getAABB());
+}
+
+bool RenderAdditiveLightQueue::cullSpotLight(const Light *light, const ModelView *model) {
+    return model->worldBoundsID && (!aabbAabb(model->getWorldBounds(), light->getAABB()) || !aabbFrustum(model->getWorldBounds(), light->getFrustum()));
 }
 
 void RenderAdditiveLightQueue::addRenderQueue(const PassView *pass, const SubModelView *subModel, const ModelView *model, uint lightPassIdx) {
@@ -425,6 +418,27 @@ bool RenderAdditiveLightQueue::getLightPassIndex(const ModelView *model, vector<
     }
 
     return hasValidLightPass;
+}
+
+void RenderAdditiveLightQueue::lightCulling(const ModelView *model) {
+    bool isCulled = false;
+    for (size_t i = 0; i < _validLights.size(); i++) {
+        const auto *const light = _validLights[i];
+        switch (light->getType()) {
+            case LightType::SPHERE:
+                isCulled = cullSphereLight(light, model);
+                break;
+            case LightType::SPOT:
+                isCulled = cullSpotLight(light, model);
+                break;
+            default:
+                isCulled = false;
+                break;
+        }
+        if (!isCulled) {
+            _lightIndices.emplace_back(i);
+        }
+    }
 }
 
 gfx::DescriptorSet *RenderAdditiveLightQueue::getOrCreateDescriptorSet(const Light *light) {
