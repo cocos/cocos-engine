@@ -1,4 +1,3 @@
-import { OneShotAudio } from 'pal/audio';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
@@ -7,10 +6,139 @@ import { enqueueOperation, OperationInfo, OperationQueueable } from '../operatio
 
 // NOTE: fix CI
 const AudioContextClass = (window.AudioContext || window.webkitAudioContext || window.mozAudioContext);
+export class AudioContextAgent {
+    public static support = !!AudioContextClass;
+    public _context: AudioContext;
+    constructor () {
+        this._context = new (window.AudioContext || window.webkitAudioContext || window.mozAudioContext)();
+    }
+
+    get currentTime () {
+        return this._context.currentTime;
+    }
+
+    public decodeAudioData (audioData: ArrayBuffer): Promise<AudioBuffer> {
+        return new Promise((resolve) => {
+            const promise = this._context.decodeAudioData(audioData, (audioBuffer) => {
+                resolve(audioBuffer);
+            });
+            promise?.catch((e) => {});  // Safari doesn't support the promise based decodeAudioData
+        });
+    }
+
+    public runContext (): Promise<void> {
+        return new Promise((resolve) => {
+            const context = this._context;
+            if (!context.resume) {
+                return resolve();
+            }
+            if (context.state === 'running') {
+                return resolve();
+            }
+            context.resume().catch((e) => {});
+            // promise rejection cannot be caught, need to check running state again
+            if (<string>context.state !== 'running') {
+                const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+                const onGesture = () => {
+                    context.resume().then(resolve).catch((e) => {});
+                };
+                canvas?.addEventListener('touchend', onGesture, { once: true });
+                canvas?.addEventListener('mousedown', onGesture, { once: true });
+            }
+            return null;
+        });
+    }
+
+    public createBufferSource (audioBuffer?: AudioBuffer, loop?: boolean) {
+        const sourceBufferNode = this._context.createBufferSource();
+        if (audioBuffer !== undefined) {
+            sourceBufferNode.buffer = audioBuffer;
+        }
+        if (loop !== undefined) {
+            sourceBufferNode.loop = loop;
+        }
+        return sourceBufferNode;
+    }
+
+    public createGain (volume?: number) {
+        const gainNode = this._context.createGain();
+        if (volume !== undefined) {
+            this.setGainValue(gainNode, volume);
+        }
+        return gainNode;
+    }
+
+    public setGainValue (gain: GainNode, volume: number) {
+        if (gain.gain.setTargetAtTime) {
+            try {
+                gain.gain.setTargetAtTime(volume, this._context.currentTime, 0);
+            } catch (e) {
+                // Some unknown browsers may crash if timeConstant is 0
+                gain.gain.setTargetAtTime(volume, this._context.currentTime, 0.01);
+            }
+        } else {
+            gain.gain.value = volume;
+        }
+    }
+
+    public connectContext (audioNode: GainNode) {
+        if (!this._context) {
+            return;
+        }
+        audioNode.connect(this._context.destination);
+    }
+}
+
+let audioContextAgent: AudioContextAgent | undefined;
+if (AudioContextAgent.support) {
+    audioContextAgent = new AudioContextAgent();
+}
+
+export class OneShotAudioWeb {
+    private _duration: number;
+    private _bufferSourceNode: AudioBufferSourceNode;
+    private _onPlayCb?: () => void;
+    get onPlay () {
+        return this._onPlayCb;
+    }
+    set onPlay (cb) {
+        this._onPlayCb = cb;
+    }
+
+    private _onEndCb?: () => void;
+    get onEnd () {
+        return this._onEndCb;
+    }
+    set onEnd (cb) {
+        this._onEndCb = cb;
+    }
+
+    private constructor (audioBuffer: AudioBuffer, volume: number) {
+        this._duration = audioBuffer.duration;
+        this._bufferSourceNode = audioContextAgent!.createBufferSource(audioBuffer, false);
+        const gainNode = audioContextAgent!.createGain(volume);
+        this._bufferSourceNode.connect(gainNode);
+        audioContextAgent!.connectContext(gainNode);
+    }
+
+    public play (): void {
+        // audioContextAgent does exist
+        audioContextAgent!.runContext().then(() => {
+            this._bufferSourceNode.start();
+            this.onPlay?.();
+            setTimeout(() => {
+                this.onEnd?.();
+            }, this._duration * 1000);
+        }).catch((e) => {});
+    }
+
+    public stop (): void {
+        this._bufferSourceNode.stop();
+    }
+}
 
 export class AudioPlayerWeb implements OperationQueueable {
     private _src: string;
-    private static _context: AudioContext = AudioContextClass && new AudioContextClass();
     private _audioBuffer: AudioBuffer;
     private _sourceNode?: AudioBufferSourceNode;
     private _gainNode: GainNode;
@@ -25,21 +153,16 @@ export class AudioPlayerWeb implements OperationQueueable {
     public _eventTarget: EventTarget = new EventTarget();
     public _operationQueue: OperationInfo[] = [];
 
-    private _onGesture?: () => void;
     private _onHide?: () => void;
     private _onShow?: () => void;
 
     constructor (audioBuffer: AudioBuffer, url: string) {
-        const context = AudioPlayerWeb._context;
         this._audioBuffer = audioBuffer;
-        this._gainNode = context.createGain();
-        this._gainNode.connect(context.destination);
+        this._gainNode = audioContextAgent!.createGain();
+        audioContextAgent!.connectContext(this._gainNode);
         this._src = url;
         // event
         // TODO: should not call engine API in pal
-        this._onGesture = () => this._eventTarget.emit(AudioEvent.USER_GESTURE);
-        legacyCC.game.canvas.addEventListener('touchend', this._onGesture);
-        legacyCC.game.canvas.addEventListener('mouseup', this._onGesture);
         this._onHide = () => {
             if (this._state === AudioState.PLAYING) {
                 this.pause().then(() => {
@@ -62,11 +185,6 @@ export class AudioPlayerWeb implements OperationQueueable {
         if (this._audioBuffer) {
             // @ts-expect-error need to release AudioBuffer instance
             this._audioBuffer = undefined;
-        }
-        if (this._onGesture) {
-            legacyCC.game.canvas.removeEventListener('touchend', this._onGesture);
-            legacyCC.game.canvas.removeEventListener('mouseup', this._onGesture);
-            this._onGesture = undefined;
         }
         if (this._onShow) {
             legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
@@ -93,7 +211,7 @@ export class AudioPlayerWeb implements OperationQueueable {
 
             xhr.onload = () => {
                 if (xhr.status === 200 || xhr.status === 0) {
-                    AudioPlayerWeb._context.decodeAudioData(xhr.response).then((buffer) => {
+                    audioContextAgent!.decodeAudioData(xhr.response).then((buffer) => {
                         resolve(buffer);
                     }).catch((e) => {});
                 } else {
@@ -105,6 +223,15 @@ export class AudioPlayerWeb implements OperationQueueable {
             xhr.onabort = () => { reject(new Error(`${errInfo}${xhr.status}(abort)`)); };
 
             xhr.send(null);
+        });
+    }
+    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioWeb> {
+        return new Promise((resolve, reject) => {
+            AudioPlayerWeb.loadNative(url).then((audioBuffer) => {
+                // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
+                const oneShotAudio = new OneShotAudioWeb(audioBuffer, volume);
+                resolve(oneShotAudio);
+            }).catch(reject);
         });
     }
 
@@ -130,26 +257,14 @@ export class AudioPlayerWeb implements OperationQueueable {
     set volume (val: number) {
         val = clamp01(val);
         this._volume = val;
-        this._setGainValue(this._gainNode, val);
-    }
-    private _setGainValue (gain: GainNode, volume: number) {
-        if (gain.gain.setTargetAtTime) {
-            try {
-                gain.gain.setTargetAtTime(volume, AudioPlayerWeb._context.currentTime, 0);
-            } catch (e) {
-                // Some unknown browsers may crash if timeConstant is 0
-                gain.gain.setTargetAtTime(volume, AudioPlayerWeb._context.currentTime, 0.01);
-            }
-        } else {
-            gain.gain.value = volume;
-        }
+        audioContextAgent!.setGainValue(this._gainNode, val);
     }
     get duration (): number {
         return this._audioBuffer.duration;
     }
     get currentTime (): number {
         if (this._state !== AudioState.PLAYING) { return this._offset; }
-        return AudioPlayerWeb._context.currentTime - this._startTime + this._offset;
+        return (audioContextAgent!.currentTime - this._startTime + this._offset) % this._audioBuffer.duration;
     }
 
     @enqueueOperation
@@ -166,75 +281,18 @@ export class AudioPlayerWeb implements OperationQueueable {
         });
     }
 
-    private _runContext (): Promise<void> {
-        return new Promise((resolve) => {
-            const context = AudioPlayerWeb._context;
-            if (!context.resume) {
-                return resolve();
-            }
-            if (context.state === 'running') {
-                return resolve();
-            }
-            context.resume().catch((e) => {});
-            // promise rejection cannot be caught, need to check running state again
-            if (<string>context.state !== 'running') {
-                this._eventTarget.once(AudioEvent.USER_GESTURE, () => {
-                    context.resume().then(resolve).catch((e) => {});
-                });
-            }
-            return null;
-        });
-    }
-
-    playOneShot (volume = 1): OneShotAudio {
-        let onPlayCb: () => void;
-        let onEndedCb: () => void;
-        const context = AudioPlayerWeb._context;
-        let sourceNode: AudioBufferSourceNode;
-        setTimeout(() => {
-            this._runContext().then(() => {
-                sourceNode = context.createBufferSource();
-                sourceNode.buffer = this._audioBuffer;
-                sourceNode.loop = false;
-                const gainNode = context.createGain();
-                gainNode.connect(context.destination);
-                this._setGainValue(gainNode, volume);
-                sourceNode.connect(gainNode);
-                sourceNode.start();
-                onPlayCb && onPlayCb();
-                onEndedCb && setTimeout(onEndedCb, this._audioBuffer.duration * 1000);
-            }).catch((e) => {});
-        }, 0);
-        const oneShotAudio: OneShotAudio = {
-            stop () {
-                sourceNode.stop();
-            },
-            onPlay (cb) {
-                onPlayCb = cb;
-                return this;
-            },
-            onEnded (cb) {
-                onEndedCb = cb;
-                return this;
-            },
-        };
-        return oneShotAudio;
-    }
-
     @enqueueOperation
     play (): Promise<void> {
         return new Promise((resolve) => {
-            const context = AudioPlayerWeb._context;
-            this._runContext().then(() => {
+            audioContextAgent!.runContext().then(() => {
                 // one AudioBufferSourceNode can't start twice
                 this._sourceNode?.stop();
-                this._sourceNode = context.createBufferSource();
-                this._sourceNode.buffer = this._audioBuffer;
+                this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
                 this._sourceNode.connect(this._gainNode);
                 this._sourceNode.start(0, this._offset);
 
                 this._state = AudioState.PLAYING;
-                this._startTime = context.currentTime;
+                this._startTime = audioContextAgent!.currentTime;
 
                 /* still not supported by all platforms *
                 this._sourceNode.onended = this._onEnded;
@@ -246,7 +304,7 @@ export class AudioPlayerWeb implements OperationQueueable {
                         this._eventTarget.emit(AudioEvent.ENDED);
                         clearInterval(this._currentTimer);
                         this._offset = 0;
-                        this._startTime = context.currentTime;
+                        this._startTime = audioContextAgent!.currentTime;
                         this._state = AudioState.INIT;
                     }
                 };
@@ -262,7 +320,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         if (this._state !== AudioState.PLAYING || !this._sourceNode) {
             return Promise.resolve();
         }
-        this._offset += AudioPlayerWeb._context.currentTime - this._startTime;
+        this._offset += audioContextAgent!.currentTime - this._startTime;
         this._state = AudioState.PAUSED;
         clearInterval(this._currentTimer);
         this._sourceNode.stop();

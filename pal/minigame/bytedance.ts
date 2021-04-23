@@ -1,6 +1,6 @@
 import { IMiniGame } from 'pal/minigame';
 import { Orientation } from '../system/enum-type/orientation';
-import { cloneObject } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let tt: any;
 
@@ -49,6 +49,13 @@ minigame.onAccelerometerChange = function (cb) {
     // onAccelerometerChange would start accelerometer, need to mannually stop it
     tt.stopAccelerometer();
 };
+
+minigame.createInnerAudioContext = createInnerAudioContextPolyfill(tt, {
+    onPlay: true,
+    onPause: true,
+    onStop: true,
+    onSeek: true,
+});
 
 // safeArea
 // origin point on the top-left corner
