@@ -139,6 +139,7 @@ export class SpotLight extends Light {
         LightPool.set(this._handle, LightView.RANGE, Math.cos(Math.PI / 6));
         LightPool.set(this._handle, LightView.ASPECT, 1.0);
         LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
+        LightPool.set(this._handle, LightView.FRUSTUM, this._hFrustum);
     }
 
     public update () {
