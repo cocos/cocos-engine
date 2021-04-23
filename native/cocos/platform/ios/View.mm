@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #import "View.h"
+#include <UIKit/UIScreen.h>
 #include "bindings/event/EventDispatcher.h"
 #include "platform/Application.h"
-#include <UIKit/UIScreen.h>
 
 namespace {
 void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
@@ -60,15 +60,16 @@ void dispatchEvents(cc::TouchEvent &touchEvent, NSSet *touches) {
 #ifdef CC_USE_METAL
     if (self = [super initWithFrame:frame]) {
         self.preventTouch = FALSE;
-        
-        int pixelRatio = [[UIScreen mainScreen] scale];
-        CGSize size = CGSizeMake(frame.size.width * pixelRatio, frame.size.height * pixelRatio);
+
+        float  pixelRatio       = [[UIScreen mainScreen] nativeScale];
+        CGSize size             = CGSizeMake(static_cast<int>(frame.size.width * pixelRatio),
+                                             static_cast<int>(frame.size.height * pixelRatio));
         self.contentScaleFactor = pixelRatio;
         // Config metal layer
-        CAMetalLayer *layer = (CAMetalLayer*)self.layer;
-        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
+        CAMetalLayer *layer = (CAMetalLayer *)self.layer;
+        layer.pixelFormat   = MTLPixelFormatBGRA8Unorm;
         layer.device = self.device = MTLCreateSystemDefaultDevice();
-        layer.drawableSize = size;
+        layer.drawableSize         = size;
     }
 #else
     if (self = [super initWithFrame:frame]) {
