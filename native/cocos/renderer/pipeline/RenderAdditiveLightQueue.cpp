@@ -322,6 +322,10 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
     auto *const       sceneData  = _pipeline->getPipelineSceneData();
     auto *            shadowInfo = sceneData->getSharedData()->getShadows();
     const auto *const scene      = camera->getScene();
+    auto *            device               = gfx::Device::getInstance();
+    const auto        isTextureHalfFloat   = device->hasFeature(cc::gfx::Feature::TEXTURE_HALF_FLOAT);
+    const auto        linear               = (static_cast<bool>(shadowInfo->linear) && isTextureHalfFloat) ? 1.0F : 0.0F;
+    const auto        packing              = static_cast<bool>(shadowInfo->packing) ? 1.0F : (isTextureHalfFloat ? 0.0F : 1.0F);
     const Light *     mainLight  = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
 
@@ -344,7 +348,7 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
                 float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(shadowInfo->pcfType), shadowInfo->bias};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(float) * 4);
 
-                float shadowLPNNInfos[4] = {2.0F, static_cast<float>(shadowInfo->packing), shadowInfo->normalBias, 0.0F};
+                float shadowLPNNInfos[4] = {2.0F, packing, shadowInfo->normalBias, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
             } break;
             case LightType::SPOT: {
@@ -366,13 +370,13 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
                 memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
                 // shadow info
-                float shadowNFLSInfos[4] = {0.1F, light->range, static_cast<float>(shadowInfo->linear), static_cast<float>(shadowInfo->selfShadow)};
+                float shadowNFLSInfos[4] = {0.1F, light->range, linear, static_cast<float>(shadowInfo->selfShadow)};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
                 float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(shadowInfo->pcfType), shadowInfo->bias};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
 
-                float shadowLPNNInfos[4] = {1.0F, static_cast<float>(shadowInfo->packing), shadowInfo->normalBias, 0.0F};
+                float shadowLPNNInfos[4] = {1.0F, packing, shadowInfo->normalBias, 0.0F};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
 
                 // Spot light sampler binding

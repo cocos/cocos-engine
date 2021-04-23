@@ -114,6 +114,10 @@ void ShadowFlow::clearShadowMap(Camera *camera) {
 
 void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo) const {
     auto *sceneData = _pipeline->getPipelineSceneData();
+    auto *     device    = gfx::Device::getInstance();
+    const auto format    = device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT)
+                            ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
+                            : gfx::Format::RGBA8;
 
     if (sceneData->getShadowFramebufferMap().count(light)) {
         auto *framebuffer = sceneData->getShadowFramebufferMap().at(light);
@@ -126,7 +130,7 @@ void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo) 
         renderTargets.emplace_back(gfx::Device::getInstance()->createTexture({
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-            static_cast<bool>(shadowInfo->packing) ? gfx::Format::RGBA8 : gfx::Format::RGBA16F,
+            format,
             static_cast<uint>(shadowInfo->size.x),
             static_cast<uint>(shadowInfo->size.y),
         }));
@@ -147,16 +151,19 @@ void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo) 
 }
 
 void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light) {
-    auto *device = gfx::Device::getInstance();
-    const auto *sceneData = _pipeline->getPipelineSceneData();
-    const auto *shadowInfo = sceneData->getSharedData()->getShadows();
-    const auto shadowMapSize = shadowInfo->size;
-    const auto width         = static_cast<uint>(shadowMapSize.x);
-    const auto height = static_cast<uint>(shadowMapSize.y);
+    auto *      device        = gfx::Device::getInstance();
+    const auto *sceneData     = _pipeline->getPipelineSceneData();
+    const auto *shadowInfo    = sceneData->getSharedData()->getShadows();
+    const auto  shadowMapSize = shadowInfo->size;
+    const auto  width         = static_cast<uint>(shadowMapSize.x);
+    const auto  height        = static_cast<uint>(shadowMapSize.y);
+    const auto  format        = device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT)
+                            ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
+                            : gfx::Format::RGBA8;
 
     if (!_renderPass) {
         const gfx::ColorAttachment colorAttachment = {
-            static_cast<bool>(shadowInfo->packing) ? gfx::Format::RGBA8 : gfx::Format::RGBA16F,
+            format,
             gfx::SampleCount::X1,
             gfx::LoadOp::CLEAR,
             gfx::StoreOp::STORE,
@@ -185,7 +192,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *li
     renderTargets.emplace_back(device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-        static_cast<bool>(shadowInfo->packing) ? gfx::Format::RGBA8 : gfx::Format::RGBA16F,
+        format,
         width,
         height,
     }));
