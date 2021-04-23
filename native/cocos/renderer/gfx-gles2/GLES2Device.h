@@ -42,7 +42,10 @@ namespace gfx {
 
 class GLES2Context;
 class GLES2GPUStateCache;
+class GLES2GPUBlitManager;
 class GLES2GPUStagingBufferPool;
+class GLES2GPUExtensionRegistry;
+class GLES2GPUFramebufferCacheMap;
 
 class CC_GLES2_API GLES2Device final : public Device {
 public:
@@ -71,13 +74,11 @@ public:
     void acquire() override;
     void present() override;
 
-    inline bool useVAO() const { return _useVAO; }
-    inline bool useDrawInstanced() const { return _useDrawInstanced; }
-    inline bool useInstancedArrays() const { return _useInstancedArrays; }
-    inline bool useDiscardFramebuffer() const { return _useDiscardFramebuffer; }
-
-    inline GLES2GPUStateCache *       stateCache() const { return _gpuStateCache; }
-    inline GLES2GPUStagingBufferPool *stagingBufferPool() const { return _gpuStagingBufferPool; }
+    inline GLES2GPUStateCache *         stateCache() const { return _gpuStateCache; }
+    inline GLES2GPUBlitManager *        blitManager() const { return _gpuBlitManager; }
+    inline GLES2GPUStagingBufferPool *  stagingBufferPool() const { return _gpuStagingBufferPool; }
+    inline GLES2GPUExtensionRegistry *  extensionRegistry() const { return _gpuExtensionRegistry; }
+    inline GLES2GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
     inline bool checkExtension(const String &extension) const {
         return std::any_of(_extensions.begin(), _extensions.end(), [&extension](auto &ext) {
@@ -122,17 +123,15 @@ protected:
 
     static bool checkForETC2();
 
-    GLES2Context *             _renderContext        = nullptr;
-    GLES2Context *             _deviceContext        = nullptr;
-    GLES2GPUStateCache *       _gpuStateCache        = nullptr;
-    GLES2GPUStagingBufferPool *_gpuStagingBufferPool = nullptr;
+    GLES2Context *               _renderContext          = nullptr;
+    GLES2Context *               _deviceContext          = nullptr;
+    GLES2GPUStateCache *         _gpuStateCache          = nullptr;
+    GLES2GPUBlitManager *        _gpuBlitManager         = nullptr;
+    GLES2GPUStagingBufferPool *  _gpuStagingBufferPool   = nullptr;
+    GLES2GPUExtensionRegistry *  _gpuExtensionRegistry   = nullptr;
+    GLES2GPUFramebufferCacheMap *_gpuFramebufferCacheMap = nullptr;
 
     StringArray _extensions;
-
-    bool _useVAO                = false;
-    bool _useDrawInstanced      = false;
-    bool _useInstancedArrays    = false;
-    bool _useDiscardFramebuffer = false;
 
     uint _threadID = 0U;
 };

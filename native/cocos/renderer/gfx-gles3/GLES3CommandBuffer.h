@@ -53,7 +53,7 @@ public:
     void setBlendConstants(const Color &constants) override;
     void setDepthBound(float minBounds, float maxBounds) override;
     void setStencilWriteMask(StencilFace face, uint mask) override;
-    void setStencilCompareMask(StencilFace face, int ref, uint mask) override;
+    void setStencilCompareMask(StencilFace face, uint ref, uint mask) override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
     void updateBuffer(Buffer *buff, const void *data, uint size) override;
@@ -75,20 +75,14 @@ protected:
     GLES3CmdPackage *         _curCmdPackage = nullptr;
     queue<GLES3CmdPackage *>  _pendingPackages, _freePackages;
 
+    uint                            _curSubpassIdx       = 0U;
     GLES3GPUPipelineState *         _curGPUPipelineState = nullptr;
     GLES3GPUInputAssembler *        _curGPUInputAssember = nullptr;
     vector<GLES3GPUDescriptorSet *> _curGPUDescriptorSets;
     vector<vector<uint>>            _curDynamicOffsets;
-    Viewport                        _curViewport;
-    Rect                            _curScissor;
-    float                           _curLineWidth = 1.0F;
-    GLES3DepthBias                  _curDepthBias;
-    Color                           _curBlendConstants;
-    GLES3DepthBounds                _curDepthBounds;
-    GLES3StencilWriteMask           _curStencilWriteMask;
-    GLES3StencilCompareMask         _curStencilCompareMask;
-    bool                            _isStateInvalid = false;
-    uint                            _curSubpassIdx  = 0U;
+    DynamicStates                   _curDynamicStates;
+
+    bool _isStateInvalid = false;
 };
 
 } // namespace gfx

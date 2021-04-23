@@ -444,9 +444,10 @@ using TextureUsage = TextureUsageBit;
 CC_ENUM_OPERATORS(TextureUsageBit);
 
 enum class TextureFlagBit : FlagBits {
-    NONE       = 0,
-    GEN_MIPMAP = 0x1,
-    IMMUTABLE  = 0x2,
+    NONE           = 0,
+    GEN_MIPMAP     = 0x1,
+    IMMUTABLE      = 0x2,
+    GENERAL_LAYOUT = 0x4,
 };
 using TextureFlags = TextureFlagBit;
 CC_ENUM_OPERATORS(TextureFlagBit);
@@ -1050,6 +1051,7 @@ struct ColorAttachment {
     StoreOp                 storeOp     = StoreOp::STORE;
     std::vector<AccessType> beginAccesses;
     std::vector<AccessType> endAccesses{AccessType::PRESENT};
+    bool                    isGeneralLayout = false;
 };
 
 using ColorAttachmentList = vector<ColorAttachment>;
@@ -1063,6 +1065,7 @@ struct DepthStencilAttachment {
     StoreOp                 stencilStoreOp = StoreOp::STORE;
     std::vector<AccessType> beginAccesses;
     std::vector<AccessType> endAccesses{AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
+    bool                    isGeneralLayout = false;
 };
 
 struct SubpassInfo {

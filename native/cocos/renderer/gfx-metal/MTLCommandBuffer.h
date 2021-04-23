@@ -65,7 +65,7 @@ public:
     void setBlendConstants(const Color &constants) override;
     void setDepthBound(float minBounds, float maxBounds) override;
     void setStencilWriteMask(StencilFace face, uint mask) override;
-    void setStencilCompareMask(StencilFace face, int ref, uint mask) override;
+    void setStencilCompareMask(StencilFace face, uint ref, uint mask) override;
     void nextSubpass() override;
     void draw(const DrawInfo &info) override;
     void updateBuffer(Buffer *buff, const void *data, uint size) override;

@@ -27,12 +27,24 @@
 
 #include <utility>
 
-#include "GLES2Wrangler.h"
-#include "base/Object.h"
 #include "gfx-base/GFXDef.h"
+#include "gfx-gles-common/GLESCommandPool.h"
+
+#include "GLES2Std.h"
+#include "GLES2Wrangler.h"
 
 namespace cc {
 namespace gfx {
+
+class GLES2GPUExtensionRegistry {
+public:
+    FBFSupportLevel mFBF = FBFSupportLevel::NONE;
+
+    bool useVAO                = false;
+    bool useDrawInstanced      = false;
+    bool useInstancedArrays    = false;
+    bool useDiscardFramebuffer = false;
+};
 
 class GLES2GPUBuffer final : public Object {
 public:
@@ -180,9 +192,7 @@ struct GLES2GPUUniformSamplerTexture final {
 using GLES2GPUUniformSamplerTextureList = vector<GLES2GPUUniformSamplerTexture>;
 
 struct GLES2GPUShaderStage final {
-    GLES2GPUShaderStage(ShaderStageFlagBit t, String s, GLuint shader = 0)
-    : type(t), source(std::move(std::move(s))), glShader(shader) {}
-    ShaderStageFlagBit type;
+    ShaderStageFlagBit type = ShaderStageFlagBit::NONE;
     String             source;
     GLuint             glShader = 0;
 };
@@ -193,6 +203,7 @@ public:
     String                            name;
     UniformBlockList                  blocks;
     UniformSamplerTextureList         samplerTextures;
+    UniformInputAttachmentList        subpassInputs;
     GLuint                            glProgram = 0;
     GLES2GPUShaderStageList           gpuStages;
     GLES2GPUInputList                 glInputs;
@@ -229,6 +240,7 @@ class GLES2GPURenderPass final : public Object {
 public:
     ColorAttachmentList    colorAttachments;
     DepthStencilAttachment depthStencilAttachment;
+    SubpassInfoList        subpasses;
 };
 
 class GLES2GPUFramebuffer final : public Object {
@@ -236,8 +248,18 @@ public:
     GLES2GPURenderPass *gpuRenderPass = nullptr;
     GLES2GPUTextureList gpuColorTextures;
     GLES2GPUTexture *   gpuDepthStencilTexture = nullptr;
-    GLuint              glFramebuffer          = 0;
-    bool                isOffscreen            = false;
+
+    bool usesFBF = false;
+
+    struct GLFramebuffer {
+        GLuint glFramebuffer = 0U;
+        bool   isOffscreen   = false;
+    };
+    // one per subpass, if not using FBF
+    vector<GLFramebuffer> instances;
+
+    vector<uint>  uberColorAttachmentIndices;
+    GLFramebuffer uberInstance;
 };
 
 class GLES2GPUDescriptorSetLayout final : public Object {
@@ -259,7 +281,7 @@ public:
     vector<vector<int>> dynamicOffsetIndices;
     vector<uint>        dynamicOffsetOffsets;
     vector<uint>        dynamicOffsets;
-    uint                dynamicOffsetCount;
+    uint                dynamicOffsetCount = 0U;
 };
 
 class GLES2GPUPipelineState final : public Object {
@@ -295,13 +317,17 @@ public:
 };
 
 struct GLES2ObjectCache final {
-    size_t                  numClearColors    = 0U;
+    uint                    subpassIdx        = 0U;
     GLES2GPURenderPass *    gpuRenderPass     = nullptr;
     GLES2GPUFramebuffer *   gpuFramebuffer    = nullptr;
     GLES2GPUPipelineState * gpuPipelineState  = nullptr;
     GLES2GPUInputAssembler *gpuInputAssembler = nullptr;
     GLenum                  glPrimitive       = 0;
     GLenum                  invalidAttachments[MAX_ATTACHMENTS];
+    Rect                    renderArea;
+    ColorList               clearColors;
+    float                   clearDepth   = 1.F;
+    int                     clearStencil = 0;
 };
 
 class GLES2GPUStateCache final : public Object {
@@ -354,13 +380,86 @@ public:
         dss      = DepthStencilState();
         bs       = BlendState();
 
-        gfxStateCache.gpuPipelineState  = nullptr;
-        gfxStateCache.numClearColors    = 0U;
         gfxStateCache.gpuRenderPass     = nullptr;
         gfxStateCache.gpuFramebuffer    = nullptr;
+        gfxStateCache.gpuPipelineState  = nullptr;
         gfxStateCache.gpuInputAssembler = nullptr;
         gfxStateCache.glPrimitive       = 0U;
+        gfxStateCache.subpassIdx        = 0U;
     }
+};
+
+class GLES2GPUBlitManager final : public Object {
+public:
+    void initialize();
+    void destroy();
+    void draw(GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *gpuTextureDst, const TextureBlit *regions, uint count, Filter filter);
+
+private:
+    GLES2GPUShader              _gpuShader;
+    GLES2GPUDescriptorSetLayout _gpuDescriptorSetLayout;
+    GLES2GPUPipelineLayout      _gpuPipelineLayout;
+    GLES2GPUPipelineState       _gpuPipelineState;
+
+    GLES2GPUBuffer         _gpuVertexBuffer;
+    GLES2GPUInputAssembler _gpuInputAssembler;
+    GLES2GPUSampler        _gpuPointSampler;
+    GLES2GPUSampler        _gpuLinearSampler;
+    GLES2GPUBuffer         _gpuUniformBuffer;
+    GLES2GPUDescriptorSet  _gpuDescriptorSet;
+    DrawInfo               _drawInfo;
+    float                  _uniformBuffer[8];
+};
+
+class GLES2GPUFramebufferCacheMap final : public Object {
+public:
+    explicit GLES2GPUFramebufferCacheMap(GLES2GPUStateCache *cache) : _cache(cache) {}
+
+    GLuint getFramebufferFromTexture(const GLES2GPUTexture *gpuTexture) {
+        if (!_map.count(gpuTexture->glTexture)) {
+            GLuint glFramebuffer = 0U;
+            GL_CHECK(glGenFramebuffers(1, &glFramebuffer));
+            if (_cache->glFramebuffer != glFramebuffer) {
+                GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, glFramebuffer));
+                _cache->glFramebuffer = glFramebuffer;
+            }
+
+            const FormatInfo &info = GFX_FORMAT_INFOS[static_cast<uint>(gpuTexture->format)];
+            if (info.hasDepth) {
+                GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, gpuTexture->glTarget, gpuTexture->glTexture, 0));
+                if (info.hasStencil) {
+                    GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, gpuTexture->glTarget, gpuTexture->glTexture, 0));
+                }
+            } else {
+                GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gpuTexture->glTarget, gpuTexture->glTexture, 0));
+            }
+
+            GLenum status;
+            GL_CHECK(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
+            CCASSERT(status == GL_FRAMEBUFFER_COMPLETE, "frambuffer incomplete");
+
+            _map[gpuTexture->glTexture] = glFramebuffer;
+        }
+
+        return _map[gpuTexture->glTexture];
+    }
+
+    void onTextureDestroy(const GLES2GPUTexture *gpuTexture) {
+        if (_map.count(gpuTexture->glTexture)) {
+            GLuint glFramebuffer = _map[gpuTexture->glTexture];
+
+            if (_cache->glFramebuffer == glFramebuffer) {
+                GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+                _cache->glFramebuffer = 0;
+            }
+            GL_CHECK(glDeleteFramebuffers(1, &glFramebuffer));
+        }
+        _map.erase(gpuTexture->glTexture);
+    }
+
+private:
+    GLES2GPUStateCache *          _cache = nullptr;
+    unordered_map<GLuint, GLuint> _map; // texture -> framebuffer
 };
 
 constexpr size_t                CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default

@@ -28,12 +28,27 @@
 #include <utility>
 
 #include "gfx-base/GFXDef.h"
+#include "gfx-gles-common/GLESCommandPool.h"
 
 #include "GLES3Std.h"
 #include "GLES3Wrangler.h"
 
 namespace cc {
 namespace gfx {
+
+enum class PLSSupportLevel {
+    NONE,
+    LEVEL1,
+    LEVEL2,
+};
+
+class GLES3GPUExtensionRegistry {
+public:
+    FBFSupportLevel mFBF = FBFSupportLevel::NONE;
+
+    PLSSupportLevel mPLS     = PLSSupportLevel::NONE;
+    uint            mPLSsize = 0U;
+};
 
 class GLES3GPUBuffer final : public Object {
 public:
@@ -225,17 +240,18 @@ public:
     vector<GLint>       colorMipmapLevels;
     GLES3GPUTexture *   gpuDepthStencilTexture  = nullptr;
     GLint               depthStencilMipmapLevel = 0;
-    bool usesPLS = false;
+    bool                usesPLS                 = false;
+    bool                usesFBF                 = false;
 
     struct GLFramebuffer {
         GLuint glFramebuffer = 0U;
         bool   isOffscreen   = false;
     };
-    // one per subpass, if not using PLS
+    // one per subpass, if not using FBF or PLS
     vector<GLFramebuffer> instances;
 
-    vector<uint>  plsColorAttachmentIndices;
-    GLFramebuffer plsInstance;
+    vector<uint>  uberColorAttachmentIndices;
+    GLFramebuffer uberInstance;
 };
 
 class GLES3GPUDescriptorSetLayout final : public Object {

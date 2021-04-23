@@ -68,7 +68,7 @@ void CCVKDescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
                 case DescriptorType::STORAGE_BUFFER:
                 case DescriptorType::DYNAMIC_STORAGE_BUFFER:
                 case DescriptorType::STORAGE_IMAGE:
-                    // here we don't handle write accesses, which should be handled manually
+                    // write accesses should be handled manually
                     if (hasFlag(binding.stageFlags, ShaderStageFlags::COMPUTE)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_COMPUTE_SHADER_READ_OTHER);
                     if (hasFlag(binding.stageFlags, ShaderStageFlags::VERTEX)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_VERTEX_SHADER_READ_OTHER);
                     if (hasFlag(binding.stageFlags, ShaderStageFlags::FRAGMENT)) gpuDescriptor.accessTypes.push_back(THSVS_ACCESS_FRAGMENT_SHADER_READ_OTHER);
@@ -101,16 +101,14 @@ void CCVKDescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
         for (size_t i = 0U, k = 0U; i < bindingCount; ++i) {
             const DescriptorSetLayoutBinding &binding = gpuDescriptorSetLayout->bindings[i];
             for (uint j = 0; j < binding.count; ++j, ++k) {
-                if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_BUFFER_TYPE)) {
+                if (hasFlag(DESCRIPTOR_BUFFER_TYPE, binding.descriptorType)) {
                     instance.descriptorInfos[k].buffer.buffer = gpuDevice->defaultBuffer.vkBuffer;
                     instance.descriptorInfos[k].buffer.offset = gpuDevice->defaultBuffer.startOffset;
                     instance.descriptorInfos[k].buffer.range  = gpuDevice->defaultBuffer.size;
-                } else if (hasAnyFlags(binding.descriptorType, DESCRIPTOR_TEXTURE_TYPE)) {
+                } else if (hasFlag(DESCRIPTOR_TEXTURE_TYPE, binding.descriptorType)) {
                     instance.descriptorInfos[k].image.sampler     = gpuDevice->defaultSampler.vkSampler;
                     instance.descriptorInfos[k].image.imageView   = gpuDevice->defaultTextureView.vkImageView;
-                    instance.descriptorInfos[k].image.imageLayout = binding.descriptorType == DescriptorType::STORAGE_IMAGE
-                                                                        ? VK_IMAGE_LAYOUT_GENERAL
-                                                                        : VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+                    instance.descriptorInfos[k].image.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
                 }
             }
         }
@@ -197,7 +195,7 @@ void CCVKDescriptorSet::update() {
         for (size_t i = 0U; i < descriptorCount; i++) {
             CCVKGPUDescriptor &binding = _gpuDescriptorSet->gpuDescriptors[i];
 
-            if (hasAnyFlags(binding.type, DESCRIPTOR_BUFFER_TYPE)) {
+            if (hasFlag(DESCRIPTOR_BUFFER_TYPE, binding.type)) {
                 if (_buffers[i]) {
                     CCVKGPUBufferView *bufferView = static_cast<CCVKBuffer *>(_buffers[i])->gpuBufferView();
                     if (binding.gpuBufferView != bufferView) {
@@ -215,7 +213,7 @@ void CCVKDescriptorSet::update() {
                         binding.gpuBufferView = bufferView;
                     }
                 }
-            } else if (hasAnyFlags(binding.type, DESCRIPTOR_TEXTURE_TYPE)) {
+            } else if (hasFlag(DESCRIPTOR_TEXTURE_TYPE, binding.type)) {
                 if (_textures[i]) {
                     CCVKGPUTextureView *textureView = static_cast<CCVKTexture *>(_textures[i])->gpuTextureView();
                     if (binding.gpuTextureView != textureView) {

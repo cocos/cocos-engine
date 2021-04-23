@@ -188,7 +188,7 @@ void CommandBufferValidator::setStencilWriteMask(StencilFace face, uint mask) {
     _actor->setStencilWriteMask(face, mask);
 }
 
-void CommandBufferValidator::setStencilCompareMask(StencilFace face, int ref, uint mask) {
+void CommandBufferValidator::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
     _actor->setStencilCompareMask(face, ref, mask);
 }
 

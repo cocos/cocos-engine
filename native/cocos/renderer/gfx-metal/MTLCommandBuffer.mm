@@ -274,7 +274,7 @@ void CCMTLCommandBuffer::setStencilWriteMask(StencilFace /*face*/, uint /*mask*/
     CC_LOG_ERROR("Don't support change stencil write mask here.");
 }
 
-void CCMTLCommandBuffer::setStencilCompareMask(StencilFace /*face*/, int /*ref*/, uint /*mask*/) {
+void CCMTLCommandBuffer::setStencilCompareMask(StencilFace /*face*/, uint /*ref*/, uint /*mask*/) {
     CC_LOG_ERROR("Don't support change stencil compare mask here.");
 }
 

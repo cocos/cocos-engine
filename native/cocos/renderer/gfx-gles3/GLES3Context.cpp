@@ -230,8 +230,8 @@ bool GLES3Context::doInit(const ContextInfo &info) {
                 _eglConfig     = _vecEGLConfig[i];
                 depth          = params[4];
                 stencil        = params[5];
-                _sampleBuffers = params[6];
-                _sampleCount   = params[7];
+                _sampleBuffers = static_cast<uint8_t>(params[6]);
+                _sampleCount   = static_cast<uint8_t>(params[7]);
                 lastScore      = currScore;
             }
         }
@@ -450,6 +450,7 @@ void GLES3Context::acquireSurface(uintptr_t windowHandle) {
     uint  width  = ANativeWindow_getWidth(window);
     uint  height = ANativeWindow_getHeight(window);
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
+    GLES3Device::getInstance()->resize(width, height);
 
     EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, reinterpret_cast<EGLNativeWindowType>(_windowHandle), nullptr));
     if (_eglSurface == EGL_NO_SURFACE) {
@@ -582,6 +583,10 @@ bool GLES3Context::makeCurrent(bool bound) {
         GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
         GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
         GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
+        if (GLES3Device::getInstance()->extensionRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_QCOM) {
+            GL_CHECK(glEnable(GL_FRAMEBUFFER_FETCH_NONCOHERENT_QCOM));
+        }
 
         CC_LOG_DEBUG("eglMakeCurrent() - SUCCEEDED, Context: 0x%p", this);
         return true;

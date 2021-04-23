@@ -138,6 +138,10 @@ PFNEGLGETFRAMETIMESTAMPSANDROIDPROC eglGetFrameTimestampsANDROID;
 PFNEGLQUERYSURFACEPOINTERANGLEPROC eglQuerySurfacePointerANGLE;
 #endif /* defined(EGL_ANGLE_query_surface_pointer) */
 
+#if defined(EGL_ANGLE_sync_control_rate)
+PFNEGLGETMSCRATEANGLEPROC eglGetMscRateANGLE;
+#endif /* defined(EGL_ANGLE_sync_control_rate) */
+
 #if defined(EGL_EXT_client_sync)
 PFNEGLCLIENTSIGNALSYNCEXTPROC eglClientSignalSyncEXT;
 #endif /* defined(EGL_EXT_client_sync) */
@@ -485,6 +489,10 @@ void eglwLoadProcs(PFNEGLWLOADPROC eglwLoad) {
 #if defined(EGL_ANGLE_query_surface_pointer)
     eglQuerySurfacePointerANGLE = (PFNEGLQUERYSURFACEPOINTERANGLEPROC)eglwLoad("eglQuerySurfacePointerANGLE");
 #endif /* defined(EGL_ANGLE_query_surface_pointer) */
+
+#if defined(EGL_ANGLE_sync_control_rate)
+    eglGetMscRateANGLE = (PFNEGLGETMSCRATEANGLEPROC)eglwLoad("eglGetMscRateANGLE");
+#endif /* defined(EGL_ANGLE_sync_control_rate) */
 
 #if defined(EGL_EXT_client_sync)
     eglClientSignalSyncEXT = (PFNEGLCLIENTSIGNALSYNCEXTPROC)eglwLoad("eglClientSignalSyncEXT");

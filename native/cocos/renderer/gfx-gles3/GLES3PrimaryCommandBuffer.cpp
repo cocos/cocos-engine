@@ -159,8 +159,8 @@ void GLES3PrimaryCommandBuffer::bindStates() {
             count = std::min(count, _curDynamicOffsets[i].size());
             if (count) memcpy(&dynamicOffsets[dynamicOffsetOffsets[i]], _curDynamicOffsets[i].data(), count * sizeof(uint));
         }
-        cmdFuncGLES3BindState(GLES3Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember, _curGPUDescriptorSets, dynamicOffsets,
-                              _curViewport, _curScissor, _curLineWidth, false, _curDepthBias, _curBlendConstants, _curDepthBounds, _curStencilWriteMask, _curStencilCompareMask);
+        cmdFuncGLES3BindState(GLES3Device::getInstance(), _curGPUPipelineState, _curGPUInputAssember,
+                              _curGPUDescriptorSets.data(), dynamicOffsets.data(), &_curDynamicStates);
     }
 
     _isStateInvalid = false;

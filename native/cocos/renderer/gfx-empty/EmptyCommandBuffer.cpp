@@ -79,7 +79,7 @@ void EmptyCommandBuffer::setDepthBound(float minBounds, float maxBounds) {
 void EmptyCommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
 }
 
-void EmptyCommandBuffer::setStencilCompareMask(StencilFace face, int ref, uint mask) {
+void EmptyCommandBuffer::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
 }
 
 void EmptyCommandBuffer::nextSubpass() {

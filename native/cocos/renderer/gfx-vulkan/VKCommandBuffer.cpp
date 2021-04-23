@@ -109,9 +109,9 @@ void CCVKCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer 
 void CCVKCommandBuffer::end() {
     if (!_gpuCommandBuffer->began) return;
 
-    _curGPUFBO           = nullptr;
-    _curGPUInputAssember = nullptr;
-    _curViewport.width = _curViewport.height = _curScissor.width = _curScissor.height = 0U;
+    _curGPUFBO                       = nullptr;
+    _curGPUInputAssember             = nullptr;
+    _curDynamicStates.viewport.width = _curDynamicStates.viewport.height = _curDynamicStates.scissor.width = _curDynamicStates.scissor.height = 0U;
     VK_CHECK(vkEndCommandBuffer(_gpuCommandBuffer->vkCommandBuffer));
     _gpuCommandBuffer->began = false;
 
@@ -250,8 +250,8 @@ void CCVKCommandBuffer::bindInputAssembler(InputAssembler *ia) {
 }
 
 void CCVKCommandBuffer::setViewport(const Viewport &vp) {
-    if (_curViewport != vp) {
-        _curViewport = vp;
+    if (_curDynamicStates.viewport != vp) {
+        _curDynamicStates.viewport = vp;
 
         VkViewport viewport{static_cast<float>(vp.left), static_cast<float>(vp.top), static_cast<float>(vp.width), static_cast<float>(vp.height), vp.minDepth, vp.maxDepth};
         vkCmdSetViewport(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &viewport);
@@ -259,8 +259,8 @@ void CCVKCommandBuffer::setViewport(const Viewport &vp) {
 }
 
 void CCVKCommandBuffer::setScissor(const Rect &rect) {
-    if (_curScissor != rect) {
-        _curScissor = rect;
+    if (_curDynamicStates.scissor != rect) {
+        _curDynamicStates.scissor = rect;
 
         VkRect2D scissor = {{rect.x, rect.y}, {rect.width, rect.height}};
         vkCmdSetScissor(_gpuCommandBuffer->vkCommandBuffer, 0, 1, &scissor);
@@ -268,62 +268,60 @@ void CCVKCommandBuffer::setScissor(const Rect &rect) {
 }
 
 void CCVKCommandBuffer::setLineWidth(float width) {
-    if (math::IsNotEqualF(_curLineWidth, width)) {
-        _curLineWidth = width;
+    if (math::IsNotEqualF(_curDynamicStates.lineWidth, width)) {
+        _curDynamicStates.lineWidth = width;
         vkCmdSetLineWidth(_gpuCommandBuffer->vkCommandBuffer, width);
     }
 }
 
 void CCVKCommandBuffer::setDepthBias(float constant, float clamp, float slope) {
-    if (math::IsNotEqualF(_curDepthBias.constant, constant) ||
-        math::IsNotEqualF(_curDepthBias.clamp, clamp) ||
-        math::IsNotEqualF(_curDepthBias.slope, slope)) {
-        _curDepthBias.constant = constant;
-        _curDepthBias.clamp    = clamp;
-        _curDepthBias.slope    = slope;
+    if (math::IsNotEqualF(_curDynamicStates.depthBiasConstant, constant) ||
+        math::IsNotEqualF(_curDynamicStates.depthBiasClamp, clamp) ||
+        math::IsNotEqualF(_curDynamicStates.depthBiasSlope, slope)) {
+        _curDynamicStates.depthBiasConstant = constant;
+        _curDynamicStates.depthBiasClamp    = clamp;
+        _curDynamicStates.depthBiasSlope    = slope;
         vkCmdSetDepthBias(_gpuCommandBuffer->vkCommandBuffer, constant, clamp, slope);
     }
 }
 
 void CCVKCommandBuffer::setBlendConstants(const Color &constants) {
-    if (math::IsNotEqualF(_curBlendConstants.x, constants.x) ||
-        math::IsNotEqualF(_curBlendConstants.y, constants.y) ||
-        math::IsNotEqualF(_curBlendConstants.z, constants.z) ||
-        math::IsNotEqualF(_curBlendConstants.w, constants.w)) {
-        _curBlendConstants.x = constants.x;
-        _curBlendConstants.y = constants.y;
-        _curBlendConstants.z = constants.z;
-        _curBlendConstants.w = constants.w;
+    if (math::IsNotEqualF(_curDynamicStates.blendConstant.x, constants.x) ||
+        math::IsNotEqualF(_curDynamicStates.blendConstant.y, constants.y) ||
+        math::IsNotEqualF(_curDynamicStates.blendConstant.z, constants.z) ||
+        math::IsNotEqualF(_curDynamicStates.blendConstant.w, constants.w)) {
+        _curDynamicStates.blendConstant.x = constants.x;
+        _curDynamicStates.blendConstant.y = constants.y;
+        _curDynamicStates.blendConstant.z = constants.z;
+        _curDynamicStates.blendConstant.w = constants.w;
         vkCmdSetBlendConstants(_gpuCommandBuffer->vkCommandBuffer, reinterpret_cast<const float *>(&constants));
     }
 }
 
 void CCVKCommandBuffer::setDepthBound(float minBounds, float maxBounds) {
-    if (math::IsNotEqualF(_curDepthBounds.minBounds, minBounds) ||
-        math::IsNotEqualF(_curDepthBounds.maxBounds, maxBounds)) {
-        _curDepthBounds.minBounds = minBounds;
-        _curDepthBounds.maxBounds = maxBounds;
+    if (math::IsNotEqualF(_curDynamicStates.depthMinBounds, minBounds) ||
+        math::IsNotEqualF(_curDynamicStates.depthMaxBounds, maxBounds)) {
+        _curDynamicStates.depthMinBounds = minBounds;
+        _curDynamicStates.depthMaxBounds = maxBounds;
         vkCmdSetDepthBounds(_gpuCommandBuffer->vkCommandBuffer, minBounds, maxBounds);
     }
 }
 
 void CCVKCommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
-    if ((_curStencilWriteMask.face != face) ||
-        (_curStencilWriteMask.write_mask != mask)) {
-        _curStencilWriteMask.face       = face;
-        _curStencilWriteMask.write_mask = mask;
-        vkCmdSetStencilWriteMask(_gpuCommandBuffer->vkCommandBuffer,
-                                 face == StencilFace::FRONT ? VK_STENCIL_FACE_FRONT_BIT : VK_STENCIL_FACE_BACK_BIT, mask);
+    DynamicStencilStates &state = _curDynamicStates.stencilStates[static_cast<uint>(face)];
+    if (state.writeMask != mask) {
+        state.writeMask = mask;
+
+        VkStencilFaceFlagBits vkFace = (face == StencilFace::FRONT ? VK_STENCIL_FACE_FRONT_BIT : VK_STENCIL_FACE_BACK_BIT);
+        vkCmdSetStencilWriteMask(_gpuCommandBuffer->vkCommandBuffer, vkFace, mask);
     }
 }
 
-void CCVKCommandBuffer::setStencilCompareMask(StencilFace face, int reference, uint mask) {
-    if ((_curStencilCompareMask.face != face) ||
-        (_curStencilCompareMask.reference != reference) ||
-        (_curStencilCompareMask.compareMask != mask)) {
-        _curStencilCompareMask.face        = face;
-        _curStencilCompareMask.reference   = reference;
-        _curStencilCompareMask.compareMask = mask;
+void CCVKCommandBuffer::setStencilCompareMask(StencilFace face, uint reference, uint mask) {
+    DynamicStencilStates &state = _curDynamicStates.stencilStates[static_cast<uint>(face)];
+    if (state.reference != reference || state.compareMask != mask) {
+        state.reference   = reference;
+        state.compareMask = mask;
 
         VkStencilFaceFlagBits vkFace = (face == StencilFace::FRONT ? VK_STENCIL_FACE_FRONT_BIT : VK_STENCIL_FACE_BACK_BIT);
         vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, vkFace, reference);
@@ -477,9 +475,9 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
         _blitRegions[i].srcOffsets[0].x               = region.srcOffset.x;
         _blitRegions[i].srcOffsets[0].y               = region.srcOffset.y;
         _blitRegions[i].srcOffsets[0].z               = region.srcOffset.z;
-        _blitRegions[i].srcOffsets[1].x               = region.srcExtent.width;
-        _blitRegions[i].srcOffsets[1].y               = region.srcExtent.height;
-        _blitRegions[i].srcOffsets[1].z               = region.srcExtent.depth;
+        _blitRegions[i].srcOffsets[1].x               = region.srcOffset.x + region.srcExtent.width;
+        _blitRegions[i].srcOffsets[1].y               = region.srcOffset.y + region.srcExtent.height;
+        _blitRegions[i].srcOffsets[1].z               = region.srcOffset.z + region.srcExtent.depth;
 
         _blitRegions[i].dstSubresource.aspectMask     = dstAspectMask;
         _blitRegions[i].dstSubresource.mipLevel       = region.dstSubres.mipLevel;
@@ -488,9 +486,9 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
         _blitRegions[i].dstOffsets[0].x               = region.dstOffset.x;
         _blitRegions[i].dstOffsets[0].y               = region.dstOffset.y;
         _blitRegions[i].dstOffsets[0].z               = region.dstOffset.z;
-        _blitRegions[i].dstOffsets[1].x               = region.dstExtent.width;
-        _blitRegions[i].dstOffsets[1].y               = region.dstExtent.height;
-        _blitRegions[i].dstOffsets[1].z               = region.dstExtent.depth;
+        _blitRegions[i].dstOffsets[1].x               = region.dstOffset.x + region.dstExtent.width;
+        _blitRegions[i].dstOffsets[1].y               = region.dstOffset.y + region.dstExtent.height;
+        _blitRegions[i].dstOffsets[1].z               = region.dstOffset.z + region.dstExtent.depth;
     }
 
     vkCmdBlitImage(_gpuCommandBuffer->vkCommandBuffer,

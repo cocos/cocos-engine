@@ -132,6 +132,10 @@ extern PFNEGLGETFRAMETIMESTAMPSANDROIDPROC eglGetFrameTimestampsANDROID;
 extern PFNEGLQUERYSURFACEPOINTERANGLEPROC eglQuerySurfacePointerANGLE;
 #endif /* defined(EGL_ANGLE_query_surface_pointer) */
 
+#if defined(EGL_ANGLE_sync_control_rate)
+extern PFNEGLGETMSCRATEANGLEPROC eglGetMscRateANGLE;
+#endif /* defined(EGL_ANGLE_sync_control_rate) */
+
 #if defined(EGL_EXT_client_sync)
 extern PFNEGLCLIENTSIGNALSYNCEXTPROC eglClientSignalSyncEXT;
 #endif /* defined(EGL_EXT_client_sync) */

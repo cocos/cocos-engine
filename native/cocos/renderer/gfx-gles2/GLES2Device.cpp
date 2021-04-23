@@ -62,7 +62,7 @@ GLES2Device::~GLES2Device() {
     GLES2Device::instance = nullptr;
 }
 
-bool GLES2Device::doInit(const DeviceInfo & info) {
+bool GLES2Device::doInit(const DeviceInfo &info) {
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
     ctxInfo.msaaEnabled  = info.isAntiAlias;
@@ -83,8 +83,11 @@ bool GLES2Device::doInit(const DeviceInfo & info) {
     cmdBuffInfo.queue = _queue;
     _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
-    _gpuStateCache        = CC_NEW(GLES2GPUStateCache);
-    _gpuStagingBufferPool = CC_NEW(GLES2GPUStagingBufferPool);
+    _gpuStateCache          = CC_NEW(GLES2GPUStateCache);
+    _gpuBlitManager         = CC_NEW(GLES2GPUBlitManager);
+    _gpuStagingBufferPool   = CC_NEW(GLES2GPUStagingBufferPool);
+    _gpuExtensionRegistry   = CC_NEW(GLES2GPUExtensionRegistry);
+    _gpuFramebufferCacheMap = CC_NEW(GLES2GPUFramebufferCacheMap(_gpuStateCache));
 
     bindRenderContext(true);
 
@@ -132,10 +135,36 @@ bool GLES2Device::doInit(const DeviceInfo & info) {
         _features[static_cast<uint>(Feature::BLEND_MINMAX)] = true;
     }
 
-    _useVAO             = checkExtension("vertex_array_object");
-    _useDrawInstanced   = checkExtension("draw_instanced");
-    _useInstancedArrays = _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)] = checkExtension("instanced_arrays");
-    _useDiscardFramebuffer                                                        = checkExtension("discard_framebuffer");
+    _gpuExtensionRegistry->useVAO                = checkExtension("vertex_array_object");
+    _gpuExtensionRegistry->useDrawInstanced      = checkExtension("draw_instanced");
+    _gpuExtensionRegistry->useInstancedArrays    = checkExtension("instanced_arrays");
+    _gpuExtensionRegistry->useDiscardFramebuffer = checkExtension("discard_framebuffer");
+
+    _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)] = _gpuExtensionRegistry->useInstancedArrays;
+
+    String fbfLevelStr = "NONE";
+    if (checkExtension("framebuffer_fetch")) {
+        String nonCoherent = "framebuffer_fetch_non";
+
+        auto it = std::find_if(_extensions.begin(), _extensions.end(), [&nonCoherent](auto &ext) {
+            return ext.find(nonCoherent) != String::npos;
+        });
+
+        if (it != _extensions.end()) {
+            if (*it == CC_TOSTR(GL_EXT_shader_framebuffer_fetch_non_coherent)) {
+                _gpuExtensionRegistry->mFBF = FBFSupportLevel::NON_COHERENT_EXT;
+                fbfLevelStr                 = "NON_COHERENT_EXT";
+            } else if (*it == CC_TOSTR(GL_QCOM_shader_framebuffer_fetch_noncoherent)) {
+                _gpuExtensionRegistry->mFBF = FBFSupportLevel::NON_COHERENT_QCOM;
+                fbfLevelStr                 = "NON_COHERENT_QCOM";
+                GL_CHECK(glEnable(GL_FRAMEBUFFER_FETCH_NONCOHERENT_QCOM));
+            }
+        } else if (checkExtension(CC_TOSTR(GL_EXT_shader_framebuffer_fetch))) {
+            // we only care about EXT_shader_framebuffer_fetch, the ARM version does not support MRT
+            _gpuExtensionRegistry->mFBF = FBFSupportLevel::COHERENT;
+            fbfLevelStr                 = "COHERENT";
+        }
+    }
 
     String compressedFmts;
 
@@ -163,6 +192,14 @@ bool GLES2Device::doInit(const DeviceInfo & info) {
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = true;
     _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)]   = true;
     _features[static_cast<uint>(Feature::FORMAT_RGB8)]          = true;
+    _features[static_cast<uint>(Feature::FORMAT_D16)]           = true;
+    _features[static_cast<uint>(Feature::FORMAT_D24)]           = true;
+    _features[static_cast<uint>(Feature::FORMAT_D32F)]          = true;
+
+    if (checkExtension("packed_depth_stencil")) {
+        _features[static_cast<uint>(Feature::FORMAT_D24S8)]  = true;
+        _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = true;
+    }
 
     if (checkExtension("depth_texture")) {
         _features[static_cast<uint>(Feature::FORMAT_D16)]   = true;
@@ -180,8 +217,9 @@ bool GLES2Device::doInit(const DeviceInfo & info) {
     CC_LOG_INFO("VERSION: %s", _version.c_str());
     CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
     CC_LOG_INFO("NATIVE_SIZE: %d x %d", _nativeWidth, _nativeHeight);
-    CC_LOG_INFO("USE_VAO: %s", _useVAO ? "true" : "false");
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
+    CC_LOG_INFO("USE_VAO: %s", _gpuExtensionRegistry->useVAO ? "true" : "false");
+    CC_LOG_INFO("FRAMEBUFFER_FETCH: %s", fbfLevelStr.c_str());
 
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&_caps.maxVertexAttributes));
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxVertexUniformVectors));
@@ -194,12 +232,18 @@ bool GLES2Device::doInit(const DeviceInfo & info) {
     glGetIntegerv(GL_STENCIL_BITS, reinterpret_cast<GLint *>(&_caps.stencilBits));
 
     _gpuStateCache->initialize(_caps.maxTextureUnits, _caps.maxVertexAttributes);
+    _gpuBlitManager->initialize();
 
     return true;
 }
 
 void GLES2Device::doDestroy() {
+    _gpuBlitManager->destroy();
+
+    CC_SAFE_DELETE(_gpuFramebufferCacheMap)
+    CC_SAFE_DELETE(_gpuExtensionRegistry)
     CC_SAFE_DELETE(_gpuStagingBufferPool)
+    CC_SAFE_DELETE(_gpuBlitManager)
     CC_SAFE_DELETE(_gpuStateCache)
 
     CC_SAFE_DESTROY(_cmdBuff)

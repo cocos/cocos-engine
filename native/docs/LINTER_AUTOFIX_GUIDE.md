@@ -94,9 +94,9 @@ We provide a bash script to apply auto-fix on all the changed files in arbitrary
 First make sure the first three steps in VS Code environment setup are done, i.e. `compile_commands.json` has been generated, then:
 
 ```bash
-utils/tidy-fix-commit.sh # run auto-fix on files in the latest commit
-utils/tidy-fix-commit.sh 70181ed # run auto-fix on files in the specified commit
-utils/tidy-fix-commit.sh HEAD~3..HEAD # run auto-fix on files in the last 3 commit
+utils/fix-tidy.sh # run auto-fix on files in the latest commit
+utils/fix-tidy.sh 70181ed # run auto-fix on files in the specified commit
+utils/fix-tidy.sh HEAD~3..HEAD # run auto-fix on files in the last 3 commit
 ```
 
 All the issues will be reported in the standard output. This can be used as local self-test runs for CI checks.

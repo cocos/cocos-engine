@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "GLES3Std.h"
+
 #include "GLES3RenderPass.h"
 #include "GLES3Commands.h"
 
@@ -36,11 +37,11 @@ GLES3RenderPass::~GLES3RenderPass() {
     destroy();
 }
 
-void GLES3RenderPass::doInit(const RenderPassInfo &/*info*/) {
-    _gpuRenderPass = CC_NEW(GLES3GPURenderPass);
-    _gpuRenderPass->colorAttachments = _colorAttachments;
+void GLES3RenderPass::doInit(const RenderPassInfo & /*info*/) {
+    _gpuRenderPass                         = CC_NEW(GLES3GPURenderPass);
+    _gpuRenderPass->colorAttachments       = _colorAttachments;
     _gpuRenderPass->depthStencilAttachment = _depthStencilAttachment;
-    _gpuRenderPass->subpasses = _subpasses;
+    _gpuRenderPass->subpasses              = _subpasses;
 
     // assign a dummy subpass if not specified
     if (_gpuRenderPass->subpasses.empty()) {

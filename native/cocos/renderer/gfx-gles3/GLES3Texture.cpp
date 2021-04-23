@@ -65,11 +65,10 @@ void GLES3Texture::doInit(const TextureViewInfo & /*info*/) {
 }
 
 void GLES3Texture::doDestroy() {
-    if (!_gpuTexture->memoryless) {
-        GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
-    }
-
     if (_gpuTexture) {
+        if (!_gpuTexture->memoryless) {
+            GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
+        }
         cmdFuncGLES3DestroyTexture(GLES3Device::getInstance(), _gpuTexture);
         CC_DELETE(_gpuTexture);
         _gpuTexture = nullptr;

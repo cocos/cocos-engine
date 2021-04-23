@@ -32,6 +32,13 @@
 namespace cc {
 namespace gfx {
 
+enum class FBFSupportLevel {
+    NONE,
+    COHERENT,
+    NON_COHERENT_EXT,
+    NON_COHERENT_QCOM,
+};
+
 enum class GLESCmdType : uint8_t {
     BEGIN_RENDER_PASS,
     END_RENDER_PASS,

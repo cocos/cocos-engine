@@ -981,6 +981,11 @@ private:
 
     static void doUpdate(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) {
         descriptor->imageView = texture->vkImageView;
+        if (hasFlag(texture->gpuTexture->flags, TextureFlagBit::GENERAL_LAYOUT)) {
+            descriptor->imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+        } else {
+            descriptor->imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+        }
     }
 
     static void doUpdate(const CCVKGPUSampler *sampler, VkDescriptorImageInfo *descriptor) {

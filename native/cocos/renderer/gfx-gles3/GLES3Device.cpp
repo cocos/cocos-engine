@@ -86,6 +86,7 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
 
     _gpuStateCache          = CC_NEW(GLES3GPUStateCache);
     _gpuStagingBufferPool   = CC_NEW(GLES3GPUStagingBufferPool);
+    _gpuExtensionRegistry   = CC_NEW(GLES3GPUExtensionRegistry);
     _gpuFramebufferCacheMap = CC_NEW(GLES3GPUFramebufferCacheMap(_gpuStateCache));
 
     bindRenderContext(true);
@@ -124,15 +125,39 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
         _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
     }
 
+    String fbfLevelStr = "NONE";
+    if (checkExtension("framebuffer_fetch")) {
+        String nonCoherent = "framebuffer_fetch_non";
+
+        auto it = std::find_if(_extensions.begin(), _extensions.end(), [&nonCoherent](auto &ext) {
+            return ext.find(nonCoherent) != String::npos;
+        });
+
+        if (it != _extensions.end()) {
+            if (*it == CC_TOSTR(GL_EXT_shader_framebuffer_fetch_non_coherent)) {
+                _gpuExtensionRegistry->mFBF = FBFSupportLevel::NON_COHERENT_EXT;
+                fbfLevelStr                 = "NON_COHERENT_EXT";
+            } else if (*it == CC_TOSTR(GL_QCOM_shader_framebuffer_fetch_noncoherent)) {
+                _gpuExtensionRegistry->mFBF = FBFSupportLevel::NON_COHERENT_QCOM;
+                fbfLevelStr                 = "NON_COHERENT_QCOM";
+                GL_CHECK(glEnable(GL_FRAMEBUFFER_FETCH_NONCOHERENT_QCOM));
+            }
+        } else if (checkExtension(CC_TOSTR(GL_EXT_shader_framebuffer_fetch))) {
+            // we only care about EXT_shader_framebuffer_fetch, the ARM version does not support MRT
+            _gpuExtensionRegistry->mFBF = FBFSupportLevel::COHERENT;
+            fbfLevelStr                 = "COHERENT";
+        }
+    }
+
     // PVRVFrame has issues on their PLS support
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS && CC_PLATFORM != CC_PLATFORM_MAC_OSX
     if (checkExtension("pixel_local_storage")) {
         if (checkExtension("pixel_local_storage2")) {
-            _hasPLS = 2U;
+            _gpuExtensionRegistry->mPLS = PLSSupportLevel::LEVEL2;
         } else {
-            _hasPLS = 1U;
+            _gpuExtensionRegistry->mPLS = PLSSupportLevel::LEVEL1;
         }
-        glGetIntegerv(GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_SIZE_EXT, reinterpret_cast<GLint *>(&_sizePLS));
+        glGetIntegerv(GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_SIZE_EXT, reinterpret_cast<GLint *>(&_gpuExtensionRegistry->mPLSsize));
     }
 #endif
 
@@ -177,7 +202,8 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
     CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
     CC_LOG_INFO("NATIVE_SIZE: %d x %d", _nativeWidth, _nativeHeight);
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
-    CC_LOG_INFO("PIXEL_LOCAL_STORAGE: level %d, size %d", _hasPLS, _sizePLS);
+    CC_LOG_INFO("PIXEL_LOCAL_STORAGE: level %d, size %d", _gpuExtensionRegistry->mPLS, _gpuExtensionRegistry->mPLSsize);
+    CC_LOG_INFO("FRAMEBUFFER_FETCH: %s", fbfLevelStr.c_str());
 
     glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, reinterpret_cast<GLint *>(&_caps.maxVertexAttributes));
     glGetIntegerv(GL_MAX_VERTEX_UNIFORM_VECTORS, reinterpret_cast<GLint *>(&_caps.maxVertexUniformVectors));
@@ -214,6 +240,7 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
 
 void GLES3Device::doDestroy() {
     CC_SAFE_DELETE(_gpuFramebufferCacheMap)
+    CC_SAFE_DELETE(_gpuExtensionRegistry)
     CC_SAFE_DELETE(_gpuStagingBufferPool)
     CC_SAFE_DELETE(_gpuStateCache)
 

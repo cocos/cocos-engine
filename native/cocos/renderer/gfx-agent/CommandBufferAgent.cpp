@@ -323,7 +323,7 @@ void CommandBufferAgent::setStencilWriteMask(StencilFace face, uint mask) {
         });
 }
 
-void CommandBufferAgent::setStencilCompareMask(StencilFace face, int ref, uint mask) {
+void CommandBufferAgent::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
     ENQUEUE_MESSAGE_4(
         _messageQueue, CommandBufferSetStencilCompareMask,
         actor, getActor(),

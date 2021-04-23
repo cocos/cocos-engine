@@ -78,6 +78,26 @@ struct ContextInfo {
     Context*    sharedCtx    = nullptr;
 };
 
+struct DynamicStencilStates {
+    uint writeMask   = 0U;
+    uint compareMask = 0U;
+    uint reference   = 0U;
+};
+
+struct DynamicStates {
+    Viewport viewport;
+    Rect     scissor;
+    Color    blendConstant;
+    float    lineWidth         = 1.F;
+    float    depthBiasConstant = 0.F;
+    float    depthBiasClamp    = 0.F;
+    float    depthBiasSlope    = 0.F;
+    float    depthMinBounds    = 0.F;
+    float    depthMaxBounds    = 0.F;
+
+    DynamicStencilStates stencilStates[2];
+};
+
 constexpr TextureUsage TEXTURE_USAGE_TRANSIENT = static_cast<TextureUsage>(
     static_cast<uint>(TextureUsageBit::COLOR_ATTACHMENT) |
     static_cast<uint>(TextureUsageBit::DEPTH_STENCIL_ATTACHMENT) |
