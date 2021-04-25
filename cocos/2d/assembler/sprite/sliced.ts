@@ -158,7 +158,7 @@ export const sliced: IAssembler = {
             vBuf![vertexOffset++] = vert.z;
             vBuf![vertexOffset++] = uvs.u;
             vBuf![vertexOffset++] = uvs.v;
-            Color.toArray(vBuf!, sprite.color, vertexOffset);
+            Color.toArray(vBuf!, dataList[i].color, vertexOffset);
             vertexOffset += 4;
             // uintbuf[vertexOffset++] = color;
         }
@@ -189,6 +189,22 @@ export const sliced: IAssembler = {
                 Vec3.set(vec3_temp, colD.x, rowD.y, 0);
                 Vec3.transformMat4(world, vec3_temp, matrix);
             }
+        }
+    },
+
+    updateColor (sprite: Sprite) {
+        const datalist = sprite.renderData!.data;
+
+        const color = sprite.color;
+        const colorR = color.r;
+        const colorG = color.g;
+        const colorB = color.b;
+        const colorA = sprite.node._uiProps.opacity * 255;
+        for (let i = 4; i < 20; i++) {
+            datalist[i].color.r = colorR;
+            datalist[i].color.g = colorG;
+            datalist[i].color.b = colorB;
+            datalist[i].color.a = colorA;
         }
     },
 };
