@@ -61,6 +61,9 @@ export class TouchInputSource {
             };
             event.stopPropagation();
             event.preventDefault();
+            if (event.type === 'touchstart') {
+                this._canvas?.focus();
+            }
             this._eventTarget.emit(eventType, inputEvent);
         };
     }
