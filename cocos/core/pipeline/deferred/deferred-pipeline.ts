@@ -447,8 +447,8 @@ export class DeferredPipeline extends RenderPipeline {
 
         const minX = renderArea.x / this.device.width;
         const maxX = (renderArea.x + renderArea.width) / this.device.width;
-        const minY = renderArea.y / this.device.height;
-        const maxY = (renderArea.y + renderArea.height) / this.device.height;
+        const maxY = renderArea.y / this.device.height;
+        const minY = (renderArea.y + renderArea.height) / this.device.height;
 
         let n = 0;
         switch (surfaceTransform) {
