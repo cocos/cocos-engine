@@ -54,7 +54,6 @@ import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Texture2D } from '../assets/texture-2d';
 import { updatePlanarPROJ } from './scene-culling';
 import { Camera } from '../renderer/scene';
-import { PipelineUBO } from './pipeline-ubo';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -119,8 +118,6 @@ export class RenderAdditiveLightQueue {
     private _validLights: Light[] = [];
     private _lightPasses: IAdditiveLightPass[] = [];
     private _descriptorSetMap: Map<Light, DescriptorSet> = new Map();
-    private _globalUBO = new Float32Array(UBOGlobal.COUNT);
-    private _cameraUBO = new Float32Array(UBOCamera.COUNT);
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
     private _lightBufferStride: number;
@@ -352,9 +349,6 @@ export class RenderAdditiveLightQueue {
         const linear = (shadowInfo.linear && isTextureHalfFloat) ? 1.0 : 0.0;
         const packing = shadowInfo.packing ? 1.0 : (isTextureHalfFloat ? 0.0 : 1.0);
 
-        PipelineUBO.updateGlobalUBOView(this._pipeline, this._globalUBO);
-        PipelineUBO.updateCameraUBOView(this._pipeline, this._cameraUBO, camera, camera.window!.hasOffScreenAttachments);
-
         for (let i = 0; i < this._validLights.length; i++) {
             const light = this._validLights[i];
             const descriptorSet = this._getOrCreateDescriptorSet(light);
@@ -425,8 +419,6 @@ export class RenderAdditiveLightQueue {
             }
             descriptorSet.update();
 
-            cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOGlobal.BINDING)!, this._globalUBO);
-            cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOCamera.BINDING)!, this._cameraUBO);
             cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOShadow.BINDING)!, this._shadowUBO);
         }
     }
@@ -516,21 +508,9 @@ export class RenderAdditiveLightQueue {
             const device = this._device;
             const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._pipeline.descriptorSetLayout));
 
-            const globalUBO = device.createBuffer(new BufferInfo(
-                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                UBOGlobal.SIZE,
-                UBOGlobal.SIZE,
-            ));
-            descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
+            descriptorSet.bindBuffer(UBOGlobal.BINDING, this._pipeline.descriptorSet.getBuffer(UBOGlobal.BINDING));
 
-            const cameraBUO = device.createBuffer(new BufferInfo(
-                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                UBOCamera.SIZE,
-                UBOCamera.SIZE,
-            ));
-            descriptorSet.bindBuffer(UBOCamera.BINDING, cameraBUO);
+            descriptorSet.bindBuffer(UBOCamera.BINDING, this._pipeline.descriptorSet.getBuffer(UBOCamera.BINDING));
 
             const shadowBUO = device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,

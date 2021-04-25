@@ -316,6 +316,7 @@ const uiElements = {
                 }
                 element.style ="";
                 if (autoflag) {
+                    const oldChildren = Array.from(element.children);
                     const children = [];
                     const header = document.createElement('ui-prop');
                     header.setAttribute('slot', 'header');
@@ -335,13 +336,16 @@ const uiElements = {
                     header.replaceChildren(...[checkbox, label]);
                     children.push(header);
                     const propMap = this.getObjectByKey(this.dump.value, key).value;
+
                     for (const propKey in propMap) {
                         const dump = propMap[propKey];
                         if (propKey === 'enable') {
                             continue;
                         }
-                        const uiProp = document.createElement('ui-prop');
+                        const oldProp = oldChildren.find((child)=> child.getAttribute('key') === propKey );
+                        const uiProp = oldProp || document.createElement('ui-prop');
                         uiProp.setAttribute('type', 'dump');
+                        uiProp.setAttribute('key', propKey);
                         const isShow = dump.visible;
                         if (isShow) {
                             uiProp.render(dump);

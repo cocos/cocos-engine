@@ -1,3 +1,5 @@
+const animation = require('./animation');
+
 exports.template = `
 <div class="preview">
     <div class="animation-info">
@@ -85,29 +87,29 @@ exports.$ = {
 
 const Elements = {
     playButton: {
-        ready() {
+        ready () {
             this.$.playButton.addEventListener('confirm', this.onPlayButtonClick.bind(this));
         },
     },
     stopButton: {
-        ready() {
+        ready () {
             this.$.stopButton.addEventListener('confirm', this.onStopButtonClick.bind(this));
         },
     },
     animationTimeSlider: {
-        ready() {
+        ready () {
             const slider = this.$.animationTimeSlider;
             slider.addEventListener('change', this.onAnimationTimeSliderChange.bind(this));
         },
     },
     preview: {
-        ready() {
+        ready () {
             const panel = this;
 
             panel.$.canvas.addEventListener('mousedown', async (event) => {
                 await Editor.Message.request('scene', 'on-model-preview-mouse-down', { x: event.x, y: event.y });
-                
-                async function mousemove(event) {
+
+                async function mousemove (event) {
                     await Editor.Message.request('scene', 'on-model-preview-mouse-move', {
                         movementX: event.movementX,
                         movementY: event.movementY,
@@ -116,7 +118,7 @@ const Elements = {
                     panel.isPreviewDataDirty = true;
                 }
 
-                async function mouseup(event) {
+                async function mouseup (event) {
                     await Editor.Message.request('scene', 'on-model-preview-mouse-up', {
                         x: event.x,
                         y: event.y,
@@ -138,7 +140,7 @@ const Elements = {
             panel.glPreview = new GlPreview('scene:model-preview', 'query-model-preview-data');
             panel.isPreviewDataDirty = true;
         },
-        async update() {
+        async update () {
             const panel = this;
 
             if (!panel.$.canvas) {
@@ -154,11 +156,11 @@ const Elements = {
         },
     },
     modelInfo: {
-        ready() {
+        ready () {
             this.infoUpdate = Elements.modelInfo.update.bind(this);
             Editor.Message.addBroadcastListener('scene:model-preview-model-info', this.infoUpdate);
         },
-        update(info) {
+        update (info) {
             if (!info) {
                 return;
             }
@@ -166,14 +168,14 @@ const Elements = {
             this.$.triangles.value = `Triangles:${info.polygons}`;
             this.isPreviewDataDirty = true;
         },
-        close() {
+        close () {
             Editor.Message.removeBroadcastListener('scene:model-preview-model-info', this.infoUpdate);
             Editor.Message.send('scene', 'hide-model-preview');
         },
     },
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = async function (assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -184,6 +186,13 @@ exports.update = function (assetList, metaList) {
         if (element.update) {
             element.update.call(this);
         }
+    }
+    animation.methods.initAnimationNameToUUIDMap.call(this);
+    animation.methods.initAnimationInfos.call(this);
+    if (this.animationInfos) {
+        this.rawClipIndex = 0;
+        this.splitClipIndex = 0;
+        await this.setCurEditClipInfo(animation.methods.getCurClipInfo.call(this));
     }
     this.setCurPlayState(PLAY_STATE.STOP);
     this.isPreviewDataDirty = true;
@@ -236,7 +245,7 @@ exports.close = function () {
 };
 
 exports.methods = {
-    async refreshPreview() {
+    async refreshPreview () {
         const panel = this;
 
         // After await, the panel no longer exists
@@ -277,7 +286,7 @@ exports.methods = {
             panel.refreshPreview();
         });
     },
-    async onTabChanged(activeTab) {
+    async onTabChanged (activeTab) {
         if (typeof activeTab === 'string') {
             this.activeTab = activeTab;
             this.$.animationInfo.style.display = this.activeTab === 'animation' ? 'flex' : 'none';
@@ -285,7 +294,7 @@ exports.methods = {
             await this.stopAnimation();
         }
     },
-    async onStopButtonClick(event) {
+    async onStopButtonClick (event) {
         event.stopPropagation();
         if (!this.curEditClipInfo) {
             return;
@@ -293,35 +302,35 @@ exports.methods = {
 
         await this.stopAnimation();
     },
-    async stopAnimation() {
+    async stopAnimation () {
         if (!this.curEditClipInfo) {
             return;
         }
 
         await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'stop');
     },
-    async onPlayButtonClick(event) {
+    async onPlayButtonClick (event) {
         event.stopPropagation();
         if (!this.curEditClipInfo) {
             return;
         }
         switch (this.curPlayState) {
-            case PLAY_STATE.PAUSE:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'resume');
-                break;
-            case PLAY_STATE.PLAYING:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'pause');
-                break;
-            case PLAY_STATE.STOP:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'play', this.curEditClipInfo.clipUUID);
-                break;
-            default:
-                break;
+        case PLAY_STATE.PAUSE:
+            await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'resume');
+            break;
+        case PLAY_STATE.PLAYING:
+            await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'pause');
+            break;
+        case PLAY_STATE.STOP:
+            await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'play', this.curEditClipInfo.clipUUID);
+            break;
+        default:
+            break;
         }
 
         this.isPreviewDataDirty = true;
     },
-    async onAnimationTimeSliderChange(event) {
+    async onAnimationTimeSliderChange (event) {
         event.stopPropagation();
         if (!this.curEditClipInfo) {
             return;
@@ -333,7 +342,7 @@ exports.methods = {
         this.isPreviewDataDirty = true;
     },
 
-    onModelAnimationUpdate(time) {
+    onModelAnimationUpdate (time) {
         if (!this.curEditClipInfo) {
             return;
         }
@@ -347,28 +356,28 @@ exports.methods = {
 
         this.isPreviewDataDirty = true;
     },
-    setCurPlayState(state) {
+    setCurPlayState (state) {
         this.curPlayState = state;
         let buttonIconName = '';
         switch (state) {
-            case PLAY_STATE.STOP:
-                buttonIconName = 'play';
-                break;
-            case PLAY_STATE.PLAYING:
-                buttonIconName = 'pause';
-                break;
-            case PLAY_STATE.PAUSE:
-                buttonIconName = 'play';
-                break;
-            default:
-                break;
+        case PLAY_STATE.STOP:
+            buttonIconName = 'play';
+            break;
+        case PLAY_STATE.PLAYING:
+            buttonIconName = 'pause';
+            break;
+        case PLAY_STATE.PAUSE:
+            buttonIconName = 'play';
+            break;
+        default:
+            break;
         }
 
         if (this.$.playButtonIcon) {
             this.$.playButtonIcon.value = buttonIconName;
         }
     },
-    async setCurEditClipInfo(clipInfo) {
+    async setCurEditClipInfo (clipInfo) {
         this.curEditClipInfo = clipInfo;
         if (clipInfo) {
             this.curTotalFrames = Math.round(clipInfo.duration * clipInfo.fps);
@@ -385,7 +394,7 @@ exports.methods = {
             await this.stopAnimation();
         }
     },
-    onAnimationPlayStateChanged(state) {
+    onAnimationPlayStateChanged (state) {
         this.setCurPlayState(state);
     },
 };

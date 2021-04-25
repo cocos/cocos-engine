@@ -1,6 +1,6 @@
 import { IMiniGame } from 'pal/minigame';
 import { Orientation } from '../system/enum-type/orientation';
-import { cloneObject } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let qg: any;
 
@@ -70,6 +70,13 @@ minigame.onAccelerometerChange = function (cb) {
     // onAccelerometerChange would start accelerometer, need to mannually stop it
     qg.stopAccelerometer();
 };
+
+minigame.createInnerAudioContext = createInnerAudioContextPolyfill(qg, {
+    onPlay: true,
+    onPause: true,
+    onStop: true,
+    onSeek: false,
+});
 
 minigame.getSafeArea = function () {
     console.warn('getSafeArea is not supported on this platform');
