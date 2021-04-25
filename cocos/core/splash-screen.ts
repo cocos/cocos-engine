@@ -35,7 +35,7 @@ import { clamp01 } from './math/utils';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, Framebuffer, CommandBuffer, BufferUsageBit, Format,
-    MemoryUsageBit, TextureType, TextureUsageBit, Address,
+    MemoryUsageBit, TextureType, TextureUsageBit, Address, SurfaceTransform,
 } from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
@@ -43,7 +43,7 @@ import { Root } from './root';
 import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
 import { error } from './platform';
-import { Vec2 } from './math';
+import { Mat4, Vec2 } from './math';
 
 const v2_0 = new Vec2();
 type SplashEffectType = 'NONE' | 'FADE-INOUT';
@@ -88,6 +88,7 @@ export class SplashScreen {
     private framebuffer!: Framebuffer;
     private renderArea!: Rect;
     private clearColors!: Color[];
+    private projection!: Mat4;
 
     private logoMat!: Material;
     private logoImage!: TexImageSource;
@@ -209,6 +210,10 @@ export class SplashScreen {
         ];
         const IAInfo = new InputAssemblerInfo(attributes, [this.vertexBuffers], this.indicesBuffers);
         this.quadAssmebler = device.createInputAssembler(IAInfo);
+
+        this.projection = new Mat4();
+        Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
+            device.capabilities.clipSpaceSignY, device.surfaceTransform);
     }
 
     private init () {
@@ -218,6 +223,8 @@ export class SplashScreen {
             if (this.cancelAnimate) return;
             const settings = this.settings;
             const device = this.device;
+            Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
+                device.capabilities.clipSpaceSignY, device.surfaceTransform);
             const dw = device.width; const dh = device.height;
             const refW = dw < dh ? dw : dh;
             // update logo uniform
@@ -228,20 +235,36 @@ export class SplashScreen {
             if (settings.effect === 'NONE') u_p = 1.0;
             const logoTW = this.logoTexture.width; const logoTH = this.logoTexture.height;
             const logoW = refW * settings.displayRatio;
+            let scaleX = logoW;
+            let scaleY = logoW * logoTW / logoTH;
+            if (device.surfaceTransform === SurfaceTransform.ROTATE_90
+            || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+                scaleX = logoW * dw / dh;
+                scaleY = logoW * logoTH / logoTW * dh / dw;
+            }
             this.logoMat.setProperty('resolution', v2_0.set(dw, dh), 0);
-            this.logoMat.setProperty('scale', v2_0.set(logoW, logoW * logoTH / logoTW), 0);
+            this.logoMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
             this.logoMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.5), 0);
             this.logoMat.setProperty('precent', u_p);
+            this.logoMat.setProperty('u_projection', this.projection);
             this.logoMat.passes[0].update();
 
             // update wartermark uniform
             if (settings.displayWatermark && this.watermarkMat) {
                 const wartermarkW = refW * 0.5;
                 const wartermarkTW = this.watermarkTexture.width; const wartermarkTH = this.watermarkTexture.height;
+                let scaleX = wartermarkW;
+                let scaleY = wartermarkW * wartermarkTH / wartermarkTW;
+                if (device.surfaceTransform === SurfaceTransform.ROTATE_90
+                || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+                    scaleX = wartermarkW * 0.5;
+                    scaleY = wartermarkW * dw / dh * 0.5;
+                }
                 this.watermarkMat.setProperty('resolution', v2_0.set(dw, dh), 0);
-                this.watermarkMat.setProperty('scale', v2_0.set(wartermarkW, wartermarkW * wartermarkTH / wartermarkTW), 0);
+                this.watermarkMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
                 this.watermarkMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.1), 0);
                 this.watermarkMat.setProperty('precent', u_p);
+                this.watermarkMat.setProperty('u_projection', this.projection);
                 this.watermarkMat.passes[0].update();
             }
 
@@ -283,7 +306,6 @@ export class SplashScreen {
         const pass = this.logoMat.passes[0];
         const binding = pass.getBinding('mainTexture');
         pass.bindTexture(binding, this.logoTexture);
-
         this.shader = ShaderPool.get(pass.getShaderVariant());
         const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
         descriptorSet.bindSampler(binding, this.sampler);

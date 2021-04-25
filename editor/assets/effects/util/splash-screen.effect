@@ -39,12 +39,13 @@ CCProgram splash-screen-vs %{
   uniform Constant {
     vec4 u_buffer0;
     vec4 u_buffer1;
+    mat4 u_projection;
   };
 
   vec4 vert () {     
     vec2 worldPos = a_position * u_worldScale + u_worldTranslate;
     vec2 clipSpace = worldPos / u_resolution * 2.0 - 1.0;
-    vec4 screenPos = vec4(clipSpace, 0.0, 1.0);
+    vec4 screenPos = u_projection * vec4(clipSpace, 0.0, 1.0);
     v_uv = a_texCoord;
     v_percent = u_precent;
     return screenPos;

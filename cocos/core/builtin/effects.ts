@@ -813,9 +813,9 @@ export const effects = [
     "shaders": [
       {
         "name": "splash-screen|splash-screen-vs:vert|splash-screen-fs:frag",
-        "hash": 3173577572,
+        "hash": 624029864,
         "builtins": {
-          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 2, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
+          "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 6, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 0 },
           "globals": { "blocks": [], "samplerTextures": [] },
           "locals": { "blocks": [], "samplerTextures": [] }
         },
@@ -823,7 +823,8 @@ export const effects = [
         "blocks": [
           {"name": "Constant", "defines": [], "binding": 0, "stageFlags": 1, "members": [
             { "name": "u_buffer0", "type": 16, "count": 1 },
-            { "name": "u_buffer1", "type": 16, "count": 1 }
+            { "name": "u_buffer1", "type": 16, "count": 1 },
+            { "name": "u_projection", "type": 25, "count": 1 }
           ]}
         ],
         "samplerTextures": [
