@@ -97,8 +97,8 @@ const Elements = {
             }
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
-            await Editor.Message.request('scene', 'set-mesh-preview-mesh', panel.asset.uuid);
-
+            const info = await Editor.Message.request('scene', 'set-mesh-preview-mesh', panel.asset.uuid);
+            panel.infoUpdate(info);
             panel.refreshPreview();
         },
         close() {
@@ -112,7 +112,6 @@ const Elements = {
             const panel = this;
 
             panel.infoUpdate = Elements.info.update.bind(panel);
-            Editor.Message.addBroadcastListener('scene:mesh-preview-mesh-info', panel.infoUpdate);
         },
         update(info) {
             if (!info) {
@@ -127,8 +126,6 @@ const Elements = {
             panel.isPreviewDataDirty = true;
         },
         close() {
-            const panel = this;
-            Editor.Message.removeBroadcastListener('scene:mesh-preview-mesh-info', panel.infoUpdate);
             Editor.Message.request('scene', 'hide-mesh-preview');
         },
     },

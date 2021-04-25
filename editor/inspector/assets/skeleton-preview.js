@@ -96,8 +96,8 @@ const Elements = {
             }
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
-            await Editor.Message.request('scene', 'set-skeleton-preview-skeleton', panel.asset.uuid);
-
+            const info = await Editor.Message.request('scene', 'set-skeleton-preview-skeleton', panel.asset.uuid);
+            panel.infoUpdate(info);
             panel.refreshPreview();
         },
         close() {
@@ -111,7 +111,6 @@ const Elements = {
             const panel = this;
 
             panel.infoUpdate = Elements.info.update.bind(panel);
-            Editor.Message.addBroadcastListener('scene:skeleton-preview-skeleton-info', panel.infoUpdate);
         },
         update(info) {
             if (!info) {
@@ -125,8 +124,6 @@ const Elements = {
             panel.isPreviewDataDirty = true;
         },
         close() {
-            const panel = this;
-            Editor.Message.removeBroadcastListener('scene:skeleton-preview-skeleton-info', panel.infoUpdate);
             Editor.Message.request('scene', 'hide-skeleton-preview');
         },
     },
