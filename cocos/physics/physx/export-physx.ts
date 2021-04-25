@@ -584,9 +584,18 @@ export function getShapeFlags (isTrigger: boolean): any {
 
 export function getShapeWorldBounds (shape: any, actor: any, i = 1.01, out: AABB) {
     if (USE_BYTEDANCE) {
-        const b3 = PX.RigidActorExt.getWorldBounds(shape, actor, i);
-        Vec3.copy(out.center, b3.getCenter());
-        Vec3.copy(out.halfExtents, b3.getExtents());
+        const b3 = PX.RigidActorExt.getWorldBoundsArray(shape, actor, i) as Float32Array;
+        const center = out.center;
+        const halfExtents = out.halfExtents;
+        center.x = (b3[3] + b3[0]) / 2;
+        center.y = (b3[4] + b3[1]) / 2;
+        center.z = (b3[5] + b3[2]) / 2;
+        halfExtents.x = (b3[3] - b3[0]) / 2;
+        halfExtents.y = (b3[4] - b3[1]) / 2;
+        halfExtents.z = (b3[5] - b3[2]) / 2;
+        // const b3 = PX.RigidActorExt.getWorldBounds(shape, actor, i);
+        // Vec3.copy(out.center, b3.getCenter());
+        // Vec3.copy(out.halfExtents, b3.getExtents());
     } else {
         const b3 = shape.getWorldBounds(actor, i);
         AABB.fromPoints(out, b3.minimum, b3.maximum);
