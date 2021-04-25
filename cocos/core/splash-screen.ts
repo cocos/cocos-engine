@@ -235,8 +235,8 @@ export class SplashScreen {
             if (settings.effect === 'NONE') u_p = 1.0;
             const logoTW = this.logoTexture.width; const logoTH = this.logoTexture.height;
             const logoW = refW * settings.displayRatio;
-            let scaleX = logoW;
-            let scaleY = logoW * logoTW / logoTH;
+            let scaleX = logoW * logoTW / logoTH;
+            let scaleY = logoW;
             if (device.surfaceTransform === SurfaceTransform.ROTATE_90
             || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
                 scaleX = logoW * dw / dh;
