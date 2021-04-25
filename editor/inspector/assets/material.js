@@ -48,8 +48,8 @@ exports.methods = {
      * Custom Save
      */
     async apply() {
+        this.dirtyData.origin = this.dirtyData.realtime;
         await Editor.Message.request('scene', 'apply-material', this.asset.uuid, this.material);
-        this.dirtyData.origin = this.dirtyData.realtime = '';
     },
 
     /**
