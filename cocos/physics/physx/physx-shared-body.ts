@@ -35,7 +35,7 @@ import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import {
-    addActorToScene, copyJsTransform, copyPhysXTransform, getJsTransform, getTempTransform, physXEqualsCocosQuat,
+    addActorToScene, copyPhysXTransform, getJsTransform, getTempTransform, physXEqualsCocosQuat,
     physXEqualsCocosVec3, PX, setMassAndUpdateInertia,
 } from './export-physx';
 import { VEC3_0 } from '../utils/util';
@@ -298,8 +298,7 @@ export class PhysXSharedBody {
             const wp = node.worldPosition;
             const wr = node.worldRotation;
             const pose = this.impl.getGlobalPose();
-            // const dontUpdate = physXEqualsCocosVec3(pose, wp) && physXEqualsCocosQuat(pose, wr);
-            const dontUpdate = Vec3.equals(pose.p, wp) && Quat.equals(pose.q, wr);
+            const dontUpdate = physXEqualsCocosVec3(pose, wp) && physXEqualsCocosQuat(pose, wr);
             if (!dontUpdate) {
                 const trans = getJsTransform(node.worldPosition, node.worldRotation);
                 if (this._isKinematic) {
@@ -314,7 +313,7 @@ export class PhysXSharedBody {
     syncPhysicsToScene (): void {
         if (this._isStatic || this._dynamicActor.isSleeping()) return;
         const transform = this._dynamicActor.getGlobalPose();
-        copyJsTransform(this.node, transform);
+        copyPhysXTransform(this.node, transform);
     }
 
     syncScale () {

@@ -410,17 +410,16 @@ export enum PxTriggerPairFlag
 }
 /// adapters ///
 
+const _v3 = { x: 0, y: 0, z: 0 };
+const _v4 = { x: 0, y: 0, z: 0, w: 1 };
 export const _trans = {
-    translation: { x: 0, y: 0, z: 0 },
-    rotation: { x: 0, y: 0, z: 0, w: 1 },
+    translation: _v3,
+    rotation: _v4,
+    p: _v3,
+    q: _v4,
 };
 
-const _jstrans = {
-    p: _trans.translation,
-    q: _trans.rotation,
-};
-
-export const _pxtrans = USE_BYTEDANCE && PX ? new PX.Transform({ x: 0, y: 0, z: 0 }, { x: 0, y: 0, z: 0, w: 1 }) : _trans;
+export const _pxtrans = USE_BYTEDANCE && PX ? new PX.Transform(_v3, _v4) : _trans;
 
 export function getImplPtr (impl: any): any {
     if (USE_BYTEDANCE) {
@@ -471,9 +470,9 @@ export function getTempTransform (pos: IVec3Like, quat: IQuatLike): any {
 }
 
 export function getJsTransform (pos: IVec3Like, quat: IQuatLike): any {
-    Vec3.copy(_jstrans.p, pos);
-    Quat.copy(_jstrans.q, quat);
-    return _jstrans;
+    Vec3.copy(_trans.p, pos);
+    Quat.copy(_trans.q, quat);
+    return _trans;
 }
 
 export function addActorToScene (scene: any, actor: any) {
@@ -507,32 +506,21 @@ export function copyPhysXTransform (node: Node, transform: any): void {
     const dontUpdate = physXEqualsCocosVec3(transform, wp) && physXEqualsCocosQuat(transform, wr);
     if (dontUpdate) return;
     if (USE_BYTEDANCE) {
-        const pos = transform.getPosition();
-        const rot = transform.getQuaternion();
-        node.setWorldPosition(pos);
-        node.setWorldRotation(rot);
+        node.setWorldPosition(transform.p);
+        node.setWorldRotation(transform.q);
     } else {
         node.setWorldPosition(transform.translation);
         node.setWorldRotation(transform.rotation);
     }
 }
 
-export function copyJsTransform (node: Node, transform: any): void {
-    const wp = node.worldPosition;
-    const wr = node.worldRotation;
-    const dontUpdate = Vec3.equals(transform.p, wp) && Quat.equals(transform.q, wr);
-    if (dontUpdate) return;
-    node.setWorldPosition(transform.p);
-    node.setWorldRotation(transform.q);
-}
-
 export function physXEqualsCocosVec3 (trans: any, v3: IVec3Like): boolean {
-    const pos = USE_BYTEDANCE ? trans.getPosition() : trans.translation;
+    const pos = USE_BYTEDANCE ? trans.p : trans.translation;
     return Vec3.equals(pos, v3);
 }
 
 export function physXEqualsCocosQuat (trans: any, q: IQuatLike): boolean {
-    const rot = USE_BYTEDANCE ? trans.getQuaternion() : trans.rotation;
+    const rot = USE_BYTEDANCE ? trans.q : trans.rotation;
     return Quat.equals(rot, q);
 }
 
