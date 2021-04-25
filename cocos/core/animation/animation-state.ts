@@ -269,8 +269,6 @@ export class AnimationState extends Playable {
      */
     public duration = 1;
 
-    private frequency = 1;
-
     /**
      * @en
      * Gets or sets the playback range.
@@ -377,6 +375,7 @@ export class AnimationState extends Playable {
     };
     private _playbackRange: { min: number; max: number; };
     private _playbackDuration = 0;
+    private _invDuration = 1.0;
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -386,7 +385,6 @@ export class AnimationState extends Playable {
             min: 0,
             max: this._clip.duration,
         };
-        this.frequency = 1 / clip.duration;
         this._playbackDuration = clip.duration;
     }
 
@@ -410,6 +408,7 @@ export class AnimationState extends Playable {
         const clip = this._clip;
 
         this.duration = clip.duration;
+        this._invDuration = 1.0 / this.duration;
         this.speed = clip.speed;
         this.wrapMode = clip.wrapMode;
         this.frameRate = clip.sample;
@@ -417,7 +416,6 @@ export class AnimationState extends Playable {
             min: 0,
             max: clip.duration,
         };
-        this.frequency = 1 / clip.duration;
         this._playbackDuration = clip.duration;
 
         if ((this.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
@@ -436,7 +434,7 @@ export class AnimationState extends Playable {
             valueAdapter: IValueProxyFactory | undefined,
             isConstant: boolean,
         ): BoundTargetT | null => {
-            if (!isTargetingTRS(path) || !this._blendStateBuffer) {
+            if (!clip.enableTrsBlending || !isTargetingTRS(path) || !this._blendStateBuffer) {
                 return createFn(rootTarget, path, valueAdapter);
             } else {
                 const targetNode = evaluatePath(rootTarget, ...path.slice(0, path.length - 1));
@@ -634,9 +632,6 @@ export class AnimationState extends Playable {
         // var playPerfectFirstFrame = (this.time === 0);
         if (this._currentFramePlayed) {
             this.time += (delta * this.speed);
-            if (this.time > this._playbackDuration) {
-                this.time -= this._playbackDuration;
-            }
         } else {
             this._currentFramePlayed = true;
         }
@@ -776,9 +771,9 @@ export class AnimationState extends Playable {
         const playbackStart = this._playbackRange.min;
         const playbackDuration = this._playbackDuration;
 
-        let time = this.time;
+        let time = this.time % playbackDuration;
         if (time < 0) { time += playbackDuration; }
-        const ratio = (playbackStart + time) * this.frequency;
+        const ratio = (playbackStart + time) * this._invDuration;
         this._sampleCurves(ratio);
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
