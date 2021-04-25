@@ -32,7 +32,7 @@ export class TouchInputSource {
                 const touchData: TouchData = {
                     identifier: touch.identifier,
                     x: location.x,
-                    y: sysInfo.screenHeight - location.y,
+                    y: sysInfo.windowHeight - location.y,
                     force: touch.force,
                 };
                 touchDataList.push(touchData);

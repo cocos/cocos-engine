@@ -52,13 +52,6 @@ minigame.onTouchCancel = function (cb) {
     });
 };
 
-minigame.getSystemInfoSync = function (): SystemInfo {
-    const sys = my.getSystemInfoSync() as SystemInfo;
-    sys.screenWidth = sys.windowWidth;
-    sys.screenHeight = sys.windowHeight;
-    return sys;
-};
-
 minigame.createInnerAudioContext = function (): InnerAudioContext {
     const audio: InnerAudioContext = my.createInnerAudioContext();
     // @ts-expect-error InnerAudioContext has onCanPlay
