@@ -76,7 +76,7 @@ class System {
 
         // init capability
         this.supportCapability = {
-            webp: false,
+            webp: true,
             gl: true,
             canvas: true,
             imageBitmap: false,
