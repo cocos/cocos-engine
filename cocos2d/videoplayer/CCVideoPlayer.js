@@ -427,12 +427,16 @@ let VideoPlayer = cc.Class({
             if(this._ccVideoTex == null) {
                 this._ccVideoTex = new cc.Texture2D();
                 this._ccVideoTex.initWithData(null, this.queryChannelType(this._impl.getFrameChannel()), w, h);
+                if(this._impl.getFrameChannel() == 7)
+                    this._ccVideoTex.setUseBGRA(true);
                 this._sfm = null;
             } else if(this._ccVideoTex.width != this._impl.getFrameWidth() ||
                 this._ccVideoTex.height != this._impl.getFrameHeight()) {
                     this._ccVideoTex.destroy();
                     this._ccVideoTex = new cc.Texture2D();
                     this._ccVideoTex.initWithData(null, this.queryChannelType(this._impl.getFrameChannel()), w, h);
+                    if(this._impl.getFrameChannel() == 7)
+                        this._ccVideoTex.setUseBGRA(true);
                     this._sfm = null;
             }
 
@@ -440,8 +444,6 @@ let VideoPlayer = cc.Class({
             this._impl.pushFrameDataToTexture2D(texid);
             let sprite = this.getComponentInChildren(Sprite);
             if(sprite) {
-                if(this._impl.getFrameChannel() == 7)
-                    sprite.setBgraTexture();
                 if(this._sfm == undefined || this._sfm == null) {
                     this._sfm = new SpriteFrame();
                     let sw = sprite.node.getContentSize().width;

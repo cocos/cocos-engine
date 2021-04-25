@@ -324,6 +324,8 @@ var Texture2D = cc.Class({
 
         _isAlphaAtlas: false,
 
+        _useBgra: false,
+
         _genMipmaps: false,
         /**
          * !#en Sets whether generate mipmaps for the texture
@@ -718,6 +720,14 @@ var Texture2D = cc.Class({
 
     isAlphaAtlas () {
         return this._isAlphaAtlas;
+    },
+
+    setUseBGRA(bgra) {
+        this._useBgra = bgra;
+    },
+
+    getUseBGRA() {
+        return this._useBgra;
     },
 
     /**

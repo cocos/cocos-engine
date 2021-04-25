@@ -328,7 +328,7 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return;
 
-        video.update;
+        video.update();
     },
 
     getFrame: function() {
