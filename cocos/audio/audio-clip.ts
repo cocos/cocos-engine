@@ -105,7 +105,13 @@ export class AudioClip extends Asset {
         return !!this._meta;
     }
 
-    public getDuration () { return this._meta ? this._meta.duration : this._duration; }
+    public getDuration () {
+        // Dynamicly loaded audioClip._duration is 0
+        if (this._duration) {
+            return this._duration;
+        }
+        return this._meta ? this._meta.duration : 0;
+    }
 }
 
 legacyCC.AudioClip = AudioClip;

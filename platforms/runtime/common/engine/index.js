@@ -27,5 +27,3 @@ require('./canvas');
 require('./asset-manager.js');
 require('./EditBox.js');
 require('./game.js');
-require('./download-audio');
-require('./AudioPlayer');
