@@ -58,9 +58,120 @@ export class CrossFade extends Playable {
             return;
         }
 
-        // Set all state's weight to 0.
+        const managedStates = this._managedStates;
+        const fadings = this._fadings;
+
+        if (managedStates.length === 1 && fadings.length === 1) {
+            const state = managedStates[0].state;
+            if (state) {
+                state.weight = 1.0;
+            }
+        } else {
+            this._calculateWeights(deltaTime);
+        }
+
+        for (let iManagedState = 0; iManagedState < managedStates.length; ++iManagedState) {
+            const state = managedStates[iManagedState].state;
+            if (state && state.isMotionless) {
+                state.sample();
+            }
+        }
+    }
+
+    /**
+     * 在指定时间内将从当前动画状态切换到指定的动画状态。
+     * @param state 指定的动画状态。
+     * @param duration 切换时间。
+     */
+    public crossFade (state: AnimationState | null, duration: number) {
+        if (this._managedStates.length === 0) {
+            // If we are cross fade from a "initial" pose,
+            // we do not use the duration.
+            // It's meaning-less and may get a bad visual effect.
+            duration = 0;
+        }
+
+        if (duration === 0) {
+            this.clear();
+        }
+        let target = this._managedStates.find((weightedState) => weightedState.state === state);
+        if (!target) {
+            target = { state, reference: 0 };
+            if (state) {
+                state.play();
+            }
+            this._managedStates.push(target);
+        } else if (target.state?.isMotionless) {
+            target.state.play();
+        }
+        ++target.reference;
+        this._fadings.unshift({
+            easeDuration: duration,
+            easeTime: 0,
+            target,
+        });
+    }
+
+    public clear () {
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
+            if (state) {
+                state.stop();
+            }
+        }
+        this._managedStates.length = 0;
+        this._fadings.length = 0;
+    }
+
+    protected onPlay () {
+        super.onPlay();
+        legacyCC.director.getAnimationManager().addCrossFade(this);
+    }
+
+    /**
+     * 停止我们淡入淡出的所有动画状态并停止淡入淡出。
+     */
+    protected onPause () {
+        super.onPause();
+        legacyCC.director.getAnimationManager().removeCrossFade(this);
+        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
+            const state = this._managedStates[iManagedState].state;
+            if (state) {
+                state.pause();
+            }
+        }
+    }
+
+    /**
+     * 恢复我们淡入淡出的所有动画状态并继续淡入淡出。
+     */
+    protected onResume () {
+        super.onResume();
+        legacyCC.director.getAnimationManager().addCrossFade(this);
+        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
+            const state = this._managedStates[iManagedState].state;
+            if (state) {
+                state.resume();
+            }
+        }
+    }
+
+    /**
+     * 停止所有淡入淡出的动画状态。
+     */
+    protected onStop () {
+        super.onStop();
+        legacyCC.director.getAnimationManager().removeCrossFade(this);
+        this.clear();
+    }
+
+    private _calculateWeights (deltaTime: number) {
+        const managedStates = this._managedStates;
+        const fadings = this._fadings;
+
+        // Set all state's weight to 0.
+        for (let iManagedState = 0; iManagedState < managedStates.length; ++iManagedState) {
+            const state = managedStates[iManagedState].state;
             if (state) {
                 state.weight = 0;
             }
@@ -101,102 +212,5 @@ export class CrossFade extends Playable {
             }
             this._fadings.splice(deadFadingBegin);
         }
-
-        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
-            const state = this._managedStates[iManagedState].state;
-            if (state && state.isMotionless) {
-                state.sample();
-            }
-        }
-    }
-
-    /**
-     * 在指定时间内将从当前动画状态切换到指定的动画状态。
-     * @param state 指定的动画状态。
-     * @param duration 切换时间。
-     */
-    public crossFade (state: AnimationState | null, duration: number) {
-        if (this._managedStates.length === 0) {
-            // If we are cross fade from a "initial" pose,
-            // we do not use the duration.
-            // It's meaning-less and may get a bad visual effect.
-            duration = 0;
-        }
-
-        if (duration === 0) {
-            this.clear();
-        }
-        let target = this._managedStates.find((weightedState) => weightedState.state === state);
-        if (!target) {
-            target = { state, reference: 0 };
-            if (state) {
-                state.play();
-            }
-            this._managedStates.push(target);
-        } else if (target.state?.isMotionless) {
-            target.state.play();
-        }
-        ++target.reference;
-        if (duration !== 0) {
-            this._fadings.unshift({
-                easeDuration: duration,
-                easeTime: 0,
-                target,
-            });
-            legacyCC.director.getAnimationManager().addCrossFade(this);
-        }
-    }
-
-    public clear () {
-        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
-            const state = this._managedStates[iManagedState].state;
-            if (state) {
-                state.stop();
-            }
-        }
-        this._managedStates.length = 0;
-        this._fadings.length = 0;
-    }
-
-    protected onPlay () {
-        super.onPlay();
-        // legacyCC.director.getAnimationManager().addCrossFade(this);
-    }
-
-    /**
-     * 停止我们淡入淡出的所有动画状态并停止淡入淡出。
-     */
-    protected onPause () {
-        super.onPause();
-        legacyCC.director.getAnimationManager().removeCrossFade(this);
-        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
-            const state = this._managedStates[iManagedState].state;
-            if (state) {
-                state.pause();
-            }
-        }
-    }
-
-    /**
-     * 恢复我们淡入淡出的所有动画状态并继续淡入淡出。
-     */
-    protected onResume () {
-        super.onResume();
-        legacyCC.director.getAnimationManager().addCrossFade(this);
-        for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
-            const state = this._managedStates[iManagedState].state;
-            if (state) {
-                state.resume();
-            }
-        }
-    }
-
-    /**
-     * 停止所有淡入淡出的动画状态。
-     */
-    protected onStop () {
-        super.onStop();
-        legacyCC.director.getAnimationManager().removeCrossFade(this);
-        this.clear();
     }
 }

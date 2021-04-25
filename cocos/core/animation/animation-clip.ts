@@ -190,6 +190,14 @@ export class AnimationClip extends Asset {
     @serializable
     public events: AnimationClip.IEvent[] = [];
 
+    /**
+     * Sets if node TRS curves in this animation can be blended.
+     * Normally this flag is enabled for model animation and disabled for other case.
+     * @internal This is an internal slot. Never use it in your code.
+     */
+    @serializable
+    public enableTrsBlending = false;
+
     @serializable
     private _duration = 0;
 
