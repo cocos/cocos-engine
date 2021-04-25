@@ -65,7 +65,7 @@ export class PipelineUBO {
     }
 
     public static updateCameraUBOView (pipeline: RenderPipeline, bufferView: Float32Array,
-        camera: Camera, hasOffScreenAttachments: boolean) {
+        camera: Camera) {
         const device = pipeline.device;
         const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
         const mainLight = scene.mainLight;
@@ -124,19 +124,11 @@ export class PipelineUBO {
         Mat4.toArray(cv, camera.node.worldMatrix, UBOCamera.MAT_VIEW_INV_OFFSET);
         Vec3.toArray(cv, camera.position, UBOCamera.CAMERA_POS_OFFSET);
 
-        if (hasOffScreenAttachments) {
-            Mat4.toArray(cv, camera.matProjOffscreen, UBOCamera.MAT_PROJ_OFFSET);
-            Mat4.toArray(cv, camera.matProjInvOffscreen, UBOCamera.MAT_PROJ_INV_OFFSET);
-            Mat4.toArray(cv, camera.matViewProjOffscreen, UBOCamera.MAT_VIEW_PROJ_OFFSET);
-            Mat4.toArray(cv, camera.matViewProjInvOffscreen, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
-            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
-        } else {
-            Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
-            Mat4.toArray(cv, camera.matProjInv, UBOCamera.MAT_PROJ_INV_OFFSET);
-            Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
-            Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
-            cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
-        }
+        Mat4.toArray(cv, camera.matProj, UBOCamera.MAT_PROJ_OFFSET);
+        Mat4.toArray(cv, camera.matProjInv, UBOCamera.MAT_PROJ_INV_OFFSET);
+        Mat4.toArray(cv, camera.matViewProj, UBOCamera.MAT_VIEW_PROJ_OFFSET);
+        Mat4.toArray(cv, camera.matViewProjInv, UBOCamera.MAT_VIEW_PROJ_INV_OFFSET);
+        cv[UBOCamera.CAMERA_POS_OFFSET + 3] = this.getCombineSignY();
 
         cv.set(fog.colorArray, UBOCamera.GLOBAL_FOG_COLOR_OFFSET);
 
@@ -357,10 +349,10 @@ export class PipelineUBO {
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOGlobal.BINDING), this._globalUBO);
     }
 
-    public updateCameraUBO (camera: Camera, hasOffScreenAttachments: boolean) {
+    public updateCameraUBO (camera: Camera) {
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
-        PipelineUBO.updateCameraUBOView(this._pipeline, this._cameraUBO, camera, hasOffScreenAttachments);
+        PipelineUBO.updateCameraUBOView(this._pipeline, this._cameraUBO, camera);
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOCamera.BINDING), this._cameraUBO);
     }
 
