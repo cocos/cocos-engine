@@ -324,6 +324,62 @@ let VideoPlayerImpl = cc.Class({
         return video.currentTime;
     },
 
+    update: function() {
+        let video = this._video;
+        if (!video) return;
+
+        video.update;
+    },
+
+    getFrame: function() {
+        let video = this._video;
+        if (!video) return;
+
+        video.getFrame();
+    },
+
+    getFrameWidth: function() {
+        let video = this._video;
+        if (!video) return 0;
+
+        return video.getFrameWidth();
+    },
+    
+    getFrameHeight: function () {
+        let video = this._video;
+        if (!video) return 0;
+
+        return video.getFrameHeight();
+    },
+
+    getVideoTexDataSize: function () {
+        let video = this._video;
+        if (!video) return 0;
+
+        return video.getVideoTexDataSize();
+    },
+
+    pushFrameDataToTexture2D: function (texid) {
+        let video = this._video;
+        if (!video) return;
+
+        video.pushFrameDataToTexture2D(texid);
+    },
+
+    pushPixelsToTexture: function(tex) {
+        let video = this._video;
+        if (!video) return;
+
+        video.pushPixelsToTexture(tex);
+    },
+
+    setShowRawFrame: function(show) {
+        let video = this._video;
+        if (!video) return;
+
+        video.setShowRawFrame(show);
+    },
+
     setKeepAspectRatioEnabled: function () {
         if (CC_EDITOR) {
             return;
