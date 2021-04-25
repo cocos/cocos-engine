@@ -137,14 +137,11 @@ export class CrossFade extends Playable {
             target.state.play();
         }
         ++target.reference;
-        if (duration !== 0) {
-            this._fadings.unshift({
-                easeDuration: duration,
-                easeTime: 0,
-                target,
-            });
-            legacyCC.director.getAnimationManager().addCrossFade(this);
-        }
+        this._fadings.unshift({
+            easeDuration: duration,
+            easeTime: 0,
+            target,
+        });
     }
 
     public clear () {
@@ -160,7 +157,7 @@ export class CrossFade extends Playable {
 
     protected onPlay () {
         super.onPlay();
-        // legacyCC.director.getAnimationManager().addCrossFade(this);
+        legacyCC.director.getAnimationManager().addCrossFade(this);
     }
 
     /**

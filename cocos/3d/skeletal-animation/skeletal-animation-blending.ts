@@ -33,17 +33,15 @@ import { Node } from '../../core/scene-graph';
 import { IValueProxyFactory } from '../../core/animation/value-proxy';
 import { assertIsNonNullable } from '../../core/data/utils/asserts';
 import { AnimationState } from '../../core/animation/animation-state';
-import { legacyCC } from '../../core/global-exports';
 
 export class BlendStateBuffer {
     private _nodeBlendStates: Map<Node, NodeBlendState> = new Map();
-    private _nodeBlendStatesDirty: Set<Node> = new Set();
     private _states = new Set<AnimationState>();
 
     public ref (node: Node, property: BlendingProperty) {
         let nodeBlendState = this._nodeBlendStates.get(node);
         if (!nodeBlendState) {
-            nodeBlendState = { properties: {} };
+            nodeBlendState = { dirty: false, properties: {} };
             this._nodeBlendStates.set(node, nodeBlendState);
         }
         let propertyBlendState = nodeBlendState.properties[property];
@@ -76,13 +74,12 @@ export class BlendStateBuffer {
         }
     }
 
-    public markAsDirty (node: Node) {
-        this._nodeBlendStatesDirty.add(node);
-    }
-
     public apply () {
-        this._nodeBlendStatesDirty.forEach((node) => {
-            const nodeBlendState = this._nodeBlendStates.get(node)!;
+        this._nodeBlendStates.forEach((nodeBlendState, node) => {
+            if (!nodeBlendState.dirty) {
+                return;
+            }
+            nodeBlendState.dirty = false;
             const { position, scale, rotation, eulerAngles } = nodeBlendState.properties;
             let t: Vec3 | undefined;
             let s: Vec3 | undefined;
@@ -115,7 +112,6 @@ export class BlendStateBuffer {
                 node.setRTS(r, t, s);
             }
         });
-        this._nodeBlendStatesDirty.clear();
 
         this._states.forEach((state) => {
             state.onBlendFinished();
@@ -222,13 +218,12 @@ class PropertyBlendState<T> {
     }
 
     public markAsDirty () {
-        // this._node.dirty = true;
-        legacyCC.director.getAnimationManager()?.blendState.markAsDirty(this._node);
+        this._node.dirty = true;
     }
 }
 
 interface NodeBlendState {
-    // dirty: boolean;
+    dirty: boolean;
     properties: {
         position?: PropertyBlendState<Vec3>;
         rotation?: PropertyBlendState<Quat>;
