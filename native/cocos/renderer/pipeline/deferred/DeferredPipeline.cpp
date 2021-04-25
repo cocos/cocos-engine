@@ -133,7 +133,7 @@ void DeferredPipeline::render(const vector<uint> &cameras) {
     for (const auto cameraId : cameras) {
         auto *camera = GET_CAMERA(cameraId);
         sceneCulling(this, camera);
-        _pipelineUBO->updateCameraUBO(camera, true);
+        _pipelineUBO->updateCameraUBO(camera);
         for (auto *const flow : _flows) {
             flow->render(camera);
         }
@@ -162,7 +162,9 @@ void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform surfaceTransform,
     float maxX = float(renderArea.x + renderArea.width) / _device->getWidth();
     float minY = float(renderArea.y) / _device->getHeight();
     float maxY = float(renderArea.y + renderArea.height) / _device->getHeight();
-
+    if (_device->getCapabilities().clipSpaceSignY > 0) {
+        std::swap(minY, maxY);
+    }
     int n = 0;
     switch (surfaceTransform) {
         case (gfx::SurfaceTransform::IDENTITY):

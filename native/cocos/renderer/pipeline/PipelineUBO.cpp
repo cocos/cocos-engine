@@ -70,7 +70,7 @@ void PipelineUBO::updateGlobalUBOView(const RenderPipeline * /*pipeline*/, std::
 }
 
 void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array<float, UBOCamera::COUNT> &bufferView,
-                                      const Camera *camera, bool hasOffScreenAttachments) {
+                                      const Camera *camera) {
     const auto *const    scene     = camera->getScene();
     const Light *mainLight = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
@@ -140,19 +140,13 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array
     memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_INV_OFFSET, camera->getNode()->worldMatrix.m, sizeof(cc::Mat4));
     TO_VEC3(uboCameraView, camera->position, UBOCamera::CAMERA_POS_OFFSET);
 
-    if (hasOffScreenAttachments) {
-        memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_OFFSET, camera->matProjOffscreen.m, sizeof(cc::Mat4));
-        memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_INV_OFFSET, camera->matProjInvOffscreen.m, sizeof(cc::Mat4));
-        memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_OFFSET, camera->matViewProjOffscreen.m, sizeof(cc::Mat4));
-        memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInvOffscreen.m, sizeof(cc::Mat4));
-        uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = getCombineSignY();
-    } else {
+    
         memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_OFFSET, camera->matProj.m, sizeof(cc::Mat4));
         memcpy(uboCameraView.data() + UBOCamera::MAT_PROJ_INV_OFFSET, camera->matProjInv.m, sizeof(cc::Mat4));
         memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_OFFSET, camera->matViewProj.m, sizeof(cc::Mat4));
         memcpy(uboCameraView.data() + UBOCamera::MAT_VIEW_PROJ_INV_OFFSET, camera->matViewProjInv.m, sizeof(cc::Mat4));
         uboCameraView[UBOCamera::CAMERA_POS_OFFSET + 3] = getCombineSignY();
-    }
+
 
     if (fog->enabled) {
         TO_VEC4(uboCameraView, fog->fogColor, UBOCamera::GLOBAL_FOG_COLOR_OFFSET);
@@ -373,10 +367,10 @@ void PipelineUBO::updateGlobalUBO() {
     cmdBuffer->updateBuffer(ds->getBuffer(UBOGlobal::BINDING), _globalUBO.data(), UBOGlobal::SIZE);
 }
 
-void PipelineUBO::updateCameraUBO(const Camera *camera, bool hasOffScreenAttachments) {
+void PipelineUBO::updateCameraUBO(const Camera *camera) {
     auto *const ds        = _pipeline->getDescriptorSet();
     auto *const cmdBuffer = _pipeline->getCommandBuffers()[0];
-    PipelineUBO::updateCameraUBOView(_pipeline, _cameraUBO, camera, hasOffScreenAttachments);
+    PipelineUBO::updateCameraUBOView(_pipeline, _cameraUBO, camera);
     cmdBuffer->updateBuffer(ds->getBuffer(UBOCamera::BINDING), _cameraUBO.data(), UBOCamera::SIZE);
 }
 
