@@ -155,8 +155,8 @@ exports.methods = {
     },
 
     async apply () {
+        this.dirtyData.origin = this.dirtyData.realtime;
         await Editor.Message.request('scene', 'apply-render-pipeline', this.asset.uuid, this.pipeline);
-        this.dirtyData.origin = this.dirtyData.realtime = '';
     },
 
     async dataChange() {
