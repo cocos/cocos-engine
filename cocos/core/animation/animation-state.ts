@@ -287,8 +287,9 @@ export class AnimationState extends Playable {
 
     set playbackRange (value) {
         assertIsTrue(value.max > value.min);
-        this._playbackRange.min = value.min;
-        this._playbackRange.max = value.max;
+        this._playbackRange.min = Math.max(this._playbackRange.min, 0);
+        this._playbackRange.max = Math.min(this._playbackRange.max, this.duration);
+        this._playbackDuration = this._playbackRange.max - this._playbackRange.min;
         this.setTime(0.0);
     }
 
@@ -373,6 +374,8 @@ export class AnimationState extends Playable {
         enabled: false,
     };
     private _playbackRange: { min: number; max: number; };
+    private _playbackDuration = 0;
+    private _invDuration = 1.0;
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -382,6 +385,7 @@ export class AnimationState extends Playable {
             min: 0,
             max: this._clip.duration,
         };
+        this._playbackDuration = clip.duration;
     }
 
     /**
@@ -404,6 +408,7 @@ export class AnimationState extends Playable {
         const clip = this._clip;
 
         this.duration = clip.duration;
+        this._invDuration = 1.0 / this.duration;
         this.speed = clip.speed;
         this.wrapMode = clip.wrapMode;
         this.frameRate = clip.sample;
@@ -411,6 +416,7 @@ export class AnimationState extends Playable {
             min: 0,
             max: clip.duration,
         };
+        this._playbackDuration = clip.duration;
 
         if ((this.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
             this.repeatCount = Infinity;
@@ -428,7 +434,7 @@ export class AnimationState extends Playable {
             valueAdapter: IValueProxyFactory | undefined,
             isConstant: boolean,
         ): BoundTargetT | null => {
-            if (!isTargetingTRS(path) || !this._blendStateBuffer) {
+            if (!clip.enableTrsBlending || !isTargetingTRS(path) || !this._blendStateBuffer) {
                 return createFn(rootTarget, path, valueAdapter);
             } else {
                 const targetNode = evaluatePath(rootTarget, ...path.slice(0, path.length - 1));
@@ -670,9 +676,10 @@ export class AnimationState extends Playable {
         this._blendStateWriterHost.weight = this.weight;
         this._blendStateWriterHost.enabled = true;
 
+        const commonTargetStatuses = this._commonTargetStatuses;
         // Before we sample, we pull values of common targets.
-        for (let iCommonTarget = 0; iCommonTarget < this._commonTargetStatuses.length; ++iCommonTarget) {
-            const commonTargetStatus = this._commonTargetStatuses[iCommonTarget];
+        for (let iCommonTarget = 0, length = commonTargetStatuses.length; iCommonTarget < length; ++iCommonTarget) {
+            const commonTargetStatus = commonTargetStatuses[iCommonTarget];
             if (!commonTargetStatus) {
                 continue;
             }
@@ -680,13 +687,14 @@ export class AnimationState extends Playable {
             commonTargetStatus.changed = false;
         }
 
-        for (let iSamplerSharedGroup = 0, szSamplerSharedGroup = this._samplerSharedGroups.length;
+        let index = 0;
+        let lerpRequired = false;
+        const samplerSharedGroups = this._samplerSharedGroups;
+        for (let iSamplerSharedGroup = 0, szSamplerSharedGroup = samplerSharedGroups.length;
             iSamplerSharedGroup < szSamplerSharedGroup; ++iSamplerSharedGroup) {
-            const samplerSharedGroup = this._samplerSharedGroups[iSamplerSharedGroup];
-            const sampler = samplerSharedGroup.sampler;
-            const { samplerResultCache } = samplerSharedGroup;
-            let index = 0;
-            let lerpRequired = false;
+            const samplerSharedGroup = samplerSharedGroups[iSamplerSharedGroup];
+            const { sampler, samplerResultCache } = samplerSharedGroup;
+
             if (!sampler) {
                 index = 0;
             } else {
@@ -708,9 +716,10 @@ export class AnimationState extends Playable {
                 }
             }
 
-            for (let iCurveInstance = 0, szCurves = samplerSharedGroup.curves.length;
+            const curves = samplerSharedGroup.curves;
+            for (let iCurveInstance = 0, szCurves = curves.length;
                 iCurveInstance < szCurves; ++iCurveInstance) {
-                const curveInstance = samplerSharedGroup.curves[iCurveInstance];
+                const curveInstance = curves[iCurveInstance];
                 curveInstance.applySample(ratio, index, lerpRequired, samplerResultCache, this.weight);
                 if (curveInstance.commonTargetIndex !== undefined) {
                     const commonTargetStatus = this._commonTargetStatuses[curveInstance.commonTargetIndex];
@@ -722,8 +731,8 @@ export class AnimationState extends Playable {
         }
 
         // After sample, we push values of common targets.
-        for (let iCommonTarget = 0; iCommonTarget < this._commonTargetStatuses.length; ++iCommonTarget) {
-            const commonTargetStatus = this._commonTargetStatuses[iCommonTarget];
+        for (let iCommonTarget = 0, length = commonTargetStatuses.length; iCommonTarget < length; ++iCommonTarget) {
+            const commonTargetStatus = commonTargetStatuses[iCommonTarget];
             if (!commonTargetStatus) {
                 continue;
             }
@@ -759,13 +768,12 @@ export class AnimationState extends Playable {
     }
 
     private simpleProcess () {
-        const playbackStart = this._getPlaybackStart();
-        const playbackEnd = this._getPlaybackEnd();
-        const playbackDuration = playbackEnd - playbackStart;
+        const playbackStart = this._playbackRange.min;
+        const playbackDuration = this._playbackDuration;
 
         let time = this.time % playbackDuration;
         if (time < 0) { time += playbackDuration; }
-        const ratio = (playbackStart + time) / this.duration;
+        const ratio = (playbackStart + time) * this._invDuration;
         this._sampleCurves(ratio);
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
@@ -867,11 +875,11 @@ export class AnimationState extends Playable {
     }
 
     private _getPlaybackStart () {
-        return Math.max(this._playbackRange.min, 0);
+        return this._playbackRange.min;
     }
 
     private _getPlaybackEnd () {
-        return Math.min(this._playbackRange.max, this.duration);
+        return this._playbackRange.max;
     }
 
     private _sampleEvents (wrapInfo: WrappedInfo) {

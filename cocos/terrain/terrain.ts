@@ -231,9 +231,8 @@ class TerrainRenderable extends RenderableComponent {
                 defines: block._getMaterialDefines(nLayers),
             });
 
-            if (this._brushMaterial !== null) {
+            if (this._brushMaterial !== null && this._brushMaterial.passes !== null && this._brushMaterial.passes.length > 0) {
                 const passes = this._currentMaterial.passes;
-
                 passes.push(this._brushMaterial.passes[0]);
             }
 
@@ -242,6 +241,7 @@ class TerrainRenderable extends RenderableComponent {
             }
 
             this.setMaterial(this._currentMaterial, 0);
+
             this._currentMaterialLayers = nLayers;
             this._model.enabled = true;
             this._model.receiveShadow = block.getTerrain().receiveShadow;
@@ -1491,8 +1491,14 @@ export class Terrain extends Component {
      * @zh 根据点的坐标获得权重
      */
     public getWeightAt (x: number, y: number) {
-        const fx = x / this.tileSize;
-        const fy = y / this.tileSize;
+        const uWeigthComplexity = this.weightMapSize * this.blockCount[0];
+        const vWeigthComplexity = this.weightMapSize * this.blockCount[1];
+        if (uWeigthComplexity === 0 || vWeigthComplexity === 0) {
+            return null;
+        }
+
+        const fx = x / uWeigthComplexity;
+        const fy = y / vWeigthComplexity;
 
         let ix0 = Math.floor(fx);
         let iz0 = Math.floor(fy);
@@ -1501,14 +1507,14 @@ export class Terrain extends Component {
         const dx = fx - ix0;
         const dz = fy - iz0;
 
-        if (ix0 < 0 || ix0 > this.vertexCount[0] - 1 || iz0 < 0 || iz0 > this.vertexCount[1] - 1) {
+        if (ix0 < 0 || ix0 > uWeigthComplexity - 1 || iz0 < 0 || iz0 > vWeigthComplexity - 1) {
             return null;
         }
 
-        ix0 = clamp(ix0, 0, this.vertexCount[0] - 1);
-        iz0 = clamp(iz0, 0, this.vertexCount[1] - 1);
-        ix1 = clamp(ix1, 0, this.vertexCount[0] - 1);
-        iz1 = clamp(iz1, 0, this.vertexCount[1] - 1);
+        ix0 = clamp(ix0, 0, uWeigthComplexity - 1);
+        iz0 = clamp(iz0, 0, vWeigthComplexity - 1);
+        ix1 = clamp(ix1, 0, uWeigthComplexity - 1);
+        iz1 = clamp(iz1, 0, vWeigthComplexity - 1);
 
         let a = this.getWeight(ix0, iz0);
         const b = this.getWeight(ix1, iz0);
@@ -1533,6 +1539,47 @@ export class Terrain extends Component {
         Vec4.lerp(n, n1, n2, dz);
 
         return n;
+    }
+
+    /**
+     * @en get max weight layer by point
+     * @zh 根据点的坐标获得权重最大的纹理层
+     */
+    public getMaxWeightLayerAt (x: number, y: number) {
+        const uWeigthComplexity = this.weightMapSize * this.blockCount[0];
+        const vWeigthComplexity = this.weightMapSize * this.blockCount[1];
+        if (uWeigthComplexity === 0 || vWeigthComplexity === 0) {
+            return null;
+        }
+
+        const fx = x / uWeigthComplexity;
+        const fy = y / vWeigthComplexity;
+        const ix0 = Math.floor(fx);
+        const iz0 = Math.floor(fy);
+
+        if (ix0 < 0 || ix0 > uWeigthComplexity - 1 || iz0 < 0 || iz0 > vWeigthComplexity - 1) {
+            return null;
+        }
+
+        const w = this.getWeight(ix0, iz0);
+        const bx = Math.floor(x / this.weightMapSize);
+        const by = Math.floor(y / this.weightMapSize);
+        const block = this.getBlock(bx, by);
+
+        let i = 0;
+        if (w.y > w[i] && block.getLayer(1) !== -1) {
+            i = 1;
+        }
+        if (w.y > w[i] && block.getLayer(2) !== -1) {
+            i = 2;
+        }
+        if (w.z > w[i] && block.getLayer(3) !== -1) {
+            i = 3;
+        }
+
+        i = block.getLayer(i);
+
+        return this.getLayer(i);
     }
 
     /**

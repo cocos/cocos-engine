@@ -303,14 +303,14 @@ exports.$ = {
 const Elements = {
     // infos put first
     infos: {
-        ready() {
+        ready () {
             const panel = this;
 
             Object.assign(panel, {
                 animationInfos: null,
             });
         },
-        update() {
+        update () {
             const panel = this;
 
             if (panel.meta && panel.meta.userData.animationImportSettings) {
@@ -329,7 +329,7 @@ const Elements = {
         },
     },
     showType: {
-        ready() {
+        ready () {
             const panel = this;
             panel.animationTimeShowType = panel.$.showType.value === 0 ? 'time' : 'frame';
             panel.$.showType.addEventListener('change', (event) => {
@@ -337,7 +337,7 @@ const Elements = {
                 Elements.clips.update.call(panel);
             });
         },
-        update() {
+        update () {
             const panel = this;
 
             if (!panel.animationInfos) {
@@ -351,7 +351,7 @@ const Elements = {
         },
     },
     clips: {
-        ready() {
+        ready () {
             const panel = this;
 
             Object.assign(panel, {
@@ -360,7 +360,7 @@ const Elements = {
                 currentClipInfo: null,
             });
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.$.clips.innerText = '';
@@ -423,13 +423,11 @@ const Elements = {
                     line.appendChild(name);
                     const time = document.createElement('div');
                     time.setAttribute('class', 'time');
-                    time.innerHTML =
-                        panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * panel.rawClipInfo.fps);
+                    time.innerHTML =                        panel.animationTimeShowType === 'time' ? subAnim.from.toFixed(2) : Math.round(subAnim.from * panel.rawClipInfo.fps);
                     line.appendChild(time);
                     const timeEnd = document.createElement('div');
                     timeEnd.setAttribute('class', 'time end');
-                    timeEnd.innerHTML =
-                        panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * panel.rawClipInfo.fps);
+                    timeEnd.innerHTML =                        panel.animationTimeShowType === 'time' ? subAnim.to.toFixed(2) : Math.round(subAnim.to * panel.rawClipInfo.fps);
                     line.appendChild(timeEnd);
                 });
 
@@ -475,7 +473,7 @@ const Elements = {
         },
     },
     editor: {
-        ready() {
+        ready () {
             const panel = this;
 
             Object.assign(panel, {
@@ -502,7 +500,7 @@ const Elements = {
             panel.onWrapModeChangeBind = panel.onWrapModeChange.bind(panel);
             panel.$.wrapMode.addEventListener('confirm', panel.onWrapModeChangeBind);
 
-            function observer() {
+            function observer () {
                 const rect = panel.$.editor.getBoundingClientRect();
                 panel.gridTableWith = rect.width - 60;
 
@@ -518,7 +516,7 @@ const Elements = {
             panel.resizeObserver.observe(panel.$.editor);
             observer();
         },
-        close() {
+        close () {
             const panel = this;
             panel.resizeObserver.unobserve(panel.$.editor);
 
@@ -534,7 +532,7 @@ const Elements = {
 
             panel.$.wrapMode.removeEventListener('confirm', panel.onWrapModeChangeBind);
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.updateRawClipInfo();
@@ -618,34 +616,10 @@ exports.update = function (assetList, metaList) {
             element.update.call(this);
         }
     }
-    // animation name -> uuid
-    if (this.meta && this.meta.subMetas) {
-        const animationNameToUUIDMap = new Map();
-        Object.keys(this.meta.subMetas).forEach((id) => {
-            const subMeta = this.meta.subMetas[id];
-            if (subMeta.importer === 'gltf-animation') {
-                const sourceName = subMeta.name;
-                const animName = sourceName.slice(0, sourceName.lastIndexOf('.'));
-                animationNameToUUIDMap.set(animName, subMeta.uuid);
-            }
-        });
-
-        this.animationNameToUUIDMap = animationNameToUUIDMap;
-    }
-
-    if (this.meta && this.meta.userData.animationImportSettings) {
-        this.animationInfos = this.meta.userData.animationImportSettings;
-        // Collect clip names for renaming and creating to determine whether the name is repeated
-        this.clipNames = new Set();
-        for (const animationInfo of this.animationInfos) {
-            this.clipNames.add(animationInfo.name);
-            for (const subAnimInfo of animationInfo.splits) {
-                this.clipNames.add(subAnimInfo.name);
-            }
-        }
+    this.initAnimationNameToUUIDMap();
+    this.initAnimationInfos();
+    if (this.animationInfos) {
         this.onSelect(0, 0);
-    } else {
-        this.animationInfos = null;
     }
 };
 
@@ -668,11 +642,42 @@ exports.close = function () {
 };
 
 exports.methods = {
-    onSelect(rawClipIndex, splitClipIndex) {
+    /** animation name -> uuid */
+    initAnimationNameToUUIDMap () {
+        if (this.meta && this.meta.subMetas) {
+            const animationNameToUUIDMap = new Map();
+            Object.keys(this.meta.subMetas).forEach((id) => {
+                const subMeta = this.meta.subMetas[id];
+                if (subMeta.importer === 'gltf-animation') {
+                    const sourceName = subMeta.name;
+                    const animName = sourceName.slice(0, sourceName.lastIndexOf('.'));
+                    animationNameToUUIDMap.set(animName, subMeta.uuid);
+                }
+            });
+
+            this.animationNameToUUIDMap = animationNameToUUIDMap;
+        }
+    },
+    initAnimationInfos () {
+        if (this.meta && this.meta.userData.animationImportSettings) {
+            this.animationInfos = this.meta.userData.animationImportSettings;
+            // Collect clip names for renaming and creating to determine whether the name is repeated
+            this.clipNames = new Set();
+            for (const animationInfo of this.animationInfos) {
+                this.clipNames.add(animationInfo.name);
+                for (const subAnimInfo of animationInfo.splits) {
+                    this.clipNames.add(subAnimInfo.name);
+                }
+            }
+        } else {
+            this.animationInfos = null;
+        }
+    },
+
+    onSelect (rawClipIndex, splitClipIndex) {
         this.rawClipIndex = rawClipIndex;
         this.splitClipIndex = splitClipIndex;
-        const isElementSelect = (element) =>
-            element.getAttribute('rawClipIndex') == rawClipIndex && element.getAttribute('splitClipIndex') == splitClipIndex;
+        const isElementSelect = (element) => element.getAttribute('rawClipIndex') == rawClipIndex && element.getAttribute('splitClipIndex') == splitClipIndex;
         Elements.editor.update.call(this);
 
         this.$.clips.querySelectorAll('.line').forEach((child) => {
@@ -685,7 +690,7 @@ exports.methods = {
         const curClipInfo = this.getCurClipInfo();
         Editor.Message.broadcast('fbx-inspector:animation-change', curClipInfo);
     },
-    getCurClipInfo() {
+    getCurClipInfo () {
         const animInfo = this.animationInfos[this.rawClipIndex];
         const splitInfo = animInfo.splits[this.splitClipIndex];
 
@@ -719,7 +724,7 @@ exports.methods = {
             to,
         };
     },
-    getRightName(name) {
+    getRightName (name) {
         if (!name) {
             return null;
         }
@@ -734,7 +739,7 @@ exports.methods = {
         } while (panel.clipNames.has(name));
         return name;
     },
-    newClipTemplate() {
+    newClipTemplate () {
         const panel = this;
         // Verify the name
         return {
@@ -744,7 +749,7 @@ exports.methods = {
             wrapMode: 2 /* Loop */,
         };
     },
-    updateCurrentClipInfo() {
+    updateCurrentClipInfo () {
         const panel = this;
         if (!panel.animationInfos) {
             panel.currentClipInfo = null;
@@ -801,7 +806,7 @@ exports.methods = {
 
         panel.$.wrapMode.value = panel.currentClipInfo.wrapMode;
     },
-    updateRawClipInfo() {
+    updateRawClipInfo () {
         const panel = this;
         if (!panel.animationInfos) {
             panel.rawClipInfo = null;
@@ -817,7 +822,7 @@ exports.methods = {
 
         panel.$.clipDuration.innerText = duration.toFixed(2);
     },
-    updateGridConfig() {
+    updateGridConfig () {
         const panel = this;
 
         if (!panel.currentClipInfo) {
@@ -842,7 +847,7 @@ exports.methods = {
             labelStep,
         };
     },
-    getStepAndSpacing(width, frames) {
+    getStepAndSpacing (width, frames) {
         const config = {
             minSpacing: 10,
             maxSpacing: 20,
@@ -862,7 +867,7 @@ exports.methods = {
             spacing,
         };
     },
-    onMouseDown(type) {
+    onMouseDown (type) {
         const panel = this;
 
         const info = panel.currentClipInfo;
@@ -891,7 +896,7 @@ exports.methods = {
         document.addEventListener('mousemove', panel.onMouseMoveBind);
         document.addEventListener('mouseup', panel.onMouseUpBind);
     },
-    onMouseMove(event) {
+    onMouseMove (event) {
         const panel = this;
 
         event.preventDefault();
@@ -904,10 +909,10 @@ exports.methods = {
         const { type } = panel.virtualControl;
         let x = event.x - panel.$.rulerMaking.getBoundingClientRect().x;
         if (
-            x > panel.gridConfig.width ||
-            x < 0 ||
-            (type === 'left' && x > panel.currentClipInfo.ctrlEnd) ||
-            (type === 'right' && x < panel.currentClipInfo.ctrlStart)
+            x > panel.gridConfig.width
+            || x < 0
+            || (type === 'left' && x > panel.currentClipInfo.ctrlEnd)
+            || (type === 'right' && x < panel.currentClipInfo.ctrlStart)
         ) {
             return;
         }
@@ -929,10 +934,9 @@ exports.methods = {
         cancelAnimationFrame(panel.animationId);
         panel.animationId = requestAnimationFrame(() => {
             panel.updateVirtualControl();
-            panel.dispatch('change');
         });
     },
-    onMouseUp() {
+    onMouseUp () {
         const panel = this;
 
         if (!panel.virtualControl) {
@@ -940,7 +944,6 @@ exports.methods = {
         }
         document.removeEventListener('mousemove', panel.onMouseMoveBind);
         document.removeEventListener('mouseup', panel.onMouseUpBind);
-
         const { value } = panel.virtualControl;
         let { type } = panel.virtualControl;
         type = type === 'right' ? 'to' : 'from';
@@ -961,8 +964,9 @@ exports.methods = {
         panel.$.controlVirtual.style.display = 'none';
         const curClipInfo = panel.getCurClipInfo();
         Editor.Message.broadcast('fbx-inspector:animation-change', curClipInfo);
+        panel.dispatch('change');
     },
-    updateVirtualControl() {
+    updateVirtualControl () {
         const panel = this;
 
         Object.assign(panel.$.controlVirtual.style, panel.virtualControl.style);
@@ -976,7 +980,7 @@ exports.methods = {
             }
         }
     },
-    onClipName(event) {
+    onClipName (event) {
         const panel = this;
 
         if (!panel.currentClipInfo) {
@@ -1001,7 +1005,7 @@ exports.methods = {
         panel.dispatch('change');
         Elements.clips.update.call(panel);
     },
-    onCutClip(event) {
+    onCutClip (event) {
         const panel = this;
 
         const path = event.target.getAttribute('path');
@@ -1012,7 +1016,7 @@ exports.methods = {
 
         panel.dispatch('change');
     },
-    onFpsChange(event) {
+    onFpsChange (event) {
         const panel = this;
 
         panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].fps = Number(event.target.value);
@@ -1020,7 +1024,7 @@ exports.methods = {
         Elements.editor.update.call(panel);
         panel.dispatch('change');
     },
-    onWrapModeChange(event) {
+    onWrapModeChange (event) {
         const panel = this;
 
         panel.animationInfos[panel.rawClipIndex].splits[panel.splitClipIndex].wrapMode = Number(event.target.value);

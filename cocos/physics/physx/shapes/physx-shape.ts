@@ -179,8 +179,7 @@ export class PhysXShape implements IBaseShape {
     }
 
     getAABB (v: AABB): void {
-        const b3 = getShapeWorldBounds(this.impl, this._sharedBody.impl, 1);
-        AABB.fromPoints(v, b3.minimum, b3.maximum);
+        getShapeWorldBounds(this.impl, this._sharedBody.impl, 1, v);
     }
 
     getBoundingSphere (v: Sphere): void {

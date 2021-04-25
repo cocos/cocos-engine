@@ -37,5 +37,5 @@ export { Node } from './node';
 export { Scene } from './scene';
 export { Layers } from './layers';
 export { find } from './find';
-export { PrivateNode } from './deprecated';
+export * from './deprecated';
 export { default as NodeActivator } from './node-activator';

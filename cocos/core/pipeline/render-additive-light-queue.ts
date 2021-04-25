@@ -38,7 +38,7 @@ import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView,
 import { Vec3, nextPow2, Mat4, Color } from '../math';
 import { Sphere, intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
-    BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet, DescriptorSetInfo } from '../gfx';
+    BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet, DescriptorSetInfo, Feature } from '../gfx';
 import { Pool } from '../memop';
 import { RenderBatchedQueue } from './render-batched-queue';
 import { RenderInstancedQueue } from './render-instanced-queue';
@@ -54,7 +54,6 @@ import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Texture2D } from '../assets/texture-2d';
 import { updatePlanarPROJ } from './scene-culling';
 import { Camera } from '../renderer/scene';
-import { PipelineUBO } from './pipeline-ubo';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -119,8 +118,6 @@ export class RenderAdditiveLightQueue {
     private _validLights: Light[] = [];
     private _lightPasses: IAdditiveLightPass[] = [];
     private _descriptorSetMap: Map<Light, DescriptorSet> = new Map();
-    private _globalUBO = new Float32Array(UBOGlobal.COUNT);
-    private _cameraUBO = new Float32Array(UBOCamera.COUNT);
     private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
     private _lightBufferStride: number;
@@ -343,13 +340,14 @@ export class RenderAdditiveLightQueue {
 
     // update light DescriptorSet
     protected _updateLightDescriptorSet (camera: Camera, cmdBuff: CommandBuffer) {
+        const device = this._pipeline.device;
         const sceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
-
-        PipelineUBO.updateGlobalUBOView(this._pipeline, this._globalUBO);
-        PipelineUBO.updateCameraUBOView(this._pipeline, this._cameraUBO, camera, camera.window!.hasOffScreenAttachments);
+        const isTextureHalfFloat = device.hasFeature(Feature.TEXTURE_HALF_FLOAT);
+        const linear = (shadowInfo.linear && isTextureHalfFloat) ? 1.0 : 0.0;
+        const packing = shadowInfo.packing ? 1.0 : (isTextureHalfFloat ? 0.0 : 1.0);
 
         for (let i = 0; i < this._validLights.length; i++) {
             const light = this._validLights[i];
@@ -366,7 +364,7 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
 
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 2.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
 
@@ -392,7 +390,7 @@ export class RenderAdditiveLightQueue {
 
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 0] = 0.01;
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 1] = (light as SpotLight).range;
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 2] = shadowInfo.linear ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 2] = linear;
                 this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
 
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
@@ -401,7 +399,7 @@ export class RenderAdditiveLightQueue {
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
 
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 1.0;
-                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = shadowInfo.packing ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
                 this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
 
@@ -421,8 +419,6 @@ export class RenderAdditiveLightQueue {
             }
             descriptorSet.update();
 
-            cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOGlobal.BINDING)!, this._globalUBO);
-            cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOCamera.BINDING)!, this._cameraUBO);
             cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOShadow.BINDING)!, this._shadowUBO);
         }
     }
@@ -512,21 +508,9 @@ export class RenderAdditiveLightQueue {
             const device = this._device;
             const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._pipeline.descriptorSetLayout));
 
-            const globalUBO = device.createBuffer(new BufferInfo(
-                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                UBOGlobal.SIZE,
-                UBOGlobal.SIZE,
-            ));
-            descriptorSet.bindBuffer(UBOGlobal.BINDING, globalUBO);
+            descriptorSet.bindBuffer(UBOGlobal.BINDING, this._pipeline.descriptorSet.getBuffer(UBOGlobal.BINDING));
 
-            const cameraBUO = device.createBuffer(new BufferInfo(
-                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                UBOCamera.SIZE,
-                UBOCamera.SIZE,
-            ));
-            descriptorSet.bindBuffer(UBOCamera.BINDING, cameraBUO);
+            descriptorSet.bindBuffer(UBOCamera.BINDING, this._pipeline.descriptorSet.getBuffer(UBOCamera.BINDING));
 
             const shadowBUO = device.createBuffer(new BufferInfo(
                 BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,

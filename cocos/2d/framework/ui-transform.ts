@@ -198,7 +198,6 @@ export class UITransform extends Component {
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
      * @deprecated
      */
-    @visible(false)
     get priority () {
         return this._priority;
     }
@@ -681,7 +680,12 @@ export class UITransform extends Component {
         });
         UITransform.priorityChangeNodeMap.clear();
     }
+
+    public static _cleanChangeMap () {
+        UITransform.priorityChangeNodeMap.clear();
+    }
 }
 
 // HACK
 director.on(Director.EVENT_AFTER_UPDATE, UITransform._sortSiblings);
+director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, UITransform._cleanChangeMap);

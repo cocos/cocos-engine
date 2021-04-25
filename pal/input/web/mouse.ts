@@ -78,6 +78,9 @@ export class MouseInputSource {
             };
             event.stopPropagation();
             event.preventDefault();
+            if (event.type === 'mousedown') {
+                this._canvas?.focus();
+            }
             // emit web mouse event
             this._eventTarget.emit(eventType, inputEvent);
         };
