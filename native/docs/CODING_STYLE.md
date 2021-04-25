@@ -34,6 +34,7 @@ _Forked from [Google's C++ coding style](https://google.github.io/styleguide/cpp
   - [Operator Overloading](#operator-overloading)
   - [Access Control](#access-control)
   - [Declaration Order](#declaration-order)
+  - [Explicitly declare all constructors, destructor and assignment operators](#explicitly-declare-all-constructors-destructor-and-assignment-operators)
 - [Functions](#functions)
   - [Inputs and Outputs](#inputs-and-outputs)
   - [Write Short Functions](#write-short-functions)
@@ -772,6 +773,29 @@ A class definition should usually start with a public: section, followed by prot
 Within each section, prefer grouping similar kinds of declarations together, and prefer the following order: types (including typedef, using, and nested structs and classes), constants, factory functions, constructors and assignment operators, destructor, all other methods, data members.
 
 Do not put large method definitions inline in the class definition. Usually, only trivial or performance-critical, and very short, methods may be defined inline. See Inline Functions for more details.
+
+## Explicitly declare all constructors, destructor and assignment operators
+
+Compiler will implicitly generates these functions if they are not explicitly declared:
+- constructor
+- destructor
+- copy constructor
+- move constructor
+- copy assignment operator
+- move assignment operator
+
+Should explicitly declare these functions, if some functions are not needed, should declare them as `delete`, for example:
+```c++
+class Foo {
+public:
+    Foo() = default;
+    ~Foo() = default;
+    Foo(const Foo &) = delete;
+    Foo(Foo &&) = delete;
+    Foo &operator(const Foo &) = delete;
+    Foo &operator(Foo &&) = delete;
+};
+```
 
 # Functions
 
