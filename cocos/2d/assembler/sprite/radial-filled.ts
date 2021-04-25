@@ -39,7 +39,7 @@ import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 const PI_2 = Math.PI * 2;
 const EPSILON = 1e-6;
-const COLOR = new Color(255, 255, 255, 255);
+const tempColor = new Color(255, 255, 255, 255);
 
 const _vertPos: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 const _vertices: number[] = new Array(4);
@@ -366,9 +366,9 @@ export const radialFilled: IAssembler = {
     fillBuffers (comp: Sprite, renderer: Batcher2D) {
         const node = comp.node;
         const renderData: RenderData = comp.renderData!;
-        COLOR.set(comp.color);
-        COLOR.a = node._uiProps.opacity * 255;
-        fillVertices3D(node, renderer, renderData, COLOR);
+        tempColor.set(comp.color);
+        tempColor.a = node._uiProps.opacity * 255;
+        fillVertices3D(node, renderer, renderData, tempColor);
     },
 
     updateColor (sprite: Sprite) {

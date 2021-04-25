@@ -39,7 +39,7 @@ import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 const FillType = Sprite.FillType;
 const matrix = new Mat4();
-const COLOR = new Color(255, 255, 255, 255);
+const tempColor = new Color(255, 255, 255, 255);
 
 /**
  * barFilled 组装器
@@ -260,9 +260,9 @@ export const barFilled: IAssembler = {
         }
 
         const node = sprite.node;
-        COLOR.set(sprite.color);
-        COLOR.a = node._uiProps.opacity * 255;
-        fillVerticesWithoutCalc3D(node, renderer, sprite.renderData!, COLOR);
+        tempColor.set(sprite.color);
+        tempColor.a = node._uiProps.opacity * 255;
+        fillVerticesWithoutCalc3D(node, renderer, sprite.renderData!, tempColor);
     },
 
     updateColor (sprite: Sprite) {
