@@ -27,7 +27,7 @@
  * @module asset-manager
  */
 
-import { Texture2D } from '../assets';
+import { ImageAsset, Texture2D } from '../assets';
 import MissingScript from '../components/missing-script';
 import { packCustomObjData, unpackJSONs } from '../data/deserialize';
 // import MissingScript from '../components/missing-script';
@@ -96,6 +96,7 @@ export class PackManager {
             }
         } else {
             const textureType = js._getClassId(Texture2D);
+            const imageAssetType = js._getClassId(ImageAsset);
             if (json.type === textureType && json.data) {
                 const datas = json.data;
                 if (datas.length !== pack.length) {
@@ -103,6 +104,14 @@ export class PackManager {
                 }
                 for (let i = 0; i < pack.length; i++) {
                     out[`${pack[i]}@import`] = packCustomObjData(textureType, { base: datas[i][0], mipmaps: datas[i][1] });
+                }
+            } else if (json.type === imageAssetType && json.data) {
+                const datas = json.data;
+                if (datas.length !== pack.length) {
+                    errorID(4915);
+                }
+                for (let i = 0; i < pack.length; i++) {
+                    out[`${pack[i]}@import`] = datas[i];
                 }
             } else {
                 err = new Error('unmatched type pack!');
