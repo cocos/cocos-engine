@@ -664,8 +664,8 @@ export class UITransform extends Component {
             siblings.sort((a, b) => {
                 const aComp = a._uiProps.uiTransformComp;
                 const bComp = b._uiProps.uiTransformComp;
-                const ca = aComp ? aComp.priority : 0;
-                const cb = bComp ? bComp.priority : 0;
+                const ca = aComp ? aComp._priority : 0;
+                const cb = bComp ? bComp._priority : 0;
                 const diff = ca - cb;
                 return diff;
             });
