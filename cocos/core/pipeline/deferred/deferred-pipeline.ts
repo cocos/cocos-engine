@@ -160,7 +160,7 @@ export class DeferredPipeline extends RenderPipeline {
             const camera = cameras[i];
             if (camera.scene) {
                 sceneCulling(this, camera);
-                this._pipelineUBO.updateCameraUBO(camera, true);
+                this._pipelineUBO.updateCameraUBO(camera);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
                 }
@@ -447,9 +447,13 @@ export class DeferredPipeline extends RenderPipeline {
 
         const minX = renderArea.x / this.device.width;
         const maxX = (renderArea.x + renderArea.width) / this.device.width;
-        const minY = renderArea.y / this.device.height;
-        const maxY = (renderArea.y + renderArea.height) / this.device.height;
-
+        let minY = renderArea.y / this.device.height;
+        let maxY = (renderArea.y + renderArea.height) / this.device.height;
+        if (this.device.capabilities.clipSpaceSignY > 0) {
+            const temp = maxY;
+            maxY       = minY;
+            minY       = temp;
+        }
         let n = 0;
         switch (surfaceTransform) {
         case (SurfaceTransform.IDENTITY):
