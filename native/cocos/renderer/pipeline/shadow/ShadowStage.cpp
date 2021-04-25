@@ -25,8 +25,8 @@
 
 #include "ShadowStage.h"
 #include "../Define.h"
+#include "../RenderPipeline.h"
 #include "../ShadowMapBatchedQueue.h"
-#include "../forward/ForwardPipeline.h"
 #include "../helper/SharedMemory.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXFramebuffer.h"
@@ -53,11 +53,11 @@ bool ShadowStage::initialize(const RenderStageInfo &info) {
 void ShadowStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
 
-    _additiveShadowQueue = CC_NEW(ShadowMapBatchedQueue(static_cast<ForwardPipeline *>(pipeline)));
+    _additiveShadowQueue = CC_NEW(ShadowMapBatchedQueue(pipeline));
 }
 
 void ShadowStage::render(Camera *camera) {
-    const auto *sceneData = _pipeline->getPipelineSceneData();
+    const auto *sceneData  = _pipeline->getPipelineSceneData();
     const auto *sharedData = sceneData->getSharedData();
     const auto *shadowInfo = sceneData->getSharedData()->getShadows();
 
@@ -75,8 +75,8 @@ void ShadowStage::render(Camera *camera) {
     _renderArea.width        = static_cast<uint>(camera->viewportWidth * shadowMapSize.x * sharedData->shadingScale);
     _renderArea.height       = static_cast<int>(camera->viewportHeight * shadowMapSize.y * sharedData->shadingScale);
 
-    _clearColors[0] = {1.0F, 1.0F, 1.0F, 1.0F};
-    auto* renderPass = _framebuffer->getRenderPass();
+    _clearColors[0]  = {1.0F, 1.0F, 1.0F, 1.0F};
+    auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,
                                _clearColors, camera->clearDepth, camera->clearStencil);
@@ -93,15 +93,13 @@ void ShadowStage::destroy() {
 }
 
 void ShadowStage::clearFramebuffer(Camera *camera) {
-    auto *pipeline = dynamic_cast<ForwardPipeline *>(_pipeline);
-
     if (!_light || !_framebuffer) {
         return;
     }
 
-    auto *cmdBuffer = pipeline->getCommandBuffers()[0];
+    auto *cmdBuffer = _pipeline->getCommandBuffers()[0];
 
-    _clearColors[0] = {1.0F, 1.0F, 1.0F, 1.0F};
+    _clearColors[0]  = {1.0F, 1.0F, 1.0F, 1.0F};
     auto *renderPass = _framebuffer->getRenderPass();
 
     cmdBuffer->beginRenderPass(renderPass, _framebuffer, _renderArea,

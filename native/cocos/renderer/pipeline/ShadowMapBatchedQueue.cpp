@@ -23,6 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include "ShadowMapBatchedQueue.h"
 #include "BatchedBuffer.h"
 #include "Define.h"
 #include "InstancedBuffer.h"
@@ -31,7 +32,6 @@
 #include "PipelineUBO.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
-#include "ShadowMapBatchedQueue.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
@@ -40,7 +40,7 @@
 
 namespace cc {
 namespace pipeline {
-ShadowMapBatchedQueue::ShadowMapBatchedQueue(ForwardPipeline *pipeline)
+ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
     _pipeline       = pipeline;
     _buffer         = pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING);
