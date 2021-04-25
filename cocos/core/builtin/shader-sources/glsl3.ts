@@ -106,8 +106,8 @@ export const glsl3 = [
   ],
   [
     {
-      "vert": "\nprecision mediump float;\nin vec2 a_position;\nin vec2 a_texCoord;\nout vec2 v_uv;\nvec4 vert () {\nvec4 pos = vec4(a_position, 0, 1);\nv_uv = a_texCoord;\nreturn pos;\n}\nvoid main() { gl_Position = vert(); }",
-      "frag": "\nprecision mediump float;\nin vec2 v_uv;\nuniform sampler2D mainTexture;\nlayout(std140) uniform splashFrag {\nfloat u_precent;\n};\nvec4 frag () {\nvec4 color = texture(mainTexture, v_uv);\nfloat precent = clamp(u_precent, 0.0, 1.0);\ncolor.xyz *= precent;\nreturn color;\n}\nlayout(location = 0) out vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }",
+      "vert": "\nprecision mediump float;\nin vec2 a_position;\nin vec2 a_texCoord;\nout vec2 v_uv;\nout float v_percent;\nlayout(std140) uniform Constant {\nvec4 u_buffer0;\nvec4 u_buffer1;\nmat4 u_projection;\n};\nvec4 vert () {\nvec2 worldPos = a_position * u_buffer1.xy + u_buffer1.zw;\nvec2 clipSpace = worldPos / u_buffer0.xy * 2.0 - 1.0;\nvec4 screenPos = u_projection * vec4(clipSpace, 0.0, 1.0);\nv_uv = a_texCoord;\nv_percent = u_buffer0.z;\nreturn screenPos;\n}\nvoid main() { gl_Position = vert(); }",
+      "frag": "\nprecision mediump float;\nin vec2 v_uv;\nin float v_percent;\nuniform sampler2D mainTexture;\nvec4 frag () {\nvec4 color = texture(mainTexture, v_uv);\nfloat precent = clamp(v_percent, 0.0, 1.0);\ncolor.xyz *= precent;\nreturn color;\n}\nlayout(location = 0) out vec4 cc_FragColor;\nvoid main() { cc_FragColor = frag(); }",
     }
   ]
 ];
