@@ -298,7 +298,8 @@ export const ttfUtils =  {
         _context.lineJoin = 'round';
         // to keep the one model same as before
         // Todo: remove this protect when component remove blend function
-        if (comp.srcBlendFactor === BlendFactor.SRC_ALPHA) {
+        // @ts-expect-error remove when component remove blend function
+        if (comp._srcBlendFactor === BlendFactor.SRC_ALPHA) {
             _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
             _context.fillRect(0, 0, _canvas.width, _canvas.height);
         }
