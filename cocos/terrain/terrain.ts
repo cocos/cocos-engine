@@ -234,19 +234,13 @@ class TerrainRenderable extends RenderableComponent {
             if (this._brushMaterial !== null && this._brushMaterial.passes !== null && this._brushMaterial.passes.length > 0) {
                 const passes = this._currentMaterial.passes;
                 passes.push(this._brushMaterial.passes[0]);
-
-                if (init) {
-                    this._model.initSubModel(0, this._meshData, this._currentMaterial);
-                }
-
-                this.setMaterial(this._currentMaterial, 0);
-            } else {
-                if (init) {
-                    this._model.initSubModel(0, this._meshData, this._currentMaterial);
-                }
-
-                this.setMaterial(this._currentMaterial, 0);
             }
+
+            if (init) {
+                this._model.initSubModel(0, this._meshData, this._currentMaterial);
+            }
+
+            this.setMaterial(this._currentMaterial, 0);
 
             this._currentMaterialLayers = nLayers;
             this._model.enabled = true;
@@ -1551,7 +1545,7 @@ export class Terrain extends Component {
      * @en get max weight layer by point
      * @zh 根据点的坐标获得权重最大的纹理层
      */
-    public GetMaxWeightLayerAt (x: number, y: number) {
+    public getMaxWeightLayerAt (x: number, y: number) {
         const uWeigthComplexity = this.weightMapSize * this.blockCount[0];
         const vWeigthComplexity = this.weightMapSize * this.blockCount[1];
         if (uWeigthComplexity === 0 || vWeigthComplexity === 0) {
