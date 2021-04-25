@@ -44,7 +44,6 @@ import { Node } from '../core/scene-graph';
 import { legacyCC } from '../core/global-exports';
 
 const _tempVec2 = new Vec2();
-const _tempVec3 = new Vec3();
 
 /**
  * @en Enum for Page View Size Mode.
@@ -665,8 +664,7 @@ export class PageView extends ScrollView {
 
     // 通过 idx 获取偏移值数值
     protected _moveOffsetValue (idx: number) {
-        const offset = _tempVec2;
-        offset.set(0, 0);
+        const offset = new Vec2();
         if (this._sizeMode === SizeMode.Free) {
             if (this.direction === Direction.Horizontal) {
                 offset.x = this._scrollCenterOffsetX[idx];
@@ -758,8 +756,7 @@ export class PageView extends ScrollView {
                     this.scrollToPage(nextIndex, timeInSecond);
                     return;
                 } else {
-                    const touchMoveVelocity = _tempVec3;
-                    this._calculateTouchMoveVelocity(touchMoveVelocity);
+                    const touchMoveVelocity = this._calculateTouchMoveVelocity();
                     if (this._isQuicklyScrollable(touchMoveVelocity)) {
                         this.scrollToPage(nextIndex, timeInSecond);
                         return;
