@@ -540,19 +540,36 @@ void DeferredPipeline::destroy() {
 void DeferredPipeline::destroyDeferredData() {
     if (_deferredRenderData->gbufferFrameBuffer) {
         _deferredRenderData->gbufferFrameBuffer->destroy();
+        CC_DELETE(_deferredRenderData->gbufferFrameBuffer);
+        _deferredRenderData->gbufferFrameBuffer = nullptr;
     }
 
     if (_deferredRenderData->lightingFrameBuff) {
         _deferredRenderData->lightingFrameBuff->destroy();
+        CC_DELETE(_deferredRenderData->lightingFrameBuff);
+        _deferredRenderData->lightingFrameBuff = nullptr;
     }
 
     if (_deferredRenderData->lightingRenderTarget) {
         _deferredRenderData->lightingRenderTarget->destroy();
+        CC_DELETE(_deferredRenderData->lightingRenderTarget);
+        _deferredRenderData->lightingRenderTarget = nullptr;
     }
 
+    if (_deferredRenderData->depthTex) {
+        _deferredRenderData->depthTex->destroy();
+        CC_DELETE(_deferredRenderData->depthTex);
+        _deferredRenderData->depthTex = nullptr;
+    }
+
+    for (size_t i = 0; i < _deferredRenderData->gbufferRenderTargets.size(); i++) {
+        _deferredRenderData->gbufferRenderTargets[i]->destroy();
+        CC_DELETE(_deferredRenderData->gbufferRenderTargets[i]);
+    }
     _deferredRenderData->gbufferRenderTargets.clear();
 
     CC_DELETE(_deferredRenderData);
+    _deferredRenderData = nullptr;
 }
 
 } // namespace pipeline
