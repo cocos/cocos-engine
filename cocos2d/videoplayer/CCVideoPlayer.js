@@ -419,7 +419,7 @@ let VideoPlayer = cc.Class({
             this._impl.updateMatrix(this.node);
 
             // this.enableGrabTexture(); // For demo useage
-            if(this._enableGrabTexture == undefined || !this._enableGrabTexture) return;
+            if(!this._enableGrabTexture) return;
 
             this._impl.getFrame();
             let w = this._impl.getFrameWidth();
