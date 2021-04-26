@@ -13,6 +13,16 @@ const orientationMap: Record<string, Orientation> = {
 const networkTypeMap: Record<string, NetworkType> = {
     // TODO
 };
+const platformMap: Record<number, Platform> = {
+    0: Platform.WIN32,
+    // 1 is Linux platform in native engine
+    2: Platform.MAC,
+    3: Platform.ANDROID,
+    // 4 is IPHONE
+    4: Platform.IOS,
+    // 5 is IPAD
+    5: Platform.IOS,
+};
 
 class System {
     public readonly isNative: boolean;
@@ -43,9 +53,8 @@ class System {
         this.isBrowser = false;
 
         // @ts-expect-error __getPlatform()
-        const platform = __getPlatform();  // TODO: need a platform map
-        this.isMobile = false;  // TODO
-        this.platform = Platform.MAC; // TODO
+        this.platform = platformMap[__getPlatform()];
+        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS;
 
         // init isLittleEndian
         this.isLittleEndian = (() => {
