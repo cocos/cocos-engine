@@ -42,7 +42,6 @@ class System {
     // TODO: need to wrap the function __isObjectValid()
 
     private _eventTarget: EventTarget = new EventTarget();
-    private _orientation: Orientation = Orientation.LANDSCAPE_LEFT;
 
     public get networkType (): NetworkType {
         return networkTypeMap[jsb.device.getNetworkType()];
@@ -105,7 +104,6 @@ class System {
             this._eventTarget.emit(AppEvent.RESIZE);
         };
         jsb.onOrientationChanged = (event) => {
-            this._orientation = orientationMap[event.orientation.toString()];
             this._eventTarget.emit(AppEvent.ORIENTATION_CHANGE);
         };
         jsb.onPause = () => {
@@ -120,7 +118,7 @@ class System {
         return new Size(window.innerWidth, window.innerHeight);
     }
     public getOrientation (): Orientation {
-        return this._orientation;
+        return orientationMap[jsb.device.getDeviceOrientation()];
     }
     public getSafeAreaEdge (): SafeAreaEdge {
         // jsb.device.getSafeAreaEdge()
