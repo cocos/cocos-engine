@@ -119,7 +119,7 @@ exports.methods = {
         }
 
         if (technique.passes) {
-            // 界面不是由规律数据循环而来的，这里需要全部清空再放置位置，但 ui-prop 元素依然是有复用的
+            // The interface is not a regular data loop, which needs to be completely cleared and placed, but the UI-prop element is still reusable
             const $container = this.$.materialDump;
             $container.innerText = '';
 
@@ -183,14 +183,13 @@ exports.methods = {
         }
     },
     changeInstancing(checked) {
-        // 替换 passes 中的数据
         this.technique.passes.forEach((pass) => {
             if (pass.childMap.USE_INSTANCING) {
                 pass.childMap.USE_INSTANCING.value = checked;
             }
         });
 
-        // 与 useBatching 互斥
+        // if Instancing show, Batching hidden
         setHidden(checked, this.$.useBatching);
         if (checked) {
             this.changeBatching(false);
@@ -198,7 +197,6 @@ exports.methods = {
         }
     },
     changeBatching(checked) {
-        // 替换 passes 中的数据
         this.technique.passes.forEach((pass) => {
             if (pass.childMap.USE_BATCHING) {
                 pass.childMap.USE_BATCHING.value = checked;
