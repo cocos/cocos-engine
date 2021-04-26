@@ -304,17 +304,17 @@ const uiElements = {
                         if (showflag.startsWith('!')) {
                             if (this.getObjectByKey(this.dump.value, showflag.slice(1))) {
                                 // continue when don't show
-                                element.style = "display: none;";
+                                element.style = 'display: none;';
                                 return true;
                             }
                         } else if (!this.getObjectByKey(this.dump.value, showflag)) {
                             // continue when don't show
-                            element.style = "display: none;";
+                            element.style = 'display: none;';
                             return true;
                         }
                     }
                 }
-                element.style ="";
+                element.style = '';
                 if (autoflag) {
                     const oldChildren = Array.from(element.children);
                     const children = [];
@@ -342,7 +342,7 @@ const uiElements = {
                         if (propKey === 'enable') {
                             continue;
                         }
-                        const oldProp = oldChildren.find((child)=> child.getAttribute('key') === propKey );
+                        const oldProp = oldChildren.find((child) => child.getAttribute('key') === propKey);
                         const uiProp = oldProp || document.createElement('ui-prop');
                         uiProp.setAttribute('type', 'dump');
                         uiProp.setAttribute('key', propKey);
@@ -353,7 +353,21 @@ const uiElements = {
                         }
                     }
                     children.sort((a, b) => (a.dump.displayOrder ? a.dump.displayOrder : 0 - b.dump.displayOrder ? b.dump.displayOrder : 0));
-                    element.replaceChildren(...children);
+                    children.forEach((newChild, index) => {
+                        const oldChild = oldChildren[index];
+                        if (oldChild === newChild) {
+                            return true;
+                        }
+                        if (oldChild) {
+                            oldChild.replaceWith(newChild);
+                        } else {
+                            element.appendChild(newChild);
+                        }
+                    });
+                    while (oldChildren.length > children.length) {
+                        const oldChild = oldChildren.pop();
+                        oldChild.remove();
+                    }
                 }
             });
         },
