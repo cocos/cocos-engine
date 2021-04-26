@@ -317,7 +317,7 @@ class RigidBody {
     getGroup () { return this._impl.getGroup(); }
     addGroup (v) { this.setGroup(this.getGroup() | v); }
     removeGroup (v) { this.setGroup(this.getGroup() & ~v); }
-    setMask (v) { this._impl.setMask(v); }
+    setMask (v) { this._impl.setMask(v>>>0); }
     getMask () { return this._impl.getMask(); }
     addMask (v) { this.setMask(this.getMask() | v); }
     removeMask (v) { this.setMask(this.getMask() & ~v); }
@@ -407,7 +407,7 @@ class Shape {
     getGroup () { return this._impl.getGroup(); }
     addGroup (v) { this.setGroup(this.getGroup() | v); }
     removeGroup (v) { this.setGroup(this.getGroup() & ~v); }
-    setMask (v) { this._impl.setMask(v); }
+    setMask (v) { this._impl.setMask(v>>>0); }
     getMask () { return this._impl.getMask(); }
     addMask (v) { this.setMask(this.getMask() | v); }
     removeMask (v) { this.setMask(this.getMask() & ~v); }
