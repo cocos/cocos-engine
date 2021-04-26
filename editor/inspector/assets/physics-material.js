@@ -15,8 +15,12 @@ exports.methods = {
         return await Editor.Message.request('scene', 'query-physics-material', uuid);
     },
     async apply() {
-        this.dirtyData.origin = this.dirtyData.realtime;
+        this.reset();
         await Editor.Message.request('scene', 'apply-physics-material', this.asset.uuid, this.physicsMaterial);
+    },
+    reset() {
+        this.dirtyData.origin = this.dirtyData.realtime;
+        this.dirtyData.uuid = '';
     },
     async dataChange() {
         await Editor.Message.request('scene', 'change-physics-material', this.physicsMaterial);
