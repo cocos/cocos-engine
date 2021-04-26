@@ -449,7 +449,7 @@ export class DeferredPipeline extends RenderPipeline {
         const maxX = (renderArea.x + renderArea.width) / this.device.width;
         let minY = renderArea.y / this.device.height;
         let maxY = (renderArea.y + renderArea.height) / this.device.height;
-        if (this.device.capabilities.clipSpaceSignY > 0) {
+        if (this.device.capabilities.screenSpaceSignY > 0) {
             const temp = maxY;
             maxY       = minY;
             minY       = temp;
