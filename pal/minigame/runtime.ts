@@ -1,4 +1,6 @@
-import { IMiniGame } from 'pal/minigame';
+import { VIVO } from 'internal:constants';
+import { SystemInfo, IMiniGame } from 'pal/minigame';
+
 import { Orientation } from '../system/enum-type/orientation';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
@@ -85,5 +87,15 @@ minigame.getSafeArea = function () {
     }
     return { top, left, bottom, right, width, height };
 };
+
+if (VIVO) {
+    // HACK: need to be handled in ral lib.
+    minigame.getSystemInfoSync = function () {
+        const sys = ral.getSystemInfoSync() as SystemInfo;
+        sys.windowWidth = sys.screenWidth;
+        sys.windowHeight = sys.screenHeight;
+        return sys;
+    };
+}
 
 export { minigame };
