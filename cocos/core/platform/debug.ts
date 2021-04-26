@@ -319,43 +319,43 @@ export enum DebugMode {
      * @en The debug mode none.
      * @zh 调试模式，显示所有日志消息。
      */
-    VERBOSE = 0.5,
+    VERBOSE = 1,
 
     /**
      * @en Information mode, which display messages with level higher than "information" level.
      * @zh 信息模式，显示“信息”级别以上的日志消息。
      */
-    INFO = 1,
+    INFO = 2,
 
     /**
      * @en Information mode, which display messages with level higher than "warning" level.
      * @zh 警告模式，显示“警告”级别以上的日志消息。
      */
-    WARN = 2,
+    WARN = 3,
 
     /**
      * @en Information mode, which display only messages with "error" level.
      * @zh 错误模式，仅显示“错误”级别的日志消息。
      */
-    ERROR = 3,
+    ERROR = 4,
 
     /**
      * @en The debug mode info for web page.
      * @zh 信息模式（仅 WEB 端有效），在画面上输出所有信息。
      */
-    INFO_FOR_WEB_PAGE = 4,
+    INFO_FOR_WEB_PAGE = 5,
 
     /**
      * @en The debug mode warn for web page.
      * @zh 警告模式（仅 WEB 端有效），在画面上输出 warn 级别以上的（包含 error）信息。
      */
-    WARN_FOR_WEB_PAGE = 5,
+    WARN_FOR_WEB_PAGE = 6,
 
     /**
      * @en The debug mode error for web page.
      * @zh 错误模式（仅 WEB 端有效），在画面上输出 error 信息。
      */
-    ERROR_FOR_WEB_PAGE = 6,
+    ERROR_FOR_WEB_PAGE = 7,
 }
 
 /**
