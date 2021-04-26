@@ -74,6 +74,11 @@ exports.methods = {
             panel.refreshPreview();
         });
     },
+    updatePreviewDataDirty() {
+        const panel = this;
+
+        panel.isPreviewDataDirty = true;
+    }
 };
 
 /**
@@ -161,10 +166,14 @@ exports.ready = async function () {
     panel.resizeObserver = new window.ResizeObserver(observer);
     panel.resizeObserver.observe(panel.$.container);
     observer();
+
+    this.updatePreviewDataDirtyBind = this.updatePreviewDataDirty.bind(this);
+    Editor.Message.addBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
 };
 
 exports.close = function () {
     const panel = this;
 
     panel.resizeObserver.unobserve(panel.$.container);
+    Editor.Message.removeBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
 };
