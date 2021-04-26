@@ -28,4 +28,7 @@ jobs:
     - uses: fish9167/git-auto-commit-action@v4
       with:
         commit_message: Apply clang-format
+        commit_user_name: cocos-robot
+        commit_user_email: cocos-robot@cocos.com
+        commit_author: cocos-robot <cocos-robot@cocos.com>
         push_options: --force
