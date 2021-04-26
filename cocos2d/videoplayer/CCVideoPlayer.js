@@ -431,7 +431,7 @@ let VideoPlayer = cc.Class({
                 this._ccVideoTex.initWithData(null, this.queryChannelType(this._impl.getFrameChannel()), w, h);
                 if(this._impl.getFrameChannel() == 7)
                     this._ccVideoTex.setUseBGRA(true);
-                this._sfm = null;
+                // this._sfm = null; // For demo useage
             } else if(this._ccVideoTex.width != this._impl.getFrameWidth() ||
                 this._ccVideoTex.height != this._impl.getFrameHeight()) {
                     this._ccVideoTex.destroy();
@@ -439,7 +439,7 @@ let VideoPlayer = cc.Class({
                     this._ccVideoTex.initWithData(null, this.queryChannelType(this._impl.getFrameChannel()), w, h);
                     if(this._impl.getFrameChannel() == 7)
                         this._ccVideoTex.setUseBGRA(true);
-                    this._sfm = null;
+                    // this._sfm = null; // For demo useage
             }
 
             let texid = this._ccVideoTex._texture.getTextureId();
