@@ -188,7 +188,10 @@ class PhysicsWorld {
         this._impl.emitEvents();
     }
 
-    syncSceneToPhysics () { this._impl.syncSceneToPhysics() }
+    syncSceneToPhysics () {         
+        books.forEach((v) => { v.updateWorldTransform(); });
+        this._impl.syncSceneToPhysics();
+    }
 
     syncAfterEvents () {
         books.forEach((v) => { v.syncFromNativeTransform(); });
