@@ -403,11 +403,13 @@ let VideoPlayer = cc.Class({
         return this._ccVideoTex;
     },
 
+    _enableGrabTexture : false,
     // Open get texture flag
     enableGrabTexture () {
-        this._enableTexture = true;
+        this._enableGrabTexture = true;
     },
 
+    // Show raw video player
     setShowRaw (show) {
         this._impl.setShowRawFrame(show);
     },
@@ -416,8 +418,8 @@ let VideoPlayer = cc.Class({
         if (this._impl) {
             this._impl.updateMatrix(this.node);
 
-            // if(this._currentStatus != EventType.PLAYING) return;
-            if(this._enableTexture == undefined || !this._enableTexture) return;
+            // this.enableGrabTexture(); // For demo useage
+            if(this._enableGrabTexture == undefined || !this._enableGrabTexture) return;
 
             this._impl.getFrame();
             let w = this._impl.getFrameWidth();
@@ -442,6 +444,8 @@ let VideoPlayer = cc.Class({
 
             let texid = this._ccVideoTex._texture.getTextureId();
             this._impl.pushFrameDataToTexture2D(texid);
+            
+            /* // For demo useage
             let sprite = this.getComponentInChildren(Sprite);
             if(sprite) {
                 if(this._sfm == undefined || this._sfm == null) {
@@ -452,6 +456,7 @@ let VideoPlayer = cc.Class({
                 }
                 sprite.spriteFrame = this._sfm;
             }
+            // */
         }
     },
 

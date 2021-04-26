@@ -328,56 +328,70 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return;
 
-        video.update();
+        if(video.update != undefined)
+            video.update();
     },
 
     getFrame: function() {
         let video = this._video;
         if (!video) return;
 
-        video.getFrame();
+        if(video.getFrame != undefined)
+            video.getFrame();
     },
 
     getFrameWidth: function() {
         let video = this._video;
         if (!video) return 0;
 
-        return video.getFrameWidth();
+        if(video.getFrameWidth != undefined)
+            return video.getFrameWidth();
+        else 
+            return 0;
     },
     
     getFrameHeight: function () {
         let video = this._video;
         if (!video) return 0;
 
-        return video.getFrameHeight();
+        if(video.getFrameHeight != undefined)
+            return video.getFrameHeight();
+        else
+            return 0;
     },
 
     getVideoTexDataSize: function () {
         let video = this._video;
         if (!video) return 0;
 
-        return video.getVideoTexDataSize();
+        if(video.getVideoTexDataSize != undefined)
+            return video.getVideoTexDataSize();
+        else
+            return 0;
     },
 
     pushFrameDataToTexture2D: function (texid) {
         let video = this._video;
         if (!video) return;
 
-        video.pushFrameDataToTexture2D(texid);
+        if(video.pushFrameDataToTexture2D != undefined)
+            video.pushFrameDataToTexture2D(texid);
     },
 
     pushPixelsToTexture: function(tex) {
         let video = this._video;
         if (!video) return;
 
-        video.pushPixelsToTexture(tex);
+        if(video.pushPixelsToTexture != undefined)
+            video.pushPixelsToTexture(tex);
     },
 
     setShowRawFrame: function(show) {
         let video = this._video;
         if (!video) return;
 
-        video.setShowRawFrame(show);
+        if(video.setShowRawFrame != undefined)
+            video.setShowRawFrame(show);
     },
 
     setKeepAspectRatioEnabled: function () {
