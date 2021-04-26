@@ -77,7 +77,9 @@ export class MouseInputSource {
                 timestamp: performance.now(),
             };
             event.stopPropagation();
-            event.preventDefault();
+            if (event.target === this._canvas) {
+                event.preventDefault();
+            }
             if (event.type === 'mousedown') {
                 this._canvas?.focus();
             }

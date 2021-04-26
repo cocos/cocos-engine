@@ -60,7 +60,9 @@ export class TouchInputSource {
                 timestamp: performance.now(),
             };
             event.stopPropagation();
-            event.preventDefault();
+            if (event.target === this._canvas) {
+                event.preventDefault();
+            }
             if (event.type === 'touchstart') {
                 this._canvas?.focus();
             }
