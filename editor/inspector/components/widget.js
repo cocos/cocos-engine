@@ -550,8 +550,8 @@ exports.methods = {
     },
     change (key, newValue) {
         this.dump.value[key].value = newValue;
-        this.$refs['summitProp'].dump = this.dump.value[key];
-        this.$refs['summitProp'].dispatch('change-dump');
+        this.$refs.summitProp.dump = this.dump.value[key];
+        this.$refs.summitProp.dispatch('change-dump');
     },
 
     getUnit (type) {
@@ -605,8 +605,8 @@ exports.methods = {
             }
         }
         const { dump } = update(this.dump, true);
-        this.$refs['summitProp'].dump = dump;
-        this.$refs['summitProp'].dispatch('change-dump');
+        this.$refs.summitProp.dump = dump;
+        this.$refs.summitProp.dispatch('change-dump');
     },
 
     select (event) {
@@ -762,18 +762,18 @@ exports.methods = {
         if (horizontal) {
             if (dump.value.isAlignLeft.value !== horizontal.isAlignLeft.value) {
                 dump.value.isAlignLeft.value = horizontal.isAlignLeft.value;
-                this.$refs['summitProp'].dump = dump.value.isAlignLeft;
-                this.$refs['summitProp'].dispatch('change-dump');
+                this.$refs.summitProp.dump = dump.value.isAlignLeft;
+                this.$refs.summitProp.dispatch('change-dump');
             }
             if (dump.value.isAlignRight.value !== horizontal.isAlignRight.value) {
                 dump.value.isAlignRight.value = horizontal.isAlignRight.value;
-                this.$refs['summitProp'].dump = dump.value.isAlignRight;
-                this.$refs['summitProp'].dispatch('change-dump');
+                this.$refs.summitProp.dump = dump.value.isAlignRight;
+                this.$refs.summitProp.dispatch('change-dump');
             }
             if (dump.value.isAlignHorizontalCenter.value !== horizontal.isAlignHorizontalCenter.value) {
                 dump.value.isAlignHorizontalCenter.value = horizontal.isAlignHorizontalCenter.value;
-                this.$refs['summitProp'].dump = dump.value.isAlignHorizontalCenter;
-                this.$refs['summitProp'].dispatch('change-dump');
+                this.$refs.summitProp.dump = dump.value.isAlignHorizontalCenter;
+                this.$refs.summitProp.dispatch('change-dump');
             }
             this.dimensionHorizontal = this.getDimensionHorizontal();
         }
@@ -781,18 +781,18 @@ exports.methods = {
         if (vertical) {
             if (dump.value.isAlignTop.value !== vertical.isAlignTop.value) {
                 dump.value.isAlignTop.value = vertical.isAlignTop.value;
-                this.$refs['summitProp'].dump = dump.value.isAlignTop;
-                this.$refs['summitProp'].dispatch('change-dump');
+                this.$refs.summitProp.dump = dump.value.isAlignTop;
+                this.$refs.summitProp.dispatch('change-dump');
             }
             if (dump.value.isAlignVerticalCenter.value !== vertical.isAlignVerticalCenter.value) {
                 dump.value.isAlignVerticalCenter.value = vertical.isAlignVerticalCenter.value;
-                this.$refs['summitProp'].dump = dump.value.isAlignVerticalCenter;
-                this.$refs['summitProp'].dispatch('change-dump');
+                this.$refs.summitProp.dump = dump.value.isAlignVerticalCenter;
+                this.$refs.summitProp.dispatch('change-dump');
             }
             if (dump.value.isAlignBottom.value !== vertical.isAlignBottom.value) {
                 dump.value.isAlignBottom.value = vertical.isAlignBottom.value;
-                this.$refs['summitProp'].dump = dump.value.isAlignBottom;
-                this.$refs['summitProp'].dispatch('change-dump');
+                this.$refs.summitProp.dump = dump.value.isAlignBottom;
+                this.$refs.summitProp.dispatch('change-dump');
             }
             this.dimensionVertical = this.getDimensionVertical();
         }
@@ -825,8 +825,8 @@ exports.methods = {
         });
         // Submit data
         this.dump.value._lockFlags.value = lockValue;
-        this.$refs['summitProp'].dump = this.dump.value._lockFlags;
-        this.$refs['summitProp'].dispatch('change-dump');
+        this.$refs.summitProp.dump = this.dump.value._lockFlags;
+        this.$refs.summitProp.dispatch('change-dump');
     },
     isLock (direction) {
         const lockValue = this.dump.value._lockFlags.value;
@@ -1112,7 +1112,7 @@ exports.update = function (dump) {
             data: this,
             template,
             components,
-            methods:exports.methods
+            methods: exports.methods,
         });
     }
     this.vm.update();
