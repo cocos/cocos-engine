@@ -364,11 +364,9 @@ const uiElements = {
                             element.appendChild(newChild);
                         }
                     });
-                    if (oldChildren.length > children.length) {
-                        for (let index = children.length; index < oldChildren.length; index++) {
-                            const element = oldChildren[index];
-                            element.remove();
-                        }
+                    while (oldChildren.length > children.length) {
+                        const oldChild = oldChildren.pop();
+                        oldChild.remove();
                     }
                 }
             });
