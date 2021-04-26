@@ -80,8 +80,8 @@ export class AnimationManager extends System {
         }
         const iterator = this._anims;
         const array = iterator.array;
-        for (let i = 0, length = array.length; i < length; ++i) {
-            const anim = array[i];
+        for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
+            const anim = array[iterator.i];
             if (!anim.isMotionless) {
                 anim.update(dt);
             }

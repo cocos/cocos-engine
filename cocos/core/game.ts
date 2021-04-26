@@ -61,24 +61,8 @@ export interface IGameConfig {
     /**
      * @zh
      * 设置 debug 模式，在浏览器中这个选项会被忽略。
-     * 各种设置选项的意义：
-     *  - 0 - 没有消息被打印出来。
-     *  - 1 - `error`，`assert`，`warn`，`log` 将打印在 console 中。
-     *  - 2 - `error`，`assert`，`warn` 将打印在 console 中。
-     *  - 3 - `error`，`assert` 将打印在 console 中。
-     *  - 4 - `error`，`assert`，`warn`，`log` 将打印在 canvas 中（仅适用于 web 端）。
-     *  - 5 - `error`，`assert`，`warn` 将打印在 canvas 中（仅适用于 web 端）。
-     *  - 6 - `error`，`assert` 将打印在 canvas 中（仅适用于 web 端）。
      * @en
      * Set debug mode, only valid in non-browser environment.
-     * Possible values:
-     * 0 - No message will be printed.
-     * 1 - `error`，`assert`，`warn`，`log` will print in console.
-     * 2 - `error`，`assert`，`warn` will print in console.
-     * 3 - `error`，`assert` will print in console.
-     * 4 - `error`，`assert`，`warn`，`log` will print on canvas, available only on web.
-     * 5 - `error`，`assert`，`warn` will print on canvas, available only on web.
-     * 6 - `error`，`assert` will print on canvas, available only on web.
      */
     debugMode?: debug.DebugMode;
 
