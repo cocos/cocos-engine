@@ -467,6 +467,13 @@ async function doBuild ({
         if (typeof warning !== 'string') {
             if (warning.code === 'CIRCULAR_DEPENDENCY') {
                 hasCriticalWarns = true;
+            } else if (warning.code === 'THIS_IS_UNDEFINED') {
+                // TODO: It's really inappropriate to do this...
+                // Let's fix these files instead of suppressing rollup.
+                if (warning.id?.match(/(?:spine-core\.js$)|(?:dragonBones\.js$)/)) {
+                    console.debug(`Rollup warning 'THIS_IS_UNDEFINED' is omitted for ${warning.id}`);
+                    return;
+                }
             }
         }
 
