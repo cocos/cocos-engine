@@ -11,7 +11,7 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "stopOnEntry": true,
+            // "stopOnEntry": true,
             "program": "${workspaceFolder}\\dist\\cli.js",
             "outFiles": [
                 "${workspaceFolder}/**/*.js"
