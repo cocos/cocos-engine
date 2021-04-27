@@ -70,7 +70,6 @@ const PLAY_STATE = {
 };
 
 exports.$ = {
-    model: '.model',
     container: '.preview',
     vertices: '.vertices',
     triangles: '.triangles',
@@ -199,6 +198,8 @@ exports.update = async function (assetList, metaList) {
 };
 
 exports.ready = function () {
+    const panel = this;
+
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -227,6 +228,13 @@ exports.ready = function () {
             element.ready.call(this);
         }
     }
+
+    function observer() {
+        panel.isPreviewDataDirty = true;
+    }
+
+    panel.resizeObserver = new window.ResizeObserver(observer);
+    panel.resizeObserver.observe(panel.$.container);
 };
 
 exports.close = function () {
@@ -241,6 +249,8 @@ exports.close = function () {
     Editor.Message.removeBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
     Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
     Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
+
+    this.resizeObserver.unobserve(this.$.container);
 };
 
 exports.methods = {

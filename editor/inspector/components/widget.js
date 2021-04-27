@@ -537,8 +537,12 @@ exports.methods = {
         }
         return dimension;
     },
-    isInvalid (key) {
-        return this.dump.value[key].values.some((value) => value !== this.dump.value[key].value);
+    isInvalid(key) {
+        if (Array.isArray(this.dump.value[key].values)) {
+            return this.dump.value[key].values.some((value) => value !== this.dump.value[key].value);
+        }
+
+        return false;
     },
     update () {
         for (const key in uiElements) {
