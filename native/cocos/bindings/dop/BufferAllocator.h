@@ -48,10 +48,10 @@ public:
         auto *const pool = BufferAllocator::pools[p];
 
 #ifdef CC_DEBUG
-        CCASSERT(pool->_caches.count(index) != 0, "BufferPool: Invalid buffer pool index");
+        CCASSERT(pool->_bufferDatas.size() > index, "BufferPool: Invalid buffer pool index");
 #endif
 
-        return reinterpret_cast<T *>(pool->_caches[index]);
+        return reinterpret_cast<T *>(pool->_bufferDatas[index]);
     }
 
     template <class T>
@@ -66,14 +66,12 @@ public:
         auto *const pool = BufferAllocator::pools[p];
 
 #ifdef CC_DEBUG
-        CCASSERT(pool->_buffers.count(index) != 0, "BufferPool: Invalid buffer pool index");
+        CCASSERT(pool->_bufferDatas.size() > index, "BufferPool: Invalid buffer pool index");
+        CCASSERT(pool->_bufferDataSizes.size() > index, "BufferPool: Invalid buffer pool size index");
 #endif
 
-        T *    ret = nullptr;
-        size_t len;
-        pool->_buffers[index]->getArrayBufferData(static_cast<uint8_t **>(&ret), &len);
-        *size = static_cast<uint>(len);
-        return ret;
+        *size = pool->_bufferDataSizes[index];
+        return reinterpret_cast<T *>(pool->_bufferDatas[index]);
     }
 
     explicit BufferAllocator(PoolType type);
@@ -86,9 +84,10 @@ private:
     static cc::vector<BufferAllocator *> pools;
     static constexpr uint                BUFFER_MASK = ~(1 << 30);
 
-    cc::map<uint, Object *>  _buffers;
-    cc::map<uint, uint8_t *> _caches;
-    PoolType                 _type = PoolType::UNKNOWN;
+    cc::map<uint, Object *> _buffers;
+    cc::vector<uint8_t *>   _bufferDatas;
+    cc::vector<uint>        _bufferDataSizes;
+    PoolType                _type = PoolType::UNKNOWN;
 };
 
 } // namespace se

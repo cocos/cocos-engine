@@ -246,7 +246,9 @@ void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint count) 
     cmdBuffActors.resize(count);
 
     for (uint i = 0U; i < count; ++i) {
-        cmdBuffActors[i] = static_cast<CommandBufferValidator *>(cmdBuffs[i])->getActor();
+        auto *cmdBuff             = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
+        cmdBuff->_commandsFlushed = true;
+        cmdBuffActors[i]          = cmdBuff->getActor();
     }
 
     _actor->flushCommands(cmdBuffActors.data(), count);

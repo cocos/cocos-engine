@@ -50,7 +50,7 @@ public:
 private:
     void clearShadowMap(Camera *camera);
 
-    void resizeShadowMap(const Light *light, const Shadows *shadowInfo) const;
+    void resizeShadowMap(const Light *light, const Shadows *shadowInfo);
 
     void initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light);
 
@@ -59,6 +59,7 @@ private:
     gfx::RenderPass *_renderPass = nullptr;
 
     vector<const Light *> _validLights;
+    vector<gfx::Texture *> _usedTextures;
 };
 } // namespace pipeline
 } // namespace cc

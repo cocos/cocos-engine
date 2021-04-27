@@ -128,13 +128,12 @@ bool DeferredPipeline::activate() {
 }
 
 void DeferredPipeline::render(const vector<uint> &cameras) {
-    if (cameras.empty()) return;
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO();
     for (const auto cameraId : cameras) {
         auto *camera = GET_CAMERA(cameraId);
         sceneCulling(this, camera);
-        _pipelineUBO->updateCameraUBO(camera, true);
+        _pipelineUBO->updateCameraUBO(camera);
         for (auto *const flow : _flows) {
             flow->render(camera);
         }
@@ -163,7 +162,9 @@ void DeferredPipeline::genQuadVertexData(gfx::SurfaceTransform surfaceTransform,
     float maxX = float(renderArea.x + renderArea.width) / _device->getWidth();
     float minY = float(renderArea.y) / _device->getHeight();
     float maxY = float(renderArea.y + renderArea.height) / _device->getHeight();
-
+    if (_device->getCapabilities().screenSpaceSignY > 0) {
+        std::swap(minY, maxY);
+    }
     int n = 0;
     switch (surfaceTransform) {
         case (gfx::SurfaceTransform::IDENTITY):
@@ -541,19 +542,36 @@ void DeferredPipeline::destroy() {
 void DeferredPipeline::destroyDeferredData() {
     if (_deferredRenderData->gbufferFrameBuffer) {
         _deferredRenderData->gbufferFrameBuffer->destroy();
+        CC_DELETE(_deferredRenderData->gbufferFrameBuffer);
+        _deferredRenderData->gbufferFrameBuffer = nullptr;
     }
 
     if (_deferredRenderData->lightingFrameBuff) {
         _deferredRenderData->lightingFrameBuff->destroy();
+        CC_DELETE(_deferredRenderData->lightingFrameBuff);
+        _deferredRenderData->lightingFrameBuff = nullptr;
     }
 
     if (_deferredRenderData->lightingRenderTarget) {
         _deferredRenderData->lightingRenderTarget->destroy();
+        CC_DELETE(_deferredRenderData->lightingRenderTarget);
+        _deferredRenderData->lightingRenderTarget = nullptr;
     }
 
+    if (_deferredRenderData->depthTex) {
+        _deferredRenderData->depthTex->destroy();
+        CC_DELETE(_deferredRenderData->depthTex);
+        _deferredRenderData->depthTex = nullptr;
+    }
+
+    for (size_t i = 0; i < _deferredRenderData->gbufferRenderTargets.size(); i++) {
+        _deferredRenderData->gbufferRenderTargets[i]->destroy();
+        CC_DELETE(_deferredRenderData->gbufferRenderTargets[i]);
+    }
     _deferredRenderData->gbufferRenderTargets.clear();
 
     CC_DELETE(_deferredRenderData);
+    _deferredRenderData = nullptr;
 }
 
 } // namespace pipeline

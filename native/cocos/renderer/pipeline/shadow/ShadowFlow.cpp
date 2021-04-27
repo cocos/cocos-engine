@@ -112,8 +112,14 @@ void ShadowFlow::clearShadowMap(Camera *camera) {
     }
 }
 
-void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo) const {
+void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo){
     auto *sceneData = _pipeline->getPipelineSceneData();
+    auto *     device    = gfx::Device::getInstance();
+    const auto width     = static_cast<uint>(shadowInfo->size.x);
+    const auto height    = static_cast<uint>(shadowInfo->size.y);
+    const auto format    = device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT)
+                            ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
+                            : gfx::Format::RGBA8;
 
     if (sceneData->getShadowFramebufferMap().count(light)) {
         auto *framebuffer = sceneData->getShadowFramebufferMap().at(light);
@@ -122,19 +128,32 @@ void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo) 
             return;
         }
 
-        vector<gfx::Texture *> renderTargets;
+        auto renderTargets = framebuffer->getColorTextures();
+        for (auto *renderTarget : renderTargets) {
+            CC_DELETE(renderTarget);
+        }
+        renderTargets.clear();
         renderTargets.emplace_back(gfx::Device::getInstance()->createTexture({
             gfx::TextureType::TEX2D,
             gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-            static_cast<bool>(shadowInfo->packing) ? gfx::Format::RGBA8 : gfx::Format::RGBA16F,
-            static_cast<uint>(shadowInfo->size.x),
-            static_cast<uint>(shadowInfo->size.y),
+            format,
+            width,
+            height,
         }));
+        for (auto *renderTarget : renderTargets) {
+            _usedTextures.emplace_back(renderTarget);
+        }
 
         auto *depth = framebuffer->getDepthStencilTexture();
-        if (depth) {
-            depth->resize(static_cast<uint>(shadowInfo->size.x), static_cast<uint>(shadowInfo->size.y));
-        }
+        CC_DELETE(depth);
+        depth = device->createTexture({
+            gfx::TextureType::TEX2D,
+            gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
+            device->getDepthStencilFormat(),
+            width,
+            height,
+        });
+        _usedTextures.emplace_back(depth);
 
         framebuffer->destroy();
         framebuffer->initialize({
@@ -147,16 +166,19 @@ void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo) 
 }
 
 void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light) {
-    auto *device = gfx::Device::getInstance();
-    const auto *sceneData = _pipeline->getPipelineSceneData();
-    const auto *shadowInfo = sceneData->getSharedData()->getShadows();
-    const auto shadowMapSize = shadowInfo->size;
-    const auto width         = static_cast<uint>(shadowMapSize.x);
-    const auto height = static_cast<uint>(shadowMapSize.y);
+    auto *      device        = gfx::Device::getInstance();
+    const auto *sceneData     = _pipeline->getPipelineSceneData();
+    const auto *shadowInfo    = sceneData->getSharedData()->getShadows();
+    const auto  shadowMapSize = shadowInfo->size;
+    const auto  width         = static_cast<uint>(shadowMapSize.x);
+    const auto  height        = static_cast<uint>(shadowMapSize.y);
+    const auto  format        = device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT)
+                            ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
+                            : gfx::Format::RGBA8;
 
     if (!_renderPass) {
         const gfx::ColorAttachment colorAttachment = {
-            gfx::Format::RGBA8,
+            format,
             gfx::SampleCount::X1,
             gfx::LoadOp::CLEAR,
             gfx::StoreOp::STORE,
@@ -185,10 +207,13 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *li
     renderTargets.emplace_back(device->createTexture({
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-        static_cast<bool>(shadowInfo->packing) ? gfx::Format::RGBA8 : gfx::Format::RGBA16F,
+        format,
         width,
         height,
     }));
+    for (auto *renderTarget : renderTargets) {
+        _usedTextures.emplace_back(renderTarget);
+    }
 
     gfx::Texture *depth = device->createTexture({
         gfx::TextureType::TEX2D,
@@ -197,6 +222,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *li
         width,
         height,
     });
+    _usedTextures.emplace_back(depth);
 
     gfx::Framebuffer *framebuffer = device->createFramebuffer({
         _renderPass,
@@ -213,6 +239,11 @@ void ShadowFlow::destroy() {
         _renderPass->destroy();
         _renderPass = nullptr;
     }
+
+    for (auto *texture : _usedTextures) {
+        CC_DELETE(texture);
+    }
+    _usedTextures.clear();
 
     _validLights.clear();
 

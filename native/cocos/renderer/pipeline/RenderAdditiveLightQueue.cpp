@@ -78,7 +78,7 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
     };
     const auto shadowMapSamplerHash = SamplerLib::genSamplerHash(info);
     _sampler                        = SamplerLib::getSampler(shadowMapSamplerHash);
-    _phaseID = getPhaseID("forward-add");
+    _phaseID                        = getPhaseID("forward-add");
 
     _shadowUBO.fill(0.F);
 }
@@ -137,13 +137,8 @@ void RenderAdditiveLightQueue::gatherLightPasses(const Camera *camera, gfx::Comm
         if (!getLightPassIndex(model, &lightPassIndices)) continue;
 
         _lightIndices.clear();
-        for (size_t i = 0; i < _validLights.size(); i++) {
-            const auto *const light    = _validLights[i];
-            const bool        isCulled = cullingLight(light, model);
-            if (!isCulled) {
-                _lightIndices.emplace_back(i);
-            }
-        }
+
+        lightCulling(model);
 
         if (_lightIndices.empty()) continue;
         const auto *const subModelArrayID = model->getSubModelID();
@@ -216,14 +211,12 @@ void RenderAdditiveLightQueue::gatherValidLights(const Camera *camera) {
     }
 }
 
-bool RenderAdditiveLightQueue::cullingLight(const Light *light, const ModelView *model) {
-    switch (light->getType()) {
-        case LightType::SPHERE:
-            return model->worldBoundsID && !aabbAabb(model->getWorldBounds(), light->getAABB());
-        case LightType::SPOT:
-            return model->worldBoundsID && (!aabbAabb(model->getWorldBounds(), light->getAABB()) || !aabbFrustum(model->getWorldBounds(), light->getFrustum()));
-        default: return false;
-    }
+bool RenderAdditiveLightQueue::cullSphereLight(const Light *light, const ModelView *model) {
+    return model->worldBoundsID && !aabbAabb(model->getWorldBounds(), light->getAABB());
+}
+
+bool RenderAdditiveLightQueue::cullSpotLight(const Light *light, const ModelView *model) {
+    return model->worldBoundsID && (!aabbAabb(model->getWorldBounds(), light->getAABB()) || !aabbFrustum(model->getWorldBounds(), light->getFrustum()));
 }
 
 void RenderAdditiveLightQueue::addRenderQueue(const PassView *pass, const SubModelView *subModel, const ModelView *model, uint lightPassIdx) {
@@ -329,24 +322,35 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
     auto *const       sceneData  = _pipeline->getPipelineSceneData();
     auto *            shadowInfo = sceneData->getSharedData()->getShadows();
     const auto *const scene      = camera->getScene();
+    auto *            device               = gfx::Device::getInstance();
+    const auto        isTextureHalfFloat   = device->hasFeature(cc::gfx::Feature::TEXTURE_HALF_FLOAT);
+    const auto        linear               = (static_cast<bool>(shadowInfo->linear) && isTextureHalfFloat) ? 1.0F : 0.0F;
+    const auto        packing              = static_cast<bool>(shadowInfo->packing) ? 1.0F : (isTextureHalfFloat ? 0.0F : 1.0F);
     const Light *     mainLight  = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
 
     for (const auto *light : _validLights) {
         auto *descriptorSet = getOrCreateDescriptorSet(light);
         if (!descriptorSet) {
-            return;
+            continue;
         }
-
-        descriptorSet->bindSampler(SHADOWMAP::BINDING, _sampler);
-        descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, _sampler);
-        // Main light sampler binding
-        descriptorSet->bindTexture(SHADOWMAP::BINDING, _pipeline->getDefaultTexture());
-        descriptorSet->update();
 
         _shadowUBO.fill(0.0F);
 
         switch (light->getType()) {
+            case LightType::SPHERE: {
+                // update planar PROJ
+                if (mainLight) {
+                    updateDirLight(shadowInfo, mainLight, _shadowUBO);
+                }
+
+                // Reserve sphere light shadow interface
+                float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(shadowInfo->pcfType), shadowInfo->bias};
+                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(float) * 4);
+
+                float shadowLPNNInfos[4] = {2.0F, packing, shadowInfo->normalBias, 0.0F};
+                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
+            } break;
             case LightType::SPOT: {
                 // update planar PROJ
                 if (mainLight) {
@@ -363,12 +367,17 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
 
                 matShadowViewProj.multiply(matShadowView);
 
+                memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
+
                 // shadow info
-                float shadowNFLSInfos[4] = {shadowInfo->nearValue, shadowInfo->farValue, static_cast<float>(shadowInfo->linear), static_cast<float>(shadowInfo->selfShadow)};
+                float shadowNFLSInfos[4] = {0.1F, light->range, linear, static_cast<float>(shadowInfo->selfShadow)};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
                 float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(shadowInfo->pcfType), shadowInfo->bias};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
+
+                float shadowLPNNInfos[4] = {1.0F, packing, shadowInfo->normalBias, 0.0F};
+                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(float) * 4);
 
                 // Spot light sampler binding
                 const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
@@ -379,24 +388,9 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
                     }
                 }
             } break;
-            case LightType::SPHERE: {
-                // update planar PROJ
-                if (mainLight) {
-                    updateDirLight(shadowInfo, mainLight, _shadowUBO);
-                }
-                // Reserve sphere light shadow interface
-                float shadowNFLSInfos[4] = {0.01F, light->range, static_cast<float>(shadowInfo->linear), static_cast<float>(shadowInfo->selfShadow)};
-                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
-
-                float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(shadowInfo->pcfType), shadowInfo->bias};
-                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
-            } break;
             default:
                 break;
         }
-
-        const float shadowLPNNInfos[4] = {0.0F, static_cast<float>(shadowInfo->packing), shadowInfo->normalBias, 0.0F};
-        memcpy(_shadowUBO.data() + UBOShadow::SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET, &shadowLPNNInfos, sizeof(shadowLPNNInfos));
 
         const float color[4] = {shadowInfo->color.x, shadowInfo->color.y, shadowInfo->color.z, shadowInfo->color.w};
         memcpy(_shadowUBO.data() + UBOShadow::SHADOW_COLOR_OFFSET, &color, sizeof(float) * 4);
@@ -428,6 +422,27 @@ bool RenderAdditiveLightQueue::getLightPassIndex(const ModelView *model, vector<
     }
 
     return hasValidLightPass;
+}
+
+void RenderAdditiveLightQueue::lightCulling(const ModelView *model) {
+    bool isCulled = false;
+    for (size_t i = 0; i < _validLights.size(); i++) {
+        const auto *const light = _validLights[i];
+        switch (light->getType()) {
+            case LightType::SPHERE:
+                isCulled = cullSphereLight(light, model);
+                break;
+            case LightType::SPOT:
+                isCulled = cullSpotLight(light, model);
+                break;
+            default:
+                isCulled = false;
+                break;
+        }
+        if (!isCulled) {
+            _lightIndices.emplace_back(i);
+        }
+    }
 }
 
 gfx::DescriptorSet *RenderAdditiveLightQueue::getOrCreateDescriptorSet(const Light *light) {

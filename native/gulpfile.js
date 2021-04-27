@@ -196,9 +196,11 @@ gulp.task('gen-simulator', async function () {
         });
         buildProcess.on('error', err => {
             console.error(err);
+            process.exit(1);
         });
         buildProcess.stderr.on('data', err => {
             console.error(err.toString ? err.toString() : err);
+            process.exit(1);
         });
         buildProcess.stdout.on('data', data => {
             console.log(data.toString ? data.toString() : data);

@@ -281,8 +281,8 @@ struct CC_DLL PassView {
 struct CC_DLL SubModelView {
     uint32_t priority               = 0;
     uint32_t passCount              = 0;
-    uint32_t passID[4]              = {0, 0, 0, 0};
-    uint32_t shaderID[4]            = {0, 0, 0, 0};
+    uint32_t passID[8]              = {0, 0, 0, 0, 0, 0, 0, 0};
+    uint32_t shaderID[8]            = {0, 0, 0, 0, 0, 0, 0, 0};
     uint32_t planarShaderID         = 0;
     uint32_t planarInstanceShaderID = 0;
     uint32_t descriptorSetID        = 0;

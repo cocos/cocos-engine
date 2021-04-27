@@ -66,11 +66,13 @@ public:
 
 protected:
     friend class DeviceValidator;
+    friend class QueueValidator;
 
     void doInit(const CommandBufferInfo &info) override;
     void doDestroy() override;
 
     bool _insideRenderPass{false};
+    bool _commandsFlushed{false};
 };
 
 } // namespace gfx

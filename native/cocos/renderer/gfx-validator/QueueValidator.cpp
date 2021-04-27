@@ -52,8 +52,10 @@ void QueueValidator::submit(CommandBuffer *const *cmdBuffs, uint count) {
     static vector<CommandBuffer *> cmdBuffActors;
     cmdBuffActors.resize(count);
 
-    for (uint i = 0u; i < count; ++i) {
-        cmdBuffActors[i] = static_cast<CommandBufferValidator *>(cmdBuffs[i])->getActor();
+    for (uint i = 0U; i < count; ++i) {
+        auto *cmdBuff    = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
+        CCASSERT(cmdBuff->_commandsFlushed, "command buffers must be flushed before submit");
+        cmdBuffActors[i] = cmdBuff->getActor();
     }
 
     _actor->submit(cmdBuffActors.data(), count);

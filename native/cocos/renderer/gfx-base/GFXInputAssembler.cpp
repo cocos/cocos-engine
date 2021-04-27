@@ -83,6 +83,8 @@ void InputAssembler::initialize(const InputAssemblerInfo &info) {
 }
 
 void InputAssembler::destroy() {
+    doDestroy();
+
     _attributes.clear();
     _vertexBuffers.clear();
     _indexBuffer    = nullptr;

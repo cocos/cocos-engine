@@ -24,23 +24,26 @@
 ****************************************************************************/
 
 #import "View.h"
+#import <AppKit/NSEvent.h>
+#import <AppKit/NSScreen.h>
+#import <AppKit/NSTouch.h>
+#import <QuartzCore/QuartzCore.h>
 #import "KeyCodeHelper.h"
 #import "cocos/bindings/event/EventDispatcher.h"
 #include "platform/Application.h"
-#import <AppKit/NSEvent.h>
-#import <AppKit/NSTouch.h>
-#import <AppKit/NSScreen.h>
-#import <QuartzCore/QuartzCore.h>
 
 @implementation View {
-    cc::MouseEvent _mouseEvent;
+    cc::MouseEvent    _mouseEvent;
     cc::KeyboardEvent _keyboardEvent;
 }
 
 #ifdef CC_USE_METAL
-- (CALayer *)makeBackingLayer
-{
-    return [CAMetalLayer layer];
+- (CALayer *)makeBackingLayer {
+    CAMetalLayer *layer              = [CAMetalLayer layer];
+    layer.delegate                   = self;
+    layer.autoresizingMask           = true;
+    layer.needsDisplayOnBoundsChange = true;
+    return layer;
 }
 #endif
 
@@ -49,15 +52,18 @@
         [self.window makeFirstResponder:self];
 
 #ifdef CC_USE_METAL
-        int pixelRatio = [[NSScreen mainScreen] backingScaleFactor];
-        CGSize size = CGSizeMake(frameRect.size.width * pixelRatio, frameRect.size.height * pixelRatio);
+        int    pixelRatio = [[NSScreen mainScreen] backingScaleFactor];
+        CGSize size       = CGSizeMake(frameRect.size.width * pixelRatio, frameRect.size.height * pixelRatio);
         // Create CAMetalLayer
         self.wantsLayer = YES;
         // Config metal layer
-        CAMetalLayer *layer = (CAMetalLayer*)self.layer;
-        layer.pixelFormat = MTLPixelFormatBGRA8Unorm;
-        layer.device = self.device = MTLCreateSystemDefaultDevice();
-        layer.drawableSize = size;
+        CAMetalLayer *layer = (CAMetalLayer *)self.layer;
+        layer.drawableSize  = size;
+        layer.pixelFormat   = MTLPixelFormatBGRA8Unorm;
+        layer.device = self.device     = MTLCreateSystemDefaultDevice();
+        layer.autoresizingMask         = kCALayerWidthSizable | kCALayerHeightSizable;
+        self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
+        self.layerContentsPlacement    = NSViewLayerContentsPlacementScaleProportionallyToFit;
 #endif
     }
     return self;
@@ -73,8 +79,38 @@
 }
 #endif
 
+- (void)displayLayer:(CALayer *)layer {
+    cc::Application::getInstance()->tick();
+}
+
+- (void)setFrameSize:(NSSize)newSize {
+    CAMetalLayer *layer = (CAMetalLayer *)self.layer;
+
+    CGSize nativeSize = [self convertSizeToBacking:newSize];
+    [super setFrameSize:newSize];
+    layer.drawableSize = nativeSize;
+    [self viewDidChangeBackingProperties];
+    
+    // Add tracking area to receive mouse move events.
+    NSRect rect = {0, 0, nativeSize.width, nativeSize.height};
+    NSTrackingArea *trackingArea = [[NSTrackingArea alloc] initWithRect:rect
+                                                                options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow)
+                                                                  owner:self
+                                                               userInfo:nil];
+    [self addTrackingArea:trackingArea];
+    
+    if (cc::EventDispatcher::initialized())
+        cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(nativeSize.width), static_cast<int>(nativeSize.height));
+}
+
+- (void)viewDidChangeBackingProperties {
+    [super viewDidChangeBackingProperties];
+    CAMetalLayer *layer = (CAMetalLayer *)self.layer;
+    layer.contentsScale = self.window.backingScaleFactor;
+}
+
 - (void)keyDown:(NSEvent *)event {
-    _keyboardEvent.key = translateKeycode(event.keyCode);
+    _keyboardEvent.key    = translateKeycode(event.keyCode);
     _keyboardEvent.action = [event isARepeat] ? cc::KeyboardEvent::Action::REPEAT
                                               : cc::KeyboardEvent::Action::PRESS;
     [self setModifierFlags:event];
@@ -82,7 +118,7 @@
 }
 
 - (void)keyUp:(NSEvent *)event {
-    _keyboardEvent.key = translateKeycode(event.keyCode);
+    _keyboardEvent.key    = translateKeycode(event.keyCode);
     _keyboardEvent.action = cc::KeyboardEvent::Action::RELEASE;
     [self setModifierFlags:event];
     cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
@@ -164,10 +200,10 @@
     }
 
     if (fabs(deltaX) > 0.0 || fabs(deltaY) > 0.0) {
-        _mouseEvent.type = cc::MouseEvent::Type::WHEEL;
+        _mouseEvent.type   = cc::MouseEvent::Type::WHEEL;
         _mouseEvent.button = 0;
-        _mouseEvent.x = deltaX;
-        _mouseEvent.y = deltaY;
+        _mouseEvent.x      = deltaX;
+        _mouseEvent.y      = deltaY;
         cc::EventDispatcher::dispatchMouseEvent(_mouseEvent);
     }
 }
@@ -189,13 +225,13 @@
 }
 
 - (void)sendMouseEvent:(int)button type:(cc::MouseEvent::Type)type event:(NSEvent *)event {
-    const NSRect contentRect = [self frame];
-    const NSPoint pos = [event locationInWindow];
+    const NSRect  contentRect = [self frame];
+    const NSPoint pos         = [event locationInWindow];
 
-    _mouseEvent.type = type;
+    _mouseEvent.type   = type;
     _mouseEvent.button = button;
-    _mouseEvent.x = pos.x;
-    _mouseEvent.y = contentRect.size.height - pos.y;
+    _mouseEvent.x      = pos.x;
+    _mouseEvent.y      = contentRect.size.height - pos.y;
     cc::EventDispatcher::dispatchMouseEvent(_mouseEvent);
 }
 

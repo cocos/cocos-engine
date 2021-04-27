@@ -120,6 +120,9 @@ void PhysXSharedBody::enabled(bool v) {
         auto  isRemove = ws.empty() && (wb == nullptr || (wb != nullptr && !wb->isEnabled()));
         if (isRemove) {
             _mIndex = -1;
+            if (!isStaticOrKinematic()) {
+                clearVelocity();
+            }
             _mWrappedWorld->removeActor(*this);
         }
     }
