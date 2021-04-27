@@ -8,6 +8,7 @@ declare let tt: any;
 const minigame: IMiniGame = {};
 cloneObject(minigame, tt);
 
+// #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 
@@ -26,14 +27,19 @@ Object.defineProperty(minigame, 'orientation', {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });
+// #endregion SystemInfo
 
-// Accelerometer
-minigame.onAccelerometerChange = function (cb) {
-    tt.onAccelerometerChange((res) => {
+// #region Accelerometer
+let _accelerometerCb: AccelerometerChangeCallback | undefined;
+minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
+    minigame.offAccelerometerChange();
+    // onAccelerometerChange would start accelerometer
+    // so we won't call this method here
+    _accelerometerCb = (res: any) => {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
-            const orientationFactor = landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
+            const orientationFactor = (landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1);
             const tmp = x;
             x = -y * orientationFactor;
             y = tmp * orientationFactor;
@@ -45,10 +51,21 @@ minigame.onAccelerometerChange = function (cb) {
             z: res.z,
         };
         cb(resClone);
-    });
-    // onAccelerometerChange would start accelerometer, need to mannually stop it
-    tt.stopAccelerometer();
+    };
 };
+minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
+    if (_accelerometerCb) {
+        tt.offAccelerometerChange(_accelerometerCb);
+        _accelerometerCb = undefined;
+    }
+};
+minigame.startAccelerometer = function (res: any) {
+    if (_accelerometerCb) {
+        tt.onAccelerometerChange(_accelerometerCb);
+    }
+    tt.startAccelerometer(res);
+};
+// #endregion Accelerometer
 
 minigame.createInnerAudioContext = createInnerAudioContextPolyfill(tt, {
     onPlay: true,
