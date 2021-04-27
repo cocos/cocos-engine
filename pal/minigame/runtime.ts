@@ -10,6 +10,7 @@ declare let ral: any;
 const minigame: IMiniGame = {};
 cloneObject(minigame, ral);
 
+// #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 
@@ -29,18 +30,9 @@ Object.defineProperty(minigame, 'orientation', {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });
+// #endregion SystemInfo
 
-// Accelerometer
-// onDeviceOrientationChange is not supported
-// ral.onDeviceOrientationChange(function (res) {
-//     if (res.value === 'landscape') {
-//         orientation = Orientation.LANDSCAPE_RIGHT;
-//     }
-//     else if (res.value === 'landscapeReverse') {
-//         orientation = Orientation.LANDSCAPE_LEFT;
-//     }
-// });
-
+// #region Accelerometer
 minigame.onAccelerometerChange = function (cb) {
     ral.onAccelerometerChange((res) => {
         let x = res.x;
@@ -59,9 +51,8 @@ minigame.onAccelerometerChange = function (cb) {
         };
         cb(resClone);
     });
-    // onAccelerometerChange would start accelerometer, need to mannually stop it
-    ral.stopAccelerometer();
 };
+// #endregion Accelerometer
 
 minigame.createInnerAudioContext = createInnerAudioContextPolyfill(ral, {
     onPlay: true,  // polyfill for vivo
