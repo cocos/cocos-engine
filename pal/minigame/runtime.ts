@@ -1,4 +1,4 @@
-import { VIVO } from 'internal:constants';
+import { COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO } from 'internal:constants';
 import { SystemInfo, IMiniGame } from 'pal/minigame';
 
 import { Orientation } from '../system/enum-type/orientation';
@@ -14,7 +14,13 @@ cloneObject(minigame, ral);
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 
-minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
+// NOTE: size and orientation info is wrong at the init phase, need to define as a getter
+Object.defineProperty(minigame, 'isLandscape', {
+    get () {
+        const locSysInfo = minigame.getSystemInfoSync();
+        return locSysInfo.screenWidth > locSysInfo.screenHeight;
+    },
+});
 // init landscapeOrientation as LANDSCAPE_RIGHT
 const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
 // NOTE: onDeviceOrientationChange is not supported on this platform
