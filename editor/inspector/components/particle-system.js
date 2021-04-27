@@ -18,17 +18,17 @@ exports.template = `
         <ui-prop type="dump" key="scaleSpace"></ui-prop>
         <ui-prop type="dump" key="startSize3D"></ui-prop>
         <!-- hack changeName if startSize3D change -->
-        <ui-prop type="dump" key="startSizeX" displayName="startSize" showflag="!startSize3D.value"></ui-prop>
-        <ui-prop type="dump" key="startSizeX" displayName="startSizeX" showflag="startSize3D.value"></ui-prop>
-        <ui-prop type="dump" showflag="startSize3D.value" key="startSizeY"></ui-prop>
-        <ui-prop type="dump" showflag="startSize3D.value" key="startSizeZ"></ui-prop>
+        <ui-prop type="dump" key="startSizeX" displayName="startSize" showflag="!startSize3D"></ui-prop>
+        <ui-prop type="dump" key="startSizeX" displayName="startSizeX" showflag="startSize3D"></ui-prop>
+        <ui-prop type="dump" showflag="startSize3D" key="startSizeY"></ui-prop>
+        <ui-prop type="dump" showflag="startSize3D" key="startSizeZ"></ui-prop>
         <ui-prop type="dump" key="startSpeed"></ui-prop>
         <ui-prop type="dump" key="startRotation3D"></ui-prop>
-        <ui-prop type="dump" key="startRotationX" showflag="startRotation3D.value"></ui-prop>
-        <ui-prop type="dump" key="startRotationY" showflag="startRotation3D.value"></ui-prop>
+        <ui-prop type="dump" key="startRotationX" showflag="startRotation3D"></ui-prop>
+        <ui-prop type="dump" key="startRotationY" showflag="startRotation3D"></ui-prop>
         <!-- hack changeName if startRotation3D change -->
-        <ui-prop type="dump" showflag="startRotation3D.value" key="startRotationZ"></ui-prop>
-        <ui-prop type="dump" showflag="!startRotation3D.value" displayName="StartRotation" key="startRotationZ">
+        <ui-prop type="dump" showflag="startRotation3D" key="startRotationZ"></ui-prop>
+        <ui-prop type="dump" showflag="!startRotation3D" displayName="StartRotation" key="startRotationZ">
         </ui-prop>
         <ui-prop type="dump" key="gravityModifier"></ui-prop>
         <ui-prop type="dump" key="rateOverTime"></ui-prop>
@@ -100,16 +100,16 @@ exports.template = `
                 <ui-label></ui-label>
             </ui-prop>
             <ui-prop type="dump" key="sizeOvertimeModule.value.separateAxes"></ui-prop>
-            <ui-prop type="dump" showflag="!sizeOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="!sizeOvertimeModule.value.separateAxes"
                 key="sizeOvertimeModule.value.size">
             </ui-prop>
-            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes"
                 key="sizeOvertimeModule.value.x">
             </ui-prop>
-            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes"
                 key="sizeOvertimeModule.value.y">
             </ui-prop>
-            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes"
                 key="sizeOvertimeModule.value.z"></ui-prop>
 
         </ui-section>
@@ -123,16 +123,16 @@ exports.template = `
             </ui-prop>
             <ui-prop type="dump" key="rotationOvertimeModule.value.separateAxes">
             </ui-prop>
-            <ui-prop type="dump" showflag="rotationOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="rotationOvertimeModule.value.separateAxes"
                 key="rotationOvertimeModule.value.x"></ui-prop>
-            <ui-prop type="dump" showflag="rotationOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="rotationOvertimeModule.value.separateAxes"
                 key="rotationOvertimeModule.value.y"></ui-prop>
             <ui-prop type="dump" key="rotationOvertimeModule.value.z"></ui-prop>
 
         </ui-section>
         <ui-section class="config" key="colorOverLifetimeModule" autoflag="true"></ui-section>
         <ui-section class="config" key="textureAnimationModule" autoflag="true"></ui-section>
-        <ui-section type="dump" showflag="!renderer.value.useGPU.value" key="limitVelocityOvertimeModule" class="config">
+        <ui-section type="dump" showflag="!renderer.value.useGPU" key="limitVelocityOvertimeModule" class="config">
             <ui-prop slot="header" class="header" type="dump" key="limitVelocityOvertimeModule.value.enable" labelflag="limitVelocityOvertimeModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -141,12 +141,12 @@ exports.template = `
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.space"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.dampen"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limit" showflag="!limitVelocityOvertimeModule.value.separateAxes.value"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitX" showflag="limitVelocityOvertimeModule.value.separateAxes.value"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitY" showflag="limitVelocityOvertimeModule.value.separateAxes.value"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitZ" showflag="limitVelocityOvertimeModule.value.separateAxes.value"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limit" showflag="!limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitX" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitY" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitZ" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
         </ui-section>
-        <ui-section empty="true" class="config" showflag="!renderer.value.useGPU.value" key="trailModule">
+        <ui-section empty="true" class="config" showflag="!renderer.value.useGPU" key="trailModule">
             <ui-prop slot="header" class="header" type="dump" key="trailModule.value.enable" labelflag="trailModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -302,15 +302,21 @@ const uiElements = {
                 if (showflag) {
                     if (typeof showflag === 'string') {
                         if (showflag.startsWith('!')) {
-                            if (this.getObjectByKey(this.dump.value, showflag.slice(1))) {
+                            const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            if (dump.value || isInvalid) {
                                 // continue when don't show
                                 element.style = 'display: none;';
                                 return true;
                             }
-                        } else if (!this.getObjectByKey(this.dump.value, showflag)) {
-                            // continue when don't show
-                            element.style = 'display: none;';
-                            return true;
+                        } else {
+                            const dump = this.getObjectByKey(this.dump.value, showflag);
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            if (!dump.value || isInvalid) {
+                                // continue when don't show
+                                element.style = 'display: none;';
+                                return true;
+                            }
                         }
                     }
                 }
@@ -323,7 +329,7 @@ const uiElements = {
                     header.setAttribute('type', 'dump');
                     header.setAttribute('empty', 'true');
                     header.className = 'header';
-                    header.dump = this.dump;
+                    header.dump = this.getObjectByKey(this.dump.value, key);
                     const checkbox = document.createElement('ui-checkbox');
                     checkbox.addEventListener('change', (event) => {
                         this.getObjectByKey(this.dump.value, key).value.enable.value = event.target.value;
@@ -442,9 +448,13 @@ const uiElements = {
                             const subset = params.slice(2);
                             isShow = isShow && this.checkEnumInSubset(enumValue, ...subset);
                         } else if (showflag.startsWith('!')) {
-                            isShow = isShow && !this.getObjectByKey(this.dump.value, showflag.slice(1));
+                            const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isShow = isShow && !isInvalid && !dump.value;
                         } else {
-                            isShow = isShow && this.getObjectByKey(this.dump.value, showflag);
+                            const dump = this.getObjectByKey(this.dump.value, showflag);
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isShow = isShow && !isInvalid && dump.value;
                         }
                     }
                 }
