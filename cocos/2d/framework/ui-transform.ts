@@ -661,12 +661,13 @@ export class UITransform extends Component {
     private static _sortChildrenSibling (node) {
         const siblings = node.children;
         if (siblings) {
-            siblings.sort((a, b) => {
+            siblings.sort((a:Node, b:Node) => {
                 const aComp = a._uiProps.uiTransformComp;
                 const bComp = b._uiProps.uiTransformComp;
                 const ca = aComp ? aComp._priority : 0;
                 const cb = bComp ? bComp._priority : 0;
                 const diff = ca - cb;
+                if (diff === 0) return a.getSiblingIndex() - b.getSiblingIndex();
                 return diff;
             });
         }
