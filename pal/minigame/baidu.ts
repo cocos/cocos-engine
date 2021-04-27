@@ -8,7 +8,7 @@ declare let swan: any;
 const minigame: IMiniGame = {};
 cloneObject(minigame, swan);
 
-// SystemInfo
+// #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = systemInfo.platform === 'devtools';
 
@@ -27,14 +27,19 @@ Object.defineProperty(minigame, 'orientation', {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });
+// #endregion SystemInfo
 
-// Accelerometer
-minigame.onAccelerometerChange = function (cb) {
-    swan.onAccelerometerChange((res) => {
+// #region Accelerometer
+let _accelerometerCb: AccelerometerChangeCallback | undefined;
+minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
+    minigame.offAccelerometerChange();
+    // onAccelerometerChange would start accelerometer
+    // so we won't call this method here
+    _accelerometerCb = (res: any) => {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
-            const orientationFactor = landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
+            const orientationFactor = (landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1);
             const tmp = x;
             x = -y * orientationFactor;
             y = tmp * orientationFactor;
@@ -46,10 +51,21 @@ minigame.onAccelerometerChange = function (cb) {
             z: res.z,
         };
         cb(resClone);
-    });
-    // onAccelerometerChange would start accelerometer, need to mannually stop it
-    swan.stopAccelerometer();
+    };
 };
+minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
+    if (_accelerometerCb) {
+        swan.offAccelerometerChange(_accelerometerCb);
+        _accelerometerCb = undefined;
+    }
+};
+minigame.startAccelerometer = function (res: any) {
+    if (_accelerometerCb) {
+        swan.onAccelerometerChange(_accelerometerCb);
+    }
+    swan.startAccelerometer(res);
+};
+// #endregion Accelerometer
 
 minigame.createInnerAudioContext = createInnerAudioContextPolyfill(swan, {
     onPlay: true,
