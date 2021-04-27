@@ -114,9 +114,7 @@ export const ttfUtils =  {
         this._updateLabelDimensions();
         this._resetDynamicAtlas(comp);
         this._updateTexture(comp);
-        if (_alpha !== 1) {
-            this.updateOpacity(comp);
-        }
+        this.updateOpacity(comp);
         comp._setCacheAlpha(_alpha);
         this._calDynamicAtlas(comp);
 
