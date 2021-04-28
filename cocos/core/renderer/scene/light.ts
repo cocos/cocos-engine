@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { JSB } from 'internal:constants';
 import { Vec3 } from '../../math';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { RenderScene } from './render-scene';
@@ -30,7 +31,6 @@ import { Node } from '../../scene-graph';
 import {
     LightHandle, NULL_HANDLE, LightPool, LightView,
 } from '../core/memory-pools';
-import { JSB } from 'internal:constants';
 
 // Color temperature (in Kelvin) to RGB
 export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {
@@ -70,7 +70,7 @@ export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
 
 export class Light {
     declare protected _handle: LightHandle;
-    private _init(): void {
+    protected _init (): void {
         if (JSB) {
             this._handle = LightPool.alloc();
             LightPool.setVec3(this._handle, LightView.COLOR, this._color);
@@ -78,7 +78,7 @@ export class Light {
             LightPool.set(this._handle, LightView.TYPE, LightType.UNKNOWN);
         }
     }
-    protected _destroy(): void {
+    protected _destroy (): void {
         if (this._handle) {
             LightPool.free(this._handle);
             this._handle = NULL_HANDLE;
@@ -179,7 +179,7 @@ export class Light {
 
     protected _name: string | null = null;
 
-    protected _useColorTemperature: boolean = false;
+    protected _useColorTemperature = false;
 
     protected _type: LightType = LightType.UNKNOWN;
 
