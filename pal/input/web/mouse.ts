@@ -1,7 +1,6 @@
 import { DEBUG, EDITOR } from 'internal:constants';
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
 import { system } from 'pal/system';
-import { EventMouse } from '../../../cocos/core/platform/event-manager/events';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
@@ -105,7 +104,7 @@ export class MouseInputSource {
                 break;
             case 'mousemove':
                 if (!this._isPressed) {
-                    button = EventMouse.BUTTON_MISSING;
+                    button = -1;  // TODO: should not access EventMouse.BUTTON_MISSING, need a button enum type
                 }
                 break;
             default:
