@@ -1,6 +1,7 @@
 import { DEBUG, EDITOR } from 'internal:constants';
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
 import { system } from 'pal/system';
+import { EventMouse } from '../../../cocos/core/platform/event-manager/events';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
@@ -12,6 +13,7 @@ export class MouseInputSource {
     private _canvas?: HTMLCanvasElement;
     private _eventTarget: EventTarget = new EventTarget();
     private _pointLocked = false;
+    private _isPressed = false;
 
     constructor () {
         this.support = !system.isMobile && !EDITOR;
@@ -92,11 +94,28 @@ export class MouseInputSource {
         return (event: MouseEvent) => {
             const canvasRect = this._getCanvasRect();
             const location = this._getLocation(event);
+            let button = event.button;
+            switch (event.type) {
+            case 'mousedown':
+                this._canvas?.focus();
+                this._isPressed = true;
+                break;
+            case 'mouseup':
+                this._isPressed = false;
+                break;
+            case 'mousemove':
+                if (!this._isPressed) {
+                    button = EventMouse.BUTTON_MISSING;
+                }
+                break;
+            default:
+                break;
+            }
             const inputEvent: MouseInputEvent = {
                 type: eventType,
                 x: location.x - canvasRect.x + (this._pointLocked ? event.movementX : 0),
                 y: canvasRect.y + canvasRect.height - location.y - (this._pointLocked ? event.movementY : 0),
-                button: event.button,
+                button,
                 timestamp: performance.now(),
                 // this is web only property
                 movementX: event.movementX,
@@ -105,9 +124,6 @@ export class MouseInputSource {
             event.stopPropagation();
             if (event.target === this._canvas) {
                 event.preventDefault();
-            }
-            if (event.type === 'mousedown') {
-                this._canvas?.focus();
             }
             // emit web mouse event
             this._eventTarget.emit(eventType, inputEvent);
