@@ -287,8 +287,8 @@ export class AnimationState extends Playable {
 
     set playbackRange (value) {
         assertIsTrue(value.max > value.min);
-        this._playbackRange.min = Math.max(this._playbackRange.min, 0);
-        this._playbackRange.max = Math.min(this._playbackRange.max, this.duration);
+        this._playbackRange.min = Math.max(value.min, 0);
+        this._playbackRange.max = Math.min(value.max, this.duration);
         this._playbackDuration = this._playbackRange.max - this._playbackRange.min;
         this.setTime(0.0);
     }
