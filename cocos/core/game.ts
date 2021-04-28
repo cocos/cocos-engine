@@ -45,6 +45,7 @@ import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
 import { warnID } from './platform/debug';
+import { BrowserType } from '../../pal/system/enum-type';
 
 interface ISceneInfo {
     url: string;
@@ -61,24 +62,8 @@ export interface IGameConfig {
     /**
      * @zh
      * 设置 debug 模式，在浏览器中这个选项会被忽略。
-     * 各种设置选项的意义：
-     *  - 0 - 没有消息被打印出来。
-     *  - 1 - `error`，`assert`，`warn`，`log` 将打印在 console 中。
-     *  - 2 - `error`，`assert`，`warn` 将打印在 console 中。
-     *  - 3 - `error`，`assert` 将打印在 console 中。
-     *  - 4 - `error`，`assert`，`warn`，`log` 将打印在 canvas 中（仅适用于 web 端）。
-     *  - 5 - `error`，`assert`，`warn` 将打印在 canvas 中（仅适用于 web 端）。
-     *  - 6 - `error`，`assert` 将打印在 canvas 中（仅适用于 web 端）。
      * @en
      * Set debug mode, only valid in non-browser environment.
-     * Possible values:
-     * 0 - No message will be printed.
-     * 1 - `error`，`assert`，`warn`，`log` will print in console.
-     * 2 - `error`，`assert`，`warn` will print in console.
-     * 3 - `error`，`assert` will print in console.
-     * 4 - `error`，`assert`，`warn`，`log` will print on canvas, available only on web.
-     * 5 - `error`，`assert`，`warn` will print on canvas, available only on web.
-     * 6 - `error`，`assert` will print on canvas, available only on web.
      */
     debugMode?: debug.DebugMode;
 
@@ -317,14 +302,6 @@ export class Game extends EventTarget {
         return this._frameTime;
     }
 
-    /**
-     * @en The current pipeline type.
-     * @zh 引擎当前使用的管线类型
-     */
-    public get pipelineType () {
-        return this._pipelineType;
-    }
-
     public collisionMatrix = [];
     public groupList: any[] = [];
 
@@ -543,7 +520,7 @@ export class Game extends EventTarget {
         return Promise.resolve(initPromise).then(() => {
             // register system events
             if (!EDITOR && game.config.registerSystemEvent) {
-                inputManager.registerSystemEvent(game.canvas);
+                inputManager.registerSystemEvent();
             }
 
             return this._setRenderPipelineNShowSplash();
@@ -810,7 +787,7 @@ export class Game extends EventTarget {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
                 if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                    || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't conform to WebGL2 standard
+                    || system.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
                 ) {
                     useWebGL2 = false;
                 }

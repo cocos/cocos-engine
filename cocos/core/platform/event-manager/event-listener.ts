@@ -34,6 +34,7 @@ import { EventKeyboard, EventAcceleration, EventMouse } from './events';
 import { Component } from '../../components';
 import { legacyCC } from '../../global-exports';
 import { logID, assertID } from '../debug';
+import { SystemEventType } from './event-enum';
 
 export interface IEventListenerCreateInfo {
     event?: number;
@@ -126,15 +127,15 @@ export class EventListener {
 
         let listener: EventListener | null = null;
         if (listenerType === legacyCC.EventListener.TOUCH_ONE_BY_ONE) {
-            listener = new TouchOneByOne();
+            listener = new TouchOneByOneEventListener();
         } else if (listenerType === legacyCC.EventListener.TOUCH_ALL_AT_ONCE) {
-            listener = new TouchAllAtOnce();
+            listener = new TouchAllAtOnceEventListener();
         } else if (listenerType === legacyCC.EventListener.MOUSE) {
-            listener = new Mouse();
+            listener = new MouseEventListener();
         } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
-            listener = new Keyboard();
+            listener = new KeyboardEventListener();
         } else if (listenerType === legacyCC.EventListener.ACCELERATION) {
-            listener = new Acceleration(argObj.callback);
+            listener = new AccelerationEventListener(argObj.callback);
             delete argObj.callback;
         }
 
@@ -347,7 +348,7 @@ export class EventListener {
 
 const ListenerID = EventListener.ListenerID;
 
-export class Mouse extends EventListener {
+export class MouseEventListener extends EventListener {
     public onMouseDown: Function | null = null;
     public onMouseUp: Function | null = null;
     public onMouseMove: Function | null = null;
@@ -359,24 +360,23 @@ export class Mouse extends EventListener {
     }
 
     public _callback (event: EventMouse) {
-        const eventType = legacyCC.Event.EventMouse;
         switch (event.eventType) {
-        case eventType.DOWN:
+        case SystemEventType.MOUSE_DOWN:
             if (this.onMouseDown) {
                 this.onMouseDown(event);
             }
             break;
-        case eventType.UP:
+        case SystemEventType.MOUSE_UP:
             if (this.onMouseUp) {
                 this.onMouseUp(event);
             }
             break;
-        case eventType.MOVE:
+        case SystemEventType.MOUSE_MOVE:
             if (this.onMouseMove) {
                 this.onMouseMove(event);
             }
             break;
-        case eventType.SCROLL:
+        case SystemEventType.MOUSE_WHEEL:
             if (this.onMouseScroll) {
                 this.onMouseScroll(event);
             }
@@ -387,7 +387,7 @@ export class Mouse extends EventListener {
     }
 
     public clone () {
-        const eventListener = new Mouse();
+        const eventListener = new MouseEventListener();
         eventListener.onMouseDown = this.onMouseDown;
         eventListener.onMouseUp = this.onMouseUp;
         eventListener.onMouseMove = this.onMouseMove;
@@ -400,7 +400,7 @@ export class Mouse extends EventListener {
     }
 }
 
-export class TouchOneByOne extends EventListener {
+export class TouchOneByOneEventListener extends EventListener {
     public swallowTouches = false;
     public onTouchBegan: Function | null = null;
     public onTouchMoved: Function | null = null;
@@ -422,7 +422,7 @@ export class TouchOneByOne extends EventListener {
     }
 
     public clone () {
-        const eventListener = new TouchOneByOne();
+        const eventListener = new TouchOneByOneEventListener();
         eventListener.onTouchBegan = this.onTouchBegan;
         eventListener.onTouchMoved = this.onTouchMoved;
         eventListener.onTouchEnded = this.onTouchEnded;
@@ -440,7 +440,7 @@ export class TouchOneByOne extends EventListener {
     }
 }
 
-export class TouchAllAtOnce extends EventListener {
+export class TouchAllAtOnceEventListener extends EventListener {
     public onTouchesBegan: Function | null = null;
     public onTouchesMoved: Function | null = null;
     public onTouchesEnded: Function | null = null;
@@ -451,7 +451,7 @@ export class TouchAllAtOnce extends EventListener {
     }
 
     public clone () {
-        const eventListener = new TouchAllAtOnce();
+        const eventListener = new TouchAllAtOnceEventListener();
         eventListener.onTouchesBegan = this.onTouchesBegan;
         eventListener.onTouchesMoved = this.onTouchesMoved;
         eventListener.onTouchesEnded = this.onTouchesEnded;
@@ -470,7 +470,7 @@ export class TouchAllAtOnce extends EventListener {
 }
 
 // Acceleration
-export class Acceleration extends EventListener {
+export class AccelerationEventListener extends EventListener {
     public _onAccelerationEvent: Function | null = null;
 
     constructor (callback: Function | null) {
@@ -491,12 +491,12 @@ export class Acceleration extends EventListener {
     }
 
     public clone () {
-        return new Acceleration(this._onAccelerationEvent);
+        return new AccelerationEventListener(this._onAccelerationEvent);
     }
 }
 
 // Keyboard
-export class Keyboard extends EventListener {
+export class KeyboardEventListener extends EventListener {
     public onKeyPressed: Function | null = null;
     public onKeyReleased: Function | null = null;
 
@@ -516,7 +516,7 @@ export class Keyboard extends EventListener {
     }
 
     public clone () {
-        const eventListener = new Keyboard();
+        const eventListener = new KeyboardEventListener();
         eventListener.onKeyPressed = this.onKeyPressed;
         eventListener.onKeyReleased = this.onKeyReleased;
         return eventListener;

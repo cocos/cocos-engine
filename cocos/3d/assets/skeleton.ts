@@ -118,6 +118,10 @@ export class Skeleton extends Asset {
         (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseSkeleton(this);
         return super.destroy();
     }
+
+    public validate () {
+        return this.joints.length > 0 && this.bindposes.length > 0;
+    }
 }
 
 legacyCC.Skeleton = Skeleton;

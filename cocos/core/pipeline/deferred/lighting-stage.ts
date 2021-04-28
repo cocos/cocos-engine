@@ -41,7 +41,7 @@ import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
 import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
-import { sphere, intersect } from '../../geometry';
+import { intersect, Sphere } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
 import { SRGBToLinear } from '../pipeline-funcs';
 
@@ -82,7 +82,7 @@ export class LightingStage extends RenderStage {
 
         const sphereLights = camera.scene!.sphereLights;
         const spotLights = camera.scene!.spotLights;
-        const _sphere = sphere.create(0, 0, 0, 1);
+        const _sphere = Sphere.create(0, 0, 0, 1);
         const _vec4Array = new Float32Array(4);
         const exposure = camera.exposure;
 
@@ -92,7 +92,7 @@ export class LightingStage extends RenderStage {
 
         for (let i = 0; i < sphereLights.length && idx < this._maxDeferredLights; i++, ++idx) {
             const light = sphereLights[i];
-            sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 // cc_lightPos
                 Vec3.toArray(_vec4Array, light.position);
@@ -126,7 +126,7 @@ export class LightingStage extends RenderStage {
 
         for (let i = 0; i < spotLights.length && idx < this._maxDeferredLights; i++, ++idx) {
             const light = spotLights[i];
-            sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
             if (intersect.sphereFrustum(_sphere, camera.frustum)) {
                 // cc_lightPos
                 Vec3.toArray(_vec4Array, light.position);

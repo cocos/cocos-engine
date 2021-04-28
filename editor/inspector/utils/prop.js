@@ -83,6 +83,10 @@ exports.loopSetAssetDumpDataReadonly = function (dump) {
  * @param element
  */
 exports.setDisabled = function (data, element) {
+    if (!element) {
+        return;
+    }
+    
     let disabled = data;
 
     if (typeof data === 'function') {
@@ -102,6 +106,10 @@ exports.setDisabled = function (data, element) {
  * @param element
  */
 exports.setReadonly = function (data, element) {
+    if (!element) {
+        return;
+    }
+
     let readonly = data;
 
     if (typeof data === 'function') {
@@ -114,7 +122,7 @@ exports.setReadonly = function (data, element) {
         element.removeAttribute('readonly');
     }
 
-    if (element.render) {
+    if (element.render && element.dump) {
         element.dump.readonly = readonly;
         element.render();
     }
@@ -126,6 +134,10 @@ exports.setReadonly = function (data, element) {
  * @param element
  */
 exports.setHidden = function (data, element) {
+    if (!element) {
+        return;
+    }
+
     let hidden = data;
 
     if (typeof data === 'function') {
@@ -158,9 +170,14 @@ exports.updatePropByDump = function (panel, dump) {
                 return;
             }
 
-            panel.$[key] = document.createElement('ui-prop');
-            panel.$[key].setAttribute('type', 'dump');
-            panel.$[key].render(dumpdata);
+            if (element && element.create) {
+                // when it need to go custom initialize
+                panel.$[key] = element.create.call(panel, dumpdata);
+            } else {
+                panel.$[key] = document.createElement('ui-prop');
+                panel.$[key].setAttribute('type', 'dump');
+                panel.$[key].render(dumpdata);
+            }
 
             /**
              * Defined in the ascending engine, while the custom order ranges from 0 - 100;
@@ -178,35 +195,54 @@ exports.updatePropByDump = function (panel, dump) {
                 return;
             }
 
-            panel.$[key].render(dumpdata);
+            if (panel.$[key].tagName === 'UI-PROP' && panel.$[key].getAttribute('type') === 'dump') {
+                panel.$[key].render(dumpdata);
+            }
         }
 
-        children.push(panel.$[key]);
+        if (panel.$[key]) {
+            children.push(panel.$[key]);
+        }
     });
 
     // Reorder
     children.sort((a, b) => a.displayOrder - b.displayOrder);
 
-    panel.$.componentContainer.replaceChildren(...children);
+    let $children = Array.from(panel.$.componentContainer.children);
+    children.forEach((child, i) => {
+        if (child === $children[i]) {
+            return;
+        }
 
-    children.forEach((child) => {
-        const key = child.dump.name;
+        if ($children[i]) {
+            $children[i].replaceWith(child);
+        } else {
+            panel.$.componentContainer.appendChild(child);
+        }
+    });
+
+    // delete extra children
+    $children = Array.from(panel.$.componentContainer.children);
+    if ($children.length > children.length) {
+        for (let i = children.length; i < $children.length; i++) {
+            $children[i].remove();
+        }
+    }
+
+    for (const key in panel.elements) {
         const element = panel.elements[key];
-
         if (element && element.ready) {
             element.ready.call(panel, panel.$[key], dump.value);
             element.ready = undefined; // ready needs to be executed only once
         }
-    });
+    }
 
-    children.forEach((child) => {
-        const key = child.dump.name;
+    for (const key in panel.elements) {
         const element = panel.elements[key];
-
         if (element && element.update) {
             element.update.call(panel, panel.$[key], dump.value);
         }
-    });
+    }
 };
 
 /**

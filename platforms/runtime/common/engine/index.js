@@ -24,11 +24,6 @@
  ****************************************************************************/
 require('./fs-utils');
 require('./canvas');
-require('./sys.js');
 require('./asset-manager.js');
 require('./EditBox.js');
-require('./DeviceMotionEvent.js');
 require('./game.js');
-require('./InputManager');
-require('./download-audio');
-require('./AudioPlayer');

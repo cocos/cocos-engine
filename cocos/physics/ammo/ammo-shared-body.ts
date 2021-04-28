@@ -73,7 +73,7 @@ export class AmmoSharedBody {
         }
         if (wrappedBody) {
             newSB._wrappedBody = wrappedBody;
-            const g = wrappedBody.rigidBody.group;
+            const g = (wrappedBody.rigidBody as any)._group;
             const m = PhysicsSystem.instance.collisionMatrix[g];
             newSB._collisionFilterGroup = g;
             newSB._collisionFilterMask = m;

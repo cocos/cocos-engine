@@ -18,17 +18,17 @@ exports.template = `
         <ui-prop type="dump" key="scaleSpace"></ui-prop>
         <ui-prop type="dump" key="startSize3D"></ui-prop>
         <!-- hack changeName if startSize3D change -->
-        <ui-prop type="dump" key="startSizeX" displayName="startSize" showflag="!startSize3D.value"></ui-prop>
-        <ui-prop type="dump" key="startSizeX" displayName="startSizeX" showflag="startSize3D.value"></ui-prop>
-        <ui-prop type="dump" showflag="startSize3D.value" key="startSizeY"></ui-prop>
-        <ui-prop type="dump" showflag="startSize3D.value" key="startSizeZ"></ui-prop>
+        <ui-prop type="dump" key="startSizeX" displayName="startSize" showflag="!startSize3D"></ui-prop>
+        <ui-prop type="dump" key="startSizeX" displayName="startSizeX" showflag="startSize3D"></ui-prop>
+        <ui-prop type="dump" showflag="startSize3D" key="startSizeY"></ui-prop>
+        <ui-prop type="dump" showflag="startSize3D" key="startSizeZ"></ui-prop>
         <ui-prop type="dump" key="startSpeed"></ui-prop>
         <ui-prop type="dump" key="startRotation3D"></ui-prop>
-        <ui-prop type="dump" key="startRotationX" showflag="startRotation3D.value"></ui-prop>
-        <ui-prop type="dump" key="startRotationY" showflag="startRotation3D.value"></ui-prop>
+        <ui-prop type="dump" key="startRotationX" showflag="startRotation3D"></ui-prop>
+        <ui-prop type="dump" key="startRotationY" showflag="startRotation3D"></ui-prop>
         <!-- hack changeName if startRotation3D change -->
-        <ui-prop type="dump" showflag="startRotation3D.value" key="startRotationZ"></ui-prop>
-        <ui-prop type="dump" showflag="!startRotation3D.value" displayName="StartRotation" key="startRotationZ">
+        <ui-prop type="dump" showflag="startRotation3D" key="startRotationZ"></ui-prop>
+        <ui-prop type="dump" showflag="!startRotation3D" displayName="StartRotation" key="startRotationZ">
         </ui-prop>
         <ui-prop type="dump" key="gravityModifier"></ui-prop>
         <ui-prop type="dump" key="rateOverTime"></ui-prop>
@@ -100,16 +100,16 @@ exports.template = `
                 <ui-label></ui-label>
             </ui-prop>
             <ui-prop type="dump" key="sizeOvertimeModule.value.separateAxes"></ui-prop>
-            <ui-prop type="dump" showflag="!sizeOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="!sizeOvertimeModule.value.separateAxes"
                 key="sizeOvertimeModule.value.size">
             </ui-prop>
-            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes"
                 key="sizeOvertimeModule.value.x">
             </ui-prop>
-            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes"
                 key="sizeOvertimeModule.value.y">
             </ui-prop>
-            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="sizeOvertimeModule.value.separateAxes"
                 key="sizeOvertimeModule.value.z"></ui-prop>
 
         </ui-section>
@@ -123,16 +123,16 @@ exports.template = `
             </ui-prop>
             <ui-prop type="dump" key="rotationOvertimeModule.value.separateAxes">
             </ui-prop>
-            <ui-prop type="dump" showflag="rotationOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="rotationOvertimeModule.value.separateAxes"
                 key="rotationOvertimeModule.value.x"></ui-prop>
-            <ui-prop type="dump" showflag="rotationOvertimeModule.value.separateAxes.value"
+            <ui-prop type="dump" showflag="rotationOvertimeModule.value.separateAxes"
                 key="rotationOvertimeModule.value.y"></ui-prop>
             <ui-prop type="dump" key="rotationOvertimeModule.value.z"></ui-prop>
 
         </ui-section>
         <ui-section class="config" key="colorOverLifetimeModule" autoflag="true"></ui-section>
         <ui-section class="config" key="textureAnimationModule" autoflag="true"></ui-section>
-        <ui-section type="dump" showflag="!renderer.value.useGPU.value" key="limitVelocityOvertimeModule" class="config">
+        <ui-section type="dump" showflag="!renderer.value.useGPU" key="limitVelocityOvertimeModule" class="config">
             <ui-prop slot="header" class="header" type="dump" key="limitVelocityOvertimeModule.value.enable" labelflag="limitVelocityOvertimeModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -141,12 +141,12 @@ exports.template = `
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.space"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.dampen"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limit" showflag="!limitVelocityOvertimeModule.value.separateAxes.value"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitX" showflag="limitVelocityOvertimeModule.value.separateAxes.value"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitY" showflag="limitVelocityOvertimeModule.value.separateAxes.value"></ui-prop>
-            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitZ" showflag="limitVelocityOvertimeModule.value.separateAxes.value"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limit" showflag="!limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitX" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitY" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
+            <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitZ" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
         </ui-section>
-        <ui-section empty="true" class="config" showflag="!renderer.value.useGPU.value" key="trailModule">
+        <ui-section empty="true" class="config" showflag="!renderer.value.useGPU" key="trailModule">
             <ui-prop slot="header" class="header" type="dump" key="trailModule.value.enable" labelflag="trailModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -186,7 +186,6 @@ const excludeList = [
 ];
 
 exports.methods = {
-
     getObjectByKey (target, key) {
         let params = [];
         if (typeof key === 'string') {
@@ -235,23 +234,6 @@ exports.methods = {
         }
 
         return this.getName(value);
-    },
-
-    _onApplyClick () {
-        Editor.Message.send('scene', 'execute-component-method', {
-            uuid: this.dump.value.uuid.value,
-            name: 'cook',
-            args: [],
-        });
-
-        this.dump.values
-            && this.dump.values.forEach((dump) => {
-                Editor.Message.send('scene', 'execute-component-method', {
-                    uuid: dump.value.uuid.value,
-                    name: 'combine',
-                    args: [],
-                });
-            });
     },
 
     getEnumName (type, value) {
@@ -310,59 +292,89 @@ exports.methods = {
 const uiElements = {
     uiSections: {
         ready () {
-            this.$.uiSections = this.$this.shadowRoot.querySelectorAll('ui-section[autoflag="true"]');
+            this.$.uiSections = this.$this.shadowRoot.querySelectorAll('ui-section');
         },
         update () {
             this.$.uiSections.forEach((element) => {
                 const key = element.getAttribute('key');
                 const showflag = element.getAttribute('showflag');
+                const autoflag = element.getAttribute('autoflag');
                 if (showflag) {
                     if (typeof showflag === 'string') {
                         if (showflag.startsWith('!')) {
-                            if (this.getObjectByKey(this.dump.value, showflag.slice(1))) {
+                            const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            if (dump.value || isInvalid) {
                                 // continue when don't show
+                                element.style = 'display: none;';
                                 return true;
                             }
-                        } else if (!this.getObjectByKey(this.dump.value, showflag)) {
-                            // continue when don't show
-                            return true;
+                        } else {
+                            const dump = this.getObjectByKey(this.dump.value, showflag);
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            if (!dump.value || isInvalid) {
+                                // continue when don't show
+                                element.style = 'display: none;';
+                                return true;
+                            }
                         }
                     }
                 }
-                const children = [];
-                const header = document.createElement('ui-prop');
-                header.setAttribute('slot', 'header');
-                header.setAttribute('type', 'dump');
-                header.setAttribute('empty', 'true');
-                header.className = 'header';
-                header.dump = this.dump;
-                const checkbox = document.createElement('ui-checkbox');
-                checkbox.addEventListener('change', (event) => {
-                    this.getObjectByKey(this.dump.value, key).value.enable.value = event.target.value;
-                    header.dispatch('change-dump');
-                });
-                checkbox.setAttribute('value', this.getObjectByKey(this.dump.value, key).value.enable.value);
-                const label = document.createElement('ui-label');
-                label.setAttribute('value', this.getName(this.getObjectByKey(this.dump.value, key)));
-                label.setAttribute('tooltip', this.getTitle(this.getObjectByKey(this.dump.value, key)));
-                header.replaceChildren(...[checkbox, label]);
-                children.push(header);
-                const propMap = this.getObjectByKey(this.dump.value, key).value;
-                for (const propKey in propMap) {
-                    const dump = propMap[propKey];
-                    if (propKey === 'enable') {
-                        continue;
+                element.style = '';
+                if (autoflag) {
+                    const oldChildren = Array.from(element.children);
+                    const children = [];
+                    const header = document.createElement('ui-prop');
+                    header.setAttribute('slot', 'header');
+                    header.setAttribute('type', 'dump');
+                    header.setAttribute('empty', 'true');
+                    header.className = 'header';
+                    header.dump = this.getObjectByKey(this.dump.value, key);
+                    const checkbox = document.createElement('ui-checkbox');
+                    checkbox.addEventListener('change', (event) => {
+                        this.getObjectByKey(this.dump.value, key).value.enable.value = event.target.value;
+                        header.dispatch('change-dump');
+                    });
+                    checkbox.setAttribute('value', this.getObjectByKey(this.dump.value, key).value.enable.value);
+                    const label = document.createElement('ui-label');
+                    label.setAttribute('value', this.getName(this.getObjectByKey(this.dump.value, key)));
+                    label.setAttribute('tooltip', this.getTitle(this.getObjectByKey(this.dump.value, key)));
+                    header.replaceChildren(...[checkbox, label]);
+                    children.push(header);
+                    const propMap = this.getObjectByKey(this.dump.value, key).value;
+
+                    for (const propKey in propMap) {
+                        const dump = propMap[propKey];
+                        if (propKey === 'enable') {
+                            continue;
+                        }
+                        const oldProp = oldChildren.find((child) => child.getAttribute('key') === propKey);
+                        const uiProp = oldProp || document.createElement('ui-prop');
+                        uiProp.setAttribute('type', 'dump');
+                        uiProp.setAttribute('key', propKey);
+                        const isShow = dump.visible;
+                        if (isShow) {
+                            uiProp.render(dump);
+                            children.push(uiProp);
+                        }
                     }
-                    const uiProp = document.createElement('ui-prop');
-                    uiProp.setAttribute('type', 'dump');
-                    const isShow = dump.visible;
-                    if (isShow) {
-                        uiProp.render(dump);
-                        children.push(uiProp);
+                    children.sort((a, b) => (a.dump.displayOrder ? a.dump.displayOrder : 0 - b.dump.displayOrder ? b.dump.displayOrder : 0));
+                    children.forEach((newChild, index) => {
+                        const oldChild = oldChildren[index];
+                        if (oldChild === newChild) {
+                            return true;
+                        }
+                        if (oldChild) {
+                            oldChild.replaceWith(newChild);
+                        } else {
+                            element.appendChild(newChild);
+                        }
+                    });
+                    while (oldChildren.length > children.length) {
+                        const oldChild = oldChildren.pop();
+                        oldChild.remove();
                     }
                 }
-                children.sort((a, b) => (a.dump.displayOrder ? a.dump.displayOrder : 0 - b.dump.displayOrder ? b.dump.displayOrder : 0));
-                element.replaceChildren(...children);
             });
         },
     },
@@ -436,9 +448,13 @@ const uiElements = {
                             const subset = params.slice(2);
                             isShow = isShow && this.checkEnumInSubset(enumValue, ...subset);
                         } else if (showflag.startsWith('!')) {
-                            isShow = isShow && !this.getObjectByKey(this.dump.value, showflag.slice(1));
+                            const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isShow = isShow && !isInvalid && !dump.value;
                         } else {
-                            isShow = isShow && this.getObjectByKey(this.dump.value, showflag);
+                            const dump = this.getObjectByKey(this.dump.value, showflag);
+                            const isInvalid = propUtils.isMultipleInvalid(dump);
+                            isShow = isShow && !isInvalid && dump.value;
                         }
                     }
                 }

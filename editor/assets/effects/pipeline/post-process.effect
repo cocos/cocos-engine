@@ -21,15 +21,16 @@ CCProgram post-process-vs %{
   precision highp float;
   #include <input-standard>
   #include <cc-global>
+  #include <common>
 
   out vec2 v_uv;
 
   void main () {
     StandardVertInput In;
     CCVertInput(In);
-
+    CC_HANDLE_GET_CLIP_FLIP(In.position.xy);
     gl_Position = In.position;
-    gl_Position.y = gl_Position.y * cc_cameraPos[3];
+    gl_Position.y = gl_Position.y;
     v_uv = a_texCoord;
   }
 }%

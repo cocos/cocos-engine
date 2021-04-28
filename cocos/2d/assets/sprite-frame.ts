@@ -42,6 +42,7 @@ import { ImageAsset, ImageSource } from '../../core/assets/image-asset';
 import { Texture2D } from '../../core/assets/texture-2d';
 import { errorID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
+import { js } from '../../core/utils/js';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -1213,7 +1214,7 @@ export class SpriteFrame extends Asset {
         if (!BUILD) {
             // manually load texture via _textureSetter
             if (data.texture) {
-                handle.result.push(this, '_textureSource', data.texture);
+                handle.result.push(this, '_textureSource', data.texture, js._getClassId(Texture2D));
             }
         }
 
@@ -1290,6 +1291,18 @@ export class SpriteFrame extends Asset {
         } else {
             texture.once('load', this._textureLoaded, this);
         }
+    }
+
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
+        const texture = new Texture2D();
+        texture.initDefault();
+        this._refreshTexture(texture);
+        this._calculateUV();
+    }
+
+    public validate () {
+        return this._texture && this._rect && this._rect.width !== 0 && this._rect.height !== 0;
     }
 }
 

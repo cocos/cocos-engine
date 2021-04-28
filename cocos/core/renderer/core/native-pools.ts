@@ -39,6 +39,7 @@ export class NativeBufferPool {
 
 export class NativeObjectPool<T> {
     constructor (dataType: number, array: T[]) {}
+    public bind (index: number, obj: T) {}
 }
 
 export class NativeBufferAllocator {

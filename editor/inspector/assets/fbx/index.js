@@ -1,5 +1,4 @@
 'use strict';
-
 const path = require('path');
 
 exports.template = `
@@ -47,7 +46,7 @@ const Components = {
  */
 const Elements = {
     tabs: {
-        ready() {
+        ready () {
             const panel = this;
 
             panel.$.tabs.addEventListener('change', () => {
@@ -57,7 +56,7 @@ const Elements = {
 
             panel.activeTab = 'animation';
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.$.tabs.innerText = '';
@@ -83,16 +82,16 @@ const Elements = {
         },
     },
     tabPanel: {
-        ready() {
+        ready () {
             const panel = this;
 
             panel.$.tabPanel.addEventListener('change', () => {
                 panel.dispatch('change');
             });
         },
-        update() {
+        update () {
             const panel = this;
-
+            Editor.Message.broadcast('fbx-inspector:change-tab', panel.activeTab);
             panel.$.tabPanel.setAttribute('src', Components[panel.activeTab]);
             panel.$.tabPanel.update(panel.assetList, panel.metaList);
         },
@@ -134,16 +133,14 @@ exports.methods = {
     /**
      * Update whether a data is editable in multi-select state
      */
-    updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
-        });
+    updateInvalid (element, prop) {
+        const invalid = this.metaList.some((meta) => meta.userData[prop] !== this.meta.userData[prop]);
         element.invalid = invalid;
     },
     /**
      * Update read-only status
      */
-    updateReadonly(element) {
+    updateReadonly (element) {
         if (this.asset.readonly) {
             element.setAttribute('disabled', true);
         } else {

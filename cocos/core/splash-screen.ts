@@ -29,16 +29,13 @@
  */
 
 /* eslint-disable no-restricted-globals */
-import { COCOSPLAY, XIAOMI, JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
-import { preTransforms } from './math/mat4';
 import { clamp01 } from './math/utils';
-import { sys } from './platform/sys';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, Framebuffer, CommandBuffer, BufferUsageBit, Format,
-    MemoryUsageBit, TextureType, TextureUsageBit, Address,
+    MemoryUsageBit, TextureType, TextureUsageBit, Address, SurfaceTransform,
 } from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
@@ -46,10 +43,11 @@ import { Root } from './root';
 import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
 import { error } from './platform';
+import { Mat4, Vec2 } from './math';
 
-export type SplashEffectType = 'NONE' | 'FADE-INOUT';
-
-export interface ISplashSetting {
+const v2_0 = new Vec2();
+type SplashEffectType = 'NONE' | 'FADE-INOUT';
+interface ISplashSetting {
     readonly totalTime: number;
     readonly base64src: string;
     readonly effect: SplashEffectType;
@@ -71,42 +69,33 @@ export class SplashScreen {
     }
 
     private handle = 0;
+    private settings!: ISplashSetting;
     private callBack: (() => void) | null = null;
     private cancelAnimate = false;
     private startTime = -1;
-    private setting!: ISplashSetting;
-    private image!: TexImageSource;
-    private root!: Root;
-    private device!: Device;
-    private sampler!: Sampler;
-    private cmdBuff!: CommandBuffer;
-    private assmebler!: InputAssembler;
-    private vertexBuffers!: Buffer;
-    private indicesBuffers!: Buffer;
-    private shader!: Shader;
-    private framebuffer!: Framebuffer;
-    private renderArea!: Rect;
-    private region!: BufferTextureCopy;
-    private material!: Material;
-    private texture!: Texture;
-    private clearColors!: Color[];
-
     private _splashFinish = false;
     private _loadFinish = false;
     private _directCall = false;
 
-    /** text */
-    private textImg!: TexImageSource;
-    private textRegion!: BufferTextureCopy;
-    private textTexture!: Texture;
-    private textVB!: Buffer;
-    private textIB!: Buffer;
-    private textAssmebler!: InputAssembler;
-    private textMaterial!: Material;
-    private textShader!: Shader;
+    private root!: Root;
+    private device!: Device;
+    private shader!: Shader;
+    private sampler!: Sampler;
+    private cmdBuff!: CommandBuffer;
+    private quadAssmebler!: InputAssembler;
+    private vertexBuffers!: Buffer;
+    private indicesBuffers!: Buffer;
+    private framebuffer!: Framebuffer;
+    private renderArea!: Rect;
+    private clearColors!: Color[];
+    private projection!: Mat4;
 
-    private screenWidth!: number;
-    private screenHeight!: number;
+    private logoMat!: Material;
+    private logoImage!: TexImageSource;
+    private logoTexture!: Texture;
+
+    private watermarkMat!: Material;
+    private watermarkTexture!: Texture;
 
     public main (root: Root) {
         if (root == null) {
@@ -115,15 +104,15 @@ export class SplashScreen {
         }
 
         if (window._CCSettings && window._CCSettings.splashScreen) {
-            const setting: Writable<ISplashSetting> = this.setting = window._CCSettings.splashScreen;
-            setting.totalTime = this.setting.totalTime != null ? this.setting.totalTime : 3000;
-            setting.base64src = this.setting.base64src || '';
-            setting.effect = this.setting.effect || 'FADE-INOUT';
-            setting.clearColor = this.setting.clearColor || new Color(0.88, 0.88, 0.88, 1);
-            setting.displayRatio = this.setting.displayRatio != null ? this.setting.displayRatio : 0.4;
-            setting.displayWatermark = this.setting.displayWatermark != null ? this.setting.displayWatermark : true;
+            const setting: Writable<ISplashSetting> = this.settings = window._CCSettings.splashScreen;
+            setting.totalTime = this.settings.totalTime != null ? this.settings.totalTime : 3000;
+            setting.base64src = this.settings.base64src || '';
+            setting.effect = this.settings.effect || 'FADE-INOUT';
+            setting.clearColor = this.settings.clearColor || new Color(0.88, 0.88, 0.88, 1);
+            setting.displayRatio = this.settings.displayRatio != null ? this.settings.displayRatio : 0.4;
+            setting.displayWatermark = this.settings.displayWatermark != null ? this.settings.displayWatermark : true;
         } else {
-            this.setting = {
+            this.settings = {
                 totalTime: 3000,
                 base64src: '',
                 effect: 'FADE-INOUT',
@@ -133,13 +122,14 @@ export class SplashScreen {
             };
         }
 
-        if (this.setting.base64src === '' || this.setting.totalTime <= 0) {
+        if (this.settings.base64src === '' || this.settings.totalTime <= 0) {
             if (this.callBack) { this.callBack(); }
             this.callBack = null;
-            (this.setting as any) = null;
+            (this.settings as any) = null;
             this._directCall = true;
         } else {
             legacyCC.view.enableRetina(true);
+            legacyCC.view.resizeWithBrowserSize(true);
             const designRes = window._CCSettings.designResolution;
             if (designRes) {
                 legacyCC.view.setDesignResolutionSize(designRes.width, designRes.height, designRes.policy);
@@ -156,18 +146,10 @@ export class SplashScreen {
             this.cancelAnimate = false;
             this.startTime = -1;
 
-            // this.setting.clearColor may not an instance of Color, so should create
-            // Color manually, or will have problem on native.
-            const clearColor = this.setting.clearColor;
-            this.clearColors = [new Color(clearColor.x, clearColor.y, clearColor.z, clearColor.w)];
-
-            const { width, height, surfaceTransform } = this.device;
-            this.screenWidth = surfaceTransform % 2 ? height : width;
-            this.screenHeight = surfaceTransform % 2 ? width : height;
-
-            this.image = new Image();
-            this.image.onload = this.init.bind(this);
-            this.image.src = this.setting.base64src;
+            this.preInit();
+            this.logoImage = new Image();
+            this.logoImage.onload = this.init.bind(this);
+            this.logoImage.src = this.settings.base64src;
         }
     }
 
@@ -191,65 +173,103 @@ export class SplashScreen {
         }
     }
 
+    private preInit () {
+        // this.setting.clearColor may not an instance of Color, so should create
+        // Color manually, or will have problem on native.
+        const clearColor = this.settings.clearColor;
+        this.clearColors = [new Color(clearColor.x, clearColor.y, clearColor.z, clearColor.w)];
+        const device = this.device;
+        this.renderArea = new Rect(0, 0, device.width, device.height);
+        this.framebuffer = this.root.mainWindow!.framebuffer;
+        this.cmdBuff = device.commandBuffer;
+
+        // create input assembler
+        // create vertex buffer
+        const verts = new Float32Array([0.5, 0.5, 1, 0, -0.5, 0.5, 0, 0, 0.5, -0.5, 1, 1, -0.5, -0.5, 0, 1]);
+        const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
+        const vbSize = vbStride * 4;
+        this.vertexBuffers = device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE, vbSize, vbStride,
+        ));
+        this.vertexBuffers.update(verts);
+
+        // create index buffer
+        const indices = new Uint16Array([0, 1, 2, 1, 3, 2]);
+        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
+        const ibSize = ibStride * 6;
+        this.indicesBuffers = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE, ibSize, ibStride,
+        ));
+        this.indicesBuffers.update(indices);
+
+        const attributes: Attribute[] = [
+            new Attribute('a_position', Format.RG32F),
+            new Attribute('a_texCoord', Format.RG32F),
+        ];
+        const IAInfo = new InputAssemblerInfo(attributes, [this.vertexBuffers], this.indicesBuffers);
+        this.quadAssmebler = device.createInputAssembler(IAInfo);
+
+        this.projection = new Mat4();
+        Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
+            device.capabilities.clipSpaceSignY, device.surfaceTransform);
+    }
+
     private init () {
-        // adapt for native mac & ios
-        if (JSB) {
-            if (sys.os === legacyCC.sys.OS_OSX || sys.os === legacyCC.sys.OS_IOS) {
-                const width = screen.width * devicePixelRatio;
-                const height = screen.height * devicePixelRatio;
-                this.device.resize(width, height);
-                this.screenWidth = this.device.width;
-                this.screenHeight = this.device.height;
-            }
-        }
-
-        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
-        if (COCOSPLAY || XIAOMI) {
-            if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
-                const width = this.device.height;
-                const height = this.device.width;
-                this.device.resize(width, height);
-                this.screenWidth = this.device.width;
-                this.screenHeight = this.device.height;
-            }
-        }
-
-        this.initCMD();
-        this.initIA();
-        this.initPSO();
-
-        if (this.setting.displayWatermark) {
-            this.initText();
-        }
-
+        this.initLogo();
+        if (this.settings.displayWatermark) this.initWarterMark();
         const animate = (time: number) => {
-            if (this.cancelAnimate) {
-                return;
-            }
-
-            if (this.startTime < 0) {
-                this.startTime = time;
-            }
+            if (this.cancelAnimate) return;
+            const settings = this.settings;
+            const device = this.device;
+            Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
+                device.capabilities.clipSpaceSignY, device.surfaceTransform);
+            const dw = device.width; const dh = device.height;
+            const refW = dw < dh ? dw : dh;
+            // update logo uniform
+            if (this.startTime < 0) this.startTime = time;
             const elapsedTime = time - this.startTime;
+            const percent = clamp01(elapsedTime / settings.totalTime);
+            let u_p = easing.cubicOut(percent);
+            if (settings.effect === 'NONE') u_p = 1.0;
+            const logoTW = this.logoTexture.width; const logoTH = this.logoTexture.height;
+            const logoW = refW * settings.displayRatio;
+            let scaleX = logoW * logoTW / logoTH;
+            let scaleY = logoW;
+            if (device.surfaceTransform === SurfaceTransform.ROTATE_90
+            || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+                scaleX = logoW * dw / dh;
+                scaleY = logoW * logoTH / logoTW * dh / dw;
+            }
+            this.logoMat.setProperty('resolution', v2_0.set(dw, dh), 0);
+            this.logoMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
+            this.logoMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.5), 0);
+            this.logoMat.setProperty('precent', u_p);
+            this.logoMat.setProperty('u_projection', this.projection);
+            this.logoMat.passes[0].update();
 
-            /** update uniform */
-            const PERCENT = clamp01(elapsedTime / this.setting.totalTime);
-            let u_p = easing.cubicOut(PERCENT);
-            if (this.setting.effect === 'NONE') u_p = 1.0;
-            this.material.setProperty('u_precent', u_p);
-            this.material.passes[0].update();
-
-            if (this.setting.displayWatermark && this.textMaterial) {
-                this.textMaterial.setProperty('u_precent', u_p);
-                this.textMaterial.passes[0].update();
+            // update wartermark uniform
+            if (settings.displayWatermark && this.watermarkMat) {
+                const wartermarkW = refW * 0.5;
+                const wartermarkTW = this.watermarkTexture.width; const wartermarkTH = this.watermarkTexture.height;
+                let scaleX = wartermarkW;
+                let scaleY = wartermarkW * wartermarkTH / wartermarkTW;
+                if (device.surfaceTransform === SurfaceTransform.ROTATE_90
+                || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+                    scaleX = wartermarkW * 0.5;
+                    scaleY = wartermarkW * dw / dh * 0.5;
+                }
+                this.watermarkMat.setProperty('resolution', v2_0.set(dw, dh), 0);
+                this.watermarkMat.setProperty('scale', v2_0.set(scaleX, scaleY), 0);
+                this.watermarkMat.setProperty('translate', v2_0.set(dw * 0.5, dh * 0.1), 0);
+                this.watermarkMat.setProperty('precent', u_p);
+                this.watermarkMat.setProperty('u_projection', this.projection);
+                this.watermarkMat.passes[0].update();
             }
 
-            this.frame(time);
-
-            if (elapsedTime > this.setting.totalTime) {
-                this.splashFinish = true;
-            }
-
+            this.frame();
+            if (elapsedTime > settings.totalTime) this.splashFinish = true;
             requestAnimationFrame(animate);
         };
         legacyCC.game.pause();
@@ -259,271 +279,15 @@ export class SplashScreen {
     private hide () {
         cancelAnimationFrame(this.handle);
         this.cancelAnimate = true;
-        // here delay destroy：because ios immediately destroy input assmebler will crash & native renderer will mess.
+        // The reason for delay destroy here is that immediate destroy input assmebler in ios will be crash
         setTimeout(this.destroy.bind(this));
     }
 
-    private frame (time: number) {
-        if (this.cancelAnimate) return;
-
-        // TODO: hack for cocosPlay & XIAOMI cause on landscape canvas value is wrong
-        if (COCOSPLAY || XIAOMI) {
-            if (window._CCSettings.orientation === 'landscape' && this.device.width < this.device.height) {
-                const width = this.device.height;
-                const height = this.device.width;
-                this.device.resize(width, height);
-                this.screenWidth = this.device.width;
-                this.screenHeight = this.device.height;
-            }
-        }
-
-        const device = this.device;
-        device.acquire();
-
-        // record command
-        const cmdBuff = this.cmdBuff;
-        const framebuffer = this.framebuffer;
-        const renderArea = this.renderArea;
-
-        if (JSB && (sys.os === legacyCC.sys.OS_OSX || sys.os === legacyCC.sys.OS_IOS)) {
-            renderArea.height = device.nativeHeight;
-            renderArea.width = device.nativeWidth;
-        } else {
-            renderArea.height = device.height;
-            renderArea.width = device.width;
-        }
-
-        cmdBuff.begin();
-        cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea,
-            this.clearColors, 1.0, 0);
-
-        const pass = this.material.passes[0];
-        const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, this.shader, framebuffer.renderPass, this.assmebler);
-        cmdBuff.bindPipelineState(pso);
-        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-        cmdBuff.bindInputAssembler(this.assmebler);
-        cmdBuff.draw(this.assmebler);
-
-        if (this.setting.displayWatermark && this.textShader && this.textAssmebler) {
-            const passText = this.textMaterial.passes[0];
-            const psoWatermark = PipelineStateManager.getOrCreatePipelineState(device,
-                passText, this.textShader, framebuffer.renderPass, this.textAssmebler);
-            cmdBuff.bindPipelineState(psoWatermark);
-            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, passText.descriptorSet);
-            cmdBuff.bindInputAssembler(this.textAssmebler);
-            cmdBuff.draw(this.textAssmebler);
-        }
-
-        cmdBuff.endRenderPass();
-        cmdBuff.end();
-
-        device.flushCommands([cmdBuff]);
-        device.queue.submit([cmdBuff]);
-        device.present();
-    }
-
-    private initText () {
-        /** texure */
-        this.textImg = document.createElement('canvas');
-        this.textImg.width = 330;
-        this.textImg.height = 30;
-        this.textImg.style.width = `${this.textImg.width}`;
-        this.textImg.style.height = `${this.textImg.height}`;
-
-        const ctx = this.textImg.getContext('2d')!;
-        ctx.font = `${18}px Arial`;
-        ctx.textBaseline = 'top';
-        ctx.textAlign = 'left';
-        ctx.fillStyle = '`#424242`';
-        const text = 'Powered by Cocos Creator';
-        const textMetrics = ctx.measureText(text);
-        ctx.fillText(text, (330 - textMetrics.width) / 2, 6);
-
-        this.textRegion = new BufferTextureCopy();
-        this.textRegion.texExtent.width = this.textImg.width;
-        this.textRegion.texExtent.height = this.textImg.height;
-        this.textRegion.texExtent.depth = 1;
-
-        this.textTexture = this.device.createTexture(new TextureInfo(
-            TextureType.TEX2D,
-            TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
-            Format.RGBA8,
-            this.textImg.width,
-            this.textImg.height,
-        ));
-
-        this.device.copyTexImagesToTexture([this.textImg], this.textTexture, [this.textRegion]);
-
-        /** PSO */
-        this.textMaterial = new Material();
-        this.textMaterial.initialize({ effectName: 'splash-screen' });
-
-        const pass = this.textMaterial.passes[0];
-        const binding = pass.getBinding('mainTexture');
-        pass.bindTexture(binding, this.textTexture);
-
-        this.textShader = ShaderPool.get(pass.getShaderVariant());
-        DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET)).update();
-
-        /** Assembler */
-        // create vertex buffer
-        const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
-        const vbSize = vbStride * 4;
-        this.textVB = this.device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            vbSize,
-            vbStride,
-        ));
-
-        const verts = new Float32Array(4 * 4);
-        let w = -this.textImg.width / 2;
-        let h = -this.textImg.height / 2;
-        if (this.screenWidth < this.screenHeight) {
-            w = -this.screenWidth / 2 * 0.5;
-            h = w / (this.textImg.width / this.textImg.height);
-        } else {
-            w = -this.screenHeight / 2 * 0.5;
-            h = w / (this.textImg.width / this.textImg.height);
-        }
-        let n = 0;
-        verts[n++] = w; verts[n++] = h; verts[n++] = 0.0; verts[n++] = 1.0;
-        verts[n++] = -w; verts[n++] = h; verts[n++] = 1.0; verts[n++] = 1.0;
-        verts[n++] = w; verts[n++] = -h; verts[n++] = 0.0; verts[n++] = 0.0;
-        verts[n++] = -w; verts[n++] = -h; verts[n++] = 1.0; verts[n++] = 0.0;
-
-        // translate to bottom
-        for (let i = 0; i < verts.length; i += 4) {
-            verts[i] += this.screenWidth / 2;
-            verts[i + 1] += this.screenHeight * 0.1;
-        }
-
-        // doing the screen adaptation here will not support dynamic screen orientation changes
-        const ySign = this.device.capabilities.screenSpaceSignY;
-        const preTransform = preTransforms[this.device.surfaceTransform];
-        for (let i = 0; i < verts.length; i += 4) {
-            const x = verts[i] / this.screenWidth * 2 - 1;
-            const y = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
-            verts[i] = preTransform[0] * x + preTransform[2] * y;
-            verts[i + 1] = preTransform[1] * x + preTransform[3] * y;
-        }
-
-        this.textVB.update(verts);
-
-        // create index buffer
-        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
-        const ibSize = ibStride * 6;
-
-        this.textIB = this.device.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            ibSize,
-            ibStride,
-        ));
-
-        const indices = new Uint16Array(6);
-        indices[0] = 0; indices[1] = 1; indices[2] = 2;
-        indices[3] = 1; indices[4] = 3; indices[5] = 2;
-        this.textIB.update(indices);
-
-        const attributes: Attribute[] = [
-            new Attribute('a_position', Format.RG32F),
-            new Attribute('a_texCoord', Format.RG32F),
-        ];
-
-        const textIAInfo = new InputAssemblerInfo(attributes, [this.textVB], this.textIB);
-        this.textAssmebler = this.device.createInputAssembler(textIAInfo);
-    }
-
-    private initCMD () {
-        const device = this.device;
-        if (JSB && (sys.os === legacyCC.sys.OS_OSX || sys.os === legacyCC.sys.OS_IOS)) {
-            this.renderArea = new Rect(0, 0, device.nativeWidth, device.nativeHeight);
-        } else {
-            this.renderArea = new Rect(0, 0, device.width, device.height);
-        }
-        this.framebuffer = this.root.mainWindow!.framebuffer;
-
-        this.cmdBuff = device.commandBuffer;
-    }
-
-    private initIA () {
+    private initLogo () {
         const device = this.device;
 
-        // create vertex buffer
-        const vbStride = Float32Array.BYTES_PER_ELEMENT * 4;
-        const vbSize = vbStride * 4;
-        this.vertexBuffers = device.createBuffer(new BufferInfo(
-            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            vbSize,
-            vbStride,
-        ));
-
-        const verts = new Float32Array(4 * 4);
-        let w = -this.image.width / 2;
-        let h = -this.image.height / 2;
-        if (this.screenWidth < this.screenHeight) {
-            w = -this.screenWidth / 2 * this.setting.displayRatio;
-            h = w / (this.image.width / this.image.height);
-        } else {
-            w = -this.screenHeight / 2 * this.setting.displayRatio;
-            h = w / (this.image.width / this.image.height);
-        }
-        let n = 0;
-        verts[n++] = w; verts[n++] = h; verts[n++] = 0.0; verts[n++] = 1.0;
-        verts[n++] = -w; verts[n++] = h; verts[n++] = 1.0; verts[n++] = 1.0;
-        verts[n++] = w; verts[n++] = -h; verts[n++] = 0.0; verts[n++] = 0;
-        verts[n++] = -w; verts[n++] = -h; verts[n++] = 1.0; verts[n++] = 0;
-
-        // translate to center
-        for (let i = 0; i < verts.length; i += 4) {
-            verts[i] += this.screenWidth / 2;
-            verts[i + 1] += this.screenHeight / 2;
-        }
-
-        // doing the screen adaptation here will not support dynamic screen orientation changes
-        const ySign = this.device.capabilities.screenSpaceSignY;
-        const preTransform = preTransforms[this.device.surfaceTransform];
-        for (let i = 0; i < verts.length; i += 4) {
-            const x = verts[i] / this.screenWidth * 2 - 1;
-            const y = (verts[i + 1] / this.screenHeight * 2 - 1) * ySign;
-            verts[i] = preTransform[0] * x + preTransform[2] * y;
-            verts[i + 1] = preTransform[1] * x + preTransform[3] * y;
-        }
-
-        this.vertexBuffers.update(verts);
-
-        // create index buffer
-        const ibStride = Uint16Array.BYTES_PER_ELEMENT;
-        const ibSize = ibStride * 6;
-
-        this.indicesBuffers = device.createBuffer(new BufferInfo(
-            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
-            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-            ibSize,
-            ibStride,
-        ));
-
-        const indices = new Uint16Array(6);
-        indices[0] = 0; indices[1] = 1; indices[2] = 2;
-        indices[3] = 1; indices[4] = 3; indices[5] = 2;
-        this.indicesBuffers.update(indices);
-
-        const attributes: Attribute[] = [
-            new Attribute('a_position', Format.RG32F),
-            new Attribute('a_texCoord', Format.RG32F),
-        ];
-
-        const IAInfo = new InputAssemblerInfo(attributes, [this.vertexBuffers], this.indicesBuffers);
-        this.assmebler = device.createInputAssembler(IAInfo);
-    }
-
-    private initPSO () {
-        const device = this.device;
-
-        this.material = new Material();
-        this.material.initialize({ effectName: 'splash-screen' });
+        this.logoMat = new Material();
+        this.logoMat.initialize({ effectName: 'splash-screen' });
 
         const samplerInfo = new SamplerInfo();
         samplerInfo.addressU = Address.CLAMP;
@@ -531,47 +295,110 @@ export class SplashScreen {
         samplerInfo.addressW = Address.CLAMP;
         this.sampler = device.createSampler(samplerInfo);
 
-        this.texture = device.createTexture(new TextureInfo(
+        this.logoTexture = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
             Format.RGBA8,
-            this.image.width,
-            this.image.height,
+            this.logoImage.width,
+            this.logoImage.height,
         ));
 
-        const pass = this.material.passes[0];
+        const pass = this.logoMat.passes[0];
         const binding = pass.getBinding('mainTexture');
-        pass.bindTexture(binding, this.texture);
-
+        pass.bindTexture(binding, this.logoTexture);
         this.shader = ShaderPool.get(pass.getShaderVariant());
         const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
         descriptorSet.bindSampler(binding, this.sampler);
         descriptorSet.update();
 
-        this.region = new BufferTextureCopy();
-        this.region.texExtent.width = this.image.width;
-        this.region.texExtent.height = this.image.height;
-        this.region.texExtent.depth = 1;
-        device.copyTexImagesToTexture([this.image], this.texture, [this.region]);
+        const region = new BufferTextureCopy();
+        region.texExtent.width = this.logoImage.width;
+        region.texExtent.height = this.logoImage.height;
+        region.texExtent.depth = 1;
+        device.copyTexImagesToTexture([this.logoImage], this.logoTexture, [region]);
+    }
+
+    private initWarterMark () {
+        // create texture from image
+        const wartemarkImg = document.createElement('canvas');
+        wartemarkImg.width = 330; wartemarkImg.height = 30;
+        wartemarkImg.style.width = `${wartemarkImg.width}`;
+        wartemarkImg.style.height = `${wartemarkImg.height}`;
+        const ctx = wartemarkImg.getContext('2d')!;
+        ctx.font = `${18}px Arial`; ctx.textBaseline = 'top'; ctx.textAlign = 'left'; ctx.fillStyle = '`#424242`';
+        const text = 'Powered by Cocos Creator';
+        const textMetrics = ctx.measureText(text);
+        ctx.fillText(text, (330 - textMetrics.width) / 2, 6);
+        const region = new BufferTextureCopy();
+        region.texExtent.width = wartemarkImg.width;
+        region.texExtent.height = wartemarkImg.height;
+        region.texExtent.depth = 1;
+        this.watermarkTexture = this.device.createTexture(new TextureInfo(
+            TextureType.TEX2D, TextureUsageBit.SAMPLED | TextureUsageBit.TRANSFER_DST,
+            Format.RGBA8, wartemarkImg.width, wartemarkImg.height,
+        ));
+        this.device.copyTexImagesToTexture([wartemarkImg], this.watermarkTexture, [region]);
+        // create material
+        this.watermarkMat = new Material();
+        this.watermarkMat.initialize({ effectName: 'splash-screen' });
+        const pass = this.watermarkMat.passes[0];
+        const binding = pass.getBinding('mainTexture');
+        pass.bindTexture(binding, this.watermarkTexture);
+        DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET)).update();
+    }
+
+    private frame () {
+        const device = this.device;
+        device.acquire();
+        // record command
+        const cmdBuff = this.cmdBuff;
+        const framebuffer = this.framebuffer;
+        const renderArea = this.renderArea;
+        renderArea.width = device.width; renderArea.height = device.height;
+        cmdBuff.begin();
+        cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);
+
+        const logoPass = this.logoMat.passes[0];
+        const logoPso = PipelineStateManager.getOrCreatePipelineState(device, logoPass, this.shader, framebuffer.renderPass, this.quadAssmebler);
+        cmdBuff.bindPipelineState(logoPso);
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, logoPass.descriptorSet);
+        cmdBuff.bindInputAssembler(this.quadAssmebler);
+        cmdBuff.draw(this.quadAssmebler);
+
+        if (this.settings.displayWatermark && this.watermarkMat) {
+            const wartermarkPass = this.watermarkMat.passes[0];
+            const watermarkPso = PipelineStateManager.getOrCreatePipelineState(device,
+                wartermarkPass, this.shader, framebuffer.renderPass, this.quadAssmebler);
+            cmdBuff.bindPipelineState(watermarkPso);
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, wartermarkPass.descriptorSet);
+            cmdBuff.bindInputAssembler(this.quadAssmebler);
+            cmdBuff.draw(this.quadAssmebler);
+        }
+
+        cmdBuff.endRenderPass();
+        cmdBuff.end();
+        device.flushCommands([cmdBuff]);
+        device.queue.submit([cmdBuff]);
+        device.present();
     }
 
     private destroy () {
         this.callBack = null;
-        this.clearColors = null!;
+        this.root = null!;
         this.device = null!;
-        if (JSB) (this.image as any).destroy();
-        this.image = null!;
+        this.clearColors = null!;
+        if ((this.logoImage as any).destroy) (this.logoImage as any).destroy();
+        this.logoImage = null!;
         this.framebuffer = null!;
         this.renderArea = null!;
-        this.region = null!;
         this.cmdBuff = null!;
         this.shader = null!;
-        this.material.destroy();
-        this.material = null!;
-        this.texture.destroy();
-        this.texture = null!;
-        this.assmebler.destroy();
-        this.assmebler = null!;
+        this.logoMat.destroy();
+        this.logoMat = null!;
+        this.logoTexture.destroy();
+        this.logoTexture = null!;
+        this.quadAssmebler.destroy();
+        this.quadAssmebler = null!;
         this.vertexBuffers.destroy();
         this.vertexBuffers = null!;
         this.indicesBuffers.destroy();
@@ -580,23 +407,14 @@ export class SplashScreen {
         this.sampler = null!;
 
         /** text */
-        if (this.textImg) {
-            this.textImg = null!;
-            this.textRegion = null!;
-            this.textShader = null!;
-            this.textMaterial.destroy();
-            this.textMaterial = null!;
-            this.textTexture.destroy();
-            this.textTexture = null!;
-            this.textAssmebler.destroy();
-            this.textAssmebler = null!;
-            this.textVB.destroy();
-            this.textVB = null!;
-            this.textIB.destroy();
-            this.textIB = null!;
+        if (this.watermarkTexture) {
+            this.watermarkMat.destroy();
+            this.watermarkMat = null!;
+            this.watermarkTexture.destroy();
+            this.watermarkTexture = null!;
         }
 
-        this.setting = null!;
+        this.settings = null!;
         SplashScreen._ins = undefined;
     }
 

@@ -37,7 +37,7 @@ import { IAssembler } from '../../renderer/base';
 import { fillMeshVertices3D } from '../utils';
 import { bmfontUtils } from './bmfontUtils';
 
-const COLOR = new Color(255, 255, 255, 255);
+const tempColor = new Color(255, 255, 255, 255);
 
 /**
  * bmfont 组装器
@@ -51,9 +51,9 @@ export const bmfont: IAssembler = {
     fillBuffers (comp: Label, renderer: Batcher2D) {
         const node = comp.node;
         comp._setCacheAlpha(node._uiProps.opacity);
-        COLOR.set(comp.color);
-        COLOR.a = node._uiProps.opacity * 255;
-        fillMeshVertices3D(node, renderer, comp.renderData!, COLOR);
+        tempColor.set(comp.color);
+        tempColor.a = node._uiProps.opacity * 255;
+        fillMeshVertices3D(node, renderer, comp.renderData!, tempColor);
     },
 
     appendQuad (comp: Label, spriteFrame: SpriteFrame, rect: Rect, rotated: boolean, x: number, y: number, scale: number) {

@@ -200,6 +200,7 @@ export class PageViewIndicator extends Component {
 
     public _createIndicator () {
         const node = new Node();
+        node.layer = this.node.layer;
         const sprite = node.addComponent(Sprite);
         sprite.spriteFrame = this.spriteFrame;
         sprite.sizeMode = Sprite.SizeMode.CUSTOM;

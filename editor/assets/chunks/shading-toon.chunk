@@ -94,7 +94,7 @@ struct ToonSurface {
     finalColor += s.emissive;
 
     #if CC_RECEIVE_SHADOW
-      CC_SHADOW_FACTOR(finalColor, NL);
+      CC_SHADOW_FACTOR(finalColor, NL, cc_mainLitDir, N);
     #endif
 
     return vec4(finalColor, s.baseColor.a);

@@ -35,3 +35,6 @@ require('./jsb-safearea.js');
 require('./jsb-editor-support.js')
 require('./jsb-spine-skeleton.js')
 require('./jsb-dragonbones.js')
+
+if (cc.physics.PhysicsSystem.PHYSICS_PHYSX)
+    require('./jsb-physics.js');

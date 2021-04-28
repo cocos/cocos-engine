@@ -36,6 +36,7 @@ import { warnID, errorID, getError } from '../platform/debug';
 import * as js from '../utils/js';
 
 import { deserializeDynamic } from './deserialize-dynamic';
+import { Asset } from '../assets/asset';
 
 /** **************************************************************************
  * BUILT-IN TYPES / CONSTAINTS
@@ -534,6 +535,11 @@ export class Details {
      */
     uuidList: IFileData[File.DependUuidIndices] | null = null;
 
+    /**
+     * list of the depends assets' type
+     */
+    uuidTypeList: string[] = [];
+
     static pool = new js.Pool((obj: Details) => {
         obj.reset();
     }, 5);
@@ -556,6 +562,7 @@ export class Details {
                 this.uuidList = [];
                 this.uuidObjList = [];
                 this.uuidPropList = [];
+                this.uuidTypeList = [];
             }
         }
     }
@@ -575,6 +582,7 @@ export class Details {
                 this.uuidList!.length = 0;
                 this.uuidObjList!.length = 0;
                 this.uuidPropList!.length = 0;
+                this.uuidTypeList.length = 0;
             }
         }
     }
@@ -585,22 +593,24 @@ export class Details {
      * @param {String} propName
      * @param {String} uuid
      */
-    push (obj: object, propName: string, uuid: string) {
+    push (obj: object, propName: string, uuid: string, type?: string) {
         this.uuidObjList!.push(obj);
         this.uuidPropList!.push(propName);
         this.uuidList!.push(uuid);
+        this.uuidTypeList.push(type || '');
     }
 }
 Details.pool.get = function () {
     return this._get() || new Details();
 };
 if (EDITOR || TEST) {
-    Details.prototype.assignAssetsBy = function (getter: (uuid: string) => any) {
+    Details.prototype.assignAssetsBy = function (getter: (uuid: string, type: Constructor<Asset>) => any) {
         for (let i = 0, len = this.uuidList!.length; i < len; i++) {
             const obj = this.uuidObjList![i];
             const prop = this.uuidPropList![i];
             const uuid = this.uuidList![i];
-            obj[prop] = getter(uuid as string);
+            const type = this.uuidTypeList[i];
+            obj[prop] = getter(uuid as string, js._getClassById(type) as Constructor<Asset> || Asset);
         }
     };
 }

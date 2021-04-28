@@ -219,6 +219,23 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         view[index++] = vec3.x; view[index++] = vec3.y; view[index] = vec3.z;
     }
 
+    public getVec3<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec3: Extract<M[K], IVec3Like>) {
+        // Web engine has Vec3 property, don't record it in shared memory.
+        if (!JSB) { return; }
+
+        const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
+        const entry = this._entryMask & handle as unknown as number;
+        const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
+        if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
+            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            console.warn('invalid buffer pool handle');
+            return;
+        }
+        let index = element as unknown as number;
+        const view = bufferViews[chunk][entry];
+        vec3.x = view[index++]; vec3.y = view[index++]; vec3.z = view[index];
+    }
+
     public setVec4<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec4: Extract<M[K], IVec4Like>) {
         // Web engine has Vec4 property, don't record it in shared memory.
         if (!JSB) { return; }
@@ -235,6 +252,24 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const view = bufferViews[chunk][entry];
         view[index++] = vec4.x; view[index++] = vec4.y;
         view[index++] = vec4.z; view[index] = vec4.w;
+    }
+
+    public getVec4<K extends E[keyof E]> (handle: IHandle<P>, element: K, vec4: Extract<M[K], IVec4Like>) {
+        // Web engine has Vec4 property, don't record it in shared memory.
+        if (!JSB) { return; }
+
+        const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
+        const entry = this._entryMask & handle as unknown as number;
+        const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
+        if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
+            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            console.warn('invalid buffer pool handle');
+            return;
+        }
+        let index = element as unknown as number;
+        const view = bufferViews[chunk][entry];
+        vec4.x = view[index++]; vec4.y = view[index++];
+        vec4.z = view[index++]; vec4.w = view[index];
     }
 
     public setMat4<K extends E[keyof E]> (handle: IHandle<P>, element: K, mat4: Extract<M[K], IMat4Like>) {
@@ -307,6 +342,7 @@ export class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemo
             if (!obj) { return 0 as unknown as IHandle<P>; }
             this._array.push(obj);
         }
+        if (JSB) this._nativePool.bind(i, this._array[i] as T);
         return i + this._poolFlag as unknown as IHandle<P>; // guarantees the handle is always not zero
     }
 
@@ -340,6 +376,7 @@ class BufferAllocator<P extends PoolType> implements IMemoryPool<P> {
     protected _poolFlag: number;
 
     protected _bufferIdxMask: number;
+    protected _freelist: number[] = [];
 
     constructor (poolType: P) {
         this._poolFlag = 1 << 30;
@@ -348,7 +385,15 @@ class BufferAllocator<P extends PoolType> implements IMemoryPool<P> {
     }
 
     public alloc (size: number): IHandle<P> {
-        const bufferIdx = this._nextBufferIdx++;
+        const freelist = this._freelist;
+        let bufferIdx = -1;
+        if (freelist.length) {
+            bufferIdx = freelist[freelist.length - 1];
+            freelist.length--;
+        } else {
+            bufferIdx = this._nextBufferIdx++;
+        }
+
         const buffer = this._nativeBufferAllocator.alloc(bufferIdx, size);
         this._buffers.set(bufferIdx, buffer);
         return (bufferIdx | this._poolFlag) as unknown as IHandle<P>;
@@ -362,6 +407,7 @@ class BufferAllocator<P extends PoolType> implements IMemoryPool<P> {
         }
         this._nativeBufferAllocator.free(bufferIdx);
         this._buffers.delete(bufferIdx);
+        this._freelist.push(bufferIdx);
     }
 
     public getBuffer (handle: IHandle<P>): ArrayBuffer {
@@ -701,10 +747,18 @@ export enum SubModelView {
     PASS_1,                 // handle
     PASS_2,                 // handle
     PASS_3,                 // handle
+    PASS_4,                 // handle
+    PASS_5,                 // handle
+    PASS_6,                 // handle
+    PASS_7,                 // handle
     SHADER_0,               // handle
     SHADER_1,               // handle
     SHADER_2,               // handle
     SHADER_3,               // handle
+    SHADER_4,               // handle
+    SHADER_5,               // handle
+    SHADER_6,               // handle
+    SHADER_7,               // handle
     PLANAR_SHADER,          // handle
     PLANAR_INSTANCE_SHADER, // handle
     DESCRIPTOR_SET,         // handle
@@ -719,10 +773,18 @@ interface ISubModelViewType extends BufferTypeManifest<typeof SubModelView> {
     [SubModelView.PASS_1]: PassHandle;
     [SubModelView.PASS_2]: PassHandle;
     [SubModelView.PASS_3]: PassHandle;
+    [SubModelView.PASS_4]: PassHandle;
+    [SubModelView.PASS_5]: PassHandle;
+    [SubModelView.PASS_6]: PassHandle;
+    [SubModelView.PASS_7]: PassHandle;
     [SubModelView.SHADER_0]: ShaderHandle;
     [SubModelView.SHADER_1]: ShaderHandle;
     [SubModelView.SHADER_2]: ShaderHandle;
     [SubModelView.SHADER_3]: ShaderHandle;
+    [SubModelView.SHADER_4]: ShaderHandle;
+    [SubModelView.SHADER_5]: ShaderHandle;
+    [SubModelView.SHADER_6]: ShaderHandle;
+    [SubModelView.SHADER_7]: ShaderHandle;
     [SubModelView.PLANAR_SHADER]: ShaderHandle;
     [SubModelView.PLANAR_INSTANCE_SHADER]: ShaderHandle;
     [SubModelView.DESCRIPTOR_SET]: DescriptorSetHandle;
@@ -737,10 +799,18 @@ const subModelViewDataType: BufferDataTypeManifest<typeof SubModelView> = {
     [SubModelView.PASS_1]: BufferDataType.UINT32,
     [SubModelView.PASS_2]: BufferDataType.UINT32,
     [SubModelView.PASS_3]: BufferDataType.UINT32,
+    [SubModelView.PASS_4]: BufferDataType.UINT32,
+    [SubModelView.PASS_5]: BufferDataType.UINT32,
+    [SubModelView.PASS_6]: BufferDataType.UINT32,
+    [SubModelView.PASS_7]: BufferDataType.UINT32,
     [SubModelView.SHADER_0]: BufferDataType.UINT32,
     [SubModelView.SHADER_1]: BufferDataType.UINT32,
     [SubModelView.SHADER_2]: BufferDataType.UINT32,
     [SubModelView.SHADER_3]: BufferDataType.UINT32,
+    [SubModelView.SHADER_4]: BufferDataType.UINT32,
+    [SubModelView.SHADER_5]: BufferDataType.UINT32,
+    [SubModelView.SHADER_6]: BufferDataType.UINT32,
+    [SubModelView.SHADER_7]: BufferDataType.UINT32,
     [SubModelView.PLANAR_SHADER]: BufferDataType.UINT32,
     [SubModelView.PLANAR_INSTANCE_SHADER]: BufferDataType.UINT32,
     [SubModelView.DESCRIPTOR_SET]: BufferDataType.UINT32,
@@ -1195,13 +1265,17 @@ export enum ShadowsView {
     PCF_TYPE,
     SHADOW_MAP_DIRTY,   // boolean
     BIAS,
+    PACKING,            // boolean
+    LINEAR,             // boolean
+    SELF_SHADOW,        // boolean
+    NORMAL_BIAS,
     ORTHO_SIZE,
     AUTO_ADAPT,         // boolean
-    COLOR = 14,         // Vec4
-    SIZE = 18,          // Vec2
-    NORMAL = 20,        // Vec3
-    MAT_LIGHT = 23,     // Mat4
-    COUNT = 39
+    COLOR = 18,         // Vec4
+    SIZE = 22,          // Vec2
+    NORMAL = 24,        // Vec3
+    MAT_LIGHT = 27,     // Mat4
+    COUNT = 43
 }
 interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.ENABLE]: number;
@@ -1216,6 +1290,10 @@ interface IShadowsViewType extends BufferTypeManifest<typeof ShadowsView> {
     [ShadowsView.PCF_TYPE]: number;
     [ShadowsView.SHADOW_MAP_DIRTY]: number;
     [ShadowsView.BIAS]: number;
+    [ShadowsView.PACKING]: number;
+    [ShadowsView.LINEAR]: number;
+    [ShadowsView.SELF_SHADOW]: number;
+    [ShadowsView.NORMAL_BIAS]: number;
     [ShadowsView.ORTHO_SIZE]: number;
     [ShadowsView.AUTO_ADAPT]: number;
     [ShadowsView.COLOR]: Color;
@@ -1237,6 +1315,10 @@ const shadowsViewDataType: BufferDataTypeManifest<typeof ShadowsView> = {
     [ShadowsView.PCF_TYPE]: BufferDataType.UINT32,
     [ShadowsView.SHADOW_MAP_DIRTY]: BufferDataType.UINT32,
     [ShadowsView.BIAS]: BufferDataType.FLOAT32,
+    [ShadowsView.PACKING]: BufferDataType.UINT32,
+    [ShadowsView.LINEAR]: BufferDataType.UINT32,
+    [ShadowsView.SELF_SHADOW]: BufferDataType.UINT32,
+    [ShadowsView.NORMAL_BIAS]: BufferDataType.FLOAT32,
     [ShadowsView.ORTHO_SIZE]: BufferDataType.FLOAT32,
     [ShadowsView.AUTO_ADAPT]: BufferDataType.UINT32,
     [ShadowsView.COLOR]: BufferDataType.FLOAT32,
@@ -1323,13 +1405,13 @@ export enum LightView {
 interface ILightViewType extends BufferTypeManifest<typeof LightView> {
     [LightView.USE_COLOR_TEMPERATURE]: number;
     [LightView.ILLUMINANCE]: number;
-    [LightView.NODE]:NodeHandle;
-    [LightView.RANGE]:number;
-    [LightView.TYPE]:number;
-    [LightView.AABB]:AABBHandle;
-    [LightView.FRUSTUM]:FrustumHandle;
-    [LightView.SIZE]:number;
-    [LightView.SPOT_ANGLE]:number;
+    [LightView.NODE]: NodeHandle;
+    [LightView.RANGE]: number;
+    [LightView.TYPE]: number;
+    [LightView.AABB]: AABBHandle;
+    [LightView.FRUSTUM]: FrustumHandle;
+    [LightView.SIZE]: number;
+    [LightView.SPOT_ANGLE]: number;
     [LightView.ASPECT]: number;
     [LightView.DIRECTION]: Vec3;
     [LightView.COLOR]: Vec3;

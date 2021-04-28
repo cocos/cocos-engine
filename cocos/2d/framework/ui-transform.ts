@@ -196,8 +196,8 @@ export class UITransform extends Component {
      *
      * @zh
      * 渲染先后顺序，按照广度渲染排列，按同级节点下进行一次排列。
+     * @deprecated
      */
-    @visible(false)
     get priority () {
         return this._priority;
     }
@@ -661,12 +661,13 @@ export class UITransform extends Component {
     private static _sortChildrenSibling (node) {
         const siblings = node.children;
         if (siblings) {
-            siblings.sort((a, b) => {
+            siblings.sort((a:Node, b:Node) => {
                 const aComp = a._uiProps.uiTransformComp;
                 const bComp = b._uiProps.uiTransformComp;
-                const ca = aComp ? aComp.priority : 0;
-                const cb = bComp ? bComp.priority : 0;
+                const ca = aComp ? aComp._priority : 0;
+                const cb = bComp ? bComp._priority : 0;
                 const diff = ca - cb;
+                if (diff === 0) return a.getSiblingIndex() - b.getSiblingIndex();
                 return diff;
             });
         }
@@ -680,7 +681,12 @@ export class UITransform extends Component {
         });
         UITransform.priorityChangeNodeMap.clear();
     }
+
+    public static _cleanChangeMap () {
+        UITransform.priorityChangeNodeMap.clear();
+    }
 }
 
 // HACK
 director.on(Director.EVENT_AFTER_UPDATE, UITransform._sortSiblings);
+director.on(Director.EVENT_BEFORE_SCENE_LAUNCH, UITransform._cleanChangeMap);

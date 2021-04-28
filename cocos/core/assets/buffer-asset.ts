@@ -52,6 +52,10 @@ export class BufferAsset extends Asset {
     public buffer () {
         return this._buffer;
     }
+
+    public validate () {
+        return !!this.buffer;
+    }
 }
 
 legacyCC.BufferAsset = BufferAsset;

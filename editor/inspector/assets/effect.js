@@ -1,6 +1,6 @@
 'use strict';
 
-const { readJSONSync, existsSync } = require('fs-extra');
+const { readFileSync, existsSync } = require('fs');
 
 exports.template = `
 <div class="asset-effect">
@@ -172,6 +172,7 @@ const Elements = {
                             button.setAttribute('checked', 'true');
                         }
 
+                        panel.dataChange();
                         panel.dispatch('change');
                     });
                 });
@@ -194,6 +195,7 @@ const Elements = {
                 const section = document.createElement('ui-section');
                 panel.$.codes.appendChild(section);
                 section.setAttribute('class', 'config');
+                section.setAttribute('expand', '');
 
                 const glslName = panel.glslNames[glslKey];
 
@@ -302,7 +304,7 @@ exports.methods = {
             return false;
         }
 
-        const dataSource = readJSONSync(fileSource);
+        const dataSource = JSON.parse(readFileSync(fileSource, 'utf8'));
 
         if (!dataSource) {
             console.error('Read effect json file in library failed.');
@@ -380,7 +382,7 @@ exports.methods = {
             element.removeAttribute('disabled');
         }
     },
-    apply() {
+    dataChange() {
         const panel = this;
 
         // Need to exclude empty arrays, otherwise scene will report an error

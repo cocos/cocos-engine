@@ -42,6 +42,7 @@ import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
+import { Material, RenderTexture } from '../../core';
 
 /**
  * @en
@@ -482,8 +483,7 @@ export class Sprite extends Renderable2D {
         }
 
         if (this._spriteFrame) {
-            this._spriteFrame.on('load', this._markForUpdateUvDirty, this);
-            this._markForUpdateUvDirty();
+            this._spriteFrame.once('load', this._onTextureLoaded, this);
         }
     }
 
@@ -510,6 +510,7 @@ export class Sprite extends Renderable2D {
 
         // this._flushAssembler();
         this._activateMaterial();
+        this._markForUpdateUvDirty();
     }
 
     public onDestroy () {
@@ -518,8 +519,8 @@ export class Sprite extends Renderable2D {
             this.node.off(SystemEventType.SIZE_CHANGED, this._resized, this);
         }
 
-        if (this._spriteFrame) {
-            this._spriteFrame.off('load');
+        if (this._spriteFrame && !this._spriteFrame.loaded) {
+            this._spriteFrame.off('load', this._onTextureLoaded, this);
         }
         super.onDestroy();
     }
@@ -545,6 +546,7 @@ export class Sprite extends Renderable2D {
 
     public changeMaterialForDefine () {
         let texture;
+        const lastInstanceMaterialType = this._instanceMaterialType;
         if (this._spriteFrame) {
             texture = this._spriteFrame.texture;
         }
@@ -563,7 +565,23 @@ export class Sprite extends Renderable2D {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this.updateMaterial();
+        if (lastInstanceMaterialType !== this._instanceMaterialType) {
+            this.updateMaterial();
+        }
+    }
+
+    protected _updateBuiltinMaterial () {
+        let mat = super._updateBuiltinMaterial();
+        if (this.spriteFrame && this.spriteFrame.texture instanceof RenderTexture) {
+            const defines = { SAMPLE_FROM_RT: true, ...mat.passes[0].defines };
+            const renderMat = new Material();
+            renderMat.initialize({
+                effectAsset: mat.effectAsset,
+                defines,
+            });
+            mat = renderMat;
+        }
+        return mat;
     }
 
     protected _render (render: Batcher2D) {
@@ -614,12 +632,14 @@ export class Sprite extends Renderable2D {
 
     private _applySpriteSize () {
         if (this._spriteFrame) {
-            if (SizeMode.RAW === this._sizeMode) {
-                const size = this._spriteFrame.originalSize;
-                this.node._uiProps.uiTransformComp!.setContentSize(size);
-            } else if (SizeMode.TRIMMED === this._sizeMode) {
-                const rect = this._spriteFrame.getRect();
-                this.node._uiProps.uiTransformComp!.setContentSize(rect.width, rect.height);
+            if (!this._spriteFrame.isDefault) {
+                if (SizeMode.RAW === this._sizeMode) {
+                    const size = this._spriteFrame.originalSize;
+                    this.node._uiProps.uiTransformComp!.setContentSize(size);
+                } else if (SizeMode.TRIMMED === this._sizeMode) {
+                    const rect = this._spriteFrame.getRect();
+                    this.node._uiProps.uiTransformComp!.setContentSize(rect.width, rect.height);
+                }
             }
 
             this._activateMaterial();
@@ -726,14 +746,9 @@ export class Sprite extends Renderable2D {
         // }
 
         if (this._renderData) {
-            if (oldFrame) {
-                oldFrame.off('load', this._markForUpdateUvDirty);
+            if (oldFrame && !oldFrame.loaded) {
+                oldFrame.off('load', this._onTextureLoaded, this);
             }
-
-            if (spriteFrame) {
-                spriteFrame.on('load', this._markForUpdateUvDirty, this);
-            }
-
             if (!this._renderData.uvDirty) {
                 if (oldFrame && spriteFrame) {
                     this._renderData.uvDirty = oldFrame.uvHash !== spriteFrame.uvHash;
@@ -747,8 +762,7 @@ export class Sprite extends Renderable2D {
 
         if (spriteFrame) {
             if (!oldFrame || spriteFrame !== oldFrame) {
-                // this._material.setProperty('mainTexture', spriteFrame);
-                if (spriteFrame.loaded) {
+                if  (spriteFrame.loaded) {
                     this._onTextureLoaded();
                 } else {
                     spriteFrame.once('load', this._onTextureLoaded, this);

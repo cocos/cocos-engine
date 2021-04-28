@@ -56,7 +56,6 @@ export interface AudioMeta {
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
     public static AudioType = AudioType;
-    public static preventDeferredLoadDependents = true;
 
     @serializable
     protected _duration = 0; // we serialize this because it's unavailable at runtime on some platforms
@@ -102,7 +101,17 @@ export class AudioClip extends Asset {
         return this._loadMode;
     }
 
-    public getDuration () { return this._meta ? this._meta.duration : this._duration; }
+    public validate () {
+        return !!this._meta;
+    }
+
+    public getDuration () {
+        // Dynamicly loaded audioClip._duration is 0
+        if (this._duration) {
+            return this._duration;
+        }
+        return this._meta ? this._meta.duration : 0;
+    }
 }
 
 legacyCC.AudioClip = AudioClip;

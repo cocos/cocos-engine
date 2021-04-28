@@ -378,10 +378,10 @@ export class Profiler {
 
         if (!EDITOR) {
             const surfaceTransform = this._device!.surfaceTransform;
-            const screenSpaceSignY = this._device!.capabilities.screenSpaceSignY;
+            const clipSpaceSignY = this._device!.capabilities.clipSpaceSignY;
             if (surfaceTransform !== this.offsetData[3]) {
                 const preTransform = preTransforms[surfaceTransform];
-                const x = -0.9; const y = -0.9 * screenSpaceSignY;
+                const x = -0.9; const y = -0.9 * clipSpaceSignY;
                 this.offsetData[0] = x * preTransform[0] + y * preTransform[2];
                 this.offsetData[1] = x * preTransform[1] + y * preTransform[3];
                 this.offsetData[2] = this._eachNumWidth;

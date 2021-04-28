@@ -35,9 +35,11 @@ import { compile } from '../data/instantiate-jit';
 import { js, obsolete } from '../utils/js';
 import { Enum } from '../value-types';
 import { Asset } from './asset';
+import { Node } from '../scene-graph/node';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import * as utils from '../utils/prefab';
+import { PrefabInfo } from '../utils/prefab';
 
 /**
  * @en An enumeration used with the [[Prefab.optimizationPolicy]] to specify how to optimize the instantiate operation.
@@ -110,17 +112,8 @@ class Prefab extends Asset {
     @editable
     public optimizationPolicy = OptimizationPolicy.AUTO;
 
-    /**
-     * @en Indicates the native assets of this prefab can be load after prefab loaded.
-     * @zh 指示该 Prefab 依赖的资源可否在 Prefab 加载后再延迟加载。
-     * @default false
-     */
-    @serializable
-    @editable
-    public asyncLoadAssets = false;
-
     // Cache function to optimize instance creation.
-    private _createFunction: Function | null;
+    private _createFunction: ((...arg: any[]) => Node) | null;
     private _instantiatedTimes: number;
     constructor () {
         super();
@@ -129,7 +122,7 @@ class Prefab extends Asset {
         this._instantiatedTimes = 0;
     }
 
-    public createNode (cb: Function): void {
+    public createNode (cb: (err: Error | null, node: Node) => void): void {
         const node = legacyCC.instantiate(this);
         node.name = this.name;
         cb(null, node);
@@ -163,8 +156,8 @@ class Prefab extends Asset {
         return this._createFunction!(rootToRedirect);  // this.data._instantiate();
     }
 
-    private _instantiate () {
-        let node;
+    private _instantiate (): Node {
+        let node: Node;
         let useJit = false;
         if (SUPPORT_JIT) {
             if (this.optimizationPolicy === OptimizationPolicy.SINGLE_INSTANCE) {
@@ -188,6 +181,20 @@ class Prefab extends Asset {
         ++this._instantiatedTimes;
 
         return node;
+    }
+
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
+        this.data = new Node();
+        this.data.name = '(Missing Node)';
+        const prefabInfo = new PrefabInfo();
+        prefabInfo.asset = this;
+        prefabInfo.root = this.data;
+        this.data._prefab = prefabInfo;
+    }
+
+    public validate () {
+        return !!this.data;
     }
 }
 

@@ -1,6 +1,6 @@
 import { IMiniGame } from 'pal/minigame';
 import { Orientation } from '../system/enum-type/orientation';
-import { cloneObject } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let qg: any;
 
@@ -9,24 +9,38 @@ const minigame: IMiniGame = {};
 cloneObject(minigame, qg);
 
 const systemInfo = minigame.getSystemInfoSync();
-minigame.isSubContext = false;  // sub context not supported
 minigame.isDevTool = false;
-minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
-let orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
 
-// // TouchEvent
-// globalAdapter.onTouchStart = function (cb) {
-//     window.canvas.ontouchstart = cb;
-// };
-// globalAdapter.onTouchMove = function (cb) {
-//     window.canvas.ontouchmove = cb;
-// };
-// globalAdapter.onTouchEnd = function (cb) {
-//     window.canvas.ontouchend = cb;
-// };
-// globalAdapter.onTouchCancel = function (cb) {
-//     window.canvas.ontouchcancel = cb;
-// };
+minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
+// init landscapeOrientation as LANDSCAPE_RIGHT
+const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+// NOTE: onDeviceOrientationChange is not supported on this platform
+// qg.onDeviceOrientationChange((res) => {
+//     if (res.value === 'landscape') {
+//         landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+//     } else if (res.value === 'landscapeReverse') {
+//         landscapeOrientation = Orientation.LANDSCAPE_LEFT;
+//     }
+// });
+Object.defineProperty(minigame, 'orientation', {
+    get () {
+        return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
+    },
+});
+
+// TouchEvent
+minigame.onTouchStart = function (cb) {
+    window.canvas.ontouchstart = cb;
+};
+minigame.onTouchMove = function (cb) {
+    window.canvas.ontouchmove = cb;
+};
+minigame.onTouchEnd = function (cb) {
+    window.canvas.ontouchend = cb;
+};
+minigame.onTouchCancel = function (cb) {
+    window.canvas.ontouchcancel = cb;
+};
 
 // // Keyboard
 // globalAdapter.showKeyboard = function (res) {
@@ -34,21 +48,13 @@ let orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientati
 //     qg.showKeyboard(res);
 // };
 
-// Accelerometer
-qg.onDeviceOrientationChange((res) => {
-    if (res.value === 'landscape') {
-        orientation = Orientation.LANDSCAPE_RIGHT;
-    } else if (res.value === 'landscapeReverse') {
-        orientation = Orientation.LANDSCAPE_LEFT;
-    }
-});
-
+// Accelerometers
 minigame.onAccelerometerChange = function (cb) {
     qg.onAccelerometerChange((res) => {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
-            const orientationFactor = orientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
+            const orientationFactor = landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
             const tmp = x;
             x = -y * orientationFactor;
             y = tmp * orientationFactor;
@@ -64,6 +70,13 @@ minigame.onAccelerometerChange = function (cb) {
     // onAccelerometerChange would start accelerometer, need to mannually stop it
     qg.stopAccelerometer();
 };
+
+minigame.createInnerAudioContext = createInnerAudioContextPolyfill(qg, {
+    onPlay: true,
+    onPause: true,
+    onStop: true,
+    onSeek: false,
+});
 
 minigame.getSafeArea = function () {
     console.warn('getSafeArea is not supported on this platform');

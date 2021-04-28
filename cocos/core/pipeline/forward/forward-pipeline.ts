@@ -43,6 +43,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { legacyCC } from '../../global-exports';
+import { sceneCulling } from '../scene-culling';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -104,7 +105,8 @@ export class ForwardPipeline extends RenderPipeline {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
-                this._pipelineUBO.updateCameraUBO(camera, camera.window!.hasOffScreenAttachments);
+                sceneCulling(this, camera);
+                this._pipelineUBO.updateCameraUBO(camera);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
                 }

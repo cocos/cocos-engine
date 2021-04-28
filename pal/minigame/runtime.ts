@@ -1,6 +1,8 @@
-import { IMiniGame } from 'pal/minigame';
+import { VIVO } from 'internal:constants';
+import { SystemInfo, IMiniGame } from 'pal/minigame';
+
 import { Orientation } from '../system/enum-type/orientation';
-import { cloneObject } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let ral: any;
 
@@ -9,10 +11,24 @@ const minigame: IMiniGame = {};
 cloneObject(minigame, ral);
 
 const systemInfo = minigame.getSystemInfoSync();
-minigame.isSubContext = minigame.getOpenDataContext !== undefined;
 minigame.isDevTool = (systemInfo.platform === 'devtools');
+
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
-const orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
+// init landscapeOrientation as LANDSCAPE_RIGHT
+const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+// NOTE: onDeviceOrientationChange is not supported on this platform
+// ral.onDeviceOrientationChange((res) => {
+//     if (res.value === 'landscape') {
+//         landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+//     } else if (res.value === 'landscapeReverse') {
+//         landscapeOrientation = Orientation.LANDSCAPE_LEFT;
+//     }
+// });
+Object.defineProperty(minigame, 'orientation', {
+    get () {
+        return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
+    },
+});
 
 // Accelerometer
 // onDeviceOrientationChange is not supported
@@ -30,7 +46,7 @@ minigame.onAccelerometerChange = function (cb) {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
-            const orientationFactor = orientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
+            const orientationFactor = landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
             const tmp = x;
             x = -y * orientationFactor;
             y = tmp * orientationFactor;
@@ -47,43 +63,12 @@ minigame.onAccelerometerChange = function (cb) {
     ral.stopAccelerometer();
 };
 
-minigame.createInnerAudioContext = function (): InnerAudioContext {
-    const audioContext: InnerAudioContext = ral.createInnerAudioContext();
-
-    // HACK: onSeeked method doesn't work on runtime
-    const originalSeek = audioContext.seek;
-    let _onSeekCB: (()=> void) | null = null;
-    audioContext.onSeeked = function (cb: ()=> void) {
-        _onSeekCB = cb;
-    };
-    audioContext.seek = function (time: number) {
-        originalSeek.call(audioContext, time);
-        _onSeekCB?.();
-    };
-
-    // HACK: onPause method doesn't work on runtime
-    const originalPause = audioContext.pause;
-    let _onPauseCB: (()=> void) | null = null;
-    audioContext.onPause = function (cb: ()=> void) {
-        _onPauseCB = cb;
-    };
-    audioContext.pause = function () {
-        originalPause.call(audioContext);
-        _onPauseCB?.();
-    };
-
-    // HACK: onStop method doesn't work on runtime
-    const originalStop = audioContext.stop;
-    let _onStopCB: (()=> void) | null = null;
-    audioContext.onStop = function (cb: ()=> void) {
-        _onStopCB = cb;
-    };
-    audioContext.stop = function () {
-        originalStop.call(audioContext);
-        _onStopCB?.();
-    };
-    return audioContext;
-};
+minigame.createInnerAudioContext = createInnerAudioContextPolyfill(ral, {
+    onPlay: true,  // polyfill for vivo
+    onPause: true,
+    onStop: true,
+    onSeek: true,
+});
 
 // safeArea
 // origin point on the top-left corner
@@ -102,5 +87,15 @@ minigame.getSafeArea = function () {
     }
     return { top, left, bottom, right, width, height };
 };
+
+if (VIVO) {
+    // HACK: need to be handled in ral lib.
+    minigame.getSystemInfoSync = function () {
+        const sys = ral.getSystemInfoSync() as SystemInfo;
+        sys.windowWidth = sys.screenWidth;
+        sys.windowHeight = sys.screenHeight;
+        return sys;
+    };
+}
 
 export { minigame };

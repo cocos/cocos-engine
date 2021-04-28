@@ -344,8 +344,10 @@ export class TiledObjectGroup extends Component {
 
                 sprite.sizeMode = Sprite.SizeMode.CUSTOM;
 
-                sprite.srcBlendFactor = this._premultiplyAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
-                sprite.dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
+                // @ts-expect-error remove when component remove blend function
+                sprite._srcBlendFactor = this._premultiplyAlpha ? BlendFactor.ONE : BlendFactor.SRC_ALPHA;
+                // @ts-expect-error remove when component remove blend function
+                sprite._dstBlendFactor = BlendFactor.ONE_MINUS_SRC_ALPHA;
                 sprite._updateBlendFunc();
 
                 let spf = grid.spriteFrame;

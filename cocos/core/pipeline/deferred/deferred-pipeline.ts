@@ -46,6 +46,7 @@ import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { legacyCC } from '../../global-exports';
+import { sceneCulling } from '../scene-culling';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -154,7 +155,8 @@ export class DeferredPipeline extends RenderPipeline {
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
-                this._pipelineUBO.updateCameraUBO(camera, true);
+                sceneCulling(this, camera);
+                this._pipelineUBO.updateCameraUBO(camera);
                 for (let j = 0; j < this._flows.length; j++) {
                     this._flows[j].render(camera);
                 }
@@ -441,9 +443,13 @@ export class DeferredPipeline extends RenderPipeline {
 
         const minX = renderArea.x / this.device.width;
         const maxX = (renderArea.x + renderArea.width) / this.device.width;
-        const minY = renderArea.y / this.device.height;
-        const maxY = (renderArea.y + renderArea.height) / this.device.height;
-
+        let minY = renderArea.y / this.device.height;
+        let maxY = (renderArea.y + renderArea.height) / this.device.height;
+        if (this.device.capabilities.screenSpaceSignY > 0) {
+            const temp = maxY;
+            maxY       = minY;
+            minY       = temp;
+        }
         let n = 0;
         switch (surfaceTransform) {
         case (SurfaceTransform.IDENTITY):

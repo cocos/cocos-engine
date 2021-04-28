@@ -247,7 +247,7 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取碰撞矩阵，它仅用于初始化。
      */
-    readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix() as ICollisionMatrix;
+    readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix(1) as ICollisionMatrix;
 
     readonly useNodeChains: boolean;
 

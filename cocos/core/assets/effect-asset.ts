@@ -231,6 +231,19 @@ export class EffectAsset extends Asset {
         EffectAsset.remove(this.name);
         return super.destroy();
     }
+
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
+        const effect = EffectAsset.get('unlit');
+        this.name = 'unlit';
+        this.shaders = effect!.shaders;
+        this.combinations = effect!.combinations;
+        this.techniques = effect!.techniques;
+    }
+
+    public validate () {
+        return this.techniques.length > 0 && this.shaders.length > 0;
+    }
 }
 
 legacyCC.EffectAsset = EffectAsset;

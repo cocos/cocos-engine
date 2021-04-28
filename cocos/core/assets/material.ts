@@ -39,6 +39,7 @@ import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { legacyCC } from '../global-exports';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
+import { Color } from '../math/color';
 
 /**
  * @en The basic infos for material initialization.
@@ -414,9 +415,6 @@ export class Material extends Asset {
             } else {
                 for (let i = 0; i < this._props.length; i++) { this._props[i] = {}; }
             }
-        } else { // ugly yellow indicating missing effect
-            const missing = builtinResMgr.get<Material>('missing-effect-material');
-            if (missing) { this._passes = missing._passes.slice(); }
         }
         this._hash = Material.getHash(this);
     }
@@ -473,6 +471,19 @@ export class Material extends Asset {
         this._props.length = 0;
         this._defines.length = 0;
         this._states.length = 0;
+    }
+
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
+        this.initialize({
+            effectName: 'unlit',
+            defines: { USE_COLOR: true },
+        });
+        this.setProperty('mainColor', new Color('#ff00ff'));
+    }
+
+    public validate () {
+        return !!this._effectAsset && !this._effectAsset.isDefault && this.passes.length > 0;
     }
 }
 

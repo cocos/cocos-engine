@@ -1,4 +1,4 @@
-import { IMiniGame } from 'pal/minigame';
+import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { Orientation } from '../system/enum-type/orientation';
 import { cloneObject } from '../utils';
 
@@ -9,34 +9,48 @@ const minigame: IMiniGame = {};
 cloneObject(minigame, my);
 
 const systemInfo = minigame.getSystemInfoSync();
-minigame.isSubContext = false;  // sub context not supported
 minigame.isDevTool = window.navigator && (/AlipayIDE/.test(window.navigator.userAgent));
+
 minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
-// let orientation = minigame.isLandscape ? Orientation.LANDSCAPE_RIGHT : Orientation.PORTRAIT;
+// init landscapeOrientation as LANDSCAPE_RIGHT
+const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+// NOTE: onDeviceOrientationChange is not supported on this platform
+// my.onDeviceOrientationChange((res) => {
+//     if (res.value === 'landscape') {
+//         landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
+//     } else if (res.value === 'landscapeReverse') {
+//         landscapeOrientation = Orientation.LANDSCAPE_LEFT;
+//     }
+// });
+Object.defineProperty(minigame, 'orientation', {
+    get () {
+        return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
+    },
+});
 
 // TouchEvent
 // my.onTouchStart register touch event listner on body
 // need to register on canvas
-// globalAdapter.onTouchStart = function (cb) {
-//     window.canvas.addEventListener('touchstart', function (res) {
-//       cb && cb(res);
-//     });
-// };
-// globalAdapter.onTouchMove = function (cb) {
-//     window.canvas.addEventListener('touchmove', function (res) {
-//       cb && cb(res);
-//     });
-// };
-// globalAdapter.onTouchEnd = function (cb) {
-//     window.canvas.addEventListener('touchend', function (res) {
-//       cb && cb(res);
-//     });
-// };
-// globalAdapter.onTouchCancel = function (cb) {
-//     window.canvas.addEventListener('touchcancel', function (res) {
-//       cb && cb(res);
-//     });
-// };
+minigame.onTouchStart = function (cb) {
+    window.canvas.addEventListener('touchstart', (res) => {
+        cb && cb(res);
+    });
+};
+minigame.onTouchMove = function (cb) {
+    window.canvas.addEventListener('touchmove', (res) => {
+        cb && cb(res);
+    });
+};
+minigame.onTouchEnd = function (cb) {
+    window.canvas.addEventListener('touchend', (res) => {
+        cb && cb(res);
+    });
+};
+minigame.onTouchCancel = function (cb) {
+    window.canvas.addEventListener('touchcancel', (res) => {
+        cb && cb(res);
+    });
+};
 
 minigame.createInnerAudioContext = function (): InnerAudioContext {
     const audio: InnerAudioContext = my.createInnerAudioContext();
@@ -63,7 +77,7 @@ minigame.onAccelerometerChange = function (cb) {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
-            // NOTE: onDeviceOrientationChangeis not supported on alipay platform
+            // NOTE: onDeviceOrientationChange is not supported on alipay platform
             const tmp = x;
             x = -y;
             y = tmp;
