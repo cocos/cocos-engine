@@ -43,7 +43,6 @@ BufferAllocator::~BufferAllocator() {
         buffer.second->decRef();
     }
     _buffers.clear();
-    _caches.clear();
 }
 
 Object *BufferAllocator::alloc(uint index, uint bytes) {
@@ -58,7 +57,20 @@ Object *BufferAllocator::alloc(uint index, uint bytes) {
     uint8_t *ret = nullptr;
     size_t   len;
     obj->getArrayBufferData(static_cast<uint8_t **>(&ret), &len);
-    _caches[index] = ret;
+
+    // cache data
+    if (index >= _bufferDatas.size()) {
+        _bufferDatas.push_back(ret);
+    } else {
+        _bufferDatas[index] = ret;
+    }
+
+    // cache size
+    if (index >= _bufferDataSizes.size()) {
+        _bufferDataSizes.push_back(bytes);
+    } else {
+        _bufferDataSizes[index] = bytes;
+    }
 
     return obj;
 }
@@ -68,10 +80,6 @@ void BufferAllocator::free(uint index) {
         Object *oldObj = _buffers[index];
         oldObj->decRef();
         _buffers.erase(index);
-    }
-
-    if (_caches.count(index)) {
-        _caches.erase(index);
     }
 }
 

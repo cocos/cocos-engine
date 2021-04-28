@@ -67,6 +67,7 @@ void CommandBufferValidator::begin(RenderPass *renderPass, uint subpass, Framebu
 
     // secondary command buffers enter the render pass right here
     _insideRenderPass = !!renderPass;
+    _commandsFlushed  = false;
 
     /////////// execute ///////////
 

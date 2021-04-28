@@ -126,7 +126,7 @@ void ForwardPipeline::render(const vector<uint> &cameras) {
     for (const auto cameraId : cameras) {
         auto *camera = GET_CAMERA(cameraId);
         sceneCulling(this, camera);
-        _pipelineUBO->updateCameraUBO(camera, camera->getWindow()->hasOffScreenAttachments);
+        _pipelineUBO->updateCameraUBO(camera);
         for (auto *const flow : _flows) {
             flow->render(camera);
         }

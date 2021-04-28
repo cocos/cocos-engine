@@ -1,0 +1,46 @@
+name: gen simulator
+on: [push, pull_request]
+jobs:
+  win_gen_simulator:
+    # windows 2019, Visual Studio Enterprise 2019
+    # windows 2016, Visual Studio Enterprise 2017
+    #runs-on: windows-latest
+    runs-on: windows-2016
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: npm install
+      run: |
+        npm install
+    - name: download external libraries 
+      run: |
+        node ./utils/download-deps.js
+    - name: gen-simulator
+      run: |
+        gulp gen-simulator-release 
+    - name: check result
+      run: |
+         Get-ChildItem ./simulator/Debug -Name SimulatorApp-Win32.exe
+         if(Test-Path ./simulator/Debug/SimulatorApp-Win32.exe) {exit 0} else {exit 1}
+        
+  mac_gen_simulator:
+    runs-on: macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: npm install
+      run: |
+        npm install
+        npm install gulp -g
+    - name: download external libraries 
+      run: |
+        node ./utils/download-deps.js
+    - name: gen-simulator
+      run: |
+        gulp gen-simulator-release
+    - name: check result
+      run: |
+        find ./ -name SimulatorApp-Mac
+        [ -f ./simulator/Debug/SimulatorApp-Mac.app/Contents/MacOS/SimulatorApp-Mac ] && exit 0 || exit 1

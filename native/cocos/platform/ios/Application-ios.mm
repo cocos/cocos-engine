@@ -30,11 +30,11 @@
 #import <UIKit/UIKit.h>
 #include <sstream>
 
-#include "base/Scheduler.h"
+#include "audio/include/AudioEngine.h"
 #include "base/AutoreleasePool.h"
+#include "base/Scheduler.h"
 #include "bindings/event/EventDispatcher.h"
 #include "bindings/jswrapper/SeApi.h"
-#include "audio/include/AudioEngine.h"
 #include "platform/Device.h"
 
 #include "pipeline/Define.h"
@@ -43,8 +43,8 @@
 
 @interface MyTimer : NSObject {
     cc::Application *_app;
-    CADisplayLink *_displayLink;
-    int _fps;
+    CADisplayLink *  _displayLink;
+    int              _fps;
 }
 - (instancetype)initWithApp:(cc::Application *)app fps:(int)fps;
 - (void)start;
@@ -57,9 +57,9 @@
 
 - (instancetype)initWithApp:(cc::Application *)app fps:(int)fps {
     if (self = [super init]) {
-        _fps = fps;
-        _app = app;
-        _displayLink = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(renderScene:)];
+        _fps                                  = fps;
+        _app                                  = app;
+        _displayLink                          = [NSClassFromString(@"CADisplayLink") displayLinkWithTarget:self selector:@selector(renderScene:)];
         _displayLink.preferredFramesPerSecond = _fps;
     }
     return self;
@@ -104,8 +104,8 @@ namespace {
         //set window.innerWidth/innerHeight in css pixel units
         uintptr_t windowHandle = reinterpret_cast<uintptr_t>(UIApplication.sharedApplication.delegate.window.rootViewController.view);
         std::stringstream commandBuf;
-        commandBuf << "window.innerWidth = " << viewLogicalSize.x 
-                   << "; window.innerHeight = " << viewLogicalSize.y 
+        commandBuf << "window.innerWidth = " << viewLogicalSize.x
+                   << "; window.innerHeight = " << viewLogicalSize.y
                    << "; window.nativeWidth= " << nativeWidth
                    << "; window.nativeHeight = " << nativeHeight
                    << "; window.windowHandler = " << windowHandle << ";";
@@ -134,7 +134,7 @@ std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
 
 Application::Application(int width, int height) {
     Application::_instance = this;
-    _scheduler = std::make_shared<Scheduler>();
+    _scheduler             = std::make_shared<Scheduler>();
     EventDispatcher::init();
     _viewLogicalSize.x = width;
     _viewLogicalSize.y = height;
@@ -160,23 +160,23 @@ Application::~Application() {
 }
 
 std::string Application::getCurrentLanguageCode() const {
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
-    NSString *currentLanguage = [languages objectAtIndex:0];
+    NSUserDefaults *defaults        = [NSUserDefaults standardUserDefaults];
+    NSArray *       languages       = [defaults objectForKey:@"AppleLanguages"];
+    NSString *      currentLanguage = [languages objectAtIndex:0];
     return [currentLanguage UTF8String];
 }
 
 bool Application::isDisplayStats() {
     se::AutoHandleScope hs;
-    se::Value ret;
-    char commandBuf[100] = "cc.debug.isDisplayStats();";
+    se::Value           ret;
+    char                commandBuf[100] = "cc.debug.isDisplayStats();";
     se::ScriptEngine::getInstance()->evalString(commandBuf, 100, &ret);
     return ret.toBoolean();
 }
 
 void Application::setDisplayStats(bool isShow) {
     se::AutoHandleScope hs;
-    char commandBuf[100] = {0};
+    char                commandBuf[100] = {0};
     sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
     se::ScriptEngine::getInstance()->evalString(commandBuf);
 }
@@ -186,13 +186,13 @@ void Application::setCursorEnabled(bool value) {
 
 Application::LanguageType Application::getCurrentLanguage() const {
     // get the current language and country config
-    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-    NSArray *languages = [defaults objectForKey:@"AppleLanguages"];
-    NSString *currentLanguage = [languages objectAtIndex:0];
+    NSUserDefaults *defaults        = [NSUserDefaults standardUserDefaults];
+    NSArray *       languages       = [defaults objectForKey:@"AppleLanguages"];
+    NSString *      currentLanguage = [languages objectAtIndex:0];
 
     // get the current language code.(such as English is "en", Chinese is "zh" and so on)
-    NSDictionary *temp = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
-    NSString *languageCode = [temp objectForKey:NSLocaleLanguageCode];
+    NSDictionary *temp         = [NSLocale componentsFromLocaleIdentifier:currentLanguage];
+    NSString *    languageCode = [temp objectForKey:NSLocaleLanguageCode];
 
     if ([languageCode isEqualToString:@"zh"]) return LanguageType::CHINESE;
     if ([languageCode isEqualToString:@"en"]) return LanguageType::ENGLISH;
@@ -224,18 +224,20 @@ Application::Platform Application::getPlatform() const {
 }
 
 bool Application::openURL(const std::string &url) {
-    NSString *msg = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
-    NSURL *nsUrl = [NSURL URLWithString:msg];
-    __block BOOL flag = false;
-    [[UIApplication sharedApplication] openURL:nsUrl options:@{} completionHandler:^(BOOL success) {
-        flag = success;
-    }];
+    NSString *   msg   = [NSString stringWithCString:url.c_str() encoding:NSUTF8StringEncoding];
+    NSURL *      nsUrl = [NSURL URLWithString:msg];
+    __block BOOL flag  = false;
+    [[UIApplication sharedApplication] openURL:nsUrl
+        options:@{}
+        completionHandler:^(BOOL success) {
+            flag = success;
+        }];
     return flag;
 }
 
 void Application::copyTextToClipboard(const std::string &text) {
     UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
-    pasteboard.string = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
+    pasteboard.string        = [NSString stringWithCString:text.c_str() encoding:NSUTF8StringEncoding];
 }
 
 bool Application::init() {

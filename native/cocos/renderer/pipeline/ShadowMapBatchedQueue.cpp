@@ -23,8 +23,7 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include <array>
-
+#include "ShadowMapBatchedQueue.h"
 #include "BatchedBuffer.h"
 #include "Define.h"
 #include "InstancedBuffer.h"
@@ -33,8 +32,6 @@
 #include "PipelineUBO.h"
 #include "RenderBatchedQueue.h"
 #include "RenderInstancedQueue.h"
-#include "SceneCulling.h"
-#include "ShadowMapBatchedQueue.h"
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
@@ -43,7 +40,7 @@
 
 namespace cc {
 namespace pipeline {
-ShadowMapBatchedQueue::ShadowMapBatchedQueue(ForwardPipeline *pipeline)
+ShadowMapBatchedQueue::ShadowMapBatchedQueue(RenderPipeline *pipeline)
 : _phaseID(getPhaseID("shadow-caster")) {
     _pipeline       = pipeline;
     _buffer         = pipeline->getDescriptorSet()->getBuffer(UBOShadow::BINDING);
@@ -51,7 +48,7 @@ ShadowMapBatchedQueue::ShadowMapBatchedQueue(ForwardPipeline *pipeline)
     _batchedQueue   = CC_NEW(RenderBatchedQueue);
 }
 
-void ShadowMapBatchedQueue::gatherLightPasses(const Light *light, gfx::CommandBuffer *cmdBufferer) {
+void ShadowMapBatchedQueue::gatherLightPasses(const Light *light, gfx::CommandBuffer *cmdBuffer) {
     clear();
 
     const auto *sceneData     = _pipeline->getPipelineSceneData();
@@ -64,17 +61,18 @@ void ShadowMapBatchedQueue::gatherLightPasses(const Light *light, gfx::CommandBu
             const auto *model = ro.model;
 
             switch (light->getType()) {
-                case LightType::DIRECTIONAL:
-                    add(model, cmdBufferer);
-                    break;
-                case LightType::SPOT:
+                case LightType::DIRECTIONAL: {
+                    add(model, cmdBuffer);
+                } break;
+                case LightType::SPOT: {
                     if (model->getWorldBounds() &&
                         (aabbAabb(model->getWorldBounds(), light->getAABB()) ||
                          aabbFrustum(model->getWorldBounds(), light->getFrustum()))) {
-                        add(model, cmdBufferer);
+                        add(model, cmdBuffer);
                     }
+                } break;
+                default:
                     break;
-                default:;
             }
         }
     }
@@ -88,8 +86,8 @@ void ShadowMapBatchedQueue::clear() {
     if (_batchedQueue) _batchedQueue->clear();
 }
 
-void ShadowMapBatchedQueue::add(const ModelView *model, gfx::CommandBuffer *cmdBufferer) {
-    // this assumes light pass index is the same for all submodels
+void ShadowMapBatchedQueue::add(const ModelView *model, gfx::CommandBuffer *cmdBuffer) {
+    // this assumes light pass index is the same for all subModels
     const auto shadowPassIdx = getShadowPassIndex(model);
     if (shadowPassIdx < 0) {
         return;
@@ -117,8 +115,8 @@ void ShadowMapBatchedQueue::add(const ModelView *model, gfx::CommandBuffer *cmdB
         }
     }
 
-    _instancedQueue->uploadBuffers(cmdBufferer);
-    _batchedQueue->uploadBuffers(cmdBufferer);
+    _instancedQueue->uploadBuffers(cmdBuffer);
+    _batchedQueue->uploadBuffers(cmdBuffer);
 }
 
 void ShadowMapBatchedQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) const {

@@ -24,9 +24,7 @@
 ****************************************************************************/
 
 #pragma once
-#include <algorithm>
 
-#include "base/CoreStd.h"
 #include "Define.h"
 
 namespace cc {
@@ -36,8 +34,7 @@ struct PassView;
 struct RenderObject;
 class RenderInstancedQueue;
 class RenderBatchedQueue;
-class ForwardPipeline;
-class Device;
+class RenderPipeline;
 struct Shadows;
 struct Light;
 struct ModelView;
@@ -46,8 +43,8 @@ struct ModelView;
 
 class CC_DLL ShadowMapBatchedQueue : public Object {
 public:
-    ShadowMapBatchedQueue(ForwardPipeline *);
-    ~ShadowMapBatchedQueue() = default;
+    explicit ShadowMapBatchedQueue(RenderPipeline *);
+    ~ShadowMapBatchedQueue() override = default;
     void destroy();
 
     void clear();
@@ -58,15 +55,15 @@ public:
 private:
     int getShadowPassIndex(const ModelView *model) const;
 
-private:
-    ForwardPipeline *_pipeline = nullptr;
+    RenderPipeline *             _pipeline = nullptr;
     vector<const SubModelView *> _subModels;
-    vector<const PassView *> _passes;
-    vector<gfx::Shader *> _shaders;
-    RenderInstancedQueue *_instancedQueue = nullptr;
-    RenderBatchedQueue *_batchedQueue = nullptr;
-    gfx::Buffer *_buffer = nullptr;
-    uint _phaseID = 0;
+    vector<const PassView *>     _passes;
+    vector<gfx::Shader *>        _shaders;
+    RenderInstancedQueue *       _instancedQueue = nullptr;
+    RenderBatchedQueue *         _batchedQueue   = nullptr;
+    gfx::Buffer *                _buffer         = nullptr;
+    uint                         _phaseID        = 0;
 };
+
 } // namespace pipeline
 } // namespace cc

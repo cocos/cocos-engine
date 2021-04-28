@@ -39,6 +39,8 @@ namespace cc {
 namespace gfx {
 namespace {
 
+std::unordered_map<uint, PipelineState*> renderPassMap;
+
 EShLanguage getShaderStage(ShaderStageFlagBit type) {
     switch (type) {
         case ShaderStageFlagBit::VERTEX: return EShLangVertex;
@@ -399,11 +401,12 @@ gfx::Shader *createShader(CCMTLDevice *device) {
     return device->createShader(shaderInfo);
 }
 
-//TODO need release pipelineState
-gfx::PipelineState *pipelineState = nullptr;
 CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass *renderPass) {
-    if (pipelineState) {
-        return static_cast<CCMTLPipelineState *>(pipelineState)->getGPUPipelineState();
+    uint rpHash = renderPass->getHash();
+    const auto iter = renderPassMap.find(rpHash);
+    if(iter != renderPassMap.end()) {
+        auto *ccMtlPiplineState = static_cast<CCMTLPipelineState *>(iter->second);
+        return ccMtlPiplineState->getGPUPipelineState();
     }
 
     gfx::Attribute position = {"a_position", gfx::Format::RG32F, false, 0, false};
@@ -413,8 +416,9 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
     pipelineInfo.inputState = {{position}};
     pipelineInfo.renderPass = renderPass;
 
-    pipelineState = device->createPipelineState(std::move(pipelineInfo));
+    PipelineState *pipelineState = device->createPipelineState(std::move(pipelineInfo));
     CC_DELETE(pipelineInfo.shader);
+    renderPassMap.emplace(std::make_pair(renderPass->getHash(), pipelineState));
     return static_cast<CCMTLPipelineState *>(pipelineState)->getGPUPipelineState();
 }
 }
@@ -1596,7 +1600,12 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer
 
     id<MTLRenderCommandEncoder> renderEncoder = [commandBuffer renderCommandEncoderWithDescriptor:renderPassDescriptor];
     [renderEncoder setViewport:(MTLViewport){0, 0, renderTargetWidth, renderTargetHeight}];
-    [renderEncoder setScissorRect:(MTLScissorRect){0, 0, static_cast<uint>(renderTargetWidth), static_cast<uint>(renderTargetHeight)}];
+    MTLScissorRect scissorArea = {static_cast<NSUInteger>(renderArea.x), static_cast<NSUInteger>(renderArea.y), static_cast<NSUInteger>(renderArea.width), static_cast<NSUInteger>(renderArea.height)};
+#if defined(CC_DEBUG) && (CC_DEBUG > 0)
+    scissorArea.width = MIN(scissorArea.width, renderTargetWidth - scissorArea.x);
+    scissorArea.height = MIN(scissorArea.height, renderTargetHeight - scissorArea.y);
+#endif
+    [renderEncoder setScissorRect:scissorArea];
     [renderEncoder setRenderPipelineState:gpuPSO->mtlRenderPipelineState];
     if (gpuPSO->mtlDepthStencilState) {
         [renderEncoder setStencilFrontReferenceValue:gpuPSO->stencilRefFront
@@ -1619,6 +1628,17 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer
 
     [renderEncoder endEncoding];
     renderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionLoad;
+}
+
+void mu::clearUtilResource() {
+    if(!renderPassMap.empty()) {
+        for (auto pass : renderPassMap) {
+            //TODO: create and destroy not in the same level
+            pass.second->destroy();
+            CC_DELETE(pass.second);
+        }
+        renderPassMap.clear();
+    }
 }
 
 } // namespace gfx

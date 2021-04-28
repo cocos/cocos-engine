@@ -156,7 +156,7 @@ bool GLES3Context::doInit(const ContextInfo &info) {
             EGL_SAMPLES, sampleSize,
             EGL_NONE};
 
-        int numConfig = 0;
+        int          numConfig = 0;
         unsigned int success   = false;
         do {
             EGL_CHECK(success = eglChooseConfig(_eglDisplay, defaultAttribs, NULL, 0, &numConfig));
@@ -439,8 +439,8 @@ void GLES3Context::acquireSurface(uintptr_t windowHandle) {
     }
     // Device's size will be updated after recreate window (in resize event) and is incorrect for now.
     auto *window = reinterpret_cast<ANativeWindow *>(_windowHandle);
-    uint width = ANativeWindow_getWidth(window);
-    uint height = ANativeWindow_getHeight(window);
+    uint  width  = ANativeWindow_getWidth(window);
+    uint  height = ANativeWindow_getHeight(window);
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
 
     EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, reinterpret_cast<EGLNativeWindowType>(_windowHandle), nullptr));
@@ -547,6 +547,33 @@ bool GLES3Context::makeCurrent(bool bound) {
         GL_CHECK(glBlendFuncSeparate(GL_ONE, GL_ZERO, GL_ONE, GL_ZERO));
         GL_CHECK(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
         GL_CHECK(glBlendColor(0.0F, 0.0F, 0.0F, 0.0F));
+
+        GL_CHECK(glUseProgram(0));
+
+        GL_CHECK(glBindVertexArray(0));
+
+        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_COPY_READ_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_COPY_WRITE_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_PIXEL_PACK_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+
+        GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+        GL_CHECK(glBindTexture(GL_TEXTURE_3D, 0));
+        GL_CHECK(glBindTexture(GL_TEXTURE_2D_ARRAY, 0));
+        GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
+        GL_CHECK(glBindTexture(GL_TEXTURE_2D_MULTISAMPLE, 0));
+
+        GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
+        GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
+        GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
 
         CC_LOG_DEBUG("eglMakeCurrent() - SUCCEEDED, Context: 0x%p", this);
         return true;

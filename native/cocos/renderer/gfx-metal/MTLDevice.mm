@@ -224,6 +224,8 @@ void CCMTLDevice::doDestroy() {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
         _gpuStagingBufferPools[i] = nullptr;
     }
+    
+    cc::gfx::mu::clearUtilResource();
 }
 
 void CCMTLDevice::resize(uint w, uint h) {

@@ -30,19 +30,23 @@
 #include "cocos/bindings/manual/jsb_global_init.h"
 
 namespace {
-se::Value _tickVal;
+se::Value                 _tickVal;
 std::vector<se::Object *> _jsTouchObjPool;
-se::Object *_jsTouchObjArray = nullptr;
-se::Object *_jsMouseEventObj = nullptr;
-se::Object *_jsKeyboardEventObj = nullptr;
-se::Object *_jsResizeEventObj = nullptr;
-se::Object *_jsOrientationEventObj = nullptr;
-bool _inited = false;
+se::Object *              _jsTouchObjArray       = nullptr;
+se::Object *              _jsMouseEventObj       = nullptr;
+se::Object *              _jsKeyboardEventObj    = nullptr;
+se::Object *              _jsResizeEventObj      = nullptr;
+se::Object *              _jsOrientationEventObj = nullptr;
+bool                      _inited                = false;
 } // namespace
 
 namespace cc {
 std::unordered_map<std::string, EventDispatcher::Node *> EventDispatcher::_listeners;
-uint32_t EventDispatcher::_hashListenerID = 1;
+uint32_t                                                 EventDispatcher::_hashListenerID = 1;
+
+bool EventDispatcher::initialized() {
+    return _inited;
+};
 
 void EventDispatcher::init() {
     _inited = true;
@@ -103,7 +107,7 @@ void EventDispatcher::dispatchTouchEvent(const struct TouchEvent &touchEvent) {
     }
 
     uint32_t touchIndex = 0;
-    int poolIndex = 0;
+    int      poolIndex  = 0;
     for (const auto &touch : touchEvent.touches) {
         se::Object *jsTouch = _jsTouchObjPool.at(poolIndex++);
         jsTouch->setProperty("identifier", se::Value(touch.index));
@@ -147,8 +151,8 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent &mouseEvent) {
         _jsMouseEventObj->root();
     }
 
-    const auto &xVal = se::Value(mouseEvent.x);
-    const auto &yVal = se::Value(mouseEvent.y);
+    const auto &           xVal = se::Value(mouseEvent.x);
+    const auto &           yVal = se::Value(mouseEvent.y);
     const MouseEvent::Type type = mouseEvent.type;
 
     if (type == MouseEvent::Type::WHEEL) {
@@ -162,23 +166,23 @@ void EventDispatcher::dispatchMouseEvent(const struct MouseEvent &mouseEvent) {
         _jsMouseEventObj->setProperty("y", yVal);
     }
 
-    const char *eventName = nullptr;
+    const char *eventName      = nullptr;
     const char *jsFunctionName = nullptr;
     switch (type) {
         case MouseEvent::Type::DOWN:
-            eventName = EVENT_MOUSE_DOWN;
+            eventName      = EVENT_MOUSE_DOWN;
             jsFunctionName = "onMouseDown";
             break;
         case MouseEvent::Type::MOVE:
-            eventName = EVENT_MOUSE_MOVE;
+            eventName      = EVENT_MOUSE_MOVE;
             jsFunctionName = "onMouseMove";
             break;
         case MouseEvent::Type::UP:
-            eventName = EVENT_MOUSE_UP;
+            eventName      = EVENT_MOUSE_UP;
             jsFunctionName = "onMouseUp";
             break;
         case MouseEvent::Type::WHEEL:
-            eventName = EVENT_MOUSE_WHEEL;
+            eventName      = EVENT_MOUSE_WHEEL;
             jsFunctionName = "onMouseWheel";
             break;
         default:
@@ -236,7 +240,7 @@ void EventDispatcher::dispatchTickEvent(float dt) {
     prevTime = std::chrono::steady_clock::now();
 
     se::ValueArray args;
-    long long milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
+    long long      milliSeconds = std::chrono::duration_cast<std::chrono::milliseconds>(prevTime - se::ScriptEngine::getInstance()->getStartTime()).count();
     args.push_back(se::Value((double)milliSeconds));
 
     _tickVal.toObject()->call(args, nullptr);
@@ -320,10 +324,10 @@ void EventDispatcher::doDispatchEvent(const char *eventName, const char *jsFunct
 }
 
 uint32_t EventDispatcher::addCustomEventListener(const std::string &eventName, const CustomEventListener &listener) {
-    Node *newNode = new Node();
-    newNode->listener = listener;
+    Node *newNode       = new Node();
+    newNode->listener   = listener;
     newNode->listenerID = _hashListenerID;
-    newNode->next = nullptr;
+    newNode->next       = nullptr;
 
     auto iter = _listeners.find(eventName);
     if (iter == _listeners.end()) {

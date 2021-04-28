@@ -543,6 +543,18 @@ bool GLES2Context::makeCurrent(bool bound) {
         GL_CHECK(glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE));
         GL_CHECK(glBlendColor(0.0F, 0.0F, 0.0F, 0.0F));
 
+        GL_CHECK(glUseProgram(0));
+
+        GL_CHECK(glBindVertexArrayOES(0));
+
+        GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
+
+        GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
+        GL_CHECK(glBindTexture(GL_TEXTURE_CUBE_MAP, 0));
+
+        GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
+
         CC_LOG_DEBUG("eglMakeCurrent() - SUCCEEDED, Context: 0x%p", this);
         return true;
     }

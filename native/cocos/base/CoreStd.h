@@ -28,44 +28,48 @@
 #include "base/Macros.h"
 
 // STD including
+#include <cassert>
+#include <cfloat>
+#include <cmath>
 #include <cstdio>
 #include <cstdlib>
-#include <cwchar>
-#include <cmath>
-#include <cfloat>
-#include <cassert>
 #include <ctime>
+#include <cwchar>
 #include <limits>
 
 // STL including
-#include <array>
-#include <string>
-#include <vector>
-#include <list>
-#include <queue>
-#include <deque>
-#include <set>
-#include <map>
-#include <unordered_map>
 #include <algorithm>
+#include <array>
+#include <atomic>
+#include <cmath>
+#include <cstdint>
+#include <deque>
 #include <exception>
 #include <functional>
-#include <cmath>
-#include <atomic>
+#include <list>
+#include <map>
 #include <mutex>
+#include <queue>
+#include <set>
+#include <string>
 #include <thread>
-#include <cstdint>
+#include <unordered_map>
+#include <vector>
 
-#include "base/TypeDef.h"
-#include "base/memory/Memory.h"
+#include "base/CachedArray.h"
 #include "base/Log.h"
 #include "base/Object.h"
-#include "base/CachedArray.h"
 #include "base/StringUtil.h"
+#include "base/TypeDef.h"
+#include "base/memory/Memory.h"
 
 #include "math/Math.h"
 
 #define CC_JOB_SYSTEM_TASKFLOW 1
 #define CC_JOB_SYSTEM_TBB      2
 
-#define CC_JOB_SYSTEM CC_JOB_SYSTEM_TASKFLOW
+#if USE_JOB_SYSTEM_TBB
+    #define CC_JOB_SYSTEM CC_JOB_SYSTEM_TBB
+#elif USE_JOB_SYSTEM_TASKFLOW
+    #define CC_JOB_SYSTEM CC_JOB_SYSTEM_TASKFLOW
+#endif

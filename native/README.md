@@ -18,8 +18,17 @@ How to start a new game
 --------------------------------
 You can refer to [the documentation](https://docs.cocos.com/creator/3.0/manual/en/getting-started/) to start a new game.
 
+Build Requirements
+--------------------------------
+- macOS 10.14+, Xcode 11.5+ to build mac games
+- with iOS 12.0+ to build iOS games
+- or Windows 7+, Visual Studio 2017 15.7+ / Visual Studio 2019 to build win32 games
+- NDK 18-21 is required to build Android games (22+ is not supported)
+- Python 2.7+ (NOT Python 3) is needed to run scripts
+- Cmake 3.8+ is required
+
 Where to get help
-----------
+--------------------------------
 
 * [English Forum](https://discuss.cocos2d-x.org/)
 * [Twitter](http://www.twitter.com/cocos2dx)

@@ -585,7 +585,7 @@ WebSocketImpl::WebSocketImpl(cc::network::WebSocket *ws)
 WebSocketImpl::~WebSocketImpl() {
     LOGD("In the destructor of WebSocket (%p)\n", this);
 
-    std::lock_guard<std::recursive_mutex> lk(instanceMutex);
+    std::unique_lock<std::recursive_mutex> lk(instanceMutex);
 
     if (websocketInstances != nullptr) {
         auto iter = std::find(websocketInstances->begin(), websocketInstances->end(), this);
@@ -597,6 +597,7 @@ WebSocketImpl::~WebSocketImpl() {
     }
 
     if (websocketInstances == nullptr || websocketInstances->empty()) {
+        lk.unlock();
         wsHelper->quitWebSocketThread();
         LOGD("before join ws thread\n");
         wsHelper->joinWebSocketThread();

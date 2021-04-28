@@ -25,13 +25,13 @@
 
 #import <AppKit/NSView.h>
 #ifdef CC_USE_METAL
-#import <MetalKit/MetalKit.h>
+    #import <MetalKit/MetalKit.h>
 #endif
 
-@interface View : NSView
+@interface View : NSView <CALayerDelegate>
 
 #ifdef CC_USE_METAL
-@property(nonatomic, assign) id<MTLDevice> device;
+@property (nonatomic, assign) id<MTLDevice> device;
 #endif
 
 @end
