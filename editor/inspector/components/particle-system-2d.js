@@ -32,6 +32,8 @@ exports.ready = function () {
         custom: {
             displayOrder: 6,
             ready(element) {
+                element.classList.add('flex');
+
                 const $checkbox = element.querySelector('ui-checkbox[slot="content"]');
 
                 const $sync = document.createElement('ui-button');
@@ -174,6 +176,7 @@ exports.ready = function () {
                     $right.setAttribute('no-label', '');
                     $right.setAttribute('slot', 'content');
                     $right.setAttribute('style', 'margin: 0');
+                    $right.setAttribute('fixed-parent', '');
                     $left.appendChild($right);
                 });
             },

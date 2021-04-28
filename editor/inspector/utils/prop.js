@@ -200,7 +200,8 @@ exports.updatePropByDump = function (panel, dump) {
             }
         }
 
-        if (panel.$[key]) {
+        //  if it has 'fixed-parent' attribute, it would not remove from its parent.
+        if (panel.$[key] && panel.$[key].getAttribute('fixed-parent') === null) {
             children.push(panel.$[key]);
         }
     });
