@@ -12,6 +12,7 @@ export class MouseInputSource {
     private _canvas?: HTMLCanvasElement;
     private _eventTarget: EventTarget = new EventTarget();
     private _pointLocked = false;
+    private _isPressed = false;
 
     constructor () {
         this.support = !system.isMobile && !EDITOR;
@@ -92,11 +93,28 @@ export class MouseInputSource {
         return (event: MouseEvent) => {
             const canvasRect = this._getCanvasRect();
             const location = this._getLocation(event);
+            let button = event.button;
+            switch (event.type) {
+            case 'mousedown':
+                this._canvas?.focus();
+                this._isPressed = true;
+                break;
+            case 'mouseup':
+                this._isPressed = false;
+                break;
+            case 'mousemove':
+                if (!this._isPressed) {
+                    button = -1;  // TODO: should not access EventMouse.BUTTON_MISSING, need a button enum type
+                }
+                break;
+            default:
+                break;
+            }
             const inputEvent: MouseInputEvent = {
                 type: eventType,
                 x: location.x - canvasRect.x + (this._pointLocked ? event.movementX : 0),
                 y: canvasRect.y + canvasRect.height - location.y - (this._pointLocked ? event.movementY : 0),
-                button: event.button,
+                button,
                 timestamp: performance.now(),
                 // this is web only property
                 movementX: event.movementX,
@@ -105,9 +123,6 @@ export class MouseInputSource {
             event.stopPropagation();
             if (event.target === this._canvas) {
                 event.preventDefault();
-            }
-            if (event.type === 'mousedown') {
-                this._canvas?.focus();
             }
             // emit web mouse event
             this._eventTarget.emit(eventType, inputEvent);
