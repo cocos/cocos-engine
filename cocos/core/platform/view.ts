@@ -921,7 +921,7 @@ class ContainerStrategy {
         const locCanvas = legacyCC.game.canvas;
         const locContainer = legacyCC.game.container;
 
-        if (system.os === OS.ANDROID) {
+        if (system.os === OS.ANDROID || system.os === OS.OHOS) {
             document.body.style.width = `${_view._isRotated ? h : w}px`;
             document.body.style.height = `${_view._isRotated ? w : h}px`;
         }
