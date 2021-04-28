@@ -113,6 +113,12 @@ export function cache (id: string, asset: Asset, cacheAsset?: boolean) {
     if (!asset) { return; }
     cacheAsset = cacheAsset !== undefined ? cacheAsset : legacyCC.assetManager.cacheAsset;
     if (!isScene(asset) && cacheAsset && !asset.isDefault) {
+        if (EDITOR) {
+            if (assets.has(id)) {
+                assets.get(id)?.destroy();
+                assets.remove(id);
+            }
+        }
         assets.add(id, asset);
     }
 }
