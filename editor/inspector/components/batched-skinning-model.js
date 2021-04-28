@@ -20,22 +20,19 @@ exports.ready = function () {
     $prop.appendChild($button);
 
     $button.addEventListener('confirm', () => {
-        let values = [this.dump.value];
-        if (this.dump.values) {
-            values = this.dump.values;
-        }
+        let uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
 
-        values.forEach((item) => {
+        uuids.forEach((uuid) => {
             Editor.Message.send('scene', 'execute-component-method', {
-                uuid: item.uuid.value,
+                uuid: uuid,
                 name: 'cook',
                 args: [],
             });
         });
 
-        values.forEach((item) => {
+        uuids.forEach((uuid) => {
             Editor.Message.send('scene', 'execute-component-method', {
-                uuid: item.uuid.value,
+                uuid: uuid,
                 name: 'combine',
                 args: [],
             });
