@@ -463,8 +463,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
-            Vec2.set(vlenScale, textureModule.numTilesX, textureModule.numTilesY);
-            pass.setUniform(this._uLenHandle, vlenScale);
+            let vls = vlenScale.clone(); // fix textureModule switch bug
+            Vec2.set(vls, textureModule.numTilesX, textureModule.numTilesY);
+            pass.setUniform(this._uLenHandle, vls);
         } else {
             pass.setUniform(this._uLenHandle, vlenScale);
         }
