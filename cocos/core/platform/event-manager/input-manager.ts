@@ -246,6 +246,14 @@ class InputManager {
         }
         mouseEvent.setLocation(locPreMouse.x, locPreMouse.y);
         mouseEvent.setButton(inputEvent.button);
+
+        // Web only
+        if (inputEvent.movementX) {
+            mouseEvent.movementX = inputEvent.movementX;
+        }
+        if (inputEvent.movementY) {
+            mouseEvent.movementY = inputEvent.movementY;
+        }
         return mouseEvent;
     }
 
