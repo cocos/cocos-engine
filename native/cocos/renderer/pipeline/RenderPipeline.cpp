@@ -184,7 +184,6 @@ void RenderPipeline::destroy() {
 
     SamplerLib::destroyAll();
     PipelineStateManager::destroyAll();
-    instance = nullptr;
 }
 
 void RenderPipeline::setPipelineSharedSceneData(uint handle) {
