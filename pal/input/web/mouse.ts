@@ -1,4 +1,4 @@
-import { EDITOR } from 'internal:constants';
+import { DEBUG, EDITOR } from 'internal:constants';
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
 import { system } from 'pal/system';
 import { EventTarget } from '../../../cocos/core/event/event-target';
@@ -16,7 +16,7 @@ export class MouseInputSource {
         this.support = !system.isMobile && !EDITOR;
         if (this.support) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-            if (!this._canvas) {
+            if (!this._canvas && DEBUG) {
                 console.warn('failed to access canvas');
             }
             this._registerEvent();
