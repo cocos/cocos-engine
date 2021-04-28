@@ -43,6 +43,13 @@ import {
 } from '../../math';
 import { Plane } from '../../geometry';
 
+const contains = (a: number[], t: number) => {
+    for (let i = 0; i < a.length; ++i) {
+        if (a[i] === t) return true;
+    }
+    return false;
+};
+
 interface IMemoryPool<P extends PoolType> {
     free (handle: IHandle<P>): void;
 }
@@ -166,7 +173,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const entry = this._entryMask & handle as unknown as number;
         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
-            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freelists[chunk], entry))) {
             console.warn('invalid buffer pool handle');
             return 0 as Extract<M[K], StandardBufferElement>;
         }
@@ -178,7 +185,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const entry = this._entryMask & handle as unknown as number;
         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
-            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freelists[chunk], entry))) {
             console.warn('invalid buffer pool handle');
             return;
         }
@@ -193,7 +200,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const entry = this._entryMask & handle as unknown as number;
         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
-            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freelists[chunk], entry))) {
             console.warn('invalid buffer pool handle');
             return;
         }
@@ -210,7 +217,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const entry = this._entryMask & handle as unknown as number;
         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
-            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freelists[chunk], entry))) {
             console.warn('invalid buffer pool handle');
             return;
         }
@@ -227,7 +234,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const entry = this._entryMask & handle as unknown as number;
         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
-            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freelists[chunk], entry))) {
             console.warn('invalid buffer pool handle');
             return;
         }
@@ -244,7 +251,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const entry = this._entryMask & handle as unknown as number;
         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
-            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freelists[chunk], entry))) {
             console.warn('invalid buffer pool handle');
             return;
         }
@@ -262,7 +269,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const entry = this._entryMask & handle as unknown as number;
         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
-            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freelists[chunk], entry))) {
             console.warn('invalid buffer pool handle');
             return;
         }
@@ -280,7 +287,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const entry = this._entryMask & handle as unknown as number;
         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
-            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freelists[chunk], entry))) {
             console.warn('invalid buffer pool handle');
             return;
         }
@@ -296,7 +303,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
         if (DEBUG && (!handle || chunk < 0 || chunk >= this._freelists.length
-            || entry < 0 || entry >= this._entriesPerChunk || this._freelists[chunk].find((n) => n === entry))) {
+            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freelists[chunk], entry))) {
             console.warn('invalid buffer pool handle');
             return;
         }
@@ -348,7 +355,7 @@ export class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemo
 
     public get<R extends T> (handle: IHandle<P>): R {
         const index = this._indexMask & handle as unknown as number;
-        if (DEBUG && (!handle || index < 0 || index >= this._array.length || this._freelist.find((n) => n === index))) {
+        if (DEBUG && (!handle || index < 0 || index >= this._array.length || contains(this._freelist, index))) {
             console.warn('invalid object pool handle');
             return null!;
         }
@@ -357,7 +364,7 @@ export class ObjectPool<T, P extends PoolType, A extends any[]> implements IMemo
 
     public free (handle: IHandle<P>): void {
         const index = this._indexMask & handle as unknown as number;
-        if (DEBUG && (!handle || index < 0 || index >= this._array.length || this._freelist.find((n) => n === index))) {
+        if (DEBUG && (!handle || index < 0 || index >= this._array.length || contains(this._freelist, index))) {
             console.warn('invalid object pool handle');
             return;
         }
