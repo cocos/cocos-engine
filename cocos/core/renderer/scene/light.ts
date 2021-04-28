@@ -75,7 +75,7 @@ export class Light {
             this._handle = LightPool.alloc();
             LightPool.setVec3(this._handle, LightView.COLOR, this._color);
             LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
-            LightPool.set(this._handle, LightView.TYPE, LightType.UNKNOWN);
+            LightPool.set(this._handle, LightView.TYPE, this._type);
         }
     }
     protected _destroy (): void {

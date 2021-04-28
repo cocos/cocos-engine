@@ -41,7 +41,6 @@ export class DirectionalLight extends Light {
         if (JSB) {
             LightPool.set(this._handle, LightView.ILLUMINANCE, this._illuminance);
             LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
-            LightPool.set(this._handle, LightView.TYPE, LightType.DIRECTIONAL);
         }
     }
 
@@ -70,10 +69,7 @@ export class DirectionalLight extends Light {
 
     constructor () {
         super();
-    }
-
-    public initialize () {
-        super.initialize();
+        this._type = LightType.DIRECTIONAL;
     }
 
     public update () {
