@@ -41,8 +41,8 @@ import { PipelineStateManager } from '../pipeline-state-manager';
 import { UIPhase } from '../forward/ui-phase';
 import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
 import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-
 import { getPhaseID } from '../pass-phase';
+import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -121,7 +121,7 @@ export class PostprocessStage extends RenderStage {
             });
         }
 
-        if (this._postProcessMaterial) { pipeline.pipelineSceneData.deferredPostMat = this._postProcessMaterial; }
+        if (this._postProcessMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredPostMat = this._postProcessMaterial; }
     }
 
     public destroy () {
@@ -158,9 +158,10 @@ export class PostprocessStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Postprocess
-        const builtinPostProcess = sceneData.deferredPostMat;
+        const builtinPostProcess = (sceneData as DeferredPipelineSceneData).deferredPostMat;
         const pass = builtinPostProcess.passes[0];
         const shader = ShaderPool.get(pass.getShaderVariant());
+        cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
 
         const inputAssembler = camera.window!.hasOffScreenAttachments ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;
         let pso:PipelineState|null = null;

@@ -29,21 +29,24 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { ForwardFlow } from './forward-flow';
-import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
+import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
-import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, PipelineType } from '../define';
+import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
-    RenderPassInfo, Feature, ClearFlagBit, ClearFlags, Filter, Address, StoreOp, AccessType } from '../../gfx';
+    RenderPassInfo, ClearFlagBit, ClearFlags, Filter, Address, StoreOp, AccessType } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../../builtin';
 import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
-import { errorID } from '../../platform/debug';
-import { legacyCC } from '../../global-exports';
+import { errorID, warnID } from '../../platform/debug';
 import { sceneCulling } from '../scene-culling';
+import { PipelineSceneData } from '../pipeline-scene-data';
+
+const PIPELINE_TYPE = 0;
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -84,8 +87,10 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        legacyCC.game._pipelineType = PipelineType.FORWARD;
-        this._macros = { CC_PIPELINE_TYPE: PipelineType.FORWARD };
+        if (EDITOR) { warnID(1218); }
+
+        this._macros = { CC_PIPELINE_TYPE: PIPELINE_TYPE };
+        this._pipelineSceneData = new PipelineSceneData();
 
         if (!super.activate()) {
             return false;

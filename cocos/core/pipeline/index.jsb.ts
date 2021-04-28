@@ -29,8 +29,8 @@ declare const nr: any;
 import { getPhaseID } from './pass-phase'
 import { setClassName } from '../../core/utils/js';
 import { PipelineSceneData } from './pipeline-scene-data';
+import { DeferredPipelineSceneData } from './deferred/deferred-pipeline-scene-data';
 import { legacyCC } from '../../core/global-exports';
-import { PipelineType } from '../pipeline/define';
 
 nr.getPhaseID = getPhaseID;
 
@@ -79,7 +79,6 @@ export class ForwardPipeline extends nr.ForwardPipeline {
     }
 
     public activate () {
-        legacyCC.game._pipelineType = PipelineType.FORWARD;
         return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
     }
 
@@ -181,7 +180,7 @@ export class RenderQueueDesc {
 }
 
 export class DeferredPipeline extends nr.DeferredPipeline {
-  public pipelineSceneData = new PipelineSceneData();
+  public pipelineSceneData = new DeferredPipelineSceneData();
   constructor() {
     super();
     this._tag = 0;
@@ -193,14 +192,13 @@ export class DeferredPipeline extends nr.DeferredPipeline {
   init() {
     this.setPipelineSharedSceneData(this.pipelineSceneData.handle);
     for (let i = 0; i < this._flows.length; i++) {
-      this._flows[i].init();
+      this._flows[i].init(this);
     }
     let info = new nr.RenderPipelineInfo(this._tag, this._flows);
     this.initialize(info);
   }
 
   public activate () {
-    legacyCC.game._pipelineType = PipelineType.DEFERRED;
     return super.activate() && this.pipelineSceneData.activate(legacyCC.director.root.device, this as any);
   }
 
@@ -235,9 +233,9 @@ export class GbufferFlow extends nr.GbufferFlow {
     this._stages = [];
   }
 
-  init() {
+  init(pipeline) {
     for (let i = 0; i < this._stages.length; i++) {
-      this._stages[i].init();
+      this._stages[i].init(pipeline);
     }
     let info = new nr.RenderFlowInfo(
         this._name, this._priority, this._tag, this._stages);
@@ -254,7 +252,7 @@ export class GbufferStage extends nr.GbufferStage {
     this.renderQueues = []
   }
 
-  init() {
+  init(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
@@ -273,9 +271,9 @@ class LightingFlow extends nr.LightingFlow {
     this._tag = 0;
     this._stages = [];
   }
-  init() {
+  init(pipeline) {
     for (let i = 0; i < this._stages.length; i++) {
-      this._stages[i].init();
+      this._stages[i].init(pipeline);
     }
     let info = new nr.RenderFlowInfo(
         this._name, this._priority, this._tag, this._stages);
@@ -290,12 +288,14 @@ export class LightingStage extends nr.LightingStage {
     this._priority = 0;
     this._tag = 0;
     this.renderQueues = [];
+    this._deferredMaterial = null;
   }
-  init() {
+  init(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
     }
+    pipeline.pipelineSceneData.deferredLightingMat = this._deferredMaterial;
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
@@ -309,12 +309,14 @@ export class PostprocessStage extends nr.PostprocessStage {
     this._priority = 0;
     this._tag = 0;
     this.renderQueues = [];
+    this._postProcessMaterial = null;
   }
-  init() {
+  init(pipeline) {
     const queues = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
     }
+    pipeline.pipelineSceneData.deferredPostMat = this._postProcessMaterial;
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);

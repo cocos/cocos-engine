@@ -44,6 +44,7 @@ import { PipelineStateManager } from '../pipeline-state-manager';
 import { intersect, Sphere } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
 import { SRGBToLinear } from '../pipeline-funcs';
+import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 
@@ -192,7 +193,7 @@ export class LightingStage extends RenderStage {
 
         this._planarQueue = new PlanarShadowQueue(this._pipeline as DeferredPipeline);
 
-        if (this._deferredMaterial) { pipeline.pipelineSceneData.deferredLightingMat = this._deferredMaterial; }
+        if (this._deferredMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredLightingMat = this._deferredMaterial; }
     }
 
     public destroy () {
@@ -247,7 +248,7 @@ export class LightingStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Lighting
-        const lightingMat = sceneData.deferredLightingMat;
+        const lightingMat = (sceneData as DeferredPipelineSceneData).deferredLightingMat;
         const pass = lightingMat.passes[0];
         const shader = ShaderPool.get(pass.getShaderVariant());
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);

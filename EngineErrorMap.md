@@ -247,11 +247,11 @@ Director.runSceneImmediate: scene is not valid
 Director._initOnEngineInitialized: renderer root initialization failed
 ### 1218
 
-The forward render pipeline is currently in use.
+Forward render pipeline initialized.
 
 ### 1219
 
-The deferred render pipeline is currently in use. Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.
+Deferred render pipeline initialized. Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.
 
 ### 1300
 

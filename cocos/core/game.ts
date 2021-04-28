@@ -40,11 +40,10 @@ import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
 import { legacyCC, VERSION } from './global-exports';
 import { IPhysicsConfig } from '../physics/framework/physics-config';
-import { bindingMappingInfo, PipelineType } from './pipeline/define';
+import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
-import { warnID } from './platform/debug';
 import { BrowserType } from '../../pal/system/enum-type';
 
 interface ISceneInfo {
@@ -311,7 +310,6 @@ export class Game extends EventTarget {
     public _paused = true; // whether the game is paused
     public _configLoaded = false; // whether config loaded
     public _isCloning = false;    // deserializing or instantiating
-    public _pipelineType = PipelineType.FORWARD;
 
     private _inited = false;
     private _engineInited = false; // whether the engine has inited
@@ -888,14 +886,6 @@ export class Game extends EventTarget {
     private _setRenderPipeline (rppl?: RenderPipeline) {
         if (!legacyCC.director.root.setRenderPipeline(rppl)) {
             this._setRenderPipeline();
-        }
-
-        if (EDITOR) {
-            if (this._pipelineType === PipelineType.DEFERRED) {
-                warnID(1219);
-            } else {
-                warnID(1218);
-            }
         }
 
         this._rendererInitialized = true;
