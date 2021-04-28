@@ -1,5 +1,6 @@
 import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
 import { system } from 'pal/system';
+import { DEBUG } from 'internal:constants';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
@@ -14,7 +15,7 @@ export class TouchInputSource {
         this.support = system.isMobile;
         if (this.support) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-            if (!this._canvas) {
+            if (!this._canvas && DEBUG) {
                 console.warn('failed to access canvas');
             }
             this._registerEvent();

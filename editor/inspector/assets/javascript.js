@@ -340,7 +340,9 @@ const Elements = {
                     throw err;
                 }
 
-                this.$.code.textContent  = text;
+                if (this.$.code) {
+                    this.$.code.textContent = text;
+                }
             });
         },
     },

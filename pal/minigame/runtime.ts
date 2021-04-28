@@ -1,4 +1,4 @@
-import { VIVO } from 'internal:constants';
+import { COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO } from 'internal:constants';
 import { SystemInfo, IMiniGame } from 'pal/minigame';
 
 import { Orientation } from '../system/enum-type/orientation';
@@ -10,10 +10,17 @@ declare let ral: any;
 const minigame: IMiniGame = {};
 cloneObject(minigame, ral);
 
+// #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 
-minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
+// NOTE: size and orientation info is wrong at the init phase, need to define as a getter
+Object.defineProperty(minigame, 'isLandscape', {
+    get () {
+        const locSysInfo = minigame.getSystemInfoSync();
+        return locSysInfo.screenWidth > locSysInfo.screenHeight;
+    },
+});
 // init landscapeOrientation as LANDSCAPE_RIGHT
 const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
 // NOTE: onDeviceOrientationChange is not supported on this platform
@@ -29,18 +36,9 @@ Object.defineProperty(minigame, 'orientation', {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });
+// #endregion SystemInfo
 
-// Accelerometer
-// onDeviceOrientationChange is not supported
-// ral.onDeviceOrientationChange(function (res) {
-//     if (res.value === 'landscape') {
-//         orientation = Orientation.LANDSCAPE_RIGHT;
-//     }
-//     else if (res.value === 'landscapeReverse') {
-//         orientation = Orientation.LANDSCAPE_LEFT;
-//     }
-// });
-
+// #region Accelerometer
 minigame.onAccelerometerChange = function (cb) {
     ral.onAccelerometerChange((res) => {
         let x = res.x;
@@ -59,9 +57,8 @@ minigame.onAccelerometerChange = function (cb) {
         };
         cb(resClone);
     });
-    // onAccelerometerChange would start accelerometer, need to mannually stop it
-    ral.stopAccelerometer();
 };
+// #endregion Accelerometer
 
 minigame.createInnerAudioContext = createInnerAudioContextPolyfill(ral, {
     onPlay: true,  // polyfill for vivo

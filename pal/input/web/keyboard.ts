@@ -14,7 +14,7 @@ export class KeyboardInputSource {
 
     private _registerEvent () {
         const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-        canvas?.addEventListener('keypress', this._createCallback(SystemEventType.KEY_DOWN));
+        canvas?.addEventListener('keydown', this._createCallback(SystemEventType.KEY_DOWN));
         canvas?.addEventListener('keyup', this._createCallback(SystemEventType.KEY_UP));
     }
 
