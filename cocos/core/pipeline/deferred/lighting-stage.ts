@@ -193,7 +193,7 @@ export class LightingStage extends RenderStage {
 
         this._planarQueue = new PlanarShadowQueue(this._pipeline as DeferredPipeline);
 
-        if (this._deferredMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredLightingMat = this._deferredMaterial; }
+        if (this._deferredMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredLightingMaterial = this._deferredMaterial; }
     }
 
     public destroy () {
@@ -248,7 +248,7 @@ export class LightingStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Lighting
-        const lightingMat = (sceneData as DeferredPipelineSceneData).deferredLightingMat;
+        const lightingMat = (sceneData as DeferredPipelineSceneData).deferredLightingMaterial;
         const pass = lightingMat.passes[0];
         const shader = ShaderPool.get(pass.getShaderVariant());
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);

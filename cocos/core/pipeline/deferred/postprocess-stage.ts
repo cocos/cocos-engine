@@ -121,7 +121,7 @@ export class PostprocessStage extends RenderStage {
             });
         }
 
-        if (this._postProcessMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredPostMat = this._postProcessMaterial; }
+        if (this._postProcessMaterial) { (pipeline.pipelineSceneData as DeferredPipelineSceneData).deferredPostMaterial = this._postProcessMaterial; }
     }
 
     public destroy () {
@@ -158,7 +158,7 @@ export class PostprocessStage extends RenderStage {
         cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, pipeline.descriptorSet);
 
         // Postprocess
-        const builtinPostProcess = (sceneData as DeferredPipelineSceneData).deferredPostMat;
+        const builtinPostProcess = (sceneData as DeferredPipelineSceneData).deferredPostMaterial;
         const pass = builtinPostProcess.passes[0];
         const shader = ShaderPool.get(pass.getShaderVariant());
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);

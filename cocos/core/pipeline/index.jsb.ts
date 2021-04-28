@@ -295,7 +295,7 @@ export class LightingStage extends nr.LightingStage {
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
     }
-    pipeline.pipelineSceneData.deferredLightingMat = this._deferredMaterial;
+    pipeline.pipelineSceneData.deferredLightingMaterial = this._deferredMaterial;
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
@@ -316,7 +316,7 @@ export class PostprocessStage extends nr.PostprocessStage {
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
     }
-    pipeline.pipelineSceneData.deferredPostMat = this._postProcessMaterial;
+    pipeline.pipelineSceneData.deferredPostMaterial = this._postProcessMaterial;
     let info =
         new nr.RenderStageInfo(this._name, this._priority, this._tag, queues);
     this.initialize(info);
