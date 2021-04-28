@@ -86,7 +86,7 @@ exports.setDisabled = function (data, element) {
     if (!element) {
         return;
     }
-    
+
     let disabled = data;
 
     if (typeof data === 'function') {
@@ -200,9 +200,10 @@ exports.updatePropByDump = function (panel, dump) {
             }
         }
 
-        //  if it has 'fixed-parent' attribute, it would not remove from its parent.
-        if (panel.$[key] && panel.$[key].getAttribute('fixed-parent') === null) {
-            children.push(panel.$[key]);
+        if (panel.$[key]) {
+            if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
+                children.push(panel.$[key]);
+            }
         }
     });
 
