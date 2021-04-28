@@ -1,5 +1,3 @@
-'use strict';
-
 exports.template = `
 <div class="container">
     <ui-prop>
@@ -104,12 +102,12 @@ exports.$ = {
  */
 const Elements = {
     normals: {
-        ready() {
+        ready () {
             const panel = this;
 
             panel.$.normalsSelect.addEventListener('change', panel.setProp.bind(panel, 'normals'));
         },
-        update() {
+        update () {
             const panel = this;
 
             let optionsHtml = '';
@@ -128,12 +126,12 @@ const Elements = {
         },
     },
     tangents: {
-        ready() {
+        ready () {
             const panel = this;
 
             panel.$.tangentsSelect.addEventListener('change', panel.setProp.bind(panel, 'tangents'));
         },
-        update() {
+        update () {
             const panel = this;
 
             let optionsHtml = '';
@@ -152,12 +150,12 @@ const Elements = {
         },
     },
     skipValidation: {
-        ready() {
+        ready () {
             const panel = this;
 
             panel.$.skipValidationCheckbox.addEventListener('change', panel.setProp.bind(panel, 'skipValidation'));
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.$.skipValidationCheckbox.value = panel.getDefault(panel.meta.userData.skipValidation, true);
@@ -167,12 +165,12 @@ const Elements = {
         },
     },
     disableMeshSplit: {
-        ready() {
+        ready () {
             const panel = this;
 
             panel.$.disableMeshSplitCheckbox.addEventListener('change', panel.setProp.bind(panel, 'disableMeshSplit'));
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.$.disableMeshSplitCheckbox.value = panel.getDefault(panel.meta.userData.disableMeshSplit, false);
@@ -182,12 +180,12 @@ const Elements = {
         },
     },
     meshOptimizer: {
-        ready() {
+        ready () {
             const panel = this;
 
             panel.$.meshOptimizerCheckbox.addEventListener('change', panel.setProp.bind(panel, 'meshOptimizer'));
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.$.meshOptimizerCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizer, false);
@@ -197,11 +195,11 @@ const Elements = {
         },
     },
     si: {
-        ready() {
+        ready () {
             const panel = this;
             panel.$.meshOptimizerSISlider.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'si'));
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.$.meshOptimizerSISlider.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, 1, 'si');
@@ -211,11 +209,11 @@ const Elements = {
         },
     },
     sa: {
-        ready() {
+        ready () {
             const panel = this;
             panel.$.meshOptimizerSACheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'sa'));
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.$.meshOptimizerSACheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, false, 'sa');
@@ -225,7 +223,7 @@ const Elements = {
         },
     },
     kn: {
-        ready() {
+        ready () {
             const panel = this;
             panel.$.meshOptimizerKNCheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'kn'));
             panel.$.meshOptimizerKNCheckbox.addEventListener('change', (event) => {
@@ -235,7 +233,7 @@ const Elements = {
                 panel.dispatch('change');
             });
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.$.meshOptimizerKNCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, false, 'kn');
@@ -245,11 +243,11 @@ const Elements = {
         },
     },
     ke: {
-        ready() {
+        ready () {
             const panel = this;
             panel.$.meshOptimizerKECheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'ke'));
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.$.meshOptimizerKECheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, false, 'ke');
@@ -259,11 +257,11 @@ const Elements = {
         },
     },
     noq: {
-        ready() {
+        ready () {
             const panel = this;
             panel.$.meshOptimizerNOQCheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'noq'));
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.$.meshOptimizerNOQCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, true, 'noq');
@@ -273,11 +271,11 @@ const Elements = {
         },
     },
     v: {
-        ready() {
+        ready () {
             const panel = this;
             panel.$.meshOptimizerVCheckbox.addEventListener('change', panel.setMeshOptimizerOptions.bind(panel, 'v'));
         },
-        update() {
+        update () {
             const panel = this;
 
             panel.$.meshOptimizerVCheckbox.value = panel.getDefault(panel.meta.userData.meshOptimizerOptions, true, 'v');
@@ -293,7 +291,6 @@ exports.update = function (assetList, metaList) {
     this.metaList = metaList;
     this.asset = assetList[0];
     this.meta = metaList[0];
-
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.update) {
@@ -321,7 +318,7 @@ exports.close = function () {
 };
 
 exports.methods = {
-    setProp(prop, event) {
+    setProp (prop, event) {
         this.metaList.forEach((meta) => {
             let value = event.target.value;
             if (prop === 'normals' || prop === 'tangents') {
@@ -333,7 +330,7 @@ exports.methods = {
 
         this.dispatch('change');
     },
-    setMeshOptimizerOptions(prop, event) {
+    setMeshOptimizerOptions (prop, event) {
         this.metaList.forEach((meta) => {
             if (!meta.userData.meshOptimizerOptions) {
                 meta.userData.meshOptimizerOptions = {};
@@ -344,39 +341,40 @@ exports.methods = {
 
         this.dispatch('change');
     },
-    updateMeshOptimizerInvalid(element, prop) {
+    updateMeshOptimizerInvalid (element, prop) {
         const invalid = this.metaList.some((meta) => {
-            if (meta.userData.meshOptimizerOptions === undefined) {
+            if (meta.userData.meshOptimizerOptions === undefined && this.meta.userData.meshOptimizerOptions === undefined) {
                 return false;
             }
+            if (meta.userData.meshOptimizerOptions && this.meta.userData.meshOptimizerOptions) {
+                return meta.userData.meshOptimizerOptions[prop] !== this.meta.userData.meshOptimizerOptions[prop];
+            }
 
-            return meta.userData.meshOptimizerOptions[prop] !== this.meta.userData.meshOptimizerOptions[prop];
+            return true;
         });
         element.invalid = invalid;
     },
     /**
      * Update whether a data is editable in multi-select state
      */
-    updateInvalid(element, prop) {
-        const invalid = this.metaList.some((meta) => {
-            return meta.userData[prop] !== this.meta.userData[prop];
-        });
+    updateInvalid (element, prop) {
+        const invalid = this.metaList.some((meta) => meta.userData[prop] !== this.meta.userData[prop]);
         element.invalid = invalid;
     },
     /**
      * Update read-only status
      */
-    updateReadonly(element) {
+    updateReadonly (element) {
         if (this.asset.readonly) {
             element.setAttribute('disabled', true);
         } else {
             element.removeAttribute('disabled');
         }
     },
-    t(key) {
+    t (key) {
         return Editor.I18n.t(`ENGINE.assets.fbx.${key}`);
     },
-    getDefault(value, def, prop) {
+    getDefault (value, def, prop) {
         if (value === undefined) {
             return def;
         }
