@@ -11,6 +11,7 @@ export class MouseInputSource {
     public support: boolean;
     private _canvas?: HTMLCanvasElement;
     private _eventTarget: EventTarget = new EventTarget();
+    private _pointLocked = false;
 
     constructor () {
         this.support = !system.isMobile && !EDITOR;
@@ -53,16 +54,38 @@ export class MouseInputSource {
                 deltaX: event.deltaX * wheelSensitivityFactor,
                 deltaY: -event.deltaY * wheelSensitivityFactor,
                 timestamp: performance.now(),
+                movementX: event.movementX,
+                movementY: event.movementY,
             };
             event.stopPropagation();
             event.preventDefault();
             this._eventTarget.emit(SystemEventType.MOUSE_WHEEL, inputEvent);
         });
+        this._registerPointerLockEvent();
     }
 
-    _registerEventOnWindowAndCanvas (eventName: MouseEventNames, eventCb: (event: MouseEvent) => void) {
+    private _registerEventOnWindowAndCanvas (eventName: MouseEventNames, eventCb: (event: MouseEvent) => void) {
         window.addEventListener(eventName, eventCb);
         this._canvas?.addEventListener(eventName,  eventCb);
+    }
+
+    // To be removed in the future.
+    private _registerPointerLockEvent () {
+        const lockChangeAlert = () => {
+            const canvas = this._canvas;
+            // @ts-expect-error undefined mozPointerLockElement
+            if (document.pointerLockElement === canvas || document.mozPointerLockElement === canvas) {
+                this._pointLocked = true;
+            } else {
+                this._pointLocked = false;
+            }
+        };
+        if ('onpointerlockchange' in document) {
+            document.addEventListener('pointerlockchange', lockChangeAlert, false);
+        } else if ('onmozpointerlockchange' in document) {
+            // @ts-expect-error undefined mozpointerlockchange event
+            document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+        }
     }
 
     private _createCallback (eventType: string) {
@@ -71,10 +94,13 @@ export class MouseInputSource {
             const location = this._getLocation(event);
             const inputEvent: MouseInputEvent = {
                 type: eventType,
-                x: location.x - canvasRect.x,
-                y: canvasRect.y + canvasRect.height - location.y,
+                x: location.x - canvasRect.x + (this._pointLocked ? event.movementX : 0),
+                y: canvasRect.y + canvasRect.height - location.y - (this._pointLocked ? event.movementY : 0),
                 button: event.button,
                 timestamp: performance.now(),
+                // this is web only property
+                movementX: event.movementX,
+                movementY: event.movementY,
             };
             event.stopPropagation();
             if (event.target === this._canvas) {

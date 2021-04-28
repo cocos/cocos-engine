@@ -86,6 +86,9 @@ declare module 'pal/input' {
          * The valid value maybe `EventMouse.BUTTON_LEFT`, `EventMouse.BUTTON_RIGHT` and `EventMouse.BUTTON_MIDDLE`.
          */
         readonly button: number;
+        // this is web only property, should be removed in the futrure. 
+        movementX?: number;
+        movementY?: number;
     }
     type MouseCallback = (res: MouseInputEvent) => void;
     export interface MouseWheelInputEvent extends MouseInputEvent {
