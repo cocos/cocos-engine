@@ -41,17 +41,16 @@ struct Skybox;
 struct Shadows;
 struct Sphere;
 struct Camera;
-class Framebuffer;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
-    ForwardPipeline() = default;
-    ~ForwardPipeline() = default;
+    ForwardPipeline()           = default;
+    ~ForwardPipeline() override = default;
 
-    virtual bool initialize(const RenderPipelineInfo &info) override;
-    virtual void destroy() override;
-    virtual bool activate() override;
-    virtual void render(const vector<uint> &cameras) override;
+    bool initialize(const RenderPipelineInfo &info) override;
+    void destroy() override;
+    bool activate() override;
+    void render(const vector<uint> &cameras) override;
 
     gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
 
@@ -65,12 +64,11 @@ private:
     bool activeRenderer();
     void updateUBO(Camera *);
 
-private:
-    gfx::Buffer *_lightsUBO = nullptr;
-    LightList _validLights;
-    gfx::BufferList _lightBuffers;
-    UintList _lightIndexOffsets;
-    UintList _lightIndices;
+    gfx::Buffer *                                     _lightsUBO = nullptr;
+    LightList                                         _validLights;
+    gfx::BufferList                                   _lightBuffers;
+    UintList                                          _lightIndexOffsets;
+    UintList                                          _lightIndices;
     unordered_map<gfx::ClearFlags, gfx::RenderPass *> _renderPasses;
 };
 

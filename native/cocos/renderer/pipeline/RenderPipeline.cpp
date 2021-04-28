@@ -52,7 +52,9 @@ RenderPipeline::RenderPipeline()
     _pipelineSceneData = new PipelineSceneData();
 }
 
-RenderPipeline::~RenderPipeline() = default;
+RenderPipeline::~RenderPipeline() {
+    RenderPipeline::instance = nullptr;
+}
 
 #define INIT_GLOBAL_DESCSET_LAYOUT(info)                                      \
     do {                                                                      \
@@ -63,16 +65,16 @@ RenderPipeline::~RenderPipeline() = default;
 void RenderPipeline::setDescriptorSetLayout() {
     globalDescriptorSetLayout.bindings.resize(static_cast<size_t>(PipelineGlobalBindings::COUNT));
 
-    globalDescriptorSetLayout.blocks[UBOGlobal::NAME]              = UBOGlobal::LAYOUT;
-    globalDescriptorSetLayout.bindings[UBOGlobal::BINDING]         = UBOGlobal::DESCRIPTOR;
-    globalDescriptorSetLayout.blocks[UBOCamera::NAME]              = UBOCamera::LAYOUT;
-    globalDescriptorSetLayout.bindings[UBOCamera::BINDING]         = UBOCamera::DESCRIPTOR;
-    globalDescriptorSetLayout.blocks[UBOShadow::NAME]              = UBOShadow::LAYOUT;
-    globalDescriptorSetLayout.bindings[UBOShadow::BINDING]         = UBOShadow::DESCRIPTOR;
-    globalDescriptorSetLayout.samplers[SHADOWMAP::NAME]            = SHADOWMAP::LAYOUT;
-    globalDescriptorSetLayout.bindings[SHADOWMAP::BINDING]         = SHADOWMAP::DESCRIPTOR;
-    globalDescriptorSetLayout.samplers[ENVIRONMENT::NAME]          = ENVIRONMENT::LAYOUT;
-    globalDescriptorSetLayout.bindings[ENVIRONMENT::BINDING]       = ENVIRONMENT::DESCRIPTOR;
+    globalDescriptorSetLayout.blocks[UBOGlobal::NAME]            = UBOGlobal::LAYOUT;
+    globalDescriptorSetLayout.bindings[UBOGlobal::BINDING]       = UBOGlobal::DESCRIPTOR;
+    globalDescriptorSetLayout.blocks[UBOCamera::NAME]            = UBOCamera::LAYOUT;
+    globalDescriptorSetLayout.bindings[UBOCamera::BINDING]       = UBOCamera::DESCRIPTOR;
+    globalDescriptorSetLayout.blocks[UBOShadow::NAME]            = UBOShadow::LAYOUT;
+    globalDescriptorSetLayout.bindings[UBOShadow::BINDING]       = UBOShadow::DESCRIPTOR;
+    globalDescriptorSetLayout.samplers[SHADOWMAP::NAME]          = SHADOWMAP::LAYOUT;
+    globalDescriptorSetLayout.bindings[SHADOWMAP::BINDING]       = SHADOWMAP::DESCRIPTOR;
+    globalDescriptorSetLayout.samplers[ENVIRONMENT::NAME]        = ENVIRONMENT::LAYOUT;
+    globalDescriptorSetLayout.bindings[ENVIRONMENT::BINDING]     = ENVIRONMENT::DESCRIPTOR;
     globalDescriptorSetLayout.samplers[SPOTLIGHTINGMAP::NAME]    = SPOTLIGHTINGMAP::LAYOUT;
     globalDescriptorSetLayout.bindings[SPOTLIGHTINGMAP::BINDING] = SPOTLIGHTINGMAP::DESCRIPTOR;
 
@@ -97,18 +99,18 @@ void RenderPipeline::setDescriptorSetLayout() {
     localDescriptorSetLayout.bindings[UBOSkinning::BINDING]          = UBOSkinning::DESCRIPTOR;
     localDescriptorSetLayout.blocks[UBOMorph::NAME]                  = UBOMorph::LAYOUT;
     localDescriptorSetLayout.bindings[UBOMorph::BINDING]             = UBOMorph::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[JOINTTEXTURE::NAME]           = JOINTTEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[JOINTTEXTURE::BINDING]        = JOINTTEXTURE::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[POSITIONMORPH::NAME]          = POSITIONMORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[POSITIONMORPH::BINDING]       = POSITIONMORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[NORMALMORPH::NAME]            = NORMALMORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[NORMALMORPH::BINDING]         = NORMALMORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[TANGENTMORPH::NAME]           = TANGENTMORPH::LAYOUT;
-    localDescriptorSetLayout.bindings[TANGENTMORPH::BINDING]        = TANGENTMORPH::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[LIGHTMAPTEXTURE::NAME]        = LIGHTMAPTEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[LIGHTMAPTEXTURE::BINDING]     = LIGHTMAPTEXTURE::DESCRIPTOR;
-    localDescriptorSetLayout.samplers[SPRITETEXTURE::NAME]          = SPRITETEXTURE::LAYOUT;
-    localDescriptorSetLayout.bindings[SPRITETEXTURE::BINDING]       = SPRITETEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[JOINTTEXTURE::NAME]            = JOINTTEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[JOINTTEXTURE::BINDING]         = JOINTTEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[POSITIONMORPH::NAME]           = POSITIONMORPH::LAYOUT;
+    localDescriptorSetLayout.bindings[POSITIONMORPH::BINDING]        = POSITIONMORPH::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[NORMALMORPH::NAME]             = NORMALMORPH::LAYOUT;
+    localDescriptorSetLayout.bindings[NORMALMORPH::BINDING]          = NORMALMORPH::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[TANGENTMORPH::NAME]            = TANGENTMORPH::LAYOUT;
+    localDescriptorSetLayout.bindings[TANGENTMORPH::BINDING]         = TANGENTMORPH::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[LIGHTMAPTEXTURE::NAME]         = LIGHTMAPTEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[LIGHTMAPTEXTURE::BINDING]      = LIGHTMAPTEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[SPRITETEXTURE::NAME]           = SPRITETEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[SPRITETEXTURE::BINDING]        = SPRITETEXTURE::DESCRIPTOR;
 }
 
 bool RenderPipeline::initialize(const RenderPipelineInfo &info) {
@@ -182,6 +184,7 @@ void RenderPipeline::destroy() {
 
     SamplerLib::destroyAll();
     PipelineStateManager::destroyAll();
+    instance = nullptr;
 }
 
 void RenderPipeline::setPipelineSharedSceneData(uint handle) {
