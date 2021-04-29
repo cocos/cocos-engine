@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { markAsWarning, removeProperty } from '../utils';
+import { markAsWarning, removeProperty, replaceProperty } from '../utils';
 import { warnID } from './debug';
 import { EventMouse, EventTouch, SystemEventType } from './event-manager';
 import { sys } from './sys';
@@ -83,58 +83,55 @@ Object.defineProperty(EventTouch, 'CANCELLED', {
 });
 
 // deprecate languageCode field
-['UNKNOWN', 'ENGLISH', 'CHINESE', 'FRENCH', 'ITALIAN',
-    'GERMAN', 'SPANISH', 'DUTCH', 'RUSSIAN', 'KOREAN',
-    'JAPANESE', 'HUNGARIAN', 'PORTUGUESE', 'ARABIC', 'NORWEGIAN',
-    'POLISH', 'TURKISH', 'UKRAINIAN', 'ROMANIAN', 'BULGARIAN'].forEach((item) => {
-    Object.defineProperty(sys, `LANGUAGE_${item}`, {
-        get () {
-            warnID(1400, `sys.LANGUAGE_${item}`, `sys.Language.${item}`);
-            return sys.Language[item] as string;
-        },
-    });
-});
+replaceProperty(sys, 'sys',
+    ['UNKNOWN', 'ENGLISH', 'CHINESE', 'FRENCH', 'ITALIAN',
+        'GERMAN', 'SPANISH', 'DUTCH', 'RUSSIAN', 'KOREAN',
+        'JAPANESE', 'HUNGARIAN', 'PORTUGUESE', 'ARABIC', 'NORWEGIAN',
+        'POLISH', 'TURKISH', 'UKRAINIAN', 'ROMANIAN', 'BULGARIAN'].map((item) => ({
+        name: `LANGUAGE_${item}`,
+        newName: item,
+        target: sys.Language,
+        targetName: 'sys.Language',
+    })));
 
 // deprecate os field
-['UNKNOWN', 'IOS', 'ANDROID', 'WINDOWS', 'LINUX', 'OSX'].forEach((item) => {
-    Object.defineProperty(sys, `OS_${item}`, {
-        get () {
-            warnID(1400, `sys.OS_${item}`, `sys.OS.${item}`);
-            return sys.OS[item] as string;
-        },
-    });
-});
+replaceProperty(sys, 'sys',
+    ['UNKNOWN', 'IOS', 'ANDROID', 'WINDOWS', 'LINUX', 'OSX'].map((item) => ({
+        name: `OS_${item}`,
+        newName: item,
+        target: sys.OS,
+        targetName: 'sys.OS',
+    })));
 
 // deprecate browserType field
-['UNKNOWN', 'WECHAT', 'ANDROID', 'IE', 'EDGE', 'QQ', 'MOBILE_QQ',
-    'UC', 'UCBS', 'BAIDU_APP', 'BAIDU', 'MAXTHON', 'OPERA',
-    'OUPENG', 'MIUI', 'FIREFOX', 'SAFARI', 'CHROME', 'LIEBAO',
-    'QZONE', 'SOUGOU', 'HUAWEI'].forEach((item) => {
-    Object.defineProperty(sys, `BROWSER_TYPE_${item}`, {
-        get () {
-            warnID(1400, `sys.BROWSER_TYPE_${item}`, `sys.BrowserType.${item}`);
-            return sys.BrowserType[item] as string;
-        },
-    });
-});
-Object.defineProperty(sys, 'BROWSER_TYPE_360', {
-    get () {
-        warnID(1400, 'sys.BROWSER_TYPE_360', `sys.BrowserType.BROWSER_360`);
-        return sys.BrowserType.BROWSER_360 as string;
+replaceProperty(sys, 'sys',
+    ['UNKNOWN', 'WECHAT', 'ANDROID', 'IE', 'EDGE', 'QQ', 'MOBILE_QQ',
+        'UC', 'UCBS', 'BAIDU_APP', 'BAIDU', 'MAXTHON', 'OPERA',
+        'OUPENG', 'MIUI', 'FIREFOX', 'SAFARI', 'CHROME', 'LIEBAO',
+        'QZONE', 'SOUGOU', 'HUAWEI'].map((item) => ({
+        name: `BROWSER_TYPE_${item}`,
+        newName: item,
+        target: sys.BrowserType,
+        targetName: 'sys.BrowserType',
+    })));
+replaceProperty(sys, 'sys', [
+    {
+        name: 'BROWSER_TYPE_360',
+        newName: 'BROWSER_360',
+        target: sys.BrowserType,
+        targetName: 'sys.BrowserType',
     },
-});
+]);
 
 // deprecate platform field
-['UNKNOWN', 'EDITOR_PAGE', 'EDITOR_CORE', 'MOBILE_BROWSER', 'DESKTOP_BROWSER', 'WIN32', 'MACOS', 'IOS', 'ANDROID',
-    'WECHAT_GAME', 'BAIDU_MINI_GAME', 'XIAOMI_QUICK_GAME', 'ALIPAY_MINI_GAME', 'BYTEDANCE_MINI_GAME',
-    'OPPO_MINI_GAME', 'VIVO_MINI_GAME', 'HUAWEI_QUICK_GAME', 'COCOSPLAY',  'LINKSURE_MINI_GAME', 'QTT_MINI_GAME'].forEach((item) => {
-    Object.defineProperty(sys, item, {
-        get () {
-            warnID(1400, `sys.${item}`, `sys.Platform.${item}`);
-            return sys.Platform[item] as string;
-        },
-    });
-});
+replaceProperty(sys, 'sys',
+    ['UNKNOWN', 'EDITOR_PAGE', 'EDITOR_CORE', 'MOBILE_BROWSER', 'DESKTOP_BROWSER', 'WIN32', 'MACOS', 'IOS', 'ANDROID',
+        'WECHAT_GAME', 'BAIDU_MINI_GAME', 'XIAOMI_QUICK_GAME', 'ALIPAY_MINI_GAME', 'BYTEDANCE_MINI_GAME',
+        'OPPO_MINI_GAME', 'VIVO_MINI_GAME', 'HUAWEI_QUICK_GAME', 'COCOSPLAY',  'LINKSURE_MINI_GAME', 'QTT_MINI_GAME'].map((item) => ({
+        name: item,
+        target: sys.Platform,
+        targetName: 'sys.Platform',
+    })));
 
 // remove platform field
 removeProperty(sys, 'sys',
