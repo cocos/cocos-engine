@@ -346,6 +346,8 @@ let VideoPlayerImpl = cc.Class({
 
         if(video.getFrameWidth != undefined)
             return video.getFrameWidth();
+        else if(video.videoWidth != undefined)
+            return video.videoWidth;
         else 
             return 0;
     },
@@ -356,8 +358,20 @@ let VideoPlayerImpl = cc.Class({
 
         if(video.getFrameHeight != undefined)
             return video.getFrameHeight();
+        else if(video.videoHeight != undefined)
+            return video.videoHeight;
         else
             return 0;
+    },
+
+    getFrameChannel: function () {
+        let video = this._video;
+        if (!video) return 0;
+
+        if(video.getFrameChannel != undefined)
+            return video.getFrameChannel();
+        else
+            return 3; //rgba8 in web
     },
 
     getVideoTexDataSize: function () {
@@ -370,12 +384,12 @@ let VideoPlayerImpl = cc.Class({
             return 0;
     },
 
-    pushFrameDataToTexture2D: function (texid) {
+    pushFrameDataToTexture2D: function (tex) {
         let video = this._video;
         if (!video) return;
 
         if(video.pushFrameDataToTexture2D != undefined)
-            video.pushFrameDataToTexture2D(texid);
+            video.pushFrameDataToTexture2D(tex);
     },
 
     pushPixelsToTexture: function(tex) {
@@ -392,6 +406,10 @@ let VideoPlayerImpl = cc.Class({
 
         if(video.setShowRawFrame != undefined)
             video.setShowRawFrame(show);
+        else {
+            if(show) video.style.visibility = 'visible';
+            else video.style.visibility = 'hidden';
+        }
     },
 
     setKeepAspectRatioEnabled: function () {

@@ -398,18 +398,32 @@ let VideoPlayer = cc.Class({
         }
     },
 
-    // Get video texture
+    /**
+     * !#en Get video texture
+     * !#ch 获取视频纹理对象
+     * @method getTexture
+     * @returns {Texture2D} The video texture object
+     */ 
     getTexture () {
         return this._ccVideoTex;
     },
 
     _enableGrabTexture : false,
-    // Open get texture flag
+    /**
+     * !#en Open get texture flag
+     * !#ch 开启抓取视频帧纹理
+     * @method enableGrabTexture
+     */
     enableGrabTexture () {
         this._enableGrabTexture = true;
     },
 
-    // Show raw video player
+    /**
+     * !#en Show raw video player
+     * !#ch 是否显示原始播放器窗口
+     * @param {Boolean} show
+     * @method setShowRaw
+     */
     setShowRaw (show) {
         this._impl.setShowRawFrame(show);
     },
@@ -442,8 +456,12 @@ let VideoPlayer = cc.Class({
                     // this._sfm = null; // For demo useage
             }
 
-            let texid = this._ccVideoTex._texture.getTextureId();
-            this._impl.pushFrameDataToTexture2D(texid);
+            if(this._impl._video.pushFrameDataToTexture2D == undefined) { // Web
+                this._ccVideoTex.initWithVideo(this._impl._video);
+            } else { // Not web
+                let texid = this._ccVideoTex._texture.getTextureId();
+                this._impl.pushFrameDataToTexture2D(texid);
+            }
             
             /* // For demo useage
             let sprite = this.getComponentInChildren(Sprite);
@@ -575,7 +593,6 @@ let VideoPlayer = cc.Class({
     },
 
     queryChannelType(cid) {
-        console.log("type", cid);
         let type = null;
         switch(cid) {
             case 1:
