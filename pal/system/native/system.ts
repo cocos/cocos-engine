@@ -16,7 +16,7 @@ const networkTypeMap: Record<string, NetworkType> = {
 const platformMap: Record<number, Platform> = {
     0: Platform.WIN32,
     // 1 is Linux platform in native engine
-    2: Platform.MAC,
+    2: Platform.MACOS,
     3: Platform.ANDROID,
     // 4 is IPHONE
     4: Platform.IOS,
