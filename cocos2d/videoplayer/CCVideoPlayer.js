@@ -598,7 +598,7 @@ let VideoPlayer = cc.Class({
         return false;
     },
 
-    queryChannelType(cid) {
+    queryChannelType (cid) {
         let type = null;
         switch(cid) {
             case 1:

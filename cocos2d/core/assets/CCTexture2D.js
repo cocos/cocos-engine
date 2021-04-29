@@ -738,11 +738,11 @@ var Texture2D = cc.Class({
         return this._isAlphaAtlas;
     },
 
-    setUseBGRA(bgra) {
+    setUseBGRA (bgra) {
         this._useBgra = bgra;
     },
 
-    getUseBGRA() {
+    getUseBGRA () {
         return this._useBgra;
     },
 
