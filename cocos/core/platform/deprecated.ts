@@ -24,7 +24,7 @@
  */
 
 import { removeProperty, replaceProperty } from '../utils';
-import { EventMouse, EventTouch, SystemEventType } from './event-manager';
+import { EventMouse, EventTouch, SystemEvent } from './event-manager';
 import { sys } from './sys';
 import { View } from './view';
 
@@ -44,15 +44,15 @@ replaceProperty(EventMouse, 'EventMouse',
     ['DOWN', 'UP', 'MOVE'].map((item) => ({
         name: item,
         newName: `MOUSE_${item}`,
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     })));
 replaceProperty(EventMouse, 'EventMouse', [
     {
         name: 'SCROLL',
         newName: 'MOUSE_WHEEL',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 
@@ -61,32 +61,32 @@ replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'BEGAN',
         newName: 'TOUCH_START',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'MOVED',
         newName: 'TOUCH_MOVE',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'ENDED',
         newName: 'TOUCH_END',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'CANCELLED',
         newName: 'TOUCH_CANCEL',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 
