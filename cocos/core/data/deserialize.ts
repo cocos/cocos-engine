@@ -986,7 +986,7 @@ export function deserialize (data: IFileData | string | any, details: Details | 
     details = details || Details.pool.get();
     let res;
 
-    if (!BUILD && !JSB && !(PREVIEW && isCompiledJson(data))) {
+    if (!BUILD && !(PREVIEW && isCompiledJson(data))) {
         res = deserializeDynamic(data, details, options);
     } else {
         details.init(data);

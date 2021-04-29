@@ -583,6 +583,7 @@ class _Deserializer {
                 // not serialized,
                 // recover to default value in ValueType, because eliminated properties equals to
                 // its default value in ValueType, not default value in user class
+                if (!attrs[propName + DEFAULT]) continue;
                 value = CCClass.getDefault(attrs[propName + DEFAULT]);
             }
 
