@@ -3021,3 +3021,7 @@ The PrivateNode is deprecated, please use Node directly with CCObject.Flags.Dont
 ### 12004
 
 SubModel can only support %d passes.
+
+### 12100
+
+The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size.
