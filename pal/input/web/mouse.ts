@@ -13,6 +13,7 @@ export class MouseInputSource {
     private _eventTarget: EventTarget = new EventTarget();
     private _pointLocked = false;
     private _isPressed = false;
+    private _preMousePos: Vec2 = new Vec2();
 
     constructor () {
         this.support = !system.isMobile && !EDITOR;
@@ -112,14 +113,16 @@ export class MouseInputSource {
             }
             const inputEvent: MouseInputEvent = {
                 type: eventType,
-                x: location.x - canvasRect.x + (this._pointLocked ? event.movementX : 0),
-                y: canvasRect.y + canvasRect.height - location.y - (this._pointLocked ? event.movementY : 0),
+                x: this._pointLocked ? (this._preMousePos.x + event.movementX) : (location.x - canvasRect.x),
+                y: this._pointLocked ? (this._preMousePos.y - event.movementY) : (canvasRect.y + canvasRect.height - location.y),
                 button,
                 timestamp: performance.now(),
                 // this is web only property
                 movementX: event.movementX,
                 movementY: event.movementY,
             };
+            // update previous mouse position.
+            this._preMousePos.set(inputEvent.x, inputEvent.y);
             event.stopPropagation();
             if (event.target === this._canvas) {
                 event.preventDefault();
