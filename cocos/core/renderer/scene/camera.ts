@@ -274,6 +274,7 @@ export class Camera {
         if (this._isProjDirty || this._curTransform !== orientation) {
             this._curTransform = orientation;
             const projectionSignY = this._device.capabilities.clipSpaceSignY;
+            // Only for rendertexture processing
             if (this.window?.hasOffScreenAttachments) {
                 orientation = SurfaceTransform.IDENTITY;
             }
