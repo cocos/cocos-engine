@@ -3024,4 +3024,4 @@ SubModel can only support %d passes.
 
 ### 12100
 
-Can not insert this char mode label to the Cache Texture! The font size may too big.
+The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size.
