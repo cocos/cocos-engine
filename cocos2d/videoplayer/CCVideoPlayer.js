@@ -430,8 +430,8 @@ let VideoPlayer = cc.Class({
     /**
      * !#en Show raw video player
      * !#ch 是否显示原始播放器窗口
-     * @param {Boolean} show
      * @method setShowRaw
+     * @param {Boolean} show
      */
     setShowRaw (show) {
         this._impl.setShowRawFrame(show);
