@@ -107,7 +107,7 @@ Object.defineProperty(EventTouch, 'CANCELLED', {
 
 // deprecate browserType field
 ['UNKNOWN', 'WECHAT', 'ANDROID', 'IE', 'EDGE', 'QQ', 'MOBILE_QQ',
-    'UC', 'UCBS', '360', 'BAIDU_APP', 'BAIDU', 'MAXTHON', 'OPERA',
+    'UC', 'UCBS', 'BAIDU_APP', 'BAIDU', 'MAXTHON', 'OPERA',
     'OUPENG', 'MIUI', 'FIREFOX', 'SAFARI', 'CHROME', 'LIEBAO',
     'QZONE', 'SOUGOU', 'HUAWEI'].forEach((item) => {
     Object.defineProperty(sys, `BROWSER_TYPE_${item}`, {
@@ -116,6 +116,12 @@ Object.defineProperty(EventTouch, 'CANCELLED', {
             return sys.BrowserType[item] as string;
         },
     });
+});
+Object.defineProperty(sys, 'BROWSER_TYPE_360', {
+    get () {
+        warnID(1400, 'sys.BROWSER_TYPE_360', `sys.BrowserType.BROWSER_360`);
+        return sys.BrowserType.BROWSER_360 as string;
+    },
 });
 
 // deprecate platform field
