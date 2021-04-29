@@ -444,25 +444,25 @@ let VideoPlayer = cc.Class({
             this._impl.updateMatrix(this.node);
 
             // this.enableGrabTexture(); // For demo useage
-            if(!this._enableGrabTexture) return;
+            if (!this._enableGrabTexture) return;
 
             this._impl.getFrame();
             let w = this._impl.getFrameWidth();
             let h = this._impl.getFrameHeight();
-            if(w === 0 || h === 0) return;
+            if (w === 0 || h === 0) return;
 
-            if(this._ccVideoTex === null) {
+            if (this._ccVideoTex === null) {
                 this._ccVideoTex = new cc.Texture2D();
                 this._ccVideoTex.initWithData(null, this.queryChannelType(this._impl.getFrameChannel()), w, h);
-                if(this._impl.getFrameChannel() === 7)
+                if (this._impl.getFrameChannel() === 7)
                     this._ccVideoTex.setUseBGRA(true);
                 // this._sfm = null; // For demo useage
-            } else if(this._ccVideoTex.width !== this._impl.getFrameWidth() ||
+            } else if (this._ccVideoTex.width !== this._impl.getFrameWidth() ||
                 this._ccVideoTex.height !== this._impl.getFrameHeight()) {
                     this._ccVideoTex.destroy();
                     this._ccVideoTex = new cc.Texture2D();
                     this._ccVideoTex.initWithData(null, this.queryChannelType(this._impl.getFrameChannel()), w, h);
-                    if(this._impl.getFrameChannel() === 7)
+                    if (this._impl.getFrameChannel() === 7)
                         this._ccVideoTex.setUseBGRA(true);
                     // this._sfm = null; // For demo useage.
             }
@@ -471,8 +471,8 @@ let VideoPlayer = cc.Class({
             
             /* // For demo useage
             let sprite = this.getComponentInChildren(Sprite);
-            if(sprite) {
-                if(this._sfm === undefined || this._sfm === null) {
+            if (sprite) {
+                if (this._sfm === undefined || this._sfm === null) {
                     this._sfm = new SpriteFrame();
                     // let sw = sprite.node.getContentSize().width;
                     // let sh = sprite.node.getContentSize().height;

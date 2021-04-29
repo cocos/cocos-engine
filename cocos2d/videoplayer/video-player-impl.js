@@ -328,7 +328,7 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return;
 
-        if(video.update !== undefined)
+        if (video.update !== undefined)
             video.update();
     },
 
@@ -336,7 +336,7 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return;
 
-        if(video.getFrame !== undefined)
+        if (video.getFrame !== undefined)
             video.getFrame();
     },
 
@@ -344,9 +344,9 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return 0;
 
-        if(video.getFrameWidth !== undefined)
+        if (video.getFrameWidth !== undefined)
             return video.getFrameWidth();
-        else if(video.videoWidth !== undefined)
+        else if (video.videoWidth !== undefined)
             return video.videoWidth;
         else 
             return 0;
@@ -356,9 +356,9 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return 0;
 
-        if(video.getFrameHeight !== undefined)
+        if (video.getFrameHeight !== undefined)
             return video.getFrameHeight();
-        else if(video.videoHeight !== undefined)
+        else if (video.videoHeight !== undefined)
             return video.videoHeight;
         else
             return 0;
@@ -368,7 +368,7 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return 0;
 
-        if(video.getFrameChannel !== undefined)
+        if (video.getFrameChannel !== undefined)
             return video.getFrameChannel();
         else
             return 3; //rgba8 in web
@@ -378,7 +378,7 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return 0;
 
-        if(video.getVideoTexDataSize !== undefined)
+        if (video.getVideoTexDataSize !== undefined)
             return video.getVideoTexDataSize();
         else
             return 0;
@@ -388,7 +388,7 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return;
 
-        if(video.pushFrameDataToTexture2D !== undefined)
+        if (video.pushFrameDataToTexture2D !== undefined)
             video.pushFrameDataToTexture2D(tex);
     },
 
@@ -396,7 +396,7 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return;
 
-        if(video.pushPixelsToTexture !== undefined)
+        if (video.pushPixelsToTexture !== undefined)
             video.pushPixelsToTexture(tex);
     },
 
@@ -404,10 +404,10 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return;
 
-        if(video.setShowRawFrame !== undefined)
+        if (video.setShowRawFrame !== undefined)
             video.setShowRawFrame(show);
         else {
-            if(show) video.style.visibility = 'visible';
+            if (show) video.style.visibility = 'visible';
             else video.style.visibility = 'hidden';
         }
     },
