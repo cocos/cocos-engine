@@ -1,6 +1,6 @@
 import { IMiniGame } from 'pal/minigame';
 import { Orientation } from '../system/enum-type/orientation';
-import { cloneObject } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let qg: any;
 
@@ -8,6 +8,7 @@ declare let qg: any;
 const minigame: IMiniGame = {};
 cloneObject(minigame, qg);
 
+// #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = false;
 
@@ -27,8 +28,9 @@ Object.defineProperty(minigame, 'orientation', {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });
+// #endregion SystemInfo
 
-// TouchEvent
+// #region TouchEvent
 minigame.onTouchStart = function (cb) {
     window.canvas.ontouchstart = cb;
 };
@@ -41,6 +43,7 @@ minigame.onTouchEnd = function (cb) {
 minigame.onTouchCancel = function (cb) {
     window.canvas.ontouchcancel = cb;
 };
+// #endregion TouchEvent
 
 // // Keyboard
 // globalAdapter.showKeyboard = function (res) {
@@ -48,28 +51,49 @@ minigame.onTouchCancel = function (cb) {
 //     qg.showKeyboard(res);
 // };
 
-// Accelerometers
-minigame.onAccelerometerChange = function (cb) {
-    qg.onAccelerometerChange((res) => {
-        let x = res.x;
-        let y = res.y;
-        if (minigame.isLandscape) {
-            const orientationFactor = landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
-            const tmp = x;
-            x = -y * orientationFactor;
-            y = tmp * orientationFactor;
-        }
+// #region Accelerometer
+let _customAccelerometerCb: AccelerometerChangeCallback | undefined;
+let _innerAccelerometerCb: AccelerometerChangeCallback | undefined;
+minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
+    // qg.offAccelerometerChange() is not supported.
+    // so we can only register AccelerometerChange callback, but can't unregister.
+    if (!_innerAccelerometerCb) {
+        _innerAccelerometerCb = (res: any) => {
+            let x = res.x;
+            let y = res.y;
+            if (minigame.isLandscape) {
+                const orientationFactor = (landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1);
+                const tmp = x;
+                x = -y * orientationFactor;
+                y = tmp * orientationFactor;
+            }
 
-        const resClone = {
-            x,
-            y,
-            z: res.z,
+            const standardFactor = -0.1;
+            x *= standardFactor;
+            y *= standardFactor;
+            const resClone = {
+                x,
+                y,
+                z: res.z,
+            };
+            _customAccelerometerCb?.(resClone);
         };
-        cb(resClone);
-    });
-    // onAccelerometerChange would start accelerometer, need to mannually stop it
-    qg.stopAccelerometer();
+        qg.onAccelerometerChange(_innerAccelerometerCb);
+    }
+    _customAccelerometerCb = cb;
 };
+minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
+    // qg.offAccelerometerChange() is not supported.
+    _customAccelerometerCb = undefined;
+};
+// #endregion Accelerometer
+
+minigame.createInnerAudioContext = createInnerAudioContextPolyfill(qg, {
+    onPlay: true,
+    onPause: true,
+    onStop: true,
+    onSeek: false,
+});
 
 minigame.getSafeArea = function () {
     console.warn('getSafeArea is not supported on this platform');

@@ -1,5 +1,4 @@
 import { system } from 'pal/system';
-import { OneShotAudio } from 'pal/audio';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
@@ -7,10 +6,66 @@ import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { BrowserType, OS } from '../../system/enum-type';
 
+function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
+    return new Promise((resolve) => {
+        const promise = domAudio.play();
+        if (promise === undefined) {  // Chrome50/Firefox53 below
+            return resolve();
+        }
+        promise.then(resolve).catch(() => {
+            const onGesture = () => {
+                domAudio.play().catch((e) => {});
+                resolve();
+            };
+            const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
+            canvas?.addEventListener('touchend', onGesture, { once: true });
+            canvas?.addEventListener('mousedown', onGesture, { once: true });
+        });
+        return null;
+    });
+}
+
+export class OneShotAudioDOM {
+    private _domAudio: HTMLAudioElement;
+    private _onPlayCb?: () => void;
+    get onPlay () {
+        return this._onPlayCb;
+    }
+    set onPlay (cb) {
+        this._onPlayCb = cb;
+    }
+
+    private _onEndCb?: () => void;
+    get onEnd () {
+        return this._onEndCb;
+    }
+    set onEnd (cb) {
+        if (this._onEndCb) {
+            this._domAudio.removeEventListener('ended', this._onEndCb);
+        }
+        this._onEndCb = cb;
+        if (cb) {
+            this._domAudio.addEventListener('ended', cb);
+        }
+    }
+
+    private constructor (nativeAudio: HTMLAudioElement, volume: number) {
+        this._domAudio = nativeAudio;
+        nativeAudio.volume =  volume;
+    }
+    public play (): void {
+        ensurePlaying(this._domAudio).then(() => {
+            this.onPlay?.();
+        }).catch((e) => {});
+    }
+    public stop (): void {
+        this._domAudio.pause();
+    }
+}
+
 export class AudioPlayerDOM implements OperationQueueable {
     private _domAudio: HTMLAudioElement;
     private _state: AudioState = AudioState.INIT;
-    private _onGesture?: () => void;
     private _onHide?: () => void;
     private _onShow?: () => void;
     private _onEnded?: () => void;
@@ -24,9 +79,6 @@ export class AudioPlayerDOM implements OperationQueueable {
 
         // event
         // TODO: should not call engine API in pal
-        this._onGesture = () => this._eventTarget.emit(AudioEvent.USER_GESTURE);
-        legacyCC.game.canvas.addEventListener('touchend', this._onGesture);
-        legacyCC.game.canvas.addEventListener('mouseup', this._onGesture);
         this._onHide = () => {
             if (this._state === AudioState.PLAYING) {
                 this.pause().then(() => {
@@ -53,11 +105,6 @@ export class AudioPlayerDOM implements OperationQueueable {
     }
 
     destroy () {
-        if (this._onGesture) {
-            legacyCC.game.canvas.removeEventListener('touchend', this._onGesture);
-            legacyCC.game.canvas.removeEventListener('mouseup', this._onGesture);
-            this._onGesture = undefined;
-        }
         if (this._onShow) {
             legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
             this._onShow = undefined;
@@ -119,6 +166,15 @@ export class AudioPlayerDOM implements OperationQueueable {
             domAudio.src = url;
         });
     }
+    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioDOM> {
+        return new Promise((resolve, reject) => {
+            AudioPlayerDOM.loadNative(url).then((domAudio) => {
+                // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
+                const oneShotAudio = new OneShotAudioDOM(domAudio, volume);
+                resolve(oneShotAudio);
+            }).catch(reject);
+        });
+    }
 
     get src (): string {
         return this._domAudio ? this._domAudio.src : '';
@@ -156,53 +212,10 @@ export class AudioPlayerDOM implements OperationQueueable {
         return Promise.resolve();
     }
 
-    private _ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
-        return new Promise((resolve) => {
-            const promise = domAudio.play();
-            if (promise === undefined) {  // Chrome50/Firefox53 below
-                return resolve();
-            }
-            promise.then(resolve).catch(() => {
-                this._eventTarget.once(AudioEvent.USER_GESTURE, () => {
-                    domAudio.play().catch((e) => {});
-                    resolve();
-                });
-            });
-            return null;
-        });
-    }
-    playOneShot (volume = 1): OneShotAudio {
-        let onPlayCb: () => void;
-        let onEndedCb: () => void;
-        let domAudio: HTMLAudioElement;
-        AudioPlayerDOM.loadNative(this._domAudio.src).then((res) => {
-            domAudio = res;
-            domAudio.volume = volume;
-            onEndedCb && domAudio.addEventListener('ended', onEndedCb);
-            this._ensurePlaying(domAudio).then(() => {
-                onPlayCb &&  onPlayCb();
-            }).catch((e) => {});
-        }).catch((e) => {});
-        const oneShotAudio: OneShotAudio = {
-            stop () {
-                domAudio.pause();
-            },
-            onPlay (cb) {
-                onPlayCb = cb;
-                return this;
-            },
-            onEnded (cb) {
-                onEndedCb = cb;
-                return this;
-            },
-        };
-        return oneShotAudio;
-    }
-
     @enqueueOperation
     play (): Promise<void> {
         return new Promise((resolve) => {
-            this._ensurePlaying(this._domAudio).then(() => {
+            ensurePlaying(this._domAudio).then(() => {
                 this._state = AudioState.PLAYING;
                 resolve();
             }).catch((e)  => {});

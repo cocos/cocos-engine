@@ -1,27 +1,39 @@
 declare module 'pal/audio' {
     /**
      * Each audio instance needs to be managed, but should not take up too much memory.
-     * The `OneShotAudio` is a lite version of audio interface designed for audio manager.
+     * The `OneShotAudio` is a lite version of audio class designed for audio manager.
      */
-    export interface OneShotAudio {
+    export class OneShotAudio {
+        /**
+         * Constructor for OneShotAudio.
+         * This is a private constructor.
+         * OneShotAudio shoulb be instantiated by `AudioPlayer.loadOneShotAudio()` method.
+         * @param nativeAudio The native audio such as `HTMLAudioElement` or `AudioBuffer`.
+         * @param volume Init the audio volume.
+         */
+        private constructor (nativeAudio: unknown, volume: number);
+
+        /**
+         * Play the audio.
+         */
+        public play (): void;
+
         /**
          * Stops playing the audio.
          */
-        stop (): void;
+        public stop (): void;
 
         /**
-         * Register an callback which would be called when the play starts.
-         * @param cb The callback.
-         * @returns This audio.
+         * Get or set the onPlay callback.
          */
-        onPlay (cb: () => void): OneShotAudio;
+        get onPlay (): () => void | undefined;
+        set onPlay (cb: () => void | undefined);
 
         /**
-         * Register an callback which would be called when the play ends.
-         * @param cb The callback.
-         * @returns This audio.
+         * Get or set the onEnd callback.
          */
-        onEnded (cb: () => void): OneShotAudio;
+        get onEnd (): () => void | undefined;
+        set onEnd (cb: () => void | undefined);
     }
 
     export class AudioPlayer {
@@ -42,11 +54,21 @@ declare module 'pal/audio' {
 
         /**
          * Asynchronously load a native audio for playing one shot.
+         * This is a basic loading method for AudioPlayer.
          * @param url URL to the audio.
          * @param opts Load options.
          * @returns The native audio such as `HTMLAudioElement` or `AudioBuffer`.
          */
         static loadNative (url: string, opts?: import('pal/audio/type').AudioLoadOptions): Promise<unknown>;
+
+        /**
+         * Asynchronously load an OneShotAudio instance.
+         * @param url URL to the audio.
+         * @param volume Specify the volume.
+         * @param opts Load options.
+         * @returns The OneShotAudio instance.
+         */
+        static loadOneShotAudio (url: string, volume: number, opts?: import('pal/audio/type').AudioLoadOptions): Promise<OneShotAudio>;
 
         /**
          * Max audio channel count allowed on current platform.
@@ -100,13 +122,6 @@ declare module 'pal/audio' {
          * @param time Desired playing time.
          */
         seek (time: number): Promise<void>;
-
-        /**
-         * Plays one shot of the audio, the returned `OneShotAudio` can be managed by audio manager.
-         * @param volume Specifies the volume. If not specified...
-         * @returns The one shot audio.
-         */
-        playOneShot (volume?: number): OneShotAudio;
 
         /**
          * Asynchronously plays the audio or resumes the audio while it is paused.

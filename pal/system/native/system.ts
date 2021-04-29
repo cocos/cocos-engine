@@ -13,6 +13,16 @@ const orientationMap: Record<string, Orientation> = {
 const networkTypeMap: Record<string, NetworkType> = {
     // TODO
 };
+const platformMap: Record<number, Platform> = {
+    0: Platform.WIN32,
+    // 1 is Linux platform in native engine
+    2: Platform.MACOS,
+    3: Platform.ANDROID,
+    // 4 is IPHONE
+    4: Platform.IOS,
+    // 5 is IPAD
+    5: Platform.IOS,
+};
 
 class System {
     public readonly isNative: boolean;
@@ -32,7 +42,6 @@ class System {
     // TODO: need to wrap the function __isObjectValid()
 
     private _eventTarget: EventTarget = new EventTarget();
-    private _orientation: Orientation = Orientation.LANDSCAPE_LEFT;
 
     public get networkType (): NetworkType {
         return networkTypeMap[jsb.device.getNetworkType()];
@@ -43,9 +52,8 @@ class System {
         this.isBrowser = false;
 
         // @ts-expect-error __getPlatform()
-        const platform = __getPlatform();  // TODO: need a platform map
-        this.isMobile = false;  // TODO
-        this.platform = Platform.MAC; // TODO
+        this.platform = platformMap[__getPlatform()];
+        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS;
 
         // init isLittleEndian
         this.isLittleEndian = (() => {
@@ -76,7 +84,7 @@ class System {
 
         // init capability
         this.supportCapability = {
-            webp: false,
+            webp: true,
             gl: true,
             canvas: true,
             imageBitmap: false,
@@ -96,7 +104,6 @@ class System {
             this._eventTarget.emit(AppEvent.RESIZE);
         };
         jsb.onOrientationChanged = (event) => {
-            this._orientation = orientationMap[event.orientation.toString()];
             this._eventTarget.emit(AppEvent.ORIENTATION_CHANGE);
         };
         jsb.onPause = () => {
@@ -111,7 +118,7 @@ class System {
         return new Size(window.innerWidth, window.innerHeight);
     }
     public getOrientation (): Orientation {
-        return this._orientation;
+        return orientationMap[jsb.device.getDeviceOrientation()];
     }
     public getSafeAreaEdge (): SafeAreaEdge {
         // jsb.device.getSafeAreaEdge()

@@ -7,6 +7,24 @@ exports.update = update;
 const { setHidden, setDisabled, isMultipleInvalid } = require('../utils/prop');
 
 exports.ready = function () {
+    // Handling in-line displayed attributes
+    const needToInlines = [
+        'life',
+        'startColor',
+        'endColor',
+        'angle',
+        'startSize',
+        'endSize',
+        'startSpin',
+        'endSpin',
+        'speed',
+        'tangentialAccel',
+        'radialAccel',
+        'startRadius',
+        'endRadius',
+        'rotatePerS',
+    ];
+
     this.elements = {
         customMaterial: {
             displayOrder: 0,
@@ -32,6 +50,8 @@ exports.ready = function () {
         custom: {
             displayOrder: 6,
             ready(element) {
+                element.classList.add('flex');
+
                 const $checkbox = element.querySelector('ui-checkbox[slot="content"]');
 
                 const $sync = document.createElement('ui-button');
@@ -140,28 +160,13 @@ exports.ready = function () {
                 const toggleElements = ['syncButton', 'exportButton'];
                 const toggleKeys = toggleProps.concat(toggleElements);
 
+                const isMultiple = dump.custom && !!dump.custom.values;
+                setDisabled(isMultiple, this.$.exportButton);
+
                 const hidden = isMultipleInvalid(dump.custom) || !dump.custom.value;
                 toggleKeys.forEach((key) => {
                     setHidden(hidden, this.$[key]);
                 });
-
-                // Handling in-line displayed attributes
-                const needToInlines = [
-                    'life',
-                    'startColor',
-                    'endColor',
-                    'angle',
-                    'startSize',
-                    'endSize',
-                    'startSpin',
-                    'endSpin',
-                    'speed',
-                    'tangentialAccel',
-                    'radialAccel',
-                    'startRadius',
-                    'endRadius',
-                    'rotatePerS',
-                ];
 
                 needToInlines.forEach((key) => {
                     const $left = this.$[key];
@@ -176,6 +181,7 @@ exports.ready = function () {
                     $right.setAttribute('style', 'margin: 0');
                     $left.appendChild($right);
                 });
+
             },
         },
         emitterMode: {
@@ -199,4 +205,20 @@ exports.ready = function () {
             },
         },
     };
+
+    needToInlines.forEach((key) => {
+        const rightKey = `${key}Var`;
+        this.elements[rightKey] = {
+            isAppendToParent() {
+                const $left = this.$[key];
+                const $right = this.$[`${key}Var`];
+        
+                if ($left && $right && $right.parentNode === $left) {
+                    return false;
+                }
+        
+                return true;
+            }
+        };
+    });
 };

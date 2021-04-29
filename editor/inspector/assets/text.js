@@ -79,6 +79,9 @@ exports.update = function (assetList, metaList) {
         if (err) {
             throw err;
         }
-        this.$.code.textContent = text;
+        
+        if (this.$.code) {
+            this.$.code.textContent = text;
+        }
     });
 };

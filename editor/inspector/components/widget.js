@@ -4,7 +4,7 @@
 const { join } = require('path');
 
 module.paths.push(join(Editor.App.path, 'node_modules'));
-const Vue = require('vue/dist/vue.js');
+const Vue = require('vue/dist/vue.min.js');
 const propUtils = require('../utils/prop');
 
 exports.template = `
@@ -537,23 +537,25 @@ exports.methods = {
         }
         return dimension;
     },
-    isInvalid (key) {
-        if (!this.dump.values || this.length === 0) {
-            return false;
+    isInvalid(key) {
+        if (Array.isArray(this.dump.value[key].values)) {
+            return this.dump.value[key].values.some((value) => value !== this.dump.value[key].value);
         }
-        return this.dump.values.some((dump) => dump.value[key].value !== this.dump.value[key].value);
-    },
 
-    change (key, value) {
-        this.dump.value[key].value = value;
-        this.dump.values && this.dump.values.forEach((dump) => {
-            dump.value[key].value = value;
-        });
-        Editor.Message.send('scene', 'set-property', {
-            uuid: this.dump.value.uuid.value,
-            path: key,
-            dump: this.dump.value[key],
-        });
+        return false;
+    },
+    update () {
+        for (const key in uiElements) {
+            const element = uiElements[key];
+            if (typeof element.update === 'function') {
+                element.update.call(this);
+            }
+        }
+    },
+    change (key, newValue) {
+        this.dump.value[key].value = newValue;
+        this.$refs.summitProp.dump = this.dump.value[key];
+        this.$refs.summitProp.dispatch('change-dump');
     },
 
     getUnit (type) {
@@ -606,12 +608,9 @@ exports.methods = {
                 break;
             }
         }
-        const { path, dump } = update(this.dump, true);
-        Editor.Message.send('scene', 'set-property', {
-            uuid: this.dump.value.uuid.value,
-            path,
-            dump,
-        });
+        const { dump } = update(this.dump, true);
+        this.$refs.summitProp.dump = dump;
+        this.$refs.summitProp.dispatch('change-dump');
     },
 
     select (event) {
@@ -763,64 +762,44 @@ exports.methods = {
         }
 
         Editor.Message.send('scene', 'snapshot');
-        this.dump.values && this.dump.values.forEach((dump) => {
-            if (horizontal) {
-                if (dump.value.isAlignLeft.value !== horizontal.isAlignLeft.value) {
-                    dump.value.isAlignLeft.value = horizontal.isAlignLeft.value;
-
-                    Editor.Message.send('scene', 'set-property', {
-                        uuid: this.dump.value.uuid.value,
-                        path: 'isAlignLeft',
-                        dump: this.dump.value.isAlignLeft,
-                    });
-                }
-                if (dump.value.isAlignRight.value !== horizontal.isAlignRight.value) {
-                    dump.value.isAlignRight.value = horizontal.isAlignRight.value;
-                    Editor.Message.send('scene', 'set-property', {
-                        uuid: this.dump.value.uuid.value,
-                        path: 'isAlignRight',
-                        dump: this.dump.value.isAlignRight,
-                    });
-                }
-                if (dump.value.isAlignHorizontalCenter.value !== horizontal.isAlignHorizontalCenter.value) {
-                    dump.value.isAlignHorizontalCenter.value = horizontal.isAlignHorizontalCenter.value;
-                    Editor.Message.send('scene', 'set-property', {
-                        uuid: this.dump.value.uuid.value,
-                        path: 'isAlignHorizontalCenter',
-                        dump: this.dump.value.isAlignHorizontalCenter,
-                    });
-                }
-                this.dimensionHorizontal = this.getDimensionHorizontal();
+        const dump = this.dump;
+        if (horizontal) {
+            if (dump.value.isAlignLeft.value !== horizontal.isAlignLeft.value) {
+                dump.value.isAlignLeft.value = horizontal.isAlignLeft.value;
+                this.$refs.summitProp.dump = dump.value.isAlignLeft;
+                this.$refs.summitProp.dispatch('change-dump');
             }
-
-            if (vertical) {
-                if (dump.value.isAlignTop.value !== vertical.isAlignTop.value) {
-                    dump.value.isAlignTop.value = vertical.isAlignTop.value;
-                    Editor.Message.send('scene', 'set-property', {
-                        uuid: this.dump.value.uuid.value,
-                        path: 'isAlignTop',
-                        dump: this.dump.value.isAlignTop,
-                    });
-                }
-                if (dump.value.isAlignVerticalCenter.value !== vertical.isAlignVerticalCenter.value) {
-                    dump.value.isAlignVerticalCenter.value = vertical.isAlignVerticalCenter.value;
-                    Editor.Message.send('scene', 'set-property', {
-                        uuid: this.dump.value.uuid.value,
-                        path: 'isAlignVerticalCenter',
-                        dump: this.dump.value.isAlignVerticalCenter,
-                    });
-                }
-                if (dump.value.isAlignBottom.value !== vertical.isAlignBottom.value) {
-                    dump.value.isAlignBottom.value = vertical.isAlignBottom.value;
-                    Editor.Message.send('scene', 'set-property', {
-                        uuid: this.dump.value.uuid.value,
-                        path: 'isAlignBottom',
-                        dump: this.dump.value.isAlignBottom,
-                    });
-                }
-                this.dimensionVertical = this.getDimensionVertical();
+            if (dump.value.isAlignRight.value !== horizontal.isAlignRight.value) {
+                dump.value.isAlignRight.value = horizontal.isAlignRight.value;
+                this.$refs.summitProp.dump = dump.value.isAlignRight;
+                this.$refs.summitProp.dispatch('change-dump');
             }
-        });
+            if (dump.value.isAlignHorizontalCenter.value !== horizontal.isAlignHorizontalCenter.value) {
+                dump.value.isAlignHorizontalCenter.value = horizontal.isAlignHorizontalCenter.value;
+                this.$refs.summitProp.dump = dump.value.isAlignHorizontalCenter;
+                this.$refs.summitProp.dispatch('change-dump');
+            }
+            this.dimensionHorizontal = this.getDimensionHorizontal();
+        }
+
+        if (vertical) {
+            if (dump.value.isAlignTop.value !== vertical.isAlignTop.value) {
+                dump.value.isAlignTop.value = vertical.isAlignTop.value;
+                this.$refs.summitProp.dump = dump.value.isAlignTop;
+                this.$refs.summitProp.dispatch('change-dump');
+            }
+            if (dump.value.isAlignVerticalCenter.value !== vertical.isAlignVerticalCenter.value) {
+                dump.value.isAlignVerticalCenter.value = vertical.isAlignVerticalCenter.value;
+                this.$refs.summitProp.dump = dump.value.isAlignVerticalCenter;
+                this.$refs.summitProp.dispatch('change-dump');
+            }
+            if (dump.value.isAlignBottom.value !== vertical.isAlignBottom.value) {
+                dump.value.isAlignBottom.value = vertical.isAlignBottom.value;
+                this.$refs.summitProp.dump = dump.value.isAlignBottom;
+                this.$refs.summitProp.dispatch('change-dump');
+            }
+            this.dimensionVertical = this.getDimensionVertical();
+        }
     },
 
     toggleLock (direction) {
@@ -848,17 +827,10 @@ exports.methods = {
                 lockValue |= lockDirection;
             }
         });
-
         // Submit data
-        this.dump.values && this.dump.values.forEach((dump) => {
-            dump.value._lockFlags.value = lockValue;
-
-            Editor.Message.send('scene', 'set-property', {
-                uuid: this.dump.value.uuid.value,
-                path: '_lockFlags',
-                dump: this.dump.value._lockFlags,
-            });
-        });
+        this.dump.value._lockFlags.value = lockValue;
+        this.$refs.summitProp.dump = this.dump.value._lockFlags;
+        this.$refs.summitProp.dispatch('change-dump');
     },
     isLock (direction) {
         const lockValue = this.dump.value._lockFlags.value;
@@ -907,7 +879,8 @@ const uiElements = {
 };
 const template = `
 <div class="widget-component" :layout="layout">
-
+    <!--TODO: don't hack-->
+    <ui-prop ref="summitProp" style="display:none"></ui-prop>
     <div class="layout">
         <div class="rect">
             <div class="top" v-show="dimensionVertical==='top' || dimensionVertical==='stretch'">top</div>
@@ -1128,15 +1101,7 @@ exports.ready = function () {
     }
 };
 exports.update = function (dump) {
-    if (dump.values) {
-        for (const key in dump.value) {
-            const info = dump.value[key];
-
-            info.values = dump.values.map((value) => value[key].value);
-        }
-    }
     this.dump = dump;
-    this.dump.values = this.dump.values || [this.dump];
     this.dimensionHorizontal = this.getDimensionHorizontal();
     this.dimensionVertical = this.getDimensionVertical();
     const rect = this.$this.getBoundingClientRect();
@@ -1151,16 +1116,7 @@ exports.update = function (dump) {
             data: this,
             template,
             components,
-            methods: {
-                update () {
-                    for (const key in uiElements) {
-                        const element = uiElements[key];
-                        if (typeof element.update === 'function') {
-                            element.update.call(this);
-                        }
-                    }
-                },
-            },
+            methods: exports.methods,
         });
     }
     this.vm.update();

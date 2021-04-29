@@ -501,6 +501,7 @@ export class TiledMap extends Component {
                 if (!child) {
                     child = (new Node()) as unknown as any;
                     child.name = name;
+                    child.layer = node.layer;
                     node.addChild(child);
                 }
 

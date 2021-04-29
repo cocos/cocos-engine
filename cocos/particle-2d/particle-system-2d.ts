@@ -1002,9 +1002,9 @@ export class ParticleSystem2D extends Renderable2D {
         // duration
         this.duration = parseFloat(dict.duration || 0);
 
-        // blend function
-        this.srcBlendFactor = parseInt(dict.blendFuncSource || BlendFactor.SRC_ALPHA);
-        this.dstBlendFactor = parseInt(dict.blendFuncDestination || BlendFactor.ONE_MINUS_SRC_ALPHA);
+        // blend function // remove when component remove blend function
+        this._srcBlendFactor = parseInt(dict.blendFuncSource || BlendFactor.SRC_ALPHA);
+        this._dstBlendFactor = parseInt(dict.blendFuncDestination || BlendFactor.ONE_MINUS_SRC_ALPHA);
 
         // color
         const locStartColor = this._startColor;

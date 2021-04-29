@@ -30,6 +30,7 @@ export class DynamicAtlasManager {
             this.reset();
             legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
         } else {
+            this.reset();
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_SCENE_LAUNCH, this.beforeSceneLoad, this);
         }
 

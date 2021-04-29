@@ -35,7 +35,7 @@ import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import {
-    addActorToScene, copyPhysXTransform, getTempTransform, physXEqualsCocosQuat,
+    addActorToScene, copyPhysXTransform, getJsTransform, getTempTransform, physXEqualsCocosQuat,
     physXEqualsCocosVec3, PX, setMassAndUpdateInertia,
 } from './export-physx';
 import { VEC3_0 } from '../utils/util';
@@ -81,6 +81,7 @@ export class PhysXSharedBody {
     get isDynamic (): boolean { return !this._isStatic && !this._isKinematic; }
     get wrappedBody (): PhysXRigidBody | null { return this._wrappedBody; }
     get filterData () { return this._filterData; }
+    get isInScene () { return this._index !== -1; }
     get impl (): any {
         this._initActor();
         return this.isStatic ? this._staticActor : this._dynamicActor;
@@ -282,7 +283,7 @@ export class PhysXSharedBody {
         const node = this.node;
         if (node.hasChangedFlags) {
             if (node.hasChangedFlags & TransformBit.SCALE) this.syncScale();
-            const trans = getTempTransform(node.worldPosition, node.worldRotation);
+            const trans = getJsTransform(node.worldPosition, node.worldRotation);
             if (this._isKinematic) {
                 this.impl.setKinematicTarget(trans);
             } else {
@@ -298,9 +299,9 @@ export class PhysXSharedBody {
             const wp = node.worldPosition;
             const wr = node.worldRotation;
             const pose = this.impl.getGlobalPose();
-            const DontUpdate = physXEqualsCocosVec3(pose, wp) && physXEqualsCocosQuat(pose, wr);
-            if (!DontUpdate) {
-                const trans = getTempTransform(node.worldPosition, node.worldRotation);
+            const dontUpdate = physXEqualsCocosVec3(pose, wp) && physXEqualsCocosQuat(pose, wr);
+            if (!dontUpdate) {
+                const trans = getJsTransform(node.worldPosition, node.worldRotation);
                 if (this._isKinematic) {
                     this.impl.setKinematicTarget(trans);
                 } else {

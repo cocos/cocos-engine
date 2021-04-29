@@ -346,11 +346,13 @@ exports.methods = {
     },
     updateMeshOptimizerInvalid(element, prop) {
         const invalid = this.metaList.some((meta) => {
-            if (meta.userData.meshOptimizerOptions === undefined) {
+            if (meta.userData.meshOptimizerOptions === undefined && this.meta.userData.meshOptimizerOptions === undefined) {
                 return false;
             }
-
-            return meta.userData.meshOptimizerOptions[prop] !== this.meta.userData.meshOptimizerOptions[prop];
+            if (meta.userData.meshOptimizerOptions && this.meta.userData.meshOptimizerOptions) {
+                return meta.userData.meshOptimizerOptions[prop] !== this.meta.userData.meshOptimizerOptions[prop];
+            }
+            return true;
         });
         element.invalid = invalid;
     },

@@ -1,6 +1,8 @@
-import { IMiniGame } from 'pal/minigame';
+import { COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO } from 'internal:constants';
+import { SystemInfo, IMiniGame } from 'pal/minigame';
+
 import { Orientation } from '../system/enum-type/orientation';
-import { cloneObject } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let ral: any;
 
@@ -8,10 +10,17 @@ declare let ral: any;
 const minigame: IMiniGame = {};
 cloneObject(minigame, ral);
 
+// #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 
-minigame.isLandscape = systemInfo.screenWidth > systemInfo.screenHeight;
+// NOTE: size and orientation info is wrong at the init phase, need to define as a getter
+Object.defineProperty(minigame, 'isLandscape', {
+    get () {
+        const locSysInfo = minigame.getSystemInfoSync();
+        return locSysInfo.screenWidth > locSysInfo.screenHeight;
+    },
+});
 // init landscapeOrientation as LANDSCAPE_RIGHT
 const landscapeOrientation = Orientation.LANDSCAPE_RIGHT;
 // NOTE: onDeviceOrientationChange is not supported on this platform
@@ -27,18 +36,9 @@ Object.defineProperty(minigame, 'orientation', {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });
+// #endregion SystemInfo
 
-// Accelerometer
-// onDeviceOrientationChange is not supported
-// ral.onDeviceOrientationChange(function (res) {
-//     if (res.value === 'landscape') {
-//         orientation = Orientation.LANDSCAPE_RIGHT;
-//     }
-//     else if (res.value === 'landscapeReverse') {
-//         orientation = Orientation.LANDSCAPE_LEFT;
-//     }
-// });
-
+// #region Accelerometer
 minigame.onAccelerometerChange = function (cb) {
     ral.onAccelerometerChange((res) => {
         let x = res.x;
@@ -57,47 +57,15 @@ minigame.onAccelerometerChange = function (cb) {
         };
         cb(resClone);
     });
-    // onAccelerometerChange would start accelerometer, need to mannually stop it
-    ral.stopAccelerometer();
 };
+// #endregion Accelerometer
 
-minigame.createInnerAudioContext = function (): InnerAudioContext {
-    const audioContext: InnerAudioContext = ral.createInnerAudioContext();
-
-    // HACK: onSeeked method doesn't work on runtime
-    const originalSeek = audioContext.seek;
-    let _onSeekCB: (()=> void) | null = null;
-    audioContext.onSeeked = function (cb: ()=> void) {
-        _onSeekCB = cb;
-    };
-    audioContext.seek = function (time: number) {
-        originalSeek.call(audioContext, time);
-        _onSeekCB?.();
-    };
-
-    // HACK: onPause method doesn't work on runtime
-    const originalPause = audioContext.pause;
-    let _onPauseCB: (()=> void) | null = null;
-    audioContext.onPause = function (cb: ()=> void) {
-        _onPauseCB = cb;
-    };
-    audioContext.pause = function () {
-        originalPause.call(audioContext);
-        _onPauseCB?.();
-    };
-
-    // HACK: onStop method doesn't work on runtime
-    const originalStop = audioContext.stop;
-    let _onStopCB: (()=> void) | null = null;
-    audioContext.onStop = function (cb: ()=> void) {
-        _onStopCB = cb;
-    };
-    audioContext.stop = function () {
-        originalStop.call(audioContext);
-        _onStopCB?.();
-    };
-    return audioContext;
-};
+minigame.createInnerAudioContext = createInnerAudioContextPolyfill(ral, {
+    onPlay: true,  // polyfill for vivo
+    onPause: true,
+    onStop: true,
+    onSeek: true,
+});
 
 // safeArea
 // origin point on the top-left corner
@@ -116,5 +84,15 @@ minigame.getSafeArea = function () {
     }
     return { top, left, bottom, right, width, height };
 };
+
+if (VIVO) {
+    // HACK: need to be handled in ral lib.
+    minigame.getSystemInfoSync = function () {
+        const sys = ral.getSystemInfoSync() as SystemInfo;
+        sys.windowWidth = sys.screenWidth;
+        sys.windowHeight = sys.screenHeight;
+        return sys;
+    };
+}
 
 export { minigame };

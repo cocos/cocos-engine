@@ -5,4 +5,4 @@
 out float v_fog_factor;
 
 #define CC_FOG_FACTOR v_fog_factor
-#define CC_TRANSFER_FOG(pos, factor) CC_TRANSFER_FOG_BASE(pos, v_fog_factor)
+#define CC_TRANSFER_FOG(pos) CC_TRANSFER_FOG_BASE(pos, v_fog_factor)
