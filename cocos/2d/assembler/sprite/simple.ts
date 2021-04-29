@@ -51,7 +51,8 @@ export const simple: IAssembler = {
         renderData.vertexCount = 4;
         renderData.indicesCount = 6;
 
-        renderData.vData = new Float32Array(4 * 9);
+        renderData.vData = new Float32Array(4 * 6);
+        renderData.vDataUint = new Uint32Array(renderData.vData.buffer);
 
         return renderData;
     },
@@ -128,14 +129,14 @@ export const simple: IAssembler = {
         vData[0] = al + cb + tx;
         vData[1] = bl + db + ty;
         // right bottom
-        vData[9] = ar + cb + tx;
-        vData[10] = br + db + ty;
+        vData[6] = ar + cb + tx;
+        vData[7] = br + db + ty;
         // left top
-        vData[18] = al + ct + tx;
-        vData[19] = bl + dt + ty;
+        vData[12] = al + ct + tx;
+        vData[13] = bl + dt + ty;
         // right top
-        vData[27] = ar + ct + tx;
-        vData[28] = br + dt + ty;
+        vData[18] = ar + ct + tx;
+        vData[19] = br + dt + ty;
 
         vBuf.set(vData, vertexOffset);
 
@@ -207,32 +208,27 @@ export const simple: IAssembler = {
         const uv = sprite.spriteFrame!.uv;
         vData[3] = uv[0];
         vData[4] = uv[1];
-        vData[12] = uv[2];
-        vData[13] = uv[3];
-        vData[21] = uv[4];
-        vData[22] = uv[5];
-        vData[30] = uv[6];
-        vData[31] = uv[7];
+        vData[9] = uv[2];
+        vData[10] = uv[3];
+        vData[15] = uv[4];
+        vData[16] = uv[5];
+        vData[21] = uv[6];
+        vData[22] = uv[7];
 
         renderData.uvDirty = false;
     },
 
     updateColor (sprite: Sprite) {
-        const vData = sprite.renderData!.vData;
+        const vData = sprite.renderData!.vDataUint;
+
+        const a = sprite.node._uiProps.opacity * 255;
+        let c = sprite.color._val;
+        c = (c & 0x00ffffff) | (a << 24);
 
         let colorOffset = 5;
-        const color = sprite.color;
-        const colorR = color.r / 255;
-        const colorG = color.g / 255;
-        const colorB = color.b / 255;
-        const colorA = sprite.node._uiProps.opacity;
         for (let i = 0; i < 4; i++) {
-            vData![colorOffset] = colorR;
-            vData![colorOffset + 1] = colorG;
-            vData![colorOffset + 2] = colorB;
-            vData![colorOffset + 3] = colorA;
-
-            colorOffset += 9;
+            vData![colorOffset] = c;
+            colorOffset += 6;
         }
     },
 };

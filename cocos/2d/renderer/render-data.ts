@@ -88,6 +88,7 @@ export class RenderData extends BaseRenderData {
         _pool.removeAt(idx);
     }
     public vData: Float32Array | null = null;
+    public vDataUint: Uint32Array | null = null;
 
     public uvDirty = true;
     public vertDirty = true;
