@@ -419,6 +419,15 @@ let VideoPlayer = cc.Class({
     },
 
     /**
+     * !#en Close get texture flag
+     * !#ch 关闭抓取视频帧纹理 
+     * @method disableGrabTexture
+     */
+    disableGrabTexture () {
+        this._enableGrabTexture = false;
+    },
+
+    /**
      * !#en Show raw video player
      * !#ch 是否显示原始播放器窗口
      * @param {Boolean} show
@@ -427,6 +436,8 @@ let VideoPlayer = cc.Class({
     setShowRaw (show) {
         this._impl.setShowRawFrame(show);
     },
+
+    _ccVideoTex : null,
 
     update (dt) {
         if (this._impl) {
@@ -438,38 +449,33 @@ let VideoPlayer = cc.Class({
             this._impl.getFrame();
             let w = this._impl.getFrameWidth();
             let h = this._impl.getFrameHeight();
-            if(w == 0 || h == 0) return;
+            if(w === 0 || h === 0) return;
 
-            if(this._ccVideoTex == null) {
+            if(this._ccVideoTex === null) {
                 this._ccVideoTex = new cc.Texture2D();
                 this._ccVideoTex.initWithData(null, this.queryChannelType(this._impl.getFrameChannel()), w, h);
-                if(this._impl.getFrameChannel() == 7)
+                if(this._impl.getFrameChannel() === 7)
                     this._ccVideoTex.setUseBGRA(true);
                 // this._sfm = null; // For demo useage
-            } else if(this._ccVideoTex.width != this._impl.getFrameWidth() ||
-                this._ccVideoTex.height != this._impl.getFrameHeight()) {
+            } else if(this._ccVideoTex.width !== this._impl.getFrameWidth() ||
+                this._ccVideoTex.height !== this._impl.getFrameHeight()) {
                     this._ccVideoTex.destroy();
                     this._ccVideoTex = new cc.Texture2D();
                     this._ccVideoTex.initWithData(null, this.queryChannelType(this._impl.getFrameChannel()), w, h);
-                    if(this._impl.getFrameChannel() == 7)
+                    if(this._impl.getFrameChannel() === 7)
                         this._ccVideoTex.setUseBGRA(true);
-                    // this._sfm = null; // For demo useage
+                    // this._sfm = null; // For demo useage.
             }
 
-            if(this._impl._video.pushFrameDataToTexture2D == undefined) { // Web
-                this._ccVideoTex.initWithVideo(this._impl._video);
-            } else { // Not web
-                let texid = this._ccVideoTex._texture.getTextureId();
-                this._impl.pushFrameDataToTexture2D(texid);
-            }
+            this._impl.grabFramePixels(this._ccVideoTex);
             
             /* // For demo useage
             let sprite = this.getComponentInChildren(Sprite);
             if(sprite) {
-                if(this._sfm == undefined || this._sfm == null) {
+                if(this._sfm === undefined || this._sfm === null) {
                     this._sfm = new SpriteFrame();
-                    let sw = sprite.node.getContentSize().width;
-                    let sh = sprite.node.getContentSize().height;
+                    // let sw = sprite.node.getContentSize().width;
+                    // let sh = sprite.node.getContentSize().height;
                     this._sfm.setTexture(this._ccVideoTex, new Rect(0,0,w,h), false, new cc.v2(0,0), new Size(w,h));
                 }
                 sprite.spriteFrame = this._sfm;

@@ -317,36 +317,36 @@ let VideoPlayerImpl = cc.Class({
         return duration;
     },
 
-    currentTime: function() {
+    currentTime: function () {
         let video = this._video;
         if (!video) return -1;
 
         return video.currentTime;
     },
 
-    update: function() {
+    update: function () {
         let video = this._video;
         if (!video) return;
 
-        if(video.update != undefined)
+        if(video.update !== undefined)
             video.update();
     },
 
-    getFrame: function() {
+    getFrame: function () {
         let video = this._video;
         if (!video) return;
 
-        if(video.getFrame != undefined)
+        if(video.getFrame !== undefined)
             video.getFrame();
     },
 
-    getFrameWidth: function() {
+    getFrameWidth: function () {
         let video = this._video;
         if (!video) return 0;
 
-        if(video.getFrameWidth != undefined)
+        if(video.getFrameWidth !== undefined)
             return video.getFrameWidth();
-        else if(video.videoWidth != undefined)
+        else if(video.videoWidth !== undefined)
             return video.videoWidth;
         else 
             return 0;
@@ -356,9 +356,9 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return 0;
 
-        if(video.getFrameHeight != undefined)
+        if(video.getFrameHeight !== undefined)
             return video.getFrameHeight();
-        else if(video.videoHeight != undefined)
+        else if(video.videoHeight !== undefined)
             return video.videoHeight;
         else
             return 0;
@@ -368,7 +368,7 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return 0;
 
-        if(video.getFrameChannel != undefined)
+        if(video.getFrameChannel !== undefined)
             return video.getFrameChannel();
         else
             return 3; //rgba8 in web
@@ -378,7 +378,7 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return 0;
 
-        if(video.getVideoTexDataSize != undefined)
+        if(video.getVideoTexDataSize !== undefined)
             return video.getVideoTexDataSize();
         else
             return 0;
@@ -388,27 +388,39 @@ let VideoPlayerImpl = cc.Class({
         let video = this._video;
         if (!video) return;
 
-        if(video.pushFrameDataToTexture2D != undefined)
+        if(video.pushFrameDataToTexture2D !== undefined)
             video.pushFrameDataToTexture2D(tex);
     },
 
-    pushPixelsToTexture: function(tex) {
+    pushPixelsToTexture: function (tex) {
         let video = this._video;
         if (!video) return;
 
-        if(video.pushPixelsToTexture != undefined)
+        if(video.pushPixelsToTexture !== undefined)
             video.pushPixelsToTexture(tex);
     },
 
-    setShowRawFrame: function(show) {
+    setShowRawFrame: function (show) {
         let video = this._video;
         if (!video) return;
 
-        if(video.setShowRawFrame != undefined)
+        if(video.setShowRawFrame !== undefined)
             video.setShowRawFrame(show);
         else {
             if(show) video.style.visibility = 'visible';
             else video.style.visibility = 'hidden';
+        }
+    },
+
+    grabFramePixels: function (cctex) {
+        let video = this._video;
+        if (!video) return;
+
+        if (video.pushFrameDataToTexture2D === undefined) { // Web
+            cctex.initWithVideo(video);
+        } else { // Not web
+            let texid = cctex._texture.getTextureId();
+            this.pushFrameDataToTexture2D(texid);
         }
     },
 
