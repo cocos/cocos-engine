@@ -466,6 +466,8 @@ const uint CAMERA_DEFAULT_MASK = ~static_cast<uint>(LayerList::UI_2D) & ~static_
 
 uint nextPow2(uint val);
 
+bool supportsHalfFloatTexture(gfx::Device *device);
+
 extern CC_DLL uint skyboxFlag;
 
 struct CC_DLL SHADOWMAP : public Object {
