@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING } from './define';
+import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsHalfFloatTexture } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, Feature } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
@@ -183,7 +183,7 @@ export class PipelineUBO {
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                const isSupportHalfFloat = device.isSupportHalfFloat();
+                const isSupportHalfFloat = supportsHalfFloatTexture(device);
                 const linear = (shadowInfo.linear && isSupportHalfFloat) ? 1.0 : 0.0;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 0] = shadowInfo.near;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 1] = far;
@@ -212,7 +212,7 @@ export class PipelineUBO {
         const device = pipeline.device;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const sv = bufferView;
-        const isSupportHalfFloat = device.isSupportHalfFloat();
+        const isSupportHalfFloat = supportsHalfFloatTexture(device);
         const linear = (shadowInfo.linear && isSupportHalfFloat) ? 1.0 : 0.0;
         const packing = shadowInfo.packing ? 1.0 : (isSupportHalfFloat ? 0.0 : 1.0);
         let _x = 0; let _y = 0; let _far = 0;

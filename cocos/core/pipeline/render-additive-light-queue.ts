@@ -48,7 +48,8 @@ import { SubModel } from '../renderer/scene/submodel';
 import { getPhaseID } from './pass-phase';
 import { Light, LightType } from '../renderer/scene/light';
 import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
-    UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from './define';
+    UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING,
+    supportsHalfFloatTexture } from './define';
 import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
 import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Texture2D } from '../assets/texture-2d';
@@ -345,7 +346,7 @@ export class RenderAdditiveLightQueue {
         const shadowInfo = sceneData.shadows;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
-        const isSupportHalfFloat = device.isSupportHalfFloat();
+        const isSupportHalfFloat = supportsHalfFloatTexture(device);
         const linear = (shadowInfo.linear && isSupportHalfFloat) ? 1.0 : 0.0;
         const packing = shadowInfo.packing ? 1.0 : (isSupportHalfFloat ? 0.0 : 1.0);
 

@@ -412,13 +412,4 @@ export abstract class Device {
     public hasFeature (feature: Feature): boolean {
         return this._features[feature];
     }
-
-    /**
-     * @en Whether to support half-float precision texture format.
-     * @zn 是否支持 half-float 精度的纹理格式。
-     * @param feature the support precision texture format.
-     */
-    public isSupportHalfFloat () : boolean {
-        return this._features[Feature.COLOR_HALF_FLOAT] && this._features[Feature.TEXTURE_HALF_FLOAT];
-    }
 }
