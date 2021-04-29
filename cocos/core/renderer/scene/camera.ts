@@ -270,10 +270,14 @@ export class Camera {
         }
 
         // projection matrix
-        const orientation = this._device.surfaceTransform;
+        let orientation = this._device.surfaceTransform;
         if (this._isProjDirty || this._curTransform !== orientation) {
             this._curTransform = orientation;
             const projectionSignY = this._device.capabilities.clipSpaceSignY;
+            // Only for rendertexture processing
+            if (this.window?.hasOffScreenAttachments) {
+                orientation = SurfaceTransform.IDENTITY;
+            }
             if (this._proj === CameraProjection.PERSPECTIVE) {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
                     this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
