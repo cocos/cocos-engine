@@ -41,46 +41,55 @@ removeProperty(View.prototype, 'View.prototype', [
 ]);
 
 // depracate EventMouse static property
-['DOWN', 'UP', 'MOVE'].forEach((item) => {
-    Object.defineProperty(EventMouse, item, {
-        get () {
-            warnID(1400, `EventMouse.${item}`, `SystemEventType.MOUSE_${item}`);
-            return SystemEventType[`MOUSE_${item}`] as string;
-        },
-    });
-});
-Object.defineProperty(EventMouse, 'SCROLL', {
-    get () {
-        warnID(1400, `EventMouse.SCROLL`, `SystemEventType.MOUSE_WHEEL`);
-        return SystemEventType.MOUSE_WHEEL;
+replaceProperty(EventMouse, 'EventMouse',
+    ['DOWN', 'UP', 'MOVE'].map((item) => ({
+        name: item,
+        newName: `MOUSE_${item}`,
+        target: SystemEventType,
+        targetName: 'SystemEventType',
+    })));
+replaceProperty(EventMouse, 'EventMouse', [
+    {
+        name: 'SCROLL',
+        newName: 'MOUSE_WHEEL',
+        target: SystemEventType,
+        targetName: 'SystemEventType',
     },
-});
+]);
 
 // depracate EventTouch static property
-Object.defineProperty(EventTouch, 'BEGAN', {
-    get () {
-        warnID(1400, `EventMouse.BEGAN`, `SystemEventType.TOUCH_START`);
-        return SystemEventType.TOUCH_START;
+replaceProperty(EventTouch, 'EventTouch', [
+    {
+        name: 'BEGAN',
+        newName: 'TOUCH_START',
+        target: SystemEventType,
+        targetName: 'SystemEventType',
     },
-});
-Object.defineProperty(EventTouch, 'MOVED', {
-    get () {
-        warnID(1400, `EventMouse.MOVED`, `SystemEventType.TOUCH_MOVE`);
-        return SystemEventType.TOUCH_MOVE;
+]);
+replaceProperty(EventTouch, 'EventTouch', [
+    {
+        name: 'MOVED',
+        newName: 'TOUCH_MOVE',
+        target: SystemEventType,
+        targetName: 'SystemEventType',
     },
-});
-Object.defineProperty(EventTouch, 'ENDED', {
-    get () {
-        warnID(1400, `EventMouse.ENDED`, `SystemEventType.TOUCH_END`);
-        return SystemEventType.TOUCH_END;
+]);
+replaceProperty(EventTouch, 'EventTouch', [
+    {
+        name: 'ENDED',
+        newName: 'TOUCH_END',
+        target: SystemEventType,
+        targetName: 'SystemEventType',
     },
-});
-Object.defineProperty(EventTouch, 'CANCELLED', {
-    get () {
-        warnID(1400, `EventMouse.CANCELLED`, `SystemEventType.TOUCH_CANCEL`);
-        return SystemEventType.TOUCH_CANCEL;
+]);
+replaceProperty(EventTouch, 'EventTouch', [
+    {
+        name: 'CANCELLED',
+        newName: 'TOUCH_CANCEL',
+        target: SystemEventType,
+        targetName: 'SystemEventType',
     },
-});
+]);
 
 // deprecate languageCode field
 replaceProperty(sys, 'sys',
