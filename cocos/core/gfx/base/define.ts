@@ -37,7 +37,7 @@ import { Texture } from './texture';
 
 interface ICopyable { copy(info: ICopyable): ICopyable; }
 
-const deepCopy = <T extends ICopyable>(target: Array<T>, source: Array<T>, Ctor: Constructor<T>) => {
+const deepCopy = <T extends ICopyable>(target: T[], source: T[], Ctor: Constructor<T>) => {
     for (let i = 0; i < source.length; ++i) {
         if (target.length <= i) target.push(new Ctor());
         target[i].copy(source[i]);
@@ -366,7 +366,7 @@ export enum BufferUsageBit {
 }
 
 export enum BufferFlagBit {
-    NONE         = 0,
+    NONE = 0,
 }
 
 export enum MemoryAccessBit {
@@ -404,10 +404,9 @@ export enum TextureUsageBit {
 }
 
 export enum TextureFlagBit {
-    NONE         = 0,
-    GEN_MIPMAP   = 0x1,
-    BAKUP_BUFFER = 0x2,
-    IMMUTABLE    = 0x4,
+    NONE       = 0,
+    GEN_MIPMAP = 0x1,
+    IMMUTABLE  = 0x2,
 }
 
 export enum SampleCount {
@@ -684,16 +683,16 @@ export class DeviceCaps {
         public maxUniformBlockSize: number = 0,
         public maxTextureSize: number = 0,
         public maxCubeMapTextureSize: number = 0,
-        public uboOffsetAlignment: number = 0,
         public depthBits: number = 0,
         public stencilBits: number = 0,
+        public uboOffsetAlignment: number = 1,
         public maxComputeSharedMemorySize: number = 0,
         public maxComputeWorkGroupInvocations: number = 0,
         public maxComputeWorkGroupSize: Size = new Size(),
         public maxComputeWorkGroupCount: Size = new Size(),
         public clipSpaceMinZ: number = -1,
         public screenSpaceSignY: number = 1,
-        public UVSpaceSignY: number = -1,
+        public clipSpaceSignY: number = 1,
     ) {}
 
     public copy (info: DeviceCaps) {
@@ -710,16 +709,16 @@ export class DeviceCaps {
         this.maxUniformBlockSize = info.maxUniformBlockSize;
         this.maxTextureSize = info.maxTextureSize;
         this.maxCubeMapTextureSize = info.maxCubeMapTextureSize;
-        this.uboOffsetAlignment = info.uboOffsetAlignment;
         this.depthBits = info.depthBits;
         this.stencilBits = info.stencilBits;
+        this.uboOffsetAlignment = info.uboOffsetAlignment;
         this.maxComputeSharedMemorySize = info.maxComputeSharedMemorySize;
         this.maxComputeWorkGroupInvocations = info.maxComputeWorkGroupInvocations;
         this.maxComputeWorkGroupSize.copy(info.maxComputeWorkGroupSize);
         this.maxComputeWorkGroupCount.copy(info.maxComputeWorkGroupCount);
         this.clipSpaceMinZ = info.clipSpaceMinZ;
         this.screenSpaceSignY = info.screenSpaceSignY;
-        this.UVSpaceSignY = info.UVSpaceSignY;
+        this.clipSpaceSignY = info.clipSpaceSignY;
         return this;
     }
 }
@@ -747,8 +746,8 @@ export class Rect {
     constructor (
         public x: number = 0,
         public y: number = 0,
-        public width: number = 1,
-        public height: number = 1,
+        public width: number = 0,
+        public height: number = 0,
     ) {}
 
     public copy (info: Rect) {

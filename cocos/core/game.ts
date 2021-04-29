@@ -29,6 +29,7 @@
  */
 
 import { EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
+import { system } from 'pal/system';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
@@ -43,6 +44,7 @@ import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
+import { BrowserType } from '../../pal/system/enum-type';
 
 interface ISceneInfo {
     url: string;
@@ -59,24 +61,8 @@ export interface IGameConfig {
     /**
      * @zh
      * 设置 debug 模式，在浏览器中这个选项会被忽略。
-     * 各种设置选项的意义：
-     *  - 0 - 没有消息被打印出来。
-     *  - 1 - `error`，`assert`，`warn`，`log` 将打印在 console 中。
-     *  - 2 - `error`，`assert`，`warn` 将打印在 console 中。
-     *  - 3 - `error`，`assert` 将打印在 console 中。
-     *  - 4 - `error`，`assert`，`warn`，`log` 将打印在 canvas 中（仅适用于 web 端）。
-     *  - 5 - `error`，`assert`，`warn` 将打印在 canvas 中（仅适用于 web 端）。
-     *  - 6 - `error`，`assert` 将打印在 canvas 中（仅适用于 web 端）。
      * @en
      * Set debug mode, only valid in non-browser environment.
-     * Possible values:
-     * 0 - No message will be printed.
-     * 1 - `error`，`assert`，`warn`，`log` will print in console.
-     * 2 - `error`，`assert`，`warn` will print in console.
-     * 3 - `error`，`assert` will print in console.
-     * 4 - `error`，`assert`，`warn`，`log` will print on canvas, available only on web.
-     * 5 - `error`，`assert`，`warn` will print on canvas, available only on web.
-     * 6 - `error`，`assert` will print on canvas, available only on web.
      */
     debugMode?: debug.DebugMode;
 
@@ -532,7 +518,7 @@ export class Game extends EventTarget {
         return Promise.resolve(initPromise).then(() => {
             // register system events
             if (!EDITOR && game.config.registerSystemEvent) {
-                inputManager.registerSystemEvent(game.canvas);
+                inputManager.registerSystemEvent();
             }
 
             return this._setRenderPipelineNShowSplash();
@@ -791,48 +777,38 @@ export class Game extends EventTarget {
 
         // WebGL context created successfully
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
-            let ctors: (() => Device)[] = [];
+            const ctors: Constructor<Device>[] = [];
 
             if (JSB && window.gfx) {
-                const os = sys.os;
-                if (os === sys.OS_OSX || os === sys.OS_IOS) {
-                    if (gfx.CCMTLDevice) { ctors.push(() => new gfx.CCMTLDevice() as Device); }
-                    if (gfx.GLES3Device) { ctors.push(() => new gfx.GLES3Device() as Device); }
-                } else { // windows or android
-                    if (gfx.GLES3Device) { ctors.push(() => new gfx.GLES3Device() as Device); }
-                    if (gfx.CCVKDevice) { ctors.push(() => new gfx.CCVKDevice() as Device); }
-                    if (gfx.GLES2Device) { ctors.push(() => new gfx.GLES2Device() as Device); }
-                }
-                // device thread agent
-                ctors = ctors.map((ctor) => (() => new gfx.DeviceAgent(ctor()) as Device));
+                this._gfxDevice = gfx.deviceInstance;
             } else {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
                 if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                    || sys.browserType === sys.BROWSER_TYPE_UC // UC browser implementation doesn't conform to WebGL2 standard
+                    || system.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
                 ) {
                     useWebGL2 = false;
                 }
                 if (useWebGL2 && legacyCC.WebGL2Device) {
-                    ctors.push(() => new legacyCC.WebGL2Device() as Device);
+                    ctors.push(legacyCC.WebGL2Device);
                 }
                 if (legacyCC.WebGLDevice) {
-                    ctors.push(() => new legacyCC.WebGLDevice() as Device);
+                    ctors.push(legacyCC.WebGLDevice);
                 }
-            }
 
-            const opts = new DeviceInfo(
-                this.canvas as HTMLCanvasElement,
-                EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                false,
-                window.devicePixelRatio,
-                sys.windowPixelResolution.width,
-                sys.windowPixelResolution.height,
-                bindingMappingInfo,
-            );
-            for (let i = 0; i < ctors.length; i++) {
-                this._gfxDevice = ctors[i]();
-                if (this._gfxDevice.initialize(opts)) { break; }
+                const opts = new DeviceInfo(
+                    this.canvas as HTMLCanvasElement,
+                    EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                    false,
+                    window.devicePixelRatio,
+                    sys.windowPixelResolution.width,
+                    sys.windowPixelResolution.height,
+                    bindingMappingInfo,
+                );
+                for (let i = 0; i < ctors.length; i++) {
+                    this._gfxDevice = new ctors[i]();
+                    if (this._gfxDevice.initialize(opts)) { break; }
+                }
             }
         }
 
@@ -847,81 +823,18 @@ export class Game extends EventTarget {
     }
 
     private _initEvents () {
-        const win = window;
-        let hiddenPropName: string;
+        system.onShow(this._onShow.bind(this));
+        system.onHide(this._onHide.bind(this));
+    }
 
-        if (typeof document.hidden !== 'undefined') {
-            hiddenPropName = 'hidden';
-        } else if (typeof document.mozHidden !== 'undefined') {
-            hiddenPropName = 'mozHidden';
-        } else if (typeof document.msHidden !== 'undefined') {
-            hiddenPropName = 'msHidden';
-        } else if (typeof document.webkitHidden !== 'undefined') {
-            hiddenPropName = 'webkitHidden';
-        }
+    private _onHide () {
+        this.emit(Game.EVENT_HIDE);
+        this.pause();
+    }
 
-        let hidden = false;
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const me = this;
-
-        function onHidden () {
-            if (!hidden) {
-                hidden = true;
-                me.emit(Game.EVENT_HIDE);
-            }
-        }
-        // In order to adapt the most of platforms the onshow API.
-        function onShown (arg0?, arg1?, arg2?, arg3?, arg4?) {
-            if (hidden) {
-                hidden = false;
-                me.emit(Game.EVENT_SHOW, arg0, arg1, arg2, arg3, arg4);
-            }
-        }
-
-        if (hiddenPropName!) {
-            const changeList = [
-                'visibilitychange',
-                'mozvisibilitychange',
-                'msvisibilitychange',
-                'webkitvisibilitychange',
-                'qbrowserVisibilityChange',
-            ];
-
-            for (let i = 0; i < changeList.length; i++) {
-                document.addEventListener(changeList[i], (event) => {
-                    let visible = document[hiddenPropName];
-                    // @ts-expect-error QQ App
-                    visible = visible || event.hidden;
-                    if (visible) {
-                        onHidden();
-                    } else {
-                        onShown();
-                    }
-                });
-            }
-        } else {
-            win.addEventListener('blur', onHidden);
-            win.addEventListener('focus', onShown);
-        }
-
-        if (window.navigator.userAgent.indexOf('MicroMessenger') > -1) {
-            win.onfocus = onShown;
-        }
-
-        if ('onpageshow' in window && 'onpagehide' in window) {
-            win.addEventListener('pagehide', onHidden);
-            win.addEventListener('pageshow', onShown);
-            // Taobao UIWebKit
-            document.addEventListener('pagehide', onHidden);
-            document.addEventListener('pageshow', onShown);
-        }
-
-        this.on(Game.EVENT_HIDE, () => {
-            this.pause();
-        });
-        this.on(Game.EVENT_SHOW, () => {
-            this.resume();
-        });
+    private _onShow () {
+        this.emit(Game.EVENT_SHOW);
+        this.resume();
     }
 
     private _setRenderPipelineNShowSplash () {

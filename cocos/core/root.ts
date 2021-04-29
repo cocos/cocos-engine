@@ -309,6 +309,10 @@ export class Root {
                 window.resize(width, height);
             }
         }
+
+        if (this._pipeline) {
+            this._pipeline.resize(width, height);
+        }
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
@@ -399,9 +403,15 @@ export class Root {
         }
         if (this._batcher) this._batcher.update();
 
-        if (this._pipeline) {
+        const windows = this._windows;
+        const cameraList: Camera[] = [];
+        for (let i = 0; i < windows.length; i++) {
+            const window = windows[i];
+            window.extractRenderCameras(cameraList);
+        }
+
+        if (this._pipeline && cameraList.length > 0) {
             this._device.acquire();
-            const windows = this._windows;
             const scenes = this._scenes;
             const stamp = legacyCC.director.getTotalFrames();
             if (this._batcher) this._batcher.uploadBuffers();
@@ -411,11 +421,6 @@ export class Root {
             }
 
             legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
-            const cameraList: Camera[] = [];
-            for (let i = 0; i < windows.length; i++) {
-                const window = windows[i];
-                window.extractRenderCameras(cameraList);
-            }
             cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
             this._pipeline.render(cameraList);
             this._device.present();

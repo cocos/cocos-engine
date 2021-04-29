@@ -48,8 +48,18 @@ function handleZip(url, options, onComplete) {
     }
 }
 
-function downloadDomAudio(url, options, onComplete) {
-    onComplete(null, url);
+function loadAudioPlayer (url, options, onComplete) {
+    cc.AudioPlayer.load(url).then(player => {
+        const audioMeta = {
+            url,
+            duration: player.duration,
+            type: player.type,
+        };
+        player.destroy();
+        onComplete(null, audioMeta);
+    }).catch(err => {
+        onComplete(err);
+    });
 }
 
 function download(url, func, options, onFileProgress, onComplete) {
@@ -153,13 +163,9 @@ function downloadBundle(nameOrUrl, options, onComplete) {
                 onComplete(err, null);
                 return;
             }
-            downloader.importBundleEntry(bundleName).then(function () {
-                downloadJson(config, options, function (err, data) {
-                    data && (data.base = `${_subpackagesPath}${bundleName}/`);
-                    onComplete(err, data);
-                });
-            }).catch(function (err) {
-                onComplete(err);
+            downloadJson(config, options, function (err, data) {
+                data && (data.base = `${_subpackagesPath}${bundleName}/`);
+                onComplete(err, data);
             });
         });
     }
@@ -187,33 +193,29 @@ function downloadBundle(nameOrUrl, options, onComplete) {
             loadedScripts[js] = true;
         }
 
-        downloader.importBundleEntry(bundleName).then(function () {
-            options.__cacheBundleRoot__ = bundleName;
-            var config = `${url}/config.${suffix}json`;
-            downloadJson(config, options, function (err, data) {
-                if (err) {
-                    onComplete && onComplete(err);
-                    return;
-                }
-                if (data.isZip) {
-                    let zipVersion = data.zipVersion;
-                    let zipUrl = `${url}/res.${zipVersion ? zipVersion + '.' : ''}zip`;
-                    handleZip(zipUrl, options, function (err, unzipPath) {
-                        if (err) {
-                            onComplete && onComplete(err);
-                            return;
-                        }
-                        data.base = unzipPath + '/res/';
-                        onComplete && onComplete(null, data);
-                    });
-                }
-                else {
-                    data.base = url + '/';
+        options.__cacheBundleRoot__ = bundleName;
+        var config = `${url}/config.${suffix}json`;
+        downloadJson(config, options, function (err, data) {
+            if (err) {
+                onComplete && onComplete(err);
+                return;
+            }
+            if (data.isZip) {
+                let zipVersion = data.zipVersion;
+                let zipUrl = `${url}/res.${zipVersion ? zipVersion + '.' : ''}zip`;
+                handleZip(zipUrl, options, function (err, unzipPath) {
+                    if (err) {
+                        onComplete && onComplete(err);
+                        return;
+                    }
+                    data.base = unzipPath + '/res/';
                     onComplete && onComplete(null, data);
-                }
-            });
-        }).catch(function (err) {
-            onComplete && onComplete(err);
+                });
+            }
+            else {
+                data.base = url + '/';
+                onComplete && onComplete(null, data);
+            }
         });
     }
 };
@@ -250,7 +252,6 @@ let parsePlist = function (url, options, onComplete) {
     });
 };
 
-downloader.downloadDomAudio = downloadDomAudio;
 downloader.downloadScript = downloadScript;
 parser.parsePVRTex = parsePVRTex;
 parser.parsePKMTex = parsePKMTex;
@@ -342,10 +343,10 @@ parser.register({
     '.ttc': loadFont,
 
     // Audio
-    '.mp3': downloadDomAudio,
-    '.ogg': downloadDomAudio,
-    '.wav': downloadDomAudio,
-    '.m4a': downloadDomAudio,
+    '.mp3': loadAudioPlayer,
+    '.ogg': loadAudioPlayer,
+    '.wav': loadAudioPlayer,
+    '.m4a': loadAudioPlayer,
 
     // Txt
     '.txt': parseText,

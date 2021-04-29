@@ -28,13 +28,17 @@
  * @hidden
  */
 
+import { EDITOR } from 'internal:constants';
+import { ccclass } from 'cc.decorator';
 import { BaseNode } from './base-node';
 import { replaceProperty, removeProperty } from '../utils/x-deprecated';
 import { Layers } from './layers';
 import { Node } from './node';
 import { Vec2 } from '../math/vec2';
 import { Size } from '../math/size';
-import { Scene } from './scene';
+import { legacyCC } from '../global-exports';
+import { CCObject } from '../data/object';
+import { warnID } from '../platform/debug';
 
 replaceProperty(BaseNode.prototype, 'BaseNode', [
     {
@@ -225,3 +229,31 @@ removeProperty(Layers.BitMask, 'Layers.BitMask', [
         name: 'ALWAYS',
     },
 ]);
+
+const HideInHierarchy = CCObject.Flags.HideInHierarchy;
+const DontSave = CCObject.Flags.DontSave;
+
+@ccclass('cc.PrivateNode')
+export class PrivateNode extends Node {
+    constructor (name?: string) {
+        super(name);
+        warnID(12003, this.name);
+
+        this.hideFlags |= DontSave | HideInHierarchy;
+    }
+}
+
+if (EDITOR) {
+    // check components to avoid missing node reference serialied in previous version
+    PrivateNode.prototype._onBatchCreated = function onBatchCreated (dontSyncChildPrefab: boolean) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        for (const comp of this._components) {
+            comp.node = this;
+        }
+
+        Node.prototype._onBatchCreated.call(this, dontSyncChildPrefab);
+    };
+}
+
+legacyCC.PrivateNode = PrivateNode;

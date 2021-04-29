@@ -41,16 +41,17 @@ const v3_0 = new Vec3();
 export class PhysXRigidBody implements IRigidBody {
     get impl (): any { return this._sharedBody.impl; }
 
-    get isAwake (): boolean { return !this.impl.isSleeping(); }
-    isSleepy = false;
-    get isSleeping (): boolean { return this.impl.isSleeping(); }
+    get isAwake (): boolean { return !this.isStatic && !this.impl.isSleeping(); }
+    get isSleeping (): boolean { return this.isStatic || this.impl.isSleeping(); }
 
     get isEnabled (): boolean { return this._isEnabled; }
     get rigidBody (): RigidBody { return this._rigidBody; }
     get sharedBody (): PhysXSharedBody { return this._sharedBody; }
     get isStatic (): boolean { return !this.impl || this._sharedBody.isStatic; }
     get isStaticOrKinematic (): boolean { return !this.impl || this._sharedBody.isStatic || this._sharedBody.isKinematic; }
+    get isInScene (): boolean { return this._sharedBody.isInScene; }
 
+    isSleepy = false;
     private _isEnabled = false;
     private _rigidBody!: RigidBody;
     private _sharedBody!: PhysXSharedBody;
@@ -177,7 +178,7 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setLinearVelocity (value: IVec3Like): void {
-        if (this.isStatic) return;
+        if (this.isStaticOrKinematic) return;
         this.impl.setLinearVelocity(value, true);
     }
 
@@ -187,45 +188,45 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setAngularVelocity (value: IVec3Like): void {
-        if (this.isStatic) return;
+        if (this.isStaticOrKinematic) return;
         this.impl.setAngularVelocity(value, true);
     }
 
     applyForce (force: IVec3Like, relativePoint?: IVec3Like): void {
-        if (this.isStatic) return;
+        if (!this.isInScene || this.isStaticOrKinematic) return;
         this._sharedBody.syncSceneToPhysics();
         const rp = relativePoint || Vec3.ZERO;
         applyForce(true, this.impl, force, rp);
     }
 
     applyLocalForce (force: IVec3Like, relativePoint?: IVec3Like): void {
-        if (this.isStatic) return;
+        if (!this.isInScene || this.isStaticOrKinematic) return;
         this._sharedBody.syncSceneToPhysics();
         const rp = relativePoint || Vec3.ZERO;
         applyForce(false, this.impl, force, rp);
     }
 
     applyImpulse (force: IVec3Like, relativePoint?: IVec3Like): void {
-        if (this.isStatic) return;
+        if (!this.isInScene || this.isStaticOrKinematic) return;
         this._sharedBody.syncSceneToPhysics();
         const rp = relativePoint || Vec3.ZERO;
         applyImpulse(true, this.impl, force, rp);
     }
 
     applyLocalImpulse (force: IVec3Like, relativePoint?: IVec3Like): void {
-        if (this.isStatic) return;
+        if (!this.isInScene || this.isStaticOrKinematic) return;
         this._sharedBody.syncSceneToPhysics();
         const rp = relativePoint || Vec3.ZERO;
         applyImpulse(false, this.impl, force, rp);
     }
 
     applyTorque (torque: IVec3Like): void {
-        if (this.isStatic) return;
+        if (!this.isInScene || this.isStaticOrKinematic) return;
         applyTorqueForce(this.impl, torque);
     }
 
     applyLocalTorque (torque: IVec3Like): void {
-        if (this.isStatic) return;
+        if (!this.isInScene || this.isStaticOrKinematic) return;
         this._sharedBody.syncSceneToPhysics();
         Vec3.transformQuat(v3_0, torque, this._sharedBody.node.worldRotation);
         applyTorqueForce(this.impl, v3_0);

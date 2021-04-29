@@ -39,10 +39,12 @@ import { UITransform } from '../../framework/ui-transform';
 import { legacyCC } from '../../../core/global-exports';
 import { assetManager } from '../../../core/asset-manager';
 import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
+import { BlendFactor } from '../../../core/gfx';
 
 const Overflow = Label.Overflow;
 const MAX_SIZE = 2048;
 const _BASELINE_OFFSET = getBaselineOffset();
+const _invisibleAlpha = (1 / 255).toFixed(3);
 
 let _context: CanvasRenderingContext2D | null = null;
 let _canvas: HTMLCanvasElement | null = null;
@@ -58,6 +60,7 @@ let _lineHeight = 0;
 let _hAlign = 0;
 let _vAlign = 0;
 let _color = new Color();
+let _alpha = 1;
 let _fontFamily = '';
 let _overflow = Overflow.NONE;
 let _isWrapText = false;
@@ -110,7 +113,9 @@ export const ttfUtils =  {
         this._calculateLabelFont();
         this._updateLabelDimensions();
         this._resetDynamicAtlas(comp);
-        this._updateTexture();
+        this._updateTexture(comp);
+        this.updateOpacity(comp);
+        comp._setCacheAlpha(_alpha);
         this._calDynamicAtlas(comp);
 
         comp.actualFontSize = _fontSize;
@@ -130,6 +135,18 @@ export const ttfUtils =  {
     },
 
     updateUvs (comp: Label) {
+    },
+
+    updateOpacity (comp: Label) {
+        const vData = comp.renderData!.vData;
+
+        let colorOffset = 5;
+        const colorA = comp.node._uiProps.opacity;
+        for (let i = 0; i < 4; i++) {
+            vData![colorOffset + 3] = colorA;
+
+            colorOffset += 9;
+        }
     },
 
     _updateFontFamily (comp: Label) {
@@ -174,6 +191,7 @@ export const ttfUtils =  {
         _hAlign = comp.horizontalAlign;
         _vAlign = comp.verticalAlign;
         _color = comp.color;
+        _alpha = comp.node._uiProps.opacity;
         _isBold = comp.isBold;
         _isItalic = comp.isItalic;
         _isUnderline = comp.isUnderline;
@@ -264,7 +282,7 @@ export const ttfUtils =  {
         _startPosition.set(labelX + _canvasPadding.x, firstLinelabelY + _canvasPadding.y);
     },
 
-    _updateTexture () {
+    _updateTexture (comp: Label) {
         if (!_context || !_canvas) {
             return;
         }
@@ -276,7 +294,14 @@ export const ttfUtils =  {
         const lineHeight = this._getLineHeight();
         // use round for line join to avoid sharp intersect point
         _context.lineJoin = 'round';
-        _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, 1)`;
+        // to keep the one model same as before
+        // Todo: remove this protect when component remove blend function
+        // @ts-expect-error remove when component remove blend function
+        if (comp._srcBlendFactor === BlendFactor.SRC_ALPHA) {
+            _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
+            _context.fillRect(0, 0, _canvas.width, _canvas.height);
+        }
+        _context.fillStyle = `rgb(${_color.r}, ${_color.g}, ${_color.b})`;
         const drawTextPosX = _startPosition.x;
         let drawTextPosY = 0;
         // draw shadow and underline

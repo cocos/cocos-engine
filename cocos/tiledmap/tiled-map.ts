@@ -501,6 +501,7 @@ export class TiledMap extends Component {
                 if (!child) {
                     child = (new Node()) as unknown as any;
                     child.name = name;
+                    child.layer = node.layer;
                     node.addChild(child);
                 }
 
@@ -628,6 +629,11 @@ export class TiledMap extends Component {
                 frame = frames[animation.frameIdx];
             }
             texGrids.set(aniGID, frame.grid!);
+        }
+        for (const layer of this.getLayers()) {
+            if (layer.hasAnimation()) {
+                layer.markForUpdateRenderData();
+            }
         }
     }
 }

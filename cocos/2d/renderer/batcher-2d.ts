@@ -49,6 +49,7 @@ import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
+import { value } from '../../core/utils/js-typed';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -147,7 +148,6 @@ export class Batcher2D {
     private _currLayer = 0;
     private _currDepthStencilStateStage: any|null = null;
     private _currIsStatic = false;
-    private _parentOpacity = 1;
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
 
@@ -275,32 +275,47 @@ export class Batcher2D {
     public uploadBuffers () {
         if (this._batches.length > 0) {
             const calls = this._doUploadBuffersCall;
-            for (const key of calls.keys()) {
-                const list = calls.get(key);
-                list!.call(key, this);
-            }
+            calls.forEach((value, key) => {
+                value.call(key, this);
+            });
+            // for (const key of calls.keys()) {
+            //     const list = calls.get(key);
+            //     list!.call(key, this);
+            // }
 
             const buffers = this._meshBuffers;
-            for (const i of buffers.keys()) {
-                const list = buffers.get(i);
-                if (list) {
-                    list.forEach((bb) => {
-                        bb.uploadBuffers();
-                        bb.reset();
-                    });
-                }
-            }
+            buffers.forEach((value, key) => {
+                value.forEach((bb) => {
+                    bb.uploadBuffers();
+                    bb.reset();
+                });
+            });
+            // for (const i of buffers.keys()) {
+            //     const list = buffers.get(i);
+            //     if (list) {
+            //         list.forEach((bb) => {
+            //             bb.uploadBuffers();
+            //             bb.reset();
+            //         });
+            //     }
+            // }
 
             const customs = this._customMeshBuffers;
-            for (const i of customs.keys()) {
-                const list = customs.get(i);
-                if (list) {
-                    list.forEach((bb) => {
-                        bb.uploadBuffers();
-                        bb.reset();
-                    });
-                }
-            }
+            customs.forEach((value, key) => {
+                value.forEach((bb) => {
+                    bb.uploadBuffers();
+                    bb.reset();
+                });
+            });
+            // for (const i of customs.keys()) {
+            //     const list = customs.get(i);
+            //     if (list) {
+            //         list.forEach((bb) => {
+            //             bb.uploadBuffers();
+            //             bb.reset();
+            //         });
+            //     }
+            // }
 
             this._descriptorSetCache.update();
         }
@@ -317,7 +332,6 @@ export class Batcher2D {
             this._drawBatchPool.free(batch);
         }
 
-        this._parentOpacity = 1;
         this._currLayer = 0;
         this._currMaterial = this._emptyMaterial;
         this._currTexture = null;
@@ -388,7 +402,6 @@ export class Batcher2D {
 
         if (assembler) {
             assembler.fillBuffers(renderComp, this);
-            this._applyOpacity(renderComp);
         }
     }
 
@@ -586,9 +599,6 @@ export class Batcher2D {
     public walk (node: Node, level = 0) {
         const len = node.children.length;
 
-        const parentOpacity = this._parentOpacity;
-        this._parentOpacity *= node._uiProps.opacity;
-
         this._preProcess(node);
         if (len > 0 && !node._static) {
             const children = node.children;
@@ -599,17 +609,19 @@ export class Batcher2D {
         }
 
         this._postProcess(node);
-        this._parentOpacity = parentOpacity;
 
         level += 1;
     }
 
     private _preProcess (node: Node) {
+        const render = node._uiProps.uiComp;
+        if (!render) { // hack for opacity
+            const localAlpha = node._uiProps.localOpacity;
+            node._uiProps.opacity = (node.parent && node.parent._uiProps) ? node.parent._uiProps.opacity * localAlpha : localAlpha;
+        }
         if (!node._uiProps.uiTransformComp) {
             return;
         }
-
-        const render = node._uiProps.uiComp;
         if (render && render.enabledInHierarchy) {
             render.updateAssembler(this);
         }
@@ -661,21 +673,6 @@ export class Batcher2D {
 
     private _screenSort (a: RenderRoot2D, b: RenderRoot2D) {
         return a.node.getSiblingIndex() - b.node.getSiblingIndex();
-    }
-
-    private _applyOpacity (comp: Renderable2D) {
-        const color = comp.color.a / 255;
-        const opacity = (this._parentOpacity *= color);
-        const currMeshBuffer = this.currBufferBatch!;
-        const byteOffset = currMeshBuffer.byteOffset >> 2;
-        const vBuf = currMeshBuffer.vData!;
-        const lastByteOffset = currMeshBuffer.lastByteOffset >> 2;
-        const stride = currMeshBuffer.vertexFormatBytes / 4;
-        for (let i = lastByteOffset; i < byteOffset; i += stride) {
-            vBuf[i + MeshBuffer.OPACITY_OFFSET] *= opacity;
-        }
-
-        currMeshBuffer.lastByteOffset = currMeshBuffer.byteOffset;
     }
 
     private _releaseDescriptorSetCache (textureHash: number) {

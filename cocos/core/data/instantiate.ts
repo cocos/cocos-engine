@@ -281,7 +281,7 @@ function instantiateObj (obj, parent) {
                         return obj;
                     }
                 } else if (obj instanceof legacyCC.Component) {
-                    if (!obj.node.isChildOf(parent)) {
+                    if (obj.node && !obj.node.isChildOf(parent)) {
                         // should not clone other component if not descendant
                         return obj;
                     }

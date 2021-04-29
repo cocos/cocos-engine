@@ -576,9 +576,10 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
         parseSimpleAttribute('multiline', 'boolean');
         parseSimpleAttribute('radian', 'boolean');
         if (attributes.readonly) {
-            (attrs || initAttrs())[`${propertyNamePrefix}readonly`] = true;
+            (attrs || initAttrs())[`${propertyNamePrefix}readonly`] = attributes.readonly;
         }
         parseSimpleAttribute('tooltip', 'string');
+        parseSimpleAttribute('tab', 'string');
         parseSimpleAttribute('slide', 'boolean');
         parseSimpleAttribute('unit', 'string');
     }

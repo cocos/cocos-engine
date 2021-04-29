@@ -50,8 +50,8 @@ export class CannonWorld implements IPhysicsWorld {
     setDefaultMaterial (mat: PhysicsMaterial) {
         this._world.defaultMaterial.friction = mat.friction;
         this._world.defaultMaterial.restitution = mat.restitution;
-        if (CannonShape.idToMaterial[mat._uuid] != null) {
-            CannonShape.idToMaterial[mat._uuid] = this._world.defaultMaterial;
+        if (CannonShape.idToMaterial[mat.id] != null) {
+            CannonShape.idToMaterial[mat.id] = this._world.defaultMaterial;
         }
     }
 

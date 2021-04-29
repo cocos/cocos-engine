@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { system } from 'pal/system';
 import { EDITOR, TEST, DEV, BUILD, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
@@ -37,6 +38,7 @@ import { CCClass } from './class';
 import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
+import { Platform } from '../../../pal/system/enum-type';
 
 // TODO remove default support
 
@@ -289,6 +291,7 @@ function unlinkUnusedPrefab (self, serialized, obj) {
             self.result.uuidList.pop();
             self.result.uuidObjList.pop();
             self.result.uuidPropList.pop();
+            self.result.uuidTypeList.pop();
         } else {
             warnID(4935);
         }
@@ -505,7 +508,7 @@ class _Deserializer {
         if (id === undefined) {
             const uuid = jsonObj.__uuid__;
             if (uuid) {
-                this.result.push(obj, propName, uuid);
+                this.result.push(obj, propName, uuid, jsonObj.__expectedType__);
                 return true;
             } else if (EDITOR || TEST) {
                 obj[propName] = this._deserializeObject(jsonObj, obj, propName);
@@ -623,7 +626,7 @@ _Deserializer.pool.get = function (result, classFinder, customEnv, ignoreEditorO
 export function deserializeDynamic (data, details: Details, options) {
     options = options || {};
     const classFinder = options.classFinder || js._getClassById;
-    const createAssetRefs = options.createAssetRefs || legacyCC.sys.platform === legacyCC.sys.EDITOR_CORE;
+    const createAssetRefs = options.createAssetRefs || system.platform === Platform.EDITOR_CORE;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
 

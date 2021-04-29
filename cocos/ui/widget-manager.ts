@@ -30,6 +30,7 @@
  */
 
 import { EDITOR, DEV } from 'internal:constants';
+import { system } from 'pal/system';
 import { Director, director } from '../core/director';
 import { Vec2, Vec3 } from '../core/math';
 import { View } from '../core/platform/view';
@@ -44,8 +45,10 @@ import { legacyCC } from '../core/global-exports';
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
 
-const tInverseTranslate = new Vec3();
-const tInverseScale = new Vec3(1, 1, 1);
+const tInverseTranslate = new Vec2();
+const tInverseScale = new Vec2(1, 1);
+const _tempVec2_1 = new Vec2();
+const _tempVec2_2 = new Vec2();
 
 // align to borders by adjusting node's position and size (ignore rotation)
 function align (node: Node, widget: Widget) {
@@ -88,11 +91,11 @@ function align (node: Node, widget: Widget) {
         } else {
             localLeft = -targetAnchor.x * targetWidth;
             localRight = localLeft + targetWidth;
-        }
 
-        // adjust borders according to offsets
-        localLeft += widget.isAbsoluteLeft ? widget.left : widget.left * targetWidth;
-        localRight -= widget.isAbsoluteRight ? widget.right : widget.right * targetWidth;
+            // adjust borders according to offsets
+            localLeft += widget.isAbsoluteLeft ? widget.left : widget.left * targetWidth;
+            localRight -= widget.isAbsoluteRight ? widget.right : widget.right * targetWidth;
+        }
 
         if (hasTarget) {
             localLeft += inverseTranslate.x;
@@ -145,11 +148,11 @@ function align (node: Node, widget: Widget) {
         } else {
             localBottom = -targetAnchor.y * targetHeight;
             localTop = localBottom + targetHeight;
-        }
 
-        // adjust borders according to offsets
-        localBottom += widget.isAbsoluteBottom ? widget.bottom : widget.bottom * targetHeight;
-        localTop -= widget.isAbsoluteTop ? widget.top : widget.top * targetHeight;
+            // adjust borders according to offsets
+            localBottom += widget.isAbsoluteBottom ? widget.bottom : widget.bottom * targetHeight;
+            localTop -= widget.isAbsoluteTop ? widget.top : widget.top * targetHeight;
+        }
 
         if (hasTarget) {
             // transform
@@ -351,7 +354,7 @@ export const widgetManager = legacyCC._widgetManager = {
         if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
-            window.addEventListener('orientationchange', thisOnResized);
+            system.onOrientationChange(thisOnResized);
         }
     },
     add (widget: Widget) {
@@ -386,8 +389,10 @@ export const widgetManager = legacyCC._widgetManager = {
         const widgetNode = widget.node;
         let widgetParent = widgetNode.parent;
         if (widgetParent) {
-            const zero = new Vec3();
-            const one = new Vec3(1, 1, 1);
+            const zero = _tempVec2_1;
+            zero.set(0, 0);
+            const one = _tempVec2_2;
+            one.set(1, 1);
             if (widget.target) {
                 widgetParent = widget.target;
                 computeInverseTransForTarget(widgetNode, widgetParent, zero, one);

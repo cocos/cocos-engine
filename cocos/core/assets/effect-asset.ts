@@ -109,7 +109,7 @@ export interface IShaderInfo {
     glsl4: { vert: string, frag: string };
     glsl3: { vert: string, frag: string };
     glsl1: { vert: string, frag: string };
-    builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo };
+    builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, statistics: Record<string, number> };
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
     samplerTextures: ISamplerTextureInfo[];
@@ -230,6 +230,19 @@ export class EffectAsset extends Asset {
     public destroy () {
         EffectAsset.remove(this.name);
         return super.destroy();
+    }
+
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
+        const effect = EffectAsset.get('unlit');
+        this.name = 'unlit';
+        this.shaders = effect!.shaders;
+        this.combinations = effect!.combinations;
+        this.techniques = effect!.techniques;
+    }
+
+    public validate () {
+        return this.techniques.length > 0 && this.shaders.length > 0;
     }
 }
 

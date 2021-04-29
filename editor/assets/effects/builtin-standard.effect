@@ -10,11 +10,11 @@ CCEffect %{
         tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
         mainColor:      { value: [1.0, 1.0, 1.0, 1.0], target: albedo, editor: { displayName: Albedo, type: color } }
         albedoScale:    { value: [1.0, 1.0, 1.0], target: albedoScaleAndCutoff.xyz }
-        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
-        occlusion:      { value: 1.0, target: pbrParams.x }
-        roughness:      { value: 0.8, target: pbrParams.y }
-        metallic:       { value: 0.6, target: pbrParams.z }
-        normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP } }
+        alphaThreshold: { value: 0.5, target: albedoScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST, slide: true, range: [0, 1.0], step: 0.001 } }
+        occlusion:      { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 }  }
+        roughness:      { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 }  }
+        metallic:       { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
+        normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
         emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
@@ -153,8 +153,14 @@ CCProgram standard-vs %{
     #endif
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
+    #if SAMPLE_FROM_RT
+      CC_HANDLE_RT_SAMPLE_FLIP(v_uv);
+    #endif
     #if HAS_SECOND_UV
       v_uv1 = a_texCoord1 * tilingOffset.xy + tilingOffset.zw;
+      #if SAMPLE_FROM_RT
+        CC_HANDLE_RT_SAMPLE_FLIP(v_uv1);
+      #endif
     #endif
 
     #if USE_VERTEX_COLOR
@@ -243,7 +249,9 @@ CCProgram standard-fs %{
     #endif
 
     #if USE_LIGHTMAP && !USE_BATCHING && !CC_FORWARD_ADD
-      s.lightmap = texture(cc_lightingMap, v_luv);
+      vec4 lightColor = texture(cc_lightingMap, v_luv.xy);
+      s.lightmap = UnpackLightingmap(lightColor);
+      s.lightmap_test = v_luv.z; /*u scale*/
     #endif
 
     s.normal = v_normal;
@@ -298,6 +306,7 @@ CCProgram shadow-caster-vs %{
 
   out vec2 v_uv;
   out vec2 v_uv1;
+  out vec4 v_worldPos;
 
   out float v_clip_depth;
 
@@ -308,8 +317,8 @@ CCProgram shadow-caster-vs %{
     mat4 matWorld, matWorldIT;
     CCGetWorldMatrixFull(matWorld, matWorldIT);
 
-    vec4 worldPos = matWorld * In.position;
-    vec4 clipPos = cc_matLightViewProj * worldPos;
+    v_worldPos = matWorld * In.position;
+    vec4 clipPos = cc_matLightViewProj * v_worldPos;
 
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
     #if HAS_SECOND_UV
@@ -326,9 +335,11 @@ CCProgram shadow-caster-fs %{
   precision highp float;
   #include <shared-ubos>
   #include <packing>
+  #include <cc-shadow>
 
   in vec2 v_uv;
   in vec2 v_uv1;
+  in vec4 v_worldPos;
   in float v_clip_depth;
 
   #if USE_ALBEDO_MAP
@@ -351,6 +362,22 @@ CCProgram shadow-caster-fs %{
       if (baseColor.ALPHA_TEST_CHANNEL < albedoScaleAndCutoff.w) discard;
     #endif
 
-    return packDepthToRGBA(v_clip_depth);
+    // spot use linear
+    if(cc_shadowLPNNInfo.x > 0.000001 && cc_shadowLPNNInfo.x < 1.999999) {
+      // enabled linear depth
+      if (cc_shadowNFLSInfo.z > 0.000001) {
+        vec4 viewStartPos = cc_matLightView * v_worldPos;
+        float dist = length(viewStartPos.xyz);
+        float linearDepth = cc_shadowNFLSInfo.x + (-dist / (cc_shadowNFLSInfo.y - cc_shadowNFLSInfo.x));
+
+        return vec4(linearDepth, 1.0, 1.0, 1.0);
+      }
+    }
+
+    if (cc_shadowLPNNInfo.y > 0.000001) {
+      return packDepthToRGBA(v_clip_depth);
+    }
+  
+    return vec4(v_clip_depth, 1.0, 1.0, 1.0);
   }
 }%

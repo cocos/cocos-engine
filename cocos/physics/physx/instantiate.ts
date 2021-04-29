@@ -42,7 +42,7 @@ import { PhysXTerrainShape } from './shapes/physx-terrain-shape';
 import { PhysXCylinderShape } from './shapes/physx-cylinder-shape';
 import { PhysXConeShape } from './shapes/physx-cone-shape';
 
-import { PhysXFixedJoint } from './joints/physx-fixed-joint';
+// import { PhysXFixedJoint } from './joints/physx-fixed-joint';
 import { PhysXDistanceJoint } from './joints/physx-distance-joint';
 import { PhysXRevoluteJoint } from './joints/physx-revolute-joint';
 

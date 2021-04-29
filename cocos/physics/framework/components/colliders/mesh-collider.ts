@@ -70,6 +70,7 @@ export class MeshCollider extends Collider {
     }
 
     set mesh (value) {
+        if (this._mesh === value) return;
         this._mesh = value;
         if (!EDITOR && !TEST) this.shape.setMesh(this._mesh);
     }
@@ -87,6 +88,7 @@ export class MeshCollider extends Collider {
     }
 
     set convex (value) {
+        if (this._convex === value) return;
         this._convex = value;
     }
 

@@ -33,7 +33,7 @@ import { legacyCC } from '../global-exports';
 import { Asset } from '../assets/asset';
 import { RenderFlow } from './render-flow';
 import { MacroRecord } from '../renderer/core/pass-utils';
-import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo } from '../gfx';
+import { Device, DescriptorSet, CommandBuffer, DescriptorSetLayout, DescriptorSetLayoutInfo, DescriptorSetInfo, Feature, Rect } from '../gfx';
 import { globalDescriptorSetLayout } from './define';
 import { Camera } from '../renderer/scene/camera';
 import { PipelineUBO } from './pipeline-ubo';
@@ -58,15 +58,6 @@ export interface IRenderPipelineInfo {
  */
 @ccclass('cc.RenderPipeline')
 export abstract class RenderPipeline extends Asset {
-    /**
-     * @en Layout of the pipeline-global descriptor set.
-     * @zh 管线层的全局描述符集布局。
-     * @readonly
-     */
-    get macros (): MacroRecord {
-        return this._macros;
-    }
-
     /**
      * @en The tag of pipeline.
      * @zh 管线的标签。
@@ -104,7 +95,27 @@ export abstract class RenderPipeline extends Asset {
     @serializable
     protected _flows: RenderFlow[] = [];
 
-    protected _macros: MacroRecord = {};
+    /**
+     * @en
+     * Constant macro string, static throughout the whole runtime.
+     * Used to pass device-specific parameters to shader.
+     * @zh 常量宏定义字符串，运行时全程不会改变，用于给 shader 传一些只和平台相关的参数。
+     * @readonly
+     */
+    get constantMacros () {
+        return this._constantMacros;
+    }
+
+    /**
+     * @en
+     * The current global-scoped shader macros.
+     * Used to control effects like IBL, fog, etc.
+     * @zh 当前的全局宏定义，用于控制如 IBL、雾效等模块。
+     * @readonly
+     */
+    get macros () {
+        return this._macros;
+    }
 
     get device () {
         return this._device;
@@ -136,6 +147,8 @@ export abstract class RenderPipeline extends Asset {
     protected _commandBuffers: CommandBuffer[] = [];
     protected _pipelineUBO = new PipelineUBO();
     protected _pipelineSceneData = new PipelineSceneData();
+    protected _macros: MacroRecord = {};
+    protected _constantMacros = '';
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -146,6 +159,26 @@ export abstract class RenderPipeline extends Asset {
         this._flows = info.flows;
         if (info.tag) { this._tag = info.tag; }
         return true;
+    }
+
+    /**
+     * @en generate renderArea by camera
+     * @zh 生成renderArea
+     * @param camera the camera
+     * @returns
+     */
+    public generateRenderArea (camera: Camera): Rect {
+        const res = new Rect();
+        const vp = camera.viewport;
+        const sceneData = this.pipelineSceneData;
+        // render area is not oriented
+        const w = camera.window!.hasOnScreenAttachments && this.device.surfaceTransform % 2 ? camera.height : camera.width;
+        const h = camera.window!.hasOnScreenAttachments && this.device.surfaceTransform % 2 ? camera.width : camera.height;
+        res.x = vp.x * w;
+        res.y = vp.y * h;
+        res.width = vp.width * w * sceneData.shadingScale;
+        res.height = vp.height * h * sceneData.shadingScale;
+        return res;
     }
 
     /**
@@ -163,6 +196,10 @@ export abstract class RenderPipeline extends Asset {
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].activate(this);
         }
+
+        // update global defines when all states initialized.
+        this._macros.CC_USE_HDR = this._pipelineSceneData.isHDR;
+        this._generateConstantMacros();
 
         return true;
     }
@@ -204,6 +241,20 @@ export abstract class RenderPipeline extends Asset {
         this._pipelineSceneData.destroy();
 
         return super.destroy();
+    }
+
+    /**
+     * @en Device size change.
+     * @zh 设备尺寸重置。
+     */
+    public resize (width: number, height: number) {}
+
+    protected _generateConstantMacros () {
+        let str = '';
+        str += `#define CC_DEVICE_SUPPORT_FLOAT_TEXTURE ${this.device.hasFeature(Feature.TEXTURE_FLOAT) ? 1 : 0}\n`;
+        str += `#define CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS ${this.device.capabilities.maxVertexUniformVectors}\n`;
+        str += `#define CC_DEVICE_MAX_FRAGMENT_UNIFORM_VECTORS ${this.device.capabilities.maxFragmentUniformVectors}\n`;
+        this._constantMacros = str;
     }
 }
 

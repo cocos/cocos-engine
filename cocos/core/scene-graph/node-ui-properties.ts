@@ -75,6 +75,7 @@ export class NodeUIProperties {
      * @zh UI 透明度
      */
     public opacity = 1;
+    public localOpacity = 1;
     protected _uiTransformComp: UITransform | null = null;
     private _node: any;
 

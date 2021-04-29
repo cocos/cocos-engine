@@ -47,7 +47,6 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
-import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 
 // hack
 ccenum(BlendFactor);
@@ -252,8 +251,7 @@ export class Renderable2D extends RenderableComponent {
         }
 
         this._color.set(value);
-        this._updateColor();
-        this.markForUpdateRenderData();
+        this._colorDirty = true;
         if (EDITOR) {
             const clone = value.clone();
             this.node.emit(SystemEventType.COLOR_CHANGED, clone);
@@ -310,6 +308,9 @@ export class Renderable2D extends RenderableComponent {
     protected _blendState: BlendState = new BlendState();
     protected _blendHash = 0;
 
+    protected _colorDirty = true;
+    protected _cacheAlpha = 1;
+
     get blendHash () {
         return this._blendHash;
     }
@@ -354,7 +355,7 @@ export class Renderable2D extends RenderableComponent {
         this.destroyRenderData();
         if (this._materialInstances) {
             for (let i = 0; i < this._materialInstances.length; i++) {
-                this._materialInstances[i]!.destroy();
+                this._materialInstances[i] && this._materialInstances[i]!.destroy();
             }
         }
         this._renderData = null;
@@ -415,6 +416,7 @@ export class Renderable2D extends RenderableComponent {
      * 注意：不要手动调用该函数，除非你理解整个流程。
      */
     public updateAssembler (render: Batcher2D) {
+        this._updateColor();
         if (this._renderFlag) {
             this._checkAndUpdateRenderData();
             this._render(render);
@@ -451,15 +453,26 @@ export class Renderable2D extends RenderableComponent {
                && this.getMaterial(0) !== null
                && this.enabled
                && (this._delegateSrc ? this._delegateSrc.activeInHierarchy : this.enabledInHierarchy)
-               && this._color.a > 0;
+               && this.node._uiProps.opacity > 0;
     }
 
     protected _postCanRender () {}
 
     protected _updateColor () {
-        if (this._assembler && this._assembler.updateColor) {
+        this._updateWorldAlpha();
+        if ((this._colorDirty || this._cacheAlpha !== this.node._uiProps.opacity)
+                && this._renderFlag && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
+            this._cacheAlpha = this.node._uiProps.opacity;
+            this._colorDirty = false;
         }
+    }
+
+    protected _updateWorldAlpha () {
+        let localAlpha = this.color.a / 255;
+        if (localAlpha === 1) localAlpha = this.node._uiProps.localOpacity; // Hack for Mask use ui-opacity
+        this.node._uiProps.opacity = (this.node.parent && this.node.parent._uiProps) ? this.node.parent._uiProps.opacity * localAlpha : localAlpha;
+        this._renderFlag = this._canRender();
     }
 
     public _updateBlendFunc () {
@@ -497,7 +510,7 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
-    private _updateBuiltinMaterial () : Material {
+    protected _updateBuiltinMaterial () : Material {
         let mat : Material;
         switch (this._instanceMaterialType) {
         case InstanceMaterialType.ADD_COLOR:
@@ -520,6 +533,10 @@ export class Renderable2D extends RenderableComponent {
     }
 
     protected _flushAssembler? (): void;
+
+    public _setCacheAlpha (value) {
+        this._cacheAlpha = value;
+    }
 }
 
 legacyCC.internal.Renderable2D = Renderable2D;

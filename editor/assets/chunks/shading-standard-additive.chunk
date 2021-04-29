@@ -14,7 +14,10 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
   specular = BRDFApprox(specular, s.roughness, NV);
   vec3 finalColor = vec3(0.0);
 
+  int numLights = CC_PIPELINE_TYPE == CC_PIPELINE_TYPE_FORWARD ? LIGHTS_PER_PASS : int(cc_lightDir[0].w);
+
   for (int i = 0; i < LIGHTS_PER_PASS; i++) {
+    if (i >= numLights) break;
     vec3 SLU = cc_lightPos[i].xyz - s.position;
     vec3 SL = normalize(SLU);
     vec3 SH = normalize(SL + V);
@@ -42,7 +45,7 @@ vec4 CCStandardShadingAdditive (StandardSurface s, vec4 shadowPos) {
 
     #if CC_RECEIVE_SHADOW
       if (cc_lightPos[i].w > 0.0) {
-        CC_DIR_SHADOW_FACTOR_BASE(lightColor, shadowPos);
+        CC_DIR_SHADOW_FACTOR_BASE(lightColor, shadowPos, s.position, cc_lightPos[i], N);
       }
     #endif
 

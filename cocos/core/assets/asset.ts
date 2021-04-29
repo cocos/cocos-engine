@@ -30,6 +30,7 @@
  */
 
 import { ccclass, serializable } from 'cc.decorator';
+import { EDITOR, PREVIEW } from 'internal:constants';
 import { property } from '../data/decorators/property';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { Eventify } from '../event';
@@ -62,26 +63,13 @@ import { extname } from '../utils/path';
 @ccclass('cc.Asset')
 export class Asset extends Eventify(CCObject) {
     /**
-     * @en Indicates whether its dependent native assets can support deferred load if the owner scene (or prefab) is marked as `asyncLoadAssets`.
-     * @zh 当场景或 Prefab 被标记为 `asyncLoadAssets`，禁止延迟加载该资源所依赖的其它原始资源。
-     * @default false
-     */
-    public static preventDeferredLoadDependents = false;
-
-    /**
-     * @en Indicates whether its native object should be preloaded from native url.
-     * @zh 禁止预加载原生对象。
-     * @default false
-     */
-    public static preventPreloadNativeObject = false;
-
-    /**
      * 应 AssetDB 要求提供这个方法。
      * @method deserialize
      * @param {String} data
      * @return {Asset}
      */
     public static deserialize (data) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return legacyCC.deserialize(data);
     }
 
@@ -94,6 +82,8 @@ export class Asset extends Eventify(CCObject) {
     public loaded = true;
 
     public declare _uuid: string;
+
+    public declare isDefault: boolean;
 
     /**
      * @en
@@ -108,7 +98,6 @@ export class Asset extends Eventify(CCObject) {
     // only for internal use
     public __onLoadedInvoked__ = false;
     public __nativeDepend__: any = null;
-    public __asyncLoadAssets__ = false;
     public __depends__: any = null;
 
     private _file: any = null;
@@ -153,7 +142,8 @@ export class Asset extends Eventify(CCObject) {
      * @private
      */
     @property
-    get _nativeAsset (): any {
+    get _nativeAsset () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this._file;
     }
     set _nativeAsset (obj) {
@@ -168,6 +158,13 @@ export class Asset extends Eventify(CCObject) {
             writable: true,
             // enumerable is false by default, to avoid uuid being assigned to empty string during destroy
         });
+
+        if (EDITOR || PREVIEW) {
+            Object.defineProperty(this, 'isDefault', {
+                value: false,
+                writable: true,
+            });
+        }
     }
 
     /**
@@ -187,8 +184,8 @@ export class Asset extends Eventify(CCObject) {
      * JavaScript 会自动调用 toString() 方法。<br>
      * <br>
      * 对于原始类型的资源，它将返回`this.nativeUrl`。<br>
-     * 否则，返回空字符串。<br>
-     * 子类可能会覆盖此方法。
+     * 否则，返回空字符串。<br>
+     * 子类可能会覆盖此方法。
      * @method toString
      * @return {String}
      */
@@ -239,6 +236,7 @@ export class Asset extends Eventify(CCObject) {
         if (this._native) {
             return { __isNative__: true, uuid: this._uuid, ext: this._native };
         }
+        return undefined;
     }
 
     /**
@@ -288,6 +286,15 @@ export class Asset extends Eventify(CCObject) {
     }
 
     public onLoaded () {}
+
+    public initDefault (uuid?: string) {
+        if (uuid) { this._uuid = uuid; }
+        this.isDefault = true;
+    }
+
+    public validate (): boolean {
+        return true;
+    }
 }
 
 /**
@@ -296,7 +303,6 @@ export class Asset extends Eventify(CCObject) {
  */
 type CreateNodeCallback = (error: Error | null, node: Node) => void;
 
-// @ts-expect-error
-Asset.prototype.createNode = null;
+Asset.prototype.createNode = null!;
 
 legacyCC.Asset = Asset;

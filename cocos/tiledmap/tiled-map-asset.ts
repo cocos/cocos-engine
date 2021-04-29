@@ -86,6 +86,4 @@ export class TiledMapAsset extends Asset {
     @serializable
     @type([Size])
     spriteFrameSizes: Size[] = [];
-
-    static preventDeferredLoadDependents = true;
 }

@@ -86,6 +86,8 @@ export const tiled: IAssembler = {
         renderData.indicesCount = row * col * 6;
         renderData.uvDirty = false;
         renderData.vertDirty = false;
+        // Tiled mode create data is after updateColor
+        this.updateColor(sprite);
     },
 
     fillBuffers (sprite: Sprite, renderer: Batcher2D) {
@@ -137,7 +139,8 @@ export const tiled: IAssembler = {
 
         const matrix = node.worldMatrix;
 
-        this.fillVertices(vBuf, vertexOffset, matrix, row, col, renderData.data);
+        const datalist = renderData.data;
+        this.fillVertices(vBuf, vertexOffset, matrix, row, col, datalist);
 
         const offset = _perVertexLength;
         const offset1 = offset; const offset2 = offset * 2; const offset3 = offset * 3; const offset4 = offset * 4;
@@ -240,10 +243,11 @@ export const tiled: IAssembler = {
                 vBuf[vertexOffsetU + offset3] = tempXVerts[3];
                 vBuf[vertexOffsetV + offset3] = tempYVerts[3];
                 // color
-                Color.toArray(vBuf, sprite.color, vertexOffsetV + 1);
-                Color.toArray(vBuf, sprite.color, vertexOffsetV + offset1 + 1);
-                Color.toArray(vBuf, sprite.color, vertexOffsetV + offset2 + 1);
-                Color.toArray(vBuf, sprite.color, vertexOffsetV + offset3 + 1);
+                // Hack: the color is same
+                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + 1);
+                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + offset1 + 1);
+                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + offset2 + 1);
+                Color.toArray(vBuf, datalist[0].color, vertexOffsetV + offset3 + 1);
                 vertexOffset += offset4;
             }
         }
@@ -363,6 +367,23 @@ export const tiled: IAssembler = {
             } else if (i === row) {
                 data[i].y = Math.min(bottomHeight + sizableHeight + topHeight, contentHeight) - appy;
             }
+        }
+    },
+
+    updateColor (sprite: Sprite) {
+        const datalist = sprite.renderData!.data;
+        const length = datalist.length;
+        if (length === 0) return;
+        const color = sprite.color;
+        const colorR = color.r;
+        const colorG = color.g;
+        const colorB = color.b;
+        const colorA = sprite.node._uiProps.opacity * 255;
+        for (let i = 0; i < length; i++) {
+            datalist[i].color.r = colorR;
+            datalist[i].color.g = colorG;
+            datalist[i].color.b = colorB;
+            datalist[i].color.a = colorA;
         }
     },
 };

@@ -118,8 +118,6 @@ export declare namespace AnimationClip {
  */
 @ccclass('cc.AnimationClip')
 export class AnimationClip extends Asset {
-    public static preventDeferredLoadDependents = true;
-
     public static WrapMode = AnimationWrapMode;
 
     /**
@@ -191,6 +189,14 @@ export class AnimationClip extends Asset {
      */
     @serializable
     public events: AnimationClip.IEvent[] = [];
+
+    /**
+     * Sets if node TRS curves in this animation can be blended.
+     * Normally this flag is enabled for model animation and disabled for other case.
+     * @internal This is an internal slot. Never use it in your code.
+     */
+    @serializable
+    public enableTrsBlending = false;
 
     @serializable
     private _duration = 0;
@@ -432,6 +438,10 @@ export class AnimationClip extends Asset {
                 curve.data.values = curve.data.values.decompress(binaryBuffer);
             }
         }
+    }
+
+    public validate () {
+        return this.keys.length > 0 && this.curves.length > 0;
     }
 }
 
