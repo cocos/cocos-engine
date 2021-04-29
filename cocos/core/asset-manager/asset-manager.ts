@@ -505,54 +505,6 @@ export class AssetManager {
 
     /**
      * @en
-     * Load native file of asset, if you check the option 'Async Load Assets', you may need to load native file with this before you use the asset
-     *
-     * @zh
-     * 加载资源的原生文件，如果你勾选了'延迟加载资源'选项，你可能需要在使用资源之前调用此方法来加载原生文件
-     *
-     * @param asset - The asset
-     * @param options - Some optional parameters
-     * @param onComplete - Callback invoked when finish loading
-     * @param onComplete.err - The error occured in loading process.
-     *
-     * @example
-     * cc.assetManager.postLoadNative(texture, (err) => console.log(err));
-     *
-     */
-    public postLoadNative (asset: Asset, options: INativeAssetOptions | null, onComplete: CompleteCallbackNoData | null): void;
-    public postLoadNative (asset: Asset, onComplete?: CompleteCallbackNoData | null): void;
-    public postLoadNative (asset: Asset, options?: INativeAssetOptions | CompleteCallbackNoData | null, onComplete?: CompleteCallbackNoData | null) {
-        const { options: opts, onComplete: onComp } = parseParameters<CompleteCallbackNoData>(options, undefined, onComplete);
-
-        if (!asset._native || !asset.__nativeDepend__) {
-            asyncify(onComp)(null);
-            return;
-        }
-
-        const depend = dependUtil.getNativeDep(asset._uuid);
-        if (!depend) { return; }
-        if (!bundles.has(depend.bundle)) {
-            const bundle = bundles.find((b) => !!b.getAssetInfo(asset._uuid));
-            if (bundle) {
-                depend.bundle = bundle.name;
-            }
-        }
-
-        this.loadAny(depend, opts, (err, native) => {
-            if (!err) {
-                if (asset.isValid && asset.__nativeDepend__) {
-                    asset._nativeAsset = native;
-                    asset.__nativeDepend__ = false;
-                }
-            } else {
-                error(err.message, err.stack);
-            }
-            if (onComp) { onComp(err); }
-        });
-    }
-
-    /**
-     * @en
      * Load remote asset with url, such as audio, image, text and so on.
      *
      * @zh

@@ -613,7 +613,7 @@ export class ArmatureDisplay extends Renderable2D {
 
     _validateRender () {
         const texture = this.dragonAtlasAsset && this.dragonAtlasAsset.texture;
-        if (!texture || !texture.loaded) {
+        if (!texture) {
             this.disableRender();
             return false;
         }

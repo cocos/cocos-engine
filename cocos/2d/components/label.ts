@@ -762,7 +762,7 @@ export class Label extends Renderable2D {
         if (font && font instanceof BitmapFont) {
             const spriteFrame = font.spriteFrame;
             // cannot be activated if texture not loaded yet
-            if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            if (!spriteFrame || !spriteFrame.texture) {
                 return false;
             }
         }
@@ -790,20 +790,11 @@ export class Label extends Renderable2D {
         const font = this._font;
         if (font instanceof BitmapFont) {
             const spriteFrame = font.spriteFrame;
-            const onBMFontTextureLoaded = () => {
-                // TODO: old texture in material have been released by loader
+            if (spriteFrame && spriteFrame.texture) {
                 this._texture = spriteFrame;
                 this.changeMaterialForDefine();
                 if (this._assembler) {
                     this._assembler.updateRenderData(this);
-                }
-            };
-            // cannot be activated if texture not loaded yet
-            if (spriteFrame) {
-                if (spriteFrame.loaded || spriteFrame.textureLoaded) {
-                    onBMFontTextureLoaded();
-                } else {
-                    spriteFrame.once('load', onBMFontTextureLoaded, this);
                 }
             }
         } else {

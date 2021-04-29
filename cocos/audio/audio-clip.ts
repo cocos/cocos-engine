@@ -70,21 +70,17 @@ export class AudioClip extends Asset {
 
     constructor () {
         super();
-        this.loaded = false;
     }
 
     set _nativeAsset (meta: AudioMeta | null) {
         this._meta = meta;
         if (meta) {
-            this.loaded = true;
             this._loadMode = meta.type;
             this._player = meta.player;
-            this.emit('load');
         } else {
             this._meta = null;
             this._loadMode = AudioType.UNKNOWN_AUDIO;
             this._duration = 0;
-            this.loaded = false;
         }
     }
 
