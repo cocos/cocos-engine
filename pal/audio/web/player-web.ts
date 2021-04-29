@@ -22,6 +22,9 @@ export class AudioContextAgent {
         return new Promise((resolve) => {
             const promise = this._context.decodeAudioData(audioData, (audioBuffer) => {
                 resolve(audioBuffer);
+            }, (err) => {
+                // TODO: need to reject the error.
+                console.error('failed to load Web Audio', err);
             });
             promise?.catch((e) => {});  // Safari doesn't support the promise based decodeAudioData
         });
