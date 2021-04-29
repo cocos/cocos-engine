@@ -1,3 +1,4 @@
+import { EDITOR } from 'internal:constants';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
@@ -122,6 +123,9 @@ export class OneShotAudioWeb {
     }
 
     public play (): void {
+        if (EDITOR) {
+            return;
+        }
         // audioContextAgent does exist
         audioContextAgent!.runContext().then(() => {
             this._bufferSourceNode.start();
@@ -283,6 +287,9 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     @enqueueOperation
     play (): Promise<void> {
+        if (EDITOR) {
+            return Promise.resolve();
+        }
         return this._doPlay();
     }
 
