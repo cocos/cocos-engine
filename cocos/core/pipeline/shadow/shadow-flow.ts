@@ -140,7 +140,7 @@ export class ShadowFlow extends RenderFlow {
         const shadows = pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = device.hasFeature(Feature.TEXTURE_HALF_FLOAT) ? (
+        const format = device.hasFeature(Feature.COLOR_HALF_FLOAT) ? (
             shadows.packing ? Format.RGBA8 : Format.RGBA16F) : Format.RGBA8;
 
         if (!this._shadowRenderPass) {
@@ -211,7 +211,7 @@ export class ShadowFlow extends RenderFlow {
         const pipeline = this._pipeline;
         const device = pipeline.device;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = device.hasFeature(Feature.TEXTURE_HALF_FLOAT) ? (
+        const format = device.hasFeature(Feature.COLOR_HALF_FLOAT) ? (
             shadowInfo.packing ? Format.RGBA8 : Format.RGBA16F) : Format.RGBA8;
 
         if (shadowFrameBufferMap.has(light)) {

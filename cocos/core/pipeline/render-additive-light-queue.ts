@@ -345,7 +345,7 @@ export class RenderAdditiveLightQueue {
         const shadowInfo = sceneData.shadows;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
-        const isTextureHalfFloat = device.hasFeature(Feature.TEXTURE_HALF_FLOAT);
+        const isTextureHalfFloat = device.hasFeature(Feature.COLOR_HALF_FLOAT);
         const linear = (shadowInfo.linear && isTextureHalfFloat) ? 1.0 : 0.0;
         const packing = shadowInfo.packing ? 1.0 : (isTextureHalfFloat ? 0.0 : 1.0);
 

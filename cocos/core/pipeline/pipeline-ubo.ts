@@ -183,7 +183,7 @@ export class PipelineUBO {
                 Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
                 Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                const isTextureHalfFloat = device.hasFeature(Feature.TEXTURE_HALF_FLOAT);
+                const isTextureHalfFloat = device.hasFeature(Feature.COLOR_HALF_FLOAT);
                 const linear = (shadowInfo.linear && isTextureHalfFloat) ? 1.0 : 0.0;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 0] = shadowInfo.near;
                 sv[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 1] = far;
@@ -212,7 +212,7 @@ export class PipelineUBO {
         const device = pipeline.device;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const sv = bufferView;
-        const isTextureHalfFloat = device.hasFeature(Feature.TEXTURE_HALF_FLOAT);
+        const isTextureHalfFloat = device.hasFeature(Feature.COLOR_HALF_FLOAT);
         const linear = (shadowInfo.linear && isTextureHalfFloat) ? 1.0 : 0.0;
         const packing = shadowInfo.packing ? 1.0 : (isTextureHalfFloat ? 0.0 : 1.0);
         let _x = 0; let _y = 0; let _far = 0;
