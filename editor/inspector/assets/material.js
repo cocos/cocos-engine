@@ -169,7 +169,9 @@ exports.methods = {
                                 $prop.$children.appendChild($prop.$children[childName]);
                             }
 
-                            $prop.after($prop.$children);
+                            if (Array.from($prop.$children.children).length) {
+                                $prop.after($prop.$children);
+                            }
                         }
 
                         if (dump.value) {
