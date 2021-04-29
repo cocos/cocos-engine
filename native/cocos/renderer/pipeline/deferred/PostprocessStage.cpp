@@ -122,36 +122,6 @@ void PostprocessStage::render(Camera *camera) {
         cmdBf->draw(ia);
     }
 
-    // transparent
-    for (auto *queue : _renderQueues) {
-        queue->clear();
-    }
-
-    uint   m = 0;
-    uint   p = 0;
-    size_t k = 0;
-    for (auto ro : renderObjects) {
-        const auto *const model         = ro.model;
-        const auto *const subModelID    = model->getSubModelID();
-        const auto        subModelCount = subModelID[0];
-        for (m = 1; m <= subModelCount; ++m) {
-            const auto *subModel = cc::pipeline::ModelView::getSubModelView(subModelID[m]);
-            for (p = 0; p < subModel->passCount; ++p) {
-                const PassView *pass = subModel->getPassView(p);
-                // TODO(xwx): need fallback of ulit and gizmo material.
-                if (pass->phase != _phaseID) continue;
-                for (k = 0; k < _renderQueues.size(); k++) {
-                    _renderQueues[k]->insertRenderPass(ro, m, p);
-                }
-            }
-        }
-    }
-
-    for (auto *queue : _renderQueues) {
-        queue->sort();
-        queue->recordCommandBuffer(_device, rp, cmdBf);
-    }
-
     _uiPhase->render(camera, rp);
     cmdBf->endRenderPass();
 }

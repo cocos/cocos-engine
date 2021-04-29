@@ -33,11 +33,11 @@
 #include "../RenderQueue.h"
 #include "../helper/SharedMemory.h"
 #include "ForwardPipeline.h"
+#include "UIPhase.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "gfx-base/GFXQueue.h"
-#include "UIPhase.h"
 
 namespace cc {
 namespace pipeline {
@@ -63,10 +63,10 @@ RenderStageInfo ForwardStage::initInfo = {
      {true, RenderQueueSortMode::BACK_TO_FRONT, {"default", "planarShadow"}}}};
 const RenderStageInfo &ForwardStage::getInitializeInfo() { return ForwardStage::initInfo; }
 
-ForwardStage::ForwardStage()  {
-    _batchedQueue = CC_NEW(RenderBatchedQueue);
+ForwardStage::ForwardStage() {
+    _batchedQueue   = CC_NEW(RenderBatchedQueue);
     _instancedQueue = CC_NEW(RenderInstancedQueue);
-    _uiPhase = CC_NEW(UIPhase);
+    _uiPhase        = CC_NEW(UIPhase);
 }
 
 ForwardStage::~ForwardStage() = default;
@@ -74,36 +74,22 @@ ForwardStage::~ForwardStage() = default;
 bool ForwardStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
-    _phaseID = getPhaseID("default");
+    _phaseID                = getPhaseID("default");
     return true;
 }
 
 void ForwardStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     RenderStage::activate(pipeline, flow);
+
     for (const auto &descriptor : _renderQueueDescriptors) {
-        uint phase = 0;
-        for (const auto &stage : descriptor.stages) {
-            phase |= getPhaseID(stage);
-        }
-
-        std::function<int(const RenderPass &, const RenderPass &)> sortFunc = opaqueCompareFn;
-        switch (descriptor.sortMode) {
-            case RenderQueueSortMode::BACK_TO_FRONT:
-                sortFunc = transparentCompareFn;
-                break;
-            case RenderQueueSortMode::FRONT_TO_BACK:
-                sortFunc = opaqueCompareFn;
-                break;
-            default:
-                break;
-        }
-
-        RenderQueueCreateInfo info = {descriptor.isTransparent, phase, sortFunc};
+        uint                  phase    = convertPhase(descriptor.stages);
+        RenderQueueSortFunc   sortFunc = convertQueueSortFunc(descriptor.sortMode);
+        RenderQueueCreateInfo info     = {descriptor.isTransparent, phase, sortFunc};
         _renderQueues.emplace_back(CC_NEW(RenderQueue(std::move(info))));
     }
 
     _additiveLightQueue = CC_NEW(RenderAdditiveLightQueue(_pipeline));
-    _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
+    _planarShadowQueue  = CC_NEW(PlanarShadowQueue(_pipeline));
     _uiPhase->activate(pipeline);
 }
 
@@ -119,22 +105,22 @@ void ForwardStage::destroy() {
 void ForwardStage::render(Camera *camera) {
     _instancedQueue->clear();
     _batchedQueue->clear();
-    auto *pipeline = static_cast<ForwardPipeline *>(_pipeline);
-    auto *const sceneData = _pipeline->getPipelineSceneData();
-    auto *const sharedData = sceneData->getSharedData();
+    auto *      pipeline      = static_cast<ForwardPipeline *>(_pipeline);
+    auto *const sceneData     = _pipeline->getPipelineSceneData();
+    auto *const sharedData    = sceneData->getSharedData();
     const auto &renderObjects = sceneData->getRenderObjects();
 
     for (auto *queue : _renderQueues) {
         queue->clear();
     }
 
-    uint m = 0;
-    uint p = 0;
+    uint   m = 0;
+    uint   p = 0;
     size_t k = 0;
     for (auto ro : renderObjects) {
-        const auto *const model = ro.model;
-        const auto *const subModelID = model->getSubModelID();
-        const auto subModelCount = subModelID[0];
+        const auto *const model         = ro.model;
+        const auto *const subModelID    = model->getSubModelID();
+        const auto        subModelCount = subModelID[0];
         for (m = 1; m <= subModelCount; ++m) {
             const auto *subModel = cc::pipeline::ModelView::getSubModelView(subModelID[m]);
             for (p = 0; p < subModel->passCount; ++p) {
@@ -169,11 +155,11 @@ void ForwardStage::render(Camera *camera) {
     _planarShadowQueue->gatherShadowPasses(camera, cmdBuff);
 
     // render area is not oriented
-    uint w = camera->getWindow()->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
-    uint h = camera->getWindow()->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
-    _renderArea.x = static_cast<int>(camera->viewportX * w);
-    _renderArea.y = static_cast<int>(camera->viewportY * h);
-    _renderArea.width = static_cast<uint>(camera->viewportWidth * w * sharedData->shadingScale);
+    uint w             = camera->getWindow()->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
+    uint h             = camera->getWindow()->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
+    _renderArea.x      = static_cast<int>(camera->viewportX * w);
+    _renderArea.y      = static_cast<int>(camera->viewportY * h);
+    _renderArea.width  = static_cast<uint>(camera->viewportWidth * w * sharedData->shadingScale);
     _renderArea.height = static_cast<uint>(camera->viewportHeight * h * sharedData->shadingScale);
 
     if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
@@ -192,7 +178,7 @@ void ForwardStage::render(Camera *camera) {
 
     _clearColors[0].w = camera->clearColor.w;
 
-    auto *framebuffer = camera->getWindow()->getFramebuffer();
+    auto *      framebuffer   = camera->getWindow()->getFramebuffer();
     const auto &colorTextures = framebuffer->getColorTextures();
 
     auto *renderPass = !colorTextures.empty() && colorTextures[0] ? framebuffer->getRenderPass() : pipeline->getOrCreateRenderPass(static_cast<gfx::ClearFlagBit>(camera->clearFlag));
