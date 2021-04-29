@@ -20,7 +20,7 @@ exports.ready = function () {
     $prop.appendChild($button);
 
     $button.addEventListener('confirm', () => {
-        let uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
+        const uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
 
         uuids.forEach((uuid) => {
             Editor.Message.send('scene', 'execute-component-method', {
