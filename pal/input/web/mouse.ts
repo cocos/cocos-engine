@@ -40,9 +40,19 @@ export class MouseInputSource {
     }
 
     private _registerEvent () {
-        this._registerEventOnWindowAndCanvas('mousedown', this._createCallback(SystemEventType.MOUSE_DOWN));
-        this._registerEventOnWindowAndCanvas('mousemove', this._createCallback(SystemEventType.MOUSE_MOVE));
-        this._registerEventOnWindowAndCanvas('mouseup', this._createCallback(SystemEventType.MOUSE_UP));
+        // register mouse down event
+        window.addEventListener('mousedown', () => {
+            this._isPressed = true;
+        });
+        this._canvas?.addEventListener('mousedown', this._createCallback(SystemEventType.MOUSE_DOWN));
+
+        // register mouse move event
+        this._canvas?.addEventListener('mousemove', this._createCallback(SystemEventType.MOUSE_MOVE));
+
+        // register mouse up event
+        window.addEventListener('mouseup', this._createCallback(SystemEventType.MOUSE_UP));
+        this._canvas?.addEventListener('mouseup', this._createCallback(SystemEventType.MOUSE_UP));
+
         // register wheel event
         this._canvas?.addEventListener('wheel', (event: WheelEvent) => {
             const canvasRect = this._getCanvasRect();
@@ -64,11 +74,6 @@ export class MouseInputSource {
             this._eventTarget.emit(SystemEventType.MOUSE_WHEEL, inputEvent);
         });
         this._registerPointerLockEvent();
-    }
-
-    private _registerEventOnWindowAndCanvas (eventName: MouseEventNames, eventCb: (event: MouseEvent) => void) {
-        window.addEventListener(eventName, eventCb);
-        this._canvas?.addEventListener(eventName,  eventCb);
     }
 
     // To be removed in the future.
