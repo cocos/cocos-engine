@@ -298,11 +298,11 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     // The decorated play() method can't be call in seek()
     // so we define this method to ensure that the audio seeking works.
-    _doPlay (): Promise<void> {
+    private _doPlay (): Promise<void> {
         return new Promise((resolve) => {
             audioContextAgent!.runContext().then(() => {
                 // one AudioBufferSourceNode can't start twice
-                this._sourceNode?.stop();
+                this._stopSourceNode();
                 this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
                 this._sourceNode.connect(this._gainNode);
                 this._sourceNode.start(0, this._playTimeOffset);
@@ -329,6 +329,14 @@ export class AudioPlayerWeb implements OperationQueueable {
         });
     }
 
+    private _stopSourceNode () {
+        try {
+            this._sourceNode?.stop();
+        } catch (e) {
+            // sourceNode can't be stopped twice, especially on Safari.
+        }
+    }
+
     @enqueueOperation
     pause (): Promise<void> {
         if (this._state !== AudioState.PLAYING || !this._sourceNode) {
@@ -337,7 +345,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         this._playTimeOffset = (audioContextAgent!.currentTime - this._startTime + this._playTimeOffset) % this._audioBuffer.duration;
         this._state = AudioState.PAUSED;
         window.clearTimeout(this._currentTimer);
-        this._sourceNode.stop();
+        this._stopSourceNode();
         return Promise.resolve();
     }
 
@@ -349,7 +357,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         this._playTimeOffset = 0;
         this._state = AudioState.STOPPED;
         window.clearTimeout(this._currentTimer);
-        this._sourceNode.stop();
+        this._stopSourceNode();
         return Promise.resolve();
     }
 
