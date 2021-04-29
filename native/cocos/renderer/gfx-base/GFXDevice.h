@@ -101,6 +101,8 @@ public:
     inline const String &    getRenderer() const { return _renderer; }
     inline const String &    getVendor() const { return _vendor; }
     inline bool              hasFeature(Feature feature) const { return _features[static_cast<uint>(feature)]; }
+    inline bool              isSupportHalfFloat() const { return _features[static_cast<uint>(cc::gfx::Feature::COLOR_HALF_FLOAT)] &&
+                                                    _features[static_cast<uint>(cc::gfx::Feature::TEXTURE_HALF_FLOAT)]; }
 
     inline const BindingMappingInfo &bindingMappingInfo() const { return _bindingMappingInfo; }
 
