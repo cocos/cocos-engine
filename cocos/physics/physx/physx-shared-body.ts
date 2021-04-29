@@ -283,10 +283,11 @@ export class PhysXSharedBody {
         const node = this.node;
         if (node.hasChangedFlags) {
             if (node.hasChangedFlags & TransformBit.SCALE) this.syncScale();
-            const trans = getJsTransform(node.worldPosition, node.worldRotation);
             if (this._isKinematic) {
+                const trans = getTempTransform(node.worldPosition, node.worldRotation);
                 this.impl.setKinematicTarget(trans);
             } else {
+                const trans = getJsTransform(node.worldPosition, node.worldRotation);
                 this.impl.setGlobalPose(trans, true);
             }
         }
@@ -301,10 +302,11 @@ export class PhysXSharedBody {
             const pose = this.impl.getGlobalPose();
             const dontUpdate = physXEqualsCocosVec3(pose, wp) && physXEqualsCocosQuat(pose, wr);
             if (!dontUpdate) {
-                const trans = getJsTransform(node.worldPosition, node.worldRotation);
                 if (this._isKinematic) {
+                    const trans = getTempTransform(node.worldPosition, node.worldRotation);
                     this.impl.setKinematicTarget(trans);
                 } else {
+                    const trans = getJsTransform(node.worldPosition, node.worldRotation);
                     this.impl.setGlobalPose(trans, true);
                 }
             }
