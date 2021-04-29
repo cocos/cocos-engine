@@ -23,8 +23,7 @@
  THE SOFTWARE.
  */
 
-import { markAsWarning, removeProperty, replaceProperty } from '../utils';
-import { warnID } from './debug';
+import { removeProperty, replaceProperty } from '../utils';
 import { EventMouse, EventTouch, SystemEventType } from './event-manager';
 import { sys } from './sys';
 import { View } from './view';
