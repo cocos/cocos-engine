@@ -191,10 +191,7 @@ exports.update = async function (assetList, metaList) {
         this.rawClipIndex = 0;
         this.splitClipIndex = 0;
         const clipInfo = animation.methods.getCurClipInfo.call(this);
-        if (clipInfo) {
-            await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setEditClip', clipInfo.clipUUID);
-            await this.setCurEditClipInfo(clipInfo);
-        }
+        await this.onEditClipInfoChanged(clipInfo);
     }
     this.setCurPlayState(PLAY_STATE.STOP);
     this.isPreviewDataDirty = true;
