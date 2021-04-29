@@ -3021,3 +3021,7 @@ The PrivateNode is deprecated, please use Node directly with CCObject.Flags.Dont
 ### 12004
 
 SubModel can only support %d passes.
+
+### 12100
+
+Can not insert this char mode label to the Cache Texture! The font size may too big.
