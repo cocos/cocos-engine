@@ -17,8 +17,12 @@ minigame.isDevTool = (systemInfo.platform === 'devtools');
 // NOTE: size and orientation info is wrong at the init phase, need to define as a getter
 Object.defineProperty(minigame, 'isLandscape', {
     get () {
-        const locSysInfo = minigame.getSystemInfoSync();
-        return locSysInfo.screenWidth > locSysInfo.screenHeight;
+        if (VIVO) {
+            return systemInfo.screenWidth > systemInfo.screenHeight;
+        } else {
+            const locSysInfo = minigame.getSystemInfoSync();
+            return locSysInfo.screenWidth > locSysInfo.screenHeight;
+        }
     },
 });
 // init landscapeOrientation as LANDSCAPE_RIGHT
@@ -86,9 +90,10 @@ minigame.getSafeArea = function () {
 };
 
 if (VIVO) {
-    // HACK: need to be handled in ral lib.
+    // TODO: need to be handled in ral lib.
     minigame.getSystemInfoSync = function () {
         const sys = ral.getSystemInfoSync() as SystemInfo;
+        // on VIVO, windowWidth should be windowHeight when it is landscape
         sys.windowWidth = sys.screenWidth;
         sys.windowHeight = sys.screenHeight;
         return sys;
