@@ -70,6 +70,7 @@ export class AudioSource extends Component {
     private _isLoaded = false;
 
     private _lastSetClip?: AudioClip;
+    private _shouldResumeOnEnable = false;
     /**
      * @en
      * The default AudioClip to be played for this audio source.
@@ -193,20 +194,26 @@ export class AudioSource extends Component {
     }
 
     public onEnable () {
-        // audio source component may be played before
-        if (this._playOnAwake && !this.playing) {
+        if (this._shouldResumeOnEnable) {
+            this._resumeOnEnable();
+        } else if (this._playOnAwake && !this.playing) {
+            // audio source component may be played before
             this.play();
         }
     }
 
     public onDisable () {
-        this.pause();
+        this._pauseOnDisable();
     }
 
     public onDestroy () {
         this.stop();
     }
 
+    private _resumeOnEnable () {
+        this._shouldResumeOnEnable = false;
+        this.play();
+    }
     /**
      * @en
      * Play the clip.<br>
@@ -232,6 +239,12 @@ export class AudioSource extends Component {
         }).catch((e) => {});
     }
 
+    private _pauseOnDisable () {
+        if (this.playing) {
+            this._shouldResumeOnEnable = true;
+        }
+        this.pause();
+    }
     /**
      * @en
      * Pause the clip.
