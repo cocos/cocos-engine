@@ -727,10 +727,10 @@ AssetManager.prototype = {
      * @typescript
      * releaseAsset(asset: cc.Asset): void
      */
-    releaseAsset (asset) {
-        releaseManager.tryRelease(asset, true);
+    releaseAsset (asset, force) {
+        releaseManager.tryRelease(asset, force !== false);
     },
-
+    
     /**
      * !#en 
      * Release all unused assets. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed informations.
