@@ -28,9 +28,8 @@
  * @hidden
  */
 
-import { EDITOR, TEST, DEV, BUILD, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
+import { EDITOR, TEST, DEV, DEBUG, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
-import { warnID } from '../platform/debug';
 import * as js from '../utils/js';
 import * as misc from '../utils/misc';
 import { CCClass } from './class';
@@ -39,6 +38,7 @@ import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
 import { Platform } from '../../../pal/system-info/enum-type';
 import { sys } from '../platform/sys';
+import { error } from '../platform/debug';
 import { CustomSerializable, DeserializationContext, deserializeTag, SerializationContext, SerializationInput } from './custom-serializable';
 import type { deserialize, CCClassConstructor } from './deserialize';
 import { CCON } from './ccon';
@@ -59,7 +59,7 @@ function compileObjectTypeJit (
         }
         // @ts-expect-error Typing
         const ctorCode = js.getClassName(defaultValue);
-        sources.push(`s._deserializeTypedObject(o${accessorToSet},prop,${ctorCode});`);
+        sources.push(`s._deserializeFastDefinedObject(o${accessorToSet},prop,${ctorCode});`);
         if (!assumeHavePropIfIsValue) {
             sources.push(`}else o${accessorToSet}=null;`);
         }
@@ -275,7 +275,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
                 if (valueTypeCtor) {
                     if (fastMode || prop) {
                         // @ts-expect-error 2341
-                        s._deserializeTypedObject(o[propName] as Record<PropertyKey, unknown>, prop as SerializedGeneralTypedObject, valueTypeCtor);
+                        s._deserializeFastDefinedObject(o[propName] as Record<PropertyKey, unknown>, prop as SerializedGeneralTypedObject, valueTypeCtor);
                     } else {
                         o[propName] = null;
                     }
@@ -585,7 +585,9 @@ class _Deserializer {
                 this._deserializeInto(value, obj, klass);
                 return obj;
             } catch (e: unknown) {
-                console.error(`deserialize ${klass.name} failed, ${(e as { stack: string; }).stack}`);
+                if (DEBUG) {
+                    error(`Deserialize ${klass.name} failed, ${(e as { stack: string; }).stack}`);
+                }
                 this._reportMissingClass(type);
                 const obj = createObject(MissingScript);
                 this._deserializeInto(value, obj, MissingScript);
@@ -621,7 +623,7 @@ class _Deserializer {
         if (legacyCC.Class._isCCClass(constructor)) {
             this._deserializeFireClass(object, value, constructor as CCClassConstructor<unknown>);
         } else {
-            this._deserializeTypedObject(object, value, constructor);
+            this._deserializeFastDefinedObject(object, value, constructor);
         }
     }
 
@@ -744,7 +746,7 @@ class _Deserializer {
         }
     }
 
-    private _deserializeTypedObject (
+    private _deserializeFastDefinedObject (
         instance: Record<PropertyKey, unknown>,
         serialized: SerializedGeneralTypedObject,
         klass: SerializableClassConstructor,
@@ -777,13 +779,18 @@ class _Deserializer {
 
         const attrs = Attr.getClassAttrs(klass);
         // @ts-expect-error 2339
-        const fastDefinedProps: string[] = klass.__props__ || Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
+        const props: string[] = klass.__values__;
+        if (DEBUG && !props) {
+            error(`Unable to deserialize ${js.getClassName(klass)}. `
+                + 'For non-CCClass types, they can only be marked as serializable by `CCClass.fastDefine`.');
+        }
 
-        for (let i = 0; i < fastDefinedProps.length; i++) {
-            const propName = fastDefinedProps[i];
+        for (let i = 0; i < props.length; i++) {
+            const propName: string = props[i];
             let value = serialized[propName];
             // eslint-disable-next-line no-prototype-builtins
-            if (value === undefined || !serialized.hasOwnProperty(propName)) {
+            const exists: boolean = (value !== undefined || serialized.hasOwnProperty(propName));
+            if (!exists) {
                 // not serialized,
                 // recover to default value in ValueType, because eliminated properties equals to
                 // its default value in ValueType, not default value in user class
