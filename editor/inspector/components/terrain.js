@@ -12,6 +12,7 @@ exports.ready = function () {
             displayOrder: 0,
             ready (element) {
                 element.addEventListener('change-dump', (event) => {
+                    Editor.Message.send('scene', 'snapshot');
                     Editor.Message.request('scene', 'execute-component-method', {
                         uuid: this.dump.value.uuid.value,
                         name: 'manager.addAssetToComp',
