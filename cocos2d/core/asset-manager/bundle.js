@@ -256,6 +256,18 @@ Bundle.prototype = {
         cc.assetManager.loadAny(paths, { __requestType__: RequestType.PATH, type: type, bundle: this.name, __outputAsArray__: Array.isArray(paths) }, onProgress, onComplete);
     },
 
+    // 英文垃圾 不知道注释怎么写
+    loadWithAssets (withAssets, paths, type, onProgress, onComplete) {
+        var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);
+        cc.assetManager.loadAny(paths, {
+            __asyncLoadAssets__ : !withAssets,
+            __requestType__: RequestType.PATH,
+            type: type,
+            bundle: this.name,
+            __outputAsArray__: Array.isArray(paths)
+        }, onProgress, onComplete);
+    },
+    
     /**
      * !#en
      * Preload the asset within this bundle by the path which is relative to bundle's path. 
