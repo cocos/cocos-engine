@@ -51,6 +51,10 @@ export class AudioSource extends Component {
         return AudioPlayer.maxAudioChannel;
     }
     public static AudioState = AudioState;
+    // This is a synchronous audio state. It's different with the `audioPlayer.state`
+    // `audioPlayer.state` points to the real state of native audio.
+    // `audioSource.state` means that when you called `audioSource.play()`, then it should be on PLAYING state.
+    private _state: AudioState = AudioState.INIT;
 
     @type(AudioClip)
     protected _clip: AudioClip | null = null;
@@ -225,6 +229,7 @@ export class AudioSource extends Component {
      * 如果音频处于暂停状态，则会继续播放音频。
      */
     public play () {
+        this._state = AudioState.PLAYING;
         if (!this._isLoaded) {
             this._operationsBeforeLoading.push('play');
             return;
@@ -252,6 +257,7 @@ export class AudioSource extends Component {
      * 暂停播放。
      */
     public pause () {
+        this._state = AudioState.PAUSED;
         if (!this._isLoaded) {
             this._operationsBeforeLoading.push('pause');
             return;
@@ -268,6 +274,7 @@ export class AudioSource extends Component {
      * 停止播放。
      */
     public stop () {
+        this._state = AudioState.STOPPED;
         if (!this._isLoaded) {
             this._operationsBeforeLoading.push('stop');
             return;
@@ -357,7 +364,7 @@ export class AudioSource extends Component {
      * 获取当前音频状态。
      */
     get state (): AudioState {
-        return this._player ? this._player.state : AudioState.INIT;
+        return this._state;
     }
 
     /**
