@@ -236,6 +236,10 @@ var packManager = {
                         files.add(id, result[id]);
                     }
                 }
+                else {
+                    err.message += ": " + url
+                }
+
                 var callbacks = _loading.remove(pack.uuid);
                 for (var i = 0, l = callbacks.length; i < l; i++) {
                     var cb = callbacks[i];
