@@ -19,7 +19,14 @@ exports.ready = function () {
                 $button.innerText = 'Regenerate Points';
                 $input.after($button);
 
-                $button.addEventListener('confirm', () => {
+                $button.addEventListener('change', (event) => {
+                    event.stopPropagation();
+                    Editor.Message.send('scene', 'snapshot');
+                });
+
+                $button.addEventListener('confirm', (event) => {
+                    event.stopPropagation();
+
                     const uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
 
                     uuids.forEach((uuid) => {

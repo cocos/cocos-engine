@@ -127,7 +127,7 @@ class System {
             weixin: BrowserType.WECHAT,
             trident: BrowserType.IE,
             edge: BrowserType.EDGE,
-            '360 aphone': BrowserType._360,
+            '360 aphone': BrowserType.BROWSER_360,
             mxbrowser: BrowserType.MAXTHON,
             'opr/': BrowserType.OPERA,
             ubrowser: BrowserType.UC,

@@ -13,6 +13,7 @@ export class MouseInputSource {
     private _eventTarget: EventTarget = new EventTarget();
     private _pointLocked = false;
     private _isPressed = false;
+    private _preMousePos: Vec2 = new Vec2();
 
     constructor () {
         this.support = !system.isMobile && !EDITOR;
@@ -39,9 +40,19 @@ export class MouseInputSource {
     }
 
     private _registerEvent () {
-        this._registerEventOnWindowAndCanvas('mousedown', this._createCallback(SystemEventType.MOUSE_DOWN));
-        this._registerEventOnWindowAndCanvas('mousemove', this._createCallback(SystemEventType.MOUSE_MOVE));
-        this._registerEventOnWindowAndCanvas('mouseup', this._createCallback(SystemEventType.MOUSE_UP));
+        // register mouse down event
+        window.addEventListener('mousedown', () => {
+            this._isPressed = true;
+        });
+        this._canvas?.addEventListener('mousedown', this._createCallback(SystemEventType.MOUSE_DOWN));
+
+        // register mouse move event
+        this._canvas?.addEventListener('mousemove', this._createCallback(SystemEventType.MOUSE_MOVE));
+
+        // register mouse up event
+        window.addEventListener('mouseup', this._createCallback(SystemEventType.MOUSE_UP));
+        this._canvas?.addEventListener('mouseup', this._createCallback(SystemEventType.MOUSE_UP));
+
         // register wheel event
         this._canvas?.addEventListener('wheel', (event: WheelEvent) => {
             const canvasRect = this._getCanvasRect();
@@ -63,11 +74,6 @@ export class MouseInputSource {
             this._eventTarget.emit(SystemEventType.MOUSE_WHEEL, inputEvent);
         });
         this._registerPointerLockEvent();
-    }
-
-    private _registerEventOnWindowAndCanvas (eventName: MouseEventNames, eventCb: (event: MouseEvent) => void) {
-        window.addEventListener(eventName, eventCb);
-        this._canvas?.addEventListener(eventName,  eventCb);
     }
 
     // To be removed in the future.
@@ -112,14 +118,16 @@ export class MouseInputSource {
             }
             const inputEvent: MouseInputEvent = {
                 type: eventType,
-                x: location.x - canvasRect.x + (this._pointLocked ? event.movementX : 0),
-                y: canvasRect.y + canvasRect.height - location.y - (this._pointLocked ? event.movementY : 0),
+                x: this._pointLocked ? (this._preMousePos.x + event.movementX) : (location.x - canvasRect.x),
+                y: this._pointLocked ? (this._preMousePos.y - event.movementY) : (canvasRect.y + canvasRect.height - location.y),
                 button,
                 timestamp: performance.now(),
                 // this is web only property
                 movementX: event.movementX,
                 movementY: event.movementY,
             };
+            // update previous mouse position.
+            this._preMousePos.set(inputEvent.x, inputEvent.y);
             event.stopPropagation();
             if (event.target === this._canvas) {
                 event.preventDefault();

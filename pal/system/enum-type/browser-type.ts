@@ -48,7 +48,7 @@ export enum BrowserType {
      * @en Browser Type - 360 Browser
      * @zh 浏览器类型 - 360 浏览器
      */
-    _360 = '360browser',
+    BROWSER_360 = '360browser',
     /**
      * @en Browser Type - Baidu Box App
      * @zh 浏览器类型 - Baidu Box App

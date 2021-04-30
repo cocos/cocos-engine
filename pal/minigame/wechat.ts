@@ -75,12 +75,70 @@ minigame.startAccelerometer = function (res: any) {
 };
 // #endregion Accelerometer
 
-minigame.createInnerAudioContext = createInnerAudioContextPolyfill(wx, {
-    onPlay: true,
-    onPause: true,
-    onStop: true,
-    onSeek: false,
-});
+// minigame.createInnerAudioContext = createInnerAudioContextPolyfill(wx, {
+//     onPlay: true,
+//     onPause: true,
+//     onStop: true,
+//     onSeek: false,
+// });
+
+// TODO: move to createInnerAudioContextPolyfill()
+minigame.createInnerAudioContext = function () {
+    const audioContext: InnerAudioContext = wx.createInnerAudioContext();
+
+    // add polyfill if onPlay method doesn't work this platform
+    const originalPlay = audioContext.play;
+    let _onPlayCB: (()=> void) | null = null;
+    Object.defineProperty(audioContext, 'onPlay', {
+        value (cb: ()=> void) {
+            _onPlayCB = cb;
+        },
+    });
+    Object.defineProperty(audioContext, 'play', {
+        value () {
+            originalPlay.call(audioContext);
+            if (_onPlayCB) {
+                setTimeout(_onPlayCB, 0);
+            }
+        },
+    });
+
+    // add polyfill if onPause method doesn't work this platform
+    const originalPause = audioContext.pause;
+    let _onPauseCB: (()=> void) | null = null;
+    Object.defineProperty(audioContext, 'onPause', {
+        value (cb: ()=> void) {
+            _onPauseCB = cb;
+        },
+    });
+    Object.defineProperty(audioContext, 'pause', {
+        value () {
+            originalPause.call(audioContext);
+            if (_onPauseCB) {
+                setTimeout(_onPauseCB, 0);
+            }
+        },
+    });
+
+    // add polyfill if onStop method doesn't work on this platform
+    const originalStop = audioContext.stop;
+    let _onStopCB: (()=> void) | null = null;
+    Object.defineProperty(audioContext, 'onStop', {
+        value (cb: ()=> void) {
+            _onStopCB = cb;
+        },
+    });
+    Object.defineProperty(audioContext, 'stop', {
+        value () {
+            originalStop.call(audioContext);
+            if (_onStopCB) {
+                setTimeout(_onStopCB, 0);
+            }
+        },
+    });
+
+    return audioContext;
+};
 
 // safeArea
 // origin point on the top-left corner
