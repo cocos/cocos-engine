@@ -701,6 +701,7 @@ export class AnimationState extends Playable {
             const samplerSharedGroup = samplerSharedGroups[iSamplerSharedGroup];
             const { sampler, samplerResultCache } = samplerSharedGroup;
 
+            lerpRequired = false;
             if (!sampler) {
                 index = 0;
             } else {
