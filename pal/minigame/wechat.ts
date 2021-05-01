@@ -120,4 +120,19 @@ minigame.getSafeArea = function () {
 };
 // #endregion SafeArea
 
+// HACK: adapt GL.useProgram: use program not supported to unbind program on pc end
+if (systemInfo.platform === 'windows') {
+    // @ts-expect-error canvas defined in global
+    const locCanvas = canvas;
+    if (locCanvas) {
+        const webglRC = locCanvas.getContext('webgl');
+        const originalUseProgram = webglRC.useProgram.bind(webglRC);
+        webglRC.useProgram = function (program) {
+            if (program) {
+                originalUseProgram(program);
+            }
+        };
+    }
+}
+
 export { minigame };
