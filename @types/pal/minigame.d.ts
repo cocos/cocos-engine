@@ -32,6 +32,9 @@ declare module 'pal/minigame' {
         onTouchEnd: IEventManager<TouchEvent>;
         onTouchCancel: IEventManager<TouchEvent>;
 
+        onKeyDown?: (cb: (res: KeyboardEventData) => void) => void;
+        onKeyUp?: (cb: (res: KeyboardEventData) => void) => void;
+
         // audio
         createInnerAudioContext(): InnerAudioContext;
         onAudioInterruptionBegin(callback: () => void): any;
@@ -47,6 +50,12 @@ declare module 'pal/minigame' {
         offAccelerometerChange(cb?: AccelerometerChangeCallback);
         startAccelerometer(obj: AccelerometerStartParameter);
         stopAccelerometer(obj: AccelerometerStopParameter);
+    }
+
+    export interface KeyboardEventData {
+        key: string;
+        code: string;
+        timeStamp: number;
     }
 
     export type AccelerometerIntervalMode = 'game' | 'ui' | 'normal';
