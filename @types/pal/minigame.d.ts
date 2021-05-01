@@ -35,6 +35,11 @@ declare module 'pal/minigame' {
         onKeyDown?: (cb: (res: KeyboardEventData) => void) => void;
         onKeyUp?: (cb: (res: KeyboardEventData) => void) => void;
 
+        onMouseDown?: (cb: (res: MouseEventData) => void) => void;
+        onMouseMove?: (cb: (res: MouseEventData) => void) => void;
+        onMouseUp?: (cb: (res: MouseEventData) => void) => void;
+        onWheel?: (cb: (res: MouseWheelEventData) => void) => void;
+
         // audio
         createInnerAudioContext(): InnerAudioContext;
         onAudioInterruptionBegin(callback: () => void): any;
@@ -56,6 +61,19 @@ declare module 'pal/minigame' {
         key: string;
         code: string;
         timeStamp: number;
+    }
+
+    export interface MouseEventData {
+        x: number;
+        y: number;
+        button: number;
+        timeStamp: number;
+    }
+
+    export interface MouseWheelEventData extends MouseEventData {
+        deltaX: number;
+        deltaY: number;
+        deltaZ: number;
     }
 
     export type AccelerometerIntervalMode = 'game' | 'ui' | 'normal';
