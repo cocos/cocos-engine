@@ -354,6 +354,9 @@ export class SplashScreen {
         const cmdBuff = this.cmdBuff;
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
+
+        // here we gonna render to fullscreen, but device.width/height represents logic size,
+        // renderArea assigned to viewport directly, so physical size is needed.
         renderArea.width = device.nativeWidth; renderArea.height = device.nativeHeight;
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);
