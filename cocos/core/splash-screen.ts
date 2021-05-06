@@ -354,7 +354,7 @@ export class SplashScreen {
         const cmdBuff = this.cmdBuff;
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
-        renderArea.width = device.width; renderArea.height = device.height;
+        renderArea.width = device.nativeWidth; renderArea.height = device.nativeHeight;
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);
 
