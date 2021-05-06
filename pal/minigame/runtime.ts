@@ -64,6 +64,7 @@ minigame.onAccelerometerChange = function (cb) {
 };
 // #endregion Accelerometer
 
+// NOTE: Audio playing crash on COCOSPLAY, need to play audio asynchronously.
 if (COCOSPLAY) {
     minigame.createInnerAudioContext = createInnerAudioContextPolyfill(ral, {
         onPlay: true,  // polyfill for vivo
