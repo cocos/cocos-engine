@@ -33,5 +33,5 @@ export enum OS {
      * @en Operating System - Huawei Open Harmony OS
      * @zh 操作系统 - 鸿蒙
      */
-    OHOS = 'Harmony OS',
+    OHOS = 'OHOS',
 }
