@@ -3,7 +3,7 @@
 // TODO Retain the previously modified data when switching pass, etc.
 
 const { materialTechniquePolyfill } = require('../utils/material');
-const { setDisabled, setReadonly, loopSetAssetDumpDataReadonly } = require('../utils/prop');
+const { setDisabled, setReadonly, setHidden, loopSetAssetDumpDataReadonly } = require('../utils/prop');
 
 exports.style = `
 ui-button.location { flex: none; margin-left: 6px; }
@@ -35,6 +35,7 @@ exports.$ = {
     header: '.header',
     section: '.section',
     effect: '.effect',
+    location: '.location',
     technique: '.technique',
     materialDump: '.material-dump',
     useInstancing: '.useInstancing',
@@ -46,8 +47,13 @@ exports.methods = {
      * Custom Save
      */
     async apply() {
+        this.reset();
         await Editor.Message.request('scene', 'apply-material', this.asset.uuid, this.material);
-        this.dirtyData.origin = this.dirtyData.realtime = '';
+    },
+
+    reset() {
+        this.dirtyData.origin = this.dirtyData.realtime;
+        this.dirtyData.uuid = '';
     },
 
     /**
@@ -84,27 +90,42 @@ exports.methods = {
         const technique = materialTechniquePolyfill(this.material.data[this.material.technique]);
         this.technique = technique;
 
+        if (!technique || !technique.passes) {
+            return;
+        }
+
+        const firstPass = technique.passes[0];
+        if (firstPass.childMap.USE_INSTANCING) {
+            technique.useInstancing.value = firstPass.childMap.USE_INSTANCING.value;
+
+            if (firstPass.childMap.USE_BATCHING) {
+                technique.useBatching.value = firstPass.childMap.USE_BATCHING.value;
+                technique.useBatching.visible = !technique.useInstancing.value;
+            }
+
+            this.changeInstancing(technique.useInstancing.value);
+        }
+
         if (technique.useInstancing) {
             this.$.useInstancing.render(technique.useInstancing);
-            this.$.useInstancing.removeAttribute('hidden');
-        } else {
-            this.$.useInstancing.setAttribute('hidden', '');
+            setHidden(technique.useInstancing && !technique.useInstancing.visible, this.$.useInstancing);
+            setReadonly(this.asset.readonly, this.$.useInstancing);
         }
-        setReadonly(this.asset.readonly, this.$.useInstancing);
 
         if (technique.useBatching) {
             this.$.useBatching.render(technique.useBatching);
-            this.$.useBatching.removeAttribute('hidden');
-        } else {
-            this.$.useBatching.setAttribute('hidden', '');
+            setHidden(technique.useInstancing.value || (technique.useBatching && !technique.useBatching.visible), this.$.useBatching);
+            setReadonly(this.asset.readonly, this.$.useBatching);
         }
-        setReadonly(this.asset.readonly, this.$.useBatching);
 
         if (technique.passes) {
-            // TODO: hack
-            // const $propList = Array.from(this.$.materialDump.querySelectorAll('ui-prop.pass') || []);
-            this.$.materialDump.innerText = '';
-            const $propList = [];
+            // The interface is not a regular data loop, which needs to be completely cleared and placed, but the UI-prop element is still reusable
+            const $container = this.$.materialDump;
+            $container.innerText = '';
+
+            if (!$container.$children) {
+                $container.$children = {};
+            }
 
             let i = 0;
             for (i; i < technique.passes.length; i++) {
@@ -120,22 +141,27 @@ exports.methods = {
                     }
                 }
 
-                if (!$propList[i]) {
-                    $propList[i] = document.createElement('ui-prop');
-                    $propList[i].classList.add('pass');
-                    $propList[i].setAttribute('type', 'dump');
-                    $propList[i].setAttribute('fold', 'false');
-                    this.$.materialDump.appendChild($propList[i]);
-                }
-                $propList[i].render(technique.passes[i]);
+                $container.$children[i] = document.createElement('ui-prop');
+                $container.$children[i].setAttribute('type', 'dump');
+                $container.$children[i].setAttribute('fold', 'false');
+                $container.appendChild($container.$children[i]);
+                $container.$children[i].render(technique.passes[i]);
 
-                $propList[i].querySelectorAll('ui-prop').forEach(($prop) => {
+                $container.$children[i].querySelectorAll('ui-prop').forEach(($prop) => {
                     const dump = $prop.dump;
                     if (dump && dump.childMap && dump.children.length) {
                         if (!$prop.$children) {
                             $prop.$children = document.createElement('section');
+                            $prop.$children.setAttribute(
+                                'style',
+                                'border: 1px dashed var(--color-normal-border); padding: 10px; margin: 5px 0;',
+                            );
 
                             for (const childName in dump.childMap) {
+                                if (dump.childMap[childName].value === undefined) {
+                                    continue;
+                                }
+
                                 $prop.$children[childName] = document.createElement('ui-prop');
                                 $prop.$children[childName].setAttribute('type', 'dump');
                                 $prop.$children[childName].render(dump.childMap[childName]);
@@ -143,7 +169,9 @@ exports.methods = {
                                 $prop.$children.appendChild($prop.$children[childName]);
                             }
 
-                            $prop.after($prop.$children);
+                            if (Array.from($prop.$children.children).length) {
+                                $prop.after($prop.$children);
+                            }
                         }
 
                         if (dump.value) {
@@ -154,13 +182,29 @@ exports.methods = {
                     }
                 });
             }
-            for (i; i < $propList.length; i++) {
-                const $prop = $propList[i];
-                $prop.parentElement.removeChild($prop);
-            }
         }
     },
+    changeInstancing(checked) {
+        this.technique.passes.forEach((pass) => {
+            if (pass.childMap.USE_INSTANCING) {
+                pass.childMap.USE_INSTANCING.value = checked;
+            }
+        });
 
+        // if Instancing show, Batching hidden
+        setHidden(checked, this.$.useBatching);
+        if (checked) {
+            this.changeBatching(false);
+            this.$.useBatching.render(this.technique.useBatching);
+        }
+    },
+    changeBatching(checked) {
+        this.technique.passes.forEach((pass) => {
+            if (pass.childMap.USE_BATCHING) {
+                pass.childMap.USE_BATCHING.value = checked;
+            }
+        });
+    },
     /**
      * Update the options data in technique
      */
@@ -171,11 +215,11 @@ exports.methods = {
         });
         this.$.technique.innerHTML = techniqueOption;
     },
-    hideAllContent(hide){
-        this.$.header.style = hide ? "display:none" : '';
-        this.$.section.style = hide ? "display:none" : '';
-        this.$.materialDump.style = hide ? "display:none" : '';
-    }
+    hideAllContent(hide) {
+        this.$.header.style = hide ? 'display:none' : '';
+        this.$.section.style = hide ? 'display:none' : '';
+        this.$.materialDump.style = hide ? 'display:none' : '';
+    },
 };
 
 /**
@@ -225,11 +269,10 @@ exports.ready = async function () {
     };
 
     // The event triggered when the content of material is modified
-    this.$.materialDump.addEventListener('change-dump', (event) => {
-        Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
+    this.$.materialDump.addEventListener('change-dump', async (event) => {
+        const dump = event.target.dump;
 
         // show its children
-        const dump = event.target.dump;
         if (dump && dump.childMap && dump.children.length) {
             if (dump.value) {
                 event.target.$children.removeAttribute('hidden');
@@ -237,6 +280,9 @@ exports.ready = async function () {
                 event.target.$children.setAttribute('hidden', '');
             }
         }
+
+        await Editor.Message.request('scene', 'preview-material', this.asset.uuid, this.material);
+        Editor.Message.broadcast('material-inspector:change-dump');
 
         this.setDirtyData();
         this.dispatch('change');
@@ -253,6 +299,13 @@ exports.ready = async function () {
         this.dispatch('change');
     });
 
+    this.$.location.addEventListener('change', () => {
+        const effect = this._effects.find((_effect) => _effect.name === this.material.effect);
+        if (effect) {
+            Editor.Message.send('assets', 'twinkle', effect.uuid);
+        }
+    });
+
     // Event triggered when the technique being used is changed
     this.$.technique.addEventListener('change', async (event) => {
         this.material.technique = event.target.value;
@@ -264,26 +317,14 @@ exports.ready = async function () {
 
     // The event is triggered when the useInstancing is modified
     this.$.useInstancing.addEventListener('change-dump', (event) => {
-        const technique = this.technique;
-        // Replace the data in passes
-        technique.passes.forEach((pass) => {
-            if (pass.childMap.USE_INSTANCING) {
-                pass.childMap.USE_INSTANCING.value = event.target.value;
-            }
-        });
+        this.changeInstancing(event.target.dump.value);
         this.setDirtyData();
         this.dispatch('change');
     });
 
     //  The event is triggered when the useBatching is modified
     this.$.useBatching.addEventListener('change-dump', (event) => {
-        const technique = this.technique;
-        // Replace the data in passes
-        technique.passes.forEach((pass) => {
-            if (pass.childMap.USE_BATCHING) {
-                pass.childMap.USE_BATCHING.value = event.target.value;
-            }
-        });
+        this.changeBatching(event.target.dump.value);
         this.setDirtyData();
         this.dispatch('change');
     });
@@ -291,6 +332,7 @@ exports.ready = async function () {
     // When the page is initialized, all effect lists are queried and then not updated again
     const effectMap = await Editor.Message.request('scene', 'query-all-effects');
     this._effects = Object.keys(effectMap)
+        .sort()
         .filter((name) => {
             const effect = effectMap[name];
             return !effect.hideInEditor;

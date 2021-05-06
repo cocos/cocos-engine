@@ -70,7 +70,6 @@ const PLAY_STATE = {
 };
 
 exports.$ = {
-    model: '.model',
     container: '.preview',
     vertices: '.vertices',
     triangles: '.triangles',
@@ -149,7 +148,8 @@ const Elements = {
 
             await panel.glPreview.init({ width: panel.$.canvas.clientWidth, height: panel.$.canvas.clientHeight });
             if (panel.asset.redirect) {
-                await Editor.Message.request('scene', 'set-model-preview-model', panel.asset.redirect.uuid);
+                const info = await Editor.Message.request('scene', 'set-model-preview-model', panel.asset.redirect.uuid);
+                panel.infoUpdate(info);
             }
 
             panel.refreshPreview();
@@ -158,7 +158,6 @@ const Elements = {
     modelInfo: {
         ready () {
             this.infoUpdate = Elements.modelInfo.update.bind(this);
-            Editor.Message.addBroadcastListener('scene:model-preview-model-info', this.infoUpdate);
         },
         update (info) {
             if (!info) {
@@ -169,7 +168,6 @@ const Elements = {
             this.isPreviewDataDirty = true;
         },
         close () {
-            Editor.Message.removeBroadcastListener('scene:model-preview-model-info', this.infoUpdate);
             Editor.Message.send('scene', 'hide-model-preview');
         },
     },
@@ -192,7 +190,8 @@ exports.update = async function (assetList, metaList) {
     if (this.animationInfos) {
         this.rawClipIndex = 0;
         this.splitClipIndex = 0;
-        await this.setCurEditClipInfo(animation.methods.getCurClipInfo.call(this));
+        const clipInfo = animation.methods.getCurClipInfo.call(this);
+        await this.onEditClipInfoChanged(clipInfo);
     }
     this.setCurPlayState(PLAY_STATE.STOP);
     this.isPreviewDataDirty = true;
@@ -200,6 +199,8 @@ exports.update = async function (assetList, metaList) {
 };
 
 exports.ready = function () {
+    const panel = this;
+
     this.gridWidth = 0;
     this.gridTableWith = 0;
     this.activeTab = 'animation';
@@ -228,6 +229,13 @@ exports.ready = function () {
             element.ready.call(this);
         }
     }
+
+    function observer() {
+        panel.isPreviewDataDirty = true;
+    }
+
+    panel.resizeObserver = new window.ResizeObserver(observer);
+    panel.resizeObserver.observe(panel.$.container);
 };
 
 exports.close = function () {
@@ -242,6 +250,8 @@ exports.close = function () {
     Editor.Message.removeBroadcastListener('scene:model-preview-animation-state-change', this.onAnimationPlayStateChangedBind);
     Editor.Message.removeBroadcastListener('fbx-inspector:change-tab', this.onTabChangedBind);
     Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
+
+    this.resizeObserver.unobserve(this.$.container);
 };
 
 exports.methods = {
@@ -253,7 +263,7 @@ exports.methods = {
             return;
         }
 
-        if (panel.isPreviewDataDirty) {
+        if (panel.isPreviewDataDirty || this.curPlayState === PLAY_STATE.PLAYING) {
             try {
                 const canvas = panel.$.canvas;
                 const image = panel.$.image;

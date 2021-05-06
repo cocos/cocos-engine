@@ -16,8 +16,13 @@ exports.methods = {
     async query(uuid) {
         return await Editor.Message.request('scene', 'query-render-texture', uuid);
     },
-    async apply () {
+    async apply() {
+        this.reset();
         await Editor.Message.request('scene', 'apply-render-texture', this.asset.uuid, this.renderTexture);
+    },
+    reset() {
+        this.dirtyData.origin = this.dirtyData.realtime;
+        this.dirtyData.uuid = '';
     },
 
     async dataChange () {

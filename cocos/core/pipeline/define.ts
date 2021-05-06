@@ -34,7 +34,7 @@ import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
-    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture } from '../gfx';
+    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, Device, Feature } from '../gfx';
 
 export const PIPELINE_FLOW_GBUFFER = 'GbufferFlow';
 export const PIPELINE_FLOW_LIGHTING = 'LightingFlow';
@@ -554,5 +554,13 @@ export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D,
 export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
 
 export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
+
+/**
+ * @en Does the device support half float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
+ */
+export function supportsHalfFloatTexture (device: Device) {
+    return device.hasFeature(Feature.COLOR_HALF_FLOAT) && device.hasFeature(Feature.TEXTURE_HALF_FLOAT);
+}
 
 /* eslint-enable max-len */

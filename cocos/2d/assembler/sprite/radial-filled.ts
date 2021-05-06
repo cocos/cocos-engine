@@ -29,7 +29,7 @@
  */
 
 import { SpriteFrame } from '../../assets';
-import { Vec2 } from '../../../core/math';
+import { Color, Vec2 } from '../../../core/math';
 import { IRenderData, RenderData } from '../../renderer/render-data';
 import { Batcher2D } from '../../renderer/batcher-2d';
 import { Sprite } from '../../components';
@@ -39,6 +39,7 @@ import { dynamicAtlasManager } from '../../utils/dynamic-atlas/atlas-manager';
 
 const PI_2 = Math.PI * 2;
 const EPSILON = 1e-6;
+const tempColor = new Color(255, 255, 255, 255);
 
 const _vertPos: Vec2[] = [new Vec2(), new Vec2(), new Vec2(), new Vec2()];
 const _vertices: number[] = new Array(4);
@@ -365,6 +366,11 @@ export const radialFilled: IAssembler = {
     fillBuffers (comp: Sprite, renderer: Batcher2D) {
         const node = comp.node;
         const renderData: RenderData = comp.renderData!;
-        fillVertices3D(node, renderer, renderData, comp.color);
+        tempColor.set(comp.color);
+        tempColor.a = node._uiProps.opacity * 255;
+        fillVertices3D(node, renderer, renderData, tempColor);
+    },
+
+    updateColor (sprite: Sprite) {
     },
 };

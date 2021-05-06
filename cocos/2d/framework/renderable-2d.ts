@@ -469,7 +469,8 @@ export class Renderable2D extends RenderableComponent {
     }
 
     protected _updateWorldAlpha () {
-        const localAlpha = this.color.a / 255;
+        let localAlpha = this.color.a / 255;
+        if (localAlpha === 1) localAlpha = this.node._uiProps.localOpacity; // Hack for Mask use ui-opacity
         this.node._uiProps.opacity = (this.node.parent && this.node.parent._uiProps) ? this.node.parent._uiProps.opacity * localAlpha : localAlpha;
         this._renderFlag = this._canRender();
     }

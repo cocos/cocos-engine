@@ -49,6 +49,7 @@ import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
+import { value } from '../../core/utils/js-typed';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -274,32 +275,47 @@ export class Batcher2D {
     public uploadBuffers () {
         if (this._batches.length > 0) {
             const calls = this._doUploadBuffersCall;
-            for (const key of calls.keys()) {
-                const list = calls.get(key);
-                list!.call(key, this);
-            }
+            calls.forEach((value, key) => {
+                value.call(key, this);
+            });
+            // for (const key of calls.keys()) {
+            //     const list = calls.get(key);
+            //     list!.call(key, this);
+            // }
 
             const buffers = this._meshBuffers;
-            for (const i of buffers.keys()) {
-                const list = buffers.get(i);
-                if (list) {
-                    list.forEach((bb) => {
-                        bb.uploadBuffers();
-                        bb.reset();
-                    });
-                }
-            }
+            buffers.forEach((value, key) => {
+                value.forEach((bb) => {
+                    bb.uploadBuffers();
+                    bb.reset();
+                });
+            });
+            // for (const i of buffers.keys()) {
+            //     const list = buffers.get(i);
+            //     if (list) {
+            //         list.forEach((bb) => {
+            //             bb.uploadBuffers();
+            //             bb.reset();
+            //         });
+            //     }
+            // }
 
             const customs = this._customMeshBuffers;
-            for (const i of customs.keys()) {
-                const list = customs.get(i);
-                if (list) {
-                    list.forEach((bb) => {
-                        bb.uploadBuffers();
-                        bb.reset();
-                    });
-                }
-            }
+            customs.forEach((value, key) => {
+                value.forEach((bb) => {
+                    bb.uploadBuffers();
+                    bb.reset();
+                });
+            });
+            // for (const i of customs.keys()) {
+            //     const list = customs.get(i);
+            //     if (list) {
+            //         list.forEach((bb) => {
+            //             bb.uploadBuffers();
+            //             bb.reset();
+            //         });
+            //     }
+            // }
 
             this._descriptorSetCache.update();
         }

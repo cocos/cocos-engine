@@ -46,6 +46,8 @@ import { intersect, Sphere } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
 import { SRGBToLinear } from '../pipeline-funcs';
 import { Pass } from '../../renderer/core/pass';
+import { renderQueueClearFunc, RenderQueue, convertRenderQueue, renderQueueSortFunc } from '../render-queue';
+import { RenderQueueDesc } from '../pipeline-serialization';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 const LIGHTINGPASS_INDEX = 1;
@@ -69,6 +71,14 @@ export class LightingStage extends RenderStage {
     @serializable
     @displayOrder(3)
     private _deferredMaterial: Material | null = null;
+
+    @type([RenderQueueDesc])
+    @serializable
+    @displayOrder(2)
+    private renderQueues: RenderQueueDesc[] = [];
+    private _phaseID = getPhaseID('default');
+    private _defPhaseID = getPhaseID('deferred');
+    private _renderQueues: RenderQueue[] = [];
 
     public static initInfo: IRenderStageInfo = {
         name: 'LightingStage',
@@ -185,6 +195,11 @@ export class LightingStage extends RenderStage {
 
         const device = pipeline.device;
 
+        // activate queue
+        for (let i = 0; i < this.renderQueues.length; i++) {
+            this._renderQueues[i] = convertRenderQueue(this.renderQueues[i]);
+        }
+
         let totalSize = Float32Array.BYTES_PER_ELEMENT * 4 * 4 * this._maxDeferredLights;
         totalSize = Math.ceil(totalSize / device.capabilities.uboOffsetAlignment) * device.capabilities.uboOffsetAlignment;
 
@@ -279,6 +294,32 @@ export class LightingStage extends RenderStage {
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
+        }
+
+        // Transparent
+        this._renderQueues.forEach(renderQueueClearFunc);
+
+        let m = 0; let p = 0; let k = 0;
+        for (let i = 0; i < renderObjects.length; ++i) {
+            const ro = renderObjects[i];
+            const subModels = ro.model.subModels;
+            for (m = 0; m < subModels.length; ++m) {
+                const subModel = subModels[m];
+                const passes = subModel.passes;
+                for (p = 0; p < passes.length; ++p) {
+                    const pass = passes[p];
+                    // TODO: need fallback of ulit and gizmo material.
+                    if (pass.phase !== this._phaseID && pass.phase !== this._defPhaseID) continue;
+                    for (k = 0; k < this._renderQueues.length; k++) {
+                        this._renderQueues[k].insertRenderPass(ro, m, p);
+                    }
+                }
+            }
+        }
+
+        this._renderQueues.forEach(renderQueueSortFunc);
+        for (let i = 0; i < this._renderQueues.length; i++) {
+            this._renderQueues[i].recordCommandBuffer(device, renderPass, cmdBuff);
         }
 
         // planarQueue

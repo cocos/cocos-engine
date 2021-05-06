@@ -546,6 +546,7 @@ export class Sprite extends Renderable2D {
 
     public changeMaterialForDefine () {
         let texture;
+        const lastInstanceMaterialType = this._instanceMaterialType;
         if (this._spriteFrame) {
             texture = this._spriteFrame.texture;
         }
@@ -564,7 +565,9 @@ export class Sprite extends Renderable2D {
         } else {
             this._instanceMaterialType = InstanceMaterialType.ADD_COLOR_AND_TEXTURE;
         }
-        this.updateMaterial();
+        if (lastInstanceMaterialType !== this._instanceMaterialType) {
+            this.updateMaterial();
+        }
     }
 
     protected _updateBuiltinMaterial () {
@@ -622,6 +625,7 @@ export class Sprite extends Renderable2D {
                 this._renderData = this._assembler.createData(this);
                 this._renderData!.material = this.getRenderMaterial(0);
                 this.markForUpdateRenderData();
+                this._colorDirty = true;
                 this._updateColor();
             }
         }

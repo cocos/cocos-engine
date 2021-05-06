@@ -16,7 +16,7 @@ declare namespace jsb {
     export namespace device {
         export function getBatteryLevel(): number;
         export function getDevicePixelRatio(): number;
-        export function getDeviceOrientation(): number;  // TODO: enum type
+        export function getDeviceOrientation(): number;
         export function getNetworkType(): number; // TODO: enum type
         export function getSafeAreaEdge(): any;  // TODO: interface type
 

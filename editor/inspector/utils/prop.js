@@ -86,7 +86,7 @@ exports.setDisabled = function (data, element) {
     if (!element) {
         return;
     }
-    
+
     let disabled = data;
 
     if (typeof data === 'function') {
@@ -201,7 +201,9 @@ exports.updatePropByDump = function (panel, dump) {
         }
 
         if (panel.$[key]) {
-            children.push(panel.$[key]);
+            if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
+                children.push(panel.$[key]);
+            }
         }
     });
 

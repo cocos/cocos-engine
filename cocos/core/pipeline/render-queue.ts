@@ -34,6 +34,8 @@ import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPass, Device, CommandBuffer } from '../gfx';
 import { PassPool, PassView, DSPool, SubModelView, SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
+import { RenderQueueDesc, RenderQueueSortMode } from './pipeline-serialization';
+import { getPhaseID } from './pass-phase';
 
 /**
  * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
@@ -139,4 +141,46 @@ export class RenderQueue {
             cmdBuff.draw(inputAssembler);
         }
     }
+}
+
+export function convertRenderQueue (desc: RenderQueueDesc) {
+    let phase = 0;
+    for (let j = 0; j < desc.stages.length; j++) {
+        phase |= getPhaseID(desc.stages[j]);
+    }
+    let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+    switch (desc.sortMode) {
+    case RenderQueueSortMode.BACK_TO_FRONT:
+        sortFunc = transparentCompareFn;
+        break;
+    case RenderQueueSortMode.FRONT_TO_BACK:
+        sortFunc = opaqueCompareFn;
+        break;
+    default:
+        break;
+    }
+
+    return new RenderQueue({
+        isTransparent: desc.isTransparent,
+        phases: phase,
+        sortFunc,
+    });
+}
+
+/**
+ * @en Clear the given render queue
+ * @zh 清空指定的渲染队列
+ * @param rq The render queue
+ */
+export function renderQueueClearFunc (rq: RenderQueue) {
+    rq.clear();
+}
+
+/**
+ * @en Sort the given render queue
+ * @zh 对指定的渲染队列执行排序
+ * @param rq The render queue
+ */
+export function renderQueueSortFunc (rq: RenderQueue) {
+    rq.sort();
 }

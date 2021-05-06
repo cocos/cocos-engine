@@ -9,7 +9,7 @@ export enum Platform {
     WIN32 = 'WIN32',
     ANDROID = 'ANDROID',
     IOS = 'IOS',
-    MAC = 'MAC',
+    MACOS = 'MACOS',
     OHOS = 'OHOS',
     // Minigame
     WECHAT_GAME = 'WECHAT_GAME',

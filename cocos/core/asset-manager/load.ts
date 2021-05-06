@@ -223,9 +223,7 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
                         asset.__onLoadedInvoked__ = true;
                     }
                 } catch (e) {
-                    if (BUILD) {
-                        error(e.message, e.stack);
-                    }
+                    error(`The asset ${uuid} is invalid for some reason, detail message: ${e.message}, stack: ${e.stack}`);
                     if (EDITOR || PREVIEW) {
                         if (asset instanceof Asset) {
                             asset.initDefault();

@@ -31,6 +31,7 @@
 import {
     ccclass, editable, serializable, type,
 } from 'cc.decorator';
+import { JSB } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { SystemEventType } from '../platform/event-manager/event-enum';
@@ -1107,19 +1108,17 @@ export class Node extends BaseNode {
     /**
      * @en
      * clear all node dirty state.
-     * 
      * @zh
      * 清除所有节点的脏标记。
      */
     public static clearBooks () {
-        bookOfChange.forEach((v, k, m) => { if (k.isValid) k.hasChangedFlags = TransformBit.NONE; });
+        if (JSB) bookOfChange.forEach((v, k, m) => { if (k.isValid) k.hasChangedFlags = TransformBit.NONE; });
         bookOfChange.clear();
     }
 
     /**
      * @en
      * Synchronize the js transform to the native layer.
-     * 
      * @zh
      * js 变换信息同步到原生层。
      */
@@ -1135,7 +1134,6 @@ export class Node extends BaseNode {
     /**
      * @en
      * Synchronize the native transform to the js layer.
-     * 
      * @zh
      * 原生变换信息同步到 js 层。
      */

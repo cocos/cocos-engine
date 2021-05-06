@@ -114,9 +114,7 @@ export const ttfUtils =  {
         this._updateLabelDimensions();
         this._resetDynamicAtlas(comp);
         this._updateTexture(comp);
-        if (_alpha !== 1) {
-            this.updateOpacity(comp);
-        }
+        this.updateOpacity(comp);
         comp._setCacheAlpha(_alpha);
         this._calDynamicAtlas(comp);
 
@@ -298,7 +296,8 @@ export const ttfUtils =  {
         _context.lineJoin = 'round';
         // to keep the one model same as before
         // Todo: remove this protect when component remove blend function
-        if (comp.srcBlendFactor === BlendFactor.SRC_ALPHA) {
+        // @ts-expect-error remove when component remove blend function
+        if (comp._srcBlendFactor === BlendFactor.SRC_ALPHA) {
             _context.fillStyle = `rgba(${_color.r}, ${_color.g}, ${_color.b}, ${_invisibleAlpha})`;
             _context.fillRect(0, 0, _canvas.width, _canvas.height);
         }

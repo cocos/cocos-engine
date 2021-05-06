@@ -85,6 +85,8 @@ exports.update = function (assetList, metaList) {
             throw err;
         }
 
-        this.code.textContent = text;
+        if (this.code) {
+            this.code.textContent = text;
+        }
     });
 };

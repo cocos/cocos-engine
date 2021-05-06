@@ -1,8 +1,10 @@
+import { system } from 'pal/system';
 import { AudioType, AudioState, AudioEvent } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
+import { Platform } from '../../system/enum-type';
 
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
@@ -111,13 +113,19 @@ export class AudioPlayer implements OperationQueueable {
     }
     static loadNative (url: string): Promise<unknown> {
         return new Promise((resolve, reject) => {
-            audioEngine.preload(url, (isSuccess) => {
-                if (isSuccess) {
-                    resolve(url);
-                } else {
-                    reject(new Error('load audio failed'));
-                }
-            });
+            if (system.platform === Platform.WIN32) {
+                // NOTE: audioEngine.preload() not works well on Win32 platform.
+                // Especially when there is not audio output device.
+                resolve(url);
+            } else {
+                audioEngine.preload(url, (isSuccess) => {
+                    if (isSuccess) {
+                        resolve(url);
+                    } else {
+                        reject(new Error('load audio failed'));
+                    }
+                });
+            }
         });
     }
     static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudio> {
