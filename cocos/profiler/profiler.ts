@@ -32,11 +32,11 @@ import { Material } from '../core/assets/material';
 import { ClearFlagBit, Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy } from '../core/gfx';
 import { Layers } from '../core/scene-graph';
 import { Node } from '../core/scene-graph/node';
-import { ICounterOption } from './counter';
-import { PerfCounter } from './perf-counter';
+import { ICounterOption, PerfCounter } from './perf-counter';
 import { legacyCC } from '../core/global-exports';
 import { Pass } from '../core/renderer';
 import { preTransforms } from '../core/math/mat4';
+import { game } from '../core';
 
 const _characters = '0123456789. ';
 
@@ -54,28 +54,34 @@ const _string2offset = {
     '.': 10,
 };
 
-interface IProfilerState {
-    frame: ICounterOption;
-    fps: ICounterOption;
-    draws: ICounterOption;
-    instances: ICounterOption;
-    tricount: ICounterOption;
-    logic: ICounterOption;
-    physics: ICounterOption;
-    render: ICounterOption;
-    textureMemory: ICounterOption;
-    bufferMemory: ICounterOption;
+interface ICounterExt extends ICounterOption {
+    counter: PerfCounter;
 }
 
+interface IProfilerState {
+    frame: ICounterExt;
+    fps: ICounterExt;
+    draws: ICounterExt;
+    instances: ICounterExt;
+    tricount: ICounterExt;
+    logic: ICounterExt;
+    physics: ICounterExt;
+    render: ICounterExt;
+    textureMemory: ICounterExt;
+    bufferMemory: ICounterExt;
+}
+
+const _average = 1000;
+
 const _profileInfo = {
-    fps: { desc: 'Framerate (FPS)', below: 30, average: 500, isInteger: true },
+    fps: { desc: 'Framerate (FPS)', below: 30, average: _average, isInteger: true },
     draws: { desc: 'Draw call', isInteger: true },
-    frame: { desc: 'Frame time (ms)', min: 0, max: 50, average: 500 },
+    frame: { desc: 'Frame time (ms)', average: _average },
     instances: { desc: 'Instance Count', isInteger: true },
     tricount: { desc: 'Triangle', isInteger: true },
-    logic: { desc: 'Game Logic (ms)', min: 0, max: 50, average: 500, color: '#080' },
-    physics: { desc: 'Physics (ms)', min: 0, max: 50, average: 500 },
-    render: { desc: 'Renderer (ms)', min: 0, max: 50, average: 500, color: '#f90' },
+    logic: { desc: 'Game Logic (ms)', average: _average, color: '#080' },
+    physics: { desc: 'Physics (ms)', average: _average },
+    render: { desc: 'Renderer (ms)', average: _average, color: '#f90' },
     textureMemory: { desc: 'GFX Texture Mem(M)' },
     bufferMemory: { desc: 'GFX Buffer Mem(M)' },
 };
@@ -143,6 +149,7 @@ export class Profiler {
             legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
             legacyCC.director.off(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
             this._showFPS = false;
+            game.config.showFPS = false;
         }
     }
 
@@ -173,6 +180,7 @@ export class Profiler {
             this._showFPS = true;
             this._canvasDone = true;
             this._statsDone = true;
+            game.config.showFPS = true;
         }
     }
 
@@ -237,7 +245,7 @@ export class Profiler {
         }
         this._eachNumWidth /= this._canvas.width;
 
-        this._stats = _profileInfo as IProfilerState;
+        this._stats = _profileInfo as unknown as IProfilerState;
         this._canvasArr[0] = this._canvas;
         if (!EDITOR) this._device!.copyTexImagesToTexture(this._canvasArr, this._texture!, this._regionArr);
     }
@@ -273,8 +281,8 @@ export class Profiler {
         const vertexPos: number[] = [
             0, height, 0, // top-left
             lWidth, height, 0, // top-right
-            lWidth,      0, 0, // bottom-right
-            0,      0, 0, // bottom-left
+            lWidth, 0, 0, // bottom-right
+            0, 0, 0, // bottom-left
         ];
         const vertexindices: number[] = [
             0, 2, 1,
@@ -335,9 +343,9 @@ export class Profiler {
         }
 
         const now = performance.now();
-        (this._stats.frame.counter as PerfCounter).end(now);
-        (this._stats.frame.counter as PerfCounter).start(now);
-        (this._stats.logic.counter as PerfCounter).start(now);
+        this._stats.frame.counter.end(now);
+        this._stats.frame.counter.start(now);
+        this._stats.logic.counter.start(now);
     }
 
     public afterUpdate () {
@@ -347,9 +355,9 @@ export class Profiler {
 
         const now = performance.now();
         if (legacyCC.director.isPaused()) {
-            (this._stats.frame.counter as PerfCounter).start(now);
+            this._stats.frame.counter.start(now);
         } else {
-            (this._stats.logic.counter as PerfCounter).end(now);
+            this._stats.logic.counter.end(now);
         }
     }
 
@@ -359,7 +367,7 @@ export class Profiler {
         }
 
         const now = performance.now();
-        (this._stats.physics.counter as PerfCounter).start(now);
+        this._stats.physics.counter.start(now);
     }
 
     public afterPhysics () {
@@ -368,7 +376,7 @@ export class Profiler {
         }
 
         const now = performance.now();
-        (this._stats.physics.counter as PerfCounter).end(now);
+        this._stats.physics.counter.end(now);
     }
 
     public beforeDraw () {
@@ -393,7 +401,7 @@ export class Profiler {
         }
 
         const now = performance.now();
-        (this._stats.render.counter as PerfCounter).start(now);
+        this._stats.render.counter.start(now);
     }
 
     public afterDraw () {
@@ -402,26 +410,26 @@ export class Profiler {
         }
         const now = performance.now();
 
-        (this._stats.fps.counter as PerfCounter).frame(now);
-        (this._stats.render.counter as PerfCounter).end(now);
+        this._stats.fps.counter.frame(now);
+        this._stats.render.counter.end(now);
 
-        if (now - this.lastTime < 500) {
+        if (now - this.lastTime < _average) {
             return;
         }
         this.lastTime = now;
 
         const device = this._device!;
-        (this._stats.draws.counter as PerfCounter).value = device.numDrawCalls;
-        (this._stats.instances.counter as PerfCounter).value = device.numInstances;
-        (this._stats.bufferMemory.counter as PerfCounter).value = device.memoryStatus.bufferSize / (1024 * 1024);
-        (this._stats.textureMemory.counter as PerfCounter).value = device.memoryStatus.textureSize / (1024 * 1024);
-        (this._stats.tricount.counter as PerfCounter).value = device.numTris;
+        this._stats.draws.counter.value = device.numDrawCalls;
+        this._stats.instances.counter.value = device.numInstances;
+        this._stats.bufferMemory.counter.value = device.memoryStatus.bufferSize / (1024 * 1024);
+        this._stats.textureMemory.counter.value = device.memoryStatus.textureSize / (1024 * 1024);
+        this._stats.tricount.counter.value = device.numTris;
 
         let i = 0;
         if (!EDITOR) {
             const view = this.digitsData;
             for (const id in this._stats) {
-                const stat = this._stats[id] as ICounterOption;
+                const stat = this._stats[id] as ICounterExt;
                 stat.counter.sample(now);
                 const result = stat.counter.human().toString();
                 for (let j = _constants.segmentsPerLine - 1; j >= 0; j--) {
