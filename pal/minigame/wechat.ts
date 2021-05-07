@@ -1,4 +1,4 @@
-import { IMiniGame } from 'pal/minigame';
+import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { Orientation } from '../system/enum-type/orientation';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
@@ -14,11 +14,12 @@ minigame.isDevTool = (systemInfo.platform === 'devtools');
 // NOTE: size and orientation info is wrong at the init phase, especially on iOS device
 Object.defineProperty(minigame, 'isLandscape', {
     get () {
-        // NOTE: wrong deviceOrientation on iOS end before app launched.
-        const locSystemInfo = minigame.getSystemInfoSync();
-        return locSystemInfo.deviceOrientation
-            ? (locSystemInfo.deviceOrientation === 'landscape')
-            : (locSystemInfo.screenWidth > locSystemInfo.screenHeight);
+        const locSystemInfo = wx.getSystemInfoSync() as SystemInfo;
+        if (typeof locSystemInfo.deviceOrientation === 'string') {
+            return locSystemInfo.deviceOrientation.startsWith('landscape');
+        } else {
+            return locSystemInfo.screenWidth > locSystemInfo.screenHeight;
+        }
     },
 });
 // init landscapeOrientation as LANDSCAPE_RIGHT
@@ -86,22 +87,12 @@ minigame.createInnerAudioContext = createInnerAudioContextPolyfill(wx, {
     onSeek: false,
 }, true);
 
-// safeArea
-// origin point on the top-left corner
+// #region SafeArea
 // FIX_ME: wrong safe area when orientation is landscape left
 minigame.getSafeArea = function () {
-    let { top, left, bottom, right, width, height } = systemInfo.safeArea;
-    // HACK: on iOS device, the orientation should mannually rotate
-    if (systemInfo.platform === 'ios' && !minigame.isDevTool && minigame.isLandscape) {
-        const tempData = [right, top, left, bottom, width, height];
-        top = systemInfo.screenHeight - tempData[0];
-        left = tempData[1];
-        bottom = systemInfo.screenHeight - tempData[2];
-        right = tempData[3];
-        height = tempData[4];
-        width = tempData[5];
-    }
-    return { top, left, bottom, right, width, height };
+    const locSystemInfo = wx.getSystemInfoSync() as SystemInfo;
+    return locSystemInfo.safeArea;
 };
+// #endregion SafeArea
 
 export { minigame };

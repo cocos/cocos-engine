@@ -30,6 +30,7 @@
 
 import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { system } from 'pal/system';
 import { Component } from '../core/components';
 import { UITransform } from '../2d/framework';
 import { view, sys } from '../core/platform';
@@ -62,13 +63,22 @@ import { legacyCC } from '../core/global-exports';
 @menu('UI/SafeArea')
 @requireComponent(Widget)
 export class SafeArea extends Component {
+    private _boundUpdateArea!: () => void;
+
+    public onLoad () {
+        this._boundUpdateArea = this.updateArea.bind(this);
+    }
+
     public onEnable () {
         this.updateArea();
-        view.on('canvas-resize', this.updateArea, this);
+        // IDEA: need to delay the callback on Native platform ?
+        system.onViewResize(this._boundUpdateArea);
+        system.onOrientationChange(this._boundUpdateArea);
     }
 
     public onDisable () {
-        view.off('canvas-resize', this.updateArea, this);
+        system.offViewResize(this._boundUpdateArea);
+        system.offOrientationChange(this._boundUpdateArea);
     }
 
     /**

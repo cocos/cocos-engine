@@ -133,7 +133,31 @@ class System {
         return minigame.orientation;
     }
     public getSafeAreaEdge (): SafeAreaEdge {
-        throw new Error('TODO');
+        const minigameSafeArea = minigame.getSafeArea();
+        const viewSize = this.getViewSize();
+        let top = minigameSafeArea.top;
+        let bottom = viewSize.height - minigameSafeArea.bottom;
+        let left = minigameSafeArea.left;
+        let right = viewSize.width - minigameSafeArea.right;
+        const orientation = this.getOrientation();
+        // Make it symmetrical.
+        if (orientation === Orientation.PORTRAIT) {
+            if (top < bottom) {
+                top = bottom;
+            } else {
+                bottom = top;
+            }
+        } else if (left < right) {
+            left = right;
+        } else {
+            right = left;
+        }
+        return {
+            top,
+            bottom,
+            left,
+            right,
+        };
     }
     public getBatteryLevel (): number {
         return minigame.getBatteryInfoSync().level / 100;

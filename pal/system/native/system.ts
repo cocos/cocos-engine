@@ -121,8 +121,30 @@ class System {
         return orientationMap[jsb.device.getDeviceOrientation()];
     }
     public getSafeAreaEdge (): SafeAreaEdge {
-        // jsb.device.getSafeAreaEdge()
-        throw new Error('TODO');
+        const nativeSafeArea = jsb.device.getSafeAreaEdge();
+        let top = nativeSafeArea.x;
+        let bottom = nativeSafeArea.z;
+        let left = nativeSafeArea.y;
+        let right = nativeSafeArea.w;
+        const orientation = this.getOrientation();
+        // Make it symmetrical.
+        if (orientation === Orientation.PORTRAIT) {
+            if (top < bottom) {
+                top = bottom;
+            } else {
+                bottom = top;
+            }
+        } else if (left < right) {
+            left = right;
+        } else {
+            right = left;
+        }
+        return {
+            top,
+            bottom,
+            left,
+            right,
+        };
     }
     public getBatteryLevel (): number {
         return jsb.device.getBatteryLevel();
