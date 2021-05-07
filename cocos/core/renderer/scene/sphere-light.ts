@@ -32,6 +32,7 @@ import { AABBHandle, AABBPool, AABBView, LightPool, LightView, NULL_HANDLE } fro
 export class SphereLight extends Light {
     declare protected _hAABB: AABBHandle;
     protected _init (): void {
+        super._init();
         if (JSB) {
             this._hAABB = AABBPool.alloc();
             LightPool.set(this._handle, LightView.AABB, this._hAABB);
@@ -43,6 +44,7 @@ export class SphereLight extends Light {
             AABBPool.free(this._hAABB);
             this._hAABB = NULL_HANDLE;
         }
+        super._destroy();
     }
 
     protected _update (): void {
@@ -112,17 +114,11 @@ export class SphereLight extends Light {
 
     public initialize () {
         super.initialize();
-        this._init();
 
         const size = 0.15;
         this.size = size;
         this.range = 1.0;
         this.luminance = 1700 / nt2lm(size);
-    }
-
-    public destroy () {
-        this._destroy();
-        super.destroy();
     }
 
     public update () {
