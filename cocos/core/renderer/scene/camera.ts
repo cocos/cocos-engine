@@ -225,6 +225,7 @@ export class Camera {
     public destroy () {
         if (this._window) {
             this._window.detachCamera(this);
+            this._window = null;
         }
         this._name = null;
         if (JSB && this._poolHandle) {
@@ -254,6 +255,7 @@ export class Camera {
     }
 
     public resize (width: number, height: number) {
+        if (!this._window) return;
         this._width = width;
         this._height = height;
         if (JSB) {
@@ -702,11 +704,11 @@ export class Camera {
         const win = window || legacyCC.director.root.mainWindow;
         if (win) {
             win.attachCamera(this);
-            this.resize(win.width, win.height);
             this._window = win;
             if (JSB) {
                 CameraPool.set(this._poolHandle, CameraView.WINDOW, win.handle);
             }
+            this.resize(win.width, win.height);
         }
     }
 
