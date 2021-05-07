@@ -28,6 +28,7 @@
  * @module core
  */
 
+import { JSB } from 'internal:constants';
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
@@ -41,7 +42,7 @@ import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
-import { RootHandle, RootPool, RootView, NULL_HANDLE, LightHandle, PassHandle, ShaderHandle } from './renderer/core/memory-pools';
+import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
 import { warnID } from './platform/debug';
 
 /**
@@ -65,6 +66,35 @@ export interface ISceneInfo {
  * Root类
  */
 export class Root {
+    private _init (): void {
+        if (JSB) {
+            this._poolHandle = RootPool.alloc();
+        }
+    }
+
+    private _destroy (): void {
+        if (JSB) {
+            if (this._poolHandle) {
+                RootPool.free(this._poolHandle);
+                this._poolHandle = NULL_HANDLE;
+            }
+        }
+    }
+
+    private _setCumulativeTime (deltaTime: number): void {
+        this._cumulativeTime += deltaTime;
+        if (JSB) {
+            RootPool.set(this._poolHandle, RootView.CUMULATIVE_TIME, this._cumulativeTime);
+        }
+    }
+
+    private _setFrameTime (deltaTime: number): void {
+        this._frameTime = deltaTime;
+        if (JSB) {
+            RootPool.set(this._poolHandle, RootView.FRAME_TIME, deltaTime);
+        }
+    }
+
     /**
      * @zh
      * GFX 设备
@@ -143,7 +173,7 @@ export class Root {
      * 累计时间（秒）
      */
     public get cumulativeTime (): number {
-        return RootPool.get(this._poolHandle, RootView.CUMULATIVE_TIME);
+        return this._cumulativeTime;
     }
 
     /**
@@ -151,7 +181,7 @@ export class Root {
      * 帧时间（秒）
      */
     public get frameTime (): number {
-        return RootPool.get(this._poolHandle, RootView.FRAME_TIME);
+        return this._frameTime;
     }
 
     /**
@@ -218,9 +248,10 @@ export class Root {
     private _frameCount = 0;
     private _fps = 0;
     private _fixedFPS = 0;
-    private _fixedFPSFrameTime = 0;
     private _poolHandle: RootHandle = NULL_HANDLE;
     private _useDeferredPipeline = false;
+    private _cumulativeTime = 0;
+    private _frameTime = 0;
 
     /**
      * 构造函数
@@ -242,7 +273,7 @@ export class Root {
      * @param info Root描述信息
      */
     public initialize (info: IRootInfo): Promise<void> {
-        this._poolHandle = RootPool.alloc();
+        this._init();
 
         const colorAttachment = new ColorAttachment();
         const depthStencilAttachment = new DepthStencilAttachment();
@@ -284,10 +315,7 @@ export class Root {
         this._mainWindow = null;
         this.dataPoolManager.clear();
 
-        if (this._poolHandle) {
-            RootPool.free(this._poolHandle);
-            this._poolHandle = NULL_HANDLE;
-        }
+        this._destroy();
     }
 
     /**
@@ -377,7 +405,7 @@ export class Root {
      * @param deltaTime 间隔时间
      */
     public frameMove (deltaTime: number) {
-        RootPool.set(this._poolHandle, RootView.FRAME_TIME, deltaTime);
+        this._setFrameTime(deltaTime);
 
         /*
         if (this._fixedFPSFrameTime > 0) {
@@ -391,7 +419,7 @@ export class Root {
         */
 
         ++this._frameCount;
-        RootPool.set(this._poolHandle, RootView.CUMULATIVE_TIME, RootPool.get(this._poolHandle, RootView.CUMULATIVE_TIME) + deltaTime);
+        this._setCumulativeTime(deltaTime);
         this._fpsTime += deltaTime;
         if (this._fpsTime > 1.0) {
             this._fps = this._frameCount;
