@@ -39,7 +39,7 @@ import { Layout } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { legacyCC } from '../core/global-exports';
+import { referenced } from '../core/asset-manager/garbage-collection';
 
 const _color = new Color();
 
@@ -153,6 +153,7 @@ export class PageViewIndicator extends Component {
     @serializable
     @tooltip('i18n:pageview_indicator.spacing')
     public spacing = 0;
+    @referenced
     @serializable
     protected _spriteFrame: SpriteFrame | null = null;
     @serializable

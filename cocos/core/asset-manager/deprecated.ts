@@ -40,7 +40,6 @@ import dependUtil from './depend-util';
 import downloader from './downloader';
 import { getUuidFromURL, normalize, transform } from './helper';
 import parser from './parser';
-import releaseManager from './release-manager';
 import { assets, BuiltinBundleName, bundles, ProgressCallback, CompleteCallback } from './shared';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
 import { ISceneInfo } from './config';
@@ -680,7 +679,7 @@ export class CCLoader {
      * @deprecated since v3.0 loader.releaseRes is deprecated, please use cc.assetManager.releaseRes instead
      */
     public releaseRes (res: string, type?: Constructor<Asset>) {
-        resources.release(res, type);
+        // resources.release(res, type);
     }
 
     /**
@@ -1008,17 +1007,3 @@ replaceProperty(game, 'game', [
         },
     },
 ]);
-
-const _autoRelease = releaseManager._autoRelease;
-releaseManager._autoRelease = function (oldScene, newScene, persistNodes) {
-    _autoRelease.call(releaseManager, oldScene, newScene, persistNodes);
-    const releaseSettings = loader._autoReleaseSetting;
-    const keys = Object.keys(releaseSettings);
-    for (let i = 0; i < keys.length; i++) {
-        const key = keys[i];
-        if (releaseSettings[key] === true) {
-            const asset = assets.get(key);
-            if (asset) { releaseManager.tryRelease(asset); }
-        }
-    }
-};

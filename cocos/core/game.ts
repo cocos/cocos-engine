@@ -45,6 +45,7 @@ import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
 import { BrowserType } from '../../pal/system/enum-type';
+import { garbageCollectionManager } from './asset-manager/garbage-collection';
 
 interface ISceneInfo {
     url: string;
@@ -558,7 +559,6 @@ export class Game extends EventTarget {
             }
             this._persistRootNodes[id] = node;
             node._persistNode = true;
-            legacyCC.assetManager._releaseManager._addPersistNodeRef(node);
         }
     }
 
@@ -573,7 +573,6 @@ export class Game extends EventTarget {
             delete this._persistRootNodes[id];
             node._persistNode = false;
             node._originalSceneId = '';
-            legacyCC.assetManager._releaseManager._removePersistNodeRef(node);
         }
     }
 
@@ -884,6 +883,9 @@ export class Game extends EventTarget {
     }
 
     private _setRenderPipeline (rppl?: RenderPipeline) {
+        if (rppl) {
+            garbageCollectionManager.addAssetToRoot(rppl);
+        }
         if (!legacyCC.director.root.setRenderPipeline(rppl)) {
             this._setRenderPipeline();
         }

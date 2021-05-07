@@ -42,6 +42,7 @@ import { Node } from '../core/scene-graph/node';
 import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
+import { referenced } from '../core/asset-manager/garbage-collection';
 
 const _tempColor = new Color();
 
@@ -531,12 +532,16 @@ export class Button extends Component {
     protected _pressedColor: Color = Color.WHITE.clone();
     @serializable
     protected _disabledColor: Color = new Color(124, 124, 124, 255);
+    @referenced
     @serializable
     protected _normalSprite: SpriteFrame | null = null;
+    @referenced
     @serializable
     protected _hoverSprite: SpriteFrame | null = null;
+    @referenced
     @serializable
     protected _pressedSprite: SpriteFrame | null = null;
+    @referenced
     @serializable
     protected _disabledSprite: SpriteFrame | null = null;
     @serializable

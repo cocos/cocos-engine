@@ -418,6 +418,23 @@ CCClass._isCCClass = function isCCClass (constructor): boolean {
     return constructor?.hasOwnProperty?.('__ctors__');     // __ctors__ is not inherited
 };
 
+type ClassCreatedCallBack = (ctor: Constructor) => void;
+
+const classCreatedCallbacks: ClassCreatedCallBack[] = CCClass.classCreatedCallbacks = [];
+CCClass.onClassCreated = function onClassCreated (classCreatedCallback: ClassCreatedCallBack) {
+    if (classCreatedCallbacks.indexOf(classCreatedCallback) === -1) {
+        classCreatedCallbacks.push(classCreatedCallback);
+    }
+};
+
+CCClass.offClassCreated = function offClassCreated (classCreatedCallback: ClassCreatedCallBack) {
+    const index = CCClass.classCreatedCallbacks.indexOf(classCreatedCallback);
+    if (index !== -1) {
+        classCreatedCallbacks[index] = classCreatedCallbacks[classCreatedCallbacks.length - 1];
+        classCreatedCallbacks.length -= 1;
+    }
+};
+
 //
 // Optimized define function only for internal classes
 //

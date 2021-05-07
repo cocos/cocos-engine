@@ -47,6 +47,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
+import { referenced } from '../../core/asset-manager/garbage-collection';
 
 // hack
 ccenum(BlendFactor);
@@ -147,6 +148,7 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
+    @referenced
     @type(Material)
     protected _customMaterial: Material| null = null;
 

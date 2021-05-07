@@ -10,6 +10,7 @@ import { ArmatureCache } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCFactory } from './CCFactory';
 import { legacyCC } from '../core/global-exports';
+import { referenced } from '../core/asset-manager/garbage-collection';
 
 /**
  * @en The skeleton atlas data of dragonBones.
@@ -35,6 +36,8 @@ export class DragonBonesAtlasAsset extends Asset {
         this._atlasJsonData = JSON.parse(this.atlasJson);
         this._clear();
     }
+
+    @referenced
     @serializable
     @type(Texture2D)
     _texture: Texture2D | null = null;

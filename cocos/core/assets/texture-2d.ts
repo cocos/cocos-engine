@@ -37,6 +37,7 @@ import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';
+import { referenced, ReferenceType } from '../asset-manager/garbage-collection';
 
 /**
  * @en The create information for [[Texture2D]]
@@ -124,6 +125,7 @@ export class Texture2D extends SimpleTexture {
         this.mipmaps = value ? [value] : [];
     }
 
+    @referenced(ReferenceType.ASSET_ARRAY)
     @type([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
 
@@ -269,21 +271,6 @@ export class Texture2D extends SimpleTexture {
         texInfo.width = this._width;
         texInfo.height = this._height;
         return Object.assign(texInfo, presumed);
-    }
-
-    protected _checkTextureLoaded () {
-        let ready = true;
-        for (let i = 0; i < this._mipmaps.length; ++i) {
-            const image = this._mipmaps[i];
-            if (!image.loaded) {
-                ready = false;
-                break;
-            }
-        }
-
-        if (ready) {
-            super._textureReady();
-        }
     }
 
     public initDefault (uuid?: string) {

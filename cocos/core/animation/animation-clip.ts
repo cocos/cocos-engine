@@ -43,6 +43,7 @@ import { ComponentPath, HierarchyPath, TargetPath } from './target-path';
 import { WrapMode as AnimationWrapMode } from './types';
 import { IValueProxyFactory } from './value-proxy';
 import { legacyCC } from '../global-exports';
+import { GarbageCollectorContext } from '../asset-manager/garbage-collection';
 
 export interface IObjectCurveData {
     [propertyName: string]: IPropertyCurveData;
@@ -437,6 +438,16 @@ export class AnimationClip extends Asset {
             if (curve.data.values instanceof CompactValueTypeArray) {
                 curve.data.values = curve.data.values.decompress(binaryBuffer);
             }
+        }
+    }
+
+    public markDependencies (context: GarbageCollectorContext) {
+        for (let i = 0, length = this.curves.length; i < length; i++) {
+            this.curves[i].data.values.forEach((value) => {
+                if (value instanceof Asset) {
+                    context.markAsset(value);
+                }
+            });
         }
     }
 

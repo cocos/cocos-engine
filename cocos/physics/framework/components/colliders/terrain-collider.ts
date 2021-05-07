@@ -43,6 +43,7 @@ import { ITerrainShape } from '../../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../../spec/i-external';
 import { TerrainAsset } from '../../../../terrain/terrain-asset';
 import { EColliderType } from '../../physics-enum';
+import { referenced } from '../../../../core/asset-manager/garbage-collection';
 
 /**
  * @en
@@ -86,6 +87,7 @@ export class TerrainCollider extends Collider {
 
     /// PRIVATE PROPERTY ///
 
+    @referenced
     @serializable
     private _terrain: ITerrainAsset | null = null;
 

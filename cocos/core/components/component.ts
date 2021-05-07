@@ -42,6 +42,7 @@ import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { errorID, warnID, assertID } from '../platform/debug';
 import { CompPrefabInfo } from '../utils/prefab/prefab-info';
+import { garbageCollectionManager, GarbageCollectorContext } from '../asset-manager/garbage-collection';
 
 const idGenerator = new IDGenerator('Comp');
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
@@ -189,6 +190,13 @@ class Component extends CCObject {
     public _id: string = idGenerator.getNewId();
 
     // private __scriptUuid = '';
+
+    constructor () {
+        super();
+        if (garbageCollectionManager.isGarbageCollectableCCClass(this.constructor as Constructor)) {
+            garbageCollectionManager.addComponentToRoot(this);
+        }
+    }
 
     /**
      * @private
@@ -363,6 +371,7 @@ class Component extends CCObject {
             if (this._enabled && this.node.activeInHierarchy) {
                 legacyCC.director._compScheduler.disableComp(this);
             }
+            garbageCollectionManager.removeComponentFromRoot(this);
             return true;
         }
         return false;
@@ -637,6 +646,8 @@ class Component extends CCObject {
      * 此方法仅在编辑器下会被调用。
      */
     protected onRestore? (): void;
+
+    public markDependencies? (context: GarbageCollectorContext): void;
 }
 
 const proto = Component.prototype;

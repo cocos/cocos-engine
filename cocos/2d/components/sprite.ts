@@ -43,6 +43,7 @@ import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
 import { Material, RenderTexture } from '../../core';
+import { referenced } from '../../core/asset-manager/garbage-collection';
 
 /**
  * @en
@@ -449,6 +450,7 @@ export class Sprite extends Renderable2D {
     public static SizeMode = SizeMode;
     public static EventType = EventType;
 
+    @referenced
     @serializable
     protected _spriteFrame: SpriteFrame | null = null;
     @serializable

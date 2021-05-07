@@ -26,7 +26,7 @@
  * @packageDocumentation
  * @module asset-manager
  */
-export type TaskCompleteCallback = (err: Error | null | undefined, data: any) => void;
+export type TaskCompleteCallback = (err: Error | null, data: any) => void;
 export type TaskProgressCallback = (...args: any[]) => void;
 export type TaskErrorCallback = (...args: any[]) => void;
 export interface ITaskOption {
@@ -92,6 +92,8 @@ export default class Task {
      *
      */
     public id: number = Task._taskId++;
+
+    public internalId = -1;
 
     /**
      * @en
@@ -294,6 +296,7 @@ export default class Task {
         this.source = this.output = this.input = null;
         this.progress = null;
         this.options = null;
+        this.internalId = -1;
         Task._deadPool.push(this);
     }
 }

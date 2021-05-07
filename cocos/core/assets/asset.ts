@@ -38,6 +38,7 @@ import { CCObject } from '../data/object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { extname } from '../utils/path';
+import { GarbageCollectorContext } from '../asset-manager/garbage-collection';
 
 /**
  * @en
@@ -73,6 +74,12 @@ export class Asset extends Eventify(CCObject) {
         return legacyCC.deserialize(data);
     }
 
+    private static _allAssets: Asset[] = [];
+
+    public static getAllAssets (): readonly Asset[] {
+        return Asset._allAssets;
+    }
+
     /**
      * @en
      * Whether the asset is loaded or not
@@ -101,7 +108,7 @@ export class Asset extends Eventify(CCObject) {
     public __depends__: any = null;
 
     private _file: any = null;
-    private _ref = 0;
+    private _internalId = -1;
 
     /**
      * @en
@@ -165,6 +172,10 @@ export class Asset extends Eventify(CCObject) {
                 writable: true,
             });
         }
+
+        const id = Asset._allAssets.length;
+        Asset._allAssets.push(this);
+        this._internalId = id;
     }
 
     /**
@@ -239,52 +250,6 @@ export class Asset extends Eventify(CCObject) {
         return undefined;
     }
 
-    /**
-     * @en
-     * The number of reference
-     *
-     * @zh
-     * 引用的数量
-     */
-    public get refCount (): number {
-        return this._ref;
-    }
-
-    /**
-     * @en
-     * Add references of asset
-     *
-     * @zh
-     * 增加资源的引用
-     *
-     * @return itself
-     *
-     */
-    public addRef (): Asset {
-        this._ref++;
-        return this;
-    }
-
-    /**
-     * @en
-     * Reduce references of asset and it will be auto released when refCount equals 0.
-     *
-     * @zh
-     * 减少资源的引用并尝试进行自动释放。
-     *
-     * @return itself
-     *
-     */
-    public decRef (autoRelease = true): Asset {
-        if (this._ref > 0) {
-            this._ref--;
-        }
-        if (autoRelease) {
-            legacyCC.assetManager._releaseManager.tryRelease(this);
-        }
-        return this;
-    }
-
     public onLoaded () {}
 
     public initDefault (uuid?: string) {
@@ -295,6 +260,18 @@ export class Asset extends Eventify(CCObject) {
     public validate (): boolean {
         return true;
     }
+
+    public destroy () {
+        if (this._internalId !== -1) {
+            const lastAsset = Asset._allAssets[Asset._allAssets.length - 1];
+            lastAsset._internalId = this._internalId;
+            Asset._allAssets.length -= 1;
+            this._internalId = -1;
+        }
+        return super.destroy();
+    }
+
+    public markDependencies? (context: GarbageCollectorContext);
 }
 
 /**

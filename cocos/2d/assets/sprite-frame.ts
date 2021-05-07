@@ -43,6 +43,7 @@ import { Texture2D } from '../../core/assets/texture-2d';
 import { errorID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { js } from '../../core/utils/js';
+import { referenced } from '../../core/asset-manager/garbage-collection';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;
@@ -519,6 +520,8 @@ export class SpriteFrame extends Asset {
     protected _capInsets = [0, 0, 0, 0];
 
     protected _atlasUuid = '';
+
+    @referenced
     // @ts-expect-error not set value at there
     protected _texture: TextureBase | RenderTexture;
 

@@ -105,8 +105,8 @@ export function getUrlWithUuid (uuid: string, options?: IOptions | null): string
  * @returns {boolean} - whether or not type is cc.SceneAsset
  *
  */
-export function isScene (asset) {
-    return asset && (asset instanceof legacyCC.SceneAsset || asset instanceof legacyCC.Scene);
+export function isScene (asset): boolean {
+    return !!asset && (asset instanceof legacyCC.SceneAsset || asset instanceof legacyCC.Scene);
 }
 
 /**

@@ -499,22 +499,23 @@ export class Director extends EventTarget {
         if (legacyCC.isValid(oldScene)) {
             oldScene!.destroy();
         }
-        if (!EDITOR) {
-            // auto release assets
-            if (BUILD && DEBUG) {
-                console.time('AutoRelease');
-            }
-            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, legacyCC.game._persistRootNodes);
-            if (BUILD && DEBUG) {
-                console.timeEnd('AutoRelease');
-            }
-        }
 
         this._scene = null;
 
         // purge destroyed nodes belongs to old scene
         CCObject._deferredDestroy();
         if (BUILD && DEBUG) { console.timeEnd('Destroy'); }
+
+        if (!EDITOR) {
+            // auto release assets
+            if (BUILD && DEBUG) {
+                console.time('Garbage Collect');
+            }
+            legacyCC.assetManager.releaseUnusedAssets();
+            if (BUILD && DEBUG) {
+                console.timeEnd('Garbage Collect');
+            }
+        }
 
         if (onBeforeLoadScene) {
             onBeforeLoadScene();

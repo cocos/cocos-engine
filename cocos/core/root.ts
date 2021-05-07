@@ -43,6 +43,7 @@ import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE, LightHandle, PassHandle, ShaderHandle } from './renderer/core/memory-pools';
 import { warnID } from './platform/debug';
+import { garbageCollectionManager } from './asset-manager/garbage-collection';
 
 /**
  * @zh
@@ -257,6 +258,8 @@ export class Root {
             swapchainBufferIndices: -1, // always on screen
         });
         this._curWindow = this._mainWindow;
+
+        garbageCollectionManager.addManagerToRoot(builtinResMgr);
 
         return Promise.resolve(builtinResMgr.initBuiltinRes(this._device)).then(() => {
             legacyCC.view.on('design-resolution-changed', () => {

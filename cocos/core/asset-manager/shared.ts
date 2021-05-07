@@ -32,6 +32,7 @@ import Bundle from './bundle';
 import Cache from './cache';
 import { Pipeline } from './pipeline';
 import RequestItem from './request-item';
+import { SingleAssetTask } from './single-asset-load-pipeline';
 
 export type CompleteCallback<T = any> = (err: Error | null, data?: T | null) => void;
 export type CompleteCallbackNoData = (err?: Error | null) => void;
@@ -101,6 +102,7 @@ export const bundles = new Cache<Bundle>();
 export const pipeline = new Pipeline('normal load', []);
 export const fetchPipeline = new Pipeline('fetch', []);
 export const transformPipeline = new Pipeline('transform url', []);
+export const singleAssetLoadPipeline = new Pipeline<SingleAssetTask>('loadOneAsset', []);
 export const references = EDITOR ? new Cache<any[]>() : null;
 
 export enum RequestType {

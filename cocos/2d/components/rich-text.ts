@@ -46,6 +46,7 @@ import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import assetManager from '../../core/asset-manager/asset-manager';
 import { CCObject } from '../../core';
+import { referenced } from '../../core/asset-manager/garbage-collection';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -425,6 +426,7 @@ export class RichText extends UIComponent {
     protected _maxWidth = 0;
     @serializable
     protected _fontFamily = 'Arial';
+    @referenced
     @serializable
     protected _font: TTFFont | null = null;
     @serializable
@@ -433,6 +435,7 @@ export class RichText extends UIComponent {
     protected _userDefinedFont: TTFFont | null = null;
     @serializable
     protected _cacheMode: CacheMode = CacheMode.NONE;
+    @referenced
     @serializable
     protected _imageAtlas: SpriteAtlas | null = null;
     @serializable

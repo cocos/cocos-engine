@@ -196,6 +196,11 @@ class Prefab extends Asset {
     public validate () {
         return !!this.data;
     }
+
+    public destroy () {
+        (this.data as Node).destroy();
+        return super.destroy();
+    }
 }
 
 declare namespace Prefab {

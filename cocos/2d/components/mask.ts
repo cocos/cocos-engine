@@ -46,6 +46,7 @@ import { Model } from '../../core/renderer/scene';
 import { vfmt, getAttributeStride } from '../renderer/vertex-format';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
+import { referenced } from '../../core/asset-manager/garbage-collection';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();
@@ -344,6 +345,7 @@ export class Mask extends Renderable2D {
     @serializable
     protected _segments = 64;
 
+    @referenced
     @serializable
     protected _spriteFrame: SpriteFrame | null = null;
 

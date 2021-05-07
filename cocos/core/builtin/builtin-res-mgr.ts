@@ -3,8 +3,8 @@
 
  https://www.cocos.com/
 
- Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
+ Permission is hereby granted, free of charge, to any person obtaining a copy
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
  to use Cocos Creator solely to develop games on your target platforms. You shall
  not use Cocos Creator software for developing other software or tools that's
@@ -33,9 +33,14 @@ import { effects } from './effects';
 import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
+import { ccclass } from '../data/decorators';
+import { referenced, ReferenceType } from '../asset-manager/garbage-collection';
 
+@ccclass('cc.BuiltinResMgr')
 class BuiltinResMgr {
     protected _device: Device | null = null;
+
+    @referenced(ReferenceType.ASSET_RECORD)
     protected _resources: Record<string, Asset> = {};
 
     // this should be called after renderer initialized
@@ -185,6 +190,10 @@ class BuiltinResMgr {
 
     public get<T extends Asset> (uuid: string) {
         return this._resources[uuid] as T;
+    }
+
+    public getAll () {
+        return Object.values(this._resources);
     }
 
     private _initMaterials () {

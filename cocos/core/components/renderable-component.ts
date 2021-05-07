@@ -38,6 +38,7 @@ import { IMaterialInstanceInfo, MaterialInstance } from '../renderer/core/materi
 import { scene } from '../renderer';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
+import { referenced, ReferenceType } from '../asset-manager/garbage-collection';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -47,6 +48,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
 
 @ccclass('cc.RenderableComponent')
 export class RenderableComponent extends Component {
+    @referenced(ReferenceType.ASSET_ARRAY)
     @type([Material])
     protected _materials: (Material | null)[] = [];
 

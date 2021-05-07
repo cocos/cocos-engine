@@ -94,5 +94,9 @@ export const ccclass: ((name?: string) => ClassDecorator) & ClassDecorator = mak
         }
     }
 
+    for (let i = 0; i < CCClass.classCreatedCallbacks.length; i++) {
+        CCClass.classCreatedCallbacks[i](res);
+    }
+
     return res;
 });

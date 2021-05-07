@@ -31,7 +31,6 @@ import SceneAsset from '../assets/scene-asset';
 import { legacyCC } from '../global-exports';
 import { error, errorID } from '../platform/debug';
 import Config, { IAddressableInfo, IAssetInfo, IConfigOption, ISceneInfo } from './config';
-import releaseManager from './release-manager';
 import RequestItem from './request-item';
 import { assets, AssetType, bundles, CompleteCallbackWithData, CompleteCallbackNoData, IAssetOptions, ProgressCallback, RequestType } from './shared';
 import { parseLoadResArgs, parseParameters } from './utilities';
@@ -525,58 +524,6 @@ export default class Bundle {
 
     /**
      * @en
-     * Release the asset loaded by {{#crossLink "Bundle/load:method"}}{{/crossLink}} or {{#crossLink "Bundle/loadDir:method"}}{{/crossLink}}
-     * and it's dependencies. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed informations.
-     *
-     * NOTE：The `path` and `type` parameters passed need to be the same as those passed to `Bundle.load`,
-     * otherwise it may release some other resources with the same name!
-     *
-     * @zh
-     * 释放通过 {{#crossLink "Bundle/load:method"}}{{/crossLink}} 或者 {{#crossLink "Bundle/loadDir:method"}}{{/crossLink}} 加载的资源。
-     * 详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
-     *
-     * 注意：传入的 path 与 type 参数需要与 `Bundle.load` 加载资源时传入的参数一致，否则可能会释放到其他同名资源
-     *
-     * @param path - The path of asset
-     * @param type - Only asset of type will be released if this argument is supplied.
-     *
-     * @example
-     * // release a texture which is no longer need
-     * bundle1.release('misc/character/cocos');
-     *
-     */
-    public release (path: string, type?: AssetType | null) {
-        const asset = this.get(path, type);
-        if (asset) {
-            releaseManager.tryRelease(asset, true);
-        }
-    }
-
-    /**
-     * @en
-     * Release all unused assets within this bundle. Refer to {{#crossLink "AssetManager/releaseAll:method"}}{{/crossLink}} for detailed informations.
-     *
-     * @zh
-     * 释放此包中的所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAll:method"}}{{/crossLink}}
-     *
-     * @private
-     *
-     * @example
-     * // release all unused asset within bundle1
-     * bundle1.releaseUnusedAssets();
-     *
-     */
-    public releaseUnusedAssets () {
-        assets.forEach((asset) => {
-            const info = this.getAssetInfo(asset._uuid);
-            if (info && !info.redirect) {
-                releaseManager.tryRelease(asset);
-            }
-        });
-    }
-
-    /**
-     * @en
      * Release all assets within this bundle. Refer to {{#crossLink "AssetManager/releaseAll:method"}}{{/crossLink}} for detailed informations.
      *
      * @zh
@@ -590,7 +537,7 @@ export default class Bundle {
         assets.forEach((asset) => {
             const info = this.getAssetInfo(asset._uuid);
             if (info && !info.redirect) {
-                releaseManager.tryRelease(asset, true);
+                asset.destroy();
             }
         });
     }

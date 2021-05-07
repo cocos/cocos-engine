@@ -39,14 +39,15 @@ import dependUtil from './depend-util';
 import downloader from './downloader';
 import factory from './factory';
 import fetch from './fetch';
+import { garbageCollectionManager } from './garbage-collection';
 import * as helper from './helper';
 import load from './load';
 import packManager from './pack-manager';
 import parser from './parser';
-import { IPipe, Pipeline } from './pipeline';
+import { Pipeline } from './pipeline';
 import preprocess from './preprocess';
-import releaseManager from './release-manager';
 import RequestItem from './request-item';
+import { fetch as fetchSingleAsset, parse as parseSingleAsset } from './single-asset-load-pipeline';
 import {
     CompleteCallbackWithData,
     CompleteCallbackNoData,
@@ -59,7 +60,7 @@ import {
     Request,
     references,
     IJsonAssetOptions,
-    assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline } from './shared';
+    assets, BuiltinBundleName, bundles, fetchPipeline, files, parsed, pipeline, transformPipeline, singleAssetLoadPipeline } from './shared';
 
 import Task from './task';
 import { combine, parse } from './url-transformer';
@@ -133,7 +134,7 @@ export class AssetManager {
      * 正常加载管线
      *
      */
-    public pipeline: Pipeline = pipeline.append(preprocess).append(load);
+    public pipeline = pipeline.append(preprocess).append(load);
 
     /**
      * @en
@@ -143,7 +144,7 @@ export class AssetManager {
      * 下载管线
      *
      */
-    public fetchPipeline: Pipeline = fetchPipeline.append(preprocess).append(fetch);
+    public fetchPipeline = fetchPipeline.append(preprocess).append(fetch);
 
     /**
      * @en
@@ -153,7 +154,9 @@ export class AssetManager {
      * Url 转换器
      *
      */
-    public transformPipeline: Pipeline = transformPipeline.append(parse).append(combine);
+    public transformPipeline = transformPipeline.append(parse).append(combine);
+
+    public singleAssetLoadPipeline = singleAssetLoadPipeline.append(fetchSingleAsset).append(parseSingleAsset);
 
     /**
      * @en
@@ -278,15 +281,13 @@ export class AssetManager {
 
     public factory = factory;
 
-    public preprocessPipe: IPipe = preprocess;
+    public preprocessPipe = preprocess;
 
-    public fetchPipe: IPipe = fetch;
+    public fetchPipe = fetch;
 
-    public loadPipe: IPipe = load;
+    public loadPipe = load;
 
     public references = references;
-
-    private _releaseManager = releaseManager;
 
     private _files = files;
 
@@ -329,7 +330,6 @@ export class AssetManager {
     public init (options: IAssetManagerOptions = {}) {
         this._files.clear();
         this._parsed.clear();
-        this._releaseManager.init();
         this.assets.clear();
         this.bundles.clear();
         this.packManager.init();
@@ -453,8 +453,8 @@ export class AssetManager {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'default';
         requests = Array.isArray(requests) ? requests.slice() : requests;
-        const task = Task.create({ input: requests, onProgress: onProg, onComplete: asyncify(onComp), options: opts });
-        pipeline.async(task);
+        const task = Task.create({ input: requests, onProgress: onProg, onComplete: onComp, options: opts });
+        pipeline.addToQueue(task);
     }
 
     /**
@@ -499,8 +499,8 @@ export class AssetManager {
         const { options: opts, onProgress: onProg, onComplete: onComp } = parseParameters(options, onProgress, onComplete);
         opts.preset = opts.preset || 'preload';
         requests = Array.isArray(requests) ? requests.slice() : requests;
-        const task = Task.create({ input: requests, onProgress: onProg, onComplete: asyncify(onComp), options: opts });
-        fetchPipeline.async(task);
+        const task = Task.create({ input: requests, onProgress: onProg, onComplete: onComp, options: opts });
+        fetchPipeline.addToQueue(task);
     }
 
     /**
@@ -660,9 +660,10 @@ export class AssetManager {
      * // release a texture which is no longer need
      * cc.assetManager.releaseAsset(texture);
      *
+     * @deprecated
      */
     public releaseAsset (asset: Asset): void {
-        releaseManager.tryRelease(asset, true);
+        asset.destroy();
     }
 
     /**
@@ -672,13 +673,9 @@ export class AssetManager {
      * @zh
      * 释放所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
      *
-     * @hidden
-     *
      */
     public releaseUnusedAssets () {
-        assets.forEach((asset) => {
-            releaseManager.tryRelease(asset);
-        });
+        garbageCollectionManager.collectGarbage(Asset.getAllAssets());
     }
 
     /**
@@ -690,8 +687,9 @@ export class AssetManager {
      *
      */
     public releaseAll () {
-        assets.forEach((asset) => {
-            releaseManager.tryRelease(asset, true);
+        Asset.getAllAssets().forEach((asset) => {
+            assets.remove(asset._uuid);
+            asset.destroy();
         });
     }
 
@@ -730,16 +728,16 @@ export class AssetManager {
             input: [item],
             onProgress: onProg,
             options: opts,
-            onComplete: asyncify((err, data: T) => {
+            onComplete: (err, data: T) => {
                 if (!err) {
                     if (!opts.assetId) {
                         data._uuid = '';
                     }
                 }
                 if (onComp) { onComp(err, data); }
-            }),
+            },
         });
-        this._parsePipeline!.async(task);
+        this._parsePipeline!.addToQueue(task);
     }
 }
 
