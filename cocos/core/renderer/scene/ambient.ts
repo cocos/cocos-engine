@@ -127,7 +127,7 @@ export class Ambient {
     }
 
     public destroy () {
-        if (this._handle) {
+        if (JSB && this._handle) {
             AmbientPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }

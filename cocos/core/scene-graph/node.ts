@@ -149,8 +149,10 @@ export class Node extends BaseNode {
 
     constructor (name?: string) {
         super(name);
-        this._poolHandle = NodePool.alloc();
-        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+        if (JSB) {
+            this._poolHandle = NodePool.alloc();
+            NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+        }
     }
 
     /**
@@ -162,7 +164,7 @@ export class Node extends BaseNode {
     }
 
     public destroy () {
-        if (this._poolHandle) {
+        if (JSB && this._poolHandle) {
             NodePool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
         }
@@ -336,7 +338,9 @@ export class Node extends BaseNode {
     @editable
     set layer (l) {
         this._layer = l;
-        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+        if (JSB) {
+            NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+        }
         this.emit(SystemEventType.LAYER_CHANGED, this._layer);
     }
 
@@ -354,7 +358,9 @@ export class Node extends BaseNode {
 
     set hasChangedFlags (val: number) {
         bookOfChange.set(this, val);
-        NodePool.set(this._poolHandle, NodeView.FLAGS_CHANGED, val);
+        if (JSB) {
+            NodePool.set(this._poolHandle, NodeView.FLAGS_CHANGED, val);
+        }
     }
 
     // ===============================
@@ -397,9 +403,10 @@ export class Node extends BaseNode {
     }
 
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
-        NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
-        NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
-
+        if (JSB) {
+            NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
+        }
         const prefabInstance = this._prefab?.instance;
         if (!dontSyncChildPrefab && prefabInstance) {
             createNodeWithPrefab(this);
@@ -478,7 +485,9 @@ export class Node extends BaseNode {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
-        NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition);
+        if (JSB) {
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition);
+        }
     }
 
     /**
@@ -505,7 +514,9 @@ export class Node extends BaseNode {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
-        NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation);
+        if (JSB) {
+            NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation);
+        }
     }
 
     /**
@@ -571,21 +582,27 @@ export class Node extends BaseNode {
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
                     child._mat.m14 = child._pos.z;
-                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
+                    if (JSB) {
+                        NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
+                    }
                 }
                 if (dirtyBits & TransformBit.RS) {
                     Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
                     Mat4.multiply(child._mat, cur._mat, child._mat);
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.multiply(child._rot, cur._rot, child._lrot);
-                        NodePool.setVec4(child._poolHandle, NodeView.WORLD_ROTATION, child._rot);
+                        if (JSB) {
+                            NodePool.setVec4(child._poolHandle, NodeView.WORLD_ROTATION, child._rot);
+                        }
                     }
                     Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, child._rot));
                     Mat3.multiplyMat4(m3_1, m3_1, child._mat);
                     child._scale.x = m3_1.m00;
                     child._scale.y = m3_1.m04;
                     child._scale.z = m3_1.m08;
-                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_SCALE, child._scale);
+                    if (JSB) {
+                        NodePool.setVec3(child._poolHandle, NodeView.WORLD_SCALE, child._scale);
+                    }
                 }
             } else {
                 if (dirtyBits & TransformBit.POSITION) {
@@ -593,22 +610,28 @@ export class Node extends BaseNode {
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
                     child._mat.m14 = child._pos.z;
-                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
+                    if (JSB) {
+                        NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
+                    }
                 }
                 if (dirtyBits & TransformBit.RS) {
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.copy(child._rot, child._lrot);
-                        NodePool.setVec4(child._poolHandle, NodeView.WORLD_ROTATION, child._rot);
+                        if (JSB) {
+                            NodePool.setVec4(child._poolHandle, NodeView.WORLD_ROTATION, child._rot);
+                        }
                     }
                     if (dirtyBits & TransformBit.SCALE) {
                         Vec3.copy(child._scale, child._lscale);
-                        NodePool.setVec3(child._poolHandle, NodeView.WORLD_SCALE, child._scale);
+                        if (JSB) {
+                            NodePool.setVec3(child._poolHandle, NodeView.WORLD_SCALE, child._scale);
+                        }
                         Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                     }
                 }
             }
 
-            if (dirtyBits !== TransformBit.NONE) {
+            if (dirtyBits !== TransformBit.NONE && JSB) {
                 NodePool.setMat4(child._poolHandle, NodeView.WORLD_MATRIX, child._mat);
             }
 
@@ -833,7 +856,9 @@ export class Node extends BaseNode {
         } else {
             Vec3.set(this._pos, val as number, y, z);
         }
-        NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this._pos);
+        if (JSB) {
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this._pos);
+        }
         const parent = this._parent;
         const local = this._lpos;
         if (parent) {
@@ -891,7 +916,9 @@ export class Node extends BaseNode {
         } else {
             Quat.set(this._rot, val as number, y, z, w);
         }
-        NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this._rot);
+        if (JSB) {
+            NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this._rot);
+        }
         if (this._parent) {
             this._parent.updateWorldTransform();
             Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
@@ -965,7 +992,9 @@ export class Node extends BaseNode {
         } else {
             Vec3.set(this._scale, val as number, y, z);
         }
-        NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
+        if (JSB) {
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
+        }
         const parent = this._parent;
         if (parent) {
             parent.updateWorldTransform();
@@ -1124,7 +1153,7 @@ export class Node extends BaseNode {
      */
     public syncToNativeTransform () {
         const v = this.hasChangedFlags;
-        if (v) {
+        if (v && JSB) {
             if (v & TransformBit.POSITION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition); }
             if (v & TransformBit.ROTATION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation); }
             if (v & TransformBit.SCALE) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this.worldScale); }

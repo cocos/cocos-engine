@@ -279,7 +279,7 @@ export class Fog {
     }
 
     public destroy () {
-        if (this._handle) {
+        if (JSB && this._handle) {
             FogPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }

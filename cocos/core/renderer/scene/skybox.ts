@@ -198,7 +198,7 @@ export class Skybox {
     }
 
     public destroy () {
-        if (this._handle) {
+        if (JSB && this._handle) {
             SkyboxPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }
