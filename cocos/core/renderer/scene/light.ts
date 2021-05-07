@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { JSB } from 'internal:constants';
 import { Vec3 } from '../../math';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { RenderScene } from './render-scene';
@@ -68,6 +69,22 @@ export enum LightType {
 export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
 
 export class Light {
+    declare protected _handle: LightHandle;
+    protected _init (): void {
+        if (JSB) {
+            this._handle = LightPool.alloc();
+            LightPool.setVec3(this._handle, LightView.COLOR, this._color);
+            LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
+            LightPool.set(this._handle, LightView.TYPE, this._type);
+        }
+    }
+    protected _destroy (): void {
+        if (this._handle) {
+            LightPool.free(this._handle);
+            this._handle = NULL_HANDLE;
+        }
+    }
+
     get baked () {
         return this._baked;
     }
@@ -78,7 +95,9 @@ export class Light {
 
     set color (color: Vec3) {
         this._color.set(color);
-        LightPool.setVec3(this._handle, LightView.COLOR, color);
+        if (JSB) {
+            LightPool.setVec3(this._handle, LightView.COLOR, color);
+        }
     }
 
     get color (): Vec3 {
@@ -86,17 +105,22 @@ export class Light {
     }
 
     set useColorTemperature (enable: boolean) {
-        LightPool.set(this._handle, LightView.USE_COLOR_TEMPERATURE, enable ? 1 : 0);
+        this._useColorTemperature = enable;
+        if (JSB) {
+            LightPool.set(this._handle, LightView.USE_COLOR_TEMPERATURE, enable ? 1 : 0);
+        }
     }
 
     get useColorTemperature (): boolean {
-        return LightPool.get(this._handle, LightView.USE_COLOR_TEMPERATURE) === 1;
+        return this._useColorTemperature;
     }
 
     set colorTemperature (val: number) {
         this._colorTemp = val;
         ColorTemperatureToRGB(this._colorTempRGB, this._colorTemp);
-        LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
+        if (JSB) {
+            LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
+        }
     }
 
     get colorTemperature (): number {
@@ -111,7 +135,9 @@ export class Light {
         this._node = n;
         if (this._node) {
             this._node.hasChangedFlags |= TransformBit.ROTATION;
-            LightPool.set(this._handle, LightView.NODE, this._node.handle);
+            if (JSB) {
+                LightPool.set(this._handle, LightView.NODE, this._node.handle);
+            }
         }
     }
 
@@ -120,7 +146,7 @@ export class Light {
     }
 
     get type () : LightType {
-        return LightPool.get(this._handle, LightView.TYPE);
+        return this._type;
     }
 
     get name () {
@@ -153,13 +179,12 @@ export class Light {
 
     protected _name: string | null = null;
 
-    protected _handle: LightHandle = NULL_HANDLE;
+    protected _useColorTemperature = false;
+
+    protected _type: LightType = LightType.UNKNOWN;
 
     public initialize () {
-        this._handle = LightPool.alloc();
-        LightPool.setVec3(this._handle, LightView.COLOR, this._color);
-        LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
-        LightPool.set(this._handle, LightView.TYPE, LightType.UNKNOWN);
+        this._init();
     }
 
     public attachToScene (scene: RenderScene) {
@@ -173,10 +198,7 @@ export class Light {
     public destroy () {
         this._name = null;
         this._node = null;
-        if (this._handle) {
-            LightPool.free(this._handle);
-            this._handle = NULL_HANDLE;
-        }
+        this._destroy();
     }
 
     public update () {}
