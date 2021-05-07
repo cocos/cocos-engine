@@ -250,6 +250,7 @@ export class Root {
     private _fixedFPS = 0;
     private _poolHandle: RootHandle = NULL_HANDLE;
     private _useDeferredPipeline = false;
+    private _fixedFPSFrameTime = 0;
     private _cumulativeTime = 0;
     private _frameTime = 0;
 
