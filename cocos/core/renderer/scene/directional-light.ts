@@ -36,14 +36,6 @@ export class DirectionalLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _illuminance: number = Ambient.SUN_ILLUM;
 
-    protected _init (): void {
-        super._init();
-        if (JSB) {
-            LightPool.set(this._handle, LightView.ILLUMINANCE, this._illuminance);
-            LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
-        }
-    }
-
     set direction (dir: Vec3) {
         Vec3.normalize(this._dir, dir);
         if (JSB) {
@@ -70,6 +62,13 @@ export class DirectionalLight extends Light {
     constructor () {
         super();
         this._type = LightType.DIRECTIONAL;
+    }
+
+    public initialize () {
+        super.initialize();
+
+        this.illuminance = Ambient.SUN_ILLUM;
+        this.direction = new Vec3(1.0, -1.0, -1.0);
     }
 
     public update () {

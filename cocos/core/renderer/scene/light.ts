@@ -31,6 +31,7 @@ import { Node } from '../../scene-graph';
 import {
     LightHandle, NULL_HANDLE, LightPool, LightView,
 } from '../core/memory-pools';
+import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 
 // Color temperature (in Kelvin) to RGB
 export function ColorTemperatureToRGB (rgb: Vec3, kelvin: number) {

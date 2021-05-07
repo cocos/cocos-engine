@@ -66,16 +66,10 @@ export class SpotLight extends Light {
     declare protected _hFrustum: FrustumHandle;
 
     protected _init (): void {
-        super._init();
         if (JSB) {
             this._hAABB = AABBPool.alloc();
             this._hFrustum = FrustumPool.alloc();
-            LightPool.set(this._handle, LightView.SIZE, this._size);
             LightPool.set(this._handle, LightView.AABB, this._hAABB);
-            LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(this._size));
-            LightPool.set(this._handle, LightView.RANGE, Math.cos(Math.PI / 6));
-            LightPool.set(this._handle, LightView.ASPECT, 1.0);
-            LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
         }
     }
 
@@ -90,8 +84,13 @@ export class SpotLight extends Light {
                 this._hFrustum = NULL_HANDLE;
             }
         }
+    }
 
-        super._destroy();
+    protected _setDirection (dir: Vec3): void {
+        this._dir = dir;
+        if (JSB) {
+            LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
+        }
     }
 
     protected _update (): void {
@@ -188,6 +187,23 @@ export class SpotLight extends Light {
         this._frustum = Frustum.create();
         this._pos = new Vec3();
         this._type = LightType.SPOT;
+    }
+
+    public initialize () {
+        super.initialize();
+        this._init();
+
+        const size = 0.15;
+        this.size = size;
+        this.aspect = 1.0;
+        this.luminance = 1700 / nt2lm(size);
+        this.range = Math.cos(Math.PI / 6);
+        this._setDirection(new Vec3(1.0, -1.0, -1.0));
+    }
+
+    public destroy (): void {
+        this._destroy();
+        super.destroy();
     }
 
     public update () {

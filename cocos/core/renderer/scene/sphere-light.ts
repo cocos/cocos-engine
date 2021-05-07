@@ -32,14 +32,9 @@ import { AABBHandle, AABBPool, AABBView, LightPool, LightView, NULL_HANDLE } fro
 export class SphereLight extends Light {
     declare protected _hAABB: AABBHandle;
     protected _init (): void {
-        super._init();
         if (JSB) {
             this._hAABB = AABBPool.alloc();
-
-            LightPool.set(this._handle, LightView.SIZE, this._size);
-            LightPool.set(this._handle, LightView.RANGE, this._range);
             LightPool.set(this._handle, LightView.AABB, this._hAABB);
-            LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(this._size));
         }
     }
 
@@ -48,7 +43,6 @@ export class SphereLight extends Light {
             AABBPool.free(this._hAABB);
             this._hAABB = NULL_HANDLE;
         }
-        super._destroy();
     }
 
     protected _update (): void {
@@ -114,6 +108,21 @@ export class SphereLight extends Light {
         this._aabb = AABB.create();
         this._pos = new Vec3();
         this._type = LightType.SPHERE;
+    }
+
+    public initialize () {
+        super.initialize();
+        this._init();
+
+        const size = 0.15;
+        this.size = size;
+        this.range = 1.0;
+        this.luminance = 1700 / nt2lm(size);
+    }
+
+    public destroy () {
+        this._destroy();
+        super.destroy();
     }
 
     public update () {
