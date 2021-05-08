@@ -73,8 +73,6 @@ export class Light {
     protected _init (): void {
         if (JSB) {
             this._handle = LightPool.alloc();
-            LightPool.setVec3(this._handle, LightView.COLOR, this._color);
-            LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
             LightPool.set(this._handle, LightView.TYPE, this._type);
         }
     }
@@ -185,6 +183,8 @@ export class Light {
 
     public initialize () {
         this._init();
+        this.color = new Vec3(1, 1, 1);
+        this.colorTemperature = 6550.0;
     }
 
     public attachToScene (scene: RenderScene) {
