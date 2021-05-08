@@ -14,7 +14,7 @@ module.exports = {
         },
         particle:{
             spriteFrame:'Sprite Frame',
-            spriteFrameTip:'Sprite Frame'
+            spriteFrameTip:'Sprite Frame',
         },
         erpTextureCube: {
             anisotropy: 'Anisotropy',
@@ -255,7 +255,7 @@ module.exports = {
             },
             animationBakeRate: {
                 name: '动画烘焙速率',
-                title: '指定动画烘焙速率，单位为帧每秒（FPS）'
+                title: '指定动画烘焙速率，单位为帧每秒（FPS）',
             },
         },
         textureCube: {
