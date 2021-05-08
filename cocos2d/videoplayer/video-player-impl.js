@@ -407,8 +407,12 @@ let VideoPlayerImpl = cc.Class({
         if (video.setShowRawFrame !== undefined)
             video.setShowRawFrame(show);
         else {
-            if (show) video.style.visibility = 'visible';
-            else video.style.visibility = 'hidden';
+			if (!show) {
+				video.style.bottom = "-1000px";
+			}
+			else {
+				video.style.bottom = "0px";
+			}
         }
     },
 
