@@ -35,11 +35,7 @@ export class SphereLight extends Light {
         super._init();
         if (JSB) {
             this._hAABB = AABBPool.alloc();
-
-            LightPool.set(this._handle, LightView.SIZE, this._size);
-            LightPool.set(this._handle, LightView.RANGE, this._range);
             LightPool.set(this._handle, LightView.AABB, this._hAABB);
-            LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(this._size));
         }
     }
 
@@ -114,6 +110,15 @@ export class SphereLight extends Light {
         this._aabb = AABB.create();
         this._pos = new Vec3();
         this._type = LightType.SPHERE;
+    }
+
+    public initialize () {
+        super.initialize();
+
+        const size = 0.15;
+        this.size = size;
+        this.range = 1.0;
+        this.luminance = 1700 / nt2lm(size);
     }
 
     public update () {
