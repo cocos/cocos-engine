@@ -305,11 +305,6 @@ export const sys: Record<string, any> = {
         locView._convertPointWithScale(leftBottom);
         locView._convertPointWithScale(rightTop);
 
-        // // Clamp the point in the viewport
-        // const visibleSizeVec2 = new Vec2(locView._visibleRect.width, locView._visibleRect.height);
-        // leftBottom.clampf(Vec2.ZERO, visibleSizeVec2);
-        // rightTop.clampf(Vec2.ZERO, visibleSizeVec2);
-
         const x = leftBottom.x;
         const y = leftBottom.y;
         const width = rightTop.x - leftBottom.x;
