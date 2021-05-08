@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
 import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../../builtin';
 import { Material } from '../../assets/material';
@@ -55,10 +56,7 @@ export class Skybox {
 
     set enabled (val: boolean) {
         if (val) this.activate(); else this._updatePipeline();
-        this._enabled = val;
-        if (JSB) {
-            SkyboxPool.set(this._handle, SkyboxView.ENABLE, val ? 1 : 0);
-        }
+        this.setEnabled(val);
     }
     /**
      * @en Whether use environment lighting
@@ -69,10 +67,7 @@ export class Skybox {
     }
 
     set useIBL (val: boolean) {
-        this._useIBL = val;
-        if (JSB) {
-            SkyboxPool.set(this._handle, SkyboxView.USE_IBL, val ? 1 : 0);
-        }
+        this.setUseIBL(val);
         this._updatePipeline();
     }
 
@@ -85,7 +80,6 @@ export class Skybox {
     }
 
     set isRGBE (val: boolean) {
-        this._isRGBE = val;
         if (val) {
             if (skybox_material) {
                 skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: val });
@@ -95,9 +89,7 @@ export class Skybox {
                 this._model.setSubModelMaterial(0, skybox_material!);
             }
         }
-        if (JSB) {
-            SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, val ? 1 : 0);
-        }
+        this.setIsRGBE(val);
         this._updatePipeline();
     }
 
@@ -133,16 +125,36 @@ export class Skybox {
         this._handle = SkyboxPool.alloc();
     }
 
-    public initialize (skyboxInfo: SkyboxInfo) {
-        this._enabled = skyboxInfo.enabled;
-        this._useIBL = skyboxInfo.useIBL;
-        this._isRGBE = skyboxInfo.isRGBE;
+    protected setEnabled (val) {
+        this._enabled = val;
         if (JSB) {
-            SkyboxPool.set(this._handle, SkyboxView.ENABLE, skyboxInfo.enabled ? 1 : 0);
-            SkyboxPool.set(this._handle, SkyboxView.USE_IBL, skyboxInfo.useIBL ? 1 : 0);
-            SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, skyboxInfo.isRGBE ? 1 : 0);
+            SkyboxPool.set(this._handle, SkyboxView.ENABLE, val ? 1 : 0);
         }
+    }
+
+    protected setUseIBL (val) {
+        this._useIBL = val;
+        if (JSB) {
+            SkyboxPool.set(this._handle, SkyboxView.USE_IBL, val ? 1 : 0);
+        }
+    }
+
+    protected setIsRGBE (val) {
+        this._isRGBE = val;
+        if (JSB) {
+            SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, val ? 1 : 0);
+        }
+    }
+
+    protected _init (skyboxInfo: SkyboxInfo) {
+        this.setEnabled(skyboxInfo.enabled);
+        this.setUseIBL(skyboxInfo.useIBL);
+        this.setIsRGBE(skyboxInfo.isRGBE);
         this._envmap = skyboxInfo.envmap;
+    }
+
+    public initialize (skyboxInfo: SkyboxInfo) {
+        this._init(skyboxInfo);
     }
 
     public activate () {
@@ -197,11 +209,15 @@ export class Skybox {
         this._globalDescriptorSet!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
     }
 
-    public destroy () {
+    protected _destroy () {
         if (JSB && this._handle) {
             SkyboxPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }
+    }
+
+    public destroy () {
+        this._destroy();
     }
 }
 

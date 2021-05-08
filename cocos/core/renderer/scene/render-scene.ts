@@ -147,11 +147,7 @@ export class RenderScene {
         }
     }
 
-    public destroy () {
-        this.removeCameras();
-        this.removeSphereLights();
-        this.removeSpotLights();
-        this.removeModels();
+    protected _destroy () {
         if (this._modelArrayHandle && JSB) {
             ModelArrayPool.free(this._modelArrayHandle);
             this._modelArrayHandle = NULL_HANDLE;
@@ -172,6 +168,14 @@ export class RenderScene {
             UIBatchArrayPool.free(this._batchArrayHandle);
             this._batchArrayHandle = NULL_HANDLE;
         }
+    }
+
+    public destroy () {
+        this.removeCameras();
+        this.removeSphereLights();
+        this.removeSpotLights();
+        this.removeModels();
+        this._destroy();
     }
 
     public addCamera (cam: Camera) {

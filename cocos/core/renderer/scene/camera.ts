@@ -188,37 +188,58 @@ export class Camera {
         }
     }
 
-    public initialize (info: ICameraInfo) {
-        this._name = info.name;
-        this._node = info.node;
-        this._proj = info.projection;
-        this._priority = info.priority || 0;
+    protected setWidth (val) {
+        this._width = val;
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.WIDTH, val);
+        }
+    }
 
-        this._aspect = this.screenScale = 1;
-        this._width = 1;
-        this._height = 1;
-        this._clearFlag = ClearFlagBit.NONE;
-        this._clearDepth = 1.0;
-        this._visibility = CAMERA_DEFAULT_MASK;
+    protected setHeight (val) {
+        this._height = val;
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.HEIGHT, val);
+        }
+    }
+
+    protected _init (info: ICameraInfo) {
         let handle;
         if (JSB) {
             handle = this._poolHandle = CameraPool.alloc();
-            CameraPool.set(handle, CameraView.WIDTH, 1);
-            CameraPool.set(handle, CameraView.HEIGHT, 1);
-            CameraPool.set(handle, CameraView.CLEAR_FLAGS, ClearFlagBit.NONE);
-            CameraPool.set(handle, CameraView.CLEAR_DEPTH, 1.0);
-            CameraPool.set(handle, CameraView.NODE, this._node.handle);
-            CameraPool.set(handle, CameraView.VISIBILITY, CAMERA_DEFAULT_MASK);
             if (this._scene) CameraPool.set(handle, CameraView.SCENE, this._scene.handle);
             this._frustumHandle = FrustumPool.alloc();
             CameraPool.set(handle, CameraView.FRUSTUM, this._frustumHandle);
         }
+        this.node = info.node;
+        this.setWidth(1);
+        this.setHeight(1);
+        this.clearFlag = ClearFlagBit.NONE;
+        this.clearDepth = 1.0;
+        this.visibility = CAMERA_DEFAULT_MASK;
+    }
 
+    public initialize (info: ICameraInfo) {
+        this._init(info);
+        this._name = info.name;
+        this._proj = info.projection;
+        this._priority = info.priority || 0;
+        this._aspect = this.screenScale = 1;
         this.updateExposure();
         this.changeTargetWindow(info.window);
         if (JSB) {
-            console.log(`Created Camera: ${this._name} ${CameraPool.get(handle,
-                CameraView.WIDTH)}x${CameraPool.get(handle, CameraView.HEIGHT)}`);
+            console.log(`Created Camera: ${this._name} ${CameraPool.get(this._poolHandle,
+                CameraView.WIDTH)}x${CameraPool.get(this._poolHandle, CameraView.HEIGHT)}`);
+        }
+    }
+
+    protected _destroy () {
+        if (JSB && this._poolHandle) {
+            CameraPool.free(this._poolHandle);
+            this._poolHandle = NULL_HANDLE;
+            if (this._frustumHandle) {
+                FrustumPool.free(this._frustumHandle);
+                this._frustumHandle = NULL_HANDLE;
+            }
         }
     }
 
@@ -228,14 +249,7 @@ export class Camera {
             this._window = null;
         }
         this._name = null;
-        if (JSB && this._poolHandle) {
-            CameraPool.free(this._poolHandle);
-            this._poolHandle = NULL_HANDLE;
-            if (this._frustumHandle) {
-                FrustumPool.free(this._frustumHandle);
-                this._frustumHandle = NULL_HANDLE;
-            }
-        }
+        this._destroy();
     }
 
     public attachToScene (scene: RenderScene) {
@@ -342,6 +356,9 @@ export class Camera {
 
     set node (val: Node) {
         this._node = val;
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.NODE, this._node.handle);
+        }
     }
 
     get node () {

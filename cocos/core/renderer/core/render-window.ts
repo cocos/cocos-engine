@@ -65,6 +65,9 @@ export class RenderWindow {
      * @zh 帧缓冲对象。
      */
     get framebuffer (): Framebuffer {
+        if (JSB) {
+            return FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
+        }
         return this._framebuffer!;
     }
 
@@ -121,6 +124,36 @@ export class RenderWindow {
     private constructor (root: Root) {
     }
 
+    protected setHasOffScreenAttachments (val) {
+        this._hasOffScreenAttachments = val;
+        if (JSB) {
+            RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, val ? 1 : 0);
+        }
+    }
+
+    protected setHasOnScreenAttachments (val) {
+        this._hasOnScreenAttachments = val;
+        if (JSB) {
+            RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, val ? 1 : 0);
+        }
+    }
+
+    protected setFrameBuffer (device: Device, renderPass) {
+        this._framebuffer = device.createFramebuffer(new FramebufferInfo(
+            renderPass,
+            this._colorTextures,
+            this._depthStencilTexture,
+        ));
+        if (JSB) {
+            const hFBO = FramebufferPool.alloc(device, new FramebufferInfo(
+                renderPass,
+                this._colorTextures,
+                this._depthStencilTexture,
+            ));
+            RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, hFBO);
+        }
+    }
+
     public initialize (device: Device, info: IRenderWindowInfo): boolean {
         if (JSB) {
             this._poolHandle = RenderWindowPool.alloc();
@@ -164,15 +197,9 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 ));
-                this._hasOffScreenAttachments = true;
-                if (JSB) {
-                    RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, 1);
-                }
+                this.setHasOffScreenAttachments(true);
             } else {
-                this._hasOnScreenAttachments = true;
-                if (JSB) {
-                    RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, 1);
-                }
+                this.setHasOnScreenAttachments(true);
             }
             this._colorTextures.push(colorTex);
         }
@@ -187,31 +214,20 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 ));
-                this._hasOffScreenAttachments = true;
-                if (JSB) {
-                    RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, 1);
-                }
-            } else {
-                this._hasOnScreenAttachments = true;
-                if (JSB) {
-                    RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, 1);
-                }
+                this.setHasOffScreenAttachments(true);
             }
+        } else {
+            this.setHasOnScreenAttachments(true);
         }
-        this._framebuffer = device.createFramebuffer(new FramebufferInfo(
-            this._renderPass,
-            this._colorTextures,
-            this._depthStencilTexture,
-        ));
-        if (JSB) {
-            const hFBO = FramebufferPool.alloc(device, new FramebufferInfo(
-                this._renderPass,
-                this._colorTextures,
-                this._depthStencilTexture,
-            ));
-            RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, hFBO);
-        }
+        this.setFrameBuffer(device, this._renderPass);
         return true;
+    }
+
+    protected _destroy () {
+        this.framebuffer.destroy();
+        if (this._poolHandle) {
+            this._poolHandle = NULL_HANDLE;
+        }
     }
 
     public destroy () {
@@ -228,11 +244,7 @@ export class RenderWindow {
             }
         }
         this._colorTextures.length = 0;
-        this.framebuffer.destroy();
-        if (JSB && this._poolHandle) {
-            FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER)).destroy();
-            this._poolHandle = NULL_HANDLE;
-        }
+        this._destroy();
     }
 
     /**
@@ -265,10 +277,7 @@ export class RenderWindow {
                 }
             }
 
-            let framebuffer = this.framebuffer;
-            if (JSB) {
-                framebuffer = FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
-            }
+            const framebuffer = this.framebuffer;
             if (needRebuild && framebuffer) {
                 framebuffer.destroy();
                 framebuffer.initialize(new FramebufferInfo(

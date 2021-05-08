@@ -466,14 +466,14 @@ export class Shadows {
         this.autoAdapt = shadowsInfo.autoAdapt;
         this._type = shadowsInfo.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE;
         this._enabled = shadowsInfo.enabled;
-    }
-
-    public initialize (shadowsInfo: ShadowsInfo) {
-        this._init(shadowsInfo);
         if (JSB) {
             ShadowsPool.set(this._handle, ShadowsView.TYPE, shadowsInfo.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE);
             ShadowsPool.set(this._handle, ShadowsView.ENABLE, shadowsInfo.enabled ? 1 : 0);
         }
+    }
+
+    public initialize (shadowsInfo: ShadowsInfo) {
+        this._init(shadowsInfo);
     }
 
     public activate () {

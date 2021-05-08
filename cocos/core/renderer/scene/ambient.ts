@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
 import { JSB } from 'internal:constants';
 import { Color, Vec3 } from '../../math';
 import { AmbientPool, NULL_HANDLE, AmbientView, AmbientHandle } from '../core/memory-pools';
@@ -113,24 +114,25 @@ export class Ambient {
         this._handle = AmbientPool.alloc();
     }
 
-    public initialize (ambientInfo: AmbientInfo) {
-        this._skyColor.set(ambientInfo.skyColor);
-        this._groundAlbedo.set(ambientInfo.groundAlbedo);
-        Color.toArray(this._colorArray, this._skyColor);
-        Vec3.toArray(this._albedoArray, this._groundAlbedo);
-        this._skyIllum = ambientInfo.skyIllum;
-        if (JSB) {
-            AmbientPool.setVec4(this._handle, AmbientView.SKY_COLOR, this._skyColor);
-            AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
-            AmbientPool.set(this._handle, AmbientView.ILLUM, ambientInfo.skyIllum);
-        }
+    protected _init (ambientInfo: AmbientInfo) {
+        this.skyColor = ambientInfo.skyColor;
+        this.groundAlbedo = ambientInfo.groundAlbedo;
+        this.skyIllum = ambientInfo.skyIllum;
     }
 
-    public destroy () {
+    public initialize (ambientInfo: AmbientInfo) {
+        this._init(ambientInfo);
+    }
+
+    protected _destroy () {
         if (JSB && this._handle) {
             AmbientPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }
+    }
+
+    public destroy () {
+        this._destroy();
     }
 }
 

@@ -185,10 +185,10 @@ export class Fog {
     }
 
     set fogAtten (val: number) {
+        this._fogAtten = val;
         if (JSB) {
             FogPool.set(this._handle, FogView.ATTEN, val);
         }
-        this._fogAtten = val;
     }
 
     /**
@@ -200,10 +200,10 @@ export class Fog {
     }
 
     set fogTop (val: number) {
+        this._fogTop = val;
         if (JSB) {
             FogPool.set(this._handle, FogView.TOP, val);
         }
-        this._fogTop = val;
     }
 
     /**
@@ -242,28 +242,26 @@ export class Fog {
         this._handle = FogPool.alloc();
     }
 
-    public initialize (fogInfo : FogInfo) {
+    protected _init (fogInfo : FogInfo) {
         this._fogColor.set(fogInfo.fogColor);
         Color.toArray(this._colorArray, this._fogColor);
         this._enabled = !!fogInfo.enabled;
         this._type = fogInfo.enabled ? fogInfo.type : FOG_TYPE_NONE;
-        this._fogDensity = fogInfo.fogDensity;
-        this._fogStart = fogInfo.fogStart;
-        this._fogEnd = fogInfo.fogEnd;
-        this._fogAtten = fogInfo.fogAtten;
-        this._fogTop = fogInfo.fogTop;
-        this._fogRange = fogInfo.fogRange;
+        this.fogDensity = fogInfo.fogDensity;
+        this.fogStart = fogInfo.fogStart;
+        this.fogEnd = fogInfo.fogEnd;
+        this.fogAtten = fogInfo.fogAtten;
+        this.fogTop = fogInfo.fogTop;
+        this.fogRange = fogInfo.fogRange;
         if (JSB) {
             FogPool.set(this._handle, FogView.ENABLE, fogInfo.enabled ? 1 : 0);
             FogPool.set(this._handle, FogView.TYPE, fogInfo.enabled ? fogInfo.type : FOG_TYPE_NONE);
             FogPool.setVec4(this._handle, FogView.COLOR, this._fogColor);
-            FogPool.set(this._handle, FogView.DENSITY, fogInfo.fogDensity);
-            FogPool.set(this._handle, FogView.START, fogInfo.fogStart);
-            FogPool.set(this._handle, FogView.END, fogInfo.fogEnd);
-            FogPool.set(this._handle, FogView.ATTEN, fogInfo.fogAtten);
-            FogPool.set(this._handle, FogView.TOP, fogInfo.fogTop);
-            FogPool.set(this._handle, FogView.RANGE, fogInfo.fogRange);
         }
+    }
+
+    public initialize (fogInfo : FogInfo) {
+        this._init(fogInfo);
     }
 
     public activate () {

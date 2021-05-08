@@ -147,12 +147,15 @@ export class Node extends BaseNode {
 
     protected _poolHandle: NodeHandle = NULL_HANDLE;
 
-    constructor (name?: string) {
-        super(name);
+    protected _init () {
         if (JSB) {
             this._poolHandle = NodePool.alloc();
             NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
         }
+    }
+    constructor (name?: string) {
+        super(name);
+        this._init();
     }
 
     /**
@@ -163,11 +166,15 @@ export class Node extends BaseNode {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof legacyCC.Scene));
     }
 
-    public destroy () {
+    protected _destroy () {
         if (JSB && this._poolHandle) {
             NodePool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
         }
+    }
+
+    public destroy () {
+        this._destroy();
         return super.destroy();
     }
 
