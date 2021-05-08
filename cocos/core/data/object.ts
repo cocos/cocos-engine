@@ -238,18 +238,6 @@ class CCObject {
     }
 
     /**
-     * @en After inheriting CCObject objects, control whether you need to hide, lock, serialize, and other functions.
-     * This method is only available for editors and is not recommended for developers
-     * @zh 在继承 CCObject 对象后，控制是否需要隐藏，锁定，序列化等功能(该方法仅提供给编辑器使用，不建议开发者使用)。
-     */
-    public set objFlags (objFlags: CCObject.Flags) {
-        if (EDITOR) { this._objFlags |= objFlags; }
-    }
-    public get objFlags () {
-        return this._objFlags;
-    }
-
-    /**
      * @en
      * Indicates whether the object is not yet destroyed. (It will not be available after being destroyed)<br>
      * When an object's `destroy` is called, it is actually destroyed after the end of this frame.
@@ -372,6 +360,19 @@ if (EDITOR || TEST) {
     js.get(prototype, 'isRealValid', function (this: CCObject) {
         return !(this._objFlags & RealDestroyed);
     });
+
+    /**
+     * @en After inheriting CCObject objects, control whether you need to hide, lock, serialize, and other functions.
+     * This method is only available for editors and is not recommended for developers
+     * @zh 在继承 CCObject 对象后，控制是否需要隐藏，锁定，序列化等功能(该方法仅提供给编辑器使用，不建议开发者使用)。
+     */
+    js.getset(prototype, 'objFlags',
+        function (this: CCObject) {
+            return this._objFlags;
+        },
+        function (this: CCObject, objFlags: CCObject.Flags) {
+            this._objFlags = objFlags;
+        });
 
     /*
     * @en
