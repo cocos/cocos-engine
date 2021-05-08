@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+
 import { JSB } from 'internal:constants';
 import { Enum } from '../../value-types';
 import { Color } from '../../math';
@@ -278,11 +279,15 @@ export class Fog {
         root.onGlobalPipelineStateChanged();
     }
 
-    public destroy () {
+    protected _destroy () {
         if (JSB && this._handle) {
             FogPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }
+    }
+
+    public destroy () {
+        this._destroy();
     }
 }
 
