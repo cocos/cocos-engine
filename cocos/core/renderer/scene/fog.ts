@@ -215,7 +215,7 @@ export class Fog {
     }
 
     set fogRange (val: number) {
-        this.fogRange = val;
+        this._fogRange = val;
         if (JSB) {
             FogPool.set(this._handle, FogView.RANGE, val);
         }
