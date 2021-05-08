@@ -47,8 +47,8 @@ let VideoPlayerImpl = cc.Class({
         this._video = null;
         this._url = '';
 		
-		this.playerWidth = '0px';
-		this.playerHeight = '0px';
+        this.playerWidth = '0px';
+        this.playerHeight = '0px';
 
         this._waitingFullscreen = false;
         this._fullScreenEnabled = false;
@@ -159,8 +159,8 @@ let VideoPlayerImpl = cc.Class({
         video.style.width = width + 'px';
         video.style.height = height + 'px';
 		
-		this.playerWidth = video.style.width;
-		this.playerHeight = video.style.height;
+        this.playerWidth = video.style.width;
+        this.playerHeight = video.style.height;
     },
 
     _createDom (muted) {
