@@ -63,13 +63,13 @@ bool gles3wOpen() {
 
 void *gles3wLoad(const char *proc) {
     void *res = nullptr;
-    if (eglGetProcAddress) res = (void *)eglGetProcAddress(proc);
+    if (eglGetProcAddress) res = reinterpret_cast<void *>(eglGetProcAddress(proc));
     if (!res) res = dlsym(libegl, proc);
     return res;
 }
 #endif
 
-bool gles3wInit(void) {
+bool gles3wInit() {
     if (!gles3wOpen()) {
         return false;
     }

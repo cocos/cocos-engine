@@ -25,6 +25,10 @@
 
 #pragma once
 
+#define GL_GLES_PROTOTYPES 0
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  * The following section is auto-generated from GLES spec by running:
@@ -352,7 +356,7 @@ extern PFNGLFLUSHMAPPEDBUFFERRANGEEXTPROC glFlushMappedBufferRangeEXT;
 
 #if defined(GL_EXT_memory_object)
 extern PFNGLGETUNSIGNEDBYTEVEXTPROC glGetUnsignedBytevEXT;
-extern PFNGLGETUNSIGNEDBYTEI_VEXTPROC glGetUnsignedBytei_vEXT;
+extern PFNGLGETUNSIGNEDBYTEI_VEXTPROC glGetUnsignedBytei_vEXT; // NOLINT(readability-identifier-naming)
 extern PFNGLDELETEMEMORYOBJECTSEXTPROC glDeleteMemoryObjectsEXT;
 extern PFNGLISMEMORYOBJECTEXTPROC glIsMemoryObjectEXT;
 extern PFNGLCREATEMEMORYOBJECTSEXTPROC glCreateMemoryObjectsEXT;
@@ -398,7 +402,7 @@ extern PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC glFramebufferTexture2DMultisa
 #if defined(GL_EXT_multiview_draw_buffers)
 extern PFNGLREADBUFFERINDEXEDEXTPROC glReadBufferIndexedEXT;
 extern PFNGLDRAWBUFFERSINDEXEDEXTPROC glDrawBuffersIndexedEXT;
-extern PFNGLGETINTEGERI_VEXTPROC glGetIntegeri_vEXT;
+extern PFNGLGETINTEGERI_VEXTPROC glGetIntegeri_vEXT; // NOLINT(readability-identifier-naming)
 #endif /* defined(GL_EXT_multiview_draw_buffers) */
 
 #if defined(GL_EXT_polygon_offset_clamp)
@@ -912,7 +916,7 @@ extern PFNGLSCISSORINDEXEDNVPROC glScissorIndexedNV;
 extern PFNGLSCISSORINDEXEDVNVPROC glScissorIndexedvNV;
 extern PFNGLDEPTHRANGEARRAYFVNVPROC glDepthRangeArrayfvNV;
 extern PFNGLDEPTHRANGEINDEXEDFNVPROC glDepthRangeIndexedfNV;
-extern PFNGLGETFLOATI_VNVPROC glGetFloati_vNV;
+extern PFNGLGETFLOATI_VNVPROC glGetFloati_vNV; // NOLINT(readability-identifier-naming)
 extern PFNGLENABLEINVPROC glEnableiNV;
 extern PFNGLDISABLEINVPROC glDisableiNV;
 extern PFNGLISENABLEDINVPROC glIsEnablediNV;
@@ -1024,7 +1028,7 @@ extern PFNGLSCISSORINDEXEDOESPROC glScissorIndexedOES;
 extern PFNGLSCISSORINDEXEDVOESPROC glScissorIndexedvOES;
 extern PFNGLDEPTHRANGEARRAYFVOESPROC glDepthRangeArrayfvOES;
 extern PFNGLDEPTHRANGEINDEXEDFOESPROC glDepthRangeIndexedfOES;
-extern PFNGLGETFLOATI_VOESPROC glGetFloati_vOES;
+extern PFNGLGETFLOATI_VOESPROC glGetFloati_vOES; // NOLINT(readability-identifier-naming)
 #endif /* defined(GL_OES_viewport_array) */
 
 #if defined(GL_OVR_multiview)

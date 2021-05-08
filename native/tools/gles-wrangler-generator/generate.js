@@ -48,9 +48,10 @@ for (let i = 2; i < argc; i++) {
         let sourceDef = '';
         let sourceLoad = '';
         const writeCommand = (name) => {
-            headerDecl += `extern PFN${name.toUpperCase()}PROC ${name};\n`;
+            const nolint = name.includes('_') ? ' // NOLINT(readability-identifier-naming)' : '';
+            headerDecl += `extern PFN${name.toUpperCase()}PROC ${name};${nolint}\n`;
             sourceDef += `PFN${name.toUpperCase()}PROC ${name};\n`;
-            sourceLoad += `    ${name} = (PFN${name.toUpperCase()}PROC)${moduleName}Load("${name}");\n`;
+            sourceLoad += `    ${name} = reinterpret_cast<PFN${name.toUpperCase()}PROC>(${moduleName}Load("${name}"));\n`;
             nameRecord.add(name);
         };
         const append = (content) => {

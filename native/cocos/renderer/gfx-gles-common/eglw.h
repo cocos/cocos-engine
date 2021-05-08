@@ -27,6 +27,11 @@
 
 #if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
 
+#define EGL_EGL_PROTOTYPES 0
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <EGL/eglplatform.h>
+
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  * The following section is auto-generated from EGL spec by running:
