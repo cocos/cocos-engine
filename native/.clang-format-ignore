@@ -1,0 +1,2 @@
+# ignore third_party code from clang-format checks
+./cocos/bindings/auto/*

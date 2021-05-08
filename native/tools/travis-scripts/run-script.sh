@@ -84,7 +84,9 @@ function build_android()
     sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
     sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
     sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$COCOS2DX_ROOT@g" gradle.properties
-    sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
+    # To speedup CI, compile arm64-v8a only
+    # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
+    sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=arm64-v8a@g" gradle.properties
 
     #echo "Compile Android - ndk-build ..."
     #./gradlew assembleDebug --quiet
@@ -191,10 +193,10 @@ function build_windows()
     cd build-win32
     RES_DIR=$COCOS2DX_ROOT/templates/win32/build-win32
     cmake ../ -G"Visual Studio 15 2017" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS2DX_ROOT
-    cmake --build . --config Debug
-    echo "Compile Win32 Debug Done!"
+    # cmake --build . --config Debug
+    # echo "Compile Win32 Debug Done!"
     cmake --build . --config Release
-    echo "Compile Win32 Debug Done!"
+    echo "Compile Win32 Release Done!"
 }
 
 
