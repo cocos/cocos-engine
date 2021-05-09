@@ -340,7 +340,7 @@ module.exports = cc.debug = {
      * !#en Gets error message with the error id and possible parameters.
      * !#zh 通过 error id 和必要的参数来获取错误信息。
      * @method getError
-     * @param {String} errorId
+     * @param {Number} errorId
      * @param {any} [param]
      * @return {String}
      */

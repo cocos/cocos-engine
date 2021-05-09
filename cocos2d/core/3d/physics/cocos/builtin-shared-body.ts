@@ -24,10 +24,14 @@
  ****************************************************************************/
 import { BuiltInWorld } from './builtin-world';
 import { BuiltinShape } from './shapes/builtin-shape';
-import { updateWorldTransform } from "../framework/util"
+import { worldDirty } from "../framework/util"
 
 const intersect = cc.geomUtils.intersect;
 const fastRemove = cc.js.array.fastRemove;
+const v3_0 = new cc.Vec3();
+const v3_1 = new cc.Vec3();
+const quat_0 = new cc.Quat();
+
 
 /**
  * Built-in static collider, no physical forces involved
@@ -123,11 +127,14 @@ export class BuiltinSharedBody {
 
     syncSceneToPhysics (force: boolean = false) {
         let node = this.node;
-        let needUpdateTransform = updateWorldTransform(node, force);
-        if (!force && !needUpdateTransform) return;        
+        let needUpdateTransform = worldDirty(node);
+        if (!force && !needUpdateTransform) return;
 
+        node.getWorldPosition(v3_0);
+        node.getWorldRotation(quat_0)
+        node.getWorldScale(v3_1);
         for (let i = 0; i < this.shapes.length; i++) {
-            this.shapes[i].transform(node._worldMatrix, node.__wpos, node.__wrot, node.__wscale);
+            this.shapes[i].transform(node._worldMatrix, v3_0, quat_0, v3_1);
         }
     }
 

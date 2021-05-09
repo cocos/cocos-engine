@@ -491,7 +491,7 @@ Private node's zIndex can't be set, it will keep cc.macro.MIN_ZINDEX as its valu
 
 ### 1639
 
-cc.Action is deprecated, please use cc.TweenAction instead
+cc.Action is deprecated, please use cc.Tween instead
 
 ### 1700
 
@@ -1094,6 +1094,10 @@ Lazy init texture with image element failed due to image loading failure: %s
 
 Loading texture with unsupported type: '%s'. Add '%s' into 'cc.macro.SUPPORT_TEXTURE_FORMATS' please.
 
+### 3121
+
+Can't find a texture format supported by the current platform! Please add a fallback format in the editor.
+
 ### 3200
 
 <!-- DEPRECATED -->
@@ -1385,15 +1389,15 @@ Default value must be initialized at their declaration:
 ```
 // Before:
 @property({
-  type: cc.Integer
-  default: 0  // <--
+  type: cc.SpriteFrame
+  default: null  // <--
 })
 myProp;
 // After:
 @property({
-  type: cc.Integer
+  type: cc.SpriteFrame
 })
-myProp = 0;   // <--
+myProp = null;   // <--
 ```
 
 ### 3654

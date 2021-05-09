@@ -433,7 +433,7 @@ var RigidBody = cc.Class({
 
     /**
      * !#en
-     * Gets a local point relative to the body's origin given a world point.
+     * Converts a given point in the world coordinate system to this rigid body's local coordinate system
      * !#zh
      * 将一个给定的世界坐标系下的点转换为刚体本地坐标系下的点
      * @method getLocalPoint
@@ -454,7 +454,7 @@ var RigidBody = cc.Class({
 
     /**
      * !#en
-     * Get the world coordinates of a point given the local coordinates.
+     * Converts a given point in this rigid body's local coordinate system to the world coordinate system
      * !#zh
      * 将一个给定的刚体本地坐标系下的点转换为世界坐标系下的点
      * @method getWorldPoint
@@ -475,9 +475,9 @@ var RigidBody = cc.Class({
 
     /**
      * !#en
-     * Get the world coordinates of a vector given the local coordinates.
+     * Converts a given vector in this rigid body's local coordinate system to the world coordinate system
      * !#zh
-     * 将一个给定的世界坐标系下的向量转换为刚体本地坐标系下的向量
+     * 将一个给定的刚体本地坐标系下的向量转换为世界坐标系下的向量
      * @method getWorldVector
      * @param {Vec2} localVector - a vector in world coordinates.
      * @param {Vec2} out - optional, the receiving vector
@@ -496,9 +496,9 @@ var RigidBody = cc.Class({
 
     /**
      * !#en
-     * Gets a local vector relative to the body's origin given a world vector.
+     * Converts a given vector in the world coordinate system to this rigid body's local coordinate system
      * !#zh
-     * 将一个给定的世界坐标系下的点转换为刚体本地坐标系下的点
+     * 将一个给定的世界坐标系下的向量转换为刚体本地坐标系下的向量
      * @method getLocalVector
      * @param {Vec2} worldVector - a vector in world coordinates.
      * @param {Vec2} out - optional, the receiving vector

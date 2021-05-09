@@ -230,7 +230,9 @@ proto.clear = function () {
         const infos = list.callbackInfos;
         for (let i = infos.length - 1; i >= 0; i--) {
             const info = infos[i];
-            this.off(key, info.callback, info.target);
+            if (info) {
+                this.off(key, info.callback, info.target);
+            }
         }
     }
 };

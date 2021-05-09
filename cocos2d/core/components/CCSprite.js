@@ -437,15 +437,23 @@ var Sprite = cc.Class({
     },
 
     _updateMaterial () {
-        let texture = this._spriteFrame && this._spriteFrame.getTexture();
+        let texture = null;
+                
+        if (this._spriteFrame) {
+            texture = this._spriteFrame.getTexture();
+        }
         
         // make sure material is belong to self.
         let material = this.getMaterial(0);
         if (material) {
-            if (material.getDefine('USE_TEXTURE') !== undefined) {
+            let oldDefine = material.getDefine('USE_TEXTURE');
+            if (oldDefine !== undefined && !oldDefine) {
                 material.define('USE_TEXTURE', true);
             }
-            material.setProperty('texture', texture);
+            let textureImpl = texture && texture.getImpl();
+            if (material.getProperty('texture') !== textureImpl) {
+                material.setProperty('texture', texture);
+            }
         }
 
         BlendFunc.prototype._updateMaterial.call(this);
@@ -489,14 +497,16 @@ var Sprite = cc.Class({
     },
 
     _applySpriteFrame (oldFrame) {
+        if (!this.isValid)  return;
+
         let oldTexture = oldFrame && oldFrame.getTexture();
         if (oldTexture && !oldTexture.loaded) {
             oldFrame.off('load', this._applySpriteSize, this);
         }
 
+        this._updateMaterial();
         let spriteFrame = this._spriteFrame;
         if (spriteFrame) {
-            this._updateMaterial();
             let newTexture = spriteFrame.getTexture();
             if (newTexture && newTexture.loaded) {
                 this._applySpriteSize();

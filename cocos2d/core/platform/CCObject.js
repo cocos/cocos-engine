@@ -427,7 +427,6 @@ function compileDestruct (obj, ctor) {
  *
  * NOTE: this method will not clear the `getter` or `setter` functions which defined in the instance of `CCObject`.
  * You can override the `_destruct` method if you need, for example:
- * 
  * ```js
  * _destruct: function () {
  *     for (var key in this) {

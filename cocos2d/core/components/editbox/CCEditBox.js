@@ -59,7 +59,6 @@ let EditBox = cc.Class({
     },
 
     properties: {
-        _useOriginalSize: true,
         _string: '',
         /**
          * !#en Input string of EditBox.

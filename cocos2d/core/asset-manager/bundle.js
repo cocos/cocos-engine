@@ -242,12 +242,14 @@ Bundle.prototype = {
      * bundle2.load('imgs/cocos', cc.SpriteFrame, null, (err, spriteFrame) => console.log(err));
      * 
      * @typescript
-     * load<T extends cc.Asset>(paths: string|string[], type: typeof cc.Asset, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: T|Array<T>) => void): void
-     * load<T extends cc.Asset>(paths: string|string[], onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: T|Array<T>) => void): void
-     * load<T extends cc.Asset>(paths: string|string[], type: typeof cc.Asset, onComplete: (error: Error, assets: T|Array<T>) => void): void
-     * load<T extends cc.Asset>(paths: string|string[], onComplete: (error: Error, assets: T|Array<T>) => void): void
-     * load<T extends cc.Asset>(paths: string|string[], type: typeof cc.Asset): void
-     * load<T extends cc.Asset>(paths: string|string[]): void
+     * load<T extends cc.Asset>(paths: string, type: typeof cc.Asset, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: T) => void): void
+     * load<T extends cc.Asset>(paths: string[], type: typeof cc.Asset, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
+     * load<T extends cc.Asset>(paths: string, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: T) => void): void
+     * load<T extends cc.Asset>(paths: string[], onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
+     * load<T extends cc.Asset>(paths: string, type: typeof cc.Asset, onComplete?: (error: Error, assets: T) => void): void
+     * load<T extends cc.Asset>(paths: string[], type: typeof cc.Asset, onComplete?: (error: Error, assets: Array<T>) => void): void
+     * load<T extends cc.Asset>(paths: string, onComplete?: (error: Error, assets: T) => void): void
+     * load<T extends cc.Asset>(paths: string[], onComplete?: (error: Error, assets: Array<T>) => void): void
      */
     load (paths, type, onProgress, onComplete) {
         var { type, onProgress, onComplete } = parseLoadResArgs(type, onProgress, onComplete);

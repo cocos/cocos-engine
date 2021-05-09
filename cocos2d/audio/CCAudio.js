@@ -42,10 +42,15 @@ let Audio = function (src) {
     this.id = 0;
     this._state = Audio.State.INITIALZING;
 
+    const self = this;
     this._onended = function () {
-        this._state = Audio.State.STOPPED;
-        this.emit('ended');
-    }.bind(this);
+        self._state = Audio.State.STOPPED;
+        self.emit('ended');
+    };
+    this._onendedSecond = function () {
+        self._unbindEnded(self._onendedSecond);
+        self._bindEnded();
+    };
 };
 
 cc.js.extend(Audio, EventTarget);
@@ -61,7 +66,7 @@ Audio.State = {
     /**
      * @property {Number} ERROR
      */
-    ERROR : -1,
+    ERROR: -1,
     /**
      * @property {Number} INITIALZING
      */
@@ -84,6 +89,11 @@ Audio.State = {
 
     proto._bindEnded = function (callback) {
         callback = callback || this._onended;
+        if (callback._binded) {
+            return;
+        }
+        callback._binded = true;
+
         let elem = this._element;
         if (this._src && (elem instanceof HTMLAudioElement)) {
             elem.addEventListener('ended', callback);
@@ -92,10 +102,16 @@ Audio.State = {
         }
     };
 
-    proto._unbindEnded = function () {
+    proto._unbindEnded = function (callback) {
+        callback = callback || this._onended;
+        if (!callback._binded) {
+            return;
+        }
+        callback._binded = false;
+
         let elem = this._element;
         if (elem instanceof HTMLAudioElement) {
-            elem.removeEventListener('ended', this._onended);
+            elem.removeEventListener('ended', callback);
         } else if (elem) {
             elem.onended = null;
         }
@@ -164,7 +180,9 @@ Audio.State = {
     };
 
     proto.pause = function () {
-        if (this.getState() !== Audio.State.PLAYING) return;
+        if (this.getState() !== Audio.State.PLAYING) {
+            return;
+        }
         let self = this;
         this._src && this._src._ensureLoaded(function () {
             // pause operation may fire 'ended' event
@@ -175,7 +193,9 @@ Audio.State = {
     };
 
     proto.resume = function () {
-        if (this.getState() !== Audio.State.PAUSED) return;
+        if (this.getState() !== Audio.State.PAUSED) {
+            return;
+        }
         let self = this;
         this._src && this._src._ensureLoaded(function () {
             self._bindEnded();
@@ -228,9 +248,7 @@ Audio.State = {
             // setCurrentTime would fire 'ended' event
             // so we need to change the callback to rebind ended callback after setCurrentTime
             self._unbindEnded();
-            self._bindEnded(function () {
-                self._bindEnded();
-            });
+            self._bindEnded(self._onendedSecond);
             self._element.currentTime = num;
         });
     };
@@ -271,19 +289,21 @@ Audio.State = {
         set: function (clip) {
             this._unbindEnded();
             if (clip) {
-                this._src = clip;
-                if (!clip.loaded) {
-                    let self = this;
-                    // need to call clip._ensureLoaded mannually to start loading
-                    clip.once('load', function () {
-                        // In case set a new src when the old one hasn't finished loading
-                        if (clip === self._src) {
-                            self._onLoaded();
-                        }
-                    });
-                }
-                else {
-                    this._onLoaded();
+                if (clip !== this._src) {
+                    this._src = clip;
+                    if (!clip.loaded) {
+                        let self = this;
+                        // need to call clip._ensureLoaded mannually to start loading
+                        clip.once('load', function () {
+                            // In case set a new src when the old one hasn't finished loading
+                            if (clip === self._src) {
+                                self._onLoaded();
+                            }
+                        });
+                    }
+                    else {
+                        this._onLoaded();
+                    }
                 }
             }
             else {
@@ -319,7 +339,7 @@ Audio.State = {
 // TIME_CONSTANT need to be a positive number on Edge and Baidu browser
 // TIME_CONSTANT need to be 0 by default, or may fail to set volume at the very beginning of playing audio
 let TIME_CONSTANT;
-if (cc.sys.browserType === cc.sys.BROWSER_TYPE_EDGE || 
+if (cc.sys.browserType === cc.sys.BROWSER_TYPE_EDGE ||
     cc.sys.browserType === cc.sys.BROWSER_TYPE_BAIDU ||
     cc.sys.browserType === cc.sys.BROWSER_TYPE_UC) {
     TIME_CONSTANT = 0.01;
@@ -414,7 +434,7 @@ let WebAudioElement = function (buffer, audio) {
                 }
             }, 10);
         }
-        
+
         let sys = cc.sys;
         if (sys.os === sys.OS_IOS && sys.isBrowser && sys.isMobile) {
             // Audio context is suspended when you unplug the earphones,
@@ -436,10 +456,16 @@ let WebAudioElement = function (buffer, audio) {
         // If more than the duration of the audio, Need to take the remainder
         this.playedLength %= this._buffer.duration;
         let audio = this._currentSource;
+        if (audio) {
+            if(audio.onended){
+                audio.onended._binded = false;
+                audio.onended = null;
+            }
+            audio.stop(0);
+        }
         this._currentSource = null;
         this._startTime = -1;
-        if (audio)
-            audio.stop(0);
+
     };
 
     Object.defineProperty(proto, 'paused', {

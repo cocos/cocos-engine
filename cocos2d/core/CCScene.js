@@ -49,9 +49,9 @@ cc.Scene = cc.Class({
          * !#en Indicates whether all (directly or indirectly) static referenced assets of this scene are releasable by default after scene unloading.
          * !#zh 指示该场景中直接或间接静态引用到的所有资源是否默认在场景切换后自动释放。
          * @property {Boolean} autoReleaseAssets
-         * @default true
+         * @default false
          */
-        autoReleaseAssets: true,
+        autoReleaseAssets: false,
     },
 
     ctor: function () {
@@ -88,12 +88,7 @@ cc.Scene = cc.Class({
             if (CC_TEST) {
                 cc.assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
             }
-            if (CC_EDITOR && this._prefabSyncedInLiveReload) {
-                this._onBatchRestored();
-            }
-            else {
-                this._onBatchCreated();
-            }
+            this._onBatchCreated(CC_EDITOR && this._prefabSyncedInLiveReload);
             this._inited = true;
         }
     },

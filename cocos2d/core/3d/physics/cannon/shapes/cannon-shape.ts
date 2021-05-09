@@ -25,7 +25,7 @@
 
 import CANNON from '../../../../../../external/cannon/cannon';
 import { getWrap, setWrap } from '../../framework/util';
-import { commitShapeUpdates } from '../cannon-util';
+import { commitShapeUpdates, deprecatedEventMap } from '../cannon-util';
 import { PhysicsMaterial } from '../../framework/assets/physics-material';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../spec/i-common';
@@ -80,10 +80,7 @@ export class CannonShape implements IBaseShape {
     }
 
     set center (v: IVec3Like) {
-        const lpos = this._offset as IVec3Like;
-        Vec3.copy(lpos, v);
-        this._collider.node.getWorldScale(v3_0);
-        Vec3.multiply(lpos, lpos, v3_0);
+        this._setCenter(v);
         if (this._index >= 0) {
             commitShapeUpdates(this._body);
         }
@@ -104,7 +101,7 @@ export class CannonShape implements IBaseShape {
     __preload (comp: Collider3D) {
         this._collider = comp;
         setWrap(this._shape, this);
-        this._shape.addEventListener('triggered', this.onTriggerListener);
+        this._shape.addEventListener('cc-trigger', this.onTriggerListener);
         this._sharedBody = (cc.director.getPhysics3DManager().physicsWorld as CannonWorld).getSharedBody(this._collider.node);
         this._sharedBody.reference = true;
     }
@@ -126,6 +123,8 @@ export class CannonShape implements IBaseShape {
 
     onDestroy () {
         this._sharedBody.reference = false;
+        this._shape.removeEventListener('cc-trigger', this.onTriggerListener);
+        delete CANNON.World['idToShapeMap'][this._shape.id];
         (this._sharedBody as any) = null;
         setWrap(this._shape, null);
         (this._offset as any) = null;
@@ -141,16 +140,25 @@ export class CannonShape implements IBaseShape {
      * @param scale 
      */
     setScale (scale: IVec3Like) {
-        this.center = this._collider.center;
+        this._setCenter(this._collider.center);
     }
 
     setIndex (index: number) {
         this._index = index;
     }
 
-    setOffsetAndOrient (offset: CANNON.Vec3, Orient: CANNON.Quaternion) {
+    setOffsetAndOrient (offset: CANNON.Vec3, orient: CANNON.Quaternion) {
+        cc.Vec3.copy(offset, this._offset);
+        cc.Vec3.copy(orient, this._orient);
         this._offset = offset;
-        this._orient = Orient;
+        this._orient = orient;
+    }
+
+    protected _setCenter (v: IVec3Like) {
+        const lpos = this._offset as IVec3Like;
+        Vec3.copy(lpos, v);
+        this._collider.node.getWorldScale(v3_0);
+        Vec3.multiply(lpos, lpos, v3_0);
     }
 
     private onTrigger (event: CANNON.ITriggeredEvent) {
@@ -161,6 +169,10 @@ export class CannonShape implements IBaseShape {
         if (self) {
             TriggerEventObject.selfCollider = self.collider;
             TriggerEventObject.otherCollider = other ? other.collider : null;
+            TriggerEventObject.type = deprecatedEventMap[TriggerEventObject.type];
+            this._collider.emit(TriggerEventObject.type, TriggerEventObject);
+            // adapt 
+            TriggerEventObject.type = event.event;
             this._collider.emit(TriggerEventObject.type, TriggerEventObject);
         }
     }

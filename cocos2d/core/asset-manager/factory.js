@@ -24,7 +24,7 @@
  ****************************************************************************/
 const Bundle = require('./bundle');
 const Cache = require('./cache');
-const { assets } = require('./shared');
+const { assets, bundles } = require('./shared');
 
 const _creating = new Cache();
 
@@ -46,6 +46,13 @@ function createAudioClip (id, data, options, onComplete) {
     out._nativeUrl = id;
     out._nativeAsset = data;
     out.duration = data.duration;
+    onComplete && onComplete(null, out);
+}
+
+function createVideoClip (id, data, options, onComplete) {
+    let out = new cc.VideoClip();
+    out._nativeUrl = id;
+    out._nativeAsset = data;
     onComplete && onComplete(null, out);
 }
 
@@ -83,9 +90,12 @@ function createAsset (id, data, options, onComplete) {
 }
 
 function createBundle (id, data, options, onComplete) {
-    let bundle = new Bundle();
-    data.base = data.base || id + '/';
-    bundle.init(data);
+    let bundle = bundles.get(data.name);
+    if (!bundle) {
+        bundle = new Bundle();
+        data.base = data.base || id + '/';
+        bundle.init(data);
+    }
     onComplete && onComplete(null, bundle);
 }
 
@@ -144,6 +154,15 @@ const producers = {
     '.ogg' : createAudioClip,
     '.wav' : createAudioClip,
     '.m4a' : createAudioClip,
+
+    // Video
+    '.mp4' : createVideoClip,
+    '.avi' : createVideoClip,
+    '.mov' : createVideoClip,
+    '.mpg' : createVideoClip,
+    '.mpeg': createVideoClip,
+    '.rm'  : createVideoClip,
+    '.rmvb': createVideoClip,
 
     // Txt
     '.txt' : createTextAsset,

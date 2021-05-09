@@ -83,4 +83,7 @@ export interface IPhysicsWorld extends ICollisionDetect {
     gravity: IVec3Like;
     allowSleep: boolean;
     defaultMaterial: any;
+    syncSceneToPhysics?: () => void;
+    syncPhysicsToScene?: () => void;
+    emitEvents?: () => void;
 }

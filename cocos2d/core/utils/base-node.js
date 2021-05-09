@@ -1107,8 +1107,7 @@ var BaseNode = cc.Class({
 
     _onSetParent (value) {},
     _onPostActivated () {},
-    _onBatchRestored () {},
-    _onBatchCreated () {},
+    _onBatchCreated (dontSyncChildPrefab) {},
 
     _onHierarchyChanged (oldParent) {
         var newParent = this._parent;
@@ -1176,31 +1175,31 @@ var BaseNode = cc.Class({
         }
     },
 
-    _instantiate (cloned) {
+    _instantiate (cloned, isSyncedNode) {
         if (!cloned) {
             cloned = cc.instantiate._clone(this, this);
         }
 
-        var thisPrefabInfo = this._prefab;
-        if (CC_EDITOR && thisPrefabInfo) {
-            if (this !== thisPrefabInfo.root) {
+        var newPrefabInfo = cloned._prefab;
+        if (CC_EDITOR && newPrefabInfo) {
+            if (cloned === newPrefabInfo.root) {
+                newPrefabInfo.fileId = '';
+            }
+            else {
                 var PrefabUtils = Editor.require('scene://utils/prefab');
                 PrefabUtils.unlinkPrefab(cloned);
             }
         }
-        var syncing = thisPrefabInfo && this === thisPrefabInfo.root && thisPrefabInfo.sync;
-        if (syncing) {
-            //if (thisPrefabInfo._synced) {
-            //    return clone;
-            //}
-        }
-        else if (CC_EDITOR && cc.engine._isPlaying) {
-            cloned._name += ' (Clone)';
+        if (CC_EDITOR && cc.engine._isPlaying) {
+            let syncing = newPrefabInfo && cloned === newPrefabInfo.root && newPrefabInfo.sync;
+            if (!syncing) {
+                cloned._name += ' (Clone)';
+            }
         }
 
         // reset and init
         cloned._parent = null;
-        cloned._onBatchRestored();
+        cloned._onBatchCreated(isSyncedNode);
 
         return cloned;
     },

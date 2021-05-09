@@ -91,7 +91,7 @@ export default class Vec2 extends ValueType {
      * @example
      * var v = cc.v2(10, 10);
      * v.sub(cc.v2(5, 5));      // return Vec2 {x: 5, y: 5};
-     * var v1;
+     * var v1 = new Vec2;
      * v.sub(cc.v2(5, 5), v1);  // return Vec2 {x: 5, y: 5};
      */
     sub (vector: Vec2, out?: Vec2): Vec2 {
@@ -119,7 +119,7 @@ export default class Vec2 extends ValueType {
      * @example
      * var v = cc.v2(10, 10);
      * v.mul(5);      // return Vec2 {x: 50, y: 50};
-     * var v1;
+     * var v1 = new Vec2;
      * v.mul(5, v1);  // return Vec2 {x: 50, y: 50};
      */
     mul (num: number, out?: Vec2): Vec2 {
@@ -147,7 +147,7 @@ export default class Vec2 extends ValueType {
      * @example
      * var v = cc.v2(10, 10);
      * v.div(5);      // return Vec2 {x: 2, y: 2};
-     * var v1;
+     * var v1 = new Vec2;
      * v.div(5, v1);  // return Vec2 {x: 2, y: 2};
      */
     div (num: number, out?: Vec2): Vec2 {
@@ -175,7 +175,7 @@ export default class Vec2 extends ValueType {
      * @example
      * var v = cc.v2(10, 10);
      * v.scale(cc.v2(5, 5));      // return Vec2 {x: 50, y: 50};
-     * var v1;
+     * var v1 = new Vec2;
      * v.scale(cc.v2(5, 5), v1);  // return Vec2 {x: 50, y: 50};
      */
     scale (vector: Vec2, out?: Vec2): Vec2 {
@@ -200,7 +200,7 @@ export default class Vec2 extends ValueType {
      * @return {Vec2} the result
      * @example
      * var v = cc.v2(10, 10);
-     * var v1;
+     * var v1 = new Vec2;
      * v.neg(v1);  // return Vec2 {x: -10, y: -10};
      */
     neg (out?: Vec2): Vec2 {

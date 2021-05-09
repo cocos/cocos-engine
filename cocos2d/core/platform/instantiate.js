@@ -88,7 +88,7 @@ function instantiate (original, internal_force) {
         // @returns {Object} - the instantiated object
         if (original._instantiate) {
             cc.game._isCloning = true;
-            clone = original._instantiate();
+            clone = original._instantiate(null, true);
             cc.game._isCloning = false;
             return clone;
         }

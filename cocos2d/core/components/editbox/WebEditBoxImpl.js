@@ -316,13 +316,19 @@ Object.assign(WebEditBoxImpl.prototype, {
         }
         else {
             let camera = cc.Camera.findCamera(node);
+            if (!camera) {
+                return false;
+            }
             camera.getWorldToScreenMatrix2D(this._cameraMat);
             Mat4.mul(this._cameraMat, this._cameraMat, worldMat);
         }
+        return true;
     },
 
     _updateMatrix () {    
-        this._updateCameraMatrix();
+        if (CC_EDITOR || !this._updateCameraMatrix()) {
+            return;
+        }
         let cameraMatm = this._cameraMat.m;
         let node = this._delegate.node;
         let localView = cc.view;
@@ -415,6 +421,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         // begin to updateInputType
         if (inputFlag === InputFlag.PASSWORD) {
             elem.type = 'password';
+            elem.style.textTransform = 'none';
             return;
         }
     
@@ -471,7 +478,7 @@ Object.assign(WebEditBoxImpl.prototype, {
         elem.style.active = 0;
         elem.style.outline = 'medium';
         elem.style.padding = '0';
-        elem.style.textTransform = 'uppercase';
+        elem.style.textTransform = 'none';
         elem.style.position = "absolute";
         elem.style.bottom = "0px";
         elem.style.left = LEFT_PADDING + "px";

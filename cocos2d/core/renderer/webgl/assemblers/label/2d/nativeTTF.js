@@ -21,7 +21,7 @@ export default class NativeTTF {
         renderer.CustomAssembler.prototype.ctor.call(this);
         comp.node._proxy.setAssembler(this);
         this._layout = new jsb.LabelRenderer();
-        this._layout.init();
+        this._layout.init(comp);
         this._cfg = new DataView(this._layout._cfg);
         this._layoutInfo = new DataView(this._layout._layout);
 
@@ -307,7 +307,7 @@ export default class NativeTTF {
         if (!comp._vertsDirty) return;
 
         if (comp.font && comp.font.nativeUrl) {
-            this.setFontPath(comp.font.nativeUrl);
+            this.setFontPath(cc.assetManager.cacheManager.getCache(comp.font.nativeUrl) || comp.font.nativeUrl);
         }
         let layout = this._layout;
         let c = comp.node.color;

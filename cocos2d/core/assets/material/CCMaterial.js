@@ -217,12 +217,13 @@ let Material = cc.Class({
                 this.define(key, isAlphaAtlas);
             }
             if (!val.loaded) {
-                const loaded = function() {
-                    this._effect.setProperty(name, val, passIdx);
-                }
-                val.once('load', loaded, this);
                 cc.assetManager.postLoadNative(val);
-                return;
+            }
+
+            if (val.getUseBGRA()) {
+                if (this.getDefine('USE_BGRA') !== undefined) {
+                    this.define('USE_BGRA', true);
+                }
             }
         }
 

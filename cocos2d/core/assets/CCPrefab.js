@@ -154,11 +154,7 @@ var Prefab = cc.Class({
     // @param {Node} [rootToRedirect] - specify an instantiated prefabRoot that all references to prefabRoot in prefab
     //                                  will redirect to
     _doInstantiate: function (rootToRedirect) {
-        if (this.data._prefab) {
-            // prefab asset is always synced
-            this.data._prefab._synced = true;
-        }
-        else {
+        if (!this.data._prefab) {
             // temp guard code
             cc.warnID(3700);
         }
@@ -189,8 +185,6 @@ var Prefab = cc.Class({
             this.data._instantiate(node);
         }
         else {
-            // prefab asset is always synced
-            this.data._prefab._synced = true;
             // instantiate node
             node = this.data._instantiate();
         }

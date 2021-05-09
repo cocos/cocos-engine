@@ -454,6 +454,14 @@ export default class GraphicsAssembler extends Assembler {
                 if (dmr2 * limit * limit < 1) {
                     p1.flags |= PointFlags.PT_INNERBEVEL;
                 }
+
+                // Check whether dm length is too long
+                let dmwx = p1.dmx * w;
+                let dmwy = p1.dmy * w;
+                let dmlen = dmwx*dmwx + dmwy*dmwy;
+                if (dmlen > (p1.len * p1.len) || dmlen > (p0.len * p0.len)) {
+                    p1.flags |= PointFlags.PT_INNERBEVEL;
+                }
     
                 // Check to see if the corner needs to be beveled.
                 if (p1.flags & PointFlags.PT_CORNER) {

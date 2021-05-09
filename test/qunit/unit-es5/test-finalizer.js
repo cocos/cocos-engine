@@ -197,7 +197,7 @@ test('AutoRelease', function () {
 
     cc.assetManager.dependUtil._depends.add('scene 1', {deps: ['AAA', 'BBB', 'CCC', 'DDD']});
     cc.assetManager.dependUtil._depends.add('scene 2', {deps: ['BBB', 'CCC']});
-    cc.assetManager._releaseManager._autoRelease(scene1, scene2, []);
+    cc.assetManager._releaseManager._autoRelease(scene1, scene2, {});
     strictEqual(cc.assetManager.assets.count, 2, 'should equal to 2');
     strictEqual(texB.refCount, 1, 'should equal to 1');
     strictEqual(texC.refCount, 1, 'should equal to 1');
@@ -217,7 +217,7 @@ test('autoRelease_polyfill', function () {
     cc.assetManager.assets.add('AAA', texA);
     cc.loader.setAutoRelease(texA, true);
     strictEqual(cc.assetManager.assets.count, 1, 'should equal to 1');
-    cc.assetManager._releaseManager._autoRelease(scene1, scene2, []);
+    cc.assetManager._releaseManager._autoRelease(scene1, scene2, {});
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
     cc.assetManager._releaseManager.tryRelease = originalRelease;
 });
@@ -241,16 +241,17 @@ test('persistNode', function () {
     var persistNode = new cc.Node();
     persistNode.addComponent(cc.Sprite).spriteFrame = sp;
     cc.assetManager._releaseManager._addPersistNodeRef(persistNode);
-
+    var persistNodes = {};
+    persistNodes[persistNode.uuid] = persistNode;
     cc.assetManager.dependUtil._depends.add('scene 1', {deps: ['AAA']});
     cc.assetManager.dependUtil._depends.add('scene 2', {deps: []});
-    cc.assetManager._releaseManager._autoRelease(scene1, scene2, [persistNode]);
+    cc.assetManager._releaseManager._autoRelease(scene1, scene2, persistNodes);
     strictEqual(cc.assetManager.assets.count, 1, 'should equal to 1');
     strictEqual(cc.assetManager.assets.get('AAA'), sp, 'should equal to spriteFrame');
     strictEqual(sp.refCount, 2, 'should equal to 2');
     cc.assetManager._releaseManager._removePersistNodeRef(persistNode);
     strictEqual(sp.refCount, 1, 'should equal to 1');
-    cc.assetManager._releaseManager._autoRelease(scene2, scene3, []);
+    cc.assetManager._releaseManager._autoRelease(scene2, scene3, {});
     strictEqual(cc.assetManager.assets.count, 0, 'should equal to 0');
     cc.assetManager._releaseManager.tryRelease = originalRelease;
 });

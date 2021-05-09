@@ -1,6 +1,9 @@
 let _genID = 0;
 
 function _parseError(out, type, errorLog) {
+  if(!errorLog){
+    return;
+  }
   errorLog.split('\n').forEach(msg => {
     if (msg.length < 5) {
       return;

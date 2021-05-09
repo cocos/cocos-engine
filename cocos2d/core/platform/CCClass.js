@@ -1017,12 +1017,7 @@ function CCClass (options) {
 
     var editor = options.editor;
     if (editor) {
-        if (js.isChildClassOf(base, cc.Component)) {
-            cc.Component._registerEditorProps(cls, editor);
-        }
-        else if (CC_DEV) {
-            cc.warnID(3623, name);
-        }
+        cc.Component._registerEditorProps(cls, editor);
     }
 
     return cls;
@@ -1257,6 +1252,7 @@ function parseAttributes (cls, attributes, className, propName, usedInGetter) {
     parseSimpleAttr('min', 'number');
     parseSimpleAttr('max', 'number');
     parseSimpleAttr('step', 'number');
+    parseSimpleAttr('userData', 'object');
 }
 
 cc.Class = CCClass;
