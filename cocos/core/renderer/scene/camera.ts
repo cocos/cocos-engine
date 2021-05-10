@@ -188,21 +188,21 @@ export class Camera {
         }
     }
 
-    protected setWidth (val) {
+    private _setWidth (val) {
         this._width = val;
         if (JSB) {
             CameraPool.set(this._poolHandle, CameraView.WIDTH, val);
         }
     }
 
-    protected setHeight (val) {
+    private _setHeight (val) {
         this._height = val;
         if (JSB) {
             CameraPool.set(this._poolHandle, CameraView.HEIGHT, val);
         }
     }
 
-    protected _setScene (val) {
+    private _setScene (val) {
         if (JSB) {
             CameraPool.set(this._poolHandle, CameraView.SCENE, val);
         }
@@ -224,8 +224,8 @@ export class Camera {
     public initialize (info: ICameraInfo) {
         this._init(info);
         this.node = info.node;
-        this.setWidth(1);
-        this.setHeight(1);
+        this._setWidth(1);
+        this._setHeight(1);
         this.clearFlag = ClearFlagBit.NONE;
         this.clearDepth = 1.0;
         this.visibility = CAMERA_DEFAULT_MASK;
@@ -272,15 +272,15 @@ export class Camera {
     public resize (width: number, height: number) {
         if (!this._window) return;
 
-        this.setWidth(width);
-        this.setHeight(height);
+        this._setWidth(width);
+        this._setHeight(height);
         this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
         this._isProjDirty = true;
     }
 
     public setFixedSize (width: number, height: number) {
-        this.setWidth(width);
-        this.setHeight(height);
+        this._setWidth(width);
+        this._setHeight(height);
         this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
         this.isWindowSize = false;
     }

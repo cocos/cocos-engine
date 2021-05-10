@@ -124,21 +124,21 @@ export class RenderWindow {
     private constructor (root: Root) {
     }
 
-    protected setHasOffScreenAttachments (val) {
+    private _setHasOffScreenAttachments (val) {
         this._hasOffScreenAttachments = val;
         if (JSB) {
             RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, val ? 1 : 0);
         }
     }
 
-    protected setHasOnScreenAttachments (val) {
+    private _setHasOnScreenAttachments (val) {
         this._hasOnScreenAttachments = val;
         if (JSB) {
             RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, val ? 1 : 0);
         }
     }
 
-    protected setFrameBuffer (device: Device, renderPass) {
+    private _createFrameBuffer (device: Device, renderPass) {
         if (JSB) {
             const hFBO = FramebufferPool.alloc(device, new FramebufferInfo(
                 renderPass,
@@ -202,9 +202,9 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 ));
-                this.setHasOffScreenAttachments(true);
+                this._setHasOffScreenAttachments(true);
             } else {
-                this.setHasOnScreenAttachments(true);
+                this._setHasOnScreenAttachments(true);
             }
             this._colorTextures.push(colorTex);
         }
@@ -219,12 +219,12 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 ));
-                this.setHasOffScreenAttachments(true);
+                this._setHasOffScreenAttachments(true);
             }
         } else {
-            this.setHasOnScreenAttachments(true);
+            this._setHasOnScreenAttachments(true);
         }
-        this.setFrameBuffer(device, this._renderPass);
+        this._createFrameBuffer(device, this._renderPass);
         return true;
     }
 

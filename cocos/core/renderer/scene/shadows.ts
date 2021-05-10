@@ -116,7 +116,7 @@ export class Shadows {
     }
 
     set enabled (val: boolean) {
-        this.setEnable(val);
+        this._setEnable(val);
         this.activate();
     }
 
@@ -173,7 +173,7 @@ export class Shadows {
         return this._type;
     }
     set type (val: number) {
-        this.setType(val);
+        this._setType(val);
         this.activate();
     }
 
@@ -440,15 +440,15 @@ export class Shadows {
         return this._instancingMaterial.passes[0].getShaderVariant(patches);
     }
 
-    protected setEnable (val) {
+    private _setEnable (val) {
         this._enabled = val;
         if (JSB) {
             ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
-            if (!val) this.setType(SHADOW_TYPE_NONE);
+            if (!val) this._setType(SHADOW_TYPE_NONE);
         }
     }
 
-    protected setType (val) {
+    private _setType (val) {
         this._type = this.enabled ? val : SHADOW_TYPE_NONE;
         if (JSB) {
             ShadowsPool.set(this._handle, ShadowsView.TYPE, this._type);
@@ -472,8 +472,8 @@ export class Shadows {
         this.normalBias = shadowsInfo.normalBias;
         this.maxReceived = shadowsInfo.maxReceived;
         this.autoAdapt = shadowsInfo.autoAdapt;
-        this.setEnable(shadowsInfo.enabled);
-        this.setType(shadowsInfo.type);
+        this._setEnable(shadowsInfo.enabled);
+        this._setType(shadowsInfo.type);
     }
 
     public activate () {

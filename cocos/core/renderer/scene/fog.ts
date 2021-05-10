@@ -81,7 +81,7 @@ export class Fog {
      * @en Enable global fog
      */
     set enabled (val: boolean) {
-        this.setEnable(val);
+        this._setEnable(val);
         if (!val) this._type = FOG_TYPE_NONE;
         val ? this.activate() : this._updatePipeline();
     }
@@ -121,7 +121,7 @@ export class Fog {
         return this._type;
     }
     set type (val: number) {
-        this.setType(val);
+        this._setType(val);
         if (this.enabled) this._updatePipeline();
     }
 
@@ -237,14 +237,14 @@ export class Fog {
         }
     }
 
-    protected setType (val) {
+    protected _setType (val) {
         this._type = this.enabled ? val : FOG_TYPE_NONE;
         if (JSB) {
             FogPool.set(this._handle, FogView.TYPE, this._type);
         }
     }
 
-    protected setEnable (val) {
+    protected _setEnable (val) {
         if (JSB) {
             FogPool.set(this._handle, FogView.ENABLE, val ? 1 : 0);
             if (!val) FogPool.set(this._handle, FogView.TYPE, FOG_TYPE_NONE);
@@ -254,8 +254,8 @@ export class Fog {
 
     public initialize (fogInfo : FogInfo) {
         this.fogColor = fogInfo.fogColor;
-        this.setEnable(fogInfo.enabled);
-        this.setType(fogInfo.type);
+        this._setEnable(fogInfo.enabled);
+        this._setType(fogInfo.type);
         this.fogDensity = fogInfo.fogDensity;
         this.fogStart = fogInfo.fogStart;
         this.fogEnd = fogInfo.fogEnd;
