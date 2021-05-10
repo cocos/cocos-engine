@@ -14,7 +14,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         token: ${{ github.token }}
-        ref: ${{ github.head_ref }}
+        ref: ${{ github.head_sha }}
     
     - id: get_change_files
       uses: fish9167/file-changes-action@v1.2.3
@@ -37,6 +37,7 @@ jobs:
     - uses: fish9167/git-auto-commit-action@v4
       with:
         commit_message: Apply clang-format
+        branch: ${{ github.base_ref }}
         commit_user_name: cocos-robot
         commit_user_email: cocos-robot@cocos.com
         commit_author: cocos-robot <cocos-robot@cocos.com>
