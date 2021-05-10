@@ -146,15 +146,11 @@ export class Skybox {
         }
     }
 
-    protected _init (skyboxInfo: SkyboxInfo) {
+    public initialize (skyboxInfo: SkyboxInfo) {
         this.setEnabled(skyboxInfo.enabled);
         this.setUseIBL(skyboxInfo.useIBL);
         this.setIsRGBE(skyboxInfo.isRGBE);
         this._envmap = skyboxInfo.envmap;
-    }
-
-    public initialize (skyboxInfo: SkyboxInfo) {
-        this._init(skyboxInfo);
     }
 
     public activate () {

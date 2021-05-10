@@ -139,11 +139,6 @@ export class RenderWindow {
     }
 
     protected setFrameBuffer (device: Device, renderPass) {
-        this._framebuffer = device.createFramebuffer(new FramebufferInfo(
-            renderPass,
-            this._colorTextures,
-            this._depthStencilTexture,
-        ));
         if (JSB) {
             const hFBO = FramebufferPool.alloc(device, new FramebufferInfo(
                 renderPass,
@@ -151,13 +146,23 @@ export class RenderWindow {
                 this._depthStencilTexture,
             ));
             RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, hFBO);
+            return;
+        }
+        this._framebuffer = device.createFramebuffer(new FramebufferInfo(
+            renderPass,
+            this._colorTextures,
+            this._depthStencilTexture,
+        ));
+    }
+
+    protected _init () {
+        if (JSB) {
+            this._poolHandle = RenderWindowPool.alloc();
         }
     }
 
     public initialize (device: Device, info: IRenderWindowInfo): boolean {
-        if (JSB) {
-            this._poolHandle = RenderWindowPool.alloc();
-        }
+        this._init();
         if (info.title !== undefined) {
             this._title = info.title;
         }

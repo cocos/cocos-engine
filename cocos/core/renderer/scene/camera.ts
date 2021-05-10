@@ -202,34 +202,39 @@ export class Camera {
         }
     }
 
-    protected _init (info: ICameraInfo) {
-        let handle;
+    protected _setScene (val) {
         if (JSB) {
-            handle = this._poolHandle = CameraPool.alloc();
-            if (this._scene) CameraPool.set(handle, CameraView.SCENE, this._scene.handle);
+            CameraPool.set(this._poolHandle, CameraView.SCENE, val);
+        }
+    }
+
+    protected _init (info: ICameraInfo) {
+        if (JSB) {
+            const handle = this._poolHandle = CameraPool.alloc();
+            if (this._scene) this._setScene(this._scene.handle);
             this._frustumHandle = FrustumPool.alloc();
             CameraPool.set(handle, CameraView.FRUSTUM, this._frustumHandle);
         }
+        if (JSB) {
+            console.log(`Created Camera: ${this._name} ${CameraPool.get(this._poolHandle,
+                CameraView.WIDTH)}x${CameraPool.get(this._poolHandle, CameraView.HEIGHT)}`);
+        }
+    }
+
+    public initialize (info: ICameraInfo) {
+        this._init(info);
         this.node = info.node;
         this.setWidth(1);
         this.setHeight(1);
         this.clearFlag = ClearFlagBit.NONE;
         this.clearDepth = 1.0;
         this.visibility = CAMERA_DEFAULT_MASK;
-    }
-
-    public initialize (info: ICameraInfo) {
-        this._init(info);
         this._name = info.name;
         this._proj = info.projection;
         this._priority = info.priority || 0;
         this._aspect = this.screenScale = 1;
         this.updateExposure();
         this.changeTargetWindow(info.window);
-        if (JSB) {
-            console.log(`Created Camera: ${this._name} ${CameraPool.get(this._poolHandle,
-                CameraView.WIDTH)}x${CameraPool.get(this._poolHandle, CameraView.HEIGHT)}`);
-        }
     }
 
     protected _destroy () {
@@ -255,40 +260,27 @@ export class Camera {
     public attachToScene (scene: RenderScene) {
         this._scene = scene;
         this._enabled = true;
-        if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.SCENE, scene.handle);
-        }
+        this._setScene(scene.handle);
     }
 
     public detachFromScene () {
         this._scene = null;
         this._enabled = false;
-        if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.SCENE, 0 as unknown as SceneHandle);
-        }
+        this._setScene(0 as unknown as SceneHandle);
     }
 
     public resize (width: number, height: number) {
         if (!this._window) return;
-        this._width = width;
-        this._height = height;
-        if (JSB) {
-            const handle = this._poolHandle;
-            CameraPool.set(handle, CameraView.WIDTH, width);
-            CameraPool.set(handle, CameraView.HEIGHT, height);
-        }
+
+        this.setWidth(width);
+        this.setHeight(height);
         this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
         this._isProjDirty = true;
     }
 
     public setFixedSize (width: number, height: number) {
-        this._width = width;
-        this._height = height;
-        if (JSB) {
-            const handle = this._poolHandle;
-            CameraPool.set(handle, CameraView.WIDTH, width);
-            CameraPool.set(handle, CameraView.HEIGHT, height);
-        }
+        this.setWidth(width);
+        this.setHeight(height);
         this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
         this.isWindowSize = false;
     }
@@ -491,10 +483,16 @@ export class Camera {
     }
 
     get width () {
+        if (JSB) {
+            return CameraPool.get(this._poolHandle, CameraView.WIDTH);
+        }
         return this._width;
     }
 
     get height () {
+        if (JSB) {
+            return CameraPool.get(this._poolHandle, CameraView.HEIGHT);
+        }
         return this._height;
     }
 
@@ -721,10 +719,7 @@ export class Camera {
         const win = window || legacyCC.director.root.mainWindow;
         if (win) {
             win.attachCamera(this);
-            this._window = win;
-            if (JSB) {
-                CameraPool.set(this._poolHandle, CameraView.WINDOW, win.handle);
-            }
+            this.window = win;
             this.resize(win.width, win.height);
         }
     }
@@ -741,13 +736,8 @@ export class Camera {
     public screenPointToRay (out: Ray, x: number, y: number): Ray {
         if (!this._node) return null!;
 
-        let width = this.width;
-        let height = this.height;
-        if (JSB) {
-            const handle = this._poolHandle;
-            width = CameraPool.get(handle, CameraView.WIDTH);
-            height = CameraPool.get(handle, CameraView.HEIGHT);
-        }
+        const width = this.width;
+        const height = this.height;
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -779,13 +769,8 @@ export class Camera {
      * transform a screen position (in oriented space) to world space
      */
     public screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
-        let width = this.width;
-        let height = this.height;
-        if (JSB) {
-            const handle = this._poolHandle;
-            width = CameraPool.get(handle, CameraView.WIDTH);
-            height = CameraPool.get(handle, CameraView.HEIGHT);
-        }
+        const width = this.width;
+        const height = this.height;
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -830,13 +815,8 @@ export class Camera {
      * transform a world space position to screen space
      */
     public worldToScreen (out: Vec3, worldPos: Vec3): Vec3 {
-        let width = this.width;
-        let height = this.height;
-        if (JSB) {
-            const handle = this._poolHandle;
-            width = CameraPool.get(handle, CameraView.WIDTH);
-            height = CameraPool.get(handle, CameraView.HEIGHT);
-        }
+        const width = this.width;
+        const height = this.height;
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
@@ -880,11 +860,15 @@ export class Camera {
         return out;
     }
 
-    private updateExposure () {
-        const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
+    protected setExposure (ev100) {
         this._exposure = 0.833333 / (2.0 ** ev100);
         if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.EXPOSURE, 0.833333 / (2.0 ** ev100));
+            CameraPool.set(this._poolHandle, CameraView.EXPOSURE, this._exposure);
         }
+    }
+
+    private updateExposure () {
+        const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
+        this.setExposure(ev100);
     }
 }

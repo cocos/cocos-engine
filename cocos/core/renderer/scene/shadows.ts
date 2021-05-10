@@ -116,11 +116,7 @@ export class Shadows {
     }
 
     set enabled (val: boolean) {
-        this._enabled = val;
-        if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
-            if (!val) ShadowsPool.set(this._handle, ShadowsView.TYPE, SHADOW_TYPE_NONE);
-        }
+        this.setEnable(val);
         this.activate();
     }
 
@@ -177,10 +173,7 @@ export class Shadows {
         return this._type;
     }
     set type (val: number) {
-        this._type = this.enabled ? val : SHADOW_TYPE_NONE;
-        if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.TYPE, this._type);
-        }
+        this.setType(val);
         this.activate();
     }
 
@@ -447,7 +440,22 @@ export class Shadows {
         return this._instancingMaterial.passes[0].getShaderVariant(patches);
     }
 
-    protected _init (shadowsInfo: ShadowsInfo) {
+    protected setEnable (val) {
+        this._enabled = val;
+        if (JSB) {
+            ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
+            if (!val) this.setType(SHADOW_TYPE_NONE);
+        }
+    }
+
+    protected setType (val) {
+        this._type = this.enabled ? val : SHADOW_TYPE_NONE;
+        if (JSB) {
+            ShadowsPool.set(this._handle, ShadowsView.TYPE, this._type);
+        }
+    }
+
+    public initialize (shadowsInfo: ShadowsInfo) {
         this.near = shadowsInfo.near;
         this.far = shadowsInfo.far;
         this.aspect = shadowsInfo.aspect;
@@ -464,16 +472,8 @@ export class Shadows {
         this.normalBias = shadowsInfo.normalBias;
         this.maxReceived = shadowsInfo.maxReceived;
         this.autoAdapt = shadowsInfo.autoAdapt;
-        this._type = shadowsInfo.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE;
-        this._enabled = shadowsInfo.enabled;
-        if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.TYPE, shadowsInfo.enabled ? shadowsInfo.type : SHADOW_TYPE_NONE);
-            ShadowsPool.set(this._handle, ShadowsView.ENABLE, shadowsInfo.enabled ? 1 : 0);
-        }
-    }
-
-    public initialize (shadowsInfo: ShadowsInfo) {
-        this._init(shadowsInfo);
+        this.setEnable(shadowsInfo.enabled);
+        this.setType(shadowsInfo.type);
     }
 
     public activate () {

@@ -114,14 +114,10 @@ export class Ambient {
         this._handle = AmbientPool.alloc();
     }
 
-    protected _init (ambientInfo: AmbientInfo) {
+    public initialize (ambientInfo: AmbientInfo) {
         this.skyColor = ambientInfo.skyColor;
         this.groundAlbedo = ambientInfo.groundAlbedo;
         this.skyIllum = ambientInfo.skyIllum;
-    }
-
-    public initialize (ambientInfo: AmbientInfo) {
-        this._init(ambientInfo);
     }
 
     protected _destroy () {
