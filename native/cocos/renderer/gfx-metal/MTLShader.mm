@@ -33,7 +33,9 @@
 namespace cc {
 namespace gfx {
 
-CCMTLShader::CCMTLShader() : Shader() {}
+CCMTLShader::CCMTLShader() : Shader() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 void CCMTLShader::doInit(const ShaderInfo &info) {
     _gpuShader = CC_NEW(CCMTLGPUShader);

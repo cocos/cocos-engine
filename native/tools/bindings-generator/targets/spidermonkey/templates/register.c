@@ -29,7 +29,7 @@ static bool js_${current_class.underlined_class_name}_finalize(se::State& s)
 {
     #if $current_class.rename_destructor is None
     #if $current_class.is_ref_class
-    ${current_class.namespaced_class_name}* cobj =SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
+    auto* cobj =SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
     cobj->release();
     #else
         #if not $current_class.is_class_owned_by_cpp
@@ -37,7 +37,7 @@ static bool js_${current_class.underlined_class_name}_finalize(se::State& s)
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        ${current_class.namespaced_class_name}* cobj = SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
+        auto* cobj = SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
         JSB_FREE(cobj);
     }
         #end if
@@ -54,7 +54,7 @@ SE_BIND_FINALIZE_FUNC(js_${current_class.underlined_class_name}_finalize)
 static bool js_${current_class.underlined_class_name}_${current_class.rename_destructor}(se::State& s)
 {
     #if $current_class.is_ref_class
-    ${current_class.namespaced_class_name}* cobj = SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
+    auto* cobj = SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
     cobj->release();
     #else
         #if not $current_class.is_class_owned_by_cpp
@@ -62,7 +62,7 @@ static bool js_${current_class.underlined_class_name}_${current_class.rename_des
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        ${current_class.namespaced_class_name}* cobj = SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
+        auto* cobj = SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
         JSB_FREE(cobj);
     }
         #end if
@@ -81,15 +81,15 @@ bool js_register_${generator.prefix}_${current_class.class_name}(se::Object* obj
 {
 #if has_constructor
     #if len($current_class.parents) > 0
-    auto cls = se::Class::create("${current_class.target_class_name}", obj, __jsb_${current_class.parents[0].underlined_class_name}_proto, _SE(js_${generator.prefix}_${current_class.class_name}_constructor));
+    auto* cls = se::Class::create("${current_class.target_class_name}", obj, __jsb_${current_class.parents[0].underlined_class_name}_proto, _SE(js_${generator.prefix}_${current_class.class_name}_constructor));
     #else
-    auto cls = se::Class::create("${current_class.target_class_name}", obj, nullptr, _SE(js_${generator.prefix}_${current_class.class_name}_constructor));
+    auto* cls = se::Class::create("${current_class.target_class_name}", obj, nullptr, _SE(js_${generator.prefix}_${current_class.class_name}_constructor));
     #end if
 #else
     #if len($current_class.parents) > 0
-    auto cls = se::Class::create("${current_class.target_class_name}", obj, __jsb_${current_class.parents[0].underlined_class_name}_proto, nullptr);
+    auto* cls = se::Class::create("${current_class.target_class_name}", obj, __jsb_${current_class.parents[0].underlined_class_name}_proto, nullptr);
     #else
-    auto cls = se::Class::create("${current_class.target_class_name}", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("${current_class.target_class_name}", obj, nullptr, nullptr);
     #end if
 #end if
 

@@ -41,7 +41,9 @@
 namespace cc {
 namespace gfx {
 
-CCMTLPipelineState::CCMTLPipelineState() : PipelineState() {}
+CCMTLPipelineState::CCMTLPipelineState() : PipelineState() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 void CCMTLPipelineState::doInit(const PipelineStateInfo &info) {
     createGPUPipelineState();
@@ -72,7 +74,7 @@ bool CCMTLPipelineState::createGPUPipelineState() {
         CC_LOG_ERROR("CCMTLPipelineState: CC_NEW CCMTLGPUPipelineState failed.");
         return false;
     }
-    
+
     if(_bindPoint == PipelineBindPoint::GRAPHICS) {
         if (!createMTLRenderPipelineState()) {
             return false;
@@ -104,7 +106,7 @@ bool CCMTLPipelineState::createGPUPipelineState() {
         if (_pipelineLayout)
             _GPUPipelineState->gpuPipelineLayout = static_cast<CCMTLPipelineLayout *>(_pipelineLayout)->gpuPipelineLayout();
     }
-    
+
     return true;
 }
 

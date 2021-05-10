@@ -33,7 +33,9 @@
 namespace cc {
 namespace gfx {
 
-GLES2InputAssembler::GLES2InputAssembler() = default;
+GLES2InputAssembler::GLES2InputAssembler() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES2InputAssembler::~GLES2InputAssembler() {
     destroy();

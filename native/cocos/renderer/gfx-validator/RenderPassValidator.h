@@ -25,15 +25,15 @@
 
 #pragma once
 
-#include "gfx-base/GFXRenderPass.h"
 #include "base/Agent.h"
+#include "gfx-base/GFXRenderPass.h"
 
 namespace cc {
 namespace gfx {
 
 class CC_DLL RenderPassValidator final : public Agent<RenderPass> {
 public:
-    using Agent::Agent;
+    explicit RenderPassValidator(RenderPass *actor);
     ~RenderPassValidator() override;
 
 protected:

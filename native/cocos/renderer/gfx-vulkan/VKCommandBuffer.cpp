@@ -120,7 +120,7 @@ void CCVKCommandBuffer::end() {
 }
 
 void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors,
-                                        float depth, int stencil, CommandBuffer *const * /*secondaryCBs*/, uint secondaryCBCount) {
+                                        float depth, uint stencil, CommandBuffer *const * /*secondaryCBs*/, uint secondaryCBCount) {
 #if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
     // guard against RAW hazard
     VkMemoryBarrier vkBarrier{VK_STRUCTURE_TYPE_MEMORY_BARRIER};
@@ -323,7 +323,7 @@ void CCVKCommandBuffer::setStencilCompareMask(StencilFace face, uint reference, 
         state.reference   = reference;
         state.compareMask = mask;
 
-        VkStencilFaceFlagBits vkFace = (face == StencilFace::FRONT ? VK_STENCIL_FACE_FRONT_BIT : VK_STENCIL_FACE_BACK_BIT);
+        VkStencilFaceFlags vkFace = VK_STENCIL_FACE_FLAGS[static_cast<uint>(face)];
         vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, vkFace, reference);
         vkCmdSetStencilCompareMask(_gpuCommandBuffer->vkCommandBuffer, vkFace, mask);
     }

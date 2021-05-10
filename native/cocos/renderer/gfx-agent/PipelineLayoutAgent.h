@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL PipelineLayoutAgent final : public Agent<PipelineLayout> {
 public:
-    using Agent::Agent;
+    explicit PipelineLayoutAgent(PipelineLayout *actor);
     ~PipelineLayoutAgent() override;
 
 protected:

@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL TextureAgent final : public Agent<Texture> {
 public:
-    using Agent::Agent;
+    explicit TextureAgent(Texture *actor);
     ~TextureAgent() override;
 
 protected:

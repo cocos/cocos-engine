@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL PipelineStateAgent final : public Agent<PipelineState> {
 public:
-    using Agent::Agent;
+    explicit PipelineStateAgent(PipelineState *actor);
     ~PipelineStateAgent() override;
 
 protected:

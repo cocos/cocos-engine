@@ -50,6 +50,7 @@
 namespace cc {
 namespace gfx {
 
+class GFXObject;
 class Device;
 class Buffer;
 class GlobalBarrier;

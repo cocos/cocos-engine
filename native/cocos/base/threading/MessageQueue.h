@@ -25,13 +25,13 @@
 
 #pragma once
 
+#include <cstdint>
 #include "Event.h"
 #include "concurrentqueue/concurrentqueue.h"
-#include <cstdint>
 
 namespace cc {
 
-// TODO: thread-specific allocators
+// TODO(YunHsiao): thread-specific allocators
 template <typename T>
 inline T *memoryAllocateForMultiThread(uint32_t const count) noexcept {
     return static_cast<T *>(malloc(sizeof(T) * count));
@@ -48,8 +48,8 @@ inline uint32_t constexpr align(uint32_t const val, uint32_t const alignment) no
 
 class Message {
 public:
-    Message() = default;
-    virtual ~Message() {}
+    Message()                = default;
+    virtual ~Message()       = default;
     Message(Message const &) = delete;
     Message(Message &&)      = delete;
     Message &operator=(Message const &) = delete;
@@ -60,7 +60,7 @@ public:
     inline Message *    getNext() const noexcept { return _next; }
 
 private:
-    Message *_next;
+    Message *_next; // explicitly assigned beforehand, don't init the member here
 
     friend class MessageQueue;
 };
@@ -97,16 +97,16 @@ public:
     // message allocation
     template <typename T>
     std::enable_if_t<std::is_base_of<Message, T>::value, T *>
-    allocate(uint32_t const count) noexcept;
+    allocate(uint32_t count) noexcept;
 
     // general-purpose allocation
     template <typename T>
     std::enable_if_t<!std::is_base_of<Message, T>::value, T *>
-    allocate(uint32_t const count) noexcept;
+    allocate(uint32_t count) noexcept;
     template <typename T>
-    T *allocateAndCopy(uint32_t const count, void const *data) noexcept;
+    T *allocateAndCopy(uint32_t count, void const *data) noexcept;
     template <typename T>
-    T *allocateAndZero(uint32_t const count) noexcept;
+    T *allocateAndZero(uint32_t count) noexcept;
 
     // notify the consumer to start working
     void kick() noexcept;
@@ -122,8 +122,8 @@ public:
     inline bool isImmediateMode() const noexcept { return _immediateMode; }
     inline void finishWriting() noexcept { finishWriting(false); }
 
-    void        recycleMemoryChunk(uint8_t *const chunk) const noexcept;
-    static void freeChunksInFreeQueue(MessageQueue *const mainMessagesQueue) noexcept;
+    void        recycleMemoryChunk(uint8_t *chunk) const noexcept;
+    static void freeChunksInFreeQueue(MessageQueue *mainMessageQueue) noexcept;
 
     inline void setImmediateMode(bool immediateMode) noexcept { _immediateMode = immediateMode; }
     inline int  getPendingMessageCount() const noexcept { return _writer.pendingMessageCount; }
@@ -142,19 +142,19 @@ private:
 
         static MemoryAllocator &getInstance() noexcept;
         uint8_t *               request() noexcept;
-        void                    recycle(uint8_t *const chunk, bool const freeByUser) noexcept;
-        void                    freeByUser(MessageQueue *const mainMessageQueue) noexcept;
+        void                    recycle(uint8_t *chunk, bool freeByUser) noexcept;
+        void                    freeByUser(MessageQueue *mainMessageQueue) noexcept;
 
     private:
         using ChunkQueue = moodycamel::ConcurrentQueue<uint8_t *>;
 
-        void                  free(uint8_t *const chunk) noexcept;
+        void                  free(uint8_t *chunk) noexcept;
         std::atomic<uint32_t> _chunkCount{0};
         ChunkQueue            _chunkPool{};
         ChunkQueue            _chunkFreeQueue{};
     };
 
-    uint8_t *allocateImpl(uint32_t &allocatedSize, uint32_t const requestSize) noexcept;
+    uint8_t *allocateImpl(uint32_t allocatedSize, uint32_t requestSize) noexcept;
     void     pushMessages() noexcept;
 
     // consumer thread specifics
@@ -176,17 +176,17 @@ private:
 
 class DummyMessage final : public Message {
 public:
-    virtual void        execute() noexcept override {}
-    virtual char const *getName() const noexcept override;
+    void        execute() noexcept override {}
+    char const *getName() const noexcept override;
 };
 
 class MemoryChunkSwitchMessage final : public Message {
 public:
-    MemoryChunkSwitchMessage(MessageQueue *const cb, uint8_t *const newChunk, uint8_t *const oldChunk) noexcept;
-    ~MemoryChunkSwitchMessage();
+    MemoryChunkSwitchMessage(MessageQueue *queue, uint8_t *newChunk, uint8_t *oldChunk) noexcept;
+    ~MemoryChunkSwitchMessage() override;
 
-    virtual void        execute() noexcept override;
-    virtual char const *getName() const noexcept override;
+    void        execute() noexcept override;
+    char const *getName() const noexcept override;
 
 private:
     MessageQueue *_messageQueue{nullptr};
@@ -196,10 +196,10 @@ private:
 
 class TerminateConsumerThreadMessage final : public Message {
 public:
-    TerminateConsumerThreadMessage(EventSem *const pEvent, ReaderContext *const pR) noexcept;
+    TerminateConsumerThreadMessage(EventSem *pEvent, ReaderContext *pR) noexcept;
 
-    virtual void        execute() noexcept override;
-    virtual char const *getName() const noexcept override;
+    void        execute() noexcept override;
+    char const *getName() const noexcept override;
 
 private:
     EventSem *     _event{nullptr};
@@ -208,7 +208,7 @@ private:
 
 template <typename T>
 std::enable_if_t<std::is_base_of<Message, T>::value, T *>
-MessageQueue::allocate(uint32_t const count) noexcept {
+MessageQueue::allocate(uint32_t const /*count*/) noexcept {
     uint32_t allocatedSize = 0;
     T *const msg           = reinterpret_cast<T *>(allocateImpl(allocatedSize, sizeof(T)));
     msg->_next             = reinterpret_cast<Message *>(_writer.currentMemoryChunk + _writer.offset);
@@ -272,13 +272,12 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
                           Param1, Value1,                           \
                           Code)                                     \
     {                                                               \
-                                                                    \
         using Type1 = std::decay<decltype(Value1)>::type;           \
                                                                     \
         class MessageName final : public Message {                  \
         public:                                                     \
-            explicit MessageName(Type1 const &In##Param1)           \
-            : Param1(In##Param1) {                                  \
+            explicit MessageName(Type1 In##Param1)                  \
+            : Param1(std::move(In##Param1)) {                       \
             }                                                       \
             virtual void execute() noexcept override {              \
                 Code                                                \
@@ -298,16 +297,15 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
                           Param2, Value2,                           \
                           Code)                                     \
     {                                                               \
-                                                                    \
         using Type1 = std::decay<decltype(Value1)>::type;           \
         using Type2 = std::decay<decltype(Value2)>::type;           \
                                                                     \
         class MessageName final : public Message {                  \
         public:                                                     \
             MessageName(                                            \
-                Type1 const &In##Param1, Type2 const &In##Param2)   \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2) {                                  \
+                Type1 In##Param1, Type2 In##Param2)                 \
+            : Param1(std::move(In##Param1)),                        \
+              Param2(std::move(In##Param2)) {                       \
             }                                                       \
             virtual void execute() noexcept override {              \
                 Code                                                \
@@ -329,7 +327,6 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
                           Param3, Value3,                           \
                           Code)                                     \
     {                                                               \
-                                                                    \
         using Type1 = std::decay<decltype(Value1)>::type;           \
         using Type2 = std::decay<decltype(Value2)>::type;           \
         using Type3 = std::decay<decltype(Value3)>::type;           \
@@ -337,12 +334,12 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
         class MessageName final : public Message {                  \
         public:                                                     \
             MessageName(                                            \
-                Type1 const &In##Param1,                            \
-                Type2 const &In##Param2,                            \
-                Type3 const &In##Param3)                            \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3) {                                  \
+                Type1 In##Param1,                                   \
+                Type2 In##Param2,                                   \
+                Type3 In##Param3)                                   \
+            : Param1(std::move(In##Param1)),                        \
+              Param2(std::move(In##Param2)),                        \
+              Param3(std::move(In##Param3)) {                       \
             }                                                       \
             virtual void execute() noexcept override {              \
                 Code                                                \
@@ -369,7 +366,6 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
                           Param4, Value4,                           \
                           Code)                                     \
     {                                                               \
-                                                                    \
         using Type1 = std::decay<decltype(Value1)>::type;           \
         using Type2 = std::decay<decltype(Value2)>::type;           \
         using Type3 = std::decay<decltype(Value3)>::type;           \
@@ -378,14 +374,14 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
         class MessageName : public Message {                        \
         public:                                                     \
             MessageName(                                            \
-                Type1 const &In##Param1,                            \
-                Type2 const &In##Param2,                            \
-                Type3 const &In##Param3,                            \
-                Type4 const &In##Param4)                            \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4) {                                  \
+                Type1 In##Param1,                                   \
+                Type2 In##Param2,                                   \
+                Type3 In##Param3,                                   \
+                Type4 In##Param4)                                   \
+            : Param1(std::move(In##Param1)),                        \
+              Param2(std::move(In##Param2)),                        \
+              Param3(std::move(In##Param3)),                        \
+              Param4(std::move(In##Param4)) {                       \
             }                                                       \
             virtual void execute() noexcept override {              \
                 Code                                                \
@@ -415,7 +411,6 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
                           Param5, Value5,                           \
                           Code)                                     \
     {                                                               \
-                                                                    \
         using Type1 = std::decay<decltype(Value1)>::type;           \
         using Type2 = std::decay<decltype(Value2)>::type;           \
         using Type3 = std::decay<decltype(Value3)>::type;           \
@@ -425,16 +420,16 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
         class MessageName : public Message {                        \
         public:                                                     \
             MessageName(                                            \
-                Type1 const &In##Param1,                            \
-                Type2 const &In##Param2,                            \
-                Type3 const &In##Param3,                            \
-                Type4 const &In##Param4,                            \
-                Type5 const &In##Param5)                            \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4),                                   \
-              Param5(In##Param5) {                                  \
+                Type1 In##Param1,                                   \
+                Type2 In##Param2,                                   \
+                Type3 In##Param3,                                   \
+                Type4 In##Param4,                                   \
+                Type5 In##Param5)                                   \
+            : Param1(std::move(In##Param1)),                        \
+              Param2(std::move(In##Param2)),                        \
+              Param3(std::move(In##Param3)),                        \
+              Param4(std::move(In##Param4)),                        \
+              Param5(std::move(In##Param5)) {                       \
             }                                                       \
             virtual void execute() noexcept override {              \
                 Code                                                \
@@ -467,7 +462,6 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
                           Param6, Value6,                           \
                           Code)                                     \
     {                                                               \
-                                                                    \
         using Type1 = std::decay<decltype(Value1)>::type;           \
         using Type2 = std::decay<decltype(Value2)>::type;           \
         using Type3 = std::decay<decltype(Value3)>::type;           \
@@ -478,18 +472,18 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
         class MessageName : public Message {                        \
         public:                                                     \
             MessageName(                                            \
-                Type1 const &In##Param1,                            \
-                Type2 const &In##Param2,                            \
-                Type3 const &In##Param3,                            \
-                Type4 const &In##Param4,                            \
-                Type5 const &In##Param5,                            \
-                Type6 const &In##Param6)                            \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4),                                   \
-              Param5(In##Param5),                                   \
-              Param6(In##Param6) {                                  \
+                Type1 In##Param1,                                   \
+                Type2 In##Param2,                                   \
+                Type3 In##Param3,                                   \
+                Type4 In##Param4,                                   \
+                Type5 In##Param5,                                   \
+                Type6 In##Param6)                                   \
+            : Param1(std::move(In##Param1)),                        \
+              Param2(std::move(In##Param2)),                        \
+              Param3(std::move(In##Param3)),                        \
+              Param4(std::move(In##Param4)),                        \
+              Param5(std::move(In##Param5)),                        \
+              Param6(std::move(In##Param6)) {                       \
             }                                                       \
             virtual void execute() noexcept override {              \
                 Code                                                \
@@ -525,7 +519,6 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
                           Param7, Value7,                           \
                           Code)                                     \
     {                                                               \
-                                                                    \
         using Type1 = std::decay<decltype(Value1)>::type;           \
         using Type2 = std::decay<decltype(Value2)>::type;           \
         using Type3 = std::decay<decltype(Value3)>::type;           \
@@ -537,20 +530,20 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
         class MessageName : public Message {                        \
         public:                                                     \
             MessageName(                                            \
-                Type1 const &In##Param1,                            \
-                Type2 const &In##Param2,                            \
-                Type3 const &In##Param3,                            \
-                Type4 const &In##Param4,                            \
-                Type5 const &In##Param5,                            \
-                Type6 const &In##Param6,                            \
-                Type7 const &In##Param7)                            \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4),                                   \
-              Param5(In##Param5),                                   \
-              Param6(In##Param6),                                   \
-              Param7(In##Param7) {                                  \
+                Type1 In##Param1,                                   \
+                Type2 In##Param2,                                   \
+                Type3 In##Param3,                                   \
+                Type4 In##Param4,                                   \
+                Type5 In##Param5,                                   \
+                Type6 In##Param6,                                   \
+                Type7 In##Param7)                                   \
+            : Param1(std::move(In##Param1)),                        \
+              Param2(std::move(In##Param2)),                        \
+              Param3(std::move(In##Param3)),                        \
+              Param4(std::move(In##Param4)),                        \
+              Param5(std::move(In##Param5)),                        \
+              Param6(std::move(In##Param6)),                        \
+              Param7(std::move(In##Param7)) {                       \
             }                                                       \
             virtual void execute() noexcept override {              \
                 Code                                                \
@@ -589,7 +582,6 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
                           Param8, Value8,                           \
                           Code)                                     \
     {                                                               \
-                                                                    \
         using Type1 = std::decay<decltype(Value1)>::type;           \
         using Type2 = std::decay<decltype(Value2)>::type;           \
         using Type3 = std::decay<decltype(Value3)>::type;           \
@@ -601,22 +593,22 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
                                                                     \
         class MessageName : public Message {                        \
         public:                                                     \
-            MessageName(Type1 const &In##Param1,                    \
-                        Type2 const &In##Param2,                    \
-                        Type3 const &In##Param3,                    \
-                        Type4 const &In##Param4,                    \
-                        Type5 const &In##Param5,                    \
-                        Type6 const &In##Param6,                    \
-                        Type7 const &In##Param7,                    \
-                        Type8 const &In##Param8)                    \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4),                                   \
-              Param5(In##Param5),                                   \
-              Param6(In##Param6),                                   \
-              Param7(In##Param7),                                   \
-              Param8(In##Param8) {                                  \
+            MessageName(Type1 In##Param1,                           \
+                        Type2 In##Param2,                           \
+                        Type3 In##Param3,                           \
+                        Type4 In##Param4,                           \
+                        Type5 In##Param5,                           \
+                        Type6 In##Param6,                           \
+                        Type7 In##Param7,                           \
+                        Type8 In##Param8)                           \
+            : Param1(std::move(In##Param1)),                        \
+              Param2(std::move(In##Param2)),                        \
+              Param3(std::move(In##Param3)),                        \
+              Param4(std::move(In##Param4)),                        \
+              Param5(std::move(In##Param5)),                        \
+              Param6(std::move(In##Param6)),                        \
+              Param7(std::move(In##Param7)),                        \
+              Param8(std::move(In##Param8)) {                       \
             }                                                       \
             virtual void execute() noexcept override {              \
                 Code                                                \
@@ -658,7 +650,6 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
                           Param9, Value9,                           \
                           Code)                                     \
     {                                                               \
-                                                                    \
         using Type1 = std::decay<decltype(Value1)>::type;           \
         using Type2 = std::decay<decltype(Value2)>::type;           \
         using Type3 = std::decay<decltype(Value3)>::type;           \
@@ -671,24 +662,24 @@ T *MessageQueue::allocateAndZero(uint32_t const count) noexcept {
                                                                     \
         class MessageName : public Message {                        \
         public:                                                     \
-            MessageName(Type1 const &In##Param1,                    \
-                        Type2 const &In##Param2,                    \
-                        Type3 const &In##Param3,                    \
-                        Type4 const &In##Param4,                    \
-                        Type5 const &In##Param5,                    \
-                        Type6 const &In##Param6,                    \
-                        Type7 const &In##Param7,                    \
-                        Type8 const &In##Param8,                    \
-                        Type9 const &In##Param9)                    \
-            : Param1(In##Param1),                                   \
-              Param2(In##Param2),                                   \
-              Param3(In##Param3),                                   \
-              Param4(In##Param4),                                   \
-              Param5(In##Param5),                                   \
-              Param6(In##Param6),                                   \
-              Param7(In##Param7),                                   \
-              Param8(In##Param8),                                   \
-              Param9(In##Param9) {                                  \
+            MessageName(Type1 In##Param1,                           \
+                        Type2 In##Param2,                           \
+                        Type3 In##Param3,                           \
+                        Type4 In##Param4,                           \
+                        Type5 In##Param5,                           \
+                        Type6 In##Param6,                           \
+                        Type7 In##Param7,                           \
+                        Type8 In##Param8,                           \
+                        Type9 In##Param9)                           \
+            : Param1(std::move(In##Param1)),                        \
+              Param2(std::move(In##Param2)),                        \
+              Param3(std::move(In##Param3)),                        \
+              Param4(std::move(In##Param4)),                        \
+              Param5(std::move(In##Param5)),                        \
+              Param6(std::move(In##Param6)),                        \
+              Param7(std::move(In##Param7)),                        \
+              Param8(std::move(In##Param8)),                        \
+              Param9(std::move(In##Param9)) {                       \
             }                                                       \
             virtual void execute() noexcept override {              \
                 Code                                                \

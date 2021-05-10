@@ -32,6 +32,11 @@
 namespace cc {
 namespace gfx {
 
+ShaderAgent::ShaderAgent(Shader *actor)
+: Agent<Shader>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 ShaderAgent::~ShaderAgent() {
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(),

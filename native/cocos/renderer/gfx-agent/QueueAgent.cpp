@@ -35,6 +35,11 @@
 namespace cc {
 namespace gfx {
 
+QueueAgent::QueueAgent(Queue *actor)
+: Agent<Queue>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 QueueAgent::~QueueAgent() {
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(),
@@ -70,8 +75,8 @@ void QueueAgent::submit(CommandBuffer *const *cmdBuffs, uint count) {
     if (!count) return;
 
     LinearAllocatorPool *allocator     = DeviceAgent::getInstance()->getMainAllocator();
-    CommandBuffer **     actorCmdBuffs = allocator->allocate<CommandBuffer *>(count);
-    for (uint i = 0u; i < count; ++i) {
+    auto **              actorCmdBuffs = allocator->allocate<CommandBuffer *>(count);
+    for (uint i = 0U; i < count; ++i) {
         actorCmdBuffs[i] = static_cast<CommandBufferAgent *>(cmdBuffs[i])->getActor();
     }
 

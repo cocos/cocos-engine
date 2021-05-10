@@ -33,6 +33,11 @@
 namespace cc {
 namespace gfx {
 
+RenderPassValidator::RenderPassValidator(RenderPass *actor)
+: Agent<RenderPass>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 RenderPassValidator::~RenderPassValidator() {
     DeviceResourceTracker<RenderPass>::erase(this);
     CC_SAFE_DELETE(_actor);

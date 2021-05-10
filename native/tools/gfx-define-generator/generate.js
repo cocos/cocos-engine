@@ -125,6 +125,17 @@ const getMemberList = (() => {
 const structRE = /struct\s+(\w+).*?{\s*(.+?)\s*};/gs;
 const structMemberRE = /^\s*(const\w*\s*)?([\w\[\]]+)\s+?(\w+)(?:\s*=?\s*(.*?))?;(?:\s*\/\/\s*@ts-(.*?)$)?/gm;
 const structMap = {};
+const replaceConstants = (() => {
+    const strMap = {
+        MAX_ATTACHMENTS: 4,
+        INVALID_BINDING: -1,
+        SUBPASS_EXTERNAL: -1,
+        nullptr: 'null!',
+        '::': '.',
+    };
+    const constantsRE = new RegExp(Object.keys(strMap).reduce((acc, cur) => `${acc}|${cur}`, '').slice(1), 'g');
+    return (str) => str.replace(constantsRE, (match) => strMap[match]);
+})();
 let structCap = structRE.exec(header);
 while (structCap) {
     const struct = structMap[structCap[1]] = {};
@@ -153,10 +164,7 @@ while (structCap) {
         if (!Number.isNaN(n)) {
             if (!value.startsWith('0x')) value = n; // keep hexadecimal numbers
         } else if (value) {
-            value = value.replace(/GFX_MAX_ATTACHMENTS/, '4');
-            value = value.replace(/GFX_INVALID_BINDING/, '-1');
-            value = value.replace(/nullptr/, 'null!');
-            value = value.replace('::', '.');
+            value = replaceConstants(value);
             value = value.replace(/{(.*?)}/, (_, value) => {
                 const count = Number.parseInt(value);
                 if (Number.isNaN(count)) return `[${value}]`;

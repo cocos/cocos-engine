@@ -32,7 +32,9 @@
 namespace cc {
 namespace gfx {
 
-GLES3Buffer::GLES3Buffer() = default;
+GLES3Buffer::GLES3Buffer() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES3Buffer::~GLES3Buffer() {
     destroy();

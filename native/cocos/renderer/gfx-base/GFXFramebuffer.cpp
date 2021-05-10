@@ -40,12 +40,12 @@ Framebuffer::~Framebuffer() = default;
 uint Framebuffer::computeHash(const FramebufferInfo &info) {
     uint seed = static_cast<uint>(info.colorTextures.size() + info.colorMipmapLevels.size() + 2);
     for (const Texture *attachment : info.colorTextures) {
-        seed ^= attachment->getTextureID() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+        seed ^= attachment->getObjectID() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
     for (uint level : info.colorMipmapLevels) {
         seed ^= level + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     }
-    seed ^= info.depthStencilTexture->getTextureID() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    seed ^= info.depthStencilTexture->getObjectID() + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     seed ^= static_cast<uint>(info.depthStencilMipmapLevel) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
     return seed;
 }

@@ -33,6 +33,11 @@
 namespace cc {
 namespace gfx {
 
+PipelineLayoutAgent::PipelineLayoutAgent(PipelineLayout *actor)
+: Agent<PipelineLayout>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 PipelineLayoutAgent::~PipelineLayoutAgent() {
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(),
@@ -46,7 +51,7 @@ PipelineLayoutAgent::~PipelineLayoutAgent() {
 void PipelineLayoutAgent::doInit(const PipelineLayoutInfo &info) {
     PipelineLayoutInfo actorInfo;
     actorInfo.setLayouts.resize(info.setLayouts.size());
-    for (uint i = 0u; i < info.setLayouts.size(); i++) {
+    for (uint i = 0U; i < info.setLayouts.size(); i++) {
         actorInfo.setLayouts[i] = static_cast<DescriptorSetLayoutAgent *>(info.setLayouts[i])->getActor();
     }
 

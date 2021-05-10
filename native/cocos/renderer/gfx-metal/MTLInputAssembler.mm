@@ -32,7 +32,9 @@
 namespace cc {
 namespace gfx {
 
-CCMTLInputAssembler::CCMTLInputAssembler() : InputAssembler() {}
+CCMTLInputAssembler::CCMTLInputAssembler() : InputAssembler() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 void CCMTLInputAssembler::doInit(const InputAssemblerInfo &info) {
     _GPUInputAssembler = CC_NEW(CCMTLGPUInputAssembler);

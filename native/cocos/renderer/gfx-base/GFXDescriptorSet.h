@@ -33,11 +33,10 @@ namespace gfx {
 class CC_DLL DescriptorSet : public GFXObject {
 public:
     DescriptorSet();
-    virtual ~DescriptorSet();
+    ~DescriptorSet() override;
 
-public:
-    void         initialize(const DescriptorSetInfo &info);
-    void         destroy();
+    void initialize(const DescriptorSetInfo &info);
+    void destroy();
 
     virtual void update() = 0;
 
@@ -54,18 +53,20 @@ public:
     Texture *getTexture(uint binding, uint index) const;
     Sampler *getSampler(uint binding, uint index) const;
 
-    CC_INLINE void    bindBuffer(uint binding, Buffer *buffer) { bindBuffer(binding, buffer, 0u); }
-    CC_INLINE void    bindTexture(uint binding, Texture *texture) { bindTexture(binding, texture, 0u); }
-    CC_INLINE void    bindSampler(uint binding, Sampler *sampler) { bindSampler(binding, sampler, 0u); }
-    CC_INLINE Buffer *getBuffer(uint binding) const { return getBuffer(binding, 0u); }
-    CC_INLINE Texture *getTexture(uint binding) const { return getTexture(binding, 0u); }
-    CC_INLINE Sampler *getSampler(uint binding) const { return getSampler(binding, 0u); }
+    inline DescriptorSetLayout *getLayout() { return _layout; }
+
+    inline void     bindBuffer(uint binding, Buffer *buffer) { bindBuffer(binding, buffer, 0U); }
+    inline void     bindTexture(uint binding, Texture *texture) { bindTexture(binding, texture, 0U); }
+    inline void     bindSampler(uint binding, Sampler *sampler) { bindSampler(binding, sampler, 0U); }
+    inline Buffer * getBuffer(uint binding) const { return getBuffer(binding, 0U); }
+    inline Texture *getTexture(uint binding) const { return getTexture(binding, 0U); }
+    inline Sampler *getSampler(uint binding) const { return getSampler(binding, 0U); }
 
 protected:
     virtual void doInit(const DescriptorSetInfo &info) = 0;
     virtual void doDestroy()                           = 0;
 
-    DescriptorSetLayout *_layout;
+    DescriptorSetLayout *_layout = nullptr;
     BufferList           _buffers;
     TextureList          _textures;
     SamplerList          _samplers;

@@ -76,7 +76,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     _caps                                               = _actor->_caps;
     memcpy(_features, _actor->_features, static_cast<uint>(Feature::COUNT) * sizeof(bool));
 
-    _mainEncoder = CC_NEW(MessageQueue);
+    _mainMessageQueue = CC_NEW(MessageQueue);
 
     _allocatorPools.resize(MAX_CPU_FRAME_AHEAD + 1);
     for (uint i = 0U; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
@@ -109,8 +109,8 @@ void DeviceAgent::doDestroy() {
         _queue = nullptr;
     }
 
-    _mainEncoder->terminateConsumerThread();
-    CC_SAFE_DELETE(_mainEncoder);
+    _mainMessageQueue->terminateConsumerThread();
+    CC_SAFE_DELETE(_mainMessageQueue);
 
     for (LinearAllocatorPool *pool : _allocatorPools) {
         CC_SAFE_DELETE(pool);
@@ -131,7 +131,7 @@ void DeviceAgent::resize(uint width, uint height) {
 
 void DeviceAgent::acquire() {
     ENQUEUE_MESSAGE_1(
-        _mainEncoder, DeviceAcquire,
+        _mainMessageQueue, DeviceAcquire,
         actor, getActor(),
         {
             actor->acquire();
@@ -140,7 +140,7 @@ void DeviceAgent::acquire() {
 
 void DeviceAgent::present() {
     ENQUEUE_MESSAGE_2(
-        _mainEncoder, DevicePresent,
+        _mainMessageQueue, DevicePresent,
         actor, getActor(),
         frameBoundarySemaphore, &_frameBoundarySemaphore,
         {
@@ -148,8 +148,8 @@ void DeviceAgent::present() {
             frameBoundarySemaphore->signal();
         });
 
-    MessageQueue::freeChunksInFreeQueue(_mainEncoder);
-    _mainEncoder->finishWriting();
+    MessageQueue::freeChunksInFreeQueue(_mainMessageQueue);
+    _mainMessageQueue->finishWriting();
     _currentIndex = (_currentIndex + 1) % (MAX_CPU_FRAME_AHEAD + 1);
     _frameBoundarySemaphore.wait();
 
@@ -164,11 +164,11 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
     _multithreaded = multithreaded;
 
     if (multithreaded) {
-        _mainEncoder->setImmediateMode(false);
+        _mainMessageQueue->setImmediateMode(false);
         _actor->bindRenderContext(false);
-        _mainEncoder->runConsumerThread();
+        _mainMessageQueue->runConsumerThread();
         ENQUEUE_MESSAGE_1(
-            _mainEncoder, DeviceMakeCurrentTrue,
+            _mainMessageQueue, DeviceMakeCurrentTrue,
             actor, _actor,
             {
                 actor->bindDeviceContext(true);
@@ -179,13 +179,13 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
         }
     } else {
         ENQUEUE_MESSAGE_1(
-            _mainEncoder, DeviceMakeCurrentFalse,
+            _mainMessageQueue, DeviceMakeCurrentFalse,
             actor, _actor,
             {
                 actor->bindDeviceContext(false);
             });
-        _mainEncoder->terminateConsumerThread();
-        _mainEncoder->setImmediateMode(true);
+        _mainMessageQueue->terminateConsumerThread();
+        _mainMessageQueue->setImmediateMode(true);
         _actor->bindRenderContext(true);
         for (CommandBufferAgent *cmdBuff : _cmdBuffRefs) {
             cmdBuff->_messageQueue->setImmediateMode(true);
@@ -196,7 +196,7 @@ void DeviceAgent::setMultithreaded(bool multithreaded) {
 
 void DeviceAgent::releaseSurface(uintptr_t windowHandle) {
     ENQUEUE_MESSAGE_2(
-        _mainEncoder, DeviceReleaseSurface,
+        _mainMessageQueue, DeviceReleaseSurface,
         actor, _actor,
         windowHandle, windowHandle,
         {
@@ -206,7 +206,7 @@ void DeviceAgent::releaseSurface(uintptr_t windowHandle) {
 
 void DeviceAgent::acquireSurface(uintptr_t windowHandle) {
     ENQUEUE_MESSAGE_2(
-        _mainEncoder, DeviceAcquireSurface,
+        _mainMessageQueue, DeviceAcquireSurface,
         actor, _actor,
         windowHandle, windowHandle,
         {
@@ -309,7 +309,7 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
     }
 
     ENQUEUE_MESSAGE_5(
-        _mainEncoder, DeviceCopyBuffersToTexture,
+        _mainMessageQueue, DeviceCopyBuffersToTexture,
         actor, getActor(),
         buffers, actorBuffers,
         dst, static_cast<TextureAgent *>(dst)->getActor(),
@@ -333,7 +333,7 @@ void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
     }
 
     ENQUEUE_MESSAGE_3(
-        _mainEncoder, DeviceFlushCommands,
+        _mainMessageQueue, DeviceFlushCommands,
         count, count,
         cmdBuffs, agentCmdBuffs,
         multiThreaded, multiThreaded,

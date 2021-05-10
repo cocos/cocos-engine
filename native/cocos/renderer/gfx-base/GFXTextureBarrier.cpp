@@ -34,6 +34,7 @@ namespace gfx {
 
 TextureBarrier::TextureBarrier()
 : GFXObject(ObjectType::TEXTURE_BARRIER) {
+    _typedID = generateObjectID<decltype(this)>();
 }
 
 TextureBarrier::~TextureBarrier() = default;

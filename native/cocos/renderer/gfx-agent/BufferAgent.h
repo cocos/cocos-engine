@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL BufferAgent final : public Agent<Buffer> {
 public:
-    using Agent::Agent;
+    explicit BufferAgent(Buffer *actor);
     ~BufferAgent() override;
 
     void update(const void *buffer, uint size) override;

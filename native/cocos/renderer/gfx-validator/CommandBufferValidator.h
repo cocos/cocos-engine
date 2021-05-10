@@ -28,6 +28,8 @@
 #include "base/Agent.h"
 #include "gfx-base/GFXCommandBuffer.h"
 
+#include "ValidationUtils.h"
+
 namespace cc {
 namespace gfx {
 
@@ -38,7 +40,7 @@ public:
 
     void begin(RenderPass *renderPass, uint subpass, Framebuffer *frameBuffer) override;
     void end() override;
-    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
+    void beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) override;
     void endRenderPass() override;
     void bindPipelineState(PipelineState *pso) override;
     void bindDescriptorSet(uint set, DescriptorSet *descriptorSet, uint dynamicOffsetCount, const uint *dynamicOffsets) override;
@@ -68,8 +70,13 @@ protected:
     friend class DeviceValidator;
     friend class QueueValidator;
 
+    void initValidator();
+
     void doInit(const CommandBufferInfo &info) override;
     void doDestroy() override;
+
+    CommandBufferStorage _curStates;
+    CommandRecorder      _recorder;
 
     bool _insideRenderPass{false};
     bool _commandsFlushed{false};

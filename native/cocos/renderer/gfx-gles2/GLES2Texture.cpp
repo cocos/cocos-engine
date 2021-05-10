@@ -32,13 +32,15 @@
 namespace cc {
 namespace gfx {
 
-GLES2Texture::GLES2Texture() = default;
+GLES2Texture::GLES2Texture() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES2Texture::~GLES2Texture() {
     destroy();
 }
 
-void GLES2Texture::doInit(const TextureInfo & /*info*/) {
+void GLES2Texture::doInit(const TextureInfo& /*info*/) {
     _gpuTexture             = CC_NEW(GLES2GPUTexture);
     _gpuTexture->type       = _type;
     _gpuTexture->format     = _format;
@@ -58,7 +60,7 @@ void GLES2Texture::doInit(const TextureInfo & /*info*/) {
     GLES2Device::getInstance()->getMemoryStatus().textureSize += _size;
 }
 
-void GLES2Texture::doInit(const TextureViewInfo & /*info*/) {
+void GLES2Texture::doInit(const TextureViewInfo& /*info*/) {
     CC_LOG_ERROR("GLES2 doesn't support texture view");
 }
 

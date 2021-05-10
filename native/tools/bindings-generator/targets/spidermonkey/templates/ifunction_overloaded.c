@@ -3,7 +3,7 @@
 static bool ${signature_name}(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    ${namespaced_class_name}* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
+    auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
     SE_PRECONDITION2( cobj, false, "${signature_name} : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();

@@ -34,6 +34,11 @@
 namespace cc {
 namespace gfx {
 
+PipelineLayoutValidator::PipelineLayoutValidator(PipelineLayout *actor)
+: Agent<PipelineLayout>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 PipelineLayoutValidator::~PipelineLayoutValidator() {
     DeviceResourceTracker<PipelineLayout>::erase(this);
     CC_SAFE_DELETE(_actor);
@@ -42,7 +47,7 @@ PipelineLayoutValidator::~PipelineLayoutValidator() {
 void PipelineLayoutValidator::doInit(const PipelineLayoutInfo &info) {
     PipelineLayoutInfo actorInfo;
     actorInfo.setLayouts.resize(info.setLayouts.size());
-    for (uint i = 0u; i < info.setLayouts.size(); i++) {
+    for (uint i = 0U; i < info.setLayouts.size(); i++) {
         CCASSERT(info.setLayouts[i], "invalid descriptor set layout");
         actorInfo.setLayouts[i] = static_cast<DescriptorSetLayoutValidator *>(info.setLayouts[i])->getActor();
     }

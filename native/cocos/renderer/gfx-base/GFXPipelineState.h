@@ -38,16 +38,16 @@ public:
     void initialize(const PipelineStateInfo &info);
     void destroy();
 
-    CC_INLINE Shader *          getShader() const { return _shader; }
-    CC_INLINE PipelineBindPoint getBindPoint() const { return _bindPoint; }
-    CC_INLINE PrimitiveMode     getPrimitive() const { return _primitive; }
-    CC_INLINE DynamicStateFlags getDynamicStates() const { return _dynamicStates; }
-    CC_INLINE const InputState &getInputState() const { return _inputState; }
-    CC_INLINE const RasterizerState &getRasterizerState() const { return _rasterizerState; }
-    CC_INLINE const DepthStencilState &getDepthStencilState() const { return _depthStencilState; }
-    CC_INLINE const BlendState &getBlendState() const { return _blendState; }
-    CC_INLINE const RenderPass *getRenderPass() const { return _renderPass; }
-    CC_INLINE const PipelineLayout *getPipelineLayout() const { return _pipelineLayout; }
+    inline Shader *                 getShader() const { return _shader; }
+    inline PipelineBindPoint        getBindPoint() const { return _bindPoint; }
+    inline PrimitiveMode            getPrimitive() const { return _primitive; }
+    inline DynamicStateFlags        getDynamicStates() const { return _dynamicStates; }
+    inline const InputState &       getInputState() const { return _inputState; }
+    inline const RasterizerState &  getRasterizerState() const { return _rasterizerState; }
+    inline const DepthStencilState &getDepthStencilState() const { return _depthStencilState; }
+    inline const BlendState &       getBlendState() const { return _blendState; }
+    inline const RenderPass *       getRenderPass() const { return _renderPass; }
+    inline const PipelineLayout *   getPipelineLayout() const { return _pipelineLayout; }
 
 protected:
     virtual void doInit(const PipelineStateInfo &info) = 0;

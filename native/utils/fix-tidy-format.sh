@@ -9,4 +9,5 @@ if [[ "$filtered-xxx" == "-xxx" ]]; then
     echo "No source to be fixed"
 else
     clang-tidy --format-style=file --fix $2 $filtered
+    clang-format -i $filtered
 fi

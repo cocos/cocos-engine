@@ -33,6 +33,11 @@
 namespace cc {
 namespace gfx {
 
+ShaderValidator::ShaderValidator(Shader *actor)
+: Agent<Shader>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 ShaderValidator::~ShaderValidator() {
     DeviceResourceTracker<Shader>::erase(this);
     CC_SAFE_DELETE(_actor);

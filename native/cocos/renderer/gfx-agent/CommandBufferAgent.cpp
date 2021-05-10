@@ -42,6 +42,11 @@
 namespace cc {
 namespace gfx {
 
+CommandBufferAgent::CommandBufferAgent(CommandBuffer *actor)
+: Agent<CommandBuffer>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 void CommandBufferAgent::flushCommands(uint count, CommandBufferAgent *const *cmdBuffs, bool multiThreaded) {
     uint jobThreadCount    = JobSystem::getInstance()->threadCount();
     uint workForThisThread = (count - 1) / jobThreadCount + 1; // ceil(count / jobThreadCount)
@@ -151,7 +156,7 @@ void CommandBufferAgent::end() {
         });
 }
 
-void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
+void CommandBufferAgent::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
     uint   attachmentCount = static_cast<uint>(renderPass->getColorAttachments().size());
     Color *actorColors     = nullptr;
     if (attachmentCount) {

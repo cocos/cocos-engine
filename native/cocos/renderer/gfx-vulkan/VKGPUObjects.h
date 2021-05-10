@@ -371,11 +371,8 @@ private:
 
     using CommandBufferPools = tbb::concurrent_unordered_map<
         std::thread::id, CCVKGPUCommandBufferPool *, std::hash<std::thread::id>>;
-    /*
-    using CommandBufferPools = unordered_map<std::thread::id, CCVKGPUCommandBufferPool *>;
-    std::mutex mutex;
-    */
 
+    // cannot use thread_local here because we need explicit control over their destruction
     CommandBufferPools _commandBufferPools;
 
     unordered_map<uint, CCVKGPUDescriptorSetPool> _descriptorSetPools;

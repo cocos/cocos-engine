@@ -26,12 +26,17 @@
 #include "base/CoreStd.h"
 #include "base/threading/MessageQueue.h"
 
-#include "DeviceValidator.h"
 #include "DescriptorSetLayoutValidator.h"
+#include "DeviceValidator.h"
 #include "ValidationUtils.h"
 
 namespace cc {
 namespace gfx {
+
+DescriptorSetLayoutValidator::DescriptorSetLayoutValidator(DescriptorSetLayout *actor)
+: Agent<DescriptorSetLayout>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 DescriptorSetLayoutValidator::~DescriptorSetLayoutValidator() {
     DeviceResourceTracker<DescriptorSetLayout>::erase(this);

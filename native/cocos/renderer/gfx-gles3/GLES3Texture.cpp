@@ -32,25 +32,27 @@
 namespace cc {
 namespace gfx {
 
-GLES3Texture::GLES3Texture() = default;
+GLES3Texture::GLES3Texture() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES3Texture::~GLES3Texture() {
     destroy();
 }
 
-void GLES3Texture::doInit(const TextureInfo & /*info*/) {
-    _gpuTexture = CC_NEW(GLES3GPUTexture);
-    _gpuTexture->type = _type;
-    _gpuTexture->format = _format;
-    _gpuTexture->usage = _usage;
-    _gpuTexture->width = _width;
-    _gpuTexture->height = _height;
-    _gpuTexture->depth = _depth;
-    _gpuTexture->size = _size;
+void GLES3Texture::doInit(const TextureInfo& /*info*/) {
+    _gpuTexture             = CC_NEW(GLES3GPUTexture);
+    _gpuTexture->type       = _type;
+    _gpuTexture->format     = _format;
+    _gpuTexture->usage      = _usage;
+    _gpuTexture->width      = _width;
+    _gpuTexture->height     = _height;
+    _gpuTexture->depth      = _depth;
+    _gpuTexture->size       = _size;
     _gpuTexture->arrayLayer = _layerCount;
-    _gpuTexture->mipLevel = _levelCount;
-    _gpuTexture->samples = _samples;
-    _gpuTexture->flags = _flags;
+    _gpuTexture->mipLevel   = _levelCount;
+    _gpuTexture->samples    = _samples;
+    _gpuTexture->flags      = _flags;
     _gpuTexture->isPowerOf2 = math::IsPowerOfTwo(_width) && math::IsPowerOfTwo(_height);
 
     cmdFuncGLES3CreateTexture(GLES3Device::getInstance(), _gpuTexture);
@@ -60,7 +62,7 @@ void GLES3Texture::doInit(const TextureInfo & /*info*/) {
     }
 }
 
-void GLES3Texture::doInit(const TextureViewInfo & /*info*/) {
+void GLES3Texture::doInit(const TextureViewInfo& /*info*/) {
     CC_LOG_ERROR("GLES3 doesn't support texture view.");
 }
 
@@ -80,9 +82,9 @@ void GLES3Texture::doResize(uint width, uint height, uint size) {
         GLES3Device::getInstance()->getMemoryStatus().textureSize -= _size;
     }
 
-    _gpuTexture->width = width;
+    _gpuTexture->width  = width;
     _gpuTexture->height = height;
-    _gpuTexture->size = size;
+    _gpuTexture->size   = size;
     cmdFuncGLES3ResizeTexture(GLES3Device::getInstance(), _gpuTexture);
 
     if (!_gpuTexture->memoryless) {

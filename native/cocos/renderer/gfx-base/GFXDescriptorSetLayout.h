@@ -33,24 +33,26 @@ namespace gfx {
 class CC_DLL DescriptorSetLayout : public GFXObject {
 public:
     DescriptorSetLayout();
-    virtual ~DescriptorSetLayout();
+    ~DescriptorSetLayout() override;
 
     void initialize(const DescriptorSetLayoutInfo &info);
     void destroy();
 
-    CC_INLINE const DescriptorSetLayoutBindingList &getBindings() const { return _bindings; }
-    CC_INLINE const vector<uint> &getBindingIndices() const { return _bindingIndices; }
-    CC_INLINE const vector<uint> &getDescriptorIndices() const { return _descriptorIndices; }
-    CC_INLINE const uint          getDescriptorCount() const { return _descriptorCount; }
+    inline const DescriptorSetLayoutBindingList &getBindings() const { return _bindings; }
+    inline const vector<uint> &                  getDynamicBindings() const { return _dynamicBindings; }
+    inline const vector<uint> &                  getBindingIndices() const { return _bindingIndices; }
+    inline const vector<uint> &                  getDescriptorIndices() const { return _descriptorIndices; }
+    inline uint                                  getDescriptorCount() const { return _descriptorCount; }
 
 protected:
     virtual void doInit(const DescriptorSetLayoutInfo &info) = 0;
     virtual void doDestroy()                                 = 0;
 
     DescriptorSetLayoutBindingList _bindings;
-    uint                           _descriptorCount = 0u;
+    uint                           _descriptorCount = 0U;
     vector<uint>                   _bindingIndices;
     vector<uint>                   _descriptorIndices;
+    vector<uint>                   _dynamicBindings;
 };
 
 } // namespace gfx

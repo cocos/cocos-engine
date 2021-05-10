@@ -39,6 +39,10 @@
 namespace cc {
 namespace gfx {
 
+GLES3CommandBuffer::GLES3CommandBuffer() {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 GLES3CommandBuffer::~GLES3CommandBuffer() {
     destroy();
 }
@@ -102,7 +106,7 @@ void GLES3CommandBuffer::end() {
     }
 }
 
-void GLES3CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
+void GLES3CommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const * /*secondaryCBs*/, uint /*secondaryCBCount*/) {
     _curSubpassIdx = 0U;
 
     GLES3CmdBeginRenderPass *cmd = _cmdAllocator->beginRenderPassCmdPool.alloc();

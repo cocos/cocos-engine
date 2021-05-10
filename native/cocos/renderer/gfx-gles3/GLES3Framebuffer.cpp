@@ -34,7 +34,9 @@
 namespace cc {
 namespace gfx {
 
-GLES3Framebuffer::GLES3Framebuffer() = default;
+GLES3Framebuffer::GLES3Framebuffer() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES3Framebuffer::~GLES3Framebuffer() {
     destroy();

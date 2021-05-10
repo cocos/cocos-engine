@@ -34,7 +34,6 @@ namespace gfx {
 
 Shader::Shader()
 : GFXObject(ObjectType::SHADER) {
-    _shaderID = generateShaderID();
 }
 
 Shader::~Shader() = default;

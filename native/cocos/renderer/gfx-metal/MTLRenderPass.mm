@@ -32,7 +32,9 @@
 namespace cc {
 namespace gfx {
 
-CCMTLRenderPass::CCMTLRenderPass() : RenderPass() {}
+CCMTLRenderPass::CCMTLRenderPass() : RenderPass() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 void CCMTLRenderPass::doInit(const RenderPassInfo &info) {
     _renderTargetSizes.resize(_colorAttachments.size());

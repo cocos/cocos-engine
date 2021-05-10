@@ -38,6 +38,7 @@ namespace cc {
 namespace gfx {
 
 CCMTLBuffer::CCMTLBuffer() : Buffer() {
+    _typedID = generateObjectID<decltype(this)>();
 }
 
 void CCMTLBuffer::doInit(const BufferInfo &info) {

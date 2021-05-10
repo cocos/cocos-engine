@@ -64,16 +64,19 @@ bool DeviceValidator::doInit(const DeviceInfo &info) {
         return false;
     }
 
-    _context                                                = _actor->getContext();
-    _api                                                    = _actor->getGfxAPI();
-    _deviceName                                             = _actor->getDeviceName();
-    _queue                                                  = CC_NEW(QueueValidator(_actor->getQueue()));
-    _cmdBuff                                                = CC_NEW(CommandBufferValidator(_actor->getCommandBuffer()));
-    static_cast<CommandBufferValidator *>(_cmdBuff)->_queue = _queue;
-    _renderer                                               = _actor->getRenderer();
-    _vendor                                                 = _actor->getVendor();
-    _caps                                                   = _actor->_caps;
+    _context                 = _actor->getContext();
+    _api                     = _actor->getGfxAPI();
+    _deviceName              = _actor->getDeviceName();
+    _queue                   = CC_NEW(QueueValidator(_actor->getQueue()));
+    auto *cmdBuffValidator   = CC_NEW(CommandBufferValidator(_actor->getCommandBuffer()));
+    _cmdBuff                 = cmdBuffValidator;
+    cmdBuffValidator->_queue = _queue;
+    _renderer                = _actor->getRenderer();
+    _vendor                  = _actor->getVendor();
+    _caps                    = _actor->_caps;
+
     memcpy(_features, _actor->_features, static_cast<uint>(Feature::COUNT) * sizeof(bool));
+    cmdBuffValidator->initValidator();
 
     DeviceResourceTracker<CommandBuffer>::push(_cmdBuff);
     DeviceResourceTracker<Queue>::push(_queue);
@@ -232,7 +235,7 @@ TextureBarrier *DeviceValidator::createTextureBarrier() {
 
 void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
     auto *textureValidator = static_cast<TextureValidator *>(dst);
-    textureValidator->updateRedundencyCheck();
+    textureValidator->sanityCheck();
 
     _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);
 }

@@ -40,7 +40,7 @@ void EmptyCommandBuffer::begin(RenderPass *renderPass, uint subpass, Framebuffer
 void EmptyCommandBuffer::end() {
 }
 
-void EmptyCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, int stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
+void EmptyCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo, const Rect &renderArea, const Color *colors, float depth, uint stencil, CommandBuffer *const *secondaryCBs, uint secondaryCBCount) {
 }
 
 void EmptyCommandBuffer::endRenderPass() {

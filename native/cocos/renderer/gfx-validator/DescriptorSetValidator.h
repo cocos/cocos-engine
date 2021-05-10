@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL DescriptorSetValidator final : public Agent<DescriptorSet> {
 public:
-    using Agent::Agent;
+    explicit DescriptorSetValidator(DescriptorSet *actor);
     ~DescriptorSetValidator() override;
 
     void update() override;

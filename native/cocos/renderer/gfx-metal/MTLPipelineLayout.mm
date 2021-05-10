@@ -32,6 +32,7 @@ namespace cc {
 namespace gfx {
 
 CCMTLPipelineLayout::CCMTLPipelineLayout() : PipelineLayout() {
+    _typedID = generateObjectID<decltype(this)>();
 }
 
 void CCMTLPipelineLayout::doInit(const PipelineLayoutInfo &info) {

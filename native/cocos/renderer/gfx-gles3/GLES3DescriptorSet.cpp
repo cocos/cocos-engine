@@ -35,7 +35,9 @@
 namespace cc {
 namespace gfx {
 
-GLES3DescriptorSet::GLES3DescriptorSet() = default;
+GLES3DescriptorSet::GLES3DescriptorSet() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES3DescriptorSet::~GLES3DescriptorSet() {
     destroy();
@@ -43,8 +45,8 @@ GLES3DescriptorSet::~GLES3DescriptorSet() {
 
 void GLES3DescriptorSet::doInit(const DescriptorSetInfo & /*info*/) {
     const GLES3GPUDescriptorSetLayout *gpuDescriptorSetLayout = static_cast<GLES3DescriptorSetLayout *>(_layout)->gpuDescriptorSetLayout();
-    const size_t descriptorCount = gpuDescriptorSetLayout->descriptorCount;
-    const size_t bindingCount = gpuDescriptorSetLayout->bindings.size();
+    const size_t                       descriptorCount        = gpuDescriptorSetLayout->descriptorCount;
+    const size_t                       bindingCount           = gpuDescriptorSetLayout->bindings.size();
 
     _gpuDescriptorSet = CC_NEW(GLES3GPUDescriptorSet);
     _gpuDescriptorSet->gpuDescriptors.resize(descriptorCount);

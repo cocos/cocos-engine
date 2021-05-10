@@ -96,7 +96,7 @@ public:
     uint             getNumInstances() const override { return _actor->getNumInstances(); }
     uint             getNumTris() const override { return _actor->getNumTris(); }
 
-    MessageQueue *       getMessageQueue() const { return _mainEncoder; }
+    MessageQueue *       getMessageQueue() const { return _mainMessageQueue; }
     LinearAllocatorPool *getMainAllocator() const { return _allocatorPools[_currentIndex]; }
 
 protected:
@@ -114,7 +114,7 @@ protected:
     void acquireSurface(uintptr_t windowHandle) override;
 
     bool          _multithreaded{false};
-    MessageQueue *_mainEncoder{nullptr};
+    MessageQueue *_mainMessageQueue{nullptr};
 
     uint                          _currentIndex = 0U;
     vector<LinearAllocatorPool *> _allocatorPools;

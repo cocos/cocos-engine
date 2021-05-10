@@ -32,7 +32,9 @@
 namespace cc {
 namespace gfx {
 
-GLES3Shader::GLES3Shader() = default;
+GLES3Shader::GLES3Shader() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES3Shader::~GLES3Shader() {
     destroy();

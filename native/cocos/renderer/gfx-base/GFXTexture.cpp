@@ -34,7 +34,6 @@ namespace gfx {
 
 Texture::Texture()
 : GFXObject(ObjectType::TEXTURE) {
-    _textureID = generateTextureID();
 }
 
 Texture::~Texture() = default;

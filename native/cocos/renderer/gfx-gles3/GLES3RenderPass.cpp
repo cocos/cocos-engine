@@ -25,13 +25,15 @@
 
 #include "GLES3Std.h"
 
-#include "GLES3RenderPass.h"
 #include "GLES3Commands.h"
+#include "GLES3RenderPass.h"
 
 namespace cc {
 namespace gfx {
 
-GLES3RenderPass::GLES3RenderPass() = default;
+GLES3RenderPass::GLES3RenderPass() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES3RenderPass::~GLES3RenderPass() {
     destroy();

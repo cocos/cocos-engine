@@ -40,7 +40,6 @@
 #include "boost/stacktrace.hpp"
 
 namespace cc {
-
 namespace utils {
 
 #define MAX_ITOA_BUFFER_SIZE 256
@@ -77,5 +76,4 @@ std::string getStacktrace(uint skip, uint maxDepth) {
 }
 
 } // namespace utils
-
 } // namespace cc

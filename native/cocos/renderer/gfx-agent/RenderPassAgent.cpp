@@ -32,6 +32,11 @@
 namespace cc {
 namespace gfx {
 
+RenderPassAgent::RenderPassAgent(RenderPass *actor)
+: Agent<RenderPass>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 RenderPassAgent::~RenderPassAgent() {
     ENQUEUE_MESSAGE_1(
         DeviceAgent::getInstance()->getMessageQueue(),

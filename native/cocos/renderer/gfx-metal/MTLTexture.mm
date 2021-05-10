@@ -33,7 +33,9 @@
 namespace cc {
 namespace gfx {
 
-CCMTLTexture::CCMTLTexture() : Texture() {}
+CCMTLTexture::CCMTLTexture() : Texture() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 void CCMTLTexture::doInit(const TextureInfo &info) {
     _isArray = _type == TextureType::TEX1D_ARRAY || _type == TextureType::TEX2D_ARRAY;

@@ -44,7 +44,6 @@ constexpr bool ENABLE_LAZY_ALLOCATION = true;
 CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool() {
     std::thread::id threadID = std::this_thread::get_id();
     if (!_commandBufferPools.count(threadID)) {
-        //std::scoped_lock<std::mutex> guard(mutex);
         _commandBufferPools[threadID] = CC_NEW(CCVKGPUCommandBufferPool(this));
     }
     return _commandBufferPools[threadID];
@@ -554,7 +553,7 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
 
 void cmdFuncCCVKCreateShader(CCVKDevice *device, CCVKGPUShader *gpuShader) {
     for (CCVKGPUShaderStage &stage : gpuShader->gpuStages) {
-        vector<unsigned int>     spirv = GLSL2SPIRV(stage.type, "#version 450\n" + stage.source, device->gpuDevice()->minorVersion);
+        vector<unsigned int>     spirv = glsl2spirv(stage.type, "#version 450\n" + stage.source, device->gpuDevice()->minorVersion);
         VkShaderModuleCreateInfo createInfo{VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};
         createInfo.codeSize = spirv.size() * sizeof(unsigned int);
         createInfo.pCode    = spirv.data();

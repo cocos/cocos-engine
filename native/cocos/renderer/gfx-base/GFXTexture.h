@@ -42,32 +42,25 @@ public:
     void destroy();
     void resize(uint width, uint height);
 
-    CC_INLINE uint         getTextureID() const { return _textureID; }
-    CC_INLINE TextureType  getType() const { return _type; }
-    CC_INLINE TextureUsage getUsage() const { return _usage; }
-    CC_INLINE Format       getFormat() const { return _format; }
-    CC_INLINE uint         getWidth() const { return _width; }
-    CC_INLINE uint         getHeight() const { return _height; }
-    CC_INLINE uint         getDepth() const { return _depth; }
-    CC_INLINE uint         getLayerCount() const { return _layerCount; }
-    CC_INLINE uint         getLevelCount() const { return _levelCount; }
-    CC_INLINE uint         getSize() const { return _size; }
-    CC_INLINE SampleCount  getSamples() const { return _samples; }
-    CC_INLINE TextureFlags getFlags() const { return _flags; }
-    CC_INLINE bool     isTextureView() const { return _isTextureView; }
+    inline TextureType  getType() const { return _type; }
+    inline TextureUsage getUsage() const { return _usage; }
+    inline Format       getFormat() const { return _format; }
+    inline uint         getWidth() const { return _width; }
+    inline uint         getHeight() const { return _height; }
+    inline uint         getDepth() const { return _depth; }
+    inline uint         getLayerCount() const { return _layerCount; }
+    inline uint         getLevelCount() const { return _levelCount; }
+    inline uint         getSize() const { return _size; }
+    inline SampleCount  getSamples() const { return _samples; }
+    inline TextureFlags getFlags() const { return _flags; }
+    inline bool         isTextureView() const { return _isTextureView; }
 
 protected:
-    static uint generateTextureID() noexcept {
-        static uint idGen = 0;
-        return idGen++;
-    }
-
     virtual void doInit(const TextureInfo &info)              = 0;
     virtual void doInit(const TextureViewInfo &info)          = 0;
     virtual void doDestroy()                                  = 0;
     virtual void doResize(uint width, uint height, uint size) = 0;
 
-    uint         _textureID     = 0;
     TextureType  _type          = TextureType::TEX2D;
     TextureUsage _usage         = TextureUsageBit::NONE;
     Format       _format        = Format::UNKNOWN;

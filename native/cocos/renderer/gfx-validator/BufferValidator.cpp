@@ -33,6 +33,11 @@
 namespace cc {
 namespace gfx {
 
+BufferValidator::BufferValidator(Buffer *actor)
+: Agent<Buffer>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 BufferValidator::~BufferValidator() {
     DeviceResourceTracker<Buffer>::erase(this);
     CC_SAFE_DELETE(_actor);
@@ -93,19 +98,14 @@ void BufferValidator::update(const void *buffer, uint size) {
         }
     }
 
-    if (DeviceValidator::getInstance()->isRecording()) {
-        _buffer.resize(_size);
-        memcpy(_buffer.data(), buffer, size);
-    }
-
-    updateRedundencyCheck();
+    sanityCheck(buffer, size);
 
     /////////// execute ///////////
 
     _actor->update(buffer, size);
 }
 
-void BufferValidator::updateRedundencyCheck() {
+void BufferValidator::sanityCheck(const void *buffer, uint size) {
     uint cur = DeviceValidator::getInstance()->currentFrame();
 
     if (cur == _lastUpdateFrame) {
@@ -115,7 +115,17 @@ void BufferValidator::updateRedundencyCheck() {
         // CC_LOG_WARNING("performance warning: buffer updated more than once per frame");
     }
 
+    if (DeviceValidator::getInstance()->isRecording()) {
+        _buffer.resize(_size);
+        memcpy(_buffer.data(), buffer, size);
+    }
+
     _lastUpdateFrame = cur;
+
+    if (DeviceValidator::getInstance()->isRecording()) {
+        _buffer.resize(_size);
+        memcpy(_buffer.data(), buffer, size);
+    }
 }
 
 } // namespace gfx

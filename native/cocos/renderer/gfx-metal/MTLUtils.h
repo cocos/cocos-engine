@@ -97,7 +97,7 @@ uint getBlockSize(Format format);
 uint getBytesPerRow(Format format, uint width);
 bool pixelFormatIsColorRenderable(Format format);
 bool isSamplerDescriptorCompareFunctionSupported(uint family);
-void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float depth, int stencil);
+void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float depth, uint stencil);
 CC_INLINE uint alignUp(uint inSize, uint align) { return ((inSize + align - 1) / align) * align; }
 void clearUtilResource();
 } // namespace mu

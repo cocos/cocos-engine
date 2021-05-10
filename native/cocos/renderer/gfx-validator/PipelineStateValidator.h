@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL PipelineStateValidator final : public Agent<PipelineState> {
 public:
-    using Agent::Agent;
+    explicit PipelineStateValidator(PipelineState *actor);
     ~PipelineStateValidator() override;
 
 protected:

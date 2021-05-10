@@ -33,7 +33,7 @@ namespace gfx {
 
 class CC_DLL ShaderValidator final : public Agent<Shader> {
 public:
-    using Agent::Agent;
+    explicit ShaderValidator(Shader *actor);
     ~ShaderValidator() override;
 
 protected:

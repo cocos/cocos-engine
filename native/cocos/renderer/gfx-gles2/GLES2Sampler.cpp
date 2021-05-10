@@ -32,13 +32,15 @@
 namespace cc {
 namespace gfx {
 
-GLES2Sampler::GLES2Sampler() = default;
+GLES2Sampler::GLES2Sampler() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES2Sampler::~GLES2Sampler() {
     destroy();
 }
 
-void GLES2Sampler::doInit(const SamplerInfo & /*info*/) {
+void GLES2Sampler::doInit(const SamplerInfo& /*info*/) {
     _gpuSampler            = CC_NEW(GLES2GPUSampler);
     _gpuSampler->minFilter = _minFilter;
     _gpuSampler->magFilter = _magFilter;

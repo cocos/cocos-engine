@@ -36,6 +36,11 @@
 namespace cc {
 namespace gfx {
 
+PipelineStateValidator::PipelineStateValidator(PipelineState *actor)
+: Agent<PipelineState>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 PipelineStateValidator::~PipelineStateValidator() {
     DeviceResourceTracker<PipelineState>::erase(this);
     CC_SAFE_DELETE(_actor);

@@ -2,7 +2,7 @@
 
 static bool ${signature_name}(se::State& s)
 {
-    ${namespaced_class_name}* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
+    auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
     SE_PRECONDITION2(cobj, false, "${signature_name} : Invalid Native Object");
 #if len($arguments) >= $min_args
     const auto& args = s.args();
@@ -36,7 +36,7 @@ static bool ${signature_name}(se::State& s)
                              "context" : "s.thisObject()", \
                              "is_static": False, \
                              "is_persistent": $is_persistent, \
-                             "ntype": str($arg)}) 
+                             "ntype": str($arg)})
             #set arg_conv_array += [$conv_txt]
         $holder_prefix arg${count} = {};
             #set $count = $count + 1

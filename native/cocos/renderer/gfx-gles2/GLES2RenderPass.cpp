@@ -31,7 +31,9 @@
 namespace cc {
 namespace gfx {
 
-GLES2RenderPass::GLES2RenderPass() = default;
+GLES2RenderPass::GLES2RenderPass() {
+    _typedID = generateObjectID<decltype(this)>();
+}
 
 GLES2RenderPass::~GLES2RenderPass() {
     destroy();

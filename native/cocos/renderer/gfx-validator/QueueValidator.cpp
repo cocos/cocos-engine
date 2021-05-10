@@ -33,6 +33,11 @@
 namespace cc {
 namespace gfx {
 
+QueueValidator::QueueValidator(Queue *actor)
+: Agent<Queue>(actor) {
+    _typedID = generateObjectID<decltype(this)>();
+}
+
 QueueValidator::~QueueValidator() {
     DeviceResourceTracker<Queue>::erase(this);
     CC_SAFE_DELETE(_actor);
@@ -53,7 +58,7 @@ void QueueValidator::submit(CommandBuffer *const *cmdBuffs, uint count) {
     cmdBuffActors.resize(count);
 
     for (uint i = 0U; i < count; ++i) {
-        auto *cmdBuff    = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
+        auto *cmdBuff = static_cast<CommandBufferValidator *>(cmdBuffs[i]);
         CCASSERT(cmdBuff->_commandsFlushed, "command buffers must be flushed before submit");
         cmdBuffActors[i] = cmdBuff->getActor();
     }

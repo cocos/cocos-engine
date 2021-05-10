@@ -47,9 +47,9 @@ void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
         vector<uint> flattenedIndices(bindingCount);
         for (uint i = 0U; i < bindingCount; i++) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
-            flattenedIndices[i]                       = _descriptorCount;
-            _descriptorCount += binding.count;
             if (binding.binding > maxBinding) maxBinding = binding.binding;
+            flattenedIndices[i] = _descriptorCount;
+            _descriptorCount += binding.count;
         }
 
         _bindingIndices.resize(maxBinding + 1, INVALID_BINDING);
@@ -58,6 +58,11 @@ void DescriptorSetLayout::initialize(const DescriptorSetLayoutInfo &info) {
             const DescriptorSetLayoutBinding &binding = _bindings[i];
             _bindingIndices[binding.binding]          = i;
             _descriptorIndices[binding.binding]       = flattenedIndices[i];
+            if (hasFlag(DESCRIPTOR_DYNAMIC_TYPE, binding.descriptorType)) {
+                for (uint j = 0U; j < binding.count; ++j) {
+                    _dynamicBindings.push_back(binding.binding);
+                }
+            }
         }
     }
 
