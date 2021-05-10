@@ -9781,6 +9781,33 @@ static bool js_gfx_ColorAttachment_set_endAccesses(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_ColorAttachment_set_endAccesses)
 
+static bool js_gfx_ColorAttachment_get_isGeneralLayout(se::State& s)
+{
+    cc::gfx::ColorAttachment* cobj = SE_THIS_OBJECT<cc::gfx::ColorAttachment>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_get_isGeneralLayout : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->isGeneralLayout, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->isGeneralLayout, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_ColorAttachment_get_isGeneralLayout)
+
+static bool js_gfx_ColorAttachment_set_isGeneralLayout(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::ColorAttachment* cobj = SE_THIS_OBJECT<cc::gfx::ColorAttachment>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ColorAttachment_set_isGeneralLayout : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->isGeneralLayout, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_ColorAttachment_set_isGeneralLayout : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_ColorAttachment_set_isGeneralLayout)
+
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::gfx::ColorAttachment * to, se::Object *ctx)
@@ -9817,6 +9844,10 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::ColorAttachment * to, se:
     json->getProperty("endAccesses", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->endAccesses), ctx);
+    }
+    json->getProperty("isGeneralLayout", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->isGeneralLayout), ctx);
     }
     return ok;
 }
@@ -9874,6 +9905,9 @@ static bool js_gfx_ColorAttachment_constructor(se::State& s)
         if (argc > 5 && !args[5].isUndefined()) {
             ok &= sevalue_to_native(args[5], &(cobj->endAccesses), nullptr);
         }
+        if (argc > 6 && !args[6].isUndefined()) {
+            ok &= sevalue_to_native(args[6], &(cobj->isGeneralLayout), nullptr);
+        }
 
         if(!ok) {
             JSB_FREE(cobj);
@@ -9917,6 +9951,7 @@ bool js_register_gfx_ColorAttachment(se::Object* obj)
     cls->defineProperty("storeOp", _SE(js_gfx_ColorAttachment_get_storeOp), _SE(js_gfx_ColorAttachment_set_storeOp));
     cls->defineProperty("beginAccesses", _SE(js_gfx_ColorAttachment_get_beginAccesses), _SE(js_gfx_ColorAttachment_set_beginAccesses));
     cls->defineProperty("endAccesses", _SE(js_gfx_ColorAttachment_get_endAccesses), _SE(js_gfx_ColorAttachment_set_endAccesses));
+    cls->defineProperty("isGeneralLayout", _SE(js_gfx_ColorAttachment_get_isGeneralLayout), _SE(js_gfx_ColorAttachment_set_isGeneralLayout));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_ColorAttachment_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::ColorAttachment>(cls);
@@ -10146,6 +10181,33 @@ static bool js_gfx_DepthStencilAttachment_set_endAccesses(se::State& s)
 }
 SE_BIND_PROP_SET(js_gfx_DepthStencilAttachment_set_endAccesses)
 
+static bool js_gfx_DepthStencilAttachment_get_isGeneralLayout(se::State& s)
+{
+    cc::gfx::DepthStencilAttachment* cobj = SE_THIS_OBJECT<cc::gfx::DepthStencilAttachment>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_get_isGeneralLayout : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->isGeneralLayout, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->isGeneralLayout, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_DepthStencilAttachment_get_isGeneralLayout)
+
+static bool js_gfx_DepthStencilAttachment_set_isGeneralLayout(se::State& s)
+{
+    const auto& args = s.args();
+    cc::gfx::DepthStencilAttachment* cobj = SE_THIS_OBJECT<cc::gfx::DepthStencilAttachment>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_DepthStencilAttachment_set_isGeneralLayout : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->isGeneralLayout, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_DepthStencilAttachment_set_isGeneralLayout : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_DepthStencilAttachment_set_isGeneralLayout)
+
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::gfx::DepthStencilAttachment * to, se::Object *ctx)
@@ -10190,6 +10252,10 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::DepthStencilAttachment * 
     json->getProperty("endAccesses", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->endAccesses), ctx);
+    }
+    json->getProperty("isGeneralLayout", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->isGeneralLayout), ctx);
     }
     return ok;
 }
@@ -10253,6 +10319,9 @@ static bool js_gfx_DepthStencilAttachment_constructor(se::State& s)
         if (argc > 7 && !args[7].isUndefined()) {
             ok &= sevalue_to_native(args[7], &(cobj->endAccesses), nullptr);
         }
+        if (argc > 8 && !args[8].isUndefined()) {
+            ok &= sevalue_to_native(args[8], &(cobj->isGeneralLayout), nullptr);
+        }
 
         if(!ok) {
             JSB_FREE(cobj);
@@ -10298,6 +10367,7 @@ bool js_register_gfx_DepthStencilAttachment(se::Object* obj)
     cls->defineProperty("stencilStoreOp", _SE(js_gfx_DepthStencilAttachment_get_stencilStoreOp), _SE(js_gfx_DepthStencilAttachment_set_stencilStoreOp));
     cls->defineProperty("beginAccesses", _SE(js_gfx_DepthStencilAttachment_get_beginAccesses), _SE(js_gfx_DepthStencilAttachment_set_beginAccesses));
     cls->defineProperty("endAccesses", _SE(js_gfx_DepthStencilAttachment_get_endAccesses), _SE(js_gfx_DepthStencilAttachment_set_endAccesses));
+    cls->defineProperty("isGeneralLayout", _SE(js_gfx_DepthStencilAttachment_get_isGeneralLayout), _SE(js_gfx_DepthStencilAttachment_set_isGeneralLayout));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DepthStencilAttachment_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::DepthStencilAttachment>(cls);
@@ -16424,7 +16494,7 @@ static bool js_gfx_CommandBuffer_setStencilCompareMask(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 3) {
         HolderType<cc::gfx::StencilFace, false> arg0 = {};
-        HolderType<int, false> arg1 = {};
+        HolderType<unsigned int, false> arg1 = {};
         HolderType<unsigned int, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
