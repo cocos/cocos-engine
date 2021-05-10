@@ -41,7 +41,7 @@ se::Class* __jsb_cc_AudioProfile_class = nullptr;
 
 static bool js_audio_AudioProfile_get_name(se::State& s)
 {
-    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -56,7 +56,7 @@ SE_BIND_PROP_GET(js_audio_AudioProfile_get_name)
 static bool js_audio_AudioProfile_set_name(se::State& s)
 {
     const auto& args = s.args();
-    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_set_name : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -68,7 +68,7 @@ SE_BIND_PROP_SET(js_audio_AudioProfile_set_name)
 
 static bool js_audio_AudioProfile_get_maxInstances(se::State& s)
 {
-    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_maxInstances : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -83,7 +83,7 @@ SE_BIND_PROP_GET(js_audio_AudioProfile_get_maxInstances)
 static bool js_audio_AudioProfile_set_maxInstances(se::State& s)
 {
     const auto& args = s.args();
-    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_set_maxInstances : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -95,7 +95,7 @@ SE_BIND_PROP_SET(js_audio_AudioProfile_set_maxInstances)
 
 static bool js_audio_AudioProfile_get_minDelay(se::State& s)
 {
-    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_minDelay : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -110,7 +110,7 @@ SE_BIND_PROP_GET(js_audio_AudioProfile_get_minDelay)
 static bool js_audio_AudioProfile_set_minDelay(se::State& s)
 {
     const auto& args = s.args();
-    cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_set_minDelay : Invalid Native Object");
 
     CC_UNUSED bool ok = true;
@@ -140,7 +140,7 @@ static bool js_cc_AudioProfile_finalize(se::State& s)
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::AudioProfile* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
+        auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
         JSB_FREE(cobj);
     }
     return true;
@@ -149,7 +149,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_AudioProfile_finalize)
 
 bool js_register_audio_AudioProfile(se::Object* obj)
 {
-    auto cls = se::Class::create("AudioProfile", obj, nullptr, _SE(js_audio_AudioProfile_constructor));
+    auto* cls = se::Class::create("AudioProfile", obj, nullptr, _SE(js_audio_AudioProfile_constructor));
 
     cls->defineProperty("name", _SE(js_audio_AudioProfile_get_name), _SE(js_audio_AudioProfile_set_name));
     cls->defineProperty("maxInstances", _SE(js_audio_AudioProfile_get_maxInstances), _SE(js_audio_AudioProfile_set_maxInstances));
@@ -812,7 +812,7 @@ SE_BIND_FUNC(js_audio_AudioEngine_getPlayingAudioCount)
 
 bool js_register_audio_AudioEngine(se::Object* obj)
 {
-    auto cls = se::Class::create("AudioEngine", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("AudioEngine", obj, nullptr, nullptr);
 
     cls->defineStaticFunction("lazyInit", _SE(js_audio_AudioEngine_lazyInit));
     cls->defineStaticFunction("setCurrentTime", _SE(js_audio_AudioEngine_setCurrentTime));

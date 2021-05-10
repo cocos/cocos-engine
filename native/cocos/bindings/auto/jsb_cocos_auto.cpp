@@ -43,7 +43,7 @@ se::Class* __jsb_cc_FileUtils_class = nullptr;
 
 static bool js_engine_FileUtils_addSearchPath(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_addSearchPath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -71,7 +71,7 @@ SE_BIND_FUNC(js_engine_FileUtils_addSearchPath)
 
 static bool js_engine_FileUtils_createDirectory(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_createDirectory : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -93,7 +93,7 @@ SE_BIND_FUNC(js_engine_FileUtils_createDirectory)
 
 static bool js_engine_FileUtils_fullPathForFilename(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_fullPathForFilename : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -115,7 +115,7 @@ SE_BIND_FUNC(js_engine_FileUtils_fullPathForFilename)
 
 static bool js_engine_FileUtils_fullPathFromRelativeFile(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_fullPathFromRelativeFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -139,7 +139,7 @@ SE_BIND_FUNC(js_engine_FileUtils_fullPathFromRelativeFile)
 
 static bool js_engine_FileUtils_getDataFromFile(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getDataFromFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -161,7 +161,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getDataFromFile)
 
 static bool js_engine_FileUtils_getDefaultResourceRootPath(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getDefaultResourceRootPath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -180,7 +180,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getDefaultResourceRootPath)
 
 static bool js_engine_FileUtils_getFileDir(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileDir : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -202,7 +202,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getFileDir)
 
 static bool js_engine_FileUtils_getFileExtension(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileExtension : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -224,7 +224,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getFileExtension)
 
 static bool js_engine_FileUtils_getFileSize(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileSize : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -246,7 +246,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getFileSize)
 
 static bool js_engine_FileUtils_getOriginalSearchPaths(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getOriginalSearchPaths : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -265,7 +265,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getOriginalSearchPaths)
 
 static bool js_engine_FileUtils_getSearchPaths(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getSearchPaths : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -284,7 +284,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getSearchPaths)
 
 static bool js_engine_FileUtils_getStringFromFile(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getStringFromFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -306,7 +306,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getStringFromFile)
 
 static bool js_engine_FileUtils_getSuitableFOpen(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getSuitableFOpen : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -328,7 +328,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getSuitableFOpen)
 
 static bool js_engine_FileUtils_getValueMapFromData(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueMapFromData : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -352,7 +352,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getValueMapFromData)
 
 static bool js_engine_FileUtils_getValueMapFromFile(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueMapFromFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -374,7 +374,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getValueMapFromFile)
 
 static bool js_engine_FileUtils_getValueVectorFromFile(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueVectorFromFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -396,7 +396,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getValueVectorFromFile)
 
 static bool js_engine_FileUtils_getWritablePath(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getWritablePath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -415,7 +415,7 @@ SE_BIND_FUNC(js_engine_FileUtils_getWritablePath)
 
 static bool js_engine_FileUtils_isAbsolutePath(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isAbsolutePath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -437,7 +437,7 @@ SE_BIND_FUNC(js_engine_FileUtils_isAbsolutePath)
 
 static bool js_engine_FileUtils_isDirectoryExist(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isDirectoryExist : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -459,7 +459,7 @@ SE_BIND_FUNC(js_engine_FileUtils_isDirectoryExist)
 
 static bool js_engine_FileUtils_isFileExist(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isFileExist : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -481,7 +481,7 @@ SE_BIND_FUNC(js_engine_FileUtils_isFileExist)
 
 static bool js_engine_FileUtils_listFiles(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_listFiles : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -503,7 +503,7 @@ SE_BIND_FUNC(js_engine_FileUtils_listFiles)
 
 static bool js_engine_FileUtils_normalizePath(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_normalizePath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -525,7 +525,7 @@ SE_BIND_FUNC(js_engine_FileUtils_normalizePath)
 
 static bool js_engine_FileUtils_purgeCachedEntries(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_purgeCachedEntries : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -540,7 +540,7 @@ SE_BIND_FUNC(js_engine_FileUtils_purgeCachedEntries)
 
 static bool js_engine_FileUtils_removeDirectory(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_removeDirectory : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -562,7 +562,7 @@ SE_BIND_FUNC(js_engine_FileUtils_removeDirectory)
 
 static bool js_engine_FileUtils_removeFile(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_removeFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -585,7 +585,7 @@ SE_BIND_FUNC(js_engine_FileUtils_removeFile)
 static bool js_engine_FileUtils_renameFile(se::State& s)
 {
     CC_UNUSED bool ok = true;
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2( cobj, false, "js_engine_FileUtils_renameFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -633,7 +633,7 @@ SE_BIND_FUNC(js_engine_FileUtils_renameFile)
 
 static bool js_engine_FileUtils_setDefaultResourceRootPath(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setDefaultResourceRootPath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -652,7 +652,7 @@ SE_BIND_FUNC(js_engine_FileUtils_setDefaultResourceRootPath)
 
 static bool js_engine_FileUtils_setSearchPaths(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setSearchPaths : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -671,7 +671,7 @@ SE_BIND_FUNC(js_engine_FileUtils_setSearchPaths)
 
 static bool js_engine_FileUtils_setWritablePath(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setWritablePath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -690,7 +690,7 @@ SE_BIND_FUNC(js_engine_FileUtils_setWritablePath)
 
 static bool js_engine_FileUtils_writeDataToFile(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeDataToFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -714,7 +714,7 @@ SE_BIND_FUNC(js_engine_FileUtils_writeDataToFile)
 
 static bool js_engine_FileUtils_writeStringToFile(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeStringToFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -738,7 +738,7 @@ SE_BIND_FUNC(js_engine_FileUtils_writeStringToFile)
 
 static bool js_engine_FileUtils_writeToFile(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeToFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -762,7 +762,7 @@ SE_BIND_FUNC(js_engine_FileUtils_writeToFile)
 
 static bool js_engine_FileUtils_writeValueMapToFile(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeValueMapToFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -786,7 +786,7 @@ SE_BIND_FUNC(js_engine_FileUtils_writeValueMapToFile)
 
 static bool js_engine_FileUtils_writeValueVectorToFile(se::State& s)
 {
-    cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeValueVectorToFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -850,7 +850,7 @@ static bool js_cc_FileUtils_finalize(se::State& s)
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::FileUtils* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
+        auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
         JSB_FREE(cobj);
     }
     return true;
@@ -859,7 +859,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_FileUtils_finalize)
 
 bool js_register_engine_FileUtils(se::Object* obj)
 {
-    auto cls = se::Class::create("FileUtils", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("FileUtils", obj, nullptr, nullptr);
 
     cls->defineFunction("addSearchPath", _SE(js_engine_FileUtils_addSearchPath));
     cls->defineFunction("createDirectory", _SE(js_engine_FileUtils_createDirectory));
@@ -912,7 +912,7 @@ se::Class* __jsb_cc_CanvasGradient_class = nullptr;
 
 static bool js_engine_CanvasGradient_addColorStop(se::State& s)
 {
-    cc::CanvasGradient* cobj = SE_THIS_OBJECT<cc::CanvasGradient>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasGradient>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasGradient_addColorStop : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -951,7 +951,7 @@ static bool js_cc_CanvasGradient_finalize(se::State& s)
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::CanvasGradient* cobj = SE_THIS_OBJECT<cc::CanvasGradient>(s);
+        auto* cobj = SE_THIS_OBJECT<cc::CanvasGradient>(s);
         JSB_FREE(cobj);
     }
     return true;
@@ -960,7 +960,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_CanvasGradient_finalize)
 
 bool js_register_engine_CanvasGradient(se::Object* obj)
 {
-    auto cls = se::Class::create("CanvasGradient", obj, nullptr, _SE(js_engine_CanvasGradient_constructor));
+    auto* cls = se::Class::create("CanvasGradient", obj, nullptr, _SE(js_engine_CanvasGradient_constructor));
 
     cls->defineFunction("addColorStop", _SE(js_engine_CanvasGradient_addColorStop));
     cls->defineFinalizeFunction(_SE(js_cc_CanvasGradient_finalize));
@@ -978,7 +978,7 @@ se::Class* __jsb_cc_CanvasRenderingContext2D_class = nullptr;
 
 static bool js_engine_CanvasRenderingContext2D__fillImageData(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D__fillImageData : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1005,7 +1005,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D__fillImageData)
 
 static bool js_engine_CanvasRenderingContext2D_beginPath(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_beginPath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1020,7 +1020,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_beginPath)
 
 static bool js_engine_CanvasRenderingContext2D_clearRect(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_clearRect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1045,7 +1045,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_clearRect)
 
 static bool js_engine_CanvasRenderingContext2D_closePath(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_closePath : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1060,7 +1060,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_closePath)
 
 static bool js_engine_CanvasRenderingContext2D_createLinearGradient(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_createLinearGradient : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1088,7 +1088,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_createLinearGradient)
 
 static bool js_engine_CanvasRenderingContext2D_fill(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_fill : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1103,7 +1103,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fill)
 
 static bool js_engine_CanvasRenderingContext2D_lineTo(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_lineTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1124,7 +1124,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_lineTo)
 
 static bool js_engine_CanvasRenderingContext2D_moveTo(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_moveTo : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1145,7 +1145,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_moveTo)
 
 static bool js_engine_CanvasRenderingContext2D_rect(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_rect : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1170,7 +1170,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_rect)
 
 static bool js_engine_CanvasRenderingContext2D_restore(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_restore : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1185,7 +1185,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_restore)
 
 static bool js_engine_CanvasRenderingContext2D_rotate(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_rotate : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1204,7 +1204,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_rotate)
 
 static bool js_engine_CanvasRenderingContext2D_save(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_save : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1219,7 +1219,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_save)
 
 static bool js_engine_CanvasRenderingContext2D_scale(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_scale : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1240,7 +1240,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_scale)
 
 static bool js_engine_CanvasRenderingContext2D_setTransform(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setTransform : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1269,7 +1269,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setTransform)
 
 static bool js_engine_CanvasRenderingContext2D_stroke(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_stroke : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1284,7 +1284,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_stroke)
 
 static bool js_engine_CanvasRenderingContext2D_transform(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_transform : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1313,7 +1313,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_transform)
 
 static bool js_engine_CanvasRenderingContext2D_translate(se::State& s)
 {
-    cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_translate : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1359,7 +1359,7 @@ static bool js_cc_CanvasRenderingContext2D_finalize(se::State& s)
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
     {
         se::NonRefNativePtrCreatedByCtorMap::erase(iter);
-        cc::CanvasRenderingContext2D* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
+        auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
         JSB_FREE(cobj);
     }
     return true;
@@ -1368,7 +1368,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_CanvasRenderingContext2D_finalize)
 
 bool js_register_engine_CanvasRenderingContext2D(se::Object* obj)
 {
-    auto cls = se::Class::create("CanvasRenderingContext2D", obj, nullptr, _SE(js_engine_CanvasRenderingContext2D_constructor));
+    auto* cls = se::Class::create("CanvasRenderingContext2D", obj, nullptr, _SE(js_engine_CanvasRenderingContext2D_constructor));
 
     cls->defineFunction("_fillImageData", _SE(js_engine_CanvasRenderingContext2D__fillImageData));
     cls->defineFunction("beginPath", _SE(js_engine_CanvasRenderingContext2D_beginPath));
@@ -1592,7 +1592,7 @@ SE_BIND_FUNC(js_engine_Device_getDeviceModel)
 
 bool js_register_engine_Device(se::Object* obj)
 {
-    auto cls = se::Class::create("Device", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("Device", obj, nullptr, nullptr);
 
     cls->defineStaticFunction("getDevicePixelRatio", _SE(js_engine_Device_getDevicePixelRatio));
     cls->defineStaticFunction("setAccelerometerEnabled", _SE(js_engine_Device_setAccelerometerEnabled));
@@ -1619,7 +1619,7 @@ se::Class* __jsb_cc_SAXParser_class = nullptr;
 
 static bool js_engine_SAXParser_init(se::State& s)
 {
-    cc::SAXParser* cobj = SE_THIS_OBJECT<cc::SAXParser>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::SAXParser>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_SAXParser_init : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1644,7 +1644,7 @@ SE_BIND_FUNC(js_engine_SAXParser_init)
 
 bool js_register_engine_SAXParser(se::Object* obj)
 {
-    auto cls = se::Class::create("PlistParser", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("PlistParser", obj, nullptr, nullptr);
 
     cls->defineFunction("init", _SE(js_engine_SAXParser_init));
     cls->install();

@@ -655,6 +655,7 @@ SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindTexture);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_bindTextureJSB);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_destroy);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getBuffer);
+SE_DECLARE_FUNC(js_gfx_DescriptorSet_getLayout);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getSampler);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_getTexture);
 SE_DECLARE_FUNC(js_gfx_DescriptorSet_initialize);
@@ -671,6 +672,7 @@ JSB_REGISTER_OBJECT_TYPE(cc::gfx::DescriptorSetLayout);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_destroy);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_getBindings);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_getDescriptorCount);
+SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_getDynamicBindings);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_initialize);
 SE_DECLARE_FUNC(js_gfx_DescriptorSetLayout_DescriptorSetLayout);
 
@@ -784,7 +786,6 @@ bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::Texture);
 SE_DECLARE_FUNC(js_gfx_Texture_destroy);
-SE_DECLARE_FUNC(js_gfx_Texture_getTextureID);
 SE_DECLARE_FUNC(js_gfx_Texture_isTextureView);
 SE_DECLARE_FUNC(js_gfx_Texture_resize);
 SE_DECLARE_FUNC(js_gfx_Texture_computeHash);

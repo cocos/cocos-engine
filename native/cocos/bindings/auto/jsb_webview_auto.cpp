@@ -41,7 +41,7 @@ se::Class* __jsb_cc_WebView_class = nullptr;
 
 static bool js_webview_WebView_canGoBack(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_canGoBack : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -60,7 +60,7 @@ SE_BIND_FUNC(js_webview_WebView_canGoBack)
 
 static bool js_webview_WebView_canGoForward(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_canGoForward : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -79,7 +79,7 @@ SE_BIND_FUNC(js_webview_WebView_canGoForward)
 
 static bool js_webview_WebView_evaluateJS(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_evaluateJS : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -98,7 +98,7 @@ SE_BIND_FUNC(js_webview_WebView_evaluateJS)
 
 static bool js_webview_WebView_getOnDidFailLoading(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnDidFailLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -117,7 +117,7 @@ SE_BIND_FUNC(js_webview_WebView_getOnDidFailLoading)
 
 static bool js_webview_WebView_getOnDidFinishLoading(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnDidFinishLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -136,7 +136,7 @@ SE_BIND_FUNC(js_webview_WebView_getOnDidFinishLoading)
 
 static bool js_webview_WebView_getOnJSCallback(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnJSCallback : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -155,7 +155,7 @@ SE_BIND_FUNC(js_webview_WebView_getOnJSCallback)
 
 static bool js_webview_WebView_getOnShouldStartLoading(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_getOnShouldStartLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -174,7 +174,7 @@ SE_BIND_FUNC(js_webview_WebView_getOnShouldStartLoading)
 
 static bool js_webview_WebView_goBack(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_goBack : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -189,7 +189,7 @@ SE_BIND_FUNC(js_webview_WebView_goBack)
 
 static bool js_webview_WebView_goForward(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_goForward : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -204,7 +204,7 @@ SE_BIND_FUNC(js_webview_WebView_goForward)
 
 static bool js_webview_WebView_loadData(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadData : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -229,7 +229,7 @@ SE_BIND_FUNC(js_webview_WebView_loadData)
 
 static bool js_webview_WebView_loadFile(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadFile : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -248,7 +248,7 @@ SE_BIND_FUNC(js_webview_WebView_loadFile)
 
 static bool js_webview_WebView_loadHTMLString(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadHTMLString : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -276,7 +276,7 @@ SE_BIND_FUNC(js_webview_WebView_loadHTMLString)
 
 static bool js_webview_WebView_loadURL(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_loadURL : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -295,7 +295,7 @@ SE_BIND_FUNC(js_webview_WebView_loadURL)
 
 static bool js_webview_WebView_reload(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_reload : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -310,7 +310,7 @@ SE_BIND_FUNC(js_webview_WebView_reload)
 
 static bool js_webview_WebView_setBackgroundTransparent(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setBackgroundTransparent : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -329,7 +329,7 @@ SE_BIND_FUNC(js_webview_WebView_setBackgroundTransparent)
 
 static bool js_webview_WebView_setBounces(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setBounces : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -348,7 +348,7 @@ SE_BIND_FUNC(js_webview_WebView_setBounces)
 
 static bool js_webview_WebView_setFrame(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setFrame : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -373,7 +373,7 @@ SE_BIND_FUNC(js_webview_WebView_setFrame)
 
 static bool js_webview_WebView_setJavascriptInterfaceScheme(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setJavascriptInterfaceScheme : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -392,7 +392,7 @@ SE_BIND_FUNC(js_webview_WebView_setJavascriptInterfaceScheme)
 
 static bool js_webview_WebView_setOnDidFailLoading(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnDidFailLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -441,7 +441,7 @@ SE_BIND_FUNC(js_webview_WebView_setOnDidFailLoading)
 
 static bool js_webview_WebView_setOnDidFinishLoading(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnDidFinishLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -490,7 +490,7 @@ SE_BIND_FUNC(js_webview_WebView_setOnDidFinishLoading)
 
 static bool js_webview_WebView_setOnJSCallback(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnJSCallback : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -539,7 +539,7 @@ SE_BIND_FUNC(js_webview_WebView_setOnJSCallback)
 
 static bool js_webview_WebView_setOnShouldStartLoading(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setOnShouldStartLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -592,7 +592,7 @@ SE_BIND_FUNC(js_webview_WebView_setOnShouldStartLoading)
 
 static bool js_webview_WebView_setScalesPageToFit(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setScalesPageToFit : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -611,7 +611,7 @@ SE_BIND_FUNC(js_webview_WebView_setScalesPageToFit)
 
 static bool js_webview_WebView_setVisible(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_setVisible : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -630,7 +630,7 @@ SE_BIND_FUNC(js_webview_WebView_setVisible)
 
 static bool js_webview_WebView_stopLoading(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     SE_PRECONDITION2(cobj, false, "js_webview_WebView_stopLoading : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
@@ -672,7 +672,7 @@ SE_BIND_FINALIZE_FUNC(js_cc_WebView_finalize)
 
 static bool js_cc_WebView_destroy(se::State& s)
 {
-    cc::WebView* cobj = SE_THIS_OBJECT<cc::WebView>(s);
+    auto* cobj = SE_THIS_OBJECT<cc::WebView>(s);
     cobj->release();
     auto objIter = se::NativePtrToObjectMap::find(SE_THIS_OBJECT<cc::WebView>(s));
     if(objIter != se::NativePtrToObjectMap::end())
@@ -685,7 +685,7 @@ SE_BIND_FUNC(js_cc_WebView_destroy)
 
 bool js_register_webview_WebView(se::Object* obj)
 {
-    auto cls = se::Class::create("WebView", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("WebView", obj, nullptr, nullptr);
 
     cls->defineFunction("canGoBack", _SE(js_webview_WebView_canGoBack));
     cls->defineFunction("canGoForward", _SE(js_webview_WebView_canGoForward));
