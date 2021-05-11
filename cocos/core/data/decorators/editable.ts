@@ -200,14 +200,14 @@ export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV ? emptyDe
 
 /**
  * @en
- * Sets the tab where this property is organized into, on property inspector.
+ * Sets the group where this property is organized into, on property inspector.
  * @zh
  * 设置在属性检查器上该属性所属的分类标签。
- * @param tabName 标签名。
+ * @param name 标签名。
  */
-export const tab: (tabName: string) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (tabName) => property(makeEditable({
-        tab: tabName,
+export const group: (name: string) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (name) => property(makeEditable({
+        group: name,
     }));
 
 /**
