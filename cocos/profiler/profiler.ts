@@ -142,12 +142,6 @@ export class Profiler {
             }
 
             legacyCC.game.off(legacyCC.Game.EVENT_RESTART, this.generateNode, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            legacyCC.director.off(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
             this._showFPS = false;
             game.config.showFPS = false;
         }
@@ -169,14 +163,6 @@ export class Profiler {
             if (this._rootNode) {
                 this._rootNode.active = true;
             }
-
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_UPDATE, this.beforeUpdate, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_UPDATE, this.afterUpdate, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_PHYSICS, this.beforePhysics, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_PHYSICS, this.afterPhysics, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_DRAW, this.beforeDraw, this);
-            legacyCC.director.on(legacyCC.Director.EVENT_AFTER_DRAW, this.afterDraw, this);
-
             this._showFPS = true;
             this._canvasDone = true;
             this._statsDone = true;
@@ -354,11 +340,7 @@ export class Profiler {
         }
 
         const now = performance.now();
-        if (legacyCC.director.isPaused()) {
-            this._stats.frame.counter.start(now);
-        } else {
-            this._stats.logic.counter.end(now);
-        }
+        this._stats.logic.counter.end(now - this._stats.physics.counter.value);
     }
 
     public beforePhysics () {

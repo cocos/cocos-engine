@@ -48,6 +48,7 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, logID, assertID, warnID } from './platform/debug';
+import { profiler } from '../profiler/profiler';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -868,6 +869,7 @@ export class Director extends EventTarget {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
         } else if (!this._invalid) {
+            profiler.beforeUpdate();
             // calculate "global" dt
             if (EDITOR && !legacyCC.GAME_VIEW) {
                 this._deltaTime = time;
@@ -900,7 +902,9 @@ export class Director extends EventTarget {
                     this._systems[i].postUpdate(dt);
                 }
             }
+            profiler.afterUpdate();
 
+            profiler.beforeDraw();
             this.emit(Director.EVENT_BEFORE_DRAW);
             this._root!.frameMove(this._deltaTime);
             this.emit(Director.EVENT_AFTER_DRAW);
@@ -908,6 +912,7 @@ export class Director extends EventTarget {
             eventManager.frameUpdateListeners();
             Node.clearBooks();
             this._totalFrames++;
+            profiler.afterDraw();
         }
     }
 

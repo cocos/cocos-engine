@@ -43,6 +43,7 @@ import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { selector } from './physics-selector';
 import { legacyCC } from '../../core/global-exports';
+import { profiler } from '../../profiler/profiler';
 
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
 
@@ -315,12 +316,15 @@ export class PhysicsSystem extends System {
      * @param deltaTime the time since last frame.
      */
     postUpdate (deltaTime: number) {
+        profiler.beforePhysics();
         if (EDITOR && !legacyCC.GAME_VIEW && !this._executeInEditMode) {
+            profiler.afterPhysics();
             return;
         }
 
         if (!this._enable) {
             this.physicsWorld.syncSceneToPhysics();
+            profiler.afterPhysics();
             return;
         }
 
@@ -344,6 +348,7 @@ export class PhysicsSystem extends System {
             }
             director.emit(Director.EVENT_AFTER_PHYSICS);
         }
+        profiler.afterPhysics();
     }
 
     /**
