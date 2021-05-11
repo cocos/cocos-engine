@@ -13,6 +13,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '2.7.18'    
 
     - name: Create build directory
       run: mkdir -p ${{github.workspace}}/unit-test/build
@@ -28,6 +31,33 @@ jobs:
         rm ${{github.workspace}}/external/*
         git clone --branch ${external_version} --depth 1 https://github.com/${external_repo_parent}/${external_repo_name} .
         git log --oneline -1
+        
+    - name: pip install 
+      run: |
+        python -m easy_install pip 
+        python -m pip install PyYAML
+        python -m pip install Cheetah
+    - name: install android ndk
+      shell: bash
+      working-directory: ${{github.workspace}}
+      run: |
+        curl -O http://dl.google.com/android/repository/android-ndk-r16b-darwin-x86_64.zip
+        unzip -q android-ndk-r16b-darwin-x86_64.zip
+        mkdir -p  ${HOME}/bin
+        mv android-ndk-r16b ${HOME}/bin/android-ndk
+        ls ${HOME}
+
+    - name: generate bindings glue codes
+      shell: bash
+      run: |
+        python -V
+        export NDK_ROOT=${HOME}/bin/android-ndk
+        cd ${{github.workspace}}/tools/travis-scripts
+        echo "Create auto-generated jsbinding glue codes."
+        pushd ${{github.workspace}}/tools/tojs
+        python ./genbindings.py
+        rm userconf.ini
+        popd
 
     - name: Configure CMake
       shell: bash
