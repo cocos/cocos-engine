@@ -52,7 +52,6 @@ import { Mat4 } from '../../core/math';
 import { UILocalUBOManger } from './render-uniform-buffer';
 import { value } from '../../core/utils/js-typed';
 import { DummyIA } from './dummy-ia';
-import { UILocalUBOManger } from './render-uniform-buffer';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -228,44 +227,6 @@ export class Batcher2D {
             calls.forEach((value, key) => {
                 value.call(key, this);
             });
-            // for (const key of calls.keys()) {
-            //     const list = calls.get(key);
-            //     list!.call(key, this);
-            // }
-
-            const buffers = this._meshBuffers;
-            buffers.forEach((value, key) => {
-                value.forEach((bb) => {
-                    bb.uploadBuffers();
-                    bb.reset();
-                });
-            });
-            // for (const i of buffers.keys()) {
-            //     const list = buffers.get(i);
-            //     if (list) {
-            //         list.forEach((bb) => {
-            //             bb.uploadBuffers();
-            //             bb.reset();
-            //         });
-            //     }
-            // }
-
-            const customs = this._customMeshBuffers;
-            customs.forEach((value, key) => {
-                value.forEach((bb) => {
-                    bb.uploadBuffers();
-                    bb.reset();
-                });
-            });
-            // for (const i of customs.keys()) {
-            //     const list = customs.get(i);
-            //     if (list) {
-            //         list.forEach((bb) => {
-            //             bb.uploadBuffers();
-            //             bb.reset();
-            //         });
-            //     }
-            // }
 
             this._descriptorSetCache.update();
             this._localUBOManager.updateBuffer();
@@ -475,7 +436,7 @@ export class Batcher2D {
 
         // 先有一个 currBatch，然后这 currBatch 调用方法
         // const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._drawBatchPool.alloc();
-        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._currBatch!;
+        const curDrawBatch = this._currStaticRoot ? this._currStaticRoot._requireDrawBatch() : this._currBatch;
         curDrawBatch.renderScene = this._currScene;
         curDrawBatch.visFlags = this._currLayer;
         curDrawBatch.texture = this._currTexture!;
@@ -634,7 +595,7 @@ class LocalDescriptorSet  {
             BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
             MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
             UBOLocal.SIZE,
-            UBOLocal.SIZE
+            UBOLocal.SIZE,
         ));
     }
 
