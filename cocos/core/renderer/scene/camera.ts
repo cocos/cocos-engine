@@ -214,8 +214,6 @@ export class Camera {
             if (this._scene) this._setScene(this._scene.handle);
             this._frustumHandle = FrustumPool.alloc();
             CameraPool.set(handle, CameraView.FRUSTUM, this._frustumHandle);
-        }
-        if (JSB) {
             console.log(`Created Camera: ${this._name} ${CameraPool.get(this._poolHandle,
                 CameraView.WIDTH)}x${CameraPool.get(this._poolHandle, CameraView.HEIGHT)}`);
         }
@@ -251,7 +249,7 @@ export class Camera {
     public destroy () {
         if (this._window) {
             this._window.detachCamera(this);
-            this._window = null;
+            this.window = null;
         }
         this._name = null;
         this._destroy();
