@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
+import { JSB } from 'internal:constants';
 import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Camera } from './camera';
@@ -147,31 +147,37 @@ export class RenderScene {
         }
     }
 
+    protected _destroy () {
+        if (JSB) {
+            if (this._modelArrayHandle) {
+                ModelArrayPool.free(this._modelArrayHandle);
+                this._modelArrayHandle = NULL_HANDLE;
+            }
+            if (this._scenePoolHandle) {
+                ScenePool.free(this._scenePoolHandle);
+                this._scenePoolHandle = NULL_HANDLE;
+            }
+            if (this._sphereLightsHandle) {
+                LightArrayPool.free(this._sphereLightsHandle);
+                this._sphereLightsHandle = NULL_HANDLE;
+            }
+            if (this._spotLightsHandle) {
+                LightArrayPool.free(this._spotLightsHandle);
+                this._spotLightsHandle = NULL_HANDLE;
+            }
+            if (this._batchArrayHandle) {
+                UIBatchArrayPool.free(this._batchArrayHandle);
+                this._batchArrayHandle = NULL_HANDLE;
+            }
+        }
+    }
+
     public destroy () {
         this.removeCameras();
         this.removeSphereLights();
         this.removeSpotLights();
         this.removeModels();
-        if (this._modelArrayHandle) {
-            ModelArrayPool.free(this._modelArrayHandle);
-            this._modelArrayHandle = NULL_HANDLE;
-        }
-        if (this._scenePoolHandle) {
-            ScenePool.free(this._scenePoolHandle);
-            this._scenePoolHandle = NULL_HANDLE;
-        }
-        if (this._sphereLightsHandle) {
-            LightArrayPool.free(this._sphereLightsHandle);
-            this._sphereLightsHandle = NULL_HANDLE;
-        }
-        if (this._spotLightsHandle) {
-            LightArrayPool.free(this._spotLightsHandle);
-            this._spotLightsHandle = NULL_HANDLE;
-        }
-        if (this._batchArrayHandle) {
-            UIBatchArrayPool.free(this._batchArrayHandle);
-            this._batchArrayHandle = NULL_HANDLE;
-        }
+        this._destroy();
     }
 
     public addCamera (cam: Camera) {
@@ -198,7 +204,9 @@ export class RenderScene {
 
     public setMainLight (dl: DirectionalLight) {
         this._mainLight = dl;
-        ScenePool.set(this._scenePoolHandle, SceneView.MAIN_LIGHT, dl.handle);
+        if (JSB) {
+            ScenePool.set(this._scenePoolHandle, SceneView.MAIN_LIGHT, dl.handle);
+        }
     }
 
     public unsetMainLight (dl: DirectionalLight) {
@@ -233,7 +241,9 @@ export class RenderScene {
     public addSphereLight (pl: SphereLight) {
         pl.attachToScene(this);
         this._sphereLights.push(pl);
-        LightArrayPool.push(this._sphereLightsHandle, pl.handle);
+        if (JSB) {
+            LightArrayPool.push(this._sphereLightsHandle, pl.handle);
+        }
     }
 
     public removeSphereLight (pl: SphereLight) {
@@ -241,7 +251,9 @@ export class RenderScene {
             if (this._sphereLights[i] === pl) {
                 pl.detachFromScene();
                 this._sphereLights.splice(i, 1);
-                LightArrayPool.erase(this._sphereLightsHandle, i);
+                if (JSB) {
+                    LightArrayPool.erase(this._sphereLightsHandle, i);
+                }
                 return;
             }
         }
@@ -250,7 +262,9 @@ export class RenderScene {
     public addSpotLight (sl: SpotLight) {
         sl.attachToScene(this);
         this._spotLights.push(sl);
-        LightArrayPool.push(this._spotLightsHandle, sl.handle);
+        if (JSB) {
+            LightArrayPool.push(this._spotLightsHandle, sl.handle);
+        }
     }
 
     public removeSpotLight (sl: SpotLight) {
@@ -258,7 +272,9 @@ export class RenderScene {
             if (this._spotLights[i] === sl) {
                 sl.detachFromScene();
                 this._spotLights.splice(i, 1);
-                LightArrayPool.erase(this._spotLightsHandle, i);
+                if (JSB) {
+                    LightArrayPool.erase(this._spotLightsHandle, i);
+                }
                 return;
             }
         }
@@ -269,7 +285,9 @@ export class RenderScene {
             this._sphereLights[i].detachFromScene();
         }
         this._sphereLights.length = 0;
-        LightArrayPool.clear(this._sphereLightsHandle);
+        if (JSB) {
+            LightArrayPool.clear(this._sphereLightsHandle);
+        }
     }
 
     public removeSpotLights () {
@@ -277,13 +295,17 @@ export class RenderScene {
             this._spotLights[i].detachFromScene();
         }
         this._spotLights = [];
-        LightArrayPool.clear(this._spotLightsHandle);
+        if (JSB) {
+            LightArrayPool.clear(this._spotLightsHandle);
+        }
     }
 
     public addModel (m: Model) {
         m.attachToScene(this);
         this._models.push(m);
-        ModelArrayPool.push(this._modelArrayHandle, m.handle);
+        if (JSB) {
+            ModelArrayPool.push(this._modelArrayHandle, m.handle);
+        }
     }
 
     public removeModel (model: Model) {
@@ -291,7 +313,9 @@ export class RenderScene {
             if (this._models[i] === model) {
                 model.detachFromScene();
                 this._models.splice(i, 1);
-                ModelArrayPool.erase(this._modelArrayHandle, i);
+                if (JSB) {
+                    ModelArrayPool.erase(this._modelArrayHandle, i);
+                }
                 return;
             }
         }
@@ -303,19 +327,25 @@ export class RenderScene {
             m.destroy();
         }
         this._models.length = 0;
-        ModelArrayPool.clear(this._modelArrayHandle);
+        if (JSB) {
+            ModelArrayPool.clear(this._modelArrayHandle);
+        }
     }
 
     public addBatch (batch: DrawBatch2D) {
         this._batches.push(batch);
-        UIBatchArrayPool.push(this._batchArrayHandle, batch.handle);
+        if (JSB) {
+            UIBatchArrayPool.push(this._batchArrayHandle, batch.handle);
+        }
     }
 
     public removeBatch (batch: DrawBatch2D) {
         for (let i = 0; i < this._batches.length; ++i) {
             if (this._batches[i] === batch) {
                 this._batches.splice(i, 1);
-                UIBatchArrayPool.erase(this._batchArrayHandle, i);
+                if (JSB) {
+                    UIBatchArrayPool.erase(this._batchArrayHandle, i);
+                }
                 return;
             }
         }
@@ -323,7 +353,9 @@ export class RenderScene {
 
     public removeBatches () {
         this._batches.length = 0;
-        UIBatchArrayPool.clear(this._batchArrayHandle);
+        if (JSB) {
+            UIBatchArrayPool.clear(this._batchArrayHandle);
+        }
     }
 
     public onGlobalPipelineStateChanged () {
@@ -337,21 +369,23 @@ export class RenderScene {
     }
 
     private _createHandles () {
-        if (!this._modelArrayHandle) {
-            this._modelArrayHandle = ModelArrayPool.alloc();
-            this._scenePoolHandle = ScenePool.alloc();
-            ScenePool.set(this._scenePoolHandle, SceneView.MODEL_ARRAY, this._modelArrayHandle);
+        if (JSB) {
+            if (!this._modelArrayHandle) {
+                this._modelArrayHandle = ModelArrayPool.alloc();
+                this._scenePoolHandle = ScenePool.alloc();
+                ScenePool.set(this._scenePoolHandle, SceneView.MODEL_ARRAY, this._modelArrayHandle);
 
-            this._spotLightsHandle = LightArrayPool.alloc();
-            ScenePool.set(this._scenePoolHandle, SceneView.SPOT_LIGHT_ARRAY, this._spotLightsHandle);
+                this._spotLightsHandle = LightArrayPool.alloc();
+                ScenePool.set(this._scenePoolHandle, SceneView.SPOT_LIGHT_ARRAY, this._spotLightsHandle);
 
-            this._sphereLightsHandle = LightArrayPool.alloc();
-            ScenePool.set(this._scenePoolHandle, SceneView.SPHERE_LIGHT_ARRAY, this._sphereLightsHandle);
-        }
+                this._sphereLightsHandle = LightArrayPool.alloc();
+                ScenePool.set(this._scenePoolHandle, SceneView.SPHERE_LIGHT_ARRAY, this._sphereLightsHandle);
+            }
 
-        if (!this._batchArrayHandle) {
-            this._batchArrayHandle = UIBatchArrayPool.alloc();
-            ScenePool.set(this._scenePoolHandle, SceneView.BATCH_ARRAY_2D, this._batchArrayHandle);
+            if (!this._batchArrayHandle) {
+                this._batchArrayHandle = UIBatchArrayPool.alloc();
+                ScenePool.set(this._scenePoolHandle, SceneView.BATCH_ARRAY_2D, this._batchArrayHandle);
+            }
         }
     }
 }
