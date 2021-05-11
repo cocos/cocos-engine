@@ -1666,10 +1666,10 @@ class Generator(object):
         implLicense = ''
 
         licensePattern = re.compile('\/\*{5,}.*?\*{5,}\/\s*', re.S)
-        with open(implfilepath) as implReader:
+        with open(implfilepath, 'a+') as implReader:
             implMatch = licensePattern.search(implReader.read())
             if implMatch: implLicense = implMatch.group()
-        with open(headfilepath) as headReader:
+        with open(headfilepath, 'a+') as headReader:
             headMatch = licensePattern.search(headReader.read())
             if headMatch: headLicense = headMatch.group()
 
@@ -1910,6 +1910,7 @@ def main():
     userconfig = ConfigParser.SafeConfigParser()
     userconfig_path = os.path.join(os.path.abspath(os.path.dirname(__file__)), "../tojs", 'userconf.ini')
     userconfig.read(userconfig_path)
+    userconfig.set('DEFAULT', 'configdir', os.path.dirname(args[0]))
     # logger.info('Using userconfig \n %s' % (userconfig.items('DEFAULT')))
 
     clang_lib_path = os.path.join(userconfig.get('DEFAULT', 'cxxgeneratordir'), 'libclang')

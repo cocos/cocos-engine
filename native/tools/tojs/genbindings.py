@@ -12,6 +12,22 @@ import subprocess
 import re
 from contextlib import contextmanager
 
+defaultSections = [
+    'cocos',
+    'video',
+    'webview',
+    'audio' ,
+    'extension',
+    'network',
+    'gfx',
+    'pipeline',
+    'spine',
+    'editor_support',
+    'dragonbones',
+    'physics',
+]
+projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+defaultOutputDir = '%s/cocos/bindings/auto' % projectRoot
 
 def _check_ndk_root_env():
     ''' Checking the environment NDK_ROOT, which will be used for building
@@ -41,7 +57,6 @@ def _check_python_bin_env():
 class CmdError(Exception):
     pass
 
-
 @contextmanager
 def _pushd(newDir):
     previousDir = os.getcwd()
@@ -57,6 +72,14 @@ def _run_cmd(command):
     return subprocess.Popen(command, stdout=subprocess.PIPE, shell=True)
 
 def main():
+    if len(sys.argv) == 2 and sys.argv[1] == '--help':
+        print 'python %s [SECTION]... | --cfg [config paths]\n' % (sys.argv[0])
+        print '    Generate JSB bindings for the specified sections or config file.\n'
+        print '    If nothing is specified, all built-in sections will be generated.\n'
+        print '    Built-in section list:'
+        for section in defaultSections:
+            print '        %s' % section
+        sys.exit(0)
 
     cur_platform= '??'
     llvm_path = '??'
@@ -109,9 +132,8 @@ def main():
         print 'path: %s or path: %s are not valid! ' % (x64_gcc_toolchain_path, x86_gcc_toolchain_path)
         sys.exit(1)
 
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-    cocos_root = os.path.abspath(project_root)
-    cxx_generator_root = os.path.abspath(os.path.join(project_root, 'tools/bindings-generator'))
+    cocos_root = os.path.abspath(projectRoot)
+    cxx_generator_root = os.path.abspath(os.path.join(projectRoot, 'tools/bindings-generator'))
 
     # save config to file
     config = ConfigParser.ConfigParser()
@@ -139,36 +161,28 @@ def main():
 
 
     try:
-
-        tojs_root = '%s/tools/tojs' % project_root
-        output_dir = '%s/cocos/bindings/auto' % project_root
-
-        cmd_args = {
-            'cocos.ini' : ('cocos', 'jsb_cocos_auto'),
-            'video.ini': ('video', 'jsb_video_auto'),
-            'webview.ini': ('webview', 'jsb_webview_auto'),
-            'audio.ini' : ('audio', 'jsb_audio_auto'),
-            'extension.ini' : ('extension', 'jsb_extension_auto'),
-            'network.ini' : ('network', 'jsb_network_auto'),
-            'gfx.ini': ('gfx', 'jsb_gfx_auto'),
-            'pipeline.ini': ('pipeline', 'jsb_pipeline_auto'),
-            'spine.ini': ('spine','jsb_spine_auto'),
-            'editor_support.ini': ('editor_support','jsb_editor_support_auto'),
-            'dragonbones.ini': ('dragonbones','jsb_dragonbones_auto'),
-            'physics.ini': ('physics','jsb_physics_auto')
-        }
+        tojs_root = '%s/tools/tojs' % projectRoot
 
         target = 'spidermonkey'
         generator_py = '%s/generator.py' % cxx_generator_root
         tasks = []
-        for key in cmd_args.keys():
-            if len(sys.argv) <= 1 or any(key[:-4] in s for s in sys.argv[1:]):
-                args = cmd_args[key]
-                cfg = '%s/%s' % (tojs_root, key)
-                print '!!----------Generating bindings for %s----------!!' % (key[:-4])
-                command = '%s -W ignore %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, args[0], target, output_dir, args[1])
-                # tasks.append(_run_cmd(command))
-                _run_cmd(command).communicate()
+
+        def generate (cfg, directory = None, section = None, filename = None):
+            if directory is None: directory = os.path.dirname(cfg)
+            if section is None: section = os.path.basename(cfg)[:-4]
+            if filename is None: filename = 'jsb_%s_auto' % section
+            print '!!----------Generating bindings for %s----------!!' % (section)
+            command = '%s -W ignore %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, section, target, directory, filename)
+            # tasks.append(_run_cmd(command))
+            _run_cmd(command).communicate()
+
+        if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
+            for path in sys.argv[2:]:
+                generate(path.replace('\\', '/'))
+        else:
+            for section in defaultSections:
+                if len(sys.argv) <= 1 or any(section in s for s in sys.argv[1:]):
+                    generate('%s/%s.ini' % (tojs_root, section), defaultOutputDir)
 
         # for t in tasks:
         #     t.communicate()
