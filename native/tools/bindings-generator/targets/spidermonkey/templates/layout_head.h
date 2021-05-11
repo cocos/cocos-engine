@@ -2,7 +2,7 @@
 \#include "base/Config.h"
 #if $macro_judgement
 $macro_judgement
-#end if 
+#end if
 \#include <type_traits>
 \#include "cocos/bindings/jswrapper/SeApi.h"
 \#include "cocos/bindings/manual/jsb_conversions.h"
@@ -10,4 +10,4 @@ $macro_judgement
 #for header in $hpp_headers
 \#include "${header}"
 #end for
-#end if 
+#end if

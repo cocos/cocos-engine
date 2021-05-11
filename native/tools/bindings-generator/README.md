@@ -1,10 +1,10 @@
 # What's new
-* Add a prebuilt libclang 5.0 in `libclang/`for mac, linux and windows.
-* If you want use the prebuilt licbclang 5.0 work with Android NDK, then `only the NDK r16 (or higher version) can work corrently` with it.
+* Add a prebuilt libclang 12.0 in `libclang/`for mac and windows.
+* If you want use the prebuilt libclang 12.0 work with Android NDK, then `only the NDK r16 (or higher version) can work corrently` with it.
 
 # Requirements
 
-* python2.7
+* python2.7 (64-bit)
 * py-yaml
 * cheetah (for target language templates)
 * libclang binary files
@@ -12,7 +12,7 @@
 # Usage
 
     Usage: generator.py [options] {configfile}
-    
+
     Options:
       -h, --help   show this help message and exit
       -s SECTION   sets a specific section to be converted
@@ -52,7 +52,7 @@ Included in this repository is a simple test. Use this to confirm the generator 
     sudo pip install PyYAML
 	sudo pip install Cheetah
 </pre>
-    
+
 * Download [NDK r16](https://dl.google.com/android/repository/android-ndk-r16-darwin-x86_64.zip) from [google](https://developer.android.com/ndk/downloads/index.html)
 * If you are using python installed from other way, copy user.cfg.sample and rename it as `user.cfg` then set the absolute path to  python `PYTHON_BIN` in `user.cfg`
 * Run follow command, it will generate a `userconf.ini`, and check the values in it if it occorus any error.
