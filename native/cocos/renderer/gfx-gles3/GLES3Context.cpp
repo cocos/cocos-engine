@@ -184,14 +184,14 @@ bool GLES3Context::doInit(const ContextInfo &info) {
             return false;
         }
 
-        EGLint depth{0};
-        EGLint stencil{0};
+        EGLint        depth{0};
+        EGLint        stencil{0};
+        const uint8_t attrNums             = 8;
+        int           params[attrNums]     = {0};
+        bool          matched              = false;
+        const bool    performancePreferred = info.performance == Performance::HIGH_QUALITY;
+        uint64_t      lastScore            = performancePreferred ? std::numeric_limits<uint64_t>::min() : std::numeric_limits<uint64_t>::max();
 
-        const uint8_t attrNums = 8;
-        uint64_t      lastScore{0};
-        int           params[attrNums] = {0};
-
-        const bool performancePreferred = info.performance == Performance::HIGH_QUALITY;
         for (int i = 0; i < numConfig; i++) {
             int depthValue{0};
             eglGetConfigAttrib(_eglDisplay, _vecEGLConfig[i], EGL_RED_SIZE, &params[0]);
@@ -223,16 +223,17 @@ bool GLES3Context::doInit(const ContextInfo &info) {
             /*------------------------------------------ANGLE's priority-----------------------------------------------*/
 
             // if msaaEnabled, sampleBuffers and sampleCount should be greater than 0, until iterate to the last one(can't find).
-            bool msaaLimit = msaaEnabled ? (params[6] > 0 && params[7] > 0) || (i == numConfig - 1) : (params[6] == 0 && params[7] == 0);
+            bool msaaLimit = (msaaEnabled ? (params[6] > 0 && params[7] > 0) : (params[6] == 0 && params[7] == 0));
             // performancePreferred ? [>=] : [<] , egl configurations store in "ascending order"
             bool filter = (currScore < lastScore) ^ performancePreferred;
-            if ((filter || lastScore == 0) && msaaLimit) {
+            if ((filter && msaaLimit) || (!matched && i == numConfig - 1)) {
                 _eglConfig     = _vecEGLConfig[i];
                 depth          = params[4];
                 stencil        = params[5];
                 _sampleBuffers = static_cast<uint8_t>(params[6]);
                 _sampleCount   = static_cast<uint8_t>(params[7]);
                 lastScore      = currScore;
+                matched        = true;
             }
         }
 
