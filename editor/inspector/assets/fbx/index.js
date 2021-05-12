@@ -18,6 +18,7 @@ exports.style = `
     flex: 1;
     flex-direction: column;
     padding-top: 5px;
+    overflow: hidden;
 }
 
 .asset-fbx > .header {
@@ -116,6 +117,10 @@ exports.update = function (assetList, metaList) {
         }
     }
 };
+
+exports.apply = async function() {
+
+}
 
 /**
  * Method of initializing the panel
