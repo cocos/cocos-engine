@@ -25,9 +25,9 @@ exports.methods = {
         this.dirtyData.uuid = '';
     },
 
-    async dataChange () {
+    async dataChange() {
         await Editor.Message.request('scene', 'change-render-texture', this.renderTexture);
-        
+
         this.setDirtyData();
         this.dispatch('change');
     },
@@ -35,7 +35,7 @@ exports.methods = {
     /**
      * Detection of data changes only determines the currently selected technique
      */
-     setDirtyData() {
+    setDirtyData() {
         this.dirtyData.realtime = JSON.stringify(this.renderTexture);
 
         if (!this.dirtyData.origin) {
@@ -53,7 +53,7 @@ exports.$ = {
     container: '.asset-render-texture',
 };
 
-exports.ready = function () {
+exports.ready = function() {
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',
@@ -62,7 +62,7 @@ exports.ready = function () {
     };
 };
 
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.meta = this.metaList[0];
@@ -79,7 +79,7 @@ exports.update = async function (assetList, metaList) {
     }
 
     this.renderTexture = await this.query(this.asset.uuid);
-    
+
     for (const key in this.renderTexture) {
         const dump = this.renderTexture[key];
 
@@ -106,7 +106,7 @@ exports.update = async function (assetList, metaList) {
     this.setDirtyData();
 };
 
-exports.close = function () {
+exports.close = function() {
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',

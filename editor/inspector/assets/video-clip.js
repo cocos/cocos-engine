@@ -16,7 +16,7 @@ exports.$ = {
     constainer: '.asset-video-clip',
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     // Support multi-select list display, limit the number of display
     let html = '';
     const maxShowNumber = 1000;
