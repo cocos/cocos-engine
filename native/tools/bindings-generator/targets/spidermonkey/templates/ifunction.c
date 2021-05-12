@@ -57,7 +57,7 @@ static bool ${signature_name}(se::State& s)
         #set $arg_list = ", ".join($arg_array)
         #if $ret_type.name != "void"
             #if $ret_type.is_enum
-        $ret_type.enum_declare_type result = ($ret_type.enum_declare_type)cobj->${func_name}($arg_list);
+        auto result = static_cast<$ret_type.enum_declare_type>(cobj->${func_name}($arg_list));
             #else
         ${ret_type.get_whole_name($generator)} result = cobj->${func_name}($arg_list);
             #end if
