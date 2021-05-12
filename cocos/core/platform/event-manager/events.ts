@@ -25,54 +25,23 @@
 */
 
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
 import Event from '../../event/event';
 import { Vec2 } from '../../math/vec2';
 import { Touch } from './touch';
-import { Acceleration } from './input-manager';
+import { Acceleration } from './acceleration';
 import { legacyCC } from '../../global-exports';
 
-let _vec2 = new Vec2();
+const _vec2 = new Vec2();
 
 /**
  * @en The mouse event
  * @zh 鼠标事件类型
  */
 export class EventMouse extends Event {
-    // Inner event types of MouseEvent
-
-    /**
-     * @en The none event code of mouse event.
-     * @zh 无效事件代码
-     */
-    public static NONE = 0;
-
-    /**
-     * @en The event code of mouse down event.
-     * @zh 鼠标按下事件代码。
-     */
-    public static DOWN = 1;
-
-    /**
-     * @en The event code of mouse up event.
-     * @zh 鼠标按下后释放事件代码。
-     */
-    public static UP = 2;
-
-    /**
-     * @en The event code of mouse move event.
-     * @zh 鼠标移动事件。
-     */
-    public static MOVE = 3;
-
-    /**
-     * @en The event code of mouse scroll event.
-     * @zh 鼠标滚轮事件。
-     */
-    public static SCROLL = 4;
-
     /**
      * @en The default tag when no button is pressed
      * @zh 按键默认的缺省状态
@@ -131,39 +100,39 @@ export class EventMouse extends Event {
      * @en Mouse movement on x axis of the UI coordinate system.
      * @zh 鼠标在 UI 坐标系下 X 轴上的移动距离
      */
-    public movementX: number = 0;
+    public movementX = 0;
 
     /**
      * @en Mouse movement on y axis of the UI coordinate system.
      * @zh 鼠标在 UI 坐标系下 Y 轴上的移动距离
      */
-    public movementY: number = 0;
+    public movementY = 0;
 
     /**
      * @en The type of the event, possible values are UP, DOWN, MOVE, SCROLL
      * @zh 鼠标事件类型，可以是 UP, DOWN, MOVE, CANCELED。
      */
-    public eventType: number;
+    public eventType: string;
 
     private _button: number = EventMouse.BUTTON_MISSING;
 
-    private _x: number = 0;
+    private _x = 0;
 
-    private _y: number = 0;
+    private _y = 0;
 
-    private _prevX: number = 0;
+    private _prevX = 0;
 
-    private _prevY: number = 0;
+    private _prevY = 0;
 
-    private _scrollX: number = 0;
+    private _scrollX = 0;
 
-    private _scrollY: number = 0;
+    private _scrollY = 0;
 
     /**
      * @param eventType - The type of the event, possible values are UP, DOWN, MOVE, SCROLL
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
-    constructor (eventType: number, bubbles?: boolean, prevLoc?: Vec2) {
+    constructor (eventType: string, bubbles?: boolean, prevLoc?: Vec2) {
         super(Event.MOUSE, bubbles);
         this.eventType = eventType;
         if (prevLoc) {
@@ -243,7 +212,7 @@ export class EventMouse extends Event {
      * @zh 获取当前事件在 UI 窗口内的坐标位置，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUILocation (out?: Vec2){
+    public getUILocation (out?: Vec2) {
         if (!out) {
             out = new Vec2();
         }
@@ -409,27 +378,6 @@ export class EventTouch extends Event {
     public static MAX_TOUCHES = 5;
 
     /**
-     * @en The event type code of touch began event.
-     * @zh 开始触摸事件。
-     */
-    public static BEGAN = 0;
-    /**
-     * @en The event type code of touch moved event.
-     * @zh 触摸后移动事件。
-     */
-    public static MOVED = 1;
-    /**
-     * @en The event type code of touch ended event.
-     * @zh 结束触摸事件。
-     */
-    public static ENDED = 2;
-    /**
-     * @en The event type code of touch canceled event.
-     * @zh 取消触摸事件。
-     */
-    public static CANCELLED = 3;
-
-    /**
      * @en The current touch object
      * @zh 当前触点对象
      */
@@ -440,7 +388,7 @@ export class EventTouch extends Event {
      */
     public simulate = false;
 
-    private _eventCode: number;
+    private _eventCode: string;
 
     private _touches: Touch[];
 
@@ -451,9 +399,9 @@ export class EventTouch extends Event {
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      * @param eventCode - The type code of the touch event
      */
-    constructor (changedTouches?: Touch[], bubbles?: boolean, eventCode?: number, touches?: Touch[]) {
+    constructor (changedTouches?: Touch[], bubbles?: boolean, eventCode?: string, touches?: Touch[]) {
         super(Event.TOUCH, bubbles);
-        this._eventCode = eventCode || 0;
+        this._eventCode = eventCode || '';
         this._touches = changedTouches || [];
         this._allTouches = touches || [];
     }
@@ -511,7 +459,7 @@ export class EventTouch extends Event {
      * @zh 获取 UI 坐标系下的触点位置。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUILocation(out?: Vec2) {
+    public getUILocation (out?: Vec2) {
         return this.touch ? this.touch.getUILocation(out) : new Vec2();
     }
 
@@ -547,7 +495,7 @@ export class EventTouch extends Event {
      * @zh 获取触点落下时的 UI 世界下位置对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
      */
-    public getUIStartLocation(out?: Vec2) {
+    public getUIStartLocation (out?: Vec2) {
         return this.touch ? this.touch.getUIStartLocation(out) : new Vec2();
     }
 
@@ -573,7 +521,7 @@ export class EventTouch extends Event {
      * @zh 获取触点距离上一次事件 UI 世界下移动的距离对象，对象包含 x 和 y 属性。
      * @param out - Pass the out object to avoid object creation, very good practice
     */
-    public getUIDelta(out?: Vec2) {
+    public getUIDelta (out?: Vec2) {
         return this.touch ? this.touch.getUIDelta(out) : new Vec2();
     }
 
@@ -680,18 +628,14 @@ export class EventKeyboard extends Event {
     }
 }
 
-// TODO
-// @ts-ignore
+// @ts-expect-error TODO
 Event.EventMouse = EventMouse;
 
-// TODO
-// @ts-ignore
+// @ts-expect-error TODO
 Event.EventTouch = EventTouch;
 
-// TODO
-// @ts-ignore
+// @ts-expect-error TODO
 Event.EventAcceleration = EventAcceleration;
 
-// TODO
-// @ts-ignore
+// @ts-expect-error TODO
 Event.EventKeyboard = EventKeyboard;

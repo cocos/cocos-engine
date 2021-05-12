@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,23 +24,22 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
+import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
 import { MutableForwardIterator } from '../utils/array';
 import { array } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
-import { EDITOR, SUPPORT_JIT, DEV, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { error, assert } from '../platform/debug';
+
 const fastRemoveAt = array.fastRemoveAt;
 
-// @ts-ignore
 const IsStartCalled = CCObject.Flags.IsStartCalled;
-// @ts-ignore
 const IsOnEnableCalled = CCObject.Flags.IsOnEnableCalled;
-// @ts-ignore
 const IsEditorOnEnableCalled = CCObject.Flags.IsEditorOnEnableCalled;
 
 const callerFunctor: any = EDITOR && tryCatchFunctor_EDITOR;
@@ -52,26 +51,22 @@ function sortedIndex (array, comp) {
     const id = comp._id;
     let l = 0;
     for (let h = array.length - 1, m = h >>> 1;
-         l <= h;
-         m = (l + h) >>> 1
+        l <= h;
+        m = (l + h) >>> 1
     ) {
         const test = array[m];
         const testOrder = test.constructor._executionOrder;
         if (testOrder > order) {
             h = m - 1;
-        }
-        else if (testOrder < order) {
+        } else if (testOrder < order) {
             l = m + 1;
-        }
-        else {
+        } else {
             const testId = test._id;
             if (testId > id) {
                 h = m - 1;
-            }
-            else if (testId < id) {
+            } else if (testId < id) {
                 l = m + 1;
-            }
-            else {
+            } else {
                 return m;
             }
         }
@@ -85,10 +80,9 @@ function stableRemoveInactive (iterator, flagToClear) {
     let next = iterator.i + 1;
     while (next < array.length) {
         const comp = array[next];
-        if (comp._enabled && comp.node._activeInHierarchy) {
+        if (comp.node._activeInHierarchy) {
             ++next;
-        }
-        else {
+        } else {
             iterator.removeAt(next);
             if (flagToClear) {
                 comp._objFlags &= ~flagToClear;
@@ -169,14 +163,12 @@ class ReusableInvoker extends LifeCycleInvoker {
         const order = comp.constructor._executionOrder;
         if (order === 0) {
             this._zero.array.push(comp);
-        }
-        else {
+        } else {
             const array = order < 0 ? this._neg.array : this._pos.array;
             const i = sortedIndex(array, comp);
             if (i < 0) {
                 array.splice(~i, 0, comp);
-            }
-            else if (DEV) {
+            } else if (DEV) {
                 error('component already added');
             }
         }
@@ -186,8 +178,7 @@ class ReusableInvoker extends LifeCycleInvoker {
         const order = comp.constructor._executionOrder;
         if (order === 0) {
             this._zero.fastRemove(comp);
-        }
-        else {
+        } else {
             const iterator = order < 0 ? this._neg : this._pos;
             const i = sortedIndex(iterator.array, comp);
             if (i >= 0) {
@@ -212,7 +203,7 @@ class ReusableInvoker extends LifeCycleInvoker {
 function enableInEditor (comp) {
     if (!(comp._objFlags & IsEditorOnEnableCalled)) {
         legacyCC.engine.emit('component-enabled', comp.uuid);
-        if(!legacyCC.GAME_VIEW) {
+        if (!legacyCC.GAME_VIEW) {
             comp._objFlags |= IsEditorOnEnableCalled;
         }
     }
@@ -227,24 +218,23 @@ export function createInvokeImplJit (code: string, useDt?, ensureFlag?) {
     //         // ...
     //     }
     // }
-    const body = 'var a=it.array;' +
-                'for(it.i=0;it.i<a.length;++it.i){' +
-                'var c=a[it.i];' +
-                code +
-                '}';
-    let fastPath = useDt ? Function('it', 'dt', body) : Function('it', body);
-    let singleInvoke = Function('c', 'dt', code);
+    const body = `${'var a=it.array;'
+                + 'for(it.i=0;it.i<a.length;++it.i){'
+                + 'var c=a[it.i];'}${
+        code
+    }}`;
+    const fastPath = useDt ? Function('it', 'dt', body) : Function('it', body);
+    const singleInvoke = Function('c', 'dt', code);
     return createInvokeImpl(singleInvoke, fastPath, ensureFlag);
 }
 export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
     return (iterator, dt) => {
         try {
             fastPath(iterator, dt);
-        }
-        catch (e) {
+        } catch (e) {
             // slow path
             legacyCC._throw(e);
-            var array = iterator.array;
+            const array = iterator.array;
             if (ensureFlag) {
                 array[iterator.i]._objFlags |= ensureFlag;
             }
@@ -252,8 +242,7 @@ export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
             for (; iterator.i < array.length; ++iterator.i) {
                 try {
                     singleInvoke(array[iterator.i], dt);
-                }
-                catch (e) {
+                } catch (e) {
                     legacyCC._throw(e);
                     if (ensureFlag) {
                         array[iterator.i]._objFlags |= ensureFlag;
@@ -264,47 +253,47 @@ export function createInvokeImpl (singleInvoke, fastPath, ensureFlag?) {
     };
 }
 
-const invokeStart = SUPPORT_JIT ? createInvokeImplJit('c.start();c._objFlags|=' + IsStartCalled, false, IsStartCalled) :
-    createInvokeImpl(
-        function (c) {
+const invokeStart = SUPPORT_JIT ? createInvokeImplJit(`c.start();c._objFlags|=${IsStartCalled}`, false, IsStartCalled)
+    : createInvokeImpl(
+        (c) => {
             c.start();
             c._objFlags |= IsStartCalled;
         },
-        function (iterator) {
-            var array = iterator.array;
+        (iterator) => {
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
+                const comp = array[iterator.i];
                 comp.start();
                 comp._objFlags |= IsStartCalled;
             }
         },
-        IsStartCalled
+        IsStartCalled,
     );
 
-const invokeUpdate = SUPPORT_JIT ? createInvokeImplJit('c.update(dt)', true) :
-    createInvokeImpl(
-        function (c, dt) {
+const invokeUpdate = SUPPORT_JIT ? createInvokeImplJit('c.update(dt)', true)
+    : createInvokeImpl(
+        (c, dt) => {
             c.update(dt);
         },
-        function (iterator, dt) {
-            var array = iterator.array;
+        (iterator, dt) => {
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].update(dt);
             }
-        }
+        },
     );
 
-const invokeLateUpdate = SUPPORT_JIT ? createInvokeImplJit('c.lateUpdate(dt)', true) :
-    createInvokeImpl(
-        function (c, dt) {
+const invokeLateUpdate = SUPPORT_JIT ? createInvokeImplJit('c.lateUpdate(dt)', true)
+    : createInvokeImpl(
+        (c, dt) => {
             c.lateUpdate(dt);
         },
-        function (iterator, dt) {
-            var array = iterator.array;
+        (iterator, dt) => {
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].lateUpdate(dt);
             }
-        }
+        },
     );
 
 export const invokeOnEnable = EDITOR ? (iterator) => {
@@ -386,8 +375,7 @@ export class ComponentScheduler {
         // schedule
         if (this._updating) {
             this._deferredComps.push(comp);
-        }
-        else {
+        } else {
             this._scheduleImmediate(comp);
         }
     }
@@ -427,8 +415,7 @@ export class ComponentScheduler {
                 if (invoker) {
                     invoker.add(comp);
                     return;
-                }
-                else {
+                } else {
                     comp.onEnable();
 
                     const deactivatedDuringOnEnable = !comp.node._activeInHierarchy;
@@ -548,8 +535,7 @@ if (EDITOR) {
                         invoker.add(comp);
                         enableInEditor(comp);
                         return;
-                    }
-                    else {
+                    } else {
                         callOnEnableInTryCatch(comp);
 
                         const deactivatedDuringOnEnable = !comp.node._activeInHierarchy;

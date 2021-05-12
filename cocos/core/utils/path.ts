@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,6 +24,13 @@
  THE SOFTWARE.
 */
 
+/**
+ * @packageDocumentation
+ * @module core
+ */
+
+import { system } from 'pal/system';
+import { OS } from '../../../pal/system/enum-type';
 import { legacyCC } from '../global-exports';
 
 const EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
@@ -81,7 +88,7 @@ export function basename (path: string, extName?: string) {
     const reg = /(\/|\\)([^\/\\]+)$/g;
     const result = reg.exec(path.replace(/(\/|\\)$/, ''));
     if (!result) {
-        return '';
+        return path;
     }
     const baseName = result[2];
     if (extName && path.substring(path.length - extName.length).toLowerCase() === extName.toLowerCase()) {
@@ -158,5 +165,5 @@ export function stripSep (path: string) {
 }
 
 export function getSeperator () {
-    return legacyCC.sys.os === legacyCC.sys.OS_WINDOWS ? '\\' : '/';
+    return system.os === OS.WINDOWS ? '\\' : '/';
 }

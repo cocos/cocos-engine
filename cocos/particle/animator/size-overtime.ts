@@ -1,6 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { ccclass, tooltip, displayOrder, type, serializable } from 'cc.decorator';
@@ -9,13 +34,12 @@ import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle'
 import CurveRange from './curve-range';
 import { ModuleRandSeed } from '../enum';
 
-// tslint:disable: max-line-length
 const SIZE_OVERTIME_RAND_OFFSET = ModuleRandSeed.SIZE;
 
 @ccclass('cc.SizeOvertimeModule')
 export default class SizeOvertimeModule extends ParticleModuleBase {
     @serializable
-    _enable: Boolean = false;
+    _enable = false;
     /**
      * @zh 是否启用。
      */
@@ -36,7 +60,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
      */
     @serializable
     @displayOrder(1)
-    @tooltip('决定是否在每个轴上独立控制粒子大小')
+    @tooltip('i18n:sizeOvertimeModule.separateAxes')
     public separateAxes = false;
 
     /**
@@ -45,7 +69,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     @type(CurveRange)
     @serializable
     @displayOrder(2)
-    @tooltip('定义一条曲线来决定粒子在其生命周期中的大小变化')
+    @tooltip('i18n:sizeOvertimeModule.size')
     public size = new CurveRange();
 
     /**
@@ -54,7 +78,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     @type(CurveRange)
     @serializable
     @displayOrder(3)
-    @tooltip('定义一条曲线来决定粒子在其生命周期中 X 轴方向上的大小变化')
+    @tooltip('i18n:sizeOvertimeModule.x')
     public x = new CurveRange();
 
     /**
@@ -63,7 +87,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     @type(CurveRange)
     @serializable
     @displayOrder(4)
-    @tooltip('定义一条曲线来决定粒子在其生命周期中 Y 轴方向上的大小变化')
+    @tooltip('i18n:sizeOvertimeModule.y')
     public y = new CurveRange();
 
     /**
@@ -72,7 +96,7 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
     @type(CurveRange)
     @serializable
     @displayOrder(5)
-    @tooltip('定义一条曲线来决定粒子在其生命周期中 Z 轴方向上的大小变化')
+    @tooltip('i18n:sizeOvertimeModule.z')
     public z = new CurveRange();
 
     public name = PARTICLE_MODULE_NAME.SIZE;
@@ -89,12 +113,3 @@ export default class SizeOvertimeModule extends ParticleModuleBase {
         }
     }
 }
-
-// CCClass.fastDefine('cc.SizeOvertimeModule', SizeOvertimeModule, {
-//     enable: false,
-//     separateAxes: false,
-//     size: new CurveRange(),
-//     x: new CurveRange(),
-//     y: new CurveRange(),
-//     z: new CurveRange()
-// });

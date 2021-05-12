@@ -1,9 +1,35 @@
-/**
- * @category decorator
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { CCClass } from '../class';
+/**
+ * @packageDocumentation
+ * @module decorator
+ */
+
 import { DEV } from 'internal:constants';
+import { CCClass } from '../class';
 import { error } from '../../platform/debug';
 import { js } from '../../utils/js';
 
@@ -49,16 +75,16 @@ export const emptySmartClassDecorator = makeSmartClassDecorator(() => {});
  * Make a smart class decorator which can properly handle the following form decorator syntax:
  * - `@x`
  * - `@x(arg0)`
- * 
+ *
  * and forward both the decorated class and the `arg0` (in first form, `arg0` is forward as `undefined`) to
  * `decorate`.
  * @zh
  * 创建一个智能类装饰器，它能正确地处理以下形式的装饰器语法：
  * - `@x`
  * - `@x(arg0)`
- * 
+ *
  * 并且，将被装饰的类和 `arg0`（若是第一种形式，`arg0` 就是 `undefined`）一起转发给 `decorate`。
- * @param decorate 
+ * @param decorate
  */
 export function makeSmartClassDecorator<TArg> (
     decorate: <TFunction extends Function>(constructor: TFunction, arg?: TArg) => ReturnType<ClassDecorator>,
@@ -96,10 +122,8 @@ function writeEditorClassProperty<TValue> (constructor: Function, propertyName: 
  * @param propertyName The editor property.
  */
 export function makeEditorClassDecoratorFn<TValue> (propertyName: string): (value: TValue) => ClassDecorator {
-    return (value: TValue) => {
-        return <TFunction extends Function>(constructor: TFunction) => {
-            writeEditorClassProperty(constructor, propertyName, value);
-        };
+    return (value: TValue) => <TFunction extends Function>(constructor: TFunction) => {
+        writeEditorClassProperty(constructor, propertyName, value);
     };
 }
 
@@ -115,7 +139,7 @@ export function makeEditorClassDecoratorFn<TValue> (propertyName: string): (valu
  * - 如果该装饰器是以一个参数的形式，即 `@x(arg0)` 的形式调用的，该属性将被设置为传入的参数值。
  * @param propertyName The editor property.
  */
-export function makeSmartEditorClassDecorator<TValue> (propertyName: string, defaultValue?: TValue) {
+export function makeSmartEditorClassDecorator<TValue> (propertyName: string, defaultValue: TValue) {
     return makeSmartClassDecorator<TValue>((constructor, decoratedValue?: TValue) => {
         writeEditorClassProperty(constructor, propertyName, (defaultValue !== undefined) ? defaultValue : decoratedValue);
     });

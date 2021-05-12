@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,12 +24,11 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { GFXAddress, GFXComparisonFunc, GFXFilter, GFXColor } from '../../gfx/define';
-import { GFXDevice } from '../../gfx/device';
-import { GFXSampler, IGFXSamplerInfo } from '../../gfx/sampler';
+import { Address, ComparisonFunc, Filter, Device, Sampler, SamplerInfo, Color } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 
 export enum SamplerInfoIndex {
@@ -41,28 +40,26 @@ export enum SamplerInfoIndex {
     addressW,
     maxAnisotropy,
     cmpFunc,
-    minLOD,
-    maxLOD,
     mipLODBias,
     total,
 }
 
 const defaultInfo = [
-  GFXFilter.LINEAR,
-  GFXFilter.LINEAR,
-  GFXFilter.NONE,
-  GFXAddress.WRAP,
-  GFXAddress.WRAP,
-  GFXAddress.WRAP,
-  8,
-  GFXComparisonFunc.NEVER,
-  0, 0, 0,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.NONE,
+    Address.WRAP,
+    Address.WRAP,
+    Address.WRAP,
+    0,
+    ComparisonFunc.NEVER,
+    0,
 ];
 export const defaultSamplerHash = genSamplerHash(defaultInfo);
 
-const borderColor = new GFXColor();
+const borderColor = new Color();
 
-const gfxInfo: IGFXSamplerInfo = {};
+const _samplerInfo = new SamplerInfo();
 
 export function genSamplerHash (info: (number | undefined)[]): number {
     let value = 0;
@@ -70,17 +67,16 @@ export function genSamplerHash (info: (number | undefined)[]): number {
     for (let i = 0; i < defaultInfo.length; i++) {
         value = (info[i] || defaultInfo[i]);
         switch (i) {
-            case SamplerInfoIndex.minFilter: hash |= value; break;
-            case SamplerInfoIndex.magFilter: hash |= (value << 2); break;
-            case SamplerInfoIndex.mipFilter: hash |= (value << 4); break;
-            case SamplerInfoIndex.addressU: hash |= (value << 6); break;
-            case SamplerInfoIndex.addressV: hash |= (value << 8); break;
-            case SamplerInfoIndex.addressW: hash |= (value << 10); break;
-            case SamplerInfoIndex.maxAnisotropy: hash |= (value << 12); break;
-            case SamplerInfoIndex.cmpFunc: hash |= (value << 16); break;
-            case SamplerInfoIndex.minLOD: hash |= (value << 20); break;
-            case SamplerInfoIndex.maxLOD: hash |= (value << 24); break;
-            case SamplerInfoIndex.mipLODBias: hash |= (value << 28); break;
+        case SamplerInfoIndex.minFilter: hash |= value; break;
+        case SamplerInfoIndex.magFilter: hash |= (value << 2); break;
+        case SamplerInfoIndex.mipFilter: hash |= (value << 4); break;
+        case SamplerInfoIndex.addressU: hash |= (value << 6); break;
+        case SamplerInfoIndex.addressV: hash |= (value << 8); break;
+        case SamplerInfoIndex.addressW: hash |= (value << 10); break;
+        case SamplerInfoIndex.maxAnisotropy: hash |= (value << 12); break;
+        case SamplerInfoIndex.cmpFunc: hash |= (value << 16); break;
+        case SamplerInfoIndex.mipLODBias: hash |= (value << 28); break;
+        default:
         }
     }
     return hash;
@@ -91,34 +87,31 @@ export function genSamplerHash (info: (number | undefined)[]): number {
  * 维护 sampler 资源实例的全局管理器。
  */
 class SamplerLib {
-
-    protected _cache: Record<number, GFXSampler> = {};
+    protected _cache: Record<number, Sampler> = {};
 
     /**
      * @zh
      * 获取指定属性的 sampler 资源。
-     * @param device 渲染设备 [GFXDevice]
+     * @param device 渲染设备 GFX [[Device]]
      * @param info 目标 sampler 属性
      */
-    public getSampler (device: GFXDevice, hash: number) {
-        if (hash === 0) { hash = defaultSamplerHash; }
+    public getSampler (device: Device, hash: number) {
+        if (!hash) { hash = defaultSamplerHash; }
         const cache = this._cache[hash];
         if (cache) { return cache; }
 
-        gfxInfo.minFilter     = (hash & 3);
-        gfxInfo.magFilter     = ((hash >> 2) & 3);
-        gfxInfo.mipFilter     = ((hash >> 4) & 3);
-        gfxInfo.addressU      = ((hash >> 6) & 3);
-        gfxInfo.addressV      = ((hash >> 8) & 3);
-        gfxInfo.addressW      = ((hash >> 10) & 3);
-        gfxInfo.maxAnisotropy = ((hash >> 12) & 15);
-        gfxInfo.cmpFunc       = ((hash >> 16) & 15);
-        gfxInfo.minLOD        = ((hash >> 20) & 15);
-        gfxInfo.maxLOD        = ((hash >> 24) & 15);
-        gfxInfo.mipLODBias    = ((hash >> 28) & 15);
-        gfxInfo.borderColor   = borderColor;
+        _samplerInfo.minFilter     = (hash & 3);
+        _samplerInfo.magFilter     = ((hash >> 2) & 3);
+        _samplerInfo.mipFilter     = ((hash >> 4) & 3);
+        _samplerInfo.addressU      = ((hash >> 6) & 3);
+        _samplerInfo.addressV      = ((hash >> 8) & 3);
+        _samplerInfo.addressW      = ((hash >> 10) & 3);
+        _samplerInfo.maxAnisotropy = ((hash >> 12) & 15);
+        _samplerInfo.cmpFunc       = ((hash >> 16) & 15);
+        _samplerInfo.mipLODBias    = ((hash >> 28) & 15);
+        _samplerInfo.borderColor   = borderColor;
 
-        const sampler = this._cache[hash] = device.createSampler(gfxInfo);
+        const sampler = this._cache[hash] = device.createSampler(_samplerInfo);
         return sampler;
     }
 }

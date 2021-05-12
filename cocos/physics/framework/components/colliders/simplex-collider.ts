@@ -1,5 +1,33 @@
+/* eslint-disable @typescript-eslint/no-namespace */
+/* eslint-disable func-names */
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import {
@@ -11,11 +39,12 @@ import {
     type,
     editable,
     serializable,
+    tooltip,
 } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants';
 import { Vec3 } from '../../../../core/math';
 import { Collider } from './collider';
 import { ISimplexShape } from '../../../spec/i-physics-shape';
-import { EDITOR, TEST } from 'internal:constants';
 import { ESimplexType, EColliderType } from '../../physics-enum';
 import { IVec3Like } from '../../../../core/math/type-define';
 
@@ -30,12 +59,12 @@ import { IVec3Like } from '../../../../core/math/type-define';
 @menu('Physics/SimplexCollider')
 @executeInEditMode
 export class SimplexCollider extends Collider {
-
     static readonly ESimplexType = ESimplexType;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     @type(ESimplexType)
+    @tooltip('i18n:physics3d.collider.simplex_shapeType')
     get shapeType () {
         return this._shapeType;
     }
@@ -48,6 +77,7 @@ export class SimplexCollider extends Collider {
     }
 
     @editable
+    @tooltip('i18n:physics3d.collider.simplex_vertex0')
     get vertex0 () {
         return this._vertices[0];
     }
@@ -58,6 +88,7 @@ export class SimplexCollider extends Collider {
     }
 
     @visible(function (this: SimplexCollider) { return this._shapeType > 1; })
+    @tooltip('i18n:physics3d.collider.simplex_vertex1')
     get vertex1 () {
         return this._vertices[1];
     }
@@ -68,6 +99,7 @@ export class SimplexCollider extends Collider {
     }
 
     @visible(function (this: SimplexCollider) { return this._shapeType > 2; })
+    @tooltip('i18n:physics3d.collider.simplex_vertex2')
     get vertex2 () {
         return this._vertices[2];
     }
@@ -78,6 +110,7 @@ export class SimplexCollider extends Collider {
     }
 
     @visible(function (this: SimplexCollider) { return this._shapeType > 3; })
+    @tooltip('i18n:physics3d.collider.simplex_vertex3')
     get vertex3 () {
         return this._vertices[3];
     }
@@ -98,7 +131,7 @@ export class SimplexCollider extends Collider {
     }
 
     get vertices () {
-        return this._vertices
+        return this._vertices;
     }
 
     /// PRIVATE PROPERTY ///
@@ -123,7 +156,6 @@ export class SimplexCollider extends Collider {
             this.shape.setVertices(this._vertices);
         }
     }
-
 }
 
 export namespace SimplexCollider {

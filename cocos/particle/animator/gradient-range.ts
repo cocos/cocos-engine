@@ -1,23 +1,47 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Color } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import Gradient, { AlphaKey, ColorKey } from './gradient';
-import { EDITOR } from 'internal:constants';
 import { Texture2D } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
-// tslint:disable: max-line-length
 const SerializableTable = EDITOR && [
-    [ '_mode', 'color' ],
-    [ '_mode', 'gradient' ],
-    [ '_mode', 'colorMin', 'colorMax' ],
-    [ '_mode', 'gradientMin', 'gradientMax'],
-    [ '_mode', 'gradient' ]
+    ['_mode', 'color'],
+    ['_mode', 'gradient'],
+    ['_mode', 'colorMin', 'colorMax'],
+    ['_mode', 'gradientMin', 'gradientMax'],
+    ['_mode', 'gradient'],
 ];
 
 const Mode = Enum({
@@ -30,7 +54,6 @@ const Mode = Enum({
 
 @ccclass('cc.GradientRange')
 export default class GradientRange {
-
     /**
      * @zh 渐变色类型 [[Mode]]。
      */
@@ -101,20 +124,20 @@ export default class GradientRange {
 
     public evaluate (time: number, rndRatio: number) {
         switch (this._mode) {
-            case Mode.Color:
-                return this.color;
-            case Mode.TwoColors:
-                Color.lerp(this._color, this.colorMin, this.colorMax, rndRatio);
-                return this._color;
-            case Mode.RandomColor:
-                return this.gradient.randomColor();
-            case Mode.Gradient:
-                return this.gradient.evaluate(time);
-            case Mode.TwoGradients:
-                Color.lerp(this._color, this.gradientMin.evaluate(time), this.gradientMax.evaluate(time), rndRatio);
-                return this._color;
-            default:
-                return this.color;
+        case Mode.Color:
+            return this.color;
+        case Mode.TwoColors:
+            Color.lerp(this._color, this.colorMin, this.colorMax, rndRatio);
+            return this._color;
+        case Mode.RandomColor:
+            return this.gradient.randomColor();
+        case Mode.Gradient:
+            return this.gradient.evaluate(time);
+        case Mode.TwoGradients:
+            Color.lerp(this._color, this.gradientMin.evaluate(time), this.gradientMax.evaluate(time), rndRatio);
+            return this._color;
+        default:
+            return this.color;
         }
     }
 
@@ -123,39 +146,30 @@ export default class GradientRange {
     }
 }
 
-// CCClass.fastDefine('cc.GradientRange', GradientRange, {
-//     mode: Mode.Color,
-//     color: cc.Color.WHITE.clone(),
-//     colorMin: cc.Color.WHITE.clone(),
-//     colorMax: cc.Color.WHITE.clone(),
-//     gradient: new Gradient(),
-//     gradientMin: null,
-//     gradientMax: null
-// });
 function evaluateGradient (gr: GradientRange, time: number, index: number) {
     switch (gr.mode) {
-        case Mode.Color:
-            return gr.color;
-        case Mode.TwoColors:
-            return index === 0 ? gr.colorMin : gr.colorMax;
-        case Mode.RandomColor:
-            return gr.gradient.randomColor();
-        case Mode.Gradient:
-            return gr.gradient.evaluate(time);
-        case Mode.TwoGradients:
-            return index === 0 ? gr.gradientMin.evaluate(time) : gr.gradientMax.evaluate(time);
-        default:
-            return gr.color;
+    case Mode.Color:
+        return gr.color;
+    case Mode.TwoColors:
+        return index === 0 ? gr.colorMin : gr.colorMax;
+    case Mode.RandomColor:
+        return gr.gradient.randomColor();
+    case Mode.Gradient:
+        return gr.gradient.evaluate(time);
+    case Mode.TwoGradients:
+        return index === 0 ? gr.gradientMin.evaluate(time) : gr.gradientMax.evaluate(time);
+    default:
+        return gr.color;
     }
 }
 function evaluateHeight (gr: GradientRange) {
     switch (gr.mode) {
-        case Mode.TwoColors:
-            return 2;
-        case Mode.TwoGradients:
-            return 2;
-        default:
-            return 1;
+    case Mode.TwoColors:
+        return 2;
+    case Mode.TwoGradients:
+        return 2;
+    default:
+        return 1;
     }
 }
 export function packGradientRange (samples: number, gr: GradientRange) {

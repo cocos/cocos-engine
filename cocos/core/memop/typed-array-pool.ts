@@ -1,6 +1,32 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 
 /**
- * @category memop
+ * @packageDocumentation
+ * @module memop
  */
 
 let _bufferPools: ArrayBuffer[][] = Array(8);
@@ -40,8 +66,9 @@ function _free (buf) {
 
 export default {
     /**
-     * @zh 分配一个Int8Array。
-     * @param n 数组长度。
+     * @en Allocate an Int8Array.
+     * @zh 分配一个 Int8Array。
+     * @param n Size of the array
      */
     alloc_int8 (n) {
         const result = new Int8Array(_alloc(n), 0, n);
@@ -53,8 +80,9 @@ export default {
     },
 
     /**
-     * @zh 分配一个Uint8Array。
-     * @param n 数组长度。
+     * @en Allocate an Uint8Array.
+     * @zh 分配一个 Uint8Array。
+     * @param n Size of the array
      */
     alloc_uint8 (n) {
         const result = new Uint8Array(_alloc(n), 0, n);
@@ -66,8 +94,9 @@ export default {
     },
 
     /**
-     * @zh 分配一个Int16Array。
-     * @param n 数组长度。
+     * @en Allocate an Int16Array.
+     * @zh 分配一个 Int16Array。
+     * @param n Size of the array
      */
     alloc_int16 (n) {
         const result = new Int16Array(_alloc(2 * n), 0, n);
@@ -79,8 +108,9 @@ export default {
     },
 
     /**
-     * @zh 分配一个Uint16Array。
-     * @param n 数组长度。
+     * @en Allocate an Uint16Array.
+     * @zh 分配一个 Uint16Array。
+     * @param n Size of the array
      */
     alloc_uint16 (n) {
         const result = new Uint16Array(_alloc(2 * n), 0, n);
@@ -92,8 +122,9 @@ export default {
     },
 
     /**
-     * @zh 分配一个Int32Array。
-     * @param n 数组长度。
+     * @en Allocate an Int32Array.
+     * @zh 分配一个 Int32Array。
+     * @param n Size of the array
      */
     alloc_int32 (n) {
         const result = new Int32Array(_alloc(4 * n), 0, n);
@@ -105,8 +136,9 @@ export default {
     },
 
     /**
-     * @zh 分配一个Uint32Array。
-     * @param n 数组长度。
+     * @en Allocate an Uint32Array.
+     * @zh 分配一个 Uint32Array。
+     * @param n Size of the array
      */
     alloc_uint32 (n) {
         const result = new Uint32Array(_alloc(4 * n), 0, n);
@@ -118,8 +150,9 @@ export default {
     },
 
     /**
-     * @zh 分配一个Float32Array。
-     * @param n 数组长度。
+     * @en Allocate a Float32Array.
+     * @zh 分配一个 Float32Array。
+     * @param n Size of the array
      */
     alloc_float32 (n) {
         const result = new Float32Array(_alloc(4 * n), 0, n);
@@ -131,8 +164,9 @@ export default {
     },
 
     /**
-     * @zh 分配一个Float64Array。
-     * @param n 数组长度。
+     * @en Allocate a Float64Array.
+     * @zh 分配一个 Float64Array。
+     * @param n Size of the array
      */
     alloc_float64 (n) {
         const result = new Float64Array(_alloc(8 * n), 0, n);
@@ -153,15 +187,17 @@ export default {
     // },
 
     /**
-     * 释放一个TypeArray。
-     * @param array 释放的数组。
+     * @en Release a TypeArray.
+     * @zh 释放一个 TypeArray。
+     * @param array The typed array to be released
      */
     free (array) {
         _free(array.buffer);
     },
 
     /**
-     * @zh 重置TypeArray池。
+     * @en Reset TypeArray pool.
+     * @zh 重置 TypeArray 池。
      */
     reset () {
         _bufferPools = Array(8);

@@ -1,3 +1,34 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+/* eslint-disable func-names */
 import CANNON from '@cocos/cannon';
 import { Vec3 } from '../../../core/math';
 import { commitShapeUpdates } from '../cannon-util';
@@ -7,19 +38,18 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 
 export class CannonSimplexShape extends CannonShape implements ISimplexShape {
-
     setShapeType (v: SimplexCollider.ESimplexType) {
         if (this._isBinding) {
-            //TODO: change the type after init
+            // TODO: change the type after init
         }
     }
 
     setVertices (v: IVec3Like[]) {
-        const length = this.VERTICES.length;
-        if (length == 4) {
+        const length = this.vertices.length;
+        if (length === 4) {
             const ws = this._collider.node.worldScale;
             for (let i = 0; i < length; i++) {
-                Vec3.multiply(this.VERTICES[i], ws, v[i]);
+                Vec3.multiply(this.vertices[i], ws, v[i]);
             }
             const impl = this.impl as CANNON.ConvexPolyhedron;
             impl.computeNormals();
@@ -29,7 +59,7 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
             // TODO: add to center
             // const impl = this.impl as CANNON.Particle;
         }
-        if (this._index != -1) {
+        if (this._index !== -1) {
             commitShapeUpdates(this._body);
         }
     }
@@ -42,17 +72,17 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
         return this._shape as CANNON.Particle | CANNON.ConvexPolyhedron;
     }
 
-    readonly VERTICES: CANNON.Vec3[] = [];
+    readonly vertices: CANNON.Vec3[] = [];
 
     protected onComponentSet () {
         const type = this.collider.shapeType;
-        if (type == SimplexCollider.ESimplexType.TETRAHEDRON) {
+        if (type === SimplexCollider.ESimplexType.TETRAHEDRON) {
             for (let i = 0; i < 4; i++) {
-                this.VERTICES[i] = new CANNON.Vec3(0, 0, 0);
+                this.vertices[i] = new CANNON.Vec3(0, 0, 0);
             }
-            this._shape = createTetra(this.VERTICES);
+            this._shape = createTetra(this.vertices);
         } else {
-            if (type != SimplexCollider.ESimplexType.VERTEX) {
+            if (type !== SimplexCollider.ESimplexType.VERTEX) {
                 // WARN
             }
             this._shape = new CANNON.Particle();
@@ -68,9 +98,7 @@ export class CannonSimplexShape extends CannonShape implements ISimplexShape {
         super.setScale(scale);
         this.collider.updateVertices();
     }
-
 }
-
 
 const createTetra = (function () {
     const faces = [
@@ -81,5 +109,5 @@ const createTetra = (function () {
     ];
     return function (verts: CANNON.Vec3[]) {
         return new CANNON.ConvexPolyhedron(verts, faces);
-    }
-})();
+    };
+}());

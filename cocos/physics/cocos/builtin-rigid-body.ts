@@ -1,8 +1,38 @@
-import { IRigidBody } from "../spec/i-rigid-body";
-import { IVec3Like } from "../../core";
-import { RigidBody, PhysicsSystem } from "../framework";
-import { BuiltinSharedBody } from "./builtin-shared-body";
-import { BuiltInWorld } from "./builtin-world";
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+import { IRigidBody } from '../spec/i-rigid-body';
+import { IVec3Like } from '../../core';
+import { RigidBody, PhysicsSystem, ERigidBodyType } from '../framework';
+import { BuiltinSharedBody } from './builtin-shared-body';
+import { BuiltInWorld } from './builtin-world';
 
 export class BuiltinRigidBody implements IRigidBody {
     get impl () { return this; }
@@ -18,16 +48,11 @@ export class BuiltinRigidBody implements IRigidBody {
 
     initialize (com: RigidBody): void {
         this._rigidBody = com;
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._rigidBody.node);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as BuiltInWorld).getSharedBody(this._rigidBody.node, this);
         this._sharedBody.reference = true;
-        this._sharedBody.wrappedBody = this;
     }
 
     onEnable () {
-        this._sharedBody.setGroup(this._rigidBody.group);
-        if (PhysicsSystem.instance.useCollisionMatrix) {
-            this._sharedBody.setMask(PhysicsSystem.instance.collisionMatrix[this._rigidBody.group]);
-        }
         this._sharedBody.enabled = true;
     }
 
@@ -42,11 +67,10 @@ export class BuiltinRigidBody implements IRigidBody {
     }
 
     setMass (v: number) { }
+    setType (v: ERigidBodyType) { }
     setLinearDamping (v: number) { }
     setAngularDamping (v: number) { }
-    setIsKinematic (v: boolean) { }
     useGravity (v: boolean) { }
-    fixRotation (v: boolean) { }
     setLinearFactor (v: IVec3Like) { }
     setAngularFactor (v: IVec3Like) { }
     setAllowSleep (v: boolean) { }
@@ -56,7 +80,7 @@ export class BuiltinRigidBody implements IRigidBody {
     clearForces (): void { }
     clearVelocity (): void { }
     setSleepThreshold (v: number): void { }
-    getSleepThreshold (): number { return 0 }
+    getSleepThreshold (): number { return 0; }
     getLinearVelocity (out: IVec3Like): void { }
     setLinearVelocity (value: IVec3Like): void { }
     getAngularVelocity (out: IVec3Like): void { }

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category core/math
+ * @packageDocumentation
+ * @module core/math
  */
 
 import { CCClass } from '../data/class';
@@ -36,14 +37,15 @@ import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 
 /**
- * 表示三维（3x3）矩阵。
+ * @en Mathematical 3x3 matrix.
+ * @zh 表示三维（3x3）矩阵。
  */
-// tslint:disable:one-variable-per-declaration
-export class Mat3 extends ValueType {
 
+export class Mat3 extends ValueType {
     public static IDENTITY = Object.freeze(new Mat3());
 
     /**
+     * @en Clone a matrix and save the results to out matrix
      * @zh 获得指定矩阵的拷贝
      */
     public static clone <Out extends IMat3Like> (a: Out) {
@@ -55,6 +57,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Copy content of a matrix into another and save the results to out matrix
      * @zh 复制目标矩阵
      */
     public static copy <Out extends IMat3Like> (out: Out, a: Out) {
@@ -71,6 +74,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Sets the elements of a matrix with the given values and save the results to out matrix
      * @zh 设置矩阵值
      */
     public static set <Out extends IMat3Like>  (
@@ -86,6 +90,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Reset the out matrix to an identity matrix
      * @zh 将目标赋值为单位矩阵
      */
     public static identity <Out extends IMat3Like> (out: Out) {
@@ -102,6 +107,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Transposes a matrix and save the results to out matrix
      * @zh 转置矩阵
      */
     public static transpose <Out extends IMat3Like> (out: Out, a: Out) {
@@ -132,6 +138,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Inverts a matrix. When matrix is not invertible the matrix will be set to zeros.
      * @zh 矩阵求逆，注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public static invert <Out extends IMat3Like> (out: Out, a: Out) {
@@ -167,6 +174,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Calculates the determinant of a matrix
      * @zh 矩阵行列式
      */
     public static determinant <Out extends IMat3Like> (a: Out) {
@@ -178,6 +186,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply two matrices explicitly and save the results to out matrix
      * @zh 矩阵乘法
      */
     public static multiply <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
@@ -185,9 +194,9 @@ export class Mat3 extends ValueType {
         const a10 = a.m03; const a11 = a.m04; const a12 = a.m05;
         const a20 = a.m06; const a21 = a.m07; const a22 = a.m08;
 
-        const b00 = b.m00, b01 = b.m01, b02 = b.m02;
-        const b10 = b.m03, b11 = b.m04, b12 = b.m05;
-        const b20 = b.m06, b21 = b.m07, b22 = b.m08;
+        const b00 = b.m00; const b01 = b.m01; const b02 = b.m02;
+        const b10 = b.m03; const b11 = b.m04; const b12 = b.m05;
+        const b20 = b.m06; const b21 = b.m07; const b22 = b.m08;
 
         out.m00 = b00 * a00 + b01 * a10 + b02 * a20;
         out.m01 = b00 * a01 + b01 * a11 + b02 * a21;
@@ -204,6 +213,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Take the first third order of the fourth order matrix and multiply by the third order matrix
      * @zh 取四阶矩阵的前三阶，与三阶矩阵相乘
      */
     public static multiplyMat4 <Out extends IMat3Like> (out: Out, a: Out, b: IMat4Like) {
@@ -211,9 +221,9 @@ export class Mat3 extends ValueType {
         const a10 = a.m03; const a11 = a.m04; const a12 = a.m05;
         const a20 = a.m06; const a21 = a.m07; const a22 = a.m08;
 
-        const b00 = b.m00, b01 = b.m01, b02 = b.m02;
-        const b10 = b.m04, b11 = b.m05, b12 = b.m06;
-        const b20 = b.m08, b21 = b.m09, b22 = b.m10;
+        const b00 = b.m00; const b01 = b.m01; const b02 = b.m02;
+        const b10 = b.m04; const b11 = b.m05; const b12 = b.m06;
+        const b20 = b.m08; const b21 = b.m09; const b22 = b.m10;
 
         out.m00 = b00 * a00 + b01 * a10 + b02 * a20;
         out.m01 = b00 * a01 + b01 * a11 + b02 * a21;
@@ -230,21 +240,14 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * @zh 在给定矩阵变换基础上加入变换
-     * @deprecated 将在 1.2 移除，请转用 `Mat3.transform` 方法。
-     */
-    public static transfrom<Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
-        Mat3.transform(out, a, v);
-    }
-
-    /**
+     * @en Multiply a matrix with a translation vector given by a translation offset.
      * @zh 在给定矩阵变换基础上加入变换
      */
     public static transform <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
         const a10 = a.m03; const a11 = a.m04; const a12 = a.m05;
         const a20 = a.m06; const a21 = a.m07; const a22 = a.m08;
-        const x = v.x, y = v.y;
+        const x = v.x; const y = v.y;
 
         out.m00 = a00;
         out.m01 = a01;
@@ -261,10 +264,11 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply a matrix with a scale matrix given by a scale vector and save the results to out matrix
      * @zh 在给定矩阵变换基础上加入新缩放变换
      */
     public static scale <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Out, v: VecLike) {
-        const x = v.x, y = v.y;
+        const x = v.x; const y = v.y;
 
         out.m00 = x * a.m00;
         out.m01 = x * a.m01;
@@ -281,8 +285,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Rotates the transform by the given angle and save the results into the out matrix
      * @zh 在给定矩阵变换基础上加入新旋转变换
-     * @param rad 旋转弧度
+     * @param rad radius of rotation
      */
     public static rotate <Out extends IMat3Like> (out: Out, a: Out, rad: number) {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
@@ -307,6 +312,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Copies the first third order matrix of a fourth order matrix to the out third order matrix
      * @zh 取四阶矩阵的前三阶
      */
     public static fromMat4 <Out extends IMat3Like> (out: Out, a: IMat4Like) {
@@ -323,9 +329,10 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Sets a third order matrix with view direction and up direction. Then save the results to out matrix
      * @zh 根据视口前方向和上方向计算矩阵
-     * @param view 视口面向的前方向，必须归一化
-     * @param up 视口的上方向，必须归一化，默认为 (0, 1, 0)
+     * @param view The view direction, it`s must be normalized.
+     * @param up The view up direction, it`s must be normalized, default value is (0, 1, 0).
      */
     public static fromViewUp <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, view: VecLike, up?: Vec3) {
         if (Vec3.lengthSqr(view) < EPSILON * EPSILON) {
@@ -352,6 +359,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Sets the given matrix with a translation vector and save the results to out matrix
      * @zh 计算位移矩阵
      */
     public static fromTranslation <Out extends IMat3Like, VecLike extends IVec2Like> (out: Out, v: VecLike) {
@@ -368,6 +376,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Sets the given matrix with a scale vector and save the results to out matrix
      * @zh 计算缩放矩阵
      */
     public static fromScaling <Out extends IMat3Like, VecLike extends IVec2Like> (out: Out, v: VecLike) {
@@ -386,10 +395,11 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Sets the given matrix with a given angle and save the results to out matrix
      * @zh 计算旋转矩阵
      */
     public static fromRotation <Out extends IMat3Like> (out: Out, rad: number) {
-        const s = Math.sin(rad), c = Math.cos(rad);
+        const s = Math.sin(rad); const c = Math.cos(rad);
 
         out.m00 = c;
         out.m01 = s;
@@ -406,10 +416,11 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Sets the given matrix with the given quaternion and save the results to out matrix
      * @zh 根据四元数旋转信息计算矩阵
      */
     public static fromQuat <Out extends IMat3Like> (out: Out, q: IQuatLike) {
-        const x = q.x, y = q.y, z = q.z, w = q.w;
+        const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;
         const z2 = z + z;
@@ -440,13 +451,14 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Calculates the upper-left 3x3 matrix of a 4x4 matrix's inverse transpose
      * @zh 计算指定四维矩阵的逆转置三维矩阵
      */
     public static inverseTransposeMat4 <Out extends IMat3Like> (out: Out, a: IMat4Like) {
-        const a00 = a.m00, a01 = a.m01, a02 = a.m02, a03 = a.m03,
-            a10 = a.m04, a11 = a.m05, a12 = a.m06, a13 = a.m07,
-            a20 = a.m08, a21 = a.m09, a22 = a.m10, a23 = a.m11,
-            a30 = a.m12, a31 = a.m13, a32 = a.m14, a33 = a.m15;
+        const a00 = a.m00; const a01 = a.m01; const a02 = a.m02; const a03 = a.m03;
+        const a10 = a.m04; const a11 = a.m05; const a12 = a.m06; const a13 = a.m07;
+        const a20 = a.m08; const a21 = a.m09; const a22 = a.m10; const a23 = a.m11;
+        const a30 = a.m12; const a31 = a.m13; const a32 = a.m14; const a33 = a.m15;
 
         const b00 = a00 * a11 - a01 * a10;
         const b01 = a00 * a12 - a02 * a10;
@@ -485,8 +497,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Transform a matrix object to a flat array
      * @zh 矩阵转数组
-     * @param ofs 数组内的起始偏移量
+     * @param ofs Array Start Offset
      */
     public static toArray <Out extends IWritableArrayLike<number>> (out: Out, m: IMat3Like, ofs = 0) {
         out[ofs + 0] = m.m00;
@@ -502,8 +515,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Generates or sets a matrix with a flat array
      * @zh 数组转矩阵
-     * @param ofs 数组起始偏移量
+     * @param ofs Array Start Offset
      */
     public static fromArray <Out extends IMat3Like> (out: Out, arr: IWritableArrayLike<number>, ofs = 0) {
         out.m00 = arr[ofs + 0];
@@ -519,6 +533,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Adds two matrices and save the results to out matrix
      * @zh 逐元素矩阵加法
      */
     public static add <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
@@ -535,6 +550,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Subtracts matrix b from matrix a and save the results to out matrix
      * @zh 逐元素矩阵减法
      */
     public static subtract <Out extends IMat3Like> (out: Out, a: Out, b: Out) {
@@ -551,6 +567,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply each element of a matrix by a scalar number and save the results to out matrix
      * @zh 矩阵标量乘法
      */
     public static multiplyScalar <Out extends IMat3Like> (out: Out, a: Out, b: number) {
@@ -567,6 +584,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Adds two matrices after multiplying each element of the second operand by a scalar number. And save the results to out matrix.
      * @zh 逐元素矩阵标量乘加: A + B * scale
      */
     public static multiplyScalarAndAdd <Out extends IMat3Like> (out: Out, a: Out, b: Out, scale: number) {
@@ -583,33 +601,36 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Returns whether the specified matrices are equal.
      * @zh 矩阵等价判断
      */
     public static strictEquals <Out extends IMat3Like> (a: Out, b: Out) {
-        return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02 &&
-            a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05 &&
-            a.m06 === b.m06 && a.m07 === b.m07 && a.m08 === b.m08;
+        return a.m00 === b.m00 && a.m01 === b.m01 && a.m02 === b.m02
+            && a.m03 === b.m03 && a.m04 === b.m04 && a.m05 === b.m05
+            && a.m06 === b.m06 && a.m07 === b.m07 && a.m08 === b.m08;
     }
 
     /**
+     * @en Returns whether the specified matrices are approximately equal.
      * @zh 排除浮点数误差的矩阵近似等价判断
      */
     public static equals <Out extends IMat3Like> (a: Out, b: Out, epsilon = EPSILON) {
         return (
-            Math.abs(a.m00 - b.m00) <= epsilon * Math.max(1.0, Math.abs(a.m00), Math.abs(b.m00)) &&
-            Math.abs(a.m01 - b.m01) <= epsilon * Math.max(1.0, Math.abs(a.m01), Math.abs(b.m01)) &&
-            Math.abs(a.m02 - b.m02) <= epsilon * Math.max(1.0, Math.abs(a.m02), Math.abs(b.m02)) &&
-            Math.abs(a.m03 - b.m03) <= epsilon * Math.max(1.0, Math.abs(a.m03), Math.abs(b.m03)) &&
-            Math.abs(a.m04 - b.m04) <= epsilon * Math.max(1.0, Math.abs(a.m04), Math.abs(b.m04)) &&
-            Math.abs(a.m05 - b.m05) <= epsilon * Math.max(1.0, Math.abs(a.m05), Math.abs(b.m05)) &&
-            Math.abs(a.m06 - b.m06) <= epsilon * Math.max(1.0, Math.abs(a.m06), Math.abs(b.m06)) &&
-            Math.abs(a.m07 - b.m07) <= epsilon * Math.max(1.0, Math.abs(a.m07), Math.abs(b.m07)) &&
-            Math.abs(a.m08 - b.m08) <= epsilon * Math.max(1.0, Math.abs(a.m08), Math.abs(b.m08))
+            Math.abs(a.m00 - b.m00) <= epsilon * Math.max(1.0, Math.abs(a.m00), Math.abs(b.m00))
+            && Math.abs(a.m01 - b.m01) <= epsilon * Math.max(1.0, Math.abs(a.m01), Math.abs(b.m01))
+            && Math.abs(a.m02 - b.m02) <= epsilon * Math.max(1.0, Math.abs(a.m02), Math.abs(b.m02))
+            && Math.abs(a.m03 - b.m03) <= epsilon * Math.max(1.0, Math.abs(a.m03), Math.abs(b.m03))
+            && Math.abs(a.m04 - b.m04) <= epsilon * Math.max(1.0, Math.abs(a.m04), Math.abs(b.m04))
+            && Math.abs(a.m05 - b.m05) <= epsilon * Math.max(1.0, Math.abs(a.m05), Math.abs(b.m05))
+            && Math.abs(a.m06 - b.m06) <= epsilon * Math.max(1.0, Math.abs(a.m06), Math.abs(b.m06))
+            && Math.abs(a.m07 - b.m07) <= epsilon * Math.max(1.0, Math.abs(a.m07), Math.abs(b.m07))
+            && Math.abs(a.m08 - b.m08) <= epsilon * Math.max(1.0, Math.abs(a.m08), Math.abs(b.m08))
         );
     }
 
     /**
-     * 矩阵第 0 列第 0 行的元素。
+     * @en Value at column 0 row 0 of the matrix.
+     * @zh 矩阵第 0 列第 0 行的元素。
      */
     public get m00 (): number {
         return this.v[0];
@@ -619,7 +640,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵第 0 列第 1 行的元素。
+     * @en Value at column 0 row 1 of the matrix.
+     * @zh 矩阵第 0 列第 1 行的元素。
      */
     public get m01 (): number {
         return this.v[1];
@@ -629,7 +651,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵第 0 列第 2 行的元素。
+     * @en Value at column 0 row 2 of the matrix.
+     * @zh 矩阵第 0 列第 2 行的元素。
      */
     public get m02 (): number {
         return this.v[2];
@@ -639,7 +662,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵第 1 列第 0 行的元素。
+     * @en Value at column 1 row 0 of the matrix.
+     * @zh 矩阵第 1 列第 0 行的元素。
      */
     public get m03 (): number {
         return this.v[3];
@@ -649,7 +673,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵第 1 列第 1 行的元素。
+     * @en Value at column 1 row 1 of the matrix.
+     * @zh 矩阵第 1 列第 1 行的元素。
      */
     public get m04 (): number {
         return this.v[4];
@@ -659,7 +684,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵第 1 列第 2 行的元素。
+     * @en Value at column 1 row 2 of the matrix.
+     * @zh 矩阵第 1 列第 2 行的元素。
      */
     public get m05 (): number {
         return this.v[5];
@@ -669,7 +695,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵第 2 列第 0 行的元素。
+     * @en Value at column 2 row 0 of the matrix.
+     * @zh 矩阵第 2 列第 0 行的元素。
      */
     public get m06 (): number {
         return this.v[6];
@@ -679,7 +706,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵第 2 列第 1 行的元素。
+     * @en Value at column 2 row 1 of the matrix.
+     * @zh 矩阵第 2 列第 1 行的元素。
      */
     public get m07 (): number {
         return this.v[7];
@@ -689,7 +717,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 矩阵第 2 列第 2 行的元素。
+     * @en Value at column 2 row 2 of the matrix.
+     * @zh 矩阵第 2 列第 2 行的元素。
      */
     public get m08 (): number {
         return this.v[8];
@@ -716,9 +745,10 @@ export class Mat3 extends ValueType {
         m06?: number, m07?: number, m08?: number);
 
     constructor (
-        m00: number | Mat3 | Float32Array = 1, m01: number = 0, m02: number = 0,
-        m03: number = 0, m04: number = 1, m05: number = 0,
-        m06: number = 0, m07: number = 0, m08: number = 1) {
+        m00: number | Mat3 | Float32Array = 1, m01 = 0, m02 = 0,
+        m03 = 0, m04 = 1, m05 = 0,
+        m06 = 0, m07 = 0, m08 = 1,
+    ) {
         super();
         if (m00 && typeof m00 === 'object') {
             if (ArrayBuffer.isView(m00)) {
@@ -740,6 +770,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Clone a new matrix from the current matrix.
      * @zh 克隆当前矩阵。
      */
     public clone () {
@@ -747,27 +778,29 @@ export class Mat3 extends ValueType {
         return new Mat3(
             m[0], m[1], m[2],
             m[3], m[4], m[5],
-            m[6], m[7], m[8]);
+            m[6], m[7], m[8],
+        );
     }
 
     /**
+     * @en Sets the matrix with another one's value.
      * @zh 设置当前矩阵使其与指定矩阵相等。
-     * @param other 相比较的矩阵。
+     * @param other Specified matrix
      * @return this
      */
     public set (other: Mat3);
 
     /**
-     * 设置当前矩阵指定元素值。
+     * @en Set the matrix with values of all elements
+     * @zh 设置当前矩阵指定元素值。
      * @return this
      */
     public set (m00?: number, m01?: number, m02?: number,
                 m03?: number, m04?: number, m05?: number,
                 m06?: number, m07?: number, m08?: number);
-
-    public set (m00: number | Mat3 = 1, m01: number = 0, m02: number = 0,
-                m03: number = 0, m04: number = 1, m05: number = 0,
-                m06: number = 0, m07: number = 0, m08: number = 1 ) {
+    public set (m00: number | Mat3 = 1, m01 = 0, m02 = 0,
+        m03 = 0, m04 = 1, m05 = 0,
+        m06 = 0, m07 = 0, m08 = 1) {
         if (m00 && typeof m00 === 'object') {
             const v = m00.v;
             this.v[0] = v[0]; this.v[1] = v[1]; this.v[2] = v[2];
@@ -782,52 +815,56 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Returns whether the specified matrices are approximately equal.
      * @zh 判断当前矩阵是否在误差范围内与指定矩阵相等。
-     * @param other 相比较的矩阵。
-     * @param epsilon 允许的误差，应为非负数。
-     * @return 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
+     * @param other Comparative matrix
+     * @param epsilon The error allowed. It`s should be a non-negative number.
+     * @return Returns `true' when the elements of both matrices are equal; otherwise returns `false'.
      */
     public equals (other: Mat3, epsilon = EPSILON): boolean {
         const v = other.v;
         return (
-            Math.abs(this.v[0] - v[0]) <= epsilon * Math.max(1.0, Math.abs(this.v[0]), Math.abs(v[0])) &&
-            Math.abs(this.v[1] - v[1]) <= epsilon * Math.max(1.0, Math.abs(this.v[1]), Math.abs(v[1])) &&
-            Math.abs(this.v[2] - v[2]) <= epsilon * Math.max(1.0, Math.abs(this.v[2]), Math.abs(v[2])) &&
-            Math.abs(this.v[3] - v[3]) <= epsilon * Math.max(1.0, Math.abs(this.v[3]), Math.abs(v[3])) &&
-            Math.abs(this.v[4] - v[4]) <= epsilon * Math.max(1.0, Math.abs(this.v[4]), Math.abs(v[4])) &&
-            Math.abs(this.v[5] - v[5]) <= epsilon * Math.max(1.0, Math.abs(this.v[5]), Math.abs(v[5])) &&
-            Math.abs(this.v[6] - v[6]) <= epsilon * Math.max(1.0, Math.abs(this.v[6]), Math.abs(v[6])) &&
-            Math.abs(this.v[7] - v[7]) <= epsilon * Math.max(1.0, Math.abs(this.v[7]), Math.abs(v[7])) &&
-            Math.abs(this.v[8] - v[8]) <= epsilon * Math.max(1.0, Math.abs(this.v[8]), Math.abs(v[8]))
+            Math.abs(this.v[0] - v[0]) <= epsilon * Math.max(1.0, Math.abs(this.v[0]), Math.abs(v[0]))
+            && Math.abs(this.v[1] - v[1]) <= epsilon * Math.max(1.0, Math.abs(this.v[1]), Math.abs(v[1]))
+            && Math.abs(this.v[2] - v[2]) <= epsilon * Math.max(1.0, Math.abs(this.v[2]), Math.abs(v[2]))
+            && Math.abs(this.v[3] - v[3]) <= epsilon * Math.max(1.0, Math.abs(this.v[3]), Math.abs(v[3]))
+            && Math.abs(this.v[4] - v[4]) <= epsilon * Math.max(1.0, Math.abs(this.v[4]), Math.abs(v[4]))
+            && Math.abs(this.v[5] - v[5]) <= epsilon * Math.max(1.0, Math.abs(this.v[5]), Math.abs(v[5]))
+            && Math.abs(this.v[6] - v[6]) <= epsilon * Math.max(1.0, Math.abs(this.v[6]), Math.abs(v[6]))
+            && Math.abs(this.v[7] - v[7]) <= epsilon * Math.max(1.0, Math.abs(this.v[7]), Math.abs(v[7]))
+            && Math.abs(this.v[8] - v[8]) <= epsilon * Math.max(1.0, Math.abs(this.v[8]), Math.abs(v[8]))
         );
     }
 
     /**
+     * @en Returns whether the specified matrices are equal.
      * @zh 判断当前矩阵是否与指定矩阵相等。
-     * @param other 相比较的矩阵。
-     * @return 两矩阵的各元素都分别相等时返回 `true`；否则返回 `false`。
+     * @param other Comparative matrix
+     * @return Returns `true' when the elements of both matrices are equal; otherwise returns `false'.
      */
     public strictEquals (other: Mat3): boolean {
         const v = other.v;
-        return this.v[0] === v[0] && this.v[1] === v[1] && this.v[2] === v[2] &&
-            this.v[3] === v[3] && this.v[4] === v[4] && this.v[5] === v[5] &&
-            this.v[6] === v[6] && this.v[7] === v[7] && this.v[8] === v[8];
+        return this.v[0] === v[0] && this.v[1] === v[1] && this.v[2] === v[2]
+            && this.v[3] === v[3] && this.v[4] === v[4] && this.v[5] === v[5]
+            && this.v[6] === v[6] && this.v[7] === v[7] && this.v[8] === v[8];
     }
 
     /**
-     * 返回当前矩阵的字符串表示。
-     * @return 当前矩阵的字符串表示。
+     * @en Returns a string representation of a matrix.
+     * @zh 返回当前矩阵的字符串表示。
+     * @return The string representation of this matrix
      */
     public toString () {
-        return '[\n' +
-            this.v[0] + ', ' + this.v[1] + ', ' + this.v[2] + ',\n' +
-            this.v[3] + ',\n' + this.v[4] + ', ' + this.v[5] + ',\n' +
-            this.v[6] + ', ' + this.v[7] + ',\n' + this.v[8] + '\n' +
-            ']';
+        return `[\n${
+            this.v[0]}, ${this.v[1]}, ${this.v[2]},\n${
+            this.v[3]},\n${this.v[4]}, ${this.v[5]},\n${
+            this.v[6]}, ${this.v[7]},\n${this.v[8]}\n`
+            + `]`;
     }
 
     /**
-     * 将当前矩阵设为单位矩阵。
+     * @en set the current matrix to an identity matrix.
+     * @zh 将当前矩阵设为单位矩阵。
      * @return `this`
      */
     public identity () {
@@ -844,10 +881,11 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Transposes the current matrix.
      * @zh 计算当前矩阵的转置矩阵。
      */
     public transpose () {
-        const a01 = this.v[1], a02 = this.v[2], a12 = this.v[5];
+        const a01 = this.v[1]; const a02 = this.v[2]; const a12 = this.v[5];
         this.v[1] = this.v[3];
         this.v[2] = this.v[6];
         this.v[3] = a01;
@@ -858,6 +896,7 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Inverts the current matrix. When matrix is not invertible the matrix will be set to zeros.
      * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public invert () {
@@ -891,7 +930,8 @@ export class Mat3 extends ValueType {
     }
 
     /**
-     * 计算当前矩阵的行列式。
+     * @en Calculates the determinant of the current matrix.
+     * @zh 计算当前矩阵的行列式。
      * @return 当前矩阵的行列式。
      */
     public determinant (): number {
@@ -903,8 +943,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Adds the current matrix and another matrix to the current matrix.
      * @zh 矩阵加法。将当前矩阵与指定矩阵的相加，结果返回给当前矩阵。
-     * @param mat 相加的矩阵
+     * @param mat the second operand
      */
     public add (mat: Mat3) {
         const v = mat.v;
@@ -921,8 +962,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Subtracts another matrix from the current matrix.
      * @zh 计算矩阵减法。将当前矩阵减去指定矩阵的结果赋值给当前矩阵。
-     * @param mat 减数矩阵。
+     * @param mat the second operand
      */
     public subtract (mat: Mat3) {
         const v = mat.v;
@@ -939,18 +981,19 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply the current matrix with another matrix.
      * @zh 矩阵乘法。将当前矩阵左乘指定矩阵的结果赋值给当前矩阵。
-     * @param mat 指定的矩阵。
+     * @param mat the second operand
      */
     public multiply (mat: Mat3) {
-        const a00 = this.v[0], a01 = this.v[1], a02 = this.v[2],
-        a10 = this.v[3], a11 = this.v[4], a12 = this.v[5],
-        a20 = this.v[6], a21 = this.v[7], a22 = this.v[8];
+        const a00 = this.v[0]; const a01 = this.v[1]; const a02 = this.v[2];
+        const a10 = this.v[3]; const a11 = this.v[4]; const a12 = this.v[5];
+        const a20 = this.v[6]; const a21 = this.v[7]; const a22 = this.v[8];
 
         const v = mat.v;
-        const b00 = v[0], b01 = v[1], b02 = v[2];
-        const b10 = v[3], b11 = v[4], b12 = v[5];
-        const b20 = v[6], b21 = v[7], b22 = v[8];
+        const b00 = v[0]; const b01 = v[1]; const b02 = v[2];
+        const b10 = v[3]; const b11 = v[4]; const b12 = v[5];
+        const b20 = v[6]; const b21 = v[7]; const b22 = v[8];
 
         this.v[0] = b00 * a00 + b01 * a10 + b02 * a20;
         this.v[1] = b00 * a01 + b01 * a11 + b02 * a21;
@@ -967,8 +1010,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply each element of the current matrix by a scalar number.
      * @zh 矩阵数乘。将当前矩阵与指定标量的数乘结果赋值给当前矩阵。
-     * @param scalar 指定的标量。
+     * @param scalar amount to scale the matrix's elements by
      */
     public multiplyScalar (scalar: number) {
         this.v[0] *= scalar;
@@ -984,11 +1028,12 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Multiply the current matrix with a scale matrix given by a scale vector.
      * @zh 将当前矩阵左乘缩放矩阵的结果赋值给当前矩阵，缩放矩阵由各个轴的缩放给出。
-     * @param vec 各个轴的缩放。
+     * @param vec vector to scale by
      */
     public scale (vec: Vec3) {
-        const x = vec.v[0], y = vec.v[1];
+        const x = vec.v[0]; const y = vec.v[1];
         this.v[0] *= x;
         this.v[1] *= x;
         this.v[2] *= x;
@@ -1000,9 +1045,9 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Rotates the current matrix by the given angle.
      * @zh 将当前矩阵左乘旋转矩阵的结果赋值给当前矩阵，旋转矩阵由旋转轴和旋转角度给出。
-     * @param mat 矩阵
-     * @param rad 旋转角度（弧度制）
+     * @param rad radius of rotation
      */
     public rotate (rad: number) {
         const a00 = this.v[0]; const a01 = this.v[1]; const a02 = this.v[2];
@@ -1027,12 +1072,13 @@ export class Mat3 extends ValueType {
     }
 
     /**
+     * @en Resets the current matrix from the given quaternion.
      * @zh 重置当前矩阵的值，使其表示指定四元数表示的旋转变换。
-     * @param q 四元数表示的旋转变换。
+     * @param q The quaternion.
      * @returns this
      */
     public fromQuat (q: Quat) {
-        const x = q.x, y = q.y, z = q.z, w = q.w;
+        const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;
         const z2 = z + z;
@@ -1066,8 +1112,14 @@ const v3_1 = new Vec3();
 const v3_2 = new Vec3();
 
 CCClass.fastDefine('cc.Mat3', Mat3, {
-    m00: 1, m01: 0, m02: 0,
-    m03: 0, m04: 1, m05: 0,
-    m06: 0, m07: 0, m08: 1,
+    m00: 1,
+    m01: 0,
+    m02: 0,
+    m03: 0,
+    m04: 1,
+    m05: 0,
+    m06: 0,
+    m07: 0,
+    m08: 1,
 });
 legacyCC.Mat3 = Mat3;

@@ -1,48 +1,50 @@
-/**
- * @category gfx
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXBuffer } from './buffer';
-import { GFXCommandBuffer } from './command-buffer';
-import * as GFXDefines from './define';
-import { GFXDevice } from './device';
-import { GFXFramebuffer } from './framebuffer';
-import { GFXInputAssembler } from './input-assembler';
-import { GFXPipelineState } from './pipeline-state';
-import { GFXQueue } from './queue';
-import { GFXRenderPass } from './render-pass';
-import { GFXSampler } from './sampler';
-import { GFXShader } from './shader';
-import { GFXTexture } from './texture';
-import { legacyCC } from '../global-exports';
+/**
+ * @packageDocumentation
+ * @module gfx
+ */
 
-export * from './descriptor-set';
-export * from './buffer';
-export * from './command-buffer';
-export * from './define';
-export * from './device';
-export * from './framebuffer';
-export * from './input-assembler';
-export * from './descriptor-set-layout';
-export * from './pipeline-layout';
-export * from './pipeline-state';
-export * from './fence';
-export * from './queue';
-export * from './render-pass';
-export * from './sampler';
-export * from './shader';
-export * from './texture';
+import './polyfill-legacy-cc';
+import './deprecated-3.0.0';
 
-legacyCC.GFXDevice = GFXDevice;
-legacyCC.GFXBuffer = GFXBuffer;
-legacyCC.GFXTexture = GFXTexture;
-legacyCC.GFXSampler = GFXSampler;
-legacyCC.GFXShader = GFXShader;
-legacyCC.GFXInputAssembler = GFXInputAssembler;
-legacyCC.GFXRenderPass = GFXRenderPass;
-legacyCC.GFXFramebuffer = GFXFramebuffer;
-legacyCC.GFXPipelineState = GFXPipelineState;
-legacyCC.GFXCommandBuffer = GFXCommandBuffer;
-legacyCC.GFXQueue = GFXQueue;
-
-Object.assign(legacyCC, GFXDefines);
+export * from './base/descriptor-set';
+export * from './base/buffer';
+export * from './base/command-buffer';
+export * from './base/define';
+export * from './base/device';
+export * from './base/framebuffer';
+export * from './base/input-assembler';
+export * from './base/descriptor-set-layout';
+export * from './base/pipeline-layout';
+export * from './base/pipeline-state';
+export * from './base/queue';
+export * from './base/render-pass';
+export * from './base/sampler';
+export * from './base/shader';
+export * from './base/texture';
+export * from './base/global-barrier';
+export * from './base/texture-barrier';

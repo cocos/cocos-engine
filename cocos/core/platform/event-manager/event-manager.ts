@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,28 +25,28 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-// tslint:disable:max-line-length
-
 import { Event } from '../../event';
 import { EventTouch } from './events';
-import { EventListener, TouchOneByOne } from './event-listener';
+import { EventListener, TouchOneByOneEventListener } from './event-listener';
 import { Node } from '../../scene-graph';
 import { macro } from '../macro';
 import { legacyCC } from '../../global-exports';
-import { errorID, warnID, logID, assertID } from '../../platform/debug';
+import { errorID, warnID, logID, assertID } from '../debug';
+import { SystemEventType } from './event-enum';
+
 const ListenerID = EventListener.ListenerID;
 
 function checkUINode (node) {
-    if(node && node.getComponent('cc.UITransform')) {
+    if (node && node.getComponent('cc.UITransform')) {
         return true;
     }
     return false;
 }
 
-// tslint:disable-next-line: class-name
 class _EventListenerVector {
     public gt0Index = 0;
     private _fixedListeners: EventListener[] = [];
@@ -135,7 +135,7 @@ class EventManager {
     private _nodeListenersMap: INodeListener = {};
     private _toAddedListeners: EventListener[] = [];
     private _toRemovedListeners: EventListener[] = [];
-    private _dirtyListeners: Node[] = [];
+    private _dirtyListeners: Record<string, boolean> = {};
     private _inDispatch = 0;
     private _isEnabled = false;
     private _internalCustomListenerIDs: string[] = [];
@@ -264,26 +264,24 @@ class EventManager {
         assertID(listener && nodeOrPriority, 3503);
         if (!(legacyCC.js.isNumber(nodeOrPriority) || nodeOrPriority instanceof legacyCC._BaseNode)) {
             warnID(3506);
-            return;
+            return null;
         }
         if (!(listener instanceof legacyCC.EventListener)) {
             assertID(!legacyCC.js.isNumber(nodeOrPriority), 3504);
             listener = legacyCC.EventListener.create(listener);
-        } else {
-            if (listener._isRegistered()) {
-                logID(3505);
-                return;
-            }
+        } else if (listener._isRegistered()) {
+            logID(3505);
+            return null;
         }
 
         if (!listener.checkAvailable()) {
-            return;
+            return null;
         }
 
         if (legacyCC.js.isNumber(nodeOrPriority)) {
             if (nodeOrPriority === 0) {
                 logID(3500);
-                return;
+                return null;
             }
 
             listener._setSceneGraphPriority(null);
@@ -294,7 +292,7 @@ class EventManager {
         } else {
             if (!checkUINode(nodeOrPriority)) {
                 logID(3512);
-                return;
+                return null;
             }
             listener._setSceneGraphPriority(nodeOrPriority);
             listener._setFixedPriority(0);
@@ -316,7 +314,7 @@ class EventManager {
      * @param callback - 事件回调。
      * @returns 返回自定义监听器。
      */
-    public addCustomListener (eventName: string, callback: Function) {
+    public addCustomListener (eventName: string, callback: ()=>void) {
         const listener = EventListener.create({
             event: legacyCC.EventListener.CUSTOM,
             eventName,
@@ -342,6 +340,9 @@ class EventManager {
 
         let isFound = false;
         const locListener = this._listenersMap;
+        if (listener === this._currentTouchListener) {
+            this._currentTouchListener = this._currentTouch = null;
+        }
         for (const selKey in locListener) {
             const listeners = locListener[selKey];
             const fixedPriorityListeners = listeners.getFixedPriorityListeners();
@@ -443,20 +444,18 @@ class EventManager {
                     this.removeListeners(locChild, true);
                 }
             }
+        } else if (listenerType === legacyCC.EventListener.TOUCH_ONE_BY_ONE) {
+            this._removeListenersForListenerID(ListenerID.TOUCH_ONE_BY_ONE);
+        } else if (listenerType === legacyCC.EventListener.TOUCH_ALL_AT_ONCE) {
+            this._removeListenersForListenerID(ListenerID.TOUCH_ALL_AT_ONCE);
+        } else if (listenerType === legacyCC.EventListener.MOUSE) {
+            this._removeListenersForListenerID(ListenerID.MOUSE);
+        } else if (listenerType === legacyCC.EventListener.ACCELERATION) {
+            this._removeListenersForListenerID(ListenerID.ACCELERATION);
+        } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
+            this._removeListenersForListenerID(ListenerID.KEYBOARD);
         } else {
-            if (listenerType === legacyCC.EventListener.TOUCH_ONE_BY_ONE) {
-                this._removeListenersForListenerID(ListenerID.TOUCH_ONE_BY_ONE);
-            } else if (listenerType === legacyCC.EventListener.TOUCH_ALL_AT_ONCE) {
-                this._removeListenersForListenerID(ListenerID.TOUCH_ALL_AT_ONCE);
-            } else if (listenerType === legacyCC.EventListener.MOUSE) {
-                this._removeListenersForListenerID(ListenerID.MOUSE);
-            } else if (listenerType === legacyCC.EventListener.ACCELERATION) {
-                this._removeListenersForListenerID(ListenerID.ACCELERATION);
-            } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
-                this._removeListenersForListenerID(ListenerID.KEYBOARD);
-            } else {
-                logID(3501);
-            }
+            logID(3501);
         }
     }
 
@@ -614,13 +613,13 @@ class EventManager {
 
     private _setDirtyForNode (node: Node) {
         // Mark the node dirty only when there is an event listener associated with it.
-        // @ts-ignore
+        // @ts-expect-error assignment to private field
         const selListeners = this._nodeListenersMap[node._id];
         if (selListeners !== undefined) {
             for (let j = 0, len = selListeners.length; j < len; j++) {
                 const selListener = selListeners[j];
                 const listenerID = selListener._getListenerID();
-                if (this._dirtyListeners[listenerID] == null) {
+                if (!this._dirtyListeners[listenerID]) {
                     this._dirtyListeners[listenerID] = true;
                 }
             }
@@ -653,7 +652,7 @@ class EventManager {
         if (listener._getFixedPriority() === 0) {
             this._setDirty(listenerID, DIRTY_SCENE_GRAPH_PRIORITY);
 
-            const node = listener._getSceneGraphPriority();
+            const node: any = listener._getSceneGraphPriority();
             if (node === null) {
                 logID(3507);
             }
@@ -673,11 +672,12 @@ class EventManager {
 
     private _updateDirtyFlagForSceneGraph () {
         const locDirtyListeners = this._dirtyListeners;
-        // tslint:disable-next-line: forin
+
+        // eslint-disable-next-line @typescript-eslint/no-for-in-array
         for (const selKey in locDirtyListeners) {
             this._setDirty(selKey, DIRTY_SCENE_GRAPH_PRIORITY);
+            locDirtyListeners[selKey] = false;
         }
-        this._dirtyListeners.length = 0;
     }
 
     private _removeAllListenersInVector (listenerVector: EventListener[]) {
@@ -763,32 +763,33 @@ class EventManager {
         }
 
         // After sort: priority < 0, > 0
-        listeners.getSceneGraphPriorityListeners().sort(this._sortEventListenersOfSceneGraphPriorityDes);
+        const eventListeners = listeners.getSceneGraphPriorityListeners();
+        eventListeners.forEach((listener) => {
+            const node: any = listener._getSceneGraphPriority();
+            const trans = node._uiProps.uiTransformComp;
+            listener._cameraPriority = trans.cameraPriority;
+        });
+        eventListeners.sort(this._sortEventListenersOfSceneGraphPriorityDes);
     }
 
     private _sortEventListenersOfSceneGraphPriorityDes (l1: EventListener, l2: EventListener) {
-        const node1 = l1._getSceneGraphPriority();
-        const node2 = l2._getSceneGraphPriority();
+        const node1: any = l1._getSceneGraphPriority();
+        const node2: any = l2._getSceneGraphPriority();
         // Event manager should only care about ui node in the current scene hierarchy
         if (!l2 || !node2 || !node2._activeInHierarchy || !node2._uiProps.uiTransformComp) {
             return -1;
-        }
-        else if (!l1 || !node1 || !node1._activeInHierarchy || !node1._uiProps.uiTransformComp) {
+        } else if (!l1 || !node1 || !node1._activeInHierarchy || !node1._uiProps.uiTransformComp) {
             return 1;
         }
 
-        let p1 = node1, p2 = node2, ex = false;
-        let trans1 = node1._uiProps.uiTransformComp;
-        let trans2 = node2._uiProps.uiTransformComp;
-        if (trans1.visibility !== trans2.visibility) {
-            return trans2.visibility - trans1.visibility;
+        let p1 = node1; let p2 = node2; let ex = false;
+        if (l1._cameraPriority !== l2._cameraPriority) {
+            return l2._cameraPriority - l1._cameraPriority;
         }
-
         while (p1.parent._id !== p2.parent._id) {
             p1 = p1.parent.parent === null ? (ex = true) && node2 : p1.parent;
             p2 = p2.parent.parent === null ? (ex = true) && node1 : p2.parent;
         }
-
         if (p1._id === p2._id) {
             if (p1._id === node2._id) {
                 return -1;
@@ -936,7 +937,7 @@ class EventManager {
         toRemovedListeners.length = 0;
     }
 
-    private _onTouchEventCallback (listener: TouchOneByOne, argsObj: any) {
+    private _onTouchEventCallback (listener: TouchOneByOneEventListener, argsObj: any) {
         // Skip if the listener was removed.
         if (!listener._isRegistered()) {
             return false;
@@ -948,18 +949,17 @@ class EventManager {
 
         let isClaimed = false;
         let removedIdx = -1;
-        const getCode = event.getEventCode();
-        // const EventTouch = cc.Event.EventTouch;
-        if (getCode === EventTouch.BEGAN) {
+        const eventCode = event.getEventCode();
+        if (eventCode === SystemEventType.TOUCH_START) {
             if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
-                const node = eventManager._currentTouchListener!._node;
+                const node = eventManager._currentTouchListener._node;
                 if (!node || node.activeInHierarchy) {
                     return false;
                 }
             }
             if (listener.onTouchBegan) {
                 isClaimed = listener.onTouchBegan(selTouch, event);
-                if (isClaimed && listener._isRegistered()) {
+                if (isClaimed && listener._isRegistered() && !listener._isPaused()) {
                     listener._claimedTouches.push(selTouch);
                     if (macro.ENABLE_MULTI_TOUCH || !eventManager._currentTouch) {
                         eventManager._currentTouch = selTouch;
@@ -975,9 +975,9 @@ class EventManager {
                 if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
                     return false;
                 }
-                if (getCode === EventTouch.MOVED && listener.onTouchMoved) {
+                if (eventCode === SystemEventType.TOUCH_MOVE && listener.onTouchMoved) {
                     listener.onTouchMoved(selTouch, event);
-                } else if (getCode === EventTouch.ENDED) {
+                } else if (eventCode === SystemEventType.TOUCH_END) {
                     if (listener.onTouchEnded) {
                         listener.onTouchEnded(selTouch, event);
                     }
@@ -990,8 +990,7 @@ class EventManager {
                     }
 
                     eventManager._currentTouchListener = null;
-
-                } else if (getCode === EventTouch.CANCELLED) {
+                } else if (eventCode === SystemEventType.TOUCH_CANCEL) {
                     if (listener.onTouchCancelled) {
                         listener.onTouchCancelled(selTouch, event);
                     }
@@ -1031,7 +1030,7 @@ class EventManager {
         const allAtOnceListeners = this._getListeners(ListenerID.TOUCH_ALL_AT_ONCE);
 
         // If there aren't any touch listeners, return directly.
-        if (null === oneByOneListeners && null === allAtOnceListeners) {
+        if (oneByOneListeners === null && allAtOnceListeners === null) {
             return;
         }
 
@@ -1069,18 +1068,17 @@ class EventManager {
             return false;
         }
 
-        // const EventTouch = cc.Event.EventTouch;
         const event = callbackParams.event;
         const touches = callbackParams.touches;
-        const getCode = event.getEventCode();
+        const eventCode = event.getEventCode();
         event.currentTarget = listener._getSceneGraphPriority();
-        if (getCode === EventTouch.BEGAN && listener.onTouchesBegan) {
+        if (eventCode === SystemEventType.TOUCH_START && listener.onTouchesBegan) {
             listener.onTouchesBegan(touches, event);
-        } else if (getCode === EventTouch.MOVED && listener.onTouchesMoved) {
+        } else if (eventCode === SystemEventType.TOUCH_MOVE && listener.onTouchesMoved) {
             listener.onTouchesMoved(touches, event);
-        } else if (getCode === EventTouch.ENDED && listener.onTouchesEnded) {
+        } else if (eventCode === SystemEventType.TOUCH_END && listener.onTouchesEnded) {
             listener.onTouchesEnded(touches, event);
-        } else if (getCode === EventTouch.CANCELLED && listener.onTouchesCancelled) {
+        } else if (eventCode === SystemEventType.TOUCH_CANCEL && listener.onTouchesCancelled) {
             listener.onTouchesCancelled(touches, event);
         }
 
@@ -1111,7 +1109,7 @@ class EventManager {
         }
     }
 
-    private _dispatchEventToListeners (listeners: _EventListenerVector, onEvent: Function, eventOrArgs: any) {
+    private _dispatchEventToListeners (listeners: _EventListenerVector, onEvent: (listener:any, eventOrArgs:any)=>boolean, eventOrArgs: any) {
         let shouldStopPropagation = false;
         const fixedPriorityListeners = listeners.getFixedPriorityListeners();
         const sceneGraphPriorityListeners = listeners.getSceneGraphPriorityListeners();
@@ -1155,7 +1153,7 @@ class EventManager {
         if (locDirtyFlagMap[listenerID] == null) {
             locDirtyFlagMap[listenerID] = flag;
         } else {
-            locDirtyFlagMap[listenerID] = flag | locDirtyFlagMap[listenerID];
+            locDirtyFlagMap[listenerID] |= flag;
         }
     }
 
@@ -1170,11 +1168,11 @@ class EventManager {
 
         for (let i = listeners.length - 1; i >= 0; i--) {
             const selListener = listeners[i];
-            // @ts-ignore
+            // @ts-expect-error Private property access
             if (selListener._onCustomEvent === callback || selListener.onEvent === callback) {
                 selListener._setRegistered(false);
                 if (selListener._getSceneGraphPriority() != null) {
-                    this._dissociateNodeAndEventListener(selListener._getSceneGraphPriority(), selListener);
+                    this._dissociateNodeAndEventListener((selListener as any)._getSceneGraphPriority(), selListener);
                     // NULL out the node pointer so we don't have any dangling pointers to destroyed nodes.
                     selListener._setSceneGraphPriority(null);
                 }
@@ -1200,7 +1198,7 @@ class EventManager {
             if (selListener === listener) {
                 selListener._setRegistered(false);
                 if (selListener._getSceneGraphPriority() != null) {
-                    this._dissociateNodeAndEventListener(selListener._getSceneGraphPriority(), selListener);
+                    this._dissociateNodeAndEventListener((selListener as any)._getSceneGraphPriority(), selListener);
                     // NULL out the node pointer so we don't have any dangling pointers to destroyed nodes.
                     selListener._setSceneGraphPriority(null);
                 }
@@ -1220,14 +1218,14 @@ class EventManager {
 /**
  * @en
  * This class has been deprecated, please use `systemEvent` or `EventTarget` instead.
- * See [Listen to and launch events](../../../manual/en/scripting/events.md) for details.<br>
+ * See [Listen to and launch events](../../../manual/en/scripting/events.html) for details.<br>
  * <br>
  * `eventManager` is a singleton object which manages event listener subscriptions and event dispatching.
  * The EventListener list is managed in such way so that event listeners can be added and removed
  * while events are being dispatched.
  *
  * @zh
- * 该类已废弃，请使用 `systemEvent` 或 `EventTarget` 代替，详见 [监听和发射事件](../../../manual/zh/scripting/events.md)。<br>
+ * 该类已废弃，请使用 `systemEvent` 或 `EventTarget` 代替，详见 [监听和发射事件](../../../manual/zh/scripting/events.html)。<br>
  * <br>
  * 事件管理器，它主要管理事件监听器注册和派发系统事件。
  *

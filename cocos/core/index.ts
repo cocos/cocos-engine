@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,18 +24,23 @@
  THE SOFTWARE.
 */
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
-import { legacyCC } from './global-exports';
+import { legacyCC, VERSION } from './global-exports';
 
 import * as geometry from './geometry';
 import * as math from './math';
 import * as memop from './memop';
+import * as gfx from './gfx';
+
+import './splash-screen';
+import './deprecated';
 
 legacyCC.math = math;
 legacyCC.geometry = geometry;
 
-export { math, memop, geometry };
+export { math, memop, geometry, gfx, VERSION };
 
 export * from './math';
 export * from './memop';
@@ -49,16 +54,10 @@ export * from './game';
 export * from './scheduler';
 export * from './director';
 
-export * from './gfx';
+export * from './gfx/deprecated-3.0.0';
 export * from './pipeline';
-export * from './load-pipeline';
+export * from './asset-manager';
 export * from './scene-graph';
 export * from './components';
-export * from './3d';
+export * from './builtin';
 export * from './animation';
-import './primitive';
-
-export * from './utils/profiler/profiler';
-
-import './splash-screen';
-import './deprecated';

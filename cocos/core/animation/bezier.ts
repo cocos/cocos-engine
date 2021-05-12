@@ -1,6 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { legacyCC } from '../global-exports';
@@ -9,10 +34,7 @@ export type BezierControlPoints = [ number, number, number, number ];
 
 export function bezier (C1: number, C2: number, C3: number, C4: number, t: number) {
     const t1 = 1 - t;
-    return C1 * t1 * t1 * t1 +
-           C2 * 3 * t1 * t1 * t +
-           C3 * 3 * t1 * t * t +
-           C4 * t * t * t;
+    return t1 * (t1 * (C1 + (C2 * 3 - C1) * t) + C3 * 3 * t * t) + C4 * t * t * t;
 }
 legacyCC.bezier = bezier;
 
@@ -28,8 +50,7 @@ const sqrt = Math.sqrt;
 function crt (v: number) {
     if (v < 0) {
         return -Math.pow(-v, 1 / 3);
-    }
-    else {
+    } else {
         return Math.pow(v, 1 / 3);
     }
 }
@@ -38,14 +59,14 @@ function crt (v: number) {
 // The origin Cardano's algorithm is based on http://www.trans4mind.com/personal_development/mathematics/polynomials/cubicAlgebra.htm
 function cardano (curve: BezierControlPoints, x: number) {
     // align curve with the intersecting line:
-        // var line = {p1: {x: x, y: 0}, p2: {x: x, y: 1}};
-        // var aligned = align(curve, line);
-        //// and rewrite from [a(1-t)^3 + 3bt(1-t)^2 + 3c(1-t)t^2 + dt^3] form
-        //    pa = aligned[0].y,
-        //    pb = aligned[1].y,
-        //    pc = aligned[2].y,
-        //    pd = aligned[3].y;
-        ////// curve = [{x:0, y:1}, {x: curve[0], y: 1-curve[1]}, {x: curve[2], y: 1-curve[3]}, {x:1, y:0}];
+    // var line = {p1: {x: x, y: 0}, p2: {x: x, y: 1}};
+    // var aligned = align(curve, line);
+    /// / and rewrite from [a(1-t)^3 + 3bt(1-t)^2 + 3c(1-t)t^2 + dt^3] form
+    //    pa = aligned[0].y,
+    //    pb = aligned[1].y,
+    //    pc = aligned[2].y,
+    //    pd = aligned[3].y;
+    /// /// curve = [{x:0, y:1}, {x: curve[0], y: 1-curve[1]}, {x: curve[2], y: 1-curve[3]}, {x:1, y:0}];
     const pa = x - 0;
     const pb = x - curve[0];
     const pc = x - curve[2];
@@ -93,51 +114,40 @@ function cardano (curve: BezierControlPoints, x: number) {
         x3 = t1 * cos((phi + 2 * tau) * r3) - a3;
 
         // choose best percentage
-        if (0 <= x1 && x1 <= 1) {
-            if (0 <= x2 && x2 <= 1) {
-                if (0 <= x3 && x3 <= 1) {
+        if (x1 >= 0 && x1 <= 1) {
+            if (x2 >= 0 && x2 <= 1) {
+                if (x3 >= 0 && x3 <= 1) {
                     return max(x1, x2, x3);
-                }
-                else {
+                } else {
                     return max(x1, x2);
                 }
-            }
-            else if (0 <= x3 && x3 <= 1) {
+            } else if (x3 >= 0 && x3 <= 1) {
                 return max(x1, x3);
-            }
-            else {
+            } else {
                 return x1;
             }
-        }
-        else {
-            if (0 <= x2 && x2 <= 1) {
-                if (0 <= x3 && x3 <= 1) {
-                    return max(x2, x3);
-                }
-                else {
-                    return x2;
-                }
+        } else if (x2 >= 0 && x2 <= 1) {
+            if (x3 >= 0 && x3 <= 1) {
+                return max(x2, x3);
+            } else {
+                return x2;
             }
-            else {
-                return x3;
-            }
+        } else {
+            return x3;
         }
-    }
-    else if (discriminant === 0) {
+    } else if (discriminant === 0) {
         u1 = q2 < 0 ? crt(-q2) : -crt(q2);
         x1 = 2 * u1 - a3;
         x2 = -u1 - a3;
 
         // choose best percentage
-        if (0 <= x1 && x1 <= 1) {
-            if (0 <= x2 && x2 <= 1) {
+        if (x1 >= 0 && x1 <= 1) {
+            if (x2 >= 0 && x2 <= 1) {
                 return max(x1, x2);
-            }
-            else {
+            } else {
                 return x1;
             }
-        }
-        else {
+        } else {
             return x2;
         }
     }
@@ -153,14 +163,9 @@ function cardano (curve: BezierControlPoints, x: number) {
 
 export function bezierByTime (controlPoints: BezierControlPoints, x: number) {
     const percent = cardano(controlPoints, x);    // t
-    const p0y = 0;                // a
     const p1y = controlPoints[1]; // b
     const p2y = controlPoints[3]; // c
-    const p3y = 1;                // d
-    const t1 = 1 - percent;
-    return p0y * t1 * t1 * t1 +
-           p1y * 3 * percent * t1 * t1 +
-           p2y * 3 * percent * percent * t1 +
-           p3y * percent * percent * percent;
+    // return bezier(0, p1y, p2y, 1, percent);
+    return ((1 - percent) * (p1y + (p2y - p1y) * percent) * 3 + percent * percent) * percent;
 }
 legacyCC.bezierByTime = bezierByTime;

@@ -1,11 +1,37 @@
-/**
- * @category pipeline
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
-import { ccclass, displayOrder, serializable } from 'cc.decorator';
+
+/**
+ * @packageDocumentation
+ * @module pipeline
+ */
+import { ccclass, displayOrder, serializable, type } from 'cc.decorator';
 import { RenderStage } from './render-stage';
-import { RenderView } from './render-view';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
+import { Camera } from '../renderer/scene';
 
 /**
  * @en Render flow information descriptor
@@ -28,7 +54,6 @@ export abstract class RenderFlow {
      * @en The name of the render flow
      * @zh 渲染流程的名字
      */
-    @displayOrder(0)
     public get name (): string {
         return this._name;
     }
@@ -37,7 +62,6 @@ export abstract class RenderFlow {
      * @en Priority of the current flow
      * @zh 当前渲染流程的优先级。
      */
-    @displayOrder(1)
     public get priority (): number {
         return this._priority;
     }
@@ -46,7 +70,6 @@ export abstract class RenderFlow {
      * @en Tag of the current flow
      * @zh 当前渲染流程的标签。
      */
-    @displayOrder(2)
     public get tag (): number {
         return this._tag;
     }
@@ -56,30 +79,42 @@ export abstract class RenderFlow {
      * @zh 渲染流程 stage 列表。
      * @readonly
      */
-    @displayOrder(3)
     public get stages (): RenderStage[] {
         return this._stages;
     }
 
+    @displayOrder(0)
     @serializable
-    protected _name: string = '';
+    protected _name = '';
 
+    @displayOrder(1)
     @serializable
-    protected _priority: number = 0;
+    protected _priority = 0;
 
+    @displayOrder(2)
     @serializable
-    protected _tag: number = 0;
+    protected _tag = 0;
 
+    @displayOrder(3)
+    @type([RenderStage])
     @serializable
     protected _stages: RenderStage[] = [];
     protected _pipeline!: RenderPipeline;
+
+    /**
+     * @en Get pipeline
+     * @zh 获取pipeline
+     */
+    public get pipeline (): RenderPipeline {
+        return this._pipeline;
+    }
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
      * @param info The render flow information
      */
-    public initialize (info: IRenderFlowInfo): boolean{
+    public initialize (info: IRenderFlowInfo): boolean {
         this._name = info.name;
         this._priority = info.priority;
         this._stages = info.stages;
@@ -94,9 +129,7 @@ export abstract class RenderFlow {
      */
     public activate (pipeline: RenderPipeline) {
         this._pipeline = pipeline;
-        this._stages.sort((a, b) => {
-            return a.priority - b.priority;
-        });
+        this._stages.sort((a, b) => a.priority - b.priority);
 
         for (let i = 0, len = this._stages.length; i < len; i++) {
             this._stages[i].activate(pipeline, this);
@@ -108,9 +141,9 @@ export abstract class RenderFlow {
      * @zh 渲染函数，对指定的渲染视图按顺序执行所有渲染阶段。
      * @param view Render view。
      */
-    public render (view: RenderView) {
+    public render (camera: Camera) {
         for (let i = 0, len = this._stages.length; i < len; i++) {
-            this._stages[i].render(view);
+            this._stages[i].render(camera);
         }
     }
 

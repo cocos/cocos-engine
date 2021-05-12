@@ -1,6 +1,37 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+/* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
-import { AmmoShape } from "./ammo-shape";
-import { Vec3, warn } from "../../../core";
+import { AmmoShape } from './ammo-shape';
+import { Vec3, warn } from '../../../core';
 import { TerrainCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
@@ -10,7 +41,6 @@ import { CC_V3_0, AmmoConstant } from '../ammo-const';
 import { IVec3Like } from '../../../core/math/type-define';
 
 export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
-
     public get collider () {
         return this._collider as TerrainCollider;
     }
@@ -22,9 +52,9 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
     setTerrain (v: ITerrainAsset | null): void {
         if (!this._isBinding) return;
 
-        if (this._btShape != null && this._btShape != AmmoConstant.instance.EMPTY_SHAPE) {
+        if (this._btShape != null && this._btShape !== AmmoConstant.instance.EMPTY_SHAPE) {
             // TODO: change the terrain asset after initialization
-            warn("[Physics] Ammo change the terrain asset after initialization is not support.");
+            warn('[Physics] Ammo change the terrain asset after initialization is not support.');
         } else {
             const terrain = v;
             if (terrain) {
@@ -49,12 +79,12 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
                 minHeight -= 0.1;
                 this._localOffset.set((sizeI - 1) / 2 * this._tileSize, (maxHeight + minHeight) / 2, (sizeJ - 1) / 2 * this._tileSize);
                 const heightScale = 1;
-                const hdt = "PHY_FLOAT";
+                const hdt = 'PHY_FLOAT';
                 const upAxis = 1;
                 const flipQuadEdges = false;
                 this._btShape = new Ammo.btHeightfieldTerrainShape(
                     sizeI, sizeJ, this._buffPtr, heightScale,
-                    minHeight, maxHeight, upAxis, hdt, flipQuadEdges
+                    minHeight, maxHeight, upAxis, hdt, flipQuadEdges,
                 );
                 this.scale.setValue(this._tileSize, 1, this._tileSize);
                 this._btShape.setLocalScaling(this.scale);
@@ -82,7 +112,7 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
     }
 
     onDestroy () {
-        if (this._buffPtr) Ammo['_free'](this._buffPtr);
+        if (this._buffPtr) Ammo._free(this._buffPtr);
         super.onDestroy();
     }
 
@@ -94,13 +124,11 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
     setCenter (v: IVec3Like) {
         Vec3.copy(CC_V3_0, v);
         CC_V3_0.add(this._localOffset);
-        CC_V3_0.multiply(this._collider.node.worldScale);
+        // CC_V3_0.multiply(this._collider.node.worldScale);
         cocos2AmmoVec3(this.transform.getOrigin(), CC_V3_0);
         this.updateCompoundTransform();
     }
 
     // setScale () {
-    //     // TODO: handle scale
     // }
-
 }

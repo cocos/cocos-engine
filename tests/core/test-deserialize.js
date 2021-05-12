@@ -6,9 +6,10 @@ if (TestEditorExtends) {
         test(name, function () {
             testFunc(false);
         });
-        test(name + ' with target', function () {
-            testFunc(true);
-        });
+        // Target support removed
+        // test(name + ' with target', function () {
+        //     testFunc(true);
+        // });
     }
 
     test('basic deserialize test', function () {
@@ -41,43 +42,43 @@ if (TestEditorExtends) {
         cc.js.unregisterClass(MyAsset);
     });
 
-    test('basic deserialize test with target', function () {
-        deepEqual(cc.deserialize({}, null, { target: {} }), {}, 'smoke test1');
-        deepEqual(cc.deserialize([], null, { target: [] }), [], 'smoke test2');
-
-        // TODO:
-        var MyAsset = (function () {
-            function MyAsset () {
-                this.emptyArray = [];
-                this.array = [1, '2', {a:3}, [4, [5]], true];
-                this.string = 'unknown';
-                this.emptyString = '';
-                this.number = 1;
-                this.boolean = true;
-                this.emptyObj = {};
-                this.embeddedTypedObj = new cc.Vec2(1, 2.1);
-            }
-            cc.js.setClassName('MyAsset', MyAsset);
-            return MyAsset;
-        })();
-        var asset = new MyAsset();
-        var serializedAsset = EditorExtends.serialize(asset);
-        delete asset.__id__;
-
-        var newObj = {a:100};
-        var newArray = [3, '8', newObj, [4, [9]], false];
-        asset.array = newArray;
-
-        var deserializedAsset = cc.deserialize(serializedAsset, null, {target: asset});
-
-        strictEqual(deserializedAsset, asset, 'ref should not changed');
-        strictEqual(deserializedAsset.array, newArray, 'embedded array ref should not changed');
-        deepEqual(newArray, [1, '2', {a:3}, [4, [5]], true], 'embedded array should restored');
-        strictEqual(deserializedAsset.array[2], newObj, 'embedded obj ref should not changed');
-        deepEqual(newObj, {a:3}, 'embedded obj should restored');
-
-        cc.js.unregisterClass(MyAsset);
-    });
+    // test('basic deserialize test with target', function () {
+    //     deepEqual(cc.deserialize({}, null, { target: {} }), {}, 'smoke test1');
+    //     deepEqual(cc.deserialize([], null, { target: [] }), [], 'smoke test2');
+    //
+    //     // TODO:
+    //     var MyAsset = (function () {
+    //         function MyAsset () {
+    //             this.emptyArray = [];
+    //             this.array = [1, '2', {a:3}, [4, [5]], true];
+    //             this.string = 'unknown';
+    //             this.emptyString = '';
+    //             this.number = 1;
+    //             this.boolean = true;
+    //             this.emptyObj = {};
+    //             this.embeddedTypedObj = new cc.Vec2(1, 2.1);
+    //         }
+    //         cc.js.setClassName('MyAsset', MyAsset);
+    //         return MyAsset;
+    //     })();
+    //     var asset = new MyAsset();
+    //     var serializedAsset = EditorExtends.serialize(asset);
+    //     delete asset.__id__;
+    //
+    //     var newObj = {a:100};
+    //     var newArray = [3, '8', newObj, [4, [9]], false];
+    //     asset.array = newArray;
+    //
+    //     var deserializedAsset = cc.deserialize(serializedAsset, null, {target: asset});
+    //
+    //     strictEqual(deserializedAsset, asset, 'ref should not changed');
+    //     strictEqual(deserializedAsset.array, newArray, 'embedded array ref should not changed');
+    //     deepEqual(newArray, [1, '2', {a:3}, [4, [5]], true], 'embedded array should restored');
+    //     strictEqual(deserializedAsset.array[2], newObj, 'embedded obj ref should not changed');
+    //     deepEqual(newObj, {a:3}, 'embedded obj should restored');
+    //
+    //     cc.js.unregisterClass(MyAsset);
+    // });
 
     test('nil', function () {
         var obj = {
@@ -108,13 +109,13 @@ if (TestEditorExtends) {
         cc.js.unregisterClass(MyAsset);
     });
 
-    test('nil with target', function () {
-        var obj = {
-            'null': null,
-        };
-        var str = '{ "null": null }';
-        deepEqual(cc.deserialize(str, null, {target: null}), obj, 'can deserialize null');
-    });
+    // test('nil with target', function () {
+    //     var obj = {
+    //         'null': null,
+    //     };
+    //     var str = '{ "null": null }';
+    //     deepEqual(cc.deserialize(str, null, {target: null}), obj, 'can deserialize null');
+    // });
 
     test('fast defined property', function () {
         function Vec3 (x, y, z) {
@@ -344,31 +345,31 @@ if (TestEditorExtends) {
         cc.js.unregisterClass(MyAsset);
     });
 
-    test('target', function () {
-        var MyAsset = cc.Class({
-            name: 'MyAsset',
-            ctor: function () {
-                this.tmpVal = 0;
-            },
-            properties: {
-                saveVal: 0
-            }
-        });
-
-        var myAsset = new MyAsset();
-        myAsset.tmpVal = 321;
-        myAsset.saveVal = 111;
-        var data = EditorExtends.serialize(myAsset);
-        myAsset.saveVal = 0;
-
-        var newAsset = cc.deserialize(data, null, { target:myAsset });
-
-        strictEqual(newAsset, myAsset, 'target reference not changed');
-        strictEqual(myAsset.tmpVal, 321, 'tmp member of target not changed');
-        strictEqual(myAsset.saveVal, 111, 'serialized member of target reloaded');
-
-        cc.js.unregisterClass(MyAsset);
-    });
+    // test('target', function () {
+    //     var MyAsset = cc.Class({
+    //         name: 'MyAsset',
+    //         ctor: function () {
+    //             this.tmpVal = 0;
+    //         },
+    //         properties: {
+    //             saveVal: 0
+    //         }
+    //     });
+    //
+    //     var myAsset = new MyAsset();
+    //     myAsset.tmpVal = 321;
+    //     myAsset.saveVal = 111;
+    //     var data = EditorExtends.serialize(myAsset);
+    //     myAsset.saveVal = 0;
+    //
+    //     var newAsset = cc.deserialize(data, null, { target:myAsset });
+    //
+    //     strictEqual(newAsset, myAsset, 'target reference not changed');
+    //     strictEqual(myAsset.tmpVal, 321, 'tmp member of target not changed');
+    //     strictEqual(myAsset.saveVal, 111, 'serialized member of target reloaded');
+    //
+    //     cc.js.unregisterClass(MyAsset);
+    // });
 
     test('custom deserialization', function () {
         var Asset = cc.Class({

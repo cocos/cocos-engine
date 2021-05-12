@@ -1,8 +1,34 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { removeProperty, replaceProperty } from '../utils/deprecated';
+import { removeProperty, replaceProperty } from '../utils/x-deprecated';
 import { Color } from './color';
 import { Mat3 } from './mat3';
 import { Mat4 } from './mat4';
@@ -96,13 +122,6 @@ replaceProperty(Vec2.prototype, 'Vec2', [
     },
 ]);
 
-// 与新添加API 接口重名，需尽快更改后删除此弃用
-removeProperty(Vec2.prototype, 'vmath', [
-    {
-        name: 'divide',
-    },
-]);
-
 replaceProperty(Vec3, 'Vec3', [
     {
         name: 'sub',
@@ -187,13 +206,6 @@ replaceProperty(Vec3.prototype, 'Vec3', [
     },
 ]);
 
-// 与新添加API 接口重名，需尽快更改后删除此弃用
-removeProperty(Vec3.prototype, 'vmath', [
-    {
-        name: 'divide',
-    },
-]);
-
 replaceProperty(Vec4, 'Vec4', [
     {
         name: 'sub',
@@ -275,13 +287,6 @@ replaceProperty(Vec4.prototype, 'Vec4', [
         newName: 'strictEquals',
         target: Vec4.prototype,
         targetName: 'Vec4',
-    },
-]);
-
-// 与新添加API 接口重名，需尽快更改后删除此弃用
-removeProperty(Vec4.prototype, 'vmath', [
-    {
-        name: 'divide',
     },
 ]);
 
@@ -384,6 +389,12 @@ replaceProperty(Mat3, 'Mat3', [
     {
         name: 'exactEquals',
         newName: 'strictEquals',
+        target: Mat3,
+        targetName: 'Mat3',
+    },
+    {
+        name: 'transfrom',
+        newName: 'transform',
         target: Mat3,
         targetName: 'Mat3',
     },

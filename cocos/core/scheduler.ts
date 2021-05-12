@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -23,12 +23,14 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 import IdGenerator from './utils/id-generator';
-import {createMap} from './utils/js';
+import { createMap } from './utils/js';
 import System from './components/system';
 import { legacyCC } from './global-exports';
 import { errorID, warnID, logID, assertID } from './platform/debug';
@@ -47,22 +49,20 @@ export interface ISchedulable {
  * @en A list double-linked list used for "updates with priority"
  * @zh 用于“优先更新”的列表
  * @class ListEntry
- * @param {Object} target not retained (retained by hashUpdateEntry)
- * @param {Number} priority
- * @param {Boolean} paused
- * @param {Boolean} markedForDeletion selector will no longer be called and entry will be removed at end of the next tick
+ * @param target not retained (retained by hashUpdateEntry)
+ * @param priority
+ * @param paused
+ * @param markedForDeletion selector will no longer be called and entry will be removed at end of the next tick
  */
 class ListEntry {
-
-    public static get = (target: ISchedulable, priority: Number, paused: Boolean, markedForDeletion: Boolean) => {
+    public static get = (target: ISchedulable, priority: number, paused: boolean, markedForDeletion: boolean) => {
         let result = ListEntry._listEntries.pop();
         if (result) {
             result.target = target;
             result.priority = priority;
             result.paused = paused;
             result.markedForDeletion = markedForDeletion;
-        }
-        else {
+        } else {
             result = new ListEntry(target, priority, paused, markedForDeletion);
         }
         return result;
@@ -78,11 +78,11 @@ class ListEntry {
     private static _listEntries: any = [];
 
     public target: ISchedulable;
-    public priority: Number;
-    public paused: Boolean;
-    public markedForDeletion: Boolean;
+    public priority: number;
+    public paused: boolean;
+    public markedForDeletion: boolean;
 
-    constructor (target: ISchedulable, priority: Number, paused: Boolean, markedForDeletion: Boolean) {
+    constructor (target: ISchedulable, priority: number, paused: boolean, markedForDeletion: boolean) {
         this.target = target;
         this.priority = priority;
         this.paused = paused;
@@ -94,13 +94,12 @@ class ListEntry {
  * @en A update entry list
  * @zh 更新条目列表
  * @class HashUpdateEntry
- * @param {Array} list Which list does it belong to ?
- * @param {ListEntry} entry entry in the list
- * @param {Object} target hash key (retained)
- * @param {function} callback
+ * @param list Which list does it belong to ?
+ * @param entry entry in the list
+ * @param target hash key (retained)
+ * @param callback
  */
 class HashUpdateEntry {
-
     public static get = (list: any, entry: ListEntry, target: ISchedulable, callback: any) => {
         let result = HashUpdateEntry._hashUpdateEntries.pop();
         if (result) {
@@ -108,8 +107,7 @@ class HashUpdateEntry {
             result.entry = entry;
             result.target = target;
             result.callback = callback;
-        }
-        else {
+        } else {
             result = new HashUpdateEntry(list, entry, target, callback);
         }
         return result;
@@ -141,16 +139,15 @@ class HashUpdateEntry {
  * @en Hash Element used for "selectors with interval"
  * @zh “用于间隔选择”的哈希元素
  * @class HashTimerEntry
- * @param {Array} timers
- * @param {Object} target  hash key (retained)
- * @param {Number} timerIndex
- * @param {Timer} currentTimer
- * @param {Boolean} currentTimerSalvaged
- * @param {Boolean} paused
+ * @param timers
+ * @param target  hash key (retained)
+ * @param timerIndex
+ * @param currentTimer
+ * @param currentTimerSalvaged
+ * @param paused
  */
 class HashTimerEntry {
-
-    public static get = (timers: any, target: ISchedulable, timerIndex: Number, currentTimer: any, currentTimerSalvaged: any, paused: any) => {
+    public static get = (timers: any, target: ISchedulable, timerIndex: number, currentTimer: any, currentTimerSalvaged: any, paused: any) => {
         let result = HashTimerEntry._hashTimerEntries.pop();
         if (result) {
             result.timers = timers;
@@ -159,8 +156,7 @@ class HashTimerEntry {
             result.currentTimer = currentTimer;
             result.currentTimerSalvaged = currentTimerSalvaged;
             result.paused = paused;
-        }
-        else {
+        } else {
             result = new HashTimerEntry(timers, target, timerIndex, currentTimer, currentTimerSalvaged, paused);
         }
         return result;
@@ -177,12 +173,12 @@ class HashTimerEntry {
 
     public timers: any;
     public target: ISchedulable;
-    public timerIndex: Number;
+    public timerIndex: number;
     public currentTimer: any;
     public currentTimerSalvaged: any;
     public paused: any;
 
-    constructor (timers: any, target: ISchedulable, timerIndex: Number, currentTimer: any, currentTimerSalvaged: any, paused: any){
+    constructor (timers: any, target: ISchedulable, timerIndex: number, currentTimer: any, currentTimerSalvaged: any, paused: any) {
         this.timers = timers;
         this.target = target;
         this.timerIndex = timerIndex;
@@ -196,11 +192,8 @@ class HashTimerEntry {
  * Light weight timer
  */
 class CallbackTimer {
-
     public static _timers: any = [];
-    public static get = () => {
-    return CallbackTimer._timers.pop() || new CallbackTimer();
-    }
+    public static get = () => CallbackTimer._timers.pop() || new CallbackTimer()
     public static put = (timer) => {
         if (CallbackTimer._timers.length < MAX_POOL_SIZE && !timer._lock) {
             timer._scheduler = timer._target = timer._callback = null;
@@ -250,21 +243,23 @@ class CallbackTimer {
         return true;
     }
     /**
-     * @return {Number} returns interval of timer
+     * @return returns interval of timer
      */
     public getInterval () {
         return this._interval;
     }
     /**
-     * @param {Number} interval set interval in seconds
+     * @en Set interval in seconds
+     * @zh 以秒为单位设置时间间隔
      */
     public setInterval (interval) {
         this._interval = interval;
     }
 
     /**
-     * triggers the timer
-     * @param {Number} dt delta time
+     * @en Update function which triggers the timer
+     * @zh 计时更新函数，用来触发计时器
+     * @param dt delta time
      */
     public update (dt: number) {
         if (this._elapsed === -1) {
@@ -272,12 +267,12 @@ class CallbackTimer {
             this._timesExecuted = 0;
         } else {
             this._elapsed += dt;
-            if (this._runForever && !this._useDelay) {// standard timer usage
+            if (this._runForever && !this._useDelay) { // standard timer usage
                 if (this._elapsed >= this._interval) {
                     this.trigger();
                     this._elapsed = 0;
                 }
-            } else {// advanced usage
+            } else { // advanced usage
                 if (this._useDelay) {
                     if (this._elapsed >= this._delay) {
                         this.trigger();
@@ -286,13 +281,11 @@ class CallbackTimer {
                         this._timesExecuted += 1;
                         this._useDelay = false;
                     }
-                } else {
-                    if (this._elapsed >= this._interval) {
-                        this.trigger();
+                } else if (this._elapsed >= this._interval) {
+                    this.trigger();
 
-                        this._elapsed = 0;
-                        this._timesExecuted += 1;
-                    }
+                    this._elapsed = 0;
+                    this._timesExecuted += 1;
                 }
 
                 if (this._callback && !this._runForever && this._timesExecuted > this._repeat) {
@@ -302,7 +295,7 @@ class CallbackTimer {
         }
     }
 
-    public getCallback (){
+    public getCallback () {
         return this._callback;
     }
 
@@ -372,22 +365,20 @@ export class Scheduler extends System {
      * This method will add a `id` property if it doesn't exist.
      * @zh 任何需要用 Scheduler 管理任务的对象主体都应该调用这个方法，并且应该在调用任何 Scheduler API 之前调用这个方法。<bg>
      * 这个方法会给对象添加一个 `id` 属性，如果这个属性不存在的话。
-     * @param {Object} target
+     * @param target
      */
     public static enableForTarget (target: ISchedulable) {
         let found = false;
         if (target.uuid) {
             found = true;
-        }
-        else if (target.id) {
+        } else if (target.id) {
             found = true;
         }
         if (!found) {
-            // @ts-ignore
+            // @ts-expect-error
             if (target.__instanceId) {
                 warnID(1513);
-            }
-            else {
+            } else {
                 target.id = idGenerator.getNewId();
             }
         }
@@ -424,7 +415,7 @@ export class Scheduler extends System {
      * 默认是 1.0。要创建一个 “slow motion（慢动作）” 效果,使用值低于 1.0。<br>
      * 要使用 “fast forward（快进）” 效果，使用值大于 1.0。<br>
      * 注意：它影响该 Scheduler 下管理的所有定时器。
-     * @param {Number} timeScale
+     * @param timeScale
      */
     public setTimeScale (timeScale) {
         this._timeScale = timeScale;
@@ -433,7 +424,6 @@ export class Scheduler extends System {
     /**
      * @en Returns time scale of scheduler.
      * @zh 获取时间间隔的缩放比例。
-     * @return {Number}
      */
     public getTimeScale (): number {
         return this._timeScale;
@@ -442,7 +432,7 @@ export class Scheduler extends System {
     /**
      * @en 'update' the scheduler. (You should NEVER call this method, unless you know what you are doing.)
      * @zh update 调度函数。(不应该直接调用这个方法，除非完全了解这么做的结果)
-     * @param {Number} dt delta time
+     * @param dt delta time
      */
     public update (dt) {
         this._updateHashLocked = true;
@@ -455,21 +445,21 @@ export class Scheduler extends System {
         let len: number;
         let entry;
 
-        for (i = 0, list = this._updatesNegList, len = list.length; i < len; i++){
+        for (i = 0, list = this._updatesNegList, len = list.length; i < len; i++) {
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion) {
                 entry.target.update(dt);
             }
         }
 
-        for ( i = 0, list = this._updates0List, len = list.length; i < len; i++){
+        for (i = 0, list = this._updates0List, len = list.length; i < len; i++) {
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion) {
                 entry.target.update(dt);
             }
         }
 
-        for ( i = 0, list = this._updatesPosList, len = list.length; i < len; i++){
+        for (i = 0, list = this._updatesPosList, len = list.length; i < len; i++) {
             entry = list[i];
             if (!entry.paused && !entry.markedForDeletion) {
                 entry.target.update(dt);
@@ -479,14 +469,14 @@ export class Scheduler extends System {
         // Iterate over all the custom selectors
         let elt;
         const arr = this._arrayForTimers;
-        for ( i = 0; i < arr.length; i++){
+        for (i = 0; i < arr.length; i++) {
             elt = arr[i];
             this._currentTarget = elt;
             this._currentTargetSalvaged = false;
 
-            if (!elt.paused){
+            if (!elt.paused) {
                 // The 'timers' array may change while inside this loop
-                for (elt.timerIndex = 0; elt.timerIndex < elt.timers.length; ++(elt.timerIndex)){
+                for (elt.timerIndex = 0; elt.timerIndex < elt.timers.length; ++(elt.timerIndex)) {
                     elt.currentTimer = elt.timers[elt.timerIndex];
                     elt.currentTimerSalvaged = false;
 
@@ -504,32 +494,29 @@ export class Scheduler extends System {
 
         // delete all updates that are marked for deletion
         // updates with priority < 0
-        for ( i = 0, list = this._updatesNegList; i < list.length; ){
+        for (i = 0, list = this._updatesNegList; i < list.length;) {
             entry = list[i];
             if (entry.markedForDeletion) {
                 this._removeUpdateFromHash(entry);
-            }
-            else {
+            } else {
                 i++;
             }
         }
 
-        for ( i = 0, list = this._updates0List; i < list.length; ){
+        for (i = 0, list = this._updates0List; i < list.length;) {
             entry = list[i];
             if (entry.markedForDeletion) {
                 this._removeUpdateFromHash(entry);
-            }
-            else {
+            } else {
                 i++;
             }
         }
 
-        for ( i = 0, list = this._updatesPosList; i < list.length; ){
+        for (i = 0, list = this._updatesPosList; i < list.length;) {
             entry = list[i];
             if (entry.markedForDeletion) {
                 this._removeUpdateFromHash(entry);
-            }
-            else {
+            } else {
                 i++;
             }
         }
@@ -558,18 +545,17 @@ export class Scheduler extends System {
      * repeat 值可以让定时器触发 repeat + 1 次，使用 `macro.REPEAT_FOREVER`
      * 可以让定时器一直循环触发。<br/>
      * delay 值指定延迟时间，定时器会在延迟指定的时间之后开始计时。
-     * @param {Function} callback
-     * @param {Object} target
-     * @param {Number} interval
-     * @param {Number} [repeat]
-     * @param {Number} [delay=0]
-     * @param {Boolean} [paused=fasle]
+     * @param callback
+     * @param target
+     * @param interval
+     * @param [repeat]
+     * @param [delay=0]
+     * @param [paused=fasle]
      */
     public schedule (callback: Function, target: ISchedulable, interval: number, repeat?: number, delay?: number, paused?: boolean) {
-        'use strict';
         if (typeof callback !== 'function') {
             const tmp = callback;
-            // @ts-ignore
+            // @ts-expect-error
             callback = target;
             target = tmp;
         }
@@ -583,7 +569,7 @@ export class Scheduler extends System {
 
         assertID(target, 1502);
 
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -602,8 +588,7 @@ export class Scheduler extends System {
         let i;
         if (element.timers == null) {
             element.timers = [];
-        }
-        else {
+        } else {
             for (i = 0; i < element.timers.length; ++i) {
                 timer = element.timers[i];
                 if (timer && callback === timer._callback) {
@@ -631,30 +616,30 @@ export class Scheduler extends System {
      * 使用指定的优先级为指定的对象设置 update 定时器。<br>
      * update 定时器每一帧都会被触发，触发时自动调用指定对象的 "update" 函数。<br>
      * 优先级的值越低，定时器被触发的越早。
-     * @param {Object} target
-     * @param {Number} priority
-     * @param {Boolean} paused
+     * @param target
+     * @param priority
+     * @param paused
      */
-    public scheduleUpdate (target: ISchedulable, priority: Number, paused: Boolean) {
-        let targetId = target.uuid || target.id;
+    public scheduleUpdate (target: ISchedulable, priority: number, paused: boolean) {
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
         }
         const hashElement = this._hashForUpdates[targetId];
-        if (hashElement && hashElement.entry){
+        if (hashElement && hashElement.entry) {
             // check if priority has changed
-            if (hashElement.entry.priority !== priority){
-                if (this._updateHashLocked){
+            if (hashElement.entry.priority !== priority) {
+                if (this._updateHashLocked) {
                     logID(1506);
                     hashElement.entry.markedForDeletion = false;
                     hashElement.entry.paused = paused;
                     return;
-                }else{
+                } else {
                     // will be added again outside if (hashElement).
                     this.unscheduleUpdate(target);
                 }
-            }else{
+            } else {
                 hashElement.entry.markedForDeletion = false;
                 hashElement.entry.paused = paused;
                 return;
@@ -669,8 +654,7 @@ export class Scheduler extends System {
         if (priority === 0) {
             ppList = this._updates0List;
             this._appendIn(ppList, listElement);
-        }
-        else {
+        } else {
             ppList = priority < 0 ? this._updatesNegList : this._updatesPosList;
             this._priorityIn(ppList, listElement, priority);
         }
@@ -686,8 +670,8 @@ export class Scheduler extends System {
      * @zh
      * 取消指定对象定时器。
      * 如果需要取消 update 定时器，请使用 unscheduleUpdate()。
-     * @param {Function} callback The callback to be unscheduled
-     * @param {Object} target The target bound to the callback.
+     * @param callback The callback to be unscheduled
+     * @param target The target bound to the callback.
      */
     public unschedule (callback, target:ISchedulable) {
         // callback, target
@@ -696,7 +680,7 @@ export class Scheduler extends System {
         if (!target || !callback) {
             return;
         }
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -735,13 +719,13 @@ export class Scheduler extends System {
     /**
      * @en Unschedules the update callback for a given target.
      * @zh 取消指定对象的 update 定时器。
-     * @param {Object} target The target to be unscheduled.
+     * @param target The target to be unscheduled.
      */
     public unscheduleUpdate (target:ISchedulable) {
         if (!target) {
             return;
         }
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -762,14 +746,14 @@ export class Scheduler extends System {
      * Unschedules all scheduled callbacks for a given target.
      * This also includes the "update" callback.
      * @zh 取消指定对象的所有定时器，包括 update 定时器。
-     * @param {Object} target The target to be unscheduled.
+     * @param target The target to be unscheduled.
      */
     public unscheduleAllForTarget (target) {
         // explicit nullptr handling
-        if (!target){
+        if (!target) {
             return;
         }
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -779,8 +763,8 @@ export class Scheduler extends System {
         const element = this._hashForTimers[targetId];
         if (element) {
             const timers = element.timers;
-            if (timers.indexOf(element.currentTimer) > -1 &&
-                (!element.currentTimerSalvaged)) {
+            if (timers.indexOf(element.currentTimer) > -1
+                && (!element.currentTimerSalvaged)) {
                 element.currentTimerSalvaged = true;
             }
             for (let i = 0, l = timers.length; i < l; i++) {
@@ -788,9 +772,9 @@ export class Scheduler extends System {
             }
             timers.length = 0;
 
-            if (this._currentTarget === element){
+            if (this._currentTarget === element) {
                 this._currentTargetSalvaged = true;
-            }else{
+            } else {
                 this._removeHashElement(element);
             }
         }
@@ -807,7 +791,7 @@ export class Scheduler extends System {
      * 取消所有对象的所有定时器，包括系统定时器。<br/>
      * 不要调用此函数，除非你确定你在做什么。
      */
-    public unscheduleAll (){
+    public unscheduleAll () {
         this.unscheduleAllWithMinPriority(legacyCC.Scheduler.PRIORITY_SYSTEM);
     }
 
@@ -818,15 +802,15 @@ export class Scheduler extends System {
      * @zh
      * 取消所有优先级的值大于指定优先级的定时器。<br/>
      * 你应该只取消优先级的值大于 PRIORITY_NON_SYSTEM_MIN 的定时器。
-     * @param {Number} minPriority The minimum priority of selector to be unscheduled. Which means, all selectors which
+     * @param minPriority The minimum priority of selector to be unscheduled. Which means, all selectors which
      *        priority is higher than minPriority will be unscheduled.
      */
-    public unscheduleAllWithMinPriority (minPriority: number){
+    public unscheduleAllWithMinPriority (minPriority: number) {
         // Custom Selectors
         let i;
         let element;
         const arr = this._arrayForTimers;
-        for ( i = arr.length - 1; i >= 0; i--) {
+        for (i = arr.length - 1; i >= 0; i--) {
             element = arr[i];
             this.unscheduleAllForTarget(element.target);
         }
@@ -834,8 +818,8 @@ export class Scheduler extends System {
         // Updates selectors
         let entry;
         let temp_length = 0;
-        if (minPriority < 0){
-            for ( i = 0; i < this._updatesNegList.length; ) {
+        if (minPriority < 0) {
+            for (i = 0; i < this._updatesNegList.length;) {
                 temp_length = this._updatesNegList.length;
                 entry = this._updatesNegList[i];
                 if (entry && entry.priority >= minPriority) {
@@ -847,8 +831,8 @@ export class Scheduler extends System {
             }
         }
 
-        if (minPriority <= 0 ) {
-            for ( i = 0; i < this._updates0List.length; ) {
+        if (minPriority <= 0) {
+            for (i = 0; i < this._updates0List.length;) {
                 temp_length = this._updates0List.length;
                 entry = this._updates0List[i];
                 if (entry) {
@@ -860,10 +844,10 @@ export class Scheduler extends System {
             }
         }
 
-        for ( i = 0; i < this._updatesPosList.length; ) {
+        for (i = 0; i < this._updatesPosList.length;) {
             temp_length = this._updatesPosList.length;
             entry = this._updatesPosList[i];
-            if ( entry && entry.priority >= minPriority ) {
+            if (entry && entry.priority >= minPriority) {
                 this.unscheduleUpdate(entry.target);
             }
             if (temp_length === this._updatesPosList.length) {
@@ -875,16 +859,16 @@ export class Scheduler extends System {
     /**
      * @en Checks whether a callback for a given target is scheduled.
      * @zh 检查指定的回调函数和回调对象组合是否存在定时器。
-     * @param {Function} callback The callback to check.
-     * @param {Object} target The target of the callback.
-     * @return {Boolean} True if the specified callback is invoked, false if not.
+     * @param callback The callback to check.
+     * @param target The target of the callback.
+     * @return True if the specified callback is invoked, false if not.
      */
-    public isScheduled (callback, target:ISchedulable){
+    public isScheduled (callback, target:ISchedulable) {
         // key, target
         // selector, target
         assertID(callback, 1508);
         assertID(target, 1509);
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -896,15 +880,14 @@ export class Scheduler extends System {
             return false;
         }
 
-        if (element.timers == null){
+        if (element.timers == null) {
             return false;
-        }
-        else {
+        } else {
             const timers = element.timers;
-            // tslint:disable-next-line: prefer-for-of
+
             for (let i = 0; i < timers.length; ++i) {
                 const timer =  timers[i];
-                if (callback === timer._callback){
+                if (callback === timer._callback) {
                     return true;
                 }
             }
@@ -931,7 +914,7 @@ export class Scheduler extends System {
      * @zh
      * 暂停所有优先级的值大于指定优先级的定时器。<br/>
      * 你应该只暂停优先级的值大于 PRIORITY_NON_SYSTEM_MIN 的定时器。
-     * @param {Number} minPriority
+     * @param minPriority
      */
     public pauseAllTargetsWithMinPriority (minPriority: number) {
         const idsWithSelectors: any = [];
@@ -993,13 +976,13 @@ export class Scheduler extends System {
      * @zh
      * 恢复指定数组中所有对象的定时器。<br/>
      * 这个函数是 pauseAllCallbacks 的逆操作。
-     * @param {Array} targetsToResume
+     * @param targetsToResume
      */
     public resumeTargets (targetsToResume) {
         if (!targetsToResume) {
             return;
         }
-        // tslint:disable-next-line: prefer-for-of
+
         for (let i = 0; i < targetsToResume.length; i++) {
             this.resumeTarget(targetsToResume[i]);
         }
@@ -1014,11 +997,11 @@ export class Scheduler extends System {
      * 暂停指定对象的定时器。<br/>
      * 指定对象的所有定时器都会被暂停。<br/>
      * 如果指定的对象没有定时器，什么也不会发生。
-     * @param {Object} target
+     * @param target
      */
     public pauseTarget (target:ISchedulable) {
         assertID(target, 1503);
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -1047,11 +1030,11 @@ export class Scheduler extends System {
      * 恢复指定对象的所有定时器。<br/>
      * 指定对象的所有定时器将继续工作。<br/>
      * 如果指定的对象没有定时器，什么也不会发生。
-     * @param {Object} target
+     * @param target
      */
     public resumeTarget (target:ISchedulable) {
         assertID(target, 1504);
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return;
@@ -1074,12 +1057,11 @@ export class Scheduler extends System {
     /**
      * @en Returns whether or not the target is paused.
      * @zh 返回指定对象的定时器是否处于暂停状态。
-     * @param {Object} target
-     * @return {Boolean}
+     * @param target
      */
     public isTargetPaused (target:ISchedulable) {
         assertID(target, 1505);
-        let targetId = target.uuid || target.id;
+        const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
             return false;
@@ -1099,7 +1081,7 @@ export class Scheduler extends System {
 
     // -----------------------private method----------------------
     private _removeHashElement (element) {
-        let targetId = element.target.uuid || element.target.id;
+        const targetId = element.target.uuid || element.target.id;
         delete this._hashForTimers[targetId];
         const arr = this._arrayForTimers;
         for (let i = 0, l = arr.length; i < l; i++) {
@@ -1133,7 +1115,7 @@ export class Scheduler extends System {
     }
 
     private _priorityIn (ppList, listElement, priority) {
-        for (let i = 0; i < ppList.length; i++){
+        for (let i = 0; i < ppList.length; i++) {
             if (priority < ppList[i].priority) {
                 ppList.splice(i, 0, listElement);
                 return;
@@ -1145,7 +1127,6 @@ export class Scheduler extends System {
     private _appendIn (ppList, listElement) {
         ppList.push(listElement);
     }
-
 }
 
 legacyCC.Scheduler = Scheduler;

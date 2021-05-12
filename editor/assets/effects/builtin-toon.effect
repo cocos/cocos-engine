@@ -13,10 +13,6 @@ CCEffect %{
         depthBias:     { value: 0,  target: outlineParams.y }
         baseColor:     { editor: { type: color } }
         baseColorMap:  { value: grey }
-      migrations:
-        properties:
-          lineWidth:   { formerlySerializedAs: outlineParams.x }
-          depthBias:   { formerlySerializedAs: outlineParams.y }
     - vert: toon-vs:vert
       frag: toon-fs:frag
       properties: &props
@@ -40,14 +36,6 @@ CCEffect %{
         shadeMap2:      { value: white  }
         specularMap:    { value: white  }
         emissiveMap:    { value: grey   }
-      migrations:
-        properties:
-          mainColor:    { formerlySerializedAs: baseColor }
-          baseStep:     { formerlySerializedAs: shadeParams.x }
-          baseFeather:  { formerlySerializedAs: shadeParams.y }
-          shadeStep:    { formerlySerializedAs: shadeParams.z }
-          shadeFeather: { formerlySerializedAs: shadeParams.w }
-          mainTexture:  { formerlySerializedAs: baseColorMap }
     - vert: toon-vs:vert
       frag: toon-fs:frag
       phase: forward-add
@@ -67,10 +55,26 @@ CCEffect %{
       properties: *props
     - vert: shadow-caster-vs:vert
       frag: shadow-caster-fs:frag
-      phase: shadow-add
+      phase: shadow-caster
       propertyIndex: 1
       rasterizerState:
         cullMode: front
+      properties:
+        tilingOffset:   { value: [1.0, 1.0, 0.0, 0.0] }
+        mainColor:      { value: [0.6, 0.6, 0.6, 1.0], target: baseColor, editor: { displayName: BaseColor, type: color } }
+        colorScale:     { value: [1.0, 1.0, 1.0], target: colorScaleAndCutoff.xyz }
+        alphaThreshold: { value: 0.5, target: colorScaleAndCutoff.w, editor: { parent: USE_ALPHA_TEST } }
+        shadeColor1:    { value: [0.4, 0.4, 0.4, 1.0], editor: { type: color } }
+        shadeColor2:    { value: [0.2, 0.2, 0.2, 1.0], editor: { type: color } }
+        specular:       { value: [1.0, 1.0, 1.0, 0.3], editor: { type: color } }
+        baseStep:       { value: 0.8,   target: shadeParams.x }
+        baseFeather:    { value: 0.001, target: shadeParams.y }
+        shadeStep:      { value: 0.5,   target: shadeParams.z }
+        shadeFeather:   { value: 0.001, target: shadeParams.w }
+        emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
+        emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleAndStrenth.xyz }
+        normalStrenth:  { value: 1.0, target: emissiveScaleAndStrenth.w, editor: { parent: USE_NORMAL_MAP } }
+        mainTexture:    { value: white, target: baseColorMap, editor: { displayName: BaseColorMap } }
 }%
 
 CCProgram shared-ubos %{
@@ -93,6 +97,7 @@ CCProgram toon-vs %{
   #include <cc-global>
   #include <cc-local-batch>
   #include <shared-ubos>
+  #include <cc-shadow-map-vs>
 
   out vec3 v_position;
   out vec2 v_uv;
@@ -118,6 +123,8 @@ CCProgram toon-vs %{
       v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
       v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
     #endif
+
+    CC_TRANSFER_SHADOW(pos);
 
     return cc_matProj * (cc_matView * matWorld) * In.position;
   }

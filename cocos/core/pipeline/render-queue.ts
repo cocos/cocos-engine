@@ -1,15 +1,41 @@
-/**
- * @category pipeline
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXCommandBuffer } from '../gfx/command-buffer';
+/**
+ * @packageDocumentation
+ * @module pipeline
+ */
+
 import { RecyclePool } from '../memop';
 import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { GFXDevice } from '../gfx/device';
-import { GFXRenderPass } from '../gfx';
-import { BlendStatePool, PassPool, PassView, DSPool, SubModelView, SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
+import { RenderPass, Device, CommandBuffer } from '../gfx';
+import { PassPool, PassView, DSPool, SubModelView, SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
+import { RenderQueueDesc, RenderQueueSortMode } from './pipeline-serialization';
+import { getPhaseID } from './pass-phase';
 
 /**
  * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
@@ -28,11 +54,10 @@ export function transparentCompareFn (a: IRenderPass, b: IRenderPass) {
 }
 
 /**
- * @en The render queue. It manages a [[GFXRenderPass]] queue which will be executed by the [[RenderStage]].
- * @zh 渲染队列。它管理一个 [[GFXRenderPass]] 队列，队列中的渲染过程会被 [[RenderStage]] 所执行。
+ * @en The render queue. It manages a GFX [[RenderPass]] queue which will be executed by the [[RenderStage]].
+ * @zh 渲染队列。它管理一个 GFX [[RenderPass]] 队列，队列中的渲染过程会被 [[RenderStage]] 所执行。
  */
 export class RenderQueue {
-
     /**
      * @en A cached array of render passes
      * @zh 基于缓存数组的渲染过程队列。
@@ -79,7 +104,7 @@ export class RenderQueue {
     public insertRenderPass (renderObj: IRenderObject, subModelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.subModels[subModelIdx];
         const hPass = SubModelPool.get(subModel.handle, SubModelView.PASS_0 + passIdx) as PassHandle;
-        const isTransparent = BlendStatePool.get(PassPool.get(hPass, PassView.BLEND_STATE)).targets[0].blend;
+        const isTransparent = subModel.passes[passIdx].blendState.targets[0].blend;
         if (isTransparent !== this._passDesc.isTransparent || !(PassPool.get(hPass, PassView.PHASE) & this._passDesc.phases)) {
             return false;
         }
@@ -102,18 +127,60 @@ export class RenderQueue {
         this.queue.sort();
     }
 
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
             const { subModel, passIdx } = this.queue.array[i];
             const { inputAssembler, handle: hSubModel } = subModel;
-            const hPass = SubModelPool.get(hSubModel, SubModelView.PASS_0 + passIdx) as PassHandle;
+            const pass = subModel.passes[passIdx];
             const shader = ShaderPool.get(SubModelPool.get(hSubModel, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, hPass, shader, renderPass, inputAssembler);
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
             cmdBuff.bindPipelineState(pso);
-            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, DSPool.get(PassPool.get(hPass, PassView.DESCRIPTOR_SET)));
-            cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(SubModelPool.get(hSubModel, SubModelView.DESCRIPTOR_SET)));
+            cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
+            cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
             cmdBuff.bindInputAssembler(inputAssembler);
             cmdBuff.draw(inputAssembler);
         }
     }
+}
+
+export function convertRenderQueue (desc: RenderQueueDesc) {
+    let phase = 0;
+    for (let j = 0; j < desc.stages.length; j++) {
+        phase |= getPhaseID(desc.stages[j]);
+    }
+    let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+    switch (desc.sortMode) {
+    case RenderQueueSortMode.BACK_TO_FRONT:
+        sortFunc = transparentCompareFn;
+        break;
+    case RenderQueueSortMode.FRONT_TO_BACK:
+        sortFunc = opaqueCompareFn;
+        break;
+    default:
+        break;
+    }
+
+    return new RenderQueue({
+        isTransparent: desc.isTransparent,
+        phases: phase,
+        sortFunc,
+    });
+}
+
+/**
+ * @en Clear the given render queue
+ * @zh 清空指定的渲染队列
+ * @param rq The render queue
+ */
+export function renderQueueClearFunc (rq: RenderQueue) {
+    rq.clear();
+}
+
+/**
+ * @en Sort the given render queue
+ * @zh 对指定的渲染队列执行排序
+ * @param rq The render queue
+ */
+export function renderQueueSortFunc (rq: RenderQueue) {
+    rq.sort();
 }

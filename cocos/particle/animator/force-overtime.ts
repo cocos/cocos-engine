@@ -1,17 +1,41 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { pseudoRandom, Quat, Vec3 } from '../../core/math';
-import { Space } from '../enum';
+import { Space, ModuleRandSeed } from '../enum';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
-import { ModuleRandSeed } from '../enum';
-import { ParticleModuleBase, PARTICLE_MODULE_NAME} from '../particle';
 
-// tslint:disable: max-line-length
+import { ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
+
 const FORCE_OVERTIME_RAND_OFFSET = ModuleRandSeed.FORCE;
 
 const _temp_v3 = new Vec3();
@@ -19,7 +43,7 @@ const _temp_v3 = new Vec3();
 @ccclass('cc.ForceOvertimeModule')
 export default class ForceOvertimeModule extends ParticleModuleBase {
     @serializable
-    _enable: Boolean = false;
+    _enable = false;
     /**
      * @zh 是否启用。
      */
@@ -42,7 +66,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(2)
-    @tooltip('X 轴方向上的加速度分量')
+    @tooltip('i18n:forceOvertimeModule.x')
     public x = new CurveRange();
 
     /**
@@ -52,7 +76,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(3)
-    @tooltip('Y 轴方向上的加速度分量')
+    @tooltip('i18n:forceOvertimeModule.y')
     public y = new CurveRange();
 
     /**
@@ -62,7 +86,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(4)
-    @tooltip('Z 轴方向上的加速度分量')
+    @tooltip('i18n:forceOvertimeModule.z')
     public z = new CurveRange();
 
     /**
@@ -71,7 +95,7 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
     @type(Space)
     @serializable
     @displayOrder(1)
-    @tooltip('加速度计算时采用的坐标')
+    @tooltip('i18n:forceOvertimeModule.space')
     public space = Space.Local;
 
     // TODO:currently not supported
@@ -102,12 +126,3 @@ export default class ForceOvertimeModule extends ParticleModuleBase {
         Vec3.copy(p.ultimateVelocity, p.velocity);
     }
 }
-
-// CCClass.fastDefine('cc.ForceOvertimeModule',ForceOvertimeModule,{
-//     enable : false,
-//     x : new CurveRange(),
-//     y : new CurveRange(),
-//     z : new CurveRange(),
-//     space : Space.Local,
-//     randomized : false
-// });

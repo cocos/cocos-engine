@@ -1,0 +1,81 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+CCEffect %{
+  techniques:
+  - passes:
+    - vert: lighting-vs
+      frag: lighting-fs
+      phase: deferred-lighting
+      depthStencilState:
+        depthFunc: greater
+        depthTest: true
+        depthWrite: false
+}%
+
+CCProgram lighting-vs %{
+  precision highp float;
+  #include <decode>
+  #include <cc-global>
+  #include <common>
+
+  out vec2 v_uv;
+
+  void main () {
+    vec4 position;
+    CCDecode(position);
+    CC_HANDLE_GET_CLIP_FLIP(position.xy);
+    gl_Position = vec4(position.x, position.y, 1.0, 1.0);
+    v_uv = a_texCoord;
+  }
+}%
+
+CCProgram lighting-fs %{
+  precision highp float;
+  #include <cc-global>
+  #include <shading-standard-base>
+  #include <shading-standard-additive>
+  #include <output-standard>
+  #include <cc-fog-base>
+
+  in vec2 v_uv;
+
+  #pragma builtin(global)
+  layout (set = 0, binding = 6) uniform sampler2D cc_gbuffer_albedoMap;
+  #pragma builtin(global)
+  layout (set = 0, binding = 7) uniform sampler2D cc_gbuffer_positionMap;
+  #pragma builtin(global)
+  layout (set = 0, binding = 8) uniform sampler2D cc_gbuffer_normalMap;
+  #pragma builtin(global)
+  layout (set = 0, binding = 9) uniform sampler2D cc_gbuffer_emissiveMap;
+
+  layout(location = 0) out vec4 fragColor;
+
+  void main () {
+    StandardSurface s;
+
+    vec4 albedoMap = texture(cc_gbuffer_albedoMap,v_uv);
+    vec4 positionMap = texture(cc_gbuffer_positionMap,v_uv);
+    vec4 normalMap = texture(cc_gbuffer_normalMap,v_uv);
+    vec4 emissiveMap = texture(cc_gbuffer_emissiveMap,v_uv);
+
+    s.albedo = albedoMap;
+    s.position = positionMap.xyz;
+    s.roughness = positionMap.w;
+    s.normal = normalMap.xyz;
+    s.metallic = normalMap.w;
+    s.emissive = emissiveMap.xyz;
+    s.occlusion = emissiveMap.w;
+    // fixme: default value is 0, and give black result
+    float fogFactor;
+    CC_TRANSFER_FOG_BASE(vec4(s.position, 1), fogFactor);
+
+    vec4 shadowPos;
+    CC_TRANSFER_SHADOW_BASE(vec4(s.position, 1), shadowPos);
+
+    vec4 color = CCStandardShadingBase(s, shadowPos) +
+                 CCStandardShadingAdditive(s, shadowPos);
+
+    CC_APPLY_FOG_BASE(color, fogFactor);
+    fragColor = CCFragOutput(color);
+  }
+}%

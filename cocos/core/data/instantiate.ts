@@ -1,6 +1,6 @@
-﻿/*
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,15 +25,16 @@
 */
 
 /**
- * @category core/data
+ * @packageDocumentation
+ * @module core/data
  */
 
+import { DEV } from 'internal:constants';
 import { isDomNode } from '../utils/misc';
 import { ValueType } from '../value-types';
 import { CCObject } from './object';
 import { js } from '../utils/js';
 import { getError, warn } from '../platform/debug';
-import { DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import Prefab from '../assets/prefab';
 import { Node } from '../scene-graph/node';
@@ -105,15 +106,14 @@ export function instantiate (original: any, internalForce?: boolean) {
 
     let clone;
     if (original instanceof CCObject) {
-        // @ts-ignore
+        // @ts-expect-error
         if (original._instantiate) {
             legacyCC.game._isCloning = true;
-            // @ts-ignore
-            clone = original._instantiate();
+            // @ts-expect-error
+            clone = original._instantiate(null, true);
             legacyCC.game._isCloning = false;
             return clone;
-        }
-        else if (original instanceof legacyCC.Asset) {
+        } else if (original instanceof legacyCC.Asset) {
             throw new TypeError(getError(6903));
         }
     }
@@ -151,12 +151,10 @@ function doInstantiate (obj, parent?) {
         // User can specify an existing object by assigning the "_iN$t" property.
         // enumerateObject will always push obj to objsToClearTmpVar
         clone = obj._iN$t;
-    }
-    else if (obj.constructor) {
+    } else if (obj.constructor) {
         const klass = obj.constructor;
         clone = new klass();
-    }
-    else {
+    } else {
         clone = Object.create(null);
     }
 
@@ -174,21 +172,19 @@ function doInstantiate (obj, parent?) {
 
 function enumerateCCClass (klass, obj, clone, parent) {
     const props = klass.__values__;
-    // tslint:disable: prefer-for-of
+
     for (let p = 0; p < props.length; p++) {
         const key = props[p];
         const value = obj[key];
         if (typeof value === 'object' && value) {
             const initValue = clone[key];
-            if (initValue instanceof ValueType &&
-                initValue.constructor === value.constructor) {
+            if (initValue instanceof ValueType
+                && initValue.constructor === value.constructor) {
                 initValue.set(value);
-            }
-            else {
+            } else {
                 clone[key] = value._iN$t || instantiateObj(value, parent);
             }
-        }
-        else {
+        } else {
             clone[key] = value;
         }
     }
@@ -202,13 +198,12 @@ function enumerateObject (obj, clone, parent) {
     const klass = obj.constructor;
     if (legacyCC.Class._isCCClass(klass)) {
         enumerateCCClass(klass, obj, clone, parent);
-    }
-    else {
+    } else {
         // primitive javascript object
         for (const key in obj) {
-            if (!obj.hasOwnProperty(key) ||
-                (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95 &&   // starts with "__"
-                 key !== '__type__')
+            if (!obj.hasOwnProperty(key)
+                || (key.charCodeAt(0) === 95 && key.charCodeAt(1) === 95   // starts with "__"
+                 && key !== '__type__')
             ) {
                 continue;
             }
@@ -218,8 +213,7 @@ function enumerateObject (obj, clone, parent) {
                     continue;   // value is obj._iN$t
                 }
                 clone[key] = value._iN$t || instantiateObj(value, parent);
-            }
-            else {
+            } else {
                 clone[key] = value;
             }
         }
@@ -242,24 +236,33 @@ function instantiateObj (obj, parent) {
         return obj;
     }
     let clone;
+    if (ArrayBuffer.isView(obj)) {
+        const len = (obj as any).length;
+        clone = new ((obj as any).constructor)(len);
+        // @ts-expect-error
+        obj._iN$t = clone;
+        objsToClearTmpVar.push(obj);
+        for (let i = 0; i < len; ++i) {
+            clone[i] = obj[i];
+        }
+        return clone;
+    }
     if (Array.isArray(obj)) {
         const len = obj.length;
         clone = new Array(len);
-        // @ts-ignore
+        // @ts-expect-error
         obj._iN$t = clone;
+        objsToClearTmpVar.push(obj);
         for (let i = 0; i < len; ++i) {
             const value = obj[i];
             if (typeof value === 'object' && value) {
                 clone[i] = value._iN$t || instantiateObj(value, parent);
-            }
-            else {
+            } else {
                 clone[i] = value;
             }
         }
-        objsToClearTmpVar.push(obj);
         return clone;
-    }
-    else if (obj._objFlags & Destroyed) {
+    } else if (obj._objFlags & Destroyed) {
         // the same as cc.isValid(obj)
         return null;
     }
@@ -271,16 +274,14 @@ function instantiateObj (obj, parent) {
                 if (obj instanceof legacyCC._BaseNode || obj instanceof legacyCC.Component) {
                     return obj;
                 }
-            }
-            else if (parent instanceof legacyCC._BaseNode) {
+            } else if (parent instanceof legacyCC._BaseNode) {
                 if (obj instanceof legacyCC._BaseNode) {
                     if (!obj.isChildOf(parent)) {
                         // should not clone other nodes if not descendant
                         return obj;
                     }
-                }
-                else if (obj instanceof legacyCC.Component) {
-                    if (!obj.node.isChildOf(parent)) {
+                } else if (obj instanceof legacyCC.Component) {
+                    if (obj.node && !obj.node.isChildOf(parent)) {
                         // should not clone other component if not descendant
                         return obj;
                     }
@@ -288,14 +289,11 @@ function instantiateObj (obj, parent) {
             }
         }
         clone = new ctor();
-    }
-    else if (ctor === Object) {
+    } else if (ctor === Object) {
         clone = {};
-    }
-    else if (!ctor) {
+    } else if (!ctor) {
         clone = Object.create(null);
-    }
-    else {
+    } else {
         // unknown type
         return obj;
     }

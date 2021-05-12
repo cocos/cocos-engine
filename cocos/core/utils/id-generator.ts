@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -22,6 +22,11 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+
+/**
+ * @packageDocumentation
+ * @module core
+ */
 
 import { EDITOR } from 'internal:constants';
 
@@ -52,7 +57,7 @@ export default class IDGenerator {
 
     public getNewId () {
         if (EDITOR && (this.prefix === 'Node.' || this.prefix === 'Comp.')) {
-            return EditorExtends.UuidUtils.uuid() as string;
+            return EditorExtends.UuidUtils.uuid();
         }
         return this.prefix + (++this.id);
     }

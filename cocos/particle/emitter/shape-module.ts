@@ -1,11 +1,36 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { ccclass, tooltip, displayOrder, type, formerlySerializedAs, serializable } from 'cc.decorator';
-import { Mat4, Quat, Vec2, Vec3 } from '../../core/math';
-import { clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core/math';
+import { Mat4, Quat, Vec2, Vec3, clamp, pingPong, random, randomRange, repeat, toDegree, toRadian } from '../../core/math';
+
 import CurveRange from '../animator/curve-range';
 import { ArcMode, EmitLocation, ShapeType } from '../enum';
 import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFixedAngle, randomPointBetweenSphere,
@@ -13,17 +38,16 @@ import { fixedAngleUnitVector2, particleEmitZAxis, randomPointBetweenCircleAtFix
 import { ParticleSystem } from '../particle-system';
 
 const _intermediVec = new Vec3(0, 0, 0);
-const _intermediArr = new Array();
+const _intermediArr: number[] = [];
 const _unitBoxExtent = new Vec3(0.5, 0.5, 0.5);
 
 @ccclass('cc.ShapeModule')
 export default class ShapeModule {
-
     /**
      * @zh 粒子发射器位置。
      */
     @displayOrder(13)
-    @tooltip('粒子发射器位置')
+    @tooltip('i18n:shapeModule.position')
     get position () {
         return this._position;
     }
@@ -36,7 +60,7 @@ export default class ShapeModule {
      * @zh 粒子发射器旋转角度。
      */
     @displayOrder(14)
-    @tooltip('粒子发射器旋转角度')
+    @tooltip('i18n:shapeModule.rotation')
     get rotation () {
         return this._rotation;
     }
@@ -49,7 +73,7 @@ export default class ShapeModule {
      * @zh 粒子发射器缩放比例。
      */
     @displayOrder(15)
-    @tooltip('粒子发射器缩放比例')
+    @tooltip('i18n:shapeModule.scale')
     get scale () {
         return this._scale;
     }
@@ -62,7 +86,7 @@ export default class ShapeModule {
      * @zh 粒子发射器在一个扇形范围内发射。
      */
     @displayOrder(6)
-    @tooltip('粒子发射器在一个扇形范围内发射')
+    @tooltip('i18n:shapeModule.arc')
     get arc () {
         return toDegree(this._arc);
     }
@@ -76,7 +100,7 @@ export default class ShapeModule {
      * 决定圆锥发射器的开合程度。
      */
     @displayOrder(5)
-    @tooltip('圆锥的轴与母线的夹角\n决定圆锥发射器的开合程度')
+    @tooltip('i18n:shapeModule.angle')
     get angle () {
         return Math.round(toDegree(this._angle) * 100) / 100;
     }
@@ -108,7 +132,7 @@ export default class ShapeModule {
     public _shapeType = ShapeType.Cone;
 
     @type(ShapeType)
-    @tooltip('粒子发射器类型')
+    @tooltip('i18n:shapeModule.shapeType')
     public get shapeType () {
         return this._shapeType;
     }
@@ -116,22 +140,22 @@ export default class ShapeModule {
     public set shapeType (val) {
         this._shapeType = val;
         switch (this._shapeType) {
-            case ShapeType.Box:
-                if (this.emitFrom === EmitLocation.Base) {
-                    this.emitFrom = EmitLocation.Volume;
-                }
-                break;
-            case ShapeType.Cone:
-                if (this.emitFrom === EmitLocation.Edge) {
-                    this.emitFrom = EmitLocation.Base;
-                }
-                break;
-            case ShapeType.Sphere:
-            case ShapeType.Hemisphere:
-                if (this.emitFrom === EmitLocation.Base || this.emitFrom === EmitLocation.Edge) {
-                    this.emitFrom = EmitLocation.Volume;
-                }
-                break;
+        case ShapeType.Box:
+            if (this.emitFrom === EmitLocation.Base) {
+                this.emitFrom = EmitLocation.Volume;
+            }
+            break;
+        case ShapeType.Cone:
+            if (this.emitFrom === EmitLocation.Edge) {
+                this.emitFrom = EmitLocation.Base;
+            }
+            break;
+        case ShapeType.Sphere:
+        case ShapeType.Hemisphere:
+            if (this.emitFrom === EmitLocation.Base || this.emitFrom === EmitLocation.Edge) {
+                this.emitFrom = EmitLocation.Volume;
+            }
+            break;
         }
     }
 
@@ -141,7 +165,7 @@ export default class ShapeModule {
     @type(EmitLocation)
     @serializable
     @displayOrder(2)
-    @tooltip('粒子从发射器哪个部位发射')
+    @tooltip('i18n:shapeModule.emitFrom')
     public emitFrom = EmitLocation.Volume;
 
     /**
@@ -149,7 +173,7 @@ export default class ShapeModule {
      */
     @serializable
     @displayOrder(16)
-    @tooltip('根据粒子的初始方向决定粒子的移动方向')
+    @tooltip('i18n:shapeModule.alignToDirection')
     public alignToDirection = false;
 
     /**
@@ -157,7 +181,7 @@ export default class ShapeModule {
      */
     @serializable
     @displayOrder(17)
-    @tooltip('粒子生成方向随机设定')
+    @tooltip('i18n:shapeModule.randomDirectionAmount')
     public randomDirectionAmount = 0;
 
     /**
@@ -165,7 +189,7 @@ export default class ShapeModule {
      */
     @serializable
     @displayOrder(18)
-    @tooltip('表示当前发射方向与当前位置到结点中心连线方向的插值')
+    @tooltip('i18n:shapeModule.sphericalDirectionAmount')
     public sphericalDirectionAmount = 0;
 
     /**
@@ -173,7 +197,7 @@ export default class ShapeModule {
      */
     @serializable
     @displayOrder(19)
-    @tooltip('粒子生成位置随机设定（设定此值为非 0 会使粒子生成位置超出生成器大小范围）')
+    @tooltip('i18n:shapeModule.randomPositionAmount')
     public randomPositionAmount = 0;
 
     /**
@@ -181,7 +205,7 @@ export default class ShapeModule {
      */
     @serializable
     @displayOrder(3)
-    @tooltip('粒子发射器半径')
+    @tooltip('i18n:shapeModule.radius')
     public radius = 1;
 
     /**
@@ -192,7 +216,7 @@ export default class ShapeModule {
      */
     @serializable
     @displayOrder(4)
-    @tooltip('粒子发射器发射位置（对 Box 类型的发射器无效）:\n - 0 表示从表面发射；\n - 1 表示从中心发射；\n - 0 ~ 1 之间表示在中心到表面之间发射。')
+    @tooltip('i18n:shapeModule.radiusThickness')
     public radiusThickness = 1;
 
     /**
@@ -201,7 +225,7 @@ export default class ShapeModule {
     @type(ArcMode)
     @serializable
     @displayOrder(7)
-    @tooltip('粒子在扇形范围内的发射方式')
+    @tooltip('i18n:shapeModule.arcMode')
     public arcMode = ArcMode.Random;
 
     /**
@@ -209,7 +233,7 @@ export default class ShapeModule {
      */
     @serializable
     @displayOrder(9)
-    @tooltip('控制可能产生粒子的弧周围的离散间隔')
+    @tooltip('i18n:shapeModule.arcSpread')
     public arcSpread = 0;
 
     /**
@@ -218,7 +242,7 @@ export default class ShapeModule {
     @type(CurveRange)
     @serializable
     @displayOrder(10)
-    @tooltip('粒子沿圆周发射的速度')
+    @tooltip('i18n:shapeModule.arcSpeed')
     public arcSpeed = new CurveRange();
 
     /**
@@ -227,7 +251,7 @@ export default class ShapeModule {
      */
     @serializable
     @displayOrder(11)
-    @tooltip('圆锥顶部截面距离底部的轴长\n决定圆锥发射器的高度')
+    @tooltip('i18n:shapeModule.length')
     public length = 5;
 
     /**
@@ -235,7 +259,7 @@ export default class ShapeModule {
      */
     @serializable
     @displayOrder(12)
-    @tooltip('粒子发射器发射位置（针对 Box 类型的粒子发射器）')
+    @tooltip('i18n:shapeModule.boxThickness')
     public boxThickness = new Vec3(0, 0, 0);
 
     @serializable
@@ -275,23 +299,23 @@ export default class ShapeModule {
 
     public emit (p) {
         switch (this.shapeType) {
-            case ShapeType.Box:
-                boxEmit(this.emitFrom, this.boxThickness, p.position, p.velocity);
-                break;
-            case ShapeType.Circle:
-                circleEmit(this.radius, this.radiusThickness, this.generateArcAngle(), p.position, p.velocity);
-                break;
-            case ShapeType.Cone:
-                coneEmit(this.emitFrom, this.radius, this.radiusThickness, this.generateArcAngle(), this._angle, this.length, p.position, p.velocity);
-                break;
-            case ShapeType.Sphere:
-                sphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
-                break;
-            case ShapeType.Hemisphere:
-                hemisphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
-                break;
-            default:
-                console.warn(this.shapeType + ' shapeType is not supported by ShapeModule.');
+        case ShapeType.Box:
+            boxEmit(this.emitFrom, this.boxThickness, p.position, p.velocity);
+            break;
+        case ShapeType.Circle:
+            circleEmit(this.radius, this.radiusThickness, this.generateArcAngle(), p.position, p.velocity);
+            break;
+        case ShapeType.Cone:
+            coneEmit(this.emitFrom, this.radius, this.radiusThickness, this.generateArcAngle(), this._angle, this.length, p.position, p.velocity);
+            break;
+        case ShapeType.Sphere:
+            sphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
+            break;
+        case ShapeType.Hemisphere:
+            hemisphereEmit(this.emitFrom, this.radius, this.radiusThickness, p.position, p.velocity);
+            break;
+        default:
+            console.warn(`${this.shapeType} shapeType is not supported by ShapeModule.`);
         }
         if (this.randomPositionAmount > 0) {
             p.position.x += randomRange(-this.randomPositionAmount, this.randomPositionAmount);
@@ -304,7 +328,7 @@ export default class ShapeModule {
             const sphericalVel = Vec3.normalize(_intermediVec, p.position);
             Vec3.lerp(p.velocity, p.velocity, sphericalVel, this.sphericalDirectionAmount);
         }
-        this.lastTime = this.particleSystem!._time;
+        this.lastTime = this.particleSystem._time;
     }
 
     private constructMat () {
@@ -316,114 +340,114 @@ export default class ShapeModule {
         if (this.arcMode === ArcMode.Random) {
             return randomRange(0, this._arc);
         }
-        let angle = this.totalAngle + 2 * Math.PI * this.arcSpeed.evaluate(this.particleSystem!._time, 1)! * (this.particleSystem!._time - this.lastTime);
+        let angle = this.totalAngle + 2 * Math.PI * this.arcSpeed.evaluate(this.particleSystem._time, 1)! * (this.particleSystem._time - this.lastTime);
         this.totalAngle = angle;
         if (this.arcSpread !== 0) {
             angle = Math.floor(angle / (this._arc * this.arcSpread)) * this._arc * this.arcSpread;
         }
         switch (this.arcMode) {
-            case ArcMode.Loop:
-                return repeat(angle, this._arc);
-            case ArcMode.PingPong:
-                return pingPong(angle, this._arc);
+        case ArcMode.Loop:
+            return repeat(angle, this._arc);
+        case ArcMode.PingPong:
+            return pingPong(angle, this._arc);
         }
     }
 }
 
 function sphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
     switch (emitFrom) {
-        case EmitLocation.Volume:
-            randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
-            Vec3.normalize(dir, pos);
-            break;
-        case EmitLocation.Shell:
-            randomUnitVector(pos);
-            Vec3.multiplyScalar(pos, pos, radius);
-            Vec3.normalize(dir, pos);
-            break;
-        default:
-            console.warn(emitFrom + ' is not supported for sphere emitter.');
+    case EmitLocation.Volume:
+        randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
+        Vec3.normalize(dir, pos);
+        break;
+    case EmitLocation.Shell:
+        randomUnitVector(pos);
+        Vec3.multiplyScalar(pos, pos, radius);
+        Vec3.normalize(dir, pos);
+        break;
+    default:
+        console.warn(`${emitFrom} is not supported for sphere emitter.`);
     }
 }
 
 function hemisphereEmit (emitFrom, radius, radiusThickness, pos, dir) {
     switch (emitFrom) {
-        case EmitLocation.Volume:
-            randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
-            if (pos.z > 0) {
-                pos.z *= -1;
-            }
-            Vec3.normalize(dir, pos);
-            break;
-        case EmitLocation.Shell:
-            randomUnitVector(pos);
-            Vec3.multiplyScalar(pos, pos, radius);
-            if (pos.z > 0) {
-                pos.z *= -1;
-            }
-            Vec3.normalize(dir, pos);
-            break;
-        default:
-            console.warn(emitFrom + ' is not supported for hemisphere emitter.');
+    case EmitLocation.Volume:
+        randomPointBetweenSphere(pos, radius * (1 - radiusThickness), radius);
+        if (pos.z > 0) {
+            pos.z *= -1;
+        }
+        Vec3.normalize(dir, pos);
+        break;
+    case EmitLocation.Shell:
+        randomUnitVector(pos);
+        Vec3.multiplyScalar(pos, pos, radius);
+        if (pos.z > 0) {
+            pos.z *= -1;
+        }
+        Vec3.normalize(dir, pos);
+        break;
+    default:
+        console.warn(`${emitFrom} is not supported for hemisphere emitter.`);
     }
 }
 
 function coneEmit (emitFrom, radius, radiusThickness, theta, angle, length, pos, dir) {
     switch (emitFrom) {
-        case EmitLocation.Base:
-            randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
-            Vec2.multiplyScalar(dir, pos, Math.sin(angle));
-            dir.z = -Math.cos(angle) * radius;
-            Vec3.normalize(dir, dir);
-            pos.z = 0;
-            break;
-        case EmitLocation.Shell:
-            fixedAngleUnitVector2(pos, theta);
-            Vec2.multiplyScalar(dir, pos, Math.sin(angle));
-            dir.z = -Math.cos(angle);
-            Vec3.normalize(dir, dir);
-            Vec2.multiplyScalar(pos, pos, radius);
-            pos.z = 0;
-            break;
-        case EmitLocation.Volume:
-            randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
-            Vec2.multiplyScalar(dir, pos, Math.sin(angle));
-            dir.z = -Math.cos(angle) * radius;
-            Vec3.normalize(dir, dir);
-            pos.z = 0;
-            Vec3.add(pos, pos, Vec3.multiplyScalar(_intermediVec, dir, length * random() / -dir.z));
-            break;
-        default:
-            console.warn(emitFrom + ' is not supported for cone emitter.');
+    case EmitLocation.Base:
+        randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
+        Vec2.multiplyScalar(dir, pos, Math.sin(angle));
+        dir.z = -Math.cos(angle) * radius;
+        Vec3.normalize(dir, dir);
+        pos.z = 0;
+        break;
+    case EmitLocation.Shell:
+        fixedAngleUnitVector2(pos, theta);
+        Vec2.multiplyScalar(dir, pos, Math.sin(angle));
+        dir.z = -Math.cos(angle);
+        Vec3.normalize(dir, dir);
+        Vec2.multiplyScalar(pos, pos, radius);
+        pos.z = 0;
+        break;
+    case EmitLocation.Volume:
+        randomPointBetweenCircleAtFixedAngle(pos, radius * (1 - radiusThickness), radius, theta);
+        Vec2.multiplyScalar(dir, pos, Math.sin(angle));
+        dir.z = -Math.cos(angle) * radius;
+        Vec3.normalize(dir, dir);
+        pos.z = 0;
+        Vec3.add(pos, pos, Vec3.multiplyScalar(_intermediVec, dir, length * random() / -dir.z));
+        break;
+    default:
+        console.warn(`${emitFrom} is not supported for cone emitter.`);
     }
 }
 
 function boxEmit (emitFrom, boxThickness, pos, dir) {
     switch (emitFrom) {
-        case EmitLocation.Volume:
-            randomPointInCube(pos, _unitBoxExtent);
-            // randomPointBetweenCube(pos, vec3.multiply(_intermediVec, _unitBoxExtent, boxThickness), _unitBoxExtent);
-            break;
-        case EmitLocation.Shell:
-            _intermediArr.splice(0, _intermediArr.length);
-            _intermediArr.push(randomRange(-0.5, 0.5));
-            _intermediArr.push(randomRange(-0.5, 0.5));
-            _intermediArr.push(randomSign() * 0.5);
-            randomSortArray(_intermediArr);
-            applyBoxThickness(_intermediArr, boxThickness);
-            Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
-            break;
-        case EmitLocation.Edge:
-            _intermediArr.splice(0, _intermediArr.length);
-            _intermediArr.push(randomRange(-0.5, 0.5));
-            _intermediArr.push(randomSign() * 0.5);
-            _intermediArr.push(randomSign() * 0.5);
-            randomSortArray(_intermediArr);
-            applyBoxThickness(_intermediArr, boxThickness);
-            Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
-            break;
-        default:
-            console.warn(emitFrom + ' is not supported for box emitter.');
+    case EmitLocation.Volume:
+        randomPointInCube(pos, _unitBoxExtent);
+        // randomPointBetweenCube(pos, vec3.multiply(_intermediVec, _unitBoxExtent, boxThickness), _unitBoxExtent);
+        break;
+    case EmitLocation.Shell:
+        _intermediArr.splice(0, _intermediArr.length);
+        _intermediArr.push(randomRange(-0.5, 0.5));
+        _intermediArr.push(randomRange(-0.5, 0.5));
+        _intermediArr.push(randomSign() * 0.5);
+        randomSortArray(_intermediArr);
+        applyBoxThickness(_intermediArr, boxThickness);
+        Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
+        break;
+    case EmitLocation.Edge:
+        _intermediArr.splice(0, _intermediArr.length);
+        _intermediArr.push(randomRange(-0.5, 0.5));
+        _intermediArr.push(randomSign() * 0.5);
+        _intermediArr.push(randomSign() * 0.5);
+        randomSortArray(_intermediArr);
+        applyBoxThickness(_intermediArr, boxThickness);
+        Vec3.set(pos, _intermediArr[0], _intermediArr[1], _intermediArr[2]);
+        break;
+    default:
+        console.warn(`${emitFrom} is not supported for box emitter.`);
     }
     Vec3.copy(dir, particleEmitZAxis);
 }
@@ -447,25 +471,3 @@ function applyBoxThickness (pos, thickness) {
         pos[2] = clamp(pos[2], -0.5, 0.5);
     }
 }
-
-// CCClass.fastDefine('cc.ShapeModule', ShapeModule, {
-//     enable: false,
-//     shapeType: ShapeType.Box,
-//     emitFrom: EmitLocation.Base,
-//     _position: new Vec3(0, 0, 0),
-//     _rotation: new Vec3(0, 0, 0),
-//     _scale: new Vec3(0, 0, 0),
-//     alignToDirection: false,
-//     randomDirectionAmount: 0,
-//     sphericalDirectionAmount: 0,
-//     randomPositionAmount: 0,
-//     radius: 0,
-//     radiusThickness: 1,
-//     arc: 0,
-//     arcMode: ArcMode.Random,
-//     arcSpread: 0,
-//     arcSpeed: null,
-//     angle: 0,
-//     length: 0,
-//     boxThickness: new Vec3(0, 0, 0)
-// });

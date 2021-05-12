@@ -1,5 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category pipeline
+ * @packageDocumentation
+ * @module pipeline
  */
 
 import { Pass } from '../renderer/core/pass';
@@ -7,14 +33,15 @@ import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
-import { GFXBindingMappingInfo, GFXDescriptorType, GFXType, GFXShaderStageFlagBit, IGFXDescriptorSetLayoutBinding } from '../gfx';
-import { IBlockInfo, ISamplerInfo } from '../assets/effect-asset';
-import { Camera } from '../renderer/scene';
+import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
+    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, Device, Feature } from '../gfx';
 
-export const PIPELINE_FLOW_FORWARD: string = 'ForwardFlow';
-export const PIPELINE_FLOW_SHADOW: string = 'ShadowFlow';
-export const PIPELINE_FLOW_SMAA: string = 'SMAAFlow';
-export const PIPELINE_FLOW_TONEMAP: string = 'ToneMapFlow';
+export const PIPELINE_FLOW_GBUFFER = 'GbufferFlow';
+export const PIPELINE_FLOW_LIGHTING = 'LightingFlow';
+export const PIPELINE_FLOW_FORWARD = 'ForwardFlow';
+export const PIPELINE_FLOW_SHADOW = 'ShadowFlow';
+export const PIPELINE_FLOW_SMAA = 'SMAAFlow';
+export const PIPELINE_FLOW_TONEMAP = 'ToneMapFlow';
 
 /**
  * @en The predefined render pass stage ids
@@ -76,12 +103,12 @@ export interface IRenderQueueDesc {
 }
 
 export interface IDescriptorSetLayoutInfo {
-    bindings: IGFXDescriptorSetLayoutBinding[];
-    record: Record<string, IBlockInfo | ISamplerInfo>;
+    bindings: DescriptorSetLayoutBinding[];
+    layouts: Record<string, UniformBlock | UniformSamplerTexture>;
 }
 
-export const globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
-export const localDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], record: {} };
+export const globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], layouts: {} };
+export const localDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], layouts: {} };
 
 /**
  * @en The uniform bindings
@@ -89,14 +116,21 @@ export const localDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: []
  */
 export enum PipelineGlobalBindings {
     UBO_GLOBAL,
+    UBO_CAMERA,
     UBO_SHADOW,
 
-    SAMPLER_ENVIRONMENT,
     SAMPLER_SHADOWMAP,
+    SAMPLER_ENVIRONMENT, // don't put this as the first sampler binding due to Mac GL driver issues: cubemap at texture unit 0 causes rendering issues
+    SAMPLER_SPOT_LIGHTING_MAP,
+    SAMPLER_GBUFFER_ALBEDOMAP,
+    SAMPLER_GBUFFER_POSITIONMAP,
+    SAMPLER_GBUFFER_NORMALMAP,
+    SAMPLER_GBUFFER_EMISSIVEMAP,
+    SAMPLER_LIGHTING_RESULTMAP,
 
     COUNT,
 }
-const GLOBAL_UBO_COUNT = PipelineGlobalBindings.SAMPLER_ENVIRONMENT;
+const GLOBAL_UBO_COUNT = PipelineGlobalBindings.SAMPLER_SHADOWMAP;
 const GLOBAL_SAMPLER_COUNT = PipelineGlobalBindings.COUNT - GLOBAL_UBO_COUNT;
 
 export enum ModelLocalBindings {
@@ -110,7 +144,7 @@ export enum ModelLocalBindings {
     SAMPLER_MORPH_POSITION,
     SAMPLER_MORPH_NORMAL,
     SAMPLER_MORPH_TANGENT,
-    SAMPLER_LIGHTING_MAP,
+    SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
 
     COUNT,
@@ -118,20 +152,13 @@ export enum ModelLocalBindings {
 const LOCAL_UBO_COUNT = ModelLocalBindings.SAMPLER_JOINTS;
 const LOCAL_SAMPLER_COUNT = ModelLocalBindings.COUNT - LOCAL_UBO_COUNT;
 
-/**
- * @en Check whether the given uniform binding is a builtin binding
- * @zh 检查指定的 UniformBinding 是否是引擎内置的
- * @param binding
- */
-export const isBuiltinBinding = (set: number) => set !== SetIndex.MATERIAL;
-
 export enum SetIndex {
     GLOBAL,
     MATERIAL,
     LOCAL,
 }
-// parameters passed to GFXDevice
-export const bindingMappingInfo = new GFXBindingMappingInfo();
+// parameters passed to GFX Device
+export const bindingMappingInfo = new BindingMappingInfo();
 bindingMappingInfo.bufferOffsets = [0, GLOBAL_UBO_COUNT + LOCAL_UBO_COUNT, GLOBAL_UBO_COUNT];
 bindingMappingInfo.samplerOffsets = [-GLOBAL_UBO_COUNT, GLOBAL_SAMPLER_COUNT + LOCAL_SAMPLER_COUNT, GLOBAL_SAMPLER_COUNT - LOCAL_UBO_COUNT];
 bindingMappingInfo.flexibleSet = 1;
@@ -141,176 +168,241 @@ bindingMappingInfo.flexibleSet = 1;
  * @zh 全局 UBO。
  */
 export class UBOGlobal {
+    public static readonly TIME_OFFSET = 0;
+    public static readonly NATIVE_SIZE_OFFSET = UBOGlobal.TIME_OFFSET + 4;
+    public static readonly SCREEN_SIZE_OFFSET = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
+    public static readonly COUNT = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
+    public static readonly SIZE = UBOGlobal.COUNT * 4;
 
-    public static TIME_OFFSET: number = 0;
-    public static SCREEN_SIZE_OFFSET: number = UBOGlobal.TIME_OFFSET + 4;
-    public static SCREEN_SCALE_OFFSET: number = UBOGlobal.SCREEN_SIZE_OFFSET + 4;
-    public static NATIVE_SIZE_OFFSET: number = UBOGlobal.SCREEN_SCALE_OFFSET + 4;
-    public static MAT_VIEW_OFFSET: number = UBOGlobal.NATIVE_SIZE_OFFSET + 4;
-    public static MAT_VIEW_INV_OFFSET: number = UBOGlobal.MAT_VIEW_OFFSET + 16;
-    public static MAT_PROJ_OFFSET: number = UBOGlobal.MAT_VIEW_INV_OFFSET + 16;
-    public static MAT_PROJ_INV_OFFSET: number = UBOGlobal.MAT_PROJ_OFFSET + 16;
-    public static MAT_VIEW_PROJ_OFFSET: number = UBOGlobal.MAT_PROJ_INV_OFFSET + 16;
-    public static MAT_VIEW_PROJ_INV_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_OFFSET + 16;
-    public static CAMERA_POS_OFFSET: number = UBOGlobal.MAT_VIEW_PROJ_INV_OFFSET + 16;
-    public static EXPOSURE_OFFSET: number = UBOGlobal.CAMERA_POS_OFFSET + 4;
-    public static MAIN_LIT_DIR_OFFSET: number = UBOGlobal.EXPOSURE_OFFSET + 4;
-    public static MAIN_LIT_COLOR_OFFSET: number = UBOGlobal.MAIN_LIT_DIR_OFFSET + 4;
-    public static AMBIENT_SKY_OFFSET: number = UBOGlobal.MAIN_LIT_COLOR_OFFSET + 4;
-    public static AMBIENT_GROUND_OFFSET: number = UBOGlobal.AMBIENT_SKY_OFFSET + 4;
-    public static GLOBAL_FOG_COLOR_OFFSET: number = UBOGlobal.AMBIENT_GROUND_OFFSET + 4;
-    public static GLOBAL_FOG_BASE_OFFSET: number = UBOGlobal.GLOBAL_FOG_COLOR_OFFSET + 4;
-    public static GLOBAL_FOG_ADD_OFFSET: number = UBOGlobal.GLOBAL_FOG_BASE_OFFSET + 4;
-    public static COUNT: number = UBOGlobal.GLOBAL_FOG_ADD_OFFSET + 4;
-    public static SIZE: number = UBOGlobal.COUNT * 4;
-
-    public static BLOCK: IBlockInfo = {
-        name: 'CCGlobal', set: SetIndex.GLOBAL, binding: PipelineGlobalBindings.UBO_GLOBAL,
-        stageFlags: GFXShaderStageFlagBit.ALL, descriptorType: GFXDescriptorType.UNIFORM_BUFFER, count: 1,
-        members: [
-            { name: 'cc_time', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_screenSize', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_screenScale', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_nativeSize', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_matView', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matViewInv', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matProj', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matProjInv', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matViewProj', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matViewProjInv', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_cameraPos', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_exposure', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_mainLitDir', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_mainLitColor', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_ambientSky', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_ambientGround', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_fogColor', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_fogBase', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_fogAdd', type: GFXType.FLOAT4, count: 1 },
-        ],
-    };
+    public static readonly NAME = 'CCGlobal';
+    public static readonly BINDING = PipelineGlobalBindings.UBO_GLOBAL;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOGlobal.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOGlobal.BINDING, UBOGlobal.NAME, [
+        new Uniform('cc_time', Type.FLOAT4, 1),
+        new Uniform('cc_screenSize', Type.FLOAT4, 1),
+        new Uniform('cc_nativeSize', Type.FLOAT4, 1),
+    ], 1);
 }
-globalDescriptorSetLayout.record[UBOGlobal.BLOCK.name] = UBOGlobal.BLOCK;
-globalDescriptorSetLayout.bindings[UBOGlobal.BLOCK.binding] = UBOGlobal.BLOCK;
+globalDescriptorSetLayout.layouts[UBOGlobal.NAME] = UBOGlobal.LAYOUT;
+globalDescriptorSetLayout.bindings[UBOGlobal.BINDING] = UBOGlobal.DESCRIPTOR;
+
+/**
+ * @en The global camera uniform buffer object
+ * @zh 全局相机 UBO。
+ */
+export class UBOCamera {
+    public static readonly MAT_VIEW_OFFSET = 0;
+    public static readonly MAT_VIEW_INV_OFFSET = UBOCamera.MAT_VIEW_OFFSET + 16;
+    public static readonly MAT_PROJ_OFFSET = UBOCamera.MAT_VIEW_INV_OFFSET + 16;
+    public static readonly MAT_PROJ_INV_OFFSET = UBOCamera.MAT_PROJ_OFFSET + 16;
+    public static readonly MAT_VIEW_PROJ_OFFSET = UBOCamera.MAT_PROJ_INV_OFFSET + 16;
+    public static readonly MAT_VIEW_PROJ_INV_OFFSET = UBOCamera.MAT_VIEW_PROJ_OFFSET + 16;
+    public static readonly CAMERA_POS_OFFSET = UBOCamera.MAT_VIEW_PROJ_INV_OFFSET + 16;
+    public static readonly SCREEN_SCALE_OFFSET = UBOCamera.CAMERA_POS_OFFSET + 4;
+    public static readonly EXPOSURE_OFFSET = UBOCamera.SCREEN_SCALE_OFFSET + 4;
+    public static readonly MAIN_LIT_DIR_OFFSET = UBOCamera.EXPOSURE_OFFSET + 4;
+    public static readonly MAIN_LIT_COLOR_OFFSET = UBOCamera.MAIN_LIT_DIR_OFFSET + 4;
+    public static readonly AMBIENT_SKY_OFFSET = UBOCamera.MAIN_LIT_COLOR_OFFSET + 4;
+    public static readonly AMBIENT_GROUND_OFFSET = UBOCamera.AMBIENT_SKY_OFFSET + 4;
+    public static readonly GLOBAL_FOG_COLOR_OFFSET = UBOCamera.AMBIENT_GROUND_OFFSET + 4;
+    public static readonly GLOBAL_FOG_BASE_OFFSET = UBOCamera.GLOBAL_FOG_COLOR_OFFSET + 4;
+    public static readonly GLOBAL_FOG_ADD_OFFSET = UBOCamera.GLOBAL_FOG_BASE_OFFSET + 4;
+    public static readonly COUNT = UBOCamera.GLOBAL_FOG_ADD_OFFSET + 4;
+    public static readonly SIZE = UBOCamera.COUNT * 4;
+
+    public static readonly NAME = 'CCCamera';
+    public static readonly BINDING = PipelineGlobalBindings.UBO_CAMERA;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOCamera.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOCamera.BINDING, UBOCamera.NAME, [
+        new Uniform('cc_matView', Type.MAT4, 1),
+        new Uniform('cc_matViewInv', Type.MAT4, 1),
+        new Uniform('cc_matProj', Type.MAT4, 1),
+        new Uniform('cc_matProjInv', Type.MAT4, 1),
+        new Uniform('cc_matViewProj', Type.MAT4, 1),
+        new Uniform('cc_matViewProjInv', Type.MAT4, 1),
+        new Uniform('cc_cameraPos', Type.FLOAT4, 1),
+        new Uniform('cc_screenScale', Type.FLOAT4, 1),
+        new Uniform('cc_exposure', Type.FLOAT4, 1),
+        new Uniform('cc_mainLitDir', Type.FLOAT4, 1),
+        new Uniform('cc_mainLitColor', Type.FLOAT4, 1),
+        new Uniform('cc_ambientSky', Type.FLOAT4, 1),
+        new Uniform('cc_ambientGround', Type.FLOAT4, 1),
+        new Uniform('cc_fogColor', Type.FLOAT4, 1),
+        new Uniform('cc_fogBase', Type.FLOAT4, 1),
+        new Uniform('cc_fogAdd', Type.FLOAT4, 1),
+    ], 1);
+}
+globalDescriptorSetLayout.layouts[UBOCamera.NAME] = UBOCamera.LAYOUT;
+globalDescriptorSetLayout.bindings[UBOCamera.BINDING] = UBOCamera.DESCRIPTOR;
 
 /**
  * @en The uniform buffer object for shadow
  * @zh 阴影 UBO。
  */
 export class UBOShadow {
-    public static MAT_LIGHT_PLANE_PROJ_OFFSET: number = 0;
-    public static MAT_LIGHT_VIEW_PROJ_OFFSET: number = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
-    public static SHADOW_COLOR_OFFSET: number = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
-    public static SHADOW_PCF_OFFSET: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
-    public static SHADOW_SIZE_OFFSET: number = UBOShadow.SHADOW_PCF_OFFSET + 4;
-    public static COUNT: number = UBOShadow.SHADOW_SIZE_OFFSET + 4;
-    public static SIZE: number = UBOShadow.COUNT * 4;
-
-    public static BLOCK: IBlockInfo = {
-        name: 'CCShadow', set: SetIndex.GLOBAL, binding: PipelineGlobalBindings.UBO_SHADOW,
-        stageFlags: GFXShaderStageFlagBit.ALL, descriptorType: GFXDescriptorType.UNIFORM_BUFFER, count: 1,
-        members: [
-            { name: 'cc_matLightPlaneProj', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matLightViewProj', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_shadowColor', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_shadowPCF', type: GFXType.FLOAT4, count: 1 },
-            { name: 'cc_shadowSize', type: GFXType.FLOAT4, count: 1 },
-        ],
-    };
+    public static readonly MAT_LIGHT_PLANE_PROJ_OFFSET = 0;
+    public static readonly MAT_LIGHT_VIEW_OFFSET = UBOShadow.MAT_LIGHT_PLANE_PROJ_OFFSET + 16;
+    public static readonly MAT_LIGHT_VIEW_PROJ_OFFSET = UBOShadow.MAT_LIGHT_VIEW_OFFSET + 16;
+    public static readonly SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET: number = UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET + 16;
+    public static readonly SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET: number = UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 4;
+    public static readonly SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET: number = UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 4;
+    public static readonly SHADOW_COLOR_OFFSET = UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 4;
+    public static readonly COUNT: number = UBOShadow.SHADOW_COLOR_OFFSET + 4;
+    public static readonly SIZE = UBOShadow.COUNT * 4;
+    public static readonly NAME = 'CCShadow';
+    public static readonly BINDING = PipelineGlobalBindings.UBO_SHADOW;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOShadow.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.ALL);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.GLOBAL, UBOShadow.BINDING, UBOShadow.NAME, [
+        new Uniform('cc_matLightPlaneProj', Type.MAT4, 1),
+        new Uniform('cc_matLightView', Type.MAT4, 1),
+        new Uniform('cc_matLightViewProj', Type.MAT4, 1),
+        new Uniform('cc_shadowNFLSInfo', Type.FLOAT4, 1),
+        new Uniform('cc_shadowWHPBInfo', Type.FLOAT4, 1),
+        new Uniform('cc_shadowLPNNInfo', Type.FLOAT4, 1),
+        new Uniform('cc_shadowColor', Type.FLOAT4, 1),
+    ], 1);
 }
-globalDescriptorSetLayout.record[UBOShadow.BLOCK.name] = UBOShadow.BLOCK;
-globalDescriptorSetLayout.bindings[UBOShadow.BLOCK.binding] = UBOShadow.BLOCK;
+globalDescriptorSetLayout.layouts[UBOShadow.NAME] = UBOShadow.LAYOUT;
+globalDescriptorSetLayout.bindings[UBOShadow.BINDING] = UBOShadow.DESCRIPTOR;
 
-export const UNIFORM_SHADOWMAP: ISamplerInfo = {
-    name: 'cc_shadowMap', set: SetIndex.GLOBAL, binding: PipelineGlobalBindings.SAMPLER_SHADOWMAP, type: GFXType.SAMPLER2D,
-    stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-globalDescriptorSetLayout.record[UNIFORM_SHADOWMAP.name] = UNIFORM_SHADOWMAP;
-globalDescriptorSetLayout.bindings[UNIFORM_SHADOWMAP.binding] = UNIFORM_SHADOWMAP;
+/* eslint-disable max-len */
 
-export const UNIFORM_ENVIRONMENT: ISamplerInfo = {
-    name: 'cc_environment', set: SetIndex.GLOBAL, binding: PipelineGlobalBindings.SAMPLER_ENVIRONMENT, type: GFXType.SAMPLER_CUBE,
-    stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-globalDescriptorSetLayout.record[UNIFORM_ENVIRONMENT.name] = UNIFORM_ENVIRONMENT;
-globalDescriptorSetLayout.bindings[UNIFORM_ENVIRONMENT.binding] = UNIFORM_ENVIRONMENT;
+/**
+ * @en The sampler for Main light shadow map
+ * @zn 主光源阴影纹理采样器
+ */
+const UNIFORM_SHADOWMAP_NAME = 'cc_shadowMap';
+export const UNIFORM_SHADOWMAP_BINDING = PipelineGlobalBindings.SAMPLER_SHADOWMAP;
+const UNIFORM_SHADOWMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SHADOWMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_SHADOWMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SHADOWMAP_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_SHADOWMAP_NAME] = UNIFORM_SHADOWMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_SHADOWMAP_BINDING] = UNIFORM_SHADOWMAP_DESCRIPTOR;
+
+const UNIFORM_GBUFFER_ALBEDOMAP_NAME = 'cc_gbuffer_albedoMap';
+export const UNIFORM_GBUFFER_ALBEDOMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_ALBEDOMAP;
+const UNIFORM_GBUFFER_ALBEDOMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_ALBEDOMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_GBUFFER_ALBEDOMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_GBUFFER_ALBEDOMAP_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_ALBEDOMAP_NAME] = UNIFORM_GBUFFER_ALBEDOMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_ALBEDOMAP_BINDING] = UNIFORM_GBUFFER_ALBEDOMAP_DESCRIPTOR;
+
+const UNIFORM_GBUFFER_POSITIONMAP_NAME = 'cc_gbuffer_positionMap';
+export const UNIFORM_GBUFFER_POSITIONMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_POSITIONMAP;
+const UNIFORM_GBUFFER_POSITIONMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_POSITIONMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_GBUFFER_POSITIONMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_POSITIONMAP_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_POSITIONMAP_NAME] = UNIFORM_GBUFFER_POSITIONMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_POSITIONMAP_BINDING] = UNIFORM_GBUFFER_POSITIONMAP_DESCRIPTOR;
+
+const UNIFORM_GBUFFER_NORMALMAP_NAME = 'cc_gbuffer_normalMap';
+export const UNIFORM_GBUFFER_NORMALMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_NORMALMAP;
+const UNIFORM_GBUFFER_NORMALMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_NORMALMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_GBUFFER_NORMALMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_NORMALMAP_NAME] = UNIFORM_GBUFFER_NORMALMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_NORMALMAP_BINDING] = UNIFORM_GBUFFER_NORMALMAP_DESCRIPTOR;
+
+const UNIFORM_LIGHTING_RESULTMAP_NAME = 'cc_lighting_resultMap';
+export const UNIFORM_LIGHTING_RESULTMAP_BINDING = PipelineGlobalBindings.SAMPLER_LIGHTING_RESULTMAP;
+const UNIFORM_LIGHTING_RESULTMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_LIGHTING_RESULTMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_LIGHTING_RESULTMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_LIGHTING_RESULTMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_LIGHTING_RESULTMAP_NAME] = UNIFORM_LIGHTING_RESULTMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_LIGHTING_RESULTMAP_BINDING] = UNIFORM_LIGHTING_RESULTMAP_DESCRIPTOR;
+
+const UNIFORM_GBUFFER_EMISSIVEMAP_NAME = 'cc_gbuffer_emissiveMap';
+export const UNIFORM_GBUFFER_EMISSIVEMAP_BINDING = PipelineGlobalBindings.SAMPLER_GBUFFER_EMISSIVEMAP;
+const UNIFORM_GBUFFER_EMISSIVEMAP_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_GBUFFER_EMISSIVEMAP_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_GBUFFER_EMISSIVEMAP_NAME] = UNIFORM_GBUFFER_EMISSIVEMAP_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_GBUFFER_EMISSIVEMAP_BINDING] = UNIFORM_GBUFFER_EMISSIVEMAP_DESCRIPTOR;
+
+const UNIFORM_ENVIRONMENT_NAME = 'cc_environment';
+export const UNIFORM_ENVIRONMENT_BINDING = PipelineGlobalBindings.SAMPLER_ENVIRONMENT;
+const UNIFORM_ENVIRONMENT_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_ENVIRONMENT_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_ENVIRONMENT_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_ENVIRONMENT_BINDING, UNIFORM_ENVIRONMENT_NAME, Type.SAMPLER_CUBE, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_ENVIRONMENT_NAME] = UNIFORM_ENVIRONMENT_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_ENVIRONMENT_BINDING] = UNIFORM_ENVIRONMENT_DESCRIPTOR;
+
+/**
+ * @en The sampler for spot light shadow map
+ * @zn 聚光灯阴影纹理采样器
+ */
+const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME = 'cc_spotLightingMap';
+export const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING = PipelineGlobalBindings.SAMPLER_SPOT_LIGHTING_MAP;
+const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.GLOBAL, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME, Type.SAMPLER2D, 1);
+globalDescriptorSetLayout.layouts[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_NAME] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_LAYOUT;
+globalDescriptorSetLayout.bindings[UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING] = UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_DESCRIPTOR;
 
 /**
  * @en The local uniform buffer object
  * @zh 本地 UBO。
  */
 export class UBOLocal {
-    public static MAT_WORLD_OFFSET: number = 0;
-    public static MAT_WORLD_IT_OFFSET: number = UBOLocal.MAT_WORLD_OFFSET + 16;
-    public static LIGHTINGMAP_UVPARAM: number = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
-    public static COUNT: number = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
-    public static SIZE: number = UBOLocal.COUNT * 4;
+    public static readonly MAT_WORLD_OFFSET = 0;
+    public static readonly MAT_WORLD_IT_OFFSET = UBOLocal.MAT_WORLD_OFFSET + 16;
+    public static readonly LIGHTINGMAP_UVPARAM = UBOLocal.MAT_WORLD_IT_OFFSET + 16;
+    public static readonly COUNT = UBOLocal.LIGHTINGMAP_UVPARAM + 4;
+    public static readonly SIZE = UBOLocal.COUNT * 4;
 
-    public static BLOCK: IBlockInfo = {
-        name: 'CCLocal', set: SetIndex.LOCAL, binding: ModelLocalBindings.UBO_LOCAL,
-        stageFlags: GFXShaderStageFlagBit.VERTEX, descriptorType: GFXDescriptorType.UNIFORM_BUFFER, count: 1,
-        members: [
-            { name: 'cc_matWorld', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_matWorldIT', type: GFXType.MAT4, count: 1 },
-            { name: 'cc_lightingMapUVParam', type: GFXType.FLOAT4, count: 1 },
-        ],
-    };
+    public static readonly NAME = 'CCLocal';
+    public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOLocal.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOLocal.BINDING, UBOLocal.NAME, [
+        new Uniform('cc_matWorld', Type.MAT4, 1),
+        new Uniform('cc_matWorldIT', Type.MAT4, 1),
+        new Uniform('cc_lightingMapUVParam', Type.FLOAT4, 1),
+    ], 1);
 }
-localDescriptorSetLayout.record[UBOLocal.BLOCK.name] = UBOLocal.BLOCK;
-localDescriptorSetLayout.bindings[UBOLocal.BLOCK.binding] = UBOLocal.BLOCK;
+localDescriptorSetLayout.layouts[UBOLocal.NAME] = UBOLocal.LAYOUT;
+localDescriptorSetLayout.bindings[UBOLocal.BINDING] = UBOLocal.DESCRIPTOR;
 
 export const INST_MAT_WORLD = 'a_matWorld0';
 
 export class UBOLocalBatched {
-    public static BATCHING_COUNT: number = 10;
-    public static MAT_WORLDS_OFFSET: number = 0;
-    public static COUNT: number = 16 * UBOLocalBatched.BATCHING_COUNT;
-    public static SIZE: number = UBOLocalBatched.COUNT * 4;
+    public static readonly BATCHING_COUNT = 10;
+    public static readonly MAT_WORLDS_OFFSET = 0;
+    public static readonly COUNT = 16 * UBOLocalBatched.BATCHING_COUNT;
+    public static readonly SIZE = UBOLocalBatched.COUNT * 4;
 
-    public static BLOCK: IBlockInfo = {
-        name: 'CCLocalBatched', set: SetIndex.LOCAL, binding: ModelLocalBindings.UBO_LOCAL,
-        stageFlags: GFXShaderStageFlagBit.VERTEX, descriptorType: GFXDescriptorType.UNIFORM_BUFFER, count: 1,
-        members: [
-            { name: 'cc_matWorlds', type: GFXType.MAT4, count: UBOLocalBatched.BATCHING_COUNT },
-        ],
-    };
+    public static readonly NAME = 'CCLocalBatched';
+    public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOLocalBatched.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOLocalBatched.BINDING, UBOLocalBatched.NAME, [
+        new Uniform('cc_matWorlds', Type.MAT4, UBOLocalBatched.BATCHING_COUNT),
+    ], 1);
 }
-localDescriptorSetLayout.record[UBOLocalBatched.BLOCK.name] = UBOLocalBatched.BLOCK;
-localDescriptorSetLayout.bindings[UBOLocalBatched.BLOCK.binding] = UBOLocalBatched.BLOCK;
+localDescriptorSetLayout.layouts[UBOLocalBatched.NAME] = UBOLocalBatched.LAYOUT;
+localDescriptorSetLayout.bindings[UBOLocalBatched.BINDING] = UBOLocalBatched.DESCRIPTOR;
 
 /**
  * @en The uniform buffer object for forward lighting
  * @zh 前向灯光 UBO。
  */
 export class UBOForwardLight {
-    public static LIGHTS_PER_PASS = 1;
+    public static readonly LIGHTS_PER_PASS = 1;
 
-    public static LIGHT_POS_OFFSET: number = 0;
-    public static LIGHT_COLOR_OFFSET: number = UBOForwardLight.LIGHT_POS_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static LIGHT_SIZE_RANGE_ANGLE_OFFSET: number = UBOForwardLight.LIGHT_COLOR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static LIGHT_DIR_OFFSET: number = UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static COUNT: number = UBOForwardLight.LIGHT_DIR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
-    public static SIZE: number = UBOForwardLight.COUNT * 4;
+    public static readonly LIGHT_POS_OFFSET = 0;
+    public static readonly LIGHT_COLOR_OFFSET = UBOForwardLight.LIGHT_POS_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static readonly LIGHT_SIZE_RANGE_ANGLE_OFFSET = UBOForwardLight.LIGHT_COLOR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static readonly LIGHT_DIR_OFFSET = UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static readonly COUNT = UBOForwardLight.LIGHT_DIR_OFFSET + UBOForwardLight.LIGHTS_PER_PASS * 4;
+    public static readonly SIZE = UBOForwardLight.COUNT * 4;
 
-    public static BLOCK: IBlockInfo = {
-        name: 'CCForwardLight', set: SetIndex.LOCAL, binding: ModelLocalBindings.UBO_FORWARD_LIGHTS,
-        stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.DYNAMIC_UNIFORM_BUFFER, count: 1,
-        members: [
-            { name: 'cc_lightPos', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
-            { name: 'cc_lightColor', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
-            { name: 'cc_lightSizeRangeAngle', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
-            { name: 'cc_lightDir', type: GFXType.FLOAT4, count: UBOForwardLight.LIGHTS_PER_PASS },
-        ],
-    };
+    public static readonly NAME = 'CCForwardLight';
+    public static readonly BINDING = ModelLocalBindings.UBO_FORWARD_LIGHTS;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOForwardLight.BINDING, DescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, ShaderStageFlagBit.FRAGMENT);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOForwardLight.BINDING, UBOForwardLight.NAME, [
+        new Uniform('cc_lightPos', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
+        new Uniform('cc_lightColor', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
+        new Uniform('cc_lightSizeRangeAngle', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
+        new Uniform('cc_lightDir', Type.FLOAT4, UBOForwardLight.LIGHTS_PER_PASS),
+    ], 1);
 }
-localDescriptorSetLayout.record[UBOForwardLight.BLOCK.name] = UBOForwardLight.BLOCK;
-localDescriptorSetLayout.bindings[UBOForwardLight.BLOCK.binding] = UBOForwardLight.BLOCK;
+localDescriptorSetLayout.layouts[UBOForwardLight.NAME] = UBOForwardLight.LAYOUT;
+localDescriptorSetLayout.bindings[UBOForwardLight.BINDING] = UBOForwardLight.DESCRIPTOR;
 
-// The actual uniform vectors used is JointUniformCapacity * 3.
-// We think this is a reasonable default capacity considering MAX_VERTEX_UNIFORM_VECTORS in WebGL spec is just 128.
-// Skinning models with number of bones more than this capacity will be automatically switched to texture skinning.
-// But still, you can tweak this for your own need by changing the number below
-// and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
+export class UBODeferredLight {
+    public static readonly LIGHTS_PER_PASS = 10;
+}
+
 export const JOINT_UNIFORM_CAPACITY = 30;
 
 /**
@@ -318,53 +410,50 @@ export const JOINT_UNIFORM_CAPACITY = 30;
  * @zh 骨骼贴图 UBO。
  */
 export class UBOSkinningTexture {
-    public static JOINTS_TEXTURE_INFO_OFFSET: number = 0;
-    public static COUNT: number = UBOSkinningTexture.JOINTS_TEXTURE_INFO_OFFSET + 4;
-    public static SIZE: number = UBOSkinningTexture.COUNT * 4;
+    public static readonly JOINTS_TEXTURE_INFO_OFFSET = 0;
+    public static readonly COUNT = UBOSkinningTexture.JOINTS_TEXTURE_INFO_OFFSET + 4;
+    public static readonly SIZE = UBOSkinningTexture.COUNT * 4;
 
-    public static BLOCK: IBlockInfo = {
-        name: 'CCSkinningTexture', set: SetIndex.LOCAL, binding: ModelLocalBindings.UBO_SKINNING_TEXTURE,
-        stageFlags: GFXShaderStageFlagBit.VERTEX, descriptorType: GFXDescriptorType.UNIFORM_BUFFER, count: 1,
-        members: [
-            { name: 'cc_jointTextureInfo', type: GFXType.FLOAT4, count: 1 },
-        ],
-    };
+    public static readonly NAME = 'CCSkinningTexture';
+    public static readonly BINDING = ModelLocalBindings.UBO_SKINNING_TEXTURE;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOSkinningTexture.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOSkinningTexture.BINDING, UBOSkinningTexture.NAME, [
+        new Uniform('cc_jointTextureInfo', Type.FLOAT4, 1),
+    ], 1);
 }
-localDescriptorSetLayout.record[UBOSkinningTexture.BLOCK.name] = UBOSkinningTexture.BLOCK;
-localDescriptorSetLayout.bindings[UBOSkinningTexture.BLOCK.binding] = UBOSkinningTexture.BLOCK;
+localDescriptorSetLayout.layouts[UBOSkinningTexture.NAME] = UBOSkinningTexture.LAYOUT;
+localDescriptorSetLayout.bindings[UBOSkinningTexture.BINDING] = UBOSkinningTexture.DESCRIPTOR;
 
 export class UBOSkinningAnimation {
-    public static JOINTS_ANIM_INFO_OFFSET: number = 0;
-    public static COUNT: number = UBOSkinningAnimation.JOINTS_ANIM_INFO_OFFSET + 4;
-    public static SIZE: number = UBOSkinningAnimation.COUNT * 4;
+    public static readonly JOINTS_ANIM_INFO_OFFSET = 0;
+    public static readonly COUNT = UBOSkinningAnimation.JOINTS_ANIM_INFO_OFFSET + 4;
+    public static readonly SIZE = UBOSkinningAnimation.COUNT * 4;
 
-    public static BLOCK: IBlockInfo = {
-        name: 'CCSkinningAnimation', set: SetIndex.LOCAL, binding: ModelLocalBindings.UBO_SKINNING_ANIMATION,
-        stageFlags: GFXShaderStageFlagBit.VERTEX, descriptorType: GFXDescriptorType.UNIFORM_BUFFER, count: 1,
-        members: [
-            { name: 'cc_jointAnimInfo', type: GFXType.FLOAT4, count: 1 },
-        ],
-    };
+    public static readonly NAME = 'CCSkinningAnimation';
+    public static readonly BINDING = ModelLocalBindings.UBO_SKINNING_ANIMATION;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOSkinningAnimation.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOSkinningAnimation.BINDING, UBOSkinningAnimation.NAME, [
+        new Uniform('cc_jointAnimInfo', Type.FLOAT4, 1),
+    ], 1);
 }
-localDescriptorSetLayout.record[UBOSkinningAnimation.BLOCK.name] = UBOSkinningAnimation.BLOCK;
-localDescriptorSetLayout.bindings[UBOSkinningAnimation.BLOCK.binding] = UBOSkinningAnimation.BLOCK;
+localDescriptorSetLayout.layouts[UBOSkinningAnimation.NAME] = UBOSkinningAnimation.LAYOUT;
+localDescriptorSetLayout.bindings[UBOSkinningAnimation.BINDING] = UBOSkinningAnimation.DESCRIPTOR;
 
 export const INST_JOINT_ANIM_INFO = 'a_jointAnimInfo';
 export class UBOSkinning {
-    public static JOINTS_OFFSET: number = 0;
-    public static COUNT: number = UBOSkinning.JOINTS_OFFSET + JOINT_UNIFORM_CAPACITY * 12;
-    public static SIZE: number = UBOSkinning.COUNT * 4;
+    public static readonly JOINTS_OFFSET = 0;
+    public static readonly COUNT = UBOSkinning.JOINTS_OFFSET + JOINT_UNIFORM_CAPACITY * 12;
+    public static readonly SIZE = UBOSkinning.COUNT * 4;
 
-    public static BLOCK: IBlockInfo = {
-        name: 'CCSkinning', set: SetIndex.LOCAL, binding: ModelLocalBindings.UBO_SKINNING_TEXTURE,
-        stageFlags: GFXShaderStageFlagBit.VERTEX, descriptorType: GFXDescriptorType.UNIFORM_BUFFER, count: 1,
-        members: [
-            { name: 'cc_joints', type: GFXType.FLOAT4, count: JOINT_UNIFORM_CAPACITY * 3 },
-        ],
-    };
+    public static readonly NAME = 'CCSkinning';
+    public static readonly BINDING = ModelLocalBindings.UBO_SKINNING_TEXTURE;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOSkinning.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOSkinning.BINDING, UBOSkinning.NAME, [
+        new Uniform('cc_joints', Type.FLOAT4, JOINT_UNIFORM_CAPACITY * 3),
+    ], 1);
 }
-localDescriptorSetLayout.record[UBOSkinning.BLOCK.name] = UBOSkinning.BLOCK;
-localDescriptorSetLayout.bindings[UBOSkinning.BLOCK.binding] = UBOSkinning.BLOCK;
+localDescriptorSetLayout.layouts[UBOSkinning.NAME] = UBOSkinning.LAYOUT;
+localDescriptorSetLayout.bindings[UBOSkinning.BINDING] = UBOSkinning.DESCRIPTOR;
 
 /**
  * @en The uniform buffer object for morph setting
@@ -372,95 +461,92 @@ localDescriptorSetLayout.bindings[UBOSkinning.BLOCK.binding] = UBOSkinning.BLOCK
  */
 export class UBOMorph {
     public static readonly MAX_MORPH_TARGET_COUNT = 60;
-
     public static readonly OFFSET_OF_WEIGHTS = 0;
-
     public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH = 4 * UBOMorph.MAX_MORPH_TARGET_COUNT;
-
     public static readonly OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT = UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_WIDTH + 4;
-
+    public static readonly OFFSET_OF_VERTICES_COUNT = UBOMorph.OFFSET_OF_DISPLACEMENT_TEXTURE_HEIGHT + 4;
     public static readonly COUNT_BASE_4_BYTES = 4 * Math.ceil(UBOMorph.MAX_MORPH_TARGET_COUNT / 4) + 4;
-
     public static readonly SIZE = UBOMorph.COUNT_BASE_4_BYTES * 4;
 
-    public static readonly BLOCK: IBlockInfo = {
-        name: 'CCMorph', set: SetIndex.LOCAL, binding: ModelLocalBindings.UBO_MORPH,
-        stageFlags: GFXShaderStageFlagBit.VERTEX, descriptorType: GFXDescriptorType.UNIFORM_BUFFER, count: 1,
-        members: [
-            { name: 'cc_displacementWeights', type: GFXType.FLOAT4, count: UBOMorph.MAX_MORPH_TARGET_COUNT / 4, },
-            { name: 'cc_displacementTextureInfo', type: GFXType.FLOAT4, count: 1, },
-        ],
-    };
+    public static readonly NAME = 'CCMorph';
+    public static readonly BINDING = ModelLocalBindings.UBO_MORPH;
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOMorph.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOMorph.BINDING, UBOMorph.NAME, [
+        new Uniform('cc_displacementWeights', Type.FLOAT4, UBOMorph.MAX_MORPH_TARGET_COUNT / 4),
+        new Uniform('cc_displacementTextureInfo', Type.FLOAT4, 1),
+    ], 1);
 }
-localDescriptorSetLayout.record[UBOMorph.BLOCK.name] = UBOMorph.BLOCK;
-localDescriptorSetLayout.bindings[UBOMorph.BLOCK.binding] = UBOMorph.BLOCK;
+localDescriptorSetLayout.layouts[UBOMorph.NAME] = UBOMorph.LAYOUT;
+localDescriptorSetLayout.bindings[UBOMorph.BINDING] = UBOMorph.DESCRIPTOR;
 
 /**
  * @en The sampler for joint texture
  * @zh 骨骼纹理采样器。
  */
-export const UniformJointTexture: ISamplerInfo = {
-    name: 'cc_jointTexture', set: SetIndex.LOCAL, binding: ModelLocalBindings.SAMPLER_JOINTS, type: GFXType.SAMPLER2D,
-    stageFlags: GFXShaderStageFlagBit.VERTEX, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-localDescriptorSetLayout.record[UniformJointTexture.name] = UniformJointTexture;
-localDescriptorSetLayout.bindings[UniformJointTexture.binding] = UniformJointTexture;
+const UNIFORM_JOINT_TEXTURE_NAME = 'cc_jointTexture';
+export const UNIFORM_JOINT_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_JOINTS;
+const UNIFORM_JOINT_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_JOINT_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.VERTEX);
+const UNIFORM_JOINT_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_JOINT_TEXTURE_BINDING, UNIFORM_JOINT_TEXTURE_NAME, Type.SAMPLER2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_JOINT_TEXTURE_NAME] = UNIFORM_JOINT_TEXTURE_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_JOINT_TEXTURE_BINDING] = UNIFORM_JOINT_TEXTURE_DESCRIPTOR;
 
 /**
  * @en The sampler for morph texture of position
  * @zh 位置形变纹理采样器。
  */
-export const UniformPositionMorphTexture: Readonly<ISamplerInfo> = {
-    name: 'cc_PositionDisplacements', set: SetIndex.LOCAL, binding: ModelLocalBindings.SAMPLER_MORPH_POSITION, type: GFXType.SAMPLER2D,
-    stageFlags: GFXShaderStageFlagBit.VERTEX, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-localDescriptorSetLayout.record[UniformPositionMorphTexture.name] = UniformPositionMorphTexture;
-localDescriptorSetLayout.bindings[UniformPositionMorphTexture.binding] = UniformPositionMorphTexture;
+const UNIFORM_POSITION_MORPH_TEXTURE_NAME = 'cc_PositionDisplacements';
+export const UNIFORM_POSITION_MORPH_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_MORPH_POSITION;
+const UNIFORM_POSITION_MORPH_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_POSITION_MORPH_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.VERTEX);
+const UNIFORM_POSITION_MORPH_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_POSITION_MORPH_TEXTURE_BINDING, UNIFORM_POSITION_MORPH_TEXTURE_NAME, Type.SAMPLER2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_POSITION_MORPH_TEXTURE_NAME] = UNIFORM_POSITION_MORPH_TEXTURE_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_POSITION_MORPH_TEXTURE_BINDING] = UNIFORM_POSITION_MORPH_TEXTURE_DESCRIPTOR;
 
 /**
  * @en The sampler for morph texture of normal
  * @zh 法线形变纹理采样器。
  */
-export const UniformNormalMorphTexture: Readonly<ISamplerInfo> = {
-    name: 'cc_NormalDisplacements', set: SetIndex.LOCAL, binding: ModelLocalBindings.SAMPLER_MORPH_NORMAL, type: GFXType.SAMPLER2D,
-    stageFlags: GFXShaderStageFlagBit.VERTEX, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-localDescriptorSetLayout.record[UniformNormalMorphTexture.name] = UniformNormalMorphTexture;
-localDescriptorSetLayout.bindings[UniformNormalMorphTexture.binding] = UniformNormalMorphTexture;
+const UNIFORM_NORMAL_MORPH_TEXTURE_NAME = 'cc_NormalDisplacements';
+export const UNIFORM_NORMAL_MORPH_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_MORPH_NORMAL;
+const UNIFORM_NORMAL_MORPH_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_NORMAL_MORPH_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.VERTEX);
+const UNIFORM_NORMAL_MORPH_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_NORMAL_MORPH_TEXTURE_BINDING,
+    UNIFORM_NORMAL_MORPH_TEXTURE_NAME, Type.SAMPLER2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_NORMAL_MORPH_TEXTURE_NAME] = UNIFORM_NORMAL_MORPH_TEXTURE_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_NORMAL_MORPH_TEXTURE_BINDING] = UNIFORM_NORMAL_MORPH_TEXTURE_DESCRIPTOR;
 
 /**
  * @en The sampler for morph texture of tangent
  * @zh 切线形变纹理采样器。
  */
-export const UniformTangentMorphTexture: Readonly<ISamplerInfo> = {
-    name: 'cc_TangentDisplacements', set: SetIndex.LOCAL, binding: ModelLocalBindings.SAMPLER_MORPH_TANGENT, type: GFXType.SAMPLER2D,
-    stageFlags: GFXShaderStageFlagBit.VERTEX, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-localDescriptorSetLayout.record[UniformTangentMorphTexture.name] = UniformTangentMorphTexture;
-localDescriptorSetLayout.bindings[UniformTangentMorphTexture.binding] = UniformTangentMorphTexture;
+const UNIFORM_TANGENT_MORPH_TEXTURE_NAME = 'cc_TangentDisplacements';
+export const UNIFORM_TANGENT_MORPH_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_MORPH_TANGENT;
+const UNIFORM_TANGENT_MORPH_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_TANGENT_MORPH_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.VERTEX);
+const UNIFORM_TANGENT_MORPH_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_TANGENT_MORPH_TEXTURE_BINDING,
+    UNIFORM_TANGENT_MORPH_TEXTURE_NAME, Type.SAMPLER2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_TANGENT_MORPH_TEXTURE_NAME] = UNIFORM_TANGENT_MORPH_TEXTURE_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_TANGENT_MORPH_TEXTURE_BINDING] = UNIFORM_TANGENT_MORPH_TEXTURE_DESCRIPTOR;
 
 /**
  * @en The sampler for light map texture
  * @zh 光照图纹理采样器。
  */
-export const UniformLightingMapSampler: Readonly<ISamplerInfo> = {
-    name: 'cc_lightingMap', set: SetIndex.LOCAL, binding: ModelLocalBindings.SAMPLER_LIGHTING_MAP, type: GFXType.SAMPLER2D,
-    stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-localDescriptorSetLayout.record[UniformLightingMapSampler.name] = UniformLightingMapSampler;
-localDescriptorSetLayout.bindings[UniformLightingMapSampler.binding] = UniformLightingMapSampler;
+const UNIFORM_LIGHTMAP_TEXTURE_NAME = 'cc_lightingMap';
+export const UNIFORM_LIGHTMAP_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_LIGHTMAP;
+const UNIFORM_LIGHTMAP_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_LIGHTMAP_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_LIGHTMAP_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_LIGHTMAP_TEXTURE_BINDING,
+    UNIFORM_LIGHTMAP_TEXTURE_NAME, Type.SAMPLER2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_LIGHTMAP_TEXTURE_NAME] = UNIFORM_LIGHTMAP_TEXTURE_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_LIGHTMAP_TEXTURE_BINDING] = UNIFORM_LIGHTMAP_TEXTURE_DESCRIPTOR;
 
 /**
  * @en The sampler for UI sprites.
  * @zh UI 精灵纹理采样器。
  */
-export const UniformSpriteSampler: Readonly<ISamplerInfo> = {
-    name: 'cc_spriteTexture', set: SetIndex.LOCAL, binding: ModelLocalBindings.SAMPLER_SPRITE, type: GFXType.SAMPLER2D,
-    stageFlags: GFXShaderStageFlagBit.FRAGMENT, descriptorType: GFXDescriptorType.SAMPLER, count: 1,
-};
-localDescriptorSetLayout.record[UniformSpriteSampler.name] = UniformSpriteSampler;
-localDescriptorSetLayout.bindings[UniformSpriteSampler.binding] = UniformSpriteSampler;
-
+const UNIFORM_SPRITE_TEXTURE_NAME = 'cc_spriteTexture';
+export const UNIFORM_SPRITE_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_SPRITE;
+const UNIFORM_SPRITE_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_SPRITE_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_SPRITE_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_SPRITE_TEXTURE_BINDING, UNIFORM_SPRITE_TEXTURE_NAME, Type.SAMPLER2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_SPRITE_TEXTURE_NAME] = UNIFORM_SPRITE_TEXTURE_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_SPRITE_TEXTURE_BINDING] = UNIFORM_SPRITE_TEXTURE_DESCRIPTOR;
 
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
@@ -470,12 +556,11 @@ export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, 
 export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
 
 /**
- * @en Render view information descriptor
- * @zh 渲染视图描述信息。
+ * @en Does the device support half float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
  */
-export interface IRenderViewInfo {
-    camera: Camera;
-    name: string;
-    priority: number;
-    flows?: string[];
+export function supportsHalfFloatTexture (device: Device) {
+    return device.hasFeature(Feature.COLOR_HALF_FLOAT) && device.hasFeature(Feature.TEXTURE_HALF_FLOAT);
 }
+
+/* eslint-enable max-len */

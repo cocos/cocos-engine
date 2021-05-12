@@ -1,18 +1,42 @@
-import { GFXShader, GFXShaderInfo } from '../shader';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { ShaderInfo } from '../base/define';
+import { Shader } from '../base/shader';
 import { WebGL2CmdFuncCreateShader, WebGL2CmdFuncDestroyShader } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUShader, IWebGL2GPUShaderStage } from './webgl2-gpu-objects';
 
-export class WebGL2Shader extends GFXShader {
-
+export class WebGL2Shader extends Shader {
     get gpuShader (): IWebGL2GPUShader {
         return  this._gpuShader!;
     }
 
     private _gpuShader: IWebGL2GPUShader | null = null;
 
-    public initialize (info: GFXShaderInfo): boolean {
-
+    public initialize (info: ShaderInfo): boolean {
         this._name = info.name;
         this._stages = info.stages;
         this._attributes = info.attributes;
@@ -20,16 +44,16 @@ export class WebGL2Shader extends GFXShader {
         this._samplers = info.samplers;
 
         this._gpuShader = {
-            name: info.name ? info.name : '',
-            blocks: info.blocks !== undefined ? info.blocks : [],
-            samplers: info.samplers !== undefined ? info.samplers : [],
+            name: info.name,
+            blocks: info.blocks,
+            samplerTextures: info.samplerTextures,
 
             gpuStages: new Array<IWebGL2GPUShaderStage>(info.stages.length),
             glProgram: null,
             glInputs: [],
             glUniforms: [],
             glBlocks: [],
-            glSamplers: [],
+            glSamplerTextures: [],
         };
 
         for (let i = 0; i < info.stages.length; ++i) {

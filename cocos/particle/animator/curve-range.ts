@@ -1,20 +1,46 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
 import { ccclass, type, serializable, editable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { lerp } from '../../core/math';
 import { Enum } from '../../core/value-types';
 import { AnimationCurve } from '../../core/geometry';
 import { Texture2D, ImageAsset } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
-import { EDITOR } from 'internal:constants';
 
 const SerializableTable = EDITOR && [
-    [ 'mode', 'constant', 'multiplier' ],
-    [ 'mode', 'curve', 'multiplier' ],
-    [ 'mode', 'curveMin', 'curveMax', 'multiplier' ],
-    [ 'mode', 'constantMin', 'constantMax', 'multiplier']
+    ['mode', 'constant', 'multiplier'],
+    ['mode', 'curve', 'multiplier'],
+    ['mode', 'curveMin', 'curveMax', 'multiplier'],
+    ['mode', 'constantMin', 'constantMax', 'multiplier'],
 ];
 
 export const Mode = Enum({
@@ -26,7 +52,6 @@ export const Mode = Enum({
 
 @ccclass('cc.CurveRange')
 export default class CurveRange  {
-
     public static Mode = Mode;
 
     /**
@@ -87,27 +112,27 @@ export default class CurveRange  {
 
     public evaluate (time: number, rndRatio: number) {
         switch (this.mode) {
-            case Mode.Constant:
-                return this.constant;
-            case Mode.Curve:
-                return this.curve.evaluate(time) * this.multiplier;
-            case Mode.TwoCurves:
-                return lerp(this.curveMin.evaluate(time), this.curveMax.evaluate(time), rndRatio) * this.multiplier;
-            case Mode.TwoConstants:
-                return lerp(this.constantMin, this.constantMax, rndRatio);
+        case Mode.Constant:
+            return this.constant;
+        case Mode.Curve:
+            return this.curve.evaluate(time) * this.multiplier;
+        case Mode.TwoCurves:
+            return lerp(this.curveMin.evaluate(time), this.curveMax.evaluate(time), rndRatio) * this.multiplier;
+        case Mode.TwoConstants:
+            return lerp(this.constantMin, this.constantMax, rndRatio);
         }
     }
 
     public getMax (): number {
         switch (this.mode) {
-            case Mode.Constant:
-                return this.constant;
-            case Mode.Curve:
-                return this.multiplier;
-            case Mode.TwoConstants:
-                return this.constantMax;
-            case Mode.TwoCurves:
-                return this.multiplier;
+        case Mode.Constant:
+            return this.constant;
+        case Mode.Curve:
+            return this.multiplier;
+        case Mode.TwoConstants:
+            return this.constantMax;
+        case Mode.TwoCurves:
+            return this.multiplier;
         }
         return 0;
     }
@@ -119,27 +144,27 @@ export default class CurveRange  {
 
 function evaluateCurve (cr: CurveRange, time: number, index: number) {
     switch (cr.mode) {
-        case Mode.Constant:
-            return cr.constant;
-        case Mode.Curve:
-            return cr.curve.evaluate(time) * cr.multiplier;
-        case Mode.TwoCurves:
-            return index === 0 ? cr.curveMin.evaluate(time) * cr.multiplier : cr.curveMax.evaluate(time) * cr.multiplier;
-        case Mode.TwoConstants:
-            return index === 0 ? cr.constantMin : cr.constantMax;
-        default:
-            return 0;
+    case Mode.Constant:
+        return cr.constant;
+    case Mode.Curve:
+        return cr.curve.evaluate(time) * cr.multiplier;
+    case Mode.TwoCurves:
+        return index === 0 ? cr.curveMin.evaluate(time) * cr.multiplier : cr.curveMax.evaluate(time) * cr.multiplier;
+    case Mode.TwoConstants:
+        return index === 0 ? cr.constantMin : cr.constantMax;
+    default:
+        return 0;
     }
 }
 
 function evaluateHeight (cr: CurveRange) {
     switch (cr.mode) {
-        case Mode.TwoConstants:
-            return 2;
-        case Mode.TwoCurves:
-            return 2;
-        default:
-            return 1;
+    case Mode.TwoConstants:
+        return 2;
+    case Mode.TwoCurves:
+        return 2;
+    default:
+        return 1;
     }
 }
 

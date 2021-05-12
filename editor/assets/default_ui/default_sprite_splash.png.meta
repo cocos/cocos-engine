@@ -9,7 +9,7 @@
   ],
   "subMetas": {
     "6c48a": {
-      "ver": "1.0.20",
+      "ver": "1.0.21",
       "importer": "texture",
       "uuid": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@6c48a",
       "imported": true,
@@ -24,7 +24,7 @@
         "magfilter": "linear",
         "mipfilter": "none",
         "premultiplyAlpha": false,
-        "anisotropy": 1,
+        "anisotropy": 0,
         "isUuid": true,
         "imageUuidOrDatabaseUri": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca"
       },
@@ -33,7 +33,7 @@
       "name": "texture"
     },
     "f9941": {
-      "ver": "1.0.8",
+      "ver": "1.0.9",
       "importer": "sprite-frame",
       "uuid": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@f9941",
       "imported": true,
@@ -67,7 +67,8 @@
         "isUuid": true,
         "imageUuidOrDatabaseUri": "7d8f9b89-4fd1-4c9f-a3ab-38ec7cded7ca@6c48a",
         "atlasUuid": "",
-        "mipfilter": "none"
+        "mipfilter": "none",
+        "packable": true
       },
       "displayName": "default_sprite_splash",
       "id": "f9941",

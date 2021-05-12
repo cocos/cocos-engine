@@ -1,14 +1,44 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { CannonShape } from './cannon-shape';
 import { MeshCollider } from '../../framework';
-import { Mesh, Vec3 } from '../../../core';
+import { Vec3 } from '../../../core';
+import { Mesh } from '../../../3d/assets';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
 import { commitShapeUpdates } from '../cannon-util';
 
 const v3_cannon0 = new CANNON.Vec3();
 
 export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
-
     get collider () {
         return this._collider as MeshCollider;
     }
@@ -23,20 +53,18 @@ export class CannonTrimeshShape extends CannonShape implements ITrimeshShape {
         const mesh = v;
         if (this._shape != null) {
             if (mesh && mesh.renderingSubMeshes.length > 0) {
-                const vertices = mesh.renderingSubMeshes[0].geometricInfo!.positions;
-                const indices = mesh.renderingSubMeshes[0].geometricInfo!.indices as Uint16Array;
+                const vertices = mesh.renderingSubMeshes[0].geometricInfo.positions;
+                const indices = mesh.renderingSubMeshes[0].geometricInfo.indices as Uint16Array;
                 this.updateProperties(vertices, indices);
             } else {
                 this.updateProperties(new Float32Array(), new Uint16Array());
             }
+        } else if (mesh && mesh.renderingSubMeshes.length > 0) {
+            const vertices = mesh.renderingSubMeshes[0].geometricInfo.positions;
+            const indices = mesh.renderingSubMeshes[0].geometricInfo.indices as Uint16Array;
+            this._shape = new CANNON.Trimesh(vertices, indices);
         } else {
-            if (mesh && mesh.renderingSubMeshes.length > 0) {
-                const vertices = mesh.renderingSubMeshes[0].geometricInfo!.positions;
-                const indices = mesh.renderingSubMeshes[0].geometricInfo!.indices as Uint16Array;
-                this._shape = new CANNON.Trimesh(vertices, indices);
-            } else {
-                this._shape = new CANNON.Trimesh(new Float32Array(), new Uint16Array());
-            }
+            this._shape = new CANNON.Trimesh(new Float32Array(), new Uint16Array());
         }
     }
 

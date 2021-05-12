@@ -1,5 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 import { Vec3 } from '../math';
@@ -7,13 +33,12 @@ import enums from './enums';
 
 /**
  * @en
- * Basic Geometry: triangle.
+ * Basic Geometry: Triangle.
  * @zh
  * 基础几何 三角形。
  */
-// tslint:disable-next-line:class-name
-export default class triangle {
 
+export class Triangle {
     /**
      * @en
      * create a new triangle
@@ -28,12 +53,12 @@ export default class triangle {
      * @param {number} cx c 点的 x 部分。
      * @param {number} cy c 点的 y 部分。
      * @param {number} cz c 点的 z 部分。
-     * @return {triangle} 一个新的 triangle。
+     * @return {Triangle} 一个新的 triangle。
      */
-    public static create (ax: number = 1, ay: number = 0, az: number = 0,
-                          bx: number = 0, by: number = 0, bz: number = 0,
-                          cx: number = 0, cy: number = 0, cz: number = 1): triangle {
-        return new triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
+    public static create (ax = 1, ay = 0, az = 0,
+        bx = 0, by = 0, bz = 0,
+        cx = 0, cy = 0, cz = 1): Triangle {
+        return new Triangle(ax, ay, az, bx, by, bz, cx, cy, cz);
     }
 
     /**
@@ -41,11 +66,11 @@ export default class triangle {
      * clone a new triangle
      * @zh
      * 克隆一个新的 triangle。
-     * @param {triangle} t 克隆的目标。
-     * @return {triangle} 克隆出的新对象。
+     * @param {Triangle} t 克隆的目标。
+     * @return {Triangle} 克隆出的新对象。
      */
-    public static clone (t: triangle): triangle {
-        return new triangle(
+    public static clone (t: Triangle): Triangle {
+        return new Triangle(
             t.a.x, t.a.y, t.a.z,
             t.b.x, t.b.y, t.b.z,
             t.c.x, t.c.y, t.c.z,
@@ -57,11 +82,11 @@ export default class triangle {
      * copy the values from one triangle to another
      * @zh
      * 将一个 triangle 的值复制到另一个 triangle。
-     * @param {triangle} out 接受操作的 triangle。
-     * @param {triangle} t 被复制的 triangle。
-     * @return {triangle} out 接受操作的 triangle。
+     * @param {Triangle} out 接受操作的 triangle。
+     * @param {Triangle} t 被复制的 triangle。
+     * @return {Triangle} out 接受操作的 triangle。
      */
-    public static copy (out: triangle, t: triangle): triangle {
+    public static copy (out: Triangle, t: Triangle): Triangle {
         Vec3.copy(out.a, t.a);
         Vec3.copy(out.b, t.b);
         Vec3.copy(out.c, t.c);
@@ -74,13 +99,13 @@ export default class triangle {
      * Create a triangle from three points
      * @zh
      * 用三个点创建一个 triangle。
-     * @param {triangle} out 接受操作的 triangle。
+     * @param {Triangle} out 接受操作的 triangle。
      * @param {Vec3} a a 点。
      * @param {Vec3} b b 点。
      * @param {Vec3} c c 点。
-     * @return {triangle} out 接受操作的 triangle。
+     * @return {Triangle} out 接受操作的 triangle。
      */
-    public static fromPoints (out: triangle, a: Vec3, b: Vec3, c: Vec3): triangle {
+    public static fromPoints (out: Triangle, a: Vec3, b: Vec3, c: Vec3): Triangle {
         Vec3.copy(out.a, a);
         Vec3.copy(out.b, b);
         Vec3.copy(out.c, c);
@@ -92,7 +117,7 @@ export default class triangle {
      * Set the components of a triangle to the given values
      * @zh
      * 将给定三角形的属性设置为给定值。
-     * @param {triangle} out 给定的三角形。
+     * @param {Triangle} out 给定的三角形。
      * @param {number} ax a 点的 x 部分。
      * @param {number} ay a 点的 y 部分。
      * @param {number} az a 点的 z 部分。
@@ -102,13 +127,13 @@ export default class triangle {
      * @param {number} cx c 点的 x 部分。
      * @param {number} cy c 点的 y 部分。
      * @param {number} cz c 点的 z 部分。
-     * @return {triangle}
+     * @return {Triangle}
      * @function
      */
-    public static set (out: triangle,
-                       ax: number, ay: number, az: number,
-                       bx: number, by: number, bz: number,
-                       cx: number, cy: number, cz: number): triangle {
+    public static set (out: Triangle,
+        ax: number, ay: number, az: number,
+        bx: number, by: number, bz: number,
+        cx: number, cy: number, cz: number): Triangle {
         out.a.x = ax;
         out.a.y = ay;
         out.a.z = az;
@@ -175,9 +200,9 @@ export default class triangle {
      * @param {number} cy c 点的 y 部分。
      * @param {number} cz c 点的 z 部分。
      */
-    constructor (ax: number = 0, ay: number = 0, az: number = 0,
-                 bx: number = 1, by: number = 0, bz: number = 0,
-                 cx: number = 0, cy: number = 1, cz: number = 0) {
+    constructor (ax = 0, ay = 0, az = 0,
+        bx = 1, by = 0, bz = 0,
+        cx = 0, cy = 1, cz = 0) {
         this._type = enums.SHAPE_TRIANGLE;
         this.a = new Vec3(ax, ay, az);
         this.b = new Vec3(bx, by, bz);

@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2018-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -23,32 +23,37 @@
  THE SOFTWARE.
 */
 /**
- * @category core
+ * @packageDocumentation
+ * @module core
  */
 
 /* eslint-disable no-console */
 
-import debugInfos from '../../../DebugInfos';
 import { EDITOR, JSB, DEV, DEBUG } from 'internal:constants';
+import debugInfos from '../../../DebugInfos';
 import { legacyCC } from '../global-exports';
+
 const ERROR_MAP_URL = 'https://github.com/cocos-creator/engine/blob/3d/EngineErrorMap.md';
 
 // The html element displays log in web page (DebugMode.INFO_FOR_WEB_PAGE)
 let logList: HTMLTextAreaElement | null = null;
 
-let ccLog = console.log;
+let ccLog = console.log.bind(console);
 
-let ccWarn = console.log;
+let ccWarn = ccLog;
 
-let ccError = console.log;
+let ccError = ccLog;
 
 let ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
     if (!condition) {
-        console.log('ASSERT: ' + formatString(message, ...optionalParams));
+        console.log(`ASSERT: ${formatString(message, ...optionalParams)}`);
     }
 };
 
+let ccDebug = ccLog;
+
 function formatString (message?: any, ...optionalParams: any[]) {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return legacyCC.js.formatStr.apply(null, [message].concat(optionalParams));
 }
 
@@ -107,13 +112,21 @@ export function error (message?: any, ...optionalParams: any[]) {
  * @param optionalParams - JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
-export function assert (value: any, message?: string, ...optionalParams: any[]) {
+export function assert (value: any, message?: string, ...optionalParams: any[]): asserts value {
     return ccAssert(value, message, ...optionalParams);
+}
+
+/**
+ * @en Outputs a message at the "debug" log level.
+ * @zh 输出一条“调试”日志等级的消息。
+ */
+export function debug (...data: any[]) {
+    return ccDebug(...data);
 }
 
 export function _resetDebugSetting (mode: DebugMode) {
     // reset
-    ccLog = ccWarn = ccError = ccAssert = () => {
+    ccLog = ccWarn = ccError = ccAssert = ccDebug = () => {
     };
 
     if (mode === DebugMode.NONE) {
@@ -153,21 +166,21 @@ export function _resetDebugSetting (mode: DebugMode) {
                 legacyCC.game.canvas.parentNode.appendChild(logDiv);
             }
 
-            logList.value = logList.value + msg + '\r\n';
+            logList.value = `${logList.value + msg}\r\n`;
             logList.scrollTop = logList.scrollHeight;
         };
 
         ccError = (message?: any, ...optionalParams: any[]) => {
-            logToWebPage('ERROR :  ' + formatString(message, ...optionalParams));
+            logToWebPage(`ERROR :  ${formatString(message, ...optionalParams)}`);
         };
         ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
             if (!condition) {
-                logToWebPage('ASSERT: ' + formatString(message, ...optionalParams));
+                logToWebPage(`ASSERT: ${formatString(message, ...optionalParams)}`);
             }
         };
         if (mode !== DebugMode.ERROR_FOR_WEB_PAGE) {
             ccWarn = (message?: any, ...optionalParams: any[]) => {
-                logToWebPage('WARN :  ' + formatString(message, ...optionalParams));
+                logToWebPage(`WARN :  ${formatString(message, ...optionalParams)}`);
             };
         }
         if (mode === DebugMode.INFO_FOR_WEB_PAGE) {
@@ -175,8 +188,7 @@ export function _resetDebugSetting (mode: DebugMode) {
                 logToWebPage(formatString(message, ...optionalParams));
             };
         }
-    }
-    else if (console && console.log.apply) {// console is null when user doesn't open dev tool on IE9
+    } else if (console) {
         // Log to console.
 
         // For JSB
@@ -190,20 +202,16 @@ export function _resetDebugSetting (mode: DebugMode) {
         if (EDITOR || console.error.bind) {
             // use bind to avoid pollute call stacks
             ccError = console.error.bind(console);
-        }
-        else {
-            ccError = JSB ? console.error : (message?: any, ...optionalParams: any[]) => {
-                return console.error.apply(console, [message, ...optionalParams]);
-            };
+        } else {
+            ccError = JSB ? console.error : (message?: any, ...optionalParams: any[]) => console.error.apply(console, [message, ...optionalParams]);
         }
         ccAssert = (condition: any, message?: any, ...optionalParams: any[]) => {
             if (!condition) {
                 const errorText = formatString(message, ...optionalParams);
                 if (DEV) {
-                    // tslint:disable:no-debugger
+                    // eslint-disable-next-line no-debugger
                     debugger;
-                }
-                else {
+                } else {
                     throw new Error(errorText);
                 }
             }
@@ -213,41 +221,37 @@ export function _resetDebugSetting (mode: DebugMode) {
     if (mode !== DebugMode.ERROR) {
         if (EDITOR) {
             ccWarn = console.warn.bind(console);
-        }
-        else if (console.warn.bind) {
+        } else if (console.warn.bind) {
             // use bind to avoid pollute call stacks
             ccWarn = console.warn.bind(console);
-        }
-        else {
-            ccWarn = JSB ? console.warn : (message?: any, ...optionalParams: any[]) => {
-                return console.warn.apply(console, [message, ...optionalParams]);
-            };
+        } else {
+            ccWarn = JSB ? console.warn : (message?: any, ...optionalParams: any[]) => console.warn.apply(console, [message, ...optionalParams]);
         }
     }
 
     if (EDITOR) {
         ccLog = console.log.bind(console);
-    }
-    else if (mode === DebugMode.INFO) {
+    } else if (mode === DebugMode.INFO) {
         if (JSB) {
-            // @ts-ignore
+            // @ts-expect-error We have no typing for this
             if (scriptEngineType === 'JavaScriptCore') {
                 // console.log has to use `console` as its context for iOS 8~9. Therefore, apply it.
-                ccLog = (message?: any, ...optionalParams: any[]) => {
-                    return console.log.apply(console, [message, ...optionalParams]);
-                };
+                ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
             } else {
                 ccLog = console.log;
             }
-        }
-        else if (console.log.bind) {
+        } else if (console.log.bind) {
             // use bind to avoid pollute call stacks
             ccLog = console.log.bind(console);
+        } else {
+            ccLog = (message?: any, ...optionalParams: any[]) => console.log.apply(console, [message, ...optionalParams]);
         }
-        else {
-            ccLog = (message?: any, ...optionalParams: any[]) => {
-                return console.log.apply(console, [message, ...optionalParams]);
-            };
+    }
+
+    if (mode <= DebugMode.VERBOSE) {
+        if (typeof console.debug === 'function') {
+            const vendorDebug = console.debug;
+            ccDebug = (...data: any[]) => vendorDebug(...data);
         }
     }
 }
@@ -258,11 +262,11 @@ export function _throw (error_: any) {
     } else {
         const stack = error_.stack;
         if (stack) {
-            error(JSB ? (error_ + '\n' + stack) : stack);
-        }
-        else {
+            error(JSB ? (`${error_}\n${stack}`) : stack);
+        } else {
             error(error_);
         }
+        return undefined;
     }
 }
 
@@ -272,7 +276,8 @@ function getTypedFormatter (type: 'Log' | 'Warning' | 'Error' | 'Assert') {
         if (args.length === 0) {
             return msg;
         }
-        return DEBUG ? formatString(msg, ...args) : msg + ' Arguments: ' + args.join(', ');
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return DEBUG ? formatString(msg, ...args) : `${msg} Arguments: ${args.join(', ')}`;
     };
 }
 
@@ -301,57 +306,64 @@ export function assertID (condition: any, id: number, ...optionalParams: any[]) 
 
 /**
  * @en Enum for debug modes.
- * @zh 调试模式
+ * @zh 调试模式。
  */
 export enum DebugMode {
     /**
      * @en The debug mode none.
-     * @zh 禁止模式，禁止显示任何日志信息。
+     * @zh 禁止模式，禁止显示任何日志消息。
      */
     NONE = 0,
 
     /**
-     * @en The debug mode info.
-     * @zh 信息模式，在 console 中显示所有日志。
+     * @en The debug mode none.
+     * @zh 调试模式，显示所有日志消息。
      */
-    INFO = 1,
+    VERBOSE = 1,
 
     /**
-     * @en The debug mode warn.
-     * @zh 警告模式，在 console 中只显示 warn 级别以上的（包含 error）日志。
+     * @en Information mode, which display messages with level higher than "information" level.
+     * @zh 信息模式，显示“信息”级别以上的日志消息。
      */
-    WARN = 2,
+    INFO = 2,
 
     /**
-     * @en The debug mode error.
-     * @zh 错误模式，在 console 中只显示 error 日志。
+     * @en Information mode, which display messages with level higher than "warning" level.
+     * @zh 警告模式，显示“警告”级别以上的日志消息。
      */
-    ERROR = 3,
+    WARN = 3,
+
+    /**
+     * @en Information mode, which display only messages with "error" level.
+     * @zh 错误模式，仅显示“错误”级别的日志消息。
+     */
+    ERROR = 4,
 
     /**
      * @en The debug mode info for web page.
      * @zh 信息模式（仅 WEB 端有效），在画面上输出所有信息。
      */
-    INFO_FOR_WEB_PAGE = 4,
+    INFO_FOR_WEB_PAGE = 5,
 
     /**
      * @en The debug mode warn for web page.
      * @zh 警告模式（仅 WEB 端有效），在画面上输出 warn 级别以上的（包含 error）信息。
      */
-    WARN_FOR_WEB_PAGE = 5,
+    WARN_FOR_WEB_PAGE = 6,
 
     /**
      * @en The debug mode error for web page.
      * @zh 错误模式（仅 WEB 端有效），在画面上输出 error 信息。
      */
-    ERROR_FOR_WEB_PAGE = 6,
+    ERROR_FOR_WEB_PAGE = 7,
 }
 
 /**
  * @en Gets error message with the error id and possible parameters.
  * @zh 通过 error id 和必要的参数来获取错误信息。
  */
-export function getError (errorId: any, ...param: any[]): string {
+export function getError (errorId: number, ...param: any[]): string {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return errorFormatter(errorId, ...param);
 }
 
@@ -360,6 +372,7 @@ export function getError (errorId: any, ...param: any[]): string {
  * @zh 是否显示 FPS 信息和部分调试信息。
  */
 export function isDisplayStats (): boolean {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return legacyCC.profiler ? legacyCC.profiler.isShowingStats() : false;
 }
 

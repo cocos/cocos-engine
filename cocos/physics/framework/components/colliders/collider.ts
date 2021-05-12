@@ -1,45 +1,85 @@
+/* eslint-disable @typescript-eslint/no-namespace */
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import { ccclass, tooltip, displayOrder, displayName, readOnly, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { Eventify } from '../../../../core/event';
 import { Vec3 } from '../../../../core/math';
 import { CollisionEventType, TriggerEventType } from '../../physics-interface';
 import { RigidBody } from '../rigid-body';
-import { PhysicMaterial } from '../../assets/physic-material';
+import { PhysicsMaterial } from '../../assets/physics-material';
 import { PhysicsSystem } from '../../physics-system';
 import { Component, error, Node } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
-import { EDITOR } from 'internal:constants';
-import { aabb, sphere } from '../../../../core/geometry';
+import { AABB, Sphere } from '../../../../core/geometry';
 import { EColliderType, EAxisDirection } from '../../physics-enum';
 import { createShape } from '../../instance';
 
 /**
  * @en
- * Base class of collider.
+ * Base class for colliders.
  * @zh
  * 碰撞器的基类。
  */
 @ccclass('cc.Collider')
 export class Collider extends Eventify(Component) {
+    /**
+     * @en
+     * Enumeration of collider types.
+     * @zh
+     * 碰撞体类型的枚举。
+     */
+    static readonly Type = EColliderType;
 
-    static readonly EColliderType = EColliderType;
-    static readonly EAxisDirection = EAxisDirection;
+    /**
+     * @en
+     * Enumeration of axes.
+     * @zh
+     * 坐标轴方向的枚举。
+     */
+    static readonly Axis = EAxisDirection;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
     /**
      * @en
-     * Gets the collider attached rigid-body, this may be null.
+     * Get the rigid body component to which the collider is bound, possibly null.
      * @zh
-     * 获取碰撞器所绑定的刚体组件，可能为 null 。
+     * 获取碰撞器所绑定的刚体组件，可能为空。
      */
     @type(RigidBody)
     @readOnly
     @displayName('Attached')
     @displayOrder(-2)
+    @tooltip('i18n:physics3d.collider.attached')
     public get attachedRigidBody (): RigidBody | null {
         return findAttachedBody(this.node);
         // return this._attachedRigidBody;
@@ -51,10 +91,10 @@ export class Collider extends Eventify(Component) {
      * @zh
      * 获取或设置此碰撞器的物理材质。
      */
-    @type(PhysicMaterial)
+    @type(PhysicsMaterial)
     @displayName('Material')
     @displayOrder(-1)
-    @tooltip('源材质')
+    @tooltip('i18n:physics3d.collider.sharedMaterial')
     public get sharedMaterial () {
         return this._material;
     }
@@ -86,7 +126,7 @@ export class Collider extends Eventify(Component) {
     public set material (value) {
         if (this._shape) {
             if (value != null && this._material != null) {
-                if (this._material._uuid != value._uuid) {
+                if (this._material.id !== value.id) {
                     this._material.off('physics_material_update', this._updateMaterial, this);
                     value.on('physics_material_update', this._updateMaterial, this);
                     this._isSharedMaterial = false;
@@ -96,10 +136,12 @@ export class Collider extends Eventify(Component) {
                 value.on('physics_material_update', this._updateMaterial, this);
                 this._material = value;
             } else if (value == null && this._material != null) {
-                this._material!.off('physics_material_update', this._updateMaterial, this);
+                this._material.off('physics_material_update', this._updateMaterial, this);
                 this._material = value;
             }
             this._updateMaterial();
+        } else {
+            this._material = value;
         }
     }
 
@@ -107,10 +149,10 @@ export class Collider extends Eventify(Component) {
      * @en
      * Gets or sets the collider is trigger, this will be always trigger if using builtin.
      * @zh
-     * 获取或设置碰撞器是否为触发器，若使用 builtin ，属性值无论真假 ，此碰撞器都为触发器。
+     * 获取或设置碰撞器是否为触发器。(builtin中无论真假都为触发器)
      */
     @displayOrder(0)
-    @tooltip('是否与其它碰撞器产生碰撞，并产生物理行为')
+    @tooltip('i18n:physics3d.collider.isTrigger')
     public get isTrigger () {
         return this._isTrigger;
     }
@@ -126,11 +168,11 @@ export class Collider extends Eventify(Component) {
      * @en
      * Gets or sets the center of the collider, in local space.
      * @zh
-     * 获取或设置碰撞器的中心点。
+     * 在本地空间中，获取或设置碰撞器的中心点。
      */
     @type(Vec3)
     @displayOrder(1)
-    @tooltip('形状的中心点（与所在 Node 中心点的相对位置）')
+    @tooltip('i18n:physics3d.collider.center')
     public get center () {
         return this._center;
     }
@@ -152,14 +194,14 @@ export class Collider extends Eventify(Component) {
         return this._shape;
     }
 
-    public get worldBounds (): Readonly<aabb> {
-        if (this._aabb == null) this._aabb = new aabb();
+    public get worldBounds (): Readonly<AABB> {
+        if (this._aabb == null) this._aabb = new AABB();
         if (this._shape) this._shape.getAABB(this._aabb);
         return this._aabb;
     }
 
-    public get boundingSphere (): Readonly<sphere> {
-        if (this._boundingSphere == null) this._boundingSphere = new sphere();
+    public get boundingSphere (): Readonly<Sphere> {
+        if (this._boundingSphere == null) this._boundingSphere = new Sphere();
         if (this._shape) this._shape.getBoundingSphere(this._boundingSphere);
         return this._boundingSphere;
     }
@@ -172,43 +214,36 @@ export class Collider extends Eventify(Component) {
         return this._needCollisionEvent;
     }
 
-    readonly TYPE: EColliderType;
+    readonly type: EColliderType;
 
     /// PROTECTED PROPERTY ///
 
     protected _shape: IBaseShape | null = null;
-    protected _aabb: aabb | null = null;
-    protected _boundingSphere: sphere | null = null;
-    protected _isSharedMaterial: boolean = true;
-    protected _needTriggerEvent: boolean = false;
-    protected _needCollisionEvent: boolean = false;
+    protected _aabb: AABB | null = null;
+    protected _boundingSphere: Sphere | null = null;
+    protected _isSharedMaterial = true;
+    protected _needTriggerEvent = false;
+    protected _needCollisionEvent = false;
     // protected _attachedRigidBody: RigidBody | null = null;
 
-    @type(PhysicMaterial)
-    protected _material: PhysicMaterial | null = null;
+    @type(PhysicsMaterial)
+    protected _material: PhysicsMaterial | null = null;
 
     @serializable
-    protected _isTrigger: boolean = false;
+    protected _isTrigger = false;
 
     @serializable
     protected readonly _center: Vec3 = new Vec3();
 
     protected get _assertOnLoadCalled (): boolean {
-        const r = this._isOnLoadCalled == 0;
+        const r = this._isOnLoadCalled === 0;
         if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
         return !r;
     }
 
-    protected get _assertUseCollisionMatrix (): boolean {
-        if (PhysicsSystem.instance.useCollisionMatrix) {
-            error('[Physics]: useCollisionMatrix is turn on, using collision matrix instead please.');
-        }
-        return PhysicsSystem.instance.useCollisionMatrix;
-    }
-
     constructor (type: EColliderType) {
         super();
-        this.TYPE = type;
+        this.type = type;
     }
 
     /// EVENT INTERFACE ///
@@ -222,7 +257,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public on (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object, once?: boolean): any {
+    public on<TFunction extends (...any) => void> (type: TriggerEventType | CollisionEventType, callback: TFunction, target?, once?: boolean): any {
         const ret = super.on(type, callback, target, once);
         this._updateNeedEvent(type);
         return ret;
@@ -237,7 +272,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public off (type: TriggerEventType | CollisionEventType, callback?: Function, target?: Object) {
+    public off (type: TriggerEventType | CollisionEventType, callback?: (...any) => void, target?) {
         super.off(type, callback, target);
         this._updateNeedEvent();
     }
@@ -251,8 +286,8 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public once (type: TriggerEventType | CollisionEventType, callback: Function, target?: Object): any {
-        //TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
+    public once<TFunction extends (...any) => void> (type: TriggerEventType | CollisionEventType, callback: TFunction, target?): any {
+        // TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
         const ret = super.once(type, callback, target);
         this._updateNeedEvent(type);
         return ret;
@@ -265,7 +300,7 @@ export class Collider extends Eventify(Component) {
      * 移除所有指定目标或类型的注册事件。
      * @param typeOrTarget - The event type or target.
      */
-    public removeAll (typeOrTarget: TriggerEventType | CollisionEventType | {}) {
+    public removeAll (typeOrTarget: TriggerEventType | CollisionEventType | Record<string, unknown>) {
         super.removeAll(typeOrTarget);
         this._updateNeedEvent();
     }
@@ -295,17 +330,7 @@ export class Collider extends Eventify(Component) {
      */
     public setGroup (v: number): void {
         if (this._assertOnLoadCalled) {
-            if (PhysicsSystem.instance.useCollisionMatrix) {
-                const body = this._shape!.attachedRigidBody;
-                if (body) {
-                    body.group = v;
-                } else {
-                    this._shape!.setGroup(v);
-                    this._updateMask();
-                }
-            } else {
-                this._shape!.setGroup(v);
-            }
+            this._shape!.setGroup(v);
         }
     }
 
@@ -318,17 +343,7 @@ export class Collider extends Eventify(Component) {
      */
     public addGroup (v: number) {
         if (this._assertOnLoadCalled) {
-            if (!this._assertUseCollisionMatrix) {
-                this._shape!.addGroup(v);
-            } else {
-                const body = this._shape!.attachedRigidBody;
-                if (body) {
-                    body.group |= v;
-                } else {
-                    this._shape!.addGroup(v);
-                    this._updateMask();
-                }
-            }
+            this._shape!.addGroup(v);
         }
     }
 
@@ -341,17 +356,7 @@ export class Collider extends Eventify(Component) {
      */
     public removeGroup (v: number) {
         if (this._assertOnLoadCalled) {
-            if (!this._assertUseCollisionMatrix) {
-                this._shape!.removeGroup(v);
-            } else {
-                const body = this._shape!.attachedRigidBody;
-                if (body) {
-                    body.group &= ~v;
-                } else {
-                    this._shape!.removeGroup(v);
-                    this._updateMask();
-                }
-            }
+            this._shape!.removeGroup(v);
         }
     }
 
@@ -377,7 +382,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._shape!.setMask(v);
         }
     }
@@ -390,7 +395,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._shape!.addMask(v);
         }
     }
@@ -403,19 +408,18 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._shape!.removeMask(v);
         }
     }
-
 
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
         if (!EDITOR) {
-            this._shape = createShape(this.TYPE);
-            this._shape.initialize(this);
             this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+            this._shape = createShape(this.type);
+            this._shape.initialize(this);
             this._shape.onLoad!();
         }
     }
@@ -439,6 +443,7 @@ export class Collider extends Eventify(Component) {
             }
             this._shape.onDestroy!();
         }
+        if (this._boundingSphere) this._boundingSphere.destroy();
     }
 
     private _updateMaterial () {
@@ -450,37 +455,40 @@ export class Collider extends Eventify(Component) {
     private _updateNeedEvent (type?: string) {
         if (this.isValid) {
             if (type !== undefined) {
-                if (type == 'onCollisionEnter' || type == 'onCollisionStay' || type == 'onCollisionExit') {
+                if (type === 'onCollisionEnter' || type === 'onCollisionStay' || type === 'onCollisionExit') {
                     this._needCollisionEvent = true;
-                } else if (type == 'onTriggerEnter' || type == 'onTriggerStay' || type == 'onTriggerExit') {
+                }
+                if (type === 'onTriggerEnter' || type === 'onTriggerStay' || type === 'onTriggerExit') {
                     this._needTriggerEvent = true;
                 }
             } else {
-                if (!(this.hasEventListener('onTriggerEnter') || this.hasEventListener('onTriggerStay') || this.hasEventListener('onTriggerExit'))) {
+                if (!(this.hasEventListener('onTriggerEnter')
+                || this.hasEventListener('onTriggerStay')
+                || this.hasEventListener('onTriggerExit'))) {
                     this._needTriggerEvent = false;
-                } else if (!(this.hasEventListener('onCollisionEnter') || this.hasEventListener('onCollisionStay') || this.hasEventListener('onCollisionExit'))) {
+                }
+                if (!(this.hasEventListener('onCollisionEnter')
+                || this.hasEventListener('onCollisionStay')
+                || this.hasEventListener('onCollisionExit'))) {
                     this._needCollisionEvent = false;
                 }
             }
+            if (this._shape) this._shape.updateEventListener();
         }
-    }
-
-    private _updateMask () {
-        this._shape!.setMask(PhysicsSystem.instance.collisionMatrix[this._shape!.getGroup()]);
     }
 }
 
 export namespace Collider {
-    export type EColliderType = EnumAlias<typeof EColliderType>;
-    export type EAxisDirection = EnumAlias<typeof EAxisDirection>;
+    export type Type = EnumAlias<typeof EColliderType>;
+    export type Axis = EnumAlias<typeof EAxisDirection>;
 }
 
 function findAttachedBody (node: Node): RigidBody | null {
     const rb = node.getComponent(RigidBody);
     if (rb && rb.isValid) {
         return rb;
-    } else {
-        if (node.parent == null || node.parent == node.scene) return null;
-        return findAttachedBody(node.parent);
     }
+    return null;
+    // if (node.parent == null || node.parent == node.scene) return null;
+    // return findAttachedBody(node.parent);
 }

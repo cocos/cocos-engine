@@ -1,4 +1,30 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -9,7 +35,9 @@ import { BuiltinObject } from './object/builtin-object';
 import { BuiltinShape } from './shapes/builtin-shape';
 import { Node } from '../../core';
 import { BuiltinRigidBody } from './builtin-rigid-body';
-// tslint:disable: prefer-for-of
+import { PhysicsSystem } from '../framework';
+import { PhysicsGroup } from '../framework/physics-enum';
+import { fastRemoveAt } from '../../core/utils/array';
 
 const m4_0 = new Mat4();
 const v3_0 = new Vec3();
@@ -20,18 +48,29 @@ const quat_0 = new Quat();
  * Built-in static collider, no physical forces involved
  */
 export class BuiltinSharedBody extends BuiltinObject {
-
     private static readonly sharedBodesMap = new Map<string, BuiltinSharedBody>();
 
-    static getSharedBody (node: Node, wrappedWorld: BuiltInWorld) {
+    static getSharedBody (node: Node, wrappedWorld: BuiltInWorld, wrappedBody?: BuiltinRigidBody) {
         const key = node.uuid;
+        let newSB: BuiltinSharedBody;
         if (BuiltinSharedBody.sharedBodesMap.has(key)) {
-            return BuiltinSharedBody.sharedBodesMap.get(key)!;
+            newSB = BuiltinSharedBody.sharedBodesMap.get(key)!;
         } else {
-            const newSB = new BuiltinSharedBody(node, wrappedWorld);
+            newSB = new BuiltinSharedBody(node, wrappedWorld);
+            const g = PhysicsGroup.DEFAULT;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB.collisionFilterGroup = g;
+            newSB.collisionFilterMask = m;
             BuiltinSharedBody.sharedBodesMap.set(node.uuid, newSB);
-            return newSB;
         }
+        if (wrappedBody) {
+            newSB.wrappedBody = wrappedBody;
+            const g = (wrappedBody.rigidBody as any)._group;
+            const m = PhysicsSystem.instance.collisionMatrix[g];
+            newSB.collisionFilterGroup = g;
+            newSB.collisionFilterMask = m;
+        }
+        return newSB;
     }
 
     get id () {
@@ -50,28 +89,27 @@ export class BuiltinSharedBody extends BuiltinObject {
                 this.world.addSharedBody(this);
                 this.syncInitial();
             }
-        } else {
-            if (this.index >= 0) {
-                const isRemove = (this.shapes.length == 0);
+        } else if (this.index >= 0) {
+            const isRemove = (this.shapes.length === 0);
 
-                if (isRemove) {
-                    this.index = -1;
-                    this.world.removeSharedBody(this);
-                }
+            if (isRemove) {
+                this.index = -1;
+                this.world.removeSharedBody(this);
             }
         }
     }
 
     set reference (v: boolean) {
+        // eslint-disable-next-line no-unused-expressions
         v ? this.ref++ : this.ref--;
-        if (this.ref == 0) { this.destroy(); }
+        if (this.ref === 0) { this.destroy(); }
     }
 
     /** id generator */
-    private static idCounter: number = 0;
+    private static idCounter = 0;
     private readonly _id: number;
-    private index: number = -1;
-    private ref: number = 0;
+    private index = -1;
+    private ref = 0;
 
     readonly node: Node;
     readonly world: BuiltInWorld;
@@ -110,7 +148,7 @@ export class BuiltinSharedBody extends BuiltinObject {
     removeShape (shape: BuiltinShape): void {
         const i = this.shapes.indexOf(shape);
         if (i >= 0) {
-            this.shapes.splice(i, 1);
+            fastRemoveAt(this.shapes, i);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,7 +24,8 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
 import { BitMask, Enum } from '../value-types';
@@ -32,17 +33,17 @@ import { legacyCC } from '../global-exports';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {
-  NONE: 0,
-  IGNORE_RAYCAST : (1 << 20),
-  GIZMOS : (1 << 21),
-  EDITOR : (1 << 22),
-  UI_3D : (1 << 23),
-  SCENE_GIZMO : (1 << 24),
-  UI_2D : (1 << 25),
+    NONE: 0,
+    IGNORE_RAYCAST: (1 << 20),
+    GIZMOS: (1 << 21),
+    EDITOR: (1 << 22),
+    UI_3D: (1 << 23),
+    SCENE_GIZMO: (1 << 24),
+    UI_2D: (1 << 25),
 
-  PROFILER : (1 << 28),
-  DEFAULT : (1 << 30),
-  ALL : 0xffffffff,
+    PROFILER: (1 << 28),
+    DEFAULT: (1 << 30),
+    ALL: 0xffffffff,
 };
 
 /**
@@ -53,17 +54,17 @@ const layerList = {
  * Every node can be assigned to multiple layers with different bit masks, you can setup layer with inclusive or exclusive operation.
  */
 export class Layers {
-
   /**
    * @en All layers in an Enum
    * @zh 以 Enum 形式存在的所有层列表
    */
   public static Enum = Enum(layerList);
+
   /**
    * @en All layers in [[BitMask]] type
    * @zh 包含所有层的 [[BitMask]]
    */
-  public static BitMask = BitMask(Object.assign({}, layerList));
+  public static BitMask = BitMask({ ...layerList });
 
   /**
    * @en
@@ -74,11 +75,11 @@ export class Layers {
    * @return A filter which can detect all accepted layers
    */
   public static makeMaskInclude (includes: number[]): number {
-    let mask = 0;
-    for (const inc of includes) {
-      mask |= inc;
-    }
-    return mask;
+      let mask = 0;
+      for (const inc of includes) {
+          mask |= inc;
+      }
+      return mask;
   }
 
   /**
@@ -90,7 +91,7 @@ export class Layers {
    * @return A filter which can detect for excluded layers
    */
   public static makeMaskExclude (excludes: number[]): number {
-    return ~Layers.makeMaskInclude(excludes);
+      return ~Layers.makeMaskInclude(excludes);
   }
 
   /**
@@ -100,18 +101,18 @@ export class Layers {
    * @param bitNum Layer's bit position
    */
   public static addLayer (name: string, bitNum: number) {
-    if ( bitNum === undefined ) {
-      console.warn('bitNum can\'t be undefined');
-      return;
-    }
-    if ( bitNum > 19 || bitNum < 0) {
-      console.warn('maximum layers reached.');
-      return;
-    }
-    Layers.Enum[name] = 1 << bitNum;
-    Layers.Enum[bitNum] = name;
-    Layers.BitMask[name] = 1 << bitNum;
-    Layers.BitMask[bitNum] = name;
+      if (bitNum === undefined) {
+          console.warn('bitNum can\'t be undefined');
+          return;
+      }
+      if (bitNum > 19 || bitNum < 0) {
+          console.warn('maximum layers reached.');
+          return;
+      }
+      Layers.Enum[name] = 1 << bitNum;
+      Layers.Enum[bitNum] = name;
+      Layers.BitMask[name] = 1 << bitNum;
+      Layers.BitMask[bitNum] = name;
   }
 
   /**
@@ -120,17 +121,16 @@ export class Layers {
    * @param bitNum Layer's bit position
    */
   public static deleteLayer (bitNum: number) {
-    if ( bitNum > 19 || bitNum < 0) {
-      console.warn('do not change buildin layers.');
-      return;
-    }
-    delete Layers.Enum[Layers.Enum[bitNum]];
-    delete Layers.Enum[bitNum];
-    delete Layers.BitMask[Layers.BitMask[bitNum]];
-    delete Layers.BitMask[bitNum];
+      if (bitNum > 19 || bitNum < 0) {
+          console.warn('do not change buildin layers.');
+          return;
+      }
+      delete Layers.Enum[Layers.Enum[bitNum]];
+      delete Layers.Enum[bitNum];
+      delete Layers.BitMask[Layers.BitMask[bitNum]];
+      delete Layers.BitMask[bitNum];
   }
 }
-
 export declare namespace Layers {
     export type Enum = EnumAlias<typeof Layers.Enum>;
     export type BitMask = EnumAlias<typeof Layers.BitMask>;

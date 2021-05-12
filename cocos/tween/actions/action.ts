@@ -2,7 +2,7 @@
  Copyright (c) 2008-2010 Ricardo Quesada
  Copyright (c) 2011-2012 cocos2d-x.org
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos2d-x.org
 
@@ -26,41 +26,41 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
 import { logID, errorID, Node } from '../../core';
 
 /**
- * !#en Base classAction for action classes.
- * !#zh Action 类是所有动作类型的基类。
+ * @en Base classAction for action classes.
+ * @zh Action 类是所有动作类型的基类。
  * @class Action
  */
 export class Action {
-
     /**
-     * !#en Default Action tag.
-     * !#zh 默认动作标签。
+     * @en Default Action tag.
+     * @zh 默认动作标签。
      * @constant
      * @static
      * @default -1
      */
-    static TAG_INVALID: number = -1;
+    static TAG_INVALID = -1;
 
     protected originalTarget: Node | null = null;
     protected target: Node | null = null;
     protected tag = Action.TAG_INVALID;
 
     /**
-     * !#en
+     * @en
      * to copy object with deep copy.
      * returns a clone of action.
-     * !#zh 返回一个克隆的动作。
+     * @zh 返回一个克隆的动作。
      * @method clone
      * @return {Action}
      */
     clone (): Action {
-        var action = new Action();
+        const action = new Action();
         action.originalTarget = null;
         action.target = null;
         action.tag = this.tag;
@@ -68,9 +68,9 @@ export class Action {
     }
 
     /**
-     * !#en
+     * @en
      * return true if the action has finished.
-     * !#zh 如果动作已完成就返回 true。
+     * @zh 如果动作已完成就返回 true。
      * @method isDone
      * @return {Boolean}
      */
@@ -100,8 +100,8 @@ export class Action {
     }
 
     /**
-     * !#en get the target.
-     * !#zh 获取当前目标节点。
+     * @en get the target.
+     * @zh 获取当前目标节点。
      * @method getTarget
      * @return {object}
      */
@@ -110,8 +110,8 @@ export class Action {
     }
 
     /**
-     * !#en The action will modify the target properties.
-     * !#zh 设置目标节点。
+     * @en The action will modify the target properties.
+     * @zh 设置目标节点。
      * @method setTarget
      * @param {object} target
      */
@@ -120,8 +120,8 @@ export class Action {
     }
 
     /**
-     * !#en get the original target.
-     * !#zh 获取原始目标节点。
+     * @en get the original target.
+     * @zh 获取原始目标节点。
      * @method getOriginalTarget
      * @return {object}
      */
@@ -137,8 +137,8 @@ export class Action {
     }
 
     /**
-     * !#en get tag number.
-     * !#zh 获取用于识别动作的标签。
+     * @en get tag number.
+     * @zh 获取用于识别动作的标签。
      * @method getTag
      * @return {Number}
      */
@@ -147,8 +147,8 @@ export class Action {
     }
 
     /**
-     * !#en set tag number.
-     * !#zh 设置标签，用于识别动作。
+     * @en set tag number.
+     * @zh 设置标签，用于识别动作。
      * @method setTag
      * @param {Number} tag
      */
@@ -157,13 +157,13 @@ export class Action {
     }
 
     /**
-     * !#en
+     * @en
      * Returns a reversed action. <br />
      * For example: <br />
      * - The action will be x coordinates of 0 move to 100. <br />
      * - The reversed action will be x of 100 move to 0.
      * - Will be rewritten
-     * !#zh 返回一个新的动作，执行与原动作完全相反的动作。
+     * @zh 返回一个新的动作，执行与原动作完全相反的动作。
      * @method reverse
      * @return {Action | null}
      */
@@ -184,25 +184,24 @@ export class Action {
 }
 
 /**
- * !#en
+ * @en
  * Base class actions that do have a finite time duration. <br/>
  * Possible actions: <br/>
  * - An action with a duration of 0 seconds. <br/>
  * - An action with a duration of 35.5 seconds.
  *
  * Infinite time actions are valid
- * !#zh 有限时间动作，这种动作拥有时长 duration 属性。
+ * @zh 有限时间动作，这种动作拥有时长 duration 属性。
  * @class FiniteTimeAction
  * @extends Action
  */
 export class FiniteTimeAction extends Action {
-
-    _duration: number = 0;
-    _timesForRepeat: number = 1;
+    _duration = 0;
+    _timesForRepeat = 1;
 
     /**
-     * !#en get duration of the action. (seconds).
-     * !#zh 获取动作以秒为单位的持续时间。
+     * @en get duration of the action. (seconds).
+     * @zh 获取动作以秒为单位的持续时间。
      * @method getDuration
      * @return {Number}
      */
@@ -211,8 +210,8 @@ export class FiniteTimeAction extends Action {
     }
 
     /**
-     * !#en set duration of the action. (seconds).
-     * !#zh 设置动作以秒为单位的持续时间。
+     * @en set duration of the action. (seconds).
+     * @zh 设置动作以秒为单位的持续时间。
      * @method setDuration
      * @param {Number} duration
      */
@@ -221,10 +220,10 @@ export class FiniteTimeAction extends Action {
     }
 
     /**
-     * !#en
+     * @en
      * to copy object with deep copy.
      * returns a clone of action.
-     * !#zh 返回一个克隆的动作。
+     * @zh 返回一个克隆的动作。
      * @method clone
      * @return {FiniteTimeAction}
      */
@@ -239,14 +238,13 @@ export class FiniteTimeAction extends Action {
  * Useful to simulate 'slow motion' or 'fast forward' effect.
  */
 export class Speed extends Action {
-
     protected _speed = 0;
     protected _innerAction: Action | null = null;
 
     /**
      * @warning This action can't be `Sequence-able` because it is not an `IntervalAction`
      */
-    constructor (action?: Action, speed: number = 1) {
+    constructor (action?: Action, speed = 1) {
         super();
         action && this.initWithAction(action, speed);
     }
@@ -290,7 +288,7 @@ export class Speed extends Action {
     }
 
     clone () {
-        var action = new Speed();
+        const action = new Speed();
         action.initWithAction(this._innerAction!.clone(), this._speed);
         return action;
     }

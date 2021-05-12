@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,12 +24,14 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
-import { UIComponent } from '../components/ui-base/ui-component';
-import { UITransform } from '../components/ui-base/ui-transform';
-import { UIRenderable } from '../components/ui-base/ui-renderable';
+import { UIComponent } from '../../2d/framework/ui-component';
+import { Renderable2D } from '../../2d/framework/renderable-2d';
+import { UITransform } from '../../2d/framework/ui-transform';
+import { warnID } from '../platform/debug';
 
 /**
  * @en Node's UI properties abstraction
@@ -42,12 +44,12 @@ export class NodeUIProperties {
      */
     get uiTransformComp () {
         if (!this._uiTransformComp) {
-            this._uiTransformComp = this._node.getComponent(UITransform);
+            this._uiTransformComp = this._node.getComponent('cc.UITransform') as UITransform;
         }
 
         return this._uiTransformComp;
     }
-    set uiTransformComp (value) {
+    set uiTransformComp (value: UITransform | null) {
         this._uiTransformComp = value;
     }
 
@@ -55,12 +57,25 @@ export class NodeUIProperties {
      * @en The base UI component
      * @zh UI 基类组件
      */
-    public uiComp: UIComponent | UIRenderable | null = null;
+    get uiComp () {
+        return this._uiComp;
+    }
+    set uiComp (comp: UIComponent | Renderable2D | null) {
+        if (this._uiComp && comp) {
+            warnID(12002);
+            return;
+        }
+        this._uiComp = comp;
+    }
+
+    private _uiComp: UIComponent | Renderable2D | null = null;
+
     /**
      * @en The opacity of the UI node
      * @zh UI 透明度
      */
     public opacity = 1;
+    public localOpacity = 1;
     protected _uiTransformComp: UITransform | null = null;
     private _node: any;
 

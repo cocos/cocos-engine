@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,41 +24,36 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
-import { CCObject } from '../data/object';
+import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
+import { CCObject, isValid } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
-import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { assert, errorID } from '../platform/debug';
 
 const MAX_POOL_SIZE = 4;
 
-// @ts-ignore
 const IsPreloadStarted = CCObject.Flags.IsPreloadStarted;
-// @ts-ignore
 const IsOnLoadStarted = CCObject.Flags.IsOnLoadStarted;
-// @ts-ignore
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
-// @ts-ignore
 const Deactivating = CCObject.Flags.Deactivating;
 
 const callPreloadInTryCatch = EDITOR && tryCatchFunctor_EDITOR('__preload');
 const callOnLoadInTryCatch = EDITOR && function (c) {
     try {
         c.onLoad();
-    }
-    catch (e) {
+    } catch (e) {
         legacyCC._throw(e);
     }
     c._objFlags |= IsOnLoadCalled;
     _onLoadInEditor(c);
 };
 const callOnDestroyInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onDestroy');
-const callResetInTryCatch = EDITOR && tryCatchFunctor_EDITOR('resetInEditor');
 const callOnFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onFocusInEditor');
 const callOnLostFocusInTryCatch = EDITOR && tryCatchFunctor_EDITOR('onLostFocusInEditor');
 
@@ -79,31 +74,31 @@ class UnsortedInvoker extends LifeCycleInvoker {
     }
 }
 
-const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();') :
-    createInvokeImpl(
-        function (c) { c.__preload(); }, 
-        function (iterator) {
-            var array = iterator.array;
+const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();')
+    : createInvokeImpl(
+        (c) => { c.__preload(); },
+        (iterator) => {
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
                 array[iterator.i].__preload();
             }
-        }
+        },
     );
-const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit('c.onLoad();c._objFlags|=' + IsOnLoadCalled, false, IsOnLoadCalled) :
-    createInvokeImpl(
-        function (c) {
+const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit(`c.onLoad();c._objFlags|=${IsOnLoadCalled}`, false, IsOnLoadCalled)
+    : createInvokeImpl(
+        (c) => {
             c.onLoad();
             c._objFlags |= IsOnLoadCalled;
         },
-        function (iterator) {
-            var array = iterator.array;
+        (iterator) => {
+            const array = iterator.array;
             for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
-                let comp = array[iterator.i];
+                const comp = array[iterator.i];
                 comp.onLoad();
                 comp._objFlags |= IsOnLoadCalled;
             }
         },
-        IsOnLoadCalled
+        IsOnLoadCalled,
     );
 
 const activateTasksPool = new Pool(MAX_POOL_SIZE);
@@ -135,29 +130,25 @@ function _componentCorrupted (node, comp, index) {
     }
     if (comp) {
         node._removeComponent(comp);
-    }
-    else {
+    } else {
         array.removeAt(node._components, index);
     }
 }
 
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !legacyCC.GAME_VIEW) {
-        // @ts-ignore
+        // @ts-expect-error
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
             if (comp.onFocusInEditor && callOnFocusInTryCatch) {
                 callOnFocusInTryCatch(comp);
             }
-        }
-        else {
-            if (comp.onLostFocusInEditor && callOnLostFocusInTryCatch) {
-                callOnLostFocusInTryCatch(comp);
-            }
+        } else if (comp.onLostFocusInEditor && callOnLostFocusInTryCatch) {
+            callOnLostFocusInTryCatch(comp);
         }
     }
-    if ( !TEST ) {
-        // @ts-ignore
+    if (!TEST) {
+        // @ts-expect-error
         _Scene.AssetsWatcher.start(comp);
     }
 }
@@ -201,8 +192,7 @@ export default class NodeActivator {
 
             this._activatingStack.pop();
             activateTasksPool.put(task);
-        }
-        else {
+        } else {
             this._deactivateNodeRecursively(node);
 
             // remove children of this node from previous activating tasks to debounce
@@ -226,13 +216,16 @@ export default class NodeActivator {
      * @param onEnableInvoker The invoker for `onEnable` method, normally from [[ComponentScheduler]]
      */
     public activateComp (comp, preloadInvoker?, onLoadInvoker?, onEnableInvoker?) {
+        if (!isValid(comp, true)) {
+            // destroyed before activating
+            return;
+        }
         if (!(comp._objFlags & IsPreloadStarted)) {
             comp._objFlags |= IsPreloadStarted;
             if (comp.__preload) {
                 if (preloadInvoker) {
                     preloadInvoker.add(comp);
-                }
-                else {
+                } else {
                     comp.__preload();
                 }
             }
@@ -242,13 +235,11 @@ export default class NodeActivator {
             if (comp.onLoad) {
                 if (onLoadInvoker) {
                     onLoadInvoker.add(comp);
-                }
-                else {
+                } else {
                     comp.onLoad();
                     comp._objFlags |= IsOnLoadCalled;
                 }
-            }
-            else {
+            } else {
                 comp._objFlags |= IsOnLoadCalled;
             }
         }
@@ -297,8 +288,7 @@ export default class NodeActivator {
             const component = node._components[i];
             if (component instanceof legacyCC.Component) {
                 this.activateComp(component, preloadInvoker, onLoadInvoker, onEnableInvoker);
-            }
-            else {
+            } else {
                 _componentCorrupted(node, component, i);
                 --i;
                 --originCount;
@@ -359,14 +349,17 @@ export default class NodeActivator {
 
 if (EDITOR) {
     NodeActivator.prototype.activateComp = (comp, preloadInvoker, onLoadInvoker, onEnableInvoker) => {
+        if (!isValid(comp, true)) {
+            // destroyed before activating
+            return;
+        }
         if (legacyCC.GAME_VIEW || comp.constructor._executeInEditMode) {
             if (!(comp._objFlags & IsPreloadStarted)) {
                 comp._objFlags |= IsPreloadStarted;
                 if (comp.__preload) {
                     if (preloadInvoker) {
                         preloadInvoker.add(comp);
-                    }
-                    else if (callPreloadInTryCatch) {
+                    } else if (callPreloadInTryCatch) {
                         callPreloadInTryCatch(comp);
                     }
                 }
@@ -376,12 +369,10 @@ if (EDITOR) {
                 if (comp.onLoad) {
                     if (onLoadInvoker) {
                         onLoadInvoker.add(comp);
-                    }
-                    else if (callOnLoadInTryCatch) {
+                    } else if (callOnLoadInTryCatch) {
                         callOnLoadInTryCatch(comp);
                     }
-                }
-                else {
+                } else {
                     comp._objFlags |= IsOnLoadCalled;
                     _onLoadInEditor(comp);
                 }
@@ -407,9 +398,13 @@ if (EDITOR) {
         }
     };
 
-    NodeActivator.prototype.resetComp = (comp) => {
-        if (comp.resetInEditor && callResetInTryCatch) {
-            callResetInTryCatch(comp);
+    NodeActivator.prototype.resetComp = (comp, didResetToDefault: boolean) => {
+        if (comp.resetInEditor) {
+            try {
+                comp.resetInEditor(didResetToDefault);
+            } catch (e) {
+                legacyCC._throw(e);
+            }
         }
     };
 }

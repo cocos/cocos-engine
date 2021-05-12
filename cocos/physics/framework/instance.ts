@@ -1,40 +1,158 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { IVec3Like } from '../../core/math';
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+import { EDITOR, TEST } from 'internal:constants';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { WRAPPER } from './physics-selector';
-import { IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimplexShape, IPlaneShape, IBaseShape } from '../spec/i-physics-shape';
+import { selector } from './physics-selector';
+import {
+    IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape,
+    IConeShape, ITerrainShape, ISimplexShape, IPlaneShape, IBaseShape,
+} from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { errorID, warnID, warn } from '../../core';
-import { EDITOR, DEBUG, TEST } from 'internal:constants';
+import { errorID, warn } from '../../core';
 import { EColliderType, EConstraintType } from './physics-enum';
 import { IBaseConstraint, IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint } from '../spec/i-physics-constraint';
 import { legacyCC } from '../../core/global-exports';
 
-export function checkPhysicsModule (obj: any) {
-    if (DEBUG && !TEST && !EDITOR && obj == null) {
-        errorID(9600);
+const FUNC = (...v: any) => 0 as any;
+const ENTIRE_WORLD: IPhysicsWorld = {
+    impl: null,
+    setGravity: FUNC,
+    setAllowSleep: FUNC,
+    setDefaultMaterial: FUNC,
+    step: FUNC,
+    syncAfterEvents: FUNC,
+    syncSceneToPhysics: FUNC,
+    raycast: FUNC,
+    raycastClosest: FUNC,
+    emitEvents: FUNC,
+    destroy: FUNC,
+};
+
+enum ECheckType {
+    World,
+    RigidBody,
+    // COLLIDER //
+    BoxCollider,
+    SphereCollider,
+    CapsuleCollider,
+    MeshCollider,
+    CylinderCollider,
+    ConeCollider,
+    TerrainCollider,
+    SimplexCollider,
+    PlaneCollider,
+    // JOINT //
+    PointToPointConstraint,
+    HingeConstraint,
+    ConeTwistConstraint,
+}
+
+function check (obj: any, type: ECheckType) {
+    if (!TEST && !EDITOR && !legacyCC.GAME_VIEW && obj == null) {
+        if (selector.id) {
+            warn(`${selector.id} physics does not support ${ECheckType[type]}`);
+        } else {
+            errorID(9600);
+        }
         return true;
     }
     return false;
 }
 
 export function createPhysicsWorld (): IPhysicsWorld {
-    if (DEBUG && checkPhysicsModule(WRAPPER.PhysicsWorld)) { return null as any; }
-    return new WRAPPER.PhysicsWorld() as IPhysicsWorld;
+    if (check(selector.wrapper.PhysicsWorld, ECheckType.World)) {
+        return ENTIRE_WORLD;
+    }
+    return new selector.wrapper.PhysicsWorld!();
 }
 
+const ENTIRE_RIGID_BODY: IRigidBody = {
+    impl: null,
+    rigidBody: null as unknown as any,
+    isAwake: false,
+    isSleepy: false,
+    isSleeping: false,
+    initialize: FUNC,
+    onEnable: FUNC,
+    onDisable: FUNC,
+    onDestroy: FUNC,
+    setType: FUNC,
+    setMass: FUNC,
+    setLinearDamping: FUNC,
+    setAngularDamping: FUNC,
+    useGravity: FUNC,
+    setLinearFactor: FUNC,
+    setAngularFactor: FUNC,
+    setAllowSleep: FUNC,
+    wakeUp: FUNC,
+    sleep: FUNC,
+    clearState: FUNC,
+    clearForces: FUNC,
+    clearVelocity: FUNC,
+    setSleepThreshold: FUNC,
+    getSleepThreshold: FUNC,
+    getLinearVelocity: FUNC,
+    setLinearVelocity: FUNC,
+    getAngularVelocity: FUNC,
+    setAngularVelocity: FUNC,
+    applyForce: FUNC,
+    applyLocalForce: FUNC,
+    applyImpulse: FUNC,
+    applyLocalImpulse: FUNC,
+    applyTorque: FUNC,
+    applyLocalTorque: FUNC,
+    setGroup: FUNC,
+    getGroup: FUNC,
+    addGroup: FUNC,
+    removeGroup: FUNC,
+    setMask: FUNC,
+    getMask: FUNC,
+    addMask: FUNC,
+    removeMask: FUNC,
+};
+
 export function createRigidBody (): IRigidBody {
-    if (DEBUG && checkPhysicsModule(WRAPPER.RigidBody)) { return null as any; }
-    return new WRAPPER.RigidBody() as IRigidBody;
+    if (check(selector.wrapper.RigidBody, ECheckType.RigidBody)) {
+        return ENTIRE_RIGID_BODY;
+    }
+    return new selector.wrapper.RigidBody!();
 }
+
+/// CREATE COLLIDER ///
 
 const CREATE_COLLIDER_PROXY = { INITED: false };
 
-const FUNC = (...v: any) => { return 0 as any; };
-interface IEntireShape extends IBoxShape, ISphereShape, ICapsuleShape, ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimplexShape, IPlaneShape { }
+interface IEntireShape extends IBoxShape, ISphereShape, ICapsuleShape,
+    ITrimeshShape, ICylinderShape, IConeShape, ITerrainShape, ISimplexShape, IPlaneShape { }
 const ENTIRE_SHAPE: IEntireShape = {
     impl: null,
     collider: null as unknown as any,
@@ -68,7 +186,8 @@ const ENTIRE_SHAPE: IEntireShape = {
     setTerrain: FUNC,
     setNormal: FUNC,
     setConstant: FUNC,
-}
+    updateEventListener: FUNC,
+};
 
 export function createShape (type: EColliderType): IBaseShape {
     initColliderProxy();
@@ -79,89 +198,50 @@ function initColliderProxy () {
     if (CREATE_COLLIDER_PROXY.INITED) return;
     CREATE_COLLIDER_PROXY.INITED = true;
 
-    const PHYSICS_BUILTIN = legacyCC._global['CC_PHYSICS_BUILTIN'];
-    const PHYSICS_CANNON = legacyCC._global['CC_PHYSICS_CANNON'];
-    const PHYSICS_AMMO = legacyCC._global['CC_PHYSICS_AMMO'];
+    CREATE_COLLIDER_PROXY[EColliderType.BOX] = function createBoxShape (): IBoxShape {
+        if (check(selector.wrapper.BoxShape, ECheckType.BoxCollider)) { return ENTIRE_SHAPE; }
+        return new selector.wrapper.BoxShape!();
+    };
 
-    CREATE_COLLIDER_PROXY[EColliderType.BOX] = function createBoxShape (size: IVec3Like): IBoxShape {
-        if (DEBUG && checkPhysicsModule(WRAPPER.BoxShape)) { return ENTIRE_SHAPE; }
-        return new WRAPPER.BoxShape(size) as IBoxShape;
-    }
+    CREATE_COLLIDER_PROXY[EColliderType.SPHERE] = function createSphereShape (): ISphereShape {
+        if (check(selector.wrapper.SphereShape, ECheckType.SphereCollider)) { return ENTIRE_SHAPE; }
+        return new selector.wrapper.SphereShape!();
+    };
 
-    CREATE_COLLIDER_PROXY[EColliderType.SPHERE] = function createSphereShape (radius: number): ISphereShape {
-        if (DEBUG && checkPhysicsModule(WRAPPER.SphereShape)) { return ENTIRE_SHAPE; }
-        return new WRAPPER.SphereShape(radius) as ISphereShape;
-    }
+    CREATE_COLLIDER_PROXY[EColliderType.CAPSULE] = function createCapsuleShape (): ICapsuleShape {
+        if (check(selector.wrapper.CapsuleShape, ECheckType.CapsuleCollider)) { return ENTIRE_SHAPE; }
+        return new selector.wrapper.CapsuleShape!();
+    };
 
-    CREATE_COLLIDER_PROXY[EColliderType.CAPSULE] = function createCapsuleShape (radius = 0.5, height = 2, dir = 1): ICapsuleShape {
-        if (PHYSICS_BUILTIN || PHYSICS_AMMO) {
-            if (DEBUG && checkPhysicsModule(WRAPPER.CapsuleShape)) { return ENTIRE_SHAPE; }
-            return new WRAPPER.CapsuleShape(radius, height, dir) as ICapsuleShape;
-        } else {
-            warnID(9610);
-            return ENTIRE_SHAPE;
-        }
-    }
+    CREATE_COLLIDER_PROXY[EColliderType.CYLINDER] = function createCylinderShape (): ICylinderShape {
+        if (check(selector.wrapper.CylinderShape, ECheckType.CylinderCollider)) { return ENTIRE_SHAPE; }
+        return new selector.wrapper.CylinderShape!();
+    };
 
-    CREATE_COLLIDER_PROXY[EColliderType.CYLINDER] = function createCylinderShape (radius = 0.5, height = 2, dir = 1): ICylinderShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
-            if (DEBUG && checkPhysicsModule(WRAPPER.CylinderShape)) { return ENTIRE_SHAPE; }
-            return new WRAPPER.CylinderShape(radius, height, dir) as ICylinderShape;
-        } else {
-            warnID(9612);
-            return ENTIRE_SHAPE;
-        }
-    }
-
-    CREATE_COLLIDER_PROXY[EColliderType.CONE] = function createConeShape (radius = 0.5, height = 1, dir = 1): IConeShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
-            if (DEBUG && checkPhysicsModule(WRAPPER.ConeShape)) { return ENTIRE_SHAPE; }
-            return new WRAPPER.ConeShape(radius, height, dir) as IConeShape;
-        } else {
-            warnID(9612);
-            return ENTIRE_SHAPE;
-        }
-    }
+    CREATE_COLLIDER_PROXY[EColliderType.CONE] = function createConeShape (): IConeShape {
+        if (check(selector.wrapper.ConeShape, ECheckType.ConeCollider)) { return ENTIRE_SHAPE; }
+        return new selector.wrapper.ConeShape!();
+    };
 
     CREATE_COLLIDER_PROXY[EColliderType.MESH] = function createTrimeshShape (): ITrimeshShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
-            if (DEBUG && checkPhysicsModule(WRAPPER.TrimeshShape)) { return ENTIRE_SHAPE; }
-            return new WRAPPER.TrimeshShape() as ITrimeshShape;
-        } else {
-            warnID(9611);
-            return ENTIRE_SHAPE;
-        }
-    }
+        if (check(selector.wrapper.TrimeshShape, ECheckType.MeshCollider)) { return ENTIRE_SHAPE; }
+        return new selector.wrapper.TrimeshShape!();
+    };
 
     CREATE_COLLIDER_PROXY[EColliderType.TERRAIN] = function createTerrainShape (): ITerrainShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
-            if (DEBUG && checkPhysicsModule(WRAPPER.TerrainShape)) { return ENTIRE_SHAPE; }
-            return new WRAPPER.TerrainShape() as ITerrainShape;
-        } else {
-            warn("[Physics]: builtin physics system doesn't support cylinder collider");
-            return ENTIRE_SHAPE;
-        }
-    }
+        if (check(selector.wrapper.TerrainShape, ECheckType.TerrainCollider)) { return ENTIRE_SHAPE; }
+        return new selector.wrapper.TerrainShape!();
+    };
 
     CREATE_COLLIDER_PROXY[EColliderType.SIMPLEX] = function createSimplexShape (): ISimplexShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
-            if (DEBUG && checkPhysicsModule(WRAPPER.SimplexShape)) { return ENTIRE_SHAPE; }
-            return new WRAPPER.SimplexShape() as ISimplexShape;
-        } else {
-            warn("[Physics]: builtin physics system doesn't support simple collider");
-            return ENTIRE_SHAPE;
-        }
-    }
+        if (check(selector.wrapper.SimplexShape, ECheckType.SimplexCollider)) { return ENTIRE_SHAPE; }
+        return new selector.wrapper.SimplexShape!();
+    };
 
     CREATE_COLLIDER_PROXY[EColliderType.PLANE] = function createPlaneShape (): IPlaneShape {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
-            if (DEBUG && checkPhysicsModule(WRAPPER.PlaneShape)) { return ENTIRE_SHAPE; }
-            return new WRAPPER.PlaneShape() as IPlaneShape;
-        } else {
-            warn("[Physics]: builtin physics system doesn't support plane collider");
-            return ENTIRE_SHAPE;
-        }
-    }
+        if (check(selector.wrapper.PlaneShape, ECheckType.PlaneCollider)) { return ENTIRE_SHAPE; }
+        return new selector.wrapper.PlaneShape!();
+    };
 }
 
 /// CREATE CONSTRAINT ///
@@ -170,17 +250,18 @@ const CREATE_CONSTRAINT_PROXY = { INITED: false };
 
 interface IEntireConstraint extends IPointToPointConstraint, IHingeConstraint, IConeTwistConstraint { }
 const ENTIRE_CONSTRAINT: IEntireConstraint = {
-    'impl': null,
-    'initialize': FUNC,
-    'onLoad': FUNC,
-    'onEnable': FUNC,
-    'onDisable': FUNC,
-    'onDestroy': FUNC,
-    'setEnableCollision': FUNC,
-    'setConnectedBody': FUNC,
-    'setPivotA': FUNC,
-    'setPivotB': FUNC,
-}
+    impl: null,
+    initialize: FUNC,
+    onLoad: FUNC,
+    onEnable: FUNC,
+    onDisable: FUNC,
+    onDestroy: FUNC,
+    setEnableCollision: FUNC,
+    setConnectedBody: FUNC,
+    setPivotA: FUNC,
+    setPivotB: FUNC,
+    setAxis: FUNC,
+};
 
 export function createConstraint (type: EConstraintType): IBaseConstraint {
     initConstraintProxy();
@@ -191,37 +272,18 @@ function initConstraintProxy () {
     if (CREATE_CONSTRAINT_PROXY.INITED) return;
     CREATE_CONSTRAINT_PROXY.INITED = true;
 
-    const PHYSICS_BUILTIN = legacyCC._global['CC_PHYSICS_BUILTIN'];
-    const PHYSICS_CANNON = legacyCC._global['CC_PHYSICS_CANNON'];
-    const PHYSICS_AMMO = legacyCC._global['CC_PHYSICS_AMMO'];
-
     CREATE_CONSTRAINT_PROXY[EConstraintType.POINT_TO_POINT] = function createPointToPointConstraint (): IPointToPointConstraint {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
-            if (DEBUG && checkPhysicsModule(WRAPPER.PointToPointConstraint)) { return ENTIRE_CONSTRAINT; }
-            return new WRAPPER.PointToPointConstraint() as IPointToPointConstraint;
-        } else {
-            warn("[Physics]: builtin physics system doesn't support point to point constraint");
-            return ENTIRE_CONSTRAINT;
-        }
-    }
+        if (check(selector.wrapper.PointToPointConstraint, ECheckType.PointToPointConstraint)) { return ENTIRE_CONSTRAINT; }
+        return new selector.wrapper.PointToPointConstraint!();
+    };
 
     CREATE_CONSTRAINT_PROXY[EConstraintType.HINGE] = function createHingeConstraint (): IHingeConstraint {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
-            if (DEBUG && checkPhysicsModule(WRAPPER.HingeConstraint)) { return ENTIRE_CONSTRAINT; }
-            return new WRAPPER.HingeConstraint() as IHingeConstraint;
-        } else {
-            warn("[Physics]: builtin physics system doesn't support hinge constraint");
-            return ENTIRE_CONSTRAINT;
-        }
-    }
+        if (check(selector.wrapper.HingeConstraint, ECheckType.HingeConstraint)) { return ENTIRE_CONSTRAINT; }
+        return new selector.wrapper.HingeConstraint!();
+    };
 
     CREATE_CONSTRAINT_PROXY[EConstraintType.CONE_TWIST] = function createConeTwistConstraint (): IConeTwistConstraint {
-        if (PHYSICS_CANNON || PHYSICS_AMMO) {
-            if (DEBUG && checkPhysicsModule(WRAPPER.ConeTwistConstraint)) { return null as any; }
-            return new WRAPPER.ConeTwistConstraint() as IConeTwistConstraint;
-        } else {
-            warn("[Physics]: builtin physics system doesn't support cone twist constraint");
-            return ENTIRE_CONSTRAINT;
-        }
-    }
+        if (check(selector.wrapper.ConeTwistConstraint, ECheckType.ConeTwistConstraint)) { return ENTIRE_CONSTRAINT; }
+        return new selector.wrapper.ConeTwistConstraint!();
+    };
 }

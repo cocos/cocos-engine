@@ -1,32 +1,56 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { GFXBufferUsageBit, GFXMemoryUsageBit, GFXDevice, GFXTexture } from '../gfx';
-import { GFXBuffer } from '../gfx/buffer';
-import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
-import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle, PassHandle, NULL_HANDLE } from '../renderer/core/memory-pools';
-import { UniformLightingMapSampler } from './define';
+import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle } from '../renderer/core/memory-pools';
+import { UNIFORM_LIGHTMAP_TEXTURE_BINDING } from './define';
+import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
+    Attribute, Buffer, BufferInfo, CommandBuffer  } from '../gfx';
 
 export interface IInstancedItem {
     count: number;
     capacity: number;
-    vb: GFXBuffer;
+    vb: Buffer;
     data: Uint8Array;
-    ia: GFXInputAssembler;
+    ia: InputAssembler;
     stride: number;
     hShader: ShaderHandle;
     hDescriptorSet: DescriptorSetHandle;
-    lightingMap: GFXTexture;
+    lightingMap: Texture;
 }
 
 const INITIAL_CAPACITY = 32;
 const MAX_CAPACITY = 1024;
 
 export class InstancedBuffer {
-
     private static _buffers = new Map<Pass, Record<number, InstancedBuffer>>();
 
     public static get (pass: Pass, extraKey = 0) {
@@ -37,14 +61,14 @@ export class InstancedBuffer {
     }
 
     public instances: IInstancedItem[] = [];
-    public hPass: PassHandle = NULL_HANDLE;
+    public pass: Pass;
     public hasPendingModels = false;
     public dynamicOffsets: number[] = [];
-    private _device: GFXDevice;
+    private _device: Device;
 
     constructor (pass: Pass) {
         this._device = pass.device;
-        this.hPass = pass.handle;
+        this.pass = pass;
     }
 
     public destroy () {
@@ -56,12 +80,15 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, passIdx: number) {
+    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, passIdx: number, hShaderImplant: ShaderHandle | null = null) {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
-        const lightingMap = subModel.descriptorSet.getTexture(UniformLightingMapSampler.binding);
-        const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
+        const lightingMap = subModel.descriptorSet.getTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING);
+        let hShader  = hShaderImplant;
+        if (!hShader) {
+            hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
+        }
         const hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
@@ -92,41 +119,37 @@ export class InstancedBuffer {
         }
 
         // Create a new instance
-        const vb = this._device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: stride * INITIAL_CAPACITY, stride,
-        });
+        const vb = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            stride * INITIAL_CAPACITY,
+            stride,
+        ));
         const data = new Uint8Array(stride * INITIAL_CAPACITY);
         const vertexBuffers = sourceIA.vertexBuffers.slice();
         const attributes = sourceIA.attributes.slice();
-        const indexBuffer = sourceIA.indexBuffer || undefined;
+        const indexBuffer = sourceIA.indexBuffer;
 
-        for (let i = 0; i < attrs.list.length; i++) {
-            const attr = attrs.list[i];
-            const newAttr: IGFXAttribute = {
-                name: attr.name,
-                format: attr.format,
-                stream: vertexBuffers.length,
-                isInstanced: true,
-            };
-            if (attr.isNormalized !== undefined) { newAttr.isNormalized = attr.isNormalized; }
+        for (let i = 0; i < attrs.attributes.length; i++) {
+            const attr = attrs.attributes[i];
+            const newAttr = new Attribute(attr.name, attr.format, attr.isNormalized, vertexBuffers.length, true);
             attributes.push(newAttr);
         }
         data.set(attrs.buffer);
 
         vertexBuffers.push(vb);
-        const ia = this._device.createInputAssembler({ attributes, vertexBuffers, indexBuffer });
-        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, hShader, hDescriptorSet, lightingMap});
+        const iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer);
+        const ia = this._device.createInputAssembler(iaInfo);
+        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, hShader, hDescriptorSet, lightingMap });
         this.hasPendingModels = true;
     }
 
-    public uploadBuffers () {
+    public uploadBuffers (cmdBuff: CommandBuffer) {
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (!instance.count) { continue; }
             instance.ia.instanceCount = instance.count;
-            instance.vb.update(instance.data);
+            cmdBuff.updateBuffer(instance.vb, instance.data);
         }
     }
 

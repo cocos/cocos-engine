@@ -1,24 +1,49 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
-/**
- * @category particle
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { builtinResMgr } from '../core/3d/builtin';
-import { createMesh } from '../core/3d/misc/utils';
-import { Material, Mesh, Texture2D } from '../core/assets';
-import { Component } from '../core/components/component';
+/**
+ * @packageDocumentation
+ * @module particle
+ */
+
 import { ccclass, help, executeInEditMode, menu, tooltip, type, serializable } from 'cc.decorator';
-import { GFXAttributeName, GFXFormat, GFXPrimitiveMode } from '../core/gfx';
+import { builtinResMgr } from '../core/builtin';
+import { createMesh } from '../3d/misc';
+import { Mesh } from '../3d/assets';
+import { Material, Texture2D } from '../core/assets';
+import { Component } from '../core/components/component';
+import { Attribute, AttributeName, Format, PrimitiveMode } from '../core/gfx';
 import { Color, toDegree, toRadian, Vec4 } from '../core/math';
 import { scene } from '../core/renderer';
 import { legacyCC } from '../core/global-exports';
 
 @ccclass('cc.Billboard')
 @help('i18n:cc.Billboard')
-@menu('Components/Billboard')
+@menu('Effects/Billboard')
 @executeInEditMode
 export class Billboard extends Component {
-
     @type(Texture2D)
     private _texture = null;
 
@@ -26,7 +51,7 @@ export class Billboard extends Component {
      * @zh Billboard纹理。
      */
     @type(Texture2D)
-    @tooltip('billboard显示的贴图')
+    @tooltip('i18n:billboard.texture')
     get texture () {
         return this._texture;
     }
@@ -44,7 +69,7 @@ export class Billboard extends Component {
     /**
      * @zh 高度。
      */
-    @tooltip('billboard的高度')
+    @tooltip('i18n:billboard.height')
     get height () {
         return this._height;
     }
@@ -63,7 +88,7 @@ export class Billboard extends Component {
     /**
      * @zh 宽度。
      */
-    @tooltip('billboard的宽度')
+    @tooltip('i18n:billboard.width')
     public get width () {
         return this._width;
     }
@@ -80,9 +105,9 @@ export class Billboard extends Component {
     private _rotation = 0;
 
     /**
-     * @zh 角度。
+     * @zh billboard绕中心点旋转的角度
      */
-    @tooltip('billboard绕中心点旋转的角度')
+    @tooltip('i18n:billboard.rotation')
     public get rotation () {
         return Math.round(toDegree(this._rotation) * 100) / 100;
     }
@@ -141,7 +166,7 @@ export class Billboard extends Component {
 
     private createModel () {
         this._mesh = createMesh({
-            primitiveMode: GFXPrimitiveMode.TRIANGLE_LIST,
+            primitiveMode: PrimitiveMode.TRIANGLE_LIST,
             positions: [0, 0, 0,
                 0, 0, 0,
                 0, 0, 0,
@@ -156,9 +181,9 @@ export class Billboard extends Component {
                 Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a,
                 Color.WHITE.r, Color.WHITE.g, Color.WHITE.b, Color.WHITE.a],
             attributes: [
-                { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
-                { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F },
-                { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8UI, isNormalized: true },
+                new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+                new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
+                new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8UI, true),
             ],
             indices: [0, 1, 2, 1, 2, 3],
         }, undefined, { calculateBounds: false });
@@ -168,6 +193,6 @@ export class Billboard extends Component {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-billboard-material'));
         }
-        model.initSubModel(0, this._mesh.renderingSubMeshes[0], this._material!);
+        model.initSubModel(0, this._mesh.renderingSubMeshes[0], this._material);
     }
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,16 +24,18 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
 import './node-event-processor';
+
+import './deprecated';
+
 export { BaseNode } from './base-node';
 export { Node } from './node';
 export { Scene } from './scene';
 export { Layers } from './layers';
 export { find } from './find';
-export { PrivateNode } from './private-node';
+export * from './deprecated';
 export { default as NodeActivator } from './node-activator';
-
-import './deprecated';

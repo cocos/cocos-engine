@@ -1,14 +1,33 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 export interface IExposedAttributes {
     /**
      * 指定属性的类型。
      */
     type?: any;
-
-    /**
-     *
-     */
-    url?: string;
 
     /**
      * 控制是否在编辑器中显示该属性。
@@ -26,9 +45,16 @@ export interface IExposedAttributes {
     displayOrder?: number;
 
     /**
-     * 该属性在编辑器中的工具提示内容。
+     * @en Editor tooltip of this property.
+     * @zh 该属性在编辑器中的工具提示内容。
      */
     tooltip?: string;
+
+    /**
+     * @en The tab name where this property is organized into, on property inspector.
+     * @zh 在属性检查器上该属性所属的分类标签名。
+     */
+    tab?: string;
 
     /**
      *
@@ -37,8 +63,18 @@ export interface IExposedAttributes {
 
     /**
      * 指定该属性是否为可读的。
+     * 将 `readonly` 指定为 `true` 或选项对象时都将标记为该属性是可读的；
+     * 当指定为 `true` 时将应用所有默认的只读性质。
+     * @default false
      */
-    readonly?: boolean;
+    readonly?: boolean | {
+        /**
+         * 如果该属性是对象或数组，指定该对象的属性或该数组的元素是否是只读的。
+         * 若为 `true`，递归的所有属性或元素都将是只读的。
+         * @default true
+         */
+        deep?: boolean;
+    };
 
     /**
      * 当该属性为数值类型时，指定了该属性允许的最小值。
@@ -103,7 +139,7 @@ export interface IExposedAttributes {
     /**
      * 注意：这是一个内部选项。
      * 此选项是为了在 `@property` 的基础上精确实现 `@serializable`、`@editable`以及所有新增的独立装饰器的行为。
-     * 
+     *
      * 当此字段为 `true` 时。以下规则将不再生效：
      * - 只要 `@property` 未显式指定选项 `.serializable === false`，就开启序列化；
      * - 只要 `@property` 未显式指定选项 `.visible === false` 且目标属性的名称不以下划线开头，就开启编辑器交互。

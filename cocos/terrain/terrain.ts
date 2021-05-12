@@ -1,28 +1,56 @@
-/**
- * @category terrain
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
-import { builtinResMgr } from '../core/3d/builtin';
-import { RenderableComponent } from '../core/3d/framework/renderable-component';
+
+/**
+ * @packageDocumentation
+ * @module terrain
+ */
+import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
+import { builtinResMgr } from '../core/builtin';
+import { RenderableComponent } from '../core/components/renderable-component';
 import { EffectAsset, Texture2D } from '../core/assets';
 import { Filter, PixelFormat, WrapMode } from '../core/assets/asset-enum';
 import { Material } from '../core/assets/material';
-import { RenderingSubMesh } from '../core/assets/mesh';
+import { RenderingSubMesh } from '../core/assets/rendering-sub-mesh';
 import { Component } from '../core/components';
-import { ccclass, disallowMultiple, executeInEditMode, help, visible, type, serializable, editable, disallowAnimation } from 'cc.decorator';
-import { isValid } from '../core/data/object';
+import { CCObject, isValid } from '../core/data/object';
 import { director } from '../core/director';
-import { GFXBuffer } from '../core/gfx/buffer';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXPrimitiveMode } from '../core/gfx/define';
-import { GFXDevice } from '../core/gfx/device';
-import { IGFXAttribute } from '../core/gfx/input-assembler';
+import { AttributeName, BufferUsageBit, Format, MemoryUsageBit, PrimitiveMode, Device, Attribute, Buffer, BufferInfo } from '../core/gfx';
 import { clamp, Rect, Size, Vec2, Vec3, Vec4 } from '../core/math';
 import { MacroRecord } from '../core/renderer/core/pass-utils';
 import { scene } from '../core/renderer';
 import { Root } from '../core/root';
-import { PrivateNode } from '../core/scene-graph/private-node';
 import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
-import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY, TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY, TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, } from './terrain-asset';
+import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
+    TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
+    TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
+import { CCBoolean, CCInteger, Node } from '../core';
+
+const bbMin = new Vec3();
+const bbMax = new Vec3();
 
 /**
  * @en Terrain info
@@ -36,7 +64,7 @@ export class TerrainInfo {
      */
     @serializable
     @editable
-    public tileSize: number = 1;
+    public tileSize = 1;
 
     /**
      * @en block count
@@ -52,7 +80,7 @@ export class TerrainInfo {
      */
     @serializable
     @editable
-    public weightMapSize: number = 128;
+    public weightMapSize = 128;
 
     /**
      * @en light map size
@@ -60,7 +88,7 @@ export class TerrainInfo {
      */
     @serializable
     @editable
-    public lightMapSize: number = 128;
+    public lightMapSize = 128;
 
     /**
      * @en terrain size
@@ -114,12 +142,36 @@ export class TerrainLayer {
     public detailMap: Texture2D|null = null;
 
     /**
+     * @en normal texture
+     * @zh 法线纹理
+     */
+    @serializable
+    @editable
+    public normalMap: Texture2D|null = null;
+
+    /**
      * @en tile size
      * @zh 平铺大小
      */
     @serializable
     @editable
-    public tileSize: number = 1;
+    public tileSize = 1;
+
+    /**
+     * @en metallic
+     * @zh 金属性
+     */
+    @serializable
+    @editable
+    public metallic = 0; /* [0, 1] */
+
+    /**
+     * @en roughness
+     * @zh 粗糙度
+     */
+    @serializable
+    @editable
+    public roughness = 1; /* [0, 1] */
 }
 
 /**
@@ -132,7 +184,7 @@ class TerrainRenderable extends RenderableComponent {
 
     public _brushMaterial: Material | null = null;
     public _currentMaterial: Material | null = null;
-    public _currentMaterialLayers: number = 0;
+    public _currentMaterialLayers = 0;
 
     public destroy () {
         // this._invalidMaterial();
@@ -142,6 +194,14 @@ class TerrainRenderable extends RenderableComponent {
         }
 
         return super.destroy();
+    }
+
+    public _destroyModel () {
+        // this._invalidMaterial();
+        if (this._model != null) {
+            legacyCC.director.root.destroyModel(this._model);
+            this._model = null;
+        }
     }
 
     public _invalidMaterial () {
@@ -171,9 +231,8 @@ class TerrainRenderable extends RenderableComponent {
                 defines: block._getMaterialDefines(nLayers),
             });
 
-            if (this._brushMaterial !== null) {
+            if (this._brushMaterial !== null && this._brushMaterial.passes !== null && this._brushMaterial.passes.length > 0) {
                 const passes = this._currentMaterial.passes;
-
                 passes.push(this._brushMaterial.passes[0]);
             }
 
@@ -182,8 +241,10 @@ class TerrainRenderable extends RenderableComponent {
             }
 
             this.setMaterial(this._currentMaterial, 0);
+
             this._currentMaterialLayers = nLayers;
             this._model.enabled = true;
+            this._model.receiveShadow = block.getTerrain().receiveShadow;
         }
     }
 
@@ -214,17 +275,6 @@ class TerrainRenderable extends RenderableComponent {
 }
 
 /**
- * @en Terrain block info
- * @zh 地形块信息
- */
-@ccclass('cc.TerrainBlockInfo')
-export class TerrainBlockInfo {
-    @serializable
-    @editable
-    public layers: number[] = [-1, -1, -1, -1];
-}
-
-/**
  * @en Terrain block light map info
  * @zh 地形块光照图信息
  */
@@ -235,16 +285,16 @@ export class TerrainBlockLightmapInfo {
     public texture: Texture2D|null = null;
     @serializable
     @editable
-    public UOff: number = 0;
+    public UOff = 0;
     @serializable
     @editable
-    public VOff: number = 0;
+    public VOff = 0;
     @serializable
     @editable
-    public UScale: number = 0;
+    public UScale = 0;
     @serializable
     @editable
-    public VScale: number = 0;
+    public VScale = 0;
 }
 
 /**
@@ -253,8 +303,7 @@ export class TerrainBlockLightmapInfo {
  */
 export class TerrainBlock {
     private _terrain: Terrain;
-    private _info: TerrainBlockInfo;
-    private _node: PrivateNode;
+    private _node: Node;
     private _renderable: TerrainRenderable;
     private _index: number[] = [1, 1];
     // private _neighbor: TerrainBlock|null[] = [null, null, null, null];
@@ -263,26 +312,27 @@ export class TerrainBlock {
 
     constructor (t: Terrain, i: number, j: number) {
         this._terrain = t;
-        this._info = t.getBlockInfo(i, j);
         this._index[0] = i;
         this._index[1] = j;
         this._lightmapInfo = t._getLightmapInfo(i, j);
 
-        this._node = new PrivateNode('');
-        // @ts-ignore
+        this._node = new Node();
         this._node.setParent(this._terrain.node);
-        // @ts-ignore
-        this._node._objFlags |= legacyCC.Object.Flags.DontSave;
+        this._node.hideFlags |= CCObject.Flags.DontSave | CCObject.Flags.HideInHierarchy;
 
-        this._renderable = this._node.addComponent(TerrainRenderable) as TerrainRenderable;
+        this._node.layer = this._terrain.node.layer;
+
+        this._renderable = this._node.addComponent(TerrainRenderable);
     }
 
     public build () {
-        const gfxDevice = director.root!.device as GFXDevice;
+        const gfxDevice = director.root!.device;
 
         // vertex buffer
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
         let index = 0;
+        bbMin.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        bbMax.set(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
         for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
             for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
                 const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
@@ -298,28 +348,32 @@ export class TerrainBlock {
                 vertexData[index++] = normal.z;
                 vertexData[index++] = uv.x;
                 vertexData[index++] = uv.y;
+
+                Vec3.min(bbMin, bbMin, position);
+                Vec3.max(bbMax, bbMax, position);
             }
         }
 
-        const vertexBuffer = gfxDevice.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY,
-            stride: TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT,
-        });
+        const vertexBuffer = gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY,
+            TERRAIN_BLOCK_VERTEX_SIZE * Float32Array.BYTES_PER_ELEMENT,
+        ));
         vertexBuffer.update(vertexData);
 
         // initialize renderable
-        const gfxAttributes: IGFXAttribute[] = [
-            { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },
-            { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },
-            { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RG32F },
+        const gfxAttributes: Attribute[] = [
+            new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),
+            new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),
+            new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F),
         ];
 
-        const subMesh = this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes, GFXPrimitiveMode.TRIANGLE_LIST);
-        subMesh.indexBuffer = this._terrain._getSharedIndexBuffer() || undefined;
+        this._renderable._meshData = new RenderingSubMesh([vertexBuffer], gfxAttributes,
+            PrimitiveMode.TRIANGLE_LIST, this._terrain._getSharedIndexBuffer());
 
         const model = this._renderable._model = (legacyCC.director.root as Root).createModel(scene.Model);
+        model.createBoundingShape(bbMin, bbMax);
         model.node = model.transform = this._node;
         this._renderable._getRenderScene().addModel(model);
 
@@ -339,9 +393,8 @@ export class TerrainBlock {
     }
 
     public destroy () {
-        if (this._renderable != null) {
-            this._renderable.destroy();
-        }
+        this._renderable._destroyModel();
+
         if (this._node != null) {
             this._node.destroy();
         }
@@ -353,89 +406,149 @@ export class TerrainBlock {
     public update () {
         this._updateMaterial(false);
 
+        const useNormalMap = this._terrain.useNormalMap;
+        const usePBR = this._terrain.usePBR;
+
+        // eslint-disable-next-line arrow-body-style
+        const getDetailTex = (layer: TerrainLayer|null) => {
+            return layer !== null ? layer.detailMap : null;
+        };
+
+        const getNormalTex = (layer: TerrainLayer|null) => {
+            let normalTex = layer !== null ? layer.normalMap : null;
+            if (normalTex === null) {
+                normalTex = legacyCC.builtinResMgr.get('normal-texture');
+            }
+
+            return normalTex;
+        };
+
         const mtl = this._renderable._currentMaterial;
-        if (mtl != null) {
+        if (mtl !== null) {
             const nlayers = this.getMaxLayer();
             const uvScale = new Vec4(1, 1, 1, 1);
+            const roughness = new Vec4(1, 1, 1, 1);
+            const metallic = new Vec4(0, 0, 0, 0);
 
             if (nlayers === 0) {
                 if (this.layers[0] !== -1) {
                     const l0 = this._terrain.getLayer(this.layers[0]);
 
-                    if (l0 != null) {
+                    if (l0 !== null) {
                         uvScale.x = 1.0 / l0.tileSize;
+                        roughness.x = l0.roughness;
+                        metallic.x = l0.metallic;
                     }
 
-                    mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
-                }
-                else {
+                    mtl.setProperty('detailMap0', getDetailTex(l0));
+                    if (useNormalMap) {
+                        mtl.setProperty('normalMap0', getNormalTex(l0));
+                    }
+                } else {
                     mtl.setProperty('detailMap0', legacyCC.builtinResMgr.get('default-texture'));
+                    if (useNormalMap) {
+                        mtl.setProperty('normalMap0', legacyCC.builtinResMgr.get('normal-texture'));
+                    }
                 }
-            }
-            else if (nlayers === 1) {
+            } else if (nlayers === 1) {
                 const l0 = this._terrain.getLayer(this.layers[0]);
                 const l1 = this._terrain.getLayer(this.layers[1]);
 
-                if (l0 != null) {
+                if (l0 !== null) {
                     uvScale.x = 1.0 / l0.tileSize;
+                    roughness.x = l0.roughness;
+                    metallic.x = l0.metallic;
                 }
-                if (l1 != null) {
+                if (l1 !== null) {
                     uvScale.y = 1.0 / l1.tileSize;
+                    roughness.y = l1.roughness;
+                    metallic.y = l1.metallic;
                 }
 
                 mtl.setProperty('weightMap', this._weightMap);
-                mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
-                mtl.setProperty('detailMap1', l1 != null ? l1.detailMap : null);
-            }
-            else if (nlayers === 2) {
+                mtl.setProperty('detailMap0', getDetailTex(l0));
+                mtl.setProperty('detailMap1', getDetailTex(l1));
+                if (useNormalMap) {
+                    mtl.setProperty('normalMap0', getNormalTex(l0));
+                    mtl.setProperty('normalMap1', getNormalTex(l1));
+                }
+            } else if (nlayers === 2) {
                 const l0 = this._terrain.getLayer(this.layers[0]);
                 const l1 = this._terrain.getLayer(this.layers[1]);
                 const l2 = this._terrain.getLayer(this.layers[2]);
 
-                if (l0 != null) {
+                if (l0 !== null) {
                     uvScale.x = 1.0 / l0.tileSize;
+                    roughness.x = l0.roughness;
+                    metallic.x = l0.metallic;
                 }
-                if (l1 != null) {
+                if (l1 !== null) {
                     uvScale.y = 1.0 / l1.tileSize;
+                    roughness.y = l1.roughness;
+                    metallic.y = l1.metallic;
                 }
-                if (l2 != null) {
+                if (l2 !== null) {
                     uvScale.z = 1.0 / l2.tileSize;
+                    roughness.z = l2.roughness;
+                    metallic.z = l2.metallic;
                 }
 
                 mtl.setProperty('weightMap', this._weightMap);
-                mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
-                mtl.setProperty('detailMap1', l1 != null ? l1.detailMap : null);
-                mtl.setProperty('detailMap2', l2 != null ? l2.detailMap : null);
-            }
-            else if (nlayers === 3) {
+                mtl.setProperty('detailMap0', getDetailTex(l0));
+                mtl.setProperty('detailMap1', getDetailTex(l1));
+                mtl.setProperty('detailMap2', getDetailTex(l2));
+                if (useNormalMap) {
+                    mtl.setProperty('normalMap0', getNormalTex(l0));
+                    mtl.setProperty('normalMap1', getNormalTex(l1));
+                    mtl.setProperty('normalMap2', getNormalTex(l2));
+                }
+            } else if (nlayers === 3) {
                 const l0 = this._terrain.getLayer(this.layers[0]);
                 const l1 = this._terrain.getLayer(this.layers[1]);
                 const l2 = this._terrain.getLayer(this.layers[2]);
                 const l3 = this._terrain.getLayer(this.layers[3]);
 
-                if (l0 != null) {
+                if (l0 !== null) {
                     uvScale.x = 1.0 / l0.tileSize;
+                    roughness.x = l0.roughness;
+                    metallic.x = l0.metallic;
                 }
-                if (l1 != null) {
+                if (l1 !== null) {
                     uvScale.y = 1.0 / l1.tileSize;
+                    roughness.y = l1.roughness;
+                    metallic.y = l1.metallic;
                 }
-                if (l2 != null) {
+                if (l2 !== null) {
                     uvScale.z = 1.0 / l2.tileSize;
+                    roughness.z = l2.roughness;
+                    metallic.z = l2.metallic;
                 }
-                if (l3 != null) {
-                    uvScale.z = 1.0 / l3.tileSize;
+                if (l3 !== null) {
+                    uvScale.w = 1.0 / l3.tileSize;
+                    roughness.w = l3.roughness;
+                    metallic.w = l3.metallic;
                 }
 
                 mtl.setProperty('weightMap', this._weightMap);
-                mtl.setProperty('detailMap0', l0 != null ? l0.detailMap : null);
-                mtl.setProperty('detailMap1', l1 != null ? l1.detailMap : null);
-                mtl.setProperty('detailMap2', l2 != null ? l2.detailMap : null);
-                mtl.setProperty('detailMap3', l3 != null ? l3.detailMap : null);
+                mtl.setProperty('detailMap0', getDetailTex(l0));
+                mtl.setProperty('detailMap1', getDetailTex(l1));
+                mtl.setProperty('detailMap2', getDetailTex(l2));
+                mtl.setProperty('detailMap3', getDetailTex(l3));
+                if (useNormalMap) {
+                    mtl.setProperty('normalMap0', getNormalTex(l0));
+                    mtl.setProperty('normalMap1', getNormalTex(l1));
+                    mtl.setProperty('normalMap2', getNormalTex(l2));
+                    mtl.setProperty('normalMap3', getNormalTex(l3));
+                }
             }
 
             mtl.setProperty('UVScale', uvScale);
+            if (usePBR) {
+                mtl.setProperty('roughness', roughness);
+                mtl.setProperty('metallic', metallic);
+            }
 
-            if (this.lightmap != null) {
+            if (this.lightmap !== null) {
                 mtl.setProperty('lightMap', this.lightmap);
                 mtl.setProperty('lightMapUVParam', this.lightmapUVParam);
             }
@@ -450,11 +563,30 @@ export class TerrainBlock {
     }
 
     /**
+     * @en valid
+     * @zh 是否有效
+     */
+    get valid () {
+        if (this._terrain === null) {
+            return false;
+        }
+
+        const blocks = this._terrain.getBlocks();
+        for (let i = 0; i < blocks.length; ++i) {
+            if (blocks[i] === this) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
      * @en get layers
      * @zh 获得纹理层索引
      */
     get layers () {
-        return this._info.layers;
+        return this._terrain.getBlockLayers(this._index[0], this._index[1]);
     }
 
     /**
@@ -473,9 +605,8 @@ export class TerrainBlock {
         if (this._lightmapInfo != null) {
             return new Vec4(this._lightmapInfo.UOff, this._lightmapInfo.VOff, this._lightmapInfo.UScale, this._lightmapInfo.VScale);
         }
-        else {
-            return new Vec4(0, 0, 0, 0);
-        }
+
+        return new Vec4(0, 0, 0, 0);
     }
 
     /**
@@ -514,7 +645,7 @@ export class TerrainBlock {
      */
     public setLayer (index: number, layerId: number) {
         if (this.layers[index] !== layerId) {
-            this.layers[index] = layerId;
+            this._terrain.setBlockLayer(this._index[0], this._index[1], index, layerId);
             this._renderable._invalidMaterial();
             this._updateMaterial(false);
         }
@@ -536,48 +667,24 @@ export class TerrainBlock {
         if (this.layers[3] >= 0) {
             return 3;
         }
-        else if (this.layers[2] >= 0) {
+        if (this.layers[2] >= 0) {
             return 2;
         }
-        else if (this.layers[1] >= 0) {
+        if (this.layers[1] >= 0) {
             return 1;
         }
-        else {
-            return 0;
-        }
+
+        return 0;
     }
 
     public _getMaterialDefines (nlayers: number): MacroRecord {
-        if (this.lightmap != null) {
-            if (nlayers === 0) {
-                return { LAYERS: 1, LIGHT_MAP: 1 };
-            }
-            else if (nlayers === 1) {
-                return { LAYERS: 2, LIGHT_MAP: 1 };
-            }
-            else if (nlayers === 2) {
-                return { LAYERS: 3, LIGHT_MAP: 1 };
-            }
-            else if (nlayers === 3) {
-                return { LAYERS: 4, LIGHT_MAP: 1 };
-            }
-        }
-        else {
-            if (nlayers === 0) {
-                return { LAYERS: 1 };
-            }
-            else if (nlayers === 1) {
-                return { LAYERS: 2 };
-            }
-            else if (nlayers === 2) {
-                return { LAYERS: 3 };
-            }
-            else if (nlayers === 3) {
-                return { LAYERS: 4 };
-            }
-        }
-
-        return { LAYERS: 0 };
+        return {
+            LAYERS: nlayers + 1,
+            USE_LIGHTMAP: this.lightmap !== null ? 1 : 0,
+            USE_NORMALMAP: this._terrain.useNormalMap ? 1 : 0,
+            USE_PBR: this._terrain.usePBR ? 1 : 0,
+            // CC_RECEIVE_SHADOW: this._terrain.receiveShadow ? 1 : 0,
+        };
     }
 
     public _invalidMaterial () {
@@ -596,6 +703,8 @@ export class TerrainBlock {
         const vertexData = new Float32Array(TERRAIN_BLOCK_VERTEX_SIZE * TERRAIN_BLOCK_VERTEX_COMPLEXITY * TERRAIN_BLOCK_VERTEX_COMPLEXITY);
 
         let index = 0;
+        bbMin.set(Number.MAX_VALUE, Number.MAX_VALUE, Number.MAX_VALUE);
+        bbMax.set(Number.MIN_VALUE, Number.MIN_VALUE, Number.MIN_VALUE);
         for (let j = 0; j < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++j) {
             for (let i = 0; i < TERRAIN_BLOCK_VERTEX_COMPLEXITY; ++i) {
                 const x = this._index[0] * TERRAIN_BLOCK_TILE_COMPLEXITY + i;
@@ -613,10 +722,15 @@ export class TerrainBlock {
                 vertexData[index++] = normal.z;
                 vertexData[index++] = uv.x;
                 vertexData[index++] = uv.y;
+
+                Vec3.min(bbMin, bbMin, position);
+                Vec3.max(bbMax, bbMax, position);
             }
         }
 
         this._renderable._meshData.vertexBuffers[0].update(vertexData);
+        this._renderable._model!.createBoundingShape(bbMin, bbMax);
+        this._renderable._model!.updateWorldBound();
     }
 
     public _updateWeightMap () {
@@ -630,13 +744,12 @@ export class TerrainBlock {
 
             return;
         }
-        else {
-            if (this._weightMap == null) {
-                this._weightMap = new Texture2D();
-                this._weightMap.create(this._terrain.weightMapSize, this._terrain.weightMapSize, PixelFormat.RGBA8888);
-                this._weightMap.setFilters(Filter.LINEAR, Filter.LINEAR);
-                this._weightMap.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
-            }
+
+        if (this._weightMap == null) {
+            this._weightMap = new Texture2D();
+            this._weightMap.create(this._terrain.weightMapSize, this._terrain.weightMapSize, PixelFormat.RGBA8888);
+            this._weightMap.setFilters(Filter.LINEAR, Filter.LINEAR);
+            this._weightMap.setWrapMode(WrapMode.CLAMP_TO_EDGE, WrapMode.CLAMP_TO_EDGE);
         }
 
         const weightData = new Uint8Array(this._terrain.weightMapSize * this._terrain.weightMapSize * 4);
@@ -684,35 +797,44 @@ export class Terrain extends Component {
     @visible(false)
     protected _effectAsset: EffectAsset|null = null;
 
-    @type(TerrainLayer)
-    @serializable
-    @disallowAnimation
-    protected _layers: (TerrainLayer|null)[] = [];
-
-    @serializable
-    @disallowAnimation
-    protected _blockInfos: TerrainBlockInfo[] = [];
-
+    @type(TerrainBlockLightmapInfo)
     @serializable
     @disallowAnimation
     protected _lightmapInfos: TerrainBlockLightmapInfo[] = [];
 
-    protected _tileSize: number = 1;
+    @type(CCBoolean)
+    @serializable
+    @disallowAnimation
+    protected _receiveShadow = false;
+
+    @type(CCBoolean)
+    @serializable
+    @disallowAnimation
+    protected _useNormalmap = false;
+
+    @type(CCBoolean)
+    @serializable
+    @disallowAnimation
+    protected _usePBR = false;
+
+    protected _tileSize = 1;
     protected _blockCount: number[] = [1, 1];
-    protected _weightMapSize: number = 128;
-    protected _lightMapSize: number = 128;
+    protected _weightMapSize = 128;
+    protected _lightMapSize = 128;
     protected _heights: Uint16Array = new Uint16Array();
     protected _weights: Uint8Array = new Uint8Array();
     protected _normals: number[] = [];
+    protected _layerList: (TerrainLayer|null)[] = [];
+    protected _layerBuffer: number[] = [];
     protected _blocks: TerrainBlock[] = [];
-    protected _sharedIndexBuffer: GFXBuffer|null = null;
+    protected _sharedIndexBuffer: Buffer|null = null;
 
     constructor () {
         super();
 
         // initialize layers
         for (let i = 0; i < TERRAIN_MAX_LAYER_COUNT; ++i) {
-            this._layers.push(null);
+            this._layerList.push(null);
         }
     }
 
@@ -723,11 +845,10 @@ export class Terrain extends Component {
             this.__asset = value;
             if (this.__asset != null && this.valid) {
                 // rebuild
-                for (const block of this._blocks) {
-                    block.destroy();
+                for (let i = 0; i < this._blocks.length; ++i) {
+                    this._blocks[i].destroy();
                 }
                 this._blocks = [];
-                this._blockInfos = [];
                 this._buildImp();
             }
         }
@@ -749,13 +870,61 @@ export class Terrain extends Component {
         }
 
         this._effectAsset = value;
-        for (const i of this._blocks) {
-            i._invalidMaterial();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i]._invalidMaterial();
         }
     }
 
     public get effectAsset () {
         return this._effectAsset;
+    }
+
+    /**
+     * @en Receive shadow
+     * @zh 是否接受阴影
+     */
+    @editable
+    get receiveShadow () {
+        return this._receiveShadow;
+    }
+
+    set receiveShadow (val) {
+        this._receiveShadow = val;
+        for (let i = 0; i < this._blocks.length; i++) {
+            this._blocks[i]._invalidMaterial();
+        }
+    }
+
+    /**
+     * @en Use normal map
+     * @zh 是否使用法线贴图
+     */
+    @editable
+    get useNormalMap () {
+        return this._useNormalmap;
+    }
+
+    set useNormalMap (val) {
+        this._useNormalmap = val;
+        for (let i = 0; i < this._blocks.length; i++) {
+            this._blocks[i]._invalidMaterial();
+        }
+    }
+
+    /**
+     * @en Use pbr material
+     * @zh 是否使用物理材质
+     */
+    @editable
+    get usePBR () {
+        return this._usePBR;
+    }
+
+    set usePBR (val) {
+        this._usePBR = val;
+        for (let i = 0; i < this._blocks.length; i++) {
+            this._blocks[i]._invalidMaterial();
+        }
     }
 
     /**
@@ -880,29 +1049,13 @@ export class Terrain extends Component {
      * @zh 重建地形
      */
     public rebuild (info: TerrainInfo) {
-        // build block info
-        const blockInfos: TerrainBlockInfo[] = [];
-        for (let i = 0; i < info.blockCount[0] * info.blockCount[1]; ++i) {
-            blockInfos.push(new TerrainBlockInfo());
-        }
-
-        const w = Math.min(this._blockCount[0], info.blockCount[0]);
-        const h = Math.min(this._blockCount[1], info.blockCount[1]);
-        for (let j = 0; j < h; ++j) {
-            for (let i = 0; i < w; ++i) {
-                const index0 = j * info.blockCount[0] + i;
-                const index1 = j * this.blockCount[0] + i;
-
-                blockInfos[index0] = this._blockInfos[index1];
-            }
-        }
-
-        this._blockInfos = blockInfos;
-
-        for (const block of this._blocks) {
-            block.destroy();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
         }
         this._blocks = [];
+
+        // build layer buffer
+        this._rebuildLayerBuffer(info);
 
         // build heights
         this._rebuildHeights(info);
@@ -926,8 +1079,8 @@ export class Terrain extends Component {
             }
         }
 
-        for (const i of this._blocks) {
-            i.build();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].build();
         }
     }
 
@@ -951,8 +1104,8 @@ export class Terrain extends Component {
         this._buildNormals();
 
         // rebuild all blocks
-        for (const i of this._blocks) {
-            i._updateHeight();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i]._updateHeight();
         }
     }
 
@@ -996,13 +1149,17 @@ export class Terrain extends Component {
             asset.layerBuffer[i * 4 + 3] = this._blocks[i].layers[3];
         }
 
-        for (let i = 0; i < this._layers.length; ++i) {
-            const temp = this._layers[i];
+        for (let i = 0; i < this._layerList.length; ++i) {
+            const temp = this._layerList[i];
             if (temp && temp.detailMap && isValid(temp.detailMap)) {
                 const layer = new TerrainLayerInfo();
                 layer.slot = i;
                 layer.tileSize = temp.tileSize;
-                layer.detailMap = temp.detailMap._uuid;
+                layer.detailMap = temp.detailMap;
+                layer.normalMap = temp.normalMap;
+                layer.metallic = temp.metallic;
+                layer.roughness = temp.roughness;
+
                 asset.layerInfos.push(layer);
             }
         }
@@ -1012,15 +1169,14 @@ export class Terrain extends Component {
 
     public getEffectAsset () {
         if (this._effectAsset === null) {
-            return legacyCC.EffectAsset.get('builtin-terrain');
+            return legacyCC.EffectAsset.get('terrain') as EffectAsset;
         }
-        else {
-            return this._effectAsset;
-        }
+
+        return this._effectAsset;
     }
 
     public onLoad () {
-        const gfxDevice = legacyCC.director.root.device as GFXDevice;
+        const gfxDevice = legacyCC.director.root.device as Device;
 
         // initialize shared index buffer
         const indexData = new Uint16Array(TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6);
@@ -1045,12 +1201,12 @@ export class Terrain extends Component {
             }
         }
 
-        this._sharedIndexBuffer = gfxDevice.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: Uint16Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6,
-            stride: Uint16Array.BYTES_PER_ELEMENT,
-        });
+        this._sharedIndexBuffer = gfxDevice.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            Uint16Array.BYTES_PER_ELEMENT * TERRAIN_BLOCK_TILE_COMPLEXITY * TERRAIN_BLOCK_TILE_COMPLEXITY * 6,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
         this._sharedIndexBuffer.update(indexData);
     }
 
@@ -1061,15 +1217,20 @@ export class Terrain extends Component {
     }
 
     public onDisable () {
-        for (const i of this._blocks) {
-            i.destroy();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
         }
         this._blocks = [];
     }
 
     public onDestroy () {
-        for (let i = 0; i < this._layers.length; ++i) {
-            this._layers[i] = null;
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].destroy();
+        }
+        this._blocks = [];
+
+        for (let i = 0; i < this._layerList.length; ++i) {
+            this._layerList[i] = null;
         }
 
         if (this._sharedIndexBuffer != null) {
@@ -1084,8 +1245,8 @@ export class Terrain extends Component {
     }
 
     public update (deltaTime: number) {
-        for (const i of this._blocks) {
-            i.update();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].update();
         }
     }
 
@@ -1094,9 +1255,9 @@ export class Terrain extends Component {
      * @zh 添加纹理层
      */
     public addLayer (layer: TerrainLayer) {
-        for (let i = 0; i < this._layers.length; ++i) {
-            if (this._layers[i] == null) {
-                this._layers[i] = layer;
+        for (let i = 0; i < this._layerList.length; ++i) {
+            if (this._layerList[i] === null || (this._layerList[i] && this._layerList[i]?.detailMap === null)) {
+                this._layerList[i] = layer;
                 return i;
             }
         }
@@ -1109,7 +1270,7 @@ export class Terrain extends Component {
      * @zh 设置纹理层
      */
     public setLayer (i: number, layer: TerrainLayer) {
-        this._layers[i] = layer;
+        this._layerList[i] = layer;
     }
 
     /**
@@ -1117,7 +1278,7 @@ export class Terrain extends Component {
      * @zh 移除纹理层
      */
     public removeLayer (id: number) {
-        this._layers[id] = null;
+        this._layerList[id] = null;
     }
 
     /**
@@ -1129,8 +1290,7 @@ export class Terrain extends Component {
             return null;
         }
 
-        return this._layers[id];
-
+        return this._layerList[id];
     }
 
     /**
@@ -1209,8 +1369,7 @@ export class Terrain extends Component {
 
         if (dx + dz <= 1.0) {
             d = m + (m - a);
-        }
-        else {
+        } else {
             a = m + (m - d);
         }
 
@@ -1281,8 +1440,7 @@ export class Terrain extends Component {
             d.set(m);
             d.subtract(a);
             d.add(m);
-        }
-        else {
+        } else {
             // a = m + (m - d);
             a.set(m);
             a.subtract(d);
@@ -1333,8 +1491,14 @@ export class Terrain extends Component {
      * @zh 根据点的坐标获得权重
      */
     public getWeightAt (x: number, y: number) {
-        const fx = x / this.tileSize;
-        const fy = y / this.tileSize;
+        const uWeigthComplexity = this.weightMapSize * this.blockCount[0];
+        const vWeigthComplexity = this.weightMapSize * this.blockCount[1];
+        if (uWeigthComplexity === 0 || vWeigthComplexity === 0) {
+            return null;
+        }
+
+        const fx = x / uWeigthComplexity;
+        const fy = y / vWeigthComplexity;
 
         let ix0 = Math.floor(fx);
         let iz0 = Math.floor(fy);
@@ -1343,14 +1507,14 @@ export class Terrain extends Component {
         const dx = fx - ix0;
         const dz = fy - iz0;
 
-        if (ix0 < 0 || ix0 > this.vertexCount[0] - 1 || iz0 < 0 || iz0 > this.vertexCount[1] - 1) {
+        if (ix0 < 0 || ix0 > uWeigthComplexity - 1 || iz0 < 0 || iz0 > vWeigthComplexity - 1) {
             return null;
         }
 
-        ix0 = clamp(ix0, 0, this.vertexCount[0] - 1);
-        iz0 = clamp(iz0, 0, this.vertexCount[1] - 1);
-        ix1 = clamp(ix1, 0, this.vertexCount[0] - 1);
-        iz1 = clamp(iz1, 0, this.vertexCount[1] - 1);
+        ix0 = clamp(ix0, 0, uWeigthComplexity - 1);
+        iz0 = clamp(iz0, 0, vWeigthComplexity - 1);
+        ix1 = clamp(ix1, 0, uWeigthComplexity - 1);
+        iz1 = clamp(iz1, 0, vWeigthComplexity - 1);
 
         let a = this.getWeight(ix0, iz0);
         const b = this.getWeight(ix1, iz0);
@@ -1362,8 +1526,7 @@ export class Terrain extends Component {
         if (dx + dz <= 1.0) {
             d = new Vec4();
             Vec4.subtract(d, m, a).add(m);
-        }
-        else {
+        } else {
             a = new Vec4();
             Vec4.subtract(a, m, d).add(m);
         }
@@ -1379,11 +1542,77 @@ export class Terrain extends Component {
     }
 
     /**
-     * @en get block info
-     * @zh 获得地形块信息
+     * @en get max weight layer by point
+     * @zh 根据点的坐标获得权重最大的纹理层
      */
-    public getBlockInfo (i: number, j: number) {
-        return this._blockInfos[j * this._blockCount[0] + i];
+    public getMaxWeightLayerAt (x: number, y: number) {
+        const uWeigthComplexity = this.weightMapSize * this.blockCount[0];
+        const vWeigthComplexity = this.weightMapSize * this.blockCount[1];
+        if (uWeigthComplexity === 0 || vWeigthComplexity === 0) {
+            return null;
+        }
+
+        const fx = x / uWeigthComplexity;
+        const fy = y / vWeigthComplexity;
+        const ix0 = Math.floor(fx);
+        const iz0 = Math.floor(fy);
+
+        if (ix0 < 0 || ix0 > uWeigthComplexity - 1 || iz0 < 0 || iz0 > vWeigthComplexity - 1) {
+            return null;
+        }
+
+        const w = this.getWeight(ix0, iz0);
+        const bx = Math.floor(x / this.weightMapSize);
+        const by = Math.floor(y / this.weightMapSize);
+        const block = this.getBlock(bx, by);
+
+        let i = 0;
+        if (w.y > w[i] && block.getLayer(1) !== -1) {
+            i = 1;
+        }
+        if (w.y > w[i] && block.getLayer(2) !== -1) {
+            i = 2;
+        }
+        if (w.z > w[i] && block.getLayer(3) !== -1) {
+            i = 3;
+        }
+
+        i = block.getLayer(i);
+
+        return this.getLayer(i);
+    }
+
+    /**
+     * @en get block layers
+     * @zh 获得地形块纹理层
+     */
+    public getBlockLayers (i: number, j: number) {
+        const layerIndex = (j * this._blockCount[0] + i) * TERRAIN_MAX_BLEND_LAYERS;
+
+        return [
+            this._layerBuffer[layerIndex],
+            this._layerBuffer[layerIndex + 1],
+            this._layerBuffer[layerIndex + 2],
+            this._layerBuffer[layerIndex + 3],
+        ];
+    }
+
+    /**
+     * @en get block layer
+     * @zh 获得地形块纹理层
+     */
+    public getBlockLayer (i: number, j: number, index: number) {
+        const layerIndex = (j * this._blockCount[0] + i) * TERRAIN_MAX_BLEND_LAYERS;
+        return this._layerBuffer[layerIndex + index];
+    }
+
+    /**
+     * @en set block layer
+     * @zh 获得地形块层
+     */
+    public setBlockLayer (i: number, j: number, index: number, layerId: number) {
+        const layerIndex = (j * this._blockCount[0] + i) * TERRAIN_MAX_BLEND_LAYERS;
+        this._layerBuffer[layerIndex + index] = layerId;
     }
 
     /**
@@ -1404,17 +1633,13 @@ export class Terrain extends Component {
 
     /**
      * @en ray check
+     * @zh 射线检测
      * @param start ray start
      * @param dir ray direction
      * @param step ray step
      * @param worldSpace is world space
-     * @zh 射线检测
-     * @param start 射线原点
-     * @param dir 射线方向
-     * @param step 射线步长
-     * @param worldSpace 是否在世界空间
      */
-    public rayCheck (start: Vec3, dir: Vec3, step: number, worldSpace: boolean = true) {
+    public rayCheck (start: Vec3, dir: Vec3, step: number, worldSpace = true) {
         const MAX_COUNT = 2000;
 
         const trace = start;
@@ -1433,14 +1658,12 @@ export class Terrain extends Component {
             if (y != null && trace.y <= y) {
                 position = new Vec3(trace.x, y, trace.z);
             }
-        }
-        else if (dir.equals(new Vec3(0, -1, 0))) {
+        } else if (dir.equals(new Vec3(0, -1, 0))) {
             const y = this.getHeightAt(trace.x, trace.z);
             if (y != null && trace.y >= y) {
                 position = new Vec3(trace.x, y, trace.z);
             }
-        }
-        else {
+        } else {
             let i = 0;
 
             // 优先大步进查找
@@ -1503,16 +1726,14 @@ export class Terrain extends Component {
 
         if (x < this.vertexCount[0] - 1) {
             right = this.getPosition(x + 1, z);
-        }
-        else {
+        } else {
             flip *= -1;
             right = this.getPosition(x - 1, z);
         }
 
         if (z < this.vertexCount[1] - 1) {
             up = this.getPosition(x, z + 1);
-        }
-        else {
+        } else {
             flip *= -1;
             up = this.getPosition(x, z - 1);
         }
@@ -1543,42 +1764,63 @@ export class Terrain extends Component {
         }
     }
 
-    private _buildImp (restore: boolean = false) {
+    private _buildImp (restore = false) {
         if (this.valid) {
-            return true;
+            return;
         }
 
-        if (!restore && this.__asset != null) {
-            this._tileSize = this.__asset.tileSize;
-            this._blockCount = this.__asset.blockCount;
-            this._weightMapSize = this.__asset.weightMapSize;
-            this._lightMapSize = this.__asset.lightMapSize;
-            this._heights = this.__asset.heights;
-            this._weights = this.__asset.weights;
+        const terrainAsset = this.__asset;
+        if (!restore && terrainAsset !== null) {
+            this._tileSize = terrainAsset.tileSize;
+            this._blockCount = terrainAsset.blockCount;
+            this._weightMapSize = terrainAsset.weightMapSize;
+            this._lightMapSize = terrainAsset.lightMapSize;
+            this._heights = terrainAsset.heights;
+            this._weights = terrainAsset.weights;
+            this._layerBuffer = terrainAsset.layerBuffer;
 
             // build layers
-            let initial = true;
-            for (let i = 0; i < this._layers.length; ++i) {
-                if (this._layers[i] != null) {
-                    initial = false;
-                }
+            for (let i = 0; i < this._layerList.length; ++i) {
+                this._layerList[i] = null;
             }
 
-            if (initial && this._asset != null) {
-                for (const i of this._asset.layerInfos) {
+            if (terrainAsset.version < TERRAIN_DATA_VERSION5) {
+                for (let i = 0; i < terrainAsset.layerBinaryInfos.length; ++i) {
                     const layer = new TerrainLayer();
-                    layer.tileSize = i.tileSize;
-                    legacyCC.loader.loadRes(i.detailMap, Texture2D, (err, asset) => {
+                    const layerInfo = terrainAsset.layerBinaryInfos[i];
+                    layer.tileSize = layerInfo.tileSize;
+                    legacyCC.assetManager.loadAny(layerInfo.detailMapId, (err, asset) => {
                         layer.detailMap = asset;
                     });
 
-                    this._layers[i.slot] = layer;
+                    if (layerInfo.normalMapId !== '') {
+                        legacyCC.assetManager.loadAny(layerInfo.normalMapId, (err, asset) => {
+                            layer.normalMap = asset;
+                        });
+                    }
+
+                    layer.roughness = layerInfo.roughness;
+                    layer.metallic = layerInfo.metallic;
+
+                    this._layerList[layerInfo.slot] = layer;
+                }
+            } else {
+                for (let i = 0; i < terrainAsset.layerInfos.length; ++i) {
+                    const layer = new TerrainLayer();
+                    const layerInfo = terrainAsset.layerInfos[i];
+                    layer.tileSize = layerInfo.tileSize;
+                    layer.detailMap = layerInfo.detailMap;
+                    layer.normalMap = layerInfo.normalMap;
+                    layer.roughness = layerInfo.roughness;
+                    layer.metallic = layerInfo.metallic;
+
+                    this._layerList[layerInfo.slot] = layer;
                 }
             }
         }
 
         if (this._blockCount[0] === 0 || this._blockCount[1] === 0) {
-            return false;
+            return;
         }
 
         // build heights & normals
@@ -1593,10 +1835,18 @@ export class Terrain extends Component {
                 this._normals[i * 3 + 1] = 1;
                 this._normals[i * 3 + 2] = 0;
             }
-        }
-        else {
+        } else {
             this._normals = new Array<number>(vertexCount * 3);
             this._buildNormals();
+        }
+
+        // build layer buffer
+        const layerBufferSize = this.blockCount[0] * this.blockCount[1] * TERRAIN_MAX_BLEND_LAYERS;
+        if (this._layerBuffer === null || this._layerBuffer.length !== layerBufferSize) {
+            this._layerBuffer = new Array<number>(layerBufferSize);
+            for (let i = 0; i < layerBufferSize; ++i) {
+                this._layerBuffer[i] = -1;
+            }
         }
 
         // build weights
@@ -1613,49 +1863,19 @@ export class Terrain extends Component {
         }
 
         // build blocks
-        if (this._blockInfos.length !== this._blockCount[0] * this._blockCount[1]) {
-            this._blockInfos = [];
-            for (let j = 0; j < this._blockCount[1]; ++j) {
-                for (let i = 0; i < this._blockCount[0]; ++i) {
-                    const info = new TerrainBlockInfo();
-                    if (this._asset != null) {
-                        info.layers[0] = this._asset.getLayer(i, j, 0);
-
-                        info.layers[1] = this._asset.getLayer(i, j, 1);
-                        if (info.layers[1] === info.layers[0]) {
-                            info.layers[1] = -1;
-                        }
-
-                        info.layers[2] = this._asset.getLayer(i, j, 2);
-                        if (info.layers[2] === info.layers[0]) {
-                            info.layers[2] = -1;
-                        }
-
-                        info.layers[3] = this._asset.getLayer(i, j, 3);
-                        if (info.layers[3] === info.layers[0]) {
-                            info.layers[3] = -1;
-                        }
-                    }
-
-                    this._blockInfos.push(info);
-                }
-            }
-        }
-
         for (let j = 0; j < this._blockCount[1]; ++j) {
             for (let i = 0; i < this._blockCount[0]; ++i) {
                 this._blocks.push(new TerrainBlock(this, i, j));
             }
         }
 
-        for (const i of this._blocks) {
-            i.build();
+        for (let i = 0; i < this._blocks.length; ++i) {
+            this._blocks[i].build();
         }
     }
 
     private _rebuildHeights (info: TerrainInfo) {
-        if (this.vertexCount[0] === info.vertexCount[0] &&
-            this.vertexCount[1] === info.vertexCount[1]) {
+        if (this.vertexCount[0] === info.vertexCount[0] && this.vertexCount[1] === info.vertexCount[1]) {
             return false;
         }
 
@@ -1681,6 +1901,35 @@ export class Terrain extends Component {
         return true;
     }
 
+    private _rebuildLayerBuffer (info: TerrainInfo) {
+        if (this.blockCount[0] === info.blockCount[0] && this.blockCount[1] === info.blockCount[1]) {
+            return false;
+        }
+
+        const layerBuffer:number[] = [];
+        layerBuffer.length = info.blockCount[0] * info.blockCount[1] * TERRAIN_MAX_BLEND_LAYERS;
+        for (let i = 0; i < layerBuffer.length; ++i) {
+            layerBuffer[i] = -1;
+        }
+
+        const w = Math.min(this.blockCount[0], info.blockCount[0]);
+        const h = Math.min(this.blockCount[1], info.blockCount[1]);
+        for (let j = 0; j < h; ++j) {
+            for (let i = 0; i < w; ++i) {
+                const index0 = j * info.blockCount[0] + i;
+                const index1 = j * this.blockCount[0] + i;
+
+                for (let l = 0; l < TERRAIN_MAX_BLEND_LAYERS; ++l) {
+                    layerBuffer[index0 * TERRAIN_MAX_BLEND_LAYERS + l] = this._layerBuffer[index1 * TERRAIN_MAX_BLEND_LAYERS + l];
+                }
+            }
+        }
+
+        this._layerBuffer = layerBuffer;
+
+        return true;
+    }
+
     private _rebuildWeights (info: TerrainInfo) {
         const oldWeightMapSize = this._weightMapSize;
         const oldWeightMapComplexityU = this._weightMapSize * this._blockCount[0];
@@ -1689,8 +1938,7 @@ export class Terrain extends Component {
         const weightMapComplexityU = info.weightMapSize * info.blockCount[0];
         const weightMapComplexityV = info.weightMapSize * info.blockCount[1];
 
-        if (weightMapComplexityU === oldWeightMapComplexityU &&
-            weightMapComplexityV === oldWeightMapComplexityV) {
+        if (weightMapComplexityU === oldWeightMapComplexityU && weightMapComplexityV === oldWeightMapComplexityV) {
             return false;
         }
 
@@ -1739,8 +1987,7 @@ export class Terrain extends Component {
                 d.set(m);
                 d.subtract(a);
                 d.add(m);
-            }
-            else {
+            } else {
                 a.set(m);
                 a.subtract(d);
                 a.add(m);
@@ -1764,12 +2011,10 @@ export class Terrain extends Component {
 
                 for (let v = 0; v < info.weightMapSize; ++v) {
                     for (let u = 0; u < info.weightMapSize; ++u) {
-                        // tslint:disable-next-line: no-shadowed-variable
                         let w: Vec4;
                         if (info.weightMapSize === oldWeightMapSize) {
                             w = getOldWeight(u + uOff, v + vOff, this._weights);
-                        }
-                        else {
+                        } else {
                             const x = u / (info.weightMapSize - 1) * (oldWeightMapSize - 1);
                             const y = v / (info.weightMapSize - 1) * (oldWeightMapSize - 1);
                             w = sampleOldWeight(x, y, uOff, vOff, this._weights);

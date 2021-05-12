@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,10 +24,11 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
-import { RenderableComponent } from '../../3d/framework/renderable-component';
+import { RenderableComponent } from '../../components/renderable-component';
 import { Material } from '../../assets/material';
 import { PassInstance } from './pass-instance';
 import { MacroRecord } from './pass-utils';
@@ -44,7 +45,6 @@ export interface IMaterialInstanceInfo {
  * 材质实例，当有材质修改需求时，根据材质资源创建的，可任意定制的实例。
  */
 export class MaterialInstance extends Material {
-
     get parent () {
         return this._parent;
     }
@@ -103,7 +103,7 @@ export class MaterialInstance extends Material {
     public onPassStateChange (dontNotify: boolean) {
         this._hash = Material.getHash(this);
         if (!dontNotify && this._owner) {
-            // @ts-ignore
+            // @ts-expect-error calling protected method here
             this._owner._onRebuildPSO(this._subModelIdx, this);
         }
     }

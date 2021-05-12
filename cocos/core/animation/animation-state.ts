@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,21 +24,24 @@
 */
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
+import { EDITOR } from 'internal:constants';
 import { Node } from '../scene-graph/node';
 import { AnimationClip, IRuntimeCurve } from './animation-clip';
 import { AnimCurve, RatioSampler } from './animation-curve';
 import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget } from './bound-target';
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
-import { EDITOR } from 'internal:constants';
 import { HierarchyPath, evaluatePath, TargetPath } from './target-path';
-import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from './skeletal-animation-blending';
+import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { IValueProxyFactory } from './value-proxy';
+import { assertIsTrue } from '../data/utils/asserts';
+import { debug } from '../platform/debug';
 
 /**
  * @en The event type supported by Animation
@@ -79,7 +82,6 @@ export enum EventType {
     FINISHED = 'finished',
 }
 ccenum(EventType);
-
 export class ICurveInstance {
     public commonTargetIndex?: number;
 
@@ -87,23 +89,23 @@ export class ICurveInstance {
     private _boundTarget: IBoundTarget;
     private _rootTargetProperty?: string;
     private _curveDetail: Omit<IRuntimeCurve, 'sampler'>;
+    private declare _shouldLerp: boolean;
 
     constructor (
         runtimeCurve: Omit<IRuntimeCurve, 'sampler'>,
         target: any,
-        boundTarget: IBoundTarget) {
+        boundTarget: IBoundTarget,
+    ) {
         this._curve = runtimeCurve.curve;
         this._curveDetail = runtimeCurve;
 
         this._boundTarget = boundTarget;
+        this._shouldLerp = runtimeCurve.curve.hasLerp();
     }
 
-    public applySample (ratio: number, index: number, lerpRequired: boolean, samplerResultCache, weight: number) {
-        if (this._curve.empty()) {
-            return;
-        }
+    public applySample (ratio: number, index: number, inBetween: boolean, samplerResultCache, weight: number) {
         let value: any;
-        if (!this._curve.hasLerp() || !lerpRequired) {
+        if (!this._shouldLerp || !inBetween) {
             value = this._curve.valueAt(index);
         } else {
             value = this._curve.valueBetween(
@@ -111,7 +113,8 @@ export class ICurveInstance {
                 samplerResultCache.from,
                 samplerResultCache.fromRatio,
                 samplerResultCache.to,
-                samplerResultCache.toRatio);
+                samplerResultCache.toRatio,
+            );
         }
         this._setValue(value, weight);
     }
@@ -166,7 +169,6 @@ const InvalidIndex = -1;
  *
  */
 export class AnimationState extends Playable {
-
     /**
      * @en The clip that is being played by this animation state.
      * @zh 此动画状态正在播放的剪辑。
@@ -203,15 +205,14 @@ export class AnimationState extends Playable {
     set wrapMode (value: WrapMode) {
         this._wrapMode = value;
 
-        if (EDITOR) { return; }
+        if (EDITOR && !legacyCC.GAME_VIEW) { return; }
 
         // dynamic change wrapMode will need reset time to 0
         this.time = 0;
 
         if (value & WrapModeMask.Loop) {
             this.repeatCount = Infinity;
-        }
-        else {
+        } else {
             this.repeatCount = 1;
         }
     }
@@ -240,8 +241,7 @@ export class AnimationState extends Playable {
         const reverse = (this.wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse;
         if (value === Infinity && !shouldWrap && !reverse) {
             this._process = this.simpleProcess;
-        }
-        else {
+        } else {
             this._process = this.process;
         }
     }
@@ -270,6 +270,30 @@ export class AnimationState extends Playable {
     public duration = 1;
 
     /**
+     * @en
+     * Gets or sets the playback range.
+     * The `min` and `max` field of the range are measured in seconds.
+     * While setting, the range object should be a valid range.
+     * The actual playback range would be the inclusion of this field and [0, duration].
+     * @zh
+     * 获取或设置播放范围。
+     * 范围的 `min`、`max` 字段都是以秒为单位的。
+     * 设置时，应当指定一个有效的范围；实际的播放范围是该字段和 [0, 周期] 之间的交集。
+     * 设置播放范围时将重置累计播放时间。
+     */
+    get playbackRange (): Readonly<{ min: number; max: number; }> {
+        return this._playbackRange;
+    }
+
+    set playbackRange (value) {
+        assertIsTrue(value.max > value.min);
+        this._playbackRange.min = Math.max(value.min, 0);
+        this._playbackRange.max = Math.min(value.max, this.duration);
+        this._playbackDuration = this._playbackRange.max - this._playbackRange.min;
+        this.setTime(0.0);
+    }
+
+    /**
      * @en The animation's playback speed. 1 is normal playback speed.
      * @zh 播放速率。
      * @default: 1.0
@@ -277,11 +301,27 @@ export class AnimationState extends Playable {
     public speed = 1;
 
     /**
-     * @en The current time of this animation in seconds.
-     * @zh 动画当前的时间，秒。
+     * @en The current accumulated time of this animation in seconds.
+     * @zh 动画当前**累计播放**的时间，单位为秒。
      * @default 0
      */
     public time = 0;
+
+    /**
+     * @en Gets the time progress, in seconds.
+     * @zh 获取动画的时间进度，单位为秒。
+     */
+    get current () {
+        return this.getWrappedInfo(this.time).time;
+    }
+
+    /**
+     * @en Gets the playback ratio.
+     * @zh 获取动画播放的比例时间。
+     */
+    get ratio () {
+        return this.current / this.duration;
+    }
 
     /**
      * The weight.
@@ -290,47 +330,70 @@ export class AnimationState extends Playable {
 
     public frameRate = 0;
 
-    protected _wrapMode = WrapMode.Normal;
+    /**
+     * This field is only visible from within internal.
+     */
+    protected _targetNode: Node | null = null;
 
-    protected _repeatCount = 1;
+    /**
+     * This field is only visible from within internal.
+     */
+    protected _curveLoaded = false;
 
+    private _clip: AnimationClip;
+    private _process = this.process;
+    private _samplerSharedGroups: ISamplerSharedGroup[] = [];
+    private _target: Node | null = null;
+    private _ignoreIndex = InvalidIndex;
+    /**
+     * May be `null` due to failed to initialize.
+     */
+    private _commonTargetStatuses: (null | {
+        target: IBufferedTarget;
+        changed: boolean;
+    })[] = [];
+    private _wrapMode = WrapMode.Normal;
+    private _repeatCount = 1;
+    private _delay = 0;
+    private _delayTime = 0;
     /**
      * Mark whether the current frame is played.
      * When set new time to animation state, we should ensure the frame at the specified time being played at next update.
      */
-    protected _currentFramePlayed = false;
-    protected _delay = 0;
-    protected _delayTime = 0;
-    protected _wrappedInfo = new WrappedInfo();
-    protected _lastWrapInfo: WrappedInfo | null = null;
-    protected _lastWrapInfoEvent: WrappedInfo | null = null;
-    protected _process = this.process;
-    protected _target: Node | null = null;
-    protected _targetNode: Node | null = null;
-    protected _clip: AnimationClip;
-    protected _name: string;
-    protected _lastIterations?: number;
-    protected _samplerSharedGroups: ISamplerSharedGroup[] = [];
-
-    /**
-     * May be `null` due to failed to initialize.
-     */
-    protected _commonTargetStatuses: (null | {
-        target: IBufferedTarget;
-        changed: boolean;
-    })[] = [];
-    protected _curveLoaded = false;
-    protected _ignoreIndex = InvalidIndex;
+    private _currentFramePlayed = false;
+    private _name: string;
+    private _lastIterations?: number;
+    private _lastWrapInfo: WrappedInfo | null = null;
+    private _lastWrapInfoEvent: WrappedInfo | null = null;
+    private _wrappedInfo = new WrappedInfo();
     private _blendStateBuffer: BlendStateBuffer | null = null;
     private _blendStateWriters: IBlendStateWriter[] = [];
     private _allowLastFrame = false;
+    private _blendStateWriterHost = {
+        weight: 0,
+        enabled: false,
+    };
+    private _playbackRange: { min: number; max: number; };
+    private _playbackDuration = 0;
+    private _invDuration = 1.0;
 
     constructor (clip: AnimationClip, name = '') {
         super();
         this._clip = clip;
         this._name = name || (clip && clip.name);
+        this._playbackRange = {
+            min: 0,
+            max: this._clip.duration,
+        };
+        this._playbackDuration = clip.duration;
+        if (!clip.duration) {
+            debug(`Clip ${clip.name} has zero duration.`);
+        }
     }
 
+    /**
+     * This method is used for internal purpose only.
+     */
     get curveLoaded () {
         return this._curveLoaded;
     }
@@ -341,13 +404,22 @@ export class AnimationState extends Playable {
         this._destroyBlendStateWriters();
         this._samplerSharedGroups.length = 0;
         this._blendStateBuffer = legacyCC.director.getAnimationManager()?.blendState ?? null;
+        if (this._blendStateBuffer) {
+            this._blendStateBuffer.bindState(this);
+        }
         this._targetNode = root;
         const clip = this._clip;
 
         this.duration = clip.duration;
+        this._invDuration = 1.0 / this.duration;
         this.speed = clip.speed;
         this.wrapMode = clip.wrapMode;
         this.frameRate = clip.sample;
+        this._playbackRange = {
+            min: 0,
+            max: clip.duration,
+        };
+        this._playbackDuration = clip.duration;
 
         if ((this.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
             this.repeatCount = Infinity;
@@ -365,7 +437,7 @@ export class AnimationState extends Playable {
             valueAdapter: IValueProxyFactory | undefined,
             isConstant: boolean,
         ): BoundTargetT | null => {
-            if (!isTargetingTRS(path) || !this._blendStateBuffer) {
+            if (!clip.enableTrsBlending || !isTargetingTRS(path) || !this._blendStateBuffer) {
                 return createFn(rootTarget, path, valueAdapter);
             } else {
                 const targetNode = evaluatePath(rootTarget, ...path.slice(0, path.length - 1));
@@ -375,7 +447,7 @@ export class AnimationState extends Playable {
                         this._blendStateBuffer,
                         targetNode,
                         propertyName,
-                        this,
+                        this._blendStateWriterHost,
                         isConstant,
                     );
                     this._blendStateWriters.push(blendStateWriter);
@@ -408,6 +480,9 @@ export class AnimationState extends Playable {
         }
         for (let iPropertyCurve = 0; iPropertyCurve < propertyCurves.length; ++iPropertyCurve) {
             const propertyCurve = propertyCurves[iPropertyCurve];
+            if (propertyCurve.curve.empty()) {
+                continue;
+            }
             let samplerSharedGroup = this._samplerSharedGroups.find((value) => value.sampler === propertyCurve.sampler);
             if (!samplerSharedGroup) {
                 samplerSharedGroup = makeSamplerSharedGroup(propertyCurve.sampler);
@@ -452,6 +527,13 @@ export class AnimationState extends Playable {
     }
 
     /**
+     * @private
+     */
+    public onBlendFinished () {
+        this._blendStateWriterHost.enabled = false;
+    }
+
+    /**
      * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
      * To process animation events, use `Animation` instead.
      */
@@ -463,6 +545,7 @@ export class AnimationState extends Playable {
      * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
      * To process animation events, use `Animation` instead.
      */
+    // eslint-disable-next-line @typescript-eslint/ban-types
     public on (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             return this._target.on(type, callback, target);
@@ -475,6 +558,7 @@ export class AnimationState extends Playable {
      * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
      * To process animation events, use `Animation` instead.
      */
+    // eslint-disable-next-line @typescript-eslint/ban-types
     public once (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             return this._target.once(type, callback, target);
@@ -487,6 +571,7 @@ export class AnimationState extends Playable {
      * @deprecated Since V1.1.1, animation states were no longer defined as event targets.
      * To process animation events, use `Animation` instead.
      */
+    // eslint-disable-next-line @typescript-eslint/ban-types
     public off (type: string, callback: Function, target?: any) {
         if (this._target && this._target.isValid) {
             this._target.off(type, callback, target);
@@ -496,14 +581,19 @@ export class AnimationState extends Playable {
     /**
      * @zh
      * 是否允许触发 `LastFrame` 事件。
+     * 该方法仅用作内部用途。
      * @en
      * Whether `LastFrame` should be triggered.
      * @param allowed True if the last frame events may be triggered.
+     * This method is only used for internal purpose only.
      */
     public allowLastFrameEvent (allowed: boolean) {
         this._allowLastFrame = allowed;
     }
 
+    /**
+     * This method is used for internal purpose only.
+     */
     public _setEventTarget (target) {
         this._target = target;
     }
@@ -512,7 +602,7 @@ export class AnimationState extends Playable {
         this._currentFramePlayed = false;
         this.time = time || 0;
 
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._lastWrapInfoEvent = null;
             this._ignoreIndex = InvalidIndex;
 
@@ -548,149 +638,20 @@ export class AnimationState extends Playable {
         // var playPerfectFirstFrame = (this.time === 0);
         if (this._currentFramePlayed) {
             this.time += (delta * this.speed);
-        }
-        else {
+        } else {
             this._currentFramePlayed = true;
         }
 
         this._process();
     }
 
-    public _needReverse (currentIterations: number) {
-        const wrapMode = this.wrapMode;
-        let needReverse = false;
-
-        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
-            const isEnd = currentIterations - (currentIterations | 0) === 0;
-            if (isEnd && (currentIterations > 0)) {
-                currentIterations -= 1;
-            }
-
-            const isOddIteration = currentIterations & 1;
-            if (isOddIteration) {
-                needReverse = !needReverse;
-            }
-        }
-        if ((wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
-            needReverse = !needReverse;
-        }
-        return needReverse;
-    }
-
-    public getWrappedInfo (time: number, info?: WrappedInfo) {
-        info = info || new WrappedInfo();
-
-        let stopped = false;
-        const duration = this.duration;
-        const repeatCount = this.repeatCount;
-
-        let currentIterations = time > 0 ? (time / duration) : -(time / duration);
-        if (currentIterations >= repeatCount) {
-            currentIterations = repeatCount;
-
-            stopped = true;
-            let tempRatio = repeatCount - (repeatCount | 0);
-            if (tempRatio === 0) {
-                tempRatio = 1;  // 如果播放过，动画不复位
-            }
-            time = tempRatio * duration * (time > 0 ? 1 : -1);
-        }
-
-        if (time > duration) {
-            const tempTime = time % duration;
-            time = tempTime === 0 ? duration : tempTime;
-        }
-        else if (time < 0) {
-            time = time % duration;
-            if (time !== 0) { time += duration; }
-        }
-
-        let needReverse = false;
-        const shouldWrap = this._wrapMode & WrapModeMask.ShouldWrap;
-        if (shouldWrap) {
-            needReverse = this._needReverse(currentIterations);
-        }
-
-        let direction = needReverse ? -1 : 1;
-        if (this.speed < 0) {
-            direction *= -1;
-        }
-
-        // calculate wrapped time
-        if (shouldWrap && needReverse) {
-            time = duration - time;
-        }
-
-        info.ratio = time / duration;
-        info.time = time;
-        info.direction = direction;
-        info.stopped = stopped;
-        info.iterations = currentIterations;
-
-        return info;
-    }
-
     public sample () {
         const info = this.getWrappedInfo(this.time, this._wrappedInfo);
         this._sampleCurves(info.ratio);
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._sampleEvents(info);
         }
         return info;
-    }
-
-    public process () {
-        // sample
-        const info = this.sample();
-
-        if (this._allowLastFrame) {
-            let lastInfo;
-            if (!this._lastWrapInfo) {
-                lastInfo = this._lastWrapInfo = new WrappedInfo(info);
-            } else {
-                lastInfo = this._lastWrapInfo;
-            }
-
-            if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
-                this.emit(EventType.LASTFRAME, this);
-            }
-
-            lastInfo.set(info);
-        }
-
-        if (info.stopped) {
-            this.stop();
-            this.emit(EventType.FINISHED, this);
-        }
-    }
-
-    public simpleProcess () {
-        const duration = this.duration;
-        let time = this.time % duration;
-        if (time < 0) { time += duration; }
-        const ratio = time / duration;
-        this._sampleCurves(ratio);
-
-        if (!EDITOR) {
-            if (this._clip.hasEvents()) {
-                this._sampleEvents(this.getWrappedInfo(this.time, this._wrappedInfo));
-            }
-        }
-
-        if (this._allowLastFrame) {
-            if (this._lastIterations === undefined) {
-                this._lastIterations = ratio;
-            }
-
-            if ((this.time > 0 && this._lastIterations > ratio) || (this.time < 0 && this._lastIterations < ratio)) {
-                this.emit(EventType.LASTFRAME, this);
-            }
-
-            this._lastIterations = ratio;
-        }
-    }
-
-    public cache (frames: number) {
     }
 
     protected onPlay () {
@@ -718,9 +679,13 @@ export class AnimationState extends Playable {
     }
 
     protected _sampleCurves (ratio: number) {
+        this._blendStateWriterHost.weight = this.weight;
+        this._blendStateWriterHost.enabled = true;
+
+        const commonTargetStatuses = this._commonTargetStatuses;
         // Before we sample, we pull values of common targets.
-        for (let iCommonTarget = 0; iCommonTarget < this._commonTargetStatuses.length; ++iCommonTarget) {
-            const commonTargetStatus = this._commonTargetStatuses[iCommonTarget];
+        for (let iCommonTarget = 0, length = commonTargetStatuses.length; iCommonTarget < length; ++iCommonTarget) {
+            const commonTargetStatus = commonTargetStatuses[iCommonTarget];
             if (!commonTargetStatus) {
                 continue;
             }
@@ -728,13 +693,15 @@ export class AnimationState extends Playable {
             commonTargetStatus.changed = false;
         }
 
-        for (let iSamplerSharedGroup = 0, szSamplerSharedGroup = this._samplerSharedGroups.length;
+        let index = 0;
+        let lerpRequired = false;
+        const samplerSharedGroups = this._samplerSharedGroups;
+        for (let iSamplerSharedGroup = 0, szSamplerSharedGroup = samplerSharedGroups.length;
             iSamplerSharedGroup < szSamplerSharedGroup; ++iSamplerSharedGroup) {
-            const samplerSharedGroup = this._samplerSharedGroups[iSamplerSharedGroup];
-            const sampler = samplerSharedGroup.sampler;
-            const { samplerResultCache } = samplerSharedGroup;
-            let index: number = 0;
-            let lerpRequired = false;
+            const samplerSharedGroup = samplerSharedGroups[iSamplerSharedGroup];
+            const { sampler, samplerResultCache } = samplerSharedGroup;
+
+            lerpRequired = false;
             if (!sampler) {
                 index = 0;
             } else {
@@ -756,12 +723,13 @@ export class AnimationState extends Playable {
                 }
             }
 
-            for (let iCurveInstance = 0, szCurves = samplerSharedGroup.curves.length;
+            const curves = samplerSharedGroup.curves;
+            for (let iCurveInstance = 0, szCurves = curves.length;
                 iCurveInstance < szCurves; ++iCurveInstance) {
-                const curveInstance = samplerSharedGroup.curves[iCurveInstance];
+                const curveInstance = curves[iCurveInstance];
                 curveInstance.applySample(ratio, index, lerpRequired, samplerResultCache, this.weight);
                 if (curveInstance.commonTargetIndex !== undefined) {
-                    const commonTargetStatus = this._commonTargetStatuses[curveInstance.commonTargetIndex];
+                    const commonTargetStatus = commonTargetStatuses[curveInstance.commonTargetIndex];
                     if (commonTargetStatus) {
                         commonTargetStatus.changed = true;
                     }
@@ -770,8 +738,8 @@ export class AnimationState extends Playable {
         }
 
         // After sample, we push values of common targets.
-        for (let iCommonTarget = 0; iCommonTarget < this._commonTargetStatuses.length; ++iCommonTarget) {
-            const commonTargetStatus = this._commonTargetStatuses[iCommonTarget];
+        for (let iCommonTarget = 0, length = commonTargetStatuses.length; iCommonTarget < length; ++iCommonTarget) {
+            const commonTargetStatus = commonTargetStatuses[iCommonTarget];
             if (!commonTargetStatus) {
                 continue;
             }
@@ -779,6 +747,146 @@ export class AnimationState extends Playable {
                 commonTargetStatus.target.push();
             }
         }
+    }
+
+    private process () {
+        // sample
+        const info = this.sample();
+
+        if (this._allowLastFrame) {
+            let lastInfo;
+            if (!this._lastWrapInfo) {
+                lastInfo = this._lastWrapInfo = new WrappedInfo(info);
+            } else {
+                lastInfo = this._lastWrapInfo;
+            }
+
+            if (this.repeatCount > 1 && ((info.iterations | 0) > (lastInfo.iterations | 0))) {
+                this.emit(EventType.LASTFRAME, this);
+            }
+
+            lastInfo.set(info);
+        }
+
+        if (info.stopped) {
+            this.stop();
+            this.emit(EventType.FINISHED, this);
+        }
+    }
+
+    private simpleProcess () {
+        const playbackStart = this._playbackRange.min;
+        const playbackDuration = this._playbackDuration;
+
+        let time = this.time % playbackDuration;
+        if (time < 0) { time += playbackDuration; }
+        const ratio = (playbackStart + time) * this._invDuration;
+        this._sampleCurves(ratio);
+
+        if (!EDITOR || legacyCC.GAME_VIEW) {
+            if (this._clip.hasEvents()) {
+                this._sampleEvents(this.getWrappedInfo(this.time, this._wrappedInfo));
+            }
+        }
+
+        if (this._allowLastFrame) {
+            if (this._lastIterations === undefined) {
+                this._lastIterations = ratio;
+            }
+
+            if ((this.time > 0 && this._lastIterations > ratio) || (this.time < 0 && this._lastIterations < ratio)) {
+                this.emit(EventType.LASTFRAME, this);
+            }
+
+            this._lastIterations = ratio;
+        }
+    }
+
+    private cache (frames: number) {
+    }
+
+    private _needReverse (currentIterations: number) {
+        const wrapMode = this.wrapMode;
+        let needReverse = false;
+
+        if ((wrapMode & WrapModeMask.PingPong) === WrapModeMask.PingPong) {
+            const isEnd = currentIterations - (currentIterations | 0) === 0;
+            if (isEnd && (currentIterations > 0)) {
+                currentIterations -= 1;
+            }
+
+            const isOddIteration = currentIterations & 1;
+            if (isOddIteration) {
+                needReverse = !needReverse;
+            }
+        }
+        if ((wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse) {
+            needReverse = !needReverse;
+        }
+        return needReverse;
+    }
+
+    private getWrappedInfo (time: number, info?: WrappedInfo) {
+        info = info || new WrappedInfo();
+
+        const playbackStart = this._getPlaybackStart();
+        const playbackEnd = this._getPlaybackEnd();
+        const playbackDuration = playbackEnd - playbackStart;
+
+        let stopped = false;
+        const repeatCount = this.repeatCount;
+
+        let currentIterations = time > 0 ? (time / playbackDuration) : -(time / playbackDuration);
+        if (currentIterations >= repeatCount) {
+            currentIterations = repeatCount;
+
+            stopped = true;
+            let tempRatio = repeatCount - (repeatCount | 0);
+            if (tempRatio === 0) {
+                tempRatio = 1;  // 如果播放过，动画不复位
+            }
+            time = tempRatio * playbackDuration * (time > 0 ? 1 : -1);
+        }
+
+        if (time > playbackDuration) {
+            const tempTime = time % playbackDuration;
+            time = tempTime === 0 ? playbackDuration : tempTime;
+        } else if (time < 0) {
+            time %= playbackDuration;
+            if (time !== 0) { time += playbackDuration; }
+        }
+
+        let needReverse = false;
+        const shouldWrap = this._wrapMode & WrapModeMask.ShouldWrap;
+        if (shouldWrap) {
+            needReverse = this._needReverse(currentIterations);
+        }
+
+        let direction = needReverse ? -1 : 1;
+        if (this.speed < 0) {
+            direction *= -1;
+        }
+
+        // calculate wrapped time
+        if (shouldWrap && needReverse) {
+            time = playbackDuration - time;
+        }
+
+        info.time = playbackStart + time;
+        info.ratio = info.time / this.duration;
+        info.direction = direction;
+        info.stopped = stopped;
+        info.iterations = currentIterations;
+
+        return info;
+    }
+
+    private _getPlaybackStart () {
+        return this._playbackRange.min;
+    }
+
+    private _getPlaybackEnd () {
+        return this._playbackRange.max;
     }
 
     private _sampleEvents (wrapInfo: WrappedInfo) {
@@ -897,6 +1005,11 @@ export class AnimationState extends Playable {
             this._blendStateWriters[iBlendStateWriter].destroy();
         }
         this._blendStateWriters.length = 0;
+        if (this._blendStateBuffer) {
+            this._blendStateBuffer.unbindState(this);
+            this._blendStateBuffer = null;
+        }
+        this._blendStateWriterHost.enabled = false;
     }
 }
 
@@ -913,13 +1026,13 @@ function isTargetingTRS (path: TargetPath[]) {
         prs = path[path.length - 1] as string;
     }
     switch (prs) {
-        case 'position':
-        case 'scale':
-        case 'rotation':
-        case 'eulerAngles':
-            return true;
-        default:
-            return false;
+    case 'position':
+    case 'scale':
+    case 'rotation':
+    case 'eulerAngles':
+        return true;
+    default:
+        return false;
     }
 }
 

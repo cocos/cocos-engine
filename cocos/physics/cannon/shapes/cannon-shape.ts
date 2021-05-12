@@ -1,8 +1,38 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import CANNON from '@cocos/cannon';
 import { Vec3, Quat } from '../../../core/math';
-import { getWrap, setWrap } from '../../framework/util';
+import { getWrap, setWrap } from '../../utils/util';
 import { commitShapeUpdates } from '../cannon-util';
-import { PhysicMaterial } from '../../framework/assets/physic-material';
+import { PhysicsMaterial } from '../../framework/assets/physics-material';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 import { CannonSharedBody } from '../cannon-shared-body';
@@ -10,7 +40,7 @@ import { CannonWorld } from '../cannon-world';
 import { TriggerEventType } from '../../framework/physics-interface';
 import { PhysicsSystem } from '../../framework/physics-system';
 import { Collider, RigidBody } from '../../framework';
-import { aabb, sphere } from '../../../core/geometry';
+import { AABB, Sphere } from '../../../core/geometry';
 
 const TriggerEventObject = {
     type: 'onTriggerEnter' as TriggerEventType,
@@ -22,10 +52,11 @@ const cannonQuat_0 = new CANNON.Quaternion();
 const cannonVec3_0 = new CANNON.Vec3();
 const cannonVec3_1 = new CANNON.Vec3();
 export class CannonShape implements IBaseShape {
+    updateEventListener (): void { }
 
     static readonly idToMaterial = {};
 
-    get impl () { return this._shape!; }
+    get impl () { return this._shape; }
 
     get collider () { return this._collider; }
 
@@ -36,17 +67,20 @@ export class CannonShape implements IBaseShape {
 
     get sharedBody (): CannonSharedBody { return this._sharedBody; }
 
-    setMaterial (mat: PhysicMaterial | null) {
+    setMaterial (mat: PhysicsMaterial | null) {
         if (mat == null) {
-            (this._shape!.material as unknown) = null;
+            (this._shape.material as unknown) = null;
         } else {
-            if (CannonShape.idToMaterial[mat._uuid] == null) {
-                CannonShape.idToMaterial[mat._uuid] = new CANNON.Material(mat._uuid);
+            if (CannonShape.idToMaterial[mat.id] == null) {
+                CannonShape.idToMaterial[mat.id] = new CANNON.Material(mat.id as any);
             }
 
-            this._shape.material = CannonShape.idToMaterial[mat._uuid];
-            this._shape.material.friction = mat.friction;
-            this._shape.material.restitution = mat.restitution;
+            this._shape.material = CannonShape.idToMaterial[mat.id];
+            const smat = this._shape.material;
+            smat.friction = mat.friction;
+            smat.restitution = mat.restitution;
+            const coef = (CANNON as any).CC_CONFIG.correctInelastic;
+            (smat as any).correctInelastic = smat.restitution === 0 ? coef : 0;
         }
     }
 
@@ -67,8 +101,7 @@ export class CannonShape implements IBaseShape {
     setAttachedBody (v: RigidBody | null) {
         if (v) {
             if (this._sharedBody) {
-                if (this._sharedBody.wrappedBody == v.body) return;
-
+                if (this._sharedBody.wrappedBody === v.body) return;
                 this._sharedBody.reference = false;
             }
 
@@ -84,16 +117,15 @@ export class CannonShape implements IBaseShape {
         }
     }
 
-    getAABB (v: aabb) {
+    getAABB (v: AABB) {
         Quat.copy(cannonQuat_0, this._collider.node.worldRotation);
-        // TODO: typing
         (this._shape as any).calculateWorldAABB(CANNON.Vec3.ZERO, cannonQuat_0, cannonVec3_0, cannonVec3_1);
         Vec3.subtract(v.halfExtents, cannonVec3_1, cannonVec3_0);
         Vec3.multiplyScalar(v.halfExtents, v.halfExtents, 0.5);
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
 
-    getBoundingSphere (v: sphere) {
+    getBoundingSphere (v: Sphere) {
         v.radius = this._shape.boundingSphereRadius;
         Vec3.add(v.center, this._collider.node.worldPosition, this._collider.center);
     }
@@ -102,7 +134,7 @@ export class CannonShape implements IBaseShape {
     protected _shape!: CANNON.Shape;
     protected _offset = new CANNON.Vec3();
     protected _orient = new CANNON.Quaternion();
-    protected _index: number = -1;
+    protected _index = -1;
     protected _sharedBody!: CannonSharedBody;
     protected get _body (): CANNON.Body { return this._sharedBody.body; }
     protected onTriggerListener = this._onTrigger.bind(this);
@@ -113,11 +145,11 @@ export class CannonShape implements IBaseShape {
     initialize (comp: Collider) {
         this._collider = comp;
         this._isBinding = true;
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node);
+        this._sharedBody.reference = true;
         this.onComponentSet();
         setWrap(this._shape, this);
         this._shape.addEventListener('cc-trigger', this.onTriggerListener);
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as CannonWorld).getSharedBody(this._collider.node);
-        this._sharedBody.reference = true;
     }
 
     // virtual
@@ -142,7 +174,7 @@ export class CannonShape implements IBaseShape {
     onDestroy () {
         this._sharedBody.reference = false;
         this._shape.removeEventListener('cc-trigger', this.onTriggerListener);
-        delete CANNON.World['idToShapeMap'][this._shape.id];
+        delete (CANNON.World as any).idToShapeMap[this._shape.id];
         (this._sharedBody as any) = null;
         setWrap(this._shape, null);
         (this._offset as any) = null;
@@ -197,7 +229,7 @@ export class CannonShape implements IBaseShape {
     /**
      * change scale will recalculate center & size \
      * size handle by child class
-     * @param scale 
+     * @param scale
      */
     setScale (scale: IVec3Like) {
         this._setCenter(this._collider.center);

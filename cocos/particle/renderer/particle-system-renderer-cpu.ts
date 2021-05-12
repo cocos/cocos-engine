@@ -1,6 +1,31 @@
-import { builtinResMgr } from '../../core/3d/builtin';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
-import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
+import { AttributeName, Format, Attribute } from '../../core/gfx';
 import { Mat4, Vec2, Vec3, Vec4, pseudoRandom } from '../../core/math';
 import { RecyclePool } from '../../core/memop';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
@@ -20,7 +45,7 @@ const _anim_module = [
     '_forceOvertimeModule',
     '_limitVelocityOvertimeModule',
     '_rotationOvertimeModule',
-    '_textureAnimationModule'
+    '_textureAnimationModule',
 ];
 
 const _uvs = [
@@ -40,31 +65,31 @@ const RENDER_MODE_VERTICAL_BILLBOARD = 3;
 const RENDER_MODE_MESH = 4;
 
 const _vertex_attrs = [
-    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },                     // position
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },                    // uv,frame idx
-    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F },                    // size
-    { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F },                    // rotation
-    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },     // color
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),       // position
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),     // color
 ];
 
 const _vertex_attrs_stretch = [
-    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },                     // position
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },                    // uv,frame idx
-    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F },                    // size
-    { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F },                    // rotation
-    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },     // color
-    { name: GFXAttributeName.ATTR_COLOR1, format: GFXFormat.RGB32F },                       // particle velocity
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),       // position
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),     // color
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGB32F),         // particle velocity
 ];
 
 const _vertex_attrs_mesh = [
-    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F },                     // particle position
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },                    // uv,frame idx
-    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F },                    // size
-    { name: GFXAttributeName.ATTR_TEX_COORD2, format: GFXFormat.RGB32F },                    // rotation
-    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },     // particle color
-    { name: GFXAttributeName.ATTR_TEX_COORD3, format: GFXFormat.RGB32F },                   // mesh position
-    { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },                       // mesh normal
-    { name: GFXAttributeName.ATTR_COLOR1, format: GFXFormat.RGBA8, isNormalized: true },    // mesh color
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F),       // particle position
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F),     // size
+    new Attribute(AttributeName.ATTR_TEX_COORD2, Format.RGB32F),     // rotation
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),     // particle color
+    new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F),     // mesh position
+    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),         // mesh normal
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true),    // mesh color
 ];
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -86,9 +111,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _runAnimateList: IParticleModule[] = new Array<IParticleModule>();
     private _fillDataFunc: any = null;
-    private _uScaleHandle: number = 0;
-    private _uLenHandle: number = 0;
-    private _inited: boolean = false;
+    private _uScaleHandle = 0;
+    private _uLenHandle = 0;
+    private _inited = false;
 
     constructor (info: any) {
         super(info);
@@ -114,9 +139,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     public onInit (ps: Component) {
         super.onInit(ps);
 
-        this._particles = new RecyclePool(() => {
-            return new Particle(this);
-        }, 16);
+        this._particles = new RecyclePool(() => new Particle(this), 16);
         this._setVertexAttrib();
         this._setFillFunc();
         this._initModuleList();
@@ -128,11 +151,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     public clear () {
+        super.clear();
         this._particles!.reset();
-        if (this._particleSystem!._trailModule) {
-            this._particleSystem!._trailModule.clear();
+        if (this._particleSystem._trailModule) {
+            this._particleSystem._trailModule.clear();
         }
         this.updateRenderData();
+        this._model!.enabled = false;
     }
 
     public updateRenderMode () {
@@ -143,10 +168,10 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     public getFreeParticle (): Particle | null {
-        if (this._particles!.length >= this._particleSystem!.capacity) {
+        if (this._particles!.length >= this._particleSystem.capacity) {
             return null;
         }
-        return this._particles!.add();
+        return this._particles!.add() as Particle;
     }
 
     public getDefaultTrailMaterial (): any {
@@ -157,7 +182,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     }
 
     private _initModuleList () {
-        _anim_module.forEach(val => {
+        _anim_module.forEach((val) => {
             const pm = this._particleSystem[val];
             if (pm && pm.enable) {
                 if (pm.needUpdate) {
@@ -180,7 +205,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
     }
 
-    public enableModule (name: string, val: Boolean, pm: IParticleModule) {
+    public enableModule (name: string, val: boolean, pm: IParticleModule) {
         if (val) {
             if (pm.needUpdate) {
                 this._updateList[pm.name] = pm;
@@ -210,18 +235,20 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         ps.node.getWorldMatrix(_tempWorldTrans);
         switch (ps.scaleSpace) {
-            case Space.Local:
-                ps.node.getScale(this._node_scale);
-                break;
-            case Space.World:
-                ps.node.getWorldScale(this._node_scale);
-                break;
+        case Space.Local:
+            ps.node.getScale(this._node_scale);
+            break;
+        case Space.World:
+            ps.node.getWorldScale(this._node_scale);
+            break;
+        default:
+            break;
         }
         const mat: Material | null = ps.getMaterialInstance(0) || this._defaultMat;
         const pass = mat!.passes[0];
         pass.setUniform(this._uScaleHandle, this._node_scale);
 
-        this._updateList.forEach((value: IParticleModule, key: string)=>{
+        this._updateList.forEach((value: IParticleModule, key: string) => {
             value.update(ps._simulationSpace, _tempWorldTrans);
         });
 
@@ -250,7 +277,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
             Vec3.copy(p.ultimateVelocity, p.velocity);
 
-            this._runAnimateList.forEach(value =>{
+            this._runAnimateList.forEach((value) => {
                 value.animate(p, dt);
             });
 
@@ -259,6 +286,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 trailModule.animate(p, dt);
             }
         }
+
+        this._model!.enabled = this._particles!.length > 0;
         return this._particles!.length;
     }
 
@@ -269,13 +298,16 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         for (let i = 0; i < this._particles!.length; ++i) {
             const p = this._particles!.data[i];
             let fi = 0;
-            const textureModule = this._particleSystem!._textureAnimationModule;
+            const textureModule = this._particleSystem._textureAnimationModule;
             if (textureModule && textureModule.enable) {
                 fi = p.frameIndex;
             }
             idx = i * 4;
             this._fillDataFunc(p, idx, fi);
         }
+    }
+
+    public beforeRender () {
         // because we use index buffer, per particle index count = 6.
         this._model!.updateIA(this._particles!.length);
     }
@@ -300,7 +332,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         if (this._model && index === 0) {
             this._model.setSubModelMaterial(0, material);
         }
-        const trailModule = this._particleSystem!._trailModule;
+        const trailModule = this._particleSystem._trailModule;
         if (trailModule && trailModule._trailModel && index === 1) {
             trailModule._trailModel.setSubModelMaterial(0, material);
         }
@@ -365,14 +397,14 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private _setVertexAttrib () {
         switch (this._renderInfo!.renderMode) {
-            case RenderMode.StrecthedBillboard:
-                this._vertAttrs = _vertex_attrs_stretch.slice();
-                break;
-            case RenderMode.Mesh:
-                this._vertAttrs = _vertex_attrs_mesh.slice();
-                break;
-            default:
-                this._vertAttrs = _vertex_attrs.slice();
+        case RenderMode.StrecthedBillboard:
+            this._vertAttrs = _vertex_attrs_stretch.slice();
+            break;
+        case RenderMode.Mesh:
+            this._vertAttrs = _vertex_attrs_mesh.slice();
+            break;
+        default:
+            this._vertAttrs = _vertex_attrs.slice();
         }
     }
 
@@ -462,7 +494,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 this._defaultTrailMat = new MaterialInstance(_matInsInfo);
             }
             mat = mat || this._defaultTrailMat;
-            mat!.recompileShaders(this._trailDefines);
+            mat.recompileShaders(this._trailDefines);
             trailModule.updateMaterial();
         }
     }

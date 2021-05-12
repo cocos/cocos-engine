@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,12 +24,13 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
+import { DEV } from 'internal:constants';
 import { warnID } from '../platform/debug';
 import { Node } from './node';
-import { DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 
 /**

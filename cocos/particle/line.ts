@@ -1,16 +1,39 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
-/**
- * 粒子系统模块
- * @category particle
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
+/**
+ * @packageDocumentation
+ * @module particle
+ */
 
+import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Material, Texture2D } from '../core/assets';
 import { Component } from '../core/components';
-import { ccclass, help, executeInEditMode, menu, tooltip, displayOrder, type, serializable } from 'cc.decorator';
 import { Vec3, Vec2, Vec4 } from '../core/math';
 import { LineModel } from './models/line-model';
-import { builtinResMgr } from '../core/3d/builtin';
+import { builtinResMgr } from '../core/builtin';
 import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
 import { legacyCC } from '../core/global-exports';
@@ -27,7 +50,7 @@ const define = { CC_USE_WORLD_SPACE: false };
 
 @ccclass('cc.Line')
 @help('i18n:cc.Line')
-@menu('Components/Line')
+@menu('Effects/Line')
 @executeInEditMode
 export class Line extends Component {
     @type(Texture2D)
@@ -38,7 +61,7 @@ export class Line extends Component {
      */
     @type(Texture2D)
     @displayOrder(0)
-    @tooltip('线段中显示的贴图')
+    @tooltip('i18n:line.texture')
     get texture () {
         return this._texture;
     }
@@ -60,7 +83,7 @@ export class Line extends Component {
      * @zh positions是否为世界空间坐标。
      */
     @displayOrder(1)
-    @tooltip('线段中各个点的坐标采用哪个坐标系，勾选使用世界坐标系，不选使用本地坐标系')
+    @tooltip('i18n:line.worldSpace')
     get worldSpace () {
         return this._worldSpace;
     }
@@ -71,7 +94,7 @@ export class Line extends Component {
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
             this._materialInstance.recompileShaders(define);
             if (this._model) {
-                this._model.setSubModelMaterial(0, this._materialInstance!);
+                this._model.setSubModelMaterial(0, this._materialInstance);
             }
         }
     }
@@ -84,7 +107,7 @@ export class Line extends Component {
      */
     @type([Vec3])
     @displayOrder(2)
-    @tooltip('每个线段端点的坐标')
+    @tooltip('i18n:line.positions')
     get positions () {
         return this._positions;
     }
@@ -104,7 +127,7 @@ export class Line extends Component {
      */
     @type(CurveRange)
     @displayOrder(3)
-    @tooltip('线段宽度，如果采用曲线，则表示沿着线段方向上的曲线变化')
+    @tooltip('i18n:line.width')
     get width () {
         return this._width;
     }
@@ -124,7 +147,7 @@ export class Line extends Component {
      */
     @type(Vec2)
     @displayOrder(4)
-    @tooltip('贴图平铺次数')
+    @tooltip('i18n:line.tile')
     get tile () {
         return this._tile;
     }
@@ -143,7 +166,7 @@ export class Line extends Component {
 
     @type(Vec2)
     @displayOrder(5)
-    @tooltip('贴图坐标的偏移')
+    @tooltip('i18n:line.offset')
     get offset () {
         return this._offset;
     }
@@ -165,7 +188,7 @@ export class Line extends Component {
      */
     @type(GradientRange)
     @displayOrder(6)
-    @tooltip('线段颜色，如果采用渐变色，则表示沿着线段方向上的颜色渐变')
+    @tooltip('i18n:line.color')
     get color () {
         return this._color;
     }
@@ -190,7 +213,7 @@ export class Line extends Component {
     public onLoad () {
         const model = this._model = legacyCC.director.root.createModel(LineModel);
         model.node = model.transform = this.node;
-        if (this._material == null) {
+        if (this._material === null) {
             this._material = new Material();
             this._material.copy(builtinResMgr.get<Material>('default-trail-material'));
             define[CC_USE_WORLD_SPACE] = this.worldSpace;
@@ -207,8 +230,8 @@ export class Line extends Component {
         if (!this._model) {
             return;
         }
-        this.attachToScene();
-        this.texture = this.texture;
+        this._attachToScene();
+        this.texture = this._texture;
         this.tile = this._tile;
         this.offset = this._offset;
         this._model.addLineVertexData(this._positions, this._width, this._color);
@@ -216,20 +239,20 @@ export class Line extends Component {
 
     public onDisable () {
         if (this._model) {
-            this.detachFromScene();
+            this._detachFromScene();
         }
     }
 
-    private attachToScene () {
+    protected _attachToScene () {
         if (this._model && this.node && this.node.scene) {
             if (this._model.scene) {
-                this.detachFromScene();
+                this._detachFromScene();
             }
             this._getRenderScene().addModel(this._model);
         }
     }
 
-    private detachFromScene () {
+    protected _detachFromScene () {
         if (this._model && this._model.scene) {
             this._model.scene.removeModel(this._model);
         }

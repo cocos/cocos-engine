@@ -1,6 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 export function constant () {
@@ -138,8 +163,7 @@ export function elasticIn (k: number) {
     if (!a || a < 1) {
         a = 1;
         s = p / 4;
-    }
-    else {
+    } else {
         s = p * Math.asin(1 / a) / (2 * Math.PI);
     }
     return -(a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
@@ -158,8 +182,7 @@ export function elasticOut (k: number) {
     if (!a || a < 1) {
         a = 1;
         s = p / 4;
-    }
-    else {
+    } else {
         s = p * Math.asin(1 / a) / (2 * Math.PI);
     }
     return (a * Math.pow(2, -10 * k) * Math.sin((k - s) * (2 * Math.PI) / p) + 1);
@@ -178,14 +201,13 @@ export function elasticInOut (k: number) {
     if (!a || a < 1) {
         a = 1;
         s = p / 4;
-    }
-    else {
+    } else {
         s = p * Math.asin(1 / a) / (2 * Math.PI);
     }
     k *= 2;
     if (k < 1) {
-        return -0.5 *
-            (a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
+        return -0.5
+            * (a * Math.pow(2, 10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p));
     }
     return a * Math.pow(2, -10 * (k -= 1)) * Math.sin((k - s) * (2 * Math.PI) / p) * 0.5 + 1;
 }
@@ -216,14 +238,11 @@ export function bounceIn (k: number) {
 export function bounceOut (k: number) {
     if (k < (1 / 2.75)) {
         return 7.5625 * k * k;
-    }
-    else if (k < (2 / 2.75)) {
+    } else if (k < (2 / 2.75)) {
         return 7.5625 * (k -= (1.5 / 2.75)) * k + 0.75;
-    }
-    else if (k < (2.5 / 2.75)) {
+    } else if (k < (2.5 / 2.75)) {
         return 7.5625 * (k -= (2.25 / 2.75)) * k + 0.9375;
-    }
-    else {
+    } else {
         return 7.5625 * (k -= (2.625 / 2.75)) * k + 0.984375;
     }
 }

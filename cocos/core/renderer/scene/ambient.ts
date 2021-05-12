@@ -1,6 +1,33 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { JSB } from 'internal:constants';
 import { Color, Vec3 } from '../../math';
 import { AmbientPool, NULL_HANDLE, AmbientView, AmbientHandle } from '../core/memory-pools';
 import { legacyCC } from '../../global-exports';
+import { AmbientInfo } from '../../scene-graph/scene-globals';
 
 export class Ambient {
     public static SUN_ILLUM = 65000.0;
@@ -19,11 +46,13 @@ export class Ambient {
      * @zh 是否开启环境光
      */
     set enabled (val: boolean) {
-        AmbientPool.set(this._handle, AmbientView.ENABLE, val ? 1 : 0);
-        this.activate();
+        this._enabled = val;
+        if (JSB) {
+            AmbientPool.set(this._handle, AmbientView.ENABLE, val ? 1 : 0);
+        }
     }
     get enabled (): boolean {
-        return AmbientPool.get(this._handle, AmbientView.ENABLE) as unknown as boolean;
+        return this._enabled;
     }
     /**
      * @en Sky color
@@ -34,8 +63,11 @@ export class Ambient {
     }
 
     set skyColor (color: Color) {
-        this._skyColor = color;
+        this._skyColor.set(color);
         Color.toArray(this._colorArray, this._skyColor);
+        if (JSB) {
+            AmbientPool.setVec4(this._handle, AmbientView.SKY_COLOR, this._skyColor);
+        }
     }
 
     /**
@@ -43,13 +75,15 @@ export class Ambient {
      * @zh 天空亮度
      */
     get skyIllum (): number {
-        return AmbientPool.get(this._handle, AmbientView.ILLUM);
+        return this._skyIllum;
     }
 
     set skyIllum (illum: number) {
-        AmbientPool.set(this._handle, AmbientView.ILLUM, illum);
+        this._skyIllum = illum;
+        if (JSB) {
+            AmbientPool.set(this._handle, AmbientView.ILLUM, illum);
+        }
     }
-
     /**
      * @en Ground color
      * @zh 地面颜色
@@ -59,37 +93,42 @@ export class Ambient {
     }
 
     set groundAlbedo (color: Color) {
-        this._groundAlbedo = color;
+        this._groundAlbedo.set(color);
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
+        if (JSB) {
+            AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
+        }
     }
     protected _skyColor = new Color(51, 128, 204, 1.0);
     protected _groundAlbedo = new Color(51, 51, 51, 255);
-    protected declare _albedoArray: Float32Array;
-    protected declare _colorArray: Float32Array;
+    protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
+    protected _colorArray = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
     protected _handle: AmbientHandle = NULL_HANDLE;
-
+    protected _enabled = false;
+    protected _skyIllum = 0;
     get handle () : AmbientHandle {
         return this._handle;
     }
 
     constructor () {
         this._handle = AmbientPool.alloc();
-        this._colorArray = AmbientPool.getTypedArray(this._handle, AmbientView.SKY_COLOR, AmbientView.SKY_COLOR + 4);
-        this._albedoArray = AmbientPool.getTypedArray(this._handle, AmbientView.GROUND_ALBEDO, AmbientView.GROUND_ALBEDO + 4);
-        this._colorArray.set([0.2, 0.5, 0.8, 1.0]);
-        this._albedoArray.set([0.2, 0.2, 0.2, 1.0]);
     }
 
-    public activate () {
-        Color.toArray(this._colorArray, this._skyColor);
-        Vec3.toArray(this._albedoArray, this._groundAlbedo);
+    public initialize (ambientInfo: AmbientInfo) {
+        this.skyColor = ambientInfo.skyColor;
+        this.groundAlbedo = ambientInfo.groundAlbedo;
+        this.skyIllum = ambientInfo.skyIllum;
     }
 
-    public destroy () {
-        if (this._handle) {
+    protected _destroy () {
+        if (JSB && this._handle) {
             AmbientPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }
+    }
+
+    public destroy () {
+        this._destroy();
     }
 }
 

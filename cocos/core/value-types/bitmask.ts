@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,21 +24,30 @@
 */
 
 /**
- * @category core/value-types
+ * @packageDocumentation
+ * @module core/value-types
  */
 
-import { value } from '../utils/js';
 import { EDITOR, TEST } from 'internal:constants';
+import { value } from '../utils/js';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 
+/**
+ * @en
+ * Define an BitMask type.
+ * @zh
+ * 定义一个位掩码类型。
+ * @param obj A JavaScript literal object containing BitMask names and values
+ * @return The defined BitMask type
+ */
 export function BitMask<T> (obj: T): T {
     if ('__bitmask__' in obj) {
         return obj;
     }
     value(obj, '__bitmask__', null, true);
 
-    let lastIndex: number = -1;
+    let lastIndex = -1;
     const keys: string[] = Object.keys(obj);
 
     for (let i = 0; i < keys.length; i++) {
@@ -47,16 +56,12 @@ export function BitMask<T> (obj: T): T {
         if (val === -1) {
             val = ++lastIndex;
             obj[key] = val;
+        } else if (typeof val === 'number') {
+            lastIndex = val;
+        } else if (typeof val === 'string' && Number.isInteger(parseFloat(key))) {
+            continue;
         }
-        else {
-            if (typeof val === 'number') {
-                lastIndex = val;
-            }
-            else if (typeof val === 'string' && Number.isInteger(parseFloat(key))) {
-                continue;
-            }
-        }
-        const reverseKey: string = '' + val;
+        const reverseKey = `${val}`;
         if (key !== reverseKey) {
             if ((EDITOR || TEST) && reverseKey in obj && obj[reverseKey] !== key) {
                 errorID(7100, reverseKey);
@@ -68,9 +73,7 @@ export function BitMask<T> (obj: T): T {
     return obj;
 }
 
-BitMask.isBitMask = (BitMaskType) => {
-    return BitMaskType && BitMaskType.hasOwnProperty('__bitmask__');
-};
+BitMask.isBitMask = (BitMaskType) => BitMaskType && BitMaskType.hasOwnProperty('__bitmask__');
 
 BitMask.getList = (BitMaskDef) => {
     if (BitMaskDef.__bitmask__) {
@@ -78,7 +81,7 @@ BitMask.getList = (BitMaskDef) => {
     }
 
     const bitlist: any[] = BitMaskDef.__bitmask__ = [];
-    // tslint:disable-next-line: forin
+
     for (const name in BitMaskDef) {
         const v = BitMaskDef[name];
         if (Number.isInteger(v)) {

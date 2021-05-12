@@ -1,22 +1,47 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import { macro, warnID, warn } from '../../platform';
-import { GFXDescriptorSet, IGFXDescriptorSetInfo } from '../descriptor-set';
-import { GFXBuffer, IGFXBufferInfo, IGFXBufferViewInfo } from '../buffer';
-import { GFXCommandBuffer, IGFXCommandBufferInfo } from '../command-buffer';
-import { GFXAPI, GFXDevice, GFXFeature, IGFXDeviceInfo, GFXBindingMappingInfo } from '../device';
-import { GFXFence, IGFXFenceInfo } from '../fence';
-import { GFXFramebuffer, IGFXFramebufferInfo } from '../framebuffer';
-import { GFXInputAssembler, IGFXInputAssemblerInfo } from '../input-assembler';
-import { GFXPipelineState, IGFXPipelineStateInfo } from '../pipeline-state';
-import { GFXQueue, IGFXQueueInfo } from '../queue';
-import { GFXRenderPass, IGFXRenderPassInfo } from '../render-pass';
-import { GFXSampler, IGFXSamplerInfo } from '../sampler';
-import { GFXShader, GFXShaderInfo } from '../shader';
-import { GFXTexture, IGFXTextureInfo, IGFXTextureViewInfo } from '../texture';
+import { DescriptorSet } from '../base/descriptor-set';
+import { DescriptorSetLayout } from '../base/descriptor-set-layout';
+import { PipelineLayout } from '../base/pipeline-layout';
+import { Buffer } from '../base/buffer';
+import { CommandBuffer } from '../base/command-buffer';
+import { Device } from '../base/device';
+import { Framebuffer } from '../base/framebuffer';
+import { InputAssembler } from '../base/input-assembler';
+import { PipelineState, PipelineStateInfo } from '../base/pipeline-state';
+import { Queue } from '../base/queue';
+import { RenderPass } from '../base/render-pass';
+import { Sampler } from '../base/sampler';
+import { Shader } from '../base/shader';
+import { Texture } from '../base/texture';
 import { WebGL2DescriptorSet } from './webgl2-descriptor-set';
 import { WebGL2Buffer } from './webgl2-buffer';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
 import { WebGL2CommandBuffer } from './webgl2-command-buffer';
-import { WebGL2Fence } from './webgl2-fence';
 import { WebGL2Framebuffer } from './webgl2-framebuffer';
 import { WebGL2InputAssembler } from './webgl2-input-assembler';
 import { WebGL2DescriptorSetLayout } from './webgl2-descriptor-set-layout';
@@ -29,16 +54,18 @@ import { WebGL2Sampler } from './webgl2-sampler';
 import { WebGL2Shader } from './webgl2-shader';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
-import { getTypedArrayConstructor, GFXBufferTextureCopy, GFXCommandBufferType, GFXFilter, GFXFormat, GFXFormatInfos,
-    GFXQueueType, GFXTextureFlagBit, GFXTextureType, GFXTextureUsageBit, GFXRect } from '../define';
+import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos, DescriptorSetLayoutInfo, DescriptorSetInfo,
+    PipelineLayoutInfo, BufferViewInfo, CommandBufferInfo, BufferInfo, BindingMappingInfo, FramebufferInfo, InputAssemblerInfo,
+    QueueInfo, RenderPassInfo, SamplerInfo, ShaderInfo, TextureInfo, TextureViewInfo, DeviceInfo, Rect, GlobalBarrierInfo, TextureBarrierInfo,
+    QueueType, TextureFlagBit, TextureType, TextureUsageBit,  API, Feature, BufferTextureCopy  } from '../base/define';
 import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
-import { GFXPipelineLayout, GFXDescriptorSetLayout, IGFXDescriptorSetLayoutInfo, IGFXPipelineLayoutInfo } from '../..';
+import { GlobalBarrier } from '../base/global-barrier';
+import { TextureBarrier } from '../base/texture-barrier';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
-export class WebGL2Device extends GFXDevice {
-
+export class WebGL2Device extends Device {
     get gl () {
         return this._webGL2RC as WebGL2RenderingContext;
     }
@@ -113,10 +140,10 @@ export class WebGL2Device extends GFXDevice {
     public nullTexCube: WebGL2Texture | null = null;
 
     private _webGL2RC: WebGL2RenderingContext | null = null;
-    private _isAntialias: boolean = true;
-    private _isPremultipliedAlpha: boolean = true;
-    private _useVAO: boolean = true;
-    private _bindingMappingInfo: GFXBindingMappingInfo = new GFXBindingMappingInfo();
+    private _isAntialias = true;
+    private _isPremultipliedAlpha = true;
+    private _useVAO = true;
+    private _bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo();
     private _webGLContextLostHandler: null | ((event: Event) => void) = null;
 
     private _extensions: string[] | null = null;
@@ -136,21 +163,11 @@ export class WebGL2Device extends GFXDevice {
     private _WEBGL_debug_shaders: WEBGL_debug_shaders | null = null;
     private _WEBGL_lose_context: WEBGL_lose_context | null = null;
 
-    public initialize (info: IGFXDeviceInfo): boolean {
-
+    public initialize (info: DeviceInfo): boolean {
         this._canvas = info.canvasElm as HTMLCanvasElement;
-
-        if (info.isAntialias !== undefined) {
-            this._isAntialias = info.isAntialias;
-        }
-
-        if (info.isPremultipliedAlpha !== undefined) {
-            this._isPremultipliedAlpha = info.isPremultipliedAlpha;
-        }
-
-        if (info.bindingMappingInfo !== undefined) {
-            this._bindingMappingInfo = info.bindingMappingInfo;
-        }
+        this._isAntialias = info.isAntialias;
+        this._isPremultipliedAlpha = info.isPremultipliedAlpha;
+        this._bindingMappingInfo = info.bindingMappingInfo;
         if (!this._bindingMappingInfo.bufferOffsets.length) this._bindingMappingInfo.bufferOffsets.push(0);
         if (!this._bindingMappingInfo.samplerOffsets.length) this._bindingMappingInfo.samplerOffsets.push(0);
 
@@ -184,7 +201,7 @@ export class WebGL2Device extends GFXDevice {
 
         console.info('WebGL2 device initialized.');
 
-        this._gfxAPI = GFXAPI.WEBGL2;
+        this._gfxAPI = API.WEBGL2;
         this._deviceName = 'WebGL2';
         const gl = this._webGL2RC;
 
@@ -198,22 +215,22 @@ export class WebGL2Device extends GFXDevice {
         }
 
         this._version = gl.getParameter(gl.VERSION);
-        this._maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
-        this._maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
-        this._maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
-        this._maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
-        this._maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        this._maxUniformBufferBindings = gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS);
-        this._maxUniformBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE);
-        this._maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
-        this._maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
-        this._uboOffsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
-        this._depthBits = gl.getParameter(gl.DEPTH_BITS);
-        this._stencilBits = gl.getParameter(gl.STENCIL_BITS);
+        this._caps.maxVertexAttributes = gl.getParameter(gl.MAX_VERTEX_ATTRIBS);
+        this._caps.maxVertexUniformVectors = gl.getParameter(gl.MAX_VERTEX_UNIFORM_VECTORS);
+        this._caps.maxFragmentUniformVectors = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_VECTORS);
+        this._caps.maxTextureUnits = gl.getParameter(gl.MAX_TEXTURE_IMAGE_UNITS);
+        this._caps.maxVertexTextureUnits = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        this._caps.maxUniformBufferBindings = gl.getParameter(gl.MAX_UNIFORM_BUFFER_BINDINGS);
+        this._caps.maxUniformBlockSize = gl.getParameter(gl.MAX_UNIFORM_BLOCK_SIZE);
+        this._caps.maxTextureSize = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+        this._caps.maxCubeMapTextureSize = gl.getParameter(gl.MAX_CUBE_MAP_TEXTURE_SIZE);
+        this._caps.uboOffsetAlignment = gl.getParameter(gl.UNIFORM_BUFFER_OFFSET_ALIGNMENT);
+        this._caps.depthBits = gl.getParameter(gl.DEPTH_BITS);
+        this._caps.stencilBits = gl.getParameter(gl.STENCIL_BITS);
         // let maxVertexUniformBlocks = gl.getParameter(gl.MAX_VERTEX_UNIFORM_BLOCKS);
         // let maxFragmentUniformBlocks = gl.getParameter(gl.MAX_FRAGMENT_UNIFORM_BLOCKS);
 
-        this.stateCache.initialize(this._maxTextureUnits, this._maxUniformBufferBindings, this._maxVertexAttributes);
+        this.stateCache.initialize(this._caps.maxTextureUnits, this._caps.maxUniformBufferBindings, this._caps.maxVertexAttributes);
 
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
         this._width = this._canvas.width;
@@ -221,36 +238,34 @@ export class WebGL2Device extends GFXDevice {
         this._nativeWidth = Math.max(info.nativeWidth || this._width, 0);
         this._nativeHeight = Math.max(info.nativeHeight || this._height, 0);
 
-        this._colorFmt = GFXFormat.RGBA8;
+        this._colorFmt = Format.RGBA8;
 
-        if (this._depthBits === 32) {
-            if (this._stencilBits === 8) {
-                this._depthStencilFmt = GFXFormat.D32F_S8;
+        if (this._caps.depthBits === 32) {
+            if (this._caps.stencilBits === 8) {
+                this._depthStencilFmt = Format.D32F_S8;
             } else {
-                this._depthStencilFmt = GFXFormat.D32F;
+                this._depthStencilFmt = Format.D32F;
             }
-        } else if (this._depthBits === 24) {
-            if (this._stencilBits === 8) {
-                this._depthStencilFmt = GFXFormat.D24S8;
+        } else if (this._caps.depthBits === 24) {
+            if (this._caps.stencilBits === 8) {
+                this._depthStencilFmt = Format.D24S8;
             } else {
-                this._depthStencilFmt = GFXFormat.D24;
+                this._depthStencilFmt = Format.D24;
             }
+        } else if (this._caps.stencilBits === 8) {
+            this._depthStencilFmt = Format.D16S8;
         } else {
-            if (this._stencilBits === 8) {
-                this._depthStencilFmt = GFXFormat.D16S8;
-            } else {
-                this._depthStencilFmt = GFXFormat.D16;
-            }
+            this._depthStencilFmt = Format.D16;
         }
 
         this._extensions = gl.getSupportedExtensions();
         let extensions = '';
         if (this._extensions) {
             for (const ext of this._extensions) {
-                extensions += ext + ' ';
+                extensions += `${ext} `;
             }
 
-            console.debug('EXTENSIONS: ' + extensions);
+            console.debug(`EXTENSIONS: ${extensions}`);
         }
 
         this._EXT_texture_filter_anisotropic = this.getExtension('EXT_texture_filter_anisotropic');
@@ -269,129 +284,114 @@ export class WebGL2Device extends GFXDevice {
         this._WEBGL_lose_context = this.getExtension('WEBGL_lose_context');
 
         this._features.fill(false);
-        this._features[GFXFeature.TEXTURE_FLOAT] = true;
-        this._features[GFXFeature.TEXTURE_HALF_FLOAT] = true;
-        this._features[GFXFeature.FORMAT_R11G11B10F] = true;
-        this._features[GFXFeature.FORMAT_RGB8] = true;
-        this._features[GFXFeature.FORMAT_D16] = true;
-        this._features[GFXFeature.FORMAT_D24] = true;
-        this._features[GFXFeature.FORMAT_D32F] = true;
-        this._features[GFXFeature.FORMAT_D24S8] = true;
-        this._features[GFXFeature.FORMAT_D32FS8] = true;
-        this._features[GFXFeature.MSAA] = true;
-        this._features[GFXFeature.ELEMENT_INDEX_UINT] = true;
-        this._features[GFXFeature.INSTANCED_ARRAYS] = true;
+        this._features[Feature.TEXTURE_FLOAT] = true;
+        this._features[Feature.TEXTURE_HALF_FLOAT] = true;
+        this._features[Feature.FORMAT_R11G11B10F] = true;
+        this._features[Feature.FORMAT_RGB8] = true;
+        this._features[Feature.FORMAT_D16] = true;
+        this._features[Feature.FORMAT_D24] = true;
+        this._features[Feature.FORMAT_D32F] = true;
+        this._features[Feature.FORMAT_D24S8] = true;
+        this._features[Feature.FORMAT_D32FS8] = true;
+        this._features[Feature.MSAA] = true;
+        this._features[Feature.ELEMENT_INDEX_UINT] = true;
+        this._features[Feature.INSTANCED_ARRAYS] = true;
+        this._features[Feature.MULTIPLE_RENDER_TARGETS] = true;
+        this._features[Feature.BLEND_MINMAX] = true;
 
         if (this._EXT_color_buffer_float) {
-            this._features[GFXFeature.COLOR_FLOAT] = true;
-            this._features[GFXFeature.COLOR_HALF_FLOAT] = true;
+            this._features[Feature.COLOR_FLOAT] = true;
+            this._features[Feature.COLOR_HALF_FLOAT] = true;
         }
 
         if (this._OES_texture_float_linear) {
-            this._features[GFXFeature.TEXTURE_FLOAT_LINEAR] = true;
+            this._features[Feature.TEXTURE_FLOAT_LINEAR] = true;
         }
 
         if (this._OES_texture_half_float_linear) {
-            this._features[GFXFeature.TEXTURE_HALF_FLOAT_LINEAR] = true;
+            this._features[Feature.TEXTURE_HALF_FLOAT_LINEAR] = true;
         }
 
-        let compressedFormat: string = '';
+        let compressedFormat = '';
 
         if (this._WEBGL_compressed_texture_etc1) {
-            this._features[GFXFeature.FORMAT_ETC1] = true;
+            this._features[Feature.FORMAT_ETC1] = true;
             compressedFormat += 'etc1 ';
         }
 
         if (this._WEBGL_compressed_texture_etc) {
-            this._features[GFXFeature.FORMAT_ETC2] = true;
+            this._features[Feature.FORMAT_ETC2] = true;
             compressedFormat += 'etc2 ';
         }
 
         if (this._WEBGL_compressed_texture_s3tc) {
-            this._features[GFXFeature.FORMAT_DXT] = true;
+            this._features[Feature.FORMAT_DXT] = true;
             compressedFormat += 'dxt ';
         }
 
         if (this._WEBGL_compressed_texture_pvrtc) {
-            this._features[GFXFeature.FORMAT_PVRTC] = true;
+            this._features[Feature.FORMAT_PVRTC] = true;
             compressedFormat += 'pvrtc ';
         }
 
         if (this._WEBGL_compressed_texture_astc) {
-            this._features[GFXFeature.FORMAT_ASTC] = true;
+            this._features[Feature.FORMAT_ASTC] = true;
             compressedFormat += 'astc ';
         }
 
-        console.info('RENDERER: ' + this._renderer);
-        console.info('VENDOR: ' + this._vendor);
-        console.info('VERSION: ' + this._version);
-        console.info('DPR: ' + this._devicePixelRatio);
-        console.info('SCREEN_SIZE: ' + this._width + ' x ' + this._height);
-        console.info('NATIVE_SIZE: ' + this._nativeWidth + ' x ' + this._nativeHeight);
-        console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
-        console.info('MAX_VERTEX_UNIFORM_VECTORS: ' + this._maxVertexUniformVectors);
-        console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
-        console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
-        console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
-        console.info('MAX_UNIFORM_BUFFER_BINDINGS: ' + this._maxUniformBufferBindings);
-        console.info('MAX_UNIFORM_BLOCK_SIZE: ' + this._maxUniformBlockSize);
-        console.info('DEPTH_BITS: ' + this._depthBits);
-        console.info('STENCIL_BITS: ' + this._stencilBits);
-        console.info('UNIFORM_BUFFER_OFFSET_ALIGNMENT: ' + this._uboOffsetAlignment);
+        console.info(`RENDERER: ${this._renderer}`);
+        console.info(`VENDOR: ${this._vendor}`);
+        console.info(`VERSION: ${this._version}`);
+        console.info(`DPR: ${this._devicePixelRatio}`);
+        console.info(`SCREEN_SIZE: ${this._width} x ${this._height}`);
+        console.info(`NATIVE_SIZE: ${this._nativeWidth} x ${this._nativeHeight}`);
+        console.info(`MAX_VERTEX_ATTRIBS: ${this._caps.maxVertexAttributes}`);
+        console.info(`MAX_VERTEX_UNIFORM_VECTORS: ${this._caps.maxVertexUniformVectors}`);
+        console.info(`MAX_FRAGMENT_UNIFORM_VECTORS: ${this._caps.maxFragmentUniformVectors}`);
+        console.info(`MAX_TEXTURE_IMAGE_UNITS: ${this._caps.maxTextureUnits}`);
+        console.info(`MAX_VERTEX_TEXTURE_IMAGE_UNITS: ${this._caps.maxVertexTextureUnits}`);
+        console.info(`MAX_UNIFORM_BUFFER_BINDINGS: ${this._caps.maxUniformBufferBindings}`);
+        console.info(`MAX_UNIFORM_BLOCK_SIZE: ${this._caps.maxUniformBlockSize}`);
+        console.info(`DEPTH_BITS: ${this._caps.depthBits}`);
+        console.info(`STENCIL_BITS: ${this._caps.stencilBits}`);
+        console.info(`UNIFORM_BUFFER_OFFSET_ALIGNMENT: ${this._caps.uboOffsetAlignment}`);
         if (this._EXT_texture_filter_anisotropic) {
-            console.info('MAX_TEXTURE_MAX_ANISOTROPY_EXT: ' + this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT);
+            console.info(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
         }
-        console.info('USE_VAO: ' + this._useVAO);
-        console.info('COMPRESSED_FORMAT: ' + compressedFormat);
+        console.info(`USE_VAO: ${this._useVAO}`);
+        console.info(`COMPRESSED_FORMAT: ${compressedFormat}`);
 
         // init states
         this.initStates(gl);
 
         // create queue
-        this._queue = this.createQueue({ type: GFXQueueType.GRAPHICS });
-        this._cmdBuff = this.createCommandBuffer({ type: GFXCommandBufferType.PRIMARY, queue: this._queue });
+        this._queue = this.createQueue(new QueueInfo(QueueType.GRAPHICS));
+        this._cmdBuff = this.createCommandBuffer(new CommandBufferInfo(this._queue));
 
         // create default null texture
-        this.nullTex2D = new WebGL2Texture(this);
-        this.nullTex2D.initialize({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED,
-            format: GFXFormat.RGBA8,
-            width: 2,
-            height: 2,
-            flags: GFXTextureFlagBit.GEN_MIPMAP,
-        });
+        this.nullTex2D = this.createTexture(new TextureInfo(
+            TextureType.TEX2D,
+            TextureUsageBit.SAMPLED,
+            Format.RGBA8,
+            2,
+            2,
+            TextureFlagBit.GEN_MIPMAP,
+        )) as WebGL2Texture;
 
         this.nullTexCube = new WebGL2Texture(this);
-        this.nullTexCube.initialize({
-            type: GFXTextureType.TEX2D,
-            usage: GFXTextureUsageBit.SAMPLED,
-            format: GFXFormat.RGBA8,
-            width: 2,
-            height: 2,
-            layerCount: 6,
-            flags: GFXTextureFlagBit.CUBEMAP |  GFXTextureFlagBit.GEN_MIPMAP,
-        });
+        this.nullTexCube.initialize(new TextureInfo(
+            TextureType.CUBE,
+            TextureUsageBit.SAMPLED,
+            Format.RGBA8,
+            2,
+            2,
+            TextureFlagBit.GEN_MIPMAP,
+            6,
+        ));
 
-        const nullTexRegion: GFXBufferTextureCopy = {
-            buffStride: 0,
-            buffTexHeight: 0,
-            texOffset: {
-                x: 0,
-                y: 0,
-                z: 0,
-            },
-            texExtent: {
-                width: 2,
-                height: 2,
-                depth: 1,
-            },
-            texSubres: {
-                mipLevel: 0,
-                baseArrayLayer: 0,
-                layerCount: 1,
-            },
-        };
+        const nullTexRegion = new BufferTextureCopy();
+        nullTexRegion.texExtent.width = 2;
+        nullTexRegion.texExtent.height = 2;
 
         const nullTexBuff = new Uint8Array(this.nullTex2D.size);
         nullTexBuff.fill(0);
@@ -400,7 +400,8 @@ export class WebGL2Device extends GFXDevice {
         nullTexRegion.texSubres.layerCount = 6;
         this.copyBuffersToTexture(
             [nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff, nullTexBuff],
-            this.nullTexCube, [nullTexRegion]);
+            this.nullTexCube, [nullTexRegion],
+        );
 
         return true;
     }
@@ -448,13 +449,15 @@ export class WebGL2Device extends GFXDevice {
 
     public resize (width: number, height: number) {
         if (this._width !== width || this._height !== height) {
-            console.info('Resizing device: ' + width + 'x' + height);
+            console.info(`Resizing device: ${width}x${height}`);
             this._canvas!.width = width;
             this._canvas!.height = height;
             this._width = width;
             this._height = height;
         }
     }
+
+    public flushCommands (cmdBuffs: CommandBuffer[]) {}
 
     public acquire () {
         this.cmdAllocator.releaseCmds();
@@ -468,17 +471,17 @@ export class WebGL2Device extends GFXDevice {
         queue.clear();
     }
 
-    public createCommandBuffer (info: IGFXCommandBufferInfo): GFXCommandBuffer {
-        // const ctor = WebGLCommandBuffer; // opt to instant invocation
-        const ctor = info.type === GFXCommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
-        const cmdBuff = new ctor(this);
+    public createCommandBuffer (info: CommandBufferInfo): CommandBuffer {
+        // const Ctor = WebGLCommandBuffer; // opt to instant invocation
+        const Ctor = info.type === CommandBufferType.PRIMARY ? WebGL2PrimaryCommandBuffer : WebGL2CommandBuffer;
+        const cmdBuff = new Ctor(this);
         if (cmdBuff.initialize(info)) {
             return cmdBuff;
         }
         return null!;
     }
 
-    public createBuffer (info: IGFXBufferInfo | IGFXBufferViewInfo): GFXBuffer {
+    public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
         const buffer = new WebGL2Buffer(this);
         if (buffer.initialize(info)) {
             return buffer;
@@ -486,7 +489,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createTexture (info: IGFXTextureInfo | IGFXTextureViewInfo): GFXTexture {
+    public createTexture (info: TextureInfo | TextureViewInfo): Texture {
         const texture = new WebGL2Texture(this);
         if (texture.initialize(info)) {
             return texture;
@@ -494,7 +497,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createSampler (info: IGFXSamplerInfo): GFXSampler {
+    public createSampler (info: SamplerInfo): Sampler {
         const sampler = new WebGL2Sampler(this);
         if (sampler.initialize(info)) {
             return sampler;
@@ -502,7 +505,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createDescriptorSet (info: IGFXDescriptorSetInfo): GFXDescriptorSet {
+    public createDescriptorSet (info: DescriptorSetInfo): DescriptorSet {
         const descriptorSet = new WebGL2DescriptorSet(this);
         if (descriptorSet.initialize(info)) {
             return descriptorSet;
@@ -510,7 +513,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createShader (info: GFXShaderInfo): GFXShader {
+    public createShader (info: ShaderInfo): Shader {
         const shader = new WebGL2Shader(this);
         if (shader.initialize(info)) {
             return shader;
@@ -518,7 +521,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createInputAssembler (info: IGFXInputAssemblerInfo): GFXInputAssembler {
+    public createInputAssembler (info: InputAssemblerInfo): InputAssembler {
         const inputAssembler = new WebGL2InputAssembler(this);
         if (inputAssembler.initialize(info)) {
             return inputAssembler;
@@ -526,7 +529,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createRenderPass (info: IGFXRenderPassInfo): GFXRenderPass {
+    public createRenderPass (info: RenderPassInfo): RenderPass {
         const renderPass = new WebGL2RenderPass(this);
         if (renderPass.initialize(info)) {
             return renderPass;
@@ -534,7 +537,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createFramebuffer (info: IGFXFramebufferInfo): GFXFramebuffer {
+    public createFramebuffer (info: FramebufferInfo): Framebuffer {
         const framebuffer = new WebGL2Framebuffer(this);
         if (framebuffer.initialize(info)) {
             return framebuffer;
@@ -542,7 +545,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createDescriptorSetLayout (info: IGFXDescriptorSetLayoutInfo): GFXDescriptorSetLayout {
+    public createDescriptorSetLayout (info: DescriptorSetLayoutInfo): DescriptorSetLayout {
         const descriptorSetLayout = new WebGL2DescriptorSetLayout(this);
         if (descriptorSetLayout.initialize(info)) {
             return descriptorSetLayout;
@@ -550,7 +553,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createPipelineLayout (info: IGFXPipelineLayoutInfo): GFXPipelineLayout {
+    public createPipelineLayout (info: PipelineLayoutInfo): PipelineLayout {
         const pipelineLayout = new WebGL2PipelineLayout(this);
         if (pipelineLayout.initialize(info)) {
             return pipelineLayout;
@@ -558,7 +561,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createPipelineState (info: IGFXPipelineStateInfo): GFXPipelineState {
+    public createPipelineState (info: PipelineStateInfo): PipelineState {
         const pipelineState = new WebGL2PipelineState(this);
         if (pipelineState.initialize(info)) {
             return pipelineState;
@@ -566,15 +569,7 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public createFence (info: IGFXFenceInfo): GFXFence {
-        const fence = new WebGL2Fence(this);
-        if (fence.initialize(info)) {
-            return fence;
-        }
-        return null!;
-    }
-
-    public createQueue (info: IGFXQueueInfo): GFXQueue {
+    public createQueue (info: QueueInfo): Queue {
         const queue = new WebGL2Queue(this);
         if (queue.initialize(info)) {
             return queue;
@@ -582,37 +577,55 @@ export class WebGL2Device extends GFXDevice {
         return null!;
     }
 
-    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: GFXTexture, regions: GFXBufferTextureCopy[]) {
+    public createGlobalBarrier (info: GlobalBarrierInfo) {
+        const barrier = new GlobalBarrier(this);
+        if (barrier.initialize(info)) {
+            return barrier;
+        }
+        return null!;
+    }
+
+    public createTextureBarrier (info: TextureBarrierInfo) {
+        const barrier = new TextureBarrier(this);
+        if (barrier.initialize(info)) {
+            return barrier;
+        }
+        return null!;
+    }
+
+    public copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]) {
         WebGL2CmdFuncCopyBuffersToTexture(
             this,
             buffers,
             (texture as WebGL2Texture).gpuTexture,
-            regions);
+            regions,
+        );
     }
 
     public copyTexImagesToTexture (
         texImages: TexImageSource[],
-        texture: GFXTexture,
-        regions: GFXBufferTextureCopy[]) {
-
+        texture: Texture,
+        regions: BufferTextureCopy[],
+    ) {
         WebGL2CmdFuncCopyTexImagesToTexture(
             this,
             texImages,
             (texture as WebGL2Texture).gpuTexture,
-            regions);
+            regions,
+        );
     }
 
     public copyFramebufferToBuffer (
-        srcFramebuffer: GFXFramebuffer,
+        srcFramebuffer: Framebuffer,
         dstBuffer: ArrayBuffer,
-        regions: GFXBufferTextureCopy[]) {
-
+        regions: BufferTextureCopy[],
+    ) {
         const gl = this._webGL2RC as WebGL2RenderingContext;
         const gpuFramebuffer = (srcFramebuffer as WebGL2Framebuffer).gpuFramebuffer;
         const format = gpuFramebuffer.gpuColorTextures[0].format;
         const glFormat = GFXFormatToWebGLFormat(format, gl);
         const glType = GFXFormatToWebGLType(format, gl);
-        const ctor = getTypedArrayConstructor(GFXFormatInfos[format]);
+        const Ctor = getTypedArrayConstructor(FormatInfos[format]);
 
         const curFBO = this.stateCache.glFramebuffer;
 
@@ -621,10 +634,9 @@ export class WebGL2Device extends GFXDevice {
             this.stateCache.glFramebuffer = gpuFramebuffer.glFramebuffer;
         }
 
-        const view = new ctor(dstBuffer);
+        const view = new Ctor(dstBuffer);
 
         for (const region of regions) {
-
             const w = region.texExtent.width;
             const h = region.texExtent.height;
 
@@ -637,7 +649,7 @@ export class WebGL2Device extends GFXDevice {
         }
     }
 
-    public blitFramebuffer (src: GFXFramebuffer, dst: GFXFramebuffer, srcRect: GFXRect, dstRect: GFXRect, filter: GFXFilter) {
+    public blitFramebuffer (src: Framebuffer, dst: Framebuffer, srcRect: Rect, dstRect: Rect, filter: Filter) {
         const srcFBO = (src as WebGL2Framebuffer).gpuFramebuffer;
         const dstFBO = (dst as WebGL2Framebuffer).gpuFramebuffer;
 
@@ -656,6 +668,7 @@ export class WebGL2Device extends GFXDevice {
         for (let i = 0; i < prefixes.length; ++i) {
             const _ext = this.gl.getExtension(prefixes[i] + ext);
             if (_ext) {
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
                 return _ext;
             }
         }
@@ -663,15 +676,15 @@ export class WebGL2Device extends GFXDevice {
     }
 
     private initStates (gl: WebGL2RenderingContext) {
-
         gl.activeTexture(gl.TEXTURE0);
         gl.pixelStorei(gl.PACK_ALIGNMENT, 1);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
-        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
 
         gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 
-        // rasteriazer state
+        // rasterizer state
+        gl.enable(gl.SCISSOR_TEST);
         gl.enable(gl.CULL_FACE);
         gl.cullFace(gl.BACK);
         gl.frontFace(gl.CCW);

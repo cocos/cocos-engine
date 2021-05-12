@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,22 +24,21 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
-import { ccclass, serializable, editable } from 'cc.decorator';
-import { Root } from '../../core/root';
-import { GFXDynamicStateFlags, GFXPrimitiveMode } from '../gfx/define';
-import { IGFXAttribute } from '../gfx/input-assembler';
-import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../gfx/pipeline-state';
-import { GFXUniformBlock, GFXUniformSampler } from '../gfx/shader';
+import { ccclass, serializable, editable, editorOnly } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
+import { Root } from '../root';
+import { BlendState, DepthStencilState, RasterizerState, DescriptorType,
+    DynamicStateFlags, PrimitiveMode, ShaderStageFlags, Type, IUniform, IAttribute } from '../gfx';
+
 import { RenderPassStage } from '../pipeline/define';
 import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
-import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
-import { IGFXDescriptorSetLayoutBinding } from '../gfx';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted from shader
@@ -50,12 +49,12 @@ export interface IPropertyInfo {
 // Pass instance itself are compliant to IPassStates too
 export interface IPassStates {
     priority?: number;
-    primitive?: GFXPrimitiveMode;
+    primitive?: PrimitiveMode;
     stage?: RenderPassStage;
-    rasterizerState?: GFXRasterizerState;
-    depthStencilState?: GFXDepthStencilState;
-    blendState?: GFXBlendState;
-    dynamicStates?: GFXDynamicStateFlags;
+    rasterizerState?: RasterizerState;
+    depthStencilState?: DepthStencilState;
+    blendState?: BlendState;
+    dynamicStates?: DynamicStateFlags;
     phase?: string | number;
 }
 export interface IPassInfo extends IPassStates {
@@ -70,10 +69,23 @@ export interface ITechniqueInfo {
     name?: string;
 }
 
-export interface IBlockInfo extends GFXUniformBlock, IGFXDescriptorSetLayoutBinding {}
-export interface ISamplerInfo extends GFXUniformSampler, IGFXDescriptorSetLayoutBinding {}
-
-export interface IAttributeInfo extends IGFXAttribute {
+export interface IBlockInfo {
+    binding: number;
+    name: string;
+    members: IUniform[];
+    count: number;
+    stageFlags: ShaderStageFlags;
+    descriptorType?: DescriptorType;
+}
+export interface ISamplerTextureInfo {
+    binding: number;
+    name: string;
+    type: Type;
+    count: number;
+    stageFlags: ShaderStageFlags;
+    descriptorType?: DescriptorType;
+}
+export interface IAttributeInfo extends IAttribute {
     defines: string[];
 }
 export interface IDefineInfo {
@@ -89,7 +101,7 @@ export interface IBuiltin {
 }
 export interface IBuiltinInfo {
     blocks: IBuiltin[];
-    samplers: IBuiltin[];
+    samplerTextures: IBuiltin[];
 }
 export interface IShaderInfo {
     name: string;
@@ -97,98 +109,101 @@ export interface IShaderInfo {
     glsl4: { vert: string, frag: string };
     glsl3: { vert: string, frag: string };
     glsl1: { vert: string, frag: string };
-    builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo };
+    builtins: { globals: IBuiltinInfo, locals: IBuiltinInfo, statistics: Record<string, number> };
     defines: IDefineInfo[];
     blocks: IBlockInfo[];
-    samplers: ISamplerInfo[];
+    samplerTextures: ISamplerTextureInfo[];
     attributes: IAttributeInfo[];
 }
 export interface IPreCompileInfo {
     [name: string]: boolean[] | number[] | string[];
 }
 
-const effects: Record<string, EffectAsset> = {};
-
 /**
- * @zh
- * Effect 资源，作为材质实例初始化的模板，每个 effect 资源都应是全局唯一的。
+ * @en Effect asset is the base template for instantiating material, all effects should be unique globally.
+ * All effects are managed in a static map of EffectAsset.
+ * @zh Effect 资源，作为材质实例初始化的模板，每个 effect 资源都应是全局唯一的。
+ * 所有 Effect 资源都由此类的一个静态对象管理。
  */
 @ccclass('cc.EffectAsset')
 export class EffectAsset extends Asset {
-
     /**
-     * @zh
-     * 将指定 effect 注册到全局管理器。
+     * @en Register the effect asset to the static map
+     * @zh 将指定 effect 注册到全局管理器。
      */
-    public static register (asset: EffectAsset) { effects[asset.name] = asset; }
+    public static register (asset: EffectAsset) { EffectAsset._effects[asset.name] = asset; }
 
     /**
-     * @zh
-     * 将指定 effect 从全局管理器移除。
+     * @en Unregister the effect asset from the static map
+     * @zh 将指定 effect 从全局管理器移除。
      */
     public static remove (name: string) {
-        if (effects[name]) { delete effects[name]; return; }
-        for (const n in effects) {
-            if (effects[n]._uuid === name) {
-                delete effects[n];
+        if (EffectAsset._effects[name]) { delete EffectAsset._effects[name]; return; }
+        for (const n in EffectAsset._effects) {
+            if (EffectAsset._effects[n]._uuid === name) {
+                delete EffectAsset._effects[n];
                 return;
             }
         }
     }
 
     /**
-     * @zh
-     * 获取指定名字的 effect 资源。
+     * @en Get the effect asset by the given name.
+     * @zh 获取指定名字的 effect 资源。
      */
     public static get (name: string) {
-        if (effects[name]) { return effects[name]; }
-        for (const n in effects) {
-            if (effects[n]._uuid === name) {
-                return effects[n];
+        if (EffectAsset._effects[name]) { return EffectAsset._effects[name]; }
+        for (const n in EffectAsset._effects) {
+            if (EffectAsset._effects[n]._uuid === name) {
+                return EffectAsset._effects[n];
             }
         }
         return null;
     }
 
     /**
-     * @zh
-     * 获取所有已注册的 effect 资源。
+     * @en Get all registered effect assets.
+     * @zh 获取所有已注册的 effect 资源。
      */
-    public static getAll () { return effects; }
+    public static getAll () { return EffectAsset._effects; }
     protected static _effects: Record<string, EffectAsset> = {};
 
     /**
-     * @zh
-     * 当前 effect 的所有可用 technique。
+     * @en The techniques used by the current effect.
+     * @zh 当前 effect 的所有可用 technique。
      */
     @serializable
     @editable
     public techniques: ITechniqueInfo[] = [];
 
     /**
-     * @zh
-     * 当前 effect 使用的所有 shader。
+     * @en The shaders used by the current effect.
+     * @zh 当前 effect 使用的所有 shader。
      */
     @serializable
     @editable
     public shaders: IShaderInfo[] = [];
 
     /**
-     * @zh
-     * 每个 shader 需要预编译的宏定义组合。
+     * @en The preprocess macro combinations for the shader
+     * @zh 每个 shader 需要预编译的宏定义组合。
      */
     @serializable
     @editable
     public combinations: IPreCompileInfo[] = [];
 
+    @serializable
+    @editorOnly
+    public hideInEditor = false;
+
     /**
-     * @zh
-     * 通过 Loader 加载完成时的回调，将自动注册 effect 资源。
+     * @en The loaded callback which should be invoked by the [[Loader]], will automatically register the effect.
+     * @zh 通过 [[Loader]] 加载完成时的回调，将自动注册 effect 资源。
      */
     public onLoaded () {
-        this.shaders.forEach((s) => programLib.define(s));
-        if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
+        programLib.register(this);
         EffectAsset.register(this);
+        if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
     }
 
     protected _precompile () {
@@ -197,14 +212,37 @@ export class EffectAsset extends Asset {
             const shader = this.shaders[i];
             const combination = this.combinations[i];
             if (!combination) { continue; }
-            Object.keys(combination).reduce((out, name) => out.reduce((acc, cur) => {
+            const defines = Object.keys(combination).reduce((out, name) => out.reduce((acc, cur) => {
                 const choices = combination[name];
-                const next = [cur].concat([...Array(choices.length - 1)].map(() => Object.assign({}, cur)));
-                next.forEach((defines, idx) => defines[name] = choices[idx]);
-                return acc.concat(next);
-            }, [] as MacroRecord[]), [{}] as MacroRecord[]).forEach(
-                (defines) => programLib.getGFXShader(root.device, shader.name, defines, root.pipeline));
+                for (let i = 0; i < choices.length; ++i) {
+                    const defines = { ...cur };
+                    defines[name] = choices[i];
+                    acc.push(defines);
+                }
+                return acc;
+            }, [] as MacroRecord[]), [{}] as MacroRecord[]);
+            defines.forEach(
+                (defines) => programLib.getGFXShader(root.device, shader.name, defines, root.pipeline),
+            );
         }
+    }
+
+    public destroy () {
+        EffectAsset.remove(this.name);
+        return super.destroy();
+    }
+
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
+        const effect = EffectAsset.get('unlit');
+        this.name = 'unlit';
+        this.shaders = effect!.shaders;
+        this.combinations = effect!.combinations;
+        this.techniques = effect!.techniques;
+    }
+
+    public validate () {
+        return this.techniques.length > 0 && this.shaders.length > 0;
     }
 }
 

@@ -1,15 +1,38 @@
-import { GFXCommandBuffer } from '../command-buffer';
-import { GFXQueue, IGFXQueueInfo } from '../queue';
-import { GFXFence } from '../fence';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
-export class WebGLQueue extends GFXQueue {
+ https://www.cocos.com/
 
-    public numDrawCalls: number = 0;
-    public numInstances: number = 0;
-    public numTris: number = 0;
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
 
-    public initialize (info: IGFXQueueInfo): boolean {
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
 
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { QueueInfo } from '../base/define';
+import { CommandBuffer } from '../base/command-buffer';
+import { Queue } from '../base/queue';
+
+export class WebGLQueue extends Queue {
+    public numDrawCalls = 0;
+    public numInstances = 0;
+    public numTris = 0;
+
+    public initialize (info: QueueInfo): boolean {
         this._type = info.type;
 
         return true;
@@ -18,7 +41,7 @@ export class WebGLQueue extends GFXQueue {
     public destroy () {
     }
 
-    public submit (cmdBuffs: GFXCommandBuffer[], fence?: GFXFence) {
+    public submit (cmdBuffs: CommandBuffer[]) {
         if (!this._isAsync) {
             const len = cmdBuffs.length;
             for (let i = 0; i < len; i++) {

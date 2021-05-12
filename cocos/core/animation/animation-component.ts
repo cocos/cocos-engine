@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,11 +24,13 @@
 */
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
-import { Component } from '../components/component';
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, type, serializable } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants';
+import { Component } from '../components/component';
 import { Eventify } from '../event/eventify';
 import { warnID } from '../platform/debug';
 import * as ArrayUtils from '../utils/array';
@@ -36,7 +38,6 @@ import { createMap } from '../utils/js-typed';
 import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
-import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 
 /**
@@ -57,7 +58,7 @@ import { legacyCC } from '../global-exports';
 @help('i18n:cc.Animation')
 @executionOrder(99)
 @executeInEditMode
-@menu('Components/Animation')
+@menu('Animation/Animation')
 export class Animation extends Eventify(Component) {
     /**
      * @en
@@ -69,7 +70,7 @@ export class Animation extends Eventify(Component) {
      * 设置时，已有剪辑关联的动画状态将被停止；若默认剪辑不在新的动画剪辑中，将被重置为空。
      */
     @type([AnimationClip])
-    @tooltip('此动画组件管理的动画剪辑')
+    @tooltip('i18n:animation.clips')
     get clips () {
         return this._clips;
     }
@@ -110,7 +111,7 @@ export class Animation extends Eventify(Component) {
      * @see [[playOnLoad]]
      */
     @type(AnimationClip)
-    @tooltip('默认动画剪辑')
+    @tooltip('i18n:animation.default_clip')
     get defaultClip () {
         return this._defaultClip;
     }
@@ -138,7 +139,7 @@ export class Animation extends Eventify(Component) {
      * 注意，若在组件开始运行前调用了 `crossFade` 或 `play()`，此字段将不会生效。
      */
     @serializable
-    @tooltip('是否在动画组件开始运行时自动播放默认动画剪辑')
+    @tooltip('i18n:animation.play_on_load')
     public playOnLoad = false;
 
     protected _crossFade = new CrossFade();
@@ -199,9 +200,8 @@ export class Animation extends Eventify(Component) {
         if (!name) {
             if (!this._defaultClip) {
                 return;
-            } else {
-                name = this._defaultClip.name;
             }
+            name = this._defaultClip.name;
         }
         this.crossFade(name, 0);
     }
@@ -332,7 +332,8 @@ export class Animation extends Eventify(Component) {
      * @en
      * Remove clip from the animation list. This will remove the clip and any animation states based on it.<br>
      * If there are animation states depend on the clip are playing or clip is defaultClip, it will not delete the clip.<br>
-     * But if force is true, then will always remove the clip and any animation states based on it. If clip is defaultClip, defaultClip will be reset to null
+     * But if force is true, then will always remove the clip and any animation states based on it. If clip is defaultClip,
+     * defaultClip will be reset to null
      * @zh
      * 从动画列表中移除指定的动画剪辑，<br/>
      * 如果依赖于 clip 的 AnimationState 正在播放或者 clip 是 defaultClip 的话，默认是不会删除 clip 的。<br/>
@@ -352,16 +353,14 @@ export class Animation extends Eventify(Component) {
         }
 
         if (clip === this._defaultClip) {
-            if (force) { this._defaultClip = null; }
-            else {
+            if (force) { this._defaultClip = null; } else {
                 if (!TEST) { warnID(3902); }
                 return;
             }
         }
 
         if (removalState && removalState.isPlaying) {
-            if (force) { removalState.stop(); }
-            else {
+            if (force) { removalState.stop(); } else {
                 if (!TEST) { warnID(3903); }
                 return;
             }
@@ -398,7 +397,7 @@ export class Animation extends Eventify(Component) {
      * animation.on('play', this.onPlay, this);
      * ```
      */
-    public on<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean) {
+    public on<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any, once?: boolean) {
         const ret = super.on(type, callback, thisArg, once);
         if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
@@ -406,7 +405,7 @@ export class Animation extends Eventify(Component) {
         return ret;
     }
 
-    public once<TFunction extends Function> (type: EventType, callback: TFunction, thisArg?: any) {
+    public once<TFunction extends (...any) => void> (type: EventType, callback: TFunction, thisArg?: any) {
         const ret = super.once(type, callback, thisArg);
         if (type === EventType.LASTFRAME) {
             this._syncAllowLastFrameEvent();
@@ -428,7 +427,7 @@ export class Animation extends Eventify(Component) {
      * animation.off('play', this.onPlay, this);
      * ```
      */
-    public off (type: EventType, callback?: Function, thisArg?: any) {
+    public off (type: EventType, callback?: (...any) => void, thisArg?: any) {
         super.off(type, callback, thisArg);
         if (type === EventType.LASTFRAME) {
             this._syncDisallowLastFrameEvent();
@@ -454,20 +453,17 @@ export class Animation extends Eventify(Component) {
         if (!name) {
             if (!this._defaultClip) {
                 return null;
-            } else {
-                name = this._defaultClip.name;
             }
+            name = this._defaultClip.name;
         }
         const state = this._nameToState[name];
         if (state) {
             return state;
-        } else {
-            return null;
         }
+        return null;
     }
 
     private _removeStateOfAutomaticClip (clip: AnimationClip) {
-        // tslint:disable-next-line:forin
         for (const name in this._nameToState) {
             const state = this._nameToState[name];
             if (equalClips(clip, state.clip)) {

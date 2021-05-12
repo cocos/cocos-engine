@@ -1,23 +1,49 @@
-/**
- * @category core
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { builtinResMgr } from './3d/builtin';
-import { GFXDevice } from './gfx/device';
+/**
+ * @packageDocumentation
+ * @module core
+ */
+
+import { JSB } from 'internal:constants';
+import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
-import { RenderPipeline, ForwardPipeline, RenderView  } from './pipeline';
-import { IRenderViewInfo } from './pipeline/define';
+import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
 import { Camera, Light, Model } from './renderer/scene';
-import { DataPoolManager } from './renderer/data-pool-manager';
+import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
 import { SphereLight } from './renderer/scene/sphere-light';
 import { SpotLight } from './renderer/scene/spot-light';
-import { UI } from './renderer/ui/ui';
+import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { GFXColorAttachment, GFXDepthStencilAttachment, GFXStoreOp } from './gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
+import { warnID } from './platform/debug';
 
 /**
  * @zh
@@ -40,12 +66,40 @@ export interface ISceneInfo {
  * Root类
  */
 export class Root {
+    private _init (): void {
+        if (JSB) {
+            this._poolHandle = RootPool.alloc();
+        }
+    }
+
+    private _destroy (): void {
+        if (JSB) {
+            if (this._poolHandle) {
+                RootPool.free(this._poolHandle);
+                this._poolHandle = NULL_HANDLE;
+            }
+        }
+    }
+
+    private _setCumulativeTime (deltaTime: number): void {
+        this._cumulativeTime += deltaTime;
+        if (JSB) {
+            RootPool.set(this._poolHandle, RootView.CUMULATIVE_TIME, this._cumulativeTime);
+        }
+    }
+
+    private _setFrameTime (deltaTime: number): void {
+        this._frameTime = deltaTime;
+        if (JSB) {
+            RootPool.set(this._poolHandle, RootView.FRAME_TIME, deltaTime);
+        }
+    }
 
     /**
      * @zh
-     * GFX设备
+     * GFX 设备
      */
-    public get device (): GFXDevice {
+    public get device (): Device {
         return this._device;
     }
 
@@ -100,9 +154,10 @@ export class Root {
     /**
      * @zh
      * UI实例
+     * 引擎内部使用，用户无需调用此接口
      */
-    public get ui (): UI {
-        return this._ui as UI;
+    public get batcher2D (): Batcher2D {
+        return this._batcher as Batcher2D;
     }
 
     /**
@@ -118,7 +173,7 @@ export class Root {
      * 累计时间（秒）
      */
     public get cumulativeTime (): number {
-        return RootPool.get(this._poolHandle, RootView.CUMULATIVE_TIME);
+        return this._cumulativeTime;
     }
 
     /**
@@ -126,7 +181,7 @@ export class Root {
      * 帧时间（秒）
      */
     public get frameTime (): number {
-        return RootPool.get(this._poolHandle, RootView.FRAME_TIME);
+        return this._frameTime;
     }
 
     /**
@@ -170,37 +225,42 @@ export class Root {
         return this._poolHandle;
     }
 
+    get useDeferredPipeline () : boolean {
+        return this._useDeferredPipeline;
+    }
+
     public _createSceneFun: (root: Root) => RenderScene = null!;
     public _createWindowFun: (root: Root) => RenderWindow = null!;
 
-    private _device: GFXDevice;
+    private _device: Device;
     private _windows: RenderWindow[] = [];
     private _mainWindow: RenderWindow | null = null;
     private _curWindow: RenderWindow | null = null;
     private _tempWindow: RenderWindow | null = null;
     private _pipeline: RenderPipeline | null = null;
-    private _ui: UI | null = null;
+    private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;
     private _scenes: RenderScene[] = [];
-    private _cameras: Camera[] = [];
-    private _views: RenderView[] = [];
     private _modelPools = new Map<Constructor<Model>, Pool<Model>>();
     private _cameraPool: Pool<Camera> | null = null;
     private _lightPools = new Map<Constructor<Light>, Pool<Light>>();
-    private _fpsTime: number = 0;
-    private _frameCount: number = 0;
-    private _fps: number = 0;
-    private _fixedFPS: number = 0;
-    private _fixedFPSFrameTime: number = 0;
+    private _fpsTime = 0;
+    private _frameCount = 0;
+    private _fps = 0;
+    private _fixedFPS = 0;
     private _poolHandle: RootHandle = NULL_HANDLE;
+    private _useDeferredPipeline = false;
+    private _fixedFPSFrameTime = 0;
+    private _cumulativeTime = 0;
+    private _frameTime = 0;
 
     /**
      * 构造函数
-     * @param device GFX设备
+     * @param device GFX 设备
      */
-    constructor (device: GFXDevice) {
+    constructor (device: Device) {
         this._device = device;
-        this._dataPoolMgr = new DataPoolManager(device);
+        this._dataPoolMgr = legacyCC.internal.DataPoolManager && new legacyCC.internal.DataPoolManager(device) as DataPoolManager;
 
         RenderScene.registerCreateFunc(this);
         RenderWindow.registerCreateFunc(this);
@@ -213,37 +273,33 @@ export class Root {
      * 初始化函数
      * @param info Root描述信息
      */
-    public initialize (info: IRootInfo): boolean {
-        this._poolHandle = RootPool.alloc();
-        const colorAttachment = new GFXColorAttachment();
-        const depthStencilAttachment = new GFXDepthStencilAttachment();
-        depthStencilAttachment.depthStoreOp = GFXStoreOp.DISCARD;
-        depthStencilAttachment.stencilStoreOp = GFXStoreOp.DISCARD;
+    public initialize (info: IRootInfo): Promise<void> {
+        this._init();
+
+        const colorAttachment = new ColorAttachment();
+        const depthStencilAttachment = new DepthStencilAttachment();
+        depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
+        depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
+        const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
         this._mainWindow = this.createWindow({
             title: 'rootMainWindow',
             width: this._device.width,
             height: this._device.height,
-            renderPassInfo: {
-                colorAttachments: [colorAttachment],
-                depthStencilAttachment,
-            },
+            renderPassInfo,
             swapchainBufferIndices: -1, // always on screen
         });
         this._curWindow = this._mainWindow;
 
-        builtinResMgr.initBuiltinRes(this._device);
-
-        legacyCC.view.on('design-resolution-changed', () => {
-            const width = legacyCC.game.canvas.width;
-            const height = legacyCC.game.canvas.height;
-            this.resize(width, height);
-        }, this);
-
-        return true;
+        return Promise.resolve(builtinResMgr.initBuiltinRes(this._device)).then(() => {
+            legacyCC.view.on('design-resolution-changed', () => {
+                const width = legacyCC.game.canvas.width;
+                const height = legacyCC.game.canvas.height;
+                this.resize(width, height);
+            }, this);
+        });
     }
 
     public destroy () {
-        this.clearCameras();
         this.destroyScenes();
 
         if (this._pipeline) {
@@ -251,19 +307,16 @@ export class Root {
             this._pipeline = null;
         }
 
-        if (this._ui) {
-            this._ui.destroy();
-            this._ui = null;
+        if (this._batcher) {
+            this._batcher.destroy();
+            this._batcher = null;
         }
 
         this._curWindow = null;
         this._mainWindow = null;
         this.dataPoolManager.clear();
 
-        if (this._poolHandle) {
-            RootPool.free(this._poolHandle);
-            this._poolHandle = NULL_HANDLE;
-        }
+        this._destroy();
     }
 
     /**
@@ -286,49 +339,54 @@ export class Root {
             }
         }
 
-        for (const camera of this._cameras) {
-            if (camera.isWindowSize) {
-                camera.resize(width, height);
-            }
+        if (this._pipeline) {
+            this._pipeline.resize(width, height);
         }
     }
 
     public setRenderPipeline (rppl: RenderPipeline): boolean {
+        if (rppl instanceof DeferredPipeline) {
+            this._useDeferredPipeline = true;
+        }
+
         if (!rppl) {
-            rppl = this.createDefaultPipeline();
+            rppl = createDefaultPipeline();
         }
         this._pipeline = rppl;
+
         if (!this._pipeline.activate()) {
             return false;
         }
-        this.onGlobalPipelineStateChanged();
-        this._ui = new UI(this);
-        if (!this._ui.initialize()) {
-            this.destroy();
-            return false;
+
+        const scene = legacyCC.director.getScene();
+        if (scene) {
+            scene.globals.activate();
         }
+
+        this.onGlobalPipelineStateChanged();
+        if (!this._batcher && legacyCC.internal.Batcher2D) {
+            this._batcher = new legacyCC.internal.Batcher2D(this) as Batcher2D;
+            if (!this._batcher.initialize()) {
+                this.destroy();
+                return false;
+            }
+        }
+
         return true;
     }
 
-    public createDefaultPipeline () {
-        const rppl = new ForwardPipeline();
-        rppl.initialize({ flows: [] });
-        return rppl;
-    }
-
     public onGlobalPipelineStateChanged () {
-        for (let i = 0; i < this._cameras.length; i++) {
-            this._cameras[i].view.onGlobalPipelineStateChanged();
-        }
         for (let i = 0; i < this._scenes.length; i++) {
             this._scenes[i].onGlobalPipelineStateChanged();
         }
+
+        this._pipeline!.pipelineSceneData.initDeferredPassInfo();
     }
 
     /**
      * @zh
      * 激活指定窗口为当前窗口
-     * @param window GFX窗口
+     * @param window GFX 窗口
      */
     public activeWindow (window: RenderWindow) {
         this._curWindow = window;
@@ -348,52 +406,62 @@ export class Root {
      * @param deltaTime 间隔时间
      */
     public frameMove (deltaTime: number) {
-        RootPool.set(this._poolHandle, RootView.FRAME_TIME, deltaTime);
+        this._setFrameTime(deltaTime);
 
         /*
         if (this._fixedFPSFrameTime > 0) {
 
             const elapsed = this._frameTime * 1000.0;
             if (this._fixedFPSFrameTime > elapsed) {
-                // tslint:disable-next-line: only-arrow-functions
+
                 setTimeout(function () {}, this._fixedFPSFrameTime - elapsed);
             }
         }
         */
 
         ++this._frameCount;
-        RootPool.set(this._poolHandle, RootView.CUMULATIVE_TIME, RootPool.get(this._poolHandle, RootView.CUMULATIVE_TIME) + deltaTime);
+        this._setCumulativeTime(deltaTime);
         this._fpsTime += deltaTime;
         if (this._fpsTime > 1.0) {
             this._fps = this._frameCount;
             this._frameCount = 0;
             this._fpsTime = 0.0;
         }
+        for (let i = 0; i < this._scenes.length; ++i) {
+            this._scenes[i].removeBatches();
+        }
+        if (this._batcher) this._batcher.update();
 
-        if (this._pipeline) {
+        const windows = this._windows;
+        const cameraList: Camera[] = [];
+        for (let i = 0; i < windows.length; i++) {
+            const window = windows[i];
+            window.extractRenderCameras(cameraList);
+        }
+
+        if (this._pipeline && cameraList.length > 0) {
             this._device.acquire();
-            this._views.length = 0;
-            const views = this._cameras;
+            const scenes = this._scenes;
             const stamp = legacyCC.director.getTotalFrames();
-            for (let i = 0; i < views.length; i++) {
-                const camera = this._cameras[i];
-                const view = camera.view;
-                if (view.isEnable && view.window) {
-                    camera.update();
-                    camera.scene!.update(stamp);
-                    this._views.push(view);
-                }
+            if (this._batcher) this._batcher.uploadBuffers();
+
+            for (let i = 0; i < scenes.length; i++) {
+                scenes[i].update(stamp);
             }
 
-            this._pipeline.render(this._views);
+            legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_COMMIT);
+            cameraList.sort((a: Camera, b: Camera) => a.priority - b.priority);
+            this._pipeline.render(cameraList);
             this._device.present();
         }
+
+        if (this._batcher) this._batcher.reset();
     }
 
     /**
      * @zh
      * 创建窗口
-     * @param info GFX窗口描述信息
+     * @param info GFX 窗口描述信息
      */
     public createWindow (info: IRenderWindowInfo): RenderWindow | null {
         const window = this._createWindowFun(this);
@@ -405,7 +473,7 @@ export class Root {
     /**
      * @zh
      * 销毁指定的窗口
-     * @param window GFX窗口
+     * @param window GFX 窗口
      */
     public destroyWindow (window: RenderWindow) {
         for (let i = 0; i < this._windows.length; ++i) {
@@ -466,59 +534,11 @@ export class Root {
         this._scenes = [];
     }
 
-    /**
-     * @zh
-     * 创建渲染视图
-     * @param info 渲染视图描述信息
-     */
-    public createView (info: IRenderViewInfo): RenderView {
-        const view: RenderView = new RenderView();
-        view.initialize(info);
-        return view;
-    }
-
-    /**
-     * @zh
-     * 添加渲染相机
-     * @param camera 渲染相机
-     */
-    public attachCamera (camera: Camera) {
-        for (let i = 0; i < this._cameras.length; i++) {
-            if (this._cameras[i] === camera) {
-                return;
-            }
-        }
-        this._cameras.push(camera);
-        this.sortViews();
-    }
-
-    /**
-     * @zh
-     * 移除渲染相机
-     * @param camera 相机
-     */
-    public detachCamera (camera: Camera) {
-        for (let i = 0; i < this._cameras.length; ++i) {
-            if (this._cameras[i] === camera) {
-                this._cameras.splice(i, 1);
-                return;
-            }
-        }
-    }
-
-    /**
-     * @zh
-     * 销毁全部渲染相机
-     */
-    public clearCameras () {
-        this._cameras.length = 0;
-    }
-
-    public createModel<T extends Model> (mClass: typeof Model): T {
-        let p = this._modelPools.get(mClass);
+    public createModel<T extends Model> (ModelCtor: typeof Model): T {
+        let p = this._modelPools.get(ModelCtor);
         if (!p) {
-            this._modelPools.set(mClass, new Pool(() => new mClass(), 10));
-            p = this._modelPools.get(mClass)!;
+            this._modelPools.set(ModelCtor, new Pool(() => new ModelCtor(), 10));
+            p = this._modelPools.get(ModelCtor)!;
         }
         const model = p.alloc() as T;
         model.initialize();
@@ -534,7 +554,7 @@ export class Root {
                 m.scene.removeModel(m);
             }
         } else {
-            console.warn(`'${m.constructor.name}'is not in the model pool and cannot be destroyed by destroyModel.`);
+            warnID(1300, m.constructor.name);
         }
     }
 
@@ -542,20 +562,11 @@ export class Root {
         return this._cameraPool!.alloc();
     }
 
-    public destroyCamera (c: Camera) {
-        this._cameraPool!.free(c);
-        c.destroy();
-        if (c.scene) {
-            c.scene.removeCamera(c);
-        }
-        c.isWindowSize = true;
-    }
-
-    public createLight<T extends Light> (lClass: new () => T): T {
-        let l = this._lightPools.get(lClass);
+    public createLight<T extends Light> (LightCtor: new () => T): T {
+        let l = this._lightPools.get(LightCtor);
         if (!l) {
-            this._lightPools.set(lClass, new Pool(() => new lClass(), 4));
-            l = this._lightPools.get(lClass)!;
+            this._lightPools.set(LightCtor, new Pool(() => new LightCtor(), 4));
+            l = this._lightPools.get(LightCtor)!;
         }
         const light = l.alloc() as T;
         light.initialize();
@@ -569,21 +580,17 @@ export class Root {
             p.free(l);
             if (l.scene) {
                 switch (l.type) {
-                    case LightType.SPHERE:
-                        l.scene.removeSphereLight(l as SphereLight);
-                        break;
-                    case LightType.SPOT:
-                        l.scene.removeSpotLight(l as SpotLight);
-                        break;
+                case LightType.SPHERE:
+                    l.scene.removeSphereLight(l as SphereLight);
+                    break;
+                case LightType.SPOT:
+                    l.scene.removeSpotLight(l as SpotLight);
+                    break;
+                default:
+                    break;
                 }
             }
         }
-    }
-
-    public sortViews () {
-        this._cameras.sort((a: Camera, b: Camera) => {
-            return a.view.priority - b.view.priority;
-        });
     }
 }
 

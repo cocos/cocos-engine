@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,18 +24,21 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
+import { EDITOR, TEST } from 'internal:constants';
+import { CCObject } from '../data/object';
 import { Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
-import { EDITOR, TEST } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
+import { applyTargetOverrides } from '../utils/prefab/utils';
 
 /**
  * @en
@@ -76,17 +79,27 @@ export class Scene extends BaseNode {
     public _globals = new SceneGlobals();
 
     public _renderScene: RenderScene | null = null;
+
     public dependAssets = null; // cache all depend assets for auto release
 
     protected _inited: boolean;
+
     protected _prefabSyncedInLiveReload = false;
 
     // support Node access parent data from Scene
     protected _pos = Vec3.ZERO;
+
     protected _rot = Quat.IDENTITY;
+
     protected _scale = Vec3.ONE;
+
     protected _mat = Mat4.IDENTITY;
+
     protected _dirtyFlags = 0;
+
+    protected _updateScene () {
+        this._scene = this;
+    }
 
     constructor (name: string) {
         super(name);
@@ -102,8 +115,15 @@ export class Scene extends BaseNode {
      * @zh 销毁当前场景中的所有节点，这个操作不会销毁资源
      */
     public destroy () {
-        const success = super.destroy();
+        const success = CCObject.prototype.destroy.call(this);
+        if (success) {
+            const children = this._children;
+            for (let i = 0; i < children.length; ++i) {
+                children[i].active = false;
+            }
+        }
         legacyCC.director.root.destroyScene(this._renderScene);
+        this._active = false;
         this._activeInHierarchy = false;
         return success;
     }
@@ -112,22 +132,27 @@ export class Scene extends BaseNode {
      * @en Only for compatibility purpose, user should not add any component to the scene
      * @zh 仅为兼容性保留，用户不应该在场景上直接添加任何组件
      */
-    public addComponent (typeOrClassName: string | Function): Component {
+    public addComponent(...args: any[]): Component;
+
+    /**
+     * @en Only for compatibility purpose, user should not add any component to the scene
+     * @zh 仅为兼容性保留，用户不应该在场景上直接添加任何组件
+     */
+    public addComponent (): Component {
         throw new Error(getError(3822));
     }
 
     public _onHierarchyChanged () { }
 
-    public _onBatchCreated () {
-        super._onBatchCreated();
+    public _onBatchCreated (dontSyncChildPrefab: boolean) {
+        super._onBatchCreated(dontSyncChildPrefab);
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
-            this._children[i]._onBatchCreated();
+            this.children[i]._siblingIndex = i;
+            this._children[i]._onBatchCreated(dontSyncChildPrefab);
         }
-    }
 
-    public _onBatchRestored () {
-        this._onBatchCreated();
+        applyTargetOverrides(this);
     }
 
     // transform helpers
@@ -136,70 +161,87 @@ export class Scene extends BaseNode {
      * Refer to [[Node.getPosition]]
      */
     public getPosition (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
+
     /**
      * Refer to [[Node.getRotation]]
      */
     public getRotation (out?: Quat): Quat { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
+
     /**
      * Refer to [[Node.getScale]]
      */
     public getScale (out?: Vec3): Vec3 { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
+
     /**
      * Refer to [[Node.getWorldPosition]]
      */
     public getWorldPosition (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ZERO); }
+
     /**
      * Refer to [[Node.getWorldRotation]]
      */
     public getWorldRotation (out?: Quat) { return Quat.copy(out || new Quat(), Quat.IDENTITY); }
+
     /**
      * Refer to [[Node.getWorldScale]]
      */
     public getWorldScale (out?: Vec3) { return Vec3.copy(out || new Vec3(), Vec3.ONE); }
+
     /**
      * Refer to [[Node.getWorldMatrix]]
      */
     public getWorldMatrix (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+
     /**
      * Refer to [[Node.getWorldRS]]
      */
     public getWorldRS (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+
     /**
      * Refer to [[Node.getWorldRT]]
      */
     public getWorldRT (out?: Mat4): Mat4 { return Mat4.copy(out || new Mat4(), Mat4.IDENTITY); }
+
     /**
      * Refer to [[Node.position]]
      */
     public get position (): Readonly<Vec3> { return Vec3.ZERO; }
+
     /**
      * Refer to [[Node.worldPosition]]
      */
     public get worldPosition (): Readonly<Vec3> { return Vec3.ZERO; }
+
     /**
      * Refer to [[Node.rotation]]
      */
     public get rotation (): Readonly<Quat> { return Quat.IDENTITY; }
+
     /**
      * Refer to [[Node.worldRotation]]
      */
     public get worldRotation (): Readonly<Quat> { return Quat.IDENTITY; }
+
     /**
      * Refer to [[Node.scale]]
      */
     public get scale (): Readonly<Vec3> { return Vec3.ONE; }
+
     /**
      * Refer to [[Node.worldScale]]
      */
     public get worldScale (): Readonly<Vec3> { return Vec3.ONE; }
+
     /**
      * Refer to [[Node.eulerAngles]]
      */
     public get eulerAngles (): Readonly<Vec3> { return Vec3.ZERO; }
+
     /**
      * Refer to [[Node.worldMatrix]]
      */
     public get worldMatrix (): Readonly<Mat4> { return Mat4.IDENTITY; }
+
     /**
      * Refer to [[Node.updateWorldTransform]]
      */
@@ -214,7 +256,7 @@ export class Scene extends BaseNode {
             if (TEST) {
                 assert(!this._activeInHierarchy, 'Should deactivate ActionManager and EventManager by default');
             }
-            this._onBatchCreated();
+            this._onBatchCreated(EDITOR && this._prefabSyncedInLiveReload);
             this._inited = true;
         }
         // static methode can't use this as parameter type

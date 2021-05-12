@@ -1,28 +1,38 @@
-import { GFXDrawInfo } from '../buffer';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import {
-    GFXAddress,
-    GFXDescriptorType,
-    GFXBufferUsage,
-    GFXFilter,
-    GFXFormat,
-    GFXMemoryUsage,
-    GFXSampleCount,
-    GFXShaderStageFlagBit,
-    GFXTextureFlags,
-    GFXTextureType,
-    GFXTextureUsage,
-    GFXType,
-    GFXDynamicStateFlagBit,
-} from '../define';
-import { IGFXAttribute } from '../input-assembler';
-import { GFXBlendState, GFXDepthStencilState, GFXRasterizerState } from '../pipeline-state';
-import { GFXColorAttachment, GFXDepthStencilAttachment } from '../render-pass';
-import { GFXUniformBlock, GFXUniformSampler } from '../shader';
-import { GFXDescriptorSetLayout, IGFXDescriptorSetLayoutBinding } from '../descriptor-set-layout';
+    Address, DescriptorType, BufferUsage, Filter, Format, MemoryUsage, SampleCount,
+    ShaderStageFlagBit, TextureFlags, TextureType, TextureUsage, Type, DynamicStateFlagBit, DrawInfo, Attribute,
+    ColorAttachment, DepthStencilAttachment, UniformBlock, UniformSamplerTexture, DescriptorSetLayoutBinding,
+} from '../base/define';
+import { BlendState, DepthStencilState, RasterizerState } from '../base/pipeline-state';
 
 export interface IWebGL2GPUUniformInfo {
     name: string;
-    type: GFXType;
+    type: Type;
     count: number;
     offset: number;
     view: Float32Array | Int32Array;
@@ -30,8 +40,8 @@ export interface IWebGL2GPUUniformInfo {
 }
 
 export interface IWebGL2GPUBuffer {
-    usage: GFXBufferUsage;
-    memUsage: GFXMemoryUsage;
+    usage: BufferUsage;
+    memUsage: MemoryUsage;
     size: number;
     stride: number;
 
@@ -40,21 +50,21 @@ export interface IWebGL2GPUBuffer {
     glOffset: number;
 
     buffer: ArrayBufferView | null;
-    indirects: GFXDrawInfo[];
+    indirects: DrawInfo[];
 }
 
 export interface IWebGL2GPUTexture {
-    type: GFXTextureType;
-    format: GFXFormat;
-    usage: GFXTextureUsage;
+    type: TextureType;
+    format: Format;
+    usage: TextureUsage;
     width: number;
     height: number;
     depth: number;
     size: number;
     arrayLayer: number;
     mipLevel: number;
-    samples: GFXSampleCount;
-    flags: GFXTextureFlags;
+    samples: SampleCount;
+    flags: TextureFlags;
     isPowerOf2: boolean;
 
     glTarget: GLenum;
@@ -71,8 +81,8 @@ export interface IWebGL2GPUTexture {
 }
 
 export interface IWebGL2GPURenderPass {
-    colorAttachments: GFXColorAttachment[];
-    depthStencilAttachment: GFXDepthStencilAttachment | null;
+    colorAttachments: ColorAttachment[];
+    depthStencilAttachment: DepthStencilAttachment | null;
 }
 
 export interface IWebGL2GPUFramebuffer {
@@ -86,14 +96,12 @@ export interface IWebGL2GPUFramebuffer {
 
 export interface IWebGL2GPUSampler {
     glSampler: WebGLSampler | null;
-    minFilter: GFXFilter;
-    magFilter: GFXFilter;
-    mipFilter: GFXFilter;
-    addressU: GFXAddress;
-    addressV: GFXAddress;
-    addressW: GFXAddress;
-    minLOD: number;
-    maxLOD: number;
+    minFilter: Filter;
+    magFilter: Filter;
+    mipFilter: Filter;
+    addressU: Address;
+    addressV: Address;
+    addressW: Address;
 
     glMinFilter: GLenum;
     glMagFilter: GLenum;
@@ -104,7 +112,7 @@ export interface IWebGL2GPUSampler {
 
 export interface IWebGL2GPUInput {
     name: string;
-    type: GFXType;
+    type: Type;
     stride: number;
     count: number;
     size: number;
@@ -116,7 +124,7 @@ export interface IWebGL2GPUInput {
 export interface IWebGL2GPUUniform {
     binding: number;
     name: string;
-    type: GFXType;
+    type: Type;
     stride: number;
     count: number;
     size: number;
@@ -137,11 +145,11 @@ export interface IWebGL2GPUUniformBlock {
     glBinding: number;
 }
 
-export interface IWebGL2GPUUniformSampler {
+export interface IWebGL2GPUUniformSamplerTexture {
     set: number;
     binding: number;
     name: string;
-    type: GFXType;
+    type: Type;
     count: number;
     units: number[];
     glUnits: Int32Array;
@@ -151,26 +159,26 @@ export interface IWebGL2GPUUniformSampler {
 }
 
 export interface IWebGL2GPUShaderStage {
-    type: GFXShaderStageFlagBit;
+    type: ShaderStageFlagBit;
     source: string;
     glShader: WebGLShader | null;
 }
 
 export interface IWebGL2GPUShader {
     name: string;
-    blocks: GFXUniformBlock[];
-    samplers: GFXUniformSampler[];
+    blocks: UniformBlock[];
+    samplerTextures: UniformSamplerTexture[];
 
     gpuStages: IWebGL2GPUShaderStage[];
     glProgram: WebGLProgram | null;
     glInputs: IWebGL2GPUInput[];
     glUniforms: IWebGL2GPUUniform[];
     glBlocks: IWebGL2GPUUniformBlock[];
-    glSamplers: IWebGL2GPUUniformSampler[];
+    glSamplerTextures: IWebGL2GPUUniformSamplerTexture[];
 }
 
 export interface IWebGL2GPUDescriptorSetLayout {
-    bindings: IGFXDescriptorSetLayoutBinding[];
+    bindings: DescriptorSetLayoutBinding[];
     dynamicBindings: number[];
     descriptorIndices: number[];
     descriptorCount: number;
@@ -179,7 +187,6 @@ export interface IWebGL2GPUDescriptorSetLayout {
 export interface IWebGL2GPUPipelineLayout {
     gpuSetLayouts: IWebGL2GPUDescriptorSetLayout[];
     dynamicOffsetCount: number;
-    dynamicOffsetOffsets: number[];
     dynamicOffsetIndices: number[][];
 }
 
@@ -187,15 +194,15 @@ export interface IWebGL2GPUPipelineState {
     glPrimitive: GLenum;
     gpuShader: IWebGL2GPUShader | null;
     gpuPipelineLayout: IWebGL2GPUPipelineLayout | null;
-    rs: GFXRasterizerState;
-    dss: GFXDepthStencilState;
-    bs: GFXBlendState;
-    dynamicStates: GFXDynamicStateFlagBit[];
+    rs: RasterizerState;
+    dss: DepthStencilState;
+    bs: BlendState;
+    dynamicStates: DynamicStateFlagBit[];
     gpuRenderPass: IWebGL2GPURenderPass | null;
 }
 
 export interface IWebGL2GPUDescriptor {
-    type: GFXDescriptorType;
+    type: DescriptorType;
     gpuBuffer: IWebGL2GPUBuffer | null;
     gpuTexture: IWebGL2GPUTexture | null;
     gpuSampler: IWebGL2GPUSampler | null;
@@ -220,7 +227,7 @@ export interface IWebGL2Attrib {
 }
 
 export interface IWebGL2GPUInputAssembler {
-    attributes: IGFXAttribute[];
+    attributes: Attribute[];
     gpuVertexBuffers: IWebGL2GPUBuffer[];
     gpuIndexBuffer: IWebGL2GPUBuffer | null;
     gpuIndirectBuffer: IWebGL2GPUBuffer | null;

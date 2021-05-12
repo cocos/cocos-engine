@@ -1,6 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { ccclass, serializable } from 'cc.decorator';
@@ -24,8 +49,8 @@ function makeCubicSplineValueConstructor<T> (
     name: string,
     constructorX: new () => T,
     scaleFx: ScaleFx<T>,
-    scaleAndAdd: ScaleAndAddFx<T>): CubicSplineValueConstructor<T> {
-
+    scaleAndAdd: ScaleAndAddFx<T>,
+): CubicSplineValueConstructor<T> {
     let tempValue = new constructorX();
     let m0 = new constructorX();
     let m1 = new constructorX();
@@ -71,7 +96,7 @@ function makeCubicSplineValueConstructor<T> (
         }
     }
 
-    // @ts-ignore TS2367
+    // @ts-expect-error TS2367
     if (constructorX === Quat) {
         const lerp = CubicSplineValueClass.prototype.lerp;
         CubicSplineValueClass.prototype.lerp = function (this: CubicSplineValueClass, to: CubicSplineValueClass, t: number, dt: number) {
@@ -85,31 +110,35 @@ function makeCubicSplineValueConstructor<T> (
 }
 
 export const CubicSplineVec2Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec2Value', Vec2, Vec2.multiplyScalar, Vec2.scaleAndAdd);
+    'cc.CubicSplineVec2Value', Vec2, Vec2.multiplyScalar, Vec2.scaleAndAdd,
+);
 legacyCC.CubicSplineVec2Value = CubicSplineVec2Value;
 
 export const CubicSplineVec3Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec3Value', Vec3, Vec3.multiplyScalar, Vec3.scaleAndAdd);
+    'cc.CubicSplineVec3Value', Vec3, Vec3.multiplyScalar, Vec3.scaleAndAdd,
+);
 legacyCC.CubicSplineVec3Value = CubicSplineVec3Value;
 
 export const CubicSplineVec4Value = makeCubicSplineValueConstructor(
-    'cc.CubicSplineVec4Value', Vec4, Vec4.multiplyScalar, Vec4.scaleAndAdd);
+    'cc.CubicSplineVec4Value', Vec4, Vec4.multiplyScalar, Vec4.scaleAndAdd,
+);
 legacyCC.CubicSplineVec4Value = CubicSplineVec4Value;
 
 export const CubicSplineQuatValue = makeCubicSplineValueConstructor(
-    'cc.CubicSplineQuatValue', Quat, Quat.multiplyScalar, Quat.scaleAndAdd);
+    'cc.CubicSplineQuatValue', Quat, Quat.multiplyScalar, Quat.scaleAndAdd,
+);
 legacyCC.CubicSplineQuatValue = CubicSplineQuatValue;
 
 @ccclass('cc.CubicSplineNumberValue')
 export class CubicSplineNumberValue implements ICubicSplineValue<number> {
     @serializable
-    public dataPoint: number = 0;
+    public dataPoint = 0;
 
     @serializable
-    public inTangent: number = 0;
+    public inTangent = 0;
 
     @serializable
-    public outTangent: number = 0;
+    public outTangent = 0;
 
     constructor (dataPoint: number, inTangent: number, outTangent: number) {
         this.dataPoint = dataPoint;

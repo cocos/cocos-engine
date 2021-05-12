@@ -62,6 +62,10 @@ struct ToonSurface {
     return vec4(finalColor, 0.0);
   }
 #else
+  #if CC_RECEIVE_SHADOW
+    #include <cc-shadow-map-fs>
+  #endif
+
   vec4 CCToonShading (ToonSurface s) {
     vec3 V = normalize(cc_cameraPos.xyz - s.position);
     vec3 N = normalize(s.normal);
@@ -88,6 +92,10 @@ struct ToonSurface {
       s.emissive *= cc_exposure.w;
     #endif
     finalColor += s.emissive;
+
+    #if CC_RECEIVE_SHADOW
+      CC_SHADOW_FACTOR(finalColor, NL, cc_mainLitDir, N);
+    #endif
 
     return vec4(finalColor, s.baseColor.a);
   }

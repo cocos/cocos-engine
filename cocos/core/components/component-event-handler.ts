@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,17 +25,18 @@
 */
 
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
-import {ccclass, type, serializable, editable} from 'cc.decorator';
+import { ccclass, type, serializable, editable, tooltip } from 'cc.decorator';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 
 /**
  * @en
- * Component will register a event to target component's handler. And it will trigger the handler when a certain event occurs.
- *
+ * The EventHandler class sets the event callback in the scene.
+ * This class allows the user to set the callback target node, target component name, component method name, and call the target method through the `emit` method.
  * @zh
  * “EventHandler” 类用来设置场景中的事件回调，该类允许用户设置回调目标节点，目标组件名，组件方法名，并可通过 emit 方法调用目标函数。
  *
@@ -62,7 +63,6 @@ import { legacyCC } from '../global-exports';
  */
 @ccclass('cc.ClickEvent')
 export class EventHandler {
-
     get _componentName () {
         this._genCompIdIfNeeded();
 
@@ -74,12 +74,12 @@ export class EventHandler {
 
     /**
      * @en
-     * For component event emit
+     * Dispatching component events.
      * @zh
      * 组件事件派发。
      *
-     * @param events - 需要派发的组件事件列表。
-     * @param args - 派发参数数组。
+     * @param events - The event list to be emitted
+     * @param args - The callback arguments
      */
     public static emitEvents (events: EventHandler[], ...args: any[]) {
         for (let i = 0, l = events.length; i < l; i++) {
@@ -93,21 +93,24 @@ export class EventHandler {
     }
     /**
      * @en
-     * The node that contains target callback, such as the node example script belongs to
+     * The node that contains target component
      * @zh
-     * 事件响应函数所在节点 ，比如例子中脚本归属的节点本身
+     * 事件响应组件和函数所在节点
      */
+    @serializable
     @type(legacyCC.Node)
+    @tooltip('i18n:button.click_event.target')
     public target: Node | null = null;
     /**
      * @en
-     * The name of the component(script) that contains target callback, such as the name 'MainMenu' of script in example
+     * The name of the component(script) that contains target callback, such as the name 'MainMenu' of the script in the example
      * @zh
      * 事件响应函数所在组件名（脚本名）, 比如例子中的脚本名 'MainMenu'
      */
     // only for deserializing old project component field
     @serializable
     @editable
+    @tooltip('i18n:button.click_event.component')
     public component = '';
 
     @serializable
@@ -115,31 +118,30 @@ export class EventHandler {
 
     /**
      * @en
-     * Event handler, such as function's name 'onClick' in example
+     * Event handler, such as the callback function name 'onClick' in the example
      * @zh
-     * 响应事件函数名，比如例子中的 'onClick'
+     * 响应事件函数名，比如例子中的 'onClick' 方法名
      */
     @serializable
     @editable
+    @tooltip('i18n:button.click_event.handler')
     public handler = '';
 
     /**
      * @en
-     * Custom Event Data, such as 'eventType' in example
+     * Custom Event Data
      * @zh
-     * 自定义事件数据，比如例子中的 eventType
+     * 自定义事件数据
      */
     @serializable
     @editable
+    @tooltip('i18n:button.click_event.customEventData')
     public customEventData = '';
 
     /**
-     * @en
-     * Emit event with params
-     * @zh
-     * 触发目标组件上的指定 handler 函数，该参数是回调函数的参数值（可不填）。
-     *
-     * @param params - 派发参数数组。
+     * @en Trigger the target callback with given arguments
+     * @zh 触发目标组件上的指定 handler 函数，可以选择传递参数。
+     * @param params - The arguments for invoking the callback
      * @example
      * ```ts
      * import { Component } from 'cc';
@@ -161,7 +163,7 @@ export class EventHandler {
         if (!legacyCC.isValid(comp)) { return; }
 
         const handler = comp![this.handler];
-        if (typeof(handler) !== 'function') { return; }
+        if (typeof (handler) !== 'function') { return; }
 
         if (this.customEventData != null && this.customEventData !== '') {
             params = params.slice();

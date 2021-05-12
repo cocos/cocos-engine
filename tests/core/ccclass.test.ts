@@ -1,6 +1,6 @@
 import { ccclass } from 'cc.decorator';
 import { warnID } from '../../cocos/core';
-import { property } from '../../cocos/core/data/class-decorator';
+import { float, property } from '../../cocos/core/data/class-decorator';
 
 /**
  * Happened when:
@@ -32,4 +32,28 @@ test('explicit undefined type', () => {
     expect(warnID).toHaveBeenCalledTimes(2);
     expect(warnID).toHaveBeenNthCalledWith(1, 3660, 'property1', Foo.name);
     expect(warnID).toHaveBeenNthCalledWith(2, 3660, 'property2', Foo.name);
+});
+
+describe('ccclass warnings', () => {
+    const clearWarnID = () => {
+        // @ts-expect-error
+        warnID.mockClear();
+    };
+
+    test('Warn on no default value specified', () => {
+        clearWarnID();
+        { @ccclass class _ { @float p; } }
+        expect(warnID).toHaveBeenCalledTimes(1);
+        expect(warnID).toHaveBeenCalledWith(3654, '_', 'p');
+
+        clearWarnID();
+        { @ccclass class _ { @property p; } }
+        expect(warnID).toHaveBeenCalledTimes(1);
+        expect(warnID).toHaveBeenCalledWith(3654, '_', 'p');
+
+        clearWarnID();
+        @ccclass class C { }
+        { @ccclass class _ { @property(C) p; } }
+        expect(warnID).not.toHaveBeenCalled();
+    });
 });

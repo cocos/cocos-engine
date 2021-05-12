@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2019 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2019-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,11 +24,16 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { ISchedulable } from "../scheduler";
+import { ISchedulable } from '../scheduler';
 
+/**
+ * @en Base class for all functional system managed by [[Director]].
+ * @zh 功能系统的基类，由 [[Director]] 管理。
+ */
 export default class System implements ISchedulable {
     protected _id = '';
     protected _priority = 0;
@@ -48,19 +53,37 @@ export default class System implements ISchedulable {
         return this._id;
     }
 
-    public static sortByPriority (a: System, b: System) {
+    /**
+     * @en Sorting between different systems.
+     * @zh 不同系统间排序。
+     * @param a System a
+     * @param b System b
+     */
+    public static sortByPriority (a:System, b:System) {
         if (a._priority < b._priority) {
             return 1;
-        }
-        else if (a._priority > b.priority) {
+        } else if (a._priority > b.priority) {
             return -1;
-        }
-        else {
+        } else {
             return 0;
         }
     }
 
+    /**
+     * @en Init the system, will be invoked by [[Director]] when registered, should be implemented if needed.
+     * @zh 系统初始化函数，会在注册时被 [[Director]] 调用，如果需要的话应该由子类实现
+     */
     init () {}
+    /**
+     * @en Update function of the system, it will be invoked between all components update phase and late update phase.
+     * @zh 系统的帧更新函数，它会在所有组件的 update 和 lateUpdate 之间被调用
+     * @param dt Delta time after the last frame
+     */
     update (dt: number) {}
+    /**
+     * @en Post update function of the system, it will be invoked after all components late update phase and before the rendering process.
+     * @zh 系统的帧后处理函数，它会在所有组件的 lateUpdate 之后以及渲染之前被调用
+     * @param dt Delta time after the last frame
+     */
     postUpdate (dt: number) {}
 }

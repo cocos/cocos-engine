@@ -1,10 +1,35 @@
-import { builtinResMgr } from '../../core/3d/builtin';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { EDITOR } from 'internal:constants';
+import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
 import { Texture2D } from '../../core';
 import { Component } from '../../core/components';
-import { GFXAttributeName, GFXFormat } from '../../core/gfx/define';
-import { IGFXAttribute } from '../../core/gfx/input-assembler';
-import { Mat4, Vec2, Vec4, Quat} from '../../core/math';
+import { AttributeName, Format, Attribute } from '../../core/gfx';
+import { Mat4, Vec2, Vec4, Quat } from '../../core/math';
 import { MaterialInstance, IMaterialInstanceInfo } from '../../core/renderer/core/material-instance';
 import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { RenderMode, Space } from '../enum';
@@ -13,7 +38,6 @@ import { packGradientRange } from '../animator/gradient-range';
 import { Pass } from '../../core/renderer/core/pass';
 import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
-import { EDITOR } from 'internal:constants';
 
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
@@ -44,29 +68,29 @@ const _vert_attr_name = {
     VERT_ROTATION_UV: 'a_rotation_uv',
     COLOR: 'a_color',
     DIR_LIFE: 'a_dir_life',
-    RANDOM_SEED: 'a_rndSeed'
-  };
+    RANDOM_SEED: 'a_rndSeed',
+};
 
 const _gpu_vert_attr = [
-    { name: _vert_attr_name.POSITION_STARTTIME, format: GFXFormat.RGBA32F},
-    { name: _vert_attr_name.VERT_SIZE_UV, format: GFXFormat.RGBA32F},
-    { name: _vert_attr_name.VERT_ROTATION_UV, format: GFXFormat.RGBA32F},
-    { name: _vert_attr_name.COLOR, format: GFXFormat.RGBA32F},
-    { name: _vert_attr_name.DIR_LIFE, format: GFXFormat.RGBA32F},
-    { name: _vert_attr_name.RANDOM_SEED, format: GFXFormat.R32F}
+    new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F),
+    new Attribute(_vert_attr_name.VERT_SIZE_UV, Format.RGBA32F),
+    new Attribute(_vert_attr_name.VERT_ROTATION_UV, Format.RGBA32F),
+    new Attribute(_vert_attr_name.COLOR, Format.RGBA32F),
+    new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F),
 ];
 
 const _gpu_vert_attr_mesh = [
-    { name: _vert_attr_name.POSITION_STARTTIME, format: GFXFormat.RGBA32F},
-    { name: _vert_attr_name.VERT_SIZE_UV, format: GFXFormat.RGBA32F},
-    { name: _vert_attr_name.VERT_ROTATION_UV, format: GFXFormat.RGBA32F},
-    { name: _vert_attr_name.COLOR, format: GFXFormat.RGBA32F},
-    { name: _vert_attr_name.DIR_LIFE, format: GFXFormat.RGBA32F},
-    { name: _vert_attr_name.RANDOM_SEED, format: GFXFormat.R32F},
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGB32F },                    // uv,frame idx
-    { name: GFXAttributeName.ATTR_TEX_COORD3, format: GFXFormat.RGB32F },                   // mesh position
-    { name: GFXAttributeName.ATTR_NORMAL, format: GFXFormat.RGB32F },                       // mesh normal
-    { name: GFXAttributeName.ATTR_COLOR1, format: GFXFormat.RGBA8, isNormalized: true },    // mesh color
+    new Attribute(_vert_attr_name.POSITION_STARTTIME, Format.RGBA32F),
+    new Attribute(_vert_attr_name.VERT_SIZE_UV, Format.RGBA32F),
+    new Attribute(_vert_attr_name.VERT_ROTATION_UV, Format.RGBA32F),
+    new Attribute(_vert_attr_name.COLOR, Format.RGBA32F),
+    new Attribute(_vert_attr_name.DIR_LIFE, Format.RGBA32F),
+    new Attribute(_vert_attr_name.RANDOM_SEED, Format.R32F),
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGB32F),      // uv,frame idx
+    new Attribute(AttributeName.ATTR_TEX_COORD3, Format.RGB32F),     // mesh position
+    new Attribute(AttributeName.ATTR_NORMAL, Format.RGB32F),         // mesh normal
+    new Attribute(AttributeName.ATTR_COLOR1, Format.RGBA8, true),    // mesh color
 ];
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -79,19 +103,19 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     private _defines: MacroRecord;
     private _frameTile_velLenScale: Vec4;
     private _node_scale: Vec4;
-    protected _vertAttrs: IGFXAttribute[] = [];
+    protected _vertAttrs: Attribute[] = [];
     protected _defaultMat: Material | null = null;
-    private _particleNum: number = 0;
-    private _tempParticle: any = null;
+    private _particleNum = 0;
+    private _tempParticle: Particle | null = null;
     private _colorTexture: Texture2D | null = null;
     private _forceTexture: Texture2D | null = null;
     private _velocityTexture: Texture2D | null = null;
     private _rotationTexture: Texture2D | null = null;
     private _sizeTexture: Texture2D | null = null;
     private _animTexture: Texture2D | null = null;
-    private _uTimeHandle: number = 0;
-    private _uRotHandle: number = 0;
-    private _inited: boolean = false;
+    private _uTimeHandle = 0;
+    private _uRotHandle = 0;
+    private _inited = false;
 
     constructor (info: any) {
         super(info);
@@ -132,6 +156,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
     }
 
     public clear () {
+        super.clear();
         this._particleNum = 0;
         this.updateRenderData();
     }
@@ -146,7 +171,7 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
         if (this._animTexture) this._animTexture.destroy();
     }
 
-    public enableModule (name: string, val: Boolean, pm: IParticleModule) {
+    public enableModule (name: string, val: boolean, pm: IParticleModule) {
         const mat: Material | null = this._particleSystem.getMaterialInstance(0) || this._defaultMat;
         if (!mat) {
             return;
@@ -177,23 +202,29 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
             this._particleSystem.node.getWorldMatrix(_tempWorldTrans);
             switch (this._particleSystem.scaleSpace) {
-                case Space.Local:
-                    this._particleSystem.node.getScale(this._node_scale);
-                    break;
-                case Space.World:
-                    this._particleSystem.node.getWorldScale(this._node_scale);
-                    break;
+            case Space.Local:
+                this._particleSystem.node.getScale(this._node_scale);
+                break;
+            case Space.World:
+                this._particleSystem.node.getWorldScale(this._node_scale);
+                break;
+            default:
+                break;
             }
 
             this.initShaderUniform(mat!);
         }
         this._particleNum = this._model!.updateGPUParticles(this._particleNum, this._particleSystem._time, dt);
         this.updateShaderUniform(dt);
+        this._model!.enabled = this._particleNum > 0;
         return this._particleNum;
     }
 
     // internal function
     public updateRenderData () {
+    }
+
+    public beforeRender () {
         // update vertex buffer
         this._model!.updateIA(this._particleNum);
     }
@@ -351,14 +382,14 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
     private _setVertexAttrib () {
         switch (this._renderInfo!.renderMode) {
-            case RenderMode.StrecthedBillboard:
-                this._vertAttrs = _gpu_vert_attr.slice();
-                break;
-            case RenderMode.Mesh:
-                this._vertAttrs = _gpu_vert_attr_mesh.slice();
-                break;
-            default:
-                this._vertAttrs = _gpu_vert_attr.slice();
+        case RenderMode.StrecthedBillboard:
+            this._vertAttrs = _gpu_vert_attr.slice();
+            break;
+        case RenderMode.Mesh:
+            this._vertAttrs = _gpu_vert_attr_mesh.slice();
+            break;
+        default:
+            this._vertAttrs = _gpu_vert_attr.slice();
         }
     }
 
@@ -391,12 +422,14 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
 
         ps.node.getWorldMatrix(_tempWorldTrans);
         switch (ps.scaleSpace) {
-            case Space.Local:
-                ps.node.getScale(this._node_scale);
-                break;
-            case Space.World:
-                ps.node.getWorldScale(this._node_scale);
-                break;
+        case Space.Local:
+            ps.node.getScale(this._node_scale);
+            break;
+        case Space.World:
+            ps.node.getWorldScale(this._node_scale);
+            break;
+        default:
+            break;
         }
 
         if (ps._simulationSpace === Space.World) {

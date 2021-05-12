@@ -1,13 +1,39 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { builtinResMgr } from '../../3d/builtin/init';
-import { Material } from '../../assets/material';
-import { SpriteFrame } from '../../assets/sprite-frame';
-import { TextureBase } from '../../assets/texture-base';
 import { ccclass, float, serializable } from 'cc.decorator';
-import { GFXType } from '../../gfx/define';
+import { builtinResMgr } from '../../builtin/builtin-res-mgr';
+import { Material } from '../../assets/material';
+import { SpriteFrame } from '../../../2d/assets/sprite-frame';
+import { TextureBase } from '../../assets/texture-base';
+import { Type } from '../../gfx';
 import { Pass } from '../../renderer/core/pass';
 import { getDefaultFromType, PropertyType } from '../../renderer/core/pass-utils';
 import { samplerLib } from '../../renderer/core/sampler-lib';
@@ -28,14 +54,14 @@ export class UniformProxyFactory implements IValueProxyFactory {
      * @zh Pass 索引。
      */
     @serializable
-    public passIndex: number = 0;
+    public passIndex = 0;
 
     /**
      * @en Uniform name.
      * @zh Uniform 名称。
      */
     @serializable
-    public uniformName: string = '';
+    public uniformName = '';
 
     /**
      * @en
@@ -62,10 +88,10 @@ export class UniformProxyFactory implements IValueProxyFactory {
             throw new Error(`Material "${target.name}" has no uniform "${this.uniformName}"`);
         }
         const propertyType = Pass.getPropertyTypeFromHandle(handle);
-        if (propertyType === PropertyType.UBO) {
-            const realHandle = this.channelIndex === undefined ? handle : pass.getHandle(this.uniformName, this.channelIndex, GFXType.FLOAT);
+        if (propertyType === PropertyType.BUFFER) {
+            const realHandle = this.channelIndex === undefined ? handle : pass.getHandle(this.uniformName, this.channelIndex, Type.FLOAT);
             if (!realHandle) {
-                throw new Error(`Uniform "${this.uniformName} (in material ${target.name}) has no channel ${this.channelIndex}"`);
+                throw new Error(`Uniform "${this.uniformName} (in material ${target.name}) has no channel ${this.channelIndex!}"`);
             }
             if (isUniformArray(pass, this.uniformName)) {
                 return {
@@ -73,17 +99,16 @@ export class UniformProxyFactory implements IValueProxyFactory {
                         pass.setUniformArray(realHandle, value);
                     },
                 };
-            } else {
-                return {
-                    set: (value: any) => {
-                        pass.setUniform(realHandle, value);
-                    },
-                };
             }
-        } else if (propertyType === PropertyType.SAMPLER) {
+            return {
+                set: (value: any) => {
+                    pass.setUniform(realHandle, value);
+                },
+            };
+        } if (propertyType === PropertyType.TEXTURE) {
             const binding = Pass.getBindingFromHandle(handle);
             const prop = pass.properties[this.uniformName];
-            const texName = prop && prop.value ? prop.value + '-texture' : getDefaultFromType(prop.type) as string;
+            const texName = prop && prop.value ? `${prop.value as string}-texture` : getDefaultFromType(prop.type) as string;
             let dftTex = builtinResMgr.get<TextureBase>(texName);
             if (!dftTex) {
                 warn(`Illegal texture default value: ${texName}.`);
@@ -100,9 +125,8 @@ export class UniformProxyFactory implements IValueProxyFactory {
                     }
                 },
             };
-        } else {
-            throw new Error(`Animations are not available for uniforms with property type ${propertyType}.`);
         }
+        throw new Error(`Animations are not available for uniforms with property type ${propertyType}.`);
     }
 }
 

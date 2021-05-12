@@ -1,6 +1,33 @@
+/* eslint-disable @typescript-eslint/no-namespace */
+/* eslint-disable func-names */
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * 物理模块
- * @category physics
+ * @packageDocumentation
+ * @module physics
  */
 
 import {
@@ -16,11 +43,11 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
+import { DEBUG, EDITOR } from 'internal:constants';
 import { Vec3 } from '../../../core/math';
-import { Component, error } from '../../../core';
+import { Component, error, warn } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';
 import { createRigidBody } from '../instance';
-import { EDITOR } from 'internal:constants';
 import { ERigidBodyType } from '../physics-enum';
 import { PhysicsSystem } from '../physics-system';
 
@@ -37,8 +64,13 @@ import { PhysicsSystem } from '../physics-system';
 @disallowMultiple
 @executionOrder(-1)
 export class RigidBody extends Component {
-
-    static readonly ERigidBodyType = ERigidBodyType;
+    /**
+     * @en
+     * Enumeration of rigid body types.
+     * @zh
+     * 刚体类型的枚举。
+     */
+    static readonly Type = ERigidBodyType;
 
     /// PUBLIC PROPERTY GETTER\SETTER ///
 
@@ -50,15 +82,42 @@ export class RigidBody extends Component {
      */
     @type(PhysicsSystem.PhysicsGroup)
     @displayOrder(-2)
-    @tooltip('设置分组')
+    @tooltip('i18n:physics3d.rigidbody.group')
     public get group (): number {
-        return this._group;
+        if (EDITOR) {
+            return this._group;
+        } else {
+            return this.getGroup();
+        }
     }
 
     public set group (v: number) {
+        if (DEBUG && !Number.isInteger(Math.log2(v >>> 0))) warn('[Physics]: The group should only have one bit.');
         this._group = v;
+        if (!EDITOR && this.getGroup() === v) return;
         if (this._body) {
             this._body.setGroup(v);
+        }
+    }
+
+    /**
+     * @en
+     * Gets or sets the type of rigid body.
+     * @zh
+     * 获取或设置刚体类型。
+     */
+    @type(ERigidBodyType)
+    @displayOrder(-1)
+    @tooltip('i18n:physics3d.rigidbody.type')
+    public get type (): ERigidBodyType {
+        return this._type;
+    }
+
+    public set type (v: ERigidBodyType) {
+        if (this._type === v) return;
+        this._type = v;
+        if (this._body) {
+            this._body.setType(v);
         }
     }
 
@@ -68,14 +127,16 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置刚体的质量。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(0)
-    @tooltip('刚体的质量')
+    @tooltip('i18n:physics3d.rigidbody.mass')
     public get mass () {
         return this._mass;
     }
 
     public set mass (value) {
-        value = value < 0 ? 0 : value;
+        if (this._mass === value) return;
+        value = value <= 0 ? 0.0001 : value;
         this._mass = value;
         if (this._body) {
             this._body.setMass(value);
@@ -88,9 +149,9 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置是否允许休眠。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(0.5)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
-    @tooltip('是否允许休眠')
+    @tooltip('i18n:physics3d.rigidbody.allowSleep')
     public get allowSleep (): boolean {
         return this._allowSleep;
     }
@@ -108,9 +169,9 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置线性阻尼。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(1)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
-    @tooltip('线性阻尼')
+    @tooltip('i18n:physics3d.rigidbody.linearDamping')
     public get linearDamping () {
         return this._linearDamping;
     }
@@ -128,9 +189,9 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置旋转阻尼。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(2)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
-    @tooltip('旋转阻尼')
+    @tooltip('i18n:physics3d.rigidbody.angularDamping')
     public get angularDamping () {
         return this._angularDamping;
     }
@@ -144,33 +205,13 @@ export class RigidBody extends Component {
 
     /**
      * @en
-     * Gets or sets whether a rigid body is controlled by a physical system.
-     * @zh
-     * 获取或设置刚体是否由物理系统控制运动。
-     */
-    @displayOrder(3)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
-    @tooltip('刚体是否由物理系统控制运动')
-    public get isKinematic () {
-        return this._isKinematic;
-    }
-
-    public set isKinematic (value) {
-        this._isKinematic = value;
-        if (this._body) {
-            this._body.setIsKinematic(value);
-        }
-    }
-
-    /**
-     * @en
      * Gets or sets whether a rigid body uses gravity.
      * @zh
      * 获取或设置刚体是否使用重力。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(4)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
-    @tooltip('刚体是否使用重力')
+    @tooltip('i18n:physics3d.rigidbody.useGravity')
     public get useGravity () {
         return this._useGravity;
     }
@@ -184,33 +225,13 @@ export class RigidBody extends Component {
 
     /**
      * @en
-     * Gets or sets whether the rigid body is fixed for rotation.
-     * @zh
-     * 获取或设置刚体是否固定旋转。
-     */
-    @displayOrder(5)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
-    @tooltip('刚体是否固定旋转')
-    public get fixedRotation () {
-        return this._fixedRotation;
-    }
-
-    public set fixedRotation (value) {
-        this._fixedRotation = value;
-        if (this._body) {
-            this._body.fixRotation(value);
-        }
-    }
-
-    /**
-     * @en
      * Gets or sets the linear velocity factor that can be used to control the scaling of the velocity in each axis direction.
      * @zh
      * 获取或设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(6)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
-    @tooltip('线性速度的因子，可以用来控制每个轴方向上的速度的缩放')
+    @tooltip('i18n:physics3d.rigidbody.linearFactor')
     public get linearFactor () {
         return this._linearFactor;
     }
@@ -228,9 +249,9 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
      */
+    @visible(function (this: RigidBody) { return this.isDynamic; })
     @displayOrder(7)
-    @visible(function (this: RigidBody) { return this._mass != 0; })
-    @tooltip('旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放')
+    @tooltip('i18n:physics3d.rigidbody.angularFactor')
     public get angularFactor () {
         return this._angularFactor;
     }
@@ -302,6 +323,51 @@ export class RigidBody extends Component {
 
     /**
      * @en
+     * Gets or sets whether the rigid body is static.
+     * @zh
+     * 获取或设置刚体是否是静态类型的（静止不动的）。
+     */
+    public get isStatic (): boolean {
+        return this._type === ERigidBodyType.STATIC;
+    }
+
+    public set isStatic (v: boolean) {
+        if ((v && this.isStatic) || (!v && !this.isStatic)) return;
+        this.type = v ? ERigidBodyType.STATIC : ERigidBodyType.DYNAMIC;
+    }
+
+    /**
+     * @en
+     * Gets or sets whether the rigid body moves through physical dynamics.
+     * @zh
+     * 获取或设置刚体是否是动力学态类型的（将根据物理动力学控制运动）。
+     */
+    public get isDynamic (): boolean {
+        return this._type === ERigidBodyType.DYNAMIC;
+    }
+
+    public set isDynamic (v: boolean) {
+        if ((v && this.isDynamic) || (!v && !this.isDynamic)) return;
+        this.type = v ? ERigidBodyType.DYNAMIC : ERigidBodyType.KINEMATIC;
+    }
+
+    /**
+     * @en
+     * Gets or sets whether a rigid body is controlled by users.
+     * @zh
+     * 获取或设置刚体是否是运动态类型的（将由用户来控制运动）。
+     */
+    public get isKinematic () {
+        return this._type === ERigidBodyType.KINEMATIC;
+    }
+
+    public set isKinematic (v: boolean) {
+        if ((v && this.isKinematic) || (!v && !this.isKinematic)) return;
+        this.type = v ? ERigidBodyType.KINEMATIC : ERigidBodyType.DYNAMIC;
+    }
+
+    /**
+     * @en
      * Gets the wrapper object, through which the lowLevel instance can be accessed.
      * @zh
      * 获取封装对象，通过此对象可以访问到底层实例。
@@ -318,25 +384,22 @@ export class RigidBody extends Component {
     private _group: number = PhysicsSystem.PhysicsGroup.DEFAULT;
 
     @serializable
-    private _mass: number = 1;
+    private _type: ERigidBodyType = ERigidBodyType.DYNAMIC;
 
     @serializable
-    private _allowSleep: boolean = true;
+    private _mass = 1;
 
     @serializable
-    private _linearDamping: number = 0.1;
+    private _allowSleep = true;
 
     @serializable
-    private _angularDamping: number = 0.1;
+    private _linearDamping = 0.1;
 
     @serializable
-    private _fixedRotation: boolean = false;
+    private _angularDamping = 0.1;
 
     @serializable
-    private _isKinematic: boolean = false;
-
-    @serializable
-    private _useGravity: boolean = true;
+    private _useGravity = true;
 
     @serializable
     private _linearFactor: Vec3 = new Vec3(1, 1, 1);
@@ -345,16 +408,9 @@ export class RigidBody extends Component {
     private _angularFactor: Vec3 = new Vec3(1, 1, 1);
 
     protected get _assertOnLoadCalled (): boolean {
-        const r = this._isOnLoadCalled == 0;
+        const r = this._isOnLoadCalled === 0;
         if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
         return !r;
-    }
-
-    protected get _assertUseCollisionMatrix (): boolean {
-        if (PhysicsSystem.instance.useCollisionMatrix) {
-            error('[Physics]: useCollisionMatrix is turn on, using collision matrix instead please.');
-        }
-        return PhysicsSystem.instance.useCollisionMatrix;
     }
 
     /// COMPONENT LIFECYCLE ///
@@ -603,7 +659,7 @@ export class RigidBody extends Component {
      */
     public setGroup (v: number): void {
         if (this._assertOnLoadCalled) {
-            this.group = v;
+            this._body!.setGroup(v);
         }
     }
 
@@ -615,7 +671,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addGroup (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._body!.addGroup(v);
         }
     }
@@ -628,7 +684,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeGroup (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._body!.removeGroup(v);
         }
     }
@@ -655,7 +711,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._body!.setMask(v);
         }
     }
@@ -668,7 +724,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._body!.addMask(v);
         }
     }
@@ -681,13 +737,12 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        if (this._assertOnLoadCalled && !this._assertUseCollisionMatrix) {
+        if (this._assertOnLoadCalled) {
             this._body!.removeMask(v);
         }
     }
-
 }
 
 export namespace RigidBody {
-    export type ERigidBodyType = EnumAlias<typeof ERigidBodyType>;
+    export type Type = EnumAlias<typeof ERigidBodyType>;
 }

@@ -1,21 +1,50 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
-import { select } from '../framework/physics-selector';
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+import { selector } from '../framework/physics-selector';
 import { AmmoRigidBody } from './ammo-rigid-body';
-import { AmmoWorld } from '../ammo/ammo-world';
-import { AmmoBoxShape } from '../ammo/shapes/ammo-box-shape';
-import { AmmoSphereShape } from '../ammo/shapes/ammo-sphere-shape';
-import { AmmoCapsuleShape } from '../ammo/shapes/ammo-capsule-shape';
+import { AmmoWorld } from './ammo-world';
+import { AmmoBoxShape } from './shapes/ammo-box-shape';
+import { AmmoSphereShape } from './shapes/ammo-sphere-shape';
+import { AmmoCapsuleShape } from './shapes/ammo-capsule-shape';
 import { AmmoTrimeshShape } from './shapes/ammo-trimesh-shape';
-import { AmmoCylinderShape } from '../ammo/shapes/ammo-cylinder-shape';
-import { AmmoConeShape } from "../ammo/shapes/ammo-cone-shape";
-import { AmmoTerrainShape } from "../ammo/shapes/ammo-terrain-shape";
-import { AmmoSimplexShape } from "./shapes/ammo-simplex-shape";
-import { AmmoPlaneShape } from "../ammo/shapes/ammo-plane-shape";
+import { AmmoCylinderShape } from './shapes/ammo-cylinder-shape';
+import { AmmoConeShape } from './shapes/ammo-cone-shape';
+import { AmmoTerrainShape } from './shapes/ammo-terrain-shape';
+import { AmmoSimplexShape } from './shapes/ammo-simplex-shape';
+import { AmmoPlaneShape } from './shapes/ammo-plane-shape';
 
 import { AmmoPointToPointConstraint } from './constraints/ammo-point-to-point-constraint';
 import { AmmoHingeConstraint } from './constraints/ammo-hinge-constraint';
 
-select('ammo.js', {
+selector.select('ammo.js', {
     PhysicsWorld: AmmoWorld,
     RigidBody: AmmoRigidBody,
 
@@ -32,6 +61,3 @@ select('ammo.js', {
     PointToPointConstraint: AmmoPointToPointConstraint,
     HingeConstraint: AmmoHingeConstraint,
 });
-
-
-import './deprecated';

@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -53,7 +53,6 @@ export function pop () {
     const module = frameInfo.module;
     let exports = module.exports;
     if (exports === frameInfo.exports) {
-        // tslint:disable-next-line: forin
         for (const anykey in exports) {
             // exported
             return;

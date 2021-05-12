@@ -1,5 +1,29 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 import { CachedArray } from '../../memop/cached-array';
-import { GFXDevice } from '../device';
 import {
     WebGL2CmdBeginRenderPass,
     WebGL2CmdBindStates,
@@ -11,16 +35,15 @@ import {
 } from './webgl2-commands';
 
 export class WebGL2CommandPool<T extends WebGL2CmdObject> {
-
     private _frees: (T|null)[];
-    private _freeIdx: number = 0;
+    private _freeIdx = 0;
     private _freeCmds: CachedArray<T>;
 
-    constructor (clazz: new() => T, count: number) {
+    constructor (Clazz: new() => T, count: number) {
         this._frees = new Array(count);
         this._freeCmds = new CachedArray(count);
         for (let i = 0; i < count; ++i) {
-            this._frees[i] = new clazz();
+            this._frees[i] = new Clazz();
         }
         this._freeIdx = count - 1;
     }
@@ -31,7 +54,7 @@ export class WebGL2CommandPool<T extends WebGL2CmdObject> {
     }
     */
 
-    public alloc (clazz: new() => T): T {
+    public alloc (Clazz: new() => T): T {
         if (this._freeIdx < 0) {
             const size = this._frees.length * 2;
             const temp = this._frees;
@@ -39,7 +62,7 @@ export class WebGL2CommandPool<T extends WebGL2CmdObject> {
 
             const increase = size - temp.length;
             for (let i = 0; i < increase; ++i) {
-                this._frees[i] = new clazz();
+                this._frees[i] = new Clazz();
             }
 
             for (let i = increase, j = 0; i < size; ++i, ++j) {
@@ -81,7 +104,6 @@ export class WebGL2CommandPool<T extends WebGL2CmdObject> {
 }
 
 export class WebGL2CommandAllocator {
-
     public beginRenderPassCmdPool: WebGL2CommandPool<WebGL2CmdBeginRenderPass>;
     public bindStatesCmdPool: WebGL2CommandPool<WebGL2CmdBindStates>;
     public drawCmdPool: WebGL2CommandPool<WebGL2CmdDraw>;
@@ -97,7 +119,6 @@ export class WebGL2CommandAllocator {
     }
 
     public clearCmds (cmdPackage: WebGL2CmdPackage) {
-
         if (cmdPackage.beginRenderPassCmds.length) {
             this.beginRenderPassCmdPool.freeCmds(cmdPackage.beginRenderPassCmds);
             cmdPackage.beginRenderPassCmds.clear();

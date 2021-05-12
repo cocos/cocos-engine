@@ -1,17 +1,40 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
 import { Mat4, pseudoRandom, Quat, Vec3 } from '../../core/math';
-import { Space } from '../enum';
+import { Space, ModuleRandSeed } from '../enum';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import { calculateTransform } from '../particle-general-function';
 import CurveRange from './curve-range';
-import { ModuleRandSeed } from '../enum';
 
-// tslint:disable: max-line-length
 const VELOCITY_X_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_X;
 const VELOCITY_Y_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Y;
 const VELOCITY_Z_OVERTIME_RAND_OFFSET = ModuleRandSeed.VELOCITY_Z;
@@ -21,7 +44,7 @@ const _temp_v3 = new Vec3();
 @ccclass('cc.VelocityOvertimeModule')
 export default class VelocityOvertimeModule extends ParticleModuleBase {
     @serializable
-    _enable: Boolean = false;
+    _enable = false;
     /**
      * @zh 是否启用。
      */
@@ -44,7 +67,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(2)
-    @tooltip('X 轴方向上的速度分量')
+    @tooltip('i18n:velocityOvertimeModule.x')
     public x = new CurveRange();
 
     /**
@@ -54,7 +77,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(3)
-    @tooltip('Y 轴方向上的速度分量')
+    @tooltip('i18n:velocityOvertimeModule.y')
     public y = new CurveRange();
 
     /**
@@ -64,7 +87,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(4)
-    @tooltip('Z 轴方向上的速度分量')
+    @tooltip('i18n:velocityOvertimeModule.z')
     public z = new CurveRange();
 
     /**
@@ -74,7 +97,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(5)
-    @tooltip('速度修正系数（只支持 CPU 粒子）')
+    @tooltip('i18n:velocityOvertimeModule.speedModifier')
     public speedModifier = new CurveRange();
 
     /**
@@ -83,7 +106,7 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
     @type(Space)
     @serializable
     @displayOrder(1)
-    @tooltip('速度计算时采用的坐标系')
+    @tooltip('i18n:velocityOvertimeModule.space')
     public space = Space.Local;
 
     private rotation: Quat;
@@ -113,12 +136,3 @@ export default class VelocityOvertimeModule extends ParticleModuleBase {
         Vec3.multiplyScalar(p.ultimateVelocity, p.ultimateVelocity, this.speedModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed + VELOCITY_X_OVERTIME_RAND_OFFSET))!);
     }
 }
-
-// CCClass.fastDefine('cc.VelocityOvertimeModule', VelocityOvertimeModule, {
-//     enable: false,
-//     x: new CurveRange(),
-//     y: new CurveRange(),
-//     z: new CurveRange(),
-//     speedModifier: new CurveRange(),
-//     space: Space.Local
-// });

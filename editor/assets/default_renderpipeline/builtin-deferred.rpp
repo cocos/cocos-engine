@@ -1,0 +1,110 @@
+[
+  {
+    "__type__": "DeferredPipeline",
+    "_name": "",
+    "_objFlags": 0,
+    "_native": "",
+    "_tag": 0,
+    "_flows": [
+      {
+        "__id__": 1
+      },
+      {
+        "__id__": 3
+      },
+      {
+        "__id__": 6
+      }
+    ],
+    "renderTextures": []
+  },
+  {
+    "__type__": "ShadowFlow",
+    "_name": "ShadowFlow",
+    "_priority": 0,
+    "_tag": 0,
+    "_stages": [
+      {
+        "__id__": 2
+      }
+    ]
+  },
+  {
+    "__type__": "ShadowStage",
+    "_name": "ShadowStage",
+    "_priority": 0,
+    "_tag": 0
+  },
+  {
+    "__type__": "GbufferFlow",
+    "_name": "GbufferFlow",
+    "_priority": 1,
+    "_tag": 0,
+    "_stages": [
+      {
+        "__id__": 4
+      }
+    ]
+  },
+  {
+    "__type__": "GbufferStage",
+    "_name": "GbufferStage",
+    "_priority": 0,
+    "_tag": 0,
+    "renderQueues": [
+      {
+        "__id__": 5
+      }
+    ]
+  },
+  {
+    "__type__": "RenderQueueDesc",
+    "isTransparent": false,
+    "sortMode": 0,
+    "stages": [
+      "deferred"
+    ]
+  },
+  {
+    "__type__": "LightingFlow",
+    "_name": "LightingFlow",
+    "_priority": 1,
+    "_tag": 0,
+    "_stages": [
+      {
+        "__id__": 7
+      },
+      {
+        "__id__": 9
+      }
+    ]
+  },
+  {
+    "__type__": "LightingStage",
+    "_name": "LightingStage",
+    "_priority": 0,
+    "_tag": 0,
+    "renderQueues": [
+      {
+        "__id__": 8
+      }
+    ],
+    "_deferredMaterial": null
+  },
+  {
+    "__type__": "RenderQueueDesc",
+    "isTransparent": true,
+    "sortMode": 1,
+    "stages": [
+      "default",
+      "deferred"
+    ]
+  },
+  {
+    "__type__": "PostprocessStage",
+    "_name": "PostprocessStage",
+    "_priority": 0,
+    "_tag": 0,
+    "_postProcessMaterial": null
+  }
+]

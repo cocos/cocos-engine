@@ -1,0 +1,288 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "additionalProperties": false,
+    "definitions": {
+        "BaseItem": {
+            "additionalProperties": false,
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "default": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "description": {
+                    "description": "Description.",
+                    "type": "string"
+                },
+                "label": {
+                    "description": "Display text.",
+                    "type": "string"
+                },
+                "native": {
+                    "type": "string"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "wechatPlugin": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "CategoryInfo": {
+            "additionalProperties": false,
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "label": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "Item": {
+            "additionalProperties": false,
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "default": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "description": {
+                    "description": "Description.",
+                    "type": "string"
+                },
+                "label": {
+                    "description": "Display text.",
+                    "type": "string"
+                },
+                "multi": {
+                    "description": "Whether if the feature of options allow multiple selection.",
+                    "type": "boolean"
+                },
+                "native": {
+                    "type": "string"
+                },
+                "options": {
+                    "$ref": "#/definitions/Record<EngineFeature,BaseItem>"
+                },
+                "required": {
+                    "type": "boolean"
+                },
+                "wechatPlugin": {
+                    "type": "boolean"
+                }
+            },
+            "type": "object"
+        },
+        "Record<EngineFeature,BaseItem>": {
+            "additionalProperties": false,
+            "description": "Construct a type with a set of properties K of type T",
+            "properties": {
+                "2d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "3d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "audio": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "base": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "dragon-bones": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "gfx-webgl": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "gfx-webgl2": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "graphcis": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "intersection-2d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "particle": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "particle-2d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-2d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-2d-box2d": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-2d-builtin": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-ammo": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-builtin": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-cannon": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "physics-physx": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "primitive": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "profiler": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "spine": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "terrain": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "tiled-map": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "tween": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "ui": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "video": {
+                    "$ref": "#/definitions/BaseItem"
+                },
+                "webview": {
+                    "$ref": "#/definitions/BaseItem"
+                }
+            },
+            "type": "object"
+        },
+        "Record<EngineFeature,Item>": {
+            "additionalProperties": false,
+            "properties": {
+                "2d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "3d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "audio": {
+                    "$ref": "#/definitions/Item"
+                },
+                "base": {
+                    "$ref": "#/definitions/Item"
+                },
+                "dragon-bones": {
+                    "$ref": "#/definitions/Item"
+                },
+                "gfx-webgl": {
+                    "$ref": "#/definitions/Item"
+                },
+                "gfx-webgl2": {
+                    "$ref": "#/definitions/Item"
+                },
+                "graphcis": {
+                    "$ref": "#/definitions/Item"
+                },
+                "intersection-2d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "particle": {
+                    "$ref": "#/definitions/Item"
+                },
+                "particle-2d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-2d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-2d-box2d": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-2d-builtin": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-ammo": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-builtin": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-cannon": {
+                    "$ref": "#/definitions/Item"
+                },
+                "physics-physx": {
+                    "$ref": "#/definitions/Item"
+                },
+                "primitive": {
+                    "$ref": "#/definitions/Item"
+                },
+                "profiler": {
+                    "$ref": "#/definitions/Item"
+                },
+                "spine": {
+                    "$ref": "#/definitions/Item"
+                },
+                "terrain": {
+                    "$ref": "#/definitions/Item"
+                },
+                "tiled-map": {
+                    "$ref": "#/definitions/Item"
+                },
+                "tween": {
+                    "$ref": "#/definitions/Item"
+                },
+                "ui": {
+                    "$ref": "#/definitions/Item"
+                },
+                "video": {
+                    "$ref": "#/definitions/Item"
+                },
+                "webview": {
+                    "$ref": "#/definitions/Item"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "categories": {
+            "additionalProperties": {
+                "$ref": "#/definitions/CategoryInfo"
+            },
+            "description": "The categories info",
+            "type": "object"
+        },
+        "features": {
+            "$ref": "#/definitions/Record<EngineFeature,Item>",
+            "description": "The modules info"
+        }
+    },
+    "type": "object"
+}
+

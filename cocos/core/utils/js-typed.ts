@@ -1,7 +1,37 @@
-import { warnID, error, errorID } from '../platform/debug';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
-import IDGenerator from './id-generator';
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+/**
+ * @packageDocumentation
+ * @module core
+ */
+
 import { EDITOR, DEV, TEST } from 'internal:constants';
+import { warnID, error, errorID } from '../platform/debug';
+import IDGenerator from './id-generator';
+
 const tempCIDGenerator = new IDGenerator('TmpCId.');
 
 const aliasesTag = typeof Symbol === 'undefined' ? '__aliases__' : Symbol('[[Aliases]]');
@@ -24,6 +54,18 @@ export function isNumber (object: any) {
  */
 export function isString (object: any) {
     return typeof object === 'string' || object instanceof String;
+}
+
+/**
+ * Checks if the object `obj` does not have one or more enumerable properties (including properties from proto chain).
+ * @param obj The object.
+ * @returns The result. Note that if the `obj` is not of type `'object'`, `true` is returned.
+ */
+export function isEmptyObject (obj: any) {
+    for (const key in obj) {
+        return false;
+    }
+    return true;
 }
 
 /**
@@ -118,25 +160,25 @@ export const set = (() => {
 /**
  * @en
  * A simple wrapper of `Object.create(null)` which ensures the return object have no prototype (and thus no inherited members).
- * So we can skip `hasOwnProperty` calls on property lookups.
- * It is a worthwhile optimization than the `{}` literal when `hasOwnProperty` calls are necessary.
+ * This eliminates the need to make `hasOwnProperty` judgments when we look for values by key on the object,
+ * which is helpful for performance in this case.
  * @zh
  * 该方法是对 `Object.create(null)` 的简单封装。
  * `Object.create(null)` 用于创建无 prototype （也就无继承）的空对象。
- * 这样我们在该对象上查找属性时，就不用进行 `hasOwnProperty` 判断。
- * 在需要频繁判断 `hasOwnProperty` 时，使用这个方法性能会比 `{}` 更高。
+ * 这样我们在该对象上查找属性时，就不用进行 `hasOwnProperty` 判断，此时对性能提升有帮助。
  *
  * @param [forceDictMode=false] Apply the delete operator to newly created map object.
  * This causes V8 to put the object in "dictionary mode" and disables creation of hidden classes
  * which are very expensive for objects that are constantly changing shape.
  */
-export function createMap (forceDictMode?: boolean) {
+export function createMap (forceDictMode?: boolean): any {
     const map = Object.create(null);
     if (forceDictMode) {
         const INVALID_IDENTIFIER_1 = '.';
         const INVALID_IDENTIFIER_2 = '/';
-        map[INVALID_IDENTIFIER_1] = true;
-        map[INVALID_IDENTIFIER_2] = true;
+        // assign dummy values on the object
+        map[INVALID_IDENTIFIER_1] = 1;
+        map[INVALID_IDENTIFIER_2] = 1;
         delete map[INVALID_IDENTIFIER_1];
         delete map[INVALID_IDENTIFIER_2];
     }
@@ -165,8 +207,7 @@ export function getClassName (objOrCtor: Object | Function): string {
             if (str.charAt(0) === '[') {
                 // str is "[object objectClass]"
                 arr = str.match(/\[\w+\s*(\w+)\]/);
-            }
-            else {
+            } else {
                 // str is function objectClass () {} for IE Firefox
                 arr = str.match(/function\s*(\w+)/);
             }
@@ -207,24 +248,22 @@ export function obsolete (object: any, obsoleted: string, newExpr: string, writa
 
     if (writable) {
         getset(object, oldProp, getter, setter);
-    }
-    else {
+    } else {
         get(object, oldProp, getter);
     }
 }
 
 /**
  * Defines all polyfill fields for obsoleted codes corresponding to the enumerable properties of props.
- * @method obsoletes
- * @param {any} obj - YourObject or YourClass.prototype
- * @param {any} objName - "YourObject" or "YourClass"
- * @param {Object} props
- * @param {Boolean} [writable=false]
+ * @param obj - YourObject or YourClass.prototype
+ * @param objName - "YourObject" or "YourClass"
+ * @param props
+ * @param [writable=false]
  */
 export function obsoletes (obj, objName, props, writable) {
     for (const obsoleted in props) {
         const newName = props[obsoleted];
-        obsolete(obj, objName + '.' + obsoleted, newName, writable);
+        obsolete(obj, `${objName}.${obsoleted}`, newName, writable);
     }
 }
 
@@ -248,7 +287,7 @@ export function formatStr (msg: string | any, ...subst: any[]) {
         return '';
     }
     if (subst.length === 0) {
-        return '' + msg;
+        return `${msg}`;
     }
 
     const hasSubstitution = typeof msg === 'string' && REGEXP_NUM_OR_STR.test(msg);
@@ -256,15 +295,15 @@ export function formatStr (msg: string | any, ...subst: any[]) {
         for (const arg of subst) {
             const regExpToTest = typeof arg === 'number' ? REGEXP_NUM_OR_STR : REGEXP_STR;
             if (regExpToTest.test(msg)) {
-                msg = msg.replace(regExpToTest, arg);
-            }
-            else {
-                msg += ' ' + arg;
+                const notReplaceFunction = `${arg}`;
+                msg = msg.replace(regExpToTest, notReplaceFunction);
+            } else {
+                msg += ` ${arg}`;
             }
         }
     } else {
         for (const arg of subst) {
-            msg += ' ' + arg;
+            msg += ` ${arg}`;
         }
     }
     return msg;
@@ -390,7 +429,7 @@ export function getSuper (constructor: Function) {
 /**
  * Checks whether subclass is child of superclass or equals to superclass.
  */
-export function isChildClassOf (subclass: Function, superclass: Function) {
+export function isChildClassOf (subclass: unknown, superclass: unknown) {
     if (subclass && superclass) {
         if (typeof subclass !== 'function') {
             return false;
@@ -405,7 +444,7 @@ export function isChildClassOf (subclass: Function, superclass: Function) {
             return true;
         }
         for (; ;) {
-            subclass = getSuper(subclass);
+            subclass = getSuper(subclass as Function);
             if (!subclass) {
                 return false;
             }
@@ -430,80 +469,56 @@ function isTempClassId (id) {
     return typeof id !== 'string' || id.startsWith(tempCIDGenerator.prefix);
 }
 
-// id 注册
-export const _idToClass = {};
-export const _nameToClass = {};
+// id registration
+export const _idToClass: Record<string, Constructor> = createMap(true);
+export const _nameToClass: Record<string, Constructor> = createMap(true);
+
+function setup (tag: string, table: object) {
+    return function (id: string, constructor: Constructor) {
+        // deregister old
+        if (constructor.prototype.hasOwnProperty(tag)) {
+            delete table[constructor.prototype[tag]];
+        }
+        value(constructor.prototype, tag, id);
+        // register class
+        if (id) {
+            const registered = table[id];
+            if (registered && registered !== constructor) {
+                let err = `A Class already exists with the same ${tag} : "${id}".`;
+                if (TEST) {
+                    err += ' (This may be caused by error of unit test.) \
+If you dont need serialization, you can set class id to "". You can also call \
+js.unregisterClass to remove the id of unused class';
+                }
+                error(err);
+            } else {
+                table[id] = constructor;
+            }
+            // if (id === "") {
+            //    console.trace("", table === _nameToClass);
+            // }
+        }
+    };
+}
 
 /**
  * Register the class by specified id, if its classname is not defined, the class name will also be set.
  * @method _setClassId
- * @param {String} classId
- * @param {Function} constructor
+ * @param classId
+ * @param constructor
  * @private
  */
-export function _setClassId (id, constructor) {
-    const table = _idToClass;
-    // deregister old
-    if (constructor.prototype.hasOwnProperty(classIdTag)) {
-        delete table[constructor.prototype[classIdTag]];
-    }
-    value(constructor.prototype, classIdTag, id);
-    // register class
-    if (id) {
-        const registered = table[id];
-        if (registered && registered !== constructor) {
-            let err = 'A Class already exists with the same ' + classIdTag + ' : "' + id + '".';
-            if (TEST) {
-                err += ' (This may be caused by error of unit test.) \
-If you dont need serialization, you can set class id to "". You can also call \
-js.unregisterClass to remove the id of unused class';
-            }
-            error(err);
-        }
-        else {
-            table[id] = constructor;
-        }
-        // if (id === "") {
-        //    console.trace("", table === _nameToClass);
-        // }
-    }
-}
+export const _setClassId = setup('__cid__', _idToClass);
 
-function doSetClassName (id, constructor) {
-    const table = _nameToClass;
-    // deregister old
-    if (constructor.prototype.hasOwnProperty(classNameTag)) {
-        delete table[constructor.prototype[classNameTag]];
-    }
-    value(constructor.prototype, classNameTag, id);
-    // register class
-    if (id) {
-        const registered = table[id];
-        if (registered && registered !== constructor) {
-            let err = 'A Class already exists with the same ' + classNameTag + ' : "' + id + '".';
-            if (TEST) {
-                err += ' (This may be caused by error of unit test.) \
-If you dont need serialization, you can set class id to "". You can also call \
-js.unregisterClass to remove the id of unused class';
-            }
-            error(err);
-        }
-        else {
-            table[id] = constructor;
-        }
-        // if (id === "") {
-        //    console.trace("", table === _nameToClass);
-        // }
-    }
-}
+const doSetClassName = setup('__classname__', _nameToClass);
 
 /**
  * Register the class by specified name manually
  * @method setClassName
- * @param {String} className
- * @param {Function} constructor
+ * @param className
+ * @param constructor
  */
-export function setClassName (className, constructor) {
+export function setClassName (className: string, constructor: Constructor) {
     doSetClassName(className, constructor);
     // auto set class id
     if (!constructor.prototype.hasOwnProperty(classIdTag)) {
@@ -515,9 +530,11 @@ export function setClassName (className, constructor) {
 }
 
 /**
- * @en
- * @zh
- * 为类设置别名。
+ * @en Set an alias name for class.
+ * If `setClassAlias(target, alias)`, `alias` will be a single way short cut for class `target`.
+ * If you try `js.getClassByName(alias)`, you will get target.
+ * But `js.getClassName(target)` will return the original name of `target`, not the alias.
+ * @zh 为类设置别名。
  * 当 `setClassAlias(target, alias)` 后，
  * `alias` 将作为类 `target`的“单向 ID” 和“单向名称”。
  * 因此，`_getClassById(alias)` 和 `getClassByName(alias)` 都会得到 `target`。
@@ -525,7 +542,7 @@ export function setClassName (className, constructor) {
  * @param target Constructor of target class.
  * @param alias Alias to set. The name shall not have been set as class name or alias of another class.
  */
-export function setClassAlias (target: Function, alias: string) {
+export function setClassAlias (target: Constructor, alias: string) {
     const nameRegistry = _nameToClass[alias];
     const idRegistry = _idToClass[alias];
     let ok = true;
@@ -555,8 +572,7 @@ export function setClassAlias (target: Function, alias: string) {
  * If you dont need a registered class anymore, you should unregister the class so that Fireball will not keep its reference anymore.
  * Please note that its still your responsibility to free other references to the class.
  *
- * @method unregisterClass
- * @param {Function} ...constructor - the class you will want to unregister, any number of classes can be added
+ * @param ...constructor - the class you will want to unregister, any number of classes can be added
  */
 export function unregisterClass (...constructors: Function[]) {
     for (const constructor of constructors) {
@@ -582,9 +598,8 @@ export function unregisterClass (...constructors: Function[]) {
 
 /**
  * Get the registered class by id
- * @method _getClassById
- * @param {String} classId
- * @return {Function} constructor
+ * @param classId
+ * @return constructor
  * @private
  */
 export function _getClassById (classId) {
@@ -593,9 +608,8 @@ export function _getClassById (classId) {
 
 /**
  * Get the registered class by name
- * @method getClassByName
- * @param {String} classname
- * @return {Function} constructor
+ * @param classname
+ * @return constructor of the class
  */
 export function getClassByName (classname) {
     return _nameToClass[classname];
@@ -603,13 +617,12 @@ export function getClassByName (classname) {
 
 /**
  * Get class id of the object
- * @method _getClassId
- * @param {Object|Function} obj - instance or constructor
- * @param {Boolean} [allowTempId = true]   - can return temp id in editor
- * @return {String}
+ * @param obj - instance or constructor
+ * @param [allowTempId = true]   - can return temp id in editor
+ * @return
  * @private
  */
-export function _getClassId (obj, allowTempId?: Boolean) {
+export function _getClassId (obj, allowTempId?: boolean) {
     allowTempId = (typeof allowTempId !== 'undefined' ? allowTempId : true);
 
     let res;

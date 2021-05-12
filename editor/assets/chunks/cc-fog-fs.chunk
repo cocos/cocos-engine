@@ -1,0 +1,8 @@
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+
+#include <cc-fog-base>
+
+in float v_fog_factor;
+
+#define CC_FOG_FACTOR v_fog_factor
+#define CC_APPLY_FOG(color) CC_APPLY_FOG_BASE(color, v_fog_factor)

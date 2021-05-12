@@ -1,4 +1,30 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
@@ -8,9 +34,8 @@ import CurveRange from './animator/curve-range';
 
 @ccclass('cc.Burst')
 export default class Burst {
-
     @serializable
-    private _time: number = 0;
+    private _time = 0;
 
     /**
      * @zh 粒子系统开始运行到触发此次 Brust 的时间。
@@ -26,7 +51,7 @@ export default class Burst {
     }
 
     @serializable
-    private _repeatCount: number = 1;
+    private _repeatCount = 1;
 
     /**
      * @zh Burst 的触发次数。
@@ -46,7 +71,7 @@ export default class Burst {
      */
     @serializable
     @editable
-    public repeatInterval: number = 1;
+    public repeatInterval = 1;
 
     /**
      * @zh 发射的粒子的数量。
@@ -83,12 +108,3 @@ export default class Burst {
         return this.count.getMax() * Math.min(Math.ceil(psys.duration / this.repeatInterval), this.repeatCount);
     }
 }
-
-// CCClass.fastDefine('cc.Burst', Burst, {
-//     _time: 0,
-//     minCount: 30,
-//     maxCount: 30,
-//     _repeatCount: 1,
-//     repeatInterval: 1,
-//     count: new CurveRange
-// });

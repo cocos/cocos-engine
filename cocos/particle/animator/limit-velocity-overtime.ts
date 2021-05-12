@@ -1,6 +1,31 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 /**
- * @category particle
+ * @packageDocumentation
+ * @module particle
  */
 
 import { ccclass, tooltip, displayOrder, range, type, serializable } from 'cc.decorator';
@@ -10,7 +35,6 @@ import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle'
 import CurveRange from './curve-range';
 import { calculateTransform } from '../particle-general-function';
 
-// tslint:disable: max-line-length
 const LIMIT_VELOCITY_RAND_OFFSET = ModuleRandSeed.LIMIT;
 
 const _temp_v3 = new Vec3();
@@ -18,9 +42,8 @@ const _temp_v3_1 = new Vec3();
 
 @ccclass('cc.LimitVelocityOvertimeModule')
 export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
-
     @serializable
-    _enable: Boolean = false;
+    _enable = false;
     /**
      * @zh 是否启用。
      */
@@ -43,7 +66,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(4)
-    @tooltip('X 轴方向上的速度下限')
+    @tooltip('i18n:limitVelocityOvertimeModule.limitX')
     public limitX = new CurveRange();
 
     /**
@@ -53,7 +76,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(5)
-    @tooltip('Y 轴方向上的速度下限')
+    @tooltip('i18n:limitVelocityOvertimeModule.limitY')
     public limitY = new CurveRange();
 
     /**
@@ -63,7 +86,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(6)
-    @tooltip('Z 轴方向上的速度下限')
+    @tooltip('i18n:limitVelocityOvertimeModule.limitZ')
     public limitZ = new CurveRange();
 
     /**
@@ -73,7 +96,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @serializable
     @range([-1, 1])
     @displayOrder(3)
-    @tooltip('速度下限')
+    @tooltip('i18n:limitVelocityOvertimeModule.limit')
     public limit = new CurveRange();
 
     /**
@@ -81,7 +104,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @serializable
     @displayOrder(7)
-    @tooltip('当前速度与速度下限的插值')
+    @tooltip('i18n:limitVelocityOvertimeModule.dampen')
     public dampen = 3;
 
     /**
@@ -89,7 +112,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
      */
     @serializable
     @displayOrder(2)
-    @tooltip('是否三个轴分开限制')
+    @tooltip('i18n:limitVelocityOvertimeModule.separateAxes')
     public separateAxes = false;
 
     /**
@@ -98,7 +121,7 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
     @type(Space)
     @serializable
     @displayOrder(1)
-    @tooltip('计算速度下限时采用的坐标系')
+    @tooltip('i18n:limitVelocityOvertimeModule.space')
     public space = Space.Local;
 
     // TODO:functions related to drag are temporarily not supported
@@ -134,14 +157,12 @@ export default class LimitVelocityOvertimeModule extends ParticleModuleBase {
                 dampenBeyondLimit(p.ultimateVelocity.x, _temp_v3_1.x, this.dampen),
                 dampenBeyondLimit(p.ultimateVelocity.y, _temp_v3_1.y, this.dampen),
                 dampenBeyondLimit(p.ultimateVelocity.z, _temp_v3_1.z, this.dampen));
-        }
-        else {
+        } else {
             Vec3.normalize(dampedVel, p.ultimateVelocity);
             Vec3.multiplyScalar(dampedVel, dampedVel, dampenBeyondLimit(p.ultimateVelocity.length(), this.limit.evaluate(normalizedTime, pseudoRandom(p.randomSeed + LIMIT_VELOCITY_RAND_OFFSET))!, this.dampen));
         }
         Vec3.copy(p.ultimateVelocity, dampedVel);
     }
-
 }
 
 function dampenBeyondLimit (vel: number, limit: number, dampen: number) {
@@ -152,18 +173,3 @@ function dampenBeyondLimit (vel: number, limit: number, dampen: number) {
     }
     return abs * sgn;
 }
-
-// CCClass.fastDefine('cc.LimitVelocityOvertimeModule', LimitVelocityOvertimeModule, {
-//     enable: false,
-//     limitX: null,
-//     limitY: null,
-//     limitZ: null,
-//     limit: null,
-//     dampen: null,
-//     separateAxes: false,
-//     space: Space.Local,
-//     // TODO:functions related to drag are temporarily not supported
-//     drag: null,
-//     multiplyDragByParticleSize: false,
-//     multiplyDragByParticleVelocity: false
-// });

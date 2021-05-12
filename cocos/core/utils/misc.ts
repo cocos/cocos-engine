@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,17 +24,21 @@
  THE SOFTWARE.
 */
 
- // tslint:disable
+/**
+ * @packageDocumentation
+ * @hidden
+ */
 
-import { getClassName, getset } from './js';
 import { EDITOR, DEV } from 'internal:constants';
+import { getClassName, getset, isEmptyObject } from './js';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
+import { macro } from '../platform/macro';
 
 export const BUILTIN_CLASSID_RE = /^(?:cc|dragonBones|sp|ccsg)\..+/;
 
 const BASE64_KEYS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=';
-const values = new Array(123); // max char code in base64Keys
+const values:number[] = new Array(123); // max char code in base64Keys
 for (let i = 0; i < 123; ++i) { values[i] = 64; } // fill with placeholder('=') index
 for (let i = 0; i < 64; ++i) { values[BASE64_KEYS.charCodeAt(i)] = i; }
 
@@ -42,16 +46,9 @@ for (let i = 0; i < 64; ++i) { values[BASE64_KEYS.charCodeAt(i)] = i; }
 export const BASE64_VALUES = values;
 
 /**
- * misc utilities
- * @class misc
- * @static
- */
-
-/**
- * @method propertyDefine
- * @param {Function} ctor
- * @param {Array} sameNameGetSets
- * @param {Object} diffNameGetSets
+ * @param ctor
+ * @param sameNameGetSets
+ * @param diffNameGetSets
  */
 export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
     function define (np, propName, getter, setter) {
@@ -59,25 +56,23 @@ export function propertyDefine (ctor, sameNameGetSets, diffNameGetSets) {
         if (pd) {
             if (pd.get) { np[getter] = pd.get; }
             if (pd.set && setter) { np[setter] = pd.set; }
-        }
-        else {
+        } else {
             const getterFunc = np[getter];
             if (DEV && !getterFunc) {
-                const clsName = (legacyCC.Class._isCCClass(ctor) && getClassName(ctor)) ||
-                    ctor.name ||
-                    '(anonymous class)';
+                const clsName = (legacyCC.Class._isCCClass(ctor) && getClassName(ctor))
+                    || ctor.name
+                    || '(anonymous class)';
                 warnID(5700, propName, getter, clsName);
-            }
-            else {
+            } else {
                 getset(np, propName, getterFunc, np[setter]);
             }
         }
     }
-    let propName, np = ctor.prototype;
+    let propName; const np = ctor.prototype;
     for (let i = 0; i < sameNameGetSets.length; i++) {
         propName = sameNameGetSets[i];
         const suffix = propName[0].toUpperCase() + propName.slice(1);
-        define(np, propName, 'get' + suffix, 'set' + suffix);
+        define(np, propName, `get${suffix}`, `set${suffix}`);
     }
     for (propName in diffNameGetSets) {
         const gs = diffNameGetSets[propName];
@@ -93,16 +88,13 @@ export function pushToMap (map, key, value, pushFront) {
             if (pushFront) {
                 exists.push(exists[0]);
                 exists[0] = value;
-            }
-            else {
+            } else {
                 exists.push(value);
             }
-        }
-        else {
+        } else {
             map[key] = (pushFront ? [value, exists] : [exists, value]);
         }
-    }
-    else {
+    } else {
         map[key] = value;
     }
 }
@@ -132,60 +124,89 @@ export function isDomNode (obj) {
         // If "TypeError: Right-hand side of 'instanceof' is not callback" is thrown,
         // it should because window.Node was overwritten.
         return obj instanceof Node;
-    }
-    else {
-        return obj &&
-            typeof obj === 'object' &&
-            typeof obj.nodeType === 'number' &&
-            typeof obj.nodeName === 'string';
+    } else {
+        return obj
+            && typeof obj === 'object'
+            && typeof obj.nodeType === 'number'
+            && typeof obj.nodeName === 'string';
     }
 }
 
 export function callInNextTick (callback, p1?: any, p2?: any) {
     if (EDITOR) {
         if (callback) {
-            // @ts-ignore
-            process.nextTick(function () {
+            // @ts-expect-error
+            process.nextTick(() => {
                 callback(p1, p2);
             });
         }
-    }
-    else {
-        if (callback) {
-            setTimeout(function () {
-                callback(p1, p2);
-            }, 0);
-        }
+    } else if (callback) {
+        setTimeout(() => {
+            callback(p1, p2);
+        }, 0);
     }
 }
 
 // use anonymous function here to ensure it will not being hoisted without EDITOR
 export function tryCatchFunctor_EDITOR (funcName) {
     return Function('target',
-        'try {\n' +
-        '  target.' + funcName + '();\n' +
-        '}\n' +
-        'catch (e) {\n' +
-        '  cc._throw(e);\n' +
-        '}');
+        `${'try {\n'
+        + '  target.'}${funcName}();\n`
+        + `}\n`
+        + `catch (e) {\n`
+        + `  cc._throw(e);\n`
+        + `}`);
 }
 
 export function isPlainEmptyObj_DEV (obj) {
     if (!obj || obj.constructor !== Object) {
         return false;
     }
-    // jshint ignore: start
-    for (const k in obj) {
-        return false;
-    }
-    // jshint ignore: end
-    return true;
+    return isEmptyObject(obj);
 }
 
-export function cloneable_DEV (obj) {
-    return obj &&
-        typeof obj.clone === 'function' &&
-        ((obj.constructor && obj.constructor.prototype.hasOwnProperty('clone')) || obj.hasOwnProperty('clone'));
+/**
+ * @en Clamp a value between from and to.
+ * @zh 限定浮点数的最大最小值。<br/>
+ * 数值大于 max_inclusive 则返回 max_inclusive。<br/>
+ * 数值小于 min_inclusive 则返回 min_inclusive。<br/>
+ * 否则返回自身。
+ * @param value 目标值
+ * @param min_inclusive 最小值
+ * @param max_inclusive 最大值
+ * @return {Number}
+ * @example
+ * var v1 = clampf(20, 0, 20); // 20;
+ * var v2 = clampf(-1, 0, 20); //  0;
+ * var v3 = clampf(10, 0, 20); // 10;
+ */
+export function clampf (value, min_inclusive, max_inclusive) {
+    if (min_inclusive > max_inclusive) {
+        const temp = min_inclusive;
+        min_inclusive = max_inclusive;
+        max_inclusive = temp;
+    }
+    return value < min_inclusive ? min_inclusive : value < max_inclusive ? value : max_inclusive;
+}
+
+/**
+ * @en converts degrees to radians
+ * @zh 角度转弧度
+ * @param angle 角度
+ * @return {Number}
+ */
+export function degreesToRadians (angle) {
+    return angle * macro.RAD;
+}
+
+/**
+ * @en converts radians to degrees
+ * @zh 弧度转角度
+ * @param angle 弧度
+ * @return {Number}
+ */
+export function radiansToDegrees (angle) {
+    return angle * macro.DEG;
 }
 
 // if (TEST) {
@@ -210,7 +231,8 @@ legacyCC.misc = {
     contains,
     isDomNode,
     callInNextTick,
-    tryCatchFunctor_EDITOR,
     isPlainEmptyObj_DEV,
-    cloneable_DEV,
+    clampf,
+    degreesToRadians,
+    radiansToDegrees,
 };

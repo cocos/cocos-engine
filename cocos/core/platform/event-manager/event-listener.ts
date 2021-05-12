@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-types */
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
  Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
@@ -25,13 +26,15 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
 import { EventKeyboard, EventAcceleration, EventMouse } from './events';
-import { Node } from '../../scene-graph';
+import { Component } from '../../components';
 import { legacyCC } from '../../global-exports';
 import { logID, assertID } from '../debug';
+import { SystemEventType } from './event-enum';
 
 export interface IEventListenerCreateInfo {
     event?: number;
@@ -41,7 +44,7 @@ export interface IEventListenerCreateInfo {
 
 export interface IListenerMask {
     index: number;
-    node: Node;
+    comp: Component;
 }
 
 /**
@@ -53,6 +56,11 @@ export interface IListenerMask {
  * 注意：这是一个抽象类，开发者不应该直接实例化这个类，请参考 [[create]] 。
  */
 export class EventListener {
+    /**
+     * to cache camera priority
+     * @internal
+     */
+    public _cameraPriority = 0;
     /**
      * @en The type code of unknown event listener.<br/>
      * @zh 未知的事件监听器类型
@@ -119,15 +127,15 @@ export class EventListener {
 
         let listener: EventListener | null = null;
         if (listenerType === legacyCC.EventListener.TOUCH_ONE_BY_ONE) {
-            listener = new TouchOneByOne();
+            listener = new TouchOneByOneEventListener();
         } else if (listenerType === legacyCC.EventListener.TOUCH_ALL_AT_ONCE) {
-            listener = new TouchAllAtOnce();
+            listener = new TouchAllAtOnceEventListener();
         } else if (listenerType === legacyCC.EventListener.MOUSE) {
-            listener = new Mouse();
+            listener = new MouseEventListener();
         } else if (listenerType === legacyCC.EventListener.KEYBOARD) {
-            listener = new Keyboard();
+            listener = new KeyboardEventListener();
         } else if (listenerType === legacyCC.EventListener.ACCELERATION) {
-            listener = new Acceleration(argObj.callback);
+            listener = new AccelerationEventListener(argObj.callback);
             delete argObj.callback;
         }
 
@@ -142,8 +150,8 @@ export class EventListener {
 
     // hack: How to solve the problem of uncertain attribute
     // callback's this object
-    public owner: Object | null = null;
-    public mask: IListenerMask | null = null;
+    public owner: any = null;
+    public mask: IListenerMask[] | null = null;
     public _previousIn?: boolean = false;
 
     public _target: any = null;
@@ -238,8 +246,8 @@ export class EventListener {
      * note： It's different from `EventType`, e.g.<br/>
      * TouchEvent has two kinds of event listeners - EventListenerOneByOne, EventListenerAllAtOnce<br/>
      * @zh 获取此侦听器的类型<br/>
-     * 注意：它与`EventType`不同，例如<br/>
-     * TouchEvent 有两种事件监听器 -  EventListenerOneByOne，EventListenerAllAtOnce
+     * 注意：它与`EventType`不同，例如<br/>
+     * TouchEvent 有两种事件监听器 -  EventListenerOneByOne，EventListenerAllAtOnce
      */
     public _getType () {
         return this._type;
@@ -292,7 +300,7 @@ export class EventListener {
      * @return 如果它是固定优先级侦听器，则为场景图优先级侦听器非 null 。
      */
     public _getSceneGraphPriority () {
-        return this._node;
+        return this._node as Node;
     }
 
     /**
@@ -321,9 +329,9 @@ export class EventListener {
      * @zh
      * 启用或禁用监听器。<br/>
      * 注意：只有处于“启用”状态的侦听器才能接收事件。<br/>
-     * 初始化侦听器时，默认情况下启用它。<br/>
-     * 事件侦听器可以在启用且未暂停时接收事件。<br/>
-     * 当固定优先级侦听器时，暂停状态始终为false。<br/>
+     * 初始化侦听器时，默认情况下启用它。<br/>
+     * 事件侦听器可以在启用且未暂停时接收事件。<br/>
+     * 当固定优先级侦听器时，暂停状态始终为false。<br/>
      */
     public setEnabled (enabled: boolean) {
         this._isEnabled = enabled;
@@ -340,7 +348,7 @@ export class EventListener {
 
 const ListenerID = EventListener.ListenerID;
 
-export class Mouse extends EventListener {
+export class MouseEventListener extends EventListener {
     public onMouseDown: Function | null = null;
     public onMouseUp: Function | null = null;
     public onMouseMove: Function | null = null;
@@ -352,35 +360,34 @@ export class Mouse extends EventListener {
     }
 
     public _callback (event: EventMouse) {
-        const eventType = legacyCC.Event.EventMouse;
         switch (event.eventType) {
-            case eventType.DOWN:
-                if (this.onMouseDown) {
-                    this.onMouseDown(event);
-                }
-                break;
-            case eventType.UP:
-                if (this.onMouseUp) {
-                    this.onMouseUp(event);
-                }
-                break;
-            case eventType.MOVE:
-                if (this.onMouseMove) {
-                    this.onMouseMove(event);
-                }
-                break;
-            case eventType.SCROLL:
-                if (this.onMouseScroll) {
-                    this.onMouseScroll(event);
-                }
-                break;
-            default:
-                break;
+        case SystemEventType.MOUSE_DOWN:
+            if (this.onMouseDown) {
+                this.onMouseDown(event);
+            }
+            break;
+        case SystemEventType.MOUSE_UP:
+            if (this.onMouseUp) {
+                this.onMouseUp(event);
+            }
+            break;
+        case SystemEventType.MOUSE_MOVE:
+            if (this.onMouseMove) {
+                this.onMouseMove(event);
+            }
+            break;
+        case SystemEventType.MOUSE_WHEEL:
+            if (this.onMouseScroll) {
+                this.onMouseScroll(event);
+            }
+            break;
+        default:
+            break;
         }
     }
 
     public clone () {
-        const eventListener = new Mouse();
+        const eventListener = new MouseEventListener();
         eventListener.onMouseDown = this.onMouseDown;
         eventListener.onMouseUp = this.onMouseUp;
         eventListener.onMouseMove = this.onMouseMove;
@@ -393,7 +400,7 @@ export class Mouse extends EventListener {
     }
 }
 
-export class TouchOneByOne extends EventListener {
+export class TouchOneByOneEventListener extends EventListener {
     public swallowTouches = false;
     public onTouchBegan: Function | null = null;
     public onTouchMoved: Function | null = null;
@@ -415,7 +422,7 @@ export class TouchOneByOne extends EventListener {
     }
 
     public clone () {
-        const eventListener = new TouchOneByOne();
+        const eventListener = new TouchOneByOneEventListener();
         eventListener.onTouchBegan = this.onTouchBegan;
         eventListener.onTouchMoved = this.onTouchMoved;
         eventListener.onTouchEnded = this.onTouchEnded;
@@ -433,7 +440,7 @@ export class TouchOneByOne extends EventListener {
     }
 }
 
-export class TouchAllAtOnce extends EventListener {
+export class TouchAllAtOnceEventListener extends EventListener {
     public onTouchesBegan: Function | null = null;
     public onTouchesMoved: Function | null = null;
     public onTouchesEnded: Function | null = null;
@@ -444,7 +451,7 @@ export class TouchAllAtOnce extends EventListener {
     }
 
     public clone () {
-        const eventListener = new TouchAllAtOnce();
+        const eventListener = new TouchAllAtOnceEventListener();
         eventListener.onTouchesBegan = this.onTouchesBegan;
         eventListener.onTouchesMoved = this.onTouchesMoved;
         eventListener.onTouchesEnded = this.onTouchesEnded;
@@ -463,7 +470,7 @@ export class TouchAllAtOnce extends EventListener {
 }
 
 // Acceleration
-export class Acceleration extends EventListener {
+export class AccelerationEventListener extends EventListener {
     public _onAccelerationEvent: Function | null = null;
 
     constructor (callback: Function | null) {
@@ -484,12 +491,12 @@ export class Acceleration extends EventListener {
     }
 
     public clone () {
-        return new Acceleration(this._onAccelerationEvent);
+        return new AccelerationEventListener(this._onAccelerationEvent);
     }
 }
 
 // Keyboard
-export class Keyboard extends EventListener {
+export class KeyboardEventListener extends EventListener {
     public onKeyPressed: Function | null = null;
     public onKeyReleased: Function | null = null;
 
@@ -503,15 +510,13 @@ export class Keyboard extends EventListener {
             if (this.onKeyPressed) {
                 this.onKeyPressed(event.keyCode, event);
             }
-        } else {
-            if (this.onKeyReleased) {
-                this.onKeyReleased(event.keyCode, event);
-            }
+        } else if (this.onKeyReleased) {
+            this.onKeyReleased(event.keyCode, event);
         }
     }
 
     public clone () {
-        const eventListener = new Keyboard();
+        const eventListener = new KeyboardEventListener();
         eventListener.onKeyPressed = this.onKeyPressed;
         eventListener.onKeyReleased = this.onKeyReleased;
         return eventListener;

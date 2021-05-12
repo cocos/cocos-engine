@@ -1,7 +1,37 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
 import Ammo from './ammo-instantiated';
-import { Vec3, Node } from "../../core";
-import { AmmoWorld } from "./ammo-world";
-import { cocos2AmmoVec3, ammo2CocosVec3 } from "./ammo-util";
+import { Vec3, Node } from '../../core';
+import { AmmoWorld } from './ammo-world';
+import { cocos2AmmoVec3, ammo2CocosVec3 } from './ammo-util';
 import { RigidBody, PhysicsSystem } from '../../../exports/physics-framework';
 import { AmmoCollisionFlags, AmmoRigidBodyFlags, AmmoCollisionObjectStates, EAmmoSharedBodyDirty } from './ammo-enum';
 import { IRigidBody } from '../spec/i-rigid-body';
@@ -14,24 +44,24 @@ const v3_0 = CC_V3_0;
 const v3_1 = CC_V3_1;
 
 export class AmmoRigidBody implements IRigidBody {
-
     get isAwake (): boolean {
         const state = this.impl.getActivationState();
-        return state == AmmoCollisionObjectStates.ACTIVE_TAG ||
-            state == AmmoCollisionObjectStates.DISABLE_DEACTIVATION;
+        return state === AmmoCollisionObjectStates.ACTIVE_TAG
+            || state === AmmoCollisionObjectStates.DISABLE_DEACTIVATION;
     }
 
     get isSleepy (): boolean {
         const state = this.impl.getActivationState();
-        return state == AmmoCollisionObjectStates.WANTS_DEACTIVATION;
+        return state === AmmoCollisionObjectStates.WANTS_DEACTIVATION;
     }
 
     get isSleeping (): boolean {
         const state = this.impl.getActivationState();
-        return state == AmmoCollisionObjectStates.ISLAND_SLEEPING;
+        return state === AmmoCollisionObjectStates.ISLAND_SLEEPING;
     }
 
     setMass (value: number) {
+        if (!this._rigidBody.isDynamic) return;
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
         const localInertia = AmmoConstant.instance.VECTOR3_0;
         // const localInertia = this._sharedBody.bodyStruct.localInertia;
@@ -49,6 +79,50 @@ export class AmmoRigidBody implements IRigidBody {
         this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
     }
 
+    setType (v: ERigidBodyType) {
+        let m_bcf = this.impl.getCollisionFlags();
+        let m_gcf = this._sharedBody.ghost.getCollisionFlags();
+        const localInertia = AmmoConstant.instance.VECTOR3_0;
+        switch (v) {
+        case ERigidBodyType.DYNAMIC:
+            m_bcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+            m_bcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+            this.impl.setCollisionFlags(m_bcf);
+            this.setMass(this._rigidBody.mass);
+            this.useGravity(this._rigidBody.useGravity);
+            this.setAllowSleep(this._rigidBody.allowSleep);
+            m_gcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+            m_gcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
+            this._sharedBody.ghost.setCollisionFlags(m_gcf);
+            break;
+        case ERigidBodyType.KINEMATIC:
+            localInertia.setValue(0, 0, 0);
+            this.impl.setMassProps(0, localInertia);
+            m_bcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
+            m_bcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+            this.impl.setCollisionFlags(m_bcf);
+            this.impl.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+            m_gcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
+            m_gcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+            this._sharedBody.ghost.setCollisionFlags(m_gcf);
+            break;
+        case ERigidBodyType.STATIC:
+        default:
+            localInertia.setValue(0, 0, 0);
+            this.impl.setMassProps(0, localInertia);
+            m_bcf |= AmmoCollisionFlags.CF_STATIC_OBJECT;
+            m_bcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+            this.impl.setCollisionFlags(m_bcf);
+            this.impl.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+            m_gcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+            m_gcf |= AmmoCollisionFlags.CF_STATIC_OBJECT;
+            this._sharedBody.ghost.setCollisionFlags(m_gcf);
+            break;
+        }
+        this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
+        this._sharedBody.dirty |= EAmmoSharedBodyDirty.GHOST_RE_ADD;
+    }
+
     setLinearDamping (value: number) {
         this.impl.setDamping(this._rigidBody.linearDamping, this._rigidBody.angularDamping);
     }
@@ -57,18 +131,9 @@ export class AmmoRigidBody implements IRigidBody {
         this.impl.setDamping(this._rigidBody.linearDamping, this._rigidBody.angularDamping);
     }
 
-    setIsKinematic (value: boolean) {
-        let m_collisionFlags = this.impl.getCollisionFlags();
-        if (value) {
-            m_collisionFlags |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
-        } else {
-            m_collisionFlags &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
-        }
-        this.impl.setCollisionFlags(m_collisionFlags);
-    }
-
     useGravity (value: boolean) {
-        let m_rigidBodyFlag = this.impl.getFlags()
+        if (!this._rigidBody.isDynamic) return;
+        let m_rigidBodyFlag = this.impl.getFlags();
         if (value) {
             m_rigidBodyFlag &= (~AmmoRigidBodyFlags.BT_DISABLE_WORLD_GRAVITY);
         } else {
@@ -80,29 +145,18 @@ export class AmmoRigidBody implements IRigidBody {
         this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
     }
 
-    fixRotation (value: boolean) {
-        if (value) {
-            /** TODO : should i reset angular velocity & torque ? */
-            this.impl.setAngularFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, Vec3.ZERO));
-        } else {
-            this.impl.setAngularFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, this._rigidBody.angularFactor));
-        }
-        this._wakeUpIfSleep();
-    }
-
     setLinearFactor (value: IVec3Like) {
         this.impl.setLinearFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, value));
         this._wakeUpIfSleep();
     }
 
     setAngularFactor (value: IVec3Like) {
-        if (!this._rigidBody.fixedRotation) {
-            this.impl.setAngularFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, value));
-        }
+        this.impl.setAngularFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, value));
         this._wakeUpIfSleep();
     }
 
     setAllowSleep (v: boolean) {
+        if (!this._rigidBody.isDynamic) return;
         if (v) {
             this.impl.forceActivationState(AmmoCollisionObjectStates.ACTIVE_TAG);
         } else {
@@ -144,22 +198,17 @@ export class AmmoRigidBody implements IRigidBody {
 
     initialize (com: RigidBody) {
         this._rigidBody = com;
-        this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._rigidBody.node as Node, this);
+        this._sharedBody = (PhysicsSystem.instance.physicsWorld as AmmoWorld).getSharedBody(this._rigidBody.node, this);
         this._sharedBody.reference = true;
     }
 
     onEnable () {
         this._isEnabled = true;
-        this.setGroup(this._rigidBody.group);
-        if (PhysicsSystem.instance.useCollisionMatrix) {
-            this.setMask(PhysicsSystem.instance.collisionMatrix[this._rigidBody.group]);
-        }
         this.setMass(this._rigidBody.mass);
+        this.setType(this._rigidBody.type);
         this.setAllowSleep(this._rigidBody.allowSleep);
         this.setLinearDamping(this._rigidBody.linearDamping);
         this.setAngularDamping(this._rigidBody.angularDamping);
-        this.setIsKinematic(this._rigidBody.isKinematic);
-        this.fixRotation(this._rigidBody.fixedRotation);
         this.setLinearFactor(this._rigidBody.linearFactor);
         this.setAngularFactor(this._rigidBody.angularFactor);
         this.useGravity(this._rigidBody.useGravity);
@@ -183,8 +232,8 @@ export class AmmoRigidBody implements IRigidBody {
         this.impl.activate(force);
     }
 
-    sleep (): void {
-        return this.impl.wantsSleeping() as any;
+    sleep (): any {
+        return this.impl.wantsSleeping();
     }
 
     setSleepThreshold (v: number): void {
@@ -193,24 +242,8 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     getSleepThreshold (): number {
-        return this.impl['getLinearSleepingThreshold']();
+        return this.impl.getLinearSleepingThreshold();
     }
-
-    /** type */
-
-    getType (): ERigidBodyType {
-        if (this.impl.isStaticOrKinematicObject()) {
-            if (this.impl.isKinematicObject()) {
-                return ERigidBodyType.KINEMATIC
-            } else {
-                return ERigidBodyType.STATIC
-            }
-        } else {
-            return ERigidBodyType.DYNAMIC
-        }
-    }
-
-    /** kinematic */
 
     getLinearVelocity (out: Vec3): Vec3 {
         return ammo2CocosVec3(out, this.impl.getLinearVelocity());
@@ -230,8 +263,6 @@ export class AmmoRigidBody implements IRigidBody {
         cocos2AmmoVec3(this.impl.getAngularVelocity(), value);
     }
 
-    /** dynamic */
-
     applyLocalForce (force: Vec3, rel_pos?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
         this._wakeUpIfSleep();
@@ -240,8 +271,8 @@ export class AmmoRigidBody implements IRigidBody {
         const rp = rel_pos ? Vec3.transformQuat(v3_1, rel_pos, quat) : Vec3.ZERO;
         this.impl.applyForce(
             cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, v),
-            cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_1, rp)
-        )
+            cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_1, rp),
+        );
     }
 
     applyLocalTorque (torque: Vec3): void {
@@ -259,18 +290,18 @@ export class AmmoRigidBody implements IRigidBody {
         const rp = rel_pos ? Vec3.transformQuat(v3_1, rel_pos, quat) : Vec3.ZERO;
         this.impl.applyImpulse(
             cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, v),
-            cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_1, rp)
-        )
+            cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_1, rp),
+        );
     }
 
     applyForce (force: Vec3, rel_pos?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
         this._wakeUpIfSleep();
-        const rp = rel_pos ? rel_pos : Vec3.ZERO;
+        const rp = rel_pos || Vec3.ZERO;
         this.impl.applyForce(
             cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, force),
-            cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_1, rp)
-        )
+            cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_1, rp),
+        );
     }
 
     applyTorque (torque: Vec3): void {
@@ -282,14 +313,13 @@ export class AmmoRigidBody implements IRigidBody {
     applyImpulse (impulse: Vec3, rel_pos?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
         this._wakeUpIfSleep();
-        const rp = rel_pos ? rel_pos : Vec3.ZERO;
+        const rp = rel_pos || Vec3.ZERO;
         this.impl.applyImpulse(
             cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, impulse),
-            cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_1, rp)
-        )
+            cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_1, rp),
+        );
     }
 
-    /** group mask */
     getGroup (): number {
         return this._sharedBody.collisionFilterGroup;
     }

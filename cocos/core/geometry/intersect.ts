@@ -1,44 +1,65 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
- * 几何工具模块
- * @category geometry
+ * @packageDocumentation
+ * @module geometry
  */
 
 import { EPSILON, Mat3, Vec3, Mat4 } from '../math';
-import aabb from './aabb';
-import { capsule } from './capsule';
+import { AABB } from './aabb';
+import { Capsule } from './capsule';
 import * as distance from './distance';
 import enums from './enums';
-import { frustum } from './frustum';
-import line from './line';
-import obb from './obb';
-import plane from './plane';
-import ray from './ray';
-import sphere from './sphere';
-import triangle from './triangle';
-import { GFXPrimitiveMode } from '../gfx';
-import { IBArray, RenderingSubMesh, Mesh } from '../assets/mesh';
+import { Frustum } from './frustum';
+import { Line } from './line';
+import { OBB } from './obb';
+import { Plane } from './plane';
+import { Ray } from './ray';
+import { Sphere } from './sphere';
+import { Triangle } from './triangle';
+import { PrimitiveMode } from '../gfx';
+import { Mesh } from '../../3d/assets/mesh';
+import { IBArray, RenderingSubMesh } from '../assets/rendering-sub-mesh';
 import { IRaySubMeshOptions, ERaycastMode, IRaySubMeshResult, IRayMeshOptions, IRayModelOptions } from './spec';
 import { IVec3Like } from '../math/type-define';
 import { scene } from '../renderer';
-
-// tslint:disable:only-arrow-functions
-// tslint:disable:one-variable-per-declaration
-// tslint:disable:prefer-for-of
-// tslint:disable:no-shadowed-variable
 
 /**
  * @en
  * ray-plane intersect detect.
  * @zh
  * 射线与平面的相交性检测。
- * @param {ray} ray 射线
- * @param {plane} plane 平面
+ * @param {Ray} ray 射线
+ * @param {Plane} plane 平面
  * @return {number} 0 或 非0
  */
-const ray_plane = (function () {
+const rayPlane = (function () {
     const pt = new Vec3(0, 0, 0);
 
-    return function (ray: ray, plane: plane): number {
+    return function (ray: Ray, plane: Plane): number {
         const denom = Vec3.dot(ray.d, plane.n);
         if (Math.abs(denom) < Number.EPSILON) { return 0; }
         Vec3.multiplyScalar(pt, plane.n, plane.d);
@@ -46,7 +67,7 @@ const ray_plane = (function () {
         if (t < 0) { return 0; }
         return t;
     };
-})();
+}());
 
 // based on http://fileadmin.cs.lth.se/cs/Personal/Tomas_Akenine-Moller/raytri/
 /**
@@ -54,19 +75,19 @@ const ray_plane = (function () {
  * ray-triangle intersect detect.
  * @zh
  * 射线与三角形的相交性检测。
- * @param {ray} ray 射线
- * @param {triangle} triangle 三角形
+ * @param {Ray} ray 射线
+ * @param {Triangle} triangle 三角形
  * @param {boolean} doubleSided 三角形是否为双面
  * @return {number} 0 或 非0
  */
-const ray_triangle = (function () {
+const rayTriangle = (function () {
     const ab = new Vec3(0, 0, 0);
     const ac = new Vec3(0, 0, 0);
     const pvec = new Vec3(0, 0, 0);
     const tvec = new Vec3(0, 0, 0);
     const qvec = new Vec3(0, 0, 0);
 
-    return function (ray: ray, triangle: triangle, doubleSided?: boolean) {
+    return function (ray: Ray, triangle: Triangle, doubleSided?: boolean) {
         Vec3.subtract(ab, triangle.b, triangle.a);
         Vec3.subtract(ac, triangle.c, triangle.a);
 
@@ -87,20 +108,20 @@ const ray_triangle = (function () {
         const t = Vec3.dot(ac, qvec) * inv_det;
         return t < 0 ? 0 : t;
     };
-})();
+}());
 
 /**
  * @en
  * ray-sphere intersect detect.
  * @zh
  * 射线和球的相交性检测。
- * @param {ray} ray 射线
- * @param {sphere} sphere 球
+ * @param {Ray} ray 射线
+ * @param {Sphere} sphere 球
  * @return {number} 0 或 非0
  */
-const ray_sphere = (function () {
+const raySphere = (function () {
     const e = new Vec3(0, 0, 0);
-    return function (ray: ray, sphere: sphere): number {
+    return function (ray: Ray, sphere: Sphere): number {
         const r = sphere.radius;
         const c = sphere.center;
         const o = ray.o;
@@ -118,30 +139,30 @@ const ray_sphere = (function () {
         if (t < 0) { return 0; }
         return t;
     };
-})();
+}());
 
 /**
  * @en
  * ray-aabb intersect detect.
  * @zh
  * 射线和轴对齐包围盒的相交性检测。
- * @param {ray} ray 射线
- * @param {aabb} aabb 轴对齐包围盒
+ * @param {Ray} ray 射线
+ * @param {AABB} aabb 轴对齐包围盒
  * @return {number} 0 或 非0
  */
-const ray_aabb = (function () {
+const rayAABB = (function () {
     const min = new Vec3();
     const max = new Vec3();
-    return function (ray: ray, aabb: aabb): number {
+    return function (ray: Ray, aabb: AABB): number {
         Vec3.subtract(min, aabb.center, aabb.halfExtents);
         Vec3.add(max, aabb.center, aabb.halfExtents);
-        return ray_aabb2(ray, min, max);
+        return rayAABB2(ray, min, max);
     };
-})();
+}());
 
-function ray_aabb2 (ray: ray, min: IVec3Like, max: IVec3Like) {
-    const o = ray.o, d = ray.d;
-    const ix = 1 / d.x, iy = 1 / d.y, iz = 1 / d.z;
+function rayAABB2 (ray: Ray, min: IVec3Like, max: IVec3Like) {
+    const o = ray.o; const d = ray.d;
+    const ix = 1 / d.x; const iy = 1 / d.y; const iz = 1 / d.z;
     const t1 = (min.x - o.x) * ix;
     const t2 = (max.x - o.x) * ix;
     const t3 = (min.y - o.y) * iy;
@@ -159,11 +180,11 @@ function ray_aabb2 (ray: ray, min: IVec3Like, max: IVec3Like) {
  * ray-obb intersect detect.
  * @zh
  * 射线和方向包围盒的相交性检测。
- * @param {ray} ray 射线
- * @param {obb} obb 方向包围盒
+ * @param {Ray} ray 射线
+ * @param {OBB} obb 方向包围盒
  * @return {number} 0 或 非0
  */
-const ray_obb = (function () {
+const rayOBB = (function () {
     let center = new Vec3();
     let o = new Vec3();
     let d = new Vec3();
@@ -176,7 +197,7 @@ const ray_obb = (function () {
     const e = new Array(3);
     const t = new Array(6);
 
-    return function (ray: ray, obb: obb): number {
+    return function (ray: Ray, obb: OBB): number {
         size[0] = obb.halfExtents.x;
         size[1] = obb.halfExtents.y;
         size[2] = obb.halfExtents.z;
@@ -215,13 +236,15 @@ const ray_obb = (function () {
         const tmin = Math.max(
             Math.max(
                 Math.min(t[0], t[1]),
-                Math.min(t[2], t[3])),
+                Math.min(t[2], t[3]),
+            ),
             Math.min(t[4], t[5]),
         );
         const tmax = Math.min(
             Math.min(
                 Math.max(t[0], t[1]),
-                Math.max(t[2], t[3])),
+                Math.max(t[2], t[3]),
+            ),
             Math.max(t[4], t[5]),
         );
         if (tmax < 0 || tmin > tmax) {
@@ -230,18 +253,18 @@ const ray_obb = (function () {
 
         return tmin > 0 ? tmin : tmax; // ray origin inside aabb
     };
-})();
+}());
 
 /**
  * @en
  * ray-capsule intersect detect.
  * @zh
  * 射线和胶囊体的相交性检测。
- * @param {ray} ray 射线
- * @param {capsule} capsule 胶囊体
+ * @param {Ray} ray 射线
+ * @param {Capsule} capsule 胶囊体
  * @return {number} 0 或 非0
  */
-const ray_capsule = (function () {
+const rayCapsule = (function () {
     const v3_0 = new Vec3();
     const v3_1 = new Vec3();
     const v3_2 = new Vec3();
@@ -249,8 +272,8 @@ const ray_capsule = (function () {
     const v3_4 = new Vec3();
     const v3_5 = new Vec3();
     const v3_6 = new Vec3();
-    const sphere_0 = new sphere();
-    return function (ray: ray, capsule: capsule) {
+    const sphere_0 = new Sphere();
+    return function (ray: Ray, capsule: Capsule) {
         const radiusSqr = capsule.radius * capsule.radius;
         const vRayNorm = Vec3.normalize(v3_0, ray.d);
         const A = capsule.ellipseCenter0;
@@ -259,7 +282,7 @@ const ray_capsule = (function () {
         if (BA.equals(Vec3.ZERO)) {
             sphere_0.radius = capsule.radius;
             sphere_0.center.set(capsule.ellipseCenter0);
-            return intersect.ray_sphere(ray, sphere_0);
+            return intersect.raySphere(ray, sphere_0);
         }
 
         const O = ray.o;
@@ -274,7 +297,7 @@ const ray_capsule = (function () {
             } else {
                 sphere_0.center.set(capsule.ellipseCenter1);
             }
-            return intersect.ray_sphere(ray, sphere_0);
+            return intersect.raySphere(ray, sphere_0);
         }
 
         const OAxBA = Vec3.cross(v3_4, OA, BA);
@@ -294,7 +317,7 @@ const ray_capsule = (function () {
             } else {
                 sphere_0.center.set(capsule.ellipseCenter1);
             }
-            return intersect.ray_sphere(ray, sphere_0);
+            return intersect.raySphere(ray, sphere_0);
         } else {
             // Limit intersection between the bounds of the cylinder's end caps.
             const iPos = Vec3.scaleAndAdd(v3_5, ray.o, vRayNorm, t);
@@ -306,31 +329,30 @@ const ray_capsule = (function () {
             } else if (tLimit < 0) {
                 sphere_0.radius = capsule.radius;
                 sphere_0.center.set(capsule.ellipseCenter0);
-                return intersect.ray_sphere(ray, sphere_0);
+                return intersect.raySphere(ray, sphere_0);
             } else if (tLimit > 1) {
                 sphere_0.radius = capsule.radius;
                 sphere_0.center.set(capsule.ellipseCenter1);
-                return intersect.ray_sphere(ray, sphere_0);
+                return intersect.raySphere(ray, sphere_0);
             } else {
                 return 0;
             }
         }
-
     };
-})();
+}());
 
 /**
  * @en
  * ray-subMesh intersect detect, in model space.
  * @zh
  * 在模型空间中，射线和子三角网格的相交性检测。
- * @param {ray} ray
+ * @param {Ray} ray
  * @param {RenderingSubMesh} subMesh
  * @param {IRaySubMeshOptions} options
  * @return {number} 0 or !0
  */
-const ray_subMesh = (function () {
-    const tri = triangle.create();
+const raySubMesh = (function () {
+    const tri = Triangle.create();
     const deOpt: IRaySubMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
     let minDis = 0;
 
@@ -350,10 +372,10 @@ const ray_subMesh = (function () {
             minDis = d;
             if (r) r.push({ distance: d, vertexIndex0: i0 / 3, vertexIndex1: i1 / 3, vertexIndex2: i2 / 3 });
         }
-    }
+    };
 
-    const narrowphase = (vb: Float32Array, ib: IBArray, pm: GFXPrimitiveMode, ray: ray, opt: IRaySubMeshOptions) => {
-        if (pm === GFXPrimitiveMode.TRIANGLE_LIST) {
+    const narrowphase = (vb: Float32Array, ib: IBArray, pm: PrimitiveMode, ray: Ray, opt: IRaySubMeshOptions) => {
+        if (pm === PrimitiveMode.TRIANGLE_LIST) {
             const cnt = ib.length;
             for (let j = 0; j < cnt; j += 3) {
                 const i0 = ib[j] * 3;
@@ -362,12 +384,12 @@ const ray_subMesh = (function () {
                 Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
+                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
                 if (dist === 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
                 if (opt.mode === ERaycastMode.ANY) return dist;
             }
-        } else if (pm === GFXPrimitiveMode.TRIANGLE_STRIP) {
+        } else if (pm === PrimitiveMode.TRIANGLE_STRIP) {
             const cnt = ib.length - 2;
             let rev = 0;
             for (let j = 0; j < cnt; j += 1) {
@@ -378,12 +400,12 @@ const ray_subMesh = (function () {
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
                 rev = ~rev;
-                const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
+                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
                 if (dist === 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
                 if (opt.mode === ERaycastMode.ANY) return dist;
             }
-        } else if (pm === GFXPrimitiveMode.TRIANGLE_FAN) {
+        } else if (pm === PrimitiveMode.TRIANGLE_FAN) {
             const cnt = ib.length - 1;
             const i0 = ib[0] * 3;
             Vec3.set(tri.a, vb[i0], vb[i0 + 1], vb[i0 + 2]);
@@ -392,7 +414,7 @@ const ray_subMesh = (function () {
                 const i2 = ib[j + 1] * 3;
                 Vec3.set(tri.b, vb[i1], vb[i1 + 1], vb[i1 + 2]);
                 Vec3.set(tri.c, vb[i2], vb[i2 + 1], vb[i2 + 2]);
-                const dist = intersect.ray_triangle(ray, tri, opt.doubleSided);
+                const dist = intersect.rayTriangle(ray, tri, opt.doubleSided);
                 if (dist === 0 || dist > opt.distance) continue;
                 fillResult(opt.mode, dist, i0, i1, i2, opt.result);
                 if (opt.mode === ERaycastMode.ANY) return dist;
@@ -400,44 +422,44 @@ const ray_subMesh = (function () {
         }
         return minDis;
     };
-    return function (ray: ray, submesh: RenderingSubMesh, options?: IRaySubMeshOptions) {
+    return function (ray: Ray, submesh: RenderingSubMesh, options?: IRaySubMeshOptions) {
         minDis = 0;
         if (submesh.geometricInfo.positions.length === 0) return minDis;
         const opt = options === undefined ? deOpt : options;
         const min = submesh.geometricInfo.boundingBox.min;
         const max = submesh.geometricInfo.boundingBox.max;
-        if (ray_aabb2(ray, min, max)) {
+        if (rayAABB2(ray, min, max)) {
             const pm = submesh.primitiveMode;
-            const { positions: vb, indices: ib } = submesh.geometricInfo!;
+            const { positions: vb, indices: ib } = submesh.geometricInfo;
             narrowphase(vb, ib!, pm, ray, opt);
         }
         return minDis;
-    }
-})();
+    };
+}());
 
 /**
  * @en
  * ray-mesh intersect detect, in model space.
  * @zh
  * 在模型空间中，射线和三角网格资源的相交性检测。
- * @param {ray} ray
+ * @param {Ray} ray
  * @param {Mesh} mesh
  * @param {IRayMeshOptions} options
  * @return {number} 0 or !0
  */
-const ray_mesh = (function () {
+const rayMesh = (function () {
     let minDis = 0;
     const deOpt: IRayMeshOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
-    return function (ray: ray, mesh: Mesh, options?: IRayMeshOptions) {
+    return function (ray: Ray, mesh: Mesh, options?: IRayMeshOptions) {
         minDis = 0;
         const opt = options === undefined ? deOpt : options;
         const length = mesh.renderingSubMeshes.length;
         const min = mesh.struct.minPosition;
         const max = mesh.struct.maxPosition;
-        if (min && max && !ray_aabb2(ray, min, max)) return minDis;
+        if (min && max && !rayAABB2(ray, min, max)) return minDis;
         for (let i = 0; i < length; i++) {
             const sm = mesh.renderingSubMeshes[i];
-            const dis = ray_subMesh(ray, sm, opt);
+            const dis = raySubMesh(ray, sm, opt);
             if (dis) {
                 if (opt.mode === ERaycastMode.CLOSEST) {
                     if (minDis === 0 || minDis > dis) {
@@ -461,8 +483,8 @@ const ray_mesh = (function () {
             if (opt.subIndices) opt.subIndices.length = 1;
         }
         return minDis;
-    }
-})();
+    };
+}());
 
 /**
  * @en
@@ -474,17 +496,17 @@ const ray_mesh = (function () {
  * @param options
  * @return 0 or !0
  */
-const ray_model = (function () {
+const rayModel = (function () {
     let minDis = 0;
     const deOpt: IRayModelOptions = { distance: Infinity, doubleSided: false, mode: ERaycastMode.ANY };
-    const modelRay = new ray();
+    const modelRay = new Ray();
     const m4 = new Mat4();
-    return function (r: ray, model: scene.Model, options?: IRayModelOptions) {
+    return function (r: Ray, model: scene.Model, options?: IRayModelOptions) {
         minDis = 0;
         const opt = options === undefined ? deOpt : options;
         const wb = model.worldBounds;
-        if (wb && !ray_aabb(r, wb)) return minDis;
-        ray.copy(modelRay, r);
+        if (wb && !rayAABB(r, wb)) return minDis;
+        Ray.copy(modelRay, r);
         if (model.node) {
             Mat4.invert(m4, model.node.getWorldMatrix(m4));
             Vec3.transformMat4(modelRay.o, r.o, m4);
@@ -493,7 +515,7 @@ const ray_model = (function () {
         const subModels = model.subModels;
         for (let i = 0; i < subModels.length; i++) {
             const subMesh = subModels[i].subMesh;
-            const dis = ray_subMesh(modelRay, subMesh, opt);
+            const dis = raySubMesh(modelRay, subMesh, opt);
             if (dis) {
                 if (opt.mode === ERaycastMode.CLOSEST) {
                     if (minDis === 0 || minDis > dis) {
@@ -517,8 +539,8 @@ const ray_model = (function () {
             if (opt.subIndices) opt.subIndices.length = 1;
         }
         return minDis;
-    }
-})();
+    };
+}());
 
 /**
  * @en
@@ -526,19 +548,19 @@ const ray_model = (function () {
  * @zh
  * 线段与平面的相交性检测。
  * @param {line} line 线段
- * @param {plane} plane 平面
+ * @param {Plane} plane 平面
  * @return {number} 0 或 非0
  */
-const line_plane = (function () {
+const linePlane = (function () {
     const ab = new Vec3(0, 0, 0);
 
-    return function (line: line, plane: plane): number {
+    return function (line: Line, plane: Plane): number {
         Vec3.subtract(ab, line.e, line.s);
         const t = (plane.d - Vec3.dot(line.s, plane.n)) / Vec3.dot(ab, plane.n);
         if (t < 0 || t > 1) { return 0; }
         return t;
     };
-})();
+}());
 
 /**
  * @en
@@ -546,11 +568,11 @@ const line_plane = (function () {
  * @zh
  * 线段与三角形的相交性检测。
  * @param {line} line 线段
- * @param {triangle} triangle 三角形
+ * @param {Triangle} triangle 三角形
  * @param {Vec3} outPt 可选，相交点
  * @return {number} 0 或 非0
  */
-const line_triangle = (function () {
+const lineTriangle = (function () {
     const ab = new Vec3(0, 0, 0);
     const ac = new Vec3(0, 0, 0);
     const qp = new Vec3(0, 0, 0);
@@ -558,7 +580,7 @@ const line_triangle = (function () {
     const n = new Vec3(0, 0, 0);
     const e = new Vec3(0, 0, 0);
 
-    return function (line: line, triangle: triangle, outPt?: Vec3): number {
+    return function (line: Line, triangle: Triangle, outPt?: Vec3): number {
         Vec3.subtract(ab, triangle.b, triangle.a);
         Vec3.subtract(ac, triangle.c, triangle.a);
         Vec3.subtract(qp, line.s, line.e);
@@ -597,15 +619,14 @@ const line_triangle = (function () {
             Vec3.set(outPt,
                 triangle.a.x * u + triangle.b.x * v + triangle.c.x * w,
                 triangle.a.y * u + triangle.b.y * v + triangle.c.y * w,
-                triangle.a.z * u + triangle.b.z * v + triangle.c.z * w,
-            );
+                triangle.a.z * u + triangle.b.z * v + triangle.c.z * w);
         }
 
         return 1;
     };
-})();
+}());
 
-const r_t = new ray();
+const r_t = new Ray();
 /**
  * @en
  * line-aabb intersect detect.
@@ -615,11 +636,11 @@ const r_t = new ray();
  * @param aabb 轴对齐包围盒
  * @return {number} 0 或 非0
  */
-function line_aabb (line: line, aabb: aabb): number {
+function lineAABB (line: Line, aabb: AABB): number {
     r_t.o.set(line.s);
     Vec3.subtract(r_t.d, line.e, line.s);
     r_t.d.normalize();
-    const min = ray_aabb(r_t, aabb);
+    const min = rayAABB(r_t, aabb);
     const len = line.length();
     if (min <= len) {
         return min;
@@ -637,11 +658,11 @@ function line_aabb (line: line, aabb: aabb): number {
  * @param obb 方向包围盒
  * @return {number} 0 或 非0
  */
-function line_obb (line: line, obb: obb): number {
+function lineOBB (line: Line, obb: OBB): number {
     r_t.o.set(line.s);
     Vec3.subtract(r_t.d, line.e, line.s);
     r_t.d.normalize();
-    const min = ray_obb(r_t, obb);
+    const min = rayOBB(r_t, obb);
     const len = line.length();
     if (min <= len) {
         return min;
@@ -659,11 +680,11 @@ function line_obb (line: line, obb: obb): number {
  * @param sphere 球
  * @return {number} 0 或 非0
  */
-function line_sphere (line: line, sphere: sphere): number {
+function lineSphere (line: Line, sphere: Sphere): number {
     r_t.o.set(line.s);
     Vec3.subtract(r_t.d, line.e, line.s);
     r_t.d.normalize();
-    const min = ray_sphere(r_t, sphere);
+    const min = raySphere(r_t, sphere);
     const len = line.length();
     if (min <= len) {
         return min;
@@ -677,25 +698,25 @@ function line_sphere (line: line, sphere: sphere): number {
  * aabb-aabb intersect detect.
  * @zh
  * 轴对齐包围盒和轴对齐包围盒的相交性检测。
- * @param {aabb} aabb1 轴对齐包围盒1
- * @param {aabb} aabb2 轴对齐包围盒2
+ * @param {AABB} aabb1 轴对齐包围盒1
+ * @param {AABB} aabb2 轴对齐包围盒2
  * @return {number} 0 或 非0
  */
-const aabb_aabb = (function () {
+const aabbWithAABB = (function () {
     const aMin = new Vec3();
     const aMax = new Vec3();
     const bMin = new Vec3();
     const bMax = new Vec3();
-    return function (aabb1: aabb, aabb2: aabb) {
+    return function (aabb1: AABB, aabb2: AABB) {
         Vec3.subtract(aMin, aabb1.center, aabb1.halfExtents);
         Vec3.add(aMax, aabb1.center, aabb1.halfExtents);
         Vec3.subtract(bMin, aabb2.center, aabb2.halfExtents);
         Vec3.add(bMax, aabb2.center, aabb2.halfExtents);
-        return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
-            (aMin.y <= bMax.y && aMax.y >= bMin.y) &&
-            (aMin.z <= bMax.z && aMax.z >= bMin.z);
+        return (aMin.x <= bMax.x && aMax.x >= bMin.x)
+            && (aMin.y <= bMax.y && aMax.y >= bMin.y)
+            && (aMin.z <= bMax.z && aMax.z >= bMin.z);
     };
-})();
+}());
 
 function getAABBVertices (min: Vec3, max: Vec3, out: Vec3[]) {
     Vec3.set(out[0], min.x, max.y, max.z);
@@ -712,47 +733,39 @@ function getOBBVertices (c: Vec3, e: Vec3, a1: Vec3, a2: Vec3, a3: Vec3, out: Ve
     Vec3.set(out[0],
         c.x + a1.x * e.x + a2.x * e.y + a3.x * e.z,
         c.y + a1.y * e.x + a2.y * e.y + a3.y * e.z,
-        c.z + a1.z * e.x + a2.z * e.y + a3.z * e.z,
-    );
+        c.z + a1.z * e.x + a2.z * e.y + a3.z * e.z);
     Vec3.set(out[1],
         c.x - a1.x * e.x + a2.x * e.y + a3.x * e.z,
         c.y - a1.y * e.x + a2.y * e.y + a3.y * e.z,
-        c.z - a1.z * e.x + a2.z * e.y + a3.z * e.z,
-    );
+        c.z - a1.z * e.x + a2.z * e.y + a3.z * e.z);
     Vec3.set(out[2],
         c.x + a1.x * e.x - a2.x * e.y + a3.x * e.z,
         c.y + a1.y * e.x - a2.y * e.y + a3.y * e.z,
-        c.z + a1.z * e.x - a2.z * e.y + a3.z * e.z,
-    );
+        c.z + a1.z * e.x - a2.z * e.y + a3.z * e.z);
     Vec3.set(out[3],
         c.x + a1.x * e.x + a2.x * e.y - a3.x * e.z,
         c.y + a1.y * e.x + a2.y * e.y - a3.y * e.z,
-        c.z + a1.z * e.x + a2.z * e.y - a3.z * e.z,
-    );
+        c.z + a1.z * e.x + a2.z * e.y - a3.z * e.z);
     Vec3.set(out[4],
         c.x - a1.x * e.x - a2.x * e.y - a3.x * e.z,
         c.y - a1.y * e.x - a2.y * e.y - a3.y * e.z,
-        c.z - a1.z * e.x - a2.z * e.y - a3.z * e.z,
-    );
+        c.z - a1.z * e.x - a2.z * e.y - a3.z * e.z);
     Vec3.set(out[5],
         c.x + a1.x * e.x - a2.x * e.y - a3.x * e.z,
         c.y + a1.y * e.x - a2.y * e.y - a3.y * e.z,
-        c.z + a1.z * e.x - a2.z * e.y - a3.z * e.z,
-    );
+        c.z + a1.z * e.x - a2.z * e.y - a3.z * e.z);
     Vec3.set(out[6],
         c.x - a1.x * e.x + a2.x * e.y - a3.x * e.z,
         c.y - a1.y * e.x + a2.y * e.y - a3.y * e.z,
-        c.z - a1.z * e.x + a2.z * e.y - a3.z * e.z,
-    );
+        c.z - a1.z * e.x + a2.z * e.y - a3.z * e.z);
     Vec3.set(out[7],
         c.x - a1.x * e.x - a2.x * e.y + a3.x * e.z,
         c.y - a1.y * e.x - a2.y * e.y + a3.y * e.z,
-        c.z - a1.z * e.x - a2.z * e.y + a3.z * e.z,
-    );
+        c.z - a1.z * e.x - a2.z * e.y + a3.z * e.z);
 }
 
 function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
-    let min = Vec3.dot(axis, vertices[0]), max = min;
+    let min = Vec3.dot(axis, vertices[0]); let max = min;
     for (let i = 1; i < 8; ++i) {
         const projection = Vec3.dot(axis, vertices[i]);
         min = (projection < min) ? projection : min;
@@ -766,11 +779,11 @@ function getInterval (vertices: any[] | Vec3[], axis: Vec3) {
  * aabb-obb intersect detect.
  * @zh
  * 轴对齐包围盒和方向包围盒的相交性检测。
- * @param {aabb} aabb 轴对齐包围盒
- * @param {obb} obb 方向包围盒
+ * @param {AABB} aabb 轴对齐包围盒
+ * @param {OBB} obb 方向包围盒
  * @return {number} 0 或 非0
  */
-const aabb_obb = (function () {
+const aabbWithOBB = (function () {
     const test = new Array(15);
     for (let i = 0; i < 15; i++) {
         test[i] = new Vec3(0, 0, 0);
@@ -783,7 +796,7 @@ const aabb_obb = (function () {
     }
     const min = new Vec3();
     const max = new Vec3();
-    return function (aabb: aabb, obb: obb): number {
+    return function (aabb: AABB, obb: OBB): number {
         Vec3.set(test[0], 1, 0, 0);
         Vec3.set(test[1], 0, 1, 0);
         Vec3.set(test[2], 0, 0, 1);
@@ -812,24 +825,23 @@ const aabb_obb = (function () {
 
         return 1;
     };
-})();
+}());
 
 /**
  * @en
  * aabb-plane intersect detect.
  * @zh
  * 轴对齐包围盒和平面的相交性检测。
- * @param {aabb} aabb 轴对齐包围盒
- * @param {plane} plane 平面
+ * @param {AABB} aabb 轴对齐包围盒
+ * @param {Plane} plane 平面
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
-const aabb_plane = function (aabb: aabb, plane: plane): number {
-    const r = aabb.halfExtents.x * Math.abs(plane.n.x) +
-        aabb.halfExtents.y * Math.abs(plane.n.y) +
-        aabb.halfExtents.z * Math.abs(plane.n.z);
+const aabbPlane = function (aabb: AABB, plane: Plane): number {
+    const r = aabb.halfExtents.x * Math.abs(plane.n.x)
+        + aabb.halfExtents.y * Math.abs(plane.n.y)
+        + aabb.halfExtents.z * Math.abs(plane.n.z);
     const dot = Vec3.dot(plane.n, aabb.center);
-    if (dot + r < plane.d) { return -1; }
-    else if (dot - r > plane.d) { return 0; }
+    if (dot + r < plane.d) { return -1; } else if (dot - r > plane.d) { return 0; }
     return 1;
 };
 
@@ -838,14 +850,14 @@ const aabb_plane = function (aabb: aabb, plane: plane): number {
  * aabb-frustum intersect detect, faster but has false positive corner cases.
  * @zh
  * 轴对齐包围盒和锥台相交性检测，速度快，但有错误情况。
- * @param {aabb} aabb 轴对齐包围盒
- * @param {frustum} frustum 锥台
+ * @param {AABB} aabb 轴对齐包围盒
+ * @param {Frustum} frustum 锥台
  * @return {number} 0 或 非0
  */
-const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
+const aabbFrustum = function (aabb: AABB, frustum: Frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
         // frustum plane normal points to the inside
-        if (aabb_plane(aabb, frustum.planes[i]) === -1) {
+        if (aabbPlane(aabb, frustum.planes[i]) === -1) {
             return 0;
         }
     } // completely outside
@@ -858,21 +870,21 @@ const aabb_frustum = function (aabb: aabb, frustum: frustum): number {
  * aabb-frustum intersect, handles most of the false positives correctly.
  * @zh
  * 轴对齐包围盒和锥台相交性检测，正确处理大多数错误情况。
- * @param {aabb} aabb 轴对齐包围盒
- * @param {frustum} frustum 锥台
+ * @param {AABB} aabb 轴对齐包围盒
+ * @param {Frustum} frustum 锥台
  * @return {number}
  */
-const aabb_frustum_accurate = (function () {
+const aabbFrustumAccurate = (function () {
     const tmp = new Array(8);
-    let out1 = 0, out2 = 0;
+    let out1 = 0; let out2 = 0;
     for (let i = 0; i < tmp.length; i++) {
         tmp[i] = new Vec3(0, 0, 0);
     }
-    return function (aabb: aabb, frustum: frustum): number {
-        let result = 0, intersects = false;
+    return function (aabb: AABB, frustum: Frustum): number {
+        let result = 0; let intersects = false;
         // 1. aabb inside/outside frustum test
         for (let i = 0; i < frustum.planes.length; i++) {
-            result = aabb_plane(aabb, frustum.planes[i]);
+            result = aabbPlane(aabb, frustum.planes[i]);
             // frustum plane normal points to the inside
             if (result === -1) { return 0; } // completely outside
             else if (result === 1) { intersects = true; }
@@ -885,84 +897,80 @@ const aabb_frustum_accurate = (function () {
         }
         out1 = 0, out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
-            if (tmp[i].x > aabb.halfExtents.x) { out1++; }
-            else if (tmp[i].x < -aabb.halfExtents.x) { out2++; }
+            if (tmp[i].x > aabb.halfExtents.x) { out1++; } else if (tmp[i].x < -aabb.halfExtents.x) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         out1 = 0; out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
-            if (tmp[i].y > aabb.halfExtents.y) { out1++; }
-            else if (tmp[i].y < -aabb.halfExtents.y) { out2++; }
+            if (tmp[i].y > aabb.halfExtents.y) { out1++; } else if (tmp[i].y < -aabb.halfExtents.y) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         out1 = 0; out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
-            if (tmp[i].z > aabb.halfExtents.z) { out1++; }
-            else if (tmp[i].z < -aabb.halfExtents.z) { out2++; }
+            if (tmp[i].z > aabb.halfExtents.z) { out1++; } else if (tmp[i].z < -aabb.halfExtents.z) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         return 1;
     };
-})();
+}());
 
 /**
  * @en
  * obb contains the point.
  * @zh
  * 方向包围盒和点的相交性检测。
- * @param {obb} obb 方向包围盒
+ * @param {OBB} obb 方向包围盒
  * @param {Vec3} point 点
  * @return {boolean} true or false
  */
-const obb_point = (function () {
-    const tmp = new Vec3(0, 0, 0), m3 = new Mat3();
+const obbPoint = (function () {
+    const tmp = new Vec3(0, 0, 0); const m3 = new Mat3();
     const lessThan = function (a: Vec3, b: Vec3): boolean { return Math.abs(a.x) < b.x && Math.abs(a.y) < b.y && Math.abs(a.z) < b.z; };
-    return function (obb: obb, point: Vec3): boolean {
+    return function (obb: OBB, point: Vec3): boolean {
         Vec3.subtract(tmp, point, obb.center);
         Vec3.transformMat3(tmp, tmp, Mat3.transpose(m3, obb.orientation));
         return lessThan(tmp, obb.halfExtents);
     };
-})();
+}());
 
 /**
  * @en
  * obb-plane intersect detect.
  * @zh
  * 方向包围盒和平面的相交性检测。
- * @param {obb} obb 方向包围盒
- * @param {plane} plane 平面
+ * @param {OBB} obb 方向包围盒
+ * @param {Plane} plane 平面
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
-const obb_plane = (function () {
+const obbPlane = (function () {
     const absDot = function (n: Vec3, x: number, y: number, z: number) {
         return Math.abs(n.x * x + n.y * y + n.z * z);
     };
-    return function (obb: obb, plane: plane): number {
+    return function (obb: OBB, plane: Plane): number {
         // Real-Time Collision Detection, Christer Ericson, p. 163.
-        const r = obb.halfExtents.x * absDot(plane.n, obb.orientation.m00, obb.orientation.m01, obb.orientation.m02) +
-            obb.halfExtents.y * absDot(plane.n, obb.orientation.m03, obb.orientation.m04, obb.orientation.m05) +
-            obb.halfExtents.z * absDot(plane.n, obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
+        const r = obb.halfExtents.x * absDot(plane.n, obb.orientation.m00, obb.orientation.m01, obb.orientation.m02)
+            + obb.halfExtents.y * absDot(plane.n, obb.orientation.m03, obb.orientation.m04, obb.orientation.m05)
+            + obb.halfExtents.z * absDot(plane.n, obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
 
         const dot = Vec3.dot(plane.n, obb.center);
-        if (dot + r < plane.d) { return -1; }
-        else if (dot - r > plane.d) { return 0; }
+        if (dot + r < plane.d) { return -1; } else if (dot - r > plane.d) { return 0; }
         return 1;
     };
-})();
+}());
 
 /**
  * @en
  * obb-frustum intersect, faster but has false positive corner cases.
  * @zh
  * 方向包围盒和锥台相交性检测，速度快，但有错误情况。
- * @param {obb} obb 方向包围盒
- * @param {frustum} frustum 锥台
+ * @param {OBB} obb 方向包围盒
+ * @param {Frustum} frustum 锥台
  * @return {number} 0 或 非0
  */
-const obb_frustum = function (obb: obb, frustum: frustum): number {
+const obbFrustum = function (obb: OBB, frustum: Frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
         // frustum plane normal points to the inside
-        if (obb_plane(obb, frustum.planes[i]) === -1) {
+        if (obbPlane(obb, frustum.planes[i]) === -1) {
             return 0;
         }
     } // completely outside
@@ -975,24 +983,24 @@ const obb_frustum = function (obb: obb, frustum: frustum): number {
  * obb-frustum intersect, handles most of the false positives correctly.
  * @zh
  * 方向包围盒和锥台相交性检测，正确处理大多数错误情况。
- * @param {obb} obb 方向包围盒
- * @param {frustum} frustum 锥台
+ * @param {OBB} obb 方向包围盒
+ * @param {Frustum} frustum 锥台
  * @return {number} 0 或 非0
  */
-const obb_frustum_accurate = (function () {
+const obbFrustumAccurate = (function () {
     const tmp = new Array(8);
-    let dist = 0, out1 = 0, out2 = 0;
+    let dist = 0; let out1 = 0; let out2 = 0;
     for (let i = 0; i < tmp.length; i++) {
         tmp[i] = new Vec3(0, 0, 0);
     }
     const dot = function (n: Vec3, x: number, y: number, z: number): number {
         return n.x * x + n.y * y + n.z * z;
     };
-    return function (obb: obb, frustum: frustum): number {
-        let result = 0, intersects = false;
+    return function (obb: OBB, frustum: Frustum): number {
+        let result = 0; let intersects = false;
         // 1. obb inside/outside frustum test
         for (let i = 0; i < frustum.planes.length; i++) {
-            result = obb_plane(obb, frustum.planes[i]);
+            result = obbPlane(obb, frustum.planes[i]);
             // frustum plane normal points to the inside
             if (result === -1) { return 0; } // completely outside
             else if (result === 1) { intersects = true; }
@@ -1006,38 +1014,35 @@ const obb_frustum_accurate = (function () {
         out1 = 0, out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
             dist = dot(tmp[i], obb.orientation.m00, obb.orientation.m01, obb.orientation.m02);
-            if (dist > obb.halfExtents.x) { out1++; }
-            else if (dist < -obb.halfExtents.x) { out2++; }
+            if (dist > obb.halfExtents.x) { out1++; } else if (dist < -obb.halfExtents.x) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         out1 = 0; out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
             dist = dot(tmp[i], obb.orientation.m03, obb.orientation.m04, obb.orientation.m05);
-            if (dist > obb.halfExtents.y) { out1++; }
-            else if (dist < -obb.halfExtents.y) { out2++; }
+            if (dist > obb.halfExtents.y) { out1++; } else if (dist < -obb.halfExtents.y) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         out1 = 0; out2 = 0;
         for (let i = 0; i < frustum.vertices.length; i++) {
             dist = dot(tmp[i], obb.orientation.m06, obb.orientation.m07, obb.orientation.m08);
-            if (dist > obb.halfExtents.z) { out1++; }
-            else if (dist < -obb.halfExtents.z) { out2++; }
+            if (dist > obb.halfExtents.z) { out1++; } else if (dist < -obb.halfExtents.z) { out2++; }
         }
         if (out1 === frustum.vertices.length || out2 === frustum.vertices.length) { return 0; }
         return 1;
     };
-})();
+}());
 
 /**
  * @en
  * obb-obb intersect detect.
  * @zh
  * 方向包围盒和方向包围盒的相交性检测。
- * @param {obb} obb1 方向包围盒1
- * @param {obb} obb2 方向包围盒2
+ * @param {OBB} obb1 方向包围盒1
+ * @param {OBB} obb2 方向包围盒2
  * @return {number} 0 或 非0
  */
-const obb_obb = (function () {
+const obbWithOBB = (function () {
     const test = new Array(15);
     for (let i = 0; i < 15; i++) {
         test[i] = new Vec3(0, 0, 0);
@@ -1050,7 +1055,7 @@ const obb_obb = (function () {
         vertices2[i] = new Vec3(0, 0, 0);
     }
 
-    return function (obb1: obb, obb2: obb): number {
+    return function (obb1: OBB, obb2: OBB): number {
         Vec3.set(test[0], obb1.orientation.m00, obb1.orientation.m01, obb1.orientation.m02);
         Vec3.set(test[1], obb1.orientation.m03, obb1.orientation.m04, obb1.orientation.m05);
         Vec3.set(test[2], obb1.orientation.m06, obb1.orientation.m07, obb1.orientation.m08);
@@ -1077,9 +1082,8 @@ const obb_obb = (function () {
 
         return 1;
     };
-})();
+}());
 
-// tslint:disable-next-line: max-line-length
 // https://github.com/diku-dk/bvh-tvcg18/blob/1fd3348c17bc8cf3da0b4ae60fdb8f2aa90a6ff0/FOUNDATION/GEOMETRY/GEOMETRY/include/overlap/geometry_overlap_obb_capsule.h
 /**
  * @en
@@ -1089,8 +1093,8 @@ const obb_obb = (function () {
  * @param obb 方向包围盒
  * @param capsule 胶囊体
  */
-const obb_capsule = (function () {
-    const sphere_0 = new sphere();
+const obbCapsule = (function () {
+    const sphere_0 = new Sphere();
     const v3_0 = new Vec3();
     const v3_1 = new Vec3();
     const v3_2 = new Vec3();
@@ -1098,12 +1102,12 @@ const obb_capsule = (function () {
     for (let i = 0; i < 8; i++) { v3_verts8[i] = new Vec3(); }
     const v3_axis8 = new Array<Vec3>(8);
     for (let i = 0; i < 8; i++) { v3_axis8[i] = new Vec3(); }
-    return function (obb: obb, capsule: capsule) {
+    return function (obb: OBB, capsule: Capsule) {
         const h = Vec3.squaredDistance(capsule.ellipseCenter0, capsule.ellipseCenter1);
         if (h === 0) {
             sphere_0.radius = capsule.radius;
             sphere_0.center.set(capsule.ellipseCenter0);
-            return intersect.sphere_obb(sphere_0, obb);
+            return intersect.sphereOBB(sphere_0, obb);
         } else {
             v3_0.x = obb.orientation.m00;
             v3_0.y = obb.orientation.m01;
@@ -1143,7 +1147,7 @@ const obb_capsule = (function () {
             return 1;
         }
     };
-})();
+}());
 
 /**
  * @en
@@ -1151,15 +1155,14 @@ const obb_capsule = (function () {
  * plane normal to factor out the unnomalized plane distance.
  * @zh
  * 球与平面的相交性检测。
- * @param {sphere} sphere 球
- * @param {plane} plane 平面
+ * @param {Sphere} sphere 球
+ * @param {Plane} plane 平面
  * @return {number} inside(back) = -1, outside(front) = 0, intersect = 1
  */
-const sphere_plane = function (sphere: sphere, plane: plane): number {
+const spherePlane = function (sphere: Sphere, plane: Plane): number {
     const dot = Vec3.dot(plane.n, sphere.center);
     const r = sphere.radius * plane.n.length();
-    if (dot + r < plane.d) { return -1; }
-    else if (dot - r > plane.d) { return 0; }
+    if (dot + r < plane.d) { return -1; } else if (dot - r > plane.d) { return 0; }
     return 1;
 };
 
@@ -1168,14 +1171,14 @@ const sphere_plane = function (sphere: sphere, plane: plane): number {
  * sphere-frustum intersect, faster but has false positive corner cases.
  * @zh
  * 球和锥台的相交性检测，速度快，但有错误情况。
- * @param {sphere} sphere 球
- * @param {frustum} frustum 锥台
+ * @param {Sphere} sphere 球
+ * @param {Frustum} frustum 锥台
  * @return {number} 0 或 非0
  */
-const sphere_frustum = function (sphere: sphere, frustum: frustum): number {
+const sphereFrustum = function (sphere: Sphere, frustum: Frustum): number {
     for (let i = 0; i < frustum.planes.length; i++) {
         // frustum plane normal points to the inside
-        if (sphere_plane(sphere, frustum.planes[i]) === -1) {
+        if (spherePlane(sphere, frustum.planes[i]) === -1) {
             return 0;
         }
     } // completely outside
@@ -1188,17 +1191,17 @@ const sphere_frustum = function (sphere: sphere, frustum: frustum): number {
  * sphere-frustum intersect, handles the false positives correctly.
  * @zh
  * 球和锥台的相交性检测，正确处理大多数错误情况。
- * @param {sphere} sphere 球
- * @param {frustum} frustum 锥台
+ * @param {Sphere} sphere 球
+ * @param {Frustum} frustum 锥台
  * @return {number} 0 或 非0
  */
-const sphere_frustum_accurate = (function () {
-    const pt = new Vec3(0, 0, 0), map = [1, -1, 1, -1, 1, -1];
-    return function (sphere: sphere, frustum: frustum): number {
+const sphereFrustumAccurate = (function () {
+    const pt = new Vec3(0, 0, 0); const map = [1, -1, 1, -1, 1, -1];
+    return function (sphere: Sphere, frustum: Frustum): number {
         for (let i = 0; i < 6; i++) {
             const plane = frustum.planes[i];
-            const r = sphere.radius, c = sphere.center;
-            const n = plane.n, d = plane.d;
+            const r = sphere.radius; const c = sphere.center;
+            const n = plane.n; const d = plane.d;
             const dot = Vec3.dot(n, c);
             // frustum plane normal points to the inside
             if (dot + r < d) { return 0; } // completely outside
@@ -1214,18 +1217,18 @@ const sphere_frustum_accurate = (function () {
         }
         return 1;
     };
-})();
+}());
 
 /**
  * @en
  * sphere-sphere intersect detect.
  * @zh
  * 球和球的相交性检测。
- * @param {sphere} sphere0 球0
- * @param {sphere} sphere1 球1
+ * @param {Sphere} sphere0 球0
+ * @param {Sphere} sphere1 球1
  * @return {boolean} true or false
  */
-const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
+const sphereWithSphere = function (sphere0: Sphere, sphere1: Sphere): boolean {
     const r = sphere0.radius + sphere1.radius;
     return Vec3.squaredDistance(sphere0.center, sphere1.center) < r * r;
 };
@@ -1235,34 +1238,34 @@ const sphere_sphere = function (sphere0: sphere, sphere1: sphere): boolean {
  * sphere-aabb intersect detect.
  * @zh
  * 球和轴对齐包围盒的相交性检测。
- * @param {sphere} sphere 球
- * @param {aabb} aabb 轴对齐包围盒
+ * @param {Sphere} sphere 球
+ * @param {AABB} aabb 轴对齐包围盒
  * @return {boolean} true or false
  */
-const sphere_aabb = (function () {
+const sphereAABB = (function () {
     const pt = new Vec3();
-    return function (sphere: sphere, aabb: aabb): boolean {
+    return function (sphere: Sphere, aabb: AABB): boolean {
         distance.pt_point_aabb(pt, sphere.center, aabb);
         return Vec3.squaredDistance(sphere.center, pt) < sphere.radius * sphere.radius;
     };
-})();
+}());
 
 /**
  * @en
  * sphere-obb intersect detect.
  * @zh
  * 球和方向包围盒的相交性检测。
- * @param {sphere} sphere 球
- * @param {obb} obb 方向包围盒
+ * @param {Sphere} sphere 球
+ * @param {OBB} obb 方向包围盒
  * @return {boolean} true or false
  */
-const sphere_obb = (function () {
+const sphereOBB = (function () {
     const pt = new Vec3();
-    return function (sphere: sphere, obb: obb): boolean {
+    return function (sphere: Sphere, obb: OBB): boolean {
         distance.pt_point_obb(pt, sphere.center, obb);
         return Vec3.squaredDistance(sphere.center, pt) < sphere.radius * sphere.radius;
     };
-})();
+}());
 
 /**
  * @en
@@ -1270,10 +1273,10 @@ const sphere_obb = (function () {
  * @zh
  * 球和胶囊体的相交性检测。
  */
-const sphere_capsule = (function () {
+const sphereCapsule = (function () {
     const v3_0 = new Vec3();
     const v3_1 = new Vec3();
-    return function (sphere: sphere, capsule: capsule) {
+    return function (sphere: Sphere, capsule: Capsule) {
         const r = sphere.radius + capsule.radius;
         const squaredR = r * r;
         const h = Vec3.squaredDistance(capsule.ellipseCenter0, capsule.ellipseCenter1);
@@ -1293,7 +1296,7 @@ const sphere_capsule = (function () {
             }
         }
     };
-})();
+}());
 
 // http://www.geomalgorithms.com/a07-_distance.html
 /**
@@ -1302,14 +1305,14 @@ const sphere_capsule = (function () {
  * @zh
  * 胶囊体和胶囊体的相交性检测。
  */
-const capsule_capsule = (function () {
+const capsuleWithCapsule = (function () {
     const v3_0 = new Vec3();
     const v3_1 = new Vec3();
     const v3_2 = new Vec3();
     const v3_3 = new Vec3();
     const v3_4 = new Vec3();
     const v3_5 = new Vec3();
-    return function capsule_capsule (capsuleA: capsule, capsuleB: capsule) {
+    return function capsuleWithCapsule (capsuleA: Capsule, capsuleB: Capsule) {
         const u = Vec3.subtract(v3_0, capsuleA.ellipseCenter1, capsuleA.ellipseCenter0);
         const v = Vec3.subtract(v3_1, capsuleB.ellipseCenter1, capsuleB.ellipseCenter0);
         const w = Vec3.subtract(v3_2, capsuleA.ellipseCenter0, capsuleB.ellipseCenter0);
@@ -1332,16 +1335,14 @@ const capsule_capsule = (function () {
             sD = 1.0;         // to prevent possible division by 0.0 later
             tN = e;
             tD = c;
-        }
-        else {                 // get the closest points on the infinite lines
+        } else {                 // get the closest points on the infinite lines
             sN = (b * e - c * d);
             tN = (a * e - b * d);
             if (sN < 0.0) {        // sc < 0 => the s=0 edge is visible
                 sN = 0.0;
                 tN = e;
                 tD = c;
-            }
-            else if (sN > sD) {  // sc > 1  => the s=1 edge is visible
+            } else if (sN > sD) {  // sc > 1  => the s=1 edge is visible
                 sN = sD;
                 tN = e + b;
                 tD = c;
@@ -1353,25 +1354,20 @@ const capsule_capsule = (function () {
             // recompute sc for this edge
             if (-d < 0.0) {
                 sN = 0.0;
-            }
-            else if (-d > a) {
+            } else if (-d > a) {
                 sN = sD;
-            }
-            else {
+            } else {
                 sN = -d;
                 sD = a;
             }
-        }
-        else if (tN > tD) {      // tc > 1  => the t=1 edge is visible
+        } else if (tN > tD) {      // tc > 1  => the t=1 edge is visible
             tN = tD;
             // recompute sc for this edge
             if ((-d + b) < 0.0) {
                 sN = 0;
-            }
-            else if ((-d + b) > a) {
+            } else if ((-d + b) > a) {
                 sN = sD;
-            }
-            else {
+            } else {
                 sN = (-d + b);
                 sD = a;
             }
@@ -1388,7 +1384,7 @@ const capsule_capsule = (function () {
         const radius = capsuleA.radius + capsuleB.radius;
         return dP.lengthSqr() < radius * radius;
     };
-})();
+}());
 
 /**
  * @en
@@ -1397,45 +1393,45 @@ const capsule_capsule = (function () {
  * 基础几何的相交性检测算法。
  */
 const intersect = {
-    ray_sphere,
-    ray_aabb,
-    ray_obb,
-    ray_plane,
-    ray_triangle,
-    ray_capsule,
+    raySphere,
+    rayAABB,
+    rayOBB,
+    rayPlane,
+    rayTriangle,
+    rayCapsule,
 
-    ray_subMesh,
-    ray_mesh,
-    ray_model,
+    raySubMesh,
+    rayMesh,
+    rayModel,
 
-    line_sphere,
-    line_aabb,
-    line_obb,
-    line_plane,
-    line_triangle,
+    lineSphere,
+    lineAABB,
+    lineOBB,
+    linePlane,
+    lineTriangle,
 
-    sphere_sphere,
-    sphere_aabb,
-    sphere_obb,
-    sphere_plane,
-    sphere_frustum,
-    sphere_frustum_accurate,
-    sphere_capsule,
+    sphereWithSphere,
+    sphereAABB,
+    sphereOBB,
+    spherePlane,
+    sphereFrustum,
+    sphereFrustumAccurate,
+    sphereCapsule,
 
-    aabb_aabb,
-    aabb_obb,
-    aabb_plane,
-    aabb_frustum,
-    aabb_frustum_accurate,
+    aabbWithAABB,
+    aabbWithOBB,
+    aabbPlane,
+    aabbFrustum,
+    aabbFrustumAccurate,
 
-    obb_obb,
-    obb_plane,
-    obb_frustum,
-    obb_frustum_accurate,
-    obb_point,
-    obb_capsule,
+    obbWithOBB,
+    obbPlane,
+    obbFrustum,
+    obbFrustumAccurate,
+    obbPoint,
+    obbCapsule,
 
-    capsule_capsule,
+    capsuleWithCapsule,
 
     /**
      * @zh
@@ -1445,46 +1441,45 @@ const intersect = {
      * @param outPt 可选，相交点。（注：仅部分形状的检测带有这个返回值）
      */
     resolve (g1: any, g2: any, outPt = null) {
-        const type1 = g1._type, type2 = g2._type;
+        const type1 = g1._type; const type2 = g2._type;
         const resolver = this[type1 | type2];
-        if (type1 < type2) { return resolver(g1, g2, outPt); }
-        else { return resolver(g2, g1, outPt); }
+        if (type1 < type2) { return resolver(g1, g2, outPt); } else { return resolver(g2, g1, outPt); }
     },
 };
 
-intersect[enums.SHAPE_RAY | enums.SHAPE_SPHERE] = ray_sphere;
-intersect[enums.SHAPE_RAY | enums.SHAPE_AABB] = ray_aabb;
-intersect[enums.SHAPE_RAY | enums.SHAPE_OBB] = ray_obb;
-intersect[enums.SHAPE_RAY | enums.SHAPE_PLANE] = ray_plane;
-intersect[enums.SHAPE_RAY | enums.SHAPE_TRIANGLE] = ray_triangle;
-intersect[enums.SHAPE_RAY | enums.SHAPE_CAPSULE] = ray_capsule;
+intersect[enums.SHAPE_RAY | enums.SHAPE_SPHERE] = raySphere;
+intersect[enums.SHAPE_RAY | enums.SHAPE_AABB] = rayAABB;
+intersect[enums.SHAPE_RAY | enums.SHAPE_OBB] = rayOBB;
+intersect[enums.SHAPE_RAY | enums.SHAPE_PLANE] = rayPlane;
+intersect[enums.SHAPE_RAY | enums.SHAPE_TRIANGLE] = rayTriangle;
+intersect[enums.SHAPE_RAY | enums.SHAPE_CAPSULE] = rayCapsule;
 
-intersect[enums.SHAPE_LINE | enums.SHAPE_SPHERE] = line_sphere;
-intersect[enums.SHAPE_LINE | enums.SHAPE_AABB] = line_aabb;
-intersect[enums.SHAPE_LINE | enums.SHAPE_OBB] = line_obb;
-intersect[enums.SHAPE_LINE | enums.SHAPE_PLANE] = line_plane;
-intersect[enums.SHAPE_LINE | enums.SHAPE_TRIANGLE] = line_triangle;
+intersect[enums.SHAPE_LINE | enums.SHAPE_SPHERE] = lineSphere;
+intersect[enums.SHAPE_LINE | enums.SHAPE_AABB] = lineAABB;
+intersect[enums.SHAPE_LINE | enums.SHAPE_OBB] = lineOBB;
+intersect[enums.SHAPE_LINE | enums.SHAPE_PLANE] = linePlane;
+intersect[enums.SHAPE_LINE | enums.SHAPE_TRIANGLE] = lineTriangle;
 
-intersect[enums.SHAPE_SPHERE] = sphere_sphere;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_AABB] = sphere_aabb;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_OBB] = sphere_obb;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_PLANE] = sphere_plane;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM] = sphere_frustum;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM_ACCURATE] = sphere_frustum_accurate;
-intersect[enums.SHAPE_SPHERE | enums.SHAPE_CAPSULE] = sphere_capsule;
+intersect[enums.SHAPE_SPHERE] = sphereWithSphere;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_AABB] = sphereAABB;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_OBB] = sphereOBB;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_PLANE] = spherePlane;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM] = sphereFrustum;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_FRUSTUM_ACCURATE] = sphereFrustumAccurate;
+intersect[enums.SHAPE_SPHERE | enums.SHAPE_CAPSULE] = sphereCapsule;
 
-intersect[enums.SHAPE_AABB] = aabb_aabb;
-intersect[enums.SHAPE_AABB | enums.SHAPE_OBB] = aabb_obb;
-intersect[enums.SHAPE_AABB | enums.SHAPE_PLANE] = aabb_plane;
-intersect[enums.SHAPE_AABB | enums.SHAPE_FRUSTUM] = aabb_frustum;
-intersect[enums.SHAPE_AABB | enums.SHAPE_FRUSTUM_ACCURATE] = aabb_frustum_accurate;
+intersect[enums.SHAPE_AABB] = aabbWithAABB;
+intersect[enums.SHAPE_AABB | enums.SHAPE_OBB] = aabbWithOBB;
+intersect[enums.SHAPE_AABB | enums.SHAPE_PLANE] = aabbPlane;
+intersect[enums.SHAPE_AABB | enums.SHAPE_FRUSTUM] = aabbFrustum;
+intersect[enums.SHAPE_AABB | enums.SHAPE_FRUSTUM_ACCURATE] = aabbFrustumAccurate;
 
-intersect[enums.SHAPE_OBB] = obb_obb;
-intersect[enums.SHAPE_OBB | enums.SHAPE_PLANE] = obb_plane;
-intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM] = obb_frustum;
-intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM_ACCURATE] = obb_frustum_accurate;
-intersect[enums.SHAPE_OBB | enums.SHAPE_CAPSULE] = obb_capsule;
+intersect[enums.SHAPE_OBB] = obbWithOBB;
+intersect[enums.SHAPE_OBB | enums.SHAPE_PLANE] = obbPlane;
+intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM] = obbFrustum;
+intersect[enums.SHAPE_OBB | enums.SHAPE_FRUSTUM_ACCURATE] = obbFrustumAccurate;
+intersect[enums.SHAPE_OBB | enums.SHAPE_CAPSULE] = obbCapsule;
 
-intersect[enums.SHAPE_CAPSULE] = capsule_capsule;
+intersect[enums.SHAPE_CAPSULE] = capsuleWithCapsule;
 
 export default intersect;

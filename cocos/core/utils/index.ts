@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -36,12 +36,9 @@ import * as misc from './misc';
  */
 import * as path from './path';
 
-export * from './deprecated';
-export * from './text-utils';
-export * from './html-text-parser';
-export * from './prefab-helper';
-export * from './batch-utils';
+export * from './x-deprecated';
 export * from './murmurhash2_gc';
+export { PrefabLink } from './prefab-link';
 
 export {
     js,

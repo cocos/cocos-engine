@@ -1,15 +1,42 @@
-/**
- * @category tween
+/* eslint-disable @typescript-eslint/ban-types */
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
- /**
+/**
+ * @packageDocumentation
+ * @module tween
+ */
+
+/**
   * @en
   * Built-in string value definition for the cache function.
   * @zh
   * 内置缓动函数的字符串值定义。
   */
 export type TweenEasing =
-'linear'    | 'smooth'     | 'fade'         |
+'linear'    | 'smooth'     | 'fade'         | 'constant'     |
 'quadIn'    | 'quadOut'    | 'quadInOut'    | 'quadOutIn'    |
 'cubicIn'   | 'cubicOut'   | 'cubicInOut'   | 'cubicOutIn'   |
 'quartIn'   | 'quartOut'   | 'quartInOut'   | 'quartOutIn'   |
@@ -19,8 +46,7 @@ export type TweenEasing =
 'circIn'    | 'circOut'    | 'circInOut'    | 'circOutIn'    |
 'elasticIn' | 'elasticOut' | 'elasticInOut' | 'elasticOutIn' |
 'backIn'    | 'backOut'    | 'backInOut'    | 'backOutIn'    |
-'bounceIn'  | 'bounceOut'  | 'bounceInOut'  | 'bounceOutIn'  ;
-
+'bounceIn'  | 'bounceOut'  | 'bounceInOut'  | 'bounceOutIn';
 
 /**
  * @en
@@ -29,7 +55,7 @@ export type TweenEasing =
  * 缓动的可选属性的接口定义。
  */
 export interface ITweenOption {
-    
+
     /**
      * @en
      * Easing function, you can pass in a string or custom function.
@@ -37,7 +63,7 @@ export interface ITweenOption {
      * 缓动函数，可以使用已有的，也可以传入自定义的函数。
      */
     easing?: TweenEasing | ((k: number) => number);
-    
+
     /**
      * @en
      * Interpolation functin, you can pass in a custom function.
@@ -53,7 +79,7 @@ export interface ITweenOption {
      * 回调，当缓动动作启动时触发。
      */
     onStart?: (target?: object) => void;
-    
+
     /**
      * @en
      * A callback that is triggered when a tween action is update.
@@ -61,7 +87,7 @@ export interface ITweenOption {
      * 回调，当缓动动作更新时触发。
      */
     onUpdate?: (target?: object, ratio?: number) => void;
-    
+
     /**
      * @en
      * A callback that is triggered when a tween action is completed.

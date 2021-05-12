@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,38 +25,38 @@
 */
 
 /**
- * @category asset
+ * @packageDocumentation
+ * @module asset
  */
 
-import {ccclass, editable, serializable} from 'cc.decorator';
+import { ccclass, editable, serializable } from 'cc.decorator';
 import { Scene } from '../scene-graph';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
 
 /**
- * @en Class for scene handling.
+ * @en Class for scene loading.
  * @zh 场景资源类。
- * @class SceneAsset
- * @extends Asset
  *
  */
 @ccclass('cc.SceneAsset')
 export default class SceneAsset extends Asset {
     /**
-     * 场景结点。
+     * @en The scene node
+     * @zh 场景节点。
      */
     @editable
     @serializable
     public scene: Scene | null = null;
 
-    /**
-     * @en Indicates the raw assets of this scene can be load after scene launched.
-     * @zh 指示该场景依赖的资源可否在场景切换后再延迟加载。
-     * @default false
-     */
-    @editable
-    @serializable
-    public asyncLoadAssets = false;
+    public initDefault (uuid?: string) {
+        super.initDefault(uuid);
+        this.scene = new Scene('New Scene');
+    }
+
+    public validate () {
+        return !!this.scene;
+    }
 }
 
 legacyCC.SceneAsset = SceneAsset;

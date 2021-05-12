@@ -1,7 +1,7 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -24,22 +24,31 @@
 */
 
 /**
- * @category material
+ * @packageDocumentation
+ * @module material
  */
 
 import { IPassInfo } from '../../assets/effect-asset';
-import { isBuiltinBinding } from '../../pipeline/define';
 import { MaterialInstance } from './material-instance';
 import { Pass, PassOverrides } from './pass';
 import { overrideMacros, MacroRecord } from './pass-utils';
-import { PassView, RasterizerStatePool, DepthStencilStatePool, BlendStatePool, PassPool } from './memory-pools';
+import { PassView, PassPool } from './memory-pools';
 
+/**
+ * @en A pass instance defines an variant version of the [[Pass]]
+ * @zh 表示 [[Pass]] 的一种特殊实例
+ */
 export class PassInstance extends Pass {
-
+    /**
+     * @en The parent pass
+     * @zh 相关联的原始 Pass
+     */
     get parent () { return this._parent; }
 
     private _parent: Pass;
+
     private _owner: MaterialInstance;
+
     private _dontNotify = false;
 
     constructor (parent: Pass, owner: MaterialInstance) {
@@ -49,16 +58,14 @@ export class PassInstance extends Pass {
         this._doInit(this._parent, true); // defines may change now
         for (let i = 0; i < this._shaderInfo.blocks.length; i++) {
             const u = this._shaderInfo.blocks[i];
-            if (isBuiltinBinding(u.set)) { continue; }
             const block = this._blocks[u.binding];
             const parentBlock = this._parent.blocks[u.binding];
             block.set(parentBlock);
         }
         this._rootBufferDirty = true;
         const paren = this._parent as PassInstance;
-        for (let i = 0; i < this._shaderInfo.samplers.length; i++) {
-            const u = this._shaderInfo.samplers[i];
-            if (isBuiltinBinding(u.set)) { continue; }
+        for (let i = 0; i < this._shaderInfo.samplerTextures.length; i++) {
+            const u = this._shaderInfo.samplerTextures[i];
             for (let j = 0; j < u.count; j++) {
                 const sampler = paren._descriptorSet.getSampler(u.binding, j);
                 const texture = paren._descriptorSet.getTexture(u.binding, j);
@@ -69,16 +76,20 @@ export class PassInstance extends Pass {
         super.tryCompile();
     }
 
+    /**
+     * @en Override pipeline states with the given pass override info.
+     * This won't affect the original pass
+     * @zh 重载当前 Pass 的管线状态。这不会影响原始 Pass
+     * @param original The original pass info
+     * @param value The override pipeline state info
+     */
     public overridePipelineStates (original: IPassInfo, overrides: PassOverrides): void {
-        BlendStatePool.free(PassPool.get(this._handle, PassView.BLEND_STATE));
-        RasterizerStatePool.free(PassPool.get(this._handle, PassView.RASTERIZER_STATE));
-        DepthStencilStatePool.free(PassPool.get(this._handle, PassView.DEPTH_STENCIL_STATE));
-        PassPool.set(this._handle, PassView.BLEND_STATE, BlendStatePool.alloc());
-        PassPool.set(this._handle, PassView.RASTERIZER_STATE, RasterizerStatePool.alloc());
-        PassPool.set(this._handle, PassView.DEPTH_STENCIL_STATE, DepthStencilStatePool.alloc());
+        this._bs.reset();
+        this._rs.reset();
+        this._dss.reset();
 
-        Pass.fillPipelineInfo(this._handle, original);
-        Pass.fillPipelineInfo(this._handle, overrides);
+        Pass.fillPipelineInfo(this, original);
+        Pass.fillPipelineInfo(this, overrides);
         this._onStateChange();
     }
 
@@ -93,10 +104,18 @@ export class PassInstance extends Pass {
         return res;
     }
 
+    /**
+     * @en Prepare to change states of the pass and do not notify the material to rebuild the pipeline state object
+     * @zh 开始静默修改 Pass 相关状态，不会通知材质去重新构建管线状态对象。
+     */
     public beginChangeStatesSilently () {
         this._dontNotify = true;
     }
 
+    /**
+     * @en End the silent states changing process, all state changes will be notified.
+     * @zh 结束静默状态修改，所有修改将会开始通知材质。
+     */
     public endChangeStatesSilently () {
         this._dontNotify = false;
     }
@@ -107,7 +126,7 @@ export class PassInstance extends Pass {
     }
 
     protected _onStateChange () {
-        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this._handle, this._hShaderDefault));
+        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this, this._hShaderDefault));
         this._owner.onPassStateChange(this._dontNotify);
     }
 }

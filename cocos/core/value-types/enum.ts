@@ -1,8 +1,8 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
- http://www.cocos.com
+ https://www.cocos.com/
 
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -25,11 +25,12 @@
 */
 
 /**
- * @category core/value-types
+ * @packageDocumentation
+ * @module core/value-types
  */
 
-import { value } from '../utils/js';
 import { EDITOR, TEST, DEV } from 'internal:constants';
+import { value } from '../utils/js';
 import { legacyCC } from '../global-exports';
 import { errorID } from '../platform/debug';
 import { assertIsTrue } from '../data/utils/asserts';
@@ -60,29 +61,24 @@ export function Enum<T> (obj: T): T {
  * Update the enum object properties.
  * @zh
  * 更新枚举对象的属性列表。
- * @param obj 
+ * @param obj
  */
 Enum.update = <T> (obj: T): T => {
-    let lastIndex: number = -1;
+    let lastIndex = -1;
     const keys: string[] = Object.keys(obj);
 
-    // tslint:disable-next-line: prefer-for-of
     for (let i = 0; i < keys.length; i++) {
         const key = keys[i];
         let val = obj[key];
         if (val === -1) {
             val = ++lastIndex;
             obj[key] = val;
+        } else if (typeof val === 'number') {
+            lastIndex = val;
+        } else if (typeof val === 'string' && Number.isInteger(parseFloat(key))) {
+            continue;
         }
-        else {
-            if (typeof val === 'number') {
-                lastIndex = val;
-            }
-            else if (typeof val === 'string' && Number.isInteger(parseFloat(key))) {
-                continue;
-            }
-        }
-        const reverseKey: string = '' + val;
+        const reverseKey = `${val}`;
         if (key !== reverseKey) {
             if ((EDITOR || TEST) && reverseKey in obj && obj[reverseKey] !== key) {
                 errorID(7100, reverseKey);
@@ -92,11 +88,12 @@ Enum.update = <T> (obj: T): T => {
         }
     }
     // auto update list if __enums__ is array
-    if(Array.isArray(obj['__enums__'])) {
+    // @ts-expect-error Injected properties
+    if (Array.isArray(obj.__enums__)) {
         updateList(obj);
     }
     return obj;
-}
+};
 
 namespace Enum {
     export interface Enumerator<EnumT> {
@@ -108,7 +105,7 @@ namespace Enum {
         /**
          * The value of the numerator.
          */
-        value: EnumT[typeof name];
+        value: EnumT[keyof EnumT];
     }
 }
 
@@ -120,11 +117,9 @@ interface EnumExtras<EnumT> {
  * Determines if the object is an enum type.
  * @param enumType The object to judge.
  */
-Enum.isEnum = <EnumT extends {}>(enumType: EnumT) => {
-    return enumType && enumType.hasOwnProperty('__enums__');
-};
+Enum.isEnum = <EnumT extends {}>(enumType: EnumT) => enumType && enumType.hasOwnProperty('__enums__');
 
-function assertIsEnum <EnumT extends {}>(enumType: EnumT): asserts enumType is EnumT & EnumExtras<EnumT> {
+function assertIsEnum <EnumT extends {}> (enumType: EnumT): asserts enumType is EnumT & EnumExtras<EnumT> {
     assertIsTrue(enumType.hasOwnProperty('__enums__'));
 }
 
@@ -147,11 +142,11 @@ Enum.getList = <EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<Enu
  * @param enumType - the enum type defined from cc.Enum
  * @return {Object[]}
  */
-function updateList<EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
+function updateList<EnumT extends {}> (enumType: EnumT): readonly Enum.Enumerator<EnumT>[] {
     assertIsEnum(enumType);
     const enums: any[] = enumType.__enums__ || [];
     enums.length = 0;
-    // tslint:disable-next-line: forin
+
     for (const name in enumType) {
         const v = enumType[name];
         if (Number.isInteger(v)) {
@@ -161,7 +156,7 @@ function updateList<EnumT extends {}>(enumType: EnumT): readonly Enum.Enumerator
     enums.sort((a, b) => a.value - b.value);
     enumType.__enums__ = enums;
     return enums;
-};
+}
 
 if (DEV) {
     // check key order in object literal

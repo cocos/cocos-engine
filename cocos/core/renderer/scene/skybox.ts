@@ -1,16 +1,42 @@
-import { builtinResMgr } from '../../3d/builtin';
-import { createMesh } from '../../3d/misc/utils';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { JSB } from 'internal:constants';
+import { builtinResMgr } from '../../builtin';
 import { Material } from '../../assets/material';
-import { Mesh } from '../../assets/mesh';
+import { Mesh } from '../../../3d/assets/mesh';
 import { TextureCube } from '../../assets/texture-cube';
-import { UNIFORM_ENVIRONMENT } from '../../pipeline/define';
-import { box } from '../../primitive';
+import { UNIFORM_ENVIRONMENT_BINDING } from '../../pipeline/define';
 import { MaterialInstance } from '../core/material-instance';
 import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
 import { legacyCC } from '../../global-exports';
-import { GFXDescriptorSet } from '../../gfx';
+import { DescriptorSet } from '../../gfx';
 import { SkyboxPool, NULL_HANDLE, SkyboxView, SkyboxHandle } from '../core/memory-pools';
+import { SkyboxInfo } from '../../scene-graph/scene-globals';
+import { Root } from '../../root';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
@@ -25,24 +51,23 @@ export class Skybox {
      * @zh 是否启用天空盒？
      */
     get enabled (): boolean {
-        return SkyboxPool.get(this._handle, SkyboxView.ENABLE) as unknown as boolean;
+        return this._enabled;
     }
 
     set enabled (val: boolean) {
-        val ? this.activate() : this._updatePipeline();
-        SkyboxPool.set(this._handle, SkyboxView.ENABLE, val ? 1 : 0);
+        if (val) this.activate(); else this._updatePipeline();
+        this._setEnabled(val);
     }
-
     /**
      * @en Whether use environment lighting
      * @zh 是否启用环境光照？
      */
     get useIBL (): boolean {
-        return SkyboxPool.get(this._handle, SkyboxView.USE_IBL) as unknown as boolean;
+        return this._useIBL;
     }
 
     set useIBL (val: boolean) {
-        SkyboxPool.set(this._handle, SkyboxView.USE_IBL, val ? 1 : 0);
+        this._setUseIBL(val);
         this._updatePipeline();
     }
 
@@ -51,7 +76,7 @@ export class Skybox {
      * @zh 是否需要开启 shader 内的 RGBE 数据支持？
      */
     get isRGBE (): boolean {
-        return SkyboxPool.get(this._handle, SkyboxView.IS_RGBE) as unknown as boolean;
+        return this._isRGBE;
     }
 
     set isRGBE (val: boolean) {
@@ -64,7 +89,7 @@ export class Skybox {
                 this._model.setSubModelMaterial(0, skybox_material!);
             }
         }
-        SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, val ? 1 : 0);
+        this._setIsRGBE(val);
         this._updatePipeline();
     }
 
@@ -79,17 +104,19 @@ export class Skybox {
     set envmap (val: TextureCube | null) {
         this._envmap = val || this._default;
         if (this._envmap) {
-            legacyCC.director.root.pipeline.ambient.albedoArray[3] = this._envmap.mipmapLevel;
+            (legacyCC.director.root as Root).pipeline.pipelineSceneData.ambient.albedoArray[3] = this._envmap.mipmapLevel;
             this._updateGlobalBinding();
         }
     }
 
     protected _envmap: TextureCube | null = null;
-    protected _globalDescriptorSet: GFXDescriptorSet | null = null;
+    protected _globalDescriptorSet: DescriptorSet | null = null;
     protected _model: Model | null = null;
     protected _default: TextureCube | null = null;
     protected _handle: SkyboxHandle = NULL_HANDLE;
-
+    protected _enabled = false;
+    protected _useIBL = false;
+    protected _isRGBE = false;
     get handle () : SkyboxHandle {
         return this._handle;
     }
@@ -98,38 +125,72 @@ export class Skybox {
         this._handle = SkyboxPool.alloc();
     }
 
+    private _setEnabled (val) {
+        this._enabled = val;
+        if (JSB) {
+            SkyboxPool.set(this._handle, SkyboxView.ENABLE, val ? 1 : 0);
+        }
+    }
+
+    private _setUseIBL (val) {
+        this._useIBL = val;
+        if (JSB) {
+            SkyboxPool.set(this._handle, SkyboxView.USE_IBL, val ? 1 : 0);
+        }
+    }
+
+    private _setIsRGBE (val) {
+        this._isRGBE = val;
+        if (JSB) {
+            SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, val ? 1 : 0);
+        }
+    }
+
+    public initialize (skyboxInfo: SkyboxInfo) {
+        this._setEnabled(skyboxInfo.enabled);
+        this._setUseIBL(skyboxInfo.useIBL);
+        this._setIsRGBE(skyboxInfo.isRGBE);
+        this._envmap = skyboxInfo.envmap;
+    }
+
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
+        const ambient = pipeline.pipelineSceneData.ambient;
         this._globalDescriptorSet = pipeline.descriptorSet;
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
 
         if (!this._model) {
-            this._model = new legacyCC.renderer.scene.Model() as Model;
+            this._model = legacyCC.director.root.createModel(legacyCC.renderer.scene.Model) as Model;
+            // @ts-expect-error private member access
+            this._model._initLocalDescriptors = () => {};
         }
-
-        SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);
-
-        pipeline.ambient.groundAlbedo[3] = this._envmap ? this._envmap.mipmapLevel : this._default.mipmapLevel;
+        if (JSB) {
+            SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);
+        }
+        if (!this._envmap) {
+            this._envmap = this._default;
+        }
+        ambient.albedoArray[3] = this._envmap.mipmapLevel;
 
         if (!skybox_material) {
             const mat = new Material();
-            mat.initialize({ effectName: 'pipeline/skybox', defines: { USE_RGBE_CUBEMAP: this.isRGBE } });
+            mat.initialize({ effectName: 'skybox', defines: { USE_RGBE_CUBEMAP: this.isRGBE } });
             skybox_material = new MaterialInstance({ parent: mat });
         } else {
             skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
         }
 
-        if (!skybox_mesh) { skybox_mesh = createMesh(box({ width: 2, height: 2, length: 2 })); }
-        this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
-
-        this.envmap = this._envmap;
+        if (this.enabled) {
+            if (!skybox_mesh) { skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh; }
+            this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
+        }
         this._updateGlobalBinding();
         this._updatePipeline();
     }
 
     protected _updatePipeline () {
-        const value = this.enabled ? (this.useIBL ? this.isRGBE ? 2 : 1 : 0) : 0;
-        const root = legacyCC.director.root;
+        const value = this.useIBL ? (this.isRGBE ? 2 : 1) : 0;
+        const root = legacyCC.director.root as Root;
         const pipeline = root.pipeline;
         const current = pipeline.macros.CC_USE_IBL;
         if (current === value) { return; }
@@ -140,15 +201,19 @@ export class Skybox {
     protected _updateGlobalBinding () {
         const texture = this.envmap!.getGFXTexture()!;
         const sampler = samplerLib.getSampler(legacyCC.director._device, this.envmap!.getSamplerHash());
-        this._globalDescriptorSet!.bindSampler(UNIFORM_ENVIRONMENT.binding, sampler);
-        this._globalDescriptorSet!.bindTexture(UNIFORM_ENVIRONMENT.binding, texture);
+        this._globalDescriptorSet!.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
+        this._globalDescriptorSet!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
     }
 
-    public destroy () {
-        if (this._handle) {
+    protected _destroy () {
+        if (JSB && this._handle) {
             SkyboxPool.free(this._handle);
             this._handle = NULL_HANDLE;
         }
+    }
+
+    public destroy () {
+        this._destroy();
     }
 }
 

@@ -1,15 +1,46 @@
-import { frustum, ray } from '../../geometry';
-import { GFXClearFlag } from '../../gfx/define';
-import { lerp, Mat4, Rect, toRadian, Vec3, Color } from '../../math';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { JSB } from 'internal:constants';
+import { Frustum, Ray } from '../../geometry';
+import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
+import {
+    lerp, Mat4, Rect, toRadian, Vec3, IVec4Like,
+} from '../../math';
 import { CAMERA_DEFAULT_MASK } from '../../pipeline/define';
-import { RenderView } from '../../pipeline';
 import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
-import { GFXDevice } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
-import { CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, FrustumView, NULL_HANDLE, SceneHandle } from '../core/memory-pools';
-import { JSB } from 'internal:constants';
+import {
+    CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle,
+} from '../core/memory-pools';
+import { recordFrustumToSharedMemory } from '../../geometry/frustum';
+import { preTransforms } from '../../math/mat4';
+import { director } from '../../director';
+import { ClearFlag } from '../../components/camera-component';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -83,115 +114,129 @@ export interface ICameraInfo {
     window?: RenderWindow | null;
     priority: number;
     pipeline?: string;
-    flows?: string[];
 }
 
 const v_a = new Vec3();
 const v_b = new Vec3();
 const _tempMat1 = new Mat4();
-const _tempMat2 = new Mat4();
 
-export const SKYBOX_FLAG = GFXClearFlag.STENCIL << 1;
+export const SKYBOX_FLAG = ClearFlagBit.STENCIL << 1;
+
+const correctionMatrices: Mat4[] = [];
 
 export class Camera {
-
-    public isWindowSize: boolean = true;
+    public isWindowSize = true;
     public screenScale: number;
 
-    private _device: GFXDevice;
+    private _device: Device;
     private _scene: RenderScene | null = null;
     private _node: Node | null = null;
     private _name: string | null = null;
-    private _enabled: boolean = false;
+    private _enabled = false;
     private _proj: CameraProjection = -1;
     private _aspect: number;
-    private _orthoHeight: number = 10.0;
+    private _orthoHeight = 10.0;
     private _fovAxis = CameraFOVAxis.VERTICAL;
     private _fov: number = toRadian(45);
-    private _nearClip: number = 1.0;
-    private _farClip: number = 1000.0;
-    private _clearColor: Color = new Color(51, 51, 51, 255);
-    private declare _viewport: Rect;
+    private _nearClip = 1.0;
+    private _farClip = 1000.0;
+    private _clearColor = new Color(0.2, 0.2, 0.2, 1);
+    private _viewport: Rect = new Rect(0, 0, 1, 1);
+    private _curTransform = SurfaceTransform.IDENTITY;
     private _isProjDirty = true;
-    private declare _matView: Mat4;
+    private _matView: Mat4 = new Mat4();
     private _matViewInv: Mat4 | null = null;
-    private declare _matProj: Mat4;
-    private declare _matProjInv: Mat4;
-    private declare _matViewProj: Mat4;
-    private declare _matViewProjInv: Mat4;
-    private _frustum: frustum = new frustum();
-    private declare _forward: Vec3;
-    private declare _position: Vec3;
-    private _view: RenderView | null = null;
-    private _visibility = CAMERA_DEFAULT_MASK;
-    private _priority: number = 0;
+    private _matProj: Mat4 = new Mat4();
+    private _matProjInv: Mat4 = new Mat4();
+    private _matViewProj: Mat4 = new Mat4();
+    private _matViewProjInv: Mat4 = new Mat4();
+    private _frustum: Frustum = new Frustum();
+    private _forward: Vec3 = new Vec3();
+    private _position: Vec3 = new Vec3();
+    private _priority = 0;
     private _aperture: CameraAperture = CameraAperture.F16_0;
     private _apertureValue: number;
     private _shutter: CameraShutter = CameraShutter.D125;
-    private _shutterValue: number = 0.0;
+    private _shutterValue = 0.0;
     private _iso: CameraISO = CameraISO.ISO100;
-    private _isoValue: number = 0.0;
-    private _ec: number = 0.0;
+    private _isoValue = 0.0;
+    private _ec = 0.0;
     private _poolHandle: CameraHandle = NULL_HANDLE;
     private _frustumHandle: FrustumHandle = NULL_HANDLE;
-
-    constructor (device: GFXDevice) {
+    private _window: RenderWindow | null = null;
+    private _width = 1;
+    private _height = 1;
+    private _clearFlag = ClearFlagBit.NONE;
+    private _clearDepth = 1.0;
+    private _visibility = CAMERA_DEFAULT_MASK;
+    private _exposure = 0;
+    private _clearStencil = 0;
+    constructor (device: Device) {
         this._device = device;
         this._apertureValue = FSTOPS[this._aperture];
         this._shutterValue = SHUTTERS[this._shutter];
         this._isoValue = ISOS[this._iso];
+
         this._aspect = this.screenScale = 1;
+
+        if (!correctionMatrices.length) {
+            const ySign = device.capabilities.clipSpaceSignY;
+            correctionMatrices[SurfaceTransform.IDENTITY] = new Mat4(1, 0, 0, 0, 0, ySign);
+            correctionMatrices[SurfaceTransform.ROTATE_90] = new Mat4(0, 1, 0, 0, -ySign, 0);
+            correctionMatrices[SurfaceTransform.ROTATE_180] = new Mat4(-1, 0, 0, 0, 0, -ySign);
+            correctionMatrices[SurfaceTransform.ROTATE_270] = new Mat4(0, -1, 0, 0, ySign, 0);
+        }
+    }
+
+    private _setWidth (val) {
+        this._width = val;
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.WIDTH, val);
+        }
+    }
+
+    private _setHeight (val) {
+        this._height = val;
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.HEIGHT, val);
+        }
+    }
+
+    private _setScene (val) {
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.SCENE, val);
+        }
+    }
+
+    protected _init (info: ICameraInfo) {
+        if (JSB) {
+            const handle = this._poolHandle = CameraPool.alloc();
+            if (this._scene) this._setScene(this._scene.handle);
+            this._frustumHandle = FrustumPool.alloc();
+            CameraPool.set(handle, CameraView.FRUSTUM, this._frustumHandle);
+            console.log(`Created Camera: ${this._name} ${CameraPool.get(this._poolHandle,
+                CameraView.WIDTH)}x${CameraPool.get(this._poolHandle, CameraView.HEIGHT)}`);
+        }
     }
 
     public initialize (info: ICameraInfo) {
+        this._init(info);
+        this.node = info.node;
+        this._setWidth(1);
+        this._setHeight(1);
+        this.clearFlag = ClearFlagBit.NONE;
+        this.clearDepth = 1.0;
+        this.visibility = CAMERA_DEFAULT_MASK;
         this._name = info.name;
-        this._node = info.node;
         this._proj = info.projection;
         this._priority = info.priority || 0;
-
         this._aspect = this.screenScale = 1;
-        const handle = this._poolHandle = CameraPool.alloc();
-        CameraPool.set(handle, CameraView.WIDTH, 1);
-        CameraPool.set(handle, CameraView.HEIGHT, 1);
-        CameraPool.set(handle, CameraView.CLEAR_FLAG, GFXClearFlag.NONE);
-        CameraPool.set(handle, CameraView.CLEAR_DEPTH, 1.0);
-        CameraPool.set(handle, CameraView.NODE, this._node.handle);
-        this._viewport = new Rect(CameraPool.getTypedArray(handle, CameraView.VIEW_PORT, CameraView.VIEW_PORT + 4));
-        this._position = new Vec3(CameraPool.getTypedArray(handle, CameraView.POSITION, CameraView.POSITION + 3));
-        this._forward = new Vec3(CameraPool.getTypedArray(handle, CameraView.FORWARD, CameraView.FORWARD + 3));
-        this._matView = new Mat4(CameraPool.getTypedArray(handle, CameraView.MAT_VIEW, CameraView.MAT_VIEW + 16));
-        this._matViewProj = new Mat4(CameraPool.getTypedArray(handle, CameraView.MAT_VIEW_PROJ, CameraView.MAT_VIEW_PROJ + 16));
-        this._matViewProjInv = new Mat4(CameraPool.getTypedArray(handle, CameraView.MAT_VIEW_PROJ_INV, CameraView.MAT_VIEW_PROJ_INV + 16));
-        this._matProj = new Mat4(CameraPool.getTypedArray(handle, CameraView.MAT_PROJ, CameraView.MAT_PROJ + 16));
-        this._matProjInv = new Mat4(CameraPool.getTypedArray(handle, CameraView.MAT_PROJ_INV, CameraView.MAT_PROJ_INV + 16));
-        if (this._scene) CameraPool.set(handle, CameraView.SCENE, this._scene.handle);
-        if (JSB) {
-            this._frustumHandle = FrustumPool.alloc();
-            CameraPool.set(handle, CameraView.FRUSTUM, this._frustumHandle);
-        }
-
         this.updateExposure();
-        this._view = legacyCC.director.root.createView({
-            camera: this,
-            name: this._name,
-            priority: this._priority,
-            flows: info.flows,
-        });
-        legacyCC.director.root.attachCamera(this);
         this.changeTargetWindow(info.window);
-
-        console.log('Created Camera: ' + this._name + ' ' + CameraPool.get(handle
-            , CameraView.WIDTH) + 'x' + CameraPool.get(handle, CameraView.HEIGHT));
     }
 
-    public destroy () {
-        legacyCC.director.root.detachCamera(this);
-        if (this._view) {
-            this._view.destroy();
-            this._view = null;
-        }
-        this._name = null;
-        if (this._poolHandle) {
+    protected _destroy () {
+        if (JSB && this._poolHandle) {
             CameraPool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
             if (this._frustumHandle) {
@@ -201,35 +246,39 @@ export class Camera {
         }
     }
 
+    public destroy () {
+        if (this._window) {
+            this._window.detachCamera(this);
+            this.window = null;
+        }
+        this._name = null;
+        this._destroy();
+    }
+
     public attachToScene (scene: RenderScene) {
         this._scene = scene;
-        CameraPool.set(this._poolHandle, CameraView.SCENE, scene.handle);
-        if (this._view) {
-            this._view.enable(true);
-        }
+        this._enabled = true;
+        this._setScene(scene.handle);
     }
 
     public detachFromScene () {
         this._scene = null;
-        CameraPool.set(this._poolHandle, CameraView.SCENE, 0 as unknown as SceneHandle);
-        if (this._view) {
-            this._view.enable(false);
-        }
+        this._enabled = false;
+        this._setScene(0 as unknown as SceneHandle);
     }
 
     public resize (width: number, height: number) {
-        const handle = this._poolHandle;
-        CameraPool.set(handle, CameraView.WIDTH, width);
-        CameraPool.set(handle, CameraView.HEIGHT, height);
+        if (!this._window) return;
+
+        this._setWidth(width);
+        this._setHeight(height);
         this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
         this._isProjDirty = true;
     }
 
     public setFixedSize (width: number, height: number) {
-
-        const handle = this._poolHandle;
-        CameraPool.set(handle, CameraView.WIDTH, width);
-        CameraPool.set(handle, CameraView.HEIGHT, height);
+        this._setWidth(width);
+        this._setHeight(height);
         this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
         this.isWindowSize = false;
     }
@@ -237,72 +286,69 @@ export class Camera {
     public update (forceUpdate = false) { // for lazy eval situations like the in-editor preview
         if (!this._node) return;
 
+        let viewProjDirty = false;
         // view matrix
         if (this._node.hasChangedFlags || forceUpdate) {
             Mat4.invert(this._matView, this._node.worldMatrix);
+            if (JSB) {
+                CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW, this._matView);
+            }
             this._forward.x = -this._matView.m02;
             this._forward.y = -this._matView.m06;
             this._forward.z = -this._matView.m10;
             this._node.getWorldPosition(this._position);
+            if (JSB) {
+                CameraPool.setVec3(this._poolHandle, CameraView.POSITION, this._position);
+                CameraPool.setVec3(this._poolHandle, CameraView.FORWARD, this._forward);
+            }
+            viewProjDirty = true;
         }
 
         // projection matrix
-        if (this._isProjDirty) {
-            let projectionSignY = this._device.screenSpaceSignY;
-            if (this._view && this._view.window.hasOffScreenAttachments) {
-                projectionSignY *= this._device.UVSpaceSignY; // need flipping if drawing on render targets
+        let orientation = this._device.surfaceTransform;
+        if (this._isProjDirty || this._curTransform !== orientation) {
+            this._curTransform = orientation;
+            const projectionSignY = this._device.capabilities.clipSpaceSignY;
+            // Only for rendertexture processing
+            if (this.window?.hasOffScreenAttachments) {
+                orientation = SurfaceTransform.IDENTITY;
             }
             if (this._proj === CameraProjection.PERSPECTIVE) {
                 Mat4.perspective(this._matProj, this._fov, this._aspect, this._nearClip, this._farClip,
-                    this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, projectionSignY);
+                    this._fovAxis === CameraFOVAxis.VERTICAL, this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
             } else {
-                const x = this._orthoHeight * this._aspect;
+                const x = this._orthoHeight * this._aspect; // aspect is already oriented
                 const y = this._orthoHeight;
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
-                    this._device.clipSpaceMinZ, projectionSignY);
+                    this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
             }
             Mat4.invert(this._matProjInv, this._matProj);
+            if (JSB) {
+                CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
+                CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);
+            }
+            viewProjDirty = true;
+            this._isProjDirty = false;
         }
 
         // view-projection
-        if (this._node.hasChangedFlags || this._isProjDirty || forceUpdate) {
+        if (viewProjDirty) {
             Mat4.multiply(this._matViewProj, this._matProj, this._matView);
             Mat4.invert(this._matViewProjInv, this._matViewProj);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
-            this.recordFrustumInSharedMemory();
+            if (JSB) {
+                CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ, this._matViewProj);
+                CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
+            }
+            recordFrustumToSharedMemory(this._frustumHandle, this._frustum);
         }
-
-        this._isProjDirty = false;
-    }
-
-    public getSplitFrustum (out: frustum, nearClip: number, farClip: number) {
-        if (!this._node) return;
-
-        nearClip = Math.max(nearClip, this._nearClip);
-        farClip = Math.min(farClip, this._farClip);
-
-        // view matrix
-        Mat4.invert(this._matView,  this._node.worldMatrix);
-
-        // projection matrix
-        if (this._proj === CameraProjection.PERSPECTIVE) {
-            Mat4.perspective(_tempMat1, this._fov, this._aspect, nearClip, farClip,
-                this._fovAxis === CameraFOVAxis.VERTICAL, this._device.clipSpaceMinZ, this._device.screenSpaceSignY);
-        } else {
-            const x = this._orthoHeight * this._aspect;
-            const y = this._orthoHeight;
-            Mat4.ortho(_tempMat1, -x, x, -y, y, nearClip, farClip,
-                this._device.clipSpaceMinZ, this._device.screenSpaceSignY);
-        }
-
-        // view-projection
-        Mat4.multiply(_tempMat2, _tempMat1, this._matView);
-        Mat4.invert(_tempMat1, _tempMat2);
-        out.update(_tempMat2, _tempMat1);
     }
 
     set node (val: Node) {
         this._node = val;
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.NODE, this._node.handle);
+        }
     }
 
     get node () {
@@ -311,17 +357,10 @@ export class Camera {
 
     set enabled (val) {
         this._enabled = val;
-        if (this._view) {
-            this._view.enable(val);
-        }
     }
 
     get enabled () {
         return this._enabled;
-    }
-
-    get view (): RenderView {
-        return this._view!;
     }
 
     set orthoHeight (val) {
@@ -379,12 +418,17 @@ export class Camera {
     }
 
     set clearColor (val) {
-        this._clearColor = val;
-        CameraPool.setVec4(this._poolHandle, CameraView.CLEAR_COLOR, val);
+        this._clearColor.x = val.x;
+        this._clearColor.y = val.y;
+        this._clearColor.z = val.z;
+        this._clearColor.w = val.w;
+        if (JSB) {
+            CameraPool.setVec4(this._poolHandle, CameraView.CLEAR_COLOR, val);
+        }
     }
 
     get clearColor () {
-        return this._clearColor;
+        return this._clearColor as IVec4Like;
     }
 
     get viewport () {
@@ -392,12 +436,39 @@ export class Camera {
     }
 
     set viewport (val) {
-        const signY = this._device.screenSpaceSignY;
-        this._viewport.x = val.x;
-        if (signY > 0) { this._viewport.y = val.y; }
-        else { this._viewport.y = 1 - val.y - val.height; }
-        this._viewport.width = val.width;
-        this._viewport.height = val.height;
+        const { x, width, height } = val;
+        const y = this._device.capabilities.clipSpaceSignY < 0 ? 1 - val.y - height : val.y;
+
+        switch (this._device.surfaceTransform) {
+        case SurfaceTransform.ROTATE_90:
+            this._viewport.x = 1 - y - height;
+            this._viewport.y = x;
+            this._viewport.width = height;
+            this._viewport.height = width;
+            break;
+        case SurfaceTransform.ROTATE_180:
+            this._viewport.x = 1 - x - width;
+            this._viewport.y = 1 - y - height;
+            this._viewport.width = width;
+            this._viewport.height = height;
+            break;
+        case SurfaceTransform.ROTATE_270:
+            this._viewport.x = y;
+            this._viewport.y = 1 - x - width;
+            this._viewport.width = height;
+            this._viewport.height = width;
+            break;
+        case SurfaceTransform.IDENTITY:
+            this._viewport.x = x;
+            this._viewport.y = y;
+            this._viewport.width = width;
+            this._viewport.height = height;
+            break;
+        default:
+        }
+        if (JSB) {
+            CameraPool.setVec4(this._poolHandle, CameraView.VIEW_PORT, this._viewport);
+        }
         this.resize(this.width, this.height);
     }
 
@@ -410,11 +481,17 @@ export class Camera {
     }
 
     get width () {
-        return CameraPool.get(this._poolHandle, CameraView.WIDTH);
+        if (JSB) {
+            return CameraPool.get(this._poolHandle, CameraView.WIDTH);
+        }
+        return this._width;
     }
 
     get height () {
-        return CameraPool.get(this._poolHandle, CameraView.HEIGHT);
+        if (JSB) {
+            return CameraPool.get(this._poolHandle, CameraView.HEIGHT);
+        }
+        return this._height;
     }
 
     get aspect () {
@@ -422,7 +499,10 @@ export class Camera {
     }
 
     set matView (val) {
-        this._matView.set(val);
+        this._matView = val;
+        if (JSB) {
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW, this._matView);
+        }
     }
 
     get matView () {
@@ -438,7 +518,10 @@ export class Camera {
     }
 
     set matProj (val) {
-        this._matProj.set(val);
+        this._matProj = val;
+        if (JSB) {
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
+        }
     }
 
     get matProj () {
@@ -446,7 +529,10 @@ export class Camera {
     }
 
     set matProjInv (val) {
-        this._matProjInv.set(val);
+        this._matProjInv = val;
+        if (JSB) {
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);
+        }
     }
 
     get matProjInv () {
@@ -454,7 +540,10 @@ export class Camera {
     }
 
     set matViewProj (val) {
-        this._matViewProj.set(val);
+        this._matViewProj = val;
+        if (JSB) {
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ, this._matViewProj);
+        }
     }
 
     get matViewProj () {
@@ -462,7 +551,10 @@ export class Camera {
     }
 
     set matViewProjInv (val) {
-        this._matViewProjInv.set(val);
+        this._matViewProjInv = val;
+        if (JSB) {
+            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
+        }
     }
 
     get matViewProjInv () {
@@ -471,15 +563,27 @@ export class Camera {
 
     set frustum (val) {
         this._frustum = val;
-        this.recordFrustumInSharedMemory();
+        recordFrustumToSharedMemory(this._frustumHandle, val);
     }
 
     get frustum () {
         return this._frustum;
     }
 
+    set window (val) {
+        this._window = val;
+        if (JSB && val) CameraPool.set(this._poolHandle, CameraView.WINDOW, val.handle);
+    }
+
+    get window () {
+        return this._window;
+    }
+
     set forward (val) {
-        this._forward.set(val);
+        this._forward = val;
+        if (JSB) {
+            CameraPool.setVec3(this._poolHandle, CameraView.FORWARD, this._forward);
+        }
     }
 
     get forward () {
@@ -487,32 +591,32 @@ export class Camera {
     }
 
     set position (val) {
-        this._position.set(val);
+        this._position = val;
+        if (JSB) {
+            CameraPool.setVec3(this._poolHandle, CameraView.POSITION, this._position);
+        }
     }
 
     get position () {
         return this._position;
     }
 
-    set visibility (vis) {
+    set visibility (vis: number) {
         this._visibility = vis;
-        if (this._view) {
-            this._view.visibility = vis;
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.VISIBILITY, vis);
         }
     }
-    get visibility () {
+    get visibility (): number {
         return this._visibility;
     }
 
     get priority (): number {
-        return this._view ? this._view.priority : -1;
+        return this._priority;
     }
 
     set priority (val: number) {
         this._priority = val;
-        if (this._view) {
-            this._view.priority = this._priority;
-        }
     }
 
     set aperture (val: CameraAperture) {
@@ -566,37 +670,40 @@ export class Camera {
     }
 
     get exposure (): number {
-        return CameraPool.get(this._poolHandle, CameraView.EXPOSURE);
+        return this._exposure;
     }
 
-    set flows (val: string[]) {
-        if (this._view) {
-            this._view.setExecuteFlows(val);
+    get clearFlag () : ClearFlags {
+        return this._clearFlag;
+    }
+
+    set clearFlag (flag: ClearFlags) {
+        this._clearFlag = flag;
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.CLEAR_FLAGS, flag);
         }
     }
 
-    get clearFlag () : GFXClearFlag {
-        return CameraPool.get(this._poolHandle, CameraView.CLEAR_FLAG);
-    }
-
-    set clearFlag (flag: GFXClearFlag) {
-        CameraPool.set(this._poolHandle, CameraView.CLEAR_FLAG, flag);
-    }
-
     get clearDepth () : number {
-        return CameraPool.get(this._poolHandle, CameraView.CLEAR_DEPTH);
+        return this._clearDepth;
     }
 
     set clearDepth (depth: number) {
-        CameraPool.set(this._poolHandle, CameraView.CLEAR_DEPTH, depth);
+        this._clearDepth = depth;
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.CLEAR_DEPTH, depth);
+        }
     }
 
     get clearStencil () : number {
-        return CameraPool.get(this._poolHandle, CameraView.CLEAR_STENCIL);
+        return this._clearStencil;
     }
 
     set clearStencil (stencil: number) {
-        CameraPool.set(this._poolHandle, CameraView.CLEAR_STENCIL, stencil);
+        this._clearStencil = stencil;
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.CLEAR_STENCIL, stencil);
+        }
     }
 
     get handle () : CameraHandle {
@@ -604,64 +711,82 @@ export class Camera {
     }
 
     public changeTargetWindow (window: RenderWindow | null = null) {
+        if (this._window) {
+            this._window.detachCamera(this);
+        }
         const win = window || legacyCC.director.root.mainWindow;
-        if (win && this._view) {
-            this._view.window = win;
+        if (win) {
+            win.attachCamera(this);
+            this.window = win;
             this.resize(win.width, win.height);
         }
     }
 
-    /**
-     * transform a screen position to a world space ray
-     */
-    public screenPointToRay (out: ray, x: number, y: number): ray {
-        const handle = this._poolHandle;
-        const width = CameraPool.get(handle, CameraView.WIDTH);
-        const height = CameraPool.get(handle, CameraView.HEIGHT);
-        const cx = this._viewport.x * width;
-        const cy = this._viewport.y * height;
-        const cw = this._viewport.width * width;
-        const ch = this._viewport.height * height;
-
-        // far plane intersection
-        Vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, 1);
-        v_a.y *= this._device.screenSpaceSignY;
-        Vec3.transformMat4(v_a, v_a, this._matViewProjInv);
-
-        if (this._proj === CameraProjection.PERSPECTIVE) {
-            // camera origin
-            if (this._node) { this._node.getWorldPosition(v_b); }
-        } else {
-            // near plane intersection
-            Vec3.set(v_b, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, -1);
-            v_b.y *= this._device.screenSpaceSignY;
-            Vec3.transformMat4(v_b, v_b, this._matViewProjInv);
+    public detachCamera () {
+        if (this._window) {
+            this._window.detachCamera(this);
         }
-
-        return ray.fromPoints(out, v_b, v_a);
     }
 
     /**
-     * transform a screen position to world space
+     * transform a screen position (in oriented space) to a world space ray
      */
-    public screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
-        const handle = this._poolHandle;
-        const width = CameraPool.get(handle, CameraView.WIDTH);
-        const height = CameraPool.get(handle, CameraView.HEIGHT);
+    public screenPointToRay (out: Ray, x: number, y: number): Ray {
+        if (!this._node) return null!;
+
+        const width = this.width;
+        const height = this.height;
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
+        const isProj = this._proj === CameraProjection.PERSPECTIVE;
+        const ySign = this._device.capabilities.clipSpaceSignY;
+        const preTransform = preTransforms[this._curTransform];
+
+        Vec3.set(v_a, (x - cx) / cw * 2 - 1, (y - cy) / ch * 2 - 1, isProj ? 1 : -1);
+
+        const { x: ox, y: oy } = v_a;
+        v_a.x = ox * preTransform[0] + oy * preTransform[2] * ySign;
+        v_a.y = ox * preTransform[1] + oy * preTransform[3] * ySign;
+
+        Vec3.transformMat4(isProj ? v_a : out.o, v_a, this._matViewProjInv);
+
+        if (isProj) {
+            // camera origin
+            this._node.getWorldPosition(v_b);
+            Ray.fromPoints(out, v_b, v_a);
+        } else {
+            Vec3.transformQuat(out.d, Vec3.FORWARD, this._node.worldRotation);
+        }
+
+        return out;
+    }
+
+    /**
+     * transform a screen position (in oriented space) to world space
+     */
+    public screenToWorld (out: Vec3, screenPos: Vec3): Vec3 {
+        const width = this.width;
+        const height = this.height;
+        const cx = this._viewport.x * width;
+        const cy = this._viewport.y * height;
+        const cw = this._viewport.width * width;
+        const ch = this._viewport.height * height;
+        const ySign = this._device.capabilities.clipSpaceSignY;
+        const preTransform = preTransforms[this._curTransform];
 
         if (this._proj === CameraProjection.PERSPECTIVE) {
             // calculate screen pos in far clip plane
             Vec3.set(out,
                 (screenPos.x - cx) / cw * 2 - 1,
                 (screenPos.y - cy) / ch * 2 - 1,
-                1.0,
-            );
+                1.0);
 
             // transform to world
+            const { x, y } = out;
+            out.x = x * preTransform[0] + y * preTransform[2] * ySign;
+            out.y = x * preTransform[1] + y * preTransform[3] * ySign;
             Vec3.transformMat4(out, out, this._matViewProjInv);
 
             // lerp to depth z
@@ -672,11 +797,13 @@ export class Camera {
             Vec3.set(out,
                 (screenPos.x - cx) / cw * 2 - 1,
                 (screenPos.y - cy) / ch * 2 - 1,
-                screenPos.z * 2 - 1,
-            );
+                screenPos.z * 2 - 1);
 
             // transform to world
-            Vec3.transformMat4(out, out, this.matViewProjInv);
+            const { x, y } = out;
+            out.x = x * preTransform[0] + y * preTransform[2] * ySign;
+            out.y = x * preTransform[1] + y * preTransform[3] * ySign;
+            Vec3.transformMat4(out, out, this._matViewProjInv);
         }
 
         return out;
@@ -686,15 +813,20 @@ export class Camera {
      * transform a world space position to screen space
      */
     public worldToScreen (out: Vec3, worldPos: Vec3): Vec3 {
-        const handle = this._poolHandle;
-        const width = CameraPool.get(handle, CameraView.WIDTH);
-        const height = CameraPool.get(handle, CameraView.HEIGHT);
+        const width = this.width;
+        const height = this.height;
         const cx = this._viewport.x * width;
         const cy = this._viewport.y * height;
         const cw = this._viewport.width * width;
         const ch = this._viewport.height * height;
+        const ySign = this._device.capabilities.clipSpaceSignY;
+        const preTransform = preTransforms[this._curTransform];
 
-        Vec3.transformMat4(out, worldPos, this.matViewProj);
+        Vec3.transformMat4(out, worldPos, this._matViewProj);
+
+        const { x, y } = out;
+        out.x = x * preTransform[0] + y * preTransform[2] * ySign;
+        out.y = x * preTransform[1] + y * preTransform[3] * ySign;
 
         out.x = cx + (out.x + 1) * 0.5 * cw;
         out.y = cy + (out.y + 1) * 0.5 * ch;
@@ -711,8 +843,10 @@ export class Camera {
      * @param {number} height framebuffer height
      * @returns {Mat4} the resulting vector
      */
-    public worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number){
+    public worldMatrixToScreen (out: Mat4, worldMatrix: Mat4, width: number, height: number) {
         Mat4.multiply(out, this._matViewProj, worldMatrix);
+        Mat4.multiply(out, correctionMatrices[this._curTransform], out);
+
         const halfWidth = width / 2;
         const halfHeight = height / 2;
         Mat4.identity(_tempMat1);
@@ -724,29 +858,15 @@ export class Camera {
         return out;
     }
 
-    private updateExposure () {
-        const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
-        CameraPool.set(this._poolHandle, CameraView.EXPOSURE, 0.833333 / Math.pow(2.0, ev100));
+    protected setExposure (ev100) {
+        this._exposure = 0.833333 / (2.0 ** ev100);
+        if (JSB) {
+            CameraPool.set(this._poolHandle, CameraView.EXPOSURE, this._exposure);
+        }
     }
 
-    private recordFrustumInSharedMemory () {
-        const frustumHandle = this._frustumHandle;
-        const frstm = this._frustum;
-        if (!frstm || frustumHandle === NULL_HANDLE) {
-            return;
-        }
-
-        const vertices = frstm.vertices;
-        let vertexOffset = FrustumView.VERTICES as const;
-        for (let i = 0; i < 8; ++i) {
-            FrustumPool.setVec3(frustumHandle, vertexOffset, vertices[i]);
-            vertexOffset += 3;
-        }
-
-        const planes = frstm.planes;
-        let planeOffset = FrustumView.PLANES as const;
-        for (let i = 0; i < 6; i++, planeOffset += 4) {
-            FrustumPool.setVec4(frustumHandle, planeOffset, planes[i]);
-        }
+    private updateExposure () {
+        const ev100 = Math.log2((this._apertureValue * this._apertureValue) / this._shutterValue * 100.0 / this._isoValue);
+        this.setExposure(ev100);
     }
 }

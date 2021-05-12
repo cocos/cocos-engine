@@ -1,6 +1,6 @@
 /*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,10 +25,13 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
 import * as bits from './bits';
+
+import './deprecated';
 /**
  * Export module bits.
  */
@@ -46,5 +49,3 @@ export { Rect, rect } from './rect';
 export { Color, color } from './color';
 export * from './utils';
 export * from './type-define';
-
-import './deprecated';

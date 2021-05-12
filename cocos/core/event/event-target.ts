@@ -1,6 +1,6 @@
-﻿/*
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -25,7 +25,8 @@
 */
 
 /**
- * @category event
+ * @packageDocumentation
+ * @module event
  */
 
 import * as js from '../utils/js';
@@ -33,8 +34,7 @@ import { CallbacksInvoker } from './callbacks-invoker';
 import { legacyCC } from '../global-exports';
 import { Eventify } from './eventify';
 
-// eslint-disable-next-line @typescript-eslint/no-extraneous-class
-class Empty {};
+class Empty {}
 
 /**
  * @en

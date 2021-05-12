@@ -1,5 +1,30 @@
-import { GFXBuffer, GFXBufferSource, IGFXBufferInfo, IGFXBufferViewInfo } from '../buffer';
-import { GFXBufferFlagBit, GFXBufferUsageBit } from '../define';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+import { Buffer } from '../base/buffer';
+import { BufferUsageBit, BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer } from '../base/define';
 import {
     WebGL2CmdFuncCreateBuffer,
     WebGL2CmdFuncDestroyBuffer,
@@ -9,18 +34,15 @@ import {
 import { WebGL2Device } from './webgl2-device';
 import { IWebGL2GPUBuffer } from './webgl2-gpu-objects';
 
-export class WebGL2Buffer extends GFXBuffer {
-
+export class WebGL2Buffer extends Buffer {
     get gpuBuffer (): IWebGL2GPUBuffer {
         return  this._gpuBuffer!;
     }
 
     private _gpuBuffer: IWebGL2GPUBuffer | null = null;
 
-    public initialize (info: IGFXBufferInfo | IGFXBufferViewInfo): boolean {
-
+    public initialize (info: BufferInfo | BufferViewInfo): boolean {
         if ('buffer' in info) { // buffer view
-
             this._isBufferView = true;
 
             const buffer = info.buffer as WebGL2Buffer;
@@ -36,29 +58,22 @@ export class WebGL2Buffer extends GFXBuffer {
                 memUsage: this._memUsage,
                 size: this._size,
                 stride: this._stride,
-                buffer: this._bakcupBuffer,
+                buffer: null,
                 indirects: buffer.gpuBuffer.indirects,
                 glTarget: buffer.gpuBuffer.glTarget,
                 glBuffer: buffer.gpuBuffer.glBuffer,
                 glOffset: info.offset,
             };
-
         } else { // native buffer
-
             this._usage = info.usage;
             this._memUsage = info.memUsage;
             this._size = info.size;
             this._stride = Math.max(info.stride || this._size, 1);
             this._count = this._size / this._stride;
-            this._flags = (info.flags !== undefined ? info.flags : GFXBufferFlagBit.NONE);
+            this._flags = info.flags;
 
-            if (this._usage & GFXBufferUsageBit.INDIRECT) {
-                this._indirectBuffer = { drawInfos: [] };
-            }
-
-            if (this._flags & GFXBufferFlagBit.BAKUP_BUFFER) {
-                this._bakcupBuffer = new Uint8Array(this._size);
-                this._device.memoryStatus.bufferSize += this._size;
+            if (this._usage & BufferUsageBit.INDIRECT) {
+                this._indirectBuffer = new IndirectBuffer();
             }
 
             this._gpuBuffer = {
@@ -66,14 +81,14 @@ export class WebGL2Buffer extends GFXBuffer {
                 memUsage: this._memUsage,
                 size: this._size,
                 stride: this._stride,
-                buffer: this._bakcupBuffer,
+                buffer: null,
                 indirects: [],
                 glTarget: 0,
                 glBuffer: null,
                 glOffset: 0,
             };
 
-            if (info.usage & GFXBufferUsageBit.INDIRECT) {
+            if (info.usage & BufferUsageBit.INDIRECT) {
                 this._gpuBuffer.indirects = this._indirectBuffer!.drawInfos;
             }
 
@@ -93,8 +108,6 @@ export class WebGL2Buffer extends GFXBuffer {
             }
             this._gpuBuffer = null;
         }
-
-        this._bakcupBuffer = null;
     }
 
     public resize (size: number) {
@@ -109,19 +122,7 @@ export class WebGL2Buffer extends GFXBuffer {
         this._size = size;
         this._count = this._size / this._stride;
 
-        if (this._bakcupBuffer) {
-            const oldView = this._bakcupBuffer;
-            this._bakcupBuffer = new Uint8Array(this._size);
-            this._bakcupBuffer.set(oldView);
-            this._device.memoryStatus.bufferSize -= oldSize;
-            this._device.memoryStatus.bufferSize += size;
-        }
-
         if (this._gpuBuffer) {
-            if (this._bakcupBuffer) {
-                this._gpuBuffer.buffer = this._bakcupBuffer;
-            }
-
             this._gpuBuffer.size = size;
             if (size > 0) {
                 WebGL2CmdFuncResizeBuffer(this._device as WebGL2Device, this._gpuBuffer);
@@ -131,30 +132,27 @@ export class WebGL2Buffer extends GFXBuffer {
         }
     }
 
-    public update (buffer: GFXBufferSource, offset?: number, size?: number) {
+    public update (buffer: BufferSource, size?: number) {
         if (this._isBufferView) {
             console.warn('cannot update through buffer views!');
             return;
         }
 
         let buffSize: number;
-        if (size !== undefined ) {
+        if (size !== undefined) {
             buffSize = size;
-        } else if (this._usage & GFXBufferUsageBit.INDIRECT) {
+        } else if (this._usage & BufferUsageBit.INDIRECT) {
             buffSize = 0;
         } else {
             buffSize = (buffer as ArrayBuffer).byteLength;
-        }
-        if (this._bakcupBuffer && buffer !== this._bakcupBuffer.buffer) {
-            const view = new Uint8Array(buffer as ArrayBuffer, 0, size);
-            this._bakcupBuffer.set(view, offset);
         }
 
         WebGL2CmdFuncUpdateBuffer(
             this._device as WebGL2Device,
             this._gpuBuffer!,
             buffer,
-            offset || 0,
-            buffSize);
+            0,
+            buffSize,
+        );
     }
 }

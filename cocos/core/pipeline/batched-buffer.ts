@@ -1,33 +1,58 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { GFXBufferUsageBit, GFXFormat, GFXMemoryUsageBit, GFXDevice, GFXDescriptorSet } from '../gfx';
-import { GFXBuffer } from '../gfx/buffer';
-import { GFXInputAssembler, IGFXAttribute } from '../gfx/input-assembler';
+import { BufferUsageBit, Format, MemoryUsageBit, Device, DescriptorSet, InputAssembler,
+    InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../gfx';
 import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
-import { IRenderObject, UBOLocalBatched } from './define';
+import { UBOLocalBatched } from './define';
 import { Pass } from '../renderer';
-import { SubModelPool, SubModelView, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
+import { Model } from '../renderer/scene';
+import { SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 
 export interface IBatchedItem {
-    vbs: GFXBuffer[];
+    vbs: Buffer[];
     vbDatas: Uint8Array[];
-    vbIdx: GFXBuffer;
+    vbIdx: Buffer;
     vbIdxData: Float32Array;
     vbCount: number;
     mergeCount: number;
-    ia: GFXInputAssembler;
-    ubo: GFXBuffer;
+    ia: InputAssembler;
+    ubo: Buffer;
     uboData: Float32Array;
-    descriptorSet: GFXDescriptorSet;
-    hPass: PassHandle;
+    descriptorSet: DescriptorSet;
+    pass: Pass;
     hShader: ShaderHandle;
 }
 
 export class BatchedBuffer {
-
     private static _buffers = new Map<Pass, Record<number, BatchedBuffer>>();
 
     public static get (pass: Pass, extraKey = 0) {
@@ -39,7 +64,7 @@ export class BatchedBuffer {
 
     public batches: IBatchedItem[] = [];
     public dynamicOffsets: number[] = [];
-    private _device: GFXDevice;
+    private _device: Device;
 
     constructor (pass: Pass) {
         this._device = pass.device;
@@ -58,13 +83,13 @@ export class BatchedBuffer {
         this.batches.length = 0;
     }
 
-    public merge (subModel: SubModel, passIdx: number, ro: IRenderObject) {
+    public merge (subModel: SubModel, passIdx: number, model: Model) {
         const flatBuffers = subModel.subMesh.flatBuffers;
         if (flatBuffers.length === 0) { return; }
         let vbSize = 0;
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
-        const hPass = SubModelPool.get(subModel.handle, SubModelView.PASS_0 + passIdx) as PassHandle;
+        const pass = subModel.passes[passIdx];
         const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
         const descriptorSet = subModel.descriptorSet;
         let isBatchExist = false;
@@ -113,11 +138,11 @@ export class BatchedBuffer {
                     }
 
                     // update world matrix
-                    Mat4.toArray(batch.uboData, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
+                    Mat4.toArray(batch.uboData, model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET + batch.mergeCount * 16);
                     if (!batch.mergeCount) {
-                        descriptorSet.bindBuffer(UBOLocalBatched.BLOCK.binding, batch.ubo);
+                        descriptorSet.bindBuffer(UBOLocalBatched.BINDING, batch.ubo);
                         descriptorSet.update();
-                        batch.hPass = hPass;
+                        batch.pass = pass;
                         batch.hShader = hShader;
                         batch.descriptorSet = descriptorSet;
                     }
@@ -132,65 +157,70 @@ export class BatchedBuffer {
         }
 
         // Create a new batch
-        const vbs: GFXBuffer[] = [];
+        const vbs: Buffer[] = [];
         const vbDatas: Uint8Array[] = [];
-        const totalVBs: GFXBuffer[] = [];
+        const totalVBs: Buffer[] = [];
         for (let i = 0; i < flatBuffers.length; ++i) {
             const flatBuff = flatBuffers[i];
-            const newVB = this._device.createBuffer({
-                usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: flatBuff.count * flatBuff.stride,
-                stride: flatBuff.stride,
-            });
+            const newVB = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                flatBuff.count * flatBuff.stride,
+                flatBuff.stride,
+            ));
             newVB.update(flatBuff.buffer.buffer);
             vbs.push(newVB);
             vbDatas.push(new Uint8Array(newVB.size));
             totalVBs.push(newVB);
         }
 
-        const vbIdx = this._device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: vbCount * 4,
-            stride: 4,
-        });
+        const vbIdx = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            vbCount * 4,
+            4,
+        ));
         const vbIdxData = new Float32Array(vbCount);
         vbIdxData.fill(0);
         vbIdx.update(vbIdxData);
         totalVBs.push(vbIdx);
 
-        const attributes = subModel.inputAssembler!.attributes;
-        const attrs = new Array<IGFXAttribute>(attributes.length + 1);
+        const attributes = subModel.inputAssembler.attributes;
+        const attrs = new Array<Attribute>(attributes.length + 1);
         for (let a = 0; a < attributes.length; ++a) {
             attrs[a] = attributes[a];
         }
-        attrs[attributes.length] = {
-            name: 'a_dyn_batch_id',
-            format: GFXFormat.R32F,
-            stream: flatBuffers.length,
-        };
+        attrs[attributes.length] = new Attribute('a_dyn_batch_id', Format.R32F, false, flatBuffers.length);
 
-        const ia = this._device.createInputAssembler({
-            attributes: attrs,
-            vertexBuffers: totalVBs,
-        });
+        const iaInfo = new InputAssemblerInfo(attrs, totalVBs);
+        const ia = this._device.createInputAssembler(iaInfo);
 
-        const ubo = this._device.createBuffer({
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: UBOLocalBatched.SIZE,
-        });
+        const ubo = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            UBOLocalBatched.SIZE,
+            UBOLocalBatched.SIZE,
+        ));
 
-        descriptorSet.bindBuffer(UBOLocalBatched.BLOCK.binding, ubo);
+        descriptorSet.bindBuffer(UBOLocalBatched.BINDING, ubo);
         descriptorSet.update();
 
         const uboData = new Float32Array(UBOLocalBatched.COUNT);
-        Mat4.toArray(uboData, ro.model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET);
+        Mat4.toArray(uboData, model.transform.worldMatrix, UBOLocalBatched.MAT_WORLDS_OFFSET);
 
         this.batches.push({
             mergeCount: 1,
-            vbs, vbDatas, vbIdx, vbIdxData, vbCount, ia, ubo, uboData, hPass, hShader, descriptorSet,
+            vbs,
+            vbDatas,
+            vbIdx,
+            vbIdxData,
+            vbCount,
+            ia,
+            ubo,
+            uboData,
+            pass,
+            hShader,
+            descriptorSet,
         });
     }
 

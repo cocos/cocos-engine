@@ -1,10 +1,36 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { RenderingSubMesh } from '../../core/assets/mesh';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
+import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
+import { DRAW_INFO_SIZE, Buffer, IndirectBuffer, Attribute, BufferInfo, DrawInfo,
+    AttributeName, BufferUsageBit, Format, FormatInfos, MemoryUsageBit, PrimitiveMode } from '../../core/gfx';
 import { Vec3 } from '../../core/math';
 import { scene } from '../../core/renderer';
 import CurveRange from '../animator/curve-range';
@@ -12,51 +38,40 @@ import GradientRange from '../animator/gradient-range';
 import { Material } from '../../core/assets';
 
 const _vertex_attrs = [
-    { name: GFXAttributeName.ATTR_POSITION, format: GFXFormat.RGB32F }, // xyz:position
-    { name: GFXAttributeName.ATTR_TEX_COORD, format: GFXFormat.RGBA32F }, // x:index y:size zw:texcoord
-    { name: GFXAttributeName.ATTR_TEX_COORD1, format: GFXFormat.RGB32F }, // xyz:velocity
-    { name: GFXAttributeName.ATTR_COLOR, format: GFXFormat.RGBA8, isNormalized: true },
+    new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F), // xyz:position
+    new Attribute(AttributeName.ATTR_TEX_COORD, Format.RGBA32F), // x:index y:size zw:texcoord
+    new Attribute(AttributeName.ATTR_TEX_COORD1, Format.RGB32F), // xyz:velocity
+    new Attribute(AttributeName.ATTR_COLOR, Format.RGBA8, true),
 ];
 
 const _temp_v1 = new Vec3();
 const _temp_v2 = new Vec3();
 
 export class LineModel extends scene.Model {
-
     private _capacity: number;
-    private _vertSize: number = 0;
+    private _vertSize = 0;
     private _vBuffer: ArrayBuffer | null = null;
-    private _vertAttrsFloatCount: number = 0;
+    private _vertAttrsFloatCount = 0;
     private _vdataF32: Float32Array | null = null;
     private _vdataUint32: Uint32Array | null = null;
-    private _iaInfo: IGFXIndirectBuffer;
-    private _iaInfoBuffer: GFXBuffer;
+    private _iaInfo: IndirectBuffer;
+    private _iaInfoBuffer: Buffer;
     private _subMeshData: RenderingSubMesh | null = null;
-    private _vertCount: number = 0;
-    private _indexCount: number = 0;
+    private _vertCount = 0;
+    private _indexCount = 0;
     private _material: Material | null = null;
 
     constructor () {
         super();
         this.type = scene.ModelType.LINE;
         this._capacity = 100;
-        this._iaInfo = {
-            drawInfos: [{
-                vertexCount: 0,
-                firstVertex: 0,
-                indexCount: 0,
-                firstIndex: 0,
-                vertexOffset: 0,
-                instanceCount: 0,
-                firstInstance: 0,
-            }],
-        };
-        this._iaInfoBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.INDIRECT,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: GFX_DRAW_INFO_SIZE,
-            stride: GFX_DRAW_INFO_SIZE,
-        });
+        this._iaInfo = new IndirectBuffer([new DrawInfo()]);
+        this._iaInfoBuffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDIRECT,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            DRAW_INFO_SIZE,
+            DRAW_INFO_SIZE,
+        ));
     }
 
     public setCapacity (capacity: number) {
@@ -68,7 +83,7 @@ export class LineModel extends scene.Model {
         this._vertSize = 0;
         for (const a of _vertex_attrs) {
             (a as any).offset = this._vertSize;
-            this._vertSize += GFXFormatInfos[a.format].size;
+            this._vertSize += FormatInfos[a.format].size;
         }
         this._vertAttrsFloatCount = this._vertSize / 4; // number of float
         this._vBuffer = this.createSubMeshData();
@@ -87,12 +102,12 @@ export class LineModel extends scene.Model {
         }
         this._vertCount = 2;
         this._indexCount = 6;
-        const vertexBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: this._vertSize * this._capacity * this._vertCount,
-            stride: this._vertSize,
-        });
+        const vertexBuffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            this._vertSize * this._capacity * this._vertCount,
+            this._vertSize,
+        ));
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * this._capacity * this._vertCount);
         vertexBuffer.update(vBuffer);
 
@@ -108,12 +123,12 @@ export class LineModel extends scene.Model {
             indices[dst++] = baseIdx + 1;
         }
 
-        const indexBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: (this._capacity - 1) * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
-            stride: Uint16Array.BYTES_PER_ELEMENT,
-        });
+        const indexBuffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            (this._capacity - 1) * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
 
         indexBuffer.update(indices);
 
@@ -121,16 +136,14 @@ export class LineModel extends scene.Model {
         this._iaInfo.drawInfos[0].indexCount = (this._capacity - 1) * this._indexCount;
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, GFXPrimitiveMode.TRIANGLE_LIST);
-        this._subMeshData.indexBuffer = indexBuffer;
-        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], _vertex_attrs, PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
         this.initSubModel(0, this._subMeshData, this._material!);
         return vBuffer;
     }
 
     public addLineVertexData (positions: Vec3[], width: CurveRange, color: GradientRange) {
         if (positions.length > 1) {
-            let offset: number = 0;
+            let offset = 0;
             Vec3.subtract(_temp_v1, positions[1], positions[0]);
             this._vdataF32![offset++] = positions[0].x;
             this._vdataF32![offset++] = positions[0].y;

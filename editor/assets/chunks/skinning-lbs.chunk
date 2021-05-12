@@ -2,7 +2,7 @@
 #include <cc-skinning>
 
 #if CC_USE_BAKED_ANIMATION
-  #if CC_SUPPORT_FLOAT_TEXTURE
+  #if CC_DEVICE_SUPPORT_FLOAT_TEXTURE
     mat4 getJointMatrix (float i) {
       CCGetJointTextureCoords(3.0, i, j, x, y, invSize);
       vec4 v1 = texture(cc_jointTexture, vec2((x + 0.5) * invSize, y));
@@ -45,10 +45,11 @@
 #endif
 
 mat4 skinMatrix () {
-  return getJointMatrix(a_joints.x) * a_weights.x
-       + getJointMatrix(a_joints.y) * a_weights.y
-       + getJointMatrix(a_joints.z) * a_weights.z
-       + getJointMatrix(a_joints.w) * a_weights.w;
+  vec4 joints = vec4(a_joints); //simple conversion of a_joints from unsigned integer to float to match function parameter type
+  return getJointMatrix(joints.x) * a_weights.x
+       + getJointMatrix(joints.y) * a_weights.y
+       + getJointMatrix(joints.z) * a_weights.z
+       + getJointMatrix(joints.w) * a_weights.w;
 }
 
 void CCSkin (inout vec4 position) {

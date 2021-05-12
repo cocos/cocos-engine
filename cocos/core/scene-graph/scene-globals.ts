@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
  http://www.cocos.com
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
@@ -20,12 +20,13 @@
 */
 
 /**
- * @category scene-graph
+ * @packageDocumentation
+ * @module scene-graph
  */
 
+import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable, rangeMin } from 'cc.decorator';
 import { TextureCube } from '../assets/texture-cube';
-import { ccclass, visible, type, displayOrder, slide, range, rangeStep, editable, serializable} from 'cc.decorator';
-import { CCBoolean, CCFloat } from '../data/utils/attribute';
+import { CCFloat, CCBoolean, CCInteger } from '../data/utils/attribute';
 import { Color, Quat, Vec3, Vec2 } from '../math';
 import { Ambient } from '../renderer/scene/ambient';
 import { Shadows, ShadowType, PCFType } from '../renderer/scene/shadows';
@@ -95,10 +96,9 @@ export class AmbientInfo {
     }
 
     public activate (resource: Ambient) {
+        const aa :Ambient = resource;
         this._resource = resource;
-        this._resource.skyColor = this._skyColor;
-        this._resource.skyIllum = this._skyIllum;
-        this._resource.groundAlbedo = this._groundAlbedo;
+        this._resource.initialize(this);
     }
 }
 legacyCC.AmbientInfo = AmbientInfo;
@@ -126,8 +126,11 @@ export class SkyboxInfo {
      */
     @editable
     set enabled (val) {
+        if (this._enabled === val) return;
         this._enabled = val;
-        if (this._resource) { this._resource.enabled = this._enabled; }
+        if (this._resource) {
+            this._resource.enabled = this._enabled;
+        }
     }
     get enabled () {
         return this._enabled;
@@ -150,7 +153,7 @@ export class SkyboxInfo {
      * @en The texture cube used for the skybox
      * @zh 使用的立方体贴图
      */
-    
+
     @editable
     @type(TextureCube)
     set envmap (val) {
@@ -176,11 +179,8 @@ export class SkyboxInfo {
 
     public activate (resource: Skybox) {
         this._resource = resource;
+        this._resource.initialize(this);
         this._resource.activate(); // update global DS first
-        this._resource.enabled = this._enabled;
-        this._resource.isRGBE = this._isRGBE;
-        this._resource.envmap = this._envmap;
-        this._resource.useIBL = this._useIBL;
     }
 }
 legacyCC.SkyboxInfo = SkyboxInfo;
@@ -217,8 +217,14 @@ export class FogInfo {
      */
     @editable
     set enabled (val: boolean) {
+        if (this._enabled === val) return;
         this._enabled = val;
-        if (this._resource) { this._resource.enabled = val; }
+        if (this._resource) {
+            this._resource.enabled = val;
+            if (val) {
+                this._resource.type = this._type;
+            }
+        }
     }
 
     get enabled () {
@@ -258,14 +264,14 @@ export class FogInfo {
      * @zh 全局雾浓度
      * @en Global fog density
      */
+    @visible(function (this: FogInfo) {
+        return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
+    })
     @type(CCFloat)
     @range([0, 1])
     @rangeStep(0.01)
     @slide
     @displayOrder(3)
-    @visible(function (this: FogInfo) {
-        return this._type !== FogType.LAYERED && this._type !== FogType.LINEAR;
-    })
     get fogDensity () {
         return this._fogDensity;
     }
@@ -279,10 +285,10 @@ export class FogInfo {
      * @zh 雾效起始位置，只适用于线性雾
      * @en Global fog start position, only for linear fog
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(4)
     @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
+    @type(CCFloat)
+    @rangeStep(0.01)
+    @displayOrder(4)
     get fogStart () {
         return this._fogStart;
     }
@@ -296,10 +302,10 @@ export class FogInfo {
      * @zh 雾效结束位置，只适用于线性雾
      * @en Global fog end position, only for linear fog
      */
+    @visible(function (this: FogInfo) { return this._type === FogType.LINEAR; })
     @type(CCFloat)
-    @rangeStep(0.1)
+    @rangeStep(0.01)
     @displayOrder(5)
-    @visible(function (this: FogInfo) {  return this._type === FogType.LINEAR; })
     get fogEnd () {
         return this._fogEnd;
     }
@@ -313,10 +319,11 @@ export class FogInfo {
      * @zh 雾效衰减
      * @en Global fog attenuation
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(6)
     @visible(function (this: FogInfo) { return this._type !== FogType.LINEAR; })
+    @type(CCFloat)
+    @rangeMin(0.01)
+    @rangeStep(0.01)
+    @displayOrder(6)
     get fogAtten () {
         return this._fogAtten;
     }
@@ -330,10 +337,10 @@ export class FogInfo {
      * @zh 雾效顶部范围，只适用于层级雾
      * @en Global fog top range, only for layered fog
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(7)
     @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
+    @type(CCFloat)
+    @rangeStep(0.01)
+    @displayOrder(7)
     get fogTop () {
         return this._fogTop;
     }
@@ -347,10 +354,10 @@ export class FogInfo {
      * @zh 雾效范围，只适用于层级雾
      * @en Global fog range, only for layered fog
      */
-    @type(CCFloat)
-    @rangeStep(0.1)
-    @displayOrder(8)
     @visible(function (this: FogInfo) { return this._type === FogType.LAYERED; })
+    @type(CCFloat)
+    @rangeStep(0.01)
+    @displayOrder(8)
     get fogRange () {
         return this._fogRange;
     }
@@ -362,15 +369,8 @@ export class FogInfo {
 
     public activate (resource: Fog) {
         this._resource = resource;
-        this._resource.enabled = this._enabled;
-        this._resource.fogColor = this._fogColor;
-        this._resource.type = this._type;
-        this._resource.fogDensity = this._fogDensity;
-        this._resource.fogStart = this._fogStart;
-        this._resource.fogEnd = this._fogEnd;
-        this._resource.fogAtten = this._fogAtten;
-        this._resource.fogTop = this._fogTop;
-        this._resource.fogRange = this._fogRange;
+        this._resource.initialize(this);
+        this._resource.activate();
     }
 }
 
@@ -391,15 +391,29 @@ export class ShadowsInfo {
     @serializable
     protected _shadowColor = new Color(0, 0, 0, 76);
     @serializable
+    protected _autoAdapt = true;
+    @serializable
     protected _pcf = PCFType.HARD;
     @serializable
-    protected _near: number = 1;
+    protected _bias = 0.00001;
     @serializable
-    protected _far: number = 30;
+    protected _packing = false;
     @serializable
-    protected _aspect: number = 1;
+    protected _linear = true;
     @serializable
-    protected _orthoSize: number = 5;
+    protected _selfShadow = false;
+    @serializable
+    protected _normalBias = 0.0;
+    @serializable
+    protected _near = 1;
+    @serializable
+    protected _far = 30;
+    @serializable
+    protected _aspect = 1;
+    @serializable
+    protected _orthoSize = 5;
+    @serializable
+    protected _maxReceived = 4;
     @serializable
     protected _size: Vec2 = new Vec2(512, 512);
 
@@ -411,8 +425,14 @@ export class ShadowsInfo {
      */
     @editable
     set enabled (val: boolean) {
+        if (this._enabled === val) return;
         this._enabled = val;
-        if (this._resource) { this._resource.enabled = val; }
+        if (this._resource) {
+            this._resource.enabled = val;
+            if (val) {
+                this._resource.type = this._type;
+            }
+        }
     }
     get enabled () {
         return this._enabled;
@@ -483,11 +503,122 @@ export class ShadowsInfo {
     }
 
     /**
+     * @en get or set shadow max received
+     * @zh 获取或者设置阴影接收的最大光源数量
+     */
+    @type(CCInteger)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set maxReceived (val: number) {
+        this._maxReceived = val;
+        if (this._resource) { this._resource.maxReceived = val; }
+    }
+    get maxReceived () {
+        return this._maxReceived;
+    }
+
+    /**
+     * @en get or set shadow map sampler offset
+     * @zh 获取或者设置阴影纹理偏移值
+     */
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set bias (val: number) {
+        this._bias = val;
+        if (this._resource) { this._resource.bias = val; }
+    }
+    get bias () {
+        return this._bias;
+    }
+
+    /**
+     * @en on or off packing depth.
+     * @zh 打开或者关闭深度压缩。降低阴影质量，提高性能。与 liner depth 互斥。
+     */
+    @type(CCBoolean)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set packing (val) {
+        this._packing = val;
+        if (val) {
+            this._linear = this._linear ? false : this._linear;
+            if (this._resource) { this._resource.linear = this._linear; }
+        }
+
+        if (this._resource) {
+            this._resource.packing = val;
+            this._resource.shadowMapDirty = true;
+        }
+    }
+    get packing () {
+        return this._packing;
+    }
+
+    /**
+     * @en on or off linear depth.
+     * @zh 打开或者关闭线性深度。提高阴影质量，降低性能。与 packing depth 互斥。
+     */
+    @type(CCBoolean)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set linear (val) {
+        this._linear = val;
+        if (val) {
+            this._packing = this._packing ? false : this._packing;
+            if (this._resource) { this._resource.packing = this._packing; }
+        }
+
+        if (this._resource) { this._resource.linear = val; }
+    }
+    get linear () {
+        return this._linear;
+    }
+
+    /**
+     * @en on or off Self-shadowing.
+     * @zh 打开或者关闭自阴影。
+     */
+    @type(CCBoolean)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set selfShadow (val) {
+        this._selfShadow = val;
+        if (this._resource) { this._resource.selfShadow = val; }
+    }
+    get selfShadow () {
+        return this._selfShadow;
+    }
+
+    /**
+     * @en on or off Self-shadowing.
+     * @zh 打开或者关闭自阴影。
+     */
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._selfShadow === true; })
+    set normalBias (val: number) {
+        this._normalBias = val;
+        if (this._resource) { this._resource.normalBias = val; }
+    }
+    get normalBias () {
+        return this._normalBias;
+    }
+
+    /**
+     * @en get or set shadow Map sampler auto adapt
+     * @zh 阴影纹理生成是否自适应
+     */
+    @type(CCBoolean)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    set autoAdapt (val) {
+        this._autoAdapt = val;
+        if (this._resource) { this._resource.autoAdapt = val; }
+    }
+    get autoAdapt () {
+        return this._autoAdapt;
+    }
+
+    /**
      * @en get or set shadow camera near
      * @zh 获取或者设置阴影相机近裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set near (val: number) {
         this._near = val;
         if (this._resource) { this._resource.near = val; }
@@ -501,7 +632,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机远裁剪面
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set far (val: number) {
         this._far = val;
         if (this._resource) { this._resource.far = val; }
@@ -515,7 +646,7 @@ export class ShadowsInfo {
      * @zh 获取或者设置阴影相机正交大小
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set orthoSize (val: number) {
         this._orthoSize = val;
         if (this._resource) { this._resource.orthoSize = val; }
@@ -525,24 +656,27 @@ export class ShadowsInfo {
     }
 
     /**
-     * @en get or set shadow camera orthoSize
+     * @en get or set shadow map size
      * @zh 获取或者设置阴影纹理大小
      */
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set shadowMapSize (val: Vec2) {
         this._size.set(val);
-        if (this._resource) { this._resource.size = val; }
+        if (this._resource) {
+            this._resource.size = val;
+            this._resource.shadowMapDirty = true;
+        }
     }
     get shadowMapSize () {
         return this._size;
     }
 
     /**
-     * @en get or set shadow camera orthoSize
-     * @zh 获取或者设置阴影纹理大小
+     * @en get or set shadow camera aspect.
+     * @zh 获取或者设置阴影相机的宽高比。
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
     set aspect (val: number) {
         this._aspect = val;
         if (this._resource) { this._resource.aspect = val; }
@@ -565,15 +699,8 @@ export class ShadowsInfo {
 
     public activate (resource: Shadows) {
         this._resource = resource;
-        this._resource.type = this._type;
-        this._resource.near = this._near;
-        this._resource.far = this._far;
-        this._resource.orthoSize = this._orthoSize;
-        this._resource.size = this._size;
-        this._resource.normal = this._normal;
-        this._resource.distance = this._distance;
-        this._resource.shadowColor = this._shadowColor;
-        this._resource.enabled = this._enabled;
+        this._resource.initialize(this);
+        this._resource.activate();
     }
 }
 legacyCC.ShadowsInfo = ShadowsInfo;
@@ -618,11 +745,11 @@ export class SceneGlobals {
     }
 
     public activate () {
-        const pipeline = legacyCC.director.root.pipeline;
-        this.ambient.activate(pipeline.ambient);
-        this.skybox.activate(pipeline.skybox);
-        this.shadows.activate(pipeline.shadows);
-        this.fog.activate(pipeline.fog);
+        const sceneData = legacyCC.director.root.pipeline.pipelineSceneData;
+        this.ambient.activate(sceneData.ambient);
+        this.skybox.activate(sceneData.skybox);
+        this.shadows.activate(sceneData.shadows);
+        this.fog.activate(sceneData.fog);
     }
 }
 legacyCC.SceneGlobals = SceneGlobals;

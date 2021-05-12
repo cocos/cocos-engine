@@ -1,19 +1,44 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
 
 /**
- * @category animation
+ * @packageDocumentation
+ * @module animation
  */
 
 import { EDITOR } from 'internal:constants';
-import { Asset } from '../assets/asset';
-import { SpriteFrame } from '../assets/sprite-frame';
 import { ccclass, serializable } from 'cc.decorator';
+import { Asset } from '../assets/asset';
+import { SpriteFrame } from '../../2d/assets/sprite-frame';
 import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 import { errorID } from '../platform/debug';
-import { DataPoolManager } from '../renderer/data-pool-manager';
-import binarySearchEpsilon from '../utils/binary-search';
+import { DataPoolManager } from '../../3d/skeletal-animation/data-pool-manager';
+import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { AnimCurve, IPropertyCurveData, RatioSampler } from './animation-curve';
-import { SkelAnimDataHub } from './skeletal-animation-data-hub';
+import { SkelAnimDataHub } from '../../3d/skeletal-animation/skeletal-animation-data-hub';
 import { ComponentPath, HierarchyPath, TargetPath } from './target-path';
 import { WrapMode as AnimationWrapMode } from './types';
 import { IValueProxyFactory } from './value-proxy';
@@ -93,8 +118,6 @@ export declare namespace AnimationClip {
  */
 @ccclass('cc.AnimationClip')
 export class AnimationClip extends Asset {
-    public static preventDeferredLoadDependents = true;
-
     public static WrapMode = AnimationWrapMode;
 
     /**
@@ -166,6 +189,14 @@ export class AnimationClip extends Asset {
      */
     @serializable
     public events: AnimationClip.IEvent[] = [];
+
+    /**
+     * Sets if node TRS curves in this animation can be blended.
+     * Normally this flag is enabled for model animation and disabled for other case.
+     * @internal This is an internal slot. Never use it in your code.
+     */
+    @serializable
+    public enableTrsBlending = false;
 
     @serializable
     private _duration = 0;
@@ -324,7 +355,9 @@ export class AnimationClip extends Asset {
     }
 
     public destroy () {
-        (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(this);
+        if (legacyCC.director.root.dataPoolManager) {
+            (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseAnimationClip(this);
+        }
         SkelAnimDataHub.destroy(this);
         return super.destroy();
     }
@@ -333,23 +366,24 @@ export class AnimationClip extends Asset {
         this._ratioSamplers = this._keys.map(
             (keys) => new RatioSampler(
                 keys.map(
-                    (key) => key / this._duration)));
+                    (key) => key / this._duration,
+                ),
+            ),
+        );
 
-        this._runtimeCurves = this._curves.map((targetCurve): IRuntimeCurve => {
-            return {
-                curve: new AnimCurve(targetCurve.data, this._duration),
-                modifiers: targetCurve.modifiers,
-                valueAdapter: targetCurve.valueAdapter,
-                sampler: this._ratioSamplers[targetCurve.data.keys],
-                commonTarget: targetCurve.commonTarget,
-            };
-        });
+        this._runtimeCurves = this._curves.map((targetCurve): IRuntimeCurve => ({
+            curve: new AnimCurve(targetCurve.data, this._duration),
+            modifiers: targetCurve.modifiers,
+            valueAdapter: targetCurve.valueAdapter,
+            sampler: this._ratioSamplers[targetCurve.data.keys],
+            commonTarget: targetCurve.commonTarget,
+        }));
 
         this._applyStepness();
     }
 
     protected _createRuntimeEvents () {
-        if (EDITOR) {
+        if (EDITOR && !legacyCC.GAME_VIEW) {
             return;
         }
 
@@ -379,9 +413,6 @@ export class AnimationClip extends Asset {
     }
 
     protected _applyStepness () {
-        if (!this._runtimeCurves) {
-            return;
-        }
         // for (const propertyCurve of this._propertyCurves) {
         //     propertyCurve.curve.stepfy(this._stepness);
         // }
@@ -407,6 +438,10 @@ export class AnimationClip extends Asset {
                 curve.data.values = curve.data.values.decompress(binaryBuffer);
             }
         }
+    }
+
+    public validate () {
+        return this.keys.length > 0 && this.curves.length > 0;
     }
 }
 

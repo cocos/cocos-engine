@@ -1,6 +1,6 @@
-﻿/*
+/*
  Copyright (c) 2013-2016 Chukong Technologies Inc.
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -38,14 +38,28 @@ gulp.task('build-debug-infos', async () => {
     return await Promise.resolve(require('./gulp/tasks/buildDebugInfos')());
 });
 
-gulp.task('build-code', gulp.series('build-debug-infos', () => {
+gulp.task('build-source', async () => {
+    const cli = require.resolve('@cocos/build-engine/dist/cli');
+    return cp.spawn('node', [
+        cli,
+        `--engine=${__dirname}`,
+        '--module=system',
+        ...process.argv.slice(3),
+    ], {
+        shell: true,
+        stdio: 'inherit',
+        cwd: __dirname,
+    });
+});
+
+gulp.task('build-h5-source', gulp.series('build-debug-infos', () => {
     const cli = require.resolve('@cocos/build-engine/dist/cli');
     return cp.spawn('node', [
         cli,
         `--engine=${__dirname}`,
         '--module=system',
         '--sourcemap',
-        '--buildmode=universal',
+        '--build-mode=BUILD',
         '--platform=HTML5',
         '--physics=cannon',
         '--out=./bin/dev/cc',
@@ -56,7 +70,7 @@ gulp.task('build-code', gulp.series('build-debug-infos', () => {
     });
 }));
 
-gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
+gulp.task('build-h5-minified', gulp.series('build-debug-infos', () => {
     const cli = require.resolve('@cocos/build-engine/dist/cli');
     return cp.spawn('node', [
         cli,
@@ -64,7 +78,7 @@ gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
         '--module=system',
         '--compress',
         '--sourcemap',
-        '--buildmode=universal',
+        '--build-mode=BUILD',
         '--platform=HTML5',
         '--physics=cannon',
         '--out=./bin/dev/cc-min',
@@ -77,13 +91,18 @@ gulp.task('build-code-minified', gulp.series('build-debug-infos', () => {
 
 gulp.task('build-declarations', async () => {
     const outDir = ps.join('bin', '.declarations');
+    const { build } = require('@cocos/build-engine/dist/build-declarations');
     await fs.emptyDir(outDir);
-    return require('./scripts/generate-declarations/generate-declarations.js').generate({
+    return await build({
+        engine: __dirname,
         outDir,
+        withIndex: true,
+        withExports: false,
+        withEditorExports: false,
     });
 });
 
-gulp.task('build', gulp.parallel('build-code-minified', 'build-declarations'));
+gulp.task('build', gulp.parallel('build-h5-minified', 'build-debug-infos', 'build-declarations'));
 
 gulp.task('code-check', () => {
     return cp.spawn('npx', ['tsc', '--noEmit'], {

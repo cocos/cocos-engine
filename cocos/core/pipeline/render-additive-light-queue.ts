@@ -1,225 +1,243 @@
-/**
- * @category pipeline
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
  */
 
-import { GFXCommandBuffer } from '../gfx/command-buffer';
-import { IRenderObject, UBOForwardLight, SetIndex } from './define';
-import { Light, LightType } from '../renderer/scene/light';
+/**
+ * @packageDocumentation
+ * @module pipeline
+ */
+import { BatchedBuffer } from './batched-buffer';
+import { BatchingSchemes, Pass } from '../renderer/core/pass';
+import { RenderPipeline } from './render-pipeline';
+import { InstancedBuffer } from './instanced-buffer';
+import { Model } from '../renderer/scene/model';
+import { PipelineStateManager } from './pipeline-state-manager';
+import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView,
+    ShaderHandle } from '../renderer/core/memory-pools';
+import { Vec3, nextPow2, Mat4, Color } from '../math';
+import { Sphere, intersect } from '../geometry';
+import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
+    BufferInfo, BufferViewInfo, CommandBuffer, Filter, Address, Sampler, DescriptorSet, DescriptorSetInfo, Feature } from '../gfx';
+import { Pool } from '../memop';
+import { RenderBatchedQueue } from './render-batched-queue';
+import { RenderInstancedQueue } from './render-instanced-queue';
 import { SphereLight } from '../renderer/scene/sphere-light';
 import { SpotLight } from '../renderer/scene/spot-light';
-import { BatchingSchemes } from '../renderer/core/pass'
-import { Model } from '../renderer/scene/model';
 import { SubModel } from '../renderer/scene/submodel';
-import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
-import { Vec3, nextPow2 } from '../../core/math';
-import { RenderView } from './render-view';
-import { sphere, intersect } from '../geometry';
-import { GFXDevice, GFXRenderPass, GFXBuffer, GFXBufferUsageBit, GFXMemoryUsageBit } from '../gfx';
-import { Pool } from '../memop';
-import { InstancedBuffer } from './instanced-buffer';
-import { BatchedBuffer } from './batched-buffer';
-import { ForwardPipeline } from './forward/forward-pipeline';
-import { RenderInstancedQueue } from './render-instanced-queue';
-import { RenderBatchedQueue } from './render-batched-queue';
 import { getPhaseID } from './pass-phase';
+import { Light, LightType } from '../renderer/scene/light';
+import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
+    UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING,
+    supportsHalfFloatTexture } from './define';
+import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
+import { builtinResMgr } from '../builtin/builtin-res-mgr';
+import { Texture2D } from '../assets/texture-2d';
+import { updatePlanarPROJ } from './scene-culling';
+import { Camera } from '../renderer/scene';
+
+const _samplerInfo = [
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
+];
 
 interface IAdditiveLightPass {
     subModel: SubModel;
     passIdx: number;
     dynamicOffsets: number[];
+    lights: Light[];
 }
 
-const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [] }), 16);
+const _lightPassPool = new Pool<IAdditiveLightPass>(() => ({ subModel: null!, passIdx: -1, dynamicOffsets: [], lights: [] }), 16);
 
 const _vec4Array = new Float32Array(4);
-const _sphere = sphere.create(0, 0, 0, 1);
+const _sphere = Sphere.create(0, 0, 0, 1);
 const _dynamicOffsets: number[] = [];
 const _lightIndices: number[] = [];
+const _matShadowView = new Mat4();
+const _matShadowViewProj = new Mat4();
 
 function cullSphereLight (light: SphereLight, model: Model) {
-    return !!(model.worldBounds && !intersect.aabb_aabb(model.worldBounds, light.aabb));
+    return !!(model.worldBounds && !intersect.aabbWithAABB(model.worldBounds, light.aabb));
 }
 
 function cullSpotLight (light: SpotLight, model: Model) {
-    return !!(model.worldBounds &&
-        (!intersect.aabb_aabb(model.worldBounds, light.aabb) || !intersect.aabb_frustum(model.worldBounds, light.frustum)));
+    return !!(model.worldBounds
+        && (!intersect.aabbWithAABB(model.worldBounds, light.aabb) || !intersect.aabbFrustum(model.worldBounds, light.frustum)));
 }
 
 const _phaseID = getPhaseID('forward-add');
-function getLightPassIndex (subModels: SubModel[]) {
+const _lightPassIndices: number[] = [];
+function getLightPassIndices (subModels: SubModel[], lightPassIndices: number[]) {
+    lightPassIndices.length = 0;
+    let hasValidLightPass = false;
     for (let j = 0; j < subModels.length; j++) {
-        const passes = subModels[j].passes;
+        const { passes } = subModels[j];
+        let lightPassIndex = -1;
         for (let k = 0; k < passes.length; k++) {
             if (passes[k].phase === _phaseID) {
-                return k;
+                lightPassIndex = k;
+                hasValidLightPass = true;
+                break;
             }
         }
+        lightPassIndices.push(lightPassIndex);
     }
-    return -1;
+    return hasValidLightPass;
 }
 
 /**
  * @zh 叠加光照队列。
  */
 export class RenderAdditiveLightQueue {
-
-    private _device: GFXDevice;
+    private _pipeline: RenderPipeline;
+    private _device: Device;
     private _validLights: Light[] = [];
     private _lightPasses: IAdditiveLightPass[] = [];
-
+    private _descriptorSetMap: Map<Light, DescriptorSet> = new Map();
+    private _shadowUBO = new Float32Array(UBOShadow.COUNT);
     private _lightBufferCount = 16;
     private _lightBufferStride: number;
     private _lightBufferElementCount: number;
-    private _lightBuffer: GFXBuffer;
-    private _firstlightBufferView: GFXBuffer;
+    private _lightBuffer: Buffer;
+    private _firstLightBufferView: Buffer;
     private _lightBufferData: Float32Array;
-
-    private _isHDR: boolean;
-    private _fpScale: number;
-    private _renderObjects: IRenderObject[];
     private _instancedQueue: RenderInstancedQueue;
     private _batchedQueue: RenderBatchedQueue;
-    private _lightMeterScale: number = 10000.0;
+    private _lightMeterScale = 10000.0;
 
-    constructor (pipeline: ForwardPipeline) {
+    private _sampler: Sampler | null = null;
+
+    constructor (pipeline: RenderPipeline) {
+        this._pipeline = pipeline;
         this._device = pipeline.device;
-        this._isHDR = pipeline.isHDR;
-        this._fpScale = pipeline.fpScale;
-        this._renderObjects = pipeline.renderObjects;
         this._instancedQueue = new RenderInstancedQueue();
         this._batchedQueue = new RenderBatchedQueue();
 
-        this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / this._device.uboOffsetAlignment) * this._device.uboOffsetAlignment;
+        const alignment = this._device.capabilities.uboOffsetAlignment;
+        this._lightBufferStride = Math.ceil(UBOForwardLight.SIZE / alignment) * alignment;
         this._lightBufferElementCount = this._lightBufferStride / Float32Array.BYTES_PER_ELEMENT;
 
-        this._lightBuffer = this._device.createBuffer({
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-            stride: this._lightBufferStride,
-            size: this._lightBufferStride * this._lightBufferCount,
-        });
+        this._lightBuffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            this._lightBufferStride * this._lightBufferCount,
+            this._lightBufferStride,
+        ));
 
-        this._firstlightBufferView = this._device.createBuffer({
-            buffer: this._lightBuffer,
-            offset: 0,
-            range: UBOForwardLight.SIZE,
-        });
+        this._firstLightBufferView = this._device.createBuffer(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
 
         this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
+
+        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
+        this._sampler = samplerLib.getSampler(this._device, shadowMapSamplerHash);
     }
 
-    public gatherLightPasses (view: RenderView, cmdBuff: GFXCommandBuffer) {
-
-        const validLights = this._validLights;
-        const sphereLights = view.camera.scene!.sphereLights;
-
+    public clear () {
         this._instancedQueue.clear();
         this._batchedQueue.clear();
-        validLights.length = 0;
+
+        this._validLights.length = 0;
 
         for (let i = 0; i < this._lightPasses.length; i++) {
             const lp = this._lightPasses[i];
             lp.dynamicOffsets.length = 0;
+            lp.lights.length = 0;
         }
         _lightPassPool.freeArray(this._lightPasses);
         this._lightPasses.length = 0;
-
-        for (let i = 0; i < sphereLights.length; i++) {
-            const light = sphereLights[i];
-            sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
-                validLights.push(light);
-            }
-        }
-        const spotLights = view.camera.scene!.spotLights;
-        for (let i = 0; i < spotLights.length; i++) {
-            const light = spotLights[i];
-            sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
-            if (intersect.sphere_frustum(_sphere, view.camera.frustum)) {
-                validLights.push(light);
-            }
-        }
-
-        if (!validLights.length) return;
-
-        this._updateUBOs(view, cmdBuff);
-
-        for (let i = 0; i < this._renderObjects.length; i++) {
-            const ro = this._renderObjects[i];
-            const model = ro.model;
-            const subModels = model.subModels;
-
-            // this assumes light pass index is the same for all submodels
-            const lightPassIdx = getLightPassIndex(subModels);
-            if (lightPassIdx < 0) continue;
-
-            _lightIndices.length = 0;
-            for (let l = 0; l < validLights.length; l++) {
-                const light = validLights[l];
-                let isCulled = false;
-                switch (light.type) {
-                    case LightType.SPHERE:
-                        isCulled = cullSphereLight(light as SphereLight, model);
-                        break;
-                    case LightType.SPOT:
-                        isCulled = cullSpotLight(light as SpotLight, model);
-                        break;
-                }
-                if (!isCulled) {
-                    _lightIndices.push(l);
-                }
-            }
-
-            if (!_lightIndices.length) continue;
-
-            for (let j = 0; j < subModels.length; j++) {
-                const subModel = subModels[j];
-                const pass = subModel.passes[lightPassIdx];
-                const batchingScheme = pass.batchingScheme;
-                subModel.descriptorSet.bindBuffer(UBOForwardLight.BLOCK.binding, this._firstlightBufferView);
-                subModel.descriptorSet.update();
-
-                if (batchingScheme === BatchingSchemes.INSTANCING) { // instancing
-                    for (let l = 0; l < _lightIndices.length; l++) {
-                        const idx = _lightIndices[l];
-                        const buffer = InstancedBuffer.get(pass, idx);
-                        buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
-                        buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
-                        this._instancedQueue.queue.add(buffer);
-                    }
-                } else if (batchingScheme === BatchingSchemes.VB_MERGING) { // vb-merging
-                    for (let l = 0; l < _lightIndices.length; l++) {
-                        const idx = _lightIndices[l];
-                        const buffer = BatchedBuffer.get(pass, idx);
-                        buffer.merge(subModel, lightPassIdx, ro);
-                        buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
-                        this._batchedQueue.queue.add(buffer);
-                    }
-                } else { // standard draw
-                    const lp = _lightPassPool.alloc();
-                    lp.subModel = subModel;
-                    lp.passIdx = lightPassIdx;
-                    for (let l = 0; l < _lightIndices.length; l++) {
-                        lp.dynamicOffsets.push(this._lightBufferStride * _lightIndices[l]);
-                    }
-
-                    this._lightPasses.push(lp);
-                }
-            }
-        }
     }
 
-    public recordCommandBuffer (device: GFXDevice, renderPass: GFXRenderPass, cmdBuff: GFXCommandBuffer) {
+    public destroy () {
+        const descriptorSets = Array.from(this._descriptorSetMap.values());
+        for (let i = 0; i < descriptorSets.length; ++i) {
+            const descriptorSet = descriptorSets[i];
+            if (descriptorSet) {
+                descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
+                descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
+                descriptorSet.getSampler(UNIFORM_SHADOWMAP_BINDING).destroy();
+                descriptorSet.getSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
+                descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
+                descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
+                descriptorSet.destroy();
+            }
+        }
+        this._descriptorSetMap.clear();
+    }
+
+    public gatherLightPasses (camera: Camera, cmdBuff: CommandBuffer) {
+        const validLights = this._validLights;
+
+        this.clear();
+
+        this._gatherValidLights(camera, validLights);
+
+        if (!validLights.length) { return; }
+
+        this._updateUBOs(camera, cmdBuff);
+        this._updateLightDescriptorSet(camera, cmdBuff);
+        const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
+        for (let i = 0; i < renderObjects.length; i++) {
+            const ro = renderObjects[i];
+            const { model } = ro;
+            const { subModels } = model;
+            if (!getLightPassIndices(subModels, _lightPassIndices)) { continue; }
+
+            _lightIndices.length = 0;
+
+            this._lightCulling(model, validLights);
+
+            if (!_lightIndices.length) { continue; }
+
+            for (let j = 0; j < subModels.length; j++) {
+                const lightPassIdx = _lightPassIndices[j];
+                if (lightPassIdx < 0) { continue; }
+                const subModel = subModels[j];
+                const pass = subModel.passes[lightPassIdx];
+                subModel.descriptorSet.bindBuffer(UBOForwardLight.BINDING, this._firstLightBufferView);
+                subModel.descriptorSet.update();
+
+                this._addRenderQueue(pass, subModel, model, lightPassIdx, validLights);
+            }
+        }
+        this._instancedQueue.uploadBuffers(cmdBuff);
+        this._batchedQueue.uploadBuffers(cmdBuff);
+    }
+
+    public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         this._instancedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
         this._batchedQueue.recordCommandBuffer(device, renderPass, cmdBuff);
 
         for (let i = 0; i < this._lightPasses.length; i++) {
-            const { subModel, passIdx, dynamicOffsets } = this._lightPasses[i];
+            const { subModel, passIdx, dynamicOffsets, lights } = this._lightPasses[i];
             const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
             const pass = subModel.passes[passIdx];
             const ia = subModel.inputAssembler;
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass.handle, shader, renderPass, ia);
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
             const matDS = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
             const localDS = subModel.descriptorSet;
 
@@ -228,91 +246,293 @@ export class RenderAdditiveLightQueue {
             cmdBuff.bindInputAssembler(ia);
 
             for (let j = 0; j < dynamicOffsets.length; ++j) {
+                const light = lights[j];
+                const descriptorSet = this._getOrCreateDescriptorSet(light);
                 _dynamicOffsets[0] = dynamicOffsets[j];
+                cmdBuff.bindDescriptorSet(SetIndex.GLOBAL, descriptorSet!);
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, localDS, _dynamicOffsets);
                 cmdBuff.draw(ia);
             }
         }
     }
 
-    protected _updateUBOs (view: RenderView, cmdBuff: GFXCommandBuffer) {
-        const exposure = view.camera.exposure;
+    // gather validLights
+    protected _gatherValidLights (camera: Camera, validLights: Light[]) {
+        const { sphereLights } = camera.scene!;
+        for (let i = 0; i < sphereLights.length; i++) {
+            const light = sphereLights[i];
+            if (light.baked) {
+                continue;
+            }
+
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                validLights.push(light);
+                this._getOrCreateDescriptorSet(light);
+            }
+        }
+        const { spotLights } = camera.scene!;
+        for (let i = 0; i < spotLights.length; i++) {
+            const light = spotLights[i];
+            if (light.baked) {
+                continue;
+            }
+
+            Sphere.set(_sphere, light.position.x, light.position.y, light.position.z, light.range);
+            if (intersect.sphereFrustum(_sphere, camera.frustum)) {
+                validLights.push(light);
+                this._getOrCreateDescriptorSet(light);
+            }
+        }
+    }
+
+    // light culling
+    protected _lightCulling (model:Model, validLights: Light[]) {
+        for (let l = 0; l < validLights.length; l++) {
+            const light = validLights[l];
+            let isCulled = false;
+            switch (light.type) {
+            case LightType.SPHERE:
+                isCulled = cullSphereLight(light as SphereLight, model);
+                break;
+            case LightType.SPOT:
+                isCulled = cullSpotLight(light as SpotLight, model);
+                break;
+            default:
+            }
+            if (!isCulled) {
+                _lightIndices.push(l);
+            }
+        }
+    }
+
+    // add renderQueue
+    protected _addRenderQueue (pass: Pass, subModel: SubModel, model: Model, lightPassIdx: number, validLights: Light[]) {
+        const { batchingScheme } = pass;
+        if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
+            for (let l = 0; l < _lightIndices.length; l++) {
+                const idx = _lightIndices[l];
+                const buffer = InstancedBuffer.get(pass, idx);
+                buffer.merge(subModel, model.instancedAttributes, lightPassIdx);
+                buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
+                this._instancedQueue.queue.add(buffer);
+            }
+        } else if (batchingScheme === BatchingSchemes.VB_MERGING) {     // vb-merging
+            for (let l = 0; l < _lightIndices.length; l++) {
+                const idx = _lightIndices[l];
+                const buffer = BatchedBuffer.get(pass, idx);
+                buffer.merge(subModel, lightPassIdx, model);
+                buffer.dynamicOffsets[0] = this._lightBufferStride * idx;
+                this._batchedQueue.queue.add(buffer);
+            }
+        } else {                                                         // standard draw
+            const lp = _lightPassPool.alloc();
+            lp.subModel = subModel;
+            lp.passIdx = lightPassIdx;
+            for (let l = 0; l < _lightIndices.length; l++) {
+                const idx = _lightIndices[l];
+                lp.lights.push(validLights[idx]);
+                lp.dynamicOffsets.push(this._lightBufferStride * idx);
+            }
+
+            this._lightPasses.push(lp);
+        }
+    }
+
+    // update light DescriptorSet
+    protected _updateLightDescriptorSet (camera: Camera, cmdBuff: CommandBuffer) {
+        const device = this._pipeline.device;
+        const sceneData = this._pipeline.pipelineSceneData;
+        const shadowInfo = sceneData.shadows;
+        const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
+        const mainLight = camera.scene!.mainLight;
+        const isSupportHalfFloat = supportsHalfFloatTexture(device);
+        const linear = (shadowInfo.linear && isSupportHalfFloat) ? 1.0 : 0.0;
+        const packing = shadowInfo.packing ? 1.0 : (isSupportHalfFloat ? 0.0 : 1.0);
+
+        for (let i = 0; i < this._validLights.length; i++) {
+            const light = this._validLights[i];
+            const descriptorSet = this._getOrCreateDescriptorSet(light);
+            if (!descriptorSet) { continue; }
+            switch (light.type) {
+            case LightType.SPHERE:
+                // planar PROJ
+                if (mainLight) { updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO); }
+
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = shadowInfo.pcf;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
+
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 2.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
+
+                // Reserve sphere light shadow interface
+                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+                break;
+            case LightType.SPOT:
+
+                // planar PROJ
+                if (mainLight) { updatePlanarPROJ(shadowInfo, mainLight, this._shadowUBO); }
+
+                // light view
+                Mat4.toArray(this._shadowUBO, (light as any).node.getWorldMatrix(), UBOShadow.MAT_LIGHT_VIEW_OFFSET);
+                Mat4.invert(_matShadowView, (light as SpotLight).node!.getWorldMatrix());
+
+                // light proj
+                Mat4.perspective(_matShadowViewProj, (light as SpotLight).spotAngle, (light as SpotLight).aspect, 0.001, (light as SpotLight).range);
+
+                // light viewProj
+                Mat4.multiply(_matShadowViewProj, _matShadowViewProj, _matShadowView);
+
+                Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 0] = 0.01;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 1] = (light as SpotLight).range;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 2] = linear;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
+
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 2] = shadowInfo.pcf;
+                this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 3] = shadowInfo.bias;
+
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 0] = 1.0;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 1] = packing;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 2] = shadowInfo.normalBias;
+                this._shadowUBO[UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET + 3] = 0.0;
+
+                Color.toArray(this._shadowUBO, shadowInfo.shadowColor, UBOShadow.SHADOW_COLOR_OFFSET);
+
+                // Spot light sampler binding
+                if (shadowFrameBufferMap.has(light)) {
+                    if (shadowFrameBufferMap.has(light)) {
+                        const texture = shadowFrameBufferMap.get(light)?.colorTextures[0];
+                        if (texture) {
+                            descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, texture);
+                        }
+                    }
+                }
+                break;
+            default:
+            }
+            descriptorSet.update();
+
+            cmdBuff.updateBuffer(descriptorSet.getBuffer(UBOShadow.BINDING)!, this._shadowUBO);
+        }
+    }
+
+    protected _updateUBOs (camera: Camera, cmdBuff: CommandBuffer) {
+        const { exposure } = camera;
+        const sceneData = this._pipeline.pipelineSceneData;
+        const isHDR = sceneData.isHDR;
+        const fpScale = sceneData.fpScale;
 
         if (this._validLights.length > this._lightBufferCount) {
-            this._firstlightBufferView.destroy();
+            this._firstLightBufferView.destroy();
 
             this._lightBufferCount = nextPow2(this._validLights.length);
             this._lightBuffer.resize(this._lightBufferStride * this._lightBufferCount);
             this._lightBufferData = new Float32Array(this._lightBufferElementCount * this._lightBufferCount);
 
-            this._firstlightBufferView.initialize({
-                buffer: this._lightBuffer,
-                offset: 0,
-                range: UBOForwardLight.SIZE,
-            });
+            this._firstLightBufferView.initialize(new BufferViewInfo(this._lightBuffer, 0, UBOForwardLight.SIZE));
         }
 
-        for(let l = 0, offset = 0; l < this._validLights.length; l++, offset += this._lightBufferElementCount) {
+        for (let l = 0, offset = 0; l < this._validLights.length; l++, offset += this._lightBufferElementCount) {
             const light = this._validLights[l];
 
             switch (light.type) {
-                case LightType.SPHERE:
-                    const sphereLit = light as SphereLight;
-                    Vec3.toArray(_vec4Array, sphereLit.position);
-                    _vec4Array[3] = 0;
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
+            case LightType.SPHERE:
+                // UBOForwardLight
+                Vec3.toArray(_vec4Array, (light as SphereLight).position);
+                _vec4Array[3] = 0;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
 
-                    _vec4Array[0] = sphereLit.size;
-                    _vec4Array[1] = sphereLit.range;
-                    _vec4Array[2] = 0.0;
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+                _vec4Array[0] = (light as SphereLight).size;
+                _vec4Array[1] = (light as SphereLight).range;
+                _vec4Array[2] = 0.0;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
-                    Vec3.toArray(_vec4Array, light.color);
-                    if (light.useColorTemperature) {
-                        const tempRGB = light.colorTemperatureRGB;
-                        _vec4Array[0] *= tempRGB.x;
-                        _vec4Array[1] *= tempRGB.y;
-                        _vec4Array[2] *= tempRGB.z;
-                    }
-                    if (this._isHDR) {
-                        _vec4Array[3] = sphereLit.luminance * this._fpScale * this._lightMeterScale;
-                    } else {
-                        _vec4Array[3] = sphereLit.luminance * exposure * this._lightMeterScale;
-                    }
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const tempRGB = light.colorTemperatureRGB;
+                    _vec4Array[0] *= tempRGB.x;
+                    _vec4Array[1] *= tempRGB.y;
+                    _vec4Array[2] *= tempRGB.z;
+                }
+                if (isHDR) {
+                    _vec4Array[3] = (light as SphereLight).luminance * fpScale * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = (light as SphereLight).luminance * exposure * this._lightMeterScale;
+                }
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;
-                case LightType.SPOT:
-                    const spotLit = light as SpotLight;
+            case LightType.SPOT:
+                // UBOForwardLight
+                Vec3.toArray(_vec4Array, (light as SpotLight).position);
+                _vec4Array[3] = 1;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
 
-                    Vec3.toArray(_vec4Array, spotLit.position);
-                    _vec4Array[3] = 1;
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_POS_OFFSET);
+                _vec4Array[0] = (light as SpotLight).size;
+                _vec4Array[1] = (light as SpotLight).range;
+                _vec4Array[2] = (light as SpotLight).spotAngle;
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
 
-                    _vec4Array[0] = spotLit.size;
-                    _vec4Array[1] = spotLit.range;
-                    _vec4Array[2] = spotLit.spotAngle;
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_SIZE_RANGE_ANGLE_OFFSET);
+                Vec3.toArray(_vec4Array, (light as SpotLight).direction);
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
 
-                    Vec3.toArray(_vec4Array, spotLit.direction);
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_DIR_OFFSET);
-
-                    Vec3.toArray(_vec4Array, light.color);
-                    if (light.useColorTemperature) {
-                        const tempRGB = light.colorTemperatureRGB;
-                        _vec4Array[0] *= tempRGB.x;
-                        _vec4Array[1] *= tempRGB.y;
-                        _vec4Array[2] *= tempRGB.z;
-                    }
-                    if (this._isHDR) {
-                        _vec4Array[3] = spotLit.luminance * this._fpScale * this._lightMeterScale;
-                    } else {
-                        _vec4Array[3] = spotLit.luminance * exposure * this._lightMeterScale;
-                    }
-                    this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
+                Vec3.toArray(_vec4Array, light.color);
+                if (light.useColorTemperature) {
+                    const tempRGB = light.colorTemperatureRGB;
+                    _vec4Array[0] *= tempRGB.x;
+                    _vec4Array[1] *= tempRGB.y;
+                    _vec4Array[2] *= tempRGB.z;
+                }
+                if (isHDR) {
+                    _vec4Array[3] = (light as SpotLight).luminance * fpScale * this._lightMeterScale;
+                } else {
+                    _vec4Array[3] = (light as SpotLight).luminance * exposure * this._lightMeterScale;
+                }
+                this._lightBufferData.set(_vec4Array, offset + UBOForwardLight.LIGHT_COLOR_OFFSET);
                 break;
+            default:
             }
         }
 
         cmdBuff.updateBuffer(this._lightBuffer, this._lightBufferData);
+    }
+
+    protected _getOrCreateDescriptorSet (light: Light) {
+        if (!this._descriptorSetMap.has(light)) {
+            const device = this._device;
+            const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._pipeline.descriptorSetLayout));
+
+            descriptorSet.bindBuffer(UBOGlobal.BINDING, this._pipeline.descriptorSet.getBuffer(UBOGlobal.BINDING));
+
+            descriptorSet.bindBuffer(UBOCamera.BINDING, this._pipeline.descriptorSet.getBuffer(UBOCamera.BINDING));
+
+            const shadowBUO = device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                UBOShadow.SIZE,
+                UBOShadow.SIZE,
+            ));
+            descriptorSet.bindBuffer(UBOShadow.BINDING, shadowBUO);
+
+            descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, this._sampler!);
+            descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler!);
+            descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
+
+            descriptorSet.update();
+
+            this._descriptorSetMap.set(light, descriptorSet);
+
+            return descriptorSet;
+        }
+
+        return this._descriptorSetMap.get(light);
     }
 }

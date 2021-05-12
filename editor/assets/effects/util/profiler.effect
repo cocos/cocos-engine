@@ -45,11 +45,7 @@ CCProgram profiler-vs %{
   }
 
   vec4 vert () {
-    vec4 position = vec4(a_position, 1.0);
-
-    // keep ratio
-    position.x *= cc_screenSize.y * cc_screenSize.z;
-    // add offset
+    vec4 position = cc_matViewProj * vec4(a_position, 1.0);
     position.xy += offset.xy;
 
     v_uv = a_color.xy;

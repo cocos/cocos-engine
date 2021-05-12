@@ -1,48 +1,73 @@
-// Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
-import { builtinResMgr } from '../../3d/builtin/init';
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+// Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
+import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
-import { RenderingSubMesh } from '../../assets/mesh';
-import { aabb } from '../../geometry';
-import { GFXBuffer } from '../../gfx/buffer';
+import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
+import { AABB } from '../../geometry';
 import { Pool } from '../../memop';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
 import { Texture2D } from '../../assets/texture-2d';
 import { SubModel } from './submodel';
-import { Pass } from '../core/pass';
+import { Pass, IMacroPatch, BatchingSchemes } from '../core/pass';
 import { legacyCC } from '../../global-exports';
-import { InstancedBuffer } from '../../pipeline';
-import { BatchingSchemes } from '../core/pass';
+import { InstancedBuffer } from '../../pipeline/instanced-buffer';
+
 import { Mat4, Vec3, Vec4 } from '../../math';
-import { GFXDevice, GFXFeature } from '../../gfx/device';
-import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
-import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, SubModelArrayHandle, ModelPool,
-    ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../core/memory-pools';
-import { IGFXAttribute, GFXDescriptorSet } from '../../gfx';
-import { INST_MAT_WORLD, UBOLocal, UniformLightingMapSampler } from '../../pipeline/define';
-import { getTypedArrayConstructor, GFXBufferUsageBit, GFXFormat, GFXFormatInfos, GFXMemoryUsageBit, GFXFilter, GFXAddress } from '../../gfx/define';
+import { genSamplerHash, samplerLib } from '../core/sampler-lib';
+import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, ModelPool,
+    ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool,
+    RawBufferPool, freeHandleArray, ObjectPool, PoolType } from '../core/memory-pools';
+import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
+    BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx';
+import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
+
+const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
 const m4_1 = new Mat4();
 
 const _subModelPool = new Pool(() => new SubModel(), 32);
 
-export interface IInstancedAttribute {
-    name: string;
-    format: GFXFormat;
-    isNormalized?: boolean;
-    view: ArrayBufferView;
-}
+const shadowMapPatches: IMacroPatch[] = [
+    { name: 'CC_RECEIVE_SHADOW', value: true },
+];
+
 export interface IInstancedAttributeBlock {
     buffer: Uint8Array;
-    list: IInstancedAttribute[];
+    views: TypedArray[];
+    attributes: Attribute[];
 }
 
 export enum ModelType {
     DEFAULT,
     SKINNING,
     BAKED_SKINNING,
-    UI_BATCH,
+    BATCH_2D,
     PARTICLE_BATCH,
     LINE,
 }
@@ -54,28 +79,27 @@ function uploadMat4AsVec4x3 (mat: Mat4, v1: ArrayBufferView, v2: ArrayBufferView
 }
 
 const lightmapSamplerHash = genSamplerHash([
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXFilter.NONE,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
 ]);
 
 const lightmapSamplerWithMipHash = genSamplerHash([
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXFilter.LINEAR,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
-    GFXAddress.CLAMP,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Filter.LINEAR,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
 ]);
 
 /**
  * A representation of a model
  */
 export class Model {
-
     get subModels () {
         return this._subModels;
     }
@@ -104,8 +128,27 @@ export class Model {
         return this._instMatWorldIdx >= 0;
     }
 
+    get receiveShadow () {
+        if (ModelPool.get(this._handle, ModelView.RECEIVE_SHADOW)) { return true; }
+        return false;
+    }
+
+    set receiveShadow (val) {
+        ModelPool.set(this._handle, ModelView.RECEIVE_SHADOW, val ? 1 : 0);
+        this.onMacroPatchesStateChanged();
+    }
+
+    get castShadow () {
+        if (ModelPool.get(this._handle, ModelView.CAST_SHADOW)) { return true; }
+        return false;
+    }
+
+    set castShadow (val) {
+        ModelPool.set(this._handle, ModelView.CAST_SHADOW, val ? 1 : 0);
+    }
+
     get handle () {
-        return this._poolHandle;
+        return this._handle;
     }
 
     get node () : Node {
@@ -114,7 +157,7 @@ export class Model {
 
     set node (n: Node) {
         this._node = n;
-        ModelPool.set(this._poolHandle, ModelView.NODE, n.handle);
+        ModelPool.set(this._handle, ModelView.NODE, n.handle);
     }
 
     get transform () : Node {
@@ -123,49 +166,47 @@ export class Model {
 
     set transform (n: Node) {
         this._transform = n;
-        ModelPool.set(this._poolHandle, ModelView.TRANSFORM, n.handle);
+        ModelPool.set(this._handle, ModelView.TRANSFORM, n.handle);
     }
 
     get visFlags () : number {
-        return ModelPool.get(this._poolHandle, ModelView.VIS_FLAGS);
+        return ModelPool.get(this._handle, ModelView.VIS_FLAGS);
     }
 
     set visFlags (val: number) {
-        ModelPool.set(this._poolHandle, ModelView.VIS_FLAGS, val);
+        ModelPool.set(this._handle, ModelView.VIS_FLAGS, val);
     }
 
     get enabled () : boolean {
-        return ModelPool.get(this._poolHandle, ModelView.ENABLED) === 1 ? true : false;
+        if (ModelPool.get(this._handle, ModelView.ENABLED)) { return true; }
+        return false;
     }
 
     set enabled (val: boolean) {
-        ModelPool.set(this._poolHandle, ModelView.ENABLED, val ? 1 : 0);
+        ModelPool.set(this._handle, ModelView.ENABLED, val ? 1 : 0);
     }
 
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
-    public castShadow = false;
-    public receiveShadow = true;
     public isDynamicBatching = false;
-    public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, list: [] };
+    public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
-    protected _worldBounds: aabb | null = null;
-    protected _modelBounds: aabb | null = null;
+    protected _worldBounds: AABB | null = null;
+    protected _modelBounds: AABB | null = null;
     protected _subModels: SubModel[] = [];
     protected _node: Node = null!;
     protected _transform: Node = null!;
 
-    protected _device: GFXDevice;
+    protected _device: Device;
     protected _inited = false;
     protected _descriptorSetCount = 1;
     protected _updateStamp = -1;
     protected _transformUpdated = true;
-    protected _subModelArrayHandle: SubModelArrayHandle = NULL_HANDLE;
-    protected _poolHandle: ModelHandle = NULL_HANDLE;
-    protected _worldBoundsHandle: AABBHandle = NULL_HANDLE;
+    protected _handle: ModelHandle = NULL_HANDLE;
+    protected _hWorldBounds: AABBHandle = NULL_HANDLE;
 
-    private _localData = new Float32Array(UBOLocal.COUNT);
-    private _localBuffer: GFXBuffer | null = null;
+    protected _localData = new Float32Array(UBOLocal.COUNT);
+    protected _localBuffer: Buffer | null = null;
     private _instMatWorldIdx = -1;
     private _lightmap: Texture2D | null = null;
     private _lightmapUVParam: Vec4 = new Vec4();
@@ -179,11 +220,15 @@ export class Model {
 
     public initialize () {
         if (!this._inited) {
-            this._poolHandle = ModelPool.alloc();
-            this._subModelArrayHandle = SubModelArrayPool.alloc();
-            ModelPool.set(this._poolHandle, ModelView.SUB_MODEL_ARRAY, this._subModelArrayHandle);
-            ModelPool.set(this._poolHandle, ModelView.VIS_FLAGS, Layers.Enum.NONE);
-            ModelPool.set(this._poolHandle, ModelView.ENABLED, 1);
+            this._handle = ModelPool.alloc();
+            const hSubModelArray = SubModelArrayPool.alloc();
+            const hInstancedAttrArray = AttributeArrayPool.alloc();
+            ModelPool.set(this._handle, ModelView.INSTANCED_ATTR_ARRAY, hInstancedAttrArray);
+            ModelPool.set(this._handle, ModelView.SUB_MODEL_ARRAY, hSubModelArray);
+            ModelPool.set(this._handle, ModelView.VIS_FLAGS, Layers.Enum.NONE);
+            ModelPool.set(this._handle, ModelView.ENABLED, 1);
+            ModelPool.set(this._handle, ModelView.RECEIVE_SHADOW, 1);
+            ModelPool.set(this._handle, ModelView.CAST_SHADOW, 0);
             this._inited = true;
         }
     }
@@ -204,17 +249,27 @@ export class Model {
         this._subModels.length = 0;
         this._inited = false;
         this._transformUpdated = true;
+        this._transform = null!;
+        this._node = null!;
         this.isDynamicBatching = false;
 
-        if (this._poolHandle) {
-            ModelPool.free(this._poolHandle);
-            this._poolHandle = NULL_HANDLE;
-            SubModelArrayPool.free(this._subModelArrayHandle);
-            this._subModelArrayHandle = NULL_HANDLE;
+        if (this._handle) {
+            const hSubModelArray = ModelPool.get(this._handle, ModelView.SUB_MODEL_ARRAY);
+            // don't free submodel handles here since they are just references
+            if (hSubModelArray) SubModelArrayPool.free(hSubModelArray);
+
+            const hOldBuffer = ModelPool.get(this._handle, ModelView.INSTANCED_BUFFER);
+            if (hOldBuffer) RawBufferPool.free(hOldBuffer);
+            const hAttrArray = ModelPool.get(this._handle, ModelView.INSTANCED_ATTR_ARRAY);
+            if (hAttrArray) freeHandleArray(hAttrArray, AttributeArrayPool, AttrPool);
+
+            ModelPool.free(this._handle);
+            this._handle = NULL_HANDLE;
         }
-        if (this._worldBoundsHandle) {
-            AABBPool.free(this._worldBoundsHandle);
-            this._worldBoundsHandle = NULL_HANDLE;
+
+        if (this._hWorldBounds) {
+            AABBPool.free(this._hWorldBounds);
+            this._hWorldBounds = NULL_HANDLE;
         }
     }
 
@@ -228,16 +283,31 @@ export class Model {
 
     public updateTransform (stamp: number) {
         const node = this.transform;
-        // @ts-ignore TS2445
+        // @ts-expect-error TS2445
         if (node.hasChangedFlags || node._dirtyFlags) {
             node.updateWorldTransform();
             this._transformUpdated = true;
             const worldBounds = this._worldBounds;
             if (this._modelBounds && worldBounds) {
-                // @ts-ignore TS2445
+                // @ts-expect-error TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
-                AABBPool.setVec3(this._worldBoundsHandle, AABBView.CENTER, worldBounds.center);
-                AABBPool.setVec3(this._worldBoundsHandle, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
+                AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
+                AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
+            }
+        }
+    }
+
+    public updateWorldBound () {
+        const node = this.transform;
+        if (node !== null) {
+            node.updateWorldTransform();
+            this._transformUpdated = true;
+            const worldBounds = this._worldBounds;
+            if (this._modelBounds && worldBounds) {
+                // @ts-expect-error TS2445
+                this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
+                AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
+                AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
             }
         }
     }
@@ -252,17 +322,17 @@ export class Model {
         if (!this._transformUpdated) { return; }
         this._transformUpdated = false;
 
-        // @ts-ignore
+        // @ts-expect-error using private members here for efficiency
         const worldMatrix = this.transform._mat;
         const idx = this._instMatWorldIdx;
         if (idx >= 0) {
-            const attrs = this.instancedAttributes!.list;
-            uploadMat4AsVec4x3(worldMatrix, attrs[idx].view, attrs[idx + 1].view, attrs[idx + 2].view);
-        } else {
+            const attrs = this.instancedAttributes.views;
+            uploadMat4AsVec4x3(worldMatrix, attrs[idx], attrs[idx + 1], attrs[idx + 2]);
+        } else if (this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
             Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
-            this._localBuffer!.update(this._localData);
+            this._localBuffer.update(this._localData);
         }
     }
 
@@ -273,15 +343,14 @@ export class Model {
      */
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
-        this._modelBounds = aabb.fromPoints(aabb.create(), minPos, maxPos);
-        this._worldBounds = aabb.clone(this._modelBounds);
-        if (this._worldBoundsHandle === NULL_HANDLE) {
-            this._worldBoundsHandle = AABBPool.alloc();
-            ModelPool.set(this._poolHandle, ModelView.WORLD_BOUNDS, this._worldBoundsHandle);
+        this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
+        this._worldBounds = AABB.clone(this._modelBounds);
+        if (this._hWorldBounds === NULL_HANDLE) {
+            this._hWorldBounds = AABBPool.alloc();
+            ModelPool.set(this._handle, ModelView.WORLD_BOUNDS, this._hWorldBounds);
         }
-        AABBPool.setVec3(this._worldBoundsHandle, AABBView.CENTER, this._worldBounds.center);
-        AABBPool.setVec3(this._worldBoundsHandle, AABBView.HALF_EXTENSION, this._worldBounds.halfExtents);
-
+        AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, this._worldBounds.center);
+        AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, this._worldBounds.halfExtents);
     }
 
     public initSubModel (idx: number, subMeshData: RenderingSubMesh, mat: Material) {
@@ -295,9 +364,16 @@ export class Model {
             this._subModels[idx].destroy();
         }
         this._subModels[idx].initialize(subMeshData, mat.passes, this.getMacroPatches(idx));
+
+        // This is a temporary solution
+        // It should not be written in a fixed way, or modified by the user
+        this._subModels[idx].initPlanarShadowShader();
+        this._subModels[idx].initPlanarShadowInstanceShader();
+
         this._updateAttributesAndBinding(idx);
         if (isNewSubModel) {
-            SubModelArrayPool.assign(this._subModelArrayHandle, idx, this._subModels[idx].handle);
+            const hSubModelArray = ModelPool.get(this._handle, ModelView.SUB_MODEL_ARRAY);
+            SubModelArrayPool.assign(hSubModelArray, idx, this._subModels[idx].handle);
         }
     }
 
@@ -319,6 +395,13 @@ export class Model {
         }
     }
 
+    public onMacroPatchesStateChanged () {
+        const subModels = this._subModels;
+        for (let i = 0; i < subModels.length; i++) {
+            subModels[i].onMacroPatchesStateChanged(this.getMacroPatches(i));
+        }
+    }
+
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
 
@@ -330,20 +413,22 @@ export class Model {
         }
 
         const gfxTexture = texture.getGFXTexture();
-        if (gfxTexture !== null) {
+        if (gfxTexture) {
             const sampler = samplerLib.getSampler(this._device, texture.mipmaps.length > 1 ? lightmapSamplerWithMipHash : lightmapSamplerHash);
             const subModels = this._subModels;
             for (let i = 0; i < subModels.length; i++) {
-                const descriptorSet = subModels[i].descriptorSet;
-                descriptorSet.bindTexture(UniformLightingMapSampler.binding, gfxTexture);
-                descriptorSet.bindSampler(UniformLightingMapSampler.binding, sampler);
+                const { descriptorSet } = subModels[i];
+                // TODO: should manage lightmap macro switches automatically
+                // USE_LIGHTMAP -> CC_USE_LIGHTMAP
+                descriptorSet.bindTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING, gfxTexture);
+                descriptorSet.bindSampler(UNIFORM_LIGHTMAP_TEXTURE_BINDING, sampler);
                 descriptorSet.update();
             }
         }
     }
 
-    public getMacroPatches (subModelIndex: number) {
-        return undefined;
+    public getMacroPatches (subModelIndex: number): IMacroPatch[] | null {
+        return this.receiveShadow ? shadowMapPatches : null;
     }
 
     protected _updateAttributesAndBinding (subModelIndex: number) {
@@ -358,9 +443,9 @@ export class Model {
     }
 
     protected _getInstancedAttributeIndex (name: string) {
-        const list = this.instancedAttributes.list;
-        for (let i = 0; i < list.length; i++) {
-            if (list[i].name === name) { return i; }
+        const { attributes } = this.instancedAttributes;
+        for (let i = 0; i < attributes.length; i++) {
+            if (attributes[i].name === name) { return i; }
         }
         return -1;
     }
@@ -368,25 +453,43 @@ export class Model {
     // sub-classes can override the following functions if needed
 
     // for now no submodel level instancing attributes
-    protected _updateInstancedAttributes (attributes: IGFXAttribute[], pass: Pass) {
-        if (!pass.device.hasFeature(GFXFeature.INSTANCED_ARRAYS)) { return; }
+    protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
+        if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
+        // free old data
+        const hOldBuffer = ModelPool.get(this._handle, ModelView.INSTANCED_BUFFER);
+        if (hOldBuffer) RawBufferPool.free(hOldBuffer);
+        const hAttrArray = ModelPool.get(this._handle, ModelView.INSTANCED_ATTR_ARRAY);
+        if (hAttrArray) freeHandleArray(hAttrArray, AttributeArrayPool, AttrPool, false);
+
         let size = 0;
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
-            size += GFXFormatInfos[attribute.format].size;
+            size += FormatInfos[attribute.format].size;
         }
+        const hBuffer = RawBufferPool.alloc(size);
+        const buffer = RawBufferPool.getBuffer(hBuffer);
+        ModelPool.set(this._handle, ModelView.INSTANCED_BUFFER, hBuffer);
+
         const attrs = this.instancedAttributes;
-        attrs.buffer = new Uint8Array(size); attrs.list.length = 0;
-        let offset = 0; const buffer = attrs.buffer.buffer;
+        attrs.buffer = new Uint8Array(buffer);
+        attrs.views.length = attrs.attributes.length = 0;
+        let offset = 0;
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
-            const format = attribute.format;
-            const info = GFXFormatInfos[format];
-            const view = new (getTypedArrayConstructor(info))(buffer, offset, info.count);
-            const isNormalized = attribute.isNormalized;
-            offset += info.size; attrs.list.push({ name: attribute.name, format, isNormalized, view });
+            const hAttr = AttrPool.alloc();
+            const attr = AttrPool.get(hAttr);
+            attr.format = attribute.format;
+            attr.name = attribute.name;
+            attr.isNormalized = attribute.isNormalized;
+            attr.location = attribute.location;
+            attrs.attributes.push(attr);
+            AttributeArrayPool.push(hAttrArray, hAttr);
+
+            const info = FormatInfos[attribute.format];
+            attrs.views.push(new (getTypedArrayConstructor(info))(buffer, offset, info.count));
+            offset += info.size;
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
         this._instMatWorldIdx = this._getInstancedAttributeIndex(INST_MAT_WORLD);
@@ -395,16 +498,16 @@ export class Model {
 
     protected _initLocalDescriptors (subModelIndex: number) {
         if (!this._localBuffer) {
-            this._localBuffer = this._device.createBuffer({
-                usage: GFXBufferUsageBit.UNIFORM | GFXBufferUsageBit.TRANSFER_DST,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: UBOLocal.SIZE,
-                stride: UBOLocal.SIZE,
-            });
+            this._localBuffer = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                UBOLocal.SIZE,
+                UBOLocal.SIZE,
+            ));
         }
     }
 
-    protected _updateLocalDescriptors (submodelIdx: number, descriptorSet: GFXDescriptorSet) {
-        descriptorSet.bindBuffer(UBOLocal.BLOCK.binding, this._localBuffer!);
+    protected _updateLocalDescriptors (subModelIndex: number, descriptorSet: DescriptorSet) {
+        if (this._localBuffer) descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer);
     }
 }

@@ -1,5 +1,5 @@
 /*
- Copyright (c) 2017-2018 Xiamen Yaji Software Co., Ltd.
+ Copyright (c) 2017-2020 Xiamen Yaji Software Co., Ltd.
 
  http://www.cocos.com
 
@@ -24,18 +24,17 @@
 */
 
 /**
+ * @packageDocumentation
  * @hidden
  */
 
-import { RenderingSubMesh, Mesh } from '../../core/assets/mesh';
-import { GFX_DRAW_INFO_SIZE, GFXBuffer, IGFXIndirectBuffer } from '../../core/gfx/buffer';
-import { GFXAttributeName, GFXBufferUsageBit, GFXFormatInfos,
-    GFXMemoryUsageBit, GFXPrimitiveMode } from '../../core/gfx/define';
-import { IGFXAttribute } from '../../core/gfx/input-assembler';
+import { Mesh } from '../../3d/assets/mesh';
+import { AttributeName, BufferUsageBit, FormatInfos, MemoryUsageBit, PrimitiveMode,
+    Attribute, DRAW_INFO_SIZE, Buffer, IndirectBuffer, BufferInfo, DrawInfo } from '../../core/gfx';
 import { Color } from '../../core/math/color';
 import { scene } from '../../core/renderer';
 import { Particle } from '../particle';
-import { Material } from '../../core/assets';
+import { Material, RenderingSubMesh } from '../../core/assets';
 
 const _uvs = [
     0, 0, // bottom-left
@@ -45,23 +44,21 @@ const _uvs = [
 ];
 
 export default class ParticleBatchModel extends scene.Model {
-
     private _capacity: number;
-    private _vertAttrs: IGFXAttribute[] | null;
+    private _vertAttrs: Attribute[] | null;
     private _vertSize: number;
     private _vBuffer: ArrayBuffer | null;
     private _vertAttrsFloatCount: number;
     private _vdataF32: Float32Array | null;
     private _vdataUint32: Uint32Array | null;
-    private _iaInfo: IGFXIndirectBuffer;
-    private _iaInfoBuffer: GFXBuffer;
+    private _iaInfo: IndirectBuffer;
+    private _iaInfoBuffer: Buffer | null;
     private _subMeshData: RenderingSubMesh | null;
     private _mesh: Mesh | null;
-    private _vertCount: number = 0;
-    private _indexCount: number = 0;
-    private _startTimeOffset: number = 0;
-    private _lifeTimeOffset: number = 0;
-    private _iaInfoBufferReady: boolean = true;
+    private _vertCount = 0;
+    private _indexCount = 0;
+    private _startTimeOffset = 0;
+    private _lifeTimeOffset = 0;
     private _material: Material | null = null;
 
     constructor () {
@@ -75,23 +72,13 @@ export default class ParticleBatchModel extends scene.Model {
         this._vertAttrsFloatCount = 0;
         this._vdataF32 = null;
         this._vdataUint32 = null;
-        this._iaInfo = {
-            drawInfos: [{
-                vertexCount: 0,
-                firstVertex: 0,
-                indexCount: 0,
-                firstIndex: 0,
-                vertexOffset: 0,
-                instanceCount: 0,
-                firstInstance: 0,
-            }],
-        };
-        this._iaInfoBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.INDIRECT,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: GFX_DRAW_INFO_SIZE,
-            stride: GFX_DRAW_INFO_SIZE,
-        });
+        this._iaInfo = new IndirectBuffer([new DrawInfo()]);
+        this._iaInfoBuffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDIRECT,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            DRAW_INFO_SIZE,
+            DRAW_INFO_SIZE,
+        ));
         this._subMeshData = null;
         this._mesh = null;
     }
@@ -104,7 +91,7 @@ export default class ParticleBatchModel extends scene.Model {
         }
     }
 
-    public setVertexAttributes (mesh: Mesh | null, attrs: IGFXAttribute[]) {
+    public setVertexAttributes (mesh: Mesh | null, attrs: Attribute[]) {
         if (this._mesh === mesh && this._vertAttrs === attrs) {
             return;
         }
@@ -113,7 +100,7 @@ export default class ParticleBatchModel extends scene.Model {
         this._vertSize = 0;
         for (const a of this._vertAttrs) {
             (a as any).offset = this._vertSize;
-            this._vertSize += GFXFormatInfos[a.format].size;
+            this._vertSize += FormatInfos[a.format].size;
         }
         this._vertAttrsFloatCount = this._vertSize / 4; // number of float
         // rebuid
@@ -128,23 +115,23 @@ export default class ParticleBatchModel extends scene.Model {
             this._vertCount = this._mesh.struct.vertexBundles[this._mesh.struct.primitives[0].vertexBundelIndices[0]].view.count;
             this._indexCount = this._mesh.struct.primitives[0].indexView!.count;
         }
-        const vertexBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.VERTEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: this._vertSize * this._capacity * this._vertCount,
-            stride: this._vertSize,
-        });
+        const vertexBuffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.VERTEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            this._vertSize * this._capacity * this._vertCount,
+            this._vertSize,
+        ));
         const vBuffer: ArrayBuffer = new ArrayBuffer(this._vertSize * this._capacity * this._vertCount);
         if (this._mesh) {
-            let vIdx = this._vertAttrs!.findIndex((val) => val.name === GFXAttributeName.ATTR_TEX_COORD3);
-            let vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            this._mesh.copyAttribute(0, GFXAttributeName.ATTR_POSITION, vBuffer, this._vertSize, vOffset);  // copy mesh position to ATTR_TEX_COORD3
+            let vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD)] as any).offset;
+            this._mesh.copyAttribute(0, AttributeName.ATTR_TEX_COORD, vBuffer, this._vertSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
+            let vIdx = this._vertAttrs!.findIndex((val) => val.name === AttributeName.ATTR_TEX_COORD3);
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            this._mesh.copyAttribute(0, GFXAttributeName.ATTR_NORMAL, vBuffer, this._vertSize, vOffset);  // copy mesh normal to ATTR_NORMAL
-            vOffset = (this._vertAttrs![this._vertAttrs!.findIndex((val) => val.name === GFXAttributeName.ATTR_TEX_COORD)] as any).offset;
-            this._mesh.copyAttribute(0, GFXAttributeName.ATTR_TEX_COORD, vBuffer, this._vertSize, vOffset);  // copy mesh uv to ATTR_TEX_COORD
+            this._mesh.copyAttribute(0, AttributeName.ATTR_POSITION, vBuffer, this._vertSize, vOffset);  // copy mesh position to ATTR_TEX_COORD3
             vOffset = (this._vertAttrs![vIdx++] as any).offset;
-            if (!this._mesh.copyAttribute(0, GFXAttributeName.ATTR_COLOR, vBuffer, this._vertSize, vOffset)) {  // copy mesh color to ATTR_COLOR1
+            this._mesh.copyAttribute(0, AttributeName.ATTR_NORMAL, vBuffer, this._vertSize, vOffset);  // copy mesh normal to ATTR_NORMAL
+            vOffset = (this._vertAttrs![vIdx++] as any).offset;
+            if (!this._mesh.copyAttribute(0, AttributeName.ATTR_COLOR, vBuffer, this._vertSize, vOffset)) {  // copy mesh color to ATTR_COLOR1
                 const vb = new Uint32Array(vBuffer);
                 for (let iVertex = 0; iVertex < this._vertCount; ++iVertex) {
                     vb[iVertex * this._vertAttrsFloatCount + vOffset / 4] = Color.WHITE._val;
@@ -178,31 +165,28 @@ export default class ParticleBatchModel extends scene.Model {
             }
         }
 
-        const indexBuffer: GFXBuffer = this._device.createBuffer({
-            usage: GFXBufferUsageBit.INDEX | GFXBufferUsageBit.TRANSFER_DST,
-            memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-            size: this._capacity * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
-            stride: Uint16Array.BYTES_PER_ELEMENT,
-        });
+        const indexBuffer: Buffer = this._device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX | BufferUsageBit.TRANSFER_DST,
+            MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+            this._capacity * this._indexCount * Uint16Array.BYTES_PER_ELEMENT,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
 
         indexBuffer.update(indices);
 
         this._iaInfo.drawInfos[0].vertexCount = this._capacity * this._vertCount;
         this._iaInfo.drawInfos[0].indexCount = this._capacity * this._indexCount;
-        if (!this._iaInfoBufferReady) {
-            this._iaInfoBuffer.initialize({
-                usage: GFXBufferUsageBit.INDIRECT,
-                memUsage: GFXMemoryUsageBit.HOST | GFXMemoryUsageBit.DEVICE,
-                size: GFX_DRAW_INFO_SIZE,
-                stride: GFX_DRAW_INFO_SIZE,
-            });
-            this._iaInfoBufferReady = true;
+        if (!this._iaInfoBuffer) {
+            this._iaInfoBuffer = this._device.createBuffer(new BufferInfo(
+                BufferUsageBit.INDIRECT,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                DRAW_INFO_SIZE,
+                DRAW_INFO_SIZE,
+            ));
         }
         this._iaInfoBuffer.update(this._iaInfo);
 
-        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, GFXPrimitiveMode.TRIANGLE_LIST);
-        this._subMeshData.indexBuffer = indexBuffer;
-        this._subMeshData.indirectBuffer = this._iaInfoBuffer;
+        this._subMeshData = new RenderingSubMesh([vertexBuffer], this._vertAttrs!, PrimitiveMode.TRIANGLE_LIST, indexBuffer, this._iaInfoBuffer);
         this.initSubModel(0, this._subMeshData, this._material!);
         return vBuffer;
     }
@@ -302,7 +286,7 @@ export default class ParticleBatchModel extends scene.Model {
             lifeTime = this._vdataF32![pBaseIndex + this._lifeTimeOffset];
             interval = time - startTime;
             if (lifeTime - interval < dt) {
-                lastBaseIndex = -- num * pSize;
+                lastBaseIndex = --num * pSize;
                 this._vdataF32!.copyWithin(pBaseIndex, lastBaseIndex, lastBaseIndex + pSize);
                 i--;
             }
@@ -315,11 +299,11 @@ export default class ParticleBatchModel extends scene.Model {
         if (!this._vertAttrs) {
             return;
         }
-        let vIdx = this._vertAttrs!.findIndex((val) => val.name === 'a_position_starttime');
-        let vOffset = (this._vertAttrs![vIdx] as any).offset;
+        let vIdx = this._vertAttrs.findIndex((val) => val.name === 'a_position_starttime');
+        let vOffset = (this._vertAttrs[vIdx] as any).offset;
         this._startTimeOffset = vOffset / 4 + 3;
-        vIdx = this._vertAttrs!.findIndex((val) => val.name === 'a_dir_life');
-        vOffset = (this._vertAttrs![vIdx] as any).offset;
+        vIdx = this._vertAttrs.findIndex((val) => val.name === 'a_dir_life');
+        vOffset = (this._vertAttrs[vIdx] as any).offset;
         this._lifeTimeOffset = vOffset / 4 + 3;
     }
 
@@ -328,7 +312,7 @@ export default class ParticleBatchModel extends scene.Model {
         ia.vertexBuffers[0].update(this._vdataF32!);
         this._iaInfo.drawInfos[0].firstIndex = 0;
         this._iaInfo.drawInfos[0].indexCount = this._indexCount * count;
-        this._iaInfoBuffer.update(this._iaInfo);
+        this._iaInfoBuffer!.update(this._iaInfo);
     }
 
     public clear () {
@@ -340,7 +324,10 @@ export default class ParticleBatchModel extends scene.Model {
         this._vBuffer = null;
         this._vdataF32 = null;
         this.destroySubMeshData();
-        this._iaInfoBuffer.destroy();
+        if (this._iaInfoBuffer) {
+            this._iaInfoBuffer.destroy();
+            this._iaInfoBuffer = null;
+        }
     }
 
     private rebuild () {
@@ -353,7 +340,7 @@ export default class ParticleBatchModel extends scene.Model {
         if (this._subMeshData) {
             this._subMeshData.destroy();
             this._subMeshData = null;
-            this._iaInfoBufferReady = false;
+            this._iaInfoBuffer = null;
         }
     }
 }

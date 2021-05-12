@@ -1,5 +1,36 @@
+/*
+ Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
+
+ https://www.cocos.com/
+
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated engine source code (the "Software"), a limited,
+ worldwide, royalty-free, non-assignable, revocable and non-exclusive license
+ to use Cocos Creator solely to develop games on your target platforms. You shall
+ not use Cocos Creator software for developing other software or tools that's
+ used for developing games. You are not granted to publish, distribute,
+ sublicense, and/or sell copies of Cocos Creator.
+
+ The software or tools in this License Agreement are licensed, not sold.
+ Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
+
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
+ */
+
+/**
+ * @packageDocumentation
+ * @hidden
+ */
+
+/* eslint-disable new-cap */
 import Ammo from '../ammo-instantiated';
-import { AmmoShape } from "./ammo-shape";
+import { AmmoShape } from './ammo-shape';
 import { SimplexCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
@@ -7,15 +38,13 @@ import { ISimplexShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
 
 export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
-
     setShapeType (v: SimplexCollider.ESimplexType) {
         if (this._isBinding) {
-            //TODO: 
+            // TODO:
         }
     }
 
     setVertices (v: IVec3Like[]) {
-        //TODO: Fix
         const length = this.VERTICES.length;
         for (let i = 0; i < length; i++) {
             cocos2AmmoVec3(this.VERTICES[i], v[i]);
@@ -39,10 +68,10 @@ export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
 
     constructor () {
         super(AmmoBroadphaseNativeTypes.TETRAHEDRAL_SHAPE_PROXYTYPE);
-        this._btShape = new Ammo.btBU_Simplex1to4();
     }
 
     protected onComponentSet () {
+        this._btShape = new Ammo.btBU_Simplex1to4();
         const length = this.collider.shapeType;
         const vertices = this.collider.vertices;
         for (let i = 0; i < length; i++) {
@@ -76,5 +105,4 @@ export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
             this._btCompound.updateChildTransform(this.index, this.transform, true);
         }
     }
-
 }
