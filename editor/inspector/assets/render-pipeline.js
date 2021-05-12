@@ -112,7 +112,7 @@ const Elements = {
     },
 };
 
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.meta = this.metaList[0];
@@ -143,7 +143,7 @@ exports.update = async function (assetList, metaList) {
     this.setDirtyData();
 };
 
-exports.ready = function () {
+exports.ready = function() {
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',
@@ -161,7 +161,7 @@ exports.ready = function () {
     }
 };
 
-exports.close = function () {
+exports.close = function() {
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',

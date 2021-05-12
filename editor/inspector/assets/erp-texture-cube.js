@@ -116,7 +116,7 @@ exports.$ = {
     wrapModeT: '#wrapModeT',
 };
 
-exports.ready = function () {
+exports.ready = function() {
     for (const key in Elements) {
         if (typeof Elements[key].ready === 'function') {
             Elements[key].ready.call(this);
@@ -124,7 +124,7 @@ exports.ready = function () {
     }
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -139,71 +139,71 @@ exports.update = function (assetList, metaList) {
 
 const Elements = {
     anisotropy: {
-        ready () {
+        ready() {
             this.$.anisotropy.addEventListener('change', this.dataChange.bind(this, 'anisotropy'));
         },
-        update () {
+        update() {
             this.$.anisotropy.value = this.meta.userData.anisotropy;
             this.updateInvalid(this.$.anisotropy, 'anisotropy');
             this.updateReadonly(this.$.anisotropy);
         },
     },
     faceSize: {
-        ready () {
+        ready() {
             this.$.faceSize.addEventListener('change', this.dataChange.bind(this, 'faceSize'));
         },
         update() {
-            
+
             this.$.faceSize.value = this.meta.userData.faceSize;
             this.updateInvalid(this.$.faceSize, 'faceSize');
             this.updateReadonly(this.$.faceSize);
         },
     },
     minfilter: {
-        ready () {
+        ready() {
             this.$.minfilter.addEventListener('change', this.dataChange.bind(this, 'minfilter'));
         },
-        update () {
+        update() {
             this.$.minfilter.value = this.meta.userData.minfilter;
             this.updateInvalid(this.$.minfilter, 'minfilter');
             this.updateReadonly(this.$.minfilter);
         },
     },
     magfilter: {
-        ready () {
+        ready() {
             this.$.magfilter.addEventListener('change', this.dataChange.bind(this, 'magfilter'));
         },
-        update () {
+        update() {
             this.$.magfilter.value = this.meta.userData.magfilter;
             this.updateInvalid(this.$.magfilter, 'magfilter');
             this.updateReadonly(this.$.magfilter);
         },
     },
     mipfilter: {
-        ready () {
+        ready() {
             this.$.mipfilter.addEventListener('change', this.dataChange.bind(this, 'mipfilter'));
         },
-        update () {
+        update() {
             this.$.mipfilter.value = this.meta.userData.mipfilter;
             this.updateInvalid(this.$.mipfilter, 'mipfilter');
             this.updateReadonly(this.$.mipfilter);
         },
     },
     wrapModeS: {
-        ready () {
+        ready() {
             this.$.wrapModeS.addEventListener('change', this.dataChange.bind(this, 'wrapModeS'));
         },
-        update () {
+        update() {
             this.$.wrapModeS.value = this.meta.userData.wrapModeS;
             this.updateInvalid(this.$.wrapModeS, 'wrapModeS');
             this.updateReadonly(this.$.wrapModeS);
         },
     },
     wrapModeT: {
-        ready () {
+        ready() {
             this.$.wrapModeT.addEventListener('change', this.dataChange.bind(this, 'wrapModeT'));
         },
-        update () {
+        update() {
             this.$.wrapModeT.value = this.meta.userData.wrapModeT;
             this.updateInvalid(this.$.wrapModeT, 'wrapModeT');
             this.updateReadonly(this.$.wrapModeT);
@@ -226,7 +226,7 @@ exports.methods = {
             element.removeAttribute('disabled');
         }
     },
-    dataChange (key, event) {
+    dataChange(key, event) {
         this.metaList.forEach((meta) => {
             meta.userData[key] = event.target.value || undefined;
         });
