@@ -64,13 +64,6 @@ exports.methods = {
             },
             accelerator: 'Delete',
         },
-        // {
-        //     label: that.t('copy', ''),
-        //     click() {
-        //         // animationCtrl.copyEvents(that.selectEvent ? that.selectEvent.map((item) => item.frame) : [frame]);
-        //     },
-        //     accelerator: 'CmdOrCtrl+C',
-        // }
     ];
         Editor.Menu.popup({
             x: event.pageX,

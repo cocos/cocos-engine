@@ -118,10 +118,6 @@ exports.update = function (assetList, metaList) {
     }
 };
 
-exports.apply = async function() {
-
-}
-
 /**
  * Method of initializing the panel
  */

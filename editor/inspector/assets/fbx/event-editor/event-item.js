@@ -103,7 +103,6 @@ exports.methods = {
         let params = [];
         switch (name) {
             case 'funcName':
-                // confirm 也会触发 confirm 需要做判断
                 if (value === event.func) {
                     return;
                 }
@@ -115,7 +114,6 @@ exports.methods = {
                 break;
             case 'param':
                 params = eventInfo.params;
-                // confirm 也会触发 confirm 需要做判断
                 if (params[index] === value) {
                     return;
                 }
