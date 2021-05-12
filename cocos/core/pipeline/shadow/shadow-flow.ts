@@ -239,5 +239,7 @@ export class ShadowFlow extends RenderFlow {
                 depth,
             ));
         }
+
+        shadowInfo.shadowMapDirty = false;
     }
 }
