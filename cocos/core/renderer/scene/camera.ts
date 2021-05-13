@@ -24,7 +24,6 @@
  */
 
 import { JSB } from 'internal:constants';
-import { NULL } from '@cocos/physx';
 import { Frustum, Ray } from '../../geometry';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import {
@@ -40,8 +39,6 @@ import {
 } from '../core/memory-pools';
 import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 import { preTransforms } from '../../math/mat4';
-import { director } from '../../director';
-import { ClearFlag } from '../../components/camera-component';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -220,8 +217,6 @@ export class Camera {
             if (this._scene) this._setScene(this._scene);
             this._frustumHandle = FrustumPool.alloc();
             CameraPool.set(handle, CameraView.FRUSTUM, this._frustumHandle);
-            console.log(`Created Camera: ${this._name} ${CameraPool.get(this._poolHandle,
-                CameraView.WIDTH)}x${CameraPool.get(this._poolHandle, CameraView.HEIGHT)}`);
 
             this._nativeObj = new ns.Camera();
             if (this._scene) this._nativeObj.scene = this._scene.native;
