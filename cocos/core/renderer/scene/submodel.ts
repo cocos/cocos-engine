@@ -47,9 +47,10 @@ export class SubModel {
      protected _passCount = 0;
 
      private _destroyDescriptorSet () {
-         if (JSB) {
-             DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
-         }
+        this._descriptorSet!.destroy();
+        if (JSB) {
+            DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
+        }
      }
 
      private _createDescriptorSet (descInfo: DescriptorSetInfo) {
@@ -62,15 +63,11 @@ export class SubModel {
          this._descriptorSet = this._device!.createDescriptorSet(descInfo);
      }
 
-     set passCount (val: number) {
+     private _setPassCount (val: number) {
          this._passCount = val;
          if (JSB) {
              SubModelPool.set(this._handle, SubModelView.PASS_COUNT, val);
          }
-     }
-
-     get passCount () {
-         return this._passCount;
      }
 
      set passes (passes) {
@@ -261,10 +258,10 @@ export class SubModel {
          const passes = this._passes;
          if (!passes) { return; }
 
-         this.passCount = passes.length;
+         this._setPassCount(passes.length);
          let passOffset = SubModelView.PASS_0 as const;
          let shaderOffset = SubModelView.SHADER_0 as const;
-         for (let i = 0; i < this.passCount; i++, passOffset++, shaderOffset++) {
+         for (let i = 0; i < this._passCount; i++, passOffset++, shaderOffset++) {
              SubModelPool.set(this._handle, passOffset, passes[i].handle);
              SubModelPool.set(this._handle, shaderOffset, passes[i].getShaderVariant(this._patches));
          }

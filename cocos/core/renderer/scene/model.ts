@@ -113,20 +113,6 @@ export class Model {
         return this._worldBounds!;
     }
 
-    set worldBounds (val: AABB) {
-        this._worldBounds = val;
-        if (JSB) {
-            if (this._hWorldBounds === NULL_HANDLE) {
-                this._hWorldBounds = AABBPool.alloc();
-                ModelPool.set(this._handle, ModelView.WORLD_BOUNDS, this._hWorldBounds);
-            }
-            if (this._modelBounds) {
-                AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, val.center);
-                AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, val.halfExtents);
-            }
-        }
-    }
-
     get modelBounds () {
         return this._modelBounds;
     }
@@ -338,10 +324,10 @@ export class Model {
             node.updateWorldTransform();
             this._transformUpdated = true;
             const worldBounds = this._worldBounds;
-            this.worldBounds = worldBounds!;
             if (this._modelBounds && worldBounds) {
                 // @ts-expect-error TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
+                this._updateNativeWorldBounds();
             }
         }
     }
@@ -352,10 +338,10 @@ export class Model {
             node.updateWorldTransform();
             this._transformUpdated = true;
             const worldBounds = this._worldBounds;
-            this.worldBounds = worldBounds!;
             if (this._modelBounds && worldBounds) {
                 // @ts-expect-error TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
+                this._updateNativeWorldBounds();
             }
         }
     }
@@ -384,6 +370,17 @@ export class Model {
         }
     }
 
+    private _updateNativeWorldBounds () {
+        if (JSB) {
+            if (this._hWorldBounds === NULL_HANDLE) {
+                this._hWorldBounds = AABBPool.alloc();
+                ModelPool.set(this._handle, ModelView.WORLD_BOUNDS, this._hWorldBounds);
+            }
+            AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, this._worldBounds!.center);
+            AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, this._worldBounds!.halfExtents);
+        }
+    }
+
     /**
      * Create the bounding shape of this model
      * @param minPos the min position of the model
@@ -392,7 +389,8 @@ export class Model {
     public createBoundingShape (minPos?: Vec3, maxPos?: Vec3) {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
-        this.worldBounds = AABB.clone(this._modelBounds);
+        this._worldBounds = AABB.clone(this._modelBounds);
+        this._updateNativeWorldBounds();
     }
 
     private _createSubModel () {
