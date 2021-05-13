@@ -216,20 +216,15 @@ exports.updatePropByDump = function(panel, dump) {
             return;
         }
 
-        if ($children[i]) {
-            $children[i].replaceWith(child);
-        } else {
-            panel.$.componentContainer.appendChild(child);
-        }
+        panel.$.componentContainer.appendChild(child);
     });
 
     // delete extra children
-    $children = Array.from(panel.$.componentContainer.children);
-    if ($children.length > children.length) {
-        for (let i = children.length; i < $children.length; i++) {
-            $children[i].remove();
+    $children.forEach(($child) => {
+        if (!children.includes($child)) {
+            $child.remove();
         }
-    }
+    });
 
     for (const key in panel.elements) {
         const element = panel.elements[key];
