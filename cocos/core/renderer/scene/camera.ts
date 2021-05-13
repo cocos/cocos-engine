@@ -502,16 +502,10 @@ export class Camera {
     }
 
     get width () {
-        if (JSB) {
-            return CameraPool.get(this._poolHandle, CameraView.WIDTH);
-        }
         return this._width;
     }
 
     get height () {
-        if (JSB) {
-            return CameraPool.get(this._poolHandle, CameraView.HEIGHT);
-        }
         return this._height;
     }
 
