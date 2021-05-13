@@ -23,11 +23,12 @@
  THE SOFTWARE.
  */
 
+import { JSB } from 'internal:constants';
 import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { RenderPriority } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE, ShaderHandle } from '../core/memory-pools';
-import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler } from '../../gfx';
+import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, InputAssemblerInfo } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from '../../pipeline';
 import { errorID } from '../../platform';
@@ -35,191 +36,237 @@ import { errorID } from '../../platform';
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
 export class SubModel {
-    protected _device: Device | null = null;
-    protected _passes: Pass[] | null = null;
-    protected _subMesh: RenderingSubMesh | null = null;
-    protected _patches: IMacroPatch[] | null = null;
-    protected _handle: SubModelHandle = NULL_HANDLE;
-    protected _priority: RenderPriority = RenderPriority.DEFAULT;
-    protected _inputAssembler: InputAssembler | null = null;
-    protected _descriptorSet: DescriptorSet | null = null;
+     protected _device: Device | null = null;
+     protected _passes: Pass[] | null = null;
+     protected _subMesh: RenderingSubMesh | null = null;
+     protected _patches: IMacroPatch[] | null = null;
+     protected _handle: SubModelHandle = NULL_HANDLE;
+     protected _priority: RenderPriority = RenderPriority.DEFAULT;
+     protected _inputAssembler: InputAssembler | null = null;
+     protected _descriptorSet: DescriptorSet | null = null;
+     protected _passCount = 0;
 
-    set passes (passes) {
-        const passLengh = passes.length;
-        if (passLengh > MAX_PASS_COUNT) {
-            errorID(12004, MAX_PASS_COUNT);
-            return;
-        }
-        this._passes = passes;
-        this._flushPassInfo();
+     private _destroyDescriptorSet () {
+         if (JSB) {
+             DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
+         }
+     }
 
-        // DS layout might change too
-        if (this._descriptorSet) {
-            DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
-            _dsInfo.layout = passes[0].localSetLayout;
-            const dsHandle = DSPool.alloc(this._device!, _dsInfo);
-            SubModelPool.set(this._handle, SubModelView.DESCRIPTOR_SET, dsHandle);
-            this._descriptorSet = DSPool.get(dsHandle);
-        }
-    }
+     private _createDescriptorSet (descInfo: DescriptorSetInfo) {
+         if (JSB) {
+             const dsHandle = DSPool.alloc(this._device!, descInfo);
+             SubModelPool.set(this._handle, SubModelView.DESCRIPTOR_SET, dsHandle);
+             this._descriptorSet = DSPool.get(dsHandle);
+             return;
+         }
+         this._descriptorSet = this._device!.createDescriptorSet(descInfo);
+     }
 
-    get passes (): Pass[] {
-        return this._passes!;
-    }
+     set passCount (val: number) {
+         this._passCount = val;
+         if (JSB) {
+             SubModelPool.set(this._handle, SubModelView.PASS_COUNT, val);
+         }
+     }
 
-    set subMesh (subMesh) {
-        this._subMesh = subMesh;
-        this._inputAssembler!.destroy();
-        this._inputAssembler!.initialize(subMesh.iaInfo);
-        if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this._subMesh.genFlatBuffers(); }
-        SubModelPool.set(this._handle, SubModelView.SUB_MESH, subMesh.handle);
-    }
+     get passCount () {
+         return this._passCount;
+     }
 
-    get subMesh (): RenderingSubMesh {
-        return this._subMesh!;
-    }
+     set passes (passes) {
+         const passLengh = passes.length;
+         if (passLengh > MAX_PASS_COUNT) {
+             errorID(12004, MAX_PASS_COUNT);
+             return;
+         }
+         this._passes = passes;
+         this._flushPassInfo();
 
-    set priority (val) {
-        this._priority = val;
-        SubModelPool.set(this._handle, SubModelView.PRIORITY, val);
-    }
+         // DS layout might change too
+         if (this._descriptorSet) {
+             this._destroyDescriptorSet();
+             _dsInfo.layout = passes[0].localSetLayout;
+             this._createDescriptorSet(_dsInfo);
+         }
+     }
 
-    get priority (): RenderPriority {
-        return this._priority;
-    }
+     get passes (): Pass[] {
+         return this._passes!;
+     }
 
-    get handle (): SubModelHandle {
-        return this._handle;
-    }
+     set subMesh (subMesh) {
+         this._setSubMesh(subMesh);
+         this._inputAssembler!.destroy();
+         this._inputAssembler!.initialize(subMesh.iaInfo);
+         if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+     }
 
-    get inputAssembler (): InputAssembler {
-        return this._inputAssembler!;
-    }
+     get subMesh (): RenderingSubMesh {
+         return this._subMesh!;
+     }
 
-    get descriptorSet (): DescriptorSet {
-        return this._descriptorSet!;
-    }
+     set priority (val) {
+         this._priority = val;
+         if (JSB) {
+             SubModelPool.set(this._handle, SubModelView.PRIORITY, val);
+         }
+     }
 
-    get patches (): IMacroPatch[] | null {
-        return this._patches;
-    }
+     get priority (): RenderPriority {
+         return this._priority;
+     }
 
-    // This is a temporary solution
-    // It should not be written in a fixed way, or modified by the user
-    get planarShaderHandle (): ShaderHandle {
-        return SubModelPool.get(this._handle, SubModelView.PLANAR_SHADER);
-    }
+     get handle (): SubModelHandle {
+         return this._handle;
+     }
 
-    // This is a temporary solution
-    // It should not be written in a fixed way, or modified by the user
-    get planarInstanceShaderHandle (): ShaderHandle {
-        return SubModelPool.get(this._handle, SubModelView.PLANAR_INSTANCE_SHADER);
-    }
+     get inputAssembler (): InputAssembler {
+         return this._inputAssembler!;
+     }
 
-    public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
-        this._device = legacyCC.director.root.device as Device;
+     get descriptorSet (): DescriptorSet {
+         return this._descriptorSet!;
+     }
 
-        this._subMesh = subMesh;
-        this._patches = patches;
-        this._passes = passes;
+     get patches (): IMacroPatch[] | null {
+         return this._patches;
+     }
 
-        this._handle = SubModelPool.alloc();
-        this._flushPassInfo();
-        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this._subMesh.genFlatBuffers(); }
+     // This is a temporary solution
+     // It should not be written in a fixed way, or modified by the user
+     get planarShaderHandle (): ShaderHandle {
+         return SubModelPool.get(this._handle, SubModelView.PLANAR_SHADER);
+     }
 
-        _dsInfo.layout = passes[0].localSetLayout;
-        const dsHandle = DSPool.alloc(this._device, _dsInfo);
-        const iaHandle = IAPool.alloc(this._device, subMesh.iaInfo);
-        SubModelPool.set(this._handle, SubModelView.PRIORITY, RenderPriority.DEFAULT);
-        SubModelPool.set(this._handle, SubModelView.INPUT_ASSEMBLER, iaHandle);
-        SubModelPool.set(this._handle, SubModelView.DESCRIPTOR_SET, dsHandle);
-        SubModelPool.set(this._handle, SubModelView.SUB_MESH, subMesh.handle);
+     // This is a temporary solution
+     // It should not be written in a fixed way, or modified by the user
+     get planarInstanceShaderHandle (): ShaderHandle {
+         return SubModelPool.get(this._handle, SubModelView.PLANAR_INSTANCE_SHADER);
+     }
 
-        this._inputAssembler = IAPool.get(iaHandle);
-        this._descriptorSet = DSPool.get(dsHandle);
-    }
+     private _setInputAssembler (iaInfo: InputAssemblerInfo) {
+         if (JSB) {
+             const iaHandle = IAPool.alloc(this._device!, iaInfo);
+             SubModelPool.set(this._handle, SubModelView.INPUT_ASSEMBLER, iaHandle);
+             this._inputAssembler = IAPool.get(iaHandle);
+             return;
+         }
+         this._inputAssembler = this._device!.createInputAssembler(iaInfo);
+     }
 
-    // This is a temporary solution
-    // It should not be written in a fixed way, or modified by the user
-    public initPlanarShadowShader () {
-        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
-        const shadowInfo = pipeline.pipelineSceneData.shadows;
-        const shaderHandle = shadowInfo.getPlanarShader(this._patches);
-        SubModelPool.set(this._handle, SubModelView.PLANAR_SHADER, shaderHandle);
-    }
+     private _setSubMesh (subMesh: RenderingSubMesh) {
+         this._subMesh = subMesh;
+         if (JSB) {
+             SubModelPool.set(this._handle, SubModelView.SUB_MESH, subMesh.handle);
+         }
+     }
 
-    // This is a temporary solution
-    // It should not be written in a fixed way, or modified by the user
-    public initPlanarShadowInstanceShader () {
-        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
-        const shadowInfo = pipeline.pipelineSceneData.shadows;
-        const shaderHandle = shadowInfo.getPlanarInstanceShader(this._patches);
-        SubModelPool.set(this._handle, SubModelView.PLANAR_INSTANCE_SHADER, shaderHandle);
-    }
+     private _init () {
+         this._handle = SubModelPool.alloc();
+     }
 
-    public destroy (): void {
-        DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
-        IAPool.free(SubModelPool.get(this._handle, SubModelView.INPUT_ASSEMBLER));
-        SubModelPool.free(this._handle);
+     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
+         this._device = legacyCC.director.root.device as Device;
+         _dsInfo.layout = passes[0].localSetLayout;
+         this._init();
+         this._setInputAssembler(subMesh.iaInfo);
+         this._createDescriptorSet(_dsInfo);
+         this._setSubMesh(subMesh);
+         this._patches = patches;
+         this._passes = passes;
 
-        this._descriptorSet = null;
-        this._inputAssembler = null;
-        this._priority = RenderPriority.DEFAULT;
-        this._handle = NULL_HANDLE;
+         this._flushPassInfo();
+         if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
 
-        this._patches = null;
-        this._subMesh = null;
-        this._passes = null;
-    }
+         this.priority = RenderPriority.DEFAULT;
+     }
 
-    public update (): void {
-        for (let i = 0; i < this._passes!.length; ++i) {
-            const pass = this._passes![i];
-            pass.update();
-        }
-        this._descriptorSet!.update();
-    }
+     // This is a temporary solution
+     // It should not be written in a fixed way, or modified by the user
+     public initPlanarShadowShader () {
+         const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+         const shadowInfo = pipeline.pipelineSceneData.shadows;
+         const shaderHandle = shadowInfo.getPlanarShader(this._patches);
+         SubModelPool.set(this._handle, SubModelView.PLANAR_SHADER, shaderHandle);
+     }
 
-    public onPipelineStateChanged (): void {
-        const passes = this._passes;
-        if (!passes) { return; }
+     // This is a temporary solution
+     // It should not be written in a fixed way, or modified by the user
+     public initPlanarShadowInstanceShader () {
+         const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+         const shadowInfo = pipeline.pipelineSceneData.shadows;
+         const shaderHandle = shadowInfo.getPlanarInstanceShader(this._patches);
+         SubModelPool.set(this._handle, SubModelView.PLANAR_INSTANCE_SHADER, shaderHandle);
+     }
 
-        for (let i = 0; i < passes.length; i++) {
-            const pass = passes[i];
-            pass.beginChangeStatesSilently();
-            pass.tryCompile(); // force update shaders
-            pass.endChangeStatesSilently();
-        }
+     private _destroy () {
+         this._handle = NULL_HANDLE;
+         if (JSB) {
+             DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
+             IAPool.free(SubModelPool.get(this._handle, SubModelView.INPUT_ASSEMBLER));
+             SubModelPool.free(this._handle);
+         }
+     }
 
-        this._flushPassInfo();
-    }
+     public destroy (): void {
+         this._destroy();
+         this._descriptorSet = null;
+         this._inputAssembler = null;
+         this.priority = RenderPriority.DEFAULT;
 
-    public onMacroPatchesStateChanged (patches: IMacroPatch[] | null): void {
-        this._patches = patches;
+         this._patches = null;
+         this._subMesh = null;
+         this._passes = null;
+     }
 
-        const passes = this._passes;
-        if (!passes) { return; }
+     public update (): void {
+         for (let i = 0; i < this._passes!.length; ++i) {
+             const pass = this._passes![i];
+             pass.update();
+         }
+         this._descriptorSet!.update();
+     }
 
-        for (let i = 0; i < passes.length; i++) {
-            const pass = passes[i];
-            pass.beginChangeStatesSilently();
-            pass.tryCompile(); // force update shaders
-            pass.endChangeStatesSilently();
-        }
+     public onPipelineStateChanged (): void {
+         const passes = this._passes;
+         if (!passes) { return; }
 
-        this._flushPassInfo();
-    }
+         for (let i = 0; i < passes.length; i++) {
+             const pass = passes[i];
+             pass.beginChangeStatesSilently();
+             pass.tryCompile(); // force update shaders
+             pass.endChangeStatesSilently();
+         }
 
-    protected _flushPassInfo (): void {
-        const passes = this._passes;
-        if (!passes) { return; }
+         this._flushPassInfo();
+     }
 
-        SubModelPool.set(this._handle, SubModelView.PASS_COUNT, passes.length);
-        let passOffset = SubModelView.PASS_0 as const;
-        let shaderOffset = SubModelView.SHADER_0 as const;
-        for (let i = 0; i < passes.length; i++, passOffset++, shaderOffset++) {
-            SubModelPool.set(this._handle, passOffset, passes[i].handle);
-            SubModelPool.set(this._handle, shaderOffset, passes[i].getShaderVariant(this._patches));
-        }
-    }
+     public onMacroPatchesStateChanged (patches: IMacroPatch[] | null): void {
+         this._patches = patches;
+
+         const passes = this._passes;
+         if (!passes) { return; }
+
+         for (let i = 0; i < passes.length; i++) {
+             const pass = passes[i];
+             pass.beginChangeStatesSilently();
+             pass.tryCompile(); // force update shaders
+             pass.endChangeStatesSilently();
+         }
+
+         this._flushPassInfo();
+     }
+
+     protected _flushPassInfo (): void {
+         const passes = this._passes;
+         if (!passes) { return; }
+
+         this.passCount = passes.length;
+         let passOffset = SubModelView.PASS_0 as const;
+         let shaderOffset = SubModelView.SHADER_0 as const;
+         for (let i = 0; i < this.passCount; i++, passOffset++, shaderOffset++) {
+             SubModelPool.set(this._handle, passOffset, passes[i].handle);
+             SubModelPool.set(this._handle, shaderOffset, passes[i].getShaderVariant(this._patches));
+         }
+     }
 }
