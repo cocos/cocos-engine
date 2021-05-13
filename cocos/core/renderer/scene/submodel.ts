@@ -51,6 +51,15 @@ export class SubModel {
         if (JSB) {
             DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
         }
+        this._descriptorSet = null;
+     }
+
+     private _destroyInputAssembler () {
+        this._inputAssembler!.destroy();
+        if (JSB) {
+            IAPool.free(SubModelPool.get(this._handle, SubModelView.INPUT_ASSEMBLER));
+        }
+        this._inputAssembler = null;
      }
 
      private _createDescriptorSet (descInfo: DescriptorSetInfo) {
@@ -197,18 +206,16 @@ export class SubModel {
      }
 
      private _destroy () {
-         this._handle = NULL_HANDLE;
          if (JSB) {
-             DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
-             IAPool.free(SubModelPool.get(this._handle, SubModelView.INPUT_ASSEMBLER));
              SubModelPool.free(this._handle);
          }
+         this._handle = NULL_HANDLE;
      }
 
      public destroy (): void {
          this._destroy();
-         this._descriptorSet = null;
-         this._inputAssembler = null;
+         this._destroyDescriptorSet();
+         this._destroyInputAssembler();
          this.priority = RenderPriority.DEFAULT;
 
          this._patches = null;
