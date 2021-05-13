@@ -29,18 +29,18 @@
  */
 
 import { CCClass } from '../data/class';
-import { ValueType } from '../value-types/value-type';
 import { Mat3 } from './mat3';
 import { IQuatLike, IVec3Like } from './type-define';
 import { EPSILON, toDegree } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
+import { MathBase } from './math-pool';
 
 /**
  * @en quaternion
  * @zh 四元数
  */
-export class Quat extends ValueType {
+export class Quat extends MathBase {
     public static IDENTITY = Object.freeze(new Quat());
 
     /**
@@ -669,10 +669,10 @@ export class Quat extends ValueType {
      * @zh x 分量。
      */
     public get x (): number {
-        return this.v[0];
+        return this._array[0];
     }
     public set x (x: number) {
-        this.v[0] = x;
+        this._array[0] = x;
     }
 
     /**
@@ -680,10 +680,10 @@ export class Quat extends ValueType {
      * @zh y 分量。
      */
     public get y (): number {
-        return this.v[1];
+        return this._array[1];
     }
     public set y (y: number) {
-        this.v[1] = y;
+        this._array[1] = y;
     }
 
     /**
@@ -691,10 +691,10 @@ export class Quat extends ValueType {
      * @zh z 分量。
      */
     public get z (): number {
-        return this.v[2];
+        return this._array[2];
     }
     public set z (z: number) {
-        this.v[2] = z;
+        this._array[2] = z;
     }
 
     /**
@@ -702,41 +702,29 @@ export class Quat extends ValueType {
      * @zh w 分量。
      */
     public get w (): number {
-        return this.v[3];
+        return this._array[3];
     }
     public set w (w: number) {
-        this.v[3] = w;
+        this._array[3] = w;
     }
 
-    /**
-     * @en Get the internal data in quat.
-     * @zh 获取 Quat 的内部数据。
-     */
-    public declare v: Float32Array;
-
-    constructor (x: Quat | Float32Array);
+    constructor (x: Quat);
 
     constructor (x?: number, y?: number, z?: number, w?: number);
 
-    constructor (x?: number | Quat | Float32Array, y?: number, z?: number, w?: number) {
+    constructor (x?: number | Quat, y?: number, z?: number, w?: number) {
         super();
         if (x && typeof x === 'object') {
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
-            } else {
-                const v = x.v;
-                this.v = new Float32Array(4);
-                this.v[0] = v[0];
-                this.v[1] = v[1];
-                this.v[2] = v[2];
-                this.v[3] = v[3];
-            }
+            const v = x.array;
+            this._array[0] = v[0];
+            this._array[1] = v[1];
+            this._array[2] = v[2];
+            this._array[3] = v[3];
         } else {
-            this.v = new Float32Array(4);
-            this.v[0] = x || 0;
-            this.v[1] = y || 0;
-            this.v[2] = z || 0;
-            this.v[3] = w ?? 1;
+            this._array[0] = x || 0;
+            this._array[1] = y || 0;
+            this._array[2] = z || 0;
+            this._array[3] = w ?? 1;
         }
     }
 
@@ -745,7 +733,7 @@ export class Quat extends ValueType {
      * @zh 克隆当前四元数。
      */
     public clone () {
-        return new Quat(this.v[0], this.v[1], this.v[2], this.v[3]);
+        return new Quat(this._array[0], this._array[1], this._array[2], this._array[3]);
     }
 
     /**
@@ -765,16 +753,16 @@ export class Quat extends ValueType {
 
     public set (x?: number | Quat, y?: number, z?: number, w?: number) {
         if (x && typeof x === 'object') {
-            const v = x.v;
-            this.v[0] = v[0];
-            this.v[1] = v[1];
-            this.v[2] = v[2];
-            this.v[3] = v[3];
+            const v = x.array;
+            this._array[0] = v[0];
+            this._array[1] = v[1];
+            this._array[2] = v[2];
+            this._array[3] = v[3];
         } else {
-            this.v[0] = x || 0;
-            this.v[1] = y || 0;
-            this.v[2] = z || 0;
-            this.v[3] = w ?? 1;
+            this._array[0] = x || 0;
+            this._array[1] = y || 0;
+            this._array[2] = z || 0;
+            this._array[3] = w ?? 1;
         }
         return this;
     }
@@ -787,11 +775,11 @@ export class Quat extends ValueType {
      * @returns Returns `true' when the components of the two quaternions are equal within the specified error range; otherwise, returns `false'.
      */
     public equals (other: Quat, epsilon = EPSILON) {
-        const v = other.v;
-        return (Math.abs(this.v[0] - v[0]) <= epsilon * Math.max(1.0, Math.abs(this.v[0]), Math.abs(v[0]))
-            && Math.abs(this.v[1] - v[1]) <= epsilon * Math.max(1.0, Math.abs(this.v[1]), Math.abs(v[1]))
-            && Math.abs(this.v[2] - v[2]) <= epsilon * Math.max(1.0, Math.abs(this.v[2]), Math.abs(v[2]))
-            && Math.abs(this.v[3] - v[3]) <= epsilon * Math.max(1.0, Math.abs(this.v[3]), Math.abs(v[3])));
+        const v = other.array;
+        return (Math.abs(this._array[0] - v[0]) <= epsilon * Math.max(1.0, Math.abs(this._array[0]), Math.abs(v[0]))
+            && Math.abs(this._array[1] - v[1]) <= epsilon * Math.max(1.0, Math.abs(this._array[1]), Math.abs(v[1]))
+            && Math.abs(this._array[2] - v[2]) <= epsilon * Math.max(1.0, Math.abs(this._array[2]), Math.abs(v[2]))
+            && Math.abs(this._array[3] - v[3]) <= epsilon * Math.max(1.0, Math.abs(this._array[3]), Math.abs(v[3])));
     }
 
     /**
@@ -801,8 +789,8 @@ export class Quat extends ValueType {
      * @returns Returns `true' when the components of the two quaternions are equal within the specified error range; otherwise, returns `false'.
      */
     public strictEquals (other: Quat) {
-        const v = other.v;
-        return other && this.v[0] === v[0] && this.v[1] === v[1] && this.v[2] === v[2] && this.v[3] === v[3];
+        const v = other.array;
+        return other && this._array[0] === v[0] && this._array[1] === v[1] && this._array[2] === v[2] && this._array[3] === v[3];
     }
 
     /**
@@ -821,11 +809,11 @@ export class Quat extends ValueType {
      * @param ratio The interpolation coefficient. The range is [0,1].
      */
     public lerp (to: Quat, ratio: number) {
-        const tq = to.v;
-        this.v[0] += ratio * (tq[0] - this.v[0]);
-        this.v[1] += ratio * (tq[1] - this.v[1]);
-        this.v[2] += ratio * (tq[2] - this.v[2]);
-        this.v[3] += ratio * (tq[3] - this.v[3]);
+        const tq = to.array;
+        this._array[0] += ratio * (tq[0] - this._array[0]);
+        this._array[1] += ratio * (tq[1] - this._array[1]);
+        this._array[2] += ratio * (tq[2] - this._array[2]);
+        this._array[3] += ratio * (tq[3] - this._array[3]);
         return this;
     }
 
@@ -844,7 +832,7 @@ export class Quat extends ValueType {
      * @zh 求四元数长度
      */
     public length () {
-        const v = this.v;
+        const v = this._array;
         return Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3]);
     }
 
@@ -853,7 +841,7 @@ export class Quat extends ValueType {
      * @zh 求四元数长度平方
      */
     public lengthSqr () {
-        const v = this.v;
+        const v = this._array;
         return v[0] * v[0] + v[1] * v[1] + v[2] * v[2] + v[3] * v[3];
     }
 }

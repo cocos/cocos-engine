@@ -30,12 +30,12 @@
  */
 
 import { CCClass } from '../data/class';
-import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { Size } from './size';
 import { IRectLike, IVec2Like } from './type-define';
 import { Vec2 } from './vec2';
 import { legacyCC } from '../global-exports';
+import { MathBase } from './math-pool';
 
 /**
  * @en
@@ -45,7 +45,7 @@ import { legacyCC } from '../global-exports';
  * 矩形内的所有点都大于等于矩形的最小点 (xMin, yMin) 并且小于等于矩形的最大点 (xMax, yMax)。
  * 矩形的宽度定义为 xMax - xMin；高度定义为 yMax - yMin。
  */
-export class Rect extends ValueType {
+export class Rect extends MathBase {
     /**
      * @en Creates a rectangle from two coordinate values.
      * @zh 由任意两个点创建一个矩形，目标矩形即是这两个点各向 x、y 轴作线所得到的矩形。
@@ -140,12 +140,12 @@ export class Rect extends ValueType {
      * @zh 获取或设置矩形在 x 轴上的最小值。
      */
     get xMin () {
-        return this.v[0];
+        return this._array[0];
     }
 
     set xMin (value) {
-        this.v[2] += this.v[0] - value;
-        this.v[0] = value;
+        this._array[2] += this._array[0] - value;
+        this._array[0] = value;
     }
 
     /**
@@ -153,12 +153,12 @@ export class Rect extends ValueType {
      * @zh 获取或设置矩形在 y 轴上的最小值。
      */
     get yMin () {
-        return this.v[1];
+        return this._array[1];
     }
 
     set yMin (value) {
-        this.v[3] += this.v[1] - value;
-        this.v[1] = value;
+        this._array[3] += this._array[1] - value;
+        this._array[1] = value;
     }
 
     /**
@@ -166,11 +166,11 @@ export class Rect extends ValueType {
      * @zh 获取或设置矩形在 x 轴上的最大值。
      */
     get xMax () {
-        return this.v[0] + this.v[2];
+        return this._array[0] + this._array[2];
     }
 
     set xMax (value) {
-        this.v[2] = value - this.v[0];
+        this._array[2] = value - this._array[0];
     }
 
     /**
@@ -178,11 +178,11 @@ export class Rect extends ValueType {
      * @zh 获取或设置矩形在 y 轴上的最大值。
      */
     get yMax () {
-        return this.v[1] + this.v[3];
+        return this._array[1] + this._array[3];
     }
 
     set yMax (value) {
-        this.v[3] = value - this.v[1];
+        this._array[3] = value - this._array[1];
     }
 
     /**
@@ -190,13 +190,13 @@ export class Rect extends ValueType {
      * @zh 获取或设置矩形中心点的坐标。
      */
     get center () {
-        return new Vec2(this.v[0] + this.v[2] * 0.5,
-            this.v[1] + this.v[3] * 0.5);
+        return new Vec2(this._array[0] + this._array[2] * 0.5,
+            this._array[1] + this._array[3] * 0.5);
     }
 
     set center (value) {
-        this.v[0] = value.x - this.v[2] * 0.5;
-        this.v[1] = value.y - this.v[3] * 0.5;
+        this._array[0] = value.x - this._array[2] * 0.5;
+        this._array[1] = value.y - this._array[3] * 0.5;
     }
 
     /**
@@ -204,12 +204,12 @@ export class Rect extends ValueType {
      * @zh 获取或设置矩形的 x 和 y 坐标。
      */
     get origin () {
-        return new Vec2(this.v[0], this.v[1]);
+        return new Vec2(this._array[0], this._array[1]);
     }
 
     set origin (value) {
-        this.v[0] = value.x;
-        this.v[1] = value.y;
+        this._array[0] = value.x;
+        this._array[1] = value.y;
     }
 
     /**
@@ -217,12 +217,12 @@ export class Rect extends ValueType {
      * @zh 获取或设置矩形的尺寸。
      */
     get size () {
-        return new Size(this.v[2], this.v[3]);
+        return new Size(this._array[2], this._array[3]);
     }
 
     set size (value) {
-        this.v[2] = value.width;
-        this.v[3] = value.height;
+        this._array[2] = value.width;
+        this._array[3] = value.height;
     }
 
     /**
@@ -230,10 +230,10 @@ export class Rect extends ValueType {
      * @zh 矩形最小点的 x 坐标。
      */
     public get x (): number {
-        return this.v[0];
+        return this._array[0];
     }
     public set x (val: number) {
-        this.v[0] = val;
+        this._array[0] = val;
     }
 
     /**
@@ -241,10 +241,10 @@ export class Rect extends ValueType {
      * @zh 矩形最小点的 y 坐标。
      */
     public get y (): number {
-        return this.v[1];
+        return this._array[1];
     }
     public set y (val: number) {
-        this.v[1] = val;
+        this._array[1] = val;
     }
 
     /**
@@ -252,41 +252,35 @@ export class Rect extends ValueType {
      * @zh 矩形的宽度。
      */
     public get width (): number {
-        return this.v[2];
+        return this._array[2];
     }
     public set width (val: number) {
-        this.v[2] = val;
+        this._array[2] = val;
     }
     // compatibility with vector interfaces
-    public get z (): number { return this.v[2]; }
-    public set z (val: number) { this.v[2] = val; }
+    public get z (): number { return this._array[2]; }
+    public set z (val: number) { this._array[2] = val; }
 
     /**
      * @en The height of the Rect.
      * @zh 矩形的高度。
      */
     public get height (): number {
-        return this.v[3];
+        return this._array[3];
     }
     public set height (val: number) {
-        this.v[3] = val;
+        this._array[3] = val;
     }
     // compatibility with vector interfaces
-    public get w (): number { return this.v[3]; }
-    public set w (val: number) { this.v[3] = val; }
-
-    /**
-     * @en Get the internal data in rect.
-     * @zh 获取 Rect 的内部数据。
-     */
-    public declare v: Float32Array;
+    public get w (): number { return this._array[3]; }
+    public set w (val: number) { this._array[3] = val; }
 
     /**
      * @en Constructs a Rect from another one.
      * @zh 构造与指定矩形相等的矩形。
      * @param other Specified Rect.
      */
-    constructor (x: Rect | Float32Array);
+    constructor (x: Rect);
 
     /**
      * @en Constructs a Rect with specified values.
@@ -298,25 +292,19 @@ export class Rect extends ValueType {
      */
     constructor (x?: number, y?: number, width?: number, height?: number);
 
-    constructor (x?: Rect | number | Float32Array, y?: number, width?: number, height?: number) {
+    constructor (x?: Rect | number, y?: number, width?: number, height?: number) {
         super();
         if (x && typeof x === 'object') {
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
-            } else {
-                const v = x.v;
-                this.v = new Float32Array(4);
-                this.v[0] = v[0];
-                this.v[1] = v[1];
-                this.v[2] = v[2];
-                this.v[3] = v[3];
-            }
+            const v = x.array;
+            this._array[0] = v[0];
+            this._array[1] = v[1];
+            this._array[2] = v[2];
+            this._array[3] = v[3];
         } else {
-            this.v = new Float32Array(4);
-            this.v[0] = x || 0;
-            this.v[1] = y || 0;
-            this.v[2] = width || 0;
-            this.v[3] = height || 0;
+            this._array[0] = x || 0;
+            this._array[1] = y || 0;
+            this._array[2] = width || 0;
+            this._array[3] = height || 0;
         }
     }
 
@@ -325,7 +313,7 @@ export class Rect extends ValueType {
      * @zh 克隆当前矩形。
      */
     public clone () {
-        return new Rect(this.v[0], this.v[1], this.v[2], this.v[3]);
+        return new Rect(this._array[0], this._array[1], this._array[2], this._array[3]);
     }
 
     /**
@@ -349,15 +337,16 @@ export class Rect extends ValueType {
 
     public set (x?: Rect | number, y?: number, width?: number, height?: number) {
         if (x && typeof x === 'object') {
-            this.v[0] = x.v[0];
-            this.v[1] = x.v[1];
-            this.v[2] = x.v[2];
-            this.v[3] = x.v[3];
+            const v = x.array;
+            this._array[0] = v[0];
+            this._array[1] = v[1];
+            this._array[2] = v[2];
+            this._array[3] = v[3];
         } else {
-            this.v[0] = x || 0;
-            this.v[1] = y || 0;
-            this.v[2] = width || 0;
-            this.v[3] = height || 0;
+            this._array[0] = x || 0;
+            this._array[1] = y || 0;
+            this._array[2] = width || 0;
+            this._array[3] = height || 0;
         }
         return this;
     }
@@ -369,10 +358,11 @@ export class Rect extends ValueType {
      * @returns Returns `true' when the minimum and maximum values of both rectangles are equal, respectively; otherwise, returns `false'.
      */
     public equals (other: Rect) {
-        return this.v[0] === other.v[0]
-            && this.v[1] === other.v[1]
-            && this.v[2] === other.v[2]
-            && this.v[3] === other.v[3];
+        const v = other.array;
+        return this._array[0] === v[0]
+            && this._array[1] === v[1]
+            && this._array[2] === v[2]
+            && this._array[3] === v[3];
     }
 
     /**
@@ -382,14 +372,15 @@ export class Rect extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Rect, ratio: number) {
-        const x = this.v[0];
-        const y = this.v[1];
-        const w = this.v[2];
-        const h = this.v[3];
-        this.v[0] = x + (to.v[0] - x) * ratio;
-        this.v[1] = y + (to.v[1] - y) * ratio;
-        this.v[2] = w + (to.v[2] - w) * ratio;
-        this.v[3] = h + (to.v[3] - h) * ratio;
+        const x = this._array[0];
+        const y = this._array[1];
+        const w = this._array[2];
+        const h = this._array[3];
+        const v = to.array;
+        this._array[0] = x + (v[0] - x) * ratio;
+        this._array[1] = y + (v[1] - y) * ratio;
+        this._array[2] = w + (v[2] - w) * ratio;
+        this._array[3] = h + (v[3] - h) * ratio;
 
         return this;
     }
@@ -400,7 +391,7 @@ export class Rect extends ValueType {
      * @returns The information of the current rect in string
      */
     public toString () {
-        return `(${this.v[0].toFixed(2)}, ${this.v[1].toFixed(2)}, ${this.v[2].toFixed(2)}, ${this.v[3].toFixed(2)})`;
+        return `(${this._array[0].toFixed(2)}, ${this._array[1].toFixed(2)}, ${this._array[2].toFixed(2)}, ${this._array[3].toFixed(2)})`;
     }
 
     /**
@@ -410,11 +401,12 @@ export class Rect extends ValueType {
      * @returns If intersected, return `true', otherwise return `false'.
      */
     public intersects (other: Rect) {
-        const maxax = this.v[0] + this.v[2];
-        const maxay = this.v[1] + this.v[3];
-        const maxbx = other.v[0] + other.v[2];
-        const maxby = other.v[1] + other.v[3];
-        return !(maxax < other.v[0] || maxbx < this.v[0] || maxay < other.v[1] || maxby < this.v[1]);
+        const maxax = this._array[0] + this._array[2];
+        const maxay = this._array[1] + this._array[3];
+        const v = other.array;
+        const maxbx = v[0] + v[2];
+        const maxby = v[1] + v[3];
+        return !(maxax < v[0] || maxbx < this._array[0] || maxay < v[1] || maxby < this._array[1]);
     }
 
     /**
@@ -424,10 +416,11 @@ export class Rect extends ValueType {
      * @returns The specified point is included in the rectangle and returns `true', otherwise it returns `false'.
      */
     public contains (point: Vec2) {
-        return (this.v[0] <= point.v[0]
-                && this.v[0] + this.v[2] >= point.v[0]
-                && this.v[1] <= point.v[1]
-                && this.v[1] + this.v[3] >= point.v[1]);
+        const v = point.array;
+        return (this._array[0] <= v[0]
+                && this._array[0] + this._array[2] >= v[0]
+                && this._array[1] <= v[1]
+                && this._array[1] + this._array[3] >= v[1]);
     }
 
     /**
@@ -437,10 +430,11 @@ export class Rect extends ValueType {
      * @returns Returns `true' if all the points of the specified rectangle are included in the current rectangle, `false' otherwise.
      */
     public containsRect (other: Rect) {
-        return (this.v[0] <= other.v[0]
-                && this.v[0] + this.v[2] >= other.v[0] + other.v[2]
-                && this.v[1] <= other.v[1]
-                && this.v[1] + this.v[3] >= other.v[1] + other.v[3]);
+        const v = other.array;
+        return (this._array[0] <= v[0]
+                && this._array[0] + this._array[2] >= v[0] + v[2]
+                && this._array[1] <= v[1]
+                && this._array[1] + this._array[3] >= v[1] + v[3]);
     }
 
     /**
@@ -453,11 +447,11 @@ export class Rect extends ValueType {
      * @param matrix The matrix4
      */
     public transformMat4 (mat: Mat4) {
-        const ol = this.v[0];
-        const ob = this.v[1];
-        const or = ol + this.v[2];
-        const ot = ob + this.v[3];
-        const v = mat.v;
+        const ol = this._array[0];
+        const ob = this._array[1];
+        const or = ol + this._array[2];
+        const ot = ob + this._array[3];
+        const v = mat.array;
         const lbx = v[0] * ol + v[4] * ob + v[12];
         const lby = v[1] * ol + v[5] * ob + v[13];
         const rbx = v[0] * or + v[4] * ob + v[12];
@@ -472,10 +466,10 @@ export class Rect extends ValueType {
         const minY = Math.min(lby, rby, lty, rty);
         const maxY = Math.max(lby, rby, lty, rty);
 
-        this.v[0] = minX;
-        this.v[1] = minY;
-        this.v[2] = maxX - minX;
-        this.v[3] = maxY - minY;
+        this._array[0] = minX;
+        this._array[1] = minY;
+        this._array[2] = maxX - minX;
+        this._array[3] = maxY - minY;
 
         return this;
     }

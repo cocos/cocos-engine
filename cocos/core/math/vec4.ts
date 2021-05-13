@@ -30,17 +30,17 @@
  */
 
 import { CCClass } from '../data/class';
-import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
 import { IMat4Like, IQuatLike, IVec4Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 import { legacyCC } from '../global-exports';
+import { MathBase } from './math-pool';
 
 /**
  * @en Representation of four-dimensional vectors.
  * @zh 四维向量。
  */
-export class Vec4 extends ValueType {
+export class Vec4 extends MathBase {
     public static ZERO = Object.freeze(new Vec4(0, 0, 0, 0));
     public static ONE = Object.freeze(new Vec4(1, 1, 1, 1));
     public static NEG_ONE = Object.freeze(new Vec4(-1, -1, -1, -1));
@@ -486,10 +486,10 @@ export class Vec4 extends ValueType {
      * @zh x 分量。
      */
     public get x (): number {
-        return this.v[0];
+        return this._array[0];
     }
     public set x (x: number) {
-        this.v[0] = x;
+        this._array[0] = x;
     }
 
     /**
@@ -497,10 +497,10 @@ export class Vec4 extends ValueType {
      * @zh y 分量。
      */
     public get y (): number {
-        return this.v[1];
+        return this._array[1];
     }
     public set y (y: number) {
-        this.v[1] = y;
+        this._array[1] = y;
     }
 
     /**
@@ -508,10 +508,10 @@ export class Vec4 extends ValueType {
      * @zh z 分量。
      */
     public get z (): number {
-        return this.v[2];
+        return this._array[2];
     }
     public set z (z: number) {
-        this.v[2] = z;
+        this._array[2] = z;
     }
 
     /**
@@ -519,41 +519,29 @@ export class Vec4 extends ValueType {
      * @zh w 分量。
      */
     public get w (): number {
-        return this.v[3];
+        return this._array[3];
     }
     public set w (w: number) {
-        this.v[3] = w;
+        this._array[3] = w;
     }
 
-    /**
-     * @en Get the internal data in vec4.
-     * @zh 获取 Vec4 的内部数据。
-     */
-    public declare v: Float32Array;
-
-    constructor (x: Vec4 | Float32Array);
+    constructor (x: Vec4);
 
     constructor (x?: number, y?: number, z?: number, w?: number);
 
-    constructor (x?: number | Vec4 | Float32Array, y?: number, z?: number, w?: number) {
+    constructor (x?: number | Vec4, y?: number, z?: number, w?: number) {
         super();
         if (x && typeof x === 'object') {
-            if (ArrayBuffer.isView(x)) {
-                this.v = x;
-            } else {
-                const v = x.v;
-                this.v = new Float32Array(4);
-                this.v[0] = v[0];
-                this.v[1] = v[1];
-                this.v[2] = v[2];
-                this.v[3] = v[3];
-            }
+            const v = x.array;
+            this._array[0] = v[0];
+            this._array[1] = v[1];
+            this._array[2] = v[2];
+            this._array[3] = v[3];
         } else {
-            this.v = new Float32Array(4);
-            this.v[0] = x || 0;
-            this.v[1] = y || 0;
-            this.v[2] = z || 0;
-            this.v[3] = w || 0;
+            this._array[0] = x || 0;
+            this._array[1] = y || 0;
+            this._array[2] = z || 0;
+            this._array[3] = w || 0;
         }
     }
 
@@ -562,7 +550,7 @@ export class Vec4 extends ValueType {
      * @zh 克隆当前向量。
      */
     public clone () {
-        return new Vec4(this.v[0], this.v[1], this.v[2], this.v[3]);
+        return new Vec4(this._array[0], this._array[1], this._array[2], this._array[3]);
     }
 
     /**
@@ -586,16 +574,16 @@ export class Vec4 extends ValueType {
 
     public set (x?: number | Vec4, y?: number, z?: number, w?: number) {
         if (x && typeof x === 'object') {
-            const v = x.v;
-            this.v[0] = v[0];
-            this.v[1] = v[1];
-            this.v[2] = v[2];
-            this.v[3] = v[3];
+            const v = x.array;
+            this._array[0] = v[0];
+            this._array[1] = v[1];
+            this._array[2] = v[2];
+            this._array[3] = v[3];
         } else {
-            this.v[0] = x || 0;
-            this.v[1] = y || 0;
-            this.v[2] = z || 0;
-            this.v[3] = w || 0;
+            this._array[0] = x || 0;
+            this._array[1] = y || 0;
+            this._array[2] = z || 0;
+            this._array[3] = w || 0;
         }
         return this;
     }
@@ -608,11 +596,11 @@ export class Vec4 extends ValueType {
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public equals (other: Vec4, epsilon = EPSILON) {
-        const v = other.v;
-        return (Math.abs(this.v[0] - v[0]) <= epsilon * Math.max(1.0, Math.abs(this.v[0]), Math.abs(v[0]))
-            && Math.abs(this.v[1] - v[1]) <= epsilon * Math.max(1.0, Math.abs(this.v[1]), Math.abs(v[1]))
-            && Math.abs(this.v[2] - v[2]) <= epsilon * Math.max(1.0, Math.abs(this.v[2]), Math.abs(v[2]))
-            && Math.abs(this.v[3] - v[3]) <= epsilon * Math.max(1.0, Math.abs(this.v[3]), Math.abs(v[3])));
+        const v = other.array;
+        return (Math.abs(this._array[0] - v[0]) <= epsilon * Math.max(1.0, Math.abs(this._array[0]), Math.abs(v[0]))
+            && Math.abs(this._array[1] - v[1]) <= epsilon * Math.max(1.0, Math.abs(this._array[1]), Math.abs(v[1]))
+            && Math.abs(this._array[2] - v[2]) <= epsilon * Math.max(1.0, Math.abs(this._array[2]), Math.abs(v[2]))
+            && Math.abs(this._array[3] - v[3]) <= epsilon * Math.max(1.0, Math.abs(this._array[3]), Math.abs(v[3])));
     }
 
     /**
@@ -626,10 +614,10 @@ export class Vec4 extends ValueType {
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public equals4f (x: number, y: number, z: number, w: number, epsilon = EPSILON) {
-        return (Math.abs(this.v[0] - x) <= epsilon * Math.max(1.0, Math.abs(this.v[0]), Math.abs(x))
-            && Math.abs(this.v[1] - y) <= epsilon * Math.max(1.0, Math.abs(this.v[1]), Math.abs(y))
-            && Math.abs(this.v[2] - z) <= epsilon * Math.max(1.0, Math.abs(this.v[2]), Math.abs(z))
-            && Math.abs(this.v[3] - w) <= epsilon * Math.max(1.0, Math.abs(this.v[3]), Math.abs(w)));
+        return (Math.abs(this._array[0] - x) <= epsilon * Math.max(1.0, Math.abs(this._array[0]), Math.abs(x))
+            && Math.abs(this._array[1] - y) <= epsilon * Math.max(1.0, Math.abs(this._array[1]), Math.abs(y))
+            && Math.abs(this._array[2] - z) <= epsilon * Math.max(1.0, Math.abs(this._array[2]), Math.abs(z))
+            && Math.abs(this._array[3] - w) <= epsilon * Math.max(1.0, Math.abs(this._array[3]), Math.abs(w)));
     }
 
     /**
@@ -639,8 +627,8 @@ export class Vec4 extends ValueType {
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public strictEquals (other: Vec4) {
-        const v = other.v;
-        return this.v[0] === v[0] && this.v[1] === v[1] && this.v[2] === v[2] && this.v[3] === v[3];
+        const v = other.array;
+        return this._array[0] === v[0] && this._array[1] === v[1] && this._array[2] === v[2] && this._array[3] === v[3];
     }
 
     /**
@@ -653,7 +641,7 @@ export class Vec4 extends ValueType {
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public strictEquals4f (x: number, y: number, z: number, w: number) {
-        return this.v[0] === x && this.v[1] === y && this.v[2] === z && this.v[3] === w;
+        return this._array[0] === x && this._array[1] === y && this._array[2] === z && this._array[3] === w;
     }
 
     /**
@@ -663,15 +651,15 @@ export class Vec4 extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Vec4, ratio: number) {
-        const x = this.v[0];
-        const y = this.v[1];
-        const z = this.v[2];
-        const w = this.v[3];
-        const v = to.v;
-        this.v[0] = x + ratio * (v[0] - x);
-        this.v[1] = y + ratio * (v[1] - y);
-        this.v[2] = z + ratio * (v[2] - z);
-        this.v[3] = w + ratio * (v[3] - w);
+        const x = this._array[0];
+        const y = this._array[1];
+        const z = this._array[2];
+        const w = this._array[3];
+        const v = to.array;
+        this._array[0] = x + ratio * (v[0] - x);
+        this._array[1] = y + ratio * (v[1] - y);
+        this._array[2] = z + ratio * (v[2] - z);
+        this._array[3] = w + ratio * (v[3] - w);
         return this;
     }
 
@@ -681,7 +669,7 @@ export class Vec4 extends ValueType {
      * @returns The string with vector information
      */
     public toString () {
-        return `(${this.v[0].toFixed(2)}, ${this.v[1].toFixed(2)}, ${this.v[2].toFixed(2)}, ${this.v[3].toFixed(2)})`;
+        return `(${this._array[0].toFixed(2)}, ${this._array[1].toFixed(2)}, ${this._array[2].toFixed(2)}, ${this._array[3].toFixed(2)})`;
     }
 
     /**
@@ -692,12 +680,12 @@ export class Vec4 extends ValueType {
      * @returns `this`
      */
     public clampf (minInclusive: Vec4, maxInclusive: Vec4) {
-        const min = minInclusive.v;
-        const max = maxInclusive.v;
-        this.v[0] = clamp(this.v[0], min[0], max[0]);
-        this.v[1] = clamp(this.v[1], min[1], max[1]);
-        this.v[2] = clamp(this.v[2], min[2], max[2]);
-        this.v[3] = clamp(this.v[3], min[3], max[3]);
+        const min = minInclusive.array;
+        const max = maxInclusive.array;
+        this._array[0] = clamp(this._array[0], min[0], max[0]);
+        this._array[1] = clamp(this._array[1], min[1], max[1]);
+        this._array[2] = clamp(this._array[2], min[2], max[2]);
+        this._array[3] = clamp(this._array[3], min[3], max[3]);
         return this;
     }
 
@@ -707,11 +695,11 @@ export class Vec4 extends ValueType {
      * @param other specified vector
      */
     public add (other: Vec4) {
-        const v = other.v;
-        this.v[0] += v[0];
-        this.v[1] += v[1];
-        this.v[2] += v[2];
-        this.v[3] += v[3];
+        const v = other.array;
+        this._array[0] += v[0];
+        this._array[1] += v[1];
+        this._array[2] += v[2];
+        this._array[3] += v[3];
         return this;
     }
 
@@ -724,10 +712,10 @@ export class Vec4 extends ValueType {
      * @param w The w value of specified vector
      */
     public add4f (x: number, y: number, z: number, w: number) {
-        this.v[0] += x;
-        this.v[1] += y;
-        this.v[2] += z;
-        this.v[3] += w;
+        this._array[0] += x;
+        this._array[1] += y;
+        this._array[2] += z;
+        this._array[3] += w;
         return this;
     }
 
@@ -737,11 +725,11 @@ export class Vec4 extends ValueType {
      * @param other specified vector
      */
     public subtract (other: Vec4) {
-        const v = other.v;
-        this.v[0] -= v[0];
-        this.v[1] -= v[1];
-        this.v[2] -= -v[2];
-        this.v[3] -= v[3];
+        const v = other.array;
+        this._array[0] -= v[0];
+        this._array[1] -= v[1];
+        this._array[2] -= -v[2];
+        this._array[3] -= v[3];
         return this;
     }
 
@@ -754,10 +742,10 @@ export class Vec4 extends ValueType {
      * @param w The w value of specified vector
      */
     public subtract4f (x: number, y: number, z: number, w: number) {
-        this.v[0] -= x;
-        this.v[1] -= y;
-        this.v[2] -= z;
-        this.v[3] -= w;
+        this._array[0] -= x;
+        this._array[1] -= y;
+        this._array[2] -= z;
+        this._array[3] -= w;
         return this;
     }
 
@@ -768,10 +756,10 @@ export class Vec4 extends ValueType {
      */
     public multiplyScalar (scalar: number) {
         if (typeof scalar === 'object') { console.warn('should use Vec4.multiply for vector * vector operation'); }
-        this.v[0] *= scalar;
-        this.v[1] *= scalar;
-        this.v[2] *= scalar;
-        this.v[3] *= scalar;
+        this._array[0] *= scalar;
+        this._array[1] *= scalar;
+        this._array[2] *= scalar;
+        this._array[3] *= scalar;
         return this;
     }
 
@@ -782,11 +770,11 @@ export class Vec4 extends ValueType {
      */
     public multiply (other: Vec4) {
         if (typeof other !== 'object') { console.warn('should use Vec4.scale for vector * scalar operation'); }
-        const v = other.v;
-        this.v[0] *= v[0];
-        this.v[1] *= v[1];
-        this.v[2] *= v[2];
-        this.v[3] *= v[3];
+        const v = other.array;
+        this._array[0] *= v[0];
+        this._array[1] *= v[1];
+        this._array[2] *= v[2];
+        this._array[3] *= v[3];
         return this;
     }
 
@@ -799,10 +787,10 @@ export class Vec4 extends ValueType {
      * @param w The w value of specified vector
      */
     public multiply4f (x: number, y: number, z: number, w: number) {
-        this.v[0] *= x;
-        this.v[1] *= y;
-        this.v[2] *= z;
-        this.v[3] *= w;
+        this._array[0] *= x;
+        this._array[1] *= y;
+        this._array[2] *= z;
+        this._array[3] *= w;
         return this;
     }
 
@@ -812,11 +800,11 @@ export class Vec4 extends ValueType {
      * @param other specified vector
      */
     public divide (other: Vec4) {
-        const v = other.v;
-        this.v[0] /= v[0];
-        this.v[1] /= v[1];
-        this.v[2] /= v[2];
-        this.v[3] /= v[3];
+        const v = other.array;
+        this._array[0] /= v[0];
+        this._array[1] /= v[1];
+        this._array[2] /= v[2];
+        this._array[3] /= v[3];
         return this;
     }
 
@@ -829,10 +817,10 @@ export class Vec4 extends ValueType {
      * @param w The w value of specified vector
      */
     public divide4f (x: number, y: number, z: number, w: number) {
-        this.v[0] /= x;
-        this.v[1] /= y;
-        this.v[2] /= z;
-        this.v[3] /= w;
+        this._array[0] /= x;
+        this._array[1] /= y;
+        this._array[2] /= z;
+        this._array[3] /= w;
         return this;
     }
 
@@ -841,10 +829,10 @@ export class Vec4 extends ValueType {
      * @zh 将当前向量的各个分量取反
      */
     public negative () {
-        this.v[0] = -this.v[0];
-        this.v[1] = -this.v[1];
-        this.v[2] = -this.v[2];
-        this.v[3] = -this.v[3];
+        this._array[0] = -this._array[0];
+        this._array[1] = -this._array[1];
+        this._array[2] = -this._array[2];
+        this._array[3] = -this._array[3];
         return this;
     }
 
@@ -855,8 +843,8 @@ export class Vec4 extends ValueType {
      * @returns 当前向量与指定向量点乘的结果。
      */
     public dot (other: Vec4) {
-        const v = other.v;
-        return this.v[0] * v[0] + this.v[1] * v[1] + this.v[2] * v[2] + this.v[3] * v[3];
+        const v = other.array;
+        return this._array[0] * v[0] + this._array[1] * v[1] + this._array[2] * v[2] + this._array[3] * v[3];
     }
 
     /**
@@ -865,16 +853,17 @@ export class Vec4 extends ValueType {
      * @param other specified vector
      */
     public cross (other: Vec4) {
-        const ax = this.v[0];
-        const ay = this.v[1];
-        const az = this.v[2];
-        const bx = other.v[0];
-        const by = other.v[1];
-        const bz = other.v[2];
+        const ax = this._array[0];
+        const ay = this._array[1];
+        const az = this._array[2];
+        const v = other.array;
+        const bx = v[0];
+        const by = v[1];
+        const bz = v[2];
 
-        this.v[0] = ay * bz - az * by;
-        this.v[1] = az * bx - ax * bz;
-        this.v[2] = ax * by - ay * bx;
+        this._array[0] = ay * bz - az * by;
+        this._array[1] = az * bx - ax * bz;
+        this._array[2] = ax * by - ay * bx;
         return this;
     }
 
@@ -884,10 +873,10 @@ export class Vec4 extends ValueType {
      * @returns Length of vector
      */
     public length () {
-        const x = this.v[0];
-        const y = this.v[1];
-        const z = this.v[2];
-        const w = this.v[3];
+        const x = this._array[0];
+        const y = this._array[1];
+        const z = this._array[2];
+        const w = this._array[3];
         return Math.sqrt(x * x + y * y + z * z + w * w);
     }
 
@@ -897,10 +886,10 @@ export class Vec4 extends ValueType {
      * @returns the squared length of this vector
      */
     public lengthSqr () {
-        const x = this.v[0];
-        const y = this.v[1];
-        const z = this.v[2];
-        const w = this.v[3];
+        const x = this._array[0];
+        const y = this._array[1];
+        const z = this._array[2];
+        const w = this._array[3];
         return x * x + y * y + z * z + w * w;
     }
 
@@ -909,17 +898,17 @@ export class Vec4 extends ValueType {
      * @zh 将当前向量归一化
      */
     public normalize () {
-        const x = this.v[0];
-        const y = this.v[1];
-        const z = this.v[2];
-        const w = this.v[3];
+        const x = this._array[0];
+        const y = this._array[1];
+        const z = this._array[2];
+        const w = this._array[3];
         let len = x * x + y * y + z * z + w * w;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
-            this.v[0] = x * len;
-            this.v[1] = y * len;
-            this.v[2] = z * len;
-            this.v[3] = w * len;
+            this._array[0] = x * len;
+            this._array[1] = y * len;
+            this._array[2] = z * len;
+            this._array[3] = w * len;
         }
         return this;
     }
@@ -930,15 +919,15 @@ export class Vec4 extends ValueType {
      * @param matrix matrix to transform with
      */
     public transformMat4 (matrix: Mat4) {
-        const x = this.v[0];
-        const y = this.v[1];
-        const z = this.v[2];
-        const w = this.v[3];
-        const v = matrix.v;
-        this.v[0] = v[0] * x + v[4] * y + v[8] * z + v[12] * w;
-        this.v[1] = v[1] * x + v[5] * y + v[9] * z + v[13] * w;
-        this.v[2] = v[2] * x + v[6] * y + v[10] * z + v[14] * w;
-        this.v[3] = v[3] * x + v[7] * y + v[11] * z + v[15] * w;
+        const x = this._array[0];
+        const y = this._array[1];
+        const z = this._array[2];
+        const w = this._array[3];
+        const v = matrix.array;
+        this._array[0] = v[0] * x + v[4] * y + v[8] * z + v[12] * w;
+        this._array[1] = v[1] * x + v[5] * y + v[9] * z + v[13] * w;
+        this._array[2] = v[2] * x + v[6] * y + v[10] * z + v[14] * w;
+        this._array[3] = v[3] * x + v[7] * y + v[11] * z + v[15] * w;
         return this;
     }
 }
