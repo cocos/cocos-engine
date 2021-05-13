@@ -37,10 +37,10 @@ export class DummyIA {
     get ia () { return this._ia; }
 
     constructor (device: Device) {
-        const elementPerVertex = (/* position */3 + /* texCoord */2 + /* instanceID */1);
-        const vertexPerQuad = 6;
-        const elementsPerQuad = elementPerVertex * vertexPerQuad;
-        const stride = elementPerVertex * Float32Array.BYTES_PER_ELEMENT;
+        const elementPerVertex = (/* position */3 + /* texCoord */2 + /* instanceID */1); // 每个顶点需要的数量
+        const vertexPerQuad = 6; // 顶点数
+        const elementsPerQuad = elementPerVertex * vertexPerQuad; // 每个对象实际需要的数量
+        const stride = elementPerVertex * Float32Array.BYTES_PER_ELEMENT; // 偏移量
         const maxQuadPerDrawcall = Math.floor(device.capabilities.maxVertexUniformVectors / 4); // 现在是写死的最多用 16 个
 
         this._buffer = device.createBuffer(new BufferInfo(

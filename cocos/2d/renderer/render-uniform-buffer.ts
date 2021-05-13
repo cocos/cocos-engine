@@ -57,8 +57,8 @@ export class UILocalBuffer {
             this._uniformBufferStride,
         ));
 
-        // 数据 view
-        this._firstUniformBufferView = this._device.createBuffer(new BufferViewInfo(this._uniformBuffer, 0, UBOUILocal.SIZE));
+        // 数据 view // 注意，在使用 UBOUILocal 中的数值时，需要 * capacityPerUBO，由于在定义中长度为 1
+        this._firstUniformBufferView = this._device.createBuffer(new BufferViewInfo(this._uniformBuffer, 0, UBOUILocal.SIZE * capacityPerUBO));
 
         // 实际保存数据的地方// 一个,长度为 100 个 ubo 的长度
         this._uniformBufferData = new Float32Array(this._uniformBufferElementCount * UILocalBuffer.UBO_COUNT);

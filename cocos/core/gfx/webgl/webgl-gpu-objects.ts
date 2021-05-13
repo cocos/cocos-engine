@@ -123,22 +123,18 @@ export interface IWebGLGPUUniform {
     binding: number;
     name: string;
     type: Type;
-    stride: number;
-    count: number;
-    size: number;
-    offset: number;
 
     glType: GLenum;
     glLoc: WebGLUniformLocation;
     array: Int32Array | Float32Array;
     begin: number;
+    count: number;
 }
 
 export interface IWebGLGPUUniformBlock {
     set: number;
     binding: number;
     name: string;
-    size: number;
     glUniforms: IWebGLGPUUniform[];
     glActiveUniforms: IWebGLGPUUniform[];
 }

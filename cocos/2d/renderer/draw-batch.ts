@@ -30,7 +30,7 @@
 
 import { MeshBuffer } from './mesh-buffer';
 import { Material } from '../../core/assets/material';
-import { Texture, Sampler, DrawInfo, Buffer } from '../../core/gfx';
+import { Texture, Sampler, DrawInfo, Buffer, Device } from '../../core/gfx';
 import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
@@ -43,8 +43,9 @@ import { UILocalUBOManger } from './render-uniform-buffer';
 import { Pass } from '../../core/renderer/core/pass';
 import { Renderable2D } from '../framework';
 import { Sprite } from '../components';
-import { RecyclePool } from '../../core';
+import { director, RecyclePool } from '../../core';
 import { Vec3 } from '../../core/math/vec3';
+import { ccbitmask } from '../../core/value-types/bitmask';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -103,6 +104,8 @@ export class DrawBatch2D {
     private _tempRect;
     private _tempScale = new Vec3();
 
+    private _device:Device;
+
     // 这里有两个情况
     // 1、batches 放不下的情况
     // 2、batches 放不满的情况
@@ -113,6 +116,7 @@ export class DrawBatch2D {
 
     constructor () {
         this._handle = BatchPool2D.alloc();
+        this._device = director.root!.device;
         BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, UI_VIS_FLAG);
         BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, NULL_HANDLE);
         BatchPool2D.set(this._handle, BatchView2D.DESCRIPTOR_SET, NULL_HANDLE);
@@ -178,7 +182,7 @@ export class DrawBatch2D {
         }
     }
 
-    public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger) {
+    public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material) {
         // 将一个 drawBatch 分割为多个 drawCall
         // batch 有 drawCall 数组
         // 分割条件， uboHash 要一致，buffer View 要一致
@@ -198,9 +202,10 @@ export class DrawBatch2D {
         const c = renderComp.color;
         // 16 的定值为 device 查出的 capacity
 
+        const capacityPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4);
         // capacityPerUBO = Math.floor((device.capabilities.maxVertexUniformVectors -  pass.shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4)
         // capacityPerUBO(目前为16)
-        const localBuffer = UBOManager.upload(t, r, this._tempScale, uv, c, 16);
+        const localBuffer = UBOManager.upload(t, r, this._tempScale, uv, c, capacityPerUBO);
         // 能同 draw call 的条件： UBOIndex 相同，ubohash 相同
 
         let dc = this._drawcalls[this._dcIndex];

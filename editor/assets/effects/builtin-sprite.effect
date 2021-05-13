@@ -41,8 +41,8 @@ CCProgram sprite-vs %{
     vec3 scale;
   };
 
-  // #define CC_UI_COUNT_PER_DRAW (CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS - CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4
-  #define CC_UI_COUNT_PER_DRAW 16
+  #define CC_UI_COUNT_PER_DRAW (CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS - CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4
+  // #define CC_UI_COUNT_PER_DRAW 16
   #pragma builtin(local)
   layout(set = 2, binding = 0) uniform CCUILocal {
     // xyz: translation w: color R.G

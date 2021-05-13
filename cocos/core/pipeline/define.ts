@@ -481,7 +481,7 @@ localDescriptorSetLayout.bindings[UBOMorph.BINDING] = UBOMorph.DESCRIPTOR;
 
 // UI uniform 数据填充的 UBO
 export class UBOUILocal {
-    public static readonly MAX_UI_COUNT = 16;// 16 可变控制 shader 中大小
+    public static readonly MAX_UI_COUNT = 1;// 每个 drawBatch 中可绘制的数量，定义时为 1， 使用时需要乘实际可用的数量
     public static readonly DATA1_OFFSET = 0;
     public static readonly DATA2_OFFSET = UBOUILocal.MAX_UI_COUNT * 4 + UBOUILocal.DATA1_OFFSET;
     public static readonly DATA3_OFFSET = UBOUILocal.MAX_UI_COUNT * 4 + UBOUILocal.DATA2_OFFSET;

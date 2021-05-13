@@ -322,7 +322,7 @@ export class Batcher2D {
         //     this._currBatch = this._drawBatchPool.alloc();
         // }
         // 来一个填充一个，然后不用判断合批，直到不能合批
-        this._currBatch.fillBuffers(comp, this._localUBOManager);
+        this._currBatch.fillBuffers(comp, this._localUBOManager, mat);
         // if (assembler) {
         //     assembler.fillBuffers(renderComp, this); // 这里更新不填充
         //     this._applyOpacity(renderComp);
