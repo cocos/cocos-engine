@@ -1,4 +1,4 @@
-name: Apply Clang Format
+name: Apply clang format
 
 #on: [push, pull_request]
 on:
@@ -22,7 +22,7 @@ jobs:
         output: ' '
         fileOutput: ' '
 
-    - name: get change files
+    - name: Echo change files
       run: |
         cat $HOME/files.txt
         mv $HOME/files.txt ${{github.workspace}}/files.txt
@@ -33,13 +33,19 @@ jobs:
         extensions: 'c,h,hpp,cpp,cxx'
         style: file
         inplace: True
-        
-    - uses: fish9167/git-auto-commit-action@v4
-      with:
-        commit_message: Apply clang-format
-        branch: ${{ github.base_ref }}
-        commit_user_name: cocos-robot
-        commit_user_email: cocos-robot@cocos.com
-        commit_author: cocos-robot <cocos-robot@cocos.com>
-        push_options: --force
 
+    - name: Create Pull Request 
+      uses: fish9167/create-pull-request@v3
+      with:
+          title: '[ci skip][AUTO]: Automated PR to fix formatting'
+          body: |
+            Automated PR to fix formatting
+          committer: cocos-robot <cocos-robot@cocos.com>
+          author: cocos-robot <cocos-robot@cocos.com>
+          commit-message: "[ci skip][AUTO]: Automated clang-format update: ${{ github.event.pull_request.head.sha }}  (#${{ github.event.number }})"
+          token: ${{ secrets.PR_TOKEN }}
+          push-to-fork: cocos-robot/cocos2d-x-lite
+          branch: t/bot/fix-format
+          branch-suffix: short-commit-hash
+          delete-branch: true
+          milestone: 1
