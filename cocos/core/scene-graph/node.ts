@@ -48,6 +48,7 @@ import { NodeSpace, TransformBit } from './node-enum';
 import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
     applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
 import { Component } from '../components';
+import { scene } from '../renderer';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -147,10 +148,13 @@ export class Node extends BaseNode {
 
     protected _poolHandle: NodeHandle = NULL_HANDLE;
 
+    protected _naitveObj: any;
+
     protected _init () {
         if (JSB) {
             this._poolHandle = NodePool.alloc();
             NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+            this._naitveObj = new ns.Node();
         }
     }
     constructor (name?: string) {
@@ -170,6 +174,7 @@ export class Node extends BaseNode {
         if (JSB && this._poolHandle) {
             NodePool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
+            this._naitveObj = null;
         }
     }
 
@@ -180,6 +185,10 @@ export class Node extends BaseNode {
 
     get handle (): NodeHandle {
         return this._poolHandle;
+    }
+
+    get native (): any {
+        return this._naitveObj;
     }
 
     /**

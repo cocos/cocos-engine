@@ -34,6 +34,7 @@ import { TransformBit } from '../../scene-graph/node-enum';
 import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE,
     UIBatchArrayHandle, UIBatchArrayPool, LightArrayHandle, LightArrayPool } from '../core/memory-pools';
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
+import { scene } from '..';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -83,6 +84,10 @@ export class RenderScene {
         return this._scenePoolHandle;
     }
 
+    get naitve (): any {
+        return this._nativeObj;
+    }
+
     get batches () {
         return this._batches;
     }
@@ -106,6 +111,7 @@ export class RenderScene {
     private _batchArrayHandle: UIBatchArrayHandle = NULL_HANDLE;
     private _sphereLightsHandle: LightArrayHandle = NULL_HANDLE;
     private _spotLightsHandle: LightArrayHandle = NULL_HANDLE;
+    private _nativeObj: any;
 
     constructor (root: Root) {
         this._root = root;
@@ -169,6 +175,8 @@ export class RenderScene {
                 UIBatchArrayPool.free(this._batchArrayHandle);
                 this._batchArrayHandle = NULL_HANDLE;
             }
+
+            this._nativeObj = null;
         }
     }
 
@@ -206,6 +214,7 @@ export class RenderScene {
         this._mainLight = dl;
         if (JSB) {
             ScenePool.set(this._scenePoolHandle, SceneView.MAIN_LIGHT, dl.handle);
+            this._nativeObj.setMainLight(dl.native);
         }
     }
 
@@ -214,11 +223,12 @@ export class RenderScene {
             const dlList = this._directionalLights;
             if (dlList.length) {
                 this._mainLight = dlList[dlList.length - 1];
+                this._nativeObj.setMainLight(this._mainLight);
                 if (this._mainLight.node) { // trigger update
                     this._mainLight.node.hasChangedFlags |= TransformBit.ROTATION;
                 }
             } else {
-                this._mainLight = null;
+                this._nativeObj.setMainLight(null);
             }
         }
     }
@@ -386,6 +396,8 @@ export class RenderScene {
                 this._batchArrayHandle = UIBatchArrayPool.alloc();
                 ScenePool.set(this._scenePoolHandle, SceneView.BATCH_ARRAY_2D, this._batchArrayHandle);
             }
+
+            this._nativeObj = new ns.RenderScene();
         }
     }
 }

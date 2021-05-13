@@ -83,10 +83,12 @@ export class ForwardPipeline extends nr.ForwardPipeline {
 
     public render (cameras) {
       let handles = [];
+      let nativeObjs = [];
       for (let i = 0, len = cameras.length; i < len; ++i) {
           handles.push(cameras[i].handle);
+          nativeObjs.push(cameras[i].native)
       }
-      super.render(handles);
+      super.render(handles, nativeObjs);
     }
 
     public destroy () {
