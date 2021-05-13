@@ -188,14 +188,14 @@ export class Camera {
         }
     }
 
-    private _setWidth (val) {
+    private _setWidth (val: number) {
         this._width = val;
         if (JSB) {
             CameraPool.set(this._poolHandle, CameraView.WIDTH, val);
         }
     }
 
-    private _setHeight (val) {
+    private _setHeight (val: number) {
         this._height = val;
         if (JSB) {
             CameraPool.set(this._poolHandle, CameraView.HEIGHT, val);
@@ -481,16 +481,10 @@ export class Camera {
     }
 
     get width () {
-        if (JSB) {
-            return CameraPool.get(this._poolHandle, CameraView.WIDTH);
-        }
         return this._width;
     }
 
     get height () {
-        if (JSB) {
-            return CameraPool.get(this._poolHandle, CameraView.HEIGHT);
-        }
         return this._height;
     }
 
