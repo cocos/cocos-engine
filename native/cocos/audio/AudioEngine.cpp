@@ -319,6 +319,7 @@ void AudioEngine::onEnterBackground(const CustomEvent &event) {
     for (auto it = _audioIDInfoMap.begin(); it != itEnd; ++it) {
         if (it->second.state == AudioState::PLAYING) {
             _audioEngineImpl->pause(it->first);
+            it->second.state = AudioState::PAUSED;
             _breakAudioID.push_back(it->first);
         }
     }
@@ -333,7 +334,12 @@ void AudioEngine::onEnterBackground(const CustomEvent &event) {
 void AudioEngine::onEnterForeground(const CustomEvent &event) {
     auto itEnd = _breakAudioID.end();
     for (auto it = _breakAudioID.begin(); it != itEnd; ++it) {
-        _audioEngineImpl->resume(*it);
+        auto iter = _audioIDInfoMap.find(*it);
+        if (iter != _audioIDInfoMap.end() && iter->second.state == AudioState::PAUSED)
+        {
+            _audioEngineImpl->resume(*it);
+            iter->second.state = AudioState::PLAYING;
+        }
     }
     _breakAudioID.clear();
 
