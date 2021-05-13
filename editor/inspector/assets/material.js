@@ -227,7 +227,7 @@ exports.methods = {
  * @param assetList
  * @param metaList
  */
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -260,7 +260,7 @@ exports.update = async function (assetList, metaList) {
 /**
  * Method of initializing the panel
  */
-exports.ready = async function () {
+exports.ready = async function() {
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',
@@ -351,7 +351,7 @@ exports.ready = async function () {
     this.$.effect.innerHTML = effectOption;
 };
 
-exports.close = function () {
+exports.close = function() {
     // Used to determine whether the material has been modified in isDirty()
     this.dirtyData = {
         uuid: '',
