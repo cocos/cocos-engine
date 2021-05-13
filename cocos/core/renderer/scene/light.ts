@@ -90,6 +90,7 @@ export class Light {
             default:
                 break;
             }
+            this._nativeObj.setType(this._type);
         }
     }
     protected _destroy (): void {

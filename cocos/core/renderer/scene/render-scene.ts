@@ -84,7 +84,7 @@ export class RenderScene {
         return this._scenePoolHandle;
     }
 
-    get naitve (): any {
+    get native (): any {
         return this._nativeObj;
     }
 
