@@ -16,7 +16,7 @@ export class AccelerometerInputSource {
     private _didAccelerateFunc: (event: DeviceMotionEvent | DeviceOrientationEvent) => void;
 
     constructor () {
-        this.support = true;
+        this.support = (window.DeviceMotionEvent !== undefined || window.DeviceOrientationEvent !== undefined);
 
         // init event name
         this._globalEventClass = window.DeviceMotionEvent || window.DeviceOrientationEvent;
