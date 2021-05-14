@@ -93,12 +93,12 @@ export class DummyIA {
             vertexData[i * elementsPerQuad + 22] = 0;
             vertexData[i * elementsPerQuad + 23] = i;
 
-            indexData[i * indexPerQuad + 0] = 0;
-            indexData[i * indexPerQuad + 1] = 1;
-            indexData[i * indexPerQuad + 2] = 2;
-            indexData[i * indexPerQuad + 3] = 2;
-            indexData[i * indexPerQuad + 4] = 1;
-            indexData[i * indexPerQuad + 5] = 3;
+            indexData[i * indexPerQuad + 0] = 0 + i * 4;
+            indexData[i * indexPerQuad + 1] = 1 + i * 4;
+            indexData[i * indexPerQuad + 2] = 2 + i * 4;
+            indexData[i * indexPerQuad + 3] = 2 + i * 4;
+            indexData[i * indexPerQuad + 4] = 1 + i * 4;
+            indexData[i * indexPerQuad + 5] = 3 + i * 4;
         }
 
         this._vertexBuffer.update(vertexData);
