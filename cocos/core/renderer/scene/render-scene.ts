@@ -227,7 +227,7 @@ export class RenderScene {
                 if (this._mainLight.node) { // trigger update
                     this._mainLight.node.hasChangedFlags |= TransformBit.ROTATION;
                 }
-            } else {
+            } else if (JSB) {
                 this._nativeObj.setMainLight(null);
             }
         }
