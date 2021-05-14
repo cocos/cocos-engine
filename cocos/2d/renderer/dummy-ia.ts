@@ -31,71 +31,78 @@ import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit, Device, F
 import { IAPool, InputAssemblerHandle, NULL_HANDLE } from '../../core/renderer';
 
 export class DummyIA {
-    private _buffer: Buffer;
+    private _vertexBuffer: Buffer;
+    private _indexBuffer: Buffer;
     private _ia: InputAssemblerHandle;
 
     get ia () { return this._ia; }
 
     constructor (device: Device) {
+        // 需要顶点索引
+        // 控制顶点索引需要的数据
         const elementPerVertex = (/* position */3 + /* texCoord */2 + /* instanceID */1); // 每个顶点需要的数量
-        const vertexPerQuad = 6; // 顶点数
+        const vertexPerQuad = 4; // 顶点数
         const elementsPerQuad = elementPerVertex * vertexPerQuad; // 每个对象实际需要的数量
         const stride = elementPerVertex * Float32Array.BYTES_PER_ELEMENT; // 偏移量
         const maxQuadPerDrawcall = Math.floor(device.capabilities.maxVertexUniformVectors / 4); // 现在是写死的最多用 16 个
+        console.log(`MaxNum:  ${maxQuadPerDrawcall}`);
 
-        this._buffer = device.createBuffer(new BufferInfo(
+        this._vertexBuffer = device.createBuffer(new BufferInfo(
             BufferUsageBit.VERTEX,
             MemoryUsageBit.DEVICE,
             stride * vertexPerQuad * maxQuadPerDrawcall,
             stride,
         ));
 
-        const data = new Float32Array(elementsPerQuad * maxQuadPerDrawcall);
+        const indexPerQuad = 6; // 索引数
+        this._indexBuffer = device.createBuffer(new BufferInfo(
+            BufferUsageBit.INDEX,
+            MemoryUsageBit.DEVICE,
+            Uint16Array.BYTES_PER_ELEMENT * indexPerQuad * maxQuadPerDrawcall,
+            Uint16Array.BYTES_PER_ELEMENT,
+        ));
+
+        const vertexData = new Float32Array(elementsPerQuad * maxQuadPerDrawcall);
+        const indexData = new Uint16Array(indexPerQuad * maxQuadPerDrawcall);
         for (let i = 0; i < maxQuadPerDrawcall; ++i) {
-            data[i * elementsPerQuad +  0] = -0.5;
-            data[i * elementsPerQuad +  1] = -0.5;
-            data[i * elementsPerQuad +  2] = 0;
-            data[i * elementsPerQuad +  3] = 0;
-            data[i * elementsPerQuad +  4] = 1;
-            data[i * elementsPerQuad +  5] = i;
+            vertexData[i * elementsPerQuad +  0] = -0.5;
+            vertexData[i * elementsPerQuad +  1] = -0.5;
+            vertexData[i * elementsPerQuad +  2] = 0;
+            vertexData[i * elementsPerQuad +  3] = 0;
+            vertexData[i * elementsPerQuad +  4] = 1;
+            vertexData[i * elementsPerQuad +  5] = i;
 
-            data[i * elementsPerQuad +  6] = 0.5;
-            data[i * elementsPerQuad +  7] = -0.5;
-            data[i * elementsPerQuad +  8] = 0;
-            data[i * elementsPerQuad +  9] = 1;
-            data[i * elementsPerQuad + 10] = 1;
-            data[i * elementsPerQuad + 11] = i;
+            vertexData[i * elementsPerQuad +  6] = 0.5;
+            vertexData[i * elementsPerQuad +  7] = -0.5;
+            vertexData[i * elementsPerQuad +  8] = 0;
+            vertexData[i * elementsPerQuad +  9] = 1;
+            vertexData[i * elementsPerQuad + 10] = 1;
+            vertexData[i * elementsPerQuad + 11] = i;
 
-            data[i * elementsPerQuad + 12] = -0.5;
-            data[i * elementsPerQuad + 13] = 0.5;
-            data[i * elementsPerQuad + 14] = 0;
-            data[i * elementsPerQuad + 15] = 0;
-            data[i * elementsPerQuad + 16] = 0;
-            data[i * elementsPerQuad + 17] = i;
+            vertexData[i * elementsPerQuad + 12] = -0.5;
+            vertexData[i * elementsPerQuad + 13] = 0.5;
+            vertexData[i * elementsPerQuad + 14] = 0;
+            vertexData[i * elementsPerQuad + 15] = 0;
+            vertexData[i * elementsPerQuad + 16] = 0;
+            vertexData[i * elementsPerQuad + 17] = i;
 
-            data[i * elementsPerQuad + 18] = -0.5;
-            data[i * elementsPerQuad + 19] = 0.5;
-            data[i * elementsPerQuad + 20] = 0;
-            data[i * elementsPerQuad + 21] = 0;
-            data[i * elementsPerQuad + 22] = 0;
-            data[i * elementsPerQuad + 23] = i;
+            vertexData[i * elementsPerQuad + 18] = 0.5;
+            vertexData[i * elementsPerQuad + 19] = 0.5;
+            vertexData[i * elementsPerQuad + 20] = 0;
+            vertexData[i * elementsPerQuad + 21] = 1;
+            vertexData[i * elementsPerQuad + 22] = 0;
+            vertexData[i * elementsPerQuad + 23] = i;
 
-            data[i * elementsPerQuad + 24] = 0.5;
-            data[i * elementsPerQuad + 25] = -0.5;
-            data[i * elementsPerQuad + 26] = 0;
-            data[i * elementsPerQuad + 27] = 1;
-            data[i * elementsPerQuad + 28] = 1;
-            data[i * elementsPerQuad + 29] = i;
-
-            data[i * elementsPerQuad + 30] = 0.5;
-            data[i * elementsPerQuad + 31] = 0.5;
-            data[i * elementsPerQuad + 32] = 0;
-            data[i * elementsPerQuad + 33] = 1;
-            data[i * elementsPerQuad + 34] = 0;
-            data[i * elementsPerQuad + 35] = i;
+            indexData[i * indexPerQuad + 0] = 0;
+            indexData[i * indexPerQuad + 1] = 1;
+            indexData[i * indexPerQuad + 2] = 2;
+            indexData[i * indexPerQuad + 3] = 2;
+            indexData[i * indexPerQuad + 4] = 1;
+            indexData[i * indexPerQuad + 5] = 3;
         }
 
-        this._buffer.update(data);
+        this._vertexBuffer.update(vertexData);
+        this._indexBuffer.update(indexData);
 
         this._ia = IAPool.alloc(device, new InputAssemblerInfo(
             [
@@ -103,7 +110,8 @@ export class DummyIA {
                 new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F, false, 0, false, 1),
                 new Attribute(AttributeName.ATTR_BATCH_ID,   Format.R32F, false, 0, false, 2),
             ],
-            [this._buffer],
+            [this._vertexBuffer],
+            this._indexBuffer,
         ));
     }
 
@@ -113,9 +121,14 @@ export class DummyIA {
             this._ia = NULL_HANDLE;
         }
 
-        if (this._buffer) {
-            this._buffer.destroy();
-            this._buffer = null!;
+        if (this._vertexBuffer) {
+            this._vertexBuffer.destroy();
+            this._vertexBuffer = null!;
+        }
+
+        if (this._indexBuffer) {
+            this._indexBuffer.destroy();
+            this._indexBuffer = null!;
         }
     }
 }

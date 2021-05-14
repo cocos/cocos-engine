@@ -220,12 +220,14 @@ export class DrawBatch2D {
             dc.bufferUboIndex = localBuffer.prevUBOIndex;
             dc.bufferView = localBuffer.getBufferView();
             dc.dynamicOffsets[0] = localBuffer.prevUBOIndex * localBuffer.uniformBufferStride;
-            dc.drawInfo.firstVertex = localBuffer.prevInstanceID * 6;
-            dc.drawInfo.vertexCount = 0;
+            // dc.drawInfo.firstVertex = localBuffer.prevInstanceID * 6;
+            // dc.drawInfo.vertexCount = 0;
+            dc.drawInfo.firstIndex = localBuffer.prevInstanceID * 6;
+            dc.drawInfo.indexCount = 0;
             this._dcIndex = this._drawcalls.length;
 
             this._drawcalls.push(dc);
         }
-        dc.drawInfo.vertexCount += 6;
+        dc.drawInfo.indexCount += 6;
     }
 }
