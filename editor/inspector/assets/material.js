@@ -243,6 +243,7 @@ exports.update = async function(assetList, metaList) {
     }
 
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
+    await Editor.Message.request('scene', 'preview-material', this.asset.uuid);
 
     // effect <select> tag
     this.$.effect.value = this.material.effect;
