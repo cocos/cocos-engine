@@ -10,6 +10,6 @@ exports.$ = {
     componentContainer: '.component-container',
 };
 
-exports.update = function (dump) {
+exports.update = function(dump) {
     updatePropByDump(this, dump);
 };
