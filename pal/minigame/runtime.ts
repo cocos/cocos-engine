@@ -40,6 +40,23 @@ Object.defineProperty(minigame, 'orientation', {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });
+
+if (VIVO) {
+    // TODO: need to be handled in ral lib.
+    minigame.getSystemInfoSync = function () {
+        const sys = ral.getSystemInfoSync() as SystemInfo;
+        // on VIVO, windowWidth should be windowHeight when it is landscape
+        sys.windowWidth = sys.screenWidth;
+        sys.windowHeight = sys.screenHeight;
+        return sys;
+    };
+} else if (LINKSURE) {
+    // TODO: update system info when view resized, currently the resize callback is not supported.
+    const cachedSystemInfo = ral.getSystemInfoSync() as SystemInfo;
+    minigame.getSystemInfoSync = function () {
+        return cachedSystemInfo;
+    };
+}
 // #endregion SystemInfo
 
 // #region Accelerometer
@@ -88,16 +105,5 @@ minigame.getSafeArea = function () {
     }
     return { top, left, bottom, right, width, height };
 };
-
-if (VIVO) {
-    // TODO: need to be handled in ral lib.
-    minigame.getSystemInfoSync = function () {
-        const sys = ral.getSystemInfoSync() as SystemInfo;
-        // on VIVO, windowWidth should be windowHeight when it is landscape
-        sys.windowWidth = sys.screenWidth;
-        sys.windowHeight = sys.screenHeight;
-        return sys;
-    };
-}
 
 export { minigame };

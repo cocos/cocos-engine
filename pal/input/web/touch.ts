@@ -12,7 +12,7 @@ export class TouchInputSource {
     private _eventTarget: EventTarget = new EventTarget();
 
     constructor () {
-        this.support = system.isMobile;
+        this.support = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || navigator.msPointerEnabled);
         if (this.support) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
             if (!this._canvas && !TEST) {
