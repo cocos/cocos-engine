@@ -579,7 +579,9 @@ function parseAttributes (constructor: Function, attributes: IAcceptableAttribut
             (attrs || initAttrs())[`${propertyNamePrefix}readonly`] = attributes.readonly;
         }
         parseSimpleAttribute('tooltip', 'string');
-        parseSimpleAttribute('group', 'string');
+        if (attributes.group) {
+            (attrs || initAttrs())[`${propertyNamePrefix}group`] = attributes.group;
+        }
         parseSimpleAttribute('slide', 'boolean');
         parseSimpleAttribute('unit', 'string');
     }

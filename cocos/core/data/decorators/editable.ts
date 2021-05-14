@@ -29,6 +29,7 @@
  */
 
 import { DEV, EDITOR } from 'internal:constants';
+import { IExposedAttributes } from '../utils/attribute-defines';
 import { IPropertyOptions, property } from './property';
 
 import { LegacyPropertyDecorator, emptyDecorator, makeSmartEditorClassDecorator, makeEditorClassDecoratorFn, emptySmartClassDecorator, emptyDecoratorFn } from './utils';
@@ -203,11 +204,11 @@ export const tooltip: (text: string) => LegacyPropertyDecorator = !DEV ? emptyDe
  * Sets the group where this property is organized into, on property inspector.
  * @zh
  * 设置在属性检查器上该属性所属的分类标签。
- * @param name 标签名。
+ * @param options 分组的配置。
  */
-export const group: (name: string) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
-    : (name) => property(makeEditable({
-        group: name,
+export const group: (options: NonNullable<IExposedAttributes['group']>) => LegacyPropertyDecorator = !DEV ? emptyDecoratorFn
+    : (options) => property(makeEditable({
+        group: options,
     }));
 
 /**

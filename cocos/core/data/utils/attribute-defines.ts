@@ -23,6 +23,13 @@
  THE SOFTWARE.
  */
 
+type GroupOptions = { name: string; } & Partial<{
+    key: string;
+    name: string;
+    displayOrder: number;
+    style: string;
+}>;
+
 export interface IExposedAttributes {
     /**
      * 指定属性的类型。
@@ -54,7 +61,7 @@ export interface IExposedAttributes {
      * @en The group name where this property is organized into, on property inspector.
      * @zh 在属性检查器上该属性所属的分类标签名。
      */
-    group?: string;
+    group?: string | GroupOptions;
 
     /**
      *
