@@ -16,7 +16,7 @@ export class MouseInputSource {
     private _preMousePos: Vec2 = new Vec2();
 
     constructor () {
-        this.support = !system.isMobile && !EDITOR;
+        this.support = !EDITOR && document.documentElement.onmouseup !== undefined;
         if (this.support) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
             if (!this._canvas && !TEST) {
