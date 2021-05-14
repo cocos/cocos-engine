@@ -112,6 +112,9 @@ class System {
         jsb.onResume = () => {
             this._eventTarget.emit(AppEvent.SHOW);
         };
+        jsb.onClose = () => {
+            this._eventTarget.emit(AppEvent.CLOSE);
+        };
     }
 
     public getViewSize (): Size {
@@ -167,11 +170,18 @@ class System {
         __restartVM();
     }
 
+    public close () {
+        // TODO: jsb.close() not implemented.
+    }
+
     public onHide (cb: () => void) {
         this._eventTarget.on(AppEvent.HIDE, cb);
     }
     public onShow (cb: () => void) {
         this._eventTarget.on(AppEvent.SHOW, cb);
+    }
+    public onClose (cb: () => void) {
+        this._eventTarget.on(AppEvent.CLOSE, cb);
     }
     public onViewResize (cb: () => void) {
         this._eventTarget.on(AppEvent.RESIZE, cb);
@@ -185,6 +195,9 @@ class System {
     }
     public offShow (cb?: () => void) {
         this._eventTarget.off(AppEvent.SHOW, cb);
+    }
+    public offClose (cb?: () => void) {
+        this._eventTarget.off(AppEvent.CLOSE, cb);
     }
     public offViewResize (cb?: () => void) {
         this._eventTarget.off(AppEvent.RESIZE, cb);
