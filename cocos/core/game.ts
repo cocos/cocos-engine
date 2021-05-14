@@ -428,7 +428,7 @@ export class Game extends EventTarget {
             this._gfxDevice.destroy();
             this._gfxDevice = null;
         }
-        window.close();
+        system.close();
     }
 
     /**
