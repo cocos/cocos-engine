@@ -37,7 +37,7 @@ import { legacyCC } from '../../global-exports';
 export enum SystemEventType {
     /**
      * @en
-     * The event type for touch start event, you can use its value directly: 'touchstart'.
+     * The event type for touch start event
      *
      * @zh
      * 手指开始触摸事件。
@@ -46,7 +46,7 @@ export enum SystemEventType {
 
     /**
      * @en
-     * The event type for touch move event, you can use its value directly: 'touchmove'.
+     * The event type for touch move event
      *
      * @zh
      * 当手指在屏幕上移动时。
@@ -55,7 +55,7 @@ export enum SystemEventType {
 
     /**
      * @en
-     * The event type for touch end event, you can use its value directly: 'touchend'.
+     * The event type for touch end event
      *
      * @zh
      * 手指结束触摸事件。
@@ -64,7 +64,7 @@ export enum SystemEventType {
 
     /**
      * @en
-     * The event type for touch end event, you can use its value directly: 'touchcancel'.
+     * The event type for touch end event
      *
      * @zh
      * 当手指在目标节点区域外离开屏幕时。
@@ -73,7 +73,7 @@ export enum SystemEventType {
 
     /**
      * @en
-     * The event type for mouse down events, you can use its value directly: 'mousedown'.
+     * The event type for mouse down events
      *
      * @zh
      * 当鼠标按下时触发一次。
@@ -82,7 +82,7 @@ export enum SystemEventType {
 
     /**
      * @en
-     * The event type for mouse move events, you can use its value directly: 'mousemove'.
+     * The event type for mouse move events
      *
      * @zh
      * 当鼠标在目标节点在目标节点区域中移动时，不论是否按下。
@@ -91,7 +91,7 @@ export enum SystemEventType {
 
     /**
      * @en
-     * The event type for mouse up events, you can use its value directly: 'mouseup'.
+     * The event type for mouse up events
      *
      * @zh
      * 当鼠标从按下状态松开时触发一次。
@@ -100,7 +100,7 @@ export enum SystemEventType {
 
     /**
      * @en
-     * The event type for mouse wheel events, you can use its value directly: 'mousewheel'.
+     * The event type for mouse wheel events
      *
      * @zh 手指开始触摸事件
      */
@@ -108,7 +108,7 @@ export enum SystemEventType {
 
     /**
      * @en
-     * The event type for mouse leave target events, you can use its value directly: 'mouseleave'.
+     * The event type for mouse leave target events
      *
      * @zh
      * 当鼠标移入目标节点区域时，不论是否按下.
@@ -117,7 +117,7 @@ export enum SystemEventType {
 
     /**
      * @en
-     * The event type for mouse leave target events, you can use its value directly: 'mouseleave'.
+     * The event type for mouse leave target events
      *
      * @zh
      * 当鼠标移出目标节点区域时，不论是否按下。
@@ -125,20 +125,20 @@ export enum SystemEventType {
     MOUSE_LEAVE = 'mouse-leave',
 
     /**
-     * @en The event type for press the key down event, you can use its value directly: 'keydown'
+     * @en The event type for press the key down event
      * @zh 当按下按键时触发的事件
      */
     KEY_DOWN = 'keydown',
 
     /**
-     * @en The event type for press the key up event, you can use its value directly: 'keyup'
+     * @en The event type for press the key up event
      * @zh 当松开按键时触发的事件
      */
     KEY_UP = 'keyup',
 
     /**
      * @en
-     * The event type for press the devicemotion event, you can use its value directly: 'devicemotion'
+     * The event type for press the devicemotion event
      *
      * @zh
      * 重力感应
