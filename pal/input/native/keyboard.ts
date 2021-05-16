@@ -37,7 +37,6 @@ export class KeyboardInputSource {
     }
 
     public onUp (cb: KeyboardCallback) {
-        this._eventTarget.on('keyup', cb);
         this._eventTarget.on(SystemEventType.KEYBOARD_UP, cb);
     }
 }
