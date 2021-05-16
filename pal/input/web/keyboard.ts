@@ -1,5 +1,4 @@
 import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
-import { system } from 'pal/system';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 
@@ -14,8 +13,8 @@ export class KeyboardInputSource {
 
     private _registerEvent () {
         const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-        canvas?.addEventListener('keydown', this._createCallback(SystemEventType.KEY_DOWN));
-        canvas?.addEventListener('keyup', this._createCallback(SystemEventType.KEY_UP));
+        canvas?.addEventListener('keydown', this._createCallback('keydown'));
+        canvas?.addEventListener('keyup', this._createCallback('keyup'));
     }
 
     private _createCallback (eventType: string) {
@@ -32,10 +31,15 @@ export class KeyboardInputSource {
     }
 
     public onDown (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
+        this._eventTarget.on(SystemEventType.KEYBOARD_DOWN, cb);
+    }
+
+    public onPressing (cb: KeyboardCallback) {
+        this._eventTarget.on('keydown', cb);
     }
 
     public onUp (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_UP, cb);
+        this._eventTarget.on('keyup', cb);
+        this._eventTarget.on(SystemEventType.KEYBOARD_UP, cb);
     }
 }

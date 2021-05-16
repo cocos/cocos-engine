@@ -24,7 +24,7 @@
  */
 
 import { removeProperty, replaceProperty } from '../utils';
-import { EventMouse, EventTouch, SystemEvent } from './event-manager';
+import { EventMouse, EventTouch, SystemEvent, SystemEventType } from './event-manager';
 import { sys } from './sys';
 import { View } from './view';
 
@@ -161,3 +161,22 @@ removeProperty(sys, 'sys',
         'WINRT', 'WP8', 'QQ_PLAY', 'FB_PLAYABLE_ADS'].map((item) => ({
         name: item,
     })));
+
+// deprecate KEY event
+replaceProperty(SystemEventType, 'SystemEventType', [
+    {
+        name: 'KEY_DOWN',
+        newName: 'KEYBOARD_DOWN',
+        suggest: 'the KEY_DOWN event will be continuously dispatched in the key pressed state, it\'s not a good API design for developers.',
+        customGetter () {
+            return 'keydown';
+        },
+    },
+    {
+        name: 'KEY_UP',
+        newName: 'KEYBOARD_UP',
+        customGetter () {
+            return 'keyup';
+        },
+    },
+]);

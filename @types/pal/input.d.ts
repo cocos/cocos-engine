@@ -145,6 +145,12 @@ declare module 'pal/input' {
          */
         public onDown (cb: KeyboardCallback);
         /**
+         * Register the key pressing event callback.
+         * NOTE: Compability for the deprecated KEY_DOWN event type. It should be removed in the future.
+         * @param cb 
+         */
+        public onPressing (cb: KeyboardCallback);
+        /**
          * Register the key up event callback.
          * @param cb 
          */

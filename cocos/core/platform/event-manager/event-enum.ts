@@ -125,14 +125,16 @@ export enum SystemEventType {
     MOUSE_LEAVE = 'mouse-leave',
 
     /**
-     * @en The event type for press the key down event
-     * @zh 当按下按键时触发的事件
+     * @en The event type for press the key down event, the event will be continuously dispatched in the key pressed state
+     * @zh 当按下按键时触发的事件, 该事件在按下状态会持续派发
+     * @deprecated since v3.1.1
      */
     KEY_DOWN = 'keydown',
 
     /**
      * @en The event type for press the key up event
      * @zh 当松开按键时触发的事件
+     * @deprecated since v3.1.1
      */
     KEY_UP = 'keyup',
 

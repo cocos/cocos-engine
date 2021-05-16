@@ -129,16 +129,17 @@ export class SystemEvent extends EventTarget {
         super.on(type, callback, target, once);
 
         // Keyboard
-        if (type === SystemEventType.KEY_DOWN || type === SystemEventType.KEY_UP) {
+        if (type === 'keydown' || type === 'keyup') {
             if (!keyboardListener) {
                 keyboardListener = EventListener.create({
                     event: EventListener.KEYBOARD,
                     onKeyPressed (keyCode: number, event: EventKeyboard) {
-                        event.type = SystemEventType.KEY_DOWN;
+                        event.type = 'keydown';
                         systemEvent.emit(event.type, event);
                     },
+                    // deprecated
                     onKeyReleased (keyCode: number, event: EventKeyboard) {
-                        event.type = SystemEventType.KEY_UP;
+                        event.type = 'keyup';
                         systemEvent.emit(event.type, event);
                     },
                 });
@@ -242,9 +243,9 @@ export class SystemEvent extends EventTarget {
         super.off(type, callback, target);
 
         // Keyboard
-        if (keyboardListener && (type === SystemEventType.KEY_DOWN || type === SystemEventType.KEY_UP)) {
-            const hasKeyDownEventListener = this.hasEventListener(SystemEventType.KEY_DOWN);
-            const hasKeyUpEventListener = this.hasEventListener(SystemEventType.KEY_UP);
+        if (keyboardListener && (type === 'keydown' || type === 'keyup')) {
+            const hasKeyDownEventListener = this.hasEventListener('keydown');
+            const hasKeyUpEventListener = this.hasEventListener('keyup');
             if (!hasKeyDownEventListener && !hasKeyUpEventListener) {
                 eventManager.removeListener(keyboardListener);
                 keyboardListener = null;

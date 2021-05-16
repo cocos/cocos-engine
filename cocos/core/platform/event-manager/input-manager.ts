@@ -433,7 +433,7 @@ class InputManager {
     }
 
     private _registerKeyboardEvent () {
-        input._keyboard.onDown((inputEvent)  => {
+        input._keyboard.onPressing((inputEvent)  => {
             eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, true));
         });
         input._keyboard.onUp((inputEvent)  => {

@@ -11,10 +11,15 @@ export class KeyboardInputSource {
     }
 
     public onDown (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
+        this._eventTarget.on(SystemEventType.KEYBOARD_DOWN, cb);
+    }
+
+    public onPressing (cb: KeyboardCallback) {
+        this._eventTarget.on('keydown', cb);
     }
 
     public onUp (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_UP, cb);
+        this._eventTarget.on('keyup', cb);
+        this._eventTarget.on(SystemEventType.KEYBOARD_UP, cb);
     }
 }
