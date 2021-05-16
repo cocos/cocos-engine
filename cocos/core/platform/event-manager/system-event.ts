@@ -105,7 +105,7 @@ export class SystemEvent extends EventTarget {
         inputManager.setAccelerometerInterval(interval);
     }
 
-    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: unknown): typeof callback;
+    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP | SystemEventType.KEYBOARD_DOWN | SystemEventType.KEYBOARD_UP, callback: (event: EventKeyboard) => void, target?: unknown): typeof callback;
     public on (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_ENTER | SystemEventType.MOUSE_LEAVE |
                      SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL,
                callback: (event: EventMouse) => void, target?: unknown): typeof callback;
@@ -129,17 +129,18 @@ export class SystemEvent extends EventTarget {
         super.on(type, callback, target, once);
 
         // Keyboard
-        if (type === 'keydown' || type === 'keyup') {
+        if (type === SystemEventType.KEYBOARD_DOWN || type === 'keydown' || type === SystemEventType.KEYBOARD_UP) {
             if (!keyboardListener) {
                 keyboardListener = EventListener.create({
                     event: EventListener.KEYBOARD,
-                    onKeyPressed (keyCode: number, event: EventKeyboard) {
-                        event.type = 'keydown';
+                    onKeyDown (keyCode: number, event: EventKeyboard) {
                         systemEvent.emit(event.type, event);
                     },
                     // deprecated
+                    onKeyPressed (keyCode: number, event: EventKeyboard) {
+                        systemEvent.emit(event.type, event);
+                    },
                     onKeyReleased (keyCode: number, event: EventKeyboard) {
-                        event.type = 'keyup';
                         systemEvent.emit(event.type, event);
                     },
                 });
@@ -243,10 +244,11 @@ export class SystemEvent extends EventTarget {
         super.off(type, callback, target);
 
         // Keyboard
-        if (keyboardListener && (type === 'keydown' || type === 'keyup')) {
-            const hasKeyDownEventListener = this.hasEventListener('keydown');
-            const hasKeyUpEventListener = this.hasEventListener('keyup');
-            if (!hasKeyDownEventListener && !hasKeyUpEventListener) {
+        if (keyboardListener && (type === SystemEventType.KEYBOARD_DOWN || type === 'keydown' || type === SystemEventType.KEYBOARD_UP)) {
+            const hasKeyDownEventListener = this.hasEventListener(SystemEventType.KEYBOARD_DOWN);
+            const hasKeyPressingEventListener = this.hasEventListener('keydown');  // SystemEventType.KEY_DOWN
+            const hasKeyUpEventListener = this.hasEventListener(SystemEventType.KEYBOARD_UP);
+            if (!hasKeyDownEventListener && !hasKeyPressingEventListener && !hasKeyUpEventListener) {
                 eventManager.removeListener(keyboardListener);
                 keyboardListener = null;
             }

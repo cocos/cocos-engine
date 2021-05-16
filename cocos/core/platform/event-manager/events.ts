@@ -34,6 +34,7 @@ import { Vec2 } from '../../math/vec2';
 import { Touch } from './touch';
 import { Acceleration } from './acceleration';
 import { legacyCC } from '../../global-exports';
+import { SystemEventType } from './event-enum';
 
 const _vec2 = new Vec2();
 
@@ -581,6 +582,7 @@ export class EventAcceleration extends Event {
     }
 }
 
+type KeyboardEventType = 'down' | 'pressing' | 'up';
 /**
  * @en
  * The keyboard event.
@@ -608,15 +610,23 @@ export class EventKeyboard extends Event {
     /**
      * @en Indicates whether the current key is being pressed
      * @zh 表示当前按键是否正在被按下
+     * @deprecated since v3.1.1, please use `event.type !== SystemEventType.KEYBOARD_UP` instead.
      */
     public isPressed: boolean;
 
     /**
      * @param keyCode - The key code of the current key or the DOM KeyboardEvent
-     * @param isPressed - Indicates whether the current key is being pressed
+     * @param isPressed - Indicates whether the current key is being pressed, this is the DEPRECATED parameter.
      * @param bubbles - Indicates whether the event bubbles up through the hierarchy or not.
      */
-    constructor (keyCode: number | KeyboardEvent, isPressed: boolean, bubbles?: boolean) {
+    constructor (keyCode: number | KeyboardEvent, isPressed: boolean, bubbles?: boolean);
+    /**
+     * @param keyCode - The key code of the current key or the DOM KeyboardEvent
+     * @param keyboardEventType - Indicates the type of the keyboard event, the valid value is 'down', 'pressing' and 'up'
+     * @param bubbles - Indicates whether the event bubbles up through the hierarchy or not.
+     */
+    constructor (keyCode: number | KeyboardEvent, keyboardEventType: KeyboardEventType, bubbles?: boolean);
+    constructor (keyCode: number | KeyboardEvent, keyboardEventType: KeyboardEventType | boolean, bubbles?: boolean) {
         super(Event.KEYBOARD, bubbles);
         if (typeof keyCode === 'number') {
             this.keyCode = keyCode;
@@ -624,7 +634,30 @@ export class EventKeyboard extends Event {
             this.keyCode = keyCode.keyCode;
             this.rawEvent = keyCode;
         }
-        this.isPressed = isPressed;
+        // Compability for legacy implementation.
+        if (typeof keyboardEventType === 'boolean') {
+            keyboardEventType = keyboardEventType ? 'pressing' : 'up';
+        }
+
+        switch (keyboardEventType) {
+        case 'down':
+            this.type = SystemEventType.KEYBOARD_DOWN;
+            this.isPressed = true;
+            break;
+        case 'pressing':
+            this.type = 'keydown';  // SystemEventType.KEY_DOWN
+            this.isPressed = true;
+            break;
+        case 'up':
+            this.type = SystemEventType.KEYBOARD_UP;
+            this.isPressed = false;
+            break;
+        // default value
+        default:
+            this.type = SystemEventType.KEYBOARD_UP;
+            this.isPressed = false;
+            break;
+        }
     }
 }
 

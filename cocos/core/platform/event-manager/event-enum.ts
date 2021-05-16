@@ -139,6 +139,18 @@ export enum SystemEventType {
     KEY_UP = 'keyup',
 
     /**
+     * @en The event type for press the key down event
+     * @zh 当按下按键时触发的事件
+     */
+    KEYBOARD_DOWN = 'keyboarddown',  // NOTE: different value with KEY_DOWN event
+
+     /**
+      * @en The event type for press the key up event
+      * @zh 当松开按键时触发的事件
+      */
+    KEYBOARD_UP = 'keyup',  // NOTE: same value with KEY_UP event
+
+    /**
      * @en
      * The event type for press the devicemotion event
      *
