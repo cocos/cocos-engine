@@ -154,7 +154,6 @@ export class SystemEvent extends EventTarget {
                 accelerationListener = EventListener.create({
                     event: EventListener.ACCELERATION,
                     callback (acc: any, event: EventAcceleration) {
-                        event.type = SystemEventType.DEVICEMOTION;
                         legacyCC.systemEvent.emit(event.type, event);
                     },
                 });
@@ -172,20 +171,16 @@ export class SystemEvent extends EventTarget {
                 touchListener = EventListener.create({
                     event: EventListener.TOUCH_ONE_BY_ONE,
                     onTouchBegan (touch: Touch, event: EventTouch) {
-                        event.type = SystemEventType.TOUCH_START;
                         legacyCC.systemEvent.emit(event.type, touch, event);
                         return true;
                     },
                     onTouchMoved (touch: Touch, event: EventTouch) {
-                        event.type = SystemEventType.TOUCH_MOVE;
                         legacyCC.systemEvent.emit(event.type, touch, event);
                     },
                     onTouchEnded (touch: Touch, event: EventTouch) {
-                        event.type = SystemEventType.TOUCH_END;
                         legacyCC.systemEvent.emit(event.type, touch, event);
                     },
                     onTouchCancelled (touch: Touch, event: EventTouch) {
-                        event.type = SystemEventType.TOUCH_CANCEL;
                         legacyCC.systemEvent.emit(event.type, touch, event);
                     },
                 });
@@ -203,19 +198,15 @@ export class SystemEvent extends EventTarget {
                 mouseListener = EventListener.create({
                     event: EventListener.MOUSE,
                     onMouseDown (event: EventMouse) {
-                        event.type = SystemEventType.MOUSE_DOWN;
                         legacyCC.systemEvent.emit(event.type, event);
                     },
                     onMouseMove (event:EventMouse) {
-                        event.type = SystemEventType.MOUSE_MOVE;
                         legacyCC.systemEvent.emit(event.type, event);
                     },
                     onMouseUp (event: EventMouse) {
-                        event.type = SystemEventType.MOUSE_UP;
                         legacyCC.systemEvent.emit(event.type, event);
                     },
                     onMouseScroll (event: EventMouse) {
-                        event.type = SystemEventType.MOUSE_WHEEL;
                         legacyCC.systemEvent.emit(event.type, event);
                     },
                 });

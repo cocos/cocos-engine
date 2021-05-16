@@ -360,7 +360,7 @@ export class MouseEventListener extends EventListener {
     }
 
     public _callback (event: EventMouse) {
-        switch (event.eventType) {
+        switch (event.type) {
         case SystemEventType.MOUSE_DOWN:
             if (this.onMouseDown) {
                 this.onMouseDown(event);

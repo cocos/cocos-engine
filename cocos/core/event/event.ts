@@ -30,6 +30,7 @@
  */
 
 import { legacyCC } from '../global-exports';
+import { SystemEventType } from '../platform/event-manager/event-enum';
 
 /**
  * @en
@@ -39,50 +40,6 @@ import { legacyCC } from '../global-exports';
  * 所有事件对象的基类，包含事件相关基本信息。
  */
 export default class Event {
-    // Event types
-
-    /**
-     * @en
-     * Code for event without type.
-     *
-     * @zh
-     * 没有类型的事件。
-     */
-    public static NO_TYPE = 'no_type';
-
-    /**
-     * @en
-     * The type code of Touch event.
-     *
-     * @zh
-     * 触摸事件类型。
-     */
-    public static TOUCH = 'touch';
-    /**
-     * @en
-     * The type code of Mouse event.
-     *
-     * @zh
-     * 鼠标事件类型。
-     */
-    public static MOUSE = 'mouse';
-    /**
-     * @en
-     * The type code of Keyboard event.
-     *
-     * @zh
-     * 键盘事件类型。
-     */
-    public static KEYBOARD = 'keyboard';
-    /**
-     * @en
-     * The type code of Acceleration event.
-     *
-     * @zh
-     * 加速器事件类型。
-     */
-    public static ACCELERATION = 'acceleration';
-
     // Event phases
 
     /**
@@ -126,12 +83,12 @@ export default class Event {
 
     /**
      * @en
-     * The name of the event (case-sensitive), e.g. "click", "fire", or "submit".
+     * The name of the event
      *
      * @zh
      * 事件类型。
      */
-    public type: string;
+    public type: SystemEventType;
 
     /**
      * @en
@@ -199,7 +156,7 @@ export default class Event {
      * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
      * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    constructor (type: string, bubbles?: boolean) {
+    constructor (type: SystemEventType, bubbles?: boolean) {
         this.type = type;
         this.bubbles = !!bubbles;
     }
@@ -212,7 +169,7 @@ export default class Event {
      * 重置事件对象以便在对象池中存储。
      */
     public unuse () {
-        this.type = Event.NO_TYPE;
+        this.type = SystemEventType.NO_TYPE;
         this.target = null;
         this.currentTarget = null;
         this.eventPhase = Event.NONE;
@@ -228,7 +185,7 @@ export default class Event {
      * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
      * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    public reuse (type: string, bubbles?: boolean) {
+    public reuse (type: SystemEventType, bubbles?: boolean) {
         this.type = type;
         this.bubbles = bubbles || false;
     }

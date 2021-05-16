@@ -3,7 +3,7 @@ declare module 'pal/input' {
         /**
          * Type of the input event used to quickly distinguish between event types.
          */
-        readonly type: string;
+        readonly type: import('../../cocos/core/platform/event-manager/event-enum').SystemEventType;
         /**
          * Timestamp when the input event is triggered.
          */

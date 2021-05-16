@@ -47,6 +47,10 @@ function checkUINode (node) {
     return false;
 }
 
+const touchEvents = [SystemEventType.TOUCH_START, SystemEventType.TOUCH_MOVE, SystemEventType.TOUCH_END, SystemEventType.TOUCH_CANCEL];
+const mouseEvents = [SystemEventType.MOUSE_DOWN, SystemEventType.MOUSE_MOVE, SystemEventType.MOUSE_DOWN, SystemEventType.MOUSE_WHEEL];
+const keyboardEvents = [SystemEventType.KEYBOARD_DOWN, SystemEventType.KEYBOARD_UP, 'keydown'];
+
 class _EventListenerVector {
     public gt0Index = 0;
     private _fixedListeners: EventListener[] = [];
@@ -91,18 +95,17 @@ class _EventListenerVector {
 }
 
 function __getListenerID (event: Event) {
-    const eventType = Event;
     const type = event.type;
-    if (type === eventType.ACCELERATION) {
+    if (type === SystemEventType.DEVICEMOTION) {
         return ListenerID.ACCELERATION;
     }
-    if (type === eventType.KEYBOARD) {
+    if (keyboardEvents.includes(type)) {
         return ListenerID.KEYBOARD;
     }
-    if (type.startsWith(eventType.MOUSE)) {
+    if (mouseEvents.includes(type)) {
         return ListenerID.MOUSE;
     }
-    if (type.startsWith(eventType.TOUCH)) {
+    if (touchEvents.includes(type)) {
         // Touch listener is very special, it contains two kinds of listeners:
         // EventListenerTouchOneByOne and EventListenerTouchAllAtOnce.
         // return UNKNOWN instead.
@@ -569,7 +572,7 @@ class EventManager {
             errorID(3511);
             return;
         }
-        if (event.getType().startsWith(legacyCC.Event.TOUCH)) {
+        if (touchEvents.includes(event.getType())) {
             this._dispatchTouchEvent(event as EventTouch);
             this._inDispatch--;
             return;

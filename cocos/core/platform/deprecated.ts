@@ -24,7 +24,8 @@
  */
 
 import { removeProperty, replaceProperty } from '../utils';
-import { EventMouse, EventTouch, SystemEvent, SystemEventType } from './event-manager';
+import { Event } from '../event';
+import { EventKeyboard, EventMouse, EventTouch, SystemEvent, SystemEventType } from './event-manager';
 import { sys } from './sys';
 import { View } from './view';
 
@@ -39,7 +40,40 @@ removeProperty(View.prototype, 'View.prototype', [
     },
 ]);
 
-// depracate EventMouse static property
+// deprecate Event property
+replaceProperty(Event, 'Event', [
+    {
+        name: 'NO_TYPE',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
+    },
+    {
+        name: 'ACCELERATION',
+        newName: 'DEVICEMOTION',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
+    },
+    {
+        name: 'TOUCH',
+        customGetter () {
+            return 'touch';
+        },
+    },
+    {
+        name: 'MOUSE',
+        customGetter () {
+            return 'mouse';
+        },
+    },
+    {
+        name: 'KEYBOARD',
+        customGetter () {
+            return 'keyboard';
+        },
+    },
+]);
+
+// depracate EventMouse property
 replaceProperty(EventMouse, 'EventMouse',
     ['DOWN', 'UP', 'MOVE'].map((item) => ({
         name: item,
@@ -55,8 +89,14 @@ replaceProperty(EventMouse, 'EventMouse', [
         targetName: 'SystemEvent.EventType',
     },
 ]);
+replaceProperty(EventMouse.prototype, 'EventMouse.prototype', [
+    {
+        name: 'eventType',
+        newName: 'type',
+    },
+]);
 
-// depracate EventTouch static property
+// depracate EventTouch property
 replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'BEGAN',
@@ -87,6 +127,27 @@ replaceProperty(EventTouch, 'EventTouch', [
         newName: 'TOUCH_CANCEL',
         target: SystemEvent.EventType,
         targetName: 'SystemEvent.EventType',
+    },
+]);
+replaceProperty(EventTouch.prototype, 'EventTouch.prototype', [
+    {
+        name: 'getEventCode',
+        customFunction () {
+            // @ts-expect-error this points to an EventTouch instance.
+            return this.type as SystemEventType;
+        },
+    },
+]);
+
+// deprecated EventKeyboard property
+replaceProperty(EventKeyboard.prototype, 'EventKeyboard.prototype', [
+    {
+        name: 'isPressed',
+        suggest: 'use Event.prototype.type !== SystemEventType.KEYBOARD_UP instead',
+        customGetter () {
+            // @ts-expect-error this points to an EventKeyboard intance.
+            return this.type !== SystemEventType.KEYBOARD_UP;
+        },
     },
 ]);
 

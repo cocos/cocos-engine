@@ -434,13 +434,14 @@ class InputManager {
 
     private _registerKeyboardEvent () {
         input._keyboard.onDown((inputEvent) => {
-            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, 'down'));
+            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, SystemEventType.KEYBOARD_DOWN));
         });
         input._keyboard.onPressing((inputEvent)  => {
-            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, 'pressing'));
+            // @ts-expect-error Compability for KEY_DOWN event
+            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, 'keydown'));
         });
         input._keyboard.onUp((inputEvent)  => {
-            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, 'up'));
+            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, SystemEventType.KEYBOARD_UP));
         });
     }
 

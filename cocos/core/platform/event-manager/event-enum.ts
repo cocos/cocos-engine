@@ -37,6 +37,15 @@ import { legacyCC } from '../../global-exports';
 export enum SystemEventType {
     /**
      * @en
+     * Code for event without type.
+     *
+     * @zh
+     * 没有类型的事件。
+     */
+    NO_TYPE = 'no_type',
+
+    /**
+     * @en
      * The event type for touch start event
      *
      * @zh
