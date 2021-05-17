@@ -72,27 +72,19 @@ minigame.createInnerAudioContext = createInnerAudioContextPolyfill(swan, {
     onSeek: false,
 });
 
+// #region SafeArea
 minigame.getSafeArea = function () {
     console.warn('getSafeArea is not supported on this platform');
-    if (minigame.getSystemInfoSync) {
-        const systemInfo =  minigame.getSystemInfoSync();
-        return {
-            top: 0,
-            left: 0,
-            bottom: systemInfo.screenHeight,
-            right: systemInfo.screenWidth,
-            width: systemInfo.screenWidth,
-            height: systemInfo.screenHeight,
-        };
-    }
+    const systemInfo =  minigame.getSystemInfoSync();
     return {
         top: 0,
         left: 0,
-        bottom: 0,
-        right: 0,
-        width: 0,
-        height: 0,
+        bottom: systemInfo.screenHeight,
+        right: systemInfo.screenWidth,
+        width: systemInfo.screenWidth,
+        height: systemInfo.screenHeight,
     };
 };
+// #endregion SafeArea
 
 export { minigame };
