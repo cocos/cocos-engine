@@ -14,7 +14,11 @@ minigame.isDevTool = (systemInfo.platform === 'devtools');
 // NOTE: size and orientation info is wrong at the init phase, especially on iOS device
 Object.defineProperty(minigame, 'isLandscape', {
     get () {
-        return systemInfo.deviceOrientation ? (systemInfo.deviceOrientation === 'landscape') : (systemInfo.screenWidth > systemInfo.screenHeight);
+        // NOTE: wrong deviceOrientation on iOS end before app launched.
+        const locSystemInfo = minigame.getSystemInfoSync();
+        return locSystemInfo.deviceOrientation
+            ? (locSystemInfo.deviceOrientation === 'landscape')
+            : (locSystemInfo.screenWidth > locSystemInfo.screenHeight);
     },
 });
 // init landscapeOrientation as LANDSCAPE_RIGHT
