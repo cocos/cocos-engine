@@ -693,6 +693,7 @@ export class Label extends Renderable2D {
         }
 
         this._refreshAssembler = true;
+        this._renderDataFlag = true;
 
         if (this._font instanceof BitmapFont) {
             this.updateRenderData(this._refreshAssembler);
@@ -700,6 +701,7 @@ export class Label extends Renderable2D {
     }
 
     public onDisable () {
+        this._renderDataFlag = false;
         super.onDisable();
     }
 
@@ -754,11 +756,17 @@ export class Label extends Renderable2D {
                 this.updateRenderData(this._refreshAssembler);
                 this._colorDirty = false;
             } else if ((this._cacheAlpha !== this.node._uiProps.opacity) && this._renderFlag && this._assembler && this._assembler.updateOpacity) {
+                if (this._changeToRender) {
+                    this._renderDataFlag = true;
+                    this._changeToRender = false;
+                }
                 this._assembler.updateOpacity(this);
                 this._cacheAlpha = this.node._uiProps.opacity;
             }
         }
     }
+
+    protected _changeToRender = true;
 
     protected _canRender () {
         if (!super._canRender() || !this._string) {
@@ -774,6 +782,7 @@ export class Label extends Renderable2D {
             }
         }
 
+        if (this._renderFlag !== true) this._changeToRender = true;
         return true;
     }
 
