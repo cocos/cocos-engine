@@ -445,6 +445,12 @@ function initSys () {
      */
     sys.LINKSURE = 119;
     /**
+     * @property {Number} TAOBAO
+     * @readOnly
+     * @default 120
+     */
+    sys.TAOBAO = 120;
+    /**
      * BROWSER_TYPE_WECHAT
      * @property {String} BROWSER_TYPE_WECHAT
      * @readOnly
