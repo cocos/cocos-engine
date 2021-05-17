@@ -51,7 +51,7 @@ if (!CC_NATIVERENDERER) {
 }
 
 if (_isUseSpine) {
-    _global.sp = {};
+    _global.sp = _global.sp || {};
 
     /**
      * !#en
