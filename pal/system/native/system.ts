@@ -22,6 +22,7 @@ const platformMap: Record<number, Platform> = {
     4: Platform.IOS,
     // 5 is IPAD
     5: Platform.IOS,
+    6: Platform.OHOS,
 };
 
 class System {
