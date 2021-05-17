@@ -135,28 +135,28 @@ class System {
     public getSafeAreaEdge (): SafeAreaEdge {
         const minigameSafeArea = minigame.getSafeArea();
         const viewSize = this.getViewSize();
-        let top = minigameSafeArea.top;
-        let bottom = viewSize.height - minigameSafeArea.bottom;
-        let left = minigameSafeArea.left;
-        let right = viewSize.width - minigameSafeArea.right;
+        let topEdge = minigameSafeArea.top;
+        let bottomEdge = viewSize.height - minigameSafeArea.bottom;
+        let leftEdge = minigameSafeArea.left;
+        let rightEdge = viewSize.width - minigameSafeArea.right;
         const orientation = this.getOrientation();
         // Make it symmetrical.
         if (orientation === Orientation.PORTRAIT) {
-            if (top < bottom) {
-                top = bottom;
+            if (topEdge < bottomEdge) {
+                topEdge = bottomEdge;
             } else {
-                bottom = top;
+                bottomEdge = topEdge;
             }
-        } else if (left < right) {
-            left = right;
+        } else if (leftEdge < rightEdge) {
+            leftEdge = rightEdge;
         } else {
-            right = left;
+            rightEdge = leftEdge;
         }
         return {
-            top,
-            bottom,
-            left,
-            right,
+            top: topEdge,
+            bottom: bottomEdge,
+            left: leftEdge,
+            right: rightEdge,
         };
     }
     public getBatteryLevel (): number {

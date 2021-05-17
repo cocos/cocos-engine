@@ -122,28 +122,28 @@ class System {
     }
     public getSafeAreaEdge (): SafeAreaEdge {
         const nativeSafeArea = jsb.device.getSafeAreaEdge();
-        let top = nativeSafeArea.x;
-        let bottom = nativeSafeArea.z;
-        let left = nativeSafeArea.y;
-        let right = nativeSafeArea.w;
+        let topEdge = nativeSafeArea.x;
+        let bottomEdge = nativeSafeArea.z;
+        let leftEdge = nativeSafeArea.y;
+        let rightEdge = nativeSafeArea.w;
         const orientation = this.getOrientation();
         // Make it symmetrical.
         if (orientation === Orientation.PORTRAIT) {
-            if (top < bottom) {
-                top = bottom;
+            if (topEdge < bottomEdge) {
+                topEdge = bottomEdge;
             } else {
-                bottom = top;
+                bottomEdge = topEdge;
             }
-        } else if (left < right) {
-            left = right;
+        } else if (leftEdge < rightEdge) {
+            leftEdge = rightEdge;
         } else {
-            right = left;
+            rightEdge = leftEdge;
         }
         return {
-            top,
-            bottom,
-            left,
-            right,
+            top: topEdge,
+            bottom: bottomEdge,
+            left: leftEdge,
+            right: rightEdge,
         };
     }
     public getBatteryLevel (): number {
