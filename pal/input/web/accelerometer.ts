@@ -21,7 +21,7 @@ export class AccelerometerInputSource {
         // init event name
         this._globalEventClass = window.DeviceMotionEvent || window.DeviceOrientationEvent;
         // TODO fix DeviceMotionEvent bug on QQ Browser version 4.1 and below.
-        if (system.browserType === BrowserType.QQ) {
+        if (system.browserType === BrowserType.MOBILE_QQ) {
             this._globalEventClass = window.DeviceOrientationEvent;
         }
         this._deviceEventName = this._globalEventClass === window.DeviceMotionEvent ? 'devicemotion' : 'deviceorientation';

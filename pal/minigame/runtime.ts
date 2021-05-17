@@ -81,12 +81,22 @@ minigame.onAccelerometerChange = function (cb) {
 };
 // #endregion Accelerometer
 
-minigame.createInnerAudioContext = createInnerAudioContextPolyfill(ral, {
-    onPlay: true,  // polyfill for vivo
-    onPause: true,
-    onStop: true,
-    onSeek: true,
-});
+// NOTE: Audio playing crash on COCOSPLAY, need to play audio asynchronously.
+if (COCOSPLAY) {
+    minigame.createInnerAudioContext = createInnerAudioContextPolyfill(ral, {
+        onPlay: true,  // polyfill for vivo
+        onPause: true,
+        onStop: true,
+        onSeek: true,
+    }, true);
+} else {
+    minigame.createInnerAudioContext = createInnerAudioContextPolyfill(ral, {
+        onPlay: true,  // polyfill for vivo
+        onPause: true,
+        onStop: true,
+        onSeek: true,
+    });
+}
 
 // safeArea
 // origin point on the top-left corner
