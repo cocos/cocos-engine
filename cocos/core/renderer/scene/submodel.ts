@@ -213,7 +213,6 @@ export class SubModel {
      }
 
      public destroy (): void {
-         this._destroy();
          this._destroyDescriptorSet();
          this._destroyInputAssembler();
          this.priority = RenderPriority.DEFAULT;
@@ -221,6 +220,8 @@ export class SubModel {
          this._patches = null;
          this._subMesh = null;
          this._passes = null;
+
+         this._destroy();
      }
 
      public update (): void {

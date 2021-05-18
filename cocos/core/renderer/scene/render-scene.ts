@@ -34,7 +34,6 @@ import { TransformBit } from '../../scene-graph/node-enum';
 import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE,
     UIBatchArrayHandle, UIBatchArrayPool, LightArrayHandle, LightArrayPool } from '../core/memory-pools';
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
-import { scene } from '..';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -222,13 +221,10 @@ export class RenderScene {
         if (this._mainLight === dl) {
             const dlList = this._directionalLights;
             if (dlList.length) {
-                this._mainLight = dlList[dlList.length - 1];
-                this._nativeObj.setMainLight(this._mainLight);
+                this.setMainLight(dlList[dlList.length - 1]);
                 if (this._mainLight.node) { // trigger update
                     this._mainLight.node.hasChangedFlags |= TransformBit.ROTATION;
                 }
-            } else if (JSB) {
-                this._nativeObj.setMainLight(null);
             }
         }
     }
@@ -253,6 +249,7 @@ export class RenderScene {
         this._sphereLights.push(pl);
         if (JSB) {
             LightArrayPool.push(this._sphereLightsHandle, pl.handle);
+            this._nativeObj.addSphereLight(pl.native);
         }
     }
 
@@ -263,6 +260,7 @@ export class RenderScene {
                 this._sphereLights.splice(i, 1);
                 if (JSB) {
                     LightArrayPool.erase(this._sphereLightsHandle, i);
+                    this._nativeObj.removeSphereLight(pl.native);
                 }
                 return;
             }
@@ -274,6 +272,7 @@ export class RenderScene {
         this._spotLights.push(sl);
         if (JSB) {
             LightArrayPool.push(this._spotLightsHandle, sl.handle);
+            this._nativeObj.addSpotLight(sl.native);
         }
     }
 
@@ -284,6 +283,7 @@ export class RenderScene {
                 this._spotLights.splice(i, 1);
                 if (JSB) {
                     LightArrayPool.erase(this._spotLightsHandle, i);
+                    this._nativeObj.removeSpotLight(sl.native);
                 }
                 return;
             }
@@ -297,6 +297,7 @@ export class RenderScene {
         this._sphereLights.length = 0;
         if (JSB) {
             LightArrayPool.clear(this._sphereLightsHandle);
+            this._nativeObj.removeSphereLights();
         }
     }
 
@@ -307,6 +308,7 @@ export class RenderScene {
         this._spotLights = [];
         if (JSB) {
             LightArrayPool.clear(this._spotLightsHandle);
+            this._nativeObj.removeSpotLights();
         }
     }
 

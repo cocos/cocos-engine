@@ -52,6 +52,9 @@ export class SphereLight extends Light {
             LightPool.setVec3(this._handle, LightView.POSITION, this._pos);
             AABBPool.setVec3(this._hAABB, AABBView.CENTER, this._aabb.center);
             AABBPool.setVec3(this._hAABB, AABBView.HALF_EXTENSION, this._aabb.halfExtents);
+
+            this._nativeObj.setPosition(this._pos);
+            this._nativeObj.setAABB(this._aabb);
         }
     }
 
@@ -63,6 +66,7 @@ export class SphereLight extends Light {
         this._size = size;
         if (JSB) {
             LightPool.set(this._handle, LightView.SIZE, size);
+            this._nativeObj.setSize(size);
         }
     }
 
@@ -74,6 +78,7 @@ export class SphereLight extends Light {
         this._range = range;
         if (JSB) {
             LightPool.set(this._handle, LightView.RANGE, range);
+            this._nativeObj.setRange(range);
         }
 
         this._needUpdate = true;
@@ -87,6 +92,7 @@ export class SphereLight extends Light {
         this._luminance = lum;
         if (JSB) {
             LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
+            this._nativeObj.setIlluminance(lum);
         }
     }
 
