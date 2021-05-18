@@ -9,6 +9,31 @@ const minigame: IMiniGame = {};
 cloneObject(minigame, wx);
 
 // #region SystemInfo
+let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
+// @ts-expect-error TODO: move into minigame.d.ts
+minigame.testAndUpdateSystemInfoCache = function (testAmount: number, testInterval: number) {
+    let successfullyTestTimes = 0;
+    let intervalTimer: number | null = null;
+    function testCachedSystemInfo () {
+        const currentSystemInfo = wx.getSystemInfoSync() as SystemInfo;
+        if (_cachedSystemInfo.screenWidth === currentSystemInfo.screenWidth && _cachedSystemInfo.screenHeight === currentSystemInfo.screenHeight) {
+            if (++successfullyTestTimes >= testAmount && intervalTimer !== null) {
+                clearInterval(intervalTimer);
+                intervalTimer = null;
+            }
+        } else {
+            successfullyTestTimes = 0;
+        }
+        _cachedSystemInfo = currentSystemInfo;
+    }
+    intervalTimer = setInterval(testCachedSystemInfo, testInterval);
+};
+// @ts-expect-error TODO: update when view resize
+minigame.testAndUpdateSystemInfoCache(10, 500);
+minigame.getSystemInfoSync = function () {
+    return _cachedSystemInfo;
+};
+
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 // NOTE: size and orientation info is wrong at the init phase, especially on iOS device
