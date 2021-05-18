@@ -26,7 +26,7 @@
 import { JSB } from 'internal:constants';
 import { AABB } from '../../geometry';
 import { Vec3 } from '../../math';
-import { Light, LightType, nt2lm } from './light';
+import { Light, LightType } from './light';
 import { AABBHandle, AABBPool, AABBView, LightPool, LightView, NULL_HANDLE } from '../core/memory-pools';
 
 export class SphereLight extends Light {
@@ -59,17 +59,6 @@ export class SphereLight extends Light {
         return this._pos;
     }
 
-    set size (size: number) {
-        this._size = size;
-        if (JSB) {
-            LightPool.set(this._handle, LightView.SIZE, size);
-        }
-    }
-
-    get size (): number {
-        return this._size;
-    }
-
     set range (range: number) {
         this._range = range;
         if (JSB) {
@@ -99,9 +88,8 @@ export class SphereLight extends Light {
     }
 
     protected _needUpdate = false;
-    protected _size = 0.15;
     protected _range = 1.0;
-    protected _luminance = 0;
+    protected _luminance = 1.2;
     protected _pos: Vec3;
     protected _aabb: AABB;
 
@@ -115,10 +103,8 @@ export class SphereLight extends Light {
     public initialize () {
         super.initialize();
 
-        const size = 0.15;
-        this.size = size;
         this.range = 1.0;
-        this.luminance = 1700 / nt2lm(size);
+        this.luminance = 1.2;
     }
 
     public update () {

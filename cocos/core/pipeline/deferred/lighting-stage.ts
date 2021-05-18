@@ -140,7 +140,7 @@ export class LightingStage extends RenderStage {
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 1);
 
                 // cc_lightSizeRangeAngle
-                _vec4Array[0] = light.size;
+                _vec4Array[0] = 0.0;
                 _vec4Array[1] = light.range;
                 _vec4Array[2] = 0.0;
                 this._lightBufferData.set(_vec4Array, idx * elementLen + fieldLen * 2);

@@ -37,9 +37,7 @@ import { Light, PhotometricTerm } from './light-component';
 @executeInEditMode
 export class SphereLight extends Light {
     @serializable
-    protected _size = 0.15;
-    @serializable
-    protected _luminance = 1700 / scene.nt2lm(0.15);
+    protected _luminance = 1.2;
     @serializable
     protected _term = PhotometricTerm.LUMINOUS_POWER;
     @serializable
@@ -55,10 +53,10 @@ export class SphereLight extends Light {
     @unit('lm')
     @tooltip('i18n:lights.luminous_power')
     get luminousPower () {
-        return this._luminance * scene.nt2lm(this._size);
+        return this._luminance;
     }
     set luminousPower (val) {
-        this._luminance = val / scene.nt2lm(this._size);
+        this._luminance = val;
         if (this._light) { this._light.luminance = this._luminance; }
     }
 
@@ -91,21 +89,6 @@ export class SphereLight extends Light {
 
     /**
      * @en
-     * Size of the light.
-     * @zh
-     * 光源大小。
-     */
-    @tooltip('i18n:lights.size')
-    get size () {
-        return this._size;
-    }
-    set size (val) {
-        this._size = val;
-        if (this._light) { this._light.size = val; }
-    }
-
-    /**
-     * @en
      * Range of the light.
      * @zh
      * 光源范围。
@@ -128,7 +111,6 @@ export class SphereLight extends Light {
         super._createLight();
         if (!this._light) { return; }
         this.luminance = this._luminance;
-        this.size = this._size;
         this.range = this._range;
     }
 }
