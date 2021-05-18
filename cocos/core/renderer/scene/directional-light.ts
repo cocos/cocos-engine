@@ -40,7 +40,7 @@ export class DirectionalLight extends Light {
         Vec3.normalize(this._dir, dir);
         if (JSB) {
             LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
-            this._nativeObj.setDir(dir);
+            this._nativeObj.setDirection(dir);
         }
     }
 
