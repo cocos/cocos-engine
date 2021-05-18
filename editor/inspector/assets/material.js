@@ -155,6 +155,7 @@ exports.methods = {
                     $checkbox.addEventListener('change', (e) => {
                         pass.switch.value = e.target.value;
                     });
+                    setReadonly(this.asset.readonly, $checkbox);
 
                     const $section = $container.$children[i].querySelector('ui-section');
                     $section.appendChild($checkbox);
@@ -176,6 +177,10 @@ exports.methods = {
                             for (const childName in dump.childMap) {
                                 if (dump.childMap[childName].value === undefined) {
                                     continue;
+                                }
+
+                                if (this.asset.readonly) {
+                                    loopSetAssetDumpDataReadonly(dump.childMap[childName]);
                                 }
 
                                 $prop.$children[childName] = document.createElement('ui-prop');
