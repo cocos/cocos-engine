@@ -78,8 +78,6 @@ class System {
             this.os = OS.ANDROID;
         } else if (minigamePlatform === 'ios') {
             this.os = OS.IOS;
-        } else if (minigamePlatform === 'ohos') {
-            this.os = OS.OHOS;
         } else {
             // TODO: pc-game ?
             this.os = OS.UNKNOWN;
