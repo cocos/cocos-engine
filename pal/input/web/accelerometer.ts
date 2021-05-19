@@ -87,7 +87,7 @@ export class AccelerometerInputSource {
         }
 
         // fix android acc values are opposite
-        if ((system.os === OS.ANDROID || system.os === OS.OHOS)
+        if (system.os === OS.ANDROID
             && system.browserType !== BrowserType.MOBILE_QQ) {
             x = -x;
             y = -y;
