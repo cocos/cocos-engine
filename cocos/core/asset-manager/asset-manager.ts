@@ -346,6 +346,7 @@ export class AssetManager {
         }
         this.generalImportBase = importBase;
         this.generalNativeBase = nativeBase;
+        garbageCollectionManager.init();
     }
 
     /**

@@ -34,7 +34,7 @@ import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
 import { ccclass } from '../data/decorators';
-import { referenced, ReferenceType } from '../asset-manager/garbage-collection';
+import { garbageCollectionManager, referenced, ReferenceType } from '../asset-manager/garbage-collection';
 
 @ccclass('cc.BuiltinResMgr')
 class BuiltinResMgr {
@@ -183,6 +183,7 @@ class BuiltinResMgr {
                 });
                 effect.hideInEditor = true;
                 effect.onLoaded();
+                garbageCollectionManager.addAssetToRoot(effect);
             });
             this._initMaterials();
         });

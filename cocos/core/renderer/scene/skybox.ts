@@ -36,10 +36,13 @@ import { DescriptorSet } from '../../gfx';
 import { SkyboxPool, NULL_HANDLE, SkyboxView, SkyboxHandle } from '../core/memory-pools';
 import { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
+import { ccclass } from '../../data/decorators';
+import { garbageCollectionManager, referenced } from '../../asset-manager';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
 
+@ccclass('cc.Skybox')
 export class Skybox {
     get model (): Model | null {
         return this._model;
@@ -109,9 +112,11 @@ export class Skybox {
         }
     }
 
+    @referenced
     protected _envmap: TextureCube | null = null;
     protected _globalDescriptorSet: DescriptorSet | null = null;
     protected _model: Model | null = null;
+    @referenced
     protected _default: TextureCube | null = null;
     protected _handle: SkyboxHandle = NULL_HANDLE;
 
@@ -152,12 +157,16 @@ export class Skybox {
             const mat = new Material();
             mat.initialize({ effectName: 'skybox', defines: { USE_RGBE_CUBEMAP: this.isRGBE } });
             skybox_material = new MaterialInstance({ parent: mat });
+            garbageCollectionManager.addAssetToRoot(skybox_material);
         } else {
             skybox_material.recompileShaders({ USE_RGBE_CUBEMAP: this.isRGBE });
         }
 
         if (this.enabled) {
-            if (!skybox_mesh) { skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh; }
+            if (!skybox_mesh) {
+                skybox_mesh = legacyCC.utils.createMesh(legacyCC.primitives.box({ width: 2, height: 2, length: 2 })) as Mesh;
+                garbageCollectionManager.addAssetToRoot(skybox_mesh);
+            }
             this._model.initSubModel(0, skybox_mesh.renderingSubMeshes[0], skybox_material);
         }
         this._updateGlobalBinding();

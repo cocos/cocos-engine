@@ -34,6 +34,7 @@ import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
+import { referenced, ReferenceType } from '../asset-manager';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -109,6 +110,7 @@ legacyCC.AmbientInfo = AmbientInfo;
  */
 @ccclass('cc.SkyboxInfo')
 export class SkyboxInfo {
+    @referenced
     @type(TextureCube)
     protected _envmap: TextureCube | null = null;
     @serializable
@@ -118,6 +120,7 @@ export class SkyboxInfo {
     @serializable
     protected _useIBL = false;
 
+    @referenced(ReferenceType.CCCLASS_OBJECT)
     protected _resource: Skybox | null = null;
 
     /**

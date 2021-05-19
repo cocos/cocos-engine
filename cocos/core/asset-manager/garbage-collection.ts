@@ -22,6 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
+import { DEBUG } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import { Component } from '../components';
 import { CCClass } from '../data/class';
@@ -49,7 +50,7 @@ export class GarbageCollectorContext {
         if (obj.__gcVersion__) {
             obj.__gcVersion__ = this.gcVersion;
         } else {
-            Object.defineProperty(obj, '__gcVersion__', { enumerable: false, value: this.gcVersion });
+            Object.defineProperty(obj, '__gcVersion__', { enumerable: false, value: this.gcVersion, writable: true });
         }
     }
 
@@ -148,10 +149,14 @@ export enum ReferenceType {
 
 export function referenced (target: any, propertyName: string, descriptor?: any): void;
 export function referenced (referenceType: ReferenceType): (target: any, propertyName: string, descriptor?: any) => void;
-export function referenced (referenceType: ReferenceType = ReferenceType.ASSET) {
-    return (target: any, propertyName: string, descriptor?: any) => {
-        garbageCollectionManager.registerGarbageCollectableProperty(target.constructor as Constructor, propertyName, referenceType);
-    };
+export function referenced (target?: any, propertyName?: string, descriptor?: any): void | ((target: any, propertyName: string, descriptor?: any) => void) {
+    if (propertyName) {
+        garbageCollectionManager.registerGarbageCollectableProperty(target.constructor as Constructor, propertyName, ReferenceType.ASSET);
+    } else {
+        return (proto: any, propertyName: string, descriptor?: any) => {
+            garbageCollectionManager.registerGarbageCollectableProperty(proto.constructor as Constructor, propertyName, target);
+        };
+    }
 }
 
 class GarbageCollectableClassInfo {
@@ -170,6 +175,9 @@ class GarbageCollectionManager {
         this._ccclassRoots.clear();
         this._normalRoots.clear();
         this._garbageCollectionContext.reset();
+        this._garbageCollectableClassInfos.forEach((classInfo, ctor) => {
+            this.generateMarkDependenciesFunctionForCCClass(ctor);
+        });
         this._classCreatedCallback = this.generateMarkDependenciesFunctionForCCClass.bind(this);
         CCClass.onClassCreated(this._classCreatedCallback);
     }
@@ -248,8 +256,13 @@ class GarbageCollectionManager {
         const { properties, referenceTypes } = classInfo;
         const prototype = ctor.prototype;
         const parenMarkDependencies = prototype.markDependencies;
-        prototype.markDependencies = function markDependencies (context: GarbageCollectorContext) {
-            if (parenMarkDependencies) { parenMarkDependencies(context); }
+        prototype.markDependencies = parenMarkDependencies ? function markDependenciesWithParent (context: GarbageCollectorContext) {
+            parenMarkDependencies.call(this, context);
+            for (let i = 0; i < properties.length; i++) {
+                const property = this[properties[i]];
+                if (property) { context.markObjectWithReferenceType(property, referenceTypes[i]); }
+            }
+        } : function markDependenciesWithoutParent (context: GarbageCollectorContext) {
             for (let i = 0; i < properties.length; i++) {
                 const property = this[properties[i]];
                 if (property) { context.markObjectWithReferenceType(property, referenceTypes[i]); }
@@ -261,6 +274,7 @@ class GarbageCollectionManager {
         for (let i = assetArea.length - 1; i >= 0; i--) {
             const asset = assetArea[i];
             if (!this._garbageCollectionContext.isMarked(asset)) {
+                if (DEBUG) { console.log(asset); }
                 assets.remove(asset._uuid);
                 asset.destroy();
             }

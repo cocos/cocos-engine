@@ -333,6 +333,7 @@ export class Mask extends Renderable2D {
 
     public static Type = MaskType;
 
+    @referenced
     public _clearStencilMtl: Material | null = null;
     public _clearModel: Model | null = null;
 

@@ -437,7 +437,6 @@ export class PhysicsSystem extends System {
 
 director.once(Director.EVENT_INIT, () => {
     initPhysicsSystem();
-    garbageCollectionManager.addManagerToRoot(this);
 });
 
 function initPhysicsSystem () {
@@ -460,5 +459,6 @@ function initPhysicsSystem () {
         const sys = new legacyCC.PhysicsSystem();
         legacyCC.PhysicsSystem._instance = sys;
         director.registerSystem(PhysicsSystem.ID, sys, 0);
+        garbageCollectionManager.addManagerToRoot(sys);
     }
 }

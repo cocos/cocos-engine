@@ -33,6 +33,8 @@ import { Material } from '../../assets/material';
 import { PassInstance } from './pass-instance';
 import { MacroRecord } from './pass-utils';
 import { PassOverrides } from './pass';
+import { ccclass } from '../../data/decorators';
+import { referenced } from '../../asset-manager';
 
 export interface IMaterialInstanceInfo {
     parent: Material;
@@ -44,6 +46,7 @@ export interface IMaterialInstanceInfo {
  * @zh
  * 材质实例，当有材质修改需求时，根据材质资源创建的，可任意定制的实例。
  */
+@ccclass('cc.MaterialInstance')
 export class MaterialInstance extends Material {
     get parent () {
         return this._parent;
@@ -55,6 +58,7 @@ export class MaterialInstance extends Material {
 
     protected _passes: PassInstance[] = [];
 
+    @referenced
     private _parent: Material;
     private _owner: RenderableComponent | null;
     private _subModelIdx = 0;

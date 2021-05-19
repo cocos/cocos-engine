@@ -27,7 +27,6 @@
  * @module asset-manager
  */
 import { warnID } from '../platform/debug';
-import { js } from '../utils/js';
 import { callInNextTick } from '../utils/misc';
 import { CompleteCallbackNoData } from './shared';
 import Task from './task';
@@ -235,6 +234,7 @@ export class Pipeline<T extends Task> {
         return task.output as unknown;
     }
 
+    // TODO: should move this to main loop
     public addToQueue (task: T): void {
         callInNextTick(() => {
             this.async(task);
@@ -293,10 +293,9 @@ export class Pipeline<T extends Task> {
     }
 
     private removeTask (task: T) {
-        js.array.fastRemoveAt(this.allTasks, task.internalId);
-        if (this.allTasks.length > 0) {
-            this.allTasks[task.internalId].internalId = task.internalId;
-        }
+        this.allTasks[task.internalId] = this.allTasks[this.allTasks.length - 1];
+        this.allTasks[task.internalId].internalId = task.internalId;
+        this.allTasks.length -= 1;
         task.internalId = -1;
     }
 }
