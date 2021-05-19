@@ -832,8 +832,10 @@ void AssetsManagerEx::checkUpdate() {
     _updateEntry = UpdateEntry::CHECK_UPDATE;
 
     switch (_updateState) {
-        case State::FAIL_TO_UPDATE:
+        case State::FAIL_TO_UPDATE: {
             _updateState = State::UNCHECKED;
+            downloadVersion();
+        } break;
         case State::UNCHECKED:
         case State::PREDOWNLOAD_VERSION: {
             downloadVersion();
@@ -871,7 +873,8 @@ void AssetsManagerEx::update() {
     switch (_updateState) {
         case State::UNCHECKED: {
             _updateState = State::PREDOWNLOAD_VERSION;
-        }
+            downloadVersion();
+        } break;
         case State::PREDOWNLOAD_VERSION: {
             downloadVersion();
         } break;
