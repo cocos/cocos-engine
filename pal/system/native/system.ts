@@ -54,7 +54,7 @@ class System {
 
         // @ts-expect-error __getPlatform()
         this.platform = platformMap[__getPlatform()];
-        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS;
+        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS || this.platform === Platform.OHOS;
 
         // init isLittleEndian
         this.isLittleEndian = (() => {
