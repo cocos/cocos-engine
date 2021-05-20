@@ -30,6 +30,7 @@
 
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
+import { Constructor } from '../../../@types/utils';
 import { warn } from '../../core';
 import { legacyCC } from '../../core/global-exports';
 import { IConeTwistConstraint, IHingeConstraint, IPointToPointConstraint } from '../spec/i-physics-constraint';

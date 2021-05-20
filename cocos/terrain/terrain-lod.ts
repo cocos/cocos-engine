@@ -37,18 +37,18 @@ export class TerrainIndexPool {
 }
 
 export class TerrainIndexData {
-    public start: number;
-    public size: number;
+    public declare start: number;
+    public declare size: number;
     public buffer: Uint16Array|null = null;
-    public prim_count: number;
+    public declare prim_count: number;
 }
 
 export class TerrainLodKey {
-    public level: number;
-    public north: number;
-    public south: number;
-    public west: number;
-    public east: number;
+    public declare level: number;
+    public declare north: number;
+    public declare south: number;
+    public declare west: number;
+    public declare east: number;
 
     public compare (rk: TerrainLodKey) {
         return this.level === rk.level && this.north === rk.north && this.south === rk.south && this.west === rk.west && this.east === rk.east;

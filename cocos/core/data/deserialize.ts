@@ -37,6 +37,7 @@ import * as js from '../utils/js';
 
 import { deserializeDynamic } from './deserialize-dynamic';
 import { Asset } from '../assets/asset';
+import { Constructor } from '../../../@types/utils';
 
 /** **************************************************************************
  * BUILT-IN TYPES / CONSTAINTS

@@ -39,6 +39,7 @@ import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
 import { legacyCC } from '../global-exports';
+import { EnumAlias } from '../../../@types/utils';
 
 /**
  * @en

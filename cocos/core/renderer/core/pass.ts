@@ -50,6 +50,7 @@ import {
     getBindingFromHandle, getDefaultFromType, getOffsetFromHandle, getPropertyTypeFromHandle, getTypeFromHandle, type2reader, type2writer,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
+import { RecursivePartial } from '../../../../@types/utils';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part

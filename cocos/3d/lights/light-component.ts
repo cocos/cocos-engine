@@ -36,6 +36,7 @@ import { Enum } from '../../core/value-types';
 import { scene } from '../../core/renderer';
 import { Root } from '../../core/root';
 import { legacyCC } from '../../core/global-exports';
+import { EnumAlias } from '../../../@types/utils';
 
 export const PhotometricTerm = Enum({
     LUMINOUS_POWER: 0,

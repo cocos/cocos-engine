@@ -37,6 +37,7 @@ import { Eventify } from '../../../../core/event';
 import { IBaseConstraint } from '../../../spec/i-physics-constraint';
 import { createConstraint } from '../../instance';
 import { EConstraintType } from '../../physics-enum';
+import { EnumAlias } from '../../../../../@types/utils';
 
 /**
  * @en

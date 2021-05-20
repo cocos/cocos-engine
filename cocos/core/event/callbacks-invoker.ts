@@ -34,6 +34,7 @@ import { Pool } from '../memop';
 import { array, createMap } from '../utils/js';
 import { CCObject, isValid } from '../data/object';
 import { legacyCC } from '../global-exports';
+import { AnyFunction } from '../../../@types/utils';
 
 const fastRemoveAt = array.fastRemoveAt;
 

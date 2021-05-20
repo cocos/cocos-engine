@@ -44,6 +44,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { MorphRenderingInstance } from '../assets/morph';
 import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
+import { EnumAlias } from '../../../@types/utils';
 
 /**
  * @en Shadow projection mode.

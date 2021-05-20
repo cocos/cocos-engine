@@ -68,14 +68,14 @@ export class Size extends ValueType {
     public declare height: number;
 
     /**
-     * @en Constructor a size from another one.
+     * @en Construct a size from another one.
      * @zh 构造与指定尺寸相等的尺寸。
      * @param other Specified Size.
      */
     constructor (other: Size);
 
     /**
-     * @en Constructor a size with specified values.
+     * @en Construct a size with specified values.
      * @zh 构造具有指定宽度和高度的尺寸。
      * @param width width of the Size, default value is 0.
      * @param height height of the Size, default value is 0.

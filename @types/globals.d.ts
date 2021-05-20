@@ -65,38 +65,4 @@ interface HTMLElement{
 type ActiveXObject = new (s: string) => any;
 declare const ActiveXObject: ActiveXObject;
 
-declare type CompareFunction<T> = (a: T, b: T) => number;
-
-declare type RecursivePartial<T> = {
-    [P in keyof T]?:
-        T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
-        T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
-};
-
-declare type TypedArray = Uint8Array | Uint8ClampedArray | Int8Array | Uint16Array | Int16Array | Uint32Array | Int32Array | Float32Array | Float64Array;
-
-declare type TypedArrayConstructor = Uint8ArrayConstructor | Uint8ClampedArrayConstructor | Int8ArrayConstructor | Uint16ArrayConstructor | Int16ArrayConstructor | Uint32ArrayConstructor | Int32ArrayConstructor | Float32ArrayConstructor | Float64ArrayConstructor;
-
-declare interface IWritableArrayLike<T> {
-    readonly length: number;
-    [index: number]: T;
-}
-
-declare type Constructor<T = unknown> = new(...args: any[]) => T;
-
-/**
- * Alias of `Function` but suppress eslint warning.
- * Please avoid using it and explicitly specify function signatures as possible.
- */
-// eslint-disable-next-line @typescript-eslint/ban-types
-declare type AnyFunction = Function;
-
-declare type Mutable<T> = { -readonly [P in keyof T]: T[P] };
-
-declare type Getter = () => any;
-
-declare type Setter = (value: any) => void;
-
 declare const Buffer: any;
-
-declare type EnumAlias<EnumT> = EnumT[keyof EnumT];

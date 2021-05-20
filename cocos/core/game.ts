@@ -45,6 +45,7 @@ import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
 import { BrowserType } from '../../pal/system/enum-type';
+import { Constructor } from '../../@types/utils';
 
 interface ISceneInfo {
     url: string;

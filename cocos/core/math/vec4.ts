@@ -35,6 +35,7 @@ import { Mat4 } from './mat4';
 import { IMat4Like, IQuatLike, IVec4Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 import { legacyCC } from '../global-exports';
+import { IWritableArrayLike } from '../../../@types/utils';
 
 /**
  * @en Representation of four-dimensional vectors.

@@ -42,6 +42,7 @@ import {
     Vec2, Vec3, Quat, Color, Rect, Mat4, IVec2Like, IVec3Like, IVec4Like, IMat4Like,
 } from '../../math';
 import { Plane } from '../../geometry';
+import { TypedArrayConstructor } from '../../../../@types/utils';
 
 const contains = (a: number[], t: number) => {
     for (let i = 0; i < a.length; ++i) {

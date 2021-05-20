@@ -62,6 +62,7 @@ import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuf
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture } from './webgl2-commands';
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
+import type {} from '../../../../@types/webGL2.extras';
 
 const eventWebGLContextLost = 'webglcontextlost';
 

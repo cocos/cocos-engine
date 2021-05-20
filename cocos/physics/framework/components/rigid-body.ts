@@ -50,6 +50,7 @@ import { IRigidBody } from '../../spec/i-rigid-body';
 import { createRigidBody } from '../instance';
 import { ERigidBodyType } from '../physics-enum';
 import { PhysicsSystem } from '../physics-system';
+import { EnumAlias } from '../../../../@types/utils';
 
 /**
  * @en

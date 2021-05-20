@@ -28,6 +28,7 @@
  * @module 3d/primitive
  */
 
+import { RecursivePartial } from '../../@types/utils';
 import { PrimitiveMode } from '../core/gfx';
 import { applyDefaultGeometryOptions, IGeometry, IGeometryOptions } from './define';
 

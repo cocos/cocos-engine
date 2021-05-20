@@ -36,6 +36,7 @@ import { IMat4Like, IVec3Like } from './type-define';
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
+import { IWritableArrayLike } from '../../../@types/utils';
 
 export const preTransforms = Object.freeze([
     Object.freeze([1,  0,  0,  1]), // SurfaceTransform.IDENTITY

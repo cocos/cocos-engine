@@ -23,6 +23,8 @@
  THE SOFTWARE.
  */
 
+import { CompareFunction } from '../../../@types/utils';
+
 // reference: https://github.com/mziccard/node-timsort
 
 /**
@@ -257,20 +259,20 @@ function binaryInsertionSort (array, lo, hi, start, compare) {
         let n = start - left;
         // Switch is just an optimization for small arrays
         switch (n) {
-            case 3:
-                array[left + 3] = array[left + 2];
+        case 3:
+            array[left + 3] = array[left + 2];
             /* falls through */
-            case 2:
-                array[left + 2] = array[left + 1];
+        case 2:
+            array[left + 2] = array[left + 1];
             /* falls through */
-            case 1:
-                array[left + 1] = array[left];
-                break;
-            default:
-                while (n > 0) {
-                    array[left + n] = array[left + n - 1];
-                    n--;
-                }
+        case 1:
+            array[left + 1] = array[left];
+            break;
+        default:
+            while (n > 0) {
+                array[left + n] = array[left + n - 1];
+                n--;
+            }
         }
 
         array[left] = pivot;
@@ -348,7 +350,6 @@ function gallopLeft (value, array, start, length, hint, compare) {
 
         if (compare(value, array[start + m]) > 0) {
             lastOffset = m + 1;
-
         } else {
             offset = m;
         }
@@ -430,7 +431,6 @@ function gallopRight (value, array, start, length, hint, compare) {
 
         if (compare(value, array[start + m]) < 0) {
             offset = m;
-
         } else {
             lastOffset = m + 1;
         }
@@ -464,10 +464,9 @@ class TimSort<T = {}> {
 
         this.tmp = new Array(this.tmpStorageLength);
 
-        this.stackLength =
-            (this.length < 120 ? 5 :
-                this.length < 1542 ? 10 :
-                    this.length < 119151 ? 19 : 40);
+        this.stackLength =            (this.length < 120 ? 5
+            : this.length < 1542 ? 10
+                : this.length < 119151 ? 19 : 40);
 
         this.runStart = new Array(this.stackLength);
         this.runLength = new Array(this.stackLength);
@@ -495,15 +494,13 @@ class TimSort<T = {}> {
         while (this.stackSize > 1) {
             let n = this.stackSize - 2;
 
-            if ((n >= 1 &&
-                this.runLength[n - 1] <= this.runLength[n] + this.runLength[n + 1]) ||
-                (n >= 2 &&
-                    this.runLength[n - 2] <= this.runLength[n] + this.runLength[n - 1])) {
-
+            if ((n >= 1
+                && this.runLength[n - 1] <= this.runLength[n] + this.runLength[n + 1])
+                || (n >= 2
+                    && this.runLength[n - 2] <= this.runLength[n] + this.runLength[n - 1])) {
                 if (this.runLength[n - 1] < this.runLength[n + 1]) {
                     n--;
                 }
-
             } else if (this.runLength[n] > this.runLength[n + 1]) {
                 break;
             }
@@ -578,7 +575,6 @@ class TimSort<T = {}> {
          */
         if (length1 <= length2) {
             this.mergeLow(start1, length1, start2, length2);
-
         } else {
             this.mergeHigh(start1, length1, start2, length2);
         }
@@ -598,7 +594,6 @@ class TimSort<T = {}> {
      * @param {number} length2 - Length of run2.
      */
     public mergeLow (start1, length1, start2, length2) {
-
         const compare = this.compare;
         const array = this.array;
         const tmp = this.tmp;
@@ -646,7 +641,6 @@ class TimSort<T = {}> {
                         exit = true;
                         break;
                     }
-
                 } else {
                     array[dest++] = tmp[cursor1++];
                     count1++;
@@ -710,7 +704,6 @@ class TimSort<T = {}> {
                 }
 
                 minGallop--;
-
             } while (count1 >= DEFAULT_MIN_GALLOPING || count2 >= DEFAULT_MIN_GALLOPING);
 
             if (exit) {
@@ -735,10 +728,8 @@ class TimSort<T = {}> {
                 array[dest + i] = array[cursor2 + i];
             }
             array[dest + length2] = tmp[cursor1];
-
         } else if (length1 === 0) {
             throw new Error('mergeLow preconditions were not respected');
-
         } else {
             for (i = 0; i < length1; i++) {
                 array[dest + i] = tmp[cursor1 + i];
@@ -817,7 +808,6 @@ class TimSort<T = {}> {
                         exit = true;
                         break;
                     }
-
                 } else {
                     array[dest--] = tmp[cursor2--];
                     count2++;
@@ -827,7 +817,6 @@ class TimSort<T = {}> {
                         break;
                     }
                 }
-
             } while ((count1 | count2) < minGallop);
 
             if (exit) {
@@ -888,7 +877,6 @@ class TimSort<T = {}> {
                 }
 
                 minGallop--;
-
             } while (count1 >= DEFAULT_MIN_GALLOPING || count2 >= DEFAULT_MIN_GALLOPING);
 
             if (exit) {
@@ -919,10 +907,8 @@ class TimSort<T = {}> {
             }
 
             array[dest] = tmp[cursor2];
-
         } else if (length2 === 0) {
             throw new Error('mergeHigh preconditions were not respected');
-
         } else {
             customCursor = dest - (length2 - 1);
             for (i = 0; i < length2; i++) {
@@ -1000,7 +986,6 @@ export default function (array, lo, hi, compare) {
         // Go find next run
         remaining -= runLength;
         lo += runLength;
-
     } while (remaining !== 0);
 
     // Force merging of remaining runs

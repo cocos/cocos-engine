@@ -31,6 +31,7 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { Node } from '../scene-graph/node';
 import { warn } from '../platform/debug';
+import { Constructor } from '../../../@types/utils';
 
 export type PropertyPath = string | number;
 

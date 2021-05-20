@@ -44,6 +44,7 @@ import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
 import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
 import { warnID } from './platform/debug';
+import { Constructor } from '../../@types/utils';
 
 /**
  * @zh

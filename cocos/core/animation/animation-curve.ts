@@ -36,6 +36,7 @@ import { bezierByTime, BezierControlPoints } from './bezier';
 import * as easing from './easing';
 import { ILerpable, isLerpable } from './types';
 import { legacyCC } from '../global-exports';
+import { Constructor } from '../../../@types/utils';
 
 /**
  * 表示曲线值，曲线值可以是任意类型，但必须符合插值方式的要求。

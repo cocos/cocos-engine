@@ -27,6 +27,7 @@
  * @hidden
  */
 import { EDITOR } from 'internal:constants';
+import { Constructor } from '../../../@types/utils';
 import { Asset } from '../assets/asset';
 import Bundle from './bundle';
 import Cache from './cache';

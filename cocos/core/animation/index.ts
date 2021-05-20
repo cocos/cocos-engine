@@ -34,6 +34,7 @@ import { ComponentPath, HierarchyPath, ICustomTargetPath, TargetPath } from './t
 import { IValueProxyFactory } from './value-proxy';
 import { UniformProxyFactory } from './value-proxy-factories/uniform';
 import { legacyCC } from '../global-exports';
+import { Constructor } from '../../../@types/utils';
 
 export * from './deprecated';
 

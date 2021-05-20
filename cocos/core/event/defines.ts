@@ -30,7 +30,7 @@
 
 export type EventArgumentsOf<
     K extends string,
-    Map extends any,
+    Map extends Record<string, (...args: any) => any>,
     AllowCustomEvents extends boolean = false
 > = K extends (keyof Map) ?
     Parameters<Map[K]> :
@@ -40,7 +40,7 @@ export type EventArgumentsOf<
 
 export type EventCallbackOf<
     K extends string,
-    Map extends any,
+    Map extends Record<string, (...args: any) => any>,
     AllowCustomEvents extends boolean = false
 > = K extends (keyof Map) ?
     (...args: Parameters<Map[K]>) => void :

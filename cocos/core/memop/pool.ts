@@ -41,7 +41,7 @@ export class Pool<T> {
     private _freepool: T[] = [];
 
     /**
-     * @en Constructor with the allocator of elements and initial pool size
+     * @en Construct with the allocator of elements and initial pool size
      * @zh 使用元素的构造器和初始大小的构造函数
      * @param ctor The allocator of elements in pool, it's invoked directly without `new`
      * @param elementsPerBatch Initial pool size, this size will also be the incremental size when the pool is overloaded

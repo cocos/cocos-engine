@@ -41,6 +41,7 @@ import { CallbacksInvoker } from '../event/callbacks-invoker';
 import { errorID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
+import { AnyFunction, Constructor } from '../../../@types/utils';
 
 const _cachedArray = new Array<BaseNode>(16);
 let _currentHovered: BaseNode | null = null;

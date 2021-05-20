@@ -66,6 +66,7 @@ import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersTo
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
 import { BrowserType, OS } from '../../../../pal/system/enum-type';
+import type {} from '../../../../@types/webGL.extras';
 
 const eventWebGLContextLost = 'webglcontextlost';
 

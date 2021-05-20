@@ -27,6 +27,7 @@
  * @hidden
  */
 import { EDITOR } from 'internal:constants';
+import { Constructor } from '../../../@types/utils';
 import { Asset } from '../assets/asset';
 import MissingScript from '../components/missing-script';
 import { deserialize, Details } from '../data/deserialize';

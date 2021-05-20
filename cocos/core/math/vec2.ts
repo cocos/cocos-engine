@@ -37,6 +37,7 @@ import { clamp, EPSILON, random } from './utils';
 
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
+import { IWritableArrayLike } from '../../../@types/utils';
 
 /**
  * @en Representation of 2D vectors and points.

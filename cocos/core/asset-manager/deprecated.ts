@@ -45,6 +45,7 @@ import { assets, BuiltinBundleName, bundles, ProgressCallback, CompleteCallback 
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
 import { ISceneInfo } from './config';
 import factory from './factory';
+import { Constructor } from '../../../@types/utils';
 
 const ImageFmts = ['.png', '.jpg', '.bmp', '.jpeg', '.gif', '.ico', '.tiff', '.webp', '.image', '.pvr', '.pkm', '.astc'];
 const AudioFmts = ['.mp3', '.ogg', '.wav', '.m4a'];

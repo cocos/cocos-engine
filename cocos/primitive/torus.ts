@@ -28,6 +28,7 @@
  * @module 3d/primitive
  */
 
+import { RecursivePartial } from '../../@types/utils';
 import { Vec3 } from '../core/math';
 import { IGeometryOptions } from './define';
 

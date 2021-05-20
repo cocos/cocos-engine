@@ -44,6 +44,7 @@ import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import type { Scene } from './scene';
 import { PrefabInfo } from '../utils/prefab/prefab-info';
+import { AnyFunction, Constructor } from '../../../@types/utils';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;

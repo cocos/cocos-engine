@@ -30,8 +30,7 @@
 
 import { CallbacksInvoker } from './callbacks-invoker';
 import { createMap } from '../utils/js';
-
-type Constructor<T = {}> = new (...args: any[]) => T;
+import { Constructor } from '../../../@types/utils';
 
 type EventType = string;
 

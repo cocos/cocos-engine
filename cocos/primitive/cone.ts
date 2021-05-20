@@ -28,6 +28,7 @@
  * @module 3d/primitive
  */
 
+import { RecursivePartial } from '../../@types/utils';
 import cylinder, { ICylinderOptions } from './cylinder';
 import { IGeometry } from './define';
 

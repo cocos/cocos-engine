@@ -27,6 +27,7 @@
  * @hidden
  */
 import { EDITOR, TEST } from 'internal:constants';
+import { Constructor } from '../../../@types/utils';
 import { Asset } from '../assets';
 import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';

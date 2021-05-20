@@ -28,6 +28,7 @@
  * @module gfx
  */
 
+import { Constructor, TypedArrayConstructor } from '../../../../@types/utils';
 import { Buffer } from './buffer';
 import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Queue } from './queue';

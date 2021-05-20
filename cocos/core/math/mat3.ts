@@ -35,6 +35,7 @@ import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like } from './type-de
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
+import { IWritableArrayLike } from '../../../@types/utils';
 
 /**
  * @en Mathematical 3x3 matrix.

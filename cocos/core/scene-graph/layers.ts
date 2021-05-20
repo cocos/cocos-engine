@@ -30,6 +30,7 @@
 
 import { BitMask, Enum } from '../value-types';
 import { legacyCC } from '../global-exports';
+import { EnumAlias } from '../../../@types/utils';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {

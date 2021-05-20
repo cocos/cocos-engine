@@ -35,6 +35,7 @@ import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 import { legacyCC } from '../global-exports';
+import { IWritableArrayLike } from '../../../@types/utils';
 
 /**
  * @en Representation of 3D vectors and points.

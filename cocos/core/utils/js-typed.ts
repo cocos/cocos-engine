@@ -29,6 +29,7 @@
  */
 
 import { EDITOR, DEV, TEST } from 'internal:constants';
+import { Constructor, Getter, Setter } from '../../../@types/utils';
 import { warnID, error, errorID } from '../platform/debug';
 import IDGenerator from './id-generator';
 

@@ -45,7 +45,7 @@ export class RecyclePool<T = any> {
     private _data: T[];
 
     /**
-     * @en Constructor with the allocator of elements and initial pool size, all elements will be pre-allocated.
+     * @en Construct with the allocator of elements and initial pool size, all elements will be pre-allocated.
      * @zh 使用元素的构造器和初始大小的构造函数，所有元素都会被预创建。
      * @param fn The allocator of elements in pool, it's invoked directly without `new`
      * @param size Initial pool size

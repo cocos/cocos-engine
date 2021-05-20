@@ -32,6 +32,7 @@ import { Color, Size, Vec2, Vec3, Vec4 } from '../math';
 import { IValueProxy, IValueProxyFactory } from './value-proxy';
 import { isPropertyPath, PropertyPath, TargetPath, evaluatePath } from './target-path';
 import { error } from '../platform/debug';
+import { Constructor } from '../../../@types/utils';
 
 export interface IBoundTarget {
     setValue (value: any): void;

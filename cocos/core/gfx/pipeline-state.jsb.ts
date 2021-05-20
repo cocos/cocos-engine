@@ -28,15 +28,6 @@
  * @module gfx
  */
 
-declare const gfx: any;
-
-declare type RecursivePartial<T> = {
-    [P in keyof T]?:
-
-        T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
-        T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
-};
-
 import {
     BlendFactor,
     BlendOp,
@@ -51,23 +42,26 @@ import {
 import { BlendTargetArrayPool, NULL_HANDLE, BlendTargetArrayHandle, RasterizerStateHandle, RasterizerStatePool, RasterizerStateView,
     DepthStencilStateHandle, DepthStencilStatePool, DepthStencilStateView, BlendTargetHandle, BlendTargetPool, BlendTargetView,
     BlendStateHandle, BlendStatePool, BlendStateView } from '../renderer/core/memory-pools';
+import { RecursivePartial } from '../../../@types/utils';
+
+declare const gfx: any;
 
 export class RasterizerState {
     private h: RasterizerStateHandle;
 
     constructor (
-        isDiscard: boolean = false,
+        isDiscard = false,
         polygonMode: PolygonMode = PolygonMode.FILL,
         shadeModel: ShadeModel = ShadeModel.GOURAND,
         cullMode: CullMode = CullMode.BACK,
-        isFrontFaceCCW: boolean = true,
-        depthBiasEnabled: boolean = false,
-        depthBias: number = 0,
-        depthBiasClamp: number = 0.0,
-        depthBiasSlop: number = 0.0,
-        isDepthClip: boolean = true,
-        isMultisample: boolean = false,
-        lineWidth: number = 1.0,
+        isFrontFaceCCW = true,
+        depthBiasEnabled = false,
+        depthBias = 0,
+        depthBiasClamp = 0.0,
+        depthBiasSlop = 0.0,
+        isDepthClip = true,
+        isMultisample = false,
+        lineWidth = 1.0,
     ) {
         this.h = RasterizerStatePool.alloc();
         this.assignProperties(isDiscard, polygonMode, shadeModel, cullMode, isFrontFaceCCW,
@@ -78,7 +72,7 @@ export class RasterizerState {
         if (RasterizerStatePool.get(this.h, RasterizerStateView.IS_DISCARD)) return true;
         else return false;
     }
-    set isDiscard (val: boolean) { RasterizerStatePool.set(this.h, RasterizerStateView.IS_DISCARD, val ? 1 : 0) }
+    set isDiscard (val: boolean) { RasterizerStatePool.set(this.h, RasterizerStateView.IS_DISCARD, val ? 1 : 0); }
     get polygonMode (): PolygonMode { return RasterizerStatePool.get(this.h, RasterizerStateView.POLYGO_MODEL); }
     set polygonMode (val: PolygonMode) { RasterizerStatePool.set(this.h, RasterizerStateView.POLYGO_MODEL, val); }
     get shadeModel (): ShadeModel { return RasterizerStatePool.get(this.h, RasterizerStateView.SHADE_MODEL); }
@@ -170,25 +164,25 @@ export class DepthStencilState {
     private h: DepthStencilStateHandle;
 
     constructor (
-        depthTest: boolean = true,
-        depthWrite: boolean = true,
+        depthTest = true,
+        depthWrite = true,
         depthFunc: ComparisonFunc = ComparisonFunc.LESS,
-        stencilTestFront: boolean = false,
+        stencilTestFront = false,
         stencilFuncFront: ComparisonFunc = ComparisonFunc.ALWAYS,
-        stencilReadMaskFront: number = 0xffff,
-        stencilWriteMaskFront: number = 0xffff,
+        stencilReadMaskFront = 0xffff,
+        stencilWriteMaskFront = 0xffff,
         stencilFailOpFront: StencilOp = StencilOp.KEEP,
         stencilZFailOpFront: StencilOp = StencilOp.KEEP,
         stencilPassOpFront: StencilOp = StencilOp.KEEP,
-        stencilRefFront: number = 1,
-        stencilTestBack: boolean = false,
+        stencilRefFront = 1,
+        stencilTestBack = false,
         stencilFuncBack: ComparisonFunc = ComparisonFunc.ALWAYS,
-        stencilReadMaskBack: number = 0xffff,
-        stencilWriteMaskBack: number = 0xffff,
+        stencilReadMaskBack = 0xffff,
+        stencilWriteMaskBack = 0xffff,
         stencilFailOpBack: StencilOp = StencilOp.KEEP,
         stencilZFailOpBack: StencilOp = StencilOp.KEEP,
         stencilPassOpBack: StencilOp = StencilOp.KEEP,
-        stencilRefBack: number = 1,
+        stencilRefBack = 1,
     ) {
         this.h = DepthStencilStatePool.alloc();
         this.assignProperties(depthTest, depthWrite, depthFunc, stencilTestFront, stencilFuncFront, stencilReadMaskFront,
@@ -217,7 +211,7 @@ export class DepthStencilState {
     get stencilFuncFront (): ComparisonFunc { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_FUNC_FRONT); }
     set stencilFuncFront (val: ComparisonFunc) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_FUNC_FRONT, val); }
     get stencilReadMaskFront (): number { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_READ_MASK_FRONT); }
-    set stencilReadMaskFront (val: number) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_READ_MASK_FRONT, val);}
+    set stencilReadMaskFront (val: number) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_READ_MASK_FRONT, val); }
     get stencilWriteMaskFront (): number { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_WRITE_MASK_FRONT); }
     set stencilWriteMaskFront (val: number) { DepthStencilStatePool.set(this.h, DepthStencilStateView.STENCIL_WRITE_MASK_FRONT, val); }
     get stencilFailOpFront (): StencilOp { return DepthStencilStatePool.get(this.h, DepthStencilStateView.STENCIL_FAIL_OP_FRONT); }
@@ -250,7 +244,7 @@ export class DepthStencilState {
     get handle (): DepthStencilStateHandle { return this.h; }
 
     public reset () {
-        this.assignProperties(true, true, ComparisonFunc.LESS, false, ComparisonFunc.ALWAYS, 0xffff, 0xffff,StencilOp.KEEP,
+        this.assignProperties(true, true, ComparisonFunc.LESS, false, ComparisonFunc.ALWAYS, 0xffff, 0xffff, StencilOp.KEEP,
             StencilOp.KEEP, StencilOp.KEEP, 1, false, ComparisonFunc.ALWAYS, 0xffff, 0xffff, StencilOp.KEEP, StencilOp.KEEP, StencilOp.KEEP, 1);
     }
 
@@ -286,7 +280,7 @@ export class DepthStencilState {
         stencilFailOpBack?: StencilOp,
         stencilZFailOpBack?: StencilOp,
         stencilPassOpBack?: StencilOp,
-        stencilRefBack?: number
+        stencilRefBack?: number,
     ) {
         if (depthTest !== undefined) this.depthTest = depthTest;
         if (depthWrite !== undefined) this.depthWrite = depthWrite;
@@ -318,7 +312,7 @@ export class BlendTarget {
     private h: BlendTargetHandle;
 
     constructor (
-        blend: boolean = false,
+        blend = false,
         blendSrc: BlendFactor = BlendFactor.ONE,
         blendDst: BlendFactor = BlendFactor.ZERO,
         blendEq: BlendOp = BlendOp.ADD,
@@ -377,7 +371,7 @@ export class BlendTarget {
         blendSrcAlpha?: BlendFactor,
         blendDstAlpha?: BlendFactor,
         blendAlphaEq?: BlendOp,
-        blendColorMask?: ColorMask
+        blendColorMask?: ColorMask,
     ) {
         if (blend !== undefined) this.blend = blend;
         if (blendSrc !== undefined) this.blendSrc = blendSrc;
@@ -394,11 +388,11 @@ export class BlendState {
     private h: BlendStateHandle;
     private hBt: BlendTargetArrayHandle;
     private targets: BlendTarget[];
-    private _blendColor: Color;
+    private declare _blendColor: Color;
 
     constructor (
-        isA2C: boolean = false,
-        isIndepend: boolean = false,
+        isA2C = false,
+        isIndepend = false,
         blendColor: Color = new Color(),
         targets: BlendTarget[] = [new BlendTarget()],
     ) {
@@ -407,7 +401,7 @@ export class BlendState {
         this.blendColor = blendColor;
         this.isA2c = isA2C;
         this.isIndepend = isIndepend;
-        this.blendColor = blendColor
+        this.blendColor = blendColor;
 
         this.hBt = BlendTargetArrayPool.alloc();
         BlendStatePool.set(this.h, BlendStateView.BLEND_TARGET, this.hBt);
@@ -445,7 +439,7 @@ export class BlendState {
         let tg = this.targets[index];
         if (!tg) {
             tg = this.targets[index] = new BlendTarget();
-            BlendTargetArrayPool.assign(this.hBt, index, tg.handle)
+            BlendTargetArrayPool.assign(this.hBt, index, tg.handle);
         }
         tg.assign(target);
     }
@@ -475,6 +469,7 @@ export class BlendState {
         for (let i = 0, len = this.targets.length; i < len; ++i) {
             this.targets[i].destroy();
         }
+        // @ts-expect-error
         this.targets = null;
     }
 }

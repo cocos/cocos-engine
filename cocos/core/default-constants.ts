@@ -41,6 +41,7 @@ function tryDefineGlobal (name: string, value: boolean): boolean {
 export const EXPORT_TO_GLOBAL = false;
 export const BUILD = tryDefineGlobal('CC_BUILD', false);
 export const TEST = tryDefineGlobal('CC_TEST', defined('tap') || defined('QUnit'));
+// @ts-expect-error
 export const EDITOR = tryDefineGlobal('CC_EDITOR', defined('Editor') && defined('process') && ('electron' in process.versions));
 export const PREVIEW = tryDefineGlobal('CC_PREVIEW', !EDITOR);
 export const DEV = tryDefineGlobal('CC_DEV', true); // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST

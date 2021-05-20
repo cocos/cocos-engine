@@ -47,6 +47,7 @@ import { Collider } from './collider';
 import { ISimplexShape } from '../../../spec/i-physics-shape';
 import { ESimplexType, EColliderType } from '../../physics-enum';
 import { IVec3Like } from '../../../../core/math/type-define';
+import { EnumAlias } from '../../../../../@types/utils';
 
 /**
  * @en

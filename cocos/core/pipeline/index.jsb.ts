@@ -82,7 +82,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
     }
 
     public render (cameras) {
-      let handles = [];
+      let handles: any[] = [];
       for (let i = 0, len = cameras.length; i < len; ++i) {
           handles.push(cameras[i].handle);
       }
@@ -140,7 +140,7 @@ export class ForwardStage extends nr.ForwardStage {
         this.renderQueues = [];
     }
     public init() {
-        const queues = [];
+        const queues: any[] = [];
         for (let i = 0; i < this.renderQueues.length; i++) {
             queues.push(this.renderQueues[i].init());
         }
@@ -202,7 +202,7 @@ export class DeferredPipeline extends nr.DeferredPipeline {
   }
 
   public render (cameras) {
-    let handles = [];
+    let handles: any[] = [];
     for (let i = 0, len = cameras.length; i < len; ++i) {
         handles.push(cameras[i].handle);
     }
@@ -252,7 +252,7 @@ export class GbufferStage extends nr.GbufferStage {
   }
 
   init() {
-    const queues = [];
+    const queues: any[] = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
     }
@@ -289,7 +289,7 @@ export class LightingStage extends nr.LightingStage {
     this.renderQueues = [];
   }
   init() {
-    const queues = [];
+    const queues: any[] = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
     }
@@ -308,7 +308,7 @@ export class PostprocessStage extends nr.PostprocessStage {
     this.renderQueues = [];
   }
   init() {
-    const queues = [];
+    const queues: any[] = [];
     for (let i = 0; i < this.renderQueues.length; i++) {
       queues.push(this.renderQueues[i].init());
     }

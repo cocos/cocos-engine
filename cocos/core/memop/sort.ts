@@ -23,6 +23,8 @@
  THE SOFTWARE.
  */
 
+import { CompareFunction } from '../../../@types/utils';
+
 // reference: https://github.com/v8/v8/blob/master/src/js/array.js
 
 /**
@@ -30,14 +32,11 @@
  * @hidden
  */
 
-
-
 function _compare (a, b) {
     return a - b;
 }
 
 function _sort (array, from, to, comparefn) {
-
     function _insertionSort (a, from, to) {
         for (let i = from + 1; i < to; i++) {
             const element = a[i];
