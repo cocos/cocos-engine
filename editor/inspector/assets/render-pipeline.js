@@ -188,7 +188,6 @@ exports.methods = {
     async apply() {
         this.reset();
         await Editor.Message.request('scene', 'apply-render-pipeline', this.asset.uuid, this.pipeline);
-        // 更新运行时数据
         await this.preview();
     },
     reset() {
