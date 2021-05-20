@@ -76,7 +76,7 @@ const Elements = {
     },
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -90,7 +90,7 @@ exports.update = function (assetList, metaList) {
     }
 };
 
-exports.ready = function () {
+exports.ready = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -99,7 +99,7 @@ exports.ready = function () {
     }
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
@@ -119,7 +119,7 @@ exports.methods = {
     /**
      * Update whether a data is editable in multi-select state
      */
-     updateInvalid(element, prop) {
+    updateInvalid(element, prop) {
         const invalid = this.metaList.some((meta) => {
             return meta.userData[prop] !== this.meta.userData[prop];
         });

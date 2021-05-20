@@ -44,7 +44,7 @@ export interface ModuleRenderConfig {
     categories: {[category: string]: CategoryInfo};
 }
 
-export type Features  = Record<EngineFeature, Item>;
+export type Features = Record<EngineFeature, Item>;
 
 export interface BaseItem {
     /**
