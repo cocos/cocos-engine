@@ -219,10 +219,11 @@ export class DrawBatch2D {
         const c = renderComp.color;
         // 16 的定值为 device 查出的 capacity
 
-        const capacityPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS));
-        // capacityPerUBO = Math.floor((device.capabilities.maxVertexUniformVectors -  pass.shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4)
-        // capacityPerUBO(目前为16)
-        const localBuffer = UBOManager.upload(t, r, this._tempScale, this.to, c, mode, capacityPerUBO, this.tiled, progress);
+        const vec4PerUI = 5;
+        // const UIPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / vec4PerUI);
+        const UIPerUBO = 16;
+        // UIPerUBO(目前为16)
+        const localBuffer = UBOManager.upload(t, r, this._tempScale, this.to, c, mode, UIPerUBO, vec4PerUI, this.tiled, progress);
         // 能同 draw call 的条件： UBOIndex 相同，ubohash 相同
 
         let dc = this._drawcalls[this._dcIndex];
@@ -239,7 +240,7 @@ export class DrawBatch2D {
             dc.dynamicOffsets[0] = localBuffer.prevUBOIndex * localBuffer.uniformBufferStride;
             // dc.drawInfo.firstVertex = localBuffer.prevInstanceID * 6;
             // dc.drawInfo.vertexCount = 0;
-            dc.drawInfo.firstIndex = localBuffer.prevInstanceID / 5 * 6;
+            dc.drawInfo.firstIndex = localBuffer.prevInstanceID * 6;
             dc.drawInfo.indexCount = 0;
             this._dcIndex = this._drawcalls.length;
 

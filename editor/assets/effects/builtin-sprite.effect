@@ -56,8 +56,8 @@ CCProgram sprite-vs %{
   /////////////////////////////////////////////////////////
 
   // 这儿的数量不包装的话，就会被打散//那就对 5 取整
-  #define CC_UI_VECTOR_PER_DRAW (CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS - CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 5 * 5 //(需要对5取整因为边界条件)
-  // #define CC_UI_VECTOR_PER_DRAW 16 * 5 //(需要对5取整因为边界条件)
+  // #define CC_UI_VECTOR_PER_DRAW (CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS - CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 5 * 5 //(需要对5取整因为边界条件)
+  #define CC_UI_VECTOR_PER_DRAW 16 * 5 //(需要对5取整因为边界条件)
 
   #pragma builtin(local)
   layout(set = 2, binding = 0) uniform CCUILocal {

@@ -7,10 +7,11 @@ import { Device } from '../../core/gfx/base/device';
 import { UBOUILocal } from '../../core/pipeline/define';
 
 export class UILocalBuffer {
-    private static UBO_COUNT = 10; // 一个里可以放多少个 view
+    private static UBO_COUNT = 1; // 一个里可以放多少个 view
 
     private _device: Device;
-    private _capacityPerUBO: number; // 目前是 16，就是说每个 batch 可以放得下 16 个，但是 如果是用户材质的话就不够 16 个，device 不同的话可能会更多
+    private _vec4PerUI: number;
+    private _UIPerUBO: number; // 目前是 16，就是说每个 batch 可以放得下 16 个，但是 如果是用户材质的话就不够 16 个，device 不同的话可能会更多
     private _uniformBufferStride: number;
 
     private _uniformBufferElementCount: number;
@@ -18,9 +19,9 @@ export class UILocalBuffer {
     private _firstUniformBufferView: Buffer;
     private _uniformBufferData: Float32Array;
 
-    // 现在已经存了多少 UI 信息 // index = instanceID + uboIndex * _capacityPerUBO
+    // 现在已经存了多少 UI 信息 // index = instanceID + uboIndex * _UIPerUBO
     private _prevUBOIndex = 0;
-    private _prevInstanceID = -5;
+    private _prevInstanceID = -1;
 
     // 缺一个能放下多少顶点的属性
 
@@ -39,13 +40,15 @@ export class UILocalBuffer {
         return this._prevInstanceID;
     }
 
-    constructor (device: Device, hash: number, capacityPerUBO: number) {
-        this._capacityPerUBO = capacityPerUBO;// 最多 VEC4 数量
+    constructor (device: Device, hash: number, UIPerUBO: number, vec4PerUI: number) {
+        this._vec4PerUI = vec4PerUI;
+        this._UIPerUBO = UIPerUBO;
         this._device = device;
         this.hash = hash;
 
-        const alignment = this._device.capabilities.uboOffsetAlignment;
-        this._uniformBufferStride = Math.ceil(UBOUILocal.SIZE / UBOUILocal.MAX_UI_COUNT * capacityPerUBO / alignment) * alignment;
+        const alignment = this._device.capabilities.uboOffsetAlignment; // 对齐长度，UBO 是 ali 的倍数
+        const unalignedStride = Float32Array.BYTES_PER_ELEMENT * 4 * vec4PerUI * UIPerUBO;
+        this._uniformBufferStride = Math.ceil(unalignedStride / alignment) * alignment;
         this._uniformBufferElementCount = this._uniformBufferStride / Float32Array.BYTES_PER_ELEMENT;
 
         // 下面三条是一个 ubo // 内存布局是 0 16 32 48 这种分块内存
@@ -56,32 +59,31 @@ export class UILocalBuffer {
             this._uniformBufferStride,
         ));
 
-        // 数据 view // 注意，在使用 UBOUILocal 中的数值时，需要 * capacityPerUBO，由于在定义中长度为 1
-        this._firstUniformBufferView = this._device.createBuffer(new BufferViewInfo(this._uniformBuffer, 0, UBOUILocal.SIZE * capacityPerUBO));
+        // 数据 view // 注意，在使用 UBOUILocal 中的数值时，需要 * UIPerUBO，由于在定义中长度为 1
+        this._firstUniformBufferView = this._device.createBuffer(new BufferViewInfo(this._uniformBuffer, 0, unalignedStride));
 
         // 实际保存数据的地方// 一个,长度为 100 个 ubo 的长度
         this._uniformBufferData = new Float32Array(this._uniformBufferElementCount * UILocalBuffer.UBO_COUNT);
     }
 
     checkFull () {
-        return this._prevUBOIndex >= UILocalBuffer.UBO_COUNT - 1 && this._prevInstanceID + 5 >= this._capacityPerUBO;
+        return this._prevUBOIndex >= UILocalBuffer.UBO_COUNT - 1 && this._prevInstanceID + 1 >= this._UIPerUBO;
     }
 
     updateIndex () {
         // 更新现有的索引值，通过这两个值实际上是能够得到总数的
-        // instanceID + uboIndex * _capacityPerUBO
+        // instanceID + uboIndex * _UIPerUBO
         // 干脆在 upload 里更新吧
         // 一次 upload 中想要更新 5 个值
-        if (this._prevInstanceID + 5 >= this._capacityPerUBO) {
-            this._prevUBOIndex++;
+        if (this._prevInstanceID + 1 >= this._UIPerUBO) {
+            ++this._prevUBOIndex;
             this._prevInstanceID = 0;
         } else {
-            this._prevInstanceID += 5; // 一次 5 个
+            ++this._prevInstanceID; // 一次 5 个
         }
     }
 
     destroy () {
-
     }
 
     upload (t, r, s, to, c: Color, mode: number, progress, tiled) {
@@ -91,7 +93,7 @@ export class UILocalBuffer {
         const data = this._uniformBufferData;
         // 只负责根据数据填充
         // trans & RG
-        let offset = this._prevInstanceID * 4 + this._uniformBufferElementCount * this._prevUBOIndex;
+        let offset = this._prevInstanceID * this._vec4PerUI * 4 + this._uniformBufferElementCount * this._prevUBOIndex;
         data[offset + 0] = t.x;
         data[offset + 1] = t.y;
         data[offset + 2] = t.z;
@@ -150,7 +152,7 @@ export class UILocalBuffer {
     reset () {
         // 清掉现有的数据
         this._prevUBOIndex = 0;
-        this._prevInstanceID = -5;
+        this._prevInstanceID = -1;
     }
 }
 
@@ -168,20 +170,20 @@ export class UILocalUBOManger {
     }
 
     // 一个面片调用一次
-    upload (t, r, s, to, c, mode, capacity, tiled, progress) { // 1 16
+    upload (t, r, s, to, c, mode, capacity, vec4PerUI, tiled, progress) { // 1 16
         // 根据 capacity 查找/创建 UILocalBuffer
         // capacity 实际是个结构标识
         // 先取一次这个 数组，之后处理
         if (!this._localBuffers.has(capacity)) {
             this._localBuffers.set(capacity, {
-                pool: [this._createLocalBuffer(capacity, 0)],
+                pool: [this._createLocalBuffer(capacity, vec4PerUI, 0)],
                 currentIdx: 0,
             });
         }
         const localBufferPool = this._localBuffers.get(capacity)!;
         while (localBufferPool.pool[localBufferPool.currentIdx].checkFull()) {
             if (++localBufferPool.currentIdx >= localBufferPool.pool.length) {
-                localBufferPool.pool.push(this._createLocalBuffer(capacity, localBufferPool.currentIdx));
+                localBufferPool.pool.push(this._createLocalBuffer(capacity, vec4PerUI, localBufferPool.currentIdx));
             }
         }
         // 如需创建，hash 根据 capacity 和数组下标
@@ -219,8 +221,8 @@ export class UILocalUBOManger {
         }
     }
 
-    private _createLocalBuffer (capacity, idx) {
+    private _createLocalBuffer (capacity, vec4PerUI, idx) {
         const hash = murmurhash2_32_gc(`UIUBO-${capacity}-${idx}`, 666);
-        return new UILocalBuffer(this._device, hash, capacity);
+        return new UILocalBuffer(this._device, hash, capacity, vec4PerUI);
     }
 }
