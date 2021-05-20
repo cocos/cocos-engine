@@ -171,7 +171,8 @@ class System {
     }
 
     public close () {
-        // TODO: jsb.close() not implemented.
+        // @ts-expect-error __close() is defined in JSB
+        __close();
     }
 
     public onHide (cb: () => void) {
