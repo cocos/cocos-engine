@@ -14,7 +14,6 @@ jobs:
     - uses: actions/setup-python@v2
       with:
         python-version: '2.7.18'
-        architecture: 'x86'
 
     - name: npm install
       run: |

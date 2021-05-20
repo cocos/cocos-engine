@@ -9,7 +9,7 @@ jobs:
       language: cpp
       before_install:
         - choco install nodejs.install --version=12.8.0 
-        - choco install --forcex86 -y python2
+        - choco install -y python2
         - export PATH="/C/Program Files/nodejs":$PATH
         - export PATH="/C/Python27":$PATH
         - tools/travis-scripts/before-install.sh
