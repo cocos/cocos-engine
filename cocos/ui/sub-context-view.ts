@@ -39,10 +39,10 @@ import { UITransform } from '../2d/framework/ui-transform';
 
 import { SpriteFrame } from '../2d/assets';
 import { ImageAsset } from '../core/assets/image-asset';
-import { Rect, Size } from '../core/math';
+import {  Size } from '../core/math';
 
 import { legacyCC } from '../core/global-exports';
-import { CCObject } from '../core';
+import { CCObject, Texture2D } from '../core';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -99,6 +99,7 @@ export class SubContextView extends Component {
     private _fps = 60;
     private _sprite: Sprite | null;
     private _imageAsset: ImageAsset;
+    private _texture: Texture2D;
     private _updatedTime = 0;
     private _updateInterval = 0;
     private _openDataContext: any;
@@ -114,6 +115,7 @@ export class SubContextView extends Component {
         this._imageAsset = new ImageAsset();
         this._openDataContext = null;
         this._updatedTime = performance.now();
+        this._texture = new Texture2D();
     }
 
     public onLoad () {
@@ -150,7 +152,7 @@ export class SubContextView extends Component {
 
             const image = this._imageAsset;
             image.reset(sharedCanvas);
-            image._texture.create(sharedCanvas.width, sharedCanvas.height);
+            this._texture.create(sharedCanvas.width, sharedCanvas.height);
 
             this._sprite = this._content.getComponent(Sprite);
             if (!this._sprite) {
@@ -158,10 +160,10 @@ export class SubContextView extends Component {
             }
 
             if (this._sprite.spriteFrame) {
-                this._sprite.spriteFrame.texture = this._imageAsset._texture;
+                this._sprite.spriteFrame.texture = this._texture;
             } else {
                 const sp = new SpriteFrame();
-                sp.texture = this._imageAsset._texture;
+                sp.texture = this._texture;
                 this._sprite.spriteFrame = sp;
             }
 
@@ -219,10 +221,10 @@ export class SubContextView extends Component {
         const sharedCanvas = this._openDataContext.canvas;
         img.reset(sharedCanvas);
         if (sharedCanvas.width > img.width || sharedCanvas.height > img.height) {
-            this._imageAsset._texture.create(sharedCanvas.width, sharedCanvas.height);
+            this._texture.create(sharedCanvas.width, sharedCanvas.height);
         }
 
-        this._imageAsset._texture.uploadData(sharedCanvas);
+        this._texture.uploadData(sharedCanvas);
     }
 
     private _registerNodeEvent () {
@@ -247,6 +249,16 @@ export class SubContextView extends Component {
             this._updatedTime += this._updateInterval;
             this._updateSubContextTexture();
         }
+    }
+
+    public destroy () {
+        this._content.destroy();
+        this._texture.destroy();
+        if (this._sprite) { this._sprite.destroy(); }
+        this._imageAsset.destroy();
+        this._openDataContext = null;
+
+        return super.destroy();
     }
 }
 legacyCC.SubContextView = SubContextView;
