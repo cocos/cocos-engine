@@ -480,20 +480,16 @@ localDescriptorSetLayout.layouts[UBOMorph.NAME] = UBOMorph.LAYOUT;
 localDescriptorSetLayout.bindings[UBOMorph.BINDING] = UBOMorph.DESCRIPTOR;
 
 // UI uniform 数据填充的 UBO
-export class UBOUILocal {
+export class UBOUILocal { // 每个是 1 个 vec4
     public static readonly MAX_UI_COUNT = 1;// 每个 drawBatch 中可绘制的数量，定义时为 1， 使用时需要乘实际可用的数量
-    public static readonly DATA1_OFFSET = 0;
-    public static readonly DATA2_OFFSET = UBOUILocal.MAX_UI_COUNT * 4 + UBOUILocal.DATA1_OFFSET;
-    public static readonly DATA3_OFFSET = UBOUILocal.MAX_UI_COUNT * 4 + UBOUILocal.DATA2_OFFSET;
-    public static readonly DATA4_OFFSET = UBOUILocal.MAX_UI_COUNT * 4 + UBOUILocal.DATA3_OFFSET;
-    public static readonly COUNT = UBOUILocal.MAX_UI_COUNT * 4 + UBOUILocal.DATA4_OFFSET;
-    public static readonly SIZE = UBOUILocal.COUNT * 4;
+    public static readonly COUNT = UBOUILocal.MAX_UI_COUNT;
+    public static readonly SIZE = UBOUILocal.COUNT * 4; // size 是 4 倍的 count 数量，因为是 vec4
 
     public static readonly NAME = 'CCUILocal';
     public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
     public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOUILocal.BINDING, DescriptorType.DYNAMIC_UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
     public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOUILocal.BINDING, UBOUILocal.NAME, [
-        new Uniform('cc_local_data', Type.MAT4, UBOUILocal.MAX_UI_COUNT),
+        new Uniform('cc_local_data', Type.FLOAT4, UBOUILocal.MAX_UI_COUNT),
     ], 1);
 }
 localDescriptorSetLayout.layouts[UBOUILocal.NAME] = UBOUILocal.LAYOUT;

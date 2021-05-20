@@ -44,7 +44,8 @@ export class DummyIA {
         const vertexPerQuad = 4; // 顶点数
         const elementsPerQuad = elementPerVertex * vertexPerQuad; // 每个对象实际需要的数量
         const stride = elementPerVertex * Float32Array.BYTES_PER_ELEMENT; // 偏移量
-        const maxQuadPerDrawcall = Math.floor(device.capabilities.maxVertexUniformVectors / 4); // 现在是写死的最多用 16 个
+        // const maxQuadPerDrawcall = Math.floor(device.capabilities.maxVertexUniformVectors / 4); // 现在是写死的最多用 16 个
+        const maxQuadPerDrawcall = 16; // 现在是写死的最多用 16 个
         console.log(`MaxNum:  ${maxQuadPerDrawcall}`);
 
         this._vertexBuffer = device.createBuffer(new BufferInfo(

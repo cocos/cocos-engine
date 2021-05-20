@@ -43,7 +43,7 @@ import { UILocalUBOManger } from './render-uniform-buffer';
 import { Pass } from '../../core/renderer/core/pass';
 import { Renderable2D } from '../framework';
 import { Sprite } from '../components';
-import { director, RecyclePool } from '../../core';
+import { director, RecyclePool, Vec2 } from '../../core';
 import { Vec3 } from '../../core/math/vec3';
 import { ccbitmask } from '../../core/value-types/bitmask';
 
@@ -182,57 +182,9 @@ export class DrawBatch2D {
         }
     }
 
+    private to = [1, 1, 0, 0];
+    private tiled = new Vec2(1, 1);
     // simple version
-    // public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material) {
-    //     // 将一个 drawBatch 分割为多个 drawCall
-    //     // batch 有 drawCall 数组
-    //     // 分割条件， uboHash 要一致，buffer View 要一致
-    //     // batch 需要有一个 存对象的信息在以供 ubo 的 upload 和 更新使用
-    //     // 先假设 batch 里有对象数组 objectArray
-    //     // 从 Node 里取 TRS，comp 上取 to 和 color
-    //     renderComp.node.updateWorldTransform();
-    //     // 需要加工锚点和 rect
-    //     // @ts-expect-error using private members
-    //     const { _pos: t, _rot: r, _scale: s } = renderComp.node;
-    //     this._tempRect = renderComp.node._uiProps.uiTransformComp!;
-    //     this._tempScale.x = s.x * this._tempRect.width;
-    //     this._tempScale.y = s.y * this._tempRect.height;
-    //     const sprite = renderComp as Sprite;
-    //     const uv = sprite.spriteFrame?.uv;
-    //     // T 为 w h O 为右上的 XY 四个数字
-    //     const c = renderComp.color;
-    //     // 16 的定值为 device 查出的 capacity
-
-    //     const capacityPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4);
-    //     // capacityPerUBO = Math.floor((device.capabilities.maxVertexUniformVectors -  pass.shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4)
-    //     // capacityPerUBO(目前为16)
-    //     const localBuffer = UBOManager.upload(t, r, this._tempScale, uv, c, capacityPerUBO);
-    //     // 能同 draw call 的条件： UBOIndex 相同，ubohash 相同
-
-    //     let dc = this._drawcalls[this._dcIndex];
-    //     if (dc && (dc.bufferHash !== localBuffer.hash || dc.bufferUboIndex !== localBuffer.prevUBOIndex)) { // 存在但不能合批
-    //         this._dcIndex++; // 索引加一
-    //         dc = this._drawcalls[this._dcIndex]; // 再取取不到
-    //     }
-    //     if (!dc) {
-    //         dc = DrawBatch2D.drawcallPool.add();
-    //         // make sure to assign initial values to all members here
-    //         dc.bufferHash = localBuffer.hash;
-    //         dc.bufferUboIndex = localBuffer.prevUBOIndex;
-    //         dc.bufferView = localBuffer.getBufferView();
-    //         dc.dynamicOffsets[0] = localBuffer.prevUBOIndex * localBuffer.uniformBufferStride;
-    //         // dc.drawInfo.firstVertex = localBuffer.prevInstanceID * 6;
-    //         // dc.drawInfo.vertexCount = 0;
-    //         dc.drawInfo.firstIndex = localBuffer.prevInstanceID * 6;
-    //         dc.drawInfo.indexCount = 0;
-    //         this._dcIndex = this._drawcalls.length;
-
-    //         this._drawcalls.push(dc);
-    //     }
-    //     dc.drawInfo.indexCount += 6;
-    // }
-
-    // sliced version
     public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material) {
         // 将一个 drawBatch 分割为多个 drawCall
         // batch 有 drawCall 数组
@@ -249,43 +201,50 @@ export class DrawBatch2D {
         this._tempScale.y = s.y * this._tempRect.height;
         const sprite = renderComp as Sprite;
         const uv = sprite.spriteFrame?.uv;
+        this.to.length = 0;
+        const rect = sprite.spriteFrame?.rect;
+        this.tiled.x = 1;
+        this.tiled.y = 1;
+        const mode = sprite.type;
+        if (mode === 2) {
+            this.tiled.x = this._tempRect.width / rect?.width;
+            this.tiled.y = this._tempRect.height / rect?.height;
+        }
+        this.to[0] = (uv![2] - uv![0]) * this.tiled.x;
+        this.to[1] = (uv![1] - uv![5]) * this.tiled.y;
+        this.to[2] = (uv![4]);
+        this.to[3] = (uv![5]);
+        const progress = 0; // 给 progress 预留
         // T 为 w h O 为右上的 XY 四个数字
         const c = renderComp.color;
         // 16 的定值为 device 查出的 capacity
 
-        const capacityPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4);
+        const capacityPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS));
         // capacityPerUBO = Math.floor((device.capabilities.maxVertexUniformVectors -  pass.shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4)
         // capacityPerUBO(目前为16)
-        // slice 模式实际上是画 9 个片
-        for (let r = 0; r < 3; ++r) {
-            for (let c = 0; c < 3; ++c) {
-                const index = r * 3 + c;
-                // 16 个点如何对到画 9 个片上？？？
-                // 这儿实际上是以 quad 为单位的
-                const localBuffer = UBOManager.upload(t, r, this._tempScale, uv, c, capacityPerUBO);
-                // 能同 draw call 的条件： UBOIndex 相同，ubohash 相同
+        const localBuffer = UBOManager.upload(t, r, this._tempScale, this.to, c, mode, capacityPerUBO, this.tiled, progress);
+        // 能同 draw call 的条件： UBOIndex 相同，ubohash 相同
 
-                let dc = this._drawcalls[this._dcIndex];
-                if (dc && (dc.bufferHash !== localBuffer.hash || dc.bufferUboIndex !== localBuffer.prevUBOIndex)) { // 存在但不能合批
-                    this._dcIndex++; // 索引加一
-                    dc = this._drawcalls[this._dcIndex]; // 再取取不到
-                }
-                if (!dc) {
-                    dc = DrawBatch2D.drawcallPool.add();
-                    // make sure to assign initial values to all members here
-                    dc.bufferHash = localBuffer.hash;
-                    dc.bufferUboIndex = localBuffer.prevUBOIndex;
-                    dc.bufferView = localBuffer.getBufferView();
-                    dc.dynamicOffsets[0] = localBuffer.prevUBOIndex * localBuffer.uniformBufferStride;
-                    // dc.drawInfo.firstVertex = localBuffer.prevInstanceID * 6;
-                    // dc.drawInfo.vertexCount = 0;
-                    dc.drawInfo.firstIndex = localBuffer.prevInstanceID * 6;
-                    dc.drawInfo.indexCount = 0;
-                    this._dcIndex = this._drawcalls.length;
-                    this._drawcalls.push(dc);
-                }
-                dc.drawInfo.indexCount += 6;
-            }
+        let dc = this._drawcalls[this._dcIndex];
+        if (dc && (dc.bufferHash !== localBuffer.hash || dc.bufferUboIndex !== localBuffer.prevUBOIndex)) { // 存在但不能合批
+            this._dcIndex++; // 索引加一
+            dc = this._drawcalls[this._dcIndex]; // 再取取不到
         }
+        if (!dc) {
+            dc = DrawBatch2D.drawcallPool.add();
+            // make sure to assign initial values to all members here
+            dc.bufferHash = localBuffer.hash;
+            dc.bufferUboIndex = localBuffer.prevUBOIndex;
+            dc.bufferView = localBuffer.getBufferView();
+            dc.dynamicOffsets[0] = localBuffer.prevUBOIndex * localBuffer.uniformBufferStride;
+            // dc.drawInfo.firstVertex = localBuffer.prevInstanceID * 6;
+            // dc.drawInfo.vertexCount = 0;
+            dc.drawInfo.firstIndex = localBuffer.prevInstanceID / 5 * 6;
+            dc.drawInfo.indexCount = 0;
+            this._dcIndex = this._drawcalls.length;
+
+            this._drawcalls.push(dc);
+        }
+        dc.drawInfo.indexCount += 6;
     }
 }

@@ -32,39 +32,68 @@ CCProgram sprite-vs %{
 
   out vec4 color;
   out vec2 uv0;
+  out vec4 tilingOffset;
 
   struct UILocalData {
     vec4 rotation;
-    vec4 tilingOffset;
-    vec4 color;
     vec3 translation;
     vec3 scale;
+    
+    vec4 color;
+    vec4 uvSizeOffset;
+    
+    /*
+      union UVExtra {
+        vec4 sliced;
+        vec2 uvTiling;
+      };
+     */
+    int uvMode;
+    vec4 uvExtra;
+    float progress;
   };
 
-  #define CC_UI_COUNT_PER_DRAW (CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS - CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 4
-  // #define CC_UI_COUNT_PER_DRAW 16
+  /////////////////////////////////////////////////////////
+
+  // 这儿的数量不包装的话，就会被打散//那就对 5 取整
+  #define CC_UI_VECTOR_PER_DRAW (CC_DEVICE_MAX_VERTEX_UNIFORM_VECTORS - CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / 5 * 5 //(需要对5取整因为边界条件)
+  // #define CC_UI_VECTOR_PER_DRAW 16 * 5 //(需要对5取整因为边界条件)
+
   #pragma builtin(local)
   layout(set = 2, binding = 0) uniform CCUILocal {
     // xyz: translation w: color R.G
     // xyzw: quat rotation
-    // xy: scale zw: color BA
-    // xy: tiling zw: offset
-    mat4 cc_local_data[CC_UI_COUNT_PER_DRAW];
+    // xy: scale z: color B.A w: mode.progress
+    // xy: uv size zw: uv offset
+    // (xyzw: sliced) | (xy: tiling)(xy: 重复的数量)
+    vec4 cc_local_data[CC_UI_VECTOR_PER_DRAW];
   };
 
-  void getUILocalData(out UILocalData o) {
-    mat4 data = cc_local_data[int(a_batch_id)];
-    vec4 data0 = data[0];
-    vec4 data2 = data[2];
+  void CCGetUILocalData(out UILocalData o) {
+    vec4 data0 = cc_local_data[int(a_batch_id) * 5];
+    vec4 data1 = cc_local_data[int(a_batch_id) * 5 + 1];
+    vec4 data2 = cc_local_data[int(a_batch_id) * 5 + 2];
+    vec4 data3 = cc_local_data[int(a_batch_id) * 5 + 3];
+    vec4 data4 = cc_local_data[int(a_batch_id) * 5 + 4];
+
     float rg = data0.w;
     float r = floor(rg);
+    float ba = data2.z;
+    float b = floor(ba);
 
-    o.rotation = data[1];
-    o.tilingOffset = data[3];
+    o.rotation = data1;
     o.translation = data0.xyz;
     o.scale = vec3(data2.xy, 1.0);
-    o.color = vec4(r * (1.0 / 255.0), rg - r, data2.zw);
+    
+    o.color = vec4(r * (1.0 / 255.0), rg - r, b * (1.0 / 255.0), ba - b);
+    o.uvSizeOffset = data3;
+
+    o.uvMode = int(data2.w);
+    o.uvExtra = data4;
+    o.progress = fract(data2.w);
   }
+
+  /////////////////////////////////////////////////////////
 
   vec3 VectorTransformQuat (vec3 v, vec4 Q) {
     return v + 2.0 * cross(Q.xyz, cross(Q.xyz, v) + Q.w * v);
@@ -72,10 +101,16 @@ CCProgram sprite-vs %{
 
   vec4 vert () {
     UILocalData i;
-    getUILocalData(i);
+    CCGetUILocalData(i);
 
     vec4 pos = vec4(VectorTransformQuat(a_position * i.scale, i.rotation) + i.translation, 1.0);
-    uv0 = a_texCoord * i.tilingOffset.xy + i.tilingOffset.zw;
+
+    uv0 = a_texCoord * i.uvSizeOffset.xy + i.uvSizeOffset.zw;
+
+    // uv0 = a_texCoord * floor(i.uvExtra.xy);
+    // tilingOffset = fract(i.uvSizeOffset);
+    // tilingOffset.xy = mix(vec2(1.0), tilingOffset.xy, sign(tilingOffset.xy));
+
     color = i.color;
 
     #if USE_PIXEL_ALIGNMENT
@@ -103,6 +138,7 @@ CCProgram sprite-fs %{
 
   #if USE_TEXTURE
     in vec2 uv0;
+    in vec4 tilingOffset;
     #pragma builtin(local)
     layout(set = 2, binding = 10) uniform sampler2D cc_spriteTexture;
   #endif
@@ -111,6 +147,7 @@ CCProgram sprite-fs %{
     vec4 o = vec4(1, 1, 1, 1);
 
     #if USE_TEXTURE
+      // vec2 uv = fract(uv0) * tilingOffset.xy + tilingOffset.zw;
       o *= CCSampleWithAlphaSeparated(cc_spriteTexture, uv0);
       #if IS_GRAY
         float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;

@@ -1,7 +1,6 @@
 // Uniform 数据传输结构体
 
-import legacyCC from '../../../predefine';
-import { Color, murmurhash2_32_gc, RecyclePool } from '../../core';
+import { Color, murmurhash2_32_gc } from '../../core';
 import { Buffer } from '../../core/gfx';
 import { BufferInfo, BufferUsageBit, BufferViewInfo, MemoryUsageBit } from '../../core/gfx/base/define';
 import { Device } from '../../core/gfx/base/device';
@@ -21,7 +20,7 @@ export class UILocalBuffer {
 
     // 现在已经存了多少 UI 信息 // index = instanceID + uboIndex * _capacityPerUBO
     private _prevUBOIndex = 0;
-    private _prevInstanceID = -1;
+    private _prevInstanceID = -5;
 
     // 缺一个能放下多少顶点的属性
 
@@ -41,7 +40,7 @@ export class UILocalBuffer {
     }
 
     constructor (device: Device, hash: number, capacityPerUBO: number) {
-        this._capacityPerUBO = capacityPerUBO;
+        this._capacityPerUBO = capacityPerUBO;// 最多 VEC4 数量
         this._device = device;
         this.hash = hash;
 
@@ -65,18 +64,19 @@ export class UILocalBuffer {
     }
 
     checkFull () {
-        return this._prevUBOIndex >= UILocalBuffer.UBO_COUNT - 1 && this._prevInstanceID >= this._capacityPerUBO - 1;
+        return this._prevUBOIndex >= UILocalBuffer.UBO_COUNT - 1 && this._prevInstanceID + 5 >= this._capacityPerUBO;
     }
 
     updateIndex () {
         // 更新现有的索引值，通过这两个值实际上是能够得到总数的
         // instanceID + uboIndex * _capacityPerUBO
         // 干脆在 upload 里更新吧
-        if (this._prevInstanceID + 1 >= this._capacityPerUBO) {
+        // 一次 upload 中想要更新 5 个值
+        if (this._prevInstanceID + 5 >= this._capacityPerUBO) {
             this._prevUBOIndex++;
             this._prevInstanceID = 0;
         } else {
-            this._prevInstanceID++;
+            this._prevInstanceID += 5; // 一次 5 个
         }
     }
 
@@ -84,14 +84,14 @@ export class UILocalBuffer {
 
     }
 
-    upload (t, r, s, to, c: Color) {
+    upload (t, r, s, to, c: Color, mode: number, progress, tiled) {
         // 注意是密集排列，所以这里是要根据第几个来存
         this.updateIndex();
         // 先根据 uboIndex 做 ubo 的偏移
         const data = this._uniformBufferData;
         // 只负责根据数据填充
         // trans & RG
-        let offset = this._prevInstanceID * 16 + this._uniformBufferElementCount * this._prevUBOIndex;
+        let offset = this._prevInstanceID * 4 + this._uniformBufferElementCount * this._prevUBOIndex;
         data[offset + 0] = t.x;
         data[offset + 1] = t.y;
         data[offset + 2] = t.z;
@@ -102,24 +102,40 @@ export class UILocalBuffer {
         data[offset + 1] = r.y;
         data[offset + 2] = r.z;
         data[offset + 3] = r.w;
-        // scale & BA
+        // scale & BA & Mode.progress
         offset += 4;
         data[offset + 0] = s.x;
         data[offset + 1] = s.y;
-        data[offset + 2] = c.z;
-        data[offset + 3] = c.w;
+        data[offset + 2] = c.b + Math.min(c.w, 0.999);
+        data[offset + 3] = mode + Math.min(progress, 0.999);
         // tilling offset
         offset += 4;
         if (to) {
-            data[offset + 0] = to[2] - to[0];
-            data[offset + 1] = to[1] - to[5];
-            data[offset + 2] = to[4];
-            data[offset + 3] = to[5];
+            // data[offset + 0] = to[2] - to[0];
+            // data[offset + 1] = to[1] - to[5];
+            // data[offset + 2] = to[4];
+            // data[offset + 3] = to[5];
+            data[offset + 0] = to[0];
+            data[offset + 1] = to[1];
+            data[offset + 2] = to[2];
+            data[offset + 3] = to[3];
         } else {
             data[offset + 0] = 1;
             data[offset + 1] = 1;
             data[offset + 2] = 0;
             data[offset + 3] = 0;
+        }
+        offset += 4;
+        if (mode === 1) {
+            // siled
+            data[offset + 0] = 1;
+            data[offset + 1] = 1;
+            data[offset + 2] = 1;
+            data[offset + 3] = 1;
+        } else if (mode === 2) {
+            // tiled
+            data[offset + 0] = 1; // X方向重复次数
+            data[offset + 1] = 1; // Y方向重复次数
         }
     }
 
@@ -134,7 +150,7 @@ export class UILocalBuffer {
     reset () {
         // 清掉现有的数据
         this._prevUBOIndex = 0;
-        this._prevInstanceID = -1;
+        this._prevInstanceID = -5;
     }
 }
 
@@ -152,7 +168,7 @@ export class UILocalUBOManger {
     }
 
     // 一个面片调用一次
-    upload (t, r, s, to, c, capacity) { // 1 16
+    upload (t, r, s, to, c, mode, capacity, tiled, progress) { // 1 16
         // 根据 capacity 查找/创建 UILocalBuffer
         // capacity 实际是个结构标识
         // 先取一次这个 数组，之后处理
@@ -176,7 +192,7 @@ export class UILocalUBOManger {
         // 推导这个 uboIndex 不是说放不下就放下一个吗？最多是常数个（100）还是说一个只能放一同批次的，其他的空着？
         // 密集排列的话，不需要推导了，直接填吧
         // upload
-        localBuffer.upload(t, r, s, to, c);
+        localBuffer.upload(t, r, s, to, c, mode, tiled, progress);
         return localBuffer;
     }
 
