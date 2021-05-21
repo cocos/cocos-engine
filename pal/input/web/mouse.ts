@@ -1,4 +1,4 @@
-import { DEBUG, EDITOR } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
 import { system } from 'pal/system';
 import { EventTarget } from '../../../cocos/core/event/event-target';
@@ -16,10 +16,10 @@ export class MouseInputSource {
     private _preMousePos: Vec2 = new Vec2();
 
     constructor () {
-        this.support = !system.isMobile && !EDITOR;
+        this.support = !EDITOR && document.documentElement.onmouseup !== undefined;
         if (this.support) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-            if (!this._canvas && DEBUG) {
+            if (!this._canvas && !TEST) {
                 console.warn('failed to access canvas');
             }
             this._registerEvent();

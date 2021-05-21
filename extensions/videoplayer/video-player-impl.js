@@ -82,7 +82,7 @@ let VideoPlayerImpl = cc.Class({
         let cbs = this.__eventListeners;
         cbs.loadedmetadata = function () {
             this._loadedmeta = true;
-            if (sys.os === sys.OS_IOS && sys.isBrowser) {
+            if (sys.os === sys.OS.IOS && sys.isBrowser) {
                 triggerFullScene(video, self._fullScreenEnabled);
             }
             self._dispatchEvent(VideoPlayerImpl.EventType.META_LOADED);
@@ -368,7 +368,7 @@ let VideoPlayerImpl = cc.Class({
         if (!video) {
             return;
         }
-        if (sys.os === sys.OS_IOS && sys.isBrowser) {
+        if (sys.os === sys.OS.IOS && sys.isBrowser) {
             this._fullScreenEnabled = enable;
             if (this._loadedmeta) {
                 triggerFullScene(video, enable);
@@ -557,14 +557,14 @@ if (sys.platform !== sys.WECHAT_GAME) {
         VideoPlayerImpl._polyfill.canPlayType.push(".webm");
 }
 
-if (sys.browserType === sys.BROWSER_TYPE_FIREFOX) {
+if (sys.browserType === sys.BrowserType.FIREFOX) {
     VideoPlayerImpl._polyfill.autoplayAfterOperation = true;
 }
 
 if (
     sys.OS_ANDROID === sys.os && (
-    sys.browserType === sys.BROWSER_TYPE_SOUGOU ||
-    sys.browserType === sys.BROWSER_TYPE_360
+    sys.browserType === sys.BrowserType.SOUGOU ||
+    sys.browserType === sys.BrowserType.BROWSER_360
 )
 ) {
     VideoPlayerImpl._polyfill.zoomInvalid = true;

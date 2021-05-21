@@ -29,6 +29,7 @@
  */
 
 /* eslint-disable no-restricted-globals */
+import { JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
 import { clamp01 } from './math/utils';
@@ -354,7 +355,17 @@ export class SplashScreen {
         const cmdBuff = this.cmdBuff;
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
-        renderArea.width = device.width; renderArea.height = device.height;
+
+        // here we gonna render to fullscreen, but device.width/height represents logic size,
+        // renderArea assigned to viewport directly, so physical size is needed.
+        if (JSB)  {
+            renderArea.width = device.nativeWidth;
+            renderArea.height = device.nativeHeight;
+        } else {
+            renderArea.width = device.width;
+            renderArea.height = device.height;
+        }
+
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);
 

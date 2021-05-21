@@ -1,6 +1,6 @@
 // so as to run tests in page-level
 
-if (cc.sys.platform === cc.sys.EDITOR_CORE) {
+if (cc.sys.platform === cc.sys.Platform.EDITOR_CORE) {
     var Ipc = require('ipc');
     var Path = require('path');
     var Url = require('url');
