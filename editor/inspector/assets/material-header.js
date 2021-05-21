@@ -1,7 +1,12 @@
 'use strict';
 
 exports.style = `
-:host > .section { height: 200px; display: flex; }
+:host > .section {
+    height: 200px;
+    display: flex;
+    background: var(--color-normal-fill);
+    border-bottom: 1px solid var(--color-normal-border);
+ }
 :host > .section > canvas { flex: 1; min-width: 0; }
 :host > .section > .tools { display: flex; flex-direction: column; padding: 6px 4px; }
 `;
@@ -32,8 +37,8 @@ exports.$ = {
 };
 
 exports.methods = {
-    hideAllContent (hide) {
-        this.$.container.style= hide ? 'display:none' : '';
+    hideAllContent(hide) {
+        this.$.container.style = hide ? 'display:none' : '';
     },
     async refreshPreview() {
         const panel = this;
@@ -78,7 +83,7 @@ exports.methods = {
         const panel = this;
 
         panel.isPreviewDataDirty = true;
-    }
+    },
 };
 
 /**
@@ -86,7 +91,7 @@ exports.methods = {
  * @param assetList
  * @param metaList
  */
-exports.update = async function (assetList, metaList) {
+exports.update = async function(assetList, metaList) {
     const panel = this;
 
     panel.assetList = assetList;
@@ -112,7 +117,7 @@ exports.update = async function (assetList, metaList) {
 /**
  * Method of initializing the panel
  */
-exports.ready = async function () {
+exports.ready = async function() {
     const panel = this;
 
     Editor.Message.request('scene', 'set-material-preview-light-enable', true);
@@ -171,7 +176,7 @@ exports.ready = async function () {
     Editor.Message.addBroadcastListener('material-inspector:change-dump', this.updatePreviewDataDirtyBind);
 };
 
-exports.close = function () {
+exports.close = function() {
     const panel = this;
 
     panel.resizeObserver.unobserve(panel.$.container);

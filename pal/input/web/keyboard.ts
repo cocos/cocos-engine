@@ -8,7 +8,7 @@ export class KeyboardInputSource {
     private _eventTarget: EventTarget = new EventTarget();
 
     constructor () {
-        this.support = !system.isMobile;
+        this.support = document.documentElement.onkeyup !== undefined;
         this._registerEvent();
     }
 

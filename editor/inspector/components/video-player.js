@@ -6,7 +6,7 @@ exports.update = update;
 
 const { setHidden, isMultipleInvalid } = require('../utils/prop');
 
-exports.ready = function () {
+exports.ready = function() {
     this.elements = {
         resourceType: {
             displayOrder: 0,
@@ -23,5 +23,5 @@ exports.ready = function () {
                 setHidden(isMultipleInvalid(dump.resourceType) || dump.resourceType.value === 0, element);
             },
         },
-    }
+    };
 };

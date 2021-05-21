@@ -18,13 +18,13 @@ exports.template = `
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.disableMeshSplit.name" tooltip="i18n:ENGINE.assets.fbx.disableMeshSplit.title"></ui-label>
         <ui-checkbox slot="content" class="disableMeshSplit-checkbox"></ui-checkbox>
     </ui-prop>
-    <ui-section class="ins-object config" expand>
+    <ui-section class="ins-object config" expand cache-expand="fbx-model-mesh-optimizer">
         <div slot="header" class="header">
             <ui-checkbox slot="content" class="meshOptimizer-checkbox"></ui-checkbox>
             <ui-label value="i18n:ENGINE.assets.fbx.meshOptimizer.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.title"></ui-label>
         </div>
         <div class="object mesh-optimizer">
-            <ui-section expand>
+            <ui-section expand cache-expand="fbx-model-mesh-optimizer-simplification">
                 <ui-label slot="header" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplification.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplification.title"></ui-label>
                 <ui-prop>
                     <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.simplification.si.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.simplification.si.title"></ui-label>
@@ -35,7 +35,7 @@ exports.template = `
                     <ui-checkbox slot="content" class="meshOptimizer-sa-checkbox"></ui-checkbox>
                 </ui-prop>
             </ui-section>
-            <ui-section expand>
+            <ui-section expand cache-expand="fbx-model-mesh-optimizer-scene">
                 <ui-label slot="header" value="i18n:ENGINE.assets.fbx.meshOptimizer.scene.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.scene.title"></ui-label>
                 <ui-prop>
                     <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.scene.kn.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.scene.kn.title"></ui-label>
@@ -46,7 +46,7 @@ exports.template = `
                     <ui-checkbox slot="content" class="meshOptimizer-ke-checkbox"></ui-checkbox>
                 </ui-prop>
             </ui-section>
-            <ui-section expand>
+            <ui-section expand cache-expand="fbx-model-mesh-optimizer-miscellaneous">
                 <ui-label slot="header" value="i18n:ENGINE.assets.fbx.meshOptimizer.miscellaneous.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.miscellaneous.title"></ui-label>
                 <ui-prop>
                     <ui-label slot="label" value="i18n:ENGINE.assets.fbx.meshOptimizer.miscellaneous.noq.name" tooltip="i18n:ENGINE.assets.fbx.meshOptimizer.miscellaneous.noq.title"></ui-label>
@@ -288,7 +288,7 @@ const Elements = {
     },
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -302,7 +302,7 @@ exports.update = function (assetList, metaList) {
     }
 };
 
-exports.ready = function () {
+exports.ready = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -311,7 +311,7 @@ exports.ready = function () {
     }
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {

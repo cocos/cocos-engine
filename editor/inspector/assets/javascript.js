@@ -348,7 +348,7 @@ const Elements = {
     },
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -362,7 +362,7 @@ exports.update = function (assetList, metaList) {
     }
 };
 
-exports.ready = function () {
+exports.ready = function() {
     for (const key in Elements) {
         const element = Elements[key];
         if (element.ready) {

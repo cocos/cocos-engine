@@ -6,11 +6,11 @@ exports.update = update;
 
 const { setHidden } = require('../utils/prop');
 
-exports.ready = function () {
+exports.ready = function() {
     this.elements = {
         _asset: {
             displayOrder: 0,
-            ready (element) {
+            ready(element) {
                 element.addEventListener('change-dump', (event) => {
                     Editor.Message.send('scene', 'snapshot');
                     Editor.Message.request('scene', 'execute-component-method', {
@@ -24,7 +24,7 @@ exports.ready = function () {
         info: {
             update(element) {
                 setHidden(true, element);
-            }
-        }
+            },
+        },
     };
 };
