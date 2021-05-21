@@ -50,7 +50,7 @@ public:
 private:
     void clearShadowMap(Camera *camera);
 
-    void resizeShadowMap(const Light *light, const Shadows *shadowInfo);
+    void resizeShadowMap(const Light *light, Shadows *shadowInfo);
 
     void initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light);
 

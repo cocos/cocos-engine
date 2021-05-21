@@ -62,8 +62,8 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
 }
 
 void ShadowFlow::render(Camera *camera) {
-    const auto *sceneData = _pipeline->getPipelineSceneData();
-    const auto *shadowInfo = sceneData->getSharedData()->getShadows();
+    const auto *sceneData  = _pipeline->getPipelineSceneData();
+    auto *      shadowInfo = sceneData->getSharedData()->getShadows();
     if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::SHADOWMAP) return;
 
     lightCollecting(camera, _validLights);
@@ -112,7 +112,7 @@ void ShadowFlow::clearShadowMap(Camera *camera) {
     }
 }
 
-void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo){
+void ShadowFlow::resizeShadowMap(const Light *light, Shadows *shadowInfo){
     auto *sceneData = _pipeline->getPipelineSceneData();
     auto *     device    = gfx::Device::getInstance();
     const auto width     = static_cast<uint>(shadowInfo->size.x);
@@ -163,6 +163,8 @@ void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo){
             {},
         });
     }
+
+    shadowInfo->shadowMapDirty = false;
 }
 
 void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light) {
