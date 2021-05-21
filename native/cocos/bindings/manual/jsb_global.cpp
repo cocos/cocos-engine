@@ -45,54 +45,56 @@
 #include <regex>
 #include <sstream>
 
-using namespace cc;
+using cc::Application;
+using cc::FileUtils;
+using cc::LegacyThreadPool;
 
-static LegacyThreadPool *__threadPool = nullptr;
+static LegacyThreadPool *threadPool = nullptr;
 
-static std::shared_ptr<cc::network::Downloader>                                               _localDownloader = nullptr;
-static std::map<std::string, std::function<void(const std::string &, unsigned char *, uint)>> _localDownloaderHandlers;
-static uint64_t                                                                               _localDownloaderTaskId = 1000000;
+static std::shared_ptr<cc::network::Downloader>                                               localDownloader = nullptr;
+static std::map<std::string, std::function<void(const std::string &, unsigned char *, uint)>> localDownloaderHandlers;
+static uint64_t                                                                               localDownloaderTaskId = 1000000;
 
-static cc::network::Downloader *localDownloader() {
-    if (!_localDownloader) {
-        _localDownloader                    = std::make_shared<cc::network::Downloader>();
-        _localDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask & task,
-                                                  const std::vector<unsigned char> &data) {
+static cc::network::Downloader *localDownloaderInstance() {
+    if (!localDownloader) {
+        localDownloader                    = std::make_shared<cc::network::Downloader>();
+        localDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask & task,
+                                                 const std::vector<unsigned char> &data) {
             if (data.empty()) {
                 SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
                 return;
             }
 
-            auto callback = _localDownloaderHandlers.find(task.identifier);
-            if (callback == _localDownloaderHandlers.end()) {
+            auto callback = localDownloaderHandlers.find(task.identifier);
+            if (callback == localDownloaderHandlers.end()) {
                 SE_REPORT_ERROR("Getting image from (%s), callback not found!!", task.requestURL.c_str());
                 return;
             }
-            size_t         imageBytes = data.size();
-            unsigned char *imageData  = (unsigned char *)malloc(imageBytes);
+            size_t imageBytes = data.size();
+            auto * imageData  = static_cast<unsigned char *>(malloc(imageBytes));
             memcpy(imageData, data.data(), imageBytes);
 
             (callback->second)("", imageData, static_cast<uint>(imageBytes));
             //initImageFunc("", imageData, imageBytes);
-            _localDownloaderHandlers.erase(callback);
+            localDownloaderHandlers.erase(callback);
         };
-        _localDownloader->onTaskError = [=](const cc::network::DownloadTask &task,
-                                            int                              errorCode,
-                                            int                              errorCodeInternal,
-                                            const std::string &              errorStr) {
+        localDownloader->onTaskError = [=](const cc::network::DownloadTask &task,
+                                           int /*errorCode*/,
+                                           int /*errorCodeInternal*/,
+                                           const std::string & /*errorStr*/) {
             SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
-            _localDownloaderHandlers.erase(task.identifier);
+            localDownloaderHandlers.erase(task.identifier);
         };
     }
-    return _localDownloader.get();
+    return localDownloader.get();
 }
 
-static void localDownloaderCreateTask(const std::string &url, std::function<void(const std::string &, unsigned char *, int)> callback) {
+static void localDownloaderCreateTask(const std::string &url, const std::function<void(const std::string &, unsigned char *, int)> &callback) {
     std::stringstream ss;
-    ss << "jsb_loadimage_" << (_localDownloaderTaskId++);
+    ss << "jsb_loadimage_" << (localDownloaderTaskId++);
     std::string key  = ss.str();
-    auto        task = localDownloader()->createDownloadDataTask(url, key);
-    _localDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
+    auto        task = localDownloaderInstance()->createDownloadDataTask(url, key);
+    localDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
 }
 
 bool jsb_set_extend_property(const char *ns, const char *clsName) {
@@ -116,13 +118,11 @@ bool jsb_set_extend_property(const char *ns, const char *clsName) {
     return false;
 }
 
-namespace {
+std::unordered_map<std::string, se::Value> moduleCache;
 
-std::unordered_map<std::string, se::Value> __moduleCache;
-
-static bool require(se::State &s) {
+bool require(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int         argc = static_cast<int>(args.size());
     assert(argc >= 1);
     assert(args[0].isString());
 
@@ -130,7 +130,7 @@ static bool require(se::State &s) {
 }
 SE_BIND_FUNC(require)
 
-static bool doModuleRequire(const std::string &path, se::Value *ret, const std::string &prevScriptFileDir) {
+bool doModuleRequire(const std::string &path, se::Value *ret, const std::string &prevScriptFileDir) {
     se::AutoHandleScope hs;
     assert(!path.empty());
 
@@ -140,24 +140,28 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
     std::string fullPath;
 
     std::string pathWithSuffix = path;
-    if (pathWithSuffix.rfind(".js") != (pathWithSuffix.length() - 3))
+    if (pathWithSuffix.rfind(".js") != (pathWithSuffix.length() - 3)) {
         pathWithSuffix += ".js";
+    }
     std::string scriptBuffer = fileOperationDelegate.onGetStringFromFile(pathWithSuffix);
 
     if (scriptBuffer.empty() && !prevScriptFileDir.empty()) {
         std::string secondPath = prevScriptFileDir;
-        if (secondPath[secondPath.length() - 1] != '/')
+        if (secondPath[secondPath.length() - 1] != '/') {
             secondPath += "/";
+        }
 
         secondPath += path;
 
         if (FileUtils::getInstance()->isDirectoryExist(secondPath)) {
-            if (secondPath[secondPath.length() - 1] != '/')
+            if (secondPath[secondPath.length() - 1] != '/') {
                 secondPath += "/";
+            }
             secondPath += "index.js";
         } else {
-            if (path.rfind(".js") != (path.length() - 3))
+            if (path.rfind(".js") != (path.length() - 3)) {
                 secondPath += ".js";
+            }
         }
 
         fullPath     = fileOperationDelegate.onGetFullPath(secondPath);
@@ -167,10 +171,10 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
     }
 
     if (!scriptBuffer.empty()) {
-        const auto &iter = __moduleCache.find(fullPath);
-        if (iter != __moduleCache.end()) {
+        const auto &iter = moduleCache.find(fullPath);
+        if (iter != moduleCache.end()) {
             *ret = iter->second;
-            //                printf("Found cache: %s, value: %d\n", fullPath.c_str(), (int)ret->getType());
+            //                printf("Found cache: %s, value: %d\n", fullPath.c_str(), static_cast<int>(ret->getType()));
             return true;
         }
         std::string currentScriptFileDir = FileUtils::getInstance()->getFileDir(fullPath);
@@ -187,39 +191,46 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
         //            fwrite(scriptBuffer.c_str(), scriptBuffer.length(), 1, fp);
         //            fclose(fp);
 
-        std::string reletivePath = fullPath;
+        std::string relativePath;
+
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS
+
+        std::string relativePathKey;
+
     #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-        const std::string reletivePathKey = "/Contents/Resources";
+        relativePathKey = "/Contents/Resources";
     #else
-        const std::string reletivePathKey = ".app";
+        relativePathKey = ".app";
     #endif
 
-        size_t pos = reletivePath.find(reletivePathKey);
+        size_t pos = fullPath.find(relativePathKey);
         if (pos != std::string::npos) {
-            reletivePath = reletivePath.substr(pos + reletivePathKey.length() + 1);
+            relativePath = fullPath.substr(pos + relativePathKey.length() + 1);
         }
+#else
+        relativePath = fullPath;
 #endif
 
         //            RENDERER_LOGD("Evaluate: %s", fullPath.c_str());
 
-        auto      se      = se::ScriptEngine::getInstance();
-        bool      succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());
+        auto *    se      = se::ScriptEngine::getInstance();
+        bool      succeed = se->evalString(scriptBuffer.c_str(), static_cast<ssize_t>(scriptBuffer.length()), nullptr, relativePath.c_str());
         se::Value moduleVal;
         if (succeed && se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject()) {
             se::Value exportsVal;
             if (moduleVal.toObject()->getProperty("exports", &exportsVal)) {
-                if (ret != nullptr)
+                if (ret != nullptr) {
                     *ret = exportsVal;
+                }
 
-                __moduleCache[fullPath] = std::move(exportsVal);
+                moduleCache[fullPath] = std::move(exportsVal);
             } else {
-                __moduleCache[fullPath] = se::Value::Undefined;
+                moduleCache[fullPath] = se::Value::Undefined;
             }
             // clear module.exports
             moduleVal.toObject()->setProperty("exports", se::Value::Undefined);
         } else {
-            __moduleCache[fullPath] = se::Value::Undefined;
+            moduleCache[fullPath] = se::Value::Undefined;
         }
         assert(succeed);
         return succeed;
@@ -230,9 +241,9 @@ static bool doModuleRequire(const std::string &path, se::Value *ret, const std::
     return false;
 }
 
-static bool moduleRequire(se::State &s) {
+bool moduleRequire(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int         argc = static_cast<int>(args.size());
     assert(argc >= 2);
     assert(args[0].isString());
     assert(args[1].isString());
@@ -240,7 +251,6 @@ static bool moduleRequire(se::State &s) {
     return doModuleRequire(args[0].toString(), &s.rval(), args[1].toString());
 }
 SE_BIND_FUNC(moduleRequire)
-} // namespace
 
 bool jsb_run_script(const std::string &filePath, se::Value *rval /* = nullptr */) {
     se::AutoHandleScope hs;
@@ -251,14 +261,14 @@ bool jsb_run_script_module(const std::string &filePath, se::Value *rval /* = nul
     return doModuleRequire(filePath, rval, "");
 }
 
-static bool jsc_garbageCollect(se::State &s) {
+static bool jscGarbageCollect(se::State &s) {
     se::ScriptEngine::getInstance()->garbageCollect();
     return true;
 }
-SE_BIND_FUNC(jsc_garbageCollect)
+SE_BIND_FUNC(jscGarbageCollect)
 
-static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) {
-    CC_LOG_DEBUG(">>> total: %d, Dump (native -> jsobj) map begin", (int)se::NativePtrToObjectMap::size());
+static bool jscDumpNativePtrToSeObjectMap(se::State &s) {
+    CC_LOG_DEBUG(">>> total: %d, Dump (native -> jsobj) map begin", static_cast<int>(se::NativePtrToObjectMap::size()));
 
     struct NamePtrStruct {
         const char *name;
@@ -279,38 +289,39 @@ static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) {
     std::sort(namePtrArray.begin(), namePtrArray.end(), [](const NamePtrStruct &a, const NamePtrStruct &b) -> bool {
         std::string left  = a.name;
         std::string right = b.name;
-        for (std::string::const_iterator lit = left.begin(), rit = right.begin(); lit != left.end() && rit != right.end(); ++lit, ++rit)
-            if (::tolower(*lit) < ::tolower(*rit))
+        for (std::string::const_iterator lit = left.begin(), rit = right.begin(); lit != left.end() && rit != right.end(); ++lit, ++rit) {
+            if (::tolower(*lit) < ::tolower(*rit)) {
                 return true;
-            else if (::tolower(*lit) > ::tolower(*rit))
+            }
+            if (::tolower(*lit) > ::tolower(*rit)) {
                 return false;
-        if (left.size() < right.size())
-            return true;
-        return false;
+            }
+        }
+        return left.size() < right.size();
     });
 
     for (const auto &e : namePtrArray) {
         CC_LOG_DEBUG("%s: %p", e.name, e.ptr);
     }
-    CC_LOG_DEBUG(">>> total: %d, nonRefMap: %d, Dump (native -> jsobj) map end", (int)se::NativePtrToObjectMap::size(), (int)se::NonRefNativePtrCreatedByCtorMap::size());
+    CC_LOG_DEBUG(">>> total: %d, nonRefMap: %d, Dump (native -> jsobj) map end", static_cast<int>(se::NativePtrToObjectMap::size()), static_cast<int>(se::NonRefNativePtrCreatedByCtorMap::size()));
     return true;
 }
-SE_BIND_FUNC(jsc_dumpNativePtrToSeObjectMap)
+SE_BIND_FUNC(jscDumpNativePtrToSeObjectMap)
 
-static bool jsc_dumpRoot(se::State &s) {
+static bool jscDumpRoot(se::State &s) {
     assert(false);
     return true;
 }
-SE_BIND_FUNC(jsc_dumpRoot)
+SE_BIND_FUNC(jscDumpRoot)
 
-static bool JSBCore_platform(se::State &s) {
+static bool jsbCorePlatform(se::State &s) {
     Application::Platform platform = Application::getInstance()->getPlatform();
-    s.rval().setInt32((int32_t)platform);
+    s.rval().setInt32(static_cast<int32_t>(platform));
     return true;
 }
-SE_BIND_FUNC(JSBCore_platform)
+SE_BIND_FUNC(jsbCorePlatform)
 
-static bool JSBCore_os(se::State &s) {
+static bool jsbCoreOs(se::State &s) {
     se::Value os;
 
     // osx, ios, android, windows, linux, etc..
@@ -329,9 +340,9 @@ static bool JSBCore_os(se::State &s) {
     s.rval() = os;
     return true;
 }
-SE_BIND_FUNC(JSBCore_os)
+SE_BIND_FUNC(jsbCoreOs)
 
-static bool JSBCore_getCurrentLanguage(se::State &s) {
+static bool jsbCoreGetCurrentLanguage(se::State &s) {
     std::string               languageStr;
     Application::LanguageType language = Application::getInstance()->getCurrentLanguage();
     switch (language) {
@@ -399,32 +410,38 @@ static bool JSBCore_getCurrentLanguage(se::State &s) {
     s.rval().setString(languageStr);
     return true;
 }
-SE_BIND_FUNC(JSBCore_getCurrentLanguage)
+SE_BIND_FUNC(jsbCoreGetCurrentLanguage)
 
-static bool JSBCore_getCurrentLanguageCode(se::State &s) {
+static bool jsbCoreGetCurrentLanguageCode(se::State &s) {
     std::string language = Application::getInstance()->getCurrentLanguageCode();
     s.rval().setString(language);
     return true;
 }
-SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
+SE_BIND_FUNC(jsbCoreGetCurrentLanguageCode)
 
-static bool JSB_getOSVersion(se::State &s) {
+static bool jsbGetOsVersion(se::State &s) {
     std::string systemVersion = Application::getInstance()->getSystemVersion();
     s.rval().setString(systemVersion);
     return true;
 }
-SE_BIND_FUNC(JSB_getOSVersion)
+SE_BIND_FUNC(jsbGetOsVersion)
 
-static bool JSB_core_restartVM(se::State &s) {
+static bool jsbCoreRestartVm(se::State &s) {
     //REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
     Application::getInstance()->restart();
     return true;
 }
-SE_BIND_FUNC(JSB_core_restartVM)
+SE_BIND_FUNC(jsbCoreRestartVm)
 
-static bool JSB_isObjectValid(se::State &s) {
+static bool jsbCloseWindow(se::State &s) {
+    Application::getInstance()->close();
+    return true;
+}
+SE_BIND_FUNC(jsbCloseWindow)
+
+static bool jsbIsObjectValid(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int         argc = static_cast<int>(args.size());
     if (argc == 1) {
         void *nativePtr = nullptr;
         seval_to_native_ptr(args[0], &nativePtr);
@@ -435,24 +452,25 @@ static bool JSB_isObjectValid(se::State &s) {
     SE_REPORT_ERROR("Invalid number of arguments: %d. Expecting: 1", argc);
     return false;
 }
-SE_BIND_FUNC(JSB_isObjectValid)
+SE_BIND_FUNC(jsbIsObjectValid)
 
-static bool JSB_setCursorEnabled(se::State &s) {
+static bool jsbSetCursorEnabled(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int         argc = static_cast<int>(args.size());
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments");
-    bool ok = true, value = true;
+    bool ok    = true;
+    bool value = true;
     ok &= seval_to_boolean(args[0], &value);
     SE_PRECONDITION2(ok, false, "Error processing arguments");
 
     Application::getInstance()->setCursorEnabled(value);
     return true;
 }
-SE_BIND_FUNC(JSB_setCursorEnabled)
+SE_BIND_FUNC(jsbSetCursorEnabled)
 
-static bool JSB_saveByteCode(se::State &s) {
+static bool jsbSaveByteCode(se::State &s) {
     const auto &args = s.args();
-    int         argc = (int)args.size();
+    int         argc = static_cast<int>(args.size());
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments");
     bool        ok = true;
     std::string srcfile;
@@ -464,9 +482,9 @@ static bool JSB_saveByteCode(se::State &s) {
     s.rval().setBoolean(ok);
     return true;
 }
-SE_BIND_FUNC(JSB_saveByteCode)
+SE_BIND_FUNC(jsbSaveByteCode)
 
-static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::Object **outObj) {
+static bool getOrCreatePlainObjectR(const char *name, se::Object *parent, se::Object **outObj) {
     assert(parent != nullptr);
     assert(outObj != nullptr);
     se::Value tmp;
@@ -482,15 +500,14 @@ static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::O
     return true;
 }
 
-static bool js_performance_now(se::State &s) {
+static bool jsPerformanceNow(se::State &s) {
     auto now   = std::chrono::steady_clock::now();
     auto micro = std::chrono::duration_cast<std::chrono::microseconds>(now - se::ScriptEngine::getInstance()->getStartTime()).count();
-    s.rval().setNumber((double)micro * 0.001);
+    s.rval().setNumber(static_cast<double>(micro) * 0.001);
     return true;
 }
-SE_BIND_FUNC(js_performance_now)
+SE_BIND_FUNC(jsPerformanceNow)
 
-namespace {
 struct ImageInfo {
     uint32_t        length     = 0;
     uint32_t        width      = 0;
@@ -502,7 +519,7 @@ struct ImageInfo {
 };
 
 uint8_t *convertRGB2RGBA(uint32_t length, uint8_t *src) {
-    uint8_t *dst = reinterpret_cast<uint8_t *>(malloc(length));
+    auto *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
         dst[i]     = *src++;
         dst[i + 1] = *src++;
@@ -513,7 +530,7 @@ uint8_t *convertRGB2RGBA(uint32_t length, uint8_t *src) {
 }
 
 uint8_t *convertIA2RGBA(uint32_t length, uint8_t *src) {
-    uint8_t *dst = reinterpret_cast<uint8_t *>(malloc(length));
+    auto *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
         dst[i]     = *src;
         dst[i + 1] = *src;
@@ -524,7 +541,7 @@ uint8_t *convertIA2RGBA(uint32_t length, uint8_t *src) {
 }
 
 uint8_t *convertI2RGBA(uint32_t length, uint8_t *src) {
-    uint8_t *dst = reinterpret_cast<uint8_t *>(malloc(length));
+    auto *dst = reinterpret_cast<uint8_t *>(malloc(length));
     for (uint32_t i = 0; i < length; i += 4) {
         dst[i]     = *src;
         dst[i + 1] = *src;
@@ -534,11 +551,11 @@ uint8_t *convertI2RGBA(uint32_t length, uint8_t *src) {
     return dst;
 }
 
-struct ImageInfo *createImageInfo(Image *img) {
-    struct ImageInfo *imgInfo = new struct ImageInfo();
-    imgInfo->length           = (uint32_t)img->getDataLen();
-    imgInfo->width            = img->getWidth();
-    imgInfo->height           = img->getHeight();
+struct ImageInfo *createImageInfo(cc::Image *img) {
+    auto *imgInfo   = new struct ImageInfo();
+    imgInfo->length = static_cast<uint32_t>(img->getDataLen());
+    imgInfo->width  = img->getWidth();
+    imgInfo->height = img->getHeight();
     img->takeData(&imgInfo->data);
     imgInfo->format     = img->getRenderFormat();
     imgInfo->compressed = img->isCompressed();
@@ -578,7 +595,6 @@ struct ImageInfo *createImageInfo(Image *img) {
 
     return imgInfo;
 }
-} // namespace
 
 bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal) {
     if (path.empty()) {
@@ -590,9 +606,9 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
     std::shared_ptr<se::Value> callbackPtr = std::make_shared<se::Value>(callbackVal);
 
     auto initImageFunc = [path, callbackPtr](const std::string &fullPath, unsigned char *imageData, int imageBytes) {
-        Image *img = new (std::nothrow) Image();
+        auto *img = new (std::nothrow) cc::Image();
 
-        __threadPool->pushTask([=](int tid) {
+        threadPool->pushTask([=](int /*tid*/) {
             // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,
             // Image::initWithImageFile will call fullPathForFilename internally which may
             // cause thread race issues. Therefore, we get the full path of file before
@@ -618,7 +634,7 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
 
                 if (loadSucceed) {
                     se::HandleObject retObj(se::Object::createPlainObject());
-                    ulong_to_seval((unsigned long)imgInfo->data, &dataVal);
+                    ulong_to_seval((unsigned long)imgInfo->data, &dataVal); //NOLINT
                     retObj->setProperty("data", dataVal);
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
@@ -644,7 +660,7 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
         size_t         dataStartPos = pos + strlen("base64,");
         const char *   base64Data   = path.data() + dataStartPos;
         size_t         dataLen      = path.length() - dataStartPos;
-        imageBytes                  = base64Decode((const unsigned char *)base64Data, (unsigned int)dataLen, &imageData);
+        imageBytes                  = cc::base64Decode(reinterpret_cast<const unsigned char *>(base64Data), static_cast<unsigned int>(dataLen), &imageData);
         if (imageBytes <= 0 || imageData == nullptr) {
             SE_REPORT_ERROR("Decode base64 image data failed!");
             return false;
@@ -652,8 +668,9 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
         initImageFunc("", imageData, imageBytes);
     } else {
         std::string fullPath(FileUtils::getInstance()->fullPathForFilename(path));
-        if (0 == path.find("file://"))
+        if (0 == path.find("file://")) {
             fullPath = FileUtils::getInstance()->fullPathForFilename(path.substr(strlen("file://")));
+        }
 
         if (fullPath.empty()) {
             SE_REPORT_ERROR("File (%s) doesn't exist!", path.c_str());
@@ -664,7 +681,7 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
     return true;
 }
 
-static bool js_loadImage(se::State &s) {
+static bool jsLoadImage(se::State &s) {
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -679,29 +696,29 @@ static bool js_loadImage(se::State &s) {
 
         return jsb_global_load_image(path, callbackVal);
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 2);
     return false;
 }
-SE_BIND_FUNC(js_loadImage)
+SE_BIND_FUNC(jsLoadImage)
 
-static bool js_destroyImage(se::State &s) {
+static bool jsDestroyImage(se::State &s) {
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        unsigned long data = 0;
-        ok &= seval_to_ulong(args[0], &data);
+        char *data = nullptr;
+        ok &= seval_to_ulong(args[0], reinterpret_cast<unsigned long *>(&data)); //NOLINT google-runtime-int
         SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
-        free(reinterpret_cast<char *>(data));
+        free(data);
 
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 1);
     return false;
 }
-SE_BIND_FUNC(js_destroyImage)
+SE_BIND_FUNC(jsDestroyImage)
 
-static bool JSB_openURL(se::State &s) {
+static bool jsbOpenUrl(se::State &s) {
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -713,12 +730,12 @@ static bool JSB_openURL(se::State &s) {
         return true;
     }
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 1);
     return false;
 }
-SE_BIND_FUNC(JSB_openURL)
+SE_BIND_FUNC(jsbOpenUrl)
 
-static bool JSB_copyTextToClipboard(se::State &s) {
+static bool jsbCopyTextToClipboard(se::State &s) {
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -730,12 +747,12 @@ static bool JSB_copyTextToClipboard(se::State &s) {
         return true;
     }
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 1);
     return false;
 }
-SE_BIND_FUNC(JSB_copyTextToClipboard)
+SE_BIND_FUNC(jsbCopyTextToClipboard)
 
-static bool JSB_setPreferredFramesPerSecond(se::State &s) {
+static bool jsbSetPreferredFramesPerSecond(se::State &s) {
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -748,13 +765,13 @@ static bool JSB_setPreferredFramesPerSecond(se::State &s) {
         return true;
     }
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 1);
     return false;
 }
-SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
+SE_BIND_FUNC(jsbSetPreferredFramesPerSecond)
 
 #if CC_USE_EDITBOX
-static bool JSB_showInputBox(se::State &s) {
+static bool jsbShowInputBox(se::State &s) {
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 1) {
@@ -778,114 +795,122 @@ static bool JSB_showInputBox(se::State &s) {
 
         if (obj->getProperty("confirmHold", &tmp)) {
             SE_PRECONDITION2(tmp.isBoolean(), false, "confirmHold is invalid!");
-            if (!tmp.isUndefined())
+            if (!tmp.isUndefined()) {
                 showInfo.confirmHold = tmp.toBoolean();
+            }
         }
 
         if (obj->getProperty("confirmType", &tmp)) {
             SE_PRECONDITION2(tmp.isString(), false, "confirmType is invalid!");
-            if (!tmp.isUndefined())
+            if (!tmp.isUndefined()) {
                 showInfo.confirmType = tmp.toString();
+            }
         }
 
         if (obj->getProperty("inputType", &tmp)) {
             SE_PRECONDITION2(tmp.isString(), false, "inputType is invalid!");
-            if (!tmp.isUndefined())
+            if (!tmp.isUndefined()) {
                 showInfo.inputType = tmp.toString();
+            }
         }
 
         if (obj->getProperty("originX", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "originX is invalid!");
-            if (!tmp.isUndefined())
+            if (!tmp.isUndefined()) {
                 showInfo.x = tmp.toInt32();
+            }
         }
 
         if (obj->getProperty("originY", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "originY is invalid!");
-            if (!tmp.isUndefined())
+            if (!tmp.isUndefined()) {
                 showInfo.y = tmp.toInt32();
+            }
         }
 
         if (obj->getProperty("width", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "width is invalid!");
-            if (!tmp.isUndefined())
+            if (!tmp.isUndefined()) {
                 showInfo.width = tmp.toInt32();
+            }
         }
 
         if (obj->getProperty("height", &tmp)) {
             SE_PRECONDITION2(tmp.isNumber(), false, "height is invalid!");
-            if (!tmp.isUndefined())
+            if (!tmp.isUndefined()) {
                 showInfo.height = tmp.toInt32();
+            }
         }
 
-        EditBox::show(showInfo);
+        cc::EditBox::show(showInfo);
 
         return true;
     }
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 1);
     return false;
 }
-SE_BIND_FUNC(JSB_showInputBox);
+SE_BIND_FUNC(jsbShowInputBox);
 
-static bool JSB_hideInputBox(se::State &s) {
-    EditBox::hide();
+static bool jsbHideInputBox(se::State &s) {
+    cc::EditBox::hide();
     return true;
 }
-SE_BIND_FUNC(JSB_hideInputBox)
+SE_BIND_FUNC(jsbHideInputBox)
 
 #endif
 
 bool jsb_register_global_variables(se::Object *global) {
-    __threadPool = LegacyThreadPool::newFixedThreadPool(3);
+    threadPool = LegacyThreadPool::newFixedThreadPool(3);
 
     global->defineFunction("require", _SE(require));
     global->defineFunction("requireModule", _SE(moduleRequire));
 
-    getOrCreatePlainObject_r("jsb", global, &__jsbObj);
+    getOrCreatePlainObjectR("jsb", global, &__jsbObj);
 
-    auto glContextCls = se::Class::create("WebGLRenderingContext", global, nullptr, nullptr);
+    auto *glContextCls = se::Class::create("WebGLRenderingContext", global, nullptr, nullptr);
     glContextCls->install();
 
-    __jsbObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
-    __jsbObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
+    __jsbObj->defineFunction("garbageCollect", _SE(jscGarbageCollect));
+    __jsbObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jscDumpNativePtrToSeObjectMap));
 
-    __jsbObj->defineFunction("loadImage", _SE(js_loadImage));
-    __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
-    __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
-    __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
-    __jsbObj->defineFunction("destroyImage", _SE(js_destroyImage));
+    __jsbObj->defineFunction("loadImage", _SE(jsLoadImage));
+    __jsbObj->defineFunction("openURL", _SE(jsbOpenUrl));
+    __jsbObj->defineFunction("copyTextToClipboard", _SE(jsbCopyTextToClipboard));
+    __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(jsbSetPreferredFramesPerSecond));
+    __jsbObj->defineFunction("destroyImage", _SE(jsDestroyImage));
 #if CC_USE_EDITBOX
-    __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
-    __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
+    __jsbObj->defineFunction("showInputBox", _SE(jsbShowInputBox));
+    __jsbObj->defineFunction("hideInputBox", _SE(jsbHideInputBox));
 #endif
-    __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
-    __jsbObj->defineFunction("saveByteCode", _SE(JSB_saveByteCode));
-    global->defineFunction("__getPlatform", _SE(JSBCore_platform));
-    global->defineFunction("__getOS", _SE(JSBCore_os));
-    global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
-    global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
-    global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
-    global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
-    global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
+    __jsbObj->defineFunction("setCursorEnabled", _SE(jsbSetCursorEnabled));
+    __jsbObj->defineFunction("saveByteCode", _SE(jsbSaveByteCode));
+    global->defineFunction("__getPlatform", _SE(jsbCorePlatform));
+    global->defineFunction("__getOS", _SE(jsbCoreOs));
+    global->defineFunction("__getOSVersion", _SE(jsbGetOsVersion));
+    global->defineFunction("__getCurrentLanguage", _SE(jsbCoreGetCurrentLanguage));
+    global->defineFunction("__getCurrentLanguageCode", _SE(jsbCoreGetCurrentLanguageCode));
+    global->defineFunction("__restartVM", _SE(jsbCoreRestartVm));
+    global->defineFunction("__isObjectValid", _SE(jsbIsObjectValid));
+    global->defineFunction("__close", _SE(jsbCloseWindow));
 
     se::HandleObject performanceObj(se::Object::createPlainObject());
-    performanceObj->defineFunction("now", _SE(js_performance_now));
+    performanceObj->defineFunction("now", _SE(jsPerformanceNow));
     global->setProperty("performance", se::Value(performanceObj));
 
     se::ScriptEngine::getInstance()->clearException();
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
-        delete __threadPool;
-        __threadPool = nullptr;
+        delete threadPool;
+        threadPool = nullptr;
 
-        PoolManager::getInstance()->getCurrentPool()->clear();
+        cc::PoolManager::getInstance()->getCurrentPool()->clear();
     });
 
     se::ScriptEngine::getInstance()->addAfterCleanupHook([]() {
-        PoolManager::getInstance()->getCurrentPool()->clear();
+        cc::PoolManager::getInstance()->getCurrentPool()->clear();
 
-        __moduleCache.clear();
+        moduleCache.clear();
 
         SAFE_DEC_REF(__jsbObj);
         SAFE_DEC_REF(__glObj);

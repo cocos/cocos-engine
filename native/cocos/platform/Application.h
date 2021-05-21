@@ -26,15 +26,15 @@
 
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 #include <thread> // // std::this_thread::sleep_for
 #include "base/Macros.h"
 
-#include "bindings/event/EventDispatcher.h"
-#include "base/Scheduler.h"
 #include "base/AutoreleasePool.h"
+#include "base/Scheduler.h"
 #include "base/TypeDef.h"
+#include "bindings/event/EventDispatcher.h"
 #include "math/Vec2.h"
 
 #define NANOSECONDS_PER_SECOND 1000000000
@@ -83,7 +83,7 @@ public:
     };
 
     // This class is useful for internal usage.
-    static Application *getInstance() { return _instance; }
+    static Application *getInstance() { return instance; }
 
     Application(int width, int height);
     virtual ~Application();
@@ -91,14 +91,15 @@ public:
     virtual bool init();
     virtual void onPause();
     virtual void onResume();
+    virtual void onClose();
 
     void restart() { _needRestart = true; }
-
     void tick();
-
     void restartVM();
 
-    inline std::shared_ptr<Scheduler> getScheduler() const { return _scheduler; }
+    void close();
+
+    inline std::shared_ptr<Scheduler> getScheduler() const { return scheduler; } // NOLINT
 
     /**
      * @brief Sets the preferred frame rate for main loop callback.
@@ -161,13 +162,13 @@ public:
     inline const cc::Vec2 &getViewLogicalSize() const { return _viewLogicalSize; }
 
 private:
-    static Application *_instance;
-    static std::shared_ptr<Scheduler> _scheduler;
-    int _fps = 60;
-    long _prefererredNanosecondsPerFrame = NANOSECONDS_60FPS;
-    uint _totalFrames = 0;
-    cc::Vec2 _viewLogicalSize;
-    bool _needRestart = false;
+    static Application *              instance;
+    static std::shared_ptr<Scheduler> scheduler;
+    int                               _fps                            = 60;
+    int64_t                           _prefererredNanosecondsPerFrame = NANOSECONDS_60FPS;
+    uint                              _totalFrames                    = 0;
+    cc::Vec2                          _viewLogicalSize;
+    bool                              _needRestart = false;
 };
 
 // end of platform group

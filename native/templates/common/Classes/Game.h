@@ -30,14 +30,14 @@
  
  The reason for implement as private inheritance is to hide some interface call by Director.
  */
-class Game : public cc::Application
-{
+class Game : public cc::Application {
 public:
     /**
      * width and height in logical pixel unit
      */
     Game(int width, int height);
-    virtual bool init() override;
-    virtual void onPause() override;
-    virtual void onResume() override;
+    bool init() override;
+    void onPause() override;
+    void onResume() override;
+    void onClose() override;
 };

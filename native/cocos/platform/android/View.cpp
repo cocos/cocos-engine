@@ -27,13 +27,13 @@
 
 #include "View.h"
 #include <android_native_app_glue.h>
-#include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 #include "platform/Application.h"
 #include "platform/android/jni/JniCocosActivity.h"
 
 namespace {
-struct cc::TouchEvent touchEvent;
+struct cc::TouchEvent    touchEvent;
 struct cc::KeyboardEvent keyboardEvent;
 
 // key values in web, refer to http://docs.cocos.com/creator/api/en/enums/KEY.html
@@ -50,8 +50,8 @@ std::unordered_map<int, int> keyCodeMap = {
 void dispatchTouchEvent(int index, AInputEvent *event, cc::TouchEvent *touchEvent) {
     int pointerID = AMotionEvent_getPointerId(event, index);
     touchEvent->touches.emplace_back(AMotionEvent_getX(event, index), // x
-                                    AMotionEvent_getY(event, index), // y
-                                    pointerID);
+                                     AMotionEvent_getY(event, index), // y
+                                     pointerID);
 
     cc::EventDispatcher::dispatchTouchEvent(*touchEvent);
     touchEvent->touches.clear();
@@ -61,8 +61,8 @@ void dispatchTouchEvents(AInputEvent *event, cc::TouchEvent *touchEvent) {
     size_t pointerCount = AMotionEvent_getPointerCount(event);
     for (size_t i = 0; i < pointerCount; ++i) {
         touchEvent->touches.emplace_back(AMotionEvent_getX(event, i),
-                                        AMotionEvent_getY(event, i),
-                                        AMotionEvent_getPointerId(event, i));
+                                         AMotionEvent_getY(event, i),
+                                         AMotionEvent_getPointerId(event, i));
     }
 
     cc::EventDispatcher::dispatchTouchEvent(*touchEvent);
@@ -76,20 +76,19 @@ void View::engineHandleCmd(int cmd) {
     static bool isWindowInitialized = false;
     // Handle CMD here if needed.
     switch (cmd) {
-        case APP_CMD_INIT_WINDOW:
+        case APP_CMD_INIT_WINDOW: {
             if (!isWindowInitialized) {
                 isWindowInitialized = true;
                 return;
-            } else {
-                cc::CustomEvent event;
-                event.name = EVENT_RECREATE_WINDOW;
-                event.args->ptrVal = cocosApp.window;
-                cc::EventDispatcher::dispatchCustomEvent(event);
             }
-            break;
+            cc::CustomEvent event;
+            event.name         = EVENT_RECREATE_WINDOW;
+            event.args->ptrVal = cocosApp.window;
+            cc::EventDispatcher::dispatchCustomEvent(event);
+        } break;
         case APP_CMD_TERM_WINDOW: {
             cc::CustomEvent event;
-            event.name = EVENT_DESTROY_WINDOW;
+            event.name         = EVENT_DESTROY_WINDOW;
             event.args->ptrVal = cocosApp.window;
             cc::EventDispatcher::dispatchCustomEvent(event);
         } break;
@@ -130,7 +129,7 @@ int32_t View::engineHandleInput(struct android_app * /*app*/, AInputEvent *event
             keyCode = 0;
         }
 
-        keyboardEvent.key = keyCode;
+        keyboardEvent.key    = keyCode;
         keyboardEvent.action = action == AKEY_EVENT_ACTION_DOWN
                                    ? cc::KeyboardEvent::Action::RELEASE
                                    : cc::KeyboardEvent::Action::PRESS;

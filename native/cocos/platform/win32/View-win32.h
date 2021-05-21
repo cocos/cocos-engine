@@ -25,16 +25,16 @@
 
 #pragma once
 
+#include <Windows.h>
+#include <assert.h>
+#include <array>
+#include <string>
 #include "base/Macros.h"
 #include "platform/StdC.h"
-#include <Windows.h>
-#include <string>
-#include <array>
-#include <assert.h>
 
 // SDL headers
-#include "sdl2/SDL_main.h"
 #include "sdl2/SDL.h"
+#include "sdl2/SDL_main.h"
 #include "sdl2/SDL_syswm.h"
 
 #include "cocos/bindings/event/EventDispatcher.h"
@@ -48,7 +48,7 @@ public:
 
     bool init();
 
-    bool pollEvent(bool *quit, bool *resume, bool *pause);
+    bool pollEvent(bool *quit, bool *resume, bool *pause, bool *close);
 
     std::array<int, 2> getViewSize() const { return std::array<int, 2>{_width, _height}; }
 
@@ -60,12 +60,12 @@ public:
 
 private:
     std::string _title;
-    int _width = 0;
-    int _height = 0;
-    bool _inited = false;
+    int         _width  = 0;
+    int         _height = 0;
+    bool        _inited = false;
 
     SDL_Window *_window = nullptr;
-    SDL_Event sdlEvent;
+    SDL_Event   sdlEvent;
 };
 
 } // namespace cc

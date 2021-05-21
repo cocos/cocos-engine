@@ -519,7 +519,7 @@ int SimulatorWin::run()
     // update window title
     updateWindowTitle();
 
-    bool resume, pause;
+    bool resume, pause, close;
     se::ScriptEngine::getInstance()->addRegisterCallback(setCanvasCallback);
 
     if (!_app->init()) return 1;
@@ -564,10 +564,12 @@ int SimulatorWin::run()
 
         resume = false;
         pause = false;
-        while (_view->pollEvent(&_quit, &resume, &pause)) {}
+        close = false;
+        while (_view->pollEvent(&_quit, &resume, &pause, &close)) {}
 
         if (pause) _app->onPause();
         if (resume) _app->onResume();
+        if (close) _app->onClose();
 
         QueryPerformanceCounter(&nNow);
         actualInterval = nNow.QuadPart - nLast.QuadPart;

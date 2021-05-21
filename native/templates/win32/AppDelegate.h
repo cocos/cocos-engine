@@ -8,9 +8,9 @@ namespace cc {
     class View;
 };
 
-class AppDelegage {
+class AppDelegate {
 public:
-    AppDelegage(const std::string &name, int width, int height);
+    AppDelegate(const std::string &name, int width, int height);
 
     void start();
 
