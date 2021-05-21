@@ -84,7 +84,7 @@ public:
     };
 
     // This class is useful for internal usage.
-    static Application *getInstance() { return instance; }
+    static Application *getInstance() { return Application::instance; }
 
     Application(int width, int height);
     virtual ~Application();
@@ -98,7 +98,7 @@ public:
     void tick();
     void restartVM();
 
-    inline std::shared_ptr<Scheduler> getScheduler() const { return _scheduler; } //NOLINT(readability-convert-member-functions-to-static)
+    inline std::shared_ptr<Scheduler> getScheduler() const { return Application::scheduler; } //NOLINT(readability-convert-member-functions-to-static)
     void close();
 
     /**
