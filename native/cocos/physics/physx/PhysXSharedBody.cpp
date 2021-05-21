@@ -100,7 +100,12 @@ void PhysXSharedBody::setType(ERigidBodyType v) {
     if (_mType == v) return;
     _mType = v;
     initActor();
-    _mImpl.ptr = isStatic() ? reinterpret_cast<uintptr_t>(_mStaticActor) : reinterpret_cast<uintptr_t>(_mDynamicActor);
+    if (isStatic()) {
+        _mImpl.ptr = reinterpret_cast<uintptr_t>(_mStaticActor);
+    } else {
+        _mImpl.ptr = reinterpret_cast<uintptr_t>(_mDynamicActor);
+        _mImpl.rigidDynamic->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, _mType == ERigidBodyType::KINEMATIC);
+	}
 }
 
 void PhysXSharedBody::reference(bool v) {

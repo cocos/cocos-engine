@@ -117,7 +117,7 @@ void ShadowFlow::resizeShadowMap(const Light *light, const Shadows *shadowInfo){
     auto *     device    = gfx::Device::getInstance();
     const auto width     = static_cast<uint>(shadowInfo->size.x);
     const auto height    = static_cast<uint>(shadowInfo->size.y);
-    const auto format    = device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT)
+    const auto format    = supportsHalfFloatTexture(device)
                             ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
                             : gfx::Format::RGBA8;
 
@@ -172,7 +172,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *li
     const auto  shadowMapSize = shadowInfo->size;
     const auto  width         = static_cast<uint>(shadowMapSize.x);
     const auto  height        = static_cast<uint>(shadowMapSize.y);
-    const auto  format        = device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT)
+    const auto  format        = supportsHalfFloatTexture(device)
                             ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
                             : gfx::Format::RGBA8;
 

@@ -323,9 +323,9 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const Camera *camera, gf
     auto *            shadowInfo = sceneData->getSharedData()->getShadows();
     const auto *const scene      = camera->getScene();
     auto *            device               = gfx::Device::getInstance();
-    const auto        isTextureHalfFloat   = device->hasFeature(cc::gfx::Feature::TEXTURE_HALF_FLOAT);
-    const auto        linear               = (static_cast<bool>(shadowInfo->linear) && isTextureHalfFloat) ? 1.0F : 0.0F;
-    const auto        packing              = static_cast<bool>(shadowInfo->packing) ? 1.0F : (isTextureHalfFloat ? 0.0F : 1.0F);
+    const auto        isSupportHalfFloat   = supportsHalfFloatTexture(device);
+    const auto        linear               = (static_cast<bool>(shadowInfo->linear) && isSupportHalfFloat) ? 1.0F : 0.0F;
+    const auto        packing              = static_cast<bool>(shadowInfo->packing) ? 1.0F : (isSupportHalfFloat ? 0.0F : 1.0F);
     const Light *     mainLight  = nullptr;
     if (scene->mainLightID) mainLight = scene->getMainLight();
 

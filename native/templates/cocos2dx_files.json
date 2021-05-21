@@ -2,6 +2,7 @@
     "common": [
         ".browserslistrc", 
         ".clang-format", 
+        ".clang-format-ignore", 
         ".clang-tidy", 
         ".github/workflows/clang-format.yml", 
         ".github/workflows/clangtidy-android.yml", 
