@@ -45,7 +45,6 @@ import { Renderable2D } from '../framework';
 import { Sprite } from '../components';
 import { director, RecyclePool, Vec2 } from '../../core';
 import { Vec3 } from '../../core/math/vec3';
-import { ccbitmask } from '../../core/value-types/bitmask';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -220,8 +219,8 @@ export class DrawBatch2D {
         // 16 的定值为 device 查出的 capacity
 
         const vec4PerUI = 5;
-        // const UIPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / vec4PerUI);
-        const UIPerUBO = 16;
+        const UIPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / vec4PerUI);
+        // const UIPerUBO = 16; // 调试用 16
         // UIPerUBO(目前为16)
         const localBuffer = UBOManager.upload(t, r, this._tempScale, this.to, c, mode, UIPerUBO, vec4PerUI, this.tiled, progress);
         // 能同 draw call 的条件： UBOIndex 相同，ubohash 相同

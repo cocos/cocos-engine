@@ -4,10 +4,9 @@ import { Color, murmurhash2_32_gc } from '../../core';
 import { Buffer } from '../../core/gfx';
 import { BufferInfo, BufferUsageBit, BufferViewInfo, MemoryUsageBit } from '../../core/gfx/base/define';
 import { Device } from '../../core/gfx/base/device';
-import { UBOUILocal } from '../../core/pipeline/define';
 
 export class UILocalBuffer {
-    private static UBO_COUNT = 1; // 一个里可以放多少个 view
+    private static UBO_COUNT = 10; // 一个里可以放多少个 view
 
     private _device: Device;
     private _vec4PerUI: number;
@@ -46,7 +45,7 @@ export class UILocalBuffer {
         this._device = device;
         this.hash = hash;
 
-        const alignment = this._device.capabilities.uboOffsetAlignment; // 对齐长度，UBO 是 ali 的倍数
+        const alignment = this._device.capabilities.uboOffsetAlignment; // 对齐长度，UBO 是 alignment 的倍数
         const unalignedStride = Float32Array.BYTES_PER_ELEMENT * 4 * vec4PerUI * UIPerUBO;
         this._uniformBufferStride = Math.ceil(unalignedStride / alignment) * alignment;
         this._uniformBufferElementCount = this._uniformBufferStride / Float32Array.BYTES_PER_ELEMENT;
