@@ -106,12 +106,20 @@ export class Ambient {
     protected _handle: AmbientHandle = NULL_HANDLE;
     protected _enabled = false;
     protected _skyIllum = 0;
+    protected _nativeObj: any;
+
+    get native (): any {
+        return this._nativeObj;
+    }
+
     get handle () : AmbientHandle {
         return this._handle;
     }
 
     constructor () {
-        this._handle = AmbientPool.alloc();
+        if (JSB) {
+            this._handle = AmbientPool.alloc();
+        }
     }
 
     public initialize (ambientInfo: AmbientInfo) {
