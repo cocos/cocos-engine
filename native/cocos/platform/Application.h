@@ -84,7 +84,7 @@ public:
     };
 
     // This class is useful for internal usage.
-    static Application *getInstance() { return _instance; }
+    static Application *getInstance() { return instance; }
 
     Application(int width, int height);
     virtual ~Application();
@@ -92,14 +92,14 @@ public:
     virtual bool init();
     virtual void onPause();
     virtual void onResume();
+    virtual void onClose();
 
     void restart() { _needRestart = true; }
-
     void tick();
-
     void restartVM();
 
     inline std::shared_ptr<Scheduler> getScheduler() const { return _scheduler; } //NOLINT(readability-convert-member-functions-to-static)
+    void close();
 
     /**
      * @brief Sets the preferred frame rate for main loop callback.
@@ -162,10 +162,10 @@ public:
     inline const cc::Vec2 &getViewLogicalSize() const { return _viewLogicalSize; }
 
 private:
-    static Application *              _instance;  //NOLINT(readability-identifier-naming)
-    static std::shared_ptr<Scheduler> _scheduler; //NOLINT(readability-identifier-naming)
+    static Application *              instance;
+    static std::shared_ptr<Scheduler> scheduler;
     int                               _fps                            = 60;
-    long                              _prefererredNanosecondsPerFrame = NANOSECONDS_60FPS; //NOLINT
+    int64_t                           _prefererredNanosecondsPerFrame = NANOSECONDS_60FPS;
     uint                              _totalFrames                    = 0;
     cc::Vec2                          _viewLogicalSize;
     bool                              _needRestart = false;

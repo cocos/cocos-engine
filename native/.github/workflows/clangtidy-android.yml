@@ -1,9 +1,5 @@
 name: Clang Tidy - Android
 
-# on:
-#   pull_request_target: 
-#     types: [assigned, opened, edited, synchronize, reopened ,ready_for_review]
-
 on: pull_request
 
 jobs:
@@ -35,15 +31,16 @@ jobs:
               - exclude: 'cocos/editor-support/dragonbones/**'
               - exclude: 'cocos/base/etc1.*'
               - exclude: 'cocos/base/etc2.*'
-              - exclude: 'cocos/bindings/auto/**'
-              - exclude: 'cocos/bindings/manual/**'
-              - exclude: 'cocos/renderer/gfx-gles-common/**'
-              - exclude: 'cocos/bindings/jswrapper/v8/debugger/**'
+              - exclude: 'cocos/bindings/manual/jsb_global.cpp'
             allChanges:
               - added|modified|deleted: '**'
             skipedDebug:
               - added|modified|deleted: '**'
               - exclude: 'cocos/editor-support/dragonbones/**'
+      - name: Install CMake & Clang Tidy
+        run: |
+          sudo apt install -y cmake llvm clang-tidy-11
+
       - name: Generate Compile database
         shell: bash
         run: |
@@ -51,6 +48,7 @@ jobs:
           rm external/config.json
           git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
           utils/generate_compile_commands_android.sh
+
       - name: Generate clang-fix.yaml
         shell: bash
         if: ${{ steps.listchanged.outputs.source == 'true' }}
@@ -60,10 +58,9 @@ jobs:
           if [[ "$FILTERED-xxx" == "-xxx" ]]; then
             echo "no source files match"
           else
-            $ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/clang-tidy --format-style=file --export-fixes=clang-fixes.yaml $FILTERED
+            clang-tidy-11 --format-style=file --export-fixes=clang-fixes.yaml $FILTERED
           fi
       - name: clang-tidy-action
-        #uses: PatriceJiang/clang-tidy-action@github-api
         uses: PatriceJiang/clang-tidy-action@master
         if: hashFiles('clang-fixes.yaml') != ''
         with:

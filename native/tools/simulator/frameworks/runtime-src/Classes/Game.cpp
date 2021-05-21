@@ -85,22 +85,17 @@ bool Game::init()
 }
 
 // This function will be called when the app is inactive. When comes a phone call,it's be invoked too
-void Game::onPause()
-{
+void Game::onPause() {
     cc::Application::onPause();
+    cc::EventDispatcher::dispatchEnterBackgroundEvent();
+}
 
-    cc::CustomEvent event;
-    event.name = EVENT_COME_TO_BACKGROUND;
-    cc::EventDispatcher::dispatchCustomEvent(event);
-    cc::EventDispatcher::dispatchEnterBackgroundEvent();}
-
-// this function will be called when the app is active again
-void Game::onResume()
-{
+void Game::onResume() {
     cc::Application::onResume();
-    cc::CustomEvent event;
-    event.name = EVENT_COME_TO_FOREGROUND;
-    cc::EventDispatcher::dispatchCustomEvent(event);
     cc::EventDispatcher::dispatchEnterForegroundEvent();
-    
+}
+
+void Game::onClose() {
+    cc::Application::onClose();
+    cc::EventDispatcher::dispatchCloseEvent();
 }

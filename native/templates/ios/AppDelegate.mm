@@ -27,12 +27,12 @@
 #import "ViewController.h"
 #include "platform/ios/View.h"
 
-#include "SDKWrapper.h"
 #include "Game.h"
+#include "SDKWrapper.h"
 
 @implementation AppDelegate
 
-Game* game = nullptr;
+Game *      game = nullptr;
 @synthesize window;
 
 #pragma mark -
@@ -42,19 +42,19 @@ Game* game = nullptr;
     [[SDKWrapper shared] application:application didFinishLaunchingWithOptions:launchOptions];
     // Add the view controller's view to the window and display.
     CGRect bounds = [[UIScreen mainScreen] bounds];
-    self.window = [[UIWindow alloc] initWithFrame: bounds];
+    self.window   = [[UIWindow alloc] initWithFrame:bounds];
 
     // Should create view controller first, cc::Application will use it.
-    _viewController = [[ViewController alloc]init];
-    _viewController.view = [[View alloc] initWithFrame:bounds];
-    _viewController.view.contentScaleFactor = UIScreen.mainScreen.scale;
+    _viewController                           = [[ViewController alloc] init];
+    _viewController.view                      = [[View alloc] initWithFrame:bounds];
+    _viewController.view.contentScaleFactor   = UIScreen.mainScreen.scale;
     _viewController.view.multipleTouchEnabled = true;
     [self.window setRootViewController:_viewController];
 
     // cocos2d application instance
     game = new Game(bounds.size.width, bounds.size.height);
     game->init();
-    
+
     [self.window makeKeyAndVisible];
 
     return YES;
@@ -73,7 +73,7 @@ Game* game = nullptr;
     /*
      Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
      */
-     [[SDKWrapper shared] applicationDidBecomeActive:application];
+    [[SDKWrapper shared] applicationDidBecomeActive:application];
     game->onResume();
 }
 
@@ -93,6 +93,7 @@ Game* game = nullptr;
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
+    game->onClose();
     [[SDKWrapper shared] applicationWillTerminate:application];
     delete game;
     game = nullptr;

@@ -43,7 +43,7 @@ int SDL_main(int argc, char *argv[])
 #endif
 
     // create the application instance
-    AppDelegage app("Cocos3D Game", 960, 640);
+    AppDelegate app("Cocos3D Game", 960, 640);
     app.start();
 
 #ifdef USE_WIN32_CONSOLE

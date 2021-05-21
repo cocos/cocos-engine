@@ -50,12 +50,12 @@ extern std::shared_ptr<cc::View> cc_get_application_view();
 
 namespace cc {
 
-Application *              Application::_instance  = nullptr;
-std::shared_ptr<Scheduler> Application::_scheduler = nullptr;
+Application *              Application::instance  = nullptr;
+std::shared_ptr<Scheduler> Application::scheduler = nullptr;
 
 Application::Application(int width, int height) {
-    Application::_instance = this;
-    _scheduler             = std::make_shared<Scheduler>();
+    Application::instance = this;
+    scheduler             = std::make_shared<Scheduler>();
 
     FileUtils::getInstance()->addSearchPath("Resources", true);
 
@@ -64,7 +64,6 @@ Application::Application(int width, int height) {
 }
 
 Application::~Application() {
-
 #if USE_AUDIO
     AudioEngine::end();
 #endif
@@ -76,7 +75,7 @@ Application::~Application() {
 
     gfx::DeviceManager::destroy();
 
-    Application::_instance = nullptr;
+    Application::instance = nullptr;
 }
 
 bool Application::init() {
@@ -90,7 +89,7 @@ bool Application::init() {
     auto viewSize = view->getViewSize();
 
     gfx::DeviceInfo deviceInfo;
-    deviceInfo.windowHandle       = (uintptr_t)view->getWindowHandler();
+    deviceInfo.windowHandle       = reinterpret_cast<uintptr_t>(view->getWindowHandler());
     deviceInfo.width              = viewSize[0];
     deviceInfo.height             = viewSize[1];
     deviceInfo.nativeWidth        = viewSize[0];
@@ -107,7 +106,7 @@ void Application::setPreferredFramesPerSecond(int fps) {
         return;
 
     _fps                            = fps;
-    _prefererredNanosecondsPerFrame = (long)(1.0 / _fps * NANOSECONDS_PER_SECOND);
+    _prefererredNanosecondsPerFrame = static_cast<int64_t>(1.0 / _fps * NANOSECONDS_PER_SECOND);
 }
 
 Application::LanguageType Application::getCurrentLanguage() const {
@@ -231,6 +230,9 @@ void Application::onPause() {
 }
 
 void Application::onResume() {
+}
+
+void Application::onClose() {
 }
 
 std::string Application::getSystemVersion() {

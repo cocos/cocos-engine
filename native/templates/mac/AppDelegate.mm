@@ -41,6 +41,10 @@
                                              selector:@selector(windowDidDeminiaturizeNotification)
                                                  name:NSWindowDidDeminiaturizeNotification
                                                object:_window];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(windowWillCloseNotification)
+                                                 name:NSWindowWillCloseNotification
+                                               object:_window];
 }
 
 - (void)windowWillMiniaturizeNotification {
@@ -49,6 +53,10 @@
 
 - (void)windowDidDeminiaturizeNotification {
     _game->onResume();
+}
+
+- (void)windowWillCloseNotification {
+    _game->onClose();
 }
 
 - (NSWindow*)getWindow {

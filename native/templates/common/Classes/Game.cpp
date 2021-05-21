@@ -76,18 +76,15 @@ bool Game::init() {
 
 void Game::onPause() {
     cc::Application::onPause();
-
-    cc::CustomEvent event;
-    event.name = EVENT_COME_TO_BACKGROUND;
-    cc::EventDispatcher::dispatchCustomEvent(event);
     cc::EventDispatcher::dispatchEnterBackgroundEvent();
 }
 
 void Game::onResume() {
     cc::Application::onResume();
-
-    cc::CustomEvent event;
-    event.name = EVENT_COME_TO_FOREGROUND;
-    cc::EventDispatcher::dispatchCustomEvent(event);
     cc::EventDispatcher::dispatchEnterForegroundEvent();
+}
+
+void Game::onClose() {
+    cc::Application::onClose();
+    cc::EventDispatcher::dispatchCloseEvent();
 }

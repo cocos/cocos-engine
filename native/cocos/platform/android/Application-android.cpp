@@ -68,10 +68,10 @@ bool setCanvasCallback(se::Object * /*global*/) {
 
     gfx::DeviceInfo deviceInfo;
     deviceInfo.windowHandle       = reinterpret_cast<uintptr_t>(cc::cocosApp.window);
-    deviceInfo.width              = viewLogicalSize.x;
-    deviceInfo.height             = viewLogicalSize.y;
-    deviceInfo.nativeWidth        = viewLogicalSize.x;
-    deviceInfo.nativeHeight       = viewLogicalSize.y;
+    deviceInfo.width              = static_cast<uint>(viewLogicalSize.x);
+    deviceInfo.height             = static_cast<uint>(viewLogicalSize.y);
+    deviceInfo.nativeWidth        = static_cast<uint>(viewLogicalSize.x);
+    deviceInfo.nativeHeight       = static_cast<uint>(viewLogicalSize.y);
     deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
 
     gfx::DeviceManager::create(deviceInfo);
@@ -81,20 +81,25 @@ bool setCanvasCallback(se::Object * /*global*/) {
 
 } // namespace
 
-Application *              Application::_instance  = nullptr; //NOLINT(readability-identifier-naming)
-std::shared_ptr<Scheduler> Application::_scheduler = nullptr; //NOLINT(readability-identifier-naming)
+Application *              Application::instance  = nullptr;
+std::shared_ptr<Scheduler> Application::scheduler = nullptr;
 
 Application::Application(int width, int height) {
-    Application::_instance = this;
-    _scheduler             = std::make_shared<Scheduler>();
-    _viewLogicalSize.x     = static_cast<float>(width);
-    _viewLogicalSize.y     = static_cast<float>(height);
+    Application::instance = this;
+    scheduler             = std::make_shared<Scheduler>();
+    _viewLogicalSize.x    = static_cast<float>(width);
+    _viewLogicalSize.y    = static_cast<float>(height);
 }
 
 Application::~Application() {
 #if USE_AUDIO
     AudioEngine::end();
 #endif
+
+    Application::getInstance()->onClose();
+    if (EventDispatcher::initialized()) {
+        EventDispatcher::dispatchCloseEvent();
+    }
 
     pipeline::RenderPipeline::getInstance()->destroy();
 
@@ -103,7 +108,7 @@ Application::~Application() {
 
     gfx::DeviceManager::destroy();
 
-    Application::_instance = nullptr;
+    Application::instance = nullptr;
 }
 
 bool Application::init() {
@@ -121,21 +126,23 @@ void Application::onPause() {
 void Application::onResume() {
 }
 
+void Application::onClose() {
+}
+
 void Application::setPreferredFramesPerSecond(int fps) {
     if (fps == 0) {
         return;
     }
 
     _fps                            = fps;
-    _prefererredNanosecondsPerFrame = static_cast<int32_t>(1.0 / _fps * NANOSECONDS_PER_SECOND);
+    _prefererredNanosecondsPerFrame = static_cast<int64_t>(1.0 / _fps * NANOSECONDS_PER_SECOND);
 }
 
-std::string Application::getCurrentLanguageCode() const { //NOLINT(readability-convert-member-functions-to-static)
-
+std::string Application::getCurrentLanguageCode() const { // NOLINT
     return getCurrentLanguageCodeJNI();
 }
 
-bool Application::isDisplayStats() { //NOLINT(readability-convert-member-functions-to-static)
+bool Application::isDisplayStats() { //NOLINT
     se::AutoHandleScope hs;
     se::Value           ret;
     char                commandBuf[100] = "cc.debug.isDisplayStats();";
@@ -143,7 +150,7 @@ bool Application::isDisplayStats() { //NOLINT(readability-convert-member-functio
     return ret.toBoolean();
 }
 
-void Application::setDisplayStats(bool isShow) { //NOLINT(readability-convert-member-functions-to-static)
+void Application::setDisplayStats(bool isShow) { // NOLINT
     se::AutoHandleScope hs;
     char                commandBuf[100] = {0};
     sprintf(commandBuf, "cc.debug.setDisplayStats(%s);", isShow ? "true" : "false");
@@ -153,7 +160,7 @@ void Application::setDisplayStats(bool isShow) { //NOLINT(readability-convert-me
 void Application::setCursorEnabled(bool value) {
 }
 
-Application::LanguageType Application::getCurrentLanguage() const { //NOLINT(readability-convert-member-functions-to-static)
+Application::LanguageType Application::getCurrentLanguage() const { // NOLINT
     std::string  languageName  = getCurrentLanguageJNI();
     const char * pLanguageName = languageName.c_str();
     LanguageType ret           = LanguageType::ENGLISH;
@@ -200,19 +207,19 @@ Application::LanguageType Application::getCurrentLanguage() const { //NOLINT(rea
     return ret;
 }
 
-Application::Platform Application::getPlatform() const { //NOLINT(readability-convert-member-functions-to-static)
+Application::Platform Application::getPlatform() const { // NOLINT
     return Platform::ANDROIDOS;
 }
 
-bool Application::openURL(const std::string &url) { //NOLINT(readability-convert-member-functions-to-static)
+bool Application::openURL(const std::string &url) { // NOLINT
     return openURLJNI(url);
 }
 
-void Application::copyTextToClipboard(const std::string &text) { //NOLINT(readability-convert-member-functions-to-static)
+void Application::copyTextToClipboard(const std::string &text) { // NOLINT
     copyTextToClipboardJNI(text);
 }
 
-std::string Application::getSystemVersion() { //NOLINT(readability-convert-member-functions-to-static)
+std::string Application::getSystemVersion() { // NOLINT
     return getSystemVersionJNI();
 }
 
