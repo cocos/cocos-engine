@@ -41,8 +41,13 @@
     #include <unordered_map>
     #include <vector>
 
+    #if CC_PLATFORM == CC_PLATFORM_OHOS
+        #include "libwebsockets.h"
+    #else
+        #include "websockets/libwebsockets.h"
+    #endif
+
     #include "cocos/base/Macros.h"
-    #include "websockets/libwebsockets.h"
 
 namespace cc {
 namespace network {

@@ -25,6 +25,19 @@
 
 #include "gles2w.h"
 
+#ifndef __OHOS__
+    #define GL_GLES_PROTOTYPES 0
+    #include <GLES2/gl2.h>
+    #include <GLES2/gl2ext.h>
+    #include <GLES2/gl2platform.h>
+#else
+    #define GL_GLES_PROTOTYPES 0
+    #include <GLES3/gl32.h>
+    #include <GLES3/gl3platform.h>
+#endif
+#include <KHR/khrplatform.h>
+
+
 /**
  * ========================= !DO NOT CHANGE THE FOLLOWING SECTION MANUALLY! =========================
  * The following section is auto-generated from GLES spec by running:

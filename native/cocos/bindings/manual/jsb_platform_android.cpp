@@ -29,7 +29,7 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "cocos/platform/FileUtils.h"
-#include "cocos/platform/android/jni/JniHelper.h"
+#include "cocos/platform/java/jni/JniHelper.h"
 
 #include <regex>
 

@@ -25,19 +25,19 @@
 
 #pragma once
 
-#include "base/CoreStd.h"
-#include "base/memory/Memory.h"
 #include <string>
 #include <type_traits>
 #include <utility>
+#include "base/CoreStd.h"
+#include "base/memory/Memory.h"
 
 namespace se {
 class Object;
 } // namespace se
 
-extern se::Object *__jsbObj;
-extern se::Object *__glObj;
+extern se::Object *__jsbObj; //NOLINT
+extern se::Object *__glObj;  //NOLINT
 
-void jsb_init_file_operation_delegate();
-void jsb_set_xxtea_key(const std::string &key);
-bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect = false);
+void jsb_init_file_operation_delegate();                                                                       //NOLINT
+void jsb_set_xxtea_key(const std::string &key);                                                                //NOLINT
+bool jsb_enable_debugger(const std::string &debuggerServerAddr, uint32_t port, bool isWaitForConnect = false); //NOLINT

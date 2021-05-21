@@ -23,21 +23,21 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_module_register.h"
-#include "cocos/bindings/auto/jsb_cocos_auto.h"
 #include "cocos/base/AutoreleasePool.h"
-#include "cocos/bindings/dop/jsb_dop.h"
+#include "cocos/bindings/auto/jsb_cocos_auto.h"
 #include "cocos/bindings/auto/jsb_extension_auto.h"
-#include "cocos/bindings/auto/jsb_network_auto.h"
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
+#include "cocos/bindings/auto/jsb_network_auto.h"
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
-#include "cocos/bindings/manual/jsb_pipeline_manual.h"
+#include "cocos/bindings/dop/jsb_dop.h"
+#include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_cocos_manual.h"
-#include "cocos/bindings/manual/jsb_network_manual.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_gfx_manual.h"
 #include "cocos/bindings/manual/jsb_global.h"
+#include "cocos/bindings/manual/jsb_network_manual.h"
+#include "cocos/bindings/manual/jsb_pipeline_manual.h"
 #include "cocos/bindings/manual/jsb_platform.h"
 #include "cocos/bindings/manual/jsb_xmlhttprequest.h"
 
@@ -57,11 +57,11 @@
     #include "cocos/bindings/manual/JavaScriptObjCBridge.h"
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     #include "cocos/bindings/manual/JavaScriptJavaBridge.h"
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 
     #if USE_VIDEO
         #include "cocos/bindings/auto/jsb_video_auto.h"
@@ -132,7 +132,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_javascript_objc_bridge);
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     se->addRegisterCallback(register_javascript_java_bridge);
 #endif
 
@@ -164,7 +164,7 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_physics);
 #endif
 
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 
     #if USE_VIDEO
     se->addRegisterCallback(register_all_video);

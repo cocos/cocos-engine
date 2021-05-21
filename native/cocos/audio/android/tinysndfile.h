@@ -22,23 +22,23 @@
 // The API should be familiar to clients of similar libraries, but there is
 // no guarantee that it will stay exactly source-code compatible with other libraries.
 
-#include <stdio.h>
 #include <sys/cdefs.h>
+#include <cstdio>
 
 __BEGIN_DECLS
 
 // visible to clients
-typedef int sf_count_t;
+using sf_count_t = int;
 
-typedef struct {
+using SF_INFO = struct {
     sf_count_t frames;
-    int samplerate;
-    int channels;
-    int format;
-} SF_INFO;
+    int        samplerate;
+    int        channels;
+    int        format;
+};
 
 // opaque to clients
-typedef struct SNDFILE_ SNDFILE;
+using SNDFILE = struct SNDFILE_;
 
 // Format
 #define SF_FORMAT_TYPEMASK 1
@@ -50,25 +50,28 @@ typedef struct SNDFILE_ SNDFILE;
 #define SF_FORMAT_PCM_32   8
 #define SF_FORMAT_PCM_24   10
 
-typedef struct {
+using snd_callbacks = struct {
     void *(*open)(const char *path, void *user);
     size_t (*read)(void *ptr, size_t size, size_t nmemb, void *datasource);
-    int (*seek)(void *datasource, long offset, int whence);
+    int (*seek)(void *datasource, long offset, int whence); //NOLINT(google-runtime-int)
     int (*close)(void *datasource);
-    long (*tell)(void *datasource);
-} snd_callbacks;
+    long (*tell)(void *datasource); //NOLINT(google-runtime-int)
+};
 
 // Open stream
-SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks *cb, void *user);
+SNDFILE *sf_open_read(const char *path, SF_INFO *info, snd_callbacks *cb, void *user); //NOLINT(readability-identifier-naming)
 
 // Close stream
-void sf_close(SNDFILE *handle);
+void sf_close(SNDFILE *handle); //NOLINT(readability-identifier-naming)
 
 // Read interleaved frames and return actual number of frames read
-sf_count_t sf_readf_short(SNDFILE *handle, short *ptr, sf_count_t desired);
+sf_count_t sf_readf_short(SNDFILE *handle, int16_t *ptr, sf_count_t desired); //NOLINT(readability-identifier-naming)
 /*
 sf_count_t sf_readf_float(SNDFILE *handle, float *ptr, sf_count_t desired);
 sf_count_t sf_readf_int(SNDFILE *handle, int *ptr, sf_count_t desired);
 */
+
+off_t sf_seek(SNDFILE *handle, int offset, int whence); //NOLINT(readability-identifier-naming)
+off_t sf_tell(SNDFILE *handle);                         //NOLINT(readability-identifier-naming)
 
 __END_DECLS

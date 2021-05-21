@@ -28,57 +28,57 @@
 
 #include <unistd.h>
 // for native asset manager
-#include <sys/types.h>
 #include <android/asset_manager.h>
 #include <android/asset_manager_jni.h>
-#include <unordered_map>
 #include <android/log.h>
-#include <thread>
+#include <sys/types.h>
 #include <mutex>
+#include <thread>
+#include <unordered_map>
 
 #include "audio/include/AudioEngine.h"
-#include "platform/Application.h"
+#include "base/Log.h"
 #include "base/Scheduler.h"
 #include "base/UTF8.h"
-#include "base/Log.h"
+#include "platform/Application.h"
 #include "platform/android/FileUtils-android.h"
-#include "platform/android/jni/JniImp.h"
-#include "platform/android/jni/JniHelper.h"
+#include "platform/java/jni/JniHelper.h"
+#include "platform/java/jni/JniImp.h"
 
+#include "audio/android/AudioPlayerProvider.h"
 #include "audio/android/IAudioPlayer.h"
 #include "audio/android/ICallerThreadUtils.h"
-#include "audio/android/AudioPlayerProvider.h"
-#include "audio/android/cutils/log.h"
 #include "audio/android/UrlAudioPlayer.h"
+#include "audio/android/cutils/log.h"
 
-#include "cocos/bindings/event/EventDispatcher.h"
 #include "cocos/bindings/event/CustomEventTypes.h"
+#include "cocos/bindings/event/EventDispatcher.h"
 
-using namespace cc;
+using namespace cc; //NOLINT
 
 // Audio focus values synchronized with which in cocos/platform/android/java/src/com/cocos/lib/CocosNativeActivity.java
 namespace {
-AudioEngineImpl *__impl = nullptr;
-int outputSampleRate = 44100;
-int bufferSizeInFrames = 192;
+AudioEngineImpl *gAudioImpl         = nullptr;
+int              outputSampleRate   = 44100;
+int              bufferSizeInFrames = 192;
 
 void getAudioInfo() {
-    JNIEnv *env = JniHelper::getEnv();
-    jclass audioSystem = env->FindClass("android/media/AudioSystem");
-    jmethodID method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputSamplingRate", "()I");
-    outputSampleRate = env->CallStaticIntMethod(audioSystem, method);
-    method = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
-    bufferSizeInFrames = env->CallStaticIntMethod(audioSystem, method);
+    JNIEnv *  env         = JniHelper::getEnv();
+    jclass    audioSystem = env->FindClass("android/media/AudioSystem");
+    jmethodID method      = env->GetStaticMethodID(audioSystem, "getPrimaryOutputSamplingRate", "()I");
+    outputSampleRate      = env->CallStaticIntMethod(audioSystem, method);
+    method                = env->GetStaticMethodID(audioSystem, "getPrimaryOutputFrameCount", "()I");
+    bufferSizeInFrames    = env->CallStaticIntMethod(audioSystem, method);
 }
 } // namespace
 
 class CallerThreadUtils : public ICallerThreadUtils {
 public:
-    virtual void performFunctionInCallerThread(const std::function<void()> &func) {
+    void performFunctionInCallerThread(const std::function<void()> &func) override {
         Application::getInstance()->getScheduler()->performFunctionInCocosThread(func);
     };
 
-    virtual std::thread::id getCallerThreadId() {
+    std::thread::id getCallerThreadId() override {
         return _tid;
     };
 
@@ -90,12 +90,16 @@ private:
     std::thread::id _tid;
 };
 
-static CallerThreadUtils __callerThreadUtils;
+static CallerThreadUtils gCallerThreadUtils;
 
 static int fdGetter(const std::string &url, off_t *start, off_t *length) {
     int fd = -1;
     if (cc::FileUtilsAndroid::getObbFile() != nullptr) {
-        fd = getObbAssetFileDescriptorJNI(url.c_str(), start, length);
+        int64_t startV;
+        int64_t lenV;
+        fd      = getObbAssetFileDescriptorJNI(url, &startV, &lenV);
+        *start  = static_cast<off_t>(startV);
+        *length = static_cast<off_t>(lenV);
     }
     if (fd <= 0) {
         auto asset = AAssetManager_open(cc::FileUtilsAndroid::getAssetManager(), url.c_str(), AASSET_MODE_UNKNOWN);
@@ -113,9 +117,14 @@ static int fdGetter(const std::string &url, off_t *start, off_t *length) {
 
 //====================================================
 AudioEngineImpl::AudioEngineImpl()
-: _engineObject(nullptr), _engineEngine(nullptr), _outputMixObject(nullptr), _audioPlayerProvider(nullptr), _audioIDIndex(0), _lazyInitLoop(true) {
-    __callerThreadUtils.setCallerThreadId(std::this_thread::get_id());
-    __impl = this;
+: _engineObject(nullptr),
+  _engineEngine(nullptr),
+  _outputMixObject(nullptr),
+  _audioPlayerProvider(nullptr),
+  _audioIDIndex(0),
+  _lazyInitLoop(true) {
+    gCallerThreadUtils.setCallerThreadId(std::this_thread::get_id());
+    gAudioImpl = this;
     getAudioInfo();
 }
 
@@ -132,13 +141,12 @@ AudioEngineImpl::~AudioEngineImpl() {
         (*_engineObject)->Destroy(_engineObject);
     }
 
-    __impl = nullptr;
+    gAudioImpl = nullptr;
 }
 
 bool AudioEngineImpl::init() {
     bool ret = false;
     do {
-
         // create engine
         auto result = slCreateEngine(&_engineObject, 0, nullptr, 0, nullptr, nullptr);
         if (SL_RESULT_SUCCESS != result) {
@@ -162,8 +170,8 @@ bool AudioEngineImpl::init() {
 
         // create output mix
         const SLInterfaceID outputMixIIDs[] = {};
-        const SLboolean outputMixReqs[] = {};
-        result = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);
+        const SLboolean     outputMixReqs[] = {};
+        result                              = (*_engineEngine)->CreateOutputMix(_engineEngine, &_outputMixObject, 0, outputMixIIDs, outputMixReqs);
         if (SL_RESULT_SUCCESS != result) {
             CC_LOG_ERROR("create output mix fail");
             break;
@@ -176,7 +184,7 @@ bool AudioEngineImpl::init() {
             break;
         }
 
-        _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &__callerThreadUtils);
+        _audioPlayerProvider = new AudioPlayerProvider(_engineEngine, _outputMixObject, outputSampleRate, bufferSizeInFrames, fdGetter, &gCallerThreadUtils);
 
         ret = true;
     } while (false);
@@ -195,8 +203,9 @@ int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume
     auto audioId = AudioEngine::INVALID_AUDIO_ID;
 
     do {
-        if (_engineEngine == nullptr || _audioPlayerProvider == nullptr)
+        if (_engineEngine == nullptr || _audioPlayerProvider == nullptr) {
             break;
+        }
 
         auto fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
 
@@ -242,9 +251,9 @@ int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume
             return AudioEngine::INVALID_AUDIO_ID;
         }
 
-        AudioEngine::_audioIDInfoMap[audioId].state = AudioEngine::AudioState::PLAYING;
+        AudioEngine::sAudioIDInfoMap[audioId].state = AudioEngine::AudioState::PLAYING;
 
-    } while (0);
+    } while (false);
 
     return audioId;
 }
@@ -315,7 +324,7 @@ float AudioEngineImpl::getDuration(int audioID) {
         auto player = iter->second;
         return player->getDuration();
     }
-    return 0.0f;
+    return 0.0F;
 }
 
 float AudioEngineImpl::getDurationFromFile(const std::string &filePath) {
@@ -332,7 +341,7 @@ float AudioEngineImpl::getCurrentTime(int audioID) {
         auto player = iter->second;
         return player->getPosition();
     }
-    return 0.0f;
+    return 0.0F;
 }
 
 bool AudioEngineImpl::setCurrentTime(int audioID, float time) {
@@ -351,7 +360,7 @@ void AudioEngineImpl::setFinishCallback(int audioID, const std::function<void(in
 void AudioEngineImpl::preload(const std::string &filePath, const std::function<void(bool)> &callback) {
     if (_audioPlayerProvider != nullptr) {
         std::string fullPath = FileUtils::getInstance()->fullPathForFilename(filePath);
-        _audioPlayerProvider->preloadEffect(fullPath, [callback](bool succeed, PcmData data) {
+        _audioPlayerProvider->preloadEffect(fullPath, [callback](bool succeed, const PcmData & /*data*/) {
             if (callback != nullptr) {
                 callback(succeed);
             }

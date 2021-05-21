@@ -23,19 +23,15 @@
  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
-****************************************************************************/
+ ****************************************************************************/
+#pragma once
 
-#ifndef __CC_FILEUTILS_ANDROID_H__
-#define __CC_FILEUTILS_ANDROID_H__
-
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
-
-    #include "platform/FileUtils.h"
-    #include "base/Macros.h"
-    #include <string>
-    #include <vector>
-    #include "jni.h"
-    #include "android/asset_manager.h"
+#include <string>
+#include <vector>
+#include "android/asset_manager.h"
+#include "base/Macros.h"
+#include "jni.h"
+#include "platform/FileUtils.h"
 
 namespace cc {
 
@@ -56,32 +52,28 @@ public:
      * @js NA
      * @lua NA
      */
-    virtual ~FileUtilsAndroid();
+    ~FileUtilsAndroid() override;
 
-    static void setassetmanager(AAssetManager *a);
+    static void           setassetmanager(AAssetManager *a);
     static AAssetManager *getAssetManager() { return assetmanager; }
-    static ZipFile *getObbFile() { return obbfile; }
+    static ZipFile *      getObbFile() { return obbfile; }
 
     /* override functions */
-    bool init() override;
-    virtual FileUtils::Status getContents(const std::string &filename, ResizableBuffer *buffer) override;
+    bool              init() override;
+    FileUtils::Status getContents(const std::string &filename, ResizableBuffer *buffer) override;
 
-    virtual std::string getWritablePath() const override;
-    virtual bool isAbsolutePath(const std::string &strPath) const override;
+    std::string getWritablePath() const override;
+    bool        isAbsolutePath(const std::string &strPath) const override;
 
 private:
-    virtual bool isFileExistInternal(const std::string &strFilePath) const override;
-    virtual bool isDirectoryExistInternal(const std::string &dirPath) const override;
+    bool isFileExistInternal(const std::string &strFilePath) const override;
+    bool isDirectoryExistInternal(const std::string &dirPath) const override;
 
     static AAssetManager *assetmanager;
-    static ZipFile *obbfile;
+    static ZipFile *      obbfile;
 };
 
 // end of platform group
 /// @}
 
 } // namespace cc
-
-#endif // CC_PLATFORM == CC_PLATFORM_ANDROID
-
-#endif // __CC_FILEUTILS_ANDROID_H__

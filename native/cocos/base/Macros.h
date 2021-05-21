@@ -52,6 +52,14 @@ typedef SSIZE_T ssize_t;
                                 "%s function:%s line:%d",          \
                                 __FILE__, __FUNCTION__, __LINE__); \
         }
+#elif (CC_PLATFORM == CC_PLATFORM_OHOS)
+    #include <hilog/log.h>
+    #define CC_ASSERT(cond)                                                      \
+        if (!(cond)) {                                                           \
+            HILOG_ERROR(LOG_APP,                                                 \
+                        "assert %{public}s function:%{public}s line:%{public}d", \
+                        __FILE__, __FUNCTION__, __LINE__);                       \
+        }
 #else
     #include <assert.h>
     #define CC_ASSERT(cond) assert(cond)

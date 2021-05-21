@@ -26,10 +26,11 @@
 ****************************************************************************/
 
 #include "Image.h"
-#include "base/Config.h" // CC_USE_JPEG, CC_USE_WEBP
 #include <cassert>
 #include <cctype>
 #include <string>
+#include "base/Config.h" // CC_USE_JPEG, CC_USE_WEBP
+
 #if CC_USE_JPEG
     #include "jpeg/jpeglib.h"
 #endif // CC_USE_JPEG
@@ -41,7 +42,11 @@
 
 extern "C" {
 #if CC_USE_PNG
-    #include "png/png.h"
+    #if __OHOS__
+        #include "png.h"
+    #else
+        #include "png/png.h"
+    #endif
 #endif //CC_USE_PNG
 
 #include "base/etc1.h"

@@ -26,15 +26,15 @@
 
 #pragma once
 
-#include <string>
 #include <memory>
+#include <string>
 #include <thread> // // std::this_thread::sleep_for
 #include "base/Macros.h"
 
-#include "bindings/event/EventDispatcher.h"
-#include "base/Scheduler.h"
 #include "base/AutoreleasePool.h"
+#include "base/Scheduler.h"
 #include "base/TypeDef.h"
+#include "bindings/event/EventDispatcher.h"
 #include "math/Vec2.h"
 
 #define NANOSECONDS_PER_SECOND 1000000000
@@ -58,6 +58,7 @@ public:
         ANDROIDOS, /**< Android, because ANDROID is a macro, so use ANDROIDOS instead */
         IPHONE,    /**< iPhone */
         IPAD,      /**< iPad */
+        OHOS,      /**< Open Harmony OS> */
     };
 
     enum class LanguageType {
@@ -98,7 +99,7 @@ public:
 
     void restartVM();
 
-    inline std::shared_ptr<Scheduler> getScheduler() const { return _scheduler; }
+    inline std::shared_ptr<Scheduler> getScheduler() const { return _scheduler; } //NOLINT(readability-convert-member-functions-to-static)
 
     /**
      * @brief Sets the preferred frame rate for main loop callback.
@@ -161,13 +162,13 @@ public:
     inline const cc::Vec2 &getViewLogicalSize() const { return _viewLogicalSize; }
 
 private:
-    static Application *_instance;
-    static std::shared_ptr<Scheduler> _scheduler;
-    int _fps = 60;
-    long _prefererredNanosecondsPerFrame = NANOSECONDS_60FPS;
-    uint _totalFrames = 0;
-    cc::Vec2 _viewLogicalSize;
-    bool _needRestart = false;
+    static Application *              _instance;  //NOLINT(readability-identifier-naming)
+    static std::shared_ptr<Scheduler> _scheduler; //NOLINT(readability-identifier-naming)
+    int                               _fps                            = 60;
+    long                              _prefererredNanosecondsPerFrame = NANOSECONDS_60FPS; //NOLINT
+    uint                              _totalFrames                    = 0;
+    cc::Vec2                          _viewLogicalSize;
+    bool                              _needRestart = false;
 };
 
 // end of platform group
