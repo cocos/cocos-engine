@@ -28,6 +28,7 @@
  * @module geometry
  */
 
+import { JSB } from 'internal:constants';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
 import { IVec3Like } from '../math/type-define';
@@ -97,7 +98,10 @@ export class AABB {
     public static copy (out: AABB, a: AABB): AABB {
         Vec3.copy(out.center, a.center);
         Vec3.copy(out.halfExtents, a.halfExtents);
-
+        if (JSB) {
+            out.native.center = out.center;
+            out.native.halfExtents = out.halfExtents;
+        }
         return out;
     }
 
@@ -116,6 +120,10 @@ export class AABB {
         Vec3.subtract(_v3_tmp2, maxPos, minPos);
         Vec3.multiplyScalar(out.center, _v3_tmp, 0.5);
         Vec3.multiplyScalar(out.halfExtents, _v3_tmp2, 0.5);
+        if (JSB) {
+            out.native.center = out.center;
+            out.native.halfExtents = out.halfExtents;
+        }
         return out;
     }
 
@@ -136,6 +144,10 @@ export class AABB {
     public static set (out: AABB, px: number, py: number, pz: number, hw: number, hh: number, hl: number): AABB {
         Vec3.set(out.center, px, py, pz);
         Vec3.set(out.halfExtents, hw, hh, hl);
+        if (JSB) {
+            out.native.center = out.center;
+            out.native.halfExtents = out.halfExtents;
+        }
         return out;
     }
 
@@ -156,7 +168,8 @@ export class AABB {
         Vec3.add(_v3_tmp4, b.center, b.halfExtents);
         Vec3.max(_v3_tmp4, _v3_tmp3, _v3_tmp4);
         Vec3.min(_v3_tmp3, _v3_tmp, _v3_tmp2);
-        return AABB.fromPoints(out, _v3_tmp3, _v3_tmp4);
+        AABB.fromPoints(out, _v3_tmp3, _v3_tmp4);
+        return out;
     }
 
     /**
@@ -199,6 +212,10 @@ export class AABB {
     public static transform (out: AABB, a: AABB, matrix: Mat4): AABB {
         Vec3.transformMat4(out.center, a.center, matrix);
         transform_extent_m4(out.halfExtents, a.halfExtents, matrix);
+        if (JSB) {
+            out.native.center = out.center;
+            out.native.halfExtents = out.halfExtents;
+        }
         return out;
     }
 
@@ -224,12 +241,28 @@ export class AABB {
         return this._type;
     }
 
+    get native (): any {
+        return this._nativeObj;
+    }
+
     protected readonly _type: number;
+    protected _nativeObj: any = null;
+
+    private _applyNativeVal (center: Vec3, halfExtents: Vec3) {
+        if (JSB) {
+            if (!this._nativeObj) {
+                this._nativeObj = new ns.AABB();
+            }
+            this._nativeObj.center = center;
+            this._nativeObj.halfExtents = halfExtents;
+        }
+    }
 
     constructor (px = 0, py = 0, pz = 0, hw = 1, hh = 1, hl = 1) {
         this._type = enums.SHAPE_AABB;
         this.center = new Vec3(px, py, pz);
         this.halfExtents = new Vec3(hw, hh, hl);
+        this._applyNativeVal(this.center, this.halfExtents);
     }
 
     /**
@@ -259,6 +292,7 @@ export class AABB {
     public transform (m: Mat4, pos: Vec3 | null, rot: Quat | null, scale: Vec3 | null, out: AABB) {
         Vec3.transformMat4(out.center, this.center, m);
         transform_extent_m4(out.halfExtents, this.halfExtents, m);
+        this._applyNativeVal(out.center, out.halfExtents);
     }
 
     /**
