@@ -202,10 +202,6 @@ export class Model {
         }
     }
 
-    get native (): any {
-        return this._nativeObj;
-    }
-
     public type = ModelType.DEFAULT;
     public scene: RenderScene | null = null;
     public isDynamicBatching = false;

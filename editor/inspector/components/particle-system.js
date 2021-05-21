@@ -186,7 +186,7 @@ const excludeList = [
 ];
 
 exports.methods = {
-    getObjectByKey (target, key) {
+    getObjectByKey(target, key) {
         let params = [];
         if (typeof key === 'string') {
             params = key.split('.');
@@ -203,7 +203,7 @@ exports.methods = {
     /**
      * Get the name based on the dump data
      */
-    getName (value) {
+    getName(value) {
         if (!value) {
             return '';
         }
@@ -225,7 +225,7 @@ exports.methods = {
      * Get tooltip based on dump data
      * @param value
      */
-    getTitle (value) {
+    getTitle(value) {
         if (value.tooltip) {
             if (!value.tooltip.startsWith('i18n:')) {
                 return value.tooltip;
@@ -236,7 +236,7 @@ exports.methods = {
         return this.getName(value);
     },
 
-    getEnumName (type, value) {
+    getEnumName(type, value) {
         for (const opt of type.enumList) {
             if (opt.value === value) {
                 return opt.name;
@@ -245,7 +245,7 @@ exports.methods = {
         return String();
     },
 
-    getEnumObjFromName (type, ...name) {
+    getEnumObjFromName(type, ...name) {
         const enumMap = {};
         for (const opt of type.enumList) {
             enumMap[opt.name] = {
@@ -256,29 +256,29 @@ exports.methods = {
         return name.map((value) => enumMap[value]);
     },
 
-    getShapeTypeEmitFrom (shapeType) {
+    getShapeTypeEmitFrom(shapeType) {
         const shapeTypeName = this.getEnumName(this.dump.value.shapeModule.value.shapeType, shapeType);
         let emitEnum = null;
         switch (shapeTypeName) {
-        case 'Box':
-            emitEnum = this.getEnumObjFromName(this.dump.value.shapeModule.value.emitFrom, 'Volume', 'Shell', 'Edge');
-            break;
-        case 'Cone':
-            emitEnum = this.getEnumObjFromName(this.dump.value.shapeModule.value.emitFrom, 'Base', 'Shell', 'Volume');
-            break;
-        case 'Sphere':
-            emitEnum = this.getEnumObjFromName(this.dump.value.shapeModule.value.emitFrom, 'Volume', 'Shell');
-            break;
-        case 'Hemisphere':
-            emitEnum = this.getEnumObjFromName(this.dump.value.shapeModule.value.emitFrom, 'Volume', 'Shell');
-            break;
-        default:
-            emitEnum = [];
+            case 'Box':
+                emitEnum = this.getEnumObjFromName(this.dump.value.shapeModule.value.emitFrom, 'Volume', 'Shell', 'Edge');
+                break;
+            case 'Cone':
+                emitEnum = this.getEnumObjFromName(this.dump.value.shapeModule.value.emitFrom, 'Base', 'Shell', 'Volume');
+                break;
+            case 'Sphere':
+                emitEnum = this.getEnumObjFromName(this.dump.value.shapeModule.value.emitFrom, 'Volume', 'Shell');
+                break;
+            case 'Hemisphere':
+                emitEnum = this.getEnumObjFromName(this.dump.value.shapeModule.value.emitFrom, 'Volume', 'Shell');
+                break;
+            default:
+                emitEnum = [];
         }
         return emitEnum;
     },
 
-    checkEnumInSubset (enumValue, ...subset) {
+    checkEnumInSubset(enumValue, ...subset) {
         const optName = this.getEnumName(enumValue, enumValue.value);
         for (const name of subset) {
             if (name === optName) {
@@ -291,10 +291,10 @@ exports.methods = {
 
 const uiElements = {
     uiSections: {
-        ready () {
+        ready() {
             this.$.uiSections = this.$this.shadowRoot.querySelectorAll('ui-section');
         },
-        update () {
+        update() {
             this.$.uiSections.forEach((element) => {
                 const key = element.getAttribute('key');
                 const showflag = element.getAttribute('showflag');
@@ -379,13 +379,13 @@ const uiElements = {
         },
     },
     emitFromSelect: {
-        ready () {
+        ready() {
             this.$.emitFromSelect.addEventListener('change', (event) => {
                 this.dump.value.shapeModule.value.emitFrom.value = event.target.value;
                 this.$.emitFromSelect.parentNode.dispatch('change-dump');
             });
         },
-        update () {
+        update() {
             this.$.emitFromSelect.setAttribute('value', this.dump.value.shapeModule.value.emitFrom.value);
             const datas = this.getShapeTypeEmitFrom(this.dump.value.shapeModule.value.shapeType.value);
             const children = datas.map((data) => {
@@ -398,7 +398,7 @@ const uiElements = {
         },
     },
     baseProps: {
-        ready () {
+        ready() {
             this.$.baseProps = this.$this.shadowRoot.querySelectorAll('ui-prop:not(.customProp)');
             this.$.baseProps.forEach((element) => {
                 const key = element.getAttribute('key');
@@ -430,7 +430,7 @@ const uiElements = {
                 }
             });
         },
-        update () {
+        update() {
             this.$.baseProps.forEach((element) => {
                 const key = element.getAttribute('key');
                 const isEmpty = element.getAttribute('empty');
@@ -490,7 +490,7 @@ const uiElements = {
         },
     },
     customProps: {
-        update () {
+        update() {
             this.$.customProps.replaceChildren(...propUtils.getCustomPropElements(excludeList, this.dump, (element, prop) => {
                 element.className = 'customProp';
                 if (prop.dump.visible) {
@@ -504,7 +504,7 @@ exports.$ = {
     customProps: '#customProps',
     emitFromSelect: '#emitFromSelect',
 };
-exports.ready = function () {
+exports.ready = function() {
     for (const key in uiElements) {
         const element = uiElements[key];
         if (typeof element.ready === 'function') {
@@ -512,7 +512,7 @@ exports.ready = function () {
         }
     }
 };
-exports.update = function (dump) {
+exports.update = function(dump) {
     this.dump = dump;
     for (const key in uiElements) {
         const element = uiElements[key];

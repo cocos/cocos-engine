@@ -480,7 +480,7 @@ exports.$ = {
     app: '#app',
 };
 exports.methods = {
-    getObjectByKey (target, key) {
+    getObjectByKey(target, key) {
         let params = [];
         if (typeof key === 'string') {
             params = key.split('.');
@@ -494,7 +494,7 @@ exports.methods = {
             return target;
         }
     },
-    getDimensionHorizontal () {
+    getDimensionHorizontal() {
         const {
             isAlignLeft, isAlignRight, isAlignHorizontalCenter,
         } = this.dump.value;
@@ -516,7 +516,7 @@ exports.methods = {
 
         return dimension;
     },
-    getDimensionVertical () {
+    getDimensionVertical() {
         const {
             isAlignTop, isAlignBottom, isAlignVerticalCenter,
         } = this.dump.value;
@@ -544,7 +544,7 @@ exports.methods = {
 
         return false;
     },
-    update () {
+    update() {
         for (const key in uiElements) {
             const element = uiElements[key];
             if (typeof element.update === 'function') {
@@ -552,60 +552,60 @@ exports.methods = {
             }
         }
     },
-    change (key, newValue) {
+    change(key, newValue) {
         this.dump.value[key].value = newValue;
         this.$refs.summitProp.dump = this.dump.value[key];
         this.$refs.summitProp.dispatch('change-dump');
     },
 
-    getUnit (type) {
+    getUnit(type) {
         const data = this.dump.value;
 
         switch (type) {
-        case 'editorTop':
-            return data.isAbsoluteTop.value ? 'px' : '%';
-        case 'editorBottom':
-            return data.isAbsoluteBottom.value ? 'px' : '%';
-        case 'editorLeft':
-            return data.isAbsoluteLeft.value ? 'px' : '%';
-        case 'editorRight':
-            return data.isAbsoluteRight.value ? 'px' : '%';
-        case 'editorHorizontalCenter':
-            return data.isAbsoluteHorizontalCenter.value ? 'px' : '%';
-        case 'editorVerticalCenter':
-            return data.isAbsoluteVerticalCenter.value ? 'px' : '%';
-        default:
-            break;
+            case 'editorTop':
+                return data.isAbsoluteTop.value ? 'px' : '%';
+            case 'editorBottom':
+                return data.isAbsoluteBottom.value ? 'px' : '%';
+            case 'editorLeft':
+                return data.isAbsoluteLeft.value ? 'px' : '%';
+            case 'editorRight':
+                return data.isAbsoluteRight.value ? 'px' : '%';
+            case 'editorHorizontalCenter':
+                return data.isAbsoluteHorizontalCenter.value ? 'px' : '%';
+            case 'editorVerticalCenter':
+                return data.isAbsoluteVerticalCenter.value ? 'px' : '%';
+            default:
+                break;
         }
     },
 
-    changeUnit (type) {
-        function update (dump, force) {
+    changeUnit(type) {
+        function update(dump, force) {
             if (force !== true && dump === this.dump) {
                 return;
             }
             const value = dump.value;
             switch (type) {
-            case 'editorTop':
-                value.isAbsoluteTop.value = !value.isAbsoluteTop.value;
-                return { path: 'isAbsoluteTop', dump: value.isAbsoluteTop };
-            case 'editorBottom':
-                value.isAbsoluteBottom.value = !value.isAbsoluteBottom.value;
-                return { path: 'isAbsoluteBottom', dump: value.isAbsoluteBottom };
-            case 'editorLeft':
-                value.isAbsoluteLeft.value = !value.isAbsoluteLeft.value;
-                return { path: 'isAbsoluteLeft', dump: value.isAbsoluteLeft };
-            case 'editorRight':
-                value.isAbsoluteRight.value = !value.isAbsoluteRight.value;
-                return { path: 'isAbsoluteRight', dump: value.isAbsoluteRight };
-            case 'editorHorizontalCenter':
-                value.isAbsoluteHorizontalCenter.value = !value.isAbsoluteHorizontalCenter.value;
-                return { path: 'isAbsoluteHorizontalCenter', dump: value.isAbsoluteHorizontalCenter };
-            case 'editorVerticalCenter':
-                value.isAbsoluteVerticalCenter.value = !value.isAbsoluteVerticalCenter.value;
-                return { path: 'isAbsoluteVerticalCenter', dump: value.isAbsoluteVerticalCenter };
-            default:
-                break;
+                case 'editorTop':
+                    value.isAbsoluteTop.value = !value.isAbsoluteTop.value;
+                    return { path: 'isAbsoluteTop', dump: value.isAbsoluteTop };
+                case 'editorBottom':
+                    value.isAbsoluteBottom.value = !value.isAbsoluteBottom.value;
+                    return { path: 'isAbsoluteBottom', dump: value.isAbsoluteBottom };
+                case 'editorLeft':
+                    value.isAbsoluteLeft.value = !value.isAbsoluteLeft.value;
+                    return { path: 'isAbsoluteLeft', dump: value.isAbsoluteLeft };
+                case 'editorRight':
+                    value.isAbsoluteRight.value = !value.isAbsoluteRight.value;
+                    return { path: 'isAbsoluteRight', dump: value.isAbsoluteRight };
+                case 'editorHorizontalCenter':
+                    value.isAbsoluteHorizontalCenter.value = !value.isAbsoluteHorizontalCenter.value;
+                    return { path: 'isAbsoluteHorizontalCenter', dump: value.isAbsoluteHorizontalCenter };
+                case 'editorVerticalCenter':
+                    value.isAbsoluteVerticalCenter.value = !value.isAbsoluteVerticalCenter.value;
+                    return { path: 'isAbsoluteVerticalCenter', dump: value.isAbsoluteVerticalCenter };
+                default:
+                    break;
             }
         }
         const { dump } = update(this.dump, true);
@@ -613,7 +613,7 @@ exports.methods = {
         this.$refs.summitProp.dispatch('change-dump');
     },
 
-    select (event) {
+    select(event) {
         // Handling through delegated events
         const button = event.path.find((element) => element && element.classList && element.classList.contains('button'));
 
@@ -627,138 +627,138 @@ exports.methods = {
         let vertical;
 
         switch (dimension) {
-        case 'horizontal':
-            horizontal = {
-                isAlignLeft: {
-                    value: false,
-                },
-                isAlignRight: {
-                    value: false,
-                },
-                isAlignHorizontalCenter: {
-                    value: false,
-                },
-            };
-            break;
-        case 'left':
-            horizontal = {
-                isAlignLeft: {
-                    value: true,
-                },
-                isAlignRight: {
-                    value: false,
-                },
-                isAlignHorizontalCenter: {
-                    value: false,
-                },
-            };
-            break;
-        case 'center':
-            horizontal = {
-                isAlignLeft: {
-                    value: false,
-                },
-                isAlignRight: {
-                    value: false,
-                },
-                isAlignHorizontalCenter: {
-                    value: true,
-                },
-            };
-            break;
-        case 'right':
-            horizontal = {
-                isAlignLeft: {
-                    value: false,
-                },
-                isAlignRight: {
-                    value: true,
-                },
-                isAlignHorizontalCenter: {
-                    value: false,
-                },
-            };
-            break;
-        case 'h-stretch':
-            horizontal = {
-                isAlignLeft: {
-                    value: true,
-                },
-                isAlignRight: {
-                    value: true,
-                },
-                isAlignHorizontalCenter: {
-                    value: false,
-                },
-            };
-            break;
-        case 'vertical':
-            vertical = {
-                isAlignTop: {
-                    value: false,
-                },
-                isAlignVerticalCenter: {
-                    value: false,
-                },
-                isAlignBottom: {
-                    value: false,
-                },
-            };
-            break;
-        case 'top':
-            vertical = {
-                isAlignTop: {
-                    value: true,
-                },
-                isAlignVerticalCenter: {
-                    value: false,
-                },
-                isAlignBottom: {
-                    value: false,
-                },
-            };
-            break;
-        case 'middle':
-            vertical = {
-                isAlignTop: {
-                    value: false,
-                },
-                isAlignVerticalCenter: {
-                    value: true,
-                },
-                isAlignBottom: {
-                    value: false,
-                },
-            };
-            break;
-        case 'bottom':
-            vertical = {
-                isAlignTop: {
-                    value: false,
-                },
-                isAlignVerticalCenter: {
-                    value: false,
-                },
-                isAlignBottom: {
-                    value: true,
-                },
-            };
-            break;
-        case 'v-stretch':
-            vertical = {
-                isAlignTop: {
-                    value: true,
-                },
-                isAlignVerticalCenter: {
-                    value: false,
-                },
-                isAlignBottom: {
-                    value: true,
-                },
-            };
-            break;
-        default:
-            break;
+            case 'horizontal':
+                horizontal = {
+                    isAlignLeft: {
+                        value: false,
+                    },
+                    isAlignRight: {
+                        value: false,
+                    },
+                    isAlignHorizontalCenter: {
+                        value: false,
+                    },
+                };
+                break;
+            case 'left':
+                horizontal = {
+                    isAlignLeft: {
+                        value: true,
+                    },
+                    isAlignRight: {
+                        value: false,
+                    },
+                    isAlignHorizontalCenter: {
+                        value: false,
+                    },
+                };
+                break;
+            case 'center':
+                horizontal = {
+                    isAlignLeft: {
+                        value: false,
+                    },
+                    isAlignRight: {
+                        value: false,
+                    },
+                    isAlignHorizontalCenter: {
+                        value: true,
+                    },
+                };
+                break;
+            case 'right':
+                horizontal = {
+                    isAlignLeft: {
+                        value: false,
+                    },
+                    isAlignRight: {
+                        value: true,
+                    },
+                    isAlignHorizontalCenter: {
+                        value: false,
+                    },
+                };
+                break;
+            case 'h-stretch':
+                horizontal = {
+                    isAlignLeft: {
+                        value: true,
+                    },
+                    isAlignRight: {
+                        value: true,
+                    },
+                    isAlignHorizontalCenter: {
+                        value: false,
+                    },
+                };
+                break;
+            case 'vertical':
+                vertical = {
+                    isAlignTop: {
+                        value: false,
+                    },
+                    isAlignVerticalCenter: {
+                        value: false,
+                    },
+                    isAlignBottom: {
+                        value: false,
+                    },
+                };
+                break;
+            case 'top':
+                vertical = {
+                    isAlignTop: {
+                        value: true,
+                    },
+                    isAlignVerticalCenter: {
+                        value: false,
+                    },
+                    isAlignBottom: {
+                        value: false,
+                    },
+                };
+                break;
+            case 'middle':
+                vertical = {
+                    isAlignTop: {
+                        value: false,
+                    },
+                    isAlignVerticalCenter: {
+                        value: true,
+                    },
+                    isAlignBottom: {
+                        value: false,
+                    },
+                };
+                break;
+            case 'bottom':
+                vertical = {
+                    isAlignTop: {
+                        value: false,
+                    },
+                    isAlignVerticalCenter: {
+                        value: false,
+                    },
+                    isAlignBottom: {
+                        value: true,
+                    },
+                };
+                break;
+            case 'v-stretch':
+                vertical = {
+                    isAlignTop: {
+                        value: true,
+                    },
+                    isAlignVerticalCenter: {
+                        value: false,
+                    },
+                    isAlignBottom: {
+                        value: true,
+                    },
+                };
+                break;
+            default:
+                break;
         }
 
         Editor.Message.send('scene', 'snapshot');
@@ -802,7 +802,7 @@ exports.methods = {
         }
     },
 
-    toggleLock (direction) {
+    toggleLock(direction) {
         const isLock = this.isLock(direction);
         let directions = [direction];
         let lockValue = this.dump.value._lockFlags.value;
@@ -832,7 +832,7 @@ exports.methods = {
         this.$refs.summitProp.dump = this.dump.value._lockFlags;
         this.$refs.summitProp.dispatch('change-dump');
     },
-    isLock (direction) {
+    isLock(direction) {
         const lockValue = this.dump.value._lockFlags.value;
         const lockDirection = LockFlags[direction];
         return lockValue & lockDirection;
@@ -840,10 +840,10 @@ exports.methods = {
 };
 const uiElements = {
     baseProps: {
-        ready () {
+        ready() {
             this.$baseProps = this.$el && this.$el.querySelectorAll('ui-prop:not(.customProp)');
         },
-        update () {
+        update() {
             if (!this.$baseProps) {
                 uiElements.baseProps.ready.call(this);
             }
@@ -862,7 +862,7 @@ const uiElements = {
         },
     },
     customProps: {
-        update () {
+        update() {
             if (!this.$customProps) {
                 this.$customProps = this.$el.querySelector('#customProps');
             }
@@ -1081,7 +1081,7 @@ const components = {
     },
 };
 
-exports.ready = function () {
+exports.ready = function() {
     this.resizeObserver = new window.ResizeObserver(() => {
         const rect = this.$this.getBoundingClientRect();
         if (rect.width > 300) {
@@ -1100,7 +1100,7 @@ exports.ready = function () {
         }
     }
 };
-exports.update = function (dump) {
+exports.update = function(dump) {
     this.dump = dump;
     this.dimensionHorizontal = this.getDimensionHorizontal();
     this.dimensionVertical = this.getDimensionVertical();
@@ -1121,6 +1121,6 @@ exports.update = function (dump) {
     }
     this.vm.update();
 };
-exports.close = function () {
+exports.close = function() {
     this.resizeObserver.unobserve(this.$this);
 };

@@ -21,9 +21,10 @@ type InnerAudioContextPolyfillConfig = {
  * This method is to create a polyfill on minigame platform when the innerAudioContext callback doesn't work.
  * @param minigameEnv Specify the minigame enviroment such as `wx`, `swan` etc.
  * @param polyfillConfig Specify the field, if it's true, the polyfill callback will be applied.
+ * @param isAsynchronous Specify whether the callback is called asynchronous.
  * @returns A polyfilled createInnerAudioContext method.
  */
-export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfig: InnerAudioContextPolyfillConfig) {
+export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfig: InnerAudioContextPolyfillConfig, isAsynchronous = false) {
     return () => {
         const audioContext: InnerAudioContext = minigameEnv.createInnerAudioContext();
 
@@ -32,14 +33,22 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
             const originalPlay = audioContext.play;
             let _onPlayCB: (()=> void) | null = null;
             Object.defineProperty(audioContext, 'onPlay', {
+                configurable: true,
                 value (cb: ()=> void) {
                     _onPlayCB = cb;
                 },
             });
             Object.defineProperty(audioContext, 'play', {
+                configurable: true,
                 value () {
                     originalPlay.call(audioContext);
-                    _onPlayCB?.();
+                    if (_onPlayCB) {
+                        if (isAsynchronous) {
+                            setTimeout(_onPlayCB, 0);
+                        } else {
+                            _onPlayCB();
+                        }
+                    }
                 },
             });
         }
@@ -49,14 +58,22 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
             const originalPause = audioContext.pause;
             let _onPauseCB: (()=> void) | null = null;
             Object.defineProperty(audioContext, 'onPause', {
+                configurable: true,
                 value (cb: ()=> void) {
                     _onPauseCB = cb;
                 },
             });
             Object.defineProperty(audioContext, 'pause', {
+                configurable: true,
                 value () {
                     originalPause.call(audioContext);
-                    _onPauseCB?.();
+                    if (_onPauseCB) {
+                        if (isAsynchronous) {
+                            setTimeout(_onPauseCB, 0);
+                        } else {
+                            _onPauseCB();
+                        }
+                    }
                 },
             });
         }
@@ -66,14 +83,22 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
             const originalStop = audioContext.stop;
             let _onStopCB: (()=> void) | null = null;
             Object.defineProperty(audioContext, 'onStop', {
+                configurable: true,
                 value (cb: ()=> void) {
                     _onStopCB = cb;
                 },
             });
             Object.defineProperty(audioContext, 'stop', {
+                configurable: true,
                 value () {
                     originalStop.call(audioContext);
-                    _onStopCB?.();
+                    if (_onStopCB) {
+                        if (isAsynchronous) {
+                            setTimeout(_onStopCB, 0);
+                        } else {
+                            _onStopCB();
+                        }
+                    }
                 },
             });
         }
@@ -83,14 +108,22 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
             const originalSeek = audioContext.seek;
             let _onSeekCB: (()=> void) | null = null;
             Object.defineProperty(audioContext, 'onSeeked', {
+                configurable: true,
                 value (cb: ()=> void) {
                     _onSeekCB = cb;
                 },
             });
             Object.defineProperty(audioContext, 'seek', {
+                configurable: true,
                 value (time: number) {
                     originalSeek.call(audioContext, time);
-                    _onSeekCB?.();
+                    if (_onSeekCB) {
+                        if (isAsynchronous) {
+                            setTimeout(_onSeekCB, 0);
+                        } else {
+                            _onSeekCB();
+                        }
+                    }
                 },
             });
         }
