@@ -42,7 +42,7 @@ import { ImageAsset } from '../core/assets/image-asset';
 import { Rect, Size } from '../core/math';
 
 import { legacyCC } from '../core/global-exports';
-import { CCObject } from '../core';
+import { CCObject, SystemEventType } from '../core';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -123,6 +123,7 @@ export class SubContextView extends Component {
             this._initSharedCanvas();
             this._initContentNode();
             this._updateSubContextView();
+            this._updateContentLayer();
         } else {
             this.enabled = false;
         }
@@ -228,11 +229,17 @@ export class SubContextView extends Component {
     private _registerNodeEvent () {
         this.node.on(Node.EventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
         this.node.on(Node.EventType.SIZE_CHANGED, this._updateSubContextView, this);
+        this.node.on(SystemEventType.LAYER_CHANGED, this._updateContentLayer, this);
     }
 
     private _unregisterNodeEvent () {
         this.node.off(Node.EventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
         this.node.off(Node.EventType.SIZE_CHANGED, this._updateSubContextView, this);
+        this.node.off(SystemEventType.LAYER_CHANGED, this._updateContentLayer, this);
+    }
+
+    private _updateContentLayer () {
+        this._content.layer = this.node.layer;
     }
 
     public update (dt?: number) {

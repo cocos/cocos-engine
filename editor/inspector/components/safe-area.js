@@ -4,7 +4,7 @@ exports.template = template;
 exports.$ = $;
 exports.update = update;
 
-exports.ready = function () {
+exports.ready = function() {
     const tooltip = document.createElement('ui-tooltip');
     tooltip.setAttribute('arrow', 'top left+10px');
     this.$.componentContainer.before(tooltip);
