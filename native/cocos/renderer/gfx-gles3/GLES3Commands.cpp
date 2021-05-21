@@ -1666,18 +1666,6 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
                  "Partially offscreen FBO is not supported");
 
         outFBO->isOffscreen = offscreenCount;
-        GLenum attachments[MAX_ATTACHMENTS] = {0};
-        uint   attachmentCount              = 0;
-
-        size_t colorMipmapLevelCount = gpuFBO->colorMipmapLevels.size();
-        for (size_t i = 0; i < gpuFBO->gpuColorTextures.size(); ++i) {
-            GLES3GPUTexture *gpuColorTexture = gpuFBO->gpuColorTextures[i];
-            if (gpuColorTexture) {
-                GLint mipmapLevel = 0;
-                if (i < colorMipmapLevelCount) {
-                    mipmapLevel = gpuFBO->colorMipmapLevels[i];
-                }
-                GL_CHECK(glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, (GLenum)(GL_COLOR_ATTACHMENT0 + i), gpuColorTexture->glTarget, gpuColorTexture->glTexture, mipmapLevel));
 
         if (outFBO->isOffscreen) {
             GL_CHECK(glGenFramebuffers(1, &outFBO->glFramebuffer));
