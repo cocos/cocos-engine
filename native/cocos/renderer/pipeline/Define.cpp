@@ -545,6 +545,11 @@ uint nextPow2(uint val) {
     return val;
 }
 
+bool supportsHalfFloatTexture(gfx::Device *device) {
+    return device->hasFeature(gfx::Feature::COLOR_HALF_FLOAT) &&
+           device->hasFeature(gfx::Feature::TEXTURE_HALF_FLOAT);
+}
+
 uint getPhaseID(const String &phase) {
     se::Object *globalObj = se::ScriptEngine::getInstance()->getGlobalObject();
 

@@ -31,7 +31,7 @@
 #include "cocos/bindings/manual/jsb_module_register.h"
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    #include "platform/device.h"
+    #include "platform/Device.h"
 #endif
 
 Game::Game(int width, int height) : cc::Application(width, height) {}
