@@ -35,7 +35,9 @@
 #define GL_GLES_PROTOTYPES 0
 #include <GLES3/gl32.h>
 
-#include <GLES2/gl2ext.h>
+#ifndef __OHOS__
+    #include <GLES2/gl2ext.h>
+#endif
 #include <GLES3/gl3platform.h>
 #include <KHR/khrplatform.h>
 

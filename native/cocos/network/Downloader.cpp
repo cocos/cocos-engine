@@ -25,23 +25,25 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <memory>
+
 #include "network/Downloader.h"
 
 // include platform specific implement class
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS)
 
     #include "network/DownloaderImpl-apple.h"
-    #define DownloaderImpl DownloaderApple
+    #define DownloaderImpl DownloaderApple //NOLINT(readability-identifier-naming)
 
-#elif (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#elif (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 
-    #include "network/Downloader-android.h"
-    #define DownloaderImpl DownloaderAndroid
+    #include "network/Downloader-java.h"
+    #define DownloaderImpl DownloaderJava //NOLINT(readability-identifier-naming)
 
 #else
 
     #include "network/Downloader-curl.h"
-    #define DownloaderImpl DownloaderCURL
+    #define DownloaderImpl DownloaderCURL //NOLINT(readability-identifier-naming)
 
 #endif
 
@@ -69,21 +71,21 @@ Downloader::Downloader() {
 
 Downloader::Downloader(const DownloaderHints &hints) {
     DLLOG("Construct Downloader %p", this);
-    _impl.reset(new DownloaderImpl(hints));
+    _impl                 = std::make_unique<DownloaderImpl>(hints);
     _impl->onTaskProgress = [this](const DownloadTask &task,
-                                   int64_t bytesReceived,
-                                   int64_t totalBytesReceived,
-                                   int64_t totalBytesExpected,
+                                   int64_t             bytesReceived,
+                                   int64_t             totalBytesReceived,
+                                   int64_t             totalBytesExpected,
                                    std::function<int64_t(void *buffer, int64_t len)> & /*transferDataToBuffer*/) {
         if (onTaskProgress) {
             onTaskProgress(task, bytesReceived, totalBytesReceived, totalBytesExpected);
         }
     };
 
-    _impl->onTaskFinish = [this](const DownloadTask &task,
-                                 int errorCode,
-                                 int errorCodeInternal,
-                                 const std::string &errorStr,
+    _impl->onTaskFinish = [this](const DownloadTask &              task,
+                                 int                               errorCode,
+                                 int                               errorCodeInternal,
+                                 const std::string &               errorStr,
                                  const std::vector<unsigned char> &data) {
         if (DownloadTask::ERROR_NO_ERROR != errorCode) {
             if (onTaskError) {
@@ -111,11 +113,11 @@ Downloader::~Downloader() {
 }
 
 std::shared_ptr<const DownloadTask> Downloader::createDownloadDataTask(const std::string &srcUrl, const std::string &identifier /* = ""*/) {
-    DownloadTask *task_ = new (std::nothrow) DownloadTask();
-    std::shared_ptr<const DownloadTask> task(task_);
+    auto *                              iTask = new (std::nothrow) DownloadTask();
+    std::shared_ptr<const DownloadTask> task(iTask);
     do {
-        task_->requestURL = srcUrl;
-        task_->identifier = identifier;
+        iTask->requestURL = srcUrl;
+        iTask->identifier = identifier;
         if (0 == srcUrl.length()) {
             if (onTaskError) {
                 onTaskError(*task, DownloadTask::ERROR_INVALID_PARAMS, 0, "URL or is empty.");
@@ -123,23 +125,23 @@ std::shared_ptr<const DownloadTask> Downloader::createDownloadDataTask(const std
             task.reset();
             break;
         }
-        task_->_coTask.reset(_impl->createCoTask(task));
-    } while (0);
+        iTask->_coTask.reset(_impl->createCoTask(task));
+    } while (false);
 
     return task;
 }
 
-std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const std::string &srcUrl,
-                                                                       const std::string &storagePath,
+std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const std::string &                       srcUrl,
+                                                                       const std::string &                       storagePath,
                                                                        const std::map<std::string, std::string> &header,
-                                                                       const std::string &identifier /* = ""*/) {
-    DownloadTask *task_ = new (std::nothrow) DownloadTask();
-    std::shared_ptr<const DownloadTask> task(task_);
+                                                                       const std::string &                       identifier /* = ""*/) {
+    auto *                              iTask = new (std::nothrow) DownloadTask();
+    std::shared_ptr<const DownloadTask> task(iTask);
     do {
-        task_->requestURL = srcUrl;
-        task_->storagePath = storagePath;
-        task_->identifier = identifier;
-        task_->header = header;
+        iTask->requestURL  = srcUrl;
+        iTask->storagePath = storagePath;
+        iTask->identifier  = identifier;
+        iTask->header      = header;
         if (0 == srcUrl.length() || 0 == storagePath.length()) {
             if (onTaskError) {
                 onTaskError(*task, DownloadTask::ERROR_INVALID_PARAMS, 0, "URL or storage path is empty.");
@@ -147,8 +149,8 @@ std::shared_ptr<const DownloadTask> Downloader::createDownloadFileTask(const std
             task.reset();
             break;
         }
-        task_->_coTask.reset(_impl->createCoTask(task));
-    } while (0);
+        iTask->_coTask.reset(_impl->createCoTask(task));
+    } while (false);
 
     return task;
 }

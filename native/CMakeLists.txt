@@ -4,6 +4,7 @@ set(CC_PLATFORM_MAC_IOS 1)
 set(CC_PLATFORM_WINDOWS 2)
 set(CC_PLATFORM_ANDROID 3)
 set(CC_PLATFORM_MAC_OSX 4)
+set(CC_PLATFORM_OHOS    5)
 set(CC_PLATFORM 1)
 
 if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
@@ -24,17 +25,23 @@ elseif(${CMAKE_SYSTEM_NAME} MATCHES "iOS")
     set(IOS TRUE)
     set(PLATFORM_FOLDER ios)
     set(CC_PLATFORM ${CC_PLATFORM_MAC_IOS})
+elseif(OHOS)
+    set(OHOS TRUE)
+    set(CC_PLATFORM ${CC_PLATFORM_OHOS})
+    add_definitions(-D__OHOS__=1)
+    set(PLATFORM_FOLDER ohos)
 else()
-    message(FATAL_ERROR "Unsupported platform, CMake will exit")
+    message(FATAL_ERROR "Unsupported platform '${CMAKE_SYSTEM_NAME}', CMake will exit!")
     return()
 endif()
 
 # platform macros
 
-add_definitions(-DCC_PLATFORM_WINDOWS=${CC_PLATFORM_WINDOWS} )
-add_definitions(-DCC_PLATFORM_MAC_OSX=${CC_PLATFORM_MAC_OSX} )
-add_definitions(-DCC_PLATFORM_MAC_IOS=${CC_PLATFORM_MAC_IOS} )
-add_definitions(-DCC_PLATFORM_ANDROID=${CC_PLATFORM_ANDROID} )
+add_definitions(-DCC_PLATFORM_WINDOWS=${CC_PLATFORM_WINDOWS})
+add_definitions(-DCC_PLATFORM_MAC_OSX=${CC_PLATFORM_MAC_OSX})
+add_definitions(-DCC_PLATFORM_MAC_IOS=${CC_PLATFORM_MAC_IOS})
+add_definitions(-DCC_PLATFORM_ANDROID=${CC_PLATFORM_ANDROID})
+add_definitions(-DCC_PLATFORM_OHOS=${CC_PLATFORM_OHOS})
 add_definitions(-DCC_PLATFORM=${CC_PLATFORM})
 
 # generators that are capable of organizing into a hierarchy of folders
@@ -156,6 +163,11 @@ elseif(MACOSX OR IOS)
     set_if_undefined(CC_USE_VULKAN OFF)
     set_if_undefined(CC_USE_GLES3 OFF)
     set_if_undefined(CC_USE_GLES2 OFF)
+elseif(OHOS)
+    set_if_undefined(CC_USE_METAL OFF)
+    set_if_undefined(CC_USE_VULKAN OFF)
+    set_if_undefined(CC_USE_GLES3 ON)
+    set_if_undefined(CC_USE_GLES2 OFF)
 endif()
 
 if(USE_PHYSICS_PHYSX)
@@ -177,8 +189,12 @@ if(NOT USE_SOCKET)
     set(USE_WEBSOCKET_SERVER OFF)
 endif()
 
+if(OHOS)
+    set(CC_USE_GLES2 OFF)
+endif()
+
 ## disable videoplay on non-mobile platforms
-if(NOT ANDROID AND NOT IOS)
+if(NOT ANDROID AND NOT IOS AND NOT OHOS)
     set(USE_VIDEO OFF)
     set(USE_WEBVIEW OFF)
 endif()
@@ -226,7 +242,7 @@ inspect_values(
 
 
 if(NOT EXISTS ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
-    message(FATAL_ERROR "Please download external libraries!")
+    message(FATAL_ERROR "Please download external libraries! File ${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt not exists!")
 endif()
 
 include(${CMAKE_CURRENT_LIST_DIR}/external/CMakeLists.txt)
@@ -240,21 +256,21 @@ if(USE_AUDIO)
     )
     if(WINDOWS)
         cocos_source_files(
-                         cocos/audio/win32/AudioCache.cpp
-                         cocos/audio/win32/AudioCache.h
-                         cocos/audio/win32/AudioDecoder.cpp
-                         cocos/audio/win32/AudioDecoder.h
-                         cocos/audio/win32/AudioDecoderManager.cpp
-                         cocos/audio/win32/AudioDecoderManager.h
-                         cocos/audio/win32/AudioDecoderMp3.cpp
-                         cocos/audio/win32/AudioDecoderMp3.h
-                         cocos/audio/win32/AudioDecoderOgg.cpp
-                         cocos/audio/win32/AudioDecoderOgg.h
-                         cocos/audio/win32/AudioEngine-win32.cpp
-                         cocos/audio/win32/AudioEngine-win32.h
-                         cocos/audio/win32/AudioMacros.h
-                         cocos/audio/win32/AudioPlayer.cpp
-                         cocos/audio/win32/AudioPlayer.h
+            cocos/audio/oalsoft/AudioCache.cpp
+            cocos/audio/oalsoft/AudioCache.h
+            cocos/audio/oalsoft/AudioDecoder.cpp
+            cocos/audio/oalsoft/AudioDecoder.h
+            cocos/audio/oalsoft/AudioDecoderManager.cpp
+            cocos/audio/oalsoft/AudioDecoderManager.h
+            cocos/audio/oalsoft/AudioDecoderMp3.cpp
+            cocos/audio/oalsoft/AudioDecoderMp3.h
+            cocos/audio/oalsoft/AudioDecoderOgg.cpp
+            cocos/audio/oalsoft/AudioDecoderOgg.h
+            cocos/audio/oalsoft/AudioEngine-soft.cpp
+            cocos/audio/oalsoft/AudioEngine-soft.h
+            cocos/audio/oalsoft/AudioMacros.h
+            cocos/audio/oalsoft/AudioPlayer.cpp
+            cocos/audio/oalsoft/AudioPlayer.h
         )
     elseif(ANDROID)
         cocos_source_files(
@@ -321,6 +337,35 @@ if(USE_AUDIO)
                          cocos/audio/android/utils/Errors.h
                          cocos/audio/android/utils/Utils.cpp
                          cocos/audio/android/utils/Utils.h
+        )
+     elseif(OHOS)
+        cocos_source_files(
+            cocos/audio/oalsoft/AudioCache.cpp
+            cocos/audio/oalsoft/AudioCache.h
+            cocos/audio/oalsoft/AudioDecoderManager.cpp
+            cocos/audio/oalsoft/AudioDecoderManager.h
+            cocos/audio/oalsoft/AudioDecoder.cpp
+            cocos/audio/oalsoft/AudioDecoder.h
+            cocos/audio/oalsoft/AudioDecoderMp3.cpp
+            cocos/audio/oalsoft/AudioDecoderMp3.h
+            cocos/audio/oalsoft/AudioDecoderOgg.cpp
+            cocos/audio/oalsoft/AudioDecoderOgg.h
+            cocos/audio/oalsoft/AudioEngine-soft.cpp
+            cocos/audio/oalsoft/AudioEngine-soft.h
+            cocos/audio/oalsoft/AudioMacros.h
+            cocos/audio/oalsoft/AudioPlayer.cpp
+            cocos/audio/oalsoft/AudioPlayer.h
+
+            cocos/audio/ohos/AudioDecoderWav.h
+            cocos/audio/ohos/AudioDecoderWav.cpp
+            # cocos/audio/ohos/AudioDecoderMp3.h
+            # cocos/audio/ohos/AudioDecoderMp3.cpp
+            cocos/audio/ohos/FsCallback.h
+            cocos/audio/ohos/FsCallback.cpp
+
+            cocos/audio/android/tinysndfile.cpp
+            cocos/audio/android/tinysndfile.h
+            cocos/audio/android/audio_utils/primitives.c
         )
     elseif(APPLE)
         cocos_source_files(
@@ -523,11 +568,11 @@ if(APPLE)
     endif()
 endif()
 
-if(ANDROID)
+if(ANDROID OR OHOS)
     cocos_source_files(
-                     cocos/network/Downloader-android.cpp
-                     cocos/network/Downloader-android.h
-                     cocos/network/HttpClient-android.cpp
+        cocos/network/Downloader-java.cpp
+        cocos/network/Downloader-java.h
+        cocos/network/HttpClient-java.cpp
     )
 endif()
 
@@ -583,26 +628,47 @@ if(WINDOWS)
     )
 elseif(ANDROID)
     cocos_source_files(
-                     cocos/platform/android/Application-android.cpp
-                     cocos/platform/android/CanvasRenderingContext2D-android.cpp
-                     cocos/platform/android/Device-android.cpp
-                     cocos/platform/android/FileUtils-android.cpp
-                     cocos/platform/android/FileUtils-android.h
-                     cocos/platform/android/View.cpp
-                     cocos/platform/android/View.h
+        cocos/platform/android/Application-android.cpp
+        cocos/platform/java/CanvasRenderingContext2D-java.cpp
+        cocos/platform/android/Device-android.cpp
+        cocos/platform/android/FileUtils-android.cpp
+        cocos/platform/android/FileUtils-android.h
+        cocos/platform/android/View.cpp
+        cocos/platform/android/View.h
     )
     set(CC_JNI_SRC_FILES
         ${CWD}/cocos/platform/android/jni/JniCocosActivity.cpp
         ${CWD}/cocos/platform/android/jni/JniCocosActivity.h
-        ${CWD}/cocos/platform/android/jni/JniCocosTouchHandler.cpp
-        ${CWD}/cocos/platform/android/jni/JniCocosKeyCodeHandler.cpp
+        ${CWD}/cocos/platform/java/jni/JniCocosTouchHandler.cpp
+        ${CWD}/cocos/platform/java/jni/JniCocosKeyCodeHandler.cpp
         ${CWD}/cocos/platform/android/jni/JniCocosSurfaceView.cpp
-        ${CWD}/cocos/platform/android/jni/JniCocosOrientationHelper.cpp
-        ${CWD}/cocos/platform/android/jni/JniHelper.cpp
-        ${CWD}/cocos/platform/android/jni/JniHelper.h
-        ${CWD}/cocos/platform/android/jni/JniImp.cpp
-        ${CWD}/cocos/platform/android/jni/JniImp.h
+        ${CWD}/cocos/platform/java/jni/JniCocosOrientationHelper.cpp
+        ${CWD}/cocos/platform/java/jni/JniHelper.cpp
+        ${CWD}/cocos/platform/java/jni/JniHelper.h
+        ${CWD}/cocos/platform/java/jni/JniImp.cpp
+        ${CWD}/cocos/platform/java/jni/JniImp.h
     )
+elseif(OHOS)
+    cocos_source_files(
+        cocos/platform/ohos/Application-ohos.cpp
+        cocos/platform/java/CanvasRenderingContext2D-java.cpp
+        cocos/platform/ohos/Device-ohos.cpp
+        cocos/platform/ohos/FileUtils-ohos.cpp
+        cocos/platform/ohos/FileUtils-ohos.h
+        cocos/platform/ohos/View.cpp
+        cocos/platform/ohos/View.h
+    )
+    set(CC_JNI_SRC_FILES
+        ${CWD}/cocos/platform/ohos/jni/JniCocosAbility.cpp
+        ${CWD}/cocos/platform/ohos/jni/JniCocosAbility.h
+        ${CWD}/cocos/platform/java/jni/JniHelper.cpp
+        ${CWD}/cocos/platform/java/jni/JniHelper.h
+        ${CWD}/cocos/platform/java/jni/JniImp.cpp
+        ${CWD}/cocos/platform/java/jni/JniImp.h
+        ${CWD}/cocos/platform/java/jni/JniCocosTouchHandler.cpp
+        ${CWD}/cocos/platform/java/jni/JniCocosKeyCodeHandler.cpp
+        ${CWD}/cocos/platform/java/jni/JniCocosOrientationHelper.cpp
+        ${CWD}/cocos/platform/ohos/jni/AbilityConsts.h)
 elseif(APPLE)
     cocos_source_files(
                      cocos/platform/apple/FileUtils-apple.h
@@ -835,12 +901,16 @@ cocos_source_files(
 )
 
 if(CC_USE_GLES2 OR CC_USE_GLES3)
-cocos_source_files(
-                 cocos/renderer/gfx-gles-common/GLESCommandPool.h
-                 cocos/renderer/gfx-gles-common/eglw.cpp
-                 cocos/renderer/gfx-gles-common/gles2w.cpp
-                 cocos/renderer/gfx-gles-common/gles3w.cpp
-)
+    cocos_source_files(
+        cocos/renderer/gfx-gles-common/GLESCommandPool.h
+        cocos/renderer/gfx-gles-common/eglw.cpp
+        cocos/renderer/gfx-gles-common/gles2w.cpp
+    )
+    if(CC_USE_GLES3)
+        cocos_source_files(
+            cocos/renderer/gfx-gles-common/gles3w.cpp
+        )
+    endif()
 endif()
 
 if(CC_USE_GLES2)
@@ -1532,6 +1602,12 @@ if(ANDROID)
                      cocos/bindings/manual/JavaScriptJavaBridge.cpp
                      cocos/bindings/manual/JavaScriptJavaBridge.h
     )
+elseif(OHOS)
+    cocos_source_files(
+        cocos/bindings/manual/jsb_platform_ohos.cpp
+        cocos/bindings/manual/JavaScriptJavaBridge.cpp
+        cocos/bindings/manual/JavaScriptJavaBridge.h
+    )
 elseif(APPLE)
     cocos_source_files(
         NO_WERROR    cocos/bindings/manual/jsb_platfrom_apple.mm
@@ -1565,7 +1641,7 @@ if(USE_SE_V8)
                      cocos/bindings/jswrapper/v8/debugger/base64.h
         NO_WERROR    cocos/bindings/jswrapper/v8/debugger/env.cpp
                      cocos/bindings/jswrapper/v8/debugger/env.h
-        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/http_parser.c
+        NO_WERROR    cocos/bindings/jswrapper/v8/debugger/http_parser.cpp
                      cocos/bindings/jswrapper/v8/debugger/http_parser.h
         NO_WERROR    cocos/bindings/jswrapper/v8/debugger/inspector_agent.cpp
                      cocos/bindings/jswrapper/v8/debugger/inspector_agent.h
@@ -1654,7 +1730,7 @@ if(USE_EDIT_BOX)
     )
 endif()
 
-if(ANDROID OR IOS)
+if(ANDROID OR IOS OR OHOS)
     if(USE_VIDEO)
         cocos_source_files(
                          cocos/ui/videoplayer/VideoPlayer.h
@@ -1662,7 +1738,7 @@ if(ANDROID OR IOS)
     endif()
     if(USE_WEBVIEW)
         cocos_source_files(
-                         cocos/ui/webview/WebViewImpl-android.h
+                         cocos/ui/webview/WebViewImpl-java.h
                          cocos/ui/webview/WebViewImpl-ios.h
                          cocos/ui/webview/WebView-inl.h
                          cocos/ui/webview/WebView.h
@@ -1678,7 +1754,7 @@ if(ANDROID)
     endif()
     if(USE_VIDEO)
         cocos_source_files(
-                         cocos/ui/videoplayer/VideoPlayer-android.cpp
+                         cocos/ui/videoplayer/VideoPlayer-java.cpp
         )
     endif()
     if(USE_WEBVIEW)
@@ -1686,10 +1762,26 @@ if(ANDROID)
                          cocos/ui/webview/WebViewImpl-android.cpp
         )
     endif()
+elseif(OHOS)
+    if(USE_EDIT_BOX)
+        cocos_source_files(
+            cocos/ui/edit-box/EditBox-ohos.cpp
+        )
+    endif()
+    if(USE_VIDEO)
+        cocos_source_files(
+            cocos/ui/videoplayer/VideoPlayer-java.cpp
+        )
+    endif()
+    if(USE_WEBVIEW)
+        cocos_source_files(
+            cocos/ui/webview/WebViewImpl-ohos.cpp
+        )
+    endif()
 elseif(MACOSX)
     if(USE_EDIT_BOX)
         cocos_source_files(
-                         cocos/ui/edit-box/EditBox-mac.mm
+            cocos/ui/edit-box/EditBox-mac.mm
         )
     endif()
 elseif(IOS)
@@ -1736,18 +1828,20 @@ list(APPEND COCOS2D_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
 
 add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 
-if(ANDROID)
+if(ANDROID OR OHOS)
     enable_werror("${CC_JNI_SRC_FILES}")
     add_library(cocos2d_jni STATIC ${CC_JNI_SRC_FILES})
     target_include_directories(cocos2d_jni PUBLIC
         ${CWD}
         ${CWD}/cocos
     )
-    target_link_libraries(cocos2d_jni PUBLIC
-        android_platform
-        android
-        log
-    )
+    if(ANDROID)
+        target_link_libraries(cocos2d_jni PUBLIC
+            android_platform
+            android
+            log
+        )
+    endif()
 endif()
 
 # setup default flags
@@ -1806,7 +1900,7 @@ target_include_directories(cocos2d
         ${CWD}/cocos
         ${CWD}/cocos/renderer
         ${CWD}/cocos/platform
-        ${CWD}/external/sources/khronos
+        ${CWD}/cocos/renderer/core
         ${CWD}/cocos/editor-support
         $<$<BOOL:USE_SE_JSC>:${CWD}/cocos/bindings/jswrapper>
     PRIVATE
@@ -1817,6 +1911,13 @@ target_compile_definitions(cocos2d
     PRIVATE
         ${CC_EXTERNAL_PRIVATE_DEFINITIONS}
 )
+if(NOT OHOS)
+    target_include_directories(cocos2d PUBLIC 
+        ${CWD}/external/sources/EGL
+        ${CWD}/external/sources/khronos
+    )
+endif()
+
 
 if(WIN32)
     target_link_libraries(cocos2d PUBLIC
@@ -1853,6 +1954,19 @@ if(ANDROID)
         ${LIB_EGL}
         ${LIB_GLESv2}
         GLESv2
+        ${CC_EXTERNAL_LIBS}
+    )
+endif()
+
+if(OHOS)
+    target_link_libraries(cocos2d PUBLIC
+        hilog_ndk.z
+        EGL
+        GLESv3
+        zgraphic.z
+        rawfile.z
+        z
+        OpenSLES
         ${CC_EXTERNAL_LIBS}
     )
 endif()

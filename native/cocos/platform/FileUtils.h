@@ -25,17 +25,16 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __CC_FILEUTILS_H__
-#define __CC_FILEUTILS_H__
+#pragma once
 
 #include <string>
-#include <vector>
-#include <unordered_map>
 #include <type_traits>
+#include <unordered_map>
+#include <vector>
 
+#include "base/Data.h"
 #include "base/Macros.h"
 #include "base/Value.h"
-#include "base/Data.h"
 
 namespace cc {
 
@@ -46,9 +45,9 @@ namespace cc {
 
 class ResizableBuffer {
 public:
-    virtual ~ResizableBuffer() {}
-    virtual void resize(size_t size) = 0;
-    virtual void *buffer() const = 0;
+    ~ResizableBuffer()                = default;
+    virtual void  resize(size_t size) = 0;
+    virtual void *buffer() const      = 0;
 };
 
 template <typename T>
@@ -56,62 +55,55 @@ class ResizableBufferAdapter {};
 
 template <typename CharT, typename Traits, typename Allocator>
 class ResizableBufferAdapter<std::basic_string<CharT, Traits, Allocator>> : public ResizableBuffer {
-    typedef std::basic_string<CharT, Traits, Allocator> BufferType;
+    using BufferType = std::basic_string<CharT, Traits, Allocator>;
     BufferType *_buffer;
 
 public:
     explicit ResizableBufferAdapter(BufferType *buffer) : _buffer(buffer) {}
-    virtual void resize(size_t size) override {
+    void resize(size_t size) override {
         _buffer->resize((size + sizeof(CharT) - 1) / sizeof(CharT));
     }
-    virtual void *buffer() const override {
+    void *buffer() const override {
         // can not invoke string::front() if it is empty
-
-        if (_buffer->empty())
-            return nullptr;
-        else
-            return &_buffer->front();
+        return _buffer->empty() ? nullptr : &_buffer->front();
     }
 };
 
 template <typename T, typename Allocator>
 class ResizableBufferAdapter<std::vector<T, Allocator>> : public ResizableBuffer {
-    typedef std::vector<T, Allocator> BufferType;
+    using BufferType = std::vector<T, Allocator>;
     BufferType *_buffer;
 
 public:
     explicit ResizableBufferAdapter(BufferType *buffer) : _buffer(buffer) {}
-    virtual void resize(size_t size) override {
+    void resize(size_t size) override {
         _buffer->resize((size + sizeof(T) - 1) / sizeof(T));
     }
-    virtual void *buffer() const override {
+    void *buffer() const override {
         // can not invoke vector::front() if it is empty
-
-        if (_buffer->empty())
-            return nullptr;
-        else
-            return &_buffer->front();
+        return _buffer->empty() ? nullptr : &_buffer->front();
     }
 };
 
 template <>
-class ResizableBufferAdapter<Data> : public ResizableBuffer {
-    typedef Data BufferType;
+class ResizableBufferAdapter<cc::Data> : public ResizableBuffer {
+    using BufferType = cc::Data;
     BufferType *_buffer;
 
 public:
     explicit ResizableBufferAdapter(BufferType *buffer) : _buffer(buffer) {}
-    virtual void resize(size_t size) override {
-        size_t oldSize = static_cast<size_t>(_buffer->getSize());
+    void resize(size_t size) override {
+        auto oldSize = static_cast<size_t>(_buffer->getSize());
         if (oldSize != size) {
             // need to take buffer ownership for outer memory control
-            auto old = _buffer->takeBuffer();
+            auto  old    = _buffer->takeBuffer();
             void *buffer = realloc(old, size);
-            if (buffer)
-                _buffer->fastSet((unsigned char *)buffer, size);
+            if (buffer) {
+                _buffer->fastSet(static_cast<unsigned char *>(buffer), size);
+            }
         }
     }
-    virtual void *buffer() const override {
+    void *buffer() const override {
         return _buffer->getBytes();
     }
 };
@@ -168,13 +160,13 @@ public:
     virtual Data getDataFromFile(const std::string &filename);
 
     enum class Status {
-        OK = 0,
-        NotExists = 1,       // File not exists
-        OpenFailed = 2,      // Open file failed.
-        ReadFailed = 3,      // Read failed
-        NotInitialized = 4,  // FileUtils is not initializes
-        TooLarge = 5,        // The file is too large (great than 2^32-1)
-        ObtainSizeFailed = 6 // Failed to obtain the file size.
+        OK               = 0,
+        NotExists        = 1, //NOLINT, File not exists
+        OpenFailed       = 2, //NOLINT, Open file failed.
+        ReadFailed       = 3, //NOLINT, Read failed
+        NotInitialized   = 4, //NOLINT, FileUtils is not initializes
+        TooLarge         = 5, //NOLINT, The file is too large (great than 2^32-1)
+        ObtainSizeFailed = 6  //NOLINT, Failed to obtain the file size.
     };
 
     /**
@@ -346,7 +338,7 @@ public:
       *
       * @since v2.1
       */
-    void addSearchPath(const std::string &path, const bool front = false);
+    void addSearchPath(const std::string &path, bool front = false);
 
     /**
      *  Gets the array of search paths.
@@ -550,7 +542,7 @@ public:
      *  @param filepath The path of the file, it could be a relative or absolute path.
      *  @return The file size.
      */
-    virtual long getFileSize(const std::string &filepath);
+    virtual long getFileSize(const std::string &filepath); //NOLINT(google-runtime-int)
 
     /** Returns the full path cache. */
     const std::unordered_map<std::string, std::string> &getFullPathCache() const { return _fullPathCache; }
@@ -643,18 +635,16 @@ protected:
     /**
      *  The singleton pointer of FileUtils.
      */
-    static FileUtils *s_sharedFileUtils;
+    static FileUtils *s_sharedFileUtils; //NOLINT(readability-identifier-naming)
 
     /**
      *  Remove null value key (for iOS)
      */
-    virtual void valueMapCompact(ValueMap &valueMap);
-    virtual void valueVectorCompact(ValueVector &valueVector);
+    virtual void valueMapCompact(ValueMap &valueMap);          //NOLINT(google-runtime-references)
+    virtual void valueVectorCompact(ValueVector &valueVector); //NOLINT(google-runtime-references)
 };
 
 // end of support group
 /** @} */
 
 } // namespace cc
-
-#endif // __CC_FILEUTILS_H__

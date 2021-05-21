@@ -63,7 +63,15 @@
     #define LOG_TAG      "jswrapper"
     #define SE_LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
     #define SE_LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
-
+#elif __OHOS__
+    #if 1
+        #include "cocos/base/Log.h"
+        #define SE_LOGD(...) CC_LOG_DEBUG(__VA_ARGS__)
+        #define SE_LOGE(...) CC_LOG_ERROR(__VA_ARGS__)
+    #else
+        #define SE_LOGD(...)
+        #define SE_LOGE(...)
+    #endif
 #elif defined(_WIN32) && defined(_WINDOWS)
 
     #ifndef QUOTEME_
@@ -98,7 +106,7 @@ void seLogE(const char *format, ...);
 
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 
-    #define __POSIX__
+    #define __POSIX__ //NOLINT
 
 #endif
 
@@ -109,7 +117,7 @@ void seLogE(const char *format, ...);
         #define __SSIZE_T
 typedef SSIZE_T ssize_t;
         #define _SSIZE_T_DEFINED // libuv also defines ssize_t, use the one defined here.
-    #endif                       // __SSIZE_T
+    #endif // __SSIZE_T
 
 #endif // #if defined(_WIN32) && defined(_WINDOWS)
 

@@ -33,10 +33,15 @@
 #endif
 
 #define GL_GLES_PROTOTYPES 0
-#include <GLES2/gl2.h>
+#ifndef __OHOS__
+    #include <GLES2/gl2.h>
 
-#include <GLES2/gl2ext.h>
-#include <GLES2/gl2platform.h>
+    #include <GLES2/gl2ext.h>
+    #include <GLES2/gl2platform.h>
+#else
+    #include <GLES3/gl32.h>
+    #include <GLES3/gl3platform.h>
+#endif
 #include <KHR/khrplatform.h>
 
 bool gles2wInit();

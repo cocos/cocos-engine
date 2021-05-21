@@ -29,8 +29,8 @@
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS
     #include "WebViewImpl-ios.h"
-#elif CC_PLATFORM == CC_PLATFORM_ANDROID
-    #include "WebViewImpl-android.h"
+#elif CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
+    #include "WebViewImpl-java.h"
 #else
 static_assert(false, "WebView only supported on iOS & Android");
 #endif
@@ -63,7 +63,7 @@ void WebView::setJavascriptInterfaceScheme(const std::string &scheme) {
     _impl->setJavascriptInterfaceScheme(scheme);
 }
 
-void WebView::loadData(const cc::Data &data,
+void WebView::loadData(const cc::Data &   data,
                        const std::string &MIMEType,
                        const std::string &encoding,
                        const std::string &baseURL) {
@@ -110,7 +110,7 @@ void WebView::evaluateJS(const std::string &js) {
     _impl->evaluateJS(js);
 }
 
-void WebView::setScalesPageToFit(bool const scalesPageToFit) {
+void WebView::setScalesPageToFit(bool scalesPageToFit) {
     _impl->setScalesPageToFit(scalesPageToFit);
 }
 
@@ -148,7 +148,7 @@ void WebView::setOnJSCallback(const ccWebViewCallback &callback) {
 }
 
 std::function<bool(WebView
-                       *sender,
+                       *              sender,
                    const std::string &url)>
 
 WebView::getOnShouldStartLoading() const {

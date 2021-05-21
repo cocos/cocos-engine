@@ -27,18 +27,18 @@
 
 #pragma once
 
-#include "base/Macros.h"
 #include <sstream>
 #include <string>
 #include <vector>
+#include "base/Macros.h"
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    #include "platform/android/jni/JniHelper.h"
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
+    #include "platform/java/jni/JniHelper.h"
 #endif
 
 namespace cc {
 
-namespace StringUtils {
+namespace StringUtils { //NOLINT
 
 template <typename T>
 std::string toString(T arg) {
@@ -69,49 +69,49 @@ std::string CC_DLL format(const char *format, ...) CC_FORMAT_PRINTF(1, 2);
  *    }
  *  @endcode
  */
-CC_DLL bool UTF8ToUTF16(const std::string &inUtf8, std::u16string &outUtf16);
+CC_DLL bool UTF8ToUTF16(const std::string &inUtf8, std::u16string &outUtf16); //NOLINT
 
 /**
  *  @brief Same as \a UTF8ToUTF16 but converts form UTF8 to UTF32.
  *
  *  @see UTF8ToUTF16
  */
-CC_DLL bool UTF8ToUTF32(const std::string &inUtf8, std::u32string &outUtf32);
+CC_DLL bool UTF8ToUTF32(const std::string &inUtf8, std::u32string &outUtf32); //NOLINT
 
 /**
  *  @brief Same as \a UTF8ToUTF16 but converts form UTF16 to UTF8.
  *
  *  @see UTF8ToUTF16
  */
-CC_DLL bool UTF16ToUTF8(const std::u16string &inUtf16, std::string &outUtf8);
+CC_DLL bool UTF16ToUTF8(const std::u16string &inUtf16, std::string &outUtf8); //NOLINT
 
 /**
  *  @brief Same as \a UTF8ToUTF16 but converts form UTF16 to UTF32.
  *
  *  @see UTF8ToUTF16
  */
-CC_DLL bool UTF16ToUTF32(const std::u16string &inUtf16, std::u32string &outUtf32);
+CC_DLL bool UTF16ToUTF32(const std::u16string &inUtf16, std::u32string &outUtf32); //NOLINT
 
 /**
  *  @brief Same as \a UTF8ToUTF16 but converts form UTF32 to UTF8.
  *
  *  @see UTF8ToUTF16
  */
-CC_DLL bool UTF32ToUTF8(const std::u32string &inUtf32, std::string &outUtf8);
+CC_DLL bool UTF32ToUTF8(const std::u32string &inUtf32, std::string &outUtf8); //NOLINT
 
 /**
  *  @brief Same as \a UTF8ToUTF16 but converts form UTF32 to UTF16.
  *
  *  @see UTF8ToUTF16
  */
-CC_DLL bool UTF32ToUTF16(const std::u32string &inUtf32, std::u16string &outUtf16);
+CC_DLL bool UTF32ToUTF16(const std::u32string &inUtf32, std::u16string &outUtf16); //NOLINT
 
 /**
  *  @brief Skip some bad char code.
  */
-CC_DLL void UTF8LooseFix(const std::string &in, std::string &out);
+CC_DLL void UTF8LooseFix(const std::string &in, std::string &out); //NOLINT
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 
 /**
 *  @brief convert jstring to utf8 std::string,  same function with env->getStringUTFChars. 
@@ -137,7 +137,7 @@ CC_DLL jstring newStringUTFJNI(JNIEnv *env, const std::string &utf8Str, bool *re
 /**
  *  @brief Trims the unicode spaces at the end of char16_t vector.
  */
-CC_DLL void trimUTF16Vector(std::vector<char16_t> &str);
+CC_DLL void trimUTF16Vector(std::vector<char16_t> &str); //NOLINT
 
 /**
  *  @brief Whether the character is a whitespace character.
@@ -165,7 +165,7 @@ CC_DLL bool isCJKUnicode(char16_t ch);
  *  @param utf8 An UTF-8 encoded string.
  *  @returns The length of the string in characters.
  */
-CC_DLL long getCharacterCountInUTF8String(const std::string &utf8);
+CC_DLL long getCharacterCountInUTF8String(const std::string &utf8); //NOLINT
 
 /**
  *  @brief Gets the index of the last character that is not equal to the character given.

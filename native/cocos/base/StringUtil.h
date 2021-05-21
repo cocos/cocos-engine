@@ -33,9 +33,9 @@ namespace cc {
 
 class CC_DLL StringUtil {
 public:
-    static int vprintf(char *buf, const char *last, const char *fmt, va_list args);
-    static int printf(char *buf, const char *last, const char *fmt, ...);
-    static String format(const char *fmt, ...);
+    static int         vprintf(char *buf, const char *last, const char *fmt, va_list args);
+    static int         printf(char *buf, const char *last, const char *fmt, ...);
+    static String      format(const char *fmt, ...);
     static StringArray split(const String &str, const String &delims, uint maxSplits = 0);
 };
 

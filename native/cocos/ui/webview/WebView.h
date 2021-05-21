@@ -28,10 +28,10 @@
 
 #include <functional>
 
+#include "base/Config.h"
+#include "base/Data.h"
 #include "base/Macros.h"
 #include "base/Ref.h"
-#include "base/Data.h"
-#include "base/Config.h"
 
 /**
  * @addtogroup ui
@@ -67,12 +67,12 @@ public:
          * Sets the main page contents, MIME type, content encoding, and base URL.
          *
          * @param data The content for the main page.
-         * @param MIMEType The MIME type of the data.
+         * @param mimeType The MIME type of the data.
          * @param encoding The encoding of the data.
          * @param baseURL The base URL for the content.
          */
-    void loadData(const cc::Data &data,
-                  const std::string &MIMEType,
+    void loadData(const cc::Data &   data,
+                  const std::string &mimeType,
                   const std::string &encoding,
                   const std::string &baseURL);
 
@@ -140,7 +140,7 @@ public:
     /**
          * Set WebView should support zooming. The default value is false.
          */
-    void setScalesPageToFit(const bool scalesPageToFit);
+    void setScalesPageToFit(bool scalesPageToFit);
 
     /**
          * Call before a web view begins loading.
@@ -154,7 +154,7 @@ public:
     /**
          * A callback which will be called when a WebView event happens.
          */
-    typedef std::function<void(WebView *sender, const std::string &url)> ccWebViewCallback;
+    using ccWebViewCallback = std::function<void(WebView *, const std::string &)>;
 
     /**
          * Call after a web view finishes loading.
@@ -233,7 +233,7 @@ protected:
     /**
          * Default destructor.
          */
-    virtual ~WebView();
+    ~WebView() override;
 
 private:
     WebViewImpl *_impl;

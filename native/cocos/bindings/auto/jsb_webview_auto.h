@@ -25,14 +25,14 @@
 
 #pragma once
 #include "base/Config.h"
-#if (USE_WEBVIEW > 0) && (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-#include <type_traits>
-#include "cocos/bindings/jswrapper/SeApi.h"
-#include "cocos/bindings/manual/jsb_conversions.h"
-#include "cocos/ui/webview/WebView.h"
+#if USE_WEBVIEW > 0
+    #include <type_traits>
+    #include "cocos/bindings/jswrapper/SeApi.h"
+    #include "cocos/bindings/manual/jsb_conversions.h"
+    #include "cocos/ui/webview/WebView.h"
 
 extern se::Object* __jsb_cc_WebView_proto;
-extern se::Class* __jsb_cc_WebView_class;
+extern se::Class*  __jsb_cc_WebView_class;
 
 bool js_register_cc_WebView(se::Object* obj);
 bool register_all_webview(se::Object* obj);
