@@ -518,6 +518,14 @@ export default Ammo;
 const isWasm = true;
 export { isWasm, wasmBinaryURL };
 `;
+    } else {
+        rpVirtualOptions['@cocos/ammo'] = `
+import Ammo from '${filePathToModuleRequest(ammoJsAsmJsModule)}';
+export default Ammo;
+const isWasm = false;
+const wasmBinaryURL = '';
+export { isWasm, wasmBinaryURL };
+`;
     }
 
     const rollupBuild = await rollup.rollup(rollupOptions);
