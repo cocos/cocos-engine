@@ -47,6 +47,7 @@ instancedBufferProto.get = function(pass) {
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
 nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader, renderPass, ia) {
+    //TODO(minggo): do not pass pass.handle
     return getOrCreatePipelineState.call(this, pass.handle, shader, renderPass, ia);
 }
   
@@ -69,7 +70,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
     }
   
     public init () {
-        this.setPipelineSharedSceneData(this.pipelineSceneData.handle);
+        this.setPipelineSharedSceneData(this.pipelineSceneData.handle, this.pipelineSceneData.native);
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].init();
         }
@@ -191,7 +192,7 @@ export class DeferredPipeline extends nr.DeferredPipeline {
   }
 
   init() {
-    this.setPipelineSharedSceneData(this.pipelineSceneData.handle);
+    this.setPipelineSharedSceneData(this.pipelineSceneData.handle, this.pipelineSceneData.native);
     for (let i = 0; i < this._flows.length; i++) {
       this._flows[i].init();
     }
