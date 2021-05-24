@@ -11,7 +11,7 @@ import { SkeletonTexture } from './skeleton-texture';
 import spine from './lib/spine-core.js';
 import { ccclass, serializable, type } from '../core/data/decorators';
 import { legacyCC } from '../core/global-exports';
-import { referenced, ReferenceType } from '../core/asset-manager/garbage-collection';
+import { referenced, ReferenceType } from '../core/data/garbage-collection';
 
 /**
  * @en The skeleton data of spine.
@@ -68,7 +68,7 @@ export class SkeletonData extends Asset {
      * @property {Texture2D[]} textures
      */
 
-    @referenced(ReferenceType.ASSET_ARRAY)
+    @referenced(ReferenceType.GC_OBJECT_ARRAY)
     @serializable
     @type([Texture2D])
     public textures: Texture2D[] = [];

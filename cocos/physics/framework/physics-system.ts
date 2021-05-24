@@ -43,7 +43,7 @@ import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { selector } from './physics-selector';
 import { legacyCC } from '../../core/global-exports';
-import { garbageCollectionManager, referenced } from '../../core/asset-manager/garbage-collection';
+import { garbageCollectionManager, referenced } from '../../core/data/garbage-collection';
 import { ccclass } from '../../core/data/decorators';
 
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
@@ -459,6 +459,6 @@ function initPhysicsSystem () {
         const sys = new legacyCC.PhysicsSystem();
         legacyCC.PhysicsSystem._instance = sys;
         director.registerSystem(PhysicsSystem.ID, sys, 0);
-        garbageCollectionManager.addManagerToRoot(sys);
+        garbageCollectionManager.addCCClassObjectToRoot(sys);
     }
 }

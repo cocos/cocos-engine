@@ -47,7 +47,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
-import { referenced } from '../../core/asset-manager/garbage-collection';
+import { referenced } from '../../core/data/garbage-collection';
 
 // hack
 ccenum(BlendFactor);

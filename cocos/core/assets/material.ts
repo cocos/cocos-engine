@@ -39,7 +39,7 @@ import { legacyCC } from '../global-exports';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
 import { Color } from '../math/color';
-import { referenced, ReferenceType } from '../asset-manager/garbage-collection';
+import { referenced, ReferenceType } from '../data/garbage-collection';
 
 /**
  * @en The basic infos for material initialization.
@@ -117,7 +117,7 @@ export class Material extends Asset {
     @serializable
     protected _states: PassOverrides[] = [];
 
-    @referenced(ReferenceType.ANY_ARRAY)
+    @referenced(ReferenceType.GC_OBJECT_ARRAY)
     @serializable
     protected _props: Record<string, MaterialPropertyFull | MaterialPropertyFull[]>[] = [];
 

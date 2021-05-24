@@ -46,7 +46,7 @@ import { Model } from '../../core/renderer/scene';
 import { vfmt, getAttributeStride } from '../renderer/vertex-format';
 import { Stage } from '../renderer/stencil-manager';
 import { NodeEventProcessor } from '../../core/scene-graph/node-event-processor';
-import { referenced } from '../../core/asset-manager/garbage-collection';
+import { referenced } from '../../core/data/garbage-collection';
 
 const _worldMatrix = new Mat4();
 const _vec2_temp = new Vec2();

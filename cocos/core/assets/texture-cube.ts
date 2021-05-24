@@ -36,7 +36,7 @@ import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { ITexture2DCreateInfo, Texture2D } from './texture-2d';
 import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';
-import { referenced, ReferenceType } from '../asset-manager/garbage-collection';
+import { referenced, ReferenceType } from '../data/garbage-collection';
 
 export type ITextureCubeCreateInfo = ITexture2DCreateInfo;
 

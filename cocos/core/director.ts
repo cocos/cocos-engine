@@ -48,6 +48,8 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, logID, assertID, warnID } from './platform/debug';
+import { garbageCollectionManager, referenced, ReferenceType } from './data';
+import { ccclass } from './data/decorators';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -116,6 +118,7 @@ import { errorID, error, logID, assertID, warnID } from './platform/debug';
  *      - 只支持动画的间隔 1/60 1/30 & 1/15。<br/>
  * </p>
  */
+@ccclass('cc.Director')
 export class Director extends EventTarget {
     /**
      * @en The event which will be triggered when the singleton of Director initialized.
@@ -232,6 +235,10 @@ export class Director extends EventTarget {
      */
     public static readonly EVENT_AFTER_PHYSICS = 'director_after_physics';
 
+    public static readonly EVENT_BEFORE_GC = 'director_before_gc';
+
+    public static readonly EVENT_AFTER_GC = 'director_after_gc';
+
     public static instance: Director;
 
     public _compScheduler: ComponentScheduler;
@@ -239,8 +246,10 @@ export class Director extends EventTarget {
     private _invalid: boolean;
     private _paused: boolean;
     private _purgeDirectorInNextLoop: boolean;
+    @referenced(ReferenceType.CCCLASS_OBJECT)
     private _root: Root | null;
     private _loadingScene: string;
+    @referenced(ReferenceType.CCCLASS_OBJECT)
     private _scene: Scene | null;
     private _totalFrames: number;
     private _lastUpdate: number;
@@ -506,17 +515,6 @@ export class Director extends EventTarget {
         CCObject._deferredDestroy();
         if (BUILD && DEBUG) { console.timeEnd('Destroy'); }
 
-        if (!EDITOR) {
-            // auto release assets
-            if (BUILD && DEBUG) {
-                console.time('Garbage Collect');
-            }
-            legacyCC.assetManager.releaseUnusedAssets();
-            if (BUILD && DEBUG) {
-                console.timeEnd('Garbage Collect');
-            }
-        }
-
         if (onBeforeLoadScene) {
             onBeforeLoadScene();
         }
@@ -524,6 +522,15 @@ export class Director extends EventTarget {
 
         // Run an Entity Scene
         this._scene = scene;
+
+        // auto release assets
+        if (BUILD && DEBUG) {
+            console.time('Garbage Collect');
+        }
+        legacyCC.assetManager.releaseUnusedAssets();
+        if (BUILD && DEBUG) {
+            console.timeEnd('Garbage Collect');
+        }
 
         if (BUILD && DEBUG) {
             console.time('Activate');

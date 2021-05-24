@@ -42,7 +42,7 @@ import { Node } from '../core/scene-graph/node';
 import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
-import { referenced } from '../core/asset-manager/garbage-collection';
+import { referenced } from '../core/data/garbage-collection';
 
 const _tempColor = new Color();
 

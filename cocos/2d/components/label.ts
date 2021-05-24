@@ -40,7 +40,7 @@ import { CanvasPool, ISharedLabelData, LetterRenderTexture } from '../assembler/
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { TextureBase } from '../../core/assets/texture-base';
 import { PixelFormat } from '../../core/assets/asset-enum';
-import { referenced } from '../../core/asset-manager/garbage-collection';
+import { referenced } from '../../core/data/garbage-collection';
 
 /**
  * @en Enum for horizontal text alignment.

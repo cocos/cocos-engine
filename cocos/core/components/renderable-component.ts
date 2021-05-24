@@ -38,7 +38,7 @@ import { IMaterialInstanceInfo, MaterialInstance } from '../renderer/core/materi
 import { scene } from '../renderer';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
-import { referenced, ReferenceType } from '../asset-manager/garbage-collection';
+import { referenced, ReferenceType } from '../data/garbage-collection';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -48,7 +48,7 @@ const _matInsInfo: IMaterialInstanceInfo = {
 
 @ccclass('cc.RenderableComponent')
 export class RenderableComponent extends Component {
-    @referenced(ReferenceType.ASSET_ARRAY)
+    @referenced(ReferenceType.GC_OBJECT_ARRAY)
     @type([Material])
     protected _materials: (Material | null)[] = [];
 
@@ -116,7 +116,7 @@ export class RenderableComponent extends Component {
         }
     }
 
-    @referenced(ReferenceType.ASSET_ARRAY)
+    @referenced(ReferenceType.GC_OBJECT_ARRAY)
     protected _materialInstances: (MaterialInstance | null)[] = [];
 
     protected _models: scene.Model[] = [];

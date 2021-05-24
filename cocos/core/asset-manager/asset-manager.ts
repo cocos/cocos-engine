@@ -39,7 +39,7 @@ import dependUtil from './depend-util';
 import downloader from './downloader';
 import factory from './factory';
 import fetch from './fetch';
-import { garbageCollectionManager } from './garbage-collection';
+import { garbageCollectionManager, GarbageCollectorContext } from '../data/garbage-collection';
 import * as helper from './helper';
 import load from './load';
 import packManager from './pack-manager';
@@ -346,7 +346,7 @@ export class AssetManager {
         }
         this.generalImportBase = importBase;
         this.generalNativeBase = nativeBase;
-        garbageCollectionManager.init();
+        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_GC, this.markAllPendLoadingAsset.bind(this));
     }
 
     /**
@@ -676,7 +676,7 @@ export class AssetManager {
      *
      */
     public releaseUnusedAssets () {
-        garbageCollectionManager.collectGarbage(Asset.getAllAssets());
+        garbageCollectionManager.collectGarbage();
     }
 
     /**
@@ -688,8 +688,7 @@ export class AssetManager {
      *
      */
     public releaseAll () {
-        Asset.getAllAssets().forEach((asset) => {
-            assets.remove(asset._uuid);
+        assets.forEach((asset) => {
             asset.destroy();
         });
     }
@@ -739,6 +738,28 @@ export class AssetManager {
             },
         });
         this._parsePipeline!.addToQueue(task);
+    }
+
+    private markAllPendLoadingAsset (garbageCollectionContext: GarbageCollectorContext) {
+        const singleAssetTasks = this.singleAssetLoadPipeline.allTasks;
+        for (let i = 0; i < singleAssetTasks.length; i++) {
+            const task = singleAssetTasks[i];
+            if (task.input.content) { garbageCollectionContext.markGCObject(task.input.content); }
+        }
+        const loadTasks = this.pipeline.allTasks;
+        for (let i = 0; i < loadTasks.length; i++) {
+            const task = loadTasks[i];
+            for (let j = 0; j < task.output.length; j++) {
+                if (task.output[i].content) garbageCollectionContext.markGCObject(task.output[i].content);
+            }
+        }
+        const preloadTasks = this.fetchPipeline.allTasks;
+        for (let i = 0; i < preloadTasks.length; i++) {
+            const task = preloadTasks[i];
+            for (let j = 0; j < task.output.length; j++) {
+                if (task.output[i].content) garbageCollectionContext.markGCObject(task.output[i].content);
+            }
+        }
     }
 }
 

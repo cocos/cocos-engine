@@ -35,7 +35,7 @@ import { Renderable2D } from '../2d/framework';
 import { Texture2D } from '../core/assets/texture-2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { Vec2 } from '../core';
-import { referenced } from '../core/asset-manager/garbage-collection';
+import { referenced } from '../core/data/garbage-collection';
 
 class Point {
     public point = new Vec2();

@@ -42,7 +42,7 @@ import { IBaseShape } from '../../../spec/i-physics-shape';
 import { AABB, Sphere } from '../../../../core/geometry';
 import { EColliderType, EAxisDirection } from '../../physics-enum';
 import { createShape } from '../../instance';
-import { referenced } from '../../../../core/asset-manager/garbage-collection';
+import { referenced } from '../../../../core/data/garbage-collection';
 
 /**
  * @en

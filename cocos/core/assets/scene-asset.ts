@@ -33,6 +33,7 @@ import { ccclass, editable, serializable } from 'cc.decorator';
 import { Scene } from '../scene-graph';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
+import { referenced, ReferenceType } from '../data';
 
 /**
  * @en Class for scene loading.
@@ -45,6 +46,7 @@ export default class SceneAsset extends Asset {
      * @en The scene node
      * @zh 场景节点。
      */
+    @referenced(ReferenceType.CCCLASS_OBJECT)
     @editable
     @serializable
     public scene: Scene | null = null;

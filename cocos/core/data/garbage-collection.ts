@@ -23,10 +23,9 @@
  THE SOFTWARE.
  */
 import { DEBUG } from 'internal:constants';
-import { Asset } from '../assets/asset';
-import { Component } from '../components';
-import { CCClass } from '../data/class';
-import { assets, fetchPipeline, pipeline, singleAssetLoadPipeline } from './shared';
+import { legacyCC } from '../global-exports';
+import { CCClass } from './class';
+import { GCObject } from './gc-object';
 
 export class GarbageCollectorContext {
     public gcVersion = 0;
@@ -40,10 +39,10 @@ export class GarbageCollectorContext {
         if (obj.markDependencies) { obj.markDependencies(this); }
     }
 
-    public markAsset (asset: Asset) {
-        if (this.isMarked(asset)) return;
-        this._mark(asset);
-        if (asset.markDependencies) { asset.markDependencies(this); }
+    public markGCObject (obj: GCObject) {
+        if (this.isMarked(obj)) return;
+        this._mark(obj);
+        if (obj.markDependencies) { obj.markDependencies(this); }
     }
 
     private _mark (obj: any) {
@@ -85,14 +84,14 @@ export class GarbageCollectorContext {
 
     public markObjectWithReferenceType (obj: any, referenceType: ReferenceType) {
         switch (referenceType) {
-        case ReferenceType.ASSET:
+        case ReferenceType.GC_OBJECT:
         case ReferenceType.CCCLASS_OBJECT:
             this.markCCClassObject(obj);
             break;
         case ReferenceType.ANY:
             this.markAny(obj);
             break;
-        case ReferenceType.ASSET_ARRAY:
+        case ReferenceType.GC_OBJECT_ARRAY:
         case ReferenceType.CCCLASS_OBJECT_ARRAY:
             for (let i = 0; i < obj.length; i++) {
                 if (obj[i]) { this.markCCClassObject(obj[i]); }
@@ -103,8 +102,8 @@ export class GarbageCollectorContext {
                 if (obj[i]) { this.markAny(obj[i]); }
             }
             break;
-        case ReferenceType.ASSET_MAP:
-        case ReferenceType.ASSET_SET:
+        case ReferenceType.GC_OBJECT_MAP:
+        case ReferenceType.GC_OBJECT_SET:
         case ReferenceType.CCCLASS_OBJECT_MAP:
         case ReferenceType.CCCLASS_OBJECT_SET:
             (obj as Map<any, any> | Set<any>).forEach((val) => { if (val) { this.markCCClassObject(val); } });
@@ -113,7 +112,7 @@ export class GarbageCollectorContext {
         case ReferenceType.ANY_SET:
             (obj as Map<any, any> | Set<any>).forEach((val) => { if (val) { this.markAny(val); } });
             break;
-        case ReferenceType.ASSET_RECORD:
+        case ReferenceType.GC_OBJECT_RECORD:
         case ReferenceType.CCCLASS_OBJECT_RECORD:
             for (const key in obj) {
                 if (obj[key]) { this.markCCClassObject(obj[key]); }
@@ -130,13 +129,13 @@ export class GarbageCollectorContext {
 }
 
 export enum ReferenceType {
-    ASSET,
+    GC_OBJECT,
     CCCLASS_OBJECT,
     ANY,
-    ASSET_ARRAY,
-    ASSET_RECORD,
-    ASSET_MAP,
-    ASSET_SET,
+    GC_OBJECT_ARRAY,
+    GC_OBJECT_RECORD,
+    GC_OBJECT_MAP,
+    GC_OBJECT_SET,
     CCCLASS_OBJECT_ARRAY,
     CCCLASS_OBJECT_RECORD,
     CCCLASS_OBJECT_MAP,
@@ -151,12 +150,11 @@ export function referenced (target: any, propertyName: string, descriptor?: any)
 export function referenced (referenceType: ReferenceType): (target: any, propertyName: string, descriptor?: any) => void;
 export function referenced (target?: any, propertyName?: string, descriptor?: any): void | ((target: any, propertyName: string, descriptor?: any) => void) {
     if (propertyName) {
-        garbageCollectionManager.registerGarbageCollectableProperty(target.constructor as Constructor, propertyName, ReferenceType.ASSET);
-    } else {
-        return (proto: any, propertyName: string, descriptor?: any) => {
-            garbageCollectionManager.registerGarbageCollectableProperty(proto.constructor as Constructor, propertyName, target);
-        };
+        return garbageCollectionManager.registerGarbageCollectableProperty(target.constructor as Constructor, propertyName, ReferenceType.GC_OBJECT);
     }
+    return (proto: any, propertyName: string, descriptor?: any) => {
+        garbageCollectionManager.registerGarbageCollectableProperty(proto.constructor as Constructor, propertyName, target);
+    };
 }
 
 class GarbageCollectableClassInfo {
@@ -203,28 +201,20 @@ class GarbageCollectionManager {
         return !!ctor.prototype.markDependencies;
     }
 
-    public addComponentToRoot (component: Component) {
-        this._ccclassRoots.add(component);
+    public addCCClassObjectToRoot (obj: any) {
+        this._ccclassRoots.add(obj);
     }
 
-    public removeComponentFromRoot (component: Component) {
-        this._ccclassRoots.delete(component);
+    public removeCCClassObjectFromRoot (obj: any) {
+        this._ccclassRoots.delete(obj);
     }
 
-    public addManagerToRoot (mgr: any) {
-        this._ccclassRoots.add(mgr);
+    public addGCObjectToRoot (gcObject: GCObject) {
+        this._ccclassRoots.add(gcObject);
     }
 
-    public removeManagerFromRoot (mgr: any) {
-        this._ccclassRoots.delete(mgr);
-    }
-
-    public addAssetToRoot (asset: Asset) {
-        this._ccclassRoots.add(asset);
-    }
-
-    public removeAssetFromRoot (asset: Asset) {
-        this._ccclassRoots.delete(asset);
+    public removeGCObjectFromRoot (gcObject: GCObject) {
+        this._ccclassRoots.delete(gcObject);
     }
 
     public addToRoot (obj: any, referenceType: ReferenceType = ReferenceType.ANY) {
@@ -235,19 +225,20 @@ class GarbageCollectionManager {
         this._normalRoots.delete(obj);
     }
 
-    public collectGarbage (assetArea: readonly Asset[]) {
+    public collectGarbage (gcObjects?: readonly GCObject[]) {
         this.markPhase();
-        this.sweepPhase(assetArea);
+        this.sweepPhase(gcObjects || GCObject.getAllGCObject());
     }
 
     private markPhase () {
-        this.markAllPendLoadingAsset();
+        legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_GC, this._garbageCollectionContext);
         this._ccclassRoots.forEach((root) => {
             this._garbageCollectionContext.markCCClassObject(root);
         });
         this._normalRoots.forEach((referenceType, root) => {
             this._garbageCollectionContext.markObjectWithReferenceType(root, referenceType);
         });
+        legacyCC.director.emit(legacyCC.Director.EVENT_AFTER_GC);
     }
 
     public generateMarkDependenciesFunctionForCCClass (ctor: Constructor) {
@@ -270,38 +261,15 @@ class GarbageCollectionManager {
         };
     }
 
-    private sweepPhase (assetArea: readonly Asset[]) {
-        for (let i = assetArea.length - 1; i >= 0; i--) {
-            const asset = assetArea[i];
-            if (!this._garbageCollectionContext.isMarked(asset)) {
-                if (DEBUG) { console.log(asset); }
-                assets.remove(asset._uuid);
-                asset.destroy();
+    private sweepPhase (gcObjects: readonly GCObject[]) {
+        for (let i = gcObjects.length - 1; i >= 0; i--) {
+            const obj = gcObjects[i];
+            if (!this._garbageCollectionContext.isMarked(obj)) {
+                if (DEBUG) { console.log(obj); }
+                // obj.destroy();
             }
         }
         this._garbageCollectionContext.reset();
-    }
-
-    private markAllPendLoadingAsset () {
-        const singleAssetTasks = singleAssetLoadPipeline.allTasks;
-        for (let i = 0; i < singleAssetTasks.length; i++) {
-            const task = singleAssetTasks[i];
-            if (task.input.content) { this._garbageCollectionContext.markAsset(task.input.content); }
-        }
-        const loadTasks = pipeline.allTasks;
-        for (let i = 0; i < loadTasks.length; i++) {
-            const task = loadTasks[i];
-            for (let j = 0; j < task.output.length; j++) {
-                if (task.output[i].content) this._garbageCollectionContext.markAsset(task.output[i].content);
-            }
-        }
-        const preloadTasks = fetchPipeline.allTasks;
-        for (let i = 0; i < preloadTasks.length; i++) {
-            const task = preloadTasks[i];
-            for (let j = 0; j < task.output.length; j++) {
-                if (task.output[i].content) this._garbageCollectionContext.markAsset(task.output[i].content);
-            }
-        }
     }
 
     public destroy () {

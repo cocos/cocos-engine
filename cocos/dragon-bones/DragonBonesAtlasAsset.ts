@@ -10,7 +10,7 @@ import { ArmatureCache } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCFactory } from './CCFactory';
 import { legacyCC } from '../core/global-exports';
-import { referenced } from '../core/asset-manager/garbage-collection';
+import { referenced } from '../core/data/garbage-collection';
 
 /**
  * @en The skeleton atlas data of dragonBones.

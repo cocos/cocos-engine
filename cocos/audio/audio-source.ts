@@ -35,7 +35,7 @@ import { Component } from '../core/components/component';
 import { clamp } from '../core/math';
 import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
-import { referenced } from '../core/asset-manager/garbage-collection';
+import { referenced } from '../core/data/garbage-collection';
 
 /**
  * @en

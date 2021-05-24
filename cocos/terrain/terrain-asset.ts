@@ -28,7 +28,7 @@
  * @module terrain
  */
 import { ccclass, serializable } from 'cc.decorator';
-import { referenced, ReferenceType } from '../core/asset-manager/garbage-collection';
+import { referenced, ReferenceType } from '../core/data/garbage-collection';
 import { Asset, Texture2D } from '../core/assets';
 import { legacyCC } from '../core/global-exports';
 

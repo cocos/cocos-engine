@@ -46,7 +46,7 @@ import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import assetManager from '../../core/asset-manager/asset-manager';
 import { CCObject } from '../../core';
-import { referenced } from '../../core/asset-manager/garbage-collection';
+import { referenced } from '../../core/data/garbage-collection';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';

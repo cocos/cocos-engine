@@ -45,7 +45,7 @@ import { EditBoxImpl } from './edit-box-impl';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { legacyCC } from '../../core/global-exports';
-import { referenced } from '../../core/asset-manager/garbage-collection';
+import { referenced } from '../../core/data/garbage-collection';
 
 const LEFT_PADDING = 2;
 

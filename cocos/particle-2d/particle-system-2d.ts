@@ -46,7 +46,7 @@ import codec from '../../external/compression/ZipUtils';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
-import { referenced } from '../core/asset-manager/garbage-collection';
+import { referenced } from '../core/data/garbage-collection';
 
 /**
  * Image formats

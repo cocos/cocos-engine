@@ -34,11 +34,10 @@ import { EDITOR, PREVIEW } from 'internal:constants';
 import { property } from '../data/decorators/property';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { Eventify } from '../event';
-import { CCObject } from '../data/object';
+import { GCObject } from '../data/gc-object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { extname } from '../utils/path';
-import { GarbageCollectorContext } from '../asset-manager/garbage-collection';
 
 /**
  * @en
@@ -62,7 +61,7 @@ import { GarbageCollectorContext } from '../asset-manager/garbage-collection';
  * @extends CCObject
  */
 @ccclass('cc.Asset')
-export class Asset extends Eventify(CCObject) {
+export class Asset extends Eventify(GCObject) {
     /**
      * 应 AssetDB 要求提供这个方法。
      * @method deserialize
@@ -72,12 +71,6 @@ export class Asset extends Eventify(CCObject) {
     public static deserialize (data) {
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return legacyCC.deserialize(data);
-    }
-
-    private static _allAssets: Asset[] = [];
-
-    public static getAllAssets (): readonly Asset[] {
-        return Asset._allAssets;
     }
 
     /**
@@ -108,7 +101,6 @@ export class Asset extends Eventify(CCObject) {
     public __depends__: any = null;
 
     private _file: any = null;
-    private _internalId = -1;
 
     /**
      * @en
@@ -157,7 +149,7 @@ export class Asset extends Eventify(CCObject) {
         this._file = obj;
     }
 
-    constructor (...args: ConstructorParameters<typeof CCObject>) {
+    constructor (...args: ConstructorParameters<typeof GCObject>) {
         super(...args);
 
         Object.defineProperty(this, '_uuid', {
@@ -172,10 +164,6 @@ export class Asset extends Eventify(CCObject) {
                 writable: true,
             });
         }
-
-        const id = Asset._allAssets.length;
-        Asset._allAssets.push(this);
-        this._internalId = id;
     }
 
     /**
@@ -262,16 +250,9 @@ export class Asset extends Eventify(CCObject) {
     }
 
     public destroy () {
-        if (this._internalId !== -1) {
-            const lastAsset = Asset._allAssets[Asset._allAssets.length - 1];
-            lastAsset._internalId = this._internalId;
-            Asset._allAssets.length -= 1;
-            this._internalId = -1;
-        }
+        legacyCC.assetManager.assets.remove(this._uuid);
         return super.destroy();
     }
-
-    public markDependencies? (context: GarbageCollectorContext);
 }
 
 /**

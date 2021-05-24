@@ -48,7 +48,7 @@ import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FAC
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
 import { CCBoolean, CCInteger, Node } from '../core';
-import { referenced, ReferenceType } from '../core/asset-manager/garbage-collection';
+import { referenced, ReferenceType } from '../core/data/garbage-collection';
 
 const bbMin = new Vec3();
 const bbMax = new Vec3();

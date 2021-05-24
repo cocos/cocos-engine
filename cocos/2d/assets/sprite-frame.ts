@@ -43,7 +43,7 @@ import { Texture2D } from '../../core/assets/texture-2d';
 import { errorID } from '../../core/platform/debug';
 import { dynamicAtlasManager } from '../utils/dynamic-atlas/atlas-manager';
 import { js } from '../../core/utils/js';
-import { referenced } from '../../core/asset-manager/garbage-collection';
+import { referenced } from '../../core/data/garbage-collection';
 
 const INSET_LEFT = 0;
 const INSET_TOP = 1;

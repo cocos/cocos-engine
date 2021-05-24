@@ -34,13 +34,13 @@ import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
 import { ccclass } from '../data/decorators';
-import { garbageCollectionManager, referenced, ReferenceType } from '../asset-manager/garbage-collection';
+import { garbageCollectionManager, referenced, ReferenceType } from '../data/garbage-collection';
 
 @ccclass('cc.BuiltinResMgr')
 class BuiltinResMgr {
     protected _device: Device | null = null;
 
-    @referenced(ReferenceType.ASSET_RECORD)
+    @referenced(ReferenceType.GC_OBJECT_RECORD)
     protected _resources: Record<string, Asset> = {};
 
     // this should be called after renderer initialized
@@ -183,7 +183,7 @@ class BuiltinResMgr {
                 });
                 effect.hideInEditor = true;
                 effect.onLoaded();
-                garbageCollectionManager.addAssetToRoot(effect);
+                garbageCollectionManager.addGCObjectToRoot(effect);
             });
             this._initMaterials();
         });

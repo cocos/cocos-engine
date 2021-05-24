@@ -34,7 +34,7 @@ import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
-import { referenced, ReferenceType } from '../asset-manager';
+import { referenced, ReferenceType } from '../data/garbage-collection';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -420,6 +420,7 @@ export class ShadowsInfo {
     @serializable
     protected _size: Vec2 = new Vec2(512, 512);
 
+    @referenced(ReferenceType.CCCLASS_OBJECT)
     protected _resource: Shadows | null = null;
 
     /**
@@ -725,9 +726,11 @@ export class SceneGlobals {
      * @en Scene level planar shadow related information
      * @zh 平面阴影相关信息
      */
+    @referenced(ReferenceType.CCCLASS_OBJECT)
     @serializable
     @editable
     public shadows = new ShadowsInfo();
+    @referenced(ReferenceType.CCCLASS_OBJECT)
     @serializable
     public _skybox = new SkyboxInfo();
     @editable

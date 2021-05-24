@@ -42,7 +42,7 @@ import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { errorID, warnID, assertID } from '../platform/debug';
 import { CompPrefabInfo } from '../utils/prefab/prefab-info';
-import { garbageCollectionManager, GarbageCollectorContext } from '../asset-manager/garbage-collection';
+import { garbageCollectionManager, GarbageCollectorContext } from '../data/garbage-collection';
 
 const idGenerator = new IDGenerator('Comp');
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
@@ -194,7 +194,7 @@ class Component extends CCObject {
     constructor () {
         super();
         if (garbageCollectionManager.isGarbageCollectableCCClass(this.constructor as Constructor)) {
-            garbageCollectionManager.addComponentToRoot(this);
+            garbageCollectionManager.addCCClassObjectToRoot(this);
         }
     }
 
@@ -371,7 +371,7 @@ class Component extends CCObject {
             if (this._enabled && this.node.activeInHierarchy) {
                 legacyCC.director._compScheduler.disableComp(this);
             }
-            garbageCollectionManager.removeComponentFromRoot(this);
+            garbageCollectionManager.removeCCClassObjectFromRoot(this);
             return true;
         }
         return false;

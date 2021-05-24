@@ -35,7 +35,7 @@ import { SpriteFrame } from './sprite-frame';
 import { legacyCC } from '../../core/global-exports';
 import { js } from '../../core/utils';
 import { warn } from '../../core/platform/debug';
-import { referenced } from '../../core/asset-manager/garbage-collection';
+import { referenced } from '../../core/data/garbage-collection';
 
 export interface IConfig {
     [key: string]: any;

@@ -45,7 +45,7 @@ import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
 import { BrowserType } from '../../pal/system/enum-type';
-import { garbageCollectionManager } from './asset-manager/garbage-collection';
+import { garbageCollectionManager } from './data/garbage-collection';
 
 interface ISceneInfo {
     url: string;
@@ -486,6 +486,9 @@ export class Game extends EventTarget {
             legacyCC.assetManager.init(this.config.assetOptions);
         }
 
+        garbageCollectionManager.init();
+        garbageCollectionManager.addCCClassObjectToRoot(legacyCC.director);
+
         return this._initEngine().then(() => {
             if (!EDITOR) {
                 this._initEvents();
@@ -883,9 +886,6 @@ export class Game extends EventTarget {
     }
 
     private _setRenderPipeline (rppl?: RenderPipeline) {
-        if (rppl) {
-            garbageCollectionManager.addAssetToRoot(rppl);
-        }
         if (!legacyCC.director.root.setRenderPipeline(rppl)) {
             this._setRenderPipeline();
         }

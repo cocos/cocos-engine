@@ -39,7 +39,7 @@ import { Layout } from './layout';
 import { PageView } from './page-view';
 import { Sprite } from '../2d/components/sprite';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { referenced } from '../core/asset-manager/garbage-collection';
+import { referenced } from '../core/data/garbage-collection';
 
 const _color = new Color();
 
