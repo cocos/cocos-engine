@@ -532,7 +532,7 @@ export function initializeWorld (world: any) {
         scene.setNeedOnContact(true);
         scene.setNeedOnTrigger(true);
         world.queryFilterCB = new PX.QueryFilterCallback();
-        world.queryFilterCB.setPreFilter(world.callback.queryCallback.preFilter);
+        world.queryFilterCB.setPreFilter(world.callback.queryCallback.preFilterForByteDance);
         world.queryfilterData = { data: { word0: 0, word1: 0, word2: 0, word3: 1 }, flags: 0 };
         world.physics = physics;
         world.cooking = cooking;
@@ -600,27 +600,25 @@ export function gatherEvents (world: PhysXWorld) {
         // contact
         const contactBuf = world.scene.getContactData() as ArrayBuffer;
         if (contactBuf && contactBuf.byteLength > 0) {
-            const view = new DataView(contactBuf);
-            const pairCount = view.getUint32(0);
+            const uint32view = new Uint32Array(contactBuf);
+            const pairCount = uint32view[0];
             /**
              * struct ContactPair{
              *      u32 shapeUserData0;
              *      u32 shapeUserData1;
-             *      u16 events;
-             *      u16 contactCount;
+             *      u32 events;
+             *      u32 contactCount;
              * };
-             * Total byte length = 12
+             * Total byte length = 16
              */
-            const contactPairBytesPerElement = 12;
-            const contactPointBufferBegin = pairCount * contactPairBytesPerElement;
-            let bytesOffset = Uint32Array.BYTES_PER_ELEMENT;
+            const contactPointBufferBegin = pairCount * 16 + 4;
             let contactPointByteOffset = contactPointBufferBegin;
             for (let i = 0; i < pairCount; i++) {
-                const shape0 = PX.IMPL_PTR[view.getUint32(bytesOffset)] as PhysXShape;
-                const shape1 = PX.IMPL_PTR[view.getUint32(bytesOffset += Uint32Array.BYTES_PER_ELEMENT)] as PhysXShape;
-                const events = view.getUint16(bytesOffset += Uint32Array.BYTES_PER_ELEMENT);
-                const contactCount = view.getUint16(bytesOffset += Uint16Array.BYTES_PER_ELEMENT);
-                bytesOffset += Uint16Array.BYTES_PER_ELEMENT;
+                const offset = i * 4 + 1;
+                const shape0 = PX.IMPL_PTR[uint32view[offset]] as PhysXShape;
+                const shape1 = PX.IMPL_PTR[uint32view[offset + 1]] as PhysXShape;
+                const events = uint32view[offset + 2];
+                const contactCount = uint32view[offset + 3];
                 if (events & PxPairFlag.eNOTIFY_TOUCH_PERSISTS) {
                     world.callback.onCollision('onCollisionStay', shape0, shape1, contactCount, contactBuf, contactPointByteOffset);
                 } else if (events & PxPairFlag.eNOTIFY_TOUCH_FOUND) {
@@ -669,7 +667,7 @@ export function gatherEvents (world: PhysXWorld) {
     }
 }
 
-export function syncNoneStaticToSceneIfWaking (actor:any, node:Node) {
+export function syncNoneStaticToSceneIfWaking (actor: any, node: Node) {
     if (USE_BYTEDANCE) {
         const transform = actor.getGlobalPoseIfWaking();
         if (!transform) return;

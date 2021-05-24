@@ -82,9 +82,6 @@ export class PhysXWorld implements IPhysicsWorld {
     }
 
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
-        if (this.wrappedBodies.length === 0) {
-            return;
-        }
         const scene = this.scene;
         simulateScene(scene, deltaTime);
         scene.fetchResults(true);
@@ -206,12 +203,21 @@ const PhysXCallback = {
     // eBLOCK = 2   //!< a hit on the shape blocks the query (does not block overlap queries)
     queryCallback: {
         preFilter (filterData: any, shape: any, _actor: any, _out: any): number {
+            const word3 = filterData.word3;
             const shapeFlags = shape.getFlags();
-            if ((filterData.word3 & EFilterDataWord3.QUERY_CHECK_TRIGGER)
+            if ((word3 & EFilterDataWord3.QUERY_CHECK_TRIGGER)
                 && (shapeFlags & PX.ShapeFlag.eTRIGGER_SHAPE)) {
                 return PX.QueryHitType.eNONE;
             }
-            return filterData.word3 & EFilterDataWord3.QUERY_SINGLE_HIT ? PX.QueryHitType.eBLOCK : PX.QueryHitType.eTOUCH;
+            return word3 & EFilterDataWord3.QUERY_SINGLE_HIT ? PX.QueryHitType.eBLOCK : PX.QueryHitType.eTOUCH;
+        },
+        preFilterForByteDance (filterData: FilterData, shapeFlags:number, hitFlags:number): number {
+            const word3 = filterData.word3;
+            if ((word3 & EFilterDataWord3.QUERY_CHECK_TRIGGER)
+                && (shapeFlags & PX.ShapeFlag.eTRIGGER_SHAPE)) {
+                return PX.QueryHitType.eNONE;
+            }
+            return word3 & EFilterDataWord3.QUERY_SINGLE_HIT ? PX.QueryHitType.eBLOCK : PX.QueryHitType.eTOUCH;
         },
     },
 
