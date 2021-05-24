@@ -121,6 +121,16 @@ export class RenderWindow {
     protected _hasOnScreenAttachments = false;
     protected _hasOffScreenAttachments = false;
     protected _framebuffer: Framebuffer | null = null;
+    private declare _nativeObj: any;
+
+    public get native (): any {
+        if (JSB) {
+            return this._nativeObj;
+        }
+
+        return null;
+    }
+
     private constructor (root: Root) {
     }
 
@@ -128,6 +138,7 @@ export class RenderWindow {
         this._hasOffScreenAttachments = val;
         if (JSB) {
             RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, val ? 1 : 0);
+            this._nativeObj.hasOffScreenAttachments = val;
         }
     }
 
@@ -135,6 +146,7 @@ export class RenderWindow {
         this._hasOnScreenAttachments = val;
         if (JSB) {
             RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, val ? 1 : 0);
+            this._nativeObj.hasOnScreenAttachments = val;
         }
     }
 
@@ -146,6 +158,7 @@ export class RenderWindow {
                 this._depthStencilTexture,
             ));
             RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, hFBO);
+            this._nativeObj.frameBuffer = this.framebuffer;
             return;
         }
         this._framebuffer = device.createFramebuffer(new FramebufferInfo(
@@ -158,6 +171,7 @@ export class RenderWindow {
     protected _init () {
         if (JSB) {
             this._poolHandle = RenderWindowPool.alloc();
+            this._nativeObj = new ns.RenderWindow();
         }
     }
 
@@ -230,8 +244,11 @@ export class RenderWindow {
 
     protected _destroy () {
         this.framebuffer.destroy();
-        if (this._poolHandle) {
-            this._poolHandle = NULL_HANDLE;
+        if (JSB) {
+            if (this._poolHandle) {
+                this._poolHandle = NULL_HANDLE;
+            }
+            this._nativeObj = null;
         }
     }
 
