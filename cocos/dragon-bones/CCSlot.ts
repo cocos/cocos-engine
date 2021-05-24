@@ -4,7 +4,7 @@
  */
 
 import { BoneType, BinaryOffset, Slot } from '@cocos/dragonbones-js';
-import { Color, ImageAsset, mat4, Mat4, Texture2D } from '../core';
+import { Color, Mat4, Texture2D } from '../core';
 import { ccclass } from '../core/data/class-decorator';
 import { CCTextureData } from './CCTextureData';
 
@@ -38,8 +38,8 @@ export class CCSlot extends Slot {
     getTexture () {
         if (this._textureData) {
             const sp = (this._textureData as any).spriteFrame;
-            const tex = sp.texture instanceof ImageAsset ? sp.texture._texture : sp.texture;
-            return tex as Texture2D;
+            const tex = sp.texture as Texture2D;
+            return tex;
         }
         return null;
     }
