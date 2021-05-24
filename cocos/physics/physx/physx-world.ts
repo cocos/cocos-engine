@@ -84,10 +84,12 @@ export class PhysXWorld implements IPhysicsWorld {
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
         const scene = this.scene;
         simulateScene(scene, deltaTime);
-        scene.fetchResults(true);
-        for (let i = 0; i < this.wrappedBodies.length; i++) {
-            const body = this.wrappedBodies[i];
-            body.syncPhysicsToScene();
+        if (!PX.MUTI_THREAD) {
+            scene.fetchResults(true);
+            for (let i = 0; i < this.wrappedBodies.length; i++) {
+                const body = this.wrappedBodies[i];
+                body.syncPhysicsToScene();
+            }
         }
     }
 
@@ -95,6 +97,15 @@ export class PhysXWorld implements IPhysicsWorld {
         for (let i = 0; i < this.wrappedBodies.length; i++) {
             const body = this.wrappedBodies[i];
             body.syncSceneToPhysics();
+        }
+    }
+
+    // only used in muti-thread for now
+    syncPhysicsToScene (): void {
+        this.scene.fetchResults(true);
+        for (let i = 0; i < this.wrappedBodies.length; i++) {
+            const body = this.wrappedBodies[i];
+            body.syncPhysicsToScene();
         }
     }
 

@@ -37,7 +37,7 @@
 
 import { BYTEDANCE } from 'internal:constants';
 // import PhysX from '@cocos/physx';
-import { IQuatLike, IVec3Like, Node, Quat, RecyclePool, Vec3 } from '../../core';
+import { IQuatLike, IVec3Like, Node, Quat, RecyclePool, sys, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
 import { AABB, Ray } from '../../core/geometry';
@@ -48,7 +48,12 @@ import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
 
 let USE_BYTEDANCE = false;
-if (BYTEDANCE) USE_BYTEDANCE = true;
+if (BYTEDANCE && sys.os === sys.OS.ANDROID) {
+    USE_BYTEDANCE = true;
+    console.info('[PHYSICS]', 'Use PhysX Native Libs.');
+} else {
+    console.info('[PHYSICS]', 'Use PhysX js or wasm Libs.');
+}
 const globalThis = legacyCC._global;
 // globalThis.PhysX = PhysX;
 
@@ -83,6 +88,10 @@ if (USE_BYTEDANCE && globalThis && globalThis.tt.getPhy) _px = globalThis.tt.get
 export const PX = _px;
 
 if (PX) {
+    globalThis.PhysX = PX;
+    PX.EPSILON = 1e-3;
+    PX.MUTI_THREAD = false;
+    PX.SUB_THREAD_COUNT = 1;
     PX.CACHE_MAT = {};
     PX.IMPL_PTR = {};
     PX.MESH_CONVEX = {};
@@ -192,12 +201,12 @@ export function copyPhysXTransform (node: Node, transform: any): void {
 
 export function physXEqualsCocosVec3 (trans: any, v3: IVec3Like): boolean {
     const pos = USE_BYTEDANCE ? trans.p : trans.translation;
-    return Vec3.equals(pos, v3);
+    return Vec3.equals(pos, v3, PX.EPSILON);
 }
 
 export function physXEqualsCocosQuat (trans: any, q: IQuatLike): boolean {
     const rot = USE_BYTEDANCE ? trans.q : trans.rotation;
-    return Quat.equals(rot, q);
+    return Quat.equals(rot, q, PX.EPSILON);
 }
 
 export function applyImpulse (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IVec3Like) {
@@ -366,7 +375,7 @@ export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array
 
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    console.log(`[Physics] cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
+    console.log(`[PHYSICS] cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 
@@ -386,7 +395,7 @@ export function createBV34TriangleMesh (vertices: number[], indices: Uint32Array
     midDesc.setNumPrimsLeaf(numTrisPerLeaf);
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    console.log(`[Physics] cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
+    console.log(`[PHYSICS] cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 
@@ -525,6 +534,16 @@ export function initializeWorld (world: any) {
         const cp = new PX.CookingParams();
         const cooking = PX.createCooking(cp);
         const sceneDesc = physics.createSceneDesc();
+        if (PX.MUTI_THREAD) {
+            const mstc = sceneDesc.getMaxSubThreadCount();
+            const count = PX.SUB_THREAD_COUNT > mstc ? mstc : PX.SUB_THREAD_COUNT;
+            sceneDesc.setSubThreadCount(count);
+            console.info('[PHYSICS][PhysX]:', 'use muti-thread mode, sub thread count:', count);
+        } else {
+            console.info('[PHYSICS][PhysX]:', 'use single-thread mode');
+        }
+        sceneDesc.setFlag(PX.SceneFlag.eENABLE_PCM, true);
+        sceneDesc.setFlag(PX.SceneFlag.eENABLE_CCD, true);
         const scene = physics.createScene(sceneDesc);
         scene.setNeedOnContact(true);
         scene.setNeedOnTrigger(true);
