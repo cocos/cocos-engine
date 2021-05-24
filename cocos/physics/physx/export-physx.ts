@@ -126,15 +126,12 @@ export function removeReference (shape: PhysXShape, impl: any) {
     }
 }
 
-export function getImplPtr (impl: any): any {
-    if (USE_BYTEDANCE) {
-        return impl.getQueryFilterData().word2;
-    }
-    return impl.$$.ptr;
-}
-
 export function getWrapShape<T> (pxShape: any): T {
-    return PX.IMPL_PTR[getImplPtr(pxShape)];
+    if (USE_BYTEDANCE) {
+        return PX.IMPL_PTR[pxShape];
+    } else {
+        return PX.IMPL_PTR[pxShape.$$.ptr];
+    }
 }
 
 export function getTempTransform (pos: IVec3Like, quat: IQuatLike): any {
@@ -456,7 +453,7 @@ export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastO
         if (r) {
             for (let i = 0; i < r.length; i++) {
                 const block = r[i];
-                const collider = getWrapShape<PhysXShape>(block.shape).collider;
+                const collider = getWrapShape<PhysXShape>(block.shapeData).collider;
                 const result = pool.add();
                 result._assign(block.position, block.distance, collider, block.normal);
                 results.push(result);
@@ -501,7 +498,7 @@ export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRayc
         const block = PX.SceneQueryExt.raycastSingle(world.scene, worldRay.o, worldRay.d, maxDistance,
             flags, world.queryfilterData, world.queryFilterCB);
         if (block) {
-            const collider = getWrapShape<PhysXShape>(block.shape).collider;
+            const collider = getWrapShape<PhysXShape>(block.shapeData).collider;
             result._assign(block.position, block.distance, collider, block.normal);
             return true;
         }
