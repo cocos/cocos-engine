@@ -97,7 +97,8 @@ export class PhysXRigidBody implements IRigidBody {
 
     setLinearDamping (v: number): void {
         if (this.isStatic) return;
-        this.impl.setLinearDamping(v);
+        const dt = PhysicsSystem.instance.fixedTimeStep;
+        this.impl.setLinearDamping((1 - (1 - v) ** dt) / dt);
     }
 
     setAngularDamping (v: number): void {
