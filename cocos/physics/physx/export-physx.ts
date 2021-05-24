@@ -90,7 +90,7 @@ export const PX = _px;
 if (PX) {
     globalThis.PhysX = PX;
     PX.EPSILON = 1e-3;
-    PX.MUTI_THREAD = false;
+    PX.MULTI_THREAD = false;
     PX.SUB_THREAD_COUNT = 1;
     PX.CACHE_MAT = {};
     PX.IMPL_PTR = {};
@@ -534,7 +534,7 @@ export function initializeWorld (world: any) {
         const cp = new PX.CookingParams();
         const cooking = PX.createCooking(cp);
         const sceneDesc = physics.createSceneDesc();
-        if (PX.MUTI_THREAD) {
+        if (PX.MULTI_THREAD) {
             const mstc = sceneDesc.getMaxSubThreadCount();
             const count = PX.SUB_THREAD_COUNT > mstc ? mstc : PX.SUB_THREAD_COUNT;
             sceneDesc.setSubThreadCount(count);

@@ -84,7 +84,7 @@ export class PhysXWorld implements IPhysicsWorld {
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
         const scene = this.scene;
         simulateScene(scene, deltaTime);
-        if (!PX.MUTI_THREAD) {
+        if (!PX.MULTI_THREAD) {
             scene.fetchResults(true);
             for (let i = 0; i < this.wrappedBodies.length; i++) {
                 const body = this.wrappedBodies[i];
