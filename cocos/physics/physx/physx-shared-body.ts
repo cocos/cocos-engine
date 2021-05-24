@@ -167,9 +167,9 @@ export class PhysXSharedBody {
             const rb = wb.rigidBody;
             this._dynamicActor.setMass(rb.mass);
             this._dynamicActor.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
+            this.setLinearDamping(rb.linearDamping);
+            this.setAngularDamping(rb.angularDamping);
             this.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, rb.isKinematic);
-            this._dynamicActor.setLinearDamping(rb.linearDamping);
-            this._dynamicActor.setAngularDamping(rb.angularDamping);
             const lf = rb.linearFactor;
             this._dynamicActor.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
             this._dynamicActor.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
@@ -252,6 +252,18 @@ export class PhysXSharedBody {
             const i = this.wrappedJoints0.indexOf(v);
             if (i >= 0) fastRemoveAt(this.wrappedJoints0, i);
         }
+    }
+
+    setLinearDamping (linDamp:number) {
+        if (!this._dynamicActor) return;
+        const dt = PhysicsSystem.instance.fixedTimeStep;
+        this._dynamicActor.setLinearDamping((1 - (1 - linDamp) ** dt) / dt);
+    }
+
+    setAngularDamping (angDamp:number) {
+        if (!this._dynamicActor) return;
+        const dt = PhysicsSystem.instance.fixedTimeStep;
+        this._dynamicActor.setAngularDamping((1 - (1 - angDamp) ** dt) / dt);
     }
 
     setMass (v: number): void {
