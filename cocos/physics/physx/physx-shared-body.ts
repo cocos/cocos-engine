@@ -35,7 +35,7 @@ import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import {
-    addActorToScene, copyPhysXTransform, getJsTransform, getTempTransform, physXEqualsCocosQuat,
+    addActorToScene, syncNoneStaticToSceneIfWaking, getJsTransform, getTempTransform, physXEqualsCocosQuat,
     physXEqualsCocosVec3, PX, setMassAndUpdateInertia,
 } from './export-physx';
 import { VEC3_0 } from '../utils/util';
@@ -314,9 +314,8 @@ export class PhysXSharedBody {
     }
 
     syncPhysicsToScene (): void {
-        if (this._isStatic || this._dynamicActor.isSleeping()) return;
-        const transform = this._dynamicActor.getGlobalPose();
-        copyPhysXTransform(this.node, transform);
+        if (!this.isDynamic) return;
+        syncNoneStaticToSceneIfWaking(this._dynamicActor, this.node);
     }
 
     syncScale () {
