@@ -53,8 +53,8 @@ export class PipelineStateManager {
                 pass.rasterizerState,
                 pass.depthStencilState,
                 pass.blendState,
-                PassPool.get(hPass, PassView.PRIMITIVE),
-                PassPool.get(hPass, PassView.DYNAMIC_STATES),
+                pass.primitive,
+                pass.dynamicStates,
             );
             pso = device.createPipelineState(psoInfo);
             this._PSOHashMap.set(newHash, pso);

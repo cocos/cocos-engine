@@ -146,6 +146,7 @@ export class Model {
         this._castShadow = val;
         if (JSB) {
             ModelPool.set(this._handle, ModelView.CAST_SHADOW, val ? 1 : 0);
+            this._nativeObj.setCastShadow(val);
         }
     }
 
@@ -160,6 +161,9 @@ export class Model {
     set node (n: Node) {
         this._node = n;
         ModelPool.set(this._handle, ModelView.NODE, n.handle);
+        if (JSB) {
+            this._nativeObj.setNode(n.native);
+        }
     }
 
     get transform () : Node {
@@ -169,6 +173,9 @@ export class Model {
     set transform (n: Node) {
         this._transform = n;
         ModelPool.set(this._handle, ModelView.TRANSFORM, n.handle);
+        if (JSB) {
+            this._nativeObj.setTransform(n.native);
+        }
     }
 
     get visFlags () : number {
@@ -179,6 +186,7 @@ export class Model {
         this._visFlags = val;
         if (JSB) {
             ModelPool.set(this._handle, ModelView.VIS_FLAGS, val);
+            this._nativeObj.seVisFlag(val);
         }
     }
 
@@ -190,6 +198,7 @@ export class Model {
         this._enabled = val;
         if (JSB) {
             ModelPool.set(this._handle, ModelView.ENABLED, val ? 1 : 0);
+            this._nativeObj.setEnabled(val);
         }
     }
 
@@ -222,6 +231,11 @@ export class Model {
     protected _castShadow = false;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
+    protected _nativeObj: any;
+
+    get native (): any {
+        return this._nativeObj;
+    }
 
     /**
      * Setup a default empty model
@@ -234,6 +248,7 @@ export class Model {
         this._receiveShadow = val;
         if (JSB) {
             ModelPool.set(this._handle, ModelView.RECEIVE_SHADOW, val ? 1 : 0);
+            this._nativeObj.setReceiveShadow(val);
         }
     }
 
@@ -243,6 +258,7 @@ export class Model {
         const hInstancedAttrArray = AttributeArrayPool.alloc();
         ModelPool.set(this._handle, ModelView.INSTANCED_ATTR_ARRAY, hInstancedAttrArray);
         ModelPool.set(this._handle, ModelView.SUB_MODEL_ARRAY, hSubModelArray);
+        if (JSB) this._nativeObj = new ns.Model();
     }
 
     public initialize () {
@@ -284,6 +300,7 @@ export class Model {
                 AABBPool.free(this._hWorldBounds);
                 this._hWorldBounds = NULL_HANDLE;
             }
+            this._nativeObj = null;
         }
     }
 
@@ -346,6 +363,18 @@ export class Model {
         }
     }
 
+    private _applyLocalData () {
+        if (JSB) {
+            // this.native.setLocalData(this._localData);
+        }
+    }
+
+    private _applyLocalBuffer () {
+        if (JSB) {
+            this.native.setLocalBuffer(this._localBuffer);
+        }
+    }
+
     public updateUBOs (stamp: number) {
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
@@ -367,6 +396,8 @@ export class Model {
             Mat4.inverseTranspose(m4_1, worldMatrix);
             Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
             this._localBuffer.update(this._localData);
+            this._applyLocalData();
+            this._applyLocalBuffer();
         }
     }
 
@@ -378,6 +409,7 @@ export class Model {
             }
             AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, this._worldBounds!.center);
             AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, this._worldBounds!.halfExtents);
+            this._nativeObj.setWolrdBounds(this._worldBounds);
         }
     }
 
@@ -451,7 +483,7 @@ export class Model {
 
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
-
+        this._applyLocalData();
         this._lightmap = texture;
         this._lightmapUVParam = uvParam;
 
@@ -497,6 +529,20 @@ export class Model {
         return -1;
     }
 
+    private _setInstMatWorldIdx (idx: number) {
+        this._instMatWorldIdx = idx;
+        if (JSB) {
+            this.native.setInstmatWorldIdx(idx);
+        }
+    }
+
+    // TODO
+    // private _updateNativeInstanceAttribute (size: number, ele: any) {
+    //     if (JSB) {
+    //         this.native.getInstancedAttributeBlock().resize
+    //     }
+    // }
+
     // sub-classes can override the following functions if needed
 
     // for now no submodel level instancing attributes
@@ -539,7 +585,7 @@ export class Model {
             offset += info.size;
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
-        this._instMatWorldIdx = this._getInstancedAttributeIndex(INST_MAT_WORLD);
+        this._setInstMatWorldIdx(this._getInstancedAttributeIndex(INST_MAT_WORLD));
         this._transformUpdated = true;
     }
 
@@ -551,6 +597,7 @@ export class Model {
                 UBOLocal.SIZE,
                 UBOLocal.SIZE,
             ));
+            this._applyLocalBuffer();
         }
     }
 

@@ -24,6 +24,7 @@
  */
 
 import { JSB } from 'internal:constants';
+import { notStrictEqual } from 'assert';
 import { Color, Vec3 } from '../../math';
 import { AmbientPool, NULL_HANDLE, AmbientView, AmbientHandle } from '../core/memory-pools';
 import { legacyCC } from '../../global-exports';
@@ -49,6 +50,7 @@ export class Ambient {
         this._enabled = val;
         if (JSB) {
             AmbientPool.set(this._handle, AmbientView.ENABLE, val ? 1 : 0);
+            this.native.enabled = val;
         }
     }
     get enabled (): boolean {
@@ -67,6 +69,7 @@ export class Ambient {
         Color.toArray(this._colorArray, this._skyColor);
         if (JSB) {
             AmbientPool.setVec4(this._handle, AmbientView.SKY_COLOR, this._skyColor);
+            this.native.skyColor = this._skyColor;
         }
     }
 
@@ -82,6 +85,7 @@ export class Ambient {
         this._skyIllum = illum;
         if (JSB) {
             AmbientPool.set(this._handle, AmbientView.ILLUM, illum);
+            this.native.skyIllum = illum;
         }
     }
     /**
@@ -97,6 +101,7 @@ export class Ambient {
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
         if (JSB) {
             AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
+            this.native.groundAlbedo = this._groundAlbedo;
         }
     }
     protected _skyColor = new Color(51, 128, 204, 1.0);
@@ -106,12 +111,21 @@ export class Ambient {
     protected _handle: AmbientHandle = NULL_HANDLE;
     protected _enabled = false;
     protected _skyIllum = 0;
+    protected _nativeObj: any;
+
+    get native (): any {
+        return this._nativeObj;
+    }
+
     get handle () : AmbientHandle {
         return this._handle;
     }
 
     constructor () {
-        this._handle = AmbientPool.alloc();
+        if (JSB) {
+            this._handle = AmbientPool.alloc();
+            this._nativeObj = new ns.Ambient();
+        }
     }
 
     public initialize (ambientInfo: AmbientInfo) {
@@ -124,6 +138,7 @@ export class Ambient {
         if (JSB && this._handle) {
             AmbientPool.free(this._handle);
             this._handle = NULL_HANDLE;
+            this._nativeObj = null;
         }
     }
 

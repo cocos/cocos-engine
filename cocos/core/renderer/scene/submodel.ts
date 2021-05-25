@@ -45,6 +45,7 @@ export class SubModel {
      protected _inputAssembler: InputAssembler | null = null;
      protected _descriptorSet: DescriptorSet | null = null;
      protected _passCount = 0;
+     protected _nativeObj: any;
 
      private _destroyDescriptorSet () {
         this._descriptorSet!.destroy();
@@ -167,8 +168,15 @@ export class SubModel {
          }
      }
 
+     get native (): any {
+         return this._nativeObj;
+     }
+
      private _init () {
          this._handle = SubModelPool.alloc();
+         if (JSB) {
+             this._nativeObj = new ns.SubModel();
+         }
      }
 
      public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
@@ -208,6 +216,7 @@ export class SubModel {
      private _destroy () {
          if (JSB) {
              SubModelPool.free(this._handle);
+             this._nativeObj = null;
          }
          this._handle = NULL_HANDLE;
      }

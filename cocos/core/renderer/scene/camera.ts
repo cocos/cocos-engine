@@ -351,7 +351,6 @@ export class Camera {
                 CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
                 this._nativeObj.matViewProj = this._matViewProj;
                 this._nativeObj.matViewProjInv = this._matViewProjInv;
-
                 recordFrustumToSharedMemory(this._frustumHandle, this._frustum);
                 this._nativeObj.frustum = this._frustum;
             }
