@@ -153,6 +153,7 @@ export class SubContextView extends Component {
 
             const image = this._imageAsset;
             image.reset(sharedCanvas);
+            this._texture.image = image;
             this._texture.create(sharedCanvas.width, sharedCanvas.height);
 
             this._sprite = this._content.getComponent(Sprite);

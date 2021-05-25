@@ -32,7 +32,7 @@
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, visible, multiline, type, serializable, editable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { BitmapFont, Font, SpriteFrame } from '../assets';
-import { Texture2D } from '../../core/assets';
+import { ImageAsset, Texture2D } from '../../core/assets';
 import { ccenum } from '../../core/value-types/enum';
 import { Batcher2D } from '../renderer/batcher-2d';
 import { FontAtlas } from '../assets/bitmap-font';
@@ -813,7 +813,10 @@ export class Label extends Renderable2D {
             } else if (!this._ttfSpriteFrame) {
                 this._ttfSpriteFrame = new SpriteFrame();
                 this._assemblerData = this._assembler!.getAssemblerData();
-                this._ttfSpriteFrame.texture = new Texture2D();
+                const image = new ImageAsset(this._assemblerData!.canvas);
+                const texture = new Texture2D();
+                texture.image = image;
+                this._ttfSpriteFrame.texture = texture;
             }
 
             if (this.cacheMode !== CacheMode.CHAR) {
