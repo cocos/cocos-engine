@@ -205,7 +205,7 @@ export abstract class CommandBuffer extends Obj {
      * @zh 设置混合因子。
      * @param blendConstants The new blend constants.
      */
-    public abstract setBlendConstants (blendConstants: number[]): void;
+    public abstract setBlendConstants (blendConstants: Color): void;
 
     /**
      * @en Set depth bound.

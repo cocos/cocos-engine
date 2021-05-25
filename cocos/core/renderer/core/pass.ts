@@ -50,6 +50,7 @@ import {
     getBindingFromHandle, getDefaultFromType, getOffsetFromHandle, getPropertyTypeFromHandle, getTypeFromHandle, type2reader, type2writer,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
+import { errorID } from '../../platform/debug';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -369,7 +370,12 @@ export class Pass {
      * @zh 更新当前 Uniform 数据。
      */
     public update (): void {
-        if (this._rootBufferDirty && this._rootBuffer) {
+        if (!this._descriptorSet) {
+            errorID(12006);
+            return;
+        }
+
+        if (this._rootBuffer && this._rootBufferDirty) {
             this._rootBuffer.update(this._rootBlock!);
             this._rootBufferDirty = false;
         }
@@ -389,7 +395,7 @@ export class Pass {
 
         if (this._rootBuffer) {
             this._rootBuffer.destroy();
-            this._rootBlock = null;
+            this._rootBuffer = null;
         }
 
         // textures are reused
