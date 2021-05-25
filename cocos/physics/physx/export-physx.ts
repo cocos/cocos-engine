@@ -37,12 +37,12 @@
 
 import { BYTEDANCE } from 'internal:constants';
 // import PhysX from '@cocos/physx';
-import { IQuatLike, IVec3Like, Node, Quat, RecyclePool, sys, Vec3 } from '../../core';
+import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, sys, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
 import { AABB, Ray } from '../../core/geometry';
 import { IRaycastOptions } from '../spec/i-physics-world';
-import { PhysicsRayResult } from '../framework';
+import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
@@ -50,9 +50,9 @@ import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-en
 let USE_BYTEDANCE = false;
 if (BYTEDANCE && sys.os === sys.OS.ANDROID) {
     USE_BYTEDANCE = true;
-    console.info('[PHYSICS]', 'Use PhysX Native Libs.');
+    console.info('[PHYSICS]:', 'Use PhysX Native Libs.');
 } else {
-    console.info('[PHYSICS]', 'Use PhysX js or wasm Libs.');
+    console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
 }
 const globalThis = legacyCC._global;
 // globalThis.PhysX = PhysX;
@@ -86,6 +86,13 @@ if (globalThis.PhysX != null) {
 
 if (USE_BYTEDANCE && globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
 export const PX = _px;
+
+/**
+ * Extension config for bytedance
+ */
+interface IPhysicsConfigEXT extends IPhysicsConfig {
+    physX: { epsilon: number, multiThread: boolean, subThreadCount: number, }
+}
 
 if (PX) {
     globalThis.PhysX = PX;
@@ -375,7 +382,7 @@ export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array
 
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    console.log(`[PHYSICS] cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
+    console.log(`[PHYSICS]: cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 
@@ -395,7 +402,7 @@ export function createBV34TriangleMesh (vertices: number[], indices: Uint32Array
     midDesc.setNumPrimsLeaf(numTrisPerLeaf);
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    console.log(`[PHYSICS] cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
+    console.log(`[PHYSICS]: cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 
@@ -529,6 +536,8 @@ export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRayc
 
 export function initializeWorld (world: any) {
     if (USE_BYTEDANCE) {
+        initConfigForByteDance();
+        hackForMultiThread();
         // const physics = PX.createPhysics();
         const physics = PX.physics;
         const cp = new PX.CookingParams();
@@ -538,7 +547,7 @@ export function initializeWorld (world: any) {
             const mstc = sceneDesc.getMaxSubThreadCount();
             const count = PX.SUB_THREAD_COUNT > mstc ? mstc : PX.SUB_THREAD_COUNT;
             sceneDesc.setSubThreadCount(count);
-            console.info('[PHYSICS][PhysX]:', 'use muti-thread mode, sub thread count:', count);
+            console.info('[PHYSICS][PhysX]:', `use muti-thread mode, sub thread count: ${count}, max count: ${mstc}`);
         } else {
             console.info('[PHYSICS][PhysX]:', 'use single-thread mode');
         }
@@ -691,5 +700,65 @@ export function syncNoneStaticToSceneIfWaking (actor: any, node: Node) {
     } else {
         if (actor.isSleeping()) return;
         copyPhysXTransform(node, actor.getGlobalPose());
+    }
+}
+
+/// hacks
+
+function initConfigForByteDance () {
+    if (game.config.physics && (game.config.physics as IPhysicsConfigEXT).physX) {
+        const settings = (game.config.physics as IPhysicsConfigEXT).physX;
+        PX.EPSILON = settings.epsilon;
+        PX.MULTI_THREAD = settings.multiThread;
+        PX.SUB_THREAD_COUNT = settings.subThreadCount;
+    }
+}
+
+// hack for multi thread mode, should be refactor in future
+function hackForMultiThread () {
+    if (USE_BYTEDANCE && PX.MULTI_THREAD) {
+        PhysicsSystem.prototype.postUpdate = function postUpdate (deltaTime: number) {
+            const sys = this as any;
+            if (!sys._enable) {
+                sys.physicsWorld.syncSceneToPhysics();
+                return;
+            }
+            if (sys._autoSimulation) {
+                director.emit(Director.EVENT_BEFORE_PHYSICS);
+                sys._accumulator += deltaTime;
+                sys._subStepCount = 1;
+                sys.physicsWorld.syncSceneToPhysics();
+                sys.physicsWorld.step(sys._fixedTimeStep);
+                sys._accumulator -= sys._fixedTimeStep;
+                sys._mutiThreadYield = performance.now();
+            }
+        };
+
+        // eslint-disable-next-line no-inner-declarations
+        function lastUpdate (sys: any) {
+            if (!sys._enable) return;
+
+            if (sys._autoSimulation) {
+                const yieldTime = performance.now() - sys._mutiThreadYield;
+                sys.physicsWorld.syncPhysicsToScene();
+                sys.physicsWorld.emitEvents();
+                if (legacyCC.profiler && legacyCC.profiler._stats) {
+                    legacyCC.profiler._stats.physics.counter._time += yieldTime;
+                }
+                director.emit(Director.EVENT_AFTER_PHYSICS);
+            }
+        }
+
+        const oldMainLoop = director.mainLoop;
+        director.mainLoop = function mainLoop (time: number) {
+            const temp = director as any;
+            const purgeDirectorInNextLoop = temp._purgeDirectorInNextLoop;
+            const invalid = temp._invalid;
+            const paused = temp._paused;
+            oldMainLoop.call(this, time);
+            if (!purgeDirectorInNextLoop && !invalid && !paused) {
+                lastUpdate(PhysicsSystem.instance);
+            }
+        };
     }
 }
