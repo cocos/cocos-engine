@@ -746,7 +746,7 @@ export class Label extends Renderable2D {
             if (this._colorDirty) {
                 this.updateRenderData(false);
                 this._colorDirty = false;
-            } else if ((this._cacheAlpha !== this.node._uiProps.opacity) && this._renderFlag && this._assembler && this._assembler.updateColor) {
+            } else if ((this._cacheAlpha !== this.node._uiProps.opacity) && this._renderFlag && this._assembler && this._assembler.updateOpacity) {
                 this._assembler.updateOpacity(this);
                 this._cacheAlpha = this.node._uiProps.opacity;
             }

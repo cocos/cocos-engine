@@ -271,7 +271,12 @@ class System {
         throw new Error('TODO');
     }
     public getSafeAreaEdge (): SafeAreaEdge {
-        throw new Error('TODO');
+        return {
+            top: 0,
+            bottom: 0,
+            left: 0,
+            right: 0,
+        };
     }
     public getBatteryLevel (): number {
         if (this._battery) {
