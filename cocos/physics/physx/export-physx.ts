@@ -749,7 +749,7 @@ function hackForMultiThread () {
             }
         }
 
-        director.on(Director.EVENT_END_OF_FRAME, () => {
+        director.on(Director.EVENT_END_FRAME, () => {
             if (!director.isPaused) {
                 lastUpdate(PhysicsSystem.instance);
             }
