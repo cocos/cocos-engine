@@ -178,7 +178,7 @@ export class Skybox {
         }
         if (JSB) {
             SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);
-            this._nativeObj.model = this._model;
+            this._nativeObj.model = this._model.native;
         }
         if (!this._envmap) {
             this._envmap = this._default;

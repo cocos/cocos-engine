@@ -457,7 +457,7 @@ export class Shadows {
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
             if (JSB) {
                 ShadowsPool.set(this._handle, ShadowsView.INSTANCE_PASS, this._instancingMaterial.passes[0].handle);
-                this._nativeObj.instancePass = this._instancingMaterial.passes[0].handle;
+                this._nativeObj.instancePass = this._instancingMaterial.passes[0].native;
             }
         }
 
@@ -531,7 +531,7 @@ export class Shadows {
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
             if (JSB) {
                 ShadowsPool.set(this._handle, ShadowsView.INSTANCE_PASS, this._instancingMaterial.passes[0].handle);
-                this._nativeObj.instancePass = this._instancingMaterial.passes[0].handle;
+                this._nativeObj.instancePass = this._instancingMaterial.passes[0].native;
             }
         }
 

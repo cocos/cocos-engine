@@ -45,9 +45,12 @@ export class PipelineSceneData {
             PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.FOG, this.fog.handle);
             PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.SHADOW, this.shadows.handle);
 
-            // TODO(minggo): sync ambient, skybox, shaodw.
             // @ts-expect-error: create native object
             this._nativeObj = new ns.PipelineSharedSceneData();
+            this._nativeObj.fog = this.fog.native;
+            this._nativeObj.ambient = this.ambient.native;
+            this._nativeObj.skybox = this.skybox.native;
+            this._nativeObj.shadow = this.shadows.native;
         }
     }
 
@@ -160,7 +163,7 @@ export class PipelineSceneData {
             const shaderHandle = passLit.getShaderVariant();
             PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER, shaderHandle);
             this._nativeObj.deferredLightPassShader = ShaderPool.get(shaderHandle);
-            // TODO(minggo): syn pass
+            this._nativeObj.deferredLightPass = passLit.native;
         }
 
         if (builtinPostProcess && JSB) {
@@ -169,7 +172,7 @@ export class PipelineSceneData {
             const shaderHandle = passPost.getShaderVariant();
             PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER, shaderHandle);
             this._nativeObj.deferredPostPassShader = ShaderPool.get(shaderHandle);
-            // TODO(minggo): syn pass
+            this._nativeObj.deferredPostPass = passPost.native;
         }
     }
 
