@@ -42,8 +42,7 @@ import { ImageAsset } from '../core/assets/image-asset';
 import {  Size } from '../core/math';
 
 import { legacyCC } from '../core/global-exports';
-import { CCObject, SystemEventType } from '../core';
-import { CCObject, Texture2D } from '../core';
+import { SystemEventType, CCObject, Texture2D } from '../core';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
