@@ -59,3 +59,8 @@ export function createDefaultPipeline () {
     rppl.initialize({ flows: [] });
     return rppl;
 }
+
+export declare class NativeNode {
+    constructor (data: ArrayBuffer, length: number);
+    public updateWorldTransform ();
+}
