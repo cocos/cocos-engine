@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { JSB } from 'internal:constants';
 import { MeshBuffer } from './mesh-buffer';
 import { Material } from '../../core/assets/material';
 import { Texture, Sampler } from '../../core/gfx';
@@ -130,8 +131,11 @@ export class DrawBatch2D {
                     this._passes[i] = new Pass(legacyCC.director.root);
                     // @ts-expect-error hack for UI use pass object
                     this._passes[i]._handle = PassPool.alloc();
-                    // @ts-expect-error hack for UI use pass object
-                    this._passes[i]._nativeObj = new ns.Pass();
+
+                    if (JSB) {
+                        // @ts-expect-error hack for UI use pass object
+                        this._passes[i]._nativeObj = new ns.Pass();
+                    }
                 }
                 const mtlPass = passes[i];
                 const passInUse = this._passes[i];
