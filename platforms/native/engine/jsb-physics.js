@@ -326,11 +326,11 @@ class RigidBody {
     setMass (v) { this._impl.setMass(v); }
     setAllowSleep (v) { this._impl.setAllowSleep(v); }
     setLinearDamping (v) {
-        const dt = PhysicsSystem.instance.fixedTimeStep;
+        const dt = cc.PhysicsSystem.instance.fixedTimeStep;
         this._impl.setLinearDamping((1 - (1 - v) ** dt) / dt); 
     }
     setAngularDamping (v) {        
-        const dt = PhysicsSystem.instance.fixedTimeStep;
+        const dt = cc.PhysicsSystem.instance.fixedTimeStep;
         this._impl.setAngularDamping((1 - (1 - v) ** dt) / dt);
     }
     useGravity (v) { this._impl.useGravity(v); }
