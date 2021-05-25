@@ -30,6 +30,7 @@
 
 /* eslint-disable import/no-mutable-exports */
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
+import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../core/global-exports';
 import { IConeTwistConstraint, IHingeConstraint, IPointToPointConstraint } from '../spec/i-physics-constraint';
 import {
@@ -71,7 +72,7 @@ function select (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {
     legacyCC._global.CC_PHYSICS_BUILTIN = id === 'builtin';
     legacyCC._global.CC_PHYSICS_CANNON = id === 'cannon.js';
     legacyCC._global.CC_PHYSICS_AMMO = id === 'ammo.js';
-    console.info(`[PHYSICS]: Using ${id}`);
+    if (!EDITOR) console.info(`[PHYSICS]: Using ${id}.`);
     selector.id = id;
     selector.wrapper = wrapper;
     if (id != null) selector.backend[id] = wrapper;

@@ -35,7 +35,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable no-lonely-if */
 
-import { BYTEDANCE } from 'internal:constants';
+import { BYTEDANCE, EDITOR } from 'internal:constants';
 // import PhysX from '@cocos/physx';
 import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, sys, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
@@ -55,7 +55,7 @@ if (BYTEDANCE && sys.os === sys.OS.ANDROID) {
     USE_BYTEDANCE = true;
     if (globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
 } else {
-    console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
+    if (!EDITOR) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
     // globalThis.PhysX = PhysX;
     if (globalThis.PhysX != null) {
         _px = (PhysX as any)({
@@ -82,7 +82,7 @@ if (BYTEDANCE && sys.os === sys.OS.ANDROID) {
             },
         });
     } else {
-        console.error('[PHYSICS]:', 'Not Found PhysX js or wasm Libs.');
+        if (!EDITOR) console.error('[PHYSICS]:', 'Not Found PhysX js or wasm Libs.');
     }
 }
 export const PX = _px;
