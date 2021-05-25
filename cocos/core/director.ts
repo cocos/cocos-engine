@@ -232,6 +232,13 @@ export class Director extends EventTarget {
      */
     public static readonly EVENT_AFTER_PHYSICS = 'director_after_physics';
 
+    /**
+     * The event which will be triggered at the frame end.<br/>
+     * 一帧结束之后所触发的事件。
+     * @event Director.EVENT_END_OF_FRAME
+     */
+     public static readonly EVENT_END_OF_FRAME = 'director_end_of_frame';
+
     public static instance: Director;
 
     public _compScheduler: ComponentScheduler;
@@ -907,6 +914,7 @@ export class Director extends EventTarget {
 
             eventManager.frameUpdateListeners();
             Node.clearBooks();
+            this.emit(Director.EVENT_END_OF_FRAME);
             this._totalFrames++;
         }
     }
