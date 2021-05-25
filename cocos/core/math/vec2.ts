@@ -31,11 +31,11 @@
 
 import { CCClass } from '../data/class';
 import { Mat4 } from './mat4';
-import { IMat3Like, IMat4Like, IVec2Like } from './type-define';
+import { IMat3Like, IMat4Like, IVec2Like, FloatArray } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
-import { MathBase } from './math-pool';
+import { MathBase } from './math-base';
 
 /**
  * @en Representation of 2D vectors and points.
@@ -442,17 +442,23 @@ export class Vec2 extends MathBase {
         this._array[1] = y;
     }
 
-    constructor (x: Vec2);
+    constructor (x: Vec2 | FloatArray);
 
     constructor (x?: number, y?: number);
 
-    constructor (x?: number | Vec2, y?: number) {
+    constructor (x?: number | Vec2 | FloatArray, y?: number) {
         super();
         if (x && typeof x === 'object') {
-            const v = x.array;
-            this._array[0] = v[0];
-            this._array[1] = v[1];
+            if (ArrayBuffer.isView(x)) {
+                this._array = x;
+            } else {
+                const v = x.array;
+                this._array = MathBase.createFloatArray(2);
+                this._array[0] = v[0];
+                this._array[1] = v[1];
+            }
         } else {
+            this._array = MathBase.createFloatArray(2);
             this._array[0] = x || 0;
             this._array[1] = y || 0;
         }

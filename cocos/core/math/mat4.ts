@@ -31,11 +31,11 @@
 import { CCClass } from '../data/class';
 import { Mat3 } from './mat3';
 import { Quat } from './quat';
-import { IMat4Like, IVec3Like } from './type-define';
+import { IMat4Like, IVec3Like, FloatArray } from './type-define';
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
-import { MathBase } from './math-pool';
+import { MathBase } from './math-base';
 
 export const preTransforms = Object.freeze([
     Object.freeze([1,  0,  0,  1]), // SurfaceTransform.IDENTITY
@@ -1582,7 +1582,7 @@ export class Mat4 extends MathBase {
         this._array[15] = m;
     }
 
-    constructor (m00: Mat4);
+    constructor (m00: Mat4 | FloatArray);
 
     constructor (
         m00?: number, m01?: number, m02?: number, m03?: number,
@@ -1591,19 +1591,26 @@ export class Mat4 extends MathBase {
         m12?: number, m13?: number, m14?: number, m15?: number);
 
     constructor (
-        m00: Mat4 | number = 1, m01 = 0, m02 = 0, m03 = 0,
+        m00: Mat4 | number | FloatArray = 1, m01 = 0, m02 = 0, m03 = 0,
         m04 = 0, m05 = 1, m06 = 0, m07 = 0,
         m08 = 0, m09 = 0, m10 = 1, m11 = 0,
         m12 = 0, m13 = 0, m14 = 0, m15 = 1,
     ) {
         super();
         if (m00 && typeof m00 === 'object') {
-            const v = m00.array;
-            this._array[0] = v[0]; this._array[1] = v[1]; this._array[2] = v[2]; this._array[3] = v[3];
-            this._array[4] = v[4]; this._array[5] = v[5]; this._array[6] = v[6]; this._array[7] = v[7];
-            this._array[8] = v[8]; this._array[9] = v[9]; this._array[10] = v[10]; this._array[11] = v[11];
-            this._array[12] = v[12]; this._array[13] = v[13]; this._array[14] = v[14]; this._array[15] = v[15];
+            if (ArrayBuffer.isView(m00)) {
+                this._array = m00;
+                this._array.set([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+            } else {
+                const v = m00.array;
+                this._array = MathBase.createFloatArray(16);
+                this._array[0] = v[0]; this._array[1] = v[1]; this._array[2] = v[2]; this._array[3] = v[3];
+                this._array[4] = v[4]; this._array[5] = v[5]; this._array[6] = v[6]; this._array[7] = v[7];
+                this._array[8] = v[8]; this._array[9] = v[9]; this._array[10] = v[10]; this._array[11] = v[11];
+                this._array[12] = v[12]; this._array[13] = v[13]; this._array[14] = v[14]; this._array[15] = v[15];
+            }
         } else {
+            this._array = MathBase.createFloatArray(16);
             this._array[0] = m00; this._array[1] = m01; this._array[2] = m02; this._array[3] = m03;
             this._array[4] = m04; this._array[5] = m05; this._array[6] = m06; this._array[7] = m07;
             this._array[8] = m08; this._array[9] = m09; this._array[10] = m10; this._array[11] = m11;

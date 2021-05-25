@@ -32,10 +32,10 @@
 import { CCClass } from '../data/class';
 import { Mat4 } from './mat4';
 import { Size } from './size';
-import { IRectLike, IVec2Like } from './type-define';
+import { IRectLike, IVec2Like, FloatArray } from './type-define';
 import { Vec2 } from './vec2';
 import { legacyCC } from '../global-exports';
-import { MathBase } from './math-pool';
+import { MathBase } from './math-base';
 
 /**
  * @en
@@ -280,7 +280,7 @@ export class Rect extends MathBase {
      * @zh 构造与指定矩形相等的矩形。
      * @param other Specified Rect.
      */
-    constructor (x: Rect);
+    constructor (x: Rect | FloatArray);
 
     /**
      * @en Constructs a Rect with specified values.
@@ -292,15 +292,22 @@ export class Rect extends MathBase {
      */
     constructor (x?: number, y?: number, width?: number, height?: number);
 
-    constructor (x?: Rect | number, y?: number, width?: number, height?: number) {
+    constructor (x?: Rect | number | FloatArray, y?: number, width?: number, height?: number) {
         super();
         if (x && typeof x === 'object') {
-            const v = x.array;
-            this._array[0] = v[0];
-            this._array[1] = v[1];
-            this._array[2] = v[2];
-            this._array[3] = v[3];
+            if (ArrayBuffer.isView(x)) {
+                this._array = x;
+                this._array.fill(0);
+            } else {
+                const v = x.array;
+                this._array = MathBase.createFloatArray(4);
+                this._array[0] = v[0];
+                this._array[1] = v[1];
+                this._array[2] = v[2];
+                this._array[3] = v[3];
+            }
         } else {
+            this._array = MathBase.createFloatArray(4);
             this._array[0] = x || 0;
             this._array[1] = y || 0;
             this._array[2] = width || 0;

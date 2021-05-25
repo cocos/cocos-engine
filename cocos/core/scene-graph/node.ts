@@ -38,12 +38,9 @@ import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
-import {
-    Mat3, Mat4, Quat, Vec3,
-} from '../math';
-import {
-    NULL_HANDLE, NodeHandle, NodePool, NodeView,
-} from '../renderer/core/memory-pools';
+import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import { NULL_HANDLE, NodeHandle } from '../renderer/core/memory-pools';
+import { NodePool, NodeView } from '../renderer/core/shared-memory-pool';
 import { NodeSpace, TransformBit } from './node-enum';
 import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
     applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';

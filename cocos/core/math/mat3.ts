@@ -30,11 +30,11 @@
 
 import { CCClass } from '../data/class';
 import { Quat } from './quat';
-import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like } from './type-define';
+import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like, FloatArray } from './type-define';
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
-import { MathBase } from './math-pool';
+import { MathBase } from './math-base';
 
 /**
  * @en Mathematical 3x3 matrix.
@@ -727,7 +727,7 @@ export class Mat3 extends MathBase {
         this._array[8] = m;
     }
 
-    constructor (m00: Mat3);
+    constructor (m00: Mat3 | FloatArray);
 
     constructor (
         m00?: number, m01?: number, m02?: number,
@@ -735,17 +735,24 @@ export class Mat3 extends MathBase {
         m06?: number, m07?: number, m08?: number);
 
     constructor (
-        m00: number | Mat3 = 1, m01 = 0, m02 = 0,
+        m00: number | Mat3 | FloatArray = 1, m01 = 0, m02 = 0,
         m03 = 0, m04 = 1, m05 = 0,
         m06 = 0, m07 = 0, m08 = 1,
     ) {
         super();
         if (m00 && typeof m00 === 'object') {
-            const v = m00.array;
-            this._array[0] = v[0]; this._array[1] = v[1]; this._array[2] = v[2];
-            this._array[3] = v[3]; this._array[4] = v[4]; this._array[5] = v[5];
-            this._array[6] = v[6]; this._array[7] = v[7]; this._array[8] = v[8];
+            if (ArrayBuffer.isView(m00)) {
+                this._array = m00;
+                this._array.set([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+            } else {
+                const v = m00.array;
+                this._array = MathBase.createFloatArray(9);
+                this._array[0] = v[0]; this._array[1] = v[1]; this._array[2] = v[2];
+                this._array[3] = v[3]; this._array[4] = v[4]; this._array[5] = v[5];
+                this._array[6] = v[6]; this._array[7] = v[7]; this._array[8] = v[8];
+            }
         } else {
+            this._array = MathBase.createFloatArray(9);
             this._array[0] = m00; this._array[1] = m01; this._array[2] = m02;
             this._array[3] = m03; this._array[4] = m04; this._array[5] = m05;
             this._array[6] = m06; this._array[7] = m07; this._array[8] = m08;

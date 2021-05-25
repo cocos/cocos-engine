@@ -73,6 +73,7 @@ type StandardBufferElement = number | IHandle<PoolType>;
 type GeneralBufferElement = StandardBufferElement | IVec2Like | IVec3Like | IVec4Like | IMat4Like;
 type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
 type BufferDataTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: BufferDataType };
+type BufferDataCountManifest<E extends BufferManifest> = { [key in E[keyof E]]: number };
 
 class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferTypeManifest<E>> implements IMemoryPool<P> {
     // naming convension:
@@ -949,7 +950,7 @@ export const AABBPool = new BufferPool<PoolType.AABB, typeof AABBView, IAABBView
 export enum SceneView {
     MAIN_LIGHT,    // handle
     MODEL_ARRAY,   // array handle
-    SPHERE_LIGHT_ARRAY, // array handle
+    SPHERE_LIGHT_ARRAY, // array handl
     SPOT_LIGHT_ARRAY, // array handle
     BATCH_ARRAY_2D, // array handle
     COUNT,
@@ -1060,40 +1061,6 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
 export const CameraPool = new BufferPool<PoolType.CAMERA, typeof CameraView, ICameraViewType>(PoolType.CAMERA, cameraViewDataType, CameraView);
-
-export enum NodeView {
-    FLAGS_CHANGED,
-    LAYER,
-    WORLD_SCALE,        // Vec3
-    WORLD_POSITION = 5, // Vec3
-    WORLD_ROTATION = 8, // Quat
-    WORLD_MATRIX = 12,  // Mat4
-    COUNT = 28
-}
-interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
-    [NodeView.FLAGS_CHANGED]: number;
-    [NodeView.LAYER]: number;
-    [NodeView.WORLD_SCALE]: Vec3;
-    [NodeView.WORLD_POSITION]: Vec3;
-    [NodeView.WORLD_ROTATION]: Quat;
-    [NodeView.WORLD_MATRIX]: Mat4;
-    [NodeView.COUNT]: never;
-}
-const nodeViewDataType: BufferDataTypeManifest<typeof NodeView> = {
-    [NodeView.FLAGS_CHANGED]: BufferDataType.UINT32,
-    [NodeView.LAYER]: BufferDataType.UINT32,
-    [NodeView.WORLD_SCALE]: BufferDataType.FLOAT32,
-    [NodeView.WORLD_POSITION]: BufferDataType.FLOAT32,
-    [NodeView.WORLD_ROTATION]: BufferDataType.FLOAT32,
-    [NodeView.WORLD_MATRIX]: BufferDataType.FLOAT32,
-    [NodeView.COUNT]: BufferDataType.NEVER,
-};
-// @ts-expect-error Don't alloc memory for Vec3, Quat, Mat4 on web, as they are accessed by class member variable.
-if (!JSB) { delete NodeView[NodeView.COUNT]; NodeView[NodeView.COUNT = NodeView.LAYER + 1] = 'COUNT'; }
-// Theoretically we only have to declare the type view here while all the other arguments can be inferred.
-// but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
-// we'll have to explicitly declare all these types.
-export const NodePool = new BufferPool<PoolType.NODE, typeof NodeView, INodeViewType>(PoolType.NODE, nodeViewDataType, NodeView);
 
 export enum RootView {
     CUMULATIVE_TIME,

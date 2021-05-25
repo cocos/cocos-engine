@@ -31,10 +31,10 @@
 
 import { CCClass } from '../data/class';
 import { Mat4 } from './mat4';
-import { IMat4Like, IQuatLike, IVec4Like } from './type-define';
+import { IMat4Like, IQuatLike, IVec4Like, FloatArray } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 import { legacyCC } from '../global-exports';
-import { MathBase } from './math-pool';
+import { MathBase } from './math-base';
 
 /**
  * @en Representation of four-dimensional vectors.
@@ -525,19 +525,26 @@ export class Vec4 extends MathBase {
         this._array[3] = w;
     }
 
-    constructor (x: Vec4);
+    constructor (x: Vec4 | FloatArray);
 
     constructor (x?: number, y?: number, z?: number, w?: number);
 
-    constructor (x?: number | Vec4, y?: number, z?: number, w?: number) {
+    constructor (x?: number | Vec4 | FloatArray, y?: number, z?: number, w?: number) {
         super();
         if (x && typeof x === 'object') {
-            const v = x.array;
-            this._array[0] = v[0];
-            this._array[1] = v[1];
-            this._array[2] = v[2];
-            this._array[3] = v[3];
+            if (ArrayBuffer.isView(x)) {
+                this._array = x;
+                this._array.fill(0);
+            } else {
+                const v = x.array;
+                this._array = MathBase.createFloatArray(4);
+                this._array[0] = v[0];
+                this._array[1] = v[1];
+                this._array[2] = v[2];
+                this._array[3] = v[3];
+            }
         } else {
+            this._array = MathBase.createFloatArray(4);
             this._array[0] = x || 0;
             this._array[1] = y || 0;
             this._array[2] = z || 0;
