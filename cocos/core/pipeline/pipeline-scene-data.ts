@@ -32,7 +32,7 @@ import { IRenderObject } from './define';
 import { Device, Framebuffer } from '../gfx';
 import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
-import { PipelineSceneDataPool, PipelineSceneDataHandle, PipelineSceneDataView, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
+import { PipelineSceneDataPool, PipelineSceneDataHandle, PipelineSceneDataView, PassHandle, ShaderHandle, ShaderPool } from '../renderer/core/memory-pools';
 import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Material } from '../assets';
 
@@ -157,16 +157,18 @@ export class PipelineSceneData {
         if (builinDeferred && JSB) {
             const passLit = builinDeferred.passes[0];
             PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS, passLit.handle);
-            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER, passLit.getShaderVariant());
-            this._nativeObj.deferredLightPass = passLit;
+            const shaderHandle = passLit.getShaderVariant();
+            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER, shaderHandle);
+            this._nativeObj.deferredLightPassShader = ShaderPool.get(shaderHandle);
             // TODO(minggo): syn pass
         }
 
         if (builtinPostProcess && JSB) {
             const passPost = builtinPostProcess.passes[0];
             PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS, passPost.handle);
-            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER, passPost.getShaderVariant());
-            this._nativeObj.deferredPostPass = passPost;
+            const shaderHandle = passPost.getShaderVariant();
+            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER, shaderHandle);
+            this._nativeObj.deferredPostPassShader = ShaderPool.get(shaderHandle);
             // TODO(minggo): syn pass
         }
     }
