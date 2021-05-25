@@ -71,6 +71,7 @@ export class SpotLight extends Light {
             this._hAABB = AABBPool.alloc();
             this._hFrustum = FrustumPool.alloc();
             LightPool.set(this._handle, LightView.AABB, this._hAABB);
+            LightPool.set(this._handle, LightView.FRUSTUM, this._hFrustum);
         }
     }
 
@@ -231,6 +232,7 @@ export class SpotLight extends Light {
             // Mat4.invert(_matViewProjInv, _matViewProj);
 
             this._frustum.update(_matViewProj, _matViewProjInv);
+
             this._needUpdate = false;
 
             this._update();
