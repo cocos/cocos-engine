@@ -297,7 +297,7 @@ exports.Elements = Elements;
 /**
  * Method of initializing the panel
  */
-exports.ready = function () {
+exports.ready = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {

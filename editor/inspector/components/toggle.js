@@ -4,7 +4,7 @@ exports.template = template;
 exports.$ = $;
 exports.update = update;
 
-exports.ready = function () {
+exports.ready = function() {
     this.elements = Object.assign(elements, {
         isChecked: {
             displayOrder: 2,

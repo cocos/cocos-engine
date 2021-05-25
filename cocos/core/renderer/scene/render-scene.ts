@@ -83,6 +83,10 @@ export class RenderScene {
         return this._scenePoolHandle;
     }
 
+    get native (): any {
+        return this._nativeObj;
+    }
+
     get batches () {
         return this._batches;
     }
@@ -106,6 +110,7 @@ export class RenderScene {
     private _batchArrayHandle: UIBatchArrayHandle = NULL_HANDLE;
     private _sphereLightsHandle: LightArrayHandle = NULL_HANDLE;
     private _spotLightsHandle: LightArrayHandle = NULL_HANDLE;
+    private _nativeObj: any;
 
     constructor (root: Root) {
         this._root = root;
@@ -169,6 +174,8 @@ export class RenderScene {
                 UIBatchArrayPool.free(this._batchArrayHandle);
                 this._batchArrayHandle = NULL_HANDLE;
             }
+
+            this._nativeObj = null;
         }
     }
 
@@ -206,6 +213,7 @@ export class RenderScene {
         this._mainLight = dl;
         if (JSB) {
             ScenePool.set(this._scenePoolHandle, SceneView.MAIN_LIGHT, dl.handle);
+            this._nativeObj.setMainLight(dl.native);
         }
     }
 
@@ -213,12 +221,10 @@ export class RenderScene {
         if (this._mainLight === dl) {
             const dlList = this._directionalLights;
             if (dlList.length) {
-                this._mainLight = dlList[dlList.length - 1];
+                this.setMainLight(dlList[dlList.length - 1]);
                 if (this._mainLight.node) { // trigger update
                     this._mainLight.node.hasChangedFlags |= TransformBit.ROTATION;
                 }
-            } else {
-                this._mainLight = null;
             }
         }
     }
@@ -243,6 +249,7 @@ export class RenderScene {
         this._sphereLights.push(pl);
         if (JSB) {
             LightArrayPool.push(this._sphereLightsHandle, pl.handle);
+            this._nativeObj.addSphereLight(pl.native);
         }
     }
 
@@ -253,6 +260,7 @@ export class RenderScene {
                 this._sphereLights.splice(i, 1);
                 if (JSB) {
                     LightArrayPool.erase(this._sphereLightsHandle, i);
+                    this._nativeObj.removeSphereLight(pl.native);
                 }
                 return;
             }
@@ -264,6 +272,7 @@ export class RenderScene {
         this._spotLights.push(sl);
         if (JSB) {
             LightArrayPool.push(this._spotLightsHandle, sl.handle);
+            this._nativeObj.addSpotLight(sl.native);
         }
     }
 
@@ -274,6 +283,7 @@ export class RenderScene {
                 this._spotLights.splice(i, 1);
                 if (JSB) {
                     LightArrayPool.erase(this._spotLightsHandle, i);
+                    this._nativeObj.removeSpotLight(sl.native);
                 }
                 return;
             }
@@ -287,6 +297,7 @@ export class RenderScene {
         this._sphereLights.length = 0;
         if (JSB) {
             LightArrayPool.clear(this._sphereLightsHandle);
+            this._nativeObj.removeSphereLights();
         }
     }
 
@@ -297,6 +308,7 @@ export class RenderScene {
         this._spotLights = [];
         if (JSB) {
             LightArrayPool.clear(this._spotLightsHandle);
+            this._nativeObj.removeSpotLights();
         }
     }
 
@@ -305,6 +317,7 @@ export class RenderScene {
         this._models.push(m);
         if (JSB) {
             ModelArrayPool.push(this._modelArrayHandle, m.handle);
+            this._nativeObj.addModel(m.native);
         }
     }
 
@@ -315,6 +328,7 @@ export class RenderScene {
                 this._models.splice(i, 1);
                 if (JSB) {
                     ModelArrayPool.erase(this._modelArrayHandle, i);
+                    this._nativeObj.removeModel(model.native);
                 }
                 return;
             }
@@ -329,6 +343,7 @@ export class RenderScene {
         this._models.length = 0;
         if (JSB) {
             ModelArrayPool.clear(this._modelArrayHandle);
+            this._nativeObj.removeModels();
         }
     }
 
@@ -386,6 +401,8 @@ export class RenderScene {
                 this._batchArrayHandle = UIBatchArrayPool.alloc();
                 ScenePool.set(this._scenePoolHandle, SceneView.BATCH_ARRAY_2D, this._batchArrayHandle);
             }
+
+            this._nativeObj = new ns.RenderScene();
         }
     }
 }

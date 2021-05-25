@@ -142,9 +142,22 @@ replaceProperty(sys, 'sys',
     })));
 
 // remove platform field
+replaceProperty(sys, 'sys', [
+    {
+        name: 'IPHONE',
+        newName: 'IOS',
+        target: sys.Platform,
+        targetName: 'sys.Platform',
+    },
+    {
+        name: 'IPAD',
+        newName: 'IOS',
+        target: sys.Platform,
+        targetName: 'sys.Platform',
+    },
+]);
 removeProperty(sys, 'sys',
-    ['LINUX',  'IPHONE', 'IPAD', 'BLACKBERRY',
-        'NACL', 'EMSCRIPTEN', 'TIZEN', 'WINRT', 'WP8',
-        'QQ_PLAY', 'FB_PLAYABLE_ADS'].map((item) => ({
+    ['LINUX', 'BLACKBERRY', 'NACL', 'EMSCRIPTEN', 'TIZEN',
+        'WINRT', 'WP8', 'QQ_PLAY', 'FB_PLAYABLE_ADS'].map((item) => ({
         name: item,
     })));

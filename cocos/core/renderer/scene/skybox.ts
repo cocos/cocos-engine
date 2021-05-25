@@ -117,18 +117,28 @@ export class Skybox {
     protected _enabled = false;
     protected _useIBL = false;
     protected _isRGBE = false;
+    protected _nativeObj: any;
+
+    get native (): any {
+        return this._nativeObj;
+    }
+
     get handle () : SkyboxHandle {
         return this._handle;
     }
 
     constructor () {
-        this._handle = SkyboxPool.alloc();
+        if (JSB) {
+            this._handle = SkyboxPool.alloc();
+            this._nativeObj = new ns.SkyBox();
+        }
     }
 
     private _setEnabled (val) {
         this._enabled = val;
         if (JSB) {
             SkyboxPool.set(this._handle, SkyboxView.ENABLE, val ? 1 : 0);
+            this._nativeObj.enabled = val;
         }
     }
 
@@ -136,6 +146,7 @@ export class Skybox {
         this._useIBL = val;
         if (JSB) {
             SkyboxPool.set(this._handle, SkyboxView.USE_IBL, val ? 1 : 0);
+            this._nativeObj.useIBL = val;
         }
     }
 
@@ -143,6 +154,7 @@ export class Skybox {
         this._isRGBE = val;
         if (JSB) {
             SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, val ? 1 : 0);
+            this._nativeObj.isRGBE = val;
         }
     }
 
@@ -166,6 +178,7 @@ export class Skybox {
         }
         if (JSB) {
             SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);
+            this._nativeObj.model = this._model.native;
         }
         if (!this._envmap) {
             this._envmap = this._default;
@@ -209,6 +222,7 @@ export class Skybox {
         if (JSB && this._handle) {
             SkyboxPool.free(this._handle);
             this._handle = NULL_HANDLE;
+            this._nativeObj = null;
         }
     }
 

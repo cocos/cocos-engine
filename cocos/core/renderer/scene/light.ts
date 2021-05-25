@@ -24,6 +24,7 @@
  */
 
 import { JSB } from 'internal:constants';
+import { notStrictEqual } from 'assert';
 import { Vec3 } from '../../math';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { RenderScene } from './render-scene';
@@ -69,17 +70,34 @@ export enum LightType {
 export const nt2lm = (size: number) => 4 * Math.PI * Math.PI * size * size;
 
 export class Light {
-    declare protected _handle: LightHandle;
+    protected _handle: LightHandle = NULL_HANDLE;
+    protected _nativeObj: any;
     protected _init (): void {
         if (JSB) {
             this._handle = LightPool.alloc();
             LightPool.set(this._handle, LightView.TYPE, this._type);
+
+            switch (this._type) {
+            case LightType.DIRECTIONAL:
+                this._nativeObj = new ns.DirectionalLight();
+                break;
+            case LightType.SPHERE:
+                this._nativeObj = new ns.SphereLight();
+                break;
+            case LightType.SPOT:
+                this._nativeObj = new ns.SpotLight();
+                break;
+            default:
+                break;
+            }
+            this._nativeObj.setType(this._type);
         }
     }
     protected _destroy (): void {
         if (this._handle) {
             LightPool.free(this._handle);
             this._handle = NULL_HANDLE;
+            this._nativeObj = null;
         }
     }
 
@@ -95,6 +113,7 @@ export class Light {
         this._color.set(color);
         if (JSB) {
             LightPool.setVec3(this._handle, LightView.COLOR, color);
+            this._nativeObj.setColor(color);
         }
     }
 
@@ -106,6 +125,7 @@ export class Light {
         this._useColorTemperature = enable;
         if (JSB) {
             LightPool.set(this._handle, LightView.USE_COLOR_TEMPERATURE, enable ? 1 : 0);
+            this._nativeObj.setUseColorTemperature(enable);
         }
     }
 
@@ -118,6 +138,7 @@ export class Light {
         ColorTemperatureToRGB(this._colorTempRGB, this._colorTemp);
         if (JSB) {
             LightPool.setVec3(this._handle, LightView.COLOR_TEMPERATURE_RGB, this._colorTempRGB);
+            this._nativeObj.setColorTemperatureRGB(this._colorTempRGB);
         }
     }
 
@@ -135,6 +156,7 @@ export class Light {
             this._node.hasChangedFlags |= TransformBit.ROTATION;
             if (JSB) {
                 LightPool.set(this._handle, LightView.NODE, this._node.handle);
+                this._nativeObj.setNode(n.native);
             }
         }
     }
@@ -161,6 +183,10 @@ export class Light {
 
     get handle () {
         return this._handle;
+    }
+
+    get native (): any {
+        return this._nativeObj;
     }
 
     protected _baked = false;

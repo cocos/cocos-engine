@@ -14,7 +14,7 @@ module.exports = {
         },
         particle: {
             spriteFrame:'Sprite Frame',
-            spriteFrameTip:'Sprite Frame'
+            spriteFrameTip:'Sprite Frame',
         },
         erpTextureCube: {
             anisotropy: 'Anisotropy',
@@ -256,7 +256,7 @@ module.exports = {
             },
             animationBakeRate: {
                 name: 'Animation Bake Rate',
-                title: 'Specify the animation bake rate in frames per second (fps).'
+                title: 'Specify the animation bake rate in frames per second (fps).',
             },
         },
         textureCube: {

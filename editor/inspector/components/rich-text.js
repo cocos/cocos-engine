@@ -6,7 +6,7 @@ exports.update = update;
 
 const { setHidden, isMultipleInvalid } = require('../utils/prop');
 
-exports.ready = function () {
+exports.ready = function() {
     this.elements = {
         string: {
             displayOrder: 0,
