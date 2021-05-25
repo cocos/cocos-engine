@@ -317,6 +317,7 @@ export class RenderScene {
         this._models.push(m);
         if (JSB) {
             ModelArrayPool.push(this._modelArrayHandle, m.handle);
+            this._nativeObj.addModel(m.native);
         }
     }
 
@@ -327,6 +328,7 @@ export class RenderScene {
                 this._models.splice(i, 1);
                 if (JSB) {
                     ModelArrayPool.erase(this._modelArrayHandle, i);
+                    this._nativeObj.removeModel(model.native);
                 }
                 return;
             }
@@ -341,6 +343,7 @@ export class RenderScene {
         this._models.length = 0;
         if (JSB) {
             ModelArrayPool.clear(this._modelArrayHandle);
+            this._nativeObj.removeModels();
         }
     }
 

@@ -453,6 +453,7 @@ export class Model {
         if (isNewSubModel && JSB) {
             const hSubModelArray = ModelPool.get(this._handle, ModelView.SUB_MODEL_ARRAY);
             SubModelArrayPool.assign(hSubModelArray, idx, this._subModels[idx].handle);
+            this._nativeObj.addSubModel(this._subModels[idx].native);
         }
     }
 
