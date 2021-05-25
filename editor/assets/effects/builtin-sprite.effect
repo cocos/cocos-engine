@@ -105,11 +105,13 @@ CCProgram sprite-vs %{
 
     vec4 pos = vec4(VectorTransformQuat(a_position * i.scale, i.rotation) + i.translation, 1.0);
 
-    uv0 = a_texCoord * i.uvSizeOffset.xy + i.uvSizeOffset.zw;
-
-    // uv0 = a_texCoord * floor(i.uvExtra.xy);
-    // tilingOffset = fract(i.uvSizeOffset);
-    // tilingOffset.xy = mix(vec2(1.0), tilingOffset.xy, sign(tilingOffset.xy));
+    // if (i.mode == 2) {
+    //   uv0 = a_texCoord * floor(i.uvExtra.xy);
+    //   tilingOffset = fract(i.uvSizeOffset);
+    //   tilingOffset.xy = mix(vec2(1.0), tilingOffset.xy, sign(tilingOffset.xy));
+    // } else {
+      uv0 = a_texCoord * i.uvSizeOffset.xy + i.uvSizeOffset.zw;
+    // }
 
     color = i.color;
 
@@ -147,8 +149,11 @@ CCProgram sprite-fs %{
     vec4 o = vec4(1, 1, 1, 1);
 
     #if USE_TEXTURE
-      // vec2 uv = fract(uv0) * tilingOffset.xy + tilingOffset.zw;
-      o *= CCSampleWithAlphaSeparated(cc_spriteTexture, uv0);
+      vec2 uv = uv0;
+      // if (i.mode == 2) {
+      //   uv = fract(uv0) * tilingOffset.xy + tilingOffset.zw;
+      // }
+      o *= CCSampleWithAlphaSeparated(cc_spriteTexture, uv);
       #if IS_GRAY
         float gray  = 0.2126 * o.r + 0.7152 * o.g + 0.0722 * o.b;
         o.r = o.g = o.b = gray;

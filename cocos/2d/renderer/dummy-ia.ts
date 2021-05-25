@@ -38,8 +38,6 @@ export class DummyIA {
     get ia () { return this._ia; }
 
     constructor (device: Device) {
-        // 需要顶点索引
-        // 控制顶点索引需要的数据
         const elementPerVertex = (/* position */3 + /* texCoord */2 + /* instanceID */1); // 每个顶点需要的数量
         const vertexPerQuad = 4; // 顶点数
         const elementsPerQuad = elementPerVertex * vertexPerQuad; // 每个对象实际需要的数量

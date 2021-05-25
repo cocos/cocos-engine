@@ -212,8 +212,8 @@ export class Batcher2D {
                         subModels[j].priority = batchPriority++;
                     }
                 } else {
-                    for (let i = 0; i < batch._drawcalls.length; i++) {
-                        batch._drawcalls[i].hDescriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch._drawcalls[i]);
+                    for (let i = 0; i < batch.drawcalls.length; i++) {
+                        batch.drawcalls[i].hDescriptorSet = this._descriptorSetCache.getDescriptorSet(batch, batch.drawcalls[i]);
                     }
                 }
                 batch.renderScene.addBatch(batch);

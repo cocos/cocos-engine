@@ -497,6 +497,8 @@ export class SpriteFrame extends Asset {
     public uv: number[] = [];
     public uvHash = 0;
 
+    public tillingOffset: number[] = [];
+
     public unbiasUV:number[] = [];
 
     /**
@@ -1090,6 +1092,7 @@ export class SpriteFrame extends Asset {
         }
 
         this._calculateSlicedUV();
+        this._calculateTillingOffset();
     }
 
     public _setDynamicAtlasFrame (frame) {
@@ -1303,6 +1306,14 @@ export class SpriteFrame extends Asset {
 
     public validate () {
         return this._texture && this._rect && this._rect.width !== 0 && this._rect.height !== 0;
+    }
+
+    private _calculateTillingOffset () {
+        // Todo：可能由于模式不同而被影响
+        this.tillingOffset[0] = (this.uv[2] - this.uv[0]);
+        this.tillingOffset[1] = (this.uv[1] - this.uv[5]);
+        this.tillingOffset[2] = (this.uv[4]);
+        this.tillingOffset[3] = (this.uv[5]);
     }
 }
 

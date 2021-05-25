@@ -87,7 +87,7 @@ export class DrawBatch2D {
         return this._passes;
     }
 
-    public bufferBatch: MeshBuffer | null = null; // 这里可以知道对象数吗？// 需要新的数据结构存顶点数据
+    public bufferBatch: MeshBuffer | null = null;
     public camera: Camera | null = null;
     public renderScene: RenderScene | null = null;
     public model: Model | null = null;
@@ -108,7 +108,7 @@ export class DrawBatch2D {
     // 这里有两个情况
     // 1、batches 放不下的情况
     // 2、batches 放不满的情况
-    public _drawcalls: DrawCall[] = []; // 类型是？// 加了这个属性之后就是一个batch多个 drawcall 了
+    protected _drawcalls: DrawCall[] = []; // 意味着一个 batch 里会有多个 DC
     private _dcIndex = -1;
 
     get drawcalls () { return this._drawcalls; }
@@ -181,50 +181,49 @@ export class DrawBatch2D {
         }
     }
 
-    private to = [1, 1, 0, 0];
-    private tiled = new Vec2(1, 1);
+    private toCache = [1, 1, 0, 0];
+    private tiledCache = new Vec2(1, 1);
     // simple version
     public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material) {
         // 将一个 drawBatch 分割为多个 drawCall
-        // batch 有 drawCall 数组
         // 分割条件， uboHash 要一致，buffer View 要一致
-        // batch 需要有一个 存对象的信息在以供 ubo 的 upload 和 更新使用
-        // 先假设 batch 里有对象数组 objectArray
-        // 从 Node 里取 TRS，comp 上取 to 和 color
+        // 从 Node 里取 TRS，comp 上取 to 和 color， 计算出 tiled 和其他
         renderComp.node.updateWorldTransform();
         // 需要加工锚点和 rect
         // @ts-expect-error using private members
         const { _pos: t, _rot: r, _scale: s } = renderComp.node;
+        // anchor 未添加 // todo
+        // size 的 dirty // todo
         this._tempRect = renderComp.node._uiProps.uiTransformComp!;
-        this._tempScale.x = s.x * this._tempRect.width;
+        this._tempScale.x = s.x * this._tempRect.width; // Rect 应该可以进行缓存 // Todo
         this._tempScale.y = s.y * this._tempRect.height;
+        // 下面的逻辑几乎是针对于 sprite 的
         const sprite = renderComp as Sprite;
-        const uv = sprite.spriteFrame?.uv;
-        this.to.length = 0;
-        const rect = sprite.spriteFrame?.rect;
-        this.tiled.x = 1;
-        this.tiled.y = 1;
+        this.toCache.length = 0;
         const mode = sprite.type;
-        if (mode === 2) {
-            this.tiled.x = this._tempRect.width / rect?.width;
-            this.tiled.y = this._tempRect.height / rect?.height;
-        }
-        this.to[0] = (uv![2] - uv![0]) * this.tiled.x;
-        this.to[1] = (uv![1] - uv![5]) * this.tiled.y;
-        this.to[2] = (uv![4]);
-        this.to[3] = (uv![5]);
-        const progress = 0; // 给 progress 预留
-        // T 为 w h O 为右上的 XY 四个数字
-        const c = renderComp.color;
-        // 16 的定值为 device 查出的 capacity
 
+        // 针对 tiled 的处理，可缓存 // Todo
+        // const rect = sprite.spriteFrame?.rect;
+        // if (mode === 2) {
+        //     this.tiledCache.x = this._tempRect.width / rect?.width;
+        //     this.tiledCache.y = this._tempRect.height / rect?.height;
+        // }
+
+        // tillingOffset 缓存到了 spriteFrame 中
+        // T 为 w h O 为右上的 XY 四个数字
+        const to = sprite.spriteFrame?.tillingOffset;
+        const progress = 0; // 给 progress 预留
+        const c = renderComp.color;
+
+        // 每个对象占用的 vec4 数量
         const vec4PerUI = 5;
+        // 每个 UBO 能够容纳的 UI 数量
         const UIPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / vec4PerUI);
         // const UIPerUBO = 16; // 调试用 16
-        // UIPerUBO(目前为16)
-        const localBuffer = UBOManager.upload(t, r, this._tempScale, this.to, c, mode, UIPerUBO, vec4PerUI, this.tiled, progress);
-        // 能同 draw call 的条件： UBOIndex 相同，ubohash 相同
+        // 上传数据
+        const localBuffer = UBOManager.upload(t, r, this._tempScale, to!, c, mode, UIPerUBO, vec4PerUI, this.tiledCache, progress);
 
+        // 能同 drawCall 的条件： UBOIndex 相同，ubohash 相同
         let dc = this._drawcalls[this._dcIndex];
         if (dc && (dc.bufferHash !== localBuffer.hash || dc.bufferUboIndex !== localBuffer.prevUBOIndex)) { // 存在但不能合批
             this._dcIndex++; // 索引加一
@@ -237,9 +236,7 @@ export class DrawBatch2D {
             dc.bufferUboIndex = localBuffer.prevUBOIndex;
             dc.bufferView = localBuffer.getBufferView();
             dc.dynamicOffsets[0] = localBuffer.prevUBOIndex * localBuffer.uniformBufferStride;
-            // dc.drawInfo.firstVertex = localBuffer.prevInstanceID * 6;
-            // dc.drawInfo.vertexCount = 0;
-            dc.drawInfo.firstIndex = localBuffer.prevInstanceID * 6;
+            dc.drawInfo.firstIndex = localBuffer.prevInstanceID * 6; // 每个 UI 是个索引
             dc.drawInfo.indexCount = 0;
             this._dcIndex = this._drawcalls.length;
 
