@@ -749,16 +749,10 @@ function hackForMultiThread () {
             }
         }
 
-        const oldMainLoop = director.mainLoop;
-        director.mainLoop = function mainLoop (time: number) {
-            const temp = director as any;
-            const purgeDirectorInNextLoop = temp._purgeDirectorInNextLoop;
-            const invalid = temp._invalid;
-            const paused = temp._paused;
-            oldMainLoop.call(this, time);
-            if (!purgeDirectorInNextLoop && !invalid && !paused) {
+        director.on(Director.EVENT_END_OF_FRAME, () => {
+            if (!director.isPaused) {
                 lastUpdate(PhysicsSystem.instance);
             }
-        };
+        });
     }
 }
