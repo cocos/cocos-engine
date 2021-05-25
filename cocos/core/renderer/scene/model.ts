@@ -537,13 +537,6 @@ export class Model {
         }
     }
 
-    // TODO
-    // private _updateNativeInstanceAttribute (size: number, ele: any) {
-    //     if (JSB) {
-    //         this.native.getInstancedAttributeBlock().resize
-    //     }
-    // }
-
     // sub-classes can override the following functions if needed
 
     // for now no submodel level instancing attributes
@@ -567,6 +560,9 @@ export class Model {
 
         const attrs = this.instancedAttributes;
         attrs.buffer = new Uint8Array(buffer);
+        if (JSB) {
+            this._nativeObj.setInstancedBuffer(buffer);
+        }
         attrs.views.length = attrs.attributes.length = 0;
         let offset = 0;
         for (let j = 0; j < attributes.length; j++) {
@@ -588,6 +584,10 @@ export class Model {
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
         this._setInstMatWorldIdx(this._getInstancedAttributeIndex(INST_MAT_WORLD));
         this._transformUpdated = true;
+
+        if (JSB) {
+            this._nativeObj.setInstanceAttributes(attrs.attributes);
+        }
     }
 
     protected _initLocalDescriptors (subModelIndex: number) {
