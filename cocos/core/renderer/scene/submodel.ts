@@ -64,13 +64,9 @@ export class SubModel {
      }
 
      private _createDescriptorSet (descInfo: DescriptorSetInfo) {
-         if (JSB) {
-             const dsHandle = DSPool.alloc(this._device!, descInfo);
-             SubModelPool.set(this._handle, SubModelView.DESCRIPTOR_SET, dsHandle);
-             this._descriptorSet = DSPool.get(dsHandle);
-             return;
-         }
-         this._descriptorSet = this._device!.createDescriptorSet(descInfo);
+         const dsHandle = DSPool.alloc(this._device!, descInfo);
+         SubModelPool.set(this._handle, SubModelView.DESCRIPTOR_SET, dsHandle);
+         this._descriptorSet = DSPool.get(dsHandle);
      }
 
      private _setPassCount (val: number) {
@@ -152,13 +148,9 @@ export class SubModel {
      }
 
      private _setInputAssembler (iaInfo: InputAssemblerInfo) {
-         if (JSB) {
-             const iaHandle = IAPool.alloc(this._device!, iaInfo);
-             SubModelPool.set(this._handle, SubModelView.INPUT_ASSEMBLER, iaHandle);
-             this._inputAssembler = IAPool.get(iaHandle);
-             return;
-         }
-         this._inputAssembler = this._device!.createInputAssembler(iaInfo);
+         const iaHandle = IAPool.alloc(this._device!, iaInfo);
+         SubModelPool.set(this._handle, SubModelView.INPUT_ASSEMBLER, iaHandle);
+         this._inputAssembler = IAPool.get(iaHandle);
      }
 
      private _setSubMesh (subMesh: RenderingSubMesh) {

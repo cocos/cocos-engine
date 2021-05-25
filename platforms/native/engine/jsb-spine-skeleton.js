@@ -96,13 +96,14 @@ const cacheManager = require('./jsb-cache-manager');
             return;
         }
 
-        let skeletonCache = spine.retainSkeletonData(uuid);
-        if (skeletonCache) {
-            this._skeletonCache = skeletonCache;
-            this.width = this._skeletonCache.getWidth();
-            this.height = this._skeletonCache.getHeight();                 
-            return;
-        }
+        // gfxTexture may not exist if this._skeletonCache == null
+        // let skeletonCache = spine.retainSkeletonData(uuid);
+        // if (skeletonCache) {
+        //     this._skeletonCache = skeletonCache;
+        //     this.width = this._skeletonCache.getWidth();
+        //     this.height = this._skeletonCache.getHeight();                 
+        //     return;
+        // }
 
         let atlasText = this.atlasText;
         if (!atlasText) {
@@ -117,6 +118,8 @@ const cacheManager = require('./jsb-cache-manager');
             return;
         }
 
+        _gTextureIdx = 1;
+        _textureKeyMap = {};
         let jsbTextures = {};
         for (let i = 0; i < textures.length; ++i) {
             let texture = textures[i];
@@ -894,7 +897,7 @@ const cacheManager = require('./jsb-cache-manager');
                 middleware.resetIndicesStart = false;
             }
 
-            ui.commitComp(this, realTexture._texture, this._assembler, null);
+            ui.commitComp(this, realTexture, this._assembler, null);
             this.material = mat;
         }
     }
