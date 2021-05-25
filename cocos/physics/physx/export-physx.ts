@@ -50,7 +50,7 @@ import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-en
 let USE_BYTEDANCE = false;
 if (BYTEDANCE && sys.os === sys.OS.ANDROID) {
     USE_BYTEDANCE = true;
-    console.info('[PHYSICS]:', 'Use PhysX Native Libs.');
+    console.info('[PHYSICS]:', 'Use PhysX Native Libs in BYTEDANCE.');
 } else {
     console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
 }
