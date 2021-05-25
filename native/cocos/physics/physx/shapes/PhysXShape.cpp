@@ -103,12 +103,16 @@ void PhysXShape::updateEventListener(EShapeFilterFlag flag) {
 
 cc::pipeline::AABB& PhysXShape::getAABB() {
     static cc::pipeline::AABB aabb;
+    auto bounds = physx::PxShapeExt::getWorldBounds(getShape(), *getSharedBody().getImpl().rigidActor);
+    pxSetVec3Ext(aabb.center, (bounds.maximum + bounds.minimum) / 2);
+    pxSetVec3Ext(aabb.halfExtents, (bounds.maximum - bounds.minimum) / 2);
     return aabb;
 }
 
 cc::pipeline::Sphere& PhysXShape::getBoundingSphere() {
-    static cc::pipeline::Sphere s;
-    return s;
+    static cc::pipeline::Sphere sphere;
+    sphere.define(getAABB());
+    return sphere;
 }
 
 void PhysXShape::updateFilterData(physx::PxFilterData &data) {
