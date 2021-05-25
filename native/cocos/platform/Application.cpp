@@ -25,6 +25,7 @@
 
 #include "cocos/platform/Application.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
+#include "pipeline/RenderPipeline.h"
 
 #if USE_AUDIO
     #include "cocos/audio/include/AudioEngine.h"
@@ -39,6 +40,8 @@
 namespace cc {
 void Application::restartVM() {
     cc::EventDispatcher::dispatchRestartVM();
+
+    pipeline::RenderPipeline::getInstance()->destroy();
 
     auto *scriptEngine = se::ScriptEngine::getInstance();
 

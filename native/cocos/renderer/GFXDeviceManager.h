@@ -57,6 +57,8 @@ namespace gfx {
 class CC_DLL DeviceManager final {
 public:
     static Device *create(const DeviceInfo &info) {
+        if (Device::instance) return Device::instance;
+
         Device *device = nullptr;
 
 #ifdef CC_USE_VULKAN
