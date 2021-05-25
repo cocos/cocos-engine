@@ -429,13 +429,12 @@ public class CanvasRenderingContext2DImpl {
     }
 
     @SuppressWarnings("unused")
-    public void _fillImageData(byte[] imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
+    public void _fillImageData(int[] imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
         int fillSize = (int) (imageWidth * imageHeight);
         int[] fillColors = new int[fillSize];
-        IntBuffer imageIntBuffer = ByteBuffer.wrap(imageData).asIntBuffer();
         for (int i = 0; i < fillSize; ++i) {
             // r g b a -> a r g b
-            fillColors[i] = Integer.rotateRight(imageIntBuffer.get(i), 8);
+            fillColors[i] = Integer.rotateRight(imageData[i], 8);
         }
         Rect dstRect = new Rect((int) offsetX, (int) offsetY, (int) imageWidth, (int) imageHeight);
         mTexture.getPixelMap().writePixels(fillColors, 0, (int) imageWidth, dstRect);

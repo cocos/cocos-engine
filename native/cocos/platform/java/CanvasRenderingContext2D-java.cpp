@@ -224,10 +224,10 @@ public:
         if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
             return;
         }
-
-        jbyteArray arr = JniHelper::getEnv()->NewByteArray(imageData.getSize());
-        JniHelper::getEnv()->SetByteArrayRegion(arr, 0, imageData.getSize(),
-                                                reinterpret_cast<const jbyte *>(imageData.getBytes()));
+ 
+        auto arr = JniHelper::getEnv()->NewIntArray(imageData.getSize()/ 4);
+        JniHelper::getEnv()->SetIntArrayRegion(arr, 0, imageData.getSize()/4,
+                                                reinterpret_cast<const jint *>(imageData.getBytes()));
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "_fillImageData", arr, imageWidth,
                                         imageHeight, offsetX, offsetY);
         ccDeleteLocalRef(JniHelper::getEnv(), arr);

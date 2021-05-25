@@ -399,6 +399,10 @@ private:
         return "[B";
     }
 
+    static std::string getJNISignature(jintArray /*unused*/) {
+        return "[I";
+    }
+
     static std::string getJNISignature(const char * /*unused*/) {
         return "Ljava/lang/String;";
     }
