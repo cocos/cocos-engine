@@ -37,7 +37,7 @@ import { Camera } from '../../core/renderer/scene/camera';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
 import { Model } from '../../core/renderer/scene/model';
 import { Batcher2D } from './batcher-2d';
-import { NULL_HANDLE, BatchHandle2D, BatchPool2D, BatchView2D, PassPool } from '../../core/renderer/core/memory-pools';
+import { NULL_HANDLE, BatchHandle2D, BatchPool2D, BatchView2D, PassPool, ShaderPool, DSPool, IAPool } from '../../core/renderer/core/memory-pools';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
@@ -45,6 +45,10 @@ import { Pass } from '../../core/renderer/core/pass';
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
 export class DrawBatch2D {
+    public get native (): any {
+        return this._nativeObj;
+    }
+
     public get handle () {
         return this._handle;
     }
@@ -53,18 +57,29 @@ export class DrawBatch2D {
     }
     public set hInputAssembler (handle) {
         BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, handle);
+        if (JSB) {
+            this._nativeObj.inputAssembler = IAPool.get(handle);
+        }
     }
     public get hDescriptorSet () {
         return BatchPool2D.get(this._handle, BatchView2D.DESCRIPTOR_SET);
     }
     public set hDescriptorSet (handle) {
         BatchPool2D.set(this._handle, BatchView2D.DESCRIPTOR_SET, handle);
+        if (JSB) {
+            this._nativeObj.descriptorSet = DSPool.get(handle);
+        }
     }
     public get visFlags () {
-        return BatchPool2D.get(this._handle, BatchView2D.VIS_FLAGS);
+        return this._visFlags;
     }
     public set visFlags (vis) {
-        BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, vis);
+        this._visFlags = vis;
+
+        if (JSB) {
+            BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, vis);
+            this._nativeObj.visFlags = vis;
+        }
     }
     public get passes () {
         return this._passes;
@@ -82,12 +97,18 @@ export class DrawBatch2D {
     public samplerHash = 0;
     private _handle: BatchHandle2D = NULL_HANDLE;
     private _passes: Pass[] = [];
+    private declare _nativeObj: any;
+    private _visFlags: BatchView2D = UI_VIS_FLAG;
 
     constructor () {
         this._handle = BatchPool2D.alloc();
-        BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, UI_VIS_FLAG);
+        BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, this.visFlags);
         BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, NULL_HANDLE);
         BatchPool2D.set(this._handle, BatchView2D.DESCRIPTOR_SET, NULL_HANDLE);
+        if (JSB) {
+            this._nativeObj = new ns.DrawBatch2D();
+            this._nativeObj.visFlags = this._visFlags;
+        }
     }
 
     public destroy (ui: Batcher2D) {
@@ -100,6 +121,9 @@ export class DrawBatch2D {
             this._passes = [];
             BatchPool2D.free(this._handle);
             this._handle = NULL_HANDLE;
+        }
+        if (JSB) {
+            this._nativeObj = null;
         }
     }
 
@@ -126,6 +150,7 @@ export class DrawBatch2D {
             let passOffset = BatchView2D.PASS_0;
             let shaderOffset = BatchView2D.SHADER_0;
             let hashFactor = 0;
+
             for (let i = 0; i < passes.length; i++, passOffset++, shaderOffset++) {
                 if (!this._passes[i]) {
                     this._passes[i] = new Pass(legacyCC.director.root);
@@ -150,6 +175,19 @@ export class DrawBatch2D {
                 passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
                 BatchPool2D.set(this._handle, passOffset, passInUse.handle);
                 BatchPool2D.set(this._handle, shaderOffset, passInUse.getShaderVariant(patches));
+            }
+
+            if (JSB) {
+                const nativePasses = [];
+                const nativeShaders = [];
+                const passes = this._passes;
+                for (let i = 0; i < passes.length; i++, passOffset++, shaderOffset++) {
+                    nativePasses.push(passes[i].native);
+                    nativeShaders.push(ShaderPool.get(BatchPool2D.get(this._handle, BatchView2D.SHADER_0 + i)));
+                }
+
+                this._nativeObj.passes = nativePasses;
+                this._nativeObj.shaders = nativeShaders;
             }
         }
     }

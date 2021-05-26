@@ -351,6 +351,7 @@ export class RenderScene {
         this._batches.push(batch);
         if (JSB) {
             UIBatchArrayPool.push(this._batchArrayHandle, batch.handle);
+            this._nativeObj.addBatch(batch.native);
         }
     }
 
@@ -360,6 +361,7 @@ export class RenderScene {
                 this._batches.splice(i, 1);
                 if (JSB) {
                     UIBatchArrayPool.erase(this._batchArrayHandle, i);
+                    this._nativeObj.removeBatch(i);
                 }
                 return;
             }
@@ -370,6 +372,7 @@ export class RenderScene {
         this._batches.length = 0;
         if (JSB) {
             UIBatchArrayPool.clear(this._batchArrayHandle);
+            this._nativeObj.removeBatches();
         }
     }
 
