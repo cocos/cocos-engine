@@ -260,6 +260,7 @@ public class CocosVideoView extends SurfaceProvider implements Component.TouchEv
     }
 
     public void stopPlayback() {
+        this.removeFromWindow();
         this.release();
     }
 

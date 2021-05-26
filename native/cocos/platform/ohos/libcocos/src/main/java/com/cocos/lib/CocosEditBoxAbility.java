@@ -33,6 +33,7 @@ import ohos.agp.utils.Color;
 import ohos.agp.utils.Rect;
 import ohos.agp.window.service.DisplayAttributes;
 import ohos.agp.window.service.DisplayManager;
+import ohos.agp.window.service.WindowManager;
 import ohos.hiviewdfx.HiLog;
 import ohos.hiviewdfx.HiLogLabel;
 import ohos.multimodalinput.event.TouchEvent;
@@ -239,7 +240,7 @@ public class CocosEditBoxAbility extends AbilitySlice {
 //        getWindow().setInputPanelDisplayType(Dis); // ohos
 
         sThis = new WeakReference<CocosEditBoxAbility>(this);
-//        getWindow().setInputPanelDisplayType(WindowManager.LayoutConfig.INPUT_ADJUST_PAN);
+        getWindow().setInputPanelDisplayType(WindowManager.LayoutConfig.INPUT_ADJUST_PAN);
 
         setUIContent(ResourceTable.Layout_editbox_layout);
         delayShow(intent);
