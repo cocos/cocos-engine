@@ -69,6 +69,7 @@ export class Root {
     private _init (): void {
         if (JSB) {
             this._poolHandle = RootPool.alloc();
+            this._naitveObj = new ns.Root();
         }
     }
 
@@ -78,6 +79,7 @@ export class Root {
                 RootPool.free(this._poolHandle);
                 this._poolHandle = NULL_HANDLE;
             }
+            this._naitveObj = null;
         }
     }
 
@@ -85,6 +87,7 @@ export class Root {
         this._cumulativeTime += deltaTime;
         if (JSB) {
             RootPool.set(this._poolHandle, RootView.CUMULATIVE_TIME, this._cumulativeTime);
+            this._naitveObj.cumulativeTime = this._cumulativeTime;
         }
     }
 
@@ -92,6 +95,7 @@ export class Root {
         this._frameTime = deltaTime;
         if (JSB) {
             RootPool.set(this._poolHandle, RootView.FRAME_TIME, deltaTime);
+            this._naitveObj.frameTime = deltaTime;
         }
     }
 
@@ -253,6 +257,7 @@ export class Root {
     private _fixedFPSFrameTime = 0;
     private _cumulativeTime = 0;
     private _frameTime = 0;
+    private declare _naitveObj: any;
 
     /**
      * 构造函数
