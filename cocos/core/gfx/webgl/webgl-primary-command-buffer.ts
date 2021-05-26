@@ -138,10 +138,8 @@ export class WebGLPrimaryCommandBuffer extends WebGLCommandBuffer {
         for (let i = 0; i < this._curDynamicOffsets.length; i++) {
             Array.prototype.push.apply(_dynamicOffsets, this._curDynamicOffsets[i]);
         }
-        WebGLCmdFuncBindStates(this._device as WebGLDevice,
-            this._curGPUPipelineState, this._curGPUInputAssembler, this._curGPUDescriptorSets, _dynamicOffsets,
-            this._curViewport, this._curScissor, this._curLineWidth, this._curDepthBias, this._curBlendConstants,
-            this._curDepthBounds, this._curStencilWriteMask, this._curStencilCompareMask);
+        WebGLCmdFuncBindStates(this._device as WebGLDevice, this._curGPUPipelineState, this._curGPUInputAssembler,
+            this._curGPUDescriptorSets, _dynamicOffsets, this._curDynamicStates);
         this._isStateInvalied = false;
     }
 }
