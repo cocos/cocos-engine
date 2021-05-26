@@ -469,7 +469,7 @@ cc.Follow = cc.Class({
      *
      * @param {Boolean} value
      */
-    setBoudarySet:function (value) {
+    setBoundarySet:function (value) {
         this._boundarySet = value;
     },
 
