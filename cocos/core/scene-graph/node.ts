@@ -52,12 +52,63 @@ import { Component } from '../components';
 const v3_a = new Vec3();
 const q_a = new Quat();
 const q_b = new Quat();
-const array_a = new Array(10);
 const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
-const bookOfChange = new Map<Node, number>();
+const array_a: any[] = [];
+
+class BookOfChange {
+    private _chunks: Uint32Array[] = [];
+    private _freelists: number[][] = [];
+    private _capacityPerChunk: number;
+
+    constructor (capacityPerChunk: number) {
+        this._capacityPerChunk = capacityPerChunk;
+        this._createChunk();
+    }
+
+    public alloc () {
+        const chunkCount = this._freelists.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            if (!this._freelists[i].length) continue;
+            return this._createView(i);
+        }
+        this._createChunk();
+        return this._createView(chunkCount);
+    }
+
+    public free (view: Uint32Array, idx: number) {
+        const chunkCount = this._freelists.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            if (this._chunks[i] !== view) continue;
+            this._freelists[i].push(idx);
+            return;
+        }
+        // wtf?
+    }
+
+    public clear () {
+        const chunkCount = this._chunks.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            this._chunks[i].fill(0);
+        }
+    }
+
+    private _createChunk () {
+        this._chunks.push(new Uint32Array(this._capacityPerChunk));
+        const freelist: number[] = [];
+        for (let i = 0; i < this._capacityPerChunk; ++i) freelist.push(i);
+        this._freelists.push(freelist);
+    }
+
+    private _createView (chunkIdx: number): [Uint32Array, number] {
+        return [this._chunks[chunkIdx], this._freelists[chunkIdx].pop()!];
+        // return new Uint32Array(this._chunks[chunkIdx].buffer, this._freelists[chunkIdx].pop()! * 4, 1);
+    }
+}
+
+const bookOfChange = new BookOfChange(256);
 
 /**
  * @zh
@@ -83,8 +134,6 @@ const bookOfChange = new Map<Node, number>();
  */
 @ccclass('cc.Node')
 export class Node extends BaseNode {
-    public static bookOfChange = bookOfChange;
-
     /**
      * @en Event types emitted by Node
      * @zh 节点可能发出的事件类型
@@ -117,40 +166,34 @@ export class Node extends BaseNode {
 
     // world transform, don't access this directly
     protected _pos = new Vec3();
-
     protected _rot = new Quat();
-
     protected _scale = new Vec3(1, 1, 1);
-
     protected _mat = new Mat4();
 
     // local transform
     @serializable
     protected _lpos = new Vec3();
-
     @serializable
     protected _lrot = new Quat();
-
     @serializable
     protected _lscale = new Vec3(1, 1, 1);
-
     @serializable
     protected _layer = Layers.Enum.DEFAULT; // the layer this node belongs to
 
     // local rotation in euler angles, maintained here so that rotation angles could be greater than 360 degree.
     @serializable
     protected _euler = new Vec3();
-
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
-
+    protected _hasChangedFlags: Uint32Array; // has the transform been updated in this frame?
+    protected _hasChangedFlagsIdx: number;
     protected _eulerDirty = false;
-
     protected _poolHandle: NodeHandle = NULL_HANDLE;
 
     constructor (name?: string) {
         super(name);
         this._poolHandle = NodePool.alloc();
         NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+        [this._hasChangedFlags, this._hasChangedFlagsIdx] = bookOfChange.alloc();
     }
 
     /**
@@ -166,6 +209,7 @@ export class Node extends BaseNode {
             NodePool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
         }
+        bookOfChange.free(this._hasChangedFlags, this._hasChangedFlagsIdx);
         return super.destroy();
     }
 
@@ -349,12 +393,11 @@ export class Node extends BaseNode {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return bookOfChange.get(this) || 0;
+        return this._hasChangedFlags[this._hasChangedFlagsIdx] as TransformBit;
     }
 
-    set hasChangedFlags (val: number) {
-        bookOfChange.set(this, val);
-        NodePool.set(this._poolHandle, NodeView.FLAGS_CHANGED, val);
+    set hasChangedFlags (val: TransformBit) {
+        this._hasChangedFlags[this._hasChangedFlagsIdx] = val;
     }
 
     // ===============================
@@ -533,15 +576,23 @@ export class Node extends BaseNode {
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
-        const hasChanegdFlags = this.hasChangedFlags;
-        if ((this._dirtyFlags & hasChanegdFlags & dirtyBit) === dirtyBit) { return; }
-        this._dirtyFlags |= dirtyBit;
-        this.hasChangedFlags = hasChanegdFlags | dirtyBit;
-        const newDirtyBit = dirtyBit | TransformBit.POSITION;
-        const len = this._children.length;
-        for (let i = 0; i < len; ++i) {
-            const child = this._children[i];
-            if (child.isValid) { child.invalidateChildren(newDirtyBit); }
+        const childDirtyBit = dirtyBit | TransformBit.POSITION;
+        array_a[0] = this;
+
+        // we need to recursively iterate this
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        let i = 0;
+        while (i >= 0) {
+            const cur = array_a[i--];
+            const hasChangedFlags = cur.hasChangedFlags;
+            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                cur._dirtyFlags |= dirtyBit;
+                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                const children = cur._children;
+                const len = children.length;
+                for (let j = 0; j < len; ++j) array_a[++i] = children[j];
+            }
+            dirtyBit = childDirtyBit;
         }
     }
 
@@ -1111,8 +1162,7 @@ export class Node extends BaseNode {
      * @zh
      * 清除所有节点的脏标记。
      */
-    public static clearBooks () {
-        if (JSB) bookOfChange.forEach((v, k, m) => { if (k.isValid) k.hasChangedFlags = TransformBit.NONE; });
+    public static resetHasChangedFlags () {
         bookOfChange.clear();
     }
 
@@ -1138,7 +1188,7 @@ export class Node extends BaseNode {
      * 原生变换信息同步到 js 层。
      */
     public syncFromNativeTransform () {
-        const v = NodePool.get(this._poolHandle, NodeView.FLAGS_CHANGED);
+        const v = this.hasChangedFlags;
         if (v) {
             if (v & TransformBit.POSITION) {
                 NodePool.getVec3(this._poolHandle, NodeView.WORLD_POSITION, v3_a);
