@@ -39,7 +39,7 @@ export class MouseInputSource {
         };
     }
 
-    private _createCallback (eventType: string) {
+    private _createCallback (eventType: SystemEventType) {
         return (event: jsb.MouseEvent) => {
             const location = this._getLocation(event);
             const viewSize = system.getViewSize();

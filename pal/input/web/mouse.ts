@@ -95,7 +95,7 @@ export class MouseInputSource {
         }
     }
 
-    private _createCallback (eventType: string) {
+    private _createCallback (eventType: SystemEventType) {
         return (event: MouseEvent) => {
             const canvasRect = this._getCanvasRect();
             const location = this._getLocation(event);

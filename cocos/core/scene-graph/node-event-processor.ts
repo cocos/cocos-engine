@@ -72,7 +72,7 @@ function _touchStartHandler (this: EventListener, touch: Touch, event: EventTouc
     touch.getUILocation(pos);
 
     if (node._uiProps.uiTransformComp.isHit(pos, this)) {
-        event.type = SystemEventType.TOUCH_START.toString();
+        event.type = SystemEventType.TOUCH_START;
         event.touch = touch;
         event.bubbles = true;
         node.dispatchEvent(event);
@@ -88,7 +88,7 @@ function _touchMoveHandler (this: EventListener, touch: Touch, event: EventTouch
         return false;
     }
 
-    event.type = SystemEventType.TOUCH_MOVE.toString();
+    event.type = SystemEventType.TOUCH_MOVE;
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
@@ -104,9 +104,9 @@ function _touchEndHandler (this: EventListener, touch: Touch, event: EventTouch)
     touch.getUILocation(pos);
 
     if (node._uiProps.uiTransformComp.isHit(pos, this)) {
-        event.type = SystemEventType.TOUCH_END.toString();
+        event.type = SystemEventType.TOUCH_END;
     } else {
-        event.type = SystemEventType.TOUCH_CANCEL.toString();
+        event.type = SystemEventType.TOUCH_CANCEL;
     }
     event.touch = touch;
     event.bubbles = true;
@@ -119,7 +119,7 @@ function _touchCancelHandler (this: EventListener, touch: Touch, event: EventTou
         return;
     }
 
-    event.type = SystemEventType.TOUCH_CANCEL.toString();
+    event.type = SystemEventType.TOUCH_CANCEL;
     event.touch = touch;
     event.bubbles = true;
     node.dispatchEvent(event);
@@ -134,7 +134,7 @@ function _mouseDownHandler (this: EventListener, event: EventMouse) {
     pos = event.getUILocation();
 
     if (node._uiProps.uiTransformComp.isHit(pos, this)) {
-        event.type = SystemEventType.MOUSE_DOWN.toString();
+        event.type = SystemEventType.MOUSE_DOWN;
         event.bubbles = true;
         node.dispatchEvent(event);
     }
@@ -160,15 +160,15 @@ function _mouseMoveHandler (this: EventListener, event: EventMouse) {
                 }
             }
             _currentHovered = node;
-            event.type = SystemEventType.MOUSE_ENTER.toString();
+            event.type = SystemEventType.MOUSE_ENTER;
             node.dispatchEvent(event);
             this._previousIn = true;
         }
-        event.type = SystemEventType.MOUSE_MOVE.toString();
+        event.type = SystemEventType.MOUSE_MOVE;
         event.bubbles = true;
         node.dispatchEvent(event);
     } else if (this._previousIn) {
-        event.type = SystemEventType.MOUSE_LEAVE.toString();
+        event.type = SystemEventType.MOUSE_LEAVE;
         node.dispatchEvent(event);
         this._previousIn = false;
         _currentHovered = null;
@@ -191,7 +191,7 @@ function _mouseUpHandler (this: EventListener, event: EventMouse) {
     pos = event.getUILocation();
 
     if (node._uiProps.uiTransformComp.isHit(pos, this)) {
-        event.type = SystemEventType.MOUSE_UP.toString();
+        event.type = SystemEventType.MOUSE_UP;
         event.bubbles = true;
         node.dispatchEvent(event);
         // event.propagationStopped = true;
@@ -208,7 +208,7 @@ function _mouseWheelHandler (this: EventListener, event: EventMouse) {
     pos = event.getUILocation();
 
     if (node._uiProps.uiTransformComp.isHit(pos, this)) {
-        event.type = SystemEventType.MOUSE_WHEEL.toString();
+        event.type = SystemEventType.MOUSE_WHEEL;
         event.bubbles = true;
         node.dispatchEvent(event);
         // event.propagationStopped = true;

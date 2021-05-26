@@ -13,11 +13,11 @@ export class KeyboardInputSource {
     }
 
     private _registerEvent () {
-        jsb.onKeyDown = this._createCallback('keydown');
-        jsb.onKeyUp =  this._createCallback('keyup');
+        jsb.onKeyDown = this._createCallback(SystemEventType.KEYBOARD_DOWN);
+        jsb.onKeyUp =  this._createCallback(SystemEventType.KEYBOARD_UP);
     }
 
-    private _createCallback (eventType: string) {
+    private _createCallback (eventType: SystemEventType) {
         return (event: jsb.KeyboardEvent) => {
             const inputEvent: KeyboardInputEvent = {
                 type: eventType,

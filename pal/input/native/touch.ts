@@ -22,7 +22,7 @@ export class TouchInputSource {
         jsb.onTouchCancel = this._createCallback(SystemEventType.TOUCH_CANCEL);
     }
 
-    private _createCallback (eventType: string) {
+    private _createCallback (eventType: SystemEventType) {
         return (touchList: TouchList) => {
             const touchDataList: TouchData[] = [];
             const length = touchList.length;

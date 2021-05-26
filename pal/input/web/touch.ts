@@ -30,7 +30,7 @@ export class TouchInputSource {
         this._canvas?.addEventListener('touchcancel', this._createCallback(SystemEventType.TOUCH_CANCEL));
     }
 
-    private _createCallback (eventType: string) {
+    private _createCallback (eventType: SystemEventType) {
         return (event: TouchEvent) => {
             const canvasRect = this._getCanvasRect();
             const touchDataList: TouchData[] = [];
