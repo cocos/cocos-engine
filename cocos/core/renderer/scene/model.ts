@@ -401,7 +401,7 @@ export class Model {
         }
     }
 
-    private _updateNativeWorldBounds () {
+    protected _updateNativeWorldBounds () {
         if (JSB) {
             if (this._hWorldBounds === NULL_HANDLE) {
                 this._hWorldBounds = AABBPool.alloc();

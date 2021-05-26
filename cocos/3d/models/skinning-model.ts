@@ -155,8 +155,7 @@ export class SkinningModel extends MorphModel {
             AABB.fromPoints(this._modelBounds, v3_min, v3_max);
             // @ts-expect-error TS2445
             this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
-            AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
-            AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
+            this._updateNativeWorldBounds();
         }
     }
 
