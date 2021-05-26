@@ -940,6 +940,11 @@ inline bool sevalue_to_native(const se::Value &from, void *to, se::Object *) {
     return false;
 }
 
+template<>
+inline bool sevalue_to_native(const se::Value &from, cc::Data *to, se::Object *) {
+    return seval_to_Data(from, to);
+}
+
 ////////////////// pointer types
 
 template <typename T>
