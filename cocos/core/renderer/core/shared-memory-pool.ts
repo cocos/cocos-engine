@@ -31,7 +31,6 @@
 import { DEBUG, JSB } from 'internal:constants';
 import { NativeBufferPool } from './native-pools';
 import { Vec2, Vec3, Quat, Color, Rect, Mat4, IVec2Like, IVec3Like, IVec4Like, IMat4Like } from '../../math';
-import { PoolType } from './memory-pools';
 
 const contains = (a: number[], t: number) => {
     for (let i = 0; i < a.length; ++i) {
@@ -40,12 +39,12 @@ const contains = (a: number[], t: number) => {
     return false;
 };
 
- interface IMemoryPool<P extends PoolType> {
+ interface IMemoryPool<P extends SharedPoolType> {
      free (handle: IHandle<P>): void;
  }
 
  // a little hacky, but works (different specializations should not be assignable to each other)
- interface IHandle<P extends PoolType> extends Number {
+ interface IHandle<P extends SharedPoolType> extends Number {
      // we make this non-optional so that even plain numbers would not be directly assignable to handles.
      // this strictness will introduce some casting hassle in the pool implementation itself
      // but becomes generally more useful for client code type checking.
@@ -58,15 +57,21 @@ const contains = (a: number[], t: number) => {
      NEVER,
  }
 
+export enum SharedPoolType {
+    NODE = 199
+}
+
+export type SharedNodeHandle = IHandle<SharedPoolType.NODE>;
+
  type BufferManifest = { [key: string]: number | string; COUNT: number };
- type StandardBufferElement = number | IHandle<PoolType>;
+ type StandardBufferElement = number | IHandle<SharedPoolType>;
  type GeneralBufferElement = StandardBufferElement | IVec2Like | IVec3Like | IVec4Like | IMat4Like;
  type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
  type BufferDataTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: BufferDataType };
  type BufferDataMembersManifest<E extends BufferManifest> = { [key in E[keyof E]]: number };
  type BufferArrayType = Float32Array | Uint32Array;
 
-class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferTypeManifest<E>> implements IMemoryPool<P> {
+class BufferPool<P extends SharedPoolType, E extends BufferManifest, M extends BufferTypeManifest<E>> implements IMemoryPool<P> {
     // naming convension:
     // this._bufferViews[chunk][entry][element]
 
@@ -79,7 +84,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
      private _entryMask: number;
      private _chunkMask: number;
      private _poolFlag: number;
-     private _arrayBuffers: Map<IHandle<P>, ArrayBuffer> = new Map<IHandle<P>, ArrayBuffer>();
+     private _arrayBuffers: ArrayBuffer[] = [];
      private _freeLists: number[][] = [];
      private _uint32BufferViews: Uint32Array[][] = [];
      private _float32BufferViews: Float32Array[][] = [];
@@ -135,6 +140,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
          const freeList: number[] = [];
          const hasFloat32 = this._hasFloat32;
          const hasUint32 = this._hasUint32;
+         this._arrayBuffers.push(buffer);
          for (let j = 0; j < this._entriesPerChunk; j++) {
              if (hasFloat32) { float32BufferViews.push(new Float32Array(buffer, this._stride * j, this._elementCount)); }
              if (hasUint32) { uint32BufferViews.push(new Uint32Array(buffer, this._stride * j, this._elementCount)); }
@@ -144,56 +150,33 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
          if (hasFloat32) { this._float32BufferViews.push(float32BufferViews); }
          this._freeLists.push(freeList);
          const handle = (i << this._entryBits) + this._poolFlag as unknown as IHandle<P>;
-         this._arrayBuffers.set(handle, buffer);
          return handle; // guarantees the handle is always not zero
      }
 
-     /**
-     * Get the specified element out from buffer pool.
-     *
-     * Note the type inference does not work when `element` is not directly
-     * an pre-declared enum value: (e.g. when doing arithmetic operations)
-     * ```ts
-     * SubModelPool.get(handle, SubModelView.SHADER_0 + passIndex); // the return value will have type GeneralBufferElement
-     * ```
-     *
-     * To properly declare the variable type, you have two options:
-     * ```ts
-     * const hShader = SubModelPool.get(handle, SubModelView.SHADER_0 + passIndex) as ShaderHandle; // option #1
-     * const hShader = SubModelPool.get<SubModelView.SHADER_0>(handle, SubModelView.SHADER_0 + passIndex); // option #2
-     * ```
-     */
-     public get<K extends E[keyof E]> (handle: IHandle<P>, element: K): Extract<M[K], StandardBufferElement> {
-         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
-         const entry = this._entryMask & handle as unknown as number;
-         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
-         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
-            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freeLists[chunk], entry))) {
-             console.warn('invalid buffer pool handle');
-             return 0 as Extract<M[K], StandardBufferElement>;
-         }
-         return bufferViews[chunk][entry][element as number] as Extract<M[K], StandardBufferElement>;
-     }
-
-     public set<K extends E[keyof E]> (handle: IHandle<P>, element: K, value: Extract<M[K], StandardBufferElement>) {
-         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
-         const entry = this._entryMask & handle as unknown as number;
-         const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
-         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
-            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freeLists[chunk], entry))) {
-             console.warn('invalid buffer pool handle');
-             return;
-         }
-         bufferViews[chunk][entry][element as number] = value as number;
-     }
-
      public getBuffer (handle: IHandle<P>): ArrayBuffer {
-         return this._arrayBuffers.get(handle) as ArrayBuffer;
+         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
+         const entry = this._entryMask & handle as unknown as number;
+         const bufferViews = this._float32BufferViews;
+         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
+            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freeLists[chunk], entry))) {
+             console.warn('invalid buffer pool handle');
+             return [] as unknown as ArrayBuffer;
+         }
+
+         return bufferViews[chunk][entry].buffer;
+     }
+
+     public getBufferOffset (handle: IHandle<P>): number {
+         const entry = this._entryMask & handle as unknown as number;
+         if (DEBUG && (!handle || entry < 0 || entry >= this._entriesPerChunk)) {
+             console.warn('invalid buffer pool handle');
+             return 0;
+         }
+
+         return this._elementCount * entry;
      }
 
      public getTypedArray<K extends E[keyof E]> (handle: IHandle<P>, element: K): BufferArrayType {
-         if (!JSB) { return [] as unknown as BufferArrayType; }
-
          const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
          const entry = this._entryMask & handle as unknown as number;
          const bufferViews = this._dataType[element] === BufferDataType.UINT32 ? this._uint32BufferViews : this._float32BufferViews;
@@ -223,7 +206,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferT
      }
 }
 
-export enum NodeView {
+export enum SharedNodeView {
     FLAGS_CHANGED,
     LAYER,
     WORLD_SCALE,        // Vec3
@@ -233,35 +216,35 @@ export enum NodeView {
     COUNT = 28
 }
 
-interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
-    [NodeView.FLAGS_CHANGED]: number;
-    [NodeView.LAYER]: number;
-    [NodeView.WORLD_SCALE]: Vec3;
-    [NodeView.WORLD_POSITION]: Vec3;
-    [NodeView.WORLD_ROTATION]: Quat;
-    [NodeView.WORLD_MATRIX]: Mat4;
-    [NodeView.COUNT]: never;
+interface INodeViewType extends BufferTypeManifest<typeof SharedNodeView> {
+    [SharedNodeView.FLAGS_CHANGED]: number;
+    [SharedNodeView.LAYER]: number;
+    [SharedNodeView.WORLD_SCALE]: Vec3;
+    [SharedNodeView.WORLD_POSITION]: Vec3;
+    [SharedNodeView.WORLD_ROTATION]: Quat;
+    [SharedNodeView.WORLD_MATRIX]: Mat4;
+    [SharedNodeView.COUNT]: never;
 }
-const NodeViewDataType: BufferDataTypeManifest<typeof NodeView> = {
-    [NodeView.FLAGS_CHANGED]: BufferDataType.UINT32,
-    [NodeView.LAYER]: BufferDataType.UINT32,
-    [NodeView.WORLD_SCALE]: BufferDataType.FLOAT32,
-    [NodeView.WORLD_POSITION]: BufferDataType.FLOAT32,
-    [NodeView.WORLD_ROTATION]: BufferDataType.FLOAT32,
-    [NodeView.WORLD_MATRIX]: BufferDataType.FLOAT32,
-    [NodeView.COUNT]: BufferDataType.NEVER,
+const NodeViewDataType: BufferDataTypeManifest<typeof SharedNodeView> = {
+    [SharedNodeView.FLAGS_CHANGED]: BufferDataType.UINT32,
+    [SharedNodeView.LAYER]: BufferDataType.UINT32,
+    [SharedNodeView.WORLD_SCALE]: BufferDataType.FLOAT32,
+    [SharedNodeView.WORLD_POSITION]: BufferDataType.FLOAT32,
+    [SharedNodeView.WORLD_ROTATION]: BufferDataType.FLOAT32,
+    [SharedNodeView.WORLD_MATRIX]: BufferDataType.FLOAT32,
+    [SharedNodeView.COUNT]: BufferDataType.NEVER,
 };
-const NodeViewDataMembers: BufferDataMembersManifest<typeof NodeView> = {
-    [NodeView.FLAGS_CHANGED]: 1,
-    [NodeView.LAYER]: 1,
-    [NodeView.WORLD_SCALE]: 3,
-    [NodeView.WORLD_POSITION]: 3,
-    [NodeView.WORLD_ROTATION]: 4,
-    [NodeView.WORLD_MATRIX]: 16,
-    [NodeView.COUNT]: 1,
+const NodeViewDataMembers: BufferDataMembersManifest<typeof SharedNodeView> = {
+    [SharedNodeView.FLAGS_CHANGED]: 1,
+    [SharedNodeView.LAYER]: 1,
+    [SharedNodeView.WORLD_SCALE]: 3,
+    [SharedNodeView.WORLD_POSITION]: 3,
+    [SharedNodeView.WORLD_ROTATION]: 4,
+    [SharedNodeView.WORLD_MATRIX]: 16,
+    [SharedNodeView.COUNT]: 1,
 };
 
 // Theoretically we only have to declare the type view here while all the other arguments can be inferred.
 // but before the official support of Partial Type Argument Inference releases, (microsoft/TypeScript#26349)
 // we'll have to explicitly declare all these types.
-export const NodePool = new BufferPool<PoolType.NODE, typeof NodeView, INodeViewType>(PoolType.NODE, NodeViewDataType, NodeViewDataMembers, NodeView);
+export const SharedNodePool = new BufferPool<SharedPoolType.NODE, typeof SharedNodeView, INodeViewType>(SharedPoolType.NODE, NodeViewDataType, NodeViewDataMembers, SharedNodeView);

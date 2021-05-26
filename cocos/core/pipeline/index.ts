@@ -60,7 +60,7 @@ export function createDefaultPipeline () {
     return rppl;
 }
 
-export declare class NativeNode {
-    constructor (data: ArrayBuffer, length: number);
-    public updateWorldTransform ();
+export class NativeNode {
+    constructor (data: ArrayBuffer, offset: number, length: number) {}
+    public updateWorldTransform () {}
 }
