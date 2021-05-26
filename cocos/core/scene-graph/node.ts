@@ -42,7 +42,7 @@ import {
     Mat3, Mat4, Quat, Vec3,
 } from '../math';
 import {
-    NULL_HANDLE, NodeHandle, NodePool, NodeView,
+    NULL_HANDLE, NodeHandle, NodePool, NodeView, RawBufferPool, RawBufferHandle,
 } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
 import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
@@ -59,12 +59,15 @@ const m4_1 = new Mat4();
 const array_a: any[] = [];
 
 class BookOfChange {
+    private _chunkHandles: RawBufferHandle[] = [];
     private _chunks: Uint32Array[] = [];
     private _freelists: number[][] = [];
-    private _capacityPerChunk: number;
 
-    constructor (capacityPerChunk: number) {
-        this._capacityPerChunk = capacityPerChunk;
+    // these should match with native: cocos/renderer/pipeline/helper/SharedMemory.h Node.getHasChangedFlags
+    private static CAPACITY_PER_CHUNK = 256;
+    private static BIT_SHIFT = 16;
+
+    constructor () {
         this._createChunk();
     }
 
@@ -96,18 +99,24 @@ class BookOfChange {
     }
 
     private _createChunk () {
-        this._chunks.push(new Uint32Array(this._capacityPerChunk));
+        const handle = RawBufferPool.alloc(BookOfChange.CAPACITY_PER_CHUNK * 4);
+        this._chunkHandles.push(handle);
+        this._chunks.push(new Uint32Array(RawBufferPool.getBuffer(handle)));
         const freelist: number[] = [];
-        for (let i = 0; i < this._capacityPerChunk; ++i) freelist.push(i);
+        for (let i = 0; i < BookOfChange.CAPACITY_PER_CHUNK; ++i) freelist.push(i);
         this._freelists.push(freelist);
     }
 
-    private _createView (chunkIdx: number): [Uint32Array, number] {
-        return [this._chunks[chunkIdx], this._freelists[chunkIdx].pop()!];
+    private _createView (chunkIdx: number): [Uint32Array, number, number] {
+        const chunk = this._chunks[chunkIdx];
+        const offset = this._freelists[chunkIdx].pop()!;
+        let handle = this._chunkHandles[chunkIdx] as unknown as number;
+        handle += offset << BookOfChange.BIT_SHIFT;
+        return [chunk, offset, handle];
     }
 }
 
-const bookOfChange = new BookOfChange(256);
+const bookOfChange = new BookOfChange();
 
 /**
  * @zh
@@ -183,8 +192,8 @@ export class Node extends BaseNode {
     @serializable
     protected _euler = new Vec3();
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
-    protected _hasChangedFlags: Uint32Array; // has the transform been updated in this frame?
-    protected _hasChangedFlagsIdx: number;
+    protected _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
+    protected _hasChangedFlagsOffset: number;
     protected _eulerDirty = false;
     protected _poolHandle: NodeHandle = NULL_HANDLE;
 
@@ -192,7 +201,10 @@ export class Node extends BaseNode {
         super(name);
         this._poolHandle = NodePool.alloc();
         NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
-        [this._hasChangedFlags, this._hasChangedFlagsIdx] = bookOfChange.alloc();
+        const [chunk, offset, handle] = bookOfChange.alloc();
+        this._hasChangedFlagsChunk = chunk;
+        this._hasChangedFlagsOffset = offset;
+        NodePool.set(this._poolHandle, NodeView.HAS_CHANGED_FLAGS, handle);
     }
 
     /**
@@ -208,7 +220,7 @@ export class Node extends BaseNode {
             NodePool.free(this._poolHandle);
             this._poolHandle = NULL_HANDLE;
         }
-        bookOfChange.free(this._hasChangedFlags, this._hasChangedFlagsIdx);
+        bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
         return super.destroy();
     }
 
@@ -392,11 +404,11 @@ export class Node extends BaseNode {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return this._hasChangedFlags[this._hasChangedFlagsIdx] as TransformBit;
+        return this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] as TransformBit;
     }
 
     set hasChangedFlags (val: TransformBit) {
-        this._hasChangedFlags[this._hasChangedFlagsIdx] = val;
+        this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] = val;
     }
 
     // ===============================
@@ -582,7 +594,7 @@ export class Node extends BaseNode {
         // eslint-disable-next-line @typescript-eslint/no-this-alias
         let i = 0;
         while (i >= 0) {
-            const cur = array_a[i--];
+            const cur: this = array_a[i--];
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 cur._dirtyFlags |= dirtyBit;
