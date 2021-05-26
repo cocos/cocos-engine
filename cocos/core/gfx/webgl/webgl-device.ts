@@ -606,8 +606,10 @@ export class WebGLDevice extends Device {
         // const Ctor = WebGLCommandBuffer; // opt to instant invocation
         const Ctor = info.type === CommandBufferType.PRIMARY ? WebGLPrimaryCommandBuffer : WebGLCommandBuffer;
         const cmdBuff = new Ctor(this);
-        cmdBuff.initialize(info);
-        return cmdBuff;
+        if (cmdBuff.initialize(info)) {
+            return cmdBuff;
+        }
+        return null!;
     }
 
     public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {
