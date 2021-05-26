@@ -652,10 +652,11 @@ CC_ENUM_OPERATORS(DynamicStateFlagBit);
 using DynamicStateList = vector<DynamicStateFlagBit>;
 
 enum class StencilFace {
-    FRONT,
-    BACK,
-    ALL,
+    FRONT = 0x1,
+    BACK  = 0x2,
+    ALL   = 0x3,
 };
+CC_ENUM_OPERATORS(StencilFace);
 
 enum class DescriptorType : FlagBits {
     UNKNOWN                = 0,
