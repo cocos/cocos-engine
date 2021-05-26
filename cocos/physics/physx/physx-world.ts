@@ -70,6 +70,8 @@ export class PhysXWorld implements IPhysicsWorld {
     readonly wrappedBodies: PhysXSharedBody[] = [];
     readonly callback = PhysXCallback;
 
+    private _isNeedFetch = false;
+
     mutipleResultSize = 12;
 
     constructor () {
@@ -82,14 +84,27 @@ export class PhysXWorld implements IPhysicsWorld {
     }
 
     step (deltaTime: number, _timeSinceLastCalled?: number, _maxSubStep = 0): void {
-        const scene = this.scene;
-        simulateScene(scene, deltaTime);
+        this._simulate(deltaTime);
         if (!PX.MULTI_THREAD) {
-            scene.fetchResults(true);
+            this._fetchResults();
             for (let i = 0; i < this.wrappedBodies.length; i++) {
                 const body = this.wrappedBodies[i];
                 body.syncPhysicsToScene();
             }
+        }
+    }
+
+    private _simulate (dt: number) {
+        if (!this._isNeedFetch) {
+            simulateScene(this.scene, dt);
+            this._isNeedFetch = true;
+        }
+    }
+
+    private _fetchResults () {
+        if (this._isNeedFetch) {
+            this.scene.fetchResults(true);
+            this._isNeedFetch = false;
         }
     }
 
@@ -102,7 +117,7 @@ export class PhysXWorld implements IPhysicsWorld {
 
     // only used in muti-thread for now
     syncPhysicsToScene (): void {
-        this.scene.fetchResults(true);
+        this._fetchResults();
         for (let i = 0; i < this.wrappedBodies.length; i++) {
             const body = this.wrappedBodies[i];
             body.syncPhysicsToScene();
@@ -222,7 +237,7 @@ const PhysXCallback = {
             }
             return word3 & EFilterDataWord3.QUERY_SINGLE_HIT ? PX.QueryHitType.eBLOCK : PX.QueryHitType.eTOUCH;
         },
-        preFilterForByteDance (filterData: FilterData, shapeFlags:number, hitFlags:number): number {
+        preFilterForByteDance (filterData: FilterData, shapeFlags: number, hitFlags: number): number {
             const word3 = filterData.word3;
             if ((word3 & EFilterDataWord3.QUERY_CHECK_TRIGGER)
                 && (shapeFlags & PX.ShapeFlag.eTRIGGER_SHAPE)) {

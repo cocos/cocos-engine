@@ -36,7 +36,7 @@
 /* eslint-disable no-lonely-if */
 
 import { BYTEDANCE, EDITOR } from 'internal:constants';
-// import PhysX from '@cocos/physx';
+import { PhysX } from './export-physx.web';
 import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, sys, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
@@ -56,11 +56,11 @@ if (BYTEDANCE && sys.os === sys.OS.ANDROID) {
     if (globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
 } else {
     if (!EDITOR) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
-    // globalThis.PhysX = PhysX;
+    globalThis.PhysX = PhysX;
     if (globalThis.PhysX != null) {
         _px = (PhysX as any)({
             onRuntimeInitialized () {
-                console.info('[PHYSICS]:', 'PhysX libs loaded.');
+                if (!EDITOR) console.info('[PHYSICS]:', 'PhysX libs loaded.');
                 // adapt
                 PX.VECTOR_MAT = new PX.PxMaterialVector();
                 PX.QueryHitType = PX.PxQueryHitType;
@@ -750,7 +750,7 @@ function hackForMultiThread () {
         }
 
         director.on(Director.EVENT_END_FRAME, () => {
-            if (!director.isPaused) {
+            if (!director.isPaused()) {
                 lastUpdate(PhysicsSystem.instance);
             }
         });
