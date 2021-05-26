@@ -170,10 +170,11 @@ export class Model {
     }
 
     get visFlags () : number {
-        return ModelPool.get(this._handle, ModelView.VIS_FLAGS);
+        return this._visFlags;
     }
 
     set visFlags (val: number) {
+        this._visFlags = val;
         ModelPool.set(this._handle, ModelView.VIS_FLAGS, val);
     }
 
@@ -197,6 +198,7 @@ export class Model {
     protected _subModels: SubModel[] = [];
     protected _node: Node = null!;
     protected _transform: Node = null!;
+    protected _visFlags: number = Layers.Enum.NONE;
 
     protected _device: Device;
     protected _inited = false;

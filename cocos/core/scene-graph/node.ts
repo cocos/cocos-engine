@@ -104,7 +104,6 @@ class BookOfChange {
 
     private _createView (chunkIdx: number): [Uint32Array, number] {
         return [this._chunks[chunkIdx], this._freelists[chunkIdx].pop()!];
-        // return new Uint32Array(this._chunks[chunkIdx].buffer, this._freelists[chunkIdx].pop()! * 4, 1);
     }
 }
 

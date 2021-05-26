@@ -81,513 +81,513 @@ function CmpF32NotEuqal (a: number, b: number): boolean {
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGL2RenderingContext): GLenum {
     switch (format) {
-    case Format.R8: return gl.UNSIGNED_BYTE;
-    case Format.R8SN: return gl.BYTE;
-    case Format.R8UI: return gl.UNSIGNED_BYTE;
-    case Format.R8I: return gl.BYTE;
-    case Format.R16F: return gl.HALF_FLOAT;
-    case Format.R16UI: return gl.UNSIGNED_SHORT;
-    case Format.R16I: return gl.SHORT;
-    case Format.R32F: return gl.FLOAT;
-    case Format.R32UI: return gl.UNSIGNED_INT;
-    case Format.R32I: return gl.INT;
+        case Format.R8: return gl.UNSIGNED_BYTE;
+        case Format.R8SN: return gl.BYTE;
+        case Format.R8UI: return gl.UNSIGNED_BYTE;
+        case Format.R8I: return gl.BYTE;
+        case Format.R16F: return gl.HALF_FLOAT;
+        case Format.R16UI: return gl.UNSIGNED_SHORT;
+        case Format.R16I: return gl.SHORT;
+        case Format.R32F: return gl.FLOAT;
+        case Format.R32UI: return gl.UNSIGNED_INT;
+        case Format.R32I: return gl.INT;
 
-    case Format.RG8: return gl.UNSIGNED_BYTE;
-    case Format.RG8SN: return gl.BYTE;
-    case Format.RG8UI: return gl.UNSIGNED_BYTE;
-    case Format.RG8I: return gl.BYTE;
-    case Format.RG16F: return gl.HALF_FLOAT;
-    case Format.RG16UI: return gl.UNSIGNED_SHORT;
-    case Format.RG16I: return gl.SHORT;
-    case Format.RG32F: return gl.FLOAT;
-    case Format.RG32UI: return gl.UNSIGNED_INT;
-    case Format.RG32I: return gl.INT;
+        case Format.RG8: return gl.UNSIGNED_BYTE;
+        case Format.RG8SN: return gl.BYTE;
+        case Format.RG8UI: return gl.UNSIGNED_BYTE;
+        case Format.RG8I: return gl.BYTE;
+        case Format.RG16F: return gl.HALF_FLOAT;
+        case Format.RG16UI: return gl.UNSIGNED_SHORT;
+        case Format.RG16I: return gl.SHORT;
+        case Format.RG32F: return gl.FLOAT;
+        case Format.RG32UI: return gl.UNSIGNED_INT;
+        case Format.RG32I: return gl.INT;
 
-    case Format.RGB8: return gl.UNSIGNED_BYTE;
-    case Format.SRGB8: return gl.UNSIGNED_BYTE;
-    case Format.RGB8SN: return gl.BYTE;
-    case Format.RGB8UI: return gl.UNSIGNED_BYTE;
-    case Format.RGB8I: return gl.BYTE;
-    case Format.RGB16F: return gl.HALF_FLOAT;
-    case Format.RGB16UI: return gl.UNSIGNED_SHORT;
-    case Format.RGB16I: return gl.SHORT;
-    case Format.RGB32F: return gl.FLOAT;
-    case Format.RGB32UI: return gl.UNSIGNED_INT;
-    case Format.RGB32I: return gl.INT;
+        case Format.RGB8: return gl.UNSIGNED_BYTE;
+        case Format.SRGB8: return gl.UNSIGNED_BYTE;
+        case Format.RGB8SN: return gl.BYTE;
+        case Format.RGB8UI: return gl.UNSIGNED_BYTE;
+        case Format.RGB8I: return gl.BYTE;
+        case Format.RGB16F: return gl.HALF_FLOAT;
+        case Format.RGB16UI: return gl.UNSIGNED_SHORT;
+        case Format.RGB16I: return gl.SHORT;
+        case Format.RGB32F: return gl.FLOAT;
+        case Format.RGB32UI: return gl.UNSIGNED_INT;
+        case Format.RGB32I: return gl.INT;
 
-    case Format.BGRA8: return gl.UNSIGNED_BYTE;
-    case Format.RGBA8: return gl.UNSIGNED_BYTE;
-    case Format.SRGB8_A8: return gl.UNSIGNED_BYTE;
-    case Format.RGBA8SN: return gl.BYTE;
-    case Format.RGBA8UI: return gl.UNSIGNED_BYTE;
-    case Format.RGBA8I: return gl.BYTE;
-    case Format.RGBA16F: return gl.HALF_FLOAT;
-    case Format.RGBA16UI: return gl.UNSIGNED_SHORT;
-    case Format.RGBA16I: return gl.SHORT;
-    case Format.RGBA32F: return gl.FLOAT;
-    case Format.RGBA32UI: return gl.UNSIGNED_INT;
-    case Format.RGBA32I: return gl.INT;
+        case Format.BGRA8: return gl.UNSIGNED_BYTE;
+        case Format.RGBA8: return gl.UNSIGNED_BYTE;
+        case Format.SRGB8_A8: return gl.UNSIGNED_BYTE;
+        case Format.RGBA8SN: return gl.BYTE;
+        case Format.RGBA8UI: return gl.UNSIGNED_BYTE;
+        case Format.RGBA8I: return gl.BYTE;
+        case Format.RGBA16F: return gl.HALF_FLOAT;
+        case Format.RGBA16UI: return gl.UNSIGNED_SHORT;
+        case Format.RGBA16I: return gl.SHORT;
+        case Format.RGBA32F: return gl.FLOAT;
+        case Format.RGBA32UI: return gl.UNSIGNED_INT;
+        case Format.RGBA32I: return gl.INT;
 
-    case Format.R5G6B5: return gl.UNSIGNED_SHORT_5_6_5;
-    case Format.R11G11B10F: return gl.UNSIGNED_INT_10F_11F_11F_REV;
-    case Format.RGB5A1: return gl.UNSIGNED_SHORT_5_5_5_1;
-    case Format.RGBA4: return gl.UNSIGNED_SHORT_4_4_4_4;
-    case Format.RGB10A2: return gl.UNSIGNED_INT_2_10_10_10_REV;
-    case Format.RGB10A2UI: return gl.UNSIGNED_INT_2_10_10_10_REV;
-    case Format.RGB9E5: return gl.FLOAT;
+        case Format.R5G6B5: return gl.UNSIGNED_SHORT_5_6_5;
+        case Format.R11G11B10F: return gl.UNSIGNED_INT_10F_11F_11F_REV;
+        case Format.RGB5A1: return gl.UNSIGNED_SHORT_5_5_5_1;
+        case Format.RGBA4: return gl.UNSIGNED_SHORT_4_4_4_4;
+        case Format.RGB10A2: return gl.UNSIGNED_INT_2_10_10_10_REV;
+        case Format.RGB10A2UI: return gl.UNSIGNED_INT_2_10_10_10_REV;
+        case Format.RGB9E5: return gl.FLOAT;
 
-    case Format.D16: return gl.UNSIGNED_SHORT;
-    case Format.D16S8: return gl.UNSIGNED_INT_24_8; // no D16S8 support
-    case Format.D24: return gl.UNSIGNED_INT;
-    case Format.D24S8: return gl.UNSIGNED_INT_24_8;
-    case Format.D32F: return gl.FLOAT;
-    case Format.D32F_S8: return gl.FLOAT_32_UNSIGNED_INT_24_8_REV;
+        case Format.D16: return gl.UNSIGNED_SHORT;
+        case Format.D16S8: return gl.UNSIGNED_INT_24_8; // no D16S8 support
+        case Format.D24: return gl.UNSIGNED_INT;
+        case Format.D24S8: return gl.UNSIGNED_INT_24_8;
+        case Format.D32F: return gl.FLOAT;
+        case Format.D32F_S8: return gl.FLOAT_32_UNSIGNED_INT_24_8_REV;
 
-    case Format.BC1: return gl.UNSIGNED_BYTE;
-    case Format.BC1_SRGB: return gl.UNSIGNED_BYTE;
-    case Format.BC2: return gl.UNSIGNED_BYTE;
-    case Format.BC2_SRGB: return gl.UNSIGNED_BYTE;
-    case Format.BC3: return gl.UNSIGNED_BYTE;
-    case Format.BC3_SRGB: return gl.UNSIGNED_BYTE;
-    case Format.BC4: return gl.UNSIGNED_BYTE;
-    case Format.BC4_SNORM: return gl.BYTE;
-    case Format.BC5: return gl.UNSIGNED_BYTE;
-    case Format.BC5_SNORM: return gl.BYTE;
-    case Format.BC6H_SF16: return gl.FLOAT;
-    case Format.BC6H_UF16: return gl.FLOAT;
-    case Format.BC7: return gl.UNSIGNED_BYTE;
-    case Format.BC7_SRGB: return gl.UNSIGNED_BYTE;
+        case Format.BC1: return gl.UNSIGNED_BYTE;
+        case Format.BC1_SRGB: return gl.UNSIGNED_BYTE;
+        case Format.BC2: return gl.UNSIGNED_BYTE;
+        case Format.BC2_SRGB: return gl.UNSIGNED_BYTE;
+        case Format.BC3: return gl.UNSIGNED_BYTE;
+        case Format.BC3_SRGB: return gl.UNSIGNED_BYTE;
+        case Format.BC4: return gl.UNSIGNED_BYTE;
+        case Format.BC4_SNORM: return gl.BYTE;
+        case Format.BC5: return gl.UNSIGNED_BYTE;
+        case Format.BC5_SNORM: return gl.BYTE;
+        case Format.BC6H_SF16: return gl.FLOAT;
+        case Format.BC6H_UF16: return gl.FLOAT;
+        case Format.BC7: return gl.UNSIGNED_BYTE;
+        case Format.BC7_SRGB: return gl.UNSIGNED_BYTE;
 
-    case Format.ETC_RGB8: return gl.UNSIGNED_BYTE;
-    case Format.ETC2_RGB8: return gl.UNSIGNED_BYTE;
-    case Format.ETC2_SRGB8: return gl.UNSIGNED_BYTE;
-    case Format.ETC2_RGB8_A1: return gl.UNSIGNED_BYTE;
-    case Format.ETC2_SRGB8_A1: return gl.UNSIGNED_BYTE;
-    case Format.EAC_R11: return gl.UNSIGNED_BYTE;
-    case Format.EAC_R11SN: return gl.BYTE;
-    case Format.EAC_RG11: return gl.UNSIGNED_BYTE;
-    case Format.EAC_RG11SN: return gl.BYTE;
+        case Format.ETC_RGB8: return gl.UNSIGNED_BYTE;
+        case Format.ETC2_RGB8: return gl.UNSIGNED_BYTE;
+        case Format.ETC2_SRGB8: return gl.UNSIGNED_BYTE;
+        case Format.ETC2_RGB8_A1: return gl.UNSIGNED_BYTE;
+        case Format.ETC2_SRGB8_A1: return gl.UNSIGNED_BYTE;
+        case Format.EAC_R11: return gl.UNSIGNED_BYTE;
+        case Format.EAC_R11SN: return gl.BYTE;
+        case Format.EAC_RG11: return gl.UNSIGNED_BYTE;
+        case Format.EAC_RG11SN: return gl.BYTE;
 
-    case Format.PVRTC_RGB2: return gl.UNSIGNED_BYTE;
-    case Format.PVRTC_RGBA2: return gl.UNSIGNED_BYTE;
-    case Format.PVRTC_RGB4: return gl.UNSIGNED_BYTE;
-    case Format.PVRTC_RGBA4: return gl.UNSIGNED_BYTE;
-    case Format.PVRTC2_2BPP: return gl.UNSIGNED_BYTE;
-    case Format.PVRTC2_4BPP: return gl.UNSIGNED_BYTE;
+        case Format.PVRTC_RGB2: return gl.UNSIGNED_BYTE;
+        case Format.PVRTC_RGBA2: return gl.UNSIGNED_BYTE;
+        case Format.PVRTC_RGB4: return gl.UNSIGNED_BYTE;
+        case Format.PVRTC_RGBA4: return gl.UNSIGNED_BYTE;
+        case Format.PVRTC2_2BPP: return gl.UNSIGNED_BYTE;
+        case Format.PVRTC2_4BPP: return gl.UNSIGNED_BYTE;
 
-    case Format.ASTC_RGBA_4x4:
-    case Format.ASTC_RGBA_5x4:
-    case Format.ASTC_RGBA_5x5:
-    case Format.ASTC_RGBA_6x5:
-    case Format.ASTC_RGBA_6x6:
-    case Format.ASTC_RGBA_8x5:
-    case Format.ASTC_RGBA_8x6:
-    case Format.ASTC_RGBA_8x8:
-    case Format.ASTC_RGBA_10x5:
-    case Format.ASTC_RGBA_10x6:
-    case Format.ASTC_RGBA_10x8:
-    case Format.ASTC_RGBA_10x10:
-    case Format.ASTC_RGBA_12x10:
-    case Format.ASTC_RGBA_12x12:
-    case Format.ASTC_SRGBA_4x4:
-    case Format.ASTC_SRGBA_5x4:
-    case Format.ASTC_SRGBA_5x5:
-    case Format.ASTC_SRGBA_6x5:
-    case Format.ASTC_SRGBA_6x6:
-    case Format.ASTC_SRGBA_8x5:
-    case Format.ASTC_SRGBA_8x6:
-    case Format.ASTC_SRGBA_8x8:
-    case Format.ASTC_SRGBA_10x5:
-    case Format.ASTC_SRGBA_10x6:
-    case Format.ASTC_SRGBA_10x8:
-    case Format.ASTC_SRGBA_10x10:
-    case Format.ASTC_SRGBA_12x10:
-    case Format.ASTC_SRGBA_12x12:
-        return gl.UNSIGNED_BYTE;
+        case Format.ASTC_RGBA_4x4:
+        case Format.ASTC_RGBA_5x4:
+        case Format.ASTC_RGBA_5x5:
+        case Format.ASTC_RGBA_6x5:
+        case Format.ASTC_RGBA_6x6:
+        case Format.ASTC_RGBA_8x5:
+        case Format.ASTC_RGBA_8x6:
+        case Format.ASTC_RGBA_8x8:
+        case Format.ASTC_RGBA_10x5:
+        case Format.ASTC_RGBA_10x6:
+        case Format.ASTC_RGBA_10x8:
+        case Format.ASTC_RGBA_10x10:
+        case Format.ASTC_RGBA_12x10:
+        case Format.ASTC_RGBA_12x12:
+        case Format.ASTC_SRGBA_4x4:
+        case Format.ASTC_SRGBA_5x4:
+        case Format.ASTC_SRGBA_5x5:
+        case Format.ASTC_SRGBA_6x5:
+        case Format.ASTC_SRGBA_6x6:
+        case Format.ASTC_SRGBA_8x5:
+        case Format.ASTC_SRGBA_8x6:
+        case Format.ASTC_SRGBA_8x8:
+        case Format.ASTC_SRGBA_10x5:
+        case Format.ASTC_SRGBA_10x6:
+        case Format.ASTC_SRGBA_10x8:
+        case Format.ASTC_SRGBA_10x10:
+        case Format.ASTC_SRGBA_12x10:
+        case Format.ASTC_SRGBA_12x12:
+            return gl.UNSIGNED_BYTE;
 
-    default: {
-        return gl.UNSIGNED_BYTE;
-    }
+        default: {
+            return gl.UNSIGNED_BYTE;
+        }
     }
 }
 
 export function GFXFormatToWebGLInternalFormat (format: Format, gl: WebGL2RenderingContext): GLenum {
     switch (format) {
-    case Format.A8: return gl.ALPHA;
-    case Format.L8: return gl.LUMINANCE;
-    case Format.LA8: return gl.LUMINANCE_ALPHA;
-    case Format.R8: return gl.R8;
-    case Format.R8SN: return gl.R8_SNORM;
-    case Format.R8UI: return gl.R8UI;
-    case Format.R8I: return gl.R8I;
-    case Format.RG8: return gl.RG8;
-    case Format.RG8SN: return gl.RG8_SNORM;
-    case Format.RG8UI: return gl.RG8UI;
-    case Format.RG8I: return gl.RG8I;
-    case Format.RGB8: return gl.RGB8;
-    case Format.RGB8SN: return gl.RGB8_SNORM;
-    case Format.RGB8UI: return gl.RGB8UI;
-    case Format.RGB8I: return gl.RGB8I;
-    case Format.BGRA8: return gl.RGBA8;
-    case Format.RGBA8: return gl.RGBA8;
-    case Format.RGBA8SN: return gl.RGBA8_SNORM;
-    case Format.RGBA8UI: return gl.RGBA8UI;
-    case Format.RGBA8I: return gl.RGBA8I;
-    case Format.R16I: return gl.R16I;
-    case Format.R16UI: return gl.R16UI;
-    case Format.R16F: return gl.R16F;
-    case Format.RG16I: return gl.RG16I;
-    case Format.RG16UI: return gl.RG16UI;
-    case Format.RG16F: return gl.RG16F;
-    case Format.RGB16I: return gl.RGB16I;
-    case Format.RGB16UI: return gl.RGB16UI;
-    case Format.RGB16F: return gl.RGB16F;
-    case Format.RGBA16I: return gl.RGBA16I;
-    case Format.RGBA16UI: return gl.RGBA16UI;
-    case Format.RGBA16F: return gl.RGBA16F;
-    case Format.R32I: return gl.R32I;
-    case Format.R32UI: return gl.R32UI;
-    case Format.R32F: return gl.R32F;
-    case Format.RG32I: return gl.RG32I;
-    case Format.RG32UI: return gl.RG32UI;
-    case Format.RG32F: return gl.RG32F;
-    case Format.RGB32I: return gl.RGB32I;
-    case Format.RGB32UI: return gl.RGB32UI;
-    case Format.RGB32F: return gl.RGB32F;
-    case Format.RGBA32I: return gl.RGBA32I;
-    case Format.RGBA32UI: return gl.RGBA32UI;
-    case Format.RGBA32F: return gl.RGBA32F;
-    case Format.R5G6B5: return gl.RGB565;
-    case Format.RGB5A1: return gl.RGB5_A1;
-    case Format.RGBA4: return gl.RGBA4;
-    case Format.RGB10A2: return gl.RGB10_A2;
-    case Format.RGB10A2UI: return gl.RGB10_A2UI;
-    case Format.R11G11B10F: return gl.R11F_G11F_B10F;
-    case Format.D16: return gl.DEPTH_COMPONENT16;
-    case Format.D16S8: return gl.DEPTH24_STENCIL8; // no D16S8 support
-    case Format.D24: return gl.DEPTH_COMPONENT24;
-    case Format.D24S8: return gl.DEPTH24_STENCIL8;
-    case Format.D32F: return gl.DEPTH_COMPONENT32F;
-    case Format.D32F_S8: return gl.DEPTH32F_STENCIL8;
+        case Format.A8: return gl.ALPHA;
+        case Format.L8: return gl.LUMINANCE;
+        case Format.LA8: return gl.LUMINANCE_ALPHA;
+        case Format.R8: return gl.R8;
+        case Format.R8SN: return gl.R8_SNORM;
+        case Format.R8UI: return gl.R8UI;
+        case Format.R8I: return gl.R8I;
+        case Format.RG8: return gl.RG8;
+        case Format.RG8SN: return gl.RG8_SNORM;
+        case Format.RG8UI: return gl.RG8UI;
+        case Format.RG8I: return gl.RG8I;
+        case Format.RGB8: return gl.RGB8;
+        case Format.RGB8SN: return gl.RGB8_SNORM;
+        case Format.RGB8UI: return gl.RGB8UI;
+        case Format.RGB8I: return gl.RGB8I;
+        case Format.BGRA8: return gl.RGBA8;
+        case Format.RGBA8: return gl.RGBA8;
+        case Format.RGBA8SN: return gl.RGBA8_SNORM;
+        case Format.RGBA8UI: return gl.RGBA8UI;
+        case Format.RGBA8I: return gl.RGBA8I;
+        case Format.R16I: return gl.R16I;
+        case Format.R16UI: return gl.R16UI;
+        case Format.R16F: return gl.R16F;
+        case Format.RG16I: return gl.RG16I;
+        case Format.RG16UI: return gl.RG16UI;
+        case Format.RG16F: return gl.RG16F;
+        case Format.RGB16I: return gl.RGB16I;
+        case Format.RGB16UI: return gl.RGB16UI;
+        case Format.RGB16F: return gl.RGB16F;
+        case Format.RGBA16I: return gl.RGBA16I;
+        case Format.RGBA16UI: return gl.RGBA16UI;
+        case Format.RGBA16F: return gl.RGBA16F;
+        case Format.R32I: return gl.R32I;
+        case Format.R32UI: return gl.R32UI;
+        case Format.R32F: return gl.R32F;
+        case Format.RG32I: return gl.RG32I;
+        case Format.RG32UI: return gl.RG32UI;
+        case Format.RG32F: return gl.RG32F;
+        case Format.RGB32I: return gl.RGB32I;
+        case Format.RGB32UI: return gl.RGB32UI;
+        case Format.RGB32F: return gl.RGB32F;
+        case Format.RGBA32I: return gl.RGBA32I;
+        case Format.RGBA32UI: return gl.RGBA32UI;
+        case Format.RGBA32F: return gl.RGBA32F;
+        case Format.R5G6B5: return gl.RGB565;
+        case Format.RGB5A1: return gl.RGB5_A1;
+        case Format.RGBA4: return gl.RGBA4;
+        case Format.RGB10A2: return gl.RGB10_A2;
+        case Format.RGB10A2UI: return gl.RGB10_A2UI;
+        case Format.R11G11B10F: return gl.R11F_G11F_B10F;
+        case Format.D16: return gl.DEPTH_COMPONENT16;
+        case Format.D16S8: return gl.DEPTH24_STENCIL8; // no D16S8 support
+        case Format.D24: return gl.DEPTH_COMPONENT24;
+        case Format.D24S8: return gl.DEPTH24_STENCIL8;
+        case Format.D32F: return gl.DEPTH_COMPONENT32F;
+        case Format.D32F_S8: return gl.DEPTH32F_STENCIL8;
 
-    case Format.BC1: return WebGLEXT.COMPRESSED_RGB_S3TC_DXT1_EXT;
-    case Format.BC1_ALPHA: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT1_EXT;
-    case Format.BC1_SRGB: return WebGLEXT.COMPRESSED_SRGB_S3TC_DXT1_EXT;
-    case Format.BC1_SRGB_ALPHA: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
-    case Format.BC2: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT3_EXT;
-    case Format.BC2_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
-    case Format.BC3: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT5_EXT;
-    case Format.BC3_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+        case Format.BC1: return WebGLEXT.COMPRESSED_RGB_S3TC_DXT1_EXT;
+        case Format.BC1_ALPHA: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT1_EXT;
+        case Format.BC1_SRGB: return WebGLEXT.COMPRESSED_SRGB_S3TC_DXT1_EXT;
+        case Format.BC1_SRGB_ALPHA: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
+        case Format.BC2: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT3_EXT;
+        case Format.BC2_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
+        case Format.BC3: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        case Format.BC3_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
 
-    case Format.ETC_RGB8: return WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL;
-    case Format.ETC2_RGB8: return WebGLEXT.COMPRESSED_RGB8_ETC2;
-    case Format.ETC2_SRGB8: return WebGLEXT.COMPRESSED_SRGB8_ETC2;
-    case Format.ETC2_RGB8_A1: return WebGLEXT.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-    case Format.ETC2_SRGB8_A1: return WebGLEXT.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-    case Format.ETC2_RGBA8: return WebGLEXT.COMPRESSED_RGBA8_ETC2_EAC;
-    case Format.ETC2_SRGB8_A8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
-    case Format.EAC_R11: return WebGLEXT.COMPRESSED_R11_EAC;
-    case Format.EAC_R11SN: return WebGLEXT.COMPRESSED_SIGNED_R11_EAC;
-    case Format.EAC_RG11: return WebGLEXT.COMPRESSED_RG11_EAC;
-    case Format.EAC_RG11SN: return WebGLEXT.COMPRESSED_SIGNED_RG11_EAC;
+        case Format.ETC_RGB8: return WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL;
+        case Format.ETC2_RGB8: return WebGLEXT.COMPRESSED_RGB8_ETC2;
+        case Format.ETC2_SRGB8: return WebGLEXT.COMPRESSED_SRGB8_ETC2;
+        case Format.ETC2_RGB8_A1: return WebGLEXT.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case Format.ETC2_SRGB8_A1: return WebGLEXT.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case Format.ETC2_RGBA8: return WebGLEXT.COMPRESSED_RGBA8_ETC2_EAC;
+        case Format.ETC2_SRGB8_A8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
+        case Format.EAC_R11: return WebGLEXT.COMPRESSED_R11_EAC;
+        case Format.EAC_R11SN: return WebGLEXT.COMPRESSED_SIGNED_R11_EAC;
+        case Format.EAC_RG11: return WebGLEXT.COMPRESSED_RG11_EAC;
+        case Format.EAC_RG11SN: return WebGLEXT.COMPRESSED_SIGNED_RG11_EAC;
 
-    case Format.PVRTC_RGB2: return WebGLEXT.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
-    case Format.PVRTC_RGBA2: return WebGLEXT.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
-    case Format.PVRTC_RGB4: return WebGLEXT.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
-    case Format.PVRTC_RGBA4: return WebGLEXT.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+        case Format.PVRTC_RGB2: return WebGLEXT.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
+        case Format.PVRTC_RGBA2: return WebGLEXT.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
+        case Format.PVRTC_RGB4: return WebGLEXT.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
+        case Format.PVRTC_RGBA4: return WebGLEXT.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 
-    case Format.ASTC_RGBA_4x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_4x4_KHR;
-    case Format.ASTC_RGBA_5x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x4_KHR;
-    case Format.ASTC_RGBA_5x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x5_KHR;
-    case Format.ASTC_RGBA_6x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x5_KHR;
-    case Format.ASTC_RGBA_6x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x6_KHR;
-    case Format.ASTC_RGBA_8x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x5_KHR;
-    case Format.ASTC_RGBA_8x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x6_KHR;
-    case Format.ASTC_RGBA_8x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x8_KHR;
-    case Format.ASTC_RGBA_10x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x5_KHR;
-    case Format.ASTC_RGBA_10x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x6_KHR;
-    case Format.ASTC_RGBA_10x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x8_KHR;
-    case Format.ASTC_RGBA_10x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x10_KHR;
-    case Format.ASTC_RGBA_12x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x10_KHR;
-    case Format.ASTC_RGBA_12x12: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x12_KHR;
+        case Format.ASTC_RGBA_4x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_4x4_KHR;
+        case Format.ASTC_RGBA_5x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x4_KHR;
+        case Format.ASTC_RGBA_5x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x5_KHR;
+        case Format.ASTC_RGBA_6x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x5_KHR;
+        case Format.ASTC_RGBA_6x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x6_KHR;
+        case Format.ASTC_RGBA_8x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x5_KHR;
+        case Format.ASTC_RGBA_8x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x6_KHR;
+        case Format.ASTC_RGBA_8x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x8_KHR;
+        case Format.ASTC_RGBA_10x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x5_KHR;
+        case Format.ASTC_RGBA_10x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x6_KHR;
+        case Format.ASTC_RGBA_10x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x8_KHR;
+        case Format.ASTC_RGBA_10x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x10_KHR;
+        case Format.ASTC_RGBA_12x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x10_KHR;
+        case Format.ASTC_RGBA_12x12: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x12_KHR;
 
-    case Format.ASTC_SRGBA_4x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
-    case Format.ASTC_SRGBA_5x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR;
-    case Format.ASTC_SRGBA_5x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR;
-    case Format.ASTC_SRGBA_6x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR;
-    case Format.ASTC_SRGBA_6x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
-    case Format.ASTC_SRGBA_8x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR;
-    case Format.ASTC_SRGBA_8x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR;
-    case Format.ASTC_SRGBA_8x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
-    case Format.ASTC_SRGBA_10x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR;
-    case Format.ASTC_SRGBA_10x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR;
-    case Format.ASTC_SRGBA_10x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR;
-    case Format.ASTC_SRGBA_10x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
-    case Format.ASTC_SRGBA_12x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR;
-    case Format.ASTC_SRGBA_12x12: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
+        case Format.ASTC_SRGBA_4x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
+        case Format.ASTC_SRGBA_5x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR;
+        case Format.ASTC_SRGBA_5x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR;
+        case Format.ASTC_SRGBA_6x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR;
+        case Format.ASTC_SRGBA_6x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
+        case Format.ASTC_SRGBA_8x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR;
+        case Format.ASTC_SRGBA_8x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR;
+        case Format.ASTC_SRGBA_8x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
+        case Format.ASTC_SRGBA_10x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR;
+        case Format.ASTC_SRGBA_10x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR;
+        case Format.ASTC_SRGBA_10x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR;
+        case Format.ASTC_SRGBA_10x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
+        case Format.ASTC_SRGBA_12x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR;
+        case Format.ASTC_SRGBA_12x12: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
 
-    default: {
-        console.error('Unsupported Format, convert to WebGL internal format failed.');
-        return gl.RGBA;
-    }
+        default: {
+            console.error('Unsupported Format, convert to WebGL internal format failed.');
+            return gl.RGBA;
+        }
     }
 }
 
 export function GFXFormatToWebGLFormat (format: Format, gl: WebGL2RenderingContext): GLenum {
     switch (format) {
-    case Format.A8: return gl.ALPHA;
-    case Format.L8: return gl.LUMINANCE;
-    case Format.LA8: return gl.LUMINANCE_ALPHA;
-    case Format.R8:
-    case Format.R8SN: return gl.RED;
-    case Format.R8UI:
-    case Format.R8I: return gl.RED;
-    case Format.RG8:
-    case Format.RG8SN:
-    case Format.RG8UI:
-    case Format.RG8I: return gl.RG;
-    case Format.RGB8:
-    case Format.RGB8SN:
-    case Format.RGB8UI:
-    case Format.RGB8I: return gl.RGB;
-    case Format.BGRA8:
-    case Format.RGBA8:
-    case Format.RGBA8SN:
-    case Format.RGBA8UI:
-    case Format.RGBA8I: return gl.RGBA;
-    case Format.R16UI:
-    case Format.R16I:
-    case Format.R16F: return gl.RED;
-    case Format.RG16UI:
-    case Format.RG16I:
-    case Format.RG16F: return gl.RG;
-    case Format.RGB16UI:
-    case Format.RGB16I:
-    case Format.RGB16F: return gl.RGB;
-    case Format.RGBA16UI:
-    case Format.RGBA16I:
-    case Format.RGBA16F: return gl.RGBA;
-    case Format.R32UI:
-    case Format.R32I:
-    case Format.R32F: return gl.RED;
-    case Format.RG32UI:
-    case Format.RG32I:
-    case Format.RG32F: return gl.RG;
-    case Format.RGB32UI:
-    case Format.RGB32I:
-    case Format.RGB32F: return gl.RGB;
-    case Format.RGBA32UI:
-    case Format.RGBA32I:
-    case Format.RGBA32F: return gl.RGBA;
-    case Format.RGB10A2: return gl.RGBA;
-    case Format.R11G11B10F: return gl.RGB;
-    case Format.R5G6B5: return gl.RGB;
-    case Format.RGB5A1: return gl.RGBA;
-    case Format.RGBA4: return gl.RGBA;
-    case Format.D16: return gl.DEPTH_COMPONENT;
-    case Format.D16S8: return gl.DEPTH_STENCIL;
-    case Format.D24: return gl.DEPTH_COMPONENT;
-    case Format.D24S8: return gl.DEPTH_STENCIL;
-    case Format.D32F: return gl.DEPTH_COMPONENT;
-    case Format.D32F_S8: return gl.DEPTH_STENCIL;
+        case Format.A8: return gl.ALPHA;
+        case Format.L8: return gl.LUMINANCE;
+        case Format.LA8: return gl.LUMINANCE_ALPHA;
+        case Format.R8:
+        case Format.R8SN: return gl.RED;
+        case Format.R8UI:
+        case Format.R8I: return gl.RED;
+        case Format.RG8:
+        case Format.RG8SN:
+        case Format.RG8UI:
+        case Format.RG8I: return gl.RG;
+        case Format.RGB8:
+        case Format.RGB8SN:
+        case Format.RGB8UI:
+        case Format.RGB8I: return gl.RGB;
+        case Format.BGRA8:
+        case Format.RGBA8:
+        case Format.RGBA8SN:
+        case Format.RGBA8UI:
+        case Format.RGBA8I: return gl.RGBA;
+        case Format.R16UI:
+        case Format.R16I:
+        case Format.R16F: return gl.RED;
+        case Format.RG16UI:
+        case Format.RG16I:
+        case Format.RG16F: return gl.RG;
+        case Format.RGB16UI:
+        case Format.RGB16I:
+        case Format.RGB16F: return gl.RGB;
+        case Format.RGBA16UI:
+        case Format.RGBA16I:
+        case Format.RGBA16F: return gl.RGBA;
+        case Format.R32UI:
+        case Format.R32I:
+        case Format.R32F: return gl.RED;
+        case Format.RG32UI:
+        case Format.RG32I:
+        case Format.RG32F: return gl.RG;
+        case Format.RGB32UI:
+        case Format.RGB32I:
+        case Format.RGB32F: return gl.RGB;
+        case Format.RGBA32UI:
+        case Format.RGBA32I:
+        case Format.RGBA32F: return gl.RGBA;
+        case Format.RGB10A2: return gl.RGBA;
+        case Format.R11G11B10F: return gl.RGB;
+        case Format.R5G6B5: return gl.RGB;
+        case Format.RGB5A1: return gl.RGBA;
+        case Format.RGBA4: return gl.RGBA;
+        case Format.D16: return gl.DEPTH_COMPONENT;
+        case Format.D16S8: return gl.DEPTH_STENCIL;
+        case Format.D24: return gl.DEPTH_COMPONENT;
+        case Format.D24S8: return gl.DEPTH_STENCIL;
+        case Format.D32F: return gl.DEPTH_COMPONENT;
+        case Format.D32F_S8: return gl.DEPTH_STENCIL;
 
-    case Format.BC1: return WebGLEXT.COMPRESSED_RGB_S3TC_DXT1_EXT;
-    case Format.BC1_ALPHA: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT1_EXT;
-    case Format.BC1_SRGB: return WebGLEXT.COMPRESSED_SRGB_S3TC_DXT1_EXT;
-    case Format.BC1_SRGB_ALPHA: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
-    case Format.BC2: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT3_EXT;
-    case Format.BC2_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
-    case Format.BC3: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT5_EXT;
-    case Format.BC3_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
+        case Format.BC1: return WebGLEXT.COMPRESSED_RGB_S3TC_DXT1_EXT;
+        case Format.BC1_ALPHA: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT1_EXT;
+        case Format.BC1_SRGB: return WebGLEXT.COMPRESSED_SRGB_S3TC_DXT1_EXT;
+        case Format.BC1_SRGB_ALPHA: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
+        case Format.BC2: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT3_EXT;
+        case Format.BC2_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
+        case Format.BC3: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        case Format.BC3_SRGB: return WebGLEXT.COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
 
-    case Format.ETC_RGB8: return WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL;
-    case Format.ETC2_RGB8: return WebGLEXT.COMPRESSED_RGB8_ETC2;
-    case Format.ETC2_SRGB8: return WebGLEXT.COMPRESSED_SRGB8_ETC2;
-    case Format.ETC2_RGB8_A1: return WebGLEXT.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-    case Format.ETC2_SRGB8_A1: return WebGLEXT.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-    case Format.ETC2_RGBA8: return WebGLEXT.COMPRESSED_RGBA8_ETC2_EAC;
-    case Format.ETC2_SRGB8_A8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
-    case Format.EAC_R11: return WebGLEXT.COMPRESSED_R11_EAC;
-    case Format.EAC_R11SN: return WebGLEXT.COMPRESSED_SIGNED_R11_EAC;
-    case Format.EAC_RG11: return WebGLEXT.COMPRESSED_RG11_EAC;
-    case Format.EAC_RG11SN: return WebGLEXT.COMPRESSED_SIGNED_RG11_EAC;
+        case Format.ETC_RGB8: return WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL;
+        case Format.ETC2_RGB8: return WebGLEXT.COMPRESSED_RGB8_ETC2;
+        case Format.ETC2_SRGB8: return WebGLEXT.COMPRESSED_SRGB8_ETC2;
+        case Format.ETC2_RGB8_A1: return WebGLEXT.COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case Format.ETC2_SRGB8_A1: return WebGLEXT.COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2;
+        case Format.ETC2_RGBA8: return WebGLEXT.COMPRESSED_RGBA8_ETC2_EAC;
+        case Format.ETC2_SRGB8_A8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
+        case Format.EAC_R11: return WebGLEXT.COMPRESSED_R11_EAC;
+        case Format.EAC_R11SN: return WebGLEXT.COMPRESSED_SIGNED_R11_EAC;
+        case Format.EAC_RG11: return WebGLEXT.COMPRESSED_RG11_EAC;
+        case Format.EAC_RG11SN: return WebGLEXT.COMPRESSED_SIGNED_RG11_EAC;
 
-    case Format.PVRTC_RGB2: return WebGLEXT.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
-    case Format.PVRTC_RGBA2: return WebGLEXT.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
-    case Format.PVRTC_RGB4: return WebGLEXT.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
-    case Format.PVRTC_RGBA4: return WebGLEXT.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
+        case Format.PVRTC_RGB2: return WebGLEXT.COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
+        case Format.PVRTC_RGBA2: return WebGLEXT.COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
+        case Format.PVRTC_RGB4: return WebGLEXT.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
+        case Format.PVRTC_RGBA4: return WebGLEXT.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 
-    case Format.ASTC_RGBA_4x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_4x4_KHR;
-    case Format.ASTC_RGBA_5x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x4_KHR;
-    case Format.ASTC_RGBA_5x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x5_KHR;
-    case Format.ASTC_RGBA_6x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x5_KHR;
-    case Format.ASTC_RGBA_6x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x6_KHR;
-    case Format.ASTC_RGBA_8x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x5_KHR;
-    case Format.ASTC_RGBA_8x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x6_KHR;
-    case Format.ASTC_RGBA_8x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x8_KHR;
-    case Format.ASTC_RGBA_10x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x5_KHR;
-    case Format.ASTC_RGBA_10x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x6_KHR;
-    case Format.ASTC_RGBA_10x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x8_KHR;
-    case Format.ASTC_RGBA_10x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x10_KHR;
-    case Format.ASTC_RGBA_12x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x10_KHR;
-    case Format.ASTC_RGBA_12x12: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x12_KHR;
+        case Format.ASTC_RGBA_4x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_4x4_KHR;
+        case Format.ASTC_RGBA_5x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x4_KHR;
+        case Format.ASTC_RGBA_5x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x5_KHR;
+        case Format.ASTC_RGBA_6x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x5_KHR;
+        case Format.ASTC_RGBA_6x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x6_KHR;
+        case Format.ASTC_RGBA_8x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x5_KHR;
+        case Format.ASTC_RGBA_8x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x6_KHR;
+        case Format.ASTC_RGBA_8x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x8_KHR;
+        case Format.ASTC_RGBA_10x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x5_KHR;
+        case Format.ASTC_RGBA_10x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x6_KHR;
+        case Format.ASTC_RGBA_10x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x8_KHR;
+        case Format.ASTC_RGBA_10x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x10_KHR;
+        case Format.ASTC_RGBA_12x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x10_KHR;
+        case Format.ASTC_RGBA_12x12: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x12_KHR;
 
-    case Format.ASTC_SRGBA_4x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
-    case Format.ASTC_SRGBA_5x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR;
-    case Format.ASTC_SRGBA_5x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR;
-    case Format.ASTC_SRGBA_6x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR;
-    case Format.ASTC_SRGBA_6x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
-    case Format.ASTC_SRGBA_8x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR;
-    case Format.ASTC_SRGBA_8x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR;
-    case Format.ASTC_SRGBA_8x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
-    case Format.ASTC_SRGBA_10x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR;
-    case Format.ASTC_SRGBA_10x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR;
-    case Format.ASTC_SRGBA_10x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR;
-    case Format.ASTC_SRGBA_10x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
-    case Format.ASTC_SRGBA_12x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR;
-    case Format.ASTC_SRGBA_12x12: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
+        case Format.ASTC_SRGBA_4x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
+        case Format.ASTC_SRGBA_5x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR;
+        case Format.ASTC_SRGBA_5x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR;
+        case Format.ASTC_SRGBA_6x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR;
+        case Format.ASTC_SRGBA_6x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
+        case Format.ASTC_SRGBA_8x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR;
+        case Format.ASTC_SRGBA_8x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR;
+        case Format.ASTC_SRGBA_8x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
+        case Format.ASTC_SRGBA_10x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR;
+        case Format.ASTC_SRGBA_10x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR;
+        case Format.ASTC_SRGBA_10x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR;
+        case Format.ASTC_SRGBA_10x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
+        case Format.ASTC_SRGBA_12x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR;
+        case Format.ASTC_SRGBA_12x12: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
 
-    default: {
-        console.error('Unsupported Format, convert to WebGL format failed.');
-        return gl.RGBA;
-    }
+        default: {
+            console.error('Unsupported Format, convert to WebGL format failed.');
+            return gl.RGBA;
+        }
     }
 }
 
 function GFXTypeToWebGLType (type: Type, gl: WebGL2RenderingContext): GLenum {
     switch (type) {
-    case Type.BOOL: return gl.BOOL;
-    case Type.BOOL2: return gl.BOOL_VEC2;
-    case Type.BOOL3: return gl.BOOL_VEC3;
-    case Type.BOOL4: return gl.BOOL_VEC4;
-    case Type.INT: return gl.INT;
-    case Type.INT2: return gl.INT_VEC2;
-    case Type.INT3: return gl.INT_VEC3;
-    case Type.INT4: return gl.INT_VEC4;
-    case Type.UINT: return gl.UNSIGNED_INT;
-    case Type.FLOAT: return gl.FLOAT;
-    case Type.FLOAT2: return gl.FLOAT_VEC2;
-    case Type.FLOAT3: return gl.FLOAT_VEC3;
-    case Type.FLOAT4: return gl.FLOAT_VEC4;
-    case Type.MAT2: return gl.FLOAT_MAT2;
-    case Type.MAT2X3: return gl.FLOAT_MAT2x3;
-    case Type.MAT2X4: return gl.FLOAT_MAT2x4;
-    case Type.MAT3X2: return gl.FLOAT_MAT3x2;
-    case Type.MAT3: return gl.FLOAT_MAT3;
-    case Type.MAT3X4: return gl.FLOAT_MAT3x4;
-    case Type.MAT4X2: return gl.FLOAT_MAT4x2;
-    case Type.MAT4X3: return gl.FLOAT_MAT4x3;
-    case Type.MAT4: return gl.FLOAT_MAT4;
-    case Type.SAMPLER2D: return gl.SAMPLER_2D;
-    case Type.SAMPLER2D_ARRAY: return gl.SAMPLER_2D_ARRAY;
-    case Type.SAMPLER3D: return gl.SAMPLER_3D;
-    case Type.SAMPLER_CUBE: return gl.SAMPLER_CUBE;
-    default: {
-        console.error('Unsupported GLType, convert to GL type failed.');
-        return Type.UNKNOWN;
-    }
+        case Type.BOOL: return gl.BOOL;
+        case Type.BOOL2: return gl.BOOL_VEC2;
+        case Type.BOOL3: return gl.BOOL_VEC3;
+        case Type.BOOL4: return gl.BOOL_VEC4;
+        case Type.INT: return gl.INT;
+        case Type.INT2: return gl.INT_VEC2;
+        case Type.INT3: return gl.INT_VEC3;
+        case Type.INT4: return gl.INT_VEC4;
+        case Type.UINT: return gl.UNSIGNED_INT;
+        case Type.FLOAT: return gl.FLOAT;
+        case Type.FLOAT2: return gl.FLOAT_VEC2;
+        case Type.FLOAT3: return gl.FLOAT_VEC3;
+        case Type.FLOAT4: return gl.FLOAT_VEC4;
+        case Type.MAT2: return gl.FLOAT_MAT2;
+        case Type.MAT2X3: return gl.FLOAT_MAT2x3;
+        case Type.MAT2X4: return gl.FLOAT_MAT2x4;
+        case Type.MAT3X2: return gl.FLOAT_MAT3x2;
+        case Type.MAT3: return gl.FLOAT_MAT3;
+        case Type.MAT3X4: return gl.FLOAT_MAT3x4;
+        case Type.MAT4X2: return gl.FLOAT_MAT4x2;
+        case Type.MAT4X3: return gl.FLOAT_MAT4x3;
+        case Type.MAT4: return gl.FLOAT_MAT4;
+        case Type.SAMPLER2D: return gl.SAMPLER_2D;
+        case Type.SAMPLER2D_ARRAY: return gl.SAMPLER_2D_ARRAY;
+        case Type.SAMPLER3D: return gl.SAMPLER_3D;
+        case Type.SAMPLER_CUBE: return gl.SAMPLER_CUBE;
+        default: {
+            console.error('Unsupported GLType, convert to GL type failed.');
+            return Type.UNKNOWN;
+        }
     }
 }
 
 function WebGLTypeToGFXType (glType: GLenum, gl: WebGL2RenderingContext): Type {
     switch (glType) {
-    case gl.BOOL: return Type.BOOL;
-    case gl.BOOL_VEC2: return Type.BOOL2;
-    case gl.BOOL_VEC3: return Type.BOOL3;
-    case gl.BOOL_VEC4: return Type.BOOL4;
-    case gl.INT: return Type.INT;
-    case gl.INT_VEC2: return Type.INT2;
-    case gl.INT_VEC3: return Type.INT3;
-    case gl.INT_VEC4: return Type.INT4;
-    case gl.UNSIGNED_INT: return Type.UINT;
-    case gl.UNSIGNED_INT_VEC2: return Type.UINT2;
-    case gl.UNSIGNED_INT_VEC3: return Type.UINT3;
-    case gl.UNSIGNED_INT_VEC4: return Type.UINT4;
-    case gl.FLOAT: return Type.FLOAT;
-    case gl.FLOAT_VEC2: return Type.FLOAT2;
-    case gl.FLOAT_VEC3: return Type.FLOAT3;
-    case gl.FLOAT_VEC4: return Type.FLOAT4;
-    case gl.FLOAT_MAT2: return Type.MAT2;
-    case gl.FLOAT_MAT2x3: return Type.MAT2X3;
-    case gl.FLOAT_MAT2x4: return Type.MAT2X4;
-    case gl.FLOAT_MAT3x2: return Type.MAT3X2;
-    case gl.FLOAT_MAT3: return Type.MAT3;
-    case gl.FLOAT_MAT3x4: return Type.MAT3X4;
-    case gl.FLOAT_MAT4x2: return Type.MAT4X2;
-    case gl.FLOAT_MAT4x3: return Type.MAT4X3;
-    case gl.FLOAT_MAT4: return Type.MAT4;
-    case gl.SAMPLER_2D: return Type.SAMPLER2D;
-    case gl.SAMPLER_2D_ARRAY: return Type.SAMPLER2D_ARRAY;
-    case gl.SAMPLER_3D: return Type.SAMPLER3D;
-    case gl.SAMPLER_CUBE: return Type.SAMPLER_CUBE;
-    default: {
-        console.error('Unsupported GLType, convert to Type failed.');
-        return Type.UNKNOWN;
-    }
+        case gl.BOOL: return Type.BOOL;
+        case gl.BOOL_VEC2: return Type.BOOL2;
+        case gl.BOOL_VEC3: return Type.BOOL3;
+        case gl.BOOL_VEC4: return Type.BOOL4;
+        case gl.INT: return Type.INT;
+        case gl.INT_VEC2: return Type.INT2;
+        case gl.INT_VEC3: return Type.INT3;
+        case gl.INT_VEC4: return Type.INT4;
+        case gl.UNSIGNED_INT: return Type.UINT;
+        case gl.UNSIGNED_INT_VEC2: return Type.UINT2;
+        case gl.UNSIGNED_INT_VEC3: return Type.UINT3;
+        case gl.UNSIGNED_INT_VEC4: return Type.UINT4;
+        case gl.FLOAT: return Type.FLOAT;
+        case gl.FLOAT_VEC2: return Type.FLOAT2;
+        case gl.FLOAT_VEC3: return Type.FLOAT3;
+        case gl.FLOAT_VEC4: return Type.FLOAT4;
+        case gl.FLOAT_MAT2: return Type.MAT2;
+        case gl.FLOAT_MAT2x3: return Type.MAT2X3;
+        case gl.FLOAT_MAT2x4: return Type.MAT2X4;
+        case gl.FLOAT_MAT3x2: return Type.MAT3X2;
+        case gl.FLOAT_MAT3: return Type.MAT3;
+        case gl.FLOAT_MAT3x4: return Type.MAT3X4;
+        case gl.FLOAT_MAT4x2: return Type.MAT4X2;
+        case gl.FLOAT_MAT4x3: return Type.MAT4X3;
+        case gl.FLOAT_MAT4: return Type.MAT4;
+        case gl.SAMPLER_2D: return Type.SAMPLER2D;
+        case gl.SAMPLER_2D_ARRAY: return Type.SAMPLER2D_ARRAY;
+        case gl.SAMPLER_3D: return Type.SAMPLER3D;
+        case gl.SAMPLER_CUBE: return Type.SAMPLER_CUBE;
+        default: {
+            console.error('Unsupported GLType, convert to Type failed.');
+            return Type.UNKNOWN;
+        }
     }
 }
 
 function WebGLGetTypeSize (glType: GLenum, gl: WebGL2RenderingContext): Type {
     switch (glType) {
-    case gl.BOOL: return 4;
-    case gl.BOOL_VEC2: return 8;
-    case gl.BOOL_VEC3: return 12;
-    case gl.BOOL_VEC4: return 16;
-    case gl.INT: return 4;
-    case gl.INT_VEC2: return 8;
-    case gl.INT_VEC3: return 12;
-    case gl.INT_VEC4: return 16;
-    case gl.UNSIGNED_INT: return 4;
-    case gl.UNSIGNED_INT_VEC2: return 8;
-    case gl.UNSIGNED_INT_VEC3: return 12;
-    case gl.UNSIGNED_INT_VEC4: return 16;
-    case gl.FLOAT: return 4;
-    case gl.FLOAT_VEC2: return 8;
-    case gl.FLOAT_VEC3: return 12;
-    case gl.FLOAT_VEC4: return 16;
-    case gl.FLOAT_MAT2: return 16;
-    case gl.FLOAT_MAT2x3: return 24;
-    case gl.FLOAT_MAT2x4: return 32;
-    case gl.FLOAT_MAT3x2: return 24;
-    case gl.FLOAT_MAT3: return 36;
-    case gl.FLOAT_MAT3x4: return 48;
-    case gl.FLOAT_MAT4x2: return 32;
-    case gl.FLOAT_MAT4x3: return 48;
-    case gl.FLOAT_MAT4: return 64;
-    case gl.SAMPLER_2D: return 4;
-    case gl.SAMPLER_2D_ARRAY: return 4;
-    case gl.SAMPLER_2D_ARRAY_SHADOW: return 4;
-    case gl.SAMPLER_3D: return 4;
-    case gl.SAMPLER_CUBE: return 4;
-    case gl.INT_SAMPLER_2D: return 4;
-    case gl.INT_SAMPLER_2D_ARRAY: return 4;
-    case gl.INT_SAMPLER_3D: return 4;
-    case gl.INT_SAMPLER_CUBE: return 4;
-    case gl.UNSIGNED_INT_SAMPLER_2D: return 4;
-    case gl.UNSIGNED_INT_SAMPLER_2D_ARRAY: return 4;
-    case gl.UNSIGNED_INT_SAMPLER_3D: return 4;
-    case gl.UNSIGNED_INT_SAMPLER_CUBE: return 4;
-    default: {
-        console.error('Unsupported GLType, get type failed.');
-        return 0;
-    }
+        case gl.BOOL: return 4;
+        case gl.BOOL_VEC2: return 8;
+        case gl.BOOL_VEC3: return 12;
+        case gl.BOOL_VEC4: return 16;
+        case gl.INT: return 4;
+        case gl.INT_VEC2: return 8;
+        case gl.INT_VEC3: return 12;
+        case gl.INT_VEC4: return 16;
+        case gl.UNSIGNED_INT: return 4;
+        case gl.UNSIGNED_INT_VEC2: return 8;
+        case gl.UNSIGNED_INT_VEC3: return 12;
+        case gl.UNSIGNED_INT_VEC4: return 16;
+        case gl.FLOAT: return 4;
+        case gl.FLOAT_VEC2: return 8;
+        case gl.FLOAT_VEC3: return 12;
+        case gl.FLOAT_VEC4: return 16;
+        case gl.FLOAT_MAT2: return 16;
+        case gl.FLOAT_MAT2x3: return 24;
+        case gl.FLOAT_MAT2x4: return 32;
+        case gl.FLOAT_MAT3x2: return 24;
+        case gl.FLOAT_MAT3: return 36;
+        case gl.FLOAT_MAT3x4: return 48;
+        case gl.FLOAT_MAT4x2: return 32;
+        case gl.FLOAT_MAT4x3: return 48;
+        case gl.FLOAT_MAT4: return 64;
+        case gl.SAMPLER_2D: return 4;
+        case gl.SAMPLER_2D_ARRAY: return 4;
+        case gl.SAMPLER_2D_ARRAY_SHADOW: return 4;
+        case gl.SAMPLER_3D: return 4;
+        case gl.SAMPLER_CUBE: return 4;
+        case gl.INT_SAMPLER_2D: return 4;
+        case gl.INT_SAMPLER_2D_ARRAY: return 4;
+        case gl.INT_SAMPLER_3D: return 4;
+        case gl.INT_SAMPLER_CUBE: return 4;
+        case gl.UNSIGNED_INT_SAMPLER_2D: return 4;
+        case gl.UNSIGNED_INT_SAMPLER_2D_ARRAY: return 4;
+        case gl.UNSIGNED_INT_SAMPLER_3D: return 4;
+        case gl.UNSIGNED_INT_SAMPLER_CUBE: return 4;
+        default: {
+            console.error('Unsupported GLType, get type failed.');
+            return 0;
+        }
     }
 }
 
 function WebGLGetComponentCount (glType: GLenum, gl: WebGL2RenderingContext): Type {
     switch (glType) {
-    case gl.FLOAT_MAT2: return 2;
-    case gl.FLOAT_MAT2x3: return 2;
-    case gl.FLOAT_MAT2x4: return 2;
-    case gl.FLOAT_MAT3x2: return 3;
-    case gl.FLOAT_MAT3: return 3;
-    case gl.FLOAT_MAT3x4: return 3;
-    case gl.FLOAT_MAT4x2: return 4;
-    case gl.FLOAT_MAT4x3: return 4;
-    case gl.FLOAT_MAT4: return 4;
-    default: {
-        return 1;
-    }
+        case gl.FLOAT_MAT2: return 2;
+        case gl.FLOAT_MAT2x3: return 2;
+        case gl.FLOAT_MAT2x4: return 2;
+        case gl.FLOAT_MAT3x2: return 3;
+        case gl.FLOAT_MAT3: return 3;
+        case gl.FLOAT_MAT3x4: return 3;
+        case gl.FLOAT_MAT4x2: return 4;
+        case gl.FLOAT_MAT4x3: return 4;
+        case gl.FLOAT_MAT4: return 4;
+        default: {
+            return 1;
+        }
     }
 }
 
@@ -881,27 +881,27 @@ export function WebGL2CmdFuncDestroyBuffer (device: WebGL2Device, gpuBuffer: IWe
         // Firefox 75+ implicitly unbind whatever buffer there was on the slot sometimes
         // can be reproduced in the static batching scene at https://github.com/cocos-creator/test-cases-3d
         switch (gpuBuffer.glTarget) {
-        case gl.ARRAY_BUFFER:
-            if (device.useVAO && device.stateCache.glVAO) {
-                gl.bindVertexArray(null);
-                device.stateCache.glVAO = gfxStateCache.gpuInputAssembler = null;
-            }
-            gl.bindBuffer(gl.ARRAY_BUFFER, null);
-            device.stateCache.glArrayBuffer = null;
-            break;
-        case gl.ELEMENT_ARRAY_BUFFER:
-            if (device.useVAO && device.stateCache.glVAO) {
-                gl.bindVertexArray(null);
-                device.stateCache.glVAO = gfxStateCache.gpuInputAssembler = null;
-            }
-            gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
-            device.stateCache.glElementArrayBuffer = null;
-            break;
-        case gl.UNIFORM_BUFFER:
-            gl.bindBuffer(gl.UNIFORM_BUFFER, null);
-            device.stateCache.glUniformBuffer = null;
-            break;
-        default:
+            case gl.ARRAY_BUFFER:
+                if (device.useVAO && device.stateCache.glVAO) {
+                    gl.bindVertexArray(null);
+                    device.stateCache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                }
+                gl.bindBuffer(gl.ARRAY_BUFFER, null);
+                device.stateCache.glArrayBuffer = null;
+                break;
+            case gl.ELEMENT_ARRAY_BUFFER:
+                if (device.useVAO && device.stateCache.glVAO) {
+                    gl.bindVertexArray(null);
+                    device.stateCache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                }
+                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null);
+                device.stateCache.glElementArrayBuffer = null;
+                break;
+            case gl.UNIFORM_BUFFER:
+                gl.bindBuffer(gl.UNIFORM_BUFFER, null);
+                device.stateCache.glUniformBuffer = null;
+                break;
+            default:
         }
 
         gl.deleteBuffer(gpuBuffer.glBuffer);
@@ -980,58 +980,58 @@ export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWeb
         const cache = device.stateCache;
 
         switch (gpuBuffer.glTarget) {
-        case gl.ARRAY_BUFFER: {
-            if (cache.glVAO) {
-                gl.bindVertexArray(null);
-                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
-            }
+            case gl.ARRAY_BUFFER: {
+                if (cache.glVAO) {
+                    gl.bindVertexArray(null);
+                    cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                }
 
-            if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
-                cache.glArrayBuffer = gpuBuffer.glBuffer;
-            }
+                if (cache.glArrayBuffer !== gpuBuffer.glBuffer) {
+                    gl.bindBuffer(gl.ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    cache.glArrayBuffer = gpuBuffer.glBuffer;
+                }
 
-            if (size === buff.byteLength) {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-            } else {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
+                if (size === buff.byteLength) {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
+                } else {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
+                }
+                break;
             }
-            break;
-        }
-        case gl.ELEMENT_ARRAY_BUFFER: {
-            if (cache.glVAO) {
-                gl.bindVertexArray(null);
-                cache.glVAO = gfxStateCache.gpuInputAssembler = null;
-            }
+            case gl.ELEMENT_ARRAY_BUFFER: {
+                if (cache.glVAO) {
+                    gl.bindVertexArray(null);
+                    cache.glVAO = gfxStateCache.gpuInputAssembler = null;
+                }
 
-            if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
-                cache.glElementArrayBuffer = gpuBuffer.glBuffer;
-            }
+                if (cache.glElementArrayBuffer !== gpuBuffer.glBuffer) {
+                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, gpuBuffer.glBuffer);
+                    cache.glElementArrayBuffer = gpuBuffer.glBuffer;
+                }
 
-            if (size === buff.byteLength) {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-            } else {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
+                if (size === buff.byteLength) {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
+                } else {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff.slice(0, size));
+                }
+                break;
             }
-            break;
-        }
-        case gl.UNIFORM_BUFFER: {
-            if (cache.glUniformBuffer !== gpuBuffer.glBuffer) {
-                gl.bindBuffer(gl.UNIFORM_BUFFER, gpuBuffer.glBuffer);
-                cache.glUniformBuffer = gpuBuffer.glBuffer;
-            }
+            case gl.UNIFORM_BUFFER: {
+                if (cache.glUniformBuffer !== gpuBuffer.glBuffer) {
+                    gl.bindBuffer(gl.UNIFORM_BUFFER, gpuBuffer.glBuffer);
+                    cache.glUniformBuffer = gpuBuffer.glBuffer;
+                }
 
-            if (size === buff.byteLength) {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
-            } else {
-                gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buff, 0, size / 4));
+                if (size === buff.byteLength) {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, buff);
+                } else {
+                    gl.bufferSubData(gpuBuffer.glTarget, offset, new Float32Array(buff, 0, size / 4));
+                }
+                break;
             }
-            break;
-        }
-        default: {
-            console.error('Unsupported BufferType, update buffer failed.');
-        }
+            default: {
+                console.error('Unsupported BufferType, update buffer failed.');
+            }
         }
     }
 }
@@ -1047,35 +1047,97 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
     let h = gpuTexture.height;
 
     switch (gpuTexture.type) {
-    case TextureType.TEX2D: {
-        gpuTexture.glTarget = gl.TEXTURE_2D;
+        case TextureType.TEX2D: {
+            gpuTexture.glTarget = gl.TEXTURE_2D;
 
-        const maxSize = Math.max(w, h);
-        if (maxSize > device.capabilities.maxTextureSize) {
-            errorID(9100, maxSize, device.capabilities.maxTextureSize);
+            const maxSize = Math.max(w, h);
+            if (maxSize > device.capabilities.maxTextureSize) {
+                errorID(9100, maxSize, device.capabilities.maxTextureSize);
+            }
+
+            if (gpuTexture.samples === SampleCount.X1) {
+                const glTexture = gl.createTexture();
+                if (glTexture && gpuTexture.size > 0) {
+                    gpuTexture.glTexture = glTexture;
+                    const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
+
+                    if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+                        gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
+                        glTexUnit.glTexture = gpuTexture.glTexture;
+                    }
+
+                    if (gpuTexture.glInternalFmt === WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                    // init 2 x 2 texture
+                        const imgSize = FormatSize(gpuTexture.format, 2, 2, 1);
+                        const view: Uint8Array = new Uint8Array(imgSize);
+                        gl.compressedTexImage2D(gl.TEXTURE_2D, 0, gpuTexture.glInternalFmt, 2, 2, 0, view);
+                    } else if (gpuTexture.flags & TextureFlagBit.IMMUTABLE) {
+                        gl.texStorage2D(gl.TEXTURE_2D, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h);
+                    } else if (!FormatInfos[gpuTexture.format].isCompressed) {
+                        for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                            gl.texImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                            w = Math.max(1, w >> 1);
+                            h = Math.max(1, h >> 1);
+                        }
+                    } else {
+                        for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                            const imgSize = FormatSize(gpuTexture.format, w, h, 1);
+                            const view: Uint8Array = new Uint8Array(imgSize);
+                            gl.compressedTexImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, view);
+                            w = Math.max(1, w >> 1);
+                            h = Math.max(1, h >> 1);
+                        }
+                    }
+                } else {
+                    gl.deleteTexture(glTexture);
+                }
+            } else {
+                const glRenderbuffer = gl.createRenderbuffer();
+                if (glRenderbuffer && gpuTexture.size > 0) {
+                    gpuTexture.glRenderbuffer = glRenderbuffer;
+                    if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
+                        gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
+                        device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
+                    }
+
+                    gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
+                        gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
+                }
+            }
+            break;
         }
+        case TextureType.CUBE: {
+            gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
 
-        if (gpuTexture.samples === SampleCount.X1) {
+            const maxSize = Math.max(w, h);
+            if (maxSize > device.capabilities.maxCubeMapTextureSize) {
+                errorID(9100, maxSize, device.capabilities.maxTextureSize);
+            }
+
             const glTexture = gl.createTexture();
             if (glTexture && gpuTexture.size > 0) {
                 gpuTexture.glTexture = glTexture;
                 const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
                 if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                    gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
+                    gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                     glTexUnit.glTexture = gpuTexture.glTexture;
                 }
 
                 if (gpuTexture.glInternalFmt === WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
-                    // init 2 x 2 texture
-                    const imgSize = FormatSize(gpuTexture.format, 2, 2, 1);
-                    const view: Uint8Array = new Uint8Array(imgSize);
-                    gl.compressedTexImage2D(gl.TEXTURE_2D, 0, gpuTexture.glInternalFmt, 2, 2, 0, view);
+                    for (let f = 0; f < 6; ++f) {
+                        const imgSize = FormatSize(gpuTexture.format, 2, 2, 1);
+                        const view: Uint8Array = new Uint8Array(imgSize);
+                        gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, 0, gpuTexture.glInternalFmt, 2, 2, 0, view);
+                    }
                 } else if (gpuTexture.flags & TextureFlagBit.IMMUTABLE) {
-                    gl.texStorage2D(gl.TEXTURE_2D, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h);
+                    gl.texStorage2D(gl.TEXTURE_CUBE_MAP, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h);
                 } else if (!FormatInfos[gpuTexture.format].isCompressed) {
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                        gl.texImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                        for (let f = 0; f < 6; ++f) {
+                            gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i,
+                                gpuTexture.glInternalFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                        }
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, h >> 1);
                     }
@@ -1083,83 +1145,21 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                     for (let i = 0; i < gpuTexture.mipLevel; ++i) {
                         const imgSize = FormatSize(gpuTexture.format, w, h, 1);
                         const view: Uint8Array = new Uint8Array(imgSize);
-                        gl.compressedTexImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, view);
+                        for (let f = 0; f < 6; ++f) {
+                            gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h, 0, view);
+                        }
                         w = Math.max(1, w >> 1);
                         h = Math.max(1, h >> 1);
                     }
                 }
-            } else {
-                gl.deleteTexture(glTexture);
             }
-        } else {
-            const glRenderbuffer = gl.createRenderbuffer();
-            if (glRenderbuffer && gpuTexture.size > 0) {
-                gpuTexture.glRenderbuffer = glRenderbuffer;
-                if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
-                    gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
-                    device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
-                }
-
-                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
-                    gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
-            }
+            break;
         }
-        break;
-    }
-    case TextureType.CUBE: {
-        gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
-
-        const maxSize = Math.max(w, h);
-        if (maxSize > device.capabilities.maxCubeMapTextureSize) {
-            errorID(9100, maxSize, device.capabilities.maxTextureSize);
+        default: {
+            console.error('Unsupported TextureType, create texture failed.');
+            gpuTexture.type = TextureType.TEX2D;
+            gpuTexture.glTarget = gl.TEXTURE_2D;
         }
-
-        const glTexture = gl.createTexture();
-        if (glTexture && gpuTexture.size > 0) {
-            gpuTexture.glTexture = glTexture;
-            const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
-
-            if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
-                glTexUnit.glTexture = gpuTexture.glTexture;
-            }
-
-            if (gpuTexture.glInternalFmt === WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
-                for (let f = 0; f < 6; ++f) {
-                    const imgSize = FormatSize(gpuTexture.format, 2, 2, 1);
-                    const view: Uint8Array = new Uint8Array(imgSize);
-                    gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, 0, gpuTexture.glInternalFmt, 2, 2, 0, view);
-                }
-            } else if (gpuTexture.flags & TextureFlagBit.IMMUTABLE) {
-                gl.texStorage2D(gl.TEXTURE_CUBE_MAP, gpuTexture.mipLevel, gpuTexture.glInternalFmt, w, h);
-            } else if (!FormatInfos[gpuTexture.format].isCompressed) {
-                for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                    for (let f = 0; f < 6; ++f) {
-                        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i,
-                            gpuTexture.glInternalFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
-                    }
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
-                }
-            } else {
-                for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                    const imgSize = FormatSize(gpuTexture.format, w, h, 1);
-                    const view: Uint8Array = new Uint8Array(imgSize);
-                    for (let f = 0; f < 6; ++f) {
-                        gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h, 0, view);
-                    }
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
-                }
-            }
-        }
-        break;
-    }
-    default: {
-        console.error('Unsupported TextureType, create texture failed.');
-        gpuTexture.type = TextureType.TEX2D;
-        gpuTexture.glTarget = gl.TEXTURE_2D;
-    }
     }
 }
 
@@ -1186,99 +1186,99 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
     let h = gpuTexture.height;
 
     switch (gpuTexture.type) {
-    case TextureType.TEX2D: {
-        gpuTexture.glTarget = gl.TEXTURE_2D;
+        case TextureType.TEX2D: {
+            gpuTexture.glTarget = gl.TEXTURE_2D;
 
-        const maxSize = Math.max(w, h);
-        if (maxSize > device.capabilities.maxTextureSize) {
-            errorID(9100, maxSize, device.capabilities.maxTextureSize);
+            const maxSize = Math.max(w, h);
+            if (maxSize > device.capabilities.maxTextureSize) {
+                errorID(9100, maxSize, device.capabilities.maxTextureSize);
+            }
+
+            if (gpuTexture.samples === SampleCount.X1) {
+                const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
+
+                if (glTexUnit.glTexture !== gpuTexture.glTexture) {
+                    gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
+                    glTexUnit.glTexture = gpuTexture.glTexture;
+                }
+
+                if (!FormatInfos[gpuTexture.format].isCompressed) {
+                    for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                        gl.texImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
+                        w = Math.max(1, w >> 1);
+                        h = Math.max(1, h >> 1);
+                    }
+                } else if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                    for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                        const imgSize = FormatSize(gpuTexture.format, w, h, 1);
+                        const view: Uint8Array = new Uint8Array(imgSize);
+                        gl.compressedTexImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, view);
+                        w = Math.max(1, w >> 1);
+                        h = Math.max(1, h >> 1);
+                    }
+                }
+            } else {
+                const glRenderbuffer = gl.createRenderbuffer();
+                if (glRenderbuffer && gpuTexture.size > 0) {
+                    gpuTexture.glRenderbuffer = glRenderbuffer;
+                    if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
+                        gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
+                        device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
+                    }
+
+                    gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
+                        gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
+                }
+            }
+            break;
         }
+        case TextureType.CUBE: {
+            gpuTexture.type = TextureType.CUBE;
+            gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
 
-        if (gpuTexture.samples === SampleCount.X1) {
+            const maxSize = Math.max(w, h);
+            if (maxSize > device.capabilities.maxCubeMapTextureSize) {
+                errorID(9100, maxSize, device.capabilities.maxTextureSize);
+            }
+
             const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
 
             if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-                gl.bindTexture(gl.TEXTURE_2D, gpuTexture.glTexture);
+                gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
                 glTexUnit.glTexture = gpuTexture.glTexture;
             }
 
             if (!FormatInfos[gpuTexture.format].isCompressed) {
-                for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                    gl.texImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, gpuTexture.glFormat, gpuTexture.glType, null);
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
+                for (let f = 0; f < 6; ++f) {
+                    w = gpuTexture.width;
+                    h = gpuTexture.height;
+                    for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                        gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h,
+                            0, gpuTexture.glFormat, gpuTexture.glType, null);
+                        w = Math.max(1, w >> 1);
+                        h = Math.max(1, h >> 1);
+                    }
                 }
             } else if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
-                for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                    const imgSize = FormatSize(gpuTexture.format, w, h, 1);
-                    const view: Uint8Array = new Uint8Array(imgSize);
-                    gl.compressedTexImage2D(gl.TEXTURE_2D, i, gpuTexture.glInternalFmt, w, h, 0, view);
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
+                for (let f = 0; f < 6; ++f) {
+                    w = gpuTexture.width;
+                    h = gpuTexture.height;
+                    for (let i = 0; i < gpuTexture.mipLevel; ++i) {
+                        const imgSize = FormatSize(gpuTexture.format, w, h, 1);
+                        const view: Uint8Array = new Uint8Array(imgSize);
+                        gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h, 0, view);
+                        w = Math.max(1, w >> 1);
+                        h = Math.max(1, h >> 1);
+                    }
                 }
             }
-        } else {
-            const glRenderbuffer = gl.createRenderbuffer();
-            if (glRenderbuffer && gpuTexture.size > 0) {
-                gpuTexture.glRenderbuffer = glRenderbuffer;
-                if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
-                    gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
-                    device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
-                }
-
-                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
-                    gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
-            }
+            break;
         }
-        break;
-    }
-    case TextureType.CUBE: {
-        gpuTexture.type = TextureType.CUBE;
-        gpuTexture.glTarget = gl.TEXTURE_CUBE_MAP;
-
-        const maxSize = Math.max(w, h);
-        if (maxSize > device.capabilities.maxCubeMapTextureSize) {
-            errorID(9100, maxSize, device.capabilities.maxTextureSize);
+        default: {
+            console.error('Unsupported TextureType, create texture failed.');
+            gpuTexture.type = TextureType.TEX2D;
+            gpuTexture.glTarget = gl.TEXTURE_2D;
         }
-
-        const glTexUnit = device.stateCache.glTexUnits[device.stateCache.texUnit];
-
-        if (glTexUnit.glTexture !== gpuTexture.glTexture) {
-            gl.bindTexture(gl.TEXTURE_CUBE_MAP, gpuTexture.glTexture);
-            glTexUnit.glTexture = gpuTexture.glTexture;
-        }
-
-        if (!FormatInfos[gpuTexture.format].isCompressed) {
-            for (let f = 0; f < 6; ++f) {
-                w = gpuTexture.width;
-                h = gpuTexture.height;
-                for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                    gl.texImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h,
-                        0, gpuTexture.glFormat, gpuTexture.glType, null);
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
-                }
-            }
-        } else if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
-            for (let f = 0; f < 6; ++f) {
-                w = gpuTexture.width;
-                h = gpuTexture.height;
-                for (let i = 0; i < gpuTexture.mipLevel; ++i) {
-                    const imgSize = FormatSize(gpuTexture.format, w, h, 1);
-                    const view: Uint8Array = new Uint8Array(imgSize);
-                    gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, i, gpuTexture.glInternalFmt, w, h, 0, view);
-                    w = Math.max(1, w >> 1);
-                    h = Math.max(1, h >> 1);
-                }
-            }
-        }
-        break;
-    }
-    default: {
-        console.error('Unsupported TextureType, create texture failed.');
-        gpuTexture.type = TextureType.TEX2D;
-        gpuTexture.glTarget = gl.TEXTURE_2D;
-    }
     }
 }
 
@@ -1394,23 +1394,23 @@ export function WebGL2CmdFuncCreateFramebuffer (device: WebGL2Device, gpuFramebu
         const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
         if (status !== gl.FRAMEBUFFER_COMPLETE) {
             switch (status) {
-            case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: {
-                console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_ATTACHMENT');
-                break;
-            }
-            case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: {
-                console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT');
-                break;
-            }
-            case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: {
-                console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_DIMENSIONS');
-                break;
-            }
-            case gl.FRAMEBUFFER_UNSUPPORTED: {
-                console.error('glCheckFramebufferStatus() - FRAMEBUFFER_UNSUPPORTED');
-                break;
-            }
-            default:
+                case gl.FRAMEBUFFER_INCOMPLETE_ATTACHMENT: {
+                    console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_ATTACHMENT');
+                    break;
+                }
+                case gl.FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT: {
+                    console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT');
+                    break;
+                }
+                case gl.FRAMEBUFFER_INCOMPLETE_DIMENSIONS: {
+                    console.error('glCheckFramebufferStatus() - FRAMEBUFFER_INCOMPLETE_DIMENSIONS');
+                    break;
+                }
+                case gl.FRAMEBUFFER_UNSUPPORTED: {
+                    console.error('glCheckFramebufferStatus() - FRAMEBUFFER_UNSUPPORTED');
+                    break;
+                }
+                default:
             }
         }
 
@@ -1438,20 +1438,20 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
         let lineNumber = 1;
 
         switch (gpuStage.type) {
-        case ShaderStageFlagBit.VERTEX: {
-            shaderTypeStr = 'VertexShader';
-            glShaderType = gl.VERTEX_SHADER;
-            break;
-        }
-        case ShaderStageFlagBit.FRAGMENT: {
-            shaderTypeStr = 'FragmentShader';
-            glShaderType = gl.FRAGMENT_SHADER;
-            break;
-        }
-        default: {
-            console.error('Unsupported ShaderType.');
-            return;
-        }
+            case ShaderStageFlagBit.VERTEX: {
+                shaderTypeStr = 'VertexShader';
+                glShaderType = gl.VERTEX_SHADER;
+                break;
+            }
+            case ShaderStageFlagBit.FRAGMENT: {
+                shaderTypeStr = 'FragmentShader';
+                glShaderType = gl.FRAGMENT_SHADER;
+                break;
+            }
+            default: {
+                console.error('Unsupported ShaderType.');
+                return;
+            }
         }
 
         const glShader = gl.createShader(glShaderType);
@@ -1812,31 +1812,31 @@ export function WebGL2CmdFuncBeginRenderPass (
 
             if (colorAttachment.format !== Format.UNKNOWN) {
                 switch (colorAttachment.loadOp) {
-                case LoadOp.LOAD: break; // GL default behavior
-                case LoadOp.CLEAR: {
-                    if (cache.bs.targets[0].blendColorMask !== ColorMask.ALL) {
-                        gl.colorMask(true, true, true, true);
-                    }
+                    case LoadOp.LOAD: break; // GL default behavior
+                    case LoadOp.CLEAR: {
+                        if (cache.bs.targets[0].blendColorMask !== ColorMask.ALL) {
+                            gl.colorMask(true, true, true, true);
+                        }
 
-                    if (!gpuFramebuffer.isOffscreen) {
-                        const clearColor = clearColors[0];
-                        gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
-                        clears |= gl.COLOR_BUFFER_BIT;
-                    } else {
-                        _f32v4[0] = clearColors[j].x;
-                        _f32v4[1] = clearColors[j].y;
-                        _f32v4[2] = clearColors[j].z;
-                        _f32v4[3] = clearColors[j].w;
-                        gl.clearBufferfv(gl.COLOR, j, _f32v4);
+                        if (!gpuFramebuffer.isOffscreen) {
+                            const clearColor = clearColors[0];
+                            gl.clearColor(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+                            clears |= gl.COLOR_BUFFER_BIT;
+                        } else {
+                            _f32v4[0] = clearColors[j].x;
+                            _f32v4[1] = clearColors[j].y;
+                            _f32v4[2] = clearColors[j].z;
+                            _f32v4[3] = clearColors[j].w;
+                            gl.clearBufferfv(gl.COLOR, j, _f32v4);
+                        }
+                        break;
                     }
-                    break;
-                }
-                case LoadOp.DISCARD: {
+                    case LoadOp.DISCARD: {
                     // invalidate the framebuffer
-                    gfxStateCache.invalidateAttachments.push(gl.COLOR_ATTACHMENT0 + j);
-                    break;
-                }
-                default:
+                        gfxStateCache.invalidateAttachments.push(gl.COLOR_ATTACHMENT0 + j);
+                        break;
+                    }
+                    default:
                 }
             }
         } // if (curGPURenderPass)
@@ -1844,47 +1844,47 @@ export function WebGL2CmdFuncBeginRenderPass (
         if (gpuRenderPass.depthStencilAttachment) {
             if (gpuRenderPass.depthStencilAttachment.format !== Format.UNKNOWN) {
                 switch (gpuRenderPass.depthStencilAttachment.depthLoadOp) {
-                case LoadOp.LOAD: break; // GL default behavior
-                case LoadOp.CLEAR: {
-                    if (!cache.dss.depthWrite) {
-                        gl.depthMask(true);
+                    case LoadOp.LOAD: break; // GL default behavior
+                    case LoadOp.CLEAR: {
+                        if (!cache.dss.depthWrite) {
+                            gl.depthMask(true);
+                        }
+
+                        gl.clearDepth(clearDepth);
+
+                        clears |= gl.DEPTH_BUFFER_BIT;
+                        break;
                     }
-
-                    gl.clearDepth(clearDepth);
-
-                    clears |= gl.DEPTH_BUFFER_BIT;
-                    break;
-                }
-                case LoadOp.DISCARD: {
+                    case LoadOp.DISCARD: {
                     // invalidate the framebuffer
-                    gfxStateCache.invalidateAttachments.push(gl.DEPTH_ATTACHMENT);
-                    break;
-                }
-                default:
+                        gfxStateCache.invalidateAttachments.push(gl.DEPTH_ATTACHMENT);
+                        break;
+                    }
+                    default:
                 }
 
                 if (FormatInfos[gpuRenderPass.depthStencilAttachment.format].hasStencil) {
                     switch (gpuRenderPass.depthStencilAttachment.stencilLoadOp) {
-                    case LoadOp.LOAD: break; // GL default behavior
-                    case LoadOp.CLEAR: {
-                        if (!cache.dss.stencilWriteMaskFront) {
-                            gl.stencilMaskSeparate(gl.FRONT, 0xffff);
-                        }
+                        case LoadOp.LOAD: break; // GL default behavior
+                        case LoadOp.CLEAR: {
+                            if (!cache.dss.stencilWriteMaskFront) {
+                                gl.stencilMaskSeparate(gl.FRONT, 0xffff);
+                            }
 
-                        if (!cache.dss.stencilWriteMaskBack) {
-                            gl.stencilMaskSeparate(gl.BACK, 0xffff);
-                        }
+                            if (!cache.dss.stencilWriteMaskBack) {
+                                gl.stencilMaskSeparate(gl.BACK, 0xffff);
+                            }
 
-                        gl.clearStencil(clearStencil);
-                        clears |= gl.STENCIL_BUFFER_BIT;
-                        break;
-                    }
-                    case LoadOp.DISCARD: {
+                            gl.clearStencil(clearStencil);
+                            clears |= gl.STENCIL_BUFFER_BIT;
+                            break;
+                        }
+                        case LoadOp.DISCARD: {
                         // invalidate the framebuffer
-                        gfxStateCache.invalidateAttachments.push(gl.STENCIL_ATTACHMENT);
-                        break;
-                    }
-                    default:
+                            gfxStateCache.invalidateAttachments.push(gl.STENCIL_ATTACHMENT);
+                            break;
+                        }
+                        default:
                     }
                 }
             }
@@ -1960,21 +1960,21 @@ export function WebGL2CmdFuncBindStates (
         if (rs) {
             if (cache.rs.cullMode !== rs.cullMode) {
                 switch (rs.cullMode) {
-                case CullMode.NONE: {
-                    gl.disable(gl.CULL_FACE);
-                    break;
-                }
-                case CullMode.FRONT: {
-                    gl.enable(gl.CULL_FACE);
-                    gl.cullFace(gl.FRONT);
-                    break;
-                }
-                case CullMode.BACK: {
-                    gl.enable(gl.CULL_FACE);
-                    gl.cullFace(gl.BACK);
-                    break;
-                }
-                default:
+                    case CullMode.NONE: {
+                        gl.disable(gl.CULL_FACE);
+                        break;
+                    }
+                    case CullMode.FRONT: {
+                        gl.enable(gl.CULL_FACE);
+                        gl.cullFace(gl.FRONT);
+                        break;
+                    }
+                    case CullMode.BACK: {
+                        gl.enable(gl.CULL_FACE);
+                        gl.cullFace(gl.BACK);
+                        break;
+                    }
+                    default:
                 }
 
                 device.stateCache.rs.cullMode = rs.cullMode;
@@ -2385,94 +2385,94 @@ export function WebGL2CmdFuncBindStates (
         for (let k = 0; k < dsLen; k++) {
             const dynamicState = gpuPipelineState.dynamicStates[k];
             switch (dynamicState) {
-            case DynamicStateFlagBit.VIEWPORT: {
-                const viewport = dynamicStates.viewport;
-                if (cache.viewport.left !== viewport.left
+                case DynamicStateFlagBit.VIEWPORT: {
+                    const viewport = dynamicStates.viewport;
+                    if (cache.viewport.left !== viewport.left
                     || cache.viewport.top !== viewport.top
                     || cache.viewport.width !== viewport.width
                     || cache.viewport.height !== viewport.height) {
-                    gl.viewport(viewport.left, viewport.top, viewport.width, viewport.height);
+                        gl.viewport(viewport.left, viewport.top, viewport.width, viewport.height);
 
-                    cache.viewport.left = viewport.left;
-                    cache.viewport.top = viewport.top;
-                    cache.viewport.width = viewport.width;
-                    cache.viewport.height = viewport.height;
+                        cache.viewport.left = viewport.left;
+                        cache.viewport.top = viewport.top;
+                        cache.viewport.width = viewport.width;
+                        cache.viewport.height = viewport.height;
+                    }
+                    break;
                 }
-                break;
-            }
-            case DynamicStateFlagBit.SCISSOR: {
-                const scissor = dynamicStates.scissor;
-                if (cache.scissorRect.x !== scissor.x
+                case DynamicStateFlagBit.SCISSOR: {
+                    const scissor = dynamicStates.scissor;
+                    if (cache.scissorRect.x !== scissor.x
                     || cache.scissorRect.y !== scissor.y
                     || cache.scissorRect.width !== scissor.width
                     || cache.scissorRect.height !== scissor.height) {
-                    gl.scissor(scissor.x, scissor.y, scissor.width, scissor.height);
+                        gl.scissor(scissor.x, scissor.y, scissor.width, scissor.height);
 
-                    cache.scissorRect.x = scissor.x;
-                    cache.scissorRect.y = scissor.y;
-                    cache.scissorRect.width = scissor.width;
-                    cache.scissorRect.height = scissor.height;
+                        cache.scissorRect.x = scissor.x;
+                        cache.scissorRect.y = scissor.y;
+                        cache.scissorRect.width = scissor.width;
+                        cache.scissorRect.height = scissor.height;
+                    }
+                    break;
                 }
-                break;
-            }
-            case DynamicStateFlagBit.LINE_WIDTH: {
-                if (cache.rs.lineWidth !== dynamicStates.lineWidth) {
-                    gl.lineWidth(dynamicStates.lineWidth);
-                    cache.rs.lineWidth = dynamicStates.lineWidth;
+                case DynamicStateFlagBit.LINE_WIDTH: {
+                    if (cache.rs.lineWidth !== dynamicStates.lineWidth) {
+                        gl.lineWidth(dynamicStates.lineWidth);
+                        cache.rs.lineWidth = dynamicStates.lineWidth;
+                    }
+                    break;
                 }
-                break;
-            }
-            case DynamicStateFlagBit.DEPTH_BIAS: {
-                if (cache.rs.depthBias !== dynamicStates.depthBiasConstant
+                case DynamicStateFlagBit.DEPTH_BIAS: {
+                    if (cache.rs.depthBias !== dynamicStates.depthBiasConstant
                     || cache.rs.depthBiasSlop !== dynamicStates.depthBiasSlope) {
-                    gl.polygonOffset(dynamicStates.depthBiasConstant, dynamicStates.depthBiasSlope);
-                    cache.rs.depthBias = dynamicStates.depthBiasConstant;
-                    cache.rs.depthBiasSlop = dynamicStates.depthBiasSlope;
+                        gl.polygonOffset(dynamicStates.depthBiasConstant, dynamicStates.depthBiasSlope);
+                        cache.rs.depthBias = dynamicStates.depthBiasConstant;
+                        cache.rs.depthBiasSlop = dynamicStates.depthBiasSlope;
+                    }
+                    break;
                 }
-                break;
-            }
-            case DynamicStateFlagBit.BLEND_CONSTANTS: {
-                const blendConstant = dynamicStates.blendConstant;
-                if ((cache.bs.blendColor.x !== blendConstant.x)
+                case DynamicStateFlagBit.BLEND_CONSTANTS: {
+                    const blendConstant = dynamicStates.blendConstant;
+                    if ((cache.bs.blendColor.x !== blendConstant.x)
                     || (cache.bs.blendColor.y !== blendConstant.y)
                     || (cache.bs.blendColor.z !== blendConstant.z)
                     || (cache.bs.blendColor.w !== blendConstant.w)) {
-                    gl.blendColor(blendConstant.x, blendConstant.y, blendConstant.z, blendConstant.w);
-                    cache.bs.blendColor.copy(blendConstant);
+                        gl.blendColor(blendConstant.x, blendConstant.y, blendConstant.z, blendConstant.w);
+                        cache.bs.blendColor.copy(blendConstant);
+                    }
+                    break;
                 }
-                break;
-            }
-            case DynamicStateFlagBit.STENCIL_WRITE_MASK: {
-                const front = dynamicStates.stencilStatesFront;
-                const back = dynamicStates.stencilStatesBack;
-                if (cache.dss.stencilWriteMaskFront !== front.writeMask) {
-                    gl.stencilMaskSeparate(gl.FRONT, front.writeMask);
-                    cache.dss.stencilWriteMaskFront = front.writeMask;
+                case DynamicStateFlagBit.STENCIL_WRITE_MASK: {
+                    const front = dynamicStates.stencilStatesFront;
+                    const back = dynamicStates.stencilStatesBack;
+                    if (cache.dss.stencilWriteMaskFront !== front.writeMask) {
+                        gl.stencilMaskSeparate(gl.FRONT, front.writeMask);
+                        cache.dss.stencilWriteMaskFront = front.writeMask;
+                    }
+                    if (cache.dss.stencilWriteMaskBack !== back.writeMask) {
+                        gl.stencilMaskSeparate(gl.BACK, back.writeMask);
+                        cache.dss.stencilWriteMaskBack = back.writeMask;
+                    }
+                    break;
                 }
-                if (cache.dss.stencilWriteMaskBack !== back.writeMask) {
-                    gl.stencilMaskSeparate(gl.BACK, back.writeMask);
-                    cache.dss.stencilWriteMaskBack = back.writeMask;
-                }
-                break;
-            }
-            case DynamicStateFlagBit.STENCIL_COMPARE_MASK: {
-                const front = dynamicStates.stencilStatesFront;
-                const back = dynamicStates.stencilStatesBack;
-                if (cache.dss.stencilRefFront !== front.reference
+                case DynamicStateFlagBit.STENCIL_COMPARE_MASK: {
+                    const front = dynamicStates.stencilStatesFront;
+                    const back = dynamicStates.stencilStatesBack;
+                    if (cache.dss.stencilRefFront !== front.reference
                     || cache.dss.stencilReadMaskFront !== front.compareMask) {
-                    gl.stencilFuncSeparate(gl.FRONT, WebGLCmpFuncs[cache.dss.stencilFuncFront], front.reference, front.compareMask);
-                    cache.dss.stencilRefFront = front.reference;
-                    cache.dss.stencilReadMaskFront = front.compareMask;
-                }
-                if (cache.dss.stencilRefBack !== back.reference
+                        gl.stencilFuncSeparate(gl.FRONT, WebGLCmpFuncs[cache.dss.stencilFuncFront], front.reference, front.compareMask);
+                        cache.dss.stencilRefFront = front.reference;
+                        cache.dss.stencilReadMaskFront = front.compareMask;
+                    }
+                    if (cache.dss.stencilRefBack !== back.reference
                     || cache.dss.stencilReadMaskBack !== back.compareMask) {
-                    gl.stencilFuncSeparate(gl.BACK, WebGLCmpFuncs[cache.dss.stencilFuncBack], back.reference, back.compareMask);
-                    cache.dss.stencilRefBack = back.reference;
-                    cache.dss.stencilReadMaskBack = back.compareMask;
+                        gl.stencilFuncSeparate(gl.BACK, WebGLCmpFuncs[cache.dss.stencilFuncBack], back.reference, back.compareMask);
+                        cache.dss.stencilRefBack = back.reference;
+                        cache.dss.stencilReadMaskBack = back.compareMask;
+                    }
+                    break;
                 }
-                break;
-            }
-            default:
+                default:
             } // switch
         } // for
     } // update dynamic states
@@ -2537,41 +2537,41 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2Device, cmdPackage: WebG
         const cmdId = cmdIds[cmd]++;
 
         switch (cmd) {
-        case WebGL2Cmd.BEGIN_RENDER_PASS: {
-            const cmd0 = cmdPackage.beginRenderPassCmds.array[cmdId];
-            WebGL2CmdFuncBeginRenderPass(device, cmd0.gpuRenderPass, cmd0.gpuFramebuffer, cmd0.renderArea,
-                cmd0.clearColors, cmd0.clearDepth, cmd0.clearStencil);
-            break;
-        }
-        /*
+            case WebGL2Cmd.BEGIN_RENDER_PASS: {
+                const cmd0 = cmdPackage.beginRenderPassCmds.array[cmdId];
+                WebGL2CmdFuncBeginRenderPass(device, cmd0.gpuRenderPass, cmd0.gpuFramebuffer, cmd0.renderArea,
+                    cmd0.clearColors, cmd0.clearDepth, cmd0.clearStencil);
+                break;
+            }
+            /*
             case WebGL2Cmd.END_RENDER_PASS: {
                 // WebGL 2.0 doesn't support store operation of attachments.
                 // StoreOp.Store is the default GL behavior.
                 break;
             }
             */
-        case WebGL2Cmd.BIND_STATES: {
-            const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];
-            WebGL2CmdFuncBindStates(device, cmd2.gpuPipelineState, cmd2.gpuInputAssembler,
-                cmd2.gpuDescriptorSets, cmd2.dynamicOffsets, cmd2.dynamicStates);
-            break;
-        }
-        case WebGL2Cmd.DRAW: {
-            const cmd3 = cmdPackage.drawCmds.array[cmdId];
-            WebGL2CmdFuncDraw(device, cmd3.drawInfo);
-            break;
-        }
-        case WebGL2Cmd.UPDATE_BUFFER: {
-            const cmd4 = cmdPackage.updateBufferCmds.array[cmdId];
-            WebGL2CmdFuncUpdateBuffer(device, cmd4.gpuBuffer as IWebGL2GPUBuffer, cmd4.buffer as BufferSource, cmd4.offset, cmd4.size);
-            break;
-        }
-        case WebGL2Cmd.COPY_BUFFER_TO_TEXTURE: {
-            const cmd5 = cmdPackage.copyBufferToTextureCmds.array[cmdId];
-            WebGL2CmdFuncCopyBuffersToTexture(device, cmd5.buffers, cmd5.gpuTexture as IWebGL2GPUTexture, cmd5.regions);
-            break;
-        }
-        default:
+            case WebGL2Cmd.BIND_STATES: {
+                const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];
+                WebGL2CmdFuncBindStates(device, cmd2.gpuPipelineState, cmd2.gpuInputAssembler,
+                    cmd2.gpuDescriptorSets, cmd2.dynamicOffsets, cmd2.dynamicStates);
+                break;
+            }
+            case WebGL2Cmd.DRAW: {
+                const cmd3 = cmdPackage.drawCmds.array[cmdId];
+                WebGL2CmdFuncDraw(device, cmd3.drawInfo);
+                break;
+            }
+            case WebGL2Cmd.UPDATE_BUFFER: {
+                const cmd4 = cmdPackage.updateBufferCmds.array[cmdId];
+                WebGL2CmdFuncUpdateBuffer(device, cmd4.gpuBuffer as IWebGL2GPUBuffer, cmd4.buffer as BufferSource, cmd4.offset, cmd4.size);
+                break;
+            }
+            case WebGL2Cmd.COPY_BUFFER_TO_TEXTURE: {
+                const cmd5 = cmdPackage.copyBufferToTextureCmds.array[cmdId];
+                WebGL2CmdFuncCopyBuffersToTexture(device, cmd5.buffers, cmd5.gpuTexture as IWebGL2GPUTexture, cmd5.regions);
+                break;
+            }
+            default:
         } // switch
     } // for
 }
@@ -2593,30 +2593,30 @@ export function WebGL2CmdFuncCopyTexImagesToTexture (
     let f = 0;
 
     switch (gpuTexture.glTarget) {
-    case gl.TEXTURE_2D: {
-        for (let k = 0; k < regions.length; k++) {
-            const region = regions[k];
-            gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                region.texOffset.x, region.texOffset.y,
-                gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
-        }
-        break;
-    }
-    case gl.TEXTURE_CUBE_MAP: {
-        for (let k = 0; k < regions.length; k++) {
-            const region = regions[k];
-            const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
-            for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
-                gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
+        case gl.TEXTURE_2D: {
+            for (let k = 0; k < regions.length; k++) {
+                const region = regions[k];
+                gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                     region.texOffset.x, region.texOffset.y,
                     gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
             }
+            break;
         }
-        break;
-    }
-    default: {
-        console.error('Unsupported GL texture type, copy buffer to texture failed.');
-    }
+        case gl.TEXTURE_CUBE_MAP: {
+            for (let k = 0; k < regions.length; k++) {
+                const region = regions[k];
+                const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
+                for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
+                    gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
+                        region.texOffset.x, region.texOffset.y,
+                        gpuTexture.glFormat, gpuTexture.glType, texImages[n++]);
+                }
+            }
+            break;
+        }
+        default: {
+            console.error('Unsupported GL texture type, copy buffer to texture failed.');
+        }
     }
 
     if (gpuTexture.flags & TextureFlagBit.GEN_MIPMAP) {
@@ -2645,56 +2645,56 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     const { isCompressed } = fmtInfo;
 
     switch (gpuTexture.glTarget) {
-    case gl.TEXTURE_2D: {
-        for (let k = 0; k < regions.length; k++) {
-            const region = regions[k];
-            w = region.texExtent.width;
-            h = region.texExtent.height;
-            const pixels = buffers[n++];
-            if (!isCompressed) {
-                gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                    region.texOffset.x, region.texOffset.y, w, h,
-                    gpuTexture.glFormat, gpuTexture.glType, pixels);
-            } else if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
-                gl.compressedTexSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                    region.texOffset.x, region.texOffset.y, w, h,
-                    gpuTexture.glFormat, pixels);
-            } else {
-                gl.compressedTexImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
-                    gpuTexture.glInternalFmt, w, h, 0, pixels);
-            }
-        }
-        break;
-    }
-    case gl.TEXTURE_CUBE_MAP: {
-        for (let k = 0; k < regions.length; k++) {
-            const region = regions[k];
-            const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
-            for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
+        case gl.TEXTURE_2D: {
+            for (let k = 0; k < regions.length; k++) {
+                const region = regions[k];
                 w = region.texExtent.width;
                 h = region.texExtent.height;
-
                 const pixels = buffers[n++];
-
                 if (!isCompressed) {
-                    gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
+                    gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                         region.texOffset.x, region.texOffset.y, w, h,
                         gpuTexture.glFormat, gpuTexture.glType, pixels);
                 } else if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
-                    gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
+                    gl.compressedTexSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                         region.texOffset.x, region.texOffset.y, w, h,
                         gpuTexture.glFormat, pixels);
                 } else {
-                    gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
+                    gl.compressedTexImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                         gpuTexture.glInternalFmt, w, h, 0, pixels);
                 }
             }
+            break;
         }
-        break;
-    }
-    default: {
-        console.error('Unsupported GL texture type, copy buffer to texture failed.');
-    }
+        case gl.TEXTURE_CUBE_MAP: {
+            for (let k = 0; k < regions.length; k++) {
+                const region = regions[k];
+                const fcount = region.texSubres.baseArrayLayer + region.texSubres.layerCount;
+                for (f = region.texSubres.baseArrayLayer; f < fcount; ++f) {
+                    w = region.texExtent.width;
+                    h = region.texExtent.height;
+
+                    const pixels = buffers[n++];
+
+                    if (!isCompressed) {
+                        gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
+                            region.texOffset.x, region.texOffset.y, w, h,
+                            gpuTexture.glFormat, gpuTexture.glType, pixels);
+                    } else if (gpuTexture.glInternalFmt !== WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL) {
+                        gl.compressedTexSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
+                            region.texOffset.x, region.texOffset.y, w, h,
+                            gpuTexture.glFormat, pixels);
+                    } else {
+                        gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
+                            gpuTexture.glInternalFmt, w, h, 0, pixels);
+                    }
+                }
+            }
+            break;
+        }
+        default: {
+            console.error('Unsupported GL texture type, copy buffer to texture failed.');
+        }
     }
 
     if (gpuTexture.flags & TextureFlagBit.GEN_MIPMAP) {
