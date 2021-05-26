@@ -88,6 +88,13 @@
                 "pal/system": "pal/system/minigame/system.ts",
                 "pal/input": "pal/input/minigame/index.ts"
             }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.BYTEDANCE",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/physics/physx/export-physx.web.ts": "cocos/physics/physx/export-physx.tt.ts"
+            }
         }
     ]
 }
