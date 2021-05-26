@@ -391,10 +391,10 @@ export class EventTouch extends Event {
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      * @param eventType - The type of the event
      */
-    constructor (changedTouches: Touch[], bubbles: boolean, eventType: SystemEventType, touches: Touch[]) {
+    constructor (changedTouches: Touch[], bubbles: boolean, eventType: SystemEventType, touches: Touch[] = []) {
         super(eventType, bubbles);
         this._touches = changedTouches || [];
-        this._allTouches = touches || [];
+        this._allTouches = touches;
     }
 
     /**
