@@ -59,3 +59,7 @@ export function createDefaultPipeline () {
     rppl.initialize({ flows: [] });
     return rppl;
 }
+
+export declare class NativeNode {
+    public initWithData (data: TypedArray);
+}

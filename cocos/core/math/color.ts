@@ -553,6 +553,9 @@ export class Color extends ValueType {
                 g = p;
                 b = q;
                 break;
+
+            default:
+                break;
             }
         }
         r *= 255;

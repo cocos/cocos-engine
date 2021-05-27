@@ -49,3 +49,4 @@ export { Rect, rect } from './rect';
 export { Color, color } from './color';
 export * from './utils';
 export * from './type-define';
+export * from './math-base';

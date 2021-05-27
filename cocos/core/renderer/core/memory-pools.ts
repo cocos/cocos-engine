@@ -73,6 +73,7 @@ type StandardBufferElement = number | IHandle<PoolType>;
 type GeneralBufferElement = StandardBufferElement | IVec2Like | IVec3Like | IVec4Like | IMat4Like;
 type BufferTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: GeneralBufferElement };
 type BufferDataTypeManifest<E extends BufferManifest> = { [key in E[keyof E]]: BufferDataType };
+type BufferDataCountManifest<E extends BufferManifest> = { [key in E[keyof E]]: number };
 
 class BufferPool<P extends PoolType, E extends BufferManifest, M extends BufferTypeManifest<E>> implements IMemoryPool<P> {
     // naming convension:
@@ -949,7 +950,7 @@ export const AABBPool = new BufferPool<PoolType.AABB, typeof AABBView, IAABBView
 export enum SceneView {
     MAIN_LIGHT,    // handle
     MODEL_ARRAY,   // array handle
-    SPHERE_LIGHT_ARRAY, // array handle
+    SPHERE_LIGHT_ARRAY, // array handl
     SPOT_LIGHT_ARRAY, // array handle
     BATCH_ARRAY_2D, // array handle
     COUNT,

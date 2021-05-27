@@ -38,17 +38,16 @@ import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
-import {
-    Mat3, Mat4, Quat, Vec3,
-} from '../math';
-import {
-    NULL_HANDLE, NodeHandle, NodePool, NodeView,
-} from '../renderer/core/memory-pools';
+import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import { NULL_HANDLE, NodeHandle, NodePool, NodeView } from '../renderer/core/memory-pools';
+import { SharedNodePool, SharedNodeView, SharedNodeHandle } from '../renderer/core/shared-memory-pool';
 import { NodeSpace, TransformBit } from './node-enum';
 import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
     applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
 import { Component } from '../components';
 import { scene } from '../renderer';
+import { NativeNode } from '../pipeline';
+import { FloatArray } from '../math/type-define';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -117,13 +116,13 @@ export class Node extends BaseNode {
     public _static = false;
 
     // world transform, don't access this directly
-    protected _pos = new Vec3();
+    protected declare _pos;
 
-    protected _rot = new Quat();
+    protected declare _rot;
 
-    protected _scale = new Vec3(1, 1, 1);
+    protected declare _scale;
 
-    protected _mat = new Mat4();
+    protected declare _mat;
 
     // local transform
     @serializable
@@ -147,16 +146,38 @@ export class Node extends BaseNode {
     protected _eulerDirty = false;
 
     protected _poolHandle: NodeHandle = NULL_HANDLE;
+    protected _nodeHandle: SharedNodeHandle = NULL_HANDLE;
 
-    protected _naitveObj: any;
+    protected declare _nativeObj: NativeNode | null;
+    protected declare _nativeLayer: Uint32Array;
+    protected declare _nativeFlag: Uint32Array;
 
     protected _init () {
         if (JSB) {
+            // new node
+            this._nodeHandle = SharedNodePool.alloc();
+            this._pos = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_POSITION) as FloatArray);
+            this._rot = new Quat(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_ROTATION) as FloatArray);
+            this._scale = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_SCALE) as FloatArray);
+            this._mat = new Mat4(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_MATRIX) as FloatArray);
+            this._nativeLayer = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.LAYER) as Uint32Array;
+            this._nativeFlag = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.FLAGS_CHANGED) as Uint32Array;
+            this._scale.set(1, 1, 1);
+            this._nativeLayer[0] = this._layer;
+            this._nativeObj = new NativeNode();
+            this._nativeObj.initWithData(SharedNodePool.getBuffer(this._nodeHandle));
+            // TODO: delete by memory pool
             this._poolHandle = NodePool.alloc();
             NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
-            this._naitveObj = new ns.Node();
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
+        } else {
+            this._pos = new Vec3();
+            this._rot = new Quat();
+            this._scale = new Vec3(1, 1, 1);
+            this._mat = new Mat4();
         }
     }
+
     constructor (name?: string) {
         super(name);
         this._init();
@@ -171,10 +192,18 @@ export class Node extends BaseNode {
     }
 
     protected _destroy () {
-        if (JSB && this._poolHandle) {
-            NodePool.free(this._poolHandle);
-            this._poolHandle = NULL_HANDLE;
-            this._naitveObj = null;
+        if (JSB) {
+            if (this._poolHandle) {
+                NodePool.free(this._poolHandle);
+                this._poolHandle = NULL_HANDLE;
+            }
+
+            if (this._nodeHandle) {
+                SharedNodePool.free(this._nodeHandle);
+                this._nodeHandle = NULL_HANDLE;
+            }
+
+            this._nativeObj = null;
         }
     }
 
@@ -188,7 +217,7 @@ export class Node extends BaseNode {
     }
 
     get native (): any {
-        return this._naitveObj;
+        return this._nativeObj;
     }
 
     /**
@@ -216,6 +245,9 @@ export class Node extends BaseNode {
 
     public set worldPosition (val: Readonly<Vec3>) {
         this.setWorldPosition(val);
+        if (JSB) {
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, val);
+        }
     }
 
     /**
@@ -307,6 +339,9 @@ export class Node extends BaseNode {
 
     public set worldScale (val: Readonly<Vec3>) {
         this.setWorldScale(val);
+        if (JSB) {
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, val);
+        }
     }
 
     /**
@@ -355,6 +390,7 @@ export class Node extends BaseNode {
     set layer (l) {
         this._layer = l;
         if (JSB) {
+            this._nativeLayer[0] = this._layer;
             NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
         }
         this.emit(SystemEventType.LAYER_CHANGED, this._layer);
@@ -375,6 +411,7 @@ export class Node extends BaseNode {
     set hasChangedFlags (val: number) {
         bookOfChange.set(this, val);
         if (JSB) {
+            this._nativeFlag[0] = val;
             NodePool.set(this._poolHandle, NodeView.FLAGS_CHANGED, val);
         }
     }
@@ -420,8 +457,8 @@ export class Node extends BaseNode {
 
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
+            this._nativeLayer[0] = this._layer;
             NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
-            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
         }
         const prefabInstance = this._prefab?.instance;
         if (!dontSyncChildPrefab && prefabInstance) {
@@ -501,9 +538,6 @@ export class Node extends BaseNode {
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
-        if (JSB) {
-            NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition);
-        }
     }
 
     /**
@@ -529,9 +563,6 @@ export class Node extends BaseNode {
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
             this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
-        }
-        if (JSB) {
-            NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation);
         }
     }
 
@@ -1056,7 +1087,7 @@ export class Node extends BaseNode {
     public getWorldMatrix (out?: Mat4): Mat4 {
         this.updateWorldTransform();
         const target = out || new Mat4();
-        return Mat4.copy(target, this._mat);
+        return Mat4.copy(target, this._mat) as Mat4;
     }
 
     /**
@@ -1168,12 +1199,6 @@ export class Node extends BaseNode {
      * js 变换信息同步到原生层。
      */
     public syncToNativeTransform () {
-        const v = this.hasChangedFlags;
-        if (v && JSB) {
-            if (v & TransformBit.POSITION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition); }
-            if (v & TransformBit.ROTATION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation); }
-            if (v & TransformBit.SCALE) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this.worldScale); }
-        }
     }
 
     /**
@@ -1183,21 +1208,6 @@ export class Node extends BaseNode {
      * 原生变换信息同步到 js 层。
      */
     public syncFromNativeTransform () {
-        const v = NodePool.get(this._poolHandle, NodeView.FLAGS_CHANGED);
-        if (v) {
-            if (v & TransformBit.POSITION) {
-                NodePool.getVec3(this._poolHandle, NodeView.WORLD_POSITION, v3_a);
-                this.setWorldPosition(v3_a);
-            }
-            if (v & TransformBit.ROTATION) {
-                NodePool.getVec4(this._poolHandle, NodeView.WORLD_ROTATION, q_a);
-                this.setWorldRotation(q_a);
-            }
-            if (v & TransformBit.SCALE) {
-                NodePool.getVec3(this._poolHandle, NodeView.WORLD_SCALE, v3_a);
-                this.setWorldScale(v3_a);
-            }
-        }
     }
 }
 

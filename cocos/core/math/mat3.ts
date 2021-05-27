@@ -29,19 +29,19 @@
  */
 
 import { CCClass } from '../data/class';
-import { ValueType } from '../value-types/value-type';
 import { Quat } from './quat';
-import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like } from './type-define';
+import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like, FloatArray } from './type-define';
 import { EPSILON } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
+import { MathBase } from './math-base';
 
 /**
  * @en Mathematical 3x3 matrix.
  * @zh 表示三维（3x3）矩阵。
  */
 
-export class Mat3 extends ValueType {
+export class Mat3 extends MathBase {
     public static IDENTITY = Object.freeze(new Mat3());
 
     /**
@@ -340,8 +340,7 @@ export class Mat3 extends ValueType {
             return out;
         }
 
-        up = up || Vec3.UNIT_Y;
-        Vec3.normalize(v3_1, Vec3.cross(v3_1, up, view));
+        Vec3.normalize(v3_1, Vec3.cross(v3_1, up || Vec3.UNIT_Y, view));
 
         if (Vec3.lengthSqr(v3_1) < EPSILON * EPSILON) {
             Mat3.identity(out);
@@ -633,57 +632,102 @@ export class Mat3 extends ValueType {
      * @en Value at column 0 row 0 of the matrix.
      * @zh 矩阵第 0 列第 0 行的元素。
      */
-    public declare m00: number;
+    public get m00 (): number {
+        return this._array[0];
+    }
+    public set m00 (m: number) {
+        this._array[0] = m;
+    }
 
     /**
      * @en Value at column 0 row 1 of the matrix.
      * @zh 矩阵第 0 列第 1 行的元素。
      */
-    public declare m01: number;
+    public get m01 (): number {
+        return this._array[1];
+    }
+    public set m01 (m: number) {
+        this._array[1] = m;
+    }
 
     /**
      * @en Value at column 0 row 2 of the matrix.
      * @zh 矩阵第 0 列第 2 行的元素。
      */
-    public declare m02: number;
+    public get m02 (): number {
+        return this._array[2];
+    }
+    public set m02 (m: number) {
+        this._array[2] = m;
+    }
 
     /**
      * @en Value at column 1 row 0 of the matrix.
      * @zh 矩阵第 1 列第 0 行的元素。
      */
-    public declare m03: number;
+    public get m03 (): number {
+        return this._array[3];
+    }
+    public set m03 (m: number) {
+        this._array[3] = m;
+    }
 
     /**
      * @en Value at column 1 row 1 of the matrix.
      * @zh 矩阵第 1 列第 1 行的元素。
      */
-    public declare m04: number;
+    public get m04 (): number {
+        return this._array[4];
+    }
+    public set m04 (m: number) {
+        this._array[4] = m;
+    }
 
     /**
      * @en Value at column 1 row 2 of the matrix.
      * @zh 矩阵第 1 列第 2 行的元素。
      */
-    public declare m05: number;
+    public get m05 (): number {
+        return this._array[5];
+    }
+    public set m05 (m: number) {
+        this._array[5] = m;
+    }
 
     /**
      * @en Value at column 2 row 0 of the matrix.
      * @zh 矩阵第 2 列第 0 行的元素。
      */
-    public declare m06: number;
+    public get m06 (): number {
+        return this._array[6];
+    }
+    public set m06 (m: number) {
+        this._array[6] = m;
+    }
 
     /**
      * @en Value at column 2 row 1 of the matrix.
      * @zh 矩阵第 2 列第 1 行的元素。
      */
-    public declare m07: number;
+    public get m07 (): number {
+        return this._array[7];
+    }
+    public set m07 (m: number) {
+        this._array[7] = m;
+    }
 
     /**
      * @en Value at column 2 row 2 of the matrix.
      * @zh 矩阵第 2 列第 2 行的元素。
      */
-    public declare m08: number;
+    public get m08 (): number {
+        return this._array[8];
+    }
+    public set m08 (m: number) {
+        this._array[8] = m;
+    }
 
-    constructor (other: Mat3);
+    constructor (m00: Mat3 | FloatArray);
 
     constructor (
         m00?: number, m01?: number, m02?: number,
@@ -691,19 +735,27 @@ export class Mat3 extends ValueType {
         m06?: number, m07?: number, m08?: number);
 
     constructor (
-        m00: number | Mat3 = 1, m01 = 0, m02 = 0,
+        m00: number | Mat3 | FloatArray = 1, m01 = 0, m02 = 0,
         m03 = 0, m04 = 1, m05 = 0,
         m06 = 0, m07 = 0, m08 = 1,
     ) {
         super();
-        if (typeof m00 === 'object') {
-            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
-            this.m03 = m00.m03; this.m04 = m00.m04; this.m05 = m00.m05;
-            this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+        if (m00 && typeof m00 === 'object') {
+            if (ArrayBuffer.isView(m00)) {
+                this._array = m00;
+                this._array.set([1, 0, 0, 0, 1, 0, 0, 0, 1]);
+            } else {
+                const v = m00.array;
+                this._array = MathBase.createFloatArray(9);
+                this._array[0] = v[0]; this._array[1] = v[1]; this._array[2] = v[2];
+                this._array[3] = v[3]; this._array[4] = v[4]; this._array[5] = v[5];
+                this._array[6] = v[6]; this._array[7] = v[7]; this._array[8] = v[8];
+            }
         } else {
-            this.m00 = m00; this.m01 = m01; this.m02 = m02;
-            this.m03 = m03; this.m04 = m04; this.m05 = m05;
-            this.m06 = m06; this.m07 = m07; this.m08 = m08;
+            this._array = MathBase.createFloatArray(9);
+            this._array[0] = m00; this._array[1] = m01; this._array[2] = m02;
+            this._array[3] = m03; this._array[4] = m04; this._array[5] = m05;
+            this._array[6] = m06; this._array[7] = m07; this._array[8] = m08;
         }
     }
 
@@ -712,11 +764,11 @@ export class Mat3 extends ValueType {
      * @zh 克隆当前矩阵。
      */
     public clone () {
-        const t = this;
+        const m = this._array;
         return new Mat3(
-            t.m00, t.m01, t.m02,
-            t.m03, t.m04, t.m05,
-            t.m06, t.m07, t.m08,
+            m[0], m[1], m[2],
+            m[3], m[4], m[5],
+            m[6], m[7], m[8],
         );
     }
 
@@ -736,18 +788,18 @@ export class Mat3 extends ValueType {
     public set (m00?: number, m01?: number, m02?: number,
                 m03?: number, m04?: number, m05?: number,
                 m06?: number, m07?: number, m08?: number);
-
     public set (m00: number | Mat3 = 1, m01 = 0, m02 = 0,
         m03 = 0, m04 = 1, m05 = 0,
         m06 = 0, m07 = 0, m08 = 1) {
-        if (typeof m00 === 'object') {
-            this.m00 = m00.m00; this.m01 = m00.m01; this.m02 = m00.m02;
-            this.m03 = m00.m03; this.m04 = m00.m04; this.m05 = m00.m05;
-            this.m06 = m00.m06; this.m07 = m00.m07; this.m08 = m00.m08;
+        if (m00 && typeof m00 === 'object') {
+            const v = m00.array;
+            this._array[0] = v[0]; this._array[1] = v[1]; this._array[2] = v[2];
+            this._array[3] = v[3]; this._array[4] = v[4]; this._array[5] = v[5];
+            this._array[6] = v[6]; this._array[7] = v[7]; this._array[8] = v[8];
         } else {
-            this.m00 = m00; this.m01 = m01; this.m02 = m02;
-            this.m03 = m03; this.m04 = m04; this.m05 = m05;
-            this.m06 = m06; this.m07 = m07; this.m08 = m08;
+            this._array[0] = m00; this._array[1] = m01; this._array[2] = m02;
+            this._array[3] = m03; this._array[4] = m04; this._array[5] = m05;
+            this._array[6] = m06; this._array[7] = m07; this._array[8] = m08;
         }
         return this;
     }
@@ -760,16 +812,17 @@ export class Mat3 extends ValueType {
      * @return Returns `true' when the elements of both matrices are equal; otherwise returns `false'.
      */
     public equals (other: Mat3, epsilon = EPSILON): boolean {
+        const v = other.array;
         return (
-            Math.abs(this.m00 - other.m00) <= epsilon * Math.max(1.0, Math.abs(this.m00), Math.abs(other.m00))
-            && Math.abs(this.m01 - other.m01) <= epsilon * Math.max(1.0, Math.abs(this.m01), Math.abs(other.m01))
-            && Math.abs(this.m02 - other.m02) <= epsilon * Math.max(1.0, Math.abs(this.m02), Math.abs(other.m02))
-            && Math.abs(this.m03 - other.m03) <= epsilon * Math.max(1.0, Math.abs(this.m03), Math.abs(other.m03))
-            && Math.abs(this.m04 - other.m04) <= epsilon * Math.max(1.0, Math.abs(this.m04), Math.abs(other.m04))
-            && Math.abs(this.m05 - other.m05) <= epsilon * Math.max(1.0, Math.abs(this.m05), Math.abs(other.m05))
-            && Math.abs(this.m06 - other.m06) <= epsilon * Math.max(1.0, Math.abs(this.m06), Math.abs(other.m06))
-            && Math.abs(this.m07 - other.m07) <= epsilon * Math.max(1.0, Math.abs(this.m07), Math.abs(other.m07))
-            && Math.abs(this.m08 - other.m08) <= epsilon * Math.max(1.0, Math.abs(this.m08), Math.abs(other.m08))
+            Math.abs(this._array[0] - v[0]) <= epsilon * Math.max(1.0, Math.abs(this._array[0]), Math.abs(v[0]))
+            && Math.abs(this._array[1] - v[1]) <= epsilon * Math.max(1.0, Math.abs(this._array[1]), Math.abs(v[1]))
+            && Math.abs(this._array[2] - v[2]) <= epsilon * Math.max(1.0, Math.abs(this._array[2]), Math.abs(v[2]))
+            && Math.abs(this._array[3] - v[3]) <= epsilon * Math.max(1.0, Math.abs(this._array[3]), Math.abs(v[3]))
+            && Math.abs(this._array[4] - v[4]) <= epsilon * Math.max(1.0, Math.abs(this._array[4]), Math.abs(v[4]))
+            && Math.abs(this._array[5] - v[5]) <= epsilon * Math.max(1.0, Math.abs(this._array[5]), Math.abs(v[5]))
+            && Math.abs(this._array[6] - v[6]) <= epsilon * Math.max(1.0, Math.abs(this._array[6]), Math.abs(v[6]))
+            && Math.abs(this._array[7] - v[7]) <= epsilon * Math.max(1.0, Math.abs(this._array[7]), Math.abs(v[7]))
+            && Math.abs(this._array[8] - v[8]) <= epsilon * Math.max(1.0, Math.abs(this._array[8]), Math.abs(v[8]))
         );
     }
 
@@ -780,9 +833,10 @@ export class Mat3 extends ValueType {
      * @return Returns `true' when the elements of both matrices are equal; otherwise returns `false'.
      */
     public strictEquals (other: Mat3): boolean {
-        return this.m00 === other.m00 && this.m01 === other.m01 && this.m02 === other.m02
-            && this.m03 === other.m03 && this.m04 === other.m04 && this.m05 === other.m05
-            && this.m06 === other.m06 && this.m07 === other.m07 && this.m08 === other.m08;
+        const v = other.array;
+        return this._array[0] === v[0] && this._array[1] === v[1] && this._array[2] === v[2]
+            && this._array[3] === v[3] && this._array[4] === v[4] && this._array[5] === v[5]
+            && this._array[6] === v[6] && this._array[7] === v[7] && this._array[8] === v[8];
     }
 
     /**
@@ -791,11 +845,10 @@ export class Mat3 extends ValueType {
      * @return The string representation of this matrix
      */
     public toString () {
-        const t = this;
         return `[\n${
-            t.m00}, ${t.m01}, ${t.m02},\n${
-            t.m03},\n${t.m04}, ${t.m05},\n${
-            t.m06}, ${t.m07},\n${t.m08}\n`
+            this._array[0]}, ${this._array[1]}, ${this._array[2]},\n${
+            this._array[3]},\n${this._array[4]}, ${this._array[5]},\n${
+            this._array[6]}, ${this._array[7]},\n${this._array[8]}\n`
             + `]`;
     }
 
@@ -805,15 +858,15 @@ export class Mat3 extends ValueType {
      * @return `this`
      */
     public identity () {
-        this.m00 = 1;
-        this.m01 = 0;
-        this.m02 = 0;
-        this.m03 = 0;
-        this.m04 = 1;
-        this.m05 = 0;
-        this.m06 = 0;
-        this.m07 = 0;
-        this.m08 = 1;
+        this._array[0] = 1;
+        this._array[1] = 0;
+        this._array[2] = 0;
+        this._array[3] = 0;
+        this._array[4] = 1;
+        this._array[5] = 0;
+        this._array[6] = 0;
+        this._array[7] = 0;
+        this._array[8] = 1;
         return this;
     }
 
@@ -822,13 +875,13 @@ export class Mat3 extends ValueType {
      * @zh 计算当前矩阵的转置矩阵。
      */
     public transpose () {
-        const a01 = this.m01; const a02 = this.m02; const a12 = this.m05;
-        this.m01 = this.m03;
-        this.m02 = this.m06;
-        this.m03 = a01;
-        this.m05 = this.m07;
-        this.m06 = a02;
-        this.m07 = a12;
+        const a01 = this._array[1]; const a02 = this._array[2]; const a12 = this._array[5];
+        this._array[1] = this._array[3];
+        this._array[2] = this._array[6];
+        this._array[3] = a01;
+        this._array[5] = this._array[7];
+        this._array[6] = a02;
+        this._array[7] = a12;
         return this;
     }
 
@@ -837,9 +890,9 @@ export class Mat3 extends ValueType {
      * @zh 计算当前矩阵的逆矩阵。注意，在矩阵不可逆时，会返回一个全为 0 的矩阵。
      */
     public invert () {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
-        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
-        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
+        const a00 = this._array[0]; const a01 = this._array[1]; const a02 = this._array[2];
+        const a10 = this._array[3]; const a11 = this._array[4]; const a12 = this._array[5];
+        const a20 = this._array[6]; const a21 = this._array[7]; const a22 = this._array[8];
 
         const b01 = a22 * a11 - a12 * a21;
         const b11 = -a22 * a10 + a12 * a20;
@@ -854,15 +907,15 @@ export class Mat3 extends ValueType {
         }
         det = 1.0 / det;
 
-        this.m00 = b01 * det;
-        this.m01 = (-a22 * a01 + a02 * a21) * det;
-        this.m02 = (a12 * a01 - a02 * a11) * det;
-        this.m03 = b11 * det;
-        this.m04 = (a22 * a00 - a02 * a20) * det;
-        this.m05 = (-a12 * a00 + a02 * a10) * det;
-        this.m06 = b21 * det;
-        this.m07 = (-a21 * a00 + a01 * a20) * det;
-        this.m08 = (a11 * a00 - a01 * a10) * det;
+        this._array[0] = b01 * det;
+        this._array[1] = (-a22 * a01 + a02 * a21) * det;
+        this._array[2] = (a12 * a01 - a02 * a11) * det;
+        this._array[3] = b11 * det;
+        this._array[4] = (a22 * a00 - a02 * a20) * det;
+        this._array[5] = (-a12 * a00 + a02 * a10) * det;
+        this._array[6] = b21 * det;
+        this._array[7] = (-a21 * a00 + a01 * a20) * det;
+        this._array[8] = (a11 * a00 - a01 * a10) * det;
         return this;
     }
 
@@ -872,9 +925,9 @@ export class Mat3 extends ValueType {
      * @return 当前矩阵的行列式。
      */
     public determinant (): number {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
-        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
-        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
+        const a00 = this._array[0]; const a01 = this._array[1]; const a02 = this._array[2];
+        const a10 = this._array[3]; const a11 = this._array[4]; const a12 = this._array[5];
+        const a20 = this._array[6]; const a21 = this._array[7]; const a22 = this._array[8];
 
         return a00 * (a22 * a11 - a12 * a21) + a01 * (-a22 * a10 + a12 * a20) + a02 * (a21 * a10 - a11 * a20);
     }
@@ -885,15 +938,16 @@ export class Mat3 extends ValueType {
      * @param mat the second operand
      */
     public add (mat: Mat3) {
-        this.m00 += mat.m00;
-        this.m01 += mat.m01;
-        this.m02 += mat.m02;
-        this.m03 += mat.m03;
-        this.m04 += mat.m04;
-        this.m05 += mat.m05;
-        this.m06 += mat.m06;
-        this.m07 += mat.m07;
-        this.m08 += mat.m08;
+        const v = mat.array;
+        this._array[0] += v[0];
+        this._array[1] += v[1];
+        this._array[2] += v[2];
+        this._array[3] += v[3];
+        this._array[4] += v[4];
+        this._array[5] += v[5];
+        this._array[6] += v[6];
+        this._array[7] += v[7];
+        this._array[8] += v[8];
         return this;
     }
 
@@ -903,15 +957,16 @@ export class Mat3 extends ValueType {
      * @param mat the second operand
      */
     public subtract (mat: Mat3) {
-        this.m00 -= mat.m00;
-        this.m01 -= mat.m01;
-        this.m02 -= mat.m02;
-        this.m03 -= mat.m03;
-        this.m04 -= mat.m04;
-        this.m05 -= mat.m05;
-        this.m06 -= mat.m06;
-        this.m07 -= mat.m07;
-        this.m08 -= mat.m08;
+        const v = mat.array;
+        this._array[0] -= v[0];
+        this._array[1] -= v[1];
+        this._array[2] -= v[2];
+        this._array[3] -= v[3];
+        this._array[4] -= v[4];
+        this._array[5] -= v[5];
+        this._array[6] -= v[6];
+        this._array[7] -= v[7];
+        this._array[8] -= v[8];
         return this;
     }
 
@@ -921,25 +976,26 @@ export class Mat3 extends ValueType {
      * @param mat the second operand
      */
     public multiply (mat: Mat3) {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
-        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
-        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
+        const a00 = this._array[0]; const a01 = this._array[1]; const a02 = this._array[2];
+        const a10 = this._array[3]; const a11 = this._array[4]; const a12 = this._array[5];
+        const a20 = this._array[6]; const a21 = this._array[7]; const a22 = this._array[8];
 
-        const b00 = mat.m00; const b01 = mat.m01; const b02 = mat.m02;
-        const b10 = mat.m03; const b11 = mat.m04; const b12 = mat.m05;
-        const b20 = mat.m06; const b21 = mat.m07; const b22 = mat.m08;
+        const v = mat.array;
+        const b00 = v[0]; const b01 = v[1]; const b02 = v[2];
+        const b10 = v[3]; const b11 = v[4]; const b12 = v[5];
+        const b20 = v[6]; const b21 = v[7]; const b22 = v[8];
 
-        this.m00 = b00 * a00 + b01 * a10 + b02 * a20;
-        this.m01 = b00 * a01 + b01 * a11 + b02 * a21;
-        this.m02 = b00 * a02 + b01 * a12 + b02 * a22;
+        this._array[0] = b00 * a00 + b01 * a10 + b02 * a20;
+        this._array[1] = b00 * a01 + b01 * a11 + b02 * a21;
+        this._array[2] = b00 * a02 + b01 * a12 + b02 * a22;
 
-        this.m03 = b10 * a00 + b11 * a10 + b12 * a20;
-        this.m04 = b10 * a01 + b11 * a11 + b12 * a21;
-        this.m05 = b10 * a02 + b11 * a12 + b12 * a22;
+        this._array[3] = b10 * a00 + b11 * a10 + b12 * a20;
+        this._array[4] = b10 * a01 + b11 * a11 + b12 * a21;
+        this._array[5] = b10 * a02 + b11 * a12 + b12 * a22;
 
-        this.m06 = b20 * a00 + b21 * a10 + b22 * a20;
-        this.m07 = b20 * a01 + b21 * a11 + b22 * a21;
-        this.m08 = b20 * a02 + b21 * a12 + b22 * a22;
+        this._array[6] = b20 * a00 + b21 * a10 + b22 * a20;
+        this._array[7] = b20 * a01 + b21 * a11 + b22 * a21;
+        this._array[8] = b20 * a02 + b21 * a12 + b22 * a22;
         return this;
     }
 
@@ -949,15 +1005,15 @@ export class Mat3 extends ValueType {
      * @param scalar amount to scale the matrix's elements by
      */
     public multiplyScalar (scalar: number) {
-        this.m00 *= scalar;
-        this.m01 *= scalar;
-        this.m02 *= scalar;
-        this.m03 *= scalar;
-        this.m04 *= scalar;
-        this.m05 *= scalar;
-        this.m06 *= scalar;
-        this.m07 *= scalar;
-        this.m08 *= scalar;
+        this._array[0] *= scalar;
+        this._array[1] *= scalar;
+        this._array[2] *= scalar;
+        this._array[3] *= scalar;
+        this._array[4] *= scalar;
+        this._array[5] *= scalar;
+        this._array[6] *= scalar;
+        this._array[7] *= scalar;
+        this._array[8] *= scalar;
         return this;
     }
 
@@ -967,19 +1023,14 @@ export class Mat3 extends ValueType {
      * @param vec vector to scale by
      */
     public scale (vec: Vec3) {
-        const x = vec.x; const y = vec.y;
+        const x = vec.array[0]; const y = vec.array[1];
+        this._array[0] *= x;
+        this._array[1] *= x;
+        this._array[2] *= x;
 
-        this.m00 = x * this.m00;
-        this.m01 = x * this.m01;
-        this.m02 = x * this.m02;
-
-        this.m03 = y * this.m03;
-        this.m04 = y * this.m04;
-        this.m05 = y * this.m05;
-
-        this.m06 = this.m06;
-        this.m07 = this.m07;
-        this.m08 = this.m08;
+        this._array[3] *= y;
+        this._array[4] *= y;
+        this._array[5] *= y;
         return this;
     }
 
@@ -989,24 +1040,24 @@ export class Mat3 extends ValueType {
      * @param rad radius of rotation
      */
     public rotate (rad: number) {
-        const a00 = this.m00; const a01 = this.m01; const a02 = this.m02;
-        const a10 = this.m03; const a11 = this.m04; const a12 = this.m05;
-        const a20 = this.m06; const a21 = this.m07; const a22 = this.m08;
+        const a00 = this._array[0]; const a01 = this._array[1]; const a02 = this._array[2];
+        const a10 = this._array[3]; const a11 = this._array[4]; const a12 = this._array[5];
+        const a20 = this._array[6]; const a21 = this._array[7]; const a22 = this._array[8];
 
         const s = Math.sin(rad);
         const c = Math.cos(rad);
 
-        this.m00 = c * a00 + s * a10;
-        this.m01 = c * a01 + s * a11;
-        this.m02 = c * a02 + s * a12;
+        this._array[0] = c * a00 + s * a10;
+        this._array[1] = c * a01 + s * a11;
+        this._array[2] = c * a02 + s * a12;
 
-        this.m03 = c * a10 - s * a00;
-        this.m04 = c * a11 - s * a01;
-        this.m05 = c * a12 - s * a02;
+        this._array[3] = c * a10 - s * a00;
+        this._array[4] = c * a11 - s * a01;
+        this._array[5] = c * a12 - s * a02;
 
-        this.m06 = a20;
-        this.m07 = a21;
-        this.m08 = a22;
+        this._array[6] = a20;
+        this._array[7] = a21;
+        this._array[8] = a22;
         return this;
     }
 
@@ -1032,17 +1083,17 @@ export class Mat3 extends ValueType {
         const wy = w * y2;
         const wz = w * z2;
 
-        this.m00 = 1 - yy - zz;
-        this.m03 = yx - wz;
-        this.m06 = zx + wy;
+        this._array[0] = 1 - yy - zz;
+        this._array[3] = yx - wz;
+        this._array[6] = zx + wy;
 
-        this.m01 = yx + wz;
-        this.m04 = 1 - xx - zz;
-        this.m07 = zy - wx;
+        this._array[1] = yx + wz;
+        this._array[4] = 1 - xx - zz;
+        this._array[7] = zy - wx;
 
-        this.m02 = zx - wy;
-        this.m05 = zy + wx;
-        this.m08 = 1 - xx - yy;
+        this._array[2] = zx - wy;
+        this._array[5] = zy + wx;
+        this._array[8] = 1 - xx - yy;
         return this;
     }
 }

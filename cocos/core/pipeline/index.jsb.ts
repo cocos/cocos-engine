@@ -333,3 +333,8 @@ setClassName('ShadowFlow', ShadowFlow);
 setClassName('ForwardStage', ForwardStage);
 setClassName('ShadowStage', ShadowStage);
 setClassName('RenderQueueDesc', RenderQueueDesc);
+
+// scene
+declare const ns: any;
+
+export const NativeNode = ns.Node;
