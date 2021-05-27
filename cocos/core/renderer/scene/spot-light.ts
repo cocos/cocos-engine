@@ -31,6 +31,7 @@ import {
     AABBHandle, AABBPool, AABBView, FrustumHandle, FrustumPool, LightPool, LightView, NULL_HANDLE,
 } from '../core/memory-pools';
 import { recordFrustumToSharedMemory } from '../../geometry/frustum';
+import { NativeSpotLight } from './native-scene';
 
 const _forward = new Vec3(0, 0, -1);
 const _qt = new Quat();
@@ -93,7 +94,7 @@ export class SpotLight extends Light {
         this._dir.set(dir);
         if (JSB) {
             LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
-            this._nativeObj.setDirection(dir);
+            (this._nativeObj! as NativeSpotLight).setDirection(dir);
         }
     }
 
@@ -104,10 +105,12 @@ export class SpotLight extends Light {
             AABBPool.setVec3(this._hAABB, AABBView.CENTER, this._aabb.center);
             AABBPool.setVec3(this._hAABB, AABBView.HALF_EXTENSION, this._aabb.halfExtents);
             recordFrustumToSharedMemory(this._hFrustum, this._frustum);
-            this._nativeObj.setFrustum(this._frustum);
-            this._nativeObj.setAABB(this._aabb);
-            this._nativeObj.setDirection(this._dir);
-            this._nativeObj.setPosition(this._pos);
+
+            const nativeSpotLight = this._nativeObj! as NativeSpotLight;
+            nativeSpotLight.setFrustum(this._frustum);
+            nativeSpotLight.setAABB(this._aabb);
+            nativeSpotLight.setDirection(this._dir);
+            nativeSpotLight.setPosition(this._pos);
         }
     }
 
@@ -119,7 +122,7 @@ export class SpotLight extends Light {
         this._size = size;
         if (JSB) {
             LightPool.set(this._handle, LightView.SIZE, size);
-            this._nativeObj.setSize(size);
+            (this._nativeObj! as NativeSpotLight).setSize(size);
         }
     }
 
@@ -131,7 +134,7 @@ export class SpotLight extends Light {
         this._range = range;
         if (JSB) {
             LightPool.set(this._handle, LightView.RANGE, range);
-            this._nativeObj.setRange(range);
+            (this._nativeObj! as NativeSpotLight).setRange(range);
         }
 
         this._needUpdate = true;
@@ -145,7 +148,7 @@ export class SpotLight extends Light {
         this._luminance = lum;
         if (JSB) {
             LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
-            this._nativeObj.setIlluminance(lum);
+            (this._nativeObj! as NativeSpotLight).setIlluminance(lum);
         }
     }
 
@@ -166,7 +169,7 @@ export class SpotLight extends Light {
         this._spotAngle = Math.cos(val * 0.5);
         if (JSB) {
             LightPool.set(this._handle, LightView.SPOT_ANGLE, this._spotAngle);
-            this._nativeObj.setAngle(this._spotAngle);
+            (this._nativeObj! as NativeSpotLight).setAngle(this._spotAngle);
         }
 
         this._needUpdate = true;
@@ -176,7 +179,7 @@ export class SpotLight extends Light {
         this._aspect = val;
         if (JSB) {
             LightPool.set(this._handle, LightView.ASPECT, val);
-            this._nativeObj.setAspect(val);
+            (this._nativeObj! as NativeSpotLight).setAspect(val);
         }
 
         this._needUpdate = true;

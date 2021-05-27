@@ -41,12 +41,13 @@ import { NULL_HANDLE, BatchHandle2D, BatchPool2D, BatchView2D, PassPool, ShaderP
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
+import { NativeDrawBatch2D } from '../../core/renderer/scene';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
 export class DrawBatch2D {
-    public get native (): any {
-        return this._nativeObj;
+    public get native (): NativeDrawBatch2D {
+        return this._nativeObj!;
     }
 
     public get handle () {
@@ -58,7 +59,7 @@ export class DrawBatch2D {
     public set hInputAssembler (handle) {
         BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, handle);
         if (JSB) {
-            this._nativeObj.inputAssembler = IAPool.get(handle);
+            this._nativeObj!.inputAssembler = IAPool.get(handle);
         }
     }
     public get hDescriptorSet () {
@@ -67,7 +68,7 @@ export class DrawBatch2D {
     public set hDescriptorSet (handle) {
         BatchPool2D.set(this._handle, BatchView2D.DESCRIPTOR_SET, handle);
         if (JSB) {
-            this._nativeObj.descriptorSet = DSPool.get(handle);
+            this._nativeObj!.descriptorSet = DSPool.get(handle);
         }
     }
     public get visFlags () {
@@ -78,7 +79,7 @@ export class DrawBatch2D {
 
         if (JSB) {
             BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, vis);
-            this._nativeObj.visFlags = vis;
+            this._nativeObj!.visFlags = vis;
         }
     }
     public get passes () {
@@ -97,7 +98,7 @@ export class DrawBatch2D {
     public samplerHash = 0;
     private _handle: BatchHandle2D = NULL_HANDLE;
     private _passes: Pass[] = [];
-    private declare _nativeObj: any;
+    private declare _nativeObj: NativeDrawBatch2D | null;
     private _visFlags: BatchView2D = UI_VIS_FLAG;
 
     constructor () {
@@ -106,7 +107,7 @@ export class DrawBatch2D {
         BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, NULL_HANDLE);
         BatchPool2D.set(this._handle, BatchView2D.DESCRIPTOR_SET, NULL_HANDLE);
         if (JSB) {
-            this._nativeObj = new ns.DrawBatch2D();
+            this._nativeObj = new NativeDrawBatch2D();
             this._nativeObj.visFlags = this._visFlags;
         }
     }
@@ -186,8 +187,8 @@ export class DrawBatch2D {
                     nativeShaders.push(ShaderPool.get(BatchPool2D.get(this._handle, BatchView2D.SHADER_0 + i)));
                 }
 
-                this._nativeObj.passes = nativePasses;
-                this._nativeObj.shaders = nativeShaders;
+                this._nativeObj!.passes = nativePasses;
+                this._nativeObj!.shaders = nativeShaders;
             }
         }
     }

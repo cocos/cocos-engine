@@ -47,6 +47,7 @@ import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool,
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
+import { NativeModel } from './native-scene';
 
 const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
 
@@ -146,7 +147,7 @@ export class Model {
         this._castShadow = val;
         if (JSB) {
             ModelPool.set(this._handle, ModelView.CAST_SHADOW, val ? 1 : 0);
-            this._nativeObj.setCastShadow(val);
+            this._nativeObj!.setCastShadow(val);
         }
     }
 
@@ -162,7 +163,7 @@ export class Model {
         this._node = n;
         ModelPool.set(this._handle, ModelView.NODE, n.handle);
         if (JSB) {
-            this._nativeObj.setNode(n.native);
+            this._nativeObj!.setNode(n.native);
         }
     }
 
@@ -174,7 +175,7 @@ export class Model {
         this._transform = n;
         ModelPool.set(this._handle, ModelView.TRANSFORM, n.handle);
         if (JSB) {
-            this._nativeObj.setTransform(n.native);
+            this._nativeObj!.setTransform(n.native);
         }
     }
 
@@ -186,7 +187,7 @@ export class Model {
         this._visFlags = val;
         if (JSB) {
             ModelPool.set(this._handle, ModelView.VIS_FLAGS, val);
-            this._nativeObj.seVisFlag(val);
+            this._nativeObj!.seVisFlag(val);
         }
     }
 
@@ -198,7 +199,7 @@ export class Model {
         this._enabled = val;
         if (JSB) {
             ModelPool.set(this._handle, ModelView.ENABLED, val ? 1 : 0);
-            this._nativeObj.setEnabled(val);
+            this._nativeObj!.setEnabled(val);
         }
     }
 
@@ -231,10 +232,10 @@ export class Model {
     protected _castShadow = false;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
-    protected _nativeObj: any;
+    protected declare _nativeObj: NativeModel | null;
 
-    get native (): any {
-        return this._nativeObj;
+    get native (): NativeModel {
+        return this._nativeObj!;
     }
 
     /**
@@ -248,7 +249,7 @@ export class Model {
         this._receiveShadow = val;
         if (JSB) {
             ModelPool.set(this._handle, ModelView.RECEIVE_SHADOW, val ? 1 : 0);
-            this._nativeObj.setReceiveShadow(val);
+            this._nativeObj!.setReceiveShadow(val);
         }
     }
 
@@ -258,7 +259,9 @@ export class Model {
         const hInstancedAttrArray = AttributeArrayPool.alloc();
         ModelPool.set(this._handle, ModelView.INSTANCED_ATTR_ARRAY, hInstancedAttrArray);
         ModelPool.set(this._handle, ModelView.SUB_MODEL_ARRAY, hSubModelArray);
-        if (JSB) this._nativeObj = new ns.Model();
+        if (JSB) {
+            this._nativeObj = new NativeModel();
+        }
     }
 
     public initialize () {
@@ -409,7 +412,7 @@ export class Model {
             }
             AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, this._worldBounds!.center);
             AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, this._worldBounds!.halfExtents);
-            this._nativeObj.setWolrdBounds(this._worldBounds);
+            this._nativeObj!.setWolrdBounds(this._worldBounds);
         }
     }
 
@@ -453,7 +456,7 @@ export class Model {
         if (isNewSubModel && JSB) {
             const hSubModelArray = ModelPool.get(this._handle, ModelView.SUB_MODEL_ARRAY);
             SubModelArrayPool.assign(hSubModelArray, idx, this._subModels[idx].handle);
-            this._nativeObj.addSubModel(this._subModels[idx].native);
+            this._nativeObj!.addSubModel(this._subModels[idx].native);
         }
     }
 
@@ -561,7 +564,7 @@ export class Model {
         const attrs = this.instancedAttributes;
         attrs.buffer = new Uint8Array(buffer);
         if (JSB) {
-            this._nativeObj.setInstancedBuffer(buffer);
+            this._nativeObj!.setInstancedBuffer(buffer);
         }
         attrs.views.length = attrs.attributes.length = 0;
         let offset = 0;
@@ -586,7 +589,7 @@ export class Model {
         this._transformUpdated = true;
 
         if (JSB) {
-            this._nativeObj.setInstanceAttributes(attrs.attributes);
+            this._nativeObj!.setInstanceAttributes(attrs.attributes);
         }
     }
 

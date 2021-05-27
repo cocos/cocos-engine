@@ -28,6 +28,7 @@ import { Vec3, Vec4 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
 import { LightPool, LightView } from '../core/memory-pools';
+import { NativeDirectionalLight } from './native-scene';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
@@ -40,7 +41,7 @@ export class DirectionalLight extends Light {
         Vec3.normalize(this._dir, dir);
         if (JSB) {
             LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
-            this._nativeObj.setDirection(dir);
+            (this._nativeObj! as NativeDirectionalLight).setDirection(dir);
         }
     }
 
@@ -53,7 +54,7 @@ export class DirectionalLight extends Light {
         this._illuminance = illum;
         if (JSB) {
             LightPool.set(this._handle, LightView.ILLUMINANCE, illum);
-            this._nativeObj.setIlluminance(illum);
+            (this._nativeObj! as NativeDirectionalLight).setIlluminance(illum);
         }
     }
 

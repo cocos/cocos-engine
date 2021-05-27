@@ -34,6 +34,7 @@ import { TransformBit } from '../../scene-graph/node-enum';
 import { ScenePool, SceneView, ModelArrayPool, ModelArrayHandle, SceneHandle, NULL_HANDLE,
     UIBatchArrayHandle, UIBatchArrayPool, LightArrayHandle, LightArrayPool } from '../core/memory-pools';
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
+import { NativeRenderScene } from './native-scene';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -83,8 +84,8 @@ export class RenderScene {
         return this._scenePoolHandle;
     }
 
-    get native (): any {
-        return this._nativeObj;
+    get native (): NativeRenderScene {
+        return this._nativeObj!;
     }
 
     get batches () {
@@ -110,7 +111,7 @@ export class RenderScene {
     private _batchArrayHandle: UIBatchArrayHandle = NULL_HANDLE;
     private _sphereLightsHandle: LightArrayHandle = NULL_HANDLE;
     private _spotLightsHandle: LightArrayHandle = NULL_HANDLE;
-    private _nativeObj: any;
+    private declare _nativeObj: NativeRenderScene | null;
 
     constructor (root: Root) {
         this._root = root;
@@ -213,7 +214,7 @@ export class RenderScene {
         this._mainLight = dl;
         if (JSB) {
             ScenePool.set(this._scenePoolHandle, SceneView.MAIN_LIGHT, dl.handle);
-            this._nativeObj.setMainLight(dl.native);
+            this._nativeObj!.setMainLight(dl.native);
         }
     }
 
@@ -249,7 +250,7 @@ export class RenderScene {
         this._sphereLights.push(pl);
         if (JSB) {
             LightArrayPool.push(this._sphereLightsHandle, pl.handle);
-            this._nativeObj.addSphereLight(pl.native);
+            this._nativeObj!.addSphereLight(pl.native);
         }
     }
 
@@ -260,7 +261,7 @@ export class RenderScene {
                 this._sphereLights.splice(i, 1);
                 if (JSB) {
                     LightArrayPool.erase(this._sphereLightsHandle, i);
-                    this._nativeObj.removeSphereLight(pl.native);
+                    this._nativeObj!.removeSphereLight(pl.native);
                 }
                 return;
             }
@@ -272,7 +273,7 @@ export class RenderScene {
         this._spotLights.push(sl);
         if (JSB) {
             LightArrayPool.push(this._spotLightsHandle, sl.handle);
-            this._nativeObj.addSpotLight(sl.native);
+            this._nativeObj!.addSpotLight(sl.native);
         }
     }
 
@@ -283,7 +284,7 @@ export class RenderScene {
                 this._spotLights.splice(i, 1);
                 if (JSB) {
                     LightArrayPool.erase(this._spotLightsHandle, i);
-                    this._nativeObj.removeSpotLight(sl.native);
+                    this._nativeObj!.removeSpotLight(sl.native);
                 }
                 return;
             }
@@ -297,7 +298,7 @@ export class RenderScene {
         this._sphereLights.length = 0;
         if (JSB) {
             LightArrayPool.clear(this._sphereLightsHandle);
-            this._nativeObj.removeSphereLights();
+            this._nativeObj!.removeSphereLights();
         }
     }
 
@@ -308,7 +309,7 @@ export class RenderScene {
         this._spotLights = [];
         if (JSB) {
             LightArrayPool.clear(this._spotLightsHandle);
-            this._nativeObj.removeSpotLights();
+            this._nativeObj!.removeSpotLights();
         }
     }
 
@@ -317,7 +318,7 @@ export class RenderScene {
         this._models.push(m);
         if (JSB) {
             ModelArrayPool.push(this._modelArrayHandle, m.handle);
-            this._nativeObj.addModel(m.native);
+            this._nativeObj!.addModel(m.native);
         }
     }
 
@@ -328,7 +329,7 @@ export class RenderScene {
                 this._models.splice(i, 1);
                 if (JSB) {
                     ModelArrayPool.erase(this._modelArrayHandle, i);
-                    this._nativeObj.removeModel(model.native);
+                    this._nativeObj!.removeModel(model.native);
                 }
                 return;
             }
@@ -343,7 +344,7 @@ export class RenderScene {
         this._models.length = 0;
         if (JSB) {
             ModelArrayPool.clear(this._modelArrayHandle);
-            this._nativeObj.removeModels();
+            this._nativeObj!.removeModels();
         }
     }
 
@@ -351,7 +352,7 @@ export class RenderScene {
         this._batches.push(batch);
         if (JSB) {
             UIBatchArrayPool.push(this._batchArrayHandle, batch.handle);
-            this._nativeObj.addBatch(batch.native);
+            this._nativeObj!.addBatch(batch.native);
         }
     }
 
@@ -361,7 +362,7 @@ export class RenderScene {
                 this._batches.splice(i, 1);
                 if (JSB) {
                     UIBatchArrayPool.erase(this._batchArrayHandle, i);
-                    this._nativeObj.removeBatch(i);
+                    this._nativeObj!.removeBatch(i);
                 }
                 return;
             }
@@ -372,7 +373,7 @@ export class RenderScene {
         this._batches.length = 0;
         if (JSB) {
             UIBatchArrayPool.clear(this._batchArrayHandle);
-            this._nativeObj.removeBatches();
+            this._nativeObj!.removeBatches();
         }
     }
 
@@ -405,7 +406,7 @@ export class RenderScene {
                 ScenePool.set(this._scenePoolHandle, SceneView.BATCH_ARRAY_2D, this._batchArrayHandle);
             }
 
-            this._nativeObj = new ns.RenderScene();
+            this._nativeObj = new NativeRenderScene();
         }
     }
 }

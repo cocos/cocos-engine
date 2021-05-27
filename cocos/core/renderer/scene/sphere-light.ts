@@ -28,6 +28,7 @@ import { AABB } from '../../geometry';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
 import { AABBHandle, AABBPool, AABBView, LightPool, LightView, NULL_HANDLE } from '../core/memory-pools';
+import { NativeSphereLight } from './native-scene';
 
 export class SphereLight extends Light {
     declare protected _hAABB: AABBHandle;
@@ -53,8 +54,8 @@ export class SphereLight extends Light {
             AABBPool.setVec3(this._hAABB, AABBView.CENTER, this._aabb.center);
             AABBPool.setVec3(this._hAABB, AABBView.HALF_EXTENSION, this._aabb.halfExtents);
 
-            this._nativeObj.setPosition(this._pos);
-            this._nativeObj.setAABB(this._aabb);
+            (this._nativeObj! as NativeSphereLight).setPosition(this._pos);
+            (this._nativeObj! as NativeSphereLight).setAABB(this._aabb);
         }
     }
 
@@ -66,7 +67,7 @@ export class SphereLight extends Light {
         this._size = size;
         if (JSB) {
             LightPool.set(this._handle, LightView.SIZE, size);
-            this._nativeObj.setSize(size);
+            (this._nativeObj! as NativeSphereLight).setSize(size);
         }
     }
 
@@ -78,7 +79,7 @@ export class SphereLight extends Light {
         this._range = range;
         if (JSB) {
             LightPool.set(this._handle, LightView.RANGE, range);
-            this._nativeObj.setRange(range);
+            (this._nativeObj! as NativeSphereLight).setRange(range);
         }
 
         this._needUpdate = true;
@@ -92,7 +93,7 @@ export class SphereLight extends Light {
         this._luminance = lum;
         if (JSB) {
             LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
-            this._nativeObj.setIlluminance(lum);
+            (this._nativeObj! as NativeSphereLight).setIlluminance(lum);
         }
     }
 

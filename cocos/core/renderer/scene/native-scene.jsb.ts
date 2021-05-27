@@ -2,3 +2,16 @@
 declare const ns: any;
 
 export const NativeNode = ns.Node;
+export const NativeModel = ns.Model;
+export const NativeLight = ns.light;
+export const NativeDirectionalLight = ns.DirectionalLight;
+export const NativeSpotLight = ns.SpotLight;
+export const NativeSphereLight = ns.SphereLight;
+export const NaitveSkybox = ns.Skybox;
+export const NativeFog = ns.Fog;
+export const NativeCamera = ns.NativeCamera;
+export const NativeRenderWindow = ns.RenderWindow;
+export const NativeRenderScene = ns.NativeRenderScene;
+export const NativeDrawBatch2D = ns.NativeDrawBatch2D;
+export const NativePass = ns.Pass;
+export const NativeSubModel = ns.SubModel;

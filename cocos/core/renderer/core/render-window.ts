@@ -28,7 +28,7 @@ import {
     RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
 import { Root } from '../../root';
 import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
-import { Camera } from '../scene';
+import { Camera, NativeRenderWindow } from '../scene';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -121,14 +121,10 @@ export class RenderWindow {
     protected _hasOnScreenAttachments = false;
     protected _hasOffScreenAttachments = false;
     protected _framebuffer: Framebuffer | null = null;
-    private declare _nativeObj: any;
+    private declare _nativeObj: NativeRenderWindow | null;
 
-    public get native (): any {
-        if (JSB) {
-            return this._nativeObj;
-        }
-
-        return null;
+    get native () {
+        return this._nativeObj;
     }
 
     private constructor (root: Root) {
@@ -138,7 +134,7 @@ export class RenderWindow {
         this._hasOffScreenAttachments = val;
         if (JSB) {
             RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, val ? 1 : 0);
-            this._nativeObj.hasOffScreenAttachments = val;
+            this._nativeObj!.hasOffScreenAttachments = val;
         }
     }
 
@@ -146,7 +142,7 @@ export class RenderWindow {
         this._hasOnScreenAttachments = val;
         if (JSB) {
             RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, val ? 1 : 0);
-            this._nativeObj.hasOnScreenAttachments = val;
+            this._nativeObj!.hasOnScreenAttachments = val;
         }
     }
 
@@ -158,7 +154,7 @@ export class RenderWindow {
                 this._depthStencilTexture,
             ));
             RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, hFBO);
-            this._nativeObj.frameBuffer = this.framebuffer;
+            this._nativeObj!.frameBuffer = this.framebuffer;
             return;
         }
         this._framebuffer = device.createFramebuffer(new FramebufferInfo(
@@ -171,7 +167,7 @@ export class RenderWindow {
     protected _init () {
         if (JSB) {
             this._poolHandle = RenderWindowPool.alloc();
-            this._nativeObj = new ns.RenderWindow();
+            this._nativeObj = new NativeRenderWindow();
         }
     }
 

@@ -37,6 +37,7 @@ import { DescriptorSet } from '../../gfx';
 import { SkyboxPool, NULL_HANDLE, SkyboxView, SkyboxHandle } from '../core/memory-pools';
 import { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
+import { NaitveSkybox } from './native-scene';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
@@ -117,10 +118,10 @@ export class Skybox {
     protected _enabled = false;
     protected _useIBL = false;
     protected _isRGBE = false;
-    protected _nativeObj: any;
+    protected declare _nativeObj: NaitveSkybox | null;
 
-    get native (): any {
-        return this._nativeObj;
+    get native (): NaitveSkybox {
+        return this._nativeObj!;
     }
 
     get handle () : SkyboxHandle {
@@ -130,7 +131,7 @@ export class Skybox {
     constructor () {
         if (JSB) {
             this._handle = SkyboxPool.alloc();
-            this._nativeObj = new ns.SkyBox();
+            this._nativeObj = new NaitveSkybox();
         }
     }
 
@@ -138,7 +139,7 @@ export class Skybox {
         this._enabled = val;
         if (JSB) {
             SkyboxPool.set(this._handle, SkyboxView.ENABLE, val ? 1 : 0);
-            this._nativeObj.enabled = val;
+            this._nativeObj!.enabled = val;
         }
     }
 
@@ -146,7 +147,7 @@ export class Skybox {
         this._useIBL = val;
         if (JSB) {
             SkyboxPool.set(this._handle, SkyboxView.USE_IBL, val ? 1 : 0);
-            this._nativeObj.useIBL = val;
+            this._nativeObj!.useIBL = val;
         }
     }
 
@@ -154,7 +155,7 @@ export class Skybox {
         this._isRGBE = val;
         if (JSB) {
             SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, val ? 1 : 0);
-            this._nativeObj.isRGBE = val;
+            this._nativeObj!.isRGBE = val;
         }
     }
 
@@ -178,7 +179,7 @@ export class Skybox {
         }
         if (JSB) {
             SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);
-            this._nativeObj.model = this._model.native;
+            this._nativeObj!.model = this._model.native;
         }
         if (!this._envmap) {
             this._envmap = this._default;
