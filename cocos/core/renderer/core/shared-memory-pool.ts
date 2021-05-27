@@ -153,14 +153,14 @@ class BufferPool<P extends SharedPoolType, E extends BufferManifest, M extends B
          return handle; // guarantees the handle is always not zero
      }
 
-     public getBuffer (handle: IHandle<P>): ArrayBuffer {
+     public getBuffer (handle: IHandle<P>): BufferArrayType {
          const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
          const entry = this._entryMask & handle as unknown as number;
          const bufferViews = this._float32BufferViews;
          if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freeLists[chunk], entry))) {
              console.warn('invalid buffer pool handle');
-             return [] as unknown as ArrayBuffer;
+             return [] as unknown as BufferArrayType;
          }
 
          return bufferViews[chunk][entry];

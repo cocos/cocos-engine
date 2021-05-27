@@ -45,8 +45,7 @@ import { NodeSpace, TransformBit } from './node-enum';
 import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
     applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
 import { Component } from '../components';
-import { scene } from '../renderer';
-import { NativeNode } from '../pipeline';
+import { NativeNode } from '../renderer/scene/native-scene';
 import { FloatArray } from '../math/type-define';
 
 const v3_a = new Vec3();
