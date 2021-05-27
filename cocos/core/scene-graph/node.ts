@@ -115,13 +115,13 @@ export class Node extends BaseNode {
     public _static = false;
 
     // world transform, don't access this directly
-    protected declare _pos;
+    protected declare _pos: Vec3;
 
-    protected declare _rot;
+    protected declare _rot: Quat;
 
-    protected declare _scale;
+    protected declare _scale: Vec3;
 
-    protected declare _mat;
+    protected declare _mat: Mat4;
 
     // local transform
     @serializable
@@ -229,7 +229,7 @@ export class Node extends BaseNode {
     }
 
     public set position (val: Readonly<Vec3>) {
-        this.setPosition(val);
+        this.setPosition(val as Vec3);
     }
 
     /**
@@ -243,9 +243,9 @@ export class Node extends BaseNode {
     }
 
     public set worldPosition (val: Readonly<Vec3>) {
-        this.setWorldPosition(val);
+        this.setWorldPosition(val as Vec3);
         if (JSB) {
-            NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, val);
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, val as Vec3);
         }
     }
 
@@ -259,7 +259,7 @@ export class Node extends BaseNode {
     }
 
     public set rotation (val: Readonly<Quat>) {
-        this.setRotation(val);
+        this.setRotation(val as Quat);
     }
 
     /**
@@ -310,7 +310,7 @@ export class Node extends BaseNode {
     }
 
     public set worldRotation (val: Readonly<Quat>) {
-        this.setWorldRotation(val);
+        this.setWorldRotation(val as Quat);
     }
 
     /**
@@ -323,7 +323,7 @@ export class Node extends BaseNode {
     }
 
     public set scale (val: Readonly<Vec3>) {
-        this.setScale(val);
+        this.setScale(val as Vec3);
     }
 
     /**
@@ -337,9 +337,9 @@ export class Node extends BaseNode {
     }
 
     public set worldScale (val: Readonly<Vec3>) {
-        this.setWorldScale(val);
+        this.setWorldScale(val as Vec3);
         if (JSB) {
-            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, val);
+            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, val as Vec3);
         }
     }
 
@@ -1086,7 +1086,7 @@ export class Node extends BaseNode {
     public getWorldMatrix (out?: Mat4): Mat4 {
         this.updateWorldTransform();
         const target = out || new Mat4();
-        return Mat4.copy(target, this._mat) as Mat4;
+        return Mat4.copy(target, this._mat);
     }
 
     /**
