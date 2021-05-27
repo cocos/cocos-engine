@@ -140,7 +140,6 @@ class BufferPool<P extends SharedPoolType, E extends BufferManifest, M extends B
          const freeList: number[] = [];
          const hasFloat32 = this._hasFloat32;
          const hasUint32 = this._hasUint32;
-         this._arrayBuffers.push(buffer);
          for (let j = 0; j < this._entriesPerChunk; j++) {
              if (hasFloat32) { float32BufferViews.push(new Float32Array(buffer, this._stride * j, this._elementCount)); }
              if (hasUint32) { uint32BufferViews.push(new Uint32Array(buffer, this._stride * j, this._elementCount)); }
@@ -149,6 +148,7 @@ class BufferPool<P extends SharedPoolType, E extends BufferManifest, M extends B
          if (hasUint32) { this._uint32BufferViews.push(uint32BufferViews); }
          if (hasFloat32) { this._float32BufferViews.push(float32BufferViews); }
          this._freeLists.push(freeList);
+         this._arrayBuffers.push(buffer);
          const handle = (i << this._entryBits) + this._poolFlag as unknown as IHandle<P>;
          return handle; // guarantees the handle is always not zero
      }
@@ -158,22 +158,12 @@ class BufferPool<P extends SharedPoolType, E extends BufferManifest, M extends B
          const entry = this._entryMask & handle as unknown as number;
          const bufferViews = this._float32BufferViews;
          if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
-            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freeLists[chunk], entry))) {
+           || entry < 0 || entry >= this._entriesPerChunk || contains(this._freeLists[chunk], entry))) {
              console.warn('invalid buffer pool handle');
              return [] as unknown as ArrayBuffer;
          }
 
-         return bufferViews[chunk][entry].buffer;
-     }
-
-     public getBufferOffset (handle: IHandle<P>): number {
-         const entry = this._entryMask & handle as unknown as number;
-         if (DEBUG && (!handle || entry < 0 || entry >= this._entriesPerChunk)) {
-             console.warn('invalid buffer pool handle');
-             return 0;
-         }
-
-         return this._elementCount * entry;
+         return bufferViews[chunk][entry];
      }
 
      public getTypedArray<K extends E[keyof E]> (handle: IHandle<P>, element: K): BufferArrayType {
@@ -203,6 +193,11 @@ class BufferPool<P extends SharedPoolType, E extends BufferManifest, M extends B
          const bufferViews = this._hasUint32 ? this._uint32BufferViews : this._float32BufferViews;
          bufferViews[chunk][entry].fill(0);
          this._freeLists[chunk].push(entry);
+         // free
+         if (this._freeLists[chunk].length === this._entriesPerChunk && this._freeLists.length > 1) {
+             this._freeLists.splice(chunk, 1);
+             this._arrayBuffers.splice(chunk, 1);
+         }
      }
 }
 

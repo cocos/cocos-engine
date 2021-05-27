@@ -164,7 +164,8 @@ export class Node extends BaseNode {
             this._nativeFlag = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.FLAGS_CHANGED) as Uint32Array;
             this._scale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
-            this._nativeObj = new NativeNode(SharedNodePool.getBuffer(this._nodeHandle), SharedNodePool.getBufferOffset(this._nodeHandle) * 4, SharedNodeView.COUNT * 4);
+            this._nativeObj = new NativeNode();
+            this._nativeObj.initWithData(SharedNodePool.getBuffer(this._nodeHandle));
             // TODO: delete by memory pool
             this._poolHandle = NodePool.alloc();
             NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
