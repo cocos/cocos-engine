@@ -152,12 +152,9 @@ export class Layers {
    * @param name Layer's name
    */
   public static getLayer (name: string): number {
-      if (name === undefined) {
-          console.warn('name can\'t be undefined');
-          return -1;
-      }
+      const value = Layers.getLayerValue(name);
 
-      return log2(Layers.Enum[name] as number);
+      return log2(value);
   }
 }
 export declare namespace Layers {
