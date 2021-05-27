@@ -118,11 +118,9 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
         NSInteger reason = [[[notification userInfo] objectForKey:AVAudioSessionInterruptionTypeKey] integerValue];
         if (reason == AVAudioSessionInterruptionTypeBegan) {
             isAudioSessionInterrupted = true;
+            alcMakeContextCurrent(nullptr);
 
-            if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
-                ALOGD("AVAudioSessionInterruptionTypeBegan, application != UIApplicationStateActive, alcMakeContextCurrent(nullptr)");
-                alcMakeContextCurrent(nullptr);
-            } else {
+            if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive) {
                 ALOGD("AVAudioSessionInterruptionTypeBegan, application == UIApplicationStateActive, pauseOnResignActive = true");
                 pauseOnResignActive = true;
             }
@@ -131,17 +129,11 @@ void AudioEngineInterruptionListenerCallback(void *user_data, UInt32 interruptio
         if (reason == AVAudioSessionInterruptionTypeEnded) {
             isAudioSessionInterrupted = false;
 
-            if ([UIApplication sharedApplication].applicationState == UIApplicationStateActive) {
-                ALOGD("AVAudioSessionInterruptionTypeEnded, application == UIApplicationStateActive, alcMakeContextCurrent(s_ALContext)");
-                NSError *error = nil;
-                [[AVAudioSession sharedInstance] setActive:YES error:&error];
-                alcMakeContextCurrent(s_ALContext);
-                //IDEA:                if (Director::getInstance()->isPaused())
-                {
-                    ALOGD("AVAudioSessionInterruptionTypeEnded, director was paused, try to resume it.");
-                    //IDEA:                    Director::getInstance()->resume();
-                }
-            } else {
+            NSError *error = nil;
+            [[AVAudioSession sharedInstance] setActive:YES error:&error];
+            alcMakeContextCurrent(s_ALContext);
+
+            if ([UIApplication sharedApplication].applicationState != UIApplicationStateActive) {
                 ALOGD("AVAudioSessionInterruptionTypeEnded, application != UIApplicationStateActive, resumeOnBecomingActive = true");
                 resumeOnBecomingActive = true;
             }
