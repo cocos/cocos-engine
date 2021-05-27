@@ -30,6 +30,7 @@
 
 import { BitMask, Enum } from '../value-types';
 import { legacyCC } from '../global-exports';
+import { log2 } from '../math/bits';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {
@@ -129,6 +130,34 @@ export class Layers {
       delete Layers.Enum[bitNum];
       delete Layers.BitMask[Layers.BitMask[bitNum]];
       delete Layers.BitMask[bitNum];
+  }
+
+  /**
+   * @en Get the value of the layer by name
+   * @zh 根据名字获取 layer 的值
+   * @param name Layer's name
+   */
+  public static getLayerValue (name: string): number {
+      if (name === undefined) {
+          console.warn('name can\'t be undefined');
+          return -1;
+      }
+
+      return Layers.Enum[name] as number;
+  }
+
+  /**
+   * @en Get layer by name
+   * @zh 根据名字获取 layer
+   * @param name Layer's name
+   */
+  public static getLayer (name: string): number {
+      if (name === undefined) {
+          console.warn('name can\'t be undefined');
+          return -1;
+      }
+
+      return log2(Layers.Enum[name] as number);
   }
 }
 export declare namespace Layers {
