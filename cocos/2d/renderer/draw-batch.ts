@@ -102,6 +102,7 @@ export class DrawBatch2D {
 
     private _tempRect;
     private _tempScale = new Vec3();
+    private _tempPosition = new Vec3();
 
     private _device:Device;
 
@@ -192,11 +193,15 @@ export class DrawBatch2D {
         // 需要加工锚点和 rect
         // @ts-expect-error using private members
         const { _pos: t, _rot: r, _scale: s } = renderComp.node;
-        // anchor 未添加 // todo
-        // size 的 dirty // todo
         this._tempRect = renderComp.node._uiProps.uiTransformComp!;
-        this._tempScale.x = s.x * this._tempRect.width; // Rect 应该可以进行缓存 // Todo
-        this._tempScale.y = s.y * this._tempRect.height;
+        // 更新 size 和 anchor 利用 dirty
+        this._tempRect.checkAndUpdateRect(s);
+        this._tempScale = this._tempRect._rectWithScale;
+
+        this._tempPosition.x = t.x + this._tempRect._anchorCache.x;
+        this._tempPosition.y = t.y + this._tempRect._anchorCache.y;
+        this._tempPosition.z = t.z;
+
         // 下面的逻辑几乎是针对于 sprite 的
         const sprite = renderComp as Sprite;
         this.toCache.length = 0;
@@ -221,7 +226,7 @@ export class DrawBatch2D {
         const UIPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / vec4PerUI);
         // const UIPerUBO = 16; // 调试用 16
         // 上传数据
-        const localBuffer = UBOManager.upload(t, r, this._tempScale, to!, c, mode, UIPerUBO, vec4PerUI, this.tiledCache, progress);
+        const localBuffer = UBOManager.upload(this._tempPosition, r, this._tempScale, to!, c, mode, UIPerUBO, vec4PerUI, this.tiledCache, progress);
 
         // 能同 drawCall 的条件： UBOIndex 相同，ubohash 相同
         let dc = this._drawcalls[this._dcIndex];

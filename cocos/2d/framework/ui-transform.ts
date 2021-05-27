@@ -39,6 +39,7 @@ import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -92,6 +93,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
         }
+        this._rectDirty = true;
     }
 
     get width () {
@@ -115,6 +117,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
         }
+        this._rectDirty = true;
     }
 
     get height () {
@@ -138,6 +141,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
         }
+        this._rectDirty = true;
     }
 
     /**
@@ -161,6 +165,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.set(value);
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this._rectDirty = true;
     }
 
     get anchorX () {
@@ -174,6 +179,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.x = value;
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this._rectDirty = true;
     }
 
     get anchorY () {
@@ -187,6 +193,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.y = value;
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this._rectDirty = true;
     }
 
     /**
@@ -258,10 +265,13 @@ export class UITransform extends Component {
 
     public onEnable () {
         this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
+        this.node.on(SystemEventType.TRANSFORM_CHANGED, this.setRectDirty, this);
+        this._rectDirty = true;
     }
 
     public onDisable () {
         this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
+        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.setRectDirty, this);
     }
 
     public onDestroy () {
@@ -646,6 +656,38 @@ export class UITransform extends Component {
 
         if (this.node.parent) {
             UITransform.insertChangeMap(this.node.parent);
+        }
+    }
+
+    private _rectDirty = true;
+    public _rectWithScale = new Vec3();
+    public _anchorCache = new Vec3();
+
+    public checkAndUpdateRect (scale: Vec3) {
+        if (this._rectDirty) {
+            this._rectWithScale.x = scale.x * this.width;
+            this._rectWithScale.y = scale.y * this.height;
+            this._rectWithScale.z = scale.z;
+            // 把 anchor 对于pos的影响缓存下来
+            const eulerZ = this.node.angle / 180 * Math.PI;
+            const lenX = (0.5 - this.anchorPoint.x) * this.width * scale.x;
+            const lenY = (0.5 - this.anchorPoint.y) * this.height * scale.y;
+            this._anchorCache.x = (lenX) * Math.cos(eulerZ) - (lenY) * Math.sin(eulerZ);
+            this._anchorCache.y = (lenX) * Math.sin(eulerZ) + (lenY) * Math.cos(eulerZ);
+
+            this._rectDirty = false;
+        }
+    }
+
+    private setRectDirty (transformBit: TransformBit) {
+        if (transformBit | TransformBit.SCALE || transformBit | TransformBit.ROTATION) {
+            this._rectDirty = true;
+            this.node.walk((node) => {
+                const uiProps = node._uiProps;
+                if (uiProps && uiProps.uiTransformComp) {
+                    uiProps.uiTransformComp._rectDirty = true;
+                }
+            });
         }
     }
 
