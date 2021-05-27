@@ -169,7 +169,7 @@ export interface IGameConfig {
     physics?: IPhysicsConfig;
 
     /**
-     * Physics system config
+     * User layers config
      */
     layers?: LayerItem[];
 }
