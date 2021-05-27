@@ -97,7 +97,9 @@ rules:
 
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
 
-    '@typescript-eslint/indent': [warn, 4]
+    '@typescript-eslint/indent': [warn, 4, {
+        SwitchCase: 0
+    }]
     '@typescript-eslint/no-unused-expressions': warn
 
     # TODO: this is just too much work

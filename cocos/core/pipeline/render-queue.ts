@@ -150,14 +150,14 @@ export function convertRenderQueue (desc: RenderQueueDesc) {
     }
     let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
     switch (desc.sortMode) {
-        case RenderQueueSortMode.BACK_TO_FRONT:
-            sortFunc = transparentCompareFn;
-            break;
-        case RenderQueueSortMode.FRONT_TO_BACK:
-            sortFunc = opaqueCompareFn;
-            break;
-        default:
-            break;
+    case RenderQueueSortMode.BACK_TO_FRONT:
+        sortFunc = transparentCompareFn;
+        break;
+    case RenderQueueSortMode.FRONT_TO_BACK:
+        sortFunc = opaqueCompareFn;
+        break;
+    default:
+        break;
     }
 
     return new RenderQueue({

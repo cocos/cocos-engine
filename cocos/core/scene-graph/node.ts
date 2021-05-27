@@ -605,6 +605,7 @@ export class Node extends BaseNode {
             }
             dirtyBit = childDirtyBit;
         }
+        array_a.length = 0;
     }
 
     /**
@@ -677,6 +678,7 @@ export class Node extends BaseNode {
             child._dirtyFlags = TransformBit.NONE;
             cur = child;
         }
+        array_a.length = 0;
     }
 
     // ===============================
