@@ -465,14 +465,18 @@ cc.Follow = cc.Class({
     },
 
     /*
-     * alter behavior - turn on/off boundary.
-     *
-     * @param {Boolean} value
-     */
+        * alter behavior - turn on/off boundary.
+        *
+        * @param {Boolean} value
+        */
     setBoundarySet:function (value) {
         this._boundarySet = value;
     },
 
+    setBoudarySet:function (value) {
+        this.setBoundarySet(value);
+    },
+    
     /*
      * initializes the action with a set boundary.
      *

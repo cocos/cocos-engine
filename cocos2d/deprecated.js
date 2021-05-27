@@ -454,7 +454,12 @@ if (CC_DEBUG) {
     }, function (v) {
         cc.warnID(1400, 'sharedMaterials', 'setMaterial');
         this.materials = v;
-    })
+    });
+
+    // cc.Follow
+    markFunctionWarning(cc.Follow.prototype, {
+        setBoudarySet : 'cc.Follow.setBoundarySet'
+    });
 
     // cc.Camera
     markFunctionWarning(cc.Camera.prototype, {
