@@ -152,14 +152,25 @@ public:
 };
 
 struct CC_DLL Node {
-    uint32_t flagsChanged = 0;
-    uint32_t layer        = 0;
+    uint32_t hasChangedFlagsID = 0;
+    uint32_t layer             = 0;
     cc::Vec3 worldScale;
     cc::Vec3 worldPosition;
     cc::Vec4 worldRotation;
     cc::Mat4 worldMatrix;
 
     const static se::PoolType TYPE;
+
+    CC_INLINE uint32_t &getHasChangedFlags() const {
+        // masking behavior should match cocos/core/scene-graph/node.ts BookOfChange class
+        static constexpr uint32_t MASK = 0xff00ffff;
+
+        uint32_t handle = hasChangedFlagsID & MASK;
+        uint32_t offset = (hasChangedFlagsID & ~MASK) >> 16;
+        auto *   buffer = SharedMemory::getRawBuffer<uint32_t>(se::PoolType::RAW_BUFFER, handle);
+
+        return buffer[offset];
+    }
 };
 
 struct CC_DLL AABB {
@@ -340,8 +351,8 @@ struct CC_DLL UIBatch {
 };
 
 struct CC_DLL Scene {
-    uint32_t mainLightID = 0;
-    uint32_t modelsID = 0; // array pool
+    uint32_t mainLightID  = 0;
+    uint32_t modelsID     = 0; // array pool
     uint32_t sphereLights = 0; // array pool
     uint32_t spotLights   = 0; // array pool
     uint32_t uiBatches    = 0; // array pool

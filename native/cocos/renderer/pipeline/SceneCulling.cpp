@@ -65,7 +65,7 @@ void getShadowWorldMatrix(const Sphere *sphere, const cc::Vec4 &rotation, const 
 
 void updateSphereLight(Shadows *shadows, const Light *light, std::array<float, UBOShadow::COUNT> &shadowUBO) {
     const auto *const node = light->getNode();
-    if (!node->flagsChanged && !shadows->dirty) {
+    if (!node->getHasChangedFlags() && !shadows->dirty) {
         return;
     }
 
