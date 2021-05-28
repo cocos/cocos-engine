@@ -40,7 +40,7 @@ import { preTransforms } from '../core/math/mat4';
 
 const _characters = '0123456789. ';
 
-const _average = 1e3;
+const _average = 500;
 
 const _string2offset = {
     0: 0,
