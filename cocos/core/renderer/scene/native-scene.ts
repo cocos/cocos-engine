@@ -87,7 +87,7 @@ export declare class NativeRenderWindow {
 export declare class NativeCamera {
     public width: number;
     public height: number;
-    public scene: RenderScene;
+    public scene: NativeRenderScene | null;
     public frustum: Frustum;
     public matView: Mat4;
     public matViewProj: Mat4;
@@ -96,10 +96,10 @@ export declare class NativeCamera {
     public matProjInv: Mat4;
     public position: Vec3;
     public forward: Vec3;
-    public node: NativeNode;
+    public node: NativeNode | null;
     public clearColor: GFXColor;
     public viewPort: Rect;
-    public window: NativeRenderWindow;
+    public window: NativeRenderWindow | null;
     public visibility: number;
     public clearFlag: ClearFlags;
     public clearDepth: number;
