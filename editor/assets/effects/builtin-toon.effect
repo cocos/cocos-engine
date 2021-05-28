@@ -98,7 +98,6 @@ CCProgram toon-vs %{
   #include <cc-local-batch>
   #include <shared-ubos>
   #include <cc-shadow-map-vs>
-  #include <util-func>
 
   out vec3 v_position;
   out vec2 v_uv;
@@ -119,17 +118,7 @@ CCProgram toon-vs %{
     v_position = pos.xyz;
     v_uv = a_texCoord * tilingOffset.xy + tilingOffset.zw;
 
-    // decision lost on webGL of all android phones
-    // v_normal will be normailized in fragment shader.
-    #if __VERSION__ >= 330 
-    float det = determinant(matWorldIT);
-    float fac = 1.0/sqrt(det);
-    #else
-    float det = cc_mat_det(matWorldIT);
-    float fac = 1.0/sqrt(det);
-    #endif
-
-    v_normal = (matWorldIT * fac * vec4(In.normal, 0.0)).xyz;
+    v_normal = (matWorldIT * vec4(In.normal, 0.0)).xyz;
     #if USE_NORMAL_MAP
       v_tangent = normalize((matWorld * vec4(In.tangent.xyz, 0.0)).xyz);
       v_bitangent = cross(v_normal, v_tangent) * In.tangent.w; // note the cross order
