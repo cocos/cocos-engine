@@ -686,7 +686,7 @@ export class Pass {
     }
 
     // Only for UI
-    private _setBatchingScheme (val: BatchingSchemes) {
+    protected _setBatchingScheme (val: BatchingSchemes) {
         this._batchingScheme = val;
         if (JSB) {
             this.native.setBatchingScheme(val);
