@@ -299,6 +299,7 @@ export class Batcher2D {
         // 这里需要一个 额外的 机制，判断还能不能放得下这些 uniform？
         // 需要一个条件，这个条件是我排除用户 uniform 之后可用的 uniform 数量
         // 可配置，怎么配置？给个变量？倒是可以随意变
+        // 需要优化
         if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
@@ -315,6 +316,7 @@ export class Batcher2D {
             this._currDepthStencilStateStage = depthStencilStateStage;
             this._currLayer = comp.node.layer;
             this._currBatch = this._drawBatchPool.alloc();
+            this._currBatch.UICapacityDirty = true;
         }
 
         // 暂时不用新建 batch

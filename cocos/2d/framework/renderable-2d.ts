@@ -459,13 +459,14 @@ export class Renderable2D extends RenderableComponent {
     protected _postCanRender () {}
 
     protected _updateColor () {
-        this._updateWorldAlpha();
-        if ((this._colorDirty || this._cacheAlpha !== this.node._uiProps.opacity)
-                && this._renderFlag && this._assembler && this._assembler.updateColor) {
-            this._assembler.updateColor(this);
-            this._cacheAlpha = this.node._uiProps.opacity;
-            this._colorDirty = false;
-        }
+        // 需要重新实现
+        // this._updateWorldAlpha();
+        // if ((this._colorDirty || this._cacheAlpha !== this.node._uiProps.opacity)
+        // && this._renderFlag && this._assembler && this._assembler.updateColor) {
+        // this._assembler.updateColor(this);
+        // this._cacheAlpha = this.node._uiProps.opacity;
+        // this._colorDirty = false;
+        // }
     }
 
     protected _updateWorldAlpha () {

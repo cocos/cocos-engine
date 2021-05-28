@@ -87,6 +87,15 @@ export class DrawBatch2D {
         return this._passes;
     }
 
+    set vec4PerUI (val: number) {
+        this._vec4PerUI = val;
+        this.UICapacityDirty = true;
+    }
+
+    get vec4PerUI () {
+        return this._vec4PerUI;
+    }
+
     public bufferBatch: MeshBuffer | null = null;
     public camera: Camera | null = null;
     public renderScene: RenderScene | null = null;
@@ -104,6 +113,10 @@ export class DrawBatch2D {
     private _tempScale = new Vec3();
     private _tempPosition = new Vec3();
 
+    private _vec4PerUI = 5;
+    private _UIPerUBO = 0;
+    public UICapacityDirty = true;
+
     private _device:Device;
 
     // 这里有两个情况
@@ -120,6 +133,7 @@ export class DrawBatch2D {
         BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, UI_VIS_FLAG);
         BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, NULL_HANDLE);
         BatchPool2D.set(this._handle, BatchView2D.DESCRIPTOR_SET, NULL_HANDLE);
+        this.UICapacityDirty = true;
     }
 
     public destroy (ui: Batcher2D) {
@@ -182,7 +196,7 @@ export class DrawBatch2D {
         }
     }
 
-    private toCache = [1, 1, 0, 0];
+    // private toCache = [1, 1, 0, 0];
     private tiledCache = new Vec2(1, 1);
     // simple version
     public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material) {
@@ -194,9 +208,10 @@ export class DrawBatch2D {
         // @ts-expect-error using private members
         const { _pos: t, _rot: r, _scale: s } = renderComp.node;
         this._tempRect = renderComp.node._uiProps.uiTransformComp!;
+
         // 更新 size 和 anchor 利用 dirty
         this._tempRect.checkAndUpdateRect(s);
-        this._tempScale = this._tempRect._rectWithScale;
+        // this._tempScale = this._tempRect._rectWithScale;
 
         this._tempPosition.x = t.x + this._tempRect._anchorCache.x;
         this._tempPosition.y = t.y + this._tempRect._anchorCache.y;
@@ -204,7 +219,7 @@ export class DrawBatch2D {
 
         // 下面的逻辑几乎是针对于 sprite 的
         const sprite = renderComp as Sprite;
-        this.toCache.length = 0;
+        // this.toCache.length = 0;
         const mode = sprite.type;
 
         // 针对 tiled 的处理，可缓存 // Todo
@@ -216,17 +231,21 @@ export class DrawBatch2D {
 
         // tillingOffset 缓存到了 spriteFrame 中
         // T 为 w h O 为右上的 XY 四个数字
-        const to = sprite.spriteFrame?.tillingOffset;
+        const to = sprite.spriteFrame!.tillingOffset;
         const progress = 0; // 给 progress 预留
         const c = renderComp.color;
 
         // 每个对象占用的 vec4 数量
-        const vec4PerUI = 5;
+        // const vec4PerUI = 5; // 替换为了 this._vec4PerUI
         // 每个 UBO 能够容纳的 UI 数量
-        const UIPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / vec4PerUI);
+        // const UIPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / vec4PerUI);
+        if (this.UICapacityDirty) {
+            this._UIPerUBO = Math.floor((this._device.capabilities.maxVertexUniformVectors - material.passes[0].shaderInfo.builtins.statistics.CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS) / this._vec4PerUI);
+            this.UICapacityDirty = false;
+        }
         // const UIPerUBO = 16; // 调试用 16
         // 上传数据
-        const localBuffer = UBOManager.upload(this._tempPosition, r, this._tempScale, to!, c, mode, UIPerUBO, vec4PerUI, this.tiledCache, progress);
+        const localBuffer = UBOManager.upload(this._tempPosition, r, this._tempRect._rectWithScale, to, c, mode, this._UIPerUBO, this._vec4PerUI, this.tiledCache, progress);
 
         // 能同 drawCall 的条件： UBOIndex 相同，ubohash 相同
         let dc = this._drawcalls[this._dcIndex];
