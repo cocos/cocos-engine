@@ -680,7 +680,7 @@ export class UITransform extends Component {
     }
 
     private setRectDirty (transformBit: TransformBit) {
-        if (transformBit | TransformBit.SCALE || transformBit | TransformBit.ROTATION) {
+        if (transformBit & TransformBit.SCALE || transformBit & TransformBit.ROTATION) {
             this._rectDirty = true;
             this.node.walk((node) => {
                 const uiProps = node._uiProps;
