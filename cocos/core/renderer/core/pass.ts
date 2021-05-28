@@ -487,7 +487,7 @@ export class Pass {
         const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
         if (!shader) { console.warn(`create shader ${this._programName} failed`); return false; }
         this._shader = shader;
-        this._setNativePipelineLayout(programLib.getTemplateInfo(this._programName).pipelineLayout);
+        this._setPipelineLayout(programLib.getTemplateInfo(this._programName).pipelineLayout);
         this._setHash(Pass.getPassHash(this));
         return true;
     }
@@ -712,7 +712,8 @@ export class Pass {
         }
     }
 
-    private _setNativePipelineLayout (pipelineLayout: PipelineLayout | null) {
+    private _setPipelineLayout (pipelineLayout: PipelineLayout) {
+        this._pipelineLayout = pipelineLayout;
         if (JSB) {
             this.native.setPipelineLayout(pipelineLayout);
         }
@@ -744,7 +745,7 @@ export class Pass {
 
         this._shader = target._shader;
 
-        this._setNativePipelineLayout(programLib.getTemplateInfo(this._programName).pipelineLayout);
+        this._setPipelineLayout(programLib.getTemplateInfo(this._programName).pipelineLayout);
         this._setHash(this._hash ^ hashFactor);
     }
 

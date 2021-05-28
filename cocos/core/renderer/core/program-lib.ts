@@ -52,7 +52,7 @@ export interface ITemplateInfo {
     blockSizes: number[];
     gfxStages: ShaderStage[];
     setLayouts: DescriptorSetLayout[];
-    pipelineLayout: PipelineLayout | null;
+    pipelineLayout: PipelineLayout;
     handleMap: Record<string, number>;
     bindings: DescriptorSetLayoutBinding[];
     samplerStartBinding: number;
@@ -267,7 +267,6 @@ class ProgramLib {
             tmplInfo.gfxStages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
             tmplInfo.gfxStages.push(new ShaderStage(ShaderStageFlagBit.FRAGMENT, ''));
             tmplInfo.handleMap = genHandles(tmpl);
-            tmplInfo.pipelineLayout = null;
             tmplInfo.setLayouts = [];
 
             this._templateInfos[tmpl.hash] = tmplInfo;
