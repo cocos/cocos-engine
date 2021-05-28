@@ -473,6 +473,12 @@ cc.Follow = cc.Class({
         this._boundarySet = value;
     },
 
+    /*
+     * alter behavior - turn on/off boundary.
+     *
+     * @param {Boolean} value
+     * @deprecated since v2.4.6 , cc.Follow.setBoudarySet is deprecated, please use cc.Follow.setBoundarySet.
+     */
     setBoudarySet:function (value) {
         this.setBoundarySet(value);
     },
