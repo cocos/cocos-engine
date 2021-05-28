@@ -24,11 +24,11 @@
  */
 
 import { JSB } from 'internal:constants';
-import { notStrictEqual } from 'assert';
 import { Color, Vec3 } from '../../math';
 import { AmbientPool, NULL_HANDLE, AmbientView, AmbientHandle } from '../core/memory-pools';
 import { legacyCC } from '../../global-exports';
 import { AmbientInfo } from '../../scene-graph/scene-globals';
+import { NativeAmbient } from './native-scene';
 
 export class Ambient {
     public static SUN_ILLUM = 65000.0;
@@ -111,10 +111,10 @@ export class Ambient {
     protected _handle: AmbientHandle = NULL_HANDLE;
     protected _enabled = false;
     protected _skyIllum = 0;
-    protected _nativeObj: any;
+    protected declare _nativeObj: NativeAmbient | null;
 
-    get native (): any {
-        return this._nativeObj;
+    get native (): NativeAmbient {
+        return this._nativeObj!;
     }
 
     get handle () : AmbientHandle {
@@ -124,7 +124,7 @@ export class Ambient {
     constructor () {
         if (JSB) {
             this._handle = AmbientPool.alloc();
-            this._nativeObj = new ns.Ambient();
+            this._nativeObj = new NativeAmbient();
         }
     }
 

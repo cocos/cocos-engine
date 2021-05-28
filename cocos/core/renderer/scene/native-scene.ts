@@ -1,8 +1,9 @@
 import { RenderScene } from '.';
 import { BatchView2D } from '..';
+import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { AABB, Frustum } from '../../geometry';
 import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader } from '../../gfx';
-import { Color, Mat4, Rect } from '../../math';
+import { Color, Mat4, Rect, Vec2 } from '../../math';
 import { LightType } from './light';
 import { SubModel } from './submodel';
 
@@ -107,11 +108,29 @@ export declare class NativeCamera {
 }
 
 export declare class NativePass {
-
+    public update(): void;
+    public setPriority(val: number): void;
+    public setStage(val: number): void;
+    public setPhase(val: number): void;
+    public setPrimitive(val: number): void;
+    public setRasterizerState(val): void;
+    public setDepthStencilState(val): void;
+    public setBlendState(val): void;
+    public setDescriptorSet(val): void;
+    public setBatchingScheme(val: number): void;
+    public setDynamicState(val: number): void;
+    public setHash(val: number): void;
+    public setPipelineLayout(val): void;
 }
 
 export declare class NativeSubModel {
-
+    public setDescriptorSet(val: DescriptorSet | null): void;
+    public setInputAssembler(val: InputAssembler | null): void;
+    public setRenderingSubMesh(val: IFlatBuffer[]): void;
+    public setPlanarShader(val: Shader): void;
+    public setPlanarInstanceShader(val: Shader): void;
+    public setPasses(val: NativePass[]): void;
+    public setShaders(val: Shader[]): void;
 }
 export declare class NativeDrawBatch2D {
     public visFlags: BatchView2D;
@@ -135,4 +154,34 @@ export declare class NativeRenderScene {
     public addBatch (batch: NativeDrawBatch2D): void;
     public removeBatch (index: number): void;
     public removeBatches (): void;
+}
+
+export declare class NativeAmbient {
+    public enabled: boolean;
+    public skyColor: Color;
+    public skyIllum: number;
+    public groundAlbedo: Color;
+}
+
+export declare class NativeShadow {
+    public normal: Vec3;
+    public distance: number;
+    public color: Color;
+    public nearValue: number;
+    public farValue: number;
+    public aspect: number;
+    public orthoSize: number;
+    public size: Vec2;
+    public pcfType: number;
+    public shadowMapDirty: boolean;
+    public bias: number;
+    public packing: boolean;
+    public linear: boolean;
+    public selfShadow: boolean;
+    public normalBias: number;
+    public autoAdapt: boolean;
+    public planarPass: NativePass;
+    public instancePass: NativePass;
+    public enabled: boolean;
+    public shadowType: number;
 }

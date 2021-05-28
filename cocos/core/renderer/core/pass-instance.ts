@@ -126,7 +126,7 @@ export class PassInstance extends Pass {
     }
 
     protected _onStateChange () {
-        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this, this._hShaderDefault));
+        this._setHash(Pass.getPassHash(this, this._hShaderDefault));
         this._owner.onPassStateChange(this._dontNotify);
     }
 }

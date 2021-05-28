@@ -33,6 +33,7 @@ import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from '../../pipeline';
 import { errorID } from '../../platform';
 import { Shadows } from './shadows';
+import { NativePass, NativeSubModel } from './native-scene';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
@@ -46,7 +47,7 @@ export class SubModel {
      protected _inputAssembler: InputAssembler | null = null;
      protected _descriptorSet: DescriptorSet | null = null;
      protected _passCount = 0;
-     protected _nativeObj: any;
+     protected declare _nativeObj: NativeSubModel | null;
 
      private _destroyDescriptorSet () {
         this._descriptorSet!.destroy();
@@ -166,17 +167,18 @@ export class SubModel {
          this._subMesh = subMesh;
          if (JSB) {
              SubModelPool.set(this._handle, SubModelView.SUB_MESH, subMesh.handle);
+             this.native.setRenderingSubMesh(subMesh.flatBuffers);
          }
      }
 
-     get native (): any {
-         return this._nativeObj;
+     get native (): NativeSubModel {
+         return this._nativeObj!;
      }
 
      private _init () {
          this._handle = SubModelPool.alloc();
          if (JSB) {
-             this._nativeObj = new ns.SubModel();
+             this._nativeObj = new NativeSubModel();
          }
      }
 
@@ -307,7 +309,7 @@ export class SubModel {
          }
 
          if (JSB) {
-             const passesNative = passes.map((_pass) => _pass.native);
+             const passesNative = passes.map((_pass: Pass): NativePass => _pass.native);
              this.native.setPasses(passesNative);
              this.native.setShaders(nativeShaders);
          }
