@@ -27,10 +27,22 @@
 #pragma once
 
 #include <unordered_map>
+#include <vector>
 
 #include "audio/oalsoft/AudioCache.h"
 #include "audio/oalsoft/AudioPlayer.h"
 #include "base/Ref.h"
+
+#ifdef OPENAL_PLAIN_INCLUDES
+    #include "alc.h"
+    #include "alext.h"
+#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
+    #include "OpenalSoft/alc.h"
+    #include "OpenalSoft/alext.h"
+#elif CC_PLATFORM == CC_PLATFORM_OHOS
+    #include "AL/alc.h"
+    #include "AL/alext.h"
+#endif
 
 namespace cc {
 
@@ -62,6 +74,9 @@ public:
     AudioCache *preload(const std::string &filePath, const std::function<void(bool)> &callback);
     void        update(float dt);
 
+    void onResume();
+    void onPause();
+
 private:
     bool checkAudioIdValid(int audioID);
     void play2dImpl(AudioCache *cache, int audioID);
@@ -70,17 +85,14 @@ private:
 
     //source,used
     std::unordered_map<ALuint, bool> _alSourceUsed;
-
     //filePath,bufferInfo
     std::unordered_map<std::string, AudioCache> _audioCaches;
-
     //audioID,AudioInfo
     std::unordered_map<int, AudioPlayer *> _audioPlayers;
     std::mutex                             _threadMutex;
-
-    bool _lazyInitLoop;
-
-    int                      _currentAudioID;
-    std::weak_ptr<Scheduler> _scheduler;
+    bool                                   _lazyInitLoop;
+    int                                    _currentAudioID;
+    std::weak_ptr<Scheduler>               _scheduler;
+    std::vector<int>                       _pausedAudioList;
 };
 } // namespace cc

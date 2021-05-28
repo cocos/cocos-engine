@@ -27,16 +27,6 @@
 
 #include "audio/oalsoft/AudioEngine-soft.h"
 
-#ifdef OPENAL_PLAIN_INCLUDES
-    #include "alc.h"
-    #include "alext.h"
-#elif CC_PLATFORM == CC_PLATFORM_WINDOWS
-    #include "OpenalSoft/alc.h"
-    #include "OpenalSoft/alext.h"
-#elif CC_PLATFORM == CC_PLATFORM_OHOS
-    #include "AL/alc.h"
-    #include "AL/alext.h"
-#endif
 #include "audio/include/AudioEngine.h"
 #include "audio/oalsoft/AudioDecoderManager.h"
 #include "base/Scheduler.h"
@@ -92,14 +82,14 @@ static void _winLog(const char *format, va_list args) {
     delete[] buf;
 }
 
-#ifndef audioLog
+    #ifndef audioLog
 void audioLog(const char *format, ...) {
     va_list args;
     va_start(args, format);
     _winLog(format, args);
     va_end(args);
 }
-#endif
+    #endif
 
 #else
 
@@ -191,7 +181,7 @@ AudioCache *AudioEngineImpl::preload(const std::string &filePath, const std::fun
         audioCache = &it->second;
     }
 
-    if (audioCache && callback) {
+    if (audioCache != nullptr && callback) {
         audioCache->addLoadCallback(callback);
     }
     return audioCache;
@@ -526,4 +516,13 @@ void AudioEngineImpl::uncacheAll() {
 
 bool AudioEngineImpl::checkAudioIdValid(int audioID) {
     return _audioPlayers.find(audioID) != _audioPlayers.end();
+}
+
+void AudioEngineImpl::onPause() {
+    _pausedAudioList.clear();
+    AudioEngine::pauseAll(&_pausedAudioList);
+}
+
+void AudioEngineImpl::onResume() {
+    AudioEngine::resumeAll(&_pausedAudioList);
 }

@@ -314,6 +314,9 @@ protected:
     static void addTask(const std::function<void()> &task);
     static void remove(int audioID);
 
+    static void pauseAll(std::vector<int> *pausedAudioIDs);
+    static void resumeAll(std::vector<int> *pausedAudioIDs);
+
     struct ProfileHelper {
         AudioProfile profile;
 

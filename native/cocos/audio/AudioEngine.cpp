@@ -290,13 +290,7 @@ void AudioEngine::pause(int audioID) {
 }
 
 void AudioEngine::pauseAll() {
-    auto itEnd = sAudioIDInfoMap.end();
-    for (auto it = sAudioIDInfoMap.begin(); it != itEnd; ++it) {
-        if (it->second.state == AudioState::PLAYING) {
-            sAudioEngineImpl->pause(it->first);
-            it->second.state = AudioState::PAUSED;
-        }
-    }
+    pauseAll(nullptr);
 }
 
 void AudioEngine::resume(int audioID) {
@@ -308,11 +302,39 @@ void AudioEngine::resume(int audioID) {
 }
 
 void AudioEngine::resumeAll() {
+    resumeAll(nullptr);
+}
+
+void AudioEngine::pauseAll(std::vector<int> *pausedAudioIDs) {
     auto itEnd = sAudioIDInfoMap.end();
     for (auto it = sAudioIDInfoMap.begin(); it != itEnd; ++it) {
-        if (it->second.state == AudioState::PAUSED) {
-            sAudioEngineImpl->resume(it->first);
-            it->second.state = AudioState::PLAYING;
+        if (it->second.state == AudioState::PLAYING) {
+            sAudioEngineImpl->pause(it->first);
+            it->second.state = AudioState::PAUSED;
+            if (pausedAudioIDs) pausedAudioIDs->push_back(it->first);
+        }
+    }
+}
+
+void AudioEngine::resumeAll(std::vector<int> *pausedAudioIDs) {
+    auto itEnd = sAudioIDInfoMap.end();
+    if (pausedAudioIDs) {
+        for (auto id : *pausedAudioIDs) {
+            if (sAudioIDInfoMap.find(id) == sAudioIDInfoMap.end()) {
+                continue;
+            }
+            auto &audio = sAudioIDInfoMap[id];
+            if (audio.state == AudioState::PAUSED) {
+                sAudioEngineImpl->resume(id);
+                audio.state = AudioState::PLAYING;
+            }
+        }
+    } else {
+        for (auto it = sAudioIDInfoMap.begin(); it != itEnd; ++it) {
+            if (it->second.state == AudioState::PAUSED) {
+                sAudioEngineImpl->resume(it->first);
+                it->second.state = AudioState::PLAYING;
+            }
         }
     }
 }
@@ -326,7 +348,7 @@ void AudioEngine::onEnterBackground(const CustomEvent & /*event*/) {
         }
     }
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
     if (sAudioEngineImpl) {
         sAudioEngineImpl->onPause();
     }
@@ -340,7 +362,7 @@ void AudioEngine::onEnterForeground(const CustomEvent & /*event*/) {
     }
     sBreakAudioID.clear();
 
-#if CC_PLATFORM == CC_PLATFORM_ANDROID
+#if CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS
     if (sAudioEngineImpl) {
         sAudioEngineImpl->onResume();
     }
