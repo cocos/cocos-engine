@@ -688,7 +688,7 @@ if (CC_DEBUG) {
     });
 
     // dragon bones
-    if (typeof dragonBones !== 'undefined') {
+    if (typeof dragonBones === 'object' && typeof dragonBones.CCFactory !== 'undefined') {
         js.get(dragonBones.CCFactory, 'getFactory', function () {
             cc.errorID(1400, 'dragonBones.CCFactory.getFactory', 'dragonBones.CCFactory.getInstance');
             return dragonBones.CCFactory.getInstance;
