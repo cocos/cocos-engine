@@ -136,8 +136,6 @@ export class DrawBatch2D {
             for (let i = 0; i < passes.length; i++) {
                 if (!this._passes[i]) {
                     this._passes[i] = new Pass(legacyCC.director.root);
-                    // @ts-expect-error hack for UI use pass object
-                    this._passes[i]._handle = PassPool.alloc();
 
                     if (JSB) {
                         // @ts-expect-error hack for UI use pass object

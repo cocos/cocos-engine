@@ -774,6 +774,7 @@ export class Pass {
     get descriptorSet (): DescriptorSet { return this._descriptorSet; }
     get hash (): number { return this._hash; }
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
+    get pipelineLayout (): PipelineLayout { return this._pipelineLayout; }
 }
 
 function serializeBlendState (bs: BlendState): string {

@@ -204,5 +204,5 @@ export declare class NativePipelineSharedSceneData {
     public deferredLightPassShader: Shader | null;
     public deferredLightPass: NativePass;
     public deferredPostPassShader: Shader | null;
-    public deferredPostPass: Pass;
+    public deferredPostPass: NativePass;
 }

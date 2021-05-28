@@ -33,7 +33,7 @@ import { Camera } from '../../renderer/scene';
 import { localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
-    DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlags, ClearFlagBit } from '../../gfx';
+    DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
 import { LightingFlow } from './lighting-flow';

@@ -126,6 +126,14 @@ export class SubModel {
          return this._patches;
      }
 
+     get planarInstanceShader (): Shader | null {
+         return this._planarInstanceShader;
+     }
+
+     get planarShader (): Shader | null {
+         return this._planarShader;
+     }
+
      private _setInputAssembler (iaInfo: InputAssemblerInfo) {
          this._inputAssembler = this._device!.createInputAssembler(iaInfo);
          if (JSB) {
