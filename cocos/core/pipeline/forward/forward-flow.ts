@@ -67,7 +67,6 @@ export class ForwardFlow extends RenderFlow {
     }
 
     public render (camera: Camera) {
-        debugger;
         super.render(camera);
     }
 
