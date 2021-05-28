@@ -34,7 +34,6 @@ import { samplerLib } from '../core/sampler-lib';
 import { Model } from './model';
 import { legacyCC } from '../../global-exports';
 import { DescriptorSet } from '../../gfx';
-import { SkyboxPool, NULL_HANDLE, SkyboxView, SkyboxHandle } from '../core/memory-pools';
 import { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
 import { NaitveSkybox } from './native-scene';
@@ -114,7 +113,6 @@ export class Skybox {
     protected _globalDescriptorSet: DescriptorSet | null = null;
     protected _model: Model | null = null;
     protected _default: TextureCube | null = null;
-    protected _handle: SkyboxHandle = NULL_HANDLE;
     protected _enabled = false;
     protected _useIBL = false;
     protected _isRGBE = false;
@@ -124,13 +122,8 @@ export class Skybox {
         return this._nativeObj!;
     }
 
-    get handle () : SkyboxHandle {
-        return this._handle;
-    }
-
     constructor () {
         if (JSB) {
-            this._handle = SkyboxPool.alloc();
             this._nativeObj = new NaitveSkybox();
         }
     }
@@ -138,7 +131,6 @@ export class Skybox {
     private _setEnabled (val) {
         this._enabled = val;
         if (JSB) {
-            SkyboxPool.set(this._handle, SkyboxView.ENABLE, val ? 1 : 0);
             this._nativeObj!.enabled = val;
         }
     }
@@ -146,7 +138,6 @@ export class Skybox {
     private _setUseIBL (val) {
         this._useIBL = val;
         if (JSB) {
-            SkyboxPool.set(this._handle, SkyboxView.USE_IBL, val ? 1 : 0);
             this._nativeObj!.useIBL = val;
         }
     }
@@ -154,7 +145,6 @@ export class Skybox {
     private _setIsRGBE (val) {
         this._isRGBE = val;
         if (JSB) {
-            SkyboxPool.set(this._handle, SkyboxView.IS_RGBE, val ? 1 : 0);
             this._nativeObj!.isRGBE = val;
         }
     }
@@ -178,7 +168,6 @@ export class Skybox {
             this._model._initLocalDescriptors = () => {};
         }
         if (JSB) {
-            SkyboxPool.set(this._handle, SkyboxView.MODEL, this._model.handle);
             this._nativeObj!.model = this._model.native;
         }
         if (!this._envmap) {
@@ -220,9 +209,7 @@ export class Skybox {
     }
 
     protected _destroy () {
-        if (JSB && this._handle) {
-            SkyboxPool.free(this._handle);
-            this._handle = NULL_HANDLE;
+        if (JSB) {
             this._nativeObj = null;
         }
     }

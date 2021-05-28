@@ -27,7 +27,6 @@ import { JSB } from 'internal:constants';
 import { Enum } from '../../value-types';
 import { Color } from '../../math';
 import { legacyCC } from '../../global-exports';
-import { FogPool, NULL_HANDLE, FogView, FogHandle } from '../core/memory-pools';
 import { FogInfo } from '../../scene-graph/scene-globals';
 import { NativeFog } from './native-scene';
 
@@ -99,7 +98,6 @@ export class Fog {
         this._fogColor.set(val);
         Color.toArray(this._colorArray, this._fogColor);
         if (JSB) {
-            FogPool.setVec4(this._handle, FogView.COLOR, this._fogColor);
             this._nativeObj!.color = this._fogColor;
         }
     }
@@ -153,7 +151,6 @@ export class Fog {
     set fogStart (val: number) {
         this._fogStart = val;
         if (JSB) {
-            FogPool.set(this._handle, FogView.START, val);
             this._nativeObj!.start = val;
         }
     }
@@ -169,7 +166,6 @@ export class Fog {
     set fogEnd (val: number) {
         this._fogEnd = val;
         if (JSB) {
-            FogPool.set(this._handle, FogView.END, val);
             this._nativeObj!.end = val;
         }
     }
@@ -185,7 +181,6 @@ export class Fog {
     set fogAtten (val: number) {
         this._fogAtten = val;
         if (JSB) {
-            FogPool.set(this._handle, FogView.ATTEN, val);
             this._nativeObj!.atten = val;
         }
     }
@@ -201,7 +196,6 @@ export class Fog {
     set fogTop (val: number) {
         this._fogTop = val;
         if (JSB) {
-            FogPool.set(this._handle, FogView.TOP, val);
             this._nativeObj!.top = val;
         }
     }
@@ -217,7 +211,6 @@ export class Fog {
     set fogRange (val: number) {
         this._fogRange = val;
         if (JSB) {
-            FogPool.set(this._handle, FogView.RANGE, val);
             this._nativeObj!.range = val;
         }
     }
@@ -226,7 +219,6 @@ export class Fog {
     }
     protected _fogColor = new Color('#C8C8C8');
     protected _colorArray: Float32Array = new Float32Array([0.2, 0.2, 0.2, 1.0]);
-    protected _handle: FogHandle = NULL_HANDLE;
     protected _enabled = false;
     protected _type = 0;
     protected _fogDensity = 0.3;
@@ -241,13 +233,8 @@ export class Fog {
         return this._nativeObj!;
     }
 
-    get handle () : FogHandle {
-        return this._handle;
-    }
-
     constructor () {
         if (JSB) {
-            this._handle = FogPool.alloc();
             this._nativeObj = new NativeFog();
         }
     }
@@ -255,21 +242,15 @@ export class Fog {
     protected _setType (val) {
         this._type = this.enabled ? val : FOG_TYPE_NONE;
         if (JSB) {
-            FogPool.set(this._handle, FogView.TYPE, this._type);
             this._nativeObj!.type = this._type;
         }
     }
 
     protected _setEnable (val) {
-        if (JSB) {
-            FogPool.set(this._handle, FogView.ENABLE, val ? 1 : 0);
-            this._nativeObj!.enabled = val;
-            if (!val) {
-                FogPool.set(this._handle, FogView.TYPE, FOG_TYPE_NONE);
-                this._nativeObj!.type = FOG_TYPE_NONE;
-            }
-        }
         this._enabled = val;
+        if (JSB) {
+            this._nativeObj!.enabled = val;
+        }
     }
 
     public initialize (fogInfo : FogInfo) {
@@ -298,9 +279,7 @@ export class Fog {
     }
 
     protected _destroy () {
-        if (JSB && this._handle) {
-            FogPool.free(this._handle);
-            this._handle = NULL_HANDLE;
+        if (JSB) {
             this._nativeObj = null;
         }
     }

@@ -17,3 +17,5 @@ export const NativeRenderScene = ns.RenderScene;
 export const NativeDrawBatch2D = ns.DrawBatch2D;
 export const NativePass = ns.Pass;
 export const NativeSubModel = ns.SubModel;
+export const NativeRoot = ns.Root;
+export const NativePipelineSharedSceneData = ns.PipelineSharedSceneData();

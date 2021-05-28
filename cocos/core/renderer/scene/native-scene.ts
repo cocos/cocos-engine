@@ -1,9 +1,10 @@
 import { RenderScene } from '.';
-import { BatchView2D } from '..';
+import { BatchView2D, Pass } from '..';
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { AABB, Frustum } from '../../geometry';
 import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader } from '../../gfx';
 import { Color, Mat4, Rect, Vec2 } from '../../math';
+import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
 import { SubModel } from './submodel';
 
@@ -20,7 +21,7 @@ export declare class NativeModel {
     public setCastShadow (val: boolean): void;
     public setLocalBuffer (buf: Buffer | null): void;
     public setWolrdBounds (val: AABB | null): void;
-    public addSubModel (val: SubModel): void;
+    public addSubModel (val: NativeSubModel): void;
     public setInstmatWorldIdx (idx: number): void;
     public setInstancedBuffer (buffer: ArrayBuffer): void;
     public setInstanceAttributes (attrs: Attribute[]): void;
@@ -127,15 +128,16 @@ export declare class NativeSubModel {
     public setDescriptorSet(val: DescriptorSet | null): void;
     public setInputAssembler(val: InputAssembler | null): void;
     public setRenderingSubMesh(val: IFlatBuffer[]): void;
-    public setPlanarShader(val: Shader): void;
-    public setPlanarInstanceShader(val: Shader): void;
+    public setPlanarShader(val: Shader | null): void;
+    public setPlanarInstanceShader(val: Shader | null): void;
     public setPasses(val: NativePass[]): void;
-    public setShaders(val: Shader[]): void;
+    public setShaders(val: (Shader | null)[]): void;
+    public setPriority(val: RenderPriority): void;
 }
 export declare class NativeDrawBatch2D {
     public visFlags: BatchView2D;
-    public inputAssembler: InputAssembler;
-    public descriptorSet: DescriptorSet;
+    public inputAssembler: InputAssembler | null;
+    public descriptorSet: DescriptorSet | null;
     public passes: NativePass[];
     public shaders: Shader[];
 }
@@ -184,4 +186,23 @@ export declare class NativeShadow {
     public instancePass: NativePass;
     public enabled: boolean;
     public shadowType: number;
+}
+
+export declare class NativeRoot {
+    public cumulativeTime: number;
+    public frameTime: number;
+}
+
+export declare class NativePipelineSharedSceneData {
+    public isHDR: boolean;
+    public shadingScale: number;
+    public fpScale: number;
+    public fog: NativeFog;
+    public ambient: NativeAmbient;
+    public skybox: NaitveSkybox;
+    public shadow: NativeShadow;
+    public deferredLightPassShader: Shader | null;
+    public deferredLightPass: NativePass;
+    public deferredPostPassShader: Shader | null;
+    public deferredPostPass: Pass;
 }
