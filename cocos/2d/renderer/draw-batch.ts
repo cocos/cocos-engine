@@ -139,7 +139,7 @@ export class DrawBatch2D {
 
                     if (JSB) {
                         // @ts-expect-error hack for UI use pass object
-                        this._passes[i]._nativeObj = new ns.Pass();
+                        this._passes[i]._nativeObj = new NativePass();
                     }
                 }
                 const mtlPass = passes[i];
@@ -161,7 +161,7 @@ export class DrawBatch2D {
                 const passes = this._passes;
                 for (let i = 0; i < passes.length; i++) {
                     nativePasses.push(passes[i].native);
-                    nativeShaders.push(passes[i].getShaderVariant(null)!);
+                    nativeShaders.push(passes[i].getShaderVariant()!);
                 }
 
                 this._nativeObj!.passes = nativePasses;

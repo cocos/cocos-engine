@@ -746,7 +746,7 @@ export class Pass {
         this._shader = target._shader;
 
         this._setPipelineLayout(programLib.getTemplateInfo(this._programName).pipelineLayout);
-        this._setHash(this._hash ^ hashFactor);
+        this._setHash(target._hash ^ hashFactor);
     }
 
     // infos

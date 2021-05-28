@@ -493,9 +493,9 @@ export class Batcher2D {
      */
     public autoMergeBatches (renderComp?: Renderable2D) {
         const buffer = this.currBufferBatch;
-        const hIA = buffer?.recordBatch();
+        const ia = buffer?.recordBatch();
         const mat = this._currMaterial;
-        if (!hIA || !mat || !buffer) {
+        if (!ia || !mat || !buffer) {
             return;
         }
         let blendState;
@@ -519,7 +519,7 @@ export class Batcher2D {
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
-        curDrawBatch.inputAssembler = hIA;
+        curDrawBatch.inputAssembler = ia;
         curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
