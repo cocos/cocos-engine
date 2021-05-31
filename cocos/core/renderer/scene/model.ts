@@ -29,7 +29,6 @@ import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { AABB } from '../../geometry';
-import { Pool } from '../../memop';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
@@ -47,8 +46,6 @@ import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../.
 import { NativeModel } from './native-scene';
 
 const m4_1 = new Mat4();
-
-const _subModelPool = new Pool(() => new SubModel(), 32);
 
 const shadowMapPatches: IMacroPatch[] = [
     { name: 'CC_RECEIVE_SHADOW', value: true },
@@ -256,9 +253,6 @@ export class Model {
 
     private _destroySubmodel (subModel: SubModel) {
         subModel.destroy();
-        if (JSB) {
-            _subModelPool.free(subModel);
-        }
     }
 
     private _destroy () {
@@ -390,9 +384,6 @@ export class Model {
     }
 
     private _createSubModel () {
-        if (JSB) {
-            return _subModelPool.alloc();
-        }
         return new SubModel();
     }
 

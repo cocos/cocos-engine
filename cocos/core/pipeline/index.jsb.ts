@@ -43,7 +43,11 @@ let instancedBufferProto = nr.InstancedBuffer;
 let oldGetFunc = instancedBufferProto.get;
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
-  
+nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader, renderPass, ia) {
+    //TODO(minggo): do not pass pass.handle
+    return getOrCreatePipelineState.call(device, pass.native, shader, renderPass, ia);
+}
+
 export function createDefaultPipeline () {
     const pipeline = new ForwardPipeline();
     pipeline.init();

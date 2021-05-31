@@ -40,7 +40,6 @@ import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
-import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { intersect, Sphere } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
@@ -278,10 +277,10 @@ export class LightingStage extends RenderStage {
         const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
         if (builinDeferred) {
             pass = builinDeferred.passes[0];
-            shader = ShaderPool.get(pass.getShaderVariant());
+            shader = pass.getShaderVariant()!;
         } else {
             pass = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX];
-            shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
+            shader = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant()!;
         }
 
         const inputAssembler = pipeline.quadIAOffscreen;
