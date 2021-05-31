@@ -34,8 +34,8 @@ const Overflow = Label.Overflow;
 const deleteFromDynamicAtlas = require('../utils').deleteFromDynamicAtlas;
 const getFontFamily = require('../utils').getFontFamily;
 
-const MAX_SIZE = 2048;
 const _invisibleAlpha = (1 / 255).toFixed(3);
+const MAX_SIZE = 2048;
 
 let _context = null;
 let _canvas = null;
@@ -347,8 +347,12 @@ export default class TTFAssembler extends Assembler2D {
     }
 
     _updateLabelDimensions () {
-        _canvasSize.width = Math.min(_canvasSize.width, MAX_SIZE);
-        _canvasSize.height = Math.min(_canvasSize.height, MAX_SIZE);
+        let maxTextureSize = cc.renderer.device.caps.maxTextureSize || MAX_SIZE;
+        if (_canvasSize.width > maxTextureSize || _canvasSize.height > maxTextureSize) {
+            cc.warn("The maximum texture size supported by the device is " + maxTextureSize);
+        }
+        _canvasSize.width = Math.min(_canvasSize.width, maxTextureSize);
+        _canvasSize.height = Math.min(_canvasSize.height, maxTextureSize);
 
         let recreate = false;
         if (_canvas.width !== _canvasSize.width) {
