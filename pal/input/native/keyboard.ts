@@ -2,6 +2,29 @@ import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
 import { system } from 'pal/system';
 import { KeyboardEvent } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
+import { Keyboard } from '../../../cocos/core/platform/event-manager/keyboard-enum';
+
+const keyCode2Keyboard: Record<number, Keyboard> = {
+    12: Keyboard.NUM_LOCK,
+    10048: Keyboard.NUM_0,
+    10049: Keyboard.NUM_1,
+    10050: Keyboard.NUM_2,
+    10051: Keyboard.NUM_3,
+    10052: Keyboard.NUM_4,
+    10053: Keyboard.NUM_5,
+    10054: Keyboard.NUM_6,
+    10055: Keyboard.NUM_7,
+    10056: Keyboard.NUM_8,
+    10057: Keyboard.NUM_9,
+    20013: Keyboard.NUM_ENTER,
+    20016: Keyboard.SHIFT_RIGHT,
+    20017: Keyboard.CTRL_RIGHT,
+    20018: Keyboard.ALT_RIGHT,
+};
+
+function getKeyboardEnum (keyCode: number): Keyboard {
+    return keyCode2Keyboard[keyCode] || keyCode;
+}
 
 export class KeyboardInputSource {
     public support: boolean;
@@ -17,32 +40,33 @@ export class KeyboardInputSource {
 
     private _registerEvent () {
         jsb.onKeyDown = (event: jsb.KeyboardEvent) => {
-            const keyCode = event.keyCode;
-            if (!this._keyStateMap[keyCode]) {
+            const keyboard = getKeyboardEnum(event.keyCode);
+            if (!this._keyStateMap[keyboard]) {
                 const keyDownInputEvent = this._getInputEvent(event, KeyboardEvent.KEY_DOWN);
                 this._eventTarget.emit(KeyboardEvent.KEY_DOWN, keyDownInputEvent);
             }
             // @ts-expect-error Compability for key pressing callback
             const keyPressingInputEvent = this._getInputEvent(event, 'keydown');
             this._eventTarget.emit('keydown', keyPressingInputEvent);
-            this._keyStateMap[keyCode] = true;
+            this._keyStateMap[keyboard] = true;
         };
         jsb.onKeyUp =  (event: jsb.KeyboardEvent) => {
-            const keyCode = event.keyCode;
+            const keyboard = getKeyboardEnum(event.keyCode);
             const inputEvent: KeyboardInputEvent = {
                 type: KeyboardEvent.KEY_UP,
-                code: keyCode,
+                code: keyboard,
                 timestamp: performance.now(),
             };
-            this._keyStateMap[keyCode] = false;
+            this._keyStateMap[keyboard] = false;
             this._eventTarget.emit(KeyboardEvent.KEY_UP, inputEvent);
         };
     }
 
     private _getInputEvent (event: jsb.KeyboardEvent, eventType: KeyboardEvent) {
+        const keyboard = getKeyboardEnum(event.keyCode);
         const inputEvent: KeyboardInputEvent = {
             type: eventType,
-            code: event.keyCode,  // TODO: keyCode is deprecated on Web standard
+            code: keyboard,
             timestamp: performance.now(),
         };
         return inputEvent;
