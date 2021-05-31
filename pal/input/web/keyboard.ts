@@ -77,7 +77,7 @@ const code2Keyboard: Record<string, Keyboard> = {
     NumpadAdd: Keyboard.NUM_PLUS,
     NumpadSubtract: Keyboard.NUM_MINUS,
     NumpadDecimal: Keyboard.NUM_DEL,
-    NumpadDivide: Keyboard.NUM_SLASH,
+    NumpadDivide: Keyboard.NUM_DIVIDE,
     NumpadEnter: Keyboard.NUM_ENTER,
     F1: Keyboard.F1,
     F2: Keyboard.F2,

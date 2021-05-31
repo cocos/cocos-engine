@@ -426,10 +426,10 @@ export enum Keyboard {
     NUM_DEL = 110,
 
     /**
-    * @en The slash key on numeric keypad '/'
-    * @zh 数字键盘上的正斜杠键 /
+    * @en The numeric keypad '/'
+    * @zh 数字键盘 /
     */
-    NUM_SLASH = 111,
+    NUM_DIVIDE = 111,
 
     /**
     * @en The F1 function key
