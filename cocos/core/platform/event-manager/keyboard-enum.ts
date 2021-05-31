@@ -93,25 +93,25 @@ export enum Keyboard {
     * @en The left key
     * @zh 向左箭头键
     */
-    LEFT = 37,
+    ARROW_LEFT = 37,
 
     /**
     * @en The up key
     * @zh 向上箭头键
     */
-    UP = 38,
+    ARROW_UP = 38,
 
     /**
     * @en The right key
     * @zh 向右箭头键
     */
-    RIGHT = 39,
+    ARROW_RIGHT = 39,
 
     /**
     * @en The down key
     * @zh 向下箭头键
     */
-    DOWN = 40,
+    ARROW_DOWN = 40,
 
     /**
     * @en The insert key
@@ -580,4 +580,26 @@ export enum Keyboard {
     * @zh 单引号键
     */
     QUOTE = 222,
+
+// #region The new allocated key enum since v3.3
+
+    /**
+    * @en The right shift key
+    * @zh 右 Shift 键
+    */
+    SHIFT_RIGHT = 2000,
+
+    /**
+    * @en The right ctrl key
+    * @zh 右 Ctrl 键
+    */
+    CTRL_RIGHT = 2001,
+
+    /**
+    * @en The right alt key
+    * @zh 右 Alt 键
+    */
+    ALT_RIGHT = 2002,
+
+// #endregion The new allocated key enum since v3.3
 }
