@@ -48,7 +48,7 @@ export class Ambient {
     set enabled (val: boolean) {
         this._enabled = val;
         if (JSB) {
-            this.native.enabled = val;
+            this._nativeObj!.enabled = val;
         }
     }
     get enabled (): boolean {
@@ -66,7 +66,7 @@ export class Ambient {
         this._skyColor.set(color);
         Color.toArray(this._colorArray, this._skyColor);
         if (JSB) {
-            this.native.skyColor = this._skyColor;
+            this._nativeObj!.skyColor = this._skyColor;
         }
     }
 
@@ -81,7 +81,7 @@ export class Ambient {
     set skyIllum (illum: number) {
         this._skyIllum = illum;
         if (JSB) {
-            this.native.skyIllum = illum;
+            this._nativeObj!.skyIllum = illum;
         }
     }
     /**
@@ -96,7 +96,7 @@ export class Ambient {
         this._groundAlbedo.set(color);
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
         if (JSB) {
-            this.native.groundAlbedo = this._groundAlbedo;
+            this._nativeObj!.groundAlbedo = this._groundAlbedo;
         }
     }
     protected _skyColor = new Color(51, 128, 204, 1.0);

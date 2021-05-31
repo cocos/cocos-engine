@@ -322,13 +322,13 @@ export class Model {
 
     private _applyLocalData () {
         if (JSB) {
-            // this.native.setLocalData(this._localData);
+            // this._nativeObj!.setLocalData(this._localData);
         }
     }
 
     private _applyLocalBuffer () {
         if (JSB) {
-            this.native.setLocalBuffer(this._localBuffer);
+            this._nativeObj!.setLocalBuffer(this._localBuffer);
         }
     }
 
@@ -486,7 +486,7 @@ export class Model {
     private _setInstMatWorldIdx (idx: number) {
         this._instMatWorldIdx = idx;
         if (JSB) {
-            this.native.setInstmatWorldIdx(idx);
+            this._nativeObj!.setInstmatWorldIdx(idx);
         }
     }
 

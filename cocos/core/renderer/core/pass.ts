@@ -367,7 +367,7 @@ export class Pass {
         }
         this._descriptorSet.update();
         if (JSB) {
-            this.native.update();
+            this._nativeObj!.update();
         }
     }
 
@@ -545,55 +545,55 @@ export class Pass {
     private _setPriority (val:RenderPriority) {
         this._priority = val;
         if (JSB) {
-            this.native.setPriority(val);
+            this._nativeObj!.setPriority(val);
         }
     }
 
     private _setStage (val: RenderPassStage) {
         this._stage = val;
         if (JSB) {
-            this.native.setStage(val);
+            this._nativeObj!.setStage(val);
         }
     }
 
     private _setPhase (val: number) {
         this._phase = val;
         if (JSB) {
-            this.native.setPhase(val);
+            this._nativeObj!.setPhase(val);
         }
     }
 
     private _setPrimitive (val: PrimitiveMode) {
         this._primitive = val;
         if (JSB) {
-            this.native.setPrimitive(val);
+            this._nativeObj!.setPrimitive(val);
         }
     }
 
     private _setRasterizerState (val: RasterizerState) {
         this._rs = val;
         if (JSB) {
-            this.native.setRasterizerState(val.native);
+            this._nativeObj!.setRasterizerState(val.native);
         }
     }
 
     private _setDepthStencilState (val: DepthStencilState) {
         this._dss = val;
         if (JSB) {
-            this.native.setDepthStencilState(val.native);
+            this._nativeObj!.setDepthStencilState(val.native);
         }
     }
 
     private _setBlendState (val: BlendState) {
         this._bs = val;
         if (JSB) {
-            this.native.setBlendState(val.native);
+            this._nativeObj!.setBlendState(val.native);
         }
     }
 
     private _setNativeDescriptorSet (val: DescriptorSet) {
         if (JSB) {
-            this.native.setDescriptorSet(val);
+            this._nativeObj!.setDescriptorSet(val);
         }
     }
 
@@ -689,14 +689,14 @@ export class Pass {
     protected _setBatchingScheme (val: BatchingSchemes) {
         this._batchingScheme = val;
         if (JSB) {
-            this.native.setBatchingScheme(val);
+            this._nativeObj!.setBatchingScheme(val);
         }
     }
 
     private _setDynamicState (val: DynamicStateFlagBit) {
         this._dynamicStates = val;
         if (JSB) {
-            this.native.setDynamicState(val);
+            this._nativeObj!.setDynamicState(val);
         }
     }
 
@@ -708,14 +708,14 @@ export class Pass {
     protected _setHash (val: number) {
         this._hash = val;
         if (JSB) {
-            this.native.setHash(val);
+            this._nativeObj!.setHash(val);
         }
     }
 
     private _setPipelineLayout (pipelineLayout: PipelineLayout) {
         this._pipelineLayout = pipelineLayout;
         if (JSB) {
-            this.native.setPipelineLayout(pipelineLayout);
+            this._nativeObj!.setPipelineLayout(pipelineLayout);
         }
     }
 

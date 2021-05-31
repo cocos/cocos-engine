@@ -51,7 +51,7 @@ export class SubModel {
      private _destroyDescriptorSet () {
         this._descriptorSet!.destroy();
         if (JSB) {
-            this.native.setDescriptorSet(null);
+            this._nativeObj!.setDescriptorSet(null);
         }
         this._descriptorSet = null;
      }
@@ -59,7 +59,7 @@ export class SubModel {
      private _destroyInputAssembler () {
         this._inputAssembler!.destroy();
         if (JSB) {
-            this.native.setInputAssembler(null);
+            this._nativeObj!.setInputAssembler(null);
         }
         this._inputAssembler = null;
      }
@@ -67,7 +67,7 @@ export class SubModel {
      private _createDescriptorSet (descInfo: DescriptorSetInfo) {
          this._descriptorSet = this._device!.createDescriptorSet(descInfo);
          if (JSB) {
-             this.native.setDescriptorSet(this._descriptorSet);
+             this._nativeObj!.setDescriptorSet(this._descriptorSet);
          }
      }
 
@@ -137,14 +137,14 @@ export class SubModel {
      private _setInputAssembler (iaInfo: InputAssemblerInfo) {
          this._inputAssembler = this._device!.createInputAssembler(iaInfo);
          if (JSB) {
-             this.native.setInputAssembler(this._inputAssembler);
+             this._nativeObj!.setInputAssembler(this._inputAssembler);
          }
      }
 
      private _setSubMesh (subMesh: RenderingSubMesh) {
          this._subMesh = subMesh;
          if (JSB) {
-             this.native.setRenderingSubMesh(subMesh.flatBuffers);
+             this._nativeObj!.setRenderingSubMesh(subMesh.flatBuffers);
          }
      }
 
@@ -177,7 +177,7 @@ export class SubModel {
      private _initNativePlanarShadowShader (shadowInfo: Shadows) {
          this._planarShader = shadowInfo.getPlanarShader(this._patches);
          if (JSB) {
-             this.native.setPlanarShader(this._planarShader);
+             this._nativeObj!.setPlanarShader(this._planarShader);
          }
      }
 
@@ -192,7 +192,7 @@ export class SubModel {
      private _initNativePlanarShadowInstanceShader (shadowInfo: Shadows) {
          this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
          if (JSB) {
-             this.native.setPlanarInstanceShader(this._planarInstanceShader);
+             this._nativeObj!.setPlanarInstanceShader(this._planarInstanceShader);
          }
      }
 
@@ -273,8 +273,8 @@ export class SubModel {
              }
 
              const passesNative = passes.map((_pass: Pass): NativePass => _pass.native);
-             this.native.setPasses(passesNative);
-             this.native.setShaders(nativeShaders);
+             this._nativeObj!.setPasses(passesNative);
+             this._nativeObj!.setShaders(nativeShaders);
          }
      }
 }
