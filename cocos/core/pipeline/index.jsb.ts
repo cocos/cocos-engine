@@ -41,15 +41,8 @@ export const PipelineStateManager = nr.PipelineStateManager;
 
 let instancedBufferProto = nr.InstancedBuffer;
 let oldGetFunc = instancedBufferProto.get;
-instancedBufferProto.get = function(pass) {
-    return oldGetFunc.call(this, pass.handle);
-};
 
 let getOrCreatePipelineState = nr.PipelineStateManager.getOrCreatePipelineState;
-nr.PipelineStateManager.getOrCreatePipelineState = function(device, pass, shader, renderPass, ia) {
-    //TODO(minggo): do not pass pass.handle
-    return getOrCreatePipelineState.call(this, pass.handle, shader, renderPass, ia);
-}
   
 export function createDefaultPipeline () {
     const pipeline = new ForwardPipeline();
@@ -70,7 +63,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
     }
   
     public init () {
-        this.setPipelineSharedSceneData(this.pipelineSceneData.handle, this.pipelineSceneData.native);
+        this.setPipelineSharedSceneData(this.pipelineSceneData.native);
         for (let i = 0; i < this._flows.length; i++) {
             this._flows[i].init();
         }
@@ -83,13 +76,11 @@ export class ForwardPipeline extends nr.ForwardPipeline {
     }
 
     public render (cameras) {
-      let handles = [];
       let nativeObjs = [];
       for (let i = 0, len = cameras.length; i < len; ++i) {
-          handles.push(cameras[i].handle);
           nativeObjs.push(cameras[i].native)
       }
-      super.render(handles, nativeObjs);
+      super.render(nativeObjs);
     }
 
     public destroy () {
@@ -192,7 +183,7 @@ export class DeferredPipeline extends nr.DeferredPipeline {
   }
 
   init() {
-    this.setPipelineSharedSceneData(this.pipelineSceneData.handle, this.pipelineSceneData.native);
+    this.setPipelineSharedSceneData(this.pipelineSceneData.native);
     for (let i = 0; i < this._flows.length; i++) {
       this._flows[i].init();
     }
@@ -205,11 +196,11 @@ export class DeferredPipeline extends nr.DeferredPipeline {
   }
 
   public render (cameras) {
-    let handles = [];
+    let nativeObjs = [];
     for (let i = 0, len = cameras.length; i < len; ++i) {
-        handles.push(cameras[i].handle);
+        nativeObjs.push(cameras[i].native)
     }
-    super.render(handles);
+    super.render(nativeObjs);
   }
 
   destroy () {
