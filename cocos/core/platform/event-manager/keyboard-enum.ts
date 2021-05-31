@@ -601,5 +601,11 @@ export enum Keyboard {
     */
     ALT_RIGHT = 2002,
 
+    /**
+    * @en The numeric keypad enter
+    * @zh 数字键盘 enter
+    */
+    NUM_ENTER = 2003,
+
 // #endregion The new allocated key enum since v3.3
 }
