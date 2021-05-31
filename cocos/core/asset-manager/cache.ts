@@ -37,8 +37,8 @@ import { js } from '../utils/js';
  *
  */
 export default class Cache<T = any> {
-    private _map: Record<string, T> | null = null;
-    private _count = 0;
+    protected _map: Record<string, T> | null = null;
+    protected _count = 0;
 
     /**
      * @en

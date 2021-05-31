@@ -30,6 +30,7 @@ import { EDITOR } from 'internal:constants';
 import { Asset } from '../assets/asset';
 import Bundle from './bundle';
 import Cache from './cache';
+import WeakCache from './weak-cache';
 import { Pipeline } from './pipeline';
 import RequestItem from './request-item';
 
@@ -94,7 +95,7 @@ export interface INativeAssetOptions extends IDownloadParseOptions {
 
 export type AssetType<T = Asset> = Constructor<T>;
 
-export const assets = new Cache<Asset>();
+export const assets = window.WeakRef ? new WeakCache<Asset>() : new Cache<Asset>();
 export const files = new Cache();
 export const parsed = new Cache();
 export const bundles = new Cache<Bundle>();
