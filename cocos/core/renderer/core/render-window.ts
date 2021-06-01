@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
+import { JSB } from 'internal:constants';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
     RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
@@ -65,7 +65,10 @@ export class RenderWindow {
      * @zh 帧缓冲对象。
      */
     get framebuffer (): Framebuffer {
-        return FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
+        if (JSB) {
+            return FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
+        }
+        return this._framebuffer!;
     }
 
     get shouldSyncSizeWithSwapchain () {
@@ -77,7 +80,7 @@ export class RenderWindow {
      * @zh 这个渲染窗口是否指向在屏缓冲
      */
     get hasOnScreenAttachments () {
-        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS) === 1;
+        return this._hasOnScreenAttachments;
     }
 
     /**
@@ -85,7 +88,7 @@ export class RenderWindow {
      * @zh 这个渲染窗口是否指向离屏缓冲
      */
     get hasOffScreenAttachments () {
-        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS) === 1;
+        return this._hasOffScreenAttachments;
     }
 
     get handle () : RenderWindowHandle {
@@ -115,13 +118,51 @@ export class RenderWindow {
     protected _shouldSyncSizeWithSwapchain = false;
     protected _poolHandle: RenderWindowHandle = NULL_HANDLE;
     protected _cameras: Camera[] = [];
-
+    protected _hasOnScreenAttachments = false;
+    protected _hasOffScreenAttachments = false;
+    protected _framebuffer: Framebuffer | null = null;
     private constructor (root: Root) {
     }
 
-    public initialize (device: Device, info: IRenderWindowInfo): boolean {
-        this._poolHandle = RenderWindowPool.alloc();
+    private _setHasOffScreenAttachments (val) {
+        this._hasOffScreenAttachments = val;
+        if (JSB) {
+            RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, val ? 1 : 0);
+        }
+    }
 
+    private _setHasOnScreenAttachments (val) {
+        this._hasOnScreenAttachments = val;
+        if (JSB) {
+            RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, val ? 1 : 0);
+        }
+    }
+
+    private _createFrameBuffer (device: Device, renderPass) {
+        if (JSB) {
+            const hFBO = FramebufferPool.alloc(device, new FramebufferInfo(
+                renderPass,
+                this._colorTextures,
+                this._depthStencilTexture,
+            ));
+            RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, hFBO);
+            return;
+        }
+        this._framebuffer = device.createFramebuffer(new FramebufferInfo(
+            renderPass,
+            this._colorTextures,
+            this._depthStencilTexture,
+        ));
+    }
+
+    protected _init () {
+        if (JSB) {
+            this._poolHandle = RenderWindowPool.alloc();
+        }
+    }
+
+    public initialize (device: Device, info: IRenderWindowInfo): boolean {
+        this._init();
         if (info.title !== undefined) {
             this._title = info.title;
         }
@@ -161,9 +202,9 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 ));
-                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, 1);
+                this._setHasOffScreenAttachments(true);
             } else {
-                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, 1);
+                this._setHasOnScreenAttachments(true);
             }
             this._colorTextures.push(colorTex);
         }
@@ -178,20 +219,20 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 ));
-                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, 1);
-            } else {
-                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, 1);
+                this._setHasOffScreenAttachments(true);
             }
+        } else {
+            this._setHasOnScreenAttachments(true);
         }
-
-        const hFBO = FramebufferPool.alloc(device, new FramebufferInfo(
-            this._renderPass,
-            this._colorTextures,
-            this._depthStencilTexture,
-        ));
-        RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, hFBO);
-
+        this._createFrameBuffer(device, this._renderPass);
         return true;
+    }
+
+    protected _destroy () {
+        this.framebuffer.destroy();
+        if (this._poolHandle) {
+            this._poolHandle = NULL_HANDLE;
+        }
     }
 
     public destroy () {
@@ -208,11 +249,7 @@ export class RenderWindow {
             }
         }
         this._colorTextures.length = 0;
-
-        if (this._poolHandle) {
-            FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER)).destroy();
-            this._poolHandle = NULL_HANDLE;
-        }
+        this._destroy();
     }
 
     /**
@@ -245,7 +282,7 @@ export class RenderWindow {
                 }
             }
 
-            const framebuffer = FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
+            const framebuffer = this.framebuffer;
             if (needRebuild && framebuffer) {
                 framebuffer.destroy();
                 framebuffer.initialize(new FramebufferInfo(

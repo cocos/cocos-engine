@@ -136,7 +136,7 @@ const Elements = {
  * @param assetList
  * @param metaList
  */
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -155,7 +155,7 @@ exports.update = function (assetList, metaList) {
 /**
  * Method of initializing the panel
  */
-exports.ready = function () {
+exports.ready = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {

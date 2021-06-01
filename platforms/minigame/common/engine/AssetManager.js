@@ -211,7 +211,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
                     // PATCH: for android alipay version before v10.1.95 (v10.1.95 included)
                     // to remove in the future
                     let sys = cc.sys;
-                    if (sys.platform === sys.ALIPAY_MINI_GAME && sys.os === sys.OS_ANDROID) {
+                    if (sys.platform === sys.Platform.ALIPAY_MINI_GAME && sys.os === sys.OS.ANDROID) {
                         let resPath = unzipPath + 'res/';
                         if (fs.accessSync({path: resPath})) {
                             data.base = resPath;

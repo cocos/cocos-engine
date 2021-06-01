@@ -91,11 +91,11 @@ function align (node: Node, widget: Widget) {
         } else {
             localLeft = -targetAnchor.x * targetWidth;
             localRight = localLeft + targetWidth;
-
-            // adjust borders according to offsets
-            localLeft += widget.isAbsoluteLeft ? widget.left : widget.left * targetWidth;
-            localRight -= widget.isAbsoluteRight ? widget.right : widget.right * targetWidth;
         }
+
+        // adjust borders according to offsets
+        localLeft += widget.isAbsoluteLeft ? widget.left : widget.left * targetWidth;
+        localRight -= widget.isAbsoluteRight ? widget.right : widget.right * targetWidth;
 
         if (hasTarget) {
             localLeft += inverseTranslate.x;
@@ -148,11 +148,11 @@ function align (node: Node, widget: Widget) {
         } else {
             localBottom = -targetAnchor.y * targetHeight;
             localTop = localBottom + targetHeight;
-
-            // adjust borders according to offsets
-            localBottom += widget.isAbsoluteBottom ? widget.bottom : widget.bottom * targetHeight;
-            localTop -= widget.isAbsoluteTop ? widget.top : widget.top * targetHeight;
         }
+
+        // adjust borders according to offsets
+        localBottom += widget.isAbsoluteBottom ? widget.bottom : widget.bottom * targetHeight;
+        localTop -= widget.isAbsoluteTop ? widget.top : widget.top * targetHeight;
 
         if (hasTarget) {
             // transform

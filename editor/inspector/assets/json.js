@@ -27,11 +27,11 @@ exports.$ = {
     code: 'ui-code',
 };
 
-exports.ready = function () {
+exports.ready = function() {
     this.code = this.$.code;
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.meta = metaList[0];
