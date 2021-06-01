@@ -60,28 +60,6 @@ import { WebGL2RenderPass } from './webgl2-render-pass';
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
 
-export interface IWebGL2DepthBias {
-    constantFactor: number;
-    clamp: number;
-    slopeFactor: number;
-}
-
-export interface IWebGL2DepthBounds {
-    minBounds: number;
-    maxBounds: number;
-}
-
-export interface IWebGL2StencilWriteMask {
-    face: StencilFace;
-    writeMask: number;
-}
-
-export interface IWebGL2StencilCompareMask {
-    face: StencilFace;
-    reference: number;
-    compareMask: number;
-}
-
 export class WebGL2CommandBuffer extends CommandBuffer {
     public cmdPackage: WebGL2CmdPackage = new WebGL2CmdPackage();
     protected _webGLAllocator: WebGL2CommandAllocator | null = null;
@@ -89,7 +67,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
     protected _curGPUPipelineState: IWebGL2GPUPipelineState | null = null;
     protected _curGPUDescriptorSets: IWebGL2GPUDescriptorSet[] = [];
     protected _curGPUInputAssembler: IWebGL2GPUInputAssembler | null = null;
-    protected _curDynamicOffsets: number[][] = [];
+    protected _curDynamicOffsets: number[] = Array(8).fill(0);
     protected _curDynamicStates: DynamicStates = new DynamicStates();
     protected _isStateInvalied = false;
 
@@ -102,7 +80,6 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         const setCount = (this._device as WebGL2Device).bindingMappingInfo.bufferOffsets.length;
         for (let i = 0; i < setCount; i++) {
             this._curGPUDescriptorSets.push(null!);
-            this._curDynamicOffsets.push([]);
         }
 
         return true;
@@ -176,10 +153,13 @@ export class WebGL2CommandBuffer extends CommandBuffer {
             this._isStateInvalied = true;
         }
         if (dynamicOffsets) {
-            const offsets = this._curDynamicOffsets[set];
-            for (let i = 0; i < dynamicOffsets.length; i++) offsets[i] = dynamicOffsets[i];
-            offsets.length = dynamicOffsets.length;
-            this._isStateInvalied = true;
+            const gpuPipelineLayout = this._curGPUPipelineState?.gpuPipelineLayout;
+            if (gpuPipelineLayout) {
+                const offsets = this._curDynamicOffsets;
+                const idx = gpuPipelineLayout.dynamicOffsetOffsets[set];
+                for (let i = 0; i < dynamicOffsets.length; i++) offsets[idx + i] = dynamicOffsets[i];
+                this._isStateInvalied = true;
+            }
         }
     }
 
@@ -450,9 +430,7 @@ export class WebGL2CommandBuffer extends CommandBuffer {
         const bindStatesCmd = this._webGLAllocator!.bindStatesCmdPool.alloc(WebGL2CmdBindStates);
         bindStatesCmd.gpuPipelineState = this._curGPUPipelineState;
         Array.prototype.push.apply(bindStatesCmd.gpuDescriptorSets, this._curGPUDescriptorSets);
-        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
-            Array.prototype.push.apply(bindStatesCmd.dynamicOffsets, this._curDynamicOffsets[i]);
-        }
+        Array.prototype.push.apply(bindStatesCmd.dynamicOffsets, this._curDynamicOffsets);
         bindStatesCmd.gpuInputAssembler = this._curGPUInputAssembler;
         bindStatesCmd.dynamicStates = this._curDynamicStates;
 
