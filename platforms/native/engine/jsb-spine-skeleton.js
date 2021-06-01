@@ -66,6 +66,7 @@ const cacheManager = require('./jsb-cache-manager');
     let skeletonCacheMgr = spine.SkeletonCacheMgr.getInstance();
     spine.skeletonCacheMgr = skeletonCacheMgr;
     skeletonDataProto.destroy = function () {
+        this.removeRecordTexture();
         this.reset();
         skeletonCacheMgr.removeSkeletonCache(this._uuid);
         cc.Asset.prototype.destroy.call(this);
@@ -118,12 +119,11 @@ const cacheManager = require('./jsb-cache-manager');
             return;
         }
 
-        _gTextureIdx = 1;
-        _textureKeyMap = {};
         let jsbTextures = {};
         for (let i = 0; i < textures.length; ++i) {
             let texture = textures[i];
             let textureIdx = this.recordTexture(texture);
+            texture.__textureIndex__ = textureIdx;
             let spTex = new middleware.Texture2D();
             spTex.setRealTextureIndex(textureIdx);
             spTex.setPixelsWide(texture.width);
@@ -144,6 +144,26 @@ const cacheManager = require('./jsb-cache-manager');
             this.height = this._skeletonCache.getHeight();
         }        
     };
+    
+    skeletonDataProto.removeRecordTexture = function () {
+        let textures = this.textures;
+        if (!(textures && textures.length > 0)) {
+            return;
+        }
+        for (let i = 0; i < textures.length; ++i) {
+            let texture = textures[i];
+            if (!texture) return;
+
+            let index = texture.__textureIndex__;
+            if (index) {
+                let texKey = _textureKeyMap[index];
+                if (texKey && _textureMap.has(texKey)) {
+                    _textureMap.delete(texKey);
+                    delete _textureKeyMap[index];
+                }
+            }
+        }
+    }
 
     skeletonDataProto.recordTexture = function (texture) {
         let index = _gTextureIdx;
