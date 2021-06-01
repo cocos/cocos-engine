@@ -205,6 +205,7 @@ export default class NodeActivator {
             }
         }
         node.emit('active-in-hierarchy-changed', node);
+        legacyCC.director.root!.batcher2D.reloadBatchDirty = true; // 可能 gizmo 会产生额外影响
     }
 
     /**

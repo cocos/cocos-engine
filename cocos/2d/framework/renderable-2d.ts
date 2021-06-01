@@ -47,6 +47,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
+import { director } from '../../core';
 
 // hack
 ccenum(BlendFactor);
@@ -334,6 +335,7 @@ export class Renderable2D extends RenderableComponent {
         this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
+        director.root!.batcher2D.reloadBatchDirty = true;
     }
 
     // For Redo, Undo
@@ -346,6 +348,7 @@ export class Renderable2D extends RenderableComponent {
         this.node.off(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
         this.node.off(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this._renderFlag = false;
+        director.root!.batcher2D.reloadBatchDirty = true;
     }
 
     public onDestroy () {

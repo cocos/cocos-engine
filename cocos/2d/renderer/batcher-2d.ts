@@ -99,10 +99,7 @@ export class Batcher2D {
     private _dummyIA: DummyIA;
     private _localUBOManager: UILocalUBOManger;
 
-    public _currNodes: Node[] = []; // 存一个批次的 Node数据
-    public _currOffset = 0; // 记一下偏移量
-
-    public builtinUniformNum = 0; // 可用 uniform 的数量
+    public reloadBatchDirty = true;
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -191,6 +188,9 @@ export class Batcher2D {
     }
 
     public update () {
+        if (this.reloadBatchDirty) {
+            this._localUBOManager.reset(); // 需要重新录制就先清空
+        }
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
@@ -199,6 +199,7 @@ export class Batcher2D {
             }
             this._recursiveScreenNode(screen.node);
         }
+        this.reloadBatchDirty = false;
 
         let batchPriority = 0;
         if (this._batches.length) {
@@ -240,10 +241,10 @@ export class Batcher2D {
                 continue;
             }
 
-            batch.clear();
-            this._drawBatchPool.free(batch);
+            // batch.clear(); // batch 是不是需要重新录制？？？
+            // this._drawBatchPool.free(batch);
         }
-        DrawBatch2D.drawcallPool.reset();
+        // DrawBatch2D.drawcallPool.reset();
 
         this._currLayer = 0;
         this._currMaterial = this._emptyMaterial;
@@ -252,10 +253,10 @@ export class Batcher2D {
         this._currComponent = null;
         this._currTransform = null;
         this._currScene = null;
-        this._batches.clear();
+        // this._batches.clear();
         StencilManager.sharedManager!.reset();
         this._descriptorSetCache.reset();
-        this._localUBOManager.reset();
+        // this._localUBOManager.reset(); // 用 dirty 来控制reset
     }
 
     /**
@@ -324,11 +325,16 @@ export class Batcher2D {
         //     this._currBatch = this._drawBatchPool.alloc();
         // }
         // 来一个填充一个，然后不用判断合批，直到不能合批
-        this._currBatch.fillBuffers(comp, this._localUBOManager, mat);
-        // if (assembler) {
-        //     assembler.fillBuffers(renderComp, this); // 这里更新不填充
-        //     this._applyOpacity(renderComp);
-        // }
+        // this._currBatch.fillBuffers(comp, this._localUBOManager, mat);
+
+        // 这个可以优化为执行不同函数？？ // 最好执行不同的函数 // 还有个 dirty 需要的，更新用的
+        if (this.reloadBatchDirty) {
+            this._currBatch.fillBuffers(comp, this._localUBOManager, mat);
+        } else {
+            // update localUBO // 更新数据即可 // 需要利用组件的各种 dirty 来判断是否要更新，类似于 renderDataDirty
+            // 暂时不更新
+            // 需要有个新索引决定要更新哪一段
+        }
     }
 
     /**
