@@ -611,10 +611,11 @@ bool GLES3Context::makeCurrent(bool bound) {
         GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, 0));
         GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0));
         GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
-
+#ifdef GL_FRAMEBUFFER_FETCH_NONCOHERENT_QCOM // OHOS
         if (GLES3Device::getInstance()->extensionRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_QCOM) {
             GL_CHECK(glEnable(GL_FRAMEBUFFER_FETCH_NONCOHERENT_QCOM));
         }
+#endif
 
         CC_LOG_DEBUG("eglMakeCurrent() - SUCCEEDED, Context: 0x%p", this);
         return true;

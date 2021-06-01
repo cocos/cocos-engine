@@ -73,14 +73,14 @@ bool setCanvasCallback(se::Object *global) { //NOLINT
 
 namespace cc {
 
-Application *              Application::_instance  = nullptr; //NOLINT
-std::shared_ptr<Scheduler> Application::_scheduler = nullptr; //NOLINT
+Application *              Application::instance  = nullptr;
+std::shared_ptr<Scheduler> Application::scheduler = nullptr;
 
 Application::Application(int width, int height) {
-    Application::_instance = this;
-    _scheduler             = std::make_shared<Scheduler>();
-    _viewLogicalSize.x     = static_cast<float>(width);
-    _viewLogicalSize.y     = static_cast<float>(height);
+    Application::instance = this;
+    scheduler             = std::make_shared<Scheduler>();
+    _viewLogicalSize.x    = static_cast<float>(width);
+    _viewLogicalSize.y    = static_cast<float>(height);
 }
 
 Application::~Application() {
@@ -95,7 +95,7 @@ Application::~Application() {
 
     gfx::DeviceManager::destroy();
 
-    Application::_instance = nullptr;
+    Application::instance = nullptr;
 }
 
 bool Application::init() {
@@ -111,6 +111,9 @@ void Application::onPause() {
 }
 
 void Application::onResume() {
+}
+
+void Application::onClose() {
 }
 
 void Application::setPreferredFramesPerSecond(int fps) {

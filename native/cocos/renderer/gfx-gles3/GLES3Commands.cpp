@@ -1943,7 +1943,9 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint subpassIdx, GLES3GPUR
         if (gpuFramebuffer->usesPLS || gpuFramebuffer->usesFBF) {
             if (subpassIdx == 0) {
                 if (gpuFramebuffer->usesPLS) {
+#ifdef GL_SHADER_PIXEL_LOCAL_STORAGE_EXT //OHOS
                     GL_CHECK(glEnable(GL_SHADER_PIXEL_LOCAL_STORAGE_EXT));
+#endif
                     cache->isPLSEnabled = true;
                 }
 
@@ -2013,7 +2015,7 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
             }
         }
         if (numAttachments) {
-            GL_CHECK(glInvalidateFramebuffer(GL_DRAW_FRAMEBUFFER, numAttachments, invalidAttachments));
+            GL_CHECK(glInvalidateFramebuffer(GL_DRAW_FRAMEBUFFER, numAttachments, invalidAttachments)); //NOLINT(bugprone-lambda-function-name)
         }
     };
 
@@ -2024,16 +2026,21 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
                 performStoreOp(attachmentIndex, glAttachmentIndex++);
             }
             performDepthStencilStoreOp();
-
+#if defined(GL_SHADER_PIXEL_LOCAL_STORAGE_EXT) //OHOS
             if (cache->isPLSEnabled) {
                 GL_CHECK(glDisable(GL_SHADER_PIXEL_LOCAL_STORAGE_EXT));
                 cache->isPLSEnabled = false;
             }
+#endif
         } else if (gpuFramebuffer->usesFBF) {
             if (device->extensionRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_EXT) {
+#ifdef glFramebufferFetchBarrierEXT //OHOS
                 GL_CHECK(glFramebufferFetchBarrierEXT());
+#endif
             } else if (device->extensionRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_QCOM) {
+#ifdef glFramebufferFetchBarrierQCOM //OHOS
                 GL_CHECK(glFramebufferFetchBarrierQCOM());
+#endif
             }
         }
     } else {
@@ -2046,6 +2053,7 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
     }
 }
 
+//NOLINTNEXTLINE
 void cmdFuncGLES3BindState(GLES3Device *device, GLES3GPUPipelineState *gpuPipelineState, GLES3GPUInputAssembler *gpuInputAssembler,
                            const GLES3GPUDescriptorSet *const *gpuDescriptorSets, const uint *dynamicOffsets, const DynamicStates *dynamicStates) {
     GLES3ObjectCache &gfxStateCache = device->stateCache()->gfxStateCache;
