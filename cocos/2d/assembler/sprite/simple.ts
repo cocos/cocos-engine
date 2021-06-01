@@ -92,7 +92,7 @@ export const simple: IAssembler = {
         //     sprite.renderData!.indicesCount,
         // );
         // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
-        let renderData = sprite.renderData;
+        const renderData = sprite.renderData;
         if (renderData === null) {
             return;
         }
@@ -159,7 +159,7 @@ export const simple: IAssembler = {
             const bl = b * vl; const br = b * vr;
             const cb = c * vb; const ct = c * vt;
             const db = d * vb; const dt = d * vt;
-            
+
             const cbtx = cb + tx;
             const cttx = ct + tx;
             const dbty = db + ty;
@@ -181,8 +181,8 @@ export const simple: IAssembler = {
 
         vBuf.set(vData, vertexOffset);
 
-        const index0 = vertexId, index1 = vertexId + 1, 
-        index2 = vertexId + 2, index3 = vertexId + 3;
+        const index0 = vertexId; const index1 = vertexId + 1;
+        const index2 = vertexId + 2; const index3 = vertexId + 3;
 
         // fill index data
         iBuf[indicesOffset++] = index0;

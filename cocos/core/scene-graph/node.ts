@@ -598,7 +598,8 @@ export class Node extends BaseNode {
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 cur._dirtyFlags |= dirtyBit;
-                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                cur._hasChangedFlagsChunk[cur._hasChangedFlagsOffset] = hasChangedFlags | dirtyBit;
                 const children = cur._children;
                 const len = children.length;
                 for (let j = 0; j < len; ++j) array_a[++i] = children[j];
@@ -625,18 +626,21 @@ export class Node extends BaseNode {
         }
         let child: this; let dirtyBits = 0;
 
-        let childLPos, childMat, childPos, curMat;
+        let childLPos: Vec3;
+        let childMat: Mat4;
+        let childPos: Vec3;
+        let curMat: Mat4;
         while (i) {
             child = array_a[--i];
             dirtyBits |= child._dirtyFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
-                    //Vec3.transformMat4(child._pos, child._lpos, cur._mat);
+                    // Vec3.transformMat4(child._pos, child._lpos, cur._mat);
                     childLPos = child._lpos;
                     childMat = child._mat;
                     childPos = child._pos;
                     curMat = cur._mat;
-                    
+
                     childPos.x = curMat.m12 + childLPos.x;
                     childPos.y = curMat.m13 + childLPos.y;
                     childPos.z = curMat.m14 + childLPos.z;
