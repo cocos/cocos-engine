@@ -25,7 +25,26 @@
 
 #pragma once
 
-#include "../gfx-gles-common/eglw.h"
-#include "../gfx-gles-common/gles2w.h"
+#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
+    #define EGL_EGL_PROTOTYPES 0
+    #include <EGL/egl.h>
+    #include <EGL/eglext.h>
+    #include <EGL/eglplatform.h>
+#endif
+
+#define GL_GLES_PROTOTYPES 0
+#ifndef __OHOS__
+    #include <GLES2/gl2.h>
+
+    #include <GLES2/gl2ext.h>
+    #include <GLES2/gl2platform.h>
+#else
+    #include <GLES3/gl32.h>
+    #include <GLES3/gl3platform.h>
+#endif
+#include <KHR/khrplatform.h>
 
 bool gles2wInit();
+
+#include "../gfx-gles-common/eglw.h"
+#include "../gfx-gles-common/gles2w.h"

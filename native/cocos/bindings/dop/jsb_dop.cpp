@@ -163,6 +163,7 @@ static bool js_ObjectPool_bind(se::State &s) { // NOLINT
         return true;
     }
     SE_REPORT_ERROR("jsb_ObjectPool_bind: wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
 }
 SE_BIND_FUNC(js_ObjectPool_bind)
 

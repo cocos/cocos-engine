@@ -31,6 +31,13 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
+#elif CC_PLATFORM == CC_PLATFORM_OHOS
+    #include <native_layer.h>
+    #include <native_layer_jni.h>
+#endif
+#if CC_PLATFORM == CC_PLATFORM_OHOS || CC_PLATFORM == CC_PLATFORM_ANDROID
+    #include "cocos/bindings/event/CustomEventTypes.h"
+    #include "cocos/bindings/event/EventDispatcher.h"
 #endif
 
 #define FORCE_DISABLE_VALIDATION 1
@@ -38,7 +45,9 @@
 namespace cc {
 namespace gfx {
 
-#if CC_DEBUG > 0
+#if CC_DEBUG > 0 && defined(GL_DEBUG_SOURCE_API_KHR)
+
+    #define GLES3_EGL_DEBUG_PROC_DEFINED 1
 
 void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar *message, const void *userParam) {
     String sourceDesc;
@@ -81,14 +90,14 @@ void GL_APIENTRY GLES3EGLDebugProc(GLenum source, GLenum type, GLuint id, GLenum
         CC_LOG_DEBUG(msg.c_str());
     }
 }
-
+#else
+    #define GLES3_EGL_DEBUG_PROC_DEFINED 0
 #endif
 
-GLES3Context::GLES3Context() = default;
-
+GLES3Context::GLES3Context()  = default;
 GLES3Context::~GLES3Context() = default;
 
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_OHOS)
 
 bool GLES3Context::doInit(const ContextInfo &info) {
     _vsyncMode    = info.vsyncMode;
@@ -280,10 +289,19 @@ bool GLES3Context::doInit(const ContextInfo &info) {
             CC_LOG_ERROR("Getting configuration attributes failed.");
             return false;
         }
-
         uint width  = GLES3Device::getInstance()->getWidth();
         uint height = GLES3Device::getInstance()->getHeight();
         ANativeWindow_setBuffersGeometry(reinterpret_cast<ANativeWindow *>(_windowHandle), width, height, nFmt);
+    #elif CC_PLATFORM == CC_PLATFORM_OHOS
+        EGLint nFmt;
+        if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
+            CC_LOG_ERROR("Getting configuration attributes failed.");
+            return false;
+        }
+        uint width  = GLES3Device::getInstance()->getWidth();
+        uint height = GLES3Device::getInstance()->getHeight();
+        NativeLayerHandle(reinterpret_cast<NativeLayer *>(_windowHandle), NativeLayerOps::SET_WIDTH_AND_HEIGHT, width, height);
+        NativeLayerHandle(reinterpret_cast<NativeLayer *>(_windowHandle), NativeLayerOps::SET_FORMAT, nFmt);
     #endif
 
         EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, reinterpret_cast<EGLNativeWindowType>(_windowHandle), nullptr));
@@ -340,6 +358,7 @@ bool GLES3Context::doInit(const ContextInfo &info) {
         }
 
         _eglSharedContext = _eglContext;
+
     } else {
         auto *sharedCtx = static_cast<GLES3Context *>(info.sharedCtx);
 
@@ -429,16 +448,17 @@ void GLES3Context::doDestroy() {
 }
 
 void GLES3Context::releaseSurface(uintptr_t /*windowHandle*/) {
-    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     if (_eglSurface != EGL_NO_SURFACE) {
         eglDestroySurface(_eglDisplay, _eglSurface);
+        EGL_CHECK(eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
         _eglSurface = EGL_NO_SURFACE;
     }
     #endif
 }
 
 void GLES3Context::acquireSurface(uintptr_t windowHandle) {
-    #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+    #if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
     _windowHandle = windowHandle;
 
     EGLint nFmt;
@@ -446,12 +466,19 @@ void GLES3Context::acquireSurface(uintptr_t windowHandle) {
         CC_LOG_ERROR("Getting configuration attributes failed.");
         return;
     }
-    // Device's size will be updated after recreate window (in resize event) and is incorrect for now.
+        // Device's size will be updated after recreate window (in resize event) and is incorrect for now.
+        #if CC_PLATFORM == CC_PLATFORM_ANDROID
     auto *window = reinterpret_cast<ANativeWindow *>(_windowHandle);
     uint  width  = ANativeWindow_getWidth(window);
     uint  height = ANativeWindow_getHeight(window);
     ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
     GLES3Device::getInstance()->resize(width, height);
+        #elif CC_PLATFORM == CC_PLATFORM_OHOS
+    auto *window = reinterpret_cast<NativeLayer *>(_windowHandle);
+    uint  width  = GLES3Device::getInstance()->getWidth();
+    uint  height = GLES3Device::getInstance()->getHeight();
+    NativeLayerHandle(window, NativeLayerOps::SET_WIDTH_AND_HEIGHT, width, height);
+        #endif
 
     EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, reinterpret_cast<EGLNativeWindowType>(_windowHandle), nullptr));
     if (_eglSurface == EGL_NO_SURFACE) {
@@ -487,7 +514,7 @@ bool GLES3Context::makeCurrent(bool bound) {
 
     if (makeCurrentImpl(bound)) {
         if (!_isInitialized) {
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
             // Turn on or off the vertical sync depending on the input bool value.
             int interval = 1;
             switch (_vsyncMode) {
@@ -507,7 +534,7 @@ bool GLES3Context::makeCurrent(bool bound) {
             _isInitialized = true;
         }
 
-#if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION && CC_PLATFORM != CC_PLATFORM_MAC_IOS
+#if CC_DEBUG > 0 && GLES3_EGL_DEBUG_PROC_DEFINED && !FORCE_DISABLE_VALIDATION && CC_PLATFORM != CC_PLATFORM_MAC_IOS
         GL_CHECK(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR));
         if (glDebugMessageControlKHR) {
             GL_CHECK(glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE));

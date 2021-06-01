@@ -172,3 +172,15 @@ build/*
 out
 
 CMakeSettings.json
+
+cocos/platform/ohos/libcocos/build/.transforms
+cocos/platform/ohos/libcocos/build
+
+**/.gradle
+**/.settings
+**/.project
+
+.clangd/**
+
+
+**/*~

@@ -38,35 +38,33 @@
 #include "xxtea/xxtea.h"
 
 #if CC_PLATFORM == CC_PLATFORM_ANDROID
-    #include "platform/android/jni/JniImp.h"
+    #include "platform/java/jni/JniImp.h"
 #endif
 
 #include <chrono>
 #include <regex>
 #include <sstream>
 
-using cc::Application;
-using cc::FileUtils;
-using cc::LegacyThreadPool;
+using namespace cc; //NOLINT
 
-static LegacyThreadPool *threadPool = nullptr;
+static LegacyThreadPool *gThreadPool = nullptr;
 
-static std::shared_ptr<cc::network::Downloader>                                               localDownloader = nullptr;
-static std::map<std::string, std::function<void(const std::string &, unsigned char *, uint)>> localDownloaderHandlers;
-static uint64_t                                                                               localDownloaderTaskId = 1000000;
+static std::shared_ptr<cc::network::Downloader>                                               gLocalDownloader = nullptr;
+static std::map<std::string, std::function<void(const std::string &, unsigned char *, uint)>> gLocalDownloaderHandlers;
+static uint64_t                                                                               gLocalDownloaderTaskId = 1000000;
 
-static cc::network::Downloader *localDownloaderInstance() {
-    if (!localDownloader) {
-        localDownloader                    = std::make_shared<cc::network::Downloader>();
-        localDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask & task,
-                                                 const std::vector<unsigned char> &data) {
+static cc::network::Downloader *localDownloader() {
+    if (!gLocalDownloader) {
+        gLocalDownloader                    = std::make_shared<cc::network::Downloader>();
+        gLocalDownloader->onDataTaskSuccess = [=](const cc::network::DownloadTask & task,
+                                                  const std::vector<unsigned char> &data) {
             if (data.empty()) {
                 SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
                 return;
             }
 
-            auto callback = localDownloaderHandlers.find(task.identifier);
-            if (callback == localDownloaderHandlers.end()) {
+            auto callback = gLocalDownloaderHandlers.find(task.identifier);
+            if (callback == gLocalDownloaderHandlers.end()) {
                 SE_REPORT_ERROR("Getting image from (%s), callback not found!!", task.requestURL.c_str());
                 return;
             }
@@ -76,28 +74,28 @@ static cc::network::Downloader *localDownloaderInstance() {
 
             (callback->second)("", imageData, static_cast<uint>(imageBytes));
             //initImageFunc("", imageData, imageBytes);
-            localDownloaderHandlers.erase(callback);
+            gLocalDownloaderHandlers.erase(callback);
         };
-        localDownloader->onTaskError = [=](const cc::network::DownloadTask &task,
-                                           int /*errorCode*/,
-                                           int /*errorCodeInternal*/,
-                                           const std::string & /*errorStr*/) {
+        gLocalDownloader->onTaskError = [=](const cc::network::DownloadTask &task,
+                                            int                              errorCode,         //NOLINT
+                                            int                              errorCodeInternal, //NOLINT
+                                            const std::string &              errorStr) {                      //NOLINT
             SE_REPORT_ERROR("Getting image from (%s) failed!", task.requestURL.c_str());
-            localDownloaderHandlers.erase(task.identifier);
+            gLocalDownloaderHandlers.erase(task.identifier);
         };
     }
-    return localDownloader.get();
+    return gLocalDownloader.get();
 }
 
 static void localDownloaderCreateTask(const std::string &url, const std::function<void(const std::string &, unsigned char *, int)> &callback) {
     std::stringstream ss;
-    ss << "jsb_loadimage_" << (localDownloaderTaskId++);
+    ss << "jsb_loadimage_" << (gLocalDownloaderTaskId++);
     std::string key  = ss.str();
-    auto        task = localDownloaderInstance()->createDownloadDataTask(url, key);
-    localDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
+    auto        task = localDownloader()->createDownloadDataTask(url, key);
+    gLocalDownloaderHandlers.emplace(std::make_pair(task->identifier, callback));
 }
 
-bool jsb_set_extend_property(const char *ns, const char *clsName) {
+bool jsb_set_extend_property(const char *ns, const char *clsName) { //NOLINT
     se::Object *globalObj = se::ScriptEngine::getInstance()->getGlobalObject();
     se::Value   nsVal;
     if (globalObj->getProperty(ns, &nsVal) && nsVal.isObject()) {
@@ -118,9 +116,11 @@ bool jsb_set_extend_property(const char *ns, const char *clsName) {
     return false;
 }
 
-std::unordered_map<std::string, se::Value> moduleCache;
+namespace {
 
-bool require(se::State &s) {
+std::unordered_map<std::string, se::Value> gModuleCache;
+
+static bool require(se::State &s) { //NOLINT
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
     assert(argc >= 1);
@@ -130,7 +130,7 @@ bool require(se::State &s) {
 }
 SE_BIND_FUNC(require)
 
-bool doModuleRequire(const std::string &path, se::Value *ret, const std::string &prevScriptFileDir) {
+static bool doModuleRequire(const std::string &path, se::Value *ret, const std::string &prevScriptFileDir) { //NOLINT
     se::AutoHandleScope hs;
     assert(!path.empty());
 
@@ -171,10 +171,10 @@ bool doModuleRequire(const std::string &path, se::Value *ret, const std::string 
     }
 
     if (!scriptBuffer.empty()) {
-        const auto &iter = moduleCache.find(fullPath);
-        if (iter != moduleCache.end()) {
+        const auto &iter = gModuleCache.find(fullPath);
+        if (iter != gModuleCache.end()) {
             *ret = iter->second;
-            //                printf("Found cache: %s, value: %d\n", fullPath.c_str(), static_cast<int>(ret->getType()));
+            //                printf("Found cache: %s, value: %d\n", fullPath.c_str(), (int)ret->getType());
             return true;
         }
         std::string currentScriptFileDir = FileUtils::getInstance()->getFileDir(fullPath);
@@ -191,30 +191,24 @@ bool doModuleRequire(const std::string &path, se::Value *ret, const std::string 
         //            fwrite(scriptBuffer.c_str(), scriptBuffer.length(), 1, fp);
         //            fclose(fp);
 
-        std::string relativePath;
-
 #if CC_PLATFORM == CC_PLATFORM_MAC_OSX || CC_PLATFORM == CC_PLATFORM_MAC_IOS
-
-        std::string relativePathKey;
-
+        std::string reletivePath = fullPath;
     #if CC_PLATFORM == CC_PLATFORM_MAC_OSX
-        relativePathKey = "/Contents/Resources";
+        const std::string reletivePathKey = "/Contents/Resources";
     #else
-        relativePathKey = ".app";
+        const std::string reletivePathKey = ".app";
     #endif
 
-        size_t pos = fullPath.find(relativePathKey);
+        size_t pos = reletivePath.find(reletivePathKey);
         if (pos != std::string::npos) {
-            relativePath = fullPath.substr(pos + relativePathKey.length() + 1);
+            reletivePath = reletivePath.substr(pos + reletivePathKey.length() + 1);
         }
 #else
-        relativePath = fullPath;
+        const std::string &reletivePath = fullPath;
 #endif
 
-        //            RENDERER_LOGD("Evaluate: %s", fullPath.c_str());
-
-        auto *    se      = se::ScriptEngine::getInstance();
-        bool      succeed = se->evalString(scriptBuffer.c_str(), static_cast<ssize_t>(scriptBuffer.length()), nullptr, relativePath.c_str());
+        auto      se      = se::ScriptEngine::getInstance();
+        bool      succeed = se->evalString(scriptBuffer.c_str(), scriptBuffer.length(), nullptr, reletivePath.c_str());
         se::Value moduleVal;
         if (succeed && se->getGlobalObject()->getProperty("module", &moduleVal) && moduleVal.isObject()) {
             se::Value exportsVal;
@@ -222,15 +216,14 @@ bool doModuleRequire(const std::string &path, se::Value *ret, const std::string 
                 if (ret != nullptr) {
                     *ret = exportsVal;
                 }
-
-                moduleCache[fullPath] = std::move(exportsVal);
+                gModuleCache[fullPath] = std::move(exportsVal);
             } else {
-                moduleCache[fullPath] = se::Value::Undefined;
+                gModuleCache[fullPath] = se::Value::Undefined;
             }
             // clear module.exports
             moduleVal.toObject()->setProperty("exports", se::Value::Undefined);
         } else {
-            moduleCache[fullPath] = se::Value::Undefined;
+            gModuleCache[fullPath] = se::Value::Undefined;
         }
         assert(succeed);
         return succeed;
@@ -241,7 +234,7 @@ bool doModuleRequire(const std::string &path, se::Value *ret, const std::string 
     return false;
 }
 
-bool moduleRequire(se::State &s) {
+static bool moduleRequire(se::State &s) { //NOLINT
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
     assert(argc >= 2);
@@ -251,24 +244,25 @@ bool moduleRequire(se::State &s) {
     return doModuleRequire(args[0].toString(), &s.rval(), args[1].toString());
 }
 SE_BIND_FUNC(moduleRequire)
+} // namespace
 
-bool jsb_run_script(const std::string &filePath, se::Value *rval /* = nullptr */) {
+bool jsb_run_script(const std::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
     se::AutoHandleScope hs;
     return se::ScriptEngine::getInstance()->runScript(filePath, rval);
 }
 
-bool jsb_run_script_module(const std::string &filePath, se::Value *rval /* = nullptr */) {
+bool jsb_run_script_module(const std::string &filePath, se::Value *rval /* = nullptr */) { //NOLINT
     return doModuleRequire(filePath, rval, "");
 }
 
-static bool jscGarbageCollect(se::State &s) {
+static bool jsc_garbageCollect(se::State &s) { //NOLINT
     se::ScriptEngine::getInstance()->garbageCollect();
     return true;
 }
-SE_BIND_FUNC(jscGarbageCollect)
+SE_BIND_FUNC(jsc_garbageCollect)
 
-static bool jscDumpNativePtrToSeObjectMap(se::State &s) {
-    CC_LOG_DEBUG(">>> total: %d, Dump (native -> jsobj) map begin", static_cast<int>(se::NativePtrToObjectMap::size()));
+static bool jsc_dumpNativePtrToSeObjectMap(se::State &s) { //NOLINT
+    CC_LOG_DEBUG(">>> total: %d, Dump (native -> jsobj) map begin", (int)se::NativePtrToObjectMap::size());
 
     struct NamePtrStruct {
         const char *name;
@@ -303,25 +297,25 @@ static bool jscDumpNativePtrToSeObjectMap(se::State &s) {
     for (const auto &e : namePtrArray) {
         CC_LOG_DEBUG("%s: %p", e.name, e.ptr);
     }
-    CC_LOG_DEBUG(">>> total: %d, nonRefMap: %d, Dump (native -> jsobj) map end", static_cast<int>(se::NativePtrToObjectMap::size()), static_cast<int>(se::NonRefNativePtrCreatedByCtorMap::size()));
+    CC_LOG_DEBUG(">>> total: %d, nonRefMap: %d, Dump (native -> jsobj) map end", (int)se::NativePtrToObjectMap::size(), (int)se::NonRefNativePtrCreatedByCtorMap::size());
     return true;
 }
-SE_BIND_FUNC(jscDumpNativePtrToSeObjectMap)
+SE_BIND_FUNC(jsc_dumpNativePtrToSeObjectMap)
 
-static bool jscDumpRoot(se::State &s) {
+static bool jsc_dumpRoot(se::State &s) { //NOLINT
     assert(false);
     return true;
 }
-SE_BIND_FUNC(jscDumpRoot)
+SE_BIND_FUNC(jsc_dumpRoot)
 
-static bool jsbCorePlatform(se::State &s) {
+static bool JSBCore_platform(se::State &s) { //NOLINT
     Application::Platform platform = Application::getInstance()->getPlatform();
     s.rval().setInt32(static_cast<int32_t>(platform));
     return true;
 }
-SE_BIND_FUNC(jsbCorePlatform)
+SE_BIND_FUNC(JSBCore_platform)
 
-static bool jsbCoreOs(se::State &s) {
+static bool JSBCore_os(se::State &s) { //NOLINT
     se::Value os;
 
     // osx, ios, android, windows, linux, etc..
@@ -335,14 +329,16 @@ static bool jsbCoreOs(se::State &s) {
     os.setString("Linux");
 #elif (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     os.setString("OS X");
+#elif (CC_PLATFORM == CC_PLATFORM_OHOS)
+    os.setString("OHOS");
 #endif
 
     s.rval() = os;
     return true;
 }
-SE_BIND_FUNC(jsbCoreOs)
+SE_BIND_FUNC(JSBCore_os)
 
-static bool jsbCoreGetCurrentLanguage(se::State &s) {
+static bool JSBCore_getCurrentLanguage(se::State &s) { //NOLINT
     std::string               languageStr;
     Application::LanguageType language = Application::getInstance()->getCurrentLanguage();
     switch (language) {
@@ -410,36 +406,30 @@ static bool jsbCoreGetCurrentLanguage(se::State &s) {
     s.rval().setString(languageStr);
     return true;
 }
-SE_BIND_FUNC(jsbCoreGetCurrentLanguage)
+SE_BIND_FUNC(JSBCore_getCurrentLanguage)
 
-static bool jsbCoreGetCurrentLanguageCode(se::State &s) {
+static bool JSBCore_getCurrentLanguageCode(se::State &s) { //NOLINT
     std::string language = Application::getInstance()->getCurrentLanguageCode();
     s.rval().setString(language);
     return true;
 }
-SE_BIND_FUNC(jsbCoreGetCurrentLanguageCode)
+SE_BIND_FUNC(JSBCore_getCurrentLanguageCode)
 
-static bool jsbGetOsVersion(se::State &s) {
+static bool JSB_getOSVersion(se::State &s) { //NOLINT
     std::string systemVersion = Application::getInstance()->getSystemVersion();
     s.rval().setString(systemVersion);
     return true;
 }
-SE_BIND_FUNC(jsbGetOsVersion)
+SE_BIND_FUNC(JSB_getOSVersion)
 
-static bool jsbCoreRestartVm(se::State &s) {
+static bool JSB_core_restartVM(se::State &s) { //NOLINT
     //REFINE: release AudioEngine, waiting HttpClient & WebSocket threads to exit.
     Application::getInstance()->restart();
     return true;
 }
-SE_BIND_FUNC(jsbCoreRestartVm)
+SE_BIND_FUNC(JSB_core_restartVM)
 
-static bool jsbCloseWindow(se::State &s) {
-    Application::getInstance()->close();
-    return true;
-}
-SE_BIND_FUNC(jsbCloseWindow)
-
-static bool jsbIsObjectValid(se::State &s) {
+static bool JSB_isObjectValid(se::State &s) { //NOLINT
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
     if (argc == 1) {
@@ -452,9 +442,9 @@ static bool jsbIsObjectValid(se::State &s) {
     SE_REPORT_ERROR("Invalid number of arguments: %d. Expecting: 1", argc);
     return false;
 }
-SE_BIND_FUNC(jsbIsObjectValid)
+SE_BIND_FUNC(JSB_isObjectValid)
 
-static bool jsbSetCursorEnabled(se::State &s) {
+static bool JSB_setCursorEnabled(se::State &s) { //NOLINT
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
     SE_PRECONDITION2(argc == 1, false, "Invalid number of arguments");
@@ -466,9 +456,9 @@ static bool jsbSetCursorEnabled(se::State &s) {
     Application::getInstance()->setCursorEnabled(value);
     return true;
 }
-SE_BIND_FUNC(jsbSetCursorEnabled)
+SE_BIND_FUNC(JSB_setCursorEnabled)
 
-static bool jsbSaveByteCode(se::State &s) {
+static bool JSB_saveByteCode(se::State &s) { //NOLINT
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
     SE_PRECONDITION2(argc == 2, false, "Invalid number of arguments");
@@ -482,9 +472,9 @@ static bool jsbSaveByteCode(se::State &s) {
     s.rval().setBoolean(ok);
     return true;
 }
-SE_BIND_FUNC(jsbSaveByteCode)
+SE_BIND_FUNC(JSB_saveByteCode)
 
-static bool getOrCreatePlainObjectR(const char *name, se::Object *parent, se::Object **outObj) {
+static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::Object **outObj) { //NOLINT
     assert(parent != nullptr);
     assert(outObj != nullptr);
     se::Value tmp;
@@ -500,14 +490,15 @@ static bool getOrCreatePlainObjectR(const char *name, se::Object *parent, se::Ob
     return true;
 }
 
-static bool jsPerformanceNow(se::State &s) {
+static bool js_performance_now(se::State &s) { //NOLINT
     auto now   = std::chrono::steady_clock::now();
     auto micro = std::chrono::duration_cast<std::chrono::microseconds>(now - se::ScriptEngine::getInstance()->getStartTime()).count();
     s.rval().setNumber(static_cast<double>(micro) * 0.001);
     return true;
 }
-SE_BIND_FUNC(jsPerformanceNow)
+SE_BIND_FUNC(js_performance_now)
 
+namespace {
 struct ImageInfo {
     uint32_t        length     = 0;
     uint32_t        width      = 0;
@@ -551,7 +542,7 @@ uint8_t *convertI2RGBA(uint32_t length, uint8_t *src) {
     return dst;
 }
 
-struct ImageInfo *createImageInfo(cc::Image *img) {
+struct ImageInfo *createImageInfo(Image *img) {
     auto *imgInfo   = new struct ImageInfo();
     imgInfo->length = static_cast<uint32_t>(img->getDataLen());
     imgInfo->width  = img->getWidth();
@@ -595,8 +586,9 @@ struct ImageInfo *createImageInfo(cc::Image *img) {
 
     return imgInfo;
 }
+} // namespace
 
-bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal) {
+bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal) { //NOLINT(readability-identifier-naming)
     if (path.empty()) {
         se::ValueArray seArgs;
         callbackVal.toObject()->call(seArgs, nullptr);
@@ -606,9 +598,9 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
     std::shared_ptr<se::Value> callbackPtr = std::make_shared<se::Value>(callbackVal);
 
     auto initImageFunc = [path, callbackPtr](const std::string &fullPath, unsigned char *imageData, int imageBytes) {
-        auto *img = new (std::nothrow) cc::Image();
+        auto *img = new (std::nothrow) Image();
 
-        threadPool->pushTask([=](int /*tid*/) {
+        gThreadPool->pushTask([=](int /*tid*/) {
             // NOTE: FileUtils::getInstance()->fullPathForFilename isn't a threadsafe method,
             // Image::initWithImageFile will call fullPathForFilename internally which may
             // cause thread race issues. Therefore, we get the full path of file before
@@ -634,7 +626,7 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
 
                 if (loadSucceed) {
                     se::HandleObject retObj(se::Object::createPlainObject());
-                    ulong_to_seval((unsigned long)imgInfo->data, &dataVal); //NOLINT
+                    ulong_to_seval(reinterpret_cast<ptrdiff_t>(imgInfo->data), &dataVal); //NOLINT Why use addr? See #3033.
                     retObj->setProperty("data", dataVal);
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
@@ -660,7 +652,7 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
         size_t         dataStartPos = pos + strlen("base64,");
         const char *   base64Data   = path.data() + dataStartPos;
         size_t         dataLen      = path.length() - dataStartPos;
-        imageBytes                  = cc::base64Decode(reinterpret_cast<const unsigned char *>(base64Data), static_cast<unsigned int>(dataLen), &imageData);
+        imageBytes                  = base64Decode(reinterpret_cast<const unsigned char *>(base64Data), static_cast<unsigned int>(dataLen), &imageData);
         if (imageBytes <= 0 || imageData == nullptr) {
             SE_REPORT_ERROR("Decode base64 image data failed!");
             return false;
@@ -681,7 +673,7 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
     return true;
 }
 
-static bool jsLoadImage(se::State &s) {
+static bool js_loadImage(se::State &s) { //NOLINT
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -696,29 +688,28 @@ static bool jsLoadImage(se::State &s) {
 
         return jsb_global_load_image(path, callbackVal);
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
-SE_BIND_FUNC(jsLoadImage)
+SE_BIND_FUNC(js_loadImage)
 
-static bool jsDestroyImage(se::State &s) {
+static bool js_destroyImage(se::State &s) { //NOLINT
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        char *data = nullptr;
-        ok &= seval_to_ulong(args[0], reinterpret_cast<unsigned long *>(&data)); //NOLINT google-runtime-int
+        unsigned long data = 0; //NOLINT
+        ok &= seval_to_ulong(args[0], &data);
         SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
-        free(data);
-
+        free(reinterpret_cast<char *>(data));
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(jsDestroyImage)
+SE_BIND_FUNC(js_destroyImage)
 
-static bool jsbOpenUrl(se::State &s) {
+static bool JSB_openURL(se::State &s) { //NOLINT
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -730,12 +721,12 @@ static bool jsbOpenUrl(se::State &s) {
         return true;
     }
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(jsbOpenUrl)
+SE_BIND_FUNC(JSB_openURL)
 
-static bool jsbCopyTextToClipboard(se::State &s) {
+static bool JSB_copyTextToClipboard(se::State &s) { //NOLINT
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -747,12 +738,12 @@ static bool jsbCopyTextToClipboard(se::State &s) {
         return true;
     }
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(jsbCopyTextToClipboard)
+SE_BIND_FUNC(JSB_copyTextToClipboard)
 
-static bool jsbSetPreferredFramesPerSecond(se::State &s) {
+static bool JSB_setPreferredFramesPerSecond(se::State &s) { //NOLINT
     const auto &   args = s.args();
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
@@ -765,13 +756,13 @@ static bool jsbSetPreferredFramesPerSecond(se::State &s) {
         return true;
     }
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(jsbSetPreferredFramesPerSecond)
+SE_BIND_FUNC(JSB_setPreferredFramesPerSecond)
 
 #if CC_USE_EDITBOX
-static bool jsbShowInputBox(se::State &s) {
+static bool JSB_showInputBox(se::State &s) { //NOLINT
     const auto &args = s.args();
     size_t      argc = args.size();
     if (argc == 1) {
@@ -842,75 +833,74 @@ static bool jsbShowInputBox(se::State &s) {
             }
         }
 
-        cc::EditBox::show(showInfo);
+        EditBox::show(showInfo);
 
         return true;
     }
 
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", static_cast<int>(argc), 1);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(jsbShowInputBox);
+SE_BIND_FUNC(JSB_showInputBox);
 
-static bool jsbHideInputBox(se::State &s) {
-    cc::EditBox::hide();
+static bool JSB_hideInputBox(se::State &s) { //NOLINT
+    EditBox::hide();
     return true;
 }
-SE_BIND_FUNC(jsbHideInputBox)
+SE_BIND_FUNC(JSB_hideInputBox)
 
 #endif
 
-bool jsb_register_global_variables(se::Object *global) {
-    threadPool = LegacyThreadPool::newFixedThreadPool(3);
+bool jsb_register_global_variables(se::Object *global) { //NOLINT
+    gThreadPool = LegacyThreadPool::newFixedThreadPool(3);
 
     global->defineFunction("require", _SE(require));
     global->defineFunction("requireModule", _SE(moduleRequire));
 
-    getOrCreatePlainObjectR("jsb", global, &__jsbObj);
+    getOrCreatePlainObject_r("jsb", global, &__jsbObj);
 
-    auto *glContextCls = se::Class::create("WebGLRenderingContext", global, nullptr, nullptr);
+    auto glContextCls = se::Class::create("WebGLRenderingContext", global, nullptr, nullptr);
     glContextCls->install();
 
-    __jsbObj->defineFunction("garbageCollect", _SE(jscGarbageCollect));
-    __jsbObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jscDumpNativePtrToSeObjectMap));
+    __jsbObj->defineFunction("garbageCollect", _SE(jsc_garbageCollect));
+    __jsbObj->defineFunction("dumpNativePtrToSeObjectMap", _SE(jsc_dumpNativePtrToSeObjectMap));
 
-    __jsbObj->defineFunction("loadImage", _SE(jsLoadImage));
-    __jsbObj->defineFunction("openURL", _SE(jsbOpenUrl));
-    __jsbObj->defineFunction("copyTextToClipboard", _SE(jsbCopyTextToClipboard));
-    __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(jsbSetPreferredFramesPerSecond));
-    __jsbObj->defineFunction("destroyImage", _SE(jsDestroyImage));
+    __jsbObj->defineFunction("loadImage", _SE(js_loadImage));
+    __jsbObj->defineFunction("openURL", _SE(JSB_openURL));
+    __jsbObj->defineFunction("copyTextToClipboard", _SE(JSB_copyTextToClipboard));
+    __jsbObj->defineFunction("setPreferredFramesPerSecond", _SE(JSB_setPreferredFramesPerSecond));
+    __jsbObj->defineFunction("destroyImage", _SE(js_destroyImage));
 #if CC_USE_EDITBOX
-    __jsbObj->defineFunction("showInputBox", _SE(jsbShowInputBox));
-    __jsbObj->defineFunction("hideInputBox", _SE(jsbHideInputBox));
+    __jsbObj->defineFunction("showInputBox", _SE(JSB_showInputBox));
+    __jsbObj->defineFunction("hideInputBox", _SE(JSB_hideInputBox));
 #endif
-    __jsbObj->defineFunction("setCursorEnabled", _SE(jsbSetCursorEnabled));
-    __jsbObj->defineFunction("saveByteCode", _SE(jsbSaveByteCode));
-    global->defineFunction("__getPlatform", _SE(jsbCorePlatform));
-    global->defineFunction("__getOS", _SE(jsbCoreOs));
-    global->defineFunction("__getOSVersion", _SE(jsbGetOsVersion));
-    global->defineFunction("__getCurrentLanguage", _SE(jsbCoreGetCurrentLanguage));
-    global->defineFunction("__getCurrentLanguageCode", _SE(jsbCoreGetCurrentLanguageCode));
-    global->defineFunction("__restartVM", _SE(jsbCoreRestartVm));
-    global->defineFunction("__isObjectValid", _SE(jsbIsObjectValid));
-    global->defineFunction("__close", _SE(jsbCloseWindow));
+    __jsbObj->defineFunction("setCursorEnabled", _SE(JSB_setCursorEnabled));
+    __jsbObj->defineFunction("saveByteCode", _SE(JSB_saveByteCode));
+    global->defineFunction("__getPlatform", _SE(JSBCore_platform));
+    global->defineFunction("__getOS", _SE(JSBCore_os));
+    global->defineFunction("__getOSVersion", _SE(JSB_getOSVersion));
+    global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
+    global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
+    global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
+    global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
 
     se::HandleObject performanceObj(se::Object::createPlainObject());
-    performanceObj->defineFunction("now", _SE(jsPerformanceNow));
+    performanceObj->defineFunction("now", _SE(js_performance_now));
     global->setProperty("performance", se::Value(performanceObj));
 
     se::ScriptEngine::getInstance()->clearException();
 
     se::ScriptEngine::getInstance()->addBeforeCleanupHook([]() {
-        delete threadPool;
-        threadPool = nullptr;
+        delete gThreadPool;
+        gThreadPool = nullptr;
 
-        cc::PoolManager::getInstance()->getCurrentPool()->clear();
+        PoolManager::getInstance()->getCurrentPool()->clear();
     });
 
     se::ScriptEngine::getInstance()->addAfterCleanupHook([]() {
-        cc::PoolManager::getInstance()->getCurrentPool()->clear();
+        PoolManager::getInstance()->getCurrentPool()->clear();
 
-        moduleCache.clear();
+        gModuleCache.clear();
 
         SAFE_DEC_REF(__jsbObj);
         SAFE_DEC_REF(__glObj);

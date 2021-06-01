@@ -24,7 +24,8 @@
                 "${NATIVE_DIR}/app/build.gradle",
                 "${NATIVE_DIR}/app/AndroidManifest.xml",
                 "${NATIVE_DIR}/instantapp/build.gradle",
-                "${NATIVE_DIR}/instantapp/AndroidManifest.xml"
+                "${NATIVE_DIR}/instantapp/AndroidManifest.xml",
+                "${NATIVE_DIR}/entry/src/main/config.json"
             ]
         },
         "projectReplaceMacBundleid": {

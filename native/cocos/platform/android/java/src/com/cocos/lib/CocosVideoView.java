@@ -485,12 +485,12 @@ public class CocosVideoView extends SurfaceView {
     };
 
     private MediaPlayer.OnCompletionListener mCompletionListener =
-        new MediaPlayer.OnCompletionListener() {
-        public void onCompletion(MediaPlayer mp) {
-            mCurrentState = State.PLAYBACK_COMPLETED;
-            CocosVideoView.this.sendEvent(EVENT_COMPLETED);
-        }
-    };
+            new MediaPlayer.OnCompletionListener() {
+                public void onCompletion(MediaPlayer mp) {
+                    mCurrentState = State.PLAYBACK_COMPLETED;
+                    CocosVideoView.this.sendEvent(EVENT_COMPLETED);
+                }
+            };
 
 
     private static final int EVENT_PLAYING = 0;
@@ -502,49 +502,49 @@ public class CocosVideoView extends SurfaceView {
     private static final int EVENT_READY_TO_PLAY = 6;
 
     private MediaPlayer.OnErrorListener mErrorListener =
-        new MediaPlayer.OnErrorListener() {
-        public boolean onError(MediaPlayer mp, int framework_err, int impl_err) {
-            Log.d(TAG, "Error: " + framework_err + "," + impl_err);
-            mCurrentState = State.ERROR;
+            new MediaPlayer.OnErrorListener() {
+                public boolean onError(MediaPlayer mp, int framework_err, int impl_err) {
+                    Log.d(TAG, "Error: " + framework_err + "," + impl_err);
+                    mCurrentState = State.ERROR;
 
-            /* Otherwise, pop up an error dialog so the user knows that
-             * something bad has happened. Only try and pop up the dialog
-             * if we're attached to a window. When we're going away and no
-             * longer have a window, don't bother showing the user an error.
-             */
-            if (getWindowToken() != null) {
-                Resources r = mActivity.getResources();
-                int messageId;
+                    /* Otherwise, pop up an error dialog so the user knows that
+                     * something bad has happened. Only try and pop up the dialog
+                     * if we're attached to a window. When we're going away and no
+                     * longer have a window, don't bother showing the user an error.
+                     */
+                    if (getWindowToken() != null) {
+                        Resources r = mActivity.getResources();
+                        int messageId;
 
-                if (framework_err == MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK) {
-                    // messageId = com.android.internal.R.string.VideoView_error_text_invalid_progressive_playback;
-                    messageId = r.getIdentifier("VideoView_error_text_invalid_progressive_playback", "string", "android");
-                } else {
-                    // messageId = com.android.internal.R.string.VideoView_error_text_unknown;
-                    messageId = r.getIdentifier("VideoView_error_text_unknown", "string", "android");
+                        if (framework_err == MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK) {
+                            // messageId = com.android.internal.R.string.VideoView_error_text_invalid_progressive_playback;
+                            messageId = r.getIdentifier("VideoView_error_text_invalid_progressive_playback", "string", "android");
+                        } else {
+                            // messageId = com.android.internal.R.string.VideoView_error_text_unknown;
+                            messageId = r.getIdentifier("VideoView_error_text_unknown", "string", "android");
+                        }
+
+                        int titleId = r.getIdentifier("VideoView_error_title", "string", "android");
+                        int buttonStringId = r.getIdentifier("VideoView_error_button", "string", "android");
+
+                        new AlertDialog.Builder(mActivity)
+                                .setTitle(r.getString(titleId))
+                                .setMessage(messageId)
+                                .setPositiveButton(r.getString(buttonStringId),
+                                        new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                /* If we get here, there is no onError listener, so
+                                                 * at least inform them that the video is over.
+                                                 */
+                                                CocosVideoView.this.sendEvent(EVENT_COMPLETED);
+                                            }
+                                        })
+                                .setCancelable(false)
+                                .show();
+                    }
+                    return true;
                 }
-
-                int titleId = r.getIdentifier("VideoView_error_title", "string", "android");
-                int buttonStringId = r.getIdentifier("VideoView_error_button", "string", "android");
-
-                new AlertDialog.Builder(mActivity)
-                        .setTitle(r.getString(titleId))
-                        .setMessage(messageId)
-                        .setPositiveButton(r.getString(buttonStringId),
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int whichButton) {
-                                        /* If we get here, there is no onError listener, so
-                                         * at least inform them that the video is over.
-                                         */
-                                        CocosVideoView.this.sendEvent(EVENT_COMPLETED);
-                                    }
-                                })
-                        .setCancelable(false)
-                        .show();
-            }
-            return true;
-        }
-    };
+            };
 
     SurfaceHolder.Callback mSHCallback = new SurfaceHolder.Callback()
     {

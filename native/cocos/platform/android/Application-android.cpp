@@ -33,8 +33,8 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "platform/Application.h"
 #include "platform/android/jni/JniCocosActivity.h"
-#include "platform/android/jni/JniHelper.h"
-#include "platform/android/jni/JniImp.h"
+#include "platform/java/jni/JniHelper.h"
+#include "platform/java/jni/JniImp.h"
 
 #include "pipeline/Define.h"
 #include "pipeline/RenderPipeline.h"
@@ -46,7 +46,7 @@
 // IDEA: using ndk-r10c will cause the next function could not be found. It may be a bug of ndk-r10c.
 // Here is the workaround method to fix the problem.
 #ifdef __aarch64__
-extern "C" size_t __ctype_get_mb_cur_max(void) {
+extern "C" size_t __ctype_get_mb_cur_max(void) { //NOLINT
     return (size_t)sizeof(wchar_t);
 }
 #endif

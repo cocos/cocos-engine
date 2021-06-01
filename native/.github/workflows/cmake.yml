@@ -1,9 +1,9 @@
-name: Cmake Unit Test
+name: Unit Test
 
 on: [push, pull_request]
 
 jobs:
-  camke-unit:
+  unit-test-with-cmake:
     # The CMake configure and build commands are platform agnostic and should work equally
     # well on Windows or Mac.  You can convert this to a matrix build if you need
     # cross-platform coverage.

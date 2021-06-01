@@ -25,7 +25,15 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "websockets/libwebsockets.h"
+/***************************************************************************
+* "[WebSocket module] is based in part on the work of the libwebsockets  project
+* (http://libwebsockets.org)"
+*****************************************************************************/
+#if __OHOS__
+    #include "libwebsockets.h"
+#else
+    #include "websockets/libwebsockets.h"
+#endif
 
 #include <algorithm>
 #include <atomic>
@@ -56,6 +64,9 @@
 #define WS_RX_BUFFER_SIZE              (65536)
 #define WS_RESERVE_RECEIVE_BUFFER_SIZE (4096)
 
+#ifdef LOG_TAG
+    #undef LOG_TAG
+#endif
 #define LOG_TAG "WebSocket.cpp"
 
 struct lws;
@@ -121,7 +132,7 @@ static void wsLog(const char *format, ...) {
 #endif
 
 #define DO_QUOTEME(x) #x
-#define QUOTEME(x) DO_QUOTEME(x)
+#define QUOTEME(x)    DO_QUOTEME(x)
 
 // Since CC_LOG_DEBUG isn't thread safe, we uses LOGD for multi-thread logging.
 #ifdef ANDROID
@@ -132,6 +143,10 @@ static void wsLog(const char *format, ...) {
     #endif
 
     #define LOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#elif defined(__OHOS__)
+    #include "cocos/base/Log.h"
+    #define LOGD(...) CC_LOG_DEBUG(__VA_ARGS__)
+    #define LOGE(...) CC_LOG_ERROR(__VA_ARGS__)
 #else
     #if CC_DEBUG > 0
         #define LOGD(fmt, ...) wsLog("D/" LOG_TAG " (" QUOTEME(__LINE__) "): " fmt "", ##__VA_ARGS__)
@@ -144,7 +159,7 @@ static void wsLog(const char *format, ...) {
 
 static void printWebSocketLog(int level, const char *line) {
 #if CC_DEBUG > 0
-    static const char *const log_level_names[] = {
+    static const char *const LOG_LEVEL_NAMES[] = {
         "ERR",
         "WARN",
         "NOTICE",
@@ -161,9 +176,10 @@ static void printWebSocketLog(int level, const char *line) {
     int  n;
 
     for (n = 0; n < LLL_COUNT; n++) {
-        if (level != (1 << n))
+        if (level != (1 << n)) {
             continue;
-        sprintf(buf, "%s: ", log_level_names[n]);
+        }
+        sprintf(buf, "%s: ", LOG_LEVEL_NAMES[n]);
         break;
     }
 
@@ -255,7 +271,7 @@ static std::recursive_mutex          instanceMutex;
 static struct lws_context *          wsContext = nullptr;
 static WsThreadHelper *              wsHelper  = nullptr;
 
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
 static std::string getFileNameForPath(const std::string &filePath) {
     std::string  fileName     = filePath;
     const size_t lastSlashIdx = fileName.find_last_of("\\/");
@@ -804,7 +820,7 @@ cc::network::WebSocket::Delegate *WebSocketImpl::getDelegate() const {
 
 struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, int *sslConnectionOut) {
     auto *fileUtils     = cc::FileUtils::getInstance();
-    bool isCAFileExist = fileUtils->isFileExist(_caFilePath);
+    bool  isCAFileExist = fileUtils->isFileExist(_caFilePath);
     if (isCAFileExist) {
         _caFilePath = fileUtils->fullPathForFilename(_caFilePath);
     }
@@ -814,7 +830,7 @@ struct lws_vhost *WebSocketImpl::createVhost(struct lws_protocols *protocols, in
     int sslConnection = *sslConnectionOut;
     if (sslConnection != 0) {
         if (isCAFileExist) {
-#if (CC_PLATFORM == CC_PLATFORM_ANDROID)
+#if (CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
             // if ca file is in the apk, try to extract it to writable path
             std::string writablePath  = fileUtils->getWritablePath();
             std::string caFileName    = getFileNameForPath(_caFilePath);
