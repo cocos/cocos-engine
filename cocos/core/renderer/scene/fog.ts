@@ -136,7 +136,6 @@ export class Fog {
     set fogDensity (val: number) {
         this._fogDensity = val;
         if (JSB) {
-            FogPool.set(this._handle, FogView.DENSITY, val);
             this._nativeObj!.density = val;
         }
     }
