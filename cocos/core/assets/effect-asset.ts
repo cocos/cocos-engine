@@ -39,6 +39,7 @@ import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
+import { finalizationManager } from './finalization-manager';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted from shader
@@ -203,6 +204,7 @@ export class EffectAsset extends Asset {
     public onLoaded () {
         programLib.register(this);
         EffectAsset.register(this);
+        finalizationManager.register(this, this.name);
         if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
     }
 
@@ -245,5 +247,9 @@ export class EffectAsset extends Asset {
         return this.techniques.length > 0 && this.shaders.length > 0;
     }
 }
+
+finalizationManager.registerTypeFinalizationHandler(EffectAsset, (name: string) => {
+    EffectAsset.remove(name);
+});
 
 legacyCC.EffectAsset = EffectAsset;

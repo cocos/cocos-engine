@@ -10,22 +10,16 @@ export default class WeakCache<T> extends Cache<T> {
     protected _weakMap: Record<string, WeakRef<T>> = {};
 
     constructor (map?: Record<string, T>) {
-        super(map);
+        super();
+        this._map = null;
         if (map) {
-            this._map = null;
-            for (let key in map) {
+            for (const key in map) {
                 this._weakMap[key] = new WeakRef(map[key]);
             }
-            this._count = Object.keys(map).length;
-        } else {
-            this._count = 0;
         }
     }
 
     public add (key: string, val: T): T {
-        if (!this.has(key)) {
-            this._count++;
-        }
         this._weakMap[key] = new WeakRef(val);
         return val;
     }
@@ -34,44 +28,44 @@ export default class WeakCache<T> extends Cache<T> {
         return key in this._weakMap && !!this._weakMap[key].deref();
     }
 
-    public get (key: string): T | undefined {
+    public get (key: string): T | undefined | null {
         return this._weakMap[key] && this._weakMap[key].deref();
     }
 
-    public remove (key: string): T | undefined {
+    public remove (key: string): T | undefined | null {
         const out = this._weakMap[key];
-        if (this.has(key)) {
-            this._count--;
-        }
         delete this._weakMap[key];
         return out && out.deref();
     }
 
     public clear (): void {
-        if (this._count !== 0) {
-            this._weakMap = js.createMap(true);
-            this._count = 0;
-        }
+        this._weakMap = js.createMap(true);
     }
 
     public forEach (func: (val: T, key: string) => void): void {
         for (const key in this._weakMap) {
-            if (this.has(key)) {
-                func(this._weakMap[key].deref(), key);
+            const val = this.get(key);
+            if (val) {
+                func(val, key);
             }
         }
     }
 
     public find (predicate: (val: T, key: string) => boolean): T | null {
         for (const key in this._weakMap) {
-            if (this.has(key) && predicate(this._weakMap[key].deref(), key)) {
+            const val = this.get(key);
+            if (val && predicate(val, key)) {
                 return this._weakMap[key].deref();
             }
         }
         return null;
     }
 
+    get count (): number {
+        return Object.values(this._weakMap).filter((weakRef) => weakRef.deref()).length;
+    }
+
     public destroy (): void {
-        this._weakMap = null;
+        this._weakMap = {};
     }
 }

@@ -36,6 +36,7 @@ import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { legacyCC } from '../global-exports';
 import { warnID, getError } from '../platform/debug';
+import { finalizationManager } from './finalization-manager';
 
 /**
  * @en Image source in memory
@@ -230,6 +231,7 @@ export class ImageAsset extends Asset {
                 });
             }
         }
+        finalizationManager.register(this, this._nativeData);
     }
 
     public destroy () {
@@ -363,6 +365,16 @@ function _getGlobalDevice (): Device | null {
     }
     return null;
 }
+
+finalizationManager.registerTypeFinalizationHandler(ImageAsset, (data) => {
+    if (data && data instanceof HTMLImageElement) {
+        data.src = '';
+        // @ts-expect-error JSB element should destroy native data.
+        if (JSB) data.destroy();
+    } else if (isImageBitmap(data)) {
+        data.close && data.close();
+    }
+});
 
 /**
  * @zh

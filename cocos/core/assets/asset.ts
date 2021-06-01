@@ -38,6 +38,7 @@ import { CCObject } from '../data/object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { extname } from '../utils/path';
+import { finalizationManager } from './finalization-manager';
 
 /**
  * @en
@@ -283,6 +284,11 @@ export class Asset extends Eventify(CCObject) {
             legacyCC.assetManager._releaseManager.tryRelease(this);
         }
         return this;
+    }
+
+    public destroy () {
+        finalizationManager.unregister(this);
+        return super.destroy();
     }
 
     public onLoaded () {}
