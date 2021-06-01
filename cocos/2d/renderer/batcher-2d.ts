@@ -26,7 +26,7 @@
  * @packageDocumentation
  * @hidden
  */
-
+import { JSB } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
 import { UIStaticBatch } from '../components';
 import { Material } from '../../core/assets/material';
@@ -66,7 +66,7 @@ export class Batcher2D {
         return this._currMeshBuffer;
     }
 
-    set currBufferBatch (buffer: MeshBuffer|null) {
+    set currBufferBatch (buffer: MeshBuffer | null) {
         if (buffer) {
             this._currMeshBuffer = buffer;
         }
@@ -132,7 +132,7 @@ export class Batcher2D {
     private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _meshBufferUseCount: Map<number, number> = new Map();
     private _batches: CachedArray<DrawBatch2D>;
-    private _doUploadBuffersCall: Map<any, ((ui:Batcher2D) => void)> = new Map();
+    private _doUploadBuffersCall: Map<any, ((ui: Batcher2D) => void)> = new Map();
     private _emptyMaterial = new Material();
     private _currScene: RenderScene | null = null;
     private _currMaterial: Material = this._emptyMaterial;
@@ -146,7 +146,7 @@ export class Batcher2D {
     private _currSamplerHash = 0;
     private _currBlendTargetHash = 0;
     private _currLayer = 0;
-    private _currDepthStencilStateStage: any|null = null;
+    private _currDepthStencilStateStage: any | null = null;
     private _currIsStatic = false;
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
@@ -235,7 +235,7 @@ export class Batcher2D {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc (target: any, func: ((ui:Batcher2D) => void)) {
+    public addUploadBuffersFunc (target: any, func: ((ui: Batcher2D) => void)) {
         this._doUploadBuffersCall.set(target, func);
     }
 
@@ -384,8 +384,8 @@ export class Batcher2D {
         const depthStencilStateStage = renderComp.stencilStage;
 
         if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
-             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
-             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
+            || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
+            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
             this.autoMergeBatches(this._currComponent!);
             this._currScene = renderScene;
             this._currComponent = renderComp;
@@ -680,7 +680,7 @@ export class Batcher2D {
     }
 }
 
-class LocalDescriptorSet  {
+class LocalDescriptorSet {
     public get handle () {
         return this._handle;
     }
@@ -771,6 +771,13 @@ class LocalDescriptorSet  {
             const worldMatrix = node._mat;
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
+            if (!JSB) {
+                // fix precision lost of webGL on android device
+                // scale worldIT mat to around 1.0 by product its sqrt of determinant.
+                const det = Mat4.determinant(m4_1);
+                const factor = 1.0 / Math.sqrt(det);
+                Mat4.multiplyScalar(m4_1, m4_1, factor);
+            }
             Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
             this._localBuffer!.update(this._localData);
             this._transformUpdate = false;

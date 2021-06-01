@@ -1,6 +1,6 @@
 {
   "name": "@cocos/build-engine",
-  "version": "4.2.7",
+  "version": "4.2.9",
   "description": "",
   "repository": {
     "type": "git",
@@ -23,6 +23,7 @@
     "@rollup/plugin-json": "^4.0.2",
     "@rollup/plugin-node-resolve": "^7.1.1",
     "@rollup/plugin-virtual": "^2.0.1",
+    "@rollup/pluginutils": "^4.1.0",
     "dedent": "^0.7.0",
     "fs-extra": "^8.1.0",
     "json5": "^2.1.3",

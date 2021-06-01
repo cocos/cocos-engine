@@ -365,6 +365,13 @@ export class Model {
         } else if (this._localBuffer) {
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
+            if (!JSB) {
+                // fix precision lost of webGL on android device
+                // scale worldIT mat to around 1.0 by product its sqrt of determinant.
+                const det = Mat4.determinant(m4_1);
+                const factor = 1.0 / Math.sqrt(det);
+                Mat4.multiplyScalar(m4_1, m4_1, factor);
+            }
             Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
             this._localBuffer.update(this._localData);
         }
