@@ -35,7 +35,7 @@ exports.template = `
         <ui-prop type="dump" key="rateOverDistance"></ui-prop>
         <ui-prop type="dump" key="bursts"></ui-prop>
         <ui-prop type="dump" key="enableCulling"></ui-prop>
-        <ui-section class="config" key="shapeModule">
+        <ui-section class="config" key="shapeModule" cache-expand="particle-system-shapeModule">
             <ui-prop slot="header" class="header" type="dump" key="shapeModule.value.enable" labelflag="shapeModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -90,10 +90,10 @@ exports.template = `
             <ui-prop type="dump" key="shapeModule.value.randomPositionAmount"></ui-prop>
 
         </ui-section>
-        <ui-section class="config" key="velocityOvertimeModule" autoflag="true"></ui-section>
-        <ui-section class="config" key="forceOvertimeModule" autoflag="true"></ui-section>
+        <ui-section class="config" key="velocityOvertimeModule" autoflag="true" cache-expand="particle-system-velocityOvertimeModule"></ui-section>
+        <ui-section class="config" key="forceOvertimeModule" autoflag="true" cache-expand="particle-system-forceOvertimeModule"></ui-section>
 
-        <ui-section empty="true" class="config" key="sizeOvertimeModule">
+        <ui-section empty="true" class="config" key="sizeOvertimeModule" cache-expand="particle-system-sizeOvertimeModule">
             <ui-prop slot="header" class="header" type="dump" key="sizeOvertimeModule.value.enable"
                 labelflag="sizeOvertimeModule" empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -114,7 +114,7 @@ exports.template = `
 
         </ui-section>
 
-        <ui-section empty="true" class="config" key="rotationOvertimeModule">
+        <ui-section empty="true" class="config" key="rotationOvertimeModule" cache-expand="particle-system-rotationOvertimeModule">
 
             <ui-prop slot="header" class="header" type="dump" key="rotationOvertimeModule.value.enable"
                 labelflag="rotationOvertimeModule" empty="true">
@@ -130,9 +130,9 @@ exports.template = `
             <ui-prop type="dump" key="rotationOvertimeModule.value.z"></ui-prop>
 
         </ui-section>
-        <ui-section class="config" key="colorOverLifetimeModule" autoflag="true"></ui-section>
-        <ui-section class="config" key="textureAnimationModule" autoflag="true"></ui-section>
-        <ui-section type="dump" showflag="!renderer.value.useGPU" key="limitVelocityOvertimeModule" class="config">
+        <ui-section class="config" key="colorOverLifetimeModule" autoflag="true" cache-expand="particle-system-colorOverLifetimeModule"></ui-section>
+        <ui-section class="config" key="textureAnimationModule" autoflag="true" cache-expand="particle-system-textureAnimationModule"></ui-section>
+        <ui-section type="dump" showflag="!renderer.value.useGPU" key="limitVelocityOvertimeModule" class="config" cache-expand="particle-system-limitVelocityOvertimeModule">
             <ui-prop slot="header" class="header" type="dump" key="limitVelocityOvertimeModule.value.enable" labelflag="limitVelocityOvertimeModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -146,7 +146,7 @@ exports.template = `
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitY" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitZ" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
         </ui-section>
-        <ui-section empty="true" class="config" showflag="!renderer.value.useGPU" key="trailModule">
+        <ui-section empty="true" class="config" showflag="!renderer.value.useGPU" key="trailModule" cache-expand="particle-system-trailModule">
             <ui-prop slot="header" class="header" type="dump" key="trailModule.value.enable" labelflag="trailModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>

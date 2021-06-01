@@ -1,4 +1,4 @@
-import { IMiniGame } from 'pal/minigame';
+import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { Orientation } from '../system/enum-type/orientation';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
@@ -74,21 +74,21 @@ minigame.createInnerAudioContext = createInnerAudioContextPolyfill(tt, {
     onSeek: true,
 });
 
-// safeArea
-// origin point on the top-left corner
+// #region SafeArea
+// FIX_ME: wrong safe area when orientation is landscape left
 minigame.getSafeArea = function () {
-    let { top, left, bottom, right, width, height } = systemInfo.safeArea;
+    const locSystemInfo = tt.getSystemInfoSync() as SystemInfo;
+    let { top, left, right } = locSystemInfo.safeArea;
+    const { bottom, width, height } = locSystemInfo.safeArea;
     // HACK: on iOS device, the orientation should mannually rotate
-    if (systemInfo.platform === 'ios' && !minigame.isDevTool && minigame.isLandscape) {
-        const tempData = [right, top, left, bottom, width, height];
-        top = tempData[2];
-        left = tempData[1];
-        bottom = tempData[3];
-        right = tempData[0];
-        height = tempData[5];
-        width = tempData[4];
+    if (locSystemInfo.platform === 'ios' && !minigame.isDevTool && minigame.isLandscape) {
+        const tmpTop = top; const tmpLeft = left; const tmpBottom = bottom; const tmpRight = right; const tmpWidth = width; const tmpHeight = height;
+        top = tmpLeft;
+        left = tmpTop;
+        right = tmpRight - tmpTop;
     }
     return { top, left, bottom, right, width, height };
 };
+// #endregion SafeArea
 
 export { minigame };

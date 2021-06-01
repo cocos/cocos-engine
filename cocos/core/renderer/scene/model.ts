@@ -170,19 +170,20 @@ export class Model {
     }
 
     get visFlags () : number {
-        return ModelPool.get(this._handle, ModelView.VIS_FLAGS);
+        return this._visFlags;
     }
 
     set visFlags (val: number) {
+        this._visFlags = val;
         ModelPool.set(this._handle, ModelView.VIS_FLAGS, val);
     }
 
     get enabled () : boolean {
-        if (ModelPool.get(this._handle, ModelView.ENABLED)) { return true; }
-        return false;
+        return this._enabled;
     }
 
     set enabled (val: boolean) {
+        this._enabled = val;
         ModelPool.set(this._handle, ModelView.ENABLED, val ? 1 : 0);
     }
 
@@ -191,11 +192,13 @@ export class Model {
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
+    protected _enabled = true;
     protected _worldBounds: AABB | null = null;
     protected _modelBounds: AABB | null = null;
     protected _subModels: SubModel[] = [];
     protected _node: Node = null!;
     protected _transform: Node = null!;
+    protected _visFlags: number = Layers.Enum.NONE;
 
     protected _device: Device;
     protected _inited = false;
