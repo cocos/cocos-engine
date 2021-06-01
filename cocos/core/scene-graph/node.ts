@@ -626,29 +626,21 @@ export class Node extends BaseNode {
         }
         let child: this; let dirtyBits = 0;
 
-        let childLPos: Vec3;
         let childMat: Mat4;
         let childPos: Vec3;
-        let curMat: Mat4;
         while (i) {
             child = array_a[--i];
             dirtyBits |= child._dirtyFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
-                    // Vec3.transformMat4(child._pos, child._lpos, cur._mat);
-                    childLPos = child._lpos;
                     childMat = child._mat;
                     childPos = child._pos;
-                    curMat = cur._mat;
 
-                    childPos.x = curMat.m12 + childLPos.x;
-                    childPos.y = curMat.m13 + childLPos.y;
-                    childPos.z = curMat.m14 + childLPos.z;
+                    Vec3.transformMat4(childPos, child._lpos, cur._mat);
 
                     childMat.m12 = childPos.x;
                     childMat.m13 = childPos.y;
                     childMat.m14 = childPos.z;
-
                     NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, childPos);
                 }
                 if (dirtyBits & TransformBit.RS) {
