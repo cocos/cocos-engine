@@ -26,9 +26,6 @@
 import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform/debug';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
-import {
-    IWebGLDepthBias, IWebGLDepthBounds, IWebGLStencilCompareMask, IWebGLStencilWriteMask,
-} from './webgl-command-buffer';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
 import {
@@ -36,8 +33,8 @@ import {
     IWebGLGPUPipelineState, IWebGLGPUShader, IWebGLGPUTexture, IWebGLGPUUniformBlock, IWebGLGPUUniformSamplerTexture, IWebGLGPURenderPass,
 } from './webgl-gpu-objects';
 import {
-    BufferUsageBit, ClearFlagBit, ClearFlags, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect, Viewport,
-    FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, StencilFace,
+    BufferUsageBit, ClearFlagBit, ClearFlags, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect,
+    FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit,
     TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo, IndirectBuffer, DynamicStates,
 } from '../base/define';
 
@@ -522,7 +519,6 @@ export enum WebGLCmd {
 
 export abstract class WebGLCmdObject {
     public cmdType: WebGLCmd;
-
     public refCount = 0;
 
     constructor (type: WebGLCmd) {
@@ -534,17 +530,11 @@ export abstract class WebGLCmdObject {
 
 export class WebGLCmdBeginRenderPass extends WebGLCmdObject {
     public gpuRenderPass: IWebGLGPURenderPass | null = null;
-
     public gpuFramebuffer: IWebGLGPUFramebuffer | null = null;
-
     public renderArea = new Rect();
-
     public clearFlag: ClearFlags = ClearFlagBit.NONE;
-
     public clearColors: Color[] = [];
-
     public clearDepth = 1.0;
-
     public clearStencil = 0;
 
     constructor () {
@@ -589,11 +579,8 @@ export class WebGLCmdDraw extends WebGLCmdObject {
 
 export class WebGLCmdUpdateBuffer extends WebGLCmdObject {
     public gpuBuffer: IWebGLGPUBuffer | null = null;
-
     public buffer: BufferSource | null = null;
-
     public offset = 0;
-
     public size = 0;
 
     constructor () {
@@ -608,9 +595,7 @@ export class WebGLCmdUpdateBuffer extends WebGLCmdObject {
 
 export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
     public gpuTexture: IWebGLGPUTexture | null = null;
-
     public buffers: ArrayBufferView[] = [];
-
     public regions: BufferTextureCopy[] = [];
 
     constructor () {
@@ -626,15 +611,10 @@ export class WebGLCmdCopyBufferToTexture extends WebGLCmdObject {
 
 export class WebGLCmdPackage {
     public cmds: CachedArray<WebGLCmd> = new CachedArray(1);
-
     public beginRenderPassCmds: CachedArray<WebGLCmdBeginRenderPass> = new CachedArray(1);
-
     public bindStatesCmds: CachedArray<WebGLCmdBindStates> = new CachedArray(1);
-
     public drawCmds: CachedArray<WebGLCmdDraw> = new CachedArray(1);
-
     public updateBufferCmds: CachedArray<WebGLCmdUpdateBuffer> = new CachedArray(1);
-
     public copyBufferToTextureCmds: CachedArray<WebGLCmdCopyBufferToTexture> = new CachedArray(1);
 
     public clearCmds (allocator: WebGLCommandAllocator) {

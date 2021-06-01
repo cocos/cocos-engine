@@ -27,17 +27,11 @@ import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform';
 import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
-    FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, StencilFace, TextureFlagBit,
-    Color, Rect, Viewport, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates,
+    FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
+    Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates,
 } from '../base/define';
 import { WebGLEXT } from '../webgl/webgl-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
-import {
-    IWebGL2DepthBias,
-    IWebGL2DepthBounds,
-    IWebGL2StencilCompareMask,
-    IWebGL2StencilWriteMask,
-} from './webgl2-command-buffer';
 import { WebGL2Device } from './webgl2-device';
 import {
     IWebGL2GPUInputAssembler,
@@ -651,7 +645,6 @@ export enum WebGL2Cmd {
 
 export abstract class WebGL2CmdObject {
     public cmdType: WebGL2Cmd;
-
     public refCount = 0;
 
     constructor (type: WebGL2Cmd) {
@@ -663,15 +656,10 @@ export abstract class WebGL2CmdObject {
 
 export class WebGL2CmdBeginRenderPass extends WebGL2CmdObject {
     public gpuRenderPass: IWebGL2GPURenderPass | null = null;
-
     public gpuFramebuffer: IWebGL2GPUFramebuffer | null = null;
-
     public renderArea = new Rect();
-
     public clearColors: Color[] = [];
-
     public clearDepth = 1.0;
-
     public clearStencil = 0;
 
     constructor () {
@@ -716,11 +704,8 @@ export class WebGL2CmdDraw extends WebGL2CmdObject {
 
 export class WebGL2CmdUpdateBuffer extends WebGL2CmdObject {
     public gpuBuffer: IWebGL2GPUBuffer | null = null;
-
     public buffer: BufferSource | null = null;
-
     public offset = 0;
-
     public size = 0;
 
     constructor () {
@@ -735,9 +720,7 @@ export class WebGL2CmdUpdateBuffer extends WebGL2CmdObject {
 
 export class WebGL2CmdCopyBufferToTexture extends WebGL2CmdObject {
     public gpuTexture: IWebGL2GPUTexture | null = null;
-
     public buffers: ArrayBufferView[] = [];
-
     public regions: BufferTextureCopy[] = [];
 
     constructor () {
@@ -753,15 +736,10 @@ export class WebGL2CmdCopyBufferToTexture extends WebGL2CmdObject {
 
 export class WebGL2CmdPackage {
     public cmds: CachedArray<WebGL2Cmd> = new CachedArray(1);
-
     public beginRenderPassCmds: CachedArray<WebGL2CmdBeginRenderPass> = new CachedArray(1);
-
     public bindStatesCmds: CachedArray<WebGL2CmdBindStates> = new CachedArray(1);
-
     public drawCmds: CachedArray<WebGL2CmdDraw> = new CachedArray(1);
-
     public updateBufferCmds: CachedArray<WebGL2CmdUpdateBuffer> = new CachedArray(1);
-
     public copyBufferToTextureCmds: CachedArray<WebGL2CmdCopyBufferToTexture> = new CachedArray(1);
 
     public clearCmds (allocator: WebGL2CommandAllocator) {
