@@ -44,8 +44,11 @@ import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayCons
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
 import { NativeModel } from './native-scene';
+import { Pool } from '../../memop/pool';
 
 const m4_1 = new Mat4();
+
+const _subModelPool = new Pool(() => new SubModel(), 32);
 
 const shadowMapPatches: IMacroPatch[] = [
     { name: 'CC_RECEIVE_SHADOW', value: true },
