@@ -287,7 +287,7 @@ export class Graphics extends Renderable2D {
             for (let i = 0; i < subMeshLength; ++i) {
                 this._graphicsUseSubMeshes[i].destroy();
             }
-            this._graphicsUseSubMeshes = [];
+            this._graphicsUseSubMeshes.length = 0;
         }
 
         if (!this.impl) {
