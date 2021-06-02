@@ -80,6 +80,7 @@ let SubContextView = cc.Class({
     ctor () {
         this._sprite = null;
         this._tex = new cc.Texture2D();
+        this._tex._packable = false;
         this._context = null;
         this._updatedTime = performance.now();
         this._updateInterval = 0;
