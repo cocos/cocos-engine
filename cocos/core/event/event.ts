@@ -40,6 +40,60 @@ import { SystemEventType } from '../platform/event-manager/event-enum';
  * 所有事件对象的基类，包含事件相关基本信息。
  */
 export default class Event {
+    // Event types
+
+    /**
+     * @en
+     * Code for event without type.
+     *
+     * @zh
+     * 没有类型的事件。
+     *
+     * @deprecated since v3.3, please use SystemEvent.EventType.NO_TYPE instead
+     */
+    public static NO_TYPE = 'no_type';
+
+    /**
+     * @en
+     * The type code of Touch event.
+     *
+     * @zh
+     * 触摸事件类型。
+     *
+     * @deprecated since v3.3, please use SystemEvent.EventType.TOUCH_START, SystemEvent.EventType.TOUCH_MOVE, SystemEvent.EventType.TOUCH_END and SystemEvent.EventType.TOUCH_CANCEL instead
+     */
+    public static TOUCH = 'touch';
+    /**
+     * @en
+     * The type code of Mouse event.
+     *
+     * @zh
+     * 鼠标事件类型。
+     *
+     * @deprecated since v3.3, please use SystemEvent.EventType.MOUSE_DOWN, SystemEvent.EventType.MOUSE_MOVE, SystemEvent.EventType.MOUSE_UP, SystemEvent.EventType.MOUSE_WHEEL, Node.EventType.MOUSE_ENTER and Node.EventType.MOUSE_LEAVE instead
+     */
+    public static MOUSE = 'mouse';
+    /**
+     * @en
+     * The type code of Keyboard event.
+     *
+     * @zh
+     * 键盘事件类型。
+     *
+     * @deprecated since v3.3, please use SystemEvent.EventType.KEYBOARD_DOWN and SystemEvent.EventType.KEYBOARD_UP instead
+     */
+    public static KEYBOARD = 'keyboard';
+    /**
+     * @en
+     * The type code of Acceleration event.
+     *
+     * @zh
+     * 加速器事件类型。
+     *
+     * @deprecated since v3.3, please use SystemEvent.EventType.DEVICEMOTION instead
+     */
+    public static ACCELERATION = 'acceleration';
+
     // Event phases
 
     /**

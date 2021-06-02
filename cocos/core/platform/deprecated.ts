@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { removeProperty, replaceProperty } from '../utils';
+import { markAsWarning, removeProperty, replaceProperty } from '../utils';
 import { Event } from '../event';
 import { EventKeyboard, EventMouse, EventTouch, SystemEvent, SystemEventType } from './event-manager';
 import { sys } from './sys';
@@ -53,23 +53,20 @@ replaceProperty(Event, 'Event', [
         target: SystemEvent.EventType,
         targetName: 'SystemEvent.EventType',
     },
+]);
+
+markAsWarning(Event, 'Event', [
     {
         name: 'TOUCH',
-        customGetter () {
-            return 'touch';
-        },
+        suggest: 'please use SystemEvent.EventType.TOUCH_START, SystemEvent.EventType.TOUCH_MOVE, SystemEvent.EventType.TOUCH_END and SystemEvent.EventType.TOUCH_CANCEL instead',
     },
     {
         name: 'MOUSE',
-        customGetter () {
-            return 'mouse';
-        },
+        suggest: 'please use SystemEvent.EventType.MOUSE_DOWN, SystemEvent.EventType.MOUSE_MOVE, SystemEvent.EventType.MOUSE_UP, SystemEvent.EventType.MOUSE_WHEEL, Node.EventType.MOUSE_ENTER and Node.EventType.MOUSE_LEAVE instead',
     },
     {
         name: 'KEYBOARD',
-        customGetter () {
-            return 'keyboard';
-        },
+        suggest: 'please use SystemEvent.EventType.KEYBOARD_DOWN and SystemEvent.EventType.KEYBOARD_UP instead',
     },
 ]);
 
