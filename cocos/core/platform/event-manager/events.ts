@@ -382,6 +382,8 @@ export class EventTouch extends Event {
      */
     public simulate = false;
 
+    private _eventCode: SystemEventType;  // deprecated since v3.3
+
     private _touches: Touch[];
 
     private _allTouches: Touch[];
@@ -393,8 +395,19 @@ export class EventTouch extends Event {
      */
     constructor (changedTouches: Touch[], bubbles: boolean, eventType: SystemEventType, touches: Touch[] = []) {
         super(eventType, bubbles);
+        this._eventCode = eventType;
         this._touches = changedTouches || [];
         this._allTouches = touches;
+    }
+
+    /**
+     * @en Returns event type code.
+     * @zh 获取触摸事件类型。
+     *
+     * @deprecated since v3.3, please use EventTouch.prototype.type instead.
+     */
+    public getEventCode () {
+        return this._eventCode;
     }
 
     /**

@@ -126,14 +126,10 @@ replaceProperty(EventTouch, 'EventTouch', [
         targetName: 'SystemEvent.EventType',
     },
 ]);
-replaceProperty(EventTouch.prototype, 'EventTouch.prototype', [
+markAsWarning(EventTouch.prototype, 'EventTouch.prototype', [
     {
         name: 'getEventCode',
-        newName: 'type',
-        customFunction () {
-            // @ts-expect-error this points to an EventTouch instance.
-            return this.type as SystemEventType;
-        },
+        suggest: 'please use EventTouch.prototype.type instead',
     },
 ]);
 
