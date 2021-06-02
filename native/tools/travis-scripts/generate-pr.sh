@@ -18,7 +18,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 PROJECT_ROOT="$DIR/../.."
 TRAVIS_ROOT="$PROJECT_ROOT/tools/travis-scripts"
 JS_AUTO_GENERATED_DIR="$PROJECT_ROOT/cocos/bindings/auto"
-CCFILES_AUTO_GENERATED_DIR="$PROJECT_ROOT/templates/cocos2dx_files.json"
 COMMITTAG="[ci skip][AUTO]: updating jsbinding automatically: ${TRAVIS_COMMIT:0:8}"
 ELAPSEDSECS=`date +%s`
 COCOS_BRANCH="update_js_bindings_$ELAPSEDSECS"
@@ -26,7 +25,6 @@ COCOS_ROBOT_REMOTE="https://${GH_USER}:${GH_PASSWORD}@github.com/${GH_USER}/coco
 PULL_REQUEST_REPO="https://api.github.com/repos/cocos-creator/engine-native/pulls"
 FETCH_REMOTE_BRANCH=$1
 JS_COMMIT_PATH="cocos/bindings/auto"
-JS_COMMIT_CCFILES="templates/cocos2dx_files.json"
 
 # Exit on error
 set -e
@@ -34,15 +32,6 @@ set -e
 if [ "$TRAVIS_OS_NAME" == "windows" ]; then
   export PATH="/c/Python27":$PATH
 fi
-
-generate_cocosfiles_json()
-{
-    echo "Updates cocos_files.json"
-    pushd "$TRAVIS_ROOT"
-    ./generate-template-files.py
-    popd
-}
-
 
 
 if [ "$TRAVIS_OS_NAME" != "linux" ]; then
@@ -52,10 +41,6 @@ fi
 if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
   exit 0
 fi
-
-
-# 1. Generate js bindings
-generate_cocosfiles_json
 
 
 if [ -z "${GH_EMAIL}" ]; then
@@ -105,8 +90,6 @@ git fetch origin ${FETCH_REMOTE_BRANCH}
 # Don't exit on non-zero return value
 set +e
 
-git diff FETCH_HEAD --stat --exit-code ${JS_COMMIT_PATH} ${JS_COMMIT_CCFILES}
-
 JS_DIFF_RETVAL=$?
 if [ $JS_DIFF_RETVAL -eq 0 ]
 then
@@ -147,7 +130,7 @@ echo "  finish push ..."
 # set +x
 
 # 7.
-ENCODED_MESSAGE=$(python -c "import urllib; print urllib.quote('''$TRAVIS_COMMIT_MESSAGE''')")
+ENCODED_MESSAGE=$(python -c "from cgi import escape; print escape('''$TRAVIS_COMMIT_MESSAGE''')")
 echo "Sending Pull Request to base repo ..."
 curl -H "Authorization: token $GH_TOKEN"  --request POST --data "{ \"title\": \"$COMMITTAG\", \"body\": \"> $ENCODED_MESSAGE\", \"head\": \"${GH_USER}:${COCOS_BRANCH}\", \"base\": \"${TRAVIS_BRANCH}\"}" "${PULL_REQUEST_REPO}" # 2> /dev/null > /dev/null
 
