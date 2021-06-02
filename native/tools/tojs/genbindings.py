@@ -176,7 +176,7 @@ def main():
             # tasks.append(_run_cmd(command))
             _run_cmd(command).communicate()
 
-        if len(sys.argv) > 2 and sys.argv[1] == '--cfg':
+        if len(sys.argv) > 2 and sys.argv[1] == '--config':
             for path in sys.argv[2:]:
                 generate(path.replace('\\', '/'))
         else:

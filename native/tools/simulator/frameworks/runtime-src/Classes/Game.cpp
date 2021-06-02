@@ -48,7 +48,7 @@ Game::~Game()
 
 bool Game::init()
 {
-    
+
     cc::Application::init();
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
 
@@ -56,13 +56,13 @@ bool Game::init()
     Application::getInstance()->setPreferredFramesPerSecond(60);
     jsb_init_file_operation_delegate();
     jsb_register_all_modules();
-    
+
     auto parser = ConfigParser::getInstance();
  #if defined(CC_DEBUG) && (CC_DEBUG > 0)
      // Enable debugger here
     jsb_enable_debugger("0.0.0.0", 5086, parser->isWaitForConnect());
  #endif
-    
+
     se->start();
 
     auto runtimeEngine = RuntimeEngine::getInstance();
@@ -74,11 +74,7 @@ bool Game::init()
     se::AutoHandleScope hs;
     jsb_run_script("jsb-adapter/jsb-builtin.js");
     jsb_run_script("main.js");
-    
-    se->addAfterCleanupHook([]() {
-        JSBClassType::destroy();
-    });
-    
+
     // Runtime end
     CC_LOG_DEBUG("iShow!");
     return true;

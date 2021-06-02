@@ -654,10 +654,11 @@ CC_ENUM_OPERATORS(DynamicStateFlagBit);
 using DynamicStateList = vector<DynamicStateFlagBit>;
 
 enum class StencilFace {
-    FRONT,
-    BACK,
-    ALL,
+    FRONT = 0x1,
+    BACK  = 0x2,
+    ALL   = 0x3,
 };
+CC_ENUM_OPERATORS(StencilFace);
 
 enum class DescriptorType : FlagBits {
     UNKNOWN                = 0,
@@ -872,7 +873,7 @@ struct DrawInfo {
     uint firstVertex   = 0U;
     uint indexCount    = 0U;
     uint firstIndex    = 0U;
-    uint vertexOffset  = 0U;
+    int  vertexOffset  = 0;
     uint instanceCount = 0U;
     uint firstInstance = 0U;
 };
@@ -1243,6 +1244,27 @@ struct FormatInfo {
 struct MemoryStatus {
     uint bufferSize  = 0;
     uint textureSize = 0;
+};
+
+struct DynamicStencilStates {
+    uint writeMask   = 0U;
+    uint compareMask = 0U;
+    uint reference   = 0U;
+};
+
+struct DynamicStates {
+    Viewport viewport;
+    Rect     scissor;
+    Color    blendConstant;
+    float    lineWidth         = 1.F;
+    float    depthBiasConstant = 0.F;
+    float    depthBiasClamp    = 0.F;
+    float    depthBiasSlope    = 0.F;
+    float    depthMinBounds    = 0.F;
+    float    depthMaxBounds    = 0.F;
+
+    DynamicStencilStates stencilStatesFront;
+    DynamicStencilStates stencilStatesBack;
 };
 
 } // namespace gfx

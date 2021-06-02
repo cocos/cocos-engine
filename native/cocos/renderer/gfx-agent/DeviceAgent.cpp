@@ -24,6 +24,7 @@
 ****************************************************************************/
 
 #include "base/CoreStd.h"
+#include "base/LinearAllocatorPool.h"
 #include "base/threading/MessageQueue.h"
 
 #include "BufferAgent.h"
@@ -33,7 +34,6 @@
 #include "DeviceAgent.h"
 #include "FramebufferAgent.h"
 #include "InputAssemblerAgent.h"
-#include "LinearAllocatorPool.h"
 #include "PipelineLayoutAgent.h"
 #include "PipelineStateAgent.h"
 #include "QueueAgent.h"

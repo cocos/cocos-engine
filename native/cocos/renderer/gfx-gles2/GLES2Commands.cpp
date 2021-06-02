@@ -1147,10 +1147,12 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
             if (texUnitCacheMap.count(glSamplerTexture.name)) {
                 uint cachedUnit        = texUnitCacheMap[glSamplerTexture.name];
                 glSamplerTexture.glLoc = glActiveSamplerLocations[i];
-                for (uint t = 0U, offset = 0U; t < glSamplerTexture.count; t++) {
-                    while (usedTexUnits[cachedUnit + t + offset]) offset++;
-                    glSamplerTexture.units.push_back(cachedUnit + t + offset);
-                    usedTexUnits[cachedUnit + t + offset] = true;
+                for (uint t = 0U; t < glSamplerTexture.count; t++) {
+                    while (usedTexUnits[cachedUnit]) { // the shader already compiles so we should be safe to do this here
+                        cachedUnit = (cachedUnit + 1) % device->getCapabilities().maxTextureUnits;
+                    }
+                    glSamplerTexture.units.push_back(static_cast<GLint>(cachedUnit));
+                    usedTexUnits[cachedUnit] = true;
                 }
             }
         }
@@ -1162,12 +1164,14 @@ void cmdFuncGLES2CreateShader(GLES2Device *device, GLES2GPUShader *gpuShader) {
             if (glSamplerTexture.glLoc < 0) {
                 glSamplerTexture.glLoc = glActiveSamplerLocations[i];
                 for (uint t = 0U; t < glSamplerTexture.count; t++) {
-                    while (usedTexUnits[unitIdx + t]) unitIdx++;
-                    glSamplerTexture.units.push_back(unitIdx + t);
-                    usedTexUnits[unitIdx + t] = true;
-                }
-                if (!texUnitCacheMap.count(glSamplerTexture.name)) {
-                    texUnitCacheMap[glSamplerTexture.name] = unitIdx;
+                    while (usedTexUnits[unitIdx]) {
+                        unitIdx = (unitIdx + 1) % device->getCapabilities().maxTextureUnits;
+                    }
+                    if (!texUnitCacheMap.count(glSamplerTexture.name)) {
+                        texUnitCacheMap[glSamplerTexture.name] = unitIdx;
+                    }
+                    glSamplerTexture.units.push_back(static_cast<GLint>(unitIdx));
+                    usedTexUnits[unitIdx] = true;
                 }
             }
         }
@@ -1378,7 +1382,7 @@ void cmdFuncGLES2DestroyFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gp
 }
 
 void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint subpassIdx, GLES2GPURenderPass *gpuRenderPass, GLES2GPUFramebuffer *gpuFramebuffer,
-                                 const Rect *renderArea, const Color *clearColors, float clearDepth, int clearStencil) {
+                                 const Rect *renderArea, const Color *clearColors, float clearDepth, uint clearStencil) {
     static uint attachmentLoadOpRecord = 0U;
 
     GLES2GPUStateCache *cache         = device->stateCache();
@@ -2076,7 +2080,7 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
         (isShaderChanged || gpuInputAssembler != gfxStateCache.gpuInputAssembler)) {
         gfxStateCache.gpuInputAssembler = gpuInputAssembler;
         if (device->extensionRegistry()->useVAO) {
-            GLuint hash  = gpuPipelineState->gpuShader->glProgram ^ device->getThreadID();
+            size_t hash  = gpuPipelineState->gpuShader->glProgram ^ device->getThreadID();
             GLuint glVAO = gpuInputAssembler->glVAOs[hash];
             if (!glVAO) {
                 GL_CHECK(glGenVertexArraysOES(1, &glVAO));
@@ -2092,8 +2096,8 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                             GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, gpuAttribute.glBuffer));
 
                             for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
-                                GLint glLoc        = gpuInput.glLoc + c;
-                                uint  attribOffset = gpuAttribute.offset + gpuAttribute.size * c;
+                                GLuint glLoc        = gpuInput.glLoc + c;
+                                uint   attribOffset = gpuAttribute.offset + gpuAttribute.size * c;
                                 GL_CHECK(glEnableVertexAttribArray(glLoc));
 
                                 cache->glEnabledAttribLocs[glLoc] = true;
@@ -2143,8 +2147,8 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                         }
 
                         for (uint c = 0; c < gpuAttribute.componentCount; ++c) {
-                            GLint glLoc        = gpuInput.glLoc + c;
-                            uint  attribOffset = gpuAttribute.offset + gpuAttribute.size * c;
+                            GLuint glLoc        = gpuInput.glLoc + c;
+                            uint   attribOffset = gpuAttribute.offset + gpuAttribute.size * c;
                             GL_CHECK(glEnableVertexAttribArray(glLoc));
                             cache->glEnabledAttribLocs[glLoc] = true;
                             cache->glCurrentAttribLocs[glLoc] = true;
@@ -2224,8 +2228,8 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     }
                     break;
                 case DynamicStateFlagBit::STENCIL_WRITE_MASK: {
-                    const auto &front = dynamicStates->stencilStates[static_cast<uint>(StencilFace::FRONT)];
-                    const auto &back  = dynamicStates->stencilStates[static_cast<uint>(StencilFace::BACK)];
+                    const auto &front = dynamicStates->stencilStatesFront;
+                    const auto &back  = dynamicStates->stencilStatesBack;
                     if (cache->dss.stencilWriteMaskFront != front.writeMask) {
                         GL_CHECK(glStencilMaskSeparate(GL_FRONT, front.writeMask));
                         cache->dss.stencilWriteMaskFront = front.writeMask;
@@ -2236,8 +2240,8 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     }
                 } break;
                 case DynamicStateFlagBit::STENCIL_COMPARE_MASK: {
-                    const auto &front = dynamicStates->stencilStates[static_cast<uint>(StencilFace::FRONT)];
-                    const auto &back  = dynamicStates->stencilStates[static_cast<uint>(StencilFace::BACK)];
+                    const auto &front = dynamicStates->stencilStatesFront;
+                    const auto &back  = dynamicStates->stencilStatesBack;
                     if ((cache->dss.stencilRefFront != front.reference) ||
                         (cache->dss.stencilReadMaskFront != front.compareMask)) {
                         GL_CHECK(glStencilFuncSeparate(GL_FRONT,
@@ -2718,10 +2722,10 @@ void GLES2GPUBlitManager::draw(GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *
     for (uint i = 0U; i < count; ++i) {
         const auto &region = regions[i];
 
-        uint srcWidth  = gpuTextureSrc ? gpuTextureSrc->width : device->getWidth();
-        uint srcHeight = gpuTextureSrc ? gpuTextureSrc->height : device->getHeight();
-        uint dstWidth  = gpuTextureDst ? gpuTextureDst->width : device->getWidth();
-        uint dstHeight = gpuTextureDst ? gpuTextureDst->height : device->getHeight();
+        auto srcWidth  = static_cast<float>(gpuTextureSrc ? gpuTextureSrc->width : device->getWidth());
+        auto srcHeight = static_cast<float>(gpuTextureSrc ? gpuTextureSrc->height : device->getHeight());
+        auto dstWidth  = static_cast<float>(gpuTextureDst ? gpuTextureDst->width : device->getWidth());
+        auto dstHeight = static_cast<float>(gpuTextureDst ? gpuTextureDst->height : device->getHeight());
 
         _uniformBuffer[0] = static_cast<float>(region.srcExtent.width) / srcWidth;
         _uniformBuffer[1] = static_cast<float>(region.srcExtent.height) / srcHeight;

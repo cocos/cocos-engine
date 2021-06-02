@@ -152,9 +152,9 @@ struct GLES3GPUUniformSamplerTexture final {
     Type   type  = Type::UNKNOWN;
     uint   count = 0U;
 
-    vector<int> units;
-    GLenum      glType = 0;
-    GLint       glLoc  = -1;
+    vector<GLint> units;
+    GLenum       glType = 0;
+    GLint        glLoc  = -1;
 };
 using GLES3GPUUniformSamplerTextureList = vector<GLES3GPUUniformSamplerTexture>;
 
@@ -217,13 +217,13 @@ using GLES3GPUAttributeList = vector<GLES3GPUAttribute>;
 
 class GLES3GPUInputAssembler final : public Object {
 public:
-    AttributeList         attributes;
-    GLES3GPUBufferList    gpuVertexBuffers;
-    GLES3GPUBuffer *      gpuIndexBuffer    = nullptr;
-    GLES3GPUBuffer *      gpuIndirectBuffer = nullptr;
-    GLES3GPUAttributeList glAttribs;
-    GLenum                glIndexType = 0;
-    map<GLuint, GLuint>   glVAOs;
+    AttributeList                 attributes;
+    GLES3GPUBufferList            gpuVertexBuffers;
+    GLES3GPUBuffer *              gpuIndexBuffer    = nullptr;
+    GLES3GPUBuffer *              gpuIndirectBuffer = nullptr;
+    GLES3GPUAttributeList         glAttribs;
+    GLenum                        glIndexType = 0;
+    unordered_map<size_t, GLuint> glVAOs;
 };
 
 class GLES3GPURenderPass final : public Object {
@@ -329,7 +329,7 @@ struct GLES3ObjectCache final {
     Rect                    renderArea;
     ColorList               clearColors;
     float                   clearDepth   = 1.F;
-    int                     clearStencil = 0;
+    uint                    clearStencil = 0U;
 };
 
 class GLES3GPUStateCache final : public Object {

@@ -31,10 +31,9 @@
 namespace cc {
 
 class MessageQueue;
+class LinearAllocatorPool;
 
 namespace gfx {
-
-class LinearAllocatorPool;
 
 class CC_DLL CommandBufferAgent final : public Agent<CommandBuffer> {
 public:

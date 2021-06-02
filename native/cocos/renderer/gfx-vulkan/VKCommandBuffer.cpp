@@ -39,6 +39,8 @@
 #include "VKRenderPass.h"
 #include "VKTexture.h"
 #include "VKTextureBarrier.h"
+#include "gfx-base/GFXDef-common.h"
+#include "vulkan/vulkan_core.h"
 
 namespace cc {
 namespace gfx {
@@ -308,24 +310,45 @@ void CCVKCommandBuffer::setDepthBound(float minBounds, float maxBounds) {
 }
 
 void CCVKCommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
-    DynamicStencilStates &state = _curDynamicStates.stencilStates[static_cast<uint>(face)];
-    if (state.writeMask != mask) {
-        state.writeMask = mask;
-
-        VkStencilFaceFlagBits vkFace = (face == StencilFace::FRONT ? VK_STENCIL_FACE_FRONT_BIT : VK_STENCIL_FACE_BACK_BIT);
-        vkCmdSetStencilWriteMask(_gpuCommandBuffer->vkCommandBuffer, vkFace, mask);
+    DynamicStencilStates &front = _curDynamicStates.stencilStatesFront;
+    DynamicStencilStates &back  = _curDynamicStates.stencilStatesBack;
+    if (face == StencilFace::ALL) {
+        if (front.writeMask == mask && back.writeMask == mask) return;
+        front.writeMask = back.writeMask = mask;
+        vkCmdSetStencilWriteMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, mask);
+    } else if (face == StencilFace::FRONT) {
+        if (front.writeMask == mask) return;
+        front.writeMask = mask;
+        vkCmdSetStencilWriteMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_BIT, mask);
+    } else if (face == StencilFace::BACK) {
+        if (back.writeMask == mask) return;
+        back.writeMask = mask;
+        vkCmdSetStencilWriteMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_BACK_BIT, mask);
     }
 }
 
 void CCVKCommandBuffer::setStencilCompareMask(StencilFace face, uint reference, uint mask) {
-    DynamicStencilStates &state = _curDynamicStates.stencilStates[static_cast<uint>(face)];
-    if (state.reference != reference || state.compareMask != mask) {
-        state.reference   = reference;
-        state.compareMask = mask;
-
-        VkStencilFaceFlags vkFace = VK_STENCIL_FACE_FLAGS[static_cast<uint>(face)];
-        vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, vkFace, reference);
-        vkCmdSetStencilCompareMask(_gpuCommandBuffer->vkCommandBuffer, vkFace, mask);
+    DynamicStencilStates &front = _curDynamicStates.stencilStatesFront;
+    DynamicStencilStates &back  = _curDynamicStates.stencilStatesBack;
+    if (face == StencilFace::ALL) {
+        if (front.reference == reference && back.reference == reference &&
+            front.compareMask == mask && back.compareMask == mask) return;
+        front.reference = back.reference = reference;
+        front.compareMask = back.compareMask = mask;
+        vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, reference);
+        vkCmdSetStencilCompareMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_AND_BACK, mask);
+    } else if (face == StencilFace::FRONT) {
+        if (front.writeMask == mask && front.reference == reference) return;
+        front.writeMask = mask;
+        front.reference = reference;
+        vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_BIT, reference);
+        vkCmdSetStencilCompareMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_FRONT_BIT, mask);
+    } else if (face == StencilFace::BACK) {
+        if (back.writeMask == mask && back.reference == reference) return;
+        back.writeMask = mask;
+        back.reference = reference;
+        vkCmdSetStencilReference(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_BACK_BIT, reference);
+        vkCmdSetStencilCompareMask(_gpuCommandBuffer->vkCommandBuffer, VK_STENCIL_FACE_BACK_BIT, mask);
     }
 }
 

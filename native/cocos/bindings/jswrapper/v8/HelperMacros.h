@@ -115,7 +115,6 @@ inline void printJSBInvoke() {
             bool               ret      = false;                                                          \
             v8::Isolate *      _isolate = _v8args.GetIsolate();                                           \
             v8::HandleScope    _hs(_isolate);                                                             \
-            SE_UNUSED unsigned argc = (unsigned)_v8args.Length();                                         \
             se::ValueArray     args;                                                                      \
             args.reserve(10);                                                                             \
             se::internal::jsToSeArgs(_v8args, &args);                                                     \

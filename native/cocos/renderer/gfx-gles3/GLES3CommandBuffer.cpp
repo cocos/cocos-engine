@@ -224,21 +224,27 @@ void GLES3CommandBuffer::setDepthBound(float minBounds, float maxBounds) {
 }
 
 void GLES3CommandBuffer::setStencilWriteMask(StencilFace face, uint mask) {
-    auto &stencilState = _curDynamicStates.stencilStates[static_cast<uint>(face)];
-    if (stencilState.writeMask != mask) {
-        stencilState.writeMask = mask;
-        _isStateInvalid        = true;
-    }
+    auto update = [&](DynamicStencilStates &stencilState) {
+        if (stencilState.writeMask != mask) {
+            stencilState.writeMask = mask;
+            _isStateInvalid        = true;
+        }
+    };
+    if (hasFlag(face, StencilFace::FRONT)) update(_curDynamicStates.stencilStatesFront);
+    if (hasFlag(face, StencilFace::BACK)) update(_curDynamicStates.stencilStatesBack);
 }
 
 void GLES3CommandBuffer::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
-    auto &stencilState = _curDynamicStates.stencilStates[static_cast<uint>(face)];
-    if ((stencilState.reference != ref) ||
-        (stencilState.compareMask != mask)) {
-        stencilState.reference   = ref;
-        stencilState.compareMask = mask;
-        _isStateInvalid          = true;
-    }
+    auto update = [&](DynamicStencilStates &stencilState) {
+        if ((stencilState.reference != ref) ||
+            (stencilState.compareMask != mask)) {
+            stencilState.reference   = ref;
+            stencilState.compareMask = mask;
+            _isStateInvalid          = true;
+        }
+    };
+    if (hasFlag(face, StencilFace::FRONT)) update(_curDynamicStates.stencilStatesFront);
+    if (hasFlag(face, StencilFace::BACK)) update(_curDynamicStates.stencilStatesBack);
 }
 
 void GLES3CommandBuffer::draw(const DrawInfo &info) {

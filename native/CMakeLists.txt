@@ -404,6 +404,7 @@ cocos_source_files(
     cocos/base/etc2.cpp
     cocos/base/etc2.h
     cocos/base/IndexHandle.h
+    cocos/base/LinearAllocatorPool.h
     cocos/base/Log.cpp
     cocos/base/Log.h
     cocos/base/Macros.h
@@ -760,7 +761,6 @@ cocos_source_files(
                  cocos/renderer/gfx-agent/FramebufferAgent.cpp
                  cocos/renderer/gfx-agent/InputAssemblerAgent.h
                  cocos/renderer/gfx-agent/InputAssemblerAgent.cpp
-                 cocos/renderer/gfx-agent/LinearAllocatorPool.h
                  cocos/renderer/gfx-agent/PipelineLayoutAgent.h
                  cocos/renderer/gfx-agent/PipelineLayoutAgent.cpp
                  cocos/renderer/gfx-agent/PipelineStateAgent.h
@@ -1933,6 +1933,7 @@ if(WIN32)
         NOMINMAX
         UNICODE
         _UNICODE
+        _USE_MATH_DEFINES
         _CRT_SECURE_NO_WARNINGS
         _SCL_SECURE_NO_WARNINGS
         _USRLIBSIMSTATIC

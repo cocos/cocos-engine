@@ -113,6 +113,17 @@ utils/fix-tidy-format.sh HEAD~3..HEAD # run auto-fix on files changed in the las
 
 All the issues will be reported in the standard output. This can be used as local self-test runs for CI checks.
 
+## Usage of `NOLINT`
+
+The general rule is: DO NOT USE IT.
+
+That being said, however, sometimes due to various reasons (clang-tidy false positives, fixing legacy codebase just requires too much work, etc.), when there is just no way around, you can use them with specific rule tags and reasons for why it has to be this way:
+```cpp
+    // NOLINTNEXTLINE(google-explicit-constructor) false positive when involving __VA_ARGS__
+    CC_VMATH_STRUCT(Model, transform, color, enabled)
+```
+Never use `NOLINT` without any explanations or rule tags.
+
 ## Other IDEs
 
 It is possible to use other IDEs as long as they [support clang-tidy](https://clang.llvm.org/extra/clang-tidy/Integrations.html).

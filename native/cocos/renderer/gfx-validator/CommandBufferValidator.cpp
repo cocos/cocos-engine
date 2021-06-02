@@ -255,12 +255,11 @@ void CommandBufferValidator::setDepthBound(float minBounds, float maxBounds) {
 }
 
 void CommandBufferValidator::setStencilWriteMask(StencilFace face, uint mask) {
-    if (face == StencilFace::ALL) {
-        for (auto &stencilState : _curStates.stencilStates) {
-            stencilState.writeMask = mask;
-        }
-    } else {
-        _curStates.stencilStates[static_cast<uint>(face)].writeMask = mask;
+    if (hasFlag(face, StencilFace::FRONT)) {
+        _curStates.stencilStatesFront.writeMask = mask;
+    }
+    if (hasFlag(face, StencilFace::BACK)) {
+        _curStates.stencilStatesBack.writeMask = mask;
     }
 
     /////////// execute ///////////
@@ -269,14 +268,13 @@ void CommandBufferValidator::setStencilWriteMask(StencilFace face, uint mask) {
 }
 
 void CommandBufferValidator::setStencilCompareMask(StencilFace face, uint ref, uint mask) {
-    if (face == StencilFace::ALL) {
-        for (auto &stencilState : _curStates.stencilStates) {
-            stencilState.reference   = ref;
-            stencilState.compareMask = mask;
-        }
-    } else {
-        _curStates.stencilStates[static_cast<uint>(face)].reference   = ref;
-        _curStates.stencilStates[static_cast<uint>(face)].compareMask = mask;
+    if (hasFlag(face, StencilFace::FRONT)) {
+        _curStates.stencilStatesFront.reference   = ref;
+        _curStates.stencilStatesFront.compareMask = mask;
+    }
+    if (hasFlag(face, StencilFace::BACK)) {
+        _curStates.stencilStatesBack.reference   = ref;
+        _curStates.stencilStatesBack.compareMask = mask;
     }
 
     /////////// execute ///////////

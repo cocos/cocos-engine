@@ -714,7 +714,7 @@ static bool js_audio_AudioEngine_setFinishCallback(se::State& s)
     CC_UNUSED bool ok = true;
     if (argc == 2) {
         HolderType<int, false> arg0 = {};
-        HolderType<std::function<void (int, const std::string&)>, true> arg1 = {};
+        HolderType<std::function<void (int, const std::string)>, true> arg1 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         do {
             if (args[1].isObject() && args[1].toObject()->isFunction())
@@ -722,7 +722,7 @@ static bool js_audio_AudioEngine_setFinishCallback(se::State& s)
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[1]);
                 jsFunc.toObject()->root();
-                auto lambda = [=](int larg0, const std::string& larg1) -> void {
+                auto lambda = [=](int larg0, const std::string larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         

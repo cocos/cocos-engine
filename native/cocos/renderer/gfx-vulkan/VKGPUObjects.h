@@ -369,10 +369,8 @@ public:
 private:
     friend class CCVKDevice;
 
-    using CommandBufferPools = tbb::concurrent_unordered_map<
-        std::thread::id, CCVKGPUCommandBufferPool *, std::hash<std::thread::id>>;
-
     // cannot use thread_local here because we need explicit control over their destruction
+    using CommandBufferPools = tbb::concurrent_unordered_map<size_t, CCVKGPUCommandBufferPool *, std::hash<size_t>>;
     CommandBufferPools _commandBufferPools;
 
     unordered_map<uint, CCVKGPUDescriptorSetPool> _descriptorSetPools;
@@ -875,14 +873,15 @@ public:
     }
 
     void update(const CCVKGPUBufferView *buffer) {
-        auto it = _buffers.find(buffer);
-        if (it == _buffers.end()) return;
-        auto &info = it->second;
-        for (uint i = 0U; i < info.descriptors.size(); i++) {
-            doUpdate(buffer, info.descriptors[i]);
-        }
-        for (const auto *set : info.sets) {
-            _descriptorSetHub->record(set);
+        for (const auto &it : _buffers) {
+            if (it.first->gpuBuffer != buffer->gpuBuffer) continue;
+            const auto &info = it.second;
+            for (uint i = 0U; i < info.descriptors.size(); i++) {
+                doUpdate(buffer, info.descriptors[i]);
+            }
+            for (const auto *set : info.sets) {
+                _descriptorSetHub->record(set);
+            }
         }
     }
     void update(const CCVKGPUBufferView *buffer, VkDescriptorBufferInfo *descriptor) {
@@ -897,14 +896,15 @@ public:
         }
     }
     void update(const CCVKGPUTextureView *texture) {
-        auto it = _textures.find(texture);
-        if (it == _textures.end()) return;
-        auto &info = it->second;
-        for (uint i = 0U; i < info.descriptors.size(); i++) {
-            doUpdate(texture, info.descriptors[i]);
-        }
-        for (const auto *set : info.sets) {
-            _descriptorSetHub->record(set);
+        for (const auto &it : _textures) {
+            if (it.first->gpuTexture != texture->gpuTexture) continue;
+            const auto &info = it.second;
+            for (uint i = 0U; i < info.descriptors.size(); i++) {
+                doUpdate(texture, info.descriptors[i]);
+            }
+            for (const auto *set : info.sets) {
+                _descriptorSetHub->record(set);
+            }
         }
     }
     void update(const CCVKGPUTextureView *texture, VkDescriptorImageInfo *descriptor) {

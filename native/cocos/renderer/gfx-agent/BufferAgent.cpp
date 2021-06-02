@@ -24,11 +24,11 @@
 ****************************************************************************/
 
 #include "base/CoreStd.h"
+#include "base/LinearAllocatorPool.h"
 #include "base/threading/MessageQueue.h"
 
 #include "BufferAgent.h"
 #include "DeviceAgent.h"
-#include "LinearAllocatorPool.h"
 
 namespace cc {
 namespace gfx {

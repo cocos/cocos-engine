@@ -161,7 +161,7 @@ static bool js_webview_WebView_getOnShouldStartLoading(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        std::function<bool (cc::WebView *, const std::string&)> result = cobj->getOnShouldStartLoading();
+        std::function<bool (cc::WebView *, const std::string)> result = cobj->getOnShouldStartLoading();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_webview_WebView_getOnShouldStartLoading : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -398,14 +398,14 @@ static bool js_webview_WebView_setOnDidFailLoading(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<void (cc::WebView *, const std::string&)>, true> arg0 = {};
+        HolderType<std::function<void (cc::WebView *, const std::string)>, true> arg0 = {};
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](cc::WebView* larg0, const std::string& larg1) -> void {
+                auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         
@@ -447,14 +447,14 @@ static bool js_webview_WebView_setOnDidFinishLoading(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<void (cc::WebView *, const std::string&)>, true> arg0 = {};
+        HolderType<std::function<void (cc::WebView *, const std::string)>, true> arg0 = {};
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](cc::WebView* larg0, const std::string& larg1) -> void {
+                auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         
@@ -496,14 +496,14 @@ static bool js_webview_WebView_setOnJSCallback(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<void (cc::WebView *, const std::string&)>, true> arg0 = {};
+        HolderType<std::function<void (cc::WebView *, const std::string)>, true> arg0 = {};
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](cc::WebView* larg0, const std::string& larg1) -> void {
+                auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> void {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         
@@ -545,14 +545,14 @@ static bool js_webview_WebView_setOnShouldStartLoading(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<std::function<bool (cc::WebView *, const std::string&)>, true> arg0 = {};
+        HolderType<std::function<bool (cc::WebView *, const std::string)>, true> arg0 = {};
         do {
             if (args[0].isObject() && args[0].toObject()->isFunction())
             {
                 se::Value jsThis(s.thisObject());
                 se::Value jsFunc(args[0]);
                 jsThis.toObject()->attachObject(jsFunc.toObject());
-                auto lambda = [=](cc::WebView* larg0, const std::string& larg1) -> bool {
+                auto lambda = [=](cc::WebView* larg0, const std::string larg1) -> bool {
                     se::ScriptEngine::getInstance()->clearException();
                     se::AutoHandleScope hs;
         

@@ -42,7 +42,7 @@ public:
     Rect                 renderArea;
     Color                clearColors[MAX_ATTACHMENTS];
     float                clearDepth   = 1.0F;
-    int                  clearStencil = 0;
+    uint                 clearStencil = 0;
     uint                 subpassIdx   = 0U;
 
     GLES2CmdBeginRenderPass() : GLESCmd(GLESCmdType::BEGIN_RENDER_PASS) {}
@@ -215,7 +215,7 @@ CC_GLES2_API void cmdFuncGLES2BeginRenderPass(GLES2Device *device, uint subpassI
                                               const Rect *         renderArea     = nullptr,
                                               const Color *        clearColors    = nullptr,
                                               float                clearDepth     = 1.F,
-                                              int                  clearStencil   = 0);
+                                              uint                 clearStencil   = 0);
 
 CC_GLES2_API void cmdFuncGLES2EndRenderPass(GLES2Device *device);
 

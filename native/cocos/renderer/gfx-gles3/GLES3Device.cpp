@@ -288,7 +288,7 @@ void GLES3Device::bindRenderContext(bool bound) {
     _context = bound ? _renderContext : nullptr;
 
     if (bound) {
-        _threadID = std::hash<std::thread::id>()(std::this_thread::get_id());
+        _threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
         _gpuStateCache->reset();
     }
 }
@@ -306,7 +306,7 @@ void GLES3Device::bindDeviceContext(bool bound) {
     _context = bound ? _deviceContext : nullptr;
 
     if (bound) {
-        _threadID = std::hash<std::thread::id>()(std::this_thread::get_id());
+        _threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
         _gpuStateCache->reset();
     }
 }

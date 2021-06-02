@@ -75,7 +75,7 @@ public:
         });
     }
 
-    inline uint getThreadID() const { return _threadID; }
+    inline size_t getThreadID() const { return _threadID; }
 
     uint getMinorVersion() const;
 
@@ -121,7 +121,7 @@ protected:
 
     StringArray _extensions;
 
-    uint _threadID = 0U;
+    size_t _threadID = 0U;
 };
 
 } // namespace gfx

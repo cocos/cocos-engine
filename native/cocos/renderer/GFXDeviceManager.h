@@ -55,6 +55,10 @@ namespace cc {
 namespace gfx {
 
 class CC_DLL DeviceManager final {
+    static constexpr bool DETACH_DEVICE_THREAD{true};
+    static constexpr bool FORCE_DISABLE_VALIDATION{false};
+    static constexpr bool FORCE_ENABLE_VALIDATION{false};
+
 public:
     static Device *create(const DeviceInfo &info) {
         if (Device::instance) return Device::instance;
@@ -91,11 +95,12 @@ private:
     static bool tryCreate(const DeviceInfo &info, Device **pDevice) {
         Device *device = CC_NEW(DeviceCtor);
 
-        device = CC_NEW(gfx::DeviceAgent(device));
+        if (DETACH_DEVICE_THREAD) {
+            device = CC_NEW(gfx::DeviceAgent(device));
+        }
 
         if (CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION) {
             device = CC_NEW(gfx::DeviceValidator(device));
-            //((gfx::DeviceValidator *)device)->enableRecording(true);
         }
 
         if (!device->initialize(info)) {
@@ -119,9 +124,6 @@ private:
 #ifndef CC_DEBUG
     static constexpr int CC_DEBUG{0};
 #endif
-
-    static constexpr bool FORCE_DISABLE_VALIDATION{false};
-    static constexpr bool FORCE_ENABLE_VALIDATION{false};
 };
 
 } // namespace gfx

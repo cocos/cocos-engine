@@ -90,7 +90,7 @@ public:
          *  @return A JavaScript Typed Array Object whose backing store is the same as the one pointed data, or nullptr if there is an error.
          *  @note The return value (non-null) has to be released manually.
          */
-    static Object *createTypedArray(TypedArrayType type, void *data, size_t byteLength);
+    static Object *createTypedArray(TypedArrayType type, const void *data, size_t byteLength);
 
     /**
          *  @brief Creates a JavaScript Array Buffer object from an existing pointer.
@@ -302,12 +302,12 @@ public:
          *  @note This method will set `obj` as a property of current object, therefore the lifecycle of child object will depend on current object,
          *        which means `obj` may be garbage collected only after current object is garbage collected.
          *        It's normally used in binding a native callback method. For example:
-         
+
              ```javascript
                 var self = this;
                 someObject.setCallback(function(){}, self);
              ```
-         
+
              ```c++
                 static bool SomeObject_setCallback(se::State& s)
                 {

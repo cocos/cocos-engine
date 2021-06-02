@@ -42,7 +42,7 @@ constexpr bool ENABLE_LAZY_ALLOCATION = true;
 }
 
 CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool() {
-    std::thread::id threadID = std::this_thread::get_id();
+    static thread_local size_t threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
     if (!_commandBufferPools.count(threadID)) {
         _commandBufferPools[threadID] = CC_NEW(CCVKGPUCommandBufferPool(this));
     }
@@ -553,7 +553,7 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
 
 void cmdFuncCCVKCreateShader(CCVKDevice *device, CCVKGPUShader *gpuShader) {
     for (CCVKGPUShaderStage &stage : gpuShader->gpuStages) {
-        vector<unsigned int>     spirv = glsl2spirv(stage.type, "#version 450\n" + stage.source, device->gpuDevice()->minorVersion);
+        vector<unsigned int>     spirv = glsl2spirv(stage.type, "#version 450\n" + stage.source, static_cast<int>(device->gpuDevice()->minorVersion));
         VkShaderModuleCreateInfo createInfo{VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO};
         createInfo.codeSize = spirv.size() * sizeof(unsigned int);
         createInfo.pCode    = spirv.data();
@@ -993,8 +993,8 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
         VkFormatFeatureFlags mipmapFeatures = VK_FORMAT_FEATURE_BLIT_SRC_BIT | VK_FORMAT_FEATURE_BLIT_DST_BIT | VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
 
         if (formatProperties.optimalTilingFeatures & mipmapFeatures) {
-            const int32_t width  = gpuTexture->width;
-            const int32_t height = gpuTexture->height;
+            int width  = static_cast<int>(gpuTexture->width);
+            int height = static_cast<int>(gpuTexture->height);
 
             VkImageBlit blitInfo{};
             blitInfo.srcSubresource.aspectMask  = gpuTexture->aspectMask;

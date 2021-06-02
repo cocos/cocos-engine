@@ -128,10 +128,6 @@ void DeviceValidator::present() {
     ++_currentFrame;
 }
 
-void DeviceValidator::setMultithreaded(bool multithreaded) {
-    _actor->setMultithreaded(multithreaded);
-}
-
 CommandBuffer *DeviceValidator::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     CommandBuffer *actor  = _actor->createCommandBuffer(info, hasAgent);
     CommandBuffer *result = CC_NEW(CommandBufferValidator(actor));

@@ -96,20 +96,14 @@
     #include "cocos/bindings/auto/jsb_physics_auto.h"
 #endif
 
-using namespace cc;
-
 bool jsb_register_all_modules() {
     se::ScriptEngine *se = se::ScriptEngine::getInstance();
 
-    se->addBeforeInitHook([]() {
-        JSBClassType::init();
-    });
-
     se->addBeforeCleanupHook([se]() {
         se->garbageCollect();
-        PoolManager::getInstance()->getCurrentPool()->clear();
+        cc::PoolManager::getInstance()->getCurrentPool()->clear();
         se->garbageCollect();
-        PoolManager::getInstance()->getCurrentPool()->clear();
+        cc::PoolManager::getInstance()->getCurrentPool()->clear();
     });
 
     se->addRegisterCallback(jsb_register_global_variables);
@@ -180,8 +174,8 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_websocket_server);
 #endif
     se->addAfterCleanupHook([]() {
-        PoolManager::getInstance()->getCurrentPool()->clear();
-        JSBClassType::destroy();
+        cc::PoolManager::getInstance()->getCurrentPool()->clear();
+        JSBClassType::cleanup();
     });
     return true;
 }

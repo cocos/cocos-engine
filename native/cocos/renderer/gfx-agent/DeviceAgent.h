@@ -32,10 +32,10 @@
 namespace cc {
 
 class MessageQueue;
+class LinearAllocatorPool;
 
 namespace gfx {
 
-class LinearAllocatorPool;
 class CommandBuffer;
 class CommandBufferAgent;
 constexpr uint MAX_CPU_FRAME_AHEAD = 1U;
@@ -85,7 +85,6 @@ public:
     void                 copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) override;
 
     void             flushCommands(CommandBuffer *const *cmdBuffs, uint count) override;
-    void             setMultithreaded(bool multithreaded) override;
     SurfaceTransform getSurfaceTransform() const override { return _actor->getSurfaceTransform(); }
     uint             getWidth() const override { return _actor->getWidth(); }
     uint             getHeight() const override { return _actor->getHeight(); }
@@ -96,8 +95,10 @@ public:
     uint             getNumInstances() const override { return _actor->getNumInstances(); }
     uint             getNumTris() const override { return _actor->getNumTris(); }
 
-    MessageQueue *       getMessageQueue() const { return _mainMessageQueue; }
-    LinearAllocatorPool *getMainAllocator() const { return _allocatorPools[_currentIndex]; }
+    void setMultithreaded(bool multithreaded);
+
+    inline MessageQueue *       getMessageQueue() const { return _mainMessageQueue; }
+    inline LinearAllocatorPool *getMainAllocator() const { return _allocatorPools[_currentIndex]; }
 
 protected:
     static DeviceAgent *instance;

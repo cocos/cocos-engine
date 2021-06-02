@@ -81,7 +81,7 @@ Object *Object::createArrayBufferObject(void *data, size_t byteLength) {
     return obj;
 }
 
-Object *Object::createTypedArray(TypedArrayType type, void *data, size_t byteLength) {
+Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t byteLength) {
     if (type == TypedArrayType::NONE) {
         SE_LOGE("Don't pass se::Object::TypedArrayType::NONE to createTypedArray API!");
         return nullptr;
