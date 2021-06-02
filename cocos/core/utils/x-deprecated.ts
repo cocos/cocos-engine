@@ -246,7 +246,7 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
         const id = messageID++;
         messageMap.set(id, { id, count: 0, logTimes: item.logTimes !== undefined ? item.logTimes : defaultLogTimes });
         const suggest = item.suggest ? `(${item.suggest})` : '';
-        if (descriptor.value != null) {
+        if (typeof descriptor.value !== 'undefined') {
             if (typeof descriptor.value === 'function') {
                 const oldValue = descriptor.value as Function;
                 owner[deprecatedProp] = function (this) {
@@ -254,7 +254,17 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
                     return oldValue.call(this, ...arguments);
                 };
             } else {
-                _defaultGetSet(descriptor, ownerName, deprecatedProp, warn, id, suggest);
+                let oldValue = descriptor.value;
+                Object.defineProperty(owner, deprecatedProp, {
+                    get () {
+                        markAsWarningLog(ownerName, deprecatedProp, warn, id, suggest);
+                        return oldValue;
+                    },
+                    set (v) {
+                        markAsWarningLog(ownerName, deprecatedProp, warn, id, suggest);
+                        oldValue = v;
+                    },
+                });
             }
         } else {
             _defaultGetSet(descriptor, ownerName, deprecatedProp, warn, id, suggest);
