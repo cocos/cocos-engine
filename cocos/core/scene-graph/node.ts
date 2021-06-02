@@ -598,7 +598,8 @@ export class Node extends BaseNode {
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 cur._dirtyFlags |= dirtyBit;
-                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                cur._hasChangedFlagsChunk[cur._hasChangedFlagsOffset] = hasChangedFlags | dirtyBit;
                 const children = cur._children;
                 const len = children.length;
                 for (let j = 0; j < len; ++j) array_a[++i] = children[j];
@@ -625,16 +626,22 @@ export class Node extends BaseNode {
         }
         let child: this; let dirtyBits = 0;
 
+        let childMat: Mat4;
+        let childPos: Vec3;
         while (i) {
             child = array_a[--i];
             dirtyBits |= child._dirtyFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
-                    Vec3.transformMat4(child._pos, child._lpos, cur._mat);
-                    child._mat.m12 = child._pos.x;
-                    child._mat.m13 = child._pos.y;
-                    child._mat.m14 = child._pos.z;
-                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
+                    childMat = child._mat;
+                    childPos = child._pos;
+
+                    Vec3.transformMat4(childPos, child._lpos, cur._mat);
+
+                    childMat.m12 = childPos.x;
+                    childMat.m13 = childPos.y;
+                    childMat.m14 = childPos.z;
+                    NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, childPos);
                 }
                 if (dirtyBits & TransformBit.RS) {
                     Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
