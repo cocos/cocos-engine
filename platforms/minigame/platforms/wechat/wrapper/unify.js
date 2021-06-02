@@ -117,21 +117,4 @@ if (window.__globalAdapter) {
             });
         },
     });
-
-    // safeArea
-    // origin point on the top-left corner
-    globalAdapter.getSafeArea = function () {
-        let { top, left, bottom, right, width, height } = systemInfo.safeArea;
-        // HACK: on iOS device, the orientation should mannually rotate
-        if (systemInfo.platform === 'ios' && !globalAdapter.isDevTool && isLandscape) {
-            let tempData = [right, top, left, bottom, width, height];
-            top = windowHeight - tempData[0];
-            left = tempData[1];
-            bottom = windowHeight - tempData[2];
-            right = tempData[3];
-            height = tempData[4];
-            width = tempData[5];
-        }
-        return { top, left, bottom, right, width, height };
-    }
 }

@@ -71,7 +71,8 @@ rules:
     import/extensions: off # typescript doesn't support this
     import/no-unresolved: off # TODO: fix internal modules
     import/prefer-default-export: off # prefer named exports
-    indent: [warn, 4] # we use 4-space convention
+    indent: off # use @typescript-eslint/indent instead for better compatibility
+
     lines-between-class-members: off # be more lenient on member declarations
     max-classes-per-file: off # helper classes are common
     max-len: [warn, 150] # more lenient on max length per line
@@ -96,6 +97,9 @@ rules:
 
     ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
 
+    '@typescript-eslint/indent': [warn, 4, {
+        SwitchCase: 0
+    }]
     '@typescript-eslint/no-unused-expressions': warn
 
     # TODO: this is just too much work

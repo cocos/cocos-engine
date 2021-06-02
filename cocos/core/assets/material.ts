@@ -35,11 +35,11 @@ import { RenderTexture } from './render-texture';
 import { RenderableComponent } from '../components/renderable-component';
 import { Texture } from '../gfx';
 import { TextureBase } from './texture-base';
-import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { legacyCC } from '../global-exports';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
 import { Color } from '../math/color';
+import { warnID } from '../platform/debug';
 
 /**
  * @en The basic infos for material initialization.
@@ -190,6 +190,11 @@ export class Material extends Asset {
      * @param info Material description info.
      */
     public initialize (info: IMaterialInfo) {
+        if (this._passes.length) {
+            warnID(12005);
+            return;
+        }
+
         if (!this._defines) { this._defines = []; }
         if (!this._states) { this._states = []; }
         if (!this._props) { this._props = []; }
@@ -392,11 +397,6 @@ export class Material extends Asset {
 
     protected _update (keepProps = true) {
         if (this._effectAsset) {
-            if (this._passes && this._passes.length) {
-                for (const pass of this._passes) {
-                    pass.destroy();
-                }
-            }
             this._passes = this._createPasses();
             // handle property values
             const totalPasses = this._effectAsset.techniques[this._techIdx].passes.length;
@@ -466,11 +466,7 @@ export class Material extends Asset {
                 pass.destroy();
             }
         }
-        this._effectAsset = null;
         this._passes.length = 0;
-        this._props.length = 0;
-        this._defines.length = 0;
-        this._states.length = 0;
     }
 
     public initDefault (uuid?: string) {

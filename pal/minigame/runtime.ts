@@ -98,22 +98,24 @@ if (COCOSPLAY) {
     });
 }
 
-// safeArea
-// origin point on the top-left corner
-// FIX_ME: wrong safe area when orientation is landscape left
+// #region SafeArea
 minigame.getSafeArea = function () {
-    let { top, left, bottom, right, width, height } = systemInfo.safeArea;
-    // HACK: on iOS device, the orientation should mannually rotate
-    if (systemInfo.platform === 'ios' && !minigame.isDevTool && minigame.isLandscape) {
-        const tempData = [right, top, left, bottom, width, height];
-        top = systemInfo.screenHeight - tempData[0];
-        left = tempData[1];
-        bottom = systemInfo.screenHeight - tempData[2];
-        right = tempData[3];
-        height = tempData[4];
-        width = tempData[5];
+    const locSystemInfo = ral.getSystemInfoSync() as SystemInfo;
+    if (locSystemInfo.safeArea) {
+        return locSystemInfo.safeArea;
+    } else {
+        console.warn('getSafeArea is not supported on this platform');
+        const systemInfo =  minigame.getSystemInfoSync();
+        return {
+            top: 0,
+            left: 0,
+            bottom: systemInfo.screenHeight,
+            right: systemInfo.screenWidth,
+            width: systemInfo.screenWidth,
+            height: systemInfo.screenHeight,
+        };
     }
-    return { top, left, bottom, right, width, height };
 };
+// #endregion SafeArea
 
 export { minigame };
