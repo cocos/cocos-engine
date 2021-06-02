@@ -49,7 +49,6 @@
 #else
     #define ccDeleteLocalRef(jenv, ref) jenv->DeleteLocalRef(ref); //NOLINT
 #endif
-
 #define CLEAR_EXCEPTON(env)           \
     do {                              \
         if (env->ExceptionCheck()) {  \
@@ -104,7 +103,9 @@ public:
         if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName, signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->NewObject(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
-            // ccDeleteLocalRef(t.env, t.classID);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             deleteLocalRefs(t.env, &localRefs);
         } else {
             reportError(className, methodName, signature);
@@ -122,7 +123,9 @@ public:
         if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             t.env->CallVoidMethod(object, t.methodID, convert(&localRefs, &t, xs)...);
-            // ccDeleteLocalRef(t.env, t.classID);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             CLEAR_EXCEPTON(t.env);
             deleteLocalRefs(t.env, &localRefs);
         } else {
@@ -141,7 +144,9 @@ public:
         if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallFloatMethod(object, t.methodID, convert(&localRefs, &t, xs)...);
-            // ccDeleteLocalRef(t.env, t.classID);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             CLEAR_EXCEPTON(t.env);
             deleteLocalRefs(t.env, &localRefs);
         } else {
@@ -161,7 +166,9 @@ public:
         if (cc::JniHelper::getMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = static_cast<jbyteArray>(t.env->CallObjectMethod(object, t.methodID, convert(&localRefs, &t, xs)...));
-            // ccDeleteLocalRef(t.env, t.classID);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             CLEAR_EXCEPTON(t.env);
             deleteLocalRefs(t.env, &localRefs);
         } else {
@@ -179,7 +186,9 @@ public:
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             t.env->CallStaticVoidMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
-            // ccDeleteLocalRef(t.env, t.classID);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             CLEAR_EXCEPTON(t.env);
             deleteLocalRefs(t.env, &localRefs);
         } else {
@@ -197,7 +206,9 @@ public:
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             jret = t.env->CallStaticBooleanMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
-            //ccDeleteLocalRef(t.env, t.classID);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             CLEAR_EXCEPTON(t.env);
             deleteLocalRefs(t.env, &localRefs);
         } else {
@@ -216,7 +227,9 @@ public:
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallStaticIntMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
-            //ccDeleteLocalRef(t.env, t.classID);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             CLEAR_EXCEPTON(t.env);
             deleteLocalRefs(t.env, &localRefs);
         } else {
@@ -235,7 +248,9 @@ public:
         if (cc::JniHelper::getStaticMethodInfo(t, className.c_str(), methodName.c_str(), signature.c_str())) {
             LocalRefMapType localRefs;
             ret = t.env->CallStaticFloatMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
-            //ccDeleteLocalRef(t.env, t.classID);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             CLEAR_EXCEPTON(t.env);
             deleteLocalRefs(t.env, &localRefs);
         } else {
@@ -264,7 +279,9 @@ public:
                 };
             }
             CLEAR_EXCEPTON(t.env);
-            // ccDeleteLocalRef(t.env, t.classID);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             deleteLocalRefs(t.env, &localRefs);
             return &ret[0];
         }
@@ -292,7 +309,9 @@ public:
                 t.env->ReleaseFloatArrayElements(array, elems, 0);
             }
             CLEAR_EXCEPTON(t.env);
-            //ccDeleteLocalRef(t.env, t.classID);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             deleteLocalRefs(t.env, &localRefs);
         } else {
             reportError(className, methodName, signature);
@@ -311,7 +330,9 @@ public:
             LocalRefMapType localRefs;
             ret = t.env->CallStaticDoubleMethod(t.classID, t.methodID, convert(&localRefs, &t, xs)...);
             CLEAR_EXCEPTON(t.env);
-            // ccDeleteLocalRef(t.env, t.classID);
+#ifndef __OHOS__
+            ccDeleteLocalRef(t.env, t.classID);
+#endif
             deleteLocalRefs(t.env, &localRefs);
         } else {
             reportError(className, methodName, signature);
