@@ -93,11 +93,8 @@ export const simple: IAssembler = {
         // );
         // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
         const renderData = sprite.renderData;
-        if (renderData === null) {
-            return;
-        }
 
-        const dataList: IRenderData[] = renderData.data;
+        const dataList: IRenderData[] = renderData!.data;
         const node = sprite.node;
 
         let buffer = renderer.acquireBufferBatch();
@@ -118,12 +115,10 @@ export const simple: IAssembler = {
         }
 
         // buffer data may be reallocated, need get reference after request.
-        const vBuf = buffer.vData;
-        const iBuf = buffer.iData;
-        const vData = renderData.vData;
-        if (!vData || !vBuf || !iBuf) {
-            return;
-        }
+        const vBuf = buffer.vData!;
+        const iBuf = buffer.iData!;
+        const vData = renderData!.vData!;
+
         const data0 = dataList[0];
         const data3 = dataList[3];
         const matrix = node.worldMatrix;
