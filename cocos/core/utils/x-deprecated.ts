@@ -222,21 +222,37 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
     if (owner == null) return;
 
     const _defaultGetSet = (d: PropertyDescriptor, n: string, dp: string, f: Function, id: number, s: string) => {
-        if (d.get) {
-            const oldGet = d.get;
-            d.get = function (this) {
-                markAsWarningLog(n, dp, f, id, s);
-                return oldGet.call(this);
-            };
+        if (typeof d.value !== 'undefined') {
+            if (typeof d.get === 'undefined' && typeof d.set === 'undefined') {
+                let oldValue = d.value;
+                Object.defineProperty(owner, dp, {
+                    get () {
+                        markAsWarningLog(n, dp, f, id, s);
+                        return oldValue;
+                    },
+                    set (v) {
+                        markAsWarningLog(n, dp, f, id, s);
+                        oldValue = v;
+                    },
+                });
+            }
+        } else {
+            if (d.get) {
+                const oldGet = d.get;
+                d.get = function (this) {
+                    markAsWarningLog(n, dp, f, id, s);
+                    return oldGet.call(this);
+                };
+            }
+            if (d.set) {
+                const oldSet = d.set;
+                d.set = function (this, v: any) {
+                    markAsWarningLog(n, dp, f, id, s);
+                    oldSet.call(this, v);
+                };
+            }
+            Object.defineProperty(owner, dp, d);
         }
-        if (d.set) {
-            const oldSet = d.set;
-            d.set = function (this, v: any) {
-                markAsWarningLog(n, dp, f, id, s);
-                oldSet.call(this, v);
-            };
-        }
-        Object.defineProperty(owner, dp, d);
     };
 
     properties.forEach((item: IMarkItem) => {
