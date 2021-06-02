@@ -28,11 +28,11 @@
  * @module material
  */
 
+import { BatchingSchemes } from '..';
 import { IPassInfo } from '../../assets/effect-asset';
 import { MaterialInstance } from './material-instance';
 import { Pass, PassOverrides } from './pass';
 import { overrideMacros, MacroRecord } from './pass-utils';
-import { PassView, PassPool } from './memory-pools';
 
 /**
  * @en A pass instance defines an variant version of the [[Pass]]
@@ -122,11 +122,11 @@ export class PassInstance extends Pass {
 
     protected _syncBatchingScheme () {
         this._defines.USE_BATCHING = this._defines.USE_INSTANCING = false;
-        PassPool.set(this._handle, PassView.BATCHING_SCHEME, 0);
+        this._setBatchingScheme(BatchingSchemes.INSTANCING);
     }
 
     protected _onStateChange () {
-        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this, this._hShaderDefault));
+        this._setHash(Pass.getPassHash(this));
         this._owner.onPassStateChange(this._dontNotify);
     }
 }

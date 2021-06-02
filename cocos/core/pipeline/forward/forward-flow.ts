@@ -33,10 +33,8 @@ import { PIPELINE_FLOW_FORWARD } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from './enum';
 import { ForwardStage } from './forward-stage';
-import { ForwardPipeline } from './forward-pipeline';
 import { RenderPipeline } from '../render-pipeline';
 import { Camera } from '../../renderer/scene';
-import { sceneCulling } from '../scene-culling';
 
 /**
  * @en The forward flow in forward render pipeline

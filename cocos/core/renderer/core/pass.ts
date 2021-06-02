@@ -28,7 +28,7 @@
  * @module material
  */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { Root } from '../../root';
 import { TextureBase } from '../../assets/texture-base';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
@@ -38,11 +38,8 @@ import { samplerLib } from './sampler-lib';
 import {
     BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
-    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture,
+    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout,
 } from '../../gfx';
-import {
-    DSPool, NULL_HANDLE, PassHandle, PassPool, PassView, ShaderHandle,
-} from './memory-pools';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
 import {
@@ -50,6 +47,7 @@ import {
     getBindingFromHandle, getDefaultFromType, getOffsetFromHandle, getPropertyTypeFromHandle, getTypeFromHandle, type2reader, type2writer,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
+import { NativePass } from '../scene';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -132,12 +130,11 @@ export class Pass {
      * @param info The pass override info
      */
     public static fillPipelineInfo (pass: Pass, info: PassOverrides): void {
-        const hPass = pass.handle;
-        if (info.priority !== undefined) { PassPool.set(hPass, PassView.PRIORITY, info.priority); }
-        if (info.primitive !== undefined) { PassPool.set(hPass, PassView.PRIMITIVE, info.primitive); }
-        if (info.stage !== undefined) { PassPool.set(hPass, PassView.STAGE, info.stage); }
-        if (info.dynamicStates !== undefined) { PassPool.set(hPass, PassView.DYNAMIC_STATES, info.dynamicStates); }
-        if (info.phase !== undefined) { PassPool.set(hPass, PassView.PHASE, getPhaseID(info.phase)); }
+        if (info.priority !== undefined) { pass._setPriority(info.priority); }
+        if (info.primitive !== undefined) { pass._setPrimitive(info.primitive); }
+        if (info.stage !== undefined) { pass._setStage(info.stage); }
+        if (info.dynamicStates !== undefined) { pass._setDynamicState(info.dynamicStates); }
+        if (info.phase !== undefined) { pass._setPhase(getPhaseID(info.phase)); }
 
         const bs = pass._bs;
         if (info.blendState) {
@@ -163,9 +160,9 @@ export class Pass {
      *
      * @param hPass Handle of the pass info used to compute hash value.
      */
-    public static getPassHash (pass: Pass, hShader: ShaderHandle): number {
-        const hPass = pass.handle;
-        let res = `${hShader as unknown as number},${PassPool.get(hPass, PassView.PRIMITIVE)},${PassPool.get(hPass, PassView.DYNAMIC_STATES)}`;
+    public static getPassHash (pass: Pass): number {
+        const shaderKey = programLib.getKey(pass.program, pass.defines);
+        let res = `${shaderKey},${pass._primitive},${pass._dynamicStates}`;
         res += serializeBlendState(pass._bs);
         res += serializeDepthStencilState(pass._dss);
         res += serializeRasterizerState(pass._rs);
@@ -175,49 +172,44 @@ export class Pass {
 
     // internal resources
     protected _rootBuffer: Buffer | null = null;
-
     protected _rootBufferDirty = false;
-
     protected _buffers: Buffer[] = [];
-
     protected _descriptorSet: DescriptorSet = null!;
+    protected _pipelineLayout: PipelineLayout = null!;
 
     // internal data
     protected _passIndex = 0;
-
     protected _propertyIndex = 0;
-
     protected _programName = '';
-
     protected _dynamics: IPassDynamics = {};
-
     protected _propertyHandleMap: Record<string, number> = {};
-
     protected _rootBlock: ArrayBuffer | null = null;
-
     protected _blocks: Float32Array[] = [];
-
     protected _shaderInfo: IProgramInfo = null!;
-
     protected _defines: MacroRecord = {};
-
     protected _properties: Record<string, IPropertyInfo> = {};
+    protected _shader: Shader | null = null
+    protected _bs: BlendState = new BlendState();
+    protected _dss: DepthStencilState = new DepthStencilState();
+    protected _rs: RasterizerState = new RasterizerState();
+    protected _priority: RenderPriority = RenderPriority.DEFAULT;
+    protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
+    protected _phase = -1;
+    protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
+    protected _batchingScheme: BatchingSchemes = BatchingSchemes.INSTANCING;
+    protected _dynamicStates: DynamicStateFlagBit = DynamicStateFlagBit.NONE;
+    protected _hash = 0;
 
     // external references
     protected _root: Root;
-
     protected _device: Device;
 
     // native data
-    protected _hShaderDefault: ShaderHandle = NULL_HANDLE;
+    protected declare _nativeObj: NativePass | null;
 
-    protected _handle: PassHandle = NULL_HANDLE;
-
-    protected _bs: BlendState = new BlendState();
-
-    protected _dss: DepthStencilState = new DepthStencilState();
-
-    protected _rs: RasterizerState = new RasterizerState();
+    get native (): NativePass {
+        return this._nativeObj!;
+    }
 
     constructor (root: Root) {
         this._root = root;
@@ -374,6 +366,15 @@ export class Pass {
             this._rootBufferDirty = false;
         }
         this._descriptorSet.update();
+        if (JSB) {
+            this._nativeObj!.update();
+        }
+    }
+
+    private _destroy () {
+        if (JSB) {
+            this._nativeObj = null;
+        }
     }
 
     /**
@@ -399,10 +400,7 @@ export class Pass {
         this._dss.destroy();
         this._bs.destroy();
 
-        if (this._handle) {
-            DSPool.free(PassPool.get(this._handle, PassView.DESCRIPTOR_SET));
-            PassPool.free(this._handle); this._handle = NULL_HANDLE;
-        }
+        this._destroy();
     }
 
     /**
@@ -486,10 +484,11 @@ export class Pass {
         const { pipeline } = this._root;
         if (!pipeline) { return false; }
         this._syncBatchingScheme();
-        this._hShaderDefault = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
-        if (!this._hShaderDefault) { console.warn(`create shader ${this._programName} failed`); return false; }
-        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplateInfo(this._programName).hPipelineLayout);
-        PassPool.set(this._handle, PassView.HASH, Pass.getPassHash(this, this._hShaderDefault));
+        const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        if (!shader) { console.warn(`create shader ${this._programName} failed`); return false; }
+        this._shader = shader;
+        this._setPipelineLayout(programLib.getTemplateInfo(this._programName).pipelineLayout);
+        this._setHash(Pass.getPassHash(this));
         return true;
     }
 
@@ -498,21 +497,21 @@ export class Pass {
      * @zh 结合指定的编译宏组合获取当前 Pass 的 Shader Variant
      * @param patches The macro patches
      */
-    public getShaderVariant (patches: IMacroPatch[] | null = null): ShaderHandle {
-        if (!this._hShaderDefault && !this.tryCompile()) {
+    public getShaderVariant (patches: IMacroPatch[] | null = null): Shader | null {
+        if (!this._shader && !this.tryCompile()) {
             console.warn('pass resources incomplete');
-            return NULL_HANDLE as ShaderHandle;
+            return null;
         }
 
         if (!patches) {
-            return this._hShaderDefault;
+            return this._shader;
         }
 
         if (EDITOR) {
             for (let i = 0; i < patches.length; i++) {
                 if (!patches[i].name.startsWith('CC_')) {
                     console.warn('cannot patch non-builtin macros');
-                    return NULL_HANDLE as ShaderHandle;
+                    return null;
                 }
             }
         }
@@ -523,13 +522,13 @@ export class Pass {
             this._defines[patch.name] = patch.value;
         }
 
-        const hShader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
+        const shader = programLib.getGFXShader(this._device, this._programName, this._defines, pipeline);
 
         for (let i = 0; i < patches.length; i++) {
             const patch = patches[i];
             delete this._defines[patch.name];
         }
-        return hShader;
+        return shader;
     }
 
     // internal use
@@ -543,15 +542,72 @@ export class Pass {
      */
     public endChangeStatesSilently (): void {}
 
+    private _setPriority (val:RenderPriority) {
+        this._priority = val;
+        if (JSB) {
+            this._nativeObj!.setPriority(val);
+        }
+    }
+
+    private _setStage (val: RenderPassStage) {
+        this._stage = val;
+        if (JSB) {
+            this._nativeObj!.setStage(val);
+        }
+    }
+
+    private _setPhase (val: number) {
+        this._phase = val;
+        if (JSB) {
+            this._nativeObj!.setPhase(val);
+        }
+    }
+
+    private _setPrimitive (val: PrimitiveMode) {
+        this._primitive = val;
+        if (JSB) {
+            this._nativeObj!.setPrimitive(val);
+        }
+    }
+
+    private _setRasterizerState (val: RasterizerState) {
+        this._rs = val;
+        if (JSB) {
+            this._nativeObj!.setRasterizerState(val.native);
+        }
+    }
+
+    private _setDepthStencilState (val: DepthStencilState) {
+        this._dss = val;
+        if (JSB) {
+            this._nativeObj!.setDepthStencilState(val.native);
+        }
+    }
+
+    private _setBlendState (val: BlendState) {
+        this._bs = val;
+        if (JSB) {
+            this._nativeObj!.setBlendState(val.native);
+        }
+    }
+
+    private _setNativeDescriptorSet (val: DescriptorSet) {
+        if (JSB) {
+            this._nativeObj!.setDescriptorSet(val);
+        }
+    }
+
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
-        const handle = this._handle = PassPool.alloc();
-        PassPool.set(handle, PassView.PRIORITY, RenderPriority.DEFAULT);
-        PassPool.set(handle, PassView.STAGE, RenderPassStage.DEFAULT);
-        PassPool.set(handle, PassView.PHASE, getPhaseID('default'));
-        PassPool.set(handle, PassView.PRIMITIVE, PrimitiveMode.TRIANGLE_LIST);
-        PassPool.set(handle, PassView.RASTERIZER_STATE, this._rs.handle);
-        PassPool.set(handle, PassView.DEPTH_STENCIL_STATE, this._dss.handle);
-        PassPool.set(handle, PassView.BLEND_STATE, this._bs.handle);
+        if (JSB) {
+            this._nativeObj = new NativePass();
+        }
+        this._setPriority(RenderPriority.DEFAULT);
+        this._setStage(RenderPassStage.DEFAULT);
+        this._setPhase(getPhaseID('default'));
+        this._setPrimitive(PrimitiveMode.TRIANGLE_LIST);
+        this._setRasterizerState(this._rs);
+        this._setDepthStencilState(this._dss);
+        this._setBlendState(this._bs);
 
         this._passIndex = info.passIndex;
         this._propertyIndex = info.propertyIndex !== undefined ? info.propertyIndex : info.passIndex;
@@ -566,10 +622,8 @@ export class Pass {
 
         // init descriptor set
         _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
-        const dsHandle = DSPool.alloc(this._device, _dsInfo);
-        PassPool.set(this._handle, PassView.DESCRIPTOR_SET, dsHandle);
-        this._descriptorSet = DSPool.get(dsHandle);
-
+        this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
+        this._setNativeDescriptorSet(this._descriptorSet);
         // calculate total size required
         const blocks = this._shaderInfo.blocks;
         const tmplInfo = programLib.getTemplateInfo(info.program);
@@ -619,42 +673,65 @@ export class Pass {
     protected _syncBatchingScheme (): void {
         if (this._defines.USE_INSTANCING) {
             if (this._device.hasFeature(Feature.INSTANCED_ARRAYS)) {
-                PassPool.set(this._handle, PassView.BATCHING_SCHEME, BatchingSchemes.INSTANCING);
+                this._setBatchingScheme(BatchingSchemes.INSTANCING);
             } else {
                 this._defines.USE_INSTANCING = false;
-                PassPool.set(this._handle, PassView.BATCHING_SCHEME, 0);
+                this._setBatchingScheme(0);
             }
         } else if (this._defines.USE_BATCHING) {
-            PassPool.set(this._handle, PassView.BATCHING_SCHEME, BatchingSchemes.VB_MERGING);
+            this._setBatchingScheme(BatchingSchemes.VB_MERGING);
         } else {
-            PassPool.set(this._handle, PassView.BATCHING_SCHEME, 0);
+            this._setBatchingScheme(0);
         }
     }
 
     // Only for UI
-    private _destroyHandle () {
-        if (this._handle) {
-            PassPool.free(this._handle); this._handle = NULL_HANDLE;
+    protected _setBatchingScheme (val: BatchingSchemes) {
+        this._batchingScheme = val;
+        if (JSB) {
+            this._nativeObj!.setBatchingScheme(val);
+        }
+    }
+
+    private _setDynamicState (val: DynamicStateFlagBit) {
+        this._dynamicStates = val;
+        if (JSB) {
+            this._nativeObj!.setDynamicState(val);
+        }
+    }
+
+    private _setDescriptorSet (target: Pass, val: DescriptorSet) {
+        this._descriptorSet = target.descriptorSet;
+        this._setNativeDescriptorSet(this._descriptorSet);
+    }
+
+    protected _setHash (val: number) {
+        this._hash = val;
+        if (JSB) {
+            this._nativeObj!.setHash(val);
+        }
+    }
+
+    private _setPipelineLayout (pipelineLayout: PipelineLayout) {
+        this._pipelineLayout = pipelineLayout;
+        if (JSB) {
+            this._nativeObj!.setPipelineLayout(pipelineLayout);
         }
     }
 
     // Only for UI
     private _initPassFromTarget (target: Pass, dss: DepthStencilState, bs: BlendState, hashFactor: number) {
-        PassPool.set(this.handle, PassView.PRIORITY, target.priority);
-        PassPool.set(this.handle, PassView.STAGE, target.stage);
-        PassPool.set(this.handle, PassView.PHASE, target.phase);
-        PassPool.set(this.handle, PassView.BATCHING_SCHEME, target.batchingScheme);
-        PassPool.set(this.handle, PassView.PRIMITIVE, target.primitive);
-        PassPool.set(this.handle, PassView.DYNAMIC_STATES, target.dynamicStates);
-        this._descriptorSet = target.descriptorSet;
-        PassPool.set(this.handle, PassView.DESCRIPTOR_SET, PassPool.get(target.handle, PassView.DESCRIPTOR_SET));
+        this._setPriority(target.priority);
+        this._setStage(target.stage);
+        this._setPhase(target.phase);
+        this._setBatchingScheme(target.batchingScheme);
+        this._setPrimitive(target.primitive);
+        this._setDynamicState(target.dynamicStates);
+        this._setDescriptorSet(target, target.descriptorSet);
 
-        this._bs = bs;
-        PassPool.set(this.handle, PassView.BLEND_STATE, bs.handle);
-        this._rs = target.rasterizerState;
-        PassPool.set(this.handle, PassView.RASTERIZER_STATE, PassPool.get(target.handle, PassView.RASTERIZER_STATE));
-        this._dss = dss;
-        PassPool.set(this.handle, PassView.DEPTH_STENCIL_STATE, dss.handle);
+        this._setBlendState(bs);
+        this._setRasterizerState(target.rasterizerState);
+        this._setDepthStencilState(dss);
 
         this._passIndex = target.passIndex;
         this._propertyIndex = target.propertyIndex;
@@ -666,12 +743,10 @@ export class Pass {
         this._blocks = target._blocks;
         this._dynamics =  target._dynamics;
 
-        this._hShaderDefault = target._hShaderDefault;
+        this._shader = target._shader;
 
-        PassPool.set(this._handle, PassView.PIPELINE_LAYOUT, programLib.getTemplateInfo(this._programName).hPipelineLayout);
-
-        const hash = PassPool.get(target.handle, PassView.HASH);
-        PassPool.set(this._handle, PassView.HASH, hash ^ hashFactor);
+        this._setPipelineLayout(programLib.getTemplateInfo(this._programName).pipelineLayout);
+        this._setHash(target._hash ^ hashFactor);
     }
 
     // infos
@@ -688,19 +763,19 @@ export class Pass {
     get dynamics (): IPassDynamics { return this._dynamics; }
     get blocks (): Float32Array[] { return this._blocks; }
     // states
-    get handle (): PassHandle { return this._handle; }
-    get priority (): RenderPriority { return PassPool.get(this._handle, PassView.PRIORITY); }
-    get primitive (): PrimitiveMode { return PassPool.get(this._handle, PassView.PRIMITIVE); }
-    get stage (): RenderPassStage { return PassPool.get(this._handle, PassView.STAGE); }
-    get phase (): number { return PassPool.get(this._handle, PassView.PHASE); }
+    get priority (): RenderPriority { return this._priority; }
+    get primitive (): PrimitiveMode { return this._primitive; }
+    get stage (): RenderPassStage { return this._stage; }
+    get phase (): number { return this._phase; }
     get rasterizerState (): RasterizerState { return this._rs; }
     get depthStencilState (): DepthStencilState { return this._dss; }
     get blendState (): BlendState { return this._bs; }
-    get dynamicStates (): DynamicStateFlags { return PassPool.get(this._handle, PassView.DYNAMIC_STATES); }
-    get batchingScheme (): BatchingSchemes { return PassPool.get(this._handle, PassView.BATCHING_SCHEME); }
+    get dynamicStates (): DynamicStateFlags { return this._dynamicStates; }
+    get batchingScheme (): BatchingSchemes { return this._batchingScheme; }
     get descriptorSet (): DescriptorSet { return this._descriptorSet; }
-    get hash (): number { return PassPool.get(this._handle, PassView.HASH); }
+    get hash (): number { return this._hash; }
     get rootBufferDirty (): boolean { return this._rootBufferDirty; }
+    get pipelineLayout (): PipelineLayout { return this._pipelineLayout; }
 }
 
 function serializeBlendState (bs: BlendState): string {

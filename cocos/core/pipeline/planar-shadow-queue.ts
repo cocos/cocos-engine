@@ -29,7 +29,6 @@ import { CommandBuffer, Device, RenderPass } from '../gfx';
 import { InstancedBuffer } from './instanced-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { Model, Camera } from '../renderer/scene';
-import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { ShadowType } from '../renderer/scene/shadows';
 import { Layers } from '../scene-graph/layers';
@@ -76,7 +75,7 @@ export class PlanarShadowQueue {
                 const subModels = model.subModels;
                 for (let m = 0; m < subModels.length; m++) {
                     const subModel = subModels[m];
-                    instancedBuffer.merge(subModel, model.instancedAttributes, 0, subModel.planarInstanceShaderHandle);
+                    instancedBuffer.merge(subModel, model.instancedAttributes, 0, subModel.planarInstanceShader);
                 }
             } else {
                 this._pendingModels.push(model);
@@ -93,7 +92,7 @@ export class PlanarShadowQueue {
 
         if (!this._pendingModels.length) { return; }
         const pass = shadows.material.passes[0];
-        const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
+        const descriptorSet = pass.descriptorSet;
         cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, descriptorSet);
 
         const modelCount = this._pendingModels.length;
@@ -103,9 +102,9 @@ export class PlanarShadowQueue {
                 const subModel = model.subModels[j];
                 // This is a temporary solution
                 // It should not be written in a fixed way, or modified by the user
-                const shader = ShaderPool.get(subModel.planarShaderHandle);
+                const shader = subModel.planarShader;
                 const ia = subModel.inputAssembler;
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader!, renderPass, ia);
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);
                 cmdBuff.bindInputAssembler(ia);

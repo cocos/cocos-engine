@@ -30,17 +30,17 @@
  */
 
 import { CCClass } from '../data/class';
-import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
-import { IMat3Like, IMat4Like, IQuatLike, IVec3Like } from './type-define';
+import { IMat3Like, IMat4Like, IQuatLike, IVec3Like, FloatArray } from './type-define';
 import { clamp, EPSILON, random } from './utils';
 import { legacyCC } from '../global-exports';
+import { MathBase } from './math-base';
 
 /**
  * @en Representation of 3D vectors and points.
  * @zh 三维向量。
  */
-export class Vec3 extends ValueType {
+export class Vec3 extends MathBase {
     public static UNIT_X = Object.freeze(new Vec3(1, 0, 0));
     public static UNIT_Y = Object.freeze(new Vec3(0, 1, 0));
     public static UNIT_Z = Object.freeze(new Vec3(0, 0, 1));
@@ -674,34 +674,57 @@ export class Vec3 extends ValueType {
      * @en x component.
      * @zh x 分量。
      */
-    public declare x: number;
+    public get x (): number {
+        return this._array[0];
+    }
+    public set x (x: number) {
+        this._array[0] = x;
+    }
 
     /**
      * @en y component.
      * @zh y 分量。
      */
-    public declare y: number;
+    public get y (): number {
+        return this._array[1];
+    }
+    public set y (y: number) {
+        this._array[1] = y;
+    }
 
     /**
      * @en z component.
      * @zh z 分量。
      */
-    public declare z: number;
+    public get z (): number {
+        return this._array[2];
+    }
+    public set z (z: number) {
+        this._array[2] = z;
+    }
 
-    constructor (v: Vec3);
+    constructor (x: Vec3 | FloatArray);
 
     constructor (x?: number, y?: number, z?: number);
 
-    constructor (x?: number | Vec3, y?: number, z?: number) {
+    constructor (x?: number | Vec3 | FloatArray, y?: number, z?: number) {
         super();
         if (x && typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = x.z;
+            if (ArrayBuffer.isView(x)) {
+                this._array = x;
+                this._array.fill(0);
+            } else {
+                const v = x.array;
+                this._array = MathBase.createFloatArray(3);
+                this._array[0] = v[0];
+                this._array[1] = v[1];
+                this._array[2] = v[2];
+            }
         } else {
-            this.x = x || 0;
-            this.y = y || 0;
-            this.z = z || 0;
+            this._array = MathBase.createFloatArray(3);
+            this._array[0] = x || 0;
+            this._array[1] = y || 0;
+            this._array[2] = z || 0;
         }
     }
 
@@ -710,7 +733,7 @@ export class Vec3 extends ValueType {
      * @zh 克隆当前向量。
      */
     public clone () {
-        return new Vec3(this.x, this.y, this.z);
+        return new Vec3(this._array[0], this._array[1], this._array[2]);
     }
 
     /**
@@ -733,13 +756,14 @@ export class Vec3 extends ValueType {
 
     public set (x?: number | Vec3, y?: number, z?: number) {
         if (x && typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
-            this.z = x.z;
+            const v = x.array;
+            this._array[0] = v[0];
+            this._array[1] = v[1];
+            this._array[2] = v[2];
         } else {
-            this.x = x || 0;
-            this.y = y || 0;
-            this.z = z || 0;
+            this._array[0] = x || 0;
+            this._array[1] = y || 0;
+            this._array[2] = z || 0;
         }
         return this;
     }
@@ -752,13 +776,14 @@ export class Vec3 extends ValueType {
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public equals (other: Vec3, epsilon = EPSILON) {
+        const v = other.array;
         return (
-            Math.abs(this.x - other.x)
-            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
-            && Math.abs(this.y - other.y)
-            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
-            && Math.abs(this.z - other.z)
-            <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(other.z))
+            Math.abs(this._array[0] - v[0])
+            <= epsilon * Math.max(1.0, Math.abs(this._array[0]), Math.abs(v[0]))
+            && Math.abs(this._array[1] - v[1])
+            <= epsilon * Math.max(1.0, Math.abs(this._array[1]), Math.abs(v[1]))
+            && Math.abs(this._array[2] - v[2])
+            <= epsilon * Math.max(1.0, Math.abs(this._array[2]), Math.abs(v[2]))
         );
     }
 
@@ -773,12 +798,12 @@ export class Vec3 extends ValueType {
      */
     public equals3f (x: number, y: number, z: number, epsilon = EPSILON) {
         return (
-            Math.abs(this.x - x)
-            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x))
-            && Math.abs(this.y - y)
-            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y))
-            && Math.abs(this.z - z)
-            <= epsilon * Math.max(1.0, Math.abs(this.z), Math.abs(z))
+            Math.abs(this._array[0] - x)
+            <= epsilon * Math.max(1.0, Math.abs(this._array[0]), Math.abs(x))
+            && Math.abs(this._array[1] - y)
+            <= epsilon * Math.max(1.0, Math.abs(this._array[1]), Math.abs(y))
+            && Math.abs(this._array[2] - z)
+            <= epsilon * Math.max(1.0, Math.abs(this._array[2]), Math.abs(z))
         );
     }
 
@@ -789,7 +814,8 @@ export class Vec3 extends ValueType {
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public strictEquals (other: Vec3) {
-        return this.x === other.x && this.y === other.y && this.z === other.z;
+        const v = other.array;
+        return this._array[0] === v[0] && this._array[1] === v[1] && this._array[2] === v[2];
     }
 
     /**
@@ -801,7 +827,7 @@ export class Vec3 extends ValueType {
      * @returns Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public strictEquals3f (x: number, y: number, z: number) {
-        return this.x === x && this.y === y && this.z === z;
+        return this._array[0] === x && this._array[1] === y && this._array[2] === z;
     }
 
     /**
@@ -810,7 +836,7 @@ export class Vec3 extends ValueType {
      * @returns The string with vector information
      */
     public toString () {
-        return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)}, ${this.z.toFixed(2)})`;
+        return `(${this._array[0].toFixed(2)}, ${this._array[1].toFixed(2)}, ${this._array[2].toFixed(2)})`;
     }
 
     /**
@@ -820,9 +846,9 @@ export class Vec3 extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Vec3, ratio: number) {
-        this.x += ratio * (to.x - this.x);
-        this.y += ratio * (to.y - this.y);
-        this.z += ratio * (to.z - this.z);
+        this._array[0] += ratio * (to.x - this._array[0]);
+        this._array[1] += ratio * (to.y - this._array[1]);
+        this._array[2] += ratio * (to.z - this._array[2]);
         return this;
     }
 
@@ -832,9 +858,10 @@ export class Vec3 extends ValueType {
      * @param other specified vector
      */
     public add (other: Vec3) {
-        this.x += other.x;
-        this.y += other.y;
-        this.z += other.z;
+        const v = other.array;
+        this._array[0] += v[0];
+        this._array[1] += v[1];
+        this._array[2] += v[2];
         return this;
     }
 
@@ -846,9 +873,9 @@ export class Vec3 extends ValueType {
      * @param z The z value of specified vector
      */
     public add3f (x: number, y: number, z: number) {
-        this.x += x;
-        this.y += y;
-        this.z += z;
+        this._array[0] += x;
+        this._array[1] += y;
+        this._array[2] += z;
         return this;
     }
 
@@ -858,9 +885,10 @@ export class Vec3 extends ValueType {
      * @param other specified vector
      */
     public subtract (other: Vec3) {
-        this.x -= other.x;
-        this.y -= other.y;
-        this.z -= other.z;
+        const v = other.array;
+        this._array[0] -= v[0];
+        this._array[1] -= v[1];
+        this._array[2] -= v[2];
         return this;
     }
 
@@ -872,9 +900,9 @@ export class Vec3 extends ValueType {
      * @param z The z value of specified vector
      */
     public subtract3f (x: number, y: number, z: number) {
-        this.x -= x;
-        this.y -= y;
-        this.z -= z;
+        this._array[0] -= x;
+        this._array[1] -= y;
+        this._array[2] -= z;
         return this;
     }
 
@@ -885,9 +913,9 @@ export class Vec3 extends ValueType {
      */
     public multiplyScalar (scalar: number) {
         if (typeof scalar === 'object') { console.warn('should use Vec3.multiply for vector * vector operation'); }
-        this.x *= scalar;
-        this.y *= scalar;
-        this.z *= scalar;
+        this._array[0] *= scalar;
+        this._array[1] *= scalar;
+        this._array[2] *= scalar;
         return this;
     }
 
@@ -898,9 +926,10 @@ export class Vec3 extends ValueType {
      */
     public multiply (other: Vec3) {
         if (typeof other !== 'object') { console.warn('should use Vec3.scale for vector * scalar operation'); }
-        this.x *= other.x;
-        this.y *= other.y;
-        this.z *= other.z;
+        const v = other.array;
+        this._array[0] *= v[0];
+        this._array[1] *= v[1];
+        this._array[2] *= v[2];
         return this;
     }
 
@@ -912,9 +941,9 @@ export class Vec3 extends ValueType {
      * @param z The z value of specified vector
      */
     public multiply3f (x: number, y: number, z: number) {
-        this.x *= x;
-        this.y *= y;
-        this.z *= z;
+        this._array[0] *= x;
+        this._array[1] *= y;
+        this._array[2] *= z;
         return this;
     }
 
@@ -924,9 +953,10 @@ export class Vec3 extends ValueType {
      * @param other specified vector
      */
     public divide (other: Vec3) {
-        this.x /= other.x;
-        this.y /= other.y;
-        this.z /= other.z;
+        const v = other.array;
+        this._array[0] /= v[0];
+        this._array[1] /= v[1];
+        this._array[2] /= v[2];
         return this;
     }
 
@@ -938,9 +968,9 @@ export class Vec3 extends ValueType {
      * @param z The z value of specified vector
      */
     public divide3f (x: number, y: number, z: number) {
-        this.x /= x;
-        this.y /= y;
-        this.z /= z;
+        this._array[0] /= x;
+        this._array[1] /= y;
+        this._array[2] /= z;
         return this;
     }
 
@@ -949,9 +979,9 @@ export class Vec3 extends ValueType {
      * @zh 将当前向量的各个分量取反
      */
     public negative () {
-        this.x = -this.x;
-        this.y = -this.y;
-        this.z = -this.z;
+        this._array[0] = -this._array[0];
+        this._array[1] = -this._array[1];
+        this._array[2] = -this._array[2];
         return this;
     }
 
@@ -963,9 +993,11 @@ export class Vec3 extends ValueType {
      * @returns `this`
      */
     public clampf (minInclusive: Vec3, maxInclusive: Vec3) {
-        this.x = clamp(this.x, minInclusive.x, maxInclusive.x);
-        this.y = clamp(this.y, minInclusive.y, maxInclusive.y);
-        this.z = clamp(this.z, minInclusive.z, maxInclusive.z);
+        const min = minInclusive.array;
+        const max = maxInclusive.array;
+        this._array[0] = clamp(this._array[0], min[0], max[0]);
+        this._array[1] = clamp(this._array[1], min[1], max[1]);
+        this._array[2] = clamp(this._array[2], min[2], max[2]);
         return this;
     }
 
@@ -976,7 +1008,8 @@ export class Vec3 extends ValueType {
      * @returns The result of calculates the dot product with another vector
      */
     public dot (other: Vec3) {
-        return this.x * other.x + this.y * other.y + this.z * other.z;
+        const v = other.array;
+        return this._array[0] * v[0] + this._array[1] * v[1] + this._array[2] * v[2];
     }
 
     /**
@@ -985,12 +1018,16 @@ export class Vec3 extends ValueType {
      * @param other specified vector
      */
     public cross (other: Vec3) {
-        const { x: ax, y: ay, z: az } = this;
-        const { x: bx, y: by, z: bz } = other;
+        const ax = this._array[0];
+        const ay = this._array[1];
+        const az = this._array[2];
+        const bx = other.array[0];
+        const by = other.array[1];
+        const bz = other.array[2];
 
-        this.x = ay * bz - az * by;
-        this.y = az * bx - ax * bz;
-        this.z = ax * by - ay * bx;
+        this._array[0] = ay * bz - az * by;
+        this._array[1] = az * bx - ax * bz;
+        this._array[2] = ax * by - ay * bx;
         return this;
     }
 
@@ -1000,7 +1037,7 @@ export class Vec3 extends ValueType {
      * @returns Length of vector
      */
     public length () {
-        return Math.sqrt(this.x * this.x + this.y * this.y + this.z * this.z);
+        return Math.sqrt(this._array[0] * this._array[0] + this._array[1] * this._array[1] + this._array[2] * this._array[2]);
     }
 
     /**
@@ -1009,7 +1046,7 @@ export class Vec3 extends ValueType {
      * @returns the squared length of this vector
      */
     public lengthSqr () {
-        return this.x * this.x + this.y * this.y + this.z * this.z;
+        return this._array[0] * this._array[0] + this._array[1] * this._array[1] + this._array[2] * this._array[2];
     }
 
     /**
@@ -1017,16 +1054,16 @@ export class Vec3 extends ValueType {
      * @zh 将当前向量归一化
      */
     public normalize () {
-        const x = this.x;
-        const y = this.y;
-        const z = this.z;
+        const x = this._array[0];
+        const y = this._array[1];
+        const z = this._array[2];
 
         let len = x * x + y * y + z * z;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
-            this.x = x * len;
-            this.y = y * len;
-            this.z = z * len;
+            this._array[0] = x * len;
+            this._array[1] = y * len;
+            this._array[2] = z * len;
         }
         return this;
     }
@@ -1037,14 +1074,15 @@ export class Vec3 extends ValueType {
      * @param matrix matrix to transform with
      */
     public transformMat4 (matrix: Mat4) {
-        const x = this.x;
-        const y = this.y;
-        const z = this.z;
-        let rhw = matrix.m03 * x + matrix.m07 * y + matrix.m11 * z + matrix.m15;
+        const x = this._array[0];
+        const y = this._array[1];
+        const z = this._array[2];
+        const v = matrix.array;
+        let rhw = v[3] * x + v[7] * y + v[11] * z + v[15];
         rhw = rhw ? 1 / rhw : 1;
-        this.x = (matrix.m00 * x + matrix.m04 * y + matrix.m08 * z + matrix.m12) * rhw;
-        this.y = (matrix.m01 * x + matrix.m05 * y + matrix.m09 * z + matrix.m13) * rhw;
-        this.z = (matrix.m02 * x + matrix.m06 * y + matrix.m10 * z + matrix.m14) * rhw;
+        this._array[0] = (v[0] * x + v[4] * y + v[8] * z + v[12]) * rhw;
+        this._array[1] = (v[1] * x + v[5] * y + v[9] * z + v[13]) * rhw;
+        this._array[2] = (v[2] * x + v[6] * y + v[10] * z + v[14]) * rhw;
         return this;
     }
 }

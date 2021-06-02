@@ -59,6 +59,10 @@ import { NULL_HANDLE, RawBufferHandle } from '../../renderer/core/memory-pools';
 export class RasterizerState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
+    get native () {
+        return this;
+    }
+
     constructor (
         public isDiscard: boolean = false,
         public polygonMode: PolygonMode = PolygonMode.FILL,
@@ -105,6 +109,9 @@ export class RasterizerState {
 export class DepthStencilState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
+    get native () {
+        return this;
+    }
     constructor (
         public depthTest: boolean = true,
         public depthWrite: boolean = true,
@@ -202,6 +209,10 @@ export class BlendTarget {
  */
 export class BlendState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    get native () {
+        return this;
+    }
 
     constructor (
         public isA2C: boolean = false,

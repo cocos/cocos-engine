@@ -33,8 +33,6 @@ import { RenderPipeline } from './render-pipeline';
 import { InstancedBuffer } from './instanced-buffer';
 import { Model } from '../renderer/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView,
-    ShaderHandle } from '../renderer/core/memory-pools';
 import { Vec3, nextPow2, Mat4, Color } from '../math';
 import { Sphere, intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
@@ -234,11 +232,11 @@ export class RenderAdditiveLightQueue {
 
         for (let i = 0; i < this._lightPasses.length; i++) {
             const { subModel, passIdx, dynamicOffsets, lights } = this._lightPasses[i];
-            const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
             const pass = subModel.passes[passIdx];
+            const shader = pass.getShaderVariant();
             const ia = subModel.inputAssembler;
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
-            const matDS = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader!, renderPass, ia);
+            const matDS = pass.descriptorSet;
             const localDS = subModel.descriptorSet;
 
             cmdBuff.bindPipelineState(pso);

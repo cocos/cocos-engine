@@ -28,42 +28,55 @@
  * @hidden
  */
 
+import { JSB } from 'internal:constants';
 import { MeshBuffer } from './mesh-buffer';
 import { Material } from '../../core/assets/material';
-import { Texture, Sampler } from '../../core/gfx';
+import { Texture, Sampler, InputAssembler, DescriptorSet, Shader } from '../../core/gfx';
 import { Node } from '../../core/scene-graph';
 import { Camera } from '../../core/renderer/scene/camera';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
 import { Model } from '../../core/renderer/scene/model';
 import { Batcher2D } from './batcher-2d';
-import { NULL_HANDLE, BatchHandle2D, BatchPool2D, BatchView2D, PassPool } from '../../core/renderer/core/memory-pools';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
+import { NativeDrawBatch2D, NativePass } from '../../core/renderer/scene';
+import { BatchView2D } from '../../core/renderer';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
 export class DrawBatch2D {
-    public get handle () {
-        return this._handle;
+    public get native (): NativeDrawBatch2D {
+        return this._nativeObj!;
     }
-    public get hInputAssembler () {
-        return BatchPool2D.get(this._handle, BatchView2D.INPUT_ASSEMBLER);
+
+    public get inputAssembler () {
+        return this._inputAssember;
     }
-    public set hInputAssembler (handle) {
-        BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, handle);
+    public set inputAssembler (ia: InputAssembler | null) {
+        this._inputAssember = ia;
+        if (JSB) {
+            this._nativeObj!.inputAssembler = ia;
+        }
     }
-    public get hDescriptorSet () {
-        return BatchPool2D.get(this._handle, BatchView2D.DESCRIPTOR_SET);
+    public get descriptorSet () {
+        return this._descriptorSet;
     }
-    public set hDescriptorSet (handle) {
-        BatchPool2D.set(this._handle, BatchView2D.DESCRIPTOR_SET, handle);
+    public set descriptorSet (ds: DescriptorSet | null) {
+        this._descriptorSet = ds;
+        if (JSB) {
+            this._nativeObj!.descriptorSet = ds;
+        }
     }
     public get visFlags () {
-        return BatchPool2D.get(this._handle, BatchView2D.VIS_FLAGS);
+        return this._visFlags;
     }
     public set visFlags (vis) {
-        BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, vis);
+        this._visFlags = vis;
+
+        if (JSB) {
+            this._nativeObj!.visFlags = vis;
+        }
     }
     public get passes () {
         return this._passes;
@@ -79,33 +92,30 @@ export class DrawBatch2D {
     public isStatic = false;
     public textureHash = 0;
     public samplerHash = 0;
-    private _handle: BatchHandle2D = NULL_HANDLE;
     private _passes: Pass[] = [];
+    private _visFlags: BatchView2D = UI_VIS_FLAG;
+    private _inputAssember: InputAssembler | null = null;
+    private _descriptorSet: DescriptorSet | null = null;
+    private declare _nativeObj: NativeDrawBatch2D | null;
 
     constructor () {
-        this._handle = BatchPool2D.alloc();
-        BatchPool2D.set(this._handle, BatchView2D.VIS_FLAGS, UI_VIS_FLAG);
-        BatchPool2D.set(this._handle, BatchView2D.INPUT_ASSEMBLER, NULL_HANDLE);
-        BatchPool2D.set(this._handle, BatchView2D.DESCRIPTOR_SET, NULL_HANDLE);
+        if (JSB) {
+            this._nativeObj = new NativeDrawBatch2D();
+            this._nativeObj.visFlags = this._visFlags;
+        }
     }
 
     public destroy (ui: Batcher2D) {
-        if (this._handle) {
-            const length = this.passes.length;
-            for (let i = 0; i < length; i++) {
-                // @ts-expect-error hack for UI destroyHandle
-                this.passes[i]._destroyHandle();
-            }
-            this._passes = [];
-            BatchPool2D.free(this._handle);
-            this._handle = NULL_HANDLE;
+        this._passes = [];
+        if (JSB) {
+            this._nativeObj = null;
         }
     }
 
     public clear () {
         this.bufferBatch = null;
-        this.hInputAssembler = NULL_HANDLE;
-        this.hDescriptorSet = NULL_HANDLE;
+        this.inputAssembler = null;
+        this.descriptorSet = null;
         this.camera = null;
         this.texture = null;
         this.sampler = null;
@@ -121,15 +131,16 @@ export class DrawBatch2D {
             const passes = mat.passes;
             if (!passes) { return; }
 
-            BatchPool2D.set(this._handle, BatchView2D.PASS_COUNT, passes.length);
-            let passOffset = BatchView2D.PASS_0;
-            let shaderOffset = BatchView2D.SHADER_0;
             let hashFactor = 0;
-            for (let i = 0; i < passes.length; i++, passOffset++, shaderOffset++) {
+
+            for (let i = 0; i < passes.length; i++) {
                 if (!this._passes[i]) {
                     this._passes[i] = new Pass(legacyCC.director.root);
-                    // @ts-expect-error hack for UI use pass object
-                    this._passes[i]._handle = PassPool.alloc();
+
+                    if (JSB) {
+                        // @ts-expect-error hack for UI use pass object
+                        this._passes[i]._nativeObj = new NativePass();
+                    }
                 }
                 const mtlPass = passes[i];
                 const passInUse = this._passes[i];
@@ -142,8 +153,19 @@ export class DrawBatch2D {
                 mtlPass.update();
                 // @ts-expect-error hack for UI use pass object
                 passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
-                BatchPool2D.set(this._handle, passOffset, passInUse.handle);
-                BatchPool2D.set(this._handle, shaderOffset, passInUse.getShaderVariant(patches));
+            }
+
+            if (JSB) {
+                const nativePasses: NativePass[] = [];
+                const nativeShaders: Shader[] = [];
+                const passes = this._passes;
+                for (let i = 0; i < passes.length; i++) {
+                    nativePasses.push(passes[i].native);
+                    nativeShaders.push(passes[i].getShaderVariant()!);
+                }
+
+                this._nativeObj!.passes = nativePasses;
+                this._nativeObj!.shaders = nativeShaders;
             }
         }
     }

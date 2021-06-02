@@ -120,6 +120,12 @@ export class RenderingSubMesh {
 
     private _handle: SubMeshHandle = NULL_HANDLE;
 
+    private _init () {
+        this._handle = SubMeshPool.alloc();
+        const fbArrayHandle = FlatBufferArrayPool.alloc();
+        SubMeshPool.set(this._handle, SubMeshView.FLAT_BUFFER_ARRAY, fbArrayHandle);
+    }
+
     constructor (
         vertexBuffers: Buffer[], attributes: Attribute[], primitiveMode: PrimitiveMode,
         indexBuffer: Buffer | null = null, indirectBuffer: Buffer | null = null,
@@ -130,9 +136,7 @@ export class RenderingSubMesh {
         this._indirectBuffer = indirectBuffer;
         this._primitiveMode = primitiveMode;
         this._iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer, indirectBuffer);
-        this._handle = SubMeshPool.alloc();
-        const fbArrayHandle = FlatBufferArrayPool.alloc();
-        SubMeshPool.set(this._handle, SubMeshView.FLAT_BUFFER_ARRAY, fbArrayHandle);
+        this._init();
     }
 
     /**

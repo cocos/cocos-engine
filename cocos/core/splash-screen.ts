@@ -307,8 +307,8 @@ export class SplashScreen {
         const pass = this.logoMat.passes[0];
         const binding = pass.getBinding('mainTexture');
         pass.bindTexture(binding, this.logoTexture);
-        this.shader = ShaderPool.get(pass.getShaderVariant());
-        const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
+        this.shader = pass.getShaderVariant()!;
+        const descriptorSet = pass.descriptorSet;
         descriptorSet.bindSampler(binding, this.sampler);
         descriptorSet.update();
 
@@ -345,7 +345,7 @@ export class SplashScreen {
         const pass = this.watermarkMat.passes[0];
         const binding = pass.getBinding('mainTexture');
         pass.bindTexture(binding, this.watermarkTexture);
-        DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET)).update();
+        pass.descriptorSet.update();
     }
 
     private frame () {

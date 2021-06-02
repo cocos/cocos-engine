@@ -33,11 +33,10 @@ import { SetIndex, IDescriptorSetLayoutInfo, globalDescriptorSetLayout, localDes
 import { RenderPipeline } from '../../pipeline/render-pipeline';
 import { genHandle, MacroRecord, PropertyType } from './pass-utils';
 import { legacyCC } from '../../global-exports';
-import { ShaderPool, ShaderHandle, PipelineLayoutHandle, PipelineLayoutPool, NULL_HANDLE } from './memory-pools';
 import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
     DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
-    DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture } from '../../gfx';
+    DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout, Shader } from '../../gfx';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
@@ -53,7 +52,7 @@ export interface ITemplateInfo {
     blockSizes: number[];
     gfxStages: ShaderStage[];
     setLayouts: DescriptorSetLayout[];
-    hPipelineLayout: PipelineLayoutHandle;
+    pipelineLayout: PipelineLayout;
     handleMap: Record<string, number>;
     bindings: DescriptorSetLayoutBinding[];
     samplerStartBinding: number;
@@ -191,7 +190,7 @@ function getActiveAttributes (tmpl: IProgramInfo, tmplInfo: ITemplateInfo, defin
  */
 class ProgramLib {
     protected _templates: Record<string, IProgramInfo> = {}; // per shader
-    protected _cache: Record<string, ShaderHandle> = {};
+    protected _cache: Record<string, Shader> = {};
     protected _templateInfos: Record<number, ITemplateInfo> = {};
 
     public register (effect: EffectAsset) {
@@ -268,7 +267,6 @@ class ProgramLib {
             tmplInfo.gfxStages.push(new ShaderStage(ShaderStageFlagBit.VERTEX, ''));
             tmplInfo.gfxStages.push(new ShaderStage(ShaderStageFlagBit.FRAGMENT, ''));
             tmplInfo.handleMap = genHandles(tmpl);
-            tmplInfo.hPipelineLayout = NULL_HANDLE;
             tmplInfo.setLayouts = [];
 
             this._templateInfos[tmpl.hash] = tmplInfo;
@@ -373,10 +371,10 @@ class ProgramLib {
             if (typeof val === 'boolean') { val = val ? '1' : '0'; }
             return new RegExp(`${cur}${val}`);
         });
-        const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(ShaderPool.get(this._cache[k]).name)));
+        const keys = Object.keys(this._cache).filter((k) => regexes.every((re) => re.test(this._cache[k].name)));
         for (let i = 0; i < keys.length; i++) {
             const k = keys[i];
-            const prog = ShaderPool.get(this._cache[k]);
+            const prog = this._cache[k];
             console.log(`destroyed shader ${prog.name}`);
             prog.destroy();
             delete this._cache[k];
@@ -399,11 +397,11 @@ class ProgramLib {
 
         const tmpl = this._templates[name];
         const tmplInfo = this._templateInfos[tmpl.hash];
-        if (!tmplInfo.hPipelineLayout) {
+        if (!tmplInfo.pipelineLayout) {
             this.getDescriptorSetLayout(device, name); // ensure set layouts have been created
             insertBuiltinBindings(tmpl, tmplInfo, globalDescriptorSetLayout, 'globals');
             tmplInfo.setLayouts[SetIndex.GLOBAL] = pipeline.descriptorSetLayout;
-            tmplInfo.hPipelineLayout = PipelineLayoutPool.alloc(device, new PipelineLayoutInfo(tmplInfo.setLayouts));
+            tmplInfo.pipelineLayout = device.createPipelineLayout(new PipelineLayoutInfo(tmplInfo.setLayouts));
         }
 
         const macroArray = prepareDefines(defines, tmpl.defines);
@@ -426,7 +424,7 @@ class ProgramLib {
         const instanceName = getShaderInstanceName(name, macroArray);
         const shaderInfo = new ShaderInfo(instanceName, tmplInfo.gfxStages, attributes, tmplInfo.gfxBlocks);
         shaderInfo.samplerTextures = tmplInfo.gfxSamplerTextures;
-        return this._cache[key] = ShaderPool.alloc(device, shaderInfo);
+        return this._cache[key] = device.createShader(shaderInfo);
     }
 }
 

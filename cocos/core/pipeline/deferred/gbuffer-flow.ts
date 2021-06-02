@@ -33,9 +33,7 @@ import { PIPELINE_FLOW_GBUFFER } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { DeferredFlowPriority } from './enum';
 import { GbufferStage } from './gbuffer-stage';
-import { DeferredPipeline } from './deferred-pipeline';
 import { RenderPipeline } from '../render-pipeline';
-import { sceneCulling } from '../scene-culling';
 
 /**
  * @en The gbuffer flow in deferred render pipeline

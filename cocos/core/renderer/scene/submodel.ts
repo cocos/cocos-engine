@@ -27,11 +27,12 @@ import { JSB } from 'internal:constants';
 import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { RenderPriority } from '../../pipeline/define';
 import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
-import { DSPool, IAPool, SubModelPool, SubModelView, SubModelHandle, NULL_HANDLE, ShaderHandle } from '../core/memory-pools';
-import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, InputAssemblerInfo } from '../../gfx';
+import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, InputAssemblerInfo, Shader } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from '../../pipeline';
 import { errorID } from '../../platform';
+import { Shadows } from './shadows';
+import { NativePass, NativeSubModel } from './native-scene';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
@@ -40,16 +41,17 @@ export class SubModel {
      protected _passes: Pass[] | null = null;
      protected _subMesh: RenderingSubMesh | null = null;
      protected _patches: IMacroPatch[] | null = null;
-     protected _handle: SubModelHandle = NULL_HANDLE;
      protected _priority: RenderPriority = RenderPriority.DEFAULT;
      protected _inputAssembler: InputAssembler | null = null;
      protected _descriptorSet: DescriptorSet | null = null;
-     protected _passCount = 0;
+     protected _planarInstanceShader: Shader | null = null;
+     protected _planarShader: Shader | null = null;
+     protected declare _nativeObj: NativeSubModel | null;
 
      private _destroyDescriptorSet () {
         this._descriptorSet!.destroy();
         if (JSB) {
-            DSPool.free(SubModelPool.get(this._handle, SubModelView.DESCRIPTOR_SET));
+            this._nativeObj!.setDescriptorSet(null);
         }
         this._descriptorSet = null;
      }
@@ -57,21 +59,15 @@ export class SubModel {
      private _destroyInputAssembler () {
         this._inputAssembler!.destroy();
         if (JSB) {
-            IAPool.free(SubModelPool.get(this._handle, SubModelView.INPUT_ASSEMBLER));
+            this._nativeObj!.setInputAssembler(null);
         }
         this._inputAssembler = null;
      }
 
      private _createDescriptorSet (descInfo: DescriptorSetInfo) {
-         const dsHandle = DSPool.alloc(this._device!, descInfo);
-         SubModelPool.set(this._handle, SubModelView.DESCRIPTOR_SET, dsHandle);
-         this._descriptorSet = DSPool.get(dsHandle);
-     }
-
-     private _setPassCount (val: number) {
-         this._passCount = val;
+         this._descriptorSet = this._device!.createDescriptorSet(descInfo);
          if (JSB) {
-             SubModelPool.set(this._handle, SubModelView.PASS_COUNT, val);
+             this._nativeObj!.setDescriptorSet(this._descriptorSet);
          }
      }
 
@@ -110,16 +106,12 @@ export class SubModel {
      set priority (val) {
          this._priority = val;
          if (JSB) {
-             SubModelPool.set(this._handle, SubModelView.PRIORITY, val);
+             this._nativeObj!.setPriority(val);
          }
      }
 
      get priority (): RenderPriority {
          return this._priority;
-     }
-
-     get handle (): SubModelHandle {
-         return this._handle;
      }
 
      get inputAssembler (): InputAssembler {
@@ -134,33 +126,36 @@ export class SubModel {
          return this._patches;
      }
 
-     // This is a temporary solution
-     // It should not be written in a fixed way, or modified by the user
-     get planarShaderHandle (): ShaderHandle {
-         return SubModelPool.get(this._handle, SubModelView.PLANAR_SHADER);
+     get planarInstanceShader (): Shader | null {
+         return this._planarInstanceShader;
      }
 
-     // This is a temporary solution
-     // It should not be written in a fixed way, or modified by the user
-     get planarInstanceShaderHandle (): ShaderHandle {
-         return SubModelPool.get(this._handle, SubModelView.PLANAR_INSTANCE_SHADER);
+     get planarShader (): Shader | null {
+         return this._planarShader;
      }
 
      private _setInputAssembler (iaInfo: InputAssemblerInfo) {
-         const iaHandle = IAPool.alloc(this._device!, iaInfo);
-         SubModelPool.set(this._handle, SubModelView.INPUT_ASSEMBLER, iaHandle);
-         this._inputAssembler = IAPool.get(iaHandle);
+         this._inputAssembler = this._device!.createInputAssembler(iaInfo);
+         if (JSB) {
+             this._nativeObj!.setInputAssembler(this._inputAssembler);
+         }
      }
 
      private _setSubMesh (subMesh: RenderingSubMesh) {
          this._subMesh = subMesh;
          if (JSB) {
-             SubModelPool.set(this._handle, SubModelView.SUB_MESH, subMesh.handle);
+             this._nativeObj!.setRenderingSubMesh(subMesh.flatBuffers);
          }
      }
 
+     get native (): NativeSubModel {
+         return this._nativeObj!;
+     }
+
      private _init () {
-         this._handle = SubModelPool.alloc();
+         if (JSB) {
+             this._nativeObj = new NativeSubModel();
+         }
      }
 
      public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
@@ -179,13 +174,26 @@ export class SubModel {
          this.priority = RenderPriority.DEFAULT;
      }
 
+     private _initNativePlanarShadowShader (shadowInfo: Shadows) {
+         this._planarShader = shadowInfo.getPlanarShader(this._patches);
+         if (JSB) {
+             this._nativeObj!.setPlanarShader(this._planarShader);
+         }
+     }
+
      // This is a temporary solution
      // It should not be written in a fixed way, or modified by the user
      public initPlanarShadowShader () {
          const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
          const shadowInfo = pipeline.pipelineSceneData.shadows;
-         const shaderHandle = shadowInfo.getPlanarShader(this._patches);
-         SubModelPool.set(this._handle, SubModelView.PLANAR_SHADER, shaderHandle);
+         this._initNativePlanarShadowShader(shadowInfo);
+     }
+
+     private _initNativePlanarShadowInstanceShader (shadowInfo: Shadows) {
+         this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
+         if (JSB) {
+             this._nativeObj!.setPlanarInstanceShader(this._planarInstanceShader);
+         }
      }
 
      // This is a temporary solution
@@ -193,19 +201,16 @@ export class SubModel {
      public initPlanarShadowInstanceShader () {
          const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
          const shadowInfo = pipeline.pipelineSceneData.shadows;
-         const shaderHandle = shadowInfo.getPlanarInstanceShader(this._patches);
-         SubModelPool.set(this._handle, SubModelView.PLANAR_INSTANCE_SHADER, shaderHandle);
+         this._initNativePlanarShadowInstanceShader(shadowInfo);
      }
 
      private _destroy () {
          if (JSB) {
-             SubModelPool.free(this._handle);
+             this._nativeObj = null;
          }
-         this._handle = NULL_HANDLE;
      }
 
      public destroy (): void {
-         this._destroy();
          this._destroyDescriptorSet();
          this._destroyInputAssembler();
          this.priority = RenderPriority.DEFAULT;
@@ -213,6 +218,8 @@ export class SubModel {
          this._patches = null;
          this._subMesh = null;
          this._passes = null;
+
+         this._destroy();
      }
 
      public update (): void {
@@ -257,12 +264,17 @@ export class SubModel {
          const passes = this._passes;
          if (!passes) { return; }
 
-         this._setPassCount(passes.length);
-         let passOffset = SubModelView.PASS_0 as const;
-         let shaderOffset = SubModelView.SHADER_0 as const;
-         for (let i = 0; i < this._passCount; i++, passOffset++, shaderOffset++) {
-             SubModelPool.set(this._handle, passOffset, passes[i].handle);
-             SubModelPool.set(this._handle, shaderOffset, passes[i].getShaderVariant(this._patches));
+         if (JSB) {
+             const nativeShaders: (Shader | null)[] = [];
+             for (let i = 0, len = passes.length; i < len; i++) {
+                 if (JSB) {
+                     nativeShaders.push(passes[i].getShaderVariant(this.patches));
+                 }
+             }
+
+             const passesNative = passes.map((_pass: Pass): NativePass => _pass.native);
+             this._nativeObj!.setPasses(passesNative);
+             this._nativeObj!.setShaders(nativeShaders);
          }
      }
 }

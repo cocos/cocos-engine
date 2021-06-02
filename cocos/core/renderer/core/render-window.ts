@@ -27,8 +27,7 @@ import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
     RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
 import { Root } from '../../root';
-import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
-import { Camera } from '../scene';
+import { Camera, NativeRenderWindow } from '../scene';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -65,9 +64,6 @@ export class RenderWindow {
      * @zh 帧缓冲对象。
      */
     get framebuffer (): Framebuffer {
-        if (JSB) {
-            return FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
-        }
         return this._framebuffer!;
     }
 
@@ -91,10 +87,6 @@ export class RenderWindow {
         return this._hasOffScreenAttachments;
     }
 
-    get handle () : RenderWindowHandle {
-        return this._poolHandle;
-    }
-
     get cameras () {
         return this._cameras;
     }
@@ -116,48 +108,47 @@ export class RenderWindow {
     protected _depthStencilTexture: Texture | null = null;
     protected _swapchainBufferIndices = 0;
     protected _shouldSyncSizeWithSwapchain = false;
-    protected _poolHandle: RenderWindowHandle = NULL_HANDLE;
     protected _cameras: Camera[] = [];
     protected _hasOnScreenAttachments = false;
     protected _hasOffScreenAttachments = false;
     protected _framebuffer: Framebuffer | null = null;
+    private declare _nativeObj: NativeRenderWindow | null;
+
+    get native () {
+        return this._nativeObj;
+    }
+
     private constructor (root: Root) {
     }
 
     private _setHasOffScreenAttachments (val) {
         this._hasOffScreenAttachments = val;
         if (JSB) {
-            RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, val ? 1 : 0);
+            this._nativeObj!.hasOffScreenAttachments = val;
         }
     }
 
     private _setHasOnScreenAttachments (val) {
         this._hasOnScreenAttachments = val;
         if (JSB) {
-            RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, val ? 1 : 0);
+            this._nativeObj!.hasOnScreenAttachments = val;
         }
     }
 
     private _createFrameBuffer (device: Device, renderPass) {
-        if (JSB) {
-            const hFBO = FramebufferPool.alloc(device, new FramebufferInfo(
-                renderPass,
-                this._colorTextures,
-                this._depthStencilTexture,
-            ));
-            RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, hFBO);
-            return;
-        }
         this._framebuffer = device.createFramebuffer(new FramebufferInfo(
             renderPass,
             this._colorTextures,
             this._depthStencilTexture,
         ));
+        if (JSB) {
+            this._nativeObj!.frameBuffer = this._framebuffer;
+        }
     }
 
     protected _init () {
         if (JSB) {
-            this._poolHandle = RenderWindowPool.alloc();
+            this._nativeObj = new NativeRenderWindow();
         }
     }
 
@@ -230,8 +221,8 @@ export class RenderWindow {
 
     protected _destroy () {
         this.framebuffer.destroy();
-        if (this._poolHandle) {
-            this._poolHandle = NULL_HANDLE;
+        if (JSB) {
+            this._nativeObj = null;
         }
     }
 

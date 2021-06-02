@@ -33,7 +33,6 @@ import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPass, Device, CommandBuffer } from '../gfx';
-import { PassPool, PassView, DSPool, SubModelView, SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
 import { RenderQueueDesc, RenderQueueSortMode } from './pipeline-serialization';
 import { getPhaseID } from './pass-phase';
 
@@ -103,16 +102,16 @@ export class RenderQueue {
      */
     public insertRenderPass (renderObj: IRenderObject, subModelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.subModels[subModelIdx];
-        const hPass = SubModelPool.get(subModel.handle, SubModelView.PASS_0 + passIdx) as PassHandle;
+        const pass = subModel.passes[passIdx];
         const isTransparent = subModel.passes[passIdx].blendState.targets[0].blend;
-        if (isTransparent !== this._passDesc.isTransparent || !(PassPool.get(hPass, PassView.PHASE) & this._passDesc.phases)) {
+        if (isTransparent !== this._passDesc.isTransparent || !(pass.phase & this._passDesc.phases)) {
             return false;
         }
-        const hash = (0 << 30) | PassPool.get(hPass, PassView.PRIORITY) << 16 | subModel.priority << 8 | passIdx;
+        const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
         const rp = this._passPool.add();
         rp.hash = hash;
         rp.depth = renderObj.depth || 0;
-        rp.shaderId = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as number;
+        rp.shaderId = pass.getShaderVariant()!.id;
         rp.subModel = subModel;
         rp.passIdx = passIdx;
         this.queue.push(rp);
@@ -130,10 +129,10 @@ export class RenderQueue {
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
             const { subModel, passIdx } = this.queue.array[i];
-            const { inputAssembler, handle: hSubModel } = subModel;
+            const { inputAssembler } = subModel;
             const pass = subModel.passes[passIdx];
-            const shader = ShaderPool.get(SubModelPool.get(hSubModel, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
+            const shader = pass.getShaderVariant();
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader!, renderPass, inputAssembler);
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
             cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);

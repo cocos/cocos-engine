@@ -30,19 +30,18 @@
  */
 
 import { CCClass } from '../data/class';
-import { ValueType } from '../value-types/value-type';
 import { Mat4 } from './mat4';
-import { IMat3Like, IMat4Like, IVec2Like } from './type-define';
+import { IMat3Like, IMat4Like, IVec2Like, FloatArray } from './type-define';
 import { clamp, EPSILON, random } from './utils';
-
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
+import { MathBase } from './math-base';
 
 /**
  * @en Representation of 2D vectors and points.
  * @zh 二维向量。
  */
-export class Vec2 extends ValueType {
+export class Vec2 extends MathBase {
     public static ZERO = Object.freeze(new Vec2(0, 0));
     public static ONE = Object.freeze(new Vec2(1, 1));
     public static NEG_ONE = Object.freeze(new Vec2(-1, -1));
@@ -425,26 +424,43 @@ export class Vec2 extends ValueType {
      * @en x component.
      * @zh x 分量。
      */
-    public declare x: number;
+    public get x (): number {
+        return this._array[0];
+    }
+    public set x (x: number) {
+        this._array[0] = x;
+    }
 
     /**
-     * @en y component.
+     * @en The y value of the vector.
      * @zh y 分量。
      */
-    public declare y: number;
+    public get y (): number {
+        return this._array[1];
+    }
+    public set y (y: number) {
+        this._array[1] = y;
+    }
 
-    constructor (other: Vec2);
+    constructor (x: Vec2 | FloatArray);
 
     constructor (x?: number, y?: number);
 
-    constructor (x?: number | Vec2, y?: number) {
+    constructor (x?: number | Vec2 | FloatArray, y?: number) {
         super();
         if (x && typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
+            if (ArrayBuffer.isView(x)) {
+                this._array = x;
+            } else {
+                const v = x.array;
+                this._array = MathBase.createFloatArray(2);
+                this._array[0] = v[0];
+                this._array[1] = v[1];
+            }
         } else {
-            this.x = x || 0;
-            this.y = y || 0;
+            this._array = MathBase.createFloatArray(2);
+            this._array[0] = x || 0;
+            this._array[1] = y || 0;
         }
     }
 
@@ -453,7 +469,7 @@ export class Vec2 extends ValueType {
      * @zh 克隆当前向量。
      */
     public clone () {
-        return new Vec2(this.x, this.y);
+        return new Vec2(this._array[0], this._array[1]);
     }
 
     /**
@@ -475,11 +491,12 @@ export class Vec2 extends ValueType {
 
     public set (x?: number | Vec2, y?: number) {
         if (x && typeof x === 'object') {
-            this.x = x.x;
-            this.y = x.y;
+            const v = x.array;
+            this._array[0] = v[0];
+            this._array[1] = v[1];
         } else {
-            this.x = x || 0;
-            this.y = y || 0;
+            this._array[0] = x || 0;
+            this._array[1] = y || 0;
         }
         return this;
     }
@@ -492,11 +509,12 @@ export class Vec2 extends ValueType {
      * @return Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public equals (other: Vec2, epsilon = EPSILON) {
+        const v = other.array;
         return (
-            Math.abs(this.x - other.x)
-            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(other.x))
-            && Math.abs(this.y - other.y)
-            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(other.y))
+            Math.abs(this._array[0] - v[0])
+            <= epsilon * Math.max(1.0, Math.abs(this._array[0]), Math.abs(v[0]))
+            && Math.abs(this._array[1] - v[1])
+            <= epsilon * Math.max(1.0, Math.abs(this._array[1]), Math.abs(v[1]))
         );
     }
 
@@ -510,10 +528,10 @@ export class Vec2 extends ValueType {
      */
     public equals2f (x: number, y: number, epsilon = EPSILON) {
         return (
-            Math.abs(this.x - x)
-            <= epsilon * Math.max(1.0, Math.abs(this.x), Math.abs(x))
-            && Math.abs(this.y - y)
-            <= epsilon * Math.max(1.0, Math.abs(this.y), Math.abs(y))
+            Math.abs(this._array[0] - x)
+            <= epsilon * Math.max(1.0, Math.abs(this._array[0]), Math.abs(x))
+            && Math.abs(this._array[1] - y)
+            <= epsilon * Math.max(1.0, Math.abs(this._array[1]), Math.abs(y))
         );
     }
 
@@ -524,7 +542,8 @@ export class Vec2 extends ValueType {
      * @return Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public strictEquals (other: Vec2) {
-        return other && this.x === other.x && this.y === other.y;
+        const v = other.array;
+        return other && this._array[0] === v[0] && this._array[1] === v[1];
     }
 
     /**
@@ -535,7 +554,7 @@ export class Vec2 extends ValueType {
      * @return Returns `true` when the components of both vectors are equal within the specified range of error; otherwise it returns `false`.
      */
     public strictEquals2f (x: number, y: number) {
-        return this.x === x && this.y === y;
+        return this._array[0] === x && this._array[1] === y;
     }
 
     /**
@@ -544,7 +563,7 @@ export class Vec2 extends ValueType {
      * @returns The string with vector information
      */
     public toString () {
-        return `(${this.x.toFixed(2)}, ${this.y.toFixed(2)})`;
+        return `(${this._array[0].toFixed(2)}, ${this._array[1].toFixed(2)})`;
     }
 
     /**
@@ -554,10 +573,11 @@ export class Vec2 extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
     public lerp (to: Vec2, ratio: number) {
-        const x = this.x;
-        const y = this.y;
-        this.x = x + ratio * (to.x - x);
-        this.y = y + ratio * (to.y - y);
+        const x = this._array[0];
+        const y = this._array[1];
+        const v = to.array;
+        this._array[0] = x + ratio * (v[0] - x);
+        this._array[1] = y + ratio * (v[1] - y);
         return this;
     }
 
@@ -569,8 +589,10 @@ export class Vec2 extends ValueType {
      * @return `this`
      */
     public clampf (minInclusive: Vec2, maxInclusive: Vec2) {
-        this.x = clamp(this.x, minInclusive.x, maxInclusive.x);
-        this.y = clamp(this.y, minInclusive.y, maxInclusive.y);
+        const min = minInclusive.array;
+        const max = maxInclusive.array;
+        this._array[0] = clamp(this._array[0], min[0], max[0]);
+        this._array[1] = clamp(this._array[1], min[1], max[1]);
         return this;
     }
 
@@ -580,8 +602,9 @@ export class Vec2 extends ValueType {
      * @param other specified vector
      */
     public add (other: Vec2) {
-        this.x += other.x;
-        this.y += other.y;
+        const v = other.array;
+        this._array[0] += v[0];
+        this._array[1] += v[1];
         return this;
     }
 
@@ -592,8 +615,8 @@ export class Vec2 extends ValueType {
      * @param y The y value of specified vector
      */
     public add2f (x: number, y: number) {
-        this.x += x;
-        this.y += y;
+        this._array[0] += x;
+        this._array[1] += y;
         return this;
     }
 
@@ -603,8 +626,9 @@ export class Vec2 extends ValueType {
      * @param other specified vector
      */
     public subtract (other: Vec2) {
-        this.x -= other.x;
-        this.y -= other.y;
+        const v = other.array;
+        this._array[0] -= v[0];
+        this._array[1] -= v[1];
         return this;
     }
 
@@ -615,8 +639,8 @@ export class Vec2 extends ValueType {
      * @param y The y value of specified vector
      */
     public subtract2f (x: number, y: number) {
-        this.x -= x;
-        this.y -= y;
+        this._array[0] -= x;
+        this._array[1] -= y;
         return this;
     }
 
@@ -627,8 +651,8 @@ export class Vec2 extends ValueType {
      */
     public multiplyScalar (scalar: number) {
         if (typeof scalar === 'object') { console.warn('should use Vec2.multiply for vector * vector operation'); }
-        this.x *= scalar;
-        this.y *= scalar;
+        this._array[0] *= scalar;
+        this._array[1] *= scalar;
         return this;
     }
 
@@ -639,8 +663,9 @@ export class Vec2 extends ValueType {
      */
     public multiply (other: Vec2) {
         if (typeof other !== 'object') { console.warn('should use Vec2.scale for vector * scalar operation'); }
-        this.x *= other.x;
-        this.y *= other.y;
+        const v = other.array;
+        this._array[0] *= v[0];
+        this._array[1] *= v[1];
         return this;
     }
 
@@ -651,8 +676,8 @@ export class Vec2 extends ValueType {
      * @param y The y value of specified vector
      */
     public multiply2f (x: number, y: number) {
-        this.x *= x;
-        this.y *= y;
+        this._array[0] *= x;
+        this._array[1] *= y;
         return this;
     }
 
@@ -662,8 +687,9 @@ export class Vec2 extends ValueType {
      * @param other specified vector
      */
     public divide (other: Vec2) {
-        this.x /= other.x;
-        this.y /= other.y;
+        const v = other.array;
+        this._array[0] /= v[0];
+        this._array[1] /= v[1];
         return this;
     }
 
@@ -674,8 +700,8 @@ export class Vec2 extends ValueType {
      * @param y The y value of specified vector
      */
     public divide2f (x: number, y: number) {
-        this.x /= x;
-        this.y /= y;
+        this._array[0] /= x;
+        this._array[1] /= y;
         return this;
     }
 
@@ -684,8 +710,8 @@ export class Vec2 extends ValueType {
      * @zh 将当前向量的各个分量取反
      */
     public negative () {
-        this.x = -this.x;
-        this.y = -this.y;
+        this._array[0] = -this._array[0];
+        this._array[1] = -this._array[1];
         return this;
     }
 
@@ -696,7 +722,8 @@ export class Vec2 extends ValueType {
      * @return The result of calculates the dot product with another vector
      */
     public dot (other: Vec2) {
-        return this.x * other.x + this.y * other.y;
+        const v = other.array;
+        return this._array[0] * v[0] + this._array[1] * v[1];
     }
 
     /**
@@ -706,7 +733,8 @@ export class Vec2 extends ValueType {
      * @return `out`
      */
     public cross (other: Vec2) {
-        return this.x * other.y - this.y * other.x;
+        const v = other.array;
+        return this._array[0] * v[1] - this._array[1] * v[0];
     }
 
     /**
@@ -715,7 +743,7 @@ export class Vec2 extends ValueType {
      * @return Length of vector
      */
     public length () {
-        return Math.sqrt(this.x * this.x + this.y * this.y);
+        return Math.sqrt(this._array[0] * this._array[0] + this._array[1] * this._array[1]);
     }
 
     /**
@@ -724,7 +752,7 @@ export class Vec2 extends ValueType {
      * @return the squared length of this vector
      */
     public lengthSqr () {
-        return this.x * this.x + this.y * this.y;
+        return this._array[0] * this._array[0] + this._array[1] * this._array[1];
     }
 
     /**
@@ -732,13 +760,13 @@ export class Vec2 extends ValueType {
      * @zh 将当前向量归一化。
      */
     public normalize () {
-        const x = this.x;
-        const y = this.y;
+        const x = this._array[0];
+        const y = this._array[1];
         let len = x * x + y * y;
         if (len > 0) {
             len = 1 / Math.sqrt(len);
-            this.x *= len;
-            this.y *= len;
+            this._array[0] *= len;
+            this._array[1] *= len;
         }
         return this;
     }
@@ -782,13 +810,13 @@ export class Vec2 extends ValueType {
      * @param radians radius of rotation
      */
     public rotate (radians: number) {
-        const x = this.x;
-        const y = this.y;
+        const x = this._array[0];
+        const y = this._array[1];
 
         const sin = Math.sin(radians);
         const cos = Math.cos(radians);
-        this.x = cos * x - sin * y;
-        this.y = sin * x + cos * y;
+        this._array[0] = cos * x - sin * y;
+        this._array[1] = sin * x + cos * y;
         return this;
     }
 
@@ -798,9 +826,10 @@ export class Vec2 extends ValueType {
      * @param other specified vector
      */
     public project (other: Vec2) {
+        const v = other.array;
         const scalar = this.dot(other) / other.dot(other);
-        this.x = other.x * scalar;
-        this.y = other.y * scalar;
+        this._array[0] = v[0] * scalar;
+        this._array[1] = v[1] * scalar;
         return this;
     }
 
@@ -811,10 +840,11 @@ export class Vec2 extends ValueType {
      * @param matrix matrix to transform with
      */
     public transformMat4 (matrix: Mat4) {
-        const x = this.x;
-        const y = this.y;
-        this.x = matrix.m00 * x + matrix.m04 * y + matrix.m12;
-        this.y = matrix.m01 * x + matrix.m05 * y + matrix.m13;
+        const x = this._array[0];
+        const y = this._array[1];
+        const v = matrix.array;
+        this._array[0] = v[0] * x + v[4] * y + v[12];
+        this._array[1] = v[1] * x + v[5] * y + v[13];
         return this;
     }
 }
