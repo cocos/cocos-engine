@@ -11,6 +11,10 @@ exports.template = `
         <ui-select slot="content" class="tangents-select"></ui-select>
     </ui-prop>
     <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.GlTFUserData.morphNormals.name" tooltip="i18n:ENGINE.assets.fbx.GlTFUserData.morphNormals.title"></ui-label>
+        <ui-select slot="content" class="morphNormals-select"></ui-select>
+    </ui-prop>
+    <ui-prop>
         <ui-label slot="label" value="i18n:ENGINE.assets.fbx.GlTFUserData.skipValidation.name" tooltip="i18n:ENGINE.assets.fbx.GlTFUserData.skipValidation.title"></ui-label>
         <ui-checkbox slot="content" class="skipValidation-checkbox"></ui-checkbox>
     </ui-prop>
@@ -88,6 +92,7 @@ exports.$ = {
     container: '.container',
     normalsSelect: '.normals-select',
     tangentsSelect: '.tangents-select',
+    morphNormalsSelect: '.morphNormals-select',
     skipValidationCheckbox: '.skipValidation-checkbox',
     disableMeshSplitCheckbox: '.disableMeshSplit-checkbox',
     meshOptimizerCheckbox: '.meshOptimizer-checkbox',
@@ -149,6 +154,30 @@ const Elements = {
 
             panel.updateInvalid(panel.$.tangentsSelect, 'tangents');
             panel.updateReadonly(panel.$.tangentsSelect);
+        },
+    },
+    morphNormals: {
+        ready() {
+            const panel = this;
+
+            panel.$.morphNormalsSelect.addEventListener('change', panel.setProp.bind(panel, 'morphNormals'));
+        },
+        update() {
+            const panel = this;
+
+            let optionsHtml = '';
+            const types = ['optional', 'exclude'];
+            types.forEach((type, index) => {
+                optionsHtml += `<option value="${index}"
+                    title="${panel.t(`GlTFUserData.morphNormals.${type}.title`)}" 
+                >${panel.t(`GlTFUserData.morphNormals.${type}.name`)}</option>`;
+            });
+            panel.$.morphNormalsSelect.innerHTML = optionsHtml;
+
+            panel.$.morphNormalsSelect.value = panel.getDefault(panel.meta.userData.morphNormals, 1);
+
+            panel.updateInvalid(panel.$.morphNormalsSelect, 'morphNormals');
+            panel.updateReadonly(panel.$.morphNormalsSelect);
         },
     },
     skipValidation: {
@@ -324,8 +353,10 @@ exports.methods = {
     setProp(prop, event) {
         this.metaList.forEach((meta) => {
             let value = event.target.value;
-            if (prop === 'normals' || prop === 'tangents') {
-                value = Number(value);
+            switch (prop) {
+                case 'normals': case 'tangents': case 'morphNormals':
+                    value = Number(value);
+                    break;
             }
 
             meta.userData[prop] = value;

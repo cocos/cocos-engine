@@ -171,6 +171,26 @@ module.exports = {
                         title: 'Recalculate tangents and import, ingoring whether if the model file contain tangents.',
                     },
                 },
+                morphNormals: {
+                    name: 'Morph normals',
+                    title: 'Morph normals import setting.',
+                    optional: {
+                        name: 'Optional',
+                        title: 'Import morph normals only if the model file contains morph normals.',
+                    },
+                    exclude: {
+                        name: 'Exclude',
+                        title: 'Do not import morph normals.',
+                    },
+                    require: {
+                        name: 'Required',
+                        title: 'Import morph normals that are contained in the model file, or calculated if not contained.',
+                    },
+                    recalculate: {
+                        name: 'Recalculate',
+                        title: 'Recalculate morph normals and import, ingoring whether if the model file contain morph normals.',
+                    },
+                },
                 dumpMaterials: {
                     name: 'Dump materials',
                     title: 'Whether to extract material assets out of embedded (sub)assets, so that the assets become editable.',
