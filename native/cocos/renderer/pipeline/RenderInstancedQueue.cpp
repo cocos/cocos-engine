@@ -27,7 +27,6 @@
 #include "InstancedBuffer.h"
 #include "PipelineStateManager.h"
 #include "gfx-base/GFXCommandBuffer.h"
-#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
@@ -52,10 +51,10 @@ void RenderInstancedQueue::recordCommandBuffer(gfx::Device * /*device*/, gfx::Re
         if (!instanceBuffer->hasPendingModels()) continue;
 
         const auto &instances = instanceBuffer->getInstances();
-        const auto *pass = instanceBuffer->getPass();
+        const auto *pass      = instanceBuffer->getPass();
         cmdBuffer->bindDescriptorSet(materialSet, pass->getDescriptorSet());
         gfx::PipelineState *lastPSO = nullptr;
-        for (const auto& instance : instances) {
+        for (const auto &instance : instances) {
             if (!instance.count) {
                 continue;
             }

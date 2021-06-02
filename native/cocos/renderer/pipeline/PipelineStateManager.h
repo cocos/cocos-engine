@@ -26,28 +26,21 @@
 #pragma once
 
 #include "gfx-base/GFXDef.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace pipeline {
 
-struct PassView;
-
 class CC_DLL PipelineStateManager {
 public:
-    static gfx::PipelineState *getOrCreatePipelineState(const PassView *pass,
-                                                        gfx::Shader *shader,
+    static gfx::PipelineState *getOrCreatePipelineState(const scene::Pass *  pass,
+                                                        gfx::Shader *        shader,
                                                         gfx::InputAssembler *inputAssembler,
-                                                        gfx::RenderPass *renderPass);
-
-    static gfx::PipelineState *getOrCreatePipelineStateByJS(uint32_t passHandle,
-                                                            gfx::Shader *shader,
-                                                            gfx::InputAssembler *inputAssembler,
-                                                            gfx::RenderPass *renderPass);
-
-    static void destroyAll();
+                                                        gfx::RenderPass *    renderPass);
+    static void                destroyAll();
 
 private:
-    static unordered_map<uint, gfx::PipelineState *> _PSOHashMap;
+    static unordered_map<uint, gfx::PipelineState *> psoHashMap;
 };
 
 } // namespace pipeline

@@ -35,7 +35,7 @@ namespace se {
 #define RAW_OBJECT_BEGIN  CAST_POOL_TYPE(se::PoolType::RAW_OBJECT)
 
 #define OBJECTS_SIZE          CAST_POOL_TYPE(se::PoolType::FRAMEBUFFER) + 1
-#define BUFFER_POOL_SIZE      CAST_POOL_TYPE(se::PoolType::PIPELINE_SHARED_SCENE_DATA) - BUFFER_POOL_BEGIN + 1
+#define BUFFER_POOL_SIZE      CAST_POOL_TYPE(se::PoolType::NEW_NODE) - BUFFER_POOL_BEGIN + 1
 #define ARRAY_POOL_SIZE       CAST_POOL_TYPE(se::PoolType::UI_BATCH_ARRAY) - ARRAY_POOL_BEGIN + 1
 #define RAW_BUFFER_SIZE       CAST_POOL_TYPE(se::PoolType::RAW_BUFFER) - CAST_POOL_TYPE(se::PoolType::RAW_BUFFER) + 1
 #define RAW_OBJECT_SIZE       CAST_POOL_TYPE(se::PoolType::RAW_OBJECT) - CAST_POOL_TYPE(se::PoolType::RAW_OBJECT) + 1
@@ -82,6 +82,7 @@ enum class PoolType {
     BLEND_STATE,
     UI_BATCH,
     PIPELINE_SHARED_SCENE_DATA,
+    NEW_NODE = 199,
 
     // array
     SUB_MODEL_ARRAY = 200,

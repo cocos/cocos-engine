@@ -31,22 +31,21 @@ namespace cc {
 namespace pipeline {
 
 class ForwardStage;
-struct Camera;
 
 class ForwardFlow : public RenderFlow {
 public:
     static const RenderFlowInfo &getInitializeInfo();
 
     ForwardFlow() = default;
-    virtual ~ForwardFlow();
+    ~ForwardFlow() override;
 
-    virtual bool initialize(const RenderFlowInfo &info) override;
-    virtual void activate(RenderPipeline *pipeline) override;
-    virtual void destroy() override;
-    virtual void render(Camera *camera) override;
+    bool initialize(const RenderFlowInfo &info) override;
+    void activate(RenderPipeline *pipeline) override;
+    void destroy() override;
+    void render(scene::Camera *camera) override;
 
 private:
-    static RenderFlowInfo _initInfo;
+    static RenderFlowInfo initInfo;
 
     ForwardStage *_forwardStage = nullptr;
 };

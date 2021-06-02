@@ -30,7 +30,7 @@
 #include "PipelineUBO.h"
 #include "base/CoreStd.h"
 #include "helper/DefineMap.h"
-#include "helper/SharedMemory.h"
+#include "scene/Camera.h"
 
 namespace cc {
 namespace gfx {
@@ -40,7 +40,6 @@ class DescriptorSetLayout;
 } // namespace gfx
 namespace pipeline {
 class DefineMap;
-struct Camera;
 
 struct CC_DLL RenderPipelineInfo {
     uint           tag = 0;
@@ -57,10 +56,10 @@ public:
     virtual bool activate();
     virtual void destroy();
     virtual bool initialize(const RenderPipelineInfo &info);
-    virtual void render(const vector<uint> &cameras);
+    virtual void render(const vector<scene::Camera *> &cameras);
     virtual void resize(uint width, uint height){};
 
-    void setPipelineSharedSceneData(uint handle);
+    void setPipelineSharedSceneData(scene::PipelineSharedSceneData *data);
 
     inline const RenderFlowList &                  getFlows() const { return _flows; }
     inline uint                                    getTag() const { return _tag; }

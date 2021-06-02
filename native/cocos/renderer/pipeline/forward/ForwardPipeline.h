@@ -26,21 +26,13 @@
 #pragma once
 
 #include <array>
-
 #include "../RenderPipeline.h"
-#include "../helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {
 struct UBOGlobal;
 struct UBOCamera;
 struct UBOShadow;
-struct Fog;
-struct Ambient;
-struct Skybox;
-struct Shadows;
-struct Sphere;
-struct Camera;
 
 class CC_DLL ForwardPipeline : public RenderPipeline {
 public:
@@ -50,7 +42,7 @@ public:
     bool initialize(const RenderPipelineInfo &info) override;
     void destroy() override;
     bool activate() override;
-    void render(const vector<uint> &cameras) override;
+    void render(const vector<scene::Camera *> &cameras) override;
 
     gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
 
@@ -62,7 +54,7 @@ public:
 
 private:
     bool activeRenderer();
-    void updateUBO(Camera *);
+    void updateUBO(scene::Camera *);
 
     gfx::Buffer *                                     _lightsUBO = nullptr;
     LightList                                         _validLights;

@@ -153,10 +153,9 @@ bool RenderPipeline::activate() {
     return true;
 }
 
-void RenderPipeline::render(const vector<uint> &cameras) {
+void RenderPipeline::render(const vector<scene::Camera *> &cameras) {
     for (auto *const flow : _flows) {
-        for (const auto cameraID : cameras) {
-            auto *camera = GET_CAMERA(cameraID);
+        for (auto *camera : cameras) {
             flow->render(camera);
         }
     }
@@ -186,8 +185,8 @@ void RenderPipeline::destroy() {
     PipelineStateManager::destroyAll();
 }
 
-void RenderPipeline::setPipelineSharedSceneData(uint handle) {
-    _pipelineSceneData->setPipelineSharedSceneData(handle);
+void RenderPipeline::setPipelineSharedSceneData(scene::PipelineSharedSceneData *data) {
+    _pipelineSceneData->setPipelineSharedSceneData(data);
 }
 
 void RenderPipeline::generateConstantMacros() {

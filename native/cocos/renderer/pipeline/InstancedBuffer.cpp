@@ -29,24 +29,23 @@
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXInputAssembler.h"
-#include "helper/SharedMemory.h"
 #include "Define.h"
 
 namespace cc {
 namespace pipeline {
-map<uint, map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
-InstancedBuffer *                       InstancedBuffer::get(uint pass) {
+map<scene::Pass *, map<uint, InstancedBuffer *>> InstancedBuffer::buffers;
+InstancedBuffer *                                InstancedBuffer::get(scene::Pass *pass) {
     return InstancedBuffer::get(pass, 0);
 }
-InstancedBuffer *InstancedBuffer::get(uint pass, uint extraKey) {
+InstancedBuffer *InstancedBuffer::get(scene::Pass *pass, uint extraKey) {
     auto &record = buffers[pass];
     auto &buffer = record[extraKey];
-    if (buffer == nullptr) buffer = CC_NEW(InstancedBuffer(GET_PASS(pass)));
+    if (buffer == nullptr) buffer = CC_NEW(InstancedBuffer(pass));
 
     return buffer;
 }
 
-InstancedBuffer::InstancedBuffer(const PassView *pass)
+InstancedBuffer::InstancedBuffer(const scene::Pass *pass)
 : _pass(pass),
   _device(gfx::Device::getInstance()) {
 }
@@ -62,13 +61,13 @@ void InstancedBuffer::destroy() {
     _instances.clear();
 }
 
-void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel, uint passIdx) {
+void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *subModel, uint passIdx) {
     merge(model, subModel, passIdx, nullptr);
 }
 
-void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel, uint passIdx, gfx::Shader *shaderImplant) {
-    uint              stride          = 0;
-    const auto *const instancedBuffer = model->getInstancedBuffer(&stride);
+void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *subModel, uint passIdx, gfx::Shader *shaderImplant) {
+    uint        stride          = 0;
+    const auto *instancedBuffer = model->getInstancedBuffer();
 
     if (!stride) return; // we assume per-instance attributes are always present
     auto *sourceIA      = subModel->getInputAssembler();
@@ -125,12 +124,8 @@ void InstancedBuffer::merge(const ModelView *model, const SubModelView *subModel
     auto  attributes    = sourceIA->getAttributes();
     auto *indexBuffer   = sourceIA->getIndexBuffer();
 
-    const auto *const attributesID = model->getInstancedAttributeID();
-    const auto        lenght       = attributesID[0];
-    for (uint i = 1; i <= lenght; i++) {
-        auto *const    attribute = ModelView::getInstancedAttribute(attributesID[i]);
-        gfx::Attribute newAttr   = {attribute->name, attribute->format, attribute->isNormalized, static_cast<uint>(vertexBuffers.size()), true, attribute->location};
-        attributes.emplace_back(std::move(newAttr));
+    for (const auto &attribute : model->getInstanceAttributes()) {
+        attributes.emplace_back(attribute);
     }
 
     auto *data = static_cast<uint8_t *>(CC_MALLOC(newSize));

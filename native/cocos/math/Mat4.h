@@ -93,7 +93,7 @@ public:
 #ifdef __SSE__
     union {
         __m128 col[4];
-        float m[16];
+        float  m[16];
     };
 #else
     float m[16];
@@ -145,7 +145,7 @@ public:
      *
      * @param mat An array containing 16 elements in column-major order.
      */
-    Mat4(const float *mat);
+    explicit Mat4(const float *mat);
 
     /**
      * Constructs a new matrix by copying the values from the specified matrix.
@@ -157,7 +157,7 @@ public:
     /**
      * Destructor.
      */
-    ~Mat4();
+    ~Mat4() = default;
 
     /**
      * Creates a view matrix based on the specified input parameters.
@@ -184,7 +184,7 @@ public:
      * @param dst A matrix to store the result in.
      */
     static void createLookAt(float eyePositionX, float eyePositionY, float eyePositionZ,
-                             float targetCenterX, float targetCenterY, float targetCenterZ,
+                             float targetPositionX, float targetPositionY, float targetPositionZ,
                              float upX, float upY, float upZ, Mat4 *dst);
 
     /**
@@ -771,7 +771,7 @@ public:
      */
     inline void transformPoint(Vec3 *point) const {
         GP_ASSERT(point);
-        transformVector(point->x, point->y, point->z, 1.0f, point);
+        transformVector(point->x, point->y, point->z, 1.0F, point);
     }
 
     /**
@@ -783,7 +783,7 @@ public:
      */
     inline void transformPoint(const Vec3 &point, Vec3 *dst) const {
         GP_ASSERT(dst);
-        transformVector(point.x, point.y, point.z, 1.0f, dst);
+        transformVector(point.x, point.y, point.z, 1.0F, dst);
     }
 
     /**

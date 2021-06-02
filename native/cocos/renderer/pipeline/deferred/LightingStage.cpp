@@ -31,7 +31,6 @@
 #include "../RenderBatchedQueue.h"
 #include "../RenderInstancedQueue.h"
 #include "../RenderQueue.h"
-#include "../helper/SharedMemory.h"
 #include "DeferredPipeline.h"
 #include "LightingFlow.h"
 #include "gfx-base/GFXCommandBuffer.h"
@@ -39,6 +38,9 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "gfx-base/GFXQueue.h"
+#include "scene/RenderScene.h"
+#include "scene/Sphere.h"
+#include "scene/SphereLight.h"
 
 namespace cc {
 namespace pipeline {
@@ -76,12 +78,11 @@ LightingStage::~LightingStage() {
 bool LightingStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
-    _phaseID                = getPhaseID("default");
-    _defPhaseID             = getPhaseID("deferred");
+    _phaseID                = getPhaseID("deferred");
     return true;
 }
 
-void LightingStage::gatherLights(Camera *camera) {
+void LightingStage::gatherLights(scene::Camera *camera) {
     auto *pipeline = dynamic_cast<DeferredPipeline *>(_pipeline);
     if (!pipeline) {
         return;
@@ -90,48 +91,51 @@ void LightingStage::gatherLights(Camera *camera) {
     auto *const sceneData  = _pipeline->getPipelineSceneData();
     auto *const sharedData = sceneData->getSharedData();
 
-    gfx::CommandBuffer *cmdBuf             = pipeline->getCommandBuffers()[0];
-    const auto *        scene              = camera->getScene();
-    const auto *const   sphereLightArrayID = scene->getSphereLightArrayID();
-    auto                sphereCount        = sphereLightArrayID ? sphereLightArrayID[0] : 0;
-    const auto *const   spotLightArrayID   = scene->getSpotLightArrayID();
-    auto                spotCount          = spotLightArrayID ? spotLightArrayID[0] : 0;
+    gfx::CommandBuffer *cmdBuf = pipeline->getCommandBuffers()[0];
+    const auto *        scene  = camera->scene;
 
-    Sphere   sphere;
-    auto     exposure   = camera->exposure;
-    uint     idx        = 0;
-    int      elementLen = sizeof(cc::Vec4) / sizeof(float);
-    uint     fieldLen   = elementLen * _maxDeferredLights;
-    uint     offset     = 0;
-    cc::Vec4 tmpArray;
+    scene::Sphere sphere;
+    auto          exposure   = camera->exposure;
+    uint          idx        = 0;
+    int           elementLen = sizeof(cc::Vec4) / sizeof(float);
+    uint          fieldLen   = elementLen * _maxDeferredLights;
+    uint          offset     = 0;
+    cc::Vec4      tmpArray;
 
-    for (uint i = 1; i <= sphereCount && idx < _maxDeferredLights; i++, idx++) {
-        const auto *const light = cc::pipeline::Scene::getSphereLight(sphereLightArrayID[i]);
-        sphere.setCenter(light->position);
-        sphere.setRadius(light->range);
-        if (!sphere_frustum(&sphere, camera->getFrustum())) {
+    uint i = 0;
+    for (auto *light : scene->getSphereLights()) {
+        if (i >= _maxDeferredLights) {
+            break;
+        }
+
+        const auto &position = light->getPosition();
+        sphere.setCenter(position);
+        sphere.setRadius(light->getRange());
+        if (!sphere.sphereFrustum(camera->frustum)) {
             continue;
         }
         // position
         offset                       = idx * elementLen;
-        _lightBufferData[offset]     = light->position.x;
-        _lightBufferData[offset + 1] = light->position.y;
-        _lightBufferData[offset + 2] = light->position.z;
+        _lightBufferData[offset]     = position.x;
+        _lightBufferData[offset + 1] = position.y;
+        _lightBufferData[offset + 2] = position.z;
         _lightBufferData[offset + 3] = 0;
 
         // color
-        offset = idx * elementLen + fieldLen;
-        tmpArray.set(light->color.x, light->color.y, light->color.z, 0);
-        if (light->useColorTemperature) {
-            tmpArray.x *= light->colorTemperatureRGB.x;
-            tmpArray.y *= light->colorTemperatureRGB.y;
-            tmpArray.z *= light->colorTemperatureRGB.z;
+        const auto &color = light->getColor();
+        offset            = idx * elementLen + fieldLen;
+        tmpArray.set(color.x, color.y, color.z, 0);
+        if (light->getUseColorTemperature()) {
+            const auto &colorTemperatureRGB = light->getColorTemperatureRGB();
+            tmpArray.x *= colorTemperatureRGB.x;
+            tmpArray.y *= colorTemperatureRGB.y;
+            tmpArray.z *= colorTemperatureRGB.z;
         }
 
         if (sharedData->isHDR) {
-            tmpArray.w = light->luminance * sharedData->fpScale * _lightMeterScale;
+            tmpArray.w = light->getIlluminance() * sharedData->fpScale * _lightMeterScale;
         } else {
-            tmpArray.w = light->luminance * exposure * _lightMeterScale;
+            tmpArray.w = light->getIlluminance() * exposure * _lightMeterScale;
         }
 
         _lightBufferData[offset + 0] = tmpArray.x;
@@ -141,38 +145,47 @@ void LightingStage::gatherLights(Camera *camera) {
 
         // size range angle
         offset                       = idx * elementLen + fieldLen * 2;
-        _lightBufferData[offset]     = light->size;
-        _lightBufferData[offset + 1] = light->range;
+        _lightBufferData[offset]     = light->getSize();
+        _lightBufferData[offset + 1] = light->getRange();
         _lightBufferData[offset + 2] = 0;
+
+        ++i;
     }
 
-    for (uint i = 1; i <= spotCount && idx < _maxDeferredLights; i++, idx++) {
-        const auto *const light = cc::pipeline::Scene::getSpotLight(spotLightArrayID[i]);
-        sphere.setCenter(light->position);
-        sphere.setRadius(light->range);
-        if (!sphere_frustum(&sphere, camera->getFrustum())) {
+    i = 0;
+    for (auto *light : scene->getSpotLights()) {
+        if (i >= _maxDeferredLights) {
+            break;
+        }
+
+        const auto &position = light->getPosition();
+        sphere.setCenter(position);
+        sphere.setRadius(light->getRange());
+        if (!sphere.sphereFrustum(camera->frustum)) {
             continue;
         }
         // position
         offset                       = idx * elementLen;
-        _lightBufferData[offset]     = light->position.x;
-        _lightBufferData[offset + 1] = light->position.y;
-        _lightBufferData[offset + 2] = light->position.z;
+        _lightBufferData[offset]     = position.x;
+        _lightBufferData[offset + 1] = position.y;
+        _lightBufferData[offset + 2] = position.z;
         _lightBufferData[offset + 3] = 1;
 
         // color
-        offset = idx * elementLen + fieldLen;
-        tmpArray.set(light->color.x, light->color.y, light->color.z, 0);
-        if (light->useColorTemperature) {
-            tmpArray.x *= light->colorTemperatureRGB.x;
-            tmpArray.y *= light->colorTemperatureRGB.y;
-            tmpArray.z *= light->colorTemperatureRGB.z;
+        offset            = idx * elementLen + fieldLen;
+        const auto &color = light->getColor();
+        tmpArray.set(color.x, color.y, color.z, 0);
+        if (light->getUseColorTemperature()) {
+            const auto &colorTemperatureRGB = light->getColorTemperatureRGB();
+            tmpArray.x *= colorTemperatureRGB.x;
+            tmpArray.y *= colorTemperatureRGB.y;
+            tmpArray.z *= colorTemperatureRGB.z;
         }
 
         if (sharedData->isHDR) {
-            tmpArray.w = light->luminance * sharedData->fpScale * _lightMeterScale;
+            tmpArray.w = light->getIlluminance() * sharedData->fpScale * _lightMeterScale;
         } else {
-            tmpArray.w = light->luminance * exposure * _lightMeterScale;
+            tmpArray.w = light->getIlluminance() * exposure * _lightMeterScale;
         }
 
         _lightBufferData[offset + 0] = tmpArray.x;
@@ -182,15 +195,18 @@ void LightingStage::gatherLights(Camera *camera) {
 
         // size range angle
         offset                       = idx * elementLen + fieldLen * 2;
-        _lightBufferData[offset]     = light->size;
-        _lightBufferData[offset + 1] = light->range;
-        _lightBufferData[offset + 2] = light->spotAngle;
+        _lightBufferData[offset]     = light->getSize();
+        _lightBufferData[offset + 1] = light->getRange();
+        _lightBufferData[offset + 2] = light->getAngle();
 
         // dir
+        const auto &direction        = light->getDirection();
         offset                       = idx * elementLen + fieldLen * 3;
-        _lightBufferData[offset]     = light->direction.x;
-        _lightBufferData[offset + 1] = light->direction.y;
-        _lightBufferData[offset + 2] = light->direction.z;
+        _lightBufferData[offset]     = direction.x;
+        _lightBufferData[offset + 1] = direction.y;
+        _lightBufferData[offset + 2] = direction.z;
+
+        ++i;
     }
 
     // the count of lights is set to cc_lightDir[0].w
@@ -257,7 +273,7 @@ void LightingStage::destroy() {
     RenderStage::destroy();
 }
 
-void LightingStage::render(Camera *camera) {
+void LightingStage::render(scene::Camera *camera) {
     auto *      pipeline      = static_cast<DeferredPipeline *>(_pipeline);
     auto *const sceneData     = _pipeline->getPipelineSceneData();
     auto *const sharedData    = sceneData->getSharedData();
@@ -304,8 +320,8 @@ void LightingStage::render(Camera *camera) {
     cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet());
 
     // get pso and draw quad
-    PassView *   pass   = sceneData->getSharedData()->getDeferredLightPass();
-    gfx::Shader *shader = sceneData->getSharedData()->getDeferredLightPassShader();
+    scene::Pass *pass   = sceneData->getSharedData()->deferredLightPass;
+    gfx::Shader *shader = sceneData->getSharedData()->deferredPostPassShader;
 
     gfx::InputAssembler *inputAssembler = pipeline->getQuadIAOffScreen();
     gfx::PipelineState * pState         = PipelineStateManager::getOrCreatePipelineState(
@@ -325,15 +341,11 @@ void LightingStage::render(Camera *camera) {
     uint   p = 0;
     size_t k = 0;
     for (auto ro : renderObjects) {
-        const auto *const model         = ro.model;
-        const auto *const subModelID    = model->getSubModelID();
-        const auto        subModelCount = subModelID[0];
-        for (m = 1; m <= subModelCount; ++m) {
-            const auto *subModel = cc::pipeline::ModelView::getSubModelView(subModelID[m]);
-            for (p = 0; p < subModel->passCount; ++p) {
-                const PassView *pass = subModel->getPassView(p);
+        const auto *const model = ro.model;
+        for (auto *subModel : model->getSubModels()) {
+            for (auto *pass : subModel->getPasses()) {
                 // TODO(xwx): need fallback of unlit and gizmo material.
-                if (pass->phase != _phaseID && pass->phase != _defPhaseID) continue;
+                if (pass->getPhase() != _phaseID && pass->getPhase() != _defPhaseID) continue;
                 for (k = 0; k < _renderQueues.size(); k++) {
                     _renderQueues[k]->insertRenderPass(ro, m, p);
                 }

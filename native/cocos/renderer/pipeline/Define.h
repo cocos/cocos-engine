@@ -29,29 +29,29 @@
 
 #include "base/Object.h"
 #include "base/Value.h"
-#include "gfx-base/GFXDef.h"
+#include "renderer/gfx-base/GFXDef.h"
+#include "scene/Light.h"
+#include "scene/Model.h"
 
 namespace cc {
 namespace pipeline {
 
 class RenderStage;
 class RenderFlow;
-struct SubModelView;
-struct Light;
-struct ModelView;
-struct AABB;
-struct Frustum;
 
 // The actual uniform vectors used is JointUniformCapacity * 3.
 // We think this is a reasonable default capacity considering MAX_VERTEX_UNIFORM_VECTORS in WebGL spec is just 128.
 // Skinning models with number of bones more than this capacity will be automatically switched to texture skinning.
 // But still, you can tweak this for your own need by changing the number below
 // and the JOINT_UNIFORM_CAPACITY macro in cc-skinning shader header.
-#define JOINT_UNIFORM_CAPACITY 30
+constexpr int JOINT_UNIFORM_CAPACITY = 30;
+
+constexpr float SHADOW_CAMERA_MAX_FAR    = 2000.0F;
+const float     COEFFICIENT_OF_EXPANSION = 2.0F * std::sqrtf(3.0F);
 
 struct CC_DLL RenderObject {
-    float            depth = 0;
-    const ModelView *model = nullptr;
+    float               depth = 0;
+    const scene::Model *model = nullptr;
 };
 using RenderObjectList = vector<struct RenderObject>;
 
@@ -61,11 +61,11 @@ struct CC_DLL RenderTargetInfo {
 };
 
 struct CC_DLL RenderPass {
-    uint                hash      = 0;
-    float               depth     = 0;
-    uint                shaderID  = 0;
-    uint                passIndex = 0;
-    const SubModelView *subModel  = nullptr;
+    uint                   hash      = 0;
+    float                  depth     = 0;
+    uint                   shaderID  = 0;
+    uint                   passIndex = 0;
+    const scene::SubModel *subModel  = nullptr;
 };
 using RenderPassList = vector<RenderPass>;
 
@@ -107,7 +107,7 @@ enum class RenderFlowType : uint8_t {
 
 using RenderStageList = vector<RenderStage *>;
 using RenderFlowList  = vector<RenderFlow *>;
-using LightList       = vector<Light *>;
+using LightList       = vector<scene::Light *>;
 using UintList        = vector<uint>;
 
 enum class CC_DLL RenderPassStage {

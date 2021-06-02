@@ -30,25 +30,24 @@
 namespace cc {
 namespace pipeline {
 
-struct Camera;
 class UIPhase;
 
 class CC_DLL PostprocessStage : public RenderStage {
 public:
     PostprocessStage();
-    ~PostprocessStage() override = default;;
+    ~PostprocessStage() override = default;
 
     bool initialize(const RenderStageInfo &info) override;
     void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
     void destroy() override;
-    void render(Camera *camera) override;
+    void render(scene::Camera *camera) override;
 
 private:
     gfx::Rect _renderArea;
+    UIPhase * _uiPhase = nullptr;
+    uint      _phaseID = 0;
+
     static RenderStageInfo initInfo;
-    UIPhase *_uiPhase = nullptr;
-    
-    uint _phaseID = 0;
 };
 } // namespace pipeline
 } // namespace cc

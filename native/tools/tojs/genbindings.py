@@ -25,6 +25,7 @@ defaultSections = [
     'editor_support',
     'dragonbones',
     'physics',
+    'scene',
 ]
 projectRoot = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
 defaultOutputDir = '%s/cocos/bindings/auto' % projectRoot

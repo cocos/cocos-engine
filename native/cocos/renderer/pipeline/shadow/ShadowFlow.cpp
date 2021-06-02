@@ -26,14 +26,13 @@
 #include "ShadowFlow.h"
 
 #include "../Define.h"
+#include "../SceneCulling.h"
 #include "../forward/ForwardPipeline.h"
-#include "../helper/SharedMemory.h"
 #include "ShadowStage.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
 #include "gfx-base/GFXRenderPass.h"
 #include "gfx-base/GFXTexture.h"
-#include "../SceneCulling.h"
 
 namespace cc::pipeline {
 RenderFlowInfo ShadowFlow::initInfo = {
@@ -61,12 +60,12 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
     RenderFlow::activate(pipeline);
 }
 
-void ShadowFlow::render(Camera *camera) {
+void ShadowFlow::render(scene::Camera *camera) {
     const auto *sceneData  = _pipeline->getPipelineSceneData();
-    auto *      shadowInfo = sceneData->getSharedData()->getShadows();
-    if (!shadowInfo->enabled || shadowInfo->getShadowType() != ShadowType::SHADOWMAP) return;
+    auto *shadowInfo = sceneData->getSharedData()->shadow;
+    if (!shadowInfo->enabled || shadowInfo->shadowType != scene::ShadowType::SHADOWMAP) return;
 
-    lightCollecting(camera, _validLights);
+    lightCollecting(camera, &_validLights);
 
     if (sceneData->getShadowObjects().empty()) {
         clearShadowMap(camera);
@@ -81,7 +80,7 @@ void ShadowFlow::render(Camera *camera) {
 
         auto *shadowFrameBuffer = shadowFramebufferMap.at(light);
         if (shadowInfo->shadowMapDirty) {
-            resizeShadowMap(light, shadowInfo);
+            resizeShadowMap(light, &shadowInfo);
         }
         for (auto *stage : _stages) {
             auto *shadowStage = dynamic_cast<ShadowStage *>(stage);
@@ -95,8 +94,8 @@ void ShadowFlow::render(Camera *camera) {
     _pipeline->getPipelineUBO()->updateShadowUBO(camera);
 }
 
-void ShadowFlow::clearShadowMap(Camera *camera) {
-    auto *sceneData = _pipeline->getPipelineSceneData();
+void ShadowFlow::clearShadowMap(scene::Camera *camera) {
+    auto *      sceneData            = _pipeline->getPipelineSceneData();
     const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
     for (const auto *light : _validLights) {
         if (!shadowFramebufferMap.count(light)) {
@@ -112,14 +111,14 @@ void ShadowFlow::clearShadowMap(Camera *camera) {
     }
 }
 
-void ShadowFlow::resizeShadowMap(const Light *light, Shadows *shadowInfo){
-    auto *sceneData = _pipeline->getPipelineSceneData();
+void ShadowFlow::resizeShadowMap(const scene::Light *light, scene::Shadow **shadowInfo) {
+    auto *     sceneData = _pipeline->getPipelineSceneData();
     auto *     device    = gfx::Device::getInstance();
-    const auto width     = static_cast<uint>(shadowInfo->size.x);
-    const auto height    = static_cast<uint>(shadowInfo->size.y);
+    const auto width     = static_cast<uint>((*shadowInfo)->size.x);
+    const auto height    = static_cast<uint>((*shadowInfo)->size.y);
     const auto format    = supportsHalfFloatTexture(device)
-                            ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
-                            : gfx::Format::RGBA8;
+                               ? ((*shadowInfo)->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
+                               : gfx::Format::RGBA8;
 
     if (sceneData->getShadowFramebufferMap().count(light)) {
         auto *framebuffer = sceneData->getShadowFramebufferMap().at(light);
@@ -164,19 +163,19 @@ void ShadowFlow::resizeShadowMap(const Light *light, Shadows *shadowInfo){
         });
     }
 
-    shadowInfo->shadowMapDirty = false;
+    (*shadowInfo)->shadowMapDirty = false;
 }
 
-void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *light) {
+void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Light *light) {
     auto *      device        = gfx::Device::getInstance();
     const auto *sceneData     = _pipeline->getPipelineSceneData();
-    const auto *shadowInfo    = sceneData->getSharedData()->getShadows();
+    const auto *shadowInfo    = sceneData->getSharedData()->shadow;
     const auto  shadowMapSize = shadowInfo->size;
     const auto  width         = static_cast<uint>(shadowMapSize.x);
     const auto  height        = static_cast<uint>(shadowMapSize.y);
     const auto  format        = supportsHalfFloatTexture(device)
-                            ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
-                            : gfx::Format::RGBA8;
+                                    ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
+                                    : gfx::Format::RGBA8;
 
     if (!_renderPass) {
         const gfx::ColorAttachment colorAttachment = {

@@ -900,6 +900,42 @@ cocos_source_files(
                  cocos/renderer/pipeline/helper/SharedMemory.cpp
 )
 
+##### scene
+cocos_source_files(
+                 cocos/scene/AABB.h
+                 cocos/scene/AABB.cpp
+                 cocos/scene/BakedSkinningModel.h
+                 cocos/scene/BakedSkinningModel.cpp
+                 cocos/scene/Camera.h
+                 cocos/scene/Define.h
+                 cocos/scene/Define.cpp
+                 cocos/scene/DirectionalLight.h
+                 cocos/scene/DirectionalLight.cpp
+                 cocos/scene/DrawBatch2D.h
+                 cocos/scene/Frustum.h
+                 cocos/scene/Light.h
+                 cocos/scene/Light.cpp
+                 cocos/scene/Model.h
+                 cocos/scene/Model.cpp
+                 cocos/scene/Node.h
+                 cocos/scene/Node.cpp
+                 cocos/scene/Pass.h
+                 cocos/scene/Pass.cpp
+                 cocos/scene/RenderScene.h
+                 cocos/scene/RenderScene.cpp
+                 cocos/scene/RenderWindow.h
+                 cocos/scene/SkinningModel.h
+                 cocos/scene/SkinningModel.cpp
+                 cocos/scene/Sphere.h
+                 cocos/scene/Sphere.cpp
+                 cocos/scene/SphereLight.h
+                 cocos/scene/SphereLight.cpp
+                 cocos/scene/SpotLight.h
+                 cocos/scene/SpotLight.cpp
+                 cocos/scene/SubModel.h
+                 cocos/scene/SubModel.cpp
+)
+
 if(CC_USE_GLES2 OR CC_USE_GLES3)
     cocos_source_files(
         cocos/renderer/gfx-gles-common/GLESCommandPool.h
@@ -1243,6 +1279,8 @@ cocos_source_files(
                  cocos/bindings/auto/jsb_network_auto.h
     NO_WERROR    cocos/bindings/auto/jsb_pipeline_auto.cpp
                  cocos/bindings/auto/jsb_pipeline_auto.h
+    NO_WERROR    cocos/bindings/auto/jsb_scene_auto.cpp
+                 cocos/bindings/auto/jsb_scene_auto.h
 )
 
 if(USE_AUDIO)
@@ -1572,6 +1610,8 @@ cocos_source_files(
                  cocos/bindings/manual/jsb_helper.h
                  cocos/bindings/manual/jsb_module_register.h
                  cocos/bindings/manual/jsb_platform.h
+    NO_WERROR    cocos/bindings/manual/jsb_scene_manual.cpp
+                 cocos/bindings/manual/jsb_scene_manual.h
     NO_WERROR    cocos/bindings/manual/jsb_network_manual.cpp
                  cocos/bindings/manual/jsb_network_manual.h
     NO_WERROR    cocos/bindings/manual/jsb_xmlhttprequest.cpp

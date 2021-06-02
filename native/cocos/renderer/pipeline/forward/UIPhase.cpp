@@ -26,6 +26,7 @@
 #include "UIPhase.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "pipeline/PipelineStateManager.h"
+#include "scene/RenderScene.h"
 
 namespace cc {
 namespace pipeline {
@@ -35,33 +36,32 @@ void UIPhase::activate(RenderPipeline *pipeline) {
     _phaseID  = getPhaseID("default");
 };
 
-void UIPhase::render(Camera *camera, gfx::RenderPass *renderPass) {
+void UIPhase::render(scene::Camera *camera, gfx::RenderPass *renderPass) {
     auto *cmdBuff = _pipeline->getCommandBuffers()[0];
 
-    const auto *batches    = camera->getScene()->getUIBatches();
-    const auto  batchCount = batches[0];
+    const auto &batches = camera->scene->getDrawBatch2Ds();
     // Notice: The batches[0] is batchCount
-    for (uint i = 1; i <= batchCount; ++i) {
-        auto *const batch   = GET_UI_BATCH(batches[i]);
-        bool        visible = false;
+    for (auto *batch : batches) {
+        bool visible = false;
         if (camera->visibility & batch->visFlags) {
             visible = true;
         }
 
         if (!visible) continue;
-        const auto count = batch->passCount;
-        for (uint j = 0; j < count; j++) {
-            const auto *const pass = batch->getPassView(j);
-            if (pass->phase != _phaseID) continue;
-            auto *const shader         = batch->getShader(j);
-            auto *const inputAssembler = batch->getInputAssembler();
-            auto *const ds             = batch->getDescriptorSet();
+        int i = 0;
+        for (const auto *pass : batch->passes) {
+            if (pass->getPhase() != _phaseID) continue;
+            auto *const shader         = batch->shaders[i];
+            auto *const inputAssembler = batch->inputAssembler;
+            auto *const ds             = batch->descriptorSet;
             auto *      pso            = cc::pipeline::PipelineStateManager::getOrCreatePipelineState(pass, shader, inputAssembler, renderPass);
             cmdBuff->bindPipelineState(pso);
             cmdBuff->bindDescriptorSet(materialSet, pass->getDescriptorSet());
             cmdBuff->bindDescriptorSet(localSet, ds);
             cmdBuff->bindInputAssembler(inputAssembler);
             cmdBuff->draw(inputAssembler);
+
+            ++i;
         }
     }
 }

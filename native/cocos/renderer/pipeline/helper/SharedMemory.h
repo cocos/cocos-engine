@@ -92,9 +92,6 @@ extern gfx::BlendState *getBlendStateImpl(uint index);
 // Get raw buffer or gfx object.
 #define GET_RAW_BUFFER(index, size) SharedMemory::getRawBuffer<uint8_t>(se::PoolType::RAW_BUFFER, index, size)
 
-static const float SHADOW_CAMERA_MAX_FAR    = 2000.0F;
-static const float COEFFICIENT_OF_EXPANSION = 2.0F * std::sqrtf(3.0F);
-
 class CC_DLL SharedMemory : public Object {
 public:
     template <typename T>

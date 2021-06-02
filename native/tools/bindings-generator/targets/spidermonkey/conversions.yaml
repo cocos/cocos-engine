@@ -23,6 +23,7 @@ conversions:
     "spine::": "sp."
     "cc::gfx::": "gfx."
     "cc::pipeline::": "nr."
+    "cc::scene::": "ns."
   to_native:
     # jsval to int
     int32_t: "ok &= seval_to_int32(${in_value}, (int32_t*)&${out_value})"

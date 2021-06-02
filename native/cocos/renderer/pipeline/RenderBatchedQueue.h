@@ -25,8 +25,8 @@
 
 #pragma once
 
-#include "gfx-base/GFXDef.h"
 #include "base/Object.h"
+#include "gfx-base/GFXDef.h"
 
 namespace cc {
 namespace pipeline {
@@ -35,8 +35,8 @@ class BatchedBuffer;
 
 class CC_DLL RenderBatchedQueue : public Object {
 public:
-    RenderBatchedQueue() = default;
-    ~RenderBatchedQueue() = default;
+    RenderBatchedQueue()  = default;
+    ~RenderBatchedQueue() override = default;
 
     void clear();
     void uploadBuffers(gfx::CommandBuffer *cmdBuff);

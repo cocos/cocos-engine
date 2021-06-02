@@ -25,6 +25,8 @@
 
 #pragma once
 #include "base/CoreStd.h"
+#include "scene/Camera.h"
+#include "scene/Model.h"
 
 namespace cc {
 namespace gfx {
@@ -35,21 +37,9 @@ class Shader;
 } // namespace gfx
 namespace pipeline {
 class RenderPipeline;
-struct ModelView;
-struct SubModelView;
-struct PassView;
 class InstanceBuffer;
 class RenderInstancedQueue;
 class RenderBatchedQueue;
-struct Camera;
-
-struct AABB;
-
-struct ShadowRenderData {
-    const ModelView *model = nullptr;
-    vector<gfx::Shader*> shaders;
-    InstanceBuffer *instancedBuffer = nullptr;
-};
 
 class CC_DLL PlanarShadowQueue : public Object {
 public:
@@ -57,14 +47,14 @@ public:
     ~PlanarShadowQueue() override = default;
 
     void clear();
-    void gatherShadowPasses(Camera *camera , gfx::CommandBuffer *cmdBuffer);
+    void gatherShadowPasses(scene::Camera *camera, gfx::CommandBuffer *cmdBuffer);
     void recordCommandBuffer(gfx::Device *, gfx::RenderPass *, gfx::CommandBuffer *);
     void destroy();
 
 private:
-    RenderPipeline *_pipeline = nullptr;
-    RenderInstancedQueue *_instancedQueue = nullptr;
-    std::vector<const ModelView *> _pendingModels;
+    RenderPipeline *                  _pipeline       = nullptr;
+    RenderInstancedQueue *            _instancedQueue = nullptr;
+    std::vector<const scene::Model *> _pendingModels;
 };
 } // namespace pipeline
 } // namespace cc

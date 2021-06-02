@@ -26,7 +26,6 @@
 #include "Define.h"
 #include "bindings/jswrapper/SeApi.h"
 #include "gfx-base/GFXDevice.h"
-#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {

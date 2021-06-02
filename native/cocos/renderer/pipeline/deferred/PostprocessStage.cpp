@@ -32,6 +32,7 @@
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXFramebuffer.h"
+#include "scene/SubModel.h"
 
 namespace cc {
 namespace pipeline {
@@ -82,14 +83,14 @@ void PostprocessStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
 void PostprocessStage::destroy() {
 }
 
-void PostprocessStage::render(Camera *camera) {
+void PostprocessStage::render(scene::Camera *camera) {
     auto *pp = dynamic_cast<DeferredPipeline *>(_pipeline);
     assert(pp != nullptr);
     gfx::Device *       device = pp->getDevice();
     gfx::CommandBuffer *cmdBf  = pp->getCommandBuffers()[0];
 
     _pipeline->getPipelineUBO()->updateCameraUBO(camera);
-    gfx::Rect renderArea = pp->getRenderArea(camera, !camera->getWindow()->hasOffScreenAttachments);
+    gfx::Rect renderArea = pp->getRenderArea(camera, !camera->window->hasOffScreenAttachments);
 
     if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
         _clearColors[0].x = camera->clearColor.x;
@@ -99,7 +100,7 @@ void PostprocessStage::render(Camera *camera) {
 
     _clearColors[0].w = camera->clearColor.w;
 
-    gfx::Framebuffer *fb            = camera->getWindow()->getFramebuffer();
+    gfx::Framebuffer *fb            = camera->window->frameBuffer;
     const auto &      colorTextures = fb->getColorTextures();
     gfx::RenderPass * rp            = !colorTextures.empty() && colorTextures[0] ? fb->getRenderPass() : pp->getOrCreateRenderPass(static_cast<gfx::ClearFlags>(camera->clearFlag));
 
@@ -108,8 +109,8 @@ void PostprocessStage::render(Camera *camera) {
 
     // post proces
     auto *const  sceneData     = _pipeline->getPipelineSceneData();
-    PassView *   pv            = sceneData->getSharedData()->getDeferredPostPass();
-    gfx::Shader *sd            = sceneData->getSharedData()->getDeferredPostPassShader();
+    scene::Pass *pv            = sceneData->getSharedData()->deferredPostPass;
+    gfx::Shader *sd            = sceneData->getSharedData()->deferredPostPassShader;
     const auto & renderObjects = sceneData->getRenderObjects();
 
     if (!renderObjects.empty()) {
@@ -120,6 +121,33 @@ void PostprocessStage::render(Camera *camera) {
         cmdBf->bindPipelineState(pso);
         cmdBf->bindInputAssembler(ia);
         cmdBf->draw(ia);
+    }
+
+    // transparent
+    for (auto *queue : _renderQueues) {
+        queue->clear();
+    }
+
+    uint   m = 0;
+    uint   p = 0;
+    size_t k = 0;
+    for (auto ro : renderObjects) {
+        const auto *const model = ro.model;
+
+        for (auto *subModel : model->getSubModels()) {
+            for (auto *pass : subModel->getPasses()) {
+                // TODO(xwx): need fallback of ulit and gizmo material.
+                if (pass->getPhase() != _phaseID) continue;
+                for (k = 0; k < _renderQueues.size(); k++) {
+                    _renderQueues[k]->insertRenderPass(ro, m, p);
+                }
+            }
+        }
+    }
+
+    for (auto *queue : _renderQueues) {
+        queue->sort();
+        queue->recordCommandBuffer(_device, rp, cmdBf);
     }
 
     _uiPhase->render(camera, rp);

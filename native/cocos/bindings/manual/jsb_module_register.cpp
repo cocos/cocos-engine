@@ -30,6 +30,7 @@
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/bindings/auto/jsb_network_auto.h"
 #include "cocos/bindings/auto/jsb_pipeline_auto.h"
+#include "cocos/bindings/auto/jsb_scene_auto.h"
 #include "cocos/bindings/dop/jsb_dop.h"
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_cocos_manual.h"
@@ -39,6 +40,7 @@
 #include "cocos/bindings/manual/jsb_network_manual.h"
 #include "cocos/bindings/manual/jsb_pipeline_manual.h"
 #include "cocos/bindings/manual/jsb_platform.h"
+#include "cocos/bindings/manual/jsb_scene_manual.h"
 #include "cocos/bindings/manual/jsb_xmlhttprequest.h"
 
 #if USE_GFX_RENDERER
@@ -121,6 +123,8 @@ bool jsb_register_all_modules() {
     se->addRegisterCallback(register_all_dop_bindings);
     se->addRegisterCallback(register_all_pipeline);
     se->addRegisterCallback(register_all_pipeline_manual);
+    se->addRegisterCallback(register_all_scene);
+    se->addRegisterCallback(register_all_scene_manual);
 
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX)
     se->addRegisterCallback(register_javascript_objc_bridge);
