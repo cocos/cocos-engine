@@ -86,10 +86,10 @@ replaceProperty(EventMouse, 'EventMouse', [
         targetName: 'SystemEvent.EventType',
     },
 ]);
-replaceProperty(EventMouse.prototype, 'EventMouse.prototype', [
+markAsWarning(EventMouse.prototype, 'EventMouse.prototype', [
     {
         name: 'eventType',
-        newName: 'type',
+        suggest: 'please use EventMouse.prototype.type instead',
     },
 ]);
 

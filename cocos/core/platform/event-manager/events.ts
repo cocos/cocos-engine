@@ -109,6 +109,17 @@ export class EventMouse extends Event {
      */
     public movementY = 0;
 
+    private _eventType: SystemEventType;
+    /**
+     * @en The type of the event
+     * @zh 鼠标事件类型
+     *
+     * @deprecated since v3.3, please use EventMouse.prototype.type instead.
+     */
+    public get eventType () {
+        return this._eventType;
+    }
+
     private _button: number = EventMouse.BUTTON_MISSING;
 
     private _x = 0;
@@ -129,6 +140,7 @@ export class EventMouse extends Event {
      */
     constructor (eventType: SystemEventType, bubbles?: boolean, prevLoc?: Vec2) {
         super(eventType, bubbles);
+        this._eventType = eventType;
         if (prevLoc) {
             this._prevX = prevLoc.x;
             this._prevY = prevLoc.y;
