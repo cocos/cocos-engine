@@ -124,6 +124,24 @@
     cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
 }
 
+- (void)flagsChanged:(NSEvent *)event {
+    int keyCode = translateKeycode(event.keyCode);
+    updateModifierKeyState(keyCode);
+    auto action = getModifierKeyAction(keyCode);
+    
+    // NOTE: in some cases, flagsChanged event may return some wrong keyCodes
+    // For example:
+    // - when you long press the capslock key, you may get the keyCode -1
+    // - when you press ctrl + space, you may get the keyCode 65
+    if (action == cc::KeyboardEvent::Action::UNKNOWN) {
+        return;
+    }
+    _keyboardEvent.key = keyCode;
+    _keyboardEvent.action = action;
+    [self setModifierFlags:event];
+    cc::EventDispatcher::dispatchKeyboardEvent(_keyboardEvent);
+}
+
 - (void)setModifierFlags:(NSEvent *)event {
     NSEventModifierFlags modifierFlags = event.modifierFlags;
     if (modifierFlags & NSEventModifierFlagShift)
