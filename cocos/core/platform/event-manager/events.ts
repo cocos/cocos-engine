@@ -610,6 +610,8 @@ export class EventKeyboard extends Event {
     /**
      * @en Raw DOM KeyboardEvent.
      * @zh 原始 DOM KeyboardEvent 事件对象
+     *
+     * @deprecated since v3.3, can't access rawEvent anymore
      */
     public rawEvent?: KeyboardEvent;
 
