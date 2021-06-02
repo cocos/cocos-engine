@@ -97,10 +97,7 @@ export const simple: IAssembler = {
         const dataList: IRenderData[] = renderData!.data;
         const node = sprite.node;
 
-        let buffer = renderer.acquireBufferBatch();
-        if (buffer === null) {
-            return;
-        }
+        let buffer = renderer.acquireBufferBatch()!;
 
         let vertexOffset = buffer.byteOffset >> 2;
         let indicesOffset = buffer.indicesOffset;
