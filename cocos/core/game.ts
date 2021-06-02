@@ -424,11 +424,7 @@ export class Game extends EventTarget {
      * @zh 退出游戏
      */
     public end () {
-        if (this._gfxDevice) {
-            this._gfxDevice.destroy();
-            this._gfxDevice = null;
-        }
-        window.close();
+        system.close();
     }
 
     /**
