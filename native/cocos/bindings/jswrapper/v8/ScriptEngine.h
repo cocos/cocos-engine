@@ -233,7 +233,7 @@ public:
          *  @brief Tests whether script engine is doing garbage collection.
          *  @return true if it's in garbage collection, otherwise false.
          */
-    bool isGarbageCollecting();
+    bool isGarbageCollecting() const;
 
     /**
          *  @brief Performs a JavaScript garbage collection.
@@ -244,13 +244,18 @@ public:
          *  @brief Tests whether script engine is being cleaned up.
          *  @return true if it's in cleaning up, otherwise false.
          */
-    bool isInCleanup() { return _isInCleanup; }
+    bool isInCleanup() const { return _isInCleanup; }
 
     /**
          *  @brief Tests whether script engine is valid.
          *  @return true if it's valid, otherwise false.
          */
     bool isValid() const;
+
+    /**
+     * @brief Throw JS exception
+     */
+    void throwException(const std::string &errorMessage);
 
     /**
          *  @brief Clears all exceptions.

@@ -705,7 +705,7 @@ void ScriptEngine::garbageCollect() {
     SE_LOGD("GC end ..., (js->native map) size: %d, all objects: %d\n", (int)NativePtrToObjectMap::size(), objSize);
 }
 
-bool ScriptEngine::isGarbageCollecting() {
+bool ScriptEngine::isGarbageCollecting() const {
     return _isGarbageCollecting;
 }
 
@@ -726,7 +726,7 @@ bool ScriptEngine::evalString(const char *script, ssize_t length /* = -1 */, Val
 
     assert(script != nullptr);
     if (length < 0) {
-        length = strlen(script);
+        length = static_cast<ssize_t>(strlen(script));
     }
 
     if (fileName == nullptr) {
@@ -814,8 +814,8 @@ const ScriptEngine::FileOperationDelegate &ScriptEngine::getFileOperationDelegat
 }
 
 bool ScriptEngine::saveByteCodeToFile(const std::string &path, const std::string &pathBc) {
-    bool success = false;
-    auto fu      = cc::FileUtils::getInstance();
+    bool  success = false;
+    auto *fu      = cc::FileUtils::getInstance();
 
     if (pathBc.length() > 3 && pathBc.substr(pathBc.length() - 3) != ".bc") {
         SE_LOGE("ScriptEngine::generateByteCode bytecode file path should endwith \".bc\"\n");
@@ -871,7 +871,7 @@ bool ScriptEngine::saveByteCodeToFile(const std::string &path, const std::string
 }
 
 bool ScriptEngine::runByteCodeFile(const std::string &pathBc, Value *ret /* = nullptr */) {
-    auto fu = cc::FileUtils::getInstance();
+    auto *fu = cc::FileUtils::getInstance();
 
     cc::Data cachedData;
     fu->getContents(pathBc, &cachedData);
@@ -973,7 +973,7 @@ bool ScriptEngine::runScript(const std::string &path, Value *ret /* = nullptr */
     std::string scriptBuffer = _fileOperationDelegate.onGetStringFromFile(path);
 
     if (!scriptBuffer.empty()) {
-        return evalString(scriptBuffer.c_str(), scriptBuffer.length(), ret, path.c_str());
+        return evalString(scriptBuffer.c_str(), static_cast<ssize_t>(scriptBuffer.length()), ret, path.c_str());
     }
 
     SE_LOGE("ScriptEngine::runScript script %s, buffer is empty!\n", path.c_str());
@@ -982,6 +982,13 @@ bool ScriptEngine::runScript(const std::string &path, Value *ret /* = nullptr */
 
 void ScriptEngine::clearException() {
     //IDEA:
+}
+
+void ScriptEngine::throwException(const std::string &errorMessage) {
+    v8::HandleScope       scope(_isolate);
+    v8::Local<v8::String> message = v8::String::NewFromUtf8(_isolate, errorMessage.data()).ToLocalChecked();
+    v8::Local<v8::Value>  error   = v8::Exception::Error(message);
+    _isolate->ThrowException(error);
 }
 
 void ScriptEngine::setExceptionCallback(const ExceptionCallback &cb) {

@@ -122,12 +122,40 @@ public:
         }
         ~CallInfo();
 
-        bool isValid() {
+        bool isValid() const {
             return _mValid;
         }
 
-        int getErrorCode() {
+        int getErrorCode() const {
             return _mError;
+        }
+
+        void tryThrowJSException() const {
+            if (_mError != JSJ_ERR_OK) {
+                se::ScriptEngine::getInstance()->throwException(getErrorMessage());
+            }
+        }
+
+        const char *getErrorMessage() const {
+            switch (_mError) {
+                case JSJ_ERR_TYPE_NOT_SUPPORT:
+                    return "argument type is not supported";
+                case JSJ_ERR_INVALID_SIGNATURES:
+                    return "invalid signature";
+                case JSJ_ERR_METHOD_NOT_FOUND:
+                    return "method not found";
+                case JSJ_ERR_EXCEPTION_OCCURRED:
+                    return "excpected occurred";
+                case JSJ_ERR_VM_THREAD_DETACHED:
+                    return "vm thread detached";
+                case JSJ_ERR_VM_FAILURE:
+                    return "vm failure";
+                case JSJ_ERR_CLASS_NOT_FOUND:
+                    return "class not found";
+                case JSJ_ERR_OK:
+                default:
+                    return "NOERROR";
+            }
         }
 
         JNIEnv *getEnv() {
@@ -138,7 +166,7 @@ public:
             return _mArgumentsType.at(index);
         }
 
-        int getArgumentsCount() {
+        int getArgumentsCount() const {
             return _mArgumentsCount;
         }
 
@@ -409,7 +437,7 @@ bool JavaScriptJavaBridge::convertReturnValue(ReturnValue retValue, ValueType ty
             ret->setInt32(retValue.intValue);
             break;
         case JavaScriptJavaBridge::ValueType::LONG:
-            ret->setLong(retValue.longValue);
+            ret->setLong(retValue.longValue); //NOLINT(bugprone-narrowing-conversions)
             break;
         case JavaScriptJavaBridge::ValueType::FLOAT:
             ret->setFloat(retValue.floatValue);
@@ -471,12 +499,14 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
             ok            = call.execute();
             int errorCode = call.getErrorCode();
             if (!ok || errorCode < 0) {
+                call.tryThrowJSException();
                 SE_REPORT_ERROR("call result code: %d", call.getErrorCode());
                 return false;
             }
             JavaScriptJavaBridge::convertReturnValue(call.getReturnValue(), call.getReturnValueType(), &s.rval());
             return true;
         }
+        call.tryThrowJSException();
         SE_REPORT_ERROR("JavaScriptJavaBridge::CallInfo isn't valid!");
         return false;
     }
@@ -550,6 +580,7 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
             delete[] jargs;
             int errorCode = call.getErrorCode();
             if (!ok || errorCode < 0) {
+                call.tryThrowJSException();
                 SE_REPORT_ERROR("js_JSJavaBridge : call result code: %d", errorCode);
                 return false;
             }
@@ -557,6 +588,7 @@ static bool JavaScriptJavaBridge_callStaticMethod(se::State &s) { //NOLINT(reada
             JavaScriptJavaBridge::convertReturnValue(call.getReturnValue(), call.getReturnValueType(), &s.rval());
             return true;
         }
+        call.tryThrowJSException();
         SE_REPORT_ERROR("call valid: %d, call.getArgumentsCount()= %d", call.isValid(), call.getArgumentsCount());
         return false;
     }
