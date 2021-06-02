@@ -134,14 +134,10 @@ markAsWarning(EventTouch.prototype, 'EventTouch.prototype', [
 ]);
 
 // deprecated EventKeyboard property
-replaceProperty(EventKeyboard.prototype, 'EventKeyboard.prototype', [
+markAsWarning(EventKeyboard.prototype, 'EventKeyboard.prototype', [
     {
         name: 'isPressed',
-        suggest: 'use Event.prototype.type !== SystemEventType.KEYBOARD_UP instead',
-        customGetter () {
-            // @ts-expect-error this points to an EventKeyboard intance.
-            return this.type !== SystemEventType.KEYBOARD_UP;
-        },
+        suggest: 'use EventKeyboard.prototype.type !== SystemEventType.KEYBOARD_UP instead',
     },
 ]);
 
