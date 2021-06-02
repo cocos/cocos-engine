@@ -256,15 +256,20 @@ markAsWarning = (owner: object, ownerName: string, properties: IMarkItem[]) => {
             } else {
                 let oldValue = descriptor.value;
                 Object.defineProperty(owner, deprecatedProp, {
+                    configurable: true,
                     get () {
                         markAsWarningLog(ownerName, deprecatedProp, warn, id, suggest);
                         return oldValue;
                     },
-                    set (v) {
-                        markAsWarningLog(ownerName, deprecatedProp, warn, id, suggest);
-                        oldValue = v;
-                    },
                 });
+                if (descriptor.writable) {
+                    Object.defineProperty(owner, deprecatedProp, {
+                        set (value) {
+                            markAsWarningLog(ownerName, deprecatedProp, warn, id, suggest);
+                            oldValue = value;
+                        },
+                    });
+                }
             }
         } else {
             _defaultGetSet(descriptor, ownerName, deprecatedProp, warn, id, suggest);
