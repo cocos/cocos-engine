@@ -164,7 +164,6 @@ export class RenderAdditiveLightQueue {
             const key = keys[i];
             const descriptorSet = descriptorSetMap.get(key)!;
             if (descriptorSet) {
-                descriptorSet.getBuffer(UBOGlobal.BINDING).destroy();
                 descriptorSet.getBuffer(UBOShadow.BINDING).destroy();
                 descriptorSet.getSampler(UNIFORM_SHADOWMAP_BINDING).destroy();
                 descriptorSet.getSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();

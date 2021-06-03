@@ -180,7 +180,7 @@ export class GlobalDSManager {
         return this._descriptorSetMap.get(idx);
     }
 
-    public destroy () {
+    public clear () {
         const descriptorSets = Array.from(this._descriptorSetMap.values());
 
         // The global descriptorSet is released by the pipeline, the other descriptorSets are released by whoever gets them.
@@ -192,5 +192,10 @@ export class GlobalDSManager {
             }
         }
         this._descriptorSetMap.clear();
+    }
+
+    public destroy () {
+        this._descriptorSetLayout.destroy();
+        this._sampler.destroy();
     }
 }

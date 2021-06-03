@@ -234,7 +234,12 @@ export abstract class RenderPipeline extends Asset {
         if (this._descriptorSet) {
             this._descriptorSet.destroy();
             this._descriptorSet = null!;
+            if (this._globalDSManager.descriptorSetMap.has(-1)) {
+                this._globalDSManager.descriptorSetMap.delete(-1);
+            }
         }
+
+        this._globalDSManager.destroy();
 
         for (let i = 0; i < this._commandBuffers.length; i++) {
             this._commandBuffers[i].destroy();
