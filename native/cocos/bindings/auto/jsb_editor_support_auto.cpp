@@ -181,25 +181,6 @@ static bool js_editor_support_Texture2D_setTexParamCallback(se::State& s)
 }
 SE_BIND_FUNC(js_editor_support_Texture2D_setTexParamCallback)
 
-static bool js_editor_support_Texture2D_setTexParameters(se::State& s)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
-    SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setTexParameters : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::middleware::Texture2D::_TexParams, true> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_editor_support_Texture2D_setTexParameters : Error processing arguments");
-        cobj->setTexParameters(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_editor_support_Texture2D_setTexParameters)
-
 SE_DECLARE_FINALIZE_FUNC(js_cc_middleware_Texture2D_finalize)
 
 static bool js_editor_support_Texture2D_constructor(se::State& s) // constructor.c
@@ -232,7 +213,6 @@ bool js_register_editor_support_Texture2D(se::Object* obj)
     cls->defineFunction("setPixelsWide", _SE(js_editor_support_Texture2D_setPixelsWide));
     cls->defineFunction("setRealTextureIndex", _SE(js_editor_support_Texture2D_setRealTextureIndex));
     cls->defineFunction("setTexParamCallback", _SE(js_editor_support_Texture2D_setTexParamCallback));
-    cls->defineFunction("setTexParameters", _SE(js_editor_support_Texture2D_setTexParameters));
     cls->defineFinalizeFunction(_SE(js_cc_middleware_Texture2D_finalize));
     cls->install();
     JSBClassType::registerClass<cc::middleware::Texture2D>(cls);

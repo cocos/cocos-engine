@@ -21,7 +21,6 @@ SE_DECLARE_FUNC(js_editor_support_Texture2D_setPixelsHigh);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_setPixelsWide);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_setRealTextureIndex);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_setTexParamCallback);
-SE_DECLARE_FUNC(js_editor_support_Texture2D_setTexParameters);
 SE_DECLARE_FUNC(js_editor_support_Texture2D_Texture2D);
 
 extern se::Object* __jsb_cc_middleware_SharedBufferManager_proto;

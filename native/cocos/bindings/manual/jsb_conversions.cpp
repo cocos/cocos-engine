@@ -1186,37 +1186,6 @@ bool nativevalue_to_se(const cc::Rect &from, se::Value &to, se::Object * /*unuse
     return Rect_to_seval(from, &to);
 }
 
-#if USE_SPINE
-
-template <>
-bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se::Object * /*unused*/) {
-    assert(v.isObject());
-    se::Object *obj = v.toObject();
-    assert(obj->isArray());
-
-    bool     ok  = true;
-    uint32_t len = 0;
-    ok           = obj->getArrayLength(&len);
-    if (!ok) {
-        ret->clear();
-        return false;
-    }
-
-    se::Value tmp;
-    for (uint32_t i = 0; i < len; ++i) {
-        ok = obj->getArrayElement(i, &tmp);
-        if (!ok || !tmp.isObject()) {
-            ret->clear();
-            return false;
-        }
-
-        const char *str = tmp.toString().c_str();
-        ret->add(str);
-    }
-
-    return true;
-}
-
 template <>
 bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*unused*/) {
     SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Vec4 failed!");
@@ -1321,6 +1290,43 @@ bool sevalue_to_native(const se::Value &from, cc::Vec2 *to, se::Object * /*unuse
     return true;
 }
 
+#if USE_SPINE
+
+template <>
+bool sevalue_to_native(const se::Value &val, spine::String *obj, se::Object * /*unused*/) {
+    *obj = val.toString().data();
+    return true;
+}
+
+template <>
+bool sevalue_to_native(const se::Value &v, spine::Vector<spine::String> *ret, se::Object * /*unused*/) {
+    assert(v.isObject());
+    se::Object *obj = v.toObject();
+    assert(obj->isArray());
+
+    bool     ok  = true;
+    uint32_t len = 0;
+    ok           = obj->getArrayLength(&len);
+    if (!ok) {
+        ret->clear();
+        return false;
+    }
+
+    se::Value tmp;
+    for (uint32_t i = 0; i < len; ++i) {
+        ok = obj->getArrayElement(i, &tmp);
+        if (!ok || !tmp.isObject()) {
+            ret->clear();
+            return false;
+        }
+
+        const char *str = tmp.toString().c_str();
+        ret->add(str);
+    }
+
+    return true;
+}
+
 template <>
 bool nativevalue_to_se(const spine::String &obj, se::Value &val, se::Object * /*unused*/) {
     val.setString(obj.buffer());
@@ -1343,7 +1349,7 @@ bool nativevalue_to_se(const spine::Vector<spine::String> &v, se::Value &ret, se
 
     if (ok) {
         ret.setObject(obj);
-}
+    }
 
     return ok;
 }

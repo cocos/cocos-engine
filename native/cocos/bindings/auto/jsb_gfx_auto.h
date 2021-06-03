@@ -365,6 +365,16 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::SubpassInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::SubpassInfo);
 
+extern se::Object* __jsb_cc_gfx_SubpassDependency_proto;
+extern se::Class* __jsb_cc_gfx_SubpassDependency_class;
+
+bool js_register_cc_gfx_SubpassDependency(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::SubpassDependency *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::SubpassDependency);
+
 extern se::Object* __jsb_cc_gfx_RenderPassInfo_proto;
 extern se::Class* __jsb_cc_gfx_RenderPassInfo_class;
 
@@ -495,6 +505,16 @@ template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::BlendState *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::BlendState);
 
+extern se::Object* __jsb_cc_gfx_PipelineStateInfo_proto;
+extern se::Class* __jsb_cc_gfx_PipelineStateInfo_class;
+
+bool js_register_cc_gfx_PipelineStateInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::PipelineStateInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::PipelineStateInfo);
+
 extern se::Object* __jsb_cc_gfx_CommandBufferInfo_proto;
 extern se::Class* __jsb_cc_gfx_CommandBufferInfo_class;
 
@@ -534,6 +554,16 @@ bool register_all_gfx(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::gfx::DeviceInfo *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceInfo);
+
+extern se::Object* __jsb_cc_gfx_ContextInfo_proto;
+extern se::Class* __jsb_cc_gfx_ContextInfo_class;
+
+bool js_register_cc_gfx_ContextInfo(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+template<>
+bool sevalue_to_native(const se::Value &, cc::gfx::ContextInfo *, se::Object *ctx);
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::ContextInfo);
 
 extern se::Object* __jsb_cc_gfx_GFXObject_proto;
 extern se::Class* __jsb_cc_gfx_GFXObject_class;

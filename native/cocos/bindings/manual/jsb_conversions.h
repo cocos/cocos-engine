@@ -803,8 +803,8 @@ struct HolderType<std::function<R(ARGS...)>, true> {
 template <typename T>
 inline typename std::enable_if_t<!std::is_enum<T>::value && !std::is_pointer<T>::value, bool>
 sevalue_to_native(const se::Value & /*from*/, T * /*to*/, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
-    // CC_STATIC_ASSERT(std::is_same<T, never_t>::value, "sevalue_to_native not implemented for type");
     SE_LOGE("Can not convert type ???\n - [[ %s ]]\n", typeid(T).name());
+    CC_STATIC_ASSERT(std::is_same<T, void>::value, "sevalue_to_native not implemented for T");
     return false;
 }
 
@@ -940,6 +940,10 @@ inline bool sevalue_to_native(const se::Value &from, float *to, se::Object * /*c
     *to = from.toFloat();
     return true;
 }
+inline bool sevalue_to_native(const se::Value &from, double *to, se::Object *) {
+    *to = from.toNumber();
+    return true;
+}
 
 template <>
 inline bool sevalue_to_native(const se::Value & /*from*/, void * /*to*/, se::Object * /*ctx*/) {
@@ -947,9 +951,47 @@ inline bool sevalue_to_native(const se::Value & /*from*/, void * /*to*/, se::Obj
     return false;
 }
 
-template<>
+template <>
 inline bool sevalue_to_native(const se::Value &from, cc::Data *to, se::Object * /*ctx*/) {
     return seval_to_Data(from, to);
+}
+
+template <>
+inline bool sevalue_to_native(const se::Value &from, cc::Value *to, se::Object *) {
+    return seval_to_ccvalue(from, to);
+}
+
+template <>
+inline bool sevalue_to_native(const se::Value &from, se::Value *to, se::Object *) {
+    *to = from;
+    return true;
+}
+
+template <>
+bool sevalue_to_native(const se::Value &from, cc::Vec4 *to, se::Object * /*unused*/);
+
+template <>
+bool sevalue_to_native(const se::Value &from, cc::Mat4 *to, se::Object * /*unused*/);
+
+template <>
+bool sevalue_to_native(const se::Value &from, cc::Vec3 *to, se::Object * /*unused*/);
+
+template <>
+bool sevalue_to_native(const se::Value &from, cc::Vec2 *to, se::Object * /*unused*/);
+
+template <>
+inline bool sevalue_to_native(const se::Value &from, std::vector<se::Value> *to, se::Object *) {
+    assert(from.isObject() && from.toObject()->isArray());
+    auto *array = from.toObject();
+    to->clear();
+    uint32_t size;
+    array->getArrayLength(&size);
+    for (uint32_t i = 0; i < size; i++) {
+        se::Value ele;
+        array->getArrayElement(i, &ele);
+        to->emplace_back(ele);
+    }
+    return true;
 }
 
 ////////////////// pointer types
@@ -1047,6 +1089,9 @@ bool sevalue_to_native(const se::Value &from, std::vector<T, allocator> *to, se:
         to->assign(reinterpret_cast<T *>(data), reinterpret_cast<T *>(data + dataLen));
         return true;
     }
+
+    SE_LOGE("[warn] failed to convert to std::vector\n");
+    return false;
 }
 
 //template<>
@@ -1511,6 +1556,9 @@ inline bool nativevalue_to_se(const cc::network::DownloadTask &from, se::Value &
 
 // Spine conversions
 #if USE_SPINE
+
+template <>
+bool sevalue_to_native(const se::Value &, spine::String *, se::Object *);
 
 template <typename T>
 bool nativevalue_to_se(const spine::Vector<T> &v, se::Value &ret, se::Object * /*ctx*/) { // NOLINT(readability-identifier-naming)

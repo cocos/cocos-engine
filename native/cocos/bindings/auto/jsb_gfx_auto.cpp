@@ -10484,6 +10484,243 @@ bool js_register_gfx_SubpassInfo(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_gfx_SubpassDependency_proto = nullptr;
+se::Class* __jsb_cc_gfx_SubpassDependency_class = nullptr;
+
+static bool js_gfx_SubpassDependency_get_srcSubpass(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_get_srcSubpass : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->srcSubpass, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->srcSubpass, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_srcSubpass)
+
+static bool js_gfx_SubpassDependency_set_srcSubpass(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_set_srcSubpass : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->srcSubpass, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_SubpassDependency_set_srcSubpass : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_srcSubpass)
+
+static bool js_gfx_SubpassDependency_get_dstSubpass(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_get_dstSubpass : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->dstSubpass, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->dstSubpass, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_dstSubpass)
+
+static bool js_gfx_SubpassDependency_set_dstSubpass(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_set_dstSubpass : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->dstSubpass, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_SubpassDependency_set_dstSubpass : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_dstSubpass)
+
+static bool js_gfx_SubpassDependency_get_srcAccesses(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_get_srcAccesses : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->srcAccesses, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->srcAccesses, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_srcAccesses)
+
+static bool js_gfx_SubpassDependency_set_srcAccesses(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_set_srcAccesses : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->srcAccesses, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_SubpassDependency_set_srcAccesses : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_srcAccesses)
+
+static bool js_gfx_SubpassDependency_get_dstAccesses(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_get_dstAccesses : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->dstAccesses, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->dstAccesses, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassDependency_get_dstAccesses)
+
+static bool js_gfx_SubpassDependency_set_dstAccesses(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassDependency_set_dstAccesses : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->dstAccesses, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_SubpassDependency_set_dstAccesses : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassDependency_set_dstAccesses)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::gfx::SubpassDependency * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::gfx::SubpassDependency*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("srcSubpass", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->srcSubpass), ctx);
+    }
+    json->getProperty("dstSubpass", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->dstSubpass), ctx);
+    }
+    json->getProperty("srcAccesses", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->srcAccesses), ctx);
+    }
+    json->getProperty("dstAccesses", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->dstAccesses), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_SubpassDependency_finalize)
+
+static bool js_gfx_SubpassDependency_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        cc::gfx::SubpassDependency* cobj = JSB_ALLOC(cc::gfx::SubpassDependency);
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        cc::gfx::SubpassDependency* cobj = JSB_ALLOC(cc::gfx::SubpassDependency);
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    cc::gfx::SubpassDependency* cobj = JSB_ALLOC(cc::gfx::SubpassDependency);
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->srcSubpass), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->dstSubpass), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->srcAccesses), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->dstAccesses), nullptr);
+    }
+
+    if(!ok) {
+        JSB_FREE(cobj);
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_gfx_SubpassDependency_constructor, __jsb_cc_gfx_SubpassDependency_class, js_cc_gfx_SubpassDependency_finalize)
+
+
+
+
+static bool js_cc_gfx_SubpassDependency_finalize(se::State& s)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassDependency>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_SubpassDependency_finalize)
+
+bool js_register_gfx_SubpassDependency(se::Object* obj)
+{
+    auto* cls = se::Class::create("SubpassDependency", obj, nullptr, _SE(js_gfx_SubpassDependency_constructor));
+
+    cls->defineProperty("srcSubpass", _SE(js_gfx_SubpassDependency_get_srcSubpass), _SE(js_gfx_SubpassDependency_set_srcSubpass));
+    cls->defineProperty("dstSubpass", _SE(js_gfx_SubpassDependency_get_dstSubpass), _SE(js_gfx_SubpassDependency_set_dstSubpass));
+    cls->defineProperty("srcAccesses", _SE(js_gfx_SubpassDependency_get_srcAccesses), _SE(js_gfx_SubpassDependency_set_srcAccesses));
+    cls->defineProperty("dstAccesses", _SE(js_gfx_SubpassDependency_get_dstAccesses), _SE(js_gfx_SubpassDependency_set_dstAccesses));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_SubpassDependency_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::gfx::SubpassDependency>(cls);
+
+    __jsb_cc_gfx_SubpassDependency_proto = cls->getProto();
+    __jsb_cc_gfx_SubpassDependency_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_gfx_RenderPassInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_RenderPassInfo_class = nullptr;
 
@@ -14053,6 +14290,488 @@ bool js_register_gfx_BlendState(se::Object* obj)
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_gfx_PipelineStateInfo_proto = nullptr;
+se::Class* __jsb_cc_gfx_PipelineStateInfo_class = nullptr;
+
+static bool js_gfx_PipelineStateInfo_get_shader(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_shader : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->shader, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->shader, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_shader)
+
+static bool js_gfx_PipelineStateInfo_set_shader(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_shader : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->shader, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_shader : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_shader)
+
+static bool js_gfx_PipelineStateInfo_get_pipelineLayout(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_pipelineLayout : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->pipelineLayout, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->pipelineLayout, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_pipelineLayout)
+
+static bool js_gfx_PipelineStateInfo_set_pipelineLayout(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_pipelineLayout : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->pipelineLayout, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_pipelineLayout : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_pipelineLayout)
+
+static bool js_gfx_PipelineStateInfo_get_renderPass(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_renderPass : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->renderPass, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->renderPass, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_renderPass)
+
+static bool js_gfx_PipelineStateInfo_set_renderPass(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_renderPass : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->renderPass, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_renderPass : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_renderPass)
+
+static bool js_gfx_PipelineStateInfo_get_inputState(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_inputState : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->inputState, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->inputState, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_inputState)
+
+static bool js_gfx_PipelineStateInfo_set_inputState(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_inputState : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->inputState, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_inputState : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_inputState)
+
+static bool js_gfx_PipelineStateInfo_get_rasterizerState(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_rasterizerState : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->rasterizerState, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->rasterizerState, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_rasterizerState)
+
+static bool js_gfx_PipelineStateInfo_set_rasterizerState(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_rasterizerState : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->rasterizerState, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_rasterizerState : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_rasterizerState)
+
+static bool js_gfx_PipelineStateInfo_get_depthStencilState(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_depthStencilState : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->depthStencilState, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->depthStencilState, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_depthStencilState)
+
+static bool js_gfx_PipelineStateInfo_set_depthStencilState(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_depthStencilState : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->depthStencilState, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_depthStencilState : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_depthStencilState)
+
+static bool js_gfx_PipelineStateInfo_get_blendState(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_blendState : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->blendState, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->blendState, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_blendState)
+
+static bool js_gfx_PipelineStateInfo_set_blendState(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_blendState : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->blendState, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_blendState : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_blendState)
+
+static bool js_gfx_PipelineStateInfo_get_primitive(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_primitive : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->primitive, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->primitive, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_primitive)
+
+static bool js_gfx_PipelineStateInfo_set_primitive(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_primitive : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->primitive, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_primitive : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_primitive)
+
+static bool js_gfx_PipelineStateInfo_get_dynamicStates(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_dynamicStates : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->dynamicStates, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->dynamicStates, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_dynamicStates)
+
+static bool js_gfx_PipelineStateInfo_set_dynamicStates(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_dynamicStates : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->dynamicStates, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_dynamicStates : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_dynamicStates)
+
+static bool js_gfx_PipelineStateInfo_get_bindPoint(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_bindPoint : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->bindPoint, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->bindPoint, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_bindPoint)
+
+static bool js_gfx_PipelineStateInfo_set_bindPoint(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_bindPoint : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->bindPoint, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_bindPoint : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_bindPoint)
+
+static bool js_gfx_PipelineStateInfo_get_subpass(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_get_subpass : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->subpass, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->subpass, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_PipelineStateInfo_get_subpass)
+
+static bool js_gfx_PipelineStateInfo_set_subpass(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_PipelineStateInfo_set_subpass : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->subpass, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_PipelineStateInfo_set_subpass : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_PipelineStateInfo_set_subpass)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::gfx::PipelineStateInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::gfx::PipelineStateInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("shader", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->shader), ctx);
+    }
+    json->getProperty("pipelineLayout", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->pipelineLayout), ctx);
+    }
+    json->getProperty("renderPass", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->renderPass), ctx);
+    }
+    json->getProperty("inputState", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->inputState), ctx);
+    }
+    json->getProperty("rasterizerState", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->rasterizerState), ctx);
+    }
+    json->getProperty("depthStencilState", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->depthStencilState), ctx);
+    }
+    json->getProperty("blendState", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->blendState), ctx);
+    }
+    json->getProperty("primitive", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->primitive), ctx);
+    }
+    json->getProperty("dynamicStates", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->dynamicStates), ctx);
+    }
+    json->getProperty("bindPoint", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->bindPoint), ctx);
+    }
+    json->getProperty("subpass", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->subpass), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_PipelineStateInfo_finalize)
+
+static bool js_gfx_PipelineStateInfo_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        cc::gfx::PipelineStateInfo* cobj = JSB_ALLOC(cc::gfx::PipelineStateInfo);
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        cc::gfx::PipelineStateInfo* cobj = JSB_ALLOC(cc::gfx::PipelineStateInfo);
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    cc::gfx::PipelineStateInfo* cobj = JSB_ALLOC(cc::gfx::PipelineStateInfo);
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->shader), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->pipelineLayout), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->renderPass), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->inputState), nullptr);
+    }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->rasterizerState), nullptr);
+    }
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(cobj->depthStencilState), nullptr);
+    }
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(cobj->blendState), nullptr);
+    }
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(cobj->primitive), nullptr);
+    }
+    if (argc > 8 && !args[8].isUndefined()) {
+        ok &= sevalue_to_native(args[8], &(cobj->dynamicStates), nullptr);
+    }
+    if (argc > 9 && !args[9].isUndefined()) {
+        ok &= sevalue_to_native(args[9], &(cobj->bindPoint), nullptr);
+    }
+    if (argc > 10 && !args[10].isUndefined()) {
+        ok &= sevalue_to_native(args[10], &(cobj->subpass), nullptr);
+    }
+
+    if(!ok) {
+        JSB_FREE(cobj);
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_gfx_PipelineStateInfo_constructor, __jsb_cc_gfx_PipelineStateInfo_class, js_cc_gfx_PipelineStateInfo_finalize)
+
+
+
+
+static bool js_cc_gfx_PipelineStateInfo_finalize(se::State& s)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::gfx::PipelineStateInfo>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_PipelineStateInfo_finalize)
+
+bool js_register_gfx_PipelineStateInfo(se::Object* obj)
+{
+    auto* cls = se::Class::create("PipelineStateInfo", obj, nullptr, _SE(js_gfx_PipelineStateInfo_constructor));
+
+    cls->defineProperty("shader", _SE(js_gfx_PipelineStateInfo_get_shader), _SE(js_gfx_PipelineStateInfo_set_shader));
+    cls->defineProperty("pipelineLayout", _SE(js_gfx_PipelineStateInfo_get_pipelineLayout), _SE(js_gfx_PipelineStateInfo_set_pipelineLayout));
+    cls->defineProperty("renderPass", _SE(js_gfx_PipelineStateInfo_get_renderPass), _SE(js_gfx_PipelineStateInfo_set_renderPass));
+    cls->defineProperty("inputState", _SE(js_gfx_PipelineStateInfo_get_inputState), _SE(js_gfx_PipelineStateInfo_set_inputState));
+    cls->defineProperty("rasterizerState", _SE(js_gfx_PipelineStateInfo_get_rasterizerState), _SE(js_gfx_PipelineStateInfo_set_rasterizerState));
+    cls->defineProperty("depthStencilState", _SE(js_gfx_PipelineStateInfo_get_depthStencilState), _SE(js_gfx_PipelineStateInfo_set_depthStencilState));
+    cls->defineProperty("blendState", _SE(js_gfx_PipelineStateInfo_get_blendState), _SE(js_gfx_PipelineStateInfo_set_blendState));
+    cls->defineProperty("primitive", _SE(js_gfx_PipelineStateInfo_get_primitive), _SE(js_gfx_PipelineStateInfo_set_primitive));
+    cls->defineProperty("dynamicStates", _SE(js_gfx_PipelineStateInfo_get_dynamicStates), _SE(js_gfx_PipelineStateInfo_set_dynamicStates));
+    cls->defineProperty("bindPoint", _SE(js_gfx_PipelineStateInfo_get_bindPoint), _SE(js_gfx_PipelineStateInfo_set_bindPoint));
+    cls->defineProperty("subpass", _SE(js_gfx_PipelineStateInfo_get_subpass), _SE(js_gfx_PipelineStateInfo_set_subpass));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_PipelineStateInfo_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::gfx::PipelineStateInfo>(cls);
+
+    __jsb_cc_gfx_PipelineStateInfo_proto = cls->getProto();
+    __jsb_cc_gfx_PipelineStateInfo_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_gfx_CommandBufferInfo_proto = nullptr;
 se::Class* __jsb_cc_gfx_CommandBufferInfo_class = nullptr;
 
@@ -14839,6 +15558,278 @@ bool js_register_gfx_DeviceInfo(se::Object* obj)
 
     __jsb_cc_gfx_DeviceInfo_proto = cls->getProto();
     __jsb_cc_gfx_DeviceInfo_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_gfx_ContextInfo_proto = nullptr;
+se::Class* __jsb_cc_gfx_ContextInfo_class = nullptr;
+
+static bool js_gfx_ContextInfo_get_msaaEnabled(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::ContextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ContextInfo_get_msaaEnabled : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->msaaEnabled, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->msaaEnabled, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_ContextInfo_get_msaaEnabled)
+
+static bool js_gfx_ContextInfo_set_msaaEnabled(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::ContextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ContextInfo_set_msaaEnabled : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->msaaEnabled, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_ContextInfo_set_msaaEnabled : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_ContextInfo_set_msaaEnabled)
+
+static bool js_gfx_ContextInfo_get_performance(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::ContextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ContextInfo_get_performance : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->performance, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->performance, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_ContextInfo_get_performance)
+
+static bool js_gfx_ContextInfo_set_performance(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::ContextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ContextInfo_set_performance : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->performance, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_ContextInfo_set_performance : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_ContextInfo_set_performance)
+
+static bool js_gfx_ContextInfo_get_vsyncMode(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::ContextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ContextInfo_get_vsyncMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->vsyncMode, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->vsyncMode, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_ContextInfo_get_vsyncMode)
+
+static bool js_gfx_ContextInfo_set_vsyncMode(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::ContextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ContextInfo_set_vsyncMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->vsyncMode, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_ContextInfo_set_vsyncMode : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_ContextInfo_set_vsyncMode)
+
+static bool js_gfx_ContextInfo_get_windowHandle(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::ContextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ContextInfo_get_windowHandle : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->windowHandle, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->windowHandle, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_ContextInfo_get_windowHandle)
+
+static bool js_gfx_ContextInfo_set_windowHandle(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::ContextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ContextInfo_set_windowHandle : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->windowHandle, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_ContextInfo_set_windowHandle : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_ContextInfo_set_windowHandle)
+
+static bool js_gfx_ContextInfo_get_sharedCtx(se::State& s)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::ContextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ContextInfo_get_sharedCtx : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->sharedCtx, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->sharedCtx, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_ContextInfo_get_sharedCtx)
+
+static bool js_gfx_ContextInfo_set_sharedCtx(se::State& s)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::ContextInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_ContextInfo_set_sharedCtx : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->sharedCtx, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_ContextInfo_set_sharedCtx : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_ContextInfo_set_sharedCtx)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::gfx::ContextInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::gfx::ContextInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("msaaEnabled", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->msaaEnabled), ctx);
+    }
+    json->getProperty("performance", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->performance), ctx);
+    }
+    json->getProperty("vsyncMode", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->vsyncMode), ctx);
+    }
+    json->getProperty("windowHandle", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->windowHandle), ctx);
+    }
+    json->getProperty("sharedCtx", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->sharedCtx), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_gfx_ContextInfo_finalize)
+
+static bool js_gfx_ContextInfo_constructor(se::State& s)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        cc::gfx::ContextInfo* cobj = JSB_ALLOC(cc::gfx::ContextInfo);
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        cc::gfx::ContextInfo* cobj = JSB_ALLOC(cc::gfx::ContextInfo);
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    cc::gfx::ContextInfo* cobj = JSB_ALLOC(cc::gfx::ContextInfo);
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->msaaEnabled), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->performance), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->vsyncMode), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->windowHandle), nullptr);
+    }
+    if (argc > 4 && !args[4].isUndefined()) {
+        ok &= sevalue_to_native(args[4], &(cobj->sharedCtx), nullptr);
+    }
+
+    if(!ok) {
+        JSB_FREE(cobj);
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_gfx_ContextInfo_constructor, __jsb_cc_gfx_ContextInfo_class, js_cc_gfx_ContextInfo_finalize)
+
+
+
+
+static bool js_cc_gfx_ContextInfo_finalize(se::State& s)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::gfx::ContextInfo>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::gfx::ContextInfo>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_gfx_ContextInfo_finalize)
+
+bool js_register_gfx_ContextInfo(se::Object* obj)
+{
+    auto* cls = se::Class::create("ContextInfo", obj, nullptr, _SE(js_gfx_ContextInfo_constructor));
+
+    cls->defineProperty("msaaEnabled", _SE(js_gfx_ContextInfo_get_msaaEnabled), _SE(js_gfx_ContextInfo_set_msaaEnabled));
+    cls->defineProperty("performance", _SE(js_gfx_ContextInfo_get_performance), _SE(js_gfx_ContextInfo_set_performance));
+    cls->defineProperty("vsyncMode", _SE(js_gfx_ContextInfo_get_vsyncMode), _SE(js_gfx_ContextInfo_set_vsyncMode));
+    cls->defineProperty("windowHandle", _SE(js_gfx_ContextInfo_get_windowHandle), _SE(js_gfx_ContextInfo_set_windowHandle));
+    cls->defineProperty("sharedCtx", _SE(js_gfx_ContextInfo_get_sharedCtx), _SE(js_gfx_ContextInfo_set_sharedCtx));
+    cls->defineFinalizeFunction(_SE(js_cc_gfx_ContextInfo_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::gfx::ContextInfo>(cls);
+
+    __jsb_cc_gfx_ContextInfo_proto = cls->getProto();
+    __jsb_cc_gfx_ContextInfo_class = cls;
 
     se::ScriptEngine::getInstance()->clearException();
     return true;
@@ -19944,7 +20935,7 @@ bool register_all_gfx(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_gfx_Context(ns);
+    js_register_gfx_ContextInfo(ns);
     js_register_gfx_SubpassInfo(ns);
     js_register_gfx_GFXObject(ns);
     js_register_gfx_Buffer(ns);
@@ -19965,6 +20956,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_SamplerInfo(ns);
     js_register_gfx_QueueInfo(ns);
     js_register_gfx_UniformStorageBuffer(ns);
+    js_register_gfx_SubpassDependency(ns);
     js_register_gfx_UniformSamplerTexture(ns);
     js_register_gfx_BufferTextureCopy(ns);
     js_register_gfx_PipelineLayoutInfo(ns);
@@ -19983,6 +20975,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_UniformInputAttachment(ns);
     js_register_gfx_UniformSampler(ns);
     js_register_gfx_ShaderInfo(ns);
+    js_register_gfx_PipelineStateInfo(ns);
     js_register_gfx_Shader(ns);
     js_register_gfx_BlendState(ns);
     js_register_gfx_GlobalBarrier(ns);
@@ -19996,6 +20989,7 @@ bool register_all_gfx(se::Object* obj)
     js_register_gfx_DepthStencilAttachment(ns);
     js_register_gfx_TextureSubresRange(ns);
     js_register_gfx_TextureViewInfo(ns);
+    js_register_gfx_Context(ns);
     js_register_gfx_Queue(ns);
     js_register_gfx_ColorAttachment(ns);
     js_register_gfx_RasterizerState(ns);

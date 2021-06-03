@@ -35,10 +35,14 @@ def _check_ndk_root_env():
     '''
 
     try:
-        NDK_ROOT = os.environ['NDK_ROOT']
+        NDK_ROOT = os.environ['ANDROID_NDK_HOME']
     except Exception:
-        print "NDK_ROOT not defined. Please define NDK_ROOT in your environment."
-        sys.exit(1)
+        print "ANDROID_NDK_HOME not defined..."
+        try:
+            NDK_ROOT = os.environ['NDK_ROOT']
+        except Exception:
+            print "NDK_ROOT not defined. Please define NDK_ROOT or ANDROID_NDK_HOME in your environment."
+            sys.exit(1)
 
     return NDK_ROOT
 

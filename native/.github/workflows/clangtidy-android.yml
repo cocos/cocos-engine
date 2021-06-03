@@ -15,6 +15,29 @@ jobs:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
         uses: actions/checkout@v2
+
+      - name: Install Python2.7
+        uses: actions/setup-python@v2
+        with:
+          python-version: '2.7.18'
+
+      - name: Install python deps
+        run: |
+          python -m pip install pyyaml
+          python -m pip install Cheetah
+      - name : Download external
+        run: |
+          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          rm external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+
+      - name: Generate bindings
+        shell: bash
+        run: |
+          python -V
+          cd ./tools/tojs
+          python ./genbindings.py
+          rm userconf.ini
       - name: Get changed files
         uses: PatriceJiang/paths-filter@master
         id: listchanged
@@ -32,7 +55,7 @@ jobs:
               - exclude: 'cocos/base/etc1.*'
               - exclude: 'cocos/base/etc2.*'
               - exclude: 'cocos/bindings/manual/jsb_global.cpp'
-              - exclude: 'cocos/bindings/manual/jsb_conversions.h'
+              - exclude: 'cocos/bindings/manual/jsb_conversions.*'
             allChanges:
               - added|modified|deleted: '**'
             skipedDebug:
@@ -45,10 +68,7 @@ jobs:
       - name: Generate Compile database
         shell: bash
         run: |
-          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
-          rm external/config.json
-          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
-          utils/generate_compile_commands_android.sh
+           utils/generate_compile_commands_android.sh
 
       - name: Generate clang-fix.yaml
         shell: bash
