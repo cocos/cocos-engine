@@ -4,12 +4,16 @@
  */
 
 import { EDITOR } from 'internal:constants';
+import { garbageCollectionManager, referenced, ReferenceType } from '../../../core';
+import { ccclass } from '../../../core/data/decorators';
 import { legacyCC } from '../../../core/global-exports';
 import { Atlas } from './atlas';
 
+@ccclass('cc.DynamicAtlasManager')
 export class DynamicAtlasManager {
     public static instance: DynamicAtlasManager;
 
+    @referenced(ReferenceType.CCCLASS_OBJECT_ARRAY)
     private _atlases: Atlas[] = [];
     private _atlasIndex = -1;
 
@@ -155,5 +159,5 @@ export class DynamicAtlasManager {
 }
 
 export const dynamicAtlasManager: DynamicAtlasManager = DynamicAtlasManager.instance = new DynamicAtlasManager();
-
+garbageCollectionManager.addCCClassObjectToRoot(this);
 legacyCC.internal.dynamicAtlasManager = dynamicAtlasManager;

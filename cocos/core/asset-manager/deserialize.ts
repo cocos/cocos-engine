@@ -95,6 +95,8 @@ export default function (json: Record<string, any>, options: Record<string, any>
         };
     }
 
+    asset.ignoreFromGarbageCollection = false;
+
     // non-native deps
     asset.__depends__ = depends;
     // native dep

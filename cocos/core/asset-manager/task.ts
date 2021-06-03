@@ -82,6 +82,10 @@ export default class Task {
 
     private static _taskId = 0;
     private static _deadPool: Task[] = [];
+    public currentStage = 0;
+    public finishedStages = 0;
+    public isInvoking = false;
+    public error: Error | null = null;
 
     /**
      * @en
@@ -280,6 +284,17 @@ export default class Task {
         }
     }
 
+    public done (result?: Error | null) {
+        this.isInvoking = false;
+        this.finishedStages |= 1 << this.currentStage;
+        if (result) {
+            this.error = result;
+            this.isFinish = true;
+        } else {
+            this.currentStage++;
+        }
+    }
+
     /**
      * @en
      * Recycle this for reuse
@@ -297,6 +312,10 @@ export default class Task {
         this.progress = null;
         this.options = null;
         this.internalId = -1;
+        this.currentStage = 0;
+        this.finishedStages = 0;
+        this.error = null;
+        this.isInvoking = false;
         Task._deadPool.push(this);
     }
 }

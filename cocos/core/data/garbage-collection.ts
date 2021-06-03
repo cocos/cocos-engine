@@ -146,6 +146,10 @@ export enum ReferenceType {
     ANY_SET,
 }
 
+export function ignoreFromGCSearch (target: Function) {
+    
+}
+
 export function referenced (target: any, propertyName: string, descriptor?: any): void;
 export function referenced (referenceType: ReferenceType): (target: any, propertyName: string, descriptor?: any) => void;
 export function referenced (target?: any, propertyName?: string, descriptor?: any): void | ((target: any, propertyName: string, descriptor?: any) => void) {
@@ -264,9 +268,9 @@ class GarbageCollectionManager {
     private sweepPhase (gcObjects: readonly GCObject[]) {
         for (let i = gcObjects.length - 1; i >= 0; i--) {
             const obj = gcObjects[i];
-            if (!this._garbageCollectionContext.isMarked(obj)) {
+            if (!this._garbageCollectionContext.isMarked(obj) && !obj.ignoreFromGarbageCollection) {
                 if (DEBUG) { console.log(obj); }
-                // obj.destroy();
+                obj.destroy();
             }
         }
         this._garbageCollectionContext.reset();

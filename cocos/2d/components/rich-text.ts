@@ -431,6 +431,7 @@ export class RichText extends UIComponent {
     protected _font: TTFFont | null = null;
     @serializable
     protected _isSystemFontUsed = true;
+    @referenced
     @serializable
     protected _userDefinedFont: TTFFont | null = null;
     @serializable

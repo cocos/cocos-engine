@@ -668,10 +668,10 @@ export class Label extends Renderable2D {
     protected _texture: SpriteFrame | LetterRenderTexture | null = null;
     @referenced
     protected _ttfSpriteFrame: SpriteFrame | null = null;
+    @referenced
     protected _userDefinedFont: Font | null = null;
     protected _assemblerData: ISharedLabelData | null = null;
     protected _fontAtlas: FontAtlas | null = null;
-    @referenced
     protected _letterTexture: LetterRenderTexture | null = null;
 
     constructor () {

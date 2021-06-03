@@ -26,6 +26,9 @@ import { GarbageCollectorContext } from './garbage-collection';
 import { CCObject } from './object';
 
 export class GCObject extends CCObject {
+
+    public ignoreFromGarbageCollection = true;
+
     private static _allGCObjects: GCObject[] = [];
 
     public static getAllGCObject (): readonly GCObject[] {

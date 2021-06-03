@@ -25,7 +25,7 @@
 import { BUILD } from 'internal:constants';
 import { error } from '../platform/debug';
 import RequestItem from './request-item';
-import { CompleteCallbackNoData, singleAssetLoadPipeline } from './shared';
+import { singleAssetLoadPipeline } from './shared';
 import Task from './task';
 import { clear, forEach, gatherAsset } from './utilities';
 import { legacyCC } from '../global-exports';
@@ -36,7 +36,7 @@ import { SingleAssetTask } from './single-asset-load-pipeline';
  * @hidden
  */
 
-export default function load (task: Task, done: CompleteCallbackNoData) {
+export default function load (task: Task) {
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
@@ -62,7 +62,7 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
                             error(err.message, err.stack);
                         }
                         progress.canInvoke = false;
-                        done(err);
+                        task.done(err);
                     } else if (progress.canInvoke) {
                         task.dispatch('progress', ++progress.finish, progress.total, item);
                     }
@@ -85,6 +85,6 @@ export default function load (task: Task, done: CompleteCallbackNoData) {
 
         gatherAsset(task);
         clear(task);
-        done();
+        task.done();
     });
 }

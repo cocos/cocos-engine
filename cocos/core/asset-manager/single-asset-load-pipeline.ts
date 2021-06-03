@@ -29,7 +29,7 @@ import { error } from '../platform/debug';
 import packManager from './pack-manager';
 import parser from './parser';
 import RequestItem from './request-item';
-import { CompleteCallbackNoData, assets, files, parsed, pipeline } from './shared';
+import { assets, files, parsed, pipeline } from './shared';
 import Task from './task';
 import { cache, checkCircleReference, getDepends, setProperties } from './utilities';
 
@@ -43,7 +43,7 @@ interface ILoadingRequest {
     content: Asset;
     finish: boolean;
     err?: Error | null;
-    callbacks: Array<{ done: CompleteCallbackNoData; item: RequestItem }>;
+    tasks: Array<SingleAssetTask>;
 }
 
 declare class SingleAssetItem extends RequestItem {
@@ -57,23 +57,23 @@ export declare class SingleAssetTask extends Task {
     options: { __exclude__: Record<string, ILoadingRequest>, }
 }
 
-export function fetch (task: SingleAssetTask, done: CompleteCallbackNoData) {
+export function fetch (task: SingleAssetTask) {
     const item = task.output = task.input;
     const { options, isNative, uuid, file } = item;
     const { reloadAsset } = options;
 
     if (file || (!reloadAsset && !isNative && assets.has(uuid))) {
-        done();
+        task.done();
         return;
     }
 
     packManager.load(item, task.options, (err, data) => {
         item.file = data;
-        done(err);
+        task.done(err);
     });
 }
 
-export function parse (task: SingleAssetTask, done: CompleteCallbackNoData) {
+export function parse (task: SingleAssetTask) {
     const item = task.output = task.input;
     const progress = task.progress;
     const exclude = task.options.__exclude__;
@@ -82,7 +82,7 @@ export function parse (task: SingleAssetTask, done: CompleteCallbackNoData) {
     if (item.isNative) {
         parser.parse(id, file, item.ext, options, (err, asset) => {
             if (err) {
-                done(err);
+                task.done(err);
                 return;
             }
             item.content = asset;
@@ -91,21 +91,21 @@ export function parse (task: SingleAssetTask, done: CompleteCallbackNoData) {
             }
             files.remove(id);
             parsed.remove(id);
-            done();
+            task.done();
         });
     } else {
         const { uuid } = item;
         if (uuid in exclude) {
-            const { finish, content, err, callbacks } = exclude[uuid];
+            const { finish, content, err, tasks } = exclude[uuid];
             if (progress.canInvoke) {
                 task.dispatch('progress', ++progress.finish, progress.total, item);
             }
 
             if (finish || checkCircleReference(uuid, uuid, exclude)) {
                 item.content = content;
-                done(err);
+                task.done(err);
             } else {
-                callbacks.push({ done, item });
+                tasks.push(task);
             }
         } else if (!options.reloadAsset && assets.has(uuid)) {
             const asset = assets.get(uuid)!;
@@ -113,21 +113,21 @@ export function parse (task: SingleAssetTask, done: CompleteCallbackNoData) {
             if (progress.canInvoke) {
                 task.dispatch('progress', ++progress.finish, progress.total, item);
             }
-            done();
+            task.done();
         } else {
             options.__uuid__ = uuid;
             parser.parse(id, file, 'import', options, (err, asset: Asset) => {
                 if (err) {
-                    done(err);
+                    task.done(err);
                     return;
                 }
-                loadDepends(task, asset, done);
+                loadDepends(task, asset);
             });
         }
     }
 }
 
-function loadDepends (task: SingleAssetTask, asset: Asset, done: CompleteCallbackNoData) {
+function loadDepends (task: SingleAssetTask, asset: Asset) {
     const { input: item, progress } = task;
     const { uuid, id, options, config } = item;
     const { cacheAsset } = options;
@@ -138,7 +138,7 @@ function loadDepends (task: SingleAssetTask, asset: Asset, done: CompleteCallbac
         task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
     }
 
-    const repeatItem = task.options.__exclude__[uuid] = { content: asset, finish: false, callbacks: [{ done, item }] } as ILoadingRequest;
+    const repeatItem = task.options.__exclude__[uuid] = { content: asset, finish: false, tasks: [task] } as ILoadingRequest;
 
     const subTask = Task.create({
         input: depends,
@@ -183,15 +183,15 @@ function loadDepends (task: SingleAssetTask, asset: Asset, done: CompleteCallbac
                 subTask.recycle();
             }
 
-            const callbacks = repeatItem.callbacks;
+            const tasks = repeatItem.tasks;
 
-            for (let i = 0, l = callbacks.length; i < l; i++) {
-                const cb = callbacks[i];
-                cb.item.content = asset;
-                cb.done(err);
+            for (let i = 0, l = tasks.length; i < l; i++) {
+                const repeatTask = tasks[i];
+                repeatTask.output.content = asset;
+                repeatTask.done(err);
             }
 
-            callbacks.length = 0;
+            tasks.length = 0;
         },
     });
 

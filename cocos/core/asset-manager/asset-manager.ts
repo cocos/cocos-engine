@@ -455,7 +455,7 @@ export class AssetManager {
         opts.preset = opts.preset || 'default';
         requests = Array.isArray(requests) ? requests.slice() : requests;
         const task = Task.create({ input: requests, onProgress: onProg, onComplete: onComp, options: opts });
-        pipeline.addToQueue(task);
+        pipeline.async(task);
     }
 
     /**
@@ -501,7 +501,7 @@ export class AssetManager {
         opts.preset = opts.preset || 'preload';
         requests = Array.isArray(requests) ? requests.slice() : requests;
         const task = Task.create({ input: requests, onProgress: onProg, onComplete: onComp, options: opts });
-        fetchPipeline.addToQueue(task);
+        fetchPipeline.async(task);
     }
 
     /**
@@ -737,7 +737,14 @@ export class AssetManager {
                 if (onComp) { onComp(err, data); }
             },
         });
-        this._parsePipeline!.addToQueue(task);
+        this._parsePipeline!.async(task);
+    }
+
+    public update () {
+        this.pipeline.update();
+        this.fetchPipeline.update();
+        this.singleAssetLoadPipeline.update();
+        this._parsePipeline?.update();
     }
 
     private markAllPendLoadingAsset (garbageCollectionContext: GarbageCollectorContext) {

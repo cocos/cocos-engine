@@ -27,7 +27,6 @@
  * @module asset-manager
  */
 import { warnID } from '../platform/debug';
-import { callInNextTick } from '../utils/misc';
 import { CompleteCallbackNoData } from './shared';
 import Task from './task';
 
@@ -234,13 +233,6 @@ export class Pipeline<T extends Task> {
         return task.output as unknown;
     }
 
-    // TODO: should move this to main loop
-    public addToQueue (task: T): void {
-        callInNextTick(() => {
-            this.async(task);
-        });
-    }
-
     /**
      * @en
      * Execute task asynchronously
@@ -261,35 +253,36 @@ export class Pipeline<T extends Task> {
      *
      */
     public async (task: T): void {
-        const pipes = this.pipes;
-        if (pipes.length === 0) { return; }
         task.isFinish = false;
         task.internalId = this.allTasks.length;
         this.allTasks.push(task);
-        this._flow(0, task);
     }
 
-    private _flow (index: number, task: T): void {
-        const pipe = this.pipes[index];
-        pipe(task, (result) => {
-            if (result) {
-                task.isFinish = true;
-                this.removeTask(task);
-                task.dispatch('complete', result);
-            } else {
-                index++;
-                if (index < this.pipes.length) {
-                    // move output to input
-                    task.input = task.output;
-                    task.output = null;
-                    this._flow(index, task);
+    public update () {
+        for (let i = this.allTasks.length - 1; i >= 0; i--) {
+            const task = this.allTasks[i];
+            while (!task.isInvoking) {
+                if (task.currentStage !== this.pipes.length && (task.finishedStages & (1 << task.currentStage)) === 0) {
+                    if (task.currentStage !== 0) {
+                        // move output to input
+                        task.input = task.output;
+                        task.output = null;
+                    }
+                    this._flow(task);
                 } else {
                     task.isFinish = true;
                     this.removeTask(task);
-                    task.dispatch('complete', result, task.output);
+                    if (task.error) { task.dispatch('complete', task.error); }
+                    else { task.dispatch('complete', null, task.output); }
                 }
             }
-        });
+        }
+    }
+
+    private _flow (task: T): void {
+        const pipe = this.pipes[task.currentStage];
+        task.isInvoking = true;
+        pipe(task);
     }
 
     private removeTask (task: T) {

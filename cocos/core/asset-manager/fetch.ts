@@ -31,12 +31,12 @@
 import { error } from '../platform/debug';
 import packManager from './pack-manager';
 import RequestItem from './request-item';
-import { assets, CompleteCallbackNoData, fetchPipeline } from './shared';
+import { assets, fetchPipeline } from './shared';
 import Task from './task';
 import { clear, forEach, getDepends } from './utilities';
 import { legacyCC } from '../global-exports';
 
-export default function fetch (task: Task, done: CompleteCallbackNoData) {
+export default function fetch (task: Task) {
     let firstTask = false;
     if (!task.progress) {
         task.progress = { finish: 0, total: task.input.length, canInvoke: true };
@@ -68,7 +68,7 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
                     if (!legacyCC.assetManager.force || firstTask) {
                         error(err.message, err.stack);
                         progress.canInvoke = false;
-                        done(err);
+                        task.done(err);
                     } else {
                         task.output.push(item);
                         if (progress.canInvoke) {
@@ -109,12 +109,12 @@ export default function fetch (task: Task, done: CompleteCallbackNoData) {
                         task.output.push(...subTask.output);
                         subTask.recycle();
                     }
-                    done(err);
+                    task.done(err);
                 },
             });
             fetchPipeline.async(subTask);
             return;
         }
-        done();
+        task.done();
     });
 }

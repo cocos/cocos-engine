@@ -470,6 +470,7 @@ export class Sprite extends Renderable2D {
     @serializable
     protected _useGrayscale = false;
     // _state = 0;
+    @referenced
     @serializable
     protected _atlas: SpriteAtlas | null = null;
     // static State = State;

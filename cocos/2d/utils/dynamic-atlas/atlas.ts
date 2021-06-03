@@ -3,16 +3,20 @@
  * @hidden
  */
 
+import { referenced } from '../../../core';
 import { PixelFormat } from '../../../core/assets/asset-enum';
 import { ImageAsset } from '../../../core/assets/image-asset';
 import { Texture2D } from '../../../core/assets/texture-2d';
+import { ccclass } from '../../../core/data/decorators';
 import { BufferTextureCopy } from '../../../core/gfx';
 import { legacyCC } from '../../../core/global-exports';
 import { SpriteFrame } from '../../assets/sprite-frame';
 
 const space = 2;
 
+@ccclass('cc.Atlas')
 export class Atlas {
+    @referenced
     private _texture: DynamicAtlasTexture;
     private _width: any;
     private _height: any;
@@ -146,6 +150,7 @@ export class Atlas {
     }
 }
 
+@ccclass('cc.DynamicAtlasTexture')
 export class DynamicAtlasTexture extends Texture2D {
     /**
      * @en
