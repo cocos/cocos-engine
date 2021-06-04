@@ -37,6 +37,7 @@ import { macro } from '../macro';
 import { legacyCC } from '../../global-exports';
 import { errorID, warnID, logID, assertID } from '../debug';
 import { SystemEvent } from './system-event';
+import { KeyboardEvent, MouseEvent, TouchEvent } from './event-enum';
 
 const ListenerID = EventListener.ListenerID;
 
@@ -47,9 +48,9 @@ function checkUINode (node) {
     return false;
 }
 
-const touchEvents: string[] = [SystemEvent.TouchEvent.TOUCH_START, SystemEvent.TouchEvent.TOUCH_MOVE, SystemEvent.TouchEvent.TOUCH_END, SystemEvent.TouchEvent.TOUCH_CANCEL];
-const mouseEvents: string[] = [SystemEvent.MouseEvent.MOUSE_DOWN, SystemEvent.MouseEvent.MOUSE_MOVE, SystemEvent.MouseEvent.MOUSE_DOWN, SystemEvent.MouseEvent.MOUSE_WHEEL];
-const keyboardEvents: string[] = [SystemEvent.KeyboardEvent.KEY_DOWN, SystemEvent.KeyboardEvent.KEY_UP, 'keydown'];
+const touchEvents: string[] = [TouchEvent.TOUCH_START, TouchEvent.TOUCH_MOVE, TouchEvent.TOUCH_END, TouchEvent.TOUCH_CANCEL];
+const mouseEvents: string[] = [MouseEvent.MOUSE_DOWN, MouseEvent.MOUSE_MOVE, MouseEvent.MOUSE_DOWN, MouseEvent.MOUSE_WHEEL];
+const keyboardEvents: string[] = [KeyboardEvent.KEY_DOWN, KeyboardEvent.KEY_UP, 'keydown'];
 
 class _EventListenerVector {
     public gt0Index = 0;
@@ -953,7 +954,7 @@ class EventManager {
         let isClaimed = false;
         let removedIdx = -1;
         const eventType = event.type;
-        if (eventType === SystemEvent.TouchEvent.TOUCH_START) {
+        if (eventType === TouchEvent.TOUCH_START) {
             if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch) {
                 const node = eventManager._currentTouchListener._node;
                 if (!node || node.activeInHierarchy) {
@@ -978,9 +979,9 @@ class EventManager {
                 if (!macro.ENABLE_MULTI_TOUCH && eventManager._currentTouch && eventManager._currentTouch !== selTouch) {
                     return false;
                 }
-                if (eventType === SystemEvent.TouchEvent.TOUCH_MOVE && listener.onTouchMoved) {
+                if (eventType === TouchEvent.TOUCH_MOVE && listener.onTouchMoved) {
                     listener.onTouchMoved(selTouch, event);
-                } else if (eventType === SystemEvent.TouchEvent.TOUCH_END) {
+                } else if (eventType === TouchEvent.TOUCH_END) {
                     if (listener.onTouchEnded) {
                         listener.onTouchEnded(selTouch, event);
                     }
@@ -993,7 +994,7 @@ class EventManager {
                     }
 
                     eventManager._currentTouchListener = null;
-                } else if (eventType === SystemEvent.TouchEvent.TOUCH_CANCEL) {
+                } else if (eventType === TouchEvent.TOUCH_CANCEL) {
                     if (listener.onTouchCancelled) {
                         listener.onTouchCancelled(selTouch, event);
                     }
@@ -1075,13 +1076,13 @@ class EventManager {
         const touches = callbackParams.touches;
         const eventType = event.type;
         event.currentTarget = listener._getSceneGraphPriority();
-        if (eventType === SystemEvent.TouchEvent.TOUCH_START && listener.onTouchesBegan) {
+        if (eventType === TouchEvent.TOUCH_START && listener.onTouchesBegan) {
             listener.onTouchesBegan(touches, event);
-        } else if (eventType === SystemEvent.TouchEvent.TOUCH_MOVE && listener.onTouchesMoved) {
+        } else if (eventType === TouchEvent.TOUCH_MOVE && listener.onTouchesMoved) {
             listener.onTouchesMoved(touches, event);
-        } else if (eventType === SystemEvent.TouchEvent.TOUCH_END && listener.onTouchesEnded) {
+        } else if (eventType === TouchEvent.TOUCH_END && listener.onTouchesEnded) {
             listener.onTouchesEnded(touches, event);
-        } else if (eventType === SystemEvent.TouchEvent.TOUCH_CANCEL && listener.onTouchesCancelled) {
+        } else if (eventType === TouchEvent.TOUCH_CANCEL && listener.onTouchesCancelled) {
             listener.onTouchesCancelled(touches, event);
         }
 

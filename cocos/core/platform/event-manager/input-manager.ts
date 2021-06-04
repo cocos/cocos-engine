@@ -39,6 +39,7 @@ import { legacyCC } from '../../global-exports';
 import { logID } from '../debug';
 import { Acceleration } from './acceleration';
 import { SystemEvent } from './system-event';
+import { KeyboardEvent, TouchEvent } from './event-enum';
 
 const TOUCH_TIMEOUT = macro.TOUCH_TIMEOUT;
 
@@ -99,7 +100,7 @@ class InputManager {
         }
         if (handleTouches.length > 0) {
             // this._glView!._convertTouchesWithScale(handleTouches);
-            const touchEvent = new EventTouch(handleTouches, false, SystemEvent.TouchEvent.TOUCH_START, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
+            const touchEvent = new EventTouch(handleTouches, false, TouchEvent.TOUCH_START, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
             eventManager.dispatchEvent(touchEvent);
         }
     }
@@ -127,7 +128,7 @@ class InputManager {
             }
         }
         if (handleTouches.length > 0) {
-            const touchEvent = new EventTouch(handleTouches, false, SystemEvent.TouchEvent.TOUCH_MOVE, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
+            const touchEvent = new EventTouch(handleTouches, false, TouchEvent.TOUCH_MOVE, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
             eventManager.dispatchEvent(touchEvent);
         }
     }
@@ -135,7 +136,7 @@ class InputManager {
     public handleTouchesEnd (touches: Touch[]) {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
-            const touchEvent = new EventTouch(handleTouches, false, SystemEvent.TouchEvent.TOUCH_END, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
+            const touchEvent = new EventTouch(handleTouches, false, TouchEvent.TOUCH_END, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
             eventManager.dispatchEvent(touchEvent);
         }
         this._preTouchPool.length = 0;
@@ -144,7 +145,7 @@ class InputManager {
     public handleTouchesCancel (touches: Touch[]) {
         const handleTouches = this.getSetOfTouchesEndOrCancel(touches);
         if (handleTouches.length > 0) {
-            const touchEvent = new EventTouch(handleTouches, false, SystemEvent.TouchEvent.TOUCH_CANCEL, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
+            const touchEvent = new EventTouch(handleTouches, false, TouchEvent.TOUCH_CANCEL, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
             eventManager.dispatchEvent(touchEvent);
         }
         this._preTouchPool.length = 0;
@@ -434,14 +435,13 @@ class InputManager {
 
     private _registerKeyboardEvent () {
         input._keyboard.onDown((inputEvent) => {
-            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, SystemEvent.KeyboardEvent.KEY_DOWN));
+            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, KeyboardEvent.KEY_DOWN));
         });
         input._keyboard.onPressing((inputEvent)  => {
-            // @ts-expect-error Compability for KEY_DOWN event
             eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, 'keydown'));
         });
         input._keyboard.onUp((inputEvent)  => {
-            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, SystemEvent.KeyboardEvent.KEY_UP));
+            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, KeyboardEvent.KEY_UP));
         });
     }
 
