@@ -441,7 +441,8 @@ prototype._deserialize = null;
 // @ts-expect-error
 prototype._onPreDestroy = null;
 
-CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
+CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, __editorExtras__: {} });
+CCClass.Attr.setClassAttr(CCObject, '__editorExtras__', 'editorOnly', true);
 
 /**
  * Bit mask that controls object states.
