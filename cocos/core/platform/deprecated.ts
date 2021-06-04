@@ -45,14 +45,14 @@ removeProperty(View.prototype, 'View.prototype', [
 replaceProperty(Event, 'Event', [
     {
         name: 'NO_TYPE',
-        target: SystemEvent.EventType,
-        targetName: 'SystemEvent.EventType',
+        target: SystemEventType,
+        targetName: 'SystemEventType',
     },
     {
         name: 'ACCELERATION',
         newName: 'DEVICEMOTION',
-        target: SystemEvent.EventType,
-        targetName: 'SystemEvent.EventType',
+        target: SystemEvent.DeviceEvent,
+        targetName: 'SystemEvent.DeviceEvent',
     },
 ]);
 
@@ -76,15 +76,15 @@ replaceProperty(EventMouse, 'EventMouse',
     ['DOWN', 'UP', 'MOVE'].map((item) => ({
         name: item,
         newName: `MOUSE_${item}`,
-        target: SystemEvent.EventType,
-        targetName: 'SystemEvent.EventType',
+        target: SystemEvent.MouseEvent,
+        targetName: 'SystemEvent.MouseEvent',
     })));
 replaceProperty(EventMouse, 'EventMouse', [
     {
         name: 'SCROLL',
         newName: 'MOUSE_WHEEL',
-        target: SystemEvent.EventType,
-        targetName: 'SystemEvent.EventType',
+        target: SystemEvent.MouseEvent,
+        targetName: 'SystemEvent.MouseEvent',
     },
 ]);
 markAsWarning(EventMouse.prototype, 'EventMouse.prototype', [
@@ -99,32 +99,32 @@ replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'BEGAN',
         newName: 'TOUCH_START',
-        target: SystemEvent.EventType,
-        targetName: 'SystemEvent.EventType',
+        target: SystemEvent.TouchEvent,
+        targetName: 'SystemEvent.TouchEvent',
     },
 ]);
 replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'MOVED',
         newName: 'TOUCH_MOVE',
-        target: SystemEvent.EventType,
-        targetName: 'SystemEvent.EventType',
+        target: SystemEvent.TouchEvent,
+        targetName: 'SystemEvent.TouchEvent',
     },
 ]);
 replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'ENDED',
         newName: 'TOUCH_END',
-        target: SystemEvent.EventType,
-        targetName: 'SystemEvent.EventType',
+        target: SystemEvent.TouchEvent,
+        targetName: 'SystemEvent.TouchEvent',
     },
 ]);
 replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'CANCELLED',
         newName: 'TOUCH_CANCEL',
-        target: SystemEvent.EventType,
-        targetName: 'SystemEvent.EventType',
+        target: SystemEvent.TouchEvent,
+        targetName: 'SystemEvent.TouchEvent',
     },
 ]);
 markAsWarning(EventTouch.prototype, 'EventTouch.prototype', [
