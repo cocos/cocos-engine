@@ -28,6 +28,7 @@ import { Event } from '../event';
 import { EventKeyboard, EventMouse, EventTouch, SystemEvent, SystemEventType } from './event-manager';
 import { sys } from './sys';
 import { View } from './view';
+import { Node } from '../scene-graph';
 
 removeProperty(View.prototype, 'View.prototype', [
     {
@@ -137,7 +138,7 @@ markAsWarning(EventTouch.prototype, 'EventTouch.prototype', [
 markAsWarning(EventKeyboard.prototype, 'EventKeyboard.prototype', [
     {
         name: 'isPressed',
-        suggest: 'use EventKeyboard.prototype.type !== SystemEventType.KEYBOARD_UP instead',
+        suggest: 'use EventKeyboard.prototype.type !== SystemEvent.KeyboardEvent.KEY_UP instead',
     },
 ]);
 
@@ -214,20 +215,33 @@ removeProperty(sys, 'sys',
     })));
 
 // deprecate KEY event
-replaceProperty(SystemEventType, 'SystemEventType', [
+markAsWarning(SystemEventType, 'SystemEventType', [
     {
         name: 'KEY_DOWN',
-        newName: 'KEYBOARD_DOWN',
-        suggest: 'the KEY_DOWN event will be continuously dispatched in the key pressed state, it\'s not a good API design for developers.',
-        customGetter () {
-            return 'keydown';
-        },
+        suggest: 'please use SystemEvent.KeyboardEvent.KEY_DOWN instead. The SystemEventType.KEY_DOWN event will be continuously dispatched in the key pressed state, it\'s not a good API design for developers.',
     },
     {
         name: 'KEY_UP',
-        newName: 'KEYBOARD_UP',
-        customGetter () {
-            return 'keyup';
-        },
+        suggest: 'please use SystemEvent.KeyboardEvent.KEY_UP instead.',
     },
 ]);
+
+replaceProperty(SystemEventType, 'SystemEventType', [
+    'MOUSE_ENTER',
+    'MOUSE_LEAVE',
+    'TRANSFORM_CHANGED',
+    'SCENE_CHANGED_FOR_PERSISTS',
+    'SIZE_CHANGED',
+    'ANCHOR_CHANGED',
+    'COLOR_CHANGED',
+    'CHILD_ADDED',
+    'CHILD_REMOVED',
+    'PARENT_CHANGED',
+    'NODE_DESTROYED',
+    'LAYER_CHANGED',
+    'SIBLING_ORDER_CHANGED',
+].map((name: string) => ({
+    name,
+    target: Node.EventType,
+    targetName: 'Node.EventType',
+})));

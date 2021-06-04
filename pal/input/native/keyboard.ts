@@ -1,6 +1,6 @@
 import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
 import { system } from 'pal/system';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
+import { KeyboardEvent } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 
 export class KeyboardInputSource {
@@ -19,8 +19,8 @@ export class KeyboardInputSource {
         jsb.onKeyDown = (event: jsb.KeyboardEvent) => {
             const keyCode = event.keyCode;
             if (!this._keyStateMap[keyCode]) {
-                const keyDownInputEvent = this._getInputEvent(event, SystemEventType.KEYBOARD_DOWN);
-                this._eventTarget.emit(SystemEventType.KEYBOARD_DOWN, keyDownInputEvent);
+                const keyDownInputEvent = this._getInputEvent(event, KeyboardEvent.KEY_DOWN);
+                this._eventTarget.emit(KeyboardEvent.KEY_DOWN, keyDownInputEvent);
             }
             // @ts-expect-error Compability for key pressing callback
             const keyPressingInputEvent = this._getInputEvent(event, 'keydown');
@@ -30,16 +30,16 @@ export class KeyboardInputSource {
         jsb.onKeyUp =  (event: jsb.KeyboardEvent) => {
             const keyCode = event.keyCode;
             const inputEvent: KeyboardInputEvent = {
-                type: SystemEventType.KEYBOARD_UP,
+                type: KeyboardEvent.KEY_UP,
                 code: keyCode,
                 timestamp: performance.now(),
             };
             this._keyStateMap[keyCode] = false;
-            this._eventTarget.emit(SystemEventType.KEYBOARD_UP, inputEvent);
+            this._eventTarget.emit(KeyboardEvent.KEY_UP, inputEvent);
         };
     }
 
-    private _getInputEvent (event: jsb.KeyboardEvent, eventType: SystemEventType) {
+    private _getInputEvent (event: jsb.KeyboardEvent, eventType: KeyboardEvent) {
         const inputEvent: KeyboardInputEvent = {
             type: eventType,
             code: event.keyCode,  // TODO: keyCode is deprecated on Web standard
@@ -49,7 +49,7 @@ export class KeyboardInputSource {
     }
 
     public onDown (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEYBOARD_DOWN, cb);
+        this._eventTarget.on(KeyboardEvent.KEY_DOWN, cb);
     }
 
     public onPressing (cb: KeyboardCallback) {
@@ -57,6 +57,6 @@ export class KeyboardInputSource {
     }
 
     public onUp (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEYBOARD_UP, cb);
+        this._eventTarget.on(KeyboardEvent.KEY_UP, cb);
     }
 }

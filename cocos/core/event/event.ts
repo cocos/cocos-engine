@@ -30,7 +30,7 @@
  */
 
 import { legacyCC } from '../global-exports';
-import { SystemEventType } from '../platform/event-manager/event-enum';
+import { DeviceEvent, KeyboardEvent, MouseEvent, SystemEventType, SystemEventTypeUnion, TouchEvent } from '../platform/event-manager/event-enum';
 
 /**
  * @en
@@ -142,7 +142,7 @@ export default class Event {
      * @zh
      * 事件类型。
      */
-    public type: SystemEventType;
+    public type: SystemEventTypeUnion;
 
     /**
      * @en
@@ -210,7 +210,7 @@ export default class Event {
      * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
      * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    constructor (type: SystemEventType, bubbles?: boolean) {
+    constructor (type: SystemEventTypeUnion, bubbles?: boolean) {
         this.type = type;
         this.bubbles = !!bubbles;
     }
@@ -239,7 +239,7 @@ export default class Event {
      * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
      * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    public reuse (type: SystemEventType, bubbles?: boolean) {
+    public reuse (type: SystemEventTypeUnion, bubbles?: boolean) {
         this.type = type;
         this.bubbles = bubbles || false;
     }

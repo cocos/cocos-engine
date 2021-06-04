@@ -1,9 +1,9 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
 import { system } from 'pal/system';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { BrowserType, OS } from '../../system/enum-type';
 import { legacyCC } from '../../../cocos/core/global-exports';
+import { DeviceEvent } from '../../../cocos/core/platform/event-manager/event-enum';
 
 export class AccelerometerInputSource {
     public support: boolean;
@@ -93,14 +93,14 @@ export class AccelerometerInputSource {
             y = -y;
         }
         const accelerometer: AccelerometerInputEvent = {
-            type: SystemEventType.DEVICEMOTION,
+            type: DeviceEvent.DEVICEMOTION,
             x,
             y,
             z,
             timestamp: performance.now(),
         };
 
-        this._eventTarget.emit(SystemEventType.DEVICEMOTION, accelerometer);
+        this._eventTarget.emit(DeviceEvent.DEVICEMOTION, accelerometer);
     }
 
     public start () {
@@ -113,6 +113,6 @@ export class AccelerometerInputSource {
         this._intervalInMileseconds = intervalInMileseconds;
     }
     public onChange (cb: AccelerometerCallback) {
-        this._eventTarget.on(SystemEventType.DEVICEMOTION, cb);
+        this._eventTarget.on(DeviceEvent.DEVICEMOTION, cb);
     }
 }

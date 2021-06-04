@@ -34,7 +34,8 @@ import { Vec2 } from '../../math/vec2';
 import { Touch } from './touch';
 import { Acceleration } from './acceleration';
 import { legacyCC } from '../../global-exports';
-import { SystemEventType } from './event-enum';
+import { SystemEventTypeUnion } from './event-enum';
+import { SystemEvent } from './system-event';
 
 const _vec2 = new Vec2();
 
@@ -109,7 +110,7 @@ export class EventMouse extends Event {
      */
     public movementY = 0;
 
-    private _eventType: SystemEventType;
+    private _eventType: SystemEventTypeUnion;
     /**
      * @en The type of the event
      * @zh 鼠标事件类型
@@ -138,7 +139,7 @@ export class EventMouse extends Event {
      * @param eventType - The type of the event
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
-    constructor (eventType: SystemEventType, bubbles?: boolean, prevLoc?: Vec2) {
+    constructor (eventType: SystemEventTypeUnion, bubbles?: boolean, prevLoc?: Vec2) {
         super(eventType, bubbles);
         this._eventType = eventType;
         if (prevLoc) {
@@ -394,7 +395,7 @@ export class EventTouch extends Event {
      */
     public simulate = false;
 
-    private _eventCode: SystemEventType;  // deprecated since v3.3
+    private _eventCode: SystemEventTypeUnion;  // deprecated since v3.3
 
     private _touches: Touch[];
 
@@ -405,7 +406,7 @@ export class EventTouch extends Event {
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      * @param eventType - The type of the event
      */
-    constructor (changedTouches: Touch[], bubbles: boolean, eventType: SystemEventType, touches: Touch[] = []) {
+    constructor (changedTouches: Touch[], bubbles: boolean, eventType: SystemEventTypeUnion, touches: Touch[] = []) {
         super(eventType, bubbles);
         this._eventCode = eventType;
         this._touches = changedTouches || [];
@@ -584,7 +585,7 @@ export class EventAcceleration extends Event {
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
     constructor (acc: Acceleration, bubbles?: boolean) {
-        super(SystemEventType.DEVICEMOTION, bubbles);
+        super(SystemEvent.DeviceEvent.DEVICEMOTION, bubbles);
         this.acc = acc;
     }
 }
@@ -637,15 +638,14 @@ export class EventKeyboard extends Event {
      * @param eventType - The type of the event
      * @param bubbles - Indicates whether the event bubbles up through the hierarchy or not.
      */
-    constructor (keyCode: number | KeyboardEvent, eventType: SystemEventType, bubbles?: boolean);
-    constructor (keyCode: number | KeyboardEvent, eventType: SystemEventType | boolean, bubbles?: boolean) {
+    constructor (keyCode: number | KeyboardEvent, eventType: SystemEventTypeUnion, bubbles?: boolean);
+    constructor (keyCode: number | KeyboardEvent, eventType: SystemEventTypeUnion | boolean, bubbles?: boolean) {
         if (typeof eventType === 'boolean') {
             const isPressed = eventType;
-            // @ts-expect-error Compability for legacy implementation.
-            eventType = isPressed ? 'keydown' : SystemEventType.KEYBOARD_UP;
+            eventType = isPressed ? 'keydown' : SystemEvent.KeyboardEvent.KEY_UP;
         }
-        super(<SystemEventType>eventType, bubbles);
-        this._isPressed = eventType !== SystemEventType.KEYBOARD_UP;
+        super(eventType, bubbles);
+        this._isPressed = eventType !== SystemEvent.KeyboardEvent.KEY_UP;
 
         if (typeof keyCode === 'number') {
             this.keyCode = keyCode;

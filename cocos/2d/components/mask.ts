@@ -32,7 +32,7 @@
 import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, visible, override, serializable, range, slide } from 'cc.decorator';
 import { InstanceMaterialType, Renderable2D } from '../framework/renderable-2d';
 import { clamp, Color, Mat4, Vec2, Vec3 } from '../../core/math';
-import { SystemEventType, warnID } from '../../core/platform';
+import { warnID } from '../../core/platform';
 import { Batcher2D } from '../renderer/batcher-2d';
 import { ccenum } from '../../core/value-types/enum';
 import { Graphics } from './graphics';

@@ -1,5 +1,5 @@
 import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
+import { KeyboardEvent } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 
 export class KeyboardInputSource {
@@ -11,7 +11,7 @@ export class KeyboardInputSource {
     }
 
     public onDown (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEYBOARD_DOWN, cb);
+        this._eventTarget.on(KeyboardEvent.KEY_DOWN, cb);
     }
 
     public onPressing (cb: KeyboardCallback) {
@@ -19,6 +19,6 @@ export class KeyboardInputSource {
     }
 
     public onUp (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEYBOARD_UP, cb);
+        this._eventTarget.on(KeyboardEvent.KEY_UP, cb);
     }
 }
