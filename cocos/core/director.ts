@@ -907,6 +907,7 @@ export class Director extends EventTarget {
 
             eventManager.frameUpdateListeners();
             Node.resetHasChangedFlags();
+            Node.clearNodeArray();
             this._totalFrames++;
         }
     }

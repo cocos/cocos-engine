@@ -167,6 +167,13 @@ export class Node extends BaseNode {
      */
     public static TransformBit = TransformBit;
 
+    /**
+     * @en Counter to clear node array
+     * @zh 清除节点数组计时器
+     */
+    private static ClearFrame = 0;
+    private static ClearRound = 1000;
+
     // UI 部分的脏数据
     public _uiProps = new NodeUIProperties(this);
 
@@ -610,12 +617,6 @@ export class Node extends BaseNode {
             }
             dirtyBit = childDirtyBit;
         }
-        if (this._invalidFrame < this._roundTime) {
-            this._invalidFrame++;
-        } else {
-            array_a.length = 0;
-            this._invalidFrame = 0;
-        }
     }
 
     /**
@@ -706,12 +707,6 @@ export class Node extends BaseNode {
 
             child._dirtyFlags = TransformBit.NONE;
             cur = child;
-        }
-        if (this._updateFrame < this._roundTime) {
-            this._updateFrame++;
-        } else {
-            array_a.length = 0;
-            this._updateFrame = 0;
         }
     }
 
@@ -1211,6 +1206,21 @@ export class Node extends BaseNode {
      */
     public static resetHasChangedFlags () {
         bookOfChange.clear();
+    }
+
+    /**
+     * @en
+     * clear node array
+     * @zh
+     * 清除节点数组
+     */
+    public static clearNodeArray () {
+        if (Node.ClearFrame < Node.ClearRound) {
+            Node.ClearFrame++;
+        } else {
+            Node.ClearFrame = 0;
+            array_a.length = 0;
+        }
     }
 
     /**
