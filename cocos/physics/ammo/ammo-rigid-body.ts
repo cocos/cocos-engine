@@ -249,7 +249,7 @@ export class AmmoRigidBody implements IRigidBody {
         return ammo2CocosVec3(out, this.impl.getLinearVelocity());
     }
 
-    setLinearVelocity (value: Vec3): void {
+    setLinearVelocity (value: Readonly<Vec3>): void {
         this._wakeUpIfSleep();
         cocos2AmmoVec3(this.impl.getLinearVelocity(), value);
     }
@@ -258,7 +258,7 @@ export class AmmoRigidBody implements IRigidBody {
         return ammo2CocosVec3(out, this.impl.getAngularVelocity());
     }
 
-    setAngularVelocity (value: Vec3): void {
+    setAngularVelocity (value: Readonly<Vec3>): void {
         this._wakeUpIfSleep();
         cocos2AmmoVec3(this.impl.getAngularVelocity(), value);
     }
