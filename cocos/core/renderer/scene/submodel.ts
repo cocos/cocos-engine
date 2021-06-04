@@ -30,7 +30,7 @@ import { BatchingSchemes, IMacroPatch, Pass } from '../core/pass';
 import { DescriptorSet, DescriptorSetInfo, Device, InputAssembler, InputAssemblerInfo, Shader } from '../../gfx';
 import { legacyCC } from '../../global-exports';
 import { ForwardPipeline } from '../../pipeline';
-import { errorID } from '../../platform';
+import { errorID } from '../../platform/debug';
 import { Shadows } from './shadows';
 import { NativePass, NativeSubModel } from './native-scene';
 

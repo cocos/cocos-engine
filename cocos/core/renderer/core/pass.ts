@@ -47,7 +47,7 @@ import {
     getBindingFromHandle, getDefaultFromType, getOffsetFromHandle, getPropertyTypeFromHandle, getTypeFromHandle, type2reader, type2writer,
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
-import { NativePass } from '../scene';
+import { NativePass } from '../scene/native-scene';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
