@@ -31,11 +31,8 @@
 import { RenderPipeline } from './render-pipeline';
 import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sampler, DescriptorSet,
     DescriptorSetInfo, Buffer, Texture, DescriptorSetLayoutInfo, DescriptorSetLayout } from '../gfx';
-import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING,
-    UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
+import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
 import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
-import { builtinResMgr } from '../builtin/builtin-res-mgr';
-import { Texture2D } from '../assets/texture-2d';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -49,7 +46,8 @@ const _samplerInfo = [
 export class GlobalDSManager {
     private _device: Device;
     private _descriptorSetMap: Map<number, DescriptorSet> = new Map();
-    private _descriptorSetLayout!: DescriptorSetLayout;
+    private _globalDescriptorSet: DescriptorSet;
+    private _descriptorSetLayout: DescriptorSetLayout;
     private _sampler: Sampler;
 
     get descriptorSetMap () {
@@ -64,6 +62,10 @@ export class GlobalDSManager {
         return this._descriptorSetLayout;
     }
 
+    get globalDescriptorSet () {
+        return this._globalDescriptorSet;
+    }
+
     constructor (pipeline: RenderPipeline) {
         this._device = pipeline.device;
 
@@ -72,6 +74,8 @@ export class GlobalDSManager {
 
         const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
         this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
+
+        this._globalDescriptorSet = this._device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
     }
 
     /**
@@ -81,9 +85,8 @@ export class GlobalDSManager {
      * @param buffer The buffer to be bound.
      */
     public bindBuffer (binding: number, buffer: Buffer) {
-        const descriptorSets = Array.from(this._descriptorSetMap.values());
-        for (let i = 0; i < descriptorSets.length; i++) {
-            const descriptorSet = descriptorSets[i];
+        this._globalDescriptorSet.bindBuffer(binding, buffer);
+        for (const descriptorSet of this._descriptorSetMap.values()) {
             descriptorSet.bindBuffer(binding, buffer);
         }
     }
@@ -95,9 +98,8 @@ export class GlobalDSManager {
      * @param sampler The sampler to be bound.
      */
     public bindSampler (binding: number, sampler: Sampler) {
-        const descriptorSets = Array.from(this._descriptorSetMap.values());
-        for (let i = 0; i < descriptorSets.length; i++) {
-            const descriptorSet = descriptorSets[i];
+        this._globalDescriptorSet.bindSampler(binding, sampler);
+        for (const descriptorSet of this._descriptorSetMap.values()) {
             descriptorSet.bindSampler(binding, sampler);
         }
     }
@@ -109,9 +111,8 @@ export class GlobalDSManager {
      * @param texture The texture to be bound.
      */
     public bindTexture (binding: number, texture: Texture) {
-        const descriptorSets = Array.from(this._descriptorSetMap.values());
-        for (let i = 0; i < descriptorSets.length; i++) {
-            const descriptorSet = descriptorSets[i];
+        this._globalDescriptorSet.bindTexture(binding, texture);
+        for (const descriptorSet of this._descriptorSetMap.values()) {
             descriptorSet.bindTexture(binding, texture);
         }
     }
@@ -121,9 +122,8 @@ export class GlobalDSManager {
      * @zh 更新所有的 descriptorSet
      */
     public update () {
-        const descriptorSets = Array.from(this._descriptorSetMap.values());
-        for (let i = 0; i < descriptorSets.length; ++i) {
-            const descriptorSet = descriptorSets[i];
+        this._globalDescriptorSet.update();
+        for (const descriptorSet of this._descriptorSetMap.values()) {
             descriptorSet.update();
         }
     }
@@ -139,59 +139,33 @@ export class GlobalDSManager {
 
         // The global descriptorSet is managed by the pipeline and binds the buffer
         if (!this._descriptorSetMap.has(idx)) {
+            const globalDescriptorSet = this._globalDescriptorSet;
             const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
             this._descriptorSetMap.set(idx, descriptorSet);
 
-            // Other descriptorSets are created with the same state as the global descriptorSet
-            if (idx > -1) {
-                const descriptorSet = this._descriptorSetMap.get(idx)!;
-                const globalDescriptorSet = this._descriptorSetMap.get(-1)!;
-                // Bindings for newly created descriptorSet, updated to a layout consistent with the globalDescriptorSet. shadow excepted
-                descriptorSet.bindBuffer(UBOGlobal.BINDING, globalDescriptorSet.getBuffer(UBOGlobal.BINDING));
-
-                descriptorSet.bindBuffer(UBOCamera.BINDING, globalDescriptorSet.getBuffer(UBOCamera.BINDING));
-
-                const shadowBUO = device.createBuffer(new BufferInfo(
-                    BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
-                    MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
-                    UBOShadow.SIZE,
-                    UBOShadow.SIZE,
-                ));
-                descriptorSet.bindBuffer(UBOShadow.BINDING, shadowBUO);
-
-                for (let i = PipelineGlobalBindings.SAMPLER_SHADOWMAP; i < PipelineGlobalBindings.COUNT; i++) {
-                    if (i === PipelineGlobalBindings.SAMPLER_SHADOWMAP) {
-                        descriptorSet.bindSampler(UNIFORM_SHADOWMAP_BINDING, this._sampler);
-                        descriptorSet.bindTexture(UNIFORM_SHADOWMAP_BINDING,
-                            builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-                    } else if (i === PipelineGlobalBindings.SAMPLER_SPOT_LIGHTING_MAP) {
-                        descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, this._sampler);
-                        descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING,
-                            builtinResMgr.get<Texture2D>('default-texture').getGFXTexture()!);
-                    } else {
-                        descriptorSet.bindSampler(i, globalDescriptorSet.getSampler(i));
-                        descriptorSet.bindTexture(i, globalDescriptorSet.getTexture(i));
-                    }
-                }
-                descriptorSet.update();
+            // Create & Sync UBO Buffer
+            for (let i = PipelineGlobalBindings.UBO_GLOBAL; i < PipelineGlobalBindings.UBO_SHADOW; i++) {
+                descriptorSet.bindBuffer(i, globalDescriptorSet.getBuffer(i));
             }
+
+            // Create & Sync Texture & Sampler
+            for (let i = PipelineGlobalBindings.SAMPLER_SHADOWMAP; i < PipelineGlobalBindings.COUNT; i++) {
+                descriptorSet.bindSampler(i, globalDescriptorSet.getSampler(i));
+                descriptorSet.bindTexture(i, globalDescriptorSet.getTexture(i));
+            }
+
+            const shadowBUO = device.createBuffer(new BufferInfo(
+                BufferUsageBit.UNIFORM | BufferUsageBit.TRANSFER_DST,
+                MemoryUsageBit.HOST | MemoryUsageBit.DEVICE,
+                UBOShadow.SIZE,
+                UBOShadow.SIZE,
+            ));
+            descriptorSet.bindBuffer(UBOShadow.BINDING, shadowBUO);
+
+            descriptorSet.update();
         }
 
         return this._descriptorSetMap.get(idx);
-    }
-
-    public clear () {
-        const descriptorSets = Array.from(this._descriptorSetMap.values());
-
-        // The global descriptorSet is released by the pipeline, the other descriptorSets are released by whoever gets them.
-        // So index starts at 1
-        for (let i = 1; i < descriptorSets.length; ++i) {
-            const descriptorSet = descriptorSets[i];
-            if (descriptorSet) {
-                descriptorSet.destroy();
-            }
-        }
-        this._descriptorSetMap.clear();
     }
 
     public destroy () {

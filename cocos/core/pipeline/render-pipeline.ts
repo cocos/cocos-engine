@@ -192,7 +192,7 @@ export abstract class RenderPipeline extends Asset {
     public activate (): boolean {
         this._device = legacyCC.director.root.device;
         this._globalDSManager = new GlobalDSManager(this);
-        this._descriptorSet = this._globalDSManager.getOrCreateDescriptorSet(-1)!;
+        this._descriptorSet = this._globalDSManager.globalDescriptorSet;
         this._pipelineUBO.activate(this._device, this);
         this._pipelineSceneData.activate(this._device, this);
 
@@ -233,10 +233,6 @@ export abstract class RenderPipeline extends Asset {
 
         if (this._descriptorSet) {
             this._descriptorSet.destroy();
-            this._descriptorSet = null!;
-            if (this._globalDSManager.descriptorSetMap.has(-1)) {
-                this._globalDSManager.descriptorSetMap.delete(-1);
-            }
         }
 
         this._globalDSManager.destroy();
