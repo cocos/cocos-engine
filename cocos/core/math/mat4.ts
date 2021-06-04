@@ -857,7 +857,7 @@ export class Mat4 extends MathBase {
      * @en Compose a matrix from scale, rotation and translation, applied in order.
      * @zh 根据旋转、位移、缩放信息计算矩阵，以 S->R->T 的顺序应用
      */
-    public static fromRTS <Out extends IMat4Like> (out: Out, q: Quat, v: Readonly<IVec3Like>, s: Readonly<IVec3Like>) {
+    public static fromRTS <Out extends IMat4Like> (out: Out, q: Readonly<Quat>, v: Readonly<IVec3Like>, s: Readonly<IVec3Like>) {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;

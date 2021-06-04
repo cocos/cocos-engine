@@ -891,9 +891,9 @@ export class ScrollView extends ViewGroup {
         return this._getContentPosition();
     }
 
-    private _getContentPosition () {
+    private _getContentPosition (): Vec3 {
         if (!this._content) {
-            return Vec3.ZERO;
+            return Vec3.ZERO.clone();
         }
 
         this._contentPos.set(this._content.position);
@@ -1324,7 +1324,7 @@ export class ScrollView extends ViewGroup {
         return outOfBoundaryAmount;
     }
 
-    protected _updateScrollBar (outOfBoundary: Vec2) {
+    protected _updateScrollBar (outOfBoundary: Readonly<Vec2>) {
         if (this._horizontalScrollBar) {
             this._horizontalScrollBar.onScroll(outOfBoundary);
         }
