@@ -59,15 +59,15 @@ replaceProperty(Event, 'Event', [
 markAsWarning(Event, 'Event', [
     {
         name: 'TOUCH',
-        suggest: 'please use SystemEvent.EventType.TOUCH_START, SystemEvent.EventType.TOUCH_MOVE, SystemEvent.EventType.TOUCH_END and SystemEvent.EventType.TOUCH_CANCEL instead',
+        suggest: 'please use SystemEvent.TouchEvent.TOUCH_START, SystemEvent.TouchEvent.TOUCH_MOVE, SystemEvent.TouchEvent.TOUCH_END and SystemEvent.TouchEvent.TOUCH_CANCEL instead',
     },
     {
         name: 'MOUSE',
-        suggest: 'please use SystemEvent.EventType.MOUSE_DOWN, SystemEvent.EventType.MOUSE_MOVE, SystemEvent.EventType.MOUSE_UP, SystemEvent.EventType.MOUSE_WHEEL, Node.EventType.MOUSE_ENTER and Node.EventType.MOUSE_LEAVE instead',
+        suggest: 'please use SystemEvent.MouseEvent.MOUSE_DOWN, SystemEvent.MouseEvent.MOUSE_MOVE, SystemEvent.MouseEvent.MOUSE_UP, SystemEvent.MouseEvent.MOUSE_WHEEL, Node.EventType.MOUSE_ENTER and Node.EventType.MOUSE_LEAVE instead',
     },
     {
         name: 'KEYBOARD',
-        suggest: 'please use SystemEvent.EventType.KEYBOARD_DOWN and SystemEvent.EventType.KEYBOARD_UP instead',
+        suggest: 'please use SystemEvent.KeyboardEvent.KEY_DOWN and SystemEvent.KeyboardEvent.KEY_UP instead',
     },
 ]);
 

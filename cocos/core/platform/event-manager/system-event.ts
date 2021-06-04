@@ -55,8 +55,8 @@ let mouseListener: EventListener | null = null;
 * @example
 * ```
 * import { systemEvent, SystemEvent } from 'cc';
-* systemEvent.on(SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
-* systemEvent.off(SystemEvent.EventType.DEVICEMOTION, this.onDeviceMotionEvent, this);
+* systemEvent.on(SystemEvent.DeviceEvent.DEVICEMOTION, this.onDeviceMotionEvent, this);
+* systemEvent.off(SystemEvent.DeviceEvent.DEVICEMOTION, this.onDeviceMotionEvent, this);
 * ```
 */
 

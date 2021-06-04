@@ -621,7 +621,7 @@ export class EventKeyboard extends Event {
      * @en Indicates whether the current key is being pressed
      * @zh 表示当前按键是否正在被按下
      *
-     * @deprecated since v3.3, please use Event.prototype.type !== SystemEvent.EventType.KEYBOARD_UP instead
+     * @deprecated since v3.3, please use Event.prototype.type !== SystemEvent.KeyboardEvent.KEY_UP instead
      */
     public get isPressed () {
         return this._isPressed;
