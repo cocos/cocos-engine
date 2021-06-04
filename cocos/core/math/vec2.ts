@@ -273,7 +273,7 @@ export class Vec2 extends MathBase {
      * @en Sets the normalized vector to the out vector
      * @zh 归一化向量
      */
-    public static normalize <Out extends IVec2Like, Vec2Like extends IVec2Like> (out: Out, a: Vec2Like) {
+    public static normalize <Out extends IVec2Like> (out: Out, a: IVec2Like) {
         const x = a.x;
         const y = a.y;
         let len = x * x + y * y;

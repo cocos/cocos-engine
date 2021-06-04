@@ -55,7 +55,7 @@ export class Quat extends MathBase {
      * @en Copy the given quaternion to the out quaternion
      * @zh 复制目标四元数
      */
-    public static copy<Out extends IQuatLike, QuatLike extends IQuatLike> (out: Out, a: QuatLike) {
+    public static copy<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -360,7 +360,7 @@ export class Quat extends MathBase {
      * @en Sets the inverse of the given quaternion to out quaternion
      * @zh 四元数求逆
      */
-    public static invert<Out extends IQuatLike, QuatLike extends IQuatLike> (out: Out, a: QuatLike) {
+    public static invert<Out extends IQuatLike> (out: Out, a: Readonly<IQuatLike>) {
         const dot = a.x * a.x + a.y * a.y + a.z * a.z + a.w * a.w;
         const invDot = dot ? 1.0 / dot : 0;
 

@@ -74,7 +74,7 @@ export class Vec3 extends MathBase {
      * @en Copy the target vector and save the results to out vector object
      * @zh 复制目标向量
      */
-    public static copy<Out extends IVec3Like, Vec3Like extends IVec3Like> (out: Out, a: Readonly<Vec3Like>) {
+    public static copy<Out extends IVec3Like> (out: Out, a: Readonly<IVec3Like>) {
         out.x = a.x;
         out.y = a.y;
         out.z = a.z;
@@ -195,7 +195,7 @@ export class Vec3 extends MathBase {
      * @en Vector scalar multiplication and save the results to out vector object
      * @zh 向量标量乘法
      */
-    public static multiplyScalar<Out extends IVec3Like, Vec3Like extends IVec3Like > (out: Out, a: Readonly<Vec3Like>, b: number) {
+    public static multiplyScalar<Out extends IVec3Like> (out: Out, a: Readonly<IVec3Like>, b: number) {
         out.x = a.x * b;
         out.y = a.y * b;
         out.z = a.z * b;
