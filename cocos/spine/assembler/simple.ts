@@ -264,7 +264,7 @@ function updateComponentRenderData (comp: Skeleton, ui: Batcher2D) {
 
     let worldMat: Mat4 | undefined;
     if (_comp.enableBatch) {
-        worldMat = _node.worldMatrix;
+        worldMat = _node.worldMatrix as Mat4;
         _mustFlush = false;
         _handleVal |= FLAG_BATCH;
     }
