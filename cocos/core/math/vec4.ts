@@ -381,7 +381,7 @@ export class Vec4 extends MathBase {
      * @en Vector and fourth order matrix multiplication
      * @zh 向量与四维矩阵乘法
      */
-    public static transformMat4 <Out extends IVec4Like, MatLike extends IMat4Like> (out: Out, a: Readonly<IVec4Like>, m: MatLike) {
+    public static transformMat4 <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, m: Readonly<IMat4Like>) {
         const x = a.x;
         const y = a.y;
         const z = a.z;
@@ -397,8 +397,7 @@ export class Vec4 extends MathBase {
      * @en Transform the vector with the given affine transformation
      * @zh 向量仿射变换
      */
-    public static transformAffine<Out extends IVec4Like, VecLike extends IVec4Like, MatLike extends IMat4Like>
-    (out: Out, v: VecLike, m: MatLike) {
+    public static transformAffine<Out extends IVec4Like> (out: Out, v: Readonly<IVec4Like>, m: Readonly<IMat4Like>) {
         const x = v.x;
         const y = v.y;
         const z = v.z;
@@ -414,7 +413,7 @@ export class Vec4 extends MathBase {
      * @en Vector quaternion multiplication
      * @zh 向量四元数乘法
      */
-    public static transformQuat <Out extends IVec4Like, QuatLike extends IQuatLike> (out: Out, a: Readonly<IVec4Like>, q: QuatLike) {
+    public static transformQuat <Out extends IVec4Like> (out: Out, a: Readonly<IVec4Like>, q: Readonly<IQuatLike>) {
         const { x, y, z } = a;
 
         const _x = q.x;

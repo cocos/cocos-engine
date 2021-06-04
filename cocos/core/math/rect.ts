@@ -53,7 +53,7 @@ export class Rect extends MathBase {
      * @param v2 Specified point 2.
      * @returns Target rectangle.
      */
-    public static fromMinMax <Out extends IRectLike, VecLike extends IVec2Like> (out: Out, v1: Readonly<VecLike>, v2: Readonly<VecLike>) {
+    public static fromMinMax <Out extends IRectLike> (out: Out, v1: Readonly<IVec2Like>, v2: Readonly<IVec2Like>) {
         const minX = Math.min(v1.x, v2.x);
         const minY = Math.min(v1.y, v2.y);
         const maxX = Math.max(v1.x, v2.x);

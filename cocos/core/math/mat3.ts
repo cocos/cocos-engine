@@ -243,7 +243,7 @@ export class Mat3 extends MathBase {
      * @en Multiply a matrix with a translation vector given by a translation offset.
      * @zh 在给定矩阵变换基础上加入变换
      */
-    public static transform <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Readonly<IMat3Like>, v: VecLike) {
+    public static transform <Out extends IMat3Like> (out: Out, a: Readonly<IMat3Like>, v: Readonly<IVec3Like>) {
         const a00 = a.m00; const a01 = a.m01; const a02 = a.m02;
         const a10 = a.m03; const a11 = a.m04; const a12 = a.m05;
         const a20 = a.m06; const a21 = a.m07; const a22 = a.m08;
@@ -267,7 +267,7 @@ export class Mat3 extends MathBase {
      * @en Multiply a matrix with a scale matrix given by a scale vector and save the results to out matrix
      * @zh 在给定矩阵变换基础上加入新缩放变换
      */
-    public static scale <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, a: Readonly<IMat3Like>, v: VecLike) {
+    public static scale <Out extends IMat3Like> (out: Out, a: Readonly<IMat3Like>, v: Readonly<IVec3Like>) {
         const x = v.x; const y = v.y;
 
         out.m00 = x * a.m00;
@@ -334,7 +334,7 @@ export class Mat3 extends MathBase {
      * @param view The view direction, it`s must be normalized.
      * @param up The view up direction, it`s must be normalized, default value is (0, 1, 0).
      */
-    public static fromViewUp <Out extends IMat3Like, VecLike extends IVec3Like> (out: Out, view: VecLike, up?: Vec3) {
+    public static fromViewUp <Out extends IMat3Like> (out: Out, view: Readonly<IVec3Like>, up?: Vec3) {
         if (Vec3.lengthSqr(view) < EPSILON * EPSILON) {
             Mat3.identity(out);
             return out;
@@ -362,7 +362,7 @@ export class Mat3 extends MathBase {
      * @en Sets the given matrix with a translation vector and save the results to out matrix
      * @zh 计算位移矩阵
      */
-    public static fromTranslation <Out extends IMat3Like, VecLike extends IVec2Like> (out: Out, v: VecLike) {
+    public static fromTranslation <Out extends IMat3Like> (out: Out, v: Readonly<IVec2Like>) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -379,7 +379,7 @@ export class Mat3 extends MathBase {
      * @en Sets the given matrix with a scale vector and save the results to out matrix
      * @zh 计算缩放矩阵
      */
-    public static fromScaling <Out extends IMat3Like, VecLike extends IVec2Like> (out: Out, v: VecLike) {
+    public static fromScaling <Out extends IMat3Like> (out: Out, v: Readonly<IVec2Like>) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;

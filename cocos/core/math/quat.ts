@@ -91,7 +91,7 @@ export class Quat extends MathBase {
      * @en Sets the out quaternion with the shortest path orientation between two vectors, considering both vectors normalized
      * @zh 设置四元数为两向量间的最短路径旋转，默认两向量都已归一化
      */
-    public static rotationTo<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, a: VecLike, b: VecLike) {
+    public static rotationTo<Out extends IQuatLike> (out: Out, a: Readonly<IVec3Like>, b: Readonly<IVec3Like>) {
         const dot = Vec3.dot(a, b);
         if (dot < -0.999999) {
             Vec3.cross(v3_1, Vec3.UNIT_X, a);
@@ -124,7 +124,7 @@ export class Quat extends MathBase {
      * @param q input quaternion
      * @return radius of rotation
      */
-    public static getAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (outAxis: VecLike, q: Out) {
+    public static getAxisAngle<Out extends IQuatLike> (outAxis: IVec3Like, q: Out) {
         const rad = Math.acos(q.w) * 2.0;
         const s = Math.sin(rad / 2.0);
         if (s !== 0.0) {
@@ -243,7 +243,7 @@ export class Quat extends MathBase {
      * @param axis axis of rotation, normalized by default
      * @param rad radius of rotation
      */
-    public static rotateAround<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, rot: Out, axis: VecLike, rad: number) {
+    public static rotateAround<Out extends IQuatLike> (out: Out, rot: Out, axis: Readonly<IVec3Like>, rad: number) {
         // get inv-axis (local to rot)
         Quat.invert(qt_1, rot);
         Vec3.transformQuat(v3_1, axis, qt_1);
@@ -259,7 +259,7 @@ export class Quat extends MathBase {
      * @param axis axis of rotation
      * @param rad radius of rotation
      */
-    public static rotateAroundLocal<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, rot: Out, axis: VecLike, rad: number) {
+    public static rotateAroundLocal<Out extends IQuatLike> (out: Out, rot: Out, axis: Readonly<IVec3Like>, rad: number) {
         Quat.fromAxisAngle(qt_1, axis, rad);
         Quat.multiply(out, rot, qt_1);
         return out;
@@ -421,7 +421,7 @@ export class Quat extends MathBase {
      * @en Calculated the quaternion represents the given coordinates, considering all given vectors are normalized and mutually perpendicular
      * @zh 根据本地坐标轴朝向计算四元数，默认三向量都已归一化且相互垂直
      */
-    public static fromAxes<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, xAxis: VecLike, yAxis: VecLike, zAxis: VecLike) {
+    public static fromAxes<Out extends IQuatLike> (out: Out, xAxis: Readonly<IVec3Like>, yAxis: Readonly<IVec3Like>, zAxis: Readonly<IVec3Like>) {
         Mat3.set(m3_1,
             xAxis.x, xAxis.y, xAxis.z,
             yAxis.x, yAxis.y, yAxis.z,
@@ -435,7 +435,7 @@ export class Quat extends MathBase {
      * @param view The view direction, it`s must be normalized.
      * @param up The view up direction, it`s must be normalized, default value is (0, 1, 0).
      */
-    public static fromViewUp<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, view: VecLike, up?: Vec3) {
+    public static fromViewUp<Out extends IQuatLike> (out: Out, view: Readonly<IVec3Like>, up?: Vec3) {
         Mat3.fromViewUp(m3_1, view, up);
         return Quat.normalize(out, Quat.fromMat3(out, m3_1));
     }
@@ -444,7 +444,7 @@ export class Quat extends MathBase {
      * @en Calculates the quaternion from a given rotary shaft and a radian rotation around it.
      * @zh 根据旋转轴和旋转弧度计算四元数
      */
-    public static fromAxisAngle<Out extends IQuatLike, VecLike extends IVec3Like> (out: Out, axis: VecLike, rad: number) {
+    public static fromAxisAngle<Out extends IQuatLike> (out: Out, axis: Readonly<IVec3Like>, rad: number) {
         rad *= 0.5;
         const s = Math.sin(rad);
         out.x = s * axis.x;
@@ -758,7 +758,7 @@ export class Quat extends MathBase {
      */
     public set (x?: number, y?: number, z?: number, w?: number): Quat;
 
-    public set (x?: number | Quat, y?: number, z?: number, w?: number) {
+    public set (x?: number | Readonly<Quat>, y?: number, z?: number, w?: number) {
         if (x && typeof x === 'object') {
             const v = x.array;
             this._array[0] = v[0];

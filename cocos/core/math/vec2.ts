@@ -332,7 +332,7 @@ export class Vec2 extends MathBase {
      * @en Vector and third order matrix multiplication, will complete the vector with a third value as one
      * @zh 向量与三维矩阵乘法，默认向量第三位为 1。
      */
-    public static transformMat3 <Out extends IVec2Like, MatLike extends IMat3Like> (out: Out, a: Readonly<IVec2Like>, m: IMat3Like) {
+    public static transformMat3 <Out extends IVec2Like> (out: Out, a: Readonly<IVec2Like>, m: Readonly<IMat3Like>) {
         const x = a.x;
         const y = a.y;
         out.x = m.m00 * x + m.m03 * y + m.m06;
@@ -344,7 +344,7 @@ export class Vec2 extends MathBase {
      * @en Vector and third order matrix multiplication, will complete the vector with a third and a fourth element as one
      * @zh 向量与四维矩阵乘法，默认向量第三位为 0，第四位为 1。
      */
-    public static transformMat4 <Out extends IVec2Like, MatLike extends IMat4Like> (out: Out, a: Readonly<IVec2Like>, m: IMat4Like) {
+    public static transformMat4 <Out extends IVec2Like> (out: Out, a: Readonly<IVec2Like>, m: Readonly<IMat4Like>) {
         const x = a.x;
         const y = a.y;
         out.x = m.m00 * x + m.m04 * y + m.m12;

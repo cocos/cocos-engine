@@ -295,7 +295,7 @@ export class Mat4 extends MathBase {
      * @en Transform a matrix with the given vector and save results to the out matrix
      * @zh 在给定矩阵变换基础上加入变换
      */
-    public static transform <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Readonly<IMat4Like>, v: VecLike) {
+    public static transform <Out extends IMat4Like> (out: Out, a: Readonly<IMat4Like>, v: Readonly<IVec3Like>) {
         const x = v.x; const y = v.y; const z = v.z;
         if (a === out) {
             out.m12 = a.m00 * x + a.m04 * y + a.m08 * z + a.m12;
@@ -324,7 +324,7 @@ export class Mat4 extends MathBase {
      * @en Transform a matrix with the given translation vector and save results to the out matrix
      * @zh 在给定矩阵变换基础上加入新位移变换
      */
-    public static translate <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Readonly<IMat4Like>, v: VecLike) {
+    public static translate <Out extends IMat4Like> (out: Out, a: Readonly<IMat4Like>, v: Readonly<IVec3Like>) {
         console.warn('function changed');
         if (a === out) {
             out.m12 += v.x;
@@ -346,7 +346,7 @@ export class Mat4 extends MathBase {
      * @en Multiply a matrix with a scale matrix given by a scale vector and save the results into the out matrix
      * @zh 在给定矩阵变换基础上加入新缩放变换
      */
-    public static scale <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Readonly<IMat4Like>, v: VecLike) {
+    public static scale <Out extends IMat4Like> (out: Out, a: Readonly<IMat4Like>, v: Readonly<IVec3Like>) {
         const x = v.x; const y = v.y; const z = v.z;
         out.m00 = a.m00 * x;
         out.m01 = a.m01 * x;
@@ -373,7 +373,7 @@ export class Mat4 extends MathBase {
      * @param rad Angle of rotation (in radians)
      * @param axis axis of rotation
      */
-    public static rotate <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, a: Readonly<IMat4Like>, rad: number, axis: VecLike) {
+    public static rotate <Out extends IMat4Like> (out: Out, a: Readonly<IMat4Like>, rad: number, axis: IVec3Like) {
         let x = axis.x; let y = axis.y; let z = axis.z;
 
         let len = Math.sqrt(x * x + y * y + z * z);
@@ -553,7 +553,7 @@ export class Mat4 extends MathBase {
      * @en Sets the out matrix with a translation vector
      * @zh 计算位移矩阵
      */
-    public static fromTranslation <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
+    public static fromTranslation <Out extends IMat4Like> (out: Out, v: Readonly<IVec3Like>) {
         out.m00 = 1;
         out.m01 = 0;
         out.m02 = 0;
@@ -577,7 +577,7 @@ export class Mat4 extends MathBase {
      * @en Sets the out matrix with a scale vector
      * @zh 计算缩放矩阵
      */
-    public static fromScaling <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, v: VecLike) {
+    public static fromScaling <Out extends IMat4Like> (out: Out, v: Readonly<IVec3Like>) {
         out.m00 = v.x;
         out.m01 = 0;
         out.m02 = 0;
@@ -601,7 +601,7 @@ export class Mat4 extends MathBase {
      * @en Sets the out matrix with rotation angle
      * @zh 计算旋转矩阵
      */
-    public static fromRotation <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, rad: number, axis: VecLike) {
+    public static fromRotation <Out extends IMat4Like> (out: Out, rad: number, axis: IVec3Like) {
         let x = axis.x; let y = axis.y; let z = axis.z;
         let len = Math.sqrt(x * x + y * y + z * z);
 
@@ -723,7 +723,7 @@ export class Mat4 extends MathBase {
      * @en Calculates the transform representing the combination of a rotation and a translation
      * @zh 根据旋转和位移信息计算矩阵
      */
-    public static fromRT <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike) {
+    public static fromRT <Out extends IMat4Like> (out: Out, q: Quat, v: Readonly<IVec3Like>) {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -763,7 +763,7 @@ export class Mat4 extends MathBase {
      * @en Extracts the translation from the matrix, assuming it's composed in order of scale, rotation, translation
      * @zh 提取矩阵的位移信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getTranslation <Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
+    public static getTranslation <Out extends IMat4Like> (out: IVec3Like, mat: Out) {
         out.x = mat.m12;
         out.y = mat.m13;
         out.z = mat.m14;
@@ -775,7 +775,7 @@ export class Mat4 extends MathBase {
      * @en Extracts the scale vector from the matrix, assuming it's composed in order of scale, rotation, translation
      * @zh 提取矩阵的缩放信息, 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static getScaling <Out extends IMat4Like, VecLike extends IVec3Like> (out: VecLike, mat: Out) {
+    public static getScaling <Out extends IMat4Like> (out: IVec3Like, mat: Out) {
         const m00 = m3_1.m00 = mat.m00;
         const m01 = m3_1.m01 = mat.m01;
         const m02 = m3_1.m02 = mat.m02;
@@ -834,7 +834,7 @@ export class Mat4 extends MathBase {
      * @en Extracts the scale, rotation and translation from the matrix, assuming it's composed in order of scale, rotation, translation
      * @zh 提取旋转、位移、缩放信息， 默认矩阵中的变换以 S->R->T 的顺序应用
      */
-    public static toRTS <Out extends IMat4Like, VecLike extends IVec3Like> (m: Out, q: Quat, v: VecLike, s: VecLike) {
+    public static toRTS <Out extends IMat4Like> (m: Out, q: Quat, v: Readonly<IVec3Like>, s: IVec3Like) {
         s.x = Vec3.set(v3_1, m.m00, m.m01, m.m02).length();
         m3_1.m00 = m.m00 / s.x;
         m3_1.m01 = m.m01 / s.x;
@@ -857,7 +857,7 @@ export class Mat4 extends MathBase {
      * @en Compose a matrix from scale, rotation and translation, applied in order.
      * @zh 根据旋转、位移、缩放信息计算矩阵，以 S->R->T 的顺序应用
      */
-    public static fromRTS <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike) {
+    public static fromRTS <Out extends IMat4Like> (out: Out, q: Quat, v: Readonly<IVec3Like>, s: Readonly<IVec3Like>) {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -904,7 +904,7 @@ export class Mat4 extends MathBase {
      * @param s Scaling vector
      * @param o transformation Center
      */
-    public static fromRTSOrigin <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, q: Quat, v: VecLike, s: VecLike, o: VecLike) {
+    public static fromRTSOrigin <Out extends IMat4Like> (out: Out, q: Quat, v: Readonly<IVec3Like>, s: Readonly<IVec3Like>, o: Readonly<IVec3Like>) {
         const x = q.x; const y = q.y; const z = q.z; const w = q.w;
         const x2 = x + x;
         const y2 = y + y;
@@ -1116,7 +1116,7 @@ export class Mat4 extends MathBase {
      * @param center The target point.
      * @param up The vector describing the up direction.
      */
-    public static lookAt <Out extends IMat4Like, VecLike extends IVec3Like> (out: Out, eye: VecLike, center: VecLike, up: VecLike) {
+    public static lookAt <Out extends IMat4Like> (out: Out, eye: IVec3Like, center: IVec3Like, up: IVec3Like) {
         const eyex = eye.x;
         const eyey = eye.y;
         const eyez = eye.z;
