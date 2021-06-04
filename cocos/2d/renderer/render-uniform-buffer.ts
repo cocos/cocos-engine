@@ -24,6 +24,8 @@ export class UILocalBuffer {
 
     // hash值
     public hash: number;
+    // pool 中的索引值
+    public poolIndex: number;
 
     get prevUBOIndex () {
         return this._prevUBOIndex;
@@ -37,11 +39,12 @@ export class UILocalBuffer {
         return this._prevInstanceID;
     }
 
-    constructor (device: Device, hash: number, UIPerUBO: number, vec4PerUI: number) {
+    constructor (device: Device, hash: number, UIPerUBO: number, vec4PerUI: numberm, poolIndex: number) {
         this._vec4PerUI = vec4PerUI;
         this._UIPerUBO = UIPerUBO;
         this._device = device;
         this.hash = hash;
+        this.poolIndex = poolIndex;
 
         const alignment = this._device.capabilities.uboOffsetAlignment; // 对齐长度，UBO 是 alignment 的倍数
         const unalignedStride = Float32Array.BYTES_PER_ELEMENT * 4 * vec4PerUI * UIPerUBO;
@@ -147,6 +150,26 @@ export class UILocalBuffer {
         this._prevUBOIndex = 0;
         this._prevInstanceID = -1;
     }
+
+    updateDataByDirty (instanceID: number, UBOIndex: number, t: Vec3, r?: Quat, s?: Vec3) {
+        let offset = instanceID * this._vec4PerUI * 4 + this._uniformBufferElementCount * UBOIndex;
+        const data = this._uniformBufferData;
+        data[offset + 0] = t.x;
+        data[offset + 1] = t.y;
+        data[offset + 2] = t.z;
+        if (r) {
+            offset += 4;
+            data[offset + 0] = r.x;
+            data[offset + 1] = r.y;
+            data[offset + 2] = r.z;
+            data[offset + 3] = r.w;
+        }
+        if (s) {
+            offset += 4;
+            data[offset + 0] = s.x;
+            data[offset + 1] = s.y;
+        }
+    }
 }
 
 interface ILocalBufferPool {
@@ -154,8 +177,15 @@ interface ILocalBufferPool {
     currentIdx: number;
 }
 
+interface ILocalBuffers {
+    key: number;
+    value: ILocalBufferPool;
+}
+
 export class UILocalUBOManger {
-    private _localBuffers = new Map<number,  ILocalBufferPool>(); // UIPerUBO -> buffer[]
+    // 给个接口吧
+    // public _localBuffers = new Map<number,  ILocalBufferPool>(); // UIPerUBO -> buffer[]
+    public _localBuffers: ILocalBuffers[] = []; // UIPerUBO -> buffer[]
     private _device: Device;
 
     constructor (device: Device) {
@@ -168,13 +198,26 @@ export class UILocalUBOManger {
         // UIPerUBO 结构标识，决定 UI 的排布结构
         // 如果修改的话，修改这个值，修改 shader 即可
         // 先取一次这个 数组，之后处理
-        if (!this._localBuffers.has(UIPerUBO)) {
-            this._localBuffers.set(UIPerUBO, {
-                pool: [this._createLocalBuffer(UIPerUBO, vec4PerUI, 0)],
-                currentIdx: 0,
+        // if (!this._localBuffers.has(UIPerUBO)) {
+        //     this._localBuffers.set(UIPerUBO, {
+        //         pool: [this._createLocalBuffer(UIPerUBO, vec4PerUI, 0)],
+        //         currentIdx: 0,
+        //     });
+        // }
+        const element = this._localBuffers.find(
+            (element)  => element.key === UIPerUBO,
+        );
+        if (element === undefined) {
+            this._localBuffers.push({
+                key: UIPerUBO,
+                value: {
+                    pool: [this._createLocalBuffer(UIPerUBO, vec4PerUI, 0)],
+                    currentIdx: 0,
+                },
             });
         }
-        const localBufferPool = this._localBuffers.get(UIPerUBO)!;
+        // const localBufferPool = this._localBuffers.get(UIPerUBO)!;
+        const localBufferPool = this._localBuffers.find((element)  => element.key === UIPerUBO)!.value;
         while (localBufferPool.pool[localBufferPool.currentIdx].checkFull()) {
             if (++localBufferPool.currentIdx >= localBufferPool.pool.length) {
                 // 如需创建，hash 根据 capacity 和数组下标
@@ -190,30 +233,47 @@ export class UILocalUBOManger {
     }
 
     public updateBuffer () {
-        const it = this._localBuffers.values();
-        let res = it.next();
-        while (!res.done) {
-            for (let i = 0; i <= res.value.currentIdx; ++i) {
-                res.value.pool[i].updateBuffer();
+        // const it = this._localBuffers.values();
+        // let res = it.next();
+        // while (!res.done) {
+        //     for (let i = 0; i <= res.value.currentIdx; ++i) {
+        //         res.value.pool[i].updateBuffer();
+        //     }
+        //     res = it.next();
+        // }
+        const length = this._localBuffers.length;
+        let res;
+        for (let i = 0; i < length; ++i) {
+            res = this._localBuffers[i].value;
+            for (let j = 0; j <= res.currentIdx; ++j) {
+                res.pool[j].updateBuffer();
             }
-            res = it.next();
         }
     }
 
     public reset () {
-        const it = this._localBuffers.values();
-        let res = it.next();
-        while (!res.done) {
-            for (let i = 0; i <= res.value.currentIdx; ++i) {
-                res.value.pool[i].reset();
+        // const it = this._localBuffers.values();
+        // let res = it.next();
+        // while (!res.done) {
+        //     for (let i = 0; i <= res.value.currentIdx; ++i) {
+        //         res.value.pool[i].reset();
+        //     }
+        //     res.value.currentIdx = 0;
+        //     res = it.next();
+        // }
+        const length = this._localBuffers.length;
+        let res;
+        for (let i = 0; i < length; ++i) {
+            res = this._localBuffers[i].value;
+            for (let j = 0; j <= res.currentIdx; ++j) {
+                res.pool[j].reset();
             }
-            res.value.currentIdx = 0;
-            res = it.next();
+            res.currentIdx = 0;
         }
     }
 
     private _createLocalBuffer (capacity, vec4PerUI, idx) {
         const hash = murmurhash2_32_gc(`UIUBO-${capacity}-${idx}`, 666);
-        return new UILocalBuffer(this._device, hash, capacity, vec4PerUI);
+        return new UILocalBuffer(this._device, hash, capacity, vec4PerUI, idx);// 想要利用这个数组下标找 localBuffer
     }
 }

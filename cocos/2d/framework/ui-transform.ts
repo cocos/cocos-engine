@@ -659,9 +659,16 @@ export class UITransform extends Component {
         }
     }
 
-    private _rectDirty = true;
+    public _rectDirty = true;
     public _rectWithScale = new Vec3();
     public _anchorCache = new Vec3();
+
+    // 这个 dirty 跟着谁走？
+    // 本身实际上是多个数据的影响的
+    // node 的 TRS Transform 的 rect sprite 的 renderData
+    // 先放这里是因为这儿能访问到
+    // 或者放到 uiPros 里？
+    public _renderdataDirty = 0; // 最好存位运算，能还原数据
 
     public checkAndUpdateRect (scale: Vec3) {
         if (this._rectDirty) {
@@ -680,9 +687,10 @@ export class UITransform extends Component {
     }
 
     private setRectDirty (transformBit: TransformBit) {
-        if (transformBit & TransformBit.SCALE || transformBit & TransformBit.ROTATION) {
+        this._renderdataDirty = transformBit;
+        if (transformBit & TransformBit.RS) {
             this._rectDirty = true;
-            this.node.walk((node) => {
+            this.node.walk((node) => { // 这儿可能根本不需要递归安排子节点 // 之后验证一下
                 const uiProps = node._uiProps;
                 if (uiProps && uiProps.uiTransformComp) {
                     uiProps.uiTransformComp._rectDirty = true;

@@ -56,6 +56,14 @@ import { DummyIA } from './dummy-ia';
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
 
+interface IRenderQueue {
+    UIPerUBO: number;
+    bufferHash: number;
+    poolIndex: number;
+    UBOIndex: number;
+    instanceID: number;
+}
+
 /**
  * @zh
  * UI 渲染流程
@@ -100,6 +108,10 @@ export class Batcher2D {
     private _localUBOManager: UILocalUBOManger;
 
     public reloadBatchDirty = true;
+    public renderQueue: IRenderQueue[] = [];
+    public _currWalkIndex = 0;
+
+    public updateBufferDirty = false;
 
     constructor (private _root: Root) {
         this.device = _root.device;
@@ -189,8 +201,10 @@ export class Batcher2D {
 
     public update () {
         if (this.reloadBatchDirty) {
+            this.renderQueue.length = 0;
             this._localUBOManager.reset(); // 需要重新录制就先清空
         }
+
         const screens = this._screens;
         for (let i = 0; i < screens.length; ++i) {
             const screen = screens[i];
@@ -199,7 +213,7 @@ export class Batcher2D {
             }
             this._recursiveScreenNode(screen.node);
         }
-        this.reloadBatchDirty = false;
+        // this.reloadBatchDirty = false;
 
         let batchPriority = 0;
         if (this._batches.length) {
@@ -230,7 +244,11 @@ export class Batcher2D {
             });
 
             this._descriptorSetCache.update();
-            this._localUBOManager.updateBuffer();
+            if (this.reloadBatchDirty || this.updateBufferDirty) {
+                this._localUBOManager.updateBuffer();
+                this.reloadBatchDirty = false; // 这里应该是更新用
+                this.updateBufferDirty = false;
+            }
         }
     }
 
@@ -241,10 +259,10 @@ export class Batcher2D {
                 continue;
             }
 
-            // batch.clear(); // batch 是不是需要重新录制？？？
-            // this._drawBatchPool.free(batch);
+            batch.clear(); // batch 是不是需要重新录制？？？
+            this._drawBatchPool.free(batch);
         }
-        // DrawBatch2D.drawcallPool.reset();
+        DrawBatch2D.drawcallPool.reset();
 
         this._currLayer = 0;
         this._currMaterial = this._emptyMaterial;
@@ -253,10 +271,11 @@ export class Batcher2D {
         this._currComponent = null;
         this._currTransform = null;
         this._currScene = null;
-        // this._batches.clear();
+        this._batches.clear(); // DC 数量有问题
         StencilManager.sharedManager!.reset();
         this._descriptorSetCache.reset();
         // this._localUBOManager.reset(); // 用 dirty 来控制reset
+        this._currWalkIndex = 0;
     }
 
     /**
@@ -328,13 +347,29 @@ export class Batcher2D {
         // this._currBatch.fillBuffers(comp, this._localUBOManager, mat);
 
         // 这个可以优化为执行不同函数？？ // 最好执行不同的函数 // 还有个 dirty 需要的，更新用的
+        let bufferInfo;
+        let localBuffer;
         if (this.reloadBatchDirty) {
-            this._currBatch.fillBuffers(comp, this._localUBOManager, mat);
+            this._currBatch.fillBuffers(comp, this._localUBOManager, mat, this);
+            bufferInfo = this.renderQueue[this._currWalkIndex];
+            // localBuffer = this._localUBOManager._localBuffers.get(bufferInfo.UIPerUBO)!.pool[bufferInfo.poolIndex];
+            const localBuffers = this._localUBOManager._localBuffers.find((element)  => element.key === bufferInfo.UIPerUBO)!;
+            localBuffer = localBuffers.value.pool[bufferInfo.poolIndex];
         } else {
-            // update localUBO // 更新数据即可 // 需要利用组件的各种 dirty 来判断是否要更新，类似于 renderDataDirty
-            // 暂时不更新
-            // 需要有个新索引决定要更新哪一段
+            bufferInfo = this.renderQueue[this._currWalkIndex];
+            // const localBuffers = this._localUBOManager._localBuffers.get(bufferInfo.UIPerUBO)!;
+            // localBuffer = localBuffers.pool[bufferInfo.poolIndex];
+            const localBuffers = this._localUBOManager._localBuffers.find((element)  => element.key === bufferInfo.UIPerUBO)!;
+            localBuffer = localBuffers.value.pool[bufferInfo.poolIndex];
+            // @ts-expect-error TS2445
+            if (comp.node._dirtyFlags || comp.node._uiProps.uiTransformComp!._rectDirty) { // 暂时先利用这个 flag
+                this.updateBufferDirty = true; // 决定要不要上传 buffer 的 dirty
+                this._currBatch.updateBuffer(comp, bufferInfo, localBuffer);
+            }
+            // 更新数据即可 // 需要利用组件的各种 dirty 来判断是否要更新，类似于 renderDataDirty
         }
+        this._currBatch.fillDrawCall(bufferInfo, localBuffer);
+        ++this._currWalkIndex;
     }
 
     /**

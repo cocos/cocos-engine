@@ -39,12 +39,13 @@ import { Batcher2D } from './batcher-2d';
 import { NULL_HANDLE, BatchHandle2D, BatchPool2D, BatchView2D, PassPool, DescriptorSetHandle, InputAssemblerHandle } from '../../core/renderer/core/memory-pools';
 import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
-import { UILocalUBOManger } from './render-uniform-buffer';
+import { UILocalBuffer, UILocalUBOManger } from './render-uniform-buffer';
 import { Pass } from '../../core/renderer/core/pass';
 import { Renderable2D } from '../framework';
 import { Sprite } from '../components';
 import { director, RecyclePool, Vec2 } from '../../core';
 import { Vec3 } from '../../core/math/vec3';
+import { TransformBit } from '../../core/scene-graph/node-enum';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -112,6 +113,7 @@ export class DrawBatch2D {
     private _tempRect;
     private _tempScale = new Vec3();
     private _tempPosition = new Vec3();
+    private _tempAnchor = new Vec2();
 
     private _vec4PerUI = 5;
     private _UIPerUBO = 0;
@@ -199,7 +201,7 @@ export class DrawBatch2D {
     // private toCache = [1, 1, 0, 0];
     private tiledCache = new Vec2(1, 1);
     // simple version
-    public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material) {
+    public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material, batcher: Batcher2D) {
         // 将一个 drawBatch 分割为多个 drawCall
         // 分割条件， uboHash 要一致，buffer View 要一致
         // 从 Node 里取 TRS，comp 上取 to 和 color， 计算出 tiled 和其他
@@ -213,8 +215,9 @@ export class DrawBatch2D {
         this._tempRect.checkAndUpdateRect(s);
         // this._tempScale = this._tempRect._rectWithScale;
 
-        this._tempPosition.x = t.x + this._tempRect._anchorCache.x;
-        this._tempPosition.y = t.y + this._tempRect._anchorCache.y;
+        this._tempAnchor.set(this._tempRect._anchorCache);
+        this._tempPosition.x = t.x + this._tempAnchor.x;
+        this._tempPosition.y = t.y + this._tempAnchor.y;
         this._tempPosition.z = t.z;
 
         // 下面的逻辑几乎是针对于 sprite 的
@@ -246,26 +249,95 @@ export class DrawBatch2D {
         // const UIPerUBO = 16; // 调试用 16
         // 上传数据
         const localBuffer = UBOManager.upload(this._tempPosition, r, this._tempRect._rectWithScale, to, c, mode, this._UIPerUBO, this._vec4PerUI, this.tiledCache, progress);
+        // 执行完了之后，uboindex 已经更新了 hash 也是确定的 indtanceID 也是更新过后的，这几个值能够找到 localBuffer 中具体是哪一段
+        // 所以这几个值是和数组的顺序严格绑定的，需要缓存下来，更新的话就是 一个指针，每次到了这里就 +1 ，要更新就这个指针取出这些值，然后将对应的 buffer 找到，然后更新，最后上传
+        // 录制 渲染缓存数组
+        batcher.renderQueue.push({
+            UIPerUBO: this._UIPerUBO,
+            bufferHash: localBuffer.hash,
+            poolIndex: localBuffer.poolIndex,
+            UBOIndex: localBuffer.prevUBOIndex,
+            instanceID: localBuffer.prevInstanceID,
+        });
+        // // 能同 drawCall 的条件： UBOIndex 相同，ubohash 相同
+        // let dc = this._drawcalls[this._dcIndex];
+        // if (dc && (dc.bufferHash !== localBuffer.hash || dc.bufferUboIndex !== localBuffer.prevUBOIndex)) { // 存在但不能合批
+        //     this._dcIndex++; // 索引加一
+        //     dc = this._drawcalls[this._dcIndex]; // 再取取不到
+        // }
+        // if (!dc) {
+        //     dc = DrawBatch2D.drawcallPool.add();
+        //     // make sure to assign initial values to all members here
+        //     dc.bufferHash = localBuffer.hash;
+        //     dc.bufferUboIndex = localBuffer.prevUBOIndex;
+        //     dc.bufferView = localBuffer.getBufferView();
+        //     dc.dynamicOffsets[0] = localBuffer.prevUBOIndex * localBuffer.uniformBufferStride;
+        //     dc.drawInfo.firstIndex = localBuffer.prevInstanceID * 6; // 每个 UI 是个索引
+        //     dc.drawInfo.indexCount = 0;
+        //     this._dcIndex = this._drawcalls.length;
 
+        //     this._drawcalls.push(dc);
+        // }
+        // dc.drawInfo.indexCount += 6;
+    }
+
+    public fillDrawCall (bufferInfo, localBuffer: UILocalBuffer) {
         // 能同 drawCall 的条件： UBOIndex 相同，ubohash 相同
         let dc = this._drawcalls[this._dcIndex];
-        if (dc && (dc.bufferHash !== localBuffer.hash || dc.bufferUboIndex !== localBuffer.prevUBOIndex)) { // 存在但不能合批
+        if (dc && (dc.bufferHash !== bufferInfo.bufferHash || dc.bufferUboIndex !== bufferInfo.UBOIndex)) { // 存在但不能合批
             this._dcIndex++; // 索引加一
             dc = this._drawcalls[this._dcIndex]; // 再取取不到
         }
         if (!dc) {
             dc = DrawBatch2D.drawcallPool.add();
             // make sure to assign initial values to all members here
-            dc.bufferHash = localBuffer.hash;
-            dc.bufferUboIndex = localBuffer.prevUBOIndex;
+            dc.bufferHash = bufferInfo.bufferHash;
+            dc.bufferUboIndex = bufferInfo.UBOIndex;
             dc.bufferView = localBuffer.getBufferView();
-            dc.dynamicOffsets[0] = localBuffer.prevUBOIndex * localBuffer.uniformBufferStride;
-            dc.drawInfo.firstIndex = localBuffer.prevInstanceID * 6; // 每个 UI 是个索引
+            dc.dynamicOffsets[0] = bufferInfo.UBOIndex * localBuffer.uniformBufferStride;
+            dc.drawInfo.firstIndex = bufferInfo.instanceID * 6; // 每个 UI 是个索引
             dc.drawInfo.indexCount = 0;
             this._dcIndex = this._drawcalls.length;
 
             this._drawcalls.push(dc);
         }
         dc.drawInfo.indexCount += 6;
+    }
+
+    // 需要针对片段进行 localBuffer 更新
+    // 先考虑 dataDirty 机制
+    // 针对 uniformBuffer 中的数据进行dirty
+    // 这个 dirty 是针对每个节点的
+    // 需要递归标记
+    // trs
+    // rect 的 size 和 anchor
+    // sprite 的 type
+    // tillingOffset （UV）
+    // progress
+    // color
+    // tiledCache
+    public updateBuffer (renderComp: Renderable2D, bufferInfo, localBuffer: UILocalBuffer) {
+        // 更新之前是可以知道哪个更了的
+        // 不过可能需要用事件，因为可能被编辑器先更新了
+        renderComp.node.updateWorldTransform();
+        this._tempRect = renderComp.node._uiProps.uiTransformComp!;
+        // 开始的偏移量 可以根据需求来填充了
+        // @ts-expect-error using private members
+        const { _pos: t, _rot: r, _scale: s } = renderComp.node;
+        // dirty 的条件就到这里为止了
+        // 更新可以放到类里
+
+        const dirty = this._tempRect._renderdataDirty;
+        this._tempRect.checkAndUpdateRect(s); // 检查下要不要更新
+        this._tempAnchor.set(this._tempRect._anchorCache);
+        this._tempPosition.x = t.x + this._tempAnchor.x;
+        this._tempPosition.y = t.y + this._tempAnchor.y;
+        this._tempPosition.z = t.z;
+        if (dirty & TransformBit.RS) {
+            localBuffer.updateDataByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex, this._tempPosition, r, this._tempRect._rectWithScale);
+        } else {
+            // 只更新position
+            localBuffer.updateDataByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex, this._tempPosition);
+        }
     }
 }
