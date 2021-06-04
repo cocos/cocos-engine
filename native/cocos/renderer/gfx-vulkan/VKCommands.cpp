@@ -38,8 +38,9 @@ namespace cc {
 namespace gfx {
 
 namespace {
-constexpr bool ENABLE_LAZY_ALLOCATION = true;
-}
+constexpr bool ENABLE_LAZY_ALLOCATION     = true;
+constexpr bool USE_MEMCPY_FOR_BUFFER_SYNC = true;
+} // namespace
 
 CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool() {
     static thread_local size_t threadID = std::hash<std::thread::id>{}(std::this_thread::get_id());
@@ -218,13 +219,12 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
         bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
         allocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
     } else if (gpuBuffer->memUsage == (MemoryUsage::HOST | MemoryUsage::DEVICE)) {
-        /*
         gpuBuffer->instanceSize = roundUp(gpuBuffer->size, device->getCapabilities().uboOffsetAlignment);
-        bufferInfo.size = gpuBuffer->instanceSize * device->gpuDevice()->backBufferCount;
-        allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
-        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        */
-        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        bufferInfo.size         = gpuBuffer->instanceSize * device->gpuDevice()->backBufferCount;
+        allocInfo.flags         = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+        if (!USE_MEMCPY_FOR_BUFFER_SYNC) {
+            bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+        }
         allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
     }
 
@@ -1287,6 +1287,31 @@ void CCVKGPUBarrierManager::update(CCVKGPUTransportHub *transportHub) {
 
     _buffersToBeChecked.clear();
     _texturesToBeChecked.clear();
+}
+
+void CCVKGPUBufferHub::flush(CCVKGPUTransportHub *transportHub) {
+    auto &buffers = _buffersToBeUpdated[_device->curBackBufferIndex];
+    if (buffers.empty()) return;
+
+    if (USE_MEMCPY_FOR_BUFFER_SYNC) {
+        for (auto &buffer : buffers) {
+            uint8_t *src = buffer.first->mappedData + buffer.second.srcIndex * buffer.first->instanceSize;
+            uint8_t *dst = buffer.first->mappedData + _device->curBackBufferIndex * buffer.first->instanceSize;
+            memcpy(dst, src, buffer.second.size);
+        }
+    } else {
+        transportHub->checkIn([&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+            VkBufferCopy region;
+            for (auto &buffer : buffers) {
+                region.srcOffset = buffer.first->startOffset + buffer.second.srcIndex * buffer.first->instanceSize;
+                region.dstOffset = buffer.first->startOffset + _device->curBackBufferIndex * buffer.first->instanceSize;
+                region.size      = buffer.second.size;
+                vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, buffer.first->vkBuffer, buffer.first->vkBuffer, 1, &region);
+            }
+        });
+    }
+
+    buffers.clear();
 }
 
 } // namespace gfx

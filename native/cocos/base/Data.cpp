@@ -107,7 +107,7 @@ void Data::fastSet(unsigned char *bytes, ssize_t size) {
 }
 
 void Data::resize(ssize_t size) {
-    assert(size);
+    CC_ASSERT(size);
     if (_size == size) {
         return;
     }
@@ -122,7 +122,7 @@ void Data::clear() {
 }
 
 unsigned char *Data::takeBuffer(ssize_t *size) {
-    auto buffer = getBytes();
+    auto *buffer = getBytes();
     if (size) {
         *size = getSize();
     }

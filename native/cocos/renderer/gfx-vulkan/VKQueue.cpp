@@ -60,6 +60,7 @@ void CCVKQueue::submit(CommandBuffer *const *cmdBuffs, uint count) {
 #if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
     device->gpuBarrierManager()->update(device->gpuTransportHub());
 #endif
+    device->gpuBufferHub()->flush(device->gpuTransportHub());
 
     if (!device->gpuTransportHub()->empty()) {
         _gpuQueue->commandBuffers.push(device->gpuTransportHub()->packageForFlight());

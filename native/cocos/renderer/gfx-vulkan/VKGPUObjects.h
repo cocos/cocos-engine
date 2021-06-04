@@ -1224,21 +1224,7 @@ public:
         }
     }
 
-    void flush(CCVKGPUTransportHub *transportHub) {
-        auto &buffers = _buffersToBeUpdated[_device->curBackBufferIndex];
-        if (buffers.empty()) return;
-
-        transportHub->checkIn([&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
-            VkBufferCopy region;
-            for (auto &buffer : buffers) {
-                region.srcOffset = buffer.first->startOffset + buffer.second.srcIndex * buffer.first->instanceSize;
-                region.dstOffset = buffer.first->startOffset + _device->curBackBufferIndex * buffer.first->instanceSize;
-                region.size      = buffer.second.size;
-                vkCmdCopyBuffer(gpuCommandBuffer->vkCommandBuffer, buffer.first->vkBuffer, buffer.first->vkBuffer, 1, &region);
-            }
-        });
-        buffers.clear();
-    }
+    void flush(CCVKGPUTransportHub *transportHub);
 
 private:
     struct BufferUpdate {

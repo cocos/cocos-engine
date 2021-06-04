@@ -24,6 +24,7 @@
  ****************************************************************************/
 
 #include "scene/Sphere.h"
+#include <algorithm>
 
 namespace cc {
 namespace scene {

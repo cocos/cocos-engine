@@ -47,7 +47,7 @@
 #endif
 
 namespace {
-pthread_key_t       g_key; //NOLINT
+pthread_key_t       g_key; // NOLINT(readability-identifier-naming)
 class JClassWrapper final {
 public:
     explicit JClassWrapper(jclass kls) {
@@ -73,7 +73,7 @@ std::unordered_map<const char *, JClassWrapper> _cachedJClasses;
 #endif
 }; // namespace
 
-jclass _getClassID(const char *className) { //NOLINT(readability-identifier-naming)
+jclass _getClassID(const char *className) { // NOLINT
     if (nullptr == className) {
         return nullptr;
     }
@@ -88,7 +88,7 @@ jclass _getClassID(const char *className) { //NOLINT(readability-identifier-nami
 
     jstring jstrClassName = env->NewStringUTF(className);
 
-    auto klassObj = static_cast<jclass>(env->CallObjectMethod(cc::JniHelper::classloader,
+    auto *klassObj = static_cast<jclass>(env->CallObjectMethod(cc::JniHelper::classloader,
                                                               cc::JniHelper::loadclassMethodMethodId,
                                                               jstrClassName));
 
@@ -134,7 +134,7 @@ void JniHelper::init(JNIEnv *env, jobject activity) {
 
     pthread_key_create(&g_key, cbDetachCurrentThread);
     auto ok = JniHelper::setClassLoaderFrom(activity);
-    assert(ok);
+    CC_ASSERT(ok);
 }
 
 JNIEnv *JniHelper::cacheEnv() {

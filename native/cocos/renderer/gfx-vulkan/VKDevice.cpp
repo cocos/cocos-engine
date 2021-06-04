@@ -543,7 +543,6 @@ void CCVKDevice::acquire() {
     queue->gpuQueue()->nextWaitSemaphore   = VK_NULL_HANDLE;
     queue->gpuQueue()->nextSignalSemaphore = VK_NULL_HANDLE;
 
-    _gpuBufferHub->flush(gpuTransportHub());
     _gpuDescriptorSetHub->flush();
 
     _gpuSemaphorePool->reset();
