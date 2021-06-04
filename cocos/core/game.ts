@@ -775,8 +775,18 @@ export class Game extends EventTarget {
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<Device>[] = [];
 
+            const opts = new DeviceInfo(
+                this.canvas as HTMLCanvasElement,
+                EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                false,
+                window.devicePixelRatio,
+                sys.windowPixelResolution.width,
+                sys.windowPixelResolution.height,
+                bindingMappingInfo,
+            );
+
             if (JSB && window.gfx) {
-                this._gfxDevice = gfx.deviceInstance;
+                this._gfxDevice = gfx.DeviceManager.create(opts);
             } else {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
@@ -792,15 +802,6 @@ export class Game extends EventTarget {
                     ctors.push(legacyCC.WebGLDevice);
                 }
 
-                const opts = new DeviceInfo(
-                    this.canvas as HTMLCanvasElement,
-                    EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                    false,
-                    window.devicePixelRatio,
-                    sys.windowPixelResolution.width,
-                    sys.windowPixelResolution.height,
-                    bindingMappingInfo,
-                );
                 for (let i = 0; i < ctors.length; i++) {
                     this._gfxDevice = new ctors[i]();
                     if (this._gfxDevice.initialize(opts)) { break; }
