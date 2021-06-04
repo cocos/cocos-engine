@@ -121,8 +121,6 @@ export class BakedSkinningModel extends MorphModel {
             const node = this.transform;
             // @ts-expect-error TS2339
             skelBound.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
-            AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
-            AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
         }
     }
 
