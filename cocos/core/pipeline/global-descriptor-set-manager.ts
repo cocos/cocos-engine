@@ -86,8 +86,12 @@ export class GlobalDSManager {
      */
     public bindBuffer (binding: number, buffer: Buffer) {
         this._globalDescriptorSet.bindBuffer(binding, buffer);
-        for (const descriptorSet of this._descriptorSetMap.values()) {
+        const it = this._descriptorSetMap.values();
+        let res = it.next();
+        while (!res.done) {
+            const descriptorSet = res.value;
             descriptorSet.bindBuffer(binding, buffer);
+            res = it.next();
         }
     }
 
@@ -99,8 +103,12 @@ export class GlobalDSManager {
      */
     public bindSampler (binding: number, sampler: Sampler) {
         this._globalDescriptorSet.bindSampler(binding, sampler);
-        for (const descriptorSet of this._descriptorSetMap.values()) {
+        const it = this._descriptorSetMap.values();
+        let res = it.next();
+        while (!res.done) {
+            const descriptorSet = res.value;
             descriptorSet.bindSampler(binding, sampler);
+            res = it.next();
         }
     }
 
@@ -112,8 +120,12 @@ export class GlobalDSManager {
      */
     public bindTexture (binding: number, texture: Texture) {
         this._globalDescriptorSet.bindTexture(binding, texture);
-        for (const descriptorSet of this._descriptorSetMap.values()) {
+        const it = this._descriptorSetMap.values();
+        let res = it.next();
+        while (!res.done) {
+            const descriptorSet = res.value;
             descriptorSet.bindTexture(binding, texture);
+            res = it.next();
         }
     }
 
@@ -123,8 +135,12 @@ export class GlobalDSManager {
      */
     public update () {
         this._globalDescriptorSet.update();
-        for (const descriptorSet of this._descriptorSetMap.values()) {
+        const it = this._descriptorSetMap.values();
+        let res = it.next();
+        while (!res.done) {
+            const descriptorSet = res.value;
             descriptorSet.update();
+            res = it.next();
         }
     }
 
