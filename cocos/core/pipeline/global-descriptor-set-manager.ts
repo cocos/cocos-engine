@@ -143,13 +143,9 @@ export class GlobalDSManager {
             const descriptorSet = device.createDescriptorSet(new DescriptorSetInfo(this._descriptorSetLayout));
             this._descriptorSetMap.set(idx, descriptorSet);
 
-            // Create & Sync UBO Buffer
-            for (let i = PipelineGlobalBindings.UBO_GLOBAL; i < PipelineGlobalBindings.UBO_SHADOW; i++) {
+            // Create & Sync ALL UBO Buffer, Texture, Sampler
+            for (let i = PipelineGlobalBindings.UBO_GLOBAL; i < PipelineGlobalBindings.COUNT; i++) {
                 descriptorSet.bindBuffer(i, globalDescriptorSet.getBuffer(i));
-            }
-
-            // Create & Sync Texture & Sampler
-            for (let i = PipelineGlobalBindings.SAMPLER_SHADOWMAP; i < PipelineGlobalBindings.COUNT; i++) {
                 descriptorSet.bindSampler(i, globalDescriptorSet.getSampler(i));
                 descriptorSet.bindTexture(i, globalDescriptorSet.getTexture(i));
             }
