@@ -295,6 +295,12 @@ export default class Task {
         }
     }
 
+    public finish (result?: Error | null) {
+        this.isInvoking = false;
+        if (result) { this.error = result; }
+        this.isFinish = true;
+    }
+
     /**
      * @en
      * Recycle this for reuse

@@ -117,7 +117,7 @@ export class Material extends Asset {
     @serializable
     protected _states: PassOverrides[] = [];
 
-    @referenced(ReferenceType.GC_OBJECT_ARRAY)
+    @referenced(ReferenceType.ANY_ARRAY)
     @serializable
     protected _props: Record<string, MaterialPropertyFull | MaterialPropertyFull[]>[] = [];
 

@@ -120,7 +120,6 @@ export class SkyboxInfo {
     @serializable
     protected _useIBL = false;
 
-    @referenced(ReferenceType.CCCLASS_OBJECT)
     protected _resource: Skybox | null = null;
 
     /**
@@ -420,7 +419,6 @@ export class ShadowsInfo {
     @serializable
     protected _size: Vec2 = new Vec2(512, 512);
 
-    @referenced(ReferenceType.CCCLASS_OBJECT)
     protected _resource: Shadows | null = null;
 
     /**
@@ -726,7 +724,6 @@ export class SceneGlobals {
      * @en Scene level planar shadow related information
      * @zh 平面阴影相关信息
      */
-    @referenced(ReferenceType.CCCLASS_OBJECT)
     @serializable
     @editable
     public shadows = new ShadowsInfo();

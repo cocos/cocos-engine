@@ -54,7 +54,8 @@ export declare class SingleAssetTask extends Task {
     input: SingleAssetItem;
     output: SingleAssetItem;
     progress: IProgress;
-    options: { __exclude__: Record<string, ILoadingRequest>, }
+    options: { __exclude__: Record<string, ILoadingRequest>, };
+    subTask: Task;
 }
 
 export function fetch (task: SingleAssetTask) {
@@ -91,7 +92,7 @@ export function parse (task: SingleAssetTask) {
             }
             files.remove(id);
             parsed.remove(id);
-            task.done();
+            task.finish();
         });
     } else {
         const { uuid } = item;
@@ -103,7 +104,7 @@ export function parse (task: SingleAssetTask) {
 
             if (finish || checkCircleReference(uuid, uuid, exclude)) {
                 item.content = content;
-                task.done(err);
+                task.finish(err);
             } else {
                 tasks.push(task);
             }
@@ -113,7 +114,7 @@ export function parse (task: SingleAssetTask) {
             if (progress.canInvoke) {
                 task.dispatch('progress', ++progress.finish, progress.total, item);
             }
-            task.done();
+            task.finish();
         } else {
             options.__uuid__ = uuid;
             parser.parse(id, file, 'import', options, (err, asset: Asset) => {
@@ -121,19 +122,19 @@ export function parse (task: SingleAssetTask) {
                     task.done(err);
                     return;
                 }
-                loadDepends(task, asset);
+                item.content = asset;
+                task.done();
             });
         }
     }
 }
 
-function loadDepends (task: SingleAssetTask, asset: Asset) {
+export function loadDepends (task: SingleAssetTask) {
     const { input: item, progress } = task;
-    const { uuid, id, options, config } = item;
-    const { cacheAsset } = options;
+    const { uuid, config, content: asset } = item;
 
     const depends = [];
-    getDepends(uuid, asset, Object.create(null), depends, config!);
+    getDepends(uuid, asset!, Object.create(null), depends, config!);
     if (progress.canInvoke) {
         task.dispatch('progress', ++progress.finish, progress.total += depends.length, item);
     }
@@ -147,53 +148,62 @@ function loadDepends (task: SingleAssetTask, asset: Asset) {
         onError: Task.prototype.recycle,
         progress,
         onComplete: (err) => {
-            repeatItem.finish = true;
-            repeatItem.err = err;
-
-            if (!err) {
-                const output = Array.isArray(subTask.output) ? subTask.output : [subTask.output];
-                const map: Record<string, any> = Object.create(null);
-                for (const dependAsset of output) {
-                    if (!dependAsset) { continue; }
-                    map[dependAsset instanceof Asset ? `${dependAsset._uuid}@import` : `${uuid}@native`] = dependAsset;
+            if (err) {
+                repeatItem.finish = true;
+                repeatItem.err = err;
+                const tasks = repeatItem.tasks;
+                for (let i = 0, l = tasks.length; i < l; i++) {
+                    tasks[i].finish(err);
                 }
-
-                setProperties(uuid, asset, map);
-                try {
-                    if (typeof asset.onLoaded === 'function' && !asset.__onLoadedInvoked__ && !asset.__nativeDepend__) {
-                        asset.onLoaded();
-                        asset.__onLoadedInvoked__ = true;
-                    }
-                } catch (e) {
-                    error(`The asset ${uuid} is invalid for some reason, detail message: ${e.message}, stack: ${e.stack}`);
-                    if (EDITOR || PREVIEW) {
-                        if (asset instanceof Asset) {
-                            asset.initDefault();
-                        } else {
-                            // TODO: remove it.
-                            // scene asset might be a json in editor or preview
-                            SceneAsset.prototype.initDefault.call(asset);
-                        }
-                    }
-                }
-                files.remove(id);
-                parsed.remove(id);
-                if (!BUILD && asset.validate && !asset.validate()) { asset.initDefault(); }
-                cache(uuid, asset, cacheAsset);
-                subTask.recycle();
+                tasks.length = 0;
+            } else {
+                task.done();
             }
-
-            const tasks = repeatItem.tasks;
-
-            for (let i = 0, l = tasks.length; i < l; i++) {
-                const repeatTask = tasks[i];
-                repeatTask.output.content = asset;
-                repeatTask.done(err);
-            }
-
-            tasks.length = 0;
         },
     });
 
+    task.subTask = subTask;
     pipeline.async(subTask);
+}
+
+export function initialize (task: SingleAssetTask) {
+    const { input: item, subTask } = task;
+    const { uuid, content: asset, id, options } = item;
+    const repeatItem = task.options.__exclude__[uuid]
+    const output = Array.isArray(subTask.output) ? subTask.output : [subTask.output];
+    const map: Record<string, any> = Object.create(null);
+    for (const dependAsset of output) {
+        if (!dependAsset) { continue; }
+        map[dependAsset instanceof Asset ? `${dependAsset._uuid}@import` : `${uuid}@native`] = dependAsset;
+    }
+
+    setProperties(uuid, asset!, map);
+    try {
+        if (typeof asset!.onLoaded === 'function' && !asset!.__onLoadedInvoked__ && !asset!.__nativeDepend__) {
+            asset!.onLoaded();
+            asset!.__onLoadedInvoked__ = true;
+        }
+    } catch (e) {
+        error(`The asset ${uuid} is invalid for some reason, detail message: ${e.message}, stack: ${e.stack}`);
+        if (EDITOR || PREVIEW) {
+            if (asset instanceof Asset) {
+                asset.initDefault();
+            } else {
+                // TODO: remove it.
+                // scene asset might be a json in editor or preview
+                SceneAsset.prototype.initDefault.call(asset);
+            }
+        }
+    }
+    files.remove(id);
+    parsed.remove(id);
+    if (!BUILD && asset!.validate && !asset!.validate()) { asset!.initDefault(); }
+    cache(uuid, asset!, options.cacheAsset);
+    subTask.recycle();
+    repeatItem.finish = true;
+    const tasks = repeatItem.tasks;
+    for (let i = 0, l = tasks.length; i < l; i++) {
+        tasks[i].finish();
+    }
+    tasks.length = 0;
 }

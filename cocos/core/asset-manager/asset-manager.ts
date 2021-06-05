@@ -47,7 +47,7 @@ import parser from './parser';
 import { Pipeline } from './pipeline';
 import preprocess from './preprocess';
 import RequestItem from './request-item';
-import { fetch as fetchSingleAsset, parse as parseSingleAsset } from './single-asset-load-pipeline';
+import { fetch as fetchSingleAsset, initialize, loadDepends, parse as parseSingleAsset } from './single-asset-load-pipeline';
 import {
     CompleteCallbackWithData,
     CompleteCallbackNoData,
@@ -156,7 +156,7 @@ export class AssetManager {
      */
     public transformPipeline = transformPipeline.append(parse).append(combine);
 
-    public singleAssetLoadPipeline = singleAssetLoadPipeline.append(fetchSingleAsset).append(parseSingleAsset);
+    public singleAssetLoadPipeline = singleAssetLoadPipeline.append(fetchSingleAsset).append(parseSingleAsset).append(loadDepends).append(initialize);
 
     /**
      * @en
@@ -384,8 +384,7 @@ export class AssetManager {
      * removeBundle(bundle: cc.AssetManager.Bundle): void
      */
     public removeBundle (bundle: Bundle) {
-        bundle._destroy();
-        bundles.remove(bundle.name);
+        bundle.destroy();
     }
 
     /**
@@ -577,11 +576,6 @@ export class AssetManager {
     public loadRemote<T extends Asset> (url: string, onComplete?: CompleteCallbackWithData<T> | null): void;
     public loadRemote<T extends Asset> (url: string, options?: IRemoteOptions | CompleteCallbackWithData<T> | null, onComplete?: CompleteCallbackWithData<T> | null) {
         const { options: opts, onComplete: onComp } = parseParameters<CompleteCallbackWithData<T>>(options, undefined, onComplete);
-
-        if (!opts.reloadAsset && this.assets.has(url)) {
-            asyncify(onComp)(null, this.assets.get(url));
-            return;
-        }
 
         opts.__isNative__ = true;
         opts.preset = opts.preset || 'remote';

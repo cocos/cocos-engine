@@ -31,7 +31,6 @@ import { Enum } from '../../value-types';
 import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle, ShaderHandle } from '../core/memory-pools';
 import { ShadowsInfo } from '../../scene-graph/scene-globals';
 import { IMacroPatch } from '../core/pass';
-import { referenced } from '../../data';
 import { ccclass } from '../../data/decorators';
 
 /**
@@ -353,9 +352,7 @@ export class Shadows {
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
     protected _matLight = new Mat4();
-    @referenced
     protected _material: Material | null = null;
-    @referenced
     protected _instancingMaterial: Material | null = null;
     protected _size: Vec2 = new Vec2(512, 512);
     protected _handle: ShadowsHandle = NULL_HANDLE;

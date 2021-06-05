@@ -324,7 +324,6 @@ export default class TrailModule {
     private _vbUint32: Uint32Array | null = null;
     private _iBuffer: Uint16Array | null = null;
     private _needTransform = false;
-    @referenced
     private _material: Material | null = null;
 
     constructor () {

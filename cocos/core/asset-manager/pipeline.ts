@@ -27,10 +27,9 @@
  * @module asset-manager
  */
 import { warnID } from '../platform/debug';
-import { CompleteCallbackNoData } from './shared';
 import Task from './task';
 
-export type IAsyncPipe<T extends Task> = (task: T, done: CompleteCallbackNoData) => void;
+export type IAsyncPipe<T extends Task> = (task: T) => void;
 export type ISyncPipe<T extends Task> = (task: T) => Error | void;
 export type IPipe<T extends Task> = IAsyncPipe<T> | ISyncPipe<T>;
 
@@ -262,7 +261,11 @@ export class Pipeline<T extends Task> {
         for (let i = this.allTasks.length - 1; i >= 0; i--) {
             const task = this.allTasks[i];
             while (!task.isInvoking) {
-                if (task.currentStage !== this.pipes.length && (task.finishedStages & (1 << task.currentStage)) === 0) {
+                if (task.isFinish) {
+                    this.removeTask(task);
+                    if (task.error) { task.dispatch('complete', task.error); }
+                    else { task.dispatch('complete', null, task.output); }
+                } else if (task.currentStage !== this.pipes.length && (task.finishedStages & (1 << task.currentStage)) === 0) {
                     if (task.currentStage !== 0) {
                         // move output to input
                         task.input = task.output;

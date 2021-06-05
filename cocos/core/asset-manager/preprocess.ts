@@ -27,10 +27,10 @@
  * @packageDocumentation
  * @hidden
  */
-import { CompleteCallbackNoData, RequestType, transformPipeline } from './shared';
+import { RequestType, transformPipeline } from './shared';
 import Task from './task';
 
-export default function preprocess (task: Task, done: CompleteCallbackNoData) {
+export default function preprocess (task: Task) {
     const options = task.options;
     const subOptions = Object.create(null);
     const leftOptions = Object.create(null);
@@ -78,5 +78,5 @@ export default function preprocess (task: Task, done: CompleteCallbackNoData) {
         }
     }
     subTask.recycle();
-    done(err);
+    task.done(err);
 }

@@ -138,6 +138,7 @@ export class TerrainLayer {
      * @en detail texture
      * @zh 细节纹理
      */
+    @referenced
     @serializable
     @editable
     public detailMap: Texture2D|null = null;
@@ -146,6 +147,7 @@ export class TerrainLayer {
      * @en normal texture
      * @zh 法线纹理
      */
+    @referenced
     @serializable
     @editable
     public normalMap: Texture2D|null = null;
@@ -183,9 +185,7 @@ class TerrainRenderable extends RenderableComponent {
     public _model: scene.Model | null = null;
     public _meshData: RenderingSubMesh | null = null;
 
-    @referenced
     public _brushMaterial: Material | null = null;
-    @referenced
     public _currentMaterial: Material | null = null;
     public _currentMaterialLayers = 0;
 

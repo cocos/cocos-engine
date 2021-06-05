@@ -28,10 +28,11 @@
  * @module tiledmap
  */
 
-import { Color, Rect, Size, Texture2D, Vec2 } from '../core';
+import { Color, Rect, referenced, Size, Texture2D, Vec2 } from '../core';
 import { SpriteFrame } from '../2d/assets';
 import { ccenum } from '../core/value-types/enum';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
+import { ccclass } from '../core/data/decorators';
 
 export type PropertiesInfo = { [key: string]: number | string };
 export type TiledAnimationType = Map<GID, TiledAnimation>;
@@ -542,6 +543,7 @@ export class TMXLayerInfo {
  * This information is obtained from the TMX file.
  * @class TMXImageLayerInfo
  */
+@ccclass('cc.TMXImageLayerInfo')
 export class TMXImageLayerInfo {
     name = '';
     visible = true;
@@ -550,6 +552,7 @@ export class TMXImageLayerInfo {
     offset: Vec2 = new Vec2(0, 0);
     opacity = 0;
     trans = new Color(255, 255, 255, 255);
+    @referenced
     sourceImage?: SpriteFrame;
 
     tintColor: Color | null = null;

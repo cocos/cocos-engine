@@ -153,6 +153,7 @@ export class Animation extends Eventify(Component) {
     @type([AnimationClip])
     protected _clips: (AnimationClip | null)[] = [];
 
+    @referenced
     @serializable
     protected _defaultClip: AnimationClip | null = null;
 

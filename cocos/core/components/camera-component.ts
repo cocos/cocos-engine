@@ -47,6 +47,7 @@ import { TransformBit } from '../scene-graph/node-enum';
 import { legacyCC } from '../global-exports';
 import { RenderWindow } from '../renderer/core/render-window';
 import { ClearFlagBit } from '../gfx';
+import { referenced } from '../data';
 
 const _temp_vec3_1 = new Vec3();
 
@@ -126,6 +127,7 @@ export class Camera extends Component {
     protected _screenScale = 1;
     @serializable
     protected _visibility = CAMERA_DEFAULT_MASK;
+    @referenced
     @serializable
     protected _targetTexture: RenderTexture | null = null;
 

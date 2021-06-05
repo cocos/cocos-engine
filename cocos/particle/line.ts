@@ -77,7 +77,6 @@ export class Line extends Component {
 
     @referenced
     private _material: Material | null = null;
-    @referenced
     private _materialInstance: MaterialInstance | null = null;
 
     @serializable

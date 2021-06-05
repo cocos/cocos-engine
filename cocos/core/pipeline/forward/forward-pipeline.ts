@@ -43,6 +43,7 @@ import { Texture2D } from '../../assets/texture-2d';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { sceneCulling } from '../scene-culling';
+import { referenced, ReferenceType } from '../../data';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -59,11 +60,13 @@ const _samplerInfo = [
  */
 @ccclass('ForwardPipeline')
 export class ForwardPipeline extends RenderPipeline {
+    @referenced(ReferenceType.CCCLASS_OBJECT_ARRAY)
     @type([RenderTextureConfig])
     @serializable
     @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
 
+    @referenced(ReferenceType.CCCLASS_OBJECT_ARRAY)
     @type([MaterialConfig])
     @serializable
     @displayOrder(3)

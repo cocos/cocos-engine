@@ -463,7 +463,6 @@ export class ArmatureDisplay extends Renderable2D {
     protected _displayProxy: CCArmatureDisplay | null = null;
 
     protected _meshRenderDataArray: ArmatureDisplayMeshData[] = [];
-    @referenced(ReferenceType.GC_OBJECT_RECORD)
     protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
 
     protected _enumArmatures: any = Enum({});
