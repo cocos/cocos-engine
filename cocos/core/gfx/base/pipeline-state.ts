@@ -50,7 +50,6 @@ import {
     Color,
     PipelineBindPoint,
 } from './define';
-import { NULL_HANDLE, RawBufferHandle } from '../../renderer/core/memory-pools';
 
 /**
  * @en GFX rasterizer state.
@@ -96,8 +95,6 @@ export class RasterizerState {
     public assign (rs: RasterizerState) {
         Object.assign(this, rs);
     }
-
-    get handle (): RawBufferHandle { return NULL_HANDLE; }
 
     public destroy () {}
 }
@@ -160,8 +157,6 @@ export class DepthStencilState {
         Object.assign(this, dss);
     }
 
-    get handle (): RawBufferHandle { return NULL_HANDLE; }
-
     public destroy () {}
 }
 
@@ -197,8 +192,6 @@ export class BlendTarget {
     public assign (target: BlendTarget) {
         Object.assign(this, target);
     }
-
-    get handle (): RawBufferHandle { return NULL_HANDLE; }
 
     public destroy () {}
 }
@@ -247,8 +240,6 @@ export class BlendState {
         this.targets.length = 1;
         this.targets[0].reset();
     }
-
-    get handle (): RawBufferHandle { return NULL_HANDLE; }
 
     public destroy () {}
 }

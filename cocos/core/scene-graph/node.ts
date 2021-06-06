@@ -39,8 +39,7 @@ import { eventManager } from '../platform/event-manager/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
-import { NULL_HANDLE, NodeHandle, NodePool, NodeView } from '../renderer/core/memory-pools';
-import { SharedNodePool, SharedNodeView, SharedNodeHandle } from '../renderer/core/shared-memory-pool';
+import { NULL_HANDLE, NodePool, NodeView, NodeHandle  } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
 import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
     applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
@@ -144,7 +143,7 @@ export class Node extends BaseNode {
 
     protected _eulerDirty = false;
 
-    protected _nodeHandle: SharedNodeHandle = NULL_HANDLE;
+    protected _nodeHandle: NodeHandle = NULL_HANDLE;
 
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
@@ -153,17 +152,17 @@ export class Node extends BaseNode {
     protected _init () {
         if (JSB) {
             // new node
-            this._nodeHandle = SharedNodePool.alloc();
-            this._pos = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_POSITION) as FloatArray);
-            this._rot = new Quat(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_ROTATION) as FloatArray);
-            this._scale = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_SCALE) as FloatArray);
-            this._mat = new Mat4(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_MATRIX) as FloatArray);
-            this._nativeLayer = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.LAYER) as Uint32Array;
-            this._nativeFlag = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.FLAGS_CHANGED) as Uint32Array;
+            this._nodeHandle = NodePool.alloc();
+            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as FloatArray);
+            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as FloatArray);
+            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as FloatArray);
+            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
+            this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
+            this._nativeFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.FLAGS_CHANGED) as Uint32Array;
             this._scale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
-            this._nativeObj.initWithData(SharedNodePool.getBuffer(this._nodeHandle));
+            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle));
         } else {
             this._pos = new Vec3();
             this._rot = new Quat();
@@ -188,7 +187,7 @@ export class Node extends BaseNode {
     protected _destroy () {
         if (JSB) {
             if (this._nodeHandle) {
-                SharedNodePool.free(this._nodeHandle);
+                NodePool.free(this._nodeHandle);
                 this._nodeHandle = NULL_HANDLE;
             }
 

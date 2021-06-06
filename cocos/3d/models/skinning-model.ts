@@ -40,7 +40,6 @@ import { Node } from '../../core/scene-graph/node';
 import { ModelType } from '../../core/renderer/scene/model';
 import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { AABBPool, AABBView } from '../../core/renderer/core/memory-pools';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
 import { IMacroPatch } from '../../core/renderer';
 

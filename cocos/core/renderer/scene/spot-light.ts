@@ -27,7 +27,6 @@ import { JSB } from 'internal:constants';
 import { AABB, Frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 import { NativeSpotLight } from './native-scene';
 
 const _forward = new Vec3(0, 0, -1);

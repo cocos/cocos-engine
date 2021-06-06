@@ -37,7 +37,6 @@ import { DeferredStagePriority } from './enum';
 import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { Material } from '../../assets/material';
-import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { Pass } from '../../renderer';
 import { UIPhase } from '../forward/ui-phase';
