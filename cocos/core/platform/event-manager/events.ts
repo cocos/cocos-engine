@@ -34,8 +34,7 @@ import { Vec2 } from '../../math/vec2';
 import { Touch } from './touch';
 import { Acceleration } from './acceleration';
 import { legacyCC } from '../../global-exports';
-import { KeyboardEvent, SystemEventTypeUnion } from './event-enum';
-import { SystemEvent } from './system-event';
+import { DeviceEvent, KeyboardEvent, SystemEventTypeUnion } from './event-enum';
 
 const _vec2 = new Vec2();
 
@@ -585,7 +584,7 @@ export class EventAcceleration extends Event {
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
     constructor (acc: Acceleration, bubbles?: boolean) {
-        super(SystemEvent.DeviceEvent.DEVICEMOTION, bubbles);
+        super(DeviceEvent.DEVICEMOTION, bubbles);
         this.acc = acc;
     }
 }

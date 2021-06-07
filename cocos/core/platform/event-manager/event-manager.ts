@@ -36,8 +36,7 @@ import { Node } from '../../scene-graph';
 import { macro } from '../macro';
 import { legacyCC } from '../../global-exports';
 import { errorID, warnID, logID, assertID } from '../debug';
-import { SystemEvent } from './system-event';
-import { KeyboardEvent, MouseEvent, TouchEvent } from './event-enum';
+import { DeviceEvent, KeyboardEvent, MouseEvent, TouchEvent } from './event-enum';
 
 const ListenerID = EventListener.ListenerID;
 
@@ -97,7 +96,7 @@ class _EventListenerVector {
 
 function __getListenerID (event: Event) {
     const type = event.type;
-    if (type === SystemEvent.DeviceEvent.DEVICEMOTION) {
+    if (type === DeviceEvent.DEVICEMOTION) {
         return ListenerID.ACCELERATION;
     }
     if (keyboardEvents.includes(type)) {
