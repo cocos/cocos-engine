@@ -133,28 +133,31 @@ export class Layers {
   }
 
   /**
-   * @en Get the value of the layer by name
-   * @zh 根据名字获取 layer 的值
-   * @param name Layer's name
+   * @en Given a layer name, returns the layer index as defined by either a Builtin or a User Layer in the Tags and Layers manager.
+   * @zh 给定层名称，返回由标记和层管理器中的内置层或用户层定义的层索引。
+   * @param layer Name's layer
    */
-  public static getLayerValue (name: string): number {
+  public static nameToLayer (name: string): number {
       if (name === undefined) {
           console.warn('name can\'t be undefined');
           return -1;
       }
 
-      return Layers.Enum[name] as number;
+      return log2(Layers.Enum[name] as number);
   }
 
   /**
-   * @en Get layer by name
-   * @zh 根据名字获取 layer
+   * @en Given a layer number, returns the name of the layer as defined in either a Builtin or a User Layer in the Tags and Layers manager.
+   * @zh 给定层数，返回在标记和层管理器中的内置层或用户层中定义的层名称。
    * @param name Layer's name
    */
-  public static getLayer (name: string): number {
-      const value = Layers.getLayerValue(name);
+  public static layerToName (bitNum: number): string {
+      if (bitNum > 31 || bitNum < 0) {
+          console.warn('Unable to access unknown layer.');
+          return '';
+      }
 
-      return log2(value);
+      return Layers.Enum[bitNum] as string;
   }
 }
 export declare namespace Layers {
