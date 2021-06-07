@@ -132,22 +132,17 @@ export default class ParticleSystemRenderer {
     /**
      * @zh 粒子使用的材质。
      */
-    @serializable
-    private _particleMaterial: Material|null = null;
-
     @type(Material)
     @displayOrder(8)
     @tooltip('i18n:particleSystemRenderer.particleMaterial')
     public get particleMaterial () {
         if (!this._particleSystem) {
-            // return null;
-            return this._particleMaterial;
+            return null;
         }
         return this._particleSystem.getMaterial(0) as Material;
     }
 
     public set particleMaterial (val: Material | null) {
-        this._particleMaterial = val;
         if (this._particleSystem) {
             this._particleSystem.setMaterial(val, 0);
         }
@@ -156,22 +151,17 @@ export default class ParticleSystemRenderer {
     /**
      * @zh 拖尾使用的材质。
      */
-    @serializable
-    private _trailMaterial: Material|null = null;
-
     @type(Material)
     @displayOrder(9)
     @tooltip('i18n:particleSystemRenderer.trailMaterial')
     public get trailMaterial () {
         if (!this._particleSystem) {
-            // return null;
-            return this._trailMaterial;
+            return null;
         }
         return this._particleSystem.getMaterial(1) as Material;
     }
 
     public set trailMaterial (val: Material | null) {
-        this._trailMaterial = val;
         if (this._particleSystem) {
             this._particleSystem.setMaterial(val, 1);
         }
@@ -213,18 +203,19 @@ export default class ParticleSystemRenderer {
 
     private _particleSystem: any = null!; // ParticleSystem
 
+    create (ps: any) {
+        if (this._particleSystem !== ps) {
+            this._particleSystem = ps;
+        }
+    }
+
     onInit (ps: any) {
-        this._particleSystem = ps;
+        if (this._particleSystem !== ps) {
+            this._particleSystem = ps;
+        }
         const useGPU = this._useGPU && isSupportGPUParticle();
         this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
-        this._particleSystem.processor.onInit(ps);
-
-        if (this._particleMaterial !== null) {
-            this._particleSystem.setMaterial(this._particleMaterial, 0);
-        }
-        if (this._trailMaterial !== null) {
-            this._particleSystem.setMaterial(this._trailMaterial, 1);
-        }
+        this._particleSystem.processor.onInit(this._particleSystem);
     }
 
     private _switchProcessor () {

@@ -608,6 +608,10 @@ export class ParticleSystem extends RenderableComponent {
         this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
     }
 
+    public onFocusInEditor () {
+        this.renderer.create(this);
+    }
+
     public onLoad () {
         // HACK, TODO
         this.renderer.onInit(this);
