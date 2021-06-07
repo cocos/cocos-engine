@@ -39,7 +39,7 @@ export type NativeLight = InstanceType<typeof NativeLight>;
 export const NativeDirectionalLight: Constructor<{
      setDirection (dir: Vec3): void;
      setIlluminance (lum: number): void;
-}> = null!;
+} & NativeLight> = null!;
 export type NativeDirectionalLight = InstanceType<typeof NativeDirectionalLight>;
 
 export const NativeSphereLight: Constructor<{
@@ -48,7 +48,7 @@ export const NativeSphereLight: Constructor<{
      setSize (size: number): void;
      setRange (range: number): void;
      setIlluminance (lum: number): void;
-}> = null!;
+}  & NativeLight> = null!;
 export type NativeSphereLight = InstanceType<typeof NativeSphereLight>;
 
 export const NativeSpotLight: Constructor<{
@@ -61,7 +61,7 @@ export const NativeSpotLight: Constructor<{
      setAspect (aspect: number): void;
      setAngle (angle: number): void;
      setIlluminance (lum: number): void;
-}> = null!;
+} & NativeLight> = null!;
 export type NativeSpotLight = InstanceType<typeof NativeSpotLight>;
 
 export const NaitveSkybox: Constructor<{
