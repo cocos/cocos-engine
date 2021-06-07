@@ -33,6 +33,7 @@ import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
+import { editorExtrasTag } from './editor-extras-tag';
 
 // definitions for CCObject.Flags
 
@@ -441,8 +442,8 @@ prototype._deserialize = null;
 // @ts-expect-error
 prototype._onPreDestroy = null;
 
-CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, __editorExtras__: {} });
-CCClass.Attr.setClassAttr(CCObject, '__editorExtras__', 'editorOnly', true);
+CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
+CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
 
 /**
  * Bit mask that controls object states.
