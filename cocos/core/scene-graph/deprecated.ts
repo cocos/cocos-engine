@@ -39,25 +39,6 @@ import { Size } from '../math/size';
 import { legacyCC } from '../global-exports';
 import { CCObject } from '../data/object';
 import { warnID } from '../platform/debug';
-import { SystemEventType } from '../platform';
-
-replaceProperty(Node.EventType, 'Node.EventType', [
-    {
-        name: 'DEVICEMOTION',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
-    },
-    {
-        name: 'KEY_DOWN',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
-    },
-    {
-        name: 'KEY_UP',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
-    },
-]);
 
 replaceProperty(BaseNode.prototype, 'BaseNode', [
     {

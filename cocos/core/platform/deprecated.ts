@@ -245,3 +245,21 @@ replaceProperty(SystemEventType, 'SystemEventType', [
     target: Node.EventType,
     targetName: 'Node.EventType',
 })));
+
+replaceProperty(Node.EventType, 'Node.EventType', [
+    {
+        name: 'DEVICEMOTION',
+        target: SystemEventType,
+        targetName: 'SystemEventType',
+    },
+    {
+        name: 'KEY_DOWN',
+        target: SystemEventType,
+        targetName: 'SystemEventType',
+    },
+    {
+        name: 'KEY_UP',
+        target: SystemEventType,
+        targetName: 'SystemEventType',
+    },
+]);
