@@ -194,13 +194,11 @@ export class Model {
     public isDynamicBatching = false;
     public instancedAttributes: IInstancedAttributeBlock = { buffer: null!, views: [], attributes: [] };
 
-    protected _enabled = true;
     protected _worldBounds: AABB | null = null;
     protected _modelBounds: AABB | null = null;
     protected _subModels: SubModel[] = [];
     protected _node: Node = null!;
     protected _transform: Node = null!;
-    protected _visFlags: number = Layers.Enum.NONE;
 
     protected _device: Device;
     protected _inited = false;
