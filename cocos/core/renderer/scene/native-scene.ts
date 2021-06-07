@@ -1,4 +1,3 @@
-import { BatchView2D } from '..';
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { AABB, Frustum } from '../../geometry';
 import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader } from '../../gfx';
@@ -146,7 +145,7 @@ export const NativeSubModel: Constructor<{
 export type NativeSubModel = InstanceType<typeof NativeSubModel>;
 
 export const NativeDrawBatch2D: Constructor<{
-     visFlags: BatchView2D;
+     visFlags: number;
      inputAssembler: InputAssembler | null;
      descriptorSet: DescriptorSet | null;
      passes: NativePass[];
