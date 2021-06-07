@@ -126,7 +126,6 @@ export class RenderShadowMapBatchedQueue {
 
     public add (model: Model, cmdBuff: CommandBuffer, _shadowPassIndices: number[]) {
         const subModels = model.subModels;
-        const shadowMapBuffer = this._pipeline.descriptorSet.getBuffer(UBOShadow.BINDING);
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
             const shadowPassIdx = _shadowPassIndices[j];
