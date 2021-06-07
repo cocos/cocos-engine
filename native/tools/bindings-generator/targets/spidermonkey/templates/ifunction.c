@@ -1,6 +1,6 @@
 ## ===== instance function implementation template
 
-static bool ${signature_name}(se::State& s)
+static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
     SE_PRECONDITION2(cobj, false, "${signature_name} : Invalid Native Object");

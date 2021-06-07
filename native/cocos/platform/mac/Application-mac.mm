@@ -107,16 +107,6 @@ bool setCanvasCallback(se::Object *global) {
                << "; window.windowHandler = " << reinterpret_cast<uintptr_t>(view) << ";";
     se->evalString(commandBuf.str().c_str());
 
-    gfx::DeviceInfo deviceInfo;
-    deviceInfo.windowHandle       = (uintptr_t)view;
-    deviceInfo.width              = viewLogicalSize.x;
-    deviceInfo.height             = viewLogicalSize.y;
-    deviceInfo.nativeWidth        = viewLogicalSize.x * Device::getDevicePixelRatio();
-    deviceInfo.nativeHeight       = viewLogicalSize.y * Device::getDevicePixelRatio();
-    deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
-
-    gfx::DeviceManager::create(deviceInfo);
-
     return true;
 }
 

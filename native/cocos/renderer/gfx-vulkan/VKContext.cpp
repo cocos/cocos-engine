@@ -96,10 +96,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL debugReportCallback(VkDebugReportFlagsEXT      fl
 #endif
 } // namespace
 
-CCVKContext::CCVKContext() = default;
-
-CCVKContext::~CCVKContext() = default;
-
 bool CCVKContext::doInit(const ContextInfo &info) {
     if (!info.sharedCtx) {
         _isPrimaryContex = true;
@@ -358,7 +354,7 @@ bool CCVKContext::doInit(const ContextInfo &info) {
                                                  _gpuContext->vkSurface, &_gpuContext->queueFamilyPresentables[propertyIndex]);
         }
 
-        ///////////////////// Swapchain Preperation /////////////////////
+        ///////////////////// Swapchain Preparation /////////////////////
 
         _colorFmt        = Format::BGRA8;
         _depthStencilFmt = Format::D24S8;
@@ -379,7 +375,7 @@ bool CCVKContext::doInit(const ContextInfo &info) {
         VkFormat        colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
         VkColorSpaceKHR colorSpace  = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
         // If the surface format list only includes one entry with VK_FORMAT_UNDEFINED,
-        // there is no preferered format, so we assume VK_FORMAT_B8G8R8A8_UNORM
+        // there is no preferred format, so we assume VK_FORMAT_B8G8R8A8_UNORM
         if ((surfaceFormatCount == 1) && (surfaceFormats[0].format == VK_FORMAT_UNDEFINED)) {
             colorFormat = VK_FORMAT_B8G8R8A8_UNORM;
             colorSpace  = surfaceFormats[0].colorSpace;

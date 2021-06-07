@@ -113,16 +113,6 @@ namespace {
         se::ScriptEngine *se = se::ScriptEngine::getInstance();
         se->evalString(commandBuf.str().c_str());
 
-        gfx::DeviceInfo deviceInfo;
-        deviceInfo.windowHandle       = windowHandle;
-        deviceInfo.width              = viewLogicalSize.x;
-        deviceInfo.height             = viewLogicalSize.y;
-        deviceInfo.nativeWidth        = nativeWidth;
-        deviceInfo.nativeHeight       = nativeHeight;
-        deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
-
-        gfx::DeviceManager::create(deviceInfo);
-
         return true;
     }
 

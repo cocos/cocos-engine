@@ -83,9 +83,11 @@ CCVKGPUContext *CCVKDevice::gpuContext() const {
     return static_cast<CCVKContext *>(_context)->gpuContext();
 }
 
-bool CCVKDevice::doInit(const DeviceInfo & /*info*/) {
+bool CCVKDevice::doInit(const DeviceInfo &info) {
     ContextInfo ctxInfo;
     ctxInfo.windowHandle = _windowHandle;
+    ctxInfo.msaaEnabled  = info.isAntiAlias;
+    ctxInfo.performance  = Performance::HIGH_QUALITY;
 
     _context = CC_NEW(CCVKContext);
     if (!_context->initialize(ctxInfo)) {
@@ -695,7 +697,8 @@ bool CCVKDevice::checkSwapchainStatus() {
     }
 
     if (newWidth == 0 || newHeight == 0) {
-        return _swapchainReady = false;
+        _swapchainReady = false;
+        return false;
     }
 
     _transform                                = mapSurfaceTransform(preTransform);

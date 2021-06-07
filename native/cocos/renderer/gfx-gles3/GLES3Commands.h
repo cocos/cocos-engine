@@ -132,7 +132,7 @@ public:
     GLES3GPUTexture *        gpuTexture = nullptr;
     const BufferTextureCopy *regions    = nullptr;
     uint                     count      = 0U;
-    const uint8_t *const *   buffers;
+    const uint8_t *const *   buffers    = nullptr;
 
     GLES3CmdCopyBufferToTexture() : GLESCmd(GLESCmdType::COPY_BUFFER_TO_TEXTURE) {}
 

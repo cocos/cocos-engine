@@ -57,16 +57,6 @@ bool setCanvasCallback(se::Object *global) { //NOLINT
        << "window.windowHandler = " << cc::cocosApp.pendingWindow << ";";
     se->evalString(ss.str().c_str());
 
-    cc::gfx::DeviceInfo deviceInfo;
-    deviceInfo.windowHandle       = reinterpret_cast<uintptr_t>(view);
-    deviceInfo.width              = viewLogicalSize.x;
-    deviceInfo.height             = viewLogicalSize.y;
-    deviceInfo.nativeWidth        = viewLogicalSize.x * cc::Device::getDevicePixelRatio();
-    deviceInfo.nativeHeight       = viewLogicalSize.y * cc::Device::getDevicePixelRatio();
-    deviceInfo.bindingMappingInfo = cc::pipeline::bindingMappingInfo;
-
-    cc::gfx::DeviceManager::create(deviceInfo);
-
     return true;
 }
 } // namespace

@@ -33,7 +33,7 @@ namespace gfx {
 class CC_DLL Context : public Object {
 public:
     Context();
-    virtual ~Context();
+    ~Context() override;
 
     bool initialize(const ContextInfo &info);
     void destroy();

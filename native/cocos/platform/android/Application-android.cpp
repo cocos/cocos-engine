@@ -66,16 +66,6 @@ bool setCanvasCallback(se::Object * /*global*/) {
             reinterpret_cast<uintptr_t>(cc::cocosApp.window));
     se->evalString(commandBuf);
 
-    gfx::DeviceInfo deviceInfo;
-    deviceInfo.windowHandle       = reinterpret_cast<uintptr_t>(cc::cocosApp.window);
-    deviceInfo.width              = static_cast<uint>(viewLogicalSize.x);
-    deviceInfo.height             = static_cast<uint>(viewLogicalSize.y);
-    deviceInfo.nativeWidth        = static_cast<uint>(viewLogicalSize.x);
-    deviceInfo.nativeHeight       = static_cast<uint>(viewLogicalSize.y);
-    deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
-
-    gfx::DeviceManager::create(deviceInfo);
-
     return true;
 }
 

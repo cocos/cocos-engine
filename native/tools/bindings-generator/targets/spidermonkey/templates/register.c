@@ -20,12 +20,8 @@ ${current_class.methods.constructor.generate_code($current_class)}
 #end if
 #end if
 
-#if len($current_class.parents) > 0
-extern se::Object* __jsb_${current_class.parents[0].underlined_class_name}_proto;
-#end if
-
 #if not $current_class.is_abstract
-static bool js_${current_class.underlined_class_name}_finalize(se::State& s)
+static bool js_${current_class.underlined_class_name}_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     #if $current_class.rename_destructor is None
     #if $current_class.is_ref_class
@@ -51,7 +47,7 @@ SE_BIND_FINALIZE_FUNC(js_${current_class.underlined_class_name}_finalize)
 #end if
 #if $current_class.rename_destructor is not None
 
-static bool js_${current_class.underlined_class_name}_${current_class.rename_destructor}(se::State& s)
+static bool js_${current_class.underlined_class_name}_${current_class.rename_destructor}(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     #if $current_class.is_ref_class
     auto* cobj = SE_THIS_OBJECT<${current_class.namespaced_class_name}>(s);
@@ -77,7 +73,7 @@ static bool js_${current_class.underlined_class_name}_${current_class.rename_des
 SE_BIND_FUNC(js_${current_class.underlined_class_name}_${current_class.rename_destructor})
 #end if
 
-bool js_register_${generator.prefix}_${current_class.class_name}(se::Object* obj)
+bool js_register_${generator.prefix}_${current_class.class_name}(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
 #if has_constructor
     #if len($current_class.parents) > 0

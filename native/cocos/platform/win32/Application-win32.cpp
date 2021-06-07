@@ -88,16 +88,6 @@ bool Application::init() {
     auto view     = cc_get_application_view();
     auto viewSize = view->getViewSize();
 
-    gfx::DeviceInfo deviceInfo;
-    deviceInfo.windowHandle       = reinterpret_cast<uintptr_t>(view->getWindowHandler());
-    deviceInfo.width              = viewSize[0];
-    deviceInfo.height             = viewSize[1];
-    deviceInfo.nativeWidth        = viewSize[0];
-    deviceInfo.nativeHeight       = viewSize[1];
-    deviceInfo.bindingMappingInfo = pipeline::bindingMappingInfo;
-
-    gfx::DeviceManager::create(deviceInfo);
-
     return true;
 }
 

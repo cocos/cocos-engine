@@ -31,8 +31,6 @@
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "android/native_window.h"
-    #include "cocos/bindings/event/CustomEventTypes.h"
-    #include "cocos/bindings/event/EventDispatcher.h"
 #endif
 
 #define FORCE_DISABLE_VALIDATION 1
@@ -100,6 +98,7 @@ GLES2Context::~GLES2Context() = default;
 bool GLES2Context::doInit(const ContextInfo &info) {
     _vsyncMode    = info.vsyncMode;
     _windowHandle = info.windowHandle;
+    auto *window  = reinterpret_cast<EGLNativeWindowType>(_windowHandle); // NOLINT(performance-no-int-to-ptr)
 
     //////////////////////////////////////////////////////////////////////////
 
@@ -112,7 +111,7 @@ bool GLES2Context::doInit(const ContextInfo &info) {
         _windowHandle    = info.windowHandle;
 
     #if (CC_PLATFORM == CC_PLATFORM_WINDOWS)
-        _nativeDisplay = GetDC(reinterpret_cast<HWND>(_windowHandle));
+        _nativeDisplay = GetDC(window);
         if (!_nativeDisplay) {
             return false;
         }
@@ -190,11 +189,11 @@ bool GLES2Context::doInit(const ContextInfo &info) {
 
         EGLint        depth{0};
         EGLint        stencil{0};
-        const uint8_t attrNums             = 8;
-        int           params[attrNums]     = {0};
-        bool          matched              = false;
-        const bool    performancePreferred = info.performance == Performance::HIGH_QUALITY;
-        uint64_t      lastScore            = performancePreferred ? std::numeric_limits<uint64_t>::min() : std::numeric_limits<uint64_t>::max();
+        const uint8_t attrNums         = 8;
+        EGLint        params[attrNums] = {0};
+        bool          matched          = false;
+        const bool    qualityPreferred = info.performance == Performance::HIGH_QUALITY;
+        uint64_t      lastScore        = qualityPreferred ? std::numeric_limits<uint64_t>::min() : std::numeric_limits<uint64_t>::max();
 
         for (int i = 0; i < numConfig; i++) {
             int depthValue{0};
@@ -213,23 +212,20 @@ bool GLES2Context::doInit(const ContextInfo &info) {
             /*------------------------------------------ANGLE's priority-----------------------------------------------*/
             // Favor EGLConfigLists by RGB, then Depth, then Non-linear Depth, then Stencil, then Alpha
             uint64_t currScore{0};
-            currScore |= (static_cast<uint64_t>(std::min(std::max(params[6], 0), 15))) << 29;
-            currScore |= (static_cast<uint64_t>(std::min(std::max(params[7], 0), 31))) << 24;
-            currScore |= std::min(std::abs(params[0] - redSize) +
-                                      std::abs(params[1] - greenSize) +
-                                      std::abs(params[2] - blueSize),
-                                  127)
-                         << 17;
-            currScore |= std::min(std::abs(params[4] - depthSize), 63) << 11;
-            currScore |= std::min(std::abs(1 - bNonLinearDepth), 1) << 10;
-            currScore |= std::min(std::abs(params[5] - stencilSize), 31) << 6;
-            currScore |= std::min(std::abs(params[3] - alphaSize), 31) << 0;
+            EGLint   colorScore = std::abs(params[0] - redSize) + std::abs(params[1] - greenSize) + std::abs(params[2] - blueSize);
+            currScore |= static_cast<uint64_t>(std::min(std::max(params[6], 0), 15)) << 29;
+            currScore |= static_cast<uint64_t>(std::min(std::max(params[7], 0), 31)) << 24;
+            currScore |= static_cast<uint64_t>(std::min(colorScore, 127)) << 17;
+            currScore |= static_cast<uint64_t>(std::min(std::abs(params[4] - depthSize), 63)) << 11;
+            currScore |= static_cast<uint64_t>(std::min(std::abs(1 - bNonLinearDepth), 1)) << 10;
+            currScore |= static_cast<uint64_t>(std::min(std::abs(params[5] - stencilSize), 31)) << 6;
+            currScore |= static_cast<uint64_t>(std::min(std::abs(params[3] - alphaSize), 31)) << 0;
             /*------------------------------------------ANGLE's priority-----------------------------------------------*/
 
             // if msaaEnabled, sampleBuffers and sampleCount should be greater than 0, until iterate to the last one(can't find).
             bool msaaLimit = (msaaEnabled ? (params[6] > 0 && params[7] > 0) : (params[6] == 0 && params[7] == 0));
             // performancePreferred ? [>=] : [<] , egl configurations store in "ascending order"
-            bool filter = (currScore < lastScore) ^ performancePreferred;
+            bool filter = (currScore < lastScore) ^ qualityPreferred;
             if ((filter && msaaLimit) || (!matched && i == numConfig - 1)) {
                 _eglConfig     = _vecEGLConfig[i];
                 depth          = params[4];
@@ -281,7 +277,8 @@ bool GLES2Context::doInit(const ContextInfo &info) {
          */
 
     #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-        EGLint nFmt;
+        EGLint nFmt = 0;
+
         if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
             CC_LOG_ERROR("Getting configuration attributes failed.");
             return false;
@@ -289,18 +286,15 @@ bool GLES2Context::doInit(const ContextInfo &info) {
 
         auto width  = static_cast<int32_t>(GLES2Device::getInstance()->getWidth());
         auto height = static_cast<int32_t>(GLES2Device::getInstance()->getHeight());
-        ANativeWindow_setBuffersGeometry(reinterpret_cast<ANativeWindow *>(_windowHandle), width, height, nFmt); //NOLINT
+
+        ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
     #endif
 
-        //NOLINTNEXTLINE
-        EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, reinterpret_cast<EGLNativeWindowType>(_windowHandle), nullptr));
+        EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, window, nullptr));
         if (_eglSurface == EGL_NO_SURFACE) {
             CC_LOG_ERROR("Window surface created failed.");
             return false;
         }
-
-        //String eglVendor = eglQueryString(_eglDisplay, EGL_VENDOR);
-        //String eglVersion = eglQueryString(_eglDisplay, EGL_VERSION);
 
         EGL_CHECK(_extensions = StringUtil::split(eglQueryString(_eglDisplay, EGL_EXTENSIONS), " "));
 
@@ -435,28 +429,31 @@ void GLES2Context::releaseSurface(uintptr_t /*windowHandle*/) {
 
 void GLES2Context::acquireSurface(uintptr_t windowHandle) {
     #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
-    _windowHandle = windowHandle;
+    {
+        _windowHandle = windowHandle;
+        auto *window  = reinterpret_cast<EGLNativeWindowType>(_windowHandle); // NOLINT(performance-no-int-to-ptr)
 
-    EGLint nFmt = 0;
-    if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
-        CC_LOG_ERROR("Getting configuration attributes failed.");
-        return;
+        EGLint nFmt = 0;
+        if (eglGetConfigAttrib(_eglDisplay, _eglConfig, EGL_NATIVE_VISUAL_ID, &nFmt) == EGL_FALSE) {
+            CC_LOG_ERROR("Getting configuration attributes failed.");
+            return;
+        }
+
+        // Device's size will be updated after recreate window (in resize event) and is incorrect for now.
+        int32_t width  = ANativeWindow_getWidth(window);
+        int32_t height = ANativeWindow_getHeight(window);
+        ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
+        GLES2Device::getInstance()->resize(width, height);
+
+        EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, window, nullptr));
+        if (_eglSurface == EGL_NO_SURFACE) {
+            CC_LOG_ERROR("Recreate window surface failed.");
+            return;
+        }
+
+        static_cast<GLES2Context *>(GLES2Device::getInstance()->getContext())->makeCurrent();
+        GLES2Device::getInstance()->stateCache()->reset();
     }
-    // Device's size will be updated after recreate window (in resize event) and is incorrect for now.
-    auto *window = reinterpret_cast<ANativeWindow *>(_windowHandle);
-    uint  width  = ANativeWindow_getWidth(window);
-    uint  height = ANativeWindow_getHeight(window);
-    ANativeWindow_setBuffersGeometry(window, width, height, nFmt);
-    GLES2Device::getInstance()->resize(width, height);
-
-    EGL_CHECK(_eglSurface = eglCreateWindowSurface(_eglDisplay, _eglConfig, reinterpret_cast<EGLNativeWindowType>(_windowHandle), nullptr));
-    if (_eglSurface == EGL_NO_SURFACE) {
-        CC_LOG_ERROR("Recreate window surface failed.");
-        return;
-    }
-
-    static_cast<GLES2Context *>(GLES2Device::getInstance()->getContext())->makeCurrent();
-    GLES2Device::getInstance()->stateCache()->reset();
     #endif
 }
 
