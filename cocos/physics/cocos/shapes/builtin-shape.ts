@@ -100,7 +100,7 @@ export class BuiltinShape implements IBaseShape {
         (this._worldShape as any) = null;
     }
 
-    transform (m: Mat4, pos: Vec3, rot: Quat, scale: Vec3) {
+    transform (m: Readonly<Mat4>, pos: Readonly<Vec3>, rot: Readonly<Quat>, scale: Readonly<Vec3>) {
         this._localShape.transform(m, pos, rot, scale, this._worldShape);
     }
 

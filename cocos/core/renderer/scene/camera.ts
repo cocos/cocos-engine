@@ -491,7 +491,7 @@ export class Camera {
     }
 
     get matViewInv () {
-        return this._matViewInv || this._node!.worldMatrix;
+        return this._matViewInv || this._node!.worldMatrix as Mat4;
     }
 
     set matProj (val) {
@@ -793,7 +793,7 @@ export class Camera {
     /**
      * transform a world space position to screen space
      */
-    public worldToScreen (out: Vec3, worldPos: Vec3): Vec3 {
+    public worldToScreen (out: Vec3, worldPos: Readonly<Vec3>): Vec3 {
         const width = this.width;
         const height = this.height;
         const cx = this._viewport.x * width;

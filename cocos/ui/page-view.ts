@@ -629,7 +629,7 @@ export class PageView extends ScrollView {
     // 初始化页面
     protected _initPages () {
         if (!this.content) { return; }
-        this._initContentPos = this.content.position;
+        this._initContentPos = this.content.position as Vec3;
         const children = this.content.children;
         for (let i = 0; i < children.length; ++i) {
             const page = children[i];

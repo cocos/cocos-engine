@@ -28,10 +28,9 @@
  * @module material
  */
 
-import { BatchingSchemes } from '..';
 import { IPassInfo } from '../../assets/effect-asset';
 import { MaterialInstance } from './material-instance';
-import { Pass, PassOverrides } from './pass';
+import { BatchingSchemes, Pass, PassOverrides } from './pass';
 import { overrideMacros, MacroRecord } from './pass-utils';
 
 /**
