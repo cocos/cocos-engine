@@ -430,7 +430,7 @@ export class NodeEventProcessor {
      * this.node.on(Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
-    public on (type: string, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
+    public on (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
         const forDispatch = this._checknSetupSysEvent(type);
         if (forDispatch) {
             return this._onDispatch(type, callback, target, useCapture);
@@ -479,7 +479,7 @@ export class NodeEventProcessor {
      * node.once(Node.EventType.ANCHOR_CHANGED, callback);
      * ```
      */
-    public once (type: string, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
+    public once (type: NodeEventType, callback: AnyFunction, target?: unknown, useCapture?: boolean) {
         const forDispatch = this._checknSetupSysEvent(type);
 
         let listeners: CallbacksInvoker;
@@ -512,7 +512,7 @@ export class NodeEventProcessor {
      * node.off(Node.EventType.ANCHOR_CHANGED, callback, this);
      * ```
      */
-    public off (type: string, callback?: AnyFunction, target?: unknown, useCapture?: boolean) {
+    public off (type: NodeEventType, callback?: AnyFunction, target?: unknown, useCapture?: boolean) {
         const touchEvent = _touchEvents.indexOf(type) !== -1;
         const mouseEvent = !touchEvent && _mouseEvents.indexOf(type) !== -1;
         if (touchEvent || mouseEvent) {
@@ -673,7 +673,7 @@ export class NodeEventProcessor {
 
     // EVENT TARGET
 
-    private _checknSetupSysEvent (type: string) {
+    private _checknSetupSysEvent (type: NodeEventType) {
         let newAdded = false;
         let forDispatch = false;
         // just for ui
