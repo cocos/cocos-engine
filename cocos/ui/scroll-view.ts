@@ -34,7 +34,7 @@ import { EDITOR } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../core/components/component-event-handler';
 import { UITransform } from '../2d/framework';
 import { Event } from '../core/event';
-import { EventMouse, EventTouch, Touch, logID, TouchEvent } from '../core/platform';
+import { EventMouse, EventTouch, Touch, logID } from '../core/platform';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
@@ -44,6 +44,7 @@ import { director, Director } from '../core/director';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { legacyCC } from '../core/global-exports';
 import { NodeEventType } from '../core/scene-graph/node-event';
+import { TouchEvent } from '../core/platform/event-manager/event-enum';
 
 const NUMBER_OF_GATHERED_TOUCHES_FOR_MOVE_SPEED = 5;
 const OUT_OF_BOUNDARY_BREAKING_FACTOR = 0.05;
