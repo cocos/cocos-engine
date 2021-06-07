@@ -253,9 +253,8 @@ export class DrawBatch2D {
         // 所以这几个值是和数组的顺序严格绑定的，需要缓存下来，更新的话就是 一个指针，每次到了这里就 +1 ，要更新就这个指针取出这些值，然后将对应的 buffer 找到，然后更新，最后上传
         // 录制 渲染缓存数组
         batcher.renderQueue.push({
-            UIPerUBO: this._UIPerUBO,
+            localBuffer,
             bufferHash: localBuffer.hash,
-            poolIndex: localBuffer.poolIndex,
             UBOIndex: localBuffer.prevUBOIndex,
             instanceID: localBuffer.prevInstanceID,
         });

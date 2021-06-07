@@ -47,19 +47,16 @@ import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
 import { RenderTexture } from '../../core/assets';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
-import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
-import { UILocalUBOManger } from './render-uniform-buffer';
-import { value } from '../../core/utils/js-typed';
+import { UILocalUBOManger, UILocalBuffer } from './render-uniform-buffer';
 import { DummyIA } from './dummy-ia';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
 
-interface IRenderQueue {
-    UIPerUBO: number;
+interface IRenderItem {
+    localBuffer: UILocalBuffer;
     bufferHash: number;
-    poolIndex: number;
     UBOIndex: number;
     instanceID: number;
 }
@@ -108,7 +105,7 @@ export class Batcher2D {
     private _localUBOManager: UILocalUBOManger;
 
     public reloadBatchDirty = true;
-    public renderQueue: IRenderQueue[] = [];
+    public renderQueue: IRenderItem[] = [];
     public _currWalkIndex = 0;
 
     public updateBufferDirty = false;
@@ -347,20 +344,19 @@ export class Batcher2D {
         // this._currBatch.fillBuffers(comp, this._localUBOManager, mat);
 
         // 这个可以优化为执行不同函数？？ // 最好执行不同的函数 // 还有个 dirty 需要的，更新用的
-        let bufferInfo;
+        let bufferInfo: IRenderItem;
         let localBuffer;
         if (this.reloadBatchDirty) {
             this._currBatch.fillBuffers(comp, this._localUBOManager, mat, this);
             bufferInfo = this.renderQueue[this._currWalkIndex];
-            // localBuffer = this._localUBOManager._localBuffers.get(bufferInfo.UIPerUBO)!.pool[bufferInfo.poolIndex];
-            const localBuffers = this._localUBOManager._localBuffers.find((element)  => element.key === bufferInfo.UIPerUBO)!;
-            localBuffer = localBuffers.value.pool[bufferInfo.poolIndex];
+            // const localBuffers = this._localUBOManager._localBuffers.find((element)  => element.key === bufferInfo.UIPerUBO)!;
+            // localBuffer = localBuffers.value.pool[bufferInfo.poolIndex];
+            localBuffer = bufferInfo.localBuffer;
         } else {
             bufferInfo = this.renderQueue[this._currWalkIndex];
-            // const localBuffers = this._localUBOManager._localBuffers.get(bufferInfo.UIPerUBO)!;
-            // localBuffer = localBuffers.pool[bufferInfo.poolIndex];
-            const localBuffers = this._localUBOManager._localBuffers.find((element)  => element.key === bufferInfo.UIPerUBO)!;
-            localBuffer = localBuffers.value.pool[bufferInfo.poolIndex];
+            // const localBuffers = this._localUBOManager._localBuffers.find((element)  => element.key === bufferInfo.UIPerUBO)!;
+            // localBuffer = localBuffers.value.pool[bufferInfo.poolIndex];
+            localBuffer = bufferInfo.localBuffer;
             // @ts-expect-error TS2445
             if (comp.node._dirtyFlags || comp.node._uiProps.uiTransformComp!._rectDirty) { // 暂时先利用这个 flag
                 this.updateBufferDirty = true; // 决定要不要上传 buffer 的 dirty
