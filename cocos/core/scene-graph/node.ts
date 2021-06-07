@@ -330,16 +330,16 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @en Return up direction in parent space. Positive Y axis equals identity rotation.
-     * @zh 当前节点中返回向上的方向。正的Y轴等同于身份旋转。
+     * @en Return up direction in world space. Positive Y axis equals identity rotation.
+     * @zh 当前节点中返回在世界空间下向上的方向。正的Y轴等同于身份旋转。
      */
     get up (): Vec3 {
         return Vec3.transformQuat(new Vec3(), Vec3.UP, this.worldRotation);
     }
 
     /**
-     * @en Return right direction in parent space. Positive X axis equals identity rotation.
-     * @zh 当前节点中返回向右的方向。正的X轴等同于身份旋转。
+     * @en Return right direction in world space. Positive X axis equals identity rotation.
+     * @zh 当前节点中返回在世界空间下向右的方向。正的X轴等同于身份旋转。
      */
     get right (): Vec3 {
         return Vec3.transformQuat(new Vec3(), Vec3.RIGHT, this.worldRotation);
