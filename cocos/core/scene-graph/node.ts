@@ -34,7 +34,6 @@ import {
 import { JSB } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
-import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
@@ -47,6 +46,7 @@ import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
 import { Component } from '../components';
 import { NativeNode } from '../renderer/scene/native-scene';
 import { FloatArray } from '../math/type-define';
+import { NodeEventType } from './node-event';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -88,7 +88,7 @@ export class Node extends BaseNode {
      * @en Event types emitted by Node
      * @zh 节点可能发出的事件类型
      */
-    public static EventType = SystemEventType;
+    public static EventType = NodeEventType;
 
     /**
      * @en Coordinates space
@@ -104,8 +104,8 @@ export class Node extends BaseNode {
     public static TransformDirtyBit = TransformBit;
 
     /**
-     * @en Bit masks for Node transformation parts, can be used to determine which part changed in [[SystemEventType.TRANSFORM_CHANGED]] event
-     * @zh 节点变换更新的具体部分，可用于判断 [[SystemEventType.TRANSFORM_CHANGED]] 事件的具体类型
+     * @en Bit masks for Node transformation parts, can be used to determine which part changed in [[NodeEventType.TRANSFORM_CHANGED]] event
+     * @zh 节点变换更新的具体部分，可用于判断 [[NodeEventType.TRANSFORM_CHANGED]] 事件的具体类型
      */
     public static TransformBit = TransformBit;
 
@@ -278,7 +278,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -332,7 +332,7 @@ export class Node extends BaseNode {
         this.invalidateChildren(TransformBit.TRS);
         this._eulerDirty = true;
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.TRS);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.TRS);
         }
     }
 
@@ -371,7 +371,7 @@ export class Node extends BaseNode {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
         }
-        this.emit(SystemEventType.LAYER_CHANGED, this._layer);
+        this.emit(NodeEventType.LAYER_CHANGED, this._layer);
     }
 
     get layer () {
@@ -512,7 +512,7 @@ export class Node extends BaseNode {
         }
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -538,7 +538,7 @@ export class Node extends BaseNode {
         this._eulerDirty = true;
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -672,7 +672,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -716,7 +716,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -751,7 +751,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -795,7 +795,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.SCALE);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 
@@ -873,7 +873,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -924,7 +924,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -947,7 +947,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -1005,7 +1005,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.SCALE);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 
@@ -1092,7 +1092,7 @@ export class Node extends BaseNode {
         if (dirtyBit) {
             this.invalidateChildren(dirtyBit);
             if (this._eventMask & TRANSFORM_ON) {
-                this.emit(SystemEventType.TRANSFORM_CHANGED, dirtyBit);
+                this.emit(NodeEventType.TRANSFORM_CHANGED, dirtyBit);
             }
         }
     }

@@ -31,7 +31,6 @@ import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
     type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../core/value-types/enum';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
@@ -47,6 +46,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
+import { NodeEventType } from '../../core/scene-graph/node-event';
 
 // hack
 ccenum(BlendFactor);
@@ -254,7 +254,7 @@ export class Renderable2D extends RenderableComponent {
         this._colorDirty = true;
         if (EDITOR) {
             const clone = value.clone();
-            this.node.emit(SystemEventType.COLOR_CHANGED, clone);
+            this.node.emit(NodeEventType.COLOR_CHANGED, clone);
         }
     }
 
@@ -330,8 +330,8 @@ export class Renderable2D extends RenderableComponent {
     }
 
     public onEnable () {
-        this.node.on(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
     }
@@ -343,8 +343,8 @@ export class Renderable2D extends RenderableComponent {
     }
 
     public onDisable () {
-        this.node.off(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        this.node.off(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this._renderFlag = false;
     }
 
