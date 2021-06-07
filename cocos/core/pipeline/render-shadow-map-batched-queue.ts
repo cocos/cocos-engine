@@ -132,8 +132,6 @@ export class RenderShadowMapBatchedQueue {
             const shadowPassIdx = _shadowPassIndices[j];
             const pass = subModel.passes[shadowPassIdx];
             const batchingScheme = pass.batchingScheme;
-            subModel.descriptorSet.bindBuffer(UBOShadow.BINDING, shadowMapBuffer);
-            subModel.descriptorSet.update();
 
             if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
                 const buffer = InstancedBuffer.get(pass);
