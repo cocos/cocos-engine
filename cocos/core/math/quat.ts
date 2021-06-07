@@ -435,7 +435,7 @@ export class Quat extends MathBase {
      * @param view The view direction, it`s must be normalized.
      * @param up The view up direction, it`s must be normalized, default value is (0, 1, 0).
      */
-    public static fromViewUp<Out extends IQuatLike> (out: Out, view: Readonly<IVec3Like>, up?: Vec3) {
+    public static fromViewUp<Out extends IQuatLike> (out: Out, view: Readonly<IVec3Like>, up?: Readonly<Vec3>) {
         Mat3.fromViewUp(m3_1, view, up);
         return Quat.normalize(out, Quat.fromMat3(out, m3_1));
     }

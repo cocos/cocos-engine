@@ -334,7 +334,7 @@ export class Mat3 extends MathBase {
      * @param view The view direction, it`s must be normalized.
      * @param up The view up direction, it`s must be normalized, default value is (0, 1, 0).
      */
-    public static fromViewUp <Out extends IMat3Like> (out: Out, view: Readonly<IVec3Like>, up?: Vec3) {
+    public static fromViewUp <Out extends IMat3Like> (out: Out, view: Readonly<IVec3Like>, up?: Readonly<Vec3>) {
         if (Vec3.lengthSqr(view) < EPSILON * EPSILON) {
             Mat3.identity(out);
             return out;
