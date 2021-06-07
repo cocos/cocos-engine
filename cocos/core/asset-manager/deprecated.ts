@@ -40,7 +40,7 @@ import dependUtil from './depend-util';
 import downloader from './downloader';
 import { getUuidFromURL, normalize, transform } from './helper';
 import parser from './parser';
-import releaseManager from './garbage-collect-manager';
+import releaseManager from './release-manager';
 import { assets, BuiltinBundleName, bundles, ProgressCallback, CompleteCallback } from './shared';
 import { parseLoadResArgs, setDefaultProgressCallback } from './utilities';
 import { ISceneInfo } from './config';

@@ -35,6 +35,7 @@ import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { Asset } from '../../core/assets/asset';
 import { legacyCC } from '../../core/global-exports';
+import { finalizationManager } from '../../core/assets/finalization-manager';
 
 /**
  * @en The skeleton asset. It stores the path related to [[SkinnedMeshRenderer.skinningRoot]] of all bones and its bind pose matrix.
@@ -110,12 +111,13 @@ export class Skeleton extends Asset {
                         ibm.m12.toPrecision(2)} ${ibm.m13.toPrecision(2)} ${ibm.m14.toPrecision(2)} ${ibm.m15.toPrecision(2)}\n`;
             }
             this._hash = murmurhash2_32_gc(str, 666);
+            finalizationManager.register(this, this._hash);
         }
         return this._hash;
     }
 
     public destroy () {
-        (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseSkeleton(this);
+        (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseSkeleton(this.hash);
         return super.destroy();
     }
 
@@ -123,5 +125,9 @@ export class Skeleton extends Asset {
         return this.joints.length > 0 && this.bindposes.length > 0;
     }
 }
+
+finalizationManager.registerTypeFinalizationHandler(Skeleton, (hash: number) => {
+    (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseSkeleton(hash);
+});
 
 legacyCC.Skeleton = Skeleton;

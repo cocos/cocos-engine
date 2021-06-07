@@ -351,12 +351,12 @@ export class JointTexturePool {
         }
     }
 
-    public releaseSkeleton (skeleton: Skeleton) {
+    public releaseSkeleton (skeletonHash: number) {
         const it = this._textureBuffers.values();
         let res = it.next();
         while (!res.done) {
             const handle = res.value;
-            if (handle.skeletonHash === skeleton.hash) {
+            if (handle.skeletonHash === skeletonHash) {
                 handle.readyToBeDeleted = true;
                 if (handle.refCount) {
                     // delete handle record immediately so new allocations with the same asset could work
