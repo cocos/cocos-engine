@@ -50,7 +50,7 @@ let _converters = {
         let width = cc.game.canvas.width,
             height = cc.game.canvas.height,
             handler = window.windowHandler;
-        return new gfx.DeviceInfo(info.isAntiAlias, handler, width, height, info.nativeWidth, info.nativeHeight, null, info.bindingMappingInfo);
+        return new gfx.DeviceInfo(info.isAntialias, handler, width, height, info.nativeWidth, info.nativeHeight, info.bindingMappingInfo);
     }
 };
 
@@ -132,10 +132,11 @@ descriptorSetProto.update = function() {
     this.dirtyJSB = false;
 }
 
-let deviceProto = gfx.deviceInstance.__proto__;
-replace(deviceProto, {
-    initialize: replaceFunction('_initialize', _converters.DeviceInfo),
+replace(gfx.DeviceManager, {
+    create: replaceFunction('_create', _converters.DeviceInfo),
 });
+
+let deviceProto = gfx.Device.prototype;
 
 let oldCopyTexImagesToTextureFunc = deviceProto.copyTexImagesToTexture;
 deviceProto.copyTexImagesToTexture = function(texImages, texture, regions) {
