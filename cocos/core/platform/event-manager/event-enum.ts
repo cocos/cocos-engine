@@ -39,7 +39,7 @@ export enum TouchEvent {
      * @zh
      * 手指开始触摸事件。
      */
-     TOUCH_START = 'touch-start',
+    TOUCH_START = 'touch-start',
 
      /**
       * @en
@@ -48,7 +48,7 @@ export enum TouchEvent {
       * @zh
       * 当手指在屏幕上移动时。
       */
-     TOUCH_MOVE = 'touch-move',
+    TOUCH_MOVE = 'touch-move',
 
      /**
       * @en
@@ -57,7 +57,7 @@ export enum TouchEvent {
       * @zh
       * 手指结束触摸事件。
       */
-     TOUCH_END = 'touch-end',
+    TOUCH_END = 'touch-end',
 
      /**
       * @en
@@ -66,44 +66,44 @@ export enum TouchEvent {
       * @zh
       * 当手指在目标节点区域外离开屏幕时。
       */
-     TOUCH_CANCEL = 'touch-cancel',
+    TOUCH_CANCEL = 'touch-cancel',
 }
 
 export enum MouseEvent {
-  /**
-   * @en
-   * The event type for mouse down events
-   *
-   * @zh
-   * 当鼠标按下时触发一次。
-   */
-  MOUSE_DOWN = 'mouse-down',
+    /**
+     * @en
+     * The event type for mouse down events
+     *
+     * @zh
+     * 当鼠标按下时触发一次。
+     */
+    MOUSE_DOWN = 'mouse-down',
 
-  /**
-   * @en
-   * The event type for mouse move events
-   *
-   * @zh
-   * 当鼠标在目标节点在目标节点区域中移动时，不论是否按下。
-   */
-  MOUSE_MOVE = 'mouse-move',
+    /**
+     * @en
+     * The event type for mouse move events
+     *
+     * @zh
+     * 当鼠标在目标节点在目标节点区域中移动时，不论是否按下。
+     */
+    MOUSE_MOVE = 'mouse-move',
 
-  /**
-   * @en
-   * The event type for mouse up events
-   *
-   * @zh
-   * 当鼠标从按下状态松开时触发一次。
-   */
-  MOUSE_UP = 'mouse-up',
+    /**
+     * @en
+     * The event type for mouse up events
+     *
+     * @zh
+     * 当鼠标从按下状态松开时触发一次。
+     */
+    MOUSE_UP = 'mouse-up',
 
-  /**
-   * @en
-   * The event type for mouse wheel events
-   *
-   * @zh 手指开始触摸事件
-   */
-  MOUSE_WHEEL = 'mouse-wheel',
+    /**
+     * @en
+     * The event type for mouse wheel events
+     *
+     * @zh 手指开始触摸事件
+     */
+    MOUSE_WHEEL = 'mouse-wheel',
 }
 
 export enum KeyboardEvent {
@@ -111,7 +111,7 @@ export enum KeyboardEvent {
      * @en The event type for press the key down event
      * @zh 当按下按键时触发的事件
      */
-     KEY_DOWN = 'keyboarddown',  // NOTE: different value with SystemEventType.KEY_DOWN
+    KEY_DOWN = 'keyboarddown',  // NOTE: different value with SystemEventType.KEY_DOWN
 
      /**
       * @en The event type for press the key up event
@@ -128,9 +128,9 @@ export enum DeviceEvent {
      * @zh
      * 重力感应
      */
-     DEVICEMOTION = 'devicemotion',
+    DEVICEMOTION = 'devicemotion',
 
-     // TODO: add resize, orientation changed event
+    // TODO: add resize, orientation changed event
 }
 
 /**
