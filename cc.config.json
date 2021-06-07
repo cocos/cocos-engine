@@ -2,7 +2,7 @@
     "features": {
         "base": { "modules": [ "base" ] },
         "gfx-webgl": { "modules": [ "gfx-webgl" ] },
-        "gfx-webgl2": { "modules": [ "gfx-webgl2" ] },
+        "gfx-webgl2": { "modules": [ "gf-webgl2" ] },
         "3d": { "modules": [ "3d" ] },
         "2d": { "modules": [ "2d" ] },
         "ui": { "modules": [ "ui", "2d" ] },
