@@ -114,6 +114,10 @@ export class RenderScene {
     }
 
     public update (stamp: number) {
+        if (JSB) {
+            this._nativeObj!.update();
+            return;
+        }
         const mainLight = this._mainLight;
         if (mainLight) {
             mainLight.update();

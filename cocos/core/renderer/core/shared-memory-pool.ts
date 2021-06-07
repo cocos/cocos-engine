@@ -202,13 +202,14 @@ class BufferPool<P extends SharedPoolType, E extends BufferManifest, M extends B
 }
 
 export enum SharedNodeView {
+    DIRTY_FLAG,
     FLAGS_CHANGED,
     LAYER,
     WORLD_SCALE,        // Vec3
-    WORLD_POSITION = 5, // Vec3
-    WORLD_ROTATION = 8, // Quat
-    WORLD_MATRIX = 12,  // Mat4
-    COUNT = 28
+    WORLD_POSITION = 6, // Vec3
+    WORLD_ROTATION = 9, // Quat
+    WORLD_MATRIX = 13,  // Mat4
+    COUNT = 29
 }
 
 interface INodeViewType extends BufferTypeManifest<typeof SharedNodeView> {

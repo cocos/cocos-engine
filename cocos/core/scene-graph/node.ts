@@ -149,6 +149,7 @@ export class Node extends BaseNode {
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
     protected declare _nativeFlag: Uint32Array;
+    protected declare _nativeDirtyFlag: Uint32Array;
 
     protected _init () {
         if (JSB) {
@@ -160,6 +161,7 @@ export class Node extends BaseNode {
             this._mat = new Mat4(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_MATRIX) as FloatArray);
             this._nativeLayer = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.LAYER) as Uint32Array;
             this._nativeFlag = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.FLAGS_CHANGED) as Uint32Array;
+            this._nativeDirtyFlag = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.DIRTY_FLAG) as Uint32Array;
             this._scale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
@@ -432,6 +434,13 @@ export class Node extends BaseNode {
         super._onHierarchyChangedBase(oldParent);
     }
 
+    protected _setDirtyFlags (val: TransformBit) {
+        this._dirtyFlags = val;
+        if (JSB) {
+            this._nativeDirtyFlag[0] = val;
+        }
+    }
+
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
@@ -442,7 +451,7 @@ export class Node extends BaseNode {
         }
 
         this.hasChangedFlags = TransformBit.TRS;
-        this._dirtyFlags = TransformBit.TRS;
+        this._setDirtyFlags(TransformBit.TRS);
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -569,7 +578,7 @@ export class Node extends BaseNode {
     public invalidateChildren (dirtyBit: TransformBit) {
         const hasChanegdFlags = this.hasChangedFlags;
         if ((this._dirtyFlags & hasChanegdFlags & dirtyBit) === dirtyBit) { return; }
-        this._dirtyFlags |= dirtyBit;
+        this._setDirtyFlags(this._dirtyFlags | dirtyBit);
         this.hasChangedFlags = hasChanegdFlags | dirtyBit;
         const newDirtyBit = dirtyBit | TransformBit.POSITION;
         const len = this._children.length;
@@ -636,7 +645,7 @@ export class Node extends BaseNode {
                 }
             }
 
-            child._dirtyFlags = TransformBit.NONE;
+            child._setDirtyFlags(TransformBit.NONE);
             cur = child;
         }
     }
