@@ -548,7 +548,7 @@ export class Node extends BaseNode {
      * @param pos Target position
      * @param up Up direction
      */
-    public lookAt (pos: Vec3, up?: Vec3): void {
+    public lookAt (pos: Readonly<Vec3>, up?: Readonly<Vec3>): void {
         this.getWorldPosition(v3_a);
         Vec3.subtract(v3_a, v3_a, pos);
         Vec3.normalize(v3_a, v3_a);
@@ -650,7 +650,7 @@ export class Node extends BaseNode {
      * @zh 设置本地坐标
      * @param position Target position
      */
-    public setPosition (position: Vec3): void;
+    public setPosition (position: Readonly<Vec3>): void;
 
     /**
      * @en Set position in local coordinate system
@@ -661,7 +661,7 @@ export class Node extends BaseNode {
      */
     public setPosition (x: number, y: number, z?: number): void;
 
-    public setPosition (val: Vec3 | number, y?: number, z?: number): void {
+    public setPosition (val: Readonly<Vec3> | number, y?: number, z?: number): void {
         if (y === undefined && z === undefined) {
             Vec3.copy(this._lpos, val as Vec3);
         } else if (z === undefined) {
@@ -773,7 +773,7 @@ export class Node extends BaseNode {
      * @zh 设置本地缩放
      * @param scale Target scale
      */
-    public setScale (scale: Vec3): void;
+    public setScale (scale: Readonly<Vec3>): void;
 
     /**
      * @en Set scale in local coordinate system
@@ -784,7 +784,7 @@ export class Node extends BaseNode {
      */
     public setScale (x: number, y: number, z?: number): void;
 
-    public setScale (val: Vec3 | number, y?: number, z?: number) {
+    public setScale (val: Readonly<Vec3> | number, y?: number, z?: number) {
         if (y === undefined && z === undefined) {
             Vec3.copy(this._lscale, val as Vec3);
         } else if (z === undefined) {
