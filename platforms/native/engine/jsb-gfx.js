@@ -47,10 +47,8 @@ let _converters = {
         }
     },
     DeviceInfo: function (info) {
-        let width = cc.game.canvas.width,
-            height = cc.game.canvas.height,
-            handler = window.windowHandler;
-        return new gfx.DeviceInfo(info.isAntialias, handler, width, height, info.devicePixelRatio, info.bindingMappingInfo);
+        let handler = window.windowHandler;
+        return new gfx.DeviceInfo(info.isAntialias, handler, info.width, info.height, info.devicePixelRatio, info.bindingMappingInfo);
     }
 };
 
