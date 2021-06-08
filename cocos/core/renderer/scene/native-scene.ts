@@ -24,6 +24,7 @@ export const NativeModel: Constructor<{
      setInstmatWorldIdx (idx: number): void;
      setInstancedBuffer (buffer: ArrayBuffer): void;
      setInstanceAttributes (attrs: Attribute[]): void;
+     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
 }> = null!;
 export type NativeModel = InstanceType<typeof NativeModel>;
 
