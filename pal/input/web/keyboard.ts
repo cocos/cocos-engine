@@ -1,6 +1,5 @@
 import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
-import { system } from 'pal/system';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
+import { KeyboardEvent } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 
 export class KeyboardInputSource {
@@ -14,28 +13,43 @@ export class KeyboardInputSource {
 
     private _registerEvent () {
         const canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-        canvas?.addEventListener('keydown', this._createCallback(SystemEventType.KEY_DOWN));
-        canvas?.addEventListener('keyup', this._createCallback(SystemEventType.KEY_UP));
-    }
-
-    private _createCallback (eventType: string) {
-        return (event: KeyboardEvent) => {
-            const inputEvent: KeyboardInputEvent = {
-                type: eventType,
-                code: event.keyCode,  // TODO: keyCode is deprecated on Web standard
-                timestamp: performance.now(),
-            };
+        canvas?.addEventListener('keydown', (event: any) => {
             event.stopPropagation();
             event.preventDefault();
-            this._eventTarget.emit(eventType, inputEvent);
+            if (!event.repeat) {
+                const keyDownInputEvent = this._getInputEvent(event, KeyboardEvent.KEY_DOWN);
+                this._eventTarget.emit(KeyboardEvent.KEY_DOWN, keyDownInputEvent);
+            }
+            // @ts-expect-error Compability for key pressing callback
+            const keyPressingInputEvent = this._getInputEvent(event, 'keydown');
+            this._eventTarget.emit('keydown', keyPressingInputEvent);
+        });
+        canvas?.addEventListener('keyup', (event: any) => {
+            const inputEvent = this._getInputEvent(event, KeyboardEvent.KEY_UP);
+            event.stopPropagation();
+            event.preventDefault();
+            this._eventTarget.emit(KeyboardEvent.KEY_UP, inputEvent);
+        });
+    }
+
+    private _getInputEvent (event: any, eventType: KeyboardEvent) {
+        const inputEvent: KeyboardInputEvent = {
+            type: eventType,
+            code: event.keyCode,  // TODO: keyCode is deprecated on Web standard
+            timestamp: performance.now(),
         };
+        return inputEvent;
     }
 
     public onDown (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
+        this._eventTarget.on(KeyboardEvent.KEY_DOWN, cb);
+    }
+
+    public onPressing (cb: KeyboardCallback) {
+        this._eventTarget.on('keydown', cb);
     }
 
     public onUp (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_UP, cb);
+        this._eventTarget.on(KeyboardEvent.KEY_UP, cb);
     }
 }

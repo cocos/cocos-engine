@@ -3,7 +3,7 @@ declare module 'pal/input' {
         /**
          * Type of the input event used to quickly distinguish between event types.
          */
-        readonly type: string;
+        readonly type: import('../../cocos/core/platform/event-manager/event-enum').SystemEventTypeUnion;
         /**
          * Timestamp when the input event is triggered.
          */
@@ -144,6 +144,12 @@ declare module 'pal/input' {
          * @param cb 
          */
         public onDown (cb: KeyboardCallback);
+        /**
+         * Register the key pressing event callback.
+         * NOTE: Compability for the deprecated KEY_DOWN event type. It should be removed in the future.
+         * @param cb 
+         */
+        public onPressing (cb: KeyboardCallback);
         /**
          * Register the key up event callback.
          * @param cb 

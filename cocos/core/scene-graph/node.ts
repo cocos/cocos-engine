@@ -34,7 +34,6 @@ import {
 import { JSB } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
-import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
@@ -47,6 +46,7 @@ import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
 import { Component } from '../components';
 import { NativeNode } from '../renderer/scene/native-scene';
 import { FloatArray } from '../math/type-define';
+import { NodeEventType } from './node-event';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -88,7 +88,7 @@ export class Node extends BaseNode {
      * @en Event types emitted by Node
      * @zh 节点可能发出的事件类型
      */
-    public static EventType = SystemEventType;
+    public static EventType = NodeEventType;
 
     /**
      * @en Coordinates space
@@ -104,8 +104,8 @@ export class Node extends BaseNode {
     public static TransformDirtyBit = TransformBit;
 
     /**
-     * @en Bit masks for Node transformation parts, can be used to determine which part changed in [[SystemEventType.TRANSFORM_CHANGED]] event
-     * @zh 节点变换更新的具体部分，可用于判断 [[SystemEventType.TRANSFORM_CHANGED]] 事件的具体类型
+     * @en Bit masks for Node transformation parts, can be used to determine which part changed in [[NodeEventType.TRANSFORM_CHANGED]] event
+     * @zh 节点变换更新的具体部分，可用于判断 [[NodeEventType.TRANSFORM_CHANGED]] 事件的具体类型
      */
     public static TransformBit = TransformBit;
 
@@ -280,7 +280,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -334,7 +334,7 @@ export class Node extends BaseNode {
         this.invalidateChildren(TransformBit.TRS);
         this._eulerDirty = true;
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.TRS);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.TRS);
         }
     }
 
@@ -373,7 +373,7 @@ export class Node extends BaseNode {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
         }
-        this.emit(SystemEventType.LAYER_CHANGED, this._layer);
+        this.emit(NodeEventType.LAYER_CHANGED, this._layer);
     }
 
     get layer () {
@@ -521,7 +521,7 @@ export class Node extends BaseNode {
         }
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -547,7 +547,7 @@ export class Node extends BaseNode {
         this._eulerDirty = true;
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -557,7 +557,7 @@ export class Node extends BaseNode {
      * @param pos Target position
      * @param up Up direction
      */
-    public lookAt (pos: Vec3, up?: Vec3): void {
+    public lookAt (pos: Readonly<Vec3>, up?: Readonly<Vec3>): void {
         this.getWorldPosition(v3_a);
         Vec3.subtract(v3_a, v3_a, pos);
         Vec3.normalize(v3_a, v3_a);
@@ -659,7 +659,7 @@ export class Node extends BaseNode {
      * @zh 设置本地坐标
      * @param position Target position
      */
-    public setPosition (position: Vec3): void;
+    public setPosition (position: Readonly<Vec3>): void;
 
     /**
      * @en Set position in local coordinate system
@@ -670,7 +670,7 @@ export class Node extends BaseNode {
      */
     public setPosition (x: number, y: number, z?: number): void;
 
-    public setPosition (val: Vec3 | number, y?: number, z?: number): void {
+    public setPosition (val: Readonly<Vec3> | number, y?: number, z?: number): void {
         if (y === undefined && z === undefined) {
             Vec3.copy(this._lpos, val as Vec3);
         } else if (z === undefined) {
@@ -681,7 +681,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -725,7 +725,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -760,7 +760,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -782,7 +782,7 @@ export class Node extends BaseNode {
      * @zh 设置本地缩放
      * @param scale Target scale
      */
-    public setScale (scale: Vec3): void;
+    public setScale (scale: Readonly<Vec3>): void;
 
     /**
      * @en Set scale in local coordinate system
@@ -793,7 +793,7 @@ export class Node extends BaseNode {
      */
     public setScale (x: number, y: number, z?: number): void;
 
-    public setScale (val: Vec3 | number, y?: number, z?: number) {
+    public setScale (val: Readonly<Vec3> | number, y?: number, z?: number) {
         if (y === undefined && z === undefined) {
             Vec3.copy(this._lscale, val as Vec3);
         } else if (z === undefined) {
@@ -804,7 +804,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.SCALE);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 
@@ -882,7 +882,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -933,7 +933,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -956,7 +956,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -1014,7 +1014,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.SCALE);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 
@@ -1101,7 +1101,7 @@ export class Node extends BaseNode {
         if (dirtyBit) {
             this.invalidateChildren(dirtyBit);
             if (this._eventMask & TRANSFORM_ON) {
-                this.emit(SystemEventType.TRANSFORM_CHANGED, dirtyBit);
+                this.emit(NodeEventType.TRANSFORM_CHANGED, dirtyBit);
             }
         }
     }

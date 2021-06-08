@@ -74,7 +74,7 @@ export interface IGeometricInfo {
      * @en The bounding box
      * @zh 此几何体的轴对齐包围盒。
      */
-    boundingBox: { max: Vec3; min: Vec3 };
+    boundingBox: { max: Readonly<Vec3>; min: Readonly<Vec3> };
 }
 
 /**
@@ -173,7 +173,7 @@ export class RenderingSubMesh {
      * @en The geometric info of the sub mesh, used for raycast.
      * @zh （用于射线检测的）几何信息。
      */
-    get geometricInfo () {
+    get geometricInfo (): IGeometricInfo {
         if (this._geometricInfo) {
             return this._geometricInfo;
         }

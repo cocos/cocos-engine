@@ -34,7 +34,8 @@ import { EventKeyboard, EventAcceleration, EventMouse } from './events';
 import { Component } from '../../components';
 import { legacyCC } from '../../global-exports';
 import { logID, assertID } from '../debug';
-import { SystemEventType } from './event-enum';
+import { SystemEvent } from './system-event';
+import { KeyboardEvent, MouseEvent } from './event-enum';
 
 export interface IEventListenerCreateInfo {
     event?: number;
@@ -360,23 +361,23 @@ export class MouseEventListener extends EventListener {
     }
 
     public _callback (event: EventMouse) {
-        switch (event.eventType) {
-        case SystemEventType.MOUSE_DOWN:
+        switch (event.type) {
+        case MouseEvent.MOUSE_DOWN:
             if (this.onMouseDown) {
                 this.onMouseDown(event);
             }
             break;
-        case SystemEventType.MOUSE_UP:
+        case MouseEvent.MOUSE_UP:
             if (this.onMouseUp) {
                 this.onMouseUp(event);
             }
             break;
-        case SystemEventType.MOUSE_MOVE:
+        case MouseEvent.MOUSE_MOVE:
             if (this.onMouseMove) {
                 this.onMouseMove(event);
             }
             break;
-        case SystemEventType.MOUSE_WHEEL:
+        case MouseEvent.MOUSE_WHEEL:
             if (this.onMouseScroll) {
                 this.onMouseScroll(event);
             }
@@ -497,8 +498,9 @@ export class AccelerationEventListener extends EventListener {
 
 // Keyboard
 export class KeyboardEventListener extends EventListener {
-    public onKeyPressed: Function | null = null;
-    public onKeyReleased: Function | null = null;
+    public onKeyDown?: Function = undefined;
+    public onKeyPressed?: Function = undefined;  // deprecated
+    public onKeyReleased?: Function = undefined;
 
     constructor () {
         super(EventListener.KEYBOARD, ListenerID.KEYBOARD, null);
@@ -506,24 +508,31 @@ export class KeyboardEventListener extends EventListener {
     }
 
     public _callback (event: EventKeyboard) {
-        if (event.isPressed) {
-            if (this.onKeyPressed) {
-                this.onKeyPressed(event.keyCode, event);
-            }
-        } else if (this.onKeyReleased) {
-            this.onKeyReleased(event.keyCode, event);
+        switch (event.type) {
+        case KeyboardEvent.KEY_DOWN:
+            this.onKeyDown?.(event.keyCode, event);
+            break;
+        case 'keydown':  // SystemEventType.KEY_DOWN
+            this.onKeyPressed?.(event.keyCode, event);
+            break;
+        case KeyboardEvent.KEY_UP:
+            this.onKeyReleased?.(event.keyCode, event);
+            break;
+        default:
+            break;
         }
     }
 
     public clone () {
         const eventListener = new KeyboardEventListener();
+        eventListener.onKeyDown = this.onKeyDown;
         eventListener.onKeyPressed = this.onKeyPressed;
         eventListener.onKeyReleased = this.onKeyReleased;
         return eventListener;
     }
 
     public checkAvailable () {
-        if (this.onKeyPressed === null && this.onKeyReleased === null) {
+        if (this.onKeyDown === null && this.onKeyPressed === null && this.onKeyReleased === null) {
             logID(1800);
             return false;
         }
