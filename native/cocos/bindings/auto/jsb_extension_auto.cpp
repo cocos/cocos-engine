@@ -13,7 +13,7 @@
 se::Object* __jsb_cc_extension_EventAssetsManagerEx_proto = nullptr;
 se::Class* __jsb_cc_extension_EventAssetsManagerEx_class = nullptr;
 
-static bool js_extension_EventAssetsManagerEx_getAssetId(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getAssetId(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getAssetId : Invalid Native Object");
@@ -32,7 +32,7 @@ static bool js_extension_EventAssetsManagerEx_getAssetId(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getAssetId)
 
-static bool js_extension_EventAssetsManagerEx_getAssetsManagerEx(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getAssetsManagerEx(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getAssetsManagerEx : Invalid Native Object");
@@ -51,7 +51,7 @@ static bool js_extension_EventAssetsManagerEx_getAssetsManagerEx(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getAssetsManagerEx)
 
-static bool js_extension_EventAssetsManagerEx_getCURLECode(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getCURLECode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getCURLECode : Invalid Native Object");
@@ -70,7 +70,7 @@ static bool js_extension_EventAssetsManagerEx_getCURLECode(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getCURLECode)
 
-static bool js_extension_EventAssetsManagerEx_getCURLMCode(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getCURLMCode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getCURLMCode : Invalid Native Object");
@@ -89,7 +89,7 @@ static bool js_extension_EventAssetsManagerEx_getCURLMCode(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getCURLMCode)
 
-static bool js_extension_EventAssetsManagerEx_getDownloadedBytes(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getDownloadedBytes(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getDownloadedBytes : Invalid Native Object");
@@ -108,7 +108,7 @@ static bool js_extension_EventAssetsManagerEx_getDownloadedBytes(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getDownloadedBytes)
 
-static bool js_extension_EventAssetsManagerEx_getDownloadedFiles(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getDownloadedFiles(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getDownloadedFiles : Invalid Native Object");
@@ -127,7 +127,7 @@ static bool js_extension_EventAssetsManagerEx_getDownloadedFiles(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getDownloadedFiles)
 
-static bool js_extension_EventAssetsManagerEx_getEventCode(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getEventCode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getEventCode : Invalid Native Object");
@@ -146,7 +146,7 @@ static bool js_extension_EventAssetsManagerEx_getEventCode(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getEventCode)
 
-static bool js_extension_EventAssetsManagerEx_getMessage(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getMessage(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getMessage : Invalid Native Object");
@@ -165,7 +165,7 @@ static bool js_extension_EventAssetsManagerEx_getMessage(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getMessage)
 
-static bool js_extension_EventAssetsManagerEx_getPercent(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getPercent(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getPercent : Invalid Native Object");
@@ -184,7 +184,7 @@ static bool js_extension_EventAssetsManagerEx_getPercent(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getPercent)
 
-static bool js_extension_EventAssetsManagerEx_getPercentByFile(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getPercentByFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getPercentByFile : Invalid Native Object");
@@ -203,7 +203,7 @@ static bool js_extension_EventAssetsManagerEx_getPercentByFile(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getPercentByFile)
 
-static bool js_extension_EventAssetsManagerEx_getTotalBytes(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getTotalBytes(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getTotalBytes : Invalid Native Object");
@@ -222,7 +222,7 @@ static bool js_extension_EventAssetsManagerEx_getTotalBytes(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getTotalBytes)
 
-static bool js_extension_EventAssetsManagerEx_getTotalFiles(se::State& s)
+static bool js_extension_EventAssetsManagerEx_getTotalFiles(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_getTotalFiles : Invalid Native Object");
@@ -241,7 +241,7 @@ static bool js_extension_EventAssetsManagerEx_getTotalFiles(se::State& s)
 }
 SE_BIND_FUNC(js_extension_EventAssetsManagerEx_getTotalFiles)
 
-static bool js_extension_EventAssetsManagerEx_isResuming(se::State& s)
+static bool js_extension_EventAssetsManagerEx_isResuming(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_EventAssetsManagerEx_isResuming : Invalid Native Object");
@@ -262,7 +262,7 @@ SE_BIND_FUNC(js_extension_EventAssetsManagerEx_isResuming)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_extension_EventAssetsManagerEx_finalize)
 
-static bool js_extension_EventAssetsManagerEx_constructor(se::State& s) // constructor.c
+static bool js_extension_EventAssetsManagerEx_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -281,8 +281,7 @@ SE_BIND_CTOR(js_extension_EventAssetsManagerEx_constructor, __jsb_cc_extension_E
 
 
 
-
-static bool js_cc_extension_EventAssetsManagerEx_finalize(se::State& s)
+static bool js_cc_extension_EventAssetsManagerEx_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj =SE_THIS_OBJECT<cc::extension::EventAssetsManagerEx>(s);
     cobj->release();
@@ -290,7 +289,7 @@ static bool js_cc_extension_EventAssetsManagerEx_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_extension_EventAssetsManagerEx_finalize)
 
-bool js_register_extension_EventAssetsManagerEx(se::Object* obj)
+bool js_register_extension_EventAssetsManagerEx(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("EventAssetsManager", obj, nullptr, _SE(js_extension_EventAssetsManagerEx_constructor));
 
@@ -320,7 +319,7 @@ bool js_register_extension_EventAssetsManagerEx(se::Object* obj)
 se::Object* __jsb_cc_extension_Manifest_proto = nullptr;
 se::Class* __jsb_cc_extension_Manifest_class = nullptr;
 
-static bool js_extension_Manifest_getManifestFileUrl(se::State& s)
+static bool js_extension_Manifest_getManifestFileUrl(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getManifestFileUrl : Invalid Native Object");
@@ -339,7 +338,7 @@ static bool js_extension_Manifest_getManifestFileUrl(se::State& s)
 }
 SE_BIND_FUNC(js_extension_Manifest_getManifestFileUrl)
 
-static bool js_extension_Manifest_getManifestRoot(se::State& s)
+static bool js_extension_Manifest_getManifestRoot(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getManifestRoot : Invalid Native Object");
@@ -358,7 +357,7 @@ static bool js_extension_Manifest_getManifestRoot(se::State& s)
 }
 SE_BIND_FUNC(js_extension_Manifest_getManifestRoot)
 
-static bool js_extension_Manifest_getPackageUrl(se::State& s)
+static bool js_extension_Manifest_getPackageUrl(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getPackageUrl : Invalid Native Object");
@@ -377,7 +376,7 @@ static bool js_extension_Manifest_getPackageUrl(se::State& s)
 }
 SE_BIND_FUNC(js_extension_Manifest_getPackageUrl)
 
-static bool js_extension_Manifest_getSearchPaths(se::State& s)
+static bool js_extension_Manifest_getSearchPaths(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getSearchPaths : Invalid Native Object");
@@ -396,7 +395,7 @@ static bool js_extension_Manifest_getSearchPaths(se::State& s)
 }
 SE_BIND_FUNC(js_extension_Manifest_getSearchPaths)
 
-static bool js_extension_Manifest_getVersion(se::State& s)
+static bool js_extension_Manifest_getVersion(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getVersion : Invalid Native Object");
@@ -415,7 +414,7 @@ static bool js_extension_Manifest_getVersion(se::State& s)
 }
 SE_BIND_FUNC(js_extension_Manifest_getVersion)
 
-static bool js_extension_Manifest_getVersionFileUrl(se::State& s)
+static bool js_extension_Manifest_getVersionFileUrl(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_getVersionFileUrl : Invalid Native Object");
@@ -434,7 +433,7 @@ static bool js_extension_Manifest_getVersionFileUrl(se::State& s)
 }
 SE_BIND_FUNC(js_extension_Manifest_getVersionFileUrl)
 
-static bool js_extension_Manifest_isLoaded(se::State& s)
+static bool js_extension_Manifest_isLoaded(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_isLoaded : Invalid Native Object");
@@ -453,7 +452,7 @@ static bool js_extension_Manifest_isLoaded(se::State& s)
 }
 SE_BIND_FUNC(js_extension_Manifest_isLoaded)
 
-static bool js_extension_Manifest_isUpdating(se::State& s)
+static bool js_extension_Manifest_isUpdating(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_isUpdating : Invalid Native Object");
@@ -472,7 +471,7 @@ static bool js_extension_Manifest_isUpdating(se::State& s)
 }
 SE_BIND_FUNC(js_extension_Manifest_isUpdating)
 
-static bool js_extension_Manifest_isVersionLoaded(se::State& s)
+static bool js_extension_Manifest_isVersionLoaded(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_isVersionLoaded : Invalid Native Object");
@@ -491,7 +490,7 @@ static bool js_extension_Manifest_isVersionLoaded(se::State& s)
 }
 SE_BIND_FUNC(js_extension_Manifest_isVersionLoaded)
 
-static bool js_extension_Manifest_parseFile(se::State& s)
+static bool js_extension_Manifest_parseFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_parseFile : Invalid Native Object");
@@ -510,7 +509,7 @@ static bool js_extension_Manifest_parseFile(se::State& s)
 }
 SE_BIND_FUNC(js_extension_Manifest_parseFile)
 
-static bool js_extension_Manifest_parseJSONString(se::State& s)
+static bool js_extension_Manifest_parseJSONString(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_parseJSONString : Invalid Native Object");
@@ -531,7 +530,7 @@ static bool js_extension_Manifest_parseJSONString(se::State& s)
 }
 SE_BIND_FUNC(js_extension_Manifest_parseJSONString)
 
-static bool js_extension_Manifest_setUpdating(se::State& s)
+static bool js_extension_Manifest_setUpdating(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::Manifest>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_Manifest_setUpdating : Invalid Native Object");
@@ -552,7 +551,7 @@ SE_BIND_FUNC(js_extension_Manifest_setUpdating)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_extension_Manifest_finalize)
 
-static bool js_extension_Manifest_constructor(se::State& s)  // constructor_overloaded.c
+static bool js_extension_Manifest_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor_overloaded.c
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -594,8 +593,7 @@ SE_BIND_CTOR(js_extension_Manifest_constructor, __jsb_cc_extension_Manifest_clas
 
 
 
-
-static bool js_cc_extension_Manifest_finalize(se::State& s)
+static bool js_cc_extension_Manifest_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj =SE_THIS_OBJECT<cc::extension::Manifest>(s);
     cobj->release();
@@ -603,7 +601,7 @@ static bool js_cc_extension_Manifest_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_extension_Manifest_finalize)
 
-bool js_register_extension_Manifest(se::Object* obj)
+bool js_register_extension_Manifest(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("Manifest", obj, nullptr, _SE(js_extension_Manifest_constructor));
 
@@ -632,7 +630,7 @@ bool js_register_extension_Manifest(se::Object* obj)
 se::Object* __jsb_cc_extension_AssetsManagerEx_proto = nullptr;
 se::Class* __jsb_cc_extension_AssetsManagerEx_class = nullptr;
 
-static bool js_extension_AssetsManagerEx_checkUpdate(se::State& s)
+static bool js_extension_AssetsManagerEx_checkUpdate(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_checkUpdate : Invalid Native Object");
@@ -647,7 +645,7 @@ static bool js_extension_AssetsManagerEx_checkUpdate(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_checkUpdate)
 
-static bool js_extension_AssetsManagerEx_downloadFailedAssets(se::State& s)
+static bool js_extension_AssetsManagerEx_downloadFailedAssets(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_downloadFailedAssets : Invalid Native Object");
@@ -662,7 +660,7 @@ static bool js_extension_AssetsManagerEx_downloadFailedAssets(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_downloadFailedAssets)
 
-static bool js_extension_AssetsManagerEx_getDownloadedBytes(se::State& s)
+static bool js_extension_AssetsManagerEx_getDownloadedBytes(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getDownloadedBytes : Invalid Native Object");
@@ -681,7 +679,7 @@ static bool js_extension_AssetsManagerEx_getDownloadedBytes(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_getDownloadedBytes)
 
-static bool js_extension_AssetsManagerEx_getDownloadedFiles(se::State& s)
+static bool js_extension_AssetsManagerEx_getDownloadedFiles(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getDownloadedFiles : Invalid Native Object");
@@ -700,7 +698,7 @@ static bool js_extension_AssetsManagerEx_getDownloadedFiles(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_getDownloadedFiles)
 
-static bool js_extension_AssetsManagerEx_getLocalManifest(se::State& s)
+static bool js_extension_AssetsManagerEx_getLocalManifest(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getLocalManifest : Invalid Native Object");
@@ -719,7 +717,7 @@ static bool js_extension_AssetsManagerEx_getLocalManifest(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_getLocalManifest)
 
-static bool js_extension_AssetsManagerEx_getMaxConcurrentTask(se::State& s)
+static bool js_extension_AssetsManagerEx_getMaxConcurrentTask(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getMaxConcurrentTask : Invalid Native Object");
@@ -738,7 +736,7 @@ static bool js_extension_AssetsManagerEx_getMaxConcurrentTask(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_getMaxConcurrentTask)
 
-static bool js_extension_AssetsManagerEx_getRemoteManifest(se::State& s)
+static bool js_extension_AssetsManagerEx_getRemoteManifest(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getRemoteManifest : Invalid Native Object");
@@ -757,7 +755,7 @@ static bool js_extension_AssetsManagerEx_getRemoteManifest(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_getRemoteManifest)
 
-static bool js_extension_AssetsManagerEx_getState(se::State& s)
+static bool js_extension_AssetsManagerEx_getState(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getState : Invalid Native Object");
@@ -776,7 +774,7 @@ static bool js_extension_AssetsManagerEx_getState(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_getState)
 
-static bool js_extension_AssetsManagerEx_getStoragePath(se::State& s)
+static bool js_extension_AssetsManagerEx_getStoragePath(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getStoragePath : Invalid Native Object");
@@ -795,7 +793,7 @@ static bool js_extension_AssetsManagerEx_getStoragePath(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_getStoragePath)
 
-static bool js_extension_AssetsManagerEx_getTotalBytes(se::State& s)
+static bool js_extension_AssetsManagerEx_getTotalBytes(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getTotalBytes : Invalid Native Object");
@@ -814,7 +812,7 @@ static bool js_extension_AssetsManagerEx_getTotalBytes(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_getTotalBytes)
 
-static bool js_extension_AssetsManagerEx_getTotalFiles(se::State& s)
+static bool js_extension_AssetsManagerEx_getTotalFiles(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_getTotalFiles : Invalid Native Object");
@@ -833,7 +831,7 @@ static bool js_extension_AssetsManagerEx_getTotalFiles(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_getTotalFiles)
 
-static bool js_extension_AssetsManagerEx_isResuming(se::State& s)
+static bool js_extension_AssetsManagerEx_isResuming(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_isResuming : Invalid Native Object");
@@ -852,7 +850,7 @@ static bool js_extension_AssetsManagerEx_isResuming(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_isResuming)
 
-static bool js_extension_AssetsManagerEx_loadLocalManifest(se::State& s)
+static bool js_extension_AssetsManagerEx_loadLocalManifest(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
@@ -895,7 +893,7 @@ static bool js_extension_AssetsManagerEx_loadLocalManifest(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_loadLocalManifest)
 
-static bool js_extension_AssetsManagerEx_loadRemoteManifest(se::State& s)
+static bool js_extension_AssetsManagerEx_loadRemoteManifest(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_loadRemoteManifest : Invalid Native Object");
@@ -917,7 +915,7 @@ static bool js_extension_AssetsManagerEx_loadRemoteManifest(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_loadRemoteManifest)
 
-static bool js_extension_AssetsManagerEx_prepareUpdate(se::State& s)
+static bool js_extension_AssetsManagerEx_prepareUpdate(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_prepareUpdate : Invalid Native Object");
@@ -932,7 +930,7 @@ static bool js_extension_AssetsManagerEx_prepareUpdate(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_prepareUpdate)
 
-static bool js_extension_AssetsManagerEx_setEventCallback(se::State& s)
+static bool js_extension_AssetsManagerEx_setEventCallback(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_setEventCallback : Invalid Native Object");
@@ -980,7 +978,7 @@ static bool js_extension_AssetsManagerEx_setEventCallback(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_setEventCallback)
 
-static bool js_extension_AssetsManagerEx_setMaxConcurrentTask(se::State& s)
+static bool js_extension_AssetsManagerEx_setMaxConcurrentTask(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_setMaxConcurrentTask : Invalid Native Object");
@@ -999,7 +997,7 @@ static bool js_extension_AssetsManagerEx_setMaxConcurrentTask(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_setMaxConcurrentTask)
 
-static bool js_extension_AssetsManagerEx_setVerifyCallback(se::State& s)
+static bool js_extension_AssetsManagerEx_setVerifyCallback(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_setVerifyCallback : Invalid Native Object");
@@ -1052,7 +1050,7 @@ static bool js_extension_AssetsManagerEx_setVerifyCallback(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_setVerifyCallback)
 
-static bool js_extension_AssetsManagerEx_setVersionCompareHandle(se::State& s)
+static bool js_extension_AssetsManagerEx_setVersionCompareHandle(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_setVersionCompareHandle : Invalid Native Object");
@@ -1105,7 +1103,7 @@ static bool js_extension_AssetsManagerEx_setVersionCompareHandle(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_setVersionCompareHandle)
 
-static bool js_extension_AssetsManagerEx_update(se::State& s)
+static bool js_extension_AssetsManagerEx_update(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     SE_PRECONDITION2(cobj, false, "js_extension_AssetsManagerEx_update : Invalid Native Object");
@@ -1120,7 +1118,7 @@ static bool js_extension_AssetsManagerEx_update(se::State& s)
 }
 SE_BIND_FUNC(js_extension_AssetsManagerEx_update)
 
-static bool js_extension_AssetsManagerEx_create(se::State& s)
+static bool js_extension_AssetsManagerEx_create(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1145,7 +1143,7 @@ SE_BIND_FUNC(js_extension_AssetsManagerEx_create)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_extension_AssetsManagerEx_finalize)
 
-static bool js_extension_AssetsManagerEx_constructor(se::State& s)  // constructor_overloaded.c
+static bool js_extension_AssetsManagerEx_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor_overloaded.c
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -1220,8 +1218,7 @@ SE_BIND_CTOR(js_extension_AssetsManagerEx_constructor, __jsb_cc_extension_Assets
 
 
 
-
-static bool js_cc_extension_AssetsManagerEx_finalize(se::State& s)
+static bool js_cc_extension_AssetsManagerEx_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj =SE_THIS_OBJECT<cc::extension::AssetsManagerEx>(s);
     cobj->release();
@@ -1229,7 +1226,7 @@ static bool js_cc_extension_AssetsManagerEx_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_extension_AssetsManagerEx_finalize)
 
-bool js_register_extension_AssetsManagerEx(se::Object* obj)
+bool js_register_extension_AssetsManagerEx(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("AssetsManager", obj, nullptr, _SE(js_extension_AssetsManagerEx_constructor));
 

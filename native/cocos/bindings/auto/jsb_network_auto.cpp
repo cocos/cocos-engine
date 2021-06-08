@@ -13,7 +13,7 @@
 se::Object* __jsb_cc_network_DownloaderHints_proto = nullptr;
 se::Class* __jsb_cc_network_DownloaderHints_class = nullptr;
 
-static bool js_network_DownloaderHints_get_countOfMaxProcessingTasks(se::State& s)
+static bool js_network_DownloaderHints_get_countOfMaxProcessingTasks(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
     SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_countOfMaxProcessingTasks : Invalid Native Object");
@@ -27,7 +27,7 @@ static bool js_network_DownloaderHints_get_countOfMaxProcessingTasks(se::State& 
 }
 SE_BIND_PROP_GET(js_network_DownloaderHints_get_countOfMaxProcessingTasks)
 
-static bool js_network_DownloaderHints_set_countOfMaxProcessingTasks(se::State& s)
+static bool js_network_DownloaderHints_set_countOfMaxProcessingTasks(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
@@ -40,7 +40,7 @@ static bool js_network_DownloaderHints_set_countOfMaxProcessingTasks(se::State& 
 }
 SE_BIND_PROP_SET(js_network_DownloaderHints_set_countOfMaxProcessingTasks)
 
-static bool js_network_DownloaderHints_get_timeoutInSeconds(se::State& s)
+static bool js_network_DownloaderHints_get_timeoutInSeconds(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
     SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_timeoutInSeconds : Invalid Native Object");
@@ -54,7 +54,7 @@ static bool js_network_DownloaderHints_get_timeoutInSeconds(se::State& s)
 }
 SE_BIND_PROP_GET(js_network_DownloaderHints_get_timeoutInSeconds)
 
-static bool js_network_DownloaderHints_set_timeoutInSeconds(se::State& s)
+static bool js_network_DownloaderHints_set_timeoutInSeconds(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
@@ -67,7 +67,7 @@ static bool js_network_DownloaderHints_set_timeoutInSeconds(se::State& s)
 }
 SE_BIND_PROP_SET(js_network_DownloaderHints_set_timeoutInSeconds)
 
-static bool js_network_DownloaderHints_get_tempFileNameSuffix(se::State& s)
+static bool js_network_DownloaderHints_get_tempFileNameSuffix(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
     SE_PRECONDITION2(cobj, false, "js_network_DownloaderHints_get_tempFileNameSuffix : Invalid Native Object");
@@ -81,7 +81,7 @@ static bool js_network_DownloaderHints_get_tempFileNameSuffix(se::State& s)
 }
 SE_BIND_PROP_GET(js_network_DownloaderHints_get_tempFileNameSuffix)
 
-static bool js_network_DownloaderHints_set_tempFileNameSuffix(se::State& s)
+static bool js_network_DownloaderHints_set_tempFileNameSuffix(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::network::DownloaderHints>(s);
@@ -124,7 +124,7 @@ bool sevalue_to_native(const se::Value &from, cc::network::DownloaderHints * to,
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_network_DownloaderHints_finalize)
 
-static bool js_network_DownloaderHints_constructor(se::State& s)
+static bool js_network_DownloaderHints_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -181,8 +181,7 @@ SE_BIND_CTOR(js_network_DownloaderHints_constructor, __jsb_cc_network_Downloader
 
 
 
-
-static bool js_cc_network_DownloaderHints_finalize(se::State& s)
+static bool js_cc_network_DownloaderHints_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::network::DownloaderHints>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -195,7 +194,7 @@ static bool js_cc_network_DownloaderHints_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_network_DownloaderHints_finalize)
 
-bool js_register_network_DownloaderHints(se::Object* obj)
+bool js_register_network_DownloaderHints(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("DownloaderHints", obj, nullptr, _SE(js_network_DownloaderHints_constructor));
 
@@ -215,7 +214,7 @@ bool js_register_network_DownloaderHints(se::Object* obj)
 se::Object* __jsb_cc_network_Downloader_proto = nullptr;
 se::Class* __jsb_cc_network_Downloader_class = nullptr;
 
-static bool js_network_Downloader_setOnTaskProgress(se::State& s)
+static bool js_network_Downloader_setOnTaskProgress(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::network::Downloader>(s);
     SE_PRECONDITION2(cobj, false, "js_network_Downloader_setOnTaskProgress : Invalid Native Object");
@@ -268,7 +267,7 @@ SE_BIND_FUNC(js_network_Downloader_setOnTaskProgress)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_network_Downloader_finalize)
 
-static bool js_network_Downloader_constructor(se::State& s)  // constructor_overloaded.c
+static bool js_network_Downloader_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor_overloaded.c
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -299,8 +298,7 @@ SE_BIND_CTOR(js_network_Downloader_constructor, __jsb_cc_network_Downloader_clas
 
 
 
-
-static bool js_cc_network_Downloader_finalize(se::State& s)
+static bool js_cc_network_Downloader_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::network::Downloader>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -313,7 +311,7 @@ static bool js_cc_network_Downloader_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_network_Downloader_finalize)
 
-bool js_register_network_Downloader(se::Object* obj)
+bool js_register_network_Downloader(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("Downloader", obj, nullptr, _SE(js_network_Downloader_constructor));
 

@@ -14,7 +14,7 @@
 se::Object* __jsb_cc_AudioProfile_proto = nullptr;
 se::Class* __jsb_cc_AudioProfile_class = nullptr;
 
-static bool js_audio_AudioProfile_get_name(se::State& s)
+static bool js_audio_AudioProfile_get_name(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_name : Invalid Native Object");
@@ -28,7 +28,7 @@ static bool js_audio_AudioProfile_get_name(se::State& s)
 }
 SE_BIND_PROP_GET(js_audio_AudioProfile_get_name)
 
-static bool js_audio_AudioProfile_set_name(se::State& s)
+static bool js_audio_AudioProfile_set_name(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
@@ -41,7 +41,7 @@ static bool js_audio_AudioProfile_set_name(se::State& s)
 }
 SE_BIND_PROP_SET(js_audio_AudioProfile_set_name)
 
-static bool js_audio_AudioProfile_get_maxInstances(se::State& s)
+static bool js_audio_AudioProfile_get_maxInstances(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_maxInstances : Invalid Native Object");
@@ -55,7 +55,7 @@ static bool js_audio_AudioProfile_get_maxInstances(se::State& s)
 }
 SE_BIND_PROP_GET(js_audio_AudioProfile_get_maxInstances)
 
-static bool js_audio_AudioProfile_set_maxInstances(se::State& s)
+static bool js_audio_AudioProfile_set_maxInstances(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
@@ -68,7 +68,7 @@ static bool js_audio_AudioProfile_set_maxInstances(se::State& s)
 }
 SE_BIND_PROP_SET(js_audio_AudioProfile_set_maxInstances)
 
-static bool js_audio_AudioProfile_get_minDelay(se::State& s)
+static bool js_audio_AudioProfile_get_minDelay(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
     SE_PRECONDITION2(cobj, false, "js_audio_AudioProfile_get_minDelay : Invalid Native Object");
@@ -82,7 +82,7 @@ static bool js_audio_AudioProfile_get_minDelay(se::State& s)
 }
 SE_BIND_PROP_GET(js_audio_AudioProfile_get_minDelay)
 
-static bool js_audio_AudioProfile_set_minDelay(se::State& s)
+static bool js_audio_AudioProfile_set_minDelay(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::AudioProfile>(s);
@@ -97,7 +97,7 @@ SE_BIND_PROP_SET(js_audio_AudioProfile_set_minDelay)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_AudioProfile_finalize)
 
-static bool js_audio_AudioProfile_constructor(se::State& s) // constructor.c
+static bool js_audio_AudioProfile_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::AudioProfile* cobj = JSB_ALLOC(cc::AudioProfile);
     s.thisObject()->setPrivateData(cobj);
@@ -108,8 +108,7 @@ SE_BIND_CTOR(js_audio_AudioProfile_constructor, __jsb_cc_AudioProfile_class, js_
 
 
 
-
-static bool js_cc_AudioProfile_finalize(se::State& s)
+static bool js_cc_AudioProfile_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::AudioProfile>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -122,7 +121,7 @@ static bool js_cc_AudioProfile_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_AudioProfile_finalize)
 
-bool js_register_audio_AudioProfile(se::Object* obj)
+bool js_register_audio_AudioProfile(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("AudioProfile", obj, nullptr, _SE(js_audio_AudioProfile_constructor));
 
@@ -142,7 +141,7 @@ bool js_register_audio_AudioProfile(se::Object* obj)
 se::Object* __jsb_cc_AudioEngine_proto = nullptr;
 se::Class* __jsb_cc_AudioEngine_class = nullptr;
 
-static bool js_audio_AudioEngine_lazyInit(se::State& s)
+static bool js_audio_AudioEngine_lazyInit(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -159,7 +158,7 @@ static bool js_audio_AudioEngine_lazyInit(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_lazyInit)
 
-static bool js_audio_AudioEngine_setCurrentTime(se::State& s)
+static bool js_audio_AudioEngine_setCurrentTime(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -181,7 +180,7 @@ static bool js_audio_AudioEngine_setCurrentTime(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_setCurrentTime)
 
-static bool js_audio_AudioEngine_getVolume(se::State& s)
+static bool js_audio_AudioEngine_getVolume(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -201,7 +200,7 @@ static bool js_audio_AudioEngine_getVolume(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_getVolume)
 
-static bool js_audio_AudioEngine_uncache(se::State& s)
+static bool js_audio_AudioEngine_uncache(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -218,7 +217,7 @@ static bool js_audio_AudioEngine_uncache(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_uncache)
 
-static bool js_audio_AudioEngine_resumeAll(se::State& s)
+static bool js_audio_AudioEngine_resumeAll(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -231,7 +230,7 @@ static bool js_audio_AudioEngine_resumeAll(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_resumeAll)
 
-static bool js_audio_AudioEngine_stopAll(se::State& s)
+static bool js_audio_AudioEngine_stopAll(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -244,7 +243,7 @@ static bool js_audio_AudioEngine_stopAll(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_stopAll)
 
-static bool js_audio_AudioEngine_pause(se::State& s)
+static bool js_audio_AudioEngine_pause(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -261,7 +260,7 @@ static bool js_audio_AudioEngine_pause(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_pause)
 
-static bool js_audio_AudioEngine_end(se::State& s)
+static bool js_audio_AudioEngine_end(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -274,7 +273,7 @@ static bool js_audio_AudioEngine_end(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_end)
 
-static bool js_audio_AudioEngine_getMaxAudioInstance(se::State& s)
+static bool js_audio_AudioEngine_getMaxAudioInstance(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -291,7 +290,7 @@ static bool js_audio_AudioEngine_getMaxAudioInstance(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_getMaxAudioInstance)
 
-static bool js_audio_AudioEngine_isEnabled(se::State& s)
+static bool js_audio_AudioEngine_isEnabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -308,7 +307,7 @@ static bool js_audio_AudioEngine_isEnabled(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_isEnabled)
 
-static bool js_audio_AudioEngine_getDurationFromFile(se::State& s)
+static bool js_audio_AudioEngine_getDurationFromFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -328,7 +327,7 @@ static bool js_audio_AudioEngine_getDurationFromFile(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_getDurationFromFile)
 
-static bool js_audio_AudioEngine_getCurrentTime(se::State& s)
+static bool js_audio_AudioEngine_getCurrentTime(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -348,7 +347,7 @@ static bool js_audio_AudioEngine_getCurrentTime(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_getCurrentTime)
 
-static bool js_audio_AudioEngine_setMaxAudioInstance(se::State& s)
+static bool js_audio_AudioEngine_setMaxAudioInstance(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -368,7 +367,7 @@ static bool js_audio_AudioEngine_setMaxAudioInstance(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_setMaxAudioInstance)
 
-static bool js_audio_AudioEngine_isLoop(se::State& s)
+static bool js_audio_AudioEngine_isLoop(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -388,7 +387,7 @@ static bool js_audio_AudioEngine_isLoop(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_isLoop)
 
-static bool js_audio_AudioEngine_pauseAll(se::State& s)
+static bool js_audio_AudioEngine_pauseAll(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -401,7 +400,7 @@ static bool js_audio_AudioEngine_pauseAll(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_pauseAll)
 
-static bool js_audio_AudioEngine_uncacheAll(se::State& s)
+static bool js_audio_AudioEngine_uncacheAll(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -414,7 +413,7 @@ static bool js_audio_AudioEngine_uncacheAll(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_uncacheAll)
 
-static bool js_audio_AudioEngine_setVolume(se::State& s)
+static bool js_audio_AudioEngine_setVolume(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -433,7 +432,7 @@ static bool js_audio_AudioEngine_setVolume(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_setVolume)
 
-static bool js_audio_AudioEngine_preload(se::State& s)
+static bool js_audio_AudioEngine_preload(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -493,7 +492,7 @@ static bool js_audio_AudioEngine_preload(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_preload)
 
-static bool js_audio_AudioEngine_setEnabled(se::State& s)
+static bool js_audio_AudioEngine_setEnabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -510,7 +509,7 @@ static bool js_audio_AudioEngine_setEnabled(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_setEnabled)
 
-static bool js_audio_AudioEngine_play2d(se::State& s)
+static bool js_audio_AudioEngine_play2d(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -572,7 +571,7 @@ static bool js_audio_AudioEngine_play2d(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_play2d)
 
-static bool js_audio_AudioEngine_getState(se::State& s)
+static bool js_audio_AudioEngine_getState(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -581,7 +580,7 @@ static bool js_audio_AudioEngine_getState(se::State& s)
         HolderType<int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, nullptr);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getState : Error processing arguments");
-        int result = (int)cc::AudioEngine::getState(arg0.value());
+        auto result = static_cast<int>(cc::AudioEngine::getState(arg0.value()));
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_audio_AudioEngine_getState : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -592,7 +591,7 @@ static bool js_audio_AudioEngine_getState(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_getState)
 
-static bool js_audio_AudioEngine_resume(se::State& s)
+static bool js_audio_AudioEngine_resume(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -609,7 +608,7 @@ static bool js_audio_AudioEngine_resume(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_resume)
 
-static bool js_audio_AudioEngine_stop(se::State& s)
+static bool js_audio_AudioEngine_stop(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -626,7 +625,7 @@ static bool js_audio_AudioEngine_stop(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_stop)
 
-static bool js_audio_AudioEngine_getDuration(se::State& s)
+static bool js_audio_AudioEngine_getDuration(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -646,7 +645,7 @@ static bool js_audio_AudioEngine_getDuration(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_getDuration)
 
-static bool js_audio_AudioEngine_setLoop(se::State& s)
+static bool js_audio_AudioEngine_setLoop(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -665,7 +664,7 @@ static bool js_audio_AudioEngine_setLoop(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_setLoop)
 
-static bool js_audio_AudioEngine_getDefaultProfile(se::State& s)
+static bool js_audio_AudioEngine_getDefaultProfile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -682,7 +681,7 @@ static bool js_audio_AudioEngine_getDefaultProfile(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_getDefaultProfile)
 
-static bool js_audio_AudioEngine_setFinishCallback(se::State& s)
+static bool js_audio_AudioEngine_setFinishCallback(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -731,7 +730,7 @@ static bool js_audio_AudioEngine_setFinishCallback(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_setFinishCallback)
 
-static bool js_audio_AudioEngine_getProfile(se::State& s)
+static bool js_audio_AudioEngine_getProfile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -765,7 +764,7 @@ static bool js_audio_AudioEngine_getProfile(se::State& s)
 }
 SE_BIND_FUNC(js_audio_AudioEngine_getProfile)
 
-static bool js_audio_AudioEngine_getPlayingAudioCount(se::State& s)
+static bool js_audio_AudioEngine_getPlayingAudioCount(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -784,8 +783,7 @@ SE_BIND_FUNC(js_audio_AudioEngine_getPlayingAudioCount)
 
 
 
-
-bool js_register_audio_AudioEngine(se::Object* obj)
+bool js_register_audio_AudioEngine(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("AudioEngine", obj, nullptr, nullptr);
 

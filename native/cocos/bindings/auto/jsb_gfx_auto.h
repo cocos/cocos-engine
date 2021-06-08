@@ -4,6 +4,7 @@
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/renderer/gfx-base/GFXBase.h"
+#include "cocos/renderer/GFXDeviceManager.h"
 
 extern se::Object* __jsb_cc_gfx_Size_proto;
 extern se::Class* __jsb_cc_gfx_Size_class;
@@ -834,4 +835,14 @@ SE_DECLARE_FUNC(js_gfx_Device_hasFeature);
 SE_DECLARE_FUNC(js_gfx_Device_initialize);
 SE_DECLARE_FUNC(js_gfx_Device_present);
 SE_DECLARE_FUNC(js_gfx_Device_resize);
+
+extern se::Object* __jsb_cc_gfx_DeviceManager_proto;
+extern se::Class* __jsb_cc_gfx_DeviceManager_class;
+
+bool js_register_cc_gfx_DeviceManager(se::Object* obj);
+bool register_all_gfx(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceManager);
+SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
+SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
 

@@ -29,7 +29,7 @@
 se::Object* __jsb_cc_pipeline_RenderQueueDesc_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderQueueDesc_class = nullptr;
 
-static bool js_pipeline_RenderQueueDesc_get_isTransparent(se::State& s)
+static bool js_pipeline_RenderQueueDesc_get_isTransparent(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderQueueDesc>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderQueueDesc_get_isTransparent : Invalid Native Object");
@@ -43,7 +43,7 @@ static bool js_pipeline_RenderQueueDesc_get_isTransparent(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderQueueDesc_get_isTransparent)
 
-static bool js_pipeline_RenderQueueDesc_set_isTransparent(se::State& s)
+static bool js_pipeline_RenderQueueDesc_set_isTransparent(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderQueueDesc>(s);
@@ -56,7 +56,7 @@ static bool js_pipeline_RenderQueueDesc_set_isTransparent(se::State& s)
 }
 SE_BIND_PROP_SET(js_pipeline_RenderQueueDesc_set_isTransparent)
 
-static bool js_pipeline_RenderQueueDesc_get_sortMode(se::State& s)
+static bool js_pipeline_RenderQueueDesc_get_sortMode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderQueueDesc>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderQueueDesc_get_sortMode : Invalid Native Object");
@@ -70,7 +70,7 @@ static bool js_pipeline_RenderQueueDesc_get_sortMode(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderQueueDesc_get_sortMode)
 
-static bool js_pipeline_RenderQueueDesc_set_sortMode(se::State& s)
+static bool js_pipeline_RenderQueueDesc_set_sortMode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderQueueDesc>(s);
@@ -83,7 +83,7 @@ static bool js_pipeline_RenderQueueDesc_set_sortMode(se::State& s)
 }
 SE_BIND_PROP_SET(js_pipeline_RenderQueueDesc_set_sortMode)
 
-static bool js_pipeline_RenderQueueDesc_get_stages(se::State& s)
+static bool js_pipeline_RenderQueueDesc_get_stages(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderQueueDesc>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderQueueDesc_get_stages : Invalid Native Object");
@@ -97,7 +97,7 @@ static bool js_pipeline_RenderQueueDesc_get_stages(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderQueueDesc_get_stages)
 
-static bool js_pipeline_RenderQueueDesc_set_stages(se::State& s)
+static bool js_pipeline_RenderQueueDesc_set_stages(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderQueueDesc>(s);
@@ -140,7 +140,7 @@ bool sevalue_to_native(const se::Value &from, cc::pipeline::RenderQueueDesc * to
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_RenderQueueDesc_finalize)
 
-static bool js_pipeline_RenderQueueDesc_constructor(se::State& s)
+static bool js_pipeline_RenderQueueDesc_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -197,8 +197,7 @@ SE_BIND_CTOR(js_pipeline_RenderQueueDesc_constructor, __jsb_cc_pipeline_RenderQu
 
 
 
-
-static bool js_cc_pipeline_RenderQueueDesc_finalize(se::State& s)
+static bool js_cc_pipeline_RenderQueueDesc_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::RenderQueueDesc>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -211,7 +210,7 @@ static bool js_cc_pipeline_RenderQueueDesc_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_RenderQueueDesc_finalize)
 
-bool js_register_pipeline_RenderQueueDesc(se::Object* obj)
+bool js_register_pipeline_RenderQueueDesc(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("RenderQueueDesc", obj, nullptr, _SE(js_pipeline_RenderQueueDesc_constructor));
 
@@ -231,7 +230,7 @@ bool js_register_pipeline_RenderQueueDesc(se::Object* obj)
 se::Object* __jsb_cc_pipeline_RenderPipelineInfo_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderPipelineInfo_class = nullptr;
 
-static bool js_pipeline_RenderPipelineInfo_get_tag(se::State& s)
+static bool js_pipeline_RenderPipelineInfo_get_tag(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipelineInfo>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipelineInfo_get_tag : Invalid Native Object");
@@ -245,7 +244,7 @@ static bool js_pipeline_RenderPipelineInfo_get_tag(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderPipelineInfo_get_tag)
 
-static bool js_pipeline_RenderPipelineInfo_set_tag(se::State& s)
+static bool js_pipeline_RenderPipelineInfo_set_tag(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipelineInfo>(s);
@@ -258,7 +257,7 @@ static bool js_pipeline_RenderPipelineInfo_set_tag(se::State& s)
 }
 SE_BIND_PROP_SET(js_pipeline_RenderPipelineInfo_set_tag)
 
-static bool js_pipeline_RenderPipelineInfo_get_flows(se::State& s)
+static bool js_pipeline_RenderPipelineInfo_get_flows(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipelineInfo>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipelineInfo_get_flows : Invalid Native Object");
@@ -272,7 +271,7 @@ static bool js_pipeline_RenderPipelineInfo_get_flows(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderPipelineInfo_get_flows)
 
-static bool js_pipeline_RenderPipelineInfo_set_flows(se::State& s)
+static bool js_pipeline_RenderPipelineInfo_set_flows(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipelineInfo>(s);
@@ -311,7 +310,7 @@ bool sevalue_to_native(const se::Value &from, cc::pipeline::RenderPipelineInfo *
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_RenderPipelineInfo_finalize)
 
-static bool js_pipeline_RenderPipelineInfo_constructor(se::State& s)
+static bool js_pipeline_RenderPipelineInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -365,8 +364,7 @@ SE_BIND_CTOR(js_pipeline_RenderPipelineInfo_constructor, __jsb_cc_pipeline_Rende
 
 
 
-
-static bool js_cc_pipeline_RenderPipelineInfo_finalize(se::State& s)
+static bool js_cc_pipeline_RenderPipelineInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::RenderPipelineInfo>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -379,7 +377,7 @@ static bool js_cc_pipeline_RenderPipelineInfo_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_RenderPipelineInfo_finalize)
 
-bool js_register_pipeline_RenderPipelineInfo(se::Object* obj)
+bool js_register_pipeline_RenderPipelineInfo(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("RenderPipelineInfo", obj, nullptr, _SE(js_pipeline_RenderPipelineInfo_constructor));
 
@@ -398,7 +396,7 @@ bool js_register_pipeline_RenderPipelineInfo(se::Object* obj)
 se::Object* __jsb_cc_pipeline_RenderPipeline_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderPipeline_class = nullptr;
 
-static bool js_pipeline_RenderPipeline_activate(se::State& s)
+static bool js_pipeline_RenderPipeline_activate(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_activate : Invalid Native Object");
@@ -417,7 +415,7 @@ static bool js_pipeline_RenderPipeline_activate(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_activate)
 
-static bool js_pipeline_RenderPipeline_destroy(se::State& s)
+static bool js_pipeline_RenderPipeline_destroy(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_destroy : Invalid Native Object");
@@ -432,7 +430,7 @@ static bool js_pipeline_RenderPipeline_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_destroy)
 
-static bool js_pipeline_RenderPipeline_getConstantMacros(se::State& s)
+static bool js_pipeline_RenderPipeline_getConstantMacros(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getConstantMacros : Invalid Native Object");
@@ -451,7 +449,7 @@ static bool js_pipeline_RenderPipeline_getConstantMacros(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderPipeline_getConstantMacros)
 
-static bool js_pipeline_RenderPipeline_getDescriptorSet(se::State& s)
+static bool js_pipeline_RenderPipeline_getDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getDescriptorSet : Invalid Native Object");
@@ -470,7 +468,7 @@ static bool js_pipeline_RenderPipeline_getDescriptorSet(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderPipeline_getDescriptorSet)
 
-static bool js_pipeline_RenderPipeline_getDescriptorSetLayout(se::State& s)
+static bool js_pipeline_RenderPipeline_getDescriptorSetLayout(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getDescriptorSetLayout : Invalid Native Object");
@@ -489,7 +487,7 @@ static bool js_pipeline_RenderPipeline_getDescriptorSetLayout(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderPipeline_getDescriptorSetLayout)
 
-static bool js_pipeline_RenderPipeline_getDevice(se::State& s)
+static bool js_pipeline_RenderPipeline_getDevice(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_getDevice : Invalid Native Object");
@@ -508,7 +506,7 @@ static bool js_pipeline_RenderPipeline_getDevice(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_getDevice)
 
-static bool js_pipeline_RenderPipeline_initialize(se::State& s)
+static bool js_pipeline_RenderPipeline_initialize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_initialize : Invalid Native Object");
@@ -530,7 +528,7 @@ static bool js_pipeline_RenderPipeline_initialize(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_initialize)
 
-static bool js_pipeline_RenderPipeline_render(se::State& s)
+static bool js_pipeline_RenderPipeline_render(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_render : Invalid Native Object");
@@ -549,7 +547,7 @@ static bool js_pipeline_RenderPipeline_render(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_render)
 
-static bool js_pipeline_RenderPipeline_resize(se::State& s)
+static bool js_pipeline_RenderPipeline_resize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_resize : Invalid Native Object");
@@ -570,7 +568,7 @@ static bool js_pipeline_RenderPipeline_resize(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_resize)
 
-static bool js_pipeline_RenderPipeline_setPipelineSharedSceneData(se::State& s)
+static bool js_pipeline_RenderPipeline_setPipelineSharedSceneData(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_setPipelineSharedSceneData : Invalid Native Object");
@@ -589,7 +587,7 @@ static bool js_pipeline_RenderPipeline_setPipelineSharedSceneData(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_setPipelineSharedSceneData)
 
-static bool js_pipeline_RenderPipeline_setValue(se::State& s)
+static bool js_pipeline_RenderPipeline_setValue(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderPipeline>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderPipeline_setValue : Invalid Native Object");
@@ -610,7 +608,7 @@ static bool js_pipeline_RenderPipeline_setValue(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderPipeline_setValue)
 
-static bool js_pipeline_RenderPipeline_getInstance(se::State& s)
+static bool js_pipeline_RenderPipeline_getInstance(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -629,8 +627,7 @@ SE_BIND_FUNC(js_pipeline_RenderPipeline_getInstance)
 
 
 
-
-bool js_register_pipeline_RenderPipeline(se::Object* obj)
+bool js_register_pipeline_RenderPipeline(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("RenderPipeline", obj, nullptr, nullptr);
 
@@ -660,7 +657,7 @@ se::Class* __jsb_cc_pipeline_ForwardPipeline_class = nullptr;
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_ForwardPipeline_finalize)
 
-static bool js_pipeline_ForwardPipeline_constructor(se::State& s) // constructor.c
+static bool js_pipeline_ForwardPipeline_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::pipeline::ForwardPipeline* cobj = JSB_ALLOC(cc::pipeline::ForwardPipeline);
     s.thisObject()->setPrivateData(cobj);
@@ -671,9 +668,7 @@ SE_BIND_CTOR(js_pipeline_ForwardPipeline_constructor, __jsb_cc_pipeline_ForwardP
 
 
 
-extern se::Object* __jsb_cc_pipeline_RenderPipeline_proto;
-
-static bool js_cc_pipeline_ForwardPipeline_finalize(se::State& s)
+static bool js_cc_pipeline_ForwardPipeline_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::ForwardPipeline>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -686,7 +681,7 @@ static bool js_cc_pipeline_ForwardPipeline_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_ForwardPipeline_finalize)
 
-bool js_register_pipeline_ForwardPipeline(se::Object* obj)
+bool js_register_pipeline_ForwardPipeline(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("ForwardPipeline", obj, __jsb_cc_pipeline_RenderPipeline_proto, _SE(js_pipeline_ForwardPipeline_constructor));
 
@@ -703,7 +698,7 @@ bool js_register_pipeline_ForwardPipeline(se::Object* obj)
 se::Object* __jsb_cc_pipeline_RenderFlowInfo_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderFlowInfo_class = nullptr;
 
-static bool js_pipeline_RenderFlowInfo_get_name(se::State& s)
+static bool js_pipeline_RenderFlowInfo_get_name(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderFlowInfo>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderFlowInfo_get_name : Invalid Native Object");
@@ -717,7 +712,7 @@ static bool js_pipeline_RenderFlowInfo_get_name(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderFlowInfo_get_name)
 
-static bool js_pipeline_RenderFlowInfo_set_name(se::State& s)
+static bool js_pipeline_RenderFlowInfo_set_name(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderFlowInfo>(s);
@@ -730,7 +725,7 @@ static bool js_pipeline_RenderFlowInfo_set_name(se::State& s)
 }
 SE_BIND_PROP_SET(js_pipeline_RenderFlowInfo_set_name)
 
-static bool js_pipeline_RenderFlowInfo_get_priority(se::State& s)
+static bool js_pipeline_RenderFlowInfo_get_priority(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderFlowInfo>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderFlowInfo_get_priority : Invalid Native Object");
@@ -744,7 +739,7 @@ static bool js_pipeline_RenderFlowInfo_get_priority(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderFlowInfo_get_priority)
 
-static bool js_pipeline_RenderFlowInfo_set_priority(se::State& s)
+static bool js_pipeline_RenderFlowInfo_set_priority(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderFlowInfo>(s);
@@ -757,7 +752,7 @@ static bool js_pipeline_RenderFlowInfo_set_priority(se::State& s)
 }
 SE_BIND_PROP_SET(js_pipeline_RenderFlowInfo_set_priority)
 
-static bool js_pipeline_RenderFlowInfo_get_tag(se::State& s)
+static bool js_pipeline_RenderFlowInfo_get_tag(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderFlowInfo>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderFlowInfo_get_tag : Invalid Native Object");
@@ -771,7 +766,7 @@ static bool js_pipeline_RenderFlowInfo_get_tag(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderFlowInfo_get_tag)
 
-static bool js_pipeline_RenderFlowInfo_set_tag(se::State& s)
+static bool js_pipeline_RenderFlowInfo_set_tag(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderFlowInfo>(s);
@@ -784,7 +779,7 @@ static bool js_pipeline_RenderFlowInfo_set_tag(se::State& s)
 }
 SE_BIND_PROP_SET(js_pipeline_RenderFlowInfo_set_tag)
 
-static bool js_pipeline_RenderFlowInfo_get_stages(se::State& s)
+static bool js_pipeline_RenderFlowInfo_get_stages(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderFlowInfo>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderFlowInfo_get_stages : Invalid Native Object");
@@ -798,7 +793,7 @@ static bool js_pipeline_RenderFlowInfo_get_stages(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderFlowInfo_get_stages)
 
-static bool js_pipeline_RenderFlowInfo_set_stages(se::State& s)
+static bool js_pipeline_RenderFlowInfo_set_stages(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderFlowInfo>(s);
@@ -845,7 +840,7 @@ bool sevalue_to_native(const se::Value &from, cc::pipeline::RenderFlowInfo * to,
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_RenderFlowInfo_finalize)
 
-static bool js_pipeline_RenderFlowInfo_constructor(se::State& s)
+static bool js_pipeline_RenderFlowInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -905,8 +900,7 @@ SE_BIND_CTOR(js_pipeline_RenderFlowInfo_constructor, __jsb_cc_pipeline_RenderFlo
 
 
 
-
-static bool js_cc_pipeline_RenderFlowInfo_finalize(se::State& s)
+static bool js_cc_pipeline_RenderFlowInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::RenderFlowInfo>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -919,7 +913,7 @@ static bool js_cc_pipeline_RenderFlowInfo_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_RenderFlowInfo_finalize)
 
-bool js_register_pipeline_RenderFlowInfo(se::Object* obj)
+bool js_register_pipeline_RenderFlowInfo(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("RenderFlowInfo", obj, nullptr, _SE(js_pipeline_RenderFlowInfo_constructor));
 
@@ -940,7 +934,7 @@ bool js_register_pipeline_RenderFlowInfo(se::Object* obj)
 se::Object* __jsb_cc_pipeline_RenderFlow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderFlow_class = nullptr;
 
-static bool js_pipeline_RenderFlow_activate(se::State& s)
+static bool js_pipeline_RenderFlow_activate(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderFlow>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderFlow_activate : Invalid Native Object");
@@ -959,7 +953,7 @@ static bool js_pipeline_RenderFlow_activate(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderFlow_activate)
 
-static bool js_pipeline_RenderFlow_getTag(se::State& s)
+static bool js_pipeline_RenderFlow_getTag(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderFlow>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderFlow_getTag : Invalid Native Object");
@@ -978,7 +972,7 @@ static bool js_pipeline_RenderFlow_getTag(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderFlow_getTag)
 
-static bool js_pipeline_RenderFlow_initialize(se::State& s)
+static bool js_pipeline_RenderFlow_initialize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderFlow>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderFlow_initialize : Invalid Native Object");
@@ -1002,8 +996,7 @@ SE_BIND_FUNC(js_pipeline_RenderFlow_initialize)
 
 
 
-
-bool js_register_pipeline_RenderFlow(se::Object* obj)
+bool js_register_pipeline_RenderFlow(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("RenderFlow", obj, nullptr, nullptr);
 
@@ -1022,7 +1015,7 @@ bool js_register_pipeline_RenderFlow(se::Object* obj)
 se::Object* __jsb_cc_pipeline_ForwardFlow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_ForwardFlow_class = nullptr;
 
-static bool js_pipeline_ForwardFlow_getInitializeInfo(se::State& s)
+static bool js_pipeline_ForwardFlow_getInitializeInfo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1041,7 +1034,7 @@ SE_BIND_FUNC(js_pipeline_ForwardFlow_getInitializeInfo)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_ForwardFlow_finalize)
 
-static bool js_pipeline_ForwardFlow_constructor(se::State& s) // constructor.c
+static bool js_pipeline_ForwardFlow_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::pipeline::ForwardFlow* cobj = JSB_ALLOC(cc::pipeline::ForwardFlow);
     s.thisObject()->setPrivateData(cobj);
@@ -1052,9 +1045,7 @@ SE_BIND_CTOR(js_pipeline_ForwardFlow_constructor, __jsb_cc_pipeline_ForwardFlow_
 
 
 
-extern se::Object* __jsb_cc_pipeline_RenderFlow_proto;
-
-static bool js_cc_pipeline_ForwardFlow_finalize(se::State& s)
+static bool js_cc_pipeline_ForwardFlow_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::ForwardFlow>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1067,7 +1058,7 @@ static bool js_cc_pipeline_ForwardFlow_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_ForwardFlow_finalize)
 
-bool js_register_pipeline_ForwardFlow(se::Object* obj)
+bool js_register_pipeline_ForwardFlow(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("ForwardFlow", obj, __jsb_cc_pipeline_RenderFlow_proto, _SE(js_pipeline_ForwardFlow_constructor));
 
@@ -1085,7 +1076,7 @@ bool js_register_pipeline_ForwardFlow(se::Object* obj)
 se::Object* __jsb_cc_pipeline_RenderStageInfo_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderStageInfo_class = nullptr;
 
-static bool js_pipeline_RenderStageInfo_get_name(se::State& s)
+static bool js_pipeline_RenderStageInfo_get_name(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStageInfo>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderStageInfo_get_name : Invalid Native Object");
@@ -1099,7 +1090,7 @@ static bool js_pipeline_RenderStageInfo_get_name(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderStageInfo_get_name)
 
-static bool js_pipeline_RenderStageInfo_set_name(se::State& s)
+static bool js_pipeline_RenderStageInfo_set_name(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStageInfo>(s);
@@ -1112,7 +1103,7 @@ static bool js_pipeline_RenderStageInfo_set_name(se::State& s)
 }
 SE_BIND_PROP_SET(js_pipeline_RenderStageInfo_set_name)
 
-static bool js_pipeline_RenderStageInfo_get_priority(se::State& s)
+static bool js_pipeline_RenderStageInfo_get_priority(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStageInfo>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderStageInfo_get_priority : Invalid Native Object");
@@ -1126,7 +1117,7 @@ static bool js_pipeline_RenderStageInfo_get_priority(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderStageInfo_get_priority)
 
-static bool js_pipeline_RenderStageInfo_set_priority(se::State& s)
+static bool js_pipeline_RenderStageInfo_set_priority(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStageInfo>(s);
@@ -1139,7 +1130,7 @@ static bool js_pipeline_RenderStageInfo_set_priority(se::State& s)
 }
 SE_BIND_PROP_SET(js_pipeline_RenderStageInfo_set_priority)
 
-static bool js_pipeline_RenderStageInfo_get_tag(se::State& s)
+static bool js_pipeline_RenderStageInfo_get_tag(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStageInfo>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderStageInfo_get_tag : Invalid Native Object");
@@ -1153,7 +1144,7 @@ static bool js_pipeline_RenderStageInfo_get_tag(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderStageInfo_get_tag)
 
-static bool js_pipeline_RenderStageInfo_set_tag(se::State& s)
+static bool js_pipeline_RenderStageInfo_set_tag(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStageInfo>(s);
@@ -1166,7 +1157,7 @@ static bool js_pipeline_RenderStageInfo_set_tag(se::State& s)
 }
 SE_BIND_PROP_SET(js_pipeline_RenderStageInfo_set_tag)
 
-static bool js_pipeline_RenderStageInfo_get_renderQueues(se::State& s)
+static bool js_pipeline_RenderStageInfo_get_renderQueues(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStageInfo>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderStageInfo_get_renderQueues : Invalid Native Object");
@@ -1180,7 +1171,7 @@ static bool js_pipeline_RenderStageInfo_get_renderQueues(se::State& s)
 }
 SE_BIND_PROP_GET(js_pipeline_RenderStageInfo_get_renderQueues)
 
-static bool js_pipeline_RenderStageInfo_set_renderQueues(se::State& s)
+static bool js_pipeline_RenderStageInfo_set_renderQueues(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStageInfo>(s);
@@ -1227,7 +1218,7 @@ bool sevalue_to_native(const se::Value &from, cc::pipeline::RenderStageInfo * to
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_RenderStageInfo_finalize)
 
-static bool js_pipeline_RenderStageInfo_constructor(se::State& s)
+static bool js_pipeline_RenderStageInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -1287,8 +1278,7 @@ SE_BIND_CTOR(js_pipeline_RenderStageInfo_constructor, __jsb_cc_pipeline_RenderSt
 
 
 
-
-static bool js_cc_pipeline_RenderStageInfo_finalize(se::State& s)
+static bool js_cc_pipeline_RenderStageInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::RenderStageInfo>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1301,7 +1291,7 @@ static bool js_cc_pipeline_RenderStageInfo_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_RenderStageInfo_finalize)
 
-bool js_register_pipeline_RenderStageInfo(se::Object* obj)
+bool js_register_pipeline_RenderStageInfo(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("RenderStageInfo", obj, nullptr, _SE(js_pipeline_RenderStageInfo_constructor));
 
@@ -1322,7 +1312,7 @@ bool js_register_pipeline_RenderStageInfo(se::Object* obj)
 se::Object* __jsb_cc_pipeline_RenderStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_RenderStage_class = nullptr;
 
-static bool js_pipeline_RenderStage_activate(se::State& s)
+static bool js_pipeline_RenderStage_activate(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStage>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderStage_activate : Invalid Native Object");
@@ -1343,7 +1333,7 @@ static bool js_pipeline_RenderStage_activate(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderStage_activate)
 
-static bool js_pipeline_RenderStage_getFlow(se::State& s)
+static bool js_pipeline_RenderStage_getFlow(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStage>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderStage_getFlow : Invalid Native Object");
@@ -1362,7 +1352,7 @@ static bool js_pipeline_RenderStage_getFlow(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderStage_getFlow)
 
-static bool js_pipeline_RenderStage_getTag(se::State& s)
+static bool js_pipeline_RenderStage_getTag(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStage>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderStage_getTag : Invalid Native Object");
@@ -1381,7 +1371,7 @@ static bool js_pipeline_RenderStage_getTag(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_RenderStage_getTag)
 
-static bool js_pipeline_RenderStage_initialize(se::State& s)
+static bool js_pipeline_RenderStage_initialize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::RenderStage>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_RenderStage_initialize : Invalid Native Object");
@@ -1405,8 +1395,7 @@ SE_BIND_FUNC(js_pipeline_RenderStage_initialize)
 
 
 
-
-bool js_register_pipeline_RenderStage(se::Object* obj)
+bool js_register_pipeline_RenderStage(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("RenderStage", obj, nullptr, nullptr);
 
@@ -1426,7 +1415,7 @@ bool js_register_pipeline_RenderStage(se::Object* obj)
 se::Object* __jsb_cc_pipeline_ForwardStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_ForwardStage_class = nullptr;
 
-static bool js_pipeline_ForwardStage_getInitializeInfo(se::State& s)
+static bool js_pipeline_ForwardStage_getInitializeInfo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1445,7 +1434,7 @@ SE_BIND_FUNC(js_pipeline_ForwardStage_getInitializeInfo)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_ForwardStage_finalize)
 
-static bool js_pipeline_ForwardStage_constructor(se::State& s) // constructor.c
+static bool js_pipeline_ForwardStage_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::pipeline::ForwardStage* cobj = JSB_ALLOC(cc::pipeline::ForwardStage);
     s.thisObject()->setPrivateData(cobj);
@@ -1456,9 +1445,7 @@ SE_BIND_CTOR(js_pipeline_ForwardStage_constructor, __jsb_cc_pipeline_ForwardStag
 
 
 
-extern se::Object* __jsb_cc_pipeline_RenderStage_proto;
-
-static bool js_cc_pipeline_ForwardStage_finalize(se::State& s)
+static bool js_cc_pipeline_ForwardStage_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::ForwardStage>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1471,7 +1458,7 @@ static bool js_cc_pipeline_ForwardStage_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_ForwardStage_finalize)
 
-bool js_register_pipeline_ForwardStage(se::Object* obj)
+bool js_register_pipeline_ForwardStage(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("ForwardStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_ForwardStage_constructor));
 
@@ -1489,7 +1476,7 @@ bool js_register_pipeline_ForwardStage(se::Object* obj)
 se::Object* __jsb_cc_pipeline_ShadowFlow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_ShadowFlow_class = nullptr;
 
-static bool js_pipeline_ShadowFlow_getInitializeInfo(se::State& s)
+static bool js_pipeline_ShadowFlow_getInitializeInfo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1508,7 +1495,7 @@ SE_BIND_FUNC(js_pipeline_ShadowFlow_getInitializeInfo)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_ShadowFlow_finalize)
 
-static bool js_pipeline_ShadowFlow_constructor(se::State& s) // constructor.c
+static bool js_pipeline_ShadowFlow_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::pipeline::ShadowFlow* cobj = JSB_ALLOC(cc::pipeline::ShadowFlow);
     s.thisObject()->setPrivateData(cobj);
@@ -1519,9 +1506,7 @@ SE_BIND_CTOR(js_pipeline_ShadowFlow_constructor, __jsb_cc_pipeline_ShadowFlow_cl
 
 
 
-extern se::Object* __jsb_cc_pipeline_RenderFlow_proto;
-
-static bool js_cc_pipeline_ShadowFlow_finalize(se::State& s)
+static bool js_cc_pipeline_ShadowFlow_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::ShadowFlow>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1534,7 +1519,7 @@ static bool js_cc_pipeline_ShadowFlow_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_ShadowFlow_finalize)
 
-bool js_register_pipeline_ShadowFlow(se::Object* obj)
+bool js_register_pipeline_ShadowFlow(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("ShadowFlow", obj, __jsb_cc_pipeline_RenderFlow_proto, _SE(js_pipeline_ShadowFlow_constructor));
 
@@ -1552,7 +1537,7 @@ bool js_register_pipeline_ShadowFlow(se::Object* obj)
 se::Object* __jsb_cc_pipeline_ShadowStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_ShadowStage_class = nullptr;
 
-static bool js_pipeline_ShadowStage_setFramebuffer(se::State& s)
+static bool js_pipeline_ShadowStage_setFramebuffer(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::ShadowStage>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_ShadowStage_setFramebuffer : Invalid Native Object");
@@ -1571,7 +1556,7 @@ static bool js_pipeline_ShadowStage_setFramebuffer(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_ShadowStage_setFramebuffer)
 
-static bool js_pipeline_ShadowStage_setUseData(se::State& s)
+static bool js_pipeline_ShadowStage_setUseData(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::ShadowStage>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_ShadowStage_setUseData : Invalid Native Object");
@@ -1592,7 +1577,7 @@ static bool js_pipeline_ShadowStage_setUseData(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_ShadowStage_setUseData)
 
-static bool js_pipeline_ShadowStage_getInitializeInfo(se::State& s)
+static bool js_pipeline_ShadowStage_getInitializeInfo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1611,7 +1596,7 @@ SE_BIND_FUNC(js_pipeline_ShadowStage_getInitializeInfo)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_ShadowStage_finalize)
 
-static bool js_pipeline_ShadowStage_constructor(se::State& s) // constructor.c
+static bool js_pipeline_ShadowStage_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::pipeline::ShadowStage* cobj = JSB_ALLOC(cc::pipeline::ShadowStage);
     s.thisObject()->setPrivateData(cobj);
@@ -1622,9 +1607,7 @@ SE_BIND_CTOR(js_pipeline_ShadowStage_constructor, __jsb_cc_pipeline_ShadowStage_
 
 
 
-extern se::Object* __jsb_cc_pipeline_RenderStage_proto;
-
-static bool js_cc_pipeline_ShadowStage_finalize(se::State& s)
+static bool js_cc_pipeline_ShadowStage_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::ShadowStage>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1637,7 +1620,7 @@ static bool js_cc_pipeline_ShadowStage_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_ShadowStage_finalize)
 
-bool js_register_pipeline_ShadowStage(se::Object* obj)
+bool js_register_pipeline_ShadowStage(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("ShadowStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_ShadowStage_constructor));
 
@@ -1657,7 +1640,7 @@ bool js_register_pipeline_ShadowStage(se::Object* obj)
 se::Object* __jsb_cc_pipeline_InstancedBuffer_proto = nullptr;
 se::Class* __jsb_cc_pipeline_InstancedBuffer_class = nullptr;
 
-static bool js_pipeline_InstancedBuffer_destroy(se::State& s)
+static bool js_pipeline_InstancedBuffer_destroy(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::InstancedBuffer>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_InstancedBuffer_destroy : Invalid Native Object");
@@ -1672,7 +1655,7 @@ static bool js_pipeline_InstancedBuffer_destroy(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_InstancedBuffer_destroy)
 
-static bool js_pipeline_InstancedBuffer_setDynamicOffset(se::State& s)
+static bool js_pipeline_InstancedBuffer_setDynamicOffset(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::pipeline::InstancedBuffer>(s);
     SE_PRECONDITION2(cobj, false, "js_pipeline_InstancedBuffer_setDynamicOffset : Invalid Native Object");
@@ -1693,7 +1676,7 @@ static bool js_pipeline_InstancedBuffer_setDynamicOffset(se::State& s)
 }
 SE_BIND_FUNC(js_pipeline_InstancedBuffer_setDynamicOffset)
 
-static bool js_pipeline_InstancedBuffer_get(se::State& s)
+static bool js_pipeline_InstancedBuffer_get(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -1732,7 +1715,7 @@ SE_BIND_FUNC(js_pipeline_InstancedBuffer_get)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_InstancedBuffer_finalize)
 
-static bool js_pipeline_InstancedBuffer_constructor(se::State& s) // constructor.c
+static bool js_pipeline_InstancedBuffer_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -1748,8 +1731,7 @@ SE_BIND_CTOR(js_pipeline_InstancedBuffer_constructor, __jsb_cc_pipeline_Instance
 
 
 
-
-static bool js_cc_pipeline_InstancedBuffer_finalize(se::State& s)
+static bool js_cc_pipeline_InstancedBuffer_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::InstancedBuffer>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1762,7 +1744,7 @@ static bool js_cc_pipeline_InstancedBuffer_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_InstancedBuffer_finalize)
 
-bool js_register_pipeline_InstancedBuffer(se::Object* obj)
+bool js_register_pipeline_InstancedBuffer(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("InstancedBuffer", obj, nullptr, _SE(js_pipeline_InstancedBuffer_constructor));
 
@@ -1784,7 +1766,7 @@ se::Class* __jsb_cc_pipeline_DeferredPipeline_class = nullptr;
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_DeferredPipeline_finalize)
 
-static bool js_pipeline_DeferredPipeline_constructor(se::State& s) // constructor.c
+static bool js_pipeline_DeferredPipeline_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::pipeline::DeferredPipeline* cobj = JSB_ALLOC(cc::pipeline::DeferredPipeline);
     s.thisObject()->setPrivateData(cobj);
@@ -1795,9 +1777,7 @@ SE_BIND_CTOR(js_pipeline_DeferredPipeline_constructor, __jsb_cc_pipeline_Deferre
 
 
 
-extern se::Object* __jsb_cc_pipeline_RenderPipeline_proto;
-
-static bool js_cc_pipeline_DeferredPipeline_finalize(se::State& s)
+static bool js_cc_pipeline_DeferredPipeline_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::DeferredPipeline>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1810,7 +1790,7 @@ static bool js_cc_pipeline_DeferredPipeline_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_DeferredPipeline_finalize)
 
-bool js_register_pipeline_DeferredPipeline(se::Object* obj)
+bool js_register_pipeline_DeferredPipeline(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("DeferredPipeline", obj, __jsb_cc_pipeline_RenderPipeline_proto, _SE(js_pipeline_DeferredPipeline_constructor));
 
@@ -1827,7 +1807,7 @@ bool js_register_pipeline_DeferredPipeline(se::Object* obj)
 se::Object* __jsb_cc_pipeline_GbufferFlow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_GbufferFlow_class = nullptr;
 
-static bool js_pipeline_GbufferFlow_getInitializeInfo(se::State& s)
+static bool js_pipeline_GbufferFlow_getInitializeInfo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1846,7 +1826,7 @@ SE_BIND_FUNC(js_pipeline_GbufferFlow_getInitializeInfo)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_GbufferFlow_finalize)
 
-static bool js_pipeline_GbufferFlow_constructor(se::State& s) // constructor.c
+static bool js_pipeline_GbufferFlow_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::pipeline::GbufferFlow* cobj = JSB_ALLOC(cc::pipeline::GbufferFlow);
     s.thisObject()->setPrivateData(cobj);
@@ -1857,9 +1837,7 @@ SE_BIND_CTOR(js_pipeline_GbufferFlow_constructor, __jsb_cc_pipeline_GbufferFlow_
 
 
 
-extern se::Object* __jsb_cc_pipeline_RenderFlow_proto;
-
-static bool js_cc_pipeline_GbufferFlow_finalize(se::State& s)
+static bool js_cc_pipeline_GbufferFlow_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::GbufferFlow>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1872,7 +1850,7 @@ static bool js_cc_pipeline_GbufferFlow_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_GbufferFlow_finalize)
 
-bool js_register_pipeline_GbufferFlow(se::Object* obj)
+bool js_register_pipeline_GbufferFlow(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("GbufferFlow", obj, __jsb_cc_pipeline_RenderFlow_proto, _SE(js_pipeline_GbufferFlow_constructor));
 
@@ -1890,7 +1868,7 @@ bool js_register_pipeline_GbufferFlow(se::Object* obj)
 se::Object* __jsb_cc_pipeline_GbufferStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_GbufferStage_class = nullptr;
 
-static bool js_pipeline_GbufferStage_getInitializeInfo(se::State& s)
+static bool js_pipeline_GbufferStage_getInitializeInfo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1909,7 +1887,7 @@ SE_BIND_FUNC(js_pipeline_GbufferStage_getInitializeInfo)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_GbufferStage_finalize)
 
-static bool js_pipeline_GbufferStage_constructor(se::State& s) // constructor.c
+static bool js_pipeline_GbufferStage_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::pipeline::GbufferStage* cobj = JSB_ALLOC(cc::pipeline::GbufferStage);
     s.thisObject()->setPrivateData(cobj);
@@ -1920,9 +1898,7 @@ SE_BIND_CTOR(js_pipeline_GbufferStage_constructor, __jsb_cc_pipeline_GbufferStag
 
 
 
-extern se::Object* __jsb_cc_pipeline_RenderStage_proto;
-
-static bool js_cc_pipeline_GbufferStage_finalize(se::State& s)
+static bool js_cc_pipeline_GbufferStage_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::GbufferStage>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1935,7 +1911,7 @@ static bool js_cc_pipeline_GbufferStage_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_GbufferStage_finalize)
 
-bool js_register_pipeline_GbufferStage(se::Object* obj)
+bool js_register_pipeline_GbufferStage(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("GbufferStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_GbufferStage_constructor));
 
@@ -1953,7 +1929,7 @@ bool js_register_pipeline_GbufferStage(se::Object* obj)
 se::Object* __jsb_cc_pipeline_LightingFlow_proto = nullptr;
 se::Class* __jsb_cc_pipeline_LightingFlow_class = nullptr;
 
-static bool js_pipeline_LightingFlow_getInitializeInfo(se::State& s)
+static bool js_pipeline_LightingFlow_getInitializeInfo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1972,7 +1948,7 @@ SE_BIND_FUNC(js_pipeline_LightingFlow_getInitializeInfo)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_LightingFlow_finalize)
 
-static bool js_pipeline_LightingFlow_constructor(se::State& s) // constructor.c
+static bool js_pipeline_LightingFlow_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::pipeline::LightingFlow* cobj = JSB_ALLOC(cc::pipeline::LightingFlow);
     s.thisObject()->setPrivateData(cobj);
@@ -1983,9 +1959,7 @@ SE_BIND_CTOR(js_pipeline_LightingFlow_constructor, __jsb_cc_pipeline_LightingFlo
 
 
 
-extern se::Object* __jsb_cc_pipeline_RenderFlow_proto;
-
-static bool js_cc_pipeline_LightingFlow_finalize(se::State& s)
+static bool js_cc_pipeline_LightingFlow_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::LightingFlow>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1998,7 +1972,7 @@ static bool js_cc_pipeline_LightingFlow_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_LightingFlow_finalize)
 
-bool js_register_pipeline_LightingFlow(se::Object* obj)
+bool js_register_pipeline_LightingFlow(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("LightingFlow", obj, __jsb_cc_pipeline_RenderFlow_proto, _SE(js_pipeline_LightingFlow_constructor));
 
@@ -2016,7 +1990,7 @@ bool js_register_pipeline_LightingFlow(se::Object* obj)
 se::Object* __jsb_cc_pipeline_LightingStage_proto = nullptr;
 se::Class* __jsb_cc_pipeline_LightingStage_class = nullptr;
 
-static bool js_pipeline_LightingStage_getInitializeInfo(se::State& s)
+static bool js_pipeline_LightingStage_getInitializeInfo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -2035,7 +2009,7 @@ SE_BIND_FUNC(js_pipeline_LightingStage_getInitializeInfo)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_LightingStage_finalize)
 
-static bool js_pipeline_LightingStage_constructor(se::State& s) // constructor.c
+static bool js_pipeline_LightingStage_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::pipeline::LightingStage* cobj = JSB_ALLOC(cc::pipeline::LightingStage);
     s.thisObject()->setPrivateData(cobj);
@@ -2046,9 +2020,7 @@ SE_BIND_CTOR(js_pipeline_LightingStage_constructor, __jsb_cc_pipeline_LightingSt
 
 
 
-extern se::Object* __jsb_cc_pipeline_RenderStage_proto;
-
-static bool js_cc_pipeline_LightingStage_finalize(se::State& s)
+static bool js_cc_pipeline_LightingStage_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::LightingStage>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -2061,7 +2033,7 @@ static bool js_cc_pipeline_LightingStage_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_LightingStage_finalize)
 
-bool js_register_pipeline_LightingStage(se::Object* obj)
+bool js_register_pipeline_LightingStage(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("LightingStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_LightingStage_constructor));
 
@@ -2081,7 +2053,7 @@ se::Class* __jsb_cc_pipeline_PostprocessStage_class = nullptr;
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_pipeline_PostprocessStage_finalize)
 
-static bool js_pipeline_PostprocessStage_constructor(se::State& s) // constructor.c
+static bool js_pipeline_PostprocessStage_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::pipeline::PostprocessStage* cobj = JSB_ALLOC(cc::pipeline::PostprocessStage);
     s.thisObject()->setPrivateData(cobj);
@@ -2092,9 +2064,7 @@ SE_BIND_CTOR(js_pipeline_PostprocessStage_constructor, __jsb_cc_pipeline_Postpro
 
 
 
-extern se::Object* __jsb_cc_pipeline_RenderStage_proto;
-
-static bool js_cc_pipeline_PostprocessStage_finalize(se::State& s)
+static bool js_cc_pipeline_PostprocessStage_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::pipeline::PostprocessStage>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -2107,7 +2077,7 @@ static bool js_cc_pipeline_PostprocessStage_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_pipeline_PostprocessStage_finalize)
 
-bool js_register_pipeline_PostprocessStage(se::Object* obj)
+bool js_register_pipeline_PostprocessStage(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("PostprocessStage", obj, __jsb_cc_pipeline_RenderStage_proto, _SE(js_pipeline_PostprocessStage_constructor));
 

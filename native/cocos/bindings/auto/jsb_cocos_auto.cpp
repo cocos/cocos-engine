@@ -16,7 +16,7 @@
 se::Object* __jsb_cc_FileUtils_proto = nullptr;
 se::Class* __jsb_cc_FileUtils_class = nullptr;
 
-static bool js_engine_FileUtils_addSearchPath(se::State& s)
+static bool js_engine_FileUtils_addSearchPath(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_addSearchPath : Invalid Native Object");
@@ -44,7 +44,7 @@ static bool js_engine_FileUtils_addSearchPath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_addSearchPath)
 
-static bool js_engine_FileUtils_createDirectory(se::State& s)
+static bool js_engine_FileUtils_createDirectory(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_createDirectory : Invalid Native Object");
@@ -66,7 +66,7 @@ static bool js_engine_FileUtils_createDirectory(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_createDirectory)
 
-static bool js_engine_FileUtils_fullPathForFilename(se::State& s)
+static bool js_engine_FileUtils_fullPathForFilename(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_fullPathForFilename : Invalid Native Object");
@@ -88,7 +88,7 @@ static bool js_engine_FileUtils_fullPathForFilename(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_fullPathForFilename)
 
-static bool js_engine_FileUtils_fullPathFromRelativeFile(se::State& s)
+static bool js_engine_FileUtils_fullPathFromRelativeFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_fullPathFromRelativeFile : Invalid Native Object");
@@ -112,7 +112,7 @@ static bool js_engine_FileUtils_fullPathFromRelativeFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_fullPathFromRelativeFile)
 
-static bool js_engine_FileUtils_getDataFromFile(se::State& s)
+static bool js_engine_FileUtils_getDataFromFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getDataFromFile : Invalid Native Object");
@@ -134,7 +134,7 @@ static bool js_engine_FileUtils_getDataFromFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getDataFromFile)
 
-static bool js_engine_FileUtils_getDefaultResourceRootPath(se::State& s)
+static bool js_engine_FileUtils_getDefaultResourceRootPath(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getDefaultResourceRootPath : Invalid Native Object");
@@ -153,7 +153,7 @@ static bool js_engine_FileUtils_getDefaultResourceRootPath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getDefaultResourceRootPath)
 
-static bool js_engine_FileUtils_getFileDir(se::State& s)
+static bool js_engine_FileUtils_getFileDir(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileDir : Invalid Native Object");
@@ -175,7 +175,7 @@ static bool js_engine_FileUtils_getFileDir(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getFileDir)
 
-static bool js_engine_FileUtils_getFileExtension(se::State& s)
+static bool js_engine_FileUtils_getFileExtension(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileExtension : Invalid Native Object");
@@ -197,7 +197,7 @@ static bool js_engine_FileUtils_getFileExtension(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getFileExtension)
 
-static bool js_engine_FileUtils_getFileSize(se::State& s)
+static bool js_engine_FileUtils_getFileSize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getFileSize : Invalid Native Object");
@@ -219,7 +219,7 @@ static bool js_engine_FileUtils_getFileSize(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getFileSize)
 
-static bool js_engine_FileUtils_getOriginalSearchPaths(se::State& s)
+static bool js_engine_FileUtils_getOriginalSearchPaths(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getOriginalSearchPaths : Invalid Native Object");
@@ -238,7 +238,7 @@ static bool js_engine_FileUtils_getOriginalSearchPaths(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getOriginalSearchPaths)
 
-static bool js_engine_FileUtils_getSearchPaths(se::State& s)
+static bool js_engine_FileUtils_getSearchPaths(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getSearchPaths : Invalid Native Object");
@@ -257,7 +257,7 @@ static bool js_engine_FileUtils_getSearchPaths(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getSearchPaths)
 
-static bool js_engine_FileUtils_getStringFromFile(se::State& s)
+static bool js_engine_FileUtils_getStringFromFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getStringFromFile : Invalid Native Object");
@@ -279,7 +279,7 @@ static bool js_engine_FileUtils_getStringFromFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getStringFromFile)
 
-static bool js_engine_FileUtils_getSuitableFOpen(se::State& s)
+static bool js_engine_FileUtils_getSuitableFOpen(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getSuitableFOpen : Invalid Native Object");
@@ -301,7 +301,7 @@ static bool js_engine_FileUtils_getSuitableFOpen(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getSuitableFOpen)
 
-static bool js_engine_FileUtils_getValueMapFromData(se::State& s)
+static bool js_engine_FileUtils_getValueMapFromData(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueMapFromData : Invalid Native Object");
@@ -325,7 +325,7 @@ static bool js_engine_FileUtils_getValueMapFromData(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getValueMapFromData)
 
-static bool js_engine_FileUtils_getValueMapFromFile(se::State& s)
+static bool js_engine_FileUtils_getValueMapFromFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueMapFromFile : Invalid Native Object");
@@ -347,7 +347,7 @@ static bool js_engine_FileUtils_getValueMapFromFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getValueMapFromFile)
 
-static bool js_engine_FileUtils_getValueVectorFromFile(se::State& s)
+static bool js_engine_FileUtils_getValueVectorFromFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getValueVectorFromFile : Invalid Native Object");
@@ -369,7 +369,7 @@ static bool js_engine_FileUtils_getValueVectorFromFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getValueVectorFromFile)
 
-static bool js_engine_FileUtils_getWritablePath(se::State& s)
+static bool js_engine_FileUtils_getWritablePath(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_getWritablePath : Invalid Native Object");
@@ -388,7 +388,7 @@ static bool js_engine_FileUtils_getWritablePath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_getWritablePath)
 
-static bool js_engine_FileUtils_isAbsolutePath(se::State& s)
+static bool js_engine_FileUtils_isAbsolutePath(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isAbsolutePath : Invalid Native Object");
@@ -410,7 +410,7 @@ static bool js_engine_FileUtils_isAbsolutePath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_isAbsolutePath)
 
-static bool js_engine_FileUtils_isDirectoryExist(se::State& s)
+static bool js_engine_FileUtils_isDirectoryExist(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isDirectoryExist : Invalid Native Object");
@@ -432,7 +432,7 @@ static bool js_engine_FileUtils_isDirectoryExist(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_isDirectoryExist)
 
-static bool js_engine_FileUtils_isFileExist(se::State& s)
+static bool js_engine_FileUtils_isFileExist(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_isFileExist : Invalid Native Object");
@@ -454,7 +454,7 @@ static bool js_engine_FileUtils_isFileExist(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_isFileExist)
 
-static bool js_engine_FileUtils_listFiles(se::State& s)
+static bool js_engine_FileUtils_listFiles(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_listFiles : Invalid Native Object");
@@ -476,7 +476,7 @@ static bool js_engine_FileUtils_listFiles(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_listFiles)
 
-static bool js_engine_FileUtils_normalizePath(se::State& s)
+static bool js_engine_FileUtils_normalizePath(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_normalizePath : Invalid Native Object");
@@ -498,7 +498,7 @@ static bool js_engine_FileUtils_normalizePath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_normalizePath)
 
-static bool js_engine_FileUtils_purgeCachedEntries(se::State& s)
+static bool js_engine_FileUtils_purgeCachedEntries(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_purgeCachedEntries : Invalid Native Object");
@@ -513,7 +513,7 @@ static bool js_engine_FileUtils_purgeCachedEntries(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_purgeCachedEntries)
 
-static bool js_engine_FileUtils_removeDirectory(se::State& s)
+static bool js_engine_FileUtils_removeDirectory(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_removeDirectory : Invalid Native Object");
@@ -535,7 +535,7 @@ static bool js_engine_FileUtils_removeDirectory(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_removeDirectory)
 
-static bool js_engine_FileUtils_removeFile(se::State& s)
+static bool js_engine_FileUtils_removeFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_removeFile : Invalid Native Object");
@@ -557,7 +557,7 @@ static bool js_engine_FileUtils_removeFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_removeFile)
 
-static bool js_engine_FileUtils_renameFile(se::State& s)
+static bool js_engine_FileUtils_renameFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
@@ -606,7 +606,7 @@ static bool js_engine_FileUtils_renameFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_renameFile)
 
-static bool js_engine_FileUtils_setDefaultResourceRootPath(se::State& s)
+static bool js_engine_FileUtils_setDefaultResourceRootPath(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setDefaultResourceRootPath : Invalid Native Object");
@@ -625,7 +625,7 @@ static bool js_engine_FileUtils_setDefaultResourceRootPath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_setDefaultResourceRootPath)
 
-static bool js_engine_FileUtils_setSearchPaths(se::State& s)
+static bool js_engine_FileUtils_setSearchPaths(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setSearchPaths : Invalid Native Object");
@@ -644,7 +644,7 @@ static bool js_engine_FileUtils_setSearchPaths(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_setSearchPaths)
 
-static bool js_engine_FileUtils_setWritablePath(se::State& s)
+static bool js_engine_FileUtils_setWritablePath(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_setWritablePath : Invalid Native Object");
@@ -663,7 +663,7 @@ static bool js_engine_FileUtils_setWritablePath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_setWritablePath)
 
-static bool js_engine_FileUtils_writeDataToFile(se::State& s)
+static bool js_engine_FileUtils_writeDataToFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeDataToFile : Invalid Native Object");
@@ -687,7 +687,7 @@ static bool js_engine_FileUtils_writeDataToFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_writeDataToFile)
 
-static bool js_engine_FileUtils_writeStringToFile(se::State& s)
+static bool js_engine_FileUtils_writeStringToFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeStringToFile : Invalid Native Object");
@@ -711,7 +711,7 @@ static bool js_engine_FileUtils_writeStringToFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_writeStringToFile)
 
-static bool js_engine_FileUtils_writeToFile(se::State& s)
+static bool js_engine_FileUtils_writeToFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeToFile : Invalid Native Object");
@@ -735,7 +735,7 @@ static bool js_engine_FileUtils_writeToFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_writeToFile)
 
-static bool js_engine_FileUtils_writeValueMapToFile(se::State& s)
+static bool js_engine_FileUtils_writeValueMapToFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeValueMapToFile : Invalid Native Object");
@@ -759,7 +759,7 @@ static bool js_engine_FileUtils_writeValueMapToFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_writeValueMapToFile)
 
-static bool js_engine_FileUtils_writeValueVectorToFile(se::State& s)
+static bool js_engine_FileUtils_writeValueVectorToFile(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::FileUtils>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_FileUtils_writeValueVectorToFile : Invalid Native Object");
@@ -783,7 +783,7 @@ static bool js_engine_FileUtils_writeValueVectorToFile(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_writeValueVectorToFile)
 
-static bool js_engine_FileUtils_setDelegate(se::State& s)
+static bool js_engine_FileUtils_setDelegate(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -800,7 +800,7 @@ static bool js_engine_FileUtils_setDelegate(se::State& s)
 }
 SE_BIND_FUNC(js_engine_FileUtils_setDelegate)
 
-static bool js_engine_FileUtils_getInstance(se::State& s)
+static bool js_engine_FileUtils_getInstance(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -818,8 +818,7 @@ static bool js_engine_FileUtils_getInstance(se::State& s)
 SE_BIND_FUNC(js_engine_FileUtils_getInstance)
 
 
-
-static bool js_cc_FileUtils_finalize(se::State& s)
+static bool js_cc_FileUtils_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::FileUtils>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -832,7 +831,7 @@ static bool js_cc_FileUtils_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_FileUtils_finalize)
 
-bool js_register_engine_FileUtils(se::Object* obj)
+bool js_register_engine_FileUtils(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("FileUtils", obj, nullptr, nullptr);
 
@@ -885,7 +884,7 @@ bool js_register_engine_FileUtils(se::Object* obj)
 se::Object* __jsb_cc_CanvasGradient_proto = nullptr;
 se::Class* __jsb_cc_CanvasGradient_class = nullptr;
 
-static bool js_engine_CanvasGradient_addColorStop(se::State& s)
+static bool js_engine_CanvasGradient_addColorStop(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasGradient>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasGradient_addColorStop : Invalid Native Object");
@@ -908,7 +907,7 @@ SE_BIND_FUNC(js_engine_CanvasGradient_addColorStop)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_CanvasGradient_finalize)
 
-static bool js_engine_CanvasGradient_constructor(se::State& s) // constructor.c
+static bool js_engine_CanvasGradient_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     cc::CanvasGradient* cobj = JSB_ALLOC(cc::CanvasGradient);
     s.thisObject()->setPrivateData(cobj);
@@ -919,8 +918,7 @@ SE_BIND_CTOR(js_engine_CanvasGradient_constructor, __jsb_cc_CanvasGradient_class
 
 
 
-
-static bool js_cc_CanvasGradient_finalize(se::State& s)
+static bool js_cc_CanvasGradient_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::CanvasGradient>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -933,7 +931,7 @@ static bool js_cc_CanvasGradient_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_CanvasGradient_finalize)
 
-bool js_register_engine_CanvasGradient(se::Object* obj)
+bool js_register_engine_CanvasGradient(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("CanvasGradient", obj, nullptr, _SE(js_engine_CanvasGradient_constructor));
 
@@ -951,7 +949,7 @@ bool js_register_engine_CanvasGradient(se::Object* obj)
 se::Object* __jsb_cc_CanvasRenderingContext2D_proto = nullptr;
 se::Class* __jsb_cc_CanvasRenderingContext2D_class = nullptr;
 
-static bool js_engine_CanvasRenderingContext2D__fillImageData(se::State& s)
+static bool js_engine_CanvasRenderingContext2D__fillImageData(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D__fillImageData : Invalid Native Object");
@@ -978,7 +976,7 @@ static bool js_engine_CanvasRenderingContext2D__fillImageData(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D__fillImageData)
 
-static bool js_engine_CanvasRenderingContext2D_beginPath(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_beginPath(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_beginPath : Invalid Native Object");
@@ -993,7 +991,7 @@ static bool js_engine_CanvasRenderingContext2D_beginPath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_beginPath)
 
-static bool js_engine_CanvasRenderingContext2D_clearRect(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_clearRect(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_clearRect : Invalid Native Object");
@@ -1018,7 +1016,7 @@ static bool js_engine_CanvasRenderingContext2D_clearRect(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_clearRect)
 
-static bool js_engine_CanvasRenderingContext2D_closePath(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_closePath(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_closePath : Invalid Native Object");
@@ -1033,7 +1031,7 @@ static bool js_engine_CanvasRenderingContext2D_closePath(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_closePath)
 
-static bool js_engine_CanvasRenderingContext2D_createLinearGradient(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_createLinearGradient(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_createLinearGradient : Invalid Native Object");
@@ -1061,7 +1059,7 @@ static bool js_engine_CanvasRenderingContext2D_createLinearGradient(se::State& s
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_createLinearGradient)
 
-static bool js_engine_CanvasRenderingContext2D_fill(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_fill(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_fill : Invalid Native Object");
@@ -1076,7 +1074,7 @@ static bool js_engine_CanvasRenderingContext2D_fill(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_fill)
 
-static bool js_engine_CanvasRenderingContext2D_lineTo(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_lineTo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_lineTo : Invalid Native Object");
@@ -1097,7 +1095,7 @@ static bool js_engine_CanvasRenderingContext2D_lineTo(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_lineTo)
 
-static bool js_engine_CanvasRenderingContext2D_moveTo(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_moveTo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_moveTo : Invalid Native Object");
@@ -1118,7 +1116,7 @@ static bool js_engine_CanvasRenderingContext2D_moveTo(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_moveTo)
 
-static bool js_engine_CanvasRenderingContext2D_rect(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_rect(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_rect : Invalid Native Object");
@@ -1143,7 +1141,7 @@ static bool js_engine_CanvasRenderingContext2D_rect(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_rect)
 
-static bool js_engine_CanvasRenderingContext2D_restore(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_restore(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_restore : Invalid Native Object");
@@ -1158,7 +1156,7 @@ static bool js_engine_CanvasRenderingContext2D_restore(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_restore)
 
-static bool js_engine_CanvasRenderingContext2D_rotate(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_rotate(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_rotate : Invalid Native Object");
@@ -1177,7 +1175,7 @@ static bool js_engine_CanvasRenderingContext2D_rotate(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_rotate)
 
-static bool js_engine_CanvasRenderingContext2D_save(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_save(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_save : Invalid Native Object");
@@ -1192,7 +1190,7 @@ static bool js_engine_CanvasRenderingContext2D_save(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_save)
 
-static bool js_engine_CanvasRenderingContext2D_scale(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_scale(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_scale : Invalid Native Object");
@@ -1213,7 +1211,7 @@ static bool js_engine_CanvasRenderingContext2D_scale(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_scale)
 
-static bool js_engine_CanvasRenderingContext2D_setTransform(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_setTransform(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_setTransform : Invalid Native Object");
@@ -1242,7 +1240,7 @@ static bool js_engine_CanvasRenderingContext2D_setTransform(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setTransform)
 
-static bool js_engine_CanvasRenderingContext2D_stroke(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_stroke(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_stroke : Invalid Native Object");
@@ -1257,7 +1255,7 @@ static bool js_engine_CanvasRenderingContext2D_stroke(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_stroke)
 
-static bool js_engine_CanvasRenderingContext2D_transform(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_transform(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_transform : Invalid Native Object");
@@ -1286,7 +1284,7 @@ static bool js_engine_CanvasRenderingContext2D_transform(se::State& s)
 }
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_transform)
 
-static bool js_engine_CanvasRenderingContext2D_translate(se::State& s)
+static bool js_engine_CanvasRenderingContext2D_translate(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_translate : Invalid Native Object");
@@ -1309,7 +1307,7 @@ SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_translate)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_CanvasRenderingContext2D_finalize)
 
-static bool js_engine_CanvasRenderingContext2D_constructor(se::State& s) // constructor.c
+static bool js_engine_CanvasRenderingContext2D_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -1327,8 +1325,7 @@ SE_BIND_CTOR(js_engine_CanvasRenderingContext2D_constructor, __jsb_cc_CanvasRend
 
 
 
-
-static bool js_cc_CanvasRenderingContext2D_finalize(se::State& s)
+static bool js_cc_CanvasRenderingContext2D_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::CanvasRenderingContext2D>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1341,7 +1338,7 @@ static bool js_cc_CanvasRenderingContext2D_finalize(se::State& s)
 }
 SE_BIND_FINALIZE_FUNC(js_cc_CanvasRenderingContext2D_finalize)
 
-bool js_register_engine_CanvasRenderingContext2D(se::Object* obj)
+bool js_register_engine_CanvasRenderingContext2D(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("CanvasRenderingContext2D", obj, nullptr, _SE(js_engine_CanvasRenderingContext2D_constructor));
 
@@ -1375,7 +1372,7 @@ bool js_register_engine_CanvasRenderingContext2D(se::Object* obj)
 se::Object* __jsb_cc_Device_proto = nullptr;
 se::Class* __jsb_cc_Device_class = nullptr;
 
-static bool js_engine_Device_getDevicePixelRatio(se::State& s)
+static bool js_engine_Device_getDevicePixelRatio(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1392,7 +1389,7 @@ static bool js_engine_Device_getDevicePixelRatio(se::State& s)
 }
 SE_BIND_FUNC(js_engine_Device_getDevicePixelRatio)
 
-static bool js_engine_Device_setAccelerometerEnabled(se::State& s)
+static bool js_engine_Device_setAccelerometerEnabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1409,7 +1406,7 @@ static bool js_engine_Device_setAccelerometerEnabled(se::State& s)
 }
 SE_BIND_FUNC(js_engine_Device_setAccelerometerEnabled)
 
-static bool js_engine_Device_setAccelerometerInterval(se::State& s)
+static bool js_engine_Device_setAccelerometerInterval(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1426,7 +1423,7 @@ static bool js_engine_Device_setAccelerometerInterval(se::State& s)
 }
 SE_BIND_FUNC(js_engine_Device_setAccelerometerInterval)
 
-static bool js_engine_Device_vibrate(se::State& s)
+static bool js_engine_Device_vibrate(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1443,7 +1440,7 @@ static bool js_engine_Device_vibrate(se::State& s)
 }
 SE_BIND_FUNC(js_engine_Device_vibrate)
 
-static bool js_engine_Device_setKeepScreenOn(se::State& s)
+static bool js_engine_Device_setKeepScreenOn(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1460,13 +1457,13 @@ static bool js_engine_Device_setKeepScreenOn(se::State& s)
 }
 SE_BIND_FUNC(js_engine_Device_setKeepScreenOn)
 
-static bool js_engine_Device_getNetworkType(se::State& s)
+static bool js_engine_Device_getNetworkType(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cc::Device::getNetworkType();
+        auto result = static_cast<int>(cc::Device::getNetworkType());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_engine_Device_getNetworkType : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1477,7 +1474,7 @@ static bool js_engine_Device_getNetworkType(se::State& s)
 }
 SE_BIND_FUNC(js_engine_Device_getNetworkType)
 
-static bool js_engine_Device_getBatteryLevel(se::State& s)
+static bool js_engine_Device_getBatteryLevel(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1494,13 +1491,13 @@ static bool js_engine_Device_getBatteryLevel(se::State& s)
 }
 SE_BIND_FUNC(js_engine_Device_getBatteryLevel)
 
-static bool js_engine_Device_getDeviceOrientation(se::State& s)
+static bool js_engine_Device_getDeviceOrientation(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        int result = (int)cc::Device::getDeviceOrientation();
+        auto result = static_cast<int>(cc::Device::getDeviceOrientation());
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_engine_Device_getDeviceOrientation : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1511,7 +1508,7 @@ static bool js_engine_Device_getDeviceOrientation(se::State& s)
 }
 SE_BIND_FUNC(js_engine_Device_getDeviceOrientation)
 
-static bool js_engine_Device_getDPI(se::State& s)
+static bool js_engine_Device_getDPI(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1528,7 +1525,7 @@ static bool js_engine_Device_getDPI(se::State& s)
 }
 SE_BIND_FUNC(js_engine_Device_getDPI)
 
-static bool js_engine_Device_getSafeAreaEdge(se::State& s)
+static bool js_engine_Device_getSafeAreaEdge(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1545,7 +1542,7 @@ static bool js_engine_Device_getSafeAreaEdge(se::State& s)
 }
 SE_BIND_FUNC(js_engine_Device_getSafeAreaEdge)
 
-static bool js_engine_Device_getDeviceModel(se::State& s)
+static bool js_engine_Device_getDeviceModel(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -1564,8 +1561,7 @@ SE_BIND_FUNC(js_engine_Device_getDeviceModel)
 
 
 
-
-bool js_register_engine_Device(se::Object* obj)
+bool js_register_engine_Device(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("Device", obj, nullptr, nullptr);
 
@@ -1592,7 +1588,7 @@ bool js_register_engine_Device(se::Object* obj)
 se::Object* __jsb_cc_SAXParser_proto = nullptr;
 se::Class* __jsb_cc_SAXParser_class = nullptr;
 
-static bool js_engine_SAXParser_init(se::State& s)
+static bool js_engine_SAXParser_init(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::SAXParser>(s);
     SE_PRECONDITION2(cobj, false, "js_engine_SAXParser_init : Invalid Native Object");
@@ -1616,8 +1612,7 @@ SE_BIND_FUNC(js_engine_SAXParser_init)
 
 
 
-
-bool js_register_engine_SAXParser(se::Object* obj)
+bool js_register_engine_SAXParser(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cls = se::Class::create("PlistParser", obj, nullptr, nullptr);
 
