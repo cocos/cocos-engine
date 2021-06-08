@@ -224,8 +224,11 @@ void CCMTLDevice::doDestroy() {
         CC_SAFE_DELETE(_gpuStagingBufferPools[i]);
         _gpuStagingBufferPools[i] = nullptr;
     }
-    
+
     cc::gfx::mu::clearUtilResource();
+
+    CCASSERT(!_memoryStatus.bufferSize, "Buffer memory leaked");
+    CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
 }
 
 void CCMTLDevice::resize(uint w, uint h) {

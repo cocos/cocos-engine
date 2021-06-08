@@ -246,6 +246,9 @@ void GLES2Device::doDestroy() {
     CC_SAFE_DELETE(_gpuBlitManager)
     CC_SAFE_DELETE(_gpuStateCache)
 
+    CCASSERT(!_memoryStatus.bufferSize, "Buffer memory leaked");
+    CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
+
     CC_SAFE_DESTROY(_cmdBuff)
     CC_SAFE_DESTROY(_queue)
     CC_SAFE_DESTROY(_deviceContext)

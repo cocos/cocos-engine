@@ -38,8 +38,7 @@ namespace cc {
 namespace gfx {
 
 namespace {
-constexpr bool ENABLE_LAZY_ALLOCATION     = true;
-constexpr bool USE_MEMCPY_FOR_BUFFER_SYNC = true;
+constexpr bool ENABLE_LAZY_ALLOCATION = true;
 } // namespace
 
 CCVKGPUCommandBufferPool *CCVKGPUDevice::getCommandBufferPool() {
@@ -193,7 +192,7 @@ void cmdFuncCCVKCreateSampler(CCVKDevice *device, CCVKGPUSampler *gpuSampler) {
     createInfo.compareOp        = VK_CMP_FUNCS[static_cast<uint>(gpuSampler->cmpFunc)];
     createInfo.minLod           = 0.0;               // UNASSIGNED-BestPractices-vkCreateSampler-lod-clamping
     createInfo.maxLod           = VK_LOD_CLAMP_NONE; // UNASSIGNED-BestPractices-vkCreateSampler-lod-clamping
-    //createInfo.borderColor; // TODO
+    //createInfo.borderColor;
 
     VK_CHECK(vkCreateSampler(device->gpuDevice()->vkDevice, &createInfo, nullptr, &gpuSampler->vkSampler));
 }
@@ -222,10 +221,8 @@ void cmdFuncCCVKCreateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer) {
         gpuBuffer->instanceSize = roundUp(gpuBuffer->size, device->getCapabilities().uboOffsetAlignment);
         bufferInfo.size         = gpuBuffer->instanceSize * device->gpuDevice()->backBufferCount;
         allocInfo.flags         = VMA_ALLOCATION_CREATE_MAPPED_BIT;
-        if (!USE_MEMCPY_FOR_BUFFER_SYNC) {
-            bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-        }
-        allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+        allocInfo.usage         = VMA_MEMORY_USAGE_CPU_TO_GPU;
+        bufferInfo.usage |= VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     }
 
     VmaAllocationInfo res;
@@ -338,7 +335,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     }
 
     uint offset{0U};
-    subpassDescriptions.resize(subpassCount, {});
+    subpassDescriptions.assign(subpassCount, {}); // init to zeros first
     for (uint i = 0U; i < gpuRenderPass->subpasses.size(); ++i) {
         const SubpassInfo subpassInfo = gpuRenderPass->subpasses[i];
 
@@ -600,7 +597,7 @@ void cmdFuncCCVKCreateDescriptorSetLayout(CCVKDevice *device, CCVKGPUDescriptorS
                 entries[j].offset          = sizeof(CCVKDescriptorInfo) * k;
                 entries[j].stride          = sizeof(CCVKDescriptorInfo);
                 k += binding.descriptorCount;
-            } // TODO(YunHsiao): inline UBOs
+            }
         }
 
         VkDescriptorUpdateTemplateCreateInfo createInfo = {VK_STRUCTURE_TYPE_DESCRIPTOR_UPDATE_TEMPLATE_CREATE_INFO};
@@ -887,9 +884,14 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     }
 
     // back buffer instances update command
-    if (!cmdBuffer && gpuBuffer->instanceSize) {
-        device->gpuBufferHub()->record(gpuBuffer, dataToUpload, sizeToUpload);
-        return;
+    uint backBufferIndex = device->gpuDevice()->curBackBufferIndex;
+    if (gpuBuffer->instanceSize) {
+        device->gpuBufferHub()->record(gpuBuffer, backBufferIndex, sizeToUpload, !cmdBuffer);
+        if (!cmdBuffer) {
+            uint8_t *dst = gpuBuffer->mappedData + backBufferIndex * gpuBuffer->instanceSize;
+            memcpy(dst, dataToUpload, sizeToUpload);
+            return;
+        }
     }
 
     CCVKGPUBuffer stagingBuffer;
@@ -897,8 +899,12 @@ void cmdFuncCCVKUpdateBuffer(CCVKDevice *device, CCVKGPUBuffer *gpuBuffer, const
     device->gpuStagingBufferPool()->alloc(&stagingBuffer);
     memcpy(stagingBuffer.mappedData, dataToUpload, sizeToUpload);
 
-    VkBufferCopy region{stagingBuffer.startOffset, gpuBuffer->startOffset, sizeToUpload};
-    auto         upload = [&stagingBuffer, &gpuBuffer, &region](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
+    VkBufferCopy region{
+        stagingBuffer.startOffset,
+        gpuBuffer->startOffset + backBufferIndex * gpuBuffer->instanceSize,
+        sizeToUpload,
+    };
+    auto upload = [&stagingBuffer, &gpuBuffer, &region](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
 #if BARRIER_DEDUCTION_LEVEL >= BARRIER_DEDUCTION_LEVEL_BASIC
         if (gpuBuffer->transferAccess) {
             // guard against WAW hazard
@@ -1293,16 +1299,21 @@ void CCVKGPUBufferHub::flush(CCVKGPUTransportHub *transportHub) {
     auto &buffers = _buffersToBeUpdated[_device->curBackBufferIndex];
     if (buffers.empty()) return;
 
-    if (USE_MEMCPY_FOR_BUFFER_SYNC) {
-        for (auto &buffer : buffers) {
+    bool needTransferCmds = false;
+    for (auto &buffer : buffers) {
+        if (buffer.second.canMemcpy) {
             uint8_t *src = buffer.first->mappedData + buffer.second.srcIndex * buffer.first->instanceSize;
             uint8_t *dst = buffer.first->mappedData + _device->curBackBufferIndex * buffer.first->instanceSize;
             memcpy(dst, src, buffer.second.size);
+        } else {
+            needTransferCmds = true;
         }
-    } else {
+    }
+    if (needTransferCmds) {
         transportHub->checkIn([&](const CCVKGPUCommandBuffer *gpuCommandBuffer) {
             VkBufferCopy region;
             for (auto &buffer : buffers) {
+                if (buffer.second.canMemcpy) continue;
                 region.srcOffset = buffer.first->startOffset + buffer.second.srcIndex * buffer.first->instanceSize;
                 region.dstOffset = buffer.first->startOffset + _device->curBackBufferIndex * buffer.first->instanceSize;
                 region.size      = buffer.second.size;

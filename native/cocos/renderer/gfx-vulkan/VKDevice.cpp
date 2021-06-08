@@ -507,6 +507,8 @@ void CCVKDevice::doDestroy() {
             VmaStats stats;
             vmaCalculateStats(_gpuDevice->memoryAllocator, &stats);
             CC_LOG_INFO("Total device memory leaked: %d bytes.", stats.total.usedBytes);
+            CCASSERT(!_memoryStatus.bufferSize, "Buffer memory leaked");
+            CCASSERT(!_memoryStatus.textureSize, "Texture memory leaked");
 
             vmaDestroyAllocator(_gpuDevice->memoryAllocator);
             _gpuDevice->memoryAllocator = VK_NULL_HANDLE;

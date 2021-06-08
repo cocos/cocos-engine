@@ -1203,15 +1203,12 @@ public:
         _buffersToBeUpdated.resize(device->backBufferCount);
     }
 
-    void record(CCVKGPUBuffer *gpuBuffer, const void *src, size_t size) {
-        uint     backBufferIndex = _device->curBackBufferIndex;
-        uint8_t *dst             = gpuBuffer->mappedData + backBufferIndex * gpuBuffer->instanceSize;
-        memcpy(dst, src, size);
+    void record(CCVKGPUBuffer *gpuBuffer, uint backBufferIndex, size_t size, bool canMemcpy) {
         for (uint i = 0U; i < _device->backBufferCount; ++i) {
             if (i == backBufferIndex) {
                 _buffersToBeUpdated[i].erase(gpuBuffer);
             } else {
-                _buffersToBeUpdated[i][gpuBuffer] = {backBufferIndex, size};
+                _buffersToBeUpdated[i][gpuBuffer] = {backBufferIndex, size, canMemcpy};
             }
         }
     }
@@ -1230,6 +1227,7 @@ private:
     struct BufferUpdate {
         uint   srcIndex = 0U;
         size_t size     = 0U;
+        bool   canMemcpy = false;
     };
 
     vector<unordered_map<CCVKGPUBuffer *, BufferUpdate>> _buffersToBeUpdated;
