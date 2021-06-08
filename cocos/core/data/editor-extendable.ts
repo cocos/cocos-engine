@@ -30,7 +30,7 @@ function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), classN
     type ResultType = new (...args: any[]) => (T & EditorExtendableObject);
 
     if (!EDITOR) {
-        return Base as unknown as ResultType;
+        return (Base ?? Object) as unknown as ResultType;
     }
 
     let name: string;
