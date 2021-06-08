@@ -204,18 +204,23 @@ export default class ParticleSystemRenderer {
     private _particleSystem: any = null!; // ParticleSystem
 
     create (ps: any) {
-        if (this._particleSystem !== ps) {
+        if (this._particleSystem === null) {
             this._particleSystem = ps;
+            const useGPU = this._useGPU && isSupportGPUParticle();
+            this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+            this._particleSystem.processor.onInit(this._particleSystem);
         }
     }
 
     onInit (ps: any) {
-        if (this._particleSystem !== ps) {
+        // if particle system is null we run the old routine
+        // else if particle system is not null we do nothing
+        if (this._particleSystem === null) {
             this._particleSystem = ps;
+            const useGPU = this._useGPU && isSupportGPUParticle();
+            this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+            this._particleSystem.processor.onInit(ps);
         }
-        const useGPU = this._useGPU && isSupportGPUParticle();
-        this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
-        this._particleSystem.processor.onInit(this._particleSystem);
     }
 
     private _switchProcessor () {
