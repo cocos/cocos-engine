@@ -1678,8 +1678,8 @@ export class DeviceInfo {
         public isAntialias: boolean = true,
         public isPremultipliedAlpha: boolean = true,
         public devicePixelRatio: number = 1,
-        public nativeWidth: number = 1,
-        public nativeHeight: number = 1,
+        public width: number = 1,
+        public height: number = 1,
         /**
          * For non-vulkan backends, to maintain compatibility and maximize
          * descriptor cache-locality, descriptor-set-based binding numbers need
