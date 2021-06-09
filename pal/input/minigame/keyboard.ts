@@ -1,149 +1,162 @@
-import { WECHAT } from 'internal:constants';
-import { system } from 'pal/system';
 import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
 import { KeyboardEventData, minigame } from 'pal/minigame';
 import { KeyboardEvent } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
+import { KeyCode } from '../../../cocos/core/platform/event-manager/key-code';
 
-// map from CCMacro
-const key2keyCode = {
-    backspace: 8,
-    tab: 9,
-    enter: 13,
-    shift: 16,
-    control: 17,
-    alt: 18,
-    pause: 19,
-    capslock: 20,
-    escape: 27,
-    ' ': 32,
-    pageup: 33,
-    pagedown: 34,
-    end: 35,
-    home: 36,
-    arrowleft: 37,
-    arrowup: 38,
-    arrowright: 39,
-    arrowdown: 40,
-    insert: 45,
-    a: 65,
-    b: 66,
-    c: 67,
-    d: 68,
-    e: 69,
-    f: 70,
-    g: 71,
-    h: 72,
-    i: 73,
-    j: 74,
-    k: 75,
-    l: 76,
-    m: 77,
-    n: 78,
-    o: 79,
-    p: 80,
-    q: 81,
-    r: 82,
-    s: 83,
-    t: 84,
-    u: 85,
-    v: 86,
-    w: 87,
-    x: 88,
-    y: 89,
-    z: 90,
-    '*': 106,
-    '+': 107,
-    '-': 109,
-    '/': 111,
-    f1: 112,
-    f2: 113,
-    f3: 114,
-    f4: 115,
-    f5: 116,
-    f6: 117,
-    f7: 118,
-    f8: 119,
-    f9: 120,
-    f10: 121,
-    f11: 122,
-    f12: 123,
-    numlock: 144,
-    scrolllock: 145,
-    ';': 186,
-    '=': 187,
-    ',': 188,
-    '.': 190,
-    '`': 192,
-    '[': 219,
-    '\\': 220,
-    ']': 221,
-    '\'': 222,
+const code2KeyCode: Record<string, KeyCode> = {
+    Backspace: KeyCode.BACKSPACE,
+    Tab: KeyCode.TAB,
+    Enter: KeyCode.ENTER,
+    ShiftLeft: KeyCode.SHIFT_LEFT,
+    ControlLeft: KeyCode.CTRL_LEFT,
+    AltLeft: KeyCode.ALT_LEFT,
+    ShiftRight: KeyCode.SHIFT_RIGHT,
+    ControlRight: KeyCode.CTRL_RIGHT,
+    AltRight: KeyCode.ALT_RIGHT,
+    Pause: KeyCode.PAUSE,
+    CapsLock: KeyCode.CAPSLOCK,
+    Escape: KeyCode.ESCAPE,
+    Space: KeyCode.SPACE,
+    PageUp: KeyCode.PAGEUP,
+    PageDown: KeyCode.PAGEDOWN,
+    End: KeyCode.END,
+    Home: KeyCode.HOME,
+    ArrowLeft: KeyCode.ARROW_LEFT,
+    ArrowUp: KeyCode.ARROW_UP,
+    ArrowRight: KeyCode.ARROW_RIGHT,
+    ArrowDown: KeyCode.ARROW_DOWN,
+    Insert: KeyCode.INSERT,
+    Delete: KeyCode.DELETE,
+    Digit0: KeyCode.DIGIT_0,
+    Digit1: KeyCode.DIGIT_1,
+    Digit2: KeyCode.DIGIT_2,
+    Digit3: KeyCode.DIGIT_3,
+    Digit4: KeyCode.DIGIT_4,
+    Digit5: KeyCode.DIGIT_5,
+    Digit6: KeyCode.DIGIT_6,
+    Digit7: KeyCode.DIGIT_7,
+    Digit8: KeyCode.DIGIT_8,
+    Digit9: KeyCode.DIGIT_9,
+    KeyA: KeyCode.KEY_A,
+    KeyB: KeyCode.KEY_B,
+    KeyC: KeyCode.KEY_C,
+    KeyD: KeyCode.KEY_D,
+    KeyE: KeyCode.KEY_E,
+    KeyF: KeyCode.KEY_F,
+    KeyG: KeyCode.KEY_G,
+    KeyH: KeyCode.KEY_H,
+    KeyI: KeyCode.KEY_I,
+    KeyJ: KeyCode.KEY_J,
+    KeyK: KeyCode.KEY_K,
+    KeyL: KeyCode.KEY_L,
+    KeyM: KeyCode.KEY_M,
+    KeyN: KeyCode.KEY_N,
+    KeyO: KeyCode.KEY_O,
+    KeyP: KeyCode.KEY_P,
+    KeyQ: KeyCode.KEY_Q,
+    KeyR: KeyCode.KEY_R,
+    KeyS: KeyCode.KEY_S,
+    KeyT: KeyCode.KEY_T,
+    KeyU: KeyCode.KEY_U,
+    KeyV: KeyCode.KEY_V,
+    KeyW: KeyCode.KEY_W,
+    KeyX: KeyCode.KEY_X,
+    KeyY: KeyCode.KEY_Y,
+    KeyZ: KeyCode.KEY_Z,
+    Numpad0: KeyCode.NUM_0,
+    Numpad1: KeyCode.NUM_1,
+    Numpad2: KeyCode.NUM_2,
+    Numpad3: KeyCode.NUM_3,
+    Numpad4: KeyCode.NUM_4,
+    Numpad5: KeyCode.NUM_5,
+    Numpad6: KeyCode.NUM_6,
+    Numpad7: KeyCode.NUM_7,
+    Numpad8: KeyCode.NUM_8,
+    Numpad9: KeyCode.NUM_9,
+    NumpadMultiply: KeyCode.NUM_MUTIPLY,
+    NumpadAdd: KeyCode.NUM_PLUS,
+    NumpadSubtract: KeyCode.NUM_SUBTRACT,
+    NumpadDecimal: KeyCode.NUM_DECIMAL,
+    NumpadDivide: KeyCode.NUM_DIVIDE,
+    NumpadEnter: KeyCode.NUM_ENTER,
+    F1: KeyCode.F1,
+    F2: KeyCode.F2,
+    F3: KeyCode.F3,
+    F4: KeyCode.F4,
+    F5: KeyCode.F5,
+    F6: KeyCode.F6,
+    F7: KeyCode.F7,
+    F8: KeyCode.F8,
+    F9: KeyCode.F9,
+    F10: KeyCode.F10,
+    F11: KeyCode.F11,
+    F12: KeyCode.F12,
+    NumLock: KeyCode.NUM_LOCK,
+    ScrollLock: KeyCode.SCROLLLOCK,
+    Semicolon: KeyCode.SEMICOLON,
+    Equal: KeyCode.EQUAL,
+    Comma: KeyCode.COMMA,
+    Minus: KeyCode.DASH,
+    Period: KeyCode.PERIOD,
+    Slash: KeyCode.SLASH,
+    Backquote: KeyCode.BACKQUOTE,
+    BracketLeft: KeyCode.BRACKET_LEFT,
+    Backslash: KeyCode.BACKSLASH,
+    BracketRight: KeyCode.BRACKET_RIGHT,
+    Quote: KeyCode.QUOTE,
 };
 
-const code2KeyCode = {
-    Delete: 46,
-    Digit0: 48,
-    Digit1: 49,
-    Digit2: 50,
-    Digit3: 51,
-    Digit4: 52,
-    Digit5: 53,
-    Digit6: 54,
-    Digit7: 55,
-    Digit8: 56,
-    Digit9: 57,
-    Numpad0: 96,
-    Numpad1: 97,
-    Numpad2: 98,
-    Numpad3: 99,
-    Numpad4: 100,
-    Numpad5: 101,
-    Numpad6: 102,
-    Numpad7: 103,
-    Numpad8: 104,
-    Numpad9: 105,
-    NumpadDecimal: 110,
-};
+function getKeyCode (code: string): KeyCode {
+    return code2KeyCode[code] || KeyCode.NONE;
+}
 
 export class KeyboardInputSource {
     public support: boolean;
     private _eventTarget: EventTarget = new EventTarget();
 
+    // KeyboardEvent.repeat is not supported on Wechat PC platform.
+    private _keyStateMap: Record<number, boolean> = {};
+
     constructor () {
-        this.support = WECHAT && !system.isMobile;
+        this.support = typeof minigame.wx === 'object' && typeof minigame.wx.onKeyDown !== 'undefined';
         if (this.support) {
             this._registerEvent();
         }
     }
 
     private _registerEvent () {
-        minigame.onKeyDown?.((res) => {
-            const inputEvent: KeyboardInputEvent = {
-                code: this._getKeyCode(res),
-                type: SystemEventType.KEY_DOWN,
-                timestamp: performance.now(),
-            };
-            this._eventTarget.emit(SystemEventType.KEY_DOWN, inputEvent);
+        minigame.wx?.onKeyDown?.((res) => {
+            const keyCode = getKeyCode(res.code);
+            if (!this._keyStateMap[keyCode]) {
+                const keyDownInputEvent = this._getInputEvent(res, KeyboardEvent.KEY_DOWN);
+                this._eventTarget.emit(KeyboardEvent.KEY_DOWN, keyDownInputEvent);
+            }
+            // @ts-expect-error Compability for key pressing callback
+            const keyPressingInputEvent = this._getInputEvent(res, 'keydown');
+            this._eventTarget.emit('keydown', keyPressingInputEvent);
+            this._keyStateMap[keyCode] = true;
         });
-        minigame.onKeyUp?.((res) => {
+        minigame.wx?.onKeyUp?.((res) => {
+            const keyCode = getKeyCode(res.code);
             const inputEvent: KeyboardInputEvent = {
-                code: this._getKeyCode(res),
-                type: SystemEventType.KEY_UP,
+                code: keyCode,
+                type: KeyboardEvent.KEY_UP,
                 timestamp: performance.now(),
             };
-            this._eventTarget.emit(SystemEventType.KEY_UP, inputEvent);
+            this._keyStateMap[keyCode] = false;
+            this._eventTarget.emit(KeyboardEvent.KEY_UP, inputEvent);
         });
     }
 
-    private _getKeyCode (res: KeyboardEventData) {
-        const key = res.key.toLowerCase();
-        const code = res.code;
-        // distinguish different numLock states
-        if (/^\d$/.test(key) || key === 'delete') {
-            return code2KeyCode[code] as number;
-        }
-        return key2keyCode[key] as number || 0;
+    private _getInputEvent (event: KeyboardEventData, eventType: KeyboardEvent) {
+        const keyCode = getKeyCode(event.code);
+        const inputEvent: KeyboardInputEvent = {
+            type: eventType,
+            code: keyCode,
+            timestamp: performance.now(),
+        };
+        return inputEvent;
     }
 
     public onDown (cb: KeyboardCallback) {

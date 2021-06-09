@@ -1,6 +1,9 @@
 declare module 'pal/minigame' {
     export const minigame: IMiniGame;
     export interface IMiniGame {
+        // platform related
+        wx?: WX;
+
         // system
         isDevTool: boolean;
         isLandscape: boolean;
@@ -32,14 +35,6 @@ declare module 'pal/minigame' {
         onTouchEnd: IEventManager<TouchEvent>;
         onTouchCancel: IEventManager<TouchEvent>;
 
-        onKeyDown?: (cb: (res: KeyboardEventData) => void) => void;
-        onKeyUp?: (cb: (res: KeyboardEventData) => void) => void;
-
-        onMouseDown?: (cb: (res: MouseEventData) => void) => void;
-        onMouseMove?: (cb: (res: MouseEventData) => void) => void;
-        onMouseUp?: (cb: (res: MouseEventData) => void) => void;
-        onWheel?: (cb: (res: MouseWheelEventData) => void) => void;
-
         // audio
         createInnerAudioContext(): InnerAudioContext;
         onAudioInterruptionBegin(callback: () => void): any;
@@ -55,6 +50,16 @@ declare module 'pal/minigame' {
         offAccelerometerChange(cb?: AccelerometerChangeCallback);
         startAccelerometer(obj: AccelerometerStartParameter);
         stopAccelerometer(obj: AccelerometerStopParameter);
+    }
+
+    interface WX {
+        onKeyDown?: (cb: (res: KeyboardEventData) => void) => void;
+        onKeyUp?: (cb: (res: KeyboardEventData) => void) => void;
+
+        onMouseDown?: (cb: (res: MouseEventData) => void) => void;
+        onMouseMove?: (cb: (res: MouseEventData) => void) => void;
+        onMouseUp?: (cb: (res: MouseEventData) => void) => void;
+        onWheel?: (cb: (res: MouseWheelEventData) => void) => void;
     }
 
     export interface KeyboardEventData {

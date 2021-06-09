@@ -8,6 +8,16 @@ declare let wx: any;
 const minigame: IMiniGame = {};
 cloneObject(minigame, wx);
 
+// #region platform related
+minigame.wx = {};
+minigame.wx.onKeyDown = wx.onKeyDown;
+minigame.wx.onKeyUp = wx.onKeyUp;
+minigame.wx.onMouseDown = wx.onMouseDown;
+minigame.wx.onMouseMove = wx.onMouseMove;
+minigame.wx.onMouseUp = wx.onMouseUp;
+minigame.wx.onWheel = wx.onWheel;
+// #endregion platform related
+
 // #region SystemInfo
 let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
 // @ts-expect-error TODO: move into minigame.d.ts
