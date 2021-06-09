@@ -559,6 +559,7 @@ export class ParticleSystem extends RenderableComponent {
     private _isPaused: boolean;
     private _isStopped: boolean;
     private _isEmitting: boolean;
+    private _needRefresh: boolean;
 
     private _time: number;  // playback position in seconds.
     private _emitRateTimeCounter: number;
@@ -595,6 +596,7 @@ export class ParticleSystem extends RenderableComponent {
         this._isPaused = false;
         this._isStopped = true;
         this._isEmitting = false;
+        this._needRefresh = false;
 
         this._time = 0.0;  // playback position in seconds.
         this._emitRateTimeCounter = 0.0;
@@ -731,6 +733,9 @@ export class ParticleSystem extends RenderableComponent {
         this._emitRateDistanceCounter = 0.0;
 
         this._isStopped = true;
+
+        // if stop emit modify the refresh flag to true
+        this._needRefresh = true;
     }
 
     // remove all particles from current particle system.
@@ -821,6 +826,12 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     private emit (count: number, dt: number) {
+        // refresh particle node position to update emit position
+        if (this._needRefresh) {
+            this.node.setPosition(this.node.getPosition());
+            this._needRefresh = false;
+        }
+
         const delta = this._time / this.duration;
 
         if (this._simulationSpace === Space.World) {
