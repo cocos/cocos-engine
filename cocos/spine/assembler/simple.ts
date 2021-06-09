@@ -171,7 +171,9 @@ export const simple: IAssembler = {
     },
 
     updateColor (comp: Skeleton) {
+        if (!comp) return;
         _comp = comp;
+        _comp.markForUpdateRenderData();
     },
 
     fillBuffers (comp: Skeleton, renderer: Batcher2D) {

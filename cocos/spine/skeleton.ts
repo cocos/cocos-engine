@@ -1602,6 +1602,7 @@ export class Skeleton extends Renderable2D {
             if (this._assembler && this._assembler.createData) {
                 this._assembler.createData(this);
                 this.markForUpdateRenderData();
+                this._colorDirty = true;
                 this._updateColor();
             }
         }

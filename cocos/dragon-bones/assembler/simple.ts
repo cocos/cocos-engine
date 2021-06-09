@@ -118,6 +118,9 @@ export const simple: IAssembler = {
     },
 
     updateColor (comp: ArmatureDisplay) {
+        if (!comp) return;
+        _comp = comp;
+        _comp.markForUpdateRenderData();
     },
 
     fillBuffers (comp: ArmatureDisplay, renderer: Batcher2D) {
