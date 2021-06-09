@@ -33,7 +33,7 @@ import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, type, 
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
 import { Toggle } from './toggle';
 import { legacyCC } from '../core/global-exports';
-import { SystemEventType } from '../core/platform/event-manager';
+import { NodeEventType } from '../core/scene-graph/node-event';
 
 /**
  * @en
@@ -103,13 +103,13 @@ export class ToggleContainer extends Component {
 
     public onEnable () {
         this.ensureValidState();
-        this.node.on(SystemEventType.CHILD_ADDED, this.ensureValidState, this);
-        this.node.on(SystemEventType.CHILD_REMOVED, this.ensureValidState, this);
+        this.node.on(NodeEventType.CHILD_ADDED, this.ensureValidState, this);
+        this.node.on(NodeEventType.CHILD_REMOVED, this.ensureValidState, this);
     }
 
     public onDisable () {
-        this.node.off(SystemEventType.CHILD_ADDED, this.ensureValidState, this);
-        this.node.off(SystemEventType.CHILD_REMOVED, this.ensureValidState, this);
+        this.node.off(NodeEventType.CHILD_ADDED, this.ensureValidState, this);
+        this.node.off(NodeEventType.CHILD_REMOVED, this.ensureValidState, this);
     }
 
     public activeToggles () {

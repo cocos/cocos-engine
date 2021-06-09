@@ -47,7 +47,7 @@ export class PipelineStateManager {
             const pipelineLayout = pass.pipelineLayout;
             const inputState = new InputState(ia.attributes);
             const psoInfo = new PipelineStateInfo(
-                shader, pipelineLayout, renderPass, inputState,
+                shader, pass.pipelineLayout, renderPass, inputState,
                 pass.rasterizerState,
                 pass.depthStencilState,
                 pass.blendState,

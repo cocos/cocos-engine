@@ -33,7 +33,6 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range
 import { EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
@@ -42,7 +41,8 @@ import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
-import { Material, RenderTexture } from '../../core';
+import { Material, Node, RenderTexture } from '../../core';
+import { NodeEventType } from '../../core/scene-graph/node-event';
 
 /**
  * @en
@@ -479,7 +479,7 @@ export class Sprite extends Renderable2D {
 
         if (EDITOR) {
             this._resized();
-            this.node.on(SystemEventType.SIZE_CHANGED, this._resized, this);
+            this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
 
         if (this._spriteFrame) {
@@ -516,7 +516,7 @@ export class Sprite extends Renderable2D {
     public onDestroy () {
         this.destroyRenderData();
         if (EDITOR) {
-            this.node.off(SystemEventType.SIZE_CHANGED, this._resized, this);
+            this.node.off(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
 
         if (this._spriteFrame && !this._spriteFrame.loaded) {

@@ -34,7 +34,6 @@ import {
 import { JSB } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
-import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
@@ -46,16 +45,69 @@ import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
 import { Component } from '../components';
 import { NativeNode } from '../renderer/scene/native-scene';
 import { FloatArray } from '../math/type-define';
+import { NodeEventType } from './node-event';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
 const q_b = new Quat();
-const array_a = new Array(10);
 const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
-const bookOfChange = new Map<Node, number>();
+const array_a: any[] = [];
+
+class BookOfChange {
+    private _chunks: Uint32Array[] = [];
+    private _freelists: number[][] = [];
+
+    // these should match with native: cocos/renderer/pipeline/helper/SharedMemory.h Node.getHasChangedFlags
+    private static CAPACITY_PER_CHUNK = 256;
+
+    constructor () {
+        this._createChunk();
+    }
+
+    public alloc () {
+        const chunkCount = this._freelists.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            if (!this._freelists[i].length) continue;
+            return this._createView(i);
+        }
+        this._createChunk();
+        return this._createView(chunkCount);
+    }
+
+    public free (view: Uint32Array, idx: number) {
+        const chunkCount = this._freelists.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            if (this._chunks[i] !== view) continue;
+            this._freelists[i].push(idx);
+            return;
+        }
+    }
+
+    public clear () {
+        const chunkCount = this._chunks.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            this._chunks[i].fill(0);
+        }
+    }
+
+    private _createChunk () {
+        this._chunks.push(new Uint32Array(BookOfChange.CAPACITY_PER_CHUNK));
+        const freelist: number[] = [];
+        for (let i = 0; i < BookOfChange.CAPACITY_PER_CHUNK; ++i) freelist.push(i);
+        this._freelists.push(freelist);
+    }
+
+    private _createView (chunkIdx: number): [Uint32Array, number] {
+        const chunk = this._chunks[chunkIdx];
+        const offset = this._freelists[chunkIdx].pop()!;
+        return [chunk, offset];
+    }
+}
+
+const bookOfChange = new BookOfChange();
 
 /**
  * @zh
@@ -81,13 +133,11 @@ const bookOfChange = new Map<Node, number>();
  */
 @ccclass('cc.Node')
 export class Node extends BaseNode {
-    public static bookOfChange = bookOfChange;
-
     /**
      * @en Event types emitted by Node
      * @zh 节点可能发出的事件类型
      */
-    public static EventType = SystemEventType;
+    public static EventType = NodeEventType;
 
     /**
      * @en Coordinates space
@@ -103,13 +153,20 @@ export class Node extends BaseNode {
     public static TransformDirtyBit = TransformBit;
 
     /**
-     * @en Bit masks for Node transformation parts, can be used to determine which part changed in [[SystemEventType.TRANSFORM_CHANGED]] event
-     * @zh 节点变换更新的具体部分，可用于判断 [[SystemEventType.TRANSFORM_CHANGED]] 事件的具体类型
+     * @en Bit masks for Node transformation parts, can be used to determine which part changed in [[NodeEventType.TRANSFORM_CHANGED]] event
+     * @zh 节点变换更新的具体部分，可用于判断 [[NodeEventType.TRANSFORM_CHANGED]] 事件的具体类型
      */
     public static TransformBit = TransformBit;
 
     // UI 部分的脏数据
     public _uiProps = new NodeUIProperties(this);
+
+    /**
+     * @en Counter to clear node array
+     * @zh 清除节点数组计时器
+     */
+    private static ClearFrame = 0;
+    private static ClearRound = 1000;
 
     public _static = false;
 
@@ -142,9 +199,9 @@ export class Node extends BaseNode {
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
 
     protected _eulerDirty = false;
-
     protected _nodeHandle: NodeHandle = NULL_HANDLE;
-
+    protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
+    protected declare _hasChangedFlagsOffset: number;
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
     protected declare _nativeFlag: Uint32Array;
@@ -169,6 +226,10 @@ export class Node extends BaseNode {
             this._scale = new Vec3(1, 1, 1);
             this._mat = new Mat4();
         }
+
+        const [chunk, offset] = bookOfChange.alloc();
+        this._hasChangedFlagsChunk = chunk;
+        this._hasChangedFlagsOffset = offset;
     }
 
     constructor (name?: string) {
@@ -193,6 +254,8 @@ export class Node extends BaseNode {
 
             this._nativeObj = null;
         }
+
+        bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
     }
 
     public destroy () {
@@ -277,7 +340,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -331,7 +394,7 @@ export class Node extends BaseNode {
         this.invalidateChildren(TransformBit.TRS);
         this._eulerDirty = true;
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.TRS);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.TRS);
         }
     }
 
@@ -370,7 +433,7 @@ export class Node extends BaseNode {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
         }
-        this.emit(SystemEventType.LAYER_CHANGED, this._layer);
+        this.emit(NodeEventType.LAYER_CHANGED, this._layer);
     }
 
     get layer () {
@@ -382,11 +445,11 @@ export class Node extends BaseNode {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return bookOfChange.get(this) || 0;
+        return this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] as TransformBit;
     }
 
     set hasChangedFlags (val: number) {
-        bookOfChange.set(this, val);
+        this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] = val;
         if (JSB) {
             this._nativeFlag[0] = val;
         }
@@ -511,7 +574,7 @@ export class Node extends BaseNode {
         }
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -537,7 +600,7 @@ export class Node extends BaseNode {
         this._eulerDirty = true;
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -547,7 +610,7 @@ export class Node extends BaseNode {
      * @param pos Target position
      * @param up Up direction
      */
-    public lookAt (pos: Vec3, up?: Vec3): void {
+    public lookAt (pos: Readonly<Vec3>, up?: Readonly<Vec3>): void {
         this.getWorldPosition(v3_a);
         Vec3.subtract(v3_a, v3_a, pos);
         Vec3.normalize(v3_a, v3_a);
@@ -566,15 +629,21 @@ export class Node extends BaseNode {
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
-        const hasChanegdFlags = this.hasChangedFlags;
-        if ((this._dirtyFlags & hasChanegdFlags & dirtyBit) === dirtyBit) { return; }
-        this._dirtyFlags |= dirtyBit;
-        this.hasChangedFlags = hasChanegdFlags | dirtyBit;
-        const newDirtyBit = dirtyBit | TransformBit.POSITION;
-        const len = this._children.length;
-        for (let i = 0; i < len; ++i) {
-            const child = this._children[i];
-            if (child.isValid) { child.invalidateChildren(newDirtyBit); }
+        const childDirtyBit = dirtyBit | TransformBit.POSITION;
+        array_a[0] = this;
+
+        let i = 0;
+        while (i >= 0) {
+            const cur: this = array_a[i--];
+            const hasChangedFlags = cur.hasChangedFlags;
+            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                cur._dirtyFlags |= dirtyBit;
+                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                const children = cur._children;
+                const len = children.length;
+                for (let j = 0; j < len; ++j) array_a[++i] = children[j];
+            }
+            dirtyBit = childDirtyBit;
         }
     }
 
@@ -649,7 +718,7 @@ export class Node extends BaseNode {
      * @zh 设置本地坐标
      * @param position Target position
      */
-    public setPosition (position: Vec3): void;
+    public setPosition (position: Readonly<Vec3>): void;
 
     /**
      * @en Set position in local coordinate system
@@ -660,7 +729,7 @@ export class Node extends BaseNode {
      */
     public setPosition (x: number, y: number, z?: number): void;
 
-    public setPosition (val: Vec3 | number, y?: number, z?: number): void {
+    public setPosition (val: Readonly<Vec3> | number, y?: number, z?: number): void {
         if (y === undefined && z === undefined) {
             Vec3.copy(this._lpos, val as Vec3);
         } else if (z === undefined) {
@@ -671,7 +740,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -715,7 +784,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -750,7 +819,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -772,7 +841,7 @@ export class Node extends BaseNode {
      * @zh 设置本地缩放
      * @param scale Target scale
      */
-    public setScale (scale: Vec3): void;
+    public setScale (scale: Readonly<Vec3>): void;
 
     /**
      * @en Set scale in local coordinate system
@@ -783,7 +852,7 @@ export class Node extends BaseNode {
      */
     public setScale (x: number, y: number, z?: number): void;
 
-    public setScale (val: Vec3 | number, y?: number, z?: number) {
+    public setScale (val: Readonly<Vec3> | number, y?: number, z?: number) {
         if (y === undefined && z === undefined) {
             Vec3.copy(this._lscale, val as Vec3);
         } else if (z === undefined) {
@@ -794,7 +863,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.SCALE);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 
@@ -872,7 +941,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -923,7 +992,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -946,7 +1015,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -1004,7 +1073,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.SCALE);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 
@@ -1091,7 +1160,7 @@ export class Node extends BaseNode {
         if (dirtyBit) {
             this.invalidateChildren(dirtyBit);
             if (this._eventMask & TRANSFORM_ON) {
-                this.emit(SystemEventType.TRANSFORM_CHANGED, dirtyBit);
+                this.emit(NodeEventType.TRANSFORM_CHANGED, dirtyBit);
             }
         }
     }
@@ -1131,27 +1200,23 @@ export class Node extends BaseNode {
      * @zh
      * 清除所有节点的脏标记。
      */
-    public static clearBooks () {
-        if (JSB) bookOfChange.forEach((v, k, m) => { if (k.isValid) k.hasChangedFlags = TransformBit.NONE; });
+    public static resetHasChangedFlags () {
         bookOfChange.clear();
     }
 
     /**
      * @en
-     * Synchronize the js transform to the native layer.
+     * clear node array
      * @zh
-     * js 变换信息同步到原生层。
+     * 清除节点数组
      */
-    public syncToNativeTransform () {
-    }
-
-    /**
-     * @en
-     * Synchronize the native transform to the js layer.
-     * @zh
-     * 原生变换信息同步到 js 层。
-     */
-    public syncFromNativeTransform () {
+    public static clearNodeArray () {
+        if (Node.ClearFrame < Node.ClearRound) {
+            Node.ClearFrame++;
+        } else {
+            Node.ClearFrame = 0;
+            array_a.length = 0;
+        }
     }
 }
 
