@@ -439,6 +439,8 @@ export class BlendTarget {
         return this._nativeObj;
     }
 
+    declare prevNativeObj :any;
+
     constructor (
         blend: boolean = false,
         blendSrc: BlendFactor = BlendFactor.ONE,
@@ -504,6 +506,7 @@ export class BlendTarget {
 
     public destroy () {
         this._nativeObj = null;
+        this.prevNativeObj = null;
     }
 
     public assign (target: RecursivePartial<BlendTarget>) {
@@ -542,8 +545,35 @@ export class BlendState {
 
     private _setTargets(targets: BlendTarget[]) {
         this.targets = targets;
-        const nativeTars = targets.map(target => target.native);
+        const nativeTars = targets.map(target => {return (target as any).prevNativeObj || target.native; });
         this._nativeObj.targets = nativeTars;
+        this._bindNativeTargets();
+    }
+
+    private _bindNativeTargets() {
+        // connect this.targets.native to  this._nativeObj.targets
+        let self = this;
+        let getShadowTarget = (i:number) => {return self._nativeObj.targets[i]};
+        for(let i = 0, l = this.targets.length; i < l; i++) {
+            let target = this.targets[i] as any;
+            if(!Reflect.has(target, 'prevNativeObj')) {
+                Reflect.set(target, 'prevNativeObj', target._nativeObj);
+            }
+            target._nativeObj = new Proxy(target.prevNativeObj, {
+                set: (prevTgt, prop, value) => {
+                    Reflect.set(prevTgt, prop, value);
+                    // #1
+                    // (()=>{Reflect.set(getShadowTarget(i), prop, value);})();
+                    
+                    // #2
+                    const nativeTars = self.targets.map(target => {
+                        return target.prevNativeObj || target.native;
+                      });
+                    self._nativeObj.targets = nativeTars;
+                    return true;
+                }
+            });
+        }
     }
 
     get native() {
