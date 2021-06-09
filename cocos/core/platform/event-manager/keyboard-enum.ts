@@ -417,13 +417,13 @@ export enum Keyboard {
     * @en The numeric keypad '-'
     * @zh 数字键盘 -
     */
-    NUM_MINUS = 109,
+    NUM_SUBTRACT = 109,
 
     /**
-    * @en The numeric keypad 'delete'
-    * @zh 数字键盘删除键
+    * @en The numeric keypad '.'
+    * @zh 数字键盘小数点 '.'
     */
-    NUM_DEL = 110,
+    NUM_DECIMAL = 110,
 
     /**
     * @en The numeric keypad '/'
