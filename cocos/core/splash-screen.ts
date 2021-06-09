@@ -239,7 +239,7 @@ export class SplashScreen {
             let scaleX = logoW * logoTW / logoTH;
             let scaleY = logoW;
             if (device.surfaceTransform === SurfaceTransform.ROTATE_90
-            || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+                || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
                 scaleX = logoW * dw / dh;
                 scaleY = logoW * logoTH / logoTW * dh / dw;
             }
@@ -257,7 +257,7 @@ export class SplashScreen {
                 let scaleX = wartermarkW;
                 let scaleY = wartermarkW * wartermarkTH / wartermarkTW;
                 if (device.surfaceTransform === SurfaceTransform.ROTATE_90
-                || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+                    || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
                     scaleX = wartermarkW * 0.5;
                     scaleY = wartermarkW * dw / dh * 0.5;
                 }
@@ -356,15 +356,8 @@ export class SplashScreen {
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
 
-        // here we gonna render to fullscreen, but device.width/height represents logic size,
-        // renderArea assigned to viewport directly, so physical size is needed.
-        if (JSB)  {
-            renderArea.width = device.nativeWidth;
-            renderArea.height = device.nativeHeight;
-        } else {
-            renderArea.width = device.width;
-            renderArea.height = device.height;
-        }
+        renderArea.width = device.width;
+        renderArea.height = device.height;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);

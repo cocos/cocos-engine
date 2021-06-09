@@ -25,7 +25,8 @@
 import { JSB } from 'internal:constants';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo,
+} from '../../gfx';
 import { Root } from '../../root';
 import { Camera, NativeRenderWindow } from '../scene';
 
@@ -101,8 +102,6 @@ export class RenderWindow {
     protected _title = '';
     protected _width = 1;
     protected _height = 1;
-    protected _nativeWidth = 1;
-    protected _nativeHeight = 1;
     protected _renderPass: RenderPass | null = null;
     protected _colorTextures: (Texture | null)[] = [];
     protected _depthStencilTexture: Texture | null = null;
@@ -168,8 +167,6 @@ export class RenderWindow {
 
         this._width = info.width;
         this._height = info.height;
-        this._nativeWidth = this._width;
-        this._nativeHeight = this._height;
 
         const { colorAttachments, depthStencilAttachment } = info.renderPassInfo;
         for (let i = 0; i < colorAttachments.length; i++) {
@@ -253,35 +250,29 @@ export class RenderWindow {
         this._width = width;
         this._height = height;
 
-        if (width > this._nativeWidth
-            || height > this._nativeHeight) {
-            this._nativeWidth = width;
-            this._nativeHeight = height;
+        let needRebuild = false;
 
-            let needRebuild = false;
+        if (this._depthStencilTexture) {
+            this._depthStencilTexture.resize(width, height);
+            needRebuild = true;
+        }
 
-            if (this._depthStencilTexture) {
-                this._depthStencilTexture.resize(width, height);
+        for (let i = 0; i < this._colorTextures.length; i++) {
+            const colorTex = this._colorTextures[i];
+            if (colorTex) {
+                colorTex.resize(width, height);
                 needRebuild = true;
             }
+        }
 
-            for (let i = 0; i < this._colorTextures.length; i++) {
-                const colorTex = this._colorTextures[i];
-                if (colorTex) {
-                    colorTex.resize(width, height);
-                    needRebuild = true;
-                }
-            }
-
-            const framebuffer = this.framebuffer;
-            if (needRebuild && framebuffer) {
-                framebuffer.destroy();
-                framebuffer.initialize(new FramebufferInfo(
-                    this._renderPass!,
-                    this._colorTextures,
-                    this._depthStencilTexture,
-                ));
-            }
+        const framebuffer = this.framebuffer;
+        if (needRebuild && framebuffer) {
+            framebuffer.destroy();
+            framebuffer.initialize(new FramebufferInfo(
+                this._renderPass!,
+                this._colorTextures,
+                this._depthStencilTexture,
+            ));
         }
 
         for (const camera of this._cameras) {
