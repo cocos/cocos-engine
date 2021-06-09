@@ -202,7 +202,6 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
     CC_LOG_INFO("VENDOR: %s", _vendor.c_str());
     CC_LOG_INFO("VERSION: %s", _version.c_str());
     CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
-    CC_LOG_INFO("NATIVE_SIZE: %d x %d", _nativeWidth, _nativeHeight);
     CC_LOG_INFO("COMPRESSED_FORMATS: %s", compressedFmts.c_str());
     CC_LOG_INFO("PIXEL_LOCAL_STORAGE: level %d, size %d", _gpuExtensionRegistry->mPLS, _gpuExtensionRegistry->mPLSsize);
     CC_LOG_INFO("FRAMEBUFFER_FETCH: %s", fbfLevelStr.c_str());

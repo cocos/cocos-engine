@@ -25,12 +25,12 @@
 
 #pragma once
 
+#include <string>
+#include <vector>
 #include "CallbackPass.h"
 #include "DevicePassResourceTable.h"
 #include "RenderTargetAttachment.h"
 #include "gfx-base/GFXDef.h"
-#include <string>
-#include <vector>
 
 namespace cc {
 namespace framegraph {
@@ -38,14 +38,14 @@ namespace framegraph {
 class DevicePass final {
 public:
     DevicePass() = delete;
-    DevicePass(const FrameGraph &graph, std::vector<PassNode *> const &subPassNodes) noexcept;
+    DevicePass(const FrameGraph &graph, std::vector<PassNode *> const &subPassNodes);
     DevicePass(const DevicePass &) = delete;
     DevicePass(DevicePass &&)      = delete;
     ~DevicePass()                  = default;
     DevicePass &operator=(const DevicePass &) = delete;
     DevicePass &operator=(DevicePass &&) = delete;
 
-    void execute() noexcept;
+    void execute();
 
 private:
     struct LogicPass final {
@@ -60,15 +60,15 @@ private:
     };
 
     struct Attachment final {
-        RenderTargetAttachment       attachment;
-        gfx::Texture *               renderTarget{nullptr};
+        RenderTargetAttachment attachment;
+        gfx::Texture *         renderTarget{nullptr};
     };
 
-    void append(const FrameGraph &graph, const PassNode *passNode, std::vector<RenderTargetAttachment> &attachments) noexcept;
-    void append(const FrameGraph &graph, const RenderTargetAttachment &attachment, std::vector<RenderTargetAttachment> &attachments) noexcept;
-    void begin(gfx::CommandBuffer *cmdBuff) noexcept;
+    void append(const FrameGraph &graph, const PassNode *passNode, std::vector<RenderTargetAttachment> *attachments);
+    void append(const FrameGraph &graph, const RenderTargetAttachment &attachment, std::vector<RenderTargetAttachment> *attachments);
+    void begin(gfx::CommandBuffer *cmdBuff);
     void next(gfx::CommandBuffer *cmdBuff) noexcept;
-    void end(gfx::CommandBuffer *cmdBuff) noexcept;
+    void end(gfx::CommandBuffer *cmdBuff);
 
     std::vector<Subpass>    _subpasses{};
     std::vector<Attachment> _attachments{};

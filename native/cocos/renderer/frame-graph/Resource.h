@@ -41,14 +41,14 @@ namespace framegraph {
 
 template <typename DescriptorType>
 struct ResourceDescriptorHasher final {
-    CC_INLINE uint32_t operator()(const DescriptorType &desc) const {
+    CC_INLINE uint32_t operator()(const DescriptorType & /*desc*/) const {
         return 1;
     }
 };
 
 template <typename DeviceResourceType, typename DescriptorType>
 struct DeviceResourceCreator final {
-    CC_INLINE DeviceResourceType *operator()(const DescriptorType &desc) const {
+    CC_INLINE DeviceResourceType *operator()(const DescriptorType & /*desc*/) const {
         return nullptr;
     }
 };

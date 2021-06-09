@@ -88,8 +88,6 @@ public:
     SurfaceTransform getSurfaceTransform() const override { return _actor->getSurfaceTransform(); }
     uint             getWidth() const override { return _actor->getWidth(); }
     uint             getHeight() const override { return _actor->getHeight(); }
-    uint             getNativeWidth() const override { return _actor->getNativeWidth(); }
-    uint             getNativeHeight() const override { return _actor->getNativeHeight(); }
     MemoryStatus &   getMemoryStatus() override { return _actor->getMemoryStatus(); }
     uint             getNumDrawCalls() const override { return _actor->getNumDrawCalls(); }
     uint             getNumInstances() const override { return _actor->getNumInstances(); }

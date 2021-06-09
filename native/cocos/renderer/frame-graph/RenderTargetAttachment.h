@@ -48,8 +48,8 @@ struct RenderTargetAttachment final {
         uint8_t writeMask{0xff};
         LoadOp  loadOp{LoadOp::DISCARD};
         Color   clearColor;
-        float   clearDepth{1.f};
-        uint8_t clearStencil{0u};
+        float   clearDepth{1.F};
+        uint8_t clearStencil{0U};
 
         std::vector<gfx::AccessType> beginAccesses;
         std::vector<gfx::AccessType> endAccesses;
@@ -70,13 +70,15 @@ struct RenderTargetAttachment final {
 };
 
 CC_INLINE bool RenderTargetAttachment::Sorter::operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept {
+    bool res = false;
     if (a1.desc.usage < a2.desc.usage) {
-        return true;
+        res = true;
     } else if (a1.desc.usage == a2.desc.usage) {
-        return a1.desc.slot < a2.desc.slot;
+        res = a1.desc.slot < a2.desc.slot;
     } else {
-        return false;
+        res = false;
     }
+    return res;
 }
 
 } // namespace framegraph

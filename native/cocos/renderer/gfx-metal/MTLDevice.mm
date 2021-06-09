@@ -111,8 +111,8 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     // Persistent depth stencil texture
     MTLTextureDescriptor *dssDescriptor = [[MTLTextureDescriptor alloc] init];
     dssDescriptor.pixelFormat = mu::getSupportedDepthStencilFormat(mtlDevice, gpuFamily, _caps.depthBits);
-    dssDescriptor.width = info.nativeWidth;
-    dssDescriptor.height = info.nativeHeight;
+    dssDescriptor.width = info.width;
+    dssDescriptor.height = info.height;
     dssDescriptor.storageMode = MTLStorageModePrivate;
     dssDescriptor.usage = MTLTextureUsageRenderTarget;
     _dssTex = [mtlDevice newTextureWithDescriptor:dssDescriptor];

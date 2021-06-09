@@ -93,11 +93,8 @@ namespace {
     bool setCanvasCallback(se::Object *global) {
         auto viewLogicalSize = cc::Application::getInstance()->getViewLogicalSize();
 
-        int  nativeWidth  = static_cast<int>(viewLogicalSize.y * Device::getDevicePixelRatio());
-        int  nativeHeight = static_cast<int>(viewLogicalSize.x * Device::getDevicePixelRatio());
-        auto orientation  = cc::Device::getDeviceOrientation();
-        bool isLandscape  = (orientation == cc::Device::Orientation::LANDSCAPE_RIGHT || orientation == cc::Device::Orientation::LANDSCAPE_LEFT);
-        if (isLandscape) std::swap(nativeWidth, nativeHeight);
+        int  nativeWidth  = static_cast<int>(viewLogicalSize.x * Device::getDevicePixelRatio());
+        int  nativeHeight = static_cast<int>(viewLogicalSize.y * Device::getDevicePixelRatio());
 
         // https://stackoverflow.com/questions/5795978/string-format-for-intptr-t-and-uintptr-t/41897226#41897226
         // format intptr_t

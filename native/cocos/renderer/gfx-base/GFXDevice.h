@@ -63,8 +63,7 @@ public:
     virtual SurfaceTransform getSurfaceTransform() const { return _transform; }
     virtual uint             getWidth() const { return _width; }
     virtual uint             getHeight() const { return _height; }
-    virtual uint             getNativeWidth() const { return _nativeWidth; }
-    virtual uint             getNativeHeight() const { return _nativeHeight; }
+    virtual float            devicePixelRatio() const { return _pixelRatio; }
     virtual MemoryStatus &   getMemoryStatus() { return _memoryStatus; }
     virtual uint             getNumDrawCalls() const { return _numDrawCalls; }
     virtual uint             getNumInstances() const { return _numInstances; }
@@ -153,10 +152,9 @@ protected:
     String             _vendor;
     String             _version;
     bool               _features[static_cast<uint>(Feature::COUNT)];
-    uint               _width        = 0;
-    uint               _height       = 0;
-    uint               _nativeWidth  = 0;
-    uint               _nativeHeight = 0;
+    uint               _width      = 0;
+    uint               _height     = 0;
+    float              _pixelRatio = 1.0F;
     MemoryStatus       _memoryStatus;
     uintptr_t          _windowHandle = 0;
     Context *          _context      = nullptr;
