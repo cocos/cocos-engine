@@ -37,6 +37,7 @@ import { DescriptorSet } from '../../gfx';
 import { SkyboxInfo } from '../../scene-graph/scene-globals';
 import { Root } from '../../root';
 import { NaitveSkybox } from './native-scene';
+import { GlobalDSManager } from '../../pipeline/global-descriptor-set-manager';
 
 let skybox_mesh: Mesh | null = null;
 let skybox_material: Material | null = null;
@@ -110,7 +111,7 @@ export class Skybox {
     }
 
     protected _envmap: TextureCube | null = null;
-    protected _globalDescriptorSet: DescriptorSet | null = null;
+    protected _globalDSManager: GlobalDSManager | null = null;
     protected _model: Model | null = null;
     protected _default: TextureCube | null = null;
     protected _enabled = false;
@@ -159,7 +160,7 @@ export class Skybox {
     public activate () {
         const pipeline = legacyCC.director.root.pipeline;
         const ambient = pipeline.pipelineSceneData.ambient;
-        this._globalDescriptorSet = pipeline.descriptorSet;
+        this._globalDSManager = pipeline.globalDSManager;
         this._default = builtinResMgr.get<TextureCube>('default-cube-texture');
 
         if (!this._model) {
@@ -204,8 +205,9 @@ export class Skybox {
     protected _updateGlobalBinding () {
         const texture = this.envmap!.getGFXTexture()!;
         const sampler = samplerLib.getSampler(legacyCC.director._device, this.envmap!.getSamplerHash());
-        this._globalDescriptorSet!.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
-        this._globalDescriptorSet!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
+        this._globalDSManager!.bindSampler(UNIFORM_ENVIRONMENT_BINDING, sampler);
+        this._globalDSManager!.bindTexture(UNIFORM_ENVIRONMENT_BINDING, texture);
+        this._globalDSManager!.update();
     }
 
     protected _destroy () {
