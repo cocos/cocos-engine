@@ -439,8 +439,6 @@ export class BlendTarget {
         return this._nativeObj;
     }
 
-    declare prevNativeObj: any;
-
     constructor (
         blend: boolean = false,
         blendSrc: BlendFactor = BlendFactor.ONE,
@@ -506,7 +504,6 @@ export class BlendTarget {
 
     public destroy () {
         this._nativeObj = null;
-        this.prevNativeObj = null;
     }
 
     public assign (target: RecursivePartial<BlendTarget>) {
@@ -539,11 +536,15 @@ export class BlendTarget {
 function watchArrayElementsField<S, T> (self: S, list: T[], eleField: string, cachedFieldName: string, callback: (self: S, idx: number, originTarget: T, prop: symbol | string, value: any) => void) {
     for (let i = 0, l = list.length; i < l; i++) {
         let ele = list[i] as any;
-        if (!Reflect.has(ele, cachedFieldName)) {
-            Reflect.set(ele, cachedFieldName, ele[eleField]);  // store old field value
-        }
+        let originField = ele[eleField][cachedFieldName] || ele[eleField];
         // replace with Proxy
-        ele[eleField] = new Proxy(Reflect.get(ele, cachedFieldName), {
+        ele[eleField] = new Proxy(originField, {
+            get: (originTarget, key:string| symbol) => {
+                if(key === cachedFieldName) {
+                    return originTarget;
+                }
+                return Reflect.get(originTarget, key);
+            },
             set: (originTarget, prop, value) => {
                 Reflect.set(originTarget, prop, value);
                 callback(self, i, originTarget, prop, value);
@@ -564,14 +565,14 @@ export class BlendState {
     private _setTargets (targets: BlendTarget[]) {
         this.targets = targets;
 
-        const CACHED_FIELD_NAME = `$_nativeObj`;
-        const nativeTars = targets.map(target => { return (target as any)[CACHED_FIELD_NAME] || target.native; });
+        const CACHED_FIELD_NAME = `$__nativeObj`;
+        const nativeTars = targets.map(target => { return target.native[CACHED_FIELD_NAME] || target.native; });
         this._nativeObj.targets = nativeTars;
 
         // watch target[i]._nativeObj fields update 
         watchArrayElementsField(this, this.targets, "_nativeObj", CACHED_FIELD_NAME, (self, _idx, _originTarget, _prop, _value) => {
             const nativeTars = this.targets.map(target => {
-                return target[CACHED_FIELD_NAME] || target.native;
+                return target.native[CACHED_FIELD_NAME] || target.native;
             });
             self._nativeObj.targets = nativeTars;
         });
