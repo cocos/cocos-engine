@@ -539,8 +539,8 @@ function watchArrayElementsField<S, T> (self: S, list: T[], eleField: string, ca
         let originField = ele[eleField][cachedFieldName] || ele[eleField];
         // replace with Proxy
         ele[eleField] = new Proxy(originField, {
-            get: (originTarget, key:string| symbol) => {
-                if(key === cachedFieldName) {
+            get: (originTarget, key: string | symbol) => {
+                if (key === cachedFieldName) {
                     return originTarget;
                 }
                 return Reflect.get(originTarget, key);
@@ -566,17 +566,19 @@ export class BlendState {
         this.targets = targets;
 
         const CACHED_FIELD_NAME = `$__nativeObj`;
-        const nativeTars = targets.map(target => { return target.native[CACHED_FIELD_NAME] || target.native; });
-        this._nativeObj.targets = nativeTars;
+        this._syncTargetsToNativeObj(CACHED_FIELD_NAME);
 
         // watch target[i]._nativeObj fields update 
         watchArrayElementsField(this, this.targets, "_nativeObj", CACHED_FIELD_NAME, (self, _idx, _originTarget, _prop, _value) => {
-            const nativeTars = this.targets.map(target => {
-                return target.native[CACHED_FIELD_NAME] || target.native;
-            });
-            self._nativeObj.targets = nativeTars;
+            self._syncTargetsToNativeObj(CACHED_FIELD_NAME);
         });
     }
+
+    private _syncTargetsToNativeObj (cachedFieldName: string) {
+        const nativeTars = this.targets.map(target => { return target.native[cachedFieldName] || target.native; });
+        this._nativeObj.targets = nativeTars;
+    }
+
     get native () {
         return this._nativeObj;
     }
