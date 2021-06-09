@@ -39,7 +39,6 @@
       ]
     },
     "include": [
-        "cocos/**/*.ts",
         "exports/**/*.ts",
         "index.ts",
         "pal/**/*.ts"
