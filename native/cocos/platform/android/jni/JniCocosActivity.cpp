@@ -68,9 +68,9 @@ int readCommand(int8_t &cmd) { //NOLINT(google-runtime-references)
 }
 
 void handlePauseResume(int8_t cmd) {
-    LOGV("activityState=%d", cmd);
+    LOGV("appState=%d", cmd);
     std::unique_lock<std::mutex> lk(cc::cocosApp.mutex);
-    cc::cocosApp.activityState = static_cast<uint8_t>(cmd);
+    cc::cocosApp.appState = static_cast<uint8_t>(cmd);
     lk.unlock();
     cc::cocosApp.cond.notify_all();
 }
@@ -138,7 +138,7 @@ void glThreadEntry() {
             postExecCmd(cmd);
         }
 
-        if (!cc::cocosApp.animating || APP_CMD_PAUSE == cc::cocosApp.activityState) {
+        if (!cc::cocosApp.animating || APP_CMD_PAUSE == cc::cocosApp.appState) {
             std::this_thread::yield();
         }
 
@@ -173,10 +173,10 @@ void setWindow(ANativeWindow *window) {
     }
 }
 
-void setActivityState(int8_t cmd) {
+void setAppState(int8_t cmd) {
     std::unique_lock<std::mutex> lk(cc::cocosApp.mutex);
     writeCommand(cmd);
-    while (cc::cocosApp.activityState != cmd) {
+    while (cc::cocosApp.appState != cmd) {
         cc::cocosApp.cond.wait(lk);
     }
 }
@@ -219,17 +219,17 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onSurfaceCreatedNative(J
 }
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onStartNative(JNIEnv *env, jobject obj) {
+    setAppState(APP_CMD_RESUME);
 }
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onPauseNative(JNIEnv *env, jobject obj) {
-    setActivityState(APP_CMD_PAUSE);
 }
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onResumeNative(JNIEnv *env, jobject obj) {
-    setActivityState(APP_CMD_RESUME);
 }
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onStopNative(JNIEnv *env, jobject obj) {
+    setAppState(APP_CMD_PAUSE);
 }
 //NOLINTNEXTLINE
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosActivity_onLowMemoryNative(JNIEnv *env, jobject obj) {

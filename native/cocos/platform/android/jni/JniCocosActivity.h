@@ -46,8 +46,8 @@ struct CocosApp {
     bool animating = true;
     bool running = false;
 
-    // Current state of the app's activity.  May be either APP_CMD_RESUME, APP_CMD_PAUSE.
-    int activityState = 0;
+    // Current state of the app.  May be either APP_CMD_RESUME, APP_CMD_PAUSE.
+    int appState = 0;
 };
 
 extern CocosApp cocosApp;
