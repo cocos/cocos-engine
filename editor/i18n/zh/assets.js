@@ -277,6 +277,10 @@ module.exports = {
                 name: '动画烘焙速率',
                 title: '指定动画烘焙速率，单位为帧每秒（FPS）',
             },
+            promoteSingleRootNode: {
+                name: '提升单一根结点',
+                title: '若开启并且 FBX 场景仅有一个根节点，那么当转换该 FBX 场景为 Cocos Creator 预制体时，<br>以该根节点作为预制体的根节点，否则以该 FBX 场景的根节点作为预制体的根节点。',
+            },
         },
         textureCube: {
             anisotropy: 'Anisotropy',
