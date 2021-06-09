@@ -159,8 +159,7 @@ export class RenderAdditiveLightQueue {
         const descriptorSetMap = this._pipeline.globalDSManager.descriptorSetMap;
         const keys = descriptorSetMap.keys;
 
-        // idx = 0 is the global descriptorSet , so start from i = 1
-        for (let i = 1; i < keys.length; i++) {
+        for (let i = 0; i < keys.length; i++) {
             const key = keys[i];
             const descriptorSet = descriptorSetMap.get(key)!;
             if (descriptorSet) {
