@@ -635,8 +635,6 @@ export class Node extends BaseNode {
         const childDirtyBit = dirtyBit | TransformBit.POSITION;
         array_a[0] = this;
 
-        // we need to recursively iterate this
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
         let i = 0;
         while (i >= 0) {
             const cur: this = array_a[i--];
@@ -650,7 +648,6 @@ export class Node extends BaseNode {
             }
             dirtyBit = childDirtyBit;
         }
-        array_a.length = 0;
     }
 
     /**
@@ -713,7 +710,6 @@ export class Node extends BaseNode {
             child._dirtyFlags = TransformBit.NONE;
             cur = child;
         }
-        array_a.length = 0;
     }
 
     // ===============================
