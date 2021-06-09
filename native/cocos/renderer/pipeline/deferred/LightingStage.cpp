@@ -79,6 +79,7 @@ bool LightingStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
     _phaseID                = getPhaseID("deferred");
+    _reflectionPhaseID      = getPhaseID("reflection");
     return true;
 }
 
@@ -266,11 +267,48 @@ void LightingStage::activate(RenderPipeline *pipeline, RenderFlow *flow) {
     initLightingBuffer();
 
     _planarShadowQueue = CC_NEW(PlanarShadowQueue(_pipeline));
+
+    // create reflection resource
+    RenderQueueCreateInfo info = {true, _reflectionPhaseID, transparentCompareFn};
+    _reflectionComp            = new ReflectionComp();
+
+    gfx::ColorAttachment cAttch = {
+        gfx::Format::RGBA8,
+        gfx::SampleCount::X1,
+        gfx::LoadOp::LOAD,
+        gfx::StoreOp::STORE,
+        {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE},
+        {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE},
+    };
+
+    gfx::RenderPassInfo reflectionPassInfo;
+    reflectionPassInfo.colorAttachments.push_back(cAttch);
+
+    reflectionPassInfo.depthStencilAttachment = {
+        _device->getDepthStencilFormat(),
+        gfx::SampleCount::X1,
+        gfx::LoadOp::LOAD,
+        gfx::StoreOp::DISCARD,
+        gfx::LoadOp::DISCARD,
+        gfx::StoreOp::DISCARD,
+        {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE},
+    };
+
+    _reflectionPass        = _device->createRenderPass(reflectionPassInfo);
+    _reflectionRenderQueue = CC_NEW(RenderQueue(std::move(info)));
 }
 
 void LightingStage::destroy() {
     CC_SAFE_DELETE(_planarShadowQueue);
+    CC_SAFE_DELETE(_reflectionRenderQueue);
     RenderStage::destroy();
+
+    if (_reflectionPass != nullptr) {
+        _reflectionPass->destroy();
+        CC_SAFE_DELETE(_reflectionPass);
+    }
+
+    CC_SAFE_DELETE(_reflectionComp);
 }
 
 void LightingStage::render(scene::Camera *camera) {
@@ -293,7 +331,7 @@ void LightingStage::render(scene::Camera *camera) {
     cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::LOCAL), _descriptorSet, dynamicOffsets);
 
     // draw quad
-    gfx::Rect renderArea = pipeline->getRenderArea(camera, false);
+    gfx::Rect renderArea = pipeline->getRenderArea(camera);
 
     gfx::Color clearColor = {0.0, 0.0, 0.0, 1.0};
     if (camera->clearFlag & static_cast<uint>(gfx::ClearFlagBit::COLOR)) {
@@ -360,6 +398,73 @@ void LightingStage::render(scene::Camera *camera) {
 
     // planerQueue
     _planarShadowQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
+
+    cmdBuff->endRenderPass();
+
+    if (_device->hasFeature(gfx::Feature::COMPUTE_SHADER)) {
+        uint   m = 0;
+        uint   p = 0;
+        size_t k = 0;
+        for (const auto &ro : renderObjects) {
+            const auto *model = ro.model;
+            for (auto *subModel : model->getSubModels()) {
+                for (auto *pass : subModel->getPasses()) {
+                    if (pass->getPhase() != _reflectionPhaseID) continue;
+                    // dispatch for reflection
+                    gfx::Texture *denoiseTex = subModel->getDescriptorSet()->getTexture(uint(ModelLocalBindings::STORAGE_REFLECTION));
+                    if (!_reflectionComp->isInitialized()) {
+                        _reflectionComp->init(_pipeline->getDevice(),
+                                              pipeline->getDeferredRenderData()->lightingRenderTarget,
+                                              pipeline->getDeferredRenderData()->gbufferFrameBuffer->getColorTextures()[1],
+                                              denoiseTex,
+                                              camera->matViewProj, 8, 8);
+                    }
+                    gfx::Rect clearRenderArea = {0, 0, _reflectionComp->getReflectionTex()->getWidth(), _reflectionComp->getReflectionTex()->getHeight()};
+                    cmdBuff->beginRenderPass(const_cast<gfx::RenderPass *>(_reflectionComp->getClearPass()), const_cast<gfx::Framebuffer *>(_reflectionComp->getClearFramebuffer()), clearRenderArea, &clearColor, 0, 0);
+                    cmdBuff->endRenderPass();
+
+                    cmdBuff->pipelineBarrier(_reflectionComp->getBarrierPre());
+                    cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(_reflectionComp->getPipelineState()));
+                    cmdBuff->bindDescriptorSet(0, const_cast<gfx::DescriptorSet *>(_reflectionComp->getDescriptorSet()));
+                    cmdBuff->bindDescriptorSet(1, subModel->getDescriptorSet());
+
+                    cmdBuff->dispatch(_reflectionComp->getDispatchInfo());
+
+                    cmdBuff->pipelineBarrier(nullptr, const_cast<gfx::TextureBarrierList &>(_reflectionComp->getBarrierBeforeDenoise()), {const_cast<gfx::Texture *>(_reflectionComp->getReflectionTex()), denoiseTex});
+
+                    cmdBuff->bindPipelineState(const_cast<gfx::PipelineState *>(_reflectionComp->getDenoisePipelineState()));
+                    cmdBuff->bindDescriptorSet(0, const_cast<gfx::DescriptorSet *>(_reflectionComp->getDenoiseDescriptorSet()));
+                    cmdBuff->bindDescriptorSet(1, subModel->getDescriptorSet());
+                    cmdBuff->dispatch(_reflectionComp->getDenioseDispatchInfo());
+                    cmdBuff->pipelineBarrier(nullptr, _reflectionComp->getBarrierAfterDenoise(), {denoiseTex});
+                }
+            }
+        }
+    }
+
+    cmdBuff->beginRenderPass(_reflectionPass, frameBuffer, renderArea, &clearColor,
+                             camera->clearDepth, camera->clearStencil);
+
+    cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::GLOBAL), pipeline->getDescriptorSet());
+
+    // reflection
+    _reflectionRenderQueue->clear();
+
+    m = 0;
+    p = 0;
+    k = 0;
+    for (const auto &ro : renderObjects) {
+        const auto *model = ro.model;
+        for (auto *subModel : model->getSubModels()) {
+            for (auto *pass : subModel->getPasses()) {
+                if (pass->getPhase() != _reflectionPhaseID) continue;
+                _reflectionRenderQueue->insertRenderPass(ro, m, p);
+            }
+        }
+    }
+
+    _reflectionRenderQueue->sort();
+    _reflectionRenderQueue->recordCommandBuffer(_device, renderPass, cmdBuff);
 
     cmdBuff->endRenderPass();
 }

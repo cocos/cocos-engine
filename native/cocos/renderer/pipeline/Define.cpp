@@ -148,7 +148,7 @@ const gfx::DescriptorSetLayoutBinding UBOLocal::DESCRIPTOR = {
     UBOLocal::BINDING,
     gfx::DescriptorType::UNIFORM_BUFFER,
     1,
-    gfx::ShaderStageFlagBit::VERTEX,
+    gfx::ShaderStageFlagBit::VERTEX | gfx::ShaderStageFlagBit::COMPUTE,
     {},
 };
 const gfx::UniformBlock UBOLocal::LAYOUT = {
@@ -480,6 +480,38 @@ const gfx::UniformSamplerTexture SPRITETEXTURE::LAYOUT = {
     static_cast<uint>(ModelLocalBindings::SAMPLER_SPRITE),
     "cc_spriteTexture",
     gfx::Type::SAMPLER2D,
+    1,
+};
+
+const String                          REFLECTIONTEXTURE::NAME       = "cc_reflectionTexture";
+const gfx::DescriptorSetLayoutBinding REFLECTIONTEXTURE::DESCRIPTOR = {
+    REFLECTIONTEXTURE::BINDING,
+    gfx::DescriptorType::SAMPLER_TEXTURE,
+    1,
+    gfx::ShaderStageFlagBit::FRAGMENT,
+    {},
+};
+const gfx::UniformSamplerTexture REFLECTIONTEXTURE::LAYOUT = {
+    localSet,
+    static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION),
+    "cc_reflectionTexture",
+    gfx::Type::SAMPLER2D,
+    1,
+};
+
+const String                          REFLECTIONSTORAGE::NAME       = "cc_reflectionStorage";
+const gfx::DescriptorSetLayoutBinding REFLECTIONSTORAGE::DESCRIPTOR = {
+    REFLECTIONSTORAGE::BINDING,
+    gfx::DescriptorType::STORAGE_IMAGE,
+    1,
+    gfx::ShaderStageFlagBit::COMPUTE,
+    {},
+};
+const gfx::UniformStorageImage REFLECTIONSTORAGE::LAYOUT = {
+    localSet,
+    static_cast<uint>(ModelLocalBindings::STORAGE_REFLECTION),
+    "cc_reflectionStorage",
+    gfx::Type::IMAGE2D,
     1,
 };
 

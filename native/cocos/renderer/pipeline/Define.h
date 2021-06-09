@@ -236,6 +236,8 @@ enum class CC_DLL ModelLocalBindings {
     SAMPLER_MORPH_TANGENT,
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
+    SAMPLER_REFLECTION,
+    STORAGE_REFLECTION,
 
     COUNT,
 };
@@ -442,6 +444,7 @@ struct CC_DLL DescriptorSetLayoutInfos {
     gfx::DescriptorSetLayoutBindingList               bindings;
     unordered_map<String, gfx::UniformBlock>          blocks;
     unordered_map<String, gfx::UniformSamplerTexture> samplers;
+    unordered_map<String, gfx::UniformStorageImage>   storeImages;
 };
 extern CC_DLL DescriptorSetLayoutInfos globalDescriptorSetLayout;
 extern CC_DLL DescriptorSetLayoutInfos localDescriptorSetLayout;
@@ -565,6 +568,20 @@ struct CC_DLL SPRITETEXTURE : public Object {
     static constexpr uint                        BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_SPRITE);
     static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
     static const gfx::UniformSamplerTexture      LAYOUT;
+    static const String                          NAME;
+};
+
+struct CC_DLL REFLECTIONTEXTURE : public Object {
+    static constexpr uint                        BINDING = static_cast<uint>(ModelLocalBindings::SAMPLER_REFLECTION);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformSamplerTexture      LAYOUT;
+    static const String                          NAME;
+};
+
+struct CC_DLL REFLECTIONSTORAGE : public Object {
+    static constexpr uint                        BINDING = static_cast<uint>(ModelLocalBindings::STORAGE_REFLECTION);
+    static const gfx::DescriptorSetLayoutBinding DESCRIPTOR;
+    static const gfx::UniformStorageImage        LAYOUT;
     static const String                          NAME;
 };
 

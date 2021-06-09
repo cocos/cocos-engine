@@ -64,7 +64,7 @@ public:
     CC_INLINE const UintList &getLightIndexOffsets() const { return _lightIndexOffsets; }
     CC_INLINE const UintList &getLightIndices() const { return _lightIndices; }
     gfx::InputAssembler *     getQuadIAOffScreen() { return _quadIAOffscreen; }
-    gfx::Rect                 getRenderArea(scene::Camera *camera, bool onScreen);
+    gfx::Rect                 getRenderArea(scene::Camera *camera);
     CC_INLINE DeferredRenderData *getDeferredRenderData() { return _deferredRenderData; };
     void                          updateQuadVertexData(const gfx::Rect &renderArea);
     void                          genQuadVertexData(gfx::SurfaceTransform surfaceTransform, const gfx::Rect &renderArea, float *data);

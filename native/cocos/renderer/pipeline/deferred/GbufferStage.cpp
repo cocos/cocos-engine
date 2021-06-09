@@ -148,7 +148,7 @@ void GbufferStage::render(scene::Camera *camera) {
     _batchedQueue->uploadBuffers(cmdBuff);
 
     // render area is not oriented
-    _renderArea = pipeline->getRenderArea(camera, false);
+    _renderArea = pipeline->getRenderArea(camera);
     pipeline->updateQuadVertexData(_renderArea);
     auto *const deferredData = pipeline->getDeferredRenderData();
     auto *      framebuffer  = deferredData->gbufferFrameBuffer;

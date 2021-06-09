@@ -62,7 +62,7 @@ void ShadowFlow::activate(RenderPipeline *pipeline) {
 
 void ShadowFlow::render(scene::Camera *camera) {
     const auto *sceneData  = _pipeline->getPipelineSceneData();
-    auto *shadowInfo = sceneData->getSharedData()->shadow;
+    auto *      shadowInfo = sceneData->getSharedData()->shadow;
     if (!shadowInfo->enabled || shadowInfo->shadowType != scene::ShadowType::SHADOWMAP) return;
 
     lightCollecting(camera, &_validLights);
@@ -184,7 +184,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
             gfx::LoadOp::CLEAR,
             gfx::StoreOp::STORE,
             {},
-            {},
+            {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE},
         };
 
         const gfx::DepthStencilAttachment depthStencilAttachment = {
@@ -195,7 +195,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
             gfx::LoadOp::CLEAR,
             gfx::StoreOp::DISCARD,
             {},
-            {},
+            {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE},
         };
 
         gfx::RenderPassInfo rpInfo;
@@ -218,7 +218,7 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
 
     gfx::Texture *depth = device->createTexture({
         gfx::TextureType::TEX2D,
-        gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT,
+        gfx::TextureUsageBit::DEPTH_STENCIL_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
         device->getDepthStencilFormat(),
         width,
         height,

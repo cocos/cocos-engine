@@ -111,6 +111,14 @@ void RenderPipeline::setDescriptorSetLayout() {
     localDescriptorSetLayout.bindings[LIGHTMAPTEXTURE::BINDING]      = LIGHTMAPTEXTURE::DESCRIPTOR;
     localDescriptorSetLayout.samplers[SPRITETEXTURE::NAME]           = SPRITETEXTURE::LAYOUT;
     localDescriptorSetLayout.bindings[SPRITETEXTURE::BINDING]        = SPRITETEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[REFLECTIONTEXTURE::NAME]       = REFLECTIONTEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[REFLECTIONTEXTURE::BINDING]    = REFLECTIONTEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.storeImages[REFLECTIONSTORAGE::NAME]    = REFLECTIONSTORAGE::LAYOUT;
+    localDescriptorSetLayout.bindings[REFLECTIONSTORAGE::BINDING]    = REFLECTIONSTORAGE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[REFLECTIONTEXTURE::NAME]       = REFLECTIONTEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[REFLECTIONTEXTURE::BINDING]    = REFLECTIONTEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.storeImages[REFLECTIONSTORAGE::NAME]    = REFLECTIONSTORAGE::LAYOUT;
+    localDescriptorSetLayout.bindings[REFLECTIONSTORAGE::BINDING]    = REFLECTIONSTORAGE::DESCRIPTOR;
 }
 
 bool RenderPipeline::initialize(const RenderPipelineInfo &info) {

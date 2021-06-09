@@ -356,7 +356,7 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
     cmdFuncCCVKCreateSampler(this, &_gpuDevice->defaultSampler);
 
     _gpuDevice->defaultTexture.format = Format::RGBA8;
-    _gpuDevice->defaultTexture.usage  = TextureUsageBit::SAMPLED;
+    _gpuDevice->defaultTexture.usage  = TextureUsageBit::SAMPLED | TextureUsage::STORAGE;
     _gpuDevice->defaultTexture.width = _gpuDevice->defaultTexture.height = 1U;
     _gpuDevice->defaultTexture.size                                      = formatSize(Format::RGBA8, 1U, 1U, 1U);
     cmdFuncCCVKCreateTexture(this, &_gpuDevice->defaultTexture);

@@ -890,6 +890,8 @@ cocos_source_files(
                  cocos/renderer/pipeline/deferred/LightingStage.h
                  cocos/renderer/pipeline/deferred/PostprocessStage.cpp
                  cocos/renderer/pipeline/deferred/PostprocessStage.h
+                 cocos/renderer/pipeline/deferred/ReflectionComp.cpp
+                 cocos/renderer/pipeline/deferred/ReflectionComp.h
                  cocos/renderer/pipeline/shadow/ShadowFlow.cpp
                  cocos/renderer/pipeline/shadow/ShadowFlow.h
                  cocos/renderer/pipeline/shadow/ShadowStage.cpp

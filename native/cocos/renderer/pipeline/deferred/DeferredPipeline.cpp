@@ -219,17 +219,11 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer **quadIB, gfx::Buffe
     return (*quadIA) != nullptr;
 }
 
-gfx::Rect DeferredPipeline::getRenderArea(scene::Camera *camera, bool onScreen) {
+gfx::Rect DeferredPipeline::getRenderArea(scene::Camera *camera) {
     gfx::Rect renderArea;
-    uint      w;
-    uint      h;
-    if (onScreen) {
-        w = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
-        h = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
-    } else {
-        w = camera->width;
-        h = camera->height;
-    }
+    
+    uint w = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
+    uint h = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
 
     const auto &viewport = camera->viewPort;
     renderArea.x         = static_cast<int>(viewport.x * w);
@@ -317,12 +311,12 @@ bool DeferredPipeline::activeRenderer() {
     _gbufferRenderPass                 = _device->createRenderPass(gbufferPass);
 
     gfx::ColorAttachment cAttch = {
-        gfx::Format::RGBA16F,
+        gfx::Format::RGBA8,
         gfx::SampleCount::X1,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
         {},
-        {gfx::AccessType::COLOR_ATTACHMENT_WRITE},
+        {gfx::AccessType::FRAGMENT_SHADER_READ_TEXTURE},
     };
 
     gfx::RenderPassInfo lightPass;
@@ -375,7 +369,7 @@ void DeferredPipeline::generateDeferredRenderData() {
     gfx::TextureInfo info = {
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-        gfx::Format::RGBA16F,
+        gfx::Format::RGBA8,
         _width,
         _height,
     };
@@ -422,8 +416,7 @@ void DeferredPipeline::generateDeferredRenderData() {
         static_cast<uint>(PipelineGlobalBindings::SAMPLER_GBUFFER_EMISSIVEMAP), _deferredRenderData->gbufferFrameBuffer->getColorTextures()[3]);
 
     _descriptorSet->bindTexture(
-        static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP),
-        _deferredRenderData->lightingFrameBuff->getColorTextures()[0]);
+        static_cast<uint>(PipelineGlobalBindings::SAMPLER_LIGHTING_RESULTMAP), _deferredRenderData->lightingFrameBuff->getColorTextures()[0]);
 }
 
 void DeferredPipeline::destroy() {

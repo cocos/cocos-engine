@@ -90,7 +90,7 @@ void PostprocessStage::render(scene::Camera *camera) {
     gfx::CommandBuffer *cmdBf  = pp->getCommandBuffers()[0];
 
     _pipeline->getPipelineUBO()->updateCameraUBO(camera);
-    gfx::Rect renderArea = pp->getRenderArea(camera, !camera->window->hasOffScreenAttachments);
+    gfx::Rect renderArea = pp->getRenderArea(camera);
 
     if (hasFlag(static_cast<gfx::ClearFlags>(camera->clearFlag), gfx::ClearFlagBit::COLOR)) {
         _clearColors[0].x = camera->clearColor.x;
