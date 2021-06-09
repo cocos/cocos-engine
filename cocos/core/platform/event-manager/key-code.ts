@@ -1,4 +1,4 @@
-export enum Keyboard {
+export enum KeyCode {
     /**
     * @en None
     * @zh 没有分配
