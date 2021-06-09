@@ -44,15 +44,15 @@ const KEY = {
 
     // android
     /**
-     * @en The back key
-     * @zh 返回键
+     * @en The back key on mobile phone
+     * @zh 移动端返回键
      * @readonly
      * @deprecated since v3.3
      */
     back: 6,
     /**
-     * @en The menu key
-     * @zh 菜单键
+     * @en The menu key on mobile phone
+     * @zh 移动端菜单键
      * @readonly
      * @deprecated since v3.3
      */
