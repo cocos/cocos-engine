@@ -80,6 +80,7 @@ const _bufferViewInfo = new BufferViewInfo(null!);
 const _dsInfo = new DescriptorSetInfo(null!);
 
 export enum BatchingSchemes {
+    NONE = 0,
     INSTANCING = 1,
     VB_MERGING = 2,
 }
@@ -196,7 +197,7 @@ export class Pass {
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
     protected _phase = getPhaseID('default');
     protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
-    protected _batchingScheme: BatchingSchemes = BatchingSchemes.INSTANCING;
+    protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
     protected _dynamicStates: DynamicStateFlagBit = DynamicStateFlagBit.NONE;
     protected _hash = 0;
 
@@ -680,12 +681,12 @@ export class Pass {
                 this._setBatchingScheme(BatchingSchemes.INSTANCING);
             } else {
                 this._defines.USE_INSTANCING = false;
-                this._setBatchingScheme(0);
+                this._setBatchingScheme(BatchingSchemes.NONE);
             }
         } else if (this._defines.USE_BATCHING) {
             this._setBatchingScheme(BatchingSchemes.VB_MERGING);
         } else {
-            this._setBatchingScheme(0);
+            this._setBatchingScheme(BatchingSchemes.NONE);
         }
     }
 
