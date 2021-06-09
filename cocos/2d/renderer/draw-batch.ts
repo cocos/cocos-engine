@@ -41,7 +41,7 @@ import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { UILocalBuffer, UILocalUBOManger } from './render-uniform-buffer';
 import { Pass } from '../../core/renderer/core/pass';
-import { Renderable2D } from '../framework';
+import { Renderable2D, UITransform } from '../framework';
 import { Sprite } from '../components';
 import { director, RecyclePool, Vec2 } from '../../core';
 import { Vec3 } from '../../core/math/vec3';
@@ -110,7 +110,7 @@ export class DrawBatch2D {
     private _handle: BatchHandle2D = NULL_HANDLE;
     private _passes: Pass[] = [];
 
-    private _tempRect;
+    private _tempRect: UITransform | null = null;
     private _tempScale = new Vec3();
     private _tempPosition = new Vec3();
     private _tempAnchor = new Vec2();

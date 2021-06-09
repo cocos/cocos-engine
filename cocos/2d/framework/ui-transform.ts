@@ -265,13 +265,11 @@ export class UITransform extends Component {
 
     public onEnable () {
         this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
-        this.node.on(SystemEventType.TRANSFORM_CHANGED, this.setRectDirty, this);
         this._rectDirty = true;
     }
 
     public onDisable () {
         this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
-        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.setRectDirty, this);
     }
 
     public onDestroy () {
@@ -661,7 +659,7 @@ export class UITransform extends Component {
 
     public _rectDirty = true;
     public _rectWithScale = new Vec3();
-    public _anchorCache = new Vec3();
+    public _anchorCache = new Vec2();
 
     // 这个 dirty 跟着谁走？
     // 本身实际上是多个数据的影响的
@@ -676,6 +674,7 @@ export class UITransform extends Component {
             this._rectWithScale.y = scale.y * this.height;
             this._rectWithScale.z = scale.z;
             // 把 anchor 对于pos的影响缓存下来
+            // 这里缺少全部的旋转信息
             const eulerZ = this.node.angle / 180 * Math.PI;
             const lenX = (0.5 - this.anchorPoint.x) * this.width * scale.x;
             const lenY = (0.5 - this.anchorPoint.y) * this.height * scale.y;
@@ -686,16 +685,10 @@ export class UITransform extends Component {
         }
     }
 
-    private setRectDirty (transformBit: TransformBit) {
+    public setRectDirty (transformBit: TransformBit) {
         this._renderdataDirty = transformBit;
         if (transformBit & TransformBit.RS) {
             this._rectDirty = true;
-            this.node.walk((node) => { // 这儿可能根本不需要递归安排子节点 // 之后验证一下
-                const uiProps = node._uiProps;
-                if (uiProps && uiProps.uiTransformComp) {
-                    uiProps.uiTransformComp._rectDirty = true;
-                }
-            });
         }
     }
 

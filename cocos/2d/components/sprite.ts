@@ -42,7 +42,7 @@ import { Renderable2D, InstanceMaterialType } from '../framework/renderable-2d';
 import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
-import { Material, RenderTexture } from '../../core';
+import { director, Material, RenderTexture } from '../../core';
 
 /**
  * @en
@@ -229,6 +229,9 @@ export class Sprite extends Renderable2D {
         if (EDITOR) {
             this.node.emit(EventType.SPRITE_FRAME_CHANGED, this);
         }
+        // hack for sprite frame animation
+        // 正确做法是同 TRS 一样只更新部分 buffer(UV)
+        director.root!.batcher2D.reloadBatchDirty = true;
     }
 
     /**

@@ -407,6 +407,7 @@ export class Node extends BaseNode {
 
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags = TransformBit.TRS;
+        this._uiProps.UITransformDirty = TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -533,15 +534,24 @@ export class Node extends BaseNode {
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
-        const hasChanegdFlags = this.hasChangedFlags;
-        if ((this._dirtyFlags & hasChanegdFlags & dirtyBit) === dirtyBit) { return; }
-        this._dirtyFlags |= dirtyBit;
-        this.hasChangedFlags = hasChanegdFlags | dirtyBit;
-        const newDirtyBit = dirtyBit | TransformBit.POSITION;
-        const len = this._children.length;
-        for (let i = 0; i < len; ++i) {
-            const child = this._children[i];
-            if (child.isValid) { child.invalidateChildren(newDirtyBit); }
+        const childDirtyBit = dirtyBit | TransformBit.POSITION;
+        array_a[0] = this;
+
+        // we need to recursively iterate this
+        // eslint-disable-next-line @typescript-eslint/no-this-alias
+        let i = 0;
+        while (i >= 0) {
+            const cur: this = array_a[i--];
+            const hasChangedFlags = cur.hasChangedFlags;
+            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                cur._dirtyFlags |= dirtyBit;
+                cur._uiProps.UITransformDirty |= dirtyBit; // UIOnly TRS dirty
+                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                const children = cur._children;
+                const len = children.length;
+                for (let j = 0; j < len; ++j) array_a[++i] = children[j];
+            }
+            dirtyBit = childDirtyBit;
         }
     }
 

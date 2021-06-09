@@ -50,6 +50,8 @@ import { TextureBase } from '../../core/assets/texture-base';
 import { Mat4 } from '../../core/math';
 import { UILocalUBOManger, UILocalBuffer } from './render-uniform-buffer';
 import { DummyIA } from './dummy-ia';
+import { TransformBit } from '../../core/scene-graph/node-enum';
+import { TerrainCollider } from '../../physics/framework';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -343,22 +345,30 @@ export class Batcher2D {
         // 来一个填充一个，然后不用判断合批，直到不能合批
         // this._currBatch.fillBuffers(comp, this._localUBOManager, mat);
 
+        // 这个 dirty 负责将node 的 dirtyFlag 传递给 UITransform
+        // 然后 除了置位之外，这个 dirty 会影响两个 dirty
+        // 一个是 _rectDirty 更新 anchor 和 size 用
+        // 一个是 _renderDataDirty 更新所有其他数据用
+        // 考虑合并
+        // 为什么不直接使用 node._dirtyFlag 由于会被 gizmo 提前更新置位掉，这里想要使用的时候位就空了
+        const uiPros = comp.node._uiProps;
+        if (uiPros.UITransformDirty) {
+            uiPros.uiTransformComp!.setRectDirty(uiPros.UITransformDirty);
+            uiPros.UITransformDirty = TransformBit.NONE;
+        }
+
         // 这个可以优化为执行不同函数？？ // 最好执行不同的函数 // 还有个 dirty 需要的，更新用的
         let bufferInfo: IRenderItem;
         let localBuffer;
         if (this.reloadBatchDirty) {
             this._currBatch.fillBuffers(comp, this._localUBOManager, mat, this);
             bufferInfo = this.renderQueue[this._currWalkIndex];
-            // const localBuffers = this._localUBOManager._localBuffers.find((element)  => element.key === bufferInfo.UIPerUBO)!;
-            // localBuffer = localBuffers.value.pool[bufferInfo.poolIndex];
             localBuffer = bufferInfo.localBuffer;
         } else {
             bufferInfo = this.renderQueue[this._currWalkIndex];
-            // const localBuffers = this._localUBOManager._localBuffers.find((element)  => element.key === bufferInfo.UIPerUBO)!;
-            // localBuffer = localBuffers.value.pool[bufferInfo.poolIndex];
             localBuffer = bufferInfo.localBuffer;
             // @ts-expect-error TS2445
-            if (comp.node._dirtyFlags || comp.node._uiProps.uiTransformComp!._rectDirty) { // 暂时先利用这个 flag
+            if (comp.node._dirtyFlags || uiPros.uiTransformComp!._rectDirty) { // 暂时先利用这个 flag
                 this.updateBufferDirty = true; // 决定要不要上传 buffer 的 dirty
                 this._currBatch.updateBuffer(comp, bufferInfo, localBuffer);
             }
@@ -715,6 +725,7 @@ class LocalDescriptorSet  {
 class DescriptorSetCache {
     // private _descriptorSetCache = new Map<number, Map<number, DescriptorSetHandle>>();
     private _descriptorSetCache = new Map<number, DescriptorSetHandle>();
+    private _dsCacheHashByTexture = new Map<number, number>();
     private _localDescriptorSetCache: LocalDescriptorSet[] = [];
     private _localCachePool: Pool<LocalDescriptorSet>;
 
@@ -745,6 +756,7 @@ class DescriptorSetCache {
             // simpler hash genSamplerHash 得来，28+ 位
             // UBO hash 可能只要两三位就够
             // 两个 hash + 一个拼接 hash 可以用 ^
+            // 新问题，怎么释放，texture 的 hash 把所有的释放
             hash = batch.textureHash ^ batch.samplerHash ^ drawCall.bufferHash;
             if (this._descriptorSetCache.has(hash)) {
                 return this._descriptorSetCache.get(hash)!;
@@ -760,6 +772,7 @@ class DescriptorSetCache {
                 descriptorSet.update();
 
                 this._descriptorSetCache.set(hash, handle);
+                this._dsCacheHashByTexture.set(batch.textureHash, hash);
 
                 return handle;
             }
@@ -801,9 +814,17 @@ class DescriptorSetCache {
     }
 
     public releaseDescriptorSetCache (textureHash) {
-        if (this._descriptorSetCache.has(textureHash)) {
-            DSPool.free(this._descriptorSetCache.get(textureHash)!);
-            this._descriptorSetCache.delete(textureHash);
+        // if (this._descriptorSetCache.has(textureHash)) {
+        //     DSPool.free(this._descriptorSetCache.get(textureHash)!);
+        //     this._descriptorSetCache.delete(textureHash);
+        // }
+
+        // 新加缓存
+        const key = this._dsCacheHashByTexture.get(textureHash);
+        if (key && this._descriptorSetCache.has(key)) {
+            DSPool.free(this._descriptorSetCache.get(key)!);
+            this._descriptorSetCache.delete(key);
+            this._dsCacheHashByTexture.delete(textureHash);
         }
     }
 
@@ -812,6 +833,7 @@ class DescriptorSetCache {
             DSPool.free(value);
         });
         this._descriptorSetCache.clear();
+        this._dsCacheHashByTexture.clear();
         this._localDescriptorSetCache.length = 0;
         this._localCachePool.destroy((obj) => { obj.destroy(); });
     }
