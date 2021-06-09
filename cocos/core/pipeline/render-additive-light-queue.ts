@@ -169,6 +169,7 @@ export class RenderAdditiveLightQueue {
                 descriptorSet.getSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
                 descriptorSet.getTexture(UNIFORM_SHADOWMAP_BINDING).destroy();
                 descriptorSet.getTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING).destroy();
+                descriptorSet.destroy();
             }
             descriptorSetMap.delete(key);
         }
