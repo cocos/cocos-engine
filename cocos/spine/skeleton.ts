@@ -1608,9 +1608,10 @@ export class Skeleton extends Renderable2D {
         }
     }
 
-    protected _updateColor () {
-        // TODO
-    }
+    // run base class method
+    // protected _updateColor () {
+    //     // TODO
+    // }
 
     protected _updateSocketBindings () {
         if (!this._skeleton) return;
