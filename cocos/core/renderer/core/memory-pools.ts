@@ -1063,7 +1063,7 @@ const cameraViewDataType: BufferDataTypeManifest<typeof CameraView> = {
 export const CameraPool = new BufferPool<PoolType.CAMERA, typeof CameraView, ICameraViewType>(PoolType.CAMERA, cameraViewDataType, CameraView);
 
 export enum NodeView {
-    FLAGS_CHANGED,
+    HAS_CHANGED_FLAGS,
     LAYER,
     WORLD_SCALE,        // Vec3
     WORLD_POSITION = 5, // Vec3
@@ -1072,7 +1072,7 @@ export enum NodeView {
     COUNT = 28
 }
 interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
-    [NodeView.FLAGS_CHANGED]: number;
+    [NodeView.HAS_CHANGED_FLAGS]: number;
     [NodeView.LAYER]: number;
     [NodeView.WORLD_SCALE]: Vec3;
     [NodeView.WORLD_POSITION]: Vec3;
@@ -1081,7 +1081,7 @@ interface INodeViewType extends BufferTypeManifest<typeof NodeView> {
     [NodeView.COUNT]: never;
 }
 const nodeViewDataType: BufferDataTypeManifest<typeof NodeView> = {
-    [NodeView.FLAGS_CHANGED]: BufferDataType.UINT32,
+    [NodeView.HAS_CHANGED_FLAGS]: BufferDataType.UINT32,
     [NodeView.LAYER]: BufferDataType.UINT32,
     [NodeView.WORLD_SCALE]: BufferDataType.FLOAT32,
     [NodeView.WORLD_POSITION]: BufferDataType.FLOAT32,
