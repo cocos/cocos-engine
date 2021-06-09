@@ -167,6 +167,13 @@ export class Node extends BaseNode {
      */
     public static TransformBit = TransformBit;
 
+    /**
+     * @en Counter to clear node array
+     * @zh 清除节点数组计时器
+     */
+    private static ClearFrame = 0;
+    private static ClearRound = 1000;
+
     // UI 部分的脏数据
     public _uiProps = new NodeUIProperties(this);
 
@@ -580,6 +587,10 @@ export class Node extends BaseNode {
     // transform maintainer
     // ===============================
 
+    private _roundTime = 2000;
+    private _invalidFrame = 0;
+    private _updateFrame = 0;
+
     /**
      * @en Invalidate the world transform information
      * for this node and all its children recursively
@@ -606,7 +617,6 @@ export class Node extends BaseNode {
             }
             dirtyBit = childDirtyBit;
         }
-        array_a.length = 0;
     }
 
     /**
@@ -627,16 +637,29 @@ export class Node extends BaseNode {
         let child: this; let dirtyBits = 0;
 
         let childMat: Mat4;
+        let curMat: Mat4;
         let childPos: Vec3;
+        let childLPos: Vec3;
+        let childRot: Quat;
+
         while (i) {
             child = array_a[--i];
             dirtyBits |= child._dirtyFlags;
             if (cur) {
                 if (dirtyBits & TransformBit.POSITION) {
                     childMat = child._mat;
+                    curMat = cur._mat;
                     childPos = child._pos;
+                    childLPos = child._lpos;
+                    childRot = child._rot;
 
-                    Vec3.transformMat4(childPos, child._lpos, cur._mat);
+                    if (childRot.x === 0 && childRot.y === 0 && childRot.z === 0 && childRot.w === 1) {
+                        childPos.x = curMat.m12 + childLPos.x;
+                        childPos.y = curMat.m13 + childLPos.y;
+                        childPos.z = curMat.m14 + childLPos.z;
+                    } else {
+                        Vec3.transformMat4(childPos, childLPos, curMat);
+                    }
 
                     childMat.m12 = childPos.x;
                     childMat.m13 = childPos.y;
@@ -685,7 +708,6 @@ export class Node extends BaseNode {
             child._dirtyFlags = TransformBit.NONE;
             cur = child;
         }
-        array_a.length = 0;
     }
 
     // ===============================
@@ -1184,6 +1206,21 @@ export class Node extends BaseNode {
      */
     public static resetHasChangedFlags () {
         bookOfChange.clear();
+    }
+
+    /**
+     * @en
+     * clear node array
+     * @zh
+     * 清除节点数组
+     */
+    public static clearNodeArray () {
+        if (Node.ClearFrame < Node.ClearRound) {
+            Node.ClearFrame++;
+        } else {
+            Node.ClearFrame = 0;
+            array_a.length = 0;
+        }
     }
 
     /**

@@ -2355,6 +2355,14 @@ cc.ParticleSystem: unknown image format with Data
 
 cc.ParticleSystem.initWithDictionary() : error loading the texture
 
+### 6033
+
+cc.ParticleSystem: not allowing create to be invoked twice with different particle system
+
+### 6034
+
+cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will be potential leak
+
 ### 6100
 
 <!-- DEPRECATED -->
