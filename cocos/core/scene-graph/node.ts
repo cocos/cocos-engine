@@ -424,6 +424,22 @@ export class Node extends BaseNode {
     }
 
     /**
+     * @en Return the up direction vertor of this node in world space.
+     * @zh 返回当前节点在世界空间中朝上的方向向量
+     */
+    get up (): Vec3 {
+        return Vec3.transformQuat(new Vec3(), Vec3.UP, this.worldRotation);
+    }
+
+    /**
+     * @en Return the right direction vector of this node in world space.
+     * @zh 返回当前节点在世界空间中朝右的方向向量
+     */
+    get right (): Vec3 {
+        return Vec3.transformQuat(new Vec3(), Vec3.RIGHT, this.worldRotation);
+    }
+
+    /**
      * @en Layer of the current Node, it affects raycast, physics etc, refer to [[Layers]]
      * @zh 节点所属层，主要影响射线检测、物理碰撞等，参考 [[Layers]]
      */
