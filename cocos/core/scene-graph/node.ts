@@ -338,7 +338,7 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @en Return right direction in world space.
+     * @en Return the right direction vector of this node in world space.
      * @zh 返回当前节点在世界空间中朝右的方向向量
      */
     get right (): Vec3 {
