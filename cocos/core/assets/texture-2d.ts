@@ -260,7 +260,6 @@ export class Texture2D extends SimpleTexture {
             }
             const mipmapUUID = data.mipmaps[i];
             handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js._getClassId(ImageAsset));
-            this._mipmaps[i]._texture = this;
         }
     }
 
