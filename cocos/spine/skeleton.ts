@@ -1327,16 +1327,7 @@ export class Skeleton extends Renderable2D {
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
         this._updateBlendFunc();
-
-        if (this.premultipliedAlpha) {
-            this._blendHash = -1;
-        }
-    }
-
-    // HACK: set temporary material since Spine do not use internal material but must have one
-    protected _updateBuiltinMaterial () : Material {
-        const mat = builtinResMgr.get('ui-sprite-material');
-        return mat as Material;
+        this._blendHash = -1;
     }
 
     public querySockets () {
@@ -1410,7 +1401,7 @@ export class Skeleton extends Renderable2D {
         const frames = frameCache.frames;
         const frameTime = SkeletonCache.FrameTime;
 
-        // Animation Start, the event diffrent from dragonbones inner event,
+        // Animation Start, the event different from dragonbones inner event,
         // It has no event object.
         if (this._accTime === 0 && this._playCount === 0) {
             this._startEntry.animation.name = this._animationName;
