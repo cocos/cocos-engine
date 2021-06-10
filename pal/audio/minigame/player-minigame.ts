@@ -1,5 +1,5 @@
 import { minigame } from 'pal/minigame';
-import { legacyCC } from '../../../cocos/core/global-exports';
+import { system } from 'pal/system';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
@@ -69,7 +69,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._eventTarget = new EventTarget();
 
         // event
-        // TODO: should not call engine API in pal
         this._onHide = () => {
             if (this._state === AudioState.PLAYING) {
                 this.pause().then(() => {
@@ -78,7 +77,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 }).catch((e) => {});
             }
         };
-        legacyCC.game.on(legacyCC.Game.EVENT_HIDE, this._onHide);
+        system.onHide(this._onHide);
         this._onShow = () => {
             if (this._state === AudioState.INTERRUPTED) {
                 this.play().then(() => {
@@ -86,7 +85,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 }).catch((e) => {});
             }
         };
-        legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
+        system.onShow(this._onShow);
         const eventTarget = this._eventTarget;
         this._onPlay = () => {
             this._state = AudioState.PLAYING;
@@ -113,11 +112,11 @@ export class AudioPlayerMinigame implements OperationQueueable {
     }
     destroy () {
         if (this._onShow) {
-            legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
+            system.offShow(this._onShow);
             this._onShow = undefined;
         }
         if (this._onHide) {
-            legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
+            system.offHide(this._onHide);
             this._onHide = undefined;
         }
         if (this._innerAudioContext) {
