@@ -8,6 +8,11 @@ declare let tt: any;
 const minigame: IMiniGame = {};
 cloneObject(minigame, tt);
 
+// #region platform related
+minigame.tt = {};
+minigame.tt.getAudioContext = tt.getAudioContext?.bind(tt);
+// #endregion platform related
+
 // #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = (systemInfo.platform === 'devtools');
