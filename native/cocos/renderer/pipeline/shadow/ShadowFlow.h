@@ -60,6 +60,8 @@ private:
 
     vector<const Light *> _validLights;
     vector<gfx::Texture *> _usedTextures;
+
+    static std::unordered_map<uint, cc::gfx::RenderPass*> renderPassHashMap;
 };
 } // namespace pipeline
 } // namespace cc

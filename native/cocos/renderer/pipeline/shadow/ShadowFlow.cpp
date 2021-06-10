@@ -36,6 +36,8 @@
 #include "../SceneCulling.h"
 
 namespace cc::pipeline {
+std::unordered_map<uint, cc::gfx::RenderPass*> ShadowFlow::renderPassHashMap;
+
 RenderFlowInfo ShadowFlow::initInfo = {
     "ShadowFlow",
     static_cast<uint>(ForwardFlowPriority::SHADOW),
@@ -175,32 +177,38 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *li
     const auto  format        = supportsHalfFloatTexture(device)
                             ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
                             : gfx::Format::RGBA8;
+    
+    const gfx::ColorAttachment colorAttachment = {
+        format,
+        gfx::SampleCount::X1,
+        gfx::LoadOp::CLEAR,
+        gfx::StoreOp::STORE,
+        {},
+        {},
+    };
 
-    if (!_renderPass) {
-        const gfx::ColorAttachment colorAttachment = {
-            format,
-            gfx::SampleCount::X1,
-            gfx::LoadOp::CLEAR,
-            gfx::StoreOp::STORE,
-            {},
-            {},
-        };
+    const gfx::DepthStencilAttachment depthStencilAttachment = {
+        device->getDepthStencilFormat(),
+        gfx::SampleCount::X1,
+        gfx::LoadOp::CLEAR,
+        gfx::StoreOp::DISCARD,
+        gfx::LoadOp::CLEAR,
+        gfx::StoreOp::DISCARD,
+        {},
+        {},
+    };
 
-        const gfx::DepthStencilAttachment depthStencilAttachment = {
-            device->getDepthStencilFormat(),
-            gfx::SampleCount::X1,
-            gfx::LoadOp::CLEAR,
-            gfx::StoreOp::DISCARD,
-            gfx::LoadOp::CLEAR,
-            gfx::StoreOp::DISCARD,
-            {},
-            {},
-        };
-
-        gfx::RenderPassInfo rpInfo;
-        rpInfo.colorAttachments.emplace_back(colorAttachment);
-        rpInfo.depthStencilAttachment = depthStencilAttachment;
-        _renderPass                   = device->createRenderPass(rpInfo);
+    gfx::RenderPassInfo rpInfo;
+    rpInfo.colorAttachments.emplace_back(colorAttachment);
+    rpInfo.depthStencilAttachment = depthStencilAttachment;
+    
+    uint rpHash = cc::gfx::RenderPass::computeHash(rpInfo);
+    auto iter = renderPassHashMap.find(rpHash);
+    if(iter != renderPassHashMap.end()) {
+        _renderPass = iter->second;
+    } else {
+        _renderPass = device->createRenderPass(rpInfo);
+        renderPassHashMap.insert({rpHash, _renderPass});
     }
 
     vector<gfx::Texture *> renderTargets;
@@ -235,10 +243,12 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const Light *li
 }
 
 void ShadowFlow::destroy() {
-    if (_renderPass) {
-        _renderPass->destroy();
-        _renderPass = nullptr;
+    
+    for (auto rpPair: renderPassHashMap) {
+        rpPair.second->destroy();
     }
+    renderPassHashMap.clear();
+    _renderPass = nullptr;
 
     for (auto *texture : _usedTextures) {
         CC_DELETE(texture);
