@@ -5,7 +5,7 @@ import { AudioEvent, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 
-class OneShotAudio {
+export class OneShotAudioMinigame {
     private _innerAudioContext: InnerAudioContext;
     private _onPlayCb?: () => void;
     get onPlay () {
@@ -47,7 +47,7 @@ class OneShotAudio {
     }
 }
 
-export class AudioPlayer implements OperationQueueable {
+export class AudioPlayerMinigame implements OperationQueueable {
     private _innerAudioContext: any;
     private _state: AudioState = AudioState.INIT;
 
@@ -140,10 +140,10 @@ export class AudioPlayer implements OperationQueueable {
     get type (): AudioType {
         return AudioType.MINIGAME_AUDIO;
     }
-    static load (url: string): Promise<AudioPlayer> {
+    static load (url: string): Promise<AudioPlayerMinigame> {
         return new Promise((resolve) => {
-            AudioPlayer.loadNative(url).then((innerAudioContext) => {
-                resolve(new AudioPlayer(innerAudioContext));
+            AudioPlayerMinigame.loadNative(url).then((innerAudioContext) => {
+                resolve(new AudioPlayerMinigame(innerAudioContext));
             }).catch((e) => {});
         });
     }
@@ -174,11 +174,11 @@ export class AudioPlayer implements OperationQueueable {
             innerAudioContext.src = url;
         });
     }
-    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudio> {
+    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudioMinigame> {
         return new Promise((resolve, reject) => {
-            AudioPlayer.loadNative(url).then((innerAudioContext) => {
+            AudioPlayerMinigame.loadNative(url).then((innerAudioContext) => {
                 // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                resolve(new OneShotAudio(innerAudioContext, volume));
+                resolve(new OneShotAudioMinigame(innerAudioContext, volume));
             }).catch(reject);
         });
     }
@@ -247,6 +247,3 @@ export class AudioPlayer implements OperationQueueable {
     onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
     offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
 }
-
-// REMOVE_ME
-legacyCC.AudioPlayer = AudioPlayer;
