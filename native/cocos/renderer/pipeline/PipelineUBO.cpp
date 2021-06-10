@@ -360,18 +360,26 @@ void PipelineUBO::destroy() {
 }
 
 void PipelineUBO::updateGlobalUBO() {
-    auto *const ds        = _pipeline->getDescriptorSet();
-    auto *const cmdBuffer = _pipeline->getCommandBuffers()[0];
+    auto *const globalDSManager = _pipeline->getGlobalDSManager(); 
+    auto *const ds              = _pipeline->getDescriptorSet();
+    auto *const cmdBuffer       = _pipeline->getCommandBuffers()[0];
     ds->update();
     PipelineUBO::updateGlobalUBOView(_pipeline, _globalUBO);
     cmdBuffer->updateBuffer(ds->getBuffer(UBOGlobal::BINDING), _globalUBO.data(), UBOGlobal::SIZE);
+
+    globalDSManager->bindBuffer(UBOGlobal::BINDING, ds->getBuffer(UBOGlobal::BINDING));
+    globalDSManager->update();
 }
 
 void PipelineUBO::updateCameraUBO(const Camera *camera) {
-    auto *const ds        = _pipeline->getDescriptorSet();
-    auto *const cmdBuffer = _pipeline->getCommandBuffers()[0];
+    auto *const globalDSManager = _pipeline->getGlobalDSManager();
+    auto *const ds              = _pipeline->getDescriptorSet();
+    auto *const cmdBuffer       = _pipeline->getCommandBuffers()[0];
     PipelineUBO::updateCameraUBOView(_pipeline, _cameraUBO, camera);
     cmdBuffer->updateBuffer(ds->getBuffer(UBOCamera::BINDING), _cameraUBO.data(), UBOCamera::SIZE);
+
+    globalDSManager->bindBuffer(UBOCamera::BINDING, ds->getBuffer(UBOCamera::BINDING));
+    globalDSManager->update();
 }
 
 void PipelineUBO::updateShadowUBO(const Camera *camera) {
