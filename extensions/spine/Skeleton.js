@@ -1128,6 +1128,7 @@ sp.Skeleton = cc.Class({
                 this._state.clearTrack(trackIndex);
                 if (CC_EDITOR && !cc.engine.isPlaying) {
                     this._state.update(0);
+                    this.setToSetupPose();
                 }
             }
         }
