@@ -196,7 +196,7 @@ const cacheManager = require('./jsb-cache-manager');
 
     dbAtlas.removeRecordTexture = function (texture) {
         if (!texture) return;
-        delete _textureIdx2Name[texture.url];
+        delete _textureIdx2Name[texture.image.url];
         let index = texture.__textureIndex__;
         if (index) {
             let texKey = _textureKeyMap[index];
@@ -225,7 +225,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     dbAtlas.updateTextureAtlasData = function (factory) {
-        let url = this._texture.url;
+        let url = this._texture.image.url;
         let preAtlasInfo = _textureIdx2Name[url];
         let index;
 

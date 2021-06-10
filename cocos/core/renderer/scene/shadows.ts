@@ -29,9 +29,10 @@ import { Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
-import { ShadowsPool, NULL_HANDLE, ShadowsView, ShadowsHandle, ShaderHandle } from '../core/memory-pools';
 import { ShadowsInfo } from '../../scene-graph/scene-globals';
 import { IMacroPatch } from '../core/pass';
+import { NativeShadow } from './native-scene';
+import { Shader } from '../../gfx';
 
 /**
  * @zh 阴影类型。
@@ -131,7 +132,7 @@ export class Shadows {
     set normal (val: Vec3) {
         Vec3.copy(this._normal, val);
         if (JSB) {
-            ShadowsPool.setVec3(this._handle, ShadowsView.NORMAL, this._normal);
+            this._nativeObj!.normal = this._normal;
         }
     }
 
@@ -146,7 +147,7 @@ export class Shadows {
     set distance (val: number) {
         this._distance = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.DISTANCE, val);
+            this._nativeObj!.distance = val;
         }
     }
 
@@ -161,7 +162,7 @@ export class Shadows {
     set shadowColor (color: Color) {
         this._shadowColor = color;
         if (JSB) {
-            ShadowsPool.setVec4(this._handle, ShadowsView.COLOR, color);
+            this._nativeObj!.color = color;
         }
     }
 
@@ -187,7 +188,7 @@ export class Shadows {
     public set near (val: number) {
         this._near = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.NEAR, val);
+            this._nativeObj!.nearValue = val;
         }
     }
 
@@ -201,7 +202,7 @@ export class Shadows {
     public set far (val: number) {
         this._far = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.FAR, val);
+            this._nativeObj!.farValue = val;
         }
     }
 
@@ -215,7 +216,7 @@ export class Shadows {
     public set aspect (val: number) {
         this._aspect = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.ASPECT, val);
+            this._nativeObj!.aspect = val;
         }
     }
 
@@ -229,7 +230,7 @@ export class Shadows {
     public set orthoSize (val: number) {
         this._orthoSize = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.ORTHO_SIZE, val);
+            this._nativeObj!.orthoSize = val;
         }
     }
 
@@ -243,7 +244,7 @@ export class Shadows {
     public set size (val: Vec2) {
         this._size = val;
         if (JSB) {
-            ShadowsPool.setVec2(this._handle, ShadowsView.SIZE, this._size);
+            this._nativeObj!.size = val;
         }
     }
 
@@ -257,7 +258,7 @@ export class Shadows {
     public set pcf (val: number) {
         this._pcf = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.PCF_TYPE, val);
+            this._nativeObj!.pcfType = val;
         }
     }
 
@@ -271,7 +272,7 @@ export class Shadows {
     public set shadowMapDirty (val: boolean) {
         this._shadowMapDirty = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.SHADOW_MAP_DIRTY, val ? 1 : 0);
+            this._nativeObj!.shadowMapDirty = val;
         }
     }
 
@@ -285,7 +286,7 @@ export class Shadows {
     public set bias (val: number) {
         this._bias = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.BIAS, val);
+            this._nativeObj!.bias = val;
         }
     }
 
@@ -299,7 +300,7 @@ export class Shadows {
     public set packing (val: boolean) {
         this._packing = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.PACKING, val ? 1 : 0);
+            this._nativeObj!.packing = val;
         }
     }
 
@@ -313,7 +314,7 @@ export class Shadows {
     public set linear (val: boolean) {
         this._linear = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.LINEAR, val ? 1 : 0);
+            this._nativeObj!.linear = val;
         }
     }
 
@@ -327,7 +328,7 @@ export class Shadows {
     public set selfShadow (val: boolean) {
         this._selfShadow = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.SELF_SHADOW, val ? 1 : 0);
+            this._nativeObj!.selfShadow = val;
         }
     }
 
@@ -341,7 +342,7 @@ export class Shadows {
     public set normalBias (val: number) {
         this._normalBias = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.NORMAL_BIAS, val);
+            this._nativeObj!.normalBias = val;
         }
     }
 
@@ -355,7 +356,7 @@ export class Shadows {
     public set autoAdapt (val: boolean) {
         this._autoAdapt = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.AUTO_ADAPT, val ? 1 : 0);
+            this._nativeObj!.autoAdapt = val;
         }
     }
 
@@ -369,10 +370,6 @@ export class Shadows {
 
     public get instancingMaterial (): Material {
         return this._instancingMaterial!;
-    }
-
-    public get handle () : ShadowsHandle {
-        return this._handle;
     }
 
     /**
@@ -393,7 +390,6 @@ export class Shadows {
     protected _material: Material | null = null;
     protected _instancingMaterial: Material | null = null;
     protected _size: Vec2 = new Vec2(512, 512);
-    protected _handle: ShadowsHandle = NULL_HANDLE;
     protected _enabled = false;
     protected _distance = 0;
     protected _type = SHADOW_TYPE_NONE;
@@ -409,41 +405,46 @@ export class Shadows {
     protected _selfShadow = false;
     protected _normalBias = 0;
     protected _autoAdapt = false;
+    protected declare _nativeObj: NativeShadow | null;
+
+    get native (): NativeShadow {
+        return this._nativeObj!;
+    }
 
     constructor () {
         if (JSB) {
-            this._handle = ShadowsPool.alloc();
+            this._nativeObj = new NativeShadow();
         }
     }
 
-    public getPlanarShader (patches: IMacroPatch[] | null): ShaderHandle {
+    public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._material) {
             this._material = new Material();
             this._material.initialize({ effectName: 'planar-shadow' });
             if (JSB) {
-                ShadowsPool.set(this._handle, ShadowsView.PLANAR_PASS, this._material.passes[0].handle);
+                this._nativeObj!.planarPass = this._material.passes[0].native;
             }
         }
 
         return this._material.passes[0].getShaderVariant(patches);
     }
 
-    public getPlanarInstanceShader (patches: IMacroPatch[] | null): ShaderHandle {
+    public getPlanarInstanceShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
             if (JSB) {
-                ShadowsPool.set(this._handle, ShadowsView.INSTANCE_PASS, this._instancingMaterial.passes[0].handle);
+                this._nativeObj!.instancePass = this._instancingMaterial.passes[0].native;
             }
         }
 
         return this._instancingMaterial.passes[0].getShaderVariant(patches);
     }
 
-    private _setEnable (val) {
+    private _setEnable (val: boolean) {
         this._enabled = val;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.ENABLE, val ? 1 : 0);
+            this._nativeObj!.enabled = val;
             if (!val) this._setType(SHADOW_TYPE_NONE);
         }
     }
@@ -451,7 +452,7 @@ export class Shadows {
     private _setType (val) {
         this._type = this.enabled ? val : SHADOW_TYPE_NONE;
         if (JSB) {
-            ShadowsPool.set(this._handle, ShadowsView.TYPE, this._type);
+            this._nativeObj!.shadowType = this._type;
         }
     }
 
@@ -496,14 +497,14 @@ export class Shadows {
             this._material = new Material();
             this._material.initialize({ effectName: 'planar-shadow' });
             if (JSB) {
-                ShadowsPool.set(this._handle, ShadowsView.PLANAR_PASS, this._material.passes[0].handle);
+                this._nativeObj!.planarPass = this._material.passes[0].native;
             }
         }
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
             if (JSB) {
-                ShadowsPool.set(this._handle, ShadowsView.INSTANCE_PASS, this._instancingMaterial.passes[0].handle);
+                this._nativeObj!.instancePass = this._instancingMaterial.passes[0].native;
             }
         }
 
@@ -521,9 +522,8 @@ export class Shadows {
     }
 
     protected _destroy () {
-        if (JSB && this._handle) {
-            ShadowsPool.free(this._handle);
-            this._handle = NULL_HANDLE;
+        if (JSB) {
+            this._nativeObj = null;
         }
     }
 

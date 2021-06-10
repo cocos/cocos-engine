@@ -30,21 +30,16 @@
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
 import { builtinResMgr } from '../../builtin';
 import { Camera } from '../../renderer/scene';
-import { SetIndex, IRenderPass } from '../define';
-import { Color, Rect, Shader, PipelineState, ClearFlagBit, BlendFactor } from '../../gfx';
+import { SetIndex } from '../define';
+import { Color, Rect, Shader, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
 import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { Material } from '../../assets/material';
-import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { Pass } from '../../renderer';
 import { UIPhase } from '../forward/ui-phase';
-import { opaqueCompareFn, RenderQueue, transparentCompareFn } from '../render-queue';
-import { RenderQueueDesc, RenderQueueSortMode } from '../pipeline-serialization';
-
-import { getPhaseID } from '../pass-phase';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 const POSTPROCESSPASS_INDEX = 0;
@@ -130,10 +125,10 @@ export class PostprocessStage extends RenderStage {
         const builtinPostProcess = builtinResMgr.get<Material>('builtin-post-process-material');
         if (builtinPostProcess) {
             pass = builtinPostProcess.passes[0];
-            shader = ShaderPool.get(pass.getShaderVariant());
+            shader = pass.getShaderVariant()!;
         } else {
             pass = this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX];
-            shader = ShaderPool.get(this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant());
+            shader = this._postprocessMaterial!.passes[POSTPROCESSPASS_INDEX].getShaderVariant()!;
         }
 
         const inputAssembler = camera.window!.hasOffScreenAttachments ? pipeline.quadIAOffscreen : pipeline.quadIAOnscreen;

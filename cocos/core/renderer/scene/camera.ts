@@ -34,13 +34,8 @@ import { Node } from '../../scene-graph';
 import { RenderScene } from './render-scene';
 import { legacyCC } from '../../global-exports';
 import { RenderWindow } from '../core/render-window';
-import {
-    CameraHandle, CameraPool, CameraView, FrustumHandle, FrustumPool, NULL_HANDLE, SceneHandle,
-} from '../core/memory-pools';
-import { recordFrustumToSharedMemory } from '../../geometry/frustum';
 import { preTransforms } from '../../math/mat4';
-import { director } from '../../director';
-import { ClearFlag } from '../../components/camera-component';
+import { NativeCamera } from './native-scene';
 
 export enum CameraFOVAxis {
     VERTICAL,
@@ -161,8 +156,7 @@ export class Camera {
     private _iso: CameraISO = CameraISO.ISO100;
     private _isoValue = 0.0;
     private _ec = 0.0;
-    private _poolHandle: CameraHandle = NULL_HANDLE;
-    private _frustumHandle: FrustumHandle = NULL_HANDLE;
+    private declare _nativeObj: NativeCamera | null;
     private _window: RenderWindow | null = null;
     private _width = 1;
     private _height = 1;
@@ -191,31 +185,29 @@ export class Camera {
     private _setWidth (val: number) {
         this._width = val;
         if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.WIDTH, val);
+            this._nativeObj!.width = val;
         }
     }
 
     private _setHeight (val: number) {
         this._height = val;
         if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.HEIGHT, val);
+            this._nativeObj!.height = val;
         }
     }
 
-    private _setScene (val) {
+    private _setScene (scene: RenderScene | null) {
+        this._scene = scene;
         if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.SCENE, val);
+            this._nativeObj!.scene = scene ? scene.native : null;
         }
     }
 
     protected _init (info: ICameraInfo) {
         if (JSB) {
-            const handle = this._poolHandle = CameraPool.alloc();
-            if (this._scene) this._setScene(this._scene.handle);
-            this._frustumHandle = FrustumPool.alloc();
-            CameraPool.set(handle, CameraView.FRUSTUM, this._frustumHandle);
-            console.log(`Created Camera: ${this._name} ${CameraPool.get(this._poolHandle,
-                CameraView.WIDTH)}x${CameraPool.get(this._poolHandle, CameraView.HEIGHT)}`);
+            this._nativeObj = new NativeCamera();
+            if (this._scene) this._nativeObj.scene = this._scene.native;
+            this._nativeObj.frustum = this._frustum;
         }
     }
 
@@ -236,14 +228,7 @@ export class Camera {
     }
 
     protected _destroy () {
-        if (JSB && this._poolHandle) {
-            CameraPool.free(this._poolHandle);
-            this._poolHandle = NULL_HANDLE;
-            if (this._frustumHandle) {
-                FrustumPool.free(this._frustumHandle);
-                this._frustumHandle = NULL_HANDLE;
-            }
-        }
+        if (JSB) this._nativeObj = null;
     }
 
     public destroy () {
@@ -256,15 +241,13 @@ export class Camera {
     }
 
     public attachToScene (scene: RenderScene) {
-        this._scene = scene;
         this._enabled = true;
-        this._setScene(scene.handle);
+        this._setScene(scene);
     }
 
     public detachFromScene () {
-        this._scene = null;
         this._enabled = false;
-        this._setScene(0 as unknown as SceneHandle);
+        this._setScene(null);
     }
 
     public resize (width: number, height: number) {
@@ -291,15 +274,15 @@ export class Camera {
         if (this._node.hasChangedFlags || forceUpdate) {
             Mat4.invert(this._matView, this._node.worldMatrix);
             if (JSB) {
-                CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW, this._matView);
+                this._nativeObj!.matView = this._matView;
             }
             this._forward.x = -this._matView.m02;
             this._forward.y = -this._matView.m06;
             this._forward.z = -this._matView.m10;
             this._node.getWorldPosition(this._position);
             if (JSB) {
-                CameraPool.setVec3(this._poolHandle, CameraView.POSITION, this._position);
-                CameraPool.setVec3(this._poolHandle, CameraView.FORWARD, this._forward);
+                this._nativeObj!.position = this._position;
+                this._nativeObj!.forward = this._forward;
             }
             viewProjDirty = true;
         }
@@ -324,8 +307,8 @@ export class Camera {
             }
             Mat4.invert(this._matProjInv, this._matProj);
             if (JSB) {
-                CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
-                CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);
+                this._nativeObj!.matProj = this._matProj;
+                this._nativeObj!.matProjInv = this._matProjInv;
             }
             viewProjDirty = true;
             this._isProjDirty = false;
@@ -337,17 +320,17 @@ export class Camera {
             Mat4.invert(this._matViewProjInv, this._matViewProj);
             this._frustum.update(this._matViewProj, this._matViewProjInv);
             if (JSB) {
-                CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ, this._matViewProj);
-                CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
+                this._nativeObj!.matViewProj = this._matViewProj;
+                this._nativeObj!.matViewProjInv = this._matViewProjInv;
+                this._nativeObj!.frustum = this._frustum;
             }
-            recordFrustumToSharedMemory(this._frustumHandle, this._frustum);
         }
     }
 
     set node (val: Node) {
         this._node = val;
         if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.NODE, this._node.handle);
+            this._nativeObj!.node = this._node.native;
         }
     }
 
@@ -423,7 +406,7 @@ export class Camera {
         this._clearColor.z = val.z;
         this._clearColor.w = val.w;
         if (JSB) {
-            CameraPool.setVec4(this._poolHandle, CameraView.CLEAR_COLOR, val);
+            this._nativeObj!.clearColor = this._clearColor;
         }
     }
 
@@ -467,7 +450,7 @@ export class Camera {
         default:
         }
         if (JSB) {
-            CameraPool.setVec4(this._poolHandle, CameraView.VIEW_PORT, this._viewport);
+            this._nativeObj!.viewPort = this._viewport;
         }
         this.resize(this.width, this.height);
     }
@@ -495,7 +478,7 @@ export class Camera {
     set matView (val) {
         this._matView = val;
         if (JSB) {
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW, this._matView);
+            this._nativeObj!.matView = this._matView;
         }
     }
 
@@ -508,13 +491,13 @@ export class Camera {
     }
 
     get matViewInv () {
-        return this._matViewInv || this._node!.worldMatrix;
+        return this._matViewInv || this._node!.worldMatrix as Mat4;
     }
 
     set matProj (val) {
         this._matProj = val;
         if (JSB) {
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ, this._matProj);
+            this._nativeObj!.matProj = this._matProj;
         }
     }
 
@@ -525,7 +508,7 @@ export class Camera {
     set matProjInv (val) {
         this._matProjInv = val;
         if (JSB) {
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_PROJ_INV, this._matProjInv);
+            this._nativeObj!.matProjInv = this._matProjInv;
         }
     }
 
@@ -536,7 +519,7 @@ export class Camera {
     set matViewProj (val) {
         this._matViewProj = val;
         if (JSB) {
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ, this._matViewProj);
+            this._nativeObj!.matViewProj = this._matViewProj;
         }
     }
 
@@ -547,7 +530,7 @@ export class Camera {
     set matViewProjInv (val) {
         this._matViewProjInv = val;
         if (JSB) {
-            CameraPool.setMat4(this._poolHandle, CameraView.MAT_VIEW_PROJ_INV, this._matViewProjInv);
+            this._nativeObj!.matViewProjInv = this._matViewProjInv;
         }
     }
 
@@ -557,7 +540,9 @@ export class Camera {
 
     set frustum (val) {
         this._frustum = val;
-        recordFrustumToSharedMemory(this._frustumHandle, val);
+        if (JSB) {
+            this._nativeObj!.frustum = this._frustum;
+        }
     }
 
     get frustum () {
@@ -566,7 +551,9 @@ export class Camera {
 
     set window (val) {
         this._window = val;
-        if (JSB && val) CameraPool.set(this._poolHandle, CameraView.WINDOW, val.handle);
+        if (JSB && val) {
+            this._nativeObj!.window = this._window!.native;
+        }
     }
 
     get window () {
@@ -576,7 +563,7 @@ export class Camera {
     set forward (val) {
         this._forward = val;
         if (JSB) {
-            CameraPool.setVec3(this._poolHandle, CameraView.FORWARD, this._forward);
+            this._nativeObj!.forward = this._forward;
         }
     }
 
@@ -587,7 +574,7 @@ export class Camera {
     set position (val) {
         this._position = val;
         if (JSB) {
-            CameraPool.setVec3(this._poolHandle, CameraView.POSITION, this._position);
+            this._nativeObj!.position = this._position;
         }
     }
 
@@ -598,7 +585,7 @@ export class Camera {
     set visibility (vis: number) {
         this._visibility = vis;
         if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.VISIBILITY, vis);
+            this._nativeObj!.visibility = this._visibility;
         }
     }
     get visibility (): number {
@@ -674,7 +661,7 @@ export class Camera {
     set clearFlag (flag: ClearFlags) {
         this._clearFlag = flag;
         if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.CLEAR_FLAGS, flag);
+            this._nativeObj!.clearFlag = flag;
         }
     }
 
@@ -685,7 +672,7 @@ export class Camera {
     set clearDepth (depth: number) {
         this._clearDepth = depth;
         if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.CLEAR_DEPTH, depth);
+            this._nativeObj!.clearDepth = depth;
         }
     }
 
@@ -696,12 +683,12 @@ export class Camera {
     set clearStencil (stencil: number) {
         this._clearStencil = stencil;
         if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.CLEAR_STENCIL, stencil);
+            this._nativeObj!.clearStencil = stencil;
         }
     }
 
-    get handle () : CameraHandle {
-        return this._poolHandle;
+    get native (): any {
+        return this._nativeObj;
     }
 
     public changeTargetWindow (window: RenderWindow | null = null) {
@@ -806,7 +793,7 @@ export class Camera {
     /**
      * transform a world space position to screen space
      */
-    public worldToScreen (out: Vec3, worldPos: Vec3): Vec3 {
+    public worldToScreen (out: Vec3, worldPos: Readonly<Vec3>): Vec3 {
         const width = this.width;
         const height = this.height;
         const cx = this._viewport.x * width;
@@ -855,7 +842,7 @@ export class Camera {
     protected setExposure (ev100) {
         this._exposure = 0.833333 / (2.0 ** ev100);
         if (JSB) {
-            CameraPool.set(this._poolHandle, CameraView.EXPOSURE, this._exposure);
+            this._nativeObj!.exposure = this._exposure;
         }
     }
 

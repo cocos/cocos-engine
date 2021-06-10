@@ -608,6 +608,10 @@ export class ParticleSystem extends RenderableComponent {
         this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
     }
 
+    public onFocusInEditor () {
+        this.renderer.create(this);
+    }
+
     public onLoad () {
         // HACK, TODO
         this.renderer.onInit(this);
@@ -620,7 +624,9 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     public _onMaterialModified (index: number, material: Material) {
-        this.processor.onMaterialModified(index, material);
+        if (this.processor !== null) {
+            this.processor.onMaterialModified(index, material);
+        }
     }
 
     public _onRebuildPSO (index: number, material: Material) {

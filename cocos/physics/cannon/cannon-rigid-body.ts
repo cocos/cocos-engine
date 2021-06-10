@@ -236,28 +236,28 @@ export class CannonRigidBody implements IRigidBody {
     applyForce (force: Vec3, worldPoint?: Vec3) {
         this._sharedBody.syncSceneToPhysics();
         this._wakeUpIfSleep();
-        if (worldPoint == null) worldPoint = Vec3.ZERO;
+        if (worldPoint == null) worldPoint = Vec3.ZERO as Vec3;
         this.impl.applyForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyImpulse (impulse: Vec3, worldPoint?: Vec3) {
         this._sharedBody.syncSceneToPhysics();
         this._wakeUpIfSleep();
-        if (worldPoint == null) worldPoint = Vec3.ZERO;
+        if (worldPoint == null) worldPoint = Vec3.ZERO as Vec3;
         this.impl.applyImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, worldPoint));
     }
 
     applyLocalForce (force: Vec3, localPoint?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
         this._wakeUpIfSleep();
-        if (localPoint == null) localPoint = Vec3.ZERO;
+        if (localPoint == null) localPoint = Vec3.ZERO as Vec3;
         this.impl.applyLocalForce(Vec3.copy(v3_cannon0, force), Vec3.copy(v3_cannon1, localPoint));
     }
 
     applyLocalImpulse (impulse: Vec3, localPoint?: Vec3): void {
         this._sharedBody.syncSceneToPhysics();
         this._wakeUpIfSleep();
-        if (localPoint == null) localPoint = Vec3.ZERO;
+        if (localPoint == null) localPoint = Vec3.ZERO as Vec3;
         this.impl.applyLocalImpulse(Vec3.copy(v3_cannon0, impulse), Vec3.copy(v3_cannon1, localPoint));
     }
 

@@ -32,7 +32,7 @@
 import { ccclass, executeInEditMode, executionOrder, help, menu, tooltip, multiline, type, serializable } from 'cc.decorator';
 import { DEV, EDITOR } from 'internal:constants';
 import { Font, SpriteAtlas, TTFFont, SpriteFrame } from '../assets';
-import { assert, EventTouch, SystemEventType, warnID } from '../../core/platform';
+import { assert, EventTouch, warnID } from '../../core/platform';
 import { BASELINE_RATIO, fragmentText, isUnicodeCJK, isUnicodeSpace } from '../utils/text-utils';
 import { HtmlTextParser, IHtmlTextParserResultObj, IHtmlTextParserStack } from '../utils/html-text-parser';
 import Pool from '../../core/utils/pool';
@@ -46,6 +46,7 @@ import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import assetManager from '../../core/asset-manager/asset-manager';
 import { CCObject } from '../../core';
+import { NodeEventType } from '../../core/scene-graph/node-event';
 
 const _htmlTextParser = new HtmlTextParser();
 const RichTextChildName = 'RICHTEXT_CHILD';
@@ -458,7 +459,7 @@ export class RichText extends UIComponent {
     }
 
     public onLoad () {
-        this.node.on(SystemEventType.LAYER_CHANGED, this._applyLayer, this);
+        this.node.on(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
     }
 
     public onEnable () {
@@ -480,7 +481,7 @@ export class RichText extends UIComponent {
 
     public start () {
         this._onTTFLoaded();
-        this.node.on(Node.EventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
     }
 
     public onRestore () {
@@ -508,16 +509,16 @@ export class RichText extends UIComponent {
             }
         }
 
-        this.node.off(Node.EventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
-        this.node.off(SystemEventType.LAYER_CHANGED, this._applyLayer, this);
+        this.node.off(NodeEventType.ANCHOR_CHANGED, this._updateRichTextPosition, this);
+        this.node.off(NodeEventType.LAYER_CHANGED, this._applyLayer, this);
     }
 
     protected _addEventListeners () {
-        this.node.on(Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
     }
 
     protected _removeEventListeners () {
-        this.node.off(Node.EventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
     }
 
     protected _updateLabelSegmentTextAttributes () {

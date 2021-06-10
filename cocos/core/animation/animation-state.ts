@@ -36,11 +36,11 @@ import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget 
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { HierarchyPath, evaluatePath, TargetPath } from './target-path';
-import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from '../../3d/skeletal-animation/skeletal-animation-blending';
+import { BlendStateBuffer, BlendStateWriter } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { IValueProxyFactory } from './value-proxy';
-import { assertIsTrue } from '../data/utils/asserts';
+import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { debug } from '../platform/debug';
 
 /**
@@ -326,7 +326,14 @@ export class AnimationState extends Playable {
     /**
      * The weight.
      */
-    public weight = 0;
+    get weight () {
+        return this._weight;
+    }
+
+    set weight (value) {
+        this._weight = value;
+        this._blendStateWriterHost.weight = value;
+    }
 
     public frameRate = 0;
 
@@ -367,15 +374,15 @@ export class AnimationState extends Playable {
     private _lastWrapInfoEvent: WrappedInfo | null = null;
     private _wrappedInfo = new WrappedInfo();
     private _blendStateBuffer: BlendStateBuffer | null = null;
-    private _blendStateWriters: IBlendStateWriter[] = [];
+    private _blendStateWriters: BlendStateWriter<any>[] = [];
     private _allowLastFrame = false;
     private _blendStateWriterHost = {
         weight: 0,
-        enabled: false,
     };
     private _playbackRange: { min: number; max: number; };
     private _playbackDuration = 0;
     private _invDuration = 1.0;
+    private _weight = 0.0;
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -404,9 +411,6 @@ export class AnimationState extends Playable {
         this._destroyBlendStateWriters();
         this._samplerSharedGroups.length = 0;
         this._blendStateBuffer = legacyCC.director.getAnimationManager()?.blendState ?? null;
-        if (this._blendStateBuffer) {
-            this._blendStateBuffer.bindState(this);
-        }
         this._targetNode = root;
         const clip = this._clip;
 
@@ -430,41 +434,37 @@ export class AnimationState extends Playable {
         /**
          * Create the bound target. Especially optimized for skeletal case.
          */
-        const createBoundTargetOptimized = <BoundTargetT extends IBoundTarget>(
-            createFn: (...args: Parameters<typeof createBoundTarget>) => BoundTargetT | null,
+        const createBoundTargetOptimized = (
             rootTarget: any,
             path: TargetPath[],
             valueAdapter: IValueProxyFactory | undefined,
             isConstant: boolean,
-        ): BoundTargetT | null => {
+        ): IBoundTarget | null => {
             if (!clip.enableTrsBlending || !isTargetingTRS(path) || !this._blendStateBuffer) {
-                return createFn(rootTarget, path, valueAdapter);
+                return createBoundTarget(rootTarget, path, valueAdapter);
             } else {
                 const targetNode = evaluatePath(rootTarget, ...path.slice(0, path.length - 1));
                 if (targetNode !== null && targetNode instanceof Node) {
                     const propertyName = path[path.length - 1] as 'position' | 'rotation' | 'scale' | 'eulerAngles';
-                    const blendStateWriter = createBlendStateWriter(
-                        this._blendStateBuffer,
+                    const blendStateWriter = this._blendStateBuffer.createWriter(
                         targetNode,
                         propertyName,
                         this._blendStateWriterHost,
                         isConstant,
                     );
                     this._blendStateWriters.push(blendStateWriter);
-                    return createFn(rootTarget, [], blendStateWriter);
+                    return blendStateWriter;
                 }
             }
             return null;
         };
 
         this._commonTargetStatuses = clip.commonTargets.map((commonTarget, index) => {
-            const target = createBoundTargetOptimized(
-                createBufferedTarget,
-                root,
-                commonTarget.modifiers,
-                commonTarget.valueAdapter,
-                false,
-            );
+            const boundTarget = createBoundTargetOptimized(root, commonTarget.modifiers, commonTarget.valueAdapter, false);
+            if (!boundTarget) {
+                return null;
+            }
+            const target = createBufferedTarget(boundTarget);
             if (target === null) {
                 return null;
             } else {
@@ -501,7 +501,6 @@ export class AnimationState extends Playable {
             }
 
             const boundTarget = createBoundTargetOptimized(
-                createBoundTarget,
                 rootTarget,
                 propertyCurve.modifiers,
                 propertyCurve.valueAdapter,
@@ -524,13 +523,6 @@ export class AnimationState extends Playable {
 
     public destroy () {
         this._destroyBlendStateWriters();
-    }
-
-    /**
-     * @private
-     */
-    public onBlendFinished () {
-        this._blendStateWriterHost.enabled = false;
     }
 
     /**
@@ -679,9 +671,6 @@ export class AnimationState extends Playable {
     }
 
     protected _sampleCurves (ratio: number) {
-        this._blendStateWriterHost.weight = this.weight;
-        this._blendStateWriterHost.enabled = true;
-
         const commonTargetStatuses = this._commonTargetStatuses;
         // Before we sample, we pull values of common targets.
         for (let iCommonTarget = 0, length = commonTargetStatuses.length; iCommonTarget < length; ++iCommonTarget) {
@@ -1001,15 +990,16 @@ export class AnimationState extends Playable {
     }
 
     private _destroyBlendStateWriters () {
+        if (this._blendStateWriters.length) {
+            assertIsNonNullable(this._blendStateBuffer);
+        }
         for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
-            this._blendStateWriters[iBlendStateWriter].destroy();
+            this._blendStateBuffer!.destroyWriter(this._blendStateWriters[iBlendStateWriter]);
         }
         this._blendStateWriters.length = 0;
         if (this._blendStateBuffer) {
-            this._blendStateBuffer.unbindState(this);
             this._blendStateBuffer = null;
         }
-        this._blendStateWriterHost.enabled = false;
     }
 }
 

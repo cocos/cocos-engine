@@ -42,7 +42,8 @@ import { ImageAsset } from '../core/assets/image-asset';
 import {  Size } from '../core/math';
 
 import { legacyCC } from '../core/global-exports';
-import { SystemEventType, CCObject, Texture2D } from '../core';
+import { NodeEventType } from '../core/scene-graph/node-event';
+import { CCObject, Texture2D } from '../core';
 
 /**
  * @en SubContextView is a view component which controls open data context viewport in WeChat game platform.<br/>
@@ -230,15 +231,15 @@ export class SubContextView extends Component {
     }
 
     private _registerNodeEvent () {
-        this.node.on(Node.EventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
-        this.node.on(Node.EventType.SIZE_CHANGED, this._updateSubContextView, this);
-        this.node.on(SystemEventType.LAYER_CHANGED, this._updateContentLayer, this);
+        this.node.on(NodeEventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._updateSubContextView, this);
+        this.node.on(NodeEventType.LAYER_CHANGED, this._updateContentLayer, this);
     }
 
     private _unregisterNodeEvent () {
-        this.node.off(Node.EventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
-        this.node.off(Node.EventType.SIZE_CHANGED, this._updateSubContextView, this);
-        this.node.off(SystemEventType.LAYER_CHANGED, this._updateContentLayer, this);
+        this.node.off(NodeEventType.TRANSFORM_CHANGED, this._updateSubContextView, this);
+        this.node.off(NodeEventType.SIZE_CHANGED, this._updateSubContextView, this);
+        this.node.off(NodeEventType.LAYER_CHANGED, this._updateContentLayer, this);
     }
 
     private _updateContentLayer () {

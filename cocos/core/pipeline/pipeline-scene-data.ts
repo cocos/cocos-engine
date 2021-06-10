@@ -23,6 +23,7 @@
  THE SOFTWARE.
  */
 
+import { JSB } from 'internal:constants';
 import { Fog } from '../renderer/scene/fog';
 import { Ambient } from '../renderer/scene/ambient';
 import { Skybox } from '../renderer/scene/skybox';
@@ -31,39 +32,59 @@ import { IRenderObject } from './define';
 import { Device, Framebuffer } from '../gfx';
 import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
-import { PipelineSceneDataPool, PipelineSceneDataHandle, PipelineSceneDataView, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
 import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Material } from '../assets';
+import { NativePipelineSharedSceneData } from '../renderer/scene';
 
 export class PipelineSceneData {
-    public get handle () {
-        return this._handle;
+    private _init (): void {
+        if (JSB) {
+            this._nativeObj = new NativePipelineSharedSceneData();
+            this._nativeObj.fog = this.fog.native;
+            this._nativeObj.ambient = this.ambient.native;
+            this._nativeObj.skybox = this.skybox.native;
+            this._nativeObj.shadow = this.shadows.native;
+        }
     }
+
+    public get native (): NativePipelineSharedSceneData {
+        return this._nativeObj!;
+    }
+
     /**
      * @en Is open HDR.
      * @zh 是否开启 HDR。
      * @readonly
      */
     public get isHDR () {
-        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.IS_HDR) as unknown as boolean;
+        return this._isHDR;
     }
 
     public set isHDR (val: boolean) {
-        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.IS_HDR, val ? 1 : 0);
+        this._isHDR = val;
+        if (JSB) {
+            this._nativeObj!.isHDR = val;
+        }
     }
     public get shadingScale () {
-        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.SHADING_SCALE);
+        return this._shadingScale;
     }
 
     public set shadingScale (val: number) {
-        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.SHADING_SCALE, val);
+        this._shadingScale = val;
+        if (JSB) {
+            this._nativeObj!.shadingScale = val;
+        }
     }
     public get fpScale () {
-        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.FP_SCALE);
+        return this._fpScale;
     }
 
     public set fpScale (val: number) {
-        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.FP_SCALE, val);
+        this._fpScale = val;
+        if (JSB) {
+            this._fpScale = val;
+        }
     }
     public fog: Fog = new Fog();
     public ambient: Ambient = new Ambient();
@@ -78,33 +99,15 @@ export class PipelineSceneData {
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();
     protected declare _device: Device;
     protected declare _pipeline: RenderPipeline;
-    protected declare _handle: PipelineSceneDataHandle;
+    protected declare _nativeObj: NativePipelineSharedSceneData | null;
+    protected _isHDR = false;
+    protected _shadingScale = 1.0;
+    protected _fpScale = 1.0 / 1024.0;
 
     constructor () {
-        this._handle = PipelineSceneDataPool.alloc();
-        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.AMBIENT, this.ambient.handle);
-        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.SKYBOX, this.skybox.handle);
-        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.FOG, this.fog.handle);
-        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.SHADOW, this.shadows.handle);
-        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.IS_HDR, 0);
-        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.SHADING_SCALE, 1.0);
-        PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.FP_SCALE, 1.0 / 1024.0);
-    }
-
-    public get deferredLightPassHandle (): PassHandle {
-        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS);
-    }
-
-    public get deferredLightPassShaderHandle (): ShaderHandle {
-        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER);
-    }
-
-    public get deferredPostPassHandle (): PassHandle {
-        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS);
-    }
-
-    public get deferredPostPassShaderHandle (): ShaderHandle  {
-        return PipelineSceneDataPool.get(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER);
+        this._init();
+        this.shadingScale = 1.0;
+        this.fpScale = 1.0 / 1024.0;
     }
 
     public initDeferredPassInfo () {
@@ -124,16 +127,17 @@ export class PipelineSceneData {
             passPost.endChangeStatesSilently();
         }
 
-        if (builinDeferred) {
+        if (builinDeferred && JSB) {
             const passLit = builinDeferred.passes[0];
-            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS, passLit.handle);
-            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER, passLit.getShaderVariant());
+            this._nativeObj!.deferredLightPassShader = passLit.getShaderVariant();
+            this._nativeObj!.deferredLightPass = passLit.native;
         }
 
-        if (builtinPostProcess) {
+        if (builtinPostProcess && JSB) {
             const passPost = builtinPostProcess.passes[0];
-            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS, passPost.handle);
-            PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER, passPost.getShaderVariant());
+            const shaderHandle = passPost.getShaderVariant();
+            this._nativeObj!.deferredPostPassShader = passPost.getShaderVariant();
+            this._nativeObj!.deferredPostPass = passPost.native;
         }
     }
 
@@ -149,8 +153,8 @@ export class PipelineSceneData {
         this.skybox.destroy();
         this.fog.destroy();
         this.shadows.destroy();
-        if (this._handle) {
-            PipelineSceneDataPool.free(this._handle);
+        if (JSB) {
+            this._nativeObj = null;
         }
     }
 }

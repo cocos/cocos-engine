@@ -69,13 +69,6 @@ export class CrossFade extends Playable {
         } else {
             this._calculateWeights(deltaTime);
         }
-
-        for (let iManagedState = 0; iManagedState < managedStates.length; ++iManagedState) {
-            const state = managedStates[iManagedState].state;
-            if (state && state.isMotionless) {
-                state.sample();
-            }
-        }
     }
 
     /**
