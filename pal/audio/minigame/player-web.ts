@@ -62,6 +62,8 @@ export class AudioPlayerWeb implements OperationQueueable {
     private _playTimeOffset = 0;
     private _state: AudioState = AudioState.INIT;
 
+    private static _audioBufferCacheMap: Record<string, AudioBuffer> = {};
+
     // NOTE: the implemented interface properties need to be public access
     public _eventTarget: EventTarget = new EventTarget();
     public _operationQueue: OperationInfo[] = [];
@@ -117,6 +119,13 @@ export class AudioPlayerWeb implements OperationQueueable {
     }
     static loadNative (url: string): Promise<AudioBuffer> {
         return new Promise((resolve, reject) => {
+            // NOTE: maybe url is a temp path, which is not reliable.
+            // need to cache the decoded audio buffer.
+            const cachedAudioBuffer = AudioPlayerWeb._audioBufferCacheMap[url];
+            if (cachedAudioBuffer) {
+                resolve(cachedAudioBuffer);
+                return;
+            }
             // TODO: use pal/fs
             fsUtils.readArrayBuffer(url, (err: Error, arrayBuffer: ArrayBuffer) => {
                 if (err) {
@@ -124,6 +133,7 @@ export class AudioPlayerWeb implements OperationQueueable {
                     return;
                 }
                 audioContext!.decodeAudioData(arrayBuffer).then((buffer) => {
+                    AudioPlayerWeb._audioBufferCacheMap[url] = buffer;
                     resolve(buffer);
                 }).catch((e) => {});
             });
