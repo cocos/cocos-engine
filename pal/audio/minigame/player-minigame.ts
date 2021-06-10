@@ -181,7 +181,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
             }).catch(reject);
         });
     }
-    static readonly maxAudioChannel = 10;
 
     get state (): AudioState {
         return this._state;
