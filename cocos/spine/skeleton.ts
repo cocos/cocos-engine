@@ -994,8 +994,8 @@ export class Skeleton extends Renderable2D {
                 return null;
             }
             const res = this._state!.setAnimationWith(trackIndex, animation, loop);
-                this._state!.apply(this._skeleton);
-                return res;
+            this._state!.apply(this._skeleton);
+            return res;
         }
         return null;
     }
@@ -1072,6 +1072,7 @@ export class Skeleton extends Renderable2D {
             warn('\'clearTracks\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             this._state.clearTracks();
+            this.setToSetupPose();
         }
     }
 
