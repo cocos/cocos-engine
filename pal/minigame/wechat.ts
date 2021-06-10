@@ -10,12 +10,12 @@ cloneObject(minigame, wx);
 
 // #region platform related
 minigame.wx = {};
-minigame.wx.onKeyDown = wx.onKeyDown;
-minigame.wx.onKeyUp = wx.onKeyUp;
-minigame.wx.onMouseDown = wx.onMouseDown;
-minigame.wx.onMouseMove = wx.onMouseMove;
-minigame.wx.onMouseUp = wx.onMouseUp;
-minigame.wx.onWheel = wx.onWheel;
+minigame.wx.onKeyDown = wx.onKeyDown?.bind(wx);
+minigame.wx.onKeyUp = wx.onKeyUp?.bind(wx);
+minigame.wx.onMouseDown = wx.onMouseDown?.bind(wx);
+minigame.wx.onMouseMove = wx.onMouseMove?.bind(wx);
+minigame.wx.onMouseUp = wx.onMouseUp?.bind(wx);
+minigame.wx.onWheel = wx.onWheel?.bind(wx);
 // #endregion platform related
 
 // #region SystemInfo
