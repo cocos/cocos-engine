@@ -2,7 +2,7 @@ declare module 'pal/minigame' {
     export const minigame: IMiniGame;
     export interface IMiniGame {
         // platform related
-        wx?: WX;
+        wx?: WeChatAPI;
 
         // system
         isDevTool: boolean;
@@ -52,7 +52,7 @@ declare module 'pal/minigame' {
         stopAccelerometer(obj: AccelerometerStopParameter);
     }
 
-    interface WX {
+    interface WeChatAPI {
         onKeyDown?: (cb: (res: KeyboardEventData) => void) => void;
         onKeyUp?: (cb: (res: KeyboardEventData) => void) => void;
 
