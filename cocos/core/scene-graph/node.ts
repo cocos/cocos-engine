@@ -331,7 +331,7 @@ export class Node extends BaseNode {
 
     /**
      * @en Return up direction in world space.
-     * @zh 当前节点中返回在世界空间下向上的方向
+     * @zh 返回当前节点在世界空间中朝上的方向向量
      */
     get up (): Vec3 {
         return Vec3.transformQuat(new Vec3(), Vec3.UP, this.worldRotation);
