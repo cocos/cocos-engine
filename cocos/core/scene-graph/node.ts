@@ -339,7 +339,7 @@ export class Node extends BaseNode {
 
     /**
      * @en Return right direction in world space.
-     * @zh 当前节点中返回在世界空间下向右的方向。
+     * @zh 返回当前节点在世界空间中朝右的方向向量
      */
     get right (): Vec3 {
         return Vec3.transformQuat(new Vec3(), Vec3.RIGHT, this.worldRotation);
