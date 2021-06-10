@@ -330,7 +330,7 @@ export class Node extends BaseNode {
     }
 
     /**
-     * @en Return up direction in world space.
+     * @en Return the up direction vertor of this node in world space.
      * @zh 返回当前节点在世界空间中朝上的方向向量
      */
     get up (): Vec3 {
