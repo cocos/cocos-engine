@@ -259,14 +259,12 @@ export class SubContextView extends Component {
         }
     }
 
-    public destroy () {
+    public onDestroy () {
         this._content.destroy();
         this._texture.destroy();
         if (this._sprite) { this._sprite.destroy(); }
         this._imageAsset.destroy();
         this._openDataContext = null;
-
-        return super.destroy();
     }
 }
 legacyCC.SubContextView = SubContextView;
