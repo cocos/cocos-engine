@@ -176,7 +176,7 @@ export class Skeleton extends Renderable2D {
     }
     set skeletonData (value: SkeletonData) {
         if (value) value.resetEnums();
-        if (this._skeletonData != value) {
+        if (this._skeletonData !== value) {
             this._skeletonData = value as any;
             this.defaultSkin = '';
             this.defaultAnimation = '';
@@ -1465,7 +1465,7 @@ export class Skeleton extends Renderable2D {
         const bones = this._skeleton.bones;
         const getBoneName = (bone: spine.Bone) => {
             if (bone.parent == null) return bone.data.name || '<Unamed>';
-            return `${getBoneName(bones[bone.parent.data.index])}/${bone.data.name}`;
+            return `${getBoneName(bones[bone.parent.data.index]) as string}/${bone.data.name}`;
         };
         for (let i = 0, l = bones.length; i < l; i++) {
             const bd = bones[i].data;
@@ -1632,7 +1632,7 @@ export class Skeleton extends Renderable2D {
         for (let i = 0, l = sockets.length; i < l; i++) {
             const target = sockets[i].target;
             if (target) {
-                if (!target.parent || (target.parent != this.node)) {
+                if (!target.parent || (target.parent !== this.node)) {
                     console.error(`Target node ${target.name} is expected to be a direct child of ${this.node.name}`);
                     continue;
                 }
