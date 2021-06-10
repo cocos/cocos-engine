@@ -41,7 +41,6 @@ import {
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
-import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
 import { error } from './platform';
 import { Mat4, Vec2 } from './math';

@@ -43,8 +43,6 @@ import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from '../skel
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
 
-import { AABBPool, AABBView } from '../../core/renderer/core/memory-pools';
-
 interface IJointsInfo {
     buffer: Buffer | null;
     jointTextureInfo: Float32Array;

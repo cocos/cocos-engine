@@ -288,7 +288,7 @@ class RigidBody {
     initialize (v) {
         v.node.updateWorldTransform();
         this._com = v;
-        this._impl.initialize(v.node.handle, v.type, v._group);
+        this._impl.initialize(v.node.native, v.type, v._group);
         bookNode(v.node);
     }
 
@@ -365,7 +365,7 @@ class Shape {
     initialize (v) {
         v.node.updateWorldTransform();
         this._com = v;
-        this._impl.initialize(v.node.handle);
+        this._impl.initialize(v.node.native);
         ptrToObj[this._impl.getImpl()] = this;
         bookNode(v.node);
     }
@@ -578,7 +578,7 @@ class Joint {
     setConnectedBody (v) { this._impl.setConnectedBody(v ? v.body.impl.getNodeHandle() : 0); }
     initialize (v) {
         this._com = v;
-        this._impl.initialize(v.node.handle);
+        this._impl.initialize(v.node.native);
         ptrToObj[this._impl.getImpl()] = this;
         this.onLoad();
     }
