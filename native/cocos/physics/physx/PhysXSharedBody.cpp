@@ -99,7 +99,12 @@ void PhysXSharedBody::setType(ERigidBodyType v) {
     if (_mType == v) return;
     _mType = v;
     initActor();
-    _mImpl.ptr = isStatic() ? reinterpret_cast<uintptr_t>(_mStaticActor) : reinterpret_cast<uintptr_t>(_mDynamicActor);
+    if (isStatic()) {
+        _mImpl.ptr = reinterpret_cast<uintptr_t>(_mStaticActor);
+    } else {
+        _mImpl.ptr = reinterpret_cast<uintptr_t>(_mDynamicActor);
+        _mImpl.rigidDynamic->setRigidBodyFlag(physx::PxRigidBodyFlag::eKINEMATIC, _mType == ERigidBodyType::KINEMATIC);
+	}
 }
 
 void PhysXSharedBody::reference(bool v) {
@@ -213,14 +218,15 @@ void PhysXSharedBody::syncScale() {
 }
 
 void PhysXSharedBody::syncSceneToPhysics() {
-    if (getNode().getFlagsChanged()) {
-        if (getNode().getFlagsChanged() & static_cast<uint32_t>(TransformBit::SCALE)) syncScale();
+    uint32_t hasChangedFlags = getNode().getFlagsChanged();
+    if (hasChangedFlags) {
+        if (hasChangedFlags & static_cast<uint32_t>(TransformBit::SCALE)) syncScale();
         auto wp = getImpl().rigidActor->getGlobalPose();
-        if (getNode().getFlagsChanged() & static_cast<uint32_t>(TransformBit::POSITION)) {
-            pxSetVec3Ext(wp.p, getNode().getWorldPosition());
+        if (hasChangedFlags & static_cast<uint32_t>(TransformBit::POSITION)) {
+            pxSetVec3Ext(wp.p, getNode().worldPosition);
         }
-        if (getNode().getFlagsChanged() & static_cast<uint32_t>(TransformBit::ROTATION)) {
-            pxSetQuatExt(wp.q, getNode().getWorldRotation());
+        if (hasChangedFlags & static_cast<uint32_t>(TransformBit::ROTATION)) {
+            pxSetQuatExt(wp.q, getNode().worldRotation);
         }
 
         if (isKinematic()) {
