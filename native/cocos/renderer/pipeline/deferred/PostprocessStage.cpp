@@ -27,7 +27,6 @@
 #include "../PipelineStateManager.h"
 #include "../RenderQueue.h"
 #include "../forward/UIPhase.h"
-#include "../helper/SharedMemory.h"
 #include "DeferredPipeline.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDevice.h"

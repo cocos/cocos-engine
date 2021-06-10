@@ -56,7 +56,7 @@ RenderObject genRenderObject(const scene::Model *model, const scene::Camera *cam
     return {depth, model};
 }
 
-void getShadowWorldMatrix(const scene::Sphere *sphere, const cc::Vec4 &rotation, const cc::Vec3 &dir, cc::Mat4 *shadowWorldMat, cc::Vec3 *out) {
+void getShadowWorldMatrix(const scene::Sphere *sphere, const cc::Quaternion &rotation, const cc::Vec3 &dir, cc::Mat4 *shadowWorldMat, cc::Vec3 *out) {
     Vec3 translation(dir);
     translation.negate();
     const auto distance = sphere->getRadius() * COEFFICIENT_OF_EXPANSION;

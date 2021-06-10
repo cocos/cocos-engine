@@ -1290,6 +1290,31 @@ bool sevalue_to_native(const se::Value &from, cc::Vec2 *to, se::Object * /*unuse
     return true;
 }
 
+template <>
+bool sevalue_to_native(const se::Value &from, cc::Quaternion *to, se::Object * /*unused*/) {
+    SE_PRECONDITION2(from.isObject(), false, "Convert parameter to Quaternion failed!");
+    if (!from.isObject()) {
+    }
+    se::Object *obj = from.toObject();
+    se::Value   x;
+    se::Value   y;
+    se::Value   z;
+    se::Value   w;
+    bool        ok = obj->getProperty("x", &x);
+    SE_PRECONDITION3(ok && x.isNumber(), false, *to = cc::Quaternion::ZERO);
+    ok = obj->getProperty("y", &y);
+    SE_PRECONDITION3(ok && y.isNumber(), false, *to = cc::Quaternion::ZERO);
+    ok = obj->getProperty("z", &z);
+    SE_PRECONDITION3(ok && z.isNumber(), false, *to = cc::Quaternion::ZERO);
+    ok = obj->getProperty("w", &w);
+    SE_PRECONDITION3(ok && w.isNumber(), false, *to = cc::Quaternion::ZERO);
+    to->x = x.toFloat();
+    to->y = y.toFloat();
+    to->z = z.toFloat();
+    to->w = w.toFloat();
+    return true;
+}
+
 #if USE_SPINE
 
 template <>

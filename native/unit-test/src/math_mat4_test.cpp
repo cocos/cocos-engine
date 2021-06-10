@@ -116,8 +116,8 @@ TEST(mathMat4Test, test5) {
     ExpectEq(outMat.m[0] == 5, true);
     // fromRT
     logLabel = "test the mat4 fromRT function";
-    cc::Vec4 rotVec(1, 0, 1, 1);
-    cc::Vec3 transVec(1, 1, 2);
+    cc::Quaternion rotVec(1, 0, 1, 1);
+    cc::Vec3       transVec(1, 1, 2);
     cc::Mat4::fromRT(rotVec, transVec, &outMat);
     ExpectEq(outMat.m[5] == -3 && outMat.m[9] == -2 && outMat.m[14] == 2, true);
     // decompose
@@ -127,16 +127,16 @@ TEST(mathMat4Test, test5) {
     // determinant
     logLabel = "test the mat4 determinant function";
     cc::Mat4 det;
-    det.m[0] = 5;
-    det.m[1] = 7;
-    det.m[6] = 2;
+    det.m[0]     = 5;
+    det.m[1]     = 7;
+    det.m[6]     = 2;
     float detVal = det.determinant();
     ExpectEq(detVal == 5, true);
     // getScale
     logLabel = "test the mat4 getScale function";
     cc::Mat4 getScaleMat;
-    getScaleMat.m[0] = 5;
-    getScaleMat.m[5] = 7;
+    getScaleMat.m[0]  = 5;
+    getScaleMat.m[5]  = 7;
     getScaleMat.m[10] = 2;
     cc::Vec3 scaleOut;
     getScaleMat.getScale(&scaleOut);
@@ -181,15 +181,15 @@ TEST(mathMat4Test, test5) {
     outMat.getBackVector(&backVec3);
     ExpectEq(backVec3.x == 2 && backVec3.y == -2 && backVec3.z == -1, true);
     // inverse
-    logLabel = "test the mat4 inverse function";
+    logLabel       = "test the mat4 inverse function";
     bool isInverse = outMat.inverse();
     ExpectEq(isInverse == true, true);
     // getInversed
     logLabel = "test the mat4 getInversed function";
     cc::Mat4 inversed;
-    inversed.m[1] = 10;
-    inversed.m[2] = 13;
-    inversed.m[4] = 2;
+    inversed.m[1]        = 10;
+    inversed.m[2]        = 13;
+    inversed.m[4]        = 2;
     cc::Mat4 inversedMat = inversed.getInversed();
     ExpectEq(IsEqualF(inversedMat.m[6], -1.36842108), true);
     // identity
@@ -264,8 +264,7 @@ TEST(mathMat4Test, test5) {
     ExpectEq(translate.m[12] = 2 && translate.m[13] == 6, true);
     // transpose
     logLabel = "test the mat4 transpose function";
-    cc::Mat4 matTranspose(11,21,31,2, 12,22,32,4, 13,23,33,5, 0,0,0,1);
+    cc::Mat4 matTranspose(11, 21, 31, 2, 12, 22, 32, 4, 13, 23, 33, 5, 0, 0, 0, 1);
     matTranspose.transpose();
     ExpectEq(matTranspose.m[1] == 21 && matTranspose.m[4] == 12 && matTranspose.m[7] == 4, true);
 }
-

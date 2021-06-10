@@ -25,7 +25,6 @@
 
 #include "PipelineStateManager.h"
 #include "gfx-base/GFXDevice.h"
-#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace pipeline {

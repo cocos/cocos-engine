@@ -23,9 +23,9 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/PhysicsSelector.h"
 #include "physics/sdk/RigidBody.h"
 #include <memory>
+#include "physics/PhysicsSelector.h"
 
 namespace cc {
 namespace physics {
@@ -38,8 +38,8 @@ RigidBody::~RigidBody() {
     _impl.reset(nullptr);
 }
 
-void RigidBody::initialize(const uint h, const ERigidBodyType t, const uint32_t g) {
-    _impl->initialize(h, t, g);
+void RigidBody::initialize(scene::Node *node, const ERigidBodyType t, const uint32_t g) {
+    _impl->initialize(node, t, g);
 }
 
 void RigidBody::onEnable() {

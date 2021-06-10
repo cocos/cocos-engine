@@ -39,7 +39,6 @@ class CC_DLL BufferPool final : public cc::Object {
 public:
     using Chunk = uint8_t *;
 
-    CC_INLINE static const cc::vector<BufferPool *> &getPoolMap() { return BufferPool::poolMap; }
     CC_INLINE static uint                            getPoolFlag() { return POOL_FLAG; }
 
     BufferPool(PoolType type, uint entryBits, uint bytesPerEntry);
@@ -56,7 +55,6 @@ public:
     Object *allocateNewChunk();
 
 private:
-    static cc::vector<BufferPool *> poolMap;
     static constexpr uint           POOL_FLAG = 1 << 30;
 
     BufferAllocator   _allocator;

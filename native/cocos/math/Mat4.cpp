@@ -145,7 +145,7 @@ void Mat4::createOrthographicOffCenter(float left, float right, float bottom, fl
     GP_ASSERT(top != bottom);
     GP_ASSERT(zFarPlane != zNearPlane);
 
-    memset(dst, 0, MATRIX_SIZE);
+    memset(dst->m, 0, MATRIX_SIZE);
     dst->m[0]  = 2.0F / (right - left);
     dst->m[5]  = 2.0F / (top - bottom) * projectionSignY;
     dst->m[10] = (1.0F - minClipZ) / (zNearPlane - zFarPlane);
@@ -219,7 +219,7 @@ void Mat4::createBillboardHelper(const Vec3 &objectPosition, const Vec3 &cameraP
 void Mat4::createScale(const Vec3 &scale, Mat4 *dst) {
     GP_ASSERT(dst);
 
-    memcpy(dst, &IDENTITY, MATRIX_SIZE);
+    memcpy(dst->m, IDENTITY.m, MATRIX_SIZE);
 
     dst->m[0]  = scale.x;
     dst->m[5]  = scale.y;
@@ -229,7 +229,7 @@ void Mat4::createScale(const Vec3 &scale, Mat4 *dst) {
 void Mat4::createScale(float xScale, float yScale, float zScale, Mat4 *dst) {
     GP_ASSERT(dst);
 
-    memcpy(dst, &IDENTITY, MATRIX_SIZE);
+    memcpy(dst->m, IDENTITY.m, MATRIX_SIZE);
 
     dst->m[0]  = xScale;
     dst->m[5]  = yScale;
@@ -333,7 +333,7 @@ void Mat4::createRotation(const Vec3 &axis, float angle, Mat4 *dst) {
 void Mat4::createRotationX(float angle, Mat4 *dst) {
     GP_ASSERT(dst);
 
-    memcpy(dst, &IDENTITY, MATRIX_SIZE);
+    memcpy(dst->m, IDENTITY.m, MATRIX_SIZE);
 
     float c = std::cos(angle);
     float s = std::sin(angle);
@@ -347,7 +347,7 @@ void Mat4::createRotationX(float angle, Mat4 *dst) {
 void Mat4::createRotationY(float angle, Mat4 *dst) {
     GP_ASSERT(dst);
 
-    memcpy(dst, &IDENTITY, MATRIX_SIZE);
+    memcpy(dst->m, IDENTITY.m, MATRIX_SIZE);
 
     float c = std::cos(angle);
     float s = std::sin(angle);
@@ -361,7 +361,7 @@ void Mat4::createRotationY(float angle, Mat4 *dst) {
 void Mat4::createRotationZ(float angle, Mat4 *dst) {
     GP_ASSERT(dst);
 
-    memcpy(dst, &IDENTITY, MATRIX_SIZE);
+    memcpy(dst->m, IDENTITY.m, MATRIX_SIZE);
 
     float c = std::cos(angle);
     float s = std::sin(angle);
@@ -375,7 +375,7 @@ void Mat4::createRotationZ(float angle, Mat4 *dst) {
 void Mat4::createTranslation(const Vec3 &translation, Mat4 *dst) {
     GP_ASSERT(dst);
 
-    memcpy(dst, &IDENTITY, MATRIX_SIZE);
+    memcpy(dst->m, IDENTITY.m, MATRIX_SIZE);
 
     dst->m[12] = translation.x;
     dst->m[13] = translation.y;
@@ -385,7 +385,7 @@ void Mat4::createTranslation(const Vec3 &translation, Mat4 *dst) {
 void Mat4::createTranslation(float xTranslation, float yTranslation, float zTranslation, Mat4 *dst) {
     GP_ASSERT(dst);
 
-    memcpy(dst, &IDENTITY, MATRIX_SIZE);
+    memcpy(dst->m, IDENTITY.m, MATRIX_SIZE);
 
     dst->m[12] = xTranslation;
     dst->m[13] = yTranslation;
@@ -418,7 +418,7 @@ void Mat4::add(const Mat4 &m1, const Mat4 &m2, Mat4 *dst) {
 #endif
 }
 
-void Mat4::fromRT(const Vec4 &rotation, const Vec3 &translation, Mat4 *dst) {
+void Mat4::fromRT(const Quaternion &rotation, const Vec3 &translation, Mat4 *dst) {
     const auto x  = rotation.x;
     const auto y  = rotation.y;
     const auto z  = rotation.z;
@@ -843,7 +843,7 @@ void Mat4::set(const Mat4 &mat) {
 }
 
 void Mat4::setIdentity() {
-    memcpy(m, &IDENTITY, MATRIX_SIZE);
+    memcpy(m, IDENTITY.m, MATRIX_SIZE);
 }
 
 void Mat4::setZero() {

@@ -23,45 +23,45 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/PhysicsSelector.h"
 #include "physics/sdk/Joint.h"
+#include "physics/PhysicsSelector.h"
 
-#define CC_PHYSICS_JOINT_DEFINITION(CLASS, WRAPPED) \
-                                                    \
-    CLASS::CLASS() {                                \
-        _impl.reset(new WRAPPED());                 \
-    }                                               \
-                                                    \
-    CLASS::~CLASS() {                               \
-        _impl.reset(nullptr);                       \
-    }                                               \
-                                                    \
-    uintptr_t CLASS::getImpl() {                    \
-        return _impl->getImpl();                    \
-    }                                               \
-                                                    \
-    void CLASS::initialize(uint h) {                \
-        _impl->initialize(h);                       \
-    }                                               \
-                                                    \
-    void CLASS::onEnable() {                        \
-        _impl->onEnable();                          \
-    }                                               \
-                                                    \
-    void CLASS::onDisable() {                       \
-        _impl->onDisable();                         \
-    }                                               \
-                                                    \
-    void CLASS::onDestroy() {                       \
-        _impl->onDestroy();                         \
-    }                                               \
-                                                    \
-    void CLASS::setConnectedBody(uint v) {          \
-        _impl->setConnectedBody(v);                 \
-    }                                               \
-                                                    \
-    void CLASS::setEnableCollision(bool v) {        \
-        _impl->setEnableCollision(v);               \
+#define CC_PHYSICS_JOINT_DEFINITION(CLASS, WRAPPED)         \
+                                                            \
+    CLASS::CLASS() {                                        \
+        _impl.reset(new WRAPPED());                         \
+    }                                                       \
+                                                            \
+    CLASS::~CLASS() {                                       \
+        _impl.reset(nullptr);                               \
+    }                                                       \
+                                                            \
+    uintptr_t CLASS::getImpl() {                            \
+        return _impl->getImpl();                            \
+    }                                                       \
+                                                            \
+    void CLASS::initialize(scene::Node* node) {             \
+        _impl->initialize(node);                            \
+    }                                                       \
+                                                            \
+    void CLASS::onEnable() {                                \
+        _impl->onEnable();                                  \
+    }                                                       \
+                                                            \
+    void CLASS::onDisable() {                               \
+        _impl->onDisable();                                 \
+    }                                                       \
+                                                            \
+    void CLASS::onDestroy() {                               \
+        _impl->onDestroy();                                 \
+    }                                                       \
+                                                            \
+    void CLASS::setConnectedBody(const scene::Node* node) { \
+        _impl->setConnectedBody(node);                      \
+    }                                                       \
+                                                            \
+    void CLASS::setEnableCollision(bool v) {                \
+        _impl->setEnableCollision(v);                       \
     }
 
 namespace cc {

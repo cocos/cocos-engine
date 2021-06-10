@@ -31,9 +31,9 @@
 namespace cc {
 namespace physics {
 
-void PhysXJoint::initialize(const uint handle) {
-    auto &ins = PhysXWorld::getInstance();
-    _mSharedBody = ins.getSharedBody(handle);
+void PhysXJoint::initialize(scene::Node* node) {
+    auto& ins    = PhysXWorld::getInstance();
+    _mSharedBody = ins.getSharedBody(node);
     _mSharedBody->reference(true);
     onComponentSet();
 }
@@ -58,10 +58,10 @@ void PhysXJoint::onDestroy() {
     _mSharedBody->reference(false);
 }
 
-void PhysXJoint::setConnectedBody(const uint handle) {
-    if (handle) {
-        auto &ins = PhysXWorld::getInstance();
-        _mConnectedBody = ins.getSharedBody(handle);
+void PhysXJoint::setConnectedBody(const scene::Node* node) {
+    if (node) {
+        auto& ins       = PhysXWorld::getInstance();
+        _mConnectedBody = ins.getSharedBody(node);
     } else {
         _mConnectedBody = nullptr;
     }

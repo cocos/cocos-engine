@@ -24,17 +24,17 @@
 ****************************************************************************/
 
 #include "physics/physx/shapes/PhysXShape.h"
+#include <unordered_map>
 #include "physics/physx/PhysXSharedBody.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"
-#include <unordered_map>
 
 namespace cc {
 namespace physics {
 
-void PhysXShape::initialize(uint handle) {
+void PhysXShape::initialize(scene::Node *node) {
     PhysXWorld &ins = PhysXWorld::getInstance();
-    _mSharedBody = ins.getSharedBody(handle);
+    _mSharedBody    = ins.getSharedBody(node);
     getSharedBody().reference(true);
     onComponentSet();
     getPxShapeMap().insert(std::pair<uintptr_t, uintptr_t>(reinterpret_cast<uintptr_t>(&getShape()), getImpl()));
@@ -58,7 +58,7 @@ void PhysXShape::onDestroy() {
 }
 
 void PhysXShape::setMaterial(uint16_t id, float f, float df, float r,
-                             uint8_t m0, uint8_t m1) {    
+                             uint8_t m0, uint8_t m1) {
     auto *mat = reinterpret_cast<physx::PxMaterial *>(getSharedBody().getWorld().createMaterial(id, f, df, r, m0, m1));
     getShape().setMaterials(&mat, 1);
 }
@@ -101,23 +101,23 @@ void PhysXShape::setMask(uint32_t m) {
 void PhysXShape::updateEventListener(EShapeFilterFlag flag) {
 }
 
-cc::pipeline::AABB& PhysXShape::getAABB() {
-    static cc::pipeline::AABB aabb;
+scene::AABB &PhysXShape::getAABB() {
+    static scene::AABB aabb;
     return aabb;
 }
 
-cc::pipeline::Sphere& PhysXShape::getBoundingSphere() {
-    static cc::pipeline::Sphere s;
+scene::Sphere &PhysXShape::getBoundingSphere() {
+    static scene::Sphere s;
     return s;
 }
 
-void PhysXShape::updateFilterData(physx::PxFilterData &data) {
+void PhysXShape::updateFilterData(const physx::PxFilterData &data) {
 }
 
 void PhysXShape::updateCenter() {
-    auto &sb = getSharedBody();
-    auto &node = sb.getNode();
-    physx::PxTransform local{_mCenter * node.worldScale, _mRotation};
+    auto &             sb   = getSharedBody();
+    auto &             node = sb.getNode();
+    physx::PxTransform local{_mCenter * node.getWorldScale(), _mRotation};
     getShape().setLocalPose(local);
     if (_mEnabled && !isTrigger()) sb.updateCenterOfMass();
 }

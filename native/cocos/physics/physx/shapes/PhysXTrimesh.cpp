@@ -23,11 +23,10 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "physics/physx/shapes/PhysXShape.h"
 #include "physics/physx/shapes/PhysXTrimesh.h"
 #include "physics/physx/PhysXUtils.h"
 #include "physics/physx/PhysXWorld.h"
-#include "renderer/pipeline/helper/SharedMemory.h"
+#include "physics/physx/shapes/PhysXShape.h"
 
 namespace cc {
 namespace physics {
@@ -75,7 +74,7 @@ void PhysXTrimesh::updateScale() {
 void PhysXTrimesh::updateGeometry() {
     static physx::PxMeshScale scale;
     scale.rotation = physx::PxQuat{physx::PxIdentity};
-    pxSetVec3Ext(scale.scale, getSharedBody().getNode().worldScale);
+    pxSetVec3Ext(scale.scale, getSharedBody().getNode().getWorldScale());
     const auto &type = _mShape->getGeometryType();
     if (type == physx::PxGeometryType::eCONVEXMESH) {
         physx::PxConvexMeshGeometry geom;

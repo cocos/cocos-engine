@@ -3,6 +3,8 @@
 #include <type_traits>
 #include "cocos/bindings/jswrapper/SeApi.h"
 #include "cocos/bindings/manual/jsb_conversions.h"
+#include "cocos/bindings/auto/jsb_gfx_auto.h"
+#include "cocos/bindings/auto/jsb_scene_auto.h"
 #include "cocos/physics/PhysicsSDK.h"
 
 extern se::Object* __jsb_cc_physics_World_proto;
@@ -53,7 +55,6 @@ SE_DECLARE_FUNC(js_physics_RigidBody_getGroup);
 SE_DECLARE_FUNC(js_physics_RigidBody_getImpl);
 SE_DECLARE_FUNC(js_physics_RigidBody_getLinearVelocity);
 SE_DECLARE_FUNC(js_physics_RigidBody_getMask);
-SE_DECLARE_FUNC(js_physics_RigidBody_getNodeHandle);
 SE_DECLARE_FUNC(js_physics_RigidBody_getSleepThreshold);
 SE_DECLARE_FUNC(js_physics_RigidBody_initialize);
 SE_DECLARE_FUNC(js_physics_RigidBody_isAwake);

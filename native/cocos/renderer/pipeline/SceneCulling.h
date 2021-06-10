@@ -45,6 +45,6 @@ void lightCollecting(scene::Camera *, std::vector<const scene::Light *> *);
 void sceneCulling(RenderPipeline *, scene::Camera *);
 void updateSphereLight(scene::Shadow *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *);
 void updateDirLight(scene::Shadow *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *);
-void getShadowWorldMatrix(const scene::Sphere *sphere, const cc::Vec4 &rotation, const cc::Vec3 &dir, cc::Mat4 *shadowWorldMat, cc::Vec3 *out);
+void getShadowWorldMatrix(const scene::Sphere *sphere, const cc::Quaternion &rotation, const cc::Vec3 &dir, cc::Mat4 *shadowWorldMat, cc::Vec3 *out);
 } // namespace pipeline
 } // namespace cc

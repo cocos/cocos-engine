@@ -898,8 +898,6 @@ cocos_source_files(
                  cocos/renderer/pipeline/shadow/ShadowStage.h
                  cocos/renderer/pipeline/helper/DefineMap.h
                  cocos/renderer/pipeline/helper/DefineMap.cpp
-                 cocos/renderer/pipeline/helper/SharedMemory.h
-                 cocos/renderer/pipeline/helper/SharedMemory.cpp
 )
 
 ##### scene
@@ -1260,8 +1258,6 @@ endif()
 cocos_source_files(
     NO_WERROR    cocos/bindings/dop/BufferPool.cpp
                  cocos/bindings/dop/BufferPool.h
-    NO_WERROR    cocos/bindings/dop/ObjectPool.cpp
-                 cocos/bindings/dop/ObjectPool.h
     NO_WERROR    cocos/bindings/dop/jsb_dop.cpp
                  cocos/bindings/dop/jsb_dop.h
                  cocos/bindings/dop/PoolType.h

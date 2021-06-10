@@ -29,8 +29,6 @@
 
 namespace se {
 
-cc::vector<BufferPool *> BufferPool::poolMap(BUFFER_POOL_SIZE);
-
 BufferPool::BufferPool(PoolType type, uint entryBits, uint bytesPerEntry)
 : _allocator(type),
   _entryBits(entryBits),
@@ -41,8 +39,6 @@ BufferPool::BufferPool(PoolType type, uint entryBits, uint bytesPerEntry)
     _chunkMask       = 0xffffffff & ~(_entryMask | POOL_FLAG);
 
     _bytesPerChunk = _bytesPerEntry * _entriesPerChunk;
-
-    BufferPool::poolMap[GET_BUFFER_POOL_ID(type)] = this;
 }
 
 BufferPool::~BufferPool() = default;
