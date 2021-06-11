@@ -166,6 +166,11 @@ export class Asset extends Eventify(CCObject) {
                 writable: true,
             });
         }
+        if (EDITOR) {
+            const proxy = new Proxy(this, {});
+            finalizationManager.register(proxy, this);
+            return proxy;
+        }
     }
 
     /**
@@ -287,7 +292,7 @@ export class Asset extends Eventify(CCObject) {
     }
 
     public destroy () {
-        finalizationManager.unregister(this);
+        if (EDITOR) { finalizationManager.unregister(this); }
         return super.destroy();
     }
 

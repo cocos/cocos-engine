@@ -38,7 +38,6 @@ import { Asset } from './asset';
 import { samplerLib, defaultSamplerHash } from '../renderer/core/sampler-lib';
 import { IDGenerator } from '../utils/js';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
-import { finalizationManager } from './finalization-manager';
 
 const idGenerator = new IDGenerator('RenderTex');
 
@@ -196,7 +195,6 @@ export class RenderTexture extends Asset {
         } else {
             this._window = root.createWindow(_windowInfo);
         }
-        finalizationManager.register(this, this._window);
     }
 
     public initDefault (uuid?: string) {
@@ -209,12 +207,5 @@ export class RenderTexture extends Asset {
         return this.width >= 1 && this.width <= 2048 && this.height >= 1 && this.height <= 2048;
     }
 }
-
-finalizationManager.registerTypeFinalizationHandler(RenderTexture, (renderWindow: RenderWindow) => {
-    if (renderWindow) {
-        const root = legacyCC.director.root as Root;
-        root.destroyWindow(renderWindow);
-    }
-});
 
 legacyCC.RenderTexture = RenderTexture;

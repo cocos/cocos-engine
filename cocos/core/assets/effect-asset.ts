@@ -204,7 +204,6 @@ export class EffectAsset extends Asset {
     public onLoaded () {
         programLib.register(this);
         EffectAsset.register(this);
-        finalizationManager.register(this, this.name);
         if (!EDITOR) { legacyCC.game.once(legacyCC.Game.EVENT_ENGINE_INITED, this._precompile, this); }
     }
 
@@ -247,9 +246,5 @@ export class EffectAsset extends Asset {
         return this.techniques.length > 0 && this.shaders.length > 0;
     }
 }
-
-finalizationManager.registerTypeFinalizationHandler(EffectAsset, (name: string) => {
-    EffectAsset.remove(name);
-});
 
 legacyCC.EffectAsset = EffectAsset;

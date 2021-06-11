@@ -40,7 +40,6 @@ import { legacyCC } from '../global-exports';
 import { IPassInfoFull, Pass, PassOverrides } from '../renderer/core/pass';
 import { MacroRecord, MaterialProperty, PropertyType } from '../renderer/core/pass-utils';
 import { Color } from '../math/color';
-import { finalizationManager } from './finalization-manager';
 
 /**
  * @en The basic infos for material initialization.
@@ -416,7 +415,6 @@ export class Material extends Asset {
             } else {
                 for (let i = 0; i < this._props.length; i++) { this._props[i] = {}; }
             }
-            finalizationManager.register(this, this._passes);
         }
         this._hash = Material.getHash(this);
     }
@@ -488,14 +486,5 @@ export class Material extends Asset {
         return !!this._effectAsset && !this._effectAsset.isDefault && this.passes.length > 0;
     }
 }
-
-finalizationManager.registerTypeFinalizationHandler(Material, (passes: Pass[]) => {
-    if (passes && passes.length) {
-        for (const pass of passes) {
-            pass.destroy();
-        }
-        passes.length = 0;
-    }
-});
 
 legacyCC.Material = Material;

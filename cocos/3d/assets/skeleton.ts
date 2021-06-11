@@ -111,7 +111,6 @@ export class Skeleton extends Asset {
                         ibm.m12.toPrecision(2)} ${ibm.m13.toPrecision(2)} ${ibm.m14.toPrecision(2)} ${ibm.m15.toPrecision(2)}\n`;
             }
             this._hash = murmurhash2_32_gc(str, 666);
-            finalizationManager.register(this, this._hash);
         }
         return this._hash;
     }
@@ -125,9 +124,5 @@ export class Skeleton extends Asset {
         return this.joints.length > 0 && this.bindposes.length > 0;
     }
 }
-
-finalizationManager.registerTypeFinalizationHandler(Skeleton, (hash: number) => {
-    (legacyCC.director.root.dataPoolManager as DataPoolManager).releaseSkeleton(hash);
-});
 
 legacyCC.Skeleton = Skeleton;

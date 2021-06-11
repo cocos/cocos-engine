@@ -23,41 +23,42 @@
  THE SOFTWARE.
 */
 
+import { EDITOR } from 'internal:constants';
 import { Asset } from './asset';
 
+// declare class Proxy extends Asset {
+//     constructor (obj: any, handler: any);
+// }
 declare class FinalizationRegistry {
     constructor (callback: (heldObj: any) => void);
     register (obj: any, heldObj: any, token?: any);
     unregister (token: any);
 }
 
-interface FinalizationCallbackObject {
-    heldObj: any;
-    type: Constructor<Asset>;
-    uuid: string;
-}
+// export function registerGC<T extends Constructor<Asset>> (ctor: T) {
+//     if (!EDITOR) return ctor;
+//     return class NewClass extends ctor {
+//         constructor (...args: any[]) {
+//             super(args);
+//             const proxy = new Proxy(this, {});
+//             finalizationManager.register(proxy, this);
+//             return proxy;
+//         }
+//     };
+// }
 
 export class FinalizationManager {
-    private _map: Map<Constructor<Asset>, (obj: any) => void> = new Map();
-
-    registerTypeFinalizationHandler (ctor: Constructor<Asset>, callback: (obj: any) => void) {
-        this._map.set(ctor, callback);
-    }
-
-    register (asset: Asset, heldNativeObj: any) {
-        finalizationRegistry.unregister(asset);
-        finalizationRegistry.register(asset, { heldObj: heldNativeObj, type: asset.constructor, uuid: asset._uuid }, asset);
+    register (asset: Asset, heldNativeObj: Asset) {
+        finalizationRegistry.register(asset, heldNativeObj, asset);
     }
 
     unregister (asset: Asset) {
         finalizationRegistry.unregister(asset);
     }
 
-    finalizationRegistryCallback (obj: FinalizationCallbackObject) {
-        const { heldObj, type, uuid } = obj;
-        const callback = this._map.get(type);
-        if (callback) { callback(heldObj); }
-        console.log(`The asset ${uuid} has been reclaimed`);
+    finalizationRegistryCallback (asset: Asset) {
+        console.log(`The asset ${asset._uuid} has been reclaimed`);
+        asset.destroy();
     }
 }
 

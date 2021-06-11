@@ -383,8 +383,6 @@ export class Mesh extends Asset {
 
         this._renderingSubMeshes = subMeshes;
 
-        finalizationManager.register(this, subMeshes);
-
         if (this._struct.morph) {
             this.morphRendering = createMorphRendering(this, gfxDevice);
         }
@@ -1169,12 +1167,5 @@ function getWriter (dataView: DataView, format: Format) {
 
     return null;
 }
-
-finalizationManager.registerTypeFinalizationHandler(Mesh, (renderingSubMeshes: RenderingSubMesh[]) => {
-    if (!renderingSubMeshes) return;
-    for (let i = 0; i < renderingSubMeshes.length; i++) {
-        renderingSubMeshes[i].destroy();
-    }
-});
 
 // function get
