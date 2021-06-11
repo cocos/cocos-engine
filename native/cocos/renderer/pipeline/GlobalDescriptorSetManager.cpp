@@ -34,7 +34,6 @@
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXSampler.h"
 #include "gfx-base/GFXTexture.h"
-#include "helper/SharedMemory.h"
 #include "gfx-base/GFXDescriptorSetLayout.h"
 
 

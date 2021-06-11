@@ -47,7 +47,7 @@ struct AdditiveLightPass {
     const scene::Pass *          pass     = nullptr;
     gfx::Shader *                shader   = nullptr;
     vector<uint>                 dynamicOffsets;
-    vector<const scene::Light *> lights;
+    vector<uint>                 lights;
 };
 
 class RenderAdditiveLightQueue : public Object {

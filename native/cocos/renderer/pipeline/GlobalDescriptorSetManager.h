@@ -26,7 +26,6 @@
 #pragma once
 
 #include "base/CoreStd.h"
-#include "helper/SharedMemory.h"
 
 namespace cc {
 namespace gfx {

@@ -223,10 +223,10 @@ void PhysXSharedBody::syncSceneToPhysics() {
         if (hasChangedFlags & static_cast<uint32_t>(TransformBit::SCALE)) syncScale();
         auto wp = getImpl().rigidActor->getGlobalPose();
         if (hasChangedFlags & static_cast<uint32_t>(TransformBit::POSITION)) {
-            pxSetVec3Ext(wp.p, getNode().worldPosition);
+            pxSetVec3Ext(wp.p, getNode().getWorldPosition());
         }
         if (hasChangedFlags & static_cast<uint32_t>(TransformBit::ROTATION)) {
-            pxSetQuatExt(wp.q, getNode().worldRotation);
+            pxSetQuatExt(wp.q, getNode().getWorldRotation());
         }
 
         if (isKinematic()) {

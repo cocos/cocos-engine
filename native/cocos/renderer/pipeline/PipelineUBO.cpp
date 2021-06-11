@@ -374,7 +374,7 @@ void PipelineUBO::updateCameraUBO(const scene::Camera *camera) {
     auto *const globalDSManager = _pipeline->getGlobalDSManager();
     auto *const ds              = _pipeline->getDescriptorSet();
     auto *const cmdBuffer       = _pipeline->getCommandBuffers()[0];
-    PipelineUBO::updateCameraUBOView(_pipeline, _cameraUBO, camera);
+    PipelineUBO::updateCameraUBOView(_pipeline, &_cameraUBO, camera);
     cmdBuffer->updateBuffer(ds->getBuffer(UBOCamera::BINDING), _cameraUBO.data(), UBOCamera::SIZE);
 
     globalDSManager->bindBuffer(UBOCamera::BINDING, ds->getBuffer(UBOCamera::BINDING));
