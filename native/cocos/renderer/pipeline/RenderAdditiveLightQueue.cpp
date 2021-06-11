@@ -48,7 +48,7 @@
 namespace cc {
 namespace pipeline {
 
-RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(dynamic_cast<ForwardPipeline *>(pipeline)),
+RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _pipeline(pipeline),
                                                                                _instancedQueue(CC_NEW(RenderInstancedQueue)),
                                                                                _batchedQueue(CC_NEW(RenderBatchedQueue)) {
     auto *     device        = gfx::Device::getInstance();
@@ -64,23 +64,7 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
     _firstLightBufferView    = device->createBuffer({_lightBuffer, 0, UBOForwardLight::SIZE});
     _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
     _dynamicOffsets.resize(1, 0);
-
-    const gfx::SamplerInfo info{
-        gfx::Filter::LINEAR,
-        gfx::Filter::LINEAR,
-        gfx::Filter::NONE,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-        gfx::Address::CLAMP,
-        {},
-        {},
-        {},
-        {},
-    };
-    const auto shadowMapSamplerHash = SamplerLib::genSamplerHash(info);
-    _sampler                        = SamplerLib::getSampler(shadowMapSamplerHash);
     _phaseID                        = getPhaseID("forward-add");
-
     _shadowUBO.fill(0.F);
 }
 
@@ -110,8 +94,8 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::Ren
         cmdBuffer->bindInputAssembler(ia);
 
         for (size_t i = 0; i < dynamicOffsets.size(); ++i) {
-            const auto *light               = lights[i];
-            auto *      globalDescriptorSet = getOrCreateDescriptorSet(light);
+            const auto light                = lights[i];
+            auto *      globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
             _dynamicOffsets[0]              = dynamicOffsets[i];
             cmdBuffer->bindDescriptorSet(globalSet, globalDescriptorSet);
             cmdBuffer->bindDescriptorSet(localSet, descriptorSet, _dynamicOffsets);
@@ -161,16 +145,18 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
 }
 
 void RenderAdditiveLightQueue::destroy() {
-    for (auto &pair : _descriptorSetMap) {
+    for (auto &pair : _pipeline->getGlobalDSManager()->getDescriptorSetMap()) {
         auto *descriptorSet = pair.second;
-        descriptorSet->getBuffer(UBOShadow::BINDING)->destroy();
-        descriptorSet->getSampler(SHADOWMAP::BINDING)->destroy();
-        descriptorSet->getTexture(SHADOWMAP::BINDING)->destroy();
-        descriptorSet->getSampler(SPOTLIGHTINGMAP::BINDING)->destroy();
-        descriptorSet->getTexture(SPOTLIGHTINGMAP::BINDING)->destroy();
-        descriptorSet->destroy();
+        if (descriptorSet) {
+            descriptorSet->getBuffer(UBOShadow::BINDING)->destroy();
+            descriptorSet->getSampler(SHADOWMAP::BINDING)->destroy();
+            descriptorSet->getTexture(SHADOWMAP::BINDING)->destroy();
+            descriptorSet->getSampler(SPOTLIGHTINGMAP::BINDING)->destroy();
+            descriptorSet->getTexture(SPOTLIGHTINGMAP::BINDING)->destroy();
+            descriptorSet->destroy();
+        }
     }
-    _descriptorSetMap.clear();
+    _pipeline->getGlobalDSManager()->getDescriptorSetMap().clear();
 }
 
 void RenderAdditiveLightQueue::clear() {
@@ -194,7 +180,6 @@ void RenderAdditiveLightQueue::gatherValidLights(const scene::Camera *camera) {
         sphere.setRadius(light->getRange());
         if (sphere.sphereFrustum(camera->frustum)) {
             _validLights.emplace_back(static_cast<scene::Light *>(light));
-            getOrCreateDescriptorSet(light);
         }
     }
 
@@ -203,7 +188,6 @@ void RenderAdditiveLightQueue::gatherValidLights(const scene::Camera *camera) {
         sphere.setRadius(light->getRange());
         if (sphere.sphereFrustum(camera->frustum)) {
             _validLights.emplace_back(static_cast<scene::Light *>(light));
-            getOrCreateDescriptorSet(light);
         }
     }
 }
@@ -241,7 +225,7 @@ void RenderAdditiveLightQueue::addRenderQueue(const scene::Pass *pass, const sce
         lightPass.dynamicOffsets.resize(count);
         for (unsigned idx = 0; idx < count; idx++) {
             const auto lightIdx = _lightIndices[idx];
-            lightPass.lights.emplace_back(_validLights[lightIdx]);
+            lightPass.lights.emplace_back(lightIdx);
             lightPass.dynamicOffsets[idx] = _lightBufferStride * lightIdx;
         }
 
@@ -332,8 +316,9 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
     const auto          packing            = static_cast<bool>(shadowInfo->packing) ? 1.0F : (isTextureHalfFloat ? 0.0F : 1.0F);
     const scene::Light *mainLight          = scene->getMainLight();
 
-    for (const auto *light : _validLights) {
-        auto *descriptorSet = getOrCreateDescriptorSet(light);
+    for (uint i = 0; i < _validLights.size(); ++i) {
+        const auto * light  = _validLights[i];
+        auto *descriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(i);
         if (!descriptorSet) {
             continue;
         }
@@ -443,41 +428,6 @@ void RenderAdditiveLightQueue::lightCulling(const scene::Model *model) {
             _lightIndices.emplace_back(i);
         }
     }
-}
-
-gfx::DescriptorSet *RenderAdditiveLightQueue::getOrCreateDescriptorSet(const scene::Light *light) {
-    if (!_descriptorSetMap.count(light)) {
-        auto *              device        = gfx::Device::getInstance();
-        gfx::DescriptorSet *descriptorSet = device->createDescriptorSet({_pipeline->getDescriptorSetLayout()});
-
-        descriptorSet->bindBuffer(UBOGlobal::BINDING, _pipeline->getDescriptorSet()->getBuffer(UBOGlobal::BINDING));
-
-        descriptorSet->bindBuffer(UBOCamera::BINDING, _pipeline->getDescriptorSet()->getBuffer(UBOCamera::BINDING));
-
-        auto *shadowUBO = device->createBuffer({
-            gfx::BufferUsageBit::UNIFORM | gfx::BufferUsageBit::TRANSFER_DST,
-            gfx::MemoryUsageBit::HOST | gfx::MemoryUsageBit::DEVICE,
-            UBOShadow::SIZE,
-            UBOShadow::SIZE,
-            gfx::BufferFlagBit::NONE,
-        });
-        descriptorSet->bindBuffer(UBOShadow::BINDING, shadowUBO);
-
-        // Main light sampler binding
-        descriptorSet->bindSampler(SHADOWMAP::BINDING, _sampler);
-        descriptorSet->bindTexture(SHADOWMAP::BINDING, _pipeline->getDefaultTexture());
-        // Spot light sampler binding
-        descriptorSet->bindSampler(SPOTLIGHTINGMAP::BINDING, _sampler);
-        descriptorSet->bindTexture(SPOTLIGHTINGMAP::BINDING, _pipeline->getDefaultTexture());
-
-        descriptorSet->update();
-
-        _descriptorSetMap.emplace(map<const scene::Light *, gfx::DescriptorSet *>::value_type(light, descriptorSet));
-
-        return descriptorSet;
-    }
-
-    return _descriptorSetMap.at(light);
 }
 
 } // namespace pipeline

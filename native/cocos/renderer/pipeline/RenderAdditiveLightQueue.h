@@ -47,7 +47,7 @@ struct AdditiveLightPass {
     const scene::Pass *          pass     = nullptr;
     gfx::Shader *                shader   = nullptr;
     vector<uint>                 dynamicOffsets;
-    vector<const scene::Light *> lights;
+    vector<uint>                 lights;
 };
 
 class RenderAdditiveLightQueue : public Object {
@@ -72,7 +72,7 @@ private:
     void                lightCulling(const scene::Model *model);
     gfx::DescriptorSet *getOrCreateDescriptorSet(const scene::Light *light);
 
-    ForwardPipeline *                 _pipeline = nullptr;
+    RenderPipeline *                  _pipeline = nullptr;
     vector<vector<scene::SubModel *>> _sortedSubModelsArray;
     vector<vector<uint>>              _sortedPSOCIArray;
     vector<scene::Light *>            _validLights;
@@ -84,9 +84,7 @@ private:
     RenderBatchedQueue *              _batchedQueue         = nullptr;
     gfx::Buffer *                     _lightBuffer          = nullptr;
     gfx::Buffer *                     _firstLightBufferView = nullptr;
-    gfx::Sampler *                    _sampler              = nullptr;
 
-    std::unordered_map<const scene::Light *, gfx::DescriptorSet *> _descriptorSetMap{};
     std::array<float, UBOShadow::COUNT>                            _shadowUBO{};
 
     uint  _lightBufferStride       = 0;
