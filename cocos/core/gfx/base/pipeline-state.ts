@@ -50,7 +50,6 @@ import {
     Color,
     PipelineBindPoint,
 } from './define';
-import { NULL_HANDLE, RawBufferHandle } from '../../renderer/core/memory-pools';
 
 /**
  * @en GFX rasterizer state.
@@ -58,6 +57,10 @@ import { NULL_HANDLE, RawBufferHandle } from '../../renderer/core/memory-pools';
  */
 export class RasterizerState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    get native () {
+        return this;
+    }
 
     constructor (
         public isDiscard: boolean = false,
@@ -93,8 +96,6 @@ export class RasterizerState {
         Object.assign(this, rs);
     }
 
-    get handle (): RawBufferHandle { return NULL_HANDLE; }
-
     public destroy () {}
 }
 
@@ -105,6 +106,9 @@ export class RasterizerState {
 export class DepthStencilState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
+    get native () {
+        return this;
+    }
     constructor (
         public depthTest: boolean = true,
         public depthWrite: boolean = true,
@@ -153,8 +157,6 @@ export class DepthStencilState {
         Object.assign(this, dss);
     }
 
-    get handle (): RawBufferHandle { return NULL_HANDLE; }
-
     public destroy () {}
 }
 
@@ -191,8 +193,6 @@ export class BlendTarget {
         Object.assign(this, target);
     }
 
-    get handle (): RawBufferHandle { return NULL_HANDLE; }
-
     public destroy () {}
 }
 
@@ -202,6 +202,10 @@ export class BlendTarget {
  */
 export class BlendState {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    get native () {
+        return this;
+    }
 
     constructor (
         public isA2C: boolean = false,
@@ -236,8 +240,6 @@ export class BlendState {
         this.targets.length = 1;
         this.targets[0].reset();
     }
-
-    get handle (): RawBufferHandle { return NULL_HANDLE; }
 
     public destroy () {}
 }

@@ -33,14 +33,13 @@ import { Camera } from '../../renderer/scene';
 import { localDescriptorSetLayout, UBODeferredLight, SetIndex, UBOForwardLight } from '../define';
 import { getPhaseID } from '../pass-phase';
 import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo, BufferViewInfo, DescriptorSet, DescriptorSetLayoutInfo,
-    DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlags, ClearFlagBit } from '../../gfx';
+    DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
 import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
-import { ShaderPool } from '../../renderer/core/memory-pools';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { intersect, Sphere } from '../../geometry';
 import { Vec3, Vec4 } from '../../math';
@@ -278,10 +277,10 @@ export class LightingStage extends RenderStage {
         const builinDeferred = builtinResMgr.get<Material>('builtin-deferred-material');
         if (builinDeferred) {
             pass = builinDeferred.passes[0];
-            shader = ShaderPool.get(pass.getShaderVariant());
+            shader = pass.getShaderVariant()!;
         } else {
             pass = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX];
-            shader = ShaderPool.get(this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant());
+            shader = this._deferredMaterial!.passes[LIGHTINGPASS_INDEX].getShaderVariant()!;
         }
 
         const inputAssembler = pipeline.quadIAOffscreen;

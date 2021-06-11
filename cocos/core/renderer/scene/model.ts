@@ -29,7 +29,6 @@ import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
 import { AABB } from '../../geometry';
-import { Pool } from '../../memop';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
@@ -41,14 +40,11 @@ import { InstancedBuffer } from '../../pipeline/instanced-buffer';
 
 import { Mat4, Vec3, Vec4 } from '../../math';
 import { genSamplerHash, samplerLib } from '../core/sampler-lib';
-import { ShaderPool, SubModelPool, SubModelView, ModelHandle, SubModelArrayPool, ModelPool,
-    ModelView, AABBHandle, AABBPool, AABBView, NULL_HANDLE, AttributeArrayPool,
-    RawBufferPool, freeHandleArray, ObjectPool, PoolType } from '../core/memory-pools';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
-
-const AttrPool = new ObjectPool(PoolType.ATTRIBUTE, (_: never[], obj?: Attribute) => obj || new Attribute());
+import { NativeModel } from './native-scene';
+import { Pool } from '../../memop/pool';
 
 const m4_1 = new Mat4();
 
@@ -145,12 +141,8 @@ export class Model {
     set castShadow (val) {
         this._castShadow = val;
         if (JSB) {
-            ModelPool.set(this._handle, ModelView.CAST_SHADOW, val ? 1 : 0);
+            this._nativeObj!.setCastShadow(val);
         }
-    }
-
-    get handle () {
-        return this._handle;
     }
 
     get node () : Node {
@@ -159,7 +151,9 @@ export class Model {
 
     set node (n: Node) {
         this._node = n;
-        ModelPool.set(this._handle, ModelView.NODE, n.handle);
+        if (JSB) {
+            this._nativeObj!.setNode(n.native);
+        }
     }
 
     get transform () : Node {
@@ -168,7 +162,9 @@ export class Model {
 
     set transform (n: Node) {
         this._transform = n;
-        ModelPool.set(this._handle, ModelView.TRANSFORM, n.handle);
+        if (JSB) {
+            this._nativeObj!.setTransform(n.native);
+        }
     }
 
     get visFlags () : number {
@@ -178,7 +174,7 @@ export class Model {
     set visFlags (val: number) {
         this._visFlags = val;
         if (JSB) {
-            ModelPool.set(this._handle, ModelView.VIS_FLAGS, val);
+            this._nativeObj!.seVisFlag(val);
         }
     }
 
@@ -189,7 +185,7 @@ export class Model {
     set enabled (val: boolean) {
         this._enabled = val;
         if (JSB) {
-            ModelPool.set(this._handle, ModelView.ENABLED, val ? 1 : 0);
+            this._nativeObj!.setEnabled(val);
         }
     }
 
@@ -209,8 +205,6 @@ export class Model {
     protected _descriptorSetCount = 1;
     protected _updateStamp = -1;
     protected _transformUpdated = true;
-    protected _handle: ModelHandle = NULL_HANDLE;
-    protected _hWorldBounds: AABBHandle = NULL_HANDLE;
 
     protected _localData = new Float32Array(UBOLocal.COUNT);
     protected _localBuffer: Buffer | null = null;
@@ -222,6 +216,11 @@ export class Model {
     protected _castShadow = false;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
+    protected declare _nativeObj: NativeModel | null;
+
+    get native (): NativeModel {
+        return this._nativeObj!;
+    }
 
     /**
      * Setup a default empty model
@@ -233,16 +232,14 @@ export class Model {
     private _setReceiveShadow (val: boolean) {
         this._receiveShadow = val;
         if (JSB) {
-            ModelPool.set(this._handle, ModelView.RECEIVE_SHADOW, val ? 1 : 0);
+            this._nativeObj!.setReceiveShadow(val);
         }
     }
 
     private _init () {
-        this._handle = ModelPool.alloc();
-        const hSubModelArray = SubModelArrayPool.alloc();
-        const hInstancedAttrArray = AttributeArrayPool.alloc();
-        ModelPool.set(this._handle, ModelView.INSTANCED_ATTR_ARRAY, hInstancedAttrArray);
-        ModelPool.set(this._handle, ModelView.SUB_MODEL_ARRAY, hSubModelArray);
+        if (JSB) {
+            this._nativeObj = new NativeModel();
+        }
     }
 
     public initialize () {
@@ -259,31 +256,11 @@ export class Model {
 
     private _destroySubmodel (subModel: SubModel) {
         subModel.destroy();
-        if (JSB) {
-            _subModelPool.free(subModel);
-        }
     }
 
     private _destroy () {
         if (JSB) {
-            if (this._handle) {
-                const hSubModelArray = ModelPool.get(this._handle, ModelView.SUB_MODEL_ARRAY);
-                // don't free submodel handles here since they are just references
-                if (hSubModelArray) SubModelArrayPool.free(hSubModelArray);
-
-                const hOldBuffer = ModelPool.get(this._handle, ModelView.INSTANCED_BUFFER);
-                if (hOldBuffer) RawBufferPool.free(hOldBuffer);
-                const hAttrArray = ModelPool.get(this._handle, ModelView.INSTANCED_ATTR_ARRAY);
-                if (hAttrArray) freeHandleArray(hAttrArray, AttributeArrayPool, AttrPool);
-
-                ModelPool.free(this._handle);
-                this._handle = NULL_HANDLE;
-            }
-
-            if (this._hWorldBounds) {
-                AABBPool.free(this._hWorldBounds);
-                this._hWorldBounds = NULL_HANDLE;
-            }
+            this._nativeObj = null;
         }
     }
 
@@ -346,6 +323,18 @@ export class Model {
         }
     }
 
+    private _applyLocalData () {
+        if (JSB) {
+            // this._nativeObj!.setLocalData(this._localData);
+        }
+    }
+
+    private _applyLocalBuffer () {
+        if (JSB) {
+            this._nativeObj!.setLocalBuffer(this._localBuffer);
+        }
+    }
+
     public updateUBOs (stamp: number) {
         const subModels = this._subModels;
         for (let i = 0; i < subModels.length; i++) {
@@ -374,17 +363,14 @@ export class Model {
             }
             Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
             this._localBuffer.update(this._localData);
+            this._applyLocalData();
+            this._applyLocalBuffer();
         }
     }
 
-    private _updateNativeWorldBounds () {
+    protected _updateNativeWorldBounds () {
         if (JSB) {
-            if (this._hWorldBounds === NULL_HANDLE) {
-                this._hWorldBounds = AABBPool.alloc();
-                ModelPool.set(this._handle, ModelView.WORLD_BOUNDS, this._hWorldBounds);
-            }
-            AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, this._worldBounds!.center);
-            AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, this._worldBounds!.halfExtents);
+            this._nativeObj!.setWolrdBounds(this._worldBounds);
         }
     }
 
@@ -401,9 +387,6 @@ export class Model {
     }
 
     private _createSubModel () {
-        if (JSB) {
-            return _subModelPool.alloc();
-        }
         return new SubModel();
     }
 
@@ -426,8 +409,7 @@ export class Model {
 
         this._updateAttributesAndBinding(idx);
         if (isNewSubModel && JSB) {
-            const hSubModelArray = ModelPool.get(this._handle, ModelView.SUB_MODEL_ARRAY);
-            SubModelArrayPool.assign(hSubModelArray, idx, this._subModels[idx].handle);
+            this._nativeObj!.addSubModel(this._subModels[idx].native);
         }
     }
 
@@ -458,7 +440,7 @@ export class Model {
 
     public updateLightingmap (texture: Texture2D | null, uvParam: Vec4) {
         Vec4.toArray(this._localData, uvParam, UBOLocal.LIGHTINGMAP_UVPARAM);
-
+        this._applyLocalData();
         this._lightmap = texture;
         this._lightmapUVParam = uvParam;
 
@@ -492,7 +474,7 @@ export class Model {
         this._initLocalDescriptors(subModelIndex);
         this._updateLocalDescriptors(subModelIndex, subModel.descriptorSet);
 
-        const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0));
+        const shader = subModel.passes[0].getShaderVariant(subModel.patches)!;
         this._updateInstancedAttributes(shader.attributes, subModel.passes[0]);
     }
 
@@ -504,16 +486,19 @@ export class Model {
         return -1;
     }
 
+    private _setInstMatWorldIdx (idx: number) {
+        this._instMatWorldIdx = idx;
+        if (JSB) {
+            this._nativeObj!.setInstmatWorldIdx(idx);
+        }
+    }
+
     // sub-classes can override the following functions if needed
 
     // for now no submodel level instancing attributes
     protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
         if (!pass.device.hasFeature(Feature.INSTANCED_ARRAYS)) { return; }
         // free old data
-        const hOldBuffer = ModelPool.get(this._handle, ModelView.INSTANCED_BUFFER);
-        if (hOldBuffer) RawBufferPool.free(hOldBuffer);
-        const hAttrArray = ModelPool.get(this._handle, ModelView.INSTANCED_ATTR_ARRAY);
-        if (hAttrArray) freeHandleArray(hAttrArray, AttributeArrayPool, AttrPool, false);
 
         let size = 0;
         for (let j = 0; j < attributes.length; j++) {
@@ -521,33 +506,35 @@ export class Model {
             if (!attribute.isInstanced) { continue; }
             size += FormatInfos[attribute.format].size;
         }
-        const hBuffer = RawBufferPool.alloc(size);
-        const buffer = RawBufferPool.getBuffer(hBuffer);
-        ModelPool.set(this._handle, ModelView.INSTANCED_BUFFER, hBuffer);
 
         const attrs = this.instancedAttributes;
-        attrs.buffer = new Uint8Array(buffer);
+        attrs.buffer = new Uint8Array(size);
+        if (JSB) {
+            this._nativeObj!.setInstancedBuffer(attrs.buffer.buffer);
+        }
         attrs.views.length = attrs.attributes.length = 0;
         let offset = 0;
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
-            const hAttr = AttrPool.alloc();
-            const attr = AttrPool.get(hAttr);
+            const attr = attrs.attributes[j];
             attr.format = attribute.format;
             attr.name = attribute.name;
             attr.isNormalized = attribute.isNormalized;
             attr.location = attribute.location;
             attrs.attributes.push(attr);
-            AttributeArrayPool.push(hAttrArray, hAttr);
 
             const info = FormatInfos[attribute.format];
-            attrs.views.push(new (getTypedArrayConstructor(info))(buffer, offset, info.count));
+            attrs.views.push(new (getTypedArrayConstructor(info))(attrs.buffer, offset, info.count));
             offset += info.size;
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
-        this._instMatWorldIdx = this._getInstancedAttributeIndex(INST_MAT_WORLD);
+        this._setInstMatWorldIdx(this._getInstancedAttributeIndex(INST_MAT_WORLD));
         this._transformUpdated = true;
+
+        if (JSB) {
+            this._nativeObj!.setInstanceAttributes(attrs.attributes);
+        }
     }
 
     protected _initLocalDescriptors (subModelIndex: number) {
@@ -558,6 +545,7 @@ export class Model {
                 UBOLocal.SIZE,
                 UBOLocal.SIZE,
             ));
+            this._applyLocalBuffer();
         }
     }
 

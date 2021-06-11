@@ -2355,6 +2355,14 @@ cc.ParticleSystem: unknown image format with Data
 
 cc.ParticleSystem.initWithDictionary() : error loading the texture
 
+### 6033
+
+cc.ParticleSystem: not allowing create to be invoked twice with different particle system
+
+### 6034
+
+cc.ParticleSystem: shouldn't be initialized repetitively, otherwise there will be potential leak
+
 ### 6100
 
 <!-- DEPRECATED -->
@@ -3021,6 +3029,14 @@ The PrivateNode is deprecated, please use Node directly with CCObject.Flags.Dont
 ### 12004
 
 SubModel can only support %d passes.
+
+### 12005
+
+Material already initialized, request aborted.
+
+### 12006
+
+Pass already destroyed.
 
 ### 12100
 

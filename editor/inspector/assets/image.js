@@ -18,7 +18,7 @@ exports.template = `
         <ui-checkbox slot="content" class="isRGBE-checkbox"></ui-checkbox>
     </ui-prop>
 
-    <ui-section expand class="sub-panel-section">
+    <ui-section expand class="sub-panel-section" cache-expand="image-sub-panel-section">
         <ui-label class="sub-panel-name" slot="header"></ui-label>
         <ui-panel class="sub-panel"></ui-panel>
     </ui-section>

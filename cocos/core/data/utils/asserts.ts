@@ -44,3 +44,7 @@ export function assertIsTrue (expr: boolean, message?: string) {
         throw new Error(`Assertion failed: ${message ?? '<no-message>'}`);
     }
 }
+
+export function assertsArrayIndex<T> (array: T[], index: number) {
+    assertIsTrue(index >= 0 && index < array.length, `Array index ${index} out of bounds: [0, ${array.length})`);
+}

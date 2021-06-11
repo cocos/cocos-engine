@@ -18,6 +18,10 @@ exports.template = `
             <option value="60">60</option>
         </ui-select>
     </ui-prop>
+    <ui-prop>
+        <ui-label slot="label" value="i18n:ENGINE.assets.fbx.promoteSingleRootNode.name" tooltip="i18n:ENGINE.assets.fbx.promoteSingleRootNode.title"></ui-label>
+        <ui-checkbox slot="content" class="promoteSingleRootNode-checkbox"></ui-checkbox>
+    </ui-prop>
 </div>
 `;
 
@@ -38,6 +42,7 @@ exports.$ = {
     container: '.container',
     legacyFbxImporterCheckbox: '.legacyFbxImporter-checkbox',
     animationBakeRateSelect: '.animationBakeRate-select',
+    promoteSingleRootNodeCheckbox: '.promoteSingleRootNode-checkbox',
 };
 
 /**
@@ -72,6 +77,21 @@ const Elements = {
 
             panel.updateInvalid(panel.$.animationBakeRateSelect, 'animationBakeRate');
             panel.updateReadonly(panel.$.animationBakeRateSelect);
+        },
+    },
+    promoteSingleRootNode: {
+        ready() {
+            const panel = this;
+
+            panel.$.promoteSingleRootNodeCheckbox.addEventListener('change', panel.setProp.bind(panel, 'promoteSingleRootNode'));
+        },
+        update() {
+            const panel = this;
+
+            panel.$.promoteSingleRootNodeCheckbox.value = panel.getDefault(panel.meta.userData.promoteSingleRootNode, false);
+
+            panel.updateInvalid(panel.$.promoteSingleRootNodeCheckbox, 'promoteSingleRootNode');
+            panel.updateReadonly(panel.$.promoteSingleRootNodeCheckbox);
         },
     },
 };

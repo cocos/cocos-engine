@@ -7,8 +7,9 @@ import { IMouseJoint } from '../../spec/i-physics-joint';
 import { b2Joint } from './joint-2d';
 import { MouseJoint2D, PhysicsSystem2D, Joint2D } from '../../framework';
 import { PHYSICS_2D_PTM_RATIO } from '../../framework/physics-types';
-import { IVec2Like, systemEvent, SystemEventType, Touch, Vec2, find } from '../../../core';
+import { IVec2Like, Touch, Vec2, find } from '../../../core';
 import { b2PhysicsWorld } from '../physics-world';
+import { NodeEventType } from '../../../core/scene-graph/node-event';
 
 const tempB2Vec2 = new b2.Vec2();
 
@@ -54,10 +55,10 @@ export class b2MouseJoint extends b2Joint implements IMouseJoint {
 
         const canvas = find('Canvas');
         if (canvas) {
-            canvas.on(SystemEventType.TOUCH_START, this.onTouchBegan, this);
-            canvas.on(SystemEventType.TOUCH_MOVE, this.onTouchMove, this);
-            canvas.on(SystemEventType.TOUCH_END, this.onTouchEnd, this);
-            canvas.on(SystemEventType.TOUCH_CANCEL, this.onTouchEnd, this);
+            canvas.on(NodeEventType.TOUCH_START, this.onTouchBegan, this);
+            canvas.on(NodeEventType.TOUCH_MOVE, this.onTouchMove, this);
+            canvas.on(NodeEventType.TOUCH_END, this.onTouchEnd, this);
+            canvas.on(NodeEventType.TOUCH_CANCEL, this.onTouchEnd, this);
         }
     }
 

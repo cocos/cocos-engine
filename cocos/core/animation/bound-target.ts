@@ -87,8 +87,7 @@ export function createBoundTarget (target: any, modifiers: TargetPath[], valueAd
     }
 }
 
-export function createBufferedTarget (target: any, modifiers: TargetPath[], valueAdapter?: IValueProxyFactory): null | IBufferedTarget {
-    const boundTarget = createBoundTarget(target, modifiers, valueAdapter);
+export function createBufferedTarget (boundTarget: IBoundTarget): null | IBufferedTarget {
     if (boundTarget === null) {
         return null;
     }
