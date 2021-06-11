@@ -49,7 +49,7 @@ public class CocosEditBoxAbility extends AbilitySlice {
     private static final HiLogLabel LABEL = new HiLogLabel(HiLog.LOG_APP, 0, "CocosEditBoxAbility");
 
     private static WeakReference<CocosEditBoxAbility> sThis = null;
-    private CocosTextHelper mTextField = null;
+    private CocosTextHelper mTextFieldHelper = null;
     private Button mButton = null;
     private String mButtonTitle = null;
     private boolean mConfirmHold = true;
@@ -78,7 +78,7 @@ public class CocosEditBoxAbility extends AbilitySlice {
             };
             tf.setAdjustInputPanel(true);
 
-            mTextField = this;
+            mTextFieldHelper = this;
 
             mLayout = (ComponentContainer) findComponentById(ResourceTable.Id_editbox_container);
             mLayout.setLayoutRefreshedListener(new Component.LayoutRefreshedListener() {
@@ -275,9 +275,9 @@ public class CocosEditBoxAbility extends AbilitySlice {
      Private functions.
      **************************************************************************************/
     private void addItems() {
-        mTextField = new CocosTextHelper(getTextField());
+        mTextFieldHelper = new CocosTextHelper(getTextField());
+        getTextField().setBubbleSize(0, 0);
         mButton = (Button) findComponentById(ResourceTable.Id_editbox_enterBtn);
-
         mButton.setTouchEventListener(new Component.TouchEventListener() {
             @Override
             public boolean onTouchEvent(Component component, TouchEvent touchEvent) {
@@ -319,7 +319,7 @@ public class CocosEditBoxAbility extends AbilitySlice {
     public void show(String defaultValue, int maxLength, boolean isMultiline, boolean confirmHold, String confirmType, String inputType) {
         TextField tf = getTextField();
         mConfirmHold = confirmHold;
-        mTextField.show(defaultValue, maxLength, isMultiline, confirmHold, confirmType, inputType);
+        mTextFieldHelper.show(defaultValue, maxLength, isMultiline, confirmHold, confirmType, inputType);
         int editPaddingBottom = tf.getPaddingBottom();
         int editPadding = tf.getPaddingTop();
         tf.setPadding(editPadding, editPadding, editPadding, editPaddingBottom);

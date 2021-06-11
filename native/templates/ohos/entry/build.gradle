@@ -32,9 +32,9 @@ ohos {
         cppFlags "-std=c++14"
     }
 
-    // sourceSets.main {
-    //     java.srcDirs 'src/main/java', "${ENGINE_ROOT}/cocos/platform/ohos/java/src"
-    // }
+//     sourceSets.main {
+//         java.srcDirs 'src/main/java' //, "${ENGINE_ROOT}/cocos/platform/ohos/java/src"
+//     }
 
     // sync resource
     def resOutputDir ="${projectDir}/src/main/resources/rawfile"

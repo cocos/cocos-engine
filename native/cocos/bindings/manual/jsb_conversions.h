@@ -871,7 +871,7 @@ inline bool sevalue_to_native(const se::Value &from, std::string *to, se::Object
 ///// integers
 template <>
 inline bool sevalue_to_native(const se::Value &from, bool *to, se::Object *) {
-    *to = from.toBoolean();
+    *to = from.isNullOrUndefined() ? false : (from.isNumber() ? from.toNumber() != 0 : from.toBoolean());
     return true;
 }
 
