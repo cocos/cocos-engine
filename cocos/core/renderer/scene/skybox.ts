@@ -55,8 +55,8 @@ export class Skybox {
     }
 
     set enabled (val: boolean) {
-        if (val) this.activate(); else this._updatePipeline();
         SkyboxPool.set(this._handle, SkyboxView.ENABLE, val ? 1 : 0);
+        if (val) this.activate(); else this._updatePipeline();
     }
 
     /**
