@@ -13,7 +13,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
-        python-version: '2.7.18'
+        python-version: '3.x'
 
     - name: npm install
       run: |
@@ -24,11 +24,9 @@ jobs:
     - name: install vulkan-sdk
       run: |
         choco install vulkan-sdk
-    - name: pip install 
+    - name: pip install
       run: |
-        python -m easy_install pip
-        python -m pip install PyYAML
-        python -m pip install Cheetah
+        python -m pip install PyYAML Cheetah3
     - name: install android ndk
       shell: bash
       working-directory: ${{github.workspace}}
@@ -49,12 +47,12 @@ jobs:
         rm userconf.ini
     - name: gen simulator
       run: |
-        gulp gen-simulator-release 
+        gulp gen-simulator-release
     - name: check result
       run: |
          Get-ChildItem ./simulator/Debug -Name SimulatorApp-Win32.exe
          if(Test-Path ./simulator/Debug/SimulatorApp-Win32.exe) {exit 0} else {exit 1}
-        
+
   mac_gen_simulator:
     runs-on: macos-latest
 
@@ -62,7 +60,7 @@ jobs:
     - uses: actions/checkout@v2
     - uses: actions/setup-python@v2
       with:
-        python-version: '2.7.18'
+        python-version: '3.x'
 
     - name: npm install
       run: |
@@ -71,11 +69,9 @@ jobs:
     - name: download external libraries
       run: |
         node ./utils/download-deps.js
-    - name: pip install 
+    - name: pip install
       run: |
-        python -m easy_install pip
-        python -m pip install PyYAML
-        python -m pip install Cheetah
+        python -m pip install PyYAML Cheetah3
     - name: install android ndk
       shell: bash
       working-directory: ${{github.workspace}}

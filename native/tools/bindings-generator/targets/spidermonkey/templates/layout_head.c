@@ -6,7 +6,7 @@ $macro_judgement
 \#include "cocos/bindings/manual/jsb_global.h"
 #for header in $headers
     #set include_header = os.path.basename(header)
-    #if $replace_headers.has_key(include_header)
+    #if include_header in $replace_headers
 \#include "${replace_headers[include_header]}"
     #else
         #set relative = os.path.relpath(header, $search_path)

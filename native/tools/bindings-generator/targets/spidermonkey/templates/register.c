@@ -6,7 +6,7 @@
 #if $current_class.is_struct
 #set has_constructor = True
 ${current_class.generate_struct_constructor()}
-#elif $current_class.methods.has_key('constructor')
+#elif 'constructor' in $current_class.methods
 #set has_constructor = True
 #set constructor = $current_class.methods.constructor
 ${current_class.methods.constructor.generate_code($current_class)}

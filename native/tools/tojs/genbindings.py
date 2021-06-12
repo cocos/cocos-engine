@@ -1,16 +1,16 @@
 #!/usr/bin/python
 
 # This script is used to generate luabinding glue codes.
-# Android ndk version must be ndk-r9b.
+# Android ndk version must be ndk-r16 or greater.
 
 
-import sys
-import os, os.path
-import shutil
-import ConfigParser
-import subprocess
-import re
+import sys, os, shutil, subprocess, re
 from contextlib import contextmanager
+
+if sys.version_info.major >= 3:
+    import configparser
+else:
+    import ConfigParser as configparser
 
 defaultSections = [
     'cocos',
@@ -37,11 +37,11 @@ def _check_ndk_root_env():
     try:
         NDK_ROOT = os.environ['ANDROID_NDK_HOME']
     except Exception:
-        print "ANDROID_NDK_HOME not defined..."
+        print ("ANDROID_NDK_HOME not defined...")
         try:
             NDK_ROOT = os.environ['NDK_ROOT']
         except Exception:
-            print "NDK_ROOT not defined. Please define NDK_ROOT or ANDROID_NDK_HOME in your environment."
+            print ("NDK_ROOT not defined. Please define NDK_ROOT or ANDROID_NDK_HOME in your environment.")
             sys.exit(1)
 
     return NDK_ROOT
@@ -53,7 +53,7 @@ def _check_python_bin_env():
     try:
         PYTHON_BIN = os.environ['PYTHON_BIN']
     except Exception:
-        print "PYTHON_BIN not defined, use current python."
+        print ("PYTHON_BIN not defined, use current python.")
         PYTHON_BIN = sys.executable
 
     return PYTHON_BIN
@@ -78,12 +78,12 @@ def _run_cmd(command):
 
 def main():
     if len(sys.argv) == 2 and sys.argv[1] == '--help':
-        print 'python %s [SECTION]... | --cfg [config paths]\n' % (sys.argv[0])
-        print '    Generate JSB bindings for the specified sections or config file.\n'
-        print '    If nothing is specified, all built-in sections will be generated.\n'
-        print '    Built-in section list:'
+        print ('python %s [SECTION]... | --config [config paths]\n' % (sys.argv[0]))
+        print ('    Generate JSB bindings for the specified sections or config file.\n')
+        print ('    If nothing is specified, all built-in sections will be generated.\n')
+        print ('    Built-in section list:')
         for section in defaultSections:
-            print '        %s' % section
+            print ('        %s' % section)
         sys.exit(0)
 
     cur_platform= '??'
@@ -101,7 +101,7 @@ def main():
     elif 'linux' in platform:
         cur_platform = 'linux'
     else:
-        print 'Your platform is not supported!'
+        print ('Your platform is not supported!')
         sys.exit(1)
 
 
@@ -117,8 +117,8 @@ def main():
     elif os.path.isdir(x86_llvm_path):
         llvm_path = x86_llvm_path
     else:
-        print 'llvm toolchain not found!'
-        print 'path: %s or path: %s are not valid! ' % (x86_llvm_path, x64_llvm_path)
+        print ('llvm toolchain not found!')
+        print ('path: %s or path: %s are not valid! ' % (x86_llvm_path, x64_llvm_path))
         sys.exit(1)
 
     x86_gcc_toolchain_path = ""
@@ -133,15 +133,15 @@ def main():
     elif os.path.isdir(x86_gcc_toolchain_path):
         gcc_toolchain_path = x86_gcc_toolchain_path
     else:
-        print 'gcc toolchain not found!'
-        print 'path: %s or path: %s are not valid! ' % (x64_gcc_toolchain_path, x86_gcc_toolchain_path)
+        print ('gcc toolchain not found!')
+        print ('path: %s or path: %s are not valid! ' % (x64_gcc_toolchain_path, x86_gcc_toolchain_path))
         sys.exit(1)
 
     cocos_root = os.path.abspath(projectRoot)
     cxx_generator_root = os.path.abspath(os.path.join(projectRoot, 'tools/bindings-generator'))
 
     # save config to file
-    config = ConfigParser.ConfigParser()
+    config = configparser.ConfigParser()
     config.set('DEFAULT', 'androidndkdir', ndk_root)
     config.set('DEFAULT', 'clangllvmdir', llvm_path)
     config.set('DEFAULT', 'gcc_toolchain_dir', gcc_toolchain_path)
@@ -151,7 +151,7 @@ def main():
 
     conf_ini_file = os.path.abspath(os.path.join(os.path.dirname(__file__), 'userconf.ini'))
 
-    print 'generating userconf.ini...'
+    print ('generating userconf.ini...')
     with open(conf_ini_file, 'w') as configfile:
       config.write(configfile)
 
@@ -159,7 +159,7 @@ def main():
     # set proper environment variables
     if 'linux' in platform or platform == 'darwin':
         os.putenv('LD_LIBRARY_PATH', '%s/libclang' % cxx_generator_root)
-        print '%s/libclang' % cxx_generator_root
+        print ('%s/libclang' % cxx_generator_root)
     if platform == 'win32':
         path_env = os.environ['PATH']
         os.putenv('PATH', r'%s;%s\libclang;%s\tools\win32;' % (path_env, cxx_generator_root, cxx_generator_root))
@@ -176,7 +176,7 @@ def main():
             if directory is None: directory = os.path.dirname(cfg)
             if section is None: section = os.path.basename(cfg)[:-4]
             if filename is None: filename = 'jsb_%s_auto' % section
-            print '!!----------Generating bindings for %s----------!!' % (section)
+            print ('!!----------Generating bindings for %s----------!!' % (section))
             command = '%s -W ignore %s %s -s %s -t %s -o %s -n %s' % (python_bin, generator_py, cfg, section, target, directory, filename)
             # tasks.append(_run_cmd(command))
             _run_cmd(command).communicate()
@@ -192,15 +192,15 @@ def main():
         # for t in tasks:
         #     t.communicate()
 
-        print '----------------------------------------'
-        print 'Generating javascript bindings succeeds.'
-        print '----------------------------------------'
+        print ('----------------------------------------')
+        print ('Generating javascript bindings succeeds.')
+        print ('----------------------------------------')
 
     except Exception as e:
         if e.__class__.__name__ == 'CmdError':
-            print '-------------------------------------'
-            print 'Generating javascript bindings fails.'
-            print '-------------------------------------'
+            print ('-------------------------------------')
+            print ('Generating javascript bindings fails.')
+            print ('-------------------------------------')
             sys.exit(1)
         else:
             raise
