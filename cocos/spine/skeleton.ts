@@ -1594,14 +1594,16 @@ export class Skeleton extends Renderable2D {
             if (this._assembler && this._assembler.createData) {
                 this._assembler.createData(this);
                 this.markForUpdateRenderData();
+                this._colorDirty = true;
                 this._updateColor();
             }
         }
     }
 
-    protected _updateColor () {
-        // TODO
-    }
+    // run base class method
+    // protected _updateColor () {
+    //     // TODO
+    // }
 
     protected _updateSocketBindings () {
         if (!this._skeleton) return;
