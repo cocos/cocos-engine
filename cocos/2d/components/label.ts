@@ -746,7 +746,7 @@ export class Label extends Renderable2D {
             if (this._colorDirty) {
                 this.updateRenderData(false);
                 this._colorDirty = false;
-            } else if ((this._cacheAlpha !== this.node._uiProps.opacity) && this._renderFlag && this._assembler && this._assembler.updateColor) {
+            } else if ((this._cacheAlpha !== this.node._uiProps.opacity) && this._renderFlag && this._assembler && this._assembler.updateOpacity) {
                 this._assembler.updateOpacity(this);
                 this._cacheAlpha = this.node._uiProps.opacity;
             }
@@ -814,8 +814,9 @@ export class Label extends Renderable2D {
                 this._ttfSpriteFrame = new SpriteFrame();
                 this._assemblerData = this._assembler!.getAssemblerData();
                 const image = new ImageAsset(this._assemblerData!.canvas);
-                const tex = image._texture;
-                this._ttfSpriteFrame.texture = tex;
+                const texture = new Texture2D();
+                texture.image = image;
+                this._ttfSpriteFrame.texture = texture;
             }
 
             if (this.cacheMode !== CacheMode.CHAR) {

@@ -39,14 +39,17 @@
  * @extends Component
  */
 
-import { ccclass, help, menu, type } from 'cc.decorator';
+import { ccclass, executeInEditMode, help, menu, requireComponent, type } from 'cc.decorator';
 import { Component } from '../core/components';
 import { TiledLayer } from './tiled-layer';
 import { CCInteger, warn } from '../core';
+import { UITransform } from '../2d/framework';
 
 @ccclass('cc.TiledTile')
 @help('i18n:cc.TiledTile')
 @menu('TiledMap/TiledTile')
+@requireComponent(UITransform)
+@executeInEditMode
 export class TiledTile extends Component {
     _layer: TiledLayer | null = null;
 

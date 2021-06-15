@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2021-02-08T03:18:26.527Z"
+        "stamp": "2021-05-25T04:22:39.074Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -100,6 +100,8 @@
         "cc.GFXDispatchInfo",
         "cc.GFXDrawInfo",
         "cc.GFXDynamicStateFlagBit",
+        "cc.GFXDynamicStates",
+        "cc.GFXDynamicStencilStates",
         "cc.GFXExtent",
         "cc.GFXFeature",
         "cc.GFXFilter",

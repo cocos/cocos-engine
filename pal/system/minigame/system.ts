@@ -133,7 +133,31 @@ class System {
         return minigame.orientation;
     }
     public getSafeAreaEdge (): SafeAreaEdge {
-        throw new Error('TODO');
+        const minigameSafeArea = minigame.getSafeArea();
+        const viewSize = this.getViewSize();
+        let topEdge = minigameSafeArea.top;
+        let bottomEdge = viewSize.height - minigameSafeArea.bottom;
+        let leftEdge = minigameSafeArea.left;
+        let rightEdge = viewSize.width - minigameSafeArea.right;
+        const orientation = this.getOrientation();
+        // Make it symmetrical.
+        if (orientation === Orientation.PORTRAIT) {
+            if (topEdge < bottomEdge) {
+                topEdge = bottomEdge;
+            } else {
+                bottomEdge = topEdge;
+            }
+        } else if (leftEdge < rightEdge) {
+            leftEdge = rightEdge;
+        } else {
+            rightEdge = leftEdge;
+        }
+        return {
+            top: topEdge,
+            bottom: bottomEdge,
+            left: leftEdge,
+            right: rightEdge,
+        };
     }
     public getBatteryLevel (): number {
         return minigame.getBatteryInfoSync().level / 100;
@@ -159,11 +183,18 @@ class System {
         }
     }
 
+    public close () {
+        // TODO: minigame.exitMiniProgram() not implemented.
+    }
+
     public onHide (cb: () => void) {
         this._eventTarget.on(AppEvent.HIDE, cb);
     }
     public onShow (cb: () => void) {
         this._eventTarget.on(AppEvent.SHOW, cb);
+    }
+    public onClose (cb: () => void) {
+        this._eventTarget.on(AppEvent.CLOSE, cb);
     }
     public onViewResize (cb: () => void) {
         this._eventTarget.on(AppEvent.RESIZE, cb);
@@ -177,6 +208,9 @@ class System {
     }
     public offShow (cb?: () => void) {
         this._eventTarget.off(AppEvent.SHOW, cb);
+    }
+    public offClose (cb?: () => void) {
+        this._eventTarget.off(AppEvent.CLOSE, cb);
     }
     public offViewResize (cb?: () => void) {
         this._eventTarget.off(AppEvent.RESIZE, cb);

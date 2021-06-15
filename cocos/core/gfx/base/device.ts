@@ -123,22 +123,6 @@ export abstract class Device {
     }
 
     /**
-     * @en Device native width.
-     * @zh 设备原生的像素宽度。
-     */
-    get nativeWidth (): number {
-        return this._nativeWidth;
-    }
-
-    /**
-     * @en Device native height.
-     * @zh 设备原生的像素高度。
-     */
-    get nativeHeight (): number {
-        return this._nativeHeight;
-    }
-
-    /**
      * @en Renderer description.
      * @zh 渲染器描述。
      */
@@ -232,8 +216,6 @@ export abstract class Device {
     protected _devicePixelRatio = 1.0;
     protected _width = 0;
     protected _height = 0;
-    protected _nativeWidth = 0;
-    protected _nativeHeight = 0;
     protected _colorFmt = Format.UNKNOWN;
     protected _depthStencilFmt = Format.UNKNOWN;
     protected _numDrawCalls = 0;

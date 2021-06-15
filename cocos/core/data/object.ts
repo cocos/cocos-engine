@@ -33,6 +33,7 @@ import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
+import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
 
 // definitions for CCObject.Flags
 
@@ -168,7 +169,7 @@ function compileDestruct (obj, ctor) {
  * 大部分对象的基类。
  * @private
  */
-class CCObject {
+class CCObject implements EditorExtendableObject {
     public static _deferredDestroy () {
         const deleteCount = objectsToDestroy.length;
         for (let i = 0; i < deleteCount; ++i) {
@@ -189,6 +190,8 @@ class CCObject {
             deferredDestroyTimer = null;
         }
     }
+
+    public declare [editorExtrasTag]: unknown;
 
     public _objFlags: number;
     protected _name: string;
@@ -441,7 +444,8 @@ prototype._deserialize = null;
 // @ts-expect-error
 prototype._onPreDestroy = null;
 
-CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0 });
+CCClass.fastDefine('cc.Object', CCObject, { _name: '', _objFlags: 0, [editorExtrasTag]: {} });
+CCClass.Attr.setClassAttr(CCObject, editorExtrasTag, 'editorOnly', true);
 
 /**
  * Bit mask that controls object states.

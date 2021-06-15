@@ -55,7 +55,7 @@ export function selectJointsMediumFormat (device: Device): Format {
 }
 
 // Linear Blending Skinning
-function uploadJointDataLBS (out: Float32Array, base: number, mat: Mat4, firstBone: boolean) {
+function uploadJointDataLBS (out: Float32Array, base: number, mat: Readonly<Mat4>, firstBone: boolean) {
     out[base + 0] = mat.m00;
     out[base + 1] = mat.m01;
     out[base + 2] = mat.m02;

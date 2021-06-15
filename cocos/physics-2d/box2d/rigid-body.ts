@@ -13,6 +13,7 @@ import { PHYSICS_2D_PTM_RATIO, ERigidBody2DType } from '../framework/physics-typ
 
 import { Node } from '../../core/scene-graph/node';
 import { Collider2D } from '../framework';
+import { NodeEventType } from '../../core/scene-graph/node-event';
 
 const tempVec3 = new Vec3();
 
@@ -64,12 +65,12 @@ export class b2RigidBody2D implements IRigidBody2D {
 
     _registerNodeEvents () {
         const node = this.rigidBody.node;
-        node.on(Node.EventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
+        node.on(NodeEventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
     }
 
     _unregisterNodeEvents () {
         const node = this.rigidBody.node;
-        node.off(Node.EventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
+        node.off(NodeEventType.TRANSFORM_CHANGED, this._onNodeTransformChanged, this);
     }
 
     _onNodeTransformChanged (type) {

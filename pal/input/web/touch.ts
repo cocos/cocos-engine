@@ -1,10 +1,10 @@
 import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
 import { system } from 'pal/system';
-import { DEBUG } from 'internal:constants';
+import { TEST } from 'internal:constants';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
+import { TouchEvent } from '../../../cocos/core/platform/event-manager/event-enum';
 
 export class TouchInputSource {
     public support: boolean;
@@ -12,10 +12,10 @@ export class TouchInputSource {
     private _eventTarget: EventTarget = new EventTarget();
 
     constructor () {
-        this.support = system.isMobile;
+        this.support = (document.documentElement.ontouchstart !== undefined || document.ontouchstart !== undefined || navigator.msPointerEnabled);
         if (this.support) {
             this._canvas = document.getElementById('GameCanvas') as HTMLCanvasElement;
-            if (!this._canvas && DEBUG) {
+            if (!this._canvas && !TEST) {
                 console.warn('failed to access canvas');
             }
             this._registerEvent();
@@ -24,14 +24,14 @@ export class TouchInputSource {
 
     private _registerEvent () {
         // IDEA: need to register on window ?
-        this._canvas?.addEventListener('touchstart', this._createCallback(SystemEventType.TOUCH_START));
-        this._canvas?.addEventListener('touchmove', this._createCallback(SystemEventType.TOUCH_MOVE));
-        this._canvas?.addEventListener('touchend', this._createCallback(SystemEventType.TOUCH_END));
-        this._canvas?.addEventListener('touchcancel', this._createCallback(SystemEventType.TOUCH_CANCEL));
+        this._canvas?.addEventListener('touchstart', this._createCallback(TouchEvent.TOUCH_START));
+        this._canvas?.addEventListener('touchmove', this._createCallback(TouchEvent.TOUCH_MOVE));
+        this._canvas?.addEventListener('touchend', this._createCallback(TouchEvent.TOUCH_END));
+        this._canvas?.addEventListener('touchcancel', this._createCallback(TouchEvent.TOUCH_CANCEL));
     }
 
-    private _createCallback (eventType: string) {
-        return (event: TouchEvent) => {
+    private _createCallback (eventType: TouchEvent) {
+        return (event: any) => {
             const canvasRect = this._getCanvasRect();
             const touchDataList: TouchData[] = [];
             const length = event.changedTouches.length;
@@ -85,15 +85,15 @@ export class TouchInputSource {
     }
 
     public onStart (cb: TouchCallback) {
-        this._eventTarget.on(SystemEventType.TOUCH_START, cb);
+        this._eventTarget.on(TouchEvent.TOUCH_START, cb);
     }
     public onMove (cb: TouchCallback) {
-        this._eventTarget.on(SystemEventType.TOUCH_MOVE, cb);
+        this._eventTarget.on(TouchEvent.TOUCH_MOVE, cb);
     }
     public onEnd (cb: TouchCallback) {
-        this._eventTarget.on(SystemEventType.TOUCH_END, cb);
+        this._eventTarget.on(TouchEvent.TOUCH_END, cb);
     }
     public onCancel (cb: TouchCallback) {
-        this._eventTarget.on(SystemEventType.TOUCH_CANCEL, cb);
+        this._eventTarget.on(TouchEvent.TOUCH_CANCEL, cb);
     }
 }

@@ -38,6 +38,10 @@ declare module 'pal/system' {
 
         public getViewSize (): import('cocos/core/math').Size;
         public getOrientation (): import('pal/system/enum-type').Orientation;
+        /**
+         * Get the SafeAreaEdge based on the screen coordinate system.
+         * @return {SafeAreaEdge} An interface displaying the distance of the sides 'top', 'bottom', 'left' and 'right'.
+         */
         public getSafeAreaEdge (): SafeAreaEdge;
         public getBatteryLevel (): number;
 
@@ -46,13 +50,17 @@ declare module 'pal/system' {
         public now (): number;
         public restartJSVM (): void;
 
+        public close ();
+
         public onHide (cb: () => void);
         public onShow (cb: () => void);
+        public onClose (cb: () => void);
         public onViewResize (cb: () => void);
         public onOrientationChange (cb: () => void);
 
         public offHide (cb?: () => void);
         public offShow (cb?: () => void);
+        public offClose (cb?: () => void);
         public offViewResize (cb?: () => void);
         public offOrientationChange (cb?: () => void);
 
@@ -62,9 +70,9 @@ declare module 'pal/system' {
     export const system: System;
 
     export interface SafeAreaEdge {
-        left: number;
-        right: number;
         top: number;
         bottom: number;
+        left: number;
+        right: number;
     }
 }

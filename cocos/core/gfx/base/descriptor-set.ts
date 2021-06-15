@@ -79,8 +79,6 @@ export abstract class DescriptorSet extends Obj {
                 this._buffers[descriptorIndex + index] = buffer;
                 this._isDirty = true;
             }
-        } else {
-            console.warn('Setting binding is not DescriptorType.UNIFORM_BUFFER.');
         }
     }
 
@@ -99,8 +97,6 @@ export abstract class DescriptorSet extends Obj {
                 this._samplers[descriptorIndex + index] = sampler;
                 this._isDirty = true;
             }
-        } else {
-            console.warn('Setting binding is not DescriptorType.SAMPLER.');
         }
     }
 
@@ -119,8 +115,6 @@ export abstract class DescriptorSet extends Obj {
                 this._textures[descriptorIndex + index] = texture;
                 this._isDirty = true;
             }
-        } else {
-            console.warn('Setting binding is not DescriptorType.SAMPLER.');
         }
     }
 
