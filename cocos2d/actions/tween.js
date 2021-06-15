@@ -632,10 +632,7 @@ let previousAsInputActions = {
      * @return {Tween}
      * @typescript repeatForever(action?: Action|Tween<T>): Tween<T>
      */
-    repeatForever: function (action) {
-        // TODO: fixed with cc.repeatForever
-        return cc.repeat(action, 10e8);
-    },
+    repeatForever: cc.repeatForever,
     /**
      * !#en
      * Add an reverse time action. This action will integrate before actions to a sequence action as their parameters.

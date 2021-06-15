@@ -627,6 +627,11 @@ cc.repeat = function (action, times) {
 };
 
 
+cc.repeatForever = function (action) {
+    return new cc.RepeatForever(action);
+}
+
+
 /*
  * Repeats an action for ever.  <br/>
  * To repeat the an action for a limited number of times use the Repeat action. <br/>
