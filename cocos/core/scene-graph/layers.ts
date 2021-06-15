@@ -135,7 +135,7 @@ export class Layers {
   /**
    * @en Given a layer name, returns the layer index as defined by either a Builtin or a User Layer in the Tags and Layers manager.
    * @zh 给定层名称，返回由标记和层管理器中的内置层或用户层定义的层索引。
-   * @param layer Name's layer
+   * @param name layer's name
    */
   public static nameToLayer (name: string): number {
       if (name === undefined) {
@@ -149,7 +149,7 @@ export class Layers {
   /**
    * @en Given a layer number, returns the name of the layer as defined in either a Builtin or a User Layer in the Tags and Layers manager.
    * @zh 给定层数，返回在标记和层管理器中的内置层或用户层中定义的层名称。
-   * @param name Layer's name
+   * @param bitNum layer's value
    */
   public static layerToName (bitNum: number): string {
       if (bitNum > 31 || bitNum < 0) {
