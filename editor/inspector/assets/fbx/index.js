@@ -18,6 +18,7 @@ exports.style = `
     flex: 1;
     flex-direction: column;
     padding-top: 5px;
+    overflow: hidden;
 }
 
 .asset-fbx > .header {
