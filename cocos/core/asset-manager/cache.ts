@@ -37,8 +37,8 @@ import { js } from '../utils/js';
  *
  */
 export default class Cache<T = any> {
-    private _map: Record<string, T> | null = null;
-    private _count = 0;
+    protected _map: Record<string, T> | null = null;
+    protected _count = 0;
 
     /**
      * @en
@@ -98,7 +98,7 @@ export default class Cache<T = any> {
      * let test = cache.get('test');
      *
      */
-    public get (key: string): T | undefined {
+    public get (key: string): T | undefined | null {
         return this._map![key];
     }
 
@@ -136,7 +136,7 @@ export default class Cache<T = any> {
      * var content = cache.remove('test');
      *
      */
-    public remove (key: string): T | undefined {
+    public remove (key: string): T | undefined | null {
         const out = this._map![key];
         if (key in this._map!) {
             delete this._map![key];

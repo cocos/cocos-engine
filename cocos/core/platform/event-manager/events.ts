@@ -34,6 +34,7 @@ import { Vec2 } from '../../math/vec2';
 import { Touch } from './touch';
 import { Acceleration } from './acceleration';
 import { legacyCC } from '../../global-exports';
+import { DeviceEvent, KeyboardEvent, SystemEventTypeUnion } from './event-enum';
 
 const _vec2 = new Vec2();
 
@@ -108,11 +109,16 @@ export class EventMouse extends Event {
      */
     public movementY = 0;
 
+    private _eventType: SystemEventTypeUnion;
     /**
-     * @en The type of the event, possible values are UP, DOWN, MOVE, SCROLL
-     * @zh 鼠标事件类型，可以是 UP, DOWN, MOVE, CANCELED。
+     * @en The type of the event
+     * @zh 鼠标事件类型
+     *
+     * @deprecated since v3.3, please use EventMouse.prototype.type instead.
      */
-    public eventType: string;
+    public get eventType () {
+        return this._eventType;
+    }
 
     private _button: number = EventMouse.BUTTON_MISSING;
 
@@ -129,12 +135,12 @@ export class EventMouse extends Event {
     private _scrollY = 0;
 
     /**
-     * @param eventType - The type of the event, possible values are UP, DOWN, MOVE, SCROLL
+     * @param eventType - The type of the event
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
-    constructor (eventType: string, bubbles?: boolean, prevLoc?: Vec2) {
-        super(Event.MOUSE, bubbles);
-        this.eventType = eventType;
+    constructor (eventType: SystemEventTypeUnion, bubbles?: boolean, prevLoc?: Vec2) {
+        super(eventType, bubbles);
+        this._eventType = eventType;
         if (prevLoc) {
             this._prevX = prevLoc.x;
             this._prevY = prevLoc.y;
@@ -388,7 +394,7 @@ export class EventTouch extends Event {
      */
     public simulate = false;
 
-    private _eventCode: string;
+    private _eventCode: SystemEventTypeUnion;  // deprecated since v3.3
 
     private _touches: Touch[];
 
@@ -397,18 +403,20 @@ export class EventTouch extends Event {
     /**
      * @param touches - An array of current touches
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
-     * @param eventCode - The type code of the touch event
+     * @param eventType - The type of the event
      */
-    constructor (changedTouches?: Touch[], bubbles?: boolean, eventCode?: string, touches?: Touch[]) {
-        super(Event.TOUCH, bubbles);
-        this._eventCode = eventCode || '';
+    constructor (changedTouches: Touch[], bubbles: boolean, eventType: SystemEventTypeUnion, touches: Touch[] = []) {
+        super(eventType, bubbles);
+        this._eventCode = eventType;
         this._touches = changedTouches || [];
-        this._allTouches = touches || [];
+        this._allTouches = touches;
     }
 
     /**
      * @en Returns event type code.
      * @zh 获取触摸事件类型。
+     *
+     * @deprecated since v3.3, please use EventTouch.prototype.type instead.
      */
     public getEventCode () {
         return this._eventCode;
@@ -576,7 +584,7 @@ export class EventAcceleration extends Event {
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
     constructor (acc: Acceleration, bubbles?: boolean) {
-        super(Event.ACCELERATION, bubbles);
+        super(DeviceEvent.DEVICEMOTION, bubbles);
         this.acc = acc;
     }
 }
@@ -602,29 +610,48 @@ export class EventKeyboard extends Event {
     /**
      * @en Raw DOM KeyboardEvent.
      * @zh 原始 DOM KeyboardEvent 事件对象
+     *
+     * @deprecated since v3.3, can't access rawEvent anymore
      */
     public rawEvent?: KeyboardEvent;
 
+    private _isPressed: boolean;
     /**
      * @en Indicates whether the current key is being pressed
      * @zh 表示当前按键是否正在被按下
+     *
+     * @deprecated since v3.3, please use Event.prototype.type !== SystemEvent.KeyboardEvent.KEY_UP instead
      */
-    public isPressed: boolean;
+    public get isPressed () {
+        return this._isPressed;
+    }
 
     /**
      * @param keyCode - The key code of the current key or the DOM KeyboardEvent
-     * @param isPressed - Indicates whether the current key is being pressed
+     * @param isPressed - Indicates whether the current key is being pressed, this is the DEPRECATED parameter.
      * @param bubbles - Indicates whether the event bubbles up through the hierarchy or not.
      */
-    constructor (keyCode: number | KeyboardEvent, isPressed: boolean, bubbles?: boolean) {
-        super(Event.KEYBOARD, bubbles);
+    constructor (keyCode: number | KeyboardEvent, isPressed: boolean, bubbles?: boolean);
+    /**
+     * @param keyCode - The key code of the current key or the DOM KeyboardEvent
+     * @param eventType - The type of the event
+     * @param bubbles - Indicates whether the event bubbles up through the hierarchy or not.
+     */
+    constructor (keyCode: number | KeyboardEvent, eventType: SystemEventTypeUnion, bubbles?: boolean);
+    constructor (keyCode: any, eventType: SystemEventTypeUnion | boolean, bubbles?: boolean) {
+        if (typeof eventType === 'boolean') {
+            const isPressed = eventType;
+            eventType = isPressed ? 'keydown' : KeyboardEvent.KEY_UP;
+        }
+        super(eventType, bubbles);
+        this._isPressed = eventType !== KeyboardEvent.KEY_UP;
+
         if (typeof keyCode === 'number') {
             this.keyCode = keyCode;
         } else {
             this.keyCode = keyCode.keyCode;
             this.rawEvent = keyCode;
         }
-        this.isPressed = isPressed;
     }
 }
 

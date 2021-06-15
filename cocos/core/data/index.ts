@@ -42,3 +42,4 @@ export { CCInteger, CCFloat, CCBoolean, CCString } from './utils/attribute';
 export { CompactValueTypeArray } from './utils/compact-value-type-array';
 export * from './gc-object';
 export * from './garbage-collection';
+export { editorExtrasTag } from './editor-extras-tag';

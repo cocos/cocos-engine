@@ -37,6 +37,11 @@ import { AudioClip } from './audio-clip';
 import { audioManager } from './audio-manager';
 import { referenced } from '../core/data/garbage-collection';
 
+enum AudioSourceEventType {
+    STARTED = 'started',
+    ENDED = 'ended',
+}
+
 /**
  * @en
  * A representation of a single audio source, <br>
@@ -52,6 +57,8 @@ export class AudioSource extends Component {
         return AudioPlayer.maxAudioChannel;
     }
     public static AudioState = AudioState;
+
+    public static EventType = AudioSourceEventType;
 
     @referenced
     @type(AudioClip)
@@ -121,6 +128,7 @@ export class AudioSource extends Component {
             this._player = player;
             player.onEnded(() => {
                 audioManager.removePlaying(player);
+                this.node.emit(AudioSourceEventType.ENDED, this);
             });
             player.onInterruptionBegin(() => {
                 audioManager.removePlaying(player);
@@ -231,6 +239,7 @@ export class AudioSource extends Component {
         }
         this._player?.play().then(() => {
             audioManager.addPlaying(this._player!);
+            this.node.emit(AudioSourceEventType.STARTED, this);
         }).catch((e) => {});
     }
 

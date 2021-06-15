@@ -112,7 +112,7 @@ export function error (message?: any, ...optionalParams: any[]) {
  * @param optionalParams - JavaScript objects with which to replace substitution strings within msg.
  * This gives you additional control over the format of the output.
  */
-export function assert (value: any, message?: string, ...optionalParams: any[]) {
+export function assert (value: any, message?: string, ...optionalParams: any[]): asserts value {
     return ccAssert(value, message, ...optionalParams);
 }
 

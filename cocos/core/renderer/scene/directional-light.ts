@@ -23,20 +23,24 @@
  THE SOFTWARE.
  */
 
-import { Vec3, Vec4 } from '../../math';
+import { JSB } from 'internal:constants';
+import { Vec3 } from '../../math';
 import { Ambient } from './ambient';
 import { Light, LightType } from './light';
-import { LightPool, LightView } from '../core/memory-pools';
+import { NativeDirectionalLight } from './native-scene';
 
 const _forward = new Vec3(0, 0, -1);
 const _v3 = new Vec3();
 
 export class DirectionalLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
+    protected _illuminance: number = Ambient.SUN_ILLUM;
 
     set direction (dir: Vec3) {
         Vec3.normalize(this._dir, dir);
-        LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setDirection(dir);
+        }
     }
 
     get direction (): Vec3 {
@@ -45,22 +49,26 @@ export class DirectionalLight extends Light {
 
     // in Lux(lx)
     set illuminance (illum: number) {
-        LightPool.set(this._handle, LightView.ILLUMINANCE, illum);
+        this._illuminance = illum;
+        if (JSB) {
+            (this._nativeObj as NativeDirectionalLight).setIlluminance(illum);
+        }
     }
 
     get illuminance (): number {
-        return LightPool.get(this._handle, LightView.ILLUMINANCE);
+        return this._illuminance;
     }
 
     constructor () {
         super();
+        this._type = LightType.DIRECTIONAL;
     }
 
     public initialize () {
         super.initialize();
-        LightPool.set(this._handle, LightView.ILLUMINANCE, Ambient.SUN_ILLUM);
-        LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
-        LightPool.set(this._handle, LightView.TYPE, LightType.DIRECTIONAL);
+
+        this.illuminance = Ambient.SUN_ILLUM;
+        this.direction = new Vec3(1.0, -1.0, -1.0);
     }
 
     public update () {

@@ -40,7 +40,6 @@ import { Node } from '../../core/scene-graph/node';
 import { ModelType } from '../../core/renderer/scene/model';
 import { uploadJointData } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
-import { AABBPool, AABBView } from '../../core/renderer/core/memory-pools';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
 import { IMacroPatch } from '../../core/renderer';
 
@@ -155,8 +154,7 @@ export class SkinningModel extends MorphModel {
             AABB.fromPoints(this._modelBounds, v3_min, v3_max);
             // @ts-expect-error TS2445
             this._modelBounds.transform(root._mat, root._pos, root._rot, root._scale, this._worldBounds);
-            AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
-            AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
+            this._updateNativeWorldBounds();
         }
     }
 

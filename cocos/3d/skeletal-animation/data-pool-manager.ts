@@ -43,8 +43,8 @@ export class DataPoolManager {
         this.jointAnimationInfo = new JointAnimationInfo(device);
     }
 
-    public releaseSkeleton (skeleton: Skeleton) {
-        this.jointTexturePool.releaseSkeleton(skeleton);
+    public releaseSkeleton (skeletonHash: number) {
+        this.jointTexturePool.releaseSkeleton(skeletonHash);
     }
 
     public releaseAnimationClip (clip: AnimationClip) {

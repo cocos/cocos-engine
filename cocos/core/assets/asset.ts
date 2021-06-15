@@ -38,6 +38,7 @@ import { GCObject } from '../data/gc-object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { extname } from '../utils/path';
+import { finalizationManager } from './finalization-manager';
 
 /**
  * @en
@@ -163,6 +164,11 @@ export class Asset extends Eventify(GCObject) {
                 value: false,
                 writable: true,
             });
+        }
+        if (EDITOR) {
+            const proxy = new Proxy(this, {});
+            finalizationManager.register(proxy, this);
+            return proxy;
         }
     }
 

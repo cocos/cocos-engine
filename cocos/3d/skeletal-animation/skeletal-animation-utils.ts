@@ -55,7 +55,7 @@ export function selectJointsMediumFormat (device: Device): Format {
 }
 
 // Linear Blending Skinning
-function uploadJointDataLBS (out: Float32Array, base: number, mat: Mat4, firstBone: boolean) {
+function uploadJointDataLBS (out: Float32Array, base: number, mat: Readonly<Mat4>, firstBone: boolean) {
     out[base + 0] = mat.m00;
     out[base + 1] = mat.m01;
     out[base + 2] = mat.m02;
@@ -351,12 +351,12 @@ export class JointTexturePool {
         }
     }
 
-    public releaseSkeleton (skeleton: Skeleton) {
+    public releaseSkeleton (skeletonHash: number) {
         const it = this._textureBuffers.values();
         let res = it.next();
         while (!res.done) {
             const handle = res.value;
-            if (handle.skeletonHash === skeleton.hash) {
+            if (handle.skeletonHash === skeletonHash) {
                 handle.readyToBeDeleted = true;
                 if (handle.refCount) {
                     // delete handle record immediately so new allocations with the same asset could work

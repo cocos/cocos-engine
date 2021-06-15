@@ -139,6 +139,14 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                 missingAsset = true;
             } else {
                 depend.owner[depend.prop] = dependAsset;
+                if (EDITOR) {
+                    let reference = references!.get(dependAsset);
+                    if (!reference || isScene(asset)) {
+                        reference = [];
+                        references!.add(depend.uuid, reference);
+                    }
+                    reference.push([new WeakRef(asset), new WeakRef(depend.owner), depend.prop]);
+                }
             }
         }
 

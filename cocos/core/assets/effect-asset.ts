@@ -39,6 +39,7 @@ import { MacroRecord } from '../renderer/core/pass-utils';
 import { programLib } from '../renderer/core/program-lib';
 import { Asset } from './asset';
 import { legacyCC } from '../global-exports';
+import { finalizationManager } from './finalization-manager';
 
 export interface IPropertyInfo {
     type: number; // auto-extracted from shader

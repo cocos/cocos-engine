@@ -154,7 +154,7 @@ export class SkeletalAnimationState extends AnimationState {
                 } else if (downstream) { // fallback to default pose if no animation curve can be found upstream
                     mat = downstream;
                 } else { // bottom line: render the original mesh as-is
-                    mat = Mat4.IDENTITY;
+                    mat = new Mat4();
                 }
                 const tfm = { pos: new Vec3(), rot: new Quat(), scale: new Vec3() };
                 Mat4.toRTS(mat, tfm.rot, tfm.pos, tfm.scale);

@@ -43,8 +43,6 @@ import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from '../skel
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
 
-import { AABBPool, AABBView } from '../../core/renderer/core/memory-pools';
-
 interface IJointsInfo {
     buffer: Buffer | null;
     jointTextureInfo: Float32Array;
@@ -121,8 +119,6 @@ export class BakedSkinningModel extends MorphModel {
             const node = this.transform;
             // @ts-expect-error TS2339
             skelBound.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
-            AABBPool.setVec3(this._hWorldBounds, AABBView.CENTER, worldBounds.center);
-            AABBPool.setVec3(this._hWorldBounds, AABBView.HALF_EXTENSION, worldBounds.halfExtents);
         }
     }
 

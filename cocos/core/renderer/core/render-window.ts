@@ -22,13 +22,13 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-
+import { JSB } from 'internal:constants';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo } from '../../gfx';
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo,
+} from '../../gfx';
 import { Root } from '../../root';
-import { RenderWindowHandle, RenderWindowPool, RenderWindowView, FramebufferPool, NULL_HANDLE } from './memory-pools';
-import { Camera } from '../scene';
+import { Camera, NativeRenderWindow } from '../scene';
 
 export interface IRenderWindowInfo {
     title?: string;
@@ -65,7 +65,7 @@ export class RenderWindow {
      * @zh 帧缓冲对象。
      */
     get framebuffer (): Framebuffer {
-        return FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
+        return this._framebuffer!;
     }
 
     get shouldSyncSizeWithSwapchain () {
@@ -77,7 +77,7 @@ export class RenderWindow {
      * @zh 这个渲染窗口是否指向在屏缓冲
      */
     get hasOnScreenAttachments () {
-        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS) === 1;
+        return this._hasOnScreenAttachments;
     }
 
     /**
@@ -85,11 +85,7 @@ export class RenderWindow {
      * @zh 这个渲染窗口是否指向离屏缓冲
      */
     get hasOffScreenAttachments () {
-        return RenderWindowPool.get(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS) === 1;
-    }
-
-    get handle () : RenderWindowHandle {
-        return this._poolHandle;
+        return this._hasOffScreenAttachments;
     }
 
     get cameras () {
@@ -106,22 +102,57 @@ export class RenderWindow {
     protected _title = '';
     protected _width = 1;
     protected _height = 1;
-    protected _nativeWidth = 1;
-    protected _nativeHeight = 1;
     protected _renderPass: RenderPass | null = null;
     protected _colorTextures: (Texture | null)[] = [];
     protected _depthStencilTexture: Texture | null = null;
     protected _swapchainBufferIndices = 0;
     protected _shouldSyncSizeWithSwapchain = false;
-    protected _poolHandle: RenderWindowHandle = NULL_HANDLE;
     protected _cameras: Camera[] = [];
+    protected _hasOnScreenAttachments = false;
+    protected _hasOffScreenAttachments = false;
+    protected _framebuffer: Framebuffer | null = null;
+    private declare _nativeObj: NativeRenderWindow | null;
+
+    get native () {
+        return this._nativeObj;
+    }
 
     private constructor (root: Root) {
     }
 
-    public initialize (device: Device, info: IRenderWindowInfo): boolean {
-        this._poolHandle = RenderWindowPool.alloc();
+    private _setHasOffScreenAttachments (val) {
+        this._hasOffScreenAttachments = val;
+        if (JSB) {
+            this._nativeObj!.hasOffScreenAttachments = val;
+        }
+    }
 
+    private _setHasOnScreenAttachments (val) {
+        this._hasOnScreenAttachments = val;
+        if (JSB) {
+            this._nativeObj!.hasOnScreenAttachments = val;
+        }
+    }
+
+    private _createFrameBuffer (device: Device, renderPass) {
+        this._framebuffer = device.createFramebuffer(new FramebufferInfo(
+            renderPass,
+            this._colorTextures,
+            this._depthStencilTexture,
+        ));
+        if (JSB) {
+            this._nativeObj!.frameBuffer = this._framebuffer;
+        }
+    }
+
+    protected _init () {
+        if (JSB) {
+            this._nativeObj = new NativeRenderWindow();
+        }
+    }
+
+    public initialize (device: Device, info: IRenderWindowInfo): boolean {
+        this._init();
         if (info.title !== undefined) {
             this._title = info.title;
         }
@@ -136,8 +167,6 @@ export class RenderWindow {
 
         this._width = info.width;
         this._height = info.height;
-        this._nativeWidth = this._width;
-        this._nativeHeight = this._height;
 
         const { colorAttachments, depthStencilAttachment } = info.renderPassInfo;
         for (let i = 0; i < colorAttachments.length; i++) {
@@ -161,9 +190,9 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 ));
-                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, 1);
+                this._setHasOffScreenAttachments(true);
             } else {
-                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, 1);
+                this._setHasOnScreenAttachments(true);
             }
             this._colorTextures.push(colorTex);
         }
@@ -178,20 +207,20 @@ export class RenderWindow {
                     this._width,
                     this._height,
                 ));
-                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_OFF_SCREEN_ATTACHMENTS, 1);
-            } else {
-                RenderWindowPool.set(this._poolHandle, RenderWindowView.HAS_ON_SCREEN_ATTACHMENTS, 1);
+                this._setHasOffScreenAttachments(true);
             }
+        } else {
+            this._setHasOnScreenAttachments(true);
         }
-
-        const hFBO = FramebufferPool.alloc(device, new FramebufferInfo(
-            this._renderPass,
-            this._colorTextures,
-            this._depthStencilTexture,
-        ));
-        RenderWindowPool.set(this._poolHandle, RenderWindowView.FRAMEBUFFER, hFBO);
-
+        this._createFrameBuffer(device, this._renderPass);
         return true;
+    }
+
+    protected _destroy () {
+        this.framebuffer.destroy();
+        if (JSB) {
+            this._nativeObj = null;
+        }
     }
 
     public destroy () {
@@ -208,11 +237,7 @@ export class RenderWindow {
             }
         }
         this._colorTextures.length = 0;
-
-        if (this._poolHandle) {
-            FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER)).destroy();
-            this._poolHandle = NULL_HANDLE;
-        }
+        this._destroy();
     }
 
     /**
@@ -225,35 +250,29 @@ export class RenderWindow {
         this._width = width;
         this._height = height;
 
-        if (width > this._nativeWidth
-            || height > this._nativeHeight) {
-            this._nativeWidth = width;
-            this._nativeHeight = height;
+        let needRebuild = false;
 
-            let needRebuild = false;
+        if (this._depthStencilTexture) {
+            this._depthStencilTexture.resize(width, height);
+            needRebuild = true;
+        }
 
-            if (this._depthStencilTexture) {
-                this._depthStencilTexture.resize(width, height);
+        for (let i = 0; i < this._colorTextures.length; i++) {
+            const colorTex = this._colorTextures[i];
+            if (colorTex) {
+                colorTex.resize(width, height);
                 needRebuild = true;
             }
+        }
 
-            for (let i = 0; i < this._colorTextures.length; i++) {
-                const colorTex = this._colorTextures[i];
-                if (colorTex) {
-                    colorTex.resize(width, height);
-                    needRebuild = true;
-                }
-            }
-
-            const framebuffer = FramebufferPool.get(RenderWindowPool.get(this._poolHandle, RenderWindowView.FRAMEBUFFER));
-            if (needRebuild && framebuffer) {
-                framebuffer.destroy();
-                framebuffer.initialize(new FramebufferInfo(
-                    this._renderPass!,
-                    this._colorTextures,
-                    this._depthStencilTexture,
-                ));
-            }
+        const framebuffer = this.framebuffer;
+        if (needRebuild && framebuffer) {
+            framebuffer.destroy();
+            framebuffer.initialize(new FramebufferInfo(
+                this._renderPass!,
+                this._colorTextures,
+                this._depthStencilTexture,
+            ));
         }
 
         for (const camera of this._cameras) {

@@ -277,7 +277,7 @@ export class DeferredPipeline extends RenderPipeline {
 
         if (!this._lightingRenderPass) {
             const colorAttachment = new ColorAttachment();
-            colorAttachment.format = Format.RGBA16F;
+            colorAttachment.format = Format.RGBA8;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
@@ -298,15 +298,6 @@ export class DeferredPipeline extends RenderPipeline {
         this._width = device.width;
         this._height = device.height;
         this._generateDeferredRenderData();
-
-        if (device.surfaceTransform === SurfaceTransform.IDENTITY
-            || device.surfaceTransform === SurfaceTransform.ROTATE_180) {
-            this._width = device.width;
-            this._height = device.height;
-        } else {
-            this._width = device.height;
-            this._height = device.width;
-        }
 
         return true;
     }
@@ -578,7 +569,7 @@ export class DeferredPipeline extends RenderPipeline {
         data.lightingRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA16F,
+            Format.RGBA8,
             this._width,
             this._height,
         )));

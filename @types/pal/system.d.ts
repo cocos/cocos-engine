@@ -50,13 +50,17 @@ declare module 'pal/system' {
         public now (): number;
         public restartJSVM (): void;
 
+        public close ();
+
         public onHide (cb: () => void);
         public onShow (cb: () => void);
+        public onClose (cb: () => void);
         public onViewResize (cb: () => void);
         public onOrientationChange (cb: () => void);
 
         public offHide (cb?: () => void);
         public offShow (cb?: () => void);
+        public offClose (cb?: () => void);
         public offViewResize (cb?: () => void);
         public offOrientationChange (cb?: () => void);
 

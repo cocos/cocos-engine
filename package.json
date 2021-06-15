@@ -10,6 +10,7 @@
   "module": "index.js",
   "scripts": {
     "server": "http-server . -p 8002 -o http://127.0.0.1:8002/playground/index.html",
+    "postinstall": "gulp build-debug-infos && gulp build-declarations",
     "build": "gulp build",
     "build:dev": "gulp build-h5-source",
     "build:min": "gulp build-h5-minified",
@@ -26,7 +27,7 @@
     "@babel/core": "^7.13.10",
     "@babel/preset-env": "7.8.7",
     "@cocos/babel-preset-cc": "2.2.0",
-    "@cocos/build-engine": "4.2.7",
+    "@cocos/build-engine": "4.2.9",
     "@cocos/typedoc-plugin-internal-external": "^1.0.1",
     "@cocos/typedoc-plugin-localization": "^1.0.0",
     "@types/fs-extra": "^5.0.4",
