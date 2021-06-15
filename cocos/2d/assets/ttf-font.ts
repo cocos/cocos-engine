@@ -56,6 +56,11 @@ export class TTFFont extends Font {
     get _nativeDep () {
         return { uuid: this._uuid, __nativeName__: this._native, ext: extname(this._native), __isNative__: true };
     }
+
+    public initDefault (uuid?: string) {
+        this._fontFamily = 'Arial';
+        super.initDefault(uuid);
+    }
 }
 
 legacyCC.TTFFont = TTFFont;
