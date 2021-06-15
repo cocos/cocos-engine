@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { JSB } from 'internal:constants';
 import { Material } from '../../core/assets/material';
 import { RenderingSubMesh } from '../../core/assets/rendering-sub-mesh';
 import { Mesh } from '../assets/mesh';
@@ -43,6 +44,7 @@ import { MorphModel } from './morph-model';
 import { AABBPool, AABBView } from '../../core/renderer/core/memory-pools';
 import { deleteTransform, getTransform, getWorldMatrix, IJointTransform } from '../../core/animation/skeletal-animation-utils';
 import { IMacroPatch } from '../../core/renderer';
+import { NativeJointInfo, NativeJointTransform, NativeSkinningModel } from '../../core/renderer/scene';
 
 const myPatches: IMacroPatch[] = [
     { name: 'CC_USE_SKINNING', value: true },
@@ -91,10 +93,15 @@ export class SkinningModel extends MorphModel {
     private _dataArray: Float32Array[] = [];
     private _joints: IJointInfo[] = [];
     private _bufferIndices: number[] | null = null;
-
     constructor () {
         super();
         this.type = ModelType.SKINNING;
+    }
+
+    protected _init () {
+        if (JSB) {
+            this._nativeObj = new NativeSkinningModel();
+        }
     }
 
     public destroy () {
@@ -119,6 +126,7 @@ export class SkinningModel extends MorphModel {
         const jointMaps = mesh.struct.jointMaps;
         this._ensureEnoughBuffers(jointMaps && jointMaps.length || 1);
         this._bufferIndices = mesh.jointBufferIndices;
+        const nativeJoints: NativeJointInfo[] = [];
         for (let index = 0; index < skeleton.joints.length; index++) {
             const bound = boneSpaceBounds[index];
             const target = skinningRoot.getChildByPath(skeleton.joints[index]);
@@ -129,6 +137,26 @@ export class SkinningModel extends MorphModel {
             const buffers: number[] = [];
             if (!jointMaps) { indices.push(index); buffers.push(0); } else { getRelevantBuffers(indices, buffers, jointMaps, index); }
             this._joints.push({ indices, buffers, bound, target, bindpose, transform });
+            if (JSB) {
+                let currParent: IJointTransform | null | undefined = transform.parent;
+                const transParents: NativeJointTransform[] = [];
+                while (currParent) {
+                    transParents.push({ node: currParent.node.native, local: currParent.local, world: currParent.local, stamp: currParent.stamp });
+                    currParent = currParent.parent;
+                }
+                nativeJoints.push({ indices,
+                    buffers,
+                    bound,
+                    target: target.native,
+                    bindpose,
+                    transform: { node: transform.node.native, local: transform.local, world: transform.world, stamp: transform.stamp },
+                    parents: transParents,
+                });
+            }
+        }
+        if (JSB) {
+            (this._nativeObj! as NativeSkinningModel).setBufferIndices(this._bufferIndices);
+            (this._nativeObj! as NativeSkinningModel).setJoints(nativeJoints);
         }
     }
 
@@ -194,6 +222,9 @@ export class SkinningModel extends MorphModel {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
         const buffer = this._buffers[this._bufferIndices![submodelIdx]];
         if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
+        if (JSB) {
+            (this._nativeObj! as NativeSkinningModel).updateLocalDescriptors(submodelIdx, descriptorSet);
+        }
     }
 
     private _ensureEnoughBuffers (count: number) {
@@ -209,6 +240,9 @@ export class SkinningModel extends MorphModel {
             if (!this._dataArray[i]) {
                 this._dataArray[i] = new Float32Array(UBOSkinning.COUNT);
             }
+        }
+        if (JSB) {
+            (this._nativeObj! as NativeSkinningModel).setBuffers(this._buffers);
         }
     }
 }

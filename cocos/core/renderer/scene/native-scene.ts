@@ -1,4 +1,5 @@
 import { BatchView2D } from '..';
+import { IJointTransform } from '../../animation/skeletal-animation-utils';
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { AABB, Frustum } from '../../geometry';
 import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader } from '../../gfx';
@@ -27,6 +28,27 @@ export const NativeModel: Constructor<{
      setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
 }> = null!;
 export type NativeModel = InstanceType<typeof NativeModel>;
+
+export const NativeSkinningModel: Constructor<{
+     setReceiveShadow (val: boolean): void;
+     setEnabled (val: boolean): void;
+     seVisFlag (val: number): void;
+     setTransform (n: Node): void;
+     setNode (n: Node): void;
+     setCastShadow (val: boolean): void;
+     setLocalBuffer (buf: Buffer | null): void;
+     setWolrdBounds (val: AABB | null): void;
+     addSubModel (val: NativeSubModel): void;
+     setInstmatWorldIdx (idx: number): void;
+     setInstancedBuffer (buffer: ArrayBuffer): void;
+     setInstanceAttributes (attrs: Attribute[]): void;
+     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
+     setJoints(joints: NativeJointInfo[]): void;
+     setBufferIndices(indices: number[]):void;
+     setBuffers(bufs: Buffer[]):void;
+     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
+}> = null!;
+export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
 export const NativeLight: Constructor<{
      setType (type: LightType): void;
@@ -165,6 +187,7 @@ export const NativeRenderScene: Constructor<{
      removeSphereLights (): void;
      removeSpotLights (): void;
      addModel (m: NativeModel): void;
+     addSkinningModel (m: NativeModel): void;
      removeModel (m: NativeModel): void;
      removeModels (): void;
      addBatch (batch: NativeDrawBatch2D): void;
@@ -211,6 +234,25 @@ export const NativeRoot: Constructor<{
 }> = null!;
 export type NativeRoot = InstanceType<typeof NativeRoot>;
 
+export const NativeJointTransform: Constructor<{
+     node: Node;
+     local: Mat4;
+     world: Mat4;
+     stamp: number;
+}> = null!;
+export type NativeJointTransform = InstanceType<typeof NativeJointTransform>;
+
+export const NativeJointInfo: Constructor<{
+     bound: AABB;
+     target: Node;
+     bindpose: Mat4;
+     transform: NativeJointTransform | null;
+     parents: NativeJointTransform[];
+     buffers: number[];
+     indices: number[];
+}> = null!;
+export type NativeJointInfo = InstanceType<typeof NativeJointInfo>;
+
 export const NativePipelineSharedSceneData: Constructor<{
      isHDR: boolean;
      shadingScale: number;
@@ -224,4 +266,5 @@ export const NativePipelineSharedSceneData: Constructor<{
      deferredPostPassShader: Shader | null;
      deferredPostPass: NativePass;
 }> = null!;
+
 export type NativePipelineSharedSceneData = InstanceType<typeof NativePipelineSharedSceneData>;

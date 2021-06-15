@@ -158,11 +158,17 @@ export class Node extends BaseNode {
             this._pos = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_POSITION) as FloatArray);
             this._rot = new Quat(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_ROTATION) as FloatArray);
             this._scale = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_SCALE) as FloatArray);
+
+            this._lpos = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.LOCAL_POSITION) as FloatArray);
+            this._lrot = new Quat(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.LOCAL_ROTATION) as FloatArray);
+            this._lscale = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.LOCAL_SCALE) as FloatArray);
+
             this._mat = new Mat4(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_MATRIX) as FloatArray);
             this._nativeLayer = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.LAYER) as Uint32Array;
             this._nativeFlag = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.FLAGS_CHANGED) as Uint32Array;
             this._nativeDirtyFlag = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.DIRTY_FLAG) as Uint32Array;
             this._scale.set(1, 1, 1);
+            this._lscale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
             this._nativeObj.initWithData(SharedNodePool.getBuffer(this._nodeHandle));

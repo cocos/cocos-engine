@@ -209,34 +209,49 @@ export enum SharedNodeView {
     WORLD_POSITION = 6, // Vec3
     WORLD_ROTATION = 9, // Quat
     WORLD_MATRIX = 13,  // Mat4
-    COUNT = 29
+    LOCAL_SCALE = 29,   // Vec3
+    LOCAL_POSITION = 32, // Vec3
+    LOCAL_ROTATION = 35, // Quat
+    COUNT = 128
 }
 
 interface INodeViewType extends BufferTypeManifest<typeof SharedNodeView> {
+    [SharedNodeView.DIRTY_FLAG]: number;
     [SharedNodeView.FLAGS_CHANGED]: number;
     [SharedNodeView.LAYER]: number;
     [SharedNodeView.WORLD_SCALE]: Vec3;
     [SharedNodeView.WORLD_POSITION]: Vec3;
     [SharedNodeView.WORLD_ROTATION]: Quat;
     [SharedNodeView.WORLD_MATRIX]: Mat4;
+    [SharedNodeView.LOCAL_SCALE]: Vec3;
+    [SharedNodeView.LOCAL_POSITION]: Vec3;
+    [SharedNodeView.LOCAL_ROTATION]: Quat;
     [SharedNodeView.COUNT]: never;
 }
 const NodeViewDataType: BufferDataTypeManifest<typeof SharedNodeView> = {
+    [SharedNodeView.DIRTY_FLAG]: BufferDataType.UINT32,
     [SharedNodeView.FLAGS_CHANGED]: BufferDataType.UINT32,
     [SharedNodeView.LAYER]: BufferDataType.UINT32,
     [SharedNodeView.WORLD_SCALE]: BufferDataType.FLOAT32,
     [SharedNodeView.WORLD_POSITION]: BufferDataType.FLOAT32,
     [SharedNodeView.WORLD_ROTATION]: BufferDataType.FLOAT32,
     [SharedNodeView.WORLD_MATRIX]: BufferDataType.FLOAT32,
+    [SharedNodeView.LOCAL_SCALE]: BufferDataType.FLOAT32,
+    [SharedNodeView.LOCAL_POSITION]: BufferDataType.FLOAT32,
+    [SharedNodeView.LOCAL_ROTATION]: BufferDataType.FLOAT32,
     [SharedNodeView.COUNT]: BufferDataType.NEVER,
 };
 const NodeViewDataMembers: BufferDataMembersManifest<typeof SharedNodeView> = {
+    [SharedNodeView.DIRTY_FLAG]: 1,
     [SharedNodeView.FLAGS_CHANGED]: 1,
     [SharedNodeView.LAYER]: 1,
     [SharedNodeView.WORLD_SCALE]: 3,
     [SharedNodeView.WORLD_POSITION]: 3,
     [SharedNodeView.WORLD_ROTATION]: 4,
     [SharedNodeView.WORLD_MATRIX]: 16,
+    [SharedNodeView.LOCAL_SCALE]: 3,
+    [SharedNodeView.LOCAL_POSITION]: 3,
+    [SharedNodeView.LOCAL_ROTATION]: 4,
     [SharedNodeView.COUNT]: 1,
 };
 
