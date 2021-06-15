@@ -171,7 +171,9 @@ export const simple: IAssembler = {
     },
 
     updateColor (comp: Skeleton) {
+        if (!comp) return;
         _comp = comp;
+        _comp.markForUpdateRenderData();
     },
 
     fillBuffers (comp: Skeleton, renderer: Batcher2D) {
@@ -264,7 +266,7 @@ function updateComponentRenderData (comp: Skeleton, ui: Batcher2D) {
 
     let worldMat: Mat4 | undefined;
     if (_comp.enableBatch) {
-        worldMat = _node.worldMatrix;
+        worldMat = _node.worldMatrix as Mat4;
         _mustFlush = false;
         _handleVal |= FLAG_BATCH;
     }
