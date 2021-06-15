@@ -313,6 +313,10 @@ void GLES2Device::bindDeviceContext(bool bound) {
     }
 }
 
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+uint GLES2Device::getDefaultFramebuffer() const { return static_cast<GLES2Context *>(_context)->getDefaultFramebuffer(); }
+#endif
+
 CommandBuffer *GLES2Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES2PrimaryCommandBuffer);
     return CC_NEW(GLES2CommandBuffer);

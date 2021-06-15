@@ -1719,7 +1719,7 @@ void cmdFuncGLES3CreateFramebuffer(GLES3Device *device, GLES3GPUFramebuffer *gpu
             }
         } else {
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-            gpuFBO->glFramebuffer = static_cast<GLES3Context *>(device->getContext())->getDefaultFramebuffer();
+            outFBO->glFramebuffer = device->getDefaultFramebuffer();
 #endif
         }
     };
@@ -2865,7 +2865,7 @@ void cmdFuncGLES3BlitTexture(GLES3Device *device, GLES3GPUTexture *gpuTextureSrc
         }
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
         else
-            srcFramebuffer = static_cast<GLES3Context *>(device->getContext())->getDefaultFramebuffer();
+            srcFramebuffer = device->getDefaultFramebuffer();
 #endif
         if (cache->glReadFramebuffer != srcFramebuffer) {
             GL_CHECK(glBindFramebuffer(GL_READ_FRAMEBUFFER, srcFramebuffer));
@@ -2878,7 +2878,7 @@ void cmdFuncGLES3BlitTexture(GLES3Device *device, GLES3GPUTexture *gpuTextureSrc
         }
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
         else
-            dstFramebuffer = static_cast<GLES3Context *>(device->getContext())->getDefaultFramebuffer();
+            dstFramebuffer = device->getDefaultFramebuffer();
 #endif
         if (cache->glDrawFramebuffer != dstFramebuffer) {
             GL_CHECK(glBindFramebuffer(GL_DRAW_FRAMEBUFFER, dstFramebuffer));

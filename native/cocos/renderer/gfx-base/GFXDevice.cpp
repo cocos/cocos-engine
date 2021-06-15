@@ -40,7 +40,7 @@ Device *Device::getInstance() {
 
 Device::Device() {
     Device::instance = this;
-    memset(_features, 0, sizeof(_features));
+    _features.fill(false);
 }
 
 Device::~Device() {

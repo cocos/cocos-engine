@@ -314,6 +314,9 @@ void GLES3Device::bindDeviceContext(bool bound) {
 }
 
 uint GLES3Device::getMinorVersion() const { return static_cast<GLES3Context *>(_context)->minorVer(); }
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+uint GLES3Device::getDefaultFramebuffer() const { return static_cast<GLES3Context *>(_context)->getDefaultFramebuffer(); }
+#endif
 
 CommandBuffer *GLES3Device::createCommandBuffer(const CommandBufferInfo &info, bool hasAgent) {
     if (hasAgent || info.type == CommandBufferType::PRIMARY) return CC_NEW(GLES3PrimaryCommandBuffer);

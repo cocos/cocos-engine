@@ -199,6 +199,8 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
 
     VK_CHECK(vkCreateDevice(gpuContext->physicalDevice, &deviceCreateInfo, nullptr, &_gpuDevice->vkDevice));
 
+    volkLoadDevice(_gpuDevice->vkDevice);
+
     ///////////////////// Gather Device Properties /////////////////////
 
     _features[static_cast<uint>(Feature::COLOR_FLOAT)]               = true;
@@ -299,6 +301,11 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
     cmdBuffInfo.queue = _queue;
     _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
+    VmaAllocatorCreateInfo allocatorInfo{};
+    allocatorInfo.physicalDevice = gpuContext->physicalDevice;
+    allocatorInfo.device         = _gpuDevice->vkDevice;
+    allocatorInfo.instance       = gpuContext->vkInstance;
+
     VmaVulkanFunctions vmaVulkanFunc{};
     vmaVulkanFunc.vkAllocateMemory                    = vkAllocateMemory;
     vmaVulkanFunc.vkBindBufferMemory                  = vkBindBufferMemory;
@@ -316,21 +323,32 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
     vmaVulkanFunc.vkInvalidateMappedMemoryRanges      = vkInvalidateMappedMemoryRanges;
     vmaVulkanFunc.vkMapMemory                         = vkMapMemory;
     vmaVulkanFunc.vkUnmapMemory                       = vkUnmapMemory;
-
-    VmaAllocatorCreateInfo allocatorInfo{};
-    allocatorInfo.physicalDevice = gpuContext->physicalDevice;
-    allocatorInfo.device         = _gpuDevice->vkDevice;
-    allocatorInfo.instance       = gpuContext->vkInstance;
+    vmaVulkanFunc.vkCmdCopyBuffer                     = vkCmdCopyBuffer;
 
     if (_gpuDevice->minorVersion > 0) {
         allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
         vmaVulkanFunc.vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2;
         vmaVulkanFunc.vkGetImageMemoryRequirements2KHR  = vkGetImageMemoryRequirements2;
-    } else if (checkExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME) &&
-               checkExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME)) {
-        allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
-        vmaVulkanFunc.vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR;
-        vmaVulkanFunc.vkGetImageMemoryRequirements2KHR  = vkGetImageMemoryRequirements2KHR;
+        vmaVulkanFunc.vkBindBufferMemory2KHR            = vkBindBufferMemory2;
+        vmaVulkanFunc.vkBindImageMemory2KHR             = vkBindImageMemory2;
+    } else {
+        if (checkExtension(VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME) &&
+            checkExtension(VK_KHR_GET_MEMORY_REQUIREMENTS_2_EXTENSION_NAME)) {
+            allocatorInfo.flags |= VMA_ALLOCATOR_CREATE_KHR_DEDICATED_ALLOCATION_BIT;
+            vmaVulkanFunc.vkGetBufferMemoryRequirements2KHR = vkGetBufferMemoryRequirements2KHR;
+            vmaVulkanFunc.vkGetImageMemoryRequirements2KHR  = vkGetImageMemoryRequirements2KHR;
+        }
+        if (checkExtension(VK_KHR_BIND_MEMORY_2_EXTENSION_NAME)) {
+            vmaVulkanFunc.vkBindBufferMemory2KHR = vkBindBufferMemory2KHR;
+            vmaVulkanFunc.vkBindImageMemory2KHR  = vkBindImageMemory2KHR;
+        }
+    }
+    if (checkExtension(VK_EXT_MEMORY_BUDGET_EXTENSION_NAME)) {
+        if (_gpuDevice->minorVersion > 0) {
+            vmaVulkanFunc.vkGetPhysicalDeviceMemoryProperties2KHR = vkGetPhysicalDeviceMemoryProperties2;
+        } else if (checkExtension(VK_KHR_GET_PHYSICAL_DEVICE_PROPERTIES_2_EXTENSION_NAME)) {
+            vmaVulkanFunc.vkGetPhysicalDeviceMemoryProperties2KHR = vkGetPhysicalDeviceMemoryProperties2KHR;
+        }
     }
 
     allocatorInfo.pVulkanFunctions = &vmaVulkanFunc;

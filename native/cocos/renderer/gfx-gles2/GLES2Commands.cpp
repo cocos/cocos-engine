@@ -1332,7 +1332,7 @@ void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpu
             }
         } else {
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-            gpuFBO->glFramebuffer = static_cast<GLES2Context *>(device->getContext())->getDefaultFramebuffer();
+            outFBO->glFramebuffer = device->getDefaultFramebuffer();
 #endif
         }
     };
@@ -2541,7 +2541,7 @@ void cmdFuncGLES2BlitTexture(GLES2Device *device, GLES2GPUTexture *gpuTextureSrc
     if (gpuTextureDst) dstFramebuffer = device->framebufferCacheMap()->getFramebufferFromTexture(gpuTextureDst);
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     else
-        dstFramebuffer = static_cast<GLES3Context *>(device->getContext())->getDefaultFramebuffer();
+        dstFramebuffer = device->getDefaultFramebuffer();;
 #endif
     if (cache->glFramebuffer != dstFramebuffer) {
         GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, dstFramebuffer));

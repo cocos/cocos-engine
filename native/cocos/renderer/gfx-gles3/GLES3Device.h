@@ -78,6 +78,9 @@ public:
     inline size_t getThreadID() const { return _threadID; }
 
     uint getMinorVersion() const;
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+    uint getDefaultFramebuffer() const;
+#endif
 
 protected:
     static GLES3Device *instance;

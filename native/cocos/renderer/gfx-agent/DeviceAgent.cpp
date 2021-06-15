@@ -74,7 +74,7 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
     _renderer                                           = _actor->getRenderer();
     _vendor                                             = _actor->getVendor();
     _caps                                               = _actor->_caps;
-    memcpy(_features, _actor->_features, static_cast<uint>(Feature::COUNT) * sizeof(bool));
+    memcpy(_features.data(), _actor->_features.data(), static_cast<uint>(Feature::COUNT) * sizeof(bool));
 
     _mainMessageQueue = CC_NEW(MessageQueue);
 

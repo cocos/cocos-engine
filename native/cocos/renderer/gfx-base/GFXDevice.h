@@ -25,6 +25,7 @@
 
 #pragma once
 
+#include <array>
 #include "GFXBuffer.h"
 #include "GFXCommandBuffer.h"
 #include "GFXDescriptorSet.h"
@@ -151,7 +152,6 @@ protected:
     String             _renderer;
     String             _vendor;
     String             _version;
-    bool               _features[static_cast<uint>(Feature::COUNT)];
     uint               _width      = 0;
     uint               _height     = 0;
     float              _pixelRatio = 1.0F;
@@ -165,6 +165,8 @@ protected:
     uint               _numTriangles = 0U;
     BindingMappingInfo _bindingMappingInfo;
     DeviceCaps         _caps;
+
+    std::array<bool, static_cast<size_t>(Feature::COUNT)> _features;
 };
 
 //////////////////////////////////////////////////////////////////////////

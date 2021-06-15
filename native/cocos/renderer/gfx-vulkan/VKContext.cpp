@@ -252,7 +252,7 @@ bool CCVKContext::doInit(const ContextInfo &info) {
             return false;
         }
 
-        volkLoadInstance(_gpuContext->vkInstance);
+        volkLoadInstanceOnly(_gpuContext->vkInstance);
 
 #if CC_DEBUG > 0 && !FORCE_DISABLE_VALIDATION || FORCE_ENABLE_VALIDATION
         if (debugUtils) {

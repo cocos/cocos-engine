@@ -505,8 +505,8 @@ bool GLES3Context::makeCurrent(bool bound) {
     }
 
     if (makeCurrentImpl(bound)) {
+#if (CC_PLATFORM != CC_PLATFORM_MAC_IOS)
         if (!_isInitialized) {
-#if (CC_PLATFORM == CC_PLATFORM_WINDOWS || CC_PLATFORM == CC_PLATFORM_ANDROID || CC_PLATFORM == CC_PLATFORM_OHOS)
             // Turn on or off the vertical sync depending on the input bool value.
             int interval = 1;
             switch (_vsyncMode) {
@@ -522,11 +522,10 @@ bool GLES3Context::makeCurrent(bool bound) {
                 CC_LOG_ERROR("wglSwapInterval() - FAILED.");
                 return false;
             }
-#endif
             _isInitialized = true;
         }
 
-#if CC_DEBUG > 0 && GLES3_EGL_DEBUG_PROC_DEFINED && !FORCE_DISABLE_VALIDATION && CC_PLATFORM != CC_PLATFORM_MAC_IOS
+    #if CC_DEBUG > 0 && GLES3_EGL_DEBUG_PROC_DEFINED && !FORCE_DISABLE_VALIDATION
         GL_CHECK(glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS_KHR));
         if (glDebugMessageControlKHR) {
             GL_CHECK(glDebugMessageControlKHR(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, NULL, GL_TRUE));
@@ -534,6 +533,8 @@ bool GLES3Context::makeCurrent(bool bound) {
         if (glDebugMessageCallbackKHR) {
             GL_CHECK(glDebugMessageCallbackKHR(GLES3EGLDebugProc, NULL));
         }
+    #endif
+
 #endif
 
         //////////////////////////////////////////////////////////////////////////
@@ -582,17 +583,20 @@ bool GLES3Context::makeCurrent(bool bound) {
         GL_CHECK(glBindVertexArray(0));
 
         GL_CHECK(glBindBuffer(GL_ARRAY_BUFFER, 0));
-        GL_CHECK(glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0));
-        GL_CHECK(glBindBuffer(GL_COPY_READ_BUFFER, 0));
-        GL_CHECK(glBindBuffer(GL_COPY_WRITE_BUFFER, 0));
-        GL_CHECK(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0));
-        GL_CHECK(glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0));
         GL_CHECK(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0));
         GL_CHECK(glBindBuffer(GL_PIXEL_PACK_BUFFER, 0));
         GL_CHECK(glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0));
-        GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
         GL_CHECK(glBindBuffer(GL_TRANSFORM_FEEDBACK_BUFFER, 0));
         GL_CHECK(glBindBuffer(GL_UNIFORM_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_COPY_READ_BUFFER, 0));
+        GL_CHECK(glBindBuffer(GL_COPY_WRITE_BUFFER, 0));
+
+        if (_minorVersion) {
+            GL_CHECK(glBindBuffer(GL_ATOMIC_COUNTER_BUFFER, 0));
+            GL_CHECK(glBindBuffer(GL_DRAW_INDIRECT_BUFFER, 0));
+            GL_CHECK(glBindBuffer(GL_DISPATCH_INDIRECT_BUFFER, 0));
+            GL_CHECK(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0));
+        }
 
         GL_CHECK(glBindTexture(GL_TEXTURE_2D, 0));
         GL_CHECK(glBindTexture(GL_TEXTURE_3D, 0));

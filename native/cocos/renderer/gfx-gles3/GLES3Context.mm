@@ -33,7 +33,7 @@
 namespace cc {
 namespace gfx {
 
-void GLES3Context::doInit(const ContextInfo &info) {
+bool GLES3Context::doInit(const ContextInfo &info) {
 
     _vsyncMode = info.vsyncMode;
     _windowHandle = info.windowHandle;
@@ -165,7 +165,7 @@ bool GLES3Context::createCustomFrameBuffer()
             }
             default:;
         }
-        destroyCustomFrameBuffer();
+        doDestroyCustomFrameBuffer();
         return false;
     }
 
@@ -173,7 +173,7 @@ bool GLES3Context::createCustomFrameBuffer()
     return true;
 }
 
-void GLES3Context::destroyCustomFrameBuffer() {
+void GLES3Context::doDestroyCustomFrameBuffer() {
     if (_defaultColorBuffer) {
         GL_CHECK(glDeleteRenderbuffers(1, &_defaultColorBuffer));
         _defaultColorBuffer = 0;
@@ -190,7 +190,7 @@ void GLES3Context::destroyCustomFrameBuffer() {
 }
 
 void GLES3Context::doDestroy() {
-    destroyCustomFrameBuffer();
+    doDestroyCustomFrameBuffer();
 
     if (_eaglContext) {
         [(EAGLContext*)_eaglContext release];
@@ -208,9 +208,15 @@ void GLES3Context::present() {
     }
 }
 
-bool GLES3Context::MakeCurrentImpl(bool bound) {
+bool GLES3Context::makeCurrentImpl(bool bound) {
     if (!bound) return [EAGLContext setCurrentContext: nil];
     return [EAGLContext setCurrentContext: (EAGLContext*)_eaglContext] && createCustomFrameBuffer();
+}
+
+void GLES3Context::releaseSurface(uintptr_t /*windowHandle*/) {
+}
+
+void GLES3Context::acquireSurface(uintptr_t /*windowHandle*/) {
 }
 
 } // namespace gfx
