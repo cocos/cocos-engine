@@ -87,7 +87,6 @@ export class MouseInputSource {
         if ('onpointerlockchange' in document) {
             document.addEventListener('pointerlockchange', lockChangeAlert, false);
         } else if ('onmozpointerlockchange' in document) {
-            // @ts-expect-error undefined mozpointerlockchange event
             document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
         }
     }
