@@ -39,6 +39,7 @@ import inputManager from './input-manager';
 import { Touch } from './touch';
 import { legacyCC } from '../../global-exports';
 import { logID, warnID } from '../debug';
+import { KeyCode } from './key-code';
 
 let keyboardListener: EventListener | null = null;
 let accelerationListener: EventListener | null = null;
@@ -73,6 +74,12 @@ export class SystemEvent extends EventTarget {
     public static MouseEvent = MouseEvent;
     public static KeyboardEvent = KeyboardEvent;
     public static DeviceEvent = DeviceEvent;
+
+    /**
+     * @en Enum type of keycode for key event
+     * @zh 按键事件的按键码
+     */
+    public static KeyCode = KeyCode;
 
     constructor () {
         super();

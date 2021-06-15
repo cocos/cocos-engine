@@ -38,8 +38,7 @@ import { eventManager } from '../platform/event-manager/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
-import { NULL_HANDLE, NodeHandle, NodePool, NodeView } from '../renderer/core/memory-pools';
-import { SharedNodePool, SharedNodeView, SharedNodeHandle } from '../renderer/core/shared-memory-pool';
+import { NULL_HANDLE, NodePool, NodeView, NodeHandle  } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
 import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
     applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
@@ -51,12 +50,64 @@ import { NodeEventType } from './node-event';
 const v3_a = new Vec3();
 const q_a = new Quat();
 const q_b = new Quat();
-const array_a = new Array(10);
 const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
-const bookOfChange = new Map<Node, number>();
+const array_a: any[] = [];
+
+class BookOfChange {
+    private _chunks: Uint32Array[] = [];
+    private _freelists: number[][] = [];
+
+    // these should match with native: cocos/renderer/pipeline/helper/SharedMemory.h Node.getHasChangedFlags
+    private static CAPACITY_PER_CHUNK = 256;
+
+    constructor () {
+        this._createChunk();
+    }
+
+    public alloc () {
+        const chunkCount = this._freelists.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            if (!this._freelists[i].length) continue;
+            return this._createView(i);
+        }
+        this._createChunk();
+        return this._createView(chunkCount);
+    }
+
+    public free (view: Uint32Array, idx: number) {
+        const chunkCount = this._freelists.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            if (this._chunks[i] !== view) continue;
+            this._freelists[i].push(idx);
+            return;
+        }
+    }
+
+    public clear () {
+        const chunkCount = this._chunks.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            this._chunks[i].fill(0);
+        }
+    }
+
+    private _createChunk () {
+        this._chunks.push(new Uint32Array(BookOfChange.CAPACITY_PER_CHUNK));
+        const freelist: number[] = [];
+        for (let i = 0; i < BookOfChange.CAPACITY_PER_CHUNK; ++i) freelist.push(i);
+        this._freelists.push(freelist);
+    }
+
+    private _createView (chunkIdx: number): [Uint32Array, number] {
+        const chunk = this._chunks[chunkIdx];
+        const offset = this._freelists[chunkIdx].pop()!;
+        return [chunk, offset];
+    }
+}
+
+const bookOfChange = new BookOfChange();
 
 /**
  * @zh
@@ -82,8 +133,6 @@ const bookOfChange = new Map<Node, number>();
  */
 @ccclass('cc.Node')
 export class Node extends BaseNode {
-    public static bookOfChange = bookOfChange;
-
     /**
      * @en Event types emitted by Node
      * @zh 节点可能发出的事件类型
@@ -111,6 +160,13 @@ export class Node extends BaseNode {
 
     // UI 部分的脏数据
     public _uiProps = new NodeUIProperties(this);
+
+    /**
+     * @en Counter to clear node array
+     * @zh 清除节点数组计时器
+     */
+    private static ClearFrame = 0;
+    private static ClearRound = 1000;
 
     public _static = false;
 
@@ -143,9 +199,9 @@ export class Node extends BaseNode {
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
 
     protected _eulerDirty = false;
-
-    protected _nodeHandle: SharedNodeHandle = NULL_HANDLE;
-
+    protected _nodeHandle: NodeHandle = NULL_HANDLE;
+    protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
+    protected declare _hasChangedFlagsOffset: number;
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
     protected declare _nativeFlag: Uint32Array;
@@ -154,30 +210,34 @@ export class Node extends BaseNode {
     protected _init () {
         if (JSB) {
             // new node
-            this._nodeHandle = SharedNodePool.alloc();
-            this._pos = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_POSITION) as FloatArray);
-            this._rot = new Quat(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_ROTATION) as FloatArray);
-            this._scale = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_SCALE) as FloatArray);
+            this._nodeHandle = NodePool.alloc();
+            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as FloatArray);
+            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as FloatArray);
+            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as FloatArray);
 
-            this._lpos = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.LOCAL_POSITION) as FloatArray);
-            this._lrot = new Quat(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.LOCAL_ROTATION) as FloatArray);
-            this._lscale = new Vec3(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.LOCAL_SCALE) as FloatArray);
+            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as FloatArray);
+            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as FloatArray);
+            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as FloatArray);
 
-            this._mat = new Mat4(SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.WORLD_MATRIX) as FloatArray);
-            this._nativeLayer = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.LAYER) as Uint32Array;
-            this._nativeFlag = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.FLAGS_CHANGED) as Uint32Array;
-            this._nativeDirtyFlag = SharedNodePool.getTypedArray(this._nodeHandle, SharedNodeView.DIRTY_FLAG) as Uint32Array;
+            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
+            this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
+            this._nativeFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.FLAGS_CHANGED) as Uint32Array;
+            this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
             this._scale.set(1, 1, 1);
             this._lscale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
-            this._nativeObj.initWithData(SharedNodePool.getBuffer(this._nodeHandle));
+            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle));
         } else {
             this._pos = new Vec3();
             this._rot = new Quat();
             this._scale = new Vec3(1, 1, 1);
             this._mat = new Mat4();
         }
+
+        const [chunk, offset] = bookOfChange.alloc();
+        this._hasChangedFlagsChunk = chunk;
+        this._hasChangedFlagsOffset = offset;
     }
 
     constructor (name?: string) {
@@ -196,12 +256,14 @@ export class Node extends BaseNode {
     protected _destroy () {
         if (JSB) {
             if (this._nodeHandle) {
-                SharedNodePool.free(this._nodeHandle);
+                NodePool.free(this._nodeHandle);
                 this._nodeHandle = NULL_HANDLE;
             }
 
             this._nativeObj = null;
         }
+
+        bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
     }
 
     public destroy () {
@@ -370,6 +432,22 @@ export class Node extends BaseNode {
     }
 
     /**
+     * @en Return the up direction vertor of this node in world space.
+     * @zh 返回当前节点在世界空间中朝上的方向向量
+     */
+    get up (): Vec3 {
+        return Vec3.transformQuat(new Vec3(), Vec3.UP, this.worldRotation);
+    }
+
+    /**
+     * @en Return the right direction vector of this node in world space.
+     * @zh 返回当前节点在世界空间中朝右的方向向量
+     */
+    get right (): Vec3 {
+        return Vec3.transformQuat(new Vec3(), Vec3.RIGHT, this.worldRotation);
+    }
+
+    /**
      * @en Layer of the current Node, it affects raycast, physics etc, refer to [[Layers]]
      * @zh 节点所属层，主要影响射线检测、物理碰撞等，参考 [[Layers]]
      */
@@ -391,11 +469,11 @@ export class Node extends BaseNode {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return bookOfChange.get(this) || 0;
+        return this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] as TransformBit;
     }
 
     set hasChangedFlags (val: number) {
-        bookOfChange.set(this, val);
+        this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] = val;
         if (JSB) {
             this._nativeFlag[0] = val;
         }
@@ -582,15 +660,21 @@ export class Node extends BaseNode {
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
-        const hasChanegdFlags = this.hasChangedFlags;
-        if ((this._dirtyFlags & hasChanegdFlags & dirtyBit) === dirtyBit) { return; }
-        this._setDirtyFlags(this._dirtyFlags | dirtyBit);
-        this.hasChangedFlags = hasChanegdFlags | dirtyBit;
-        const newDirtyBit = dirtyBit | TransformBit.POSITION;
-        const len = this._children.length;
-        for (let i = 0; i < len; ++i) {
-            const child = this._children[i];
-            if (child.isValid) { child.invalidateChildren(newDirtyBit); }
+        const childDirtyBit = dirtyBit | TransformBit.POSITION;
+        array_a[0] = this;
+
+        let i = 0;
+        while (i >= 0) {
+            const cur: this = array_a[i--];
+            const hasChangedFlags = cur.hasChangedFlags;
+            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                this._setDirtyFlags(cur._dirtyFlags | dirtyBit);
+                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                const children = cur._children;
+                const len = children.length;
+                for (let j = 0; j < len; ++j) array_a[++i] = children[j];
+            }
+            dirtyBit = childDirtyBit;
         }
     }
 
@@ -1147,27 +1231,23 @@ export class Node extends BaseNode {
      * @zh
      * 清除所有节点的脏标记。
      */
-    public static clearBooks () {
-        if (JSB) bookOfChange.forEach((v, k, m) => { if (k.isValid) k.hasChangedFlags = TransformBit.NONE; });
+    public static resetHasChangedFlags () {
         bookOfChange.clear();
     }
 
     /**
      * @en
-     * Synchronize the js transform to the native layer.
+     * clear node array
      * @zh
-     * js 变换信息同步到原生层。
+     * 清除节点数组
      */
-    public syncToNativeTransform () {
-    }
-
-    /**
-     * @en
-     * Synchronize the native transform to the js layer.
-     * @zh
-     * 原生变换信息同步到 js 层。
-     */
-    public syncFromNativeTransform () {
+    public static clearNodeArray () {
+        if (Node.ClearFrame < Node.ClearRound) {
+            Node.ClearFrame++;
+        } else {
+            Node.ClearFrame = 0;
+            array_a.length = 0;
+        }
     }
 }
 

@@ -103,7 +103,7 @@ export class RenderQueue {
     public insertRenderPass (renderObj: IRenderObject, subModelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.subModels[subModelIdx];
         const pass = subModel.passes[passIdx];
-        const isTransparent = subModel.passes[passIdx].blendState.targets[0].blend;
+        const isTransparent = pass.blendState.targets[0].blend;
         if (isTransparent !== this._passDesc.isTransparent || !(pass.phase & this._passDesc.phases)) {
             return false;
         }

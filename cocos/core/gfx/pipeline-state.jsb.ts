@@ -33,8 +33,8 @@ declare const gfx: any;
 declare type RecursivePartial<T> = {
     [P in keyof T]?:
 
-        T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
-        T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
+    T[P] extends Array<infer U> ? Array<RecursivePartial<U>> :
+    T[P] extends ReadonlyArray<infer V> ? ReadonlyArray<RecursivePartial<V>> : RecursivePartial<T[P]>;
 };
 
 import {
@@ -81,7 +81,7 @@ export class RasterizerState {
             depthBiasEnabled, depthBias, depthBiasClamp, depthBiasSlop, isDepthClip, isMultisample, lineWidth);
     }
 
-    get native() {
+    get native () {
         return this._nativeObj;
     }
 
@@ -98,7 +98,7 @@ export class RasterizerState {
         this._nativeObj.polygonMode = val;
     }
     get shadeModel (): ShadeModel { return this._shadeModel; }
-    set shadeModel (val: ShadeModel) { 
+    set shadeModel (val: ShadeModel) {
         this._shadeModel = val;
         this._nativeObj.shadeModel = val;
     }
@@ -144,7 +144,7 @@ export class RasterizerState {
         this._nativeObj.isDepthClip = val;
     }
     get isMultisample (): boolean {
-       return this._isMultisample;
+        return this._isMultisample;
     }
     set isMultisample (val: boolean) {
         this._isMultisample = val;
@@ -253,7 +253,7 @@ export class DepthStencilState {
             stencilZFailOpBack, stencilPassOpBack, stencilRefBack);
     }
 
-    get native() {
+    get native () {
         return this._nativeObj;
     }
 
@@ -267,44 +267,44 @@ export class DepthStencilState {
     get depthWrite (): boolean {
         return this._depthWrite;
     }
-    set depthWrite (val: boolean) { 
+    set depthWrite (val: boolean) {
         this._depthWrite = val;
         this._nativeObj.depthWrite = val;
     }
     get depthFunc (): ComparisonFunc { return this._depthFunc; }
-    set depthFunc (val: ComparisonFunc) { 
+    set depthFunc (val: ComparisonFunc) {
         this._depthFunc = val;
         this._nativeObj.depthFunc = val;
     }
     get stencilTestFront (): boolean {
         return this._stencilTestFront;
     }
-    set stencilTestFront (val: boolean) { 
+    set stencilTestFront (val: boolean) {
         this._stencilTestFront = val;
         this._nativeObj.stencilTestFront = val;
     }
     get stencilFuncFront (): ComparisonFunc { return this._stencilFuncFront; }
-    set stencilFuncFront (val: ComparisonFunc) { 
+    set stencilFuncFront (val: ComparisonFunc) {
         this._stencilFuncFront = val;
         this._nativeObj.stencilFuncFront = val;
     }
     get stencilReadMaskFront (): number { return this._stencilReadMaskFront; }
-    set stencilReadMaskFront (val: number) { 
+    set stencilReadMaskFront (val: number) {
         this._stencilReadMaskFront = val;
         this._nativeObj.stencilReadMaskFront = val;
     }
     get stencilWriteMaskFront (): number { return this._stencilWriteMaskFront; }
-    set stencilWriteMaskFront (val: number) { 
+    set stencilWriteMaskFront (val: number) {
         this._stencilWriteMaskFront = val;
         this._nativeObj.stencilWriteMaskFront = val;
     }
     get stencilFailOpFront (): StencilOp { return this._stencilFailOpFront; }
-    set stencilFailOpFront (val: StencilOp) { 
+    set stencilFailOpFront (val: StencilOp) {
         this._stencilFailOpFront = val;
         this._nativeObj.stencilFailOpFront = val;
     }
     get stencilZFailOpFront (): StencilOp { return this._stencilZFailOpFront; }
-    set stencilZFailOpFront (val: StencilOp) { 
+    set stencilZFailOpFront (val: StencilOp) {
         this._stencilZFailOpFront = val;
         this._nativeObj.stencilZFailOpFront = val;
     }
@@ -314,55 +314,55 @@ export class DepthStencilState {
         this._nativeObj.stencilPassOpFront = val;
     }
     get stencilRefFront (): number { return this._stencilRefFront; }
-    set stencilRefFront (val: number) { 
+    set stencilRefFront (val: number) {
         this._stencilRefFront = val;
         this._nativeObj.stencilRefFront = val;
     }
     get stencilTestBack (): boolean {
         return this._stencilTestBack;
     }
-    set stencilTestBack (val: boolean) { 
+    set stencilTestBack (val: boolean) {
         this._stencilTestBack = val;
         this._nativeObj.stencilTestBack = val;
     }
     get stencilFuncBack (): ComparisonFunc { return this._stencilFuncBack; }
     set stencilFuncBack (val: ComparisonFunc) {
-        this._stencilFuncBack = val; 
+        this._stencilFuncBack = val;
         this._nativeObj.stencilFuncBack = val;
     }
     get stencilReadMaskBack (): number { return this._stencilReadMaskBack; }
-    set stencilReadMaskBack (val: number) { 
+    set stencilReadMaskBack (val: number) {
         this._stencilReadMaskBack = val;
         this._nativeObj.stencilReadMaskBack = val;
     }
     get stencilWriteMaskBack (): number { return this._stencilWriteMaskBack; }
-    set stencilWriteMaskBack (val: number) { 
+    set stencilWriteMaskBack (val: number) {
         this._stencilWriteMaskBack = val;
         this._nativeObj.stencilWriteMaskBack = val;
     }
     get stencilFailOpBack (): StencilOp { return this._stencilFailOpBack; }
-    set stencilFailOpBack (val: StencilOp) { 
+    set stencilFailOpBack (val: StencilOp) {
         this._stencilFailOpBack = val;
         this._nativeObj.stencilFailOpBack = val;
     }
     get stencilZFailOpBack (): StencilOp { return this._stencilZFailOpBack; }
-    set stencilZFailOpBack (val: StencilOp) { 
+    set stencilZFailOpBack (val: StencilOp) {
         this._stencilZFailOpBack = val;
         this._nativeObj.stencilZFailOpBack = val;
     }
     get stencilPassOpBack (): StencilOp { return this._stencilPassOpBack; }
-    set stencilPassOpBack (val: StencilOp) { 
+    set stencilPassOpBack (val: StencilOp) {
         this._stencilPassOpBack = val;
         this._nativeObj.stencilPassOpBack = val;
     }
     get stencilRefBack (): number { return this._stencilRefBack; }
-    set stencilRefBack (val: number) { 
-        this._stencilRefBack = val; 
+    set stencilRefBack (val: number) {
+        this._stencilRefBack = val;
         this._nativeObj.stencilRefBack = val;
     }
 
     public reset () {
-        this.assignProperties(true, true, ComparisonFunc.LESS, false, ComparisonFunc.ALWAYS, 0xffff, 0xffff,StencilOp.KEEP,
+        this.assignProperties(true, true, ComparisonFunc.LESS, false, ComparisonFunc.ALWAYS, 0xffff, 0xffff, StencilOp.KEEP,
             StencilOp.KEEP, StencilOp.KEEP, 1, false, ComparisonFunc.ALWAYS, 0xffff, 0xffff, StencilOp.KEEP, StencilOp.KEEP, StencilOp.KEEP, 1);
     }
 
@@ -435,7 +435,7 @@ export class BlendTarget {
     protected _blendDstAlpha: BlendFactor = BlendFactor.ZERO;
     protected _blendAlphaEq: BlendOp = BlendOp.ADD;
     protected _blendColorMask: ColorMask = ColorMask.ALL;
-    get native() {
+    get native () {
         return this._nativeObj;
     }
 
@@ -472,7 +472,7 @@ export class BlendTarget {
         this._nativeObj.blendDst = val;
     }
     get blendEq (): BlendOp { return this._blendEq; }
-    set blendEq (val: BlendOp) { 
+    set blendEq (val: BlendOp) {
         this._blendEq = val;
         this._nativeObj.blendEq = val;
     }
@@ -482,18 +482,18 @@ export class BlendTarget {
         this._nativeObj.blendSrcAlpha = val;
     }
     get blendDstAlpha (): BlendFactor { return this._blendDstAlpha; }
-    set blendDstAlpha (val: BlendFactor) { 
+    set blendDstAlpha (val: BlendFactor) {
         this._blendDstAlpha = val;
         this._nativeObj.blendDstAlpha = val;
     }
     get blendAlphaEq (): BlendOp { return this._blendAlphaEq; }
     set blendAlphaEq (val: BlendOp) {
-        this._blendAlphaEq = val; 
+        this._blendAlphaEq = val;
         this._nativeObj.blendAlphaEq = val;
     }
     get blendColorMask (): ColorMask { return this._blendColorMask; }
-    set blendColorMask (val: ColorMask) { 
-        this._blendColorMask = val; 
+    set blendColorMask (val: ColorMask) {
+        this._blendColorMask = val;
         this._nativeObj.blendColorMask = val;
     }
 
@@ -533,6 +533,28 @@ export class BlendTarget {
     }
 }
 
+function watchArrayElementsField<S, T> (self: S, list: T[], eleField: string, cachedFieldName: string, callback: (self: S, idx: number, originTarget: T, prop: symbol | string, value: any) => void) {
+    for (let i = 0, l = list.length; i < l; i++) {
+        let ele = list[i] as any;
+        let originField = ele[eleField][cachedFieldName] || ele[eleField];
+        // replace with Proxy
+        ele[eleField] = new Proxy(originField, {
+            get: (originTarget, key: string | symbol) => {
+                if (key === cachedFieldName) {
+                    return originTarget;
+                }
+                return Reflect.get(originTarget, key);
+            },
+            set: (originTarget, prop, value) => {
+                Reflect.set(originTarget, prop, value);
+                callback(self, i, originTarget, prop, value);
+                return true;
+            }
+        });
+    }
+}
+
+
 export class BlendState {
     private targets: BlendTarget[];
     private _blendColor: Color;
@@ -540,13 +562,24 @@ export class BlendState {
     protected _isA2C: boolean = false;
     protected _isIndepend: boolean = false;
 
-    private _setTargets(targets: BlendTarget[]) {
+    private _setTargets (targets: BlendTarget[]) {
         this.targets = targets;
-        const nativeTars = targets.map(target => target.native);
+
+        const CACHED_FIELD_NAME = `$__nativeObj`;
+        this._syncTargetsToNativeObj(CACHED_FIELD_NAME);
+
+        // watch target[i]._nativeObj fields update 
+        watchArrayElementsField(this, this.targets, "_nativeObj", CACHED_FIELD_NAME, (self, _idx, _originTarget, _prop, _value) => {
+            self._syncTargetsToNativeObj(CACHED_FIELD_NAME);
+        });
+    }
+
+    private _syncTargetsToNativeObj (cachedFieldName: string) {
+        const nativeTars = this.targets.map(target => { return target.native[cachedFieldName] || target.native; });
         this._nativeObj.targets = nativeTars;
     }
 
-    get native() {
+    get native () {
         return this._nativeObj;
     }
 
@@ -573,7 +606,7 @@ export class BlendState {
     get isIndepend (): boolean {
         return this._isIndepend;
     }
-    set isIndepend (val: boolean) { 
+    set isIndepend (val: boolean) {
         this._isIndepend = val;
         this._nativeObj.isIndepend = val;
     }

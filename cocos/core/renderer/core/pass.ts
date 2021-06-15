@@ -48,6 +48,7 @@ import {
 } from './pass-utils';
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { NativePass } from '../scene/native-scene';
+import { errorID } from '../../platform/debug';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -79,6 +80,7 @@ const _bufferViewInfo = new BufferViewInfo(null!);
 const _dsInfo = new DescriptorSetInfo(null!);
 
 export enum BatchingSchemes {
+    NONE = 0,
     INSTANCING = 1,
     VB_MERGING = 2,
 }
@@ -176,7 +178,6 @@ export class Pass {
     protected _buffers: Buffer[] = [];
     protected _descriptorSet: DescriptorSet = null!;
     protected _pipelineLayout: PipelineLayout = null!;
-
     // internal data
     protected _passIndex = 0;
     protected _propertyIndex = 0;
@@ -194,16 +195,15 @@ export class Pass {
     protected _rs: RasterizerState = new RasterizerState();
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
     protected _stage: RenderPassStage = RenderPassStage.DEFAULT;
-    protected _phase = -1;
+    protected _phase = getPhaseID('default');
     protected _primitive: PrimitiveMode = PrimitiveMode.TRIANGLE_LIST;
-    protected _batchingScheme: BatchingSchemes = BatchingSchemes.INSTANCING;
+    protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
     protected _dynamicStates: DynamicStateFlagBit = DynamicStateFlagBit.NONE;
     protected _hash = 0;
 
     // external references
     protected _root: Root;
     protected _device: Device;
-
     // native data
     protected declare _nativeObj: NativePass | null;
 
@@ -361,7 +361,12 @@ export class Pass {
      * @zh 更新当前 Uniform 数据。
      */
     public update (): void {
-        if (this._rootBufferDirty && this._rootBuffer) {
+        if (!this._descriptorSet) {
+            errorID(12006);
+            return;
+        }
+
+        if (this._rootBuffer && this._rootBufferDirty) {
             this._rootBuffer.update(this._rootBlock!);
             this._rootBufferDirty = false;
         }
@@ -390,7 +395,7 @@ export class Pass {
 
         if (this._rootBuffer) {
             this._rootBuffer.destroy();
-            this._rootBlock = null;
+            this._rootBuffer = null;
         }
 
         // textures are reused
@@ -676,12 +681,12 @@ export class Pass {
                 this._setBatchingScheme(BatchingSchemes.INSTANCING);
             } else {
                 this._defines.USE_INSTANCING = false;
-                this._setBatchingScheme(0);
+                this._setBatchingScheme(BatchingSchemes.NONE);
             }
         } else if (this._defines.USE_BATCHING) {
             this._setBatchingScheme(BatchingSchemes.VB_MERGING);
         } else {
-            this._setBatchingScheme(0);
+            this._setBatchingScheme(BatchingSchemes.NONE);
         }
     }
 
@@ -732,7 +737,6 @@ export class Pass {
         this._setBlendState(bs);
         this._setRasterizerState(target.rasterizerState);
         this._setDepthStencilState(dss);
-
         this._passIndex = target.passIndex;
         this._propertyIndex = target.propertyIndex;
         this._programName = target.program;
@@ -749,6 +753,8 @@ export class Pass {
         this._setHash(target._hash ^ hashFactor);
     }
 
+    /* eslint-disable max-len */
+
     // infos
     get root (): Root { return this._root; }
     get device (): Device { return this._device; }
@@ -762,6 +768,7 @@ export class Pass {
     // data
     get dynamics (): IPassDynamics { return this._dynamics; }
     get blocks (): Float32Array[] { return this._blocks; }
+    get rootBufferDirty (): boolean { return this._rootBufferDirty; }
     // states
     get priority (): RenderPriority { return this._priority; }
     get primitive (): PrimitiveMode { return this._primitive; }
@@ -774,7 +781,6 @@ export class Pass {
     get batchingScheme (): BatchingSchemes { return this._batchingScheme; }
     get descriptorSet (): DescriptorSet { return this._descriptorSet; }
     get hash (): number { return this._hash; }
-    get rootBufferDirty (): boolean { return this._rootBufferDirty; }
     get pipelineLayout (): PipelineLayout { return this._pipelineLayout; }
 }
 

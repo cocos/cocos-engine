@@ -29,6 +29,7 @@ import { EventKeyboard, EventMouse, EventTouch, SystemEvent, SystemEventType } f
 import { sys } from './sys';
 import { View } from './view';
 import { Node } from '../scene-graph';
+import { macro } from './macro';
 
 removeProperty(View.prototype, 'View.prototype', [
     {
@@ -261,5 +262,44 @@ replaceProperty(Node.EventType, 'Node.EventType', [
         name: 'KEY_UP',
         target: SystemEventType,
         targetName: 'SystemEventType',
+    },
+]);
+
+markAsWarning(macro.KEY, 'macro.KEY',
+    [
+        'back',
+        'menu',
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+        '*', '+', '-', '/', ';', '=', ',', '.', '[', ']',
+        'dpadLeft', 'dpadRight', 'dpadUp', 'dpadDown', 'dpadCenter',
+    ].map((item) => ({
+        name: item,
+    })));
+
+markAsWarning(macro.KEY, 'macro.KEY', [
+    {
+        name: 'shift',
+        suggest: 'please use SystemEvent.KeyCode.SHIFT_LEFT instead',
+    },
+]);
+
+markAsWarning(macro.KEY, 'macro.KEY', [
+    {
+        name: 'ctrl',
+        suggest: 'please use SystemEvent.KeyCode.CTRL_LEFT instead',
+    },
+]);
+
+markAsWarning(macro.KEY, 'macro.KEY', [
+    {
+        name: 'alt',
+        suggest: 'please use SystemEvent.KeyCode.ALT_LEFT instead',
+    },
+]);
+
+markAsWarning(macro, 'macro', [
+    {
+        name: 'KEY',
+        suggest: 'please use SystemEvent.KeyCode instead',
     },
 ]);

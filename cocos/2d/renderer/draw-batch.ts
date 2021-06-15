@@ -41,7 +41,6 @@ import { Layers } from '../../core/scene-graph/layers';
 import { legacyCC } from '../../core/global-exports';
 import { Pass } from '../../core/renderer/core/pass';
 import { NativeDrawBatch2D, NativePass } from '../../core/renderer/scene';
-import { BatchView2D } from '../../core/renderer';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -93,7 +92,7 @@ export class DrawBatch2D {
     public textureHash = 0;
     public samplerHash = 0;
     private _passes: Pass[] = [];
-    private _visFlags: BatchView2D = UI_VIS_FLAG;
+    private _visFlags: number = UI_VIS_FLAG;
     private _inputAssember: InputAssembler | null = null;
     private _descriptorSet: DescriptorSet | null = null;
     private declare _nativeObj: NativeDrawBatch2D | null;

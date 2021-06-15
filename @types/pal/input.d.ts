@@ -132,7 +132,7 @@ declare module 'pal/input' {
         /**
          * Numerical code identifying the unique value of the pressed key.
          */
-        readonly code: number;
+        readonly code: import('../../cocos/core/platform/event-manager/key-code').KeyCode;
     }
     type KeyboardCallback = (res: KeyboardInputEvent) => void;
     /**
