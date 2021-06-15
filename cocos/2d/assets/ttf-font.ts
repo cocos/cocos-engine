@@ -41,7 +41,7 @@ import { legacyCC } from '../../core/global-exports';
 @ccclass('cc.TTFFont')
 export class TTFFont extends Font {
     @serializable
-    public _fontFamily: any = null;
+    public _fontFamily: string | null = null;
 
     @override
     @string
