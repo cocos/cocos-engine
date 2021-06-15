@@ -22,13 +22,11 @@ class System {
     public readonly supportCapability: SupportCapability;
 
     private _eventTarget: EventTarget = new EventTarget();
-    private _html;
     private _battery?: any;
 
     constructor () {
         const nav = window.navigator;
         const ua = nav.userAgent.toLowerCase();
-        this._html = document.getElementsByTagName('html')[0];
         // @ts-expect-error getBattery is not totally supported
         nav.getBattery?.().then((battery) => {
             this._battery = battery;
@@ -261,7 +259,7 @@ class System {
 
     public getViewSize (): Size {
         const element = document.getElementById('GameDiv');
-        if (this.isMobile || !element || element === this._html) {
+        if (!element) {
             return new Size(window.innerWidth, window.innerHeight);
         } else {
             return new Size(element.clientWidth, element.clientHeight);

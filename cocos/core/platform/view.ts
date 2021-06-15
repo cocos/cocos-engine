@@ -42,65 +42,6 @@ import { logID, errorID } from './debug';
 import { sys } from './sys';
 import { BrowserType, OS } from '../../../pal/system/enum-type';
 
-class BrowserGetter {
-    public html: HTMLHtmlElement | undefined;
-
-    public meta = {
-        width: 'device-width',
-    };
-
-    public adaptationType: any = legacyCC.sys.browserType;
-
-    public init () {
-        if (!MINIGAME) {
-            this.html = document.getElementsByTagName('html')[0];
-        }
-    }
-
-    public availWidth (frame) {
-        if (legacyCC.sys.isMobile || !frame || frame === this.html) {
-            return window.innerWidth;
-        } else {
-            return frame.clientWidth as number;
-        }
-    }
-
-    public availHeight (frame) {
-        if (legacyCC.sys.isMobile || !frame || frame === this.html) {
-            return window.innerHeight;
-        } else {
-            return frame.clientHeight as number;
-        }
-    }
-}
-
-const __BrowserGetter = new BrowserGetter();
-
-if (system.os === OS.IOS) { // All browsers are WebView
-    __BrowserGetter.adaptationType = BrowserType.SAFARI;
-}
-
-switch (__BrowserGetter.adaptationType) {
-case BrowserType.SAFARI: {
-    __BrowserGetter.meta['minimal-ui'] = 'true';
-    __BrowserGetter.availWidth = (frame) => (frame.clientWidth as number);
-    __BrowserGetter.availHeight = (frame) => (frame.clientHeight as number);
-    break;
-}
-case BrowserType.SOUGOU: {
-    __BrowserGetter.availWidth = (frame) => (frame.clientWidth as number);
-    __BrowserGetter.availHeight = (frame) => (frame.clientHeight as number);
-    break;
-}
-case BrowserType.UC: {
-    __BrowserGetter.availWidth = (frame) => (frame.clientWidth as number);
-    __BrowserGetter.availHeight = (frame) => (frame.clientHeight as number);
-    break;
-}
-default:
-    break;
-}
-
 /**
  * @en View represents the game window.<br/>
  * It's main task include: <br/>
@@ -195,8 +136,6 @@ export class View extends EventTarget {
     }
 
     public init () {
-        __BrowserGetter.init();
-
         this._initFrameSize();
 
         const w = legacyCC.game.canvas.width;
@@ -522,11 +461,6 @@ export class View extends EventTarget {
             policy.preApply(this);
         }
 
-        // Reinit frame size
-        if (legacyCC.sys.isMobile) {
-            this._adjustViewportMeta();
-        }
-
         // Permit to re-detect the orientation of device.
         this._orientationChanging = true;
         // If resizing, then frame size is already initialized, this logic should be improved
@@ -603,9 +537,6 @@ export class View extends EventTarget {
      */
     public setRealPixelResolution (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
         if (!JSB && !RUNTIME_BASED && !MINIGAME) {
-            // Set viewport's width
-            this._setViewportMeta({ width }, true);
-
             // Set body width to the exact pixel resolution
             document.documentElement.style.width = `${width}px`;
             document.body.style.width = `${width}px`;
@@ -734,8 +665,9 @@ export class View extends EventTarget {
 
     private _initFrameSize () {
         const locFrameSize = this._frameSize;
-        const w = __BrowserGetter.availWidth(legacyCC.game.frame);
-        const h = __BrowserGetter.availHeight(legacyCC.game.frame);
+        const viewSize = system.getViewSize();
+        const w = viewSize.width;
+        const h = viewSize.height;
         const isLandscape: boolean = w >= h;
 
         if (EDITOR || !legacyCC.sys.isMobile
@@ -777,53 +709,6 @@ export class View extends EventTarget {
         const designHeight = this._originalDesignResolutionSize.height;
         if (designWidth > 0) {
             this.setDesignResolutionSize(designWidth, designHeight, this._resolutionPolicy);
-        }
-    }
-
-    private _setViewportMeta (metas, overwrite) {
-        let vp = document.getElementById('cocosMetaElement');
-        if (vp && overwrite) {
-            document.head.removeChild(vp);
-        }
-
-        const elems = document.getElementsByName('viewport');
-        const currentVP = elems ? elems[0] : null;
-        let content;
-        let key;
-        let pattern;
-
-        content = currentVP ? currentVP.content : '';
-        vp = vp || document.createElement('meta');
-        vp.id = 'cocosMetaElement';
-        vp.name = 'viewport';
-        vp.content = '';
-
-        for (key in metas) {
-            if (content.indexOf(key) === -1) {
-                content += `,${key}=${metas[key]}`;
-            } else if (overwrite) {
-                // eslint-disable-next-line no-useless-escape
-                pattern = new RegExp(`${key}\s*=\s*[^,]+`);
-                content = content.replace(pattern, `${key}=${metas[key]}`);
-            }
-        }
-        if (/^,/.test(content)) {
-            content = content.substr(1);
-        }
-
-        vp.content = content;
-        // For adopting certain android devices which don't support second viewport
-        if (currentVP) {
-            currentVP.content = content;
-        }
-
-        document.head.appendChild(vp);
-    }
-
-    private _adjustViewportMeta () {
-        if (this._isAdjustViewport && !JSB && !RUNTIME_BASED && !MINIGAME) {
-            this._setViewportMeta(__BrowserGetter.meta, false);
-            this._isAdjustViewport = false;
         }
     }
 
