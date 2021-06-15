@@ -45,10 +45,17 @@ import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
 import { BrowserType } from '../../pal/system/enum-type';
+import { Layers } from './scene-graph';
+import { log2 } from './math/bits';
 
 interface ISceneInfo {
     url: string;
     uuid: string;
+}
+
+export interface LayerItem {
+    name: string;
+    value: number;
 }
 
 /**
@@ -160,6 +167,11 @@ export interface IGameConfig {
      * Physics system config
      */
     physics?: IPhysicsConfig;
+
+    /**
+     * User layers config
+     */
+    layers?: LayerItem[];
 }
 
 /**
@@ -479,6 +491,15 @@ export class Game extends EventTarget {
         // Init assetManager
         if (this.config.assetOptions) {
             legacyCC.assetManager.init(this.config.assetOptions);
+        }
+
+        if (this.config.layers) {
+            const userLayers: LayerItem[] = this.config.layers;
+            for (let i = 0; i < userLayers.length; i++) {
+                const layer = userLayers[i];
+                const bitNum = log2(layer.value);
+                Layers.addLayer(layer.name, bitNum);
+            }
         }
 
         return this._initEngine().then(() => {
