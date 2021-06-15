@@ -14,6 +14,7 @@
 #include "cocos/renderer/pipeline/RenderFlow.h"
 #include "cocos/renderer/pipeline/RenderStage.h"
 #include "cocos/renderer/pipeline/Define.h"
+#include "cocos/renderer/pipeline/GlobalDescriptorSetManager.h"
 #include "cocos/renderer/pipeline/InstancedBuffer.h"
 #include "cocos/renderer/pipeline/deferred/DeferredPipeline.h"
 #include "cocos/renderer/pipeline/deferred/GbufferFlow.h"
@@ -31,6 +32,24 @@ bool register_all_pipeline(se::Object* obj);
 template<>
 bool sevalue_to_native(const se::Value &, cc::pipeline::RenderQueueDesc *, se::Object *ctx);
 JSB_REGISTER_OBJECT_TYPE(cc::pipeline::RenderQueueDesc);
+
+extern se::Object* __jsb_cc_pipeline_GlobalDSManager_proto;
+extern se::Class* __jsb_cc_pipeline_GlobalDSManager_class;
+
+bool js_register_cc_pipeline_GlobalDSManager(se::Object* obj);
+bool register_all_pipeline(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::pipeline::GlobalDSManager);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindBuffer);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindSampler);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_bindTexture);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetLayout);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getDescriptorSetMap);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getGlobalDescriptorSet);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getOrCreateDescriptorSet);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_getShadowMapSampler);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_update);
+SE_DECLARE_FUNC(js_pipeline_GlobalDSManager_GlobalDSManager);
 
 extern se::Object* __jsb_cc_pipeline_RenderPipelineInfo_proto;
 extern se::Class* __jsb_cc_pipeline_RenderPipelineInfo_class;
