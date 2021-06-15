@@ -17,14 +17,13 @@ import enums from '../../../renderer/enums';
 
 const hashArray = [];
 
-function serializeDefines (defines) {
-    let index = 0;
-    for (let name in defines) {
-        hashArray[index] = name + defines[name];
-        index++;
+function serializeDefines (defines, names) {
+    const len = names.length;
+    for (let i = 0; i < len; i++) {
+        const name = names[i];
+        hashArray[i] = name + defines[name];
     }
-    hashArray.length = index;
-    hashArray.sort();
+    hashArray.length = len;
     return hashArray.join('');
 }
 
@@ -47,9 +46,9 @@ function serializePass (pass, excludeProperties) {
     }
 
     if (!excludeProperties) {
-        str += serializeUniforms(pass._properties);
+        str += serializeUniforms(pass._properties, pass._propertyNames);
     }
-    str += serializeDefines(pass._defines);
+    str += serializeDefines(pass._defines, pass._defineNames);
 
     return str;
 }
@@ -62,10 +61,10 @@ function serializePasses (passes) {
     return hashData;
 }
 
-function serializeUniforms (uniforms) {
+function serializeUniforms (uniforms, names) {
     let index = 0;
-    for (let name in uniforms) {
-        let param = uniforms[name];
+    for (let i = 0, len = names.length; i < len; i++) {
+        let param = uniforms[names[i]];
         let prop = param.value;
 
         if (!prop) {
@@ -81,7 +80,6 @@ function serializeUniforms (uniforms) {
         index++
     }
     hashArray.length = index;
-    hashArray.sort();
     return hashArray.join(';');
 }
 
