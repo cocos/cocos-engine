@@ -42,10 +42,6 @@ exports.data = {
 }
 
 exports.methods = {
-    t(key, type = 'event.') {
-        return Editor.I18n.t(`animator.${type}${key}`);
-    },
-
     display(x) {
         return x >= 0;
     },
@@ -53,12 +49,12 @@ exports.methods = {
     onPopMenu(event, eventInfo) {
         const that = this;
         const menu = [{
-            label: that.t('edit', ''),
+            label: Editor.I18n.t(`animator.event.edit`),
             click() {
                 that.openEventEditor(eventInfo);
             },
         }, {
-            label: that.t('delete', ''),
+            label: Editor.I18n.t(`animator.event.delete`),
             click() {
                 that.$emit('del', eventInfo);
             },
