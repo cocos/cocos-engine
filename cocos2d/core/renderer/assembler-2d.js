@@ -1,7 +1,6 @@
 import Assembler from './assembler';
 import dynamicAtlasManager from './utils/dynamic-atlas/manager';
 import RenderData from './webgl/render-data';
-import { Color } from '../value-types';
 
 export default class Assembler2D extends Assembler {
     constructor () {
@@ -133,10 +132,6 @@ export default class Assembler2D extends Assembler {
 
     packToDynamicAtlas (comp, frame) {
         if (CC_TEST) return;
-
-        if (comp.useDynamicAtlas === false) {
-            return;
-        }
 
         if (!frame._original && dynamicAtlasManager && frame._texture.packable && frame._texture.loaded) {
             let packedFrame = dynamicAtlasManager.insertSpriteFrame(frame);
