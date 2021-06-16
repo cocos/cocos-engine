@@ -335,7 +335,7 @@ class BuiltinResMgr {
         resources[builtinPostProcessMtl._uuid] = builtinPostProcessMtl;
         materialsToBeCompiled.push(builtinPostProcessMtl);
 
-        legacyCC.game.on(legacyCC.Game.EVENT_RENDERER_INITED, () => {
+        legacyCC.game.on(legacyCC.Game.EVENT_GAME_INITED, () => {
             for (let i = 0; i < materialsToBeCompiled.length; ++i) {
                 const mat = materialsToBeCompiled[i];
                 for (let j = 0; j < mat.passes.length; ++j) {
