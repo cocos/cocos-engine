@@ -23,28 +23,41 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#if CC_JOB_SYSTEM == CC_JOB_SYSTEM_TASKFLOW
-    #include "job-system-taskflow/TFJobGraph.h"
-    #include "job-system-taskflow/TFJobSystem.h"
+#pragma once
+
+#include "cocos/base/Macros.h"
+#include "cocos/base/TypeDef.h"
+
 namespace cc {
-using JobToken  = TFJobToken;
-using JobGraph  = TFJobGraph;
-using JobSystem = TFJobSystem;
+
+using DummyJobToken = size_t;
+
+class DummyJobGraph;
+
+class DummyJobSystem final {
+private:
+    static DummyJobSystem *instance;
+
+public:
+    static DummyJobSystem *getInstance() {
+        if (!instance) {
+            instance = new DummyJobSystem;
+        }
+        return instance;
+    }
+
+    static void destroyInstance() {
+        delete instance;
+        instance = nullptr;
+    }
+
+    DummyJobSystem() noexcept = default;
+    explicit DummyJobSystem(uint /*threadCount*/) noexcept {}
+
+    CC_INLINE uint threadCount() const { return THREAD_COUNT; } //NOLINT
+
+private:
+    static constexpr uint THREAD_COUNT = 1U; //always one
+};
+
 } // namespace cc
-#elif CC_JOB_SYSTEM == CC_JOB_SYSTEM_TBB
-    #include "job-system-tbb/TBBJobGraph.h"
-    #include "job-system-tbb/TBBJobSystem.h"
-namespace cc {
-using JobToken  = TBBJobToken;
-using JobGraph  = TBBJobGraph;
-using JobSystem = TBBJobSystem;
-} // namespace cc
-#else
-    #include "job-system-dummy/DummyJobGraph.h"
-    #include "job-system-dummy/DummyJobSystem.h"
-namespace cc {
-using JobToken  = DummyJobToken;
-using JobGraph  = DummyJobGraph;
-using JobSystem = DummyJobSystem;
-} // namespace cc
-#endif

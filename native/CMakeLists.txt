@@ -208,10 +208,15 @@ if(USE_DRAGONBONES OR USE_SPINE)
 	set(USE_MIDDLEWARE ON)
 endif()
 
-if("${USE_JOB_SYSTEM_TBB}" STREQUAL "${USE_JOB_SYSTEM_TASKFLOW}")
+if(USE_JOB_SYSTEM_TASKFLOW AND USE_JOB_SYSTEM_TBB)
     set(USE_JOB_SYSTEM_TASKFLOW ON)
     set(USE_JOB_SYSTEM_TBB      OFF)
 endif()
+
+# if(USE_JOB_SYSTEM_TASKFLOW)
+#     set(CMAKE_CXX_STANDARD 17)
+#     set(TARGET_IOS_VERSION "12.0"  CACHE STRING "Target iOS version" FORCE)
+# endif()
 
 ################################# list all option values ##############################
 
@@ -219,6 +224,7 @@ inspect_values(
     CC_USE_METAL
     CC_USE_GLES3
     CC_USE_GLES2
+    CC_USE_VULKAN
     USE_SE_V8
     USE_V8_DEBUGGER
     USE_SOCKET
@@ -485,6 +491,13 @@ elseif(USE_JOB_SYSTEM_TBB)
         cocos/base/job-system/job-system-tbb/TBBJobGraph.cpp
         cocos/base/job-system/job-system-tbb/TBBJobSystem.h
         cocos/base/job-system/job-system-tbb/TBBJobSystem.cpp
+    )
+else() 
+    cocos_source_files(
+        cocos/base/job-system/job-system-dummy/DummyJobGraph.h
+        cocos/base/job-system/job-system-dummy/DummyJobGraph.cpp
+        cocos/base/job-system/job-system-dummy/DummyJobSystem.h
+        cocos/base/job-system/job-system-dummy/DummyJobSystem.cpp
     )
 endif()
 
