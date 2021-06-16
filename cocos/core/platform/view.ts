@@ -62,7 +62,6 @@ export class View extends EventTarget {
     public static instance: View;
     public _resizeWithBrowserSize: boolean;
     public _designResolutionSize: Size;
-    public _originalDesignResolutionSize: Size;
 
     private _frameSize: Size;
     private _scaleX: number;
@@ -96,7 +95,6 @@ export class View extends EventTarget {
 
         // resolution size, it is the size appropriate for the app resources.
         this._designResolutionSize = new Size(0, 0);
-        this._originalDesignResolutionSize = new Size(0, 0);
         this._scaleX = 1;
         this._scaleY = 1;
         // Viewport is the container's rect related to content's coordinates in pixel
@@ -140,8 +138,6 @@ export class View extends EventTarget {
         const h = legacyCC.game.canvas.height;
         this._designResolutionSize.width = w;
         this._designResolutionSize.height = h;
-        this._originalDesignResolutionSize.width = w;
-        this._originalDesignResolutionSize.height = h;
         this._viewportRect.width = w;
         this._viewportRect.height = h;
         this._visibleRect.width = w;
@@ -476,8 +472,8 @@ export class View extends EventTarget {
             return;
         }
 
-        this._originalDesignResolutionSize.width = this._designResolutionSize.width = width;
-        this._originalDesignResolutionSize.height = this._designResolutionSize.height = height;
+        this._designResolutionSize.width = width;
+        this._designResolutionSize.height = height;
 
         const result = policy.apply(this, this._designResolutionSize);
 
@@ -640,8 +636,8 @@ export class View extends EventTarget {
         }
 
         // Frame size changed, do resize works
-        const width = _view._originalDesignResolutionSize.width;
-        const height = _view._originalDesignResolutionSize.height;
+        const width = _view._designResolutionSize.width;
+        const height = _view._designResolutionSize.height;
 
         _view._resizing = true;
         if (width > 0) {
