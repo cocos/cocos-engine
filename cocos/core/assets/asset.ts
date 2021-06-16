@@ -38,7 +38,7 @@ import { GCObject } from '../data/gc-object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { extname } from '../utils/path';
-import { finalizationManager } from './finalization-manager';
+import { finalizationManager } from '../data/finalization-manager';
 
 /**
  * @en
@@ -165,11 +165,6 @@ export class Asset extends Eventify(GCObject) {
                 writable: true,
             });
         }
-        if (EDITOR) {
-            const proxy = new Proxy(this, {});
-            finalizationManager.register(proxy, this);
-            return proxy;
-        }
     }
 
     /**
@@ -257,6 +252,7 @@ export class Asset extends Eventify(GCObject) {
 
     public destroy () {
         legacyCC.assetManager.assets.remove(this._uuid);
+        console.log(`The asset ${this._uuid} has been reclaimed`);
         return super.destroy();
     }
 }

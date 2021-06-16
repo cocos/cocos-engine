@@ -24,41 +24,25 @@
 */
 
 import { EDITOR } from 'internal:constants';
-import { Asset } from './asset';
+import { GCObject } from './gc-object';
 
-// declare class Proxy extends Asset {
-//     constructor (obj: any, handler: any);
-// }
 declare class FinalizationRegistry {
     constructor (callback: (heldObj: any) => void);
     register (obj: any, heldObj: any, token?: any);
     unregister (token: any);
 }
 
-// export function registerGC<T extends Constructor<Asset>> (ctor: T) {
-//     if (!EDITOR) return ctor;
-//     return class NewClass extends ctor {
-//         constructor (...args: any[]) {
-//             super(args);
-//             const proxy = new Proxy(this, {});
-//             finalizationManager.register(proxy, this);
-//             return proxy;
-//         }
-//     };
-// }
-
 export class FinalizationManager {
-    register (asset: Asset, heldNativeObj: Asset) {
-        finalizationRegistry.register(asset, heldNativeObj, asset);
+    register (gcObject: GCObject, heldNativeObj: GCObject) {
+        finalizationRegistry.register(gcObject, heldNativeObj, gcObject);
     }
 
-    unregister (asset: Asset) {
-        finalizationRegistry.unregister(asset);
+    unregister (gcObject: GCObject) {
+        finalizationRegistry.unregister(gcObject);
     }
 
-    finalizationRegistryCallback (asset: Asset) {
-        console.log(`The asset ${asset._uuid} has been reclaimed`);
-        asset.destroy();
+    finalizationRegistryCallback (gcObject: GCObject) {
+        gcObject.destroy();
     }
 }
 

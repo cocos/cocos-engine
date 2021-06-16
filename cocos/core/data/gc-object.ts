@@ -22,6 +22,8 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
+import { EDITOR } from 'internal:constants';
+import { finalizationManager } from './finalization-manager';
 import { GarbageCollectorContext } from './garbage-collection';
 import { CCObject } from './object';
 
@@ -42,6 +44,11 @@ export class GCObject extends CCObject {
         const id = GCObject._allGCObjects.length;
         GCObject._allGCObjects.push(this);
         this._internalId = id;
+        if (EDITOR) {
+            const proxy = new Proxy(this, {});
+            finalizationManager.register(proxy, this);
+            return proxy;
+        }
     }
 
     public destroy () {
