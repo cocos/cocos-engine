@@ -30,6 +30,7 @@ import { sys } from './sys';
 import { View } from './view';
 import { Node } from '../scene-graph';
 import { macro } from './macro';
+import { legacyCC } from '../global-exports';
 
 // #region deprecation on view
 removeProperty(View.prototype, 'View.prototype', [
@@ -51,6 +52,16 @@ markAsWarning(View.prototype, 'View.prototype', [
     },
     {
         name: 'isAutoFullScreenEnabled',
+    },
+]);
+markAsWarning(legacyCC, 'cc', [
+    {
+        name: 'winSize',
+        suggest: 'please use view.getVisibleSize() instead.',
+    },
+    {
+        name: 'visibleRect',
+        suggest: 'cc.visibleRect is an inner module, which will be removed in the future, please use view.getVisibleSize() instead.',
     },
 ]);
 // #endregion deprecation on view

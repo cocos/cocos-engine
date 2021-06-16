@@ -1188,5 +1188,7 @@ export const view = View.instance = legacyCC.view = new View();
 /**
  * @en winSize is the alias object for the size of the current game window.
  * @zh winSize 为当前的游戏窗口的大小。
+ *
+ * @deprecated since v3.3, please use view.getVisibleSize() instead.
  */
 legacyCC.winSize = new Size();
