@@ -33,6 +33,7 @@ import { remove } from '../utils/array';
 import { AnimationState } from './animation-state';
 import { Playable } from './playable';
 import { legacyCC } from '../global-exports';
+import type { AnimationManager } from './animation-manager';
 
 interface IManagedState {
     state: AnimationState | null;
@@ -45,12 +46,21 @@ interface IFading {
     easeDuration: number;
 }
 
+interface CrossFadeScheduler {
+    addCrossFade(crossFade: CrossFade): void;
+
+    removeCrossFade(crossFade: CrossFade): void;
+}
+
 export class CrossFade extends Playable {
     private readonly _managedStates: IManagedState[] = [];
     private readonly _fadings: IFading[] = [];
+    private _scheduled = false;
+    private declare _scheduler: CrossFadeScheduler;
 
-    constructor () {
+    constructor (scheduler?: CrossFadeScheduler) {
         super();
+        this._scheduler = scheduler ?? legacyCC.director.getAnimationManager() as AnimationManager;
     }
 
     public update (deltaTime: number) {
@@ -76,6 +86,10 @@ export class CrossFade extends Playable {
                 state.sample();
             }
         }
+
+        if (managedStates.length === 1 && fadings.length === 1) { // Definitely not code repetition
+            this._unscheduleThis();
+        }
     }
 
     /**
@@ -94,6 +108,7 @@ export class CrossFade extends Playable {
         if (duration === 0) {
             this.clear();
         }
+
         let target = this._managedStates.find((weightedState) => weightedState.state === state);
         if (!target) {
             target = { state, reference: 0 };
@@ -110,6 +125,10 @@ export class CrossFade extends Playable {
             easeTime: 0,
             target,
         });
+
+        if (!this.isMotionless) {
+            this._scheduleThis();
+        }
     }
 
     public clear () {
@@ -125,7 +144,7 @@ export class CrossFade extends Playable {
 
     protected onPlay () {
         super.onPlay();
-        legacyCC.director.getAnimationManager().addCrossFade(this);
+        this._scheduleThis();
     }
 
     /**
@@ -133,13 +152,13 @@ export class CrossFade extends Playable {
      */
     protected onPause () {
         super.onPause();
-        legacyCC.director.getAnimationManager().removeCrossFade(this);
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
                 state.pause();
             }
         }
+        this._unscheduleThis();
     }
 
     /**
@@ -147,13 +166,13 @@ export class CrossFade extends Playable {
      */
     protected onResume () {
         super.onResume();
-        legacyCC.director.getAnimationManager().addCrossFade(this);
         for (let iManagedState = 0; iManagedState < this._managedStates.length; ++iManagedState) {
             const state = this._managedStates[iManagedState].state;
             if (state) {
                 state.resume();
             }
         }
+        this._scheduleThis();
     }
 
     /**
@@ -161,7 +180,6 @@ export class CrossFade extends Playable {
      */
     protected onStop () {
         super.onStop();
-        legacyCC.director.getAnimationManager().removeCrossFade(this);
         this.clear();
     }
 
@@ -179,9 +197,9 @@ export class CrossFade extends Playable {
 
         // Allocate weights.
         let absoluteWeight = 1.0;
-        let deadFadingBegin = this._fadings.length;
-        for (let iFading = 0; iFading < this._fadings.length; ++iFading) {
-            const fading = this._fadings[iFading];
+        let deadFadingBegin = fadings.length;
+        for (let iFading = 0; iFading < fadings.length; ++iFading) {
+            const fading = fadings[iFading];
             fading.easeTime += deltaTime;
             // We should properly handle the case of
             // `fading.easeTime === 0 && fading.easeDuration === 0`, which yields `NaN`.
@@ -199,9 +217,9 @@ export class CrossFade extends Playable {
         }
 
         // Kill fadings having no lifetime.
-        if (deadFadingBegin !== this._fadings.length) {
-            for (let iDeadFading = deadFadingBegin; iDeadFading < this._fadings.length; ++iDeadFading) {
-                const deadFading = this._fadings[iDeadFading];
+        if (deadFadingBegin !== fadings.length) {
+            for (let iDeadFading = deadFadingBegin; iDeadFading < fadings.length; ++iDeadFading) {
+                const deadFading = fadings[iDeadFading];
                 --deadFading.target.reference;
                 if (deadFading.target.reference <= 0) {
                     if (deadFading.target.state) {
@@ -210,7 +228,21 @@ export class CrossFade extends Playable {
                     remove(this._managedStates, deadFading.target);
                 }
             }
-            this._fadings.splice(deadFadingBegin);
+            fadings.splice(deadFadingBegin);
+        }
+    }
+
+    private _scheduleThis () {
+        if (!this._scheduled) {
+            this._scheduler.addCrossFade(this);
+            this._scheduled = true;
+        }
+    }
+
+    private _unscheduleThis () {
+        if (this._scheduled) {
+            this._scheduler.removeCrossFade(this);
+            this._scheduled = false;
         }
     }
 }
