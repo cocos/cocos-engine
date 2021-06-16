@@ -31,6 +31,7 @@ import { View } from './view';
 import { Node } from '../scene-graph';
 import { macro } from './macro';
 
+// #region deprecation on view
 removeProperty(View.prototype, 'View.prototype', [
     {
         name: 'isAntiAliasEnabled',
@@ -41,6 +42,12 @@ removeProperty(View.prototype, 'View.prototype', [
         suggest: 'The API of Texture2d have been largely modified, no alternative',
     },
 ]);
+markAsWarning(View.prototype, 'View.prototype', [
+    {
+        name: 'adjustViewportMeta',
+    },
+]);
+// #endregion deprecation on view
 
 // deprecate Event property
 replaceProperty(Event, 'Event', [

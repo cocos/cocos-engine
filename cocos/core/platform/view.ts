@@ -78,7 +78,6 @@ export class View extends EventTarget {
     private _orientationChanging: boolean;
     private _isRotated: boolean;
     private _orientation: any;
-    private _isAdjustViewport: boolean;
     private _resolutionPolicy: ResolutionPolicy;
     private _rpExactFit: ResolutionPolicy;
     private _rpShowAll: ResolutionPolicy;
@@ -122,7 +121,6 @@ export class View extends EventTarget {
         this._orientationChanging = true;
         this._isRotated = false;
         this._orientation = legacyCC.macro.ORIENTATION_AUTO;
-        this._isAdjustViewport = true;
 
         // Setup system default resolution policies
         this._rpExactFit = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.EXACT_FIT);
@@ -229,9 +227,10 @@ export class View extends EventTarget {
      * 即使当它启动时，你仍然能够设置你的 viewport meta，它不会被覆盖。
      * 仅在 Web 模式下有效
      * @param enabled - Enable automatic modification to "viewport" meta
+     * @deprecated since v3.3
      */
     public adjustViewportMeta (enabled: boolean) {
-        this._isAdjustViewport = enabled;
+        // DO NOTHING
     }
 
     /**
