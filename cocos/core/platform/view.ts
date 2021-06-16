@@ -266,6 +266,8 @@ export class View extends EventTarget {
      * @zh 启动时，移动端游戏会在移动端自动尝试进入全屏模式。
      * 你能够传入 true 为参数去启动它，用 false 参数来关闭它。
      * @param enabled - Enable or disable auto full screen on mobile devices
+     *
+     * @deprecated since v3.3
      */
     public enableAutoFullScreen (enabled: boolean) {
         if (enabled
@@ -287,6 +289,8 @@ export class View extends EventTarget {
      * @zh 检查自动进入全屏模式是否启动。
      * 仅在 Web 模式下有效。
      * @return Auto full screen enabled or not
+     *
+     * @deprecated since v3.3
      */
     public isAutoFullScreenEnabled (): boolean {
         return this._autoFullScreen;

@@ -46,6 +46,12 @@ markAsWarning(View.prototype, 'View.prototype', [
     {
         name: 'adjustViewportMeta',
     },
+    {
+        name: 'enableAutoFullScreen',
+    },
+    {
+        name: 'isAutoFullScreenEnabled',
+    },
 ]);
 // #endregion deprecation on view
 

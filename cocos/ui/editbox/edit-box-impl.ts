@@ -68,7 +68,6 @@ export class EditBoxImpl extends EditBoxImplBase {
     public _inputFlag: InputFlag = -1;
     public _returnType: KeyboardReturnType = -1;
     public __eventListeners: any = {};
-    public __fullscreen = false;
     public __autoResize = false;
     public __orientationChanged: any;
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
@@ -104,7 +103,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._registerEventListeners();
         this._addDomToGameContainer();
 
-        this.__fullscreen = view.isAutoFullScreenEnabled();
         this.__autoResize = view._resizeWithBrowserSize;
     }
 
@@ -228,11 +226,6 @@ export class EditBoxImpl extends EditBoxImplBase {
             return;
         }
 
-        if (this.__fullscreen) {
-            view.enableAutoFullScreen(false);
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            screen.exitFullScreen();
-        }
         if (this.__autoResize) {
             view.resizeWithBrowserSize(false);
         }
@@ -245,14 +238,6 @@ export class EditBoxImpl extends EditBoxImplBase {
             if (this.__autoResize) {
                 view.resizeWithBrowserSize(true);
             }
-            // In case enter full screen when soft keyboard still showing
-            setTimeout(() => {
-                if (!_currentEditBoxImpl) {
-                    if (this.__fullscreen) {
-                        view.enableAutoFullScreen(true);
-                    }
-                }
-            }, DELAY_TIME);
         }
 
         this._scrollBackWindow();
