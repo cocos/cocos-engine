@@ -609,12 +609,6 @@ export class View extends EventTarget {
         return result;
     }
 
-    // _convertMouseToLocationInView (in_out_point, relatedPos) {
-    //     var viewport = this._viewportRect, _t = this;
-    //     in_out_point.x = ((_t._devicePixelRatio * (in_out_point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
-    //     in_out_point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y) - viewport.y) / _t._scaleY;
-    // }
-
     private _convertPointWithScale (point) {
         const viewport = this._viewportRect;
         point.x = (point.x - viewport.x) / this._scaleX;
@@ -703,45 +697,6 @@ export class View extends EventTarget {
             setTimeout(() => {
                 legacyCC.view._orientationChanging = false;
             }, 1000);
-        }
-    }
-
-    private _convertMouseToLocation (in_out_point, relatedPos) {
-        in_out_point.x = this._devicePixelRatio * (in_out_point.x - relatedPos.left);
-        in_out_point.y = this._devicePixelRatio * ((relatedPos.top as number) + (relatedPos.height as number) - in_out_point.y);
-        if (legacyCC.GAME_VIEW) {
-            in_out_point.x /= legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
-            in_out_point.y /= legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
-        }
-    }
-
-    private _convertTouchWidthScale (selTouch) {
-        const viewport = this._viewportRect;
-        const scaleX = this._scaleX;
-        const scaleY = this._scaleY;
-
-        selTouch._point.x = (selTouch._point.x - viewport.x) / scaleX;
-        selTouch._point.y = (selTouch._point.y - viewport.y) / scaleY;
-        selTouch._prevPoint.x = (selTouch._prevPoint.x - viewport.x) / scaleX;
-        selTouch._prevPoint.y = (selTouch._prevPoint.y - viewport.y) / scaleY;
-    }
-
-    private _convertTouchesWithScale (touches) {
-        const viewport = this._viewportRect;
-        const scaleX = this._scaleX;
-        const scaleY = this._scaleY;
-        let selPoint;
-        let selPrePoint;
-
-        for (let i = 0; i < touches.length; i++) {
-            const selTouch = touches[i];
-            selPoint = selTouch._point;
-            selPrePoint = selTouch._prevPoint;
-
-            selPoint.x = (selPoint.x - viewport.x) / scaleX;
-            selPoint.y = (selPoint.y - viewport.y) / scaleY;
-            selPrePoint.x = (selPrePoint.x - viewport.x) / scaleX;
-            selPrePoint.y = (selPrePoint.y - viewport.y) / scaleY;
         }
     }
 }

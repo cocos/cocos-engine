@@ -98,7 +98,6 @@ class InputManager {
             }
         }
         if (handleTouches.length > 0) {
-            // this._glView!._convertTouchesWithScale(handleTouches);
             const touchEvent = new EventTouch(handleTouches, false, SystemEventType.TOUCH_START, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
             eventManager.dispatchEvent(touchEvent);
         }
