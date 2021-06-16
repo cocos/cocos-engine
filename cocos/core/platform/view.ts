@@ -706,15 +706,6 @@ export class View extends EventTarget {
         }
     }
 
-    // hack
-    private _adjustSizeKeepCanvasSize () {
-        const designWidth = this._originalDesignResolutionSize.width;
-        const designHeight = this._originalDesignResolutionSize.height;
-        if (designWidth > 0) {
-            this.setDesignResolutionSize(designWidth, designHeight, this._resolutionPolicy);
-        }
-    }
-
     private _convertMouseToLocation (in_out_point, relatedPos) {
         in_out_point.x = this._devicePixelRatio * (in_out_point.x - relatedPos.left);
         in_out_point.y = this._devicePixelRatio * ((relatedPos.top as number) + (relatedPos.height as number) - in_out_point.y);
