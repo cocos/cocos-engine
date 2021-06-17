@@ -406,7 +406,7 @@ const uiElements = {
                 const isInput = element.getAttribute('inputflag');
                 const isHeader = element.getAttribute('slot') === 'header';
                 element.addEventListener('change-dump', () => {
-                    uiElements.baseProps.update.call(this);
+                    uiElements.baseProps.update.call(this, key);
                 });
                 if (isEmpty) {
                     if (isHeader) {
@@ -430,7 +430,11 @@ const uiElements = {
                 }
             });
         },
-        update() {
+        /**
+         * 
+         * @param {string} [eventInstigatorKey] 
+         */
+        update(eventInstigatorKey) {
             this.$.baseProps.forEach((element) => {
                 const key = element.getAttribute('key');
                 const isEmpty = element.getAttribute('empty');
@@ -440,24 +444,43 @@ const uiElements = {
                 const displayName = element.getAttribute('displayName');
                 const dump = this.getObjectByKey(this.dump.value, key);
                 const showflag = element.getAttribute('showflag');
-                if (showflag) {
-                    if (typeof showflag === 'string') {
-                        if (showflag.startsWith('checkEnumInSubset')) {
-                            const params = showflag.split(',');
-                            const enumValue = this.getObjectByKey(this.dump.value, params[1]);
-                            const subset = params.slice(2);
-                            isShow = isShow && this.checkEnumInSubset(enumValue, ...subset);
-                        } else if (showflag.startsWith('!')) {
-                            const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
-                            const isInvalid = propUtils.isMultipleInvalid(dump);
-                            isShow = isShow && !isInvalid && !dump.value;
+                if (typeof showflag === 'string') {
+                    if (showflag.startsWith('checkEnumInSubset')) {
+                        const params = showflag.split(',');
+                        const enumValue = this.getObjectByKey(this.dump.value, params[1]);
+                        const subset = params.slice(2);
+                        isShow = isShow && this.checkEnumInSubset(enumValue, ...subset);
+                    } else {
+                        // only update the elements relate to eventInstigator
+                        if (eventInstigatorKey) {
+                            if (showflag.startsWith(`!${eventInstigatorKey}`)) {
+                                const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
+                                const isInvalid = propUtils.isMultipleInvalid(dump);
+                                isShow = isShow && !isInvalid && !dump.value;
+                            } else if (showflag.startsWith(eventInstigatorKey)) {
+                                const dump = this.getObjectByKey(this.dump.value, showflag);
+                                const isInvalid = propUtils.isMultipleInvalid(dump);
+                                isShow = isShow && !isInvalid && dump.value;
+                            } else {
+                                return;
+                            }
                         } else {
-                            const dump = this.getObjectByKey(this.dump.value, showflag);
-                            const isInvalid = propUtils.isMultipleInvalid(dump);
-                            isShow = isShow && !isInvalid && dump.value;
+                            if (showflag.startsWith('!')) {
+                                const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
+                                const isInvalid = propUtils.isMultipleInvalid(dump);
+                                isShow = isShow && !isInvalid && !dump.value;
+                            } else {
+                                const dump = this.getObjectByKey(this.dump.value, showflag);
+                                const isInvalid = propUtils.isMultipleInvalid(dump);
+                                isShow = isShow && !isInvalid && dump.value;
+                            }
                         }
                     }
+                } else if (eventInstigatorKey) {
+                    // skip all element without showflag
+                    return;
                 }
+
                 dump.displayName = displayName;
                 if (!isEmpty) {
                     if (isShow) {
