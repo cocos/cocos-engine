@@ -30,6 +30,7 @@ import { CCObject } from './object';
 export class GCObject extends CCObject {
 
     public ignoreFromGarbageCollection = true;
+    public declare finalizationToken: any;
 
     private static _allGCObjects: GCObject[] = [];
 
@@ -45,6 +46,7 @@ export class GCObject extends CCObject {
         GCObject._allGCObjects.push(this);
         this._internalId = id;
         if (EDITOR) {
+            this.finalizationToken = {};
             const proxy = new Proxy(this, {});
             finalizationManager.register(proxy, this);
             return proxy;
@@ -58,6 +60,7 @@ export class GCObject extends CCObject {
             GCObject._allGCObjects.length -= 1;
             this._internalId = -1;
         }
+        if (EDITOR) finalizationManager.unregister(this);
         return super.destroy();
     }
 

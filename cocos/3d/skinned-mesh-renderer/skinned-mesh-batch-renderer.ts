@@ -173,10 +173,8 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     @tooltip('i18n:batched_skinning_model.units')
     public units: SkinnedMeshUnit[] = [];
 
-    @referenced(ReferenceType.GC_OBJECT_RECORD)
     private _textures: Record<string, Texture2D> = {};
 
-    @referenced
     private _batchMaterial: Material | null = null;
 
     @override

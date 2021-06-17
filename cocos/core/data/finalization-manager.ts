@@ -22,8 +22,6 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-
-import { EDITOR } from 'internal:constants';
 import { GCObject } from './gc-object';
 
 declare class FinalizationRegistry {
@@ -34,11 +32,11 @@ declare class FinalizationRegistry {
 
 export class FinalizationManager {
     register (gcObject: GCObject, heldNativeObj: GCObject) {
-        finalizationRegistry.register(gcObject, heldNativeObj, gcObject);
+        finalizationRegistry.register(gcObject, heldNativeObj, gcObject.finalizationToken);
     }
 
     unregister (gcObject: GCObject) {
-        finalizationRegistry.unregister(gcObject);
+        finalizationRegistry.unregister(gcObject.finalizationToken);
     }
 
     finalizationRegistryCallback (gcObject: GCObject) {

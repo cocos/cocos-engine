@@ -116,6 +116,7 @@ export class RenderableComponent extends Component {
         }
     }
 
+    @referenced(ReferenceType.GC_OBJECT_ARRAY)
     protected _materialInstances: (MaterialInstance | null)[] = [];
 
     protected _models: scene.Model[] = [];

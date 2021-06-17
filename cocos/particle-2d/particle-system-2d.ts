@@ -670,6 +670,7 @@ export class ParticleSystem2D extends Renderable2D {
         return this._assembler;
     }
     public aspectRatio = 1;
+    @referenced
     // The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
     public declare _renderSpriteFrame: SpriteFrame | null;
     public declare _simulator: Simulator;

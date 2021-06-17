@@ -22,7 +22,7 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
  */
-import { DEBUG } from 'internal:constants';
+import { DEBUG, EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { CCClass } from './class';
 import { GCObject } from './gc-object';
@@ -178,9 +178,9 @@ class GarbageCollectionManager {
         this._normalRoots.clear();
         this._garbageCollectionContext.reset();
         this._garbageCollectableClassInfos.forEach((classInfo, ctor) => {
-            this.generateMarkDependenciesFunctionForCCClass(ctor);
+            this.generateMarkDependenciesFunctionForBuiltinCCClass(ctor);
         });
-        this._classCreatedCallback = this.generateMarkDependenciesFunctionForCCClass.bind(this);
+        this._classCreatedCallback = this.generateMarkDependenciesFunctionForCustomCCClass.bind(this);
         CCClass.onClassCreated(this._classCreatedCallback);
     }
 
@@ -230,8 +230,12 @@ class GarbageCollectionManager {
     }
 
     public collectGarbage (gcObjects?: readonly GCObject[]) {
-        this.markPhase();
-        this.sweepPhase(gcObjects || GCObject.getAllGCObject());
+        if (EDITOR) {
+            // todo: trigger electron gc
+        } else {
+            this.markPhase();
+            this.sweepPhase(gcObjects || GCObject.getAllGCObject());
+        }
     }
 
     private markPhase () {
@@ -245,7 +249,7 @@ class GarbageCollectionManager {
         legacyCC.director.emit(legacyCC.Director.EVENT_AFTER_GC);
     }
 
-    public generateMarkDependenciesFunctionForCCClass (ctor: Constructor) {
+    public generateMarkDependenciesFunctionForBuiltinCCClass (ctor: Constructor) {
         const classInfo = this.getGarbageCollectableClassInfo(ctor);
         if (!classInfo) return;
         const { properties, referenceTypes } = classInfo;
@@ -263,6 +267,20 @@ class GarbageCollectionManager {
                 if (property) { context.markObjectWithReferenceType(property, referenceTypes[i]); }
             }
         };
+    }
+
+    public generateMarkDependenciesFunctionForCustomCCClass (ctor: Constructor) {
+        const prototype = ctor.prototype;
+        const hasMarkDependencies = prototype.markDependencies;
+        if (!hasMarkDependencies) {
+            prototype.markDependencies = function markDependenciesWithParent (context: GarbageCollectorContext) {
+                const properties = Object.getOwnPropertyNames(this);
+                for (let i = 0; i < properties.length; i++) {
+                    const property = this[properties[i]];
+                    if (property) { context.markAny(property); }
+                }
+            }
+        }
     }
 
     private sweepPhase (gcObjects: readonly GCObject[]) {
