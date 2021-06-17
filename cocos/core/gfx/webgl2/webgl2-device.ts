@@ -289,12 +289,8 @@ export class WebGL2Device extends Device {
         this._features[Feature.TEXTURE_FLOAT] = true;
         this._features[Feature.TEXTURE_HALF_FLOAT] = true;
         this._features[Feature.FORMAT_R11G11B10F] = true;
+        this._features[Feature.FORMAT_SRGB] = true;
         this._features[Feature.FORMAT_RGB8] = true;
-        this._features[Feature.FORMAT_D16] = true;
-        this._features[Feature.FORMAT_D24] = true;
-        this._features[Feature.FORMAT_D32F] = true;
-        this._features[Feature.FORMAT_D24S8] = true;
-        this._features[Feature.FORMAT_D32FS8] = true;
         this._features[Feature.MSAA] = true;
         this._features[Feature.ELEMENT_INDEX_UINT] = true;
         this._features[Feature.INSTANCED_ARRAYS] = true;

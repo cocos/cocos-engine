@@ -1,6 +1,6 @@
 import { ccclass, menu, serializable, type, visible } from '../data/decorators';
 import { Component } from '../components/component';
-import Prefab from '../assets/prefab';
+import { Prefab } from '../assets/prefab';
 
 /**
  * @en
