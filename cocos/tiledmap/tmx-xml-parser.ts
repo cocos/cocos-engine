@@ -624,6 +624,10 @@ export class TMXMapInfo {
                     this.parseXMLString(tsxXmlString, currentFirstGID);
                 }
             } else {
+                const images = curTileset.getElementsByTagName('image');
+                const collection = images.length > 1;
+                const firstImage = images[0];
+
                 const tiles = curTileset.getElementsByTagName('tile');
                 const tileCount = tiles && tiles.length || 1;
                 let tile: Element | null = null;
@@ -646,45 +650,45 @@ export class TMXMapInfo {
                     tileOffsetY = parseFloat(curTileOffset.getAttribute('y')!) || 0;
                 }
 
-                const images = curTileset.getElementsByTagName('image');
-                const collection = images.length > 1;
                 let tileset: TMXTilesetInfo | null = null;
                 for (let tileIdx = 0; tileIdx < tileCount; tileIdx++) {
-                    const curImage = images[tileIdx];
+                    const curImage = images[tileIdx] ? images[tileIdx] : firstImage;
+                    if (!curImage) continue;
                     let curImageName: string = curImage.getAttribute('source')!;
                     curImageName = curImageName.replace(/\\/g, '/');
 
-                    if (!tileset || collection) {
+                    if (!tileset) {
                         tileset = new TMXTilesetInfo();
                         tileset.name = tilesetName;
                         tileset.firstGid = ((fgid as unknown as number) & TileFlag.FLIPPED_MASK) as unknown as GID;
                         tileset.tileOffset.x = tileOffsetX;
                         tileset.tileOffset.y = tileOffsetY;
 
-                        tileset.collection = collection;
-
-                        // set multi-sprite frame for tilesets
-                        tileset.spacing = tilesetSpacing;
-                        tileset.margin = tilesetMargin;
-                        tileset.imageName = curImageName;
-                        tileset.sourceImage = this._spriteFrameMap![curImageName];
-                        if (!tileset.sourceImage) {
-                            const nameWithPostfix = TMXMapInfo.getNameWithPostfix(curImageName);
-                            tileset.imageName = nameWithPostfix;
-                            tileset.sourceImage = this._spriteFrameMap![nameWithPostfix];
+                        if (!collection) {
+                            tileset.collection = true;
+                            // set multi-sprite frame for tilesets
+                            tileset.imageName = curImageName;
+                            tileset.imageSize.width = parseFloat(curImage.getAttribute('width')!) || 0;
+                            tileset.imageSize.height = parseFloat(curImage.getAttribute('height')!) || 0;
+                            tileset.sourceImage = this._spriteFrameMap![curImageName];
                             if (!tileset.sourceImage) {
-                                const shortName = TMXMapInfo.getShortName(curImageName);
-                                tileset.imageName = shortName;
-                                tileset.sourceImage = this._spriteFrameMap![shortName];
+                                const nameWithPostfix = TMXMapInfo.getNameWithPostfix(curImageName);
+                                tileset.imageName = nameWithPostfix;
+                                tileset.sourceImage = this._spriteFrameMap![nameWithPostfix];
                                 if (!tileset.sourceImage) {
-                                    console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
-                                    errorID(7221, curImageName);
-                                    console.warn(`Please try asset type of ${curImageName} to 'sprite-frame'`);
+                                    const shortName = TMXMapInfo.getShortName(curImageName);
+                                    tileset.imageName = shortName;
+                                    tileset.sourceImage = this._spriteFrameMap![shortName];
+                                    if (!tileset.sourceImage) {
+                                        console.error(`[error]: ${shortName} not find in [${Object.keys(this._spriteFrameMap!).join(', ')}]`);
+                                        errorID(7221, curImageName);
+                                        console.warn(`Please try asset type of ${curImageName} to 'sprite-frame'`);
+                                    }
                                 }
                             }
                         }
-                        tileset.imageSize.width = parseFloat(curImage.getAttribute('width')!) || 0;
-                        tileset.imageSize.height = parseFloat(curImage.getAttribute('height')!) || 0;
+                        tileset.spacing = tilesetSpacing;
+                        tileset.margin = tilesetMargin;
                         tileset._tileSize.width = tilesetSize.width;
                         tileset._tileSize.height = tilesetSize.height;
                         this.setTilesets(tileset);
