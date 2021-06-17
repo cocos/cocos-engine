@@ -166,6 +166,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::TEXTURE_FLOAT)] = true;
     _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)] = true;
     _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)] = true;
+    _features[static_cast<uint>(Feature::FORMAT_SRGB)] = true;
     _features[static_cast<uint>(Feature::MSAA)] = true;
     _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)] = true;
     _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
@@ -179,11 +180,6 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::COMPUTE_SHADER)] = true;
 
     _features[static_cast<uint>(Feature::FORMAT_RGB8)] = false;
-    _features[static_cast<uint>(Feature::FORMAT_D16)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D16, gpuFamily);
-    _features[static_cast<uint>(Feature::FORMAT_D16S8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D16S8, gpuFamily);
-    _features[static_cast<uint>(Feature::FORMAT_D24S8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D24S8, gpuFamily);
-    _features[static_cast<uint>(Feature::FORMAT_D32F)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F, gpuFamily);
-    _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = mu::isDepthStencilFormatSupported(mtlDevice, Format::D32F_S8, gpuFamily);
 
 //    _memoryAlarmListenerId = EventDispatcher::addCustomEventListener(EVENT_MEMORY_WARNING, std::bind(&CCMTLDevice::onMemoryWarning, this));
 

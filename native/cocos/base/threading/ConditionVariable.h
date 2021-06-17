@@ -37,7 +37,7 @@ public:
     template <typename Function, typename... Args>
     void wait(Function func, Args &&... args) noexcept;
     void signal() noexcept;
-    void SignalAll() noexcept;
+    void signalAll() noexcept;
 
 private:
     std::mutex              _mutex;

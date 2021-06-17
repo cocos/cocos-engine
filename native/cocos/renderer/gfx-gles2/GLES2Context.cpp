@@ -382,7 +382,9 @@ bool GLES2Context::doInit(const ContextInfo &info) {
 }
 
 void GLES2Context::doDestroy() {
-    EGL_CHECK(eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+    if (_eglDisplay) {
+        EGL_CHECK(eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+    }
 
     if (!_vecEGLConfig.empty()) {
         _vecEGLConfig.clear();

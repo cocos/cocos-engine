@@ -34,13 +34,8 @@ namespace gfx {
 
 namespace {
 unordered_map<Format, Feature> featureCheckMap{
-    {Format::D16, Feature::FORMAT_D16},
-    {Format::D16S8, Feature::FORMAT_D16S8},
-    {Format::D24, Feature::FORMAT_D24},
-    {Format::D24S8, Feature::FORMAT_D24S8},
-    {Format::D32F, Feature::FORMAT_D32F},
-    {Format::D32F_S8, Feature::FORMAT_D32FS8},
     {Format::RGB8, Feature::FORMAT_RGB8},
+    {Format::R11G11B10F, Feature::FORMAT_R11G11B10F},
 };
 } // namespace
 

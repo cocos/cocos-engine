@@ -37,7 +37,7 @@ void ConditionVariable::signal() noexcept {
     _condVar.notify_one();
 }
 
-void ConditionVariable::SignalAll() noexcept {
+void ConditionVariable::signalAll() noexcept {
     std::lock_guard<std::mutex> lock(_mutex);
     _condVar.notify_all();
 }

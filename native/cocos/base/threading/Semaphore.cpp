@@ -31,7 +31,7 @@ Semaphore::Semaphore() noexcept
 : _semaphore(0) {
 }
 
-Semaphore::Semaphore(uint32_t const initialCount) noexcept
+Semaphore::Semaphore(int initialCount) noexcept
 : _semaphore(initialCount) {
 }
 
@@ -39,8 +39,8 @@ void Semaphore::wait() noexcept {
     _semaphore.wait();
 }
 
-void Semaphore::signal() noexcept {
-    _semaphore.signal();
+void Semaphore::signal(int count) noexcept {
+    _semaphore.signal(count);
 }
 
 } // namespace cc

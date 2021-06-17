@@ -171,9 +171,7 @@ bool GLES3Context::doInit(const ContextInfo &info) {
 
         int          numConfig = 0;
         unsigned int success   = false;
-        do {
-            EGL_CHECK(success = eglChooseConfig(_eglDisplay, defaultAttribs, nullptr, 0, &numConfig));
-        } while (false);
+        EGL_CHECK(success = eglChooseConfig(_eglDisplay, defaultAttribs, nullptr, 0, &numConfig));
         if (success) {
             _vecEGLConfig.resize(numConfig);
         } else {
@@ -182,9 +180,7 @@ bool GLES3Context::doInit(const ContextInfo &info) {
         }
 
         int count = numConfig;
-        do {
-            EGL_CHECK(success = eglChooseConfig(_eglDisplay, defaultAttribs, _vecEGLConfig.data(), count, &numConfig));
-        } while (false);
+        EGL_CHECK(success = eglChooseConfig(_eglDisplay, defaultAttribs, _vecEGLConfig.data(), count, &numConfig));
         if (success == EGL_FALSE || !numConfig) {
             CC_LOG_ERROR("eglChooseConfig configuration failed.");
             return false;
@@ -402,7 +398,9 @@ bool GLES3Context::doInit(const ContextInfo &info) {
 }
 
 void GLES3Context::doDestroy() {
-    EGL_CHECK(eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+    if (_eglDisplay) {
+        EGL_CHECK(eglMakeCurrent(_eglDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT));
+    }
 
     if (!_vecEGLConfig.empty()) {
         _vecEGLConfig.clear();

@@ -77,8 +77,6 @@ bool EmptyDevice::doInit(const DeviceInfo & /*info*/) {
     cmdBuffInfo.queue = _queue;
     _cmdBuff          = createCommandBuffer(cmdBuffInfo);
 
-    _features[static_cast<uint>(Feature::FORMAT_D24S8)] = true;
-
     CC_LOG_INFO("Empty device initialized.");
     CC_LOG_INFO("SCREEN_SIZE: %d x %d", _width, _height);
 

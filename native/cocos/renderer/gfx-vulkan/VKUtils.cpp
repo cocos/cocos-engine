@@ -39,6 +39,7 @@ VkFormat mapVkFormat(Format format) {
         case Format::RG8UI: return VK_FORMAT_R8G8_UINT;
         case Format::RG8I: return VK_FORMAT_R8G8_SINT;
         case Format::RGB8: return VK_FORMAT_R8G8B8_UNORM;
+        case Format::SRGB8: return VK_FORMAT_R8G8B8_SRGB;
         case Format::RGB8SN: return VK_FORMAT_R8G8B8_SNORM;
         case Format::RGB8UI: return VK_FORMAT_R8G8B8_UINT;
         case Format::RGB8I: return VK_FORMAT_R8G8B8_SINT;

@@ -210,6 +210,7 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::TEXTURE_FLOAT_LINEAR)]      = true;
     _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
     _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)]         = true;
+    _features[static_cast<uint>(Feature::FORMAT_SRGB)]               = true;
     _features[static_cast<uint>(Feature::MSAA)]                      = true;
     _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)]        = true;
     _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)]          = true;
@@ -230,31 +231,6 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_R8G8B8_UNORM, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
         _features[static_cast<uint>(Feature::FORMAT_RGB8)] = true;
-    }
-    requiredFeatures = VK_FORMAT_FEATURE_SAMPLED_IMAGE_BIT | VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D16_UNORM, &formatProperties);
-    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[static_cast<uint>(Feature::FORMAT_D16)] = true;
-    }
-    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_X8_D24_UNORM_PACK32, &formatProperties);
-    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[static_cast<uint>(Feature::FORMAT_D24)] = true;
-    }
-    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D32_SFLOAT, &formatProperties);
-    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[static_cast<uint>(Feature::FORMAT_D32F)] = true;
-    }
-    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D16_UNORM_S8_UINT, &formatProperties);
-    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[static_cast<uint>(Feature::FORMAT_D16S8)] = true;
-    }
-    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D24_UNORM_S8_UINT, &formatProperties);
-    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[static_cast<uint>(Feature::FORMAT_D24S8)] = true;
-    }
-    vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_D32_SFLOAT_S8_UINT, &formatProperties);
-    if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = true;
     }
 
     String compressedFmts;

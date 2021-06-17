@@ -551,11 +551,13 @@ MTLPixelFormat mu::toMTLPixelFormat(Format format) {
             //            case Format::RGB32F: return MTLPixelFormatRGBA32Float;
             //            case Format::RGB32UI: return MTLPixelFormatRGBA32Uint;
             //            case Format::RGB32I: return MTLPixelFormatRGBA32Sint;
+            //            case Format::SRGB8: return MTLPixelFormatRGBA8Unorm_sRGB;
 
         case Format::RGBA8: return MTLPixelFormatRGBA8Unorm;
         case Format::RGBA8SN: return MTLPixelFormatRGBA8Snorm;
         case Format::RGBA8UI: return MTLPixelFormatRGBA8Uint;
         case Format::RGBA8I: return MTLPixelFormatRGBA8Sint;
+        case Format::SRGB8_A8: return MTLPixelFormatRGBA8Unorm_sRGB;
         case Format::RGBA16F: return MTLPixelFormatRGBA16Float;
         case Format::RGBA16UI: return MTLPixelFormatRGBA16Uint;
         case Format::RGBA16I: return MTLPixelFormatRGBA16Sint;

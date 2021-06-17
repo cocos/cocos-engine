@@ -94,6 +94,10 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     String extStr = reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS));
     _extensions   = StringUtil::split(extStr, " ");
 
+    if (checkExtension("EXT_sRGB")) {
+        _features[static_cast<uint>(Feature::FORMAT_SRGB)] = true;
+    }
+
     if (checkExtension("GL_OES_texture_float")) {
         _features[static_cast<uint>(Feature::TEXTURE_FLOAT)] = true;
     }
@@ -103,8 +107,8 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     }
 
     _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_D24S8)]      = true;
-    _features[static_cast<uint>(Feature::MSAA)]              = _renderContext->multiSampleCount() > 0;
+
+    _features[static_cast<uint>(Feature::MSAA)] = _renderContext->multiSampleCount() > 0;
 
     if (checkExtension("GL_OES_element_index_uint")) {
         _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)] = true;
@@ -192,20 +196,6 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = true;
     _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)]   = true;
     _features[static_cast<uint>(Feature::FORMAT_RGB8)]          = true;
-    _features[static_cast<uint>(Feature::FORMAT_D16)]           = true;
-    _features[static_cast<uint>(Feature::FORMAT_D24)]           = true;
-    _features[static_cast<uint>(Feature::FORMAT_D32F)]          = true;
-
-    if (checkExtension("packed_depth_stencil")) {
-        _features[static_cast<uint>(Feature::FORMAT_D24S8)]  = true;
-        _features[static_cast<uint>(Feature::FORMAT_D32FS8)] = true;
-    }
-
-    if (checkExtension("depth_texture")) {
-        _features[static_cast<uint>(Feature::FORMAT_D16)]   = true;
-        _features[static_cast<uint>(Feature::FORMAT_D24)]   = true;
-        _features[static_cast<uint>(Feature::FORMAT_D24S8)] = checkExtension("packed_depth_stencil");
-    }
 
     _renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
     _vendor   = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
