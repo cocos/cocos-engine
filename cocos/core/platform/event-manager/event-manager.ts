@@ -48,7 +48,7 @@ function checkUINode (node) {
 }
 
 const touchEvents: string[] = [TouchEvent.TOUCH_START, TouchEvent.TOUCH_MOVE, TouchEvent.TOUCH_END, TouchEvent.TOUCH_CANCEL];
-const mouseEvents: string[] = [MouseEvent.MOUSE_DOWN, MouseEvent.MOUSE_MOVE, MouseEvent.MOUSE_DOWN, MouseEvent.MOUSE_WHEEL];
+const mouseEvents: string[] = [MouseEvent.MOUSE_DOWN, MouseEvent.MOUSE_MOVE, MouseEvent.MOUSE_UP, MouseEvent.MOUSE_WHEEL];
 const keyboardEvents: string[] = [KeyboardEvent.KEY_DOWN, KeyboardEvent.KEY_UP, 'keydown'];
 
 class _EventListenerVector {
