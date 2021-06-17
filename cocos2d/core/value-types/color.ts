@@ -205,10 +205,10 @@ export default class Color extends ValueType {
      * @deprecated
      */
     static fromHex (out: Color, hex: number): Color {
-        let r = ((hex >> 24)) / 255.0;
-        let g = ((hex >> 16) & 0xff) / 255.0;
-        let b = ((hex >> 8) & 0xff) / 255.0;
-        let a = ((hex) & 0xff) / 255.0;
+        let r = ((hex >> 24) & 0xff);
+        let g = ((hex >> 16) & 0xff);
+        let b = ((hex >> 8) & 0xff);
+        let a = ((hex) & 0xff);
 
         out.r = r;
         out.g = g;
