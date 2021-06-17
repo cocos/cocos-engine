@@ -1194,9 +1194,10 @@ class ContentStrategy {
         public apply (_view, designedResolution) {
             const containerW = legacyCC.game.canvas.width;
             const containerH = legacyCC.game.canvas.height;
+            const designW = designedResolution.width;
             const designH = designedResolution.height;
             const scale = containerH / designH;
-            const contentW = containerW;
+            const contentW = designW * scale;
             const contentH = containerH;
 
             return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
@@ -1209,9 +1210,10 @@ class ContentStrategy {
             const containerW = legacyCC.game.canvas.width;
             const containerH = legacyCC.game.canvas.height;
             const designW = designedResolution.width;
+            const designH = designedResolution.height;
             const scale = containerW / designW;
             const contentW = containerW;
-            const contentH = containerH;
+            const contentH = designH * scale;
 
             return this._buildResult(containerW, containerH, contentW, contentH, scale, scale);
         }
