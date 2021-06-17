@@ -151,13 +151,16 @@ export const NativePass: Constructor<{
     setDynamicState(val: number): void;
     setHash(val: number): void;
     setPipelineLayout(val): void;
+    setRootBuffer(val: Buffer): void;
+    setRootBlock(val: ArrayBuffer): void;
+    setRootBufferDirty(val: boolean): void;
 }> = null!;
 export type NativePass = InstanceType<typeof NativePass>;
 
 export const NativeSubModel: Constructor<{
     setDescriptorSet(val: DescriptorSet | null): void;
     setInputAssembler(val: InputAssembler | null): void;
-    setRenderingSubMesh(val: IFlatBuffer[]): void;
+    setSubMeshBuffers(val: IFlatBuffer[]): void;
     setPlanarShader(val: Shader | null): void;
     setPlanarInstanceShader(val: Shader | null): void;
     setPasses(val: NativePass[]): void;

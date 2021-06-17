@@ -219,11 +219,12 @@ export class SkinningModel extends MorphModel {
 
     public _updateLocalDescriptors (submodelIdx: number, descriptorSet: DescriptorSet) {
         super._updateLocalDescriptors(submodelIdx, descriptorSet);
-        const buffer = this._buffers[this._bufferIndices![submodelIdx]];
-        if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
         if (JSB) {
             (this._nativeObj! as NativeSkinningModel).updateLocalDescriptors(submodelIdx, descriptorSet);
+            return;
         }
+        const buffer = this._buffers[this._bufferIndices![submodelIdx]];
+        if (buffer) { descriptorSet.bindBuffer(UBOSkinning.BINDING, buffer); }
     }
 
     private _ensureEnoughBuffers (count: number) {
