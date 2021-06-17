@@ -49,6 +49,7 @@ import {
 import { RenderPassStage, RenderPriority } from '../../pipeline/define';
 import { NativePass } from '../scene/native-scene';
 import { errorID } from '../../platform/debug';
+import { PassHandle, PassView, NULL_HANDLE, PassPool } from './memory-pools';
 
 export interface IPassInfoFull extends IPassInfo {
     // generated part
@@ -200,11 +201,18 @@ export class Pass {
     protected _batchingScheme: BatchingSchemes = BatchingSchemes.NONE;
     protected _dynamicStates: DynamicStateFlagBit = DynamicStateFlagBit.NONE;
     protected _hash = 0;
-
     // external references
     protected _root: Root;
     protected _device: Device;
     // native data
+    protected _passHandle: PassHandle = NULL_HANDLE;
+    protected declare _nativePriority: Uint32Array;
+    protected declare _nativeStage: Uint32Array;
+    protected declare _nativePhase: Uint32Array;
+    protected declare _nativePrimitive: Uint32Array;
+    protected declare _nativeBatchingScheme: Uint32Array;
+    protected declare _nativeDynamicStates: Uint32Array;
+    protected declare _nativeHash: Uint32Array;
     protected declare _nativeObj: NativePass | null;
 
     get native (): NativePass {
@@ -214,6 +222,18 @@ export class Pass {
     constructor (root: Root) {
         this._root = root;
         this._device = root.device;
+        if (JSB) {
+            this._nativeObj = new NativePass();
+            this._passHandle = PassPool.alloc();
+            this._nativePriority = PassPool.getTypedArray(this._passHandle, PassView.PRIORITY) as Uint32Array;
+            this._nativeStage = PassPool.getTypedArray(this._passHandle, PassView.STAGE) as Uint32Array;
+            this._nativePhase = PassPool.getTypedArray(this._passHandle, PassView.PHASE) as Uint32Array;
+            this._nativePrimitive = PassPool.getTypedArray(this._passHandle, PassView.PRIMITIVE) as Uint32Array;
+            this._nativeBatchingScheme = PassPool.getTypedArray(this._passHandle, PassView.BATCHING_SCHEME) as Uint32Array;
+            this._nativeDynamicStates = PassPool.getTypedArray(this._passHandle, PassView.DYNAMIC_STATE) as Uint32Array;
+            this._nativeHash = PassPool.getTypedArray(this._passHandle, PassView.HASH) as Uint32Array;
+            this._nativeObj.initWithData(PassPool.getBuffer(this._passHandle));
+        }
     }
 
     /**
@@ -398,6 +418,12 @@ export class Pass {
             this._rootBuffer = null;
         }
 
+        if (JSB) {
+            if (this._passHandle) {
+                PassPool.free(this._passHandle);
+            }
+        }
+
         // textures are reused
         this._descriptorSet = null!;
 
@@ -550,28 +576,28 @@ export class Pass {
     private _setPriority (val:RenderPriority) {
         this._priority = val;
         if (JSB) {
-            this._nativeObj!.setPriority(val);
+            this._nativePriority[0] = val;
         }
     }
 
     private _setStage (val: RenderPassStage) {
         this._stage = val;
         if (JSB) {
-            this._nativeObj!.setStage(val);
+            this._nativeStage[0] = val;
         }
     }
 
     private _setPhase (val: number) {
         this._phase = val;
         if (JSB) {
-            this._nativeObj!.setPhase(val);
+            this._nativePhase[0] = val;
         }
     }
 
     private _setPrimitive (val: PrimitiveMode) {
         this._primitive = val;
         if (JSB) {
-            this._nativeObj!.setPrimitive(val);
+            this._nativePrimitive[0] = val;
         }
     }
 
@@ -603,9 +629,6 @@ export class Pass {
     }
 
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
-        if (JSB) {
-            this._nativeObj = new NativePass();
-        }
         this._setPriority(RenderPriority.DEFAULT);
         this._setStage(RenderPassStage.DEFAULT);
         this._setPhase(getPhaseID('default'));
@@ -694,14 +717,14 @@ export class Pass {
     protected _setBatchingScheme (val: BatchingSchemes) {
         this._batchingScheme = val;
         if (JSB) {
-            this._nativeObj!.setBatchingScheme(val);
+            this._nativeBatchingScheme[0] = val;
         }
     }
 
     private _setDynamicState (val: DynamicStateFlagBit) {
         this._dynamicStates = val;
         if (JSB) {
-            this._nativeObj!.setDynamicState(val);
+            this._nativeDynamicStates[0] = val;
         }
     }
 
@@ -713,7 +736,7 @@ export class Pass {
     protected _setHash (val: number) {
         this._hash = val;
         if (JSB) {
-            this._nativeObj!.setHash(val);
+            this._nativeHash[0] = val;
         }
     }
 
@@ -732,8 +755,8 @@ export class Pass {
         this._setBatchingScheme(target.batchingScheme);
         this._setPrimitive(target.primitive);
         this._setDynamicState(target.dynamicStates);
-        this._setDescriptorSet(target, target.descriptorSet);
 
+        this._setDescriptorSet(target, target.descriptorSet);
         this._setBlendState(bs);
         this._setRasterizerState(target.rasterizerState);
         this._setDepthStencilState(dss);

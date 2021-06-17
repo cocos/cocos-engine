@@ -131,40 +131,45 @@ export class DrawBatch2D {
             if (!passes) { return; }
 
             let hashFactor = 0;
+            let dirty = false;
 
             for (let i = 0; i < passes.length; i++) {
                 if (!this._passes[i]) {
                     this._passes[i] = new Pass(legacyCC.director.root);
-
-                    if (JSB) {
-                        // @ts-expect-error hack for UI use pass object
-                        this._passes[i]._nativeObj = new NativePass();
-                    }
                 }
                 const mtlPass = passes[i];
                 const passInUse = this._passes[i];
+
+                mtlPass.update();
+
+                if (mtlPass.hash === passInUse.hash) {
+                    continue;
+                }
+
                 if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
                 if (!bs) { bs = mtlPass.blendState; bsHash = 0; }
                 if (bsHash === -1) { bsHash = 0; }
 
                 hashFactor = (dssHash << 16) | bsHash;
-
-                mtlPass.update();
                 // @ts-expect-error hack for UI use pass object
                 passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
+
+                dirty = true;
             }
 
             if (JSB) {
-                const nativePasses: NativePass[] = [];
-                const nativeShaders: Shader[] = [];
-                const passes = this._passes;
-                for (let i = 0; i < passes.length; i++) {
-                    nativePasses.push(passes[i].native);
-                    nativeShaders.push(passes[i].getShaderVariant()!);
-                }
+                if (dirty) {
+                    const nativePasses: NativePass[] = [];
+                    const nativeShaders: Shader[] = [];
+                    const passes = this._passes;
+                    for (let i = 0; i < passes.length; i++) {
+                        nativePasses.push(passes[i].native);
+                        nativeShaders.push(passes[i].getShaderVariant()!);
+                    }
 
-                this._nativeObj!.passes = nativePasses;
-                this._nativeObj!.shaders = nativeShaders;
+                    this._nativeObj!.passes = nativePasses;
+                    this._nativeObj!.shaders = nativeShaders;
+                }
             }
         }
     }
