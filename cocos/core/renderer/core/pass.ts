@@ -399,6 +399,10 @@ export class Pass {
     private _destroy () {
         if (JSB) {
             this._nativeObj = null;
+
+            if (this._passHandle) {
+                PassPool.free(this._passHandle);
+            }
         }
     }
 
@@ -416,12 +420,6 @@ export class Pass {
         if (this._rootBuffer) {
             this._rootBuffer.destroy();
             this._rootBuffer = null;
-        }
-
-        if (JSB) {
-            if (this._passHandle) {
-                PassPool.free(this._passHandle);
-            }
         }
 
         // textures are reused
