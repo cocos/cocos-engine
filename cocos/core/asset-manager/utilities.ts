@@ -40,6 +40,10 @@ import RequestItem from './request-item';
 import { assets, AssetType, CompleteCallbackNoData, CompleteCallback, IOptions, ProgressCallback, references } from './shared';
 import Task from './task';
 
+declare class WeakRef {
+    constructor (obj: any);
+}
+
 let defaultProgressCallback: ProgressCallback | null = null;
 
 export function setDefaultProgressCallback (onProgress: ProgressCallback) {

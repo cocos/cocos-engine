@@ -44,7 +44,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { MorphRenderingInstance } from '../assets/morph';
 import { legacyCC } from '../../core/global-exports';
 import { assertIsTrue } from '../../core/data/utils/asserts';
-import { referenced, ReferenceType } from '../../core';
+import { markAsGCRoot, ReferenceType } from '../../core';
 
 /**
  * @en Shadow projection mode.
@@ -86,7 +86,7 @@ const ModelShadowReceivingMode = Enum({
  */
 @ccclass('cc.ModelLightmapSettings')
 class ModelLightmapSettings {
-    @referenced
+    @markAsGCRoot
     @serializable
     public texture: Texture2D|null = null;
     @serializable
@@ -166,13 +166,13 @@ export class MeshRenderer extends RenderableComponent {
     public static ShadowCastingMode = ModelShadowCastingMode;
     public static ShadowReceivingMode = ModelShadowReceivingMode;
 
-    @referenced(ReferenceType.CCCLASS_OBJECT)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT)
     @serializable
     @editable
     @disallowAnimation
     public lightmapSettings = new ModelLightmapSettings();
 
-    @referenced
+    @markAsGCRoot
     @serializable
     protected _mesh: Mesh | null = null;
 

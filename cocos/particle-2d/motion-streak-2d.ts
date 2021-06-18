@@ -35,7 +35,7 @@ import { Renderable2D } from '../2d/framework';
 import { Texture2D } from '../core/assets/texture-2d';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { Vec2 } from '../core';
-import { referenced } from '../core/data/garbage-collection';
+import { markAsGCRoot } from '../core/data/garbage-collection';
 
 class Point {
     public point = new Vec2();
@@ -175,7 +175,7 @@ export class MotionStreak extends Renderable2D {
     private _minSeg = 1;
     @serializable
     private _stroke = 64;
-    @referenced
+    @markAsGCRoot
     @serializable
     private _texture: Texture2D | null  = null;
     @serializable

@@ -42,7 +42,7 @@ import GradientRange from '../animator/gradient-range';
 import { Space, TextureMode, TrailMode } from '../enum';
 import { Particle } from '../particle';
 import { legacyCC } from '../../core/global-exports';
-import { referenced } from '../../core';
+import { markAsGCRoot } from '../../core';
 
 const PRE_TRIANGLE_INDEX = 1;
 const NEXT_TRIANGLE_INDEX = 1 << 2;

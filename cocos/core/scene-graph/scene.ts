@@ -39,7 +39,7 @@ import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
 import { applyTargetOverrides } from '../utils/prefab/utils';
-import { referenced, ReferenceType } from '../data';
+import { markAsGCRoot, ReferenceType } from '../data';
 
 /**
  * @en
@@ -76,7 +76,7 @@ export class Scene extends BaseNode {
      * @en Per-scene level rendering info
      * @zh 场景级别的渲染信息
      */
-    @referenced(ReferenceType.CCCLASS_OBJECT)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT)
     @serializable
     public _globals = new SceneGlobals();
 

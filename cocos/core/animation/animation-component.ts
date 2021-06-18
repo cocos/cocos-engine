@@ -39,7 +39,7 @@ import { AnimationClip } from './animation-clip';
 import { AnimationState, EventType } from './animation-state';
 import { CrossFade } from './cross-fade';
 import { legacyCC } from '../global-exports';
-import { referenced, ReferenceType } from '../data/garbage-collection';
+import { markAsGCRoot, ReferenceType } from '../data/garbage-collection';
 
 /**
  * @en
@@ -149,11 +149,11 @@ export class Animation extends Eventify(Component) {
 
     protected _nameToState: Record<string, AnimationState> = createMap(true);
 
-    @referenced(ReferenceType.GC_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.GC_OBJECT_ARRAY)
     @type([AnimationClip])
     protected _clips: (AnimationClip | null)[] = [];
 
-    @referenced
+    @markAsGCRoot
     @serializable
     protected _defaultClip: AnimationClip | null = null;
 

@@ -48,7 +48,7 @@ import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FAC
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
 import { CCBoolean, CCInteger, Node } from '../core';
-import { referenced, ReferenceType } from '../core/data/garbage-collection';
+import { markAsGCRoot, ReferenceType } from '../core/data/garbage-collection';
 
 const bbMin = new Vec3();
 const bbMax = new Vec3();
@@ -138,7 +138,7 @@ export class TerrainLayer {
      * @en detail texture
      * @zh 细节纹理
      */
-    @referenced
+    @markAsGCRoot
     @serializable
     @editable
     public detailMap: Texture2D|null = null;
@@ -147,7 +147,7 @@ export class TerrainLayer {
      * @en normal texture
      * @zh 法线纹理
      */
-    @referenced
+    @markAsGCRoot
     @serializable
     @editable
     public normalMap: Texture2D|null = null;
@@ -283,7 +283,7 @@ class TerrainRenderable extends RenderableComponent {
  */
 @ccclass('cc.TerrainBlockLightmapInfo')
 export class TerrainBlockLightmapInfo {
-    @referenced
+    @markAsGCRoot
     @serializable
     @editable
     public texture: Texture2D|null = null;
@@ -790,20 +790,20 @@ export class TerrainBlock {
 @executeInEditMode
 @disallowMultiple
 export class Terrain extends Component {
-    @referenced
+    @markAsGCRoot
     @type(TerrainAsset)
     @serializable
     @disallowAnimation
     protected __asset: TerrainAsset|null = null;
 
-    @referenced
+    @markAsGCRoot
     @type(EffectAsset)
     @serializable
     @disallowAnimation
     @visible(false)
     protected _effectAsset: EffectAsset|null = null;
 
-    @referenced(ReferenceType.CCCLASS_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT_ARRAY)
     @type(TerrainBlockLightmapInfo)
     @serializable
     @disallowAnimation
@@ -831,7 +831,7 @@ export class Terrain extends Component {
     protected _heights: Uint16Array = new Uint16Array();
     protected _weights: Uint8Array = new Uint8Array();
     protected _normals: number[] = [];
-    @referenced(ReferenceType.CCCLASS_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT_ARRAY)
     protected _layerList: (TerrainLayer|null)[] = [];
     protected _layerBuffer: number[] = [];
     protected _blocks: TerrainBlock[] = [];

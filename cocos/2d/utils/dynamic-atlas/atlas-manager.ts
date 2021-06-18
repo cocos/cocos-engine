@@ -4,7 +4,7 @@
  */
 
 import { EDITOR } from 'internal:constants';
-import { garbageCollectionManager, referenced, ReferenceType } from '../../../core';
+import { garbageCollectionManager, markAsGCRoot, ReferenceType } from '../../../core';
 import { ccclass } from '../../../core/data/decorators';
 import { legacyCC } from '../../../core/global-exports';
 import { Atlas } from './atlas';
@@ -13,7 +13,7 @@ import { Atlas } from './atlas';
 export class DynamicAtlasManager {
     public static instance: DynamicAtlasManager;
 
-    @referenced(ReferenceType.CCCLASS_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT_ARRAY)
     private _atlases: Atlas[] = [];
     private _atlasIndex = -1;
 

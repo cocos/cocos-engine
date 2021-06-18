@@ -43,7 +43,7 @@ import { Mat4, Vec2, Vec3 } from '../../core/math';
 import { mapBuffer, readBuffer, writeBuffer } from '../misc/buffer';
 import { SkinnedMeshRenderer } from './skinned-mesh-renderer';
 import { legacyCC } from '../../core/global-exports';
-import { referenced, ReferenceType } from '../../core';
+import { GarbageCollectorContext, markAsGCRoot, ReferenceType } from '../../core';
 
 const repeat = (n: number) => n - Math.floor(n);
 const batch_id: Attribute = new Attribute(AttributeName.ATTR_BATCH_ID, Format.R32F);
@@ -56,7 +56,7 @@ export class SkinnedMeshUnit {
      * @en Skinned mesh of this unit.
      * @zh 子蒙皮模型的网格模型。
      */
-    @referenced
+    @markAsGCRoot
     @type(Mesh)
     public mesh: Mesh | null = null;
 
@@ -64,7 +64,7 @@ export class SkinnedMeshUnit {
      * @en Skeleton of this unit.
      * @zh 子蒙皮模型的骨骼。
      */
-    @referenced
+    @markAsGCRoot
     @type(Skeleton)
     public skeleton: Skeleton | null = null;
 
@@ -72,7 +72,7 @@ export class SkinnedMeshUnit {
      * @en Skinning material of this unit.
      * @zh 子蒙皮模型使用的材质。
      */
-    @referenced
+    @markAsGCRoot
     @type(Material)
     public material: Material | null = null;
 
@@ -127,6 +127,10 @@ export class SkinnedMeshUnit {
     get copyFrom () {
         return null;
     }
+
+    markDependencies (gcContext: GarbageCollectorContext) {
+
+    }
 }
 
 const m4_local = new Mat4();
@@ -167,7 +171,7 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
      * @en Source skinning model components, containing all the data to be batched.
      * @zh 合批前的子蒙皮模型数组，最主要的数据来源。
      */
-    @referenced(ReferenceType.CCCLASS_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT_ARRAY)
     @type([SkinnedMeshUnit])
     @serializable
     @tooltip('i18n:batched_skinning_model.units')

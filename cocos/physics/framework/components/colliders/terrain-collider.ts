@@ -43,7 +43,7 @@ import { ITerrainShape } from '../../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../../spec/i-external';
 import { TerrainAsset } from '../../../../terrain/terrain-asset';
 import { EColliderType } from '../../physics-enum';
-import { referenced } from '../../../../core/data/garbage-collection';
+import { markAsGCRoot } from '../../../../core/data/garbage-collection';
 
 /**
  * @en
@@ -60,7 +60,7 @@ export class TerrainCollider extends Collider {
 
     /**
      * @en
-     * Gets or sets the terrain assets referenced by this collider.
+     * Gets or sets the terrain assets markAsGCRoot by this collider.
      * @zh
      * 获取或设置此碰撞体引用的网格资源.
      */
@@ -87,7 +87,7 @@ export class TerrainCollider extends Collider {
 
     /// PRIVATE PROPERTY ///
 
-    @referenced
+    @markAsGCRoot
     @serializable
     private _terrain: ITerrainAsset | null = null;
 

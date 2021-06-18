@@ -34,13 +34,13 @@ import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
 import { ccclass } from '../data/decorators';
-import { garbageCollectionManager, referenced, ReferenceType } from '../data/garbage-collection';
+import { garbageCollectionManager, markAsGCRoot, ReferenceType } from '../data/garbage-collection';
 
 @ccclass('cc.BuiltinResMgr')
 class BuiltinResMgr {
     protected _device: Device | null = null;
 
-    @referenced(ReferenceType.GC_OBJECT_RECORD)
+    @markAsGCRoot(ReferenceType.GC_OBJECT_RECORD)
     protected _resources: Record<string, Asset> = {};
 
     // this should be called after renderer initialized

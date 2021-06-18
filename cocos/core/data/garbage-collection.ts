@@ -146,17 +146,13 @@ export enum ReferenceType {
     ANY_SET,
 }
 
-export function ignoreFromGCSearch (target: Function) {
-    
-}
-
-export function referenced (target: any, propertyName: string, descriptor?: any): void;
-export function referenced (referenceType: ReferenceType): (target: any, propertyName: string, descriptor?: any) => void;
-export function referenced (target?: any, propertyName?: string, descriptor?: any): void | ((target: any, propertyName: string, descriptor?: any) => void) {
+export function markAsGCRoot (target: any, propertyName: string): void;
+export function markAsGCRoot (referenceType: ReferenceType): (target: any, propertyName: string) => void;
+export function markAsGCRoot (target?: any, propertyName?: string): void | ((target: any, propertyName: string) => void) {
     if (propertyName) {
         return garbageCollectionManager.registerGarbageCollectableProperty(target.constructor as Constructor, propertyName, ReferenceType.GC_OBJECT);
     }
-    return (proto: any, propertyName: string, descriptor?: any) => {
+    return (proto: any, propertyName: string) => {
         garbageCollectionManager.registerGarbageCollectableProperty(proto.constructor as Constructor, propertyName, target);
     };
 }
@@ -255,13 +251,13 @@ class GarbageCollectionManager {
         const { properties, referenceTypes } = classInfo;
         const prototype = ctor.prototype;
         const parenMarkDependencies = prototype.markDependencies;
-        prototype.markDependencies = parenMarkDependencies ? function markDependenciesWithParent (context: GarbageCollectorContext) {
+        prototype.markDependencies = parenMarkDependencies ? function markDependenciesWithParent (this: any, context: GarbageCollectorContext) {
             parenMarkDependencies.call(this, context);
             for (let i = 0; i < properties.length; i++) {
                 const property = this[properties[i]];
                 if (property) { context.markObjectWithReferenceType(property, referenceTypes[i]); }
             }
-        } : function markDependenciesWithoutParent (context: GarbageCollectorContext) {
+        } : function markDependenciesWithoutParent (this: any, context: GarbageCollectorContext) {
             for (let i = 0; i < properties.length; i++) {
                 const property = this[properties[i]];
                 if (property) { context.markObjectWithReferenceType(property, referenceTypes[i]); }

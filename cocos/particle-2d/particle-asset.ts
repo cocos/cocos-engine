@@ -33,7 +33,7 @@ import { ccclass, serializable, editable } from '../core/data/decorators';
 import { Asset } from '../core/assets/asset';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { legacyCC } from '../core/global-exports';
-import { referenced } from '../core/data/garbage-collection';
+import { markAsGCRoot } from '../core/data/garbage-collection';
 
 /**
  * Class for particle asset handling.
@@ -42,7 +42,7 @@ import { referenced } from '../core/data/garbage-collection';
  */
 @ccclass('cc.ParticleAsset')
 export class ParticleAsset extends Asset {
-    @referenced
+    @markAsGCRoot
     @serializable
     @editable
     public spriteFrame: SpriteFrame | null= null;

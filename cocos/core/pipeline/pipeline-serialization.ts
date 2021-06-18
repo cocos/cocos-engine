@@ -34,7 +34,7 @@ import { AccessType, Format, LoadOp, StoreOp, TextureType, TextureUsageBit } fro
 import { ccenum } from '../value-types/enum';
 import { RenderTexture } from '../assets/render-texture';
 import { Material } from '../assets/material';
-import { referenced } from '../data';
+import { markAsGCRoot } from '../data';
 
 ccenum(TextureType);
 ccenum(TextureUsageBit);
@@ -78,7 +78,7 @@ export class RenderTextureConfig {
     @serializable
     @editable
     public name = '';
-    @referenced
+    @markAsGCRoot
     @type(RenderTexture)
     public texture: RenderTexture | null = null;
 }
@@ -88,7 +88,7 @@ export class MaterialConfig {
     @serializable
     @editable
     public name = '';
-    @referenced
+    @markAsGCRoot
     @type(Material)
     public material: Material | null = null;
 }
@@ -106,7 +106,7 @@ export class FrameBufferDesc {
     @serializable
     @editable
     public depthStencilTexture = '';
-    @referenced
+    @markAsGCRoot
     @type(RenderTexture)
     public texture: RenderTexture | null = null;
 }

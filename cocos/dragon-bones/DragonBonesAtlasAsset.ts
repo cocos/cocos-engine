@@ -10,7 +10,7 @@ import { ArmatureCache } from './ArmatureCache';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { CCFactory } from './CCFactory';
 import { legacyCC } from '../core/global-exports';
-import { referenced } from '../core/data/garbage-collection';
+import { markAsGCRoot } from '../core/data/garbage-collection';
 
 /**
  * @en The skeleton atlas data of dragonBones.
@@ -37,7 +37,7 @@ export class DragonBonesAtlasAsset extends Asset {
         this._clear();
     }
 
-    @referenced
+    @markAsGCRoot
     @serializable
     @type(Texture2D)
     _texture: Texture2D | null = null;

@@ -38,7 +38,7 @@ import CurveRange from './animator/curve-range';
 import GradientRange from './animator/gradient-range';
 import { legacyCC } from '../core/global-exports';
 import { IMaterialInstanceInfo, MaterialInstance } from '../core/renderer/core/material-instance';
-import { referenced } from '../core';
+import { markAsGCRoot } from '../core';
 
 const _matInsInfo: IMaterialInstanceInfo = {
     parent: null!,
@@ -54,7 +54,7 @@ const define = { CC_USE_WORLD_SPACE: false };
 @menu('Effects/Line')
 @executeInEditMode
 export class Line extends Component {
-    @referenced
+    @markAsGCRoot
     @type(Texture2D)
     private _texture = null;
 
@@ -75,7 +75,7 @@ export class Line extends Component {
         }
     }
 
-    @referenced
+    @markAsGCRoot
     private _material: Material | null = null;
     private _materialInstance: MaterialInstance | null = null;
 

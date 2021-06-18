@@ -46,7 +46,7 @@ import codec from '../../external/compression/ZipUtils';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { assetManager } from '../core/asset-manager';
 import { PositionType, EmitterMode, DURATION_INFINITY, START_RADIUS_EQUAL_TO_END_RADIUS, START_SIZE_EQUAL_TO_END_SIZE } from './define';
-import { referenced } from '../core/data/garbage-collection';
+import { markAsGCRoot } from '../core/data/garbage-collection';
 
 /**
  * Image formats
@@ -670,7 +670,7 @@ export class ParticleSystem2D extends Renderable2D {
         return this._assembler;
     }
     public aspectRatio = 1;
-    @referenced
+    @markAsGCRoot
     // The temporary SpriteFrame object used for the renderer. Because there is no corresponding asset, it can't be serialized.
     public declare _renderSpriteFrame: SpriteFrame | null;
     public declare _simulator: Simulator;
@@ -703,10 +703,10 @@ export class ParticleSystem2D extends Renderable2D {
     private preview = true;
     @serializable
     private _custom = false;
-    @referenced
+    @markAsGCRoot
     @serializable
     private _file: ParticleAsset | null = null;
-    @referenced
+    @markAsGCRoot
     @serializable
     private _spriteFrame: SpriteFrame | null = null;
     @serializable

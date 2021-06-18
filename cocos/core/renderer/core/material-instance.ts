@@ -34,7 +34,7 @@ import { PassInstance } from './pass-instance';
 import { MacroRecord } from './pass-utils';
 import { PassOverrides } from './pass';
 import { ccclass } from '../../data/decorators';
-import { referenced } from '../../data/garbage-collection';
+import { markAsGCRoot } from '../../data/garbage-collection';
 
 export interface IMaterialInstanceInfo {
     parent: Material;

@@ -28,7 +28,7 @@
  * @module terrain
  */
 import { ccclass, serializable } from 'cc.decorator';
-import { referenced, ReferenceType } from '../core/data/garbage-collection';
+import { markAsGCRoot, ReferenceType } from '../core/data/garbage-collection';
 import { Asset, Texture2D } from '../core/assets';
 import { legacyCC } from '../core/global-exports';
 
@@ -204,10 +204,10 @@ export class TerrainLayerInfo {
     public slot = 0;
     @serializable
     public tileSize = 1;
-    @referenced
+    @markAsGCRoot
     @serializable
     public detailMap: Texture2D|null = null;
-    @referenced
+    @markAsGCRoot
     @serializable
     public normalMap: Texture2D|null = null;
     @serializable
@@ -246,7 +246,7 @@ export class TerrainAsset extends Asset {
     protected _weights: Uint8Array = new Uint8Array();
     protected _layerBuffer: number[] = [-1, -1, -1, -1];
     protected _layerBinaryInfos: TerrainLayerBinaryInfo[] = [];
-    @referenced(ReferenceType.CCCLASS_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT_ARRAY)
     @serializable
     protected _layerInfos: TerrainLayerInfo[] = [];
 

@@ -3,7 +3,7 @@
  * @hidden
  */
 
-import { referenced } from '../../../core';
+import { markAsGCRoot } from '../../../core';
 import { PixelFormat } from '../../../core/assets/asset-enum';
 import { ImageAsset } from '../../../core/assets/image-asset';
 import { Texture2D } from '../../../core/assets/texture-2d';
@@ -16,7 +16,7 @@ const space = 2;
 
 @ccclass('cc.Atlas')
 export class Atlas {
-    @referenced
+    @markAsGCRoot
     private _texture: DynamicAtlasTexture;
     private _width: any;
     private _height: any;

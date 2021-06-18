@@ -37,7 +37,7 @@ import { Renderable2D } from '../2d/framework/renderable-2d';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component } from '../core/components';
 import { TMXMapInfo } from './tmx-xml-parser';
-import { Color, IVec2Like, Mat4, Size, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean, director } from '../core';
+import { Color, IVec2Like, Mat4, Size, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean, director, markAsGCRoot, ReferenceType } from '../core';
 import { TiledTile } from './tiled-tile';
 import { MeshRenderData } from '../2d/renderer/render-data';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
@@ -141,7 +141,7 @@ export class TiledLayer extends Renderable2D {
     // store all layer gid corresponding texture info, index is gid, format likes '[gid0]=tex-info,[gid1]=tex-info, ...'
     public texGrids: TiledTextureGrids | null = null;
     // store all tileset texture, index is tileset index, format likes '[0]=texture0, [1]=texture1, ...'
-    @referenced(ReferenceType.GC_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.GC_OBJECT_ARRAY)
     protected _textures: SpriteFrame[] = [];
     protected _tilesets: TMXTilesetInfo[] = [];
 

@@ -46,7 +46,7 @@ import { legacyCC } from '../../core/global-exports';
 import { Component } from '../../core/components';
 import assetManager from '../../core/asset-manager/asset-manager';
 import { CCObject } from '../../core';
-import { referenced } from '../../core/data/garbage-collection';
+import { markAsGCRoot } from '../../core/data/garbage-collection';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 const _htmlTextParser = new HtmlTextParser();
@@ -427,17 +427,17 @@ export class RichText extends UIComponent {
     protected _maxWidth = 0;
     @serializable
     protected _fontFamily = 'Arial';
-    @referenced
+    @markAsGCRoot
     @serializable
     protected _font: TTFFont | null = null;
     @serializable
     protected _isSystemFontUsed = true;
-    @referenced
+    @markAsGCRoot
     @serializable
     protected _userDefinedFont: TTFFont | null = null;
     @serializable
     protected _cacheMode: CacheMode = CacheMode.NONE;
-    @referenced
+    @markAsGCRoot
     @serializable
     protected _imageAtlas: SpriteAtlas | null = null;
     @serializable

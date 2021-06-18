@@ -39,7 +39,7 @@ import { VideoPlayerImplManager } from './video-player-impl-manager';
 import { EventType, ResourceType } from './video-player-enums';
 import { legacyCC } from '../core/global-exports';
 import { VideoPlayerImplWeb } from './video-player-impl-web';
-import { referenced } from '../core';
+import { markAsGCRoot } from '../core';
 
 /**
  * @en
@@ -60,7 +60,7 @@ export class VideoPlayer extends Component {
     protected _resourceType = ResourceType.LOCAL;
     @serializable
     protected _remoteURL = '';
-    @referenced
+    @markAsGCRoot
     @type(VideoClip)
     @serializable
     protected _clip: VideoClip | null = null;

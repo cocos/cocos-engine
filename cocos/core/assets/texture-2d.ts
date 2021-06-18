@@ -37,7 +37,7 @@ import { ImageAsset } from './image-asset';
 import { PresumedGFXTextureInfo, SimpleTexture } from './simple-texture';
 import { legacyCC } from '../global-exports';
 import { js } from '../utils/js';
-import { referenced, ReferenceType } from '../data/garbage-collection';
+import { markAsGCRoot, ReferenceType } from '../data/garbage-collection';
 
 /**
  * @en The create information for [[Texture2D]]
@@ -125,7 +125,7 @@ export class Texture2D extends SimpleTexture {
         this.mipmaps = value ? [value] : [];
     }
 
-    @referenced(ReferenceType.GC_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.GC_OBJECT_ARRAY)
     @type([ImageAsset])
     public _mipmaps: ImageAsset[] = [];
 

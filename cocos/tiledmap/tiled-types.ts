@@ -28,7 +28,7 @@
  * @module tiledmap
  */
 
-import { Color, Rect, referenced, Size, Texture2D, Vec2 } from '../core';
+import { Color, Rect, markAsGCRoot, Size, Texture2D, Vec2 } from '../core';
 import { SpriteFrame } from '../2d/assets';
 import { ccenum } from '../core/value-types/enum';
 import { HorizontalTextAlignment, VerticalTextAlignment } from '../2d/components/label';
@@ -552,7 +552,7 @@ export class TMXImageLayerInfo {
     offset: Vec2 = new Vec2(0, 0);
     opacity = 0;
     trans = new Color(255, 255, 255, 255);
-    @referenced
+    @markAsGCRoot
     sourceImage?: SpriteFrame;
 
     tintColor: Color | null = null;

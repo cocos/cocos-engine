@@ -48,7 +48,7 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, logID, assertID, warnID } from './platform/debug';
-import { garbageCollectionManager, referenced, ReferenceType } from './data';
+import { garbageCollectionManager, markAsGCRoot, ReferenceType } from './data';
 import { ccclass } from './data/decorators';
 
 // ----------------------------------------------------------------------------------------------------------------------
@@ -246,10 +246,10 @@ export class Director extends EventTarget {
     private _invalid: boolean;
     private _paused: boolean;
     private _purgeDirectorInNextLoop: boolean;
-    @referenced(ReferenceType.CCCLASS_OBJECT)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT)
     private _root: Root | null;
     private _loadingScene: string;
-    @referenced(ReferenceType.CCCLASS_OBJECT)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT)
     private _scene: Scene | null;
     private _totalFrames: number;
     private _lastUpdate: number;

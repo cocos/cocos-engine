@@ -43,7 +43,7 @@ import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
 import { selector } from './physics-selector';
 import { legacyCC } from '../../core/global-exports';
-import { garbageCollectionManager, referenced } from '../../core/data/garbage-collection';
+import { garbageCollectionManager, markAsGCRoot } from '../../core/data/garbage-collection';
 import { ccclass } from '../../core/data/decorators';
 
 legacyCC.internal.PhysicsGroup = PhysicsGroup;

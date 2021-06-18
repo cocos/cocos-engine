@@ -46,7 +46,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
-import { referenced } from '../../core/data/garbage-collection';
+import { markAsGCRoot } from '../../core/data/garbage-collection';
 import { NodeEventType } from '../../core/scene-graph/node-event';
 
 // hack
@@ -148,7 +148,7 @@ export class Renderable2D extends RenderableComponent {
         }
     }
 
-    @referenced
+    @markAsGCRoot
     @type(Material)
     protected _customMaterial: Material| null = null;
 

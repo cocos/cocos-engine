@@ -43,7 +43,7 @@ import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
 import { warnID } from './platform/debug';
-import { garbageCollectionManager, referenced } from './data/garbage-collection';
+import { garbageCollectionManager, markAsGCRoot } from './data/garbage-collection';
 import { ccclass } from './data/decorators';
 
 /**
@@ -232,7 +232,7 @@ export class Root {
     private _mainWindow: RenderWindow | null = null;
     private _curWindow: RenderWindow | null = null;
     private _tempWindow: RenderWindow | null = null;
-    @referenced
+    @markAsGCRoot
     private _pipeline: RenderPipeline | null = null;
     private _batcher: Batcher2D | null = null;
     private _dataPoolMgr: DataPoolManager;

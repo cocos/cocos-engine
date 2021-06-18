@@ -55,7 +55,7 @@ import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
-import { referenced, ReferenceType } from '../core';
+import { markAsGCRoot, ReferenceType } from '../core';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -541,7 +541,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     // particle system renderer
-    @referenced(ReferenceType.CCCLASS_OBJECT)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT)
     @type(ParticleSystemRenderer)
     @serializable
     @displayOrder(26)

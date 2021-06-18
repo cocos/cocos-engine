@@ -34,7 +34,7 @@ import { Skybox } from '../renderer/scene/skybox';
 import { Fog, FogType } from '../renderer/scene/fog';
 import { Node } from './node';
 import { legacyCC } from '../global-exports';
-import { referenced, ReferenceType } from '../data/garbage-collection';
+import { markAsGCRoot, ReferenceType } from '../data/garbage-collection';
 
 const _up = new Vec3(0, 1, 0);
 const _v3 = new Vec3();
@@ -110,7 +110,7 @@ legacyCC.AmbientInfo = AmbientInfo;
  */
 @ccclass('cc.SkyboxInfo')
 export class SkyboxInfo {
-    @referenced
+    @markAsGCRoot
     @type(TextureCube)
     protected _envmap: TextureCube | null = null;
     @serializable
@@ -727,7 +727,7 @@ export class SceneGlobals {
     @serializable
     @editable
     public shadows = new ShadowsInfo();
-    @referenced(ReferenceType.CCCLASS_OBJECT)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT)
     @serializable
     public _skybox = new SkyboxInfo();
     @editable

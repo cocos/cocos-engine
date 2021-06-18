@@ -31,7 +31,7 @@
 
 import { ccclass, type, serializable } from 'cc.decorator';
 import { Asset } from '../core/assets/asset';
-import { CCString, referenced, ReferenceType, Size, TextAsset } from '../core';
+import { CCString, markAsGCRoot, ReferenceType, Size, TextAsset } from '../core';
 import { SpriteFrame } from '../2d/assets';
 /**
  * Class for tiled map asset handling.
@@ -44,7 +44,7 @@ export class TiledMapAsset extends Asset {
     @serializable
     tmxXmlStr = '';
 
-    @referenced(ReferenceType.GC_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.GC_OBJECT_ARRAY)
     @serializable
     @type([TextAsset])
     tsxFiles: TextAsset[] = [];
@@ -56,7 +56,7 @@ export class TiledMapAsset extends Asset {
     /**
      * @zh s
      */
-    @referenced(ReferenceType.GC_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.GC_OBJECT_ARRAY)
     @serializable
     @type([SpriteFrame])
     spriteFrames: SpriteFrame[] = [];
@@ -64,7 +64,7 @@ export class TiledMapAsset extends Asset {
     /**
      * @property {SpriteFrame[]} imageLayerSpriteFrame
      */
-    @referenced(ReferenceType.GC_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.GC_OBJECT_ARRAY)
     @serializable
     @type([SpriteFrame])
     imageLayerSpriteFrame: SpriteFrame[] = []

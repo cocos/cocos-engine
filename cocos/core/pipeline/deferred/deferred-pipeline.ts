@@ -47,7 +47,7 @@ import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { sceneCulling } from '../scene-culling';
-import { referenced, ReferenceType } from '../../data';
+import { markAsGCRoot, ReferenceType } from '../../data';
 
 const _samplerInfo = [
     Filter.LINEAR,
@@ -92,13 +92,13 @@ export class DeferredPipeline extends RenderPipeline {
     private _height = 0;
     private _lastUsedRenderArea: Rect = new Rect();
 
-    @referenced(ReferenceType.CCCLASS_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT_ARRAY)
     @type([RenderTextureConfig])
     @serializable
     @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
 
-    @referenced(ReferenceType.CCCLASS_OBJECT_ARRAY)
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT_ARRAY)
     @type([MaterialConfig])
     @serializable
     @displayOrder(3)

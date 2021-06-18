@@ -43,7 +43,7 @@ import { Collider } from './collider';
 import { Mesh } from '../../../../3d/assets';
 import { ITrimeshShape } from '../../../spec/i-physics-shape';
 import { EColliderType } from '../../physics-enum';
-import { referenced } from '../../../../core';
+import { markAsGCRoot } from '../../../../core';
 
 /**
  * @en
@@ -105,7 +105,7 @@ export class MeshCollider extends Collider {
 
     /// PRIVATE PROPERTY ///
 
-    @referenced
+    @markAsGCRoot
     @serializable
     private _mesh: Mesh | null = null;
 
