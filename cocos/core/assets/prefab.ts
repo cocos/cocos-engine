@@ -200,6 +200,11 @@ export class Prefab extends Asset {
     }
 }
 
+export declare namespace Prefab {
+    // @ts-expect-error(2484) namespace conflict
+    export { utils as _utils };
+}
+
 legacyCC.Prefab = Prefab;
 if (ALIPAY || RUNTIME_BASED) {
     legacyCC._Prefab = Prefab;
