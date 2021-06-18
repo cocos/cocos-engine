@@ -1,0 +1,49 @@
+name: Compile
+
+on: [pull_request]
+
+jobs:
+  compile_windows:
+    # windows 2019, Visual Studio Enterprise 2019
+    # windows 2016, Visual Studio Enterprise 2017
+    #runs-on: windows-latest
+    runs-on: windows-2019
+    name: "Windows"
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          rm external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+      - name: Install deps
+        run: |
+          choco install --forcex86 vulkan-sdk
+          python -m pip install PyYAML Cheetah3
+      - name: Generate bindings
+        shell: bash
+        run: |
+          python -V
+          cd ./tools/tojs
+          echo "Create auto-generated jsbinding glue codes."
+          python ./genbindings.py
+          rm userconf.ini
+      - name: Compile win32
+        shell: bash
+        run: |
+          cd $GITHUB_WORKSPACE/templates/win32
+          mkdir -p build-win32/proj
+          touch build-win32/proj/cfg.cmake
+          echo "set(CC_USE_GLES3 ON)" >> build-win32/proj/cfg.cmake
+          echo "set(CC_USE_VULKAN ON)" >> build-win32/proj/cfg.cmake
+          echo "set(CC_USE_GLES2 ON)" >> build-win32/proj/cfg.cmake
+          echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win32/proj/cfg.cmake
+          mkdir build-win32/assets
+          cd build-win32
+          RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/win32/build-win32
+          COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}
+          cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Awin32
+          cmake --build . --config Release
+          echo "Compile Win32 Release Done!"
