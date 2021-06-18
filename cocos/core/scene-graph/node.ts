@@ -205,7 +205,6 @@ export class Node extends BaseNode {
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
     protected declare _nativeFlag: Uint32Array;
-    protected declare _nativeDirtyFlag: Uint32Array;
 
     protected _init () {
         if (JSB) {
@@ -214,17 +213,10 @@ export class Node extends BaseNode {
             this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as FloatArray);
             this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as FloatArray);
             this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as FloatArray);
-
-            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as FloatArray);
-            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as FloatArray);
-            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as FloatArray);
-
             this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
             this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
             this._nativeFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.FLAGS_CHANGED) as Uint32Array;
-            this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
             this._scale.set(1, 1, 1);
-            this._lscale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
             this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle));
@@ -518,13 +510,6 @@ export class Node extends BaseNode {
         super._onHierarchyChangedBase(oldParent);
     }
 
-    protected _setDirtyFlags (val: TransformBit) {
-        this._dirtyFlags = val;
-        if (JSB) {
-            this._nativeDirtyFlag[0] = val;
-        }
-    }
-
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
@@ -535,7 +520,7 @@ export class Node extends BaseNode {
         }
 
         this.hasChangedFlags = TransformBit.TRS;
-        this._setDirtyFlags(TransformBit.TRS);
+        this._dirtyFlags = TransformBit.TRS;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -668,7 +653,7 @@ export class Node extends BaseNode {
             const cur: this = array_a[i--];
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                this._setDirtyFlags(cur._dirtyFlags | dirtyBit);
+                cur._dirtyFlags |= dirtyBit;
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
                 const children = cur._children;
                 const len = children.length;
@@ -735,7 +720,7 @@ export class Node extends BaseNode {
                 }
             }
 
-            child._setDirtyFlags(TransformBit.NONE);
+            child._dirtyFlags = TransformBit.NONE;
             cur = child;
         }
     }
