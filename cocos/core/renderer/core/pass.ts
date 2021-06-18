@@ -657,8 +657,7 @@ export class Pass {
             this._rootBuffer = device.createBuffer(_bufferInfo);
             this._rootBlock = new ArrayBuffer(totalSize);
             if (JSB) {
-                this._nativeObj!.setRootBuffer(this._rootBuffer);
-                this._nativeObj!.setRootBlock(this._rootBlock);
+                this._nativeObj!.setRootBufferAndBlock(this._rootBuffer, this._rootBlock);
             }
         }
         // create buffer views

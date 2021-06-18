@@ -154,8 +154,7 @@ export class SkinningModel extends MorphModel {
             }
         }
         if (JSB) {
-            (this._nativeObj! as NativeSkinningModel).setBufferIndices(this._bufferIndices);
-            (this._nativeObj! as NativeSkinningModel).setJoints(nativeJoints);
+            (this._nativeObj! as NativeSkinningModel).setIndicesAndJoints(this._bufferIndices, nativeJoints);
         }
     }
 

@@ -41,8 +41,7 @@ export const NativeSkinningModel: Constructor<{
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
-    setJoints(joints: NativeJointInfo[]): void;
-    setBufferIndices(indices: number[]):void;
+    setIndicesAndJoints(indices: number[], joints: NativeJointInfo[]): void;
     setBuffers(bufs: Buffer[]):void;
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
 }> = null!;
@@ -151,8 +150,7 @@ export const NativePass: Constructor<{
     setDynamicState(val: number): void;
     setHash(val: number): void;
     setPipelineLayout(val): void;
-    setRootBuffer(val: Buffer): void;
-    setRootBlock(val: ArrayBuffer): void;
+    setRootBufferAndBlock(val: Buffer, block: ArrayBuffer): void;
     setRootBufferDirty(val: boolean): void;
 }> = null!;
 export type NativePass = InstanceType<typeof NativePass>;
