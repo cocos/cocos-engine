@@ -507,19 +507,15 @@ var Sprite = cc.Class({
             oldFrame.off('load', this._applySpriteSize, this);
         }
 
+        this._updateMaterial();
         let spriteFrame = this._spriteFrame;
-        let newTexture = spriteFrame && spriteFrame.getTexture();
-
-        if (oldTexture !== newTexture) {
-            this._updateMaterial();
-        }
-
-        if (newTexture && newTexture.loaded) {
-            this._applySpriteSize();
-        }
-        else {
-            this.disableRender();
-            if (spriteFrame) {
+        if (spriteFrame) {
+            let newTexture = spriteFrame.getTexture();
+            if (newTexture && newTexture.loaded) {
+                this._applySpriteSize();
+            }
+            else {
+                this.disableRender();
                 spriteFrame.once('load', this._applySpriteSize, this);
             }
         }
