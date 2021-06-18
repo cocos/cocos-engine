@@ -24,11 +24,9 @@
  ****************************************************************************/
 
 #include "AABB.h"
-#include <algorithm>
 
 namespace cc {
 namespace scene {
-
 bool AABB::aabbAabb(const AABB &aabb) const {
     Vec3 aMin;
     Vec3 aMax;
@@ -67,8 +65,8 @@ bool AABB::aabbFrustum(const Frustum &frustum) const {
 }
 
 void AABB::getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const {
-    *minPos = center - halfExtents;
-    *maxPos = center + halfExtents;
+    Vec3::subtract(center, halfExtents, minPos);
+    Vec3::add(center, halfExtents, maxPos);
 }
 
 void AABB::merge(const AABB &aabb) {
@@ -85,6 +83,38 @@ void AABB::merge(const AABB &aabb) {
     cc::Vec3 subP = maxP - minP;
     center        = addP * 0.5F;
     halfExtents   = subP * 0.5F;
+}
+
+void AABB::set(const cc::Vec3 &centerVal, const cc::Vec3 &halfExtentVal) {
+    center      = centerVal;
+    halfExtents = halfExtentVal;
+}
+
+void AABB::transform(const Mat4 &m, AABB *out) const {
+    out->center.transformMat4(center, m);
+    transformExtentM4(&out->halfExtents, halfExtents, m);
+}
+
+void AABB::transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4) {
+    Mat3 m3Tmp;
+    m3Tmp.m[0] = abs(m4.m[0]);
+    m3Tmp.m[1] = abs(m4.m[1]);
+    m3Tmp.m[2] = abs(m4.m[2]);
+    m3Tmp.m[3] = abs(m4.m[4]);
+    m3Tmp.m[4] = abs(m4.m[5]);
+    m3Tmp.m[5] = abs(m4.m[6]);
+    m3Tmp.m[6] = abs(m4.m[8]);
+    m3Tmp.m[7] = abs(m4.m[9]);
+    m3Tmp.m[8] = abs(m4.m[10]);
+    out->transformMat3(extent, m3Tmp);
+}
+
+void AABB::fromPoints(const Vec3 &minPos, const Vec3 &maxPos, AABB *dst) {
+    Vec3 v3Tmp;
+    Vec3::add(maxPos, minPos, &v3Tmp);
+    dst->center.set(v3Tmp * 0.5);
+    Vec3::subtract(maxPos, minPos, &v3Tmp);
+    dst->halfExtents.set(v3Tmp * 0.5);
 }
 
 } // namespace scene

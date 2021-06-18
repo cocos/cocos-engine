@@ -29,6 +29,12 @@ namespace cc {
 namespace scene {
 
 void SphereLight::update() {
+    if (_node && (_node->getFlagsChanged() || _needUpdate)) {
+        _node->updateWorldTransform();
+        _pos = _node->getWorldPosition();
+        _aabb.set(_pos, {_range, _range, _range});
+        _needUpdate = false;
+    }
 }
 
 } // namespace scene

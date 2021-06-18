@@ -941,7 +941,7 @@ inline bool sevalue_to_native(const se::Value &from, float *to, se::Object * /*c
     *to = from.toFloat();
     return true;
 }
-inline bool sevalue_to_native(const se::Value &from, double *to, se::Object *) {
+inline bool sevalue_to_native(const se::Value &from, double *to, se::Object * /*unused*/) {
     *to = from.toNumber();
     return true;
 }

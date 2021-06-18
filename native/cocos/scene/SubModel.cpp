@@ -23,11 +23,20 @@
  THE SOFTWARE.
  ****************************************************************************/
 #include "scene/SubModel.h"
+#include "scene/Pass.h"
 
 namespace cc {
 namespace scene {
 
 void SubModel::update() {
+    for (Pass *pass : _passes) {
+        pass->update();
+    }
+    _descriptSet->update();
+}
+
+SubModel::~SubModel() {
+    delete _subMesh;
 }
 
 gfx::Shader *SubModel::getShader(int index) const {

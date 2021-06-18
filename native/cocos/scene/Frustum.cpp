@@ -23,31 +23,56 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#pragma once
-
-#include <algorithm>
-#include "math/Mat3.h"
-#include "math/Quaternion.h"
-#include "math/Vec3.h"
 #include "scene/Frustum.h"
+#include "scene/Define.h"
 
 namespace cc {
 namespace scene {
+namespace {
+const std::vector<cc::Vec3> VEC_VALS{
+    {1, 1, 1},
+    {-1, 1, 1},
+    {-1, -1, 1},
+    {1, -1, 1},
+    {1, 1, -1},
+    {-1, 1, -1},
+    {-1, -1, -1},
+    {1, -1, -1}};
+} // namespace
+void Frustum::update(const Mat4 &m, const Mat4 &inv) {
+    // left plane
+    planes[0].n.set(m.m[3] + m.m[0], m.m[7] + m.m[4], m.m[11] + m.m[8]);
+    planes[0].d = -(m.m[15] + m.m[12]);
+    // right plane
+    planes[1].n.set(m.m[3] - m.m[0], m.m[7] - m.m[4], m.m[11] - m.m[8]);
+    planes[1].d = -(m.m[15] - m.m[12]);
+    // bottom plane
+    planes[2].n.set(m.m[3] + m.m[1], m.m[7] + m.m[5], m.m[11] + m.m[9]);
+    planes[2].d = -(m.m[15] + m.m[13]);
+    // top plane
+    planes[3].n.set(m.m[3] - m.m[1], m.m[7] - m.m[5], m.m[11] - m.m[9]);
+    planes[3].d = -(m.m[15] - m.m[13]);
+    // near plane
+    planes[4].n.set(m.m[3] + m.m[2], m.m[7] + m.m[6], m.m[11] + m.m[10]);
+    planes[4].d = -(m.m[15] + m.m[14]);
+    // far plane
+    planes[5].n.set(m.m[3] - m.m[2], m.m[7] - m.m[6], m.m[11] - m.m[10]);
+    planes[5].d = -(m.m[15] - m.m[14]);
 
-struct AABB final {
-    Vec3 center;
-    Vec3 halfExtents{1, 1, 1};
+    if (type != ShapeEnums::SHAPE_FRUSTUM_ACCURATE) {
+        return;
+    }
 
-    static void fromPoints(const Vec3 &minPos, const Vec3 &maxPos, AABB *dst);
-    static void transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4);
-    bool        aabbAabb(const AABB &aabb) const;
-    bool        aabbFrustum(const Frustum &) const;
-    int         aabbPlane(const Plane &) const;
-    void        getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const;
-    void        merge(const AABB &aabb);
-    void        set(const cc::Vec3 &centerVal, const cc::Vec3 &halfExtentVal);
-    void        transform(const Mat4 &m, AABB *out) const;
-};
-
+    for (Plane &plane : planes) {
+        float invDist = 1 / plane.n.length();
+        plane.n *= invDist;
+        plane.d *= invDist;
+    }
+    uint32_t i = 0;
+    for (const Vec3 &vec : VEC_VALS) {
+        vertices[i].transformMat4(vec, inv);
+        i++;
+    }
+}
 } // namespace scene
 } // namespace cc
