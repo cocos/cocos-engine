@@ -499,6 +499,8 @@ export class SpriteFrame extends Asset {
 
     public tillingOffset: number[] = [];
 
+    public slicedData: number[] = [];
+
     public unbiasUV:number[] = [];
 
     /**
@@ -799,6 +801,7 @@ export class SpriteFrame extends Asset {
 
     // Calculate UV for sliced
     public _calculateSlicedUV () {
+        this._calculateSlicedData();
         const rect = this._rect;
         // const texture = this._getCalculateTarget()!;
         const tex = this.texture;
@@ -1314,6 +1317,34 @@ export class SpriteFrame extends Asset {
         this.tillingOffset[1] = (this.uv[1] - this.uv[5]);
         this.tillingOffset[2] = (this.uv[4]);
         this.tillingOffset[3] = (this.uv[5]);
+    }
+
+    private _calculateSlicedData () {
+        const rect = this._rect;
+        let tex = this._texture;
+        if (this._original) {
+            rect.x = this._original._x;
+            rect.y = this._original._y;
+            tex = this._original._texture;
+        }
+
+        const atlasWidth = tex.width;
+        const atlasHeight = tex.height;
+        const leftWidth = this._capInsets[INSET_LEFT];
+        const rightWidth = this._capInsets[INSET_RIGHT];
+        const centerWidth = rect.width - leftWidth - rightWidth;
+        const topHeight = this._capInsets[INSET_TOP];
+        const bottomHeight = this._capInsets[INSET_BOTTOM];
+        const centerHeight = rect.height - topHeight - bottomHeight;
+
+        const uvSliced = this.slicedData;
+        uvSliced.length = 0;
+
+        // todo rotate
+        uvSliced[0] = (rect.x + leftWidth) / atlasWidth;
+        uvSliced[1] = (rect.y + topHeight) / atlasHeight;
+        uvSliced[2] = (rect.x + leftWidth + centerWidth) / atlasWidth;
+        uvSliced[3] = (rect.y + topHeight + centerHeight) / atlasHeight;
     }
 }
 

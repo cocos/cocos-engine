@@ -43,7 +43,7 @@ import { UILocalBuffer, UILocalUBOManger } from './render-uniform-buffer';
 import { Pass } from '../../core/renderer/core/pass';
 import { Renderable2D, UITransform } from '../framework';
 import { Sprite } from '../components';
-import { director, RecyclePool, Vec2 } from '../../core';
+import { director, RecyclePool, Vec2, Vec4 } from '../../core';
 import { Vec3 } from '../../core/math/vec3';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 
@@ -199,7 +199,7 @@ export class DrawBatch2D {
     }
 
     // private toCache = [1, 1, 0, 0];
-    private tiledCache = new Vec2(1, 1);
+    private tiledCache = new Vec4(1, 1, 1, 1);
     // simple version
     public fillBuffers (renderComp: Renderable2D, UBOManager: UILocalUBOManger, material: Material, batcher: Batcher2D) {
         // 将一个 drawBatch 分割为多个 drawCall
@@ -232,9 +232,19 @@ export class DrawBatch2D {
         //     this.tiledCache.y = this._tempRect.height / rect?.height;
         // }
 
+        const frame = sprite.spriteFrame!;
+
+        if (mode === 1) {
+            this._packageSlicedData(sprite.slicedData, frame.slicedData);
+        } else if (mode === 2) {
+            sprite.calculateTiledData();
+            this.tiledCache.x = sprite.tiledData.x;
+            this.tiledCache.y = sprite.tiledData.y;
+        }
+
         // tillingOffset 缓存到了 spriteFrame 中
         // T 为 w h O 为右上的 XY 四个数字
-        const to = sprite.spriteFrame!.tillingOffset;
+        const to = frame.tillingOffset;
         const progress = 0; // 给 progress 预留
         const c = renderComp.color;
 
@@ -338,5 +348,12 @@ export class DrawBatch2D {
             // 只更新position
             localBuffer.updateDataByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex, this._tempPosition);
         }
+    }
+
+    private _packageSlicedData (spriteData: number[], frameData: number[]) {
+        this.tiledCache.x = spriteData[0] + Math.floor(frameData[0] * 2048.0);
+        this.tiledCache.y = spriteData[1] + Math.floor(frameData[1] * 2048.0);
+        this.tiledCache.z = spriteData[2] + Math.floor(frameData[2] * 2048.0);
+        this.tiledCache.w = spriteData[3] + Math.floor(frameData[3] * 2048.0);
     }
 }
