@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2021-05-25T04:22:39.074Z"
+        "stamp": "2021-06-16T02:55:13.526Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -155,6 +155,7 @@
         "cc.GFXStencilFace",
         "cc.GFXStencilOp",
         "cc.GFXStoreOp",
+        "cc.GFXSubpassDependency",
         "cc.GFXSubpassInfo",
         "cc.GFXSurfaceTransform",
         "cc.GFXTexture",
