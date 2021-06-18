@@ -30,18 +30,7 @@
 
 namespace cc {
 namespace scene {
-enum class ShapeEnums {
-    SHAPE_RAY              = (1 << 0),
-    SHAPE_LINE             = (1 << 1),
-    SHAPE_SPHERE           = (1 << 2),
-    SHAPE_AABB             = (1 << 3),
-    SHAPE_OBB              = (1 << 4),
-    SHAPE_PLANE            = (1 << 5),
-    SHAPE_TRIANGLE         = (1 << 6),
-    SHAPE_FRUSTUM          = (1 << 7),
-    SHAPE_FRUSTUM_ACCURATE = (1 << 8),
-    SHAPE_CAPSULE          = (1 << 9),
-};
+
 struct Plane final {
     float d{0.F};
     Vec3  n;
@@ -50,8 +39,6 @@ struct Plane final {
 struct Frustum final {
     std::array<Vec3, 8>  vertices;
     std::array<Plane, 6> planes;
-    void                 update(const Mat4 &m, const Mat4 &inv);
-    ShapeEnums           type{ShapeEnums::SHAPE_FRUSTUM};
 };
 
 } // namespace scene

@@ -36,66 +36,18 @@
     #define JSB_FREE(ptr) delete ptr
 #endif
 
-static bool js_scene_Pass_setRootBufferAndBlock(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Pass_setRootBlock : Invalid Native Object");
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    CC_UNUSED bool ok   = true;
-    if (argc == 2) {
-        HolderType<cc::gfx::Buffer*, false> arg0 = {};
-        uint8_t* rootBlock{nullptr};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        args[1].toObject()->getArrayBufferData(&rootBlock, nullptr);
-        cobj->setRootBufferAndBlock(arg0.value(), rootBlock);
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Pass_setRootBufferAndBlock) // NOLINT(readability-identifier-naming, google-runtime-references)
-
-static bool js_scene_Model_setInstancedAttrBlock(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
-{
+static bool js_scene_Model_setInstancedBuffer(se::State& s) {
     auto* cobj = static_cast<cc::scene::Model*>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_scene_Model_setInstancedAttrBlock : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_setInstancedBuffer : Invalid Native Object");
     const auto& args = s.args();
     size_t      argc = args.size();
 
-    if (argc == 3) {
+    if (argc == 1) {
         SE_PRECONDITION2(args[0].isObject() && args[0].toObject()->isArrayBuffer(), false, "js_gfx_Device_createBuffer: expected Array Buffer!");
 
-        // instanced buffer
-        uint8_t* instanceBuff{nullptr};
-        args[0].toObject()->getArrayBufferData(&instanceBuff, nullptr);
-
-        // views
-        se::Object* dataObj = args[1].toObject();
-        if (!dataObj->isArray()) {
-            return false;
-        }
-        std::vector<uint8_t*> viewsData;
-        uint32_t              length = 0;
-        dataObj->getArrayLength(&length);
-        viewsData.resize(length);
-        se::Value value;
-        for (uint32_t i = 0; i < length; i++) {
-            dataObj->getArrayElement(i, &value);
-            uint8_t* viewBuff{nullptr};
-            value.toObject()->getArrayBufferData(&viewBuff, nullptr);
-            viewsData[i] = viewBuff;
-        }
-
-        cc::scene::InstancedAttributeBlock attrBlock;
-        attrBlock.views = std::move(viewsData);
-
-        // attrs
-        CC_UNUSED bool                                    ok   = true;
-        HolderType<std::vector<cc::gfx::Attribute>, true> arg2 = {};
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setInstancedAttrBlock : Error processing arguments");
-        cobj->setInstancedAttrBlock(instanceBuff, &attrBlock, arg2.value());
+        uint8_t* data{nullptr};
+        args[0].toObject()->getArrayBufferData(&data, nullptr);
+        cobj->setInstancedBuffer(data);
 
         return true;
     }
@@ -103,20 +55,20 @@ static bool js_scene_Model_setInstancedAttrBlock(se::State& s) // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_scene_Model_setInstancedAttrBlock) // NOLINT(readability-identifier-naming, google-runtime-references)
+SE_BIND_FUNC(js_scene_Model_setInstancedBuffer)
 
-static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Node_initWithData(se::State& s) // constructor_overloaded.c
 {
-    auto*          cobj = static_cast<cc::scene::Node*>(s.nativeThisObject());
+    auto* cobj = static_cast<cc::scene::Node*>(s.nativeThisObject());
     CC_UNUSED bool ok   = true;
     const auto&    args = s.args();
     size_t         argc = args.size();
     do {
         if (argc == 1) {
             SE_PRECONDITION2(args[0].isObject() && args[0].toObject()->isTypedArray(), false, "js_scene_Node_initWithData: expected Typed Array!");
-
+            
             uint8_t* data{nullptr};
-            size_t   dataBytes = 0;
+            size_t dataBytes = 0;
             args[0].toObject()->getTypedArrayData(&data, &dataBytes);
             cobj->initWithData(data);
             return true;
@@ -125,12 +77,11 @@ static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-ident
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_scene_Node_initWithData) // NOLINT(readability-identifier-naming, google-runtime-references)
+SE_BIND_FUNC(js_scene_Node_initWithData)
 
-static bool js_scene_SubModel_setSubMeshBuffers(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
-{
+static bool js_scene_SubModel_setRenderingSubMesh(se::State &s) {
     auto* cobj = static_cast<cc::scene::SubModel*>(s.nativeThisObject());
-    SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setSubMeshBuffers : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setRenderingSubMesh : Invalid Native Object");
     const auto& args = s.args();
     size_t      argc = args.size();
 
@@ -149,12 +100,12 @@ static bool js_scene_SubModel_setSubMeshBuffers(se::State& s) // NOLINT(readabil
                 if (dataObj->getArrayElement(i, &value)) {
                     if (value.isObject()) {
                         cc::scene::FlatBuffer currBuffer;
-                        se::Value             bufferVal;
+                        se::Value bufferVal;
                         se::Object*           valObj = value.toObject();
                         valObj->getProperty("buffer", &bufferVal);
                         // data
                         CC_UNUSED size_t bufferLength = 0;
-                        uint8_t*         address      = nullptr;
+                        uint8_t*         address    = nullptr;
                         bufferVal.toObject()->getTypedArrayData(&address, &bufferLength);
                         currBuffer.data = address;
                         currBuffer.size = bufferLength;
@@ -170,7 +121,9 @@ static bool js_scene_SubModel_setSubMeshBuffers(se::State& s) // NOLINT(readabil
                     }
                 }
             }
-            cobj->setSubMeshBuffers(flatBuffers);
+            cc::scene::RenderingSubMesh* submesh = new cc::scene::RenderingSubMesh();
+            submesh->flatBuffers                 = flatBuffers;
+            cobj->setRenderingSubMesh(submesh);
             return true;
         }
     }
@@ -178,10 +131,9 @@ static bool js_scene_SubModel_setSubMeshBuffers(se::State& s) // NOLINT(readabil
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_scene_SubModel_setSubMeshBuffers) // NOLINT(readability-identifier-naming, google-runtime-references)
+SE_BIND_FUNC(js_scene_SubModel_setRenderingSubMesh)
 
-bool register_all_scene_manual(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
-{
+bool register_all_scene_manual(se::Object *obj) {
     // Get the ns
     se::Value nsVal;
     if (!obj->getProperty("ns", &nsVal)) {
@@ -191,10 +143,9 @@ bool register_all_scene_manual(se::Object* obj) // NOLINT(readability-identifier
     }
     se::Object* ns = nsVal.toObject();
 
-    __jsb_cc_scene_Model_proto->defineFunction("setInstancedAttrBlock", _SE(js_scene_Model_setInstancedAttrBlock));
+    __jsb_cc_scene_Model_proto->defineFunction("setInstancedBuffer", _SE(js_scene_Model_setInstancedBuffer));
     __jsb_cc_scene_Node_proto->defineFunction("initWithData", _SE(js_scene_Node_initWithData));
 
-    __jsb_cc_scene_SubModel_proto->defineFunction("setSubMeshBuffers", _SE(js_scene_SubModel_setSubMeshBuffers));
-    __jsb_cc_scene_Pass_proto->defineFunction("setRootBufferAndBlock", _SE(js_scene_Pass_setRootBufferAndBlock));
+    __jsb_cc_scene_SubModel_proto->defineFunction("setRenderingSubMesh", _SE(js_scene_SubModel_setRenderingSubMesh));
     return true;
 }

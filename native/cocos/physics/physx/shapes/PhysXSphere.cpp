@@ -53,9 +53,7 @@ void PhysXSphere::updateScale() {
 
 void PhysXSphere::updateGeometry() {
     physx::PxVec3 scale;
-    auto *node = getSharedBody().getNode();
-    node->updateWorldTransform();
-    pxSetVec3Ext(scale, node->getWorldScale());
+    pxSetVec3Ext(scale, getSharedBody().getNode().getWorldScale());
     auto &geo  = getPxGeometry<physx::PxSphereGeometry>();
     geo.radius = physx::PxMax(_mRadius * scale.abs().maxElement(), PX_NORMALIZATION_EPSILON);
 }

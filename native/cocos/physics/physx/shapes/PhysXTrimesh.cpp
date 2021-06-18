@@ -74,9 +74,7 @@ void PhysXTrimesh::updateScale() {
 void PhysXTrimesh::updateGeometry() {
     static physx::PxMeshScale scale;
     scale.rotation = physx::PxQuat{physx::PxIdentity};
-    auto *node = getSharedBody().getNode();
-    node->updateWorldTransform();
-    pxSetVec3Ext(scale.scale, node->getWorldScale());
+    pxSetVec3Ext(scale.scale, getSharedBody().getNode().getWorldScale());
     const auto &type = _mShape->getGeometryType();
     if (type == physx::PxGeometryType::eCONVEXMESH) {
         physx::PxConvexMeshGeometry geom;

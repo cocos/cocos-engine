@@ -29,11 +29,6 @@ namespace cc {
 namespace scene {
 
 void Pass::update() {
-    if (_rootBufferDirty && _rootBuffer) {
-        _rootBuffer->update(_rootBlock, _rootBuffer->getSize());
-        _rootBufferDirty = false;
-    }
-    _descriptorSet->update();
 }
 
 } // namespace scene

@@ -25,9 +25,6 @@
 
 #pragma once
 
-#include <algorithm>
-#include "math/Mat3.h"
-#include "math/Quaternion.h"
 #include "math/Vec3.h"
 #include "scene/Frustum.h"
 
@@ -36,17 +33,13 @@ namespace scene {
 
 struct AABB final {
     Vec3 center;
-    Vec3 halfExtents{1, 1, 1};
+    Vec3 halfExtents;
 
-    static void fromPoints(const Vec3 &minPos, const Vec3 &maxPos, AABB *dst);
-    static void transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4);
-    bool        aabbAabb(const AABB &aabb) const;
-    bool        aabbFrustum(const Frustum &) const;
-    int         aabbPlane(const Plane &) const;
-    void        getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const;
-    void        merge(const AABB &aabb);
-    void        set(const cc::Vec3 &centerVal, const cc::Vec3 &halfExtentVal);
-    void        transform(const Mat4 &m, AABB *out) const;
+    bool aabbAabb(const AABB &aabb) const;
+    bool aabbFrustum(const Frustum &) const;
+    int  aabbPlane(const Plane &) const;
+    void getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const;
+    void merge(const AABB &aabb);
 };
 
 } // namespace scene

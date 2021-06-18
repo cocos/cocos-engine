@@ -116,9 +116,8 @@ void PhysXShape::updateFilterData(const physx::PxFilterData &data) {
 
 void PhysXShape::updateCenter() {
     auto &             sb   = getSharedBody();
-    auto *             node = sb.getNode();
-    node->updateWorldTransform();
-    physx::PxTransform local{_mCenter * node->getWorldScale(), _mRotation};
+    auto &             node = sb.getNode();
+    physx::PxTransform local{_mCenter * node.getWorldScale(), _mRotation};
     getShape().setLocalPose(local);
     if (_mEnabled && !isTrigger()) sb.updateCenterOfMass();
 }

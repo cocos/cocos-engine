@@ -25,31 +25,23 @@
 
 #pragma once
 
-#include <utility>
 #include <vector>
 #include "math/Mat4.h"
 #include "renderer/gfx-base/GFXBuffer.h"
-#include "renderer/gfx-base/GFXDescriptorSet.h"
-#include "renderer/pipeline/Define.h"
 #include "scene/Model.h"
+
 namespace cc {
 namespace scene {
 
 struct JointTransform {
-    Node *node{nullptr};
-    Mat4  local;
-    Mat4  world;
-    int   stamp{-1};
+    Mat4 world;
 };
 
 struct JointInfo {
-    AABB                        bound;
-    Node *                      target{nullptr};
-    Mat4                        bindpose;
-    JointTransform              transform;
-    std::vector<JointTransform> parents;
-    std::vector<uint32_t>       buffers;
-    std::vector<uint32_t>       indices;
+    Mat4                       bindpose;
+    JointTransform *           transform;
+    std::vector<gfx::Buffer *> buffers;
+    std::vector<uint32_t>      indices;
 };
 
 class SkinningModel : public Model {
@@ -57,39 +49,16 @@ public:
     SkinningModel()                      = default;
     SkinningModel(const SkinningModel &) = delete;
     SkinningModel(SkinningModel &&)      = delete;
-    ~SkinningModel() override;
+    ~SkinningModel() override            = default;
     SkinningModel &operator=(const SkinningModel &) = delete;
     SkinningModel &operator=(SkinningModel &&) = delete;
 
-    void        setBuffers(std::vector<gfx::Buffer *> buffers);
-    inline void setIndicesAndJoints(std::vector<uint32_t> bufferIndices, std::vector<JointInfo> joints) {
-        _bufferIndices = std::move(bufferIndices);
-        _joints        = std::move(joints);
-    }
-    inline void updateLocalDescriptors(uint32_t submodelIdx, gfx::DescriptorSet *descriptorset) {
-        gfx::Buffer *buffer = _buffers[_bufferIndices[submodelIdx]];
-        if (buffer) {
-            descriptorset->bindBuffer(pipeline::UBOSkinning::BINDING, buffer);
-        }
-    }
-    inline void setNeedUpdate(bool needUpdate) {
-        _needUpdate = needUpdate;
-    }
-    void updateTransform(uint32_t stamp) override;
-    void updateUBOs(uint32_t stamp) override;
-
-protected:
-    ModelType _type{ModelType::SKINNING};
+    void updateTransform() override;
+    void updateUBOs(uint32_t /*unused*/) override;
 
 private:
-    static void                                                    uploadJointData(uint32_t base, const Mat4 &mat, float *dst);
-    void                                                           updateWorldMatrix(JointInfo *info, uint32_t stamp);
-    bool                                                           _needUpdate{false};
-    Mat4                                                           _worldMatrix;
-    std::vector<uint32_t>                                          _bufferIndices;
-    std::vector<gfx::Buffer *>                                     _buffers;
-    std::vector<JointInfo>                                         _joints;
-    std::vector<std::array<float, pipeline::UBOSkinning::COUNT> *> _dataArray;
+    std::vector<gfx::Buffer *> _buffers;
+    std::vector<JointInfo *>   _joints;
 };
 
 } // namespace scene

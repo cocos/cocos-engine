@@ -51,9 +51,7 @@ public:
 
     inline void setColor(const Vec3 &color) { _color = color; }
     inline void setColorTemperatureRGB(const Vec3 &value) { _colorTemperatureRGB = value; }
-    inline void setNode(Node *node) {
-        _node = node;
-    }
+    inline void setNode(Node *node) { _node = node; }
     inline void setUseColorTemperature(bool value) { _useColorTemperature = value; }
     inline void setType(LightType type) { _type = type; }
 
@@ -69,7 +67,6 @@ protected:
     LightType _type{LightType::UNKNOWN};
     Vec3      _color;
     Vec3      _colorTemperatureRGB;
-    Vec3      _forward{0, 0, -1};
 };
 
 } // namespace scene

@@ -24,75 +24,11 @@
  ****************************************************************************/
 
 #include "scene/Node.h"
-#include "scene/Define.h"
 
 namespace cc {
 namespace scene {
-void Node::updateWorldTransform() {
-    if (!getDirtyFlag()) {
-        return;
-    }
-    uint32_t            i    = 0;
-    Node *              curr = this;
-    Mat3                mat3;
-    Mat3                m43;
-    Quaternion          quat;
-    std::vector<Node *> arrayA;
-    while (curr && curr->getDirtyFlag()) {
-        i++;
-        arrayA.push_back(curr);
-        curr = curr->_parent;
-    }
-    Node *   child{nullptr};
-    uint32_t dirtyBits = 0;
-    while (i) {
-        child = arrayA[--i];
-        dirtyBits |= child->getDirtyFlag();
-        if (curr) {
-            if (dirtyBits & static_cast<uint32_t>(TransformBit::POSITION)) {
-                child->_nodeLayout->worldPosition.transformMat4(child->_nodeLayout->localPosition, child->_nodeLayout->worldMatrix);
-                child->_nodeLayout->worldMatrix.m[12] = child->_nodeLayout->worldPosition.x;
-                child->_nodeLayout->worldMatrix.m[13] = child->_nodeLayout->worldPosition.y;
-                child->_nodeLayout->worldMatrix.m[14] = child->_nodeLayout->worldPosition.z;
-            }
-            if (dirtyBits & static_cast<uint32_t>(TransformBit::RS)) {
-                Mat4::fromRTS(child->_nodeLayout->localRotation, child->_nodeLayout->localPosition, child->_nodeLayout->localScale, &child->_nodeLayout->worldMatrix);
-                Mat4::multiply(curr->_nodeLayout->worldMatrix, child->_nodeLayout->worldMatrix, &child->_nodeLayout->worldMatrix);
-                if (dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION)) {
-                    Quaternion::multiply(curr->_nodeLayout->worldRotation, child->_nodeLayout->localRotation, &curr->_nodeLayout->worldRotation);
-                }
-                quat = child->_nodeLayout->worldRotation;
-                quat.conjugate();
-                Mat3::fromQuat(mat3, quat);
-                Mat3::fromMat4(m43, child->_nodeLayout->worldMatrix);
-                Mat3::multiply(mat3, mat3, m43);
-                child->_nodeLayout->worldScale.set(mat3.m[0], mat3.m[4], mat3.m[8]);
-            }
-        } else if (child) {
-            if (dirtyBits & static_cast<uint32_t>(TransformBit::POSITION)) {
-                child->_nodeLayout->worldPosition.set(child->_nodeLayout->localPosition);
-                child->_nodeLayout->worldMatrix.m[12] = child->_nodeLayout->worldPosition.x;
-                child->_nodeLayout->worldMatrix.m[13] = child->_nodeLayout->worldPosition.y;
-                child->_nodeLayout->worldMatrix.m[14] = child->_nodeLayout->worldPosition.z;
-            }
-            if (dirtyBits & static_cast<uint32_t>(TransformBit::RS)) {
-                if (dirtyBits & static_cast<uint32_t>(TransformBit::ROTATION)) {
-                    child->_nodeLayout->worldRotation.set(child->_nodeLayout->localRotation);
-                }
-                if (dirtyBits & static_cast<uint32_t>(TransformBit::SCALE)) {
-                    child->_nodeLayout->worldScale.set(child->_nodeLayout->localScale);
-                    Mat4::fromRTS(child->_nodeLayout->localRotation, child->_nodeLayout->localPosition, child->_nodeLayout->localScale, &child->_nodeLayout->worldMatrix);
-                }
-            }
-        }
-        child->setDirtyFlag(static_cast<uint32_t>(TransformBit::NONE));
-        curr = child;
-    }
-}
 
-void Node::updateWorldRTMatrix() {
-    updateWorldTransform();
-    Mat4::fromRT(_nodeLayout->worldRotation, _nodeLayout->worldPosition, &_rtMat);
+void Node::updateWorldTransform() {
 }
 
 void Node::initWithData(uint8_t *data) {

@@ -57,11 +57,6 @@ public:
     inline void setPriority(RenderPriority priority) { _priority = priority; }
     inline void setRasterizerState(gfx::RasterizerState *state) { _rasterizerState = state; }
     inline void setStage(RenderPassStage stage) { _stage = stage; }
-    inline void setRootBufferAndBlock(gfx::Buffer *buffer, uint8_t *block) {
-        _rootBuffer = buffer;
-        _rootBlock  = block;
-    }
-    inline void setRootBufferDirty(bool val) { _rootBufferDirty = val; }
 
     inline BatchingSchemes          getBatchingScheme() const { return _batchingScheme; }
     inline gfx::BlendState *        getBlendState() const { return _blendState; }
@@ -92,7 +87,7 @@ private:
     gfx::DescriptorSet *     _descriptorSet{nullptr};
     gfx::PipelineLayout *    _pipelineLayout{nullptr};
     gfx::Buffer *            _rootBuffer{nullptr};
-    uint8_t *                _rootBlock{nullptr};
+    // TODO(minggo): rootBlock
 };
 
 } // namespace scene

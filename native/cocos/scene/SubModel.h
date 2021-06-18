@@ -41,7 +41,7 @@ public:
     SubModel()                 = default;
     SubModel(const SubModel &) = delete;
     SubModel(SubModel &&)      = delete;
-    ~SubModel();
+    ~SubModel()                = default;
     SubModel &operator=(const SubModel &) = delete;
     SubModel &operator=(SubModel &&) = delete;
 
@@ -57,12 +57,7 @@ public:
     inline void setPlanarInstanceShader(gfx::Shader *shader) { _planarInstanceShader = shader; }
     inline void setPlanarShader(gfx::Shader *shader) { _planarShader = shader; }
     inline void setPriority(RenderPriority priority) { _priority = priority; }
-    inline void setSubMeshBuffers(const std::vector<cc::scene::FlatBuffer> &flatBuffers) {
-        if (!_subMesh) {
-            _subMesh = new RenderingSubMesh();
-        }
-        _subMesh->flatBuffers = flatBuffers;
-    }
+    inline void setRenderingSubMesh(RenderingSubMesh *mesh) { _subMesh = mesh; }
 
     inline gfx::DescriptorSet *       getDescriptorSet() const { return _descriptSet; }
     inline gfx::InputAssembler *      getInputAssembler() const { return _ia; }

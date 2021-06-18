@@ -290,7 +290,7 @@ void RenderAdditiveLightQueue::updateUBOs(const scene::Camera *camera, gfx::Comm
                 break;
             case scene::LightType::SPOT: {
                 _lightBufferData[offset + UBOForwardLight::LIGHT_POS_OFFSET + 3]              = 1.0F;
-                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getSpotAngle();
+                _lightBufferData[offset + UBOForwardLight::LIGHT_SIZE_RANGE_ANGLE_OFFSET + 2] = spotLight->getAngle();
 
                 index                     = offset + UBOForwardLight::LIGHT_DIR_OFFSET;
                 const auto &direction     = spotLight->getDirection();
@@ -352,14 +352,14 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 const auto matShadowView = matShadowCamera.getInversed();
 
                 cc::Mat4 matShadowViewProj;
-                cc::Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowViewProj);
+                cc::Mat4::createPerspective(spotLight->getAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowViewProj);
 
                 matShadowViewProj.multiply(matShadowView);
 
                 memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
                 // shadow info
-                float shadowNFLSInfos[4] = {0.1F, spotLight->getSpotAngle(), linear, static_cast<float>(shadowInfo->selfShadow)};
+                float shadowNFLSInfos[4] = {0.1F, spotLight->getAngle(), linear, static_cast<float>(shadowInfo->selfShadow)};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
                 float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(shadowInfo->pcfType), shadowInfo->bias};

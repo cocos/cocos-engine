@@ -63,7 +63,7 @@ public:
     CC_INLINE bool isKinematic() { return static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::KINEMATIC); }
     CC_INLINE bool isStaticOrKinematic() { return static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::STATIC) || static_cast<int>(_mType) & static_cast<int>(ERigidBodyType::KINEMATIC); }
     CC_INLINE bool isDynamic() { return !isStaticOrKinematic(); }
-    CC_INLINE scene::Node *getNode() const { return _mNode; }
+    CC_INLINE scene::Node &getNode() const { return *_mNode; }
     CC_INLINE PhysXWorld &getWorld() const { return *_mWrappedWorld; }
     union UActor {
         uintptr_t              ptr;

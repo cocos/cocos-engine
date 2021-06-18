@@ -29,22 +29,7 @@
 namespace cc {
 namespace scene {
 
-void RenderScene::update(uint32_t stamp) {
-    if (_directionalLight) {
-        _directionalLight->update();
-    }
-    for (SphereLight *light : _sphereLights) {
-        light->update();
-    }
-    for (SpotLight *spotLight : _spotLights) {
-        spotLight->update();
-    }
-    for (auto *model : _models) {
-        if (model->getEnabled()) {
-            model->updateTransform(stamp);
-            model->updateUBOs(stamp);
-        }
-    }
+void RenderScene::update() {
 }
 
 void RenderScene::addSphereLight(SphereLight *light) {
@@ -83,10 +68,6 @@ void RenderScene::removeSpotLights() {
 
 void RenderScene::addModel(Model *model) {
     _models.push_back(model);
-}
-
-void RenderScene::addSkinningModel(SkinningModel *skinModel) {
-    _models.push_back(skinModel);
 }
 
 void RenderScene::removeModel(Model *model) {

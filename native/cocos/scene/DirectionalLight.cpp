@@ -29,11 +29,6 @@ namespace cc {
 namespace scene {
 
 void DirectionalLight::update() {
-    if (_node && _node->getFlagsChanged()) {
-        _dir = _forward;
-        _node->updateWorldTransform();
-        _dir.transformQuat(_node->getWorldRotation());
-    }
 }
 
 } // namespace scene

@@ -113,13 +113,12 @@ void ForwardStage::render(scene::Camera *camera) {
         queue->clear();
     }
 
-
+    uint   m = 0;
+    uint   p = 0;
     size_t k = 0;
     for (auto ro : renderObjects) {
         const auto *const model = ro.model;
-        uint              m     = 0;
         for (auto *subModel : model->getSubModels()) {
-            uint p = 0;
             for (auto *pass : subModel->getPasses()) {
                 if (pass->getPhase() != _phaseID) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
@@ -135,9 +134,7 @@ void ForwardStage::render(scene::Camera *camera) {
                         _renderQueues[k]->insertRenderPass(ro, m, p);
                     }
                 }
-                ++p;
             }
-            ++m;
         }
     }
     for (auto *queue : _renderQueues) {

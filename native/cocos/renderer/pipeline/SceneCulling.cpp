@@ -47,7 +47,7 @@ scene::AABB castWorldBounds;
 RenderObject genRenderObject(const scene::Model *model, const scene::Camera *camera) {
     float depth = 0;
     if (model->getNode()) {
-        auto *const node = model->getTransform();
+        const auto *const node = model->getTransform();
         cc::Vec3          position;
         cc::Vec3::subtract(node->getWorldPosition(), camera->position, &position);
         depth = position.dot(camera->forward);
@@ -68,7 +68,7 @@ void getShadowWorldMatrix(const scene::Sphere *sphere, const cc::Quaternion &rot
 }
 
 void updateSphereLight(scene::Shadow *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *shadowUBO) {
-    auto *const node = light->getNode();
+    const auto *const node = light->getNode();
     if (!node->getFlagsChanged() && !shadows->dirty) {
         return;
     }
@@ -106,7 +106,7 @@ void updateSphereLight(scene::Shadow *shadows, const scene::Light *light, std::a
 }
 
 void updateDirLight(scene::Shadow *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *shadowUBO) {
-    auto *const node     = light->getNode();
+    const auto *const node     = light->getNode();
     const auto &      rotation = node->getWorldRotation();
     Quaternion        qt(rotation.x, rotation.y, rotation.z, rotation.w);
     Vec3              forward(0, 0, -1.0F);

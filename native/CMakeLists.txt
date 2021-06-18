@@ -928,7 +928,6 @@ cocos_source_files(
                  cocos/scene/DirectionalLight.cpp
                  cocos/scene/DrawBatch2D.h
                  cocos/scene/Frustum.h
-                 cocos/scene/Frustum.cpp
                  cocos/scene/Light.h
                  cocos/scene/Light.cpp
                  cocos/scene/Model.h
