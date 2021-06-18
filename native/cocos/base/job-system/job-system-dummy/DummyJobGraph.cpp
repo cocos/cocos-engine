@@ -25,6 +25,7 @@
 
 #include "base/CoreStd.h"
 
+#include <cassert>
 #include "DummyJobGraph.h"
 
 #define DUMMY_GRAPH_NODE_CHUNK_SIZE 64
@@ -48,6 +49,7 @@ void DummyGraphNode::reset() {
 }
 
 void DummyGraphNode::succeed(DummyGraphNode *other) {
+    assert(this != other);
     // Run after other
     this->_predecessors.emplace(other);
     other->_successors.emplace(this);

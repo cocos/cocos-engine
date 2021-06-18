@@ -93,7 +93,8 @@ function build_android()
 
     echo "Compile Android - cmake ..."
     echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
-    ./gradlew assembleDebug --quiet
+    #./gradlew assembleDebug --quiet
+    ./gradlew :CocosGame:assembleDebug --quiet
     echo "Compile Android Debug Done!"
     # ./gradlew assembleRelease # --quiet
     # echo "Compile Android Release Done!"

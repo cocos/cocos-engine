@@ -1179,6 +1179,15 @@ if(CC_USE_VULKAN)
                      cocos/renderer/gfx-vulkan/volk.c
                      cocos/renderer/gfx-vulkan/volk.h
     )
+
+    if(ANDROID)
+        set_source_files_properties(
+            ${CWD}/cocos/renderer/gfx-vulkan/VKDevice.cpp
+            PROPERTIES
+                # supress warning on Android
+                COMPILE_FLAGS -Wno-nullability-completeness
+        )
+    endif()
 endif()
 
 cocos_source_files(
