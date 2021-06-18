@@ -519,6 +519,9 @@ var Sprite = cc.Class({
                 spriteFrame.once('load', this._applySpriteSize, this);
             }
         }
+        else {
+            this.disableRender();
+        }
 
         if (CC_EDITOR) {
             // Set atlas
