@@ -47,3 +47,58 @@ jobs:
           cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Awin32
           cmake --build . --config Release
           echo "Compile Win32 Release Done!"
+
+  compile_android:
+    name: "Android"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Download external libraries
+        shell: bash
+        run: |
+          EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
+          rm external/config.json
+          git clone --branch $EXT_VERSION --depth 1 https://github.com/cocos-creator/engine-native-external external
+      - name: Generate bindings
+        run: |
+          python3 -m pip install PyYAML Cheetah3
+          python3 ./tools/tojs/genbindings.py
+          rm ./tools/tojs/userconf.ini
+      - name: Compile
+        run: |
+          COCOS2DX_ROOT=$GITHUB_WORKSPACE   
+          ANDORID_NDK=$ANDROID_NDK_LATEST_HOME
+          NATIVE_DIR=$COCOS2DX_ROOT/templates/android-template       
+          echo "Compiling Android ... "
+          cd $COCOS2DX_ROOT/templates/
+          if [ ! -d  android-template ]; then
+            cp -r android/template android-template
+          fi
+          cd $COCOS2DX_ROOT/templates/android/build
+          mkdir -p build-android/proj
+          touch build-android/proj/cfg.cmake
+          echo "set(CC_USE_GLES3 ON)" >> build-android/proj/cfg.cmake
+          echo "set(CC_USE_VULKAN ON)" >> build-android/proj/cfg.cmake
+          echo "set(CC_USE_GLES2 ON)" >> build-android/proj/cfg.cmake
+          echo "set(USE_WEBSOCKET_SERVER ON)" >> build-android/proj/cfg.cmake
+
+          mkdir -p build-android/assets
+
+          ASSET_DIR=$COCOS2DX_ROOT/templates/android/build/build-android/
+
+          sed -i "s@\${NATIVE_DIR}@$NATIVE_DIR@g" settings.gradle
+          sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" settings.gradle
+          sed -i "s@\${NATIVE_DIR}@$NATIVE_DIR@g" build.gradle
+          sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDORID_NDK@g" gradle.properties
+          sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
+          sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
+          sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$COCOS2DX_ROOT@g" gradle.properties
+
+          # To speedup CI, compile arm64-v8a only
+          # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
+          sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=arm64-v8a@g" gradle.properties
+
+          echo "Compile Android - cmake ..."
+          echo "ANDORID_NDK ${ANDROID_NDK} or ${ANDROID_NDK_HOME}"
+          ./gradlew assembleDebug --quiet
+          echo "Compile Android Debug Done!"
