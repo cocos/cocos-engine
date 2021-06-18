@@ -105,6 +105,7 @@ CCProgram sprite-vs %{
 
     if (i.uvMode >= 2.0) {
       uv0 = a_texCoord * i.uvParams.xy;
+      uv0.y -= fract(i.uvParams.y); // 平移 一点
       uvSizeOffset = i.uvSizeOffset;
     } else if (i.uvMode >= 1.0) {
       uv0 = a_texCoord;
