@@ -777,7 +777,7 @@ let ScrollView = cc.Class({
 
     _onMouseWheel (event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this._hasNestedViewGroup(event, captureListeners)) return;
+        if (this.hasNestedViewGroup(event, captureListeners)) return;
 
         let deltaMove = cc.v2(0, 0);
         let wheelPrecision = -0.1;
@@ -909,8 +909,13 @@ let ScrollView = cc.Class({
         }
     },
 
-    //this is for nested scrollview
-    _hasNestedViewGroup (event, captureListeners) {
+    /**
+     * !#en Whether this scroll view has the nested view group.
+     * !#zh 此 Scoll View 是否含有嵌套的 View Group
+     * @method hasNestedViewGroup
+     * @returns {Boolean} - Whether this ScrollView has the nested view group.
+     */
+    hasNestedViewGroup (event, captureListeners) {
         if (event.eventPhase !== cc.Event.CAPTURING_PHASE) return;
 
         if (captureListeners) {
@@ -943,7 +948,7 @@ let ScrollView = cc.Class({
     // touch event handler
     _onTouchBegan (event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this._hasNestedViewGroup(event, captureListeners)) return;
+        if (this.hasNestedViewGroup(event, captureListeners)) return;
 
         let touch = event.touch;
         if (this.content) {
@@ -955,7 +960,7 @@ let ScrollView = cc.Class({
 
     _onTouchMoved (event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this._hasNestedViewGroup(event, captureListeners)) return;
+        if (this.hasNestedViewGroup(event, captureListeners)) return;
 
         let touch = event.touch;
         if (this.content) {
@@ -984,7 +989,7 @@ let ScrollView = cc.Class({
 
     _onTouchEnded (event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this._hasNestedViewGroup(event, captureListeners)) return;
+        if (this.hasNestedViewGroup(event, captureListeners)) return;
 
         this._dispatchEvent('touch-up');
 
@@ -1001,7 +1006,7 @@ let ScrollView = cc.Class({
 
     _onTouchCancelled (event, captureListeners) {
         if (!this.enabledInHierarchy) return;
-        if (this._hasNestedViewGroup(event, captureListeners)) return;
+        if (this.hasNestedViewGroup(event, captureListeners)) return;
 
         // Filte touch cancel event send from self
         if (!event.simulate) {
