@@ -89,7 +89,7 @@ const gfx::UniformBlock UBOLocalBatched::LAYOUT = {
 const String                          UBOCamera::NAME       = "CCCamera";
 const gfx::DescriptorSetLayoutBinding UBOCamera::DESCRIPTOR = {
     UBOCamera::BINDING,
-    gfx::DescriptorType::UNIFORM_BUFFER,
+    gfx::DescriptorType::DYNAMIC_UNIFORM_BUFFER,
     1,
     gfx::ShaderStageFlagBit::ALL,
     {},
