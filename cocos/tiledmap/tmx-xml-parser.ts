@@ -627,6 +627,8 @@ export class TMXMapInfo {
                 const images = curTileset.getElementsByTagName('image');
                 const collection = images.length > 1;
                 const firstImage = images[0];
+                let firstImageName: string = firstImage.getAttribute('source')!;
+                firstImageName = firstImageName.replace(/\\/g, '/');
 
                 const tiles = curTileset.getElementsByTagName('tile');
                 const tileCount = tiles && tiles.length || 1;
@@ -657,16 +659,15 @@ export class TMXMapInfo {
                     let curImageName: string = curImage.getAttribute('source')!;
                     curImageName = curImageName.replace(/\\/g, '/');
 
-                    if (!tileset) {
+                    if (!tileset || collection) {
                         tileset = new TMXTilesetInfo();
                         tileset.name = tilesetName;
                         tileset.firstGid = ((fgid as unknown as number) & TileFlag.FLIPPED_MASK) as unknown as GID;
                         tileset.tileOffset.x = tileOffsetX;
                         tileset.tileOffset.y = tileOffsetY;
 
+                        tileset.collection = collection;
                         if (!collection) {
-                            tileset.collection = true;
-                            // set multi-sprite frame for tilesets
                             tileset.imageName = curImageName;
                             tileset.imageSize.width = parseFloat(curImage.getAttribute('width')!) || 0;
                             tileset.imageSize.height = parseFloat(curImage.getAttribute('height')!) || 0;
@@ -694,6 +695,7 @@ export class TMXMapInfo {
                         this.setTilesets(tileset);
                     }
 
+                    // parse tiles by tileIdx
                     tile = tiles && tiles[tileIdx];
                     if (!tile) {
                         continue;
@@ -715,7 +717,7 @@ export class TMXMapInfo {
 
                         tileset.sourceImage = this._spriteFrameMap![imageName];
                         if (!tileset.sourceImage) {
-                            const nameWithPostfix = TMXMapInfo.getNameWithPostfix(curImageName);
+                            const nameWithPostfix = TMXMapInfo.getNameWithPostfix(imageName);
                             tileset.imageName = nameWithPostfix;
                             tileset.sourceImage = this._spriteFrameMap![nameWithPostfix];
                             if (!tileset.sourceImage) {
