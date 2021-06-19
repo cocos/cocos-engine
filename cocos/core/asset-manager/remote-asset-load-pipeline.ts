@@ -25,10 +25,8 @@
 import downloader from './downloader';
 import factory from './factory';
 import parser from './parser';
-import RequestItem from './request-item';
 import { assets, files, parsed } from './shared';
 import Task from './task';
-import { cache, checkCircleReference } from './utilities';
 
 export function fetch (task: Task) {
     const item = task.output = task.input;

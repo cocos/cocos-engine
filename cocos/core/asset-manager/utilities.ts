@@ -69,23 +69,6 @@ export function urlAppendTimestamp (url: string, append: boolean): string {
     return url;
 }
 
-export type RetryFunction = (times: number, done: CompleteCallback) => void;
-
-export function retry (process: RetryFunction, times: number, wait: number, onComplete: CompleteCallback, index = 0) {
-    process(index, (err, result) => {
-        index++;
-        if (!err || index > times) {
-            if (onComplete) {
-                onComplete(err, result);
-            }
-        } else {
-            setTimeout(() => {
-                retry(process, times, wait, onComplete, index);
-            }, wait);
-        }
-    });
-}
-
 export function getDepends (uuid: string, data: Asset | Record<string, any>, exclude: Record<string, any>,
     depends: any[], config: Config): void {
     try {
