@@ -667,7 +667,6 @@ export class AssetManager {
      *
      * @zh
      * 释放所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
-     *
      */
     public releaseUnusedAssets () {
         garbageCollectionManager.collectGarbage();
@@ -734,11 +733,12 @@ export class AssetManager {
         this._parsePipeline!.async(task);
     }
 
-    public update () {
+    public update (dt: number) {
         this.pipeline.update();
         this.fetchPipeline.update();
         this.singleAssetLoadPipeline.update();
         this._parsePipeline?.update();
+        this.downloader.update(dt);
     }
 
     private markAllPendLoadingAsset (garbageCollectionContext: GarbageCollectorContext) {

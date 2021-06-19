@@ -44,7 +44,6 @@ import {
 } from '../../core/gfx';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { Morph, MorphRendering, createMorphRendering } from './morph';
-import { finalizationManager } from '../../core/data/finalization-manager';
 
 function getIndexStrideCtor (stride: number) {
     switch (stride) {

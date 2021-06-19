@@ -38,7 +38,6 @@ import { GCObject } from '../data/gc-object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { extname } from '../utils/path';
-import { finalizationManager } from '../data/finalization-manager';
 
 /**
  * @en

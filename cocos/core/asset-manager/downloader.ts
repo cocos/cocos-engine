@@ -29,14 +29,12 @@
 import { BUILD, EDITOR } from 'internal:constants';
 import { sys } from '../platform/sys';
 import { js } from '../utils';
-import { callInNextTick } from '../utils/misc';
 import { basename } from '../utils/path';
-import Cache from './cache';
 import downloadDomImage from './download-dom-image';
 import downloadFile from './download-file';
 import downloadScript from './download-script';
 import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadParseOptions, files } from './shared';
-import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
+import { urlAppendTimestamp } from './utilities';
 import { legacyCC } from '../global-exports';
 import { IConfigOption } from './config';
 
@@ -47,8 +45,17 @@ interface IDownloadRequest {
     priority: number;
     url: string;
     options: IDownloadParseOptions;
-    done: CompleteCallback;
+    completeCallbacks: CompleteCallback[];
     handler: DownloadHandler;
+    maxRetryCount: number;
+    maxConcurrency: number;
+    maxRequestsPerFrame: number;
+    retryTimes: number;
+    delay: number;
+    isDownloading: boolean;
+    isFinished: boolean;
+    err: Error | null;
+    data: any;
 }
 
 const REGEX = /^(?:\w+:\/\/|\.+\/).+/;
@@ -174,10 +181,6 @@ export class Downloader {
      */
     public maxRetryCount = BUILD ? 3 : 0;
 
-    public appendTimeStamp = !!EDITOR;
-
-    public limited = !EDITOR;
-
     /**
      * @en
      * Wait for while before another retry, unit: ms
@@ -187,6 +190,10 @@ export class Downloader {
      *
      */
     public retryInterval = 2000;
+
+    public appendTimeStamp = !!EDITOR;
+
+    public limited = !EDITOR;
 
     public bundleVers: Record<string, string> | null = null;
 
@@ -245,22 +252,15 @@ export class Downloader {
         default: downloadText,
     };
 
-    private _downloading = new Cache<CompleteCallback[]>();
     private _queue: IDownloadRequest[] = [];
     private _queueDirty = false;
     // the number of loading thread
     private _totalNum = 0;
     // the number of request that launched in this period
     private _totalNumThisPeriod = 0;
-    // last time, if now - lastTime > period, refresh _totalNumThisPeriod.
-    private _lastDate = -1;
-    // if _totalNumThisPeriod equals max, move request to next period using setTimeOut.
-    private _checkNextPeriod = false;
     private _remoteServerAddress = '';
-    private _maxInterval = 1 / 30;
 
     public init (remoteServerAddress = '', bundleVers: Record<string, string> = {}, remoteBundles: string[] = []) {
-        this._downloading.clear();
         this._queue.length = 0;
         this._remoteServerAddress = remoteServerAddress;
         this.bundleVers = bundleVers;
@@ -327,12 +327,10 @@ export class Downloader {
             return;
         }
 
-        const downloadCallbacks = this._downloading.get(id);
-        if (downloadCallbacks) {
-            downloadCallbacks.push(onComplete);
-            const request = this._queue.find((x) => x.id === id);
-            if (!request) { return; }
-            const priority: number = options.priority || 0;
+        const request = this._queue.find((x) => x.id === id);
+        if (request) {
+            request.completeCallbacks.push(onComplete); 
+            const priority = options.priority || 0;
             if (request.priority < priority) {
                 request.priority = priority;
                 this._queueDirty = true;
@@ -346,49 +344,24 @@ export class Downloader {
         const maxRequestsPerFrame = typeof options.maxRequestsPerFrame !== 'undefined' ? options.maxRequestsPerFrame : this.maxRequestsPerFrame;
         const handler = this._downloaders[type] || this._downloaders.default;
 
-        const process: RetryFunction = (index, callback) => {
-            if (index === 0) {
-                this._downloading.add(id, [onComplete]);
-            }
-
-            if (!this.limited) {
-                handler(urlAppendTimestamp(url, this.appendTimeStamp), options, callback);
-                return;
-            }
-
-            // refresh
-            this._updateTime();
-
-            const done: CompleteCallback = (err, data) => {
-                // when finish downloading, update _totalNum
-                this._totalNum--;
-                this._handleQueueInNextFrame(maxConcurrency, maxRequestsPerFrame);
-                callback(err, data);
-            };
-
-            if (this._totalNum < maxConcurrency && this._totalNumThisPeriod < maxRequestsPerFrame) {
-                handler(urlAppendTimestamp(url, this.appendTimeStamp), options, done);
-                this._totalNum++;
-                this._totalNumThisPeriod++;
-            } else {
-                // when number of request up to limitation, cache the rest
-                this._queue.push({ id, priority: options.priority || 0, url, options, done, handler });
-                this._queueDirty = true;
-
-                if (this._totalNum < maxConcurrency) { this._handleQueueInNextFrame(maxConcurrency, maxRequestsPerFrame); }
-            }
-        };
-
-        // when retry finished, invoke callbacks
-        const finale = (err, result) => {
-            if (!err) { files.add(id, result); }
-            const callbacks = this._downloading.remove(id) as CompleteCallback[];
-            for (let i = 0, l = callbacks.length; i < l; i++) {
-                callbacks[i](err, result);
-            }
-        };
-
-        retry(process, maxRetryCount, this.retryInterval, finale);
+        this._queue.push({ 
+            id, 
+            priority: options.priority || 0, 
+            url: urlAppendTimestamp(url, this.appendTimeStamp), 
+            options, 
+            completeCallbacks: [ onComplete ], 
+            handler, 
+            maxRetryCount, 
+            maxConcurrency, 
+            maxRequestsPerFrame,
+            retryTimes: 0,
+            delay: 0,
+            isDownloading: false,
+            isFinished: false,
+            err: null,
+            data: null,
+        });
+        this._queueDirty = true;
     }
 
     /**
@@ -404,42 +377,57 @@ export class Downloader {
         legacyCC.assetManager.loadBundle(name, null, completeCallback);
     }
 
-    private _updateTime () {
-        const now = Date.now();
-        // use deltaTime as interval
-        const deltaTime = legacyCC.director.getDeltaTime();
-        const interval = deltaTime > this._maxInterval ? this._maxInterval : deltaTime;
-        if (now - this._lastDate > interval * 1000) {
-            this._totalNumThisPeriod = 0;
-            this._lastDate = now;
+    // handle the rest request in next period
+    private handleQueue (dt: number) {
+        for (let i = this._queue.length - 1; i >= 0; i--) {
+            const request = this._queue[i];
+            request.delay -= dt;
+            if (request.delay > 0 || request.isDownloading) continue;
+            if (request.isFinished) {
+                this._queue.splice(i, 1);
+                if (!request.err) { files.add(request.id, request.data); }
+                const callbacks = request.completeCallbacks;
+                for (let i = 0, l = callbacks.length; i < l; i++) {
+                    callbacks[i](request.err, request.data);
+                }
+                continue;
+            }
+            if (!this.limited || (request.maxConcurrency > this._totalNum && request.maxRequestsPerFrame > this._totalNumThisPeriod)) {
+                this._totalNum++;
+                this._totalNumThisPeriod++;
+                request.isDownloading = true;
+                request.handler(request.url, request.options, (err, data) => {
+                    request.isDownloading = false;
+                    this._totalNum--;
+                    if (!err) {
+                        request.isFinished = true;
+                        request.err = err;
+                        request.data = data;
+                    } else if (request.retryTimes < request.maxRetryCount) {
+                        request.retryTimes++;
+                        request.delay = this.retryInterval;
+                    } else {
+                        request.isFinished = true;
+                        request.err = err;
+                        request.data = data;
+                    }
+                });
+            }
         }
     }
 
-    // handle the rest request in next period
-    private _handleQueue (maxConcurrency: number, maxRequestsPerFrame: number) {
-        this._checkNextPeriod = false;
-        this._updateTime();
-        while (this._queue.length > 0 && this._totalNum < maxConcurrency && this._totalNumThisPeriod < maxRequestsPerFrame) {
+    private resetTotalNumOfThisFrame () {
+        this._totalNumThisPeriod = 0;
+    }
+
+    public update (dt: number) {
+        if (this._queue.length > 0) {
             if (this._queueDirty) {
                 this._queue.sort((a, b) => a.priority - b.priority);
                 this._queueDirty = false;
             }
-            const request = this._queue.pop();
-            if (!request) {
-                break;
-            }
-            this._totalNum++;
-            this._totalNumThisPeriod++;
-            request.handler(urlAppendTimestamp(request.url, this.appendTimeStamp), request.options, request.done);
-        }
-
-        this._handleQueueInNextFrame(maxConcurrency, maxRequestsPerFrame);
-    }
-
-    private _handleQueueInNextFrame (maxConcurrency: number, maxRequestsPerFrame: number) {
-        if (!this._checkNextPeriod && this._queue.length > 0) {
-            callInNextTick(this._handleQueue.bind(this), maxConcurrency, maxRequestsPerFrame);
-            this._checkNextPeriod = true;
+            this.resetTotalNumOfThisFrame();
+            this.handleQueue(dt);
         }
     }
 }
