@@ -130,16 +130,14 @@ EMPTY_FLOW._next = EMPTY_FLOW;
 let flows = {};
 
 function createFlow (flag, next) {
+    if (flag === DONOTHING || flag === BREAK_FLOW) {
+        return EMPTY_FLOW
+    }
+    
     let flow = new RenderFlow();
     flow._next = next || EMPTY_FLOW;
 
     switch (flag) {
-        case DONOTHING: 
-            flow._func = flow._doNothing;
-            break;
-        case BREAK_FLOW:
-            flow._func = flow._doNothing;
-            break;
         case LOCAL_TRANSFORM: 
             flow._func = flow._localTransform;
             break;
