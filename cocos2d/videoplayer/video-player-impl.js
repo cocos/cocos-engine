@@ -419,7 +419,8 @@ let VideoPlayerImpl = cc.Class({
         if (video.pushFrameDataToTexture2D === undefined) { // Web
             cctex.initWithVideo(video);
         } else { // Not web
-            this.pushFrameDataToTexture2D(cctex._texture);
+            let texid = cctex._texture.getTextureId();
+            this.pushFrameDataToTexture2D(texid);
         }
     },
 
