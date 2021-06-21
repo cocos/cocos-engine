@@ -1,0 +1,32 @@
+name: 🧪 Unit Test
+
+on: [push, pull_request]
+
+jobs:
+  unit-test-with-cmake:
+    name: "Run on windows"
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+
+      - name: Downlad external libraties
+        run: |
+          npm install
+          npm install gulp -g
+          node ./utils/download-deps.js
+
+      - name: Generate bindings
+        shell: bash
+        run: |
+          python -m pip install PyYAML Cheetah3
+          python ./tools/tojs/genbindings.py
+
+      - name: Build & Run
+        shell: bash
+        run: |
+          cmake -B unit-test/build -S unit-test -G"Visual Studio 16 2019" -A win32
+          cmake --build unit-test/build --config Release
+          ./unit-test/build/src/Release/CocosTest.exe

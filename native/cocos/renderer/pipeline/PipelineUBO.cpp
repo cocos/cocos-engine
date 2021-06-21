@@ -104,7 +104,7 @@ void PipelineUBO::updateCameraUBOView(const RenderPipeline *pipeline, std::array
         TO_VEC3(uboCameraView, mainLight->getDirection(), UBOCamera::MAIN_LIT_DIR_OFFSET);
         TO_VEC3(uboCameraView, mainLight->getColor(), UBOCamera::MAIN_LIT_COLOR_OFFSET);
         if (mainLight->getUseColorTemperature()) {
-            const auto& colorTempRGB = mainLight->getColorTemperatureRGB();
+            const auto &colorTempRGB = mainLight->getColorTemperatureRGB();
             uboCameraView[UBOCamera::MAIN_LIT_COLOR_OFFSET + 0] *= colorTempRGB.x;
             uboCameraView[UBOCamera::MAIN_LIT_COLOR_OFFSET + 1] *= colorTempRGB.y;
             uboCameraView[UBOCamera::MAIN_LIT_COLOR_OFFSET + 2] *= colorTempRGB.z;
@@ -359,7 +359,7 @@ void PipelineUBO::destroy() {
 }
 
 void PipelineUBO::updateGlobalUBO() {
-    auto *const globalDSManager = _pipeline->getGlobalDSManager(); 
+    auto *const globalDSManager = _pipeline->getGlobalDSManager();
     auto *const ds              = _pipeline->getDescriptorSet();
     auto *const cmdBuffer       = _pipeline->getCommandBuffers()[0];
     ds->update();
@@ -384,10 +384,10 @@ void PipelineUBO::updateCameraUBO(const scene::Camera *camera) {
 void PipelineUBO::updateMultiCameraUBO(const vector<scene::Camera *> &cameras) {
     auto *const ds           = _pipeline->getDescriptorSet();
     auto *      device       = _pipeline->getDevice();
-    auto        uboAlignment        = device->getCapabilities().uboOffsetAlignment;
-    _alignedCameraUBOSize    = static_cast<size_t>(std::ceil(UBOCamera::SIZE / static_cast<float>(uboAlignment))) * uboAlignment;
-    auto        cameraCount  = cameras.size();
-    auto        totalUboSize = static_cast<uint>(_alignedCameraUBOSize * cameraCount);
+    auto        uboAlignment = device->getCapabilities().uboOffsetAlignment;
+    _alignedCameraUBOSize    = static_cast<uint>(std::ceil(UBOCamera::SIZE / static_cast<float>(uboAlignment))) * uboAlignment;
+    auto cameraCount         = cameras.size();
+    auto totalUboSize        = static_cast<uint>(_alignedCameraUBOSize * cameraCount);
 
     _cameraUBOs.resize(totalUboSize);
     _currentCameraUBOOffset = 0;
@@ -397,8 +397,8 @@ void PipelineUBO::updateMultiCameraUBO(const vector<scene::Camera *> &cameras) {
         auto offset = cameraIdx * _alignedCameraUBOSize;
         memcpy(&_cameraUBOs[offset], _cameraUBO.data(), UBOCamera::SIZE);
     }
-    auto* uboBuffer = ds->getBuffer(UBOCamera::BINDING);
-    if(uboBuffer->getSize() < totalUboSize) {
+    auto *uboBuffer = ds->getBuffer(UBOCamera::BINDING);
+    if (uboBuffer->getSize() < totalUboSize) {
         uboBuffer->resize(totalUboSize);
     }
     uboBuffer->update(_cameraUBOs.data(), totalUboSize);

@@ -1,4 +1,4 @@
-name: Clang Tidy - Android
+name: 📝 Linter
 
 on: pull_request
 
@@ -7,7 +7,7 @@ jobs:
   # when a job name is not provided
   super-lint:
     # Name the Job
-    name: Lint code base - Android
+    name: ClangTidy Android
     # Set the type of machine to run on
     runs-on: ubuntu-latest
 
@@ -19,12 +19,12 @@ jobs:
       - name: Install Python3
         uses: actions/setup-python@v2
         with:
-          python-version: '3.x'
+          python-version: "3.x"
 
       - name: Install python deps
         run: |
           python -m pip install PyYAML Cheetah3
-      - name : Download external
+      - name: Download external
         run: |
           EXT_VERSION=`grep version external/config.json  |awk -F'"' '{print $4}'`
           rm external/config.json
@@ -68,7 +68,7 @@ jobs:
       - name: Generate Compile database
         shell: bash
         run: |
-           utils/generate_compile_commands_android.sh
+          utils/generate_compile_commands_android.sh
 
       - name: Generate clang-fix.yaml
         shell: bash
