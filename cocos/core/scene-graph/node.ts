@@ -668,7 +668,7 @@ export class Node extends BaseNode {
             const cur: this = array_a[i--];
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                this._setDirtyFlags(cur._dirtyFlags | dirtyBit);
+                cur._setDirtyFlags(cur._dirtyFlags | dirtyBit);
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
                 const children = cur._children;
                 const len = children.length;
