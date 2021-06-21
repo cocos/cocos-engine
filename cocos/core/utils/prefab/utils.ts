@@ -37,6 +37,7 @@ import { Component } from '../../components';
 import type { BaseNode } from '../../scene-graph/base-node';
 import { MountedChildrenInfo, PropertyOverrideInfo } from './prefab-info';
 import { MountedComponentsInfo, TargetInfo } from '.';
+import { editorExtrasTag } from '../../data';
 
 export function createNodeWithPrefab (node: Node) {
     // @ts-expect-error: private member access
@@ -189,8 +190,11 @@ export function applyMountedChildren (node: Node, mountedChildren: MountedChildr
                     // @ts-expect-error private member access
                     childNode._parent = target;
                     if (EDITOR) {
+                        if (!childNode[editorExtrasTag]) {
+                            childNode[editorExtrasTag] = {};
+                        }
                         // @ts-expect-error editor polyfill
-                        childNode._mountedRoot = node;
+                        childNode[editorExtrasTag].mountedRoot = node;
                     }
                     // mounted node need to add to the target map
                     generateTargetMap(childNode, curTargetMap, false);
@@ -226,8 +230,11 @@ export function applyMountedComponents (node: Node, mountedComponents: MountedCo
 
                     comp.node = target;
                     if (EDITOR) {
+                        if (!comp[editorExtrasTag]) {
+                            comp[editorExtrasTag] = {};
+                        }
                         // @ts-expect-error editor polyfill
-                        comp._mountedRoot = node;
+                        comp[editorExtrasTag].mountedRoot = node;
                     }
                     // @ts-expect-error private member access
                     target._components.push(comp);
