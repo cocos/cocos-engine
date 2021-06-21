@@ -324,8 +324,6 @@ var Texture2D = cc.Class({
 
         _isAlphaAtlas: false,
 
-        _useBgra: false,
-
         _genMipmaps: false,
         /**
          * !#en Sets whether generate mipmaps for the texture
@@ -616,22 +614,6 @@ var Texture2D = cc.Class({
     },
 
     /**
-     * !#en Init or update (if exists) with HTML video element.
-     * !#zh 用 HTML Video 对象初始化或者更新贴图。
-     * @method initWithVideo
-     * @param {HTMLVideoElement} video
-     */
-     initWithVideo (video) {
-        if (!video) return;
-        if (video instanceof HTMLVideoElement) {
-            this._image = video;
-            this._image.width = video.videoWidth;
-            this._image.height = video.videoHeight;
-            this.handleLoadedTexture();
-        }
-    },
-
-    /**
      * !#en
      * Intializes with texture data in ArrayBufferView.
      * !#zh 使用一个存储在 ArrayBufferView 中的图像数据（raw data）初始化数据。
@@ -736,14 +718,6 @@ var Texture2D = cc.Class({
 
     isAlphaAtlas () {
         return this._isAlphaAtlas;
-    },
-
-    setUseBGRA (bgra) {
-        this._useBgra = bgra;
-    },
-
-    getUseBGRA () {
-        return this._useBgra;
     },
 
     /**

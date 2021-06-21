@@ -219,12 +219,6 @@ let Material = cc.Class({
             if (!val.loaded) {
                 cc.assetManager.postLoadNative(val);
             }
-
-            if (val.getUseBGRA()) {
-                if (this.getDefine('USE_BGRA') !== undefined) {
-                    this.define('USE_BGRA', true);
-                }
-            }
         }
 
         this._effect.setProperty(name, val, passIdx, directly);
