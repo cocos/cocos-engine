@@ -55,6 +55,7 @@ import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
+import { TransformBit } from '../core/scene-graph/node-enum';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -825,13 +826,7 @@ export class ParticleSystem extends RenderableComponent {
         }
     }
 
-    private emit (count: number, dt: number) {
-        // refresh particle node position to update emit position
-        if (this._needRefresh) {
-            this.node.setPosition(this.node.getPosition());
-            this._needRefresh = false;
-        }
-
+    private emit (count: number, dt: number) {        
         const delta = this._time / this.duration;
 
         if (this._simulationSpace === Space.World) {
@@ -905,6 +900,7 @@ export class ParticleSystem extends RenderableComponent {
         this.startDelay.constant = 0;
         const dt = 1.0; // should use varying value?
         const cnt = this.duration / dt;
+
         for (let i = 0; i < cnt; ++i) {
             this._time += dt;
             this._emit(dt);
@@ -932,13 +928,23 @@ export class ParticleSystem extends RenderableComponent {
             if (this._emitRateTimeCounter > 1 && this._isEmitting) {
                 const emitNum = Math.floor(this._emitRateTimeCounter);
                 this._emitRateTimeCounter -= emitNum;
+
+                // refresh particle node position to update emit position
+                if (this._needRefresh) {
+                    // this.node.setPosition(this.node.getPosition());
+                    this.node.invalidateChildren(TransformBit.POSITION);
+                    this._needRefresh = false;
+                }
+
                 this.emit(emitNum, dt);
             }
+
             // emit by rateOverDistance
             this.node.getWorldPosition(this._curWPos);
             const distance = Vec3.distance(this._curWPos, this._oldWPos);
             Vec3.copy(this._oldWPos, this._curWPos);
             this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
+
             if (this._emitRateDistanceCounter > 1 && this._isEmitting) {
                 const emitNum = Math.floor(this._emitRateDistanceCounter);
                 this._emitRateDistanceCounter -= emitNum;
