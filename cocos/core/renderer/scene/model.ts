@@ -517,7 +517,8 @@ export class Model {
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
-            const attr = attrs.attributes[j];
+            // const attr = attrs.attributes[j];
+            const attr = new Attribute();
             attr.format = attribute.format;
             attr.name = attribute.name;
             attr.isNormalized = attribute.isNormalized;
@@ -525,7 +526,7 @@ export class Model {
             attrs.attributes.push(attr);
 
             const info = FormatInfos[attribute.format];
-            attrs.views.push(new (getTypedArrayConstructor(info))(attrs.buffer, offset, info.count));
+            attrs.views.push(new (getTypedArrayConstructor(info))(attrs.buffer.buffer, offset, info.count));
             offset += info.size;
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
