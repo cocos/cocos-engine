@@ -384,6 +384,8 @@ export class View extends EventTarget {
     /**
      * @en Returns the visible origin of the view port.
      * @zh 返回视图窗口可见区域原点。
+     *
+     * @deprecated since v3.3
      */
     public getVisibleOrigin (): Vec2 {
         return new Vec2(this._visibleRect.x, this._visibleRect.y);
@@ -392,6 +394,8 @@ export class View extends EventTarget {
     /**
      * @en Returns the visible origin of the view port.
      * @zh 返回视图窗口可见区域像素原点。
+     *
+     * @deprecated since v3.3
      */
     public getVisibleOriginInPixel (): Vec2 {
         return new Vec2(this._visibleRect.x * this._scaleX,

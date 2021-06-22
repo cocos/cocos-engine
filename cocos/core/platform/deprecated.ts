@@ -53,6 +53,12 @@ markAsWarning(View.prototype, 'View.prototype', [
     {
         name: 'isAutoFullScreenEnabled',
     },
+    {
+        name: 'getVisibleOrigin',
+    },
+    {
+        name: 'getVisibleOriginInPixel',
+    },
 ]);
 markAsWarning(legacyCC, 'cc', [
     {
