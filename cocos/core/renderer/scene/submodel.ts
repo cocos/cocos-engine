@@ -42,6 +42,7 @@ const MAX_PASS_COUNT = 8;
 export class SubModel {
     protected _device: Device | null = null;
     protected _passes: Pass[] | null = null;
+    protected _shaders: Shader[] | null = null;
     protected _subMesh: RenderingSubMesh | null = null;
     protected _patches: IMacroPatch[] | null = null;
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
@@ -95,6 +96,10 @@ export class SubModel {
 
     get passes (): Pass[] {
         return this._passes!;
+    }
+
+    get shaders (): Shader[] {
+        return this._shaders!;
     }
 
     set subMesh (subMesh) {
@@ -262,7 +267,9 @@ export class SubModel {
 
         this._patches = null;
         this._subMesh = null;
+
         this._passes = null;
+        this._shaders = null;
 
         if (this._reflectionTex) this._reflectionTex.destroy();
         this._reflectionTex = null;
@@ -313,18 +320,17 @@ export class SubModel {
     protected _flushPassInfo (): void {
         const passes = this._passes;
         if (!passes) { return; }
+        if (!this._shaders) { this._shaders = []; }
+
+        this._shaders.length = passes.length;
+        for (let i = 0, len = passes.length; i < len; i++) {
+            this._shaders[i] = passes[i].getShaderVariant(this.patches)!;
+        }
 
         if (JSB) {
-            const nativeShaders: (Shader | null)[] = [];
-            for (let i = 0, len = passes.length; i < len; i++) {
-                if (JSB) {
-                    nativeShaders.push(passes[i].getShaderVariant(this.patches));
-                }
-            }
-
             const passesNative = passes.map((_pass: Pass): NativePass => _pass.native);
             this._nativeObj!.setPasses(passesNative);
-            this._nativeObj!.setShaders(nativeShaders);
+            this._nativeObj!.setShaders(this._shaders);
         }
     }
 }
