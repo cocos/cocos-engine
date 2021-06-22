@@ -28,7 +28,6 @@ import { GarbageCollectorContext } from './garbage-collection';
 import { CCObject } from './object';
 
 export class GCObject extends CCObject {
-
     public ignoreFromGarbageCollection = true;
     public declare finalizationToken: any;
 

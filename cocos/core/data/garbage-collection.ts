@@ -251,18 +251,23 @@ class GarbageCollectionManager {
         const { properties, referenceTypes } = classInfo;
         const prototype = ctor.prototype;
         const parenMarkDependencies = prototype.markDependencies;
-        prototype.markDependencies = parenMarkDependencies ? function markDependenciesWithParent (this: any, context: GarbageCollectorContext) {
-            parenMarkDependencies.call(this, context);
-            for (let i = 0; i < properties.length; i++) {
-                const property = this[properties[i]];
-                if (property) { context.markObjectWithReferenceType(property, referenceTypes[i]); }
-            }
-        } : function markDependenciesWithoutParent (this: any, context: GarbageCollectorContext) {
-            for (let i = 0; i < properties.length; i++) {
-                const property = this[properties[i]];
-                if (property) { context.markObjectWithReferenceType(property, referenceTypes[i]); }
-            }
-        };
+
+        if (parenMarkDependencies) {
+            prototype.markDependencies = function markDependenciesWithParent (context: GarbageCollectorContext) {
+                parenMarkDependencies.call(this, context);
+                for (let i = 0; i < properties.length; i++) {
+                    const property = this[properties[i]];
+                    if (property) { context.markObjectWithReferenceType(property, referenceTypes[i]); }
+                }
+            };
+        } else {
+            prototype.markDependencies = function markDependenciesWithoutParent (this: any, context: GarbageCollectorContext) {
+                for (let i = 0; i < properties.length; i++) {
+                    const property = this[properties[i]];
+                    if (property) { context.markObjectWithReferenceType(property, referenceTypes[i]); }
+                }
+            };
+        }
     }
 
     public generateMarkDependenciesFunctionForCustomCCClass (ctor: Constructor) {
@@ -275,7 +280,7 @@ class GarbageCollectionManager {
                     const property = this[properties[i]];
                     if (property) { context.markAny(property); }
                 }
-            }
+            };
         }
     }
 
