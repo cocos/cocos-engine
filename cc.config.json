@@ -46,7 +46,8 @@
                 "cocos/core/gfx/pipeline-state.ts": "cocos/core/gfx/pipeline-state.jsb.ts",
                 "cocos/spine/index.ts": "cocos/spine/index.jsb.ts",
                 "cocos/dragon-bones/index.ts": "cocos/dragon-bones/index.jsb.ts",
-                "cocos/core/renderer/scene/native-scene.ts": "cocos/core/renderer/scene/native-scene.jsb.ts"
+                "cocos/core/renderer/scene/native-scene.ts": "cocos/core/renderer/scene/native-scene.jsb.ts",
+                "cocos/physics/physx/instantiate.ts": "cocos/physics/physx/instantiate.jsb.ts"
             }
         },
         {
@@ -87,6 +88,13 @@
                 "pal/audio": "pal/audio/minigame/player.ts",
                 "pal/system": "pal/system/minigame/system.ts",
                 "pal/input": "pal/input/minigame/index.ts"
+            }
+        },
+        {
+            "test": "context.buildTimeConstants && context.buildTimeConstants.BYTEDANCE",
+            "isVirtualModule": false,
+            "overrides": {
+                "cocos/physics/physx/export-physx.web.ts": "cocos/physics/physx/export-physx.tt.ts"
             }
         }
     ]
