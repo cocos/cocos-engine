@@ -222,18 +222,6 @@ export class Pass {
     constructor (root: Root) {
         this._root = root;
         this._device = root.device;
-        if (JSB) {
-            this._nativeObj = new NativePass();
-            this._passHandle = PassPool.alloc();
-            this._nativePriority = PassPool.getTypedArray(this._passHandle, PassView.PRIORITY) as Uint32Array;
-            this._nativeStage = PassPool.getTypedArray(this._passHandle, PassView.STAGE) as Uint32Array;
-            this._nativePhase = PassPool.getTypedArray(this._passHandle, PassView.PHASE) as Uint32Array;
-            this._nativePrimitive = PassPool.getTypedArray(this._passHandle, PassView.PRIMITIVE) as Uint32Array;
-            this._nativeBatchingScheme = PassPool.getTypedArray(this._passHandle, PassView.BATCHING_SCHEME) as Uint32Array;
-            this._nativeDynamicStates = PassPool.getTypedArray(this._passHandle, PassView.DYNAMIC_STATE) as Uint32Array;
-            this._nativeHash = PassPool.getTypedArray(this._passHandle, PassView.HASH) as Uint32Array;
-            this._nativeObj.initWithData(PassPool.getBuffer(this._passHandle));
-        }
     }
 
     /**
@@ -400,6 +388,21 @@ export class Pass {
         this._descriptorSet.update();
         if (JSB) {
             this._nativeObj!.update();
+        }
+    }
+
+    private _initNative () {
+        if (JSB && !this._nativeObj) {
+            this._nativeObj = new NativePass();
+            this._passHandle = PassPool.alloc();
+            this._nativePriority = PassPool.getTypedArray(this._passHandle, PassView.PRIORITY) as Uint32Array;
+            this._nativeStage = PassPool.getTypedArray(this._passHandle, PassView.STAGE) as Uint32Array;
+            this._nativePhase = PassPool.getTypedArray(this._passHandle, PassView.PHASE) as Uint32Array;
+            this._nativePrimitive = PassPool.getTypedArray(this._passHandle, PassView.PRIMITIVE) as Uint32Array;
+            this._nativeBatchingScheme = PassPool.getTypedArray(this._passHandle, PassView.BATCHING_SCHEME) as Uint32Array;
+            this._nativeDynamicStates = PassPool.getTypedArray(this._passHandle, PassView.DYNAMIC_STATE) as Uint32Array;
+            this._nativeHash = PassPool.getTypedArray(this._passHandle, PassView.HASH) as Uint32Array;
+            this._nativeObj.initWithData(PassPool.getBuffer(this._passHandle));
         }
     }
 
@@ -624,6 +627,7 @@ export class Pass {
     }
 
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
+        this._initNative();
         this._setPriority(RenderPriority.DEFAULT);
         this._setStage(RenderPassStage.DEFAULT);
         this._setPhase(getPhaseID('default'));
@@ -741,6 +745,7 @@ export class Pass {
 
     // Only for UI
     private _initPassFromTarget (target: Pass, dss: DepthStencilState, bs: BlendState, hashFactor: number) {
+        this._initNative();
         this._setPriority(target.priority);
         this._setStage(target.stage);
         this._setPhase(target.phase);
