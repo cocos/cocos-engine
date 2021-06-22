@@ -57,10 +57,10 @@ export class UIPhase {
             for (let j = 0; j < count; j++) {
                 const pass = batch.passes[j];
                 if (pass.phase !== this._phaseID) continue;
-                const shader = pass.getShaderVariant();
+                const shader = batch.shaders[j];
                 const inputAssembler = batch.inputAssembler;
                 const ds = batch.descriptorSet;
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader!, renderPass, inputAssembler!);
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler!);
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
                 cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds!);
