@@ -41,8 +41,8 @@ const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
 export class SubModel {
     protected _device: Device | null = null;
-    protected _passes: Pass[] = [];
-    protected _shaders: Shader[] = [];
+    protected _passes: Pass[] | null = null;
+    protected _shaders: Shader[] | null = null;
     protected _subMesh: RenderingSubMesh | null = null;
     protected _patches: IMacroPatch[] | null = null;
     protected _priority: RenderPriority = RenderPriority.DEFAULT;
@@ -95,18 +95,18 @@ export class SubModel {
     }
 
     get passes (): Pass[] {
-        return this._passes;
+        return this._passes!;
     }
 
     get shaders (): Shader[] {
-        return this._shaders;
+        return this._shaders!;
     }
 
     set subMesh (subMesh) {
         this._setSubMesh(subMesh);
         this._inputAssembler!.destroy();
         this._inputAssembler!.initialize(subMesh.iaInfo);
-        if (this._passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+        if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
     }
 
     get subMesh (): RenderingSubMesh {
@@ -268,8 +268,8 @@ export class SubModel {
         this._patches = null;
         this._subMesh = null;
 
-        this._passes.length = 0;
-        this._shaders.length = 0;
+        this._passes = null;
+        this._shaders = null;
 
         if (this._reflectionTex) this._reflectionTex.destroy();
         this._reflectionTex = null;
@@ -280,8 +280,8 @@ export class SubModel {
     }
 
     public update (): void {
-        for (let i = 0; i < this._passes.length; ++i) {
-            const pass = this._passes[i];
+        for (let i = 0; i < this._passes!.length; ++i) {
+            const pass = this._passes![i];
             pass.update();
         }
         this._descriptorSet!.update();
@@ -320,6 +320,7 @@ export class SubModel {
     protected _flushPassInfo (): void {
         const passes = this._passes;
         if (!passes) { return; }
+        if (!this._shaders) { this._shaders = []; }
 
         this._shaders.length = passes.length;
         for (let i = 0, len = passes.length; i < len; i++) {
