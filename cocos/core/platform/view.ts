@@ -58,6 +58,9 @@ import { BrowserType, OS } from '../../../pal/system/enum-type';
  *  - 控制 Canvas 节点相对于外层 DOM 节点的缩放和偏移。
  * 引擎会自动初始化它的单例对象 {{view}}，所以你不需要实例化任何 View，只需要直接使用 `view.methodName();`
  */
+
+const localWinSize = new Size();
+
 export class View extends EventTarget {
     public static instance: View;
     public _resizeWithBrowserSize: boolean;
@@ -143,8 +146,8 @@ export class View extends EventTarget {
         this._visibleRect.width = w;
         this._visibleRect.height = h;
 
-        legacyCC.winSize.width = this._visibleRect.width;
-        legacyCC.winSize.height = this._visibleRect.height;
+        localWinSize.width = this._visibleRect.width;
+        localWinSize.height = this._visibleRect.height;
         if (legacyCC.visibleRect) {
             legacyCC.visibleRect.init(this._visibleRect);
         }
@@ -499,8 +502,8 @@ export class View extends EventTarget {
         }
 
         policy.postApply(this);
-        legacyCC.winSize.width = this._visibleRect.width;
-        legacyCC.winSize.height = this._visibleRect.height;
+        localWinSize.width = this._visibleRect.width;
+        localWinSize.height = this._visibleRect.height;
 
         if (visibleRect) {
             visibleRect.init(this._visibleRect);
@@ -1191,4 +1194,4 @@ export const view = View.instance = legacyCC.view = new View();
  *
  * @deprecated since v3.3, please use view.getVisibleSize() instead.
  */
-legacyCC.winSize = new Size();
+legacyCC.winSize = localWinSize;
