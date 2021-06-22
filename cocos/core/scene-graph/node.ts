@@ -763,7 +763,7 @@ export class Node extends BaseNode {
      * @zh 用四元数设置本地旋转
      * @param rotation Rotation in quaternion
      */
-    public setRotation (rotation: Quat): void;
+    public setRotation (rotation: Readonly<Quat>): void;
 
     /**
      * @en Set rotation in local coordinate system with a quaternion representing the rotation
@@ -775,9 +775,9 @@ export class Node extends BaseNode {
      */
     public setRotation (x: number, y: number, z: number, w: number): void;
 
-    public setRotation (val: Quat | number, y?: number, z?: number, w?: number) {
+    public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
-            Quat.copy(this._lrot, val as Quat);
+            Quat.copy(this._lrot, val as Readonly<Quat>);
         } else {
             Quat.set(this._lrot, val as number, y, z, w);
         }
