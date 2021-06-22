@@ -804,7 +804,7 @@ export class Sprite extends Renderable2D {
         const centerWidth = atlasWidth - leftWidth - rightWidth;
         const topHeight = this.spriteFrame!.insetTop;
         const bottomHeight = this.spriteFrame!.insetBottom;
-        const centerHeight = atlasWidth - topHeight - bottomHeight;
+        const centerHeight = atlasHeight - topHeight - bottomHeight;
 
         const uvSliced = this.slicedData;
         uvSliced.length = 0;

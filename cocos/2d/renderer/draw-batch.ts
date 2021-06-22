@@ -350,7 +350,7 @@ export class DrawBatch2D {
         }
     }
 
-    private _packageSlicedData (spriteData: number[], frameData: number[]) {
+    private _packageSlicedData (spriteData: number[], frameData: number[]) { // LTRB
         this.tiledCache.x = spriteData[0] + Math.floor(frameData[0] * 2048.0);
         this.tiledCache.y = spriteData[1] + Math.floor(frameData[1] * 2048.0);
         this.tiledCache.z = spriteData[2] + Math.floor(frameData[2] * 2048.0);

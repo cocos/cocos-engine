@@ -105,7 +105,7 @@ CCProgram sprite-vs %{
 
     if (i.uvMode >= 2.0) {
       uv0 = a_texCoord * i.uvParams.xy;
-      uv0.y -= fract(i.uvParams.y); // 平移 一点
+      uv0.y -= fract(i.uvParams.y); // 平移 一点 // 为了解决绘制起点的问题
       uvSizeOffset = i.uvSizeOffset;
     } else if (i.uvMode >= 1.0) {
       uv0 = a_texCoord;
@@ -156,10 +156,10 @@ CCProgram sprite-fs %{
   #endif
 
   vec2 evalSlicedUV(vec2 uv) {
-    vec4 p0 = mix(vec4(0.0), uvParams0, step(uvParams0.xxyy, uv.xxyy)); // 使用了mix 其实为三目运算，非前即后
-         p0 = mix(       p0, uvParams1, step(uvParams1.xxyy, uv.xxyy)); // 逐渐逼近
-    vec4 p1 = mix(vec4(1.0), uvParams1, step(uv.xxyy, uvParams1.xxyy));
-         p1 = mix(       p1, uvParams0, step(uv.xxyy, uvParams0.xxyy));
+    vec4 p0 = mix(vec4(0.0), uvParams0, step(uvParams0.xyxy, uv.xyxy)); // 使用了mix 其实为三目运算，非前即后    
+         p0 = mix(       p0, uvParams1, step(uvParams1.xyxy, uv.xyxy)); // 逐渐逼近
+    vec4 p1 = mix(vec4(1.0), uvParams1, step(uv.xyxy, uvParams1.xyxy));
+         p1 = mix(       p1, uvParams0, step(uv.xyxy, uvParams0.xyxy));
 
     // 决定了线段的两点 P0 为起点，P1 为终点
     // 两点式转一般式
