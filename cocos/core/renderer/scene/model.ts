@@ -517,7 +517,6 @@ export class Model {
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
-            // const attr = attrs.attributes[j];
             const attr = new Attribute();
             attr.format = attribute.format;
             attr.name = attribute.name;
