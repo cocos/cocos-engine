@@ -261,10 +261,8 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
         if (ps.simulationSpace === Space.Local) {
             const r:Quat = ps.node.getRotation();
-            const s:Vec3 = ps.node.getScale();
-            const t:Vec3 = ps.node.getPosition();
-            Mat4.fromRTS(this._localMat, r, t, s);
-            this._localMat.transpose();
+            Mat4.fromQuat(this._localMat, r);
+            this._localMat.transpose(); // just consider rotation, use transpose as invert
         }
 
         for (let i = 0; i < this._particles!.length; ++i) {
