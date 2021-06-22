@@ -492,6 +492,9 @@ export class Node extends BaseNode {
     public setParent (value: this | null, keepWorldTransform = false) {
         if (keepWorldTransform) { this.updateWorldTransform(); }
         super.setParent(value, keepWorldTransform);
+        if (JSB) {
+            this._nativeObj!.setParent(this.parent?.native);
+        }
     }
 
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
@@ -528,6 +531,7 @@ export class Node extends BaseNode {
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
+            this._nativeObj!.setParent(this.parent?.native);
         }
         const prefabInstance = this._prefab?.instance;
         if (!dontSyncChildPrefab && prefabInstance) {

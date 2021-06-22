@@ -279,13 +279,12 @@ export class RenderScene {
         this._models.push(m);
         if (JSB) {
             switch (m.type) {
-            case ModelType.DEFAULT:
-                this._nativeObj!.addModel(m.native);
-                break;
             case ModelType.SKINNING:
                 this._nativeObj!.addSkinningModel(m.native);
                 break;
+            case ModelType.DEFAULT:
             default:
+                this._nativeObj!.addModel(m.native);
             }
         }
     }

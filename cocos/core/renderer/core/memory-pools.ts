@@ -211,7 +211,7 @@ export enum NodeView {
     LOCAL_SCALE = 29,   // Vec3
     LOCAL_POSITION = 32, // Vec3
     LOCAL_ROTATION = 35, // Quat
-    COUNT = 128
+    COUNT = 39
 }
 
 const NodeViewDataType: BufferDataTypeManifest<typeof NodeView> = {

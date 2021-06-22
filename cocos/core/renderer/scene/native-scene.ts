@@ -7,6 +7,7 @@ import { LightType } from './light';
 
 export const NativeNode: Constructor<{
     initWithData (data: TypedArray): void;
+    setParent(val: NativeNode | null): void;
 }> = null!;
 export type NativeNode = InstanceType<typeof NativeNode>;
 
