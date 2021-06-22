@@ -347,7 +347,7 @@ export default class TTFAssembler extends Assembler2D {
     }
 
     _updateLabelDimensions () {
-        let maxTextureSize = cc.renderer.device.caps.maxTextureSize || MAX_SIZE;
+        let maxTextureSize = cc.renderer.device.caps ? cc.renderer.device.caps.maxTextureSize : MAX_SIZE;
         if (_canvasSize.width > maxTextureSize || _canvasSize.height > maxTextureSize) {
             cc.warn("The maximum texture size supported by the device is " + maxTextureSize);
         }
