@@ -171,7 +171,7 @@ void PipelineUBO::updateShadowUBOView(const RenderPipeline *pipeline, std::array
 
     if (shadowInfo->enabled) {
         if (mainLight && shadowInfo->shadowType == scene::ShadowType::SHADOWMAP) {
-            const auto *const node = mainLight->getNode();
+            auto *const node = mainLight->getNode();
             cc::Mat4          matShadowCamera;
 
             // light proj
@@ -281,7 +281,7 @@ void PipelineUBO::updateShadowUBOLightView(const RenderPipeline *pipeline, std::
             memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_OFFSET, matShadowCamera.m, sizeof(matShadowCamera));
 
             const auto matShadowView = matShadowCamera.getInversed();
-            cc::Mat4::createPerspective(spotLight->getAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowViewProj);
+            cc::Mat4::createPerspective(spotLight->getSpotAngle(), spotLight->getAspect(), 0.001F, spotLight->getRange(), &matShadowViewProj);
 
             matShadowViewProj.multiply(matShadowView);
             memcpy(shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));

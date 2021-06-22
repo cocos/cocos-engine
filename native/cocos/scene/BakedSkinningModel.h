@@ -39,8 +39,8 @@ public:
     BakedSkinningModel &operator=(const BakedSkinningModel &) = delete;
     BakedSkinningModel &operator=(BakedSkinningModel &&) = delete;
 
-    void updateTransform() override;
-    void updateUBOs(uint32_t /*unused*/) override;
+    void updateTransform(uint32_t stamp) override;
+    void updateUBOs(uint32_t stamp) override;
 };
 
 } // namespace scene

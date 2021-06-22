@@ -23,18 +23,19 @@
  THE SOFTWARE.
  ****************************************************************************/
 
-#include "scene/DirectionalLight.h"
+#pragma once
 
+#include "scene/Model.h"
 namespace cc {
 namespace scene {
-
-void DirectionalLight::update() {
-    if (_node && _node->getFlagsChanged()) {
-        _dir = _forward;
-        _node->updateWorldTransform();
-        _dir.transformQuat(_node->getWorldRotation());
-    }
-}
-
+class MorphModel : public Model {
+public:
+    MorphModel()                   = default;
+    MorphModel(const MorphModel &) = delete;
+    MorphModel(MorphModel &&)      = delete;
+    ~MorphModel() override         = default;
+    MorphModel &operator=(const MorphModel &) = delete;
+    MorphModel &operator=(MorphModel &&) = delete;
+};
 } // namespace scene
 } // namespace cc

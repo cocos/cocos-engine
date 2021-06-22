@@ -455,6 +455,46 @@ void Mat4::fromRT(const Quaternion &rotation, const Vec3 &translation, Mat4 *dst
     dst->m[15] = 1;
 }
 
+void Mat4::fromRTS(const Quaternion& rotation, const Vec3& translation, const Vec3& scale, Mat4* dst) {
+    const float x  = rotation.x;
+    const float y  = rotation.y;
+    const float z  = rotation.z;
+    const float w  = rotation.w;
+    const float x2 = x + x;
+    const float y2 = y + y;
+    const float z2 = z + z;
+
+    const float xx = x * x2;
+    const float xy = x * y2;
+    const float xz = x * z2;
+    const float yy = y * y2;
+    const float yz = y * z2;
+    const float zz = z * z2;
+    const float wx = w * x2;
+    const float wy = w * y2;
+    const float wz = w * z2;
+    const float sx = scale.x;
+    const float sy = scale.y;
+    const float sz = scale.z;
+
+    dst->m[0] = (1 - (yy + zz)) * sx;
+    dst->m[1] = (xy + wz) * sx;
+    dst->m[2] = (xz - wy) * sx;
+    dst->m[3] = 0;
+    dst->m[4] = (xy - wz) * sy;
+    dst->m[5] = (1 - (xx + zz)) * sy;
+    dst->m[6] = (yz + wx) * sy;
+    dst->m[7] = 0;
+    dst->m[8] = (xz + wy) * sz;
+    dst->m[9] = (yz - wx) * sz;
+    dst->m[10] = (1 - (xx + yy)) * sz;
+    dst->m[11] = 0;
+    dst->m[12] = translation.x;
+    dst->m[13] = translation.y;
+    dst->m[14] = translation.z;
+    dst->m[15] = 1;
+}
+
 bool Mat4::decompose(Vec3 *scale, Quaternion *rotation, Vec3 *translation) const {
     if (translation) {
         // Extract the translation.
@@ -572,6 +612,54 @@ float Mat4::determinant() const {
 
     // Calculate the determinant.
     return (a0 * b5 - a1 * b4 + a2 * b3 + a3 * b2 - a4 * b1 + a5 * b0);
+}
+
+void Mat4::inverseTranspose(const Mat4& mat, Mat4 *dst) {
+    float a00 = mat.m[0]; float a01 = mat.m[1]; float a02 = mat.m[2]; float a03 = mat.m[3];
+    float a10 = mat.m[4]; float a11 = mat.m[5]; float a12 = mat.m[6]; float a13 = mat.m[7];
+    float a20 = mat.m[8]; float a21 = mat.m[9]; float a22 = mat.m[10]; float a23 = mat.m[11];
+    float a30 = mat.m[12]; float a31 = mat.m[13]; float a32 = mat.m[14]; float a33 = mat.m[15];
+
+    float b00 = a00 * a11 - a01 * a10;
+    float b01 = a00 * a12 - a02 * a10;
+    float b02 = a00 * a13 - a03 * a10;
+    float b03 = a01 * a12 - a02 * a11;
+    float b04 = a01 * a13 - a03 * a11;
+    float b05 = a02 * a13 - a03 * a12;
+    float b06 = a20 * a31 - a21 * a30;
+    float b07 = a20 * a32 - a22 * a30;
+    float b08 = a20 * a33 - a23 * a30;
+    float b09 = a21 * a32 - a22 * a31;
+    float b10 = a21 * a33 - a23 * a31;
+    float b11 = a22 * a33 - a23 * a32;
+
+    // Calculate the determinant
+    float det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
+
+    if (det == 0.0) {
+        return;
+    }
+    det = 1 / det;
+
+    dst->m[0] = (a11 * b11 - a12 * b10 + a13 * b09) * det;
+    dst->m[1] = (a12 * b08 - a10 * b11 - a13 * b07) * det;
+    dst->m[2] = (a10 * b10 - a11 * b08 + a13 * b06) * det;
+    dst->m[3] = 0;
+
+    dst->m[4] = (a02 * b10 - a01 * b11 - a03 * b09) * det;
+    dst->m[5] = (a00 * b11 - a02 * b08 + a03 * b07) * det;
+    dst->m[6] = (a01 * b08 - a00 * b10 - a03 * b06) * det;
+    dst->m[7] = 0;
+
+    dst->m[8] = (a31 * b05 - a32 * b04 + a33 * b03) * det;
+    dst->m[9] = (a32 * b02 - a30 * b05 - a33 * b01) * det;
+    dst->m[10] = (a30 * b04 - a31 * b02 + a33 * b00) * det;
+    dst->m[11] = 0;
+
+    dst->m[12] = 0;
+    dst->m[13] = 0;
+    dst->m[14] = 0;
+    dst->m[15] = 1;
 }
 
 void Mat4::getScale(Vec3 *scale) const {

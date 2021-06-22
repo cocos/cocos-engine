@@ -46,7 +46,10 @@ public:
     inline void setAABB(AABB aabb) { _aabb = std::move(aabb); }
     inline void setIlluminance(float illum) { _illuminance = illum; }
     inline void setPosition(const Vec3 &pos) { _pos = pos; }
-    inline void setRange(float range) { _range = range; }
+    inline void setRange(float range) {
+        _range      = range;
+        _needUpdate = true;
+    }
     inline void setSize(float size) { _size = size; }
 
     inline const AABB &getAABB() const { return _aabb; }
@@ -56,6 +59,7 @@ public:
     inline float       getSize() const { return _size; }
 
 private:
+    bool  _needUpdate{false};
     float _illuminance{0.F};
     float _range{0.F};
     float _size{0.F};

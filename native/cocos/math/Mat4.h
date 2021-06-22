@@ -403,6 +403,11 @@ public:
     static void fromRT(const Quaternion &rotation, const Vec3 &translation, Mat4 *dst);
 
     /**
+     * Compose a matrix from scale, rotation and translation, applied in order.
+     */
+    static void fromRTS(const Quaternion &rotation, const Vec3 &translation, const Vec3 &scale, Mat4 *dst);
+
+    /**
      * Decomposes the scale, rotation and translation components of this matrix.
      *
      * @param scale The scale.
@@ -882,6 +887,10 @@ public:
      */
     Mat4 getTransposed() const;
 
+    /**
+    * Calculates the inverse transpose of a matrix and save the results to out matrix
+    */
+    static void inverseTranspose(const Mat4& mat, Mat4 *dst);
     /**
      * Calculates the sum of this matrix with the given matrix.
      *

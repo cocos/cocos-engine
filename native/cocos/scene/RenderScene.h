@@ -29,6 +29,7 @@
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
 #include "scene/Model.h"
+#include "scene/SkinningModel.h"
 #include "scene/SphereLight.h"
 #include "scene/SpotLight.h"
 
@@ -44,7 +45,7 @@ public:
     RenderScene &operator=(const RenderScene &) = delete;
     RenderScene &operator=(RenderScene &&) = delete;
 
-    void update();
+    void update(uint32_t stamp);
 
     void addSphereLight(SphereLight *);
     void removeSphereLight(SphereLight *);
@@ -55,6 +56,7 @@ public:
     void removeSpotLights();
 
     void addModel(Model *);
+    void addSkinningModel(SkinningModel *);
     void removeModel(Model *);
     void removeModels();
 

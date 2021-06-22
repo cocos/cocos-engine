@@ -34,6 +34,15 @@
 namespace cc {
 namespace scene {
 
+enum class ModelType {
+    DEFAULT,
+    SKINNING,
+    BAKED_SKINNING,
+    BATCH_2D,
+    PARTICLE_BATCH,
+    LINE,
+};
+
 // SubModel.h -> Define.h -> Model.h, so do not include SubModel.h here.
 class SubModel;
 
@@ -50,19 +59,15 @@ public:
     Model &operator=(const Model &) = delete;
     Model &operator=(Model &&) = delete;
 
-    virtual void updateTransform();
-    virtual void updateUBOs(uint32_t);
+    virtual void updateTransform(uint32_t stamp);
+    virtual void updateUBOs(uint32_t stamp);
 
     void addSubModel(SubModel *subModel);
 
     inline void setCastShadow(bool value) { _castShadow = value; }
     inline void setEnabled(bool value) { _enabled = value; }
-    inline void setInstanceAttributes(const std::vector<gfx::Attribute>& attributes) { _instanceAttributes = attributes; }
     inline void setInstmatWorldIdx(uint32_t idx) { _instmatWorldIdx = idx; }
-    inline void setInstancedAttributeBlock(InstancedAttributeBlock *block) { _instanceAttributeBlock = block; }
-    inline void setInstancedBuffer(uint8_t *buffer) { _instancedBuffer = buffer; }
     inline void setLocalBuffer(gfx::Buffer *buffer) { _localBuffer = buffer; }
-    inline void setLocalData(float *data) { _localData = data; }
     inline void setNode(Node *node) { _node = node; }
     inline void setReceiveShadow(bool value) { _receiveShadow = value; }
     inline void setTransform(Node *node) { _transform = node; }
@@ -72,6 +77,11 @@ public:
             _worldBounds = new AABB();
         }
         *_worldBounds = aabb;
+    }
+    inline void setInstancedAttrBlock(uint8_t *buffer, InstancedAttributeBlock *block, const std::vector<gfx::Attribute> &attributes) {
+        _instancedBuffer        = buffer;
+        _instanceAttributeBlock = block;
+        _instanceAttributes     = attributes;
     }
 
     inline bool                               getCastShadow() const { return _castShadow; }
@@ -91,13 +101,20 @@ public:
     inline uint32_t                           getUpdatStamp() const { return _updateStamp; }
     inline uint32_t                           getVisFlags() const { return _visFlags; }
     inline const AABB *                       getWorldBounds() const { return _worldBounds; }
+    inline ModelType                          getType() const { return _type; };
+
+protected:
+    ModelType _type{ModelType::DEFAULT};
+    bool      _transformUpdated{false};
+    AABB *    _worldBounds{nullptr};
+    AABB      _modelBounds;
 
 private:
-    bool                        _enabled{false};
-    bool                        _castShadow{false};
-    bool                        _receiveShadow{false};
-    bool                        _transformUpdated{false};
-    uint32_t                    _instmatWorldIdx{0};
+    bool _enabled{false};
+    bool _castShadow{false};
+    bool _receiveShadow{false};
+
+    int                         _instmatWorldIdx{0};
     uint32_t                    _visFlags;
     uint32_t                    _updateStamp{0};
     Node *                      _transform{nullptr};
@@ -105,11 +122,10 @@ private:
     float *                     _localData{nullptr};
     uint8_t *                   _instancedBuffer{nullptr};
     gfx::Buffer *               _localBuffer{nullptr};
-    AABB *                      _worldBounds{nullptr};
-    AABB                        _modelBounds;
     InstancedAttributeBlock *   _instanceAttributeBlock{nullptr};
     std::vector<SubModel *>     _subModels;
     std::vector<gfx::Attribute> _instanceAttributes;
+    static void                 uploadMat4AsVec4x3(const Mat4 &mat, uint8_t *v1, uint8_t *v2, uint8_t *v3);
 };
 
 } // namespace scene

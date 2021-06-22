@@ -198,7 +198,7 @@ void LightingStage::gatherLights(scene::Camera *camera) {
         offset                       = idx * elementLen + fieldLen * 2;
         _lightBufferData[offset]     = light->getSize();
         _lightBufferData[offset + 1] = light->getRange();
-        _lightBufferData[offset + 2] = light->getAngle();
+        _lightBufferData[offset + 2] = light->getSpotAngle();
 
         // dir
         const auto &direction        = light->getDirection();
