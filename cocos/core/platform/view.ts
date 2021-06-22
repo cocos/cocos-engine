@@ -148,8 +148,8 @@ export class View extends EventTarget {
 
         localWinSize.width = this._visibleRect.width;
         localWinSize.height = this._visibleRect.height;
-        if (legacyCC.visibleRect) {
-            legacyCC.visibleRect.init(this._visibleRect);
+        if (visibleRect) {
+            visibleRect.init(this._visibleRect);
         }
     }
 
