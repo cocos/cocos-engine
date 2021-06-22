@@ -32,7 +32,7 @@
 import { ccclass, serializable, editable } from 'cc.decorator';
 import { SUPPORT_JIT, ALIPAY, RUNTIME_BASED } from 'internal:constants';
 import { compile } from '../data/instantiate-jit';
-import { obsolete } from '../utils/js';
+import { js, obsolete } from '../utils/js';
 import { Enum } from '../value-types';
 import { Asset } from './asset';
 import { Node } from '../scene-graph/node';
@@ -85,8 +85,6 @@ export class Prefab extends Asset {
     public static OptimizationPolicy = OptimizationPolicy;
 
     public static OptimizationPolicyThreshold = 3;
-
-    public static _utils = utils;
 
     /**
      * @en The main [[Node]] in the prefab
@@ -201,9 +199,10 @@ export class Prefab extends Asset {
 }
 
 export declare namespace Prefab {
-    // @ts-expect-error(2484) namespace conflict
     export { utils as _utils };
 }
+
+js.value(Prefab, '_utils', utils);
 
 legacyCC.Prefab = Prefab;
 if (ALIPAY || RUNTIME_BASED) {

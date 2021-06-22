@@ -89,7 +89,7 @@ export class BatchedBuffer {
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
         const pass = subModel.passes[passIdx];
-        const shader = pass.getShaderVariant();
+        const shader = subModel.shaders[passIdx];
         const descriptorSet = subModel.descriptorSet;
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {
