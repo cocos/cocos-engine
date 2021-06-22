@@ -18,7 +18,7 @@ ohos {
         compatibleSdkVersion 5
     }
 }
-	
+
 buildscript {
     repositories {
         maven {
@@ -30,7 +30,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.huawei.ohos:hap:2.4.2.7'
+        classpath 'com.huawei.ohos:hap:2.4.4.2'
         classpath 'com.huawei.ohos:decctest:1.0.0.6'
     }
 }

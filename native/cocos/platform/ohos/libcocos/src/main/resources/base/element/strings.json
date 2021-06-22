@@ -1,6 +1,10 @@
 {
   "string": [
     {
+      "name": "lib_name",
+      "value": "cocos"
+    },
+    {
       "name": "done",
       "value": "Done"
     }

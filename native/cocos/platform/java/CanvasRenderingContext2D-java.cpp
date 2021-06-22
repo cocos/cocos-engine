@@ -225,9 +225,9 @@ public:
             return;
         }
 
-        jbyteArray arr = JniHelper::getEnv()->NewByteArray(imageData.getSize());
-        JniHelper::getEnv()->SetByteArrayRegion(arr, 0, imageData.getSize(),
-                                                reinterpret_cast<const jbyte *>(imageData.getBytes()));
+        auto arr = JniHelper::getEnv()->NewIntArray(imageData.getSize() / 4);
+        JniHelper::getEnv()->SetIntArrayRegion(arr, 0, imageData.getSize() / 4,
+                                               reinterpret_cast<const jint *>(imageData.getBytes()));
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "_fillImageData", arr, imageWidth,
                                         imageHeight, offsetX, offsetY);
         ccDeleteLocalRef(JniHelper::getEnv(), arr);
@@ -269,7 +269,9 @@ public:
         jsize len     = JniHelper::getEnv()->GetArrayLength(arr);
         auto *jbarray = static_cast<jbyte *>(malloc(len * sizeof(jbyte)));
         JniHelper::getEnv()->GetByteArrayRegion(arr, 0, len, jbarray);
+#if CC_PLATFORM != CC_PLATFORM_OHOS
         unMultiplyAlpha(reinterpret_cast<unsigned char *>(jbarray), len);
+#endif
         _data.fastSet(reinterpret_cast<unsigned char *>(jbarray), len); //IDEA: DON'T create new jbarray every time.
         ccDeleteLocalRef(JniHelper::getEnv(), arr);
     }
