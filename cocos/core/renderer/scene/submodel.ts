@@ -154,7 +154,7 @@ export class SubModel {
     private _setSubMesh (subMesh: RenderingSubMesh) {
         this._subMesh = subMesh;
         if (JSB) {
-            this._nativeObj!.setRenderingSubMesh(subMesh.flatBuffers);
+            this._nativeObj!.setSubMeshBuffers(subMesh.flatBuffers);
         }
     }
 

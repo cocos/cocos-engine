@@ -298,7 +298,7 @@ export class Pass {
         const ofs = Pass.getOffsetFromHandle(handle);
         const block = this._blocks[binding];
         type2writer[type](block, value, ofs);
-        this._rootBufferDirty = true;
+        this._setRootBufferDirty(true);
     }
 
     /**
@@ -331,7 +331,7 @@ export class Pass {
             if (value[i] === null) { continue; }
             type2writer[type](block, value[i], ofs);
         }
-        this._rootBufferDirty = true;
+        this._setRootBufferDirty(true);
     }
 
     /**
@@ -376,6 +376,13 @@ export class Pass {
         console.warn('base pass cannot override states, please use pass instance instead.');
     }
 
+    private _setRootBufferDirty (val: boolean) {
+        this._rootBufferDirty = val;
+        if (JSB) {
+            this._nativeObj!.setRootBufferDirty(val);
+        }
+    }
+
     /**
      * @en Update the current uniforms data.
      * @zh 更新当前 Uniform 数据。
@@ -388,7 +395,7 @@ export class Pass {
 
         if (this._rootBuffer && this._rootBufferDirty) {
             this._rootBuffer.update(this._rootBlock!);
-            this._rootBufferDirty = false;
+            this._setRootBufferDirty(false);
         }
         this._descriptorSet.update();
         if (JSB) {
@@ -447,7 +454,7 @@ export class Pass {
         const info = this._properties[name];
         const value = (info && info.value) || getDefaultFromType(type);
         type2writer[type](block, value, ofs);
-        this._rootBufferDirty = true;
+        this._setRootBufferDirty(true);
     }
 
     /**
@@ -489,7 +496,7 @@ export class Pass {
                 ofs += size;
             }
         }
-        this._rootBufferDirty = true;
+        this._setRootBufferDirty(true);
     }
 
     /**
@@ -659,6 +666,9 @@ export class Pass {
             _bufferInfo.size = Math.ceil(totalSize / 16) * 16;
             this._rootBuffer = device.createBuffer(_bufferInfo);
             this._rootBlock = new ArrayBuffer(totalSize);
+            if (JSB) {
+                this._nativeObj!.setRootBufferAndBlock(this._rootBuffer, this._rootBlock);
+            }
         }
         // create buffer views
         for (let i = 0, count = 0; i < blocks.length; i++) {

@@ -323,8 +323,14 @@ class RigidBody {
     setType (v) { this._impl.setType(v); }
     setMass (v) { this._impl.setMass(v); }
     setAllowSleep (v) { this._impl.setAllowSleep(v); }
-    setLinearDamping (v) { this._impl.setLinearDamping(v); }
-    setAngularDamping (v) { this._impl.setAngularDamping(v); }
+    setLinearDamping (v) {
+        const dt = cc.PhysicsSystem.instance.fixedTimeStep;
+        this._impl.setLinearDamping((1 - (1 - v) ** dt) / dt); 
+    }
+    setAngularDamping (v) {        
+        const dt = cc.PhysicsSystem.instance.fixedTimeStep;
+        this._impl.setAngularDamping((1 - (1 - v) ** dt) / dt);
+    }
     useGravity (v) { this._impl.useGravity(v); }
     setLinearFactor (v) { this._impl.setLinearFactor(v.x, v.y, v.z); }
     setAngularFactor (v) { this._impl.setAngularFactor(v.x, v.y, v.z); }
@@ -392,8 +398,8 @@ class Shape {
     }
     setAsTrigger (v) { this._impl.setAsTrigger(v); }
     setCenter (v) { this._impl.setCenter(v.x, v.y, v.z); }
-    getAABB (v) { }
-    getBoundingSphere (v) { }
+    getAABB(v) { v.copy(this._impl.getAABB());}
+    getBoundingSphere (v) { v.copy(this._impl.getBoundingSphere());}
     updateEventListener () {
         var flag = 0;
         flag |= ESHAPE_FLAG.DETECT_CONTACT_CCD;

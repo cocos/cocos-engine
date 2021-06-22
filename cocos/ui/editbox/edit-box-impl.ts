@@ -225,7 +225,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _showDomOnMobile () {
-        if (system.os !== OS.ANDROID) {
+        if (system.os !== OS.ANDROID && system.os !== OS.OHOS) {
             return;
         }
 
@@ -242,7 +242,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _hideDomOnMobile () {
-        if (system.os === OS.ANDROID) {
+        if (system.os === OS.ANDROID || system.os === OS.OHOS) {
             if (this.__autoResize) {
                 view.resizeWithBrowserSize(true);
             }

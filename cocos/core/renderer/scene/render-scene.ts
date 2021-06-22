@@ -27,7 +27,7 @@ import { Root } from '../../root';
 import { Node } from '../../scene-graph';
 import { Camera } from './camera';
 import { DirectionalLight } from './directional-light';
-import { Model } from './model';
+import { Model, ModelType } from './model';
 import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
@@ -285,7 +285,14 @@ export class RenderScene {
         m.attachToScene(this);
         this._models.push(m);
         if (JSB) {
-            this._nativeObj!.addModel(m.native);
+            switch (m.type) {
+            case ModelType.SKINNING:
+                this._nativeObj!.addSkinningModel(m.native);
+                break;
+            case ModelType.DEFAULT:
+            default:
+                this._nativeObj!.addModel(m.native);
+            }
         }
     }
 

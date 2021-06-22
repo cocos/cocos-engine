@@ -10,6 +10,7 @@ export enum Platform {
     ANDROID = 'ANDROID',
     IOS = 'IOS',
     MACOS = 'MACOS',
+    OHOS = 'OHOS',
     // Minigame
     WECHAT_GAME = 'WECHAT_GAME',
     BAIDU_MINI_GAME = 'BAIDU_MINI_GAME',

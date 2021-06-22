@@ -33,55 +33,72 @@
 /* eslint-disable @typescript-eslint/restrict-template-expressions */
 /* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-/* eslint-disable no-tabs */
+/* eslint-disable no-lonely-if */
 
-import { BYTEDANCE } from 'internal:constants';
-// import PhysX from '@cocos/physx';
-import { IQuatLike, IVec3Like, Node, Quat, RecyclePool, Vec3 } from '../../core';
+import { BYTEDANCE, EDITOR } from 'internal:constants';
+import { PhysX } from './export-physx.web';
+import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, sys, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
 import { AABB, Ray } from '../../core/geometry';
 import { IRaycastOptions } from '../spec/i-physics-world';
-import { PhysicsRayResult } from '../framework';
+import { IPhysicsConfig, PhysicsRayResult, PhysicsSystem } from '../framework';
 import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
+import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
 
-let USE_BYTEDANCE = false;
-if (BYTEDANCE) USE_BYTEDANCE = true;
 const globalThis = legacyCC._global;
-// globalThis.PhysX = PhysX;
-
-if (globalThis.PhysX) {
-    globalThis.PhysX = (PhysX as any)({
-        onRuntimeInitialized () {
-            console.log('PhysX loaded');
-            // adapt
-            PX.VECTOR_MAT = new PX.PxMaterialVector();
-            PX.QueryHitType = PX.PxQueryHitType;
-            PX.ShapeFlag = PX.PxShapeFlag;
-            PX.ActorFlag = PX.PxActorFlag;
-            PX.RigidBodyFlag = PX.PxRigidBodyFlag;
-            PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
-            PX.CombineMode = PX.PxCombineMode;
-            PX.ForceMode = PX.PxForceMode;
-            PX.SphereGeometry = PX.PxSphereGeometry;
-            PX.BoxGeometry = PX.PxBoxGeometry;
-            PX.CapsuleGeometry = PX.PxCapsuleGeometry;
-            PX.PlaneGeometry = PX.PxPlaneGeometry;
-            PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
-            PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
-            PX.MeshScale = PX.PxMeshScale;
-            PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
-            PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
-        },
-    });
+let _px: any;
+let USE_BYTEDANCE = false;
+if (BYTEDANCE && sys.os === sys.OS.ANDROID) {
+    console.info('[PHYSICS]:', 'Use PhysX Native Libs in BYTEDANCE.');
+    USE_BYTEDANCE = true;
+    if (globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
+} else {
+    if (!EDITOR) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
+    globalThis.PhysX = PhysX;
+    if (globalThis.PhysX != null) {
+        _px = (PhysX as any)({
+            onRuntimeInitialized () {
+                if (!EDITOR) console.info('[PHYSICS]:', 'PhysX libs loaded.');
+                // adapt
+                PX.VECTOR_MAT = new PX.PxMaterialVector();
+                PX.QueryHitType = PX.PxQueryHitType;
+                PX.ShapeFlag = PX.PxShapeFlag;
+                PX.ActorFlag = PX.PxActorFlag;
+                PX.RigidBodyFlag = PX.PxRigidBodyFlag;
+                PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
+                PX.CombineMode = PX.PxCombineMode;
+                PX.ForceMode = PX.PxForceMode;
+                PX.SphereGeometry = PX.PxSphereGeometry;
+                PX.BoxGeometry = PX.PxBoxGeometry;
+                PX.CapsuleGeometry = PX.PxCapsuleGeometry;
+                PX.PlaneGeometry = PX.PxPlaneGeometry;
+                PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
+                PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
+                PX.MeshScale = PX.PxMeshScale;
+                PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
+                PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
+            },
+        });
+    } else {
+        if (!EDITOR) console.error('[PHYSICS]:', 'Not Found PhysX js or wasm Libs.');
+    }
 }
-
-let _px = globalThis.PhysX as any;
-if (USE_BYTEDANCE && globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
 export const PX = _px;
 
+/**
+ * Extension config for bytedance
+ */
+interface IPhysicsConfigEXT extends IPhysicsConfig {
+    physX: { epsilon: number, multiThread: boolean, subThreadCount: number, }
+}
+
 if (PX) {
+    globalThis.PhysX = PX;
+    PX.EPSILON = 1e-3;
+    PX.MULTI_THREAD = false;
+    PX.SUB_THREAD_COUNT = 1;
     PX.CACHE_MAT = {};
     PX.IMPL_PTR = {};
     PX.MESH_CONVEX = {};
@@ -89,325 +106,6 @@ if (PX) {
     PX.TERRAIN_STATIC = {};
 }
 
-/// enum ///
-
-export enum EFilterDataWord3 {
-    QUERY_FILTER = 1 << 0,
-    QUERY_CHECK_TRIGGER = 1 << 1,
-    QUERY_SINGLE_HIT = 1 << 2,
-    DETECT_TRIGGER_EVENT = 1 << 3,
-    DETECT_CONTACT_EVENT = 1 << 4,
-    DETECT_CONTACT_POINT = 1 << 5,
-    DETECT_CONTACT_CCD = 1 << 6,
-}
-
-export enum PxHitFlag {
-    ePOSITION					= (1 << 0),	//! < "position" member of #PxQueryHit is valid
-    eNORMAL						= (1 << 1),	//! < "normal" member of #PxQueryHit is valid
-    eUV							= (1 << 3),	//! < "u" and "v" barycentric coordinates of #PxQueryHit are valid. Not applicable to sweep queries.
-    eASSUME_NO_INITIAL_OVERLAP	= (1 << 4),	//! < Performance hint flag for sweeps when it is known upfront there's no initial overlap.
-                                            //! < NOTE: using this flag may cause undefined results if shapes are initially overlapping.
-    eMESH_MULTIPLE				= (1 << 5),	//! < Report all hits for meshes rather than just the first. Not applicable to sweep queries.
-    eMESH_ANY					= (1 << 6),	//! < Report any first hit for meshes. If neither eMESH_MULTIPLE nor eMESH_ANY is specified,
-                                            //! < a single closest hit will be reported for meshes.
-    eMESH_BOTH_SIDES			= (1 << 7),	//! < Report hits with back faces of mesh triangles. Also report hits for raycast
-                                            //! < originating on mesh surface and facing away from the surface normal. Not applicable to sweep queries.
-                                            //! < Please refer to the user guide for heightfield-specific differences.
-    ePRECISE_SWEEP				= (1 << 8),	//! < Use more accurate but slower narrow phase sweep tests.
-                                            //! < May provide better compatibility with PhysX 3.2 sweep behavior.
-    eMTD						= (1 << 9),	//! < Report the minimum translation depth, normal and contact point.
-    eFACE_INDEX					= (1 << 10),	//! < "face index" member of #PxQueryHit is valid
-
-    eDEFAULT					= PxHitFlag.ePOSITION | PxHitFlag.eNORMAL | PxHitFlag.eFACE_INDEX,
-
-    /** \brief Only this subset of flags can be modified by pre-filter. Other modifications will be discarded. */
-    eMODIFIABLE_FLAGS			= PxHitFlag.eMESH_MULTIPLE | PxHitFlag.eMESH_BOTH_SIDES | PxHitFlag.eASSUME_NO_INITIAL_OVERLAP | PxHitFlag.ePRECISE_SWEEP
-}
-
-export enum PxQueryFlag
-{
-    eSTATIC				= (1 << 0),	//! < Traverse static shapes
-
-    eDYNAMIC			= (1 << 1),	//! < Traverse dynamic shapes
-
-    ePREFILTER			= (1 << 2),	//! < Run the pre-intersection-test filter (see #PxQueryFilterCallback::preFilter())
-
-    ePOSTFILTER			= (1 << 3),	//! < Run the post-intersection-test filter (see #PxQueryFilterCallback::postFilter())
-
-    eANY_HIT			= (1 << 4),	//! < Abort traversal as soon as any hit is found and return it via callback.block.
-                                    //! < Helps query performance. Both eTOUCH and eBLOCK hitTypes are considered hits with this flag.
-
-    eNO_BLOCK			= (1 << 5),	//! < All hits are reported as touching. Overrides eBLOCK returned from user filters with eTOUCH.
-                                    //! < This is also an optimization hint that may improve query performance.
-
-    eRESERVED			= (1 << 15)	//! < Reserved for internal use
-}
-
-export enum PxPairFlag
-{
-    /**
-    \brief Process the contacts of this collision pair in the dynamics solver.
-
-    \note Only takes effect if the colliding actors are rigid bodies.
-    */
-    eSOLVE_CONTACT						= (1 << 0),
-
-    /**
-    \brief Call contact modification callback for this collision pair
-
-    \note Only takes effect if the colliding actors are rigid bodies.
-
-    @see PxContactModifyCallback
-    */
-    eMODIFY_CONTACTS					= (1 << 1),
-
-    /**
-    \brief Call contact report callback or trigger callback when this collision pair starts to be in contact.
-
-    If one of the two collision objects is a trigger shape (see #PxShapeFlag::eTRIGGER_SHAPE)
-    then the trigger callback will get called as soon as the other object enters the trigger volume.
-    If none of the two collision objects is a trigger shape then the contact report callback will get
-    called when the actors of this collision pair start to be in contact.
-
-    \note Only takes effect if the colliding actors are rigid bodies.
-
-    \note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
-
-    @see PxSimulationEventCallback.onContact() PxSimulationEventCallback.onTrigger()
-    */
-    eNOTIFY_TOUCH_FOUND					= (1 << 2),
-
-    /**
-    \brief Call contact report callback while this collision pair is in contact
-
-    If none of the two collision objects is a trigger shape then the contact report callback will get
-    called while the actors of this collision pair are in contact.
-
-    \note Triggers do not support this event. Persistent trigger contacts need to be tracked separately by observing eNOTIFY_TOUCH_FOUND/eNOTIFY_TOUCH_LOST events.
-
-    \note Only takes effect if the colliding actors are rigid bodies.
-
-    \note No report will get sent if the objects in contact are sleeping.
-
-    \note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
-
-    \note If this flag gets enabled while a pair is in touch already, there will be no eNOTIFY_TOUCH_PERSISTS events until the pair loses and regains touch.
-
-    @see PxSimulationEventCallback.onContact() PxSimulationEventCallback.onTrigger()
-    */
-    eNOTIFY_TOUCH_PERSISTS				= (1 << 3),
-
-    /**
-    \brief Call contact report callback or trigger callback when this collision pair stops to be in contact
-
-    If one of the two collision objects is a trigger shape (see #PxShapeFlag::eTRIGGER_SHAPE)
-    then the trigger callback will get called as soon as the other object leaves the trigger volume.
-    If none of the two collision objects is a trigger shape then the contact report callback will get
-    called when the actors of this collision pair stop to be in contact.
-
-    \note Only takes effect if the colliding actors are rigid bodies.
-
-    \note This event will also get triggered if one of the colliding objects gets deleted.
-
-    \note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
-
-    @see PxSimulationEventCallback.onContact() PxSimulationEventCallback.onTrigger()
-    */
-    eNOTIFY_TOUCH_LOST					= (1 << 4),
-
-    /**
-    \brief Call contact report callback when this collision pair is in contact during CCD passes.
-
-    If CCD with multiple passes is enabled, then a fast moving object might bounce on and off the same
-    object multiple times. Hence, the same pair might be in contact multiple times during a simulation step.
-    This flag will make sure that all the detected collision during CCD will get reported. For performance
-    reasons, the system can not always tell whether the contact pair lost touch in one of the previous CCD
-    passes and thus can also not always tell whether the contact is new or has persisted. eNOTIFY_TOUCH_CCD
-    just reports when the two collision objects were detected as being in contact during a CCD pass.
-
-    \note Only takes effect if the colliding actors are rigid bodies.
-
-    \note Trigger shapes are not supported.
-
-    \note Only takes effect if eDETECT_CCD_CONTACT is raised
-
-    @see PxSimulationEventCallback.onContact() PxSimulationEventCallback.onTrigger()
-    */
-    eNOTIFY_TOUCH_CCD					= (1 << 5),
-
-    /**
-    \brief Call contact report callback when the contact force between the actors of this collision pair exceeds one of the actor-defined force thresholds.
-
-    \note Only takes effect if the colliding actors are rigid bodies.
-
-    \note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
-
-    @see PxSimulationEventCallback.onContact()
-    */
-    eNOTIFY_THRESHOLD_FORCE_FOUND		= (1 << 6),
-
-    /**
-    \brief Call contact report callback when the contact force between the actors of this collision pair continues to exceed one of the actor-defined force thresholds.
-
-    \note Only takes effect if the colliding actors are rigid bodies.
-
-    \note If a pair gets re-filtered and this flag has previously been disabled, then the report will not get fired in the same frame even if the force threshold has been reached in the
-    previous one (unless #eNOTIFY_THRESHOLD_FORCE_FOUND has been set in the previous frame).
-
-    \note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
-
-    @see PxSimulationEventCallback.onContact()
-    */
-    eNOTIFY_THRESHOLD_FORCE_PERSISTS	= (1 << 7),
-
-    /**
-    \brief Call contact report callback when the contact force between the actors of this collision pair falls below one of the actor-defined force thresholds (includes the case where this collision pair stops being in contact).
-
-    \note Only takes effect if the colliding actors are rigid bodies.
-
-    \note If a pair gets re-filtered and this flag has previously been disabled, then the report will not get fired in the same frame even if the force threshold has been reached in the
-    previous one (unless #eNOTIFY_THRESHOLD_FORCE_FOUND or #eNOTIFY_THRESHOLD_FORCE_PERSISTS has been set in the previous frame).
-
-    \note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
-
-    @see PxSimulationEventCallback.onContact()
-    */
-    eNOTIFY_THRESHOLD_FORCE_LOST		= (1 << 8),
-
-    /**
-    \brief Provide contact points in contact reports for this collision pair.
-
-    \note Only takes effect if the colliding actors are rigid bodies and if used in combination with the flags eNOTIFY_TOUCH_... or eNOTIFY_THRESHOLD_FORCE_...
-
-    \note Only takes effect if eDETECT_DISCRETE_CONTACT or eDETECT_CCD_CONTACT is raised
-
-    @see PxSimulationEventCallback.onContact() PxContactPair PxContactPair.extractContacts()
-    */
-    eNOTIFY_CONTACT_POINTS				= (1 << 9),
-
-    /**
-    \brief This flag is used to indicate whether this pair generates discrete collision detection contacts.
-
-    \note Contacts are only responded to if eSOLVE_CONTACT is enabled.
-    */
-    eDETECT_DISCRETE_CONTACT			= (1 << 10),
-
-    /**
-    \brief This flag is used to indicate whether this pair generates CCD contacts.
-
-    \note The contacts will only be responded to if eSOLVE_CONTACT is enabled on this pair.
-    \note The scene must have PxSceneFlag::eENABLE_CCD enabled to use this feature.
-    \note Non-static bodies of the pair should have PxRigidBodyFlag::eENABLE_CCD specified for this feature to work correctly.
-    \note This flag is not supported with trigger shapes. However, CCD trigger events can be emulated using non-trigger shapes
-    and requesting eNOTIFY_TOUCH_FOUND and eNOTIFY_TOUCH_LOST and not raising eSOLVE_CONTACT on the pair.
-
-    @see PxRigidBodyFlag::eENABLE_CCD
-    @see PxSceneFlag::eENABLE_CCD
-    */
-    eDETECT_CCD_CONTACT					= (1 << 11),
-
-    /**
-    \brief Provide pre solver velocities in contact reports for this collision pair.
-
-    If the collision pair has contact reports enabled, the velocities of the rigid bodies before contacts have been solved
-    will be provided in the contact report callback unless the pair lost touch in which case no data will be provided.
-
-    \note Usually it is not necessary to request these velocities as they will be available by querying the velocity from the provided
-    PxRigidActor object directly. However, it might be the case that the velocity of a rigid body gets set while the simulation is running
-    in which case the PxRigidActor would return this new velocity in the contact report callback and not the velocity the simulation used.
-
-    @see PxSimulationEventCallback.onContact(), PxContactPairVelocity, PxContactPairHeader.extraDataStream
-    */
-    ePRE_SOLVER_VELOCITY				= (1 << 12),
-
-    /**
-    \brief Provide post solver velocities in contact reports for this collision pair.
-
-    If the collision pair has contact reports enabled, the velocities of the rigid bodies after contacts have been solved
-    will be provided in the contact report callback unless the pair lost touch in which case no data will be provided.
-
-    @see PxSimulationEventCallback.onContact(), PxContactPairVelocity, PxContactPairHeader.extraDataStream
-    */
-    ePOST_SOLVER_VELOCITY				= (1 << 13),
-
-    /**
-    \brief Provide rigid body poses in contact reports for this collision pair.
-
-    If the collision pair has contact reports enabled, the rigid body poses at the contact event will be provided
-    in the contact report callback unless the pair lost touch in which case no data will be provided.
-
-    \note Usually it is not necessary to request these poses as they will be available by querying the pose from the provided
-    PxRigidActor object directly. However, it might be the case that the pose of a rigid body gets set while the simulation is running
-    in which case the PxRigidActor would return this new pose in the contact report callback and not the pose the simulation used.
-    Another use case is related to CCD with multiple passes enabled, A fast moving object might bounce on and off the same
-    object multiple times. This flag can be used to request the rigid body poses at the time of impact for each such collision event.
-
-    @see PxSimulationEventCallback.onContact(), PxContactPairPose, PxContactPairHeader.extraDataStream
-    */
-    eCONTACT_EVENT_POSE					= (1 << 14),
-
-    eNEXT_FREE							= (1 << 15),        //! < For internal use only.
-
-    /**
-    \brief Provided default flag to do simple contact processing for this collision pair.
-    */
-    eCONTACT_DEFAULT					= eSOLVE_CONTACT | eDETECT_DISCRETE_CONTACT,
-
-    /**
-    \brief Provided default flag to get commonly used trigger behavior for this collision pair.
-    */
-    eTRIGGER_DEFAULT					= eNOTIFY_TOUCH_FOUND | eNOTIFY_TOUCH_LOST | eDETECT_DISCRETE_CONTACT
-}
-
-export enum PxContactPairFlag {
-    /**
-    \brief The shape with index 0 has been removed from the actor/scene.
-    */
-    eREMOVED_SHAPE_0				= (1 << 0),
-
-    /**
-    \brief The shape with index 1 has been removed from the actor/scene.
-    */
-    eREMOVED_SHAPE_1				= (1 << 1),
-
-    /**
-    \brief First actor pair contact.
-
-    The provided shape pair marks the first contact between the two actors, no other shape pair has been touching prior to the current simulation frame.
-
-    \note: This info is only available if #PxPairFlag::eNOTIFY_TOUCH_FOUND has been declared for the pair.
-    */
-    eACTOR_PAIR_HAS_FIRST_TOUCH		= (1 << 2),
-
-    /**
-    \brief All contact between the actor pair was lost.
-
-    All contact between the two actors has been lost, no shape pairs remain touching after the current simulation frame.
-    */
-    eACTOR_PAIR_LOST_TOUCH			= (1 << 3),
-
-    /**
-    \brief Internal flag, used by #PxContactPair.extractContacts()
-
-    The applied contact impulses are provided for every contact point.
-    This is the case if #PxPairFlag::eSOLVE_CONTACT has been set for the pair.
-    */
-    eINTERNAL_HAS_IMPULSES			= (1 << 4),
-
-    /**
-    \brief Internal flag, used by #PxContactPair.extractContacts()
-
-    The provided contact point information is flipped with regards to the shapes of the contact pair. This mainly concerns the order of the internal triangle indices.
-    */
-    eINTERNAL_CONTACTS_ARE_FLIPPED	= (1 << 5)
-}
-
-export enum PxTriggerPairFlag
-{
-    eREMOVED_SHAPE_TRIGGER					= (1 << 0),					//! < The trigger shape has been removed from the actor/scene.
-    eREMOVED_SHAPE_OTHER					= (1 << 1),					//! < The shape causing the trigger event has been removed from the actor/scene.
-    eNEXT_FREE								= (1 << 2)					//! < For internal use only.
-}
 /// adapters ///
 
 const _v3 = { x: 0, y: 0, z: 0 };
@@ -421,40 +119,34 @@ export const _trans = {
 
 export const _pxtrans = USE_BYTEDANCE && PX ? new PX.Transform(_v3, _v4) : _trans;
 
-export function getImplPtr (impl: any): any {
+export function addReference (shape: PhysXShape, impl: any) {
+    if (!impl) return;
     if (USE_BYTEDANCE) {
-        return impl.getQueryFilterData().word2;
+        PX.IMPL_PTR[shape.id] = shape;
+        impl.setUserData(shape.id);
+    } else {
+        if (impl.$$) { PX.IMPL_PTR[impl.$$.ptr] = shape; }
     }
-    return impl.$$.ptr;
+}
+
+export function removeReference (shape: PhysXShape, impl: any) {
+    if (!impl) return;
+    if (USE_BYTEDANCE) {
+        PX.IMPL_PTR[shape.id] = null;
+        delete PX.IMPL_PTR[shape.id];
+    } else {
+        if (impl.$$) {
+            PX.IMPL_PTR[impl.$$.ptr] = null;
+            delete PX.IMPL_PTR[impl.$$.ptr];
+        }
+    }
 }
 
 export function getWrapShape<T> (pxShape: any): T {
-    return PX.IMPL_PTR[getImplPtr(pxShape)];
-}
-
-/**
- * f32 x3 position.x,position.y,position.z,
- * f32 x3 normal.x,normal.y,normal.z,
- * f32 x3 impulse.x,impulse.y,impulse.z,
- * f32 separation,
- * totoal = 40
- * ui32 internalFaceIndex0,
- * ui32 internalFaceIndex1,
- * totoal = 48
- */
-export function getContactPosition (pxContactOrIndex: any, out: IVec3Like, buf: any) {
     if (USE_BYTEDANCE) {
-        Vec3.fromArray(out, new Float32Array(buf, 40 * pxContactOrIndex, 3));
+        return PX.IMPL_PTR[pxShape];
     } else {
-        Vec3.copy(out, pxContactOrIndex.position);
-    }
-}
-
-export function getContactNormal (pxContactOrIndex: any, out: IVec3Like, buf: any) {
-    if (USE_BYTEDANCE) {
-        Vec3.fromArray(out, new Float32Array(buf, 40 * pxContactOrIndex + 12, 3));
-    } else {
-        Vec3.copy(out, pxContactOrIndex.normal);
+        return PX.IMPL_PTR[pxShape.$$.ptr];
     }
 }
 
@@ -516,23 +208,12 @@ export function copyPhysXTransform (node: Node, transform: any): void {
 
 export function physXEqualsCocosVec3 (trans: any, v3: IVec3Like): boolean {
     const pos = USE_BYTEDANCE ? trans.p : trans.translation;
-    return Vec3.equals(pos, v3);
+    return Vec3.equals(pos, v3, PX.EPSILON);
 }
 
 export function physXEqualsCocosQuat (trans: any, q: IQuatLike): boolean {
     const rot = USE_BYTEDANCE ? trans.q : trans.rotation;
-    return Quat.equals(rot, q);
-}
-
-export function getContactData (vec: any, index: number, o: number) {
-    if (USE_BYTEDANCE) {
-        return index + o;
-    } else {
-        const gc = PX.getGContacts();
-        const data = gc.get(index + o);
-        gc.delete();
-        return data;
-    }
+    return Quat.equals(rot, q, PX.EPSILON);
 }
 
 export function applyImpulse (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IVec3Like) {
@@ -584,18 +265,8 @@ export function getShapeFlags (isTrigger: boolean): any {
 
 export function getShapeWorldBounds (shape: any, actor: any, i = 1.01, out: AABB) {
     if (USE_BYTEDANCE) {
-        const b3 = PX.RigidActorExt.getWorldBoundsArray(shape, actor, i) as Float32Array;
-        const center = out.center;
-        const halfExtents = out.halfExtents;
-        center.x = (b3[3] + b3[0]) / 2;
-        center.y = (b3[4] + b3[1]) / 2;
-        center.z = (b3[5] + b3[2]) / 2;
-        halfExtents.x = (b3[3] - b3[0]) / 2;
-        halfExtents.y = (b3[4] - b3[1]) / 2;
-        halfExtents.z = (b3[5] - b3[2]) / 2;
-        // const b3 = PX.RigidActorExt.getWorldBounds(shape, actor, i);
-        // Vec3.copy(out.center, b3.getCenter());
-        // Vec3.copy(out.halfExtents, b3.getExtents());
+        const b3 = PX.RigidActorExt.getWorldBounds(shape, actor, i);
+        AABB.fromPoints(out, b3.minimum, b3.maximum);
     } else {
         const b3 = shape.getWorldBounds(actor, i);
         AABB.fromPoints(out, b3.minimum, b3.maximum);
@@ -665,12 +336,12 @@ export function createTriangleMesh (vertices: Float32Array | number[], indices: 
     if (USE_BYTEDANCE) {
         const meshDesc = new PX.TriangleMeshDesc();
         meshDesc.setPointsData(vertices);
-        meshDesc.setPointsCount(vertices.length / 3);
-        meshDesc.setPointsStride(Float32Array.BYTES_PER_ELEMENT * 3);
+        // meshDesc.setPointsCount(vertices.length / 3);
+        // meshDesc.setPointsStride(Float32Array.BYTES_PER_ELEMENT * 3);
         const indicesUI32 = new Uint32Array(indices);
         meshDesc.setTrianglesData(indicesUI32);
-        meshDesc.setTrianglesCount(indicesUI32.length / 3);
-        meshDesc.setTrianglesStride(Uint32Array.BYTES_PER_ELEMENT * 3);
+        // meshDesc.setTrianglesCount(indicesUI32.length / 3);
+        // meshDesc.setTrianglesStride(Uint32Array.BYTES_PER_ELEMENT * 3);
         return cooking.createTriangleMesh(meshDesc);
     } else {
         const l = vertices.length;
@@ -697,11 +368,7 @@ export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array
     if (!USE_BYTEDANCE) return;
     const meshDesc = new PX.TriangleMeshDesc();
     meshDesc.setPointsData(vertices);
-    meshDesc.setPointsCount(vertices.length / 3);
-    meshDesc.setPointsStride(Float32Array.BYTES_PER_ELEMENT * 3);
     meshDesc.setTrianglesData(indices);
-    meshDesc.setTrianglesCount(indices.length / 3);
-    meshDesc.setTrianglesStride(Uint32Array.BYTES_PER_ELEMENT * 3);
 
     const params = cooking.getParams();
     setupCommonCookingParam(params, skipMeshCleanUp, skipEdgeData);
@@ -715,7 +382,7 @@ export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array
 
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    console.log(`[Physics] cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
+    console.log(`[PHYSICS]: cook bvh33 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 
@@ -727,11 +394,7 @@ export function createBV34TriangleMesh (vertices: number[], indices: Uint32Array
     if (!USE_BYTEDANCE) return;
     const meshDesc = new PX.TriangleMeshDesc();
     meshDesc.setPointsData(vertices);
-    meshDesc.setPointsCount(vertices.length / 3);
-    meshDesc.setPointsStride(Float32Array.BYTES_PER_ELEMENT * 3);
     meshDesc.setTrianglesData(indices);
-    meshDesc.setTrianglesCount(indices.length / 3);
-    meshDesc.setTrianglesStride(Uint32Array.BYTES_PER_ELEMENT * 3);
     const params = cooking.getParams();
     setupCommonCookingParam(params, skipMeshCleanUp, skipEdgeData);
 
@@ -739,7 +402,7 @@ export function createBV34TriangleMesh (vertices: number[], indices: Uint32Array
     midDesc.setNumPrimsLeaf(numTrisPerLeaf);
     params.setMidphaseDesc(midDesc);
     cooking.setParams(params);
-    console.log(`[Physics] cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
+    console.log(`[PHYSICS]: cook bvh34 status:${cooking.validateTriangleMesh(meshDesc)}`);
     return cooking.createTriangleMesh(meshDesc);
 }
 
@@ -806,7 +469,7 @@ export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastO
         if (r) {
             for (let i = 0; i < r.length; i++) {
                 const block = r[i];
-                const collider = getWrapShape<PhysXShape>(block.shape).collider;
+                const collider = getWrapShape<PhysXShape>(block.shapeData).collider;
                 const result = pool.add();
                 result._assign(block.position, block.distance, collider, block.normal);
                 results.push(result);
@@ -851,7 +514,7 @@ export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRayc
         const block = PX.SceneQueryExt.raycastSingle(world.scene, worldRay.o, worldRay.d, maxDistance,
             flags, world.queryfilterData, world.queryFilterCB);
         if (block) {
-            const collider = getWrapShape<PhysXShape>(block.shape).collider;
+            const collider = getWrapShape<PhysXShape>(block.shapeData).collider;
             result._assign(block.position, block.distance, collider, block.normal);
             return true;
         }
@@ -871,76 +534,31 @@ export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRayc
     return false;
 }
 
-export function initializeWorld (world: any, eventCallback: any, queryCallback: any, onCollision: any, onTrigger: any) {
+export function initializeWorld (world: any) {
     if (USE_BYTEDANCE) {
+        initConfigForByteDance();
+        hackForMultiThread();
         // const physics = PX.createPhysics();
         const physics = PX.physics;
         const cp = new PX.CookingParams();
         const cooking = PX.createCooking(cp);
         const sceneDesc = physics.createSceneDesc();
-        const simulation = new PX.SimulationEventCallback();
-        simulation.setOnContact((_header: any, pairs: any) => {
-            // buffer layout of shapes
-            // 2 x N (the pair count)        [PxShape0, PxShape1]
-            const shapes = _header.shapes as any[];
-            // buffer layout of pairBuf
-            // uint16                        ContactPairFlags
-            // uint16                        PairFlags
-            // uint16                        ContactCount
-            // per pair have one pairBuf, total = 3 x N (the pair count)
-            const pairBuf = _header.pairBuffer as ArrayBuffer;
-            const pairL = shapes.length / 2;
-            const ui16View = new Uint16Array(pairBuf, 0, pairL * 3);
-            for (let i = 0; i < pairL; i++) {
-                const flags = ui16View[0];          // ContactPairFlags
-                if (flags & PxContactPairFlag.eREMOVED_SHAPE_0 || flags & PxContactPairFlag.eREMOVED_SHAPE_1) continue;
-                const shape0 = shapes[2 * i];       // shape[0]
-                const shape1 = shapes[2 * i + 1];   // shape[1]
-                if (!shape0 || !shape1) continue;
-                const shapeA = getWrapShape<PhysXShape>(shape0);
-                const shapeB = getWrapShape<PhysXShape>(shape1);
-                const events = ui16View[1];         // PairFlags
-                const contactCount = ui16View[2];   // ContactCount
-                const contactBuffer = _header.contactBuffer as ArrayBuffer;
-                if (events & PxPairFlag.eNOTIFY_TOUCH_FOUND) {
-                    onCollision('onCollisionEnter', shapeA, shapeB, contactCount, contactBuffer, 0);
-                } else if (events & PxPairFlag.eNOTIFY_TOUCH_PERSISTS) {
-                    onCollision('onCollisionStay', shapeA, shapeB, contactCount, contactBuffer, 0);
-                } else if (events & PxPairFlag.eNOTIFY_TOUCH_LOST) {
-                    onCollision('onCollisionExit', shapeA, shapeB, contactCount, contactBuffer, 0);
-                }
-            }
-        });
-        simulation.setOnTrigger((pairs: any, pairsBuf: ArrayBuffer) => {
-            const length = pairs.length / 4;
-            const ui16View = new Uint16Array(pairsBuf);
-            /**
-             * buffer optimized by bytedance
-             * uint16                               PxTriggerPairFlag
-             * uint16                               PxPairFlag
-             * 4 x uint16 x N (the pair count)      [triggerActor, triggerShape, otherActor, otherShape]
-             */
-            for (let i = 0; i < length; i++) {
-                const flags = ui16View[i];      // PxTriggerPairFlag
-                if (flags & PxTriggerPairFlag.eREMOVED_SHAPE_TRIGGER || flags & PxTriggerPairFlag.eREMOVED_SHAPE_OTHER) continue;
-                const events = ui16View[i + 1]; // PxPairFlag
-                const ca = pairs[i * 4 + 1];    // triggerShape
-                const cb = pairs[i * 4 + 3];    // otherShape
-                const shapeA = getWrapShape<PhysXShape>(ca);
-                const shapeB = getWrapShape<PhysXShape>(cb);
-                if (events & PxPairFlag.eNOTIFY_TOUCH_FOUND) {
-                    onTrigger('onTriggerEnter', shapeA, shapeB);
-                } else if (events & PxPairFlag.eNOTIFY_TOUCH_LOST) {
-                    onTrigger('onTriggerExit', shapeA, shapeB);
-                }
-            }
-        });
-        world.simulationCB = simulation;
-        world.queryFilterCB = new PX.QueryFilterCallback();
-        world.queryFilterCB.setPreFilter(queryCallback.preFilter);
-        world.queryfilterData = { data: { word0: 0, word1: 0, word2: 0, word3: 1 }, flags: 0 };
-        sceneDesc.setSimulationEventCallback(simulation);
+        if (PX.MULTI_THREAD) {
+            const mstc = sceneDesc.getMaxSubThreadCount();
+            const count = PX.SUB_THREAD_COUNT > mstc ? mstc : PX.SUB_THREAD_COUNT;
+            sceneDesc.setSubThreadCount(count);
+            console.info('[PHYSICS][PhysX]:', `use muti-thread mode, sub thread count: ${count}, max count: ${mstc}`);
+        } else {
+            console.info('[PHYSICS][PhysX]:', 'use single-thread mode');
+        }
+        sceneDesc.setFlag(PX.SceneFlag.eENABLE_PCM, true);
+        sceneDesc.setFlag(PX.SceneFlag.eENABLE_CCD, true);
         const scene = physics.createScene(sceneDesc);
+        scene.setNeedOnContact(true);
+        scene.setNeedOnTrigger(true);
+        world.queryFilterCB = new PX.QueryFilterCallback();
+        world.queryFilterCB.setPreFilter(world.callback.queryCallback.preFilterForByteDance);
+        world.queryfilterData = { data: { word0: 0, word1: 0, word2: 0, word3: 1 }, flags: 0 };
         world.physics = physics;
         world.cooking = cooking;
         world.scene = scene;
@@ -949,8 +567,8 @@ export function initializeWorld (world: any, eventCallback: any, queryCallback: 
         world.mutipleResults = new PX.PxRaycastHitVector();
         world.mutipleResults.resize(world.mutipleResultSize, world.singleResult);
         world.queryfilterData = new PX.PxQueryFilterData();
-        world.simulationCB = PX.PxSimulationEventCallback.implement(eventCallback);
-        world.queryFilterCB = PX.PxQueryFilterCallback.implement(queryCallback);
+        world.simulationCB = PX.PxSimulationEventCallback.implement(world.callback.eventCallback);
+        world.queryFilterCB = PX.PxQueryFilterCallback.implement(world.callback.queryCallback);
         const version = PX.PX_PHYSICS_VERSION;
         const defaultErrorCallback = new PX.PxDefaultErrorCallback();
         const allocator = new PX.PxDefaultAllocator();
@@ -962,5 +580,179 @@ export function initializeWorld (world: any, eventCallback: any, queryCallback: 
         const sceneDesc = PX.getDefaultSceneDesc(world.physics.getTolerancesScale(), 0, world.simulationCB);
         world.scene = world.physics.createScene(sceneDesc);
         PX.physics = world.physics;
+    }
+}
+
+/**
+ * f32 x3 position.x,position.y,position.z,
+ * f32 x3 normal.x,normal.y,normal.z,
+ * f32 x3 impulse.x,impulse.y,impulse.z,
+ * f32 separation,
+ * totoal = 40
+ * ui32 internalFaceIndex0,
+ * ui32 internalFaceIndex1,
+ * totoal = 48
+ */
+export function getContactPosition (pxContactOrOffset: any, out: IVec3Like, buf: any) {
+    if (USE_BYTEDANCE) {
+        Vec3.fromArray(out, new Float32Array(buf, pxContactOrOffset, 3));
+    } else {
+        Vec3.copy(out, pxContactOrOffset.position);
+    }
+}
+
+export function getContactNormal (pxContactOrOffset: any, out: IVec3Like, buf: any) {
+    if (USE_BYTEDANCE) {
+        Vec3.fromArray(out, new Float32Array(buf, (pxContactOrOffset as number) + 12, 3));
+    } else {
+        Vec3.copy(out, pxContactOrOffset.normal);
+    }
+}
+
+export function getContactDataOrByteOffset (index: number, offset: number) {
+    if (USE_BYTEDANCE) {
+        return index * 40 + offset;
+    } else {
+        const gc = PX.getGContacts();
+        const data = gc.get(index + offset);
+        gc.delete();
+        return data;
+    }
+}
+
+export function gatherEvents (world: PhysXWorld) {
+    if (USE_BYTEDANCE) {
+        // contact
+        const contactBuf = world.scene.getContactData() as ArrayBuffer;
+        if (contactBuf && contactBuf.byteLength > 0) {
+            const uint32view = new Uint32Array(contactBuf);
+            const pairCount = uint32view[0];
+            /**
+             * struct ContactPair{
+             *      u32 shapeUserData0;
+             *      u32 shapeUserData1;
+             *      u32 events;
+             *      u32 contactCount;
+             * };
+             * Total byte length = 16
+             */
+            const contactPointBufferBegin = pairCount * 16 + 4;
+            let contactPointByteOffset = contactPointBufferBegin;
+            for (let i = 0; i < pairCount; i++) {
+                const offset = i * 4 + 1;
+                const shape0 = PX.IMPL_PTR[uint32view[offset]] as PhysXShape;
+                const shape1 = PX.IMPL_PTR[uint32view[offset + 1]] as PhysXShape;
+                const events = uint32view[offset + 2];
+                const contactCount = uint32view[offset + 3];
+                if (events & PxPairFlag.eNOTIFY_TOUCH_PERSISTS) {
+                    world.callback.onCollision('onCollisionStay', shape0, shape1, contactCount, contactBuf, contactPointByteOffset);
+                } else if (events & PxPairFlag.eNOTIFY_TOUCH_FOUND) {
+                    world.callback.onCollision('onCollisionEnter', shape0, shape1, contactCount, contactBuf, contactPointByteOffset);
+                } else if (events & PxPairFlag.eNOTIFY_TOUCH_LOST) {
+                    world.callback.onCollision('onCollisionExit', shape0, shape1, contactCount, contactBuf, contactPointByteOffset);
+                }
+                /**
+                 * struct ContactPairPoint{
+                 *      PxVec3 position;
+                 *      PxVec3 normal;
+                 *      PxVec3 impulse;
+                 *      float separation;
+                 * };
+                 * Total byte length = 40
+                 */
+                contactPointByteOffset += 40 * contactCount;
+            }
+        }
+
+        // trigger
+        const triggerBuf = world.scene.getTriggerData() as ArrayBuffer;
+        if (triggerBuf && triggerBuf.byteLength > 0) {
+            /**
+             * struct TriggerPair {
+             *      u32 shapeUserData0;
+             *      u32 shapeUserData1;
+             *      u32 status;
+             * };
+             * Total byte length = 12
+             */
+            const uint32view = new Uint32Array(triggerBuf);
+            const pairCount = uint32view.length / 3;
+            for (let i = 0; i < pairCount; i++) {
+                const begin = i * 3;
+                const shape0 = PX.IMPL_PTR[uint32view[begin]] as PhysXShape;
+                const shape1 = PX.IMPL_PTR[uint32view[begin + 1]] as PhysXShape;
+                const events = uint32view[begin + 2];
+                if (events & PxPairFlag.eNOTIFY_TOUCH_FOUND) {
+                    world.callback.onTrigger('onTriggerEnter', shape0, shape1, true);
+                } else if (events & PxPairFlag.eNOTIFY_TOUCH_LOST) {
+                    world.callback.onTrigger('onTriggerExit', shape0, shape1, false);
+                }
+            }
+        }
+    }
+}
+
+export function syncNoneStaticToSceneIfWaking (actor: any, node: Node) {
+    if (USE_BYTEDANCE) {
+        const transform = actor.getGlobalPoseIfWaking();
+        if (!transform) return;
+        copyPhysXTransform(node, transform);
+    } else {
+        if (actor.isSleeping()) return;
+        copyPhysXTransform(node, actor.getGlobalPose());
+    }
+}
+
+/// hacks
+
+function initConfigForByteDance () {
+    if (game.config.physics && (game.config.physics as IPhysicsConfigEXT).physX) {
+        const settings = (game.config.physics as IPhysicsConfigEXT).physX;
+        PX.EPSILON = settings.epsilon;
+        PX.MULTI_THREAD = settings.multiThread;
+        PX.SUB_THREAD_COUNT = settings.subThreadCount;
+    }
+}
+
+// hack for multi thread mode, should be refactor in future
+function hackForMultiThread () {
+    if (USE_BYTEDANCE && PX.MULTI_THREAD) {
+        PhysicsSystem.prototype.postUpdate = function postUpdate (deltaTime: number) {
+            const sys = this as any;
+            if (!sys._enable) {
+                sys.physicsWorld.syncSceneToPhysics();
+                return;
+            }
+            if (sys._autoSimulation) {
+                director.emit(Director.EVENT_BEFORE_PHYSICS);
+                sys._accumulator += deltaTime;
+                sys._subStepCount = 1;
+                sys.physicsWorld.syncSceneToPhysics();
+                sys.physicsWorld.step(sys._fixedTimeStep);
+                sys._accumulator -= sys._fixedTimeStep;
+                sys._mutiThreadYield = performance.now();
+            }
+        };
+
+        // eslint-disable-next-line no-inner-declarations
+        function lastUpdate (sys: any) {
+            if (!sys._enable) return;
+
+            if (sys._autoSimulation) {
+                const yieldTime = performance.now() - sys._mutiThreadYield;
+                sys.physicsWorld.syncPhysicsToScene();
+                sys.physicsWorld.emitEvents();
+                if (legacyCC.profiler && legacyCC.profiler._stats) {
+                    legacyCC.profiler._stats.physics.counter._time += yieldTime;
+                }
+                director.emit(Director.EVENT_AFTER_PHYSICS);
+            }
+        }
+
+        director.on(Director.EVENT_END_FRAME, () => {
+            if (!director.isPaused()) {
+                lastUpdate(PhysicsSystem.instance);
+            }
+        });
     }
 }

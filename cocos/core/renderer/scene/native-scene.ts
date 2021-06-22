@@ -7,6 +7,7 @@ import { LightType } from './light';
 
 export const NativeNode: Constructor<{
     initWithData (data: TypedArray): void;
+    setParent(val: NativeNode | null): void;
 }> = null!;
 export type NativeNode = InstanceType<typeof NativeNode>;
 
@@ -23,8 +24,29 @@ export const NativeModel: Constructor<{
     setInstmatWorldIdx (idx: number): void;
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
+    setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
 }> = null!;
 export type NativeModel = InstanceType<typeof NativeModel>;
+
+export const NativeSkinningModel: Constructor<{
+    setReceiveShadow (val: boolean): void;
+    setEnabled (val: boolean): void;
+    seVisFlag (val: number): void;
+    setTransform (n: Node): void;
+    setNode (n: Node): void;
+    setCastShadow (val: boolean): void;
+    setLocalBuffer (buf: Buffer | null): void;
+    setWolrdBounds (val: AABB | null): void;
+    addSubModel (val: NativeSubModel): void;
+    setInstmatWorldIdx (idx: number): void;
+    setInstancedBuffer (buffer: ArrayBuffer): void;
+    setInstanceAttributes (attrs: Attribute[]): void;
+    setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
+    setIndicesAndJoints(indices: number[], joints: NativeJointInfo[]): void;
+    setBuffers(bufs: Buffer[]):void;
+    updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
+}> = null!;
+export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
 export const NativeLight: Constructor<{
     setType (type: LightType): void;
@@ -131,13 +153,15 @@ export const NativePass: Constructor<{
     setDynamicState(val: number): void;
     setHash(val: number): void;
     setPipelineLayout(val): void;
+    setRootBufferAndBlock(val: Buffer, block: ArrayBuffer): void;
+    setRootBufferDirty(val: boolean): void;
 }> = null!;
 export type NativePass = InstanceType<typeof NativePass>;
 
 export const NativeSubModel: Constructor<{
     setDescriptorSet(val: DescriptorSet | null): void;
     setInputAssembler(val: InputAssembler | null): void;
-    setRenderingSubMesh(val: IFlatBuffer[]): void;
+    setSubMeshBuffers(val: IFlatBuffer[]): void;
     setPlanarShader(val: Shader | null): void;
     setPlanarInstanceShader(val: Shader | null): void;
     setPasses(val: NativePass[]): void;
@@ -156,6 +180,7 @@ export const NativeDrawBatch2D: Constructor<{
 export type NativeDrawBatch2D = InstanceType<typeof NativeDrawBatch2D>;
 
 export const NativeRenderScene: Constructor<{
+    update(): void;
     setMainLight (l: NativeLight | null): void;
     addSphereLight (l: NativeLight | null): void;
     removeSphereLight (l: NativeLight | null): void;
@@ -168,6 +193,7 @@ export const NativeRenderScene: Constructor<{
     removeModels (): void;
     addBatch (batch: NativeDrawBatch2D): void;
     updateBatches (batches: NativeDrawBatch2D[]): void;
+    addSkinningModel (m: NativeModel): void;
     removeBatch (index: number): void;
     removeBatches (): void;
 }> = null!;
@@ -211,6 +237,25 @@ export const NativeRoot: Constructor<{
 }> = null!;
 export type NativeRoot = InstanceType<typeof NativeRoot>;
 
+export const NativeJointTransform: Constructor<{
+    node: Node;
+    local: Mat4;
+    world: Mat4;
+    stamp: number;
+}> = null!;
+export type NativeJointTransform = InstanceType<typeof NativeJointTransform>;
+
+export const NativeJointInfo: Constructor<{
+    bound: AABB;
+    target: Node;
+    bindpose: Mat4;
+    transform: NativeJointTransform | null;
+    parents: NativeJointTransform[];
+    buffers: number[];
+    indices: number[];
+}> = null!;
+export type NativeJointInfo = InstanceType<typeof NativeJointInfo>;
+
 export const NativePipelineSharedSceneData: Constructor<{
     isHDR: boolean;
     shadingScale: number;
@@ -224,4 +269,5 @@ export const NativePipelineSharedSceneData: Constructor<{
     deferredPostPassShader: Shader | null;
     deferredPostPass: NativePass;
 }> = null!;
+
 export type NativePipelineSharedSceneData = InstanceType<typeof NativePipelineSharedSceneData>;

@@ -202,32 +202,44 @@ export const NULL_HANDLE = 0 as unknown as IHandle<any>;
 export type NodeHandle = IHandle<PoolType.NODE>;
 
 export enum NodeView {
+    DIRTY_FLAG,
     FLAGS_CHANGED,
     LAYER,
     WORLD_SCALE,        // Vec3
-    WORLD_POSITION = 5, // Vec3
-    WORLD_ROTATION = 8, // Quat
-    WORLD_MATRIX = 12,  // Mat4
-    COUNT = 28
+    WORLD_POSITION = 6, // Vec3
+    WORLD_ROTATION = 9, // Quat
+    WORLD_MATRIX = 13,  // Mat4
+    LOCAL_SCALE = 29,   // Vec3
+    LOCAL_POSITION = 32, // Vec3
+    LOCAL_ROTATION = 35, // Quat
+    COUNT = 39
 }
 
 const NodeViewDataType: BufferDataTypeManifest<typeof NodeView> = {
+    [NodeView.DIRTY_FLAG]: BufferDataType.UINT32,
     [NodeView.FLAGS_CHANGED]: BufferDataType.UINT32,
     [NodeView.LAYER]: BufferDataType.UINT32,
     [NodeView.WORLD_SCALE]: BufferDataType.FLOAT32,
     [NodeView.WORLD_POSITION]: BufferDataType.FLOAT32,
     [NodeView.WORLD_ROTATION]: BufferDataType.FLOAT32,
     [NodeView.WORLD_MATRIX]: BufferDataType.FLOAT32,
+    [NodeView.LOCAL_SCALE]: BufferDataType.FLOAT32,
+    [NodeView.LOCAL_POSITION]: BufferDataType.FLOAT32,
+    [NodeView.LOCAL_ROTATION]: BufferDataType.FLOAT32,
     [NodeView.COUNT]: BufferDataType.NEVER,
 };
 
 const NodeViewDataMembers: BufferDataMembersManifest<typeof NodeView> = {
+    [NodeView.DIRTY_FLAG]: NodeView.FLAGS_CHANGED - NodeView.DIRTY_FLAG,
     [NodeView.FLAGS_CHANGED]: NodeView.LAYER - NodeView.FLAGS_CHANGED,
     [NodeView.LAYER]: NodeView.WORLD_SCALE - NodeView.LAYER,
     [NodeView.WORLD_SCALE]: NodeView.WORLD_POSITION - NodeView.WORLD_SCALE,
     [NodeView.WORLD_POSITION]: NodeView.WORLD_ROTATION - NodeView.WORLD_POSITION,
     [NodeView.WORLD_ROTATION]: NodeView.WORLD_MATRIX - NodeView.WORLD_ROTATION,
-    [NodeView.WORLD_MATRIX]: NodeView.COUNT - NodeView.WORLD_MATRIX,
+    [NodeView.WORLD_MATRIX]: NodeView.LOCAL_SCALE - NodeView.WORLD_MATRIX,
+    [NodeView.LOCAL_SCALE]: NodeView.LOCAL_POSITION - NodeView.LOCAL_SCALE,
+    [NodeView.LOCAL_POSITION]: NodeView.LOCAL_ROTATION - NodeView.LOCAL_POSITION,
+    [NodeView.LOCAL_ROTATION]: NodeView.COUNT - NodeView.LOCAL_ROTATION,
     [NodeView.COUNT]: 1,
 };
 
