@@ -81,6 +81,10 @@ export class DrawBatch2D {
         return this._passes;
     }
 
+    public get shaders () {
+        return this._shaders;
+    }
+
     public bufferBatch: MeshBuffer | null = null;
     public camera: Camera | null = null;
     public renderScene: RenderScene | null = null;
@@ -92,6 +96,7 @@ export class DrawBatch2D {
     public textureHash = 0;
     public samplerHash = 0;
     private _passes: Pass[] = [];
+    private _shaders: Shader[] = [];
     private _visFlags: number = UI_VIS_FLAG;
     private _inputAssember: InputAssembler | null = null;
     private _descriptorSet: DescriptorSet | null = null;
@@ -133,6 +138,8 @@ export class DrawBatch2D {
             let hashFactor = 0;
             let dirty = false;
 
+            this._shaders.length = passes.length;
+
             for (let i = 0; i < passes.length; i++) {
                 if (!this._passes[i]) {
                     this._passes[i] = new Pass(legacyCC.director.root);
@@ -154,21 +161,20 @@ export class DrawBatch2D {
                 // @ts-expect-error hack for UI use pass object
                 passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
 
+                this._shaders[i] = passInUse.getShaderVariant()!;
+
                 dirty = true;
             }
 
             if (JSB) {
                 if (dirty) {
                     const nativePasses: NativePass[] = [];
-                    const nativeShaders: Shader[] = [];
                     const passes = this._passes;
                     for (let i = 0; i < passes.length; i++) {
                         nativePasses.push(passes[i].native);
-                        nativeShaders.push(passes[i].getShaderVariant()!);
                     }
-
                     this._nativeObj!.passes = nativePasses;
-                    this._nativeObj!.shaders = nativeShaders;
+                    this._nativeObj!.shaders = this._shaders;
                 }
             }
         }

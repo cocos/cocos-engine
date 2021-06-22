@@ -39,7 +39,6 @@ import { Node } from '../scene-graph/node';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
 import * as utils from '../utils/prefab';
-import { PrefabInfo } from '../utils/prefab';
 
 /**
  * @en An enumeration used with the [[Prefab.optimizationPolicy]] to specify how to optimize the instantiate operation.
@@ -65,7 +64,8 @@ const OptimizationPolicy = Enum({
      * @en Optimize for creating instances multiple times.<br>
      * This option enables code generation for this prefab.
      * When this prefab will usually create multiple instances, please select this option.
-     * It is also recommended to select this option if the prefab instance in the scene has Auto Sync enabled and there are multiple instances in the scene.
+     * It is also recommended to select this option if the prefab instance in the scene
+     * has Auto Sync enabled and there are multiple instances in the scene.
      * @zh 优化多次创建性能。<br>
      * 该选项会启用针对这个 prefab 的代码生成优化操作。当该 prefab 加载后，一般会创建多个实例时，请选择此项。如果该 prefab 在场景中的节点启用了自动关联，并且在场景中有多份实例，也建议选择此项。
      */
@@ -77,7 +77,7 @@ const OptimizationPolicy = Enum({
  * @zh 预制资源类。
  */
 @ccclass('cc.Prefab')
-class Prefab extends Asset {
+export class Prefab extends Asset {
     /**
      * @en Enumeration for optimization policy
      * @zh Prefab 创建实例所用的优化策略枚举类型
@@ -187,7 +187,7 @@ class Prefab extends Asset {
         super.initDefault(uuid);
         this.data = new Node();
         this.data.name = '(Missing Node)';
-        const prefabInfo = new PrefabInfo();
+        const prefabInfo = new legacyCC._PrefabInfo();
         prefabInfo.asset = this;
         prefabInfo.root = this.data;
         this.data._prefab = prefabInfo;
@@ -198,17 +198,11 @@ class Prefab extends Asset {
     }
 }
 
-declare namespace Prefab {
-    /**
-     * @en for internal use
-     * @zh 内部使用工具类
-     */
-    export import _utils = utils;
+export declare namespace Prefab {
+    export { utils as _utils };
 }
 
 js.value(Prefab, '_utils', utils);
-
-export default Prefab;
 
 legacyCC.Prefab = Prefab;
 if (ALIPAY || RUNTIME_BASED) {

@@ -28,12 +28,11 @@
  * @packageDocumentation
  * @hidden
  */
-import { legacyCC } from '../global-exports';
 import './deprecation';
 
 export { Asset } from './asset';
 export { BufferAsset } from './buffer-asset';
-export { default as Prefab } from './prefab';
+export { Prefab } from './prefab';
 export * from './scripts';
 export { RenderingSubMesh } from './rendering-sub-mesh';
 export { default as SceneAsset } from './scene-asset';
