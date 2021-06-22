@@ -8,7 +8,7 @@ const argv = yargs.usage('Options:')
     .argv;
 
 const targetEngineVersion = argv['engine-version'];
-const versionRegExp = /\d[\d\.]*\d$/
+const versionRegExp = /^\d+\.\d+\.\d+$/
 if (!targetEngineVersion) {
     throw new Error('please specify a target engine version');
 } else if (!versionRegExp.test(targetEngineVersion)) {
