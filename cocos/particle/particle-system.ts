@@ -30,6 +30,7 @@
  * @module particle
  */
 
+// eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
@@ -826,7 +827,7 @@ export class ParticleSystem extends RenderableComponent {
         }
     }
 
-    private emit (count: number, dt: number) {        
+    private emit (count: number, dt: number) {
         const delta = this._time / this.duration;
 
         if (this._simulationSpace === Space.World) {
