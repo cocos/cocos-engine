@@ -52,7 +52,7 @@ if [ -z "${GH_USER}" ]; then
   exit 1
 fi
 if [ -z "${GH_PASSWORD}" ]; then
-  echo "GH_USER not set"
+  echo "GH_PASSWORD not set"
   exit 1
 fi
 
