@@ -1,13 +1,12 @@
 const fs = require('fs');
-const yargs = require('yargs');
-const argv = yargs.usage('Options:')
-    .help('h').alias('h', 'help')
-    .string('e').alias('e', 'engine-version').describe('e', 'Specify the version of engine')
-    .demandOption(['engine-version'])
-    .version('1.0')
-    .argv;
+// for adding options
+// const argv = require('yargs/yargs')(process.argv.slice(3))
+//     .usage('npm run checkout-engine-version -- [engine-version] [options]')
+//     .help('h').alias('h', 'help')
+//     .version('1.0')
+//     .argv;
 
-const targetEngineVersion = argv['engine-version'];
+const targetEngineVersion = process.argv[2];
 const versionRegExp = /^\d+\.\d+\.\d+$/
 if (!targetEngineVersion) {
     throw new Error('please specify a target engine version');
