@@ -38,7 +38,7 @@ import { samplerLib } from './sampler-lib';
 import {
     BufferUsageBit, DynamicStateFlagBit, DynamicStateFlags, Feature, GetTypeSize, MemoryUsageBit, PrimitiveMode, Type, Color,
     BlendState, BlendTarget, Buffer, BufferInfo, BufferViewInfo, DepthStencilState, DescriptorSet,
-    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout,
+    DescriptorSetInfo, DescriptorSetLayout, Device, RasterizerState, Sampler, Texture, Shader, PipelineLayout, DynamicStates,
 } from '../../gfx';
 import { IPassInfo, IPassStates, IPropertyInfo } from '../../assets/effect-asset';
 import { IProgramInfo, programLib } from './program-lib';
@@ -599,24 +599,14 @@ export class Pass {
         }
     }
 
-    private _setRasterizerState (val: RasterizerState) {
-        this._rs = val;
-        if (JSB) {
-            this._nativeObj!.setRasterizerState(val.native);
-        }
-    }
+    private _setNativeState (bs: BlendState, dss: DepthStencilState, rs: RasterizerState, ds: DescriptorSet) {
+        this._bs = bs;
+        this._dss = dss;
+        this._rs = rs;
+        this._descriptorSet = ds;
 
-    private _setDepthStencilState (val: DepthStencilState) {
-        this._dss = val;
         if (JSB) {
-            this._nativeObj!.setDepthStencilState(val.native);
-        }
-    }
-
-    private _setBlendState (val: BlendState) {
-        this._bs = val;
-        if (JSB) {
-            this._nativeObj!.setBlendState(val.native);
+            this._nativeObj!.setState(this._bs.native, this._dss.native, this._rs.native, ds);
         }
     }
 
@@ -631,9 +621,6 @@ export class Pass {
         this._setStage(RenderPassStage.DEFAULT);
         this._setPhase(getPhaseID('default'));
         this._setPrimitive(PrimitiveMode.TRIANGLE_LIST);
-        this._setRasterizerState(this._rs);
-        this._setDepthStencilState(this._dss);
-        this._setBlendState(this._bs);
 
         this._passIndex = info.passIndex;
         this._propertyIndex = info.propertyIndex !== undefined ? info.propertyIndex : info.passIndex;
@@ -641,7 +628,7 @@ export class Pass {
         this._defines = copyDefines ? ({ ...info.defines }) : info.defines;
         this._shaderInfo = programLib.getTemplate(info.program);
         this._properties = info.properties || this._properties;
-        // pipeline state
+
         const device = this._device;
         Pass.fillPipelineInfo(this, info);
         if (info.stateOverrides) { Pass.fillPipelineInfo(this, info.stateOverrides); }
@@ -649,7 +636,9 @@ export class Pass {
         // init descriptor set
         _dsInfo.layout = programLib.getDescriptorSetLayout(this._device, info.program);
         this._descriptorSet = this._device.createDescriptorSet(_dsInfo);
-        this._setNativeDescriptorSet(this._descriptorSet);
+        // pipeline state
+        this._setNativeState(this._bs, this._dss, this._rs, this._descriptorSet);
+
         // calculate total size required
         const blocks = this._shaderInfo.blocks;
         const tmplInfo = programLib.getTemplateInfo(info.program);
@@ -726,11 +715,6 @@ export class Pass {
         }
     }
 
-    private _setDescriptorSet (target: Pass, val: DescriptorSet) {
-        this._descriptorSet = target.descriptorSet;
-        this._setNativeDescriptorSet(this._descriptorSet);
-    }
-
     protected _setHash (val: number) {
         this._hash = val;
         if (JSB) {
@@ -754,10 +738,7 @@ export class Pass {
         this._setPrimitive(target.primitive);
         this._setDynamicState(target.dynamicStates);
 
-        this._setDescriptorSet(target, target.descriptorSet);
-        this._setBlendState(bs);
-        this._setRasterizerState(target.rasterizerState);
-        this._setDepthStencilState(dss);
+        this._setNativeState(bs, dss, target.rasterizerState, target.descriptorSet);
         this._passIndex = target.passIndex;
         this._propertyIndex = target.propertyIndex;
         this._programName = target.program;
