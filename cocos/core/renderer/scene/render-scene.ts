@@ -114,13 +114,6 @@ export class RenderScene {
     }
 
     public update (stamp: number) {
-        if (JSB) {
-            const nativeBatches: NativeDrawBatch2D[] = [];
-            for (let i = 0, len = this._batches.length; i < len; ++i) {
-                nativeBatches.push(this._batches[i].native);
-            }
-            this.native.updateBatches(nativeBatches);
-        }
         const mainLight = this._mainLight;
         if (mainLight) {
             mainLight.update();

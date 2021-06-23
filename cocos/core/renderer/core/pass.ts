@@ -620,12 +620,6 @@ export class Pass {
         }
     }
 
-    private _setNativeDescriptorSet (val: DescriptorSet) {
-        if (JSB) {
-            this._nativeObj!.setDescriptorSet(val);
-        }
-    }
-
     protected _doInit (info: IPassInfoFull, copyDefines = false): void {
         this._initNative();
         this._setPriority(RenderPriority.DEFAULT);
