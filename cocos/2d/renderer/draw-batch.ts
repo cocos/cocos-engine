@@ -137,6 +137,7 @@ export class DrawBatch2D {
 
             let hashFactor = 0;
             let dirty = false;
+
             this._shaders.length = passes.length;
 
             for (let i = 0; i < passes.length; i++) {

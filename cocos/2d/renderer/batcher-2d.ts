@@ -49,6 +49,7 @@ import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
 import { value } from '../../core/utils/js-typed';
+import { NativeDrawBatch2D } from '../../core/renderer/scene';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();

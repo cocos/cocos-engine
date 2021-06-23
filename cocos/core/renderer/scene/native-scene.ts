@@ -138,6 +138,7 @@ export const NativeCamera: Constructor<{
 export type NativeCamera = InstanceType<typeof NativeCamera>;
 
 export const NativePass: Constructor<{
+    initWithData(data: TypedArray): void;
     update(): void;
     setPriority(val: number): void;
     setStage(val: number): void;
@@ -146,6 +147,7 @@ export const NativePass: Constructor<{
     setRasterizerState(val): void;
     setDepthStencilState(val): void;
     setBlendState(val): void;
+    setState(bs, dss, rs, ds): void;
     setDescriptorSet(val): void;
     setBatchingScheme(val: number): void;
     setDynamicState(val: number): void;
@@ -187,10 +189,11 @@ export const NativeRenderScene: Constructor<{
     removeSphereLights (): void;
     removeSpotLights (): void;
     addModel (m: NativeModel): void;
-    addSkinningModel (m: NativeModel): void;
     removeModel (m: NativeModel): void;
     removeModels (): void;
     addBatch (batch: NativeDrawBatch2D): void;
+    updateBatches (batches: NativeDrawBatch2D[]): void;
+    addSkinningModel (m: NativeModel): void;
     removeBatch (index: number): void;
     removeBatches (): void;
 }> = null!;

@@ -146,7 +146,7 @@ class BufferPool<P extends PoolType, E extends BufferManifest> implements IMemor
     public getBuffer (handle: IHandle<P>): BufferArrayType {
         const chunk = (this._chunkMask & handle as unknown as number) >> this._entryBits;
         const entry = this._entryMask & handle as unknown as number;
-        const bufferViews = this._float32BufferViews;
+        const bufferViews = this._hasFloat32 ? this._float32BufferViews : this._uint32BufferViews;
         if (DEBUG && (!handle || chunk < 0 || chunk >= bufferViews.length
            || entry < 0 || entry >= this._entriesPerChunk || contains(this._freeLists[chunk], entry))) {
             console.warn('invalid buffer pool handle');
@@ -193,7 +193,8 @@ class BufferPool<P extends PoolType, E extends BufferManifest> implements IMemor
 
 export enum PoolType {
     // buffers
-    NODE = 100,
+    NODE,
+    PASS
 }
 
 export const NULL_HANDLE = 0 as unknown as IHandle<any>;
@@ -243,3 +244,40 @@ const NodeViewDataMembers: BufferDataMembersManifest<typeof NodeView> = {
 };
 
 export const NodePool = new BufferPool<PoolType.NODE, typeof NodeView>(PoolType.NODE, NodeViewDataType, NodeViewDataMembers, NodeView);
+
+export type PassHandle = IHandle<PoolType.PASS>;
+
+export enum PassView {
+    PRIORITY,
+    STAGE,
+    PHASE,
+    PRIMITIVE,
+    BATCHING_SCHEME,
+    DYNAMIC_STATE,
+    HASH,
+    COUNT
+}
+
+const PassViewDataType: BufferDataTypeManifest<typeof PassView> = {
+    [PassView.PRIORITY]: BufferDataType.UINT32,
+    [PassView.STAGE]: BufferDataType.UINT32,
+    [PassView.PHASE]: BufferDataType.UINT32,
+    [PassView.PRIMITIVE]: BufferDataType.UINT32,
+    [PassView.BATCHING_SCHEME]: BufferDataType.UINT32,
+    [PassView.DYNAMIC_STATE]: BufferDataType.UINT32,
+    [PassView.HASH]: BufferDataType.UINT32,
+    [PassView.COUNT]: BufferDataType.NEVER,
+};
+
+const PassViewDataMembers: BufferDataMembersManifest<typeof PassView> = {
+    [PassView.PRIORITY]: PassView.STAGE - PassView.PRIORITY,
+    [PassView.STAGE]: PassView.PHASE - PassView.STAGE,
+    [PassView.PHASE]: PassView.PRIMITIVE - PassView.PHASE,
+    [PassView.PRIMITIVE]: PassView.BATCHING_SCHEME - PassView.PRIMITIVE,
+    [PassView.BATCHING_SCHEME]: PassView.DYNAMIC_STATE - PassView.BATCHING_SCHEME,
+    [PassView.DYNAMIC_STATE]: PassView.HASH - PassView.DYNAMIC_STATE,
+    [PassView.HASH]: PassView.COUNT - PassView.HASH,
+    [PassView.COUNT]: 1,
+};
+
+export const PassPool = new BufferPool<PoolType.PASS, typeof PassView>(PoolType.PASS, PassViewDataType, PassViewDataMembers, PassView);
