@@ -109,7 +109,7 @@ import java.util.concurrent.CountDownLatch;
              try {
                  URI uri = URI.create(urlString);
                  if (uri != null && uri.getScheme().equals(mJSScheme)) {
-                     activity.runOnUiThread(new Runnable() {
+                     CocosHelper.runOnGameThread(new Runnable() {
                          @Override
                          public void run() {
                              CocosWebViewHelper._onJsCallback(mViewTag, urlString);
