@@ -36,5 +36,16 @@ void Pass::update() {
     _descriptorSet->update();
 }
 
+void Pass::initWithData(uint8_t *data) {
+    _passLayout = reinterpret_cast<PassLayout *>(data);
+}
+
+void Pass::setState(gfx::BlendState *bs, gfx::DepthStencilState *ds, gfx::RasterizerState *rs, gfx::DescriptorSet *descriptorSet) {
+    _blendState        = bs;
+    _depthStencilState = ds;
+    _rasterizerState   = rs;
+    _descriptorSet = descriptorSet;
+}
+
 } // namespace scene
 } // namespace cc

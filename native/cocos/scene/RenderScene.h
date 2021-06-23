@@ -60,6 +60,7 @@ public:
     void removeModel(Model *);
     void removeModels();
 
+    void updateBatches(std::vector<DrawBatch2D *>&&);
     void addBatch(DrawBatch2D *);
     void removeBatch(DrawBatch2D *);
     void removeBatch(uint32_t index);

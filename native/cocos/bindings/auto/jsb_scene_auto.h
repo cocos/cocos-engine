@@ -271,6 +271,7 @@ SE_DECLARE_FUNC(js_scene_Pass_setPriority);
 SE_DECLARE_FUNC(js_scene_Pass_setRasterizerState);
 SE_DECLARE_FUNC(js_scene_Pass_setRootBufferDirty);
 SE_DECLARE_FUNC(js_scene_Pass_setStage);
+SE_DECLARE_FUNC(js_scene_Pass_setState);
 SE_DECLARE_FUNC(js_scene_Pass_update);
 SE_DECLARE_FUNC(js_scene_Pass_Pass);
 
