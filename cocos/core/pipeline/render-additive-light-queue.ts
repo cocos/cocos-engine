@@ -51,7 +51,7 @@ import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BIND
     UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING,
     supportsHalfFloatTexture } from './define';
 import { updatePlanarPROJ } from './scene-culling';
-import { Camera } from '../renderer/scene';
+import { Camera, PCFType } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
 
 interface IAdditiveLightPass {
@@ -395,6 +395,11 @@ export class RenderAdditiveLightQueue {
                 if (shadowFrameBufferMap.has(light)) {
                     const texture = shadowFrameBufferMap.get(light)?.colorTextures[0];
                     if (texture) {
+                        if (shadowInfo.pcf === PCFType.NATIVE_PCF) {
+                            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, globalDSManager.pointSampler);
+                        } else {
+                            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, globalDSManager.linearSampler);
+                        }
                         descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, texture);
                     }
                 }

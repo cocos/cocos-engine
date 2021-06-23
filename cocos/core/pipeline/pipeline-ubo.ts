@@ -29,7 +29,7 @@ import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
-import { Shadows, ShadowType } from '../renderer/scene/shadows';
+import { PCFType, Shadows, ShadowType } from '../renderer/scene/shadows';
 import { getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene';
@@ -367,6 +367,7 @@ export class PipelineUBO {
     public updateShadowUBO (camera: Camera) {
         const sceneData = this._pipeline.pipelineSceneData;
         const shadowInfo = sceneData.shadows;
+        const dsManager = this._pipeline.globalDSManager;
         if (!shadowInfo.enabled) return;
 
         const ds = this._pipeline.descriptorSet;
@@ -375,6 +376,11 @@ export class PipelineUBO {
         const mainLight = camera.scene!.mainLight;
         ds.update();
         if (mainLight && shadowFrameBufferMap.has(mainLight)) {
+            if (shadowInfo.pcf === PCFType.NATIVE_PCF) {
+                ds.bindSampler(UNIFORM_SHADOWMAP_BINDING, dsManager.pointSampler);
+            } else {
+                ds.bindSampler(UNIFORM_SHADOWMAP_BINDING, dsManager.linearSampler);
+            }
             ds.bindTexture(UNIFORM_SHADOWMAP_BINDING, shadowFrameBufferMap.get(mainLight)!.colorTextures[0]!);
         }
         PipelineUBO.updateShadowUBOView(this._pipeline, this._shadowUBO, camera);

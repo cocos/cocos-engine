@@ -74,7 +74,7 @@ export const PCFType = Enum({
      * @en x5 times
      * @readonly
      */
-    FILTER_X5: 1,
+    NATIVE_PCF: 1,
 
     /**
      * @zh x9 次采样
@@ -82,13 +82,6 @@ export const PCFType = Enum({
      * @readonly
      */
     FILTER_X9: 2,
-
-    /**
-     * @zh x25 次采样
-     * @en x25 times
-     * @readonly
-     */
-    FILTER_X25: 3,
 });
 
 const SHADOW_TYPE_NONE = ShadowType.ShadowMap + 1;
