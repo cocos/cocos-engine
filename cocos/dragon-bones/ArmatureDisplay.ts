@@ -21,6 +21,7 @@ import { MeshRenderData } from '../2d/renderer/render-data';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { MaterialInstance } from '../core/renderer/core/material-instance';
 import { legacyCC } from '../core/global-exports';
+import { ArmatureSystem } from './ArmatureSystem';
 
 enum DefaultArmaturesEnum {
     default = -1,
@@ -713,6 +714,7 @@ export class ArmatureDisplay extends Renderable2D {
             this._factory!._dragonBones.clock.add(this._armature);
         }
         this._flushAssembler();
+        ArmatureSystem.instance.registerArmature(this);
     }
 
     onDisable () {
@@ -721,6 +723,7 @@ export class ArmatureDisplay extends Renderable2D {
         if (this._armature && !this.isAnimationCached()) {
             this._factory!._dragonBones.clock.remove(this._armature);
         }
+        ArmatureSystem.instance.unregisterArmature(this);
     }
 
     _emitCacheCompleteEvent () {
@@ -733,7 +736,7 @@ export class ArmatureDisplay extends Renderable2D {
         this._eventTarget.emit(EventObject.COMPLETE);
     }
 
-    update (dt) {
+    updateAnimation (dt) {
         if (!this.isAnimationCached()) return;
         if (!this._frameCache) return;
 

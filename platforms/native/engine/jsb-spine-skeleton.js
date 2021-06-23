@@ -436,7 +436,7 @@ const cacheManager = require('./jsb-cache-manager');
         let paramsBuffer = this._paramsBuffer;
         if (!paramsBuffer) return;
         
-        if (force || node.hasChangedFlags) {
+        if (force || node.hasChangedFlags || node._dirtyFlags) {
             // sync node world matrix to native
             node.updateWorldTransform();
             let worldMat = node._mat;
@@ -459,9 +459,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    let _lateUpdate = skeleton.lateUpdate;
-    skeleton.lateUpdate = function () {
-        if (_lateUpdate) _lateUpdate.call(this);
+    skeleton.updateAnimation = function (dt) {
         let nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
 

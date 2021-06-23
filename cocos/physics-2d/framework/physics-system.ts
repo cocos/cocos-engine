@@ -336,6 +336,6 @@ director.once(Director.EVENT_INIT, () => {
 
 function initPhysicsSystem () {
     if (!PhysicsSystem2D.PHYSICS_NONE && !EDITOR) {
-        director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, 0);
+        director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
     }
 }

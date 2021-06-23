@@ -35,6 +35,7 @@ import { EventTouch } from './platform/event-manager/events';
 import { legacyCC } from './global-exports';
 import { SubModel } from './renderer/scene/submodel';
 import { Root } from './root';
+import System from './components/system';
 
 // VMATH
 
@@ -203,6 +204,25 @@ replaceProperty(Scheduler.prototype, 'Scheduler.prototype', [
         newName: 'enableForTarget',
         target: Scheduler,
         targetName: 'Scheduler',
+    },
+]);
+
+// replace Scheduler static property
+replaceProperty(Scheduler, 'Scheduler', [
+    {
+        name: 'PRIORITY_SYSTEM',
+        newName: 'System.Priority.SCHEDULED',
+        customGetter () {
+            return System.Priority.SCHEDULED;
+        },
+    },
+]);
+
+// remove Scheduler static property
+removeProperty(Scheduler, 'Scheduler', [
+    {
+        name: 'PRIORITY_NON_SYSTEM',
+        suggest: 'Use enum` System.Priority` instead',
     },
 ]);
 
