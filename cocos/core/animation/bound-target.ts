@@ -51,16 +51,7 @@ export function createBoundTarget (target: any, modifiers: TargetPath[], valueAd
         if (resultTarget === null) {
             return null;
         }
-        return {
-            setValue: (value) => {
-                resultTarget[lastPath] = value;
-            },
-            // eslint-disable-next-line arrow-body-style
-            getValue: () => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return resultTarget[lastPath];
-            },
-        };
+        return new PropertyAccessTarget(resultTarget, lastPath);
     } else if (!valueAdapter) {
         error(`Empty animation curve.`);
         return null;
@@ -70,20 +61,7 @@ export function createBoundTarget (target: any, modifiers: TargetPath[], valueAd
             return null;
         }
         const proxy = valueAdapter.forTarget(resultTarget);
-        return {
-            setValue: (value) => {
-                proxy.set(value);
-            },
-            getValue: () => {
-                if (!proxy.get) {
-                    error(`Target doesn't provide a get method.`);
-                    return null;
-                } else {
-                    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                    return proxy.get();
-                }
-            },
-        };
+        return new ProxyTarget(proxy);
     }
 }
 
@@ -100,6 +78,7 @@ export function createBufferedTarget (boundTarget: IBoundTarget): null | IBuffer
     const buffer = copyable.createBuffer();
     const copy = copyable.copy;
     return Object.assign(boundTarget, {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         peek: () => buffer,
         pull: () => {
             const value = boundTarget.getValue();
@@ -129,3 +108,45 @@ const getBuiltinCopy = (() => {
     map.set(Size,  { createBuffer: () => new Size(), copy: SizeCopy });
     return (value: any) => map.get(value?.constructor);
 })();
+
+class PropertyAccessTarget implements IBoundTarget {
+    constructor (object: unknown, propertyName: string | number) {
+        this._object = object;
+        this._propertyName = propertyName;
+    }
+
+    setValue (value: unknown): void {
+        (this._object as any)[this._propertyName] = value;
+    }
+
+    getValue () {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return (this._object as any)[this._propertyName];
+    }
+
+    private _object: unknown;
+    private _propertyName: string | number;
+}
+
+class ProxyTarget implements IBoundTarget {
+    constructor (proxy: IValueProxy) {
+        this._proxy = proxy;
+    }
+
+    setValue (value: any): void {
+        this._proxy.set(value);
+    }
+
+    getValue () {
+        const { _proxy: proxy } = this;
+        if (!proxy.get) {
+            error(`Target doesn't provide a get method.`);
+            return null;
+        } else {
+            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+            return proxy.get();
+        }
+    }
+
+    private _proxy: IValueProxy;
+}

@@ -382,6 +382,7 @@ export class AnimationState extends Playable {
     private _playbackDuration = 0.0;
     private _invDuration = 1.0;
     private _weight = 0.0;
+    private _clipHasEvent = false;
 
     constructor (clip: AnimationClip, name = '') {
         super();
@@ -421,6 +422,8 @@ export class AnimationState extends Playable {
         this._playbackRange.min = 0.0;
         this._playbackRange.max = clip.duration;
         this._playbackDuration = clip.duration;
+
+        this._clipHasEvent = clip.hasEvents();
 
         if ((this.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
             this.repeatCount = Infinity;
@@ -776,7 +779,7 @@ export class AnimationState extends Playable {
         this._sampleCurves(ratio);
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
-            if (this._clip.hasEvents()) {
+            if (this._clipHasEvent) {
                 this._sampleEvents(this.getWrappedInfo(this.time, this._wrappedInfo));
             }
         }
