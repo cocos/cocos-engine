@@ -764,12 +764,16 @@ var Texture2D = cc.Class({
         this.emit("load");
 
         if (cc.macro.CLEANUP_IMAGE_CACHE) {
-            if (this._image instanceof HTMLImageElement) {
-                this._clearImage();
-            }
-            else if (cc.sys.capabilities.imageBitmap && this._image instanceof ImageBitmap) {
-                this._image.close && this._image.close();
-            }
+            this._cleanupImageCache();
+        }
+    },
+    
+    _cleanupImageCache () {
+        if (this._image instanceof HTMLImageElement) {
+            this._clearImage();
+        }
+        else if (cc.sys.capabilities.imageBitmap && this._image instanceof ImageBitmap) {
+            this._image.close && this._image.close();
         }
     },
 
