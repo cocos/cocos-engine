@@ -34,22 +34,19 @@ class DragonBonesAtlasMeta extends CustomAssetMeta {
         super(assetdb);
     }
 
-    static version () { return '1.0.1'; }
+    static version () { return '1.0.2'; }
     static defaultType () {
         return 'dragonbones-atlas';
     }
 
     static validate (assetpath) {
-        var json;
-        var text = Fs.readFileSync(assetpath, 'utf8');
         try {
-            json = JSON.parse(text);
+            const json = Fs.readJsonSync(assetpath);
+            return typeof json.imagePath === 'string' && Array.isArray(json.SubTexture);
         }
         catch (e) {
             return false;
         }
-
-        return typeof json.imagePath === 'string' && Array.isArray(json.SubTexture);
     }
 
     postImport (fspath, cb) {
