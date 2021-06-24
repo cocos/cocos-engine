@@ -49,8 +49,8 @@ import { errorID } from '../../platform/debug';
 import { sceneCulling } from '../scene-culling';
 
 const _samplerInfo = [
-    Filter.LINEAR,
-    Filter.LINEAR,
+    Filter.POINT,
+    Filter.POINT,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,

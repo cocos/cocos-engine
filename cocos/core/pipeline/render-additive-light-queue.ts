@@ -53,7 +53,6 @@ import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BIND
 import { updatePlanarPROJ } from './scene-culling';
 import { Camera } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
-import { PCFType } from '../renderer/scene/shadows';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
@@ -396,11 +395,6 @@ export class RenderAdditiveLightQueue {
                 if (shadowFrameBufferMap.has(light)) {
                     const texture = shadowFrameBufferMap.get(light)?.colorTextures[0];
                     if (texture) {
-                        if (shadowInfo.pcf === PCFType.SOFT) {
-                            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, globalDSManager.pointSampler);
-                        } else {
-                            descriptorSet.bindSampler(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, globalDSManager.linearSampler);
-                        }
                         descriptorSet.bindTexture(UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, texture);
                     }
                 }
