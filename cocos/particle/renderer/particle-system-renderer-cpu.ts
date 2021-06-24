@@ -280,13 +280,13 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             }
 
             if (ps.simulationSpace === Space.Local) {
-                // eslint-disable-next-line max-len
-                let g:Vec4 = new Vec4(0.0, -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt, 0.0, 1.0);
-                g = g.transformMat4(this._localMat);
+                const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
+                let gravity:Vec4 = new Vec4(0.0, gravityFactor, 0.0, 1.0);
+                gravity = gravity.transformMat4(this._localMat);
 
-                p.velocity.x += g.x;
-                p.velocity.y += g.y;
-                p.velocity.z += g.z;
+                p.velocity.x += gravity.x;
+                p.velocity.y += gravity.y;
+                p.velocity.z += gravity.z;
             } else {
                 // apply gravity.
                 p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
