@@ -137,6 +137,7 @@ void CCMTLTexture::doDestroy() {
 
     std::function<void(void)> destroyFunc = [=]() {
         if (mtlTexure) {
+            [mtlTexure setPurgeableState:MTLPurgeableStateEmpty];
             [mtlTexure release];
         }
     };
@@ -167,6 +168,7 @@ void CCMTLTexture::doResize(uint width, uint height, uint size) {
     if (oldMTLTexture) {
         std::function<void(void)> destroyFunc = [=]() {
             if (oldMTLTexture) {
+                [oldMTLTexture setPurgeableState:MTLPurgeableStateEmpty];
                 [oldMTLTexture release];
             }
         };

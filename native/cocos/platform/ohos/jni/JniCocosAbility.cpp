@@ -185,9 +185,6 @@ inline void initWithPendingWindow() {
     }
 }
 
-inline void setActivityState(int cmd) {
-    writeCommandSync(cmd);
-}
 } // namespace
 
 extern "C" {
@@ -246,11 +243,11 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onStartNative(JNIEnv
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onPauseNative(JNIEnv *env, jobject obj) { //NOLINT JNI function name
-    setActivityState(ABILITY_CMD_PAUSE);
+    writeCommandSync(ABILITY_CMD_PAUSE);
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onResumeNative(JNIEnv *env, jobject obj) { //NOLINT JNI function name
-    setActivityState(ABILITY_CMD_RESUME);
+    writeCommandSync(ABILITY_CMD_RESUME);
 }
 
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onStopNative(JNIEnv *env, jobject obj) { //NOLINT JNI function name

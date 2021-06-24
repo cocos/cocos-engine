@@ -72,7 +72,7 @@ void AudioDecoderWav::close() {
 uint32_t AudioDecoderWav::read(uint32_t framesToRead, char *pcmBuf) {
     auto *output       = reinterpret_cast<int16_t *>(pcmBuf);
     auto  actualFrames = sf_readf_short(_sndHandle, output, framesToRead);
-    return actualFrames / _bytesPerFrame;
+    return actualFrames;
 }
 
 bool AudioDecoderWav::seek(uint32_t frameOffset) {

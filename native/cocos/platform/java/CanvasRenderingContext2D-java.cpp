@@ -219,15 +219,14 @@ public:
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "setLineWidth", lineWidth);
     }
 
-    //NOLINTNEXTLINE(readability-identifier-naming)
-    void _fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
+    void fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) {
         if (_bufferWidth < 1.0F || _bufferHeight < 1.0F) {
             return;
         }
 
-        jbyteArray arr = JniHelper::getEnv()->NewByteArray(imageData.getSize());
-        JniHelper::getEnv()->SetByteArrayRegion(arr, 0, imageData.getSize(),
-                                                reinterpret_cast<const jbyte *>(imageData.getBytes()));
+        auto *arr = JniHelper::getEnv()->NewIntArray(imageData.getSize() / 4);
+        JniHelper::getEnv()->SetIntArrayRegion(arr, 0, imageData.getSize() / 4,
+                                               reinterpret_cast<const jint *>(imageData.getBytes()));
         JniHelper::callObjectVoidMethod(_obj, JCLS_CANVASIMPL, "_fillImageData", arr, imageWidth,
                                         imageHeight, offsetX, offsetY);
         ccDeleteLocalRef(JniHelper::getEnv(), arr);
@@ -269,7 +268,9 @@ public:
         jsize len     = JniHelper::getEnv()->GetArrayLength(arr);
         auto *jbarray = static_cast<jbyte *>(malloc(len * sizeof(jbyte)));
         JniHelper::getEnv()->GetByteArrayRegion(arr, 0, len, jbarray);
+#if CC_PLATFORM != CC_PLATFORM_OHOS
         unMultiplyAlpha(reinterpret_cast<unsigned char *>(jbarray), len);
+#endif
         _data.fastSet(reinterpret_cast<unsigned char *>(jbarray), len); //IDEA: DON'T create new jbarray every time.
         ccDeleteLocalRef(JniHelper::getEnv(), arr);
     }
@@ -303,7 +304,8 @@ void fillRectWithColor(uint8_t *buf, uint32_t totalWidth, uint32_t totalHeight, 
 namespace cc {
 
 CanvasGradient::CanvasGradient()  = default;
-CanvasGradient::~CanvasGradient() = default;
+CanvasGradient::~CanvasGradient()  = default;
+
 
 void CanvasGradient::addColorStop(float offset, const std::string &color) {
     // SE_LOGD("CanvasGradient::addColorStop: %p\n", this);
@@ -437,7 +439,7 @@ void CanvasRenderingContext2D::setCanvasBufferUpdatedCallback(const CanvasBuffer
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_width(float width) { //NOLINT(readability-identifier-naming)
+void CanvasRenderingContext2D::setWidth(float width) { //NOLINT(readability-identifier-naming)
     //    SE_LOGD("CanvasRenderingContext2D::set__width: %f\n", width);
     if (math::IsEqualF(width, _width)) return;
     _width             = width;
@@ -445,7 +447,7 @@ void CanvasRenderingContext2D::set_width(float width) { //NOLINT(readability-ide
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_height(float height) { //NOLINT(readability-identifier-naming)
+void CanvasRenderingContext2D::setHeight(float height) { //NOLINT(readability-identifier-naming)
     //    SE_LOGD("CanvasRenderingContext2D::set__height: %f\n", height);
     if (math::IsEqualF(height, _height)) return;
     _height            = height;
@@ -453,17 +455,17 @@ void CanvasRenderingContext2D::set_height(float height) { //NOLINT(readability-i
     recreateBufferIfNeeded();
 }
 
-void CanvasRenderingContext2D::set_lineWidth(float lineWidth) { //NOLINT(readability-identifier-naming)
+void CanvasRenderingContext2D::setLineWidth(float lineWidth) { //NOLINT(readability-identifier-naming)
     _lineWidth = lineWidth;
     _impl->setLineWidth(lineWidth);
 }
 
-void CanvasRenderingContext2D::set_lineJoin(const std::string &lineJoin) { //NOLINT(readability-identifier-naming)
+void CanvasRenderingContext2D::setLineJoin(const std::string &lineJoin) { //NOLINT(readability-identifier-naming)
     if (lineJoin.empty()) return;
     _impl->setLineJoin(lineJoin);
 }
 
-void CanvasRenderingContext2D::set_lineCap(const std::string &lineCap) { //NOLINT(readability-identifier-naming)
+void CanvasRenderingContext2D::setLineCap(const std::string &lineCap) { //NOLINT(readability-identifier-naming)
     if (lineCap.empty()) return;
     _impl->setLineCap(lineCap);
 }
@@ -473,7 +475,7 @@ void CanvasRenderingContext2D::set_lineCap(const std::string &lineCap) { //NOLIN
  *                      "italic bold small-caps 25px Arial"
  *                      "italic 25px Arial"
  * */
-void CanvasRenderingContext2D::set_font(const std::string &font) { //NOLINT(readability-identifier-naming)
+void CanvasRenderingContext2D::setFont(const std::string &font) { //NOLINT(readability-identifier-naming)
     if (_font != font) {
         _font                                                       = font;
         std::string                                     fontName    = "sans-serif";
@@ -505,7 +507,7 @@ void CanvasRenderingContext2D::set_font(const std::string &font) { //NOLINT(read
     }
 }
 
-void CanvasRenderingContext2D::set_textAlign(const std::string &textAlign) { //NOLINT(readability-identifier-naming)
+void CanvasRenderingContext2D::setTextAlign(const std::string &textAlign) { //NOLINT(readability-identifier-naming)
     // SE_LOGD("CanvasRenderingContext2D::set_textAlign: %s\n", textAlign.c_str());
     if (textAlign == "left") {
         _impl->setTextAlign(CanvasTextAlign::LEFT);
@@ -518,7 +520,7 @@ void CanvasRenderingContext2D::set_textAlign(const std::string &textAlign) { //N
     }
 }
 
-void CanvasRenderingContext2D::set_textBaseline(const std::string &textBaseline) { //NOLINT(readability-identifier-naming)
+void CanvasRenderingContext2D::setTextBaseline(const std::string &textBaseline) { //NOLINT(readability-identifier-naming)
     // SE_LOGD("CanvasRenderingContext2D::set_textBaseline: %s\n", textBaseline.c_str());
     if (textBaseline == "top") {
         _impl->setTextBaseline(CanvasTextBaseline::TOP);
@@ -534,23 +536,23 @@ void CanvasRenderingContext2D::set_textBaseline(const std::string &textBaseline)
     }
 }
 
-void CanvasRenderingContext2D::set_fillStyle(const std::string &fillStyle) { //NOLINT(readability-identifier-naming)
+void CanvasRenderingContext2D::setFillStyle(const std::string &fillStyle) { //NOLINT(readability-identifier-naming)
     CSSColorParser::Color color = CSSColorParser::parse(fillStyle);
     _impl->setFillStyle(static_cast<float>(color.r) / 255.0F, static_cast<float>(color.g) / 255.0F, static_cast<float>(color.b) / 255.0F, color.a);
     // SE_LOGD("CanvasRenderingContext2D::set_fillStyle: %s, (%d, %d, %d, %f)\n", fillStyle.c_str(), color.r, color.g, color.b, color.a);
 }
 
-void CanvasRenderingContext2D::set_strokeStyle(const std::string &strokeStyle) { //NOLINT(readability-identifier-naming)
+void CanvasRenderingContext2D::setStrokeStyle(const std::string &strokeStyle) { //NOLINT(readability-identifier-naming)
     CSSColorParser::Color color = CSSColorParser::parse(strokeStyle);
     _impl->setStrokeStyle(static_cast<float>(color.r) / 255.0F, static_cast<float>(color.g) / 255.0F, static_cast<float>(color.b) / 255.0F, color.a);
 }
 
-void CanvasRenderingContext2D::set_globalCompositeOperation(const std::string &globalCompositeOperation) { //NOLINT(readability-identifier-naming)
+void CanvasRenderingContext2D::setGlobalCompositeOperation(const std::string &globalCompositeOperation) { //NOLINT(readability-identifier-naming)
     // SE_LOGE("%s isn't implemented!\n", __FUNCTION__);
 }
 
-void CanvasRenderingContext2D::_fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) { //NOLINT(readability-identifier-naming)
-    _impl->_fillImageData(imageData, imageWidth, imageHeight, offsetX, offsetY);
+void CanvasRenderingContext2D::fillImageData(const Data &imageData, float imageWidth, float imageHeight, float offsetX, float offsetY) { //NOLINT(readability-identifier-naming)
+    _impl->fillImageData(imageData, imageWidth, imageHeight, offsetX, offsetY);
     if (_canvasBufferUpdatedCB != nullptr) {
         _canvasBufferUpdatedCB(_impl->getDataRef());
     }
