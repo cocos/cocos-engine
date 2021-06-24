@@ -115,6 +115,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _uLenHandle = 0;
     private _inited = false;
     private _localMat: Mat4 = new Mat4();
+    private _gravity: Vec4 = new Vec4(0.0, 0.0, 0.0, 1.0);
 
     constructor (info: any) {
         super(info);
@@ -281,12 +282,12 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
             if (ps.simulationSpace === Space.Local) {
                 const gravityFactor = -ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
-                let gravity:Vec4 = new Vec4(0.0, gravityFactor, 0.0, 1.0);
-                gravity = gravity.transformMat4(this._localMat);
+                this._gravity.y = gravityFactor;
+                this._gravity = this._gravity.transformMat4(this._localMat);
 
-                p.velocity.x += gravity.x;
-                p.velocity.y += gravity.y;
-                p.velocity.z += gravity.z;
+                p.velocity.x += this._gravity.x;
+                p.velocity.y += this._gravity.y;
+                p.velocity.z += this._gravity.z;
             } else {
                 // apply gravity.
                 p.velocity.y -= ps.gravityModifier.evaluate(1 - p.remainingLifetime / p.startLifetime, pseudoRandom(p.randomSeed))! * 9.8 * dt;
