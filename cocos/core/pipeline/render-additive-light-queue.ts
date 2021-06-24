@@ -51,8 +51,9 @@ import { SetIndex, UBOForwardLight, UBOGlobal, UBOShadow, UNIFORM_SHADOWMAP_BIND
     UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING,
     supportsHalfFloatTexture } from './define';
 import { updatePlanarPROJ } from './scene-culling';
-import { Camera, PCFType } from '../renderer/scene';
+import { Camera } from '../renderer/scene';
 import { GlobalDSManager } from './global-descriptor-set-manager';
+import { PCFType } from '../renderer/scene/shadows';
 
 interface IAdditiveLightPass {
     subModel: SubModel;
