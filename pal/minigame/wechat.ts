@@ -1,6 +1,6 @@
 import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { Orientation } from '../system/enum-type/orientation';
-import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils';
 
 declare let wx: any;
 
@@ -131,7 +131,7 @@ minigame.getSafeArea = function () {
 // #endregion SafeArea
 
 // HACK: adapt GL.useProgram: use program not supported to unbind program on pc end
-if (systemInfo.platform === 'windows') {
+if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '2.16.0') < 0) {
     // @ts-expect-error canvas defined in global
     const locCanvas = canvas;
     if (locCanvas) {
