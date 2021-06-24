@@ -153,6 +153,25 @@ function adaptMouseEvent () {
     });
 }
 
+
+function versionCompare (versionA, versionB) {
+    const versionRegExp = /\d+\.\d+\.\d+/;
+    if (!(versionRegExp.test(versionA) && versionRegExp.test(versionB))) {
+        console.warn('wrong format of version when compare version');
+        return 0;
+    }
+    const versionNumbersA = versionA.split('.').map((num) => Number.parseInt(num));
+    const versionNumbersB = versionB.split('.').map((num) => Number.parseInt(num));
+    for (let i = 0; i < 3; ++i) {
+        const numberA = versionNumbersA[i];
+        const numberB = versionNumbersB[i];
+        if (numberA !== numberB) {
+            return numberA - numberB;
+        }
+    }
+    return 0;
+}
+
 function adaptGL () {
     if (canvas) {
         let webglRC = canvas.getContext('webgl');
@@ -171,8 +190,10 @@ function adaptGL () {
         return;
     }
 
-    // use program not supported to unbind program on pc end
-    adaptGL();
+    if (versionCompare(env.SDKVersion, '2.16.0') < 0) {
+        // use program not supported to unbind program on pc end
+        adaptGL();
+    }
 
     inputMgr.registerSystemEvent = function () {
         if (this._isRegisterEvent) {
