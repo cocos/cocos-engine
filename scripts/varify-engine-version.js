@@ -1,7 +1,8 @@
 const fs = require('fs');
+const ps = require('path');
 const vGit = require('v-git');
 
-const repo = vGit.init('../');
+const repo = vGit.init(ps.join(__dirname, '../'));
 const branchName = repo.branch;
 const branchRegExp = /^v?(\d+\.\d+\.\d+)(?:-.*)?$/
 const matchResult = branchName.match(branchRegExp);
