@@ -846,7 +846,12 @@ export class ParticleSystem extends RenderableComponent {
                 this._textureAnimationModule.init(particle);
             }
 
-            Vec3.multiplyScalar(particle.velocity, particle.velocity, this.startSpeed.evaluate(delta, rand)!);
+            let curveStartSpeed = this.startSpeed.evaluate(delta, rand)!;
+            if (this.startSpeed.mode === Mode.Curve) {
+                const current = this._time % this.duration; // loop curve value
+                curveStartSpeed = this.startSpeed.evaluate(current / this.duration, rand)!;
+            }
+            Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
 
             if (this._simulationSpace === Space.World) {
                 Vec3.transformMat4(particle.position, particle.position, _world_mat);
