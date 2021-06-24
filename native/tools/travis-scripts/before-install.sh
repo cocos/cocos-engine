@@ -3,7 +3,8 @@
 set -e
 
 # If not a pull request, setup for Linux only
-if [[ "$TRAVIS_OS_NAME" != "linux" && "$TRAVIS_PULL_REQUEST" == "false" ]]; then
+if [[ "$TRAVIS_PULL_REQUEST" != "false" ]]; then
+  echo "Should run when TRAVIS_PULL_REQUEST == false"
   echo "Stop process for TRAVIS_OS_NAME:$TRAVIS_OS_NAME && TRAVIS_PULL_REQUEST:$TRAVIS_PULL_REQUEST"
   exit 0
 fi
@@ -30,61 +31,31 @@ function download_external()
     popd
 }
 
-download_external
-
-
-mkdir -p $HOME/bin
-cd $HOME/bin
-
 function install_android_ndk()
 {
-    # Download android ndk
-    if [ $TRAVIS_OS_NAME = 'osx' ]; then
-        HOST_NAME="darwin"
-    elif [ $TRAVIS_OS_NAME = 'linux' ]; then
-        HOST_NAME="linux"
-    else
-        HOST_NAME="windows"
-    fi
+    pushd $COCOS2DX_ROOT
+    mkdir -p $HOME/bin
+    cd $HOME/bin
+    HOST_NAME="linux"
     echo "Download android-ndk-r16b-${HOST_NAME}-x86_64.zip ..."
     curl -O http://dl.google.com/android/repository/android-ndk-r16b-${HOST_NAME}-x86_64.zip
     echo "Decompress android-ndk-r16b-${HOST_NAME}-x86_64.zip ..."
     unzip -q android-ndk-r16b-${HOST_NAME}-x86_64.zip
     # Rename ndk
     mv android-ndk-r16b android-ndk
-}
-
-function install_python_win32()
-{
-    choco install -y python2
-    export PATH="/c/Python27":$PATH
-}
-
-function install_vulkan_sdk_win32()
-{
-    choco install vulkan-sdk
+    popd
 }
 
 function install_python_module()
 {
-  if [ "$TRAVIS_OS_NAME" == "osx" ]; then
-    sudo easy_install pip
-    pip install PyYAML
-    pip install Cheetah
-  elif [ "$TRAVIS_OS_NAME" == "windows" ]; then
-    install_python_win32
-    install_vulkan_sdk_win32
-    python -m easy_install pip 
-    python -m pip install PyYAML
-    python -m pip install Cheetah
-  else
-    sudo easy_install pip
-    sudo -H pip install pyyaml
-    sudo -H pip install Cheetah
-  fi
+  sudo easy_install pip
+  sudo -H pip install pyyaml
+  sudo -H pip install Cheetah
 }
 
 #we only use osx for generate bindings
+
+download_external
 install_python_module
 install_android_ndk
 

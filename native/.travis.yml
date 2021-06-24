@@ -7,7 +7,7 @@ jobs:
       dist: xenial
       sudo: required
       env:
-        - BUILD_TARGET=android_cmake
+        - BUILD_TARGET=genbindings
       language: cpp
       before_install:
         - nvm install 12
