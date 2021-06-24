@@ -56,7 +56,7 @@ struct StandardSurface {
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   // Calculate diffuse & specular
   vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
-  // 0.04 == 0.08*tex.a(0-1)*value(0-1)   valuedefault=0.5
+ 
   vec3 specular = mix(vec3(0.08 * s.SpecularIntensity), s.albedo.rgb, s.metallic);
 
   vec3 N = normalize(s.normal);
