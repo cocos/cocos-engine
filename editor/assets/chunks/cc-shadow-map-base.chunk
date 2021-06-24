@@ -49,24 +49,25 @@
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float offsetDepth = clipPos.z - cc_shadowWHPBInfo.w;
-    vec2 ontap = 1.0 / cc_shadowWHPBInfo.xy;
-    vec4 blockABCD = vec4(0.0);
+    vec2 oneTap = 1.0 / cc_shadowWHPBInfo.xy;
+    vec2 clipPos_offset = clipPos.xy + oneTap;
+    vec4 block;
     if (cc_shadowLPNNInfo.y > 0.000001) {
-      blockABCD.x = step(unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y))), offsetDepth);
-      blockABCD.y = step(unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x + ontap.x, clipPos.y))), offsetDepth);
-      blockABCD.z = step(unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y + ontap.y))), offsetDepth);
-      blockABCD.w = step(unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x + ontap.y, clipPos.y + ontap.y))), offsetDepth);
+      block.x = step(unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y))), offsetDepth);
+      block.y = step(unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos.y))), offsetDepth);
+      block.z = step(unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset.y))), offsetDepth);
+      block.w = step(unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos_offset.y))), offsetDepth);
     } else {
-      blockABCD.x = step(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y)).x, offsetDepth);
-      blockABCD.y = step(texture(cc_shadowMap, vec2(clipPos.x + ontap.x, clipPos.y)).x, offsetDepth);
-      blockABCD.z = step(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y + ontap.y)).x, offsetDepth);
-      blockABCD.w = step(texture(cc_shadowMap, vec2(clipPos.x + ontap.y, clipPos.y + ontap.y)).x, offsetDepth);
+      block.x = step(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y)).x, offsetDepth);
+      block.y = step(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos.y)).x, offsetDepth);
+      block.z = step(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset.y)).x, offsetDepth);
+      block.w = step(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos_offset.y)).x, offsetDepth);
     }
 
-    float coefX = mod(clipPos.x, ontap.x) * cc_shadowWHPBInfo.x;
-    vec2 result = mix(blockABCD.xz, blockABCD.yw, vec2(coefX));
-    float coefY = mod(clipPos.y, ontap.y) * cc_shadowWHPBInfo.y;
-    return mix(result.x, result.y, coefY);
+    float coefX = mod(clipPos.x, oneTap.x) * cc_shadowWHPBInfo.x;
+    vec2 resultX = mix(block.xz, block.yw, vec2(coefX));
+    float coefY = mod(clipPos.y, oneTap.y) * cc_shadowWHPBInfo.y;
+    return mix(resultX.x, resultX.y, coefY);
   }
 
   float CCGetShadowFactorX9 (vec4 shadowPos) {
@@ -100,7 +101,7 @@
     return shadow / 9.0;
   }
 
-  float CCGetDirLightShadowFactorX1 (vec4 shadowPos, vec3 worldPos) {
+  float CCGetSpotLightShadowFactorX1 (vec4 shadowPos, vec3 worldPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -126,7 +127,7 @@
     return shadow;
   }
 
-  float CCGetDirLightShadowFactorX5 (vec4 shadowPos, vec3 worldPos) {
+  float CCGetSpotLightShadowFactorX5 (vec4 shadowPos, vec3 worldPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -172,7 +173,7 @@
     return shadow / 5.0;
   }
 
-  float CCGetDirLightShadowFactorX9 (vec4 shadowPos, vec3 worldPos) {
+  float CCGetSpotLightShadowFactorX9 (vec4 shadowPos, vec3 worldPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
     if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
         clipPos.y < 0.0 || clipPos.y > 1.0 ||
@@ -209,16 +210,16 @@
   }
 #endif
 
-#define CC_DIR_SHADOW_FACTOR_BASE(finalColor, shadowPos, worldPos, lightPos, normal)                \
+#define CC_SPOT_SHADOW_FACTOR_BASE(finalColor, shadowPos, worldPos, lightPos, normal)                \
 {                                                                                                   \
   float pcf = cc_shadowWHPBInfo.z + 0.001;                                                          \
   float shadowAttenuation = 0.0;                                                                    \
   float cosAngle = clamp(1.0 - dot(normal, normalize(lightPos.xyz - worldPos.xyz)), 0.0, 1.0);      \
   vec3 projWorldPos = shadowPos.xyz + cosAngle * cc_shadowLPNNInfo.z * normal;                      \
   vec4 pos = vec4(projWorldPos.xyz, shadowPos.w);                                                   \
-  if (pcf > 2.0) shadowAttenuation = CCGetDirLightShadowFactorX9(pos, worldPos);                    \
-  else if (pcf > 1.0) shadowAttenuation = CCGetDirLightShadowFactorX5(pos, worldPos);               \
-  else shadowAttenuation = CCGetDirLightShadowFactorX1(pos, worldPos);                              \
+  if (pcf > 2.0) shadowAttenuation = CCGetSpotLightShadowFactorX9(pos, worldPos);                    \
+  else if (pcf > 1.0) shadowAttenuation = CCGetSpotLightShadowFactorX5(pos, worldPos);               \
+  else shadowAttenuation = CCGetSpotLightShadowFactorX1(pos, worldPos);                              \
   finalColor *= 1.0 - shadowAttenuation;                                                            \
 }                                                                                                   \
 #pragma // empty pragma trick to get rid of trailing semicolons at effect compile time

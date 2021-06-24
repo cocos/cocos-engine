@@ -80,8 +80,12 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   // Cook-Torrance Microfacet Specular BRDF
   vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
+  vec3 dirlightContrib = (diffuseContrib + specularContrib);
+  #if CC_RECEIVE_SHADOW
+    CC_SHADOW_FACTOR_BASE(dirlightContrib, NL, shadowPos, L, N);
+  #endif
 
-  finalColor *= (diffuseContrib + specularContrib);
+  finalColor *= dirlightContrib;
 
   float fAmb = 0.5 - N.y * 0.5;
   vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
@@ -104,10 +108,6 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     s.emissive *= cc_exposure.w;
   #endif
   finalColor += s.emissive;
-
-  #if CC_RECEIVE_SHADOW
-    CC_SHADOW_FACTOR_BASE(finalColor, NL, shadowPos, L, N);
-  #endif
 
   return vec4(finalColor, s.albedo.a);
 }
