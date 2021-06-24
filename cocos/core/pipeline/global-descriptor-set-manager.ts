@@ -64,10 +64,12 @@ export class GlobalDSManager {
         return this._descriptorSetMap;
     }
 
+    // TODO: Future extensions of PCSS require search depth to compute the penumbra, which requires linear sampling
     get linearSampler () {
         return this._linearSampler;
     }
 
+    // TODO: For the use of hard and soft, point sampling is required
     get pointSampler () {
         return this._pointSampler;
     }
