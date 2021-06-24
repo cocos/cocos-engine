@@ -36,11 +36,11 @@ import { createBoundTarget, createBufferedTarget, IBufferedTarget, IBoundTarget 
 import { Playable } from './playable';
 import { WrapMode, WrapModeMask, WrappedInfo } from './types';
 import { HierarchyPath, evaluatePath, TargetPath } from './target-path';
-import { BlendStateBuffer, createBlendStateWriter, IBlendStateWriter } from '../../3d/skeletal-animation/skeletal-animation-blending';
+import { BlendStateBuffer, BlendStateWriter } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { legacyCC } from '../global-exports';
 import { ccenum } from '../value-types/enum';
 import { IValueProxyFactory } from './value-proxy';
-import { assertIsTrue } from '../data/utils/asserts';
+import { assertIsNonNullable, assertIsTrue } from '../data/utils/asserts';
 import { debug } from '../platform/debug';
 
 /**
@@ -83,11 +83,10 @@ export enum EventType {
 }
 ccenum(EventType);
 export class ICurveInstance {
-    public commonTargetIndex?: number;
+    public commonTargetIndex = -1;
 
     private _curve: AnimCurve;
     private _boundTarget: IBoundTarget;
-    private _rootTargetProperty?: string;
     private _curveDetail: Omit<IRuntimeCurve, 'sampler'>;
     private declare _shouldLerp: boolean;
 
@@ -123,7 +122,7 @@ export class ICurveInstance {
         this._boundTarget.setValue(value);
     }
 
-    get propertyName () { return this._rootTargetProperty || ''; }
+    get propertyName () { return ''; }
 
     get curveDetail () {
         return this._curveDetail;
@@ -240,9 +239,9 @@ export class AnimationState extends Playable {
         const shouldWrap = this._wrapMode & WrapModeMask.ShouldWrap;
         const reverse = (this.wrapMode & WrapModeMask.Reverse) === WrapModeMask.Reverse;
         if (value === Infinity && !shouldWrap && !reverse) {
-            this._process = this.simpleProcess;
+            this._useSimpleProcess = true;
         } else {
-            this._process = this.process;
+            this._useSimpleProcess = false;
         }
     }
 
@@ -267,7 +266,7 @@ export class AnimationState extends Playable {
      * @zh 单次动画的持续时间，秒。（动画长度）
      * @readOnly
      */
-    public duration = 1;
+    public duration = 1.0;
 
     /**
      * @en
@@ -298,14 +297,14 @@ export class AnimationState extends Playable {
      * @zh 播放速率。
      * @default: 1.0
      */
-    public speed = 1;
+    public speed = 1.0;
 
     /**
      * @en The current accumulated time of this animation in seconds.
      * @zh 动画当前**累计播放**的时间，单位为秒。
      * @default 0
      */
-    public time = 0;
+    public time = 0.0;
 
     /**
      * @en Gets the time progress, in seconds.
@@ -326,7 +325,14 @@ export class AnimationState extends Playable {
     /**
      * The weight.
      */
-    public weight = 0;
+    get weight () {
+        return this._weight;
+    }
+
+    set weight (value) {
+        this._weight = value;
+        this._blendStateWriterHost.weight = value;
+    }
 
     public frameRate = 0;
 
@@ -341,7 +347,7 @@ export class AnimationState extends Playable {
     protected _curveLoaded = false;
 
     private _clip: AnimationClip;
-    private _process = this.process;
+    private _useSimpleProcess = false;
     private _samplerSharedGroups: ISamplerSharedGroup[] = [];
     private _target: Node | null = null;
     private _ignoreIndex = InvalidIndex;
@@ -354,36 +360,37 @@ export class AnimationState extends Playable {
     })[] = [];
     private _wrapMode = WrapMode.Normal;
     private _repeatCount = 1;
-    private _delay = 0;
-    private _delayTime = 0;
+    private _delay = 0.0;
+    private _delayTime = 0.0;
     /**
      * Mark whether the current frame is played.
      * When set new time to animation state, we should ensure the frame at the specified time being played at next update.
      */
     private _currentFramePlayed = false;
-    private _name: string;
-    private _lastIterations?: number;
+    private declare _name: string;
+    private _lastIterations = NaN;
     private _lastWrapInfo: WrappedInfo | null = null;
     private _lastWrapInfoEvent: WrappedInfo | null = null;
     private _wrappedInfo = new WrappedInfo();
     private _blendStateBuffer: BlendStateBuffer | null = null;
-    private _blendStateWriters: IBlendStateWriter[] = [];
+    private _blendStateWriters: BlendStateWriter<any>[] = [];
     private _allowLastFrame = false;
     private _blendStateWriterHost = {
-        weight: 0,
-        enabled: false,
+        weight: 0.0,
     };
-    private _playbackRange: { min: number; max: number; };
-    private _playbackDuration = 0;
+    private declare _playbackRange: { min: number; max: number; };
+    private _playbackDuration = 0.0;
     private _invDuration = 1.0;
+    private _weight = 0.0;
+    private _clipHasEvent = false;
 
     constructor (clip: AnimationClip, name = '') {
         super();
         this._clip = clip;
         this._name = name || (clip && clip.name);
         this._playbackRange = {
-            min: 0,
-            max: this._clip.duration,
+            min: 0.0,
+            max: clip.duration,
         };
         this._playbackDuration = clip.duration;
         if (!clip.duration) {
@@ -404,9 +411,6 @@ export class AnimationState extends Playable {
         this._destroyBlendStateWriters();
         this._samplerSharedGroups.length = 0;
         this._blendStateBuffer = legacyCC.director.getAnimationManager()?.blendState ?? null;
-        if (this._blendStateBuffer) {
-            this._blendStateBuffer.bindState(this);
-        }
         this._targetNode = root;
         const clip = this._clip;
 
@@ -415,11 +419,11 @@ export class AnimationState extends Playable {
         this.speed = clip.speed;
         this.wrapMode = clip.wrapMode;
         this.frameRate = clip.sample;
-        this._playbackRange = {
-            min: 0,
-            max: clip.duration,
-        };
+        this._playbackRange.min = 0.0;
+        this._playbackRange.max = clip.duration;
         this._playbackDuration = clip.duration;
+
+        this._clipHasEvent = clip.hasEvents();
 
         if ((this.wrapMode & WrapModeMask.Loop) === WrapModeMask.Loop) {
             this.repeatCount = Infinity;
@@ -430,41 +434,37 @@ export class AnimationState extends Playable {
         /**
          * Create the bound target. Especially optimized for skeletal case.
          */
-        const createBoundTargetOptimized = <BoundTargetT extends IBoundTarget>(
-            createFn: (...args: Parameters<typeof createBoundTarget>) => BoundTargetT | null,
+        const createBoundTargetOptimized = (
             rootTarget: any,
             path: TargetPath[],
             valueAdapter: IValueProxyFactory | undefined,
             isConstant: boolean,
-        ): BoundTargetT | null => {
+        ): IBoundTarget | null => {
             if (!clip.enableTrsBlending || !isTargetingTRS(path) || !this._blendStateBuffer) {
-                return createFn(rootTarget, path, valueAdapter);
+                return createBoundTarget(rootTarget, path, valueAdapter);
             } else {
                 const targetNode = evaluatePath(rootTarget, ...path.slice(0, path.length - 1));
                 if (targetNode !== null && targetNode instanceof Node) {
                     const propertyName = path[path.length - 1] as 'position' | 'rotation' | 'scale' | 'eulerAngles';
-                    const blendStateWriter = createBlendStateWriter(
-                        this._blendStateBuffer,
+                    const blendStateWriter = this._blendStateBuffer.createWriter(
                         targetNode,
                         propertyName,
                         this._blendStateWriterHost,
                         isConstant,
                     );
                     this._blendStateWriters.push(blendStateWriter);
-                    return createFn(rootTarget, [], blendStateWriter);
+                    return blendStateWriter;
                 }
             }
             return null;
         };
 
         this._commonTargetStatuses = clip.commonTargets.map((commonTarget, index) => {
-            const target = createBoundTargetOptimized(
-                createBufferedTarget,
-                root,
-                commonTarget.modifiers,
-                commonTarget.valueAdapter,
-                false,
-            );
+            const boundTarget = createBoundTargetOptimized(root, commonTarget.modifiers, commonTarget.valueAdapter, false);
+            if (!boundTarget) {
+                return null;
+            }
+            const target = createBufferedTarget(boundTarget);
             if (target === null) {
                 return null;
             } else {
@@ -501,7 +501,6 @@ export class AnimationState extends Playable {
             }
 
             const boundTarget = createBoundTargetOptimized(
-                createBoundTarget,
                 rootTarget,
                 propertyCurve.modifiers,
                 propertyCurve.valueAdapter,
@@ -516,7 +515,7 @@ export class AnimationState extends Playable {
                     rootTarget,
                     boundTarget,
                 );
-                curveInstance.commonTargetIndex = propertyCurve.commonTarget;
+                curveInstance.commonTargetIndex = propertyCurve.commonTarget ?? -1;
                 samplerSharedGroup.curves.push(curveInstance);
             }
         }
@@ -524,13 +523,6 @@ export class AnimationState extends Playable {
 
     public destroy () {
         this._destroyBlendStateWriters();
-    }
-
-    /**
-     * @private
-     */
-    public onBlendFinished () {
-        this._blendStateWriterHost.enabled = false;
     }
 
     /**
@@ -600,7 +592,7 @@ export class AnimationState extends Playable {
 
     public setTime (time: number) {
         this._currentFramePlayed = false;
-        this.time = time || 0;
+        this.time = time || 0.0;
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._lastWrapInfoEvent = null;
@@ -625,9 +617,9 @@ export class AnimationState extends Playable {
     public update (delta: number) {
         // calculate delay time
 
-        if (this._delayTime > 0) {
+        if (this._delayTime > 0.0) {
             this._delayTime -= delta;
-            if (this._delayTime > 0) {
+            if (this._delayTime > 0.0) {
                 // still waiting
                 return;
             }
@@ -655,7 +647,7 @@ export class AnimationState extends Playable {
     }
 
     protected onPlay () {
-        this.setTime(0);
+        this.setTime(0.0);
         this._delayTime = this._delay;
         this._onReplayOrResume();
         this.emit(EventType.PLAY, this);
@@ -679,8 +671,7 @@ export class AnimationState extends Playable {
     }
 
     protected _sampleCurves (ratio: number) {
-        this._blendStateWriterHost.weight = this.weight;
-        this._blendStateWriterHost.enabled = true;
+        const weight = this.weight;
 
         const commonTargetStatuses = this._commonTargetStatuses;
         // Before we sample, we pull values of common targets.
@@ -693,15 +684,11 @@ export class AnimationState extends Playable {
             commonTargetStatus.changed = false;
         }
 
-        let index = 0;
-        let lerpRequired = false;
         const samplerSharedGroups = this._samplerSharedGroups;
-        for (let iSamplerSharedGroup = 0, szSamplerSharedGroup = samplerSharedGroups.length;
-            iSamplerSharedGroup < szSamplerSharedGroup; ++iSamplerSharedGroup) {
-            const samplerSharedGroup = samplerSharedGroups[iSamplerSharedGroup];
+        samplerSharedGroups.forEach((samplerSharedGroup) => {
             const { sampler, samplerResultCache } = samplerSharedGroup;
-
-            lerpRequired = false;
+            let index = 0;
+            let lerpRequired = false;
             if (!sampler) {
                 index = 0;
             } else {
@@ -727,15 +714,15 @@ export class AnimationState extends Playable {
             for (let iCurveInstance = 0, szCurves = curves.length;
                 iCurveInstance < szCurves; ++iCurveInstance) {
                 const curveInstance = curves[iCurveInstance];
-                curveInstance.applySample(ratio, index, lerpRequired, samplerResultCache, this.weight);
-                if (curveInstance.commonTargetIndex !== undefined) {
+                curveInstance.applySample(ratio, index, lerpRequired, samplerResultCache, weight);
+                if (curveInstance.commonTargetIndex >= 0) {
                     const commonTargetStatus = commonTargetStatuses[curveInstance.commonTargetIndex];
                     if (commonTargetStatus) {
                         commonTargetStatus.changed = true;
                     }
                 }
             }
-        }
+        });
 
         // After sample, we push values of common targets.
         for (let iCommonTarget = 0, length = commonTargetStatuses.length; iCommonTarget < length; ++iCommonTarget) {
@@ -746,6 +733,14 @@ export class AnimationState extends Playable {
             if (commonTargetStatus.changed) {
                 commonTargetStatus.target.push();
             }
+        }
+    }
+
+    private _process () {
+        if (this._useSimpleProcess) {
+            this.simpleProcess();
+        } else {
+            this.process();
         }
     }
 
@@ -779,18 +774,18 @@ export class AnimationState extends Playable {
         const playbackDuration = this._playbackDuration;
 
         let time = this.time % playbackDuration;
-        if (time < 0) { time += playbackDuration; }
+        if (time < 0.0) { time += playbackDuration; }
         const ratio = (playbackStart + time) * this._invDuration;
         this._sampleCurves(ratio);
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
-            if (this._clip.hasEvents()) {
+            if (this._clipHasEvent) {
                 this._sampleEvents(this.getWrappedInfo(this.time, this._wrappedInfo));
             }
         }
 
         if (this._allowLastFrame) {
-            if (this._lastIterations === undefined) {
+            if (Number.isNaN(this._lastIterations)) {
                 this._lastIterations = ratio;
             }
 
@@ -1001,15 +996,16 @@ export class AnimationState extends Playable {
     }
 
     private _destroyBlendStateWriters () {
+        if (this._blendStateWriters.length) {
+            assertIsNonNullable(this._blendStateBuffer);
+        }
         for (let iBlendStateWriter = 0; iBlendStateWriter < this._blendStateWriters.length; ++iBlendStateWriter) {
-            this._blendStateWriters[iBlendStateWriter].destroy();
+            this._blendStateBuffer!.destroyWriter(this._blendStateWriters[iBlendStateWriter]);
         }
         this._blendStateWriters.length = 0;
         if (this._blendStateBuffer) {
-            this._blendStateBuffer.unbindState(this);
             this._blendStateBuffer = null;
         }
-        this._blendStateWriterHost.enabled = false;
     }
 }
 

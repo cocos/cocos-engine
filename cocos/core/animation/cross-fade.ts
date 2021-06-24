@@ -80,13 +80,6 @@ export class CrossFade extends Playable {
             this._calculateWeights(deltaTime);
         }
 
-        for (let iManagedState = 0; iManagedState < managedStates.length; ++iManagedState) {
-            const state = managedStates[iManagedState].state;
-            if (state && state.isMotionless) {
-                state.sample();
-            }
-        }
-
         if (managedStates.length === 1 && fadings.length === 1) { // Definitely not code repetition
             this._unscheduleThis();
         }

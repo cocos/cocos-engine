@@ -30,29 +30,41 @@
 
 import { Vec3, Quat } from '../../core/math';
 import { Node } from '../../core/scene-graph';
-import { IValueProxyFactory } from '../../core/animation/value-proxy';
-import { assertIsNonNullable } from '../../core/data/utils/asserts';
 import { AnimationState } from '../../core/animation/animation-state';
+import { IBoundTarget } from '../../core/animation/bound-target';
 
 export class BlendStateBuffer {
     private _nodeBlendStates: Map<Node, NodeBlendState> = new Map();
-    private _states = new Set<AnimationState>();
 
-    public ref (node: Node, property: BlendingProperty) {
+    public createWriter<P extends BlendingProperty> (
+        node: Node,
+        property: P,
+        host: BlendStateWriterHost,
+        constants: boolean,
+    ): Omit<BlendStateWriterInternal<P>, 'node' | 'property'> {
+        const propertyBlendState = this.ref(node, property);
+        return new BlendStateWriterInternal<P>(
+            node,
+            property,
+            propertyBlendState,
+            host,
+            constants,
+        );
+    }
+
+    public destroyWriter<P extends BlendingProperty> (writer: BlendStateWriter<P>) {
+        const internal = writer as BlendStateWriterInternal<P>;
+        this.deRef(internal.node, internal.property);
+    }
+
+    public ref<P extends BlendingProperty> (node: Node, property: P): PropertyBlendStateTypeMap[P] {
         let nodeBlendState = this._nodeBlendStates.get(node);
         if (!nodeBlendState) {
-            nodeBlendState = { dirty: false, properties: {} };
+            nodeBlendState = new NodeBlendState();
             this._nodeBlendStates.set(node, nodeBlendState);
         }
-        let propertyBlendState = nodeBlendState.properties[property];
-        if (!propertyBlendState) {
-            propertyBlendState = nodeBlendState.properties[property] = new PropertyBlendState(
-                nodeBlendState,
-                (isVec3Property(property) ? new Vec3() : new Quat()) as any,
-            );
-        }
-        ++propertyBlendState.refCount;
-        return propertyBlendState;
+        const propertyBlendState = nodeBlendState.refProperty(property);
+        return propertyBlendState as PropertyBlendStateTypeMap[P];
     }
 
     public deRef (node: Node, property: BlendingProperty) {
@@ -60,213 +72,243 @@ export class BlendStateBuffer {
         if (!nodeBlendState) {
             return;
         }
-        const propertyBlendState = nodeBlendState.properties[property];
-        if (!propertyBlendState) {
-            return;
-        }
-        --propertyBlendState.refCount;
-        if (propertyBlendState.refCount > 0) {
-            return;
-        }
-        delete nodeBlendState.properties[property];
-        if (isEmptyNodeBlendState(nodeBlendState)) {
+        nodeBlendState.deRefProperty(property);
+        if (nodeBlendState.empty) {
             this._nodeBlendStates.delete(node);
         }
     }
 
     public apply () {
         this._nodeBlendStates.forEach((nodeBlendState, node) => {
-            if (!nodeBlendState.dirty) {
-                return;
-            }
-            nodeBlendState.dirty = false;
-            const { position, scale, rotation, eulerAngles } = nodeBlendState.properties;
-            let t: Vec3 | undefined;
-            let s: Vec3 | undefined;
-            let r: Quat | Vec3 | undefined;
-            let anyChanged = false;
-            if (position && position.weight !== 0) {
-                position.weight = 0;
-                t = position.value;
-                anyChanged = true;
-            }
-            if (scale && scale.weight !== 0) {
-                scale.weight = 0;
-                s = scale.value;
-                anyChanged = true;
-            }
-
-            // Note: rotation and eulerAngles can not co-exist.
-            if (rotation && rotation.weight !== 0) {
-                rotation.weight = 0;
-                r = rotation.value;
-                anyChanged = true;
-            }
-            if (eulerAngles && eulerAngles.weight !== 0) {
-                eulerAngles.weight = 0;
-                r = eulerAngles.value;
-                anyChanged = true;
-            }
-
-            if (anyChanged) {
-                node.setRTS(r, t, s);
-            }
+            nodeBlendState.apply(node);
         });
-
-        this._states.forEach((state) => {
-            state.onBlendFinished();
-        });
-    }
-
-    public bindState (state: AnimationState) {
-        this._states.add(state);
-    }
-
-    public unbindState (state: AnimationState) {
-        this._states.delete(state);
     }
 }
 
-export type IBlendStateWriter = IValueProxyFactory & { destroy: () => void };
-
-export interface IBlendStateWriterHost {
+export interface BlendStateWriterHost {
     readonly weight: number;
-    readonly enabled: boolean;
 }
 
-export function createBlendStateWriter<P extends BlendingProperty> (
-    blendState: BlendStateBuffer,
-    node: Node,
-    property: P,
-    host: IBlendStateWriterHost,
-    /**
-     * True if this writer will write constant value each time.
-     */
-    constants: boolean,
-): IBlendStateWriter {
-    const blendFunction: BlendFunction<BlendingPropertyValue<P>> =        isVec3Property(property) ? additive3D as any : additiveQuat as any;
-    let propertyBlendState: PropertyBlendState<BlendingPropertyValue<P>> | null = blendState.ref(node, property);
-    let isConstCacheValid = false;
-    let lastWeight = -1;
-    return {
-        destroy () {
-            assertIsNonNullable(propertyBlendState);
-            if (propertyBlendState) {
-                blendState.deRef(node, property);
-                propertyBlendState = null;
-            }
-        },
-        forTarget: () => ({
-            /**
-                 * Gets the node's actual property for now.
-                 */
-            get: () => node[property],
-            set: (value: BlendingPropertyValue<P>) => {
-                if (!propertyBlendState || !host.enabled) {
-                    return;
-                }
-                const weight = host.weight;
-                if (constants) {
-                    if (weight !== 1
-                            || weight !== lastWeight) {
-                        // If there are multi writer for this property at this time,
-                        // or if the weight has been changed since last write,
-                        // we should invalidate the cache.
-                        isConstCacheValid = false;
-                    } else if (isConstCacheValid) {
-                        // Otherwise, we may keep to use the cache.
-                        // i.e we leave the weight to 0 to prevent the property from modifying.
-                        return;
-                    }
-                }
-                blendFunction(value, weight, propertyBlendState);
-                propertyBlendState.weight += weight;
-                propertyBlendState.markAsDirty();
-                isConstCacheValid = true;
-                lastWeight = weight;
-            },
-        }),
-    };
+class BlendStateWriterInternal<P extends BlendingProperty> implements IBoundTarget {
+    constructor (
+        private _node: Node,
+        private _property: P,
+        private _propertyBlendState: PropertyBlendStateTypeMap[P],
+        private _host: BlendStateWriterHost,
+        private _constants: boolean,
+    ) {
+    }
+
+    get node () {
+        return this._node;
+    }
+
+    get property () {
+        return this._property;
+    }
+
+    public getValue () {
+        return this._node[this._property];
+    }
+
+    public setValue (value: BlendingPropertyValue<P>) {
+        const {
+            _propertyBlendState: propertyBlendState,
+            _host: host,
+        } = this;
+        const weight = host.weight;
+        // @ts-expect-error Complex typing
+        propertyBlendState.blend(value, weight);
+    }
 }
 
-function isQuatProperty (property: BlendingProperty) {
-    return property === 'rotation';
-}
+export type BlendStateWriter<P extends BlendingProperty> = Omit<BlendStateWriterInternal<P>, 'node' | 'property'>;
 
-function isVec3Property (property: BlendingProperty) {
-    return !isQuatProperty(property);
-}
+type BlendingProperty = keyof NodeBlendState['_properties'];
 
-type BlendingProperty = keyof NodeBlendState['properties'];
-
-type BlendingPropertyValue<P extends BlendingProperty> = NonNullable<NodeBlendState['properties'][P]>['value'];
+type BlendingPropertyValue<P extends BlendingProperty> = NonNullable<NodeBlendState['_properties'][P]>['blendedValue'];
 
 class PropertyBlendState<T> {
-    public weight = 0;
-    public value: T;
+    /**
+     * Sum of all weights to blend.
+     */
+    public blendedWeight = 0.0;
+
+    /**
+     * Current blended value.
+     */
+    public blendedValue: T;
 
     /**
      * How many writer reference this property.
      */
     public refCount = 0;
 
-    private _node: NodeBlendState;
-
-    constructor (node: NodeBlendState, value: T) {
-        this._node = node;
-        this.value = value;
-    }
-
-    public markAsDirty () {
-        this._node.dirty = true;
+    constructor (value: T) {
+        this.blendedValue = value;
     }
 }
 
-interface NodeBlendState {
-    dirty: boolean;
-    properties: {
-        position?: PropertyBlendState<Vec3>;
-        rotation?: PropertyBlendState<Quat>;
-        eulerAngles?: PropertyBlendState<Vec3>;
-        scale?: PropertyBlendState<Vec3>;
-    };
+class Vec3PropertyBlendState extends PropertyBlendState<Vec3> {
+    constructor () {
+        super(new Vec3());
+    }
+
+    public blend (value: Readonly<Vec3>, weight: number) {
+        const { blendedValue } = this;
+        if (weight === 1.0) {
+            Vec3.copy(blendedValue, value);
+        } else {
+            Vec3.scaleAndAdd(blendedValue, blendedValue, value, weight);
+        }
+        this.blendedWeight += weight;
+    }
+
+    public reset () {
+        this.blendedWeight = 0.0;
+        Vec3.zero(this.blendedValue);
+    }
 }
 
-function isEmptyNodeBlendState (nodeBlendState: NodeBlendState) {
-    // Which is equal to `Object.keys(nodeBlendState.properties).length === 0`.
-    return !nodeBlendState.properties.position
-        && !nodeBlendState.properties.rotation
-        && !nodeBlendState.properties.eulerAngles
-        && !nodeBlendState.properties.scale;
+class QuatPropertyBlendState extends PropertyBlendState<Quat> {
+    constructor () {
+        super(new Quat());
+    }
+
+    public blend (value: Readonly<Quat>, weight: number) {
+        const { blendedValue, blendedWeight } = this;
+        if (weight === 1.0) {
+            Quat.copy(blendedValue, value);
+        } else {
+            const t = weight / (blendedWeight + weight);
+            Quat.slerp(blendedValue, blendedValue, value, t);
+        }
+        this.blendedWeight += weight;
+    }
+
+    public reset () {
+        this.blendedWeight = 0.0;
+        Quat.identity(this.blendedValue);
+    }
 }
 
-/**
- * If propertyBlendState.weight equals to zero, the propertyBlendState.value is dirty.
- * You shall handle this situation correctly.
- */
-type BlendFunction<T> = (value: T, weight: number, propertyBlendState: PropertyBlendState<T>) => T;
-
-function additive3D (value: Vec3, weight: number, propertyBlendState: PropertyBlendState<Vec3>) {
-    if (propertyBlendState.weight === 0) {
-        Vec3.zero(propertyBlendState.value);
-    }
-    if (weight === 0) {
-        return propertyBlendState.value;
-    } else if (weight === 1) {
-        return Vec3.copy(propertyBlendState.value, value);
-    }
-    return Vec3.scaleAndAdd(propertyBlendState.value, propertyBlendState.value, value, weight);
+interface PropertyBlendStateTypeMap {
+    'rotation': QuatPropertyBlendState;
+    'position': Vec3PropertyBlendState;
+    'scale': Vec3PropertyBlendState;
+    'eulerAngles': Vec3PropertyBlendState;
 }
 
-function additiveQuat (value: Quat, weight: number, propertyBlendState: PropertyBlendState<Quat>) {
-    if (propertyBlendState.weight === 0) {
-        Quat.identity(propertyBlendState.value);
+class NodeBlendState {
+    get empty () {
+        const { _properties: properties } = this;
+        return !properties.position
+            && !properties.rotation
+            && !properties.eulerAngles
+            && !properties.scale;
     }
-    if (weight === 0) {
-        return propertyBlendState.value;
-    } else if (weight === 1) {
-        return Quat.copy(propertyBlendState.value, value);
+
+    public refProperty<P extends BlendingProperty> (property: BlendingProperty): PropertyBlendStateTypeMap[P] {
+        const { _properties: properties } = this;
+        let propertyBlendState: Vec3PropertyBlendState | QuatPropertyBlendState;
+        switch (property) {
+        default:
+        case 'position':
+        case 'scale':
+        case 'eulerAngles':
+            propertyBlendState = properties[property] ??= new Vec3PropertyBlendState();
+            break;
+        case 'rotation':
+            propertyBlendState = properties[property] ??= new QuatPropertyBlendState();
+            break;
+        }
+        ++propertyBlendState.refCount;
+        return propertyBlendState as PropertyBlendStateTypeMap[P];
     }
-    const t = weight / (propertyBlendState.weight + weight);
-    return Quat.slerp(propertyBlendState.value, propertyBlendState.value, value, t);
+
+    public deRefProperty (property: BlendingProperty) {
+        const { _properties: properties } = this;
+
+        const propertyBlendState = properties[property];
+        if (!propertyBlendState) {
+            return;
+        }
+
+        --propertyBlendState.refCount;
+        if (propertyBlendState.refCount > 0) {
+            return;
+        }
+
+        delete properties[property];
+    }
+
+    public apply (node: Node) {
+        const { _properties: { position, scale, rotation, eulerAngles } } = this;
+
+        let t: Vec3 | undefined;
+        let s: Vec3 | undefined;
+        let r: Quat | Vec3 | undefined;
+
+        let tFlags = false;
+        let sFlags = false;
+        let rFlags = false;
+        let eFlags = false;
+
+        if (position && position.blendedWeight) {
+            tFlags = true;
+            if (position.blendedWeight < 1.0) {
+                position.blend(node.position, 1.0 - position.blendedWeight);
+            }
+            t = position.blendedValue;
+        }
+
+        if (scale && scale.blendedWeight) {
+            sFlags = true;
+            if (scale.blendedWeight < 1.0) {
+                scale.blend(node.scale, 1.0 - scale.blendedWeight);
+            }
+            s = scale.blendedValue;
+        }
+
+        if (eulerAngles && eulerAngles.blendedWeight) {
+            eFlags = true;
+            if (eulerAngles.blendedWeight < 1.0) {
+                eulerAngles.blend(node.eulerAngles, 1.0 - eulerAngles.blendedWeight);
+            }
+            r = eulerAngles.blendedValue;
+        }
+
+        if (rotation && rotation.blendedWeight) {
+            rFlags = true;
+            if (rotation.blendedWeight < 1.0) {
+                rotation.blend(node.rotation, 1.0 - rotation.blendedWeight);
+            }
+            r = rotation.blendedValue;
+        }
+
+        if (r || t || s) {
+            node.setRTS(r, t, s);
+        }
+
+        // Reset transforms
+        if (tFlags) {
+            position!.reset();
+        }
+        if (sFlags) {
+            scale!.reset();
+        }
+        if (rFlags) {
+            rotation!.reset();
+        }
+        if (eFlags) {
+            eulerAngles!.reset();
+        }
+    }
+
+    private _properties: {
+        position?: PropertyBlendStateTypeMap['position'];
+        rotation?: PropertyBlendStateTypeMap['rotation'];
+        eulerAngles?: PropertyBlendStateTypeMap['eulerAngles'];
+        scale?: PropertyBlendStateTypeMap['scale'];
+    } = {};
 }
