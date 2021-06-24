@@ -56,10 +56,6 @@ class System {
         this.isNative = false;
         this.isBrowser = false;
 
-        // init isMobile and platform
-        this.platform = currentPlatform;
-        this.isMobile = !minigame.isDevTool;  // TODO: pc-game ?
-
         // init isLittleEndian
         this.isLittleEndian = (() => {
             const buffer = new ArrayBuffer(2);
@@ -78,8 +74,9 @@ class System {
             this.os = OS.ANDROID;
         } else if (minigamePlatform === 'ios') {
             this.os = OS.IOS;
+        } else if (minigamePlatform === 'windows') {
+            this.os = OS.WINDOWS;
         } else {
-            // TODO: pc-game ?
             this.os = OS.UNKNOWN;
         }
         let minigameSystem = minigameSysInfo.system.toLowerCase();
@@ -90,6 +87,10 @@ class System {
         const version = /[\d.]+/.exec(minigameSystem);
         this.osVersion = version ? version[0] : minigameSystem;
         this.osMainVersion = parseInt(this.osVersion);
+
+        // init isMobile and platform
+        this.platform = currentPlatform;
+        this.isMobile = this.os !== OS.WINDOWS;
 
         // init browserType and browserVersion
         this.browserType = BrowserType.UNKNOWN;

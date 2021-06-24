@@ -4,7 +4,7 @@ import { KeyboardEvent } from '../../../cocos/core/platform/event-manager/event-
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { KeyCode } from '../../../cocos/core/platform/event-manager/key-code';
 
-const nativeKeyCode2Keycode: Record<number, KeyCode> = {
+const nativeKeyCode2KeyCode: Record<number, KeyCode> = {
     12: KeyCode.NUM_LOCK,
     10048: KeyCode.NUM_0,
     10049: KeyCode.NUM_1,
@@ -23,7 +23,7 @@ const nativeKeyCode2Keycode: Record<number, KeyCode> = {
 };
 
 function getKeyCode (keyCode: number): KeyCode {
-    return nativeKeyCode2Keycode[keyCode] || keyCode;
+    return nativeKeyCode2KeyCode[keyCode] || keyCode;
 }
 
 export class KeyboardInputSource {
@@ -40,33 +40,33 @@ export class KeyboardInputSource {
 
     private _registerEvent () {
         jsb.onKeyDown = (event: jsb.KeyboardEvent) => {
-            const keycode = getKeyCode(event.keyCode);
-            if (!this._keyStateMap[keycode]) {
+            const keyCode = getKeyCode(event.keyCode);
+            if (!this._keyStateMap[keyCode]) {
                 const keyDownInputEvent = this._getInputEvent(event, KeyboardEvent.KEY_DOWN);
                 this._eventTarget.emit(KeyboardEvent.KEY_DOWN, keyDownInputEvent);
             }
             // @ts-expect-error Compability for key pressing callback
             const keyPressingInputEvent = this._getInputEvent(event, 'keydown');
             this._eventTarget.emit('keydown', keyPressingInputEvent);
-            this._keyStateMap[keycode] = true;
+            this._keyStateMap[keyCode] = true;
         };
         jsb.onKeyUp =  (event: jsb.KeyboardEvent) => {
-            const keycode = getKeyCode(event.keyCode);
+            const keyCode = getKeyCode(event.keyCode);
             const inputEvent: KeyboardInputEvent = {
                 type: KeyboardEvent.KEY_UP,
-                code: keycode,
+                code: keyCode,
                 timestamp: performance.now(),
             };
-            this._keyStateMap[keycode] = false;
+            this._keyStateMap[keyCode] = false;
             this._eventTarget.emit(KeyboardEvent.KEY_UP, inputEvent);
         };
     }
 
     private _getInputEvent (event: jsb.KeyboardEvent, eventType: KeyboardEvent) {
-        const keycode = getKeyCode(event.keyCode);
+        const keyCode = getKeyCode(event.keyCode);
         const inputEvent: KeyboardInputEvent = {
             type: eventType,
-            code: keycode,
+            code: keyCode,
             timestamp: performance.now(),
         };
         return inputEvent;
