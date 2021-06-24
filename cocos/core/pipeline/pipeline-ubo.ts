@@ -29,7 +29,7 @@ import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
-import { Shadows, ShadowType } from '../renderer/scene/shadows';
+import { PCFType, Shadows, ShadowType } from '../renderer/scene/shadows';
 import { getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene';

@@ -85,7 +85,7 @@ exports.methods = {
         // So it's sorted here, but that doesn't make sense
         // The logical way to do it would be to return a normal dump when querying for material
         if (!this.material.data[this.material.technique]) {
-            this.material.technique = 0;
+            this.$.technique.value = this.material.technique = 0;
         }
         const technique = materialTechniquePolyfill(this.material.data[this.material.technique]);
         this.technique = technique;
@@ -156,6 +156,7 @@ exports.methods = {
                         pass.switch.value = e.target.value;
                     });
                     setReadonly(this.asset.readonly, $checkbox);
+                    $checkbox.value = pass.switch.value;
 
                     const $section = $container.$children[i].querySelector('ui-section');
                     $section.appendChild($checkbox);
@@ -317,6 +318,8 @@ exports.ready = async function() {
         this.material.data = await Editor.Message.request('scene', 'query-effect', this.material.effect);
 
         this.updateTechniqueOptions();
+        this.$.technique.value = 0;
+
         this.updatePasses();
         this.setDirtyData();
         this.dispatch('change');
