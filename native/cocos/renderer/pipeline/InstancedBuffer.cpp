@@ -122,7 +122,14 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
     auto *indexBuffer   = sourceIA->getIndexBuffer();
 
     for (const auto &attribute : model->getInstanceAttributes()) {
-        attributes.emplace_back(attribute);
+        attributes.emplace_back(gfx::Attribute{
+            attribute.name,
+            attribute.format,
+            attribute.isNormalized,
+            static_cast<uint>(vertexBuffers.size()), // stream
+            true,
+            attribute.location
+            });
     }
 
     auto *data = static_cast<uint8_t *>(CC_MALLOC(newSize));
