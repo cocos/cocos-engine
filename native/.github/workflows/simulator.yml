@@ -1,6 +1,6 @@
 name: 🖥️ Simulator
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   win_gen_simulator:

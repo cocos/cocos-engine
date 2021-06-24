@@ -112,7 +112,6 @@ set -e
 set -x
 
 git add -f --all "$JS_AUTO_GENERATED_DIR"
-git add -f "$CCFILES_AUTO_GENERATED_DIR"
 git checkout -b "$COCOS_BRANCH"
 git commit -m "$COMMITTAG"
 
