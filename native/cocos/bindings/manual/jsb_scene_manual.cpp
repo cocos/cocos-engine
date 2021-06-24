@@ -60,11 +60,11 @@ static bool js_scene_RenderScene_updateBatches(se::State& s) // NOLINT(readabili
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_updateBatches : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
+    const auto&    args = s.args();
+    size_t         argc = args.size();
+    CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        HolderType<std::vector<cc::scene::DrawBatch2D *>, false> arg0 = {};
+        HolderType<std::vector<cc::scene::DrawBatch2D*>, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_RenderScene_updateBatches : Error processing arguments");
         cobj->updateBatches(std::move(arg0.value()));
@@ -87,7 +87,8 @@ static bool js_scene_Model_setInstancedAttrBlock(se::State& s) // NOLINT(readabi
 
         // instanced buffer
         uint8_t* instanceBuff{nullptr};
-        args[0].toObject()->getArrayBufferData(&instanceBuff, nullptr);
+        size_t   instanceBufferSize;
+        args[0].toObject()->getArrayBufferData(&instanceBuff, &instanceBufferSize);
 
         // views
         se::Object* dataObj = args[1].toObject();
@@ -102,7 +103,7 @@ static bool js_scene_Model_setInstancedAttrBlock(se::State& s) // NOLINT(readabi
         for (uint32_t i = 0; i < length; i++) {
             dataObj->getArrayElement(i, &value);
             uint8_t* viewBuff{nullptr};
-            value.toObject()->getArrayBufferData(&viewBuff, nullptr);
+            value.toObject()->getTypedArrayData(&viewBuff, nullptr);
             viewsData[i] = viewBuff;
         }
 
@@ -114,7 +115,7 @@ static bool js_scene_Model_setInstancedAttrBlock(se::State& s) // NOLINT(readabi
         HolderType<std::vector<cc::gfx::Attribute>, true> arg2 = {};
         ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_Model_setInstancedAttrBlock : Error processing arguments");
-        cobj->setInstancedAttrBlock(instanceBuff, &attrBlock, arg2.value());
+        cobj->setInstancedAttrBlock(instanceBuff, static_cast<uint32_t>(instanceBufferSize), std::move(attrBlock), arg2.value());
 
         return true;
     }

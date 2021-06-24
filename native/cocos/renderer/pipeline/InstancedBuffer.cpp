@@ -24,12 +24,12 @@
 ****************************************************************************/
 
 #include "InstancedBuffer.h"
+#include "Define.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXInputAssembler.h"
-#include "Define.h"
 
 namespace cc {
 namespace pipeline {
@@ -66,7 +66,7 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
 }
 
 void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *subModel, uint passIdx, gfx::Shader *shaderImplant) {
-    uint        stride          = 0;
+    auto        stride          = model->getInstancedBufferSize();
     const auto *instancedBuffer = model->getInstancedBuffer();
 
     if (!stride) return; // we assume per-instance attributes are always present
@@ -93,12 +93,9 @@ void InstancedBuffer::merge(const scene::Model *model, const scene::SubModel *su
         }
         if (instance.count >= instance.capacity) { // resize buffers
             instance.capacity <<= 1;
-            const auto  newSize = instance.stride * instance.capacity;
-            auto *const oldData = instance.data;
-            instance.data       = static_cast<uint8_t *>(CC_MALLOC(newSize));
-            memcpy(instance.data, oldData, instance.vb->getSize());
+            const auto newSize = instance.stride * instance.capacity;
+            instance.data      = static_cast<uint8_t *>(CC_REALLOC(instance.data, newSize));
             instance.vb->resize(newSize);
-            CC_FREE(oldData);
         }
         if (instance.shader != shader) {
             instance.shader = shader;

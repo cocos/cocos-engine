@@ -32,14 +32,14 @@ Model::~Model() {
     delete _worldBounds;
 }
 
-void Model::uploadMat4AsVec4x3(const Mat4 &mat, uint8_t *v1, uint8_t *v2, uint8_t *v3) {
-    uint size = sizeof(uint8_t) * 4;
+void Model::uploadMat4AsVec4x3(const Mat4 &mat, float *v1, float *v2, float *v3) {
+    uint size = sizeof(float) * 4;
     memcpy(v1, mat.m, size);
-    v1[3] = static_cast<uint8_t>(mat.m[12]);
     memcpy(v2, mat.m + 4, size);
-    v2[3] = static_cast<uint8_t>(mat.m[13]);
     memcpy(v3, mat.m + 8, size);
-    v3[3] = static_cast<uint8_t>(mat.m[14]);
+    v1[3] = mat.m[12];
+    v2[3] = mat.m[13];
+    v3[3] = mat.m[14];
 }
 
 void Model::updateTransform(uint32_t /*stamp*/) {
@@ -68,8 +68,11 @@ void Model::updateUBOs(uint32_t stamp) {
     Mat4                                         mat4;
     std::array<float, pipeline::UBOLocal::COUNT> bufferView;
     if (idx >= 0) {
-        std::vector<uint8_t *> &attrs = _instanceAttributeBlock->views;
-        uploadMat4AsVec4x3(worldMatrix, attrs[idx], attrs[idx + 1], attrs[idx + 2]);
+        const std::vector<uint8_t *> &attrs = _instanceAttributeBlock.views;
+        uploadMat4AsVec4x3(worldMatrix,
+                           reinterpret_cast<float *>(attrs[idx]),
+                           reinterpret_cast<float *>(attrs[idx + 1]),
+                           reinterpret_cast<float *>(attrs[idx + 2]));
     } else if (_localBuffer) {
         memcpy(bufferView.data() + pipeline::UBOLocal::MAT_WORLD_OFFSET, worldMatrix.m, sizeof(Mat4));
         Mat4::inverseTranspose(worldMatrix, &mat4);

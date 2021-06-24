@@ -36,11 +36,11 @@
     #include <unordered_map>
 
 namespace se {
-
+//NOLINTNEXTLINE
 std::unique_ptr<std::unordered_map<Object *, void *>> __objectMap; // Currently, the value `void*` is always nullptr
 
 namespace {
-v8::Isolate *__isolate      = nullptr;
+v8::Isolate *__isolate      = nullptr; //NOLINT
 uint32_t     nativeObjectId = 0;
 } // namespace
 
@@ -163,7 +163,7 @@ Object *Object::getObjectWithPtr(void *ptr) {
     return obj;
 }
 
-Object *Object::_createJSObject(Class *cls, v8::Local<v8::Object> obj) {
+Object *Object::_createJSObject(Class *cls, v8::Local<v8::Object> obj) { // NOLINT(readability-identifier-naming)
     auto *ret = new Object();
     if (!ret->init(cls, obj)) {
         delete ret;
@@ -249,8 +249,8 @@ Object *Object::createTypedArray(TypedArrayType type, const void *data, size_t b
     return obj;
 }
 
-Object *Object::createUint8TypedArray(uint8_t *data, size_t dataCount) {
-    return createTypedArray(TypedArrayType::UINT8, data, dataCount);
+Object *Object::createUint8TypedArray(uint8_t *bytes, size_t byteLength) {
+    return createTypedArray(TypedArrayType::UINT8, bytes, byteLength);
 }
 
 Object *Object::createJSONObject(const std::string &jsonStr) {
@@ -382,7 +382,7 @@ bool Object::isFunction() const {
     return const_cast<Object *>(this)->_obj.handle(__isolate)->IsCallable();
 }
 
-bool Object::_isNativeFunction() const {
+bool Object::_isNativeFunction() const { // NOLINT(readability-identifier-naming)
     if (isFunction()) {
         std::string info = toString();
         if (info.find("[native code]") != std::string::npos) {
@@ -428,7 +428,9 @@ bool Object::getTypedArrayData(uint8_t **ptr, size_t *length) const {
     v8::Local<v8::TypedArray> arr          = v8::Local<v8::TypedArray>::Cast(obj);
     const auto &              backingStore = arr->Buffer()->GetBackingStore();
     *ptr                                   = static_cast<uint8_t *>(backingStore->Data()) + arr->ByteOffset();
-    *length                                = arr->ByteLength();
+    if (length) {
+        *length = arr->ByteLength();
+    }
     return true;
 }
 
@@ -475,11 +477,11 @@ void Object::clearPrivateData(bool clearMapping) {
     }
 }
 
-v8::Local<v8::Object> Object::_getJSObject() const {
+v8::Local<v8::Object> Object::_getJSObject() const { // NOLINT(readability-identifier-naming)
     return const_cast<Object *>(this)->_obj.handle(__isolate);
 }
 
-ObjectWrap &Object::_getWrap() {
+ObjectWrap &Object::_getWrap() { // NOLINT(readability-identifier-naming)
     return _obj;
 }
 
@@ -636,11 +638,11 @@ bool Object::getAllKeys(std::vector<std::string> *allKeys) const {
     return true;
 }
 
-Class *Object::_getClass() const {
+Class *Object::_getClass() const { // NOLINT(readability-identifier-naming)
     return _cls;
 }
 
-void Object::_setFinalizeCallback(V8FinalizeFunc finalizeCb) {
+void Object::_setFinalizeCallback(V8FinalizeFunc finalizeCb) { // NOLINT(readability-identifier-naming)
     assert(finalizeCb != nullptr);
     _finalizeCb = finalizeCb;
 }
