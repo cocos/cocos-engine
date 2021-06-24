@@ -515,7 +515,7 @@ export class Model {
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
-            const attr = attrs.attributes[j];
+            const attr = new Attribute();
             attr.format = attribute.format;
             attr.name = attribute.name;
             attr.isNormalized = attribute.isNormalized;
@@ -523,7 +523,8 @@ export class Model {
             attrs.attributes.push(attr);
 
             const info = FormatInfos[attribute.format];
-            const typeViewArray = new (getTypedArrayConstructor(info))(attrs.buffer, offset, info.count);
+
+            const typeViewArray = new (getTypedArrayConstructor(info))(attrs.buffer.buffer, offset, info.count);
             attrs.views.push(typeViewArray);
             if (JSB) {
                 nativeViews.push(typeViewArray.buffer);
