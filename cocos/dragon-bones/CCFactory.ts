@@ -55,7 +55,7 @@ export class CCFactory extends BaseFactory implements ISchedulable {
     initUpdate (dt?: number) {
         // director.getScheduler().enableForTarget(this);
         Scheduler.enableForTarget(this);
-        director.getScheduler().scheduleUpdate(this, System.Priority.SCHEDULED, false);
+        director.getScheduler().scheduleUpdate(this, System.Priority.SCHEDULER, false);
     }
 
     update (dt: number) {

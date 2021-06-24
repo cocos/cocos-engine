@@ -40,7 +40,7 @@ export default class System implements ISchedulable {
         LOW: 0,
         MEDIUM: 100,
         HIGH: 1000,
-        SCHEDULED: (1 << 31) >>> 0,
+        SCHEDULER: (1 << 31) >>> 0,
     });
 
     protected _id = '';

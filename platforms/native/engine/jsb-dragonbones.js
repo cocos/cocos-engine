@@ -524,7 +524,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
         this.syncTransform(true);
         this._flushAssembler();
-        armatureSystem.instance.registerArmature(this);
+        armatureSystem.getInstance().add(this);
         middleware.retain();
     };
 
@@ -536,7 +536,7 @@ const cacheManager = require('./jsb-cache-manager');
         if (this._armature && !this.isAnimationCached()) {
             this._factory.remove(this._armature);
         }
-        armatureSystem.instance.unregisterArmature(this);
+        armatureSystem.getInstance().remove(this);
         middleware.release();
     };
 

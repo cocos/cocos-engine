@@ -1,4 +1,4 @@
-import { director, Director } from '../core/director';
+import { director } from '../core/director';
 import { System } from '../core/components';
 import { Skeleton } from './skeleton';
 
@@ -11,59 +11,48 @@ export class SkeletonSystem extends System {
      */
     static readonly ID = 'SKELETON';
 
+    private static instance: SkeletonSystem;
+
+    private constructor () {
+        super();
+    }
+
     /**
      * @en
-     * Gets the instance of the tween system.
+     * Gets the instance of the Spine Skeleton system.
      * @zh
-     * 获取Spine骨骼系统的实例。
+     * 获取 Spine 骨骼系统的单例。
      */
-
-    public static get instance (): SkeletonSystem {
-        return SkeletonSystem._instance;
+    public static getInstance () {
+        if (!SkeletonSystem.instance) {
+            SkeletonSystem.instance = new SkeletonSystem();
+            director.registerSystem(SkeletonSystem.ID, SkeletonSystem.instance, System.Priority.SCHEDULER);
+        }
+        return SkeletonSystem.instance;
     }
 
-    public static set instance (sys:SkeletonSystem) {
-        SkeletonSystem._instance = sys;
-    }
+    private static skeletons = new Set<Skeleton>();
 
-    private static _instance: SkeletonSystem;
-
-    private _skeletons = new Set<Skeleton>();
-
-    public registerSkeleton (skeleton: Skeleton | null) {
+    public add (skeleton: Skeleton | null) {
         if (!skeleton) return;
-        if (!this._skeletons.has(skeleton)) {
-            this._skeletons.add(skeleton);
+        if (!SkeletonSystem.skeletons.has(skeleton)) {
+            SkeletonSystem.skeletons.add(skeleton);
         }
     }
 
-    public unregisterSkeleton (skeleton: Skeleton | null) {
+    public remove (skeleton: Skeleton | null) {
         if (!skeleton) return;
-        if (this._skeletons.has(skeleton)) {
-            this._skeletons.delete(skeleton);
+        if (SkeletonSystem.skeletons.has(skeleton)) {
+            SkeletonSystem.skeletons.delete(skeleton);
         }
     }
 
     postUpdate (dt: number) {
-        if (!this._skeletons) {
+        if (!SkeletonSystem.skeletons) {
             return;
         }
-        this._skeletons.forEach((skeleton) => {
+        SkeletonSystem.skeletons.forEach((skeleton) => {
             skeleton.updateAnimation(dt);
         });
     }
-}
-
-director.once(Director.EVENT_INIT, () => {
-    initSkeletonSystem();
-});
-
-function initSkeletonSystem () {
-    const oldIns = SkeletonSystem.instance;
-    if (oldIns) {
-        director.unregisterSystem(oldIns);
-    }
-    const sys = new SkeletonSystem();
-    (SkeletonSystem.instance as any) = sys;
-    director.registerSystem(SkeletonSystem.ID, sys, System.Priority.SCHEDULED);
 }

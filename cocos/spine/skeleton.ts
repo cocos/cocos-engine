@@ -1244,12 +1244,12 @@ export class Skeleton extends Renderable2D {
     public onEnable () {
         super.onEnable();
         this._flushAssembler();
-        SkeletonSystem.instance.registerSkeleton(this);
+        SkeletonSystem.getInstance().add(this);
     }
 
     public onDisable () {
         super.onDisable();
-        SkeletonSystem.instance.unregisterSkeleton(this);
+        SkeletonSystem.getInstance().remove(this);
     }
 
     public onDestroy () {

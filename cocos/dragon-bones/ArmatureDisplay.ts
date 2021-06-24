@@ -714,7 +714,7 @@ export class ArmatureDisplay extends Renderable2D {
             this._factory!._dragonBones.clock.add(this._armature);
         }
         this._flushAssembler();
-        ArmatureSystem.instance.registerArmature(this);
+        ArmatureSystem.getInstance().add(this);
     }
 
     onDisable () {
@@ -723,7 +723,7 @@ export class ArmatureDisplay extends Renderable2D {
         if (this._armature && !this.isAnimationCached()) {
             this._factory!._dragonBones.clock.remove(this._armature);
         }
-        ArmatureSystem.instance.unregisterArmature(this);
+        ArmatureSystem.getInstance().remove(this);
     }
 
     _emitCacheCompleteEvent () {
@@ -758,7 +758,7 @@ export class ArmatureDisplay extends Renderable2D {
 
         const frameTime = ArmatureCache.FrameTime;
 
-        // Animation Start, the event diffrent from dragonbones inner event,
+        // Animation Start, the event different from dragonbones inner event,
         // It has no event object.
         if (this._accTime === 0 && this._playCount === 0) {
             this._eventTarget.emit(EventObject.START);

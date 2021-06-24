@@ -1,4 +1,4 @@
-import { director, Director } from '../core/director';
+import { director } from '../core/director';
 import { System } from '../core/components';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { legacyCC } from '../core/global-exports';
@@ -12,60 +12,50 @@ export class ArmatureSystem extends System {
      */
     static readonly ID = 'ARMATURE';
 
+    private static instance: ArmatureSystem;
+
+    private constructor () {
+        super();
+    }
+
     /**
      * @en
-     * Gets the instance of the tween system.
+     * Gets the instance of the ArmatureSystem system.
      * @zh
-     * 获取Spine骨骼系统的实例。
+     * 获取 Dragonbones Armature系统的单例。
      */
-
-    public static get instance (): ArmatureSystem {
-        return ArmatureSystem._instance;
+    public static getInstance () {
+        if (!ArmatureSystem.instance) {
+            ArmatureSystem.instance = new ArmatureSystem();
+            director.registerSystem(ArmatureSystem.ID, ArmatureSystem.instance, System.Priority.SCHEDULER);
+        }
+        return ArmatureSystem.instance;
     }
 
-    public static set instance (sys:ArmatureSystem) {
-        ArmatureSystem._instance = sys;
-    }
+    private static armatures = new Set<ArmatureDisplay>();
 
-    private static _instance: ArmatureSystem;
-
-    private _armatures = new Set<ArmatureDisplay>();
-
-    public registerArmature (armature: ArmatureDisplay | null) {
-        if (!armature) return;
-        if (!this._armatures.has(armature)) {
-            this._armatures.add(armature);
+    public add (skeleton: ArmatureDisplay | null) {
+        if (!skeleton) return;
+        if (!ArmatureSystem.armatures.has(skeleton)) {
+            ArmatureSystem.armatures.add(skeleton);
         }
     }
 
-    public unregisterArmature (armature: ArmatureDisplay | null) {
-        if (!armature) return;
-        if (this._armatures.has(armature)) {
-            this._armatures.delete(armature);
+    public remove (skeleton: ArmatureDisplay | null) {
+        if (!skeleton) return;
+        if (ArmatureSystem.armatures.has(skeleton)) {
+            ArmatureSystem.armatures.delete(skeleton);
         }
     }
 
     postUpdate (dt: number) {
-        if (!this._armatures) {
+        if (!ArmatureSystem.armatures) {
             return;
         }
-        this._armatures.forEach((armature) => {
-            armature.updateAnimation(dt);
+        ArmatureSystem.armatures.forEach((skeleton) => {
+            skeleton.updateAnimation(dt);
         });
     }
 }
 
-director.once(Director.EVENT_INIT, () => {
-    initArmatureSystem();
-});
-
-function initArmatureSystem () {
-    const oldIns = ArmatureSystem.instance;
-    if (oldIns) {
-        director.unregisterSystem(oldIns);
-    }
-    const sys = new ArmatureSystem();
-    (ArmatureSystem.instance as any) = sys;
-    director.registerSystem(ArmatureSystem.ID, sys, System.Priority.SCHEDULED);
-}
 legacyCC.internal.ArmatureSystem = ArmatureSystem;

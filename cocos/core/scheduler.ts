@@ -779,7 +779,7 @@ export class Scheduler extends System {
      * 不要调用此函数，除非你确定你在做什么。
      */
     public unscheduleAll () {
-        this.unscheduleAllWithMinPriority(System.Priority.SCHEDULED);
+        this.unscheduleAllWithMinPriority(System.Priority.SCHEDULER);
     }
 
     /**
@@ -891,7 +891,7 @@ export class Scheduler extends System {
      * 不要调用这个方法，除非你知道你正在做什么。
      */
     public pauseAllTargets () {
-        return this.pauseAllTargetsWithMinPriority(System.Priority.SCHEDULED);
+        return this.pauseAllTargetsWithMinPriority(System.Priority.SCHEDULER);
     }
 
     /**
