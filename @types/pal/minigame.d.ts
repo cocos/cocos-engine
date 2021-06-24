@@ -3,6 +3,7 @@ declare module 'pal/minigame' {
     export interface IMiniGame {
         // platform related
         wx?: WeChatAPI;
+        tt?: ByteDanceAPI;
 
         // system
         isDevTool: boolean;
@@ -79,6 +80,9 @@ declare module 'pal/minigame' {
         deltaX: number;
         deltaY: number;
         deltaZ: number;
+    }
+    interface ByteDanceAPI {
+        getAudioContext?: () => AudioContext;
     }
 
     export type AccelerometerIntervalMode = 'game' | 'ui' | 'normal';
