@@ -1355,6 +1355,25 @@ static bool js_scene_Model_getInstancedBuffer(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_Model_getInstancedBuffer)
 
+static bool js_scene_Model_getInstancedBufferSize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstancedBufferSize : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        unsigned int result = cobj->getInstancedBufferSize();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Model_getInstancedBufferSize : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Model_getInstancedBufferSize)
+
 static bool js_scene_Model_getInstmatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -1809,6 +1828,7 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("getInstanceAttributes", _SE(js_scene_Model_getInstanceAttributes));
     cls->defineFunction("getInstancedAttributeBlock", _SE(js_scene_Model_getInstancedAttributeBlock));
     cls->defineFunction("getInstancedBuffer", _SE(js_scene_Model_getInstancedBuffer));
+    cls->defineFunction("getInstancedBufferSize", _SE(js_scene_Model_getInstancedBufferSize));
     cls->defineFunction("getInstmatWorldIdx", _SE(js_scene_Model_getInstmatWorldIdx));
     cls->defineFunction("getLocalData", _SE(js_scene_Model_getLocalData));
     cls->defineFunction("getModelBounds", _SE(js_scene_Model_getModelBounds));

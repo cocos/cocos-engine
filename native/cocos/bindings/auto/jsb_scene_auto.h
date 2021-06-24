@@ -132,6 +132,7 @@ SE_DECLARE_FUNC(js_scene_Model_getEnabled);
 SE_DECLARE_FUNC(js_scene_Model_getInstanceAttributes);
 SE_DECLARE_FUNC(js_scene_Model_getInstancedAttributeBlock);
 SE_DECLARE_FUNC(js_scene_Model_getInstancedBuffer);
+SE_DECLARE_FUNC(js_scene_Model_getInstancedBufferSize);
 SE_DECLARE_FUNC(js_scene_Model_getInstmatWorldIdx);
 SE_DECLARE_FUNC(js_scene_Model_getLocalData);
 SE_DECLARE_FUNC(js_scene_Model_getModelBounds);

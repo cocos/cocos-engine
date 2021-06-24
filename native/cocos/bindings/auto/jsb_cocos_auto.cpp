@@ -1228,7 +1228,7 @@ static bool js_engine_CanvasRenderingContext2D_setFillStyle(se::State& s) // NOL
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setFillStyle)
+SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setFillStyle)
 
 static bool js_engine_CanvasRenderingContext2D_setFont(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1247,7 +1247,7 @@ static bool js_engine_CanvasRenderingContext2D_setFont(se::State& s) // NOLINT(r
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setFont)
+SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setFont)
 
 static bool js_engine_CanvasRenderingContext2D_setGlobalCompositeOperation(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1266,7 +1266,7 @@ static bool js_engine_CanvasRenderingContext2D_setGlobalCompositeOperation(se::S
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setGlobalCompositeOperation)
+SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setGlobalCompositeOperation)
 
 static bool js_engine_CanvasRenderingContext2D_setHeight(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1285,7 +1285,7 @@ static bool js_engine_CanvasRenderingContext2D_setHeight(se::State& s) // NOLINT
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setHeight)
+SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setHeight)
 
 static bool js_engine_CanvasRenderingContext2D_setLineCap(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1304,7 +1304,7 @@ static bool js_engine_CanvasRenderingContext2D_setLineCap(se::State& s) // NOLIN
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setLineCap)
+SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setLineCap)
 
 static bool js_engine_CanvasRenderingContext2D_setLineJoin(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1323,7 +1323,7 @@ static bool js_engine_CanvasRenderingContext2D_setLineJoin(se::State& s) // NOLI
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setLineJoin)
+SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setLineJoin)
 
 static bool js_engine_CanvasRenderingContext2D_setLineWidth(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1342,7 +1342,7 @@ static bool js_engine_CanvasRenderingContext2D_setLineWidth(se::State& s) // NOL
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setLineWidth)
+SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setLineWidth)
 
 static bool js_engine_CanvasRenderingContext2D_setStrokeStyle(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1361,7 +1361,7 @@ static bool js_engine_CanvasRenderingContext2D_setStrokeStyle(se::State& s) // N
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setStrokeStyle)
+SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setStrokeStyle)
 
 static bool js_engine_CanvasRenderingContext2D_setTextAlign(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1380,7 +1380,7 @@ static bool js_engine_CanvasRenderingContext2D_setTextAlign(se::State& s) // NOL
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setTextAlign)
+SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setTextAlign)
 
 static bool js_engine_CanvasRenderingContext2D_setTextBaseline(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1399,7 +1399,7 @@ static bool js_engine_CanvasRenderingContext2D_setTextBaseline(se::State& s) // 
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setTextBaseline)
+SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setTextBaseline)
 
 static bool js_engine_CanvasRenderingContext2D_setTransform(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1447,7 +1447,7 @@ static bool js_engine_CanvasRenderingContext2D_setWidth(se::State& s) // NOLINT(
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_setWidth)
+SE_BIND_PROP_SET(js_engine_CanvasRenderingContext2D_setWidth)
 
 static bool js_engine_CanvasRenderingContext2D_stroke(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1551,6 +1551,17 @@ bool js_register_engine_CanvasRenderingContext2D(se::Object* obj) // NOLINT(read
 {
     auto* cls = se::Class::create("CanvasRenderingContext2D", obj, nullptr, _SE(js_engine_CanvasRenderingContext2D_constructor));
 
+    cls->defineProperty("strokeStyle", nullptr, _SE(js_engine_CanvasRenderingContext2D_setStrokeStyle));
+    cls->defineProperty("lineWidth", nullptr, _SE(js_engine_CanvasRenderingContext2D_setLineWidth));
+    cls->defineProperty("lineCap", nullptr, _SE(js_engine_CanvasRenderingContext2D_setLineCap));
+    cls->defineProperty("globalCompositeOperation", nullptr, _SE(js_engine_CanvasRenderingContext2D_setGlobalCompositeOperation));
+    cls->defineProperty("fillStyle", nullptr, _SE(js_engine_CanvasRenderingContext2D_setFillStyle));
+    cls->defineProperty("height", nullptr, _SE(js_engine_CanvasRenderingContext2D_setHeight));
+    cls->defineProperty("width", nullptr, _SE(js_engine_CanvasRenderingContext2D_setWidth));
+    cls->defineProperty("textBaseline", nullptr, _SE(js_engine_CanvasRenderingContext2D_setTextBaseline));
+    cls->defineProperty("lineJoin", nullptr, _SE(js_engine_CanvasRenderingContext2D_setLineJoin));
+    cls->defineProperty("font", nullptr, _SE(js_engine_CanvasRenderingContext2D_setFont));
+    cls->defineProperty("textAlign", nullptr, _SE(js_engine_CanvasRenderingContext2D_setTextAlign));
     cls->defineFunction("beginPath", _SE(js_engine_CanvasRenderingContext2D_beginPath));
     cls->defineFunction("clearRect", _SE(js_engine_CanvasRenderingContext2D_clearRect));
     cls->defineFunction("closePath", _SE(js_engine_CanvasRenderingContext2D_closePath));
@@ -1564,18 +1575,7 @@ bool js_register_engine_CanvasRenderingContext2D(se::Object* obj) // NOLINT(read
     cls->defineFunction("rotate", _SE(js_engine_CanvasRenderingContext2D_rotate));
     cls->defineFunction("save", _SE(js_engine_CanvasRenderingContext2D_save));
     cls->defineFunction("scale", _SE(js_engine_CanvasRenderingContext2D_scale));
-    cls->defineFunction("setFillStyle", _SE(js_engine_CanvasRenderingContext2D_setFillStyle));
-    cls->defineFunction("setFont", _SE(js_engine_CanvasRenderingContext2D_setFont));
-    cls->defineFunction("setGlobalCompositeOperation", _SE(js_engine_CanvasRenderingContext2D_setGlobalCompositeOperation));
-    cls->defineFunction("setHeight", _SE(js_engine_CanvasRenderingContext2D_setHeight));
-    cls->defineFunction("setLineCap", _SE(js_engine_CanvasRenderingContext2D_setLineCap));
-    cls->defineFunction("setLineJoin", _SE(js_engine_CanvasRenderingContext2D_setLineJoin));
-    cls->defineFunction("setLineWidth", _SE(js_engine_CanvasRenderingContext2D_setLineWidth));
-    cls->defineFunction("setStrokeStyle", _SE(js_engine_CanvasRenderingContext2D_setStrokeStyle));
-    cls->defineFunction("setTextAlign", _SE(js_engine_CanvasRenderingContext2D_setTextAlign));
-    cls->defineFunction("setTextBaseline", _SE(js_engine_CanvasRenderingContext2D_setTextBaseline));
     cls->defineFunction("setTransform", _SE(js_engine_CanvasRenderingContext2D_setTransform));
-    cls->defineFunction("setWidth", _SE(js_engine_CanvasRenderingContext2D_setWidth));
     cls->defineFunction("stroke", _SE(js_engine_CanvasRenderingContext2D_stroke));
     cls->defineFunction("transform", _SE(js_engine_CanvasRenderingContext2D_transform));
     cls->defineFunction("translate", _SE(js_engine_CanvasRenderingContext2D_translate));
