@@ -90,6 +90,8 @@ git fetch origin ${FETCH_REMOTE_BRANCH}
 # Don't exit on non-zero return value
 set +e
 
+git diff FETCH_HEAD --stat --exit-code ${JS_COMMIT_PATH}
+
 JS_DIFF_RETVAL=$?
 if [ $JS_DIFF_RETVAL -eq 0 ]
 then
