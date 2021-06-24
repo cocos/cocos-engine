@@ -376,7 +376,7 @@ export class PipelineUBO {
         const mainLight = camera.scene!.mainLight;
         ds.update();
         if (mainLight && shadowFrameBufferMap.has(mainLight)) {
-            if (shadowInfo.pcf === PCFType.NATIVE_PCF) {
+            if (shadowInfo.pcf === PCFType.SOFT) {
                 ds.bindSampler(UNIFORM_SHADOWMAP_BINDING, dsManager.pointSampler);
             } else {
                 ds.bindSampler(UNIFORM_SHADOWMAP_BINDING, dsManager.linearSampler);
