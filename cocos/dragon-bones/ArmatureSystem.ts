@@ -34,17 +34,17 @@ export class ArmatureSystem extends System {
 
     private static armatures = new Set<ArmatureDisplay>();
 
-    public add (skeleton: ArmatureDisplay | null) {
-        if (!skeleton) return;
-        if (!ArmatureSystem.armatures.has(skeleton)) {
-            ArmatureSystem.armatures.add(skeleton);
+    public add (armature: ArmatureDisplay | null) {
+        if (!armature) return;
+        if (!ArmatureSystem.armatures.has(armature)) {
+            ArmatureSystem.armatures.add(armature);
         }
     }
 
-    public remove (skeleton: ArmatureDisplay | null) {
-        if (!skeleton) return;
-        if (ArmatureSystem.armatures.has(skeleton)) {
-            ArmatureSystem.armatures.delete(skeleton);
+    public remove (armature: ArmatureDisplay | null) {
+        if (!armature) return;
+        if (ArmatureSystem.armatures.has(armature)) {
+            ArmatureSystem.armatures.delete(armature);
         }
     }
 
@@ -52,8 +52,8 @@ export class ArmatureSystem extends System {
         if (!ArmatureSystem.armatures) {
             return;
         }
-        ArmatureSystem.armatures.forEach((skeleton) => {
-            skeleton.updateAnimation(dt);
+        ArmatureSystem.armatures.forEach((armature) => {
+            armature.updateAnimation(dt);
         });
     }
 }
