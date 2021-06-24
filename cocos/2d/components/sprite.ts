@@ -763,8 +763,12 @@ export class Sprite extends Renderable2D {
 
         if (spriteFrame) {
             if (!oldFrame || spriteFrame !== oldFrame) {
-                if  (spriteFrame.loaded) {
-                    this._onTextureLoaded();
+                if (spriteFrame.loaded) {
+                    if (oldFrame && oldFrame.texture.getHash !== spriteFrame.texture.getHash) {
+                        this._onTextureLoaded();
+                    } else {
+                        this._applySpriteSize();
+                    }
                 } else {
                     spriteFrame.once('load', this._onTextureLoaded, this);
                 }

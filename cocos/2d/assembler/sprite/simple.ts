@@ -82,39 +82,11 @@ export const simple: IAssembler = {
         }
     },
 
-    fillBuffers (sprite: Sprite, renderer: Batcher2D) {
-        if (sprite === null) {
-            return;
-        }
-
-        // const buffer: MeshBuffer = renderer.createBuffer(
-        //     sprite.renderData!.vertexCount,
-        //     sprite.renderData!.indicesCount,
-        // );
-        // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
+    updateWorldVerts (sprite: Sprite, vData: Float32Array) {
         const renderData = sprite.renderData;
 
         const dataList: IRenderData[] = renderData!.data;
         const node = sprite.node;
-
-        let buffer = renderer.acquireBufferBatch()!;
-
-        let vertexOffset = buffer.byteOffset >> 2;
-        let indicesOffset = buffer.indicesOffset;
-        let vertexId = buffer.vertexOffset;
-
-        const isRecreate = buffer.request();
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
-
-        // buffer data may be reallocated, need get reference after request.
-        const vBuf = buffer.vData!;
-        const iBuf = buffer.iData!;
-        const vData = renderData!.vData!;
 
         const data0 = dataList[0];
         const data3 = dataList[3];
@@ -170,6 +142,42 @@ export const simple: IAssembler = {
             vData[27] = ar + cttx;
             vData[28] = br + dtty;
         }
+    },
+
+    fillBuffers (sprite: Sprite, renderer: Batcher2D) {
+        if (sprite === null) {
+            return;
+        }
+
+        const vData = sprite.renderData!.vData!;
+        if (sprite.node.hasChangedFlags || (this.uiTransCache && this.uiTransCache._rectDirty)) {
+            this.updateWorldVerts(sprite, vData);
+            this.uiTransCache._rectDirty = false;
+        }
+
+        // const buffer: MeshBuffer = renderer.createBuffer(
+        //     sprite.renderData!.vertexCount,
+        //     sprite.renderData!.indicesCount,
+        // );
+        // const commitBuffer: IUIRenderData = renderer.createUIRenderData();
+
+        let buffer = renderer.acquireBufferBatch()!;
+
+        let vertexOffset = buffer.byteOffset >> 2;
+        let indicesOffset = buffer.indicesOffset;
+        let vertexId = buffer.vertexOffset;
+
+        const isRecreate = buffer.request();
+        if (!isRecreate) {
+            buffer = renderer.currBufferBatch!;
+            vertexOffset = 0;
+            indicesOffset = 0;
+            vertexId = 0;
+        }
+
+        // buffer data may be reallocated, need get reference after request.
+        const vBuf = buffer.vData!;
+        const iBuf = buffer.iData!;
 
         vBuf.set(vData, vertexOffset);
 
@@ -229,13 +237,12 @@ export const simple: IAssembler = {
 
         dataList[0].x = l;
         dataList[0].y = b;
-        dataList[0].z = 0;
 
         dataList[3].x = r;
         dataList[3].y = t;
-        dataList[3].z = 0;
 
         renderData.vertDirty = false;
+        this.uiTransCache = uiTrans;
     },
 
     updateUvs (sprite: Sprite) {

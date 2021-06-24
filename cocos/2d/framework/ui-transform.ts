@@ -92,6 +92,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
         }
+        this._rectDirty = true;
     }
 
     get width () {
@@ -115,6 +116,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
         }
+        this._rectDirty = true;
     }
 
     get height () {
@@ -138,6 +140,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
         }
+        this._rectDirty = true;
     }
 
     /**
@@ -161,6 +164,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.set(value);
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this._rectDirty = true;
     }
 
     get anchorX () {
@@ -174,6 +178,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.x = value;
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this._rectDirty = true;
     }
 
     get anchorY () {
@@ -187,6 +192,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.y = value;
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this._rectDirty = true;
     }
 
     /**
@@ -246,6 +252,8 @@ export class UITransform extends Component {
     @serializable
     protected _anchorPoint = new Vec2(0.5, 0.5);
 
+    public _rectDirty = true;
+
     public __preload () {
         this.node._uiProps.uiTransformComp = this;
     }
@@ -258,6 +266,7 @@ export class UITransform extends Component {
 
     public onEnable () {
         this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
+        this._rectDirty = true;
     }
 
     public onDisable () {
@@ -335,6 +344,8 @@ export class UITransform extends Component {
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
         }
+
+        this._rectDirty = true;
     }
 
     /**
@@ -383,7 +394,7 @@ export class UITransform extends Component {
         // this.setLocalDirty(LocalDirtyFlag.POSITION);
         // if (this._eventMask & ANCHOR_ON) {
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
-
+        this._rectDirty = true;
         // }
     }
 
