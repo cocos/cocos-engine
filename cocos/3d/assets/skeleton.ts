@@ -35,7 +35,6 @@ import { murmurhash2_32_gc } from '../../core/utils/murmurhash2_gc';
 import { DataPoolManager } from '../skeletal-animation/data-pool-manager';
 import { Asset } from '../../core/assets/asset';
 import { legacyCC } from '../../core/global-exports';
-import { finalizationManager } from '../../core/data/finalization-manager';
 
 /**
  * @en The skeleton asset. It stores the path related to [[SkinnedMeshRenderer.skinningRoot]] of all bones and its bind pose matrix.

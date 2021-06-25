@@ -23,21 +23,29 @@
  THE SOFTWARE.
 */
 import { EDITOR } from 'internal:constants';
+import { ccclass } from './decorators';
 import { finalizationManager } from './finalization-manager';
 import { GarbageCollectorContext } from './garbage-collection';
 import { CCObject } from './object';
 
+@ccclass('cc.GCObject')
 export class GCObject extends CCObject {
-    public ignoreFromGarbageCollection = true;
-    public declare finalizationToken: any;
+    private declare _finalizationToken: any;
 
     private static _allGCObjects: GCObject[] = [];
+    private static _ignoreGCObjects: GCObject[] = [];
 
     public static getAllGCObject (): readonly GCObject[] {
         return GCObject._allGCObjects;
     }
 
+    public static getIgnoreFromGCObjects (): readonly GCObject[] {
+        return GCObject._ignoreGCObjects;
+    }
+
     private _internalId = -1;
+    private _ignoreId = -1;
+    private _ref = 0;
 
     constructor (...arg: ConstructorParameters<typeof CCObject>) {
         super(...arg);
@@ -45,9 +53,9 @@ export class GCObject extends CCObject {
         GCObject._allGCObjects.push(this);
         this._internalId = id;
         if (EDITOR) {
-            this.finalizationToken = {};
+            this._finalizationToken = {};
             const proxy = new Proxy(this, {});
-            finalizationManager.register(proxy, this);
+            finalizationManager.register(proxy, this, this._finalizationToken);
             return proxy;
         }
     }
@@ -56,11 +64,71 @@ export class GCObject extends CCObject {
         if (this._internalId !== -1) {
             const tail = GCObject._allGCObjects[GCObject._allGCObjects.length - 1];
             tail._internalId = this._internalId;
+            GCObject._allGCObjects[this._internalId] = tail;
             GCObject._allGCObjects.length -= 1;
             this._internalId = -1;
         }
-        if (EDITOR) finalizationManager.unregister(this);
+        if (this._ignoreId !== -1) {
+            const tail = GCObject._ignoreGCObjects[GCObject._ignoreGCObjects.length - 1];
+            tail._ignoreId = this._ignoreId;
+            GCObject._ignoreGCObjects[this._ignoreId] = tail;
+            GCObject._ignoreGCObjects.length -= 1;
+            this._ignoreId = -1;
+        }
+        if (EDITOR) finalizationManager.unregister(this._finalizationToken);
         return super.destroy();
+    }
+
+    /**
+     * @en
+     * The number of reference
+     *
+     * @zh
+     * 引用的数量
+     */
+    public get refCount (): number {
+        return this._ref;
+    }
+
+    /**
+     * @en
+     * Add references of asset
+     *
+     * @zh
+     * 增加资源的引用
+     *
+     * @return itself
+     *
+     */
+    public addRef () {
+        if (this._ref === 0) {
+            this._ignoreId = GCObject._ignoreGCObjects.length;
+            GCObject._ignoreGCObjects.push(this);
+        }
+        this._ref++;
+        return this;
+    }
+
+    /**
+     * @en
+     * Reduce references of asset and it will be auto released when refCount equals 0.
+     *
+     * @zh
+     * 减少资源的引用并尝试进行自动释放。
+     *
+     * @return itself
+     *
+     */
+    public decRef () {
+        this._ref--;
+        if (this._ref === 0) {
+            const tail = GCObject._ignoreGCObjects[GCObject._ignoreGCObjects.length - 1];
+            tail._ignoreId = this._ignoreId;
+            GCObject._ignoreGCObjects[this._ignoreId] = tail;
+            GCObject._ignoreGCObjects.length -= 1;
+            this._ignoreId = -1;
+        }
+        return this;
     }
 
     public markDependencies? (context: GarbageCollectorContext);

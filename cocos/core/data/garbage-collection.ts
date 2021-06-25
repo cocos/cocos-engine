@@ -24,6 +24,7 @@
  */
 import { DEBUG, EDITOR } from 'internal:constants';
 import { legacyCC } from '../global-exports';
+import { ValueType } from '../value-types';
 import { CCClass } from './class';
 import { GCObject } from './gc-object';
 
@@ -46,7 +47,7 @@ export class GarbageCollectorContext {
     }
 
     private _mark (obj: any) {
-        if (obj.__gcVersion__) {
+        if (obj.__gcVersion__ !== undefined) {
             obj.__gcVersion__ = this.gcVersion;
         } else {
             Object.defineProperty(obj, '__gcVersion__', { enumerable: false, value: this.gcVersion, writable: true });
@@ -65,6 +66,7 @@ export class GarbageCollectorContext {
 
         if (this.isMarked(obj)) { return; }
         this._mark(obj);
+        if (obj instanceof ValueType) return;
         if (Array.isArray(obj)) {
             for (let i = 0; i < obj.length; i++) {
                 if (obj[i] && typeof obj[i] === 'object') {
@@ -236,6 +238,10 @@ class GarbageCollectionManager {
 
     private markPhase () {
         legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_GC, this._garbageCollectionContext);
+        const ignoreFromGCObjects = GCObject.getIgnoreFromGCObjects();
+        ignoreFromGCObjects.forEach((root) => {
+            this._garbageCollectionContext.markCCClassObject(root);
+        });
         this._ccclassRoots.forEach((root) => {
             this._garbageCollectionContext.markCCClassObject(root);
         });
@@ -287,7 +293,7 @@ class GarbageCollectionManager {
     private sweepPhase (gcObjects: readonly GCObject[]) {
         for (let i = gcObjects.length - 1; i >= 0; i--) {
             const obj = gcObjects[i];
-            if (!this._garbageCollectionContext.isMarked(obj) && !obj.ignoreFromGarbageCollection) {
+            if (!this._garbageCollectionContext.isMarked(obj)) {
                 if (DEBUG) { console.log(obj); }
                 obj.destroy();
             }

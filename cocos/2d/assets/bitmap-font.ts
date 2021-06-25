@@ -57,10 +57,8 @@ export interface ILetterDefinition {
     [key: string]: FontLetterDefinition;
 }
 
-@ccclass('cc.FontAtlas')
 export class FontAtlas {
     public declare letterDefinitions;
-    @markAsGCRoot
     public declare texture;
 
     constructor (texture) {
@@ -141,7 +139,6 @@ export class BitmapFont extends Font {
     @editable
     public fntConfig: IConfig | null = null;
 
-    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT)
     public declare fontDefDictionary: FontAtlas;
 
     onLoaded () {

@@ -36,6 +36,7 @@ import { BufferTextureCopy } from '../../../core/gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../core/director';
 import { macro, warnID } from '../../../core';
+import { ccclass } from '../../../core/data/decorators';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -217,6 +218,7 @@ class LetterTexture {
     }
 }
 
+@ccclass('cc.LetterRenderTexture')
 export class LetterRenderTexture extends Texture2D {
     /**
      * @en
@@ -285,6 +287,7 @@ export class LetterAtlas {
 
     constructor (width: number, height: number) {
         const texture = new LetterRenderTexture();
+        texture.addRef();
         texture.initWithSize(width, height);
 
         this.fontDefDictionary = new FontAtlas(texture);

@@ -30,13 +30,19 @@ declare class FinalizationRegistry {
     unregister (token: any);
 }
 
-export class FinalizationManager {
-    register (gcObject: GCObject, heldNativeObj: GCObject) {
-        finalizationRegistry.register(gcObject, heldNativeObj, gcObject.finalizationToken);
+class FinalizationManager {
+    private _finalizationRegistry: FinalizationRegistry;
+
+    constructor () {
+        this._finalizationRegistry = new FinalizationRegistry(this.finalizationRegistryCallback.bind(this));
     }
 
-    unregister (gcObject: GCObject) {
-        finalizationRegistry.unregister(gcObject.finalizationToken);
+    register (gcObject: GCObject, heldNativeObj: GCObject, finalizationToken: any) {
+        this._finalizationRegistry.register(gcObject, heldNativeObj, finalizationToken);
+    }
+
+    unregister (finalizationToken: any) {
+        this._finalizationRegistry.unregister(finalizationToken);
     }
 
     finalizationRegistryCallback (gcObject: GCObject) {
@@ -45,5 +51,3 @@ export class FinalizationManager {
 }
 
 export const finalizationManager = new FinalizationManager();
-
-const finalizationRegistry = new FinalizationRegistry(finalizationManager.finalizationRegistryCallback.bind(finalizationManager));
