@@ -747,7 +747,7 @@ export class Sprite extends Renderable2D {
 
         let textureChanged = false;
         if (spriteFrame) {
-            if (!oldFrame || oldFrame.texture.getHash() !== spriteFrame.texture.getHash()) {
+            if (!oldFrame || oldFrame.texture !== spriteFrame.texture) {
                 textureChanged = true;
             }
             if (spriteFrame.loaded) {
