@@ -9,5 +9,5 @@ ohos {
 dependencies {
 ///    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation("com.squareup.okhttp3:okhttp:3.12.13")
-    testCompile'junit:junit:4.12'
+    testImplementation 'junit:junit:4.12'
 }

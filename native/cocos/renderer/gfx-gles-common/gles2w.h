@@ -32,6 +32,7 @@
 #else
     #define GL_GLES_PROTOTYPES 0
     #include <GLES3/gl32.h> //OHOS
+    #include "patch/gl2ext.h"
 #endif
 
 /**

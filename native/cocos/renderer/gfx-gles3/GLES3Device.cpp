@@ -143,9 +143,7 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
             } else if (*it == CC_TOSTR(GL_QCOM_shader_framebuffer_fetch_noncoherent)) {
                 _gpuExtensionRegistry->mFBF = FBFSupportLevel::NON_COHERENT_QCOM;
                 fbfLevelStr                 = "NON_COHERENT_QCOM";
-#ifdef GL_FRAMEBUFFER_FETCH_NONCOHERENT_QCOM //OHOS
                 GL_CHECK(glEnable(GL_FRAMEBUFFER_FETCH_NONCOHERENT_QCOM));
-#endif
             }
         } else if (checkExtension(CC_TOSTR(GL_EXT_shader_framebuffer_fetch))) {
             // we only care about EXT_shader_framebuffer_fetch, the ARM version does not support MRT
@@ -155,7 +153,7 @@ bool GLES3Device::doInit(const DeviceInfo &info) {
     }
 
     // PVRVFrame has issues on their PLS support
-#if CC_PLATFORM != CC_PLATFORM_WINDOWS && CC_PLATFORM != CC_PLATFORM_MAC_OSX && defined(GL_MAX_SHADER_PIXEL_LOCAL_STORAGE_SIZE_EXT) // OHOS
+#if CC_PLATFORM != CC_PLATFORM_WINDOWS && CC_PLATFORM != CC_PLATFORM_MAC_OSX
     if (checkExtension("pixel_local_storage")) {
         if (checkExtension("pixel_local_storage2")) {
             _gpuExtensionRegistry->mPLS = PLSSupportLevel::LEVEL2;

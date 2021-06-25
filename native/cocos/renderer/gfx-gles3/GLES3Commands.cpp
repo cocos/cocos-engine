@@ -99,163 +99,64 @@ GLenum mapGLInternalFormat(Format format) {
         case Format::D32F: return GL_DEPTH_COMPONENT32F;
         case Format::D32F_S8: return GL_DEPTH32F_STENCIL8;
 
-#ifdef GL_COMPRESSED_RGB_S3TC_DXT1_EXT
         case Format::BC1: return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-#endif
-#ifdef GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
         case Format::BC1_ALPHA: return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-#endif
-#ifdef GL_COMPRESSED_SRGB_S3TC_DXT1_EXT
         case Format::BC1_SRGB: return GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
-#endif
-#ifdef GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT
         case Format::BC1_SRGB_ALPHA: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
-#endif
-#ifdef GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
+
         case Format::BC2: return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-#endif
-#ifdef GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT
         case Format::BC2_SRGB: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
-#endif
-#ifdef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
+
         case Format::BC3: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-#endif
-#ifdef GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT
         case Format::BC3_SRGB: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
-#endif
 
-#ifdef GL_ETC1_RGB8_OES
         case Format::ETC_RGB8: return GL_ETC1_RGB8_OES;
-#endif
-#ifdef GL_COMPRESSED_RGB8_ETC2
         case Format::ETC2_RGB8: return GL_COMPRESSED_RGB8_ETC2;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ETC2
         case Format::ETC2_SRGB8: return GL_COMPRESSED_SRGB8_ETC2;
-#endif
-#ifdef GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2
         case Format::ETC2_RGB8_A1: return GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2
         case Format::ETC2_SRGB8_A1: return GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-#endif
-#ifdef GL_COMPRESSED_RGBA8_ETC2_EAC
         case Format::ETC2_RGBA8: return GL_COMPRESSED_RGBA8_ETC2_EAC;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC
         case Format::ETC2_SRGB8_A8: return GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
-#endif
-#ifdef GL_COMPRESSED_R11_EAC
-        case Format::EAC_R11: return GL_COMPRESSED_R11_EAC;
-#endif
-#ifdef GL_COMPRESSED_SIGNED_R11_EAC
-        case Format::EAC_R11SN: return GL_COMPRESSED_SIGNED_R11_EAC;
-#endif
-#ifdef GL_COMPRESSED_RG11_EAC
-        case Format::EAC_RG11: return GL_COMPRESSED_RG11_EAC;
-#endif
-#ifdef GL_COMPRESSED_SIGNED_RG11_EAC
-        case Format::EAC_RG11SN: return GL_COMPRESSED_SIGNED_RG11_EAC;
-#endif
 
-#ifdef GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG
+        case Format::EAC_R11: return GL_COMPRESSED_R11_EAC;
+        case Format::EAC_R11SN: return GL_COMPRESSED_SIGNED_R11_EAC;
+        case Format::EAC_RG11: return GL_COMPRESSED_RG11_EAC;
+        case Format::EAC_RG11SN: return GL_COMPRESSED_SIGNED_RG11_EAC;
+
         case Format::PVRTC_RGB2: return GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
-#endif
-#ifdef GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG
         case Format::PVRTC_RGBA2: return GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
-#endif
-#ifdef GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG
         case Format::PVRTC_RGB4: return GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
-#endif
-#ifdef GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG
         case Format::PVRTC_RGBA4: return GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_4x4_KHR
 
         case Format::ASTC_RGBA_4X4: return GL_COMPRESSED_RGBA_ASTC_4x4_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_5x4_KHR
         case Format::ASTC_RGBA_5X4: return GL_COMPRESSED_RGBA_ASTC_5x4_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_5x5_KHR
         case Format::ASTC_RGBA_5X5: return GL_COMPRESSED_RGBA_ASTC_5x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_6x5_KHR
         case Format::ASTC_RGBA_6X5: return GL_COMPRESSED_RGBA_ASTC_6x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_6x6_KHR
         case Format::ASTC_RGBA_6X6: return GL_COMPRESSED_RGBA_ASTC_6x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_8x5_KHR
         case Format::ASTC_RGBA_8X5: return GL_COMPRESSED_RGBA_ASTC_8x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_8x6_KHR
         case Format::ASTC_RGBA_8X6: return GL_COMPRESSED_RGBA_ASTC_8x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_8x8_KHR
         case Format::ASTC_RGBA_8X8: return GL_COMPRESSED_RGBA_ASTC_8x8_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_10x5_KHR
         case Format::ASTC_RGBA_10X5: return GL_COMPRESSED_RGBA_ASTC_10x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_10x6_KHR
         case Format::ASTC_RGBA_10X6: return GL_COMPRESSED_RGBA_ASTC_10x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_10x8_KHR
         case Format::ASTC_RGBA_10X8: return GL_COMPRESSED_RGBA_ASTC_10x8_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_10x10_KHR
         case Format::ASTC_RGBA_10X10: return GL_COMPRESSED_RGBA_ASTC_10x10_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_12x10_KHR
         case Format::ASTC_RGBA_12X10: return GL_COMPRESSED_RGBA_ASTC_12x10_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_12x12_KHR
         case Format::ASTC_RGBA_12X12: return GL_COMPRESSED_RGBA_ASTC_12x12_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR
 
         case Format::ASTC_SRGBA_4X4: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR
         case Format::ASTC_SRGBA_5X4: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR
         case Format::ASTC_SRGBA_5X5: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR
         case Format::ASTC_SRGBA_6X5: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR
         case Format::ASTC_SRGBA_6X6: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR
         case Format::ASTC_SRGBA_8X5: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR
         case Format::ASTC_SRGBA_8X6: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR
         case Format::ASTC_SRGBA_8X8: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR
         case Format::ASTC_SRGBA_10X5: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR
         case Format::ASTC_SRGBA_10X6: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR
         case Format::ASTC_SRGBA_10X8: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR
         case Format::ASTC_SRGBA_10X10: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR
         case Format::ASTC_SRGBA_12X10: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR
         case Format::ASTC_SRGBA_12X12: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
-#endif
 
         default: {
             CCASSERT(false, "Unsupported Format, convert to GL internal format failed.");
@@ -323,163 +224,62 @@ GLenum mapGLFormat(Format format) {
         case Format::D32F: return GL_DEPTH_COMPONENT;
         case Format::D32F_S8: return GL_DEPTH_STENCIL;
 
-#ifdef GL_COMPRESSED_RGB_S3TC_DXT1_EXT
         case Format::BC1: return GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-#endif
-#ifdef GL_COMPRESSED_RGBA_S3TC_DXT1_EXT
         case Format::BC1_ALPHA: return GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
-#endif
-#ifdef GL_COMPRESSED_SRGB_S3TC_DXT1_EXT
         case Format::BC1_SRGB: return GL_COMPRESSED_SRGB_S3TC_DXT1_EXT;
-#endif
-#ifdef GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT
         case Format::BC1_SRGB_ALPHA: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT;
-#endif
-#ifdef GL_COMPRESSED_RGBA_S3TC_DXT3_EXT
         case Format::BC2: return GL_COMPRESSED_RGBA_S3TC_DXT3_EXT;
-#endif
-#ifdef GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT
         case Format::BC2_SRGB: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT3_EXT;
-#endif
-#ifdef GL_COMPRESSED_RGBA_S3TC_DXT5_EXT
         case Format::BC3: return GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-#endif
-#ifdef GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT
         case Format::BC3_SRGB: return GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT;
-#endif
 
-#ifdef GL_ETC1_RGB8_OES
         case Format::ETC_RGB8: return GL_ETC1_RGB8_OES;
-#endif
-#ifdef GL_COMPRESSED_RGB8_ETC2
         case Format::ETC2_RGB8: return GL_COMPRESSED_RGB8_ETC2;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ETC2
         case Format::ETC2_SRGB8: return GL_COMPRESSED_SRGB8_ETC2;
-#endif
-#ifdef GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2
         case Format::ETC2_RGB8_A1: return GL_COMPRESSED_RGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2
         case Format::ETC2_SRGB8_A1: return GL_COMPRESSED_SRGB8_PUNCHTHROUGH_ALPHA1_ETC2;
-#endif
-#ifdef GL_COMPRESSED_RGBA8_ETC2_EAC
         case Format::ETC2_RGBA8: return GL_COMPRESSED_RGBA8_ETC2_EAC;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC
         case Format::ETC2_SRGB8_A8: return GL_COMPRESSED_SRGB8_ALPHA8_ETC2_EAC;
-#endif
-#ifdef GL_COMPRESSED_R11_EAC
+
         case Format::EAC_R11: return GL_COMPRESSED_R11_EAC;
-#endif
-#ifdef GL_COMPRESSED_SIGNED_R11_EAC
         case Format::EAC_R11SN: return GL_COMPRESSED_SIGNED_R11_EAC;
-#endif
-#ifdef GL_COMPRESSED_RG11_EAC
         case Format::EAC_RG11: return GL_COMPRESSED_RG11_EAC;
-#endif
-#ifdef GL_COMPRESSED_SIGNED_RG11_EAC
         case Format::EAC_RG11SN: return GL_COMPRESSED_SIGNED_RG11_EAC;
-#endif
 
-#ifdef GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG
         case Format::PVRTC_RGB2: return GL_COMPRESSED_RGB_PVRTC_2BPPV1_IMG;
-#endif
-#ifdef GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG
         case Format::PVRTC_RGBA2: return GL_COMPRESSED_RGBA_PVRTC_2BPPV1_IMG;
-#endif
-#ifdef GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG
         case Format::PVRTC_RGB4: return GL_COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
-#endif
-#ifdef GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG
         case Format::PVRTC_RGBA4: return GL_COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
-#endif
 
-#ifdef GL_COMPRESSED_RGBA_ASTC_4x4_KHR
         case Format::ASTC_RGBA_4X4: return GL_COMPRESSED_RGBA_ASTC_4x4_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_5x4_KHR
         case Format::ASTC_RGBA_5X4: return GL_COMPRESSED_RGBA_ASTC_5x4_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_5x5_KHR
         case Format::ASTC_RGBA_5X5: return GL_COMPRESSED_RGBA_ASTC_5x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_6x5_KHR
         case Format::ASTC_RGBA_6X5: return GL_COMPRESSED_RGBA_ASTC_6x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_6x6_KHR
         case Format::ASTC_RGBA_6X6: return GL_COMPRESSED_RGBA_ASTC_6x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_8x5_KHR
         case Format::ASTC_RGBA_8X5: return GL_COMPRESSED_RGBA_ASTC_8x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_8x6_KHR
         case Format::ASTC_RGBA_8X6: return GL_COMPRESSED_RGBA_ASTC_8x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_8x8_KHR
         case Format::ASTC_RGBA_8X8: return GL_COMPRESSED_RGBA_ASTC_8x8_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_10x5_KHR
         case Format::ASTC_RGBA_10X5: return GL_COMPRESSED_RGBA_ASTC_10x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_10x6_KHR
         case Format::ASTC_RGBA_10X6: return GL_COMPRESSED_RGBA_ASTC_10x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_10x8_KHR
         case Format::ASTC_RGBA_10X8: return GL_COMPRESSED_RGBA_ASTC_10x8_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_10x10_KHR
         case Format::ASTC_RGBA_10X10: return GL_COMPRESSED_RGBA_ASTC_10x10_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_12x10_KHR
         case Format::ASTC_RGBA_12X10: return GL_COMPRESSED_RGBA_ASTC_12x10_KHR;
-#endif
-#ifdef GL_COMPRESSED_RGBA_ASTC_12x12_KHR
         case Format::ASTC_RGBA_12X12: return GL_COMPRESSED_RGBA_ASTC_12x12_KHR;
-#endif
 
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR
         case Format::ASTC_SRGBA_4X4: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR
         case Format::ASTC_SRGBA_5X4: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR
         case Format::ASTC_SRGBA_5X5: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR
         case Format::ASTC_SRGBA_6X5: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR
         case Format::ASTC_SRGBA_6X6: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR
         case Format::ASTC_SRGBA_8X5: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR
         case Format::ASTC_SRGBA_8X6: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR
         case Format::ASTC_SRGBA_8X8: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR
         case Format::ASTC_SRGBA_10X5: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR
         case Format::ASTC_SRGBA_10X6: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR
         case Format::ASTC_SRGBA_10X8: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR
         case Format::ASTC_SRGBA_10X10: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR
         case Format::ASTC_SRGBA_12X10: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR;
-#endif
-#ifdef GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR
         case Format::ASTC_SRGBA_12X12: return GL_COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
-#endif
 
         default: {
             CCASSERT(false, "Unsupported Format, convert to WebGL format failed.");
@@ -1947,9 +1747,7 @@ void cmdFuncGLES3BeginRenderPass(GLES3Device *device, uint subpassIdx, GLES3GPUR
         if (gpuFramebuffer->usesPLS || gpuFramebuffer->usesFBF) {
             if (subpassIdx == 0) {
                 if (gpuFramebuffer->usesPLS) {
-#ifdef GL_SHADER_PIXEL_LOCAL_STORAGE_EXT //OHOS
                     GL_CHECK(glEnable(GL_SHADER_PIXEL_LOCAL_STORAGE_EXT));
-#endif
                     cache->isPLSEnabled = true;
                 }
 
@@ -2030,21 +1828,15 @@ void cmdFuncGLES3EndRenderPass(GLES3Device *device) {
                 performStoreOp(attachmentIndex, glAttachmentIndex++);
             }
             performDepthStencilStoreOp();
-#if defined(GL_SHADER_PIXEL_LOCAL_STORAGE_EXT) //OHOS
             if (cache->isPLSEnabled) {
                 GL_CHECK(glDisable(GL_SHADER_PIXEL_LOCAL_STORAGE_EXT));
                 cache->isPLSEnabled = false;
             }
-#endif
         } else if (gpuFramebuffer->usesFBF) {
             if (device->extensionRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_EXT) {
-#ifdef glFramebufferFetchBarrierEXT //OHOS
                 GL_CHECK(glFramebufferFetchBarrierEXT());
-#endif
             } else if (device->extensionRegistry()->mFBF == FBFSupportLevel::NON_COHERENT_QCOM) {
-#ifdef glFramebufferFetchBarrierQCOM //OHOS
                 GL_CHECK(glFramebufferFetchBarrierQCOM());
-#endif
             }
         }
     } else {
