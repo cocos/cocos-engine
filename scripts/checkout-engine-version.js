@@ -9,9 +9,11 @@ const fs = require('fs');
 const targetEngineVersion = process.argv[2];
 const versionRegExp = /^\d+\.\d+\.\d+$/
 if (!targetEngineVersion) {
-    throw new Error('please specify a target engine version');
+    console.error('please specify a target engine version');
+    process.exit(1);
 } else if (!versionRegExp.test(targetEngineVersion)) {
-    throw new Error('please specify a valid engine version');
+    console.error('please specify a valid engine version');
+    process.exit(1);
 }
 
 /**
@@ -38,7 +40,10 @@ for (filePath in fileHandlers) {
     let content = fs.readFileSync(filePath, 'utf8');
     content = handler(content);
     if (!content) {
-        throw new Error('file handler need to return the handle result');
+        console.error('file handler need to return the handle result');
+        process.exit(1);
     }
     fs.writeFileSync(filePath, content, 'utf8');
 }
+console.log('Checkout engine version complete!')
+process.exit(0);
