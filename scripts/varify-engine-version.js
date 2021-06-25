@@ -1,9 +1,10 @@
 const fs = require('fs');
-const ps = require('path');
-const vGit = require('v-git');
 
-const repo = vGit.init(ps.join(__dirname, '../'));
-const branchName = repo.branch;
+const branchName = process.argv[2];
+if (typeof branchName === 'undefined') {
+    console.error('Need to specify the current branch name in git repository');
+    process.exit(1);
+}
 const branchRegExp = /^v?(\d+\.\d+\.\d+)(?:-.*)?$/
 const matchResult = branchName.match(branchRegExp);
 if (!(matchResult && matchResult[1])) {
