@@ -34,12 +34,12 @@ import { SetIndex } from '../define';
 import { Color, Rect, Shader, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
-import { LightingFlow } from './lighting-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { Material } from '../../assets/material';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { Pass } from '../../renderer';
 import { UIPhase } from '../forward/ui-phase';
+import { MainFlow } from './main-flow';
 
 const colors: Color[] = [new Color(0, 0, 0, 1)];
 const POSTPROCESSPASS_INDEX = 0;
@@ -81,7 +81,7 @@ export class PostprocessStage extends RenderStage {
         return true;
     }
 
-    public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
+    public activate (pipeline: DeferredPipeline, flow: MainFlow) {
         super.activate(pipeline, flow);
         this._uiPhase.activate(pipeline);
     }

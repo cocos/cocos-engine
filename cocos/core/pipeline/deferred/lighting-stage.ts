@@ -36,7 +36,7 @@ import { Color, Rect, Shader, Buffer, BufferUsageBit, MemoryUsageBit, BufferInfo
     DescriptorSetLayout, DescriptorSetInfo, PipelineState, ClearFlagBit } from '../../gfx';
 import { IRenderStageInfo, RenderStage } from '../render-stage';
 import { DeferredStagePriority } from './enum';
-import { LightingFlow } from './lighting-flow';
+import { MainFlow } from './main-flow';
 import { DeferredPipeline } from './deferred-pipeline';
 import { PlanarShadowQueue } from '../planar-shadow-queue';
 import { Material } from '../../assets/material';
@@ -189,7 +189,7 @@ export class LightingStage extends RenderStage {
         cmdBuff.updateBuffer(this._deferredLitsBufs, this._lightBufferData);
     }
 
-    public activate (pipeline: DeferredPipeline, flow: LightingFlow) {
+    public activate (pipeline: DeferredPipeline, flow: MainFlow) {
         super.activate(pipeline, flow);
 
         const device = pipeline.device;

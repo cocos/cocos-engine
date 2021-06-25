@@ -32,8 +32,7 @@ import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
-import { GbufferFlow } from './gbuffer-flow';
-import { LightingFlow } from './lighting-flow';
+import { MainFlow } from './main-flow';
 import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, StoreOp, Filter, Address,
@@ -122,13 +121,9 @@ export class DeferredPipeline extends RenderPipeline {
             shadowFlow.initialize(ShadowFlow.initInfo);
             this._flows.push(shadowFlow);
 
-            const gbufferFlow = new GbufferFlow();
-            gbufferFlow.initialize(GbufferFlow.initInfo);
-            this._flows.push(gbufferFlow);
-
-            const lightingFlow = new LightingFlow();
-            lightingFlow.initialize(LightingFlow.initInfo);
-            this._flows.push(lightingFlow);
+            const mainFlow = new MainFlow();
+            mainFlow.initialize(MainFlow.initInfo);
+            this._flows.push(mainFlow);
         }
 
         return true;
