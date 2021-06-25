@@ -120,7 +120,7 @@ class SpineMeta extends CustomAssetMeta {
     dests () {
         let rawPath = this._assetdb.uuidToFspath(this.uuid);
         let importPathNoExt = this._assetdb._uuidToImportPathNoExt(this.uuid);
-
+    
         let jsonPath = importPathNoExt + '.json';
         let extname = Path.extname(rawPath);
         let nativePath = importPathNoExt + extname;
@@ -135,7 +135,7 @@ class SpineMeta extends CustomAssetMeta {
         this.textures[0] = Editor.assetdb.urlToUuid(value);
     }
 
-    static version () { return '1.2.4'; }
+    static version () { return '1.2.3'; }
     static defaultType () {
         return 'spine';
     }
@@ -168,7 +168,7 @@ class SpineMeta extends CustomAssetMeta {
         }
         return false;
     }
-
+    
     _initTexture (asset, fspath, cb) {
         loadAtlasText(fspath, (err, res) => {
             if (err) {
