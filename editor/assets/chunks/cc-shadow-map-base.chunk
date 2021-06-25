@@ -87,15 +87,7 @@
     float clipPos_offset_U = clipPos.y - oneTap.y;
     float clipPos_offset_D = clipPos.y + oneTap.y;
 
-    float point_0;
-    float point_1;
-    float point_2;
-    float point_3;
-    float point_4;
-    float point_5;
-    float point_6;
-    float point_7;
-    float point_8;
+    float point_0, point_1, point_2, point_3, point_4, point_5, point_6, point_7, point_8;
     if (cc_shadowLPNNInfo.y > 0.000001) {
       point_0 = step(unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_U))), offsetDepth);
       point_1 = step(unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_U))), offsetDepth);
