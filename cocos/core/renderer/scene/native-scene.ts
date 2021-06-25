@@ -21,7 +21,7 @@ export const NativeModel: Constructor<{
     setLocalBuffer (buf: Buffer | null): void;
     setWolrdBounds (val: AABB | null): void;
     addSubModel (val: NativeSubModel): void;
-    setInstmatWorldIdx (idx: number): void;
+    setInstMatWorldIdx (idx: number): void;
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
@@ -38,7 +38,7 @@ export const NativeSkinningModel: Constructor<{
     setLocalBuffer (buf: Buffer | null): void;
     setWolrdBounds (val: AABB | null): void;
     addSubModel (val: NativeSubModel): void;
-    setInstmatWorldIdx (idx: number): void;
+    setInstMatWorldIdx (idx: number): void;
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
