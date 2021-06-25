@@ -1298,6 +1298,25 @@ static bool js_scene_Model_getEnabled(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_scene_Model_getEnabled)
 
+static bool js_scene_Model_getInstMatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstMatWorldIdx : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        int32_t result = cobj->getInstMatWorldIdx();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_Model_getInstMatWorldIdx : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Model_getInstMatWorldIdx)
+
 static bool js_scene_Model_getInstanceAttributes(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -1373,25 +1392,6 @@ static bool js_scene_Model_getInstancedBufferSize(se::State& s) // NOLINT(readab
     return false;
 }
 SE_BIND_FUNC(js_scene_Model_getInstancedBufferSize)
-
-static bool js_scene_Model_getInstmatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstmatWorldIdx : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 0) {
-        unsigned int result = cobj->getInstmatWorldIdx();
-        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
-        SE_PRECONDITION2(ok, false, "js_scene_Model_getInstmatWorldIdx : Error processing arguments");
-        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Model_getInstmatWorldIdx)
 
 static bool js_scene_Model_getLocalData(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1534,7 +1534,7 @@ static bool js_scene_Model_getUpdatStamp(se::State& s) // NOLINT(readability-ide
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        unsigned int result = cobj->getUpdatStamp();
+        int32_t result = cobj->getUpdatStamp();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_scene_Model_getUpdatStamp : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -1640,24 +1640,24 @@ static bool js_scene_Model_setEnabled(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_scene_Model_setEnabled)
 
-static bool js_scene_Model_setInstmatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_setInstMatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Model_setInstmatWorldIdx : Invalid Native Object");
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_setInstMatWorldIdx : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<unsigned int, false> arg0 = {};
+        HolderType<int32_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_setInstmatWorldIdx : Error processing arguments");
-        cobj->setInstmatWorldIdx(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_scene_Model_setInstMatWorldIdx : Error processing arguments");
+        cobj->setInstMatWorldIdx(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_scene_Model_setInstmatWorldIdx)
+SE_BIND_FUNC(js_scene_Model_setInstMatWorldIdx)
 
 static bool js_scene_Model_setLocalBuffer(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -1825,11 +1825,11 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("addSubModel", _SE(js_scene_Model_addSubModel));
     cls->defineFunction("getCastShadow", _SE(js_scene_Model_getCastShadow));
     cls->defineFunction("getEnabled", _SE(js_scene_Model_getEnabled));
+    cls->defineFunction("getInstMatWorldIdx", _SE(js_scene_Model_getInstMatWorldIdx));
     cls->defineFunction("getInstanceAttributes", _SE(js_scene_Model_getInstanceAttributes));
     cls->defineFunction("getInstancedAttributeBlock", _SE(js_scene_Model_getInstancedAttributeBlock));
     cls->defineFunction("getInstancedBuffer", _SE(js_scene_Model_getInstancedBuffer));
     cls->defineFunction("getInstancedBufferSize", _SE(js_scene_Model_getInstancedBufferSize));
-    cls->defineFunction("getInstmatWorldIdx", _SE(js_scene_Model_getInstmatWorldIdx));
     cls->defineFunction("getLocalData", _SE(js_scene_Model_getLocalData));
     cls->defineFunction("getModelBounds", _SE(js_scene_Model_getModelBounds));
     cls->defineFunction("getNode", _SE(js_scene_Model_getNode));
@@ -1843,7 +1843,7 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("seVisFlag", _SE(js_scene_Model_seVisFlag));
     cls->defineFunction("setCastShadow", _SE(js_scene_Model_setCastShadow));
     cls->defineFunction("setEnabled", _SE(js_scene_Model_setEnabled));
-    cls->defineFunction("setInstmatWorldIdx", _SE(js_scene_Model_setInstmatWorldIdx));
+    cls->defineFunction("setInstMatWorldIdx", _SE(js_scene_Model_setInstMatWorldIdx));
     cls->defineFunction("setLocalBuffer", _SE(js_scene_Model_setLocalBuffer));
     cls->defineFunction("setNode", _SE(js_scene_Model_setNode));
     cls->defineFunction("setReceiveShadow", _SE(js_scene_Model_setReceiveShadow));
