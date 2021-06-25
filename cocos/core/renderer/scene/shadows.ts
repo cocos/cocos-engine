@@ -75,6 +75,13 @@ export const PCFType = Enum({
      * @readonly
      */
     SOFT: 1,
+
+    /**
+     * @zh 软阴影
+     * @en soft shadow
+     * @readonly
+     */
+    SOFT_2X: 2,
 });
 
 const SHADOW_TYPE_NONE = ShadowType.ShadowMap + 1;
