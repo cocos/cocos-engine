@@ -67,7 +67,7 @@ public:
 
     inline void setCastShadow(bool value) { _castShadow = value; }
     inline void setEnabled(bool value) { _enabled = value; }
-    inline void setInstmatWorldIdx(uint32_t idx) { _instmatWorldIdx = idx; }
+    inline void setInstMatWorldIdx(int32_t idx) { _instMatWorldIdx = idx; }
     inline void setLocalBuffer(gfx::Buffer *buffer) { _localBuffer = buffer; }
     inline void setNode(Node *node) { _node = node; }
     inline void setReceiveShadow(bool value) { _receiveShadow = value; }
@@ -87,7 +87,7 @@ public:
 
     inline bool                               getCastShadow() const { return _castShadow; }
     inline bool                               getEnabled() const { return _enabled; }
-    inline uint32_t                           getInstmatWorldIdx() const { return _instmatWorldIdx; }
+    inline int32_t                            getInstMatWorldIdx() const { return _instMatWorldIdx; }
     inline const std::vector<gfx::Attribute> &getInstanceAttributes() const { return _instanceAttributes; }
     inline InstancedAttributeBlock *          getInstancedAttributeBlock() { return &_instanceAttributeBlock; }
     inline uint8_t *                          getInstancedBuffer() const { return std::get<0>(_instancedBuffer); }
@@ -100,7 +100,7 @@ public:
     inline const std::vector<SubModel *> &    getSubModels() const { return _subModels; }
     inline Node *                             getTransform() const { return _transform; }
     inline bool                               getTransformUpdated() const { return _transformUpdated; }
-    inline uint32_t                           getUpdatStamp() const { return _updateStamp; }
+    inline int32_t                            getUpdatStamp() const { return _updateStamp; }
     inline uint32_t                           getVisFlags() const { return _visFlags; }
     inline const AABB *                       getWorldBounds() const { return _worldBounds; }
     inline ModelType                          getType() const { return _type; };
@@ -116,9 +116,9 @@ private:
     bool _castShadow{false};
     bool _receiveShadow{false};
 
-    int                             _instmatWorldIdx{0};
+    int32_t                         _instMatWorldIdx{-1};
     uint32_t                        _visFlags;
-    uint32_t                        _updateStamp{0};
+    int32_t                         _updateStamp{-1};
     Node *                          _transform{nullptr};
     Node *                          _node{nullptr};
     float *                         _localData{nullptr};

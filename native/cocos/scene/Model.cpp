@@ -64,7 +64,7 @@ void Model::updateUBOs(uint32_t stamp) {
     _transformUpdated = false;
     getTransform()->updateWorldTransform();
     const auto &                                 worldMatrix = getTransform()->getWorldMatrix();
-    int                                          idx         = _instmatWorldIdx;
+    int                                          idx         = _instMatWorldIdx;
     Mat4                                         mat4;
     std::array<float, pipeline::UBOLocal::COUNT> bufferView;
     if (idx >= 0) {
