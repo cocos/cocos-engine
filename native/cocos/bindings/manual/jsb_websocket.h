@@ -33,26 +33,26 @@ class Object;
 class Value;
 } // namespace se
 
-class JSB_WebSocketDelegate : public cc::Ref, public cc::network::WebSocket::Delegate {
+class JsbWebSocketDelegate : public cc::Ref, public cc::network::WebSocket::Delegate {
 public:
-    JSB_WebSocketDelegate();
+    JsbWebSocketDelegate() = default;
 
-    virtual void onOpen(cc::network::WebSocket *ws) override;
+    void onOpen(cc::network::WebSocket *ws) override;
 
-    virtual void onMessage(cc::network::WebSocket *ws,
-                           const cc::network::WebSocket::Data &data) override;
+    void onMessage(cc::network::WebSocket *            ws,
+                   const cc::network::WebSocket::Data &data) override;
 
-    virtual void onClose(cc::network::WebSocket *ws) override;
+    void onClose(cc::network::WebSocket *ws) override;
 
-    virtual void onError(cc::network::WebSocket *ws,
-                         const cc::network::WebSocket::ErrorCode &error) override;
+    void onError(cc::network::WebSocket *                 ws,
+                 const cc::network::WebSocket::ErrorCode &error) override;
 
     void setJSDelegate(const se::Value &jsDelegate);
 
 private:
-    virtual ~JSB_WebSocketDelegate();
+    ~JsbWebSocketDelegate() override;
 
-    se::Value _JSDelegate;
+    se::Value _JSDelegate; // NOLINT (bugprone-reserved-identifier)
 };
 
 SE_DECLARE_FINALIZE_FUNC(WebSocket_finalize);
@@ -63,4 +63,4 @@ SE_DECLARE_FUNC(WebSocket_send);
 
 SE_DECLARE_FUNC(WebSocket_close);
 
-bool register_all_websocket(se::Object *obj);
+bool register_all_websocket(se::Object *obj); // NOLINT (readability-identifier-naming)

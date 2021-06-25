@@ -23,8 +23,8 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#include "base/Config.h"
 #include "jsb_websocket.h"
+#include "base/Config.h"
 #if (USE_SOCKET > 0)
     #include "cocos/bindings/jswrapper/SeApi.h"
     #include "cocos/bindings/manual/jsb_conversions.h"
@@ -32,9 +32,6 @@
 
     #include "base/UTF8.h"
     #include "platform/Application.h"
-
-using namespace cc;
-using namespace cc::network;
 
 /*
  [Constructor(in DOMString url, in optional DOMString protocols)]
@@ -62,25 +59,26 @@ using namespace cc::network;
  WebSocket implements EventTarget;
  */
 
-se::Class *__jsb_WebSocket_class = nullptr;
-
-JSB_WebSocketDelegate::JSB_WebSocketDelegate() {
+namespace {
+se::Class *jsbWebSocketClass = nullptr;
 }
 
-JSB_WebSocketDelegate::~JSB_WebSocketDelegate() {
-    CC_LOG_INFO("In the destructor of JSB_WebSocketDelegate(%p)", this);
+JsbWebSocketDelegate::~JsbWebSocketDelegate() {
+    CC_LOG_INFO("In the destructor of JSbWebSocketDelegate(%p)", this);
 }
 
-void JSB_WebSocketDelegate::onOpen(WebSocket *ws) {
+void JsbWebSocketDelegate::onOpen(cc::network::WebSocket *ws) {
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
 
-    if (cc::Application::getInstance() == nullptr)
+    if (cc::Application::getInstance() == nullptr) {
         return;
+    }
 
     auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end())
+    if (iter == se::NativePtrToObjectMap::end()) {
         return;
+    }
 
     se::Object *wsObj = iter->second;
     wsObj->setProperty("protocol", se::Value(ws->getProtocol()));
@@ -88,11 +86,11 @@ void JSB_WebSocketDelegate::onOpen(WebSocket *ws) {
     se::HandleObject jsObj(se::Object::createPlainObject());
     jsObj->setProperty("type", se::Value("open"));
     se::Value target;
-    native_ptr_to_seval<WebSocket>(ws, &target);
+    native_ptr_to_seval<cc::network::WebSocket>(ws, &target);
     jsObj->setProperty("target", target);
 
     se::Value func;
-    bool ok = _JSDelegate.toObject()->getProperty("onopen", &func);
+    bool      ok = _JSDelegate.toObject()->getProperty("onopen", &func);
     if (ok && func.isObject() && func.toObject()->isFunction()) {
         se::ValueArray args;
         args.push_back(se::Value(jsObj));
@@ -102,26 +100,28 @@ void JSB_WebSocketDelegate::onOpen(WebSocket *ws) {
     }
 }
 
-void JSB_WebSocketDelegate::onMessage(WebSocket *ws, const WebSocket::Data &data) {
+void JsbWebSocketDelegate::onMessage(cc::network::WebSocket *ws, const cc::network::WebSocket::Data &data) {
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
 
-    if (cc::Application::getInstance() == nullptr)
+    if (cc::Application::getInstance() == nullptr) {
         return;
+    }
 
     auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end())
+    if (iter == se::NativePtrToObjectMap::end()) {
         return;
+    }
 
-    se::Object *wsObj = iter->second;
+    se::Object *     wsObj = iter->second;
     se::HandleObject jsObj(se::Object::createPlainObject());
     jsObj->setProperty("type", se::Value("message"));
     se::Value target;
-    native_ptr_to_seval<WebSocket>(ws, &target);
+    native_ptr_to_seval<cc::network::WebSocket>(ws, &target);
     jsObj->setProperty("target", target);
 
     se::Value func;
-    bool ok = _JSDelegate.toObject()->getProperty("onmessage", &func);
+    bool      ok = _JSDelegate.toObject()->getProperty("onmessage", &func);
     if (ok && func.isObject() && func.toObject()->isFunction()) {
         se::ValueArray args;
         args.push_back(se::Value(jsObj));
@@ -135,7 +135,7 @@ void JSB_WebSocketDelegate::onMessage(WebSocket *ws, const WebSocket::Data &data
                 std::string str(data.bytes, data.len);
                 dataVal.setString(str);
             } else { // Normal string
-                dataVal.setString(data.bytes);
+                dataVal.setString(std::string(data.bytes, data.len));
             }
 
             if (dataVal.isNullOrUndefined()) {
@@ -151,12 +151,13 @@ void JSB_WebSocketDelegate::onMessage(WebSocket *ws, const WebSocket::Data &data
     }
 }
 
-void JSB_WebSocketDelegate::onClose(WebSocket *ws) {
+void JsbWebSocketDelegate::onClose(cc::network::WebSocket *ws) {
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
 
-    if (cc::Application::getInstance() == nullptr)
+    if (cc::Application::getInstance() == nullptr) {
         return;
+    }
 
     auto iter = se::NativePtrToObjectMap::find(ws);
     do {
@@ -165,15 +166,15 @@ void JSB_WebSocketDelegate::onClose(WebSocket *ws) {
             break;
         }
 
-        se::Object *wsObj = iter->second;
+        se::Object *     wsObj = iter->second;
         se::HandleObject jsObj(se::Object::createPlainObject());
         jsObj->setProperty("type", se::Value("close"));
         se::Value target;
-        native_ptr_to_seval<WebSocket>(ws, &target);
+        native_ptr_to_seval<cc::network::WebSocket>(ws, &target);
         jsObj->setProperty("target", target);
 
         se::Value func;
-        bool ok = _JSDelegate.toObject()->getProperty("onclose", &func);
+        bool      ok = _JSDelegate.toObject()->getProperty("onclose", &func);
         if (ok && func.isObject() && func.toObject()->isFunction()) {
             se::ValueArray args;
             args.push_back(se::Value(jsObj));
@@ -195,26 +196,28 @@ void JSB_WebSocketDelegate::onClose(WebSocket *ws) {
     release(); // Release delegate self at last
 }
 
-void JSB_WebSocketDelegate::onError(WebSocket *ws, const WebSocket::ErrorCode &error) {
+void JsbWebSocketDelegate::onError(cc::network::WebSocket *ws, const cc::network::WebSocket::ErrorCode & /*error*/) {
     se::ScriptEngine::getInstance()->clearException();
     se::AutoHandleScope hs;
 
-    if (cc::Application::getInstance() == nullptr)
+    if (cc::Application::getInstance() == nullptr) {
         return;
+    }
 
     auto iter = se::NativePtrToObjectMap::find(ws);
-    if (iter == se::NativePtrToObjectMap::end())
+    if (iter == se::NativePtrToObjectMap::end()) {
         return;
+    }
 
-    se::Object *wsObj = iter->second;
+    se::Object *     wsObj = iter->second;
     se::HandleObject jsObj(se::Object::createPlainObject());
     jsObj->setProperty("type", se::Value("error"));
     se::Value target;
-    native_ptr_to_seval<WebSocket>(ws, &target);
+    native_ptr_to_seval<cc::network::WebSocket>(ws, &target);
     jsObj->setProperty("target", target);
 
     se::Value func;
-    bool ok = _JSDelegate.toObject()->getProperty("onerror", &func);
+    bool      ok = _JSDelegate.toObject()->getProperty("onerror", &func);
     if (ok && func.isObject() && func.toObject()->isFunction()) {
         se::ValueArray args;
         args.push_back(se::Value(jsObj));
@@ -226,33 +229,34 @@ void JSB_WebSocketDelegate::onError(WebSocket *ws, const WebSocket::ErrorCode &e
     wsObj->unroot();
 }
 
-void JSB_WebSocketDelegate::setJSDelegate(const se::Value &jsDelegate) {
+void JsbWebSocketDelegate::setJSDelegate(const se::Value &jsDelegate) {
     assert(jsDelegate.isObject());
     _JSDelegate = jsDelegate;
 }
 
-static bool WebSocket_finalize(se::State &s) {
-    WebSocket *cobj = (WebSocket *)s.nativeThisObject();
+static bool webSocketFinalize(const se::State &s) {
+    auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
     CC_LOG_INFO("jsbindings: finalizing JS object %p (WebSocket)", cobj);
 
     // Manually close if web socket is not closed
-    if (cobj->getReadyState() != WebSocket::State::CLOSED) {
+    if (cobj->getReadyState() != cc::network::WebSocket::State::CLOSED) {
         CC_LOG_INFO("WebSocket (%p) isn't closed, try to close it!", cobj);
         cobj->closeAsync();
     }
 
-    static_cast<JSB_WebSocketDelegate *>(cobj->getDelegate())->release();
-    if (cobj->getReferenceCount() == 1)
+    static_cast<JsbWebSocketDelegate *>(cobj->getDelegate())->release();
+    if (cobj->getReferenceCount() == 1) {
         cobj->autorelease();
-    else
+    } else {
         cobj->release();
+    }
     return true;
 }
-SE_BIND_FINALIZE_FUNC(WebSocket_finalize)
+SE_BIND_FINALIZE_FUNC(webSocketFinalize)
 
-static bool WebSocket_constructor(se::State &s) {
+static bool webSocketConstructor(se::State &s) { // NOLINT (google-runtime-references)
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = static_cast<int>(args.size());
 
     if (argc == 1 || argc == 2 || argc == 3) {
         std::string url;
@@ -260,10 +264,10 @@ static bool WebSocket_constructor(se::State &s) {
         bool ok = seval_to_std_string(args[0], &url);
         SE_PRECONDITION2(ok, false, "Error processing url argument");
 
-        se::Object *obj = s.thisObject();
-        WebSocket *cobj = nullptr;
+        se::Object *            obj  = s.thisObject();
+        cc::network::WebSocket *cobj = nullptr;
         if (argc >= 2) {
-            std::string caFilePath;
+            std::string              caFilePath;
             std::vector<std::string> protocols;
 
             if (args[1].isString()) {
@@ -273,14 +277,15 @@ static bool WebSocket_constructor(se::State &s) {
                 protocols.push_back(protocol);
             } else if (args[1].isObject() && args[1].toObject()->isArray()) {
                 se::Object *protocolArr = args[1].toObject();
-                uint32_t len = 0;
-                ok = protocolArr->getArrayLength(&len);
+                uint32_t    len         = 0;
+                ok                      = protocolArr->getArrayLength(&len);
                 SE_PRECONDITION2(ok, false, "getArrayLength failed!");
 
                 se::Value tmp;
                 for (uint32_t i = 0; i < len; ++i) {
-                    if (!protocolArr->getArrayElement(i, &tmp))
+                    if (!protocolArr->getArrayElement(i, &tmp)) {
                         continue;
+                    }
 
                     std::string protocol;
                     ok = seval_to_std_string(tmp, &protocol);
@@ -294,8 +299,8 @@ static bool WebSocket_constructor(se::State &s) {
                 SE_PRECONDITION2(ok, false, "Error processing caFilePath");
             }
 
-            cobj = new (std::nothrow) WebSocket();
-            JSB_WebSocketDelegate *delegate = new (std::nothrow) JSB_WebSocketDelegate();
+            cobj           = new (std::nothrow) cc::network::WebSocket();
+            auto *delegate = new (std::nothrow) JsbWebSocketDelegate();
             if (cobj->init(*delegate, url, &protocols, caFilePath)) {
                 delegate->setJSDelegate(se::Value(obj, true));
                 cobj->retain();     // release in finalize function and onClose delegate method
@@ -307,8 +312,8 @@ static bool WebSocket_constructor(se::State &s) {
                 return false;
             }
         } else {
-            cobj = new (std::nothrow) WebSocket();
-            JSB_WebSocketDelegate *delegate = new (std::nothrow) JSB_WebSocketDelegate();
+            cobj           = new (std::nothrow) cc::network::WebSocket();
+            auto *delegate = new (std::nothrow) JsbWebSocketDelegate();
             if (cobj->init(*delegate, url)) {
                 delegate->setJSDelegate(se::Value(obj, true));
                 cobj->retain();     // release in finalize function and onClose delegate method
@@ -339,15 +344,15 @@ static bool WebSocket_constructor(se::State &s) {
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1<= and <=3", argc);
     return false;
 }
-SE_BIND_CTOR(WebSocket_constructor, __jsb_WebSocket_class, WebSocket_finalize)
+SE_BIND_CTOR(webSocketConstructor, jsbWebSocketClass, webSocketFinalize)
 
-static bool WebSocket_send(se::State &s) {
+static bool webSocketSend(const se::State &s) {
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = static_cast<int>(args.size());
 
     if (argc == 1) {
-        WebSocket *cobj = (WebSocket *)s.nativeThisObject();
-        bool ok = false;
+        auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
+        bool  ok   = false;
         if (args[0].isString()) {
             std::string data;
             ok = seval_to_std_string(args[0], &data);
@@ -364,8 +369,8 @@ static bool WebSocket_send(se::State &s) {
             cobj->send(data);
         } else if (args[0].isObject()) {
             se::Object *dataObj = args[0].toObject();
-            uint8_t *ptr = nullptr;
-            size_t length = 0;
+            uint8_t *   ptr     = nullptr;
+            size_t      length  = 0;
             if (dataObj->isArrayBuffer()) {
                 ok = dataObj->getArrayBufferData(&ptr, &length);
                 SE_PRECONDITION2(ok, false, "getArrayBufferData failed!");
@@ -376,7 +381,7 @@ static bool WebSocket_send(se::State &s) {
                 assert(false);
             }
 
-            cobj->send(ptr, (unsigned int)length);
+            cobj->send(ptr, static_cast<unsigned int>(length));
         } else {
             assert(false);
         }
@@ -386,13 +391,13 @@ static bool WebSocket_send(se::State &s) {
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 1", argc);
     return false;
 }
-SE_BIND_FUNC(WebSocket_send)
+SE_BIND_FUNC(webSocketSend)
 
-static bool WebSocket_close(se::State &s) {
+static bool webSocketClose(se::State &s) { // NOLINT (google-runtime-references)
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = static_cast<int>(args.size());
 
-    WebSocket *cobj = (WebSocket *)s.nativeThisObject();
+    auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
     if (argc == 0) {
         cobj->closeAsync();
     } else if (argc == 1) {
@@ -410,7 +415,7 @@ static bool WebSocket_close(se::State &s) {
     } else if (argc == 2) {
         assert(args[0].isNumber());
         assert(args[1].isString());
-        int reasonCode;
+        int         reasonCode;
         std::string reasonString;
         seval_to_int32(args[0], &reasonCode);
         seval_to_std_string(args[1], &reasonString);
@@ -429,54 +434,54 @@ static bool WebSocket_close(se::State &s) {
     se::ScriptEngine::getInstance()->getGlobalObject()->attachObject(s.thisObject());
     return true;
 }
-SE_BIND_FUNC(WebSocket_close)
+SE_BIND_FUNC(webSocketClose)
 
-static bool WebSocket_getReadyState(se::State &s) {
+static bool webSocketGetReadyState(se::State &s) { // NOLINT (google-runtime-references)
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = static_cast<int>(args.size());
 
     if (argc == 0) {
-        WebSocket *cobj = (WebSocket *)s.nativeThisObject();
-        s.rval().setInt32((int)cobj->getReadyState());
+        auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
+        s.rval().setInt32(static_cast<int>(cobj->getReadyState()));
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 0", argc);
     return false;
 }
-SE_BIND_PROP_GET(WebSocket_getReadyState)
+SE_BIND_PROP_GET(webSocketGetReadyState)
 
-static bool WebSocket_getBufferedAmount(se::State &s) {
+static bool webSocketGetBufferedAmount(se::State &s) { // NOLINT (google-runtime-references)
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = static_cast<int>(args.size());
 
     if (argc == 0) {
-        WebSocket *cobj = (WebSocket *)s.nativeThisObject();
-        s.rval().setUint32((uint32_t)cobj->getBufferedAmount());
+        auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
+        s.rval().setUint32(static_cast<uint32_t>(cobj->getBufferedAmount()));
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 0", argc);
     return false;
 }
-SE_BIND_PROP_GET(WebSocket_getBufferedAmount)
+SE_BIND_PROP_GET(webSocketGetBufferedAmount)
 
-static bool WebSocket_getExtensions(se::State &s) {
+static bool webSocketGetExtensions(se::State &s) { // NOLINT (google-runtime-references)
     const auto &args = s.args();
-    int argc = (int)args.size();
+    int         argc = static_cast<int>(args.size());
 
     if (argc == 0) {
-        WebSocket *cobj = (WebSocket *)s.nativeThisObject();
+        auto *cobj = static_cast<cc::network::WebSocket *>(s.nativeThisObject());
         s.rval().setString(cobj->getExtensions());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting 0", argc);
     return false;
 }
-SE_BIND_PROP_GET(WebSocket_getExtensions)
+SE_BIND_PROP_GET(webSocketGetExtensions)
 
     #define WEBSOCKET_DEFINE_READONLY_INT_FIELD(full_name, value)                    \
         static bool full_name(se::State &s) {                                        \
             const auto &args = s.args();                                             \
-            int argc = (int)args.size();                                             \
+            int         argc = (int)args.size();                                     \
             if (argc == 0) {                                                         \
                 s.rval().setInt32(value);                                            \
                 return true;                                                         \
@@ -486,20 +491,20 @@ SE_BIND_PROP_GET(WebSocket_getExtensions)
         }                                                                            \
         SE_BIND_PROP_GET(full_name)
 
-WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CONNECTING, (int)WebSocket::State::CONNECTING)
-WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_OPEN, (int)WebSocket::State::OPEN)
-WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSING, (int)WebSocket::State::CLOSING)
-WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSED, (int)WebSocket::State::CLOSED)
+WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CONNECTING, static_cast<int>(cc::network::WebSocket::State::CONNECTING))
+WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_OPEN, static_cast<int>(cc::network::WebSocket::State::OPEN))
+WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSING, static_cast<int>(cc::network::WebSocket::State::CLOSING))
+WEBSOCKET_DEFINE_READONLY_INT_FIELD(Websocket_CLOSED, static_cast<int>(cc::network::WebSocket::State::CLOSED))
 
-bool register_all_websocket(se::Object *obj) {
-    se::Class *cls = se::Class::create("WebSocket", obj, nullptr, _SE(WebSocket_constructor));
-    cls->defineFinalizeFunction(_SE(WebSocket_finalize));
+bool register_all_websocket(se::Object *obj) { // NOLINT (readability-identifier-naming)
+    se::Class *cls = se::Class::create("WebSocket", obj, nullptr, _SE(webSocketConstructor));
+    cls->defineFinalizeFunction(_SE(webSocketFinalize));
 
-    cls->defineFunction("send", _SE(WebSocket_send));
-    cls->defineFunction("close", _SE(WebSocket_close));
-    cls->defineProperty("readyState", _SE(WebSocket_getReadyState), nullptr);
-    cls->defineProperty("bufferedAmount", _SE(WebSocket_getBufferedAmount), nullptr);
-    cls->defineProperty("extensions", _SE(WebSocket_getExtensions), nullptr);
+    cls->defineFunction("send", _SE(webSocketSend));
+    cls->defineFunction("close", _SE(webSocketClose));
+    cls->defineProperty("readyState", _SE(webSocketGetReadyState), nullptr);
+    cls->defineProperty("bufferedAmount", _SE(webSocketGetBufferedAmount), nullptr);
+    cls->defineProperty("extensions", _SE(webSocketGetExtensions), nullptr);
     cls->defineProperty("CONNECTING", _SE(Websocket_CONNECTING), nullptr);
     cls->defineProperty("CLOSING", _SE(Websocket_CLOSING), nullptr);
     cls->defineProperty("OPEN", _SE(Websocket_OPEN), nullptr);
@@ -514,9 +519,9 @@ bool register_all_websocket(se::Object *obj) {
     tmp.toObject()->defineProperty("OPEN", _SE(Websocket_OPEN), nullptr);
     tmp.toObject()->defineProperty("CLOSED", _SE(Websocket_CLOSED), nullptr);
 
-    JSBClassType::registerClass<WebSocket>(cls);
+    JSBClassType::registerClass<cc::network::WebSocket>(cls);
 
-    __jsb_WebSocket_class = cls;
+    jsbWebSocketClass = cls;
 
     se::ScriptEngine::getInstance()->clearException();
 
