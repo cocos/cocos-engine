@@ -489,7 +489,7 @@ export class Model {
     private _setInstMatWorldIdx (idx: number) {
         this._instMatWorldIdx = idx;
         if (JSB) {
-            this._nativeObj!.setInstmatWorldIdx(idx);
+            this._nativeObj!.setInstMatWorldIdx(idx);
         }
     }
 
