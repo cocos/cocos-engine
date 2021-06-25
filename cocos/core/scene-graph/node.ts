@@ -468,6 +468,7 @@ export class Node extends BaseNode {
 
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags = TransformBit.TRS;
+        this._uiProps.uiTransformDirty = true;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -609,6 +610,7 @@ export class Node extends BaseNode {
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 cur._dirtyFlags |= dirtyBit;
+                cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
                 // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
                 cur._hasChangedFlagsChunk[cur._hasChangedFlagsOffset] = hasChangedFlags | dirtyBit;
                 const children = cur._children;

@@ -142,6 +142,7 @@ export const simple: IAssembler = {
             vData[27] = ar + cttx;
             vData[28] = br + dtty;
         }
+        node._uiProps.uiTransformDirty = false;
     },
 
     fillBuffers (sprite: Sprite, renderer: Batcher2D) {
@@ -150,9 +151,8 @@ export const simple: IAssembler = {
         }
 
         const vData = sprite.renderData!.vData!;
-        if (sprite.node.hasChangedFlags || (this.uiTransCache && this.uiTransCache._rectDirty)) {
+        if (sprite.node._uiProps.uiTransformDirty) {
             this.updateWorldVerts(sprite, vData);
-            this.uiTransCache._rectDirty = false;
         }
 
         // const buffer: MeshBuffer = renderer.createBuffer(
@@ -167,8 +167,8 @@ export const simple: IAssembler = {
         let indicesOffset = buffer.indicesOffset;
         let vertexId = buffer.vertexOffset;
 
-        const isRecreate = buffer.request();
-        if (!isRecreate) {
+        const bufferUnchanged = buffer.request();
+        if (!bufferUnchanged) {
             buffer = renderer.currBufferBatch!;
             vertexOffset = 0;
             indicesOffset = 0;
@@ -242,7 +242,7 @@ export const simple: IAssembler = {
         dataList[3].y = t;
 
         renderData.vertDirty = false;
-        this.uiTransCache = uiTrans;
+        this.updateWorldVerts(sprite, renderData.vData);
     },
 
     updateUvs (sprite: Sprite) {
