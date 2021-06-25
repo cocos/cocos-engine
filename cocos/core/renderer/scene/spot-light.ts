@@ -61,6 +61,13 @@ export class SpotLight extends Light {
 
     protected _init (): void {
         super._init();
+        if (JSB) {
+            const nativeSpotLight = this._nativeObj! as NativeSpotLight;
+            nativeSpotLight.setAABB(this._aabb.native);
+            nativeSpotLight.setFrustum(this._frustum);
+            nativeSpotLight.setDirection(this._dir);
+            nativeSpotLight.setPosition(this._pos);
+        }
     }
 
     protected _destroy (): void {
@@ -71,16 +78,6 @@ export class SpotLight extends Light {
         this._dir.set(dir);
         if (JSB) {
             (this._nativeObj! as NativeSpotLight).setDirection(dir);
-        }
-    }
-
-    protected _update (): void {
-        if (JSB) {
-            const nativeSpotLight = this._nativeObj! as NativeSpotLight;
-            nativeSpotLight.setFrustum(this._frustum);
-            nativeSpotLight.setAABB(this._aabb.native);
-            nativeSpotLight.setDirection(this._dir);
-            nativeSpotLight.setPosition(this._pos);
         }
     }
 
@@ -202,8 +199,6 @@ export class SpotLight extends Light {
             this._frustum.update(_matViewProj, _matViewProjInv);
 
             this._needUpdate = false;
-
-            this._update();
         }
     }
 }

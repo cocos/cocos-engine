@@ -304,7 +304,7 @@ export class Model {
             if (this._modelBounds && worldBounds) {
                 // @ts-expect-error TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
-                this._updateNativeWorldBounds();
+                this._updateNativeBounds();
             }
         }
     }
@@ -318,7 +318,7 @@ export class Model {
             if (this._modelBounds && worldBounds) {
                 // @ts-expect-error TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
-                this._updateNativeWorldBounds();
+                this._updateNativeBounds();
             }
         }
     }
@@ -368,9 +368,9 @@ export class Model {
         }
     }
 
-    protected _updateNativeWorldBounds () {
+    protected _updateNativeBounds () {
         if (JSB) {
-            this._nativeObj!.setWolrdBounds(this._worldBounds!.native);
+            this._nativeObj!.setBounds(this._worldBounds!.native);
         }
     }
 
@@ -383,7 +383,7 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
         this._worldBounds = AABB.clone(this._modelBounds);
-        this._updateNativeWorldBounds();
+        this._updateNativeBounds();
     }
 
     private _createSubModel () {

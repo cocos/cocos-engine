@@ -32,17 +32,14 @@ import { NativeSphereLight } from './native-scene';
 export class SphereLight extends Light {
     protected _init (): void {
         super._init();
-    }
-
-    protected _destroy (): void {
-        super._destroy();
-    }
-
-    protected _update (): void {
         if (JSB) {
             (this._nativeObj! as NativeSphereLight).setPosition(this._pos);
             (this._nativeObj! as NativeSphereLight).setAABB(this._aabb.native);
         }
+    }
+
+    protected _destroy (): void {
+        super._destroy();
     }
 
     get position () {
@@ -117,8 +114,6 @@ export class SphereLight extends Light {
             const range = this._range;
             AABB.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, range, range, range);
             this._needUpdate = false;
-
-            this._update();
         }
     }
 }

@@ -238,7 +238,7 @@ export class AABB {
             this.center = new Vec3(AABBPool.getTypedArray(this._aabbHandle, AABBView.CENTER) as FloatArray);
             this.halfExtents = new Vec3(AABBPool.getTypedArray(this._aabbHandle, AABBView.HALFEXTENTS) as FloatArray);
             this.center.set(px, py, pz);
-            this.center.set(hw, hh, hl);
+            this.halfExtents.set(hw, hh, hl);
             this._nativeObj = new NativeAABB();
             this._nativeObj.initWithData(AABBPool.getBuffer(this._aabbHandle));
             return;
