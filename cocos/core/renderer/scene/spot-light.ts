@@ -78,7 +78,7 @@ export class SpotLight extends Light {
         if (JSB) {
             const nativeSpotLight = this._nativeObj! as NativeSpotLight;
             nativeSpotLight.setFrustum(this._frustum);
-            nativeSpotLight.setAABB(this._aabb);
+            nativeSpotLight.setAABB(this._aabb.native);
             nativeSpotLight.setDirection(this._dir);
             nativeSpotLight.setPosition(this._pos);
         }

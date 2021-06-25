@@ -145,7 +145,7 @@ export class SkinningModel extends MorphModel {
                 }
                 nativeJoints.push({ indices,
                     buffers,
-                    bound,
+                    bound: bound.native,
                     target: target.native,
                     bindpose,
                     transform: { node: transform.node.native, local: transform.local, world: transform.world, stamp: transform.stamp },

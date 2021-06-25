@@ -41,7 +41,7 @@ export class SphereLight extends Light {
     protected _update (): void {
         if (JSB) {
             (this._nativeObj! as NativeSphereLight).setPosition(this._pos);
-            (this._nativeObj! as NativeSphereLight).setAABB(this._aabb);
+            (this._nativeObj! as NativeSphereLight).setAABB(this._aabb.native);
         }
     }
 

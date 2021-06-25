@@ -370,7 +370,7 @@ export class Model {
 
     protected _updateNativeWorldBounds () {
         if (JSB) {
-            this._nativeObj!.setWolrdBounds(this._worldBounds);
+            this._nativeObj!.setWolrdBounds(this._worldBounds!.native);
         }
     }
 
