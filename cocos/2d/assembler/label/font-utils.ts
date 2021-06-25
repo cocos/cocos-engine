@@ -148,6 +148,7 @@ class LetterTexture {
     }
 
     public destroy () {
+        if (this.image) this.image.decRef();
         this.image = null;
         // Label._canvasPool.put(this._data);
     }
@@ -175,6 +176,7 @@ class LetterTexture {
 
         if (!this.image) {
             this.image = new ImageAsset();
+            this.image.addRef();
         }
 
         this.image.reset(this.canvas);
@@ -395,6 +397,7 @@ export class LetterAtlas {
 
         const texture = new LetterRenderTexture();
         texture.initWithSize(this._width, this._height);
+        texture.addRef();
 
         this.fontDefDictionary.texture = texture;
     }
