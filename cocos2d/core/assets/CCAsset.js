@@ -112,10 +112,10 @@ cc.Asset = cc.Class({
         /**
          * !#en
          * The number of reference
-         * 
+         *
          * !#zh
          * 引用的数量
-         * 
+         *
          * @property refCount
          * @type {Number}
          */
@@ -215,7 +215,7 @@ cc.Asset = cc.Class({
      * JavaScript calls the `toString()` method automatically when an asset is to be represented as a text value or when a texture is referred to in a string concatenation.
      * !#zh
      * 返回资源的 URL。
-     * 
+     *
      * Asset 对象将会重写 Object 对象的 `toString()` 方法。
      * 对于 Asset 对象，`toString()` 方法返回该对象的字符串表示形式。
      * 当资源要表示为文本值时或在字符串连接时引用时，JavaScript 会自动调用 `toString()` 方法。
@@ -260,7 +260,7 @@ cc.Asset = cc.Class({
      * Set native file name for this asset.
      * !#zh
      * 为此资源设置原生文件名。
-     * 
+     *
      * @seealso nativeUrl
      *
      * @method _setRawAsset
@@ -280,13 +280,13 @@ cc.Asset = cc.Class({
     /**
      * !#en
      * Add references of asset
-     * 
+     *
      * !#zh
      * 增加资源的引用
-     * 
+     *
      * @method addRef
      * @return {Asset} itself
-     * 
+     *
      * @typescript
      * addRef(): cc.Asset
      */
@@ -298,13 +298,13 @@ cc.Asset = cc.Class({
     /**
      * !#en
      * Reduce references of asset and it will be auto released when refCount equals 0.
-     * 
+     *
      * !#zh
      * 减少资源的引用并尝试进行自动释放。
-     * 
+     *
      * @method decRef
      * @return {Asset} itself
-     * 
+     *
      * @typescript
      * decRef(): cc.Asset
      */
@@ -312,6 +312,11 @@ cc.Asset = cc.Class({
         this._ref > 0 && this._ref--;
         autoRelease !== false && cc.assetManager._releaseManager.tryRelease(this);
         return this;
+    },
+
+    destroy () {
+        this.loaded = false;
+        return this._super();
     }
 });
 
