@@ -653,13 +653,7 @@ export class Node extends BaseNode {
                     childLPos = child._lpos;
                     childRot = child._rot;
 
-                    if (childRot.x === 0 && childRot.y === 0 && childRot.z === 0 && childRot.w === 1) {
-                        childPos.x = curMat.m12 + childLPos.x;
-                        childPos.y = curMat.m13 + childLPos.y;
-                        childPos.z = curMat.m14 + childLPos.z;
-                    } else {
-                        Vec3.transformMat4(childPos, childLPos, curMat);
-                    }
+                    Vec3.transformMat4(childPos, childLPos, curMat);
 
                     childMat.m12 = childPos.x;
                     childMat.m13 = childPos.y;
