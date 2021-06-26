@@ -583,12 +583,6 @@ export class Node extends BaseNode {
         this.setWorldRotation(q_a);
     }
 
-    // ===============================
-    // transform maintainer
-    // ===============================
-
-    private _roundTime = 2000;
-
     /**
      * @en Invalidate the world transform information
      * for this node and all its children recursively
