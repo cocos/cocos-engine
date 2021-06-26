@@ -156,6 +156,7 @@ exports.methods = {
                         pass.switch.value = e.target.value;
                     });
                     setReadonly(this.asset.readonly, $checkbox);
+                    $checkbox.value = pass.switch.value;
 
                     const $section = $container.$children[i].querySelector('ui-section');
                     $section.appendChild($checkbox);

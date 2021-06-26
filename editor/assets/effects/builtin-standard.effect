@@ -14,7 +14,8 @@ CCEffect %{
         occlusion:      { value: 1.0, target: pbrParams.x, editor: { slide: true, range: [0, 1.0], step: 0.001 }  }
         roughness:      { value: 0.8, target: pbrParams.y, editor: { slide: true, range: [0, 1.0], step: 0.001 }  }
         metallic:       { value: 0.6, target: pbrParams.z, editor: { slide: true, range: [0, 1.0], step: 0.001 } }
-        normalStrenth:  { value: 1.0, target: pbrParams.w, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
+        SpecularIntensity:  { value: 0.5, target: pbrParams.w, editor: {  slide: true, range: [0.0, 1.0], step: 0.001 } }
+        normalStrenth:  { value: 1.0, target: miscParams.x, editor: { parent: USE_NORMAL_MAP, slide: true, range: [0, 1.0], step: 0.001 } }
         emissive:       { value: [0.0, 0.0, 0.0, 1.0], editor: { type: color } }
         emissiveScale:  { value: [1.0, 1.0, 1.0], target: emissiveScaleParam.xyz }
         mainTexture:    { value: grey, target: albedoMap, editor: { displayName: AlbedoMap } }
@@ -99,6 +100,7 @@ CCProgram shared-ubos %{
     vec4 albedo;
     vec4 albedoScaleAndCutoff;
     vec4 pbrParams;
+    vec4 miscParams;
     vec4 emissive;
     vec4 emissiveScaleParam;
   };
@@ -226,6 +228,8 @@ CCProgram standard-fs %{
   #define OCCLUSION_CHANNEL r
   #define ROUGHNESS_CHANNEL g
   #define METALLIC_CHANNEL  b
+  #define SPECULARINTENSITY_CHANNEL w
+
 
   #if USE_ALPHA_TEST
     #pragma define ALPHA_TEST_CHANNEL options([a, r])
@@ -234,7 +238,8 @@ CCProgram standard-fs %{
   void surf (out StandardSurface s) {
     vec4 baseColor = albedo;
     #if USE_VERTEX_COLOR
-      baseColor *= v_color;
+      baseColor.rgb *= SRGBToLinear(v_color.rgb);//use linear
+      baseColor.a *= v_color.a;
     #endif
     #if USE_ALBEDO_MAP
       vec4 texColor = texture(albedoMap, ALBEDO_UV);
@@ -258,8 +263,8 @@ CCProgram standard-fs %{
     #if USE_NORMAL_MAP
       vec3 nmmp = texture(normalMap, NORMAL_UV).xyz - vec3(0.5);
       s.normal =
-        (nmmp.x * pbrParams.w) * normalize(v_tangent) +
-        (nmmp.y * pbrParams.w) * normalize(v_bitangent) +
+        (nmmp.x * miscParams.x) * normalize(v_tangent) +
+        (nmmp.y * miscParams.x) * normalize(v_bitangent) +
         nmmp.z * normalize(s.normal);
     #endif
 
@@ -271,6 +276,7 @@ CCProgram standard-fs %{
       pbr.x *= res.OCCLUSION_CHANNEL;
       pbr.y *= res.ROUGHNESS_CHANNEL;
       pbr.z *= res.METALLIC_CHANNEL;
+      pbr.w *= res.SPECULARINTENSITY_CHANNEL;
     #endif
     #if USE_METALLIC_ROUGHNESS_MAP
       vec4 metallicRoughness = texture(metallicRoughnessMap, PBR_UV);
@@ -283,6 +289,7 @@ CCProgram standard-fs %{
     s.occlusion = clamp(pbr.x, 0.0, 0.96);
     s.roughness = clamp(pbr.y, 0.04, 1.0);
     s.metallic = pbr.z;
+    s.SpecularIntensity = pbr.w;
 
     s.emissive = emissive.rgb * emissiveScaleParam.xyz;
     #if USE_EMISSIVE_MAP

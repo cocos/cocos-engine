@@ -58,7 +58,6 @@ gulp.task('build-h5-source', gulp.series('build-debug-infos', () => {
         cli,
         `--engine=${__dirname}`,
         '--module=system',
-        '--sourcemap',
         '--build-mode=BUILD',
         '--platform=HTML5',
         '--physics=cannon',

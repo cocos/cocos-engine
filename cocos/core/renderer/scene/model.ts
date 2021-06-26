@@ -43,7 +43,7 @@ import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
-import { NativeModel } from './native-scene';
+import { NativeModel, NativeSkinningModel } from './native-scene';
 import { Pool } from '../../memop/pool';
 
 const m4_1 = new Mat4();
@@ -216,7 +216,7 @@ export class Model {
     protected _castShadow = false;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
-    protected declare _nativeObj: NativeModel | null;
+    protected declare _nativeObj: NativeModel | NativeSkinningModel | null;
 
     get native (): NativeModel {
         return this._nativeObj!;
@@ -236,7 +236,7 @@ export class Model {
         }
     }
 
-    private _init () {
+    protected _init () {
         if (JSB) {
             this._nativeObj = new NativeModel();
         }
@@ -489,7 +489,7 @@ export class Model {
     private _setInstMatWorldIdx (idx: number) {
         this._instMatWorldIdx = idx;
         if (JSB) {
-            this._nativeObj!.setInstmatWorldIdx(idx);
+            this._nativeObj!.setInstMatWorldIdx(idx);
         }
     }
 
@@ -509,15 +509,13 @@ export class Model {
 
         const attrs = this.instancedAttributes;
         attrs.buffer = new Uint8Array(size);
-        if (JSB) {
-            this._nativeObj!.setInstancedBuffer(attrs.buffer.buffer);
-        }
         attrs.views.length = attrs.attributes.length = 0;
         let offset = 0;
+        const nativeViews: TypedArray[] = [];
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
-            const attr = attrs.attributes[j];
+            const attr = new Attribute();
             attr.format = attribute.format;
             attr.name = attribute.name;
             attr.isNormalized = attribute.isNormalized;
@@ -525,7 +523,12 @@ export class Model {
             attrs.attributes.push(attr);
 
             const info = FormatInfos[attribute.format];
-            attrs.views.push(new (getTypedArrayConstructor(info))(attrs.buffer, offset, info.count));
+
+            const typeViewArray = new (getTypedArrayConstructor(info))(attrs.buffer.buffer, offset, info.count);
+            attrs.views.push(typeViewArray);
+            if (JSB) {
+                nativeViews.push(typeViewArray);
+            }
             offset += info.size;
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
@@ -533,7 +536,7 @@ export class Model {
         this._transformUpdated = true;
 
         if (JSB) {
-            this._nativeObj!.setInstanceAttributes(attrs.attributes);
+            this._nativeObj!.setInstancedAttrBlock(attrs.buffer.buffer, nativeViews, attrs.attributes);
         }
     }
 

@@ -103,6 +103,7 @@ export class RenderQueue {
     public insertRenderPass (renderObj: IRenderObject, subModelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.subModels[subModelIdx];
         const pass = subModel.passes[passIdx];
+        const shader = subModel.shaders[passIdx];
         const isTransparent = pass.blendState.targets[0].blend;
         if (isTransparent !== this._passDesc.isTransparent || !(pass.phase & this._passDesc.phases)) {
             return false;
@@ -111,7 +112,7 @@ export class RenderQueue {
         const rp = this._passPool.add();
         rp.hash = hash;
         rp.depth = renderObj.depth || 0;
-        rp.shaderId = pass.getShaderVariant()!.id;
+        rp.shaderId = shader.id;
         rp.subModel = subModel;
         rp.passIdx = passIdx;
         this.queue.push(rp);
@@ -131,8 +132,8 @@ export class RenderQueue {
             const { subModel, passIdx } = this.queue.array[i];
             const { inputAssembler } = subModel;
             const pass = subModel.passes[passIdx];
-            const shader = pass.getShaderVariant();
-            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader!, renderPass, inputAssembler);
+            const shader = subModel.shaders[passIdx];
+            const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
             cmdBuff.bindDescriptorSet(SetIndex.LOCAL, subModel.descriptorSet);

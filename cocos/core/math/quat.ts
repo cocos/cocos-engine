@@ -718,6 +718,7 @@ export class Quat extends MathBase {
             if (ArrayBuffer.isView(x)) {
                 this._array = x;
                 this._array.fill(0);
+                this._array[3] = 1;
             } else {
                 const v = x.array;
                 this._array = MathBase.createFloatArray(4);

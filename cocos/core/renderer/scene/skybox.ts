@@ -56,8 +56,8 @@ export class Skybox {
     }
 
     set enabled (val: boolean) {
-        if (val) this.activate(); else this._updatePipeline();
         this._setEnabled(val);
+        if (val) this.activate(); else this._updatePipeline();
     }
     /**
      * @en Whether use environment lighting
