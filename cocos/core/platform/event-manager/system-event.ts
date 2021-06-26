@@ -124,17 +124,17 @@ export class SystemEvent extends EventTarget {
         inputManager.setAccelerometerInterval(interval);
     }
 
-    public on (type: KeyboardEvent, callback: (event: EventKeyboard) => void, target?: unknown): typeof callback;
-    public on (type: MouseEvent, callback: (event: EventMouse) => void, target?: unknown): typeof callback;
-    public on (type: TouchEvent, callback: (touch: Touch, event: EventTouch) => void, target?: unknown): typeof callback;
-    public on (type: DeviceEvent, callback: (event: EventAcceleration) => void, target?: unknown): typeof callback;
+    public on (type: KeyboardEvent, callback: (event: EventKeyboard) => void, target?: unknown);
+    public on (type: MouseEvent, callback: (event: EventMouse) => void, target?: unknown);
+    public on (type: TouchEvent, callback: (touch: Touch, event: EventTouch) => void, target?: unknown);
+    public on (type: DeviceEvent, callback: (event: EventAcceleration) => void, target?: unknown);
     // #region deprecated
-    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: unknown): typeof callback;
+    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: unknown);
     public on (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL,
-        callback: (event: EventMouse) => void, target?: unknown): typeof callback;
+        callback: (event: EventMouse) => void, target?: unknown);
     public on (type: SystemEventType.TOUCH_START | SystemEventType.TOUCH_MOVE | SystemEventType.TOUCH_END | SystemEventType.TOUCH_CANCEL,
-        callback: (touch: Touch, event: EventTouch) => void, target?: unknown): typeof callback;
-    public on (type: SystemEventType.DEVICEMOTION, callback: (event: EventAcceleration) => void, target?: unknown): typeof callback;
+        callback: (touch: Touch, event: EventTouch) => void, target?: unknown);
+    public on (type: SystemEventType.DEVICEMOTION, callback: (event: EventAcceleration) => void, target?: unknown);
     // #endregion deprecated
     /**
      * @en
@@ -148,7 +148,7 @@ export class SystemEvent extends EventTarget {
      */
     public on<TFunction extends (...any) => void> (type: string, callback: TFunction, target?, once?: boolean) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
-            return callback;
+            return;
         }
         super.on(type, callback, target, once);
 
@@ -237,8 +237,6 @@ export class SystemEvent extends EventTarget {
                 eventManager.addListener(mouseListener, 256);
             }
         }
-
-        return callback;
     }
 
     public off (type: KeyboardEvent, callback?: (event: EventKeyboard) => void, target?: unknown);
