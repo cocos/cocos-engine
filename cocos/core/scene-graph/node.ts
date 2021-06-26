@@ -588,8 +588,6 @@ export class Node extends BaseNode {
     // ===============================
 
     private _roundTime = 2000;
-    private _invalidFrame = 0;
-    private _updateFrame = 0;
 
     /**
      * @en Invalidate the world transform information
