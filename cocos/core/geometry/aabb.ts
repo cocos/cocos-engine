@@ -34,7 +34,7 @@ import enums from './enums';
 import { FloatArray, IVec3Like } from '../math/type-define';
 import { Sphere } from './sphere';
 import { AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../renderer/core/memory-pools';
-import { NativeAABB } from '../renderer/scene';
+import { NativeAABB } from '../renderer/scene/native-scene';
 
 const _v3_tmp = new Vec3();
 const _v3_tmp2 = new Vec3();
