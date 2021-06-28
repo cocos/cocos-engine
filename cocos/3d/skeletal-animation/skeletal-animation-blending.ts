@@ -176,6 +176,9 @@ class QuatPropertyBlendState extends PropertyBlendState<Quat> {
     }
 
     public blend (value: Readonly<Quat>, weight: number) {
+        if (weight === 0.0) {
+            return;
+        }
         const { blendedValue, blendedWeight } = this;
         if (weight === 1.0) {
             Quat.copy(blendedValue, value);
