@@ -75,6 +75,7 @@ public:
     inline void seVisFlag(uint32_t flags) { _visFlags = flags; }
     inline void setBounds(AABB *world) {
         _worldBounds = world;
+        _modelBounds.set(_worldBounds->getCenter(), _worldBounds->getHalfExtents());
     }
     inline void setInstancedAttrBlock(uint8_t *buffer, uint32_t size, InstancedAttributeBlock &&block, const std::vector<gfx::Attribute> &attributes) {
         _instancedBuffer        = {buffer, size};
