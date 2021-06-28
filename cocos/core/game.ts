@@ -368,8 +368,8 @@ export class Game extends EventTarget {
      * @en Run the game frame by frame.
      * @zh 执行一帧游戏循环。
      */
-    public step () {
-        legacyCC.director.mainLoop();
+    public step (now?: number) {
+        legacyCC.director.mainLoop(now);
     }
 
     /**

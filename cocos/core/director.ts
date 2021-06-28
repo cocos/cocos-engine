@@ -301,7 +301,7 @@ export class Director extends EventTarget {
      * @en Calculates delta time since last time it was called, the result is saved to an internal property.
      * @zh 计算从上一帧到现在的时间间隔，结果保存在私有属性中
      */
-    public calculateDeltaTime (now) {
+    public calculateDeltaTime (now?: number) {
         if (!now) now = performance.now();
 
         this._deltaTime = now > this._lastUpdate ? (now - this._lastUpdate) / 1000 : 0;
@@ -877,14 +877,14 @@ export class Director extends EventTarget {
      * @en Run main loop of director
      * @zh 运行主循环
      */
-    public mainLoop (time: number) {
+    public mainLoop (time?: number) {
         if (this._purgeDirectorInNextLoop) {
             this._purgeDirectorInNextLoop = false;
             this.purgeDirector();
         } else if (!this._invalid) {
             // calculate "global" dt
             if (EDITOR && !legacyCC.GAME_VIEW) {
-                this._deltaTime = time;
+                this._deltaTime = time!;
             } else {
                 this.calculateDeltaTime(time);
             }
