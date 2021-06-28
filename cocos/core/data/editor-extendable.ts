@@ -1,7 +1,8 @@
 import { EDITOR } from 'internal:constants';
+import { ccclass, editorOnly } from 'cc.decorator';
 import { js } from '../utils/js';
-import { CCClass } from './class';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
+import { assertIsTrue } from './utils/asserts';
 
 // Functions and classes exposed from this module are useful to
 // make a class to be `EditorExtendableObject`.
@@ -25,6 +26,10 @@ export const EditorExtendable = editorExtendableInternal();
 
 export type EditorExtendable = InstanceType<typeof EditorExtendable>;
 
+// Note: Babel does not support decorators on computed property currently.
+// So we have to use its literal value below.
+assertIsTrue(editorExtrasTag === '__editorExtras__', 'editorExtrasTag needs to be updated.');
+
 // eslint-disable-next-line @typescript-eslint/ban-types
 function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), className?: string) {
     type ResultType = new (...args: any[]) => (T & EditorExtendableObject);
@@ -47,14 +52,24 @@ function editorExtendableInternal<T> (Base?: (new (...args: any[]) => T), classN
         }
     }
 
-    const EditorExtendable = Base ? class EditorExtendable extends (Base as unknown as any) implements EditorExtendableObject {
-        public [editorExtrasTag]!: unknown;
-    } : class EditorExtendable implements EditorExtendableObject {
-        public [editorExtrasTag]!: unknown;
-    };
+    let EditorExtendable: any;
+    if (Base) {
+        @ccclass(name)
+        class C extends (Base as unknown as any) implements EditorExtendableObject {
+            @editorOnly
+            public __editorExtras__!: unknown;
+        }
 
-    CCClass.fastDefine(name, EditorExtendable, { [editorExtrasTag]: {} });
-    CCClass.Attr.setClassAttr(EditorExtendable, editorExtrasTag, 'editorOnly', true);
+        EditorExtendable = C;
+    } else {
+        @ccclass(name)
+        class C implements EditorExtendableObject {
+            @editorOnly
+            public __editorExtras__!: unknown;
+        }
+
+        EditorExtendable = C;
+    }
 
     return EditorExtendable as unknown as ResultType;
 }
