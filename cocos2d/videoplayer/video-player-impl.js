@@ -46,6 +46,9 @@ let VideoPlayerImpl = cc.Class({
 
         this._video = null;
         this._url = '';
+		
+        this.playerWidth = '0px';
+        this.playerHeight = '0px';
 
         this._waitingFullscreen = false;
         this._fullScreenEnabled = false;
@@ -155,6 +158,9 @@ let VideoPlayerImpl = cc.Class({
 
         video.style.width = width + 'px';
         video.style.height = height + 'px';
+		
+        this.playerWidth = video.style.width;
+        this.playerHeight = video.style.height;
     },
 
     _createDom (muted) {
@@ -317,11 +323,114 @@ let VideoPlayerImpl = cc.Class({
         return duration;
     },
 
-    currentTime: function() {
+    currentTime: function () {
         let video = this._video;
         if (!video) return -1;
 
         return video.currentTime;
+    },
+
+    update: function () {
+        let video = this._video;
+        if (!video) return;
+
+        if (video.update !== undefined)
+            video.update();
+    },
+
+    getFrame: function () {
+        let video = this._video;
+        if (!video) return;
+
+        if (video.getFrame !== undefined)
+            video.getFrame();
+    },
+
+    getFrameWidth: function () {
+        let video = this._video;
+        if (!video) return 0;
+
+        if (video.getFrameWidth !== undefined)
+            return video.getFrameWidth();
+        else if (video.videoWidth !== undefined)
+            return video.videoWidth;
+        else 
+            return 0;
+    },
+    
+    getFrameHeight: function () {
+        let video = this._video;
+        if (!video) return 0;
+
+        if (video.getFrameHeight !== undefined)
+            return video.getFrameHeight();
+        else if (video.videoHeight !== undefined)
+            return video.videoHeight;
+        else
+            return 0;
+    },
+
+    getFrameChannel: function () {
+        let video = this._video;
+        if (!video) return 0;
+
+        if (video.getFrameChannel !== undefined)
+            return video.getFrameChannel();
+        else
+            return 3; //rgba8 in web
+    },
+
+    getVideoTexDataSize: function () {
+        let video = this._video;
+        if (!video) return 0;
+
+        if (video.getVideoTexDataSize !== undefined)
+            return video.getVideoTexDataSize();
+        else
+            return 0;
+    },
+
+    pushFrameDataToTexture2D: function (tex) {
+        let video = this._video;
+        if (!video) return;
+
+        if (video.pushFrameDataToTexture2D !== undefined)
+            video.pushFrameDataToTexture2D(tex);
+    },
+
+    pushPixelsToTexture: function (tex) {
+        let video = this._video;
+        if (!video) return;
+
+        if (video.pushPixelsToTexture !== undefined)
+            video.pushPixelsToTexture(tex);
+    },
+
+    setShowRawFrame: function (show) {
+        let video = this._video;
+        if (!video) return;
+
+        if (video.setShowRawFrame !== undefined)
+            video.setShowRawFrame(show);
+        else {
+			if (!show) {
+				video.style.width = '0%';
+			}
+			else {
+				video.style.width = this.videoWidth;
+			}
+        }
+    },
+
+    grabFramePixels: function (cctex) {
+        let video = this._video;
+        if (!video) return;
+
+        if (video.pushFrameDataToTexture2D === undefined) { // Web
+            cctex.initWithVideo(video);
+        } else { // Not web
+            this.pushFrameDataToTexture2D(cctex._texture);
+        }
     },
 
     setKeepAspectRatioEnabled: function () {
