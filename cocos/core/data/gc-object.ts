@@ -25,7 +25,7 @@
 import { EDITOR } from 'internal:constants';
 import { ccclass } from './decorators';
 import { finalizationManager } from './finalization-manager';
-import { GarbageCollectorContext } from './garbage-collection';
+import { garbageCollectionManager, GarbageCollectorContext } from './garbage-collection';
 import { CCObject } from './object';
 
 @ccclass('cc.GCObject')
@@ -75,6 +75,7 @@ export class GCObject extends CCObject {
             GCObject._ignoreGCObjects.length -= 1;
             this._ignoreId = -1;
         }
+        garbageCollectionManager.removeCCClassObjectFromRoot(this);
         if (EDITOR) finalizationManager.unregister(this._finalizationToken);
         return super.destroy();
     }
