@@ -324,8 +324,6 @@ var Texture2D = cc.Class({
 
         _isAlphaAtlas: false,
 
-        _useBgra: false,
-
         _genMipmaps: false,
         /**
          * !#en Sets whether generate mipmaps for the texture
@@ -616,22 +614,6 @@ var Texture2D = cc.Class({
     },
 
     /**
-     * !#en Init or update (if exists) with HTML video element.
-     * !#zh 用 HTML Video 对象初始化或者更新贴图。
-     * @method initWithVideo
-     * @param {HTMLVideoElement} video
-     */
-     initWithVideo (video) {
-        if (!video) return;
-        if (video instanceof HTMLVideoElement) {
-            this._image = video;
-            this._image.width = video.videoWidth;
-            this._image.height = video.videoHeight;
-            this.handleLoadedTexture();
-        }
-    },
-
-    /**
      * !#en
      * Intializes with texture data in ArrayBufferView.
      * !#zh 使用一个存储在 ArrayBufferView 中的图像数据（raw data）初始化数据。
@@ -738,14 +720,6 @@ var Texture2D = cc.Class({
         return this._isAlphaAtlas;
     },
 
-    setUseBGRA (bgra) {
-        this._useBgra = bgra;
-    },
-
-    getUseBGRA () {
-        return this._useBgra;
-    },
-
     /**
      * !#en
      * Handler of texture loaded event.
@@ -790,12 +764,16 @@ var Texture2D = cc.Class({
         this.emit("load");
 
         if (cc.macro.CLEANUP_IMAGE_CACHE) {
-            if (this._image instanceof HTMLImageElement) {
-                this._clearImage();
-            }
-            else if (cc.sys.capabilities.imageBitmap && this._image instanceof ImageBitmap) {
-                this._image.close && this._image.close();
-            }
+            this._cleanupImageCache();
+        }
+    },
+    
+    _cleanupImageCache () {
+        if (this._image instanceof HTMLImageElement) {
+            this._clearImage();
+        }
+        else if (cc.sys.capabilities.imageBitmap && this._image instanceof ImageBitmap) {
+            this._image.close && this._image.close();
         }
     },
 

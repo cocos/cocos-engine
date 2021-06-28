@@ -242,12 +242,12 @@ Bundle.prototype = {
      * bundle2.load('imgs/cocos', cc.SpriteFrame, null, (err, spriteFrame) => console.log(err));
      * 
      * @typescript
-     * load<T extends cc.Asset>(paths: string, type: typeof cc.Asset, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: T) => void): void
-     * load<T extends cc.Asset>(paths: string[], type: typeof cc.Asset, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
+     * load<T extends cc.Asset>(paths: string, type: { prototype: T } onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: T) => void): void
+     * load<T extends cc.Asset>(paths: string[], type: { prototype: T }, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
      * load<T extends cc.Asset>(paths: string, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: T) => void): void
      * load<T extends cc.Asset>(paths: string[], onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
-     * load<T extends cc.Asset>(paths: string, type: typeof cc.Asset, onComplete?: (error: Error, assets: T) => void): void
-     * load<T extends cc.Asset>(paths: string[], type: typeof cc.Asset, onComplete?: (error: Error, assets: Array<T>) => void): void
+     * load<T extends cc.Asset>(paths: string, type: { prototype: T }, onComplete?: (error: Error, assets: T) => void): void
+     * load<T extends cc.Asset>(paths: string[], type: { prototype: T }, onComplete?: (error: Error, assets: Array<T>) => void): void
      * load<T extends cc.Asset>(paths: string, onComplete?: (error: Error, assets: T) => void): void
      * load<T extends cc.Asset>(paths: string[], onComplete?: (error: Error, assets: Array<T>) => void): void
      */
@@ -345,10 +345,10 @@ Bundle.prototype = {
      * bundle2.loadDir('skills', cc.SpriteFrame, null, (err, spriteFrames) => console.log(err));
      *
      * @typescript
-     * loadDir<T extends cc.Asset>(dir: string, type: typeof cc.Asset, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
+     * loadDir<T extends cc.Asset>(dir: string, type: { prototype: T }, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
      * loadDir<T extends cc.Asset>(dir: string, onProgress: (finish: number, total: number, item: RequestItem) => void, onComplete: (error: Error, assets: Array<T>) => void): void
-     * loadDir<T extends cc.Asset>(dir: string, type: typeof cc.Asset, onComplete: (error: Error, assets: Array<T>) => void): void
-     * loadDir<T extends cc.Asset>(dir: string, type: typeof cc.Asset): void
+     * loadDir<T extends cc.Asset>(dir: string, type: { prototype: T }, onComplete: (error: Error, assets: Array<T>) => void): void
+     * loadDir<T extends cc.Asset>(dir: string, type: { prototype: T }): void
      * loadDir<T extends cc.Asset>(dir: string, onComplete: (error: Error, assets: Array<T>) => void): void
      * loadDir<T extends cc.Asset>(dir: string): void
      */
@@ -521,7 +521,7 @@ Bundle.prototype = {
      * bundle1.get('music/hit', cc.AudioClip);
      * 
      * @typescript
-     * get<T extends cc.Asset> (path: string, type?: typeof cc.Asset): T
+     * get<T extends cc.Asset> (path: string, type?: { prototype: T }): T
      */
     get (path, type) {
         var info = this.getInfoWithPath(path, type);
