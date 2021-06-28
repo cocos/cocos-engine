@@ -25,6 +25,10 @@
  ****************************************************************************/
 
 const VideoPlayerImpl = require('./video-player-impl');
+const Sprite = require('../core/components/CCSprite');
+const { Rect, Size } = require('../core/value-types');
+const SpriteFrame = require('../core/assets/CCSpriteFrame');
+const { default: gfx } = require('../renderer/gfx');
 
 /**
  * !#en Video event type
@@ -191,6 +195,7 @@ let VideoPlayer = cc.Class({
                     else if (this._currentStatus === EventType.COMPLETED) {
                         return this._impl.duration();
                     }
+
                     return this._impl.currentTime();
                 }
                 return -1;
@@ -393,9 +398,89 @@ let VideoPlayer = cc.Class({
         }
     },
 
+    /**
+     * !#en Get video texture
+     * !#ch 获取视频纹理对象
+     * @method getTexture
+     * @returns {Texture2D} The video texture object
+     */ 
+    getTexture () {
+        return this._ccVideoTex;
+    },
+
+    _enableGrabTexture : false,
+    /**
+     * !#en Open get texture flag
+     * !#ch 开启抓取视频帧纹理
+     * @method enableGrabTexture
+     */
+    enableGrabTexture () {
+        this._enableGrabTexture = true;
+    },
+
+    /**
+     * !#en Close get texture flag
+     * !#ch 关闭抓取视频帧纹理 
+     * @method disableGrabTexture
+     */
+    disableGrabTexture () {
+        this._enableGrabTexture = false;
+    },
+
+    /**
+     * !#en Show raw video player
+     * !#ch 是否显示原始播放器窗口
+     * @method setShowRaw
+     * @param {Boolean} show
+     */
+    setShowRaw (show) {
+        this._impl.setShowRawFrame(show);
+    },
+
+    _ccVideoTex : null,
+
     update (dt) {
         if (this._impl) {
             this._impl.updateMatrix(this.node);
+
+            // this.enableGrabTexture(); // For demo useage
+            if (!this._enableGrabTexture) return;
+
+            this._impl.getFrame();
+            let w = this._impl.getFrameWidth();
+            let h = this._impl.getFrameHeight();
+            if (w === 0 || h === 0) return;
+
+            if (this._ccVideoTex === null) {
+                this._ccVideoTex = new cc.Texture2D();
+                this._ccVideoTex.initWithData(null, this.queryChannelType(this._impl.getFrameChannel()), w, h);
+                if (this._impl.getFrameChannel() === 7)
+                    this._ccVideoTex.setUseBGRA(true);
+                // this._sfm = null; // For demo useage
+            } else if (this._ccVideoTex.width !== this._impl.getFrameWidth() ||
+                this._ccVideoTex.height !== this._impl.getFrameHeight()) {
+                    this._ccVideoTex.destroy();
+                    this._ccVideoTex = new cc.Texture2D();
+                    this._ccVideoTex.initWithData(null, this.queryChannelType(this._impl.getFrameChannel()), w, h);
+                    if (this._impl.getFrameChannel() === 7)
+                        this._ccVideoTex.setUseBGRA(true);
+                    // this._sfm = null; // For demo useage.
+            }
+
+            this._impl.grabFramePixels(this._ccVideoTex);
+            
+            /* // For demo useage
+            let sprite = this.getComponentInChildren(Sprite);
+            if (sprite) {
+                if (this._sfm === undefined || this._sfm === null) {
+                    this._sfm = new SpriteFrame();
+                    // let sw = sprite.node.getContentSize().width;
+                    // let sh = sprite.node.getContentSize().height;
+                    this._sfm.setTexture(this._ccVideoTex, new Rect(0,0,w,h), false, new cc.v2(0,0), new Size(w,h));
+                }
+                sprite.spriteFrame = this._sfm;
+            }
+            // */
         }
     },
 
@@ -511,7 +596,40 @@ let VideoPlayer = cc.Class({
             return this._impl.isPlaying();
         }
         return false;
-    }
+    },
+
+    queryChannelType (cid) {
+        let type = null;
+        switch(cid) {
+            case 1:
+                //type = gfx.TEXTURE_FMT_A8;
+                type = 9;
+                break;
+            case 2:
+                //type = gfx.TEXTURE_FMT_R4_G4_B4_A4;
+                type = 14;
+                break;
+            case 3:
+                //type = gfx.TEXTURE_FMT_RGBA8;
+                type = 16;
+                break;
+            case 5:
+                //type = gfx.TEXTURE_FMT_RGBA16F;
+                type = 18;
+                break;
+            case 6:
+                //type = gfx.TEXTURE_FMT_R5_G6_B5;
+                type = 12;
+                break;
+            case 7:
+                type = 16; // bgra8
+                break;
+            default:
+                type = null;
+                break;
+        }
+        return type;
+    },
 
     /**
      * !#en if you don't need the VideoPlayer and it isn't in any running Scene, you should
