@@ -540,6 +540,7 @@ export class Node extends BaseNode {
 
         this.hasChangedFlags = TransformBit.TRS;
         this._setDirtyFlags(TransformBit.TRS);
+        this._uiProps.uiTransformDirty = true;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -653,10 +654,6 @@ export class Node extends BaseNode {
         this.setWorldRotation(q_a);
     }
 
-    // ===============================
-    // transform maintainer
-    // ===============================
-
     /**
      * @en Invalidate the world transform information
      * for this node and all its children recursively
@@ -673,6 +670,7 @@ export class Node extends BaseNode {
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 cur._setDirtyFlags(cur._dirtyFlags | dirtyBit);
+                cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
                 const children = cur._children;
                 const len = children.length;

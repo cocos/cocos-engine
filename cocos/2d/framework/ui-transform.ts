@@ -92,6 +92,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
+        this._markRenderDataDirty();
     }
 
     get width () {
@@ -115,6 +116,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
+        this._markRenderDataDirty();
     }
 
     get height () {
@@ -138,6 +140,7 @@ export class UITransform extends Component {
         } else {
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
+        this._markRenderDataDirty();
     }
 
     /**
@@ -161,6 +164,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.set(value);
         this.node.emit(NodeEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this._markRenderDataDirty();
     }
 
     get anchorX () {
@@ -174,6 +178,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.x = value;
         this.node.emit(NodeEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this._markRenderDataDirty();
     }
 
     get anchorY () {
@@ -187,6 +192,7 @@ export class UITransform extends Component {
 
         this._anchorPoint.y = value;
         this.node.emit(NodeEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this._markRenderDataDirty();
     }
 
     /**
@@ -258,6 +264,7 @@ export class UITransform extends Component {
 
     public onEnable () {
         this.node.on(NodeEventType.PARENT_CHANGED, this._parentChanged, this);
+        this._markRenderDataDirty();
     }
 
     public onDisable () {
@@ -335,6 +342,8 @@ export class UITransform extends Component {
         } else {
             this.node.emit(NodeEventType.SIZE_CHANGED);
         }
+
+        this._markRenderDataDirty();
     }
 
     /**
@@ -383,7 +392,7 @@ export class UITransform extends Component {
         // this.setLocalDirty(LocalDirtyFlag.POSITION);
         // if (this._eventMask & ANCHOR_ON) {
         this.node.emit(NodeEventType.ANCHOR_CHANGED, this._anchorPoint);
-
+        this._markRenderDataDirty();
         // }
     }
 
@@ -646,6 +655,13 @@ export class UITransform extends Component {
 
         if (this.node.parent) {
             UITransform.insertChangeMap(this.node.parent);
+        }
+    }
+
+    private _markRenderDataDirty () {
+        const uiComp = this.node._uiProps.uiComp;
+        if (uiComp) {
+            uiComp.markForUpdateRenderData();
         }
     }
 
