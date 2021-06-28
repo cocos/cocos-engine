@@ -39,7 +39,7 @@ export default class System implements ISchedulable {
     static Priority = Enum({
         LOW: 0,
         MEDIUM: 100,
-        HIGH: 1000,
+        HIGH: 200,
         SCHEDULER: (1 << 31) >>> 0,
     });
 

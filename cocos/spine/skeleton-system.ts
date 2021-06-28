@@ -1,6 +1,7 @@
 import { director } from '../core/director';
 import { System } from '../core/components';
 import { Skeleton } from './skeleton';
+import { errorID } from '../core';
 
 export class SkeletonSystem extends System {
     /**
@@ -15,6 +16,9 @@ export class SkeletonSystem extends System {
 
     private constructor () {
         super();
+        if (SkeletonSystem.instance) {
+            errorID(12101);
+        }
     }
 
     /**
@@ -26,32 +30,32 @@ export class SkeletonSystem extends System {
     public static getInstance () {
         if (!SkeletonSystem.instance) {
             SkeletonSystem.instance = new SkeletonSystem();
-            director.registerSystem(SkeletonSystem.ID, SkeletonSystem.instance, System.Priority.SCHEDULER);
+            director.registerSystem(SkeletonSystem.ID, SkeletonSystem.instance, System.Priority.HIGH);
         }
         return SkeletonSystem.instance;
     }
 
-    private static skeletons = new Set<Skeleton>();
+    private skeletons = new Set<Skeleton>();
 
     public add (skeleton: Skeleton | null) {
         if (!skeleton) return;
-        if (!SkeletonSystem.skeletons.has(skeleton)) {
-            SkeletonSystem.skeletons.add(skeleton);
+        if (!this.skeletons.has(skeleton)) {
+            this.skeletons.add(skeleton);
         }
     }
 
     public remove (skeleton: Skeleton | null) {
         if (!skeleton) return;
-        if (SkeletonSystem.skeletons.has(skeleton)) {
-            SkeletonSystem.skeletons.delete(skeleton);
+        if (this.skeletons.has(skeleton)) {
+            this.skeletons.delete(skeleton);
         }
     }
 
     postUpdate (dt: number) {
-        if (!SkeletonSystem.skeletons) {
+        if (!this.skeletons) {
             return;
         }
-        SkeletonSystem.skeletons.forEach((skeleton) => {
+        this.skeletons.forEach((skeleton) => {
             skeleton.updateAnimation(dt);
         });
     }
