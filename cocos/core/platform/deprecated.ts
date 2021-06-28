@@ -279,27 +279,27 @@ markAsWarning(macro.KEY, 'macro.KEY',
 markAsWarning(macro.KEY, 'macro.KEY', [
     {
         name: 'shift',
-        suggest: 'please use SystemEvent.KeyCode.SHIFT_LEFT instead',
+        suggest: 'please use KeyCode.SHIFT_LEFT instead',
     },
 ]);
 
 markAsWarning(macro.KEY, 'macro.KEY', [
     {
         name: 'ctrl',
-        suggest: 'please use SystemEvent.KeyCode.CTRL_LEFT instead',
+        suggest: 'please use KeyCode.CTRL_LEFT instead',
     },
 ]);
 
 markAsWarning(macro.KEY, 'macro.KEY', [
     {
         name: 'alt',
-        suggest: 'please use SystemEvent.KeyCode.ALT_LEFT instead',
+        suggest: 'please use KeyCode.ALT_LEFT instead',
     },
 ]);
 
 markAsWarning(macro, 'macro', [
     {
         name: 'KEY',
-        suggest: 'please use SystemEvent.KeyCode instead',
+        suggest: 'please use KeyCode instead',
     },
 ]);

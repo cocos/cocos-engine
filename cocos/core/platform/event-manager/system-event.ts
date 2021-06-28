@@ -75,12 +75,6 @@ export class SystemEvent extends EventTarget {
     public static KeyboardEvent = KeyboardEvent;
     public static DeviceEvent = DeviceEvent;
 
-    /**
-     * @en Enum type of keyCode for key event
-     * @zh 按键事件的按键码
-     */
-    public static KeyCode = KeyCode;
-
     constructor () {
         super();
     }

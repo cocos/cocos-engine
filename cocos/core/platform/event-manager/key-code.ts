@@ -1,3 +1,7 @@
+/**
+ * @en Enum type of keyCode for key event
+ * @zh 按键事件的按键码
+ */
 export enum KeyCode {
     /**
     * @en None
