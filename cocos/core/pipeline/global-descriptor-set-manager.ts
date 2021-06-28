@@ -34,9 +34,18 @@ import { Device, BufferUsageBit, MemoryUsageBit, BufferInfo, Filter, Address, Sa
 import { UBOShadow, globalDescriptorSetLayout, PipelineGlobalBindings } from './define';
 import { genSamplerHash, samplerLib } from '../renderer/core/sampler-lib';
 
-const _samplerInfo = [
+const _samplerLinearInfo = [
     Filter.LINEAR,
     Filter.LINEAR,
+    Filter.NONE,
+    Address.CLAMP,
+    Address.CLAMP,
+    Address.CLAMP,
+];
+
+const _samplerPointInfo = [
+    Filter.POINT,
+    Filter.POINT,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,
@@ -48,14 +57,21 @@ export class GlobalDSManager {
     private _descriptorSetMap: Map<number, DescriptorSet> = new Map();
     private _globalDescriptorSet: DescriptorSet;
     private _descriptorSetLayout: DescriptorSetLayout;
-    private _sampler: Sampler;
+    private _linearSampler: Sampler;
+    private _pointSampler: Sampler;
 
     get descriptorSetMap () {
         return this._descriptorSetMap;
     }
 
-    get shadowMapSampler () {
-        return this._sampler;
+    // TODO: Future extensions of PCSS require search depth to compute the penumbra, which requires linear sampling
+    get linearSampler () {
+        return this._linearSampler;
+    }
+
+    // TODO: For the use of hard and soft, point sampling is required
+    get pointSampler () {
+        return this._pointSampler;
     }
 
     get descriptorSetLayout () {
@@ -69,8 +85,11 @@ export class GlobalDSManager {
     constructor (pipeline: RenderPipeline) {
         this._device = pipeline.device;
 
-        const shadowMapSamplerHash = genSamplerHash(_samplerInfo);
-        this._sampler = samplerLib.getSampler(this._device, shadowMapSamplerHash);
+        const linearSamplerHash = genSamplerHash(_samplerLinearInfo);
+        this._linearSampler = samplerLib.getSampler(this._device, linearSamplerHash);
+
+        const pointSamplerHash = genSamplerHash(_samplerPointInfo);
+        this._pointSampler = samplerLib.getSampler(this._device, pointSamplerHash);
 
         const layoutInfo = new DescriptorSetLayoutInfo(globalDescriptorSetLayout.bindings);
         this._descriptorSetLayout = this._device.createDescriptorSetLayout(layoutInfo);
@@ -182,6 +201,7 @@ export class GlobalDSManager {
 
     public destroy () {
         this._descriptorSetLayout.destroy();
-        this._sampler.destroy();
+        this._linearSampler.destroy();
+        this._pointSampler.destroy();
     }
 }

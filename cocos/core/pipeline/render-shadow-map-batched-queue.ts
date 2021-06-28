@@ -113,7 +113,7 @@ export class RenderShadowMapBatchedQueue {
 
     /**
      * @zh
-     * clear ligth-Batched-Queue
+     * clear light-Batched-Queue
      */
     public clear () {
         this._subModelsArray.length = 0;

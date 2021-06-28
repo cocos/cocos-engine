@@ -1467,6 +1467,7 @@ export class Skeleton extends Renderable2D {
 
     // if change use tint mode, just clear material cache
     protected _updateUseTint () {
+        this._cleanMaterialCache();
         this.destroyRenderData();
     }
     // if change use batch mode, just clear material cache
