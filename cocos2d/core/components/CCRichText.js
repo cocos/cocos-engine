@@ -82,6 +82,7 @@ pool.get = function (string, richtext) {
     let labelNode = this._get();
     if (!labelNode) {
         labelNode = new cc.PrivateNode(RichTextChildName);
+        labelNode._objFlags |= cc.Object.Flags.DontSave;
     }
 
     labelNode.setPosition(0, 0);
@@ -655,6 +656,7 @@ let RichText = cc.Class({
         let spriteFrame = this.imageAtlas.getSpriteFrame(spriteFrameName);
         if (spriteFrame) {
             let spriteNode = new cc.PrivateNode(RichTextChildImageName);
+            spriteNode._objFlags |= cc.Object.Flags.DontSave;
             let spriteComponent = spriteNode.addComponent(cc.Sprite);
             switch (richTextElement.style.imageAlign)
             {
