@@ -37,7 +37,7 @@ public:
     CCVKPipelineState();
     ~CCVKPipelineState();
 
-    CC_INLINE CCVKGPUPipelineState *gpuPipelineState() const { return _gpuPipelineState; }
+    inline CCVKGPUPipelineState *gpuPipelineState() const { return _gpuPipelineState; }
 
 protected:
     void doInit(const PipelineStateInfo &info) override;

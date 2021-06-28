@@ -151,7 +151,7 @@ public:
         _pool.clear();
     }
 
-    CC_INLINE void alloc(CCMTLGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1); }
+    inline void alloc(CCMTLGPUBuffer *gpuBuffer) { alloc(gpuBuffer, 1); }
     void alloc(CCMTLGPUBuffer *gpuBuffer, uint alignment) {
         size_t bufferCount = _pool.size();
         Buffer *buffer = nullptr;

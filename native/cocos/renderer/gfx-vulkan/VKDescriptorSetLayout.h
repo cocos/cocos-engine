@@ -38,7 +38,7 @@ public:
     CCVKDescriptorSetLayout();
     ~CCVKDescriptorSetLayout();
 
-    CC_INLINE CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
+    inline CCVKGPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
 
 protected:
     static uint generateID() noexcept {

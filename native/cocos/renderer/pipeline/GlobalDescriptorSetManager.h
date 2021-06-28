@@ -41,21 +41,21 @@ class RenderPipeline;
 
 class GlobalDSManager : public Object {
 public:
-    GlobalDSManager() = default;
+    GlobalDSManager()           = default;
     ~GlobalDSManager() override = default;
 
-    CC_INLINE std::unordered_map<uint, gfx::DescriptorSet *> getDescriptorSetMap() const { return _descriptorSetMap; }
-    CC_INLINE gfx::Sampler *getShadowMapSampler() const { return _sampler; }
-    CC_INLINE gfx::DescriptorSetLayout *getDescriptorSetLayout() const { return _descriptorSetLayout; }
-    CC_INLINE gfx::DescriptorSet *getGlobalDescriptorSet() const { return _globalDescriptorSet; }
+    inline std::unordered_map<uint, gfx::DescriptorSet *> getDescriptorSetMap() const { return _descriptorSetMap; }
+    inline gfx::Sampler *                                 getShadowMapSampler() const { return _sampler; }
+    inline gfx::DescriptorSetLayout *                     getDescriptorSetLayout() const { return _descriptorSetLayout; }
+    inline gfx::DescriptorSet *                           getGlobalDescriptorSet() const { return _globalDescriptorSet; }
 
-    void activate(gfx::Device *device, RenderPipeline *pipeline);
-    void bindBuffer(uint binding, gfx::Buffer *buffer);
-    void bindTexture(uint binding, gfx::Texture *texture);
-    void bindSampler(uint binding, gfx::Sampler *sampler);
-    void update();
+    void                activate(gfx::Device *device, RenderPipeline *pipeline);
+    void                bindBuffer(uint binding, gfx::Buffer *buffer);
+    void                bindTexture(uint binding, gfx::Texture *texture);
+    void                bindSampler(uint binding, gfx::Sampler *sampler);
+    void                update();
     gfx::DescriptorSet *getOrCreateDescriptorSet(uint idx);
-    void destroy();
+    void                destroy();
 
 protected:
     static void setDescriptorSetLayout();

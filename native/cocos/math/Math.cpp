@@ -120,7 +120,7 @@ const uint32_t CRC32_TABLE[] = {
     0x5D681B02, 0x2A6F2B94, 0xB40BBE37, 0xC30C8EA1, 0x5A05DF1B,
     0x2D02EF8D};
 
-CC_INLINE void CRCUpdateB(uint32_t &crc, uint8_t b) {
+inline void CRCUpdateB(uint32_t &crc, uint8_t b) {
     crc = CRC32_TABLE[(crc ^ b) & 0xFF] ^ (crc >> 8);
 }
 

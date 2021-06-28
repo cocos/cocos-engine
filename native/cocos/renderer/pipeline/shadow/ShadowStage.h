@@ -44,8 +44,8 @@ public:
     void render(scene::Camera *camera) override;
     void activate(RenderPipeline *pipeline, RenderFlow *flow) override;
 
-    CC_INLINE void setFramebuffer(gfx::Framebuffer *framebuffer) { _framebuffer = framebuffer; }
-    CC_INLINE void setUseData(const scene::Light *light, gfx::Framebuffer *framebuffer) {
+    inline void setFramebuffer(gfx::Framebuffer *framebuffer) { _framebuffer = framebuffer; }
+    inline void setUseData(const scene::Light *light, gfx::Framebuffer *framebuffer) {
         _light       = light;
         _framebuffer = framebuffer;
     };

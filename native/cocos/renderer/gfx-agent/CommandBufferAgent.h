@@ -70,8 +70,8 @@ public:
     uint getNumInstances() const override { return _actor->getNumInstances(); }
     uint getNumTris() const override { return _actor->getNumTris(); }
 
-    CC_INLINE MessageQueue *getMessageQueue() { return _messageQueue; }
-    LinearAllocatorPool *   getAllocator();
+    inline MessageQueue *getMessageQueue() { return _messageQueue; }
+    LinearAllocatorPool *getAllocator();
 
 protected:
     friend class DeviceAgent;

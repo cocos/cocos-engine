@@ -46,9 +46,9 @@ template <typename Data, typename ExecuteMethod>
 class CallbackPass final : public Executable {
 public:
     explicit CallbackPass(ExecuteMethod &&execute) noexcept;
-    void            execute(const DevicePassResourceTable &resourceTable) noexcept override;
-    CC_INLINE const Data &getData() const noexcept { return _data; }
-    CC_INLINE Data &getData() noexcept { return _data; }
+    void               execute(const DevicePassResourceTable &resourceTable) noexcept override;
+    inline const Data &getData() const noexcept { return _data; }
+    inline Data &      getData() noexcept { return _data; }
 
 private:
     Data          _data;

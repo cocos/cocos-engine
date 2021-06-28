@@ -37,7 +37,7 @@ public:
     GLES2Framebuffer();
     ~GLES2Framebuffer();
 
-    CC_INLINE GLES2GPUFramebuffer *gpuFBO() const { return _gpuFBO; }
+    inline GLES2GPUFramebuffer *gpuFBO() const { return _gpuFBO; }
 
 protected:
     void doInit(const FramebufferInfo &info) override;

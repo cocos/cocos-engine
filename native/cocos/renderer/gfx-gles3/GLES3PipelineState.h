@@ -37,7 +37,7 @@ public:
     GLES3PipelineState();
     ~GLES3PipelineState();
 
-    CC_INLINE GLES3GPUPipelineState *gpuPipelineState() const { return _gpuPipelineState; }
+    inline GLES3GPUPipelineState *gpuPipelineState() const { return _gpuPipelineState; }
 
 protected:
     void doInit(const PipelineStateInfo &info) override;

@@ -37,7 +37,7 @@ public:
 
     static uint computeHash(const TextureBarrierInfo &info);
 
-    CC_INLINE const TextureBarrierInfo &info() const { return _info; }
+    inline const TextureBarrierInfo &info() const { return _info; }
 
 protected:
     friend class Device;

@@ -39,7 +39,7 @@ class CC_DLL BufferPool final : public cc::Object {
 public:
     using Chunk = uint8_t *;
 
-    CC_INLINE static uint                            getPoolFlag() { return POOL_FLAG; }
+    inline static uint                            getPoolFlag() { return POOL_FLAG; }
 
     BufferPool(PoolType type, uint entryBits, uint bytesPerEntry);
     ~BufferPool() override;

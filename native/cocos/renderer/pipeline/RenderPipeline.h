@@ -63,20 +63,20 @@ public:
 
     void setPipelineSharedSceneData(scene::PipelineSharedSceneData *data);
 
-    CC_INLINE const RenderFlowList &                  getFlows() const { return _flows; }
-    CC_INLINE uint                                    getTag() const { return _tag; }
-    CC_INLINE const map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
-    CC_INLINE const DefineMap &                       getMacros() const { return _macros; }
-    CC_INLINE void                                    setValue(const String &name, bool value) { _macros.setValue(name, value); }
-    CC_INLINE GlobalDSManager *                       getGlobalDSManager() const { return _globalDSManager; }
-    CC_INLINE gfx::DescriptorSet *                    getDescriptorSet() const { return _descriptorSet; }
-    CC_INLINE gfx::DescriptorSetLayout *              getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
-    CC_INLINE gfx::Texture *                          getDefaultTexture() const { return _defaultTexture; }
-    CC_INLINE PipelineSceneData *                     getPipelineSceneData() const { return _pipelineSceneData; }
-    CC_INLINE const gfx::CommandBufferList &          getCommandBuffers() const { return _commandBuffers; }
-    CC_INLINE PipelineUBO *                           getPipelineUBO() const { return _pipelineUBO; }
-    CC_INLINE const String &                          getConstantMacros() { return _constantMacros; }
-    CC_INLINE gfx::Device *                           getDevice() { return _device; }
+    inline const RenderFlowList &                  getFlows() const { return _flows; }
+    inline uint                                    getTag() const { return _tag; }
+    inline const map<String, InternalBindingInst> &getGlobalBindings() const { return _globalBindings; }
+    inline const DefineMap &                       getMacros() const { return _macros; }
+    inline void                                    setValue(const String &name, bool value) { _macros.setValue(name, value); }
+    inline GlobalDSManager *                       getGlobalDSManager() const { return _globalDSManager; }
+    inline gfx::DescriptorSet *                    getDescriptorSet() const { return _descriptorSet; }
+    inline gfx::DescriptorSetLayout *              getDescriptorSetLayout() const { return _globalDSManager->getDescriptorSetLayout(); }
+    inline gfx::Texture *                          getDefaultTexture() const { return _defaultTexture; }
+    inline PipelineSceneData *                     getPipelineSceneData() const { return _pipelineSceneData; }
+    inline const gfx::CommandBufferList &          getCommandBuffers() const { return _commandBuffers; }
+    inline PipelineUBO *                           getPipelineUBO() const { return _pipelineUBO; }
+    inline const String &                          getConstantMacros() { return _constantMacros; }
+    inline gfx::Device *                           getDevice() { return _device; }
 
 protected:
     static RenderPipeline *instance;

@@ -46,11 +46,11 @@ public:
 
     gfx::RenderPass *getOrCreateRenderPass(gfx::ClearFlags clearFlags);
 
-    CC_INLINE gfx::Buffer *getLightsUBO() const { return _lightsUBO; }
-    CC_INLINE const LightList &getValidLights() const { return _validLights; }
-    CC_INLINE const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
-    CC_INLINE const UintList &getLightIndexOffsets() const { return _lightIndexOffsets; }
-    CC_INLINE const UintList &getLightIndices() const { return _lightIndices; }
+    inline gfx::Buffer *          getLightsUBO() const { return _lightsUBO; }
+    inline const LightList &      getValidLights() const { return _validLights; }
+    inline const gfx::BufferList &getLightBuffers() const { return _lightBuffers; }
+    inline const UintList &       getLightIndexOffsets() const { return _lightIndexOffsets; }
+    inline const UintList &       getLightIndices() const { return _lightIndices; }
 
 private:
     bool activeRenderer();

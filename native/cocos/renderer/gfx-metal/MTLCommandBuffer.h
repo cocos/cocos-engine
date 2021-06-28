@@ -75,8 +75,8 @@ public:
     void dispatch(const DispatchInfo &info) override;
     void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
 
-    CC_INLINE bool isCommandBufferBegan() const { return _commandBufferBegan; }
-    CC_INLINE id<MTLCommandBuffer> getMTLCommandBuffer() const { return _mtlCommandBuffer; }
+    inline bool isCommandBufferBegan() const { return _commandBufferBegan; }
+    inline id<MTLCommandBuffer> getMTLCommandBuffer() const { return _mtlCommandBuffer; }
 
 protected:
     friend class CCMTLQueue;

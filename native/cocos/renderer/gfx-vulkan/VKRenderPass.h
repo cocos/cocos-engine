@@ -37,7 +37,7 @@ public:
     CCVKRenderPass();
     ~CCVKRenderPass();
 
-    CC_INLINE CCVKGPURenderPass *gpuRenderPass() const { return _gpuRenderPass; }
+    inline CCVKGPURenderPass *gpuRenderPass() const { return _gpuRenderPass; }
 
 protected:
     void doInit(const RenderPassInfo &info) override;

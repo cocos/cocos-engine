@@ -56,7 +56,7 @@ struct RenderTargetAttachment final {
     };
 
     struct Sorter {
-        CC_INLINE bool operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept;
+        inline bool operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept;
     };
 
     static constexpr uint8_t DEPTH_STENCIL_SLOT_START{13};
@@ -69,7 +69,7 @@ struct RenderTargetAttachment final {
     StoreOp       storeOp{StoreOp::DISCARD};
 };
 
-CC_INLINE bool RenderTargetAttachment::Sorter::operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept {
+inline bool RenderTargetAttachment::Sorter::operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept {
     bool res = false;
     if (a1.desc.usage < a2.desc.usage) {
         res = true;

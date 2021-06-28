@@ -40,7 +40,7 @@ public:
     CCMTLDescriptorSetLayout &operator=(const CCMTLDescriptorSetLayout &)=delete;
     CCMTLDescriptorSetLayout &operator=(CCMTLDescriptorSetLayout &&)=delete;
 
-    CC_INLINE CCMTLGPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
+    inline CCMTLGPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
 
 protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;

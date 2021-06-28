@@ -38,7 +38,7 @@ public:
     GLES2DescriptorSetLayout();
     ~GLES2DescriptorSetLayout();
 
-    CC_INLINE GLES2GPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
+    inline GLES2GPUDescriptorSetLayout *gpuDescriptorSetLayout() const { return _gpuDescriptorSetLayout; }
 
 protected:
     void doInit(const DescriptorSetLayoutInfo &info) override;

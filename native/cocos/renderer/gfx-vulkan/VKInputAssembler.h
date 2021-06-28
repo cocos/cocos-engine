@@ -37,7 +37,7 @@ public:
     CCVKInputAssembler();
     ~CCVKInputAssembler();
 
-    CC_INLINE CCVKGPUInputAssembler *gpuInputAssembler() const { return _gpuInputAssembler; }
+    inline CCVKGPUInputAssembler *gpuInputAssembler() const { return _gpuInputAssembler; }
 
 protected:
     void doInit(const InputAssemblerInfo &info) override;

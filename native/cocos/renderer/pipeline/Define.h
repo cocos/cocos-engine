@@ -154,7 +154,7 @@ using RenderQueueDescList = std::vector<RenderQueueDesc>;
 
 uint getPhaseID(const String &phase);
 
-CC_INLINE bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
+inline bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
     if (a.hash != b.hash) {
         return a.hash < b.hash;
     }
@@ -166,7 +166,7 @@ CC_INLINE bool opaqueCompareFn(const RenderPass &a, const RenderPass &b) {
     return a.shaderID < b.shaderID;
 }
 
-CC_INLINE bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
+inline bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
     if (a.hash != b.hash) {
         return a.hash < b.hash;
     }
@@ -178,7 +178,7 @@ CC_INLINE bool transparentCompareFn(const RenderPass &a, const RenderPass &b) {
     return a.shaderID < b.shaderID;
 }
 
-CC_INLINE uint convertPhase(const StringArray &stages) {
+inline uint convertPhase(const StringArray &stages) {
     uint phase = 0;
     for (const auto &stage : stages) {
         phase |= getPhaseID(stage);
@@ -188,7 +188,7 @@ CC_INLINE uint convertPhase(const StringArray &stages) {
 
 using RenderQueueSortFunc = std::function<int(const RenderPass &, const RenderPass &)>;
 
-CC_INLINE RenderQueueSortFunc convertQueueSortFunc(const RenderQueueSortMode &mode) {
+inline RenderQueueSortFunc convertQueueSortFunc(const RenderQueueSortMode &mode) {
     std::function<int(const RenderPass &, const RenderPass &)> sortFunc = opaqueCompareFn;
     switch (mode) {
         case RenderQueueSortMode::BACK_TO_FRONT:

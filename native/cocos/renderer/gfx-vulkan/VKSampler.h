@@ -37,7 +37,7 @@ public:
     CCVKSampler();
     ~CCVKSampler();
 
-    CC_INLINE CCVKGPUSampler *gpuSampler() const { return _gpuSampler; }
+    inline CCVKGPUSampler *gpuSampler() const { return _gpuSampler; }
 
 protected:
     void doInit(const SamplerInfo &info) override;

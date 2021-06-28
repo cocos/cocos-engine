@@ -41,8 +41,8 @@ public:
 
     void update(const void *buffer, uint size) override;
 
-    CC_INLINE CCVKGPUBuffer *gpuBuffer() const { return _gpuBuffer; }
-    CC_INLINE CCVKGPUBufferView *gpuBufferView() const { return _gpuBufferView; }
+    inline CCVKGPUBuffer *    gpuBuffer() const { return _gpuBuffer; }
+    inline CCVKGPUBufferView *gpuBufferView() const { return _gpuBufferView; }
 
 protected:
     void doInit(const BufferInfo &info) override;
@@ -52,7 +52,7 @@ protected:
 
     void createBufferView();
 
-    CCVKGPUBuffer *_gpuBuffer = nullptr;
+    CCVKGPUBuffer *    _gpuBuffer     = nullptr;
     CCVKGPUBufferView *_gpuBufferView = nullptr;
 };
 

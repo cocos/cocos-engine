@@ -38,14 +38,14 @@ namespace cc {
         #define MEM_CHECKTAG_SIZE 4
         #define MEM_CHECKTAG      0x20170719
 
-CC_INLINE static void CheckOverflowAlloc(void *ptr) {
+inline static void CheckOverflowAlloc(void *ptr) {
     size_t size = je_malloc_usable_size(ptr);
     char *p = (char *)ptr + size - MEM_CHECKTAG_SIZE;
     uint tag = MEM_CHECKTAG;
     memcpy(p, &tag, MEM_CHECKTAG_SIZE);
 }
 
-CC_INLINE static void CheckOverflowFree(void *ptr) {
+inline static void CheckOverflowFree(void *ptr) {
     size_t size = je_malloc_usable_size(ptr);
     char *p = (char *)ptr + size - MEM_CHECKTAG_SIZE;
     uint tag;

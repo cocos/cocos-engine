@@ -43,7 +43,7 @@ public:
 
     void update() override;
 
-    CC_INLINE CCMTLGPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
+    inline CCMTLGPUDescriptorSet *gpuDescriptorSet() const { return _gpuDescriptorSet; }
 
 protected:
     void doInit(const DescriptorSetInfo &info) override;

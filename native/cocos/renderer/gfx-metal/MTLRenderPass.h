@@ -43,9 +43,9 @@ public:
     void setColorAttachment(size_t slot, id<MTLTexture> texture, int level);
     void setDepthStencilAttachment(id<MTLTexture> texture, int level);
 
-    CC_INLINE MTLRenderPassDescriptor *getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }
-    CC_INLINE uint getColorRenderTargetNums() const { return _colorRenderTargetNums; }
-    CC_INLINE const vector<Vec2> &getRenderTargetSizes() const { return _renderTargetSizes; }
+    inline MTLRenderPassDescriptor *getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }
+    inline uint getColorRenderTargetNums() const { return _colorRenderTargetNums; }
+    inline const vector<Vec2> &getRenderTargetSizes() const { return _renderTargetSizes; }
 
 protected:
     void doInit(const RenderPassInfo &info) override;

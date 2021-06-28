@@ -40,7 +40,7 @@ public:
 
     void ExtractCmdDraw(GLES2CmdDraw *cmd);
 
-    CC_INLINE GLES2GPUInputAssembler *gpuInputAssembler() const { return _gpuInputAssembler; }
+    inline GLES2GPUInputAssembler *gpuInputAssembler() const { return _gpuInputAssembler; }
 
 protected:
     void doInit(const InputAssemblerInfo &info) override;

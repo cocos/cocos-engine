@@ -374,22 +374,6 @@ It should work same as apples CFSwapInt32LittleToHost(..)
     #define CC_CHARSET CC_CHARSET_MULTIBYTE
 #endif
 
-#if CC_COMPILER == CC_COMPILER_MSVC
-    #if CC_COMPILER_VERSION >= 120
-        #define CC_INLINE __forceinline
-    #else
-        #define CC_INLINE inline
-    #endif
-#elif defined(__MINGW32__)
-    #if !defined(CC_INLINE)
-        #define CC_INLINE __inline
-    #endif
-#elif !defined(ANDROID) && (CC_COMPILER == CC_COMPILER_GNUC || CC_COMPILER == CC_COMPILER_CLANG)
-    #define CC_INLINE inline __attribute__((always_inline))
-#else
-    #define CC_INLINE __inline
-#endif
-
 // Asserts expression is true at compile-time
 #define CC_COMPILER_ASSERT(x) typedef int COMPILER_ASSERT_[!!(x)]
 

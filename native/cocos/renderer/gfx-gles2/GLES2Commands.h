@@ -184,7 +184,7 @@ public:
         cmdPackage->cmds.clear();
     }
 
-    CC_INLINE void reset() {
+    inline void reset() {
         beginRenderPassCmdPool.release();
         bindStatesCmdPool.release();
         drawCmdPool.release();

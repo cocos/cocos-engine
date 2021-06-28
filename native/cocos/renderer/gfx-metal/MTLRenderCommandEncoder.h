@@ -63,7 +63,7 @@ public:
         clearStates();
     }
 
-    CC_INLINE void clearStates() {
+    inline void clearStates() {
         _isViewportSet = false;
         _isScissorRectSet = false;
         _isCullModeSet = false;
@@ -87,12 +87,12 @@ public:
         _fragmentSamplerMap.clear();
     }
 
-    CC_INLINE void setViewport(const Rect &rect) {
+    inline void setViewport(const Rect &rect) {
         Viewport viewport = {rect.x, rect.y, rect.width, rect.height};
         setViewport(viewport);
     }
 
-    CC_INLINE void setViewport(const Viewport &vp) {
+    inline void setViewport(const Viewport &vp) {
         if (_isViewportSet && _viewport == vp)
             return;
 
@@ -101,7 +101,7 @@ public:
         [_mtlEncoder setViewport:mu::toMTLViewport(_viewport)];
     }
 
-    CC_INLINE void setScissor(const Rect &rect) {
+    inline void setScissor(const Rect &rect) {
         if (_isScissorRectSet && _scissorRect == rect)
             return;
 
@@ -110,7 +110,7 @@ public:
         [_mtlEncoder setScissorRect:mu::toMTLScissorRect(_scissorRect)];
     }
 
-    CC_INLINE void setCullMode(MTLCullMode mode) {
+    inline void setCullMode(MTLCullMode mode) {
         if (_isCullModeSet && (_cullMode == mode))
             return;
 
@@ -119,7 +119,7 @@ public:
         [_mtlEncoder setCullMode:mode];
     }
 
-    CC_INLINE void setFrontFacingWinding(MTLWinding winding) {
+    inline void setFrontFacingWinding(MTLWinding winding) {
         if (_isFrontFacingWinding && (_frontFacingWinding == winding))
             return;
 
@@ -128,7 +128,7 @@ public:
         [_mtlEncoder setFrontFacingWinding:_frontFacingWinding];
     }
 
-    CC_INLINE void setDepthClipMode(MTLDepthClipMode mode) {
+    inline void setDepthClipMode(MTLDepthClipMode mode) {
 #ifndef TARGET_OS_SIMULATOR
         if (@available(iOS 11.0, macOS 10.11)) {
             if (_isDepthClipModeSet && (_depthClipMode == mode))
@@ -141,7 +141,7 @@ public:
 #endif
     }
 
-    CC_INLINE void setTriangleFillMode(MTLTriangleFillMode mode) {
+    inline void setTriangleFillMode(MTLTriangleFillMode mode) {
         if (_isTriangleFillModeSet && (_triangleFillMode == mode))
             return;
 
@@ -150,7 +150,7 @@ public:
         [_mtlEncoder setTriangleFillMode:_triangleFillMode];
     }
 
-    CC_INLINE void setRenderPipelineState(id<MTLRenderPipelineState> pipelineState) {
+    inline void setRenderPipelineState(id<MTLRenderPipelineState> pipelineState) {
         if (_pipelineState == pipelineState)
             return;
 
@@ -158,7 +158,7 @@ public:
         _pipelineState = pipelineState;
     }
 
-    CC_INLINE void setStencilFrontBackReferenceValue(uint frontReferenceValue, uint backReferenceValue) {
+    inline void setStencilFrontBackReferenceValue(uint frontReferenceValue, uint backReferenceValue) {
         if (_frontReferenceValue == frontReferenceValue && _backReferenceValue == backReferenceValue)
             return;
 
@@ -168,7 +168,7 @@ public:
                                 backReferenceValue:_backReferenceValue];
     }
 
-    CC_INLINE void setDepthStencilState(id<MTLDepthStencilState> depthStencilState) {
+    inline void setDepthStencilState(id<MTLDepthStencilState> depthStencilState) {
         if (_depthStencilState == depthStencilState)
             return;
 
@@ -176,7 +176,7 @@ public:
         _depthStencilState = depthStencilState;
     }
 
-    CC_INLINE void setDepthBias(float depthBias, float clamp, float slope) {
+    inline void setDepthBias(float depthBias, float clamp, float slope) {
         if (_isDepthBiasSet &&
             math::IsEqualF(_depthBias, depthBias) &&
             math::IsEqualF(_clamp, clamp) &&
@@ -193,7 +193,7 @@ public:
                             clamp:_clamp];
     }
 
-    CC_INLINE void setBlendColor(const Color &color) {
+    inline void setBlendColor(const Color &color) {
         if (_isBlendColorSet && _blendColor == color)
             return;
 
@@ -205,7 +205,7 @@ public:
                                 alpha:_blendColor.w];
     }
 
-    CC_INLINE void setVertexBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
+    inline void setVertexBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
         if (_vertexBufferMap.count(index) > 0) {
             const auto &bufferBinding = _vertexBufferMap[index];
             if (buffer == bufferBinding.buffer && offset == bufferBinding.offset) {
@@ -219,7 +219,7 @@ public:
                              atIndex:index];
     }
 
-    CC_INLINE void setFragmentBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
+    inline void setFragmentBuffer(const id<MTLBuffer> buffer, uint offset, uint index) {
         if (_fragmentBufferMap.count(index) > 0) {
             const auto &bufferBinding = _fragmentBufferMap[index];
             if (buffer == bufferBinding.buffer && offset == bufferBinding.offset) {
@@ -265,13 +265,13 @@ public:
         [_mtlEncoder setFragmentSamplerState:sampler atIndex:index];
     }
 
-    CC_INLINE void endEncoding() {
+    inline void endEncoding() {
         [_mtlEncoder endEncoding];
         [_mtlEncoder release];
         _mtlEncoder = nil;
     }
 
-    CC_INLINE id<MTLRenderCommandEncoder> const getMTLEncoder() {
+    inline id<MTLRenderCommandEncoder> const getMTLEncoder() {
         return _mtlEncoder;
     }
 

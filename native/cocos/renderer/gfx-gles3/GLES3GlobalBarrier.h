@@ -36,7 +36,7 @@ public:
     GLES3GlobalBarrier();
     ~GLES3GlobalBarrier();
 
-    CC_INLINE const GLES3GPUGlobalBarrier *gpuBarrier() const { return _gpuBarrier; }
+    inline const GLES3GPUGlobalBarrier *gpuBarrier() const { return _gpuBarrier; }
 
 protected:
     void doInit(const GlobalBarrierInfo &info) override;

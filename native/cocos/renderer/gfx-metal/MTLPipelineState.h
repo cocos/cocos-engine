@@ -44,7 +44,7 @@ public:
     CCMTLPipelineState &operator=(const CCMTLPipelineState &)=delete;
     CCMTLPipelineState &operator=(CCMTLPipelineState &&)=delete;
 
-    CC_INLINE CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelineState; }
+    inline CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelineState; }
 
 protected:
     void doInit(const PipelineStateInfo &info) override;

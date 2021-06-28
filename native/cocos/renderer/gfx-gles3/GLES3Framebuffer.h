@@ -37,7 +37,7 @@ public:
     GLES3Framebuffer();
     ~GLES3Framebuffer();
 
-    CC_INLINE GLES3GPUFramebuffer *gpuFBO() const { return _gpuFBO; }
+    inline GLES3GPUFramebuffer *gpuFBO() const { return _gpuFBO; }
 
 protected:
     void doInit(const FramebufferInfo &info) override;

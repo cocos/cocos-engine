@@ -41,7 +41,7 @@ public:
     CCMTLSampler &operator=(const CCMTLSampler &)=delete;
     CCMTLSampler &operator=(CCMTLSampler &&)=delete;
 
-    CC_INLINE id<MTLSamplerState> getMTLSamplerState() const { return _mtlSamplerState; }
+    inline id<MTLSamplerState> getMTLSamplerState() const { return _mtlSamplerState; }
 
 protected:
     void doInit(const SamplerInfo &info) override;

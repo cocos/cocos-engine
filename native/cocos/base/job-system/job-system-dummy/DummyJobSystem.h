@@ -54,7 +54,7 @@ public:
     DummyJobSystem() noexcept = default;
     explicit DummyJobSystem(uint /*threadCount*/) noexcept {}
 
-    CC_INLINE uint threadCount() const { return THREAD_COUNT; } //NOLINT
+    inline uint threadCount() const { return THREAD_COUNT; } //NOLINT
 
 private:
     static constexpr uint THREAD_COUNT = 1U; //always one

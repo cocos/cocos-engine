@@ -60,23 +60,23 @@ public:
     uintptr_t                   createHeightField(HeightFieldDesc &desc) override;
     uintptr_t                   createMaterial(uint16_t id, float f, float df, float r,
                                                uint8_t m0, uint8_t m1) override;
-    CC_INLINE std::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override {
+    inline std::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() override {
         return _mEventMgr->getTriggerPairs();
     }
-    CC_INLINE std::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override {
+    inline std::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() override {
         return _mEventMgr->getConatctPairs();
     }
     void syncSceneToPhysics() override;
     void syncSceneWithCheck() override;
     void destroy() override;
 
-    CC_INLINE PhysXSharedBody *getSharedBody(
+    inline PhysXSharedBody *getSharedBody(
         const scene::Node *   node,
         PhysXRigidBody *const body = nullptr) {
         return PhysXSharedBody::getSharedBody(node, this, body);
     }
 
-    CC_INLINE physx::PxScene &getScene() const { return *_mScene; }
+    inline physx::PxScene &getScene() const { return *_mScene; }
     uint32_t                  getMaskByIndex(uint32_t i);
     void                      syncPhysicsToScene();
     void                      addActor(const PhysXSharedBody &sb);

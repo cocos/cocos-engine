@@ -74,7 +74,7 @@ public:
     DummyGraphNodeTaskImpl &operator=(const DummyGraphNodeTaskImpl &) = delete;
     DummyGraphNodeTaskImpl &operator=(DummyGraphNodeTaskImpl &&) = delete;
     ~DummyGraphNodeTaskImpl() override                           = default;
-    CC_INLINE void execute() override { _task(); }
+    inline void execute() override { _task(); }
 
 private:
     Fn _task;
@@ -140,7 +140,7 @@ public:
 
     void run() noexcept;
 
-    CC_INLINE void waitForAll() { run(); }
+    inline void waitForAll() { run(); }
 
 private:
     DummyGraph _dummyGraph{};

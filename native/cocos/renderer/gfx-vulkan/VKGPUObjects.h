@@ -1184,8 +1184,8 @@ public:
 
     void update(CCVKGPUTransportHub *transportHub);
 
-    CC_INLINE void cancel(CCVKGPUBuffer *gpuBuffer) { _buffersToBeChecked.erase(gpuBuffer); }
-    CC_INLINE void cancel(CCVKGPUTexture *gpuTexture) { _texturesToBeChecked.erase(gpuTexture); }
+    inline void cancel(CCVKGPUBuffer *gpuBuffer) { _buffersToBeChecked.erase(gpuBuffer); }
+    inline void cancel(CCVKGPUTexture *gpuTexture) { _texturesToBeChecked.erase(gpuTexture); }
 
 private:
     unordered_set<CCVKGPUBuffer *>  _buffersToBeChecked;

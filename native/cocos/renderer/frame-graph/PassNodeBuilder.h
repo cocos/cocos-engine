@@ -52,9 +52,9 @@ public:
     TextureHandle             write(const TextureHandle &output, uint8_t mipmapLevel, uint8_t faceId, uint8_t arrayPosition, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept;
     TextureHandle             write(const TextureHandle &output, const RenderTargetAttachment::Descriptor &attachmentDesc) const noexcept;
 
-    CC_INLINE void sideEffect() const noexcept;
-    CC_INLINE void subpass(bool clearActionIgnoreable, bool const end) const noexcept;
-    CC_INLINE void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept;
+    inline void sideEffect() const noexcept;
+    inline void subpass(bool clearActionIgnoreable, bool const end) const noexcept;
+    inline void setViewport(const gfx::Viewport &viewport, const gfx::Rect &scissor) noexcept;
 
     void   writeToBlackboard(const StringHandle &name, const Handle &handle) const noexcept;
     Handle readFromBlackboard(const StringHandle &name) const noexcept;

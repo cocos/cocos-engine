@@ -33,16 +33,16 @@ namespace gfx {
 class CC_DLL Framebuffer : public GFXObject {
 public:
     Framebuffer();
-    virtual ~Framebuffer();
+    ~Framebuffer() override;
 
     static uint computeHash(const FramebufferInfo &info);
 
     void initialize(const FramebufferInfo &info);
     void destroy();
 
-    CC_INLINE RenderPass *getRenderPass() const { return _renderPass; }
-    CC_INLINE const TextureList &getColorTextures() const { return _colorTextures; }
-    CC_INLINE Texture *getDepthStencilTexture() const { return _depthStencilTexture; }
+    inline RenderPass *       getRenderPass() const { return _renderPass; }
+    inline const TextureList &getColorTextures() const { return _colorTextures; }
+    inline Texture *          getDepthStencilTexture() const { return _depthStencilTexture; }
 
 protected:
     virtual void doInit(const FramebufferInfo &info) = 0;

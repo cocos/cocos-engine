@@ -74,7 +74,7 @@ struct AllocDumpParam {
     std::map<std::string, unsigned int> allocMap;
 };
 
-CC_INLINE static void FreeHashNode(AllocHashNode *n) {
+inline static void FreeHashNode(AllocHashNode *n) {
     free(n);
 }
 

@@ -112,7 +112,7 @@ public:
      */
     inline int getPreferredFramesPerSecond() const { return _fps; }
 
-    CC_INLINE uint getTotalFrames() const { return _totalFrames; }
+    inline uint getTotalFrames() const { return _totalFrames; }
 
     /**
      @brief Get current language config.

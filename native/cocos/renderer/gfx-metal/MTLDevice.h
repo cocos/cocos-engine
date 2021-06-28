@@ -72,18 +72,18 @@ public:
     void disposeCurrentDrawable();
     uint preferredPixelFormat();
 
-    CC_INLINE void *getMTLCommandQueue() const { return _mtlCommandQueue; }
-    CC_INLINE void *getMTLLayer() const { return _mtlLayer; }
-    CC_INLINE void *getMTLDevice() const { return _mtlDevice; }
-    CC_INLINE uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
-    CC_INLINE uint getMaximumColorRenderTargets() const { return _caps.maxColorRenderTargets; }
-    CC_INLINE uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
-    CC_INLINE bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
-    CC_INLINE bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
-    CC_INLINE CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
-    CC_INLINE bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
-    CC_INLINE uint currentFrameIndex() const { return _currentFrameIndex; }
-    CC_INLINE void *getDSSTexture() const { return _dssTex; }
+    inline void *getMTLCommandQueue() const { return _mtlCommandQueue; }
+    inline void *getMTLLayer() const { return _mtlLayer; }
+    inline void *getMTLDevice() const { return _mtlDevice; }
+    inline uint getMaximumSamplerUnits() const { return _maxSamplerUnits; }
+    inline uint getMaximumColorRenderTargets() const { return _caps.maxColorRenderTargets; }
+    inline uint getMaximumBufferBindingIndex() const { return _maxBufferBindingIndex; }
+    inline bool isIndirectCommandBufferSupported() const { return _icbSuppored; }
+    inline bool isIndirectDrawSupported() const { return _indirectDrawSupported; }
+    inline CCMTLGPUStagingBufferPool *gpuStagingBufferPool() const { return _gpuStagingBufferPools[_currentFrameIndex]; }
+    inline bool isSamplerDescriptorCompareFunctionSupported() const { return _isSamplerDescriptorCompareFunctionSupported; }
+    inline uint currentFrameIndex() const { return _currentFrameIndex; }
+    inline void *getDSSTexture() const { return _dssTex; }
 
 protected:
     static CCMTLDevice * _instance;

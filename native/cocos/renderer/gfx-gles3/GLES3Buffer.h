@@ -40,7 +40,7 @@ public:
 
     void update(const void *buffer, uint size) override;
 
-    CC_INLINE GLES3GPUBuffer *gpuBuffer() const { return _gpuBuffer; }
+    inline GLES3GPUBuffer *gpuBuffer() const { return _gpuBuffer; }
 
 protected:
     void doInit(const BufferInfo &info) override;

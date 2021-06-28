@@ -37,7 +37,7 @@ public:
     CCVKShader();
     ~CCVKShader();
 
-    CC_INLINE CCVKGPUShader *gpuShader() const { return _gpuShader; }
+    inline CCVKGPUShader *gpuShader() const { return _gpuShader; }
 
 protected:
     void doInit(const ShaderInfo &info) override;

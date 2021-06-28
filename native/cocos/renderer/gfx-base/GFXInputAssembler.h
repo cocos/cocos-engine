@@ -33,25 +33,25 @@ namespace gfx {
 class CC_DLL InputAssembler : public GFXObject {
 public:
     InputAssembler();
-    virtual ~InputAssembler();
+    ~InputAssembler() override;
 
     void initialize(const InputAssemblerInfo &info);
     void destroy();
 
     void extractDrawInfo(DrawInfo &drawInfo) const;
 
-    CC_INLINE const AttributeList &getAttributes() const { return _attributes; }
-    CC_INLINE const BufferList &getVertexBuffers() const { return _vertexBuffers; }
-    CC_INLINE Buffer *getIndexBuffer() const { return _indexBuffer; }
-    CC_INLINE Buffer *getIndirectBuffer() const { return _indirectBuffer; }
-    CC_INLINE uint    getVertexCount() const { return _vertexCount; }
-    CC_INLINE uint    getFirstVertex() const { return _firstVertex; }
-    CC_INLINE uint    getIndexCount() const { return _indexCount; }
-    CC_INLINE uint    getFirstIndex() const { return _firstIndex; }
-    CC_INLINE uint    getVertexOffset() const { return _vertexOffset; }
-    CC_INLINE uint    getInstanceCount() const { return _instanceCount; }
-    CC_INLINE uint    getFirstInstance() const { return _firstInstance; }
-    CC_INLINE uint    getAttributesHash() const { return _attributesHash; }
+    inline const AttributeList &getAttributes() const { return _attributes; }
+    inline const BufferList &   getVertexBuffers() const { return _vertexBuffers; }
+    inline Buffer *             getIndexBuffer() const { return _indexBuffer; }
+    inline Buffer *             getIndirectBuffer() const { return _indirectBuffer; }
+    inline uint                 getVertexCount() const { return _vertexCount; }
+    inline uint                 getFirstVertex() const { return _firstVertex; }
+    inline uint                 getIndexCount() const { return _indexCount; }
+    inline uint                 getFirstIndex() const { return _firstIndex; }
+    inline uint                 getVertexOffset() const { return _vertexOffset; }
+    inline uint                 getInstanceCount() const { return _instanceCount; }
+    inline uint                 getFirstInstance() const { return _firstInstance; }
+    inline uint                 getAttributesHash() const { return _attributesHash; }
 
     virtual void setVertexCount(uint count) { _vertexCount = count; }
     virtual void setFirstVertex(uint first) { _firstVertex = first; }

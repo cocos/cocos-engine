@@ -37,7 +37,7 @@ public:
     CCMTLPipelineLayout();
     virtual ~CCMTLPipelineLayout() = default;
 
-    CC_INLINE CCMTLGPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }
+    inline CCMTLGPUPipelineLayout *gpuPipelineLayout() const { return _gpuPipelineLayout; }
 
 protected:
     void doInit(const PipelineLayoutInfo &info) override;

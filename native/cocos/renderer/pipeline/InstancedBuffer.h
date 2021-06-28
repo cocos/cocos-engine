@@ -72,10 +72,10 @@ public:
     void clear();
     void setDynamicOffset(uint idx, uint value);
 
-    CC_INLINE const InstancedItemList &getInstances() const { return _instances; }
-    CC_INLINE const scene::Pass *getPass() const { return _pass; }
-    CC_INLINE bool               hasPendingModels() const { return _hasPendingModels; }
-    CC_INLINE const DynamicOffsetList &dynamicOffsets() const { return _dynamicOffsets; }
+    inline const InstancedItemList &getInstances() const { return _instances; }
+    inline const scene::Pass *      getPass() const { return _pass; }
+    inline bool                     hasPendingModels() const { return _hasPendingModels; }
+    inline const DynamicOffsetList &dynamicOffsets() const { return _dynamicOffsets; }
 
 private:
     static map<scene::Pass *, map<uint, InstancedBuffer *>> buffers;

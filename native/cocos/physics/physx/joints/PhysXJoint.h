@@ -40,15 +40,15 @@ class PhysXJoint : virtual public IBaseJoint {
 
 public:
     ~PhysXJoint() override = default;
-    CC_INLINE uintptr_t getImpl() override { return reinterpret_cast<uintptr_t>(this); }
-    void                initialize(scene::Node *node) override;
-    void                onEnable() override;
-    void                onDisable() override;
-    void                onDestroy() override;
-    void                setConnectedBody(const scene::Node *node) override;
-    void                setEnableCollision(bool v) override;
-    virtual void        updateScale0() = 0;
-    virtual void        updateScale1() = 0;
+    inline uintptr_t getImpl() override { return reinterpret_cast<uintptr_t>(this); }
+    void             initialize(scene::Node *node) override;
+    void             onEnable() override;
+    void             onDisable() override;
+    void             onDestroy() override;
+    void             setConnectedBody(const scene::Node *node) override;
+    void             setEnableCollision(bool v) override;
+    virtual void     updateScale0() = 0;
+    virtual void     updateScale1() = 0;
 
 protected:
     physx::PxJoint * _mJoint{nullptr};
