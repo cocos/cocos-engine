@@ -55,6 +55,7 @@ jobs:
               - exclude: 'cocos/base/etc2.*'
               - exclude: 'cocos/bindings/manual/jsb_global.cpp'
               - exclude: 'cocos/bindings/manual/jsb_conversions.*'
+              - exclude: 'cocos/bindings/jswrapper/v8/debugger/**'
               - exclude: 'cocos/audio/android/audio_utils/**'
             allChanges:
               - added|modified|deleted: '**'
