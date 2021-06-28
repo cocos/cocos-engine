@@ -20,6 +20,7 @@ export const NativePass = ns.Pass;
 export const NativeSubModel = ns.SubModel;
 export const NativeRoot = ns.Root;
 export const NativePipelineSharedSceneData = ns.PipelineSharedSceneData;
+export const NativeAABB = ns.AABB;
 
 import { RenderScene } from './render-scene'
 
