@@ -46,6 +46,9 @@ let VideoPlayerImpl = cc.Class({
 
         this._video = null;
         this._url = '';
+		
+        this.playerWidth = '0px';
+        this.playerHeight = '0px';
 
         this._waitingFullscreen = false;
         this._fullScreenEnabled = false;
@@ -155,6 +158,9 @@ let VideoPlayerImpl = cc.Class({
 
         video.style.width = width + 'px';
         video.style.height = height + 'px';
+		
+        this.playerWidth = video.style.width;
+        this.playerHeight = video.style.height;
     },
 
     _createDom (muted) {
@@ -407,8 +413,12 @@ let VideoPlayerImpl = cc.Class({
         if (video.setShowRawFrame !== undefined)
             video.setShowRawFrame(show);
         else {
-            if (show) video.style.visibility = 'visible';
-            else video.style.visibility = 'hidden';
+			if (!show) {
+				video.style.width = '0%';
+			}
+			else {
+				video.style.width = this.videoWidth;
+			}
         }
     },
 
