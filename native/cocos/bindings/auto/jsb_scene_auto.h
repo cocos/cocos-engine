@@ -81,6 +81,7 @@ bool js_register_cc_scene_AABB(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::AABB);
+SE_DECLARE_FUNC(js_scene_AABB_getLayout);
 SE_DECLARE_FUNC(js_scene_AABB_initWithData);
 SE_DECLARE_FUNC(js_scene_AABB_AABB);
 

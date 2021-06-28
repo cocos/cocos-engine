@@ -645,6 +645,25 @@ bool js_register_scene_Frustum(se::Object* obj) // NOLINT(readability-identifier
 se::Object* __jsb_cc_scene_AABB_proto = nullptr;
 se::Class* __jsb_cc_scene_AABB_class = nullptr;
 
+static bool js_scene_AABB_getLayout(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::AABB>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_AABB_getLayout : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        cc::scene::AABBLayout* result = cobj->getLayout();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_AABB_getLayout : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_AABB_getLayout)
+
 static bool js_scene_AABB_initWithData(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AABB>(s);
@@ -694,6 +713,7 @@ bool js_register_scene_AABB(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("AABB", obj, nullptr, _SE(js_scene_AABB_constructor));
 
+    cls->defineFunction("getLayout", _SE(js_scene_AABB_getLayout));
     cls->defineFunction("initWithData", _SE(js_scene_AABB_initWithData));
     cls->defineFinalizeFunction(_SE(js_cc_scene_AABB_finalize));
     cls->install();
