@@ -135,8 +135,8 @@ template <>
 inline bool nativevalue_to_se(const cc::scene::AABB &from, se::Value &to, se::Object *ctx) {
     se::HandleObject obj(se::Object::createPlainObject());
     se::Value        tmp;
-    if (nativevalue_to_se(from.center, tmp, ctx)) obj->setProperty("center", tmp);
-    if (nativevalue_to_se(from.halfExtents, tmp, ctx)) obj->setProperty("halfExtents", tmp);
+    if (nativevalue_to_se(from.getCenter(), tmp, ctx)) obj->setProperty("center", tmp);
+    if (nativevalue_to_se(from.getHalfExtents(), tmp, ctx)) obj->setProperty("halfExtents", tmp);
     to.setObject(obj);
     return true;
 }

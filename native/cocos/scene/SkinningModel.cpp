@@ -111,7 +111,7 @@ void SkinningModel::updateTransform(uint32_t stamp) {
     Vec3 v32;
     for (JointInfo& jointInfo : _joints) {
         updateWorldMatrix(&jointInfo, stamp);
-        jointInfo.bound.transform(_worldMatrix, &ab1);
+        jointInfo.bound->transform(_worldMatrix, &ab1);
         ab1.getBoundary(&v31, &v32);
         Vec3::min(v3Min, v31, &v3Min);
         Vec3::max(v3Max, v32, &v3Max);

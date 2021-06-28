@@ -27,25 +27,25 @@
 
 namespace cc {
 namespace scene {
-bool AABB::aabbAabb(const AABB &aabb) const {
+bool AABB::aabbAabb(AABB *aabb) const {
     Vec3 aMin;
     Vec3 aMax;
     Vec3 bMin;
     Vec3 bMax;
-    Vec3::subtract(center, halfExtents, &aMin);
-    Vec3::add(center, halfExtents, &aMax);
-    Vec3::subtract(center, aabb.halfExtents, &bMin);
-    Vec3::add(aabb.center, aabb.halfExtents, &bMax);
+    Vec3::subtract(getCenter(), getHalfExtents(), &aMin);
+    Vec3::add(getCenter(), getHalfExtents(), &aMax);
+    Vec3::subtract(getCenter(), aabb->getHalfExtents(), &bMin);
+    Vec3::add(aabb->getCenter(), aabb->getHalfExtents(), &bMax);
     return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
            (aMin.y <= bMax.y && aMax.y >= bMin.y) &&
            (aMin.z <= bMax.z && aMax.z >= bMin.z);
 }
 
 int AABB::aabbPlane(const Plane &plane) const {
-    auto r = halfExtents.x * std::abs(plane.n.x) +
-             halfExtents.y * std::abs(plane.n.y) +
-             halfExtents.z * std::abs(plane.n.z);
-    auto dot = Vec3::dot(plane.n, center);
+    auto r = getHalfExtents().x * std::abs(plane.n.x) +
+             getHalfExtents().y * std::abs(plane.n.y) +
+             getHalfExtents().z * std::abs(plane.n.z);
+    auto dot = Vec3::dot(plane.n, getCenter());
     if (dot + r < plane.d) {
         return -1;
     }
@@ -53,6 +53,10 @@ int AABB::aabbPlane(const Plane &plane) const {
         return 0;
     }
     return 1;
+}
+
+void AABB::initWithData(uint8_t *data) {
+    _aabbLayout = reinterpret_cast<AABBLayout *>(data);
 }
 
 bool AABB::aabbFrustum(const Frustum &frustum) const {
@@ -65,15 +69,15 @@ bool AABB::aabbFrustum(const Frustum &frustum) const {
 }
 
 void AABB::getBoundary(cc::Vec3 *minPos, cc::Vec3 *maxPos) const {
-    Vec3::subtract(center, halfExtents, minPos);
-    Vec3::add(center, halfExtents, maxPos);
+    Vec3::subtract(getCenter(), getHalfExtents(), minPos);
+    Vec3::add(getCenter(), getHalfExtents(), maxPos);
 }
 
 void AABB::merge(const AABB &aabb) {
-    cc::Vec3 minA = center - halfExtents;
-    cc::Vec3 minB = aabb.center - aabb.halfExtents;
-    cc::Vec3 maxA = center + halfExtents;
-    cc::Vec3 maxB = aabb.center + aabb.halfExtents;
+    cc::Vec3 minA = getCenter() - getHalfExtents();
+    cc::Vec3 minB = aabb.getCenter() - aabb.getHalfExtents();
+    cc::Vec3 maxA = getCenter() + getHalfExtents();
+    cc::Vec3 maxB = aabb.getCenter() + aabb.getHalfExtents();
     cc::Vec3 maxP;
     cc::Vec3 minP;
     cc::Vec3::max(maxA, maxB, &maxP);
@@ -81,18 +85,19 @@ void AABB::merge(const AABB &aabb) {
 
     cc::Vec3 addP = maxP + minP;
     cc::Vec3 subP = maxP - minP;
-    center        = addP * 0.5F;
-    halfExtents   = subP * 0.5F;
+    setCenter(addP * 0.5F);
+    setHalfExtents(subP * 0.5F);
 }
 
 void AABB::set(const cc::Vec3 &centerVal, const cc::Vec3 &halfExtentVal) {
-    center      = centerVal;
-    halfExtents = halfExtentVal;
+    setCenter(centerVal);
+    setHalfExtents(halfExtentVal);
 }
 
 void AABB::transform(const Mat4 &m, AABB *out) const {
-    out->center.transformMat4(center, m);
-    transformExtentM4(&out->halfExtents, halfExtents, m);
+    AABBLayout *layout = out->_aabbLayout;
+    layout->center.transformMat4(getCenter(), m);
+    transformExtentM4(&layout->halfExtents, getHalfExtents(), m);
 }
 
 void AABB::transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4) {
@@ -109,12 +114,16 @@ void AABB::transformExtentM4(Vec3 *out, const Vec3 &extent, const Mat4 &m4) {
     out->transformMat3(extent, m3Tmp);
 }
 
+AABB::AABB() {
+    _aabbLayout = &_embedLayout;
+}
+
 void AABB::fromPoints(const Vec3 &minPos, const Vec3 &maxPos, AABB *dst) {
     Vec3 v3Tmp;
     Vec3::add(maxPos, minPos, &v3Tmp);
-    dst->center.set(v3Tmp * 0.5);
+    dst->setCenter(v3Tmp * 0.5);
     Vec3::subtract(maxPos, minPos, &v3Tmp);
-    dst->halfExtents.set(v3Tmp * 0.5);
+    dst->setHalfExtents(v3Tmp * 0.5);
 }
 
 } // namespace scene

@@ -38,7 +38,7 @@ void SpotLight::update() {
         _dir = _forward;
         _dir.transformQuat(_node->getWorldRotation());
         _dir.normalize();
-        _aabb.set(_pos, {_range, _range, _range});
+        _aabb->set(_pos, {_range, _range, _range});
         matView = _node->getWorldRTMatrix();
         matView.inverse();
 

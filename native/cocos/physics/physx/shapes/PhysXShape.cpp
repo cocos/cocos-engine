@@ -104,8 +104,8 @@ void PhysXShape::updateEventListener(EShapeFilterFlag flag) {
 scene::AABB &PhysXShape::getAABB() {
     static scene::AABB aabb;
     auto bounds = physx::PxShapeExt::getWorldBounds(getShape(), *getSharedBody().getImpl().rigidActor);
-    pxSetVec3Ext(aabb.center, (bounds.maximum + bounds.minimum) / 2);
-    pxSetVec3Ext(aabb.halfExtents, (bounds.maximum - bounds.minimum) / 2);
+    pxSetVec3Ext(aabb.getLayout()->center, (bounds.maximum + bounds.minimum) / 2);
+    pxSetVec3Ext(aabb.getLayout()->halfExtents, (bounds.maximum - bounds.minimum) / 2);
     return aabb;
 }
 

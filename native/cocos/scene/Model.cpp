@@ -28,10 +28,6 @@
 
 namespace cc {
 namespace scene {
-Model::~Model() {
-    delete _worldBounds;
-}
-
 void Model::uploadMat4AsVec4x3(const Mat4 &mat, float *v1, float *v2, float *v3) {
     uint size = sizeof(float) * 4;
     memcpy(v1, mat.m, size);

@@ -41,14 +41,14 @@
 
 namespace cc {
 namespace pipeline {
-bool        castBoundsInitialized = false;
+bool         castBoundsInitialized = false;
 scene::AABB castWorldBounds;
 
 RenderObject genRenderObject(const scene::Model *model, const scene::Camera *camera) {
     float depth = 0;
     if (model->getNode()) {
         auto *const node = model->getTransform();
-        cc::Vec3          position;
+        cc::Vec3    position;
         cc::Vec3::subtract(node->getWorldPosition(), camera->position, &position);
         depth = position.dot(camera->forward);
     }
@@ -107,9 +107,9 @@ void updateSphereLight(scene::Shadow *shadows, const scene::Light *light, std::a
 
 void updateDirLight(scene::Shadow *shadows, const scene::Light *light, std::array<float, UBOShadow::COUNT> *shadowUBO) {
     auto *const node     = light->getNode();
-    const auto &      rotation = node->getWorldRotation();
-    Quaternion        qt(rotation.x, rotation.y, rotation.z, rotation.w);
-    Vec3              forward(0, 0, -1.0F);
+    const auto &rotation = node->getWorldRotation();
+    Quaternion  qt(rotation.x, rotation.y, rotation.z, rotation.w);
+    Vec3        forward(0, 0, -1.0F);
     forward.transformQuat(qt);
     const auto &normal   = shadows->normal;
     const auto  distance = shadows->distance + 0.001F; // avoid z-fighting
@@ -194,7 +194,7 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
                 const auto *modelWorldBounds = model->getWorldBounds();
                 if (isShadowMap && model->getCastShadow() && modelWorldBounds) {
                     if (!castBoundsInitialized) {
-                        castWorldBounds       = *modelWorldBounds;
+                        castWorldBounds.set(modelWorldBounds->getCenter(), modelWorldBounds->getHalfExtents());
                         castBoundsInitialized = true;
                     }
                     castWorldBounds.merge(*modelWorldBounds);

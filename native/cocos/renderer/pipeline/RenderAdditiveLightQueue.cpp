@@ -64,7 +64,7 @@ RenderAdditiveLightQueue::RenderAdditiveLightQueue(RenderPipeline *pipeline) : _
     _firstLightBufferView    = device->createBuffer({_lightBuffer, 0, UBOForwardLight::SIZE});
     _lightBufferData.resize(_lightBufferElementCount * _lightBufferCount);
     _dynamicOffsets.resize(1, 0);
-    _phaseID                        = getPhaseID("forward-add");
+    _phaseID = getPhaseID("forward-add");
     _shadowUBO.fill(0.F);
 }
 
@@ -94,9 +94,9 @@ void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::Ren
         cmdBuffer->bindInputAssembler(ia);
 
         for (size_t i = 0; i < dynamicOffsets.size(); ++i) {
-            const auto light                = lights[i];
-            auto *      globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
-            _dynamicOffsets[0]              = dynamicOffsets[i];
+            const auto light               = lights[i];
+            auto *     globalDescriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(light);
+            _dynamicOffsets[0]             = dynamicOffsets[i];
             cmdBuffer->bindDescriptorSet(globalSet, globalDescriptorSet);
             cmdBuffer->bindDescriptorSet(localSet, descriptorSet, _dynamicOffsets);
             cmdBuffer->draw(ia);
@@ -317,8 +317,8 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
     const scene::Light *mainLight          = scene->getMainLight();
 
     for (uint i = 0; i < _validLights.size(); ++i) {
-        const auto * light  = _validLights[i];
-        auto *descriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(i);
+        const auto *light         = _validLights[i];
+        auto *      descriptorSet = _pipeline->getGlobalDSManager()->getOrCreateDescriptorSet(i);
         if (!descriptorSet) {
             continue;
         }

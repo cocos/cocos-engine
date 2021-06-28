@@ -43,7 +43,7 @@ public:
 
     void update() override;
 
-    inline void setAABB(AABB aabb) { _aabb = std::move(aabb); }
+    inline void setAABB(AABB *aabb) { _aabb = aabb; }
     inline void setAngle(float angle) {
         _spotAngle  = angle;
         _angle      = acos(_spotAngle) * 2;
@@ -64,7 +64,7 @@ public:
     inline void setPosition(const Vec3 &pos) { _pos = pos; }
     inline void setSize(float size) { _size = size; }
 
-    inline const AABB &   getAABB() const { return _aabb; }
+    inline AABB *         getAABB() const { return _aabb; }
     inline float          getAngle() const { return _angle; }
     inline float          getSpotAngle() const { return _spotAngle; }
     inline float          getAspect() const { return _aspect; }
@@ -86,7 +86,7 @@ private:
     float   _aspect{0.F};
     Vec3    _dir;
     Vec3    _pos;
-    AABB    _aabb;
+    AABB *  _aabb{nullptr};
     Frustum _frustum;
 };
 
