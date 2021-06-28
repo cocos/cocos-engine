@@ -1,5 +1,5 @@
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
-import { AABB, Frustum } from '../../geometry';
+import { Frustum } from '../../geometry';
 import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader } from '../../gfx';
 import { Color, Mat4, Rect, Vec2 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
@@ -11,6 +11,11 @@ export const NativeNode: Constructor<{
 }> = null!;
 export type NativeNode = InstanceType<typeof NativeNode>;
 
+export const NativeAABB: Constructor<{
+    initWithData(data: TypedArray): void;
+}> = null!;
+export type NativeAABB = InstanceType<typeof NativeAABB>;
+
 export const NativeModel: Constructor<{
     setReceiveShadow (val: boolean): void;
     setEnabled (val: boolean): void;
@@ -19,7 +24,7 @@ export const NativeModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
-    setWolrdBounds (val: AABB | null): void;
+    setBounds (val: NativeAABB | null): void;
     addSubModel (val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
     setInstancedBuffer (buffer: ArrayBuffer): void;
@@ -36,7 +41,7 @@ export const NativeSkinningModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
-    setWolrdBounds (val: AABB | null): void;
+    setBounds (val: NativeAABB | null): void;
     addSubModel (val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
     setInstancedBuffer (buffer: ArrayBuffer): void;
@@ -65,7 +70,7 @@ export type NativeDirectionalLight = InstanceType<typeof NativeDirectionalLight>
 
 export const NativeSphereLight: Constructor<{
     setPosition (pos: Vec3): void;
-    setAABB (aabb: AABB): void;
+    setAABB (aabb: NativeAABB): void;
     setSize (size: number): void;
     setRange (range: number): void;
     setIlluminance (lum: number): void;
@@ -75,7 +80,7 @@ export type NativeSphereLight = InstanceType<typeof NativeSphereLight>;
 export const NativeSpotLight: Constructor<{
     setDirection (dir: Vec3): void;
     setFrustum (frs: Frustum): void;
-    setAABB (aabb: AABB): void;
+    setAABB (aabb: NativeAABB): void;
     setPosition (pos: Vec3): void;
     setSize (size: number): void;
     setRange (range: number): void;
@@ -246,7 +251,7 @@ export const NativeJointTransform: Constructor<{
 export type NativeJointTransform = InstanceType<typeof NativeJointTransform>;
 
 export const NativeJointInfo: Constructor<{
-    bound: AABB;
+    bound: NativeAABB;
     target: Node;
     bindpose: Mat4;
     transform: NativeJointTransform | null;

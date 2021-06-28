@@ -366,9 +366,9 @@ export class Model {
         }
     }
 
-    protected _updateNativeWorldBounds () {
+    protected _updateNativeBounds () {
         if (JSB) {
-            this._nativeObj!.setWolrdBounds(this._worldBounds);
+            this._nativeObj!.setBounds(this._worldBounds!.native);
         }
     }
 
@@ -381,7 +381,7 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
         this._worldBounds = AABB.clone(this._modelBounds);
-        this._updateNativeWorldBounds();
+        this._updateNativeBounds();
     }
 
     private _createSubModel () {
