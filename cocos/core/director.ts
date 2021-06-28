@@ -927,6 +927,21 @@ export class Director extends EventTarget {
         }
     }
 
+    /**
+     * @en
+     * Run once main loop.
+     * @zh
+     * 运行一次主循环。
+     * @param deltaTime 此次循环与上次循环间隔的时间，单位为毫秒。默认为自然流逝的时间。
+     */
+    public tick (deltaTime?: number) {
+        this.mainLoop(
+            typeof deltaTime === 'undefined'
+                ? undefined
+                : this._lastUpdate + deltaTime,
+        );
+    }
+
     private _initOnRendererInitialized () {
         this._totalFrames = 0;
         this._lastUpdate = performance.now();

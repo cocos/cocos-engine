@@ -365,11 +365,14 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Run the game frame by frame.
-     * @zh 执行一帧游戏循环。
+     * @en
+     * Run once game loop.
+     * @zh
+     * 执行一帧游戏循环。
+     * @param deltaTime 此次循环与上次循环间隔的时间，单位为毫秒。默认为自然流逝的时间。
      */
-    public step (now?: number) {
-        legacyCC.director.mainLoop(now);
+    public step (deltaTime?: number) {
+        legacyCC.director.tick(deltaTime);
     }
 
     /**
