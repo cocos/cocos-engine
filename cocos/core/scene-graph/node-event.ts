@@ -109,7 +109,7 @@ export enum NodeEventType {
      * @zh
      * 重力感应
      *
-     * @deprecated since v3.3, please use SystemEventType.DEVICEMOTION instead
+     * @deprecated since v3.3, please use SystemEvent.EventType.DEVICEMOTION instead
      */
     DEVICEMOTION = 'devicemotion',
 

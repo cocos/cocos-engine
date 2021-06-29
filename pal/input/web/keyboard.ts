@@ -1,7 +1,7 @@
 import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
-import { KeyboardEvent } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { KeyCode } from '../../../cocos/core/platform/event-manager/key-code';
+import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
 
 const code2KeyCode: Record<string, KeyCode> = {
     Backspace: KeyCode.BACKSPACE,
@@ -125,22 +125,22 @@ export class KeyboardInputSource {
             event.stopPropagation();
             event.preventDefault();
             if (!event.repeat) {
-                const keyDownInputEvent = this._getInputEvent(event, KeyboardEvent.KEY_DOWN);
-                this._eventTarget.emit(KeyboardEvent.KEY_DOWN, keyDownInputEvent);
+                const keyDownInputEvent = this._getInputEvent(event, SystemEvent.EventType.KEY_DOWN);
+                this._eventTarget.emit(SystemEvent.EventType.KEY_DOWN, keyDownInputEvent);
             }
             // @ts-expect-error Compability for key pressing callback
             const keyPressingInputEvent = this._getInputEvent(event, 'keydown');
             this._eventTarget.emit('keydown', keyPressingInputEvent);
         });
         canvas?.addEventListener('keyup', (event: any) => {
-            const inputEvent = this._getInputEvent(event, KeyboardEvent.KEY_UP);
+            const inputEvent = this._getInputEvent(event, SystemEvent.EventType.KEY_UP);
             event.stopPropagation();
             event.preventDefault();
-            this._eventTarget.emit(KeyboardEvent.KEY_UP, inputEvent);
+            this._eventTarget.emit(SystemEvent.EventType.KEY_UP, inputEvent);
         });
     }
 
-    private _getInputEvent (event: any, eventType: KeyboardEvent) {
+    private _getInputEvent (event: any, eventType: SystemEvent.EventType) {
         const keyCode = getKeyCode(event.code);
         const inputEvent: KeyboardInputEvent = {
             type: eventType,
@@ -151,7 +151,7 @@ export class KeyboardInputSource {
     }
 
     public onDown (cb: KeyboardCallback) {
-        this._eventTarget.on(KeyboardEvent.KEY_DOWN, cb);
+        this._eventTarget.on(SystemEvent.EventType.KEY_DOWN, cb);
     }
 
     public onPressing (cb: KeyboardCallback) {
@@ -159,6 +159,6 @@ export class KeyboardInputSource {
     }
 
     public onUp (cb: KeyboardCallback) {
-        this._eventTarget.on(KeyboardEvent.KEY_UP, cb);
+        this._eventTarget.on(SystemEvent.EventType.KEY_UP, cb);
     }
 }
