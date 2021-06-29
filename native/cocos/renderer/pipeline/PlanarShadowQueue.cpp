@@ -67,13 +67,13 @@ void PlanarShadowQueue::gatherShadowPasses(scene::Camera *camera, gfx::CommandBu
     auto *      instancedBuffer = InstancedBuffer::get(shadowInfo->instancePass);
 
     for (const auto *model : models) {
-        if (!model->getEnabled() || model->getCastShadow() || !model->getNode()) {
+        if (!model->getEnabled() || !model->getCastShadow() || !model->getNode()) {
             continue;
         }
 
         // frustum culling
         if (model->getWorldBounds()) {
-            if (model->getWorldBounds()->aabbFrustum(camera->frustum)) {
+            if (!model->getWorldBounds()->aabbFrustum(camera->frustum)) {
                 continue;
             }
         }
