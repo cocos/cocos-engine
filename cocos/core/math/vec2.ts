@@ -849,12 +849,7 @@ export class Vec2 extends MathBase {
     }
 }
 
-function Enumerable (keys: string[]) {
-    keys.forEach((key) => {
-        Object.defineProperty(Vec2.prototype, key, { enumerable: true });
-    });
-}
-Enumerable(['x', 'y']);
+CCClass.enumerableProps(Vec2.prototype, ['x', 'y']);
 
 const v2_1 = new Vec2();
 const v2_2 = new Vec2();

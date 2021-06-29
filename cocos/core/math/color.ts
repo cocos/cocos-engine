@@ -670,13 +670,7 @@ export class Color extends ValueType {
     }
 }
 
-function Enumerable (keys: string[]) {
-    keys.forEach((key) => {
-        Object.defineProperty(Color.prototype, key, { enumerable: true });
-    });
-}
-Enumerable(['r', 'g', 'b', 'a', 'x', 'y', 'z', 'w']);
-
+CCClass.enumerableProps(Color.prototype, ['r', 'g', 'b', 'a', 'x', 'y', 'z', 'w']);
 CCClass.fastDefine('cc.Color', Color, { r: 0, g: 0, b: 0, a: 255 });
 legacyCC.Color = Color;
 

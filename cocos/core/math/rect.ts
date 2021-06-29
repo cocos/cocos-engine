@@ -499,12 +499,7 @@ export class Rect extends MathBase {
         out_rt.y = mat.m01 * or + mat.m05 * ot + mat.m13;
     }
 }
-function Enumerable (keys: string[]) {
-    keys.forEach((key) => {
-        Object.defineProperty(Rect.prototype, key, { enumerable: true });
-    });
-}
-Enumerable(['x', 'y', 'z', 'w', 'width', 'height', 'xMin', 'yMin', 'xMax', 'yMax']);
+CCClass.enumerableProps(Rect.prototype, ['x', 'y', 'z', 'w', 'width', 'height', 'xMin', 'yMin', 'xMax', 'yMax']);
 CCClass.fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
 
 legacyCC.Rect = Rect;

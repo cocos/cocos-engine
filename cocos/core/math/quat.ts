@@ -854,13 +854,7 @@ export class Quat extends MathBase {
     }
 }
 
-function Enumerable (keys: string[]) {
-    keys.forEach((key) => {
-        Object.defineProperty(Quat.prototype, key, { enumerable: true });
-    });
-}
-Enumerable(['x', 'y', 'z', 'w']);
-
+CCClass.enumerableProps(Quat.prototype, ['x', 'y', 'z', 'w']);
 const qt_1 = new Quat();
 const qt_2 = new Quat();
 const v3_1 = new Vec3();

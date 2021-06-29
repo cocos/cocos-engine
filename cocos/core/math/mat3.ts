@@ -1100,12 +1100,7 @@ export class Mat3 extends MathBase {
 
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
-function Enumerable (keys: string[]) {
-    keys.forEach((key) => {
-        Object.defineProperty(Mat3.prototype, key, { enumerable: true });
-    });
-}
-Enumerable(['m00', 'm01', 'm02',
+CCClass.enumerableProps(Mat3.prototype, ['m00', 'm01', 'm02',
     'm03', 'm04', 'm05',
     'm06', 'm07', 'm08']);
 CCClass.fastDefine('cc.Mat3', Mat3, {
