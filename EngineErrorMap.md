@@ -3041,7 +3041,3 @@ Pass already destroyed.
 ### 12100
 
 The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size.
-
-## 12101
-
-Singleton mode can not have more than one instance.
