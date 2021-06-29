@@ -29,12 +29,20 @@
  */
 
 import { ISchedulable } from '../scheduler';
+import { Enum } from '../value-types/enum';
 
 /**
  * @en Base class for all functional system managed by [[Director]].
  * @zh 功能系统的基类，由 [[Director]] 管理。
  */
 export default class System implements ISchedulable {
+    static Priority = Enum({
+        LOW: 0,
+        MEDIUM: 100,
+        HIGH: 200,
+        SCHEDULER: (1 << 31) >>> 0,
+    });
+
     protected _id = '';
     protected _priority = 0;
     protected _executeInEditMode = false;
