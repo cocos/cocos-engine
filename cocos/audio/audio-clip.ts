@@ -73,6 +73,12 @@ export class AudioClip extends Asset {
         this.loaded = false;
     }
 
+    public destroy (): boolean {
+        const destroyResult = super.destroy();
+        this._player?.destroy();
+        return destroyResult;
+    }
+
     set _nativeAsset (meta: AudioMeta | null) {
         this._meta = meta;
         if (meta) {
