@@ -196,7 +196,7 @@ export class AudioClip extends Asset {
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.playOneShot() instead.
      */
-    public playOneShot (volume: number) {
+    public playOneShot (volume = 1) {
         if (this._nativeAsset) {
             AudioPlayer.loadOneShotAudio(this._nativeAsset.url, volume).then((oneShotAudio) => {
                 oneShotAudio.play();
