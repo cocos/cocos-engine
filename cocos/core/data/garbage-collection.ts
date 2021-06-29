@@ -28,6 +28,12 @@ import { ValueType } from '../value-types';
 import { CCClass } from './class';
 import { GCObject } from './gc-object';
 
+declare class FinalizationRegistry {
+    constructor (callback: (heldObj: any) => void);
+    register (obj: any, heldObj: any, token?: any);
+    unregister (token: any);
+}
+
 export class GarbageCollectorContext {
     public gcVersion = 0;
     public reset () {
@@ -170,14 +176,69 @@ class GarbageCollectionManager {
     private _normalRoots: Map<any, ReferenceType> = new Map();
     private _garbageCollectionContext: GarbageCollectorContext = new GarbageCollectorContext();
     private _classCreatedCallback: ((ctor: Constructor) => void) | null = null;
+    private _allGCObjects: GCObject[] = [];
+    private _ignoredGCObjects: GCObject[] = [];
+    private _finalizationRegistry: FinalizationRegistry | null = null;
+
+    public getAllGCObject (): readonly GCObject[] {
+        return this._allGCObjects;
+    }
+
+    public getIgnoredGCObjects (): readonly GCObject[] {
+        return this._ignoredGCObjects;
+    }
+
+    public registerGCObject (gcObject: GCObject): GCObject {
+        if (EDITOR) {
+            gcObject._finalizationToken = {};
+            const proxy = new Proxy(gcObject, {});
+            this._finalizationRegistry!.register(proxy, gcObject, gcObject._finalizationToken);
+            return proxy;
+        } else {
+            const id = this._allGCObjects.length;
+            this._allGCObjects.push(gcObject);
+            gcObject._internalId = id;
+            return gcObject;
+        }
+    }
+
+    public unregisterGCObject (gcObject: GCObject) {
+        if (EDITOR) {
+            this._finalizationRegistry!.unregister(gcObject._finalizationToken);
+        } else if (gcObject._internalId !== -1) {
+            const tail = this._allGCObjects[this._allGCObjects.length - 1];
+            tail._internalId = gcObject._internalId;
+            this._allGCObjects[gcObject._internalId] = tail;
+            this._allGCObjects.length -= 1;
+            gcObject._internalId = -1;
+        }
+    }
+
+    public registerIgnoredGCObject (gcObject: GCObject) {
+        gcObject._ignoreId = this._ignoredGCObjects.length;
+        this._ignoredGCObjects.push(gcObject);
+    }
+
+    public unregisterIgnoredGCObject (gcObject: GCObject) {
+        if (gcObject._ignoreId !== -1) {
+            const tail = this._ignoredGCObjects[this._ignoredGCObjects.length - 1];
+            tail._ignoreId = gcObject._ignoreId;
+            this._ignoredGCObjects[gcObject._ignoreId] = tail;
+            this._ignoredGCObjects.length -= 1;
+            gcObject._ignoreId = -1;
+        }
+    }
 
     public init () {
         this._ccclassRoots.clear();
         this._normalRoots.clear();
+        this._allGCObjects.length = 0;
+        this._ignoredGCObjects.length = 0;
         this._garbageCollectionContext.reset();
         this._garbageCollectableClassInfos.forEach((classInfo, ctor) => {
             this.generateMarkDependenciesFunctionForBuiltinCCClass(ctor);
         });
+        if (EDITOR) { this._finalizationRegistry = new FinalizationRegistry(this.finalizationRegistryCallback.bind(this)); }
         this._classCreatedCallback = this.generateMarkDependenciesFunctionForCustomCCClass.bind(this);
         CCClass.onClassCreated(this._classCreatedCallback);
     }
@@ -193,6 +254,10 @@ class GarbageCollectionManager {
             classInfo.referenceTypes.push(referenceType);
             this._garbageCollectableClassInfos.set(ctor, classInfo);
         }
+    }
+
+    finalizationRegistryCallback (gcObject: GCObject) {
+        gcObject.destroy();
     }
 
     public getGarbageCollectableClassInfo (ctor: Constructor) {
@@ -232,13 +297,13 @@ class GarbageCollectionManager {
             // todo: trigger electron gc
         } else {
             this.markPhase();
-            this.sweepPhase(gcObjects || GCObject.getAllGCObject());
+            this.sweepPhase(gcObjects || this.getAllGCObject());
         }
     }
 
     private markPhase () {
         legacyCC.director.emit(legacyCC.Director.EVENT_BEFORE_GC, this._garbageCollectionContext);
-        const ignoreFromGCObjects = GCObject.getIgnoreFromGCObjects();
+        const ignoreFromGCObjects = this.getIgnoredGCObjects();
         ignoreFromGCObjects.forEach((root) => {
             this._garbageCollectionContext.markCCClassObject(root);
         });

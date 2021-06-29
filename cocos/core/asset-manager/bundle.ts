@@ -44,7 +44,7 @@ import { parseLoadResArgs, parseParameters } from './utilities';
  * 一个包含一定数量资源（包括场景）的包，你可以加载，预加载，释放此包内的资源
  *
  */
-export default class Bundle extends GCObject {
+export default class Bundle {
     private _config: Config = new Config();
 
     /**
@@ -546,7 +546,6 @@ export default class Bundle extends GCObject {
     public destroy () {
         this._config.destroy();
         bundles.remove(this.name);
-        return super.destroy();
     }
 }
 
