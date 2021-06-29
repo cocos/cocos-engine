@@ -270,8 +270,8 @@ export function absMax (a: number, b: number) {
  * Make the attributes of the specified class available to be enumerated
  * @zh
  * 使指定类的特定属性可被枚举
- * @param prototype 继承ValueType类的原型链
- * @param attrs 需要被枚举的属性列表
+ * @param prototype Inherit the prototype chain of the ValueType class
+ * @param attrs List of attributes that need to be enumerated
  */
 export function enumerableProps (prototype: ValueType, attrs: string[]) {
     attrs.forEach((key) => {
