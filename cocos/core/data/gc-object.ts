@@ -22,46 +22,75 @@
  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  THE SOFTWARE.
 */
-import { EDITOR } from 'internal:constants';
-import { finalizationManager } from './finalization-manager';
-import { GarbageCollectorContext } from './garbage-collection';
+import { ccclass } from './decorators';
+import { garbageCollectionManager, GarbageCollectorContext } from './garbage-collection';
 import { CCObject } from './object';
 
+@ccclass('cc.GCObject')
 export class GCObject extends CCObject {
+    public declare _finalizationToken: any;
 
-    public ignoreFromGarbageCollection = true;
-    public declare finalizationToken: any;
-
-    private static _allGCObjects: GCObject[] = [];
-
-    public static getAllGCObject (): readonly GCObject[] {
-        return GCObject._allGCObjects;
-    }
-
-    private _internalId = -1;
+    public _internalId = -1;
+    public _ignoreId = -1;
+    private _ref = 0;
 
     constructor (...arg: ConstructorParameters<typeof CCObject>) {
         super(...arg);
-        const id = GCObject._allGCObjects.length;
-        GCObject._allGCObjects.push(this);
-        this._internalId = id;
-        if (EDITOR) {
-            this.finalizationToken = {};
-            const proxy = new Proxy(this, {});
-            finalizationManager.register(proxy, this);
-            return proxy;
-        }
+        return garbageCollectionManager.registerGCObject(this);
     }
 
     public destroy () {
-        if (this._internalId !== -1) {
-            const tail = GCObject._allGCObjects[GCObject._allGCObjects.length - 1];
-            tail._internalId = this._internalId;
-            GCObject._allGCObjects.length -= 1;
-            this._internalId = -1;
-        }
-        if (EDITOR) finalizationManager.unregister(this);
+        garbageCollectionManager.unregisterGCObject(this);
+        garbageCollectionManager.unregisterIgnoredGCObject(this);
+        garbageCollectionManager.removeGCObjectFromRoot(this);
         return super.destroy();
+    }
+
+    /**
+     * @en
+     * The number of reference
+     *
+     * @zh
+     * 引用的数量
+     */
+    public get refCount (): number {
+        return this._ref;
+    }
+
+    /**
+     * @en
+     * Add references of asset
+     *
+     * @zh
+     * 增加资源的引用
+     *
+     * @return itself
+     *
+     */
+    public addRef () {
+        if (this._ref === 0) {
+            garbageCollectionManager.registerIgnoredGCObject(this);
+        }
+        this._ref++;
+        return this;
+    }
+
+    /**
+     * @en
+     * Reduce references of asset and it will be auto released when refCount equals 0.
+     *
+     * @zh
+     * 减少资源的引用并尝试进行自动释放。
+     *
+     * @return itself
+     *
+     */
+    public decRef () {
+        this._ref--;
+        if (this._ref === 0) {
+            garbageCollectionManager.unregisterIgnoredGCObject(this);
+        }
+        return this;
     }
 
     public markDependencies? (context: GarbageCollectorContext);

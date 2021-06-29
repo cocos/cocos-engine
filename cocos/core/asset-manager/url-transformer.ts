@@ -171,7 +171,7 @@ export function combine (task: Task) {
         if (item.isNative) {
             base = (config && config.nativeBase) ? (config.base + config.nativeBase) : legacyCC.assetManager.generalNativeBase;
         } else {
-            base = (config && config.importBase) ? (config.base + config.importBase) : legacyCC.assetManager.generalImportBase;
+            base = legacyCC.assetManager.generalImportBase;
         }
 
         const uuid = item.uuid;

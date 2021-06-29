@@ -34,7 +34,7 @@ import { legacyCC } from '../global-exports';
 import { getDeviceShaderVersion } from '../renderer/core/program-lib';
 import shaderSourceAssembly from './shader-source-assembly';
 import { ccclass } from '../data/decorators';
-import { garbageCollectionManager, markAsGCRoot, ReferenceType } from '../data/garbage-collection';
+import { markAsGCRoot, ReferenceType } from '../data/garbage-collection';
 
 @ccclass('cc.BuiltinResMgr')
 class BuiltinResMgr {
@@ -185,7 +185,7 @@ class BuiltinResMgr {
                 });
                 effect.hideInEditor = true;
                 effect.onLoaded();
-                garbageCollectionManager.addGCObjectToRoot(effect);
+                effect.addRef();
             });
             this._initMaterials();
         });

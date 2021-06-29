@@ -46,6 +46,7 @@ export interface IMaterialInstanceInfo {
  * @zh
  * 材质实例，当有材质修改需求时，根据材质资源创建的，可任意定制的实例。
  */
+@ccclass('cc.MaterialInstance')
 export class MaterialInstance extends Material {
     get parent () {
         return this._parent;
@@ -57,6 +58,7 @@ export class MaterialInstance extends Material {
 
     protected _passes: PassInstance[] = [];
 
+    @markAsGCRoot
     private _parent: Material;
     private _owner: RenderableComponent | null;
     private _subModelIdx = 0;
@@ -95,11 +97,6 @@ export class MaterialInstance extends Material {
             for (const key in overrides) { state[key] = overrides[key]; }
             this._passes[passIdx].overridePipelineStates(passInfos[passIdx], state);
         }
-    }
-
-    public destroy () {
-        this._doDestroy();
-        return true;
     }
 
     public onPassStateChange (dontNotify: boolean) {
