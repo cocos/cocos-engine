@@ -64,11 +64,9 @@ export class AudioContextAgent {
         return sourceBufferNode;
     }
 
-    public createGain (volume?: number) {
+    public createGain (volume = 1) {
         const gainNode = this._context.createGain();
-        if (volume !== undefined) {
-            this.setGainValue(gainNode, volume);
-        }
+        this.setGainValue(gainNode, volume);
         return gainNode;
     }
 
