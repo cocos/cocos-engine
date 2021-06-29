@@ -330,7 +330,9 @@ export class Game extends EventTarget {
 
     private _intervalId: number | null = null; // interval target of main
 
-    private declare _lastTime: number;
+    private _deltaTime: number = 0;
+    private declare _initTime: number;
+    private declare _startTime: number;
     private declare _frameTime: number;
 
     // @Methods
@@ -362,6 +364,31 @@ export class Game extends EventTarget {
      */
     public getFrameRate (): number {
         return this.config.frameRate || 0;
+    }
+
+
+    /**
+     * @en Returns the delta time since last frame.
+     * @zh 获取上一帧的增量时间。
+     */
+     public getDeltaTime () {
+        return this._deltaTime;
+    }
+
+    /**
+     * @en Returns the total passed time since game start, unit: ms
+     * @zh 获取从游戏开始到现在总共经过的时间，单位为 ms
+     */
+    public getTotalTime () {
+        return performance.now() - this._initTime;
+    }
+
+    /**
+     * @en Returns the start time of the current frame.
+     * @zh 获取当前帧开始的时间。
+     */
+    public getFrameStartTime () {
+        return this._startTime;
     }
 
     /**
@@ -620,7 +647,7 @@ export class Game extends EventTarget {
 
     //  @Time ticker section
     private _setAnimFrame () {
-        this._lastTime = performance.now();
+        this._startTime = performance.now();
         const frameRate = this.config.frameRate;
         this._frameTime = 1000 / frameRate;
         if (JSB) {
@@ -659,29 +686,33 @@ export class Game extends EventTarget {
             }
         }
     }
-
     private _stTimeWithRAF (callback) {
         const currTime = performance.now();
-        const elapseTime = Math.max(0, (currTime - game._lastTime));
+        const elapseTime = Math.max(0, (currTime - game._startTime));
         const timeToCall = Math.max(0, game._frameTime - elapseTime);
         const id = window.setTimeout(() => {
             window.requestAnimationFrame(callback);
         }, timeToCall);
-        game._lastTime = currTime + timeToCall;
         return id;
     }
-
     private _stTime (callback: () => void) {
         const currTime = performance.now();
-        const elapseTime = Math.max(0, (currTime - game._lastTime));
+        const elapseTime = Math.max(0, (currTime - game._startTime));
         const timeToCall = Math.max(0, game._frameTime - elapseTime);
         const id = window.setTimeout(callback, timeToCall);
-        game._lastTime = currTime + timeToCall;
         return id;
     }
     private _ctTime (id: number | undefined) {
         window.clearTimeout(id);
     }
+
+    private _calculateDT (now?: number) {
+        if (!now) now = performance.now();
+        this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
+        this._startTime = now;
+        return this._deltaTime;
+    }
+
     // Run game.
     private _runMainLoop () {
         if (!this._inited || (EDITOR && !legacyCC.GAME_VIEW)) {
@@ -692,8 +723,9 @@ export class Game extends EventTarget {
         const frameRate = config.frameRate;
 
         debug.setDisplayStats(!!config.showFPS);
-
         director.startAnimation();
+
+        this._startTime = performance.now();
 
         let callback;
         if (!JSB && !RUNTIME_BASED && frameRate === 30) {
@@ -704,12 +736,12 @@ export class Game extends EventTarget {
                 if (skip) {
                     return;
                 }
-                director.mainLoop(time);
+                director.tick(this._calculateDT());
             };
         } else {
             callback = (time: number) => {
                 this._intervalId = window.rAF(callback);
-                director.mainLoop(time);
+                director.tick(this._calculateDT());
             };
         }
 
@@ -877,6 +909,7 @@ export class Game extends EventTarget {
             () => Promise.resolve(this._showSplashScreen()).then(
                 () => {
                     this._inited = true;
+                    this._initTime = performance.now();
                     this._setAnimFrame();
                     this._runMainLoop();
                     this._safeEmit(Game.EVENT_GAME_INITED);

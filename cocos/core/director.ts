@@ -37,7 +37,7 @@ import { SceneAsset } from './assets';
 import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event/event-target';
-import { Game } from './game';
+import { game, Game } from './game';
 import { Color, size, v2, Vec2 } from './math';
 import eventManager from './platform/event-manager/event-manager';
 import { Root } from './root';
@@ -252,14 +252,10 @@ export class Director extends EventTarget {
     public _nodeActivator: NodeActivator;
     private _invalid: boolean;
     private _paused: boolean;
-    private _purgeDirectorInNextLoop: boolean;
     private _root: Root | null;
     private _loadingScene: string;
     private _scene: Scene | null;
     private _totalFrames: number;
-    private _lastUpdate: number;
-    private _deltaTime: number;
-    private _startTime: number;
     private _scheduler: Scheduler;
     private _systems: System[];
 
@@ -269,8 +265,6 @@ export class Director extends EventTarget {
         this._invalid = false;
         // paused?
         this._paused = false;
-        // purge?
-        this._purgeDirectorInNextLoop = false;
 
         // root
         this._root = null;
@@ -281,9 +275,6 @@ export class Director extends EventTarget {
 
         // FPS
         this._totalFrames = 0;
-        this._lastUpdate = 0;
-        this._deltaTime = 0.0;
-        this._startTime = 0.0;
 
         // Scheduler for user registration update
         this._scheduler = new Scheduler();
@@ -295,21 +286,6 @@ export class Director extends EventTarget {
         this._systems = [];
 
         legacyCC.game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
-    }
-
-    /**
-     * @en Calculates delta time since last time it was called, the result is saved to an internal property.
-     * @zh 计算从上一帧到现在的时间间隔，结果保存在私有属性中
-     */
-    public calculateDeltaTime (now) {
-        if (!now) now = performance.now();
-
-        this._deltaTime = now > this._lastUpdate ? (now - this._lastUpdate) / 1000 : 0;
-        if (DEBUG && (this._deltaTime > 1)) {
-            this._deltaTime = 1 / 60.0;
-        }
-
-        this._lastUpdate = now;
     }
 
     /**
@@ -361,33 +337,9 @@ export class Director extends EventTarget {
      * @zh 执行完当前帧后停止 director 的执行
      */
     public end () {
-        this._purgeDirectorInNextLoop = true;
-    }
-
-    /**
-     * @en
-     * Returns the size of the WebGL view in points.<br/>
-     * It takes into account any possible rotation (device orientation) of the window.
-     * @zh 获取视图的大小，以点为单位。
-     * @deprecated since v2.0
-     */
-    public getWinSize () {
-        return size(legacyCC.winSize);
-    }
-
-    /**
-     * @en
-     * Returns the size of the OpenGL view in pixels.<br/>
-     * It takes into account any possible rotation (device orientation) of the window.<br/>
-     * On Mac winSize and winSizeInPixels return the same value.
-     * (The pixel here refers to the resource resolution. If you want to get the physics resolution of device, you need to use `view.getFrameSize()`)
-     * @zh
-     * 获取视图大小，以像素为单位（这里的像素指的是资源分辨率。
-     * 如果要获取屏幕物理分辨率，需要用 `view.getFrameSize()`）
-     * @deprecated since v2.0
-     */
-    public getWinSizeInPixels () {
-        return size(legacyCC.winSize);
+        this.on(Director.EVENT_END_FRAME, () => {
+            this.purgeDirector();
+        });
     }
 
     /**
@@ -403,15 +355,6 @@ export class Director extends EventTarget {
             return;
         }
         this._paused = true;
-    }
-
-    /**
-     * @en Removes cached all cocos2d cached data.
-     * @zh 删除cocos2d所有的缓存数据
-     * @deprecated since v2.0
-     */
-    public purgeCachedData () {
-        legacyCC.assetManager.releaseAll();
     }
 
     /**
@@ -673,57 +616,11 @@ export class Director extends EventTarget {
         if (!this._paused) {
             return;
         }
-
-        this._lastUpdate = performance.now();
-        if (!this._lastUpdate) {
-            logID(1200);
-        }
-
         this._paused = false;
-        this._deltaTime = 0;
-    }
-
-    /**
-     * @en
-     * Enables or disables WebGL depth test.<br>
-     * Implementation can be found in directorCanvas.js/directorWebGL.js
-     * @zh 启用/禁用深度测试（在 Canvas 渲染模式下不会生效）。
-     * @deprecated since v2.0
-     */
-    public setDepthTest (value: boolean) {
-        if (!legacyCC.Camera.main) {
-            return;
-        }
-        legacyCC.Camera.main.depth = !!value;
-    }
-
-    /**
-     * @en
-     * Set color for clear screen.<br>
-     * (Implementation can be found in directorCanvas.js/directorWebGL.js)
-     * @zh
-     * 设置场景的默认擦除颜色。<br>
-     * 支持全透明，但不支持透明度为中间值。要支持全透明需手工开启 `macro.ENABLE_TRANSPARENT_CANVAS`。
-     * @deprecated since v2.0
-     */
-    public setClearColor (clearColor: Color) {
-        if (!legacyCC.Camera.main) {
-            return;
-        }
-        legacyCC.Camera.main.backgroundColor = clearColor;
     }
 
     get root () {
         return this._root;
-    }
-
-    /**
-     * @en Returns current logic Scene.
-     * @zh 获取当前逻辑场景。
-     * @deprecated Since v2.0.
-     */
-    public getRunningScene () {
-        return this._scene;
     }
 
     /**
@@ -738,51 +635,6 @@ export class Director extends EventTarget {
      */
     public getScene (): Scene | null {
         return this._scene;
-    }
-
-    /**
-     * @en Returns the FPS value. Please use [[Game.setFrameRate]] to control animation interval.
-     * @zh 获取单位帧执行时间。请使用 [[Game.setFrameRate]] 来控制游戏帧率。
-     * @deprecated since v2.0.
-     */
-    public getAnimationInterval () {
-        return 1000 / legacyCC.game.getFrameRate();
-    }
-
-    /**
-     * @en Sets animation interval, this doesn't control the main loop.<br>
-     * To control the game's frame rate overall, please use `game.setFrameRate`
-     * @zh 设置动画间隔，这不控制主循环。<br>
-     * 要控制游戏的帧速率，请使用 `game.setFrameRate`
-     * @deprecated since v2.0
-     * @param value - The animation interval desired.
-     */
-    public setAnimationInterval (value: number) {
-        legacyCC.game.setFrameRate(Math.round(1000 / value));
-    }
-
-    /**
-     * @en Returns the delta time since last frame.
-     * @zh 获取上一帧的增量时间。
-     */
-    public getDeltaTime () {
-        return this._deltaTime;
-    }
-
-    /**
-     * @en Returns the total passed time since game start, unit: ms
-     * @zh 获取从游戏开始到现在总共经过的时间，单位为 ms
-     */
-    public getTotalTime () {
-        return performance.now() - this._startTime;
-    }
-
-    /**
-     * @en Returns the current time.
-     * @zh 获取当前帧的时间。
-     */
-    public getCurrentTime () {
-        return this._lastUpdate;
     }
 
     /**
@@ -849,7 +701,7 @@ export class Director extends EventTarget {
     /**
      * @en Returns the `AnimationManager` associated with this director. Please use getSystem(AnimationManager.ID)
      * @zh 获取和 director 相关联的 `AnimationManager`（动画管理器）。请使用 getSystem(AnimationManager.ID) 来替代
-     * @deprecated
+     * @deprecated since 3.0.0
      */
     public getAnimationManager (): any {
         return this.getSystem(legacyCC.AnimationManager.ID);
@@ -857,17 +709,16 @@ export class Director extends EventTarget {
 
     // Loop management
     /**
-     * @en Starts Animation
-     * @zh 开始动画
+     * @en Starts the director
+     * @zh 开始执行游戏逻辑
      */
     public startAnimation () {
         this._invalid = false;
-        this._lastUpdate = performance.now();
     }
 
     /**
-     * @en Stops animation
-     * @zh 停止动画
+     * @en Stops the director
+     * @zh 停止执行游戏逻辑，每帧渲染会继续执行
      */
     public stopAnimation () {
         this._invalid = true;
@@ -876,21 +727,26 @@ export class Director extends EventTarget {
     /**
      * @en Run main loop of director
      * @zh 运行主循环
+     * @deprecated please use [tick] instead
      */
-    public mainLoop (time: number) {
-        if (this._purgeDirectorInNextLoop) {
-            this._purgeDirectorInNextLoop = false;
-            this.purgeDirector();
-        } else if (!this._invalid) {
-            // calculate "global" dt
-            if (EDITOR && !legacyCC.GAME_VIEW || TEST) {
-                this._deltaTime = time;
-            } else {
-                this.calculateDeltaTime(time);
-            }
-            this.emit(Director.EVENT_BEGIN_FRAME);
-            const dt = this._deltaTime;
+    public mainLoop (now: number) {
+        let dt;
+        if (EDITOR && !legacyCC.GAME_VIEW || TEST) {
+            dt = now;
+        } else {
+            // @ts-expect-error using internal API for deprecation
+            dt = game._calculateDT(now);
+        }
+        this.tick(dt);
+    }
 
+    /**
+     * @en Run main loop of director
+     * @zh 运行主循环
+     */
+    public tick (dt: number) {
+        if (!this._invalid) {
+            this.emit(Director.EVENT_BEGIN_FRAME);
             // Update
             if (!this._paused) {
                 this.emit(Director.EVENT_BEFORE_UPDATE);
@@ -917,7 +773,7 @@ export class Director extends EventTarget {
 
             this.emit(Director.EVENT_BEFORE_DRAW);
             // The test environment does not currently support the renderer
-            if (!TEST) this._root!.frameMove(this._deltaTime);
+            if (!TEST) this._root!.frameMove(dt);
             this.emit(Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
@@ -930,10 +786,7 @@ export class Director extends EventTarget {
 
     private _initOnRendererInitialized () {
         this._totalFrames = 0;
-        this._lastUpdate = performance.now();
-        this._startTime = this._lastUpdate;
         this._paused = false;
-        this._purgeDirectorInNextLoop = false;
 
         // Event manager
         if (eventManager) {
