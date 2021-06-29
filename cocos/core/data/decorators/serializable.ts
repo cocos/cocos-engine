@@ -28,9 +28,15 @@
  * @module decorator
  */
 
-import { LegacyPropertyDecorator } from './utils';
+import { EDITOR } from 'internal:constants';
+import { emptyDecorator, LegacyPropertyDecorator } from './utils';
 import { property, IPropertyOptions } from './property';
 import { getOrCreateSerializationMetadata } from '../serialization-metadata';
+
+/**
+ * True if serialization feature is enabled in current environment.
+ */
+const WITH_SERIALIZATION = EDITOR;
 
 export const serializable: LegacyPropertyDecorator = (target, propertyKey, descriptor) => property(makeSerializable({ }))(target, propertyKey, descriptor);
 
@@ -108,8 +114,10 @@ function makeSerializable (options: IPropertyOptions) {
  * `bar1` 和 `bar2` 引用同一个 `Foo` 对象。
  * 但在反序列化之后，`bar1.foo === bar2.foo` 永不成立。
  */
-// eslint-disable-next-line func-names, @typescript-eslint/ban-types
-export function uniquelyReferenced<TFunction extends Function> (constructor: TFunction) {
-    const metadata = getOrCreateSerializationMetadata(constructor);
-    metadata.uniquelyReferenced = true;
-}
+export const uniquelyReferenced: ClassDecorator = !WITH_SERIALIZATION
+    ? emptyDecorator
+    // eslint-disable-next-line func-names, @typescript-eslint/ban-types
+    : function uniquelyReferenced<TFunction extends Function> (constructor: TFunction) {
+        const metadata = getOrCreateSerializationMetadata(constructor);
+        metadata.uniquelyReferenced = true;
+    };
