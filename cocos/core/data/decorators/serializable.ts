@@ -60,7 +60,7 @@ function makeSerializable (options: IPropertyOptions) {
 
 /**
  * @en
- * Marks the target class as "unique" which means, in the aspect of serialization,
+ * Marks the target class as "unique referenced" which means, in the aspect of serialization,
  * no more than one objects should reference to same instance of that class.
  * When serializing references to objects of such class,
  * they're treated as different object even they point to actually the same.
@@ -69,7 +69,7 @@ function makeSerializable (options: IPropertyOptions) {
  * ```ts
  * import { _decorator } from 'cc';
  * \@_decorator.ccclass
- * \@_decorator.unique
+ * \@_decorator.uniquelyReferenced
  * class Foo { }
  *
  * \@_decorator.ccclass
@@ -92,7 +92,7 @@ function makeSerializable (options: IPropertyOptions) {
  * ```ts
  * import { _decorator } from 'cc';
  * \@_decorator.ccclass
- * \@_decorator.unique
+ * \@_decorator.uniquelyReferenced
  * class Foo { }
  *
  * \@_decorator.ccclass
@@ -109,7 +109,7 @@ function makeSerializable (options: IPropertyOptions) {
  * 但在反序列化之后，`bar1.foo === bar2.foo` 永不成立。
  */
 // eslint-disable-next-line func-names, @typescript-eslint/ban-types
-export function unique<TFunction extends Function> (constructor: TFunction) {
+export function uniquelyReferenced<TFunction extends Function> (constructor: TFunction) {
     const metadata = getOrCreateSerializationMetadata(constructor);
-    metadata.unique = true;
+    metadata.uniquelyReferenced = true;
 }

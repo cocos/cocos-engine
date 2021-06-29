@@ -19,7 +19,7 @@ export function getOrCreateSerializationMetadata (constructor: Function): Serial
  * For internal usage only. DO NOT USE IT IN YOUR CODES.
  */
 export interface SerializationMetadata {
-    unique?: boolean;
+    uniquelyReferenced?: boolean;
 }
 
 interface MayBeInjected {

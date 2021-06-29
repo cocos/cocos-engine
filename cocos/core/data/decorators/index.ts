@@ -33,7 +33,7 @@ export {
     serializable,
     formerlySerializedAs,
     editorOnly,
-    unique,
+    uniquelyReferenced,
 } from './serializable';
 export * from './editable';
 export * from './type';
