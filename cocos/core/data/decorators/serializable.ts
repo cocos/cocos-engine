@@ -85,7 +85,7 @@ function makeSerializable (options: IPropertyOptions) {
  * `bar1` and `bar2` reference to the same `Foo` object.
  * However, after deserializing, `bar1.foo === bar2.foo` always evaluates to `false`.
  * @zh
- * 将目标类标记为“唯一”的，其意味着就序列化而言，不会有多个对象引用该类的同一实例。
+ * 将目标类标记为“被唯一引用”的，其意味着就序列化而言，不会有多个对象引用该类的同一实例。
  * 当序列化到该类的对象引用时，即使它们明面上指向同一对象，也会被当作是不同对象；
  * 而当反序列化后，这两个引用将指向截然不同的两个对象。
  * 例如：
