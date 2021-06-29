@@ -453,6 +453,18 @@ let Animation = cc.Class({
     },
 
     /**
+     * !#en Check whether the animation State with the name already exists.
+     * !#zh 通过名称判断是否包含某动画状态。也可用来判断是否已经添加了同名 clip.
+     * @method hasAnimationState
+     * @param {String} name
+     * @return {boolean} - Whether the animation State with the name already exists.
+     */
+    hasAnimationState: function (name) {
+        this._init();
+        return !!(this._nameToState[name]);
+    },
+
+    /**
      * !#en Adds a clip to the animation with name newName. If a clip with that name already exists it will be replaced with the new clip.
      * !#zh 添加动画剪辑，并且可以重新设置该动画剪辑的名称。
      * @method addClip
@@ -491,18 +503,6 @@ let Animation = cc.Class({
         let newState = new cc.AnimationState(clip, newName);
         this._nameToState[newName] = newState;
         return newState;
-    },
-
-    /**
-     * !#en Check whether the clip with the name already exists.
-     * !#zh 通过名称判断是否包含某动画剪辑。
-     * @method hasClip
-     * @param {String} name
-     * @return {boolean} - Whether the clip with the name already exists.
-     */
-    hasClip: function (name) {
-        this._init();
-        return !!(this._nameToState[name]);
     },
 
     /**
@@ -579,7 +579,6 @@ let Animation = cc.Class({
             this._animator.sample();
         }
     },
-
 
     /**
      * !#en
