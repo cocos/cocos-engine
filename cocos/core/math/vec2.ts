@@ -32,7 +32,7 @@
 import { CCClass } from '../data/class';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IVec2Like, FloatArray } from './type-define';
-import { clamp, EPSILON, random } from './utils';
+import { clamp, enumerableProps, EPSILON, random } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 import { MathBase } from './math-base';
@@ -849,7 +849,7 @@ export class Vec2 extends MathBase {
     }
 }
 
-CCClass.enumerableProps(Vec2.prototype, ['x', 'y']);
+enumerableProps(Vec2.prototype, ['x', 'y']);
 
 const v2_1 = new Vec2();
 const v2_2 = new Vec2();

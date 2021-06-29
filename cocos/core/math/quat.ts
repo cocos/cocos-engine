@@ -31,7 +31,7 @@
 import { CCClass } from '../data/class';
 import { Mat3 } from './mat3';
 import { IQuatLike, IVec3Like, FloatArray } from './type-define';
-import { EPSILON, toDegree } from './utils';
+import { enumerableProps, EPSILON, toDegree } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 import { MathBase } from './math-base';
@@ -854,7 +854,7 @@ export class Quat extends MathBase {
     }
 }
 
-CCClass.enumerableProps(Quat.prototype, ['x', 'y', 'z', 'w']);
+enumerableProps(Quat.prototype, ['x', 'y', 'z', 'w']);
 const qt_1 = new Quat();
 const qt_2 = new Quat();
 const v3_1 = new Vec3();

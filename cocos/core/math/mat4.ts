@@ -32,7 +32,7 @@ import { CCClass } from '../data/class';
 import { Mat3 } from './mat3';
 import { Quat } from './quat';
 import { IMat4Like, IVec3Like, FloatArray } from './type-define';
-import { EPSILON } from './utils';
+import { enumerableProps, EPSILON } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 import { MathBase } from './math-base';
@@ -2251,7 +2251,7 @@ export class Mat4 extends MathBase {
 
 const v3_1 = new Vec3();
 const m3_1 = new Mat3();
-CCClass.enumerableProps(Mat4.prototype, ['m00', 'm01', 'm02', 'm03',
+enumerableProps(Mat4.prototype, ['m00', 'm01', 'm02', 'm03',
     'm04', 'm05', 'm06', 'm07',
     'm08', 'm09', 'm10', 'm11',
     'm12', 'm13', 'm14', 'm15']);

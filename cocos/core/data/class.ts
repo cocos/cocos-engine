@@ -439,32 +439,6 @@ CCClass.fastDefine = function (className, constructor, serializableFields) {
     }
 };
 
-//
-//
-// Make the properties of the specified class enumerable
-//
-// @method enumerableProps
-// @param {Object} prototype
-// @param {Function} constructor
-// @param {String[]} serializableFields
-// @private
-//
-/**
- * @en
- * Make the attributes of the specified class available to be enumerated
- * @zh
- * 使指定类的特定属性可被枚举
- * @method enumerableProps
- * @param {Object} prototype
- * @param {String[]} keys
- * @private
- */
-CCClass.enumerableProps = function (prototype, keys) {
-    keys.forEach((key) => {
-        Object.defineProperty(prototype, key, { enumerable: true });
-    });
-};
-
 CCClass.Attr = attributeUtils;
 CCClass.attr = attributeUtils.attr;
 

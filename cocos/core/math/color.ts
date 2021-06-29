@@ -32,7 +32,7 @@
 import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { IColorLike } from './type-define';
-import { clamp, EPSILON } from './utils';
+import { clamp, enumerableProps, EPSILON } from './utils';
 import { legacyCC } from '../global-exports';
 
 const toFloat = 1 / 255;
@@ -670,7 +670,7 @@ export class Color extends ValueType {
     }
 }
 
-CCClass.enumerableProps(Color.prototype, ['r', 'g', 'b', 'a', 'x', 'y', 'z', 'w']);
+enumerableProps(Color.prototype, ['r', 'g', 'b', 'a', 'x', 'y', 'z', 'w']);
 CCClass.fastDefine('cc.Color', Color, { r: 0, g: 0, b: 0, a: 255 });
 legacyCC.Color = Color;
 
