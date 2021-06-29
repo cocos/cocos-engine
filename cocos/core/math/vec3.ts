@@ -1090,6 +1090,12 @@ export class Vec3 extends MathBase {
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
 
+function Enumerable (keys: string[]) {
+    keys.forEach((key) => {
+        Object.defineProperty(Vec3.prototype, key, { enumerable: true });
+    });
+}
+Enumerable(['x', 'y', 'z']);
 CCClass.fastDefine('cc.Vec3', Vec3, { x: 0, y: 0, z: 0 });
 legacyCC.Vec3 = Vec3;
 

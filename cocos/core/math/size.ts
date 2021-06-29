@@ -162,6 +162,12 @@ export class Size extends ValueType {
     }
 }
 
+function Enumerable (keys: string[]) {
+    keys.forEach((key) => {
+        Object.defineProperty(Size.prototype, key, { enumerable: true });
+    });
+}
+Enumerable(['x', 'y']);
 CCClass.fastDefine('cc.Size', Size, { width: 0, height: 0 });
 
 /**

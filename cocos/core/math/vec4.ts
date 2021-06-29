@@ -938,6 +938,13 @@ export class Vec4 extends MathBase {
     }
 }
 
+function Enumerable (keys: string[]) {
+    keys.forEach((key) => {
+        Object.defineProperty(Vec4.prototype, key, { enumerable: true });
+    });
+}
+Enumerable(['x', 'y', 'z', 'w']);
+
 CCClass.fastDefine('cc.Vec4', Vec4, { x: 0, y: 0, z: 0, w: 0 });
 legacyCC.Vec4 = Vec4;
 
