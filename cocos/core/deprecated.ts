@@ -28,13 +28,14 @@
  * @hidden
  */
 
-import { replaceProperty, removeProperty } from './utils/x-deprecated';
+import { replaceProperty, removeProperty, markAsWarning } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
 import { EventTouch } from './platform/event-manager/events';
 import { legacyCC } from './global-exports';
 import { SubModel } from './renderer/scene/submodel';
 import { Root } from './root';
+import { game } from './game';
 
 // VMATH
 
@@ -243,5 +244,16 @@ replaceProperty(Root.prototype, 'Root.prototype', [
     {
         name: 'ui',
         newName: 'batcher2D',
+    },
+]);
+
+// game
+
+markAsWarning(game, 'game', [
+    {
+        name: 'collisionMatrix',
+    },
+    {
+        name: 'groupList',
     },
 ]);
