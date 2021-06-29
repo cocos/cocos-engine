@@ -60,7 +60,7 @@ function makeSerializable (options: IPropertyOptions) {
 
 /**
  * @en
- * Marks the target class as "unique referenced" which means, in the aspect of serialization,
+ * Marks the target class as "uniquely referenced" which means, in the aspect of serialization,
  * no more than one objects should reference to same instance of that class.
  * When serializing references to objects of such class,
  * they're treated as different object even they point to actually the same.
