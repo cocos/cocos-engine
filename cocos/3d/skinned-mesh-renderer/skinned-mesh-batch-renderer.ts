@@ -127,10 +127,6 @@ export class SkinnedMeshUnit {
     get copyFrom () {
         return null;
     }
-
-    markDependencies (gcContext: GarbageCollectorContext) {
-
-    }
 }
 
 const m4_local = new Mat4();
@@ -177,8 +173,10 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
     @tooltip('i18n:batched_skinning_model.units')
     public units: SkinnedMeshUnit[] = [];
 
+    @markAsGCRoot(ReferenceType.GC_OBJECT_RECORD)
     private _textures: Record<string, Texture2D> = {};
 
+    @markAsGCRoot
     private _batchMaterial: Material | null = null;
 
     @override

@@ -421,6 +421,7 @@ export class Shadows {
     public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._material) {
             this._material = new Material();
+            this._material.addRef();
             this._material.initialize({ effectName: 'planar-shadow' });
             if (JSB) {
                 this._nativeObj!.planarPass = this._material.passes[0].native;
@@ -433,6 +434,7 @@ export class Shadows {
     public getPlanarInstanceShader (patches: IMacroPatch[] | null): Shader | null {
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();
+            this._instancingMaterial.addRef();
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
             if (JSB) {
                 this._nativeObj!.instancePass = this._instancingMaterial.passes[0].native;
@@ -496,6 +498,7 @@ export class Shadows {
     protected _updatePlanarInfo () {
         if (!this._material) {
             this._material = new Material();
+            this._material.addRef();
             this._material.initialize({ effectName: 'planar-shadow' });
             if (JSB) {
                 this._nativeObj!.planarPass = this._material.passes[0].native;
@@ -503,6 +506,7 @@ export class Shadows {
         }
         if (!this._instancingMaterial) {
             this._instancingMaterial = new Material();
+            this._instancingMaterial.addRef();
             this._instancingMaterial.initialize({ effectName: 'planar-shadow', defines: { USE_INSTANCING: true } });
             if (JSB) {
                 this._nativeObj!.instancePass = this._instancingMaterial.passes[0].native;

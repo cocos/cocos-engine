@@ -48,7 +48,7 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, logID, assertID, warnID } from './platform/debug';
-import { garbageCollectionManager, markAsGCRoot, ReferenceType } from './data';
+import { markAsGCRoot, ReferenceType } from './data';
 import { ccclass } from './data/decorators';
 
 // ----------------------------------------------------------------------------------------------------------------------
