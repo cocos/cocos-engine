@@ -57,7 +57,7 @@ public class CocosAbilitySlice extends AbilitySlice implements SurfaceOps.Callba
     private CocosSensorHandler mSensorHandler;
 
 
-    private native void onCreateNative(AbilitySlice activity, String assetPath, ResourceManager resourceManager, int sdkVersion);
+    private native void onCreateNative(AbilitySlice activity, String moduleName, String assetPath, ResourceManager resourceManager, int sdkVersion);
 
     private native void onSurfaceCreatedNative(Surface surface);
 
@@ -79,6 +79,8 @@ public class CocosAbilitySlice extends AbilitySlice implements SurfaceOps.Callba
 
     private native void onWindowFocusChangedNative(boolean hasFocus);
 
+    private native void setRawfilePrefix(String prefix);
+
     @Override
     protected void onStart(Intent savedInstanceState) {
         super.onStart(savedInstanceState);
@@ -99,7 +101,7 @@ public class CocosAbilitySlice extends AbilitySlice implements SurfaceOps.Callba
 
         initView();
 
-        onCreateNative(this, getAssetPath(),  getResourceManager(), SystemVersion.getApiVersion());
+        onCreateNative(this, getHapModuleInfo().getModuleName(), getAssetPath(), getResourceManager(), SystemVersion.getApiVersion());
 
         mKeyCodeHandler = new CocosKeyCodeHandler(this);
         mSensorHandler = new CocosSensorHandler();

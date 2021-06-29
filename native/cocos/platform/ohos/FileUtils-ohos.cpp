@@ -23,7 +23,7 @@ std::string      FileUtilsOHOS::ohosAssetPath   = {};
 
 namespace {
 
-const std::string RAWFILE_PREFIX = "entry/resources/rawfile/";
+std::string rawfilePrefix = "entry/resources/rawfile/";
 
 void printRawfiles(ResourceManager *mgr, const std::string &path) {
     auto *file = OpenRawFile(mgr, path.c_str());
@@ -37,7 +37,7 @@ void printRawfiles(ResourceManager *mgr, const std::string &path) {
         auto fileCnt = GetRawFileCount(dir);
         for (auto i = 0; i < fileCnt; i++) {
             std::string subFile  = GetRawFileName(dir, i);
-            auto        newPath  = path + "/" + subFile;
+            auto        newPath  = path + "/" + subFile; // NOLINT
             auto        debugPtr = newPath.c_str();
             HILOG_ERROR(LOG_APP, " find path %{public}s", newPath.c_str());
             printRawfiles(mgr, newPath);
@@ -48,7 +48,7 @@ void printRawfiles(ResourceManager *mgr, const std::string &path) {
 }
 } // namespace
 
-bool FileUtilsOHOS::initResourceManager(ResourceManager *mgr, const std::string &assetPath) {
+bool FileUtilsOHOS::initResourceManager(ResourceManager *mgr, const std::string &assetPath, const std::string &moduleName) {
     CCASSERT(mgr, "ResourceManager should not be empty!");
     ohosResourceMgr = mgr;
     if (!assetPath.empty() && assetPath[assetPath.length() - 1] != '/') {
@@ -56,7 +56,14 @@ bool FileUtilsOHOS::initResourceManager(ResourceManager *mgr, const std::string 
     } else {
         ohosAssetPath = assetPath;
     }
+    if (!moduleName.empty()) {
+        setRawfilePrefix(moduleName + "/resources/rawfile/");
+    }
     return true;
+}
+
+void FileUtilsOHOS::setRawfilePrefix(const std::string &prefix) {
+    rawfilePrefix = prefix;
 }
 
 ResourceManager *FileUtilsOHOS::getResourceManager() {
@@ -104,7 +111,7 @@ FileUtils::Status FileUtilsOHOS::getContents(const std::string &filename, Resiza
     size_t      position = fullPath.find(ASSETS_FOLDER_NAME);
     if (0 == position) {
         // "@assets/" is at the beginning of the path and we don't want it
-        relativePath = RAWFILE_PREFIX + fullPath.substr(strlen(ASSETS_FOLDER_NAME));
+        relativePath = rawfilePrefix + fullPath.substr(strlen(ASSETS_FOLDER_NAME));
     } else {
         relativePath = fullPath;
     }
@@ -163,7 +170,7 @@ bool FileUtilsOHOS::isFileExistInternal(const std::string &strFilePath) const {
 
     // relative path
     if (strFilePath.find(_defaultResRootPath) == 0) {
-        filePath = RAWFILE_PREFIX + filePath.substr(_defaultResRootPath.length());
+        filePath = rawfilePrefix + filePath.substr(_defaultResRootPath.length());
     }
 
     auto rawFile = OpenRawFile(ohosResourceMgr, filePath.c_str());
@@ -184,7 +191,7 @@ bool FileUtilsOHOS::isDirectoryExistInternal(const std::string &dirPath) const {
     }
 
     if (dirPathMf.find(_defaultResRootPath) == 0) {
-        dirPathMf = RAWFILE_PREFIX + dirPathMf.substr(_defaultResRootPath.length(), dirPathMf.length());
+        dirPathMf = rawfilePrefix + dirPathMf.substr(_defaultResRootPath.length(), dirPathMf.length());
     }
     assert(ohosResourceMgr);
     auto dir = OpenRawDir(ohosResourceMgr, dirPathMf.c_str());
@@ -204,7 +211,7 @@ std::string FileUtilsOHOS::expandPath(const std::string &input, bool *isRawFile)
 
     if (fullpath.find(_defaultResRootPath) == 0) {
         if (isRawFile) *isRawFile = true;
-        return RAWFILE_PREFIX + fullpath.substr(_defaultResRootPath.length(), fullpath.length());
+        return rawfilePrefix + fullpath.substr(_defaultResRootPath.length(), fullpath.length());
     }
 
     if (isRawFile) *isRawFile = false;

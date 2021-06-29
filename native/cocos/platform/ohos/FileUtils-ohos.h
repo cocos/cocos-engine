@@ -15,7 +15,9 @@ public:
     //        FileUtilsOHOS();
     //        virtual ~FileUtilsOHOS();
 
-    static bool initResourceManager(ResourceManager *mgr, const std::string &assetPath);
+    static bool initResourceManager(ResourceManager *mgr, const std::string &assetPath, const std::string &moduleName);
+
+    static void setRawfilePrefix(const std::string &prefix);
 
     static ResourceManager *getResourceManager();
 

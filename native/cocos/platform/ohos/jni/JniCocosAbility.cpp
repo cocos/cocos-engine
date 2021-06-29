@@ -56,6 +56,7 @@ int              messagePipe[2];
 int              pipeRead  = 0;
 int              pipeWrite = 0;
 cc::Application *game      = nullptr;
+std::string      moduleName{"entry"};
 
 struct CommandMsg {
     int                   cmd;
@@ -190,24 +191,31 @@ inline void initWithPendingWindow() {
 extern "C" {
 //NOLINTNEXTLINE JNI function name
 JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onCreateNative(JNIEnv *env, jobject obj, jobject ability,
-                                                                           jstring assetPath, jobject resourceManager,
+                                                                           jstring moduleNameJ, jstring assetPath, jobject resourceManager,
                                                                            jint sdkVersion) {
     if (cc::cocosApp.running) {
         return;
     }
 
-    jboolean    isCopy       = false;
-    const char *assetPathStr = env->GetStringUTFChars(assetPath, &isCopy);
+    std::string assetPathClone;
+
+    jboolean    isCopy        = false;
+    const char *assetPathStr  = env->GetStringUTFChars(assetPath, &isCopy);
+    const char *moduleNameStr = env->GetStringUTFChars(moduleNameJ, &isCopy);
+    assetPathClone            = assetPathStr;
+    moduleName                = moduleNameStr;
 
     cc::cocosApp.sdkVersion = sdkVersion;
     cc::JniHelper::init(env, ability);
     cc::cocosApp.resourceManager = InitNativeResourceManager(env, resourceManager);
-    cc::FileUtilsOHOS::initResourceManager(cc::cocosApp.resourceManager, assetPathStr);
-
     if (isCopy) {
         env->ReleaseStringUTFChars(assetPath, assetPathStr);
         assetPathStr = nullptr;
     }
+    if (isCopy) {
+        env->ReleaseStringUTFChars(moduleNameJ, moduleNameStr);
+    }
+    cc::FileUtilsOHOS::initResourceManager(cc::cocosApp.resourceManager, assetPathClone, moduleName);
 
     if (pipe(messagePipe)) {
         LOGV("Can not create pipe: %s", strerror(errno));
@@ -271,5 +279,15 @@ JNIEXPORT void JNICALL Java_com_cocos_lib_CocosAbilitySlice_onOrientationChanged
 
 JNIEXPORT void JNICALL
 Java_com_cocos_lib_CocosAbilitySlice_onWindowFocusChangedNative(JNIEnv *env, jobject obj, jboolean has_focus) { //NOLINT JNI function name
+}
+
+JNIEXPORT void JNICALL
+Java_com_cocos_lib_CocosAbilitySlice_setRawfilePrefix(JNIEnv *env, jobject obj, jstring prefixJ) { //NOLINT JNI function name
+    jboolean    isCopy = false;
+    const char *prefix = env->GetStringUTFChars(prefixJ, &isCopy);
+    cc::FileUtilsOHOS::setRawfilePrefix(prefix);
+    if (isCopy) {
+        env->ReleaseStringUTFChars(prefixJ, prefix);
+    }
 }
 }
