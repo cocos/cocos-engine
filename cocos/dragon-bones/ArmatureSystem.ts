@@ -13,13 +13,10 @@ export class ArmatureSystem extends System {
      */
     static readonly ID = 'ARMATURE';
 
-    private static instance: ArmatureSystem;
+    private static _instance: ArmatureSystem;
 
     private constructor () {
         super();
-        if (ArmatureSystem.instance) {
-            errorID(12101);
-        }
     }
 
     /**
@@ -29,34 +26,34 @@ export class ArmatureSystem extends System {
      * 获取 Dragonbones Armature系统的单例。
      */
     public static getInstance () {
-        if (!ArmatureSystem.instance) {
-            ArmatureSystem.instance = new ArmatureSystem();
-            director.registerSystem(ArmatureSystem.ID, ArmatureSystem.instance, System.Priority.HIGH);
+        if (!ArmatureSystem._instance) {
+            ArmatureSystem._instance = new ArmatureSystem();
+            director.registerSystem(ArmatureSystem.ID, ArmatureSystem._instance, System.Priority.HIGH);
         }
-        return ArmatureSystem.instance;
+        return ArmatureSystem._instance;
     }
 
-    private armatures = new Set<ArmatureDisplay>();
+    private _armatures = new Set<ArmatureDisplay>();
 
     public add (armature: ArmatureDisplay | null) {
         if (!armature) return;
-        if (!this.armatures.has(armature)) {
-            this.armatures.add(armature);
+        if (!this._armatures.has(armature)) {
+            this._armatures.add(armature);
         }
     }
 
     public remove (armature: ArmatureDisplay | null) {
         if (!armature) return;
-        if (this.armatures.has(armature)) {
-            this.armatures.delete(armature);
+        if (this._armatures.has(armature)) {
+            this._armatures.delete(armature);
         }
     }
 
     postUpdate (dt: number) {
-        if (!this.armatures) {
+        if (!this._armatures) {
             return;
         }
-        this.armatures.forEach((armature) => {
+        this._armatures.forEach((armature) => {
             armature.updateAnimation(dt);
         });
     }

@@ -12,13 +12,10 @@ export class SkeletonSystem extends System {
      */
     static readonly ID = 'SKELETON';
 
-    private static instance: SkeletonSystem;
+    private static _instance: SkeletonSystem;
 
     private constructor () {
         super();
-        if (SkeletonSystem.instance) {
-            errorID(12101);
-        }
     }
 
     /**
@@ -28,34 +25,34 @@ export class SkeletonSystem extends System {
      * 获取 Spine 骨骼系统的单例。
      */
     public static getInstance () {
-        if (!SkeletonSystem.instance) {
-            SkeletonSystem.instance = new SkeletonSystem();
-            director.registerSystem(SkeletonSystem.ID, SkeletonSystem.instance, System.Priority.HIGH);
+        if (!SkeletonSystem._instance) {
+            SkeletonSystem._instance = new SkeletonSystem();
+            director.registerSystem(SkeletonSystem.ID, SkeletonSystem._instance, System.Priority.HIGH);
         }
-        return SkeletonSystem.instance;
+        return SkeletonSystem._instance;
     }
 
-    private skeletons = new Set<Skeleton>();
+    private _skeletons = new Set<Skeleton>();
 
     public add (skeleton: Skeleton | null) {
         if (!skeleton) return;
-        if (!this.skeletons.has(skeleton)) {
-            this.skeletons.add(skeleton);
+        if (!this._skeletons.has(skeleton)) {
+            this._skeletons.add(skeleton);
         }
     }
 
     public remove (skeleton: Skeleton | null) {
         if (!skeleton) return;
-        if (this.skeletons.has(skeleton)) {
-            this.skeletons.delete(skeleton);
+        if (this._skeletons.has(skeleton)) {
+            this._skeletons.delete(skeleton);
         }
     }
 
     postUpdate (dt: number) {
-        if (!this.skeletons) {
+        if (!this._skeletons) {
             return;
         }
-        this.skeletons.forEach((skeleton) => {
+        this._skeletons.forEach((skeleton) => {
             skeleton.updateAnimation(dt);
         });
     }
