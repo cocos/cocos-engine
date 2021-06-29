@@ -3,6 +3,7 @@ import { system } from 'pal/system';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Orientation, OS } from '../../system/enum-type';
 import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 
 export class AccelerometerInputSource {
     public support: boolean;
@@ -44,14 +45,14 @@ export class AccelerometerInputSource {
             y = -y;
         }
         const accelerometer: AccelerometerInputEvent = {
-            type: SystemEvent.EventType.DEVICEMOTION,
+            type: SystemEventType.DEVICEMOTION,
             x,
             y,
             z,
             timestamp: performance.now(),
         };
 
-        this._eventTarget.emit(SystemEvent.EventType.DEVICEMOTION, accelerometer);
+        this._eventTarget.emit(SystemEventType.DEVICEMOTION, accelerometer);
     }
 
     public start () {

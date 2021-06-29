@@ -1,7 +1,7 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
 import { minigame, AccelerometerIntervalMode } from 'pal/minigame';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
 
 export class AccelerometerInputSource {
     public support: boolean;
@@ -26,13 +26,13 @@ export class AccelerometerInputSource {
 
     private _didAccelerate (event: AccelerometerData) {
         const accelerometer: AccelerometerInputEvent = {
-            type: SystemEvent.EventType.DEVICEMOTION,
+            type: SystemEventType.DEVICEMOTION,
             x: event.x,
             y: event.y,
             z: event.z,
             timestamp: performance.now(),
         };
-        this._eventTarget.emit(SystemEvent.EventType.DEVICEMOTION, accelerometer);
+        this._eventTarget.emit(SystemEventType.DEVICEMOTION, accelerometer);
     }
 
     public start () {
@@ -71,6 +71,6 @@ export class AccelerometerInputSource {
         }
     }
     public onChange (cb: AccelerometerCallback) {
-        this._eventTarget.on(SystemEvent.EventType.DEVICEMOTION, cb);
+        this._eventTarget.on(SystemEventType.DEVICEMOTION, cb);
     }
 }

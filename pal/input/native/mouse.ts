@@ -1,5 +1,6 @@
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
 import { system } from 'pal/system';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Vec2 } from '../../../cocos/core/math';
 import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
@@ -18,15 +19,15 @@ export class MouseInputSource {
     }
 
     private _registerEvent () {
-        jsb.onMouseDown = this._createCallback(SystemEvent.EventType.MOUSE_DOWN);
-        jsb.onMouseMove = this._createCallback(SystemEvent.EventType.MOUSE_MOVE);
-        jsb.onMouseUp =  this._createCallback(SystemEvent.EventType.MOUSE_UP);
+        jsb.onMouseDown = this._createCallback(SystemEventType.MOUSE_DOWN);
+        jsb.onMouseMove = this._createCallback(SystemEventType.MOUSE_MOVE);
+        jsb.onMouseUp =  this._createCallback(SystemEventType.MOUSE_UP);
         jsb.onMouseWheel = (event: jsb.MouseWheelEvent) => {
             const location = this._getLocation(event);
             const viewSize = system.getViewSize();
             const matchStandardFactor = 120;
             const inputEvent: MouseWheelInputEvent = {
-                type: SystemEvent.EventType.MOUSE_WHEEL,
+                type: SystemEventType.MOUSE_WHEEL,
                 x: location.x,
                 y: viewSize.height - location.y,
                 button: event.button,
@@ -34,7 +35,7 @@ export class MouseInputSource {
                 deltaY: event.wheelDeltaY * matchStandardFactor,
                 timestamp: performance.now(),
             };
-            this._eventTarget.emit(SystemEvent.EventType.MOUSE_WHEEL, inputEvent);
+            this._eventTarget.emit(SystemEventType.MOUSE_WHEEL, inputEvent);
         };
     }
 
@@ -55,15 +56,15 @@ export class MouseInputSource {
     }
 
     onDown (cb: MouseCallback) {
-        this._eventTarget.on(SystemEvent.EventType.MOUSE_DOWN, cb);
+        this._eventTarget.on(SystemEventType.MOUSE_DOWN, cb);
     }
     onMove (cb: MouseCallback) {
-        this._eventTarget.on(SystemEvent.EventType.MOUSE_MOVE, cb);
+        this._eventTarget.on(SystemEventType.MOUSE_MOVE, cb);
     }
     onUp (cb: MouseCallback) {
-        this._eventTarget.on(SystemEvent.EventType.MOUSE_UP, cb);
+        this._eventTarget.on(SystemEventType.MOUSE_UP, cb);
     }
     onWheel (cb: MouseWheelCallback) {
-        this._eventTarget.on(SystemEvent.EventType.MOUSE_WHEEL, cb);
+        this._eventTarget.on(SystemEventType.MOUSE_WHEEL, cb);
     }
 }

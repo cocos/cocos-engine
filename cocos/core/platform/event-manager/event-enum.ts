@@ -30,7 +30,6 @@
 import { ccenum } from '../../value-types/enum';
 import { legacyCC } from '../../global-exports';
 import { NodeEventType } from '../../scene-graph/node-event';
-import { SystemEvent } from './system-event';
 
 /**
  * @en The event type supported by SystemEvent and Node events
@@ -290,6 +289,6 @@ export enum SystemEventType {
 
 ccenum(SystemEventType);
 
-export type SystemEventTypeUnion = SystemEventType.NO_TYPE | SystemEvent.EventType | 'keydown' | NodeEventType;
+export type SystemEventTypeUnion = SystemEventType | 'keydown' | NodeEventType;
 
 legacyCC.SystemEventType = SystemEventType;

@@ -2,6 +2,7 @@ import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEven
 import { MouseEventData, MouseWheelEventData, minigame } from 'pal/minigame';
 import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
 import { EventTarget } from '../../../cocos/core/event/event-target';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 
 export class MouseInputSource {
     public support: boolean;
@@ -16,13 +17,13 @@ export class MouseInputSource {
     }
 
     private _registerEvent () {
-        minigame.wx?.onMouseDown?.(this._createCallback(SystemEvent.EventType.MOUSE_DOWN));
-        minigame.wx?.onMouseMove?.(this._createCallback(SystemEvent.EventType.MOUSE_MOVE));
-        minigame.wx?.onMouseUp?.(this._createCallback(SystemEvent.EventType.MOUSE_UP));
+        minigame.wx?.onMouseDown?.(this._createCallback(SystemEventType.MOUSE_DOWN));
+        minigame.wx?.onMouseMove?.(this._createCallback(SystemEventType.MOUSE_MOVE));
+        minigame.wx?.onMouseUp?.(this._createCallback(SystemEventType.MOUSE_UP));
         minigame.wx?.onWheel?.((event: MouseWheelEventData) => {
             const sysInfo = minigame.getSystemInfoSync();
             const inputEvent: MouseWheelInputEvent = {
-                type: SystemEvent.EventType.MOUSE_WHEEL,
+                type: SystemEventType.MOUSE_WHEEL,
                 x: event.x,
                 y: sysInfo.screenHeight - event.y,
                 button: event.button,
@@ -31,7 +32,7 @@ export class MouseInputSource {
                 timestamp: performance.now(),
             };
                 // emit web mouse event
-            this._eventTarget.emit(SystemEvent.EventType.MOUSE_WHEEL, inputEvent);
+            this._eventTarget.emit(SystemEventType.MOUSE_WHEEL, inputEvent);
         });
     }
 
@@ -40,13 +41,13 @@ export class MouseInputSource {
             const sysInfo = minigame.getSystemInfoSync();
             let button = event.button;
             switch (eventType) {
-            case SystemEvent.EventType.MOUSE_DOWN:
+            case SystemEventType.MOUSE_DOWN:
                 this._isPressed = true;
                 break;
-            case SystemEvent.EventType.MOUSE_UP:
+            case SystemEventType.MOUSE_UP:
                 this._isPressed = false;
                 break;
-            case SystemEvent.EventType.MOUSE_MOVE:
+            case SystemEventType.MOUSE_MOVE:
                 if (!this._isPressed) {
                     button = -1;  // TODO: should not access EventMouse.BUTTON_MISSING, need a button enum type
                 }
@@ -67,15 +68,15 @@ export class MouseInputSource {
     }
 
     onDown (cb: MouseCallback) {
-        this._eventTarget.on(SystemEvent.EventType.MOUSE_DOWN, cb);
+        this._eventTarget.on(SystemEventType.MOUSE_DOWN, cb);
     }
     onMove (cb: MouseCallback) {
-        this._eventTarget.on(SystemEvent.EventType.MOUSE_MOVE, cb);
+        this._eventTarget.on(SystemEventType.MOUSE_MOVE, cb);
     }
     onUp (cb: MouseCallback) {
-        this._eventTarget.on(SystemEvent.EventType.MOUSE_UP, cb);
+        this._eventTarget.on(SystemEventType.MOUSE_UP, cb);
     }
     onWheel (cb: MouseWheelCallback) {
-        this._eventTarget.on(SystemEvent.EventType.MOUSE_WHEEL, cb);
+        this._eventTarget.on(SystemEventType.MOUSE_WHEEL, cb);
     }
 }

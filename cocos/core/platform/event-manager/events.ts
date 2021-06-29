@@ -34,8 +34,7 @@ import { Vec2 } from '../../math/vec2';
 import { Touch } from './touch';
 import { Acceleration } from './acceleration';
 import { legacyCC } from '../../global-exports';
-import { SystemEventTypeUnion } from './event-enum';
-import { SystemEvent } from './system-event';
+import { SystemEventTypeUnion, SystemEventType } from './event-enum';
 
 const _vec2 = new Vec2();
 
@@ -585,7 +584,7 @@ export class EventAcceleration extends Event {
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
     constructor (acc: Acceleration, bubbles?: boolean) {
-        super(SystemEvent.EventType.DEVICEMOTION, bubbles);
+        super(SystemEventType.DEVICEMOTION, bubbles);
         this.acc = acc;
     }
 }
@@ -642,10 +641,10 @@ export class EventKeyboard extends Event {
     constructor (keyCode: any, eventType: SystemEventTypeUnion | boolean, bubbles?: boolean) {
         if (typeof eventType === 'boolean') {
             const isPressed = eventType;
-            eventType = isPressed ? 'keydown' : SystemEvent.EventType.KEY_UP;
+            eventType = isPressed ? 'keydown' : SystemEventType.KEY_UP;
         }
         super(eventType, bubbles);
-        this._isPressed = eventType !== SystemEvent.EventType.KEY_UP;
+        this._isPressed = eventType !== SystemEventType.KEY_UP;
 
         if (typeof keyCode === 'number') {
             this.keyCode = keyCode;

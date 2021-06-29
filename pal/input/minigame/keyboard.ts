@@ -1,5 +1,6 @@
 import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
 import { KeyboardEventData, minigame } from 'pal/minigame';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { KeyCode } from '../../../cocos/core/platform/event-manager/key-code';
 import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
@@ -129,8 +130,8 @@ export class KeyboardInputSource {
         minigame.wx?.onKeyDown?.((res) => {
             const keyCode = getKeyCode(res.code);
             if (!this._keyStateMap[keyCode]) {
-                const keyDownInputEvent = this._getInputEvent(res, SystemEvent.EventType.KEY_DOWN);
-                this._eventTarget.emit(SystemEvent.EventType.KEY_DOWN, keyDownInputEvent);
+                const keyDownInputEvent = this._getInputEvent(res, SystemEventType.KEY_DOWN);
+                this._eventTarget.emit(SystemEventType.KEY_DOWN, keyDownInputEvent);
             }
             // @ts-expect-error Compability for key pressing callback
             const keyPressingInputEvent = this._getInputEvent(res, 'keydown');
@@ -141,11 +142,11 @@ export class KeyboardInputSource {
             const keyCode = getKeyCode(res.code);
             const inputEvent: KeyboardInputEvent = {
                 code: keyCode,
-                type: SystemEvent.EventType.KEY_UP,
+                type: SystemEventType.KEY_UP,
                 timestamp: performance.now(),
             };
             this._keyStateMap[keyCode] = false;
-            this._eventTarget.emit(SystemEvent.EventType.KEY_UP, inputEvent);
+            this._eventTarget.emit(SystemEventType.KEY_UP, inputEvent);
         });
     }
 
@@ -160,7 +161,7 @@ export class KeyboardInputSource {
     }
 
     public onDown (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEvent.EventType.KEY_DOWN, cb);
+        this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
     }
 
     public onPressing (cb: KeyboardCallback) {
@@ -168,6 +169,6 @@ export class KeyboardInputSource {
     }
 
     public onUp (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEvent.EventType.KEY_UP, cb);
+        this._eventTarget.on(SystemEventType.KEY_UP, cb);
     }
 }

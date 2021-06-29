@@ -34,7 +34,7 @@ import { EventKeyboard, EventAcceleration, EventMouse } from './events';
 import { Component } from '../../components';
 import { legacyCC } from '../../global-exports';
 import { logID, assertID } from '../debug';
-import { SystemEvent } from './system-event';
+import { SystemEventType } from './event-enum';
 
 export interface IEventListenerCreateInfo {
     event?: number;
@@ -361,22 +361,22 @@ export class MouseEventListener extends EventListener {
 
     public _callback (event: EventMouse) {
         switch (event.type) {
-        case SystemEvent.EventType.MOUSE_DOWN:
+        case SystemEventType.MOUSE_DOWN:
             if (this.onMouseDown) {
                 this.onMouseDown(event);
             }
             break;
-        case SystemEvent.EventType.MOUSE_UP:
+        case SystemEventType.MOUSE_UP:
             if (this.onMouseUp) {
                 this.onMouseUp(event);
             }
             break;
-        case SystemEvent.EventType.MOUSE_MOVE:
+        case SystemEventType.MOUSE_MOVE:
             if (this.onMouseMove) {
                 this.onMouseMove(event);
             }
             break;
-        case SystemEvent.EventType.MOUSE_WHEEL:
+        case SystemEventType.MOUSE_WHEEL:
             if (this.onMouseScroll) {
                 this.onMouseScroll(event);
             }
@@ -508,13 +508,13 @@ export class KeyboardEventListener extends EventListener {
 
     public _callback (event: EventKeyboard) {
         switch (event.type) {
-        case SystemEvent.EventType.KEY_DOWN:
+        case SystemEventType.KEY_DOWN:
             this.onKeyDown?.(event.keyCode, event);
             break;
         case 'keydown':  // SystemEventType.KEY_DOWN
             this.onKeyPressed?.(event.keyCode, event);
             break;
-        case SystemEvent.EventType.KEY_UP:
+        case SystemEventType.KEY_UP:
             this.onKeyReleased?.(event.keyCode, event);
             break;
         default:

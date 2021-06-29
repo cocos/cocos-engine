@@ -34,7 +34,7 @@ import { EDITOR } from 'internal:constants';
 import { EventHandler as ComponentEventHandler } from '../core/components/component-event-handler';
 import { UITransform } from '../2d/framework';
 import { Event } from '../core/event';
-import { EventMouse, EventTouch, Touch, logID, SystemEvent } from '../core/platform';
+import { EventMouse, EventTouch, Touch, logID, SystemEventType } from '../core/platform';
 import { Size, Vec2, Vec3 } from '../core/math';
 import { Layout } from './layout';
 import { ScrollBar } from './scroll-bar';
@@ -1054,7 +1054,7 @@ export class ScrollView extends ViewGroup {
         if (deltaMove.length() > 7) {
             if (!this._touchMoved && event.target !== this.node) {
                 // Simulate touch cancel for target node
-                const cancelEvent = new EventTouch(event.getTouches(), event.bubbles, SystemEvent.EventType.TOUCH_CANCEL);
+                const cancelEvent = new EventTouch(event.getTouches(), event.bubbles, SystemEventType.TOUCH_CANCEL);
                 cancelEvent.touch = event.touch;
                 cancelEvent.simulate = true;
                 (event.target as Node).dispatchEvent(cancelEvent);
