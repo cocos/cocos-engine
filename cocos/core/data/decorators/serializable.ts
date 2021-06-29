@@ -28,7 +28,7 @@
  * @module decorator
  */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { emptyDecorator, LegacyPropertyDecorator } from './utils';
 import { property, IPropertyOptions } from './property';
 import { getOrCreateSerializationMetadata } from '../serialization-metadata';
@@ -36,7 +36,7 @@ import { getOrCreateSerializationMetadata } from '../serialization-metadata';
 /**
  * True if serialization feature is enabled in current environment.
  */
-const WITH_SERIALIZATION = EDITOR;
+const WITH_SERIALIZATION = EDITOR || TEST;
 
 export const serializable: LegacyPropertyDecorator = (target, propertyKey, descriptor) => property(makeSerializable({ }))(target, propertyKey, descriptor);
 
