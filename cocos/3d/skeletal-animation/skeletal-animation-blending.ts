@@ -41,7 +41,7 @@ export class BlendStateBuffer {
         property: P,
         host: BlendStateWriterHost,
         constants: boolean,
-    ): Omit<BlendStateWriterInternal<P>, 'node' | 'property'> {
+    ): BlendStateWriter<P> {
         const propertyBlendState = this.ref(node, property);
         return new BlendStateWriterInternal<P>(
             node,
@@ -124,7 +124,7 @@ class BlendStateWriterInternal<P extends BlendingProperty> implements IBoundTarg
 
 export type BlendStateWriter<P extends BlendingProperty> = Omit<BlendStateWriterInternal<P>, 'node' | 'property'>;
 
-type BlendingProperty = keyof NodeBlendState['_properties'];
+export type BlendingProperty = keyof NodeBlendState['_properties'];
 
 type BlendingPropertyValue<P extends BlendingProperty> = NonNullable<NodeBlendState['_properties'][P]>['blendedValue'];
 
