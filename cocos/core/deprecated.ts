@@ -36,6 +36,7 @@ import { legacyCC } from './global-exports';
 import { SubModel } from './renderer/scene/submodel';
 import { Root } from './root';
 import { game } from './game';
+import System from './components/system';
 
 // VMATH
 
@@ -204,6 +205,25 @@ replaceProperty(Scheduler.prototype, 'Scheduler.prototype', [
         newName: 'enableForTarget',
         target: Scheduler,
         targetName: 'Scheduler',
+    },
+]);
+
+// replace Scheduler static property
+replaceProperty(Scheduler, 'Scheduler', [
+    {
+        name: 'PRIORITY_SYSTEM',
+        newName: 'System.Priority.SCHEDULER',
+        customGetter () {
+            return System.Priority.SCHEDULER;
+        },
+    },
+]);
+
+// remove Scheduler static property
+removeProperty(Scheduler, 'Scheduler', [
+    {
+        name: 'PRIORITY_NON_SYSTEM',
+        suggest: 'Use enum` System.Priority` instead',
     },
 ]);
 
