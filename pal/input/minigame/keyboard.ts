@@ -160,15 +160,15 @@ export class KeyboardInputSource {
         return inputEvent;
     }
 
-    public onDown (cb: KeyboardCallback) {
+    public onPress (cb: KeyboardCallback) {
         this._eventTarget.on(SystemEventType.KEY_PRESS, cb);
     }
 
-    public onPressing (cb: KeyboardCallback) {
+    public onDown (cb: KeyboardCallback) {
         this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
     }
 
-    public onUp (cb: KeyboardCallback) {
+    public onRelease (cb: KeyboardCallback) {
         this._eventTarget.on(SystemEventType.KEY_RELEASE, cb);
     }
 }
