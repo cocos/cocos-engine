@@ -116,6 +116,7 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     dssDescriptor.storageMode = MTLStorageModePrivate;
     dssDescriptor.usage = MTLTextureUsageRenderTarget;
     _dssTex = [mtlDevice newTextureWithDescriptor:dssDescriptor];
+    [dssDescriptor release];
     _caps.stencilBits = 8;
 
     ContextInfo ctxInfo;
@@ -241,6 +242,7 @@ void CCMTLDevice::resize(uint w, uint h) {
     dssDescriptor.storageMode = MTLStorageModePrivate;
     dssDescriptor.usage = MTLTextureUsageRenderTarget;
     _dssTex = [id<MTLDevice>(this->_mtlDevice) newTextureWithDescriptor:dssDescriptor];
+    [dssDescriptor release];
 }
 
 void CCMTLDevice::acquire() {
