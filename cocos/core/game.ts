@@ -391,11 +391,11 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Run the game frame by frame.
-     * @zh 执行一帧游戏循环。
+     * @en Run the game frame by frame with a fixed delta time correspond to frame rate.
+     * @zh 以固定帧间隔执行一帧游戏循环，帧间隔与设定的帧率匹配。
      */
     public step () {
-        legacyCC.director.mainLoop();
+        legacyCC.director.tick(this._frameTime);
     }
 
     /**

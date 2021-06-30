@@ -337,7 +337,7 @@ export class Director extends EventTarget {
      * @zh 执行完当前帧后停止 director 的执行
      */
     public end () {
-        this.on(Director.EVENT_END_FRAME, () => {
+        this.once(Director.EVENT_END_FRAME, () => {
             this.purgeDirector();
         });
     }
