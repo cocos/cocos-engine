@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { replaceProperty, removeProperty, markAsWarning } from './utils/x-deprecated';
+import { replaceProperty, removeProperty } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
 import { EventTouch } from './platform/event-manager/events';
@@ -37,7 +37,8 @@ import { SubModel } from './renderer/scene/submodel';
 import { Root } from './root';
 import { game } from './game';
 import System from './components/system';
-import { Director, game } from 'exports/base';
+import { Director } from './director';
+import { game } from './game';
 
 // VMATH
 
