@@ -61,7 +61,7 @@ export class PassInstance extends Pass {
             const parentBlock = this._parent.blocks[u.binding];
             block.set(parentBlock);
         }
-        this._rootBufferDirty = true;
+        this._setRootBufferDirty(true);
         const paren = this._parent as PassInstance;
         for (let i = 0; i < this._shaderInfo.samplerTextures.length; i++) {
             const u = this._shaderInfo.samplerTextures[i];

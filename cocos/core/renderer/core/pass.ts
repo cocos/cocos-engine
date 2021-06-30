@@ -175,7 +175,6 @@ export class Pass {
 
     // internal resources
     protected _rootBuffer: Buffer | null = null;
-    protected _rootBufferDirty = false;
     protected _buffers: Buffer[] = [];
     protected _descriptorSet: DescriptorSet = null!;
     protected _pipelineLayout: PipelineLayout = null!;
@@ -214,6 +213,8 @@ export class Pass {
     protected declare _nativeDynamicStates: Uint32Array;
     protected declare _nativeHash: Uint32Array;
     protected declare _nativeObj: NativePass | null;
+
+    private  _rootBufferDirty = false;
 
     get native (): NativePass {
         return this._nativeObj!;
@@ -364,7 +365,7 @@ export class Pass {
         console.warn('base pass cannot override states, please use pass instance instead.');
     }
 
-    private _setRootBufferDirty (val: boolean) {
+    protected _setRootBufferDirty (val: boolean) {
         this._rootBufferDirty = val;
         if (JSB) {
             this._nativeObj!.setRootBufferDirty(val);
