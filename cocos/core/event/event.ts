@@ -48,8 +48,6 @@ export default class Event {
      *
      * @zh
      * 没有类型的事件。
-     *
-     * @deprecated since v3.3, please use SystemEventType.NO_TYPE instead
      */
     public static NO_TYPE = 'no_type';
 
@@ -223,7 +221,8 @@ export default class Event {
      * 重置事件对象以便在对象池中存储。
      */
     public unuse () {
-        this.type = SystemEventType.NO_TYPE;
+        // @ts-expect-error type is not SystemEventUnion
+        this.type = Event.NO_TYPE;
         this.target = null;
         this.currentTarget = null;
         this.eventPhase = Event.NONE;

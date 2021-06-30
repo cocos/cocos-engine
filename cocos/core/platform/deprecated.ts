@@ -45,11 +45,6 @@ removeProperty(View.prototype, 'View.prototype', [
 // deprecate Event property
 replaceProperty(Event, 'Event', [
     {
-        name: 'NO_TYPE',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
-    },
-    {
         name: 'ACCELERATION',
         newName: 'DEVICEMOTION',
         target: SystemEvent.EventType,
