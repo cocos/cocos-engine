@@ -43,22 +43,23 @@ export class KeyboardInputSource {
         jsb.onKeyDown = (event: jsb.KeyboardEvent) => {
             const keyCode = getKeyCode(event.keyCode);
             if (!this._keyStateMap[keyCode]) {
-                const keyDownInputEvent = this._getInputEvent(event, SystemEventType.KEY_PRESS);
-                this._eventTarget.emit(SystemEventType.KEY_PRESS, keyDownInputEvent);
+                const keyDownInputEvent = this._getInputEvent(event, SystemEventType.KEY_DOWN);
+                this._eventTarget.emit(SystemEventType.KEY_DOWN, keyDownInputEvent);
             }
-            const keyPressingInputEvent = this._getInputEvent(event, SystemEventType.KEY_DOWN);
-            this._eventTarget.emit(SystemEventType.KEY_DOWN, keyPressingInputEvent);
+            // @ts-expect-error Compability for key pressing callback
+            const keyPressingInputEvent = this._getInputEvent(event, 'keydown');
+            this._eventTarget.emit('keydown', keyPressingInputEvent);
             this._keyStateMap[keyCode] = true;
         };
         jsb.onKeyUp =  (event: jsb.KeyboardEvent) => {
             const keyCode = getKeyCode(event.keyCode);
             const inputEvent: KeyboardInputEvent = {
-                type: SystemEventType.KEY_RELEASE,
+                type: SystemEventType.KEY_UP,
                 code: keyCode,
                 timestamp: performance.now(),
             };
             this._keyStateMap[keyCode] = false;
-            this._eventTarget.emit(SystemEventType.KEY_RELEASE, inputEvent);
+            this._eventTarget.emit(SystemEventType.KEY_UP, inputEvent);
         };
     }
 
@@ -72,15 +73,15 @@ export class KeyboardInputSource {
         return inputEvent;
     }
 
-    public onPress (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_PRESS, cb);
-    }
-
     public onDown (cb: KeyboardCallback) {
         this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
     }
 
-    public onRelease (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_RELEASE, cb);
+    public onPressing (cb: KeyboardCallback) {
+        this._eventTarget.on('keydown', cb);
+    }
+
+    public onUp (cb: KeyboardCallback) {
+        this._eventTarget.on(SystemEventType.KEY_UP, cb);
     }
 }

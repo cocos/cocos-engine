@@ -63,7 +63,7 @@ markAsWarning(Event, 'Event', [
     },
     {
         name: 'KEYBOARD',
-        suggest: 'please use SystemEvent.EventType.KEY_PRESS, SystemEvent.EventType.KEY_DOWN and SystemEvent.EventType.KEY_RELEASE instead',
+        suggest: 'please use SystemEvent.EventType.KEY_DOWN and SystemEvent.EventType.KEY_UP instead',
     },
 ]);
 
@@ -134,7 +134,7 @@ markAsWarning(EventTouch.prototype, 'EventTouch.prototype', [
 markAsWarning(EventKeyboard.prototype, 'EventKeyboard.prototype', [
     {
         name: 'isPressed',
-        suggest: 'use EventKeyboard.prototype.type !== SystemEvent.EventType.KEY_RELEASE instead',
+        suggest: 'use EventKeyboard.prototype.type !== SystemEvent.EventType.KEY_UP instead',
     },
 ]);
 
@@ -213,8 +213,12 @@ removeProperty(sys, 'sys',
 // deprecate KEY event
 markAsWarning(SystemEventType, 'SystemEventType', [
     {
+        name: 'KEY_DOWN',
+        suggest: 'please use SystemEvent.EventType.KEY_DOWN instead. The SystemEventType.KEY_DOWN event will be continuously dispatched in the key pressed state, it\'s not a good API design for developers.',
+    },
+    {
         name: 'KEY_UP',
-        suggest: 'please use SystemEvent.EventType.KEY_RELEASE instead.',
+        suggest: 'please use SystemEvent.EventType.KEY_UP instead.',
     },
 ]);
 

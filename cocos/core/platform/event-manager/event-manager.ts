@@ -49,7 +49,7 @@ function checkUINode (node) {
 
 const touchEvents: string[] = [SystemEventType.TOUCH_START, SystemEventType.TOUCH_MOVE, SystemEventType.TOUCH_END, SystemEventType.TOUCH_CANCEL];
 const mouseEvents: string[] = [SystemEventType.MOUSE_DOWN, SystemEventType.MOUSE_MOVE, SystemEventType.MOUSE_UP, SystemEventType.MOUSE_WHEEL];
-const keyboardEvents: string[] = [SystemEventType.KEY_PRESS, SystemEventType.KEY_DOWN, SystemEventType.KEY_RELEASE];
+const keyboardEvents: string[] = [SystemEventType.KEY_DOWN, SystemEventType.KEY_UP, 'keydown'];
 
 class _EventListenerVector {
     public gt0Index = 0;

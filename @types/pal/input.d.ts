@@ -140,22 +140,21 @@ declare module 'pal/input' {
      */
     export class KeyboardInputSource extends BaseInputSource {
         /**
-         * Register the key press event callback.
-         * The event will only be dispatched at the time key is pressed down.
-         * @param cb
-         */
-        public onPress (cb: KeyboardCallback);
-        /**
          * Register the key down event callback.
-         * The event will be continuously dispatched in the key pressed state.
-         * @param cb
+         * @param cb 
          */
         public onDown (cb: KeyboardCallback);
         /**
-         * Register the key release event callback.
-         * @param cb
+         * Register the key pressing event callback.
+         * NOTE: Compability for the deprecated KEY_DOWN event type. It should be removed in the future.
+         * @param cb 
          */
-        public onRelease (cb: KeyboardCallback);
+        public onPressing (cb: KeyboardCallback);
+        /**
+         * Register the key up event callback.
+         * @param cb 
+         */
+        public onUp (cb: KeyboardCallback);
     }
 
     /**

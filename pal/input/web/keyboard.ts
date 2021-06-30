@@ -126,17 +126,18 @@ export class KeyboardInputSource {
             event.stopPropagation();
             event.preventDefault();
             if (!event.repeat) {
-                const keyDownInputEvent = this._getInputEvent(event, SystemEventType.KEY_PRESS);
-                this._eventTarget.emit(SystemEventType.KEY_PRESS, keyDownInputEvent);
+                const keyDownInputEvent = this._getInputEvent(event, SystemEventType.KEY_DOWN);
+                this._eventTarget.emit(SystemEventType.KEY_DOWN, keyDownInputEvent);
             }
-            const keyPressingInputEvent = this._getInputEvent(event, SystemEventType.KEY_DOWN);
-            this._eventTarget.emit(SystemEventType.KEY_DOWN, keyPressingInputEvent);
+            // @ts-expect-error Compability for key pressing callback
+            const keyPressingInputEvent = this._getInputEvent(event, 'keydown');
+            this._eventTarget.emit('keydown', keyPressingInputEvent);
         });
         canvas?.addEventListener('keyup', (event: any) => {
-            const inputEvent = this._getInputEvent(event, SystemEventType.KEY_RELEASE);
+            const inputEvent = this._getInputEvent(event, SystemEventType.KEY_UP);
             event.stopPropagation();
             event.preventDefault();
-            this._eventTarget.emit(SystemEventType.KEY_RELEASE, inputEvent);
+            this._eventTarget.emit(SystemEventType.KEY_UP, inputEvent);
         });
     }
 
@@ -150,15 +151,15 @@ export class KeyboardInputSource {
         return inputEvent;
     }
 
-    public onPress (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_PRESS, cb);
-    }
-
     public onDown (cb: KeyboardCallback) {
         this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
     }
 
-    public onRelease (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_RELEASE, cb);
+    public onPressing (cb: KeyboardCallback) {
+        this._eventTarget.on('keydown', cb);
+    }
+
+    public onUp (cb: KeyboardCallback) {
+        this._eventTarget.on(SystemEventType.KEY_UP, cb);
     }
 }

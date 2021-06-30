@@ -130,8 +130,8 @@ export class KeyboardInputSource {
         minigame.wx?.onKeyDown?.((res) => {
             const keyCode = getKeyCode(res.code);
             if (!this._keyStateMap[keyCode]) {
-                const keyDownInputEvent = this._getInputEvent(res, SystemEventType.KEY_PRESS);
-                this._eventTarget.emit(SystemEventType.KEY_PRESS, keyDownInputEvent);
+                const keyDownInputEvent = this._getInputEvent(res, SystemEventType.KEY_DOWN);
+                this._eventTarget.emit(SystemEventType.KEY_DOWN, keyDownInputEvent);
             }
             const keyPressingInputEvent = this._getInputEvent(res, SystemEventType.KEY_DOWN);
             this._eventTarget.emit(SystemEventType.KEY_DOWN, keyPressingInputEvent);
@@ -141,11 +141,11 @@ export class KeyboardInputSource {
             const keyCode = getKeyCode(res.code);
             const inputEvent: KeyboardInputEvent = {
                 code: keyCode,
-                type: SystemEventType.KEY_RELEASE,
+                type: SystemEventType.KEY_UP,
                 timestamp: performance.now(),
             };
             this._keyStateMap[keyCode] = false;
-            this._eventTarget.emit(SystemEventType.KEY_RELEASE, inputEvent);
+            this._eventTarget.emit(SystemEventType.KEY_UP, inputEvent);
         });
     }
 
@@ -159,15 +159,15 @@ export class KeyboardInputSource {
         return inputEvent;
     }
 
-    public onPress (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_PRESS, cb);
-    }
-
     public onDown (cb: KeyboardCallback) {
         this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
     }
 
-    public onRelease (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_RELEASE, cb);
+    public onPressing (cb: KeyboardCallback) {
+        this._eventTarget.on('keydown', cb);
+    }
+
+    public onUp (cb: KeyboardCallback) {
+        this._eventTarget.on(SystemEventType.KEY_UP, cb);
     }
 }

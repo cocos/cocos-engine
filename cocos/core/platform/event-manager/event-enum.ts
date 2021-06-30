@@ -132,29 +132,18 @@ export enum SystemEventType {
     MOUSE_LEAVE = 'mouse-leave',
 
     /**
-     * @en The event type for the key press event, the event will only be dispatched at the time key is pressed down.
-     * @zh 当按下按键时触发的事件, 该事件只在按下时派发
-     */
-    KEY_PRESS = 'keypress',
-
-    /**
-     * @en The event type for the key down event, the event will be continuously dispatched in the key pressed state
+     * @en The event type for press the key down event, the event will be continuously dispatched in the key pressed state
      * @zh 当按下按键时触发的事件, 该事件在按下状态会持续派发
+     * @deprecated since v3.3, please use SystemEvent.EventType.KEY_DOWN instead. The SystemEventType.KEY_DOWN event will be continuously dispatched in the key pressed state, it's not a good API design for developers.
      */
     KEY_DOWN = 'keydown',
 
     /**
-     * @en The event type for the key release event
-     * @zh 当松开按键时触发的事件
-     */
-    KEY_RELEASE = 'keyup',
-
-    /**
      * @en The event type for press the key up event
      * @zh 当松开按键时触发的事件
-     * @deprecated since v3.3, please use SystemEvent.EventType.KEY_RELEASE instead
+     * @deprecated since v3.3, please use SystemEvent.EventType.KEY_UP instead
      */
-    KEY_UP = KEY_RELEASE,
+    KEY_UP = 'keyup',
 
     /**
      * @en
@@ -291,6 +280,6 @@ export enum SystemEventType {
 
 ccenum(SystemEventType);
 
-export type SystemEventTypeUnion = SystemEventType | NodeEventType;
+export type SystemEventTypeUnion = SystemEventType | 'keydown' | NodeEventType;
 
 legacyCC.SystemEventType = SystemEventType;

@@ -78,7 +78,7 @@ export default class Event {
      * @zh
      * 键盘事件类型。
      *
-     * @deprecated since v3.3, please use SystemEvent.EventType.KEY_PRESS, SystemEvent.EventType.KEY_DOWN and SystemEvent.EventType.KEY_RELEASE instead
+     * @deprecated since v3.3, please use SystemEvent.EventType.KEY_DOWN and SystemEvent.EventType.KEY_UP instead
      */
     public static KEYBOARD = 'keyboard';
     /**
