@@ -45,11 +45,18 @@ import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
 import { BrowserType } from '../../pal/system/enum-type';
+import { Layers } from './scene-graph';
+import { log2 } from './math/bits';
 import { garbageCollectionManager } from './data/garbage-collection';
 
 interface ISceneInfo {
     url: string;
     uuid: string;
+}
+
+export interface LayerItem {
+    name: string;
+    value: number;
 }
 
 /**
@@ -161,6 +168,11 @@ export interface IGameConfig {
      * Physics system config
      */
     physics?: IPhysicsConfig;
+
+    /**
+     * User layers config
+     */
+    layers?: LayerItem[];
 }
 
 /**
@@ -482,8 +494,12 @@ export class Game extends EventTarget {
             legacyCC.assetManager.init(this.config.assetOptions);
         }
 
-        garbageCollectionManager.init();
-        garbageCollectionManager.addCCClassObjectToRoot(legacyCC.director);
+        if (this.config.layers) {
+            const userLayers: LayerItem[] = this.config.layers;
+            for (let i = 0; i < userLayers.length; i++) {
+                const layer = userLayers[i];
+            }
+        }
 
         return this._initEngine().then(() => {
             if (!EDITOR) {

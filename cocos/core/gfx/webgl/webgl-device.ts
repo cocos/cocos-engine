@@ -405,6 +405,10 @@ export class WebGLDevice extends Device {
 
         this._features.fill(false);
 
+        if (this._EXT_sRGB) {
+            this._features[Feature.FORMAT_SRGB] = true;
+        }
+
         if (this._EXT_blend_minmax) {
             this._features[Feature.BLEND_MINMAX] = true;
         }
@@ -434,12 +438,6 @@ export class WebGLDevice extends Device {
         }
 
         this._features[Feature.FORMAT_RGB8] = true;
-
-        if (this._WEBGL_depth_texture) {
-            this._features[Feature.FORMAT_D16] = true;
-            this._features[Feature.FORMAT_D24] = true;
-            this._features[Feature.FORMAT_D24S8] = true;
-        }
 
         if (this._OES_element_index_uint) {
             this._features[Feature.ELEMENT_INDEX_UINT] = true;

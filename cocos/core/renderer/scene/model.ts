@@ -28,7 +28,7 @@ import { JSB } from 'internal:constants';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets/material';
 import { RenderingSubMesh } from '../../assets/rendering-sub-mesh';
-import { AABB } from '../../geometry';
+import { AABB } from '../../geometry/aabb';
 import { Node } from '../../scene-graph';
 import { Layers } from '../../scene-graph/layers';
 import { RenderScene } from './render-scene';
@@ -43,7 +43,7 @@ import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
-import { NativeModel } from './native-scene';
+import { NativeModel, NativeSkinningModel } from './native-scene';
 import { Pool } from '../../memop/pool';
 
 const m4_1 = new Mat4();
@@ -216,7 +216,7 @@ export class Model {
     protected _castShadow = false;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
-    protected declare _nativeObj: NativeModel | null;
+    protected declare _nativeObj: NativeModel | NativeSkinningModel | null;
 
     get native (): NativeModel {
         return this._nativeObj!;
@@ -236,7 +236,7 @@ export class Model {
         }
     }
 
-    private _init () {
+    protected _init () {
         if (JSB) {
             this._nativeObj = new NativeModel();
         }
@@ -304,7 +304,6 @@ export class Model {
             if (this._modelBounds && worldBounds) {
                 // @ts-expect-error TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
-                this._updateNativeWorldBounds();
             }
         }
     }
@@ -318,7 +317,6 @@ export class Model {
             if (this._modelBounds && worldBounds) {
                 // @ts-expect-error TS2445
                 this._modelBounds.transform(node._mat, node._pos, node._rot, node._scale, worldBounds);
-                this._updateNativeWorldBounds();
             }
         }
     }
@@ -368,9 +366,9 @@ export class Model {
         }
     }
 
-    protected _updateNativeWorldBounds () {
+    protected _updateNativeBounds () {
         if (JSB) {
-            this._nativeObj!.setWolrdBounds(this._worldBounds);
+            this._nativeObj!.setBounds(this._worldBounds!.native);
         }
     }
 
@@ -383,7 +381,7 @@ export class Model {
         if (!minPos || !maxPos) { return; }
         this._modelBounds = AABB.fromPoints(AABB.create(), minPos, maxPos);
         this._worldBounds = AABB.clone(this._modelBounds);
-        this._updateNativeWorldBounds();
+        this._updateNativeBounds();
     }
 
     private _createSubModel () {
@@ -489,7 +487,7 @@ export class Model {
     private _setInstMatWorldIdx (idx: number) {
         this._instMatWorldIdx = idx;
         if (JSB) {
-            this._nativeObj!.setInstmatWorldIdx(idx);
+            this._nativeObj!.setInstMatWorldIdx(idx);
         }
     }
 
@@ -509,15 +507,13 @@ export class Model {
 
         const attrs = this.instancedAttributes;
         attrs.buffer = new Uint8Array(size);
-        if (JSB) {
-            this._nativeObj!.setInstancedBuffer(attrs.buffer.buffer);
-        }
         attrs.views.length = attrs.attributes.length = 0;
         let offset = 0;
+        const nativeViews: TypedArray[] = [];
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
-            const attr = attrs.attributes[j];
+            const attr = new Attribute();
             attr.format = attribute.format;
             attr.name = attribute.name;
             attr.isNormalized = attribute.isNormalized;
@@ -525,7 +521,12 @@ export class Model {
             attrs.attributes.push(attr);
 
             const info = FormatInfos[attribute.format];
-            attrs.views.push(new (getTypedArrayConstructor(info))(attrs.buffer, offset, info.count));
+
+            const typeViewArray = new (getTypedArrayConstructor(info))(attrs.buffer.buffer, offset, info.count);
+            attrs.views.push(typeViewArray);
+            if (JSB) {
+                nativeViews.push(typeViewArray);
+            }
             offset += info.size;
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
@@ -533,7 +534,7 @@ export class Model {
         this._transformUpdated = true;
 
         if (JSB) {
-            this._nativeObj!.setInstanceAttributes(attrs.attributes);
+            this._nativeObj!.setInstancedAttrBlock(attrs.buffer.buffer, nativeViews, attrs.attributes);
         }
     }
 

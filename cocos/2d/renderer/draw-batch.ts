@@ -81,6 +81,10 @@ export class DrawBatch2D {
         return this._passes;
     }
 
+    public get shaders () {
+        return this._shaders;
+    }
+
     public bufferBatch: MeshBuffer | null = null;
     public camera: Camera | null = null;
     public renderScene: RenderScene | null = null;
@@ -92,6 +96,7 @@ export class DrawBatch2D {
     public textureHash = 0;
     public samplerHash = 0;
     private _passes: Pass[] = [];
+    private _shaders: Shader[] = [];
     private _visFlags: number = UI_VIS_FLAG;
     private _inputAssember: InputAssembler | null = null;
     private _descriptorSet: DescriptorSet | null = null;
@@ -131,40 +136,46 @@ export class DrawBatch2D {
             if (!passes) { return; }
 
             let hashFactor = 0;
+            let dirty = false;
+
+            this._shaders.length = passes.length;
 
             for (let i = 0; i < passes.length; i++) {
                 if (!this._passes[i]) {
                     this._passes[i] = new Pass(legacyCC.director.root);
-
-                    if (JSB) {
-                        // @ts-expect-error hack for UI use pass object
-                        this._passes[i]._nativeObj = new NativePass();
-                    }
                 }
                 const mtlPass = passes[i];
                 const passInUse = this._passes[i];
+
+                mtlPass.update();
+
+                if (mtlPass.hash === passInUse.hash) {
+                    continue;
+                }
+
                 if (!dss) { dss = mtlPass.depthStencilState; dssHash = 0; }
                 if (!bs) { bs = mtlPass.blendState; bsHash = 0; }
                 if (bsHash === -1) { bsHash = 0; }
 
                 hashFactor = (dssHash << 16) | bsHash;
-
-                mtlPass.update();
                 // @ts-expect-error hack for UI use pass object
                 passInUse._initPassFromTarget(mtlPass, dss, bs, hashFactor);
+
+                this._shaders[i] = passInUse.getShaderVariant()!;
+
+                dirty = true;
             }
 
             if (JSB) {
-                const nativePasses: NativePass[] = [];
-                const nativeShaders: Shader[] = [];
-                const passes = this._passes;
-                for (let i = 0; i < passes.length; i++) {
-                    nativePasses.push(passes[i].native);
-                    nativeShaders.push(passes[i].getShaderVariant()!);
+                if (dirty) {
+                    const nativePasses: NativePass[] = [];
+                    const passes = this._passes;
+                    for (let i = 0; i < passes.length; i++) {
+                        nativePasses.push(passes[i].native);
+                    }
+                    this._nativeObj!.passes = nativePasses;
+                    this._nativeObj!.shaders = this._shaders;
                 }
-
-                this._nativeObj!.passes = nativePasses;
-                this._nativeObj!.shaders = nativeShaders;
             }
         }
     }

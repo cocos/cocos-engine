@@ -76,7 +76,7 @@ export class SystemEvent extends EventTarget {
     public static DeviceEvent = DeviceEvent;
 
     /**
-     * @en Enum type of keycode for key event
+     * @en Enum type of keyCode for key event
      * @zh 按键事件的按键码
      */
     public static KeyCode = KeyCode;
@@ -124,12 +124,18 @@ export class SystemEvent extends EventTarget {
         inputManager.setAccelerometerInterval(interval);
     }
 
-    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP | KeyboardEvent.KEY_DOWN | KeyboardEvent.KEY_UP, callback: (event: EventKeyboard) => void, target?: unknown): typeof callback;
-    public on (type: MouseEvent.MOUSE_DOWN | MouseEvent.MOUSE_MOVE | MouseEvent.MOUSE_UP | MouseEvent.MOUSE_WHEEL,
-               callback: (event: EventMouse) => void, target?: unknown): typeof callback;
-    public on (type: TouchEvent.TOUCH_START | TouchEvent.TOUCH_MOVE | TouchEvent.TOUCH_END | TouchEvent.TOUCH_CANCEL,
-               callback: (touch: Touch, event: EventTouch) => void, target?: unknown): typeof callback;
-    public on (type: DeviceEvent.DEVICEMOTION, callback: (event: EventAcceleration) => void, target?: unknown): typeof callback;
+    public on (type: KeyboardEvent, callback: (event: EventKeyboard) => void, target?: unknown): typeof callback;
+    public on (type: MouseEvent, callback: (event: EventMouse) => void, target?: unknown): typeof callback;
+    public on (type: TouchEvent, callback: (touch: Touch, event: EventTouch) => void, target?: unknown): typeof callback;
+    public on (type: DeviceEvent, callback: (event: EventAcceleration) => void, target?: unknown): typeof callback;
+    // #region deprecated
+    public on (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback: (event: EventKeyboard) => void, target?: unknown): typeof callback;
+    public on (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL,
+        callback: (event: EventMouse) => void, target?: unknown): typeof callback;
+    public on (type: SystemEventType.TOUCH_START | SystemEventType.TOUCH_MOVE | SystemEventType.TOUCH_END | SystemEventType.TOUCH_CANCEL,
+        callback: (touch: Touch, event: EventTouch) => void, target?: unknown): typeof callback;
+    public on (type: SystemEventType.DEVICEMOTION, callback: (event: EventAcceleration) => void, target?: unknown): typeof callback;
+    // #endregion deprecated
     /**
      * @en
      * Register an callback of a specific system event type.
@@ -235,6 +241,18 @@ export class SystemEvent extends EventTarget {
         return callback;
     }
 
+    public off (type: KeyboardEvent, callback?: (event: EventKeyboard) => void, target?: unknown);
+    public off (type: MouseEvent, callback?: (event: EventMouse) => void, target?: unknown);
+    public off (type: TouchEvent, callback?: (touch: Touch, event: EventTouch) => void, target?: unknown);
+    public off (type: DeviceEvent, callback?: (event: EventAcceleration) => void, target?: unknown);
+    // #region deprecated
+    public off (type: SystemEventType.KEY_DOWN | SystemEventType.KEY_UP, callback?: (event: EventKeyboard) => void, target?: unknown);
+    public off (type: SystemEventType.MOUSE_DOWN | SystemEventType.MOUSE_MOVE | SystemEventType.MOUSE_UP | SystemEventType.MOUSE_WHEEL,
+        callback?: (event: EventMouse) => void, target?: unknown);
+    public off (type: SystemEventType.TOUCH_START | SystemEventType.TOUCH_MOVE | SystemEventType.TOUCH_END | SystemEventType.TOUCH_CANCEL,
+        callback?: (touch: Touch, event: EventTouch) => void, target?: unknown);
+    public off (type: SystemEventType.DEVICEMOTION, callback?: (event: EventAcceleration) => void, target?: unknown);
+    // #endregion deprecated
     /**
      * @en
      * Removes the listeners previously registered with the same type, callback, target and or useCapture,

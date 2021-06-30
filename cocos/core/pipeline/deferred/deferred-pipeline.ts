@@ -50,8 +50,8 @@ import { sceneCulling } from '../scene-culling';
 import { markAsGCRoot, ReferenceType } from '../../data';
 
 const _samplerInfo = [
-    Filter.LINEAR,
-    Filter.LINEAR,
+    Filter.POINT,
+    Filter.POINT,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,

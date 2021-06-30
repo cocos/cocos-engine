@@ -131,3 +131,29 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
         return audioContext;
     };
 }
+
+/**
+ * Compare two version, version should in pattern like 3.0.0.
+ * If versionA > versionB, return number larger than 0.
+ * If versionA = versionB, return number euqal to 0.
+ * If versionA < versionB, return number smaller than 0.
+ * @param versionA
+ * @param versionB
+ */
+export function versionCompare (versionA: string, versionB: string): number {
+    const versionRegExp = /\d+\.\d+\.\d+/;
+    if (!(versionRegExp.test(versionA) && versionRegExp.test(versionB))) {
+        console.warn('wrong format of version when compare version');
+        return 0;
+    }
+    const versionNumbersA = versionA.split('.').map((num: string) => Number.parseInt(num));
+    const versionNumbersB = versionB.split('.').map((num: string) => Number.parseInt(num));
+    for (let i = 0; i < 3; ++i) {
+        const numberA = versionNumbersA[i];
+        const numberB = versionNumbersB[i];
+        if (numberA !== numberB) {
+            return numberA - numberB;
+        }
+    }
+    return 0;
+}

@@ -31,7 +31,7 @@
 import { CCClass } from '../data/class';
 import { Mat3 } from './mat3';
 import { IQuatLike, IVec3Like, FloatArray } from './type-define';
-import { EPSILON, toDegree } from './utils';
+import { enumerableProps, EPSILON, toDegree } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 import { MathBase } from './math-base';
@@ -718,6 +718,7 @@ export class Quat extends MathBase {
             if (ArrayBuffer.isView(x)) {
                 this._array = x;
                 this._array.fill(0);
+                this._array[3] = 1;
             } else {
                 const v = x.array;
                 this._array = MathBase.createFloatArray(4);
@@ -853,6 +854,7 @@ export class Quat extends MathBase {
     }
 }
 
+enumerableProps(Quat.prototype, ['x', 'y', 'z', 'w']);
 const qt_1 = new Quat();
 const qt_2 = new Quat();
 const v3_1 = new Vec3();

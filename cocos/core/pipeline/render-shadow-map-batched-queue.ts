@@ -113,7 +113,7 @@ export class RenderShadowMapBatchedQueue {
 
     /**
      * @zh
-     * clear ligth-Batched-Queue
+     * clear light-Batched-Queue
      */
     public clear () {
         this._subModelsArray.length = 0;
@@ -140,7 +140,7 @@ export class RenderShadowMapBatchedQueue {
                 buffer.merge(subModel, shadowPassIdx, model);
                 this._batchedQueue.queue.add(buffer);
             } else {
-                const shader = pass.getShaderVariant();
+                const shader = subModel.shaders[shadowPassIdx];
                 this._subModelsArray.push(subModel);
                 if (shader) this._shaderArray.push(shader);
                 this._passArray.push(pass);

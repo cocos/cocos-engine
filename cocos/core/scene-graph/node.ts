@@ -205,6 +205,7 @@ export class Node extends BaseNode {
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
     protected declare _nativeFlag: Uint32Array;
+    protected declare _nativeDirtyFlag: Uint32Array;
 
     protected _init () {
         if (JSB) {
@@ -213,10 +214,17 @@ export class Node extends BaseNode {
             this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as FloatArray);
             this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as FloatArray);
             this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as FloatArray);
+
+            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as FloatArray);
+            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as FloatArray);
+            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as FloatArray);
+
             this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
             this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
             this._nativeFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.FLAGS_CHANGED) as Uint32Array;
+            this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
             this._scale.set(1, 1, 1);
+            this._lscale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
             this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle));
@@ -484,6 +492,9 @@ export class Node extends BaseNode {
     public setParent (value: this | null, keepWorldTransform = false) {
         if (keepWorldTransform) { this.updateWorldTransform(); }
         super.setParent(value, keepWorldTransform);
+        if (JSB) {
+            this._nativeObj!.setParent(this.parent?.native);
+        }
     }
 
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
@@ -510,9 +521,17 @@ export class Node extends BaseNode {
         super._onHierarchyChangedBase(oldParent);
     }
 
+    protected _setDirtyFlags (val: TransformBit) {
+        this._dirtyFlags = val;
+        if (JSB) {
+            this._nativeDirtyFlag[0] = val;
+        }
+    }
+
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
+            this._nativeObj!.setParent(this.parent?.native);
         }
         const prefabInstance = this._prefab?.instance;
         if (!dontSyncChildPrefab && prefabInstance) {
@@ -520,7 +539,8 @@ export class Node extends BaseNode {
         }
 
         this.hasChangedFlags = TransformBit.TRS;
-        this._dirtyFlags = TransformBit.TRS;
+        this._setDirtyFlags(TransformBit.TRS);
+        this._uiProps.uiTransformDirty = true;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -634,10 +654,6 @@ export class Node extends BaseNode {
         this.setWorldRotation(q_a);
     }
 
-    // ===============================
-    // transform maintainer
-    // ===============================
-
     /**
      * @en Invalidate the world transform information
      * for this node and all its children recursively
@@ -653,7 +669,8 @@ export class Node extends BaseNode {
             const cur: this = array_a[i--];
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                cur._dirtyFlags |= dirtyBit;
+                cur._setDirtyFlags(cur._dirtyFlags | dirtyBit);
+                cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
                 const children = cur._children;
                 const len = children.length;
@@ -720,7 +737,7 @@ export class Node extends BaseNode {
                 }
             }
 
-            child._dirtyFlags = TransformBit.NONE;
+            child._setDirtyFlags(TransformBit.NONE);
             cur = child;
         }
     }

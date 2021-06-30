@@ -393,7 +393,7 @@ export class Profiler {
             }
 
             // @ts-expect-error using private members for efficiency
-            this.pass._rootBufferDirty = true;
+            this.pass._setRootBufferDirty(true);
         }
 
         const now = performance.now();

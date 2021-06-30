@@ -40,291 +40,297 @@ import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
 export class SubModel {
-     protected _device: Device | null = null;
-     protected _passes: Pass[] | null = null;
-     protected _subMesh: RenderingSubMesh | null = null;
-     protected _patches: IMacroPatch[] | null = null;
-     protected _priority: RenderPriority = RenderPriority.DEFAULT;
-     protected _inputAssembler: InputAssembler | null = null;
-     protected _descriptorSet: DescriptorSet | null = null;
-     protected _planarInstanceShader: Shader | null = null;
-     protected _planarShader: Shader | null = null;
-     protected _reflectionTex: Texture | null = null;
-     protected _reflectionSampler: Sampler | null = null;
-     protected declare _nativeObj: NativeSubModel | null;
+    protected _device: Device | null = null;
+    protected _passes: Pass[] | null = null;
+    protected _shaders: Shader[] | null = null;
+    protected _subMesh: RenderingSubMesh | null = null;
+    protected _patches: IMacroPatch[] | null = null;
+    protected _priority: RenderPriority = RenderPriority.DEFAULT;
+    protected _inputAssembler: InputAssembler | null = null;
+    protected _descriptorSet: DescriptorSet | null = null;
+    protected _planarInstanceShader: Shader | null = null;
+    protected _planarShader: Shader | null = null;
+    protected _reflectionTex: Texture | null = null;
+    protected _reflectionSampler: Sampler | null = null;
+    protected declare _nativeObj: NativeSubModel | null;
 
-     private _destroyDescriptorSet () {
+    private _destroyDescriptorSet () {
         this._descriptorSet!.destroy();
         if (JSB) {
             this._nativeObj!.setDescriptorSet(null);
         }
         this._descriptorSet = null;
-     }
+    }
 
-     private _destroyInputAssembler () {
+    private _destroyInputAssembler () {
         this._inputAssembler!.destroy();
         if (JSB) {
             this._nativeObj!.setInputAssembler(null);
         }
         this._inputAssembler = null;
-     }
+    }
 
-     private _createDescriptorSet (descInfo: DescriptorSetInfo) {
-         this._descriptorSet = this._device!.createDescriptorSet(descInfo);
-         if (JSB) {
-             this._nativeObj!.setDescriptorSet(this._descriptorSet);
-         }
-     }
+    private _createDescriptorSet (descInfo: DescriptorSetInfo) {
+        this._descriptorSet = this._device!.createDescriptorSet(descInfo);
+        if (JSB) {
+            this._nativeObj!.setDescriptorSet(this._descriptorSet);
+        }
+    }
 
-     set passes (passes) {
-         const passLengh = passes.length;
-         if (passLengh > MAX_PASS_COUNT) {
-             errorID(12004, MAX_PASS_COUNT);
-             return;
-         }
-         this._passes = passes;
-         this._flushPassInfo();
+    set passes (passes) {
+        const passLengh = passes.length;
+        if (passLengh > MAX_PASS_COUNT) {
+            errorID(12004, MAX_PASS_COUNT);
+            return;
+        }
+        this._passes = passes;
+        this._flushPassInfo();
 
-         // DS layout might change too
-         if (this._descriptorSet) {
-             this._destroyDescriptorSet();
-             _dsInfo.layout = passes[0].localSetLayout;
-             this._createDescriptorSet(_dsInfo);
-         }
-     }
+        // DS layout might change too
+        if (this._descriptorSet) {
+            this._destroyDescriptorSet();
+            _dsInfo.layout = passes[0].localSetLayout;
+            this._createDescriptorSet(_dsInfo);
+        }
+    }
 
-     get passes (): Pass[] {
-         return this._passes!;
-     }
+    get passes (): Pass[] {
+        return this._passes!;
+    }
 
-     set subMesh (subMesh) {
-         this._setSubMesh(subMesh);
-         this._inputAssembler!.destroy();
-         this._inputAssembler!.initialize(subMesh.iaInfo);
-         if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
-     }
+    get shaders (): Shader[] {
+        return this._shaders!;
+    }
 
-     get subMesh (): RenderingSubMesh {
-         return this._subMesh!;
-     }
+    set subMesh (subMesh) {
+        this._setSubMesh(subMesh);
+        this._inputAssembler!.destroy();
+        this._inputAssembler!.initialize(subMesh.iaInfo);
+        if (this._passes![0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+    }
 
-     set priority (val) {
-         this._priority = val;
-         if (JSB) {
-             this._nativeObj!.setPriority(val);
-         }
-     }
+    get subMesh (): RenderingSubMesh {
+        return this._subMesh!;
+    }
 
-     get priority (): RenderPriority {
-         return this._priority;
-     }
+    set priority (val) {
+        this._priority = val;
+        if (JSB) {
+            this._nativeObj!.setPriority(val);
+        }
+    }
 
-     get inputAssembler (): InputAssembler {
-         return this._inputAssembler!;
-     }
+    get priority (): RenderPriority {
+        return this._priority;
+    }
 
-     get descriptorSet (): DescriptorSet {
-         return this._descriptorSet!;
-     }
+    get inputAssembler (): InputAssembler {
+        return this._inputAssembler!;
+    }
 
-     get patches (): IMacroPatch[] | null {
-         return this._patches;
-     }
+    get descriptorSet (): DescriptorSet {
+        return this._descriptorSet!;
+    }
 
-     get planarInstanceShader (): Shader | null {
-         return this._planarInstanceShader;
-     }
+    get patches (): IMacroPatch[] | null {
+        return this._patches;
+    }
 
-     get planarShader (): Shader | null {
-         return this._planarShader;
-     }
+    get planarInstanceShader (): Shader | null {
+        return this._planarInstanceShader;
+    }
 
-     private _setInputAssembler (iaInfo: InputAssemblerInfo) {
-         this._inputAssembler = this._device!.createInputAssembler(iaInfo);
-         if (JSB) {
-             this._nativeObj!.setInputAssembler(this._inputAssembler);
-         }
-     }
+    get planarShader (): Shader | null {
+        return this._planarShader;
+    }
 
-     private _setSubMesh (subMesh: RenderingSubMesh) {
-         this._subMesh = subMesh;
-         if (JSB) {
-             this._nativeObj!.setRenderingSubMesh(subMesh.flatBuffers);
-         }
-     }
+    private _setInputAssembler (iaInfo: InputAssemblerInfo) {
+        this._inputAssembler = this._device!.createInputAssembler(iaInfo);
+        if (JSB) {
+            this._nativeObj!.setInputAssembler(this._inputAssembler);
+        }
+    }
 
-     get native (): NativeSubModel {
-         return this._nativeObj!;
-     }
+    private _setSubMesh (subMesh: RenderingSubMesh) {
+        this._subMesh = subMesh;
+        if (JSB) {
+            this._nativeObj!.setSubMeshBuffers(subMesh.flatBuffers);
+        }
+    }
 
-     private _init () {
-         if (JSB) {
-             this._nativeObj = new NativeSubModel();
-         }
-     }
+    get native (): NativeSubModel {
+        return this._nativeObj!;
+    }
 
-     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
-         this._device = legacyCC.director.root.device as Device;
-         _dsInfo.layout = passes[0].localSetLayout;
-         this._init();
-         this._setInputAssembler(subMesh.iaInfo);
-         this._createDescriptorSet(_dsInfo);
-         this._setSubMesh(subMesh);
-         this._patches = patches;
-         this._passes = passes;
+    private _init () {
+        if (JSB) {
+            this._nativeObj = new NativeSubModel();
+        }
+    }
 
-         this._flushPassInfo();
-         if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
+    public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
+        this._device = legacyCC.director.root.device as Device;
+        _dsInfo.layout = passes[0].localSetLayout;
+        this._init();
+        this._setInputAssembler(subMesh.iaInfo);
+        this._createDescriptorSet(_dsInfo);
+        this._setSubMesh(subMesh);
+        this._patches = patches;
+        this._passes = passes;
 
-         this.priority = RenderPriority.DEFAULT;
+        this._flushPassInfo();
+        if (passes[0].batchingScheme === BatchingSchemes.VB_MERGING) { this.subMesh.genFlatBuffers(); }
 
-         // initialize resources for reflection material
-         if (passes[0].phase === getPhaseID('reflection')) {
-             let texWidth = this._device.width;
-             let texHeight = this._device.height;
-             const minSize = 512;
+        this.priority = RenderPriority.DEFAULT;
 
-             if (texHeight < texWidth) {
-                 texWidth = minSize * texWidth / texHeight;
-                 texHeight = minSize;
-             } else {
-                 texWidth = minSize;
-                 texHeight = minSize * texHeight / texWidth;
-             }
+        // initialize resources for reflection material
+        if (passes[0].phase === getPhaseID('reflection')) {
+            let texWidth = this._device.width;
+            let texHeight = this._device.height;
+            const minSize = 512;
 
-             this._reflectionTex = this._device.createTexture(new TextureInfo(
-                 TextureType.TEX2D,
-                 TextureUsageBit.STORAGE | TextureUsageBit.TRANSFER_SRC | TextureUsageBit.SAMPLED,
-                 Format.RGBA8,
-                 texWidth,
-                 texHeight,
-                 TextureFlagBit.IMMUTABLE,
-             ));
+            if (texHeight < texWidth) {
+                texWidth = minSize * texWidth / texHeight;
+                texHeight = minSize;
+            } else {
+                texWidth = minSize;
+                texHeight = minSize * texHeight / texWidth;
+            }
 
-             this.descriptorSet.bindTexture(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionTex);
+            this._reflectionTex = this._device.createTexture(new TextureInfo(
+                TextureType.TEX2D,
+                TextureUsageBit.STORAGE | TextureUsageBit.TRANSFER_SRC | TextureUsageBit.SAMPLED,
+                Format.RGBA8,
+                texWidth,
+                texHeight,
+                TextureFlagBit.IMMUTABLE,
+            ));
 
-             const samplerInfo = [
-                 Filter.LINEAR,
-                 Filter.LINEAR,
-                 Filter.NONE,
-                 Address.CLAMP,
-                 Address.CLAMP,
-                 Address.CLAMP,
-             ];
+            this.descriptorSet.bindTexture(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionTex);
 
-             const samplerHash = genSamplerHash(samplerInfo);
-             this._reflectionSampler = samplerLib.getSampler(this._device, samplerHash);
-             this.descriptorSet.bindSampler(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionSampler);
-             this.descriptorSet.bindTexture(UNIFORM_REFLECTION_STORAGE_BINDING, this._reflectionTex);
-         }
-     }
+            const samplerInfo = [
+                Filter.LINEAR,
+                Filter.LINEAR,
+                Filter.NONE,
+                Address.CLAMP,
+                Address.CLAMP,
+                Address.CLAMP,
+            ];
 
-     private _initNativePlanarShadowShader (shadowInfo: Shadows) {
-         this._planarShader = shadowInfo.getPlanarShader(this._patches);
-         if (JSB) {
-             this._nativeObj!.setPlanarShader(this._planarShader);
-         }
-     }
+            const samplerHash = genSamplerHash(samplerInfo);
+            this._reflectionSampler = samplerLib.getSampler(this._device, samplerHash);
+            this.descriptorSet.bindSampler(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionSampler);
+            this.descriptorSet.bindTexture(UNIFORM_REFLECTION_STORAGE_BINDING, this._reflectionTex);
+        }
+    }
 
-     // This is a temporary solution
-     // It should not be written in a fixed way, or modified by the user
-     public initPlanarShadowShader () {
-         const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
-         const shadowInfo = pipeline.pipelineSceneData.shadows;
-         this._initNativePlanarShadowShader(shadowInfo);
-     }
+    private _initNativePlanarShadowShader (shadowInfo: Shadows) {
+        this._planarShader = shadowInfo.getPlanarShader(this._patches);
+        if (JSB) {
+            this._nativeObj!.setPlanarShader(this._planarShader);
+        }
+    }
 
-     private _initNativePlanarShadowInstanceShader (shadowInfo: Shadows) {
-         this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
-         if (JSB) {
-             this._nativeObj!.setPlanarInstanceShader(this._planarInstanceShader);
-         }
-     }
+    // This is a temporary solution
+    // It should not be written in a fixed way, or modified by the user
+    public initPlanarShadowShader () {
+        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+        const shadowInfo = pipeline.pipelineSceneData.shadows;
+        this._initNativePlanarShadowShader(shadowInfo);
+    }
 
-     // This is a temporary solution
-     // It should not be written in a fixed way, or modified by the user
-     public initPlanarShadowInstanceShader () {
-         const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
-         const shadowInfo = pipeline.pipelineSceneData.shadows;
-         this._initNativePlanarShadowInstanceShader(shadowInfo);
-     }
+    private _initNativePlanarShadowInstanceShader (shadowInfo: Shadows) {
+        this._planarInstanceShader = shadowInfo.getPlanarInstanceShader(this._patches);
+        if (JSB) {
+            this._nativeObj!.setPlanarInstanceShader(this._planarInstanceShader);
+        }
+    }
 
-     private _destroy () {
-         if (JSB) {
-             this._nativeObj = null;
-         }
-     }
+    // This is a temporary solution
+    // It should not be written in a fixed way, or modified by the user
+    public initPlanarShadowInstanceShader () {
+        const pipeline = legacyCC.director.root.pipeline as  ForwardPipeline;
+        const shadowInfo = pipeline.pipelineSceneData.shadows;
+        this._initNativePlanarShadowInstanceShader(shadowInfo);
+    }
 
-     public destroy (): void {
-         this._destroyDescriptorSet();
-         this._destroyInputAssembler();
-         this.priority = RenderPriority.DEFAULT;
+    private _destroy () {
+        if (JSB) {
+            this._nativeObj = null;
+        }
+    }
 
-         this._patches = null;
-         this._subMesh = null;
-         this._passes = null;
+    public destroy (): void {
+        this._destroyDescriptorSet();
+        this._destroyInputAssembler();
+        this.priority = RenderPriority.DEFAULT;
 
-         if (this._reflectionTex) this._reflectionTex.destroy();
-         this._reflectionTex = null;
-         if (this._reflectionSampler) this._reflectionSampler.destroy();
-         this._reflectionSampler = null;
+        this._patches = null;
+        this._subMesh = null;
 
-         this._destroy();
-     }
+        this._passes = null;
+        this._shaders = null;
 
-     public update (): void {
-         for (let i = 0; i < this._passes!.length; ++i) {
-             const pass = this._passes![i];
-             pass.update();
-         }
-         this._descriptorSet!.update();
-     }
+        if (this._reflectionTex) this._reflectionTex.destroy();
+        this._reflectionTex = null;
+        if (this._reflectionSampler) this._reflectionSampler.destroy();
+        this._reflectionSampler = null;
 
-     public onPipelineStateChanged (): void {
-         const passes = this._passes;
-         if (!passes) { return; }
+        this._destroy();
+    }
 
-         for (let i = 0; i < passes.length; i++) {
-             const pass = passes[i];
-             pass.beginChangeStatesSilently();
-             pass.tryCompile(); // force update shaders
-             pass.endChangeStatesSilently();
-         }
+    public update (): void {
+        for (let i = 0; i < this._passes!.length; ++i) {
+            const pass = this._passes![i];
+            pass.update();
+        }
+        this._descriptorSet!.update();
+    }
 
-         this._flushPassInfo();
-     }
+    public onPipelineStateChanged (): void {
+        const passes = this._passes;
+        if (!passes) { return; }
 
-     public onMacroPatchesStateChanged (patches: IMacroPatch[] | null): void {
-         this._patches = patches;
+        for (let i = 0; i < passes.length; i++) {
+            const pass = passes[i];
+            pass.beginChangeStatesSilently();
+            pass.tryCompile(); // force update shaders
+            pass.endChangeStatesSilently();
+        }
 
-         const passes = this._passes;
-         if (!passes) { return; }
+        this._flushPassInfo();
+    }
 
-         for (let i = 0; i < passes.length; i++) {
-             const pass = passes[i];
-             pass.beginChangeStatesSilently();
-             pass.tryCompile(); // force update shaders
-             pass.endChangeStatesSilently();
-         }
+    public onMacroPatchesStateChanged (patches: IMacroPatch[] | null): void {
+        this._patches = patches;
 
-         this._flushPassInfo();
-     }
+        const passes = this._passes;
+        if (!passes) { return; }
 
-     protected _flushPassInfo (): void {
-         const passes = this._passes;
-         if (!passes) { return; }
+        for (let i = 0; i < passes.length; i++) {
+            const pass = passes[i];
+            pass.beginChangeStatesSilently();
+            pass.tryCompile(); // force update shaders
+            pass.endChangeStatesSilently();
+        }
 
-         if (JSB) {
-             const nativeShaders: (Shader | null)[] = [];
-             for (let i = 0, len = passes.length; i < len; i++) {
-                 if (JSB) {
-                     nativeShaders.push(passes[i].getShaderVariant(this.patches));
-                 }
-             }
+        this._flushPassInfo();
+    }
 
-             const passesNative = passes.map((_pass: Pass): NativePass => _pass.native);
-             this._nativeObj!.setPasses(passesNative);
-             this._nativeObj!.setShaders(nativeShaders);
-         }
-     }
+    protected _flushPassInfo (): void {
+        const passes = this._passes;
+        if (!passes) { return; }
+        if (!this._shaders) { this._shaders = []; }
+
+        this._shaders.length = passes.length;
+        for (let i = 0, len = passes.length; i < len; i++) {
+            this._shaders[i] = passes[i].getShaderVariant(this.patches)!;
+        }
+
+        if (JSB) {
+            const passesNative = passes.map((_pass: Pass): NativePass => _pass.native);
+            this._nativeObj!.setPasses(passesNative);
+            this._nativeObj!.setShaders(this._shaders);
+        }
+    }
 }

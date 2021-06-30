@@ -1,12 +1,22 @@
 import { IMiniGame, SystemInfo } from 'pal/minigame';
 import { Orientation } from '../system/enum-type/orientation';
-import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
+import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils';
 
 declare let wx: any;
 
 // @ts-expect-error can't init minigame when it's declared
 const minigame: IMiniGame = {};
 cloneObject(minigame, wx);
+
+// #region platform related
+minigame.wx = {};
+minigame.wx.onKeyDown = wx.onKeyDown?.bind(wx);
+minigame.wx.onKeyUp = wx.onKeyUp?.bind(wx);
+minigame.wx.onMouseDown = wx.onMouseDown?.bind(wx);
+minigame.wx.onMouseMove = wx.onMouseMove?.bind(wx);
+minigame.wx.onMouseUp = wx.onMouseUp?.bind(wx);
+minigame.wx.onWheel = wx.onWheel?.bind(wx);
+// #endregion platform related
 
 // #region SystemInfo
 let _cachedSystemInfo: SystemInfo = wx.getSystemInfoSync();
@@ -119,5 +129,20 @@ minigame.getSafeArea = function () {
     return locSystemInfo.safeArea;
 };
 // #endregion SafeArea
+
+// HACK: adapt GL.useProgram: use program not supported to unbind program on pc end
+if (systemInfo.platform === 'windows' && versionCompare(systemInfo.SDKVersion, '2.16.0') < 0) {
+    // @ts-expect-error canvas defined in global
+    const locCanvas = canvas;
+    if (locCanvas) {
+        const webglRC = locCanvas.getContext('webgl');
+        const originalUseProgram = webglRC.useProgram.bind(webglRC);
+        webglRC.useProgram = function (program) {
+            if (program) {
+                originalUseProgram(program);
+            }
+        };
+    }
+}
 
 export { minigame };

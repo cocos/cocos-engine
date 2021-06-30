@@ -32,7 +32,7 @@
 import { CCClass } from '../data/class';
 import { Mat4 } from './mat4';
 import { IMat3Like, IMat4Like, IQuatLike, IVec3Like, FloatArray } from './type-define';
-import { clamp, EPSILON, random } from './utils';
+import { clamp, enumerableProps, EPSILON, random } from './utils';
 import { legacyCC } from '../global-exports';
 import { MathBase } from './math-base';
 
@@ -1090,6 +1090,7 @@ export class Vec3 extends MathBase {
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
 
+enumerableProps(Vec3.prototype, ['x', 'y', 'z']);
 CCClass.fastDefine('cc.Vec3', Vec3, { x: 0, y: 0, z: 0 });
 legacyCC.Vec3 = Vec3;
 

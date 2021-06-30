@@ -28,10 +28,13 @@
  * @module geometry
  */
 
+import { JSB } from 'internal:constants';
 import { Mat3, Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
-import { IVec3Like } from '../math/type-define';
+import { FloatArray, IVec3Like } from '../math/type-define';
 import { Sphere } from './sphere';
+import { AABBHandle, AABBPool, AABBView, NULL_HANDLE } from '../renderer/core/memory-pools';
+import { NativeAABB } from '../renderer/scene/native-scene';
 
 const _v3_tmp = new Vec3();
 const _v3_tmp2 = new Vec3();
@@ -202,37 +205,53 @@ export class AABB {
         return out;
     }
 
-     /**
+    /**
       * @zh
       * 本地坐标的中心点。
       */
-     public center: Vec3;
+    public center: Vec3;
 
-     /**
+    /**
       * @zh
       * 长宽高的一半。
       */
-     public halfExtents: Vec3;
+    public halfExtents: Vec3;
 
-     /**
+    /**
       * @en
       * Gets the type of the shape.
       * @zh
       * 获取形状的类型。
       */
-     get type () {
-         return this._type;
-     }
+    get type () {
+        return this._type;
+    }
 
-     protected readonly _type: number;
+    protected readonly _type: number;
+    protected _aabbHandle: AABBHandle = NULL_HANDLE;
+    protected declare _nativeObj: NativeAABB;
+    constructor (px = 0, py = 0, pz = 0, hw = 1, hh = 1, hl = 1) {
+        this._type = enums.SHAPE_AABB;
+        if (JSB) {
+            // new aabb
+            this._aabbHandle = AABBPool.alloc();
+            this.center = new Vec3(AABBPool.getTypedArray(this._aabbHandle, AABBView.CENTER) as FloatArray);
+            this.halfExtents = new Vec3(AABBPool.getTypedArray(this._aabbHandle, AABBView.HALFEXTENTS) as FloatArray);
+            this.center.set(px, py, pz);
+            this.halfExtents.set(hw, hh, hl);
+            this._nativeObj = new NativeAABB();
+            this._nativeObj.initWithData(AABBPool.getBuffer(this._aabbHandle));
+            return;
+        }
+        this.center = new Vec3(px, py, pz);
+        this.halfExtents = new Vec3(hw, hh, hl);
+    }
 
-     constructor (px = 0, py = 0, pz = 0, hw = 1, hh = 1, hl = 1) {
-         this._type = enums.SHAPE_AABB;
-         this.center = new Vec3(px, py, pz);
-         this.halfExtents = new Vec3(hw, hh, hl);
-     }
+    get native (): NativeAABB {
+        return this._nativeObj;
+    }
 
-     /**
+    /**
       * @en
       * Get the bounding points of this shape
       * @zh
@@ -240,12 +259,12 @@ export class AABB {
       * @param {Vec3} minPos 最小点。
       * @param {Vec3} maxPos 最大点。
       */
-     public getBoundary (minPos: IVec3Like, maxPos: IVec3Like) {
-         Vec3.subtract(minPos, this.center, this.halfExtents);
-         Vec3.add(maxPos, this.center, this.halfExtents);
-     }
+    public getBoundary (minPos: IVec3Like, maxPos: IVec3Like) {
+        Vec3.subtract(minPos, this.center, this.halfExtents);
+        Vec3.add(maxPos, this.center, this.halfExtents);
+    }
 
-     /**
+    /**
       * @en
       * Transform this shape
       * @zh
@@ -256,27 +275,27 @@ export class AABB {
       * @param scale 变换的缩放部分。
       * @param out 变换的目标。
       */
-     public transform (m: Mat4, pos: Vec3 | null, rot: Quat | null, scale: Vec3 | null, out: AABB) {
-         Vec3.transformMat4(out.center, this.center, m);
-         transform_extent_m4(out.halfExtents, this.halfExtents, m);
-     }
+    public transform (m: Mat4, pos: Vec3 | null, rot: Quat | null, scale: Vec3 | null, out: AABB) {
+        Vec3.transformMat4(out.center, this.center, m);
+        transform_extent_m4(out.halfExtents, this.halfExtents, m);
+    }
 
-     /**
+    /**
       * @zh
       * 获得克隆。
       * @returns {AABB}
       */
-     public clone (): AABB {
-         return AABB.clone(this);
-     }
+    public clone (): AABB {
+        return AABB.clone(this);
+    }
 
-     /**
+    /**
       * @zh
       * 拷贝对象。
       * @param a 拷贝的目标。
       * @returns {AABB}
       */
-     public copy (a: Readonly<AABB>): AABB {
-         return AABB.copy(this, a);
-     }
+    public copy (a: Readonly<AABB>): AABB {
+        return AABB.copy(this, a);
+    }
 }

@@ -98,7 +98,7 @@ export declare namespace AnimationClip {
     export interface IEvent {
         frame: number;
         func: string;
-        params: string[];
+        params: any[];
     }
 
     export namespace _impl {

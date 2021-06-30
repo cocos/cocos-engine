@@ -1,6 +1,10 @@
 declare module 'pal/minigame' {
     export const minigame: IMiniGame;
     export interface IMiniGame {
+        // platform related
+        wx?: WeChatAPI;
+        tt?: ByteDanceAPI;
+
         // system
         isDevTool: boolean;
         isLandscape: boolean;
@@ -47,6 +51,38 @@ declare module 'pal/minigame' {
         offAccelerometerChange(cb?: AccelerometerChangeCallback);
         startAccelerometer(obj: AccelerometerStartParameter);
         stopAccelerometer(obj: AccelerometerStopParameter);
+    }
+
+    interface WeChatAPI {
+        onKeyDown?: (cb: (res: KeyboardEventData) => void) => void;
+        onKeyUp?: (cb: (res: KeyboardEventData) => void) => void;
+
+        onMouseDown?: (cb: (res: MouseEventData) => void) => void;
+        onMouseMove?: (cb: (res: MouseEventData) => void) => void;
+        onMouseUp?: (cb: (res: MouseEventData) => void) => void;
+        onWheel?: (cb: (res: MouseWheelEventData) => void) => void;
+    }
+
+    export interface KeyboardEventData {
+        key: string;
+        code: string;
+        timeStamp: number;
+    }
+
+    export interface MouseEventData {
+        x: number;
+        y: number;
+        button: number;
+        timeStamp: number;
+    }
+
+    export interface MouseWheelEventData extends MouseEventData {
+        deltaX: number;
+        deltaY: number;
+        deltaZ: number;
+    }
+    interface ByteDanceAPI {
+        getAudioContext?: () => AudioContext;
     }
 
     export type AccelerometerIntervalMode = 'game' | 'ui' | 'normal';
