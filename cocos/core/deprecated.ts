@@ -311,7 +311,7 @@ removeProperty(Director.prototype, 'director', [
         suggest: 'please use cc.winSize instead',
     },
     {
-        name: 'getWinSizeInPixel',
+        name: 'getWinSizeInPixels',
     },
     {
         name: 'purgeCachedData',
