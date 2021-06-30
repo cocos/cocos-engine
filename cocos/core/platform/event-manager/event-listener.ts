@@ -508,10 +508,11 @@ export class KeyboardEventListener extends EventListener {
 
     public _callback (event: EventKeyboard) {
         switch (event.type) {
+        // TODO: to support in Input module
+        // case 'keypress':
+        //     this.onKeyDown?.(event.keyCode, event);
+        //     break;
         case SystemEventType.KEY_DOWN:
-            this.onKeyDown?.(event.keyCode, event);
-            break;
-        case 'keydown':  // SystemEventType.KEY_DOWN
             this.onKeyPressed?.(event.keyCode, event);
             break;
         case SystemEventType.KEY_UP:

@@ -91,14 +91,14 @@ export enum NodeEventType {
     /**
      * @en The event type for press the key down event, the event will be continuously dispatched in the key pressed state
      * @zh 当按下按键时触发的事件, 该事件在按下状态会持续派发
-     * @deprecated since v3.3, please use SystemEventType.KEY_DOWN instead
+     * @deprecated since v3.3, please use SystemEvent.EventType.KEY_DOWN instead
      */
     KEY_DOWN = 'keydown',
 
     /**
      * @en The event type for press the key up event
      * @zh 当松开按键时触发的事件
-     * @deprecated since v3.3, please use SystemEventType.KEY_UP instead
+     * @deprecated since v3.3, please use SystemEvent.EventType.KEY_UP instead
      */
     KEY_UP = 'keyup',
 

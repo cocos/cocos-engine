@@ -36,7 +36,7 @@ import { Node } from '../../scene-graph';
 import { macro } from '../macro';
 import { legacyCC } from '../../global-exports';
 import { errorID, warnID, logID, assertID } from '../debug';
-import { SystemEventType } from './event-enum';
+import { SystemEventType, SystemEventTypeUnion } from './event-enum';
 
 const ListenerID = EventListener.ListenerID;
 
@@ -47,9 +47,9 @@ function checkUINode (node) {
     return false;
 }
 
-const touchEvents: string[] = [SystemEventType.TOUCH_START, SystemEventType.TOUCH_MOVE, SystemEventType.TOUCH_END, SystemEventType.TOUCH_CANCEL];
-const mouseEvents: string[] = [SystemEventType.MOUSE_DOWN, SystemEventType.MOUSE_MOVE, SystemEventType.MOUSE_UP, SystemEventType.MOUSE_WHEEL];
-const keyboardEvents: string[] = [SystemEventType.KEY_DOWN, SystemEventType.KEY_UP, 'keydown'];
+const touchEvents: SystemEventTypeUnion[] = [SystemEventType.TOUCH_START, SystemEventType.TOUCH_MOVE, SystemEventType.TOUCH_END, SystemEventType.TOUCH_CANCEL];
+const mouseEvents: SystemEventTypeUnion[] = [SystemEventType.MOUSE_DOWN, SystemEventType.MOUSE_MOVE, SystemEventType.MOUSE_UP, SystemEventType.MOUSE_WHEEL];
+const keyboardEvents: SystemEventTypeUnion[] = [SystemEventType.KEY_DOWN, SystemEventType.KEY_UP];
 
 class _EventListenerVector {
     public gt0Index = 0;

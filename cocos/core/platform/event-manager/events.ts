@@ -641,7 +641,7 @@ export class EventKeyboard extends Event {
     constructor (keyCode: any, eventType: SystemEventTypeUnion | boolean, bubbles?: boolean) {
         if (typeof eventType === 'boolean') {
             const isPressed = eventType;
-            eventType = isPressed ? 'keydown' : SystemEventType.KEY_UP;
+            eventType = isPressed ? SystemEventType.KEY_DOWN : SystemEventType.KEY_UP;
         }
         super(eventType, bubbles);
         this._isPressed = eventType !== SystemEventType.KEY_UP;

@@ -433,11 +433,12 @@ class InputManager {
     }
 
     private _registerKeyboardEvent () {
-        input._keyboard.onDown((inputEvent) => {
-            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, SystemEventType.KEY_DOWN));
-        });
+        // TODO: to support in Input Module
+        // input._keyboard.onDown((inputEvent) => {
+        //     eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, 'keypress'));
+        // });
         input._keyboard.onPressing((inputEvent)  => {
-            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, 'keydown'));
+            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, SystemEventType.KEY_DOWN));
         });
         input._keyboard.onUp((inputEvent)  => {
             eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, SystemEventType.KEY_UP));

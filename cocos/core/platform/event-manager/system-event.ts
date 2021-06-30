@@ -131,14 +131,13 @@ export class SystemEvent extends EventTarget {
         super.on(type, callback, target, once);
 
         // Keyboard
-        if (type === SystemEventType.KEY_DOWN || type === 'keydown' || type === SystemEventType.KEY_UP) {
+        if (type === SystemEventType.KEY_DOWN || type === SystemEventType.KEY_UP) {
             if (!keyboardListener) {
                 keyboardListener = EventListener.create({
                     event: EventListener.KEYBOARD,
                     onKeyDown (keyCode: number, event: EventKeyboard) {
                         systemEvent.emit(event.type, event);
                     },
-                    // deprecated
                     onKeyPressed (keyCode: number, event: EventKeyboard) {
                         systemEvent.emit(event.type, event);
                     },
@@ -237,11 +236,12 @@ export class SystemEvent extends EventTarget {
         super.off(type, callback, target);
 
         // Keyboard
-        if (keyboardListener && (type === SystemEventType.KEY_DOWN || type === 'keydown' || type === SystemEventType.KEY_UP)) {
-            const hasKeyDownEventListener = this.hasEventListener(SystemEventType.KEY_DOWN);
-            const hasKeyPressingEventListener = this.hasEventListener('keydown');  // SystemEventType.KEY_DOWN
+        if (keyboardListener && (type === SystemEventType.KEY_DOWN || type === SystemEventType.KEY_UP)) {
+            // const hasKeyDownEventListener = this.hasEventListener('keypress');
+            const hasKeyPressingEventListener = this.hasEventListener(SystemEventType.KEY_DOWN);
             const hasKeyUpEventListener = this.hasEventListener(SystemEventType.KEY_UP);
-            if (!hasKeyDownEventListener && !hasKeyPressingEventListener && !hasKeyUpEventListener) {
+            // if (!hasKeyDownEventListener && !hasKeyPressingEventListener && !hasKeyUpEventListener) {
+            if (!hasKeyPressingEventListener && !hasKeyUpEventListener) {
                 eventManager.removeListener(keyboardListener);
                 keyboardListener = null;
             }

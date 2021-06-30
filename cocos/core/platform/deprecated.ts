@@ -210,18 +210,6 @@ removeProperty(sys, 'sys',
         name: item,
     })));
 
-// deprecate KEY event
-markAsWarning(SystemEventType, 'SystemEventType', [
-    {
-        name: 'KEY_DOWN',
-        suggest: 'please use SystemEvent.EventType.KEY_DOWN instead. The SystemEventType.KEY_DOWN event will be continuously dispatched in the key pressed state, it\'s not a good API design for developers.',
-    },
-    {
-        name: 'KEY_UP',
-        suggest: 'please use SystemEvent.EventType.KEY_UP instead.',
-    },
-]);
-
 replaceProperty(SystemEventType, 'SystemEventType', [
     'MOUSE_ENTER',
     'MOUSE_LEAVE',
@@ -245,18 +233,18 @@ replaceProperty(SystemEventType, 'SystemEventType', [
 replaceProperty(Node.EventType, 'Node.EventType', [
     {
         name: 'DEVICEMOTION',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
     {
         name: 'KEY_DOWN',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
     {
         name: 'KEY_UP',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 

@@ -134,14 +134,12 @@ export enum SystemEventType {
     /**
      * @en The event type for press the key down event, the event will be continuously dispatched in the key pressed state
      * @zh 当按下按键时触发的事件, 该事件在按下状态会持续派发
-     * @deprecated since v3.3, please use SystemEvent.EventType.KEY_DOWN instead. The SystemEventType.KEY_DOWN event will be continuously dispatched in the key pressed state, it's not a good API design for developers.
      */
     KEY_DOWN = 'keydown',
 
     /**
      * @en The event type for press the key up event
      * @zh 当松开按键时触发的事件
-     * @deprecated since v3.3, please use SystemEvent.EventType.KEY_UP instead
      */
     KEY_UP = 'keyup',
 
@@ -280,6 +278,6 @@ export enum SystemEventType {
 
 ccenum(SystemEventType);
 
-export type SystemEventTypeUnion = SystemEventType | 'keydown' | NodeEventType;
+export type SystemEventTypeUnion = SystemEventType | NodeEventType;
 
 legacyCC.SystemEventType = SystemEventType;

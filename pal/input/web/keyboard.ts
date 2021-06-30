@@ -125,13 +125,12 @@ export class KeyboardInputSource {
         canvas?.addEventListener('keydown', (event: any) => {
             event.stopPropagation();
             event.preventDefault();
-            if (!event.repeat) {
-                const keyDownInputEvent = this._getInputEvent(event, SystemEventType.KEY_DOWN);
-                this._eventTarget.emit(SystemEventType.KEY_DOWN, keyDownInputEvent);
-            }
-            // @ts-expect-error Compability for key pressing callback
-            const keyPressingInputEvent = this._getInputEvent(event, 'keydown');
-            this._eventTarget.emit('keydown', keyPressingInputEvent);
+            // if (!event.repeat) {
+            //     const keyDownInputEvent = this._getInputEvent(event, 'keypress');
+            //     this._eventTarget.emit('keypress', keyDownInputEvent);
+            // }
+            const keyPressingInputEvent = this._getInputEvent(event, SystemEventType.KEY_DOWN);
+            this._eventTarget.emit(SystemEventType.KEY_DOWN, keyPressingInputEvent);
         });
         canvas?.addEventListener('keyup', (event: any) => {
             const inputEvent = this._getInputEvent(event, SystemEventType.KEY_UP);
@@ -152,11 +151,11 @@ export class KeyboardInputSource {
     }
 
     public onDown (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
+        this._eventTarget.on('keypress', cb);
     }
 
     public onPressing (cb: KeyboardCallback) {
-        this._eventTarget.on('keydown', cb);
+        this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
     }
 
     public onUp (cb: KeyboardCallback) {
