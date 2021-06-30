@@ -28,7 +28,8 @@
  * @hidden
  */
 
-import { Color, Vec3, Mat4 } from '../core/math';
+import { Mat3 } from '@cocos/cannon';
+import { Color, Vec3, Mat4, Quat } from '../core/math';
 import { ParticleSystem } from './particle-system';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 
@@ -41,6 +42,11 @@ export class Particle {
     public angularVelocity: Vec3;
     public axisOfRotation: Vec3;
     public rotation: Vec3;
+    public startEuler: Vec3;
+    public startRotation: Quat;
+    public deletaQuat: Quat;
+    public deletaMat: Mat4;
+    public localMat: Mat4;
     public startSize: Vec3;
     public size: Vec3;
     public startColor: Color;
@@ -62,6 +68,11 @@ export class Particle {
         this.angularVelocity = new Vec3(0, 0, 0);
         this.axisOfRotation = new Vec3(0, 0, 0);
         this.rotation = new Vec3(0, 0, 0);
+        this.startEuler = new Vec3(0, 0, 0);
+        this.startRotation = new Quat();
+        this.deletaQuat = new Quat();
+        this.deletaMat = new Mat4();
+        this.localMat = new Mat4();
         this.startSize = new Vec3(0, 0, 0);
         this.size = new Vec3(0, 0, 0);
         this.startColor = Color.WHITE.clone();
@@ -73,6 +84,15 @@ export class Particle {
         this.emitAccumulator1 = 0.0;
         this.frameIndex = 0.0;
         this.startRow = 0;
+    }
+
+    public reset () {
+        this.rotation.set(0, 0, 0);
+        this.startEuler.set(0, 0, 0);
+        this.startRotation.set(0, 0, 0, 1);
+        this.deletaQuat.set(0, 0, 0, 1);
+        this.deletaMat.identity();
+        this.localMat.identity();
     }
 }
 

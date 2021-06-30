@@ -33,6 +33,7 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
+import { Mat3, Particle } from '@cocos/cannon';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
@@ -49,7 +50,7 @@ import TextureAnimationModule from './animator/texture-animation';
 import VelocityOvertimeModule from './animator/velocity-overtime';
 import Burst from './burst';
 import ShapeModule from './emitter/shape-module';
-import { Space } from './enum';
+import { RenderMode, Space } from './enum';
 import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
@@ -69,6 +70,8 @@ const superMaterials = Object.getOwnPropertyDescriptor(RenderableComponent.proto
 @executionOrder(99)
 @executeInEditMode
 export class ParticleSystem extends RenderableComponent {
+    public static INDENTIFY_NEG_QUAT = 10;
+
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */
@@ -827,8 +830,36 @@ export class ParticleSystem extends RenderableComponent {
         }
     }
 
+    private _processRotation (particle) {
+        if (this.processor.getInfo().renderMode !== RenderMode.Mesh) {
+            if (this.processor.getInfo().renderMode === RenderMode.Billboard) {
+                particle.startEuler.set(particle.startEuler.x, particle.startEuler.y, particle.startEuler.z);
+            } else if (this.processor.getInfo().renderMode === RenderMode.StrecthedBillboard) {
+                particle.startEuler.set(0, 0, 0);
+            } else {
+                particle.startEuler.set(0, 0, particle.startEuler.z);
+            }
+        }
+
+        const r2d = 180.0 / Math.PI;
+        Quat.fromEuler(particle.startRotation, particle.startEuler.x * r2d, particle.startEuler.y * r2d, particle.startEuler.z * r2d);
+        particle.startRotation = Quat.normalize(particle.startRotation, particle.startRotation);
+
+        if (particle.startRotation.w < 0.0) {
+            particle.startRotation.x += ParticleSystem.INDENTIFY_NEG_QUAT; // Indentify negative w
+        }
+    }
+
     private emit (count: number, dt: number) {
         const delta = this._time / this.duration;
+
+        // refresh particle node position to update emit position
+        if (this._needRefresh) {
+            // this.node.setPosition(this.node.getPosition());
+            this.node.invalidateChildren(TransformBit.POSITION);
+
+            this._needRefresh = false;
+        }
 
         if (this._simulationSpace === Space.World) {
             this.node.getWorldMatrix(_world_mat);
@@ -840,6 +871,9 @@ export class ParticleSystem extends RenderableComponent {
             if (particle === null) {
                 return;
             }
+            particle.particleSystem = this;
+            particle.reset();
+
             const rand = pseudoRandom(randomRangeInt(0, INT_MAX));
 
             if (this._shapeModule && this._shapeModule.enable) {
@@ -868,11 +902,14 @@ export class ParticleSystem extends RenderableComponent {
             Vec3.copy(particle.ultimateVelocity, particle.velocity);
             // apply startRotation.
             if (this.startRotation3D) {
-                Vec3.set(particle.rotation, this.startRotationX.evaluate(delta, rand)!,
-                    this.startRotationY.evaluate(delta, rand)!,
-                    this.startRotationZ.evaluate(delta, rand)!);
+                // eslint-disable-next-line max-len
+                particle.startEuler.set(this.startRotationX.evaluate(delta, rand), this.startRotationY.evaluate(delta, rand), this.startRotationZ.evaluate(delta, rand));
+                this._processRotation(particle);
+                Vec3.set(particle.rotation, particle.startRotation.x, particle.startRotation.y, particle.startRotation.z);
             } else {
-                Vec3.set(particle.rotation, 0, 0, this.startRotationZ.evaluate(delta, rand)!);
+                particle.startEuler.set(0, 0, this.startRotationZ.evaluate(delta, rand));
+                this._processRotation(particle);
+                Vec3.set(particle.rotation, particle.startRotation.x, particle.startRotation.y, particle.startRotation.z);
             }
 
             // apply startSize.
@@ -934,14 +971,6 @@ export class ParticleSystem extends RenderableComponent {
             if (this._emitRateTimeCounter > 1 && this._isEmitting) {
                 const emitNum = Math.floor(this._emitRateTimeCounter);
                 this._emitRateTimeCounter -= emitNum;
-
-                // refresh particle node position to update emit position
-                if (this._needRefresh) {
-                    // this.node.setPosition(this.node.getPosition());
-                    this.node.invalidateChildren(TransformBit.POSITION);
-                    this._needRefresh = false;
-                }
-
                 this.emit(emitNum, dt);
             }
 
