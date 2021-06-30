@@ -48,6 +48,7 @@ import { BrowserType } from '../../pal/system/enum-type';
 import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
 import { garbageCollectionManager } from './data/garbage-collection';
+import { ccclass } from './data/decorators';
 
 interface ISceneInfo {
     url: string;
@@ -179,6 +180,7 @@ export interface IGameConfig {
  * @en An object to boot the game.
  * @zh 包含游戏主体信息并负责驱动游戏的游戏对象。
  */
+@ccclass('cc.Game')
 export class Game extends EventTarget {
     /**
      * @en Event triggered when game hide to background.<br>

@@ -7,7 +7,7 @@ import { EDITOR } from 'internal:constants';
 import { Armature, Bone, EventObject } from '@cocos/dragonbones-js';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, EventTarget, CCClass, Color, Enum, ccenum, errorID, Texture2D, js, CCObject, markAsGCRoot } from '../core';
+import { Node, EventTarget, CCClass, Color, Enum, ccenum, errorID, Texture2D, js, CCObject, markAsGCRoot, ReferenceType } from '../core';
 import { BlendFactor } from '../core/gfx';
 import { displayName, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { AnimationCache, ArmatureCache, ArmatureFrame } from './ArmatureCache';
@@ -464,6 +464,7 @@ export class ArmatureDisplay extends Renderable2D {
     protected _displayProxy: CCArmatureDisplay | null = null;
 
     protected _meshRenderDataArray: ArmatureDisplayMeshData[] = [];
+    @markAsGCRoot(ReferenceType.GC_OBJECT_RECORD)
     protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
 
     protected _enumArmatures: any = Enum({});
