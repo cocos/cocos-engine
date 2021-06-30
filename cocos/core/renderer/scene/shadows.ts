@@ -35,6 +35,42 @@ import { NativeShadow } from './native-scene';
 import { Shader } from '../../gfx';
 
 /**
+ * @zh 阴影贴图分辨率。
+ * @en The shadow map size.
+ * @static
+ * @enum Shadows.ShadowSize
+ */
+export const ShadowSize = Enum({
+    /**
+     * @zh 分辨率 256 * 256。
+     * @en shadow resolution 256 * 256.
+     * @readonly
+     */
+    Low_256x256: 256,
+
+    /**
+     * @zh 分辨率 512 * 512。
+     * @en shadow resolution 512 * 512.
+     * @readonly
+     */
+    Medium_512x512: 512,
+
+    /**
+     * @zh 分辨率 1024 * 1024。
+     * @en shadow resolution 1024 * 1024.
+     * @readonly
+     */
+    High_1024x1024: 1024,
+
+    /**
+     * @zh 分辨率 2048 * 2048。
+     * @en shadow resolution 2048 * 2048.
+     * @readonly
+     */
+    Ultra_2048x2048: 2048,
+});
+
+/**
  * @zh 阴影类型。
  * @en The shadow type
  * @enum Shadows.ShadowType
@@ -61,7 +97,7 @@ export const ShadowType = Enum({
  * @zh pcf阴影等级。
  * @en The pcf type
  * @static
- * @enum Shadows.ShadowType
+ * @enum Shadows.PCFType
  */
 export const PCFType = Enum({
     /**
@@ -200,20 +236,6 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow camera aspect.
-     * @zh 获取或者设置阴影相机的宽高比。
-     */
-    public get aspect (): number {
-        return this._aspect;
-    }
-    public set aspect (val: number) {
-        this._aspect = val;
-        if (JSB) {
-            this._nativeObj!.aspect = val;
-        }
-    }
-
-    /**
      * @en get or set shadow camera orthoSize.
      * @zh 获取或者设置阴影相机正交大小。
      */
@@ -235,7 +257,7 @@ export class Shadows {
         return this._size;
     }
     public set size (val: Vec2) {
-        this._size = val;
+        this._size.set(val);
         if (JSB) {
             this._nativeObj!.size = val;
         }
@@ -284,48 +306,6 @@ export class Shadows {
     }
 
     /**
-     * @en on or off packing depth.
-     * @zh 打开或者关闭深度压缩。
-     */
-    public get packing (): boolean {
-        return this._packing;
-    }
-    public set packing (val: boolean) {
-        this._packing = val;
-        if (JSB) {
-            this._nativeObj!.packing = val;
-        }
-    }
-
-    /**
-     * @en on or off linear depth.
-     * @zh 打开或者关闭线性深度。
-     */
-    public get linear (): boolean {
-        return this._linear;
-    }
-    public set linear (val: boolean) {
-        this._linear = val;
-        if (JSB) {
-            this._nativeObj!.linear = val;
-        }
-    }
-
-    /**
-     * @en on or off Self-shadowing.
-     * @zh 打开或者关闭自阴影。
-     */
-    public get selfShadow (): boolean {
-        return this._selfShadow;
-    }
-    public set selfShadow (val: boolean) {
-        this._selfShadow = val;
-        if (JSB) {
-            this._nativeObj!.selfShadow = val;
-        }
-    }
-
-    /**
      * @en get or set normal bias.
      * @zh 设置或者获取法线偏移。
      */
@@ -336,6 +316,20 @@ export class Shadows {
         this._normalBias = val;
         if (JSB) {
             this._nativeObj!.normalBias = val;
+        }
+    }
+
+    /**
+     * @en get or set normal bias.
+     * @zh 设置或者获取法线偏移。
+     */
+    public get saturation (): number {
+        return this._saturation;
+    }
+    public set saturation (val: number) {
+        this._saturation = val;
+        if (JSB) {
+            this._nativeObj!.saturation = val;
         }
     }
 
@@ -388,16 +382,13 @@ export class Shadows {
     protected _type = SHADOW_TYPE_NONE;
     protected _near = 0;
     protected _far = 0;
-    protected _aspect = 1;
     protected _orthoSize = 1;
     protected _pcf = 0;
     protected _shadowMapDirty = false;
-    protected _packing = false;
     protected _bias = 0;
-    protected _linear = false;
-    protected _selfShadow = false;
     protected _normalBias = 0;
-    protected _autoAdapt = false;
+    protected _autoAdapt = true;
+    protected _saturation = 0.75;
     protected declare _nativeObj: NativeShadow | null;
 
     get native (): NativeShadow {
@@ -452,22 +443,19 @@ export class Shadows {
     public initialize (shadowsInfo: ShadowsInfo) {
         this.near = shadowsInfo.near;
         this.far = shadowsInfo.far;
-        this.aspect = shadowsInfo.aspect;
         this.orthoSize = shadowsInfo.orthoSize;
-        this.size = shadowsInfo.shadowMapSize;
+        this.size = shadowsInfo.size;
         this.pcf = shadowsInfo.pcf;
         this.normal = shadowsInfo.normal;
         this.distance = shadowsInfo.distance;
         this.shadowColor = shadowsInfo.shadowColor;
         this.bias = shadowsInfo.bias;
-        this.packing = shadowsInfo.packing;
-        this.linear = shadowsInfo.linear;
-        this.selfShadow = shadowsInfo.selfShadow;
         this.normalBias = shadowsInfo.normalBias;
         this.maxReceived = shadowsInfo.maxReceived;
         this.autoAdapt = shadowsInfo.autoAdapt;
         this._setEnable(shadowsInfo.enabled);
         this._setType(shadowsInfo.type);
+        this._saturation = shadowsInfo.saturation;
     }
 
     public activate () {

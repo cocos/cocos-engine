@@ -218,21 +218,18 @@ export const NativeShadow: Constructor<{
     color: Color;
     nearValue: number;
     farValue: number;
-    aspect: number;
     orthoSize: number;
     size: Vec2;
     pcfType: number;
     shadowMapDirty: boolean;
     bias: number;
-    packing: boolean;
-    linear: boolean;
-    selfShadow: boolean;
     normalBias: number;
     autoAdapt: boolean;
     planarPass: NativePass;
     instancePass: NativePass;
     enabled: boolean;
     shadowType: number;
+    saturation: number;
 }> = null!;
 export type NativeShadow = InstanceType<typeof NativeShadow>;
 

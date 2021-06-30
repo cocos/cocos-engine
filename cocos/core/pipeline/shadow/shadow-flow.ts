@@ -88,15 +88,16 @@ export class ShadowFlow extends RenderFlow {
             return;
         }
 
+        if (shadowInfo.shadowMapDirty) { this.resizeShadowMap(); }
+
         for (let l = 0; l < validLights.length; l++) {
             const light = validLights[l];
 
             if (!shadowFrameBufferMap.has(light)) {
                 this._initShadowFrameBuffer(pipeline, light);
             }
-            const shadowFrameBuffer = shadowFrameBufferMap.get(light);
-            if (shadowInfo.shadowMapDirty) { this.resizeShadowMap(light, shadowInfo); }
 
+            const shadowFrameBuffer = shadowFrameBufferMap.get(light);
             for (let i = 0; i < this._stages.length; i++) {
                 const shadowStage = this._stages[i] as ShadowStage;
                 shadowStage.setUsage(light, shadowFrameBuffer!);
@@ -140,8 +141,7 @@ export class ShadowFlow extends RenderFlow {
         const shadows = pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = supportsHalfFloatTexture(device) ? (
-            shadows.packing ? Format.RGBA8 : Format.RGBA16F) : Format.RGBA8;
+        const format = supportsHalfFloatTexture(device) ? Format.RGBA16F : Format.RGBA8I;
 
         if (!this._shadowRenderPass) {
             const colorAttachment = new ColorAttachment();
@@ -205,31 +205,34 @@ export class ShadowFlow extends RenderFlow {
         }
     }
 
-    private resizeShadowMap (light: Light, shadowInfo: Shadows) {
-        const width = shadowInfo.size.x;
-        const height = shadowInfo.size.y;
+    private resizeShadowMap () {
+        const shadows = this._pipeline.pipelineSceneData.shadows;
+        const shadowMapSize = shadows.size;
         const pipeline = this._pipeline;
         const device = pipeline.device;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = supportsHalfFloatTexture(device) ? (
-            shadowInfo.packing ? Format.RGBA8 : Format.RGBA16F) : Format.RGBA8;
+        const format = supportsHalfFloatTexture(device) ? Format.RGBA16F : Format.RGBA8I;
 
-        if (shadowFrameBufferMap.has(light)) {
-            const frameBuffer = shadowFrameBufferMap.get(light);
-
-            if (!frameBuffer) { return; }
+        const it = shadowFrameBufferMap.values();
+        let res = it.next();
+        while (!res.done) {
+            const frameBuffer = res.value;
+            if (!frameBuffer) {
+                res = it.next();
+                continue;
+            }
 
             const renderTargets: Texture[] = [];
             renderTargets.push(pipeline.device.createTexture(new TextureInfo(
                 TextureType.TEX2D,
                 TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
                 format,
-                width,
-                height,
+                shadowMapSize.x,
+                shadowMapSize.y,
             )));
 
             const depth = frameBuffer.depthStencilTexture;
-            if (depth) { depth.resize(width, height); }
+            if (depth) { depth.resize(shadowMapSize.x, shadowMapSize.y); }
 
             const shadowRenderPass = frameBuffer.renderPass;
             frameBuffer.destroy();
@@ -238,8 +241,10 @@ export class ShadowFlow extends RenderFlow {
                 renderTargets,
                 depth,
             ));
+
+            res = it.next();
         }
 
-        shadowInfo.shadowMapDirty = false;
+        shadows.shadowMapDirty = false;
     }
 }
