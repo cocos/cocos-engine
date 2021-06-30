@@ -519,6 +519,7 @@ const uiElements = {
                 if (prop.dump.visible) {
                     element.render(prop.dump);
                 }
+                element.hidden = !prop.dump.visible;
             }));
         },
     },

@@ -468,6 +468,7 @@ export class Node extends BaseNode {
 
         this.hasChangedFlags = TransformBit.TRS;
         this._dirtyFlags = TransformBit.TRS;
+        this._uiProps.uiTransformDirty = true;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -583,14 +584,6 @@ export class Node extends BaseNode {
         this.setWorldRotation(q_a);
     }
 
-    // ===============================
-    // transform maintainer
-    // ===============================
-
-    private _roundTime = 2000;
-    private _invalidFrame = 0;
-    private _updateFrame = 0;
-
     /**
      * @en Invalidate the world transform information
      * for this node and all its children recursively
@@ -609,6 +602,7 @@ export class Node extends BaseNode {
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
                 cur._dirtyFlags |= dirtyBit;
+                cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
                 // cur.hasChangedFlags = hasChangedFlags | dirtyBit;
                 cur._hasChangedFlagsChunk[cur._hasChangedFlagsOffset] = hasChangedFlags | dirtyBit;
                 const children = cur._children;
@@ -653,13 +647,7 @@ export class Node extends BaseNode {
                     childLPos = child._lpos;
                     childRot = child._rot;
 
-                    if (childRot.x === 0 && childRot.y === 0 && childRot.z === 0 && childRot.w === 1) {
-                        childPos.x = curMat.m12 + childLPos.x;
-                        childPos.y = curMat.m13 + childLPos.y;
-                        childPos.z = curMat.m14 + childLPos.z;
-                    } else {
-                        Vec3.transformMat4(childPos, childLPos, curMat);
-                    }
+                    Vec3.transformMat4(childPos, childLPos, curMat);
 
                     childMat.m12 = childPos.x;
                     childMat.m13 = childPos.y;
@@ -763,7 +751,7 @@ export class Node extends BaseNode {
      * @zh 用四元数设置本地旋转
      * @param rotation Rotation in quaternion
      */
-    public setRotation (rotation: Quat): void;
+    public setRotation (rotation: Readonly<Quat>): void;
 
     /**
      * @en Set rotation in local coordinate system with a quaternion representing the rotation
@@ -775,9 +763,9 @@ export class Node extends BaseNode {
      */
     public setRotation (x: number, y: number, z: number, w: number): void;
 
-    public setRotation (val: Quat | number, y?: number, z?: number, w?: number) {
+    public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
-            Quat.copy(this._lrot, val as Quat);
+            Quat.copy(this._lrot, val as Readonly<Quat>);
         } else {
             Quat.set(this._lrot, val as number, y, z, w);
         }
