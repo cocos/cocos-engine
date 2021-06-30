@@ -10,7 +10,7 @@ import SkeletonCache, { AnimationCache, AnimationFrame } from './skeleton-cache'
 import { AttachUtil } from './attach-util';
 import { ccclass, executeInEditMode, help, menu } from '../core/data/class-decorator';
 import { Renderable2D } from '../2d/framework/renderable-2d';
-import { Node, CCClass, CCObject, Color, Enum, Material, Texture2D, builtinResMgr, ccenum, errorID, logID, warn, markAsGCRoot } from '../core';
+import { Node, CCClass, CCObject, Color, Enum, Material, Texture2D, builtinResMgr, ccenum, errorID, logID, warn, markAsGCRoot, ReferenceType } from '../core';
 import { displayName, displayOrder, editable, override, serializable, tooltip, type, visible } from '../core/data/decorators';
 import { SkeletonData } from './skeleton-data';
 import { VertexEffectDelegate } from './vertex-effect-delegate';
@@ -478,6 +478,7 @@ export class Skeleton extends Renderable2D {
     public _endEntry;
     public attachUtil: AttachUtil;
 
+    @markAsGCRoot(ReferenceType.GC_OBJECT_RECORD)
     protected _materialCache: { [key: string]: MaterialInstance } = {} as any;
     protected _enumSkins: any = Enum({});
     protected _enumAnimations: any = Enum({});
