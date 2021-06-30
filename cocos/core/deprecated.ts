@@ -283,38 +283,38 @@ markAsWarning(game, 'game', [
 
 removeProperty(Director.prototype, 'director', [
     {
-        name: 'calculateDeltaTime'
+        name: 'calculateDeltaTime',
     },
     {
         name: 'setAnimationInterval',
-        suggest: 'please use game.setFrameRate instead'
+        suggest: 'please use game.setFrameRate instead',
     },
     {
         name: 'getAnimationInterval',
-        suggest: 'please use game.getFrameRate instead'
+        suggest: 'please use game.getFrameRate instead',
     },
     {
         name: 'getRunningScene',
-        suggest: 'please use getScene instead'
+        suggest: 'please use getScene instead',
     },
     {
         name: 'setDepthTest',
-        suggest: 'please use camera API instead'
+        suggest: 'please use camera API instead',
     },
     {
         name: 'setClearColor',
-        suggest: 'please use camera API instead'
+        suggest: 'please use camera API instead',
     },
     {
         name: 'getWinSize',
-        suggest: 'please use cc.winSize instead'
+        suggest: 'please use cc.winSize instead',
     },
     {
-        name: 'getWinSizeInPixel'
+        name: 'getWinSizeInPixel',
     },
     {
         name: 'purgeCachedData',
-        suggest: 'please use assetManager.releaseAll instead'
+        suggest: 'please use assetManager.releaseAll instead',
     },
 ]);
 replaceProperty(Director.prototype, 'director', [

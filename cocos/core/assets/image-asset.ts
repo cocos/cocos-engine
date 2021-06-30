@@ -90,6 +90,7 @@ export class ImageAsset extends Asset {
 
     set _nativeAsset (value: ImageSource) {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
+            // @ts-expect-error internal API usage
             value.format = value.format || this._format;
         }
         this.reset(value);

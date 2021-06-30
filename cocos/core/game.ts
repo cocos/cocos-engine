@@ -330,7 +330,7 @@ export class Game extends EventTarget {
 
     private _intervalId: number | null = null; // interval target of main
 
-    private _deltaTime: number = 0;
+    private _deltaTime = 0.0;
     private declare _initTime: number;
     private declare _startTime: number;
     private declare _frameTime: number;
@@ -365,7 +365,6 @@ export class Game extends EventTarget {
     public getFrameRate (): number {
         return this.config.frameRate || 0;
     }
-
 
     /**
      * @en Returns the delta time since last frame.
