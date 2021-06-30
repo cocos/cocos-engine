@@ -133,7 +133,6 @@ export class KeyboardInputSource {
                 const keyDownInputEvent = this._getInputEvent(res, SystemEventType.KEY_PRESS);
                 this._eventTarget.emit(SystemEventType.KEY_PRESS, keyDownInputEvent);
             }
-            // @ts-expect-error Compability for key pressing callback
             const keyPressingInputEvent = this._getInputEvent(res, SystemEventType.KEY_DOWN);
             this._eventTarget.emit(SystemEventType.KEY_DOWN, keyPressingInputEvent);
             this._keyStateMap[keyCode] = true;
