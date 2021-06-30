@@ -320,8 +320,8 @@ export class Shadows {
     }
 
     /**
-     * @en get or set normal bias.
-     * @zh 设置或者获取法线偏移。
+     * @en get or set shadow saturation.
+     * @zh 设置或者获取阴影饱和度。
      */
     public get saturation (): number {
         return this._saturation;
@@ -455,7 +455,7 @@ export class Shadows {
         this.autoAdapt = shadowsInfo.autoAdapt;
         this._setEnable(shadowsInfo.enabled);
         this._setType(shadowsInfo.type);
-        this._saturation = shadowsInfo.saturation;
+        this.saturation = shadowsInfo.saturation;
     }
 
     public activate () {

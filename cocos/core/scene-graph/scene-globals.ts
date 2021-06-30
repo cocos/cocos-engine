@@ -494,10 +494,11 @@ export class ShadowsInfo {
     set saturation (val: number) {
         if (val > 1.0) {
             this._saturation = val / val;
+            if (this._resource) { this._resource.saturation = val / val; }
         } else {
             this._saturation = val;
+            if (this._resource) { this._resource.saturation = val; }
         }
-        if (this._resource) { this._resource.saturation = val; }
     }
     get saturation () {
         return this._saturation;
