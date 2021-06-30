@@ -43,23 +43,22 @@ export class KeyboardInputSource {
         jsb.onKeyDown = (event: jsb.KeyboardEvent) => {
             const keyCode = getKeyCode(event.keyCode);
             if (!this._keyStateMap[keyCode]) {
-                const keyDownInputEvent = this._getInputEvent(event, SystemEventType.KEY_DOWN);
-                this._eventTarget.emit(SystemEventType.KEY_DOWN, keyDownInputEvent);
+                const keyDownInputEvent = this._getInputEvent(event, SystemEventType.KEY_PRESS);
+                this._eventTarget.emit(SystemEventType.KEY_PRESS, keyDownInputEvent);
             }
-            // @ts-expect-error Compability for key pressing callback
-            const keyPressingInputEvent = this._getInputEvent(event, 'keydown');
-            this._eventTarget.emit('keydown', keyPressingInputEvent);
+            const keyPressingInputEvent = this._getInputEvent(event, SystemEventType.KEY_DOWN);
+            this._eventTarget.emit(SystemEventType.KEY_DOWN, keyPressingInputEvent);
             this._keyStateMap[keyCode] = true;
         };
         jsb.onKeyUp =  (event: jsb.KeyboardEvent) => {
             const keyCode = getKeyCode(event.keyCode);
             const inputEvent: KeyboardInputEvent = {
-                type: SystemEventType.KEY_UP,
+                type: SystemEventType.KEY_RELEASE,
                 code: keyCode,
                 timestamp: performance.now(),
             };
             this._keyStateMap[keyCode] = false;
-            this._eventTarget.emit(SystemEventType.KEY_UP, inputEvent);
+            this._eventTarget.emit(SystemEventType.KEY_RELEASE, inputEvent);
         };
     }
 
@@ -74,14 +73,14 @@ export class KeyboardInputSource {
     }
 
     public onDown (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
+        this._eventTarget.on(SystemEventType.KEY_PRESS, cb);
     }
 
     public onPressing (cb: KeyboardCallback) {
-        this._eventTarget.on('keydown', cb);
+        this._eventTarget.on(SystemEventType.KEY_DOWN, cb);
     }
 
     public onUp (cb: KeyboardCallback) {
-        this._eventTarget.on(SystemEventType.KEY_UP, cb);
+        this._eventTarget.on(SystemEventType.KEY_RELEASE, cb);
     }
 }

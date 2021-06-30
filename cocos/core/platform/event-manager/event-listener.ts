@@ -497,8 +497,8 @@ export class AccelerationEventListener extends EventListener {
 
 // Keyboard
 export class KeyboardEventListener extends EventListener {
+    public onKeyPressed?: Function = undefined;
     public onKeyDown?: Function = undefined;
-    public onKeyPressed?: Function = undefined;  // deprecated
     public onKeyReleased?: Function = undefined;
 
     constructor () {
@@ -508,13 +508,13 @@ export class KeyboardEventListener extends EventListener {
 
     public _callback (event: EventKeyboard) {
         switch (event.type) {
+        case SystemEventType.KEY_PRESS:
+            this.onKeyPressed?.(event.keyCode, event);
+            break;
         case SystemEventType.KEY_DOWN:
             this.onKeyDown?.(event.keyCode, event);
             break;
-        case 'keydown':  // SystemEventType.KEY_DOWN
-            this.onKeyPressed?.(event.keyCode, event);
-            break;
-        case SystemEventType.KEY_UP:
+        case SystemEventType.KEY_RELEASE:
             this.onKeyReleased?.(event.keyCode, event);
             break;
         default:

@@ -620,7 +620,7 @@ export class EventKeyboard extends Event {
      * @en Indicates whether the current key is being pressed
      * @zh 表示当前按键是否正在被按下
      *
-     * @deprecated since v3.3, please use Event.prototype.type !== SystemEvent.EventType.KEY_UP instead
+     * @deprecated since v3.3, please use Event.prototype.type !== SystemEvent.EventType.KEY_RELEASE instead
      */
     public get isPressed () {
         return this._isPressed;
@@ -630,6 +630,7 @@ export class EventKeyboard extends Event {
      * @param keyCode - The key code of the current key or the DOM KeyboardEvent
      * @param isPressed - Indicates whether the current key is being pressed, this is the DEPRECATED parameter.
      * @param bubbles - Indicates whether the event bubbles up through the hierarchy or not.
+     * @deprecated since v3.3
      */
     constructor (keyCode: number | KeyboardEvent, isPressed: boolean, bubbles?: boolean);
     /**
@@ -641,10 +642,12 @@ export class EventKeyboard extends Event {
     constructor (keyCode: any, eventType: SystemEventTypeUnion | boolean, bubbles?: boolean) {
         if (typeof eventType === 'boolean') {
             const isPressed = eventType;
-            eventType = isPressed ? 'keydown' : SystemEventType.KEY_UP;
+            // compatible with legacy implementation
+            eventType = isPressed ? SystemEventType.KEY_DOWN : SystemEventType.KEY_RELEASE;
         }
         super(eventType, bubbles);
-        this._isPressed = eventType !== SystemEventType.KEY_UP;
+        // compatible with legacy implementation
+        this._isPressed = eventType !== SystemEventType.KEY_RELEASE;
 
         if (typeof keyCode === 'number') {
             this.keyCode = keyCode;
