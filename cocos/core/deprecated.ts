@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { replaceProperty, removeProperty } from './utils/x-deprecated';
+import { replaceProperty, removeProperty, markAsWarning } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
 import { EventTouch } from './platform/event-manager/events';
@@ -282,10 +282,25 @@ markAsWarning(game, 'game', [
 
 // Director
 
-removeProperty(Director.prototype, 'director', [
+markAsWarning(Director.prototype, 'director', [
     {
         name: 'calculateDeltaTime',
     },
+    {
+        name: 'getDeltaTime',
+        suggest: 'Use game.getDeltaTime instead',
+    },
+    {
+        name: 'getTotalTime',
+        suggest: 'Use game.getDeltaTime instead',
+    },
+    {
+        name: 'getCurrentTime',
+        suggest: 'Use game.getFrameStartTime instead',
+    },
+]);
+
+removeProperty(Director.prototype, 'director', [
     {
         name: 'setAnimationInterval',
         suggest: 'please use game.setFrameRate instead',
@@ -308,7 +323,7 @@ removeProperty(Director.prototype, 'director', [
     },
     {
         name: 'getWinSize',
-        suggest: 'please use cc.winSize instead',
+        suggest: 'please use view.getVisibleSize instead',
     },
     {
         name: 'getWinSizeInPixels',
@@ -316,25 +331,5 @@ removeProperty(Director.prototype, 'director', [
     {
         name: 'purgeCachedData',
         suggest: 'please use assetManager.releaseAll instead',
-    },
-]);
-replaceProperty(Director.prototype, 'director', [
-    {
-        name: 'getDeltaTime',
-        newName: 'getDeltaTime',
-        target: game,
-        targetName: 'game',
-    },
-    {
-        name: 'getTotalTime',
-        newName: 'getTotalTime',
-        target: game,
-        targetName: 'game',
-    },
-    {
-        name: 'getCurrentTime',
-        newName: 'getFrameStartTime',
-        target: game,
-        targetName: 'game',
     },
 ]);

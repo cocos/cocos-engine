@@ -289,6 +289,13 @@ export class Director extends EventTarget {
     }
 
     /**
+     * @en Calculates delta time since last time it was called, the result is saved to an internal property.
+     * @zh 计算从上一帧到现在的时间间隔，结果保存在私有属性中
+     * @deprecated since v3.3.0 no need to use it anymore
+     */
+    public calculateDeltaTime (now) {}
+
+    /**
      * @en
      * Converts a view coordinate to an WebGL coordinate<br/>
      * Useful to convert (multi) touches coordinates to the current layout (portrait or landscape)<br/>
@@ -635,6 +642,33 @@ export class Director extends EventTarget {
      */
     public getScene (): Scene | null {
         return this._scene;
+    }
+
+    /**
+     * @en Returns the delta time since last frame.
+     * @zh 获取上一帧的增量时间。
+     * @deprecated since v3.3.0, please use game.getDeltaTime() instead
+     */
+    public getDeltaTime () {
+        return game.getDeltaTime();
+    }
+
+    /**
+     * @en Returns the total passed time since game start, unit: ms
+     * @zh 获取从游戏开始到现在总共经过的时间，单位为 ms
+     * @deprecated since v3.3.0, please use game.getTotalTime() instead
+     */
+    public getTotalTime () {
+        return game.getTotalTime();
+    }
+
+    /**
+     * @en Returns the current time.
+     * @zh 获取当前帧的时间。
+     * @deprecated since v3.3.0, please use game.getFrameStartTime() instead
+     */
+    public getCurrentTime () {
+        return game.getFrameStartTime();
     }
 
     /**
