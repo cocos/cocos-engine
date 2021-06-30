@@ -1,7 +1,7 @@
 import { assertIsTrue } from '../data/utils/asserts';
 import { approx, lerp, pingPong, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
-import { ccclass, serializable } from '../data/decorators';
+import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
 import { deserializeSymbol, serializeSymbol } from '../data/serialization-symbols';
 import { RealInterpMode, ExtrapMode, TangentWeightMode } from './real-curve-param';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
@@ -11,6 +11,7 @@ import { EditorExtendableMixin } from '../data/editor-extendable';
 export { RealInterpMode, ExtrapMode, TangentWeightMode };
 
 @ccclass('cc.RealKeyframeValue')
+@uniquelyReferenced
 export class RealKeyframeValue {
     constructor ({
         interpMode,

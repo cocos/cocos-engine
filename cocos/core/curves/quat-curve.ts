@@ -3,10 +3,11 @@ import { IQuatLike, pingPong, Quat, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
 import { ExtrapMode } from './curve';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
-import { ccclass, serializable } from '../data/decorators';
+import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
 import { deserializeSymbol, serializeSymbol } from '../data/serialization-symbols';
 
 @ccclass('cc.QuaternionKeyframeValue')
+@uniquelyReferenced
 export class QuaternionKeyframeValue {
     /**
      * Interpolation method used for this keyframe.
