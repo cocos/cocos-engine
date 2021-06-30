@@ -26,7 +26,7 @@
 import { EDITOR } from 'internal:constants';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
-import { Texture2D } from '../../core';
+import { markAsGCRoot, Texture2D } from '../../core';
 import { Component } from '../../core/components';
 import { AttributeName, Format, Attribute } from '../../core/gfx';
 import { Mat4, Vec2, Vec4, Quat } from '../../core/math';
@@ -38,6 +38,7 @@ import { packGradientRange } from '../animator/gradient-range';
 import { Pass } from '../../core/renderer/core/pass';
 import { packCurveRangeXYZ, packCurveRangeZ, packCurveRangeXYZW, packCurveRangeN, packCurveRangeXY } from '../animator/curve-range';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
+import { ccclass } from '../../core/data/decorators';
 
 const _tempWorldTrans = new Mat4();
 const _tempVec4 = new Vec4();
@@ -98,20 +99,27 @@ const _matInsInfo: IMaterialInstanceInfo = {
     owner: null!,
     subModelIdx: 0,
 };
-
+@ccclass('cc.ParticleSystemRendererGPU')
 export default class ParticleSystemRendererGPU extends ParticleSystemRendererBase {
     private _defines: MacroRecord;
     private _frameTile_velLenScale: Vec4;
     private _node_scale: Vec4;
     protected _vertAttrs: Attribute[] = [];
+    @markAsGCRoot
     protected _defaultMat: Material | null = null;
     private _particleNum = 0;
     private _tempParticle: Particle | null = null;
+    @markAsGCRoot
     private _colorTexture: Texture2D | null = null;
+    @markAsGCRoot
     private _forceTexture: Texture2D | null = null;
+    @markAsGCRoot
     private _velocityTexture: Texture2D | null = null;
+    @markAsGCRoot
     private _rotationTexture: Texture2D | null = null;
+    @markAsGCRoot
     private _sizeTexture: Texture2D | null = null;
+    @markAsGCRoot
     private _animTexture: Texture2D | null = null;
     private _uTimeHandle = 0;
     private _uRotHandle = 0;

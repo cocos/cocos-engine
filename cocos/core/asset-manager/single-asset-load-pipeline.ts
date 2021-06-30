@@ -169,7 +169,7 @@ export function loadDepends (task: SingleAssetTask) {
 export function initialize (task: SingleAssetTask) {
     const { input: item, subTask } = task;
     const { uuid, content: asset, id, options } = item;
-    const repeatItem = task.options.__exclude__[uuid]
+    const repeatItem = task.options.__exclude__[uuid];
     const output = Array.isArray(subTask.output) ? subTask.output : [subTask.output];
     const map: Record<string, any> = Object.create(null);
     for (const dependAsset of output) {

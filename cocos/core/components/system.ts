@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { ccclass } from '../data/decorators';
 import { ISchedulable } from '../scheduler';
 import { Enum } from '../value-types/enum';
 
@@ -35,6 +36,7 @@ import { Enum } from '../value-types/enum';
  * @en Base class for all functional system managed by [[Director]].
  * @zh 功能系统的基类，由 [[Director]] 管理。
  */
+@ccclass('cc.System')
 export default class System implements ISchedulable {
     static Priority = Enum({
         LOW: 0,

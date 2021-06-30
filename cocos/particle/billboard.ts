@@ -38,12 +38,14 @@ import { Attribute, AttributeName, Format, PrimitiveMode } from '../core/gfx';
 import { Color, toDegree, toRadian, Vec4 } from '../core/math';
 import { scene } from '../core/renderer';
 import { legacyCC } from '../core/global-exports';
+import { markAsGCRoot } from '../core';
 
 @ccclass('cc.Billboard')
 @help('i18n:cc.Billboard')
 @menu('Effects/Billboard')
 @executeInEditMode
 export class Billboard extends Component {
+    @markAsGCRoot
     @type(Texture2D)
     private _texture = null;
 
@@ -122,8 +124,10 @@ export class Billboard extends Component {
 
     private _model: scene.Model | null = null;
 
+    @markAsGCRoot
     private _mesh: Mesh | null = null;
 
+    @markAsGCRoot
     private _material: Material | null = null;
 
     private _uniform = new Vec4(1, 1, 0, 0);

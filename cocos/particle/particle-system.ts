@@ -585,6 +585,7 @@ export class ParticleSystem extends RenderableComponent {
     @serializable
     private _simulationSpace = Space.Local;
 
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT)
     public processor: IParticleSystemRenderer = null!;
 
     constructor () {

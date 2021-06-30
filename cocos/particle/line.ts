@@ -77,6 +77,7 @@ export class Line extends Component {
 
     @markAsGCRoot
     private _material: Material | null = null;
+    @markAsGCRoot
     private _materialInstance: MaterialInstance | null = null;
 
     @serializable

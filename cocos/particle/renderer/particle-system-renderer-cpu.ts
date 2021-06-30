@@ -33,7 +33,8 @@ import { MacroRecord } from '../../core/renderer/core/pass-utils';
 import { RenderMode, Space } from '../enum';
 import { Particle, IParticleModule, PARTICLE_MODULE_ORDER } from '../particle';
 import { ParticleSystemRendererBase } from './particle-system-renderer-base';
-import { Component } from '../../core';
+import { Component, markAsGCRoot } from '../../core';
+import { ccclass } from '../../core/data/decorators';
 
 const _tempAttribUV = new Vec3();
 const _tempWorldTrans = new Mat4();
@@ -98,14 +99,17 @@ const _matInsInfo: IMaterialInstanceInfo = {
     subModelIdx: 0,
 };
 
+@ccclass('cc.ParticleSystemRendererCPU')
 export default class ParticleSystemRendererCPU extends ParticleSystemRendererBase {
     private _defines: MacroRecord;
     private _trailDefines: MacroRecord;
     private _frameTile_velLenScale: Vec4;
+    @markAsGCRoot
     private _defaultMat: Material | null = null;
     private _node_scale: Vec4;
     private _attrs: any[];
     private _particles: RecyclePool | null = null;
+    @markAsGCRoot
     private _defaultTrailMat: Material | null = null;
     private _updateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();
     private _animateList: Map<string, IParticleModule> = new Map<string, IParticleModule>();

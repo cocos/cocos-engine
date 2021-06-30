@@ -54,6 +54,7 @@ legacyCC.internal.PhysicsGroup = PhysicsGroup;
  * @zh
  * 物理系统。
  */
+@ccclass('cc.PhysicsSystem')
 export class PhysicsSystem extends System {
     static get PHYSICS_NONE () {
         return !selector.id;
@@ -262,6 +263,7 @@ export class PhysicsSystem extends System {
     private _accumulator = 0;
     private _sleepThreshold = 0.1;
     private readonly _gravity = new Vec3(0, -10, 0);
+    @markAsGCRoot
     private readonly _material = new PhysicsMaterial();
 
     private readonly raycastOptions: IRaycastOptions = {
