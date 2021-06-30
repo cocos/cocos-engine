@@ -330,7 +330,6 @@ export class Pass {
      */
     public bindTexture (binding: number, value: Texture, index?: number): void {
         this._descriptorSet.bindTexture(binding, value, index || 0);
-        this._setRootBufferDirty(true);
     }
 
     /**
@@ -341,7 +340,6 @@ export class Pass {
      */
     public bindSampler (binding: number, value: Sampler, index?: number): void {
         this._descriptorSet.bindSampler(binding, value, index || 0);
-        this._setRootBufferDirty(true);
     }
 
     /**
@@ -480,7 +478,6 @@ export class Pass {
         const sampler = samplerLib.getSampler(this._device, samplerHash);
         this._descriptorSet.bindSampler(binding, sampler, index);
         this._descriptorSet.bindTexture(binding, texture, index);
-        this._setRootBufferDirty(true);
     }
 
     /**
@@ -531,7 +528,6 @@ export class Pass {
         this._shader = shader;
         this._setPipelineLayout(programLib.getTemplateInfo(this._programName).pipelineLayout);
         this._setHash(Pass.getPassHash(this));
-        this._setRootBufferDirty(true);
         return true;
     }
 
