@@ -313,7 +313,7 @@ markAsWarning(macro, 'macro', [
 markAsWarning(screen, 'screen', [
     {
         name: 'autoFullScreen',
-        suggest: 'please use screen.requestFullScreen instead.',
+        suggest: 'please use screen.requestFullScreen() instead.',
     },
     {
         name: 'disableAutoFullScreen',

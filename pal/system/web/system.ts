@@ -181,7 +181,6 @@ class System {
             imageBitmap: supportImageBitmap,
             fullscreen: screenUtils.supportsFullScreen,
         };
-        this._isOnFullScreen = false;
 
         this._registerEvent();
     }
@@ -265,7 +264,7 @@ class System {
     }
 
     public resizeScreen (size: Size): Promise<void> {
-        throw new Error('TODO');
+        throw new Error('screen resize has not been supported yet on this platform');
     }
     public requestFullScreen (): Promise<void> {
         return screenUtils.requestFullScreen();

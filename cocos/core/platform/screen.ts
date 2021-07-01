@@ -85,9 +85,9 @@ class Screen {
     /**
      * @en Exit the full mode.
      * @zh 退出全屏模式
-     * @return {Promise|undefined}
+     * @return {Promise}
      */
-    public exitFullScreen (): Promise<any> | undefined {
+    public exitFullScreen (): Promise<any> {
         return system.exitFullScreen();
     }
 
@@ -97,7 +97,7 @@ class Screen {
      * @param element The element to request full screen state
      * @param onFullScreenChange callback function when full screen state changed
      *
-     * @deprecated since v3.3, please use screen.requestFullScreen instead.
+     * @deprecated since v3.3, please use screen.requestFullScreen() instead.
      */
     public autoFullScreen (element: HTMLElement, onFullScreenChange: (this: Document, ev: any) => any) {
         this.requestFullScreen(element, onFullScreenChange)?.catch((e) => {});
@@ -112,6 +112,7 @@ class Screen {
     }
 
     // TODO: to support registering fullscreen change
+    // TODO: to support screen resize
 }
 
 const screen = new Screen();
