@@ -433,7 +433,6 @@ export class Pass {
         }
 
         this._descriptorSet.destroy();
-        this._pipelineLayout.destroy();
         this._rs.destroy();
         this._dss.destroy();
         this._bs.destroy();
