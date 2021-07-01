@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { JSB } from 'internal:constants';
 import { AnimationClip } from '../../core/animation/animation-clip';
 import { Mesh } from '../assets/mesh';
 import { Skeleton } from '../assets/skeleton';
@@ -42,6 +43,7 @@ import { ModelType } from '../../core/renderer/scene/model';
 import { IAnimInfo, IJointTextureHandle, jointTextureSamplerHash } from '../skeletal-animation/skeletal-animation-utils';
 import { MorphModel } from './morph-model';
 import { legacyCC } from '../../core/global-exports';
+import { NativeAABB, NativeBakedSkinningModel, NativeSkinningModel } from '../../core/renderer/scene/native-scene';
 
 interface IJointsInfo {
     buffer: Buffer | null;
@@ -81,6 +83,12 @@ export class BakedSkinningModel extends MorphModel {
         this._jointsMedium = { buffer: null, jointTextureInfo, animInfo, texture: null, boundsInfo: null };
     }
 
+    protected _init () {
+        if (JSB) {
+            this._nativeObj = new NativeSkinningModel();
+        }
+    }
+
     public destroy () {
         this.uploadedAnim = undefined; // uninitialized
         this._jointsMedium.boundsInfo = null;
@@ -89,6 +97,7 @@ export class BakedSkinningModel extends MorphModel {
             this._jointsMedium.buffer = null;
         }
         this._applyJointTexture();
+        this._applyNativeJointMedium();
         super.destroy();
     }
 
@@ -137,6 +146,27 @@ export class BakedSkinningModel extends MorphModel {
         return true;
     }
 
+    private _applyNativeJointMedium () {
+        if (JSB) {
+            const boundsInfo: NativeAABB[] = [];
+            if (this._jointsMedium.boundsInfo) {
+                this._jointsMedium.boundsInfo.forEach((bound: AABB) => {
+                    boundsInfo.push(bound.native);
+                });
+            }
+            (this._nativeObj! as NativeBakedSkinningModel).setJointMedium(!!this.uploadedAnim, {
+                boundsInfo,
+                jointTextureInfo: this._jointsMedium.jointTextureInfo.buffer,
+                animInfo: {
+                    buffer: this._jointsMedium.animInfo.buffer,
+                    data: this._jointsMedium.animInfo.data.buffer,
+                    dirty: this._jointsMedium.animInfo.dirty,
+                },
+                buffer: this._jointsMedium.buffer,
+            });
+        }
+    }
+
     public uploadAnimation (anim: AnimationClip | null) {
         if (!this._skeleton || !this._mesh || this.uploadedAnim === anim) { return; }
         this.uploadedAnim = anim;
@@ -152,6 +182,7 @@ export class BakedSkinningModel extends MorphModel {
             this._modelBounds = texture && texture.bounds.get(this._mesh.hash)![0];
         }
         this._applyJointTexture(texture);
+        this._applyNativeJointMedium();
     }
 
     protected _applyJointTexture (texture: IJointTextureHandle | null = null) {
