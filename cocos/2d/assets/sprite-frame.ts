@@ -64,7 +64,7 @@ interface IVertices {
     v: number[];
 }
 
-interface ISpriteFramesSerializeData{
+interface ISpriteFramesSerializeData {
     name: string;
     base: string;
     image: string;
@@ -497,7 +497,7 @@ export class SpriteFrame extends Asset {
     public uv: number[] = [];
     public uvHash = 0;
 
-    public unbiasUV:number[] = [];
+    public unbiasUV: number[] = [];
 
     /**
      * @en UV for sliced 9 vertices
@@ -527,7 +527,7 @@ export class SpriteFrame extends Asset {
     protected _isFlipUVX = false;
 
     // store original info before packed to dynamic atlas
-    protected _original : {
+    protected _original: {
         _texture: TextureBase | RenderTexture,
         _x: number,
         _y: number,
@@ -1142,8 +1142,8 @@ export class SpriteFrame extends Asset {
     // SERIALIZATION
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
-            const rect = this._rect;
-            const offset = this._offset;
+            const rect = { x: this._rect.x, y: this._rect.y, width: this._rect.width, height: this._rect.height };
+            const offset = { x: this._offset.x, y: this._offset.y };
             const originalSize = this._originalSize;
             let texture;
             if (this._texture) {
@@ -1230,7 +1230,7 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    public clone ():SpriteFrame {
+    public clone (): SpriteFrame {
         const sp = new SpriteFrame();
         const v = this.vertices;
         sp.vertices = v ? {
