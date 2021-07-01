@@ -256,7 +256,11 @@ export class Renderable2D extends RenderableComponent {
             const clone = value.clone();
             this.node.emit(SystemEventType.COLOR_CHANGED, clone);
         }
+
+        this.updateColor(value);
     }
+
+    public updateColor (value: Color) {}
 
     get renderData () {
         return this._renderData;

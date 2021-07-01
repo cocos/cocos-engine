@@ -354,6 +354,15 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     /**
+     * @en Set start color & end color
+     * @zh 设置粒子初始和结束颜色
+     */
+    public updateColor (val:Color) {
+        this._startColor.set(val);
+        this._endColor.set(val);
+    }
+
+    /**
      * @en Ending color of each particle.
      * @zh 粒子结束颜色。
      */
@@ -506,6 +515,20 @@ export class ParticleSystem2D extends Renderable2D {
     public set positionType (val) {
         this._positionType = val;
         this._updateMaterial();
+    }
+
+    /**
+     * @en Preview particle system effect.
+     * @ch 查看粒子效果
+     */
+    @editable
+    public get preview () {
+        return this._preview;
+    }
+
+    public set preview (val: boolean) {
+        if (val) { this._startPreview(); } else { this._stopPreview(); }
+        this._preview = val;
     }
 
     /**
@@ -698,7 +721,7 @@ export class ParticleSystem2D extends Renderable2D {
     @serializable
     @editable
     @tooltip('i18n:particle_system.preview')
-    private preview = true;
+    private _preview = true;
     @serializable
     private _custom = false;
     @serializable
@@ -724,6 +747,8 @@ export class ParticleSystem2D extends Renderable2D {
     private declare _focused: boolean;
     private declare _plistFile;
     private declare _tiffReader;
+
+    private _dict: any = null;
 
     constructor () {
         super();
@@ -770,13 +795,13 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     private _startPreview () {
-        if (this.preview) {
+        if (this._preview) {
             this.resetSystem();
         }
     }
 
     private _stopPreview () {
-        if (this.preview) {
+        if (this._preview) {
             this.resetSystem();
             this.stopSystem();
         }
@@ -985,6 +1010,8 @@ export class ParticleSystem2D extends Renderable2D {
 
     // parsing process
     public _initWithDictionary (dict: any) {
+        this._dict = dict;
+
         this.totalParticles = parseInt(dict.maxParticles || 0);
 
         // life span
@@ -1003,8 +1030,8 @@ export class ParticleSystem2D extends Renderable2D {
         this.duration = parseFloat(dict.duration || 0);
 
         // blend function // remove when component remove blend function
-        this._srcBlendFactor = parseInt(dict.blendFuncSource || BlendFactor.SRC_ALPHA);
-        this._dstBlendFactor = parseInt(dict.blendFuncDestination || BlendFactor.ONE_MINUS_SRC_ALPHA);
+        // this._srcBlendFactor = parseInt(dict.blendFuncSource || BlendFactor.SRC_ALPHA);
+        // this._dstBlendFactor = parseInt(dict.blendFuncDestination || BlendFactor.ONE_MINUS_SRC_ALPHA);
 
         // color
         const locStartColor = this._startColor;
@@ -1130,12 +1157,28 @@ export class ParticleSystem2D extends Renderable2D {
 
     public _updateMaterial () {
         const mat = this.getMaterialInstance(0);
-        if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
+        if (mat) {
+            mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
+
+            if (this._dict != null) {
+                // blend function
+                const src = this._dict.blendFuncSource || BlendFactor.SRC_ALPHA;
+                const dst = this._dict.blendFuncDestination || BlendFactor.ONE_MINUS_SRC_ALPHA;
+                mat.overridePipelineStates({
+                    blendState: {
+                        targets: [{
+                            blendSrc: src,
+                            blendDst: dst,
+                        }],
+                    },
+                });
+            }
+        }
     }
 
     public _finishedSimulation () {
         if (EDITOR) {
-            if (this.preview && this._focused && !this.active /* && !cc.engine.isPlaying */) {
+            if (this._preview && this._focused && !this.active /* && !cc.engine.isPlaying */) {
                 this.resetSystem();
             }
             return;
@@ -1153,6 +1196,12 @@ export class ParticleSystem2D extends Renderable2D {
     }
 
     protected _render (render: Batcher2D) {
-        render.commitComp(this, this._renderSpriteFrame, this._assembler!, this._positionType === PositionType.RELATIVE ? this.node.parent : null);
+        if (this._positionType === PositionType.RELATIVE) {
+            render.commitComp(this, this._renderSpriteFrame, this._assembler!, this.node.parent);
+        } else if (this.positionType === PositionType.GROUPED) {
+            render.commitComp(this, this._renderSpriteFrame, this._assembler!, this.node);
+        } else {
+            render.commitComp(this, this._renderSpriteFrame, this._assembler!, null);
+        }
     }
 }
