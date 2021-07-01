@@ -22,6 +22,9 @@
 
   float CCGetShadowFactorHard (vec4 shadowPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+    if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
+        clipPos.y < 0.0 || clipPos.y > 1.0 ||
+        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float shadow = 1.0;
@@ -38,6 +41,9 @@
 
   float CCGetShadowFactorSoft (vec4 shadowPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+    if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
+        clipPos.y < 0.0 || clipPos.y > 1.0 ||
+        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float offsetDepth = clipPos.z - cc_shadowWHPBInfo.w;
@@ -64,7 +70,10 @@
   }
 
   float CCGetShadowFactorSoft2X (vec4 shadowPos) {
-    vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;   
+    vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+    if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
+        clipPos.y < 0.0 || clipPos.y > 1.0 ||
+        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float bias = cc_shadowWHPBInfo.w;
@@ -125,6 +134,9 @@
 
   float CCGetSpotLightShadowFactorHard (vec4 shadowPos, vec3 worldPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+    if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
+        clipPos.y < 0.0 || clipPos.y > 1.0 ||
+        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float shadow = 0.0;
@@ -149,6 +161,9 @@
 
   float CCGetSpotLightShadowFactorSoft (vec4 shadowPos, vec3 worldPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+    if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
+        clipPos.y < 0.0 || clipPos.y > 1.0 ||
+        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float offsetx = 1.0 / cc_shadowWHPBInfo.x;
@@ -194,6 +209,9 @@
 
   float CCGetSpotLightShadowFactorSoft2X (vec4 shadowPos, vec3 worldPos) {
     vec3 clipPos = shadowPos.xyz / shadowPos.w * 0.5 + 0.5;
+    if (clipPos.x < 0.0 || clipPos.x > 1.0 ||
+        clipPos.y < 0.0 || clipPos.y > 1.0 ||
+        clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
     float offsetx = 1.0 / cc_shadowWHPBInfo.x;

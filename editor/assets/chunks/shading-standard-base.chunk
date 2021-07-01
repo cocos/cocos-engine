@@ -86,7 +86,9 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   float shadow = 1.0;
   #if CC_RECEIVE_SHADOW
-    CC_SHADOW_FACTOR_BASE(shadow, shadowPos, N, NL);
+    if (NL > 0.0) {
+      CC_SHADOW_FACTOR_BASE(shadow, shadowPos, N, NL);
+    }
   #endif
 
   dirlightContrib *= shadow;
