@@ -25,7 +25,7 @@ export class VectorTrack extends Track {
         this._nComponents = value;
     }
 
-    public getChannels () {
+    public channels () {
         return this._channels;
     }
 

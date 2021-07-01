@@ -17,7 +17,7 @@ export class ColorTrack extends Track {
         }
     }
 
-    public getChannels () {
+    public channels () {
         return this._channels;
     }
 

@@ -1,5 +1,6 @@
 import { Mat4, Node, RealKeyframeValue, Vec3 } from '../../cocos/core';
-import { AnimationClip, RealTrack, searchForRootBonePathSymbol, VectorTrack } from '../../cocos/core/animation/animation-clip';
+import { RealTrack, TrackPath, VectorTrack } from '../../cocos/core/animation/animation';
+import { AnimationClip, searchForRootBonePathSymbol } from '../../cocos/core/animation/animation-clip';
 import { ComponentPath, HierarchyPath, TargetPath } from '../../cocos/core/animation/target-path';
 
 describe('Animation Clip', () => {
@@ -35,7 +36,7 @@ describe('Animation Clip', () => {
             function createClipWithPath (path: TargetPath[]) {
                 const clip = new AnimationClip();
                 const track = new RealTrack();
-                track.path = [new HierarchyPath('Foo')];
+                track.path = new TrackPath().hierarchy('Foo');
                 clip.addTrack(track);
                 return clip;
             }
@@ -46,7 +47,7 @@ describe('Animation Clip', () => {
                 const clip = new AnimationClip();
                 for (const path of paths) {
                     const track = new VectorTrack();
-                    track.path = [new HierarchyPath(path), 'position'];
+                    track.path = new TrackPath().hierarchy(path).property('position');
                     clip.addTrack(track);
                 }
                 return clip[searchForRootBonePathSymbol]();
@@ -69,8 +70,8 @@ describe('Animation Clip', () => {
             const rootBoneTranslationTrack = new VectorTrack();
             {
                 rootBoneTranslationTrack.componentsCount = 3;
-                rootBoneTranslationTrack.path = [new HierarchyPath(rootJointName), 'position'];
-                const [x, _y, _z] = rootBoneTranslationTrack.getChannels();
+                rootBoneTranslationTrack.path = new TrackPath().hierarchy(rootJointName).property('position');
+                const [x, _y, _z] = rootBoneTranslationTrack.channels();
                 x.curve.assignSorted([
                     [0.4, new RealKeyframeValue({ value: 0.4 })],
                     [0.6, new RealKeyframeValue({ value: 0.6 })],

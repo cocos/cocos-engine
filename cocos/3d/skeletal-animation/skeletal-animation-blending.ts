@@ -30,8 +30,7 @@
 
 import { Vec3, Quat } from '../../core/math';
 import { Node } from '../../core/scene-graph';
-import { AnimationState } from '../../core/animation/animation-state';
-import { IBoundTarget } from '../../core/animation/bound-target';
+import { RuntimeBinding } from '../../core/animation/tracks/track';
 
 export class BlendStateBuffer {
     private _nodeBlendStates: Map<Node, NodeBlendState> = new Map();
@@ -89,7 +88,7 @@ export interface BlendStateWriterHost {
     readonly weight: number;
 }
 
-class BlendStateWriterInternal<P extends BlendingProperty> implements IBoundTarget {
+class BlendStateWriterInternal<P extends BlendingProperty> implements RuntimeBinding {
     constructor (
         private _node: Node,
         private _property: P,

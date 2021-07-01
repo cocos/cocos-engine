@@ -49,7 +49,7 @@ describe('Animation Clip Migration 3.x', () => {
         const track = clip.getTrack(0) as animation.VectorTrack;
         expect(track).toBeInstanceOf(animation.VectorTrack);
         expect(track.componentsCount).toBe(2);
-        const [{ curve: x }, { curve: y }] = track.getChannels();
+        const [{ curve: x }, { curve: y }] = track.channels();
         expect(Array.from(x.times())).toStrictEqual([0.0, 0.2, 0.8]);
         expect(Array.from(x.values())).toStrictEqual(
             createRealKeyframesWithoutTangent([1.0, 2.0, 3.0], RealInterpMode.LINEAR),
@@ -80,7 +80,7 @@ describe('Animation Clip Migration 3.x', () => {
         const track = clip.getTrack(0) as animation.VectorTrack;
         expect(track).toBeInstanceOf(animation.VectorTrack);
         expect(track.componentsCount).toBe(3);
-        const [{ curve: x }, { curve: y }, { curve: z }] = track.getChannels();
+        const [{ curve: x }, { curve: y }, { curve: z }] = track.channels();
         expect(Array.from(x.times())).toStrictEqual([0.0, 0.2, 0.8]);
         expect(Array.from(x.values())).toStrictEqual(
             createRealKeyframesWithoutTangent([1.0, 2.0, 3.0], RealInterpMode.LINEAR),
@@ -114,7 +114,7 @@ describe('Animation Clip Migration 3.x', () => {
         const track = clip.getTrack(0) as animation.VectorTrack;
         expect(track).toBeInstanceOf(animation.VectorTrack);
         expect(track.componentsCount).toBe(4);
-        const [{ curve: x }, { curve: y }, { curve: z }, { curve: w }] = track.getChannels();
+        const [{ curve: x }, { curve: y }, { curve: z }, { curve: w }] = track.channels();
         expect(Array.from(x.times())).toStrictEqual([0.0, 0.2, 0.8]);
         expect(Array.from(x.values())).toStrictEqual(
             createRealKeyframesWithoutTangent([1.0, 2.0, 3.0], RealInterpMode.LINEAR),
@@ -151,7 +151,7 @@ describe('Animation Clip Migration 3.x', () => {
         expect(clip.tracksCount).toBe(1);
         const track = clip.getTrack(0) as animation.ColorTrack;
         expect(track).toBeInstanceOf(animation.ColorTrack);
-        const [{ curve: r }, { curve: g }, { curve: b }, { curve: a }] = track.getChannels();
+        const [{ curve: r }, { curve: g }, { curve: b }, { curve: a }] = track.channels();
         expect(Array.from(r.times())).toStrictEqual([0.0, 0.2, 0.8]);
         expect(Array.from(r.values())).toStrictEqual(
             createRealKeyframesWithoutTangent([10, 20, 30], RealInterpMode.LINEAR),

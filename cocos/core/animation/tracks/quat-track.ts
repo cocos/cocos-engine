@@ -11,7 +11,7 @@ export class QuaternionTrack extends SingleChannelTrack<QuaternionCurve> {
     }
 
     public [createEvalSymbol] () {
-        return new QuatTrackEval(this.getChannels()[0].curve);
+        return new QuatTrackEval(this.channels()[0].curve);
     }
 }
 

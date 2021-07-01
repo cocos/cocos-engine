@@ -1,4 +1,4 @@
-import { TargetPath } from './target-path';
+import { ComponentPath, HierarchyPath, isPropertyPath, TargetPath } from './target-path';
 import { IValueProxyFactory } from './value-proxy';
 import * as easing from './easing';
 import { BezierControlPoints } from './bezier';
@@ -7,7 +7,7 @@ import { serializable } from '../data/decorators';
 import { AnimCurve, RatioSampler } from './animation-curve';
 import { QuaternionInterpMode, RealCurve, RealInterpMode, RealKeyframeValue, TangentWeightMode } from '../curves';
 import { assertIsTrue } from '../data/utils/asserts';
-import { Track } from './tracks/track';
+import { Track, TrackPath } from './tracks/track';
 import { UntypedTrack } from './tracks/untyped-track';
 import { warn } from '../platform';
 import { RealTrack } from './tracks/real-track';
@@ -164,10 +164,28 @@ export class AnimationClipLegacyData {
             commonTargets: legacyCommonTargets,
         } = this;
 
+        const convertTrackPath = (track: Track, modifiers: TargetPath[], valueAdapter: IValueProxyFactory | undefined) => {
+            const trackPath = new TrackPath();
+            for (const modifier of modifiers) {
+                if (typeof modifier === 'string') {
+                    trackPath.property(modifier);
+                } else if (typeof modifier === 'number') {
+                    trackPath.element(modifier);
+                } else if (modifier instanceof HierarchyPath) {
+                    trackPath.hierarchy(modifier.path);
+                } else if (modifier instanceof ComponentPath) {
+                    trackPath.component(modifier.component);
+                } else {
+                    trackPath.customized(modifier);
+                }
+            }
+            track.path = trackPath;
+            track.proxy = valueAdapter;
+        };
+
         const untypedTracks = legacyCommonTargets.map((legacyCommonTarget) => {
             const track = new UntypedTrack();
-            track.path = legacyCommonTarget.modifiers;
-            track.setter = legacyCommonTarget.valueAdapter;
+            convertTrackPath(track, legacyCommonTarget.modifiers, legacyCommonTarget.valueAdapter);
             newTracks.push(track);
             return track;
         });
@@ -190,8 +208,7 @@ export class AnimationClipLegacyData {
             const legacyEasingMethodConverter = new LegacyEasingMethodConverter(legacyCurveData, times.length);
 
             const installPathAndSetter = (track: Track) => {
-                track.path = legacyCurve.modifiers;
-                track.setter = legacyCurve.valueAdapter;
+                convertTrackPath(track, legacyCurve.modifiers, legacyCurve.valueAdapter);
             };
 
             let legacyCommonTargetCurve: RealCurve | undefined;
@@ -228,7 +245,9 @@ export class AnimationClipLegacyData {
                         realCurve = track.channel.curve;
                     }
                     const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
-                    realCurve.assignSorted(times, (legacyValues as number[]).map((value) => new RealKeyframeValue({ value, interpMode: interpMethod })));
+                    realCurve.assignSorted(times, (legacyValues as number[]).map(
+                        (value) => new RealKeyframeValue({ value, interpMode: interpMethod }),
+                    ));
                     legacyEasingMethodConverter.convert(realCurve);
                     return;
                 } else if (typeof firstValue === 'object') {
@@ -245,7 +264,7 @@ export class AnimationClipLegacyData {
                         const track = new VectorTrack();
                         installPathAndSetter(track);
                         track.componentsCount = components;
-                        const [{ curve: x }, { curve: y }, { curve: z }, { curve: w }] = track.getChannels();
+                        const [{ curve: x }, { curve: y }, { curve: z }, { curve: w }] = track.channels();
                         const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
                         const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpMode: interpMethod });
                         switch (components) {
@@ -282,7 +301,7 @@ export class AnimationClipLegacyData {
                     case legacyValues.every((value) => value instanceof Color): {
                         const track = new ColorTrack();
                         installPathAndSetter(track);
-                        const [{ curve: r }, { curve: g }, { curve: b }, { curve: a }] = track.getChannels();
+                        const [{ curve: r }, { curve: g }, { curve: b }, { curve: a }] = track.channels();
                         const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
                         const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpMode: interpMethod });
                         r.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.r)));
@@ -321,7 +340,7 @@ export class AnimationClipLegacyData {
                         const track = new VectorTrack();
                         installPathAndSetter(track);
                         track.componentsCount = components;
-                        const [x, y, z, w] = track.getChannels();
+                        const [x, y, z, w] = track.channels();
                         const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
                         const valueToFrame = (value: number, startTangent: number, endTangent: number): RealKeyframeValue => new RealKeyframeValue({
                             value,

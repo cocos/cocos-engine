@@ -145,8 +145,8 @@ describe('Custom track setter', () => {
         const mockSetValue = target.setValue = jest.fn(target.setValue);
     
         const track = new VectorTrack();
-        track.setter = valueProxyWithGetSet;
-        track.getChannels().forEach(({ curve }) => {
+        track.proxy = valueProxyWithGetSet;
+        track.channels().forEach(({ curve }) => {
             curve.assignSorted([[0.0, new RealKeyframeValue({ value: 0.0 })]]);
         });
 
@@ -166,7 +166,7 @@ describe('Custom track setter', () => {
         const mockSetValue = target.setValue = jest.fn(target.setValue);
     
         const track = new VectorTrack();
-        track.setter = valueProxyWithGetSet;
+        track.proxy = valueProxyWithGetSet;
         const clip = new AnimationClip();
         clip.addTrack(track);
         const clipEval = clip.createEvaluator({
@@ -182,7 +182,7 @@ describe('Custom track setter', () => {
         const mockSetValue = target.setValue = jest.fn(target.setValue);
     
         const track = new VectorTrack();
-        track.setter = valueProxyWithOnlySet;
+        track.proxy = valueProxyWithOnlySet;
         const clip = new AnimationClip();
         clip.addTrack(track);
         const clipEval = clip.createEvaluator({

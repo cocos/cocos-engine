@@ -5,9 +5,8 @@ import { Quat, Vec2, Vec3, Vec4 } from '../../math';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { QuaternionTrack } from '../tracks/quat-track';
 import { RealTrack } from '../tracks/real-track';
-import { Binder, isTargetingTRS, RuntimeBinding, TrackPath } from '../tracks/track';
+import { Binder, RuntimeBinding, TrackBinding, trackBindingTag, TrackPath } from '../tracks/track';
 import { VectorTrack } from '../tracks/vector-track';
-import { IValueProxyFactory } from '../value-proxy';
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}CompressedData`)
 export class CompressedData {
@@ -19,8 +18,7 @@ export class CompressedData {
         }
         this._tracks.push({
             type: CompressedDataTrackType.FLOAT,
-            path: track.path,
-            setter: track.setter,
+            binding: track[trackBindingTag],
             components: [this._addRealCurve(curve)],
         });
         return true;
@@ -28,7 +26,7 @@ export class CompressedData {
 
     public compressVectorTrack (vectorTrack: VectorTrack) {
         const nComponents = vectorTrack.componentsCount;
-        const channels = vectorTrack.getChannels();
+        const channels = vectorTrack.channels();
         const mayBeCompressed = channels.every(({ curve }) => KeySharedRealCurves.allowedForCurve(curve));
         if (!mayBeCompressed) {
             return false;
@@ -45,8 +43,7 @@ export class CompressedData {
                     : nComponents === 3
                         ? CompressedDataTrackType.VEC3
                         : CompressedDataTrackType.VEC4,
-            path: vectorTrack.path,
-            setter: vectorTrack.setter,
+            binding: vectorTrack[trackBindingTag],
             components,
         });
         return true;
@@ -59,8 +56,7 @@ export class CompressedData {
             return false;
         }
         this._quatTracks.push({
-            path: track.path,
-            setter: track.setter,
+            binding: track[trackBindingTag],
             pointer: this._addQuaternionCurve(curve),
         });
         return true;
@@ -89,7 +85,7 @@ export class CompressedData {
         }
 
         for (const track of this._tracks) {
-            const trackTarget = binder(track.path, track.setter);
+            const trackTarget = binder(track.binding);
             if (!trackTarget) {
                 continue;
             }
@@ -124,7 +120,7 @@ export class CompressedData {
         }
 
         for (const track of this._quatTracks) {
-            const trackTarget = binder(track.path, track.setter);
+            const trackTarget = binder(track.binding);
             if (!trackTarget) {
                 continue;
             }
@@ -141,9 +137,9 @@ export class CompressedData {
         const joints: string[] = [];
 
         for (const track of this._tracks) {
-            if (!track.setter && isTargetingTRS(track.path)) {
-                const { path } = track.path[0];
-                joints.push(path);
+            const trsPath = track.binding.parseTrsPath();
+            if (trsPath) {
+                joints.push(trsPath.node);
             }
         }
 
@@ -267,15 +263,13 @@ export class CompressedDataEvaluator {
 }
 
 interface CompressedTrack {
-    path: TrackPath;
-    setter: IValueProxyFactory | undefined;
+    binding: TrackBinding;
     type: CompressedDataTrackType;
     components: CompressedCurvePointer[];
 }
 
 interface CompressedQuatTrack {
-    path: TrackPath;
-    setter: IValueProxyFactory | undefined;
+    binding: TrackBinding;
     pointer: CompressedQuatCurvePointer;
 }
 

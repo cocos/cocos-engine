@@ -22,7 +22,7 @@ export class UntypedTrack extends Track {
     @serializable
     private _channels: UntypedTrackChannel[] = [];
 
-    public getChannels () {
+    public channels () {
         return this._channels;
     }
 
@@ -74,7 +74,7 @@ export class UntypedTrack extends Track {
 
     public upgrade (refine: UntypedTrackRefine): Track | null {
         const trySearchChannel = (property: string, outChannel: RealChannel) => {
-            const untypedChannel = this.getChannels().find((channel) => channel.property === property);
+            const untypedChannel = this.channels().find((channel) => channel.property === property);
             if (untypedChannel) {
                 outChannel.name = untypedChannel.name;
                 outChannel.curve.assignSorted(
@@ -83,14 +83,14 @@ export class UntypedTrack extends Track {
                 );
             }
         };
-        const kind = refine(this.path, this.setter);
+        const kind = refine(this.path, this.proxy);
         switch (kind) {
         default:
             break;
         case 'vec2': case 'vec3': case 'vec4': {
             const track = new VectorTrack();
             track.componentsCount = kind === 'vec2' ? 2 : kind === 'vec3' ? 3 : 4;
-            const [x, y, z, w] = track.getChannels();
+            const [x, y, z, w] = track.channels();
             switch (kind) {
             case 'vec4':
                 trySearchChannel('w', w);
@@ -107,7 +107,7 @@ export class UntypedTrack extends Track {
         }
         case 'color': {
             const track = new ColorTrack();
-            const [r, g, b, a] = track.getChannels();
+            const [r, g, b, a] = track.channels();
             trySearchChannel('r', r);
             trySearchChannel('g', g);
             trySearchChannel('b', b);
@@ -127,4 +127,4 @@ export class UntypedTrack extends Track {
     }
 }
 
-export type UntypedTrackRefine = (path: TrackPath, setter?: IValueProxyFactory) => 'vec2' | 'vec3' | 'vec4' | 'color' | 'size';
+export type UntypedTrackRefine = (path: Readonly<TrackPath>, proxy: IValueProxyFactory | undefined) => 'vec2' | 'vec3' | 'vec4' | 'color' | 'size';

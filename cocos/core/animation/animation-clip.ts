@@ -36,9 +36,7 @@ import { DataPoolManager } from '../../3d/skeletal-animation/data-pool-manager';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
 import { SkelAnimDataHub } from '../../3d/skeletal-animation/skeletal-animation-data-hub';
-import { ComponentPath, evaluatePath, isPropertyPath } from './target-path';
 import { WrapMode as AnimationWrapMode, WrapMode, WrapModeMask } from './types';
-import { IValueProxyFactory } from './value-proxy';
 import { legacyCC } from '../global-exports';
 import { Mat4, Quat, Vec3 } from '../math';
 import { Node } from '../scene-graph/node';
@@ -46,7 +44,7 @@ import { assertIsTrue } from '../data/utils/asserts';
 import type { PoseOutput } from './pose-output';
 import * as legacy from './legacy-clip-data';
 import { BAKE_SKELETON_CURVE_SYMBOL } from './internal-symbols';
-import { Binder, isTargetingTRS, RuntimeBinding, Track, TrackEval, TrackPath, TrsTrackPath } from './tracks/track';
+import { Binder, RuntimeBinding, Track, TrackBinding, trackBindingTag, TrackEval, TrackPath, TrsTrackPath } from './tracks/track';
 import { createEvalSymbol } from './define';
 import { VectorTrack } from './tracks/vector-track';
 import { UntypedTrack, UntypedTrackRefine } from './tracks/untyped-track';
@@ -108,8 +106,8 @@ export class AnimationClip extends Asset {
         clip.duration = spriteFrames.length / clip.sample;
         const step = 1 / clip.sample;
         const track = new ObjectTrack<SpriteFrame>();
-        track.path = [new ComponentPath('cc.Sprite'), 'spriteFrame'];
-        const curve = track.getChannels()[0].curve;
+        track.path =  new TrackPath().component('cc.Sprite').property('spriteFrame');
+        const curve = track.channels()[0].curve;
         curve.assignSorted(spriteFrames.map((spriteFrame, index) => [step * index, spriteFrame]));
         return clip;
     }
@@ -233,13 +231,13 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * Gets the time range this animation spans.
+     * Counts the time range this animation spans.
      * @returns The time range.
      */
-    public getRange () {
+    public range () {
         const range: Range = { min: Infinity, max: -Infinity };
         for (const track of this._tracks) {
-            const trackRange = track.getRange();
+            const trackRange = track.range();
             range.min = Math.min(range.min, trackRange.min);
             range.max = Math.max(range.max, trackRange.max);
         }
@@ -306,11 +304,9 @@ export class AnimationClip extends Asset {
             target,
         } = context;
 
-        const binder: Binder = (trackPath: TrackPath, setter: IValueProxyFactory | undefined) => {
-            const trackTarget = createGeneralBinding(
+        const binder: Binder = (binding: TrackBinding) => {
+            const trackTarget = binding.createRuntimeBinding(
                 target,
-                trackPath,
-                setter ?? undefined,
                 this.enableTrsBlending ? context.pose : undefined,
                 false,
             );
@@ -403,18 +399,18 @@ export class AnimationClip extends Asset {
             }
         }
 
-        const binder: Binder = (trackPath: TrackPath, setter: IValueProxyFactory | undefined) => {
-            if (setter || !isTargetingTRS(trackPath)) {
+        const binder: Binder = (binding: TrackBinding) => {
+            const trsPath = binding.parseTrsPath();
+            if (!trsPath) {
                 return undefined;
             }
 
-            const { path } = trackPath[0];
-            const jointFrame = skeletonFrames[path];
+            const jointFrame = skeletonFrames[trsPath.node];
             if (!jointFrame) {
                 return undefined;
             }
 
-            return createBoneTransformBinding(jointFrame, trackPath[1]);
+            return createBoneTransformBinding(jointFrame, trsPath.property);
         };
 
         const evaluator = this._createEvalWithBinder(undefined, binder, undefined);
@@ -634,7 +630,7 @@ export class AnimationClip extends Asset {
             if (rootMotionTrackExcludes.includes(track)) {
                 continue;
             }
-            const trackTarget = binder(track.path, track.setter);
+            const trackTarget = binder(track[trackBindingTag]);
             if (!trackTarget) {
                 continue;
             }
@@ -685,16 +681,17 @@ export class AnimationClip extends Asset {
         const boneTransform = new BoneTransform();
         const rootMotionsTrackEvaluations: TrackEvalStatus[] = [];
         for (const track of this._tracks) {
-            const { path: trackPath } = track;
-            if (!isTargetingTRS(trackPath)) {
+            const { [trackBindingTag]: trackBinding } = track;
+            const trsPath = trackBinding.parseTrsPath();
+            if (!trsPath) {
                 continue;
             }
-            const bonePath = trackPath[0].path;
+            const bonePath = trsPath.node;
             if (bonePath !== rootBonePath) {
                 continue;
             }
             rootMotionTrackExcludes.push(track);
-            const property = trackPath[1];
+            const property = trsPath.property;
             const trackTarget = createBoneTransformBinding(boneTransform, property);
             if (!trackTarget) {
                 continue;
@@ -717,11 +714,12 @@ export class AnimationClip extends Asset {
 
     private _searchForRootBonePath () {
         const paths = this._tracks.map((track) => {
-            if (isTargetingTRS(track.path)) {
-                const { path } = track.path[0];
+            const trsPath = track[trackBindingTag].parseTrsPath();
+            if (trsPath) {
+                const nodePath = trsPath.node;
                 return {
-                    path,
-                    rank: path.split('/').length,
+                    path: nodePath,
+                    rank: nodePath.split('/').length,
                 };
             } else {
                 return {
@@ -775,7 +773,7 @@ export class AnimationClip extends Asset {
     }
 
     private _fromLegacy (legacyData: legacy.AnimationClipLegacyData) {
-        const newTracks = legacy.convertAnimationClipLegacyData(legacyData);
+        const newTracks = legacyData.toTracks();
         for (const track of newTracks) {
             this.addTrack(track);
         }
@@ -785,9 +783,9 @@ export class AnimationClip extends Asset {
         const joints = new Set<string>();
 
         for (const track of this._tracks) {
-            if (!track.setter && isTargetingTRS(track.path)) {
-                const { path } = track.path[0];
-                joints.add(path);
+            const trsPath = track[trackBindingTag].parseTrsPath();
+            if (trsPath) {
+                joints.add(trsPath.node);
             }
         }
 
@@ -1048,72 +1046,6 @@ function createBoneTransformBinding (boneTransform: BoneTransform, property: Trs
                 Vec3.copy(boneTransform.eulerAngles, value);
             },
         };
-    }
-}
-
-/**
- * Bind runtime target. Especially optimized for skeletal case.
- */
-function createGeneralBinding (
-    rootTarget: unknown,
-    path: TrackPath,
-    setter: IValueProxyFactory | undefined,
-    poseOutput: PoseOutput | undefined,
-    isConstant: boolean,
-): RuntimeBinding | null {
-    if (!isTargetingTRS(path) || !poseOutput) {
-        return createRuntimeBinding(rootTarget, path, setter);
-    } else {
-        const targetNode = evaluatePath(rootTarget, ...path.slice(0, path.length - 1));
-        if (targetNode !== null && targetNode instanceof Node) {
-            const propertyName = path[path.length - 1] as 'position' | 'rotation' | 'scale' | 'eulerAngles';
-            const blendStateWriter = poseOutput.createPoseWriter(targetNode, propertyName, isConstant);
-            return blendStateWriter;
-        }
-    }
-    return null;
-}
-
-function createRuntimeBinding (target: unknown, trackPath: TrackPath, setter?: IValueProxyFactory): null | RuntimeBinding {
-    const lastPath = trackPath[trackPath.length - 1];
-    if (trackPath.length !== 0 && isPropertyPath(lastPath) && !setter) {
-        const resultTarget = evaluatePath(target, ...trackPath.slice(0, trackPath.length - 1));
-        if (resultTarget === null) {
-            return null;
-        }
-        return {
-            setValue: (value) => {
-                resultTarget[lastPath] = value;
-            },
-            // eslint-disable-next-line arrow-body-style
-            getValue: () => {
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-                return resultTarget[lastPath];
-            },
-        };
-    } else if (!setter) {
-        error(
-            `You provided a ill-formed track path.`
-            + `The last component of track path should be property key, or the setter should not be empty.`,
-        );
-        return null;
-    } else {
-        const resultTarget = evaluatePath(target, ...trackPath);
-        if (resultTarget === null) {
-            return null;
-        }
-        const proxy = setter.forTarget(resultTarget);
-        const binding: RuntimeBinding = {
-            setValue: (value) => {
-                proxy.set(value);
-            },
-        };
-        const proxyGet = proxy.get;
-        if (proxyGet) {
-            // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-            binding.getValue = () => proxyGet.call(proxy);
-        }
-        return binding;
     }
 }
 
