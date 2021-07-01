@@ -33,12 +33,10 @@ export * from './value-proxy';
 export { UniformProxyFactory } from './value-proxy-factories/uniform';
 export { MorphWeightValueProxy, MorphWeightsValueProxy, MorphWeightsAllValueProxy } from './value-proxy-factories/morph-weights';
 export * from './cubic-spline-value';
-export {
-    Track,
-    RealTrack,
-    IntegerTrack,
-    VectorTrack,
-    QuaternionTrack,
-    ColorTrack,
-    ObjectTrack,
-} from './animation-clip';
+export { Track } from './tracks/track';
+export { RealTrack } from './tracks/real-track';
+export { IntegerTrack } from './tracks/integer-track';
+export { VectorTrack } from './tracks/vector-track';
+export { QuaternionTrack } from './tracks/quat-track';
+export { ColorTrack } from './tracks/color-track';
+export { ObjectTrack } from './tracks/object-track';
