@@ -481,7 +481,7 @@ export class JointAnimationInfo {
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
         const info = { buffer, data, dirty: false };
-        this._setNativeDirty(info, false);
+        this._setAnimInfoDirty(info, false);
         this._pool.set(nodeID, info);
         return info;
     }
@@ -493,7 +493,7 @@ export class JointAnimationInfo {
         this._pool.delete(nodeID);
     }
 
-    private _setNativeDirty (info: IAnimInfo, value: boolean) {
+    private _setAnimInfoDirty (info: IAnimInfo, value: boolean) {
         info.dirty = value;
         if (JSB) {
             const key = 'nativeDirty';
@@ -510,7 +510,7 @@ export class JointAnimationInfo {
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
         info.data[0] = 0;
         info.buffer.update(info.data);
-        this._setNativeDirty(info, false);
+        this._setAnimInfoDirty(info, false);
         return info;
     }
 
