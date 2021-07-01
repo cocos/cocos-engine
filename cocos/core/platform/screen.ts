@@ -56,11 +56,6 @@ class Screen {
     }
 
     /**
-     * @deprecated since v3.3
-     */
-    public requestFullScreen (element: HTMLElement, onFullScreenChange?: (this: Document, ev: any) => any, onFullScreenError?: (this: Document, ev: any) => any): Promise<any> | undefined;
-    public requestFullScreen (): Promise<any>;
-    /**
      * @en Request to enter full screen mode with the given element.
      * Many browsers forbid to enter full screen mode without an user intended interaction.
      * If failed to request fullscreen, another attempt will be made to request fullscreen the next time a user interaction occurs.
@@ -70,7 +65,18 @@ class Screen {
      * @param onFullScreenChange callback function when full screen state changed
      * @param onFullScreenError callback function when full screen error
      * @return {Promise|undefined}
+     * @deprecated since v3.3, please use `screen.requestFullScreen(): Promise<void>` instead.
      */
+    public requestFullScreen (element: HTMLElement, onFullScreenChange?: (this: Document, ev: any) => any, onFullScreenError?: (this: Document, ev: any) => any): Promise<any> | undefined;
+    /**
+     * @en Request to enter full screen mode.
+     * Many browsers forbid to enter full screen mode without an user intended interaction.
+     * If failed to request fullscreen, another attempt will be made to request fullscreen the next time a user interaction occurs.
+     * @zh 尝试使当前屏幕进入全屏模式，很多浏览器不允许程序触发这样的行为，必须在一个用户交互回调中才会生效。
+     * 如果进入全屏失败，会在下一次用户发生交互时，再次尝试进入全屏。
+     * @return {Promise}
+     */
+    public requestFullScreen (): Promise<void>;
     public requestFullScreen (element?: HTMLElement, onFullScreenChange?: (this: Document, ev: any) => any, onFullScreenError?: (this: Document, ev: any) => any): Promise<any> {
         return system.requestFullScreen().then(() => {
             // @ts-expect-error no parameter passed
