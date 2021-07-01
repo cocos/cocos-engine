@@ -33,9 +33,9 @@
 #include "cocos/base/Map.h"
 #include "cocos/base/Vector.h"
 #include "cocos/math/Geometry.h"
+#include "cocos/math/Quaternion.h"
 #include "cocos/math/Vec2.h"
 #include "cocos/math/Vec3.h"
-#include "cocos/math/Quaternion.h"
 #include "extensions/cocos-ext.h"
 #include "network/Downloader.h"
 
@@ -802,6 +802,11 @@ struct HolderType<std::function<R(ARGS...)>, true> {
 ///////////////////////////////////convertion//////////////////////////////////////////////////////////
 
 template <typename T>
+inline bool sevalue_to_native(const se::Value &from, T &&to) { // NOLINT(readability-identifier-naming)
+    return sevalue_to_native(from, std::forward(to), nullptr);
+}
+
+template <typename T>
 inline typename std::enable_if_t<!std::is_enum<T>::value && !std::is_pointer<T>::value, bool>
 sevalue_to_native(const se::Value & /*from*/, T * /*to*/, se::Object * /*unused*/) { // NOLINT(readability-identifier-naming)
     SE_LOGE("Can not convert type ???\n - [[ %s ]]\n", typeid(T).name());
@@ -1031,11 +1036,18 @@ sevalue_to_native(const se::Value &from, T to, se::Object * /*ctx*/) { // NOLINT
         return true;
     } else if CC_CONSTEXPR (std::is_arithmetic<Value>::value) {
         se::Object *array = from.toObject();
-        assert(array->isTypedArray());
-        uint8_t *data    = nullptr;
-        size_t   dataLen = 0;
-        array->getTypedArrayData(&data, &dataLen);
-        *to = reinterpret_cast<Value *>(data);
+        if (array->isTypedArray()) {
+            uint8_t* data = nullptr;
+            array->getTypedArrayData(&data, nullptr);
+            *to = reinterpret_cast<Value*>(data);
+        } else if (array->isArrayBuffer()) {
+            uint8_t* data = nullptr;
+            array->getArrayBufferData(&data, nullptr);
+            *to = reinterpret_cast<Value*>(data);
+        } else {
+            assert(false);
+            return false;
+        }
         return true;
     }
 }
@@ -1287,6 +1299,11 @@ sevalue_to_native(const se::Value &from, HolderType<std::vector<T, allocator>, t
 #endif // HAS_CONSTEXPR
 
 ///////////////////////////////////////////////////////////////////
+
+template <typename T>
+inline bool nativevalue_to_se(T &&from, se::Value &to) { // NOLINT(readability-identifier-naming)
+    return nativevalue_to_se(std::forward(from), to, nullptr);
+}
 
 #if HAS_CONSTEXPR
 

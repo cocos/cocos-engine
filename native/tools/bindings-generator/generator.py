@@ -417,6 +417,7 @@ class NativeType(object):
         self.is_const = False
         self.is_pointer = False
         self.is_reference = False
+        self.is_rreference = False
         self.canonical_type = None
         self.kind = None
 
@@ -458,6 +459,7 @@ class NativeType(object):
             nt.is_const = ntype.get_pointee().is_const_qualified()
             nt.whole_name = nt.namespaced_class_name + "&&"
             nt.is_reference = True
+            nt.is_rreference = True
 
             if nt.is_const:
                 nt.whole_name = "const " + nt.whole_name
@@ -632,8 +634,10 @@ class NativeType(object):
         if "context" in convert_opts:
             context = convert_opts["context"]
 
-
-        return "ok &= sevalue_to_native(%s, &%s, %s)" % (convert_opts["in_value"], convert_opts["out_value"], context)
+        if self.is_rreference:
+            return "ok &= sevalue_to_native(%s, &%s, %s)" % (convert_opts["in_value"], convert_opts["out_value"], context)
+        else:
+            return "ok &= sevalue_to_native(%s, &%s, %s)" % (convert_opts["in_value"], convert_opts["out_value"], context)
 
     def to_string(self, generator):
         conversions = generator.config['conversions']

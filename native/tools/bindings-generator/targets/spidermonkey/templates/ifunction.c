@@ -48,7 +48,11 @@ static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-nam
             #set $arg = $arguments[$count]
             #set $arg_type = $arg.to_string($generator)
         $arg_conv_array[$count];
+            #if $arg.is_rreference
+            #set $arg_array += [ "std::move(arg"+str(count)+".value())"]
+            #else
             #set $arg_array += [ "arg"+str(count)+".value()"]
+            #end if
             #set $count = $count + 1
         #end while
         #if $arg_idx > 0
