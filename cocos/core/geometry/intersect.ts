@@ -1066,7 +1066,7 @@ const obbWithOBB = (function () {
         for (let i = 0; i < 3; ++i) { // Fill out rest of axis
             Vec3.cross(test[6 + i * 3 + 0], test[i], test[0]);
             Vec3.cross(test[6 + i * 3 + 1], test[i], test[1]);
-            Vec3.cross(test[6 + i * 3 + 1], test[i], test[2]);
+            Vec3.cross(test[6 + i * 3 + 2], test[i], test[2]);
         }
 
         getOBBVertices(obb1.center, obb1.halfExtents, test[0], test[1], test[2], vertices);
