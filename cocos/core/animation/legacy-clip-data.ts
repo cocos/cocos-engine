@@ -155,6 +155,218 @@ export class AnimationClipLegacyData {
         return this._runtimeCurves!;
     }
 
+    public toTracks () {
+        const newTracks: Track[] = [];
+
+        const {
+            keys: legacyKeys,
+            curves: legacyCurves,
+            commonTargets: legacyCommonTargets,
+        } = this;
+
+        const untypedTracks = legacyCommonTargets.map((legacyCommonTarget) => {
+            const track = new UntypedTrack();
+            track.path = legacyCommonTarget.modifiers;
+            track.setter = legacyCommonTarget.valueAdapter;
+            newTracks.push(track);
+            return track;
+        });
+
+        for (const legacyCurve of legacyCurves) {
+            const legacyCurveData = legacyCurve.data;
+            const legacyValues = legacyCurveData.values;
+            if (legacyValues.length === 0) {
+                // Legacy clip did not record type info.
+                continue;
+            }
+            const legacyKeysIndex = legacyCurveData.keys;
+            // Rule: negative index means single frame.
+            const times = legacyKeysIndex < 0 ? [0.0] : legacyKeys[legacyCurveData.keys];
+            const firstValue = legacyValues[0];
+            // Rule: default to true.
+            const interpolate = legacyCurveData ?? true;
+            // Rule: _arrayLength only used for morph target, internally.
+            assertIsTrue(typeof legacyCurveData._arrayLength !== 'number' || typeof firstValue === 'number');
+            const legacyEasingMethodConverter = new LegacyEasingMethodConverter(legacyCurveData, times.length);
+
+            const installPathAndSetter = (track: Track) => {
+                track.path = legacyCurve.modifiers;
+                track.setter = legacyCurve.valueAdapter;
+            };
+
+            let legacyCommonTargetCurve: RealCurve | undefined;
+            if (typeof legacyCurve.commonTarget === 'number') {
+                // Rule: common targets should only target Vectors/`Size`/`Color`.
+                if (!legacyValues.every((value) => typeof value === 'number')) {
+                    warn(`Incorrect curve.`);
+                    continue;
+                }
+                // Rule: Each curve that has common target should be numeric curve and targets string property.
+                if (legacyCurve.valueAdapter || legacyCurve.modifiers.length !== 1 || typeof legacyCurve.modifiers[0] !== 'string') {
+                    warn(`Incorrect curve.`);
+                    continue;
+                }
+                const propertyName = legacyCurve.modifiers[0];
+                const untypedTrack = untypedTracks[legacyCurve.commonTarget];
+                const { curve } = untypedTrack.addChannel(propertyName);
+                legacyCommonTargetCurve = curve;
+            }
+
+            const convertCurve = () => {
+                if (typeof firstValue === 'number') {
+                    if (!legacyValues.every((value) => typeof value === 'number')) {
+                        warn(`Misconfigured curve.`);
+                        return;
+                    }
+                    let realCurve: RealCurve;
+                    if (legacyCommonTargetCurve) {
+                        realCurve = legacyCommonTargetCurve;
+                    } else {
+                        const track = new RealTrack();
+                        installPathAndSetter(track);
+                        newTracks.push(track);
+                        realCurve = track.channel.curve;
+                    }
+                    const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
+                    realCurve.assignSorted(times, (legacyValues as number[]).map((value) => new RealKeyframeValue({ value, interpMode: interpMethod })));
+                    legacyEasingMethodConverter.convert(realCurve);
+                    return;
+                } else if (typeof firstValue === 'object') {
+                    switch (true) {
+                    default:
+                        break;
+                    case legacyValues.every((value) => value instanceof Vec2):
+                    case legacyValues.every((value) => value instanceof Vec3):
+                    case legacyValues.every((value) => value instanceof Vec4): {
+                        type Vec4plus = Vec4[];
+                        type Vec3plus = (Vec3 | Vec4)[];
+                        type Vec2plus = (Vec2 | Vec3 | Vec4)[];
+                        const components = firstValue instanceof Vec2 ? 2 : firstValue instanceof Vec3 ? 3 : 4;
+                        const track = new VectorTrack();
+                        installPathAndSetter(track);
+                        track.componentsCount = components;
+                        const [{ curve: x }, { curve: y }, { curve: z }, { curve: w }] = track.getChannels();
+                        const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
+                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpMode: interpMethod });
+                        switch (components) {
+                        case 4:
+                            w.assignSorted(times, (legacyValues as Vec4plus).map((value) => valueToFrame(value.w)));
+                            legacyEasingMethodConverter.convert(w);
+                            // falls through
+                        case 3:
+                            z.assignSorted(times, (legacyValues as Vec3plus).map((value) => valueToFrame(value.z)));
+                            legacyEasingMethodConverter.convert(z);
+                            // falls through
+                        default:
+                            x.assignSorted(times, (legacyValues as Vec2plus).map((value) => valueToFrame(value.x)));
+                            legacyEasingMethodConverter.convert(x);
+                            y.assignSorted(times, (legacyValues as Vec2plus).map((value) => valueToFrame(value.y)));
+                            legacyEasingMethodConverter.convert(y);
+                            break;
+                        }
+                        newTracks.push(track);
+                        return;
+                    }
+                    case legacyValues.every((value) => value instanceof Quat): {
+                        assertIsTrue(legacyEasingMethodConverter.nil);
+                        const track = new QuaternionTrack();
+                        installPathAndSetter(track);
+                        const interpMode = interpolate ? QuaternionInterpMode.SLERP : QuaternionInterpMode.CONSTANT;
+                        track.channel.curve.assignSorted(times, (legacyValues as Quat[]).map((value) => ({
+                            value: Quat.clone(value),
+                            interpMode,
+                        })));
+                        newTracks.push(track);
+                        return;
+                    }
+                    case legacyValues.every((value) => value instanceof Color): {
+                        const track = new ColorTrack();
+                        installPathAndSetter(track);
+                        const [{ curve: r }, { curve: g }, { curve: b }, { curve: a }] = track.getChannels();
+                        const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
+                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpMode: interpMethod });
+                        r.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.r)));
+                        legacyEasingMethodConverter.convert(r);
+                        g.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.g)));
+                        legacyEasingMethodConverter.convert(g);
+                        b.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.b)));
+                        legacyEasingMethodConverter.convert(b);
+                        a.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.a)));
+                        legacyEasingMethodConverter.convert(a);
+                        newTracks.push(track);
+                        return;
+                    }
+                    case legacyValues.every((value) => value instanceof CubicSplineNumberValue): {
+                        assertIsTrue(legacyEasingMethodConverter.nil);
+                        const track = new RealTrack();
+                        installPathAndSetter(track);
+                        const interpMethod = interpolate ? RealInterpMode.CUBIC : RealInterpMode.CONSTANT;
+                        track.channel.curve.assignSorted(times, (legacyValues as CubicSplineNumberValue[]).map((value) => new RealKeyframeValue({
+                            value: value.dataPoint,
+                            startTangent: value.inTangent,
+                            endTangent: value.outTangent,
+                            interpMode: interpMethod,
+                        })));
+                        newTracks.push(track);
+                        return;
+                    }
+                    case legacyValues.every((value) => value instanceof CubicSplineVec2Value):
+                    case legacyValues.every((value) => value instanceof CubicSplineVec3Value):
+                    case legacyValues.every((value) => value instanceof CubicSplineVec4Value): {
+                        assertIsTrue(legacyEasingMethodConverter.nil);
+                        type Vec4plus = CubicSplineVec4Value[];
+                        type Vec3plus = (CubicSplineVec3Value | CubicSplineVec4Value)[];
+                        type Vec2plus = (CubicSplineVec2Value | CubicSplineVec3Value | CubicSplineVec4Value)[];
+                        const components = firstValue instanceof CubicSplineVec2Value ? 2 : firstValue instanceof CubicSplineVec3Value ? 3 : 4;
+                        const track = new VectorTrack();
+                        installPathAndSetter(track);
+                        track.componentsCount = components;
+                        const [x, y, z, w] = track.getChannels();
+                        const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
+                        const valueToFrame = (value: number, startTangent: number, endTangent: number): RealKeyframeValue => new RealKeyframeValue({
+                            value,
+                            startTangent,
+                            endTangent,
+                            interpMode: interpMethod,
+                        });
+                        switch (components) {
+                        case 4:
+                            w.curve.assignSorted(times, (legacyValues as Vec4plus).map(
+                                (value) => valueToFrame(value.dataPoint.w, value.inTangent.w, value.outTangent.w),
+                            ));
+                            // falls through
+                        case 3:
+                            z.curve.assignSorted(times, (legacyValues as Vec3plus).map(
+                                (value) => valueToFrame(value.dataPoint.z, value.inTangent.z, value.outTangent.z),
+                            ));
+                            // falls through
+                        default:
+                            x.curve.assignSorted(times, (legacyValues as Vec2plus).map(
+                                (value) => valueToFrame(value.dataPoint.y, value.inTangent.y, value.outTangent.y),
+                            ));
+                            y.curve.assignSorted(times, (legacyValues as Vec2plus).map(
+                                (value) => valueToFrame(value.dataPoint.x, value.inTangent.x, value.outTangent.x),
+                            ));
+                            break;
+                        }
+                        newTracks.push(track);
+                        return;
+                    }
+                    } // End switch
+                }
+
+                const objectTrack = new ObjectTrack();
+                installPathAndSetter(objectTrack);
+                objectTrack.channel.curve.assignSorted(times, legacyValues);
+                newTracks.push(objectTrack);
+            };
+
+            convertCurve();
+        }
+
+        return newTracks;
+    }
+
     @serializable
     private _keys: number[][] = [];
 
@@ -189,28 +401,6 @@ export class AnimationClipLegacyData {
             commonTarget: targetCurve.commonTarget,
         }));
     }
-
-    // private _decodeCVTAs () {
-    //     const binaryBuffer: ArrayBuffer = ArrayBuffer.isView(this._nativeAsset) ? this._nativeAsset.buffer : this._nativeAsset;
-    //     if (!binaryBuffer) {
-    //         return;
-    //     }
-
-    //     const maybeCompressedKeys = this._keys;
-    //     for (let iKey = 0; iKey < maybeCompressedKeys.length; ++iKey) {
-    //         const keys = maybeCompressedKeys[iKey];
-    //         if (keys instanceof CompactValueTypeArray) {
-    //             maybeCompressedKeys[iKey] = keys.decompress(binaryBuffer);
-    //         }
-    //     }
-
-    //     for (let iCurve = 0; iCurve < this._curves.length; ++iCurve) {
-    //         const curve = this._curves[iCurve];
-    //         if (curve.data.values instanceof CompactValueTypeArray) {
-    //             curve.data.values = curve.data.values.decompress(binaryBuffer);
-    //         }
-    //     }
-    // }
 }
 
 // #region Legacy data structures prior to 1.2
@@ -380,216 +570,4 @@ function powerToBernstein ([p0, p1, p2, p3]: [number, number, number, number], b
     bernstein[1] = p1 / 3.0 + p2 * 2.0 / 3.0 + p3;
     bernstein[2] = p2 / 3.0 + p3;
     bernstein[3] = p3;
-}
-
-export function convertAnimationClipLegacyData (animationClipLegacyData: AnimationClipLegacyData) {
-    const newTracks: Track[] = [];
-
-    const {
-        keys: legacyKeys,
-        curves: legacyCurves,
-        commonTargets: legacyCommonTargets,
-    } = animationClipLegacyData;
-
-    const untypedTracks = legacyCommonTargets.map((legacyCommonTarget) => {
-        const track = new UntypedTrack();
-        track.path = legacyCommonTarget.modifiers;
-        track.setter = legacyCommonTarget.valueAdapter;
-        newTracks.push(track);
-        return track;
-    });
-
-    for (const legacyCurve of legacyCurves) {
-        const legacyCurveData = legacyCurve.data;
-        const legacyValues = legacyCurveData.values;
-        if (legacyValues.length === 0) {
-            // Legacy clip did not record type info.
-            continue;
-        }
-        const legacyKeysIndex = legacyCurveData.keys;
-        // Rule: negative index means single frame.
-        const times = legacyKeysIndex < 0 ? [0.0] : legacyKeys[legacyCurveData.keys];
-        const firstValue = legacyValues[0];
-        // Rule: default to true.
-        const interpolate = legacyCurveData ?? true;
-        // Rule: _arrayLength only used for morph target, internally.
-        assertIsTrue(typeof legacyCurveData._arrayLength !== 'number' || typeof firstValue === 'number');
-        const legacyEasingMethodConverter = new LegacyEasingMethodConverter(legacyCurveData, times.length);
-
-        const installPathAndSetter = (track: Track) => {
-            track.path = legacyCurve.modifiers;
-            track.setter = legacyCurve.valueAdapter;
-        };
-
-        let legacyCommonTargetCurve: RealCurve | undefined;
-        if (typeof legacyCurve.commonTarget === 'number') {
-            // Rule: common targets should only target Vectors/`Size`/`Color`.
-            if (!legacyValues.every((value) => typeof value === 'number')) {
-                warn(`Incorrect curve.`);
-                continue;
-            }
-            // Rule: Each curve that has common target should be numeric curve and targets string property.
-            if (legacyCurve.valueAdapter || legacyCurve.modifiers.length !== 1 || typeof legacyCurve.modifiers[0] !== 'string') {
-                warn(`Incorrect curve.`);
-                continue;
-            }
-            const propertyName = legacyCurve.modifiers[0];
-            const untypedTrack = untypedTracks[legacyCurve.commonTarget];
-            const { curve } = untypedTrack.addChannel(propertyName);
-            legacyCommonTargetCurve = curve;
-        }
-
-        const convertCurve = () => {
-            if (typeof firstValue === 'number') {
-                if (!legacyValues.every((value) => typeof value === 'number')) {
-                    warn(`Misconfigured curve.`);
-                    return;
-                }
-                let realCurve: RealCurve;
-                if (legacyCommonTargetCurve) {
-                    realCurve = legacyCommonTargetCurve;
-                } else {
-                    const track = new RealTrack();
-                    installPathAndSetter(track);
-                    newTracks.push(track);
-                    realCurve = track.channel.curve;
-                }
-                const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
-                realCurve.assignSorted(times, (legacyValues as number[]).map((value) => new RealKeyframeValue({ value, interpMode: interpMethod })));
-                legacyEasingMethodConverter.convert(realCurve);
-                return;
-            } else if (typeof firstValue === 'object') {
-                switch (true) {
-                default:
-                    break;
-                case legacyValues.every((value) => value instanceof Vec2):
-                case legacyValues.every((value) => value instanceof Vec3):
-                case legacyValues.every((value) => value instanceof Vec4): {
-                    type Vec4plus = Vec4[];
-                    type Vec3plus = (Vec3 | Vec4)[];
-                    type Vec2plus = (Vec2 | Vec3 | Vec4)[];
-                    const components = firstValue instanceof Vec2 ? 2 : firstValue instanceof Vec3 ? 3 : 4;
-                    const track = new VectorTrack();
-                    installPathAndSetter(track);
-                    track.componentsCount = components;
-                    const [{ curve: x }, { curve: y }, { curve: z }, { curve: w }] = track.getChannels();
-                    const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
-                    const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpMode: interpMethod });
-                    switch (components) {
-                    case 4:
-                        w.assignSorted(times, (legacyValues as Vec4plus).map((value) => valueToFrame(value.w)));
-                        legacyEasingMethodConverter.convert(w);
-                        // falls through
-                    case 3:
-                        z.assignSorted(times, (legacyValues as Vec3plus).map((value) => valueToFrame(value.z)));
-                        legacyEasingMethodConverter.convert(z);
-                        // falls through
-                    default:
-                        x.assignSorted(times, (legacyValues as Vec2plus).map((value) => valueToFrame(value.x)));
-                        legacyEasingMethodConverter.convert(x);
-                        y.assignSorted(times, (legacyValues as Vec2plus).map((value) => valueToFrame(value.y)));
-                        legacyEasingMethodConverter.convert(y);
-                        break;
-                    }
-                    newTracks.push(track);
-                    return;
-                }
-                case legacyValues.every((value) => value instanceof Quat): {
-                    assertIsTrue(legacyEasingMethodConverter.nil);
-                    const track = new QuaternionTrack();
-                    installPathAndSetter(track);
-                    const interpMode = interpolate ? QuaternionInterpMode.SLERP : QuaternionInterpMode.CONSTANT;
-                    track.channel.curve.assignSorted(times, (legacyValues as Quat[]).map((value) => ({
-                        value: Quat.clone(value),
-                        interpMode,
-                    })));
-                    newTracks.push(track);
-                    return;
-                }
-                case legacyValues.every((value) => value instanceof Color): {
-                    const track = new ColorTrack();
-                    installPathAndSetter(track);
-                    const [{ curve: r }, { curve: g }, { curve: b }, { curve: a }] = track.getChannels();
-                    const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
-                    const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpMode: interpMethod });
-                    r.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.r)));
-                    legacyEasingMethodConverter.convert(r);
-                    g.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.g)));
-                    legacyEasingMethodConverter.convert(g);
-                    b.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.b)));
-                    legacyEasingMethodConverter.convert(b);
-                    a.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.a)));
-                    legacyEasingMethodConverter.convert(a);
-                    newTracks.push(track);
-                    return;
-                }
-                case legacyValues.every((value) => value instanceof CubicSplineNumberValue): {
-                    assertIsTrue(legacyEasingMethodConverter.nil);
-                    const track = new RealTrack();
-                    installPathAndSetter(track);
-                    const interpMethod = interpolate ? RealInterpMode.CUBIC : RealInterpMode.CONSTANT;
-                    track.channel.curve.assignSorted(times, (legacyValues as CubicSplineNumberValue[]).map((value) => new RealKeyframeValue({
-                        value: value.dataPoint,
-                        startTangent: value.inTangent,
-                        endTangent: value.outTangent,
-                        interpMode: interpMethod,
-                    })));
-                    newTracks.push(track);
-                    return;
-                }
-                case legacyValues.every((value) => value instanceof CubicSplineVec2Value):
-                case legacyValues.every((value) => value instanceof CubicSplineVec3Value):
-                case legacyValues.every((value) => value instanceof CubicSplineVec4Value): {
-                    assertIsTrue(legacyEasingMethodConverter.nil);
-                    type Vec4plus = CubicSplineVec4Value[];
-                    type Vec3plus = (CubicSplineVec3Value | CubicSplineVec4Value)[];
-                    type Vec2plus = (CubicSplineVec2Value | CubicSplineVec3Value | CubicSplineVec4Value)[];
-                    const components = firstValue instanceof CubicSplineVec2Value ? 2 : firstValue instanceof CubicSplineVec3Value ? 3 : 4;
-                    const track = new VectorTrack();
-                    installPathAndSetter(track);
-                    track.componentsCount = components;
-                    const [x, y, z, w] = track.getChannels();
-                    const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
-                    const valueToFrame = (value: number, startTangent: number, endTangent: number): RealKeyframeValue => new RealKeyframeValue({
-                        value,
-                        startTangent,
-                        endTangent,
-                        interpMode: interpMethod,
-                    });
-                    switch (components) {
-                    case 4:
-                        w.curve.assignSorted(times, (legacyValues as Vec4plus).map(
-                            (value) => valueToFrame(value.dataPoint.w, value.inTangent.w, value.outTangent.w),
-                        ));
-                        // falls through
-                    case 3:
-                        z.curve.assignSorted(times, (legacyValues as Vec3plus).map(
-                            (value) => valueToFrame(value.dataPoint.z, value.inTangent.z, value.outTangent.z),
-                        ));
-                        // falls through
-                    default:
-                        x.curve.assignSorted(times, (legacyValues as Vec2plus).map(
-                            (value) => valueToFrame(value.dataPoint.y, value.inTangent.y, value.outTangent.y),
-                        ));
-                        y.curve.assignSorted(times, (legacyValues as Vec2plus).map(
-                            (value) => valueToFrame(value.dataPoint.x, value.inTangent.x, value.outTangent.x),
-                        ));
-                        break;
-                    }
-                    newTracks.push(track);
-                    return;
-                }
-                } // End switch
-            }
-
-            const objectTrack = new ObjectTrack();
-            installPathAndSetter(objectTrack);
-            objectTrack.channel.curve.assignSorted(times, legacyValues);
-            newTracks.push(objectTrack);
-        };
-
-        convertCurve();
-    }
-
-    return newTracks;
 }
