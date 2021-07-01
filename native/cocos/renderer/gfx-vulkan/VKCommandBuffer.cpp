@@ -150,13 +150,13 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         }
         clearValues[attachmentCount - 1].depthStencil = {depth, static_cast<uint>(stencil)};
     }
-
+    auto* device = CCVKDevice::getInstance();
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
     passBeginInfo.renderPass      = gpuRenderPass->vkRenderPass;
     passBeginInfo.framebuffer     = framebuffer;
     passBeginInfo.clearValueCount = clearValues.size();
     passBeginInfo.pClearValues    = clearValues.data();
-    passBeginInfo.renderArea      = {{renderArea.x, renderArea.y}, {renderArea.width, renderArea.height}};
+    passBeginInfo.renderArea      = {{0, 0}, {device->getWidth(), device->getHeight()}};
     vkCmdBeginRenderPass(_gpuCommandBuffer->vkCommandBuffer, &passBeginInfo,
                          secondaryCBCount ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS : VK_SUBPASS_CONTENTS_INLINE);
 
