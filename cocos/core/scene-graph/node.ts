@@ -267,10 +267,6 @@ export class Node extends BaseNode {
         return result;
     }
 
-    public destroy () {
-        return super.destroy();
-    }
-
     get native (): any {
         return this._nativeObj;
     }
