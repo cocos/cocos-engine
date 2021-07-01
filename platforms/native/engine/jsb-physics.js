@@ -394,8 +394,8 @@ class Shape {
     }
     setAsTrigger (v) { this._impl.setAsTrigger(v); }
     setCenter (v) { this._impl.setCenter(v.x, v.y, v.z); }
-    getAABB (v) { }
-    getBoundingSphere (v) { }
+    getAABB(v) { v.copy(this._impl.getAABB());}
+    getBoundingSphere (v) { v.copy(this._impl.getBoundingSphere());}
     updateEventListener () {
         var flag = 0;
         flag |= ESHAPE_FLAG.DETECT_CONTACT_CCD;
