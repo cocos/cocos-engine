@@ -25,11 +25,26 @@
 
 #pragma once
 
+#include <utility>
+
 #include "scene/Model.h"
 
 namespace cc {
 namespace scene {
-
+struct BakedAnimInfo {
+    gfx::Buffer *buffer{nullptr};
+    uint8_t *    data{nullptr};
+    uint8_t *    dirty{nullptr};
+    inline bool  getDirty() const {
+        return static_cast<bool>(*reinterpret_cast<int32_t*>(dirty));
+    }
+};
+struct BakedJointInfo {
+    std::vector<AABB *> boundsInfo;
+    uint8_t *           jointTextureInfo{nullptr};
+    BakedAnimInfo       animInfo;
+    gfx::Buffer *       buffer{nullptr};
+};
 class BakedSkinningModel : public Model {
 public:
     BakedSkinningModel()                           = default;
@@ -39,8 +54,21 @@ public:
     BakedSkinningModel &operator=(const BakedSkinningModel &) = delete;
     BakedSkinningModel &operator=(BakedSkinningModel &&) = delete;
 
-    void updateTransform(uint32_t stamp) override;
-    void updateUBOs(uint32_t stamp) override;
+    void        updateTransform(uint32_t stamp) override;
+    void        updateUBOs(uint32_t stamp) override;
+    inline void setJointMedium(bool isUploadAnim, BakedJointInfo &&jointMedium) {
+        _isUploadAnim = isUploadAnim;
+        _jointMedium  = std::move(jointMedium);
+    }
+    inline void setAnimInfoIdx(int32_t idx) {
+        _instAnimInfoIdx = idx;
+    }
+
+private:
+    ModelType      _type{ModelType::BAKED_SKINNING};
+    BakedJointInfo _jointMedium;
+    bool           _isUploadAnim{false};
+    int32_t        _instAnimInfoIdx{-1};
 };
 
 } // namespace scene

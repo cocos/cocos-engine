@@ -26,6 +26,7 @@
 #pragma once
 
 #include <vector>
+#include "scene/BakedSkinningModel.h"
 #include "scene/DirectionalLight.h"
 #include "scene/DrawBatch2D.h"
 #include "scene/Model.h"
@@ -57,10 +58,11 @@ public:
 
     void addModel(Model *);
     void addSkinningModel(SkinningModel *);
+    void addBakedSkinningModel(BakedSkinningModel *);
     void removeModel(Model *);
     void removeModels();
 
-    void updateBatches(std::vector<DrawBatch2D *>&&);
+    void updateBatches(std::vector<DrawBatch2D *> &&);
     void addBatch(DrawBatch2D *);
     void removeBatch(DrawBatch2D *);
     void removeBatch(uint32_t index);

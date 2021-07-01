@@ -87,6 +87,10 @@ void RenderScene::addModel(Model *model) {
     _models.push_back(model);
 }
 
+void RenderScene::addBakedSkinningModel(BakedSkinningModel *bakedSkinModel) {
+    _models.push_back(bakedSkinModel);
+}
+
 void RenderScene::addSkinningModel(SkinningModel *skinModel) {
     _models.push_back(skinModel);
 }

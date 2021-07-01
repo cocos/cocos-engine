@@ -26,6 +26,31 @@
 
 namespace cc {
 namespace scene {
+void BakedSkinningModel::updateTransform(uint32_t stamp) {
+    Model::updateTransform(stamp);
+    if (!_isUploadAnim) {
+        return;
+    }
+    BakedAnimInfo& animInfo  = _jointMedium.animInfo;
+    AABB*          skelBound = !_jointMedium.boundsInfo.empty() ? _jointMedium.boundsInfo[*animInfo.data] : nullptr;
+    if (_worldBounds && skelBound) {
+        Node* node = getTransform();
+        skelBound->transform(node->getWorldMatrix(), _worldBounds);
+    }
+}
+
+void BakedSkinningModel::updateUBOs(uint32_t stamp) {
+    Model::updateUBOs(stamp);
+    BakedAnimInfo& info = _jointMedium.animInfo;
+    int            idx  = _instAnimInfoIdx;
+    if (idx >= 0) {
+        std::vector<uint8_t*>& views = getInstancedAttributeBlock()->views;
+        views[0]                     = info.data;
+    } else if (info.getDirty()) {
+        info.buffer->update(info.data, info.buffer->getSize());
+        *info.dirty = 0;
+    }
+}
 
 } // namespace scene
 } // namespace cc

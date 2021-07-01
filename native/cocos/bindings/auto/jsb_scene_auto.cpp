@@ -5000,6 +5000,352 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
     se::ScriptEngine::getInstance()->clearException();
     return true;
 }
+se::Object* __jsb_cc_scene_BakedAnimInfo_proto = nullptr;
+se::Class* __jsb_cc_scene_BakedAnimInfo_class = nullptr;
+
+static bool js_scene_BakedAnimInfo_getDirty(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::BakedAnimInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_BakedAnimInfo_getDirty : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        bool result = cobj->getDirty();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_BakedAnimInfo_getDirty : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_BakedAnimInfo_getDirty)
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::scene::BakedAnimInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::scene::BakedAnimInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("buffer", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->buffer), ctx);
+    }
+    json->getProperty("data", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->data), ctx);
+    }
+    json->getProperty("dirty", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->dirty), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_scene_BakedAnimInfo_finalize)
+
+static bool js_scene_BakedAnimInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        cc::scene::BakedAnimInfo* cobj = JSB_ALLOC(cc::scene::BakedAnimInfo);
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        cc::scene::BakedAnimInfo* cobj = JSB_ALLOC(cc::scene::BakedAnimInfo);
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    cc::scene::BakedAnimInfo* cobj = JSB_ALLOC(cc::scene::BakedAnimInfo);
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->buffer), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->data), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->dirty), nullptr);
+    }
+
+    if(!ok) {
+        JSB_FREE(cobj);
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_scene_BakedAnimInfo_constructor, __jsb_cc_scene_BakedAnimInfo_class, js_cc_scene_BakedAnimInfo_finalize)
+
+
+
+static bool js_cc_scene_BakedAnimInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::BakedAnimInfo>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::scene::BakedAnimInfo>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_scene_BakedAnimInfo_finalize)
+
+bool js_register_scene_BakedAnimInfo(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cls = se::Class::create("BakedAnimInfo", obj, nullptr, _SE(js_scene_BakedAnimInfo_constructor));
+
+    cls->defineFunction("getDirty", _SE(js_scene_BakedAnimInfo_getDirty));
+    cls->defineFinalizeFunction(_SE(js_cc_scene_BakedAnimInfo_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::scene::BakedAnimInfo>(cls);
+
+    __jsb_cc_scene_BakedAnimInfo_proto = cls->getProto();
+    __jsb_cc_scene_BakedAnimInfo_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_scene_BakedJointInfo_proto = nullptr;
+se::Class* __jsb_cc_scene_BakedJointInfo_class = nullptr;
+
+
+template<>
+bool sevalue_to_native(const se::Value &from, cc::scene::BakedJointInfo * to, se::Object *ctx)
+{
+    assert(from.isObject());
+    se::Object *json = from.toObject();
+    auto* data = reinterpret_cast<cc::scene::BakedJointInfo*>(json->getPrivateData());
+    if (data) {
+        *to = *data;
+        return true;
+    }
+    se::Value field;
+    bool ok = true;
+    json->getProperty("boundsInfo", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->boundsInfo), ctx);
+    }
+    json->getProperty("jointTextureInfo", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->jointTextureInfo), ctx);
+    }
+    json->getProperty("animInfo", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->animInfo), ctx);
+    }
+    json->getProperty("buffer", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->buffer), ctx);
+    }
+    return ok;
+}
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_scene_BakedJointInfo_finalize)
+
+static bool js_scene_BakedJointInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    CC_UNUSED bool ok = true;
+    const auto& args = s.args();
+    size_t argc = args.size();
+
+    if(argc == 0)
+    {
+        cc::scene::BakedJointInfo* cobj = JSB_ALLOC(cc::scene::BakedJointInfo);
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    if(argc == 1 && args[0].isObject())
+    {
+        se::Object *json = args[0].toObject();
+        se::Value field;
+
+        cc::scene::BakedJointInfo* cobj = JSB_ALLOC(cc::scene::BakedJointInfo);
+        ok &= sevalue_to_native(args[0], cobj, s.thisObject());
+        if(!ok) {
+            JSB_FREE(cobj);
+            SE_REPORT_ERROR("argument convertion error");
+            return false;
+        }
+
+        s.thisObject()->setPrivateData(cobj);
+        se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+        return true;
+    }
+
+    cc::scene::BakedJointInfo* cobj = JSB_ALLOC(cc::scene::BakedJointInfo);
+    if (argc > 0 && !args[0].isUndefined()) {
+        ok &= sevalue_to_native(args[0], &(cobj->boundsInfo), nullptr);
+    }
+    if (argc > 1 && !args[1].isUndefined()) {
+        ok &= sevalue_to_native(args[1], &(cobj->jointTextureInfo), nullptr);
+    }
+    if (argc > 2 && !args[2].isUndefined()) {
+        ok &= sevalue_to_native(args[2], &(cobj->animInfo), nullptr);
+    }
+    if (argc > 3 && !args[3].isUndefined()) {
+        ok &= sevalue_to_native(args[3], &(cobj->buffer), nullptr);
+    }
+
+    if(!ok) {
+        JSB_FREE(cobj);
+        SE_REPORT_ERROR("Argument convertion error");
+        return false;
+    }
+
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_scene_BakedJointInfo_constructor, __jsb_cc_scene_BakedJointInfo_class, js_cc_scene_BakedJointInfo_finalize)
+
+
+
+static bool js_cc_scene_BakedJointInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::BakedJointInfo>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::scene::BakedJointInfo>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_scene_BakedJointInfo_finalize)
+
+bool js_register_scene_BakedJointInfo(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cls = se::Class::create("BakedJointInfo", obj, nullptr, _SE(js_scene_BakedJointInfo_constructor));
+
+    cls->defineFinalizeFunction(_SE(js_cc_scene_BakedJointInfo_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::scene::BakedJointInfo>(cls);
+
+    __jsb_cc_scene_BakedJointInfo_proto = cls->getProto();
+    __jsb_cc_scene_BakedJointInfo_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_scene_BakedSkinningModel_proto = nullptr;
+se::Class* __jsb_cc_scene_BakedSkinningModel_class = nullptr;
+
+static bool js_scene_BakedSkinningModel_setAnimInfoIdx(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::BakedSkinningModel>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_BakedSkinningModel_setAnimInfoIdx : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<int32_t, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_BakedSkinningModel_setAnimInfoIdx : Error processing arguments");
+        cobj->setAnimInfoIdx(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_BakedSkinningModel_setAnimInfoIdx)
+
+static bool js_scene_BakedSkinningModel_setJointMedium(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::BakedSkinningModel>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_BakedSkinningModel_setJointMedium : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<bool, false> arg0 = {};
+        HolderType<cc::scene::BakedJointInfo, true> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_BakedSkinningModel_setJointMedium : Error processing arguments");
+        cobj->setJointMedium(arg0.value(), std::move(arg1.value()));
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_scene_BakedSkinningModel_setJointMedium)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_scene_BakedSkinningModel_finalize)
+
+static bool js_scene_BakedSkinningModel_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+{
+    cc::scene::BakedSkinningModel* cobj = JSB_ALLOC(cc::scene::BakedSkinningModel);
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_scene_BakedSkinningModel_constructor, __jsb_cc_scene_BakedSkinningModel_class, js_cc_scene_BakedSkinningModel_finalize)
+
+
+
+static bool js_cc_scene_BakedSkinningModel_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::BakedSkinningModel>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::scene::BakedSkinningModel>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_scene_BakedSkinningModel_finalize)
+
+bool js_register_scene_BakedSkinningModel(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cls = se::Class::create("BakedSkinningModel", obj, __jsb_cc_scene_Model_proto, _SE(js_scene_BakedSkinningModel_constructor));
+
+    cls->defineFunction("setAnimInfoIdx", _SE(js_scene_BakedSkinningModel_setAnimInfoIdx));
+    cls->defineFunction("setJointMedium", _SE(js_scene_BakedSkinningModel_setJointMedium));
+    cls->defineFinalizeFunction(_SE(js_cc_scene_BakedSkinningModel_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::scene::BakedSkinningModel>(cls);
+
+    __jsb_cc_scene_BakedSkinningModel_proto = cls->getProto();
+    __jsb_cc_scene_BakedSkinningModel_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
 se::Object* __jsb_cc_scene_DrawBatch2D_proto = nullptr;
 se::Class* __jsb_cc_scene_DrawBatch2D_class = nullptr;
 
@@ -5670,6 +6016,25 @@ bool js_register_scene_SkinningModel(se::Object* obj) // NOLINT(readability-iden
 se::Object* __jsb_cc_scene_RenderScene_proto = nullptr;
 se::Class* __jsb_cc_scene_RenderScene_class = nullptr;
 
+static bool js_scene_RenderScene_addBakedSkinningModel(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addBakedSkinningModel : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::scene::BakedSkinningModel*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_RenderScene_addBakedSkinningModel : Error processing arguments");
+        cobj->addBakedSkinningModel(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_RenderScene_addBakedSkinningModel)
+
 static bool js_scene_RenderScene_addBatch(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
@@ -6079,6 +6444,7 @@ bool js_register_scene_RenderScene(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("RenderScene", obj, nullptr, _SE(js_scene_RenderScene_constructor));
 
+    cls->defineFunction("addBakedSkinningModel", _SE(js_scene_RenderScene_addBakedSkinningModel));
     cls->defineFunction("addBatch", _SE(js_scene_RenderScene_addBatch));
     cls->defineFunction("addModel", _SE(js_scene_RenderScene_addModel));
     cls->defineFunction("addSkinningModel", _SE(js_scene_RenderScene_addSkinningModel));
@@ -7259,25 +7625,28 @@ bool register_all_scene(se::Object* obj)
     se::Object* ns = nsVal.toObject();
 
     js_register_scene_RenderScene(ns);
+    js_register_scene_Camera(ns);
     js_register_scene_Fog(ns);
     js_register_scene_Node(ns);
     js_register_scene_Frustum(ns);
     js_register_scene_DrawBatch2D(ns);
     js_register_scene_Light(ns);
     js_register_scene_SphereLight(ns);
+    js_register_scene_Model(ns);
+    js_register_scene_BakedSkinningModel(ns);
     js_register_scene_Plane(ns);
     js_register_scene_JointTransform(ns);
     js_register_scene_RenderWindow(ns);
     js_register_scene_Shadow(ns);
     js_register_scene_SubModel(ns);
+    js_register_scene_BakedJointInfo(ns);
     js_register_scene_AABB(ns);
     js_register_scene_Ambient(ns);
-    js_register_scene_Model(ns);
     js_register_scene_SkinningModel(ns);
     js_register_scene_DirectionalLight(ns);
     js_register_scene_JointInfo(ns);
     js_register_scene_Root(ns);
-    js_register_scene_Camera(ns);
+    js_register_scene_BakedAnimInfo(ns);
     js_register_scene_Pass(ns);
     js_register_scene_Skybox(ns);
     js_register_scene_PipelineSharedSceneData(ns);
