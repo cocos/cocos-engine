@@ -59,10 +59,6 @@ markAsWarning(legacyCC, 'cc', [
         name: 'winSize',
         suggest: 'please use view.getVisibleSize() instead.',
     },
-    {
-        name: 'visibleRect',
-        suggest: 'cc.visibleRect is an inner module, which will be removed in the future, please use view.getVisibleSize() instead.',
-    },
 ]);
 // #endregion deprecation on view
 
