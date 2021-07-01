@@ -2098,10 +2098,17 @@ source_group(TREE ${CWD} PREFIX "Source Files" FILES ${COCOS2D_SOURCE_LIST})
 
 
 if(MSVC)
-    file(GLOB_RECURSE WIN32_DLLS
-        ${CWD}/external/win32/libs/*.dll
-        ${CWD}/external/win32/libs/Debug/*.dll
-    )
+    if(${CMAKE_SIZEOF_VOID_P} STREQUAL "4")
+        file(GLOB_RECURSE WIN32_DLLS
+            ${CWD}/external/win32/libs/*.dll
+            ${CWD}/external/win32/libs/Debug/*.dll
+        )
+    else()
+        file(GLOB_RECURSE WIN32_DLLS
+            ${CWD}/external/win64/libs/*.dll
+            ${CWD}/external/win64/libs/Debug/*.dll
+        )
+    endif()
     target_compile_options(cocos2d PUBLIC /MP)
 endif()
 

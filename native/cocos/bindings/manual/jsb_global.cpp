@@ -626,7 +626,7 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
 
                 if (loadSucceed) {
                     se::HandleObject retObj(se::Object::createPlainObject());
-                    ulong_to_seval(reinterpret_cast<ptrdiff_t>(imgInfo->data), &dataVal); //NOLINT Why use addr? See #3033.
+                    dataVal.setUIntptr_t(reinterpret_cast<uintptr_t>(imgInfo->data));
                     retObj->setProperty("data", dataVal);
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
@@ -698,10 +698,9 @@ static bool js_destroyImage(se::State &s) { //NOLINT
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        unsigned long data = 0; //NOLINT
-        ok &= seval_to_ulong(args[0], &data);
+        auto *data = reinterpret_cast<char *>(args[0].toUIntptr_t());
         SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
-        free(reinterpret_cast<char *>(data));
+        free(data);
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);

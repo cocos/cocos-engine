@@ -1,11 +1,11 @@
 #pragma once
 
-#include <memory>
-#include <string>
 #include "Game.h"
+#include <string>
+#include <memory>
 
 namespace cc {
-class View;
+    class View;
 };
 
 class AppDelegate {

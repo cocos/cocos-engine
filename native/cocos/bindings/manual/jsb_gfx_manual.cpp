@@ -66,8 +66,8 @@ bool js_gfx_Device_copyBuffersToTexture(se::State &s) { // NOLINT(readability-id
                         } else {
                             assert(false);
                         }
-                    } else {
-                        unsigned long address = 0;
+                    } else { 
+                        unsigned long address = 0; //NOLINT(google-runtime-int)
                         seval_to_ulong(value, &address);
                         ptr = reinterpret_cast<uint8_t *>(address);
                     }
@@ -99,6 +99,7 @@ bool js_gfx_Device_copyTexImagesToTexture(se::State &s) { // NOLINT(readability-
         cc::gfx::BufferDataList        arg0;
         cc::gfx::Texture *             arg1 = nullptr;
         cc::gfx::BufferTextureCopyList arg2;
+        CC_UNUSED size_t               dataLength = 0;
         if (args[0].isObject()) {
             se::Object *dataObj = args[0].toObject();
             SE_PRECONDITION2(dataObj->isArray(), false, "Buffers must be an array!");
@@ -110,14 +111,12 @@ bool js_gfx_Device_copyTexImagesToTexture(se::State &s) { // NOLINT(readability-
             for (uint32_t i = 0; i < length; ++i) {
                 if (dataObj->getArrayElement(i, &value)) {
                     if (value.isObject()) {
-                        CC_UNUSED size_t dataLength = 0;
+                        
                         uint8_t *        address    = nullptr;
                         value.toObject()->getTypedArrayData(&address, &dataLength);
                         arg0[i] = address;
                     } else {
-                        unsigned long dataPtr = 0;
-                        seval_to_ulong(value, &dataPtr);
-                        arg0[i] = reinterpret_cast<uint8_t *>(dataPtr);
+                        arg0[i] = reinterpret_cast<uint8_t *>(value.toUIntptr_t());
                     }
                 }
             }
