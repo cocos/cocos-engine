@@ -57,11 +57,7 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
     }
 
     onComponentSet () {
-        const ws = Math.abs(absMaxComponent(this._collider.node.worldScale));
-        const radius = this.collider.radius;
-        const minVolumeSize = physics.config.minVolumeSize;
-        const unscaledRadius = ws * radius < minVolumeSize ? minVolumeSize / ws : radius;
-        this._btShape = new Ammo.btSphereShape(unscaledRadius);
+        this._btShape = new Ammo.btSphereShape(this.getMinUnscaledRadius());
         this.setScale();
     }
 
