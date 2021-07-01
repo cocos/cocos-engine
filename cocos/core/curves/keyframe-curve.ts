@@ -10,7 +10,7 @@ type KeyFrame<TKeyframeValue> = [number, TKeyframeValue];
  * Curve.
  */
 @ccclass('cc.KeyframeCurve')
-export class KeyframeCurve<TKeyframeValue> implements CurveBase {
+export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFrame<TKeyframeValue>> {
     /**
      * Gets the count of keyframes.
      */
@@ -42,10 +42,32 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase {
     /**
      * Returns an iterator to keyframe pairs.
      */
-    public* keyframes (): Iterable<KeyFrame<TKeyframeValue>> {
-        for (let i = 0; i < this._times.length; ++i) {
-            yield [this._times[i], this._values[i]];
-        }
+    [Symbol.iterator] () {
+        let index = 0;
+        return {
+            next: (): IteratorResult<KeyFrame<TKeyframeValue>> => {
+                if (index >= this._times.length) {
+                    return {
+                        done: true,
+                        value: undefined,
+                    };
+                } else {
+                    const value: KeyFrame<TKeyframeValue> = [this._times[index], this._values[index]];
+                    ++index;
+                    return {
+                        done: false,
+                        value,
+                    };
+                }
+            },
+        };
+    }
+
+    /**
+     * Returns an iterator to keyframe pairs.
+     */
+    public keyframes (): Iterable<KeyFrame<TKeyframeValue>> {
+        return this;
     }
 
     public times (): Iterable<number> {
