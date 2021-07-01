@@ -4,6 +4,7 @@ declare module 'pal/system' {
         readonly gl: boolean;
         readonly canvas: boolean;
         readonly imageBitmap: boolean;
+        readonly fullscreen: boolean,
     }
 
     class System {
@@ -35,8 +36,36 @@ declare module 'pal/system' {
         public readonly browserVersion: string;
         public readonly pixelRatio: number;
         public readonly supportCapability: SupportCapability;
+        public readonly isOnFullScreen: boolean;
 
-        public getViewSize (): import('cocos/core/math').Size;
+        /**
+         * Asynchronously resize screen to a specified size.
+         * Available on desktop related platform.
+         * @param size Specify the size that the screen need to resize to.
+         * @returns Promise to resize screen.
+         * @todo not implemented yet
+         */
+        public resizeScreen (size: import('cocos/core/math').Size): Promise<void>;
+        /**
+         * Asynchronously request fullscreen
+         * If failed to request fullscreen, another attempt will be made to request fullscreen the next time a user interaction occurs.
+         * @returns Promise to request fullscreen
+         */
+        public requestFullScreen (): Promise<void>;
+        /**
+         * Asynchronously exit fullscreen
+         * @returns Promise to exit fullscreen
+         */
+        public exitFullScreen (): Promise<void>;
+        /**
+         * Get the size of current screen.
+         * On Web platform, this should be the size of game container.
+         */
+        public getScreenSize (): import('cocos/core/math').Size;
+        /**
+         * Get the orientation of current game.
+         * Available on mobile related platform.
+         */
         public getOrientation (): import('pal/system/enum-type').Orientation;
         /**
          * Get the SafeAreaEdge based on the screen coordinate system.
@@ -55,13 +84,15 @@ declare module 'pal/system' {
         public onHide (cb: () => void);
         public onShow (cb: () => void);
         public onClose (cb: () => void);
-        public onViewResize (cb: () => void);
+        public onFullscreenChange (cb: () => void);
+        public onScreenResize (cb: () => void);
         public onOrientationChange (cb: () => void);
 
         public offHide (cb?: () => void);
         public offShow (cb?: () => void);
         public offClose (cb?: () => void);
-        public offViewResize (cb?: () => void);
+        public offFullscreenChange (cb?: () => void);
+        public offScreenResize (cb?: () => void);
         public offOrientationChange (cb?: () => void);
 
         // TODO: support onError

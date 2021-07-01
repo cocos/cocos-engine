@@ -25,12 +25,12 @@ export class MouseInputSource {
         jsb.onMouseUp =  this._createCallback(SystemEventType.MOUSE_UP);
         jsb.onMouseWheel = (event: jsb.MouseWheelEvent) => {
             const location = this._getLocation(event);
-            const viewSize = system.getViewSize();
+            const screenSize = system.getScreenSize();
             const matchStandardFactor = 120;
             const inputEvent: MouseWheelInputEvent = {
                 type: SystemEventType.MOUSE_WHEEL,
                 x: location.x,
-                y: viewSize.height - location.y,
+                y: screenSize.height - location.y,
                 button: event.button,
                 deltaX: event.wheelDeltaX * matchStandardFactor, // scale up to match the web interface
                 deltaY: event.wheelDeltaY * matchStandardFactor,
@@ -43,9 +43,9 @@ export class MouseInputSource {
     private _createCallback (eventType: SystemEvent.EventType) {
         return (event: jsb.MouseEvent) => {
             const location = this._getLocation(event);
-            const viewSize = system.getViewSize();
+            const screenSize = system.getScreenSize();
             const locationX = location.x;
-            const locationY = viewSize.height - location.y;
+            const locationY = screenSize.height - location.y;
             const inputEvent: MouseInputEvent = {
                 type: eventType,
                 x: locationX,

@@ -3,6 +3,7 @@ import { SafeAreaEdge, SupportCapability } from 'pal/system';
 import { Size } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
+import { screenUtils } from './screen-utils';
 
 class System {
     public readonly networkType: NetworkType;
@@ -20,6 +21,10 @@ class System {
     public readonly browserVersion: string;
     public readonly pixelRatio: number;
     public readonly supportCapability: SupportCapability;
+
+    public get isOnFullScreen (): boolean {
+        return screenUtils.isOnFullscreen;
+    }
 
     private _eventTarget: EventTarget = new EventTarget();
     private _battery?: any;
@@ -174,7 +179,9 @@ class System {
             gl: supportWebGL,
             canvas: supportCanvas,
             imageBitmap: supportImageBitmap,
+            fullscreen: screenUtils.supportsFullScreen,
         };
+        this._isOnFullScreen = false;
 
         this._registerEvent();
     }
@@ -257,13 +264,17 @@ class System {
         }
     }
 
-    public getViewSize (): Size {
-        const element = document.getElementById('GameDiv');
-        if (!element) {
-            return new Size(window.innerWidth, window.innerHeight);
-        } else {
-            return new Size(element.clientWidth, element.clientHeight);
-        }
+    public resizeScreen (size: Size): Promise<void> {
+        throw new Error('TODO');
+    }
+    public requestFullScreen (): Promise<void> {
+        return screenUtils.requestFullScreen();
+    }
+    public exitFullScreen (): Promise<void> {
+        return screenUtils.exitFullScreen();
+    }
+    public getScreenSize (): Size {
+        return screenUtils.getScreenSize();
     }
     public getOrientation (): Orientation {
         throw new Error('TODO');
@@ -321,7 +332,10 @@ class System {
     public onClose (cb: () => void) {
         this._eventTarget.on(AppEvent.CLOSE, cb);
     }
-    public onViewResize (cb: () => void) {
+    public onFullscreenChange (cb: () => void) {
+        this._eventTarget.on(AppEvent.FULLSCREEN_CHANGE, cb);
+    }
+    public onScreenResize (cb: () => void) {
         this._eventTarget.on(AppEvent.RESIZE, cb);
     }
     public onOrientationChange (cb: () => void) {
@@ -337,7 +351,10 @@ class System {
     public offClose (cb?: () => void) {
         this._eventTarget.off(AppEvent.CLOSE, cb);
     }
-    public offViewResize (cb?: () => void) {
+    public offFullscreenChange (cb?: () => void) {
+        this._eventTarget.off(AppEvent.FULLSCREEN_CHANGE, cb);
+    }
+    public offScreenResize (cb?: () => void) {
         this._eventTarget.off(AppEvent.RESIZE, cb);
     }
     public offOrientationChange (cb?: () => void) {

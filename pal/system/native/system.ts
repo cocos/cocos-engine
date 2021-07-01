@@ -44,6 +44,10 @@ class System {
     public readonly supportCapability: SupportCapability;
     // TODO: need to wrap the function __isObjectValid()
 
+    public get isOnFullScreen (): boolean {
+        return false;
+    }
+
     private _eventTarget: EventTarget = new EventTarget();
 
     public get networkType (): NetworkType {
@@ -91,6 +95,7 @@ class System {
             gl: true,
             canvas: true,
             imageBitmap: false,
+            fullscreen: false,
         };
 
         this._registerEvent();
@@ -120,7 +125,16 @@ class System {
         };
     }
 
-    public getViewSize (): Size {
+    public resizeScreen (size: Size): Promise<void> {
+        return Promise.reject(new Error('screen resize has not been supported yet on this platform.'));
+    }
+    public requestFullScreen (): Promise<void> {
+        return Promise.reject(new Error('request fullscreen has not been supported yet on this platform.'));
+    }
+    public exitFullScreen (): Promise<void> {
+        return Promise.reject(new Error('exit fullscreen has not been supported yet on this platform.'));
+    }
+    public getScreenSize (): Size {
         return new Size(window.innerWidth, window.innerHeight);
     }
     public getOrientation (): Orientation {
@@ -187,7 +201,10 @@ class System {
     public onClose (cb: () => void) {
         this._eventTarget.on(AppEvent.CLOSE, cb);
     }
-    public onViewResize (cb: () => void) {
+    public onFullscreenChange (cb: () => void) {
+        this._eventTarget.on(AppEvent.FULLSCREEN_CHANGE, cb);
+    }
+    public onScreenResize (cb: () => void) {
         this._eventTarget.on(AppEvent.RESIZE, cb);
     }
     public onOrientationChange (cb: () => void) {
@@ -203,7 +220,10 @@ class System {
     public offClose (cb?: () => void) {
         this._eventTarget.off(AppEvent.CLOSE, cb);
     }
-    public offViewResize (cb?: () => void) {
+    public offFullscreenChange (cb?: () => void) {
+        this._eventTarget.off(AppEvent.FULLSCREEN_CHANGE, cb);
+    }
+    public offScreenResize (cb?: () => void) {
         this._eventTarget.off(AppEvent.RESIZE, cb);
     }
     public offOrientationChange (cb?: () => void) {

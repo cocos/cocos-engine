@@ -41,6 +41,7 @@ import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
 import { sys } from './sys';
 import { BrowserType, OS } from '../../../pal/system/enum-type';
+import { screen } from './screen';
 
 /**
  * @en View represents the game window.<br/>
@@ -166,13 +167,13 @@ export class View extends EventTarget {
             // enable
             if (!this._resizeWithBrowserSize) {
                 this._resizeWithBrowserSize = true;
-                system.onViewResize(this._resizeEvent);
+                system.onScreenResize(this._resizeEvent);
                 system.onOrientationChange(this._orientationChange);
             }
         } else if (this._resizeWithBrowserSize) {
             // disable
             this._resizeWithBrowserSize = false;
-            system.offViewResize(this._resizeEvent);
+            system.offScreenResize(this._resizeEvent);
             system.offOrientationChange(this._orientationChange);
         }
     }
@@ -269,15 +270,12 @@ export class View extends EventTarget {
      * @deprecated since v3.3
      */
     public enableAutoFullScreen (enabled: boolean) {
-        if (enabled
-            && enabled !== this._autoFullScreen
-            && legacyCC.sys.isMobile
-            && system.browserType !== BrowserType.WECHAT) {
-            // Automatically full screen when user touches on mobile version
-            this._autoFullScreen = true;
-            legacyCC.screen.autoFullScreen(legacyCC.game.frame);
-        } else {
-            this._autoFullScreen = false;
+        if (enabled === this._autoFullScreen) {
+            return;
+        }
+        this._autoFullScreen = enabled;
+        if (enabled) {
+            screen.requestFullScreen().catch((e) => {});
         }
     }
 
@@ -661,9 +659,9 @@ export class View extends EventTarget {
 
     private _initFrameSize () {
         const locFrameSize = this._frameSize;
-        const viewSize = system.getViewSize();
-        const w = viewSize.width;
-        const h = viewSize.height;
+        const screenSize = system.getScreenSize();
+        const w = screenSize.width;
+        const h = screenSize.height;
         const isLandscape: boolean = w >= h;
 
         if (EDITOR || !legacyCC.sys.isMobile

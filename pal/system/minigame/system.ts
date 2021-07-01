@@ -48,6 +48,10 @@ class System {
     public readonly pixelRatio: number;
     public readonly supportCapability: SupportCapability;
 
+    public get isOnFullScreen (): boolean {
+        return false;
+    }
+
     private _eventTarget: EventTarget = new EventTarget();
 
     constructor () {
@@ -111,6 +115,7 @@ class System {
             gl: true,
             canvas: true,
             imageBitmap: false,
+            fullscreen: false,
         };
 
         this._registerEvent();
@@ -126,7 +131,16 @@ class System {
         });
     }
 
-    public getViewSize (): Size {
+    public resizeScreen (size: Size): Promise<void> {
+        return Promise.reject(new Error('screen resize is not supported on this platform.'));
+    }
+    public requestFullScreen (): Promise<void> {
+        return Promise.reject(new Error('request fullscreen is not supported on this platform.'));
+    }
+    public exitFullScreen (): Promise<void> {
+        return Promise.reject(new Error('exit fullscreen is not supported on this platform.'));
+    }
+    public getScreenSize (): Size {
         const sysInfo = minigame.getSystemInfoSync();
         return new Size(sysInfo.screenWidth, sysInfo.screenHeight);
     }
@@ -135,11 +149,11 @@ class System {
     }
     public getSafeAreaEdge (): SafeAreaEdge {
         const minigameSafeArea = minigame.getSafeArea();
-        const viewSize = this.getViewSize();
+        const screenSize = this.getScreenSize();
         let topEdge = minigameSafeArea.top;
-        let bottomEdge = viewSize.height - minigameSafeArea.bottom;
+        let bottomEdge = screenSize.height - minigameSafeArea.bottom;
         let leftEdge = minigameSafeArea.left;
-        let rightEdge = viewSize.width - minigameSafeArea.right;
+        let rightEdge = screenSize.width - minigameSafeArea.right;
         const orientation = this.getOrientation();
         // Make it symmetrical.
         if (orientation === Orientation.PORTRAIT) {
@@ -197,7 +211,10 @@ class System {
     public onClose (cb: () => void) {
         this._eventTarget.on(AppEvent.CLOSE, cb);
     }
-    public onViewResize (cb: () => void) {
+    public onFullscreenChange (cb: () => void) {
+        this._eventTarget.on(AppEvent.FULLSCREEN_CHANGE, cb);
+    }
+    public onScreenResize (cb: () => void) {
         this._eventTarget.on(AppEvent.RESIZE, cb);
     }
     public onOrientationChange (cb: () => void) {
@@ -213,7 +230,10 @@ class System {
     public offClose (cb?: () => void) {
         this._eventTarget.off(AppEvent.CLOSE, cb);
     }
-    public offViewResize (cb?: () => void) {
+    public offFullscreenChange (cb?: () => void) {
+        this._eventTarget.off(AppEvent.FULLSCREEN_CHANGE, cb);
+    }
+    public offScreenResize (cb?: () => void) {
         this._eventTarget.off(AppEvent.RESIZE, cb);
     }
     public offOrientationChange (cb?: () => void) {

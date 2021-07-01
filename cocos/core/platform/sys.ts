@@ -35,7 +35,7 @@ import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/system/enum-type';
 import { Vec2 } from '../math';
 
-const viewSize = system.getViewSize();
+const screenSize = system.getScreenSize();
 const pixelRatio = system.pixelRatio;
 
 /**
@@ -168,8 +168,8 @@ export const sys: Record<string, any> = {
      * @zh 指示游戏窗口的像素分辨率
      */
     windowPixelResolution: {
-        width: viewSize.width * pixelRatio,
-        height: viewSize.height * pixelRatio,
+        width: screenSize.width * pixelRatio,
+        height: screenSize.height * pixelRatio,
     },
 
     /**
@@ -290,14 +290,14 @@ export const sys: Record<string, any> = {
     getSafeAreaRect () {
         const locView = legacyCC.view;
         const edge = system.getSafeAreaEdge();
-        const viewSize = system.getViewSize();
+        const screenSize = system.getScreenSize();
 
         // Get leftBottom and rightTop point in screen coordinates system.
-        const leftBottom = new Vec2(edge.left, viewSize.height - edge.bottom);
-        const rightTop = new Vec2(viewSize.width - edge.right, edge.top);
+        const leftBottom = new Vec2(edge.left, screenSize.height - edge.bottom);
+        const rightTop = new Vec2(screenSize.width - edge.right, edge.top);
 
         // Convert to the location in game view coordinates system.
-        const relatedPos = { left: 0, top: 0, width: viewSize.width, height: viewSize.height };
+        const relatedPos = { left: 0, top: 0, width: screenSize.width, height: screenSize.height };
         locView.convertToLocationInView(leftBottom.x, leftBottom.y, relatedPos, leftBottom);
         locView.convertToLocationInView(rightTop.x, rightTop.y, relatedPos, rightTop);
 
@@ -350,11 +350,11 @@ export const sys: Record<string, any> = {
         sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && system.isBrowser
             && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
 
-        system.onViewResize(() => {
-            const viewSize = system.getViewSize();
+        system.onScreenResize(() => {
+            const screenSize = system.getScreenSize();
             sys.windowPixelResolution = {
-                width: Math.round(viewSize.width * pixelRatio),
-                height: Math.round(viewSize.height * pixelRatio),
+                width: Math.round(screenSize.width * pixelRatio),
+                height: Math.round(screenSize.height * pixelRatio),
             };
         });
     },

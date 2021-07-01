@@ -25,12 +25,12 @@ export class TouchInputSource {
         return (touchList: TouchList) => {
             const touchDataList: TouchData[] = [];
             const length = touchList.length;
-            const viewSize = system.getViewSize();
+            const screenSize = system.getScreenSize();
             for (let i = 0; i < length; ++i) {
                 const touch = touchList[i];
                 const location = this._getLocation(touch);
                 const x = location.x;
-                const y = viewSize.height - location.y;
+                const y = screenSize.height - location.y;
                 const touchData: TouchData = {
                     identifier: touch.identifier,
                     x,

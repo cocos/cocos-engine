@@ -31,6 +31,7 @@ import { View } from './view';
 import { Node } from '../scene-graph';
 import { macro } from './macro';
 import { legacyCC } from '../global-exports';
+import { screen } from './screen';
 
 // #region deprecation on view
 removeProperty(View.prototype, 'View.prototype', [
@@ -49,6 +50,7 @@ markAsWarning(View.prototype, 'View.prototype', [
     },
     {
         name: 'enableAutoFullScreen',
+        suggest: 'use Screen.prototype.requestFullScreen() instead.',
     },
     {
         name: 'isAutoFullScreenEnabled',
@@ -304,5 +306,16 @@ markAsWarning(macro, 'macro', [
     {
         name: 'KEY',
         suggest: 'please use KeyCode instead',
+    },
+]);
+
+// deprecate screen API
+markAsWarning(screen, 'screen', [
+    {
+        name: 'autoFullScreen',
+        suggest: 'please use screen.requestFullScreen instead.',
+    },
+    {
+        name: 'disableAutoFullScreen',
     },
 ]);
