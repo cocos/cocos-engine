@@ -35,6 +35,7 @@ import { IParticleSystemRenderer } from './renderer/particle-system-renderer-bas
 
 export class Particle {
     public static INDENTIFY_NEG_QUAT = 10;
+    public static R2D = 180.0 / Math.PI;
 
     public particleSystem: ParticleSystem;
     public position: Vec3;

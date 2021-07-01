@@ -828,18 +828,19 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     private _processRotation (particle) {
-        if (this.processor.getInfo().renderMode !== RenderMode.Mesh) {
-            if (this.processor.getInfo().renderMode === RenderMode.Billboard) {
+        const renderMode = this.processor.getInfo().renderMode;
+        if (renderMode !== RenderMode.Mesh) {
+            if (renderMode === RenderMode.Billboard) {
                 particle.startEuler.set(particle.startEuler.x, particle.startEuler.y, particle.startEuler.z);
-            } else if (this.processor.getInfo().renderMode === RenderMode.StrecthedBillboard) {
+            } else if (renderMode === RenderMode.StrecthedBillboard) {
                 particle.startEuler.set(0, 0, 0);
             } else {
                 particle.startEuler.set(0, 0, particle.startEuler.z);
             }
         }
 
-        const r2d = 180.0 / Math.PI;
-        Quat.fromEuler(particle.startRotation, particle.startEuler.x * r2d, particle.startEuler.y * r2d, particle.startEuler.z * r2d);
+        // eslint-disable-next-line max-len
+        Quat.fromEuler(particle.startRotation, particle.startEuler.x * Particle.R2D, particle.startEuler.y * Particle.R2D, particle.startEuler.z * Particle.R2D);
         particle.startRotation = Quat.normalize(particle.startRotation, particle.startRotation);
 
         if (particle.startRotation.w < 0.0) {

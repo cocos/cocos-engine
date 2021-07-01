@@ -113,10 +113,11 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     private _otherEuler:Vec3 = new Vec3();
 
     private _processRoation (p: Particle, r2d: number) {
-        if (p.particleSystem.processor.getInfo().renderMode !== RenderMode.Mesh) {
-            if (p.particleSystem.processor.getInfo().renderMode === RenderMode.Billboard) {
+        const renderMode = p.particleSystem.processor.getInfo().renderMode;
+        if (renderMode !== RenderMode.Mesh) {
+            if (renderMode === RenderMode.Billboard) {
                 this._quatRot.set(this._quatRot.x, this._quatRot.y, this._quatRot.z, this._quatRot.w);
-            } else if (p.particleSystem.processor.getInfo().renderMode === RenderMode.StrecthedBillboard) {
+            } else if (renderMode === RenderMode.StrecthedBillboard) {
                 this._quatRot.set(0, 0, 0, 1);
             } else {
                 Quat.toEuler(this._otherEuler, this._quatRot);
@@ -151,9 +152,8 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         } else {
             // TODO: separateAxes is temporarily not supported!
             const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
-            const r2d = 180.0 / Math.PI;
             // eslint-disable-next-line max-len
-            Quat.fromEuler(p.deletaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * r2d, this.y.evaluate(normalizedTime, rotationRand)! * dt * r2d, this.z.evaluate(normalizedTime, rotationRand)! * dt * r2d);
+            Quat.fromEuler(p.deletaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
             p.deletaMat = Mat4.fromQuat(p.deletaMat, p.deletaQuat);
             p.localMat = p.localMat.multiply(p.deletaMat);
 
