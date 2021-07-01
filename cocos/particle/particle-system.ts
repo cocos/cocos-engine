@@ -33,7 +33,6 @@
 // eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { Mat3, Particle } from '@cocos/cannon';
 import { RenderableComponent } from '../core/components/renderable-component';
 import { Material } from '../core/assets/material';
 import { Mat4, pseudoRandom, Quat, randomRangeInt, Vec2, Vec3 } from '../core/math';
@@ -55,7 +54,7 @@ import { particleEmitZAxis } from './particle-general-function';
 import ParticleSystemRenderer from './renderer/particle-system-renderer-data';
 import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
-import { PARTICLE_MODULE_PROPERTY } from './particle';
+import { Particle, PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
 
@@ -70,8 +69,6 @@ const superMaterials = Object.getOwnPropertyDescriptor(RenderableComponent.proto
 @executionOrder(99)
 @executeInEditMode
 export class ParticleSystem extends RenderableComponent {
-    public static INDENTIFY_NEG_QUAT = 10;
-
     /**
      * @zh 粒子系统能生成的最大粒子数量。
      */
@@ -846,7 +843,7 @@ export class ParticleSystem extends RenderableComponent {
         particle.startRotation = Quat.normalize(particle.startRotation, particle.startRotation);
 
         if (particle.startRotation.w < 0.0) {
-            particle.startRotation.x += ParticleSystem.INDENTIFY_NEG_QUAT; // Indentify negative w
+            particle.startRotation.x += Particle.INDENTIFY_NEG_QUAT; // Indentify negative w
         }
     }
 

@@ -34,7 +34,6 @@ import { Mat4, pseudoRandom, Quat, Vec4, Vec3 } from '../../core/math';
 import { Particle, ParticleModuleBase, PARTICLE_MODULE_NAME } from '../particle';
 import CurveRange from './curve-range';
 import { ModuleRandSeed, RenderMode } from '../enum';
-import { ParticleSystem } from '../particle-system';
 
 const ROTATION_OVERTIME_RAND_OFFSET = ModuleRandSeed.ROTATION;
 
@@ -128,7 +127,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
 
         Quat.normalize(this._quatRot, this._quatRot);
         if (this._quatRot.w < 0.0) {
-            this._quatRot.x += ParticleSystem.INDENTIFY_NEG_QUAT; // Indentify negative w
+            this._quatRot.x += Particle.INDENTIFY_NEG_QUAT; // Indentify negative w
         }
     }
 

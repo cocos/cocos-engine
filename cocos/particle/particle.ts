@@ -34,6 +34,8 @@ import { ParticleSystem } from './particle-system';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 
 export class Particle {
+    public static INDENTIFY_NEG_QUAT = 10;
+
     public particleSystem: ParticleSystem;
     public position: Vec3;
     public velocity: Vec3;
