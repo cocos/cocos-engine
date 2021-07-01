@@ -56,7 +56,7 @@ export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 export const NativeBakedAnimInfo: Constructor<{
     buffer: Buffer;
     data: ArrayBuffer;
-    dirty: boolean;
+    dirty: ArrayBuffer;
 }> = null!;
 export type NativeBakedAnimInfo = InstanceType<typeof NativeBakedAnimInfo>;
 
@@ -83,6 +83,7 @@ export const NativeBakedSkinningModel: Constructor<{
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]): void;
     setJointMedium(isUploadAnim: boolean, jointInfo: NativeBakedJointInfo): void;
+    setAnimInfoIdx(idx: number): void;
 }> = null!;
 export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
 

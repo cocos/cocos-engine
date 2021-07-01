@@ -28,6 +28,7 @@
  * @module animation
  */
 
+import { JSB } from 'internal:constants';
 import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { IAnimInfo, JointAnimationInfo } from './skeletal-animation-utils';
@@ -167,12 +168,20 @@ export class SkeletalAnimationState extends AnimationState {
         }
     }
 
+    private _setNativeDirty (info: IAnimInfo, value: boolean) {
+        info.dirty = value;
+        if (JSB) {
+            const key = 'nativeDirty';
+            info[key].fill(value ? 1 : 0);
+        }
+    }
+
     private _sampleCurvesBaked (ratio: number) {
         const info = this._animInfo!;
         const curFrame = (ratio * this._frames + 0.5) | 0;
         if (curFrame === info.data[0]) { return; }
         info.data[0] = curFrame;
-        info.dirty = true;
+        this._setNativeDirty(info, true);
         for (let i = 0; i < this._sockets.length; ++i) {
             const { target, frames } = this._sockets[i];
             const { pos, rot, scale } = frames[curFrame]; // ratio guaranteed to be in [0, 1]

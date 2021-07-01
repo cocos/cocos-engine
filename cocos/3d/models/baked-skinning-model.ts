@@ -85,7 +85,7 @@ export class BakedSkinningModel extends MorphModel {
 
     protected _init () {
         if (JSB) {
-            this._nativeObj = new NativeSkinningModel();
+            this._nativeObj = new NativeBakedSkinningModel();
         }
     }
 
@@ -154,13 +154,14 @@ export class BakedSkinningModel extends MorphModel {
                     boundsInfo.push(bound.native);
                 });
             }
+            const animInfoKey = 'nativeDirty';
             (this._nativeObj! as NativeBakedSkinningModel).setJointMedium(!!this.uploadedAnim, {
                 boundsInfo,
                 jointTextureInfo: this._jointsMedium.jointTextureInfo.buffer,
                 animInfo: {
                     buffer: this._jointsMedium.animInfo.buffer,
                     data: this._jointsMedium.animInfo.data.buffer,
-                    dirty: this._jointsMedium.animInfo.dirty,
+                    dirty: this._jointsMedium.animInfo[animInfoKey].buffer,
                 },
                 buffer: this._jointsMedium.buffer,
             });
@@ -222,9 +223,16 @@ export class BakedSkinningModel extends MorphModel {
         }
     }
 
+    private _setInstAnimInfoIdx (idx: number) {
+        this._instAnimInfoIdx = idx;
+        if (JSB) {
+            (this._nativeObj! as NativeBakedSkinningModel).setAnimInfoIdx(idx);
+        }
+    }
+
     protected _updateInstancedAttributes (attributes: Attribute[], pass: Pass) {
         super._updateInstancedAttributes(attributes, pass);
-        this._instAnimInfoIdx = this._getInstancedAttributeIndex(INST_JOINT_ANIM_INFO);
+        this._setInstAnimInfoIdx(this._getInstancedAttributeIndex(INST_JOINT_ANIM_INFO));
         this.updateInstancedJointTextureInfo();
     }
 
