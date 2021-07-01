@@ -162,7 +162,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
 
             Mat4.getRotation(this._quatRot, this._matRot);
 
-            this._processRoation(p, r2d);
+            this._processRoation(p, Particle.R2D);
 
             p.rotation.set(this._quatRot.x, this._quatRot.y, this._quatRot.z);
         }
