@@ -34,65 +34,70 @@
     #include "unzip/unzip.h"
 #endif
 
-#include <zlib.h>
-#include <assert.h>
-#include <stdlib.h>
+#include <memory>
+#include "unzip/ioapi_mem.h"
 
+#include <cassert>
+#include <cstdlib>
+#include <zlib.h>
+
+#include <map>
 #include "base/Data.h"
 #include "platform/FileUtils.h"
-#include <map>
 
-// IDEA: Other platforms should use upstream minizip like mingw-w64
-#ifdef MINIZIP_FROM_SYSTEM
-    #define unzGoToFirstFile64(A, B, C, D) unzGoToFirstFile2(A, B, C, D, NULL, 0, NULL, 0)
-    #define unzGoToNextFile64(A, B, C, D)  unzGoToNextFile2(A, B, C, D, NULL, 0, NULL, 0)
+// minizip 1.2.0 is same with other platforms
+#ifndef unzGoToFirstFile64
+    #define unzGoToFirstFile64(A, B, C, D) unzGoToFirstFile2(A, B, C, D, NULL, 0, NULL, 0) // NOLINT(readability-identifier-naming)
+    #define unzGoToNextFile64(A, B, C, D)  unzGoToNextFile2(A, B, C, D, NULL, 0, NULL, 0)  // NOLINT(readability-identifier-naming)#endif
 #endif
 
 namespace cc {
 
-unsigned int ZipUtils::s_uEncryptedPvrKeyParts[4] = {0, 0, 0, 0};
-unsigned int ZipUtils::s_uEncryptionKey[1024];
-bool ZipUtils::s_bEncryptionKeyIsValid = false;
+unsigned int ZipUtils::encryptedPvrKeyParts[4] = {0, 0, 0, 0};
+unsigned int ZipUtils::encryptionKey[1024];
+bool         ZipUtils::encryptionKeyIsValid = false;
 
 // --------------------- ZipUtils ---------------------
 
 inline void ZipUtils::decodeEncodedPvr(unsigned int *data, ssize_t len) {
-    const int enclen = 1024;
+    const int enclen    = 1024;
     const int securelen = 512;
-    const int distance = 64;
+    const int distance  = 64;
 
     // check if key was set
     // make sure to call caw_setkey_part() for all 4 key parts
-    CCASSERT(s_uEncryptedPvrKeyParts[0] != 0, "ZipUtils: CCZ file is encrypted but key part 0 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
-    CCASSERT(s_uEncryptedPvrKeyParts[1] != 0, "ZipUtils: CCZ file is encrypted but key part 1 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
-    CCASSERT(s_uEncryptedPvrKeyParts[2] != 0, "ZipUtils: CCZ file is encrypted but key part 2 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
-    CCASSERT(s_uEncryptedPvrKeyParts[3] != 0, "ZipUtils: CCZ file is encrypted but key part 3 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
+    CCASSERT(ZipUtils::encryptedPvrKeyParts[0] != 0, "ZipUtils: CCZ file is encrypted but key part 0 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
+    CCASSERT(ZipUtils::encryptedPvrKeyParts[1] != 0, "ZipUtils: CCZ file is encrypted but key part 1 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
+    CCASSERT(ZipUtils::encryptedPvrKeyParts[2] != 0, "ZipUtils: CCZ file is encrypted but key part 2 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
+    CCASSERT(ZipUtils::encryptedPvrKeyParts[3] != 0, "ZipUtils: CCZ file is encrypted but key part 3 is not set. Did you call ZipUtils::setPvrEncryptionKeyPart(...)?");
 
     // create long key
-    if (!s_bEncryptionKeyIsValid) {
-        unsigned int y, p, e;
+    if (!ZipUtils::encryptionKeyIsValid) {
+        unsigned int y{0};
+        unsigned int p{0};
+        unsigned int e{0};
         unsigned int rounds = 6;
-        unsigned int sum = 0;
-        unsigned int z = s_uEncryptionKey[enclen - 1];
+        unsigned int sum    = 0;
+        unsigned int z      = ZipUtils::encryptionKey[enclen - 1];
 
         do {
 #define DELTA 0x9e3779b9
-#define MX    (((z >> 5 ^ y << 2) + (y >> 3 ^ z << 4)) ^ ((sum ^ y) + (s_uEncryptedPvrKeyParts[(p & 3) ^ e] ^ z)))
+#define MX    (((z >> 5 ^ y << 2) + (y >> 3 ^ z << 4)) ^ ((sum ^ y) + (ZipUtils::encryptedPvrKeyParts[(p & 3) ^ e] ^ z)))
 
             sum += DELTA;
             e = (sum >> 2) & 3;
 
             for (p = 0; p < enclen - 1; p++) {
-                y = s_uEncryptionKey[p + 1];
-                z = s_uEncryptionKey[p] += MX;
+                y = ZipUtils::encryptionKey[p + 1];
+                z = ZipUtils::encryptionKey[p] += MX;
             }
 
-            y = s_uEncryptionKey[0];
-            z = s_uEncryptionKey[enclen - 1] += MX;
+            y = ZipUtils::encryptionKey[0];
+            z = ZipUtils::encryptionKey[enclen - 1] += MX;
 
         } while (--rounds);
 
-        s_bEncryptionKeyIsValid = true;
+        ZipUtils::encryptionKeyIsValid = true;
     }
 
     int b = 0;
@@ -100,7 +105,7 @@ inline void ZipUtils::decodeEncodedPvr(unsigned int *data, ssize_t len) {
 
     // encrypt first part completely
     for (; i < len && i < securelen; i++) {
-        data[i] ^= s_uEncryptionKey[b++];
+        data[i] ^= ZipUtils::encryptionKey[b++];
 
         if (b >= enclen) {
             b = 0;
@@ -109,7 +114,7 @@ inline void ZipUtils::decodeEncodedPvr(unsigned int *data, ssize_t len) {
 
     // encrypt second section partially
     for (; i < len; i += distance) {
-        data[i] ^= s_uEncryptionKey[b++];
+        data[i] ^= ZipUtils::encryptionKey[b++];
 
         if (b >= enclen) {
             b = 0;
@@ -118,8 +123,8 @@ inline void ZipUtils::decodeEncodedPvr(unsigned int *data, ssize_t len) {
 }
 
 inline unsigned int ZipUtils::checksumPvr(const unsigned int *data, ssize_t len) {
-    unsigned int cs = 0;
-    const int cslen = 128;
+    unsigned int cs    = 0;
+    const int    cslen = 128;
 
     len = (len < cslen) ? len : cslen;
 
@@ -139,24 +144,25 @@ int ZipUtils::inflateMemoryWithHint(unsigned char *in, ssize_t inLength, unsigne
     int err = Z_OK;
 
     ssize_t bufferSize = outLengthHint;
-    *out = (unsigned char *)malloc(bufferSize);
+    *out               = static_cast<unsigned char *>(malloc(bufferSize));
 
-    z_stream d_stream; /* decompression stream */
-    d_stream.zalloc = (alloc_func)0;
-    d_stream.zfree = (free_func)0;
-    d_stream.opaque = (voidpf)0;
+    z_stream descompressionStream; /* decompression stream */
+    descompressionStream.zalloc = static_cast<alloc_func>(nullptr);
+    descompressionStream.zfree  = static_cast<free_func>(nullptr);
+    descompressionStream.opaque = static_cast<voidpf>(nullptr);
 
-    d_stream.next_in = in;
-    d_stream.avail_in = static_cast<unsigned int>(inLength);
-    d_stream.next_out = *out;
-    d_stream.avail_out = static_cast<unsigned int>(bufferSize);
+    descompressionStream.next_in   = in;
+    descompressionStream.avail_in  = static_cast<unsigned int>(inLength);
+    descompressionStream.next_out  = *out;
+    descompressionStream.avail_out = static_cast<unsigned int>(bufferSize);
 
     /* window size to hold 256k */
-    if ((err = inflateInit2(&d_stream, 15 + 32)) != Z_OK)
+    if ((err = inflateInit2(&descompressionStream, 15 + 32)) != Z_OK) {
         return err;
+    }
 
     for (;;) {
-        err = inflate(&d_stream, Z_NO_FLUSH);
+        err = inflate(&descompressionStream, Z_NO_FLUSH);
 
         if (err == Z_STREAM_END) {
             break;
@@ -167,35 +173,35 @@ int ZipUtils::inflateMemoryWithHint(unsigned char *in, ssize_t inLength, unsigne
                 err = Z_DATA_ERROR;
             case Z_DATA_ERROR:
             case Z_MEM_ERROR:
-                inflateEnd(&d_stream);
+                inflateEnd(&descompressionStream);
                 return err;
         }
 
         // not enough memory ?
         if (err != Z_STREAM_END) {
-            *out = (unsigned char *)realloc(*out, bufferSize * BUFFER_INC_FACTOR);
+            *out = static_cast<unsigned char *>(realloc(*out, bufferSize * BUFFER_INC_FACTOR));
 
             /* not enough memory, ouch */
             if (!*out) {
                 CC_LOG_DEBUG("ZipUtils: realloc failed");
-                inflateEnd(&d_stream);
+                inflateEnd(&descompressionStream);
                 return Z_MEM_ERROR;
             }
 
-            d_stream.next_out = *out + bufferSize;
-            d_stream.avail_out = static_cast<unsigned int>(bufferSize);
+            descompressionStream.next_out  = *out + bufferSize;
+            descompressionStream.avail_out = static_cast<unsigned int>(bufferSize);
             bufferSize *= BUFFER_INC_FACTOR;
         }
     }
 
-    *outLength = bufferSize - d_stream.avail_out;
-    err = inflateEnd(&d_stream);
+    *outLength = bufferSize - descompressionStream.avail_out;
+    err        = inflateEnd(&descompressionStream);
     return err;
 }
 
 ssize_t ZipUtils::inflateMemoryWithHint(unsigned char *in, ssize_t inLength, unsigned char **out, ssize_t outLengthHint) {
     ssize_t outLength = 0;
-    int err = inflateMemoryWithHint(in, inLength, out, &outLength, outLengthHint);
+    int     err       = inflateMemoryWithHint(in, inLength, out, &outLength, outLengthHint);
 
     if (err != Z_OK || *out == nullptr) {
         if (err == Z_MEM_ERROR) {
@@ -225,7 +231,7 @@ ssize_t ZipUtils::inflateMemory(unsigned char *in, ssize_t inLength, unsigned ch
 
 int ZipUtils::inflateGZipFile(const char *path, unsigned char **out) {
     int len;
-    unsigned int offset = 0;
+    int offset = 0;
 
     CCASSERT(out, "out can't be nullptr.");
     CCASSERT(&*out, "&*out can't be nullptr.");
@@ -237,10 +243,10 @@ int ZipUtils::inflateGZipFile(const char *path, unsigned char **out) {
     }
 
     /* 512k initial decompress buffer */
-    unsigned int bufferSize = 512 * 1024;
+    unsigned int bufferSize      = 512 * 1024;
     unsigned int totalBufferSize = bufferSize;
 
-    *out = (unsigned char *)malloc(bufferSize);
+    *out = static_cast<unsigned char *>(malloc(bufferSize));
     if (!out) {
         CC_LOG_DEBUG("ZipUtils: out of memory");
         return -1;
@@ -261,13 +267,13 @@ int ZipUtils::inflateGZipFile(const char *path, unsigned char **out) {
         offset += len;
 
         // finish reading the file
-        if ((unsigned int)len < bufferSize) {
+        if (static_cast<unsigned int>(len) < bufferSize) {
             break;
         }
 
         bufferSize *= BUFFER_INC_FACTOR;
         totalBufferSize += bufferSize;
-        unsigned char *tmp = (unsigned char *)realloc(*out, totalBufferSize);
+        auto *tmp = static_cast<unsigned char *>(realloc(*out, totalBufferSize));
 
         if (!tmp) {
             CC_LOG_DEBUG("ZipUtils: out of memory");
@@ -303,7 +309,7 @@ bool ZipUtils::isCCZBuffer(const unsigned char *buffer, ssize_t len) {
         return false;
     }
 
-    struct CCZHeader *header = (struct CCZHeader *)buffer;
+    const auto *header = reinterpret_cast<const struct CCZHeader *>(buffer);
     return header->sig[0] == 'C' && header->sig[1] == 'C' && header->sig[2] == 'Z' && (header->sig[3] == '!' || header->sig[3] == 'p');
 }
 
@@ -328,7 +334,7 @@ bool ZipUtils::isGZipBuffer(const unsigned char *buffer, ssize_t len) {
 }
 
 int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, unsigned char **out) {
-    struct CCZHeader *header = (struct CCZHeader *)buffer;
+    const auto *header = reinterpret_cast<const struct CCZHeader *>(buffer);
 
     // verify header
     if (header->sig[0] == 'C' && header->sig[1] == 'C' && header->sig[2] == 'Z' && header->sig[3] == '!') {
@@ -346,7 +352,7 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, u
         }
     } else if (header->sig[0] == 'C' && header->sig[1] == 'C' && header->sig[2] == 'Z' && header->sig[3] == 'p') {
         // encrypted ccz file
-        header = (struct CCZHeader *)buffer;
+        header = reinterpret_cast<const struct CCZHeader *>(buffer);
 
         // verify header version
         unsigned int version = CC_SWAP_INT16_BIG_TO_HOST(header->version);
@@ -361,16 +367,15 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, u
             return -1;
         }
 
+#if CC_DEBUG > 0
         // decrypt
-        unsigned int *ints = (unsigned int *)(buffer + 12);
-        ssize_t enclen = (bufferLen - 12) / 4;
+        auto *ints   = reinterpret_cast<unsigned int *>(const_cast<unsigned char*>(buffer) + 12);
+        ssize_t     enclen = (bufferLen - 12) / 4;
 
         decodeEncodedPvr(ints, enclen);
-
-#if CC_DEBUG > 0
         // verify checksum in debug mode
         unsigned int calculated = checksumPvr(ints, enclen);
-        unsigned int required = CC_SWAP_INT32_BIG_TO_HOST(header->reserved);
+        unsigned int required   = CC_SWAP_INT32_BIG_TO_HOST(header->reserved);
 
         if (calculated != required) {
             CC_LOG_DEBUG("Can't decrypt image file. Is the decryption key valid?");
@@ -384,15 +389,15 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, u
 
     unsigned int len = CC_SWAP_INT32_BIG_TO_HOST(header->len);
 
-    *out = (unsigned char *)malloc(len);
+    *out = static_cast<unsigned char *>(malloc(len));
     if (!*out) {
         CC_LOG_DEBUG("CCZ: Failed to allocate memory for texture");
         return -1;
     }
 
-    unsigned long destlen = len;
-    size_t source = (size_t)buffer + sizeof(*header);
-    int ret = uncompress(*out, &destlen, (Bytef *)source, bufferLen - sizeof(*header));
+    uLongf      destlen = len;
+    const auto *source  = reinterpret_cast<const Bytef *>(buffer + sizeof(*header));
+    int         ret     = uncompress(*out, &destlen, source, bufferLen - sizeof(*header));
 
     if (ret != Z_OK) {
         CC_LOG_DEBUG("CCZ: Failed to uncompress data");
@@ -401,7 +406,7 @@ int ZipUtils::inflateCCZBuffer(const unsigned char *buffer, ssize_t bufferLen, u
         return -1;
     }
 
-    return len;
+    return static_cast<int>(len);
 }
 
 int ZipUtils::inflateCCZFile(const char *path, unsigned char **out) {
@@ -422,9 +427,9 @@ void ZipUtils::setPvrEncryptionKeyPart(int index, unsigned int value) {
     CCASSERT(index >= 0, "key part index cannot be less than 0");
     CCASSERT(index <= 3, "key part index cannot be greater than 3");
 
-    if (s_uEncryptedPvrKeyParts[index] != value) {
-        s_uEncryptedPvrKeyParts[index] = value;
-        s_bEncryptionKeyIsValid = false;
+    if (ZipUtils::encryptedPvrKeyParts[index] != value) {
+        ZipUtils::encryptedPvrKeyParts[index] = value;
+        ZipUtils::encryptionKeyIsValid        = false;
     }
 }
 
@@ -439,30 +444,30 @@ void ZipUtils::setPvrEncryptionKey(unsigned int keyPart1, unsigned int keyPart2,
 // from unzip.cpp
 #define UNZ_MAXFILENAMEINZIP 256
 
-static const std::string emptyFilename("");
+static const std::string EMPTY_FILE_NAME;
 
 struct ZipEntryInfo {
     unz_file_pos pos;
-    uLong uncompressed_size;
+    uLong        uncompressed_size;
 };
 
 class ZipFilePrivate {
 public:
-    unzFile zipFile;
+    unzFile                      zipFile;
+    std::unique_ptr<ourmemory_s> memfs;
 
     // std::unordered_map is faster if available on the platform
-    typedef std::unordered_map<std::string, struct ZipEntryInfo> FileListContainer;
+    using FileListContainer = std::unordered_map<std::string, struct ZipEntryInfo>;
     FileListContainer fileList;
 };
 
-ZipFile *ZipFile::createWithBuffer(const void *buffer, uLong size) {
-    ZipFile *zip = new (std::nothrow) ZipFile();
+ZipFile *ZipFile::createWithBuffer(const void *buffer, uint32_t size) {
+    auto *zip = new (std::nothrow) ZipFile();
     if (zip && zip->initWithBuffer(buffer, size)) {
         return zip;
-    } else {
-        if (zip) delete zip;
-        return nullptr;
     }
+    delete zip;
+    return nullptr;
 }
 
 ZipFile::ZipFile()
@@ -494,7 +499,7 @@ bool ZipFile::setFilter(const std::string &filter) {
         _data->fileList.clear();
 
         // UNZ_MAXFILENAMEINZIP + 1 - it is done so in unzLocateFile
-        char szCurrentFileName[UNZ_MAXFILENAMEINZIP + 1];
+        char            szCurrentFileName[UNZ_MAXFILENAMEINZIP + 1];
         unz_file_info64 fileInfo;
 
         // go through all files and store position information about the required files
@@ -502,14 +507,14 @@ bool ZipFile::setFilter(const std::string &filter) {
                                      szCurrentFileName, sizeof(szCurrentFileName) - 1);
         while (err == UNZ_OK) {
             unz_file_pos posInfo;
-            int posErr = unzGetFilePos(_data->zipFile, &posInfo);
+            int          posErr = unzGetFilePos(_data->zipFile, &posInfo);
             if (posErr == UNZ_OK) {
                 std::string currentFileName = szCurrentFileName;
                 // cache info about filtered files only (like 'assets/')
                 if (filter.empty() || currentFileName.substr(0, filter.length()) == filter) {
                     ZipEntryInfo entry;
-                    entry.pos = posInfo;
-                    entry.uncompressed_size = (uLong)fileInfo.uncompressed_size;
+                    entry.pos                        = posInfo;
+                    entry.uncompressed_size          = static_cast<uLong>(fileInfo.uncompressed_size);
                     _data->fileList[currentFileName] = entry;
                 }
             }
@@ -537,14 +542,15 @@ bool ZipFile::fileExists(const std::string &fileName) const {
 
 unsigned char *ZipFile::getFileData(const std::string &fileName, ssize_t *size) {
     unsigned char *buffer = nullptr;
-    if (size)
+    if (size) {
         *size = 0;
+    }
 
     do {
         CC_BREAK_IF(!_data->zipFile);
         CC_BREAK_IF(fileName.empty());
 
-        ZipFilePrivate::FileListContainer::const_iterator it = _data->fileList.find(fileName);
+        auto it = _data->fileList.find(fileName);
         CC_BREAK_IF(it == _data->fileList.end());
 
         ZipEntryInfo fileInfo = it->second;
@@ -555,7 +561,7 @@ unsigned char *ZipFile::getFileData(const std::string &fileName, ssize_t *size) 
         nRet = unzOpenCurrentFile(_data->zipFile);
         CC_BREAK_IF(UNZ_OK != nRet);
 
-        buffer = (unsigned char *)malloc(fileInfo.uncompressed_size);
+        buffer              = static_cast<unsigned char *>(malloc(fileInfo.uncompressed_size));
         int CC_UNUSED nSize = unzReadCurrentFile(_data->zipFile, buffer, static_cast<unsigned int>(fileInfo.uncompressed_size));
         CCASSERT(nSize == 0 || nSize == (int)fileInfo.uncompressed_size, "the file size is wrong");
 
@@ -563,7 +569,7 @@ unsigned char *ZipFile::getFileData(const std::string &fileName, ssize_t *size) 
             *size = fileInfo.uncompressed_size;
         }
         unzCloseCurrentFile(_data->zipFile);
-    } while (0);
+    } while (false);
 
     return buffer;
 }
@@ -574,7 +580,7 @@ bool ZipFile::getFileData(const std::string &fileName, ResizableBuffer *buffer) 
         CC_BREAK_IF(!_data->zipFile);
         CC_BREAK_IF(fileName.empty());
 
-        ZipFilePrivate::FileListContainer::const_iterator it = _data->fileList.find(fileName);
+        auto it = _data->fileList.find(fileName);
         CC_BREAK_IF(it == _data->fileList.end());
 
         ZipEntryInfo fileInfo = it->second;
@@ -590,22 +596,22 @@ bool ZipFile::getFileData(const std::string &fileName, ResizableBuffer *buffer) 
         CCASSERT(nSize == 0 || nSize == (int)fileInfo.uncompressed_size, "the file size is wrong");
         unzCloseCurrentFile(_data->zipFile);
         res = true;
-    } while (0);
+    } while (false);
 
     return res;
 }
 
 std::string ZipFile::getFirstFilename() {
-    if (unzGoToFirstFile(_data->zipFile) != UNZ_OK) return emptyFilename;
-    std::string path;
+    if (unzGoToFirstFile(_data->zipFile) != UNZ_OK) return EMPTY_FILE_NAME;
+    std::string   path;
     unz_file_info info;
     getCurrentFileInfo(&path, &info);
     return path;
 }
 
 std::string ZipFile::getNextFilename() {
-    if (unzGoToNextFile(_data->zipFile) != UNZ_OK) return emptyFilename;
-    std::string path;
+    if (unzGoToNextFile(_data->zipFile) != UNZ_OK) return EMPTY_FILE_NAME;
+    std::string   path;
     unz_file_info info;
     getCurrentFileInfo(&path, &info);
     return path;
@@ -613,22 +619,28 @@ std::string ZipFile::getNextFilename() {
 
 int ZipFile::getCurrentFileInfo(std::string *filename, unz_file_info *info) {
     char path[FILENAME_MAX + 1];
-    int ret = unzGetCurrentFileInfo(_data->zipFile, info, path, sizeof(path), nullptr, 0, nullptr, 0);
+    int  ret = unzGetCurrentFileInfo(_data->zipFile, info, path, sizeof(path), nullptr, 0, nullptr, 0);
     if (ret != UNZ_OK) {
-        *filename = emptyFilename;
+        *filename = EMPTY_FILE_NAME;
     } else {
         filename->assign(path);
     }
     return ret;
 }
 
-bool ZipFile::initWithBuffer(const void *buffer, uLong size) {
+bool ZipFile::initWithBuffer(const void *buffer, uint32_t size) {
     if (!buffer || size == 0) return false;
 
-    _data->zipFile = unzOpenBuffer(buffer, size);
+    zlib_filefunc_def memoryFile = {nullptr};
+
+    std::unique_ptr<ourmemory_t> memfs(new (std::nothrow) ourmemory_t{static_cast<char *>(const_cast<void *>(buffer)), static_cast<uint32_t>(size), 0, 0, 0});
+    if (!memfs) return false;
+    fill_memory_filefunc(&memoryFile, memfs.get());
+
+    _data->zipFile = unzOpen2(nullptr, &memoryFile);
     if (!_data->zipFile) return false;
 
-    setFilter(emptyFilename);
+    setFilter(EMPTY_FILE_NAME);
     return true;
 }
 

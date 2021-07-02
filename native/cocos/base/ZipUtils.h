@@ -25,39 +25,30 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-#ifndef __SUPPORT_ZIPUTILS_H__
-#define __SUPPORT_ZIPUTILS_H__
-/// @cond DO_NOT_SHOW
+#pragma once
 
+#include <string>
 #include "base/Macros.h"
 #include "platform/FileUtils.h"
-#include <string>
 
 #if (CC_PLATFORM == CC_PLATFORM_ANDROID)
     #include "platform/android/FileUtils-android.h"
-#elif (CC_PLATFORM == CC_PLATFORM_WINDOWS) || (CC_PLATFORM == CC_PLATFORM_WINRT)
+#elif (CC_PLATFORM == CC_PLATFORM_WINDOWS)
     // for import ssize_t on win32 platform
     #include "platform/StdC.h"
 #endif
 
-/**
- * @addtogroup base
- * @{
- */
-
 namespace cc {
 #ifndef _unz64_H
-typedef struct unz_file_info_s unz_file_info;
+using unz_file_info = struct unz_file_info_s;
 #endif
-/** XXX: pragma pack ???
-     * @struct CCZHeader
-     */
+
 struct CCZHeader {
-    unsigned char sig[4];            /** Signature. Should be 'CCZ!' 4 bytes. */
-    unsigned short compression_type; /** Should be 0. */
-    unsigned short version;          /** Should be 2 (although version type==1 is also supported). */
-    unsigned int reserved;           /** Reserved for users. */
-    unsigned int len;                /** Size of the uncompressed file. */
+    unsigned char sig[4];           /** Signature. Should be 'CCZ!' 4 bytes. */
+    uint16_t      compression_type; /** Should be 0. */
+    uint16_t      version;          /** Should be 2 (although version type==1 is also supported). */
+    unsigned int  reserved;         /** Reserved for users. */
+    unsigned int  len;              /** Size of the uncompressed file. */
 };
 
 enum {
@@ -82,7 +73,7 @@ public:
     /**
         * Inflates either zlib or gzip deflated memory. The inflated memory is expected to be freed by the caller.
         *
-        * @param outLenghtHint It is assumed to be the needed room to allocate the inflated buffer.
+        * @param outLengthHint It is assumed to be the needed room to allocate the inflated buffer.
         *
         * @return The length of the deflated buffer.
         * @since v1.0.0
@@ -95,7 +86,7 @@ public:
          * @return The length of the deflated buffer.
          * @since v0.99.5
          */
-    static int inflateGZipFile(const char *filename, unsigned char **out);
+    static int inflateGZipFile(const char *path, unsigned char **out);
 
     /**
          * Test a file is a GZip format file or not.
@@ -103,7 +94,7 @@ public:
          * @return True is a GZip format file. false is not.
          * @since v3.0
          */
-    static bool isGZipFile(const char *filename);
+    static bool isGZipFile(const char *path);
 
     /**
          * Test the buffer is GZip format or not.
@@ -119,7 +110,7 @@ public:
          * @return The length of the deflated buffer.
          * @since v0.99.5
          */
-    static int inflateCCZFile(const char *filename, unsigned char **out);
+    static int inflateCCZFile(const char *path, unsigned char **out);
 
     /**
          * Inflates a buffer with CCZ format into memory.
@@ -135,7 +126,7 @@ public:
          * @return True is a CCZ format file. false is not.
          * @since v3.0
          */
-    static bool isCCZFile(const char *filename);
+    static bool isCCZFile(const char *path);
 
     /**
          * Test the buffer is CCZ format or not.
@@ -196,13 +187,13 @@ public:
     static void setPvrEncryptionKey(unsigned int keyPart1, unsigned int keyPart2, unsigned int keyPart3, unsigned int keyPart4);
 
 private:
-    static int inflateMemoryWithHint(unsigned char *in, ssize_t inLength, unsigned char **out, ssize_t *outLength, ssize_t outLengthHint);
-    static inline void decodeEncodedPvr(unsigned int *data, ssize_t len);
+    static int                 inflateMemoryWithHint(unsigned char *in, ssize_t inLength, unsigned char **out, ssize_t *outLength, ssize_t outLengthHint);
+    static inline void         decodeEncodedPvr(unsigned int *data, ssize_t len);
     static inline unsigned int checksumPvr(const unsigned int *data, ssize_t len);
 
-    static unsigned int s_uEncryptedPvrKeyParts[4];
-    static unsigned int s_uEncryptionKey[1024];
-    static bool s_bEncryptionKeyIsValid;
+    static unsigned int encryptedPvrKeyParts[4];
+    static unsigned int encryptionKey[1024];
+    static bool         encryptionKeyIsValid;
 };
 
 // forward declaration
@@ -228,7 +219,7 @@ public:
         *
         * @since v2.0.5
         */
-    ZipFile(const std::string &zipFile, const std::string &filter = std::string());
+    explicit ZipFile(const std::string &zipFile, const std::string &filter = std::string());
     virtual ~ZipFile();
 
     /**
@@ -274,22 +265,16 @@ public:
     std::string getFirstFilename();
     std::string getNextFilename();
 
-    static ZipFile *createWithBuffer(const void *buffer, unsigned long size);
+    static ZipFile *createWithBuffer(const void *buffer, uint32_t size);
 
 private:
     /* Only used internal for createWithBuffer() */
     ZipFile();
 
-    bool initWithBuffer(const void *buffer, unsigned long size);
-    int getCurrentFileInfo(std::string *filename, unz_file_info *info);
+    bool initWithBuffer(const void *buffer, uint32_t size);
+    int  getCurrentFileInfo(std::string *filename, unz_file_info *info);
 
     /** Internal data like zip file pointer / file list array and so on */
     ZipFilePrivate *_data;
 };
 } // end of namespace cc
-
-// end group
-/// @}
-
-/// @endcond
-#endif // __SUPPORT_ZIPUTILS_H__

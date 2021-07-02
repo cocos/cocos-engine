@@ -61,15 +61,15 @@ void FileUtilsAndroid::setassetmanager(AAssetManager *a) {
 }
 
 FileUtils *FileUtils::getInstance() {
-    if (s_sharedFileUtils == nullptr) {
-        s_sharedFileUtils = new FileUtilsAndroid();
-        if (!s_sharedFileUtils->init()) {
-            delete s_sharedFileUtils;
-            s_sharedFileUtils = nullptr;
+    if (FileUtils::sharedFileUtils == nullptr) {
+        FileUtils::sharedFileUtils = new FileUtilsAndroid();
+        if (!FileUtils::sharedFileUtils->init()) {
+            delete FileUtils::sharedFileUtils;
+            FileUtils::sharedFileUtils = nullptr;
             CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
         }
     }
-    return s_sharedFileUtils;
+    return FileUtils::sharedFileUtils;
 }
 
 FileUtilsAndroid::FileUtilsAndroid() = default;
@@ -173,12 +173,12 @@ bool FileUtilsAndroid::isAbsolutePath(const std::string &strPath) const {
 
 FileUtils::Status FileUtilsAndroid::getContents(const std::string &filename, ResizableBuffer *buffer) {
     if (filename.empty()) {
-        return FileUtils::Status::NotExists;
+        return FileUtils::Status::NOT_EXISTS;
     }
 
     std::string fullPath = fullPathForFilename(filename);
     if (fullPath.empty()) {
-        return FileUtils::Status::NotExists;
+        return FileUtils::Status::NOT_EXISTS;
     }
 
     if (fullPath[0] == '/') {
@@ -202,13 +202,13 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string &filename, Res
 
     if (nullptr == assetmanager) {
         LOGD("... FileUtilsAndroid::assetmanager is nullptr");
-        return FileUtils::Status::NotInitialized;
+        return FileUtils::Status::NOT_INITIALIZED;
     }
 
     AAsset *asset = AAssetManager_open(assetmanager, relativePath.data(), AASSET_MODE_UNKNOWN);
     if (nullptr == asset) {
         LOGD("asset (%s) is nullptr", filename.c_str());
-        return FileUtils::Status::OpenFailed;
+        return FileUtils::Status::OPEN_FAILED;
     }
 
     auto size = AAsset_getLength(asset);
@@ -221,7 +221,7 @@ FileUtils::Status FileUtilsAndroid::getContents(const std::string &filename, Res
         if (readsize >= 0) {
             buffer->resize(readsize);
         }
-        return FileUtils::Status::ReadFailed;
+        return FileUtils::Status::READ_FAILED;
     }
 
     return FileUtils::Status::OK;

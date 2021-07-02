@@ -71,22 +71,16 @@ ResourceManager *FileUtilsOHOS::getResourceManager() {
 }
 
 FileUtils *FileUtils::getInstance() {
-    if (s_sharedFileUtils == nullptr) {
-        s_sharedFileUtils = new FileUtilsOHOS();
-        if (!s_sharedFileUtils->init()) {
-            delete s_sharedFileUtils;
-            s_sharedFileUtils = nullptr;
+    if (FileUtils::sharedFileUtils == nullptr) {
+        FileUtils::sharedFileUtils = new FileUtilsOHOS();
+        if (!FileUtils::sharedFileUtils->init()) {
+            delete FileUtils::sharedFileUtils;
+            FileUtils::sharedFileUtils = nullptr;
             CC_LOG_DEBUG("ERROR: Could not init CCFileUtilsAndroid");
         }
     }
-    return s_sharedFileUtils;
+    return FileUtils::sharedFileUtils;
 }
-
-//    FileUtilsOHOS::FileUtilsOHOS() {
-//    }
-//
-//    FileUtilsOHOS::~FileUtilsOHOS() noexcept {
-//    }
 
 bool FileUtilsOHOS::init() {
     _defaultResRootPath = ASSETS_FOLDER_NAME;
@@ -95,12 +89,12 @@ bool FileUtilsOHOS::init() {
 
 FileUtils::Status FileUtilsOHOS::getContents(const std::string &filename, ResizableBuffer *buffer) {
     if (filename.empty()) {
-        return FileUtils::Status::NotExists;
+        return FileUtils::Status::NOT_EXISTS;
     }
 
     std::string fullPath = fullPathForFilename(filename);
     if (fullPath.empty()) {
-        return FileUtils::Status::NotExists;
+        return FileUtils::Status::NOT_EXISTS;
     }
 
     if (fullPath[0] == '/') {
@@ -118,13 +112,13 @@ FileUtils::Status FileUtilsOHOS::getContents(const std::string &filename, Resiza
 
     if (nullptr == ohosResourceMgr) {
         HILOG_ERROR(LOG_APP, "... FileUtilsAndroid::assetmanager is nullptr");
-        return FileUtils::Status::NotInitialized;
+        return FileUtils::Status::NOT_INITIALIZED;
     }
 
     RawFile *asset = OpenRawFile(ohosResourceMgr, relativePath.c_str());
     if (nullptr == asset) {
         HILOG_DEBUG(LOG_APP, "asset (%{public}s) is nullptr", filename.c_str());
-        return FileUtils::Status::OpenFailed;
+        return FileUtils::Status::OPEN_FAILED;
     }
 
     auto size = GetRawFileSize(asset);
@@ -140,7 +134,7 @@ FileUtils::Status FileUtilsOHOS::getContents(const std::string &filename, Resiza
         if (readsize >= 0) {
             buffer->resize(readsize);
         }
-        return FileUtils::Status::ReadFailed;
+        return FileUtils::Status::READ_FAILED;
     }
 
     return FileUtils::Status::OK;

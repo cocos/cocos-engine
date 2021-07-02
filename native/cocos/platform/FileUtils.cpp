@@ -72,13 +72,13 @@ using SAXResult = enum {
 
 class DictMaker : public SAXDelegator {
 public:
-    SAXResult   _resultType{};
+    SAXResult   _resultType{SAX_RESULT_NONE};
     ValueMap    _rootDict;
     ValueVector _rootArray;
 
     std::string _curKey;   ///< parsed key
     std::string _curValue; // parsed value
-    SAXState    _state{};
+    SAXState    _state{SAX_NONE};
 
     ValueMap *   _curDict;
     ValueVector *_curArray;
@@ -87,8 +87,8 @@ public:
     std::stack<ValueVector *> _arrayStack;
     std::stack<SAXState>      _stateStack;
 
-public:
-    DictMaker()           = default;
+    DictMaker() = default;
+
     ~DictMaker() override = default;
 
     ValueMap dictionaryWithContentsOfFile(const std::string &fileName) {
@@ -384,7 +384,7 @@ bool FileUtils::writeValueVectorToFile(const ValueVector &vecData, const std::st
 /*
  * Generate tinyxml2::XMLElement for Object through a tinyxml2::XMLDocument
  */
-static tinyxml2::XMLElement *generateElementForObject(const Value &value, tinyxml2::XMLDocument *doc) {
+static tinyxml2::XMLElement *generateElementForObject(const Value &value, tinyxml2::XMLDocument *doc) { // NOLINT(misc-no-recursion)
     // object is String
     if (value.getType() == Value::Type::STRING) {
         tinyxml2::XMLElement *node    = doc->NewElement("string");
@@ -432,7 +432,7 @@ static tinyxml2::XMLElement *generateElementForObject(const Value &value, tinyxm
 /*
  * Generate tinyxml2::XMLElement for Dictionary through a tinyxml2::XMLDocument
  */
-static tinyxml2::XMLElement *generateElementForDict(const ValueMap &dict, tinyxml2::XMLDocument *doc) {
+static tinyxml2::XMLElement *generateElementForDict(const ValueMap &dict, tinyxml2::XMLDocument *doc) { // NOLINT(misc-no-recursion)
     tinyxml2::XMLElement *rootNode = doc->NewElement("dict");
 
     for (const auto &iter : dict) {
@@ -452,7 +452,7 @@ static tinyxml2::XMLElement *generateElementForDict(const ValueMap &dict, tinyxm
 /*
  * Generate tinyxml2::XMLElement for Array through a tinyxml2::XMLDocument
  */
-static tinyxml2::XMLElement *generateElementForArray(const ValueVector &array, tinyxml2::XMLDocument *pDoc) {
+static tinyxml2::XMLElement *generateElementForArray(const ValueVector &array, tinyxml2::XMLDocument *pDoc) { // NOLINT(misc-no-recursion)
     tinyxml2::XMLElement *rootNode = pDoc->NewElement("array");
 
     for (const auto &value : array) {
@@ -475,20 +475,18 @@ bool        FileUtils::writeToFile(const ValueMap &dict, const std::string &full
 #endif /* (CC_PLATFORM != CC_PLATFORM_MAC_IOS) && (CC_PLATFORM != CC_PLATFORM_MAC_OSX) */
 
 // Implement FileUtils
-FileUtils *FileUtils::s_sharedFileUtils = nullptr; //NOLINT
+FileUtils *FileUtils::sharedFileUtils = nullptr;
 
 void FileUtils::destroyInstance() {
-    CC_SAFE_DELETE(s_sharedFileUtils);
+    CC_SAFE_DELETE(FileUtils::sharedFileUtils);
 }
 
 void FileUtils::setDelegate(FileUtils *delegate) {
-    delete s_sharedFileUtils;
-    s_sharedFileUtils = delegate;
+    delete FileUtils::sharedFileUtils;
+    FileUtils::sharedFileUtils = delegate;
 }
 
-FileUtils::FileUtils()
-: _writablePath("") {
-}
+FileUtils::FileUtils() = default;
 
 FileUtils::~FileUtils() = default;
 
@@ -510,7 +508,7 @@ bool FileUtils::writeDataToFile(const Data &data, const std::string &fullPath) {
 
     CCASSERT(!fullPath.empty() && data.getSize() != 0, "Invalid parameters.");
 
-    auto fileutils = FileUtils::getInstance();
+    auto *fileutils = FileUtils::getInstance();
     do {
         // Read the file from hardware
         FILE *fp = fopen(fileutils->getSuitableFOpen(fullPath).c_str(), mode);
@@ -550,19 +548,19 @@ Data FileUtils::getDataFromFile(const std::string &filename) {
 
 FileUtils::Status FileUtils::getContents(const std::string &filename, ResizableBuffer *buffer) {
     if (filename.empty()) {
-        return Status::NotExists;
+        return Status::NOT_EXISTS;
     }
 
-    auto fs = FileUtils::getInstance();
+    auto *fs = FileUtils::getInstance();
 
     std::string fullPath = fs->fullPathForFilename(filename);
     if (fullPath.empty()) {
-        return Status::NotExists;
+        return Status::NOT_EXISTS;
     }
 
     FILE *fp = fopen(fs->getSuitableFOpen(fullPath).c_str(), "rb");
     if (!fp) {
-        return Status::OpenFailed;
+        return Status::OPEN_FAILED;
     }
 
 #if defined(_MSC_VER)
@@ -573,7 +571,7 @@ FileUtils::Status FileUtils::getContents(const std::string &filename, ResizableB
     struct stat statBuf;
     if (fstat(descriptor, &statBuf) == -1) {
         fclose(fp);
-        return Status::ReadFailed;
+        return Status::READ_FAILED;
     }
     size_t size = statBuf.st_size;
 
@@ -583,7 +581,7 @@ FileUtils::Status FileUtils::getContents(const std::string &filename, ResizableB
 
     if (readsize < size) {
         buffer->resize(readsize);
-        return Status::ReadFailed;
+        return Status::READ_FAILED;
     }
 
     return Status::OK;
@@ -600,12 +598,8 @@ unsigned char *FileUtils::getFileDataFromZip(const std::string &zipFilePath, con
         file = unzOpen(FileUtils::getInstance()->getSuitableFOpen(zipFilePath).c_str());
         CC_BREAK_IF(!file);
 
-// IDEA: Other platforms should use upstream minizip like mingw-w64
-#ifdef MINIZIP_FROM_SYSTEM
-        int ret = unzLocateFile(file, filename.c_str(), NULL);
-#else
-        int ret = unzLocateFile(file, filename.c_str(), 1);
-#endif
+        // minizip 1.2.0 is same with other platforms
+        int ret = unzLocateFile(file, filename.c_str(), nullptr);
         CC_BREAK_IF(UNZ_OK != ret);
 
         char          filePathA[260];
@@ -632,7 +626,7 @@ unsigned char *FileUtils::getFileDataFromZip(const std::string &zipFilePath, con
 }
 
 std::string FileUtils::getPathForFilename(const std::string &filename, const std::string &searchPath) const {
-    std::string file = filename;
+    std::string file{filename};
     std::string filePath;
     size_t      pos = filename.find_last_of('/');
     if (pos != std::string::npos) {
@@ -642,7 +636,7 @@ std::string FileUtils::getPathForFilename(const std::string &filename, const std
 
     // searchPath + file_path
     std::string path = searchPath;
-    path += filePath;
+    path.append(filePath);
 
     path = getFullPathForDirectoryAndFilename(path, file);
 
@@ -865,7 +859,7 @@ std::vector<std::string> FileUtils::listFiles(const std::string &dirPath) const 
     return files;
 }
 
-void FileUtils::listFilesRecursively(const std::string &dirPath, std::vector<std::string> *files) const {
+void FileUtils::listFilesRecursively(const std::string &dirPath, std::vector<std::string> *files) const { // NOLINT(misc-no-recursion)
     std::string fullpath = fullPathForFilename(dirPath);
     if (!fullpath.empty() && isDirectoryExist(fullpath)) {
         tinydir_dir dir;
@@ -1057,7 +1051,8 @@ bool FileUtils::removeDirectory(const std::string &path) {
     std::string command = "rm -r ";
     // Path may include space.
     command += "\"" + path + "\"";
-    return system(command.c_str()) >= 0;
+
+    return (system(command.c_str()) >= 0);
         #endif // (CC_PLATFORM != CC_PLATFORM_ANDROID)
 
     #else
@@ -1097,7 +1092,7 @@ std::string FileUtils::getSuitableFOpen(const std::string &filenameUtf8) const {
 long FileUtils::getFileSize(const std::string &filepath) { //NOLINT(google-runtime-int)
     CCASSERT(!filepath.empty(), "Invalid path");
 
-    std::string fullpath = filepath;
+    std::string fullpath{filepath};
     if (!isAbsolutePath(filepath)) {
         fullpath = fullPathForFilename(filepath);
         if (fullpath.empty()) {
@@ -1136,7 +1131,7 @@ void FileUtils::valueMapCompact(ValueMap &valueMap) {
 void FileUtils::valueVectorCompact(ValueVector &valueVector) {
 }
 
-std::string FileUtils::getFileDir(const std::string &path) const {
+std::string FileUtils::getFileDir(const std::string &path) {
     std::string ret;
     size_t      pos = path.rfind('/');
     if (pos != std::string::npos) {
@@ -1148,7 +1143,7 @@ std::string FileUtils::getFileDir(const std::string &path) const {
     return ret;
 }
 
-std::string FileUtils::normalizePath(const std::string &path) const { //NOLINT(readability-convert-member-functions-to-static)
+std::string FileUtils::normalizePath(const std::string &path) {
     std::string ret;
     // Normalize: remove . and ..
     ret = std::regex_replace(path, std::regex("/\\./"), "/");

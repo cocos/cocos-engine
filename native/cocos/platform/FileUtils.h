@@ -86,8 +86,8 @@ public:
 };
 
 template <>
-class ResizableBufferAdapter<cc::Data> : public ResizableBuffer {
-    using BufferType = cc::Data;
+class ResizableBufferAdapter<Data> : public ResizableBuffer {
+    using BufferType = Data;
     BufferType *_buffer;
 
 public:
@@ -96,7 +96,7 @@ public:
         auto oldSize = static_cast<size_t>(_buffer->getSize());
         if (oldSize != size) {
             // need to take buffer ownership for outer memory control
-            auto  old    = _buffer->takeBuffer();
+            auto *old    = _buffer->takeBuffer();
             void *buffer = realloc(old, size);
             if (buffer) {
                 _buffer->fastSet(static_cast<unsigned char *>(buffer), size);
@@ -160,13 +160,13 @@ public:
     virtual Data getDataFromFile(const std::string &filename);
 
     enum class Status {
-        OK               = 0,
-        NotExists        = 1, //NOLINT, File not exists
-        OpenFailed       = 2, //NOLINT, Open file failed.
-        ReadFailed       = 3, //NOLINT, Read failed
-        NotInitialized   = 4, //NOLINT, FileUtils is not initializes
-        TooLarge         = 5, //NOLINT, The file is too large (great than 2^32-1)
-        ObtainSizeFailed = 6  //NOLINT, Failed to obtain the file size.
+        OK                 = 0,
+        NOT_EXISTS         = 1, // File not exists
+        OPEN_FAILED        = 2, // Open file failed.
+        READ_FAILED        = 3, // Read failed
+        NOT_INITIALIZED    = 4, // FileUtils is not initializes
+        TOO_LARGE          = 5, // The file is too large (great than 2^32-1)
+        OBTAIN_SIZE_FAILED = 6  // Failed to obtain the file size.
     };
 
     /**
@@ -547,8 +547,8 @@ public:
     /** Returns the full path cache. */
     const std::unordered_map<std::string, std::string> &getFullPathCache() const { return _fullPathCache; }
 
-    std::string normalizePath(const std::string &path) const;
-    std::string getFileDir(const std::string &path) const;
+    static std::string normalizePath(const std::string &path);
+    static std::string getFileDir(const std::string &path);
 
 protected:
     /**
@@ -635,13 +635,13 @@ protected:
     /**
      *  The singleton pointer of FileUtils.
      */
-    static FileUtils *s_sharedFileUtils; //NOLINT(readability-identifier-naming)
+    static FileUtils *sharedFileUtils;
 
     /**
      *  Remove null value key (for iOS)
      */
-    virtual void valueMapCompact(ValueMap &valueMap);          //NOLINT(google-runtime-references)
-    virtual void valueVectorCompact(ValueVector &valueVector); //NOLINT(google-runtime-references)
+    virtual void valueMapCompact(ValueMap &valueMap); // NOLINT(google-runtime-references)
+    virtual void valueVectorCompact(ValueVector &valueVector); // NOLINT(google-runtime-references)
 };
 
 // end of support group
