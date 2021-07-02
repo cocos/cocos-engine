@@ -1440,7 +1440,7 @@ const intersect = {
      */
     resolve (g1: any, g2: any, outPt = null) {
         const type1 = g1._type; const type2 = g2._type;
-        const resolver = this[type1 | type2] as (...args: any) => boolean;
+        const resolver = this[type1 | type2] as (...args: any) => number;
         return type1 < type2 ? resolver(g1, g2, outPt) : resolver(g2, g1, outPt);
     },
 };
