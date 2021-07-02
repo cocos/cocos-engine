@@ -24,6 +24,12 @@ jest.mock(
 );
 
 jest.mock(
+    'pal/screenManager',
+    () => jest.requireActual('../pal/screen-manager/web/screen-manager'),
+    { virtual: true, },
+);
+
+jest.mock(
     'pal/input',
     () => jest.requireActual('../pal/input/web/index'),
     { virtual: true, },

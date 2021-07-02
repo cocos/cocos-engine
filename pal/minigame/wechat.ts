@@ -1,5 +1,5 @@
 import { IMiniGame, SystemInfo } from 'pal/minigame';
-import { Orientation } from '../system-info/enum-type/orientation';
+import { Orientation } from '../screen-manager/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill, versionCompare } from '../utils';
 
 declare let wx: any;

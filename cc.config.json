@@ -57,6 +57,7 @@
                 "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/web/player.ts",
                 "pal/systemInfo": "pal/system-info/web/system-info.ts",
+                "pal/screenManager": "pal/screen-manager/web/screen-manager.ts",
                 "pal/input": "pal/input/web/index.ts"
             }
         },
@@ -67,6 +68,7 @@
                 "pal/minigame": "pal/minigame/non-minigame.ts",
                 "pal/audio": "pal/audio/native/player.ts",
                 "pal/systemInfo": "pal/system-info/native/system-info.ts",
+                "pal/screenManager": "pal/screen-manager/native/screen-manager.ts",
                 "pal/input": "pal/input/native/index.ts"
             }
         },
@@ -77,6 +79,7 @@
                 "pal/minigame": "pal/minigame/{{context.platform.toLowerCase()}}.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
                 "pal/systemInfo": "pal/system-info/minigame/system-info.ts",
+                "pal/screenManager": "pal/screen-manager/minigame/screen-manager.ts",
                 "pal/input": "pal/input/minigame/index.ts"
             }
         },
@@ -87,6 +90,7 @@
                 "pal/minigame": "pal/minigame/runtime.ts",
                 "pal/audio": "pal/audio/minigame/player.ts",
                 "pal/systemInfo": "pal/system-info/minigame/system-info.ts",
+                "pal/screenManager": "pal/screen-manager/minigame/screen-manager.ts",
                 "pal/input": "pal/input/minigame/index.ts"
             }
         },

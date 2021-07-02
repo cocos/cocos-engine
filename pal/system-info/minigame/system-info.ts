@@ -1,9 +1,8 @@
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SafeAreaEdge, SupportCapability } from 'pal/systemInfo';
+import { SupportCapability } from 'pal/systemInfo';
 import { minigame } from 'pal/minigame';
-import { Size } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, AppEvent, Language } from '../enum-type';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;
@@ -47,10 +46,6 @@ class System {
     public readonly browserVersion: string;
     public readonly pixelRatio: number;
     public readonly supportCapability: SupportCapability;
-
-    public get isOnFullScreen (): boolean {
-        return false;
-    }
 
     private _eventTarget: EventTarget = new EventTarget();
 
@@ -115,14 +110,12 @@ class System {
             gl: true,
             canvas: true,
             imageBitmap: false,
-            fullscreen: false,
         };
 
         this._registerEvent();
     }
 
     private _registerEvent () {
-        // TODO: onResize or onOrientationChange is not supported well
         minigame.onHide(() => {
             this._eventTarget.emit(AppEvent.HIDE);
         });
@@ -131,49 +124,6 @@ class System {
         });
     }
 
-    public resizeScreen (size: Size): Promise<void> {
-        return Promise.reject(new Error('screen resize is not supported on this platform.'));
-    }
-    public requestFullScreen (): Promise<void> {
-        return Promise.reject(new Error('request fullscreen is not supported on this platform.'));
-    }
-    public exitFullScreen (): Promise<void> {
-        return Promise.reject(new Error('exit fullscreen is not supported on this platform.'));
-    }
-    public getScreenSize (): Size {
-        const sysInfo = minigame.getSystemInfoSync();
-        return new Size(sysInfo.screenWidth, sysInfo.screenHeight);
-    }
-    public getOrientation (): Orientation {
-        return minigame.orientation;
-    }
-    public getSafeAreaEdge (): SafeAreaEdge {
-        const minigameSafeArea = minigame.getSafeArea();
-        const screenSize = this.getScreenSize();
-        let topEdge = minigameSafeArea.top;
-        let bottomEdge = screenSize.height - minigameSafeArea.bottom;
-        let leftEdge = minigameSafeArea.left;
-        let rightEdge = screenSize.width - minigameSafeArea.right;
-        const orientation = this.getOrientation();
-        // Make it symmetrical.
-        if (orientation === Orientation.PORTRAIT) {
-            if (topEdge < bottomEdge) {
-                topEdge = bottomEdge;
-            } else {
-                bottomEdge = topEdge;
-            }
-        } else if (leftEdge < rightEdge) {
-            leftEdge = rightEdge;
-        } else {
-            rightEdge = leftEdge;
-        }
-        return {
-            top: topEdge,
-            bottom: bottomEdge,
-            left: leftEdge,
-            right: rightEdge,
-        };
-    }
     public getBatteryLevel (): number {
         return minigame.getBatteryInfoSync().level / 100;
     }
@@ -211,15 +161,6 @@ class System {
     public onClose (cb: () => void) {
         this._eventTarget.on(AppEvent.CLOSE, cb);
     }
-    public onFullscreenChange (cb: () => void) {
-        this._eventTarget.on(AppEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public onScreenResize (cb: () => void) {
-        this._eventTarget.on(AppEvent.RESIZE, cb);
-    }
-    public onOrientationChange (cb: () => void) {
-        this._eventTarget.on(AppEvent.ORIENTATION_CHANGE, cb);
-    }
 
     public offHide (cb?: () => void) {
         this._eventTarget.off(AppEvent.HIDE, cb);
@@ -229,15 +170,6 @@ class System {
     }
     public offClose (cb?: () => void) {
         this._eventTarget.off(AppEvent.CLOSE, cb);
-    }
-    public offFullscreenChange (cb?: () => void) {
-        this._eventTarget.off(AppEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public offScreenResize (cb?: () => void) {
-        this._eventTarget.off(AppEvent.RESIZE, cb);
-    }
-    public offOrientationChange (cb?: () => void) {
-        this._eventTarget.off(AppEvent.ORIENTATION_CHANGE, cb);
     }
 }
 

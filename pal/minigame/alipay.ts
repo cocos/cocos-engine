@@ -1,5 +1,5 @@
-import { IMiniGame, SystemInfo } from 'pal/minigame';
-import { Orientation } from '../system-info/enum-type/orientation';
+import { IMiniGame } from 'pal/minigame';
+import { Orientation } from '../screen-manager/enum-type';
 import { cloneObject } from '../utils';
 
 declare let my: any;

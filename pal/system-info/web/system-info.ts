@@ -1,9 +1,7 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SafeAreaEdge, SupportCapability } from 'pal/systemInfo';
-import { Size } from '../../../cocos/core/math';
+import { SupportCapability } from 'pal/systemInfo';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
-import { screenUtils } from './screen-utils';
+import { BrowserType, NetworkType, OS, Platform, AppEvent, Language } from '../enum-type';
 
 class System {
     public readonly networkType: NetworkType;
@@ -21,10 +19,6 @@ class System {
     public readonly browserVersion: string;
     public readonly pixelRatio: number;
     public readonly supportCapability: SupportCapability;
-
-    public get isOnFullScreen (): boolean {
-        return screenUtils.isOnFullscreen;
-    }
 
     private _eventTarget: EventTarget = new EventTarget();
     private _battery?: any;
@@ -179,23 +173,12 @@ class System {
             gl: supportWebGL,
             canvas: supportCanvas,
             imageBitmap: supportImageBitmap,
-            fullscreen: screenUtils.supportsFullScreen,
         };
 
         this._registerEvent();
     }
 
     private _registerEvent () {
-        window.addEventListener('resize', () => {
-            this._eventTarget.emit(AppEvent.RESIZE);
-        });
-        window.addEventListener('orientationchange', () => {
-            this._eventTarget.emit(AppEvent.ORIENTATION_CHANGE);
-        });
-        this._registerVisibilityEvent();
-    }
-
-    private _registerVisibilityEvent () {
         let hiddenPropName: string;
         if (typeof document.hidden !== 'undefined') {
             hiddenPropName = 'hidden';
@@ -263,29 +246,6 @@ class System {
         }
     }
 
-    public resizeScreen (size: Size): Promise<void> {
-        throw new Error('screen resize has not been supported yet on this platform');
-    }
-    public requestFullScreen (): Promise<void> {
-        return screenUtils.requestFullScreen();
-    }
-    public exitFullScreen (): Promise<void> {
-        return screenUtils.exitFullScreen();
-    }
-    public getScreenSize (): Size {
-        return screenUtils.getScreenSize();
-    }
-    public getOrientation (): Orientation {
-        throw new Error('TODO');
-    }
-    public getSafeAreaEdge (): SafeAreaEdge {
-        return {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-        };
-    }
     public getBatteryLevel (): number {
         if (this._battery) {
             return this._battery.level as number;
@@ -331,15 +291,6 @@ class System {
     public onClose (cb: () => void) {
         this._eventTarget.on(AppEvent.CLOSE, cb);
     }
-    public onFullscreenChange (cb: () => void) {
-        this._eventTarget.on(AppEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public onScreenResize (cb: () => void) {
-        this._eventTarget.on(AppEvent.RESIZE, cb);
-    }
-    public onOrientationChange (cb: () => void) {
-        this._eventTarget.on(AppEvent.ORIENTATION_CHANGE, cb);
-    }
 
     public offHide (cb?: () => void) {
         this._eventTarget.off(AppEvent.HIDE, cb);
@@ -349,15 +300,6 @@ class System {
     }
     public offClose (cb?: () => void) {
         this._eventTarget.off(AppEvent.CLOSE, cb);
-    }
-    public offFullscreenChange (cb?: () => void) {
-        this._eventTarget.off(AppEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public offScreenResize (cb?: () => void) {
-        this._eventTarget.off(AppEvent.RESIZE, cb);
-    }
-    public offOrientationChange (cb?: () => void) {
-        this._eventTarget.off(AppEvent.ORIENTATION_CHANGE, cb);
     }
 }
 

@@ -1,15 +1,7 @@
-import { SafeAreaEdge, SupportCapability } from 'pal/systemInfo';
-import { Size } from '../../../cocos/core/math';
+import { SupportCapability } from 'pal/systemInfo';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, AppEvent, Language } from '../enum-type';
 
-// these value is defined in the native layer
-const orientationMap: Record<string, Orientation> = {
-    0: Orientation.PORTRAIT,
-    '-90': Orientation.LANDSCAPE_LEFT,
-    90: Orientation.LANDSCAPE_RIGHT,
-    180: Orientation.PORTRAIT_UPSIDE_DOWN,
-};
 const networkTypeMap: Record<string, NetworkType> = {
     0: NetworkType.NONE,
     1: NetworkType.LAN,
@@ -43,10 +35,6 @@ class System {
     public readonly pixelRatio: number;
     public readonly supportCapability: SupportCapability;
     // TODO: need to wrap the function __isObjectValid()
-
-    public get isOnFullScreen (): boolean {
-        return false;
-    }
 
     private _eventTarget: EventTarget = new EventTarget();
 
@@ -95,25 +83,12 @@ class System {
             gl: true,
             canvas: true,
             imageBitmap: false,
-            fullscreen: false,
         };
 
         this._registerEvent();
     }
 
     private _registerEvent () {
-        jsb.onResize = (size) => {
-            if (size.width === 0 || size.height === 0) return;
-            size.width /= this.pixelRatio;
-            size.height /= this.pixelRatio;
-
-            // TODO: remove this function calling
-            window.resize(size.width, size.height);
-            this._eventTarget.emit(AppEvent.RESIZE);
-        };
-        jsb.onOrientationChanged = (event) => {
-            this._eventTarget.emit(AppEvent.ORIENTATION_CHANGE);
-        };
         jsb.onPause = () => {
             this._eventTarget.emit(AppEvent.HIDE);
         };
@@ -125,47 +100,6 @@ class System {
         };
     }
 
-    public resizeScreen (size: Size): Promise<void> {
-        return Promise.reject(new Error('screen resize has not been supported yet on this platform.'));
-    }
-    public requestFullScreen (): Promise<void> {
-        return Promise.reject(new Error('request fullscreen has not been supported yet on this platform.'));
-    }
-    public exitFullScreen (): Promise<void> {
-        return Promise.reject(new Error('exit fullscreen has not been supported yet on this platform.'));
-    }
-    public getScreenSize (): Size {
-        return new Size(window.innerWidth, window.innerHeight);
-    }
-    public getOrientation (): Orientation {
-        return orientationMap[jsb.device.getDeviceOrientation()];
-    }
-    public getSafeAreaEdge (): SafeAreaEdge {
-        const nativeSafeArea = jsb.device.getSafeAreaEdge();
-        let topEdge = nativeSafeArea.x;
-        let bottomEdge = nativeSafeArea.z;
-        let leftEdge = nativeSafeArea.y;
-        let rightEdge = nativeSafeArea.w;
-        const orientation = this.getOrientation();
-        // Make it symmetrical.
-        if (orientation === Orientation.PORTRAIT) {
-            if (topEdge < bottomEdge) {
-                topEdge = bottomEdge;
-            } else {
-                bottomEdge = topEdge;
-            }
-        } else if (leftEdge < rightEdge) {
-            leftEdge = rightEdge;
-        } else {
-            rightEdge = leftEdge;
-        }
-        return {
-            top: topEdge,
-            bottom: bottomEdge,
-            left: leftEdge,
-            right: rightEdge,
-        };
-    }
     public getBatteryLevel (): number {
         return jsb.device.getBatteryLevel();
     }
@@ -201,15 +135,6 @@ class System {
     public onClose (cb: () => void) {
         this._eventTarget.on(AppEvent.CLOSE, cb);
     }
-    public onFullscreenChange (cb: () => void) {
-        this._eventTarget.on(AppEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public onScreenResize (cb: () => void) {
-        this._eventTarget.on(AppEvent.RESIZE, cb);
-    }
-    public onOrientationChange (cb: () => void) {
-        this._eventTarget.on(AppEvent.ORIENTATION_CHANGE, cb);
-    }
 
     public offHide (cb?: () => void) {
         this._eventTarget.off(AppEvent.HIDE, cb);
@@ -219,15 +144,6 @@ class System {
     }
     public offClose (cb?: () => void) {
         this._eventTarget.off(AppEvent.CLOSE, cb);
-    }
-    public offFullscreenChange (cb?: () => void) {
-        this._eventTarget.off(AppEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public offScreenResize (cb?: () => void) {
-        this._eventTarget.off(AppEvent.RESIZE, cb);
-    }
-    public offOrientationChange (cb?: () => void) {
-        this._eventTarget.off(AppEvent.ORIENTATION_CHANGE, cb);
     }
 }
 
