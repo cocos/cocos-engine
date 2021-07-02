@@ -1,5 +1,5 @@
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/systemInfo';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Vec2 } from '../../../cocos/core/math';
@@ -11,7 +11,7 @@ export class MouseInputSource {
     private _preMousePos: Vec2 = new Vec2();
 
     constructor () {
-        this.support = !system.isMobile;
+        this.support = !systemInfo.isMobile;
         this._registerEvent();
     }
 
@@ -25,7 +25,7 @@ export class MouseInputSource {
         jsb.onMouseUp =  this._createCallback(SystemEventType.MOUSE_UP);
         jsb.onMouseWheel = (event: jsb.MouseWheelEvent) => {
             const location = this._getLocation(event);
-            const screenSize = system.getScreenSize();
+            const screenSize = systemInfo.getScreenSize();
             const matchStandardFactor = 120;
             const inputEvent: MouseWheelInputEvent = {
                 type: SystemEventType.MOUSE_WHEEL,
@@ -43,7 +43,7 @@ export class MouseInputSource {
     private _createCallback (eventType: SystemEvent.EventType) {
         return (event: jsb.MouseEvent) => {
             const location = this._getLocation(event);
-            const screenSize = system.getScreenSize();
+            const screenSize = systemInfo.getScreenSize();
             const locationX = location.x;
             const locationY = screenSize.height - location.y;
             const inputEvent: MouseInputEvent = {

@@ -1,5 +1,5 @@
 import { minigame } from 'pal/minigame';
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/systemInfo';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
@@ -77,7 +77,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 }).catch((e) => {});
             }
         };
-        system.onHide(this._onHide);
+        systemInfo.onHide(this._onHide);
         this._onShow = () => {
             if (this._state === AudioState.INTERRUPTED) {
                 this.play().then(() => {
@@ -85,7 +85,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 }).catch((e) => {});
             }
         };
-        system.onShow(this._onShow);
+        systemInfo.onShow(this._onShow);
         const eventTarget = this._eventTarget;
         this._onPlay = () => {
             this._state = AudioState.PLAYING;
@@ -112,11 +112,11 @@ export class AudioPlayerMinigame implements OperationQueueable {
     }
     destroy () {
         if (this._onShow) {
-            system.offShow(this._onShow);
+            systemInfo.offShow(this._onShow);
             this._onShow = undefined;
         }
         if (this._onHide) {
-            system.offHide(this._onHide);
+            systemInfo.offHide(this._onHide);
             this._onHide = undefined;
         }
         if (this._innerAudioContext) {

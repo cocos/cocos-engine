@@ -1,10 +1,10 @@
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/systemInfo';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import { BrowserType, OS } from '../../system/enum-type';
+import { BrowserType, OS } from '../../system-info/enum-type';
 
 function ensurePlaying (domAudio: HTMLAudioElement): Promise<void> {
     return new Promise((resolve) => {
@@ -130,13 +130,12 @@ export class AudioPlayerDOM implements OperationQueueable {
     static loadNative (url: string): Promise<HTMLAudioElement> {
         return new Promise((resolve, reject) => {
             const domAudio = document.createElement('audio');
-            const sys = legacyCC.sys;
             let loadedEvent = 'canplaythrough';
-            if (system.os === OS.IOS) {
+            if (systemInfo.os === OS.IOS) {
                 // iOS no event that used to parse completed callback
                 // this time is not complete, can not play
                 loadedEvent = 'loadedmetadata';
-            } else if (system.browserType === BrowserType.FIREFOX) {
+            } else if (systemInfo.browserType === BrowserType.FIREFOX) {
                 loadedEvent = 'canplay';
             }
 

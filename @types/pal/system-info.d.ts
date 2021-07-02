@@ -1,4 +1,5 @@
-declare module 'pal/system' {
+// TODO: some interface need to be designed in a module called 'Application' and 'Network'
+declare module 'pal/systemInfo' {
     export interface SupportCapability {
         readonly webp: boolean;
         readonly gl: boolean;
@@ -7,36 +8,36 @@ declare module 'pal/system' {
         readonly fullscreen: boolean,
     }
 
-    class System {
-        public readonly networkType: import('pal/system/enum-type/network-type').NetworkType;
-        public readonly isNative: boolean;
-        public readonly isBrowser: boolean;
-        public readonly isMobile: boolean;
-        public readonly isLittleEndian: boolean;
+    class SystemInfo {
+        public get networkType (): import('pal/system-info/enum-type/network-type').NetworkType;
+        public get isNative (): boolean;
+        public get isBrowser (): boolean;
+        public get isMobile (): boolean;
+        public get isLittleEndian (): boolean;
         /**
          * Platform is a spacial field which is related to the build platform you choose on the Builder Panel in Cocos Creator.
          * It may point to an OS like Android or iOS.
          * It may point to a phone brand like vivo or OPPO.
          * Also it may point to an app channel like WeChat or ByteDance.
          */
-        public readonly platform: import('pal/system/enum-type').Platform;
+        public get platform (): import('pal/system-info/enum-type').Platform;
         /**
          * This is the language code typed as `Language`.
          */
-        public readonly language: import('pal/system/enum-type').Language;
+        public get language (): import('pal/system-info/enum-type').Language;
         /**
          * This is the native value return by platform
          * The valid value can be 'zh-tw','en','en-us','fr','fr-fr','es-es' and so on.
          */
-        public readonly nativeLanguage: string;
-        public readonly os: import('pal/system/enum-type').OS;
-        public readonly osVersion: string;
-        public readonly osMainVersion: number;
-        public readonly browserType: import('pal/system/enum-type').BrowserType;
-        public readonly browserVersion: string;
-        public readonly pixelRatio: number;
-        public readonly supportCapability: SupportCapability;
-        public readonly isOnFullScreen: boolean;
+        public get nativeLanguage (): string;
+        public get os (): import('pal/system-info/enum-type').OS;
+        public get osVersion (): string;
+        public get osMainVersion (): number;
+        public get browserType (): import('pal/system-info/enum-type').BrowserType;
+        public get browserVersion (): string;
+        public get pixelRatio (): number;
+        public get supportCapability (): SupportCapability;
+        public get isOnFullScreen (): boolean;
 
         /**
          * Asynchronously resize screen to a specified size.
@@ -66,7 +67,7 @@ declare module 'pal/system' {
          * Get the orientation of current game.
          * Available on mobile related platform.
          */
-        public getOrientation (): import('pal/system/enum-type').Orientation;
+        public getOrientation (): import('pal/system-info/enum-type').Orientation;
         /**
          * Get the SafeAreaEdge based on the screen coordinate system.
          * @return {SafeAreaEdge} An interface displaying the distance of the sides 'top', 'bottom', 'left' and 'right'.
@@ -98,7 +99,7 @@ declare module 'pal/system' {
         // TODO: support onError
     }
 
-    export const system: System;
+    export const systemInfo: SystemInfo;
 
     export interface SafeAreaEdge {
         top: number;

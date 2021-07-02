@@ -1,5 +1,5 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SafeAreaEdge, SupportCapability } from 'pal/system';
+import { SafeAreaEdge, SupportCapability } from 'pal/systemInfo';
 import { Size } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';

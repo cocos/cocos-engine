@@ -18,7 +18,7 @@ jest.mock(
 );
 
 jest.mock(
-    'pal/system',
+    'pal/systemInfo',
     () => jest.requireActual('../pal/system/web/system'),
     { virtual: true, },
 );

@@ -32,7 +32,7 @@
         "./node_modules/@types/jest/index",
 
         // pal
-        "./@types/pal/system",
+        "./@types/pal/system-info",
         "./@types/pal/minigame",
         "./@types/pal/audio",
         "./@types/pal/input"

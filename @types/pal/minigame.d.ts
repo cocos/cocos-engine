@@ -8,7 +8,7 @@ declare module 'pal/minigame' {
         // system
         isDevTool: boolean;
         isLandscape: boolean;
-        orientation: import('pal/system/enum-type').Orientation;
+        orientation: import('pal/system-info/enum-type').Orientation;
         getSystemInfoSync(): SystemInfo;
         onShow(callback: () => void): void;
         offShow(callback: () => void): void;

@@ -1,6 +1,6 @@
 import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
-import { system } from 'pal/system';
-import { Vec2 } from '../../../cocos/core/math';
+import { systemInfo } from 'pal/systemInfo';
+import { Rect, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
@@ -25,7 +25,7 @@ export class TouchInputSource {
         return (touchList: TouchList) => {
             const touchDataList: TouchData[] = [];
             const length = touchList.length;
-            const screenSize = system.getScreenSize();
+            const screenSize = systemInfo.getScreenSize();
             for (let i = 0; i < length; ++i) {
                 const touch = touchList[i];
                 const location = this._getLocation(touch);

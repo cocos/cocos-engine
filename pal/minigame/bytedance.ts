@@ -1,5 +1,5 @@
 import { IMiniGame, SystemInfo } from 'pal/minigame';
-import { Orientation } from '../system/enum-type/orientation';
+import { Orientation } from '../system-info/enum-type/orientation';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let tt: any;
