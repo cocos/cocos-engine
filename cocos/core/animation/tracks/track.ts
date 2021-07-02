@@ -205,7 +205,7 @@ class TrackPath {
     }
 
     public parseComponentAt (index: number) {
-        assertIsTrue(this.isHierarchyAt(index));
+        assertIsTrue(this.isComponentAt(index));
         return (this._paths[index] as ComponentPath).component;
     }
 
