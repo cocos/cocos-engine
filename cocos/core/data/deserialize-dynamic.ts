@@ -28,7 +28,6 @@
  * @hidden
  */
 
-import { system } from 'pal/system';
 import { EDITOR, TEST, DEV, BUILD, JSB, PREVIEW, SUPPORT_JIT } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { warnID } from '../platform/debug';
@@ -38,7 +37,8 @@ import { CCClass } from './class';
 import * as Attr from './utils/attribute';
 import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
-import { Platform } from '../../../pal/system/enum-type';
+import { Platform } from '../../../pal/system-info/enum-type';
+import { sys } from '../platform/sys';
 
 // TODO remove default support
 
@@ -626,7 +626,7 @@ _Deserializer.pool.get = function (result, classFinder, customEnv, ignoreEditorO
 export function deserializeDynamic (data, details: Details, options) {
     options = options || {};
     const classFinder = options.classFinder || js._getClassById;
-    const createAssetRefs = options.createAssetRefs || system.platform === Platform.EDITOR_CORE;
+    const createAssetRefs = options.createAssetRefs || sys.platform === Platform.EDITOR_CORE;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
 

@@ -29,9 +29,8 @@
  * @module core
  */
 
-import { system } from 'pal/system';
-import { OS } from '../../../pal/system/enum-type';
-import { legacyCC } from '../global-exports';
+import { OS } from '../../../pal/system-info/enum-type';
+import { sys } from '../platform';
 
 const EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
 const DIRNAME_RE = /((.*)(\/|\\|\\\\))?(.*?\..*$)?/;
@@ -165,5 +164,5 @@ export function stripSep (path: string) {
 }
 
 export function getSeperator () {
-    return system.os === OS.WINDOWS ? '\\' : '/';
+    return sys.os === OS.WINDOWS ? '\\' : '/';
 }

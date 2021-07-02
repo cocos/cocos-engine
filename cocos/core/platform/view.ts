@@ -31,8 +31,8 @@
  */
 
 import '../data/class';
-import { system } from 'pal/system';
 import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
+import { systemInfo } from 'pal/systemInfo';
 import { EventTarget } from '../event/event-target';
 import '../game';
 import { Rect, Size, Vec2 } from '../math';
@@ -40,7 +40,7 @@ import visibleRect from './visible-rect';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
 import { sys } from './sys';
-import { BrowserType, OS } from '../../../pal/system/enum-type';
+import { OS } from '../../../pal/system-info/enum-type';
 import { screen } from './screen';
 
 /**
@@ -167,14 +167,14 @@ export class View extends EventTarget {
             // enable
             if (!this._resizeWithBrowserSize) {
                 this._resizeWithBrowserSize = true;
-                system.onScreenResize(this._resizeEvent);
-                system.onOrientationChange(this._orientationChange);
+                systemInfo.onScreenResize(this._resizeEvent);
+                systemInfo.onOrientationChange(this._orientationChange);
             }
         } else if (this._resizeWithBrowserSize) {
             // disable
             this._resizeWithBrowserSize = false;
-            system.offScreenResize(this._resizeEvent);
-            system.offOrientationChange(this._orientationChange);
+            systemInfo.offScreenResize(this._resizeEvent);
+            systemInfo.offOrientationChange(this._orientationChange);
         }
     }
 
@@ -659,7 +659,7 @@ export class View extends EventTarget {
 
     private _initFrameSize () {
         const locFrameSize = this._frameSize;
-        const screenSize = system.getScreenSize();
+        const screenSize = systemInfo.getScreenSize();
         const w = screenSize.width;
         const h = screenSize.height;
         const isLandscape: boolean = w >= h;
@@ -752,7 +752,7 @@ class ContainerStrategy {
         const locCanvas = legacyCC.game.canvas;
         const locContainer = legacyCC.game.container;
 
-        if (system.os === OS.ANDROID || system.os === OS.OHOS) {
+        if (sys.os === OS.ANDROID || sys.os === OS.OHOS) {
             document.body.style.width = `${_view._isRotated ? h : w}px`;
             document.body.style.height = `${_view._isRotated ? w : h}px`;
         }

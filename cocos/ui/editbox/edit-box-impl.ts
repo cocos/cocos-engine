@@ -31,7 +31,6 @@
  * @hidden
  */
 
-import { system } from 'pal/system';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../core/director';
 import { game } from '../../core/game';
@@ -47,7 +46,7 @@ import visibleRect from '../../core/platform/visible-rect';
 import { Node } from '../../core/scene-graph';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { legacyCC } from '../../core/global-exports';
-import { BrowserType, OS } from '../../../pal/system/enum-type';
+import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -222,7 +221,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _showDomOnMobile () {
-        if (system.os !== OS.ANDROID && system.os !== OS.OHOS) {
+        if (sys.os !== OS.ANDROID && sys.os !== OS.OHOS) {
             return;
         }
 
@@ -234,7 +233,7 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _hideDomOnMobile () {
-        if (system.os === OS.ANDROID || system.os === OS.OHOS) {
+        if (sys.os === OS.ANDROID || sys.os === OS.OHOS) {
             if (this.__autoResize) {
                 view.resizeWithBrowserSize(true);
             }
@@ -253,7 +252,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _scrollBackWindow () {
         setTimeout(() => {
-            if (system.browserType === BrowserType.WECHAT && system.os === OS.IOS) {
+            if (sys.browserType === BrowserType.WECHAT && sys.os === OS.IOS) {
                 if (window.top) {
                     window.top.scrollTo(0, 0);
                 }
@@ -555,7 +554,7 @@ export class EditBoxImpl extends EditBoxImplBase {
                             + `#${this._domId}::-ms-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`;
         // EDGE_BUG_FIX: hide clear button, because clearing input box in Edge does not emit input event
         // issue refference: https://github.com/angular/angular/issues/26307
-        if (system.browserType === BrowserType.EDGE) {
+        if (sys.browserType === BrowserType.EDGE) {
             styleEl!.innerHTML += `#${this._domId}::-ms-clear{display: none;}`;
         }
     }

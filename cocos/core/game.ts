@@ -29,7 +29,7 @@
  */
 
 import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/systemInfo';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
@@ -44,7 +44,7 @@ import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
-import { BrowserType } from '../../pal/system/enum-type';
+import { BrowserType } from '../../pal/system-info/enum-type';
 import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
 
@@ -478,7 +478,7 @@ export class Game extends EventTarget {
      * @zh 退出游戏
      */
     public end () {
-        system.close();
+        systemInfo.close();
     }
 
     /**
@@ -784,17 +784,17 @@ export class Game extends EventTarget {
         let supportRender = false;
 
         if (userRenderMode === 0) {
-            if (legacyCC.sys.capabilities.opengl) {
+            if (sys.capabilities.opengl) {
                 this.renderType = Game.RENDER_TYPE_WEBGL;
                 supportRender = true;
-            } else if (legacyCC.sys.capabilities.canvas) {
+            } else if (sys.capabilities.canvas) {
                 this.renderType = Game.RENDER_TYPE_CANVAS;
                 supportRender = true;
             }
-        } else if (userRenderMode === 1 && legacyCC.sys.capabilities.canvas) {
+        } else if (userRenderMode === 1 && sys.capabilities.canvas) {
             this.renderType = Game.RENDER_TYPE_CANVAS;
             supportRender = true;
-        } else if (userRenderMode === 2 && legacyCC.sys.capabilities.opengl) {
+        } else if (userRenderMode === 2 && sys.capabilities.opengl) {
             this.renderType = Game.RENDER_TYPE_WEBGL;
             supportRender = true;
         }
@@ -841,7 +841,7 @@ export class Game extends EventTarget {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
                 if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                    || system.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
+                    || sys.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
                 ) {
                     useWebGL2 = false;
                 }
@@ -870,8 +870,8 @@ export class Game extends EventTarget {
     }
 
     private _initEvents () {
-        system.onShow(this._onShow.bind(this));
-        system.onHide(this._onHide.bind(this));
+        systemInfo.onShow(this._onShow.bind(this));
+        systemInfo.onHide(this._onHide.bind(this));
     }
 
     private _onHide () {

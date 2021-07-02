@@ -28,15 +28,15 @@
  * @packageDocumentation
  * @module core
  */
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/systemInfo';
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
-import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/system/enum-type';
+import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/system-info/enum-type';
 import { Vec2 } from '../math';
 
-const screenSize = system.getScreenSize();
-const pixelRatio = system.pixelRatio;
+const screenSize = systemInfo.getScreenSize();
+const pixelRatio = systemInfo.pixelRatio;
 
 /**
  * @en A set of system related variables
@@ -88,37 +88,37 @@ export const sys: Record<string, any> = {
      * @en Whether the running platform is native app
      * @zh 指示运行平台是否是原生平台
      */
-    isNative: system.isNative,
+    isNative: systemInfo.isNative,
 
     /**
      * @en Whether the running platform is browser
      * @zh 指示运行平台是否是浏览器
      */
-    isBrowser: system.isBrowser,
+    isBrowser: systemInfo.isBrowser,
 
     /**
      * @en Indicate whether the current running context is a mobile system
      * @zh 指示当前运行平台是否是移动端平台
      */
-    isMobile: system.isMobile,
+    isMobile: systemInfo.isMobile,
 
     /**
      * @en Whether the endianness of current platform is little endian
      * @zh 当前平台字节顺序是否是小端序
      */
-    isLittleEndian: system.isLittleEndian,
+    isLittleEndian: systemInfo.isLittleEndian,
 
     /**
      * @en The running platform
      * @zh 当前运行平台或环境
      */
-    platform: system.platform,
+    platform: systemInfo.platform,
 
     /**
      * @en Indicate the current language of the running system
      * @zh 指示当前运行环境的语言
      */
-    language: system.language,
+    language: systemInfo.language,
 
     /**
      * @en
@@ -131,37 +131,37 @@ export const sys: Record<string, any> = {
      * 有效的语言代码包括 "zh-tw"、"en"、"en-us"、"fr"、"fr-fr"、"es-es "等。
      * 实际值完全取决于目的地平台提供的结果。
      */
-    languageCode: system.nativeLanguage,
+    languageCode: systemInfo.nativeLanguage,
 
     /**
      * @en Indicate the running os name
      * @zh 指示当前运行系统
      */
-    os: system.os,
+    os: systemInfo.os,
 
     /**
      * @en Indicate the running os version string
      * @zh 指示当前运行系统版本字符串
      */
-    osVersion: system.osVersion,
+    osVersion: systemInfo.osVersion,
 
     /**
      * @en Indicate the running os main version
      * @zh 指示当前系统主版本
      */
-    osMainVersion: system.osMainVersion,
+    osMainVersion: systemInfo.osMainVersion,
 
     /**
      * @en Indicate the running browser type
      * @zh 指示当前运行的浏览器类型
      */
-    browserType: system.browserType,
+    browserType: systemInfo.browserType,
 
     /**
      * @en Indicate the running browser version
      * @zh 指示当前运行的浏览器版本
      */
-    browserVersion: system.browserVersion,
+    browserVersion: systemInfo.browserVersion,
 
     /**
      * @en Indicate the real pixel resolution of the whole game window
@@ -177,10 +177,10 @@ export const sys: Record<string, any> = {
      * @zh 当前平台的功能可用性
      */
     capabilities: {
-        canvas: system.supportCapability.canvas,
-        opengl: system.supportCapability.gl,
-        webp: system.supportCapability.webp,
-        imageBitmap: system.supportCapability.imageBitmap,
+        canvas: systemInfo.supportCapability.canvas,
+        opengl: systemInfo.supportCapability.gl,
+        webp: systemInfo.supportCapability.webp,
+        imageBitmap: systemInfo.supportCapability.imageBitmap,
         // TODO: move into pal/input
         touches: false,
         mouse: false,
@@ -199,7 +199,7 @@ export const sys: Record<string, any> = {
      * @zh 获取当前设备的网络类型, 如果网络类型无法获取，默认将返回 `sys.NetworkType.LAN`
      */
     getNetworkType (): NetworkType {
-        return system.networkType;
+        return systemInfo.networkType;
     },
 
     /**
@@ -208,7 +208,7 @@ export const sys: Record<string, any> = {
      * @return - 0.0 ~ 1.0
      */
     getBatteryLevel (): number {
-        return system.getBatteryLevel();
+        return systemInfo.getBatteryLevel();
     },
 
     /**
@@ -216,7 +216,7 @@ export const sys: Record<string, any> = {
      * @zh 强制进行 JS 内存垃圾回收，尽在原生平台有效
      */
     garbageCollect () {
-        system.triggerGC();
+        systemInfo.triggerGC();
     },
 
     /**
@@ -236,7 +236,7 @@ export const sys: Record<string, any> = {
     },
 
     /**
-     * @en Dump system informations
+     * @en Dump systemInfo informations
      * @zh 在控制台打印当前的主要系统信息
      */
     dump () {
@@ -258,7 +258,7 @@ export const sys: Record<string, any> = {
      * @zh 尝试打开一个 web 页面，并非在所有平台都有效
      */
     openURL (url) {
-        system.openURL(url);
+        systemInfo.openURL(url);
     },
 
     /**
@@ -266,7 +266,7 @@ export const sys: Record<string, any> = {
      * @zh 获取当前时间（毫秒为单位）
      */
     now () {
-        return system.now();
+        return systemInfo.now();
     },
 
     /**
@@ -274,7 +274,7 @@ export const sys: Record<string, any> = {
      * @private
      */
     restartVM () {
-        system.restartJSVM();
+        systemInfo.restartJSVM();
     },
 
     /**
@@ -289,8 +289,8 @@ export const sys: Record<string, any> = {
      */
     getSafeAreaRect () {
         const locView = legacyCC.view;
-        const edge = system.getSafeAreaEdge();
-        const screenSize = system.getScreenSize();
+        const edge = systemInfo.getSafeAreaEdge();
+        const screenSize = systemInfo.getScreenSize();
 
         // Get leftBottom and rightTop point in screen coordinates system.
         const leftBottom = new Vec2(edge.left, screenSize.height - edge.bottom);
@@ -347,11 +347,11 @@ export const sys: Record<string, any> = {
         }
 
         // HACK: this private property only needed on web
-        sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && system.isBrowser
+        sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
             && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
 
-        system.onScreenResize(() => {
-            const screenSize = system.getScreenSize();
+        systemInfo.onScreenResize(() => {
+            const screenSize = systemInfo.getScreenSize();
             sys.windowPixelResolution = {
                 width: Math.round(screenSize.width * pixelRatio),
                 height: Math.round(screenSize.height * pixelRatio),

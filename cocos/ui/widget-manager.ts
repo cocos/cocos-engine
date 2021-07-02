@@ -30,7 +30,7 @@
  */
 
 import { EDITOR, DEV } from 'internal:constants';
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/systemInfo';
 import { Director, director } from '../core/director';
 import { Vec2, Vec3 } from '../core/math';
 import { View } from '../core/platform/view';
@@ -354,7 +354,7 @@ export const widgetManager = legacyCC._widgetManager = {
         if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
-            system.onOrientationChange(thisOnResized);
+            systemInfo.onOrientationChange(thisOnResized);
         }
     },
     add (widget: Widget) {

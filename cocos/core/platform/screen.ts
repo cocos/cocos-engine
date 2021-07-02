@@ -29,7 +29,7 @@
  * @module core
  */
 
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/systemInfo';
 import { legacyCC } from '../global-exports';
 
 /**
@@ -43,7 +43,7 @@ class Screen {
      * @returns {Boolean}
      */
     public get supportsFullScreen () {
-        return system.supportCapability.fullscreen;
+        return systemInfo.supportCapability.fullscreen;
     }
 
     /**
@@ -52,7 +52,7 @@ class Screen {
      * @returns {boolean}
      */
     public fullScreen () {
-        return system.isOnFullScreen;
+        return systemInfo.isOnFullScreen;
     }
 
     /**
@@ -78,7 +78,7 @@ class Screen {
      */
     public requestFullScreen (): Promise<void>;
     public requestFullScreen (element?: HTMLElement, onFullScreenChange?: (this: Document, ev: any) => any, onFullScreenError?: (this: Document, ev: any) => any): Promise<any> {
-        return system.requestFullScreen().then(() => {
+        return systemInfo.requestFullScreen().then(() => {
             // @ts-expect-error no parameter passed
             onFullScreenChange?.();
         }).catch((err) => {
@@ -94,7 +94,7 @@ class Screen {
      * @return {Promise}
      */
     public exitFullScreen (): Promise<any> {
-        return system.exitFullScreen();
+        return systemInfo.exitFullScreen();
     }
 
     /**
