@@ -1,4 +1,4 @@
-import { ccclass, serializable } from 'cc.decorator';
+import { ccclass, serializable, uniquelyReferenced } from 'cc.decorator';
 import type { Component } from '../../components';
 import type { IntegerCurve, ObjectCurve, QuaternionCurve, RealCurve } from '../../curves';
 import { assertIsTrue } from '../../data/utils/asserts';
@@ -300,6 +300,7 @@ class TrackPath {
  * please redesign the public interfaces.
  */
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}TrackBinding`)
+@uniquelyReferenced
 export class TrackBinding {
     @serializable
     public path: Readonly<TrackPath> = new TrackPath();

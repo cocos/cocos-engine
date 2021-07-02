@@ -18,13 +18,13 @@ export class QuaternionKeyframeValue {
     /**
       * Value of the keyframe.
       */
-     @serializable
+    @serializable
     public value: IQuatLike = Quat.clone(Quat.IDENTITY);
 
     constructor ({
         value,
         interpMode,
-    }:  Partial<QuaternionKeyframeValue>) {
+    }:  Partial<QuaternionKeyframeValue> = {}) {
         // TODO: shall we normalize it?
         this.value = value ? Quat.clone(value) : this.value;
         this.interpMode = interpMode ?? this.interpMode;
