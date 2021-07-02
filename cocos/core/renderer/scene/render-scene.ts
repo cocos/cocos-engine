@@ -32,7 +32,7 @@ import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
-import { NativeDrawBatch2D, NativeRenderScene } from './native-scene';
+import { NativeRenderScene } from './native-scene';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -281,6 +281,9 @@ export class RenderScene {
             switch (m.type) {
             case ModelType.SKINNING:
                 this._nativeObj!.addSkinningModel(m.native);
+                break;
+            case ModelType.BAKED_SKINNING:
+                this._nativeObj!.addBakedSkinningModel(m.native);
                 break;
             case ModelType.DEFAULT:
             default:

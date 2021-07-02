@@ -4,6 +4,7 @@ declare const ns: any;
 export const NativeNode = ns.Node;
 export const NativeModel = ns.Model;
 export const NativeSkinningModel = ns.SkinningModel;
+export const NativeBakedSkinningModel = ns.BakedSkinningModel;
 export const NativeLight = ns.light;
 export const NativeDirectionalLight = ns.DirectionalLight;
 export const NativeSpotLight = ns.SpotLight;
@@ -20,6 +21,7 @@ export const NativePass = ns.Pass;
 export const NativeSubModel = ns.SubModel;
 export const NativeRoot = ns.Root;
 export const NativePipelineSharedSceneData = ns.PipelineSharedSceneData;
+export const NativeAABB = ns.AABB;
 
 import { RenderScene } from './render-scene'
 

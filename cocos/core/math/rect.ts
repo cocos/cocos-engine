@@ -36,6 +36,7 @@ import { IRectLike, IVec2Like, FloatArray } from './type-define';
 import { Vec2 } from './vec2';
 import { legacyCC } from '../global-exports';
 import { MathBase } from './math-base';
+import { enumerableProps } from './utils';
 
 /**
  * @en
@@ -499,7 +500,7 @@ export class Rect extends MathBase {
         out_rt.y = mat.m01 * or + mat.m05 * ot + mat.m13;
     }
 }
-
+enumerableProps(Rect.prototype, ['x', 'y', 'z', 'w', 'width', 'height', 'xMin', 'yMin', 'xMax', 'yMax']);
 CCClass.fastDefine('cc.Rect', Rect, { x: 0, y: 0, width: 0, height: 0 });
 
 legacyCC.Rect = Rect;

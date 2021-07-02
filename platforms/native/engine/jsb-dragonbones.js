@@ -335,6 +335,7 @@ const cacheManager = require('./jsb-cache-manager');
     let superProto = cc.internal.Renderable2D.prototype;
     let armatureDisplayProto = cc.internal.ArmatureDisplay.prototype;
     const AnimationCacheMode = cc.internal.ArmatureDisplay.AnimationCacheMode;
+    let armatureSystem = cc.internal.ArmatureSystem;
 
     armatureDisplayProto.initFactory = function () {
         this._factory = dragonBones.CCFactory.getFactory();
@@ -523,18 +524,19 @@ const cacheManager = require('./jsb-cache-manager');
         }
         this.syncTransform(true);
         this._flushAssembler();
+        armatureSystem.getInstance().add(this);
         middleware.retain();
     };
 
-    let _onDisable = superProto.onEnable;
+    let _onDisable = superProto.onDisable;
     armatureDisplayProto.onDisable = function () {
         if(_onDisable) {
             _onDisable.call(this);
         }
-        
         if (this._armature && !this.isAnimationCached()) {
             this._factory.remove(this._armature);
         }
+        armatureSystem.getInstance().remove(this);
         middleware.release();
     };
 
@@ -589,7 +591,7 @@ const cacheManager = require('./jsb-cache-manager');
         let paramsBuffer = this._paramsBuffer;
         if (!paramsBuffer) return;
 
-        if (force || node.hasChangedFlags) {
+        if (force || node.hasChangedFlags || node._dirtyFlags) {
             // sync node world matrix to native
             node.updateWorldTransform();
             let worldMat = node._mat;
@@ -625,9 +627,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     }
 
-    const _lateUpdate = armatureDisplayProto.lateUpdate;
-    armatureDisplayProto.lateUpdate = function () {
-        if(_lateUpdate) _lateUpdate.call(this);
+    armatureDisplayProto.updateAnimation = function () {
         let nativeDisplay = this._nativeDisplay;
         if (!nativeDisplay) return;
 

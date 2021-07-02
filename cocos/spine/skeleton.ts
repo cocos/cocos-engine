@@ -21,6 +21,7 @@ import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
 import { BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
+import { SkeletonSystem } from './skeleton-system';
 
 export const timeScale = 1.0;
 
@@ -707,7 +708,7 @@ export class Skeleton extends Renderable2D {
         return this._cacheMode !== AnimationCacheMode.REALTIME;
     }
 
-    public update (dt: number) {
+    public updateAnimation (dt: number) {
         if (EDITOR) return;
         if (this.paused) return;
 
@@ -1243,10 +1244,12 @@ export class Skeleton extends Renderable2D {
     public onEnable () {
         super.onEnable();
         this._flushAssembler();
+        SkeletonSystem.getInstance().add(this);
     }
 
     public onDisable () {
         super.onDisable();
+        SkeletonSystem.getInstance().remove(this);
     }
 
     public onDestroy () {
@@ -1467,6 +1470,7 @@ export class Skeleton extends Renderable2D {
 
     // if change use tint mode, just clear material cache
     protected _updateUseTint () {
+        this._cleanMaterialCache();
         this.destroyRenderData();
     }
     // if change use batch mode, just clear material cache

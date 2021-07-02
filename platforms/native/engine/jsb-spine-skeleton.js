@@ -436,7 +436,7 @@ const cacheManager = require('./jsb-cache-manager');
         let paramsBuffer = this._paramsBuffer;
         if (!paramsBuffer) return;
         
-        if (force || node.hasChangedFlags) {
+        if (force || node.hasChangedFlags || node._dirtyFlags) {
             // sync node world matrix to native
             node.updateWorldTransform();
             let worldMat = node._mat;
@@ -459,9 +459,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    let _lateUpdate = skeleton.lateUpdate;
-    skeleton.lateUpdate = function () {
-        if (_lateUpdate) _lateUpdate.call(this);
+    skeleton.updateAnimation = function (dt) {
         let nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
 
@@ -894,7 +892,7 @@ const cacheManager = require('./jsb-cache-manager');
             realTexture = this.skeletonData.getTextureByIndex(realTextureIndex);
             if (!realTexture) return;
 
-            // SpineMaterialType.TWO_COLORED 2
+            // SpineMaterialType.TWO_COLORED 1
             // SpineMaterialType.COLORED_TEXTURED 0
             //HACK
             const mat = this.material;
@@ -902,7 +900,7 @@ const cacheManager = require('./jsb-cache-manager');
             this.material = this.getMaterialForBlendAndTint(
                 renderInfo[renderInfoOffset + materialIdx++], 
                 renderInfo[renderInfoOffset + materialIdx++], 
-                useTint ? 2: 0);
+                useTint ? 1 : 0);
 
             _tempBufferIndex = renderInfo[renderInfoOffset + materialIdx++];
             _tempIndicesOffset = renderInfo[renderInfoOffset + materialIdx++];

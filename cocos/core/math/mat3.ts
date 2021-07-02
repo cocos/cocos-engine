@@ -31,7 +31,7 @@
 import { CCClass } from '../data/class';
 import { Quat } from './quat';
 import { IMat3Like, IMat4Like, IQuatLike, IVec2Like, IVec3Like, FloatArray } from './type-define';
-import { EPSILON } from './utils';
+import { enumerableProps, EPSILON } from './utils';
 import { Vec3 } from './vec3';
 import { legacyCC } from '../global-exports';
 import { MathBase } from './math-base';
@@ -786,8 +786,8 @@ export class Mat3 extends MathBase {
      * @return this
      */
     public set (m00?: number, m01?: number, m02?: number,
-                m03?: number, m04?: number, m05?: number,
-                m06?: number, m07?: number, m08?: number);
+        m03?: number, m04?: number, m05?: number,
+        m06?: number, m07?: number, m08?: number);
     public set (m00: number | Readonly<Mat3> = 1, m01 = 0, m02 = 0,
         m03 = 0, m04 = 1, m05 = 0,
         m06 = 0, m07 = 0, m08 = 1) {
@@ -1100,7 +1100,9 @@ export class Mat3 extends MathBase {
 
 const v3_1 = new Vec3();
 const v3_2 = new Vec3();
-
+enumerableProps(Mat3.prototype, ['m00', 'm01', 'm02',
+    'm03', 'm04', 'm05',
+    'm06', 'm07', 'm08']);
 CCClass.fastDefine('cc.Mat3', Mat3, {
     m00: 1,
     m01: 0,
