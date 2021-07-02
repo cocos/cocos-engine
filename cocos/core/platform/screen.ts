@@ -31,6 +31,7 @@
 
 import { screenManager } from 'pal/screenManager';
 import { legacyCC } from '../global-exports';
+import { warnID } from './debug';
 
 /**
  * @en The screen API provides an easy way to do some screen managing stuff.
@@ -78,6 +79,9 @@ class Screen {
      */
     public requestFullScreen (): Promise<void>;
     public requestFullScreen (element?: HTMLElement, onFullScreenChange?: (this: Document, ev: any) => any, onFullScreenError?: (this: Document, ev: any) => any): Promise<any> {
+        if (arguments.length > 0) {
+            warnID(1400, 'screen.requestFullScreen(element, onFullScreenChange?, onFullScreenError?)', 'screen.requestFullScreen(): Promise');
+        }
         return screenManager.requestFullScreen().then(() => {
             // @ts-expect-error no parameter passed
             onFullScreenChange?.();
