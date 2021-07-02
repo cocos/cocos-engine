@@ -3,7 +3,7 @@ import { SupportCapability } from 'pal/systemInfo';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { BrowserType, NetworkType, OS, Platform, AppEvent, Language } from '../enum-type';
 
-class System {
+class SystemInfo {
     public readonly networkType: NetworkType;
     public readonly isNative: boolean;
     public readonly isBrowser: boolean;
@@ -303,4 +303,4 @@ class System {
     }
 }
 
-export const system = new System();
+export const systemInfo = new SystemInfo();

@@ -30,7 +30,6 @@
  */
 
 import { screenManager } from 'pal/screenManager';
-import { systemInfo } from 'pal/systemInfo';
 import { legacyCC } from '../global-exports';
 
 /**

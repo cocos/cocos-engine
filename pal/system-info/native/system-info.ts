@@ -19,7 +19,7 @@ const platformMap: Record<number, Platform> = {
     6: Platform.OHOS,
 };
 
-class System {
+class SystemInfo {
     public readonly isNative: boolean;
     public readonly isBrowser: boolean;
     public readonly isMobile: boolean;
@@ -147,4 +147,4 @@ class System {
     }
 }
 
-export const system = new System();
+export const systemInfo = new SystemInfo();

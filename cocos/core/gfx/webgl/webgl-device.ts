@@ -68,7 +68,7 @@ import {
 } from './webgl-commands';
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
-import { BrowserType, OS } from '../../../../pal/system/enum-type';
+import { BrowserType, OS } from '../../../../pal/system-info/enum-type';
 
 const eventWebGLContextLost = 'webglcontextlost';
 

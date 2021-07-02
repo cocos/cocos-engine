@@ -1,6 +1,6 @@
 import { SafeAreaEdge } from 'pal/screenManager';
 import { systemInfo } from 'pal/systemInfo';
-import { EventTarget } from '../../../cocos/core';
+import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
 import { ScreenEvent, Orientation } from '../enum-type';
 

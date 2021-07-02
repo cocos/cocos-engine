@@ -30,7 +30,7 @@ if (WECHAT) {
     currentPlatform = Platform.QTT_MINI_GAME;
 }
 
-class System {
+class SystemInfo {
     public readonly networkType: NetworkType;
     public readonly isNative: boolean;
     public readonly isBrowser: boolean;
@@ -173,4 +173,4 @@ class System {
     }
 }
 
-export const system = new System();
+export const systemInfo = new SystemInfo();
