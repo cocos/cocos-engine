@@ -65,6 +65,7 @@ import {
 import Task from './task';
 import { combine, parse } from './url-transformer';
 import { asyncify, parseParameters } from './utilities';
+import { ccclass } from '../data/decorators';
 
 /**
  * @zh
@@ -125,6 +126,7 @@ export interface IAssetManagerOptions {
  * 此模块管理资源的行为和信息，包括加载，释放等，这是一个单例，所有成员能够通过 `cc.assetManager` 调用
  *
  */
+@ccclass('cc.AssetManager')
 export class AssetManager {
     /**
      * @en
@@ -346,7 +348,7 @@ export class AssetManager {
         }
         this.generalImportBase = importBase;
         this.generalNativeBase = nativeBase;
-        legacyCC.director.on(legacyCC.Director.EVENT_BEFORE_GC, this.markAllPendLoadingAsset.bind(this));
+        garbageCollectionManager.addCCClassObjectToRoot(this);
     }
 
     /**
@@ -741,7 +743,7 @@ export class AssetManager {
         this.downloader.update(dt);
     }
 
-    private markAllPendLoadingAsset (garbageCollectionContext: GarbageCollectorContext) {
+    public markDependencies (garbageCollectionContext: GarbageCollectorContext) {
         const singleAssetTasks = this.singleAssetLoadPipeline.allTasks;
         for (let i = 0; i < singleAssetTasks.length; i++) {
             const task = singleAssetTasks[i];

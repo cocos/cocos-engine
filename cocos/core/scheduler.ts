@@ -34,6 +34,7 @@ import { createMap } from './utils/js';
 import System from './components/system';
 import { legacyCC } from './global-exports';
 import { errorID, warnID, logID, assertID } from './platform/debug';
+import { ccclass } from './data/decorators';
 
 const MAX_POOL_SIZE = 20;
 
@@ -334,6 +335,7 @@ class CallbackTimer {
  *
  * @class Scheduler
  */
+@ccclass('cc.Scheduler')
 export class Scheduler extends System {
     public static ID = 'scheduler';
 
