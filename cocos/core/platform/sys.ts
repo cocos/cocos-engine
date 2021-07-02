@@ -29,13 +29,14 @@
  * @module core
  */
 import { systemInfo } from 'pal/systemInfo';
+import { screenManager } from 'pal/screenManager';
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/system-info/enum-type';
 import { Vec2 } from '../math';
 
-const screenSize = systemInfo.getScreenSize();
+const screenSize = screenManager.screenSize;
 const pixelRatio = systemInfo.pixelRatio;
 
 /**
@@ -289,8 +290,8 @@ export const sys: Record<string, any> = {
      */
     getSafeAreaRect () {
         const locView = legacyCC.view;
-        const edge = systemInfo.getSafeAreaEdge();
-        const screenSize = systemInfo.getScreenSize();
+        const edge = screenManager.safeAreaEdge;
+        const screenSize = screenManager.screenSize;
 
         // Get leftBottom and rightTop point in screen coordinates system.
         const leftBottom = new Vec2(edge.left, screenSize.height - edge.bottom);
@@ -350,8 +351,8 @@ export const sys: Record<string, any> = {
         sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
             && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
 
-        systemInfo.onScreenResize(() => {
-            const screenSize = systemInfo.getScreenSize();
+        screenManager.onScreenResize(() => {
+            const screenSize = screenManager.screenSize;
             sys.windowPixelResolution = {
                 width: Math.round(screenSize.width * pixelRatio),
                 height: Math.round(screenSize.height * pixelRatio),

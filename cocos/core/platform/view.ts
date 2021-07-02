@@ -32,7 +32,7 @@
 
 import '../data/class';
 import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
-import { systemInfo } from 'pal/systemInfo';
+import { screenManager } from 'pal/screenManager';
 import { EventTarget } from '../event/event-target';
 import '../game';
 import { Rect, Size, Vec2 } from '../math';
@@ -167,14 +167,14 @@ export class View extends EventTarget {
             // enable
             if (!this._resizeWithBrowserSize) {
                 this._resizeWithBrowserSize = true;
-                systemInfo.onScreenResize(this._resizeEvent);
-                systemInfo.onOrientationChange(this._orientationChange);
+                screenManager.onScreenResize(this._resizeEvent);
+                screenManager.onOrientationChange(this._orientationChange);
             }
         } else if (this._resizeWithBrowserSize) {
             // disable
             this._resizeWithBrowserSize = false;
-            systemInfo.offScreenResize(this._resizeEvent);
-            systemInfo.offOrientationChange(this._orientationChange);
+            screenManager.offScreenResize(this._resizeEvent);
+            screenManager.offOrientationChange(this._orientationChange);
         }
     }
 
@@ -659,7 +659,7 @@ export class View extends EventTarget {
 
     private _initFrameSize () {
         const locFrameSize = this._frameSize;
-        const screenSize = systemInfo.getScreenSize();
+        const screenSize = screenManager.screenSize;
         const w = screenSize.width;
         const h = screenSize.height;
         const isLandscape: boolean = w >= h;

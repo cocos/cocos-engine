@@ -30,7 +30,7 @@
 
 import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { systemInfo } from 'pal/systemInfo';
+import { screenManager } from 'pal/screenManager';
 import { Component } from '../core/components';
 import { UITransform } from '../2d/framework';
 import { view, sys } from '../core/platform';
@@ -71,13 +71,13 @@ export class SafeArea extends Component {
     public onEnable () {
         this.updateArea();
         // IDEA: need to delay the callback on Native platform ?
-        systemInfo.onScreenResize(this._boundUpdateArea);
-        systemInfo.onOrientationChange(this._boundUpdateArea);
+        screenManager.onScreenResize(this._boundUpdateArea);
+        screenManager.onOrientationChange(this._boundUpdateArea);
     }
 
     public onDisable () {
-        systemInfo.offScreenResize(this._boundUpdateArea);
-        systemInfo.offOrientationChange(this._boundUpdateArea);
+        screenManager.offScreenResize(this._boundUpdateArea);
+        screenManager.offOrientationChange(this._boundUpdateArea);
     }
 
     /**

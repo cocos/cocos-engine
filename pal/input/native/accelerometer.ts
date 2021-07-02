@@ -1,9 +1,11 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
 import { systemInfo } from 'pal/systemInfo';
-import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
+import { screenManager } from 'pal/screenManager';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { Orientation, OS } from '../../system-info/enum-type';
+import { OS } from '../../system-info/enum-type';
+import { Orientation } from '../../screen-manager/enum-type';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
+import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
 
 export class AccelerometerInputSource {
     public support: boolean;
@@ -26,7 +28,7 @@ export class AccelerometerInputSource {
         let y = deviceMotionValue[4] * 0.1;
         const z = deviceMotionValue[5] * 0.1;
 
-        const orientation = systemInfo.getOrientation();
+        const orientation = screenManager.orientation;
         const tmpX = x;
         if (orientation === Orientation.LANDSCAPE_RIGHT) {
             x = -y;
