@@ -236,7 +236,10 @@ function loadDepends (task: Task, asset: Asset, done: CompleteCallbackNoData) {
                 }
                 files.remove(id);
                 parsed.remove(id);
-                if (!BUILD && asset.validate && !asset.validate()) { asset.initDefault(); }
+                if (!BUILD && asset.validate && !asset.validate()) {
+                    error(`The asset ${uuid} is invalid for some reason and will be reverted to default asset, please check it out!`);
+                    asset.initDefault();
+                }
                 cache(uuid, asset, cacheAsset);
                 subTask.recycle();
             }
