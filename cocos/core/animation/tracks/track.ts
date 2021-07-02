@@ -170,7 +170,7 @@ class TrackPath {
     }
 
     public append (...trackPaths: TrackPath[]) {
-        const paths = ([] as TargetPath[]).concat(...trackPaths.map((trackPath) => trackPath._paths));
+        const paths = this._paths.concat(...trackPaths.map((trackPath) => trackPath._paths));
         this._paths = paths;
         return this;
     }
