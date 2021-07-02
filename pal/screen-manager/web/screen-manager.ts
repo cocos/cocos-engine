@@ -82,7 +82,7 @@ class ScreenManager {
         }
 
         this._supportFullScreen = (this._fn.requestFullscreen !== undefined);
-        this._touchEventName = ('ontouchstart' in window) ? 'touchstart' : 'mousedown';
+        this._touchEventName = ('ontouchstart' in window) ? 'touchend' : 'mousedown';
         this._registerEvent();
     }
 
@@ -171,7 +171,7 @@ class ScreenManager {
                     this._doRequestFullScreen().then(() => {
                         resolve();
                     }).catch(reject);
-                }, { once: true });
+                }, { once: true, capture: true });
             });
         });
     }
