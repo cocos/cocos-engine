@@ -27,7 +27,6 @@ CCProgram sprite-vs %{
   #endif
 
   #define PI2 6.28318530718
-  #define PIH 1.570796326795 // 大一点点点
 
   in vec3 a_position;
   in vec2 a_texCoord;
@@ -117,25 +116,15 @@ CCProgram sprite-vs %{
         // 起点排除来进行跨域判断 （处理到都为 0-1 的）
         float start = 1.0 - uvParams0.x; // 顺逆时针变换 
         float range = uvParams0.y; // [-1,1] //决定终点的方向 // 这儿可以用 1 直接进行优化，两个点实际可以直接填
-        float end = 0.0;
-        if (range > 0.0) {
-          end = start - range;
-          if (end < 0.0) {
-            end = 1.0 + end;
-            start = 1.0 + start;
-          }
-          if (start >= end) {
-            float temp = start;
-            start = end;
-            end = temp;
-          }
-        } else {
-          end = start - range;
-          if (start >= end) {
-            float temp = start;
-            start = end;
-            end = temp;
-          }
+        float end = start - range;
+        if (range > 0.0 && end < 0.0) {
+          end = 1.0 + end;
+          start = 1.0 + start;
+        }
+        if (start >= end) {
+          float temp = start;
+          start = end;
+          end = temp;
         }
 
         uvParams1.z = tan(start * PI2); // 开始的值
@@ -233,8 +222,8 @@ CCProgram sprite-fs %{
   #include <embedded-alpha>
   #include <alpha-test>
 
-  #define PI 3.14159265359
-  #define PI2 6.28318530718
+  // 一大一小，就是一个是正无穷一个是负无穷
+  // 其实是个常数，可以传进来，避免计算 
   #define PIHB 1.5707963267950 // 大一点点点
   #define PIHS 1.569 // 小一点点点 // 看情况能不能去掉
 
@@ -474,7 +463,9 @@ CCProgram sprite-fs %{
     #if USE_TEXTURE
       vec2 uv = uv0;
 
-      if (uvMode >= 2.0) {
+      if(uvMode >= 3.0) {
+        // Do Nothing
+      } else if (uvMode >= 2.0) {
         uv = fract(uv0) * uvSizeOffset.xy + uvSizeOffset.zw;
       } else if (uvMode >= 1.0) {
         uv = evalSlicedUV(uv0) * uvSizeOffset.xy + uvSizeOffset.zw;
