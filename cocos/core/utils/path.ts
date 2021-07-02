@@ -30,7 +30,7 @@
  */
 
 import { OS } from '../../../pal/system-info/enum-type';
-import { sys } from '../platform';
+import { sys } from '../platform/sys';
 
 const EXTNAME_RE = /(\.[^\.\/\?\\]*)(\?.*)?$/;
 const DIRNAME_RE = /((.*)(\/|\\|\\\\))?(.*?\..*$)?/;

@@ -24,7 +24,7 @@ declare module 'pal/screenManager' {
          * Get the orientation of current game.
          * Available on mobile related platform.
          */
-        public get orientation (): import('pal/system-info/enum-type').Orientation;
+        public get orientation (): import('pal/screen-manager/enum-type').Orientation;
         /**
          * Get the SafeAreaEdge based on the screen coordinate system.
          * @return {SafeAreaEdge} An interface displaying the distance of the sides 'top', 'bottom', 'left' and 'right'.
