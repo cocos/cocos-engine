@@ -343,6 +343,8 @@ export class UITransform extends Component {
         } else {
             this.node.emit(SystemEventType.SIZE_CHANGED);
         }
+
+        this._rectDirty = true;
     }
 
     /**
@@ -391,6 +393,8 @@ export class UITransform extends Component {
         // this.setLocalDirty(LocalDirtyFlag.POSITION);
         // if (this._eventMask & ANCHOR_ON) {
         this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
+
+        this._rectDirty = true;
 
         // }
     }

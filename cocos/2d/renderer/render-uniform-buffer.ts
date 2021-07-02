@@ -84,7 +84,7 @@ export class UILocalBuffer {
     destroy () {
     }
 
-    upload (t: Vec3, r: Quat, s: Vec3, to: number[], c: Color, mode: number, uvExtra: Vec4, progress: number) {
+    upload (t: Vec3, r: Quat, s: Vec3, to: number[], c: Color, mode: number, uvExtra: Vec4, fillType: number) {
         // 注意是密集排列，所以这里是要根据第几个来存
         this.updateIndex();
         // 先根据 uboIndex 做 ubo 的偏移
@@ -107,7 +107,7 @@ export class UILocalBuffer {
         data[offset + 0] = s.x;
         data[offset + 1] = s.y;
         data[offset + 2] = c.b + Math.min(c.w, 0.999); // BA复合使用同一位
-        data[offset + 3] = mode + Math.min(progress, 0.999); // Mode 和 progress 使用同一位
+        data[offset + 3] = mode + Math.min(fillType, 0.999); // Mode 和 progress 使用同一位
         // tilling offset
         offset += 4;
         if (to) {
@@ -123,17 +123,12 @@ export class UILocalBuffer {
             data[offset + 3] = 0;
         }
         offset += 4;
-        // 为 多填充模式 预留
-        if (mode === 1) {
-            // siled
+        // uvExtra
+        if (mode > 0) {
             data[offset + 0] = uvExtra.x;
             data[offset + 1] = uvExtra.y;
             data[offset + 2] = uvExtra.z;
             data[offset + 3] = uvExtra.w;
-        } else if (mode === 2) {
-            // tiled
-            data[offset + 0] = uvExtra.x; // X方向重复次数
-            data[offset + 1] = uvExtra.y; // Y方向重复次数
         }
     }
 
@@ -193,7 +188,7 @@ export class UILocalUBOManger {
     }
 
     // 一个面片调用一次
-    upload (t: Vec3, r: Quat, s: Vec3, to: number[], c: Color, mode: number, UIPerUBO: number, vec4PerUI: number, uvExtra: Vec4, progress: number) { // 1 16
+    upload (t: Vec3, r: Quat, s: Vec3, to: number[], c: Color, mode: number, UIPerUBO: number, vec4PerUI: number, uvExtra: Vec4, fillType: number) { // 1 16
         // 根据 UIPerUBO 查找/创建 UILocalBuffer
         // UIPerUBO 结构标识，决定 UI 的排布结构
         // 如果修改的话，修改这个值，修改 shader 即可
@@ -228,7 +223,7 @@ export class UILocalUBOManger {
         // 密集排列填充 // 避免内存浪费
         // 直接在 upload 中更新索引值吧
         // upload
-        localBuffer.upload(t, r, s, to, c, mode, uvExtra, progress);
+        localBuffer.upload(t, r, s, to, c, mode, uvExtra, fillType);
         return localBuffer;
     }
 

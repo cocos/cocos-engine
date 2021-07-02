@@ -46,6 +46,7 @@ import { Sprite } from '../components';
 import { director, RecyclePool, Vec2, Vec4 } from '../../core';
 import { Vec3 } from '../../core/math/vec3';
 import { TransformBit } from '../../core/scene-graph/node-enum';
+import { SpriteType } from '../components/sprite';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
 
@@ -224,28 +225,48 @@ export class DrawBatch2D {
         const sprite = renderComp as Sprite;
         // this.toCache.length = 0;
         const mode = sprite.type;
-
-        // 针对 tiled 的处理，可缓存 // Todo
-        // const rect = sprite.spriteFrame?.rect;
-        // if (mode === 2) {
-        //     this.tiledCache.x = this._tempRect.width / rect?.width;
-        //     this.tiledCache.y = this._tempRect.height / rect?.height;
-        // }
-
         const frame = sprite.spriteFrame!;
 
-        if (mode === 1) {
+        // 对于 fillBuffer 来说实际上是不需要 dirty 的，fillBuffer 的 dirty 即为全部更新的 dirty
+        // 且在 fillBuffer 结束之后，全部的 dirty 为 false 状态
+        if (mode === SpriteType.SLICED) {
+            sprite._calculateSlicedData();
             this._packageSlicedData(sprite.slicedData, frame.slicedData);
-        } else if (mode === 2) {
+        } else if (mode === SpriteType.TILED) {
             sprite.calculateTiledData();
             this.tiledCache.x = sprite.tiledData.x;
             this.tiledCache.y = sprite.tiledData.y;
+        } else if (mode === SpriteType.FILLED) {
+            // TODO: 填充模式所需要的数据
+            let start = sprite.fillStart;
+            const range = sprite.fillRange;
+            let end;
+            if (sprite.fillType === 2) { // RADIAL
+                // 范围界定到 0-1 start < end
+                // start 取值为 [-1,1] 先处理下
+                if (start < 0) {
+                    start = 1 + start;
+                }
+                this.tiledCache.x = start;
+                this.tiledCache.y = range; // 这儿传 range 下去可能更合适
+                this.tiledCache.z = sprite.fillCenter.x;
+                this.tiledCache.w = 1 - sprite.fillCenter.y;
+            } else {
+                end = Math.min(1, start + range);
+                if (range < 0) {
+                    end = start;
+                    start = Math.max(0, sprite.fillStart + range);
+                }
+                this.tiledCache.x = start;
+                this.tiledCache.y = end;
+            }
+            // this.tiledCache.z = sprite.fillType;
         }
 
         // tillingOffset 缓存到了 spriteFrame 中
         // T 为 w h O 为右上的 XY 四个数字
         const to = frame.tillingOffset;
-        const progress = 0; // 给 progress 预留
+        const fillType = sprite.fillType / 10 + 0.01; // 给 progress 预留 // 处理浮点数误差
         const c = renderComp.color;
 
         // 每个对象占用的 vec4 数量
@@ -258,7 +279,7 @@ export class DrawBatch2D {
         }
         // const UIPerUBO = 16; // 调试用 16
         // 上传数据
-        const localBuffer = UBOManager.upload(this._tempPosition, r, this._tempRect._rectWithScale, to, c, mode, this._UIPerUBO, this._vec4PerUI, this.tiledCache, progress);
+        const localBuffer = UBOManager.upload(this._tempPosition, r, this._tempRect._rectWithScale, to, c, mode, this._UIPerUBO, this._vec4PerUI, this.tiledCache, fillType);
         // 执行完了之后，uboindex 已经更新了 hash 也是确定的 indtanceID 也是更新过后的，这几个值能够找到 localBuffer 中具体是哪一段
         // 所以这几个值是和数组的顺序严格绑定的，需要缓存下来，更新的话就是 一个指针，每次到了这里就 +1 ，要更新就这个指针取出这些值，然后将对应的 buffer 找到，然后更新，最后上传
         // 录制 渲染缓存数组

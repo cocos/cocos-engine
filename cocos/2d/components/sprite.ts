@@ -51,7 +51,7 @@ import { director, Material, RenderTexture } from '../../core';
  * @zh
  * Sprite 类型。
  */
-enum SpriteType {
+export enum SpriteType {
     /**
      * @en
      * The simple type.
@@ -514,7 +514,6 @@ export class Sprite extends Renderable2D {
         // this._flushAssembler();
         this._activateMaterial();
         this._markForUpdateUvDirty();
-        this._calculateSlicedData();
     }
 
     public onDestroy () {
@@ -797,23 +796,23 @@ export class Sprite extends Renderable2D {
     public _calculateSlicedData () {
         const content = this.node._uiProps.uiTransformComp!.contentSize;
 
-        const atlasWidth = content.width;
-        const atlasHeight = content.height;
+        const spriteWidth = content.width;
+        const spriteHeight = content.height;
         const leftWidth = this.spriteFrame!.insetLeft;
         const rightWidth = this.spriteFrame!.insetRight;
-        const centerWidth = atlasWidth - leftWidth - rightWidth;
+        const centerWidth = spriteWidth - leftWidth - rightWidth;
         const topHeight = this.spriteFrame!.insetTop;
         const bottomHeight = this.spriteFrame!.insetBottom;
-        const centerHeight = atlasHeight - topHeight - bottomHeight;
+        const centerHeight = spriteHeight - topHeight - bottomHeight;
 
         const uvSliced = this.slicedData;
         uvSliced.length = 0;
 
         // todo rotate
-        uvSliced[0] = (leftWidth) / atlasWidth;
-        uvSliced[1] = (topHeight) / atlasHeight;
-        uvSliced[2] = (leftWidth + centerWidth) / atlasWidth;
-        uvSliced[3] = (topHeight + centerHeight) / atlasHeight;
+        uvSliced[0] = (leftWidth) / spriteWidth;
+        uvSliced[1] = (topHeight) / spriteHeight;
+        uvSliced[2] = (leftWidth + centerWidth) / spriteWidth;
+        uvSliced[3] = (topHeight + centerHeight) / spriteHeight;
     }
 
     public tiledData: Vec2 = new Vec2(0, 0);

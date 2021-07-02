@@ -306,7 +306,7 @@ export const effects = [
     "shaders": [
       {
         "name": "sprite|sprite-vs:vert|sprite-fs:frag",
-        "hash": 1913047069,
+        "hash": 884929095,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 37, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 1 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [] },
