@@ -23,7 +23,6 @@
  THE SOFTWARE.
 ****************************************************************************/
 
-
 #include "GlobalDescriptorSetManager.h"
 
 #include "Define.h"
@@ -31,11 +30,10 @@
 #include "forward/ForwardPipeline.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
+#include "gfx-base/GFXDescriptorSetLayout.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXSampler.h"
 #include "gfx-base/GFXTexture.h"
-#include "gfx-base/GFXDescriptorSetLayout.h"
-
 
 namespace cc {
 namespace pipeline {
@@ -46,8 +44,8 @@ namespace pipeline {
         globalDescriptorSetLayout.bindings[info::BINDING] = info::DESCRIPTOR; \
     } while (0)
 
-void GlobalDSManager::activate(gfx::Device* device, RenderPipeline* pipeline) {
-    _device = device;
+void GlobalDSManager::activate(gfx::Device *device, RenderPipeline *pipeline) {
+    _device   = device;
     _pipeline = pipeline;
 
     const gfx::SamplerInfo info{
@@ -79,7 +77,7 @@ void GlobalDSManager::activate(gfx::Device* device, RenderPipeline* pipeline) {
     _globalDescriptorSet = device->createDescriptorSet({_descriptorSetLayout});
 }
 
-void GlobalDSManager::bindBuffer(uint binding, gfx::Buffer* buffer) {
+void GlobalDSManager::bindBuffer(uint binding, gfx::Buffer *buffer) {
     if (_globalDescriptorSet) {
         _globalDescriptorSet->bindBuffer(binding, buffer);
     }
@@ -89,7 +87,7 @@ void GlobalDSManager::bindBuffer(uint binding, gfx::Buffer* buffer) {
     }
 }
 
-void GlobalDSManager::bindSampler(uint binding, gfx::Sampler* sampler) {
+void GlobalDSManager::bindSampler(uint binding, gfx::Sampler *sampler) {
     if (_globalDescriptorSet) {
         _globalDescriptorSet->bindSampler(binding, sampler);
     }
@@ -99,7 +97,7 @@ void GlobalDSManager::bindSampler(uint binding, gfx::Sampler* sampler) {
     }
 }
 
-void GlobalDSManager::bindTexture(uint binding, gfx::Texture* texture) {
+void GlobalDSManager::bindTexture(uint binding, gfx::Texture *texture) {
     if (_globalDescriptorSet) {
         _globalDescriptorSet->bindTexture(binding, texture);
     }
@@ -205,6 +203,10 @@ void GlobalDSManager::setDescriptorSetLayout() {
     localDescriptorSetLayout.bindings[LIGHTMAPTEXTURE::BINDING]      = LIGHTMAPTEXTURE::DESCRIPTOR;
     localDescriptorSetLayout.samplers[SPRITETEXTURE::NAME]           = SPRITETEXTURE::LAYOUT;
     localDescriptorSetLayout.bindings[SPRITETEXTURE::BINDING]        = SPRITETEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.samplers[REFLECTIONTEXTURE::NAME]       = REFLECTIONTEXTURE::LAYOUT;
+    localDescriptorSetLayout.bindings[REFLECTIONTEXTURE::BINDING]    = REFLECTIONTEXTURE::DESCRIPTOR;
+    localDescriptorSetLayout.storeImages[REFLECTIONSTORAGE::NAME]    = REFLECTIONSTORAGE::LAYOUT;
+    localDescriptorSetLayout.bindings[REFLECTIONSTORAGE::BINDING]    = REFLECTIONSTORAGE::DESCRIPTOR;
 }
 
 } // namespace pipeline
