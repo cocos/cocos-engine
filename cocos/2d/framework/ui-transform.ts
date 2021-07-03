@@ -40,6 +40,7 @@ import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { NodeEventType } from '../../core/scene-graph/node-event';
+import { SystemEventType } from '../../core';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();

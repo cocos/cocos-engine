@@ -39,7 +39,7 @@ import { Root } from '../../core/root';
 import { Node } from '../../core/scene-graph';
 import { MeshBuffer } from './mesh-buffer';
 import { Stage, StencilManager } from './stencil-manager';
-import { DrawBatch2D } from './draw-batch';
+import { DrawBatch2D, DrawCall } from './draw-batch';
 import * as VertexFormat from './vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
@@ -306,7 +306,7 @@ export class Batcher2D {
         }
 
         const renderScene = renderComp._getRenderScene();
-        const mat = renderComp.getRenderMaterial(0);
+        const mat = renderComp.getRenderMaterial(0)!;
         renderComp.stencilStage = StencilManager.sharedManager!.stage;
 
         const blendTargetHash = renderComp.blendHash;
@@ -324,7 +324,7 @@ export class Batcher2D {
             this._currScene = renderScene;
             this._currComponent = renderComp;
             this._currTransform = transform;
-            this._currMaterial = mat!;
+            this._currMaterial = mat;
             this._currTexture = texture;
             this._currSampler = samp;
             this._currTextureHash = textureHash;
@@ -488,7 +488,7 @@ export class Batcher2D {
         curDrawBatch.visFlags = this._currLayer;
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
-        curDrawBatch.inputAssembler = ia;
+        curDrawBatch.inputAssembler = this._dummyIA.ia;
         curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
@@ -732,7 +732,7 @@ class DescriptorSetCache {
         this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16);
     }
 
-    public getDescriptorSet (batch: DrawBatch2D, drawCall: drawCall): DescriptorSet {
+    public getDescriptorSet (batch: DrawBatch2D, drawCall: DrawCall): DescriptorSet {
         const root = legacyCC.director.root;
         let hash;
         if (batch.useLocalData) {

@@ -119,61 +119,61 @@ export const sliced: IAssembler = {
     },
 
     fillBuffers (sprite: Sprite, renderer: Batcher2D) {
-        if (sprite.node.hasChangedFlags) {
-            this.updateWorldVertexData(sprite);
-        }
+        // if (sprite.node.hasChangedFlags) {
+        //     this.updateWorldVertexData(sprite);
+        // }
 
-        let buffer = renderer.acquireBufferBatch()!;
-        const renderData: RenderData|null = sprite.renderData;
-        // const node: Node = sprite.node;
-        // const color: Color = sprite.color;
-        const dataList: IRenderData[] = renderData!.data;
+        // let buffer = renderer.acquireBufferBatch()!;
+        // const renderData: RenderData|null = sprite.renderData;
+        // // const node: Node = sprite.node;
+        // // const color: Color = sprite.color;
+        // const dataList: IRenderData[] = renderData!.data;
 
-        let vertexOffset = buffer.byteOffset >> 2;
-        const vertexCount = renderData!.vertexCount;
-        let indicesOffset: number = buffer.indicesOffset;
-        let vertexId: number = buffer.vertexOffset;
+        // let vertexOffset = buffer.byteOffset >> 2;
+        // const vertexCount = renderData!.vertexCount;
+        // let indicesOffset: number = buffer.indicesOffset;
+        // let vertexId: number = buffer.vertexOffset;
 
-        const uvSliced: IUV[] = sprite.spriteFrame!.uvSliced;
+        // const uvSliced: IUV[] = sprite.spriteFrame!.uvSliced;
 
-        const isRecreate = buffer.request(vertexCount, renderData!.indicesCount);
-        if (!isRecreate) {
-            buffer = renderer.currBufferBatch!;
-            vertexOffset = 0;
-            indicesOffset = 0;
-            vertexId = 0;
-        }
+        // const isRecreate = buffer.request(vertexCount, renderData!.indicesCount);
+        // if (!isRecreate) {
+        //     buffer = renderer.currBufferBatch!;
+        //     vertexOffset = 0;
+        //     indicesOffset = 0;
+        //     vertexId = 0;
+        // }
 
-        // buffer data may be realloc, need get reference after request.
-        const vBuf: Float32Array|null = buffer.vData;
-        // const  uintbuf = buffer._uintVData,
-        const iBuf: Uint16Array|null = buffer.iData;
+        // // buffer data may be realloc, need get reference after request.
+        // const vBuf: Float32Array|null = buffer.vData;
+        // // const  uintbuf = buffer._uintVData,
+        // const iBuf: Uint16Array|null = buffer.iData;
 
-        for (let i = 4; i < 20; ++i) {
-            const vert = dataList[i];
-            const uvs = uvSliced[i - 4];
+        // for (let i = 4; i < 20; ++i) {
+        //     const vert = dataList[i];
+        //     const uvs = uvSliced[i - 4];
 
-            vBuf![vertexOffset++] = vert.x;
-            vBuf![vertexOffset++] = vert.y;
-            vBuf![vertexOffset++] = vert.z;
-            vBuf![vertexOffset++] = uvs.u;
-            vBuf![vertexOffset++] = uvs.v;
-            Color.toArray(vBuf!, dataList[i].color, vertexOffset);
-            vertexOffset += 4;
-            // uintbuf[vertexOffset++] = color;
-        }
+        //     vBuf![vertexOffset++] = vert.x;
+        //     vBuf![vertexOffset++] = vert.y;
+        //     vBuf![vertexOffset++] = vert.z;
+        //     vBuf![vertexOffset++] = uvs.u;
+        //     vBuf![vertexOffset++] = uvs.v;
+        //     Color.toArray(vBuf!, dataList[i].color, vertexOffset);
+        //     vertexOffset += 4;
+        //     // uintbuf[vertexOffset++] = color;
+        // }
 
-        for (let r = 0; r < 3; ++r) {
-            for (let c = 0; c < 3; ++c) {
-                const start = vertexId + r * 4 + c;
-                iBuf![indicesOffset++] = start;
-                iBuf![indicesOffset++] = start + 1;
-                iBuf![indicesOffset++] = start + 4;
-                iBuf![indicesOffset++] = start + 1;
-                iBuf![indicesOffset++] = start + 5;
-                iBuf![indicesOffset++] = start + 4;
-            }
-        }
+        // for (let r = 0; r < 3; ++r) {
+        //     for (let c = 0; c < 3; ++c) {
+        //         const start = vertexId + r * 4 + c;
+        //         iBuf![indicesOffset++] = start;
+        //         iBuf![indicesOffset++] = start + 1;
+        //         iBuf![indicesOffset++] = start + 4;
+        //         iBuf![indicesOffset++] = start + 1;
+        //         iBuf![indicesOffset++] = start + 5;
+        //         iBuf![indicesOffset++] = start + 4;
+        //     }
+        // }
     },
 
     updateWorldVertexData (sprite: Sprite) {

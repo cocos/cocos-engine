@@ -39,7 +39,7 @@ export class UILocalBuffer {
         return this._prevInstanceID;
     }
 
-    constructor (device: Device, hash: number, UIPerUBO: number, vec4PerUI: numberm, poolIndex: number) {
+    constructor (device: Device, hash: number, UIPerUBO: number, vec4PerUI: number, poolIndex: number) {
         this._vec4PerUI = vec4PerUI;
         this._UIPerUBO = UIPerUBO;
         this._device = device;

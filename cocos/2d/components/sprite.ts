@@ -337,7 +337,7 @@ export class Sprite extends Renderable2D {
     }
 
     set fillStart (value) {
-        this._fillStart = clamp(value, -1, 1);
+        this._fillStart = clamp(value, 0, 1);
         if (this._type === SpriteType.FILLED && this._renderData) {
             this.markForUpdateRenderData();
             this._renderData.uvDirty = true;

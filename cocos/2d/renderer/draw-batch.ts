@@ -50,8 +50,9 @@ import { SpriteType } from '../components/sprite';
 import { NativeDrawBatch2D, NativePass } from '../../core/renderer/scene';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
+const EPSILON = 1/4096; // ulp(2049)
 
-class DrawCall {
+export class DrawCall {
     // UBO info
     public bufferHash = 0;
     public bufferUboIndex = 0;
@@ -65,7 +66,7 @@ class DrawCall {
 
 export class DrawBatch2D {
     static drawcallPool = new RecyclePool(() => new DrawCall(), 100);
-    
+
     public get native (): NativeDrawBatch2D {
         return this._nativeObj!;
     }
@@ -278,8 +279,8 @@ export class DrawBatch2D {
             if (sprite.fillType === 2) { // RADIAL
                 // 范围界定到 0-1 start < end
                 // start 取值为 [-1,1] 先处理下
-                this.tiledCache.x = start;
-                this.tiledCache.y = range;
+                this.tiledCache.x = start > 0.5 ? start * 2 - 2 : start * 2;
+                this.tiledCache.y = range * 2;
                 this.tiledCache.z = sprite.fillCenter.x;
                 this.tiledCache.w = 1 - sprite.fillCenter.y;
             } else {
@@ -405,7 +406,9 @@ export class DrawBatch2D {
     private _packageSlicedData (spriteData: number[], frameData: number[]) { // LTRB
         this.tiledCache.x = spriteData[0] + Math.floor(frameData[0] * 2048.0);
         this.tiledCache.y = spriteData[1] + Math.floor(frameData[1] * 2048.0);
-        this.tiledCache.z = spriteData[2] + Math.floor(frameData[2] * 2048.0);
-        this.tiledCache.w = spriteData[3] + Math.floor(frameData[3] * 2048.0);
+        // for sprite frames with 0 borders we have to clamp this
+        // EPSILON should be at least ulp(2049) to avoid being rounded up again
+        this.tiledCache.z = Math.min(spriteData[2], 1 - EPSILON) + Math.floor(frameData[2] * 2048.0);
+        this.tiledCache.w = Math.min(spriteData[3], 1 - EPSILON) + Math.floor(frameData[3] * 2048.0);
     }
 }

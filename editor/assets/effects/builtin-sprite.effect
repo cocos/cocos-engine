@@ -194,8 +194,8 @@ CCProgram sprite-fs %{
       float start = uvParams1.x;
       float range = uvParams1.y;
       vec2 dir = uv - uvParams1.zw;
-      float angle = atan(dir.y, dir.x) * ONE_OVER_PI;
-      if (range < 0) {
+      float angle = -atan(dir.y, dir.x) * ONE_OVER_PI;
+      if (range < 0.0) {
         angle += mix(0.0, -2.0, step(start, angle));
         alpha = step(start + range, angle);
       } else {

@@ -28,12 +28,11 @@
  * @module ui
  */
 import { Attribute, AttributeName, Buffer, BufferInfo, BufferUsageBit, Device, Format, InputAssembler, InputAssemblerInfo, MemoryUsageBit } from '../../core/gfx';
-import { IAPool, InputAssemblerHandle, NULL_HANDLE } from '../../core/renderer';
 
 export class DummyIA {
     private _vertexBuffer: Buffer;
     private _indexBuffer: Buffer;
-    private _ia: InputAssemblerHandle;
+    private _ia: InputAssembler;
 
     get ia () { return this._ia; }
 
@@ -102,7 +101,7 @@ export class DummyIA {
         this._vertexBuffer.update(vertexData);
         this._indexBuffer.update(indexData);
 
-        this._ia = IAPool.alloc(device, new InputAssemblerInfo(
+        this._ia = device.createInputAssembler(new InputAssemblerInfo(
             [
                 new Attribute(AttributeName.ATTR_POSITION, Format.RGB32F, false, 0, false, 0),
                 new Attribute(AttributeName.ATTR_TEX_COORD, Format.RG32F, false, 0, false, 1),
@@ -115,8 +114,8 @@ export class DummyIA {
 
     destroy () {
         if (this._ia) {
-            IAPool.free(this._ia);
-            this._ia = NULL_HANDLE;
+            this._ia.destroy();
+            this._ia = null!;
         }
 
         if (this._vertexBuffer) {
