@@ -57,12 +57,16 @@ import { WebGLSampler } from './webgl-sampler';
 import { WebGLShader } from './webgl-shader';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
-import { getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos, BindingMappingInfo, ShaderInfo,
+import {
+    getTypedArrayConstructor, CommandBufferType, Filter, Format, FormatInfos, BindingMappingInfo, ShaderInfo,
     QueueInfo, CommandBufferInfo, DescriptorSetInfo, DescriptorSetLayoutInfo, FramebufferInfo, InputAssemblerInfo, PipelineLayoutInfo,
     RenderPassInfo, SamplerInfo, TextureInfo, TextureViewInfo, BufferInfo, BufferViewInfo, DeviceInfo, TextureBarrierInfo, GlobalBarrierInfo,
-    QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy, Rect  } from '../base/define';
-import { GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
-    WebGLCmdFuncCopyTexImagesToTexture } from './webgl-commands';
+    QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy, Rect,
+} from '../base/define';
+import {
+    GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
+    WebGLCmdFuncCopyTexImagesToTexture,
+} from './webgl-commands';
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
 import { BrowserType, OS } from '../../../../pal/system/enum-type';
@@ -310,10 +314,8 @@ export class WebGLDevice extends Device {
         }
 
         this._devicePixelRatio = info.devicePixelRatio || 1.0;
-        this._width = this._canvas.width;
-        this._height = this._canvas.height;
-        this._nativeWidth = Math.max(info.nativeWidth || this._width, 0);
-        this._nativeHeight = Math.max(info.nativeHeight || this._height, 0);
+        this._width = info.width;
+        this._height = info.height;
 
         this._colorFmt = Format.RGBA8;
 
@@ -403,6 +405,10 @@ export class WebGLDevice extends Device {
 
         this._features.fill(false);
 
+        if (this._EXT_sRGB) {
+            this._features[Feature.FORMAT_SRGB] = true;
+        }
+
         if (this._EXT_blend_minmax) {
             this._features[Feature.BLEND_MINMAX] = true;
         }
@@ -432,12 +438,6 @@ export class WebGLDevice extends Device {
         }
 
         this._features[Feature.FORMAT_RGB8] = true;
-
-        if (this._WEBGL_depth_texture) {
-            this._features[Feature.FORMAT_D16] = true;
-            this._features[Feature.FORMAT_D24] = true;
-            this._features[Feature.FORMAT_D24S8] = true;
-        }
 
         if (this._OES_element_index_uint) {
             this._features[Feature.ELEMENT_INDEX_UINT] = true;
@@ -487,7 +487,6 @@ export class WebGLDevice extends Device {
         console.info(`VERSION: ${this._version}`);
         console.info(`DPR: ${this._devicePixelRatio}`);
         console.info(`SCREEN_SIZE: ${this._width} x ${this._height}`);
-        console.info(`NATIVE_SIZE: ${this._nativeWidth} x ${this._nativeHeight}`);
         // console.info('COLOR_FORMAT: ' + FormatInfos[this._colorFmt].name);
         // console.info('DEPTH_STENCIL_FORMAT: ' + FormatInfos[this._depthStencilFmt].name);
         // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
@@ -606,8 +605,10 @@ export class WebGLDevice extends Device {
         // const Ctor = WebGLCommandBuffer; // opt to instant invocation
         const Ctor = info.type === CommandBufferType.PRIMARY ? WebGLPrimaryCommandBuffer : WebGLCommandBuffer;
         const cmdBuff = new Ctor(this);
-        cmdBuff.initialize(info);
-        return cmdBuff;
+        if (cmdBuff.initialize(info)) {
+            return cmdBuff;
+        }
+        return null!;
     }
 
     public createBuffer (info: BufferInfo | BufferViewInfo): Buffer {

@@ -35,7 +35,7 @@ import { Device, Feature } from '../gfx';
 import { Asset } from './asset';
 import { PixelFormat } from './asset-enum';
 import { legacyCC } from '../global-exports';
-import { warnID, getError } from '../platform/debug';
+import { warnID } from '../platform/debug';
 
 /**
  * @en Image source in memory
@@ -56,6 +56,7 @@ export interface IMemoryImageSource {
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
 function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap;
 }
 
@@ -149,28 +150,9 @@ export class ImageAsset extends Asset {
         return this.nativeUrl;
     }
 
-    /**
-     * @private
-     */
-    set _texture (tex) {
-        this._tex = tex;
-    }
-
-    get _texture () {
-        if (!this._tex) {
-            const tex = new legacyCC.Texture2D();
-            tex.name = this.nativeUrl;
-            tex.image = this;
-            this._tex = tex;
-        }
-        return this._tex;
-    }
-
     private static extnames = ['.png', '.jpg', '.jpeg', '.bmp', '.webp', '.pvr', '.pkm', '.astc'];
 
     private _nativeData: ImageSource;
-
-    private _tex;
 
     private _exportedExts: string[] | null | undefined = undefined;
 
@@ -246,6 +228,7 @@ export class ImageAsset extends Asset {
 
     // SERIALIZATION
 
+    // eslint-disable-next-line consistent-return
     public _serialize () {
         if (EDITOR || TEST) {
             let targetExtensions = this._exportedExts;
@@ -359,6 +342,7 @@ export class ImageAsset extends Asset {
 
 function _getGlobalDevice (): Device | null {
     if (legacyCC.director.root) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return legacyCC.director.root.device;
     }
     return null;

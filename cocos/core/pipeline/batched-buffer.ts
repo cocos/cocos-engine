@@ -29,13 +29,12 @@
  */
 
 import { BufferUsageBit, Format, MemoryUsageBit, Device, DescriptorSet, InputAssembler,
-    InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../gfx';
+    InputAssemblerInfo, Attribute, Buffer, BufferInfo, Shader } from '../gfx';
 import { Mat4 } from '../math';
 import { SubModel } from '../renderer/scene/submodel';
 import { UBOLocalBatched } from './define';
 import { Pass } from '../renderer';
 import { Model } from '../renderer/scene';
-import { SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 
 export interface IBatchedItem {
     vbs: Buffer[];
@@ -49,7 +48,7 @@ export interface IBatchedItem {
     uboData: Float32Array;
     descriptorSet: DescriptorSet;
     pass: Pass;
-    hShader: ShaderHandle;
+    shader: Shader | null;
 }
 
 export class BatchedBuffer {
@@ -90,7 +89,7 @@ export class BatchedBuffer {
         let vbIdxSize = 0;
         const vbCount = flatBuffers[0].count;
         const pass = subModel.passes[passIdx];
-        const hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
+        const shader = subModel.shaders[passIdx];
         const descriptorSet = subModel.descriptorSet;
         let isBatchExist = false;
         for (let i = 0; i < this.batches.length; ++i) {
@@ -143,7 +142,7 @@ export class BatchedBuffer {
                         descriptorSet.bindBuffer(UBOLocalBatched.BINDING, batch.ubo);
                         descriptorSet.update();
                         batch.pass = pass;
-                        batch.hShader = hShader;
+                        batch.shader = shader;
                         batch.descriptorSet = descriptorSet;
                     }
 
@@ -219,7 +218,7 @@ export class BatchedBuffer {
             ubo,
             uboData,
             pass,
-            hShader,
+            shader,
             descriptorSet,
         });
     }

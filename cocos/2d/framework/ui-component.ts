@@ -89,5 +89,8 @@ export class UIComponent extends Component {
     public postUpdateAssembler (render: Batcher2D) {
     }
 
+    public markForUpdateRenderData (enable = true) {
+    }
+
     public stencilStage : Stage = Stage.DISABLED;
 }

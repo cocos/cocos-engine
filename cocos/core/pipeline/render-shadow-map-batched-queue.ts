@@ -33,7 +33,6 @@ import { SetIndex, UBOShadow } from './define';
 import { Device, RenderPass, Buffer, Shader, CommandBuffer } from '../gfx';
 import { getPhaseID } from './pass-phase';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { ShaderPool, SubModelPool, SubModelView, ShaderHandle } from '../renderer/core/memory-pools';
 import { Pass, BatchingSchemes } from '../renderer/core/pass';
 import { RenderInstancedQueue } from './render-instanced-queue';
 import { InstancedBuffer } from './instanced-buffer';
@@ -114,7 +113,7 @@ export class RenderShadowMapBatchedQueue {
 
     /**
      * @zh
-     * clear ligth-Batched-Queue
+     * clear light-Batched-Queue
      */
     public clear () {
         this._subModelsArray.length = 0;
@@ -126,14 +125,11 @@ export class RenderShadowMapBatchedQueue {
 
     public add (model: Model, cmdBuff: CommandBuffer, _shadowPassIndices: number[]) {
         const subModels = model.subModels;
-        const shadowMapBuffer = this._pipeline.descriptorSet.getBuffer(UBOShadow.BINDING);
         for (let j = 0; j < subModels.length; j++) {
             const subModel = subModels[j];
             const shadowPassIdx = _shadowPassIndices[j];
             const pass = subModel.passes[shadowPassIdx];
             const batchingScheme = pass.batchingScheme;
-            subModel.descriptorSet.bindBuffer(UBOShadow.BINDING, shadowMapBuffer);
-            subModel.descriptorSet.update();
 
             if (batchingScheme === BatchingSchemes.INSTANCING) {            // instancing
                 const buffer = InstancedBuffer.get(pass);
@@ -144,9 +140,9 @@ export class RenderShadowMapBatchedQueue {
                 buffer.merge(subModel, shadowPassIdx, model);
                 this._batchedQueue.queue.add(buffer);
             } else {
-                const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + shadowPassIdx) as ShaderHandle);
+                const shader = subModel.shaders[shadowPassIdx];
                 this._subModelsArray.push(subModel);
-                this._shaderArray.push(shader);
+                if (shader) this._shaderArray.push(shader);
                 this._passArray.push(pass);
             }
         }

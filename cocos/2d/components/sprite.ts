@@ -33,7 +33,6 @@ import { ccclass, help, executionOrder, menu, tooltip, displayOrder, type, range
 import { EDITOR } from 'internal:constants';
 import { SpriteAtlas } from '../assets/sprite-atlas';
 import { SpriteFrame } from '../assets/sprite-frame';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Vec2 } from '../../core/math';
 import { ccenum } from '../../core/value-types/enum';
 import { clamp } from '../../core/math/utils';
@@ -43,6 +42,7 @@ import { legacyCC } from '../../core/global-exports';
 import { PixelFormat } from '../../core/assets/asset-enum';
 import { TextureBase } from '../../core/assets/texture-base';
 import { director, Material, RenderTexture } from '../../core';
+import { NodeEventType } from '../../core/scene-graph/node-event';
 
 /**
  * @en
@@ -482,7 +482,7 @@ export class Sprite extends Renderable2D {
 
         if (EDITOR) {
             this._resized();
-            this.node.on(SystemEventType.SIZE_CHANGED, this._resized, this);
+            this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
 
         if (this._spriteFrame) {
@@ -519,7 +519,7 @@ export class Sprite extends Renderable2D {
     public onDestroy () {
         this.destroyRenderData();
         if (EDITOR) {
-            this.node.off(SystemEventType.SIZE_CHANGED, this._resized, this);
+            this.node.off(NodeEventType.SIZE_CHANGED, this._resized, this);
         }
 
         if (this._spriteFrame && !this._spriteFrame.loaded) {
@@ -680,33 +680,17 @@ export class Sprite extends Renderable2D {
         const material = this.getRenderMaterial(0);
         // WebGL
         if (legacyCC.game.renderType !== legacyCC.game.RENDER_TYPE_CANVAS) {
-            // if (!material) {
-            //     this._material = cc.builtinResMgr.get('sprite-material');
-            //     material = this._material;
-            //     if (spriteFrame && spriteFrame.textureLoaded()) {
-            //         material!.setProperty('mainTexture', spriteFrame);
-            //         this.markForUpdateRenderData();
-            //     }
-            // }
-            // TODO: use editor assets
-            // else {
             if (spriteFrame) {
                 if (material) {
-                    // const matTexture = material.getProperty('mainTexture');
-                    // if (matTexture !== spriteFrame) {
-                    // material.setProperty('mainTexture', spriteFrame.texture);
                     this.markForUpdateRenderData();
-                    // }
                 }
             }
-            // }
 
             if (this._renderData) {
                 this._renderData.material = material;
             }
         } else {
             this.markForUpdateRenderData();
-            // this.markForRender(true);
         }
     }
     /*
@@ -764,13 +748,19 @@ export class Sprite extends Renderable2D {
             this._renderDataFlag = this._renderData.uvDirty;
         }
 
+        let textureChanged = false;
         if (spriteFrame) {
-            if (!oldFrame || spriteFrame !== oldFrame) {
-                if  (spriteFrame.loaded) {
+            if (!oldFrame || oldFrame.texture !== spriteFrame.texture) {
+                textureChanged = true;
+            }
+            if (spriteFrame.loaded) {
+                if (textureChanged) {
                     this._onTextureLoaded();
                 } else {
-                    spriteFrame.once('load', this._onTextureLoaded, this);
+                    this._applySpriteSize();
                 }
+            } else {
+                spriteFrame.once('load', this._onTextureLoaded, this);
             }
         }
         /*

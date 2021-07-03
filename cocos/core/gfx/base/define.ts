@@ -105,12 +105,7 @@ export enum Feature {
     TEXTURE_FLOAT_LINEAR,
     TEXTURE_HALF_FLOAT_LINEAR,
     FORMAT_R11G11B10F,
-    FORMAT_D16,
-    FORMAT_D16S8,
-    FORMAT_D24,
-    FORMAT_D24S8,
-    FORMAT_D32F,
-    FORMAT_D32FS8,
+    FORMAT_SRGB,
     FORMAT_ETC1,
     FORMAT_ETC2,
     FORMAT_DXT,
@@ -254,36 +249,36 @@ export enum Format {
     PVRTC2_4BPP,
 
     // ASTC (Adaptive Scalable Texture Compression)
-    ASTC_RGBA_4x4,
-    ASTC_RGBA_5x4,
-    ASTC_RGBA_5x5,
-    ASTC_RGBA_6x5,
-    ASTC_RGBA_6x6,
-    ASTC_RGBA_8x5,
-    ASTC_RGBA_8x6,
-    ASTC_RGBA_8x8,
-    ASTC_RGBA_10x5,
-    ASTC_RGBA_10x6,
-    ASTC_RGBA_10x8,
-    ASTC_RGBA_10x10,
-    ASTC_RGBA_12x10,
-    ASTC_RGBA_12x12,
+    ASTC_RGBA_4X4,
+    ASTC_RGBA_5X4,
+    ASTC_RGBA_5X5,
+    ASTC_RGBA_6X5,
+    ASTC_RGBA_6X6,
+    ASTC_RGBA_8X5,
+    ASTC_RGBA_8X6,
+    ASTC_RGBA_8X8,
+    ASTC_RGBA_10X5,
+    ASTC_RGBA_10X6,
+    ASTC_RGBA_10X8,
+    ASTC_RGBA_10X10,
+    ASTC_RGBA_12X10,
+    ASTC_RGBA_12X12,
 
     // ASTC (Adaptive Scalable Texture Compression) SRGB
-    ASTC_SRGBA_4x4,
-    ASTC_SRGBA_5x4,
-    ASTC_SRGBA_5x5,
-    ASTC_SRGBA_6x5,
-    ASTC_SRGBA_6x6,
-    ASTC_SRGBA_8x5,
-    ASTC_SRGBA_8x6,
-    ASTC_SRGBA_8x8,
-    ASTC_SRGBA_10x5,
-    ASTC_SRGBA_10x6,
-    ASTC_SRGBA_10x8,
-    ASTC_SRGBA_10x10,
-    ASTC_SRGBA_12x10,
-    ASTC_SRGBA_12x12,
+    ASTC_SRGBA_4X4,
+    ASTC_SRGBA_5X4,
+    ASTC_SRGBA_5X5,
+    ASTC_SRGBA_6X5,
+    ASTC_SRGBA_6X6,
+    ASTC_SRGBA_8X5,
+    ASTC_SRGBA_8X6,
+    ASTC_SRGBA_8X8,
+    ASTC_SRGBA_10X5,
+    ASTC_SRGBA_10X6,
+    ASTC_SRGBA_10X8,
+    ASTC_SRGBA_10X10,
+    ASTC_SRGBA_12X10,
+    ASTC_SRGBA_12X12,
 
     // Total count
     COUNT,
@@ -399,14 +394,14 @@ export enum TextureUsageBit {
     STORAGE                  = 0x8,
     COLOR_ATTACHMENT         = 0x10,
     DEPTH_STENCIL_ATTACHMENT = 0x20,
-    TRANSIENT_ATTACHMENT     = 0x40,
-    INPUT_ATTACHMENT         = 0x80,
+    INPUT_ATTACHMENT         = 0x40,
 }
 
 export enum TextureFlagBit {
-    NONE       = 0,
-    GEN_MIPMAP = 0x1,
-    IMMUTABLE  = 0x2,
+    NONE           = 0,
+    GEN_MIPMAP     = 0x1,
+    IMMUTABLE      = 0x2,
+    GENERAL_LAYOUT = 0x4,
 }
 
 export enum SampleCount {
@@ -601,9 +596,9 @@ export enum DynamicStateFlagBit {
 }
 
 export enum StencilFace {
-    FRONT,
-    BACK,
-    ALL,
+    FRONT = 0x1,
+    BACK  = 0x2,
+    ALL   = 0x3,
 }
 
 export enum DescriptorType {
@@ -1380,6 +1375,7 @@ export class ColorAttachment {
         public storeOp: StoreOp = StoreOp.STORE,
         public beginAccesses: AccessType[] = [],
         public endAccesses: AccessType[] = [AccessType.PRESENT],
+        public isGeneralLayout: boolean = false,
     ) {}
 
     public copy (info: ColorAttachment) {
@@ -1389,6 +1385,7 @@ export class ColorAttachment {
         this.storeOp = info.storeOp;
         this.beginAccesses = info.beginAccesses.slice();
         this.endAccesses = info.endAccesses.slice();
+        this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
 }
@@ -1405,6 +1402,7 @@ export class DepthStencilAttachment {
         public stencilStoreOp: StoreOp = StoreOp.STORE,
         public beginAccesses: AccessType[] = [],
         public endAccesses: AccessType[] = [AccessType.DEPTH_STENCIL_ATTACHMENT_WRITE],
+        public isGeneralLayout: boolean = false,
     ) {}
 
     public copy (info: DepthStencilAttachment) {
@@ -1416,6 +1414,7 @@ export class DepthStencilAttachment {
         this.stencilStoreOp = info.stencilStoreOp;
         this.beginAccesses = info.beginAccesses.slice();
         this.endAccesses = info.endAccesses.slice();
+        this.isGeneralLayout = info.isGeneralLayout;
         return this;
     }
 }
@@ -1441,6 +1440,25 @@ export class SubpassInfo {
     }
 }
 
+export class SubpassDependency {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public srcSubpass: number = 0,
+        public dstSubpass: number = 0,
+        public srcAccesses: AccessType[] = [],
+        public dstAccesses: AccessType[] = [],
+    ) {}
+
+    public copy (info: SubpassDependency) {
+        this.srcSubpass = info.srcSubpass;
+        this.dstSubpass = info.dstSubpass;
+        this.srcAccesses = info.srcAccesses.slice();
+        this.dstAccesses = info.dstAccesses.slice();
+        return this;
+    }
+}
+
 export class RenderPassInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
@@ -1448,12 +1466,14 @@ export class RenderPassInfo {
         public colorAttachments: ColorAttachment[] = [],
         public depthStencilAttachment: DepthStencilAttachment = new DepthStencilAttachment(),
         public subpasses: SubpassInfo[] = [],
+        public dependencies: SubpassDependency[] = [],
     ) {}
 
     public copy (info: RenderPassInfo) {
         deepCopy(this.colorAttachments, info.colorAttachments, ColorAttachment);
         this.depthStencilAttachment.copy(info.depthStencilAttachment);
         deepCopy(this.subpasses, info.subpasses, SubpassInfo);
+        deepCopy(this.dependencies, info.dependencies, SubpassDependency);
         return this;
     }
 }
@@ -1646,6 +1666,56 @@ export class MemoryStatus {
     }
 }
 
+export class DynamicStencilStates {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public writeMask: number = 0,
+        public compareMask: number = 0,
+        public reference: number = 0,
+    ) {}
+
+    public copy (info: DynamicStencilStates) {
+        this.writeMask = info.writeMask;
+        this.compareMask = info.compareMask;
+        this.reference = info.reference;
+        return this;
+    }
+}
+
+export class DynamicStates {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public viewport: Viewport = new Viewport(),
+        public scissor: Rect = new Rect(),
+        public blendConstant: Color = new Color(),
+        public lineWidth: number = 1,
+        public depthBiasConstant: number = 0,
+        public depthBiasClamp: number = 0,
+        public depthBiasSlope: number = 0,
+        public depthMinBounds: number = 0,
+        public depthMaxBounds: number = 0,
+        public stencilStatesFront: DynamicStencilStates = new DynamicStencilStates(),
+        public stencilStatesBack: DynamicStencilStates = new DynamicStencilStates(),
+    ) {}
+
+    public copy (info: DynamicStates) {
+        this.viewport.copy(info.viewport);
+        this.scissor.copy(info.scissor);
+        this.blendConstant.copy(info.blendConstant);
+        this.lineWidth = info.lineWidth;
+        this.depthBiasConstant = info.depthBiasConstant;
+        this.depthBiasClamp = info.depthBiasClamp;
+        this.depthBiasSlope = info.depthBiasSlope;
+        this.depthMinBounds = info.depthMinBounds;
+        this.depthMaxBounds = info.depthMaxBounds;
+        this.stencilStatesFront.copy(info.stencilStatesFront);
+        this.stencilStatesBack.copy(info.stencilStatesBack);
+        return this;
+    }
+}
+
 /**
  * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
  * The above section is auto-generated from engine-native/cocos/renderer/core/gfx/GFXDef-common.h
@@ -1678,8 +1748,8 @@ export class DeviceInfo {
         public isAntialias: boolean = true,
         public isPremultipliedAlpha: boolean = true,
         public devicePixelRatio: number = 1,
-        public nativeWidth: number = 1,
-        public nativeHeight: number = 1,
+        public width: number = 1,
+        public height: number = 1,
         /**
          * For non-vulkan backends, to maintain compatibility and maximize
          * descriptor cache-locality, descriptor-set-based binding numbers need
@@ -1946,47 +2016,47 @@ export function FormatSize (format: Format, width: number, height: number, depth
         case Format.PVRTC2_4BPP:
             return Math.ceil(Math.max(width, 8) * Math.max(height, 8) / 2) * depth;
 
-        case Format.ASTC_RGBA_4x4:
-        case Format.ASTC_SRGBA_4x4:
+        case Format.ASTC_RGBA_4X4:
+        case Format.ASTC_SRGBA_4X4:
             return Math.ceil(width / 4) * Math.ceil(height / 4) * 16 * depth;
-        case Format.ASTC_RGBA_5x4:
-        case Format.ASTC_SRGBA_5x4:
+        case Format.ASTC_RGBA_5X4:
+        case Format.ASTC_SRGBA_5X4:
             return Math.ceil(width / 5) * Math.ceil(height / 4) * 16 * depth;
-        case Format.ASTC_RGBA_5x5:
-        case Format.ASTC_SRGBA_5x5:
+        case Format.ASTC_RGBA_5X5:
+        case Format.ASTC_SRGBA_5X5:
             return Math.ceil(width / 5) * Math.ceil(height / 5) * 16 * depth;
-        case Format.ASTC_RGBA_6x5:
-        case Format.ASTC_SRGBA_6x5:
+        case Format.ASTC_RGBA_6X5:
+        case Format.ASTC_SRGBA_6X5:
             return Math.ceil(width / 6) * Math.ceil(height / 5) * 16 * depth;
-        case Format.ASTC_RGBA_6x6:
-        case Format.ASTC_SRGBA_6x6:
+        case Format.ASTC_RGBA_6X6:
+        case Format.ASTC_SRGBA_6X6:
             return Math.ceil(width / 6) * Math.ceil(height / 6) * 16 * depth;
-        case Format.ASTC_RGBA_8x5:
-        case Format.ASTC_SRGBA_8x5:
+        case Format.ASTC_RGBA_8X5:
+        case Format.ASTC_SRGBA_8X5:
             return Math.ceil(width / 8) * Math.ceil(height / 5) * 16 * depth;
-        case Format.ASTC_RGBA_8x6:
-        case Format.ASTC_SRGBA_8x6:
+        case Format.ASTC_RGBA_8X6:
+        case Format.ASTC_SRGBA_8X6:
             return Math.ceil(width / 8) * Math.ceil(height / 6) * 16 * depth;
-        case Format.ASTC_RGBA_8x8:
-        case Format.ASTC_SRGBA_8x8:
+        case Format.ASTC_RGBA_8X8:
+        case Format.ASTC_SRGBA_8X8:
             return Math.ceil(width / 8) * Math.ceil(height / 8) * 16 * depth;
-        case Format.ASTC_RGBA_10x5:
-        case Format.ASTC_SRGBA_10x5:
+        case Format.ASTC_RGBA_10X5:
+        case Format.ASTC_SRGBA_10X5:
             return Math.ceil(width / 10) * Math.ceil(height / 5) * 16 * depth;
-        case Format.ASTC_RGBA_10x6:
-        case Format.ASTC_SRGBA_10x6:
+        case Format.ASTC_RGBA_10X6:
+        case Format.ASTC_SRGBA_10X6:
             return Math.ceil(width / 10) * Math.ceil(height / 6) * 16 * depth;
-        case Format.ASTC_RGBA_10x8:
-        case Format.ASTC_SRGBA_10x8:
+        case Format.ASTC_RGBA_10X8:
+        case Format.ASTC_SRGBA_10X8:
             return Math.ceil(width / 10) * Math.ceil(height / 8) * 16 * depth;
-        case Format.ASTC_RGBA_10x10:
-        case Format.ASTC_SRGBA_10x10:
+        case Format.ASTC_RGBA_10X10:
+        case Format.ASTC_SRGBA_10X10:
             return Math.ceil(width / 10) * Math.ceil(height / 10) * 16 * depth;
-        case Format.ASTC_RGBA_12x10:
-        case Format.ASTC_SRGBA_12x10:
+        case Format.ASTC_RGBA_12X10:
+        case Format.ASTC_SRGBA_12X10:
             return Math.ceil(width / 12) * Math.ceil(height / 10) * 16 * depth;
-        case Format.ASTC_RGBA_12x12:
-        case Format.ASTC_SRGBA_12x12:
+        case Format.ASTC_RGBA_12X12:
+        case Format.ASTC_SRGBA_12X12:
             return Math.ceil(width / 12) * Math.ceil(height / 12) * 16 * depth;
 
         default: {

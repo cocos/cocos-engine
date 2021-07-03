@@ -1,6 +1,6 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
 import { system } from 'pal/system';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
+import { DeviceEvent } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Orientation, OS } from '../../system/enum-type';
 
@@ -39,19 +39,19 @@ export class AccelerometerInputSource {
         }
 
         // fix android acc values are opposite
-        if (system.os === OS.ANDROID) {
+        if (system.os === OS.ANDROID || system.os === OS.OHOS) {
             x = -x;
             y = -y;
         }
         const accelerometer: AccelerometerInputEvent = {
-            type: SystemEventType.DEVICEMOTION,
+            type: DeviceEvent.DEVICEMOTION,
             x,
             y,
             z,
             timestamp: performance.now(),
         };
 
-        this._eventTarget.emit(SystemEventType.DEVICEMOTION, accelerometer);
+        this._eventTarget.emit(DeviceEvent.DEVICEMOTION, accelerometer);
     }
 
     public start () {
@@ -81,6 +81,6 @@ export class AccelerometerInputSource {
         }
     }
     public onChange (cb: AccelerometerCallback) {
-        this._eventTarget.on(SystemEventType.DEVICEMOTION, cb);
+        this._eventTarget.on(DeviceEvent.DEVICEMOTION, cb);
     }
 }

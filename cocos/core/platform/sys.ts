@@ -33,6 +33,7 @@ import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/system/enum-type';
+import { Vec2 } from '../math';
 
 const viewSize = system.getViewSize();
 const pixelRatio = system.pixelRatio;
@@ -278,16 +279,37 @@ export const sys: Record<string, any> = {
 
     /**
      * @en
-     * Returns the safe area of the screen (in design resolution). If the screen is not notched, the visibleRect will be returned by default.
-     * Currently supports Android, iOS and WeChat Mini Game platform.
+     * Returns the safe area of the screen (in design resolution) based on the game view coordinate system.
+     * If the screen is not notched, this method returns a Rect of the same size as visibleSize by default.
+     * Currently supports Android, iOS and WeChat, ByteDance Mini Game platform.
      * @zh
-     * 返回手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回 visibleRect。目前支持安卓、iOS 原生平台和微信小游戏平台。
+     * 返回基于游戏视图坐标系的手机屏幕安全区域（设计分辨率为单位），如果不是异形屏将默认返回一个和 visibleSize 一样大的 Rect。目前支持安卓、iOS 原生平台和微信、字节小游戏平台。
      * @method getSafeAreaRect
      * @return {Rect}
      */
     getSafeAreaRect () {
-        const visibleSize = legacyCC.view.getVisibleSize();
-        return legacyCC.rect(0, 0, visibleSize.width, visibleSize.height) as Rect;
+        const locView = legacyCC.view;
+        const edge = system.getSafeAreaEdge();
+        const viewSize = system.getViewSize();
+
+        // Get leftBottom and rightTop point in screen coordinates system.
+        const leftBottom = new Vec2(edge.left, viewSize.height - edge.bottom);
+        const rightTop = new Vec2(viewSize.width - edge.right, edge.top);
+
+        // Convert to the location in game view coordinates system.
+        const relatedPos = { left: 0, top: 0, width: viewSize.width, height: viewSize.height };
+        locView.convertToLocationInView(leftBottom.x, leftBottom.y, relatedPos, leftBottom);
+        locView.convertToLocationInView(rightTop.x, rightTop.y, relatedPos, rightTop);
+
+        // Convert view point to design resolution size
+        locView._convertPointWithScale(leftBottom);
+        locView._convertPointWithScale(rightTop);
+
+        const x = leftBottom.x;
+        const y = leftBottom.y;
+        const width = rightTop.x - leftBottom.x;
+        const height = rightTop.y - leftBottom.y;
+        return new Rect(x, y, width, height);
     },
 
     __init () {

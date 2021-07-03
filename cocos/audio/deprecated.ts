@@ -29,9 +29,8 @@
  */
 
 import { AudioSource } from './audio-source';
-import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
+import { replaceProperty, removeProperty, markAsWarning } from '../core/utils/x-deprecated';
 import { AudioClip } from './audio-clip';
-import { AudioState } from '../../pal/audio/type';
 
 // remove AudioClip static property
 replaceProperty(AudioClip, 'AudioClip', [
@@ -43,45 +42,10 @@ replaceProperty(AudioClip, 'AudioClip', [
     },
 ]);
 
-// remove AudioClip property
-replaceProperty(AudioClip.prototype, 'AudioClip.prototype', [
-    {
-        name: 'state',
-        targetName: 'AudioSource.prototype',
-        customGetter () {
-            return AudioState.INIT;
-        },
-    },
-]);
-
-// remove AudioClip getter
-replaceProperty(AudioClip.prototype, 'AudioClip.prototype', [
-    {
-        name: 'getCurrentTime',
-        targetName: 'AudioSource.prototype',
-        customFunction () {
-            return 0;
-        },
-    },
-    {
-        name: 'getVolume',
-        targetName: 'AudioSource.prototype',
-        customFunction () {
-            return 0;
-        },
-    },
-    {
-        name: 'getLoop',
-        targetName: 'AudioSource.prototype',
-        customFunction () {
-            return false;
-        },
-    },
-]);
-
-// remove AudioClip setter and methods
-replaceProperty(AudioClip.prototype, 'AudioClip.prototype',
+// deprecate AudioClip property
+markAsWarning(AudioClip.prototype, 'AudioClip.prototype',
     [
+        'state',
         'play',
         'pause',
         'stop',
@@ -89,8 +53,10 @@ replaceProperty(AudioClip.prototype, 'AudioClip.prototype',
         'setCurrentTime',
         'setVolume',
         'setLoop',
-    ].map((methodName) => ({
-        name: methodName,
-        targetName: 'AudioSource.prototype',
-        customFunction () {},
+        'getCurrentTime',
+        'getVolume',
+        'getLoop',
+    ].map((item) => ({
+        name: item,
+        suggest: `please use AudioSource.prototype.${item} instead`,
     })));

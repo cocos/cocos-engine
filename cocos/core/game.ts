@@ -45,10 +45,17 @@ import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
 import { BrowserType } from '../../pal/system/enum-type';
+import { Layers } from './scene-graph';
+import { log2 } from './math/bits';
 
 interface ISceneInfo {
     url: string;
     uuid: string;
+}
+
+export interface LayerItem {
+    name: string;
+    value: number;
 }
 
 /**
@@ -160,6 +167,11 @@ export interface IGameConfig {
      * Physics system config
      */
     physics?: IPhysicsConfig;
+
+    /**
+     * User layers config
+     */
+    layers?: LayerItem[];
 }
 
 /**
@@ -424,11 +436,7 @@ export class Game extends EventTarget {
      * @zh 退出游戏
      */
     public end () {
-        if (this._gfxDevice) {
-            this._gfxDevice.destroy();
-            this._gfxDevice = null;
-        }
-        window.close();
+        system.close();
     }
 
     /**
@@ -483,6 +491,15 @@ export class Game extends EventTarget {
         // Init assetManager
         if (this.config.assetOptions) {
             legacyCC.assetManager.init(this.config.assetOptions);
+        }
+
+        if (this.config.layers) {
+            const userLayers: LayerItem[] = this.config.layers;
+            for (let i = 0; i < userLayers.length; i++) {
+                const layer = userLayers[i];
+                const bitNum = log2(layer.value);
+                Layers.addLayer(layer.name, bitNum);
+            }
         }
 
         return this._initEngine().then(() => {
@@ -779,8 +796,18 @@ export class Game extends EventTarget {
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<Device>[] = [];
 
+            const opts = new DeviceInfo(
+                this.canvas as HTMLCanvasElement,
+                EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                false,
+                window.devicePixelRatio,
+                sys.windowPixelResolution.width,
+                sys.windowPixelResolution.height,
+                bindingMappingInfo,
+            );
+
             if (JSB && window.gfx) {
-                this._gfxDevice = gfx.deviceInstance;
+                this._gfxDevice = gfx.DeviceManager.create(opts);
             } else {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
@@ -796,15 +823,6 @@ export class Game extends EventTarget {
                     ctors.push(legacyCC.WebGLDevice);
                 }
 
-                const opts = new DeviceInfo(
-                    this.canvas as HTMLCanvasElement,
-                    EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                    false,
-                    window.devicePixelRatio,
-                    sys.windowPixelResolution.width,
-                    sys.windowPixelResolution.height,
-                    bindingMappingInfo,
-                );
                 for (let i = 0; i < ctors.length; i++) {
                     this._gfxDevice = new ctors[i]();
                     if (this._gfxDevice.initialize(opts)) { break; }

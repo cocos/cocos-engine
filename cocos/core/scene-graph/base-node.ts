@@ -35,7 +35,6 @@ import { property } from '../data/decorators/property';
 import { CCObject } from '../data/object';
 import { Event } from '../event';
 import { errorID, warnID, error, log, getError } from '../platform/debug';
-import { SystemEventType } from '../platform/event-manager/event-enum';
 import { ISchedulable } from '../scheduler';
 import IdGenerator from '../utils/id-generator';
 import * as js from '../utils/js';
@@ -44,6 +43,7 @@ import { legacyCC } from '../global-exports';
 import { Node } from './node';
 import type { Scene } from './scene';
 import { PrefabInfo } from '../utils/prefab/prefab-info';
+import { NodeEventType } from './node-event';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;
@@ -72,12 +72,12 @@ function getConstructor<T> (typeOrClassName: string | Constructor<T>): Construct
  * @en The base class for [[Node]], it:
  * - maintains scene hierarchy and life cycle logic
  * - provides EventTarget ability
- * - emits events if some properties changed, ref: [[SystemEventType]]
+ * - emits events if some properties changed, ref: [[Node.EventType]]
  * - manages components
  * @zh [[Node]] 的基类，他会负责：
  * - 维护场景树以及节点生命周期管理
  * - 提供 EventTarget 的事件管理和注册能力
- * - 派发节点状态相关的事件，参考：[[SystemEventType]]
+ * - 派发节点状态相关的事件，参考：[[Node.EventType]]
  * - 管理组件
  */
 @ccclass('cc.BaseNode')
@@ -425,7 +425,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         this._onSetParent(oldParent, keepWorldTransform);
 
         if (this.emit) {
-            this.emit(SystemEventType.PARENT_CHANGED, oldParent);
+            this.emit(NodeEventType.PARENT_CHANGED, oldParent);
         }
 
         if (oldParent) {
@@ -438,7 +438,7 @@ export class BaseNode extends CCObject implements ISchedulable {
                 oldParent._children.splice(removeAt, 1);
                 oldParent._updateSiblingIndex();
                 if (oldParent.emit) {
-                    oldParent.emit(SystemEventType.CHILD_REMOVED, this);
+                    oldParent.emit(NodeEventType.CHILD_REMOVED, this);
                 }
             }
         }
@@ -450,7 +450,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             newParent._children.push(this);
             this._siblingIndex = newParent._children.length - 1;
             if (newParent.emit) {
-                newParent.emit(SystemEventType.CHILD_ADDED, this);
+                newParent.emit(NodeEventType.CHILD_ADDED, this);
             }
         }
 
@@ -1062,15 +1062,15 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @return - Just returns the incoming callback so you can save the anonymous function easier.
      * @example
      * ```ts
-     * this.node.on(SystemEventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
-     * node.on(SystemEventType.TOUCH_START, callback, this);
-     * node.on(SystemEventType.TOUCH_MOVE, callback, this);
-     * node.on(SystemEventType.TOUCH_END, callback, this);
+     * this.node.on(NodeEventType.TOUCH_START, this.memberFunction, this);  // if "this" is component and the "memberFunction" declared in CCClass.
+     * node.on(NodeEventType.TOUCH_START, callback, this);
+     * node.on(NodeEventType.TOUCH_MOVE, callback, this);
+     * node.on(NodeEventType.TOUCH_END, callback, this);
      * ```
      */
-    public on (type: string | SystemEventType, callback: AnyFunction, target?: unknown, useCapture: any = false) {
+    public on (type: string | NodeEventType, callback: AnyFunction, target?: unknown, useCapture: any = false) {
         switch (type) {
-        case SystemEventType.TRANSFORM_CHANGED:
+        case NodeEventType.TRANSFORM_CHANGED:
             this._eventMask |= TRANSFORM_ON;
             break;
         default:
@@ -1090,8 +1090,8 @@ export class BaseNode extends CCObject implements ISchedulable {
      * @param useCapture - When set to true, the listener will be triggered at capturing phase which is ahead of the final target emit, otherwise it will be triggered during bubbling phase.
      * @example
      * ```ts
-     * this.node.off(SystemEventType.TOUCH_START, this.memberFunction, this);
-     * node.off(SystemEventType.TOUCH_START, callback, this.node);
+     * this.node.off(NodeEventType.TOUCH_START, this.memberFunction, this);
+     * node.off(NodeEventType.TOUCH_START, callback, this.node);
      * ```
      */
     public off (type: string, callback?: AnyFunction, target?: unknown, useCapture: any = false) {
@@ -1101,7 +1101,7 @@ export class BaseNode extends CCObject implements ISchedulable {
         // All listener removed
         if (!hasListeners) {
             switch (type) {
-            case SystemEventType.TRANSFORM_CHANGED:
+            case NodeEventType.TRANSFORM_CHANGED:
                 this._eventMask &= ~TRANSFORM_ON;
                 break;
             default:
@@ -1179,7 +1179,7 @@ export class BaseNode extends CCObject implements ISchedulable {
     public targetOff (target: string | unknown) {
         this._eventProcessor.targetOff(target);
         // Check for event mask reset
-        if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(SystemEventType.TRANSFORM_CHANGED)) {
+        if ((this._eventMask & TRANSFORM_ON) && !this._eventProcessor.hasEventListener(NodeEventType.TRANSFORM_CHANGED)) {
             this._eventMask &= ~TRANSFORM_ON;
         }
     }
@@ -1234,7 +1234,7 @@ export class BaseNode extends CCObject implements ISchedulable {
             this._children[i]._siblingIndex = i;
         }
 
-        this.emit(SystemEventType.SIBLING_ORDER_CHANGED);
+        this.emit(NodeEventType.SIBLING_ORDER_CHANGED);
     }
 
     protected _onSetParent (oldParent: this | null, keepWorldTransform = false) {
@@ -1344,20 +1344,20 @@ export class BaseNode extends CCObject implements ISchedulable {
         if (!destroyByParent) {
             // remove from parent
             if (parent) {
-                this.emit(SystemEventType.PARENT_CHANGED, this);
+                this.emit(NodeEventType.PARENT_CHANGED, this);
                 // During destroy process, sibling index is not reliable
                 const childIndex = parent._children.indexOf(this);
                 parent._children.splice(childIndex, 1);
                 this._siblingIndex = 0;
                 parent._updateSiblingIndex();
                 if (parent.emit) {
-                    parent.emit(SystemEventType.CHILD_REMOVED, this);
+                    parent.emit(NodeEventType.CHILD_REMOVED, this);
                 }
             }
         }
 
         // emit node destroy event (this should before event processor destroy)
-        this.emit(SystemEventType.NODE_DESTROYED, this);
+        this.emit(NodeEventType.NODE_DESTROYED, this);
 
         // Destroy node event processor
         this._eventProcessor.destroy();

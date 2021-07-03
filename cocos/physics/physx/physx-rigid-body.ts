@@ -96,13 +96,11 @@ export class PhysXRigidBody implements IRigidBody {
     }
 
     setLinearDamping (v: number): void {
-        if (this.isStatic) return;
-        this.impl.setLinearDamping(v);
+        this._sharedBody.setLinearDamping(v);
     }
 
     setAngularDamping (v: number): void {
-        if (this.isStatic) return;
-        this.impl.setAngularDamping(v);
+        this._sharedBody.setAngularDamping(v);
     }
 
     useGravity (v: boolean): void {

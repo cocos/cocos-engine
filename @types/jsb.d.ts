@@ -18,11 +18,30 @@ declare namespace jsb {
         export function getDevicePixelRatio(): number;
         export function getDeviceOrientation(): number;
         export function getNetworkType(): number; // TODO: enum type
-        export function getSafeAreaEdge(): any;  // TODO: interface type
+        export function getSafeAreaEdge(): NativeSafeAreaEdge;
 
         export function setAccelerometerEnabled(isEnabled: boolean);
         export function setAccelerometerInterval(intervalInSeconds: number);
         export function getDeviceMotionValue(): DeviceMotionValue;
+    }
+
+    export interface NativeSafeAreaEdge {
+        /**
+         * top
+         */
+        x: number;
+        /**
+         * left
+         */
+        y: number;
+        /**
+         * bottom
+         */
+        z: number;
+        /**
+         * right
+         */
+        w: number;
     }
 
     export interface MouseEvent {
@@ -63,6 +82,7 @@ declare namespace jsb {
     export let onOrientationChanged: (event: {orientation: number}) => void | undefined;  // TODO: enum orientation type
     export let onResume: () => void | undefined;
     export let onPause: () => void | undefined;
+    export let onClose: () => void | undefined;
     export function openURL(url: string): void;
     export function garbageCollect(): void;
 

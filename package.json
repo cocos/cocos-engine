@@ -1,6 +1,6 @@
 {
   "name": "cocos-creator",
-  "version": "3.0.0",
+  "version": "3.3.0",
   "description": "Cocos Creator is a cross-platform 2D & 3D game engine written in TypeScript, licensed under MIT.",
   "homepage": "http://www.cocos.com",
   "license": "MIT",
@@ -17,6 +17,8 @@
     "build-declaration": "gulp build-declarations",
     "build-api-json": "gulp build-api-json -i index.ts -o ./3d-api-docs/tempJson",
     "build-api": "npm run build-api-json && gulp build-3d-api -i index.ts -o ./3d-api-docs -j ./3d-api-docs/tempJson",
+    "checkout-engine-version": "node ./scripts/checkout-engine-version.js",
+    "varify-engine-version": "node ./scripts/varify-engine-version.js",
     "test": "gulp test"
   },
   "repository": {
@@ -27,7 +29,7 @@
     "@babel/core": "^7.13.10",
     "@babel/preset-env": "7.8.7",
     "@cocos/babel-preset-cc": "2.2.0",
-    "@cocos/build-engine": "4.2.7",
+    "@cocos/build-engine": "4.2.9",
     "@cocos/typedoc-plugin-internal-external": "^1.0.1",
     "@cocos/typedoc-plugin-localization": "^1.0.0",
     "@types/fs-extra": "^5.0.4",
@@ -49,7 +51,7 @@
     "ts-jest": "^26.5.4",
     "typedoc": "^0.17.7",
     "typedoc-plugin-external-module-name": "^4.0.3",
-    "typescript": "^4.2.3",
+    "typescript": "^4.3.2",
     "vconsole": "^3.3.0",
     "yargs": "^12.0.5"
   },

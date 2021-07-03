@@ -56,10 +56,6 @@ class System {
         this.isNative = false;
         this.isBrowser = false;
 
-        // init isMobile and platform
-        this.platform = currentPlatform;
-        this.isMobile = !minigame.isDevTool;  // TODO: pc-game ?
-
         // init isLittleEndian
         this.isLittleEndian = (() => {
             const buffer = new ArrayBuffer(2);
@@ -78,8 +74,9 @@ class System {
             this.os = OS.ANDROID;
         } else if (minigamePlatform === 'ios') {
             this.os = OS.IOS;
+        } else if (minigamePlatform === 'windows') {
+            this.os = OS.WINDOWS;
         } else {
-            // TODO: pc-game ?
             this.os = OS.UNKNOWN;
         }
         let minigameSystem = minigameSysInfo.system.toLowerCase();
@@ -90,6 +87,10 @@ class System {
         const version = /[\d.]+/.exec(minigameSystem);
         this.osVersion = version ? version[0] : minigameSystem;
         this.osMainVersion = parseInt(this.osVersion);
+
+        // init isMobile and platform
+        this.platform = currentPlatform;
+        this.isMobile = this.os !== OS.WINDOWS;
 
         // init browserType and browserVersion
         this.browserType = BrowserType.UNKNOWN;
@@ -133,7 +134,31 @@ class System {
         return minigame.orientation;
     }
     public getSafeAreaEdge (): SafeAreaEdge {
-        throw new Error('TODO');
+        const minigameSafeArea = minigame.getSafeArea();
+        const viewSize = this.getViewSize();
+        let topEdge = minigameSafeArea.top;
+        let bottomEdge = viewSize.height - minigameSafeArea.bottom;
+        let leftEdge = minigameSafeArea.left;
+        let rightEdge = viewSize.width - minigameSafeArea.right;
+        const orientation = this.getOrientation();
+        // Make it symmetrical.
+        if (orientation === Orientation.PORTRAIT) {
+            if (topEdge < bottomEdge) {
+                topEdge = bottomEdge;
+            } else {
+                bottomEdge = topEdge;
+            }
+        } else if (leftEdge < rightEdge) {
+            leftEdge = rightEdge;
+        } else {
+            rightEdge = leftEdge;
+        }
+        return {
+            top: topEdge,
+            bottom: bottomEdge,
+            left: leftEdge,
+            right: rightEdge,
+        };
     }
     public getBatteryLevel (): number {
         return minigame.getBatteryInfoSync().level / 100;
@@ -159,11 +184,18 @@ class System {
         }
     }
 
+    public close () {
+        // TODO: minigame.exitMiniProgram() not implemented.
+    }
+
     public onHide (cb: () => void) {
         this._eventTarget.on(AppEvent.HIDE, cb);
     }
     public onShow (cb: () => void) {
         this._eventTarget.on(AppEvent.SHOW, cb);
+    }
+    public onClose (cb: () => void) {
+        this._eventTarget.on(AppEvent.CLOSE, cb);
     }
     public onViewResize (cb: () => void) {
         this._eventTarget.on(AppEvent.RESIZE, cb);
@@ -177,6 +209,9 @@ class System {
     }
     public offShow (cb?: () => void) {
         this._eventTarget.off(AppEvent.SHOW, cb);
+    }
+    public offClose (cb?: () => void) {
+        this._eventTarget.off(AppEvent.CLOSE, cb);
     }
     public offViewResize (cb?: () => void) {
         this._eventTarget.off(AppEvent.RESIZE, cb);

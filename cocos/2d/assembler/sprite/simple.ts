@@ -82,9 +82,77 @@ export const simple: IAssembler = {
         }
     },
 
+    updateWorldVerts (sprite: Sprite, vData: Float32Array) {
+        const renderData = sprite.renderData;
+
+        const dataList: IRenderData[] = renderData!.data;
+        const node = sprite.node;
+
+        const data0 = dataList[0];
+        const data3 = dataList[3];
+        const matrix = node.worldMatrix;
+        const a = matrix.m00; const b = matrix.m01;
+        const c = matrix.m04; const d = matrix.m05;
+
+        const justTranslate = a === 1 && b === 0 && c === 0 && d === 1;
+
+        const tx = matrix.m12; const ty = matrix.m13;
+        const vl = data0.x; const vr = data3.x;
+        const vb = data0.y; const vt = data3.y;
+
+        if (justTranslate) {
+            const vltx = vl + tx;
+            const vrtx = vr + tx;
+            const vbty = vb + ty;
+            const vtty = vt + ty;
+
+            // left bottom
+            vData[0] = vltx;
+            vData[1] = vbty;
+            // right bottom
+            vData[9] = vrtx;
+            vData[10] = vbty;
+            // left top
+            vData[18] = vltx;
+            vData[19] = vtty;
+            // right top
+            vData[27] = vrtx;
+            vData[28] = vtty;
+        } else {
+            const al = a * vl; const ar = a * vr;
+            const bl = b * vl; const br = b * vr;
+            const cb = c * vb; const ct = c * vt;
+            const db = d * vb; const dt = d * vt;
+
+            const cbtx = cb + tx;
+            const cttx = ct + tx;
+            const dbty = db + ty;
+            const dtty = dt + ty;
+
+            // left bottom
+            vData[0] = al + cbtx;
+            vData[1] = bl + dbty;
+            // right bottom
+            vData[9] = ar + cbtx;
+            vData[10] = br + dbty;
+            // left top
+            vData[18] = al + cttx;
+            vData[19] = bl + dtty;
+            // right top
+            vData[27] = ar + cttx;
+            vData[28] = br + dtty;
+        }
+        node._uiProps.uiTransformDirty = false;
+    },
+
     fillBuffers (sprite: Sprite, renderer: Batcher2D) {
         if (sprite === null) {
             return;
+        }
+
+        const vData = sprite.renderData!.vData!;
+        if (sprite.node._uiProps.uiTransformDirty) {
+            this.updateWorldVerts(sprite, vData);
         }
 
         // const buffer: MeshBuffer = renderer.createBuffer(
@@ -100,8 +168,8 @@ export const simple: IAssembler = {
         let indicesOffset = buffer.indicesOffset; // 索引offset 距离
         let vertexId = buffer.vertexOffset; // 顶点索引ID
 
-        const isRecreate = buffer.request();
-        if (!isRecreate) {
+        const bufferUnchanged = buffer.request();
+        if (!bufferUnchanged) {
             buffer = renderer.currBufferBatch!;
             vertexOffset = 0;
             indicesOffset = 0;
@@ -194,13 +262,12 @@ export const simple: IAssembler = {
 
         dataList[0].x = l;
         dataList[0].y = b;
-        dataList[0].z = 0;
 
         dataList[3].x = r;
         dataList[3].y = t;
-        dataList[3].z = 0;
 
         renderData.vertDirty = false;
+        this.updateWorldVerts(sprite, renderData.vData);
     },
 
     updateUvs (sprite: Sprite) {

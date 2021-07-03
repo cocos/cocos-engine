@@ -193,12 +193,12 @@ module.exports = {
         font_size: '文字尺寸，以 point 为单位',
         font_family: '文字字体名字',
         line_height: '文字行高，以 point 为单位',
-        overflow: 
+        overflow:
             '文字排版模式，包括以下三种：\n 1. CLAMP: 节点约束框之外的文字会被截断 \n 2. SHRINK: 自动根据节点约束框缩小文字\n 3. RESIZE: 根据文本内容自动更新节点的 height 属性.',
         wrap: '是否允许自动换行',
         font: 'Label 使用的字体资源',
         system_font: '是否使用系统默认字体，选中此项会将 file 属性置空',
-        cache_mode: 
+        cache_mode:
             '文本缓存模式，包括以下三种：\n 1. NONE: 不做任何缓存，文本内容进行一次绘制 \n 2. BITMAP: 将文本作为静态图像加入动态图集进行批次合并，但是不能频繁动态修改文本内容 \n 3. CHAR: 将文本拆分为字符并且把字符纹理缓存到一张字符图集中进行复用，适用于字符内容重复并且频繁更新的文本内容',
         font_bold: '字体加粗',
         font_italic: '字体倾斜',
@@ -229,7 +229,7 @@ module.exports = {
         width: '线段宽度，如果采用曲线，则表示沿着线段方向上的曲线变化',
         tile: '贴图平铺次数',
         offset: '贴图坐标的偏移',
-        color: '线段颜色，如果采用渐变色，则表示沿着线段方向上的颜色渐变'
+        color: '线段颜色，如果采用渐变色，则表示沿着线段方向上的颜色渐变',
     },
     progress: {
         bar_sprite: '进度条显示用的 Sprite 节点，可以动态改变尺寸',
@@ -487,7 +487,7 @@ module.exports = {
         camera: '照射相机',
         use_scale: '是否是缩放映射',
         distance: '距相机多少距离为正常显示计算大小',
-        sync_events: '映射数据事件\n回调的第一个参数是映射后的本地坐标，第二个是距相机距离',   
+        sync_events: '映射数据事件\n回调的第一个参数是映射后的本地坐标，第二个是距相机距离',
     },
     SubContextView: {
         design_size: '子域的设计分辨率，禁止在运行时动态更新',
@@ -854,13 +854,13 @@ module.exports = {
             simplex_vertex0: '形状的顶点0',
             simplex_vertex1: '形状的顶点1',
             simplex_vertex2: '形状的顶点2',
-            simplex_vertex3: '形状的顶点3'
+            simplex_vertex3: '形状的顶点3',
         },
         constant_force:{
             force: '在世界坐标系中，对刚体施加的力',
             localForce: '在本地坐标系中，对刚体施加的力',
             torque: '在世界坐标系中，对刚体施加的扭转力',
             localTorque: '在本地坐标系中，对刚体施加的扭转力',
-        }
-    }
+        },
+    },
 };

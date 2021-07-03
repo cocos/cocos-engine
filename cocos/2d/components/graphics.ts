@@ -244,6 +244,8 @@ export class Graphics extends Renderable2D {
     protected _isDrawing = false;
     protected _isNeedUploadData = true;
 
+    private _graphicsUseSubMeshes: RenderingSubMesh[] = [];
+
     constructor () {
         super();
         this._instanceMaterialType = InstanceMaterialType.ADD_COLOR;
@@ -278,6 +280,14 @@ export class Graphics extends Renderable2D {
         if (this.model) {
             director.root!.destroyModel(this.model);
             this.model = null;
+        }
+
+        const subMeshLength = this._graphicsUseSubMeshes.length;
+        if (subMeshLength > 0) {
+            for (let i = 0; i < subMeshLength; ++i) {
+                this._graphicsUseSubMeshes[i].destroy();
+            }
+            this._graphicsUseSubMeshes.length = 0;
         }
 
         if (!this.impl) {
@@ -599,6 +609,7 @@ export class Graphics extends Renderable2D {
             renderMesh.subMeshIdx = 0;
 
             this.model.initSubModel(idx, renderMesh, this.getMaterialInstance(0)!);
+            this._graphicsUseSubMeshes.push(renderMesh);
         }
     }
 

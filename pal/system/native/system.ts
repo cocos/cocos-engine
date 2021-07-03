@@ -22,6 +22,7 @@ const platformMap: Record<number, Platform> = {
     4: Platform.IOS,
     // 5 is IPAD
     5: Platform.IOS,
+    6: Platform.OHOS,
 };
 
 class System {
@@ -53,7 +54,7 @@ class System {
 
         // @ts-expect-error __getPlatform()
         this.platform = platformMap[__getPlatform()];
-        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS;
+        this.isMobile = this.platform === Platform.ANDROID || this.platform === Platform.IOS || this.platform === Platform.OHOS;
 
         // init isLittleEndian
         this.isLittleEndian = (() => {
@@ -112,6 +113,9 @@ class System {
         jsb.onResume = () => {
             this._eventTarget.emit(AppEvent.SHOW);
         };
+        jsb.onClose = () => {
+            this._eventTarget.emit(AppEvent.CLOSE);
+        };
     }
 
     public getViewSize (): Size {
@@ -121,8 +125,30 @@ class System {
         return orientationMap[jsb.device.getDeviceOrientation()];
     }
     public getSafeAreaEdge (): SafeAreaEdge {
-        // jsb.device.getSafeAreaEdge()
-        throw new Error('TODO');
+        const nativeSafeArea = jsb.device.getSafeAreaEdge();
+        let topEdge = nativeSafeArea.x;
+        let bottomEdge = nativeSafeArea.z;
+        let leftEdge = nativeSafeArea.y;
+        let rightEdge = nativeSafeArea.w;
+        const orientation = this.getOrientation();
+        // Make it symmetrical.
+        if (orientation === Orientation.PORTRAIT) {
+            if (topEdge < bottomEdge) {
+                topEdge = bottomEdge;
+            } else {
+                bottomEdge = topEdge;
+            }
+        } else if (leftEdge < rightEdge) {
+            leftEdge = rightEdge;
+        } else {
+            rightEdge = leftEdge;
+        }
+        return {
+            top: topEdge,
+            bottom: bottomEdge,
+            left: leftEdge,
+            right: rightEdge,
+        };
     }
     public getBatteryLevel (): number {
         return jsb.device.getBatteryLevel();
@@ -145,11 +171,19 @@ class System {
         __restartVM();
     }
 
+    public close () {
+        // @ts-expect-error __close() is defined in JSB
+        __close();
+    }
+
     public onHide (cb: () => void) {
         this._eventTarget.on(AppEvent.HIDE, cb);
     }
     public onShow (cb: () => void) {
         this._eventTarget.on(AppEvent.SHOW, cb);
+    }
+    public onClose (cb: () => void) {
+        this._eventTarget.on(AppEvent.CLOSE, cb);
     }
     public onViewResize (cb: () => void) {
         this._eventTarget.on(AppEvent.RESIZE, cb);
@@ -163,6 +197,9 @@ class System {
     }
     public offShow (cb?: () => void) {
         this._eventTarget.off(AppEvent.SHOW, cb);
+    }
+    public offClose (cb?: () => void) {
+        this._eventTarget.off(AppEvent.CLOSE, cb);
     }
     public offViewResize (cb?: () => void) {
         this._eventTarget.off(AppEvent.RESIZE, cb);

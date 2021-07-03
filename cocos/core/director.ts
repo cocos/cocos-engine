@@ -232,6 +232,20 @@ export class Director extends EventTarget {
      */
     public static readonly EVENT_AFTER_PHYSICS = 'director_after_physics';
 
+    /**
+     * The event which will be triggered at the frame begin.<br/>
+     * 一帧开始时所触发的事件。
+     * @event Director.EVENT_BEGIN_FRAME
+     */
+    public static readonly EVENT_BEGIN_FRAME = 'director_begin_frame';
+
+    /**
+     * The event which will be triggered at the frame end.<br/>
+     * 一帧结束之后所触发的事件。
+     * @event Director.EVENT_END_FRAME
+     */
+    public static readonly EVENT_END_FRAME = 'director_end_frame';
+
     public static instance: Director;
 
     public _compScheduler: ComponentScheduler;
@@ -874,7 +888,7 @@ export class Director extends EventTarget {
             } else {
                 this.calculateDeltaTime(time);
             }
-
+            this.emit(Director.EVENT_BEGIN_FRAME);
             const dt = this._deltaTime;
 
             // Update
@@ -906,7 +920,9 @@ export class Director extends EventTarget {
             this.emit(Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
-            Node.clearBooks();
+            Node.resetHasChangedFlags();
+            Node.clearNodeArray();
+            this.emit(Director.EVENT_END_FRAME);
             this._totalFrames++;
         }
     }

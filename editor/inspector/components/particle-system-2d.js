@@ -6,7 +6,7 @@ exports.update = update;
 
 const { setHidden, setDisabled, isMultipleInvalid } = require('../utils/prop');
 
-exports.ready = function () {
+exports.ready = function() {
     // Handling in-line displayed attributes
     const needToInlines = [
         'life',
@@ -212,13 +212,13 @@ exports.ready = function () {
             isAppendToParent() {
                 const $left = this.$[key];
                 const $right = this.$[`${key}Var`];
-        
+
                 if ($left && $right && $right.parentNode === $left) {
                     return false;
                 }
-        
+
                 return true;
-            }
+            },
         };
     });
 };

@@ -32,7 +32,7 @@ import { JSB } from 'internal:constants';
 import { builtinResMgr } from './builtin';
 import { Pool } from './memop';
 import { RenderPipeline, createDefaultPipeline, DeferredPipeline } from './pipeline';
-import { Camera, Light, Model } from './renderer/scene';
+import { Camera, Light, Model, NativeRoot } from './renderer/scene';
 import { DataPoolManager } from '../3d/skeletal-animation/data-pool-manager';
 import { LightType } from './renderer/scene/light';
 import { IRenderSceneInfo, RenderScene } from './renderer/scene/render-scene';
@@ -42,7 +42,6 @@ import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
 import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
-import { RootHandle, RootPool, RootView, NULL_HANDLE } from './renderer/core/memory-pools';
 import { warnID } from './platform/debug';
 
 /**
@@ -68,30 +67,27 @@ export interface ISceneInfo {
 export class Root {
     private _init (): void {
         if (JSB) {
-            this._poolHandle = RootPool.alloc();
+            this._naitveObj = new NativeRoot();
         }
     }
 
     private _destroy (): void {
         if (JSB) {
-            if (this._poolHandle) {
-                RootPool.free(this._poolHandle);
-                this._poolHandle = NULL_HANDLE;
-            }
+            this._naitveObj = null;
         }
     }
 
     private _setCumulativeTime (deltaTime: number): void {
         this._cumulativeTime += deltaTime;
         if (JSB) {
-            RootPool.set(this._poolHandle, RootView.CUMULATIVE_TIME, this._cumulativeTime);
+            this._naitveObj.cumulativeTime = this._cumulativeTime;
         }
     }
 
     private _setFrameTime (deltaTime: number): void {
         this._frameTime = deltaTime;
         if (JSB) {
-            RootPool.set(this._poolHandle, RootView.FRAME_TIME, deltaTime);
+            this._naitveObj.frameTime = deltaTime;
         }
     }
 
@@ -221,10 +217,6 @@ export class Root {
         return this._dataPoolMgr;
     }
 
-    get handle () : RootHandle {
-        return this._poolHandle;
-    }
-
     get useDeferredPipeline () : boolean {
         return this._useDeferredPipeline;
     }
@@ -248,11 +240,11 @@ export class Root {
     private _frameCount = 0;
     private _fps = 0;
     private _fixedFPS = 0;
-    private _poolHandle: RootHandle = NULL_HANDLE;
     private _useDeferredPipeline = false;
     private _fixedFPSFrameTime = 0;
     private _cumulativeTime = 0;
     private _frameTime = 0;
+    private declare _naitveObj: any;
 
     /**
      * 构造函数
@@ -397,7 +389,7 @@ export class Root {
      * 重置累计时间
      */
     public resetCumulativeTime () {
-        RootPool.set(this._poolHandle, RootView.CUMULATIVE_TIME, 0);
+        this._setCumulativeTime(0);
     }
 
     /**

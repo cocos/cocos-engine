@@ -125,7 +125,7 @@ module.exports = {
     sprite: {
         sprite_frame: 'SpriteFrame image to use',
         atlas: 'Atlas that the image belongs to',
-        type: 
+        type:
             'Rendering mode:\n - Simple: Modifying the size will stretch the image as a whole, which is suitable for sequence frame animation and normal images. \n' +
         '- Sliced: When changing the size, the four corners will not stretch, which is suitable for UI buttons and panel backgrounds. \n' +
         '- Tiled : When changing the size, the original size image will continue to be tiled. \n' +
@@ -197,12 +197,12 @@ module.exports = {
         font_size: 'Font size, in points',
         font_family: 'Font family name',
         line_height: 'Line height, in points',
-        overflow: 
+        overflow:
             'Text layout modes: \n 1. CLAMP: Text nodes outside the bounding box will be truncated. \n 2. SHRINK: Automatically shrink text box according to the constraint node. \n 3. RESIZE: Automatically updates the Node based on heightof the text.',
         wrap: 'Wrap text?',
         font: 'What font to use',
         system_font: 'Whether to use the system default font',
-        cache_mode: 
+        cache_mode:
             'Text cache modes：\n 1. NONE: No cache，draw once. \n 2. BITMAP: Text is added as a static image to the dynamic atlas for batch merging, but its content cannot be dynamically modified frequently. \n 3. CHAR: Split the text into characters and cache the character texture into a character atlas for reuse, which is suitable for text content with repeated character content and frequently updated.',
         font_bold: 'Bold font',
         font_italic: 'Font italic',
@@ -233,7 +233,7 @@ module.exports = {
         width: 'Fixed line width if constant input, or line width gradually changes according to the value if curve input',
         tile: 'Number of texture tiles',
         offset: 'Texture coordinates offset',
-        color: 'Fixed color if constant input, or color gradually changes according to the value if gradient color input'
+        color: 'Fixed color if constant input, or color gradually changes according to the value if gradient color input',
     },
     progress: {
         bar_sprite: 'A progress bar is displayed with the Sprite node that can dynamically change the size',
@@ -499,7 +499,7 @@ module.exports = {
         camera: 'The 3D camera representing the original coordinate system.',
         use_scale: "Whether to scale the converted 2d node's size according to the distance between the camera and the 3d node.",
         distance: 'The distance from the camera for displaying the 2d node in normal size',
-        sync_events: 'Event callback after coordinates synchronization.\nThe first parameter of the callback is the mapped local coordinate in UI camera.\nThe second parameter is the distance scale of the 3d node from the 3d camera viewport.',   
+        sync_events: 'Event callback after coordinates synchronization.\nThe first parameter of the callback is the mapped local coordinate in UI camera.\nThe second parameter is the distance scale of the 3d node from the 3d camera viewport.',
     },
     SubContextView: {
         design_size: 'Design resolution of the SubContextView, dynamic updates at runtime is not possible',
@@ -873,13 +873,13 @@ module.exports = {
             simplex_vertex0: 'Vertex 0 of the shape',
             simplex_vertex1: 'Vertex 1 of the shape',
             simplex_vertex2: 'Vertex 2 of the shape',
-            simplex_vertex3: 'Vertex 3 of the shape'
+            simplex_vertex3: 'Vertex 3 of the shape',
         },
         constant_force:{
             force: 'The force apply on a rigid body in the world coordinate system',
             localForce: 'The force apply on a rigid body in the local coordinate system',
             torque: 'The torque applied to the rigid body in the world coordinate system',
             localTorque: 'The torque applied to the rigid body in the local coordinate system',
-        }
-    }
+        },
+    },
 };

@@ -69,6 +69,6 @@ exports.elements = {
     },
 };
 
-exports.ready = function () {
+exports.ready = function() {
     this.elements = exports.elements;
 };

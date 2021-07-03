@@ -27,10 +27,7 @@ import { JSB } from 'internal:constants';
 import { AABB, Frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import {
-    AABBHandle, AABBPool, AABBView, FrustumHandle, FrustumPool, LightPool, LightView, NULL_HANDLE,
-} from '../core/memory-pools';
-import { recordFrustumToSharedMemory } from '../../geometry/frustum';
+import { NativeSpotLight } from './native-scene';
 
 const _forward = new Vec3(0, 0, -1);
 const _qt = new Quat();
@@ -62,46 +59,25 @@ export class SpotLight extends Light {
 
     protected _aspect = 0;
 
-    declare protected _hAABB: AABBHandle;
-    declare protected _hFrustum: FrustumHandle;
-
     protected _init (): void {
         super._init();
         if (JSB) {
-            this._hAABB = AABBPool.alloc();
-            this._hFrustum = FrustumPool.alloc();
-            LightPool.set(this._handle, LightView.AABB, this._hAABB);
+            const nativeSpotLight = this._nativeObj! as NativeSpotLight;
+            nativeSpotLight.setAABB(this._aabb.native);
+            nativeSpotLight.setFrustum(this._frustum);
+            nativeSpotLight.setDirection(this._dir);
+            nativeSpotLight.setPosition(this._pos);
         }
     }
 
     protected _destroy (): void {
-        if (JSB) {
-            if (this._hAABB) {
-                AABBPool.free(this._hAABB);
-                this._hAABB = NULL_HANDLE;
-            }
-            if (this._hFrustum) {
-                FrustumPool.free(this._hFrustum);
-                this._hFrustum = NULL_HANDLE;
-            }
-        }
         super._destroy();
     }
 
     protected _setDirection (dir: Vec3): void {
         this._dir.set(dir);
         if (JSB) {
-            LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
-        }
-    }
-
-    protected _update (): void {
-        if (JSB) {
-            LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
-            LightPool.setVec3(this._handle, LightView.POSITION, this._pos);
-            AABBPool.setVec3(this._hAABB, AABBView.CENTER, this._aabb.center);
-            AABBPool.setVec3(this._hAABB, AABBView.HALF_EXTENSION, this._aabb.halfExtents);
-            recordFrustumToSharedMemory(this._hFrustum, this._frustum);
+            (this._nativeObj! as NativeSpotLight).setDirection(dir);
         }
     }
 
@@ -112,7 +88,7 @@ export class SpotLight extends Light {
     set size (size: number) {
         this._size = size;
         if (JSB) {
-            LightPool.set(this._handle, LightView.SIZE, size);
+            (this._nativeObj! as NativeSpotLight).setSize(size);
         }
     }
 
@@ -123,7 +99,7 @@ export class SpotLight extends Light {
     set range (range: number) {
         this._range = range;
         if (JSB) {
-            LightPool.set(this._handle, LightView.RANGE, range);
+            (this._nativeObj! as NativeSpotLight).setRange(range);
         }
 
         this._needUpdate = true;
@@ -136,7 +112,7 @@ export class SpotLight extends Light {
     set luminance (lum: number) {
         this._luminance = lum;
         if (JSB) {
-            LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
+            (this._nativeObj! as NativeSpotLight).setIlluminance(lum);
         }
     }
 
@@ -156,7 +132,7 @@ export class SpotLight extends Light {
         this._angle = val;
         this._spotAngle = Math.cos(val * 0.5);
         if (JSB) {
-            LightPool.set(this._handle, LightView.SPOT_ANGLE, this._spotAngle);
+            (this._nativeObj! as NativeSpotLight).setAngle(this._spotAngle);
         }
 
         this._needUpdate = true;
@@ -165,7 +141,7 @@ export class SpotLight extends Light {
     set aspect (val: number) {
         this._aspect = val;
         if (JSB) {
-            LightPool.set(this._handle, LightView.ASPECT, val);
+            (this._nativeObj! as NativeSpotLight).setAspect(val);
         }
 
         this._needUpdate = true;
@@ -221,9 +197,8 @@ export class SpotLight extends Light {
             // Mat4.invert(_matViewProjInv, _matViewProj);
 
             this._frustum.update(_matViewProj, _matViewProjInv);
-            this._needUpdate = false;
 
-            this._update();
+            this._needUpdate = false;
         }
     }
 }
