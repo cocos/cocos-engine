@@ -135,7 +135,7 @@ class SpineMeta extends CustomAssetMeta {
         this.textures[0] = Editor.assetdb.urlToUuid(value);
     }
 
-    static version () { return '1.2.4'; }
+    static version () { return '1.2.5'; }
     static defaultType () {
         return 'spine';
     }

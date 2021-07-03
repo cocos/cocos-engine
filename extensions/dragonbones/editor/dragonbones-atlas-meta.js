@@ -34,7 +34,7 @@ class DragonBonesAtlasMeta extends CustomAssetMeta {
         super(assetdb);
     }
 
-    static version () { return '1.0.2'; }
+    static version () { return '1.0.3'; }
     static defaultType () {
         return 'dragonbones-atlas';
     }

@@ -135,7 +135,7 @@ class TiledMapMeta extends CustomAssetMeta {
     this._imageLayerTextureNames = [];
   }
 
-  static version () { return '2.0.4'; }
+  static version () { return '2.0.5'; }
   static defaultType() { return 'tiled-map'; }
 
   import (fspath, cb) {
