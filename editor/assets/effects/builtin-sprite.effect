@@ -110,75 +110,7 @@ CCProgram sprite-vs %{
       uvSizeOffset = i.uvSizeOffset;
       uvParams0 = vec4(i.uvParams.xy, i.filltype, 0); // HORIZONTAL OK
       if (i.filltype >= 2.0) { // 针对 RADIAL 处理
-        uvParams1 = vec4(i.uvParams.zw, 0, 0); // center x y
-        // uvParams0 = vec4(1.0 - uvParams0.y, 1.0 - uvParams0.x, uvParams0.zw); // 逆时针变顺时针 // 起点终点转换 // 这样吧，规定为 从 0.X 到 0.Y
-        // 这里其实就可以算分段的数据了
-        // 起点排除来进行跨域判断 （处理到都为 0-1 的）
-        float start = 1.0 - uvParams0.x; // 顺逆时针变换 
-        float range = uvParams0.y; // [-1,1] //决定终点的方向 // 这儿可以用 1 直接进行优化，两个点实际可以直接填
-        float end = start - range;
-        if (range > 0.0 && end < 0.0) {
-          end = 1.0 + end;
-          start = 1.0 + start;
-        }
-        if (start >= end) {
-          float temp = start;
-          start = end;
-          end = temp;
-        }
-
-        uvParams1.z = tan(start * PI2); // 开始的值
-        uvParams1.w = tan(end * PI2); // 结束的值
-        if (start <= 0.25) {
-          if (end <= 0.25) { // 同为 1 区间
-            // 不跨象限
-            uvParams0.w = 1.01;
-          } else if (end <= 0.5) { // 跨 12
-            uvParams0.w = 1.11;
-          } else if (end <= 0.75) { // 跨 123
-            uvParams0.w = 1.21;
-          } else if (end <= 1.0) { // 跨 1234
-            uvParams0.w = 1.31;
-          } else { // 跨 1234 且跨回 1
-            uvParams0.w = 1.41;
-          }
-        } else if (start <= 0.5) {
-          if (end <= 0.5) {
-            uvParams0.w = 2.01;
-          } else if (end <= 0.75) {
-            uvParams0.w = 2.11;
-          } else if (end <= 1.0) {
-            uvParams0.w = 2.21;
-          } else if (end <= 1.25) {
-            uvParams0.w = 2.31;
-          } else {
-            uvParams0.w = 2.41;
-          }
-        } else if (start <= 0.75) {
-          if (end <= 0.75) {
-            uvParams0.w = 3.01;
-          } else if (end <= 1.0) {
-            uvParams0.w = 3.11;
-          } else if (end <= 1.25) {
-            uvParams0.w = 3.21;
-          } else if (end < 1.5) {
-            uvParams0.w = 3.31;
-          } else {
-            uvParams0.w = 3.41;
-          }
-        } else {
-          if (end <= 1.0) {
-            uvParams0.w = 4.01;
-          } else if (end <= 1.25) {
-            uvParams0.w = 4.11;
-          } else if (end <= 1.5) {
-            uvParams0.w = 4.21;
-          } else if (end < 1.75) {
-            uvParams0.w = 4.31;
-          } else {
-            uvParams0.w = 4.41;
-          }
-        }
+        uvParams1 = i.uvParams;
       }else if (i.filltype >= 1.0) {
         // 由于 y 坐标翻转所需要的翻转
         uvParams0 = vec4(1.0 - uvParams0.y, 1.0 - uvParams0.x, uvParams0.zw);
@@ -222,10 +154,7 @@ CCProgram sprite-fs %{
   #include <embedded-alpha>
   #include <alpha-test>
 
-  // 一大一小，就是一个是正无穷一个是负无穷
-  // 其实是个常数，可以传进来，避免计算 
-  #define PIHB 1.5707963267950 // 大一点点点
-  #define PIHS 1.569 // 小一点点点 // 看情况能不能去掉
+  #define ONE_OVER_PI 0.3183098861838
 
   in vec2 uv0;
   in vec4 color;
@@ -259,185 +188,19 @@ CCProgram sprite-fs %{
     return k * uv + b;
   }
 
-  float evalFilledUV(vec2 uv, float mode, vec2 center) {
+  float evalFilledUV(vec2 uv, float mode) {
     float alpha = 1.0;
     if (mode >= 2.0) {
-      // RADIAL
-      float range = uvParams0.y - uvParams0.x;
-      float value = (uv.y - center.y) / (uv.x - center.x);
-      float type = uvParams0.w;
-      float s = floor(type);
-      float e = fract(type);
-      if (s >= 4.0) {
-        if (e > 0.4) {
-          if (uv.y > center.y || uv.x < center.x || (value > uvParams1.z && value < 0.0) || (value < uvParams1.w && value > tan(PIHB))) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.3) {
-          if (uv.y > center.y || (value > uvParams1.z && value < 0.0) || (value < uvParams1.w && value > 0.0)) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.2) {
-          if ((uv.x >= center.x && uv.y >= center.y) || 
-          ((uv.x > center.x) && value > uvParams1.z && value < 0.0) || 
-          ((uv.x < center.x) && value < uvParams1.w && value >= tan(PIHB))) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.1) {
-          if (uv.x < center.x) {
-            alpha = 0.0;
-            return alpha;
-          }
-          if ((value > uvParams1.z && value <= 0.0) || (value < uvParams1.w && value >= 0.0)) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else {
-          if (uv.y > center.y) {
-            alpha = 0.0;
-            return alpha;
-          }
-          if (value > uvParams1.z && value < uvParams1.w) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        }
-      } else if (s >= 3.0) {
-        if (e > 0.4) {
-          if (uv.x >= center.x || uv.y >= center.y || value > uvParams1.z && value < tan(PIHS) || value < uvParams1.w && value >= 0.0) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.3) {
-          if (uv.x >= center.x || value > uvParams1.z && value < tan(PIHS) || value < uvParams1.w && value >= tan(PIHB)) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.2) {
-          if ((uv.x >= center.x && uv.y <= center.y) || 
-          ((uv.y < center.y) && value > uvParams1.z && value < tan(PIHS)) || 
-          ((uv.x > center.x) && value < uvParams1.w && value > 0.0)) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.1) {
-          if (uv.y > center.y) {
-            alpha = 0.0;
-            return alpha;
-          }
-          if ((value > uvParams1.z && value <= tan(PIHS)) || (value < uvParams1.w && value >= tan(PIHB))) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else {
-          if (uv.x > center.x) {
-            alpha = 0.0;
-            return alpha;
-          }
-          if (value > uvParams1.z && value < uvParams1.w) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        }
-      } else if (s >= 2.0) {
-        if (e > 0.4) {
-          if (uv.y < center.y || uv.x > center.x || (value > uvParams1.z && value < 0.0) || (value < uvParams1.w && value > tan(PIHB))) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.3) {
-          if (uv.y < center.y || (value > uvParams1.z && value < 0.0) || (value < uvParams1.w && value > 0.0)) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.2) {
-          if ((uv.x <= center.x && uv.y <= center.y) || 
-          ((uv.x < center.x) && value > uvParams1.z && value < 0.0) || 
-          ((uv.x > center.x) && value < uvParams1.w && value >= tan(PIHB))) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.1) {
-          if (uv.x > center.x) {
-            alpha = 0.0;
-            return alpha;
-          }
-          if ((value > uvParams1.z && value < 0.0) || (value < uvParams1.w && value >= 0.0)) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else {
-          if (uv.y < center.y) {
-            alpha = 0.0;
-            return alpha;
-          }
-          if (value > uvParams1.z && value < uvParams1.w) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        }
-      } else if (s >= 1.0) {
-        if (e > 0.4) {
-          if ((uv.x <= center.x) || (uv.y <= center.y) || (value > uvParams1.z && value <= tan(PIHS)) || value < uvParams1.w && value >= 0.0) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.3) {
-          // 刚好有重叠，可以不加条件
-          if ((uv.x <= center.x) || (value > uvParams1.z && value <= tan(PIHS)) || (value < uvParams1.w && value >= tan(PIHB))) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.2) {
-          if ((uv.x <= center.x && uv.y >= center.y) || 
-          ((uv.y >= center.y) && value > uvParams1.z && value <= tan(PIHS)) || 
-          ((uv.y <= center.y) && value < uvParams1.w && value >= 0.0)) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else if (e > 0.1) {
-          if (uv.y < center.y) {
-            alpha = 0.0;
-            return alpha;
-          }
-          // tan（PI/2）有个微妙的精度问题
-          if ((value > uvParams1.z && value <= tan(PIHS)) || (value < uvParams1.w && value >= tan(PIHB))) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        } else {
-          if (uv.y < center.y) {
-            alpha = 0.0;
-            return alpha;
-          }
-          if (value > uvParams1.z && value < uvParams1.w) {
-            alpha = 1.0;
-          } else {
-            alpha = 0.0;
-          }
-        }
+      float start = uvParams1.x;
+      float range = uvParams1.y;
+      vec2 dir = uv - uvParams1.zw;
+      float angle = atan(dir.y, dir.x) * ONE_OVER_PI;
+      if (range < 0) {
+        angle += mix(0.0, -2.0, step(start, angle));
+        alpha = step(start + range, angle);
+      } else {
+        angle += mix(0.0, 2.0, step(angle, start));
+        alpha = step(angle, start + range);
       }
     } else if (mode >= 1.0) {
       // VERTICAL
@@ -450,8 +213,10 @@ CCProgram sprite-fs %{
       // HORIZONTAL
       if (uv.x >= uvParams0.x && uv.x <= uvParams0.y) {
         alpha = 1.0;
+
       } else {
         alpha = 0.0;
+
       }
     }
     return alpha;
@@ -464,7 +229,7 @@ CCProgram sprite-fs %{
       vec2 uv = uv0;
 
       if(uvMode >= 3.0) {
-        // Do Nothing
+        uv = uv0 * uvSizeOffset.xy + uvSizeOffset.zw;
       } else if (uvMode >= 2.0) {
         uv = fract(uv0) * uvSizeOffset.xy + uvSizeOffset.zw;
       } else if (uvMode >= 1.0) {
@@ -477,7 +242,7 @@ CCProgram sprite-fs %{
         o.r = o.g = o.b = gray;
       #endif
       if (uvMode >= 3.0) {
-        o.a *= evalFilledUV(uv0, uvParams0.z, uvParams1.xy);
+        o.a *= evalFilledUV(uv0, uvParams0.z);
       }
     #endif
 

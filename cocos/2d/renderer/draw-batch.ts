@@ -244,11 +244,8 @@ export class DrawBatch2D {
             if (sprite.fillType === 2) { // RADIAL
                 // 范围界定到 0-1 start < end
                 // start 取值为 [-1,1] 先处理下
-                if (start < 0) {
-                    start = 1 + start;
-                }
                 this.tiledCache.x = start;
-                this.tiledCache.y = range; // 这儿传 range 下去可能更合适
+                this.tiledCache.y = range;
                 this.tiledCache.z = sprite.fillCenter.x;
                 this.tiledCache.w = 1 - sprite.fillCenter.y;
             } else {
