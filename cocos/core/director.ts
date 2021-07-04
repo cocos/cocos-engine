@@ -722,7 +722,7 @@ export class Director extends EventTarget implements TickByTimer {
             dt = now;
         } else {
             // @ts-expect-error using internal API for deprecation
-            dt = game._calculateDT(now);
+            dt = game.timer._calculateDT(now);
         }
         this.tick(dt);
     }

@@ -49,8 +49,6 @@ import { BrowserType } from '../../pal/system/enum-type';
 import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
 
-const RAF_INTERVAL = 1000/60;
-
 interface ISceneInfo {
     url: string;
     uuid: string;
