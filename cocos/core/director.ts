@@ -48,6 +48,7 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, logID, assertID, warnID } from './platform/debug';
+import { TickByTimer } from './timer';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -68,7 +69,7 @@ import { errorID, error, logID, assertID, warnID } from './platform/debug';
  * `director.methodName();`
  * 它创建和处理主窗口并且管理什么时候执行场景。
  */
-export class Director extends EventTarget {
+export class Director extends EventTarget implements TickByTimer {
     /**
      * @en The event which will be triggered when the singleton of Director initialized.
      * @zh Director 单例初始化时触发的事件
@@ -599,28 +600,28 @@ export class Director extends EventTarget {
     /**
      * @en Returns the delta time since last frame.
      * @zh 获取上一帧的增量时间。
-     * @deprecated since v3.3.0, please use game.getDeltaTime() instead
+     * @deprecated since v3.3.0, please use game.timer.deltaTime instead
      */
     public getDeltaTime () {
-        return game.getDeltaTime();
+        return game.timer.deltaTime;
     }
 
     /**
      * @en Returns the total passed time since game start, unit: ms
      * @zh 获取从游戏开始到现在总共经过的时间，单位为 ms
-     * @deprecated since v3.3.0, please use game.getTotalTime() instead
+     * @deprecated since v3.3.0, please use game.timer.totalTime instead
      */
     public getTotalTime () {
-        return game.getTotalTime();
+        return game.timer.totalTime;
     }
 
     /**
      * @en Returns the current time.
      * @zh 获取当前帧的时间。
-     * @deprecated since v3.3.0, please use game.getFrameStartTime() instead
+     * @deprecated since v3.3.0, please use game.timer.frameStartTime instead
      */
     public getCurrentTime () {
-        return game.getFrameStartTime();
+        return game.timer.frameStartTime;
     }
 
     /**

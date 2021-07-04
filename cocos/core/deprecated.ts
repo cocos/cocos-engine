@@ -38,7 +38,7 @@ import { Root } from './root';
 import { game } from './game';
 import System from './components/system';
 import { Director } from './director';
-import { game } from './game';
+import { Game } from './game';
 
 // VMATH
 
@@ -288,15 +288,15 @@ markAsWarning(Director.prototype, 'director', [
     },
     {
         name: 'getDeltaTime',
-        suggest: 'Use game.getDeltaTime instead',
+        suggest: 'Use game.timer.deltaTime instead',
     },
     {
         name: 'getTotalTime',
-        suggest: 'Use game.getDeltaTime instead',
+        suggest: 'Use game.timer.deltaTime instead',
     },
     {
         name: 'getCurrentTime',
-        suggest: 'Use game.getFrameStartTime instead',
+        suggest: 'Use game.timer.frameStartTime instead',
     },
 ]);
 

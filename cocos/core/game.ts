@@ -30,6 +30,7 @@
 
 import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { system } from 'pal/system';
+import { Timer } from './timer';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
@@ -47,6 +48,8 @@ import { Node } from './scene-graph/node';
 import { BrowserType } from '../../pal/system/enum-type';
 import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
+
+const RAF_INTERVAL = 1000/60;
 
 interface ISceneInfo {
     url: string;
@@ -309,9 +312,16 @@ export class Game extends EventTarget {
         return this._inited;
     }
 
+    /**
+     * @en The expected delta time of each frame
+     * @zh 期望帧率对应的每帧时间
+     * @deprecated please use [[Timer.frameTime]]
+     */
     public get frameTime () {
-        return this._frameTime;
+        return this.timer.frameTime;
     }
+
+    public timer: Timer = new Timer();
 
     public collisionMatrix = [];
     public groupList: any[] = [];
@@ -319,7 +329,6 @@ export class Game extends EventTarget {
     public _persistRootNodes = {};
 
     // states
-    public _paused = true; // whether the game is paused
     public _configLoaded = false; // whether config loaded
     public _isCloning = false;    // deserializing or instantiating
 
@@ -327,13 +336,6 @@ export class Game extends EventTarget {
     private _engineInited = false; // whether the engine has inited
     private _rendererInitialized = false;
     private _gfxDevice: Device | null = null;
-
-    private _intervalId = 0; // interval target of main
-
-    private _deltaTime = 0.0;
-    private declare _initTime: number;
-    private declare _startTime: number;
-    private declare _frameTime: number;
 
     // @Methods
 
@@ -344,15 +346,7 @@ export class Game extends EventTarget {
      * @zh 设置游戏帧率。
      */
     public setFrameRate (frameRate: number | string) {
-        const config = this.config;
-        if (typeof frameRate !== 'number') {
-            frameRate = parseInt(frameRate, 10);
-            if (Number.isNaN(frameRate)) {
-                frameRate = 60;
-            }
-        }
-        config.frameRate = frameRate;
-        this._setAnimFrame();
+        this.timer.frameRate = frameRate;
     }
 
     /**
@@ -361,31 +355,7 @@ export class Game extends EventTarget {
      * @return frame rate
      */
     public getFrameRate (): number {
-        return this.config.frameRate || 0;
-    }
-
-    /**
-     * @en Returns the delta time since last frame, unit: s.
-     * @zh 获取上一帧的增量时间，以秒为单位。
-     */
-     public getDeltaTime () {
-        return this._deltaTime;
-    }
-
-    /**
-     * @en Returns the total passed time since game start, unit: ms
-     * @zh 获取从游戏开始到现在总共经过的时间，以毫秒为单位
-     */
-    public getTotalTime () {
-        return performance.now() - this._initTime;
-    }
-
-    /**
-     * @en Returns the start time of the current frame.
-     * @zh 获取当前帧开始的时间。
-     */
-    public getFrameStartTime () {
-        return this._startTime;
+        return this.timer.frameRate as number;
     }
 
     /**
@@ -393,7 +363,7 @@ export class Game extends EventTarget {
      * @zh 以固定帧间隔执行一帧游戏循环，帧间隔与设定的帧率匹配。
      */
     public step () {
-        legacyCC.director.tick(this._frameTime);
+        legacyCC.director.tick(this.timer.frameTime);
     }
 
     /**
@@ -403,13 +373,7 @@ export class Game extends EventTarget {
      * @zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 `director.pause` 不同。
      */
     public pause () {
-        if (this._paused) { return; }
-        this._paused = true;
-        // Pause main loop
-        if (this._intervalId) {
-            window.cAF(this._intervalId);
-            this._intervalId = 0;
-        }
+        this.timer.pause();
     }
 
     /**
@@ -418,9 +382,7 @@ export class Game extends EventTarget {
      * @zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
      */
     public resume () {
-        if (!this._paused) { return; }
-        // Resume main loop
-        this._runMainLoop();
+        this.timer.resume();
     }
 
     /**
@@ -428,7 +390,7 @@ export class Game extends EventTarget {
      * @zh 判断游戏是否暂停。
      */
     public isPaused (): boolean {
-        return this._paused;
+        return this.timer.paused;
     }
 
     /**
@@ -447,9 +409,9 @@ export class Game extends EventTarget {
             legacyCC.Object._deferredDestroy();
 
             legacyCC.director.reset();
-            this.pause();
+            this.timer.pause();
             return this._setRenderPipelineNShowSplash().then(() => {
-                this.resume();
+                this.timer.resume();
                 this._safeEmit(Game.EVENT_RESTART);
             });
         });
@@ -642,69 +604,6 @@ export class Game extends EventTarget {
 
     // @Methods
 
-    //  @Time ticker section
-    private _setAnimFrame () {
-        this._startTime = performance.now();
-        const frameRate = this.config.frameRate;
-        this._frameTime = 1000 / frameRate;
-        if (JSB) {
-            // @ts-expect-error JSB Call
-            jsb.setPreferredFramesPerSecond(frameRate);
-            window.rAF = window.requestAnimationFrame;
-            window.cAF = window.cancelAnimationFrame;
-        } else {
-            const rAF = window.requestAnimationFrame = window.requestAnimationFrame
-                || window.webkitRequestAnimationFrame
-                || window.mozRequestAnimationFrame
-                || window.oRequestAnimationFrame
-                || window.msRequestAnimationFrame;
-            if (frameRate !== 60 && frameRate !== 30) {
-                // @ts-expect-error Compatibility
-                window.rAF = window.requestAnimationFrame ? this._stTimeWithRAF : this._stTime;
-                window.cAF = this._ctTime;
-            } else {
-                window.rAF = rAF || this._stTime;
-                window.cAF = window.cancelAnimationFrame
-                    || window.cancelRequestAnimationFrame
-                    || window.msCancelRequestAnimationFrame
-                    || window.mozCancelRequestAnimationFrame
-                    || window.oCancelRequestAnimationFrame
-                    || window.webkitCancelRequestAnimationFrame
-                    || window.msCancelAnimationFrame
-                    || window.mozCancelAnimationFrame
-                    || window.webkitCancelAnimationFrame
-                    || window.ocancelAnimationFrame
-                    || this._ctTime;
-            }
-        }
-    }
-    private _stTimeWithRAF (callback) {
-        const currTime = performance.now();
-        const elapseTime = Math.max(0, (currTime - game._startTime));
-        const timeToCall = Math.max(0, game._frameTime - elapseTime);
-        const id = window.setTimeout(() => {
-            game._intervalId = window.requestAnimationFrame(callback);
-        }, timeToCall);
-        return id;
-    }
-    private _stTime (callback: () => void) {
-        const currTime = performance.now();
-        const elapseTime = Math.max(0, (currTime - game._startTime));
-        const timeToCall = Math.max(0, game._frameTime - elapseTime);
-        const id = window.setTimeout(callback, timeToCall);
-        return id;
-    }
-    private _ctTime (id: number | undefined) {
-        window.clearTimeout(id);
-    }
-
-    private _calculateDT (now?: number) {
-        if (!now) now = performance.now();
-        this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
-        this._startTime = now;
-        return this._deltaTime;
-    }
-
     // Run game.
     private _runMainLoop () {
         if (!this._inited || (EDITOR && !legacyCC.GAME_VIEW)) {
@@ -712,38 +611,10 @@ export class Game extends EventTarget {
         }
         const config = this.config;
         const director = legacyCC.director;
-        const frameRate = config.frameRate;
 
         debug.setDisplayStats(!!config.showFPS);
         director.startAnimation();
-
-        this._startTime = performance.now();
-
-        let callback;
-        if (!JSB && !RUNTIME_BASED && frameRate === 30) {
-            let skip = true;
-            callback = (time: number) => {
-                skip = !skip;
-                if (skip) {
-                    return;
-                }
-                director.tick(this._calculateDT(time));
-                this._intervalId = window.rAF(callback);
-            };
-        } else {
-            callback = (time: number) => {
-                director.tick(this._calculateDT(time));
-                this._intervalId = window.rAF(callback);
-            };
-        }
-
-        if (this._intervalId) {
-            window.cAF(this._intervalId);
-            this._intervalId = 0;
-        }
-
-        this._intervalId = window.rAF(callback);
-        this._paused = false;
+        this.timer.start(director);
     }
 
     // @Game loading section
@@ -770,7 +641,7 @@ export class Game extends EventTarget {
         this.config = config as NormalizedGameConfig;
         this._configLoaded = true;
 
-        this._setAnimFrame();
+        this.timer.frameRate = config.frameRate;
     }
 
     private _determineRenderType () {
@@ -901,8 +772,6 @@ export class Game extends EventTarget {
             () => Promise.resolve(this._showSplashScreen()).then(
                 () => {
                     this._inited = true;
-                    this._initTime = performance.now();
-                    this._setAnimFrame();
                     this._runMainLoop();
                     this._safeEmit(Game.EVENT_GAME_INITED);
                     if (this.onStart) {
