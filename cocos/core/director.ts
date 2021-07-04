@@ -53,68 +53,20 @@ import { errorID, error, logID, assertID, warnID } from './platform/debug';
 
 /**
  * @en
- * <p>
- *    ATTENTION: USE `director` INSTEAD OF `Director`.<br/>
- *    `director` is a singleton object which manage your game's logic flow.<br/>
- *    Since the `director` is a singleton, you don't need to call any constructor or create functions,<br/>
- *    the standard way to use it is by calling:<br/>
- *      - `director.methodName();` <br/>
- *
- *    It creates and handle the main Window and manages how and when to execute the Scenes.<br/>
- *    <br/>
- *    The `director` is also responsible for:<br/>
- *      - initializing the OpenGL context<br/>
- *      - setting the OpenGL pixel format (default on is RGB565)<br/>
- *      - setting the OpenGL buffer depth (default on is 0-bit)<br/>
- *      - setting the color for clear screen (default one is BLACK)<br/>
- *      - setting the projection (default one is 3D)<br/>
- *      - setting the orientation (default one is Portrait)<br/>
- *      <br/>
- *    <br/>
- *    The `director` also sets the default OpenGL context:<br/>
- *      - GL_TEXTURE_2D is enabled<br/>
- *      - GL_VERTEX_ARRAY is enabled<br/>
- *      - GL_COLOR_ARRAY is enabled<br/>
- *      - GL_TEXTURE_COORD_ARRAY is enabled<br/>
- * </p>
- * <p>
- *   `director` also synchronizes timers with the refresh rate of the display.<br/>
- *   Features and Limitations:<br/>
- *      - Scheduled timers & drawing are synchronizes with the refresh rate of the display<br/>
- *      - Only supports animation intervals of 1/60 1/30 & 1/15<br/>
- * </p>
+ * ATTENTION: USE `director` INSTEAD OF `Director`.
+ * `director` is a singleton object which manage your game's logic flow.
+ * Since the `director` is a singleton, you don't need to call any constructor or create functions,
+ * the standard way to use it is by calling:
+ * `director.methodName();` 
+ * It creates and handle the main Window and manages how and when to execute the Scenes.
  *
  * @zh
- * <p>
- *     注意：用 `director` 代替 `Director`。<br/>
- *     `director` 一个管理你的游戏的逻辑流程的单例对象。<br/>
- *     由于 `director` 是一个单例，你不需要调用任何构造函数或创建函数，<br/>
- *     使用它的标准方法是通过调用：<br/>
- *       - `director.methodName();`
- *     <br/>
- *     它创建和处理主窗口并且管理什么时候执行场景。<br/>
- *     <br/>
- *     `director` 还负责：<br/>
- *      - 初始化 OpenGL 环境。<br/>
- *      - 设置OpenGL像素格式。(默认是 RGB565)<br/>
- *      - 设置OpenGL缓冲区深度 (默认是 0-bit)<br/>
- *      - 设置空白场景的颜色 (默认是 黑色)<br/>
- *      - 设置投影 (默认是 3D)<br/>
- *      - 设置方向 (默认是 Portrait)<br/>
- *    <br/>
- *    `director` 设置了 OpenGL 默认环境 <br/>
- *      - GL_TEXTURE_2D   启用。<br/>
- *      - GL_VERTEX_ARRAY 启用。<br/>
- *      - GL_COLOR_ARRAY  启用。<br/>
- *      - GL_TEXTURE_COORD_ARRAY 启用。<br/>
- * </p>
- * <p>
- *   `director` 也同步定时器与显示器的刷新速率。
- *   <br/>
- *   特点和局限性: <br/>
- *      - 将计时器 & 渲染与显示器的刷新频率同步。<br/>
- *      - 只支持动画的间隔 1/60 1/30 & 1/15。<br/>
- * </p>
+ * 注意：用 `director` 代替 `Director`。
+ * `director` 一个管理你的游戏的逻辑流程的单例对象。
+ * 由于 `director` 是一个单例，你不需要调用任何构造函数或创建函数，
+ * 使用它的标准方法是通过调用：
+ * `director.methodName();`
+ * 它创建和处理主窗口并且管理什么时候执行场景。
  */
 export class Director extends EventTarget {
     /**

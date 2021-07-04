@@ -328,7 +328,7 @@ export class Game extends EventTarget {
     private _rendererInitialized = false;
     private _gfxDevice: Device | null = null;
 
-    private _intervalId: number | null = null; // interval target of main
+    private _intervalId = 0; // interval target of main
 
     private _deltaTime = 0.0;
     private declare _initTime: number;
@@ -352,9 +352,7 @@ export class Game extends EventTarget {
             }
         }
         config.frameRate = frameRate;
-        this._paused = true;
         this._setAnimFrame();
-        this._runMainLoop();
     }
 
     /**
@@ -367,8 +365,8 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en Returns the delta time since last frame.
-     * @zh 获取上一帧的增量时间。
+     * @en Returns the delta time since last frame, unit: s.
+     * @zh 获取上一帧的增量时间，以秒为单位。
      */
      public getDeltaTime () {
         return this._deltaTime;
@@ -376,7 +374,7 @@ export class Game extends EventTarget {
 
     /**
      * @en Returns the total passed time since game start, unit: ms
-     * @zh 获取从游戏开始到现在总共经过的时间，单位为 ms
+     * @zh 获取从游戏开始到现在总共经过的时间，以毫秒为单位
      */
     public getTotalTime () {
         return performance.now() - this._initTime;
@@ -655,11 +653,6 @@ export class Game extends EventTarget {
             window.rAF = window.requestAnimationFrame;
             window.cAF = window.cancelAnimationFrame;
         } else {
-            if (this._intervalId) {
-                window.cAF(this._intervalId);
-                this._intervalId = 0;
-            }
-
             const rAF = window.requestAnimationFrame = window.requestAnimationFrame
                 || window.webkitRequestAnimationFrame
                 || window.mozRequestAnimationFrame
@@ -667,7 +660,7 @@ export class Game extends EventTarget {
                 || window.msRequestAnimationFrame;
             if (frameRate !== 60 && frameRate !== 30) {
                 // @ts-expect-error Compatibility
-                window.rAF = rAF ? this._stTimeWithRAF : this._stTime;
+                window.rAF = window.requestAnimationFrame ? this._stTimeWithRAF : this._stTime;
                 window.cAF = this._ctTime;
             } else {
                 window.rAF = rAF || this._stTime;
@@ -690,7 +683,7 @@ export class Game extends EventTarget {
         const elapseTime = Math.max(0, (currTime - game._startTime));
         const timeToCall = Math.max(0, game._frameTime - elapseTime);
         const id = window.setTimeout(() => {
-            window.requestAnimationFrame(callback);
+            game._intervalId = window.requestAnimationFrame(callback);
         }, timeToCall);
         return id;
     }
@@ -730,17 +723,17 @@ export class Game extends EventTarget {
         if (!JSB && !RUNTIME_BASED && frameRate === 30) {
             let skip = true;
             callback = (time: number) => {
-                this._intervalId = window.rAF(callback);
                 skip = !skip;
                 if (skip) {
                     return;
                 }
-                director.tick(this._calculateDT());
+                director.tick(this._calculateDT(time));
+                this._intervalId = window.rAF(callback);
             };
         } else {
             callback = (time: number) => {
+                director.tick(this._calculateDT(time));
                 this._intervalId = window.rAF(callback);
-                director.tick(this._calculateDT());
             };
         }
 

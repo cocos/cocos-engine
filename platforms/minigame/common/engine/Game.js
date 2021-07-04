@@ -13,7 +13,6 @@ Object.assign(game, {
         else {
             this._paused = true;
             this._setAnimFrame();
-            this._runMainLoop();
         }
     },
 
