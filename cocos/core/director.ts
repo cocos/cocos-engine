@@ -38,7 +38,7 @@ import System from './components/system';
 import { CCObject } from './data/object';
 import { EventTarget } from './event/event-target';
 import { game, Game } from './game';
-import { Color, size, v2, Vec2 } from './math';
+import { v2, Vec2 } from './math';
 import eventManager from './platform/event-manager/event-manager';
 import { Root } from './root';
 import { Node, Scene } from './scene-graph';
@@ -47,8 +47,8 @@ import NodeActivator from './scene-graph/node-activator';
 import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
-import { errorID, error, logID, assertID, warnID } from './platform/debug';
-import { TickByTimer } from './timer';
+import { errorID, error, assertID, warnID } from './platform/debug';
+import { ITicker } from './timer';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ import { TickByTimer } from './timer';
  * `director.methodName();`
  * 它创建和处理主窗口并且管理什么时候执行场景。
  */
-export class Director extends EventTarget implements TickByTimer {
+export class Director extends EventTarget implements ITicker {
     /**
      * @en The event which will be triggered when the singleton of Director initialized.
      * @zh Director 单例初始化时触发的事件

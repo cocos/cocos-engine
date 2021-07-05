@@ -29,7 +29,7 @@
 
 import { JSB, RUNTIME_BASED } from 'internal:constants';
 
-export interface TickByTimer {
+export interface ITicker {
     tick: (deltaTime: number) => void;
 }
 
@@ -85,14 +85,14 @@ export class Timer {
         return this._paused;
     }
 
-    public declare frameTime: number;
+    public frameTime = 1000/60;
 
-    private declare _sys: TickByTimer;
+    private declare _ticker: ITicker;
     private _paused = true;
     private _frameRate = 60;
     private _intervalId = 0; // interval target of main
-    private declare _initTime: number;
-    private declare _startTime: number;
+    private _initTime = 0;
+    private _startTime = 0;
     private _deltaTime = 0.0;
     private declare _callback: (time: number) => void;
 
@@ -100,8 +100,8 @@ export class Timer {
      * @en Start the timer with a system that have tick function
      * @zh 针对一个支持 tick 的系统启动计时器
      */
-    public start (sys: TickByTimer) {
-        this._sys = sys;
+    public start (ticker: ITicker) {
+        this._ticker = ticker;
         this.resume();
     }
 
@@ -186,7 +186,7 @@ export class Timer {
     }
 
     private _updateCallback () {
-        const sys = this._sys;
+        const ticker = this._ticker;
         let callback;
         if (!JSB && !RUNTIME_BASED && this._frameRate === 30) {
             let skip = true;
@@ -196,11 +196,11 @@ export class Timer {
                 if (skip) {
                     return;
                 }
-                sys.tick(this._calculateDT(time));
+                ticker.tick(this._calculateDT(time));
             };
         } else {
             callback = (time: number) => {
-                sys.tick(this._calculateDT(time));
+                ticker.tick(this._calculateDT(time));
                 this._intervalId = window.rAF(this._callback);
             };
         }

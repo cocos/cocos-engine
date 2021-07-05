@@ -292,7 +292,7 @@ markAsWarning(Director.prototype, 'director', [
     },
     {
         name: 'getTotalTime',
-        suggest: 'Use game.timer.deltaTime instead',
+        suggest: 'Use game.timer.totalTime instead',
     },
     {
         name: 'getCurrentTime',
