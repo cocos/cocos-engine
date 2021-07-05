@@ -657,7 +657,6 @@ bool Image::initWithPngData(const unsigned char *data, ssize_t dataLen) {
         }
         // update info
         png_read_update_info(pngPtr, infoPtr);
-        bitDepth  = png_get_bit_depth(pngPtr, infoPtr);
         colorType = png_get_color_type(pngPtr, infoPtr);
 
         switch (colorType) {
@@ -745,8 +744,8 @@ bool Image::initWithPVRv2Data(const unsigned char *data, ssize_t dataLen) {
     _renderFormat = it->second;
 
     //Get size of mipmap
-    _width = width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
-    _height = height = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
+    _width = CC_SWAP_INT32_LITTLE_TO_HOST(header->width);
+    _height = CC_SWAP_INT32_LITTLE_TO_HOST(header->height);
     _isCompressed    = true;
 
     //Move by size of header

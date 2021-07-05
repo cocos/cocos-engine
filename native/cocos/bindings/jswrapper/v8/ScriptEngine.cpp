@@ -341,7 +341,6 @@ void ScriptEngine::onPromiseRejectCallback(v8::PromiseRejectMessage msg) {
         v8::Local<v8::String> str = value->ToString(isolate->GetCurrentContext()).ToLocalChecked();
         v8::String::Utf8Value valueUtf8(isolate, str);
         auto *                strp = *valueUtf8;
-        auto                  len  = valueUtf8.length();
         if (strp == nullptr) {
             ss << "value: null" << std::endl;
             auto                  tn = value->TypeOf(isolate);

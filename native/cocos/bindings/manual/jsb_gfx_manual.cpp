@@ -488,7 +488,6 @@ bool register_all_gfx_manual(se::Object *obj) {
         nsVal.setObject(jsobj);
         obj->setProperty("gfx", nsVal);
     }
-    se::Object *ns = nsVal.toObject();
 
     return true;
 }

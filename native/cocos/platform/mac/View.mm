@@ -60,7 +60,7 @@
         CAMetalLayer *layer = (CAMetalLayer *)self.layer;
         layer.drawableSize  = size;
         layer.pixelFormat   = MTLPixelFormatBGRA8Unorm;
-        layer.device = self.device     = MTLCreateSystemDefaultDevice();
+        layer.device = self.device     = [MTLCreateSystemDefaultDevice() autorelease];
         layer.autoresizingMask         = kCALayerWidthSizable | kCALayerHeightSizable;
         self.layerContentsRedrawPolicy = NSViewLayerContentsRedrawDuringViewResize;
         self.layerContentsPlacement    = NSViewLayerContentsPlacementScaleProportionallyToFill;
@@ -97,7 +97,7 @@
                                                                 options:(NSTrackingMouseEnteredAndExited | NSTrackingMouseMoved | NSTrackingActiveInKeyWindow)
                                                                   owner:self
                                                                userInfo:nil];
-    [self addTrackingArea:trackingArea];
+    [self addTrackingArea:[trackingArea autorelease]];
 
     if (cc::EventDispatcher::initialized())
         cc::EventDispatcher::dispatchResizeEvent(static_cast<int>(nativeSize.width), static_cast<int>(nativeSize.height));

@@ -177,7 +177,6 @@ uint8_t *MessageQueue::allocateImpl(uint32_t allocatedSize, uint32_t const reque
     uint32_t const newOffset = _writer.offset + alignedSize;
 
     if (newOffset + SWITCH_CHUNK_MEMORY_REQUIREMENT <= MEMORY_CHUNK_SIZE) {
-        allocatedSize                  = alignedSize;
         uint8_t *const allocatedMemory = _writer.currentMemoryChunk + _writer.offset;
         _writer.offset                 = newOffset;
         return allocatedMemory;

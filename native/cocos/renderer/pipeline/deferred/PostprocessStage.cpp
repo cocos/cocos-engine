@@ -85,7 +85,6 @@ void PostprocessStage::destroy() {
 void PostprocessStage::render(scene::Camera *camera) {
     auto *pp = dynamic_cast<DeferredPipeline *>(_pipeline);
     assert(pp != nullptr);
-    gfx::Device *       device = pp->getDevice();
     gfx::CommandBuffer *cmdBf  = pp->getCommandBuffers()[0];
 
     _pipeline->getPipelineUBO()->updateCameraUBO(camera);

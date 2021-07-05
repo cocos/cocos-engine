@@ -453,7 +453,6 @@ void LightingStage::render(scene::Camera *camera) {
 
     m = 0;
     p = 0;
-    k = 0;
     for (const auto &ro : renderObjects) {
         const auto *model = ro.model;
         for (auto *subModel : model->getSubModels()) {

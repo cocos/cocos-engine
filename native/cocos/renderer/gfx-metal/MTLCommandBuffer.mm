@@ -565,7 +565,7 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
         }
 
         if ([src pixelFormat] != device->preferredPixelFormat()) {
-            src = [src newTextureViewWithPixelFormat:(MTLPixelFormat)device->preferredPixelFormat()];
+            src = [[src newTextureViewWithPixelFormat:(MTLPixelFormat)device->preferredPixelFormat()] autorelease];
         }
 
         for (uint i = 0; i < count; ++i) {

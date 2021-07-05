@@ -50,13 +50,13 @@ public:
     FrameGraph &operator=(const FrameGraph &) = delete;
     FrameGraph &operator=(FrameGraph &&) = delete;
 
-    static StringHandle stringToHandle(const char *name) noexcept;
+    static StringHandle stringToHandle(const char *name);
     static const char * handleToString(const StringHandle &handle) noexcept;
 
-    void        present(const Handle &input) noexcept;
-    void        presentLastVersion(const VirtualResource *virtualResource) noexcept;
-    void        presentFromBlackboard(const StringHandle &inputName) noexcept;
-    void        compile() noexcept;
+    void        present(const Handle &input);
+    void        presentLastVersion(const VirtualResource *virtualResource);
+    void        presentFromBlackboard(const StringHandle &inputName);
+    void        compile();
     void        execute() noexcept;
     void        reset() noexcept;
     static void gc(uint32_t unusedFrameCount = 30) noexcept;
@@ -78,15 +78,15 @@ public:
     inline void enableMerge(bool enable) noexcept;
 
 private:
-    Handle        create(VirtualResource *virtualResource) noexcept;
-    PassNode &    createPassNode(PassInsertPoint insertPoint, const StringHandle &name, Executable *pass) noexcept;
-    Handle        createResourceNode(VirtualResource *virtualResource) noexcept;
+    Handle        create(VirtualResource *virtualResource);
+    PassNode &    createPassNode(PassInsertPoint insertPoint, const StringHandle &name, Executable *pass);
+    Handle        createResourceNode(VirtualResource *virtualResource);
     void          sort() noexcept;
-    void          cull() noexcept;
-    void          computeResourceLifetime() noexcept;
+    void          cull();
+    void          computeResourceLifetime();
     void          mergePassNodes() noexcept;
-    void          computeStoreActionAndMemoryless() noexcept;
-    void          generateDevicePasses() noexcept;
+    void          computeStoreActionAndMemoryless();
+    void          generateDevicePasses();
     ResourceNode *getResourceNode(const VirtualResource *virtualResource, uint8_t version) noexcept;
 
     std::vector<std::unique_ptr<PassNode>>        _passNodes{};

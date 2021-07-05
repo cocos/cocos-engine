@@ -176,7 +176,6 @@ void sceneCulling(RenderPipeline *pipeline, scene::Camera *camera) {
         isShadowMap = true;
     }
 
-    const scene::DirectionalLight *mainLight = scene->getMainLight();
     RenderObjectList               renderObjects;
 
     if (skyBox->enabled && skyBox->model && (camera->clearFlag & skyboxFlag)) {

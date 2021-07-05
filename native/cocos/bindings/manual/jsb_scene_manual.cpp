@@ -231,7 +231,6 @@ bool register_all_scene_manual(se::Object* obj) // NOLINT(readability-identifier
         nsVal.setObject(jsobj);
         obj->setProperty("ns", nsVal);
     }
-    se::Object* ns = nsVal.toObject();
 
     __jsb_cc_scene_Model_proto->defineFunction("setInstancedAttrBlock", _SE(js_scene_Model_setInstancedAttrBlock));
     __jsb_cc_scene_Node_proto->defineFunction("initWithData", _SE(js_scene_Node_initWithData));

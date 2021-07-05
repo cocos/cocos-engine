@@ -72,7 +72,7 @@ void SkinningModel::updateUBOs(uint32_t stamp) {
     }
     bIdx = 0;
     for (gfx::Buffer* buffer : _buffers) {
-        _buffers[bIdx]->update(_dataArray[bIdx]->data(), _buffers[bIdx]->getSize());
+        buffer->update(_dataArray[bIdx]->data(), buffer->getSize());
         bIdx++;
     }
 }

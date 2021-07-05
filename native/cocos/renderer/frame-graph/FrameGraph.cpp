@@ -42,7 +42,7 @@ FrameGraph::~FrameGraph() {
     gc(0);
 }
 
-StringHandle FrameGraph::stringToHandle(const char *const name) noexcept {
+StringHandle FrameGraph::stringToHandle(const char *const name) {
     return stringPool.stringToHandle(name);
 }
 
@@ -50,15 +50,15 @@ const char *FrameGraph::handleToString(const StringHandle &handle) noexcept {
     return stringPool.handleToString(handle);
 }
 
-void FrameGraph::present(const Handle &input) noexcept {
+void FrameGraph::present(const Handle &input) {
     struct PassDataPresent {};
-    static const StringHandle sNamePresent = FrameGraph::stringToHandle("Present");
+    static const StringHandle S_NAME_PRESENT = FrameGraph::stringToHandle("Present");
     const ResourceNode &      resourceNode = getResourceNode(input);
     CC_ASSERT(resourceNode.writer);
 
     addPass<PassDataPresent>(
-        resourceNode.writer->_insertPoint, sNamePresent,
-        [&](PassNodeBuilder &builder, PassDataPresent &data) {
+        resourceNode.writer->_insertPoint, S_NAME_PRESENT,
+        [&](PassNodeBuilder &builder, PassDataPresent & /*data*/) {
             builder.read(input);
             builder.sideEffect();
         },
@@ -66,7 +66,7 @@ void FrameGraph::present(const Handle &input) noexcept {
         });
 }
 
-void FrameGraph::presentLastVersion(const VirtualResource *const virtualResource) noexcept {
+void FrameGraph::presentLastVersion(const VirtualResource *const virtualResource) {
     const auto it = std::find_if(_resourceNodes.rbegin(), _resourceNodes.rend(), [&virtualResource](const ResourceNode &node) {
         return node.virtualResource == virtualResource;
     });
@@ -75,11 +75,11 @@ void FrameGraph::presentLastVersion(const VirtualResource *const virtualResource
     present(Handle(static_cast<Handle::IndexType>(it.base() - _resourceNodes.begin() - 1)));
 }
 
-void FrameGraph::presentFromBlackboard(const StringHandle &inputName) noexcept {
+void FrameGraph::presentFromBlackboard(const StringHandle &inputName) {
     present(Handle(_blackboard.get(inputName)));
 }
 
-void FrameGraph::compile() noexcept {
+void FrameGraph::compile() {
     sort();
     cull();
     computeResourceLifetime();
@@ -153,17 +153,17 @@ void FrameGraph::move(const TextureHandle from, const TextureHandle to, uint8_t 
     }
 }
 
-Handle FrameGraph::create(VirtualResource *const virtualResource) noexcept {
+Handle FrameGraph::create(VirtualResource *const virtualResource) {
     _virtualResources.emplace_back(virtualResource);
     return createResourceNode(virtualResource);
 }
 
-PassNode &FrameGraph::createPassNode(const PassInsertPoint insertPoint, const StringHandle &name, Executable *const pass) noexcept {
+PassNode &FrameGraph::createPassNode(const PassInsertPoint insertPoint, const StringHandle &name, Executable *const pass) {
     _passNodes.emplace_back(new PassNode(insertPoint, name, static_cast<ID>(_passNodes.size()), pass));
     return *_passNodes.back();
 }
 
-Handle FrameGraph::createResourceNode(VirtualResource *const virtualResource) noexcept {
+Handle FrameGraph::createResourceNode(VirtualResource *const virtualResource) {
     const size_t index = _resourceNodes.size();
     ResourceNode resourceNode;
     resourceNode.virtualResource = virtualResource;
@@ -178,7 +178,7 @@ void FrameGraph::sort() noexcept {
     });
 }
 
-void FrameGraph::cull() noexcept {
+void FrameGraph::cull() {
     for (const auto &passNode : _passNodes) {
         passNode->_refCount = static_cast<uint32_t>(passNode->_writes.size()) + passNode->_sideEffect;
 
@@ -224,7 +224,7 @@ void FrameGraph::cull() noexcept {
     }
 }
 
-void FrameGraph::computeResourceLifetime() noexcept {
+void FrameGraph::computeResourceLifetime() {
     for (const auto &passNode : _passNodes) {
         if (passNode->_refCount == 0) {
             continue;
@@ -319,7 +319,7 @@ void FrameGraph::mergePassNodes() noexcept {
     }
 }
 
-void FrameGraph::computeStoreActionAndMemoryless() noexcept {
+void FrameGraph::computeStoreActionAndMemoryless() {
     ID   passId                = 0;
     bool lastPassSubPassEnable = false;
 
@@ -329,7 +329,7 @@ void FrameGraph::computeStoreActionAndMemoryless() noexcept {
         }
 
         ID const oldPassId = passId;
-        passId += passNode->_subpass == false || lastPassSubPassEnable != passNode->_subpass;
+        passId += !passNode->_subpass || lastPassSubPassEnable != passNode->_subpass;
         passId += oldPassId == passId ? passNode->_hasClearedAttachment * !passNode->_clearActionIgnoreable : 0;
         passNode->setDevicePassId(passId);
         lastPassSubPassEnable = passNode->_subpass && !passNode->_subpassEnd;
@@ -380,8 +380,6 @@ void FrameGraph::computeStoreActionAndMemoryless() noexcept {
 
             renderTargets.emplace(resourceNode.virtualResource);
         }
-
-        lastPassNode = passNode.get();
     }
 
     for (VirtualResource *const renderTarget : renderTargets) {
@@ -389,11 +387,11 @@ void FrameGraph::computeStoreActionAndMemoryless() noexcept {
 
         renderTarget->_memoryless     = renderTarget->_neverLoaded && renderTarget->_neverStored;
         renderTarget->_memorylessMSAA = textureDesc.samples != gfx::SampleCount::X1 && renderTarget->_writerCount < 2;
-        // TODO: memoryless gfx::Texture
+        // TODO(minggo): memoryless gfx::Texture
     }
 }
 
-void FrameGraph::generateDevicePasses() noexcept {
+void FrameGraph::generateDevicePasses() {
     Buffer::Allocator::getInstance().tick();
     Framebuffer::Allocator::getInstance().tick();
     RenderPass::Allocator::getInstance().tick();
@@ -425,9 +423,9 @@ void FrameGraph::generateDevicePasses() noexcept {
     }
 
     CC_ASSERT(subPassNodes.size() == 1);
-    static const StringHandle sNamePresent = FrameGraph::stringToHandle("Present");
+    static const StringHandle S_NAME_PRESENT = FrameGraph::stringToHandle("Present");
 
-    if (subPassNodes.back()->_name != sNamePresent) {
+    if (subPassNodes.back()->_name != S_NAME_PRESENT) {
         _devicePasses.emplace_back(new DevicePass(*this, subPassNodes));
 
         for (PassNode *const p : subPassNodes) {
@@ -515,7 +513,7 @@ void FrameGraph::exportGraphViz(const std::string &path) {
                 }
                 out << ", ";
                 out << (attachment->storeOp == gfx::StoreOp::DISCARD ? "DontCare" : "Store");
-                out << "\\nWriteMask: 0x" << std::hex << (uint32_t)attachment->desc.writeMask << std::dec;
+                out << "\\nWriteMask: 0x" << std::hex << static_cast<uint32_t>(attachment->desc.writeMask) << std::dec;
             } else {
                 out << "Transfer";
             }

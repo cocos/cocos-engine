@@ -79,7 +79,6 @@ bool CCMTLBuffer::createMTLBuffer(uint size, MemoryUsage usage) {
     _mtlResourceOptions = mu::toMTLResourceOption(usage);
 
     if (_mtlBuffer) {
-        Device *device = CCMTLDevice::getInstance();
         id<MTLBuffer> mtlBuffer = _mtlBuffer;
 
         std::function<void(void)> destroyFunc = [=]() {
@@ -118,10 +117,8 @@ void CCMTLBuffer::doDestroy() {
         _drawInfos.clear();
     }
 
-    Device *device = CCMTLDevice::getInstance();
     id<MTLBuffer> mtlBuffer = _mtlBuffer;
     _mtlBuffer = nil;
-    uint size = _size;
 
     std::function<void(void)> destroyFunc = [=]() {
         if (mtlBuffer) {

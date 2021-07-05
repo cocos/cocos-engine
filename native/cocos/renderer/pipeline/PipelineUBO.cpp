@@ -361,7 +361,6 @@ void PipelineUBO::destroy() {
 void PipelineUBO::updateGlobalUBO() {
     auto *const globalDSManager = _pipeline->getGlobalDSManager();
     auto *const ds              = _pipeline->getDescriptorSet();
-    auto *const cmdBuffer       = _pipeline->getCommandBuffers()[0];
     ds->update();
     PipelineUBO::updateGlobalUBOView(_pipeline, &_globalUBO);
     ds->getBuffer(UBOGlobal::BINDING)->update(_globalUBO.data(), UBOGlobal::SIZE);

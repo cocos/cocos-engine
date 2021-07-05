@@ -110,7 +110,6 @@ static bool jsb_BufferAllocator_constructor(se::State &s) { // NOLINT
     size_t      argc = args.size();
     if (argc == 1) {
         uint type = 0;
-        bool ok   = seval_to_uint(args[0], &type);
 
         se::BufferAllocator *bufferAllocator = JSB_ALLOC(se::BufferAllocator, static_cast<se::PoolType>(type));
         s.thisObject()->setPrivateData(bufferAllocator);
