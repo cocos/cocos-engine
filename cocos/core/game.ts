@@ -447,8 +447,10 @@ export class Game extends EventTarget {
      */
     public on (type: string, callback: () => void, target?: any, once?: boolean): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._engineInited && type === Game.EVENT_ENGINE_INITED) {
-            return callback.call(target);
+        if ((this._engineInited && type === Game.EVENT_ENGINE_INITED) || 
+        (this._inited && type === Game.EVENT_GAME_INITED) || 
+        (this._rendererInitialized && type === Game.EVENT_RENDERER_INITED)) {
+            callback.call(target);
         }
         return this.eventTargetOn(type, callback, target, once);
     }
