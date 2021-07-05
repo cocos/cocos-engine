@@ -55,7 +55,7 @@ export enum KeyCode {
     * @en The caps lock key
     * @zh 大写锁定键
     */
-    CAPSLOCK = 20,
+    CAPS_LOCK = 20,
 
     /**
     * @en The esc key
@@ -73,13 +73,13 @@ export enum KeyCode {
     * @en The page up key
     * @zh 向上翻页键
     */
-    PAGEUP = 33,
+    PAGE_UP = 33,
 
     /**
     * @en The page down key
     * @zh 向下翻页键
     */
-    PAGEDOWN = 34,
+    PAGE_DOWN = 34,
 
     /**
     * @en The end key
@@ -409,7 +409,7 @@ export enum KeyCode {
     * @en The numeric keypad '*'
     * @zh 数字键盘 *
     */
-    NUM_MUTIPLY = 106,
+    NUM_MULTIPLY = 106,
 
     /**
     * @en The numeric keypad '+'
@@ -517,7 +517,7 @@ export enum KeyCode {
     * @en The scroll lock key
     * @zh 滚动锁定键
     */
-    SCROLLLOCK = 145,
+    SCROLL_LOCK = 145,
 
     /**
     * @en The ';' key.
@@ -559,7 +559,7 @@ export enum KeyCode {
     * @en The back quote key `
     * @zh 按键 `
     */
-    BACKQUOTE = 192,
+    BACK_QUOTE = 192,
 
     /**
     * @en The '[' key
