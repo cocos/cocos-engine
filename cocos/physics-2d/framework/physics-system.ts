@@ -13,9 +13,11 @@ import { IPhysicsConfig, ICollisionMatrix } from '../../physics/framework/physic
 import { CollisionMatrix } from '../../physics/framework/collision-matrix';
 import { ERaycast2DType, RaycastResult2D, PHYSICS_2D_PTM_RATIO } from './physics-types';
 import { Collider2D } from './components/colliders/collider-2d';
+import { ccclass } from '../../core/data/decorators';
 
 let instance: PhysicsSystem2D | null = null;
 
+@ccclass('cc.PhysicsSystem2D')
 export class PhysicsSystem2D extends Eventify(System) {
     /**
      * @en

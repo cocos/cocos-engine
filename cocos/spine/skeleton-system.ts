@@ -2,7 +2,9 @@ import { director } from '../core/director';
 import { System } from '../core/components';
 import { Skeleton } from './skeleton';
 import { errorID } from '../core';
+import { ccclass } from '../core/data/decorators';
 
+@ccclass('cc.SkeletonSystem')
 export class SkeletonSystem extends System {
     /**
      * @en

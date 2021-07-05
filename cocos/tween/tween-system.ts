@@ -32,6 +32,7 @@ import { EDITOR } from 'internal:constants';
 import { System, Director, director } from '../core';
 import { ActionManager } from './actions/action-manager';
 import { legacyCC } from '../core/global-exports';
+import { ccclass } from '../core/data/decorators';
 
 /**
  * @en
@@ -39,6 +40,7 @@ import { legacyCC } from '../core/global-exports';
  * @zh
  * 缓动系统。
  */
+@ccclass('cc.TweenSystem')
 export class TweenSystem extends System {
     /**
      * @en

@@ -268,6 +268,7 @@ export class Director extends EventTarget {
     private _deltaTime: number;
     private _startTime: number;
     private _scheduler: Scheduler;
+    @markAsGCRoot(ReferenceType.CCCLASS_OBJECT_ARRAY)
     private _systems: System[];
 
     constructor () {

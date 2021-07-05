@@ -47,7 +47,7 @@ interface ISocketData {
     transform: IJointTransform;
 }
 
-@ccclass
+@ccclass('cc.AnimationManager')
 export class AnimationManager extends System {
     public get blendState () {
         return this._blendStateBuffer;
