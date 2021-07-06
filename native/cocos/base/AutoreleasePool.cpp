@@ -30,7 +30,7 @@
 
 namespace cc {
 
-AutoreleasePool::AutoreleasePool()
+LegacyAutoreleasePool::LegacyAutoreleasePool()
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
 : _isClearing(false)
 #endif
@@ -39,7 +39,7 @@ AutoreleasePool::AutoreleasePool()
     PoolManager::getInstance()->push(this);
 }
 
-AutoreleasePool::AutoreleasePool(std::string name)
+LegacyAutoreleasePool::LegacyAutoreleasePool(std::string name)
 : _name(std::move(name))
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
   ,
@@ -50,18 +50,18 @@ AutoreleasePool::AutoreleasePool(std::string name)
     PoolManager::getInstance()->push(this);
 }
 
-AutoreleasePool::~AutoreleasePool() {
+LegacyAutoreleasePool::~LegacyAutoreleasePool() {
     CC_LOG_INFO("deallocing AutoreleasePool: %p", this);
     clear();
 
     PoolManager::getInstance()->pop();
 }
 
-void AutoreleasePool::addObject(Ref *object) {
+void LegacyAutoreleasePool::addObject(Ref *object) {
     _managedObjectArray.push_back(object);
 }
 
-void AutoreleasePool::clear() {
+void LegacyAutoreleasePool::clear() {
 #if defined(CC_DEBUG) && (CC_DEBUG > 0)
     _isClearing = true;
 #endif
@@ -75,7 +75,7 @@ void AutoreleasePool::clear() {
 #endif
 }
 
-bool AutoreleasePool::contains(Ref *object) const {
+bool LegacyAutoreleasePool::contains(Ref *object) const {
     for (const auto &obj : _managedObjectArray) {
         if (obj == object) {
             return true;
@@ -84,7 +84,7 @@ bool AutoreleasePool::contains(Ref *object) const {
     return false;
 }
 
-void AutoreleasePool::dump() {
+void LegacyAutoreleasePool::dump() {
     CC_LOG_DEBUG("autorelease pool: %s, number of managed object %d\n", _name.c_str(), static_cast<int>(_managedObjectArray.size()));
     CC_LOG_DEBUG("%20s%20s%20s", "Object pointer", "Object id", "reference count");
     for (const auto &obj : _managedObjectArray) {
@@ -104,7 +104,7 @@ PoolManager *PoolManager::_singleInstance = nullptr;
 PoolManager *PoolManager::getInstance() {
     if (_singleInstance == nullptr) {
         _singleInstance = new (std::nothrow) PoolManager();
-        _singleInstance->push(new AutoreleasePool());
+        _singleInstance->push(new LegacyAutoreleasePool());
     }
     return _singleInstance;
 }
@@ -122,13 +122,13 @@ PoolManager::~PoolManager() {
     CC_LOG_INFO("deallocing PoolManager: %p", this);
 
     while (!_releasePoolStack.empty()) {
-        AutoreleasePool *pool = _releasePoolStack.back();
+        LegacyAutoreleasePool *pool = _releasePoolStack.back();
 
         delete pool;
     }
 }
 
-AutoreleasePool *PoolManager::getCurrentPool() const {
+LegacyAutoreleasePool *PoolManager::getCurrentPool() const {
     if (_releasePoolStack.empty()) {
         return nullptr;
     }
@@ -144,7 +144,7 @@ bool PoolManager::isObjectInPools(Ref *obj) const {
     return false;
 }
 
-void PoolManager::push(AutoreleasePool *pool) {
+void PoolManager::push(LegacyAutoreleasePool *pool) {
     _releasePoolStack.push_back(pool);
 }
 

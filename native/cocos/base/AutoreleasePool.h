@@ -36,12 +36,12 @@ namespace cc {
 /**
  * A pool for managing autorelease objects.
  */
-class CC_DLL AutoreleasePool {
+class CC_DLL LegacyAutoreleasePool {
 public:
     /**
      * @warning Don't create an autorelease pool in heap, create it in stack.
      */
-    AutoreleasePool();
+    LegacyAutoreleasePool();
 
     /**
      * Create an autorelease pool with specific name. This name is useful for debugging.
@@ -49,9 +49,9 @@ public:
      *
      * @param name The name of created autorelease pool.
      */
-    explicit AutoreleasePool(std::string name);
+    explicit LegacyAutoreleasePool(std::string name);
 
-    ~AutoreleasePool();
+    ~LegacyAutoreleasePool();
 
     /**
      * Add a given object to this autorelease pool.
@@ -127,22 +127,22 @@ public:
      * Get current auto release pool, there is at least one auto release pool that created by engine.
      * You can create your own auto release pool at demand, which will be put into auto release pool stack.
      */
-    AutoreleasePool *getCurrentPool() const;
+    LegacyAutoreleasePool *getCurrentPool() const;
 
     bool isObjectInPools(Ref *obj) const;
 
-    friend class AutoreleasePool;
+    friend class LegacyAutoreleasePool;
 
 private:
     PoolManager();
     ~PoolManager();
 
-    void push(AutoreleasePool *pool);
+    void push(LegacyAutoreleasePool *pool);
     void pop();
 
     static PoolManager *_singleInstance;
 
-    std::vector<AutoreleasePool *> _releasePoolStack;
+    std::vector<LegacyAutoreleasePool *> _releasePoolStack;
 };
 
 } // namespace cc
