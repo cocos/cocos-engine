@@ -844,6 +844,6 @@ bool js_register_cc_gfx_DeviceManager(se::Object* obj);
 bool register_all_gfx(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::gfx::DeviceManager);
-SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
 SE_DECLARE_FUNC(js_gfx_DeviceManager_destroy);
+SE_DECLARE_FUNC(js_gfx_DeviceManager_create);
 
