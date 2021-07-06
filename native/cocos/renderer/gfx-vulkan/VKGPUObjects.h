@@ -45,20 +45,23 @@ public:
     VkDebugUtilsMessengerEXT vkDebugUtilsMessenger = VK_NULL_HANDLE;
     VkDebugReportCallbackEXT vkDebugReport         = VK_NULL_HANDLE;
 
-    VkPhysicalDevice                 physicalDevice = VK_NULL_HANDLE;
-    VkPhysicalDeviceFeatures         physicalDeviceFeatures{};
-    VkPhysicalDeviceFeatures2        physicalDeviceFeatures2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
-    VkPhysicalDeviceVulkan11Features physicalDeviceVulkan11Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
-    VkPhysicalDeviceVulkan12Features physicalDeviceVulkan12Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
-    VkPhysicalDeviceProperties       physicalDeviceProperties{};
-    VkPhysicalDeviceProperties2      physicalDeviceProperties2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
-    VkPhysicalDeviceMemoryProperties physicalDeviceMemoryProperties{};
-    vector<VkQueueFamilyProperties>  queueFamilyProperties;
-    vector<VkBool32>                 queueFamilyPresentables;
+    VkPhysicalDevice                              physicalDevice = VK_NULL_HANDLE;
+    VkPhysicalDeviceFeatures                      physicalDeviceFeatures{};
+    VkPhysicalDeviceFeatures2                     physicalDeviceFeatures2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2};
+    VkPhysicalDeviceVulkan11Features              physicalDeviceVulkan11Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_1_FEATURES};
+    VkPhysicalDeviceVulkan12Features              physicalDeviceVulkan12Features{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES};
+    VkPhysicalDeviceDepthStencilResolveProperties physicalDeviceDepthStencilResolveProperties{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DEPTH_STENCIL_RESOLVE_PROPERTIES};
+    VkPhysicalDeviceProperties                    physicalDeviceProperties{};
+    VkPhysicalDeviceProperties2                   physicalDeviceProperties2{VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2};
+    VkPhysicalDeviceMemoryProperties              physicalDeviceMemoryProperties{};
+    vector<VkQueueFamilyProperties>               queueFamilyProperties;
+    vector<VkBool32>                              queueFamilyPresentables;
 
     VkSurfaceKHR vkSurface = VK_NULL_HANDLE;
 
     VkSwapchainCreateInfoKHR swapchainCreateInfo{VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
+
+    VkSampleCountFlagBits getSampleCountForAttachments(Format format, SampleCount sampleCount) const;
 };
 
 struct CCVKAccessInfo {
@@ -82,7 +85,8 @@ public:
     VkRenderPass vkRenderPass;
 
     // helper storage
-    vector<VkClearValue> clearValues;
+    vector<VkClearValue>          clearValues;
+    vector<VkSampleCountFlagBits> sampleCounts; // per subpass
 };
 
 class CCVKGPUTexture final : public Object {
@@ -355,6 +359,8 @@ public:
     bool useDescriptorUpdateTemplate = false;
     bool useMultiDrawIndirect        = false;
 
+    PFN_vkCreateRenderPass2 createRenderPass2 = nullptr;
+
     // for default backup usages
     CCVKGPUSampler     defaultSampler;
     CCVKGPUTexture     defaultTexture;
@@ -490,7 +496,7 @@ public:
             }
         }
 
-        uint leakedSetCount = 0U;
+        size_t leakedSetCount = 0U;
         for (DescriptorSetPool &pool : _pools) {
             leakedSetCount += pool.activeSets.size();
             vkDestroyDescriptorPool(_device->vkDevice, pool.vkPool, nullptr);
@@ -1225,8 +1231,8 @@ public:
 
 private:
     struct BufferUpdate {
-        uint   srcIndex = 0U;
-        size_t size     = 0U;
+        uint   srcIndex  = 0U;
+        size_t size      = 0U;
         bool   canMemcpy = false;
     };
 

@@ -152,17 +152,18 @@ protected:
     String             _renderer;
     String             _vendor;
     String             _version;
-    uint               _width      = 0;
-    uint               _height     = 0;
-    float              _pixelRatio = 1.0F;
+    bool               _multithreadedSubmission{true};
+    uint               _width{0};
+    uint               _height{0};
+    float              _pixelRatio{1.0F};
     MemoryStatus       _memoryStatus;
-    uintptr_t          _windowHandle = 0;
-    Context *          _context      = nullptr;
-    Queue *            _queue        = nullptr;
-    CommandBuffer *    _cmdBuff      = nullptr;
-    uint               _numDrawCalls = 0U;
-    uint               _numInstances = 0U;
-    uint               _numTriangles = 0U;
+    uintptr_t          _windowHandle{0};
+    Context *          _context{nullptr};
+    Queue *            _queue{nullptr};
+    CommandBuffer *    _cmdBuff{nullptr};
+    uint               _numDrawCalls{0U};
+    uint               _numInstances{0U};
+    uint               _numTriangles{0U};
     BindingMappingInfo _bindingMappingInfo;
     DeviceCaps         _caps;
 

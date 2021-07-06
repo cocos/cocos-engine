@@ -10316,6 +10316,87 @@ static bool js_gfx_SubpassInfo_set_depthStencil(se::State& s) // NOLINT(readabil
 }
 SE_BIND_PROP_SET(js_gfx_SubpassInfo_set_depthStencil)
 
+static bool js_gfx_SubpassInfo_get_depthStencilResolve(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassInfo_get_depthStencilResolve : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->depthStencilResolve, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->depthStencilResolve, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassInfo_get_depthStencilResolve)
+
+static bool js_gfx_SubpassInfo_set_depthStencilResolve(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassInfo_set_depthStencilResolve : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->depthStencilResolve, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_SubpassInfo_set_depthStencilResolve : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassInfo_set_depthStencilResolve)
+
+static bool js_gfx_SubpassInfo_get_depthResolveMode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassInfo_get_depthResolveMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->depthResolveMode, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->depthResolveMode, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassInfo_get_depthResolveMode)
+
+static bool js_gfx_SubpassInfo_set_depthResolveMode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassInfo_set_depthResolveMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->depthResolveMode, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_SubpassInfo_set_depthResolveMode : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassInfo_set_depthResolveMode)
+
+static bool js_gfx_SubpassInfo_get_stencilResolveMode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassInfo_get_stencilResolveMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->stencilResolveMode, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->stencilResolveMode, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_gfx_SubpassInfo_get_stencilResolveMode)
+
+static bool js_gfx_SubpassInfo_set_stencilResolveMode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::gfx::SubpassInfo>(s);
+    SE_PRECONDITION2(cobj, false, "js_gfx_SubpassInfo_set_stencilResolveMode : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->stencilResolveMode, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_gfx_SubpassInfo_set_stencilResolveMode : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_gfx_SubpassInfo_set_stencilResolveMode)
+
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::gfx::SubpassInfo * to, se::Object *ctx)
@@ -10348,6 +10429,18 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::SubpassInfo * to, se::Obj
     json->getProperty("depthStencil", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthStencil), ctx);
+    }
+    json->getProperty("depthStencilResolve", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->depthStencilResolve), ctx);
+    }
+    json->getProperty("depthResolveMode", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->depthResolveMode), ctx);
+    }
+    json->getProperty("stencilResolveMode", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->stencilResolveMode), ctx);
     }
     return ok;
 }
@@ -10402,6 +10495,15 @@ static bool js_gfx_SubpassInfo_constructor(se::State& s) // NOLINT(readability-i
     if (argc > 4 && !args[4].isUndefined()) {
         ok &= sevalue_to_native(args[4], &(cobj->depthStencil), nullptr);
     }
+    if (argc > 5 && !args[5].isUndefined()) {
+        ok &= sevalue_to_native(args[5], &(cobj->depthStencilResolve), nullptr);
+    }
+    if (argc > 6 && !args[6].isUndefined()) {
+        ok &= sevalue_to_native(args[6], &(cobj->depthResolveMode), nullptr);
+    }
+    if (argc > 7 && !args[7].isUndefined()) {
+        ok &= sevalue_to_native(args[7], &(cobj->stencilResolveMode), nullptr);
+    }
 
     if(!ok) {
         JSB_FREE(cobj);
@@ -10439,6 +10541,9 @@ bool js_register_gfx_SubpassInfo(se::Object* obj) // NOLINT(readability-identifi
     cls->defineProperty("resolves", _SE(js_gfx_SubpassInfo_get_resolves), _SE(js_gfx_SubpassInfo_set_resolves));
     cls->defineProperty("preserves", _SE(js_gfx_SubpassInfo_get_preserves), _SE(js_gfx_SubpassInfo_set_preserves));
     cls->defineProperty("depthStencil", _SE(js_gfx_SubpassInfo_get_depthStencil), _SE(js_gfx_SubpassInfo_set_depthStencil));
+    cls->defineProperty("depthStencilResolve", _SE(js_gfx_SubpassInfo_get_depthStencilResolve), _SE(js_gfx_SubpassInfo_set_depthStencilResolve));
+    cls->defineProperty("depthResolveMode", _SE(js_gfx_SubpassInfo_get_depthResolveMode), _SE(js_gfx_SubpassInfo_set_depthResolveMode));
+    cls->defineProperty("stencilResolveMode", _SE(js_gfx_SubpassInfo_get_stencilResolveMode), _SE(js_gfx_SubpassInfo_set_stencilResolveMode));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_SubpassInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::SubpassInfo>(cls);
@@ -11442,60 +11547,6 @@ static bool js_gfx_FramebufferInfo_set_depthStencilTexture(se::State& s) // NOLI
 }
 SE_BIND_PROP_SET(js_gfx_FramebufferInfo_set_depthStencilTexture)
 
-static bool js_gfx_FramebufferInfo_get_colorMipmapLevels(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::FramebufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_FramebufferInfo_get_colorMipmapLevels : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->colorMipmapLevels, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->colorMipmapLevels, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_FramebufferInfo_get_colorMipmapLevels)
-
-static bool js_gfx_FramebufferInfo_set_colorMipmapLevels(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::FramebufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_FramebufferInfo_set_colorMipmapLevels : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->colorMipmapLevels, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_FramebufferInfo_set_colorMipmapLevels : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_FramebufferInfo_set_colorMipmapLevels)
-
-static bool js_gfx_FramebufferInfo_get_depthStencilMipmapLevel(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::FramebufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_FramebufferInfo_get_depthStencilMipmapLevel : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->depthStencilMipmapLevel, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->depthStencilMipmapLevel, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_gfx_FramebufferInfo_get_depthStencilMipmapLevel)
-
-static bool js_gfx_FramebufferInfo_set_depthStencilMipmapLevel(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::gfx::FramebufferInfo>(s);
-    SE_PRECONDITION2(cobj, false, "js_gfx_FramebufferInfo_set_depthStencilMipmapLevel : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->depthStencilMipmapLevel, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_gfx_FramebufferInfo_set_depthStencilMipmapLevel : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_gfx_FramebufferInfo_set_depthStencilMipmapLevel)
-
 
 template<>
 bool sevalue_to_native(const se::Value &from, cc::gfx::FramebufferInfo * to, se::Object *ctx)
@@ -11520,14 +11571,6 @@ bool sevalue_to_native(const se::Value &from, cc::gfx::FramebufferInfo * to, se:
     json->getProperty("depthStencilTexture", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->depthStencilTexture), ctx);
-    }
-    json->getProperty("colorMipmapLevels", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->colorMipmapLevels), ctx);
-    }
-    json->getProperty("depthStencilMipmapLevel", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->depthStencilMipmapLevel), ctx);
     }
     return ok;
 }
@@ -11576,12 +11619,6 @@ static bool js_gfx_FramebufferInfo_constructor(se::State& s) // NOLINT(readabili
     if (argc > 2 && !args[2].isUndefined()) {
         ok &= sevalue_to_native(args[2], &(cobj->depthStencilTexture), nullptr);
     }
-    if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->colorMipmapLevels), nullptr);
-    }
-    if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->depthStencilMipmapLevel), nullptr);
-    }
 
     if(!ok) {
         JSB_FREE(cobj);
@@ -11617,8 +11654,6 @@ bool js_register_gfx_FramebufferInfo(se::Object* obj) // NOLINT(readability-iden
     cls->defineProperty("renderPass", _SE(js_gfx_FramebufferInfo_get_renderPass), _SE(js_gfx_FramebufferInfo_set_renderPass));
     cls->defineProperty("colorTextures", _SE(js_gfx_FramebufferInfo_get_colorTextures), _SE(js_gfx_FramebufferInfo_set_colorTextures));
     cls->defineProperty("depthStencilTexture", _SE(js_gfx_FramebufferInfo_get_depthStencilTexture), _SE(js_gfx_FramebufferInfo_set_depthStencilTexture));
-    cls->defineProperty("colorMipmapLevels", _SE(js_gfx_FramebufferInfo_get_colorMipmapLevels), _SE(js_gfx_FramebufferInfo_set_colorMipmapLevels));
-    cls->defineProperty("depthStencilMipmapLevel", _SE(js_gfx_FramebufferInfo_get_depthStencilMipmapLevel), _SE(js_gfx_FramebufferInfo_set_depthStencilMipmapLevel));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_FramebufferInfo_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::FramebufferInfo>(cls);
@@ -15839,9 +15874,9 @@ bool js_register_gfx_GFXObject(se::Object* obj) // NOLINT(readability-identifier
 {
     auto* cls = se::Class::create("GFXObject", obj, nullptr, _SE(js_gfx_GFXObject_constructor));
 
-    cls->defineProperty("typedID", _SE(js_gfx_GFXObject_getTypedID), nullptr);
-    cls->defineProperty("objectID", _SE(js_gfx_GFXObject_getObjectID), nullptr);
     cls->defineProperty("objectType", _SE(js_gfx_GFXObject_getObjectType), nullptr);
+    cls->defineProperty("objectID", _SE(js_gfx_GFXObject_getObjectID), nullptr);
+    cls->defineProperty("typedID", _SE(js_gfx_GFXObject_getTypedID), nullptr);
     cls->defineFinalizeFunction(_SE(js_cc_gfx_GFXObject_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::GFXObject>(cls);
@@ -16052,12 +16087,12 @@ bool js_register_gfx_Buffer(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Buffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Buffer_constructor));
 
-    cls->defineProperty("count", _SE(js_gfx_Buffer_getCount), nullptr);
+    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage), nullptr);
     cls->defineProperty("memUsage", _SE(js_gfx_Buffer_getMemUsage), nullptr);
     cls->defineProperty("stride", _SE(js_gfx_Buffer_getStride), nullptr);
-    cls->defineProperty("flags", _SE(js_gfx_Buffer_getFlags), nullptr);
-    cls->defineProperty("usage", _SE(js_gfx_Buffer_getUsage), nullptr);
+    cls->defineProperty("count", _SE(js_gfx_Buffer_getCount), nullptr);
     cls->defineProperty("size", _SE(js_gfx_Buffer_getSize), nullptr);
+    cls->defineProperty("flags", _SE(js_gfx_Buffer_getFlags), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Buffer_destroy));
     cls->defineFunction("resize", _SE(js_gfx_Buffer_resize));
     cls->defineStaticFunction("computeHash", _SE(js_gfx_Buffer_computeHash));
@@ -16498,18 +16533,18 @@ bool js_register_gfx_InputAssembler(se::Object* obj) // NOLINT(readability-ident
 {
     auto* cls = se::Class::create("InputAssembler", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_InputAssembler_constructor));
 
-    cls->defineProperty("instanceCount", _SE(js_gfx_InputAssembler_getInstanceCount), _SE(js_gfx_InputAssembler_setInstanceCount));
     cls->defineProperty("vertexBuffers", _SE(js_gfx_InputAssembler_getVertexBuffers), nullptr);
-    cls->defineProperty("attributesHash", _SE(js_gfx_InputAssembler_getAttributesHash), nullptr);
-    cls->defineProperty("firstInstance", _SE(js_gfx_InputAssembler_getFirstInstance), _SE(js_gfx_InputAssembler_setFirstInstance));
-    cls->defineProperty("vertexCount", _SE(js_gfx_InputAssembler_getVertexCount), _SE(js_gfx_InputAssembler_setVertexCount));
-    cls->defineProperty("indexBuffer", _SE(js_gfx_InputAssembler_getIndexBuffer), nullptr);
-    cls->defineProperty("vertexOffset", _SE(js_gfx_InputAssembler_getVertexOffset), _SE(js_gfx_InputAssembler_setVertexOffset));
     cls->defineProperty("attributes", _SE(js_gfx_InputAssembler_getAttributes), nullptr);
+    cls->defineProperty("indexBuffer", _SE(js_gfx_InputAssembler_getIndexBuffer), nullptr);
+    cls->defineProperty("indirectBuffer", _SE(js_gfx_InputAssembler_getIndirectBuffer), nullptr);
+    cls->defineProperty("vertexCount", _SE(js_gfx_InputAssembler_getVertexCount), _SE(js_gfx_InputAssembler_setVertexCount));
+    cls->defineProperty("firstVertex", _SE(js_gfx_InputAssembler_getFirstVertex), _SE(js_gfx_InputAssembler_setFirstVertex));
     cls->defineProperty("indexCount", _SE(js_gfx_InputAssembler_getIndexCount), _SE(js_gfx_InputAssembler_setIndexCount));
     cls->defineProperty("firstIndex", _SE(js_gfx_InputAssembler_getFirstIndex), _SE(js_gfx_InputAssembler_setFirstIndex));
-    cls->defineProperty("indirectBuffer", _SE(js_gfx_InputAssembler_getIndirectBuffer), nullptr);
-    cls->defineProperty("firstVertex", _SE(js_gfx_InputAssembler_getFirstVertex), _SE(js_gfx_InputAssembler_setFirstVertex));
+    cls->defineProperty("vertexOffset", _SE(js_gfx_InputAssembler_getVertexOffset), _SE(js_gfx_InputAssembler_setVertexOffset));
+    cls->defineProperty("instanceCount", _SE(js_gfx_InputAssembler_getInstanceCount), _SE(js_gfx_InputAssembler_setInstanceCount));
+    cls->defineProperty("firstInstance", _SE(js_gfx_InputAssembler_getFirstInstance), _SE(js_gfx_InputAssembler_setFirstInstance));
+    cls->defineProperty("attributesHash", _SE(js_gfx_InputAssembler_getAttributesHash), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_InputAssembler_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_InputAssembler_initialize));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_InputAssembler_finalize));
@@ -18224,8 +18259,8 @@ bool js_register_gfx_Framebuffer(se::Object* obj) // NOLINT(readability-identifi
 {
     auto* cls = se::Class::create("Framebuffer", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Framebuffer_constructor));
 
-    cls->defineProperty("colorTextures", _SE(js_gfx_Framebuffer_getColorTextures), nullptr);
     cls->defineProperty("renderPass", _SE(js_gfx_Framebuffer_getRenderPass), nullptr);
+    cls->defineProperty("colorTextures", _SE(js_gfx_Framebuffer_getColorTextures), nullptr);
     cls->defineProperty("depthStencilTexture", _SE(js_gfx_Framebuffer_getDepthStencilTexture), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Framebuffer_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_Framebuffer_initialize));
@@ -18678,14 +18713,14 @@ bool js_register_gfx_PipelineState(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("PipelineState", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_PipelineState_constructor));
 
-    cls->defineProperty("primitive", _SE(js_gfx_PipelineState_getPrimitive), nullptr);
-    cls->defineProperty("rasterizerState", _SE(js_gfx_PipelineState_getRasterizerState), nullptr);
     cls->defineProperty("shader", _SE(js_gfx_PipelineState_getShader), nullptr);
+    cls->defineProperty("primitive", _SE(js_gfx_PipelineState_getPrimitive), nullptr);
+    cls->defineProperty("bindPoint", _SE(js_gfx_PipelineState_getBindPoint), nullptr);
+    cls->defineProperty("inputState", _SE(js_gfx_PipelineState_getInputState), nullptr);
+    cls->defineProperty("rasterizerState", _SE(js_gfx_PipelineState_getRasterizerState), nullptr);
+    cls->defineProperty("depthStencilState", _SE(js_gfx_PipelineState_getDepthStencilState), nullptr);
     cls->defineProperty("blendState", _SE(js_gfx_PipelineState_getBlendState), nullptr);
     cls->defineProperty("renderPass", _SE(js_gfx_PipelineState_getRenderPass), nullptr);
-    cls->defineProperty("inputState", _SE(js_gfx_PipelineState_getInputState), nullptr);
-    cls->defineProperty("bindPoint", _SE(js_gfx_PipelineState_getBindPoint), nullptr);
-    cls->defineProperty("depthStencilState", _SE(js_gfx_PipelineState_getDepthStencilState), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_PipelineState_destroy));
     cls->defineFunction("getDynamicStates", _SE(js_gfx_PipelineState_getDynamicStates));
     cls->defineFunction("getPipelineLayout", _SE(js_gfx_PipelineState_getPipelineLayout));
@@ -19253,15 +19288,15 @@ bool js_register_gfx_Sampler(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Sampler", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Sampler_constructor));
 
-    cls->defineProperty("borderColor", _SE(js_gfx_Sampler_getBorderColor), nullptr);
-    cls->defineProperty("mipFilter", _SE(js_gfx_Sampler_getMipFilter), nullptr);
     cls->defineProperty("minFilter", _SE(js_gfx_Sampler_getMinFilter), nullptr);
     cls->defineProperty("magFilter", _SE(js_gfx_Sampler_getMagFilter), nullptr);
+    cls->defineProperty("mipFilter", _SE(js_gfx_Sampler_getMipFilter), nullptr);
     cls->defineProperty("addressU", _SE(js_gfx_Sampler_getAddressU), nullptr);
     cls->defineProperty("addressV", _SE(js_gfx_Sampler_getAddressV), nullptr);
     cls->defineProperty("addressW", _SE(js_gfx_Sampler_getAddressW), nullptr);
-    cls->defineProperty("cmpFunc", _SE(js_gfx_Sampler_getCmpFunc), nullptr);
     cls->defineProperty("maxAnisotropy", _SE(js_gfx_Sampler_getMaxAnisotropy), nullptr);
+    cls->defineProperty("cmpFunc", _SE(js_gfx_Sampler_getCmpFunc), nullptr);
+    cls->defineProperty("borderColor", _SE(js_gfx_Sampler_getBorderColor), nullptr);
     cls->defineProperty("mipLODBias", _SE(js_gfx_Sampler_getMipLODBias), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Sampler_destroy));
     cls->defineFunction("initialize", _SE(js_gfx_Sampler_initialize));
@@ -19531,10 +19566,10 @@ bool js_register_gfx_Shader(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Shader", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Shader_constructor));
 
-    cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes), nullptr);
-    cls->defineProperty("stages", _SE(js_gfx_Shader_getStages), nullptr);
-    cls->defineProperty("blocks", _SE(js_gfx_Shader_getBlocks), nullptr);
     cls->defineProperty("name", _SE(js_gfx_Shader_getName), nullptr);
+    cls->defineProperty("stages", _SE(js_gfx_Shader_getStages), nullptr);
+    cls->defineProperty("attributes", _SE(js_gfx_Shader_getAttributes), nullptr);
+    cls->defineProperty("blocks", _SE(js_gfx_Shader_getBlocks), nullptr);
     cls->defineProperty("samplers", _SE(js_gfx_Shader_getSamplers), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Shader_destroy));
     cls->defineFunction("getBuffers", _SE(js_gfx_Shader_getBuffers));
@@ -19869,17 +19904,17 @@ bool js_register_gfx_Texture(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Texture", obj, __jsb_cc_gfx_GFXObject_proto, _SE(js_gfx_Texture_constructor));
 
-    cls->defineProperty("samples", _SE(js_gfx_Texture_getSamples), nullptr);
-    cls->defineProperty("format", _SE(js_gfx_Texture_getFormat), nullptr);
-    cls->defineProperty("levelCount", _SE(js_gfx_Texture_getLevelCount), nullptr);
-    cls->defineProperty("height", _SE(js_gfx_Texture_getHeight), nullptr);
-    cls->defineProperty("width", _SE(js_gfx_Texture_getWidth), nullptr);
-    cls->defineProperty("depth", _SE(js_gfx_Texture_getDepth), nullptr);
-    cls->defineProperty("flags", _SE(js_gfx_Texture_getFlags), nullptr);
-    cls->defineProperty("layerCount", _SE(js_gfx_Texture_getLayerCount), nullptr);
-    cls->defineProperty("usage", _SE(js_gfx_Texture_getUsage), nullptr);
     cls->defineProperty("type", _SE(js_gfx_Texture_getType), nullptr);
+    cls->defineProperty("usage", _SE(js_gfx_Texture_getUsage), nullptr);
+    cls->defineProperty("format", _SE(js_gfx_Texture_getFormat), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_Texture_getWidth), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_Texture_getHeight), nullptr);
+    cls->defineProperty("depth", _SE(js_gfx_Texture_getDepth), nullptr);
+    cls->defineProperty("layerCount", _SE(js_gfx_Texture_getLayerCount), nullptr);
+    cls->defineProperty("levelCount", _SE(js_gfx_Texture_getLevelCount), nullptr);
     cls->defineProperty("size", _SE(js_gfx_Texture_getSize), nullptr);
+    cls->defineProperty("samples", _SE(js_gfx_Texture_getSamples), nullptr);
+    cls->defineProperty("flags", _SE(js_gfx_Texture_getFlags), nullptr);
     cls->defineFunction("destroy", _SE(js_gfx_Texture_destroy));
     cls->defineFunction("isTextureView", _SE(js_gfx_Texture_isTextureView));
     cls->defineFunction("resize", _SE(js_gfx_Texture_resize));
@@ -20734,22 +20769,22 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Device", obj, nullptr, nullptr);
 
-    cls->defineProperty("deviceName", _SE(js_gfx_Device_getDeviceName), nullptr);
-    cls->defineProperty("colorFormat", _SE(js_gfx_Device_getColorFormat), nullptr);
-    cls->defineProperty("vendor", _SE(js_gfx_Device_getVendor), nullptr);
-    cls->defineProperty("depthStencilFormat", _SE(js_gfx_Device_getDepthStencilFormat), nullptr);
-    cls->defineProperty("numTris", _SE(js_gfx_Device_getNumTris), nullptr);
-    cls->defineProperty("numDrawCalls", _SE(js_gfx_Device_getNumDrawCalls), nullptr);
-    cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus), nullptr);
     cls->defineProperty("gfxAPI", _SE(js_gfx_Device_getGfxAPI), nullptr);
-    cls->defineProperty("capabilities", _SE(js_gfx_Device_getCapabilities), nullptr);
-    cls->defineProperty("height", _SE(js_gfx_Device_getHeight), nullptr);
-    cls->defineProperty("queue", _SE(js_gfx_Device_getQueue), nullptr);
-    cls->defineProperty("width", _SE(js_gfx_Device_getWidth), nullptr);
-    cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer), nullptr);
-    cls->defineProperty("commandBuffer", _SE(js_gfx_Device_getCommandBuffer), nullptr);
-    cls->defineProperty("numInstances", _SE(js_gfx_Device_getNumInstances), nullptr);
     cls->defineProperty("surfaceTransform", _SE(js_gfx_Device_getSurfaceTransform), nullptr);
+    cls->defineProperty("deviceName", _SE(js_gfx_Device_getDeviceName), nullptr);
+    cls->defineProperty("width", _SE(js_gfx_Device_getWidth), nullptr);
+    cls->defineProperty("height", _SE(js_gfx_Device_getHeight), nullptr);
+    cls->defineProperty("memoryStatus", _SE(js_gfx_Device_getMemoryStatus), nullptr);
+    cls->defineProperty("queue", _SE(js_gfx_Device_getQueue), nullptr);
+    cls->defineProperty("commandBuffer", _SE(js_gfx_Device_getCommandBuffer), nullptr);
+    cls->defineProperty("renderer", _SE(js_gfx_Device_getRenderer), nullptr);
+    cls->defineProperty("vendor", _SE(js_gfx_Device_getVendor), nullptr);
+    cls->defineProperty("numDrawCalls", _SE(js_gfx_Device_getNumDrawCalls), nullptr);
+    cls->defineProperty("numInstances", _SE(js_gfx_Device_getNumInstances), nullptr);
+    cls->defineProperty("numTris", _SE(js_gfx_Device_getNumTris), nullptr);
+    cls->defineProperty("colorFormat", _SE(js_gfx_Device_getColorFormat), nullptr);
+    cls->defineProperty("depthStencilFormat", _SE(js_gfx_Device_getDepthStencilFormat), nullptr);
+    cls->defineProperty("capabilities", _SE(js_gfx_Device_getCapabilities), nullptr);
     cls->defineFunction("acquire", _SE(js_gfx_Device_acquire));
     cls->defineFunction("bindingMappingInfo", _SE(js_gfx_Device_bindingMappingInfo));
     cls->defineFunction("createCommandBuffer", _SE(js_gfx_Device_createCommandBuffer));
@@ -20783,19 +20818,6 @@ bool js_register_gfx_Device(se::Object* obj) // NOLINT(readability-identifier-na
 se::Object* __jsb_cc_gfx_DeviceManager_proto = nullptr;
 se::Class* __jsb_cc_gfx_DeviceManager_class = nullptr;
 
-static bool js_gfx_DeviceManager_destroy(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
-{
-    const auto& args = s.args();
-    size_t argc = args.size();
-    if (argc == 0) {
-        cc::gfx::DeviceManager::destroy();
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
-    return false;
-}
-SE_BIND_FUNC(js_gfx_DeviceManager_destroy)
-
 static bool js_gfx_DeviceManager_create(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
     const auto& args = s.args();
@@ -20816,6 +20838,19 @@ static bool js_gfx_DeviceManager_create(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_gfx_DeviceManager_create)
 
+static bool js_gfx_DeviceManager_destroy(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+{
+    const auto& args = s.args();
+    size_t argc = args.size();
+    if (argc == 0) {
+        cc::gfx::DeviceManager::destroy();
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_gfx_DeviceManager_destroy)
+
 
 static bool js_cc_gfx_DeviceManager_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
 {
@@ -20834,8 +20869,8 @@ bool js_register_gfx_DeviceManager(se::Object* obj) // NOLINT(readability-identi
 {
     auto* cls = se::Class::create("DeviceManager", obj, nullptr, nullptr);
 
-    cls->defineStaticFunction("destroy", _SE(js_gfx_DeviceManager_destroy));
     cls->defineStaticFunction("create", _SE(js_gfx_DeviceManager_create));
+    cls->defineStaticFunction("destroy", _SE(js_gfx_DeviceManager_destroy));
     cls->defineFinalizeFunction(_SE(js_cc_gfx_DeviceManager_finalize));
     cls->install();
     JSBClassType::registerClass<cc::gfx::DeviceManager>(cls);
@@ -20858,81 +20893,81 @@ bool register_all_gfx(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
-    js_register_gfx_ContextInfo(ns);
-    js_register_gfx_SubpassInfo(ns);
-    js_register_gfx_GFXObject(ns);
-    js_register_gfx_Buffer(ns);
-    js_register_gfx_TextureBarrier(ns);
-    js_register_gfx_Device(ns);
-    js_register_gfx_Texture(ns);
-    js_register_gfx_Uniform(ns);
-    js_register_gfx_DescriptorSet(ns);
-    js_register_gfx_BlendTarget(ns);
-    js_register_gfx_DispatchInfo(ns);
-    js_register_gfx_PipelineState(ns);
-    js_register_gfx_TextureBarrierInfo(ns);
-    js_register_gfx_PipelineLayout(ns);
-    js_register_gfx_Sampler(ns);
-    js_register_gfx_InputAssembler(ns);
-    js_register_gfx_RenderPass(ns);
-    js_register_gfx_BufferInfo(ns);
-    js_register_gfx_SamplerInfo(ns);
-    js_register_gfx_QueueInfo(ns);
-    js_register_gfx_UniformStorageBuffer(ns);
-    js_register_gfx_SubpassDependency(ns);
-    js_register_gfx_UniformSamplerTexture(ns);
-    js_register_gfx_BufferTextureCopy(ns);
-    js_register_gfx_PipelineLayoutInfo(ns);
-    js_register_gfx_InputAssemblerInfo(ns);
-    js_register_gfx_TextureBlit(ns);
-    js_register_gfx_TextureInfo(ns);
-    js_register_gfx_GlobalBarrierInfo(ns);
-    js_register_gfx_RenderPassInfo(ns);
-    js_register_gfx_Extent(ns);
+    js_register_gfx_Size(ns);
+    js_register_gfx_DeviceCaps(ns);
     js_register_gfx_Offset(ns);
-    js_register_gfx_CommandBuffer(ns);
-    js_register_gfx_Framebuffer(ns);
-    js_register_gfx_Viewport(ns);
+    js_register_gfx_Rect(ns);
+    js_register_gfx_Extent(ns);
     js_register_gfx_TextureSubresLayers(ns);
-    js_register_gfx_BufferViewInfo(ns);
-    js_register_gfx_UniformInputAttachment(ns);
-    js_register_gfx_UniformSampler(ns);
-    js_register_gfx_ShaderInfo(ns);
-    js_register_gfx_PipelineStateInfo(ns);
-    js_register_gfx_Shader(ns);
-    js_register_gfx_BlendState(ns);
-    js_register_gfx_GlobalBarrier(ns);
-    js_register_gfx_DescriptorSetInfo(ns);
-    js_register_gfx_DescriptorSetLayoutInfo(ns);
-    js_register_gfx_DrawInfo(ns);
-    js_register_gfx_InputState(ns);
-    js_register_gfx_CommandBufferInfo(ns);
-    js_register_gfx_UniformStorageImage(ns);
-    js_register_gfx_UniformBlock(ns);
-    js_register_gfx_DepthStencilAttachment(ns);
     js_register_gfx_TextureSubresRange(ns);
-    js_register_gfx_TextureViewInfo(ns);
-    js_register_gfx_Context(ns);
-    js_register_gfx_Queue(ns);
-    js_register_gfx_ColorAttachment(ns);
-    js_register_gfx_RasterizerState(ns);
-    js_register_gfx_DeviceManager(ns);
+    js_register_gfx_TextureCopy(ns);
+    js_register_gfx_TextureBlit(ns);
+    js_register_gfx_BufferTextureCopy(ns);
+    js_register_gfx_Viewport(ns);
     js_register_gfx_Color(ns);
+    js_register_gfx_BindingMappingInfo(ns);
+    js_register_gfx_BufferInfo(ns);
+    js_register_gfx_BufferViewInfo(ns);
+    js_register_gfx_DrawInfo(ns);
+    js_register_gfx_DispatchInfo(ns);
+    js_register_gfx_IndirectBuffer(ns);
+    js_register_gfx_TextureInfo(ns);
+    js_register_gfx_TextureViewInfo(ns);
+    js_register_gfx_SamplerInfo(ns);
+    js_register_gfx_Uniform(ns);
+    js_register_gfx_UniformBlock(ns);
+    js_register_gfx_UniformSamplerTexture(ns);
+    js_register_gfx_UniformSampler(ns);
+    js_register_gfx_UniformTexture(ns);
+    js_register_gfx_UniformStorageImage(ns);
+    js_register_gfx_UniformStorageBuffer(ns);
+    js_register_gfx_UniformInputAttachment(ns);
+    js_register_gfx_ShaderStage(ns);
     js_register_gfx_Attribute(ns);
+    js_register_gfx_ShaderInfo(ns);
+    js_register_gfx_InputAssemblerInfo(ns);
+    js_register_gfx_ColorAttachment(ns);
+    js_register_gfx_DepthStencilAttachment(ns);
+    js_register_gfx_SubpassInfo(ns);
+    js_register_gfx_SubpassDependency(ns);
+    js_register_gfx_RenderPassInfo(ns);
+    js_register_gfx_GlobalBarrierInfo(ns);
+    js_register_gfx_TextureBarrierInfo(ns);
+    js_register_gfx_FramebufferInfo(ns);
+    js_register_gfx_DescriptorSetLayoutBinding(ns);
+    js_register_gfx_DescriptorSetLayoutInfo(ns);
+    js_register_gfx_DescriptorSetInfo(ns);
+    js_register_gfx_PipelineLayoutInfo(ns);
+    js_register_gfx_InputState(ns);
+    js_register_gfx_RasterizerState(ns);
+    js_register_gfx_DepthStencilState(ns);
+    js_register_gfx_BlendTarget(ns);
+    js_register_gfx_BlendState(ns);
+    js_register_gfx_PipelineStateInfo(ns);
+    js_register_gfx_CommandBufferInfo(ns);
+    js_register_gfx_QueueInfo(ns);
     js_register_gfx_MemoryStatus(ns);
     js_register_gfx_DeviceInfo(ns);
-    js_register_gfx_DepthStencilState(ns);
-    js_register_gfx_BindingMappingInfo(ns);
-    js_register_gfx_FramebufferInfo(ns);
-    js_register_gfx_DeviceCaps(ns);
-    js_register_gfx_Rect(ns);
-    js_register_gfx_ShaderStage(ns);
-    js_register_gfx_DescriptorSetLayoutBinding(ns);
-    js_register_gfx_UniformTexture(ns);
+    js_register_gfx_ContextInfo(ns);
+    js_register_gfx_GFXObject(ns);
+    js_register_gfx_Buffer(ns);
+    js_register_gfx_InputAssembler(ns);
+    js_register_gfx_CommandBuffer(ns);
+    js_register_gfx_Context(ns);
+    js_register_gfx_DescriptorSet(ns);
     js_register_gfx_DescriptorSetLayout(ns);
-    js_register_gfx_TextureCopy(ns);
-    js_register_gfx_IndirectBuffer(ns);
-    js_register_gfx_Size(ns);
+    js_register_gfx_Framebuffer(ns);
+    js_register_gfx_GlobalBarrier(ns);
+    js_register_gfx_PipelineLayout(ns);
+    js_register_gfx_PipelineState(ns);
+    js_register_gfx_Queue(ns);
+    js_register_gfx_RenderPass(ns);
+    js_register_gfx_Sampler(ns);
+    js_register_gfx_Shader(ns);
+    js_register_gfx_Texture(ns);
+    js_register_gfx_TextureBarrier(ns);
+    js_register_gfx_Device(ns);
+    js_register_gfx_DeviceManager(ns);
     return true;
 }
 

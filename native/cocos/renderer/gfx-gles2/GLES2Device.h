@@ -44,7 +44,7 @@ class GLES2Context;
 class GLES2GPUStateCache;
 class GLES2GPUBlitManager;
 class GLES2GPUStagingBufferPool;
-class GLES2GPUExtensionRegistry;
+class GLES2GPUConstantRegistry;
 class GLES2GPUFramebufferCacheMap;
 
 class CC_GLES2_API GLES2Device final : public Device {
@@ -77,7 +77,7 @@ public:
     inline GLES2GPUStateCache *         stateCache() const { return _gpuStateCache; }
     inline GLES2GPUBlitManager *        blitManager() const { return _gpuBlitManager; }
     inline GLES2GPUStagingBufferPool *  stagingBufferPool() const { return _gpuStagingBufferPool; }
-    inline GLES2GPUExtensionRegistry *  extensionRegistry() const { return _gpuExtensionRegistry; }
+    inline GLES2GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES2GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
     inline bool checkExtension(const String &extension) const {
@@ -85,12 +85,6 @@ public:
             return ext.find(extension) != String::npos;
         });
     }
-
-    inline size_t getThreadID() const { return _threadID; }
-    
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    uint getDefaultFramebuffer() const;
-#endif
 
 protected:
     static GLES2Device *instance;
@@ -132,12 +126,10 @@ protected:
     GLES2GPUStateCache *         _gpuStateCache          = nullptr;
     GLES2GPUBlitManager *        _gpuBlitManager         = nullptr;
     GLES2GPUStagingBufferPool *  _gpuStagingBufferPool   = nullptr;
-    GLES2GPUExtensionRegistry *  _gpuExtensionRegistry   = nullptr;
+    GLES2GPUConstantRegistry *   _gpuConstantRegistry    = nullptr;
     GLES2GPUFramebufferCacheMap *_gpuFramebufferCacheMap = nullptr;
 
     StringArray _extensions;
-
-    size_t _threadID = 0U;
 };
 
 } // namespace gfx

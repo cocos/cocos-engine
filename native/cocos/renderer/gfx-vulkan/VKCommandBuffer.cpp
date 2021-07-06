@@ -150,11 +150,11 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         }
         clearValues[attachmentCount - 1].depthStencil = {depth, static_cast<uint>(stencil)};
     }
-    auto* device = CCVKDevice::getInstance();
+    auto *                device = CCVKDevice::getInstance();
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
     passBeginInfo.renderPass      = gpuRenderPass->vkRenderPass;
     passBeginInfo.framebuffer     = framebuffer;
-    passBeginInfo.clearValueCount = clearValues.size();
+    passBeginInfo.clearValueCount = utils::toUint(clearValues.size());
     passBeginInfo.pClearValues    = clearValues.data();
     passBeginInfo.renderArea      = {{0, 0}, {device->getWidth(), device->getHeight()}};
     vkCmdBeginRenderPass(_gpuCommandBuffer->vkCommandBuffer, &passBeginInfo,
@@ -229,13 +229,13 @@ void CCVKCommandBuffer::bindInputAssembler(InputAssembler *ia) {
 
     if (_curGPUInputAssember != gpuInputAssembler) {
         // buffers may be rebuilt(e.g. resize event) without IA's acknowledge
-        size_t vbCount = gpuInputAssembler->gpuVertexBuffers.size();
+        uint vbCount = utils::toUint(gpuInputAssembler->gpuVertexBuffers.size());
         if (gpuInputAssembler->vertexBuffers.size() < vbCount) {
             gpuInputAssembler->vertexBuffers.resize(vbCount);
             gpuInputAssembler->vertexBufferOffsets.resize(vbCount);
         }
 
-        for (size_t i = 0U; i < vbCount; ++i) {
+        for (uint i = 0U; i < vbCount; ++i) {
             gpuInputAssembler->vertexBuffers[i]       = gpuInputAssembler->gpuVertexBuffers[i]->vkBuffer;
             gpuInputAssembler->vertexBufferOffsets[i] = gpuInputAssembler->gpuVertexBuffers[i]->startOffset;
         }
@@ -498,9 +498,9 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
         _blitRegions[i].srcOffsets[0].x               = region.srcOffset.x;
         _blitRegions[i].srcOffsets[0].y               = region.srcOffset.y;
         _blitRegions[i].srcOffsets[0].z               = region.srcOffset.z;
-        _blitRegions[i].srcOffsets[1].x               = region.srcOffset.x + region.srcExtent.width;
-        _blitRegions[i].srcOffsets[1].y               = region.srcOffset.y + region.srcExtent.height;
-        _blitRegions[i].srcOffsets[1].z               = region.srcOffset.z + region.srcExtent.depth;
+        _blitRegions[i].srcOffsets[1].x               = static_cast<int32_t>(region.srcOffset.x + region.srcExtent.width);
+        _blitRegions[i].srcOffsets[1].y               = static_cast<int32_t>(region.srcOffset.y + region.srcExtent.height);
+        _blitRegions[i].srcOffsets[1].z               = static_cast<int32_t>(region.srcOffset.z + region.srcExtent.depth);
 
         _blitRegions[i].dstSubresource.aspectMask     = dstAspectMask;
         _blitRegions[i].dstSubresource.mipLevel       = region.dstSubres.mipLevel;
@@ -509,9 +509,9 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
         _blitRegions[i].dstOffsets[0].x               = region.dstOffset.x;
         _blitRegions[i].dstOffsets[0].y               = region.dstOffset.y;
         _blitRegions[i].dstOffsets[0].z               = region.dstOffset.z;
-        _blitRegions[i].dstOffsets[1].x               = region.dstOffset.x + region.dstExtent.width;
-        _blitRegions[i].dstOffsets[1].y               = region.dstOffset.y + region.dstExtent.height;
-        _blitRegions[i].dstOffsets[1].z               = region.dstOffset.z + region.dstExtent.depth;
+        _blitRegions[i].dstOffsets[1].x               = static_cast<int32_t>(region.dstOffset.x + region.dstExtent.width);
+        _blitRegions[i].dstOffsets[1].y               = static_cast<int32_t>(region.dstOffset.y + region.dstExtent.height);
+        _blitRegions[i].dstOffsets[1].z               = static_cast<int32_t>(region.dstOffset.z + region.dstExtent.depth);
     }
 
     vkCmdBlitImage(_gpuCommandBuffer->vkCommandBuffer,
@@ -525,7 +525,7 @@ void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {
     CCVKGPUDevice *        gpuDevice            = device->gpuDevice();
     CCVKGPUPipelineLayout *pipelineLayout       = _curGPUPipelineState->gpuPipelineLayout;
     vector<uint> &         dynamicOffsetOffsets = pipelineLayout->dynamicOffsetOffsets;
-    uint                   descriptorSetCount   = pipelineLayout->setLayouts.size();
+    uint                   descriptorSetCount   = utils::toUint(pipelineLayout->setLayouts.size());
     _curDynamicOffsets.resize(pipelineLayout->dynamicOffsetCount);
 
     uint dirtyDescriptorSetCount = descriptorSetCount - _firstDirtyDescriptorSet;

@@ -37,7 +37,7 @@ ThreadSafeLinearAllocator::~ThreadSafeLinearAllocator() {
     free(_buffer);
 }
 
-void *ThreadSafeLinearAllocator::allocate(size_t size, size_t alignment) noexcept {
+void *ThreadSafeLinearAllocator::doAllocate(size_t size, size_t alignment) noexcept {
     if (size == 0) {
         return nullptr;
     }

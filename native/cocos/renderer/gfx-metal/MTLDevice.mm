@@ -168,16 +168,10 @@ bool CCMTLDevice::doInit(const DeviceInfo &info) {
     _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)] = true;
     _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)] = true;
     _features[static_cast<uint>(Feature::FORMAT_SRGB)] = true;
-    _features[static_cast<uint>(Feature::MSAA)] = true;
     _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)] = true;
     _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
     _features[static_cast<uint>(Feature::BLEND_MINMAX)] = true;
     _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)] = true;
-    _features[static_cast<uint>(Feature::DEPTH_BOUNDS)] = false;
-    _features[static_cast<uint>(Feature::LINE_WIDTH)] = false;
-    _features[static_cast<uint>(Feature::STENCIL_COMPARE_MASK)] = false;
-    _features[static_cast<uint>(Feature::STENCIL_WRITE_MASK)] = false;
-    _features[static_cast<uint>(Feature::MULTITHREADED_SUBMISSION)] = true;
     _features[static_cast<uint>(Feature::COMPUTE_SHADER)] = true;
 
     _features[static_cast<uint>(Feature::FORMAT_RGB8)] = false;

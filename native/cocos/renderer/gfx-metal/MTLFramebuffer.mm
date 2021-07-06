@@ -39,14 +39,10 @@ CCMTLFramebuffer::CCMTLFramebuffer() : Framebuffer() {
 void CCMTLFramebuffer::doInit(const FramebufferInfo &info) {
     auto *mtlRenderPass = static_cast<CCMTLRenderPass *>(_renderPass);
     size_t slot = 0;
-    size_t levelCount = info.colorMipmapLevels.size();
     size_t i = 0;
     size_t attachmentIndices = 0;
     for (const auto *colorTexture : info.colorTextures) {
         int level = 0;
-        if (levelCount > i) {
-            level = info.colorMipmapLevels[i];
-        }
         const auto *texture = static_cast<const CCMTLTexture *>(colorTexture);
         if (texture) {
             attachmentIndices |= (1 << i);
@@ -57,7 +53,7 @@ void CCMTLFramebuffer::doInit(const FramebufferInfo &info) {
 
     if (_depthStencilTexture) {
         id<MTLTexture> texture = static_cast<CCMTLTexture *>(_depthStencilTexture)->getMTLTexture();
-        mtlRenderPass->setDepthStencilAttachment(texture, info.depthStencilMipmapLevel);
+        mtlRenderPass->setDepthStencilAttachment(texture, 0);
         attachmentIndices |= (1 << i);
     }
 

@@ -42,20 +42,7 @@ GLES2Framebuffer::~GLES2Framebuffer() {
     destroy();
 }
 
-void GLES2Framebuffer::doInit(const FramebufferInfo &info) {
-    if (info.depthStencilMipmapLevel != 0) {
-        CC_LOG_WARNING("Mipmap level of depth stencil attachment should be 0 in GLES2. Convert to 0.");
-    }
-    if (!info.colorMipmapLevels.empty()) {
-        int i = 0;
-        for (const auto mipmapLevel : info.colorMipmapLevels) {
-            if (mipmapLevel != 0) {
-                CC_LOG_WARNING("Mipmap level of color attachment %d should be 0 in GLES2. Convert to 0.", i);
-            }
-            ++i;
-        }
-    }
-
+void GLES2Framebuffer::doInit(const FramebufferInfo & /*info*/) {
     _gpuFBO                = CC_NEW(GLES2GPUFramebuffer);
     _gpuFBO->gpuRenderPass = static_cast<GLES2RenderPass *>(_renderPass)->gpuRenderPass();
 

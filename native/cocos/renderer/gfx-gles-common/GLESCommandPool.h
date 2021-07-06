@@ -32,11 +32,26 @@
 namespace cc {
 namespace gfx {
 
+// Multisampled Render to Texture
+enum class MSRTSupportLevel {
+    NONE,
+    LEVEL1,
+    LEVEL2,
+};
+
+// Framebuffer Fetch
 enum class FBFSupportLevel {
     NONE,
     COHERENT,
     NON_COHERENT_EXT,
     NON_COHERENT_QCOM,
+};
+
+// Pixel Local Storage
+enum class PLSSupportLevel {
+    NONE,
+    LEVEL1,
+    LEVEL2,
 };
 
 enum class GLESCmdType : uint8_t {
@@ -91,7 +106,7 @@ public:
 
     T *alloc() {
         if (_freeIdx < 0) {
-            T **old_frees = _frees;
+            T **oldFrees = _frees;
             uint size = _count * 2;
             _frees = new T *[size];
             uint increase = size - _count;
@@ -99,12 +114,12 @@ public:
                 _frees[i] = CC_NEW(T);
             }
             for (uint i = increase, j = 0; i < size; ++i, ++j) {
-                _frees[i] = old_frees[j];
+                _frees[i] = oldFrees[j];
             }
-            delete[](old_frees);
+            delete[](oldFrees);
 
             _count = size;
-            _freeIdx += (int)increase;
+            _freeIdx += static_cast<int>(increase);
         }
 
         T *cmd = _frees[_freeIdx];

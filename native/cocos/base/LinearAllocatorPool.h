@@ -53,15 +53,14 @@ public:
     T *allocate(const uint count, uint alignment = 64U) noexcept {
         if (!count) return nullptr;
 
-        T *    res  = nullptr;
-        size_t size = count * sizeof(T);
+        T *res = nullptr;
         for (ThreadSafeLinearAllocator *allocator : _allocators) {
-            res = reinterpret_cast<T *>(allocator->allocate(size, alignment));
+            res = allocator->allocate<T>(count, alignment);
             if (res) return res;
         }
-        uint capacity = utils::nextPOT(static_cast<uint>(std::max(DEFAULT_BLOCK_SIZE, size + static_cast<size_t>(alignment)))); // reserve enough padding space for alignment
+        uint capacity = utils::nextPOT(static_cast<uint>(std::max(DEFAULT_BLOCK_SIZE, count * sizeof(T) + static_cast<size_t>(alignment)))); // reserve enough padding space for alignment
         _allocators.emplace_back(CC_NEW(ThreadSafeLinearAllocator(static_cast<uint32_t>(capacity))));
-        return reinterpret_cast<T *>(_allocators.back()->allocate(size, alignment));
+        return _allocators.back()->allocate<T>(count, alignment);
     }
 
     inline void reset() {

@@ -35,7 +35,7 @@ class GLES3Context;
 class GLES3GPUStateCache;
 class GLES3GPUStagingBufferPool;
 class GLES3GPUFramebufferCacheMap;
-class GLES3GPUExtensionRegistry;
+class GLES3GPUConstantRegistry;
 
 class CC_GLES3_API GLES3Device final : public Device {
 public:
@@ -66,7 +66,7 @@ public:
 
     inline GLES3GPUStateCache *         stateCache() const { return _gpuStateCache; }
     inline GLES3GPUStagingBufferPool *  stagingBufferPool() const { return _gpuStagingBufferPool; }
-    inline GLES3GPUExtensionRegistry *  extensionRegistry() const { return _gpuExtensionRegistry; }
+    inline GLES3GPUConstantRegistry *   constantRegistry() const { return _gpuConstantRegistry; }
     inline GLES3GPUFramebufferCacheMap *framebufferCacheMap() const { return _gpuFramebufferCacheMap; }
 
     inline bool checkExtension(const String &extension) const {
@@ -74,13 +74,6 @@ public:
             return ext.find(extension) != String::npos;
         });
     }
-
-    inline size_t getThreadID() const { return _threadID; }
-
-    uint getMinorVersion() const;
-#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    uint getDefaultFramebuffer() const;
-#endif
 
 protected:
     static GLES3Device *instance;
@@ -119,12 +112,10 @@ protected:
     GLES3Context *               _deviceContext          = nullptr;
     GLES3GPUStateCache *         _gpuStateCache          = nullptr;
     GLES3GPUStagingBufferPool *  _gpuStagingBufferPool   = nullptr;
-    GLES3GPUExtensionRegistry *  _gpuExtensionRegistry   = nullptr;
+    GLES3GPUConstantRegistry *   _gpuConstantRegistry    = nullptr;
     GLES3GPUFramebufferCacheMap *_gpuFramebufferCacheMap = nullptr;
 
     StringArray _extensions;
-
-    size_t _threadID = 0U;
 };
 
 } // namespace gfx

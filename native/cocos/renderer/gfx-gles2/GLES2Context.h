@@ -46,7 +46,6 @@ public:
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     inline intptr_t eagl_context() const { return _eaglContext; }
     inline intptr_t eagl_shared_ctx() const { return _eaglSharedContext; }
-    inline uint     getDefaultFramebuffer() const { return _defaultFBO; }
 #else
     inline NativeDisplayType nativeDisplay() const { return _nativeDisplay; }
     inline EGLDisplay        eglDisplay() const { return _eglDisplay; }
@@ -59,6 +58,7 @@ public:
     inline int     majorVer() const { return _majorVersion; }
     inline int     minorVer() const { return _minorVersion; }
     inline uint8_t multiSampleCount() const { return _sampleCount; }
+    inline uint    getDefaultFramebuffer() const { return _defaultFBO; }
 
     bool makeCurrentImpl(bool bound);
 
@@ -78,21 +78,21 @@ protected:
     bool    _isInitialized   = false;
     uint8_t _sampleBuffers   = 0;
     uint8_t _sampleCount     = 0;
+    uint    _defaultFBO      = 0;
 #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
     intptr_t _eaglContext       = 0;
     intptr_t _eaglSharedContext = 0;
     // iOS needs to created frame buffer and attach color/depth/stencil buffer.
-    uint _defaultFBO                = 0;
     uint _defaultColorBuffer        = 0;
     uint _defaultDepthStencilBuffer = 0;
 #else
-    NativeDisplayType           _nativeDisplay    = 0; // NOLINT(modernize-use-nullptr) portability issues
-    EGLDisplay                  _eglDisplay       = EGL_NO_DISPLAY;
-    EGLConfig                   _eglConfig        = EGL_NO_CONFIG_KHR;
-    EGLSurface                  _eglSurface       = EGL_NO_SURFACE;
-    EGLContext                  _eglContext       = EGL_NO_CONTEXT;
-    EGLContext                  _eglSharedContext = EGL_NO_CONTEXT;
-    std::vector<EGLConfig>      _vecEGLConfig;
+    NativeDisplayType        _nativeDisplay    = 0; // NOLINT(modernize-use-nullptr) portability issues
+    EGLDisplay               _eglDisplay       = EGL_NO_DISPLAY;
+    EGLConfig                _eglConfig        = EGL_NO_CONFIG_KHR;
+    EGLSurface               _eglSurface       = EGL_NO_SURFACE;
+    EGLContext               _eglContext       = EGL_NO_CONTEXT;
+    EGLContext               _eglSharedContext = EGL_NO_CONTEXT;
+    std::vector<EGLConfig>   _vecEGLConfig;
 #endif
     int         _majorVersion = 0;
     int         _minorVersion = 0;

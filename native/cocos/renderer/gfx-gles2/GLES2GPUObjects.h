@@ -36,9 +36,13 @@
 namespace cc {
 namespace gfx {
 
-class GLES2GPUExtensionRegistry {
+class GLES2GPUConstantRegistry {
 public:
-    FBFSupportLevel mFBF = FBFSupportLevel::NONE;
+    uint currentBoundThreadID{0U};
+    uint defaultFramebuffer{0U};
+
+    MSRTSupportLevel mMSRT{MSRTSupportLevel::NONE};
+    FBFSupportLevel  mFBF{FBFSupportLevel::NONE};
 
     bool useVAO                = false;
     bool useDrawInstanced      = false;
@@ -69,28 +73,31 @@ public:
 
 class GLES2GPUTexture final : public Object {
 public:
-    TextureType  type          = TextureType::TEX2D;
-    Format       format        = Format::UNKNOWN;
-    TextureUsage usage         = TextureUsageBit::NONE;
-    uint         width         = 0;
-    uint         height        = 0;
-    uint         depth         = 1;
-    uint         size          = 0;
-    uint         arrayLayer    = 1;
-    uint         mipLevel      = 1;
-    SampleCount  samples       = SampleCount::X1;
-    TextureFlags flags         = TextureFlagBit::NONE;
-    bool         isPowerOf2    = false;
-    GLenum       glTarget      = 0;
-    GLenum       glInternelFmt = 0;
-    GLenum       glFormat      = 0;
-    GLenum       glType        = 0;
-    GLenum       glUsage       = 0;
-    GLuint       glTexture     = 0;
-    GLenum       glWrapS       = 0;
-    GLenum       glWrapT       = 0;
-    GLenum       glMinFilter   = 0;
-    GLenum       glMagFilter   = 0;
+    TextureType  type           = TextureType::TEX2D;
+    Format       format         = Format::UNKNOWN;
+    TextureUsage usage          = TextureUsageBit::NONE;
+    uint         width          = 0;
+    uint         height         = 0;
+    uint         depth          = 1;
+    uint         size           = 0;
+    uint         arrayLayer     = 1;
+    uint         mipLevel       = 1;
+    SampleCount  samples        = SampleCount::X1;
+    TextureFlags flags          = TextureFlagBit::NONE;
+    bool         isPowerOf2     = false;
+    bool         memoryless     = false;
+    GLenum       glTarget       = 0;
+    GLenum       glInternalFmt  = 0;
+    GLenum       glFormat       = 0;
+    GLenum       glType         = 0;
+    GLenum       glUsage        = 0;
+    GLint        glSamples      = 0;
+    GLuint       glTexture      = 0;
+    GLuint       glRenderbuffer = 0;
+    GLenum       glWrapS        = 0;
+    GLenum       glWrapT        = 0;
+    GLenum       glMinFilter    = 0;
+    GLenum       glMagFilter    = 0;
 };
 
 using GLES2GPUTextureList = vector<GLES2GPUTexture *>;
@@ -253,7 +260,10 @@ public:
 
     struct GLFramebuffer {
         GLuint glFramebuffer = 0U;
-        bool   isOffscreen   = false;
+
+        // for blit-based manual resolving
+        GLbitfield resolveMask          = 0U;
+        GLuint     glResolveFramebuffer = 0U;
     };
     // one per subpass, if not using FBF
     vector<GLFramebuffer> instances;
@@ -323,7 +333,6 @@ struct GLES2ObjectCache final {
     GLES2GPUPipelineState * gpuPipelineState  = nullptr;
     GLES2GPUInputAssembler *gpuInputAssembler = nullptr;
     GLenum                  glPrimitive       = 0;
-    GLenum                  invalidAttachments[MAX_ATTACHMENTS];
     Rect                    renderArea;
     ColorList               clearColors;
     float                   clearDepth   = 1.F;
@@ -341,8 +350,9 @@ public:
     GLuint                      glProgram = 0;
     vector<bool>                glEnabledAttribLocs;
     vector<bool>                glCurrentAttribLocs;
-    GLuint                      glFramebuffer = 0;
-    GLuint                      glReadFBO     = 0;
+    GLuint                      glFramebuffer  = 0;
+    GLuint                      glRenderbuffer = 0;
+    GLuint                      glReadFBO      = 0;
     Viewport                    viewport;
     Rect                        scissor;
     RasterizerState             rs;
@@ -416,7 +426,11 @@ public:
     explicit GLES2GPUFramebufferCacheMap(GLES2GPUStateCache *cache) : _cache(cache) {}
 
     GLuint getFramebufferFromTexture(const GLES2GPUTexture *gpuTexture) {
-        if (!_map.count(gpuTexture->glTexture)) {
+        bool   isTexture  = gpuTexture->glTexture;
+        GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
+        auto & cacheMap   = isTexture ? _textureMap : _renderbufferMap;
+
+        if (!cacheMap.count(glResource)) {
             GLuint glFramebuffer = 0U;
             GL_CHECK(glGenFramebuffers(1, &glFramebuffer));
             if (_cache->glFramebuffer != glFramebuffer) {
@@ -425,41 +439,56 @@ public:
             }
 
             const FormatInfo &info = GFX_FORMAT_INFOS[static_cast<uint>(gpuTexture->format)];
-            if (info.hasDepth) {
-                GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, gpuTexture->glTarget, gpuTexture->glTexture, 0));
-                if (info.hasStencil) {
-                    GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, gpuTexture->glTarget, gpuTexture->glTexture, 0));
+            if (isTexture) {
+                if (info.hasDepth) {
+                    GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, gpuTexture->glTarget, glResource, 0));
+                    if (info.hasStencil) GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, gpuTexture->glTarget, glResource, 0));
+                } else {
+                    GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gpuTexture->glTarget, glResource, 0));
                 }
             } else {
-                GL_CHECK(glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gpuTexture->glTarget, gpuTexture->glTexture, 0));
+                if (info.hasDepth) {
+                    GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, gpuTexture->glTarget, glResource));
+                    if (info.hasStencil) GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_STENCIL_ATTACHMENT, gpuTexture->glTarget, glResource));
+                } else {
+                    GL_CHECK(glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, gpuTexture->glTarget, glResource));
+                }
             }
 
             GLenum status;
             GL_CHECK(status = glCheckFramebufferStatus(GL_FRAMEBUFFER));
             CCASSERT(status == GL_FRAMEBUFFER_COMPLETE, "frambuffer incomplete");
 
-            _map[gpuTexture->glTexture] = glFramebuffer;
+            cacheMap[glResource] = glFramebuffer;
         }
 
-        return _map[gpuTexture->glTexture];
+        return cacheMap[glResource];
     }
 
     void onTextureDestroy(const GLES2GPUTexture *gpuTexture) {
-        if (_map.count(gpuTexture->glTexture)) {
-            GLuint glFramebuffer = _map[gpuTexture->glTexture];
+        bool   isTexture  = gpuTexture->glTexture;
+        GLuint glResource = isTexture ? gpuTexture->glTexture : gpuTexture->glRenderbuffer;
+        auto & cacheMap   = isTexture ? _textureMap : _renderbufferMap;
+
+        if (cacheMap.count(glResource)) {
+            GLuint glFramebuffer = cacheMap[glResource];
+            if (!glFramebuffer) return;
 
             if (_cache->glFramebuffer == glFramebuffer) {
                 GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, 0));
                 _cache->glFramebuffer = 0;
             }
             GL_CHECK(glDeleteFramebuffers(1, &glFramebuffer));
+            cacheMap.erase(glResource);
         }
-        _map.erase(gpuTexture->glTexture);
     }
 
 private:
-    GLES2GPUStateCache *          _cache = nullptr;
-    unordered_map<GLuint, GLuint> _map; // texture -> framebuffer
+    GLES2GPUStateCache *_cache = nullptr;
+
+    using CacheMap = unordered_map<GLuint, GLuint>;
+    CacheMap _renderbufferMap; // renderbuffer -> framebuffer
+    CacheMap _textureMap;      // texture -> framebuffer
 };
 
 constexpr size_t                CHUNK_SIZE = 16 * 1024 * 1024; // 16M per block by default

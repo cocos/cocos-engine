@@ -142,16 +142,10 @@ enum class Feature {
     FORMAT_PVRTC,
     FORMAT_ASTC,
     FORMAT_RGB8,
-    MSAA,
     ELEMENT_INDEX_UINT,
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
-    DEPTH_BOUNDS,
-    LINE_WIDTH,
-    STENCIL_WRITE_MASK,
-    STENCIL_COMPARE_MASK,
-    MULTITHREADED_SUBMISSION,
     COMPUTE_SHADER,
     COUNT,
 };
@@ -449,13 +443,13 @@ using TextureFlags = TextureFlagBit;
 CC_ENUM_OPERATORS(TextureFlagBit);
 
 enum class SampleCount {
-    X1,
-    X2,
-    X4,
-    X8,
-    X16,
-    X32,
-    X64,
+    X1  = 0x1,
+    X2  = 0x2,
+    X4  = 0x4,
+    X8  = 0x8,
+    X16 = 0x10,
+    X32 = 0x20,
+    X64 = 0x40,
 };
 
 enum class Filter {
@@ -590,6 +584,14 @@ enum class AccessType {
 };
 
 using AccessTypeList = std::vector<AccessType>;
+
+enum class ResolveMode {
+    NONE,
+    SAMPLE_ZERO,
+    AVERAGE,
+    MIN,
+    MAX,
+};
 
 enum class PipelineBindPoint {
     GRAPHICS,
@@ -1070,7 +1072,11 @@ struct SubpassInfo {
     std::vector<uint> colors;
     std::vector<uint> resolves;
     std::vector<uint> preserves;
-    uint              depthStencil = INVALID_BINDING;
+
+    uint        depthStencil        = INVALID_BINDING;
+    uint        depthStencilResolve = INVALID_BINDING;
+    ResolveMode depthResolveMode    = ResolveMode::NONE;
+    ResolveMode stencilResolveMode  = ResolveMode::NONE;
 };
 
 using SubpassInfoList = vector<SubpassInfo>;
@@ -1112,8 +1118,6 @@ struct FramebufferInfo {
     RenderPass *      renderPass = nullptr;
     TextureList       colorTextures;                 // @ts-overrides { type: '(Texture | null)[]' }
     Texture *         depthStencilTexture = nullptr; // @ts-nullable
-    std::vector<uint> colorMipmapLevels;
-    uint              depthStencilMipmapLevel = 0;
 };
 
 struct DescriptorSetLayoutBinding {
