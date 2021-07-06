@@ -1484,39 +1484,46 @@ export class ScrollView extends ViewGroup {
             realMove.add(outOfBoundary);
         }
 
-        let scrollEventType;
+        let verticalScrollEventType = '';
+        let horizontalScrollEventType = '';
         if (this._content) {
             const { anchorX, anchorY, width, height } = this._content._uiProps.uiTransformComp!;
             const pos = this._content.position || Vec3.ZERO;
-            if (realMove.y > 0) { // up
-                const icBottomPos = pos.y - anchorY * height;
 
-                if (icBottomPos + realMove.y >= this._bottomBoundary) {
-                    scrollEventType = EventType.SCROLL_TO_BOTTOM;
-                }
-            } else if (realMove.y < 0) { // down
-                const icTopPos = pos.y - anchorY * height + height;
+            if (this.vertical) {
+                if (realMove.y > 0) { // up
+                    const icBottomPos = pos.y - anchorY * height;
 
-                if (icTopPos + realMove.y <= this._topBoundary) {
-                    scrollEventType = EventType.SCROLL_TO_TOP;
+                    if (icBottomPos + realMove.y >= this._bottomBoundary) {
+                        verticalScrollEventType = EventType.SCROLL_TO_BOTTOM;
+                    }
+                } else if (realMove.y < 0) { // down
+                    const icTopPos = pos.y - anchorY * height + height;
+
+                    if (icTopPos + realMove.y <= this._topBoundary) {
+                        verticalScrollEventType = EventType.SCROLL_TO_TOP;
+                    }
                 }
             }
-            if (realMove.x < 0) { // left
-                const icRightPos = pos.x - anchorX * width + width;
-                if (icRightPos + realMove.x <= this._rightBoundary) {
-                    scrollEventType = EventType.SCROLL_TO_RIGHT;
-                }
-            } else if (realMove.x > 0) { // right
-                const icLeftPos = pos.x - anchorX * width;
-                if (icLeftPos + realMove.x >= this._leftBoundary) {
-                    scrollEventType = EventType.SCROLL_TO_LEFT;
+
+            if (this.horizontal) {
+                if (realMove.x < 0) { // left
+                    const icRightPos = pos.x - anchorX * width + width;
+                    if (icRightPos + realMove.x <= this._rightBoundary) {
+                        horizontalScrollEventType = EventType.SCROLL_TO_RIGHT;
+                    }
+                } else if (realMove.x > 0) { // right
+                    const icLeftPos = pos.x - anchorX * width;
+                    if (icLeftPos + realMove.x >= this._leftBoundary) {
+                        horizontalScrollEventType = EventType.SCROLL_TO_LEFT;
+                    }
                 }
             }
         }
 
         this._moveContent(realMove, false);
 
-        if (realMove.x !== 0 || realMove.y !== 0) {
+        if ((this.horizontal && realMove.x !== 0) || (this.vertical && realMove.y !== 0)) {
             if (!this._scrolling) {
                 this._scrolling = true;
                 this._dispatchEvent(EventType.SCROLL_BEGAN);
@@ -1524,8 +1531,11 @@ export class ScrollView extends ViewGroup {
             this._dispatchEvent(EventType.SCROLLING);
         }
 
-        if (scrollEventType && scrollEventType.length > 0) {
-            this._dispatchEvent(scrollEventType);
+        if (verticalScrollEventType !== '') {
+            this._dispatchEvent(verticalScrollEventType);
+        }
+        if (horizontalScrollEventType !== '') {
+            this._dispatchEvent(horizontalScrollEventType);
         }
     }
 
