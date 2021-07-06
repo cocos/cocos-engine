@@ -38,7 +38,6 @@ import { Root } from './root';
 import { game } from './game';
 import System from './components/system';
 import { Director } from './director';
-import { Game } from './game';
 
 // VMATH
 
@@ -288,26 +287,26 @@ markAsWarning(Director.prototype, 'director', [
     },
     {
         name: 'getDeltaTime',
-        suggest: 'Use game.timer.deltaTime instead',
+        suggest: 'Use game.deltaTime instead',
     },
     {
         name: 'getTotalTime',
-        suggest: 'Use game.timer.totalTime instead',
+        suggest: 'Use game.totalTime instead',
     },
     {
         name: 'getCurrentTime',
-        suggest: 'Use game.timer.frameStartTime instead',
+        suggest: 'Use game.frameStartTime instead',
     },
 ]);
 
 removeProperty(Director.prototype, 'director', [
     {
         name: 'setAnimationInterval',
-        suggest: 'please use game.setFrameRate instead',
+        suggest: 'please use game.frameRate instead',
     },
     {
         name: 'getAnimationInterval',
-        suggest: 'please use game.getFrameRate instead',
+        suggest: 'please use game.frameRate instead',
     },
     {
         name: 'getRunningScene',

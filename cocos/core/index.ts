@@ -50,7 +50,6 @@ export * from './data';
 export * from './event';
 export * from './assets';
 export * from './platform';
-export * from './timer';
 export * from './game';
 export * from './scheduler';
 export * from './director';

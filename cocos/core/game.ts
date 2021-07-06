@@ -30,7 +30,6 @@
 
 import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { system } from 'pal/system';
-import { Timer } from './timer';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
@@ -311,29 +310,74 @@ export class Game extends EventTarget {
     }
 
     /**
-     * @en The expected delta time of each frame
-     * @zh 期望帧率对应的每帧时间
-     * @deprecated please use [[Timer.frameTime]]
+     * @en Expected frame rate of the game.
+     * @zh 游戏的设定帧率。
      */
-    public get frameTime () {
-        return this.timer.frameTime;
+    public get frameRate () {
+        return this._frameRate;
+    }
+    public set frameRate (frameRate: number | string) {
+        if (typeof frameRate !== 'number') {
+            frameRate = parseInt(frameRate, 10);
+            if (Number.isNaN(frameRate)) {
+                frameRate = 60;
+            }
+        }
+        this._frameRate = frameRate;
+        this.frameTime = 1000 / frameRate;
+        this._setAnimFrame();
     }
 
-    public timer: Timer = new Timer();
+    /**
+     * @en The delta time since last frame, unit: s.
+     * @zh 获取上一帧的增量时间，以秒为单位。
+     */
+     public get deltaTime () {
+        return this._deltaTime;
+    }
+
+    /**
+     * @en The total passed time since game start, unit: ms
+     * @zh 获取从游戏开始到现在总共经过的时间，以毫秒为单位
+     */
+    public get totalTime () {
+        return performance.now() - this._initTime;
+    }
+
+    /**
+     * @en The start time of the current frame.
+     * @zh 获取当前帧开始的时间。
+     */
+    public get frameStartTime () {
+        return this._startTime;
+    }
+
+    /**
+     * @en The expected delta time of each frame
+     * @zh 期望帧率对应的每帧时间
+     */
+    public frameTime = 1000/60;
 
     public collisionMatrix = [];
     public groupList: any[] = [];
 
     public _persistRootNodes = {};
 
+    private _gfxDevice: Device | null = null;
     // states
     public _configLoaded = false; // whether config loaded
     public _isCloning = false;    // deserializing or instantiating
-
     private _inited = false;
     private _engineInited = false; // whether the engine has inited
     private _rendererInitialized = false;
-    private _gfxDevice: Device | null = null;
+    private _paused = true;
+    // frame control
+    private _frameRate = 60;
+    private _intervalId = 0; // interval target of main
+    private _initTime = 0;
+    private _startTime = 0;
+    private _deltaTime = 0.0;
+    private declare _frameCB: (time: number) => void;
 
     // @Methods
 
@@ -342,18 +386,20 @@ export class Game extends EventTarget {
     /**
      * @en Set frame rate of game.
      * @zh 设置游戏帧率。
+     * @deprecated since v3.3.0 please use [[game.frameRate]]
      */
     public setFrameRate (frameRate: number | string) {
-        this.timer.frameRate = frameRate;
+        this.frameRate = frameRate;
     }
 
     /**
      * @en Get frame rate set for the game, it doesn't represent the real frame rate.
      * @zh 获取设置的游戏帧率（不等同于实际帧率）。
      * @return frame rate
+     * @deprecated since v3.3.0 please use [[game.frameRate]]
      */
     public getFrameRate (): number {
-        return this.timer.frameRate as number;
+        return this.frameRate as number;
     }
 
     /**
@@ -361,7 +407,7 @@ export class Game extends EventTarget {
      * @zh 以固定帧间隔执行一帧游戏循环，帧间隔与设定的帧率匹配。
      */
     public step () {
-        legacyCC.director.tick(this.timer.frameTime);
+        legacyCC.director.tick(this.frameTime);
     }
 
     /**
@@ -371,7 +417,12 @@ export class Game extends EventTarget {
      * @zh 暂停游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。这点和只暂停游戏逻辑的 `director.pause` 不同。
      */
     public pause () {
-        this.timer.pause();
+        if (this._paused) { return; }
+        this._paused = true;
+        if (this._intervalId) {
+            window.cAF(this._intervalId);
+            this._intervalId = 0;
+        }
     }
 
     /**
@@ -380,7 +431,14 @@ export class Game extends EventTarget {
      * @zh 恢复游戏主循环。包含：游戏逻辑，渲染，事件处理，背景音乐和所有音效。
      */
     public resume () {
-        this.timer.resume();
+        if (!this._paused) { return; }
+        if (this._intervalId) {
+            window.cAF(this._intervalId);
+            this._intervalId = 0;
+        }
+        this._paused = false;
+        this._updateCallback();
+        this._intervalId = window.rAF(this._frameCB);
     }
 
     /**
@@ -388,7 +446,7 @@ export class Game extends EventTarget {
      * @zh 判断游戏是否暂停。
      */
     public isPaused (): boolean {
-        return this.timer.paused;
+        return this._paused;
     }
 
     /**
@@ -407,9 +465,9 @@ export class Game extends EventTarget {
             legacyCC.Object._deferredDestroy();
 
             legacyCC.director.reset();
-            this.timer.pause();
+            this.pause();
             return this._setRenderPipelineNShowSplash().then(() => {
-                this.timer.resume();
+                this.resume();
                 this._safeEmit(Game.EVENT_RESTART);
             });
         });
@@ -602,6 +660,81 @@ export class Game extends EventTarget {
 
     // @Methods
 
+    //  @Time ticker section
+    private _setAnimFrame () {
+        const frameRate = this._frameRate;
+        if (JSB) {
+            // @ts-expect-error JSB Call
+            jsb.setPreferredFramesPerSecond(frameRate);
+            window.rAF = window.requestAnimationFrame;
+            window.cAF = window.cancelAnimationFrame;
+        } else {
+            const rAF = window.requestAnimationFrame = window.requestAnimationFrame
+                     || window.webkitRequestAnimationFrame
+                     || window.mozRequestAnimationFrame
+                     || window.oRequestAnimationFrame
+                     || window.msRequestAnimationFrame;
+            if (frameRate !== 60 && frameRate !== 30) {
+                window.rAF = this._stTime.bind(this);
+                window.cAF = this._ctTime;
+            } else {
+                window.rAF = rAF || this._stTime.bind(this);
+                window.cAF = window.cancelAnimationFrame
+                    || window.cancelRequestAnimationFrame
+                    || window.msCancelRequestAnimationFrame
+                    || window.mozCancelRequestAnimationFrame
+                    || window.oCancelRequestAnimationFrame
+                    || window.webkitCancelRequestAnimationFrame
+                    || window.msCancelAnimationFrame
+                    || window.mozCancelAnimationFrame
+                    || window.webkitCancelAnimationFrame
+                    || window.ocancelAnimationFrame
+                    || this._ctTime;
+
+                // update callback function for 30 fps version
+                this._updateCallback();
+            }
+        }
+    }
+    private _stTime (callback: () => void) {
+        const currTime = performance.now();
+        const elapseTime = Math.max(0, (currTime - this._startTime));
+        const timeToCall = Math.max(0, this.frameTime - elapseTime);
+        const id = window.setTimeout(callback, timeToCall);
+        return id;
+    }
+    private _ctTime (id: number | undefined) {
+        window.clearTimeout(id);
+    }
+    private _calculateDT (now?: number) {
+        if (!now) now = performance.now();
+        this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
+        this._startTime = now;
+        return this._deltaTime;
+    }
+
+    private _updateCallback () {
+        const director = legacyCC.director;
+        let callback;
+        if (!JSB && !RUNTIME_BASED && this._frameRate === 30) {
+            let skip = true;
+            callback = (time: number) => {
+                this._intervalId = window.rAF(this._frameCB);
+                skip = !skip;
+                if (skip) {
+                    return;
+                }
+                director.tick(this._calculateDT(time));
+            };
+        } else {
+            callback = (time: number) => {
+                director.tick(this._calculateDT(time));
+                this._intervalId = window.rAF(this._frameCB);
+            };
+        }
+        this._frameCB = callback;
+    }
+
     // Run game.
     private _runMainLoop () {
         if (!this._inited || (EDITOR && !legacyCC.GAME_VIEW)) {
@@ -612,7 +745,7 @@ export class Game extends EventTarget {
 
         debug.setDisplayStats(!!config.showFPS);
         director.startAnimation();
-        this.timer.start(director);
+        this.resume();
     }
 
     // @Game loading section
@@ -639,7 +772,7 @@ export class Game extends EventTarget {
         this.config = config as NormalizedGameConfig;
         this._configLoaded = true;
 
-        this.timer.frameRate = config.frameRate;
+        this.frameRate = config.frameRate;
     }
 
     private _determineRenderType () {
@@ -770,6 +903,7 @@ export class Game extends EventTarget {
             () => Promise.resolve(this._showSplashScreen()).then(
                 () => {
                     this._inited = true;
+                    this._initTime = performance.now();
                     this._runMainLoop();
                     this._safeEmit(Game.EVENT_GAME_INITED);
                     if (this.onStart) {

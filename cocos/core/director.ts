@@ -48,7 +48,6 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, assertID, warnID } from './platform/debug';
-import { ITicker } from './timer';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -69,7 +68,7 @@ import { ITicker } from './timer';
  * `director.methodName();`
  * 它创建和处理主窗口并且管理什么时候执行场景。
  */
-export class Director extends EventTarget implements ITicker {
+export class Director extends EventTarget {
     /**
      * @en The event which will be triggered when the singleton of Director initialized.
      * @zh Director 单例初始化时触发的事件
@@ -238,7 +237,7 @@ export class Director extends EventTarget implements ITicker {
 
         this._systems = [];
 
-        legacyCC.game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
+        game.once(Game.EVENT_RENDERER_INITED, this._initOnRendererInitialized, this);
     }
 
     /**
@@ -257,7 +256,7 @@ export class Director extends EventTarget implements ITicker {
      * @deprecated since v2.0
      */
     public convertToGL (uiPoint: Vec2) {
-        const container = legacyCC.game.container as Element;
+        const container = game.container as Element;
         const view = legacyCC.view;
         const box = container.getBoundingClientRect();
         const left = box.left + window.pageXOffset - container.clientLeft;
@@ -276,7 +275,7 @@ export class Director extends EventTarget implements ITicker {
      * @deprecated since v2.0
      */
     public convertToUI (glPoint: Vec2) {
-        const container = legacyCC.game.container as Element;
+        const container = game.container as Element;
         const view = legacyCC.view;
         const box = container.getBoundingClientRect();
         const left = box.left + window.pageXOffset - container.clientLeft;
@@ -389,7 +388,7 @@ export class Director extends EventTarget implements ITicker {
         if (BUILD && DEBUG) {
             console.time('AttachPersist');
         }
-        const persistNodeList = Object.keys(legacyCC.game._persistRootNodes).map((x) => legacyCC.game._persistRootNodes[x] as Node);
+        const persistNodeList = Object.keys(game._persistRootNodes).map((x) => game._persistRootNodes[x] as Node);
         for (let i = 0; i < persistNodeList.length; i++) {
             const node = persistNodeList[i];
             node.emit(legacyCC.Node.SCENE_CHANGED_FOR_PERSISTS, scene.renderScene);
@@ -421,7 +420,7 @@ export class Director extends EventTarget implements ITicker {
             if (BUILD && DEBUG) {
                 console.time('AutoRelease');
             }
-            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, legacyCC.game._persistRootNodes);
+            legacyCC.assetManager._releaseManager._autoRelease(oldScene, scene, game._persistRootNodes);
             if (BUILD && DEBUG) {
                 console.timeEnd('AutoRelease');
             }
@@ -600,28 +599,28 @@ export class Director extends EventTarget implements ITicker {
     /**
      * @en Returns the delta time since last frame.
      * @zh 获取上一帧的增量时间。
-     * @deprecated since v3.3.0, please use game.timer.deltaTime instead
+     * @deprecated since v3.3.0, please use game.deltaTime instead
      */
     public getDeltaTime () {
-        return game.timer.deltaTime;
+        return game.deltaTime;
     }
 
     /**
      * @en Returns the total passed time since game start, unit: ms
      * @zh 获取从游戏开始到现在总共经过的时间，单位为 ms
-     * @deprecated since v3.3.0, please use game.timer.totalTime instead
+     * @deprecated since v3.3.0, please use game.totalTime instead
      */
     public getTotalTime () {
-        return game.timer.totalTime;
+        return game.totalTime;
     }
 
     /**
      * @en Returns the current time.
      * @zh 获取当前帧的时间。
-     * @deprecated since v3.3.0, please use game.timer.frameStartTime instead
+     * @deprecated since v3.3.0, please use game.frameStartTime instead
      */
     public getCurrentTime () {
-        return game.timer.frameStartTime;
+        return game.frameStartTime;
     }
 
     /**
@@ -722,7 +721,7 @@ export class Director extends EventTarget implements ITicker {
             dt = now;
         } else {
             // @ts-expect-error using internal API for deprecation
-            dt = game.timer._calculateDT(now);
+            dt = game._calculateDT(now);
         }
         this.tick(dt);
     }
@@ -790,7 +789,8 @@ export class Director extends EventTarget implements ITicker {
     private _init () {
         // The test environment does not currently support the renderer
         if (TEST) return Promise.resolve();
-        this._root = new Root(legacyCC.game._gfxDevice);
+        // @ts-expect-error internal api usage
+        this._root = new Root(game._gfxDevice);
         const rootInfo = {};
         return this._root.initialize(rootInfo).catch((error) => {
             errorID(1217);

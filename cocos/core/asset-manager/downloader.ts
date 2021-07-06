@@ -407,7 +407,7 @@ export class Downloader {
     private _updateTime () {
         const now = performance.now();
         // use deltaTime as interval
-        const deltaTime = legacyCC.game.timer.deltaTime;
+        const deltaTime = legacyCC.game.deltaTime;
         const interval = deltaTime > this._maxInterval ? this._maxInterval : deltaTime;
         if (now - this._lastDate > interval * 1000) {
             this._totalNumThisPeriod = 0;
