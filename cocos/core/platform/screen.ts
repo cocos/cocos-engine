@@ -29,8 +29,9 @@
  * @module core
  */
 
-import { screenManager } from 'pal/screenManager';
+import { screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
+import { Size } from '../math';
 import { warnID } from './debug';
 
 /**
@@ -39,12 +40,23 @@ import { warnID } from './debug';
  */
 class Screen {
     /**
+     * @en Get the size of current window.
+     * On Web platform, this should be the size of game frame.
+     * @zh 获取当前窗口尺寸。
+     * 在 Web 平台，这里应该是 game frame 的尺寸
+     * @returns {Size}
+     */
+    public get windowSize (): Size {
+        return screenAdapter.windowSize;
+    }
+
+    /**
      * @en Whether it supports full screen？
      * @zh 是否支持全屏？
      * @returns {Boolean}
      */
-    public get supportsFullScreen () {
-        return screenManager;
+    public get supportsFullScreen (): boolean {
+        return screenAdapter.supportFullScreen;
     }
 
     /**
@@ -52,8 +64,8 @@ class Screen {
      * @zh 当前是否处在全屏状态下
      * @returns {boolean}
      */
-    public fullScreen () {
-        return screenManager.isOnFullScreen;
+    public fullScreen (): boolean {
+        return screenAdapter.isFullScreen;
     }
 
     /**
@@ -82,7 +94,7 @@ class Screen {
         if (arguments.length > 0) {
             warnID(1400, 'screen.requestFullScreen(element, onFullScreenChange?, onFullScreenError?)', 'screen.requestFullScreen(): Promise');
         }
-        return screenManager.requestFullScreen().then(() => {
+        return screenAdapter.requestFullScreen().then(() => {
             // @ts-expect-error no parameter passed
             onFullScreenChange?.();
         }).catch((err) => {
@@ -98,7 +110,7 @@ class Screen {
      * @return {Promise}
      */
     public exitFullScreen (): Promise<any> {
-        return screenManager.exitFullScreen();
+        return screenAdapter.exitFullScreen();
     }
 
     /**

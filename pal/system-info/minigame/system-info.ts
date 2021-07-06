@@ -1,8 +1,8 @@
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SupportCapability } from 'pal/systemInfo';
+import { SupportCapability } from 'pal/system-info';
 import { minigame } from 'pal/minigame';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, OS, Platform, AppEvent, Language } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;
@@ -30,7 +30,7 @@ if (WECHAT) {
     currentPlatform = Platform.QTT_MINI_GAME;
 }
 
-class SystemInfo {
+class SystemInfo extends EventTarget {
     public readonly networkType: NetworkType;
     public readonly isNative: boolean;
     public readonly isBrowser: boolean;
@@ -47,9 +47,8 @@ class SystemInfo {
     public readonly pixelRatio: number;
     public readonly supportCapability: SupportCapability;
 
-    private _eventTarget: EventTarget = new EventTarget();
-
     constructor () {
+        super();
         const minigameSysInfo = minigame.getSystemInfoSync();
         this.networkType = NetworkType.LAN;  // TODO
         this.isNative = false;
@@ -117,10 +116,10 @@ class SystemInfo {
 
     private _registerEvent () {
         minigame.onHide(() => {
-            this._eventTarget.emit(AppEvent.HIDE);
+            this.emit('hide');
         });
         minigame.onShow(() => {
-            this._eventTarget.emit(AppEvent.SHOW);
+            this.emit('show');
         });
     }
 
@@ -150,26 +149,6 @@ class SystemInfo {
 
     public close () {
         // TODO: minigame.exitMiniProgram() not implemented.
-    }
-
-    public onHide (cb: () => void) {
-        this._eventTarget.on(AppEvent.HIDE, cb);
-    }
-    public onShow (cb: () => void) {
-        this._eventTarget.on(AppEvent.SHOW, cb);
-    }
-    public onClose (cb: () => void) {
-        this._eventTarget.on(AppEvent.CLOSE, cb);
-    }
-
-    public offHide (cb?: () => void) {
-        this._eventTarget.off(AppEvent.HIDE, cb);
-    }
-    public offShow (cb?: () => void) {
-        this._eventTarget.off(AppEvent.SHOW, cb);
-    }
-    public offClose (cb?: () => void) {
-        this._eventTarget.off(AppEvent.CLOSE, cb);
     }
 }
 

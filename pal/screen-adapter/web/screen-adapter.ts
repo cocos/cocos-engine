@@ -1,7 +1,7 @@
-import { SafeAreaEdge } from 'pal/screenManager';
+import { SafeAreaEdge } from 'pal/screen-adapter';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
-import { ScreenEvent, Orientation } from '../enum-type';
+import { Orientation } from '../enum-type';
 
 interface IScreenFunctionName {
     requestFullscreen: string,
@@ -12,8 +12,7 @@ interface IScreenFunctionName {
     fullscreenerror: string,
 }
 
-class ScreenManager {
-    private _eventTarget: EventTarget = new EventTarget();
+class ScreenAdapter extends EventTarget {
     private _gameFrame?: HTMLDivElement;
     private _supportFullScreen = false;
     private _touchEventName: string;
@@ -65,6 +64,7 @@ class ScreenManager {
     ];
 
     constructor () {
+        super();
         // TODO: need to access frame from 'pal/launcher' module
         this._gameFrame = document.getElementById('GameDiv') as HTMLDivElement;
 
@@ -95,32 +95,36 @@ class ScreenManager {
         });
 
         window.addEventListener('resize', () => {
-            this._eventTarget.emit(ScreenEvent.SCREEN_RESIZE);
+            this.emit('window-resize');
         });
         window.addEventListener('orientationchange', () => {
-            this._eventTarget.emit(ScreenEvent.ORIENTATION_CHANGE);
+            this.emit('orientation-change');
         });
         document.addEventListener(this._fn.fullscreenchange, () => {
-            this._eventTarget.emit(ScreenEvent.FULLSCREEN_CHANGE);
+            this.emit('fullscreen-change');
         });
     }
 
     public get supportFullScreen (): boolean {
         return this._supportFullScreen;
     }
-    public get isOnFullScreen (): boolean {
+    public get isFullScreen (): boolean {
         if (!this._supportFullScreen) {
             return false;
         }
         return !!document[this._fn.fullscreenElement];
     }
-    public get screenSize (): Size {
+    public get windowSize (): Size {
         if (this._gameFrame) {
             return new Size(this._gameFrame.clientWidth, this._gameFrame.clientHeight);
         } else {
             return new Size(window.innerWidth, window.innerHeight);
         }
     }
+    public set windowSize (size: Size) {
+        console.warn('Setting window size is not supported yet.');
+    }
+
     public get orientation (): Orientation {
         // TODO
         throw new Error('Method not implemented.');
@@ -132,9 +136,6 @@ class ScreenManager {
             left: 0,
             right: 0,
         };
-    }
-    public resizeScreen (size: Size): Promise<void> {
-        throw new Error('Method not implemented.');
     }
 
     private _doRequestFullScreen (): Promise<void> {
@@ -185,25 +186,6 @@ class ScreenManager {
             resolve();
         });
     }
-
-    public onFullScreenChange (cb: () => void) {
-        this._eventTarget.on(ScreenEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public onScreenResize (cb: () => void) {
-        this._eventTarget.on(ScreenEvent.SCREEN_RESIZE, cb);
-    }
-    public onOrientationChange (cb: () => void) {
-        this._eventTarget.on(ScreenEvent.ORIENTATION_CHANGE, cb);
-    }
-    public offFullScreenChange (cb?: () => void) {
-        this._eventTarget.off(ScreenEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public offScreenResize (cb?: () => void) {
-        this._eventTarget.off(ScreenEvent.SCREEN_RESIZE, cb);
-    }
-    public offOrientationChange (cb?: () => void) {
-        this._eventTarget.off(ScreenEvent.ORIENTATION_CHANGE, cb);
-    }
 }
 
-export const screenManager = new ScreenManager();
+export const screenAdapter = new ScreenAdapter();

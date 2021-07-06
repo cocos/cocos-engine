@@ -1,5 +1,1 @@
-export enum AppEvent {
-    HIDE = 'hide',
-    SHOW = 'show',
-    CLOSE = 'close',
-}
+export type PalSystemEvent = 'hide' | 'show' | 'close';

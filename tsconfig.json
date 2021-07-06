@@ -33,7 +33,7 @@
 
         // pal
         "./@types/pal/system-info",
-        "./@types/pal/screen-manager",
+        "./@types/pal/screen-adapter",
         "./@types/pal/minigame",
         "./@types/pal/audio",
         "./@types/pal/input"

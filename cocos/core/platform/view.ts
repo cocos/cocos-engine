@@ -32,7 +32,7 @@
 
 import '../data/class';
 import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
-import { screenManager } from 'pal/screenManager';
+import { screenAdapter } from 'pal/screen-adapter';
 import { EventTarget } from '../event/event-target';
 import '../game';
 import { Rect, Size, Vec2 } from '../math';
@@ -42,6 +42,7 @@ import { logID, errorID } from './debug';
 import { sys } from './sys';
 import { OS } from '../../../pal/system-info/enum-type';
 import { screen } from './screen';
+import { ScreenEvent } from '../../../pal/screen-adapter/enum-type';
 
 /**
  * @en View represents the game window.<br/>
@@ -167,14 +168,14 @@ export class View extends EventTarget {
             // enable
             if (!this._resizeWithBrowserSize) {
                 this._resizeWithBrowserSize = true;
-                screenManager.onScreenResize(this._resizeEvent);
-                screenManager.onOrientationChange(this._orientationChange);
+                screenAdapter.on('window-resize', this._resizeEvent, this);
+                screenAdapter.on('orientation-change', this._orientationChange, this);
             }
         } else if (this._resizeWithBrowserSize) {
             // disable
             this._resizeWithBrowserSize = false;
-            screenManager.offScreenResize(this._resizeEvent);
-            screenManager.offOrientationChange(this._orientationChange);
+            screenAdapter.off('window-resize', this._resizeEvent, this);
+            screenAdapter.off('orientation-change', this._orientationChange, this);
         }
     }
 
@@ -614,54 +615,50 @@ export class View extends EventTarget {
 
     // Resize helper functions
     private _resizeEvent () {
-        const _view = legacyCC.view;
-
         // Check frame size changed or not
-        const prevFrameW = _view._frameSize.width;
-        const prevFrameH = _view._frameSize.height;
-        const prevRotated = _view._isRotated;
+        const prevFrameW = this._frameSize.width;
+        const prevFrameH = this._frameSize.height;
+        const prevRotated = this._isRotated;
         if (legacyCC.sys.isMobile) {
             const containerStyle = legacyCC.game.container.style;
             const margin = containerStyle.margin;
             containerStyle.margin = '0';
             containerStyle.display = 'none';
-            _view._initFrameSize();
+            this._initFrameSize();
             containerStyle.margin = margin;
             containerStyle.display = 'block';
         } else {
-            _view._initFrameSize();
+            this._initFrameSize();
         }
 
-        if (!JSB && !RUNTIME_BASED && !_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
+        if (!JSB && !RUNTIME_BASED && !this._orientationChanging && this._isRotated === prevRotated && this._frameSize.width === prevFrameW && this._frameSize.height === prevFrameH) {
             return;
         }
 
         // Frame size changed, do resize works
-        const width = _view._designResolutionSize.width;
-        const height = _view._designResolutionSize.height;
+        const width = this._designResolutionSize.width;
+        const height = this._designResolutionSize.height;
 
-        _view._resizing = true;
+        this._resizing = true;
         if (width > 0) {
-            _view.setDesignResolutionSize(width, height, _view._resolutionPolicy);
+            this.setDesignResolutionSize(width, height, this._resolutionPolicy);
         }
-        _view._resizing = false;
+        this._resizing = false;
 
-        _view.emit('canvas-resize');
-        if (_view._resizeCallback) {
-            _view._resizeCallback.call();
-        }
+        this.emit('canvas-resize');
+        this._resizeCallback?.();
     }
 
     private _orientationChange () {
-        legacyCC.view._orientationChanging = true;
-        legacyCC.view._resizeEvent();
+        this._orientationChanging = true;
+        this._resizeEvent();
     }
 
     private _initFrameSize () {
         const locFrameSize = this._frameSize;
-        const screenSize = screenManager.screenSize;
-        const w = screenSize.width;
-        const h = screenSize.height;
+        const windowSize = screenAdapter.windowSize;
+        const w = windowSize.width;
+        const h = windowSize.height;
         const isLandscape: boolean = w >= h;
 
         if (EDITOR || !legacyCC.sys.isMobile

@@ -1,5 +1,5 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
-import { systemInfo } from 'pal/systemInfo';
+import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { BrowserType, OS } from '../../system-info/enum-type';
 import { legacyCC } from '../../../cocos/core/global-exports';

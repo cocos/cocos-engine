@@ -1,9 +1,9 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SupportCapability } from 'pal/systemInfo';
+import { SupportCapability } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, OS, Platform, AppEvent, Language } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
 
-class SystemInfo {
+class SystemInfo extends EventTarget {
     public readonly networkType: NetworkType;
     public readonly isNative: boolean;
     public readonly isBrowser: boolean;
@@ -19,11 +19,10 @@ class SystemInfo {
     public readonly browserVersion: string;
     public readonly pixelRatio: number;
     public readonly supportCapability: SupportCapability;
-
-    private _eventTarget: EventTarget = new EventTarget();
     private _battery?: any;
 
     constructor () {
+        super();
         const nav = window.navigator;
         const ua = nav.userAgent.toLowerCase();
         // @ts-expect-error getBattery is not totally supported
@@ -196,14 +195,14 @@ class SystemInfo {
         const onHidden = () => {
             if (!hidden) {
                 hidden = true;
-                this._eventTarget.emit(AppEvent.HIDE);
+                this.emit('hide');
             }
         };
         // In order to adapt the most of platforms the onshow API.
         const onShown = (arg0?, arg1?, arg2?, arg3?, arg4?) => {
             if (hidden) {
                 hidden = false;
-                this._eventTarget.emit(AppEvent.SHOW, arg0, arg1, arg2, arg3, arg4);
+                this.emit('show', arg0, arg1, arg2, arg3, arg4);
             }
         };
 
@@ -278,28 +277,8 @@ class SystemInfo {
     }
 
     public close () {
-        this._eventTarget.emit(AppEvent.CLOSE);
+        this.emit('close');
         window.close();
-    }
-
-    public onHide (cb: () => void) {
-        this._eventTarget.on(AppEvent.HIDE, cb);
-    }
-    public onShow (cb: () => void) {
-        this._eventTarget.on(AppEvent.SHOW, cb);
-    }
-    public onClose (cb: () => void) {
-        this._eventTarget.on(AppEvent.CLOSE, cb);
-    }
-
-    public offHide (cb?: () => void) {
-        this._eventTarget.off(AppEvent.HIDE, cb);
-    }
-    public offShow (cb?: () => void) {
-        this._eventTarget.off(AppEvent.SHOW, cb);
-    }
-    public offClose (cb?: () => void) {
-        this._eventTarget.off(AppEvent.CLOSE, cb);
     }
 }
 

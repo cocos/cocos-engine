@@ -50,7 +50,7 @@ markAsWarning(View.prototype, 'View.prototype', [
     },
     {
         name: 'enableAutoFullScreen',
-        suggest: 'use Screen.prototype.requestFullScreen() instead.',
+        suggest: 'use screen.requestFullScreen() instead.',
     },
     {
         name: 'isAutoFullScreenEnabled',

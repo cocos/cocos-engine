@@ -1,6 +1,6 @@
-import { SupportCapability } from 'pal/systemInfo';
+import { SupportCapability } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, OS, Platform, AppEvent, Language } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
 
 const networkTypeMap: Record<string, NetworkType> = {
     0: NetworkType.NONE,
@@ -19,7 +19,7 @@ const platformMap: Record<number, Platform> = {
     6: Platform.OHOS,
 };
 
-class SystemInfo {
+class SystemInfo extends EventTarget {
     public readonly isNative: boolean;
     public readonly isBrowser: boolean;
     public readonly isMobile: boolean;
@@ -36,13 +36,12 @@ class SystemInfo {
     public readonly supportCapability: SupportCapability;
     // TODO: need to wrap the function __isObjectValid()
 
-    private _eventTarget: EventTarget = new EventTarget();
-
     public get networkType (): NetworkType {
         return networkTypeMap[jsb.device.getNetworkType()];
     }
 
     constructor () {
+        super();
         this.isNative = true;
         this.isBrowser = false;
 
@@ -90,13 +89,13 @@ class SystemInfo {
 
     private _registerEvent () {
         jsb.onPause = () => {
-            this._eventTarget.emit(AppEvent.HIDE);
+            this.emit('hide');
         };
         jsb.onResume = () => {
-            this._eventTarget.emit(AppEvent.SHOW);
+            this.emit('show');
         };
         jsb.onClose = () => {
-            this._eventTarget.emit(AppEvent.CLOSE);
+            this.emit('close');
         };
     }
 
@@ -124,26 +123,6 @@ class SystemInfo {
     public close () {
         // @ts-expect-error __close() is defined in JSB
         __close();
-    }
-
-    public onHide (cb: () => void) {
-        this._eventTarget.on(AppEvent.HIDE, cb);
-    }
-    public onShow (cb: () => void) {
-        this._eventTarget.on(AppEvent.SHOW, cb);
-    }
-    public onClose (cb: () => void) {
-        this._eventTarget.on(AppEvent.CLOSE, cb);
-    }
-
-    public offHide (cb?: () => void) {
-        this._eventTarget.off(AppEvent.HIDE, cb);
-    }
-    public offShow (cb?: () => void) {
-        this._eventTarget.off(AppEvent.SHOW, cb);
-    }
-    public offClose (cb?: () => void) {
-        this._eventTarget.off(AppEvent.CLOSE, cb);
     }
 }
 

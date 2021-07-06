@@ -1,8 +1,8 @@
-import { SafeAreaEdge } from 'pal/screenManager';
-import { systemInfo } from 'pal/systemInfo';
+import { SafeAreaEdge } from 'pal/screen-adapter';
+import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
-import { ScreenEvent, Orientation } from '../enum-type';
+import { Orientation } from '../enum-type';
 
 // these value is defined in the native layer
 const orientationMap: Record<string, Orientation> = {
@@ -12,10 +12,9 @@ const orientationMap: Record<string, Orientation> = {
     180: Orientation.PORTRAIT_UPSIDE_DOWN,
 };
 
-class ScreenManager {
-    private _eventTarget: EventTarget = new EventTarget();
-
+class ScreenAdapter extends EventTarget {
     constructor () {
+        super();
         this._registerEvent();
     }
 
@@ -27,21 +26,24 @@ class ScreenManager {
 
             // TODO: remove this function calling
             window.resize(size.width, size.height);
-            this._eventTarget.emit(ScreenEvent.SCREEN_RESIZE);
+            this.emit('window-resize');
         };
         jsb.onOrientationChanged = (event) => {
-            this._eventTarget.emit(ScreenEvent.ORIENTATION_CHANGE);
+            this.emit('orientation-change');
         };
     }
 
     public get supportFullScreen (): boolean {
         return false;
     }
-    public get isOnFullScreen (): boolean {
+    public get isFullScreen (): boolean {
         return false;
     }
-    public get screenSize (): Size {
+    public get windowSize (): Size {
         return new Size(window.innerWidth, window.innerHeight);
+    }
+    public set windowSize (size: Size) {
+        console.warn('Setting window size is not supported yet.');
     }
     public get orientation (): Orientation {
         return orientationMap[jsb.device.getDeviceOrientation()];
@@ -72,34 +74,12 @@ class ScreenManager {
             right: rightEdge,
         };
     }
-    public resizeScreen (size: Size): Promise<void> {
-        return Promise.reject(new Error('screen resize has not been supported yet on this platform.'));
-    }
     public requestFullScreen (): Promise<void> {
         return Promise.reject(new Error('request fullscreen has not been supported yet on this platform.'));
     }
     public exitFullScreen (): Promise<void> {
         return Promise.reject(new Error('exit fullscreen has not been supported yet on this platform.'));
     }
-
-    public onFullScreenChange (cb: () => void) {
-        this._eventTarget.on(ScreenEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public onScreenResize (cb: () => void) {
-        this._eventTarget.on(ScreenEvent.SCREEN_RESIZE, cb);
-    }
-    public onOrientationChange (cb: () => void) {
-        this._eventTarget.on(ScreenEvent.ORIENTATION_CHANGE, cb);
-    }
-    public offFullScreenChange (cb?: () => void) {
-        this._eventTarget.off(ScreenEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public offScreenResize (cb?: () => void) {
-        this._eventTarget.off(ScreenEvent.SCREEN_RESIZE, cb);
-    }
-    public offOrientationChange (cb?: () => void) {
-        this._eventTarget.off(ScreenEvent.ORIENTATION_CHANGE, cb);
-    }
 }
 
-export const screenManager = new ScreenManager();
+export const screenAdapter = new ScreenAdapter();

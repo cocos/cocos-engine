@@ -1,36 +1,38 @@
 import { minigame } from 'pal/minigame';
-import { SafeAreaEdge } from 'pal/screenManager';
+import { SafeAreaEdge } from 'pal/screen-adapter';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Size } from '../../../cocos/core/math';
-import { ScreenEvent, Orientation } from '../enum-type';
+import { Orientation } from '../enum-type';
 
-class ScreenManager {
-    private _eventTarget: EventTarget = new EventTarget();
-
+class ScreenAdapter extends EventTarget {
     constructor () {
+        super();
         // TODO: onResize or onOrientationChange is not supported well
     }
 
     public get supportFullScreen (): boolean {
         return false;
     }
-    public get isOnFullScreen (): boolean {
+    public get isFullScreen (): boolean {
         return false;
     }
-    public get screenSize (): Size {
+    public get windowSize (): Size {
         const sysInfo = minigame.getSystemInfoSync();
         return new Size(sysInfo.screenWidth, sysInfo.screenHeight);
+    }
+    public set windowSize (size: Size) {
+        console.warn('Setting window size is not supported on this platform.');
     }
     public get orientation (): Orientation {
         return minigame.orientation;
     }
     public get safeAreaEdge (): SafeAreaEdge {
         const minigameSafeArea = minigame.getSafeArea();
-        const screenSize = this.screenSize;
+        const windowSize = this.windowSize;
         let topEdge = minigameSafeArea.top;
-        let bottomEdge = screenSize.height - minigameSafeArea.bottom;
+        let bottomEdge = windowSize.height - minigameSafeArea.bottom;
         let leftEdge = minigameSafeArea.left;
-        let rightEdge = screenSize.width - minigameSafeArea.right;
+        let rightEdge = windowSize.width - minigameSafeArea.right;
         const orientation = this.orientation;
         // Make it symmetrical.
         if (orientation === Orientation.PORTRAIT) {
@@ -51,34 +53,12 @@ class ScreenManager {
             right: rightEdge,
         };
     }
-    public resizeScreen (size: Size): Promise<void> {
-        return Promise.reject(new Error('screen resize is not supported on this platform.'));
-    }
     public requestFullScreen (): Promise<void> {
         return Promise.reject(new Error('request fullscreen is not supported on this platform.'));
     }
     public exitFullScreen (): Promise<void> {
         return Promise.reject(new Error('exit fullscreen is not supported on this platform.'));
     }
-
-    public onFullScreenChange (cb: () => void) {
-        this._eventTarget.on(ScreenEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public onScreenResize (cb: () => void) {
-        this._eventTarget.on(ScreenEvent.SCREEN_RESIZE, cb);
-    }
-    public onOrientationChange (cb: () => void) {
-        this._eventTarget.on(ScreenEvent.ORIENTATION_CHANGE, cb);
-    }
-    public offFullScreenChange (cb?: () => void) {
-        this._eventTarget.off(ScreenEvent.FULLSCREEN_CHANGE, cb);
-    }
-    public offScreenResize (cb?: () => void) {
-        this._eventTarget.off(ScreenEvent.SCREEN_RESIZE, cb);
-    }
-    public offOrientationChange (cb?: () => void) {
-        this._eventTarget.off(ScreenEvent.ORIENTATION_CHANGE, cb);
-    }
 }
 
-export const screenManager = new ScreenManager();
+export const screenAdapter = new ScreenAdapter();

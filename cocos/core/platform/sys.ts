@@ -28,15 +28,17 @@
  * @packageDocumentation
  * @module core
  */
-import { systemInfo } from 'pal/systemInfo';
-import { screenManager } from 'pal/screenManager';
+import { systemInfo } from 'pal/system-info';
+import { screenAdapter } from 'pal/screen-adapter';
 import { legacyCC } from '../global-exports';
 import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/system-info/enum-type';
 import { Vec2 } from '../math';
+import { screen } from './screen';
+import { ScreenEvent } from '../../../pal/screen-adapter/enum-type';
 
-const screenSize = screenManager.screenSize;
+const windowSize = screen.windowSize;
 const pixelRatio = systemInfo.pixelRatio;
 
 /**
@@ -169,8 +171,8 @@ export const sys: Record<string, any> = {
      * @zh 指示游戏窗口的像素分辨率
      */
     windowPixelResolution: {
-        width: screenSize.width * pixelRatio,
-        height: screenSize.height * pixelRatio,
+        width: windowSize.width * pixelRatio,
+        height: windowSize.height * pixelRatio,
     },
 
     /**
@@ -290,15 +292,15 @@ export const sys: Record<string, any> = {
      */
     getSafeAreaRect () {
         const locView = legacyCC.view;
-        const edge = screenManager.safeAreaEdge;
-        const screenSize = screenManager.screenSize;
+        const edge = screenAdapter.safeAreaEdge;
+        const windowSize = screen.windowSize;
 
         // Get leftBottom and rightTop point in screen coordinates system.
-        const leftBottom = new Vec2(edge.left, screenSize.height - edge.bottom);
-        const rightTop = new Vec2(screenSize.width - edge.right, edge.top);
+        const leftBottom = new Vec2(edge.left, windowSize.height - edge.bottom);
+        const rightTop = new Vec2(windowSize.width - edge.right, edge.top);
 
         // Convert to the location in game view coordinates system.
-        const relatedPos = { left: 0, top: 0, width: screenSize.width, height: screenSize.height };
+        const relatedPos = { left: 0, top: 0, width: windowSize.width, height: windowSize.height };
         locView.convertToLocationInView(leftBottom.x, leftBottom.y, relatedPos, leftBottom);
         locView.convertToLocationInView(rightTop.x, rightTop.y, relatedPos, rightTop);
 
@@ -351,11 +353,11 @@ export const sys: Record<string, any> = {
         sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
             && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
 
-        screenManager.onScreenResize(() => {
-            const screenSize = screenManager.screenSize;
+        screenAdapter.on('window-resize', () => {
+            const windowSize = screenAdapter.windowSize;
             sys.windowPixelResolution = {
-                width: Math.round(screenSize.width * pixelRatio),
-                height: Math.round(screenSize.height * pixelRatio),
+                width: Math.round(windowSize.width * pixelRatio),
+                height: Math.round(windowSize.height * pixelRatio),
             };
         });
     },

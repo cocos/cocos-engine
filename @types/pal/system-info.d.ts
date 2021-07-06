@@ -1,5 +1,5 @@
 // TODO: some interface need to be designed in a module called 'Application' and 'Network'
-declare module 'pal/systemInfo' {
+declare module 'pal/system-info' {
     export interface SupportCapability {
         readonly webp: boolean;
         readonly gl: boolean;
@@ -45,14 +45,8 @@ declare module 'pal/systemInfo' {
 
         public close ();
 
-        public onHide (cb: () => void);
-        public onShow (cb: () => void);
-        public onClose (cb: () => void);
-
-        public offHide (cb?: () => void);
-        public offShow (cb?: () => void);
-        public offClose (cb?: () => void);
-
+        on (event: import('pal/system-info/enum-type').PalSystemEvent, cb: (...args: any)=>void, target?: any);
+        off (event: import('pal/system-info/enum-type').PalSystemEvent, cb?: (...args: any)=>void, target?: any);
         // TODO: support onError
     }
 

@@ -30,7 +30,7 @@
  */
 
 import { EDITOR, DEV } from 'internal:constants';
-import { screenManager } from 'pal/screenManager';
+import { screenAdapter } from 'pal/screen-adapter';
 import { Director, director } from '../core/director';
 import { Vec2, Vec3 } from '../core/math';
 import { View } from '../core/platform/view';
@@ -41,6 +41,7 @@ import { array } from '../core/utils/js';
 import { AlignFlags, AlignMode, computeInverseTransForTarget, getReadonlyNodeSize, Widget } from './widget';
 import { UITransform } from '../2d/framework';
 import { legacyCC } from '../core/global-exports';
+import { ScreenEvent } from '../../pal/screen-adapter/enum-type';
 
 const _tempPos = new Vec3();
 const _defaultAnchor = new Vec2();
@@ -354,7 +355,7 @@ export const widgetManager = legacyCC._widgetManager = {
         if (!EDITOR) {
             const thisOnResized = this.onResized.bind(this);
             View.instance.on('canvas-resize', thisOnResized);
-            screenManager.onOrientationChange(thisOnResized);
+            screenAdapter.on('orientation-change', thisOnResized);
         }
     },
     add (widget: Widget) {

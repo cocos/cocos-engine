@@ -1,4 +1,4 @@
-import { systemInfo } from 'pal/systemInfo';
+import { systemInfo } from 'pal/system-info';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';

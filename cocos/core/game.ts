@@ -29,7 +29,7 @@
  */
 
 import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
-import { systemInfo } from 'pal/systemInfo';
+import { systemInfo } from 'pal/system-info';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
@@ -870,8 +870,8 @@ export class Game extends EventTarget {
     }
 
     private _initEvents () {
-        systemInfo.onShow(this._onShow.bind(this));
-        systemInfo.onHide(this._onHide.bind(this));
+        systemInfo.on('show', this._onShow, this);
+        systemInfo.on('hide', this._onHide, this);
     }
 
     private _onHide () {

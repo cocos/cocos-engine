@@ -1,5 +1,5 @@
 import { minigame } from 'pal/minigame';
-import { systemInfo } from 'pal/systemInfo';
+import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { clamp, clamp01 } from '../../../cocos/core';
@@ -51,9 +51,6 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _innerAudioContext: any;
     private _state: AudioState = AudioState.INIT;
 
-    private _onHide?: () => void;
-    private _onShow?: () => void;
-
     private _onPlay: () => void;
     private _onPause: () => void;
     private _onStop: () => void;
@@ -69,23 +66,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._eventTarget = new EventTarget();
 
         // event
-        this._onHide = () => {
-            if (this._state === AudioState.PLAYING) {
-                this.pause().then(() => {
-                    this._state = AudioState.INTERRUPTED;
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-                }).catch((e) => {});
-            }
-        };
-        systemInfo.onHide(this._onHide);
-        this._onShow = () => {
-            if (this._state === AudioState.INTERRUPTED) {
-                this.play().then(() => {
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-                }).catch((e) => {});
-            }
-        };
-        systemInfo.onShow(this._onShow);
+        systemInfo.on('hide', this._onHide, this);
+        systemInfo.on('show', this._onShow, this);
         const eventTarget = this._eventTarget;
         this._onPlay = () => {
             this._state = AudioState.PLAYING;
@@ -111,19 +93,28 @@ export class AudioPlayerMinigame implements OperationQueueable {
         innerAudioContext.onEnded(this._onEnded);
     }
     destroy () {
-        if (this._onShow) {
-            systemInfo.offShow(this._onShow);
-            this._onShow = undefined;
-        }
-        if (this._onHide) {
-            systemInfo.offHide(this._onHide);
-            this._onHide = undefined;
-        }
+        systemInfo.off('hide', this._onHide, this);
+        systemInfo.off('show', this._onShow, this);
         if (this._innerAudioContext) {
             ['Play', 'Pause', 'Stop', 'Seeked', 'Ended'].forEach((event) => {
                 this._offEvent(event);
             });
             this._innerAudioContext = null;
+        }
+    }
+    private _onHide () {
+        if (this._state === AudioState.PLAYING) {
+            this.pause().then(() => {
+                this._state = AudioState.INTERRUPTED;
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
+            }).catch((e) => {});
+        }
+    }
+    private _onShow () {
+        if (this._state === AudioState.INTERRUPTED) {
+            this.play().then(() => {
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
+            }).catch((e) => {});
         }
     }
     private _offEvent (eventName: string) {
