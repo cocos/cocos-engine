@@ -42,7 +42,6 @@ import { logID, errorID } from './debug';
 import { sys } from './sys';
 import { OS } from '../../../pal/system-info/enum-type';
 import { screen } from './screen';
-import { ScreenEvent } from '../../../pal/screen-adapter/enum-type';
 
 /**
  * @en View represents the game window.<br/>

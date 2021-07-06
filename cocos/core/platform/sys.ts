@@ -36,7 +36,6 @@ import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/system-info/enum-type';
 import { Vec2 } from '../math';
 import { screen } from './screen';
-import { ScreenEvent } from '../../../pal/screen-adapter/enum-type';
 
 const windowSize = screen.windowSize;
 const pixelRatio = systemInfo.pixelRatio;
