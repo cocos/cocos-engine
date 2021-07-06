@@ -291,7 +291,6 @@ export class WebGL2Device extends Device {
         this._features[Feature.FORMAT_R11G11B10F] = true;
         this._features[Feature.FORMAT_SRGB] = true;
         this._features[Feature.FORMAT_RGB8] = true;
-        this._features[Feature.MSAA] = true;
         this._features[Feature.ELEMENT_INDEX_UINT] = true;
         this._features[Feature.INSTANCED_ARRAYS] = true;
         this._features[Feature.MULTIPLE_RENDER_TARGETS] = true;
