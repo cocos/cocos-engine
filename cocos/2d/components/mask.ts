@@ -333,6 +333,7 @@ export class Mask extends Renderable2D {
 
     public static Type = MaskType;
 
+    @markAsGCRoot
     public _clearStencilMtl: Material | null = null;
     public _clearModel: Model | null = null;
 

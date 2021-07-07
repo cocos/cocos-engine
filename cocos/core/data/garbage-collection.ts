@@ -256,7 +256,7 @@ class GarbageCollectionManager {
         }
     }
 
-    finalizationRegistryCallback (gcObject: GCObject) {
+    private finalizationRegistryCallback (gcObject: GCObject) {
         gcObject.destroy();
     }
 

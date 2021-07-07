@@ -3,7 +3,9 @@ import { System } from '../core/components';
 import { ArmatureDisplay } from './ArmatureDisplay';
 import { legacyCC } from '../core/global-exports';
 import { errorID } from '../core';
+import { ccclass } from '../core/data/decorators';
 
+@ccclass('cc.ArmatureSystem')
 export class ArmatureSystem extends System {
     /**
      * @en
