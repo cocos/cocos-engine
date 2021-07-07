@@ -30,6 +30,7 @@ export const NativeModel: Constructor<{
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
+    clearSubModels(): void;
 }> = null!;
 export type NativeModel = InstanceType<typeof NativeModel>;
 
@@ -50,6 +51,7 @@ export const NativeSkinningModel: Constructor<{
     setIndicesAndJoints(indices: number[], joints: NativeJointInfo[]): void;
     setBuffers(bufs: Buffer[]):void;
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
+    clearSubModels(): void;
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
@@ -84,6 +86,7 @@ export const NativeBakedSkinningModel: Constructor<{
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]): void;
     setJointMedium(isUploadAnim: boolean, jointInfo: NativeBakedJointInfo): void;
     setAnimInfoIdx(idx: number): void;
+    clearSubModels(): void;
 }> = null!;
 export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
 

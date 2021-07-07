@@ -237,7 +237,7 @@ export class Model {
     }
 
     protected _init () {
-        if (JSB) {
+        if (JSB && !this._nativeObj) {
             this._nativeObj = new NativeModel();
         }
     }
@@ -258,9 +258,9 @@ export class Model {
         subModel.destroy();
     }
 
-    private _destroy () {
+    private _clearNativeSubModels () {
         if (JSB) {
-            this._nativeObj = null;
+            this._nativeObj!.clearSubModels();
         }
     }
 
@@ -283,7 +283,7 @@ export class Model {
         this._node = null!;
         this.isDynamicBatching = false;
 
-        this._destroy();
+        this._clearNativeSubModels();
     }
 
     public attachToScene (scene: RenderScene) {
