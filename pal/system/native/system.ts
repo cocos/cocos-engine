@@ -11,7 +11,9 @@ const orientationMap: Record<string, Orientation> = {
     180: Orientation.PORTRAIT_UPSIDE_DOWN,
 };
 const networkTypeMap: Record<string, NetworkType> = {
-    // TODO
+    0: NetworkType.NONE,
+    1: NetworkType.LAN,
+    2: NetworkType.WWAN,
 };
 const platformMap: Record<number, Platform> = {
     0: Platform.WIN32,
