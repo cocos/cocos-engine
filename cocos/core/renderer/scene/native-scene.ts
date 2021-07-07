@@ -30,7 +30,6 @@ export const NativeModel: Constructor<{
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
-    clearSubModels(): void;
 }> = null!;
 export type NativeModel = InstanceType<typeof NativeModel>;
 
@@ -51,7 +50,6 @@ export const NativeSkinningModel: Constructor<{
     setIndicesAndJoints(indices: number[], joints: NativeJointInfo[]): void;
     setBuffers(bufs: Buffer[]):void;
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
-    clearSubModels(): void;
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
@@ -86,7 +84,6 @@ export const NativeBakedSkinningModel: Constructor<{
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]): void;
     setJointMedium(isUploadAnim: boolean, jointInfo: NativeBakedJointInfo): void;
     setAnimInfoIdx(idx: number): void;
-    clearSubModels(): void;
 }> = null!;
 export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
 
@@ -231,7 +228,7 @@ export const NativeRenderScene: Constructor<{
     removeSphereLights (): void;
     removeSpotLights (): void;
     addModel (m: NativeModel): void;
-    removeModel (m: NativeModel): void;
+    removeModel (i: number): void;
     removeModels (): void;
     addBatch (batch: NativeDrawBatch2D): void;
     updateBatches (batches: NativeDrawBatch2D[]): void;

@@ -298,7 +298,7 @@ export class RenderScene {
                 model.detachFromScene();
                 this._models.splice(i, 1);
                 if (JSB) {
-                    this._nativeObj!.removeModel(model.native);
+                    this._nativeObj!.removeModel(i);
                 }
                 return;
             }
