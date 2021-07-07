@@ -97,7 +97,7 @@ gulp.task('build-declarations', async () => {
         outDir,
         withIndex: true,
         withExports: false,
-        withEditorExports: false,
+        withEditorExports: true,
     });
 });
 
