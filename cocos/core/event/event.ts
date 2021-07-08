@@ -30,7 +30,7 @@
  */
 
 import { legacyCC } from '../global-exports';
-import { DeviceEvent, KeyboardEvent, MouseEvent, SystemEventType, SystemEventTypeUnion, TouchEvent } from '../platform/event-manager/event-enum';
+import { SystemEventType, SystemEventTypeUnion } from '../platform/event-manager/event-enum';
 
 /**
  * @en
@@ -48,8 +48,6 @@ export default class Event {
      *
      * @zh
      * 没有类型的事件。
-     *
-     * @deprecated since v3.3, please use SystemEventType.NO_TYPE instead
      */
     public static NO_TYPE = 'no_type';
 
@@ -60,7 +58,7 @@ export default class Event {
      * @zh
      * 触摸事件类型。
      *
-     * @deprecated since v3.3, please use SystemEvent.TouchEvent.TOUCH_START, SystemEvent.TouchEvent.TOUCH_MOVE, SystemEvent.TouchEvent.TOUCH_END and SystemEvent.TouchEvent.TOUCH_CANCEL instead
+     * @deprecated since v3.3, please use SystemEvent.EventType.TOUCH_START, SystemEvent.EventType.TOUCH_MOVE, SystemEvent.EventType.TOUCH_END and SystemEvent.EventType.TOUCH_CANCEL instead
      */
     public static TOUCH = 'touch';
     /**
@@ -70,7 +68,7 @@ export default class Event {
      * @zh
      * 鼠标事件类型。
      *
-     * @deprecated since v3.3, please use SystemEvent.MouseEvent.MOUSE_DOWN, SystemEvent.MouseEvent.MOUSE_MOVE, SystemEvent.MouseEvent.MOUSE_UP, SystemEvent.MouseEvent.MOUSE_WHEEL, Node.EventType.MOUSE_ENTER and Node.EventType.MOUSE_LEAVE instead
+     * @deprecated since v3.3, please use SystemEvent.EventType.MOUSE_DOWN, SystemEvent.EventType.MOUSE_MOVE, SystemEvent.EventType.MOUSE_UP, SystemEvent.EventType.MOUSE_WHEEL, Node.EventType.MOUSE_ENTER and Node.EventType.MOUSE_LEAVE instead
      */
     public static MOUSE = 'mouse';
     /**
@@ -80,7 +78,7 @@ export default class Event {
      * @zh
      * 键盘事件类型。
      *
-     * @deprecated since v3.3, please use SystemEvent.KeyboardEvent.KEY_DOWN and SystemEvent.KeyboardEvent.KEY_UP instead
+     * @deprecated since v3.3, please use SystemEvent.EventType.KEY_DOWN and SystemEvent.EventType.KEY_UP instead
      */
     public static KEYBOARD = 'keyboard';
     /**
@@ -90,7 +88,7 @@ export default class Event {
      * @zh
      * 加速器事件类型。
      *
-     * @deprecated since v3.3, please use SystemEvent.DeviceEvent.DEVICEMOTION instead
+     * @deprecated since v3.3, please use SystemEvent.EventType.DEVICEMOTION instead
      */
     public static ACCELERATION = 'acceleration';
 
@@ -223,7 +221,8 @@ export default class Event {
      * 重置事件对象以便在对象池中存储。
      */
     public unuse () {
-        this.type = SystemEventType.NO_TYPE;
+        // @ts-expect-error type is not SystemEventUnion
+        this.type = Event.NO_TYPE;
         this.target = null;
         this.currentTarget = null;
         this.eventPhase = Event.NONE;
