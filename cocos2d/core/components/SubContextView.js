@@ -80,6 +80,7 @@ let SubContextView = cc.Class({
     ctor () {
         this._sprite = null;
         this._tex = new cc.Texture2D();
+        this._tex._packable = false;
         this._context = null;
         this._updatedTime = performance.now();
         this._updateInterval = 0;
@@ -94,6 +95,7 @@ let SubContextView = cc.Class({
             let sharedCanvas = this._context.canvas;
             this._tex.setPremultiplyAlpha(true);
             this._tex.initWithElement(sharedCanvas);
+            this._tex._packable = false;
 
             this._sprite = this.node.getComponent(cc.Sprite);
             if (!this._sprite) {
@@ -167,6 +169,7 @@ let SubContextView = cc.Class({
             return;
         }
         this._tex.initWithElement(this._context.canvas);
+        this._tex._packable = false;
         this._sprite._activateMaterial();
     },
 
