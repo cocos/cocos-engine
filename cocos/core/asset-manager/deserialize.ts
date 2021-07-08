@@ -32,6 +32,7 @@ import MissingScript from '../components/missing-script';
 import { deserialize, Details } from '../data/deserialize';
 import { error } from '../platform/debug';
 import { js } from '../utils/js';
+import { dependMap, nativeDependMap } from './depend-maps';
 import { decodeUuid } from './helper';
 
 const missingClass = EDITOR && EditorExtends.MissingReporter.classInstance;
@@ -98,10 +99,10 @@ export default function deserializeAsset (json: Record<string, any>, options: Re
     }
 
     // non-native deps
-    asset.__depends__ = depends;
+    dependMap.set(asset, depends);
     // native dep
     if (asset._native) {
-        asset.__nativeDepend__ = true;
+        nativeDependMap.add(asset);
     }
     Details.pool.put(tdInfo);
     return asset;

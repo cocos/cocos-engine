@@ -33,6 +33,8 @@ import Cache from './cache';
 import deserialize, { IDependProp } from './deserialize';
 import { decodeUuid } from './helper';
 import { files, parsed } from './shared';
+import { dependMap, nativeDependMap } from './depend-maps';
+import { assertIsNonNullable } from '../data/utils/asserts';
 
 export interface IDependencies {
     nativeDep?: Record<string, any>;
@@ -186,12 +188,14 @@ export class DependUtil {
             deps: [],
             parsedFromExistAsset: true,
         };
-        const deps = asset.__depends__ as IDependProp[];
+
+        const deps = dependMap.get(asset);
+        assertIsNonNullable(deps);
         for (let i = 0, l = deps.length; i < l; i++) {
             out.deps.push(deps[i].uuid);
         }
 
-        if (asset.__nativeDepend__) {
+        if (nativeDependMap.has(asset)) {
             out.nativeDep = asset._nativeDep;
         }
 

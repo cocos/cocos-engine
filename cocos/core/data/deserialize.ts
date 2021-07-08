@@ -369,7 +369,7 @@ type IValueTypeData = [
 ];
 
 type ITRSData = [number, number, number, number, number,
-                        number, number, number, number, number];
+    number, number, number, number, number];
 
 const DICT_JSON_LAYOUT = 0;
 interface IDictData extends Array<any> {
@@ -1104,7 +1104,7 @@ function getDependUuidList (json: IFileData): string[] {
 }
 
 export function parseUuidDependencies (serialized: unknown) {
-    if (!DEV || isCompiledJson(serialized)) {
+    if (!DEV || isCompiledJson(serialized as object)) {
         return getDependUuidList(serialized as IFileData);
     } else {
         return parseUuidDependenciesDynamic(serialized);
