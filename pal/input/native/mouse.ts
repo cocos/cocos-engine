@@ -8,6 +8,7 @@ import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-e
 export class MouseInputSource {
     public support: boolean;
     private _eventTarget: EventTarget = new EventTarget();
+    private _preMousePos: Vec2 = new Vec2();
 
     constructor () {
         this.support = !system.isMobile;
@@ -43,13 +44,19 @@ export class MouseInputSource {
         return (event: jsb.MouseEvent) => {
             const location = this._getLocation(event);
             const viewSize = system.getViewSize();
+            const locationX = location.x;
+            const locationY = viewSize.height - location.y;
             const inputEvent: MouseInputEvent = {
                 type: eventType,
-                x: location.x,
-                y: viewSize.height - location.y,
+                x: locationX,
+                y: locationY,
+                movementX: locationX - this._preMousePos.x,
+                movementY: this._preMousePos.y - locationY,
                 button: event.button,
                 timestamp: performance.now(),
             };
+            // update previous mouse position.
+            this._preMousePos.set(inputEvent.x, inputEvent.y);
             // emit web mouse event
             this._eventTarget.emit(eventType, inputEvent);
         };
