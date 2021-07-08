@@ -305,15 +305,15 @@ export class Downloader {
      * @param id - The unique id of this download
      * @param url - The url should be downloaded
      * @param type - The type indicates that which handler should be used to download, such as '.jpg'
-     * @param options - some optional paramters will be transferred to the corresponding handler.
+     * @param options - some optional parameters will be transferred to the corresponding handler.
      * @param options.onFileProgress - progressive callback will be transferred to handler.
      * @param options.maxRetryCount - How many times should retry when download failed
      * @param options.maxConcurrency - The maximum number of concurrent when downloading
      * @param options.maxRequestsPerFrame - The maximum number of request can be launched per frame when downloading
      * @param options.priority - The priority of this url, default is 0, the greater number is higher priority.
      * @param onComplete - callback when finishing downloading
-     * @param onComplete.err - The occurred error, null indicetes success
-     * @param onComplete.contetnt - The downloaded file
+     * @param onComplete.err - The occurred error, null indicates success
+     * @param onComplete.content - The downloaded file
      *
      * @example
      * download('http://example.com/test.tga', '.tga', {onFileProgress: (loaded, total) => console.lgo(loaded/total)}, onComplete: (err) => console.log(err));
@@ -329,7 +329,7 @@ export class Downloader {
 
         const request = this._queue.find((x) => x.id === id);
         if (request) {
-            request.completeCallbacks.push(onComplete); 
+            request.completeCallbacks.push(onComplete);
             const priority = options.priority || 0;
             if (request.priority < priority) {
                 request.priority = priority;
@@ -344,15 +344,15 @@ export class Downloader {
         const maxRequestsPerFrame = typeof options.maxRequestsPerFrame !== 'undefined' ? options.maxRequestsPerFrame : this.maxRequestsPerFrame;
         const handler = this._downloaders[type] || this._downloaders.default;
 
-        this._queue.push({ 
-            id, 
-            priority: options.priority || 0, 
-            url: urlAppendTimestamp(url, this.appendTimeStamp), 
-            options, 
-            completeCallbacks: [ onComplete ], 
-            handler, 
-            maxRetryCount, 
-            maxConcurrency, 
+        this._queue.push({
+            id,
+            priority: options.priority || 0,
+            url: urlAppendTimestamp(url, this.appendTimeStamp),
+            options,
+            completeCallbacks: [onComplete],
+            handler,
+            maxRetryCount,
+            maxConcurrency,
             maxRequestsPerFrame,
             retryTimes: 0,
             delay: 0,

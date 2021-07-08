@@ -58,15 +58,12 @@ export function clear (task: Task) {
     task.input = null;
 }
 
-export function urlAppendTimestamp (url: string, append: boolean): string {
-    if (append) {
-        if (/\?/.test(url)) {
-            return `${url}&_t=${Date.now()}`;
-        }
-
-        return `${url}?_t=${Date.now()}`;
+export function urlAppendTimestamp (url: string): string {
+    if (/\?/.test(url)) {
+        return `${url}&_t=${Date.now()}`;
     }
-    return url;
+
+    return `${url}?_t=${Date.now()}`;
 }
 
 export function getDepends (uuid: string, data: Asset | Record<string, any>, exclude: Record<string, any>,
