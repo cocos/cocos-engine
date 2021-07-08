@@ -28,7 +28,7 @@
  * @module core
  */
 
-import { EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
+import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
 import { system } from 'pal/system';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
@@ -136,16 +136,6 @@ export interface IGameConfig {
     /**
      * For internal use.
      */
-    collisionMatrix?: never[];
-
-    /**
-     * For internal use.
-     */
-    groupList?: any[];
-
-    /**
-     * For internal use.
-     */
     jsList?: string[];
 
     /**
@@ -172,6 +162,16 @@ export interface IGameConfig {
      * User layers config
      */
     layers?: LayerItem[];
+
+    /**
+     * The adapter stores various platform-related objects.
+     */
+    adapter?: {
+        canvas: HTMLCanvasElement,
+        frame: HTMLDivElement,
+        container: HTMLDivElement,
+        [x: string]: any,
+    };
 }
 
 /**
@@ -263,7 +263,7 @@ export class Game extends EventTarget {
      * @en The outer frame of the game canvas; parent of game container.
      * @zh 游戏画布的外框，container 的父容器。
      */
-    public frame: Record<string, unknown> | null = null;
+    public frame: HTMLDivElement | null = null;
     /**
      * @en The container of game canvas.
      * @zh 游戏画布的容器。
@@ -507,7 +507,7 @@ export class Game extends EventTarget {
                 this._initEvents();
             }
 
-            if (legacyCC.director.root.dataPoolManager) {
+            if (legacyCC.director.root && legacyCC.director.root.dataPoolManager) {
                 legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
             }
             return this._engineInited;
@@ -519,7 +519,7 @@ export class Game extends EventTarget {
      * @zh 运行游戏，并且指定引擎配置和 onStart 的回调。
      * @param onStart - function to be executed after game initialized
      */
-    public run (onStart?: Game.OnStart): Promise<void>;
+    public run(onStart?: Game.OnStart): Promise<void>;
 
     public run (configOrCallback?: Game.OnStart | IGameConfig, onStart?: Game.OnStart) {
         // To compatible with older version,
@@ -612,7 +612,7 @@ export class Game extends EventTarget {
             debug.log(`Cocos Creator v${VERSION}`);
             this.emit(Game.EVENT_ENGINE_INITED);
             this._engineInited = true;
-            legacyCC.internal.dynamicAtlasManager.enabled = !macro.CLEANUP_IMAGE_CACHE;
+            if (legacyCC.internal.dynamicAtlasManager) { legacyCC.internal.dynamicAtlasManager.enabled = !macro.CLEANUP_IMAGE_CACHE; }
         });
     }
 
@@ -635,10 +635,10 @@ export class Game extends EventTarget {
             }
 
             const rAF = window.requestAnimationFrame = window.requestAnimationFrame
-                     || window.webkitRequestAnimationFrame
-                     || window.mozRequestAnimationFrame
-                     || window.oRequestAnimationFrame
-                     || window.msRequestAnimationFrame;
+                || window.webkitRequestAnimationFrame
+                || window.mozRequestAnimationFrame
+                || window.oRequestAnimationFrame
+                || window.msRequestAnimationFrame;
             if (frameRate !== 60 && frameRate !== 30) {
                 // @ts-expect-error Compatibility
                 window.rAF = rAF ? this._stTimeWithRAF : this._stTime;
@@ -741,10 +741,6 @@ export class Game extends EventTarget {
         }
         config.showFPS = !!config.showFPS;
 
-        // Collide Map and Group List
-        this.collisionMatrix = config.collisionMatrix || [];
-        this.groupList = config.groupList || [];
-
         debug._resetDebugSetting(config.debugMode);
 
         this.config = config as NormalizedGameConfig;
@@ -786,9 +782,16 @@ export class Game extends EventTarget {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) { return; }
 
-        this.canvas = (this.config as any).adapter.canvas;
-        this.frame = (this.config as any).adapter.frame;
-        this.container = (this.config as any).adapter.container;
+        // Obtain platform-related objects through the adapter
+        const adapter = this.config.adapter;
+        if (adapter) {
+            this.canvas = adapter.canvas;
+            this.frame = adapter.frame;
+            this.container = adapter.container;
+        }
+
+        // The test environment does not currently support the renderer
+        if (TEST) return;
 
         this._determineRenderType();
 
@@ -856,6 +859,20 @@ export class Game extends EventTarget {
     }
 
     private _setRenderPipelineNShowSplash () {
+        // The test environment does not currently support the renderer
+        if (TEST) {
+            return Promise.resolve((() => {
+                this._rendererInitialized = true;
+                this._safeEmit(Game.EVENT_RENDERER_INITED);
+                this._inited = true;
+                this._setAnimFrame();
+                this._runMainLoop();
+                this._safeEmit(Game.EVENT_GAME_INITED);
+                if (this.onStart) {
+                    this.onStart();
+                }
+            })());
+        }
         return Promise.resolve(this._setupRenderPipeline()).then(
             () => Promise.resolve(this._showSplashScreen()).then(
                 () => {

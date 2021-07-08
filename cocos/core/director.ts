@@ -32,7 +32,7 @@
  * @module core
  */
 
-import { DEBUG, EDITOR, BUILD } from 'internal:constants';
+import { DEBUG, EDITOR, BUILD, TEST } from 'internal:constants';
 import { SceneAsset } from './assets';
 import System from './components/system';
 import { CCObject } from './data/object';
@@ -883,7 +883,7 @@ export class Director extends EventTarget {
             this.purgeDirector();
         } else if (!this._invalid) {
             // calculate "global" dt
-            if (EDITOR && !legacyCC.GAME_VIEW) {
+            if (EDITOR && !legacyCC.GAME_VIEW || TEST) {
                 this._deltaTime = time;
             } else {
                 this.calculateDeltaTime(time);
@@ -916,7 +916,8 @@ export class Director extends EventTarget {
             }
 
             this.emit(Director.EVENT_BEFORE_DRAW);
-            this._root!.frameMove(this._deltaTime);
+            // The test environment does not currently support the renderer
+            if (!TEST) this._root!.frameMove(this._deltaTime);
             this.emit(Director.EVENT_AFTER_DRAW);
 
             eventManager.frameUpdateListeners();
@@ -947,6 +948,8 @@ export class Director extends EventTarget {
     }
 
     private _init () {
+        // The test environment does not currently support the renderer
+        if (TEST) return Promise.resolve();
         this._root = new Root(legacyCC.game._gfxDevice);
         const rootInfo = {};
         return this._root.initialize(rootInfo).catch((error) => {
