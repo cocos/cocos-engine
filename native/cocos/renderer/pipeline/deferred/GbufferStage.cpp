@@ -112,11 +112,14 @@ void GbufferStage::render(scene::Camera *camera) {
     size_t k           = 0;
     for (auto ro : renderObjects) {
         const auto *const model = ro.model;
-
-        subModelIdx = 0;
-        for (auto *subModel : model->getSubModels()) {
-            passIdx = 0;
-            for (auto *pass : subModel->getPasses()) {
+        const auto& subModels = model->getSubModels();
+        auto subModelCount = subModels.size();
+        for (subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
+            const auto& subModel = subModels[subModelIdx];
+            const auto& passes = subModel->getPasses();
+            auto passCount = passes.size();
+            for (passIdx = 0; passIdx < passCount; ++passIdx) {
+                const auto& pass          = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
                     auto *instancedBuffer = InstancedBuffer::get(pass);
@@ -131,11 +134,7 @@ void GbufferStage::render(scene::Camera *camera) {
                         _renderQueues[k]->insertRenderPass(ro, subModelIdx, passIdx);
                     }
                 }
-
-                ++passIdx;
             }
-
-            ++subModelIdx;
         }
     }
     for (auto *queue : _renderQueues) {

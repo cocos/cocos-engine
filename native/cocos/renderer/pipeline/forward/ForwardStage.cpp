@@ -113,33 +113,37 @@ void ForwardStage::render(scene::Camera *camera) {
         queue->clear();
     }
 
-
-    size_t k = 0;
+    uint   subModelIdx = 0;
+    uint   passIdx     = 0;
+    size_t k           = 0;
     for (auto ro : renderObjects) {
         const auto *const model = ro.model;
-        uint              m     = 0;
-        for (auto *subModel : model->getSubModels()) {
-            uint p = 0;
-            for (auto *pass : subModel->getPasses()) {
+        const auto& subModels = model->getSubModels();
+        auto subModelCount = subModels.size();
+        for (subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
+            const auto& subModel = subModels[subModelIdx];
+            const auto& passes = subModel->getPasses();
+            auto passCount = passes.size();
+            for (passIdx = 0; passIdx < passCount; ++passIdx) {
+                const auto& pass          = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
                     auto *instancedBuffer = InstancedBuffer::get(pass);
-                    instancedBuffer->merge(model, subModel, p);
+                    instancedBuffer->merge(model, subModel, passIdx);
                     _instancedQueue->add(instancedBuffer);
                 } else if (pass->getBatchingScheme() == scene::BatchingSchemes::VB_MERGING) {
                     auto *batchedBuffer = BatchedBuffer::get(pass);
-                    batchedBuffer->merge(subModel, p, model);
+                    batchedBuffer->merge(subModel, passIdx, model);
                     _batchedQueue->add(batchedBuffer);
                 } else {
                     for (k = 0; k < _renderQueues.size(); k++) {
-                        _renderQueues[k]->insertRenderPass(ro, m, p);
+                        _renderQueues[k]->insertRenderPass(ro, subModelIdx, passIdx);
                     }
                 }
-                ++p;
             }
-            ++m;
         }
     }
+        
     for (auto *queue : _renderQueues) {
         queue->sort();
     }
