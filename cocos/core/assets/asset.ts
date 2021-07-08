@@ -95,10 +95,6 @@ export class Asset extends Eventify(CCObject) {
     @serializable
     public _native = '';
     public _nativeUrl = '';
-    // only for internal use
-    public __onLoadedInvoked__ = false;
-    public __nativeDepend__: any = null;
-    public __depends__: any = null;
 
     private _file: any = null;
     private _ref = 0;

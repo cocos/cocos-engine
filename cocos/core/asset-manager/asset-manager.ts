@@ -35,6 +35,7 @@ import { basename, extname } from '../utils/path';
 import Bundle from './bundle';
 import Cache from './cache';
 import CacheManager from './cache-manager';
+import { nativeDependMap } from './depend-maps';
 import dependUtil from './depend-util';
 import downloader from './downloader';
 import factory from './factory';
@@ -524,7 +525,7 @@ export class AssetManager {
     public postLoadNative (asset: Asset, options?: INativeAssetOptions | CompleteCallbackNoData | null, onComplete?: CompleteCallbackNoData | null) {
         const { options: opts, onComplete: onComp } = parseParameters<CompleteCallbackNoData>(options, undefined, onComplete);
 
-        if (!asset._native || !asset.__nativeDepend__) {
+        if (!asset._native || !nativeDependMap.has(asset)) {
             asyncify(onComp)(null);
             return;
         }
@@ -540,9 +541,9 @@ export class AssetManager {
 
         this.loadAny(depend, opts, (err, native) => {
             if (!err) {
-                if (asset.isValid && asset.__nativeDepend__) {
+                if (asset.isValid && nativeDependMap.has(asset)) {
                     asset._nativeAsset = native;
-                    asset.__nativeDepend__ = false;
+                    nativeDependMap.delete(asset);
                 }
             } else {
                 error(err.message, err.stack);
