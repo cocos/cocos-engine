@@ -275,6 +275,6 @@ private:
     int  getCurrentFileInfo(std::string *filename, unz_file_info *info);
 
     /** Internal data like zip file pointer / file list array and so on */
-    ZipFilePrivate *_data;
+    ZipFilePrivate *_data{nullptr};
 };
 } // end of namespace cc
