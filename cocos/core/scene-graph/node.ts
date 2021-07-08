@@ -46,6 +46,7 @@ import { Component } from '../components';
 import { NativeNode } from '../renderer/scene/native-scene';
 import { FloatArray } from '../math/type-define';
 import { NodeEventType } from './node-event';
+import { CustomizedSerializable, deserializeSymbol, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeSymbol } from '../data';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -109,6 +110,8 @@ class BookOfChange {
 
 const bookOfChange = new BookOfChange();
 
+const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSyncablePrefab');
+
 /**
  * @zh
  * 场景树中的基本节点，基本特性有：
@@ -132,7 +135,7 @@ const bookOfChange = new BookOfChange();
  * * 维护 3D 空间左边变换（坐标、旋转、缩放）信息
  */
 @ccclass('cc.Node')
-export class Node extends BaseNode {
+export class Node extends BaseNode implements CustomizedSerializable {
     /**
      * @en Event types emitted by Node
      * @zh 节点可能发出的事件类型
@@ -157,6 +160,11 @@ export class Node extends BaseNode {
      * @zh 节点变换更新的具体部分，可用于判断 [[NodeEventType.TRANSFORM_CHANGED]] 事件的具体类型
      */
     public static TransformBit = TransformBit;
+
+    /**
+     * @internal
+     */
+    public static reserveContentsForAllSyncablePrefabTag = reserveContentsForAllSyncablePrefabTag;
 
     // UI 部分的脏数据
     public _uiProps = new NodeUIProperties(this);
@@ -473,6 +481,40 @@ export class Node extends BaseNode {
         if (JSB) {
             this._nativeFlag[0] = val;
         }
+    }
+
+    public [serializeSymbol] (serializationOutput: SerializationOutput, context: SerializationContext) {
+        // 用于检测当前节点是否是一个PrefabInstance中的Mounted的节点，后面可以考虑优化一下
+        const isMountedChild = () => !!(this[editorExtrasTag] as any)?.mountedRoot;
+
+        // 是否是PrefabInstance中的节点
+        // eslint-disable-next-line arrow-body-style
+        const isSyncPrefab = () => {
+            // 1. 在PrefabInstance下的非Mounted节点
+            // 2. 如果Mounted节点是一个PrefabInstance，那它也是一个syncPrefab
+            return this._prefab?.root?._prefab?.instance && (this?._prefab?.instance || !isMountedChild());
+        };
+
+        const canDiscardByPrefabRoot = () => !(context.customizedArguments[(reserveContentsForAllSyncablePrefabTag) as any]
+            || !isSyncPrefab() || context.root === this);
+
+        if (canDiscardByPrefabRoot()) {
+            // discard props disallow to synchronize
+            const isRoot = this._prefab?.root === this;
+            if (isRoot) {
+                serializationOutput.property('_objFlags', this._objFlags);
+                serializationOutput.property('_parent', this._parent);
+                serializationOutput.property('_prefab', this._prefab);
+            } else {
+                // should not serialize child node of synchronizable prefab
+            }
+        } else {
+            context.serializeThis();
+        }
+    }
+
+    public [deserializeSymbol] (serializationInput: SerializationInput) {
+
     }
 
     // ===============================

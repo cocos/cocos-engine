@@ -38,6 +38,9 @@ import * as js from '../utils/js';
 import { deserializeDynamic, parseUuidDependenciesDynamic } from './deserialize-dynamic';
 import { Asset } from '../assets/asset';
 
+import { deserializeSymbol } from './serialization-symbols';
+import type { CCON } from './ccon';
+
 /** **************************************************************************
  * BUILT-IN TYPES / CONSTAINTS
  *************************************************************************** */
@@ -509,7 +512,8 @@ interface IOptions extends Partial<ICustomHandler> {
     _version?: number;
 }
 interface ICustomClass {
-    _deserialize: (content: any, context: ICustomHandler) => void;
+    [deserializeSymbol]?: (content: any, context: ICustomHandler) => void;
+    _deserialize?: (content: any, context: ICustomHandler) => void;
 }
 
 /** **************************************************************************
@@ -681,8 +685,9 @@ function deserializeCCObject (data: IFileData, objectData: IClassObjectData) {
 
 function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, value: ICustomObjectDataContent) {
     const obj = new ctor();
-    if (obj._deserialize) {
-        obj._deserialize(value, data[File.Context]);
+    const customDeserialize = obj[deserializeSymbol] ?? obj._deserialize;
+    if (customDeserialize) {
+        customDeserialize(value, data[File.Context]);
     } else {
         errorID(5303, js.getClassName(ctor));
     }
@@ -953,7 +958,7 @@ function parseResult (data: IFileData) {
     }
 }
 
-export function isCompiledJson (json: object): boolean {
+export function isCompiledJson (json: unknown): boolean {
     if (Array.isArray(json)) {
         const version = json[0];
         // array[0] will not be a number in the editor version
@@ -968,16 +973,15 @@ export function isCompiledJson (json: object): boolean {
  */
 
 /**
- * @en Deserialize json to `Asset`.
- * @zh 将 JSON 反序列化为对象实例。
+ * @en Deserializes a previously serialized object to reconstruct it to the original.
+ * @zh 将序列化后的对象进行反序列化已使其复原。
  *
- * @method deserialize
- * @param {String|Object} data - the serialized `Asset` json string or json object.
- * @param {Details} [details] - additional loading result
- * @param {Object} [options]
- * @return {object} the main data(asset)
+ * @param data Serialized data.
+ * @param details - Additional loading result.
+ * @param options Deserialization Options.
+ * @return The original object.
  */
-export function deserialize (data: IFileData | string | any, details: Details | any, options?: IOptions | any): any {
+export function deserialize (data: IFileData | string | CCON | any, details: Details | any, options?: IOptions | any): unknown {
     if (typeof data === 'string') {
         data = JSON.parse(data);
     }
@@ -1037,6 +1041,16 @@ export function deserialize (data: IFileData | string | any, details: Details | 
     }
 
     return res;
+}
+
+export declare namespace deserialize {
+    export type SerializableClassConstructor = new () => unknown;
+
+    export type ClassFinder = {
+        (id: string, serialized: unknown, owner?: unknown[] | Record<PropertyKey, unknown>, propName?: string): SerializableClassConstructor | undefined;
+
+        onDereferenced?: (deserializedList: Array<Record<PropertyKey, unknown> | undefined>, id: number, object: Record<string, unknown> | unknown[], propName: string) => void;
+    };
 }
 
 deserialize.Details = Details;
