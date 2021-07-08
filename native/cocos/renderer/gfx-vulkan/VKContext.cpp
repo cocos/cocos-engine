@@ -539,13 +539,7 @@ void CCVKContext::releaseSurface(uintptr_t /*windowHandle*/) {
     if (_gpuContext && _gpuContext->vkSurface == VK_NULL_HANDLE) return;
 
     CCVKDevice *device = CCVKDevice::getInstance();
-
-    uint fenceCount = device->gpuFencePool()->size();
-    if (fenceCount) {
-        VK_CHECK(vkWaitForFences(device->gpuDevice()->vkDevice, fenceCount,
-                                 device->gpuFencePool()->data(), VK_TRUE, DEFAULT_TIMEOUT));
-    }
-
+    device->waitAllFences();
     device->destroySwapchain();
     device->_swapchainReady = false;
 

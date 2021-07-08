@@ -96,6 +96,7 @@ public:
     CCVKGPUFencePool *        gpuFencePool();
     CCVKGPURecycleBin *       gpuRecycleBin();
     CCVKGPUStagingBufferPool *gpuStagingBufferPool();
+    void                      waitAllFences();
 
 protected:
     static CCVKDevice *instance;
