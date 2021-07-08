@@ -1,6 +1,7 @@
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
 import { MouseEventData, MouseWheelEventData, minigame } from 'pal/minigame';
 import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
+import { Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 
@@ -8,6 +9,7 @@ export class MouseInputSource {
     public support: boolean;
     private _eventTarget: EventTarget = new EventTarget();
     private _isPressed = false;
+    private _preMousePos: Vec2 = new Vec2();
 
     constructor () {
         this.support = typeof minigame.wx === 'object' && typeof minigame.wx.onMouseDown !== 'undefined';
@@ -55,13 +57,19 @@ export class MouseInputSource {
             default:
                 break;
             }
+            const locationX = event.x;
+            const locationY = sysInfo.screenHeight - event.y;
             const inputEvent: MouseInputEvent = {
                 type: eventType,
-                x: event.x,
-                y: sysInfo.screenHeight - event.y,
+                x: locationX,
+                y: locationY,
+                movementX: locationX - this._preMousePos.x,
+                movementY: this._preMousePos.y - locationY,
                 button,
                 timestamp: performance.now(),
             };
+            // update previous mouse position.
+            this._preMousePos.set(inputEvent.x, inputEvent.y);
             // emit web mouse event
             this._eventTarget.emit(eventType, inputEvent);
         };
