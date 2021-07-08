@@ -653,3 +653,24 @@ export function deserializeDynamic (data, details: Details, options) {
 
     return res;
 }
+
+export function parseUuidDependenciesDynamic (serialized: unknown) {
+    const depends = [];
+    const parseDependRecursively = (data: any, out: string[]) => {
+        if (!data || typeof data !== 'object' || data.__id__) { return; }
+        const uuid = data.__uuid__;
+        if (Array.isArray(data)) {
+            for (let i = 0, l = data.length; i < l; i++) {
+                parseDependRecursively(data[i], out);
+            }
+        } else if (uuid) {
+            out.push(uuid);
+        } else {
+            for (const prop in data) {
+                parseDependRecursively(data[prop], out);
+            }
+        }
+    };
+    parseDependRecursively(serialized, depends);
+    return depends;
+}

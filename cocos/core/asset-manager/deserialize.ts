@@ -43,7 +43,9 @@ export interface IDependProp {
     type?: Constructor<Asset>;
 }
 
-export default function (json: Record<string, any>, options: Record<string, any>): Asset {
+export default function deserializeAsset (json: Record<string, any>, options: Record<string, any> & {
+    __uuid__?: string;
+}): Asset {
     let classFinder;
     if (EDITOR) {
         classFinder = (type, data, owner, propName): Constructor<unknown> => {
