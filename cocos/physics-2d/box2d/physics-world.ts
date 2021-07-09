@@ -30,12 +30,11 @@ const tempB2AABB = new b2.AABB();
 
 const testResults: Collider2D[] = [];
 
-const AXIS_Z: Vec3 = new Vec3(0, 0, 1);
-
 export class b2PhysicsWorld implements IPhysicsWorld {
     protected _world: b2.World;
     protected _bodies: b2RigidBody2D[] = [];
     protected _animatedBodies: b2RigidBody2D[] = [];
+    protected _rotationAxis: Vec3 = new Vec3();
 
     protected _contactListener: PhysicsContactListener;
     protected _aabbQueryCallback: PhysicsAABBQueryCallback;
@@ -252,7 +251,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         const pos = node.worldPosition;
         bodyDef.position.Set(pos.x / PHYSICS_2D_PTM_RATIO, pos.y / PHYSICS_2D_PTM_RATIO);
 
-        tempVec3.z = Quat.getAxisAngle(AXIS_Z, node.worldRotation);
+        tempVec3.z = Quat.getAxisAngle(this._rotationAxis, node.worldRotation);
         bodyDef.angle = tempVec3.z;
 
         bodyDef.awake = comp.awakeOnLoad;
