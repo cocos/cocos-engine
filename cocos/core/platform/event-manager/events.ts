@@ -34,7 +34,7 @@ import { Vec2 } from '../../math/vec2';
 import { Touch } from './touch';
 import { Acceleration } from './acceleration';
 import { legacyCC } from '../../global-exports';
-import { DeviceEvent, KeyboardEvent, SystemEventTypeUnion } from './event-enum';
+import { SystemEventTypeUnion, SystemEventType } from './event-enum';
 
 const _vec2 = new Vec2();
 
@@ -584,7 +584,7 @@ export class EventAcceleration extends Event {
      * @param bubbles - Indicate whether the event bubbles up through the hierarchy or not.
      */
     constructor (acc: Acceleration, bubbles?: boolean) {
-        super(DeviceEvent.DEVICEMOTION, bubbles);
+        super(SystemEventType.DEVICEMOTION, bubbles);
         this.acc = acc;
     }
 }
@@ -620,7 +620,7 @@ export class EventKeyboard extends Event {
      * @en Indicates whether the current key is being pressed
      * @zh 表示当前按键是否正在被按下
      *
-     * @deprecated since v3.3, please use Event.prototype.type !== SystemEvent.KeyboardEvent.KEY_UP instead
+     * @deprecated since v3.3, please use Event.prototype.type !== SystemEvent.EventType.KEY_UP instead
      */
     public get isPressed () {
         return this._isPressed;
@@ -641,10 +641,10 @@ export class EventKeyboard extends Event {
     constructor (keyCode: any, eventType: SystemEventTypeUnion | boolean, bubbles?: boolean) {
         if (typeof eventType === 'boolean') {
             const isPressed = eventType;
-            eventType = isPressed ? 'keydown' : KeyboardEvent.KEY_UP;
+            eventType = isPressed ? SystemEventType.KEY_DOWN : SystemEventType.KEY_UP;
         }
         super(eventType, bubbles);
-        this._isPressed = eventType !== KeyboardEvent.KEY_UP;
+        this._isPressed = eventType !== SystemEventType.KEY_UP;
 
         if (typeof keyCode === 'number') {
             this.keyCode = keyCode;

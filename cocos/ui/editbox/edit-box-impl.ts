@@ -36,8 +36,7 @@ import { BitmapFont } from '../../2d/assets';
 import { director } from '../../core/director';
 import { game } from '../../core/game';
 import { Color, Mat4, Size, Vec3 } from '../../core/math';
-import { screen, view } from '../../core/platform';
-import { macro } from '../../core/platform/macro';
+import { KeyCode, screen, view } from '../../core/platform';
 import { contains } from '../../core/utils/misc';
 import { Label } from '../../2d/components/label';
 import { EditBox } from './edit-box';
@@ -616,14 +615,14 @@ export class EditBoxImpl extends EditBoxImplBase {
         };
 
         cbs.onKeydown = (e) => {
-            if (e.keyCode === macro.KEY.enter) {
+            if (e.keyCode === KeyCode.ENTER) {
                 e.propagationStopped = true;
                 this._delegate!._editBoxEditingReturn();
 
                 if (!this._isTextArea) {
                     elem.blur();
                 }
-            } else if (e.keyCode === macro.KEY.tab) {
+            } else if (e.keyCode === KeyCode.TAB) {
                 e.propagationStopped = true;
                 e.preventDefault();
 

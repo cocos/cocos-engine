@@ -43,7 +43,7 @@ import { genSamplerHash, samplerLib } from '../core/sampler-lib';
 import { Attribute, DescriptorSet, Device, Buffer, BufferInfo, getTypedArrayConstructor,
     BufferUsageBit, FormatInfos, MemoryUsageBit, Filter, Address, Feature } from '../../gfx';
 import { INST_MAT_WORLD, UBOLocal, UNIFORM_LIGHTMAP_TEXTURE_BINDING } from '../../pipeline/define';
-import { NativeModel, NativeSkinningModel } from './native-scene';
+import { NativeBakedSkinningModel, NativeModel, NativeSkinningModel } from './native-scene';
 import { Pool } from '../../memop/pool';
 
 const m4_1 = new Mat4();
@@ -216,7 +216,7 @@ export class Model {
     protected _castShadow = false;
     protected _enabled = true;
     protected _visFlags = Layers.Enum.NONE;
-    protected declare _nativeObj: NativeModel | NativeSkinningModel | null;
+    protected declare _nativeObj: NativeModel | NativeSkinningModel | NativeBakedSkinningModel | null;
 
     get native (): NativeModel {
         return this._nativeObj!;

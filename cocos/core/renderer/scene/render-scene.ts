@@ -282,6 +282,9 @@ export class RenderScene {
             case ModelType.SKINNING:
                 this._nativeObj!.addSkinningModel(m.native);
                 break;
+            case ModelType.BAKED_SKINNING:
+                this._nativeObj!.addBakedSkinningModel(m.native);
+                break;
             case ModelType.DEFAULT:
             default:
                 this._nativeObj!.addModel(m.native);

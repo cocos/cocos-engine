@@ -35,6 +35,7 @@ import { basename, extname } from '../utils/path';
 import Bundle from './bundle';
 import Cache from './cache';
 import CacheManager from './cache-manager';
+import { nativeDependMap } from './depend-maps';
 import dependUtil from './depend-util';
 import downloader from './downloader';
 import factory from './factory';

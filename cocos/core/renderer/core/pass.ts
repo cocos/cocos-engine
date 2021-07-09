@@ -433,9 +433,7 @@ export class Pass {
             this._rootBuffer = null;
         }
 
-        // textures are reused
-        this._descriptorSet = null!;
-
+        this._descriptorSet.destroy();
         this._rs.destroy();
         this._dss.destroy();
         this._bs.destroy();

@@ -253,7 +253,8 @@ export class Node extends BaseNode {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof legacyCC.Scene));
     }
 
-    protected _destroy () {
+    protected _onPreDestroy () {
+        const result = this._onPreDestroyBase();
         if (JSB) {
             if (this._nodeHandle) {
                 NodePool.free(this._nodeHandle);
@@ -262,13 +263,8 @@ export class Node extends BaseNode {
 
             this._nativeObj = null;
         }
-
         bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
-    }
-
-    public destroy () {
-        this._destroy();
-        return super.destroy();
+        return result;
     }
 
     get native (): any {

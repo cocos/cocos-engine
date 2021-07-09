@@ -31,124 +31,13 @@ import { ccenum } from '../../value-types/enum';
 import { legacyCC } from '../../global-exports';
 import { NodeEventType } from '../../scene-graph/node-event';
 
-export enum TouchEvent {
-    /**
-     * @en
-     * The event type for touch start event
-     *
-     * @zh
-     * 手指开始触摸事件。
-     */
-    TOUCH_START = 'touch-start',
-
-     /**
-      * @en
-      * The event type for touch move event
-      *
-      * @zh
-      * 当手指在屏幕上移动时。
-      */
-    TOUCH_MOVE = 'touch-move',
-
-     /**
-      * @en
-      * The event type for touch end event
-      *
-      * @zh
-      * 手指结束触摸事件。
-      */
-    TOUCH_END = 'touch-end',
-
-     /**
-      * @en
-      * The event type for touch end event
-      *
-      * @zh
-      * 当手指在目标节点区域外离开屏幕时。
-      */
-    TOUCH_CANCEL = 'touch-cancel',
-}
-
-export enum MouseEvent {
-    /**
-     * @en
-     * The event type for mouse down events
-     *
-     * @zh
-     * 当鼠标按下时触发一次。
-     */
-    MOUSE_DOWN = 'mouse-down',
-
-    /**
-     * @en
-     * The event type for mouse move events
-     *
-     * @zh
-     * 当鼠标在目标节点在目标节点区域中移动时，不论是否按下。
-     */
-    MOUSE_MOVE = 'mouse-move',
-
-    /**
-     * @en
-     * The event type for mouse up events
-     *
-     * @zh
-     * 当鼠标从按下状态松开时触发一次。
-     */
-    MOUSE_UP = 'mouse-up',
-
-    /**
-     * @en
-     * The event type for mouse wheel events
-     *
-     * @zh 手指开始触摸事件
-     */
-    MOUSE_WHEEL = 'mouse-wheel',
-}
-
-export enum KeyboardEvent {
-    /**
-     * @en The event type for press the key down event
-     * @zh 当按下按键时触发的事件
-     */
-    KEY_DOWN = 'keyboarddown',  // NOTE: different value with SystemEventType.KEY_DOWN
-
-     /**
-      * @en The event type for press the key up event
-      * @zh 当松开按键时触发的事件
-      */
-    KEY_UP = 'keyup',  // NOTE: same value with SystemEventType.KEY_UP
-}
-
-export enum DeviceEvent {
-    /**
-     * @en
-     * The event type for press the devicemotion event
-     *
-     * @zh
-     * 重力感应
-     */
-    DEVICEMOTION = 'devicemotion',
-
-    // TODO: add resize, orientation changed event
-}
-
 /**
  * @en The event type supported by SystemEvent and Node events
  * @zh SystemEvent 支持的事件类型以及节点事件类型
  *
- * @deprecated since v3.3, please use SystemEvent.TouchEvent, SystemEvent.MouseEvent, SystemEvent.KeyboardEvent, SystemEvent.DeviceEvent and Node.EventType instead
+ * @deprecated since v3.3, please use SystemEvent.EventType instead
  */
 export enum SystemEventType {
-    /**
-     * @en
-     * Code for event without type.
-     *
-     * @zh
-     * 没有类型的事件。
-     */
-    NO_TYPE = 'no_type',
-
     /**
      * @en
      * The event type for touch start event
@@ -245,14 +134,12 @@ export enum SystemEventType {
     /**
      * @en The event type for press the key down event, the event will be continuously dispatched in the key pressed state
      * @zh 当按下按键时触发的事件, 该事件在按下状态会持续派发
-     * @deprecated since v3.3, please use SystemEvent.KeyboardEvent.KEY_DOWN instead. The SystemEventType.KEY_DOWN event will be continuously dispatched in the key pressed state, it's not a good API design for developers.
      */
     KEY_DOWN = 'keydown',
 
     /**
      * @en The event type for press the key up event
      * @zh 当松开按键时触发的事件
-     * @deprecated since v3.3, please use SystemEvent.KeyboardEvent.KEY_UP instead
      */
     KEY_UP = 'keyup',
 
@@ -391,6 +278,6 @@ export enum SystemEventType {
 
 ccenum(SystemEventType);
 
-export type SystemEventTypeUnion = SystemEventType.NO_TYPE | TouchEvent | MouseEvent | KeyboardEvent | DeviceEvent | 'keydown' | NodeEventType;
+export type SystemEventTypeUnion = SystemEventType | NodeEventType;
 
 legacyCC.SystemEventType = SystemEventType;
