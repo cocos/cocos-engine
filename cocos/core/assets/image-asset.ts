@@ -165,8 +165,6 @@ export class ImageAsset extends Asset {
     constructor (nativeAsset?: ImageSource) {
         super();
 
-        this.loaded = false;
-
         this._nativeData = {
             _data: null,
             width: 0,
@@ -192,25 +190,12 @@ export class ImageAsset extends Asset {
     public reset (data: ImageSource) {
         if (isImageBitmap(data)) {
             this._nativeData = data;
-            this._onDataComplete();
         } else if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
             this._nativeData = data;
             this._format = data.format;
-            this._onDataComplete();
         } else {
             this._nativeData = data;
-            if (MINIGAME || (data as any).complete || data instanceof HTMLCanvasElement) { // todo need adatper
-                this._onDataComplete();
-            } else {
-                this.loaded = false;
-                data.addEventListener('load', () => {
-                    this._onDataComplete();
-                });
-                data.addEventListener('error', (err) => {
-                    warnID(3119, err.message);
-                });
-            }
         }
     }
 
@@ -313,11 +298,6 @@ export class ImageAsset extends Asset {
         }
     }
 
-    public _onDataComplete () {
-        this.loaded = true;
-        this.emit('load');
-    }
-
     private static _sharedPlaceHolderCanvas: HTMLCanvasElement | null = null;
 
     public initDefault (uuid?: string) {
@@ -347,14 +327,4 @@ function _getGlobalDevice (): Device | null {
     }
     return null;
 }
-
-/**
- * @zh
- * 当该资源加载成功后触发该事件。
- * @en
- * This event is emitted when the asset is loaded
- *
- * @event load
- */
-
 legacyCC.ImageAsset = ImageAsset;

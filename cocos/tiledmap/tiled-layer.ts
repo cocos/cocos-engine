@@ -45,7 +45,7 @@ import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
     GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
 } from './tiled-types';
-import { fillTextureGrids, loadAllTextures } from './tiled-utils';
+import { fillTextureGrids } from './tiled-utils';
 import { NodeEventType } from '../core/scene-graph/node-event';
 
 const _mat4_temp = new Mat4();
@@ -1282,14 +1282,12 @@ export class TiledLayer extends Renderable2D {
             }
         }
 
-        loadAllTextures(textures, () => {
-            for (let i = 0, l = tilesets.length; i < l; ++i) {
-                const tilesetInfo = tilesets[i];
-                if (!tilesetInfo) continue;
-                fillTextureGrids(tilesetInfo, texGrids, tilesetInfo.sourceImage);
-            }
-            this._prepareToRender();
-        });
+        for (let i = 0, l = tilesets.length; i < l; ++i) {
+            const tilesetInfo = tilesets[i];
+            if (!tilesetInfo) continue;
+            fillTextureGrids(tilesetInfo, texGrids, tilesetInfo.sourceImage);
+        }
+        this._prepareToRender();
     }
 
     public init (layerInfo: TMXLayerInfo, mapInfo: TMXMapInfo, tilesets: TMXTilesetInfo[], textures: SpriteFrame[], texGrids: TiledTextureGrids) {

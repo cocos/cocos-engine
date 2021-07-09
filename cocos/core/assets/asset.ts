@@ -78,6 +78,8 @@ export class Asset extends Eventify(CCObject) {
      * Whether the asset is loaded or not
      * @zh
      * 该资源是否已经成功加载。
+     *
+     * @deprecated since v3.3
      */
     public loaded = true;
 

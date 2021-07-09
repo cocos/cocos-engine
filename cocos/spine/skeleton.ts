@@ -1485,7 +1485,7 @@ export class Skeleton extends Renderable2D {
 
     protected _validateRender () {
         const skeletonData = this.skeletonData;
-        if (!skeletonData || !skeletonData.isTexturesLoaded()) {
+        if (!skeletonData) {
             this.disableRender();
         }
     }
