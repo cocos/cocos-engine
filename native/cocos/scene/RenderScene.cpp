@@ -95,13 +95,12 @@ void RenderScene::addSkinningModel(SkinningModel *skinModel) {
     _models.push_back(skinModel);
 }
 
-void RenderScene::removeModel(Model *model) {
-    auto iter = std::find(_models.begin(), _models.end(), model);
-    if (iter != _models.end()) {
-        _models.erase(iter);
-    } else {
+void RenderScene::removeModel(uint32_t idx) {
+    if (idx >= _models.size()) {
         CC_LOG_WARNING("Try to remove invalid model.");
+        return;
     }
+    _models.erase(_models.begin() + idx);
 }
 
 void RenderScene::removeModels() {

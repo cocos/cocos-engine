@@ -6282,7 +6282,7 @@ static bool js_scene_RenderScene_removeModel(se::State& s) // NOLINT(readability
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Model*, false> arg0 = {};
+        HolderType<unsigned int, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_RenderScene_removeModel : Error processing arguments");
         cobj->removeModel(arg0.value());

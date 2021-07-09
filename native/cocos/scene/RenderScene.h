@@ -59,7 +59,7 @@ public:
     void addModel(Model *);
     void addSkinningModel(SkinningModel *);
     void addBakedSkinningModel(BakedSkinningModel *);
-    void removeModel(Model *);
+    void removeModel(uint32_t);
     void removeModels();
 
     void updateBatches(std::vector<DrawBatch2D *> &&);
