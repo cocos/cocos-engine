@@ -30,7 +30,7 @@
  */
 
 import { legacyCC } from '../global-exports';
-import { DeviceEvent, KeyboardEvent, MouseEvent, SystemEventType, SystemEventTypeUnion, TouchEvent } from '../platform/event-manager/event-enum';
+import { SystemEventType, SystemEventTypeUnion } from '../platform/event-manager/event-enum';
 
 /**
  * @en
