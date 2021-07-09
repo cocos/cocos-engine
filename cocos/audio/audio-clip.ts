@@ -46,14 +46,8 @@ export interface AudioMeta {
 /**
  * @en
  * The audio clip asset. <br>
- * 'started' event is emitted once the audio began to play. <br>
- * 'ended' event is emitted once the audio stopped. <br>
- * Low-level platform-specific details are handled independently inside each clip.
  * @zh
  * 音频片段资源。<br>
- * 每当音频片段实际开始播放时，会发出 'started' 事件；<br>
- * 每当音频片段自然结束播放时，会发出 'ended' 事件。<br>
- * 每个片段独立处理自己依赖的平台相关的底层细节。
  */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
