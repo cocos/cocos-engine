@@ -228,7 +228,7 @@ export const NativeRenderScene: Constructor<{
     removeSphereLights (): void;
     removeSpotLights (): void;
     addModel (m: NativeModel): void;
-    removeModel (m: NativeModel): void;
+    removeModel (i: number): void;
     removeModels (): void;
     addBatch (batch: NativeDrawBatch2D): void;
     updateBatches (batches: NativeDrawBatch2D[]): void;
