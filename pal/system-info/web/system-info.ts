@@ -1,10 +1,9 @@
 import { DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SafeAreaEdge, SupportCapability } from 'pal/system';
-import { Size } from '../../../cocos/core/math';
+import { SupportCapability } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
 
-class System {
+class SystemInfo extends EventTarget {
     public readonly networkType: NetworkType;
     public readonly isNative: boolean;
     public readonly isBrowser: boolean;
@@ -20,15 +19,12 @@ class System {
     public readonly browserVersion: string;
     public readonly pixelRatio: number;
     public readonly supportCapability: SupportCapability;
-
-    private _eventTarget: EventTarget = new EventTarget();
-    private _html;
     private _battery?: any;
 
     constructor () {
+        super();
         const nav = window.navigator;
         const ua = nav.userAgent.toLowerCase();
-        this._html = document.getElementsByTagName('html')[0];
         // @ts-expect-error getBattery is not totally supported
         nav.getBattery?.().then((battery) => {
             this._battery = battery;
@@ -182,16 +178,6 @@ class System {
     }
 
     private _registerEvent () {
-        window.addEventListener('resize', () => {
-            this._eventTarget.emit(AppEvent.RESIZE);
-        });
-        window.addEventListener('orientationchange', () => {
-            this._eventTarget.emit(AppEvent.ORIENTATION_CHANGE);
-        });
-        this._registerVisibilityEvent();
-    }
-
-    private _registerVisibilityEvent () {
         let hiddenPropName: string;
         if (typeof document.hidden !== 'undefined') {
             hiddenPropName = 'hidden';
@@ -209,14 +195,14 @@ class System {
         const onHidden = () => {
             if (!hidden) {
                 hidden = true;
-                this._eventTarget.emit(AppEvent.HIDE);
+                this.emit('hide');
             }
         };
         // In order to adapt the most of platforms the onshow API.
         const onShown = (arg0?, arg1?, arg2?, arg3?, arg4?) => {
             if (hidden) {
                 hidden = false;
-                this._eventTarget.emit(AppEvent.SHOW, arg0, arg1, arg2, arg3, arg4);
+                this.emit('show', arg0, arg1, arg2, arg3, arg4);
             }
         };
 
@@ -259,25 +245,6 @@ class System {
         }
     }
 
-    public getViewSize (): Size {
-        const element = document.getElementById('GameDiv');
-        if (this.isMobile || !element || element === this._html) {
-            return new Size(window.innerWidth, window.innerHeight);
-        } else {
-            return new Size(element.clientWidth, element.clientHeight);
-        }
-    }
-    public getOrientation (): Orientation {
-        throw new Error('TODO');
-    }
-    public getSafeAreaEdge (): SafeAreaEdge {
-        return {
-            top: 0,
-            bottom: 0,
-            left: 0,
-            right: 0,
-        };
-    }
     public getBatteryLevel (): number {
         if (this._battery) {
             return this._battery.level as number;
@@ -310,41 +277,9 @@ class System {
     }
 
     public close () {
-        this._eventTarget.emit(AppEvent.CLOSE);
+        this.emit('close');
         window.close();
-    }
-
-    public onHide (cb: () => void) {
-        this._eventTarget.on(AppEvent.HIDE, cb);
-    }
-    public onShow (cb: () => void) {
-        this._eventTarget.on(AppEvent.SHOW, cb);
-    }
-    public onClose (cb: () => void) {
-        this._eventTarget.on(AppEvent.CLOSE, cb);
-    }
-    public onViewResize (cb: () => void) {
-        this._eventTarget.on(AppEvent.RESIZE, cb);
-    }
-    public onOrientationChange (cb: () => void) {
-        this._eventTarget.on(AppEvent.ORIENTATION_CHANGE, cb);
-    }
-
-    public offHide (cb?: () => void) {
-        this._eventTarget.off(AppEvent.HIDE, cb);
-    }
-    public offShow (cb?: () => void) {
-        this._eventTarget.off(AppEvent.SHOW, cb);
-    }
-    public offClose (cb?: () => void) {
-        this._eventTarget.off(AppEvent.CLOSE, cb);
-    }
-    public offViewResize (cb?: () => void) {
-        this._eventTarget.off(AppEvent.RESIZE, cb);
-    }
-    public offOrientationChange (cb?: () => void) {
-        this._eventTarget.off(AppEvent.ORIENTATION_CHANGE, cb);
     }
 }
 
-export const system = new System();
+export const systemInfo = new SystemInfo();

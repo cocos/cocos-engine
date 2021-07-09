@@ -1,5 +1,5 @@
 import { KeyboardCallback, KeyboardInputEvent } from 'pal/input';
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/system-info';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { KeyCode } from '../../../cocos/core/platform/event-manager/key-code';
@@ -35,7 +35,7 @@ export class KeyboardInputSource {
     private _keyStateMap: Record<number, boolean> = {};
 
     constructor () {
-        this.support = !system.isMobile;
+        this.support = !systemInfo.isMobile;
         this._registerEvent();
     }
 

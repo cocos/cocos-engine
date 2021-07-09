@@ -18,8 +18,14 @@ jest.mock(
 );
 
 jest.mock(
-    'pal/system',
-    () => jest.requireActual('../pal/system/web/system'),
+    'pal/system-info',
+    () => jest.requireActual('../pal/system-info/web/system-info'),
+    { virtual: true, },
+);
+
+jest.mock(
+    'pal/screen-adapter',
+    () => jest.requireActual('../pal/screen-adapter/web/screen-adapter'),
     { virtual: true, },
 );
 

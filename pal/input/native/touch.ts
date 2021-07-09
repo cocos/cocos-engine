@@ -1,5 +1,5 @@
 import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
-import { system } from 'pal/system';
+import { screenAdapter } from 'pal/screen-adapter';
 import { Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
@@ -25,12 +25,12 @@ export class TouchInputSource {
         return (touchList: TouchList) => {
             const touchDataList: TouchData[] = [];
             const length = touchList.length;
-            const viewSize = system.getViewSize();
+            const windowSize = screenAdapter.windowSize;
             for (let i = 0; i < length; ++i) {
                 const touch = touchList[i];
                 const location = this._getLocation(touch);
                 const x = location.x;
-                const y = viewSize.height - location.y;
+                const y = windowSize.height - location.y;
                 const touchData: TouchData = {
                     identifier: touch.identifier,
                     x,

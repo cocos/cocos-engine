@@ -1,5 +1,5 @@
 import { minigame } from 'pal/minigame';
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/system-info';
 import { clamp, clamp01, EventTarget } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { AudioEvent, AudioState, AudioType } from '../type';
@@ -68,9 +68,6 @@ export class AudioPlayerWeb implements OperationQueueable {
     public _eventTarget: EventTarget = new EventTarget();
     public _operationQueue: OperationInfo[] = [];
 
-    private _onHide?: () => void;
-    private _onShow?: () => void;
-
     constructor (audioBuffer: AudioBuffer, url: string) {
         this._audioBuffer = audioBuffer;
         this._gainNode = audioContext!.createGain();
@@ -78,36 +75,30 @@ export class AudioPlayerWeb implements OperationQueueable {
 
         this._src = url;
         // event
-        this._onHide = () => {
-            if (this._state === AudioState.PLAYING) {
-                this.pause().then(() => {
-                    this._state = AudioState.INTERRUPTED;
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-                }).catch((e) => {});
-            }
-        };
-        system.onHide(this._onHide);
-        this._onShow = () => {
-            if (this._state === AudioState.INTERRUPTED) {
-                this.play().then(() => {
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-                }).catch((e) => {});
-            }
-        };
-        system.onShow(this._onShow);
+        systemInfo.on('hide', this._onHide, this);
+        systemInfo.on('show', this._onShow, this);
     }
     destroy () {
         if (this._audioBuffer) {
             // @ts-expect-error need to release AudioBuffer instance
             this._audioBuffer = undefined;
         }
-        if (this._onShow) {
-            system.offShow(this._onShow);
-            this._onShow = undefined;
+        systemInfo.off('hide', this._onHide, this);
+        systemInfo.off('show', this._onShow, this);
+    }
+    private _onHide () {
+        if (this._state === AudioState.PLAYING) {
+            this.pause().then(() => {
+                this._state = AudioState.INTERRUPTED;
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
+            }).catch((e) => {});
         }
-        if (this._onHide) {
-            system.offHide(this._onHide);
-            this._onHide = undefined;
+    }
+    private _onShow () {
+        if (this._state === AudioState.INTERRUPTED) {
+            this.play().then(() => {
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
+            }).catch((e) => {});
         }
     }
     static load (url: string): Promise<AudioPlayerWeb> {

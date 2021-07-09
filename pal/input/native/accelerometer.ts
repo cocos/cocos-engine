@@ -1,9 +1,11 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/system-info';
+import { screenAdapter } from 'pal/screen-adapter';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { Orientation, OS } from '../../system/enum-type';
-import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
+import { OS } from '../../system-info/enum-type';
+import { Orientation } from '../../screen-adapter/enum-type';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
+import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
 
 export class AccelerometerInputSource {
     public support: boolean;
@@ -15,7 +17,7 @@ export class AccelerometerInputSource {
     private _didAccelerateFunc: () => void;
 
     constructor () {
-        const support = system.isMobile;
+        const support = systemInfo.isMobile;
         this.support = support;
         this._didAccelerateFunc = this._didAccelerate.bind(this);
     }
@@ -26,7 +28,7 @@ export class AccelerometerInputSource {
         let y = deviceMotionValue[4] * 0.1;
         const z = deviceMotionValue[5] * 0.1;
 
-        const orientation = system.getOrientation();
+        const orientation = screenAdapter.orientation;
         const tmpX = x;
         if (orientation === Orientation.LANDSCAPE_RIGHT) {
             x = -y;
@@ -40,7 +42,7 @@ export class AccelerometerInputSource {
         }
 
         // fix android acc values are opposite
-        if (system.os === OS.ANDROID || system.os === OS.OHOS) {
+        if (systemInfo.os === OS.ANDROID || systemInfo.os === OS.OHOS) {
             x = -x;
             y = -y;
         }

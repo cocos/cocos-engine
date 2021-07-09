@@ -30,7 +30,10 @@ import { sys } from './sys';
 import { View } from './view';
 import { Node } from '../scene-graph';
 import { macro } from './macro';
+import { legacyCC } from '../global-exports';
+import { screen } from './screen';
 
+// #region deprecation on view
 removeProperty(View.prototype, 'View.prototype', [
     {
         name: 'isAntiAliasEnabled',
@@ -41,6 +44,25 @@ removeProperty(View.prototype, 'View.prototype', [
         suggest: 'The API of Texture2d have been largely modified, no alternative',
     },
 ]);
+markAsWarning(View.prototype, 'View.prototype', [
+    {
+        name: 'adjustViewportMeta',
+    },
+    {
+        name: 'enableAutoFullScreen',
+        suggest: 'use screen.requestFullScreen() instead.',
+    },
+    {
+        name: 'isAutoFullScreenEnabled',
+    },
+]);
+markAsWarning(legacyCC, 'cc', [
+    {
+        name: 'winSize',
+        suggest: 'please use view.getVisibleSize() instead.',
+    },
+]);
+// #endregion deprecation on view
 
 // deprecate Event property
 replaceProperty(Event, 'Event', [
@@ -284,5 +306,16 @@ markAsWarning(macro, 'macro', [
     {
         name: 'KEY',
         suggest: 'please use KeyCode instead',
+    },
+]);
+
+// deprecate screen API
+markAsWarning(screen, 'screen', [
+    {
+        name: 'autoFullScreen',
+        suggest: 'please use screen.requestFullScreen() instead.',
+    },
+    {
+        name: 'disableAutoFullScreen',
     },
 ]);
