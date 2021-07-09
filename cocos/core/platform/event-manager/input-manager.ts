@@ -285,7 +285,7 @@ class InputManager {
 
     private _getUnUsedIndex () {
         let temp = this._indexBitsUsed;
-        const now = legacyCC.director.getCurrentTime();
+        const now = legacyCC.game.frameStartTime;
 
         for (let i = 0; i < this._maxTouches; i++) {
             if (!(temp & 0x00000001)) {

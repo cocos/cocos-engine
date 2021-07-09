@@ -37,6 +37,7 @@ import { SubModel } from './renderer/scene/submodel';
 import { Root } from './root';
 import { game } from './game';
 import System from './components/system';
+import { Director } from './director';
 
 // VMATH
 
@@ -275,5 +276,59 @@ markAsWarning(game, 'game', [
     },
     {
         name: 'groupList',
+    },
+]);
+
+// Director
+
+markAsWarning(Director.prototype, 'director', [
+    {
+        name: 'calculateDeltaTime',
+    },
+    {
+        name: 'getDeltaTime',
+        suggest: 'Use game.deltaTime instead',
+    },
+    {
+        name: 'getTotalTime',
+        suggest: 'Use game.totalTime instead',
+    },
+    {
+        name: 'getCurrentTime',
+        suggest: 'Use game.frameStartTime instead',
+    },
+]);
+
+removeProperty(Director.prototype, 'director', [
+    {
+        name: 'setAnimationInterval',
+        suggest: 'please use game.frameRate instead',
+    },
+    {
+        name: 'getAnimationInterval',
+        suggest: 'please use game.frameRate instead',
+    },
+    {
+        name: 'getRunningScene',
+        suggest: 'please use getScene instead',
+    },
+    {
+        name: 'setDepthTest',
+        suggest: 'please use camera API instead',
+    },
+    {
+        name: 'setClearColor',
+        suggest: 'please use camera API instead',
+    },
+    {
+        name: 'getWinSize',
+        suggest: 'please use view.getVisibleSize instead',
+    },
+    {
+        name: 'getWinSizeInPixels',
+    },
+    {
+        name: 'purgeCachedData',
+        suggest: 'please use assetManager.releaseAll instead',
     },
 ]);

@@ -55,9 +55,8 @@ export interface IMemoryImageSource {
  */
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
-function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap;
+function isImageBitmap (imageSource: any): boolean {
+    return !!(legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap);
 }
 
 function fetchImageSource (imageSource: ImageSource) {
@@ -91,6 +90,7 @@ export class ImageAsset extends Asset {
 
     set _nativeAsset (value: ImageSource) {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
+            // @ts-expect-error internal API usage
             value.format = value.format || this._format;
         }
         this.reset(value);
@@ -193,6 +193,7 @@ export class ImageAsset extends Asset {
         } else if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
             this._nativeData = data;
+            // @ts-expect-error internal api usage
             this._format = data.format;
         } else {
             this._nativeData = data;
@@ -206,6 +207,7 @@ export class ImageAsset extends Asset {
             // @ts-expect-error JSB element should destroy native data.
             if (JSB) this.data.destroy();
         } else if (isImageBitmap(this.data)) {
+            // @ts-expect-error internal api usage
             this.data.close && this.data.close();
         }
         return super.destroy();
