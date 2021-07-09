@@ -110,7 +110,8 @@ bool CCMTLTexture::createMTLTexture() {
 
     descriptor.usage = mu::toMTLTextureUsage(_usage);
     descriptor.textureType = mu::toMTLTextureType(_type);
-    descriptor.sampleCount = mu::toMTLSampleCount(_samples);
+    // ongoing: MSAA for metal
+    descriptor.sampleCount = mu::toMTLSampleCount(SampleCount::X1);
     descriptor.mipmapLevelCount = _levelCount;
     descriptor.arrayLength = _type == TextureType::CUBE ? 1 : _layerCount;
     if (hasFlag(_usage, TextureUsage::COLOR_ATTACHMENT) ||

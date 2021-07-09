@@ -24,7 +24,6 @@
 ****************************************************************************/
 
 #include "base/CoreStd.h"
-#include "base/LinearAllocatorPool.h"
 #include "base/threading/MessageQueue.h"
 
 #include "BufferAgent.h"
@@ -41,6 +40,7 @@
 #include "SamplerAgent.h"
 #include "ShaderAgent.h"
 #include "TextureAgent.h"
+#include "base/threading/ThreadSafeLinearAllocator.h"
 
 namespace cc {
 namespace gfx {
@@ -78,10 +78,6 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
 
     _mainMessageQueue = CC_NEW(MessageQueue);
 
-    _allocatorPools.resize(MAX_CPU_FRAME_AHEAD + 1);
-    for (uint i = 0U; i < MAX_CPU_FRAME_AHEAD + 1; ++i) {
-        _allocatorPools[i] = CC_NEW(LinearAllocatorPool);
-    }
     static_cast<CommandBufferAgent *>(_cmdBuff)->initMessageQueue();
 
     setMultithreaded(true);
@@ -112,10 +108,6 @@ void DeviceAgent::doDestroy() {
     _mainMessageQueue->terminateConsumerThread();
     CC_SAFE_DELETE(_mainMessageQueue);
 
-    for (LinearAllocatorPool *pool : _allocatorPools) {
-        CC_SAFE_DELETE(pool);
-    }
-    _allocatorPools.clear();
 }
 
 void DeviceAgent::resize(uint width, uint height) {
@@ -152,11 +144,6 @@ void DeviceAgent::present() {
     _mainMessageQueue->finishWriting();
     _currentIndex = (_currentIndex + 1) % (MAX_CPU_FRAME_AHEAD + 1);
     _frameBoundarySemaphore.wait();
-
-    getMainAllocator()->reset();
-    for (CommandBufferAgent *cmdBuff : _cmdBuffRefs) {
-        cmdBuff->_allocatorPools[_currentIndex]->reset();
-    }
 }
 
 void DeviceAgent::setMultithreaded(bool multithreaded) {
@@ -335,7 +322,8 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
     if (!_multithreaded) return; // all command buffers are immediately executed
 
-    auto **agentCmdBuffs = getMainAllocator()->allocate<CommandBufferAgent *>(count);
+    auto **agentCmdBuffs = getMessageQueue()->allocate<CommandBufferAgent *>(count);
+
     for (uint i = 0; i < count; ++i) {
         agentCmdBuffs[i] = static_cast<CommandBufferAgent *const>(cmdBuffs[i]);
         MessageQueue::freeChunksInFreeQueue(agentCmdBuffs[i]->_messageQueue);

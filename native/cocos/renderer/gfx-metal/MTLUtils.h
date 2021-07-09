@@ -100,6 +100,7 @@ bool isSamplerDescriptorCompareFunctionSupported(uint family);
 void clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer, RenderPass *renderPass, const Rect &renderArea, const Color *colors, float depth, uint stencil);
 inline uint alignUp(uint inSize, uint align) { return ((inSize + align - 1) / align) * align; }
 void clearUtilResource();
+inline uint roundUp(uint dividend, uint divisor) { return (dividend - 1) / divisor + 1; }
 } // namespace mu
 
 } // namespace gfx

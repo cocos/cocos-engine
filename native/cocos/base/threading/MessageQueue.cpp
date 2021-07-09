@@ -100,6 +100,10 @@ MessageQueue::MessageQueue() {
     --_reader.newMessageCount;
 }
 
+uint32_t MessageQueue::getChunckSize() {
+    return MEMORY_CHUNK_SIZE;
+}
+
 void MessageQueue::kick() noexcept {
     pushMessages();
     _event.signal();

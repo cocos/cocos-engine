@@ -31,7 +31,6 @@
 namespace cc {
 
 class MessageQueue;
-class LinearAllocatorPool;
 
 namespace gfx {
 
@@ -71,7 +70,6 @@ public:
     uint getNumTris() const override { return _actor->getNumTris(); }
 
     inline MessageQueue *getMessageQueue() { return _messageQueue; }
-    LinearAllocatorPool *getAllocator();
 
 protected:
     friend class DeviceAgent;
@@ -82,7 +80,6 @@ protected:
     void                          initMessageQueue();
     void                          destroyMessageQueue();
     MessageQueue *                _messageQueue = nullptr;
-    vector<LinearAllocatorPool *> _allocatorPools;
 };
 
 } // namespace gfx

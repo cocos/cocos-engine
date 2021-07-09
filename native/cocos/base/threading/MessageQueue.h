@@ -93,6 +93,8 @@ public:
     MessageQueue(MessageQueue &&)      = delete;
     MessageQueue &operator=(MessageQueue const &) = delete;
     MessageQueue &operator=(MessageQueue &&) = delete;
+    
+    static uint32_t getChunckSize();
 
     // message allocation
     template <typename T>
