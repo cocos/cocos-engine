@@ -34,6 +34,7 @@ import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
+import { DistributedManager } from './distributed-manager';
 
 // definitions for CCObject.Flags
 
@@ -196,24 +197,28 @@ class CCObject implements EditorExtendableObject {
 
     public declare [editorExtrasTag]: unknown;
 
-    public _objFlags: number;
+    /**
+     * @default 0
+     * @private
+     */
+    public _objFlags: number = 0;
     protected _name: string;
+    protected _id: string = '';
 
     constructor (name = '') {
-        /**
-         * @default ""
-         * @private
-         */
         this._name = name;
-
-        /**
-         * @default 0
-         * @private
-         */
-        this._objFlags = 0;
     }
 
     // MEMBER
+
+    /**
+     * @en Global unique identify
+     * @zh 全局唯一标识符
+     * @readOnly
+     */
+    get uuid () {
+        return this._id;
+    }
 
     /**
      * @en The name of the object.
@@ -665,5 +670,10 @@ if (EDITOR || TEST) {
     });
 }
 
+const distributedManager = new DistributedManager();
+
 legacyCC.Object = CCObject;
-export { CCObject };
+export {
+    CCObject,
+    distributedManager,
+};
