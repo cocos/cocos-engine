@@ -270,21 +270,6 @@ export class Texture2D extends SimpleTexture {
         return Object.assign(texInfo, presumed);
     }
 
-    protected _checkTextureLoaded () {
-        let ready = true;
-        for (let i = 0; i < this._mipmaps.length; ++i) {
-            const image = this._mipmaps[i];
-            if (!image.loaded) {
-                ready = false;
-                break;
-            }
-        }
-
-        if (ready) {
-            super._textureReady();
-        }
-    }
-
     public initDefault (uuid?: string) {
         super.initDefault(uuid);
         const imageAsset = new ImageAsset();

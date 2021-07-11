@@ -19,6 +19,10 @@ for (const <module> in <selected-modules>) {
 
 The `<selected-modules>` are public modules decided to be included in `'cc'`, by users.
 
+## Modules public only to Editor
+
+Modules under `/editor/exports` are considered as modules public only to Cocos Creator Editor.
+
 ## Add module export
 
 If you want to expose a new API to users,
@@ -50,4 +54,4 @@ Creating a public module is simply add a module file under `/exports`.
 
 Besides this, you need to config the category of the public module and whether the public module is defaulted, etc.
 
-Take a look at the `/scripts/module-division/division-config.json`. The `entry` field is the name(s) of public modules.
+Take a look at the `/cc.config.json`. The `features` field is the name(s) of public modules.

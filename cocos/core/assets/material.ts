@@ -125,7 +125,6 @@ export class Material extends Asset {
 
     constructor () {
         super();
-        this.loaded = false;
     }
 
     /**
@@ -253,8 +252,6 @@ export class Material extends Asset {
      */
     public onLoaded () {
         this._update();
-        this.loaded = true;
-        this.emit('load');
     }
 
     /**

@@ -282,6 +282,9 @@ export class RenderScene {
             case ModelType.SKINNING:
                 this._nativeObj!.addSkinningModel(m.native);
                 break;
+            case ModelType.BAKED_SKINNING:
+                this._nativeObj!.addBakedSkinningModel(m.native);
+                break;
             case ModelType.DEFAULT:
             default:
                 this._nativeObj!.addModel(m.native);
@@ -295,7 +298,7 @@ export class RenderScene {
                 model.detachFromScene();
                 this._models.splice(i, 1);
                 if (JSB) {
-                    this._nativeObj!.removeModel(model.native);
+                    this._nativeObj!.removeModel(i);
                 }
                 return;
             }

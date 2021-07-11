@@ -33,6 +33,7 @@ import { error } from '../platform/debug';
 import { js } from '../utils/js';
 import { callInNextTick } from '../utils/misc';
 import Config from './config';
+import { dependMap, nativeDependMap } from './depend-maps';
 import dependUtil from './depend-util';
 import { IDependProp } from './deserialize';
 import { isScene } from './helper';
@@ -119,7 +120,7 @@ export function cache (id: string, asset: Asset, cacheAsset?: boolean) {
 
 export function setProperties (uuid: string, asset: Asset, assetsMap: Record<string, any>) {
     let missingAsset = false;
-    const depends = asset.__depends__ as IDependProp[];
+    const depends = dependMap.get(asset);
     if (depends) {
         let missingAssetReporter: any = null;
         for (let i = 0, l = depends.length; i < l; i++) {
@@ -158,17 +159,17 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
         if (missingAssetReporter) {
             missingAssetReporter.reportByOwner();
         }
-        asset.__depends__ = null;
+        dependMap.delete(asset);
     }
 
-    if (asset.__nativeDepend__) {
+    if (nativeDependMap.has(asset)) {
         if (assetsMap[`${uuid}@native`]) {
             asset._nativeAsset = assetsMap[`${uuid}@native`];
         } else {
             missingAsset = true;
             console.error(`the native asset of ${uuid} is missing!`);
         }
-        asset.__nativeDepend__ = false;
+        nativeDependMap.delete(asset);
     }
     return missingAsset;
 }

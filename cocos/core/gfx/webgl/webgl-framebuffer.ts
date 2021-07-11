@@ -44,15 +44,6 @@ export class WebGLFramebuffer extends Framebuffer {
         this._colorTextures = info.colorTextures || [];
         this._depthStencilTexture = info.depthStencilTexture || null;
 
-        if (info.depthStencilMipmapLevel !== 0) {
-            console.warn('The mipmap level of th texture image to be attached of depth stencil attachment should be 0. Convert to 0.');
-        }
-        for (let i = 0; i < info.colorMipmapLevels.length; ++i) {
-            if (info.colorMipmapLevels[i] !== 0) {
-                console.warn(`The mipmap level of th texture image to be attached of color attachment ${i} should be 0. Convert to 0.`);
-            }
-        }
-
         const gpuColorTextures: IWebGLGPUTexture[] = [];
         for (let i = 0; i < info.colorTextures.length; ++i) {
             const colorTexture = info.colorTextures[i];

@@ -1,17 +1,11 @@
-import { SafeAreaEdge, SupportCapability } from 'pal/system';
-import { Size } from '../../../cocos/core/math';
+import { SupportCapability } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
 
-// these value is defined in the native layer
-const orientationMap: Record<string, Orientation> = {
-    0: Orientation.PORTRAIT,
-    '-90': Orientation.LANDSCAPE_LEFT,
-    90: Orientation.LANDSCAPE_RIGHT,
-    180: Orientation.PORTRAIT_UPSIDE_DOWN,
-};
 const networkTypeMap: Record<string, NetworkType> = {
-    // TODO
+    0: NetworkType.NONE,
+    1: NetworkType.LAN,
+    2: NetworkType.WWAN,
 };
 const platformMap: Record<number, Platform> = {
     0: Platform.WIN32,
@@ -25,7 +19,7 @@ const platformMap: Record<number, Platform> = {
     6: Platform.OHOS,
 };
 
-class System {
+class SystemInfo extends EventTarget {
     public readonly isNative: boolean;
     public readonly isBrowser: boolean;
     public readonly isMobile: boolean;
@@ -42,13 +36,12 @@ class System {
     public readonly supportCapability: SupportCapability;
     // TODO: need to wrap the function __isObjectValid()
 
-    private _eventTarget: EventTarget = new EventTarget();
-
     public get networkType (): NetworkType {
         return networkTypeMap[jsb.device.getNetworkType()];
     }
 
     constructor () {
+        super();
         this.isNative = true;
         this.isBrowser = false;
 
@@ -95,61 +88,17 @@ class System {
     }
 
     private _registerEvent () {
-        jsb.onResize = (size) => {
-            if (size.width === 0 || size.height === 0) return;
-            size.width /= this.pixelRatio;
-            size.height /= this.pixelRatio;
-
-            // TODO: remove this function calling
-            window.resize(size.width, size.height);
-            this._eventTarget.emit(AppEvent.RESIZE);
-        };
-        jsb.onOrientationChanged = (event) => {
-            this._eventTarget.emit(AppEvent.ORIENTATION_CHANGE);
-        };
         jsb.onPause = () => {
-            this._eventTarget.emit(AppEvent.HIDE);
+            this.emit('hide');
         };
         jsb.onResume = () => {
-            this._eventTarget.emit(AppEvent.SHOW);
+            this.emit('show');
         };
         jsb.onClose = () => {
-            this._eventTarget.emit(AppEvent.CLOSE);
+            this.emit('close');
         };
     }
 
-    public getViewSize (): Size {
-        return new Size(window.innerWidth, window.innerHeight);
-    }
-    public getOrientation (): Orientation {
-        return orientationMap[jsb.device.getDeviceOrientation()];
-    }
-    public getSafeAreaEdge (): SafeAreaEdge {
-        const nativeSafeArea = jsb.device.getSafeAreaEdge();
-        let topEdge = nativeSafeArea.x;
-        let bottomEdge = nativeSafeArea.z;
-        let leftEdge = nativeSafeArea.y;
-        let rightEdge = nativeSafeArea.w;
-        const orientation = this.getOrientation();
-        // Make it symmetrical.
-        if (orientation === Orientation.PORTRAIT) {
-            if (topEdge < bottomEdge) {
-                topEdge = bottomEdge;
-            } else {
-                bottomEdge = topEdge;
-            }
-        } else if (leftEdge < rightEdge) {
-            leftEdge = rightEdge;
-        } else {
-            rightEdge = leftEdge;
-        }
-        return {
-            top: topEdge,
-            bottom: bottomEdge,
-            left: leftEdge,
-            right: rightEdge,
-        };
-    }
     public getBatteryLevel (): number {
         return jsb.device.getBatteryLevel();
     }
@@ -175,38 +124,6 @@ class System {
         // @ts-expect-error __close() is defined in JSB
         __close();
     }
-
-    public onHide (cb: () => void) {
-        this._eventTarget.on(AppEvent.HIDE, cb);
-    }
-    public onShow (cb: () => void) {
-        this._eventTarget.on(AppEvent.SHOW, cb);
-    }
-    public onClose (cb: () => void) {
-        this._eventTarget.on(AppEvent.CLOSE, cb);
-    }
-    public onViewResize (cb: () => void) {
-        this._eventTarget.on(AppEvent.RESIZE, cb);
-    }
-    public onOrientationChange (cb: () => void) {
-        this._eventTarget.on(AppEvent.ORIENTATION_CHANGE, cb);
-    }
-
-    public offHide (cb?: () => void) {
-        this._eventTarget.off(AppEvent.HIDE, cb);
-    }
-    public offShow (cb?: () => void) {
-        this._eventTarget.off(AppEvent.SHOW, cb);
-    }
-    public offClose (cb?: () => void) {
-        this._eventTarget.off(AppEvent.CLOSE, cb);
-    }
-    public offViewResize (cb?: () => void) {
-        this._eventTarget.off(AppEvent.RESIZE, cb);
-    }
-    public offOrientationChange (cb?: () => void) {
-        this._eventTarget.off(AppEvent.ORIENTATION_CHANGE, cb);
-    }
 }
 
-export const system = new System();
+export const systemInfo = new SystemInfo();

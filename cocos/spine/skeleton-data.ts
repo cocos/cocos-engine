@@ -148,43 +148,6 @@ export class SkeletonData extends Asset {
         }
     }
 
-    public ensureTexturesLoaded (loaded: null | ((x: boolean) => void), caller: any) {
-        const textures = this.textures;
-        const texsLen = textures.length;
-        if (texsLen === 0) {
-            if (loaded) loaded.call(caller, false);
-            return;
-        }
-        let loadedCount = 0;
-        const loadedItem = () => {
-            loadedCount++;
-            if (loadedCount >= texsLen) {
-                if (loaded) loaded.call(caller, true);
-                loaded = null;
-            }
-        };
-        for (let i = 0; i < texsLen; i++) {
-            const tex = textures[i];
-            if (tex.loaded) {
-                loadedItem();
-            } else {
-                tex.once('load', loadedItem);
-            }
-        }
-    }
-
-    public isTexturesLoaded () {
-        const textures = this.textures;
-        const texsLen = textures.length;
-        for (let i = 0; i < texsLen; i++) {
-            const tex = textures[i];
-            if (!tex.loaded) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     /**
      * @en Get the included SkeletonData used in spine runtime.<br>
      * Returns a {{#crossLinkModule "sp.spine"}}sp.spine{{/crossLinkModule}}.SkeletonData object.

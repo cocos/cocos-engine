@@ -53,6 +53,40 @@ export const NativeSkinningModel: Constructor<{
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
 
+export const NativeBakedAnimInfo: Constructor<{
+    buffer: Buffer;
+    data: ArrayBuffer;
+    dirty: ArrayBuffer;
+}> = null!;
+export type NativeBakedAnimInfo = InstanceType<typeof NativeBakedAnimInfo>;
+
+export const NativeBakedJointInfo: Constructor<{
+    boundsInfo: NativeAABB[];
+    jointTextureInfo: ArrayBuffer;
+    animInfo: NativeBakedAnimInfo;
+    buffer: Buffer | null;
+}> = null!;
+export type NativeBakedJointInfo = InstanceType<typeof NativeBakedJointInfo>;
+
+export const NativeBakedSkinningModel: Constructor<{
+    setReceiveShadow (val: boolean): void;
+    setEnabled (val: boolean): void;
+    seVisFlag (val: number): void;
+    setTransform (n: Node): void;
+    setNode (n: Node): void;
+    setCastShadow (val: boolean): void;
+    setLocalBuffer (buf: Buffer | null): void;
+    setBounds (val: NativeAABB | null): void;
+    addSubModel (val: NativeSubModel): void;
+    setInstMatWorldIdx (idx: number): void;
+    setInstancedBuffer (buffer: ArrayBuffer): void;
+    setInstanceAttributes (attrs: Attribute[]): void;
+    setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]): void;
+    setJointMedium(isUploadAnim: boolean, jointInfo: NativeBakedJointInfo): void;
+    setAnimInfoIdx(idx: number): void;
+}> = null!;
+export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
+
 export const NativeLight: Constructor<{
     setType (type: LightType): void;
     setColor (color: Vec3): void;
@@ -194,11 +228,12 @@ export const NativeRenderScene: Constructor<{
     removeSphereLights (): void;
     removeSpotLights (): void;
     addModel (m: NativeModel): void;
-    removeModel (m: NativeModel): void;
+    removeModel (i: number): void;
     removeModels (): void;
     addBatch (batch: NativeDrawBatch2D): void;
     updateBatches (batches: NativeDrawBatch2D[]): void;
     addSkinningModel (m: NativeModel): void;
+    addBakedSkinningModel(m: NativeModel): void;
     removeBatch (index: number): void;
     removeBatches (): void;
 }> = null!;

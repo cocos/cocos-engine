@@ -33,6 +33,7 @@ import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { ISizeLike } from './type-define';
 import { legacyCC } from '../global-exports';
+import { enumerableProps } from './utils';
 
 /**
  * @en Two dimensional size type representing the width and height.
@@ -162,6 +163,7 @@ export class Size extends ValueType {
     }
 }
 
+enumerableProps(Size.prototype, ['x', 'y']);
 CCClass.fastDefine('cc.Size', Size, { width: 0, height: 0 });
 
 /**

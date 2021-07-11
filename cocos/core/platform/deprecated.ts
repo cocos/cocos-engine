@@ -30,7 +30,10 @@ import { sys } from './sys';
 import { View } from './view';
 import { Node } from '../scene-graph';
 import { macro } from './macro';
+import { legacyCC } from '../global-exports';
+import { screen } from './screen';
 
+// #region deprecation on view
 removeProperty(View.prototype, 'View.prototype', [
     {
         name: 'isAntiAliasEnabled',
@@ -41,34 +44,48 @@ removeProperty(View.prototype, 'View.prototype', [
         suggest: 'The API of Texture2d have been largely modified, no alternative',
     },
 ]);
+markAsWarning(View.prototype, 'View.prototype', [
+    {
+        name: 'adjustViewportMeta',
+    },
+    {
+        name: 'enableAutoFullScreen',
+        suggest: 'use screen.requestFullScreen() instead.',
+    },
+    {
+        name: 'isAutoFullScreenEnabled',
+    },
+]);
+markAsWarning(legacyCC, 'cc', [
+    {
+        name: 'winSize',
+        suggest: 'please use view.getVisibleSize() instead.',
+    },
+]);
+// #endregion deprecation on view
 
 // deprecate Event property
 replaceProperty(Event, 'Event', [
     {
-        name: 'NO_TYPE',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
-    },
-    {
         name: 'ACCELERATION',
         newName: 'DEVICEMOTION',
-        target: SystemEvent.DeviceEvent,
-        targetName: 'SystemEvent.DeviceEvent',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 
 markAsWarning(Event, 'Event', [
     {
         name: 'TOUCH',
-        suggest: 'please use SystemEvent.TouchEvent.TOUCH_START, SystemEvent.TouchEvent.TOUCH_MOVE, SystemEvent.TouchEvent.TOUCH_END and SystemEvent.TouchEvent.TOUCH_CANCEL instead',
+        suggest: 'please use SystemEvent.EventType.TOUCH_START, SystemEvent.EventType.TOUCH_MOVE, SystemEvent.EventType.TOUCH_END and SystemEvent.EventType.TOUCH_CANCEL instead',
     },
     {
         name: 'MOUSE',
-        suggest: 'please use SystemEvent.MouseEvent.MOUSE_DOWN, SystemEvent.MouseEvent.MOUSE_MOVE, SystemEvent.MouseEvent.MOUSE_UP, SystemEvent.MouseEvent.MOUSE_WHEEL, Node.EventType.MOUSE_ENTER and Node.EventType.MOUSE_LEAVE instead',
+        suggest: 'please use SystemEvent.EventType.MOUSE_DOWN, SystemEvent.EventType.MOUSE_MOVE, SystemEvent.EventType.MOUSE_UP, SystemEvent.EventType.MOUSE_WHEEL, Node.EventType.MOUSE_ENTER and Node.EventType.MOUSE_LEAVE instead',
     },
     {
         name: 'KEYBOARD',
-        suggest: 'please use SystemEvent.KeyboardEvent.KEY_DOWN and SystemEvent.KeyboardEvent.KEY_UP instead',
+        suggest: 'please use SystemEvent.EventType.KEY_DOWN and SystemEvent.EventType.KEY_UP instead',
     },
 ]);
 
@@ -77,15 +94,15 @@ replaceProperty(EventMouse, 'EventMouse',
     ['DOWN', 'UP', 'MOVE'].map((item) => ({
         name: item,
         newName: `MOUSE_${item}`,
-        target: SystemEvent.MouseEvent,
-        targetName: 'SystemEvent.MouseEvent',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     })));
 replaceProperty(EventMouse, 'EventMouse', [
     {
         name: 'SCROLL',
         newName: 'MOUSE_WHEEL',
-        target: SystemEvent.MouseEvent,
-        targetName: 'SystemEvent.MouseEvent',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 markAsWarning(EventMouse.prototype, 'EventMouse.prototype', [
@@ -100,32 +117,32 @@ replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'BEGAN',
         newName: 'TOUCH_START',
-        target: SystemEvent.TouchEvent,
-        targetName: 'SystemEvent.TouchEvent',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'MOVED',
         newName: 'TOUCH_MOVE',
-        target: SystemEvent.TouchEvent,
-        targetName: 'SystemEvent.TouchEvent',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'ENDED',
         newName: 'TOUCH_END',
-        target: SystemEvent.TouchEvent,
-        targetName: 'SystemEvent.TouchEvent',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 replaceProperty(EventTouch, 'EventTouch', [
     {
         name: 'CANCELLED',
         newName: 'TOUCH_CANCEL',
-        target: SystemEvent.TouchEvent,
-        targetName: 'SystemEvent.TouchEvent',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 markAsWarning(EventTouch.prototype, 'EventTouch.prototype', [
@@ -139,7 +156,7 @@ markAsWarning(EventTouch.prototype, 'EventTouch.prototype', [
 markAsWarning(EventKeyboard.prototype, 'EventKeyboard.prototype', [
     {
         name: 'isPressed',
-        suggest: 'use EventKeyboard.prototype.type !== SystemEvent.KeyboardEvent.KEY_UP instead',
+        suggest: 'use EventKeyboard.prototype.type !== SystemEvent.EventType.KEY_UP instead',
     },
 ]);
 
@@ -215,18 +232,6 @@ removeProperty(sys, 'sys',
         name: item,
     })));
 
-// deprecate KEY event
-markAsWarning(SystemEventType, 'SystemEventType', [
-    {
-        name: 'KEY_DOWN',
-        suggest: 'please use SystemEvent.KeyboardEvent.KEY_DOWN instead. The SystemEventType.KEY_DOWN event will be continuously dispatched in the key pressed state, it\'s not a good API design for developers.',
-    },
-    {
-        name: 'KEY_UP',
-        suggest: 'please use SystemEvent.KeyboardEvent.KEY_UP instead.',
-    },
-]);
-
 replaceProperty(SystemEventType, 'SystemEventType', [
     'MOUSE_ENTER',
     'MOUSE_LEAVE',
@@ -250,18 +255,18 @@ replaceProperty(SystemEventType, 'SystemEventType', [
 replaceProperty(Node.EventType, 'Node.EventType', [
     {
         name: 'DEVICEMOTION',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
     {
         name: 'KEY_DOWN',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
     {
         name: 'KEY_UP',
-        target: SystemEventType,
-        targetName: 'SystemEventType',
+        target: SystemEvent.EventType,
+        targetName: 'SystemEvent.EventType',
     },
 ]);
 
@@ -279,27 +284,38 @@ markAsWarning(macro.KEY, 'macro.KEY',
 markAsWarning(macro.KEY, 'macro.KEY', [
     {
         name: 'shift',
-        suggest: 'please use SystemEvent.KeyCode.SHIFT_LEFT instead',
+        suggest: 'please use KeyCode.SHIFT_LEFT instead',
     },
 ]);
 
 markAsWarning(macro.KEY, 'macro.KEY', [
     {
         name: 'ctrl',
-        suggest: 'please use SystemEvent.KeyCode.CTRL_LEFT instead',
+        suggest: 'please use KeyCode.CTRL_LEFT instead',
     },
 ]);
 
 markAsWarning(macro.KEY, 'macro.KEY', [
     {
         name: 'alt',
-        suggest: 'please use SystemEvent.KeyCode.ALT_LEFT instead',
+        suggest: 'please use KeyCode.ALT_LEFT instead',
     },
 ]);
 
 markAsWarning(macro, 'macro', [
     {
         name: 'KEY',
-        suggest: 'please use SystemEvent.KeyCode instead',
+        suggest: 'please use KeyCode instead',
+    },
+]);
+
+// deprecate screen API
+markAsWarning(screen, 'screen', [
+    {
+        name: 'autoFullScreen',
+        suggest: 'please use screen.requestFullScreen() instead.',
+    },
+    {
+        name: 'disableAutoFullScreen',
     },
 ]);

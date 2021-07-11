@@ -83,7 +83,7 @@ const KEY = {
      * @en The shift key
      * @zh Shift 键
      * @readonly
-     * @deprecated since v3.3, please use SystemEvent.KeyCode.SHIFT_LEFT instead.
+     * @deprecated since v3.3, please use KeyCode.SHIFT_LEFT instead.
      */
     shift: 16, // should use shiftkey instead
 
@@ -91,7 +91,7 @@ const KEY = {
      * @en The ctrl key
      * @zh Ctrl 键
      * @readonly
-     * @deprecated since v3.3, please use SystemEvent.KeyCode.CTRL_LEFT instead.
+     * @deprecated since v3.3, please use KeyCode.CTRL_LEFT instead.
      */
     ctrl: 17, // should use ctrlkey
 
@@ -99,7 +99,7 @@ const KEY = {
      * @en The alt key
      * @zh Alt 键
      * @readonly
-     * @deprecated since v3.3, please use SystemEvent.KeyCode.ALT_LEFT instead.
+     * @deprecated since v3.3, please use KeyCode.ALT_LEFT instead.
      */
     alt: 18, // should use altkey
 
@@ -867,7 +867,7 @@ const macro = {
      * @en Key map for keyboard event
      * @zh 键盘事件的按键值。
      * @example {@link cocos/core/platform/CCCommon/KEY.js}
-     * @deprecated since v3.3 please use SystemEvent.KeyCode instead
+     * @deprecated since v3.3 please use KeyCode instead
      */
     KEY,
 

@@ -413,7 +413,7 @@ export class Camera extends Component {
 
         const old = this._targetTexture;
         this._targetTexture = value;
-        this._chechTargetTextureEvent(old);
+        this._checkTargetTextureEvent(old);
         this._updateTargetTexture();
 
         if (!value && this._camera) {
@@ -577,7 +577,7 @@ export class Camera extends Component {
         }
     }
 
-    protected _chechTargetTextureEvent (old: RenderTexture | null) {
+    protected _checkTargetTextureEvent (old: RenderTexture | null) {
         const resizeFunc = (window: RenderWindow) => {
             if (this._camera) {
                 this._camera.setFixedSize(window.width, window.height);

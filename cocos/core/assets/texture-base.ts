@@ -131,8 +131,6 @@ export class TextureBase extends Asset {
 
         // Id for generate hash in material
         this._id = idGenerator.getNewId();
-
-        this.loaded = false;
         this._gfxDevice = this._getGFXDevice();
         this._textureHash = murmurhash2_32_gc(this._id, 666);
     }
