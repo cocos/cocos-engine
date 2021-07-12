@@ -66,6 +66,12 @@ export class AudioClip extends Asset {
         super();
     }
 
+    public destroy (): boolean {
+        const destroyResult = super.destroy();
+        this._player?.destroy();
+        return destroyResult;
+    }
+
     set _nativeAsset (meta: AudioMeta | null) {
         this._meta = meta;
         if (meta) {
@@ -186,7 +192,7 @@ export class AudioClip extends Asset {
     /**
      * @deprecated since v3.1.0, please use AudioSource.prototype.playOneShot() instead.
      */
-    public playOneShot (volume: number) {
+    public playOneShot (volume = 1) {
         if (this._nativeAsset) {
             AudioPlayer.loadOneShotAudio(this._nativeAsset.url, volume).then((oneShotAudio) => {
                 oneShotAudio.play();
