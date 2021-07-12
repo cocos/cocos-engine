@@ -39,7 +39,7 @@ import { CCObject } from './data/object';
 import { EventTarget } from './event/event-target';
 import { game, Game } from './game';
 import { v2, Vec2 } from './math';
-import eventManager from './platform/event-manager/event-manager';
+import { eventManager } from './platform/event-manager/event-manager';
 import { Root } from './root';
 import { Node, Scene } from './scene-graph';
 import { ComponentScheduler } from './scene-graph/component-scheduler';
@@ -58,7 +58,7 @@ import inputManager from './platform/event-manager/input-manager';
  * `director` is a singleton object which manage your game's logic flow.
  * Since the `director` is a singleton, you don't need to call any constructor or create functions,
  * the standard way to use it is by calling:
- * `director.methodName();` 
+ * `director.methodName();`
  * It creates and handle the main Window and manages how and when to execute the Scenes.
  *
  * @zh

@@ -32,7 +32,7 @@
 import { AccelerometerInputEvent, input, MouseInputEvent, MouseWheelInputEvent, TouchInputEvent, KeyboardInputEvent } from 'pal/input';
 import { Vec2 } from '../../math/index';
 import { macro } from '../macro';
-import eventManager from './event-manager';
+import { eventManager } from './event-manager';
 import { EventAcceleration, EventKeyboard, EventMouse, EventTouch } from './events';
 import { Touch } from './touch';
 import { legacyCC } from '../../global-exports';
