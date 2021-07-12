@@ -37,7 +37,7 @@ import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 import { CC_V3_0, CC_QUAT_0, AmmoConstant } from './ammo-const';
 import { PhysicsSystem } from '../framework';
 import { AmmoConstraint } from './constraints/ammo-constraint';
-import { PhysicsGroup } from '../framework/physics-enum';
+import { ERigidBodyType, PhysicsGroup } from '../framework/physics-enum';
 import { fastRemoveAt } from '../../core/utils/array';
 
 /**
@@ -154,8 +154,12 @@ export class AmmoSharedBody {
     set bodyEnabled (v: boolean) {
         if (v) {
             if (this.bodyIndex < 0) {
+                // add to world only if it is a dynamic body or having shapes.
+                if (this.bodyStruct.wrappedShapes.length === 0) {
+                    if (!this.wrappedBody) return;
+                    if (!this.wrappedBody.rigidBody.isDynamic) return;
+                }
                 this.bodyIndex = this.wrappedWorld.bodies.length;
-                this.body.clearState();
                 this.wrappedWorld.addSharedBody(this);
                 this.syncInitialBody();
             }
@@ -235,11 +239,11 @@ export class AmmoSharedBody {
             wrappedShapes: [],
             useCompound: false,
         };
-        AmmoInstance.bodyStructs[`KEY${this._bodyStruct.id}`] = this._bodyStruct;
+        AmmoInstance.bodyStructs[this._bodyStruct.id] = this._bodyStruct;
         this.body.setUserIndex2(2);
         this.body.setUserIndex(this._bodyStruct.id);
-        if (mass === 0) this.body.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         if ((Ammo as any).CC_CONFIG.ignoreSelfBody && this._ghostStruct) this.ghost.setIgnoreCollisionCheck(this.body, true);
+        if (this.wrappedBody) this.setBodyType(this.wrappedBody.rigidBody.type);
     }
 
     private _instantiateGhostStruct () {
@@ -256,11 +260,78 @@ export class AmmoSharedBody {
             worldQuat: new Ammo.btQuaternion(),
             wrappedShapes: [],
         };
-        AmmoInstance.ghostStructs[`KEY${this._ghostStruct.id}`] = this._ghostStruct;
+        AmmoInstance.ghostStructs[this._ghostStruct.id] = this._ghostStruct;
         this.ghost.setUserIndex2(2);
         this.ghost.setUserIndex(this._ghostStruct.id);
-        this.ghost.setActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
         if ((Ammo as any).CC_CONFIG.ignoreSelfBody && this._bodyStruct) this.ghost.setIgnoreCollisionCheck(this.body, true);
+        if (this.wrappedBody) this.setGhostType(this.wrappedBody.rigidBody.type);
+    }
+
+    setType (v:ERigidBodyType) {
+        this.setBodyType(v);
+        this.setGhostType(v);
+    }
+
+    setBodyType (v:ERigidBodyType) {
+        if (this._bodyStruct && this._wrappedBody) {
+            const body = this._bodyStruct.body;
+            const wrap = this._wrappedBody;
+            const com = wrap.rigidBody;
+            let m_bcf = body.getCollisionFlags();
+            const localInertia = AmmoConstant.instance.VECTOR3_0;
+            switch (v) {
+            case ERigidBodyType.DYNAMIC:
+                m_bcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+                m_bcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+                body.setCollisionFlags(m_bcf);
+                wrap.setMass(com.mass);
+                wrap.useGravity(com.useGravity);
+                wrap.setAllowSleep(com.allowSleep);
+                break;
+            case ERigidBodyType.KINEMATIC:
+                localInertia.setValue(0, 0, 0);
+                body.setMassProps(0, localInertia);
+                m_bcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
+                m_bcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+                body.setCollisionFlags(m_bcf);
+                body.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+                break;
+            case ERigidBodyType.STATIC:
+            default:
+                localInertia.setValue(0, 0, 0);
+                body.setMassProps(0, localInertia);
+                m_bcf |= AmmoCollisionFlags.CF_STATIC_OBJECT;
+                m_bcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+                body.setCollisionFlags(m_bcf);
+                body.forceActivationState(AmmoCollisionObjectStates.ISLAND_SLEEPING);
+                break;
+            }
+            this.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
+        }
+    }
+
+    setGhostType (v:ERigidBodyType) {
+        if (this._ghostStruct) {
+            const ghost = this._ghostStruct.ghost;
+            let m_gcf = ghost.getCollisionFlags();
+            switch (v) {
+            case ERigidBodyType.DYNAMIC:
+            case ERigidBodyType.KINEMATIC:
+                m_gcf &= (~AmmoCollisionFlags.CF_STATIC_OBJECT);
+                m_gcf |= AmmoCollisionFlags.CF_KINEMATIC_OBJECT;
+                ghost.setCollisionFlags(m_gcf);
+                ghost.forceActivationState(AmmoCollisionObjectStates.DISABLE_DEACTIVATION);
+                break;
+            case ERigidBodyType.STATIC:
+            default:
+                m_gcf &= (~AmmoCollisionFlags.CF_KINEMATIC_OBJECT);
+                m_gcf |= AmmoCollisionFlags.CF_STATIC_OBJECT;
+                ghost.setCollisionFlags(m_gcf);
+                ghost.forceActivationState(AmmoCollisionObjectStates.ISLAND_SLEEPING);
+                break;
+            }
+            this.dirty |= EAmmoSharedBodyDirty.GHOST_RE_ADD;
+        }
     }
 
     addShape (v: AmmoShape, isTrigger: boolean) {
@@ -388,10 +459,13 @@ export class AmmoSharedBody {
         wt0.getBasis().getRotation(this.bodyStruct.worldQuat);
         this.node.worldRotation = ammo2CocosQuat(quat_0, this.bodyStruct.worldQuat);
 
-        const wt1 = this.ghost.getWorldTransform();
-        cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition);
-        cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
-        wt1.setRotation(this.ghostStruct.worldQuat);
+        // sync node to ghost
+        if (this._ghostStruct) {
+            const wt1 = this.ghost.getWorldTransform();
+            cocos2AmmoVec3(wt1.getOrigin(), this.node.worldPosition);
+            cocos2AmmoQuat(this.ghostStruct.worldQuat, this.node.worldRotation);
+            wt1.setRotation(this.ghostStruct.worldQuat);
+        }
     }
 
     syncSceneToGhost () {
@@ -478,8 +552,7 @@ export class AmmoSharedBody {
             // Ammo.destroy(bodyStruct.body);
             ammoDeletePtr(bodyStruct.body, Ammo.btRigidBody);
             ammoDeletePtr(bodyStruct.body, Ammo.btCollisionObject);
-            const key0 = `KEY${bodyStruct.id}`;
-            delete AmmoInstance.bodyStructs[key0];
+            delete AmmoInstance.bodyStructs[bodyStruct.id];
             (this._bodyStruct as any) = null;
         }
 
@@ -489,8 +562,7 @@ export class AmmoSharedBody {
             Ammo.destroy(ghostStruct.shape);
             ammoDeletePtr(ghostStruct.shape, Ammo.btCollisionShape);
             Ammo.destroy(ghostStruct.ghost);
-            const key1 = `KEY${ghostStruct.id}`;
-            delete AmmoInstance.bodyStructs[key1];
+            delete AmmoInstance.bodyStructs[ghostStruct.id];
             (this._ghostStruct as any) = null;
         }
     }

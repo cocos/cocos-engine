@@ -30,13 +30,12 @@
 
 import { ccclass, help, executionOrder, menu, executeInEditMode, requireComponent } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
-import { system } from 'pal/system';
+import { screenAdapter } from 'pal/screen-adapter';
 import { Component } from '../core/components';
 import { UITransform } from '../2d/framework';
 import { view, sys } from '../core/platform';
 import { Widget } from './widget';
 import { widgetManager } from './widget-manager';
-import { legacyCC } from '../core/global-exports';
 
 /**
  * @en
@@ -63,22 +62,16 @@ import { legacyCC } from '../core/global-exports';
 @menu('UI/SafeArea')
 @requireComponent(Widget)
 export class SafeArea extends Component {
-    private _boundUpdateArea!: () => void;
-
-    public onLoad () {
-        this._boundUpdateArea = this.updateArea.bind(this);
-    }
-
     public onEnable () {
         this.updateArea();
         // IDEA: need to delay the callback on Native platform ?
-        system.onViewResize(this._boundUpdateArea);
-        system.onOrientationChange(this._boundUpdateArea);
+        screenAdapter.on('window-resize', this.updateArea, this);
+        screenAdapter.on('orientation-change', this.updateArea, this);
     }
 
     public onDisable () {
-        system.offViewResize(this._boundUpdateArea);
-        system.offOrientationChange(this._boundUpdateArea);
+        screenAdapter.off('window-resize', this.updateArea, this);
+        screenAdapter.off('orientation-change', this.updateArea, this);
     }
 
     /**
@@ -108,8 +101,9 @@ export class SafeArea extends Component {
         const lastAnchorPoint = uiTransComp.anchorPoint.clone();
         //
         widget.isAlignTop = widget.isAlignBottom = widget.isAlignLeft = widget.isAlignRight = true;
-        const screenWidth = legacyCC.winSize.width;
-        const screenHeight = legacyCC.winSize.height;
+        const visibleSize = view.getVisibleSize();
+        const screenWidth = visibleSize.width;
+        const screenHeight = visibleSize.height;
         const safeArea = sys.getSafeAreaRect();
         widget.top = screenHeight - safeArea.y - safeArea.height;
         widget.bottom = safeArea.y;

@@ -25,9 +25,9 @@
 
 import { JSB } from 'internal:constants';
 import { Color, Vec3 } from '../../math';
-import { AmbientPool, NULL_HANDLE, AmbientView, AmbientHandle } from '../core/memory-pools';
 import { legacyCC } from '../../global-exports';
 import { AmbientInfo } from '../../scene-graph/scene-globals';
+import { NativeAmbient } from './native-scene';
 
 export class Ambient {
     public static SUN_ILLUM = 65000.0;
@@ -48,7 +48,7 @@ export class Ambient {
     set enabled (val: boolean) {
         this._enabled = val;
         if (JSB) {
-            AmbientPool.set(this._handle, AmbientView.ENABLE, val ? 1 : 0);
+            this._nativeObj!.enabled = val;
         }
     }
     get enabled (): boolean {
@@ -66,7 +66,7 @@ export class Ambient {
         this._skyColor.set(color);
         Color.toArray(this._colorArray, this._skyColor);
         if (JSB) {
-            AmbientPool.setVec4(this._handle, AmbientView.SKY_COLOR, this._skyColor);
+            this._nativeObj!.skyColor = this._skyColor;
         }
     }
 
@@ -81,7 +81,7 @@ export class Ambient {
     set skyIllum (illum: number) {
         this._skyIllum = illum;
         if (JSB) {
-            AmbientPool.set(this._handle, AmbientView.ILLUM, illum);
+            this._nativeObj!.skyIllum = illum;
         }
     }
     /**
@@ -96,22 +96,25 @@ export class Ambient {
         this._groundAlbedo.set(color);
         Vec3.toArray(this._albedoArray, this._groundAlbedo);
         if (JSB) {
-            AmbientPool.setVec4(this._handle, AmbientView.GROUND_ALBEDO, this._groundAlbedo);
+            this._nativeObj!.groundAlbedo = this._groundAlbedo;
         }
     }
     protected _skyColor = new Color(51, 128, 204, 1.0);
     protected _groundAlbedo = new Color(51, 51, 51, 255);
     protected _albedoArray = Float32Array.from([0.2, 0.2, 0.2, 1.0]);
     protected _colorArray = Float32Array.from([0.2, 0.5, 0.8, 1.0]);
-    protected _handle: AmbientHandle = NULL_HANDLE;
     protected _enabled = false;
     protected _skyIllum = 0;
-    get handle () : AmbientHandle {
-        return this._handle;
+    protected declare _nativeObj: NativeAmbient | null;
+
+    get native (): NativeAmbient {
+        return this._nativeObj!;
     }
 
     constructor () {
-        this._handle = AmbientPool.alloc();
+        if (JSB) {
+            this._nativeObj = new NativeAmbient();
+        }
     }
 
     public initialize (ambientInfo: AmbientInfo) {
@@ -121,9 +124,8 @@ export class Ambient {
     }
 
     protected _destroy () {
-        if (JSB && this._handle) {
-            AmbientPool.free(this._handle);
-            this._handle = NULL_HANDLE;
+        if (JSB) {
+            this._nativeObj = null;
         }
     }
 

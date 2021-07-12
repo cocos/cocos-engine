@@ -21,6 +21,7 @@ import { MaterialInstance } from '../core/renderer';
 import { js } from '../core/utils/js';
 import { BlendFactor, BlendOp } from '../core/gfx';
 import { legacyCC } from '../core/global-exports';
+import { SkeletonSystem } from './skeleton-system';
 
 export const timeScale = 1.0;
 
@@ -176,7 +177,7 @@ export class Skeleton extends Renderable2D {
     }
     set skeletonData (value: SkeletonData) {
         if (value) value.resetEnums();
-        if (this._skeletonData != value) {
+        if (this._skeletonData !== value) {
             this._skeletonData = value as any;
             this.defaultSkin = '';
             this.defaultAnimation = '';
@@ -707,7 +708,7 @@ export class Skeleton extends Renderable2D {
         return this._cacheMode !== AnimationCacheMode.REALTIME;
     }
 
-    public update (dt: number) {
+    public updateAnimation (dt: number) {
         if (EDITOR) return;
         if (this.paused) return;
 
@@ -994,8 +995,8 @@ export class Skeleton extends Renderable2D {
                 return null;
             }
             const res = this._state!.setAnimationWith(trackIndex, animation, loop);
-                this._state!.apply(this._skeleton);
-                return res;
+            this._state!.apply(this._skeleton);
+            return res;
         }
         return null;
     }
@@ -1072,6 +1073,7 @@ export class Skeleton extends Renderable2D {
             warn('\'clearTracks\' interface can not be invoked in cached mode.');
         } else if (this._state) {
             this._state.clearTracks();
+            this.setToSetupPose();
         }
     }
 
@@ -1242,10 +1244,12 @@ export class Skeleton extends Renderable2D {
     public onEnable () {
         super.onEnable();
         this._flushAssembler();
+        SkeletonSystem.getInstance().add(this);
     }
 
     public onDisable () {
         super.onDisable();
+        SkeletonSystem.getInstance().remove(this);
     }
 
     public onDestroy () {
@@ -1327,16 +1331,7 @@ export class Skeleton extends Renderable2D {
         const mat = this._updateBuiltinMaterial();
         this.setMaterial(mat, 0);
         this._updateBlendFunc();
-
-        if (this.premultipliedAlpha) {
-            this._blendHash = -1;
-        }
-    }
-
-    // HACK: set temporary material since Spine do not use internal material but must have one
-    protected _updateBuiltinMaterial () : Material {
-        const mat = builtinResMgr.get('ui-sprite-material');
-        return mat as Material;
+        this._blendHash = -1;
     }
 
     public querySockets () {
@@ -1410,7 +1405,7 @@ export class Skeleton extends Renderable2D {
         const frames = frameCache.frames;
         const frameTime = SkeletonCache.FrameTime;
 
-        // Animation Start, the event diffrent from dragonbones inner event,
+        // Animation Start, the event different from dragonbones inner event,
         // It has no event object.
         if (this._accTime === 0 && this._playCount === 0) {
             this._startEntry.animation.name = this._animationName;
@@ -1464,7 +1459,7 @@ export class Skeleton extends Renderable2D {
         const bones = this._skeleton.bones;
         const getBoneName = (bone: spine.Bone) => {
             if (bone.parent == null) return bone.data.name || '<Unamed>';
-            return `${getBoneName(bones[bone.parent.data.index])}/${bone.data.name}`;
+            return `${getBoneName(bones[bone.parent.data.index]) as string}/${bone.data.name}`;
         };
         for (let i = 0, l = bones.length; i < l; i++) {
             const bd = bones[i].data;
@@ -1475,6 +1470,7 @@ export class Skeleton extends Renderable2D {
 
     // if change use tint mode, just clear material cache
     protected _updateUseTint () {
+        this._cleanMaterialCache();
         this.destroyRenderData();
     }
     // if change use batch mode, just clear material cache
@@ -1489,7 +1485,7 @@ export class Skeleton extends Renderable2D {
 
     protected _validateRender () {
         const skeletonData = this.skeletonData;
-        if (!skeletonData || !skeletonData.isTexturesLoaded()) {
+        if (!skeletonData) {
             this.disableRender();
         }
     }
@@ -1602,14 +1598,16 @@ export class Skeleton extends Renderable2D {
             if (this._assembler && this._assembler.createData) {
                 this._assembler.createData(this);
                 this.markForUpdateRenderData();
+                this._colorDirty = true;
                 this._updateColor();
             }
         }
     }
 
-    protected _updateColor () {
-        // TODO
-    }
+    // run base class method
+    // protected _updateColor () {
+    //     // TODO
+    // }
 
     protected _updateSocketBindings () {
         if (!this._skeleton) return;
@@ -1631,7 +1629,7 @@ export class Skeleton extends Renderable2D {
         for (let i = 0, l = sockets.length; i < l; i++) {
             const target = sockets[i].target;
             if (target) {
-                if (!target.parent || (target.parent != this.node)) {
+                if (!target.parent || (target.parent !== this.node)) {
                     console.error(`Target node ${target.name} is expected to be a direct child of ${this.node.name}`);
                     continue;
                 }

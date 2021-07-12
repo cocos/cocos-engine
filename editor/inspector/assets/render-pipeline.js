@@ -63,7 +63,7 @@ const Elements = {
         async update() {
             const panel = this;
 
-            const $content = panel.$.content
+            const $content = panel.$.content;
             const oldPropList = Object.keys(panel.$propList);
             const newPropList = [];
 
@@ -92,7 +92,7 @@ const Elements = {
                     $prop = document.createElement('ui-prop');
                     $prop.setAttribute('type', 'dump');
                     $prop.addEventListener('change-dump', this.dataChange.bind(this));
-                    
+
                     $content.appendChild($prop);
                     panel.$propList[id] = $prop;
                 }
@@ -141,6 +141,7 @@ exports.update = async function(assetList, metaList) {
     }
 
     this.setDirtyData();
+    await this.preview();
 };
 
 exports.ready = function() {
@@ -173,6 +174,13 @@ exports.close = function() {
 };
 
 exports.methods = {
+    async preview() {
+        if (!this.pipeline) {
+            return;
+        }
+        await Editor.Message.request('scene', 'preview-render-pipeline', this.asset.uuid, this.pipeline);
+    },
+
     async query(uuid) {
         return await Editor.Message.request('scene', 'query-render-pipeline', uuid);
     },
@@ -180,6 +188,7 @@ exports.methods = {
     async apply() {
         this.reset();
         await Editor.Message.request('scene', 'apply-render-pipeline', this.asset.uuid, this.pipeline);
+        await this.preview();
     },
     reset() {
         this.dirtyData.origin = this.dirtyData.realtime;
@@ -193,6 +202,8 @@ exports.methods = {
 
         this.setDirtyData();
         this.dispatch('change');
+
+        await this.preview();
     },
 
     /**

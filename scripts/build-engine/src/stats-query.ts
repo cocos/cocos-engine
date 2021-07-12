@@ -215,7 +215,7 @@ export class StatsQuery {
     }
 
     private static _editorBaseNameToModuleName (baseName: string) {
-        return `cc/editor/exports/${baseName}`;
+        return `cc/editor/${baseName}`;
     }
 
     private constructor (engine: string, config: Config) {

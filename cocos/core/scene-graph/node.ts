@@ -34,30 +34,80 @@ import {
 import { JSB } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
-import { SystemEventType } from '../platform/event-manager/event-enum';
 import { eventManager } from '../platform/event-manager/event-manager';
 import { legacyCC } from '../global-exports';
 import { BaseNode, TRANSFORM_ON } from './base-node';
-import {
-    Mat3, Mat4, Quat, Vec3,
-} from '../math';
-import {
-    NULL_HANDLE, NodeHandle, NodePool, NodeView,
-} from '../renderer/core/memory-pools';
+import { Mat3, Mat4, Quat, Vec3 } from '../math';
+import { NULL_HANDLE, NodePool, NodeView, NodeHandle  } from '../renderer/core/memory-pools';
 import { NodeSpace, TransformBit } from './node-enum';
 import { applyMountedChildren, applyMountedComponents, applyRemovedComponents,
     applyPropertyOverrides, applyTargetOverrides, createNodeWithPrefab, generateTargetMap } from '../utils/prefab/utils';
 import { Component } from '../components';
+import { NativeNode } from '../renderer/scene/native-scene';
+import { FloatArray } from '../math/type-define';
+import { NodeEventType } from './node-event';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
 const q_b = new Quat();
-const array_a = new Array(10);
 const qt_1 = new Quat();
 const m3_1 = new Mat3();
 const m3_scaling = new Mat3();
 const m4_1 = new Mat4();
-const bookOfChange = new Map<Node, number>();
+const array_a: any[] = [];
+
+class BookOfChange {
+    private _chunks: Uint32Array[] = [];
+    private _freelists: number[][] = [];
+
+    // these should match with native: cocos/renderer/pipeline/helper/SharedMemory.h Node.getHasChangedFlags
+    private static CAPACITY_PER_CHUNK = 256;
+
+    constructor () {
+        this._createChunk();
+    }
+
+    public alloc () {
+        const chunkCount = this._freelists.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            if (!this._freelists[i].length) continue;
+            return this._createView(i);
+        }
+        this._createChunk();
+        return this._createView(chunkCount);
+    }
+
+    public free (view: Uint32Array, idx: number) {
+        const chunkCount = this._freelists.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            if (this._chunks[i] !== view) continue;
+            this._freelists[i].push(idx);
+            return;
+        }
+    }
+
+    public clear () {
+        const chunkCount = this._chunks.length;
+        for (let i = 0; i < chunkCount; ++i) {
+            this._chunks[i].fill(0);
+        }
+    }
+
+    private _createChunk () {
+        this._chunks.push(new Uint32Array(BookOfChange.CAPACITY_PER_CHUNK));
+        const freelist: number[] = [];
+        for (let i = 0; i < BookOfChange.CAPACITY_PER_CHUNK; ++i) freelist.push(i);
+        this._freelists.push(freelist);
+    }
+
+    private _createView (chunkIdx: number): [Uint32Array, number] {
+        const chunk = this._chunks[chunkIdx];
+        const offset = this._freelists[chunkIdx].pop()!;
+        return [chunk, offset];
+    }
+}
+
+const bookOfChange = new BookOfChange();
 
 /**
  * @zh
@@ -83,13 +133,11 @@ const bookOfChange = new Map<Node, number>();
  */
 @ccclass('cc.Node')
 export class Node extends BaseNode {
-    public static bookOfChange = bookOfChange;
-
     /**
      * @en Event types emitted by Node
      * @zh 节点可能发出的事件类型
      */
-    public static EventType = SystemEventType;
+    public static EventType = NodeEventType;
 
     /**
      * @en Coordinates space
@@ -105,24 +153,31 @@ export class Node extends BaseNode {
     public static TransformDirtyBit = TransformBit;
 
     /**
-     * @en Bit masks for Node transformation parts, can be used to determine which part changed in [[SystemEventType.TRANSFORM_CHANGED]] event
-     * @zh 节点变换更新的具体部分，可用于判断 [[SystemEventType.TRANSFORM_CHANGED]] 事件的具体类型
+     * @en Bit masks for Node transformation parts, can be used to determine which part changed in [[NodeEventType.TRANSFORM_CHANGED]] event
+     * @zh 节点变换更新的具体部分，可用于判断 [[NodeEventType.TRANSFORM_CHANGED]] 事件的具体类型
      */
     public static TransformBit = TransformBit;
 
     // UI 部分的脏数据
     public _uiProps = new NodeUIProperties(this);
 
+    /**
+     * @en Counter to clear node array
+     * @zh 清除节点数组计时器
+     */
+    private static ClearFrame = 0;
+    private static ClearRound = 1000;
+
     public _static = false;
 
     // world transform, don't access this directly
-    protected _pos = new Vec3();
+    protected declare _pos: Vec3;
 
-    protected _rot = new Quat();
+    protected declare _rot: Quat;
 
-    protected _scale = new Vec3(1, 1, 1);
+    protected declare _scale: Vec3;
 
-    protected _mat = new Mat4();
+    protected declare _mat: Mat4;
 
     // local transform
     @serializable
@@ -144,15 +199,47 @@ export class Node extends BaseNode {
     protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
 
     protected _eulerDirty = false;
-
-    protected _poolHandle: NodeHandle = NULL_HANDLE;
+    protected _nodeHandle: NodeHandle = NULL_HANDLE;
+    protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
+    protected declare _hasChangedFlagsOffset: number;
+    protected declare _nativeObj: NativeNode | null;
+    protected declare _nativeLayer: Uint32Array;
+    protected declare _nativeFlag: Uint32Array;
+    protected declare _nativeDirtyFlag: Uint32Array;
 
     protected _init () {
         if (JSB) {
-            this._poolHandle = NodePool.alloc();
-            NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+            // new node
+            this._nodeHandle = NodePool.alloc();
+            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as FloatArray);
+            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as FloatArray);
+            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as FloatArray);
+
+            this._lpos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as FloatArray);
+            this._lrot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as FloatArray);
+            this._lscale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as FloatArray);
+
+            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
+            this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
+            this._nativeFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.FLAGS_CHANGED) as Uint32Array;
+            this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
+            this._scale.set(1, 1, 1);
+            this._lscale.set(1, 1, 1);
+            this._nativeLayer[0] = this._layer;
+            this._nativeObj = new NativeNode();
+            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle));
+        } else {
+            this._pos = new Vec3();
+            this._rot = new Quat();
+            this._scale = new Vec3(1, 1, 1);
+            this._mat = new Mat4();
         }
+
+        const [chunk, offset] = bookOfChange.alloc();
+        this._hasChangedFlagsChunk = chunk;
+        this._hasChangedFlagsOffset = offset;
     }
+
     constructor (name?: string) {
         super(name);
         this._init();
@@ -166,20 +253,22 @@ export class Node extends BaseNode {
         return obj instanceof Node && (obj.constructor === Node || !(obj instanceof legacyCC.Scene));
     }
 
-    protected _destroy () {
-        if (JSB && this._poolHandle) {
-            NodePool.free(this._poolHandle);
-            this._poolHandle = NULL_HANDLE;
+    protected _onPreDestroy () {
+        const result = this._onPreDestroyBase();
+        if (JSB) {
+            if (this._nodeHandle) {
+                NodePool.free(this._nodeHandle);
+                this._nodeHandle = NULL_HANDLE;
+            }
+
+            this._nativeObj = null;
         }
+        bookOfChange.free(this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
+        return result;
     }
 
-    public destroy () {
-        this._destroy();
-        return super.destroy();
-    }
-
-    get handle (): NodeHandle {
-        return this._poolHandle;
+    get native (): any {
+        return this._nativeObj;
     }
 
     /**
@@ -192,7 +281,7 @@ export class Node extends BaseNode {
     }
 
     public set position (val: Readonly<Vec3>) {
-        this.setPosition(val);
+        this.setPosition(val as Vec3);
     }
 
     /**
@@ -206,7 +295,7 @@ export class Node extends BaseNode {
     }
 
     public set worldPosition (val: Readonly<Vec3>) {
-        this.setWorldPosition(val);
+        this.setWorldPosition(val as Vec3);
     }
 
     /**
@@ -219,7 +308,7 @@ export class Node extends BaseNode {
     }
 
     public set rotation (val: Readonly<Quat>) {
-        this.setRotation(val);
+        this.setRotation(val as Quat);
     }
 
     /**
@@ -255,7 +344,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -270,7 +359,7 @@ export class Node extends BaseNode {
     }
 
     public set worldRotation (val: Readonly<Quat>) {
-        this.setWorldRotation(val);
+        this.setWorldRotation(val as Quat);
     }
 
     /**
@@ -283,7 +372,7 @@ export class Node extends BaseNode {
     }
 
     public set scale (val: Readonly<Vec3>) {
-        this.setScale(val);
+        this.setScale(val as Vec3);
     }
 
     /**
@@ -297,7 +386,7 @@ export class Node extends BaseNode {
     }
 
     public set worldScale (val: Readonly<Vec3>) {
-        this.setWorldScale(val);
+        this.setWorldScale(val as Vec3);
     }
 
     /**
@@ -309,7 +398,7 @@ export class Node extends BaseNode {
         this.invalidateChildren(TransformBit.TRS);
         this._eulerDirty = true;
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.TRS);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.TRS);
         }
     }
 
@@ -339,6 +428,22 @@ export class Node extends BaseNode {
     }
 
     /**
+     * @en Return the up direction vertor of this node in world space.
+     * @zh 返回当前节点在世界空间中朝上的方向向量
+     */
+    get up (): Vec3 {
+        return Vec3.transformQuat(new Vec3(), Vec3.UP, this.worldRotation);
+    }
+
+    /**
+     * @en Return the right direction vector of this node in world space.
+     * @zh 返回当前节点在世界空间中朝右的方向向量
+     */
+    get right (): Vec3 {
+        return Vec3.transformQuat(new Vec3(), Vec3.RIGHT, this.worldRotation);
+    }
+
+    /**
      * @en Layer of the current Node, it affects raycast, physics etc, refer to [[Layers]]
      * @zh 节点所属层，主要影响射线检测、物理碰撞等，参考 [[Layers]]
      */
@@ -346,9 +451,9 @@ export class Node extends BaseNode {
     set layer (l) {
         this._layer = l;
         if (JSB) {
-            NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
+            this._nativeLayer[0] = this._layer;
         }
-        this.emit(SystemEventType.LAYER_CHANGED, this._layer);
+        this.emit(NodeEventType.LAYER_CHANGED, this._layer);
     }
 
     get layer () {
@@ -360,13 +465,13 @@ export class Node extends BaseNode {
      * @zh 这个节点的空间变换信息在当前帧内是否有变过？
      */
     get hasChangedFlags () {
-        return bookOfChange.get(this) || 0;
+        return this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] as TransformBit;
     }
 
     set hasChangedFlags (val: number) {
-        bookOfChange.set(this, val);
+        this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] = val;
         if (JSB) {
-            NodePool.set(this._poolHandle, NodeView.FLAGS_CHANGED, val);
+            this._nativeFlag[0] = val;
         }
     }
 
@@ -383,6 +488,9 @@ export class Node extends BaseNode {
     public setParent (value: this | null, keepWorldTransform = false) {
         if (keepWorldTransform) { this.updateWorldTransform(); }
         super.setParent(value, keepWorldTransform);
+        if (JSB) {
+            this._nativeObj!.setParent(this.parent?.native);
+        }
     }
 
     public _onSetParent (oldParent: this | null, keepWorldTransform: boolean) {
@@ -409,10 +517,17 @@ export class Node extends BaseNode {
         super._onHierarchyChangedBase(oldParent);
     }
 
+    protected _setDirtyFlags (val: TransformBit) {
+        this._dirtyFlags = val;
+        if (JSB) {
+            this._nativeDirtyFlag[0] = val;
+        }
+    }
+
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
-            NodePool.set(this._poolHandle, NodeView.LAYER, this._layer);
-            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
+            this._nativeLayer[0] = this._layer;
+            this._nativeObj!.setParent(this.parent?.native);
         }
         const prefabInstance = this._prefab?.instance;
         if (!dontSyncChildPrefab && prefabInstance) {
@@ -420,7 +535,8 @@ export class Node extends BaseNode {
         }
 
         this.hasChangedFlags = TransformBit.TRS;
-        this._dirtyFlags = TransformBit.TRS;
+        this._setDirtyFlags(TransformBit.TRS);
+        this._uiProps.uiTransformDirty = true;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
             this._children[i]._siblingIndex = i;
@@ -490,10 +606,7 @@ export class Node extends BaseNode {
         }
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
-        }
-        if (JSB) {
-            NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -519,10 +632,7 @@ export class Node extends BaseNode {
         this._eulerDirty = true;
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
-        }
-        if (JSB) {
-            NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -532,17 +642,13 @@ export class Node extends BaseNode {
      * @param pos Target position
      * @param up Up direction
      */
-    public lookAt (pos: Vec3, up?: Vec3): void {
+    public lookAt (pos: Readonly<Vec3>, up?: Readonly<Vec3>): void {
         this.getWorldPosition(v3_a);
         Vec3.subtract(v3_a, v3_a, pos);
         Vec3.normalize(v3_a, v3_a);
         Quat.fromViewUp(q_a, v3_a, up);
         this.setWorldRotation(q_a);
     }
-
-    // ===============================
-    // transform maintainer
-    // ===============================
 
     /**
      * @en Invalidate the world transform information
@@ -551,15 +657,22 @@ export class Node extends BaseNode {
      * @param dirtyBit The dirty bits to setup to children, can be composed with multiple dirty bits
      */
     public invalidateChildren (dirtyBit: TransformBit) {
-        const hasChanegdFlags = this.hasChangedFlags;
-        if ((this._dirtyFlags & hasChanegdFlags & dirtyBit) === dirtyBit) { return; }
-        this._dirtyFlags |= dirtyBit;
-        this.hasChangedFlags = hasChanegdFlags | dirtyBit;
-        const newDirtyBit = dirtyBit | TransformBit.POSITION;
-        const len = this._children.length;
-        for (let i = 0; i < len; ++i) {
-            const child = this._children[i];
-            if (child.isValid) { child.invalidateChildren(newDirtyBit); }
+        const childDirtyBit = dirtyBit | TransformBit.POSITION;
+        array_a[0] = this;
+
+        let i = 0;
+        while (i >= 0) {
+            const cur: this = array_a[i--];
+            const hasChangedFlags = cur.hasChangedFlags;
+            if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
+                cur._setDirtyFlags(cur._dirtyFlags | dirtyBit);
+                cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
+                cur.hasChangedFlags = hasChangedFlags | dirtyBit;
+                const children = cur._children;
+                const len = children.length;
+                for (let j = 0; j < len; ++j) array_a[++i] = children[j];
+            }
+            dirtyBit = childDirtyBit;
         }
     }
 
@@ -589,27 +702,18 @@ export class Node extends BaseNode {
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
                     child._mat.m14 = child._pos.z;
-                    if (JSB) {
-                        NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
-                    }
                 }
                 if (dirtyBits & TransformBit.RS) {
                     Mat4.fromRTS(child._mat, child._lrot, child._lpos, child._lscale);
                     Mat4.multiply(child._mat, cur._mat, child._mat);
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.multiply(child._rot, cur._rot, child._lrot);
-                        if (JSB) {
-                            NodePool.setVec4(child._poolHandle, NodeView.WORLD_ROTATION, child._rot);
-                        }
                     }
                     Mat3.fromQuat(m3_1, Quat.conjugate(qt_1, child._rot));
                     Mat3.multiplyMat4(m3_1, m3_1, child._mat);
                     child._scale.x = m3_1.m00;
                     child._scale.y = m3_1.m04;
                     child._scale.z = m3_1.m08;
-                    if (JSB) {
-                        NodePool.setVec3(child._poolHandle, NodeView.WORLD_SCALE, child._scale);
-                    }
                 }
             } else {
                 if (dirtyBits & TransformBit.POSITION) {
@@ -617,32 +721,19 @@ export class Node extends BaseNode {
                     child._mat.m12 = child._pos.x;
                     child._mat.m13 = child._pos.y;
                     child._mat.m14 = child._pos.z;
-                    if (JSB) {
-                        NodePool.setVec3(child._poolHandle, NodeView.WORLD_POSITION, child._pos);
-                    }
                 }
                 if (dirtyBits & TransformBit.RS) {
                     if (dirtyBits & TransformBit.ROTATION) {
                         Quat.copy(child._rot, child._lrot);
-                        if (JSB) {
-                            NodePool.setVec4(child._poolHandle, NodeView.WORLD_ROTATION, child._rot);
-                        }
                     }
                     if (dirtyBits & TransformBit.SCALE) {
                         Vec3.copy(child._scale, child._lscale);
-                        if (JSB) {
-                            NodePool.setVec3(child._poolHandle, NodeView.WORLD_SCALE, child._scale);
-                        }
                         Mat4.fromRTS(child._mat, child._rot, child._pos, child._scale);
                     }
                 }
             }
 
-            if (dirtyBits !== TransformBit.NONE && JSB) {
-                NodePool.setMat4(child._poolHandle, NodeView.WORLD_MATRIX, child._mat);
-            }
-
-            child._dirtyFlags = TransformBit.NONE;
+            child._setDirtyFlags(TransformBit.NONE);
             cur = child;
         }
     }
@@ -656,7 +747,7 @@ export class Node extends BaseNode {
      * @zh 设置本地坐标
      * @param position Target position
      */
-    public setPosition (position: Vec3): void;
+    public setPosition (position: Readonly<Vec3>): void;
 
     /**
      * @en Set position in local coordinate system
@@ -667,7 +758,7 @@ export class Node extends BaseNode {
      */
     public setPosition (x: number, y: number, z?: number): void;
 
-    public setPosition (val: Vec3 | number, y?: number, z?: number): void {
+    public setPosition (val: Readonly<Vec3> | number, y?: number, z?: number): void {
         if (y === undefined && z === undefined) {
             Vec3.copy(this._lpos, val as Vec3);
         } else if (z === undefined) {
@@ -678,7 +769,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -700,7 +791,7 @@ export class Node extends BaseNode {
      * @zh 用四元数设置本地旋转
      * @param rotation Rotation in quaternion
      */
-    public setRotation (rotation: Quat): void;
+    public setRotation (rotation: Readonly<Quat>): void;
 
     /**
      * @en Set rotation in local coordinate system with a quaternion representing the rotation
@@ -712,9 +803,9 @@ export class Node extends BaseNode {
      */
     public setRotation (x: number, y: number, z: number, w: number): void;
 
-    public setRotation (val: Quat | number, y?: number, z?: number, w?: number) {
+    public setRotation (val: Readonly<Quat> | number, y?: number, z?: number, w?: number) {
         if (y === undefined || z === undefined || w === undefined) {
-            Quat.copy(this._lrot, val as Quat);
+            Quat.copy(this._lrot, val as Readonly<Quat>);
         } else {
             Quat.set(this._lrot, val as number, y, z, w);
         }
@@ -722,7 +813,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -757,7 +848,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -779,7 +870,7 @@ export class Node extends BaseNode {
      * @zh 设置本地缩放
      * @param scale Target scale
      */
-    public setScale (scale: Vec3): void;
+    public setScale (scale: Readonly<Vec3>): void;
 
     /**
      * @en Set scale in local coordinate system
@@ -790,7 +881,7 @@ export class Node extends BaseNode {
      */
     public setScale (x: number, y: number, z?: number): void;
 
-    public setScale (val: Vec3 | number, y?: number, z?: number) {
+    public setScale (val: Readonly<Vec3> | number, y?: number, z?: number) {
         if (y === undefined && z === undefined) {
             Vec3.copy(this._lscale, val as Vec3);
         } else if (z === undefined) {
@@ -801,7 +892,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.SCALE);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 
@@ -863,9 +954,6 @@ export class Node extends BaseNode {
         } else {
             Vec3.set(this._pos, val as number, y, z);
         }
-        if (JSB) {
-            NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this._pos);
-        }
         const parent = this._parent;
         const local = this._lpos;
         if (parent) {
@@ -882,7 +970,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.POSITION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.POSITION);
         }
     }
 
@@ -923,9 +1011,6 @@ export class Node extends BaseNode {
         } else {
             Quat.set(this._rot, val as number, y, z, w);
         }
-        if (JSB) {
-            NodePool.setVec4(this._poolHandle, NodeView.WORLD_ROTATION, this._rot);
-        }
         if (this._parent) {
             this._parent.updateWorldTransform();
             Quat.multiply(this._lrot, Quat.conjugate(this._lrot, this._parent._rot), this._rot);
@@ -936,7 +1021,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -959,7 +1044,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.ROTATION);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.ROTATION);
         }
     }
 
@@ -999,9 +1084,6 @@ export class Node extends BaseNode {
         } else {
             Vec3.set(this._scale, val as number, y, z);
         }
-        if (JSB) {
-            NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this._scale);
-        }
         const parent = this._parent;
         if (parent) {
             parent.updateWorldTransform();
@@ -1020,7 +1102,7 @@ export class Node extends BaseNode {
 
         this.invalidateChildren(TransformBit.SCALE);
         if (this._eventMask & TRANSFORM_ON) {
-            this.emit(SystemEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
+            this.emit(NodeEventType.TRANSFORM_CHANGED, TransformBit.SCALE);
         }
     }
 
@@ -1107,7 +1189,7 @@ export class Node extends BaseNode {
         if (dirtyBit) {
             this.invalidateChildren(dirtyBit);
             if (this._eventMask & TRANSFORM_ON) {
-                this.emit(SystemEventType.TRANSFORM_CHANGED, dirtyBit);
+                this.emit(NodeEventType.TRANSFORM_CHANGED, dirtyBit);
             }
         }
     }
@@ -1147,47 +1229,22 @@ export class Node extends BaseNode {
      * @zh
      * 清除所有节点的脏标记。
      */
-    public static clearBooks () {
-        if (JSB) bookOfChange.forEach((v, k, m) => { if (k.isValid) k.hasChangedFlags = TransformBit.NONE; });
+    public static resetHasChangedFlags () {
         bookOfChange.clear();
     }
 
     /**
      * @en
-     * Synchronize the js transform to the native layer.
+     * clear node array
      * @zh
-     * js 变换信息同步到原生层。
+     * 清除节点数组
      */
-    public syncToNativeTransform () {
-        const v = this.hasChangedFlags;
-        if (v && JSB) {
-            if (v & TransformBit.POSITION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_POSITION, this.worldPosition); }
-            if (v & TransformBit.ROTATION) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_ROTATION, this.worldRotation); }
-            if (v & TransformBit.SCALE) { NodePool.setVec3(this._poolHandle, NodeView.WORLD_SCALE, this.worldScale); }
-        }
-    }
-
-    /**
-     * @en
-     * Synchronize the native transform to the js layer.
-     * @zh
-     * 原生变换信息同步到 js 层。
-     */
-    public syncFromNativeTransform () {
-        const v = NodePool.get(this._poolHandle, NodeView.FLAGS_CHANGED);
-        if (v) {
-            if (v & TransformBit.POSITION) {
-                NodePool.getVec3(this._poolHandle, NodeView.WORLD_POSITION, v3_a);
-                this.setWorldPosition(v3_a);
-            }
-            if (v & TransformBit.ROTATION) {
-                NodePool.getVec4(this._poolHandle, NodeView.WORLD_ROTATION, q_a);
-                this.setWorldRotation(q_a);
-            }
-            if (v & TransformBit.SCALE) {
-                NodePool.getVec3(this._poolHandle, NodeView.WORLD_SCALE, v3_a);
-                this.setWorldScale(v3_a);
-            }
+    public static clearNodeArray () {
+        if (Node.ClearFrame < Node.ClearRound) {
+            Node.ClearFrame++;
+        } else {
+            Node.ClearFrame = 0;
+            array_a.length = 0;
         }
     }
 }

@@ -30,6 +30,7 @@
  */
 
 import { legacyCC } from '../global-exports';
+import { SystemEventType, SystemEventTypeUnion } from '../platform/event-manager/event-enum';
 
 /**
  * @en
@@ -56,6 +57,8 @@ export default class Event {
      *
      * @zh
      * 触摸事件类型。
+     *
+     * @deprecated since v3.3, please use SystemEvent.EventType.TOUCH_START, SystemEvent.EventType.TOUCH_MOVE, SystemEvent.EventType.TOUCH_END and SystemEvent.EventType.TOUCH_CANCEL instead
      */
     public static TOUCH = 'touch';
     /**
@@ -64,6 +67,8 @@ export default class Event {
      *
      * @zh
      * 鼠标事件类型。
+     *
+     * @deprecated since v3.3, please use SystemEvent.EventType.MOUSE_DOWN, SystemEvent.EventType.MOUSE_MOVE, SystemEvent.EventType.MOUSE_UP, SystemEvent.EventType.MOUSE_WHEEL, Node.EventType.MOUSE_ENTER and Node.EventType.MOUSE_LEAVE instead
      */
     public static MOUSE = 'mouse';
     /**
@@ -72,6 +77,8 @@ export default class Event {
      *
      * @zh
      * 键盘事件类型。
+     *
+     * @deprecated since v3.3, please use SystemEvent.EventType.KEY_DOWN and SystemEvent.EventType.KEY_UP instead
      */
     public static KEYBOARD = 'keyboard';
     /**
@@ -80,6 +87,8 @@ export default class Event {
      *
      * @zh
      * 加速器事件类型。
+     *
+     * @deprecated since v3.3, please use SystemEvent.EventType.DEVICEMOTION instead
      */
     public static ACCELERATION = 'acceleration';
 
@@ -126,12 +135,12 @@ export default class Event {
 
     /**
      * @en
-     * The name of the event (case-sensitive), e.g. "click", "fire", or "submit".
+     * The name of the event
      *
      * @zh
      * 事件类型。
      */
-    public type: string;
+    public type: SystemEventTypeUnion;
 
     /**
      * @en
@@ -199,7 +208,7 @@ export default class Event {
      * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
      * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    constructor (type: string, bubbles?: boolean) {
+    constructor (type: SystemEventTypeUnion, bubbles?: boolean) {
         this.type = type;
         this.bubbles = !!bubbles;
     }
@@ -212,6 +221,7 @@ export default class Event {
      * 重置事件对象以便在对象池中存储。
      */
     public unuse () {
+        // @ts-expect-error type is not SystemEventUnion
         this.type = Event.NO_TYPE;
         this.target = null;
         this.currentTarget = null;
@@ -228,7 +238,7 @@ export default class Event {
      * @param type - The name of the event (case-sensitive), e.g. "click", "fire", or "submit"
      * @param bubbles - A boolean indicating whether the event bubbles up through the tree or not
      */
-    public reuse (type: string, bubbles?: boolean) {
+    public reuse (type: SystemEventTypeUnion, bubbles?: boolean) {
         this.type = type;
         this.bubbles = bubbles || false;
     }

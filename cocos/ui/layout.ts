@@ -34,12 +34,11 @@ import { Component } from '../core/components/component';
 import { Rect, Size, Vec2, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { UITransform } from '../2d/framework/ui-transform';
-import { SystemEventType } from '../core/platform/event-manager/event-enum';
 import { director, Director } from '../core/director';
 import { TransformBit } from '../core/scene-graph/node-enum';
 import { Node, warn } from '../core';
+import { NodeEventType } from '../core/scene-graph/node-event';
 
-const NodeEvent = SystemEventType;
 /**
  * @en Layout type.
  *
@@ -712,22 +711,22 @@ export class Layout extends Component {
 
     protected _addEventListeners () {
         director.on(Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
-        this.node.on(NodeEvent.SIZE_CHANGED, this._resized, this);
-        this.node.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
-        this.node.on(NodeEvent.CHILD_ADDED, this._childAdded, this);
-        this.node.on(NodeEvent.CHILD_REMOVED, this._childRemoved, this);
-        this.node.on(NodeEvent.SIBLING_ORDER_CHANGED, this._childrenChanged, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._resized, this);
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
+        this.node.on(NodeEventType.CHILD_ADDED, this._childAdded, this);
+        this.node.on(NodeEventType.CHILD_REMOVED, this._childRemoved, this);
+        this.node.on(NodeEventType.SIBLING_ORDER_CHANGED, this._childrenChanged, this);
         this.node.on('childrenSiblingOrderChanged', this.updateLayout, this);
         this._addChildrenEventListeners();
     }
 
     protected _removeEventListeners () {
         director.off(Director.EVENT_AFTER_UPDATE, this.updateLayout, this);
-        this.node.off(NodeEvent.SIZE_CHANGED, this._resized, this);
-        this.node.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
-        this.node.off(NodeEvent.CHILD_ADDED, this._childAdded, this);
-        this.node.off(NodeEvent.CHILD_REMOVED, this._childRemoved, this);
-        this.node.off(NodeEvent.SIBLING_ORDER_CHANGED, this._childrenChanged, this);
+        this.node.off(NodeEventType.SIZE_CHANGED, this._resized, this);
+        this.node.off(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
+        this.node.off(NodeEventType.CHILD_ADDED, this._childAdded, this);
+        this.node.off(NodeEventType.CHILD_REMOVED, this._childRemoved, this);
+        this.node.off(NodeEventType.SIBLING_ORDER_CHANGED, this._childrenChanged, this);
         this.node.off('childrenSiblingOrderChanged', this.updateLayout, this);
         this._removeChildrenEventListeners();
     }
@@ -736,9 +735,9 @@ export class Layout extends Component {
         const children = this.node.children;
         for (let i = 0; i < children.length; ++i) {
             const child = children[i];
-            child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-            child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
-            child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
+            child.on(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
+            child.on(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
+            child.on(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
             child.on('active-in-hierarchy-changed', this._childrenChanged, this);
         }
     }
@@ -747,25 +746,25 @@ export class Layout extends Component {
         const children = this.node.children;
         for (let i = 0; i < children.length; ++i) {
             const child = children[i];
-            child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-            child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
-            child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
+            child.off(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
+            child.off(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
+            child.off(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
             child.off('active-in-hierarchy-changed', this._childrenChanged, this);
         }
     }
 
     protected _childAdded (child: Node) {
-        child.on(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-        child.on(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
-        child.on(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
+        child.on(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
+        child.on(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
+        child.on(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
         child.on('active-in-hierarchy-changed', this._childrenChanged, this);
         this._childrenChanged();
     }
 
     protected _childRemoved (child: Node) {
-        child.off(NodeEvent.SIZE_CHANGED, this._doLayoutDirty, this);
-        child.off(NodeEvent.TRANSFORM_CHANGED, this._transformDirty, this);
-        child.off(NodeEvent.ANCHOR_CHANGED, this._doLayoutDirty, this);
+        child.off(NodeEventType.SIZE_CHANGED, this._doLayoutDirty, this);
+        child.off(NodeEventType.TRANSFORM_CHANGED, this._transformDirty, this);
+        child.off(NodeEventType.ANCHOR_CHANGED, this._doLayoutDirty, this);
         child.off('active-in-hierarchy-changed', this._childrenChanged, this);
         this._childrenChanged();
     }
@@ -965,7 +964,7 @@ export class Layout extends Component {
         return containerResizeBoundary;
     }
 
-    protected _doLayoutGridAxisHorizontal (layoutAnchor: Vec2, layoutSize: Size) {
+    protected _doLayoutGridAxisHorizontal (layoutAnchor: Readonly<Vec2>, layoutSize: Size) {
         const baseWidth = layoutSize.width;
 
         let sign = 1;
@@ -998,7 +997,7 @@ export class Layout extends Component {
         }
     }
 
-    protected _doLayoutGridAxisVertical (layoutAnchor: Vec2, layoutSize: Size) {
+    protected _doLayoutGridAxisVertical (layoutAnchor: Readonly<Vec2>, layoutSize: Size) {
         const baseHeight = layoutSize.height;
 
         let sign = 1;

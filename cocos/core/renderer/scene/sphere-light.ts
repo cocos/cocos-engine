@@ -27,32 +27,19 @@ import { JSB } from 'internal:constants';
 import { AABB } from '../../geometry';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { AABBHandle, AABBPool, AABBView, LightPool, LightView, NULL_HANDLE } from '../core/memory-pools';
+import { NativeSphereLight } from './native-scene';
 
 export class SphereLight extends Light {
-    declare protected _hAABB: AABBHandle;
     protected _init (): void {
         super._init();
         if (JSB) {
-            this._hAABB = AABBPool.alloc();
-            LightPool.set(this._handle, LightView.AABB, this._hAABB);
+            (this._nativeObj! as NativeSphereLight).setPosition(this._pos);
+            (this._nativeObj! as NativeSphereLight).setAABB(this._aabb.native);
         }
     }
 
     protected _destroy (): void {
-        if (this._hAABB) {
-            AABBPool.free(this._hAABB);
-            this._hAABB = NULL_HANDLE;
-        }
         super._destroy();
-    }
-
-    protected _update (): void {
-        if (JSB) {
-            LightPool.setVec3(this._handle, LightView.POSITION, this._pos);
-            AABBPool.setVec3(this._hAABB, AABBView.CENTER, this._aabb.center);
-            AABBPool.setVec3(this._hAABB, AABBView.HALF_EXTENSION, this._aabb.halfExtents);
-        }
     }
 
     get position () {
@@ -62,7 +49,7 @@ export class SphereLight extends Light {
     set size (size: number) {
         this._size = size;
         if (JSB) {
-            LightPool.set(this._handle, LightView.SIZE, size);
+            (this._nativeObj! as NativeSphereLight).setSize(size);
         }
     }
 
@@ -73,7 +60,7 @@ export class SphereLight extends Light {
     set range (range: number) {
         this._range = range;
         if (JSB) {
-            LightPool.set(this._handle, LightView.RANGE, range);
+            (this._nativeObj! as NativeSphereLight).setRange(range);
         }
 
         this._needUpdate = true;
@@ -86,7 +73,7 @@ export class SphereLight extends Light {
     set luminance (lum: number) {
         this._luminance = lum;
         if (JSB) {
-            LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
+            (this._nativeObj! as NativeSphereLight).setIlluminance(lum);
         }
     }
 
@@ -127,8 +114,6 @@ export class SphereLight extends Light {
             const range = this._range;
             AABB.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, range, range, range);
             this._needUpdate = false;
-
-            this._update();
         }
     }
 }

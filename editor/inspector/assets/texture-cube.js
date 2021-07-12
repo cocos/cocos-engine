@@ -8,7 +8,7 @@ const Direction = {
     top: 'top ( +Y )',
     bottom: 'bottom ( -Y )',
     front: 'front ( +Z )',
-    back: 'left ( -X )',
+    back: 'back ( -Z )',
 };
 
 exports.template = `

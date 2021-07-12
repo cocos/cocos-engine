@@ -18,8 +18,14 @@ jest.mock(
 );
 
 jest.mock(
-    'pal/system',
-    () => jest.requireActual('../pal/system/web/system'),
+    'pal/system-info',
+    () => jest.requireActual('../pal/system-info/web/system-info'),
+    { virtual: true, },
+);
+
+jest.mock(
+    'pal/screen-adapter',
+    () => jest.requireActual('../pal/screen-adapter/web/screen-adapter'),
     { virtual: true, },
 );
 
@@ -42,16 +48,18 @@ jest.mock('../cocos/core/platform/debug', () => {
 
 import '../exports/base';
 import { DebugMode } from "../cocos/core/platform/debug";
+import { game, IGameConfig } from '../exports/base';
 
-
-cc.game._initConfig({
+const canvas = document.createElement('canvas');
+const div = document.createElement('div');
+const config: IGameConfig = {
     debugMode: DebugMode.INFO,
-});
-// cc.game.init({
-//     debugMode: DebugMode.INFO,
-//     adapter: {
-//         canvas: document.createElement('canvas'),
-//         frame: {},
-//         container: {}
-//     }
-// });
+    renderMode: 0,
+    adapter: {
+        canvas: canvas,
+        frame: div,
+        container: div
+    }
+}
+game.init(config);
+game.run();

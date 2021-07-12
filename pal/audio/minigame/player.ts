@@ -1,251 +1,105 @@
 import { minigame } from 'pal/minigame';
+import { warnID } from '../../../cocos/core';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { EventTarget } from '../../../cocos/core/event/event-target';
-import { AudioEvent, AudioState, AudioType } from '../type';
-import { clamp, clamp01 } from '../../../cocos/core';
-import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
+import { AudioLoadOptions, AudioType, AudioState } from '../type';
+import { AudioPlayerMinigame, OneShotAudioMinigame } from './player-minigame';
+import { AudioPlayerWeb, OneShotAudioWeb } from './player-web';
 
-class OneShotAudio {
-    private _innerAudioContext: InnerAudioContext;
-    private _onPlayCb?: () => void;
+type AbstractOneShotAudio = OneShotAudioMinigame | OneShotAudioWeb;
+type AbstractAudioPlayer = AudioPlayerMinigame | AudioPlayerWeb;
+
+export class OneShotAudio {
+    private _audio:  AbstractOneShotAudio;
     get onPlay () {
-        return this._onPlayCb;
+        return this._audio.onPlay;
     }
-    set onPlay (cb) {
-        if (this._onPlayCb) {
-            this._innerAudioContext.offPlay(this._onPlayCb);
-        }
-        this._onPlayCb = cb;
-        if (cb) {
-            this._innerAudioContext.onPlay(cb);
-        }
+    set onPlay (v) {
+        this._audio.onPlay = v;
     }
 
-    private _onEndCb?: () => void;
     get onEnd () {
-        return this._onEndCb;
+        return this._audio.onEnd;
     }
-    set onEnd (cb) {
-        if (this._onEndCb) {
-            this._innerAudioContext.offEnded(this._onEndCb);
-        }
-        this._onEndCb = cb;
-        if (cb) {
-            this._innerAudioContext.onEnded(cb);
-        }
+    set onEnd (v) {
+        this._audio.onEnd = v;
     }
 
-    private constructor (nativeAudio: InnerAudioContext, volume: number) {
-        this._innerAudioContext = nativeAudio;
-        nativeAudio.volume = volume;
+    private constructor (audio: AbstractOneShotAudio) {
+        this._audio = audio;
     }
     public play (): void {
-        this._innerAudioContext.play();
+        this._audio.play();
     }
     public stop (): void {
-        this._innerAudioContext.stop();
+        this._audio.stop();
     }
 }
 
-export class AudioPlayer implements OperationQueueable {
-    private _innerAudioContext: any;
-    private _state: AudioState = AudioState.INIT;
+export class AudioPlayer {
+    private _player: AbstractAudioPlayer;
+    constructor (player: AbstractAudioPlayer) {
+        this._player = player;
+    }
 
-    private _onHide?: () => void;
-    private _onShow?: () => void;
-
-    private _onPlay: () => void;
-    private _onPause: () => void;
-    private _onStop: () => void;
-    private _onSeeked: () => void;
-    private _onEnded: () => void;
-
-    // NOTE: the implemented interface properties need to be public access
-    public _eventTarget: EventTarget = new EventTarget();
-    public _operationQueue: OperationInfo[] = [];
-
-    constructor (innerAudioContext: any) {
-        this._innerAudioContext = innerAudioContext;
-        this._eventTarget = new EventTarget();
-
-        // event
-        // TODO: should not call engine API in pal
-        this._onHide = () => {
-            if (this._state === AudioState.PLAYING) {
-                this.pause().then(() => {
-                    this._state = AudioState.INTERRUPTED;
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
+    static load (url: string, opts?: AudioLoadOptions): Promise<AudioPlayer> {
+        return new Promise((resolve) => {
+            if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
+                AudioPlayerWeb.load(url).then((webPlayer) => {
+                    resolve(new AudioPlayer(webPlayer));
+                }).catch((e) => {});
+            } else {
+                AudioPlayerMinigame.load(url).then((minigamePlayer) => {
+                    resolve(new AudioPlayer(minigamePlayer));
                 }).catch((e) => {});
             }
-        };
-        legacyCC.game.on(legacyCC.Game.EVENT_HIDE, this._onHide);
-        this._onShow = () => {
-            if (this._state === AudioState.INTERRUPTED) {
-                this.play().then(() => {
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-                }).catch((e) => {});
-            }
-        };
-        legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
-        const eventTarget = this._eventTarget;
-        this._onPlay = () => {
-            this._state = AudioState.PLAYING;
-            eventTarget.emit(AudioEvent.PLAYED);
-        };
-        innerAudioContext.onPlay(this._onPlay);
-        this._onPause = () => {
-            this._state = AudioState.PAUSED;
-            eventTarget.emit(AudioEvent.PAUSED);
-        };
-        innerAudioContext.onPause(this._onPause);
-        this._onStop = () => {
-            this._state = AudioState.STOPPED;
-            eventTarget.emit(AudioEvent.STOPPED);
-        };
-        innerAudioContext.onStop(this._onStop);
-        this._onSeeked = () => { eventTarget.emit(AudioEvent.SEEKED); };
-        innerAudioContext.onSeeked(this._onSeeked);
-        this._onEnded = () => {
-            this._state = AudioState.INIT;
-            eventTarget.emit(AudioEvent.ENDED);
-        };
-        innerAudioContext.onEnded(this._onEnded);
+        });
     }
     destroy () {
-        if (this._onShow) {
-            legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
-            this._onShow = undefined;
+        this._player.destroy();
+    }
+    static loadNative (url: string, opts?: AudioLoadOptions): Promise<unknown> {
+        if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
+            return AudioPlayerWeb.loadNative(url);
         }
-        if (this._onHide) {
-            legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
-            this._onHide = undefined;
-        }
-        if (this._innerAudioContext) {
-            ['Play', 'Pause', 'Stop', 'Seeked', 'Ended'].forEach((event) => {
-                this._offEvent(event);
-            });
-            this._innerAudioContext = null;
-        }
+        return AudioPlayerMinigame.loadNative(url);
     }
-    private _offEvent (eventName: string) {
-        if (this[`_on${eventName}`]) {
-            this._innerAudioContext[`off${eventName}`](this[`_on${eventName}`]);
-            this[`_on${eventName}`] = undefined;
-        }
-    }
-
-    get src () {
-        return this._innerAudioContext ? <string> this._innerAudioContext.src : '';
-    }
-    get type (): AudioType {
-        return AudioType.MINIGAME_AUDIO;
-    }
-    static load (url: string): Promise<AudioPlayer> {
-        return new Promise((resolve) => {
-            AudioPlayer.loadNative(url).then((innerAudioContext) => {
-                resolve(new AudioPlayer(innerAudioContext));
-            }).catch((e) => {});
-        });
-    }
-    static loadNative (url: string): Promise<unknown> {
+    static loadOneShotAudio (url: string, volume: number, opts?: AudioLoadOptions): Promise<OneShotAudio> {
         return new Promise((resolve, reject) => {
-            const innerAudioContext = minigame.createInnerAudioContext();
-            const timer = setTimeout(() => {
-                clearEvent();
-                resolve(innerAudioContext);
-            }, 8000);
-            function clearEvent () {
-                innerAudioContext.offCanplay(success);
-                innerAudioContext.offError(fail);
+            if (typeof minigame.tt === 'object' && typeof minigame.tt.getAudioContext !== 'undefined') {
+                AudioPlayerWeb.loadOneShotAudio(url, volume).then((oneShotAudioWeb) => {
+                    // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
+                    resolve(new OneShotAudio(oneShotAudioWeb));
+                }).catch(reject);
+            } else {
+                AudioPlayerMinigame.loadOneShotAudio(url, volume).then((oneShotAudioMinigame) => {
+                    // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
+                    resolve(new OneShotAudio(oneShotAudioMinigame));
+                }).catch(reject);
             }
-            function success () {
-                clearEvent();
-                clearTimeout(timer);
-                resolve(innerAudioContext);
-            }
-            function fail (err) {
-                clearEvent();
-                clearTimeout(timer);
-                console.error('failed to load innerAudioContext');
-                reject(new Error(err));
-            }
-            innerAudioContext.onCanplay(success);
-            innerAudioContext.onError(fail);
-            innerAudioContext.src = url;
-        });
-    }
-    static loadOneShotAudio (url: string, volume: number): Promise<OneShotAudio> {
-        return new Promise((resolve, reject) => {
-            AudioPlayer.loadNative(url).then((innerAudioContext) => {
-                // @ts-expect-error AudioPlayer should be a friend class in OneShotAudio
-                resolve(new OneShotAudio(innerAudioContext, volume));
-            }).catch(reject);
         });
     }
     static readonly maxAudioChannel = 10;
 
-    get state (): AudioState {
-        return this._state;
-    }
-    get loop (): boolean {
-        return this._innerAudioContext.loop as boolean;
-    }
-    set loop (val: boolean) {
-        this._innerAudioContext.loop = val;
-    }
-    get volume (): number {
-        return this._innerAudioContext.volume as number;
-    }
-    set volume (val: number) {
-        val = clamp01(val);
-        this._innerAudioContext.volume = val;
-    }
-    get duration (): number {
-        return this._innerAudioContext.duration as number;
-    }
-    get currentTime (): number {
-        return this._innerAudioContext.currentTime as number;
-    }
+    get src (): string { return this._player.src; }
+    get type (): AudioType { return this._player.type; }
+    get state (): AudioState { return this._player.state; }
+    get loop (): boolean { return this._player.loop; }
+    set loop (val: boolean) { this._player.loop = val; }
+    get volume (): number { return this._player.volume; }
+    set volume (val: number) { this._player.volume = val; }
+    get duration (): number { return this._player.duration; }
+    get currentTime (): number { return this._player.currentTime; }
+    seek (time: number): Promise<void> { return this._player.seek(time); }
 
-    @enqueueOperation
-    seek (time: number): Promise<void> {
-        return new Promise((resolve) => {
-            time = clamp(time, 0, this.duration);
-            this._eventTarget.once(AudioEvent.SEEKED, resolve);
-            this._innerAudioContext.seek(time);
-        });
-    }
-
-    @enqueueOperation
-    play (): Promise<void> {
-        return new Promise((resolve) => {
-            this._eventTarget.once(AudioEvent.PLAYED, resolve);
-            this._innerAudioContext.play();
-        });
-    }
-
-    @enqueueOperation
-    pause (): Promise<void> {
-        return new Promise((resolve) => {
-            this._eventTarget.once(AudioEvent.PAUSED, resolve);
-            this._innerAudioContext.pause();
-        });
-    }
-
-    @enqueueOperation
-    stop (): Promise<void> {
-        return new Promise((resolve) => {
-            this._eventTarget.once(AudioEvent.STOPPED, resolve);
-            this._innerAudioContext.stop();
-        });
-    }
-
-    onInterruptionBegin (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    offInterruptionBegin (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_BEGIN, cb); }
-    onInterruptionEnd (cb: () => void) { this._eventTarget.on(AudioEvent.INTERRUPTION_END, cb); }
-    offInterruptionEnd (cb?: () => void) { this._eventTarget.off(AudioEvent.INTERRUPTION_END, cb); }
-    onEnded (cb: () => void) { this._eventTarget.on(AudioEvent.ENDED, cb); }
-    offEnded (cb?: () => void) { this._eventTarget.off(AudioEvent.ENDED, cb); }
+    play (): Promise<void> { return this._player.play(); }
+    pause (): Promise<void> {  return this._player.pause(); }
+    stop (): Promise<void> { return this._player.stop(); }
+    onInterruptionBegin (cb: () => void) { this._player.onInterruptionBegin(cb); }
+    offInterruptionBegin (cb?: () => void) { this._player.offInterruptionBegin(cb); }
+    onInterruptionEnd (cb: () => void) { this._player.onInterruptionEnd(cb); }
+    offInterruptionEnd (cb?: () => void) { this._player.offInterruptionEnd(cb); }
+    onEnded (cb: () => void) { this._player.onEnded(cb); }
+    offEnded (cb?: () => void) { this._player.offEnded(cb); }
 }
 
 // REMOVE_ME

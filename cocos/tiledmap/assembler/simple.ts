@@ -538,8 +538,7 @@ function fillByTiledNode (tiledNode: Node, color: Float32Array, vbuf: Float32Arr
     const vertStep3 = vertStep * 3;
 
     tiledNode.updateWorldTransform();
-
-    Mat4.copy(_mat4_temp, tiledNode.matrix);
+    Mat4.fromRTS(_mat4_temp, tiledNode.getRotation(), tiledNode.getPosition(), tiledNode.getScale());
     Vec3.set(_vec3u_temp, -(left + _moveX), -(bottom + _moveY), 0);
     Mat4.transform(_mat4_temp, _mat4_temp, _vec3u_temp);
     const m = _mat4_temp;

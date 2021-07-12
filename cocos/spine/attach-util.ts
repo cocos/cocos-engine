@@ -3,12 +3,13 @@
  * @module spine
  */
 
-import { Mat4, Node } from '../core';
+import { Mat4, Vec3, Node } from '../core';
 import { Skeleton } from './skeleton';
 import spine from './lib/spine-core.js';
 import { FrameBoneInfo } from './skeleton-cache';
 
-const _tempMat4 = new Mat4();
+const tempMat4 = new Mat4();
+const nodeScale = new Vec3();
 
 /**
  * @en Attach node tool
@@ -59,15 +60,16 @@ export class AttachUtil {
         if (!boneInfos) return;
 
         const matrixHandle = (node:Node, bone:FrameBoneInfo) => {
-            const tm = _tempMat4;
+            nodeScale.set(node.scale);
+            const tm = tempMat4;
             tm.m00 = bone.a;
             tm.m01 = bone.c;
             tm.m04 = bone.b;
             tm.m05 = bone.d;
             tm.m12 = bone.worldX;
             tm.m13 = bone.worldY;
-            node.matrix = _tempMat4;
-            node.scale = this._skeletonNode!.scale;
+            node.matrix = tempMat4;
+            node.scale = nodeScale;
         };
 
         for (const boneIdx of socketNodes.keys()) {

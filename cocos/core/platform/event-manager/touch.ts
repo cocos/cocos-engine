@@ -302,7 +302,7 @@ export class Touch {
             this._point.x = x || 0;
             this._point.y = y || 0;
         }
-        this._lastModified = legacyCC.director.getCurrentTime();
+        this._lastModified = legacyCC.game.frameStartTime;
     }
 
     /**
@@ -326,7 +326,7 @@ export class Touch {
         } else {
             this._prevPoint = new Vec2(x || 0, y || 0);
         }
-        this._lastModified = legacyCC.director.getCurrentTime();
+        this._lastModified = legacyCC.game.frameStartTime;
     }
 }
 

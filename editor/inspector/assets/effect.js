@@ -9,7 +9,7 @@ exports.template = `
         <ui-select slot="content" class="shader-select"></ui-select>
     </ui-prop>
 
-    <ui-section expand class="config">
+    <ui-section expand class="config" cache-expand="effect-combinations">
         <ui-label slot="header" value="i18n:ENGINE.assets.effect.combinations" tooltip="i18n:ENGINE.assets.effect.combinationsTip"></ui-label>
         <div class="description">
             <ui-label value="i18n:ENGINE.assets.effect.choose"></ui-label>
@@ -196,6 +196,7 @@ const Elements = {
                 panel.$.codes.appendChild(section);
                 section.setAttribute('class', 'config');
                 section.setAttribute('expand', '');
+                section.setAttribute('cache-expand', `effect-${glslKey}`);
 
                 const glslName = panel.glslNames[glslKey];
 

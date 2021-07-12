@@ -5,6 +5,15 @@ exports.template = `
     <div class="info">
         <ui-label value="Vertices:0" class="vertices"></ui-label>
         <ui-label value="Triangles:0" class="triangles"></ui-label>
+        <ui-label value="" class="uvsLabel"></ui-label>
+    </div>
+    <div>
+        <div>
+            <ui-label value="" class="minPosLabel"></ui-label>
+        </div>
+        <div>
+            <ui-label value="" class="maxPosLabel"></ui-label>
+        </div>
     </div>
     <div class="image">
         <canvas class="canvas"></canvas>
@@ -41,6 +50,9 @@ exports.$ = {
     triangles: '.triangles',
     image: '.image',
     canvas: '.canvas',
+    uvsLabel: '.uvsLabel',
+    minPosLabel: '.minPosLabel',
+    maxPosLabel: '.maxPosLabel',
 };
 
 const Elements = {
@@ -120,8 +132,31 @@ const Elements = {
 
             const panel = this;
 
-            panel.$.vertices.value = 'Vertices:' + info.vertices;
-            panel.$.triangles.value = 'Triangles:' + info.polygons;
+            panel.$.vertices.value = 'Vertices: ' + info.vertices;
+            panel.$.triangles.value = 'Triangles: ' + info.polygons;
+
+            panel.$.uvsLabel.value = '';
+            if (info.uvs.length > 0) {
+                panel.$.uvsLabel.value = 'UV: ';
+                info.uvs.forEach((uvIndex, index) => {
+                    panel.$.uvsLabel.value += uvIndex;
+                    if (index !== info.uvs.length - 1) {
+                        panel.$.uvsLabel.value += ',';
+                    }
+                });
+            }
+
+            panel.$.minPosLabel.value = '';
+            if (info.minPosition) {
+                const pos = info.minPosition;
+                panel.$.minPosLabel.value = `MinPos: (${pos.x.toFixed(3)}, ${pos.y.toFixed(3)}, ${pos.z.toFixed(3)})`;
+            }
+
+            panel.$.maxPosLabel.value = '';
+            if (info.maxPosition) {
+                const pos = info.maxPosition;
+                panel.$.maxPosLabel.value = `MaxPos: (${pos.x.toFixed(3)}, ${pos.y.toFixed(3)}, ${pos.z.toFixed(3)})`;
+            }
 
             panel.isPreviewDataDirty = true;
         },
