@@ -12,7 +12,7 @@ import { UntypedTrack } from './tracks/untyped-track';
 import { warn } from '../platform';
 import { RealTrack } from './tracks/real-track';
 import { Color, Quat, Size, Vec2, Vec3, Vec4 } from '../math';
-import { CubicSplineNumberValue, CubicSplineVec2Value, CubicSplineVec3Value, CubicSplineVec4Value } from './cubic-spline-value';
+import { CubicSplineNumberValue, CubicSplineQuatValue, CubicSplineVec2Value, CubicSplineVec3Value, CubicSplineVec4Value } from './cubic-spline-value';
 import { ColorTrack } from './tracks/color-track';
 import { VectorTrack } from './tracks/vector-track';
 import { QuaternionTrack } from './tracks/quat-track';
@@ -274,9 +274,9 @@ export class AnimationClipLegacyData {
                     switch (true) {
                     default:
                         break;
-                    case legacyValues.every((value) => value instanceof Vec2):
-                    case legacyValues.every((value) => value instanceof Vec3):
-                    case legacyValues.every((value) => value instanceof Vec4): {
+                    case everyInstanceOf(legacyValues, Vec2):
+                    case everyInstanceOf(legacyValues, Vec3):
+                    case everyInstanceOf(legacyValues, Vec4): {
                         type Vec4plus = Vec4[];
                         type Vec3plus = (Vec3 | Vec4)[];
                         type Vec2plus = (Vec2 | Vec3 | Vec4)[];
@@ -306,7 +306,7 @@ export class AnimationClipLegacyData {
                         newTracks.push(track);
                         return;
                     }
-                    case legacyValues.every((value) => value instanceof Quat): {
+                    case everyInstanceOf(legacyValues, Quat): {
                         assertIsTrue(legacyEasingMethodConverter.nil);
                         const track = new QuaternionTrack();
                         installPathAndSetter(track);
@@ -318,7 +318,7 @@ export class AnimationClipLegacyData {
                         newTracks.push(track);
                         return;
                     }
-                    case legacyValues.every((value) => value instanceof Color): {
+                    case everyInstanceOf(legacyValues, Color): {
                         const track = new ColorTrack();
                         installPathAndSetter(track);
                         const [{ curve: r }, { curve: g }, { curve: b }, { curve: a }] = track.channels();
@@ -335,7 +335,7 @@ export class AnimationClipLegacyData {
                         newTracks.push(track);
                         return;
                     }
-                    case legacyValues.every((value) => value instanceof Size): {
+                    case everyInstanceOf(legacyValues, Size): {
                         const track = new SizeTrack();
                         installPathAndSetter(track);
                         const [{ curve: width }, { curve: height }] = track.channels();
@@ -348,7 +348,7 @@ export class AnimationClipLegacyData {
                         newTracks.push(track);
                         return;
                     }
-                    case legacyValues.every((value) => value instanceof CubicSplineNumberValue): {
+                    case everyInstanceOf(legacyValues, CubicSplineNumberValue): {
                         assertIsTrue(legacyEasingMethodConverter.nil);
                         const track = new RealTrack();
                         installPathAndSetter(track);
@@ -362,9 +362,9 @@ export class AnimationClipLegacyData {
                         newTracks.push(track);
                         return;
                     }
-                    case legacyValues.every((value) => value instanceof CubicSplineVec2Value):
-                    case legacyValues.every((value) => value instanceof CubicSplineVec3Value):
-                    case legacyValues.every((value) => value instanceof CubicSplineVec4Value): {
+                    case everyInstanceOf(legacyValues, CubicSplineVec2Value):
+                    case everyInstanceOf(legacyValues, CubicSplineVec3Value):
+                    case everyInstanceOf(legacyValues, CubicSplineVec4Value): {
                         assertIsTrue(legacyEasingMethodConverter.nil);
                         type Vec4plus = CubicSplineVec4Value[];
                         type Vec3plus = (CubicSplineVec3Value | CubicSplineVec4Value)[];
@@ -404,6 +404,10 @@ export class AnimationClipLegacyData {
                         newTracks.push(track);
                         return;
                     }
+                    case legacyValues.every((value) => value instanceof CubicSplineQuatValue): {
+                        warn(`We don't currently support conversion of \`CubicSplineQuatValue\`.`);
+                        break;
+                    }
                     } // End switch
                 }
 
@@ -419,13 +423,10 @@ export class AnimationClipLegacyData {
         return newTracks;
     }
 
-    @serializable
     private _keys: number[][] = [];
 
-    @serializable
     private _curves: LegacyClipCurve[] = [];
 
-    @serializable
     private _commonTargets: LegacyCommonTarget[] = [];
 
     private _ratioSamplers: RatioSampler[] = [];
@@ -453,6 +454,10 @@ export class AnimationClipLegacyData {
             commonTarget: targetCurve.commonTarget,
         }));
     }
+}
+
+function everyInstanceOf<T> (array: unknown[], constructor: Constructor<T>): array is T[] {
+    return array.every((element) => element instanceof constructor);
 }
 
 // #region Legacy data structures prior to 1.2
@@ -488,7 +493,7 @@ class LegacyEasingMethodConverter {
     }
 
     get nil () {
-        return !this._easingMethods;
+        return !this._easingMethods || this._easingMethods.every((easingMethod) => easingMethod === null || easingMethod === undefined);
     }
 
     public convert (curve: RealCurve) {
