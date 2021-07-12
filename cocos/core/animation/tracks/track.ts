@@ -108,7 +108,7 @@ export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
         return this._channel;
     }
 
-    public channels () {
+    public channels (): Iterable<Channel<TCurve>> {
         return [this._channel];
     }
 

@@ -222,7 +222,7 @@ export class AnimationClipLegacyData {
             const times = legacyKeysIndex < 0 ? [0.0] : legacyKeys[legacyCurveData.keys];
             const firstValue = legacyValues[0];
             // Rule: default to true.
-            const interpolate = legacyCurveData ?? true;
+            const interpolate = legacyCurveData.interpolate ?? true;
             // Rule: _arrayLength only used for morph target, internally.
             assertIsTrue(typeof legacyCurveData._arrayLength !== 'number' || typeof firstValue === 'number');
             const legacyEasingMethodConverter = new LegacyEasingMethodConverter(legacyCurveData, times.length);
@@ -341,9 +341,9 @@ export class AnimationClipLegacyData {
                         const [{ curve: width }, { curve: height }] = track.channels();
                         const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
                         const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpMode: interpMethod });
-                        width.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.r)));
+                        width.assignSorted(times, (legacyValues as Size[]).map((value) => valueToFrame(value.width)));
                         legacyEasingMethodConverter.convert(width);
-                        height.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.g)));
+                        height.assignSorted(times, (legacyValues as Size[]).map((value) => valueToFrame(value.height)));
                         legacyEasingMethodConverter.convert(height);
                         newTracks.push(track);
                         return;
@@ -519,21 +519,21 @@ class LegacyEasingMethodConverter {
             }
             if (Array.isArray(easingMethod)) {
                 // Time bezier points
-                const previousKeyframeValue = curve.getKeyframeValue(iKeyframe);
+                const currentKeyframeValue = curve.getKeyframeValue(iKeyframe);
                 const nextKeyframeValue = curve.getKeyframeValue(iKeyframe + 1);
-                const [endTangent, endTangentWeight, startTangent, startTangentWeight] = timeBezierToTangents(
+                const [previousTangent, previousTangentWeight, nextTangent, nextTangentWeight] = timeBezierToTangents(
                     easingMethod,
                     curve.getKeyframeTime(iKeyframe),
-                    previousKeyframeValue.value,
+                    currentKeyframeValue.value,
                     curve.getKeyframeTime(iKeyframe + 1),
                     nextKeyframeValue.value,
                 );
-                previousKeyframeValue.interpMode = RealInterpMode.CUBIC;
-                previousKeyframeValue.endTangent = endTangent;
-                previousKeyframeValue.endTangentWeight = endTangentWeight;
-                nextKeyframeValue.startTangent = startTangent;
-                nextKeyframeValue.startTangentWeight = startTangentWeight;
-                nextKeyframeValue.tangentWeightMode = TangentWeightMode.BOTH;
+                currentKeyframeValue.interpMode = RealInterpMode.CUBIC;
+                currentKeyframeValue.tangentWeightMode = TangentWeightMode.BOTH;
+                currentKeyframeValue.startTangent = previousTangent;
+                currentKeyframeValue.startTangentWeight = previousTangentWeight;
+                currentKeyframeValue.endTangent = nextTangent;
+                currentKeyframeValue.endTangentWeight = nextTangentWeight;
             } else {
                 const bernstein = new Array(4).fill(0);
                 // Easing methods in `easing`
