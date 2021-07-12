@@ -294,6 +294,9 @@ class InputManager {
 
     // TODO: remove this private method
     private _getViewPixelRatio () {
+        if (!this._glView) {
+            this._glView = legacyCC.view;
+        }
         return this._glView ? this._glView._devicePixelRatio : 1;
     }
 
