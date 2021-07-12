@@ -5,6 +5,8 @@ import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import { Channel, IntegerChannel, RuntimeBinding, Track } from './track';
 import { maskIfEmpty } from './utils';
 
+const CHANNEL_NAMES: ReadonlyArray<string> = ['Red', 'Green', 'Blue', 'Alpha'];
+
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}ColorTrack`)
 export class ColorTrack extends Track {
     constructor () {
@@ -12,7 +14,7 @@ export class ColorTrack extends Track {
         this._channels = new Array(4) as ColorTrack['_channels'];
         for (let i = 0; i < this._channels.length; ++i) {
             const channel = new Channel<IntegerCurve>(new IntegerCurve());
-            channel.name = 'R';
+            channel.name = CHANNEL_NAMES[i];
             this._channels[i] = channel;
         }
     }

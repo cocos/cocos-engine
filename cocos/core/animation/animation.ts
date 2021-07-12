@@ -39,4 +39,5 @@ export { IntegerTrack } from './tracks/integer-track';
 export { VectorTrack } from './tracks/vector-track';
 export { QuaternionTrack } from './tracks/quat-track';
 export { ColorTrack } from './tracks/color-track';
+export { SizeTrack } from './tracks/size-track';
 export { ObjectTrack } from './tracks/object-track';

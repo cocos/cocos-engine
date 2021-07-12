@@ -1,7 +1,7 @@
-import { Mat4, Node, RealKeyframeValue, Vec3 } from '../../cocos/core';
-import { RealTrack, TrackPath, VectorTrack } from '../../cocos/core/animation/animation';
+import { Node, RealKeyframeValue, Vec3 } from '../../cocos/core';
+import { ColorTrack, RealTrack, SizeTrack, TrackPath, VectorTrack } from '../../cocos/core/animation/animation';
 import { AnimationClip, searchForRootBonePathSymbol } from '../../cocos/core/animation/animation-clip';
-import { ComponentPath, HierarchyPath, TargetPath } from '../../cocos/core/animation/target-path';
+import { TargetPath } from '../../cocos/core/animation/target-path';
 
 describe('Animation Clip', () => {
     describe('Evaluation', () => {
@@ -121,6 +121,33 @@ describe('Animation Clip', () => {
                 evaluation.evaluateRootMotion(0.5, 3.2);
                 expect(Vec3.equals(dummyRootJointNode.position, new Vec3(1.4))).toBe(true);
             });
+        });
+    });
+
+    describe(`Tracks`, () => {
+        test('Vector track', () => {
+            const vectorTrack = new VectorTrack();
+            expect(vectorTrack.channels()).toHaveLength(4);
+            expect(vectorTrack.channels()[0].name).toBe('X');
+            expect(vectorTrack.channels()[1].name).toBe('Y');
+            expect(vectorTrack.channels()[2].name).toBe('Z');
+            expect(vectorTrack.channels()[3].name).toBe('W');
+        });
+
+        test('Color track', () => {
+            const colorTrack = new ColorTrack();
+            expect(colorTrack.channels()).toHaveLength(4);
+            expect(colorTrack.channels()[0].name).toBe('Red');
+            expect(colorTrack.channels()[1].name).toBe('Green');
+            expect(colorTrack.channels()[2].name).toBe('Blue');
+            expect(colorTrack.channels()[3].name).toBe('Alpha');
+        });
+
+        test('Size track', () => {
+            const sizeTrack = new SizeTrack();
+            expect(sizeTrack.channels()).toHaveLength(2);
+            expect(sizeTrack.channels()[0].name).toBe('Width');
+            expect(sizeTrack.channels()[1].name).toBe('Height');
         });
     });
 });

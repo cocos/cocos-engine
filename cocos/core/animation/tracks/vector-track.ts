@@ -5,6 +5,8 @@ import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import { Channel, RealChannel, RuntimeBinding, Track } from './track';
 import { maskIfEmpty } from './utils';
 
+const CHANNEL_NAMES: ReadonlyArray<string> = ['X', 'Y', 'Z', 'W'];
+
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}VectorTrack`)
 export class VectorTrack extends Track {
     constructor () {
@@ -12,7 +14,7 @@ export class VectorTrack extends Track {
         this._channels = new Array(4) as VectorTrack['_channels'];
         for (let i = 0; i < this._channels.length; ++i) {
             const channel = new Channel<RealCurve>(new RealCurve());
-            channel.name = 'X';
+            channel.name = CHANNEL_NAMES[i];
             this._channels[i] = channel;
         }
     }

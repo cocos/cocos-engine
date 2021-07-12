@@ -80,7 +80,7 @@ export class Channel<T = Curve> {
         this._curve = curve;
     }
 
-    @serializable
+    // @serializable
     public name = '';
 
     get curve () {

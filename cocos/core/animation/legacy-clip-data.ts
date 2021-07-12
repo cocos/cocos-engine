@@ -11,12 +11,13 @@ import { Track, TrackPath } from './tracks/track';
 import { UntypedTrack } from './tracks/untyped-track';
 import { warn } from '../platform';
 import { RealTrack } from './tracks/real-track';
-import { Color, Quat, Vec2, Vec3, Vec4 } from '../math';
+import { Color, Quat, Size, Vec2, Vec3, Vec4 } from '../math';
 import { CubicSplineNumberValue, CubicSplineVec2Value, CubicSplineVec3Value, CubicSplineVec4Value } from './cubic-spline-value';
 import { ColorTrack } from './tracks/color-track';
 import { VectorTrack } from './tracks/vector-track';
 import { QuaternionTrack } from './tracks/quat-track';
 import { ObjectTrack } from './tracks/object-track';
+import { SizeTrack } from './tracks/size-track';
 
 /**
  * 表示曲线值，曲线值可以是任意类型，但必须符合插值方式的要求。
@@ -110,6 +111,25 @@ export type LegacyRuntimeCurve = Pick<LegacyClipCurve, 'modifiers' | 'valueAdapt
      */
     sampler: RatioSampler | null;
 }
+
+// interface ConvertMap<TValue, TTrack> {
+//     valueConstructor: Constructor<TValue>;
+//     trackConstructor: Constructor<TTrack>;
+//     properties: [keyof TValue, number][];
+// }
+
+// const VECTOR_LIKE_CURVE_CONVERT_TABLE = [
+//     {
+//         valueConstructor: Size,
+//         trackConstructor: SizeTrack,
+//         properties: [['width', 0], ['height', 1]],
+//     } as ConvertMap<Size, SizeTrack>,
+//     {
+//         valueConstructor: Color,
+//         trackConstructor: ColorTrack,
+//         properties: [['r', 0], ['g', 1], ['b', 2], ['a', 3]],
+//     } as ConvertMap<Color, ColorTrack>,
+// ];
 
 export class AnimationClipLegacyData {
     constructor (duration: number) {
@@ -312,6 +332,19 @@ export class AnimationClipLegacyData {
                         legacyEasingMethodConverter.convert(b);
                         a.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.a)));
                         legacyEasingMethodConverter.convert(a);
+                        newTracks.push(track);
+                        return;
+                    }
+                    case legacyValues.every((value) => value instanceof Size): {
+                        const track = new SizeTrack();
+                        installPathAndSetter(track);
+                        const [{ curve: width }, { curve: height }] = track.channels();
+                        const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
+                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpMode: interpMethod });
+                        width.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.r)));
+                        legacyEasingMethodConverter.convert(width);
+                        height.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.g)));
+                        legacyEasingMethodConverter.convert(height);
                         newTracks.push(track);
                         return;
                     }
