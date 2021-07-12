@@ -48,6 +48,7 @@ import { Scheduler } from './scheduler';
 import { js } from './utils';
 import { legacyCC } from './global-exports';
 import { errorID, error, assertID, warnID } from './platform/debug';
+import inputManager from './platform/event-manager/input-manager';
 
 // ----------------------------------------------------------------------------------------------------------------------
 
@@ -736,6 +737,9 @@ export class Director extends EventTarget {
             // Update
             if (!this._paused) {
                 this.emit(Director.EVENT_BEFORE_UPDATE);
+                if (!EDITOR) {
+                    inputManager.frameDispatchEvents();
+                }
                 // Call start for new added components
                 this._compScheduler.startPhase();
                 // Update for components

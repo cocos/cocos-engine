@@ -131,11 +131,6 @@ export interface IGameConfig {
     /**
      * For internal use.
      */
-    registerSystemEvent?: boolean;
-
-    /**
-     * For internal use.
-     */
     jsList?: string[];
 
     /**
@@ -574,14 +569,7 @@ export class Game extends EventTarget {
             this.onStart = configOrCallback ?? null;
         }
 
-        return Promise.resolve(initPromise).then(() => {
-            // register system events
-            if (!EDITOR && game.config.registerSystemEvent) {
-                inputManager.registerSystemEvent();
-            }
-
-            return this._setRenderPipelineNShowSplash();
-        });
+        return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash());
     }
 
     //  @ Persist root node section
@@ -761,9 +749,6 @@ export class Game extends EventTarget {
         const renderMode = config.renderMode;
         if (typeof renderMode !== 'number' || renderMode > 2 || renderMode < 0) {
             config.renderMode = 0;
-        }
-        if (typeof config.registerSystemEvent !== 'boolean') {
-            config.registerSystemEvent = true;
         }
         config.showFPS = !!config.showFPS;
 
