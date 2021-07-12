@@ -29,7 +29,7 @@
  * @module particle2d
  */
 
-import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip } from 'cc.decorator';
+import { ccclass, editable, type, menu, executeInEditMode, serializable, playOnFocus, tooltip, visible, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Renderable2D } from '../2d/framework/renderable-2d';
 import { Color, Vec2 } from '../core/math';
@@ -353,13 +353,12 @@ export class ParticleSystem2D extends Renderable2D {
         this._startColorVar.a = val.a;
     }
 
-    /**
-     * @en Set start color & end color
-     * @zh 设置粒子初始和结束颜色
-     */
-    public updateColor (val:Color) {
-        this._startColor.set(val);
-        this._endColor.set(val);
+    @visible(() => false)
+    set color (value) {
+    }
+
+    get color (): Readonly<Color> {
+        return this._color;
     }
 
     /**
@@ -718,7 +717,7 @@ export class ParticleSystem2D extends Renderable2D {
      * @en Play particle in edit mode.
      * @zh 在编辑器模式下预览粒子，启用后选中粒子时，粒子将自动播放。
      */
-    @serializable
+    @formerlySerializedAs('preview')
     @editable
     @tooltip('i18n:particle_system.preview')
     private _preview = true;
