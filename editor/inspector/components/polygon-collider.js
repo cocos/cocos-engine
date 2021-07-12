@@ -4,7 +4,7 @@ exports.template = template;
 exports.$ = $;
 exports.update = update;
 
-exports.ready = function () {
+exports.ready = function() {
     this.elements = {
         threshold: {
             displayOrder: 0,
@@ -19,14 +19,18 @@ exports.ready = function () {
                 $button.innerText = 'Regenerate Points';
                 $input.after($button);
 
-                $button.addEventListener('confirm', () => {
-                    let values = [this.dump.value];
-                    if (this.dump.values) {
-                        values = this.dump.values;
-                    }
+                $button.addEventListener('change', (event) => {
+                    event.stopPropagation();
+                    Editor.Message.send('scene', 'snapshot');
+                });
 
-                    values.forEach((item) => {
-                        Editor.Message.request('scene', 'regenerate-polygon-2d-points', item.uuid.value);
+                $button.addEventListener('confirm', (event) => {
+                    event.stopPropagation();
+
+                    const uuids = this.dump.value.uuid.values || [this.dump.value.uuid.value];
+
+                    uuids.forEach((uuid) => {
+                        Editor.Message.request('scene', 'regenerate-polygon-2d-points', uuid);
                     });
                 });
             },

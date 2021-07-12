@@ -36,7 +36,7 @@ import { CCObject } from './object';
 import { js } from '../utils/js';
 import { getError, warn } from '../platform/debug';
 import { legacyCC } from '../global-exports';
-import Prefab from '../assets/prefab';
+import { Prefab } from '../assets/prefab';
 import { Node } from '../scene-graph/node';
 
 const Destroyed = CCObject.Flags.Destroyed;

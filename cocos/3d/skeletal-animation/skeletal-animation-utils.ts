@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { EDITOR } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { AnimationClip } from '../../core/animation/animation-clip';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
 import { getWorldTransformUntilRoot } from '../../core/animation/transform-utils';
@@ -55,7 +55,7 @@ export function selectJointsMediumFormat (device: Device): Format {
 }
 
 // Linear Blending Skinning
-function uploadJointDataLBS (out: Float32Array, base: number, mat: Mat4, firstBone: boolean) {
+function uploadJointDataLBS (out: Float32Array, base: number, mat: Readonly<Mat4>, firstBone: boolean) {
     out[base + 0] = mat.m00;
     out[base + 1] = mat.m01;
     out[base + 2] = mat.m02;
@@ -481,6 +481,7 @@ export class JointAnimationInfo {
         const data = new Float32Array([0, 0, 0, 0]);
         buffer.update(data);
         const info = { buffer, data, dirty: false };
+        this._setAnimInfoDirty(info, false);
         this._pool.set(nodeID, info);
         return info;
     }
@@ -492,10 +493,24 @@ export class JointAnimationInfo {
         this._pool.delete(nodeID);
     }
 
+    private _setAnimInfoDirty (info: IAnimInfo, value: boolean) {
+        info.dirty = value;
+        if (JSB) {
+            const key = 'nativeDirty';
+            const convertVal = value ? 1 : 0;
+            if (!info[key]) {
+                // In order to share dirty data with native
+                Object.defineProperty(info, key, { value: new Uint32Array(1).fill(convertVal), enumerable: true });
+                return;
+            }
+            info[key].fill(convertVal);
+        }
+    }
+
     public switchClip (info: IAnimInfo, clip: AnimationClip | null) {
         info.data[0] = 0;
         info.buffer.update(info.data);
-        info.dirty = false;
+        this._setAnimInfoDirty(info, false);
         return info;
     }
 

@@ -26,7 +26,7 @@ exports.style = `
 }
 `;
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.meta = metaList[0];
@@ -79,6 +79,9 @@ exports.update = function (assetList, metaList) {
         if (err) {
             throw err;
         }
-        this.$.code.textContent = text;
+
+        if (this.$.code) {
+            this.$.code.textContent = text;
+        }
     });
 };

@@ -90,15 +90,15 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btBroadphase = new Ammo.btDbvtBroadphase();
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
         this._btWorld = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, this._btCollisionConfiguration);
-        (this._btWorld.getPairCache() as any).setOverlapFilterCallback(new (Ammo as any).ccOverlapFilterCallback());
+        this._btWorld.getPairCache().setOverlapFilterCallback(new Ammo.ccOverlapFilterCallback());
         // this._btWorld.setContactBreakingThreshold(0.04);
         const TMP = AmmoConstant.instance.VECTOR3_0;
         TMP.setValue(0, -10, 0);
         this._btWorld.setGravity(TMP);
         if (!AmmoWorld.closeHitCB) AmmoWorld.closeHitCB = new Ammo.ClosestRayResultCallback(TMP, TMP);
         if (!AmmoWorld.allHitsCB) AmmoWorld.allHitsCB = new Ammo.AllHitsRayResultCallback(TMP, TMP);
-        (AmmoWorld.closeHitCB as any).setUseCC(true);
-        (AmmoWorld.allHitsCB as any).setUseCC(true);
+        AmmoWorld.closeHitCB.setUseCC(true);
+        AmmoWorld.allHitsCB.setUseCC(true);
     }
 
     destroy (): void {
@@ -175,7 +175,7 @@ export class AmmoWorld implements IPhysicsWorld {
                 if (btCs.isCompound()) {
                     const shapeIndex = allHitsCB.m_shapeParts.at(i);
                     const index = btObj.getUserIndex();
-                    const shared = AmmoInstance.bodyAndGhosts[`KEY${index}`];
+                    const shared = AmmoInstance.bodyAndGhosts[index];
                     shape = shared.wrappedShapes[shapeIndex];
                 } else {
                     shape = (btCs as any).wrapped;
@@ -214,7 +214,7 @@ export class AmmoWorld implements IPhysicsWorld {
             let shape: AmmoShape;
             if (btCs.isCompound()) {
                 const index = btObj.getUserIndex();
-                const shared = AmmoInstance.bodyAndGhosts[`KEY${index}`];
+                const shared = AmmoInstance.bodyAndGhosts[index];
                 const shapeIndex = closeHitCB.m_shapePart;
                 shape = shared.wrappedShapes[shapeIndex];
             } else {

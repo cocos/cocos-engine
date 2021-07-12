@@ -37,7 +37,6 @@ import { Component } from '../../core/components/component';
 import { EventHandler as ComponentEventHandler } from '../../core/components/component-event-handler';
 import { Color, Size, Vec3 } from '../../core/math';
 import { EventTouch } from '../../core/platform';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { Node } from '../../core/scene-graph/node';
 import { Label, VerticalTextAlignment } from '../../2d/components/label';
 import { Sprite } from '../../2d/components/sprite';
@@ -46,6 +45,7 @@ import { EditBoxImplBase } from './edit-box-impl-base';
 import { InputFlag, InputMode, KeyboardReturnType } from './types';
 import { sys } from '../../core/platform/sys';
 import { legacyCC } from '../../core/global-exports';
+import { NodeEventType } from '../../core/scene-graph/node-event';
 
 const LEFT_PADDING = 2;
 
@@ -511,7 +511,7 @@ export class EditBox extends Component {
         this._updatePlaceholderLabel();
         this._updateTextLabel();
         this._isLabelVisible = true;
-        this.node.on(SystemEventType.SIZE_CHANGED, this._resizeChildNodes, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._resizeChildNodes, this);
 
         const impl = this._impl = new EditBox._EditBoxImpl();
         impl.init(this);
@@ -657,13 +657,13 @@ export class EditBox extends Component {
     }
 
     protected _registerEvent () {
-        this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
     }
 
     protected _unregisterEvent () {
-        this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
     }
 
     protected _updateLabelPosition (size: Size) {

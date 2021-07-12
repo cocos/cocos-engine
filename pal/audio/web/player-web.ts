@@ -1,3 +1,4 @@
+import { EDITOR } from 'internal:constants';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
@@ -21,6 +22,9 @@ export class AudioContextAgent {
         return new Promise((resolve) => {
             const promise = this._context.decodeAudioData(audioData, (audioBuffer) => {
                 resolve(audioBuffer);
+            }, (err) => {
+                // TODO: need to reject the error.
+                console.error('failed to load Web Audio', err);
             });
             promise?.catch((e) => {});  // Safari doesn't support the promise based decodeAudioData
         });
@@ -60,11 +64,9 @@ export class AudioContextAgent {
         return sourceBufferNode;
     }
 
-    public createGain (volume?: number) {
+    public createGain (volume = 1) {
         const gainNode = this._context.createGain();
-        if (volume !== undefined) {
-            this.setGainValue(gainNode, volume);
-        }
+        this.setGainValue(gainNode, volume);
         return gainNode;
     }
 
@@ -122,6 +124,9 @@ export class OneShotAudioWeb {
     }
 
     public play (): void {
+        if (EDITOR) {
+            return;
+        }
         // audioContextAgent does exist
         audioContextAgent!.runContext().then(() => {
             this._bufferSourceNode.start();
@@ -283,16 +288,19 @@ export class AudioPlayerWeb implements OperationQueueable {
 
     @enqueueOperation
     play (): Promise<void> {
+        if (EDITOR) {
+            return Promise.resolve();
+        }
         return this._doPlay();
     }
 
     // The decorated play() method can't be call in seek()
     // so we define this method to ensure that the audio seeking works.
-    _doPlay (): Promise<void> {
+    private _doPlay (): Promise<void> {
         return new Promise((resolve) => {
             audioContextAgent!.runContext().then(() => {
                 // one AudioBufferSourceNode can't start twice
-                this._sourceNode?.stop();
+                this._stopSourceNode();
                 this._sourceNode = audioContextAgent!.createBufferSource(this._audioBuffer, this.loop);
                 this._sourceNode.connect(this._gainNode);
                 this._sourceNode.start(0, this._playTimeOffset);
@@ -319,6 +327,14 @@ export class AudioPlayerWeb implements OperationQueueable {
         });
     }
 
+    private _stopSourceNode () {
+        try {
+            this._sourceNode?.stop();
+        } catch (e) {
+            // sourceNode can't be stopped twice, especially on Safari.
+        }
+    }
+
     @enqueueOperation
     pause (): Promise<void> {
         if (this._state !== AudioState.PLAYING || !this._sourceNode) {
@@ -327,7 +343,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         this._playTimeOffset = (audioContextAgent!.currentTime - this._startTime + this._playTimeOffset) % this._audioBuffer.duration;
         this._state = AudioState.PAUSED;
         window.clearTimeout(this._currentTimer);
-        this._sourceNode.stop();
+        this._stopSourceNode();
         return Promise.resolve();
     }
 
@@ -339,7 +355,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         this._playTimeOffset = 0;
         this._state = AudioState.STOPPED;
         window.clearTimeout(this._currentTimer);
-        this._sourceNode.stop();
+        this._stopSourceNode();
         return Promise.resolve();
     }
 

@@ -31,7 +31,6 @@ import { EDITOR } from 'internal:constants';
 import { ccclass, executeInEditMode, requireComponent, disallowMultiple, tooltip,
     type, displayOrder, serializable, override, visible, displayName } from 'cc.decorator';
 import { Color } from '../../core/math';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { ccenum } from '../../core/value-types/enum';
 import { builtinResMgr } from '../../core/builtin';
 import { Material } from '../../core/assets';
@@ -47,6 +46,7 @@ import { RenderableComponent } from '../../core/components/renderable-component'
 import { Stage } from '../renderer/stencil-manager';
 import { warnID } from '../../core/platform/debug';
 import { legacyCC } from '../../core/global-exports';
+import { NodeEventType } from '../../core/scene-graph/node-event';
 
 // hack
 ccenum(BlendFactor);
@@ -254,7 +254,7 @@ export class Renderable2D extends RenderableComponent {
         this._colorDirty = true;
         if (EDITOR) {
             const clone = value.clone();
-            this.node.emit(SystemEventType.COLOR_CHANGED, clone);
+            this.node.emit(NodeEventType.COLOR_CHANGED, clone);
         }
     }
 
@@ -330,8 +330,8 @@ export class Renderable2D extends RenderableComponent {
     }
 
     public onEnable () {
-        this.node.on(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        this.node.on(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this.updateMaterial();
         this._renderFlag = this._canRender();
     }
@@ -343,8 +343,8 @@ export class Renderable2D extends RenderableComponent {
     }
 
     public onDisable () {
-        this.node.off(SystemEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
-        this.node.off(SystemEventType.SIZE_CHANGED, this._nodeStateChange, this);
+        this.node.off(NodeEventType.ANCHOR_CHANGED, this._nodeStateChange, this);
+        this.node.off(NodeEventType.SIZE_CHANGED, this._nodeStateChange, this);
         this._renderFlag = false;
     }
 
@@ -460,10 +460,8 @@ export class Renderable2D extends RenderableComponent {
 
     protected _updateColor () {
         this._updateWorldAlpha();
-        if ((this._colorDirty || this._cacheAlpha !== this.node._uiProps.opacity)
-                && this._renderFlag && this._assembler && this._assembler.updateColor) {
+        if (this._colorDirty && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
-            this._cacheAlpha = this.node._uiProps.opacity;
             this._colorDirty = false;
         }
     }
@@ -471,8 +469,11 @@ export class Renderable2D extends RenderableComponent {
     protected _updateWorldAlpha () {
         let localAlpha = this.color.a / 255;
         if (localAlpha === 1) localAlpha = this.node._uiProps.localOpacity; // Hack for Mask use ui-opacity
-        this.node._uiProps.opacity = (this.node.parent && this.node.parent._uiProps) ? this.node.parent._uiProps.opacity * localAlpha : localAlpha;
-        this._renderFlag = this._canRender();
+        const parent = this.node.parent;
+        const alpha = (parent && parent._uiProps) ? parent._uiProps.opacity * localAlpha : localAlpha;
+        this.node._uiProps.opacity = alpha;
+        this._colorDirty = this._colorDirty || alpha !== this._cacheAlpha;
+        this._cacheAlpha = alpha;
     }
 
     public _updateBlendFunc () {

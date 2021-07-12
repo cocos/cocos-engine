@@ -156,6 +156,8 @@ export default class ShapeModule {
                 this.emitFrom = EmitLocation.Volume;
             }
             break;
+        default:
+            break;
         }
     }
 
@@ -350,6 +352,8 @@ export default class ShapeModule {
             return repeat(angle, this._arc);
         case ArcMode.PingPong:
             return pingPong(angle, this._arc);
+        default:
+            return repeat(angle, this._arc);
         }
     }
 }

@@ -29,7 +29,7 @@
  */
 
 import { ccclass } from 'cc.decorator';
-import { PIPELINE_FLOW_SHADOW } from '../define';
+import { PIPELINE_FLOW_SHADOW, supportsHalfFloatTexture } from '../define';
 import { IRenderFlowInfo, RenderFlow } from '../render-flow';
 import { ForwardFlowPriority } from '../forward/enum';
 import { ShadowStage } from './shadow-stage';
@@ -140,7 +140,7 @@ export class ShadowFlow extends RenderFlow {
         const shadows = pipeline.pipelineSceneData.shadows;
         const shadowMapSize = shadows.size;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = device.hasFeature(Feature.TEXTURE_HALF_FLOAT) ? (
+        const format = supportsHalfFloatTexture(device) ? (
             shadows.packing ? Format.RGBA8 : Format.RGBA16F) : Format.RGBA8;
 
         if (!this._shadowRenderPass) {
@@ -211,7 +211,7 @@ export class ShadowFlow extends RenderFlow {
         const pipeline = this._pipeline;
         const device = pipeline.device;
         const shadowFrameBufferMap = pipeline.pipelineSceneData.shadowFrameBufferMap;
-        const format = device.hasFeature(Feature.TEXTURE_HALF_FLOAT) ? (
+        const format = supportsHalfFloatTexture(device) ? (
             shadowInfo.packing ? Format.RGBA8 : Format.RGBA16F) : Format.RGBA8;
 
         if (shadowFrameBufferMap.has(light)) {
@@ -239,5 +239,7 @@ export class ShadowFlow extends RenderFlow {
                 depth,
             ));
         }
+
+        shadowInfo.shadowMapDirty = false;
     }
 }

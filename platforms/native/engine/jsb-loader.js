@@ -197,7 +197,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             url = `assets/${bundleName}`;
         }
     }
-    var config = `${url}/config.${version ? version + '.': ''}json`;
+    var config = `${url}/cc.config.${version ? version + '.': ''}json`;
     options.__cacheBundleRoot__ = bundleName;
     downloadJson(config, options, function (err, response) {
         if (err) {
@@ -248,11 +248,11 @@ downloader.downloadScript = downloadScript;
 function loadAudioPlayer (url, options, onComplete) {
     cc.AudioPlayer.load(url).then(player => {
         const audioMeta = {
+            player,
             url,
             duration: player.duration,
             type: player.type,
         };
-        player.destroy();
         onComplete(null, audioMeta);
     }).catch(err => {
         onComplete(err);

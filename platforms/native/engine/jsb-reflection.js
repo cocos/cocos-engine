@@ -29,9 +29,9 @@
 Object.defineProperty(jsb, "reflection", {
     get: function () {
         if (jsb.__bridge !== undefined) return jsb.__bridge;
-        if (window.JavascriptJavaBridge && cc.sys.os === cc.sys.OS_ANDROID) {
+        if (window.JavascriptJavaBridge && cc.sys.os === cc.sys.OS.ANDROID) {
             jsb.__bridge = new JavascriptJavaBridge();
-        } else if (window.JavaScriptObjCBridge && (cc.sys.os === cc.sys.OS_IOS || cc.sys.os === cc.sys.OS_OSX)) {
+        } else if (window.JavaScriptObjCBridge && (cc.sys.os === cc.sys.OS.IOS || cc.sys.os === cc.sys.OS.OSX)) {
             jsb.__bridge = new JavaScriptObjCBridge();
         }else   {
             jsb.__bridge = null;

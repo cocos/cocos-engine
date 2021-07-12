@@ -34,7 +34,7 @@ import { SubModel } from '../renderer/scene/submodel';
 import { Layers } from '../scene-graph/layers';
 import { legacyCC } from '../global-exports';
 import { BindingMappingInfo, DescriptorType, Type, ShaderStageFlagBit,
-    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture } from '../gfx';
+    DescriptorSetLayoutBinding, Uniform, UniformBlock, UniformSamplerTexture, UniformStorageImage, Device, Feature } from '../gfx';
 
 export const PIPELINE_FLOW_GBUFFER = 'GbufferFlow';
 export const PIPELINE_FLOW_LIGHTING = 'LightingFlow';
@@ -104,7 +104,7 @@ export interface IRenderQueueDesc {
 
 export interface IDescriptorSetLayoutInfo {
     bindings: DescriptorSetLayoutBinding[];
-    layouts: Record<string, UniformBlock | UniformSamplerTexture>;
+    layouts: Record<string, UniformBlock | UniformSamplerTexture | UniformStorageImage>;
 }
 
 export const globalDescriptorSetLayout: IDescriptorSetLayoutInfo = { bindings: [], layouts: {} };
@@ -146,6 +146,8 @@ export enum ModelLocalBindings {
     SAMPLER_MORPH_TANGENT,
     SAMPLER_LIGHTMAP,
     SAMPLER_SPRITE,
+    SAMPLER_REFLECTION,
+    STORAGE_REFLECTION,
 
     COUNT,
 }
@@ -344,7 +346,7 @@ export class UBOLocal {
 
     public static readonly NAME = 'CCLocal';
     public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
-    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOLocal.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOLocal.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX | ShaderStageFlagBit.COMPUTE);
     public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOLocal.BINDING, UBOLocal.NAME, [
         new Uniform('cc_matWorld', Type.MAT4, 1),
         new Uniform('cc_matWorldIT', Type.MAT4, 1),
@@ -364,7 +366,7 @@ export class UBOLocalBatched {
 
     public static readonly NAME = 'CCLocalBatched';
     public static readonly BINDING = ModelLocalBindings.UBO_LOCAL;
-    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOLocalBatched.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX);
+    public static readonly DESCRIPTOR = new DescriptorSetLayoutBinding(UBOLocalBatched.BINDING, DescriptorType.UNIFORM_BUFFER, 1, ShaderStageFlagBit.VERTEX | ShaderStageFlagBit.COMPUTE);
     public static readonly LAYOUT = new UniformBlock(SetIndex.LOCAL, UBOLocalBatched.BINDING, UBOLocalBatched.NAME, [
         new Uniform('cc_matWorlds', Type.MAT4, UBOLocalBatched.BATCHING_COUNT),
     ], 1);
@@ -548,11 +550,41 @@ const UNIFORM_SPRITE_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, 
 localDescriptorSetLayout.layouts[UNIFORM_SPRITE_TEXTURE_NAME] = UNIFORM_SPRITE_TEXTURE_LAYOUT;
 localDescriptorSetLayout.bindings[UNIFORM_SPRITE_TEXTURE_BINDING] = UNIFORM_SPRITE_TEXTURE_DESCRIPTOR;
 
+/**
+ * @en The sampler for reflection
+ * @zh 反射纹理采样器。
+ */
+const UNIFORM_REFLECTION_TEXTURE_NAME = 'cc_reflectionTexture';
+export const UNIFORM_REFLECTION_TEXTURE_BINDING = ModelLocalBindings.SAMPLER_REFLECTION;
+const UNIFORM_REFLECTION_TEXTURE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_TEXTURE_BINDING, DescriptorType.SAMPLER_TEXTURE, 1, ShaderStageFlagBit.FRAGMENT);
+const UNIFORM_REFLECTION_TEXTURE_LAYOUT = new UniformSamplerTexture(SetIndex.LOCAL, UNIFORM_REFLECTION_TEXTURE_BINDING, UNIFORM_REFLECTION_TEXTURE_NAME, Type.SAMPLER2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_TEXTURE_NAME] = UNIFORM_REFLECTION_TEXTURE_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_TEXTURE_BINDING] = UNIFORM_REFLECTION_TEXTURE_DESCRIPTOR;
+
+/**
+  * @en The storage image for reflection
+  * @zh 反射纹理存储。
+  */
+const UNIFORM_REFLECTION_STORAGE_NAME = 'cc_reflectionStorage';
+export const UNIFORM_REFLECTION_STORAGE_BINDING = ModelLocalBindings.STORAGE_REFLECTION;
+const UNIFORM_REFLECTION_STORAGE_DESCRIPTOR = new DescriptorSetLayoutBinding(UNIFORM_REFLECTION_STORAGE_BINDING, DescriptorType.STORAGE_IMAGE, 1, ShaderStageFlagBit.COMPUTE);
+const UNIFORM_REFLECTION_STORAGE_LAYOUT = new UniformStorageImage(SetIndex.LOCAL, UNIFORM_REFLECTION_STORAGE_BINDING, UNIFORM_REFLECTION_STORAGE_NAME, Type.IMAGE2D, 1);
+localDescriptorSetLayout.layouts[UNIFORM_REFLECTION_STORAGE_NAME] = UNIFORM_REFLECTION_STORAGE_LAYOUT;
+localDescriptorSetLayout.bindings[UNIFORM_REFLECTION_STORAGE_BINDING] = UNIFORM_REFLECTION_STORAGE_DESCRIPTOR;
+
 export const CAMERA_DEFAULT_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.GIZMOS, Layers.BitMask.EDITOR,
     Layers.BitMask.SCENE_GIZMO, Layers.BitMask.PROFILER]);
 
 export const CAMERA_EDITOR_MASK = Layers.makeMaskExclude([Layers.BitMask.UI_2D, Layers.BitMask.PROFILER]);
 
 export const MODEL_ALWAYS_MASK = Layers.Enum.ALL;
+
+/**
+ * @en Does the device support half float texture? (for both color attachment and sampling)
+ * @zh 当前设备是否支持半浮点贴图？（颜色输出和采样）
+ */
+export function supportsHalfFloatTexture (device: Device) {
+    return device.hasFeature(Feature.COLOR_HALF_FLOAT) && device.hasFeature(Feature.TEXTURE_HALF_FLOAT);
+}
 
 /* eslint-enable max-len */

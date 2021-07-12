@@ -29,6 +29,7 @@
  */
 
 /* eslint-disable no-restricted-globals */
+import { JSB } from 'internal:constants';
 import * as easing from './animation/easing';
 import { Material } from './assets/material';
 import { clamp01 } from './math/utils';
@@ -40,7 +41,6 @@ import {
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
 import { Root } from './root';
-import { DSPool, ShaderPool, PassPool, PassView } from './renderer/core/memory-pools';
 import { SetIndex } from './pipeline/define';
 import { error } from './platform';
 import { Mat4, Vec2 } from './math';
@@ -238,7 +238,7 @@ export class SplashScreen {
             let scaleX = logoW * logoTW / logoTH;
             let scaleY = logoW;
             if (device.surfaceTransform === SurfaceTransform.ROTATE_90
-            || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+                || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
                 scaleX = logoW * dw / dh;
                 scaleY = logoW * logoTH / logoTW * dh / dw;
             }
@@ -256,7 +256,7 @@ export class SplashScreen {
                 let scaleX = wartermarkW;
                 let scaleY = wartermarkW * wartermarkTH / wartermarkTW;
                 if (device.surfaceTransform === SurfaceTransform.ROTATE_90
-                || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+                    || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
                     scaleX = wartermarkW * 0.5;
                     scaleY = wartermarkW * dw / dh * 0.5;
                 }
@@ -306,8 +306,8 @@ export class SplashScreen {
         const pass = this.logoMat.passes[0];
         const binding = pass.getBinding('mainTexture');
         pass.bindTexture(binding, this.logoTexture);
-        this.shader = ShaderPool.get(pass.getShaderVariant());
-        const descriptorSet = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
+        this.shader = pass.getShaderVariant()!;
+        const descriptorSet = pass.descriptorSet;
         descriptorSet.bindSampler(binding, this.sampler);
         descriptorSet.update();
 
@@ -344,7 +344,7 @@ export class SplashScreen {
         const pass = this.watermarkMat.passes[0];
         const binding = pass.getBinding('mainTexture');
         pass.bindTexture(binding, this.watermarkTexture);
-        DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET)).update();
+        pass.descriptorSet.update();
     }
 
     private frame () {
@@ -354,7 +354,10 @@ export class SplashScreen {
         const cmdBuff = this.cmdBuff;
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
-        renderArea.width = device.width; renderArea.height = device.height;
+
+        renderArea.width = device.width;
+        renderArea.height = device.height;
+
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);
 

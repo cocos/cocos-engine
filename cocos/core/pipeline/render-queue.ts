@@ -33,7 +33,8 @@ import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPass, Device, CommandBuffer } from '../gfx';
-import { PassPool, PassView, DSPool, SubModelView, SubModelPool, ShaderPool, PassHandle, ShaderHandle } from '../renderer/core/memory-pools';
+import { RenderQueueDesc, RenderQueueSortMode } from './pipeline-serialization';
+import { getPhaseID } from './pass-phase';
 
 /**
  * @en Comparison sorting function. Opaque objects are sorted by priority -> depth front to back -> shader ID.
@@ -101,16 +102,17 @@ export class RenderQueue {
      */
     public insertRenderPass (renderObj: IRenderObject, subModelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.subModels[subModelIdx];
-        const hPass = SubModelPool.get(subModel.handle, SubModelView.PASS_0 + passIdx) as PassHandle;
-        const isTransparent = subModel.passes[passIdx].blendState.targets[0].blend;
-        if (isTransparent !== this._passDesc.isTransparent || !(PassPool.get(hPass, PassView.PHASE) & this._passDesc.phases)) {
+        const pass = subModel.passes[passIdx];
+        const shader = subModel.shaders[passIdx];
+        const isTransparent = pass.blendState.targets[0].blend;
+        if (isTransparent !== this._passDesc.isTransparent || !(pass.phase & this._passDesc.phases)) {
             return false;
         }
-        const hash = (0 << 30) | PassPool.get(hPass, PassView.PRIORITY) << 16 | subModel.priority << 8 | passIdx;
+        const hash = (0 << 30) | pass.priority << 16 | subModel.priority << 8 | passIdx;
         const rp = this._passPool.add();
         rp.hash = hash;
         rp.depth = renderObj.depth || 0;
-        rp.shaderId = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as number;
+        rp.shaderId = shader.id;
         rp.subModel = subModel;
         rp.passIdx = passIdx;
         this.queue.push(rp);
@@ -128,9 +130,9 @@ export class RenderQueue {
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
             const { subModel, passIdx } = this.queue.array[i];
-            const { inputAssembler, handle: hSubModel } = subModel;
+            const { inputAssembler } = subModel;
             const pass = subModel.passes[passIdx];
-            const shader = ShaderPool.get(SubModelPool.get(hSubModel, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
+            const shader = subModel.shaders[passIdx];
             const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
@@ -139,4 +141,46 @@ export class RenderQueue {
             cmdBuff.draw(inputAssembler);
         }
     }
+}
+
+export function convertRenderQueue (desc: RenderQueueDesc) {
+    let phase = 0;
+    for (let j = 0; j < desc.stages.length; j++) {
+        phase |= getPhaseID(desc.stages[j]);
+    }
+    let sortFunc: (a: IRenderPass, b: IRenderPass) => number = opaqueCompareFn;
+    switch (desc.sortMode) {
+    case RenderQueueSortMode.BACK_TO_FRONT:
+        sortFunc = transparentCompareFn;
+        break;
+    case RenderQueueSortMode.FRONT_TO_BACK:
+        sortFunc = opaqueCompareFn;
+        break;
+    default:
+        break;
+    }
+
+    return new RenderQueue({
+        isTransparent: desc.isTransparent,
+        phases: phase,
+        sortFunc,
+    });
+}
+
+/**
+ * @en Clear the given render queue
+ * @zh 清空指定的渲染队列
+ * @param rq The render queue
+ */
+export function renderQueueClearFunc (rq: RenderQueue) {
+    rq.clear();
+}
+
+/**
+ * @en Sort the given render queue
+ * @zh 对指定的渲染队列执行排序
+ * @param rq The render queue
+ */
+export function renderQueueSortFunc (rq: RenderQueue) {
+    rq.sort();
 }

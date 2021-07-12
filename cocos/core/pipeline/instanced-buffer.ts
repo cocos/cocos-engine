@@ -30,10 +30,9 @@
 
 import { Pass } from '../renderer';
 import { IInstancedAttributeBlock, SubModel } from '../renderer/scene';
-import { SubModelView, SubModelPool, ShaderHandle, DescriptorSetHandle } from '../renderer/core/memory-pools';
 import { UNIFORM_LIGHTMAP_TEXTURE_BINDING } from './define';
 import { BufferUsageBit, MemoryUsageBit, Device, Texture, InputAssembler, InputAssemblerInfo,
-    Attribute, Buffer, BufferInfo, CommandBuffer  } from '../gfx';
+    Attribute, Buffer, BufferInfo, CommandBuffer, Shader, DescriptorSet  } from '../gfx';
 
 export interface IInstancedItem {
     count: number;
@@ -42,8 +41,8 @@ export interface IInstancedItem {
     data: Uint8Array;
     ia: InputAssembler;
     stride: number;
-    hShader: ShaderHandle;
-    hDescriptorSet: DescriptorSetHandle;
+    shader: Shader | null;
+    descriptorSet: DescriptorSet;
     lightingMap: Texture;
 }
 
@@ -80,16 +79,16 @@ export class InstancedBuffer {
         this.instances.length = 0;
     }
 
-    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, passIdx: number, hShaderImplant: ShaderHandle | null = null) {
+    public merge (subModel: SubModel, attrs: IInstancedAttributeBlock, passIdx: number, shaderImplant: Shader | null = null) {
         const stride = attrs.buffer.length;
         if (!stride) { return; } // we assume per-instance attributes are always present
         const sourceIA = subModel.inputAssembler;
         const lightingMap = subModel.descriptorSet.getTexture(UNIFORM_LIGHTMAP_TEXTURE_BINDING);
-        let hShader  = hShaderImplant;
-        if (!hShader) {
-            hShader = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle;
+        let shader  = shaderImplant;
+        if (!shader) {
+            shader = subModel.shaders[passIdx];
         }
-        const hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
+        const descriptorSet = subModel.descriptorSet;
         for (let i = 0; i < this.instances.length; ++i) {
             const instance = this.instances[i];
             if (instance.ia.indexBuffer !== sourceIA.indexBuffer || instance.count >= MAX_CAPACITY) { continue; }
@@ -111,8 +110,8 @@ export class InstancedBuffer {
                 instance.data.set(oldData);
                 instance.vb.resize(newSize);
             }
-            if (instance.hShader !== hShader) { instance.hShader = hShader; }
-            if (instance.hDescriptorSet !== hDescriptorSet) { instance.hDescriptorSet = hDescriptorSet; }
+            if (instance.shader !== shader) { instance.shader = shader; }
+            if (instance.descriptorSet !== descriptorSet) { instance.descriptorSet = descriptorSet; }
             instance.data.set(attrs.buffer, instance.stride * instance.count++);
             this.hasPendingModels = true;
             return;
@@ -140,7 +139,7 @@ export class InstancedBuffer {
         vertexBuffers.push(vb);
         const iaInfo = new InputAssemblerInfo(attributes, vertexBuffers, indexBuffer);
         const ia = this._device.createInputAssembler(iaInfo);
-        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, hShader, hDescriptorSet, lightingMap });
+        this.instances.push({ count: 1, capacity: INITIAL_CAPACITY, vb, data, ia, stride, shader, descriptorSet, lightingMap });
         this.hasPendingModels = true;
     }
 

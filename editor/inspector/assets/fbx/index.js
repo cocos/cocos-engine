@@ -18,6 +18,7 @@ exports.style = `
     flex: 1;
     flex-direction: column;
     padding-top: 5px;
+    overflow: hidden;
 }
 
 .asset-fbx > .header {
@@ -46,7 +47,7 @@ const Components = {
  */
 const Elements = {
     tabs: {
-        ready () {
+        ready() {
             const panel = this;
 
             panel.$.tabs.addEventListener('change', () => {
@@ -56,7 +57,7 @@ const Elements = {
 
             panel.activeTab = 'animation';
         },
-        update () {
+        update() {
             const panel = this;
 
             panel.$.tabs.innerText = '';
@@ -82,14 +83,14 @@ const Elements = {
         },
     },
     tabPanel: {
-        ready () {
+        ready() {
             const panel = this;
 
             panel.$.tabPanel.addEventListener('change', () => {
                 panel.dispatch('change');
             });
         },
-        update () {
+        update() {
             const panel = this;
             Editor.Message.broadcast('fbx-inspector:change-tab', panel.activeTab);
             panel.$.tabPanel.setAttribute('src', Components[panel.activeTab]);
@@ -103,7 +104,7 @@ const Elements = {
  * @param assetList
  * @param metaList
  */
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -120,7 +121,7 @@ exports.update = function (assetList, metaList) {
 /**
  * Method of initializing the panel
  */
-exports.ready = function () {
+exports.ready = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -133,14 +134,14 @@ exports.methods = {
     /**
      * Update whether a data is editable in multi-select state
      */
-    updateInvalid (element, prop) {
+    updateInvalid(element, prop) {
         const invalid = this.metaList.some((meta) => meta.userData[prop] !== this.meta.userData[prop]);
         element.invalid = invalid;
     },
     /**
      * Update read-only status
      */
-    updateReadonly (element) {
+    updateReadonly(element) {
         if (this.asset.readonly) {
             element.setAttribute('disabled', true);
         } else {

@@ -49,8 +49,8 @@ import { PipelineSceneData } from '../pipeline-scene-data';
 const PIPELINE_TYPE = 0;
 
 const _samplerInfo = [
-    Filter.LINEAR,
-    Filter.LINEAR,
+    Filter.POINT,
+    Filter.POINT,
     Filter.NONE,
     Address.CLAMP,
     Address.CLAMP,

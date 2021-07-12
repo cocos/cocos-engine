@@ -1,5 +1,5 @@
-import { IMiniGame, SystemInfo } from 'pal/minigame';
-import { Orientation } from '../system/enum-type/orientation';
+import { IMiniGame } from 'pal/minigame';
+import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject } from '../utils';
 
 declare let my: any;
@@ -8,6 +8,7 @@ declare let my: any;
 const minigame: IMiniGame = {};
 cloneObject(minigame, my);
 
+// #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = window.navigator && (/AlipayIDE/.test(window.navigator.userAgent));
 
@@ -27,8 +28,9 @@ Object.defineProperty(minigame, 'orientation', {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });
+// #endregion SystemInfo
 
-// TouchEvent
+// #region TouchEvent
 // my.onTouchStart register touch event listner on body
 // need to register on canvas
 minigame.onTouchStart = function (cb) {
@@ -51,6 +53,7 @@ minigame.onTouchCancel = function (cb) {
         cb && cb(res);
     });
 };
+// #endregion TouchEvent
 
 minigame.createInnerAudioContext = function (): InnerAudioContext {
     const audio: InnerAudioContext = my.createInnerAudioContext();
@@ -65,22 +68,27 @@ minigame.createInnerAudioContext = function (): InnerAudioContext {
     return audio;
 };
 
-// Font
+// #region Font
 minigame.loadFont = function (url) {
     // my.loadFont crash when url is not in user data path
     return 'Arial';
 };
+// #endregion Font
 
-// Accelerometer
-minigame.onAccelerometerChange = function (cb) {
-    my.onAccelerometerChange((res) => {
+// #region Accelerometer
+let _accelerometerCb: AccelerometerChangeCallback | undefined;
+minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
+    minigame.offAccelerometerChange();
+    // onAccelerometerChange would start accelerometer
+    // so we won't call this method here
+    _accelerometerCb = (res: any) => {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
-            // NOTE: onDeviceOrientationChange is not supported on alipay platform
+            const orientationFactor = (landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1);
             const tmp = x;
-            x = -y;
-            y = tmp;
+            x = -y * orientationFactor;
+            y = tmp * orientationFactor;
         }
 
         const resClone = {
@@ -89,32 +97,41 @@ minigame.onAccelerometerChange = function (cb) {
             z: res.z,
         };
         cb(resClone);
-    });
-    // onAccelerometerChange would start accelerometer, need to mannually stop it
-    my.stopAccelerometer();
+    };
 };
+minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
+    if (_accelerometerCb) {
+        my.offAccelerometerChange(_accelerometerCb);
+        _accelerometerCb = undefined;
+    }
+};
+minigame.startAccelerometer = function (res: any) {
+    if (_accelerometerCb) {
+        my.onAccelerometerChange(_accelerometerCb);
+    } else {
+        // my.startAccelerometer() is not implemented.
+        console.error('minigame.onAccelerometerChange() should be invoked before minigame.startAccelerometer() on alipay platform');
+    }
+};
+minigame.stopAccelerometer = function (res: any) {
+    // my.stopAccelerometer() is not implemented.
+    minigame.offAccelerometerChange();
+};
+// #endregion Accelerometer
 
+// #region SafeArea
 minigame.getSafeArea = function () {
     console.warn('getSafeArea is not supported on this platform');
-    if (minigame.getSystemInfoSync) {
-        const systemInfo =  minigame.getSystemInfoSync();
-        return {
-            top: 0,
-            left: 0,
-            bottom: systemInfo.screenHeight,
-            right: systemInfo.screenWidth,
-            width: systemInfo.screenWidth,
-            height: systemInfo.screenHeight,
-        };
-    }
+    const systemInfo =  minigame.getSystemInfoSync();
     return {
         top: 0,
         left: 0,
-        bottom: 0,
-        right: 0,
-        width: 0,
-        height: 0,
+        bottom: systemInfo.screenHeight,
+        right: systemInfo.screenWidth,
+        width: systemInfo.screenWidth,
+        height: systemInfo.screenHeight,
     };
 };
+// #endregion SafeArea
 
 export { minigame };

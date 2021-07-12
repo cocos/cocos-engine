@@ -40,6 +40,7 @@ export class WebGLPipelineLayout extends PipelineLayout {
 
         const gpuSetLayouts: IWebGLGPUDescriptorSetLayout[] = [];
         let dynamicOffsetCount = 0;
+        const dynamicOffsetOffsets: number[] = [];
         for (let i = 0; i < this._setLayouts.length; i++) {
             const setLayout = this._setLayouts[i] as WebGLDescriptorSetLayout;
             const dynamicBindings = setLayout.gpuDescriptorSetLayout.dynamicBindings;
@@ -51,6 +52,7 @@ export class WebGLPipelineLayout extends PipelineLayout {
 
             gpuSetLayouts.push(setLayout.gpuDescriptorSetLayout);
             dynamicOffsetIndices.push(indices);
+            dynamicOffsetOffsets.push(dynamicOffsetCount);
             dynamicOffsetCount += dynamicBindings.length;
         }
 
@@ -58,6 +60,7 @@ export class WebGLPipelineLayout extends PipelineLayout {
             gpuSetLayouts,
             dynamicOffsetIndices,
             dynamicOffsetCount,
+            dynamicOffsetOffsets,
         };
 
         return true;

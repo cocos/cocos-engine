@@ -8,6 +8,7 @@ CCEffect %{
       phase: post-process
       depthStencilState:
         depthTest: false
+        depthWrite: false
       blendState:
         targets:
         - blend: true

@@ -29,9 +29,10 @@
  */
 
 import { AudioSource } from './audio-source';
-import { replaceProperty, removeProperty } from '../core/utils/x-deprecated';
+import { replaceProperty, removeProperty, markAsWarning } from '../core/utils/x-deprecated';
 import { AudioClip } from './audio-clip';
 
+// remove AudioClip static property
 replaceProperty(AudioClip, 'AudioClip', [
     {
         name: 'PlayingState',
@@ -41,21 +42,21 @@ replaceProperty(AudioClip, 'AudioClip', [
     },
 ]);
 
-const removedProperties = [
-    'state',
-    'play',
-    'pause',
-    'stop',
-    'playOneShot',
-    'setCurrentTime',
-    'getCurrentTime',
-    'setVolume',
-    'getVolume',
-    'setLoop',
-    'getLoop',
-];
-
-removeProperty(AudioClip.prototype, 'AudioClip.prototype', removedProperties.map((property) => ({
-    name: property,
-    suggest: `Use 'AudioSource.prototype.${property}' instead`,
-})));
+// deprecate AudioClip property
+markAsWarning(AudioClip.prototype, 'AudioClip.prototype',
+    [
+        'state',
+        'play',
+        'pause',
+        'stop',
+        'playOneShot',
+        'setCurrentTime',
+        'setVolume',
+        'setLoop',
+        'getCurrentTime',
+        'getVolume',
+        'getLoop',
+    ].map((item) => ({
+        name: item,
+        suggest: `please use AudioSource.prototype.${item} instead`,
+    })));

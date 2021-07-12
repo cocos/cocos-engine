@@ -26,7 +26,7 @@ exports.style = `
 }
 `;
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.meta = metaList[0];
@@ -44,7 +44,7 @@ exports.update = function (assetList, metaList) {
 
     // Displays 400 lines or 20,000 characters
     const readStream = createReadStream(this.asset.file, {
-        encoding: 'utf-8'
+        encoding: 'utf-8',
     });
 
     let remainLines = MAX_LINES;
@@ -53,7 +53,7 @@ exports.update = function (assetList, metaList) {
 
     const readLineStream = ReadLine.createInterface({
         input: readStream,
-        setEncoding: 'utf-8'
+        setEncoding: 'utf-8',
     });
 
     readLineStream.on('line', (line) => {
@@ -80,6 +80,8 @@ exports.update = function (assetList, metaList) {
             throw err;
         }
 
-        this.$.code.textContent = text;
+        if (this.$.code) {
+            this.$.code.textContent = text;
+        }
     });
 };

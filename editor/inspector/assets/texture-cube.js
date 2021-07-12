@@ -8,7 +8,7 @@ const Direction = {
     top: 'top ( +Y )',
     bottom: 'bottom ( -Y )',
     front: 'front ( +Z )',
-    back: 'left ( -X )',
+    back: 'back ( -Z )',
 };
 
 exports.template = `
@@ -124,7 +124,7 @@ const Elements = {
                 image.setAttribute('class', key);
                 image.setAttribute('placeholder', key);
                 image.addEventListener('confirm', panel.dataChange.bind(panel, key));
-                
+
                 panel.$[`${key}-image`] = image;
             }
 
@@ -165,7 +165,7 @@ const Elements = {
     },
 };
 
-exports.ready = function () {
+exports.ready = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.ready) {
@@ -174,7 +174,7 @@ exports.ready = function () {
     }
 };
 
-exports.update = function (assetList, metaList) {
+exports.update = function(assetList, metaList) {
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -188,7 +188,7 @@ exports.update = function (assetList, metaList) {
     }
 };
 
-exports.close = function () {
+exports.close = function() {
     for (const prop in Elements) {
         const element = Elements[prop];
         if (element.close) {
@@ -215,7 +215,7 @@ exports.methods = {
         this.metaList.forEach((meta) => {
             meta.userData[key] = event.target.value || undefined;
         });
-        
+
         this.dispatch('change');
 
         Elements.assets.update.call(this);

@@ -35,7 +35,7 @@ import { PixelFormat } from '../../../core/assets/asset-enum';
 import { BufferTextureCopy } from '../../../core/gfx';
 import { safeMeasureText, BASELINE_RATIO, MIDDLE_RATIO, getBaselineOffset } from '../../utils/text-utils';
 import { director, Director } from '../../../core/director';
-import { macro } from '../../../core';
+import { macro, warnID } from '../../../core';
 
 export interface ISharedLabelData {
     canvas: HTMLCanvasElement;
@@ -233,8 +233,6 @@ export class LetterRenderTexture extends Texture2D {
             height,
             format,
         });
-        this.loaded = true;
-        this.emit('load');
     }
 
     /**
@@ -314,6 +312,7 @@ export class LetterAtlas {
         }
 
         if (this._nextY > this._height) {
+            warnID(12100);
             return null;
         }
 

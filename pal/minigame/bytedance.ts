@@ -1,5 +1,5 @@
-import { IMiniGame } from 'pal/minigame';
-import { Orientation } from '../system/enum-type/orientation';
+import { IMiniGame, SystemInfo } from 'pal/minigame';
+import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let tt: any;
@@ -8,6 +8,12 @@ declare let tt: any;
 const minigame: IMiniGame = {};
 cloneObject(minigame, tt);
 
+// #region platform related
+minigame.tt = {};
+minigame.tt.getAudioContext = tt.getAudioContext?.bind(tt);
+// #endregion platform related
+
+// #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();
 minigame.isDevTool = (systemInfo.platform === 'devtools');
 
@@ -26,14 +32,19 @@ Object.defineProperty(minigame, 'orientation', {
         return minigame.isLandscape ? landscapeOrientation : Orientation.PORTRAIT;
     },
 });
+// #endregion SystemInfo
 
-// Accelerometer
-minigame.onAccelerometerChange = function (cb) {
-    tt.onAccelerometerChange((res) => {
+// #region Accelerometer
+let _accelerometerCb: AccelerometerChangeCallback | undefined;
+minigame.onAccelerometerChange = function (cb: AccelerometerChangeCallback) {
+    minigame.offAccelerometerChange();
+    // onAccelerometerChange would start accelerometer
+    // so we won't call this method here
+    _accelerometerCb = (res: any) => {
         let x = res.x;
         let y = res.y;
         if (minigame.isLandscape) {
-            const orientationFactor = landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
+            const orientationFactor = (landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1);
             const tmp = x;
             x = -y * orientationFactor;
             y = tmp * orientationFactor;
@@ -45,10 +56,21 @@ minigame.onAccelerometerChange = function (cb) {
             z: res.z,
         };
         cb(resClone);
-    });
-    // onAccelerometerChange would start accelerometer, need to mannually stop it
-    tt.stopAccelerometer();
+    };
 };
+minigame.offAccelerometerChange = function (cb?: AccelerometerChangeCallback) {
+    if (_accelerometerCb) {
+        tt.offAccelerometerChange(_accelerometerCb);
+        _accelerometerCb = undefined;
+    }
+};
+minigame.startAccelerometer = function (res: any) {
+    if (_accelerometerCb) {
+        tt.onAccelerometerChange(_accelerometerCb);
+    }
+    tt.startAccelerometer(res);
+};
+// #endregion Accelerometer
 
 minigame.createInnerAudioContext = createInnerAudioContextPolyfill(tt, {
     onPlay: true,
@@ -57,21 +79,21 @@ minigame.createInnerAudioContext = createInnerAudioContextPolyfill(tt, {
     onSeek: true,
 });
 
-// safeArea
-// origin point on the top-left corner
+// #region SafeArea
+// FIX_ME: wrong safe area when orientation is landscape left
 minigame.getSafeArea = function () {
-    let { top, left, bottom, right, width, height } = systemInfo.safeArea;
+    const locSystemInfo = tt.getSystemInfoSync() as SystemInfo;
+    let { top, left, right } = locSystemInfo.safeArea;
+    const { bottom, width, height } = locSystemInfo.safeArea;
     // HACK: on iOS device, the orientation should mannually rotate
-    if (systemInfo.platform === 'ios' && !minigame.isDevTool && minigame.isLandscape) {
-        const tempData = [right, top, left, bottom, width, height];
-        top = tempData[2];
-        left = tempData[1];
-        bottom = tempData[3];
-        right = tempData[0];
-        height = tempData[5];
-        width = tempData[4];
+    if (locSystemInfo.platform === 'ios' && !minigame.isDevTool && minigame.isLandscape) {
+        const tmpTop = top; const tmpLeft = left; const tmpBottom = bottom; const tmpRight = right; const tmpWidth = width; const tmpHeight = height;
+        top = tmpLeft;
+        left = tmpTop;
+        right = tmpRight - tmpTop;
     }
     return { top, left, bottom, right, width, height };
 };
+// #endregion SafeArea
 
 export { minigame };

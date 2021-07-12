@@ -3,7 +3,7 @@ declare module 'pal/input' {
         /**
          * Type of the input event used to quickly distinguish between event types.
          */
-        readonly type: string;
+        readonly type: import('../../cocos/core/platform/event-manager/event-enum').SystemEventTypeUnion;
         /**
          * Timestamp when the input event is triggered.
          */
@@ -86,6 +86,9 @@ declare module 'pal/input' {
          * The valid value maybe `EventMouse.BUTTON_LEFT`, `EventMouse.BUTTON_RIGHT` and `EventMouse.BUTTON_MIDDLE`.
          */
         readonly button: number;
+        // this is web only property, should be removed in the futrure. 
+        movementX?: number;
+        movementY?: number;
     }
     type MouseCallback = (res: MouseInputEvent) => void;
     export interface MouseWheelInputEvent extends MouseInputEvent {
@@ -129,7 +132,7 @@ declare module 'pal/input' {
         /**
          * Numerical code identifying the unique value of the pressed key.
          */
-        readonly code: number;
+        readonly code: import('../../cocos/core/platform/event-manager/key-code').KeyCode;
     }
     type KeyboardCallback = (res: KeyboardInputEvent) => void;
     /**
@@ -141,6 +144,12 @@ declare module 'pal/input' {
          * @param cb 
          */
         public onDown (cb: KeyboardCallback);
+        /**
+         * Register the key pressing event callback.
+         * NOTE: Compability for the deprecated KEY_DOWN event type. It should be removed in the future.
+         * @param cb 
+         */
+        public onPressing (cb: KeyboardCallback);
         /**
          * Register the key up event callback.
          * @param cb 

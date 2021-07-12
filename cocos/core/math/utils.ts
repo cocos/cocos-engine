@@ -28,6 +28,7 @@
  * @module core/math
  */
 
+import { ValueType } from '../value-types';
 import { IVec3Like } from './type-define';
 
 const _d2r = Math.PI / 180.0;
@@ -187,11 +188,11 @@ export function pseudoRandomRangeInt (seed: number, min: number, max: number) {
  */
 export function nextPow2 (val: number) {
     --val;
-    val = (val >> 1) | val;
-    val = (val >> 2) | val;
-    val = (val >> 4) | val;
-    val = (val >> 8) | val;
-    val = (val >> 16) | val;
+    val |= (val >> 1);
+    val |= (val >> 2);
+    val |= (val >> 4);
+    val |= (val >> 8);
+    val |= (val >> 16);
     ++val;
     return val;
 }
@@ -262,4 +263,18 @@ export function absMax (a: number, b: number) {
     } else {
         return b;
     }
+}
+
+/**
+ * @en
+ * Make the attributes of the specified class available to be enumerated
+ * @zh
+ * 使指定类的特定属性可被枚举
+ * @param prototype Inherit the prototype chain of the ValueType class
+ * @param attrs List of attributes that need to be enumerated
+ */
+export function enumerableProps (prototype: ValueType, attrs: string[]) {
+    attrs.forEach((key) => {
+        Object.defineProperty(prototype, key, { enumerable: true });
+    });
 }

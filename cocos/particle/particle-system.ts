@@ -30,6 +30,7 @@
  * @module particle
  */
 
+// eslint-disable-next-line max-len
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, type, range, displayName, visible, formerlySerializedAs, override, radian, serializable } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { RenderableComponent } from '../core/components/renderable-component';
@@ -55,6 +56,7 @@ import TrailModule from './renderer/trail';
 import { IParticleSystemRenderer } from './renderer/particle-system-renderer-base';
 import { PARTICLE_MODULE_PROPERTY } from './particle';
 import { legacyCC } from '../core/global-exports';
+import { TransformBit } from '../core/scene-graph/node-enum';
 
 const _world_mat = new Mat4();
 const _world_rol = new Quat();
@@ -559,6 +561,7 @@ export class ParticleSystem extends RenderableComponent {
     private _isPaused: boolean;
     private _isStopped: boolean;
     private _isEmitting: boolean;
+    private _needRefresh: boolean;
 
     private _time: number;  // playback position in seconds.
     private _emitRateTimeCounter: number;
@@ -595,6 +598,7 @@ export class ParticleSystem extends RenderableComponent {
         this._isPaused = false;
         this._isStopped = true;
         this._isEmitting = false;
+        this._needRefresh = false;
 
         this._time = 0.0;  // playback position in seconds.
         this._emitRateTimeCounter = 0.0;
@@ -606,6 +610,10 @@ export class ParticleSystem extends RenderableComponent {
         this._customData2 = new Vec2();
 
         this._subEmitters = []; // array of { emitter: ParticleSystem, type: 'birth', 'collision' or 'death'}
+    }
+
+    public onFocusInEditor () {
+        this.renderer.create(this);
     }
 
     public onLoad () {
@@ -620,7 +628,9 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     public _onMaterialModified (index: number, material: Material) {
-        this.processor.onMaterialModified(index, material);
+        if (this.processor !== null) {
+            this.processor.onMaterialModified(index, material);
+        }
     }
 
     public _onRebuildPSO (index: number, material: Material) {
@@ -725,6 +735,9 @@ export class ParticleSystem extends RenderableComponent {
         this._emitRateDistanceCounter = 0.0;
 
         this._isStopped = true;
+
+        // if stop emit modify the refresh flag to true
+        this._needRefresh = true;
     }
 
     // remove all particles from current particle system.
@@ -840,7 +853,12 @@ export class ParticleSystem extends RenderableComponent {
                 this._textureAnimationModule.init(particle);
             }
 
-            Vec3.multiplyScalar(particle.velocity, particle.velocity, this.startSpeed.evaluate(delta, rand)!);
+            let curveStartSpeed = this.startSpeed.evaluate(delta, rand)!;
+            if (this.startSpeed.mode === Mode.Curve) {
+                const current = this._time % this.duration; // loop curve value
+                curveStartSpeed = this.startSpeed.evaluate(current / this.duration, rand)!;
+            }
+            Vec3.multiplyScalar(particle.velocity, particle.velocity, curveStartSpeed);
 
             if (this._simulationSpace === Space.World) {
                 Vec3.transformMat4(particle.position, particle.position, _world_mat);
@@ -888,6 +906,7 @@ export class ParticleSystem extends RenderableComponent {
         this.startDelay.constant = 0;
         const dt = 1.0; // should use varying value?
         const cnt = this.duration / dt;
+
         for (let i = 0; i < cnt; ++i) {
             this._time += dt;
             this._emit(dt);
@@ -915,13 +934,23 @@ export class ParticleSystem extends RenderableComponent {
             if (this._emitRateTimeCounter > 1 && this._isEmitting) {
                 const emitNum = Math.floor(this._emitRateTimeCounter);
                 this._emitRateTimeCounter -= emitNum;
+
+                // refresh particle node position to update emit position
+                if (this._needRefresh) {
+                    // this.node.setPosition(this.node.getPosition());
+                    this.node.invalidateChildren(TransformBit.POSITION);
+                    this._needRefresh = false;
+                }
+
                 this.emit(emitNum, dt);
             }
+
             // emit by rateOverDistance
             this.node.getWorldPosition(this._curWPos);
             const distance = Vec3.distance(this._curWPos, this._oldWPos);
             Vec3.copy(this._oldWPos, this._curWPos);
             this._emitRateDistanceCounter += distance * this.rateOverDistance.evaluate(this._time / this.duration, 1)!;
+
             if (this._emitRateDistanceCounter > 1 && this._isEmitting) {
                 const emitNum = Math.floor(this._emitRateDistanceCounter);
                 this._emitRateDistanceCounter -= emitNum;

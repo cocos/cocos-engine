@@ -23,9 +23,9 @@
  THE SOFTWARE.
  */
 
+import { JSB } from 'internal:constants';
 import { Device } from '../../gfx';
 import { RenderPipeline } from '../render-pipeline';
-import { PipelineSceneDataPool, PipelineSceneDataView } from '../../renderer/core/memory-pools';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Material } from '../../assets';
 import { PipelineSceneData } from '../pipeline-scene-data';
@@ -51,51 +51,55 @@ export class DeferredPipelineSceneData extends PipelineSceneData {
         this.updateDeferredPassInfo();
     }
 
-     protected declare _deferredLightingMaterial: Material;
-     protected declare _deferredPostMaterial: Material;
+    protected declare _deferredLightingMaterial: Material;
+    protected declare _deferredPostMaterial: Material;
 
-     public onGlobalPipelineStateChanged () {
-         this.updateDeferredPassInfo();
-     }
+    public onGlobalPipelineStateChanged () {
+        this.updateDeferredPassInfo();
+    }
 
-     public initPipelinePassInfo () {
-         this._deferredLightingMaterial = builtinResMgr.get<Material>('builtin-deferred-material');
-         this._deferredPostMaterial = builtinResMgr.get<Material>('builtin-post-process-material');
-         this.updateDeferredPassInfo();
-     }
+    public initPipelinePassInfo () {
+        this._deferredLightingMaterial = builtinResMgr.get<Material>('builtin-deferred-material');
+        this._deferredPostMaterial = builtinResMgr.get<Material>('builtin-post-process-material');
+        this.updateDeferredPassInfo();
+    }
 
-     public activate (device: Device, pipeline: RenderPipeline) {
-         super.activate(device, pipeline);
-         this.initPipelinePassInfo();
-         return true;
-     }
+    public activate (device: Device, pipeline: RenderPipeline) {
+        super.activate(device, pipeline);
+        this.initPipelinePassInfo();
+        return true;
+    }
 
-     private updateDeferredPassInfo () {
-         this.updateDeferredLightPass();
-         this.updateDeferredPostPass();
-     }
+    private updateDeferredPassInfo () {
+        this.updateDeferredLightPass();
+        this.updateDeferredPostPass();
+    }
 
-     private updateDeferredLightPass () {
-         if (!this._deferredLightingMaterial) return;
+    private updateDeferredLightPass () {
+        if (!this._deferredLightingMaterial) return;
 
-         const passLit = this._deferredLightingMaterial.passes[0];
-         passLit.beginChangeStatesSilently();
-         passLit.tryCompile();
-         passLit.endChangeStatesSilently();
+        const passLit = this._deferredLightingMaterial.passes[0];
+        passLit.beginChangeStatesSilently();
+        passLit.tryCompile();
+        passLit.endChangeStatesSilently();
 
-         PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS, passLit.handle);
-         PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_LIGHT_PASS_SHADER, passLit.getShaderVariant());
-     }
+        if (JSB) {
+            this._nativeObj!.deferredLightPassShader = passLit.getShaderVariant();
+            this._nativeObj!.deferredLightPass = passLit.native;
+        }
+    }
 
-     private updateDeferredPostPass () {
-         if (!this.deferredPostMaterial) return;
+    private updateDeferredPostPass () {
+        if (!this.deferredPostMaterial) return;
 
-         const passPost = this.deferredPostMaterial.passes[0];
-         passPost.beginChangeStatesSilently();
-         passPost.tryCompile();
-         passPost.endChangeStatesSilently();
+        const passPost = this.deferredPostMaterial.passes[0];
+        passPost.beginChangeStatesSilently();
+        passPost.tryCompile();
+        passPost.endChangeStatesSilently();
 
-         PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS, passPost.handle);
-         PipelineSceneDataPool.set(this._handle, PipelineSceneDataView.DEFERRED_POST_PASS_SHADER, passPost.getShaderVariant());
-     }
+        if (JSB) {
+            this._nativeObj!.deferredPostPassShader = passPost.getShaderVariant();
+            this._nativeObj!.deferredPostPass = passPost.native;
+        }
+    }
 }

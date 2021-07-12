@@ -31,7 +31,6 @@
 import { Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
 import { AABB } from './aabb';
-import { NULL_HANDLE, SphereHandle, SpherePool, SphereView } from '../renderer/core/memory-pools';
 
 const _v3_tmp = new Vec3();
 const _offset = new Vec3();
@@ -181,8 +180,9 @@ export class Sphere {
 
     set center (val:Vec3) {
         this._center = val;
-        SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
     }
+
+    private _radius = 0;
 
     /**
       * @en
@@ -191,16 +191,11 @@ export class Sphere {
       * 半径。
       */
     get radius () : number {
-        return SpherePool.get(this._poolHandle, SphereView.RADIUS);
+        return this._radius;
     }
 
     set radius (val: number) {
-        SpherePool.set(this._poolHandle, SphereView.RADIUS, val);
-    }
-
-    protected _poolHandle: SphereHandle = NULL_HANDLE;
-    get handle () {
-        return this._poolHandle;
+        this._radius = val;
     }
 
     /**
@@ -228,16 +223,10 @@ export class Sphere {
     constructor (cx = 0, cy = 0, cz = 0, r = 1) {
         this._type = enums.SHAPE_SPHERE;
         this._center = new Vec3(cx, cy, cz);
-        this._poolHandle = SpherePool.alloc();
-        SpherePool.setVec3(this._poolHandle, SphereView.CENTER, this._center);
-        SpherePool.set(this._poolHandle, SphereView.RADIUS, r);
+        this._radius = r;
     }
 
     public destroy () {
-        if (this._poolHandle) {
-            SpherePool.free(this._poolHandle);
-            this._poolHandle = NULL_HANDLE;
-        }
     }
 
     /**

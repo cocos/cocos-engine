@@ -47,10 +47,8 @@ let _converters = {
         }
     },
     DeviceInfo: function (info) {
-        let width = cc.game.canvas.width,
-            height = cc.game.canvas.height,
-            handler = window.windowHandler;
-        return new gfx.DeviceInfo(info.isAntiAlias, handler, width, height, info.nativeWidth, info.nativeHeight, null, info.bindingMappingInfo);
+        let handler = window.windowHandler;
+        return new gfx.DeviceInfo(info.isAntialias, handler, info.width, info.height, info.devicePixelRatio, info.bindingMappingInfo);
     }
 };
 
@@ -116,35 +114,36 @@ function replace (proto, replacements) {
 
 // Cache dirty to avoid invoking gfx.DescriptorSet.update().
 let descriptorSetProto = gfx.DescriptorSet.prototype;
-descriptorSetProto.bindBuffer = function(binding, buffer, index) {
+descriptorSetProto.bindBuffer = function (binding, buffer, index) {
     this.dirtyJSB = descriptorSetProto.bindBufferJSB.call(this, binding, buffer, index || 0);
 }
-descriptorSetProto.bindSampler = function(binding, sampler, index) {
+descriptorSetProto.bindSampler = function (binding, sampler, index) {
     this.dirtyJSB = descriptorSetProto.bindSamplerJSB.call(this, binding, sampler, index || 0);
 }
-descriptorSetProto.bindTexture = function(bindding, texture, index) {
+descriptorSetProto.bindTexture = function (bindding, texture, index) {
     this.dirtyJSB = descriptorSetProto.bindTextureJSB.call(this, bindding, texture, index || 0);
 }
 let oldDSUpdate = descriptorSetProto.update;
-descriptorSetProto.update = function() {
+descriptorSetProto.update = function () {
     if (!this.dirtyJSB) return;
     oldDSUpdate.call(this);
     this.dirtyJSB = false;
 }
 
-let deviceProto = gfx.deviceInstance.__proto__;
-replace(deviceProto, {
-    initialize: replaceFunction('_initialize', _converters.DeviceInfo),
+replace(gfx.DeviceManager, {
+    create: replaceFunction('_create', _converters.DeviceInfo),
 });
 
+let deviceProto = gfx.Device.prototype;
+
 let oldCopyTexImagesToTextureFunc = deviceProto.copyTexImagesToTexture;
-deviceProto.copyTexImagesToTexture = function(texImages, texture, regions) {
+deviceProto.copyTexImagesToTexture = function (texImages, texture, regions) {
     let images = _converters.texImagesToBuffers(texImages);
     oldCopyTexImagesToTextureFunc.call(this, images, texture, regions);
 }
 
 let oldDeviceCreatBufferFun = deviceProto.createBuffer;
-deviceProto.createBuffer = function(info) {
+deviceProto.createBuffer = function (info) {
     let buffer;
     if (info.buffer) {
         buffer = oldDeviceCreatBufferFun.call(this, info, true);
@@ -156,7 +155,7 @@ deviceProto.createBuffer = function(info) {
 }
 
 let oldDeviceCreatTextureFun = deviceProto.createTexture;
-deviceProto.createTexture = function(info) {
+deviceProto.createTexture = function (info) {
     if (info.texture) {
         return oldDeviceCreatTextureFun.call(this, info, true);
     } else {
@@ -181,8 +180,8 @@ cc.js.get(shaderProto, 'id', function () {
 let bufferProto = gfx.Buffer.prototype;
 
 let oldUpdate = bufferProto.update;
-bufferProto.update = function(buffer, size) {
-    if(buffer.byteLength === 0) return;
+bufferProto.update = function (buffer, size) {
+    if (buffer.byteLength === 0) return;
     let buffSize;
 
     if (this.cachedUsage & 0x40) { // BufferUsageBit.INDIRECT
@@ -204,7 +203,7 @@ bufferProto.update = function(buffer, size) {
         }
 
         buffSize = buffer.byteLength;
-    } else if (size !== undefined ) {
+    } else if (size !== undefined) {
         buffSize = size;
     } else {
         buffSize = buffer.byteLength;
@@ -214,7 +213,7 @@ bufferProto.update = function(buffer, size) {
 }
 
 let oldBufferInitializeFunc = bufferProto.initialize;
-bufferProto.initialize = function(info) {
+bufferProto.initialize = function (info) {
     if (info.buffer) {
         oldBufferInitializeFunc.call(this, info, true);
     } else {
@@ -224,7 +223,7 @@ bufferProto.initialize = function(info) {
 
 let textureProto = gfx.Texture.prototype;
 let oldTextureInitializeFunc = textureProto.initialize;
-textureProto.initialize = function(info) {
+textureProto.initialize = function (info) {
     if (info.texture) {
         oldTextureInitializeFunc.call(this, info, true);
     } else {

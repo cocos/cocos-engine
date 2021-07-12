@@ -14,7 +14,7 @@ module.exports = {
         },
         particle:{
             spriteFrame:'Sprite Frame',
-            spriteFrameTip:'Sprite Frame'
+            spriteFrameTip:'Sprite Frame',
         },
         erpTextureCube: {
             anisotropy: 'Anisotropy',
@@ -172,6 +172,26 @@ module.exports = {
                         title: '不管模型文件中是否包含切线都直接重新计算并导入。',
                     },
                 },
+                morphNormals: {
+                    name: '形变法线',
+                    title: '形变法线导入设置。',
+                    optional: {
+                        name: '可选',
+                        title: '仅当模型文件中包含形变法线时导入形变法线。',
+                    },
+                    exclude: {
+                        name: '排除',
+                        title: '不导入形变法线。',
+                    },
+                    require: {
+                        name: '仅在必要时重新计算',
+                        title: '导入形变法线。优先使用模型文件中的形变法线，若模型文件中不包含形变法线则计算形变法线。',
+                    },
+                    recalculate: {
+                        name: '重新计算',
+                        title: '不管模型文件中是否包含形变法线都直接重新计算并导入。',
+                    },
+                },
                 dumpMaterials: {
                     name: '提取材质',
                     title: '开启后，模型文件中的材质将被提取成为可编辑的材质文件，而非作为模型文件资源的只读子资源。',
@@ -255,7 +275,11 @@ module.exports = {
             },
             animationBakeRate: {
                 name: '动画烘焙速率',
-                title: '指定动画烘焙速率，单位为帧每秒（FPS）'
+                title: '指定动画烘焙速率，单位为帧每秒（FPS）',
+            },
+            promoteSingleRootNode: {
+                name: '提升单一根结点',
+                title: '若开启并且 FBX 场景仅有一个根节点，那么当转换该 FBX 场景为 Cocos Creator 预制体时，<br>以该根节点作为预制体的根节点，否则以该 FBX 场景的根节点作为预制体的根节点。',
             },
         },
         textureCube: {

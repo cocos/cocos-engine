@@ -4,7 +4,7 @@
  * @param {*} value of dump
  * @returns {key:string dump:object}[]
  */
-exports.sortProp = function (propMap) {
+exports.sortProp = function(propMap) {
     const orderList = [];
     const normalList = [];
 
@@ -35,7 +35,7 @@ exports.sortProp = function (propMap) {
  * @param {object} dump
  * @param {(element,prop)=>void} onElementCreated
  */
-exports.getCustomPropElements = function (excludeList, dump, onElementCreated) {
+exports.getCustomPropElements = function(excludeList, dump, onElementCreated) {
     const customPropElements = [];
     const sortedProp = exports.sortProp(dump.value);
     sortedProp.forEach((prop) => {
@@ -54,7 +54,7 @@ exports.getCustomPropElements = function (excludeList, dump, onElementCreated) {
 /**
  * Tool function: recursively set readonly in resource data
  */
-exports.loopSetAssetDumpDataReadonly = function (dump) {
+exports.loopSetAssetDumpDataReadonly = function(dump) {
     if (typeof dump !== 'object') {
         return;
     }
@@ -82,11 +82,11 @@ exports.loopSetAssetDumpDataReadonly = function (dump) {
  * @param {object} data  dump | function
  * @param element
  */
-exports.setDisabled = function (data, element) {
+exports.setDisabled = function(data, element) {
     if (!element) {
         return;
     }
-    
+
     let disabled = data;
 
     if (typeof data === 'function') {
@@ -105,7 +105,7 @@ exports.setDisabled = function (data, element) {
  * @param {object} data  dump | function
  * @param element
  */
-exports.setReadonly = function (data, element) {
+exports.setReadonly = function(data, element) {
     if (!element) {
         return;
     }
@@ -133,7 +133,7 @@ exports.setReadonly = function (data, element) {
  * @param {object} data  dump | function
  * @param element
  */
-exports.setHidden = function (data, element) {
+exports.setHidden = function(data, element) {
     if (!element) {
         return;
     }
@@ -151,7 +151,7 @@ exports.setHidden = function (data, element) {
     }
 };
 
-exports.updatePropByDump = function (panel, dump) {
+exports.updatePropByDump = function(panel, dump) {
     panel.dump = dump;
 
     if (!panel.elements) {
@@ -201,7 +201,9 @@ exports.updatePropByDump = function (panel, dump) {
         }
 
         if (panel.$[key]) {
-            children.push(panel.$[key]);
+            if (!element || !element.isAppendToParent || element.isAppendToParent.call(panel)) {
+                children.push(panel.$[key]);
+            }
         }
     });
 
@@ -214,20 +216,15 @@ exports.updatePropByDump = function (panel, dump) {
             return;
         }
 
-        if ($children[i]) {
-            $children[i].replaceWith(child);
-        } else {
-            panel.$.componentContainer.appendChild(child);
-        }
+        panel.$.componentContainer.appendChild(child);
     });
 
     // delete extra children
-    $children = Array.from(panel.$.componentContainer.children);
-    if ($children.length > children.length) {
-        for (let i = children.length; i < $children.length; i++) {
-            $children[i].remove();
+    $children.forEach(($child) => {
+        if (!children.includes($child)) {
+            $child.remove();
         }
-    }
+    });
 
     for (const key in panel.elements) {
         const element = panel.elements[key];
@@ -248,7 +245,7 @@ exports.updatePropByDump = function (panel, dump) {
 /**
  * Tool function: check whether the value of the attribute is consistent after multi-selection
  */
-exports.isMultipleInvalid = function (dump) {
+exports.isMultipleInvalid = function(dump) {
     let invalid = false;
 
     if (dump.values && dump.values.some((ds) => ds !== dump.value)) {
