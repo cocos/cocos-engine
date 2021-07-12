@@ -114,7 +114,7 @@
     float coefX = mod(clipPos.x, oneTap.x) * mapSize.x;
     float coefY = mod(clipPos.y, oneTap.y) * mapSize.y;
 
-    float shadow = 1.0;
+    float shadow = 0.0;
     float resultX = mix(block0, block1, coefX);
     float resultY = mix(block3, block4, coefX);
     shadow += mix(resultX , resultY, coefY);
