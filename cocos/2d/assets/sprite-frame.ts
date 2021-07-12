@@ -1181,14 +1181,16 @@ export class SpriteFrame extends Asset {
 
     public _deserialize (serializeData: any, handle: any) {
         const data = serializeData as ISpriteFramesSerializeData;
-        const rect = data.rect;
-        if (rect) {
-            this._rect = new Rect(rect.x, rect.y, rect.width, rect.height);
+        const rect: any = data.rect;
+        if (rect && rect._array) {
+            const rectArr = rect._array;
+            this._rect = new Rect(rectArr[0], rectArr[1], rectArr[2], rectArr[3]);
         }
 
-        const offset = data.offset;
-        if (data.offset) {
-            this._offset = new Vec2(offset.x, offset.y);
+        const offset: any = data.offset;
+        if (offset && offset._array) {
+            const offsetArr = offset._array;
+            this._offset = new Vec2(offsetArr[0], offsetArr[1]);
         }
 
         const originalSize = data.originalSize;
