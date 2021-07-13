@@ -246,10 +246,10 @@ void ShadowFlow::destroy() {
         rpPair.second->destroy();
     }
     renderPassHashMap.clear();
-    _renderPass = nullptr;
+    CC_SAFE_DESTROY(_renderPass)
 
     for (auto *texture : _usedTextures) {
-        CC_DELETE(texture);
+        CC_SAFE_DESTROY(texture);
     }
     _usedTextures.clear();
 

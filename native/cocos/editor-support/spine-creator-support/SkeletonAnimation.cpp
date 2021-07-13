@@ -28,76 +28,71 @@
  *****************************************************************************/
 
 #include "spine-creator-support/SkeletonAnimation.h"
+#include <algorithm>
 #include "base/Log.h"
 #include "spine-creator-support/spine-cocos2dx.h"
 #include "spine/Extension.h"
-#include <algorithm>
-
-using std::max;
-using std::min;
-using std::vector;
-using namespace cc;
 
 namespace spine {
 
-typedef struct _TrackEntryListeners {
-    StartListener startListener;
+struct TrackEntryListeners {
+    StartListener     startListener;
     InterruptListener interruptListener;
-    EndListener endListener;
-    DisposeListener disposeListener;
-    CompleteListener completeListener;
-    EventListener eventListener;
-} _TrackEntryListeners;
+    EndListener       endListener;
+    DisposeListener   disposeListener;
+    CompleteListener  completeListener;
+    EventListener     eventListener;
+};
 
 void animationCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
-    ((SkeletonAnimation *)state->getRendererObject())->onAnimationStateEvent(entry, type, event);
+    (static_cast<SkeletonAnimation *>(state->getRendererObject()))->onAnimationStateEvent(entry, type, event);
 }
 
 void trackEntryCallback(AnimationState *state, EventType type, TrackEntry *entry, Event *event) {
-    ((SkeletonAnimation *)state->getRendererObject())->onTrackEntryEvent(entry, type, event);
+    (static_cast<SkeletonAnimation *>(state->getRendererObject()))->onTrackEntryEvent(entry, type, event);
     if (type == EventType_Dispose) {
         if (entry->getRendererObject()) {
-            delete (spine::_TrackEntryListeners *)entry->getRendererObject();
-            entry->setRendererObject(NULL);
+            delete static_cast<spine::TrackEntryListeners *>(entry->getRendererObject());
+            entry->setRendererObject(nullptr);
         }
     }
 }
 
-static _TrackEntryListeners *getListeners(TrackEntry *entry) {
+static TrackEntryListeners *getListeners(TrackEntry *entry) {
     if (!entry->getRendererObject()) {
-        entry->setRendererObject(new spine::_TrackEntryListeners());
+        entry->setRendererObject(new spine::TrackEntryListeners());
         entry->setListener(trackEntryCallback);
     }
-    return (_TrackEntryListeners *)entry->getRendererObject();
+    return static_cast<TrackEntryListeners *>(entry->getRendererObject());
 }
 
-float SkeletonAnimation::GlobalTimeScale = 1.0f;
-void SkeletonAnimation::setGlobalTimeScale(float timeScale) {
+float SkeletonAnimation::GlobalTimeScale = 1.0F;
+void  SkeletonAnimation::setGlobalTimeScale(float timeScale) {
     GlobalTimeScale = timeScale;
 }
 
 SkeletonAnimation *SkeletonAnimation::create() {
-    SkeletonAnimation *skeleton = new SkeletonAnimation();
+    auto *skeleton = new SkeletonAnimation();
     skeleton->autorelease();
     return skeleton;
 }
 
 SkeletonAnimation *SkeletonAnimation::createWithData(SkeletonData *skeletonData, bool ownsSkeletonData) {
-    SkeletonAnimation *node = new SkeletonAnimation();
+    auto *node = new SkeletonAnimation();
     node->initWithData(skeletonData, ownsSkeletonData);
     node->autorelease();
     return node;
 }
 
 SkeletonAnimation *SkeletonAnimation::createWithJsonFile(const std::string &skeletonJsonFile, const std::string &atlasFile, float scale) {
-    SkeletonAnimation *node = new SkeletonAnimation();
+    auto *node = new SkeletonAnimation();
     node->initWithJsonFile(skeletonJsonFile, atlasFile, scale);
     node->autorelease();
     return node;
 }
 
 SkeletonAnimation *SkeletonAnimation::createWithBinaryFile(const std::string &skeletonBinaryFile, const std::string &atlasFile, float scale) {
-    SkeletonAnimation *node = new SkeletonAnimation();
+    auto *node = new SkeletonAnimation();
     node->initWithBinaryFile(skeletonBinaryFile, atlasFile, scale);
     node->autorelease();
     return node;
@@ -107,22 +102,20 @@ void SkeletonAnimation::initialize() {
     super::initialize();
 
     _ownsAnimationStateData = true;
-    _state = new (__FILE__, __LINE__) AnimationState(new (__FILE__, __LINE__) AnimationStateData(_skeleton->getData()));
+    _state                  = new (__FILE__, __LINE__) AnimationState(new (__FILE__, __LINE__) AnimationStateData(_skeleton->getData()));
     _state->setRendererObject(this);
     _state->setListener(animationCallback);
 }
 
-SkeletonAnimation::SkeletonAnimation()
-: SkeletonRenderer() {
-}
+SkeletonAnimation::SkeletonAnimation() = default;
 
 SkeletonAnimation::~SkeletonAnimation() {
-    _startListener = nullptr;
+    _startListener     = nullptr;
     _interruptListener = nullptr;
-    _endListener = nullptr;
-    _disposeListener = nullptr;
-    _completeListener = nullptr;
-    _eventListener = nullptr;
+    _endListener       = nullptr;
+    _disposeListener   = nullptr;
+    _completeListener  = nullptr;
+    _eventListener     = nullptr;
 
     if (_state) {
         clearTracks();
@@ -151,7 +144,7 @@ void SkeletonAnimation::setAnimationStateData(AnimationStateData *stateData) {
     }
 
     _ownsAnimationStateData = false;
-    _state = new (__FILE__, __LINE__) AnimationState(stateData);
+    _state                  = new (__FILE__, __LINE__) AnimationState(stateData);
     _state->setRendererObject(this);
     _state->setListener(animationCallback);
 }
@@ -163,23 +156,23 @@ void SkeletonAnimation::setMix(const std::string &fromAnimation, const std::stri
 }
 
 TrackEntry *SkeletonAnimation::setAnimation(int trackIndex, const std::string &name, bool loop) {
-    if (!_skeleton) return 0;
+    if (!_skeleton) return nullptr;
     Animation *animation = _skeleton->getData()->findAnimation(name.c_str());
     if (!animation) {
         CC_LOG_WARNING("Spine: Animation not found: %s", name.c_str());
-        return 0;
+        return nullptr;
     }
-    auto trackEntry = _state->setAnimation(trackIndex, animation, loop);
+    auto *trackEntry = _state->setAnimation(trackIndex, animation, loop);
     _state->apply(*_skeleton);
     return trackEntry;
 }
 
 TrackEntry *SkeletonAnimation::addAnimation(int trackIndex, const std::string &name, bool loop, float delay) {
-    if (!_skeleton) return 0;
+    if (!_skeleton) return nullptr;
     Animation *animation = _skeleton->getData()->findAnimation(name.c_str());
     if (!animation) {
         CC_LOG_WARNING("Spine: Animation not found: %s", name.c_str());
-        return 0;
+        return nullptr;
     }
     return _state->addAnimation(trackIndex, animation, loop, delay);
 }
@@ -221,6 +214,7 @@ TrackEntry *SkeletonAnimation::getCurrent(int trackIndex) {
 void SkeletonAnimation::clearTracks() {
     if (_state) {
         _state->clearTracks();
+        super::setToSetupPose();
     }
 }
 
@@ -255,7 +249,7 @@ void SkeletonAnimation::onAnimationStateEvent(TrackEntry *entry, EventType type,
 
 void SkeletonAnimation::onTrackEntryEvent(TrackEntry *entry, EventType type, Event *event) {
     if (!entry->getRendererObject()) return;
-    _TrackEntryListeners *listeners = (_TrackEntryListeners *)entry->getRendererObject();
+    auto *listeners = static_cast<TrackEntryListeners *>(entry->getRendererObject());
     switch (type) {
         case EventType_Start:
             if (listeners->startListener) listeners->startListener(entry);
@@ -302,27 +296,27 @@ void SkeletonAnimation::setEventListener(const EventListener &listener) {
     _eventListener = listener;
 }
 
-void SkeletonAnimation::setTrackStartListener(TrackEntry *entry, const StartListener &listener) {
+void SkeletonAnimation::setTrackStartListener(TrackEntry *entry, const StartListener &listener) { // NOLINT(readability-convert-member-functions-to-static)
     getListeners(entry)->startListener = listener;
 }
 
-void SkeletonAnimation::setTrackInterruptListener(TrackEntry *entry, const InterruptListener &listener) {
+void SkeletonAnimation::setTrackInterruptListener(TrackEntry *entry, const InterruptListener &listener) { // NOLINT(readability-convert-member-functions-to-static)
     getListeners(entry)->interruptListener = listener;
 }
 
-void SkeletonAnimation::setTrackEndListener(TrackEntry *entry, const EndListener &listener) {
+void SkeletonAnimation::setTrackEndListener(TrackEntry *entry, const EndListener &listener) { // NOLINT(readability-convert-member-functions-to-static)
     getListeners(entry)->endListener = listener;
 }
 
-void SkeletonAnimation::setTrackDisposeListener(TrackEntry *entry, const DisposeListener &listener) {
+void SkeletonAnimation::setTrackDisposeListener(TrackEntry *entry, const DisposeListener &listener) { // NOLINT(readability-convert-member-functions-to-static)
     getListeners(entry)->disposeListener = listener;
 }
 
-void SkeletonAnimation::setTrackCompleteListener(TrackEntry *entry, const CompleteListener &listener) {
+void SkeletonAnimation::setTrackCompleteListener(TrackEntry *entry, const CompleteListener &listener) { // NOLINT(readability-convert-member-functions-to-static)
     getListeners(entry)->completeListener = listener;
 }
 
-void SkeletonAnimation::setTrackEventListener(TrackEntry *entry, const EventListener &listener) {
+void SkeletonAnimation::setTrackEventListener(TrackEntry *entry, const EventListener &listener) { // NOLINT(readability-convert-member-functions-to-static)
     getListeners(entry)->eventListener = listener;
 }
 

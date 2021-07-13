@@ -44,6 +44,7 @@
 #include "gfx-base/GFXTexture.h"
 #include "scene/RenderScene.h"
 #include "scene/Sphere.h"
+#include "GlobalDescriptorSetManager.h"
 
 namespace cc {
 namespace pipeline {
@@ -73,6 +74,7 @@ RenderAdditiveLightQueue ::~RenderAdditiveLightQueue() {
     CC_SAFE_DELETE(_batchedQueue);
     CC_SAFE_DESTROY(_firstLightBufferView);
     CC_SAFE_DESTROY(_lightBuffer);
+    destroy();
 }
 
 void RenderAdditiveLightQueue::recordCommandBuffer(gfx::Device *device, gfx::RenderPass *renderPass, gfx::CommandBuffer *cmdBuffer) {
@@ -144,16 +146,13 @@ void RenderAdditiveLightQueue::gatherLightPasses(const scene::Camera *camera, gf
     _batchedQueue->uploadBuffers(cmdBuffer);
 }
 
-void RenderAdditiveLightQueue::destroy() {
+void RenderAdditiveLightQueue::destroy() const {
     for (auto &pair : _pipeline->getGlobalDSManager()->getDescriptorSetMap()) {
         auto *descriptorSet = pair.second;
         if (descriptorSet) {
-            descriptorSet->getBuffer(UBOShadow::BINDING)->destroy();
-            descriptorSet->getSampler(SHADOWMAP::BINDING)->destroy();
-            descriptorSet->getTexture(SHADOWMAP::BINDING)->destroy();
-            descriptorSet->getSampler(SPOTLIGHTINGMAP::BINDING)->destroy();
-            descriptorSet->getTexture(SPOTLIGHTINGMAP::BINDING)->destroy();
-            descriptorSet->destroy();
+            auto *shadowBuffer = descriptorSet->getBuffer(UBOShadow::BINDING);
+            CC_SAFE_DESTROY(shadowBuffer);
+            CC_SAFE_DESTROY(descriptorSet);
         }
     }
     _pipeline->getGlobalDSManager()->getDescriptorSetMap().clear();

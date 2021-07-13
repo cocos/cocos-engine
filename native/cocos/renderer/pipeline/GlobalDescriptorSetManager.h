@@ -45,7 +45,8 @@ public:
     ~GlobalDSManager() override = default;
 
     inline std::unordered_map<uint, gfx::DescriptorSet *> getDescriptorSetMap() const { return _descriptorSetMap; }
-    inline gfx::Sampler *                                 getShadowMapSampler() const { return _sampler; }
+    inline gfx::Sampler *                                 getLinearSampler() const { return _linearSampler; }
+    inline gfx::Sampler *                                 getPointSampler() const { return _pointSampler; }
     inline gfx::DescriptorSetLayout *                     getDescriptorSetLayout() const { return _descriptorSetLayout; }
     inline gfx::DescriptorSet *                           getGlobalDescriptorSet() const { return _globalDescriptorSet; }
 
@@ -63,7 +64,8 @@ protected:
 private:
     RenderPipeline *                               _pipeline            = nullptr;
     gfx::Device *                                  _device              = nullptr;
-    gfx::Sampler *                                 _sampler             = nullptr;
+    gfx::Sampler *                                 _linearSampler       = nullptr;
+    gfx::Sampler *                                 _pointSampler        = nullptr;
     gfx::DescriptorSetLayout *                     _descriptorSetLayout = nullptr;
     gfx::DescriptorSet *                           _globalDescriptorSet = nullptr;
     std::unordered_map<uint, gfx::DescriptorSet *> _descriptorSetMap{};
