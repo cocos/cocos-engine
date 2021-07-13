@@ -104,32 +104,32 @@ export class UIStaticBatch extends Renderable2D {
     }
 
     public updateAssembler (render: Batcher2D) {
-        // render.currIsStatic = true;
-        // if (this._dirty) {
-        //     render.finishMergeBatches();
-        //     this._lastMeshBuffer = render.currBufferBatch;
-        //     render.currBufferBatch = this._meshBuffer;
-        //     render.currStaticRoot = this;
-        // }
+        render.currIsStatic = true;
+        if (this._dirty) {
+            render.finishMergeBatches();
+            this._lastMeshBuffer = render.currBufferBatch;
+            render.currBufferBatch = this._meshBuffer;
+            render.currStaticRoot = this;
+        }
 
-        // if (this._init) {
-        //     render.finishMergeBatches();
-        //     render.commitStaticBatch(this);
-        // }
+        if (this._init) {
+            render.finishMergeBatches();
+            render.commitStaticBatch(this);
+        }
     }
 
     public postUpdateAssembler (render: Batcher2D) {
-        // if (this._dirty) {
-        //     render.finishMergeBatches();
-        //     render.currBufferBatch = this._lastMeshBuffer;
-        //     render.currStaticRoot = null;
-        //     this._dirty = false;
-        //     this._init = true;
-        //     this.node._static = true;
+        if (this._dirty) {
+            render.finishMergeBatches();
+            render.currBufferBatch = this._lastMeshBuffer;
+            render.currStaticRoot = null;
+            this._dirty = false;
+            this._init = true;
+            this.node._static = true;
 
-        //     this._meshBuffer!.uploadBuffers();
-        // }
-        // render.currIsStatic = false;
+            this._meshBuffer!.uploadBuffers();
+        }
+        render.currIsStatic = false;
     }
 
     /**

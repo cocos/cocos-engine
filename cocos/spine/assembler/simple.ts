@@ -177,52 +177,52 @@ export const simple: IAssembler = {
     },
 
     fillBuffers (comp: Skeleton, renderer: Batcher2D) {
-        // if (!comp || !comp.meshRenderDataArray) return;
-        // _comp = comp;
-        // const dataArray = comp.meshRenderDataArray;
-        // const node = comp.node;
+        if (!comp || !comp.meshRenderDataArray) return;
+        _comp = comp;
+        const dataArray = comp.meshRenderDataArray;
+        const node = comp.node;
 
-        // // 当前渲染的数据
-        // const data = dataArray[comp._meshRenderDataArrayIdx];
-        // const renderData = data.renderData;
+        // 当前渲染的数据
+        const data = dataArray[comp._meshRenderDataArrayIdx];
+        const renderData = data.renderData;
 
-        // let buffer = renderer.acquireBufferBatch(renderData.floatStride === 9 ? vfmtPosUvColor : vfmtPosUvTwoColor)!;
-        // let floatOffset = buffer.byteOffset >> 2;
-        // let indicesOffset = buffer.indicesOffset;
-        // let vertexOffset = buffer.vertexOffset;
+        let buffer = renderer.acquireBufferBatch(renderData.floatStride === 9 ? vfmtPosUvColor : vfmtPosUvTwoColor)!;
+        let floatOffset = buffer.byteOffset >> 2;
+        let indicesOffset = buffer.indicesOffset;
+        let vertexOffset = buffer.vertexOffset;
 
-        // const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        // if (!isRecreate) {
-        //     buffer = renderer.currBufferBatch!;
-        //     floatOffset = 0;
-        //     indicesOffset = 0;
-        //     vertexOffset = 0;
-        // }
+        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
+        if (!isRecreate) {
+            buffer = renderer.currBufferBatch!;
+            floatOffset = 0;
+            indicesOffset = 0;
+            vertexOffset = 0;
+        }
 
-        // const vBuf = buffer.vData!;
-        // const iBuf = buffer.iData!;
-        // const matrix = node.worldMatrix;
+        const vBuf = buffer.vData!;
+        const iBuf = buffer.iData!;
+        const matrix = node.worldMatrix;
 
-        // const srcVBuf = renderData.vData;
-        // const srcVIdx = renderData.vertexStart;
-        // const srcIBuf = renderData.iData;
+        const srcVBuf = renderData.vData;
+        const srcVIdx = renderData.vertexStart;
+        const srcIBuf = renderData.iData;
 
-        // // copy all vertexData
-        // const strideFloat = renderData.floatStride;
-        // vBuf.set(srcVBuf.subarray(srcVIdx, srcVIdx + renderData.vertexCount * strideFloat), floatOffset);
-        // for (let i = 0; i < renderData.vertexCount; i++) {
-        //     const pOffset = floatOffset + i * strideFloat;
-        //     _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
-        //     _vec3u_temp.transformMat4(matrix);
-        //     vBuf[pOffset] = _vec3u_temp.x;
-        //     vBuf[pOffset + 1] = _vec3u_temp.y;
-        //     vBuf[pOffset + 2] = _vec3u_temp.z;
-        // }
+        // copy all vertexData
+        const strideFloat = renderData.floatStride;
+        vBuf.set(srcVBuf.subarray(srcVIdx, srcVIdx + renderData.vertexCount * strideFloat), floatOffset);
+        for (let i = 0; i < renderData.vertexCount; i++) {
+            const pOffset = floatOffset + i * strideFloat;
+            _vec3u_temp.set(vBuf[pOffset], vBuf[pOffset + 1], vBuf[pOffset + 2]);
+            _vec3u_temp.transformMat4(matrix);
+            vBuf[pOffset] = _vec3u_temp.x;
+            vBuf[pOffset + 1] = _vec3u_temp.y;
+            vBuf[pOffset + 2] = _vec3u_temp.z;
+        }
 
-        // const srcIOffset = renderData.indicesStart;
-        // for (let i = 0; i < renderData.indicesCount; i += 1) {
-        //     iBuf[i + indicesOffset] = srcIBuf[i + srcIOffset] + vertexOffset;
-        // }
+        const srcIOffset = renderData.indicesStart;
+        for (let i = 0; i < renderData.indicesCount; i += 1) {
+            iBuf[i + indicesOffset] = srcIBuf[i + srcIOffset] + vertexOffset;
+        }
     },
 };
 

@@ -44,42 +44,42 @@ export const ParticleAssembler: IAssembler = {
     updateRenderData () {
     },
     fillBuffers (comp: ParticleSystem2D, renderer: Batcher2D) {
-        // if (comp === null) {
-        //     return;
-        // }
+        if (comp === null) {
+            return;
+        }
 
-        // const renderData = comp._simulator.renderData;
-        // if (renderData.vertexCount === 0 || renderData.indicesCount === 0) {
-        //     return;
-        // }
+        const renderData = comp._simulator.renderData;
+        if (renderData.vertexCount === 0 || renderData.indicesCount === 0) {
+            return;
+        }
 
-        // let buffer = renderer.acquireBufferBatch()!;
-        // let vertexOffset = buffer.byteOffset >> 2;
-        // let indicesOffset = buffer.indicesOffset;
-        // let vertexId = buffer.vertexOffset;
-        // const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
-        // if (!isRecreate) {
-        //     buffer = renderer.currBufferBatch!;
-        //     indicesOffset = 0;
-        //     vertexId = 0;
-        // }
+        let buffer = renderer.acquireBufferBatch()!;
+        let vertexOffset = buffer.byteOffset >> 2;
+        let indicesOffset = buffer.indicesOffset;
+        let vertexId = buffer.vertexOffset;
+        const isRecreate = buffer.request(renderData.vertexCount, renderData.indicesCount);
+        if (!isRecreate) {
+            buffer = renderer.currBufferBatch!;
+            indicesOffset = 0;
+            vertexId = 0;
+        }
 
-        // // buffer data may be realloc, need get reference after request.
-        // const vBuf = buffer.vData!;
-        // const iBuf = buffer.iData!;
+        // buffer data may be realloc, need get reference after request.
+        const vBuf = buffer.vData!;
+        const iBuf = buffer.iData!;
 
-        // const vData = renderData.vData;
-        // const iData = renderData.iData as number[];
+        const vData = renderData.vData;
+        const iData = renderData.iData as number[];
 
-        // const vLen = renderData.vertexCount * 9;
-        // for (let i = 0; i < vLen; i++) {
-        //     vBuf[vertexOffset++] = vData[i];
-        // }
+        const vLen = renderData.vertexCount * 9;
+        for (let i = 0; i < vLen; i++) {
+            vBuf[vertexOffset++] = vData[i];
+        }
 
-        // const iLen = renderData.indicesCount;
-        // for (let i = 0; i < iLen; i++) {
-        //     iBuf[indicesOffset++] = iData[i] + vertexId;
-        // }
+        const iLen = renderData.indicesCount;
+        for (let i = 0; i < iLen; i++) {
+            iBuf[indicesOffset++] = iData[i] + vertexId;
+        }
     },
 };
 
