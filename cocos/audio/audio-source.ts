@@ -218,6 +218,7 @@ export class AudioSource extends Component {
 
     public onDestroy () {
         this.stop();
+        this._player?.destroy();
     }
 
     private _getRootNode (): Node | null {
