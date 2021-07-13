@@ -3,11 +3,12 @@ declare module 'pal/minigame' {
     export interface IMiniGame {
         // platform related
         wx?: WeChatAPI;
+        tt?: ByteDanceAPI;
 
         // system
         isDevTool: boolean;
         isLandscape: boolean;
-        orientation: import('pal/system/enum-type').Orientation;
+        orientation: import('pal/screen-adapter/enum-type').Orientation;
         getSystemInfoSync(): SystemInfo;
         onShow(callback: () => void): void;
         offShow(callback: () => void): void;
@@ -79,6 +80,9 @@ declare module 'pal/minigame' {
         deltaX: number;
         deltaY: number;
         deltaZ: number;
+    }
+    interface ByteDanceAPI {
+        getAudioContext?: () => AudioContext;
     }
 
     export type AccelerometerIntervalMode = 'game' | 'ui' | 'normal';

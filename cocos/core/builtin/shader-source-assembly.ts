@@ -11,12 +11,12 @@ type ShaderSource = Record<string, string>[][];
  * The shader sources assembled in this build.
  */
 const assembly: Partial<Record<ShaderVersion, ShaderSource>> = (() => {
-    if (HTML5 || WECHAT) {
+    if (HTML5 || WECHAT || RUNTIME_BASED) {
         return {
             glsl1,
             glsl3,
         };
-    } else if (MINIGAME || RUNTIME_BASED) {
+    } else if (MINIGAME) {
         return {
             glsl1,
         };

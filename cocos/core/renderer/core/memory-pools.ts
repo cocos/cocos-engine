@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { DEBUG, JSB } from 'internal:constants';
+import { DEBUG } from 'internal:constants';
 import { NativeBufferPool } from './native-pools';
 
 const contains = (a: number[], t: number) => {
@@ -194,7 +194,8 @@ class BufferPool<P extends PoolType, E extends BufferManifest> implements IMemor
 export enum PoolType {
     // buffers
     NODE,
-    PASS
+    PASS,
+    AABB
 }
 
 export const NULL_HANDLE = 0 as unknown as IHandle<any>;
@@ -281,3 +282,25 @@ const PassViewDataMembers: BufferDataMembersManifest<typeof PassView> = {
 };
 
 export const PassPool = new BufferPool<PoolType.PASS, typeof PassView>(PoolType.PASS, PassViewDataType, PassViewDataMembers, PassView);
+
+export type AABBHandle = IHandle<PoolType.AABB>;
+
+export enum AABBView {
+    CENTER, // Vec3
+    HALFEXTENTS = 3, // Vec3
+    COUNT = 6
+}
+
+const AABBViewDataType: BufferDataTypeManifest<typeof AABBView> = {
+    [AABBView.CENTER]: BufferDataType.FLOAT32,
+    [AABBView.HALFEXTENTS]: BufferDataType.FLOAT32,
+    [AABBView.COUNT]: BufferDataType.NEVER,
+};
+
+const AABBViewDataMembers: BufferDataMembersManifest<typeof AABBView> = {
+    [AABBView.CENTER]: AABBView.HALFEXTENTS - AABBView.CENTER,
+    [AABBView.HALFEXTENTS]: AABBView.COUNT - AABBView.HALFEXTENTS,
+    [AABBView.COUNT]: 1,
+};
+
+export const AABBPool = new BufferPool<PoolType.AABB, typeof AABBView>(PoolType.AABB, AABBViewDataType, AABBViewDataMembers, AABBView);

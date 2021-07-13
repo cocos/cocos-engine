@@ -438,6 +438,7 @@ CCClass.fastDefine = function (className, constructor, serializableFields) {
         attrs[`${key + DELIMETER}default`] = serializableFields[key];
     }
 };
+
 CCClass.Attr = attributeUtils;
 CCClass.attr = attributeUtils.attr;
 

@@ -1,5 +1,5 @@
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
-import { AABB, Frustum } from '../../geometry';
+import { Frustum } from '../../geometry';
 import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader } from '../../gfx';
 import { Color, Mat4, Rect, Vec2 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
@@ -11,6 +11,11 @@ export const NativeNode: Constructor<{
 }> = null!;
 export type NativeNode = InstanceType<typeof NativeNode>;
 
+export const NativeAABB: Constructor<{
+    initWithData(data: TypedArray): void;
+}> = null!;
+export type NativeAABB = InstanceType<typeof NativeAABB>;
+
 export const NativeModel: Constructor<{
     setReceiveShadow (val: boolean): void;
     setEnabled (val: boolean): void;
@@ -19,9 +24,9 @@ export const NativeModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
-    setWolrdBounds (val: AABB | null): void;
+    setBounds (val: NativeAABB | null): void;
     addSubModel (val: NativeSubModel): void;
-    setInstmatWorldIdx (idx: number): void;
+    setInstMatWorldIdx (idx: number): void;
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
@@ -36,9 +41,9 @@ export const NativeSkinningModel: Constructor<{
     setNode (n: Node): void;
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
-    setWolrdBounds (val: AABB | null): void;
+    setBounds (val: NativeAABB | null): void;
     addSubModel (val: NativeSubModel): void;
-    setInstmatWorldIdx (idx: number): void;
+    setInstMatWorldIdx (idx: number): void;
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
     setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]);
@@ -47,6 +52,40 @@ export const NativeSkinningModel: Constructor<{
     updateLocalDescriptors(submodelIdx: number, descriptorSet: DescriptorSet);
 }> = null!;
 export type NativeSkinningModel = InstanceType<typeof NativeSkinningModel>;
+
+export const NativeBakedAnimInfo: Constructor<{
+    buffer: Buffer;
+    data: ArrayBuffer;
+    dirty: ArrayBuffer;
+}> = null!;
+export type NativeBakedAnimInfo = InstanceType<typeof NativeBakedAnimInfo>;
+
+export const NativeBakedJointInfo: Constructor<{
+    boundsInfo: NativeAABB[];
+    jointTextureInfo: ArrayBuffer;
+    animInfo: NativeBakedAnimInfo;
+    buffer: Buffer | null;
+}> = null!;
+export type NativeBakedJointInfo = InstanceType<typeof NativeBakedJointInfo>;
+
+export const NativeBakedSkinningModel: Constructor<{
+    setReceiveShadow (val: boolean): void;
+    setEnabled (val: boolean): void;
+    seVisFlag (val: number): void;
+    setTransform (n: Node): void;
+    setNode (n: Node): void;
+    setCastShadow (val: boolean): void;
+    setLocalBuffer (buf: Buffer | null): void;
+    setBounds (val: NativeAABB | null): void;
+    addSubModel (val: NativeSubModel): void;
+    setInstMatWorldIdx (idx: number): void;
+    setInstancedBuffer (buffer: ArrayBuffer): void;
+    setInstanceAttributes (attrs: Attribute[]): void;
+    setInstancedAttrBlock(buffer: ArrayBuffer, views: ArrayBuffer[], attrs: Attribute[]): void;
+    setJointMedium(isUploadAnim: boolean, jointInfo: NativeBakedJointInfo): void;
+    setAnimInfoIdx(idx: number): void;
+}> = null!;
+export type NativeBakedSkinningModel = InstanceType<typeof NativeBakedSkinningModel>;
 
 export const NativeLight: Constructor<{
     setType (type: LightType): void;
@@ -65,7 +104,7 @@ export type NativeDirectionalLight = InstanceType<typeof NativeDirectionalLight>
 
 export const NativeSphereLight: Constructor<{
     setPosition (pos: Vec3): void;
-    setAABB (aabb: AABB): void;
+    setAABB (aabb: NativeAABB): void;
     setSize (size: number): void;
     setRange (range: number): void;
     setIlluminance (lum: number): void;
@@ -75,7 +114,7 @@ export type NativeSphereLight = InstanceType<typeof NativeSphereLight>;
 export const NativeSpotLight: Constructor<{
     setDirection (dir: Vec3): void;
     setFrustum (frs: Frustum): void;
-    setAABB (aabb: AABB): void;
+    setAABB (aabb: NativeAABB): void;
     setPosition (pos: Vec3): void;
     setSize (size: number): void;
     setRange (range: number): void;
@@ -189,11 +228,12 @@ export const NativeRenderScene: Constructor<{
     removeSphereLights (): void;
     removeSpotLights (): void;
     addModel (m: NativeModel): void;
-    removeModel (m: NativeModel): void;
+    removeModel (i: number): void;
     removeModels (): void;
     addBatch (batch: NativeDrawBatch2D): void;
     updateBatches (batches: NativeDrawBatch2D[]): void;
     addSkinningModel (m: NativeModel): void;
+    addBakedSkinningModel(m: NativeModel): void;
     removeBatch (index: number): void;
     removeBatches (): void;
 }> = null!;
@@ -246,7 +286,7 @@ export const NativeJointTransform: Constructor<{
 export type NativeJointTransform = InstanceType<typeof NativeJointTransform>;
 
 export const NativeJointInfo: Constructor<{
-    bound: AABB;
+    bound: NativeAABB;
     target: Node;
     bindpose: Mat4;
     transform: NativeJointTransform | null;

@@ -112,16 +112,10 @@ export enum Feature {
     FORMAT_PVRTC,
     FORMAT_ASTC,
     FORMAT_RGB8,
-    MSAA,
     ELEMENT_INDEX_UINT,
     INSTANCED_ARRAYS,
     MULTIPLE_RENDER_TARGETS,
     BLEND_MINMAX,
-    DEPTH_BOUNDS,
-    LINE_WIDTH,
-    STENCIL_WRITE_MASK,
-    STENCIL_COMPARE_MASK,
-    MULTITHREADED_SUBMISSION,
     COMPUTE_SHADER,
     COUNT,
 }
@@ -405,13 +399,13 @@ export enum TextureFlagBit {
 }
 
 export enum SampleCount {
-    X1,
-    X2,
-    X4,
-    X8,
-    X16,
-    X32,
-    X64,
+    X1  = 0x1,
+    X2  = 0x2,
+    X4  = 0x4,
+    X8  = 0x8,
+    X16 = 0x10,
+    X32 = 0x20,
+    X64 = 0x40,
 }
 
 export enum Filter {
@@ -540,6 +534,14 @@ export enum AccessType {
     TRANSFER_WRITE,                 // Written as the destination of a transfer operation
     HOST_PREINITIALIZED,            // Data pre-filled by host before device access starts
     HOST_WRITE,                     // Written on the host
+}
+
+export enum ResolveMode {
+    NONE,
+    SAMPLE_ZERO,
+    AVERAGE,
+    MIN,
+    MAX,
 }
 
 export enum PipelineBindPoint {
@@ -1428,6 +1430,9 @@ export class SubpassInfo {
         public resolves: number[] = [],
         public preserves: number[] = [],
         public depthStencil: number = -1,
+        public depthStencilResolve: number = -1,
+        public depthResolveMode: ResolveMode = ResolveMode.NONE,
+        public stencilResolveMode: ResolveMode = ResolveMode.NONE,
     ) {}
 
     public copy (info: SubpassInfo) {
@@ -1436,6 +1441,9 @@ export class SubpassInfo {
         this.resolves = info.resolves.slice();
         this.preserves = info.preserves.slice();
         this.depthStencil = info.depthStencil;
+        this.depthStencilResolve = info.depthStencilResolve;
+        this.depthResolveMode = info.depthResolveMode;
+        this.stencilResolveMode = info.stencilResolveMode;
         return this;
     }
 }
@@ -1521,16 +1529,12 @@ export class FramebufferInfo {
         public renderPass: RenderPass = null!,
         public colorTextures: (Texture | null)[] = [],
         public depthStencilTexture: Texture | null = null,
-        public colorMipmapLevels: number[] = [],
-        public depthStencilMipmapLevel: number = 0,
     ) {}
 
     public copy (info: FramebufferInfo) {
         this.renderPass = info.renderPass;
         this.colorTextures = info.colorTextures.slice();
         this.depthStencilTexture = info.depthStencilTexture;
-        this.colorMipmapLevels = info.colorMipmapLevels.slice();
-        this.depthStencilMipmapLevel = info.depthStencilMipmapLevel;
         return this;
     }
 }

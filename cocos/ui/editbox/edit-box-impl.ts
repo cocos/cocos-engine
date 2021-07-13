@@ -31,13 +31,11 @@
  * @hidden
  */
 
-import { system } from 'pal/system';
 import { BitmapFont } from '../../2d/assets';
 import { director } from '../../core/director';
 import { game } from '../../core/game';
 import { Color, Mat4, Size, Vec3 } from '../../core/math';
-import { screen, view } from '../../core/platform';
-import { macro } from '../../core/platform/macro';
+import { KeyCode, screen, view } from '../../core/platform';
 import { contains } from '../../core/utils/misc';
 import { Label } from '../../2d/components/label';
 import { EditBox } from './edit-box';
@@ -48,7 +46,7 @@ import visibleRect from '../../core/platform/visible-rect';
 import { Node } from '../../core/scene-graph';
 import { EditBoxImplBase } from './edit-box-impl-base';
 import { legacyCC } from '../../core/global-exports';
-import { BrowserType, OS } from '../../../pal/system/enum-type';
+import { BrowserType, OS } from '../../../pal/system-info/enum-type';
 
 // https://segmentfault.com/q/1010000002914610
 const SCROLLY = 40;
@@ -69,7 +67,6 @@ export class EditBoxImpl extends EditBoxImplBase {
     public _inputFlag: InputFlag = -1;
     public _returnType: KeyboardReturnType = -1;
     public __eventListeners: any = {};
-    public __fullscreen = false;
     public __autoResize = false;
     public __orientationChanged: any;
     public _edTxt: HTMLInputElement | HTMLTextAreaElement | null = null;
@@ -105,7 +102,6 @@ export class EditBoxImpl extends EditBoxImplBase {
         this._registerEventListeners();
         this._addDomToGameContainer();
 
-        this.__fullscreen = view.isAutoFullScreenEnabled();
         this.__autoResize = view._resizeWithBrowserSize;
     }
 
@@ -225,15 +221,10 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _showDomOnMobile () {
-        if (system.os !== OS.ANDROID && system.os !== OS.OHOS) {
+        if (sys.os !== OS.ANDROID && sys.os !== OS.OHOS) {
             return;
         }
 
-        if (this.__fullscreen) {
-            view.enableAutoFullScreen(false);
-            // eslint-disable-next-line @typescript-eslint/no-floating-promises
-            screen.exitFullScreen();
-        }
         if (this.__autoResize) {
             view.resizeWithBrowserSize(false);
         }
@@ -242,18 +233,10 @@ export class EditBoxImpl extends EditBoxImplBase {
     }
 
     private _hideDomOnMobile () {
-        if (system.os === OS.ANDROID || system.os === OS.OHOS) {
+        if (sys.os === OS.ANDROID || sys.os === OS.OHOS) {
             if (this.__autoResize) {
                 view.resizeWithBrowserSize(true);
             }
-            // In case enter full screen when soft keyboard still showing
-            setTimeout(() => {
-                if (!_currentEditBoxImpl) {
-                    if (this.__fullscreen) {
-                        view.enableAutoFullScreen(true);
-                    }
-                }
-            }, DELAY_TIME);
         }
 
         this._scrollBackWindow();
@@ -269,7 +252,7 @@ export class EditBoxImpl extends EditBoxImplBase {
 
     private _scrollBackWindow () {
         setTimeout(() => {
-            if (system.browserType === BrowserType.WECHAT && system.os === OS.IOS) {
+            if (sys.browserType === BrowserType.WECHAT && sys.os === OS.IOS) {
                 if (window.top) {
                     window.top.scrollTo(0, 0);
                 }
@@ -571,7 +554,7 @@ export class EditBoxImpl extends EditBoxImplBase {
                             + `#${this._domId}::-ms-input-placeholder{text-transform: initial;-family: ${font};font-size: ${fontSize}px;color: ${fontColor};line-height: ${lineHeight}px;text-align: ${horizontalAlign};}`;
         // EDGE_BUG_FIX: hide clear button, because clearing input box in Edge does not emit input event
         // issue refference: https://github.com/angular/angular/issues/26307
-        if (system.browserType === BrowserType.EDGE) {
+        if (sys.browserType === BrowserType.EDGE) {
             styleEl!.innerHTML += `#${this._domId}::-ms-clear{display: none;}`;
         }
     }
@@ -616,14 +599,14 @@ export class EditBoxImpl extends EditBoxImplBase {
         };
 
         cbs.onKeydown = (e) => {
-            if (e.keyCode === macro.KEY.enter) {
+            if (e.keyCode === KeyCode.ENTER) {
                 e.propagationStopped = true;
                 this._delegate!._editBoxEditingReturn();
 
                 if (!this._isTextArea) {
                     elem.blur();
                 }
-            } else if (e.keyCode === macro.KEY.tab) {
+            } else if (e.keyCode === KeyCode.TAB) {
                 e.propagationStopped = true;
                 e.preventDefault();
 

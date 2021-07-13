@@ -555,6 +555,13 @@ exports.methods = {
     change(key, newValue) {
         this.dump.value[key].value = newValue;
         this.$refs.summitProp.dump = this.dump.value[key];
+
+        if ('values' in this.dump.value[key]) {
+            this.dump.value[key].values.forEach((val, index) => {
+                this.dump.value[key].values[index] = value;
+            });
+        }
+
         this.$refs.summitProp.dispatch('change-dump');
     },
 
@@ -588,21 +595,63 @@ exports.methods = {
             switch (type) {
                 case 'editorTop':
                     value.isAbsoluteTop.value = !value.isAbsoluteTop.value;
+
+                    if ('values' in value.isAbsoluteTop) {
+                        value.isAbsoluteTop.values.forEach((val, index) => {
+                            value.isAbsoluteTop.values[index] = value.isAbsoluteTop.value;
+                        });
+                    }
+
                     return { path: 'isAbsoluteTop', dump: value.isAbsoluteTop };
                 case 'editorBottom':
                     value.isAbsoluteBottom.value = !value.isAbsoluteBottom.value;
+
+                    if ('values' in value.isAbsoluteBottom) {
+                        value.isAbsoluteBottom.values.forEach((val, index) => {
+                            value.isAbsoluteBottom.values[index] = value.isAbsoluteBottom.value;
+                        });
+                    }
+
                     return { path: 'isAbsoluteBottom', dump: value.isAbsoluteBottom };
                 case 'editorLeft':
                     value.isAbsoluteLeft.value = !value.isAbsoluteLeft.value;
+
+                    if ('values' in value.isAbsoluteLeft) {
+                        value.isAbsoluteLeft.values.forEach((val, index) => {
+                            value.isAbsoluteLeft.values[index] = value.isAbsoluteLeft.value;
+                        });
+                    }
+
                     return { path: 'isAbsoluteLeft', dump: value.isAbsoluteLeft };
                 case 'editorRight':
                     value.isAbsoluteRight.value = !value.isAbsoluteRight.value;
+
+                    if ('values' in value.isAbsoluteRight) {
+                        value.isAbsoluteRight.values.forEach((val, index) => {
+                            value.isAbsoluteRight.values[index] = value.isAbsoluteRight.value;
+                        });
+                    }
+
                     return { path: 'isAbsoluteRight', dump: value.isAbsoluteRight };
                 case 'editorHorizontalCenter':
                     value.isAbsoluteHorizontalCenter.value = !value.isAbsoluteHorizontalCenter.value;
+
+                    if ('values' in value.isAbsoluteHorizontalCenter) {
+                        value.isAbsoluteHorizontalCenter.values.forEach((val, index) => {
+                            value.isAbsoluteHorizontalCenter.values[index] = value.isAbsoluteHorizontalCenter.value;
+                        });
+                    }
+
                     return { path: 'isAbsoluteHorizontalCenter', dump: value.isAbsoluteHorizontalCenter };
                 case 'editorVerticalCenter':
                     value.isAbsoluteVerticalCenter.value = !value.isAbsoluteVerticalCenter.value;
+
+                    if ('values' in value.isAbsoluteVerticalCenter) {
+                        value.isAbsoluteVerticalCenter.values.forEach((val, index) => {
+                            value.isAbsoluteVerticalCenter.values[index] = value.isAbsoluteVerticalCenter.value;
+                        });
+                    }
+
                     return { path: 'isAbsoluteVerticalCenter', dump: value.isAbsoluteVerticalCenter };
                 default:
                     break;
@@ -767,16 +816,37 @@ exports.methods = {
             if (dump.value.isAlignLeft.value !== horizontal.isAlignLeft.value) {
                 dump.value.isAlignLeft.value = horizontal.isAlignLeft.value;
                 this.$refs.summitProp.dump = dump.value.isAlignLeft;
+
+                if ('values' in dump.value.isAlignLeft) {
+                    dump.value.isAlignLeft.values.forEach((val, index) => {
+                        dump.value.isAlignLeft.values[index] = dump.value.isAlignLeft.value;
+                    });
+                }
+
                 this.$refs.summitProp.dispatch('change-dump');
             }
             if (dump.value.isAlignRight.value !== horizontal.isAlignRight.value) {
                 dump.value.isAlignRight.value = horizontal.isAlignRight.value;
                 this.$refs.summitProp.dump = dump.value.isAlignRight;
+
+                if ('values' in dump.value.isAlignRight) {
+                    dump.value.isAlignRight.values.forEach((val, index) => {
+                        dump.value.isAlignRight.values[index] = dump.value.isAlignRight.value;
+                    });
+                }
+
                 this.$refs.summitProp.dispatch('change-dump');
             }
             if (dump.value.isAlignHorizontalCenter.value !== horizontal.isAlignHorizontalCenter.value) {
                 dump.value.isAlignHorizontalCenter.value = horizontal.isAlignHorizontalCenter.value;
                 this.$refs.summitProp.dump = dump.value.isAlignHorizontalCenter;
+
+                if ('values' in dump.value.isAlignHorizontalCenter) {
+                    dump.value.isAlignHorizontalCenter.values.forEach((val, index) => {
+                        dump.value.isAlignHorizontalCenter.values[index] = dump.value.isAlignHorizontalCenter.value;
+                    });
+                }
+
                 this.$refs.summitProp.dispatch('change-dump');
             }
             this.dimensionHorizontal = this.getDimensionHorizontal();
@@ -786,16 +856,37 @@ exports.methods = {
             if (dump.value.isAlignTop.value !== vertical.isAlignTop.value) {
                 dump.value.isAlignTop.value = vertical.isAlignTop.value;
                 this.$refs.summitProp.dump = dump.value.isAlignTop;
+
+                if ('values' in dump.value.isAlignTop) {
+                    dump.value.isAlignTop.values.forEach((val, index) => {
+                        dump.value.isAlignTop.values[index] = dump.value.isAlignTop.value;
+                    });
+                }
+
                 this.$refs.summitProp.dispatch('change-dump');
             }
             if (dump.value.isAlignVerticalCenter.value !== vertical.isAlignVerticalCenter.value) {
                 dump.value.isAlignVerticalCenter.value = vertical.isAlignVerticalCenter.value;
                 this.$refs.summitProp.dump = dump.value.isAlignVerticalCenter;
+
+                if ('values' in dump.value.isAlignVerticalCenter) {
+                    dump.value.isAlignVerticalCenter.values.forEach((val, index) => {
+                        dump.value.isAlignVerticalCenter.values[index] = dump.value.isAlignVerticalCenter.value;
+                    });
+                }
+
                 this.$refs.summitProp.dispatch('change-dump');
             }
             if (dump.value.isAlignBottom.value !== vertical.isAlignBottom.value) {
                 dump.value.isAlignBottom.value = vertical.isAlignBottom.value;
                 this.$refs.summitProp.dump = dump.value.isAlignBottom;
+
+                if ('values' in dump.value.isAlignBottom) {
+                    dump.value.isAlignBottom.values.forEach((val, index) => {
+                        dump.value.isAlignBottom.values[index] = dump.value.isAlignBottom.value;
+                    });
+                }
+
                 this.$refs.summitProp.dispatch('change-dump');
             }
             this.dimensionVertical = this.getDimensionVertical();
@@ -830,6 +921,13 @@ exports.methods = {
         // Submit data
         this.dump.value._lockFlags.value = lockValue;
         this.$refs.summitProp.dump = this.dump.value._lockFlags;
+
+        if ('values' in this.dump.value._lockFlags) {
+            this.dump.value._lockFlags.values.forEach((val, index) => {
+                this.dump.value._lockFlags.values[index] = lockValue;
+            });
+        }
+
         this.$refs.summitProp.dispatch('change-dump');
     },
     isLock(direction) {

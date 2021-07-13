@@ -335,18 +335,6 @@ class CallbackTimer {
  * @class Scheduler
  */
 export class Scheduler extends System {
-    /**
-     * @en Priority level reserved for system services.
-     * @zh 系统服务的优先级。
-     */
-    public static PRIORITY_SYSTEM: number = 1 << 31;
-
-    /**
-     * @en Minimum priority level for user scheduling.
-     * @zh 用户调度最低优先级。
-     */
-    public static PRIORITY_NON_SYSTEM: number = Scheduler.PRIORITY_SYSTEM + 1;
-
     public static ID = 'scheduler';
 
     private _timeScale: number;
@@ -686,8 +674,7 @@ export class Scheduler extends System {
             return;
         }
 
-        const self = this;
-        const element = self._hashForTimers[targetId];
+        const element = this._hashForTimers[targetId];
         if (element) {
             const timers = element.timers;
             for (let i = 0, li = timers.length; i < li; i++) {
@@ -704,10 +691,10 @@ export class Scheduler extends System {
                     }
 
                     if (timers.length === 0) {
-                        if (self._currentTarget === element) {
-                            self._currentTargetSalvaged = true;
+                        if (this._currentTarget === element) {
+                            this._currentTargetSalvaged = true;
                         } else {
-                            self._removeHashElement(element);
+                            this._removeHashElement(element);
                         }
                     }
                     return;
@@ -792,7 +779,7 @@ export class Scheduler extends System {
      * 不要调用此函数，除非你确定你在做什么。
      */
     public unscheduleAll () {
-        this.unscheduleAllWithMinPriority(legacyCC.Scheduler.PRIORITY_SYSTEM);
+        this.unscheduleAllWithMinPriority(System.Priority.SCHEDULER);
     }
 
     /**
@@ -863,7 +850,7 @@ export class Scheduler extends System {
      * @param target The target of the callback.
      * @return True if the specified callback is invoked, false if not.
      */
-    public isScheduled (callback, target:ISchedulable) {
+    public isScheduled (callback, target:ISchedulable) : boolean {
         // key, target
         // selector, target
         assertID(callback, 1508);
@@ -871,7 +858,7 @@ export class Scheduler extends System {
         const targetId = target.uuid || target.id;
         if (!targetId) {
             errorID(1510);
-            return;
+            return false;
         }
 
         const element = this._hashForTimers[targetId];
@@ -904,7 +891,7 @@ export class Scheduler extends System {
      * 不要调用这个方法，除非你知道你正在做什么。
      */
     public pauseAllTargets () {
-        return this.pauseAllTargetsWithMinPriority(legacyCC.Scheduler.PRIORITY_SYSTEM);
+        return this.pauseAllTargetsWithMinPriority(System.Priority.SCHEDULER);
     }
 
     /**
@@ -919,9 +906,8 @@ export class Scheduler extends System {
     public pauseAllTargetsWithMinPriority (minPriority: number) {
         const idsWithSelectors: any = [];
 
-        const self = this;
         let element;
-        const locArrayForTimers = self._arrayForTimers;
+        const locArrayForTimers = this._arrayForTimers;
         let i;
         let li;
         // Custom Selectors
@@ -1008,14 +994,13 @@ export class Scheduler extends System {
         }
 
         // customer selectors
-        const self = this;
-        const element = self._hashForTimers[targetId];
+        const element = this._hashForTimers[targetId];
         if (element) {
             element.paused = true;
         }
 
         // update callback
-        const elementUpdate = self._hashForUpdates[targetId];
+        const elementUpdate = this._hashForUpdates[targetId];
         if (elementUpdate) {
             elementUpdate.entry.paused = true;
         }
@@ -1041,14 +1026,13 @@ export class Scheduler extends System {
         }
 
         // custom selectors
-        const self = this;
-        const element = self._hashForTimers[targetId];
+        const element = this._hashForTimers[targetId];
         if (element) {
             element.paused = false;
         }
 
         // update callback
-        const elementUpdate = self._hashForUpdates[targetId];
+        const elementUpdate = this._hashForUpdates[targetId];
         if (elementUpdate) {
             elementUpdate.entry.paused = false;
         }
@@ -1095,8 +1079,7 @@ export class Scheduler extends System {
 
     private _removeUpdateFromHash (entry) {
         const targetId = entry.target.uuid || entry.target.id;
-        const self = this;
-        const element = self._hashForUpdates[targetId];
+        const element = this._hashForUpdates[targetId];
         if (element) {
             // Remove list entry from list
             const list = element.list;
@@ -1108,7 +1091,7 @@ export class Scheduler extends System {
                 }
             }
 
-            delete self._hashForUpdates[targetId];
+            delete this._hashForUpdates[targetId];
             ListEntry.put(listEntry);
             HashUpdateEntry.put(element);
         }

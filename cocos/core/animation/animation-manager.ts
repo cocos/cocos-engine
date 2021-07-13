@@ -57,7 +57,7 @@ export class AnimationManager extends System {
     private _anims = new MutableForwardIterator<AnimationState>([]);
     private _crossFades = new MutableForwardIterator<CrossFade>([]);
     private _delayEvents: {
-        fn: Function;
+        fn: (...args: any[]) => void;
         thisArg: any;
         args: any[];
     }[] = [];
@@ -134,7 +134,7 @@ export class AnimationManager extends System {
         }
     }
 
-    public pushDelayEvent (fn: Function, thisArg: any, args: any[]) {
+    public pushDelayEvent (fn: (...args: any[]) => void, thisArg: any, args: any[]) {
         this._delayEvents.push({
             fn,
             thisArg,
@@ -172,7 +172,7 @@ export class AnimationManager extends System {
 
 director.on(Director.EVENT_INIT, () => {
     const animationManager = new AnimationManager();
-    director.registerSystem(AnimationManager.ID, animationManager, Scheduler.PRIORITY_SYSTEM);
+    director.registerSystem(AnimationManager.ID, animationManager, System.Priority.HIGH);
 });
 
 legacyCC.AnimationManager = AnimationManager;

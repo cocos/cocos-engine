@@ -1,9 +1,8 @@
 import { ALIPAY, BAIDU, BYTEDANCE, COCOSPLAY, HUAWEI, LINKSURE, OPPO, QTT, VIVO, WECHAT, XIAOMI, DEBUG, EDITOR, TEST } from 'internal:constants';
-import { SafeAreaEdge, SupportCapability } from 'pal/system';
+import { SupportCapability } from 'pal/system-info';
 import { minigame } from 'pal/minigame';
-import { Size } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, NetworkType, Orientation, OS, Platform, AppEvent, Language } from '../enum-type';
+import { BrowserType, NetworkType, OS, Platform, Language } from '../enum-type';
 
 // NOTE: register minigame platform here
 let currentPlatform: Platform;
@@ -31,7 +30,7 @@ if (WECHAT) {
     currentPlatform = Platform.QTT_MINI_GAME;
 }
 
-class System {
+class SystemInfo extends EventTarget {
     public readonly networkType: NetworkType;
     public readonly isNative: boolean;
     public readonly isBrowser: boolean;
@@ -48,9 +47,8 @@ class System {
     public readonly pixelRatio: number;
     public readonly supportCapability: SupportCapability;
 
-    private _eventTarget: EventTarget = new EventTarget();
-
     constructor () {
+        super();
         const minigameSysInfo = minigame.getSystemInfoSync();
         this.networkType = NetworkType.LAN;  // TODO
         this.isNative = false;
@@ -117,49 +115,14 @@ class System {
     }
 
     private _registerEvent () {
-        // TODO: onResize or onOrientationChange is not supported well
         minigame.onHide(() => {
-            this._eventTarget.emit(AppEvent.HIDE);
+            this.emit('hide');
         });
         minigame.onShow(() => {
-            this._eventTarget.emit(AppEvent.SHOW);
+            this.emit('show');
         });
     }
 
-    public getViewSize (): Size {
-        const sysInfo = minigame.getSystemInfoSync();
-        return new Size(sysInfo.screenWidth, sysInfo.screenHeight);
-    }
-    public getOrientation (): Orientation {
-        return minigame.orientation;
-    }
-    public getSafeAreaEdge (): SafeAreaEdge {
-        const minigameSafeArea = minigame.getSafeArea();
-        const viewSize = this.getViewSize();
-        let topEdge = minigameSafeArea.top;
-        let bottomEdge = viewSize.height - minigameSafeArea.bottom;
-        let leftEdge = minigameSafeArea.left;
-        let rightEdge = viewSize.width - minigameSafeArea.right;
-        const orientation = this.getOrientation();
-        // Make it symmetrical.
-        if (orientation === Orientation.PORTRAIT) {
-            if (topEdge < bottomEdge) {
-                topEdge = bottomEdge;
-            } else {
-                bottomEdge = topEdge;
-            }
-        } else if (leftEdge < rightEdge) {
-            leftEdge = rightEdge;
-        } else {
-            rightEdge = leftEdge;
-        }
-        return {
-            top: topEdge,
-            bottom: bottomEdge,
-            left: leftEdge,
-            right: rightEdge,
-        };
-    }
     public getBatteryLevel (): number {
         return minigame.getBatteryInfoSync().level / 100;
     }
@@ -187,38 +150,6 @@ class System {
     public close () {
         // TODO: minigame.exitMiniProgram() not implemented.
     }
-
-    public onHide (cb: () => void) {
-        this._eventTarget.on(AppEvent.HIDE, cb);
-    }
-    public onShow (cb: () => void) {
-        this._eventTarget.on(AppEvent.SHOW, cb);
-    }
-    public onClose (cb: () => void) {
-        this._eventTarget.on(AppEvent.CLOSE, cb);
-    }
-    public onViewResize (cb: () => void) {
-        this._eventTarget.on(AppEvent.RESIZE, cb);
-    }
-    public onOrientationChange (cb: () => void) {
-        this._eventTarget.on(AppEvent.ORIENTATION_CHANGE, cb);
-    }
-
-    public offHide (cb?: () => void) {
-        this._eventTarget.off(AppEvent.HIDE, cb);
-    }
-    public offShow (cb?: () => void) {
-        this._eventTarget.off(AppEvent.SHOW, cb);
-    }
-    public offClose (cb?: () => void) {
-        this._eventTarget.off(AppEvent.CLOSE, cb);
-    }
-    public offViewResize (cb?: () => void) {
-        this._eventTarget.off(AppEvent.RESIZE, cb);
-    }
-    public offOrientationChange (cb?: () => void) {
-        this._eventTarget.off(AppEvent.ORIENTATION_CHANGE, cb);
-    }
 }
 
-export const system = new System();
+export const systemInfo = new SystemInfo();
