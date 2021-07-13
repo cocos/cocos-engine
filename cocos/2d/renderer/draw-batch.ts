@@ -42,7 +42,7 @@ import { legacyCC } from '../../core/global-exports';
 import { UILocalBuffer, UILocalUBOManger } from './render-uniform-buffer';
 import { Pass } from '../../core/renderer/core/pass';
 import { Renderable2D, UITransform } from '../framework';
-import { Sprite } from '../components';
+import { Label, Sprite } from '../components';
 import { director, RecyclePool, Vec2, Vec4 } from '../../core';
 import { Vec3 } from '../../core/math/vec3';
 import { TransformBit } from '../../core/scene-graph/node-enum';
@@ -50,7 +50,7 @@ import { SpriteType } from '../components/sprite';
 import { NativeDrawBatch2D, NativePass } from '../../core/renderer/scene';
 
 const UI_VIS_FLAG = Layers.Enum.NONE | Layers.Enum.UI_3D;
-const EPSILON = 1/4096; // ulp(2049)
+const EPSILON = 1 / 4096; // ulp(2049)
 
 export class DrawCall {
     // UBO info
@@ -265,10 +265,11 @@ export class DrawBatch2D {
         // 对于 fillBuffer 来说实际上是不需要 dirty 的，fillBuffer 的 dirty 即为全部更新的 dirty
         // 且在 fillBuffer 结束之后，全部的 dirty 为 false 状态
         if (mode === SpriteType.SLICED) {
-            sprite._calculateSlicedData();
+            // 确保已经更新了 contextSize
+            sprite._calculateSlicedData(); // 会被 rect 影响
             this._packageSlicedData(sprite.slicedData, frame.slicedData);
         } else if (mode === SpriteType.TILED) {
-            sprite.calculateTiledData();
+            sprite.calculateTiledData(); // 会被 rect 影响
             this.tiledCache.x = sprite.tiledData.x;
             this.tiledCache.y = sprite.tiledData.y;
         } else if (mode === SpriteType.FILLED) {
@@ -299,6 +300,7 @@ export class DrawBatch2D {
         // T 为 w h O 为右上的 XY 四个数字
         const to = frame.tillingOffset;
         const fillType = sprite.fillType / 10 + 0.01; // 给 progress 预留 // 处理浮点数误差
+        // 这儿得处理一个级联
         const c = renderComp.color;
 
         // 每个对象占用的 vec4 数量
@@ -343,6 +345,7 @@ export class DrawBatch2D {
         // dc.drawInfo.indexCount += 6;
     }
 
+    // DrawCall 很难进行缓存，双层结构导致了它的上下层变化都需要 dirty
     public fillDrawCall (bufferInfo, localBuffer: UILocalBuffer) {
         // 能同 drawCall 的条件： UBOIndex 相同，ubohash 相同
         let dc = this._drawcalls[this._dcIndex];
@@ -378,28 +381,85 @@ export class DrawBatch2D {
     // progress
     // color
     // tiledCache
+    // 宗旨是将 node 上的 TRS 和其他的数据分离开
     public updateBuffer (renderComp: Renderable2D, bufferInfo, localBuffer: UILocalBuffer) {
-        // 更新之前是可以知道哪个更了的
-        // 不过可能需要用事件，因为可能被编辑器先更新了
-        renderComp.node.updateWorldTransform();
-        this._tempRect = renderComp.node._uiProps.uiTransformComp!;
-        // 开始的偏移量 可以根据需求来填充了
-        // @ts-expect-error using private members
-        const { _pos: t, _rot: r, _scale: s } = renderComp.node;
-        // dirty 的条件就到这里为止了
-        // 更新可以放到类里
+        // 更新 TRS
+        if (renderComp.node.hasChangedFlags || renderComp.node._uiProps.uiTransformComp!._rectDirty) {
+            // 更新之前是可以知道哪个更了的
+            const node = renderComp.node;
+            node.updateWorldTransform();
+            // 更新完成 node 上的节点之后，希望能够进行 render 中的数据更新
+            // 有哪些呢，看 fillBuffer
+            // 这个 dirty 由其他一个 dirty 组成，UIRect 的 rectDirty（需要）
+            // rectDirty 比较烦，甚至在之后的 uvEX 中都会使用
+            // 合成没问题，但是可能需要能够反解
+            // renderData 延迟到帧末尾执行的原因是避免在同一帧内多次变更
+            // 还可以保留这个机制，然后更新时不做置位，最后用完了之后才进行置位
+            this._tempRect = node._uiProps.uiTransformComp!;
+            // 开始的偏移量 可以根据需求来填充了
+            // @ts-expect-error using private members
+            const { _pos: t, _rot: r, _scale: s } = renderComp.node;
+            // dirty 的条件就到这里为止了
+            // 更新可以放到类里
 
-        const dirty = this._tempRect._renderdataDirty;
-        this._tempRect.checkAndUpdateRect(s); // 检查下要不要更新
-        this._tempAnchor.set(this._tempRect._anchorCache);
-        this._tempPosition.x = t.x + this._tempAnchor.x;
-        this._tempPosition.y = t.y + this._tempAnchor.y;
-        this._tempPosition.z = t.z;
-        if (dirty & TransformBit.RS) {
-            localBuffer.updateDataByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex, this._tempPosition, r, this._tempRect._rectWithScale);
-        } else {
-            // 只更新position
-            localBuffer.updateDataByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex, this._tempPosition);
+            this._tempRect.checkAndUpdateRect(s); // 检查下要不要更新
+            this._tempAnchor.set(this._tempRect._anchorCache);
+            this._tempPosition.x = t.x + this._tempAnchor.x;
+            this._tempPosition.y = t.y + this._tempAnchor.y;
+            this._tempPosition.z = t.z;
+            if (node.hasChangedFlags & TransformBit.RS) {
+                localBuffer.updateDataTRSByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex, this._tempPosition, r, this._tempRect._rectWithScale);
+            } else {
+                // 只更新position
+                localBuffer.updateDataTRSByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex, this._tempPosition);
+            }
+        }
+        // 更新 RenderData
+        if (renderComp._renderDataDirty) {
+            // 这儿得处理一个级联
+            const c = renderComp.color;
+            let mode = 0;
+            let fillType = 0;
+            let frame;
+            let to;
+            if (renderComp instanceof Sprite || renderComp instanceof Label) {
+                frame = renderComp.spriteFrame;
+                to = frame.tillingOffset;
+            }
+            if (renderComp instanceof Sprite) {
+                fillType = renderComp.fillType / 10 + 0.01;
+                mode = renderComp.type;
+                if (mode === SpriteType.SLICED) {
+                    // 确保已经更新了 contextSize
+                    renderComp._calculateSlicedData(); // 会被 rect 影响
+                    this._packageSlicedData(renderComp.slicedData, frame.slicedData);
+                } else if (mode === SpriteType.TILED) {
+                    renderComp.calculateTiledData(); // 会被 rect 影响
+                    this.tiledCache.x = renderComp.tiledData.x;
+                    this.tiledCache.y = renderComp.tiledData.y;
+                } else if (mode === SpriteType.FILLED) {
+                    let start = renderComp.fillStart;
+                    const range = renderComp.fillRange;
+                    let end;
+                    if (renderComp.fillType === 2) { // RADIAL
+                        // 范围界定到 0-1 start < end
+                        // start 取值为 [-1,1] 先处理下
+                        this.tiledCache.x = start > 0.5 ? start * 2 - 2 : start * 2;
+                        this.tiledCache.y = range * 2;
+                        this.tiledCache.z = renderComp.fillCenter.x;
+                        this.tiledCache.w = 1 - renderComp.fillCenter.y;
+                    } else {
+                        end = Math.min(1, start + range);
+                        if (range < 0) {
+                            end = start;
+                            start = Math.max(0, renderComp.fillStart + range);
+                        }
+                        this.tiledCache.x = start;
+                        this.tiledCache.y = end;
+                    }
+                }
+            }
+            localBuffer.updateDataByDirty(bufferInfo.instanceID, bufferInfo.UBOIndex, c, mode, to, this.tiledCache, fillType);
         }
     }
 

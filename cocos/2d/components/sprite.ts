@@ -231,7 +231,8 @@ export class Sprite extends Renderable2D {
         }
         // hack for sprite frame animation
         // 正确做法是同 TRS 一样只更新部分 buffer(UV)
-        director.root!.batcher2D.reloadBatchDirty = true;
+        // director.root!.batcher2D.reloadBatchDirty = true;
+        // 这儿不用了，应该在 renderDataDirty 里会更新
     }
 
     /**

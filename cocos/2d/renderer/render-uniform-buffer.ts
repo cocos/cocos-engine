@@ -146,7 +146,7 @@ export class UILocalBuffer {
         this._prevInstanceID = -1;
     }
 
-    updateDataByDirty (instanceID: number, UBOIndex: number, t: Vec3, r?: Quat, s?: Vec3) {
+    updateDataTRSByDirty (instanceID: number, UBOIndex: number, t: Vec3, r?: Quat, s?: Vec3) {
         let offset = instanceID * this._vec4PerUI * 4 + this._uniformBufferElementCount * UBOIndex;
         const data = this._uniformBufferData;
         data[offset + 0] = t.x;
@@ -163,6 +163,27 @@ export class UILocalBuffer {
             offset += 4;
             data[offset + 0] = s.x;
             data[offset + 1] = s.y;
+        }
+    }
+
+    updateDataByDirty (instanceID: number, UBOIndex: number, c: Color, mode: number, to: number[], uvExtra: Vec4, fillType: number) {
+        let offset = instanceID * this._vec4PerUI * 4 + this._uniformBufferElementCount * UBOIndex;
+        const data = this._uniformBufferData;
+        data[offset + 3] = c.r + Math.min(c.y, 0.999);
+        offset += 8;
+        data[offset + 2] = c.b + Math.min(c.w, 0.999);
+        data[offset + 3] = mode + Math.min(fillType, 0.999);
+        offset += 4;
+        data[offset + 0] = to[0];
+        data[offset + 1] = to[1];
+        data[offset + 2] = to[2];
+        data[offset + 3] = to[3];
+        offset += 4;
+        if (mode > 0) {
+            data[offset + 0] = uvExtra.x;
+            data[offset + 1] = uvExtra.y;
+            data[offset + 2] = uvExtra.z;
+            data[offset + 3] = uvExtra.w;
         }
     }
 }

@@ -80,8 +80,6 @@ export class NodeUIProperties {
     protected _uiTransformComp: UITransform | null = null;
     private _node: any;
 
-    public UITransformDirty = TransformBit.NONE;
-
     constructor (node: any) {
         this._node = node;
     }

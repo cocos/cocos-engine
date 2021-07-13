@@ -671,7 +671,6 @@ export class UITransform extends Component {
     // node 的 TRS Transform 的 rect sprite 的 renderData
     // 先放这里是因为这儿能访问到
     // 或者放到 uiPros 里？
-    public _renderdataDirty = 0; // 最好存位运算，能还原数据
 
     public checkAndUpdateRect (scale: Vec3) {
         if (this._rectDirty) {
@@ -686,12 +685,12 @@ export class UITransform extends Component {
             this._anchorCache.x = (lenX) * Math.cos(eulerZ) - (lenY) * Math.sin(eulerZ);
             this._anchorCache.y = (lenX) * Math.sin(eulerZ) + (lenY) * Math.cos(eulerZ);
 
-            this._rectDirty = false;
+            // 后面要用的话就先别置位
+            // this._rectDirty = false;
         }
     }
 
     public setRectDirty (transformBit: TransformBit) {
-        this._renderdataDirty = transformBit;
         if (transformBit & TransformBit.RS) {
             this._rectDirty = true;
         }

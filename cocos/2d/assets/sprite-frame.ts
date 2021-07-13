@@ -1313,6 +1313,7 @@ export class SpriteFrame extends Asset {
 
     private _calculateTillingOffset () {
         // Todo：可能由于模式不同而被影响
+        // 可能需要处理旋转
         this.tillingOffset[0] = (this.uv[2] - this.uv[0]);
         this.tillingOffset[1] = (this.uv[1] - this.uv[5]);
         this.tillingOffset[2] = (this.uv[4]);

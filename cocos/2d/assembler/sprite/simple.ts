@@ -143,7 +143,6 @@ export const simple: IAssembler = {
             vData[27] = ar + cttx;
             vData[28] = br + dtty;
         }
-        node._uiProps.UITransformDirty = TransformBit.NONE;
     },
 
     fillBuffers (sprite: Sprite, renderer: Batcher2D) {
@@ -152,6 +151,8 @@ export const simple: IAssembler = {
         // }
 
         // const vData = sprite.renderData!.vData!;
+        // // 这里是认为在 updateRenderData 的时候已经进行了更新
+        // // 也确实做过了更新
         // if (sprite.node._uiProps.UITransformDirty) {
         //     this.updateWorldVerts(sprite, vData);
         // }

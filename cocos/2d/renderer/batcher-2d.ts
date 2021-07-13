@@ -210,7 +210,6 @@ export class Batcher2D {
             }
             this._recursiveScreenNode(screen.node);
         }
-        // this.reloadBatchDirty = false;
 
         let batchPriority = 0;
         if (this._batches.length) {
@@ -350,27 +349,34 @@ export class Batcher2D {
         // 考虑合并
         // 为什么不直接使用 node._dirtyFlag 由于会被 gizmo 提前更新置位掉，这里想要使用的时候位就空了
         const uiPros = comp.node._uiProps;
-        if (uiPros.UITransformDirty) {
-            uiPros.uiTransformComp!.setRectDirty(uiPros.UITransformDirty);
-            uiPros.UITransformDirty = TransformBit.NONE;
+        if (comp.node.hasChangedFlags) {
+            uiPros.uiTransformComp!.setRectDirty(comp.node.hasChangedFlags);
         }
-
         // 这个可以优化为执行不同函数？？ // 最好执行不同的函数 // 还有个 dirty 需要的，更新用的
         let bufferInfo: IRenderItem;
         let localBuffer;
         if (this.reloadBatchDirty) {
+            // 由于节点树顺序发生变化，导致 buffer 中的数据发生变化，所以全部重新录制
+            // 没有集中处理的必要
+            // 全部信息都在此
             this._currBatch.fillBuffers(comp, this._localUBOManager, mat, this);
             bufferInfo = this.renderQueue[this._currWalkIndex];
             localBuffer = bufferInfo.localBuffer;
+            this._resetRenderDirty(comp);
+        } else if (comp.node.hasChangedFlags || uiPros.uiTransformComp!._rectDirty || comp._renderDataDirty) {
+            // 需要考虑的是，此处的更新的 dirty
+            // 这里的更新，可以没有世界坐标的变化
+            bufferInfo = this.renderQueue[this._currWalkIndex];
+            localBuffer = bufferInfo.localBuffer;
+
+            // 全局的 dirty 因为只有上传和不上传两种状态
+            this.updateBufferDirty = true; // 决定要不要上传 buffer 的 dirty
+            this._currBatch.updateBuffer(comp, bufferInfo, localBuffer);
+            // 更新数据即可 // 需要利用组件的各种 dirty 来判断是否要更新，类似于 renderDataDirty
+            this._resetRenderDirty(comp);
         } else {
             bufferInfo = this.renderQueue[this._currWalkIndex];
             localBuffer = bufferInfo.localBuffer;
-            // @ts-expect-error TS2445
-            if (comp.node._dirtyFlags || uiPros.uiTransformComp!._rectDirty) { // 暂时先利用这个 flag
-                this.updateBufferDirty = true; // 决定要不要上传 buffer 的 dirty
-                this._currBatch.updateBuffer(comp, bufferInfo, localBuffer);
-            }
-            // 更新数据即可 // 需要利用组件的各种 dirty 来判断是否要更新，类似于 renderDataDirty
         }
         this._currBatch.fillDrawCall(bufferInfo, localBuffer);
         ++this._currWalkIndex;
@@ -619,6 +625,11 @@ export class Batcher2D {
 
     private _releaseDescriptorSetCache (textureHash: number) {
         this._descriptorSetCache.releaseDescriptorSetCache(textureHash);
+    }
+
+    private _resetRenderDirty (comp: Renderable2D) {
+        comp._renderDataDirty = false;
+        comp.node._uiProps.uiTransformComp!._rectDirty = false;
     }
 }
 

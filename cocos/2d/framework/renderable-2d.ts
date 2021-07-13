@@ -312,6 +312,8 @@ export class Renderable2D extends RenderableComponent {
     protected _colorDirty = true;
     protected _cacheAlpha = 1;
 
+    public _renderDataDirty = true;
+
     get blendHash () {
         return this._blendHash;
     }
@@ -448,6 +450,7 @@ export class Renderable2D extends RenderableComponent {
         if (this._renderDataFlag) {
             this._assembler!.updateRenderData!(this);
             this._renderDataFlag = false;
+            this._renderDataDirty = true;
         }
     }
 
