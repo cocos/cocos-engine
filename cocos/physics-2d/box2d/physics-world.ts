@@ -99,6 +99,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             node.hideFlags |= CCObject.Flags.DontSave;
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
+            node.layer = Layers.Enum.UI_2D;
 
             this._debugGraphics = node.addComponent(Graphics);
             this._debugGraphics.lineWidth = 2;
