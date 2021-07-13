@@ -307,7 +307,6 @@ void GLES3CommandBuffer::copyBuffersToTexture(const uint8_t *const *buffers, Tex
     if (gpuTexture) {
         GLES3CmdCopyBufferToTexture *cmd = _cmdAllocator->copyBufferToTextureCmdPool.alloc();
         cmd->gpuTexture                  = gpuTexture;
-        cmd->gpuTexture                  = gpuTexture;
         cmd->regions                     = regions;
         cmd->count                       = count;
         cmd->buffers                     = buffers;
