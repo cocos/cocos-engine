@@ -327,7 +327,7 @@ export class Game extends EventTarget {
      * @en The delta time since last frame, unit: s.
      * @zh 获取上一帧的增量时间，以秒为单位。
      */
-     public get deltaTime () {
+    public get deltaTime () {
         return this._deltaTime;
     }
 
@@ -351,7 +351,7 @@ export class Game extends EventTarget {
      * @en The expected delta time of each frame
      * @zh 期望帧率对应的每帧时间
      */
-    public frameTime = 1000/60;
+    public frameTime = 1000 / 60;
 
     public collisionMatrix = [];
     public groupList: any[] = [];
@@ -427,6 +427,7 @@ export class Game extends EventTarget {
      */
     public resume () {
         if (!this._paused) { return; }
+        inputManager.clearEvents();
         if (this._intervalId) {
             window.cAF(this._intervalId);
             this._intervalId = 0;

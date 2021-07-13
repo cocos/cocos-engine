@@ -734,12 +734,12 @@ export class Director extends EventTarget {
     public tick (dt: number) {
         if (!this._invalid) {
             this.emit(Director.EVENT_BEGIN_FRAME);
+            if (!EDITOR) {
+                inputManager.frameDispatchEvents();
+            }
             // Update
             if (!this._paused) {
                 this.emit(Director.EVENT_BEFORE_UPDATE);
-                if (!EDITOR) {
-                    inputManager.frameDispatchEvents();
-                }
                 // Call start for new added components
                 this._compScheduler.startPhase();
                 // Update for components

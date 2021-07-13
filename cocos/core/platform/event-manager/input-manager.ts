@@ -68,6 +68,16 @@ class InputManager {
     // TODO: remove this property
     private _glView: IView | null = null;
 
+    /**
+     * Clear events when game is resumed.
+     */
+    public clearEvents () {
+        input.pollMouseEvents();
+        input.pollTouchEvents();
+        input.pollKeyboardEvents();
+        input.pollAccelerometerEvents();
+    }
+
     public frameDispatchEvents () {
         const mouseEvents = input.pollMouseEvents();
         // TODO: culling event queue
