@@ -2,7 +2,7 @@ import {
     _decorator,
     serializeTag,
     deserializeTag,
-    CustomizedSerializable,
+    CustomSerializable,
     SerializationOutput,
     SerializationInput,
     SerializationContext,
@@ -11,7 +11,7 @@ import { PORTS_BOTH_DYNAMIC_COMPILED, testEachPort } from "../port";
 import { ccclassAutoNamed, runTest } from '../utils';
 
 @ccclassAutoNamed(__filename)
-class SerializationOutputProperty implements CustomizedSerializable {
+class SerializationOutputProperty implements CustomSerializable {
     x = 0.1;
 
     y = 0.2;
@@ -37,7 +37,7 @@ class Base {
 }
 
 @ccclassAutoNamed(__filename)
-class ContextSerializeSuper extends Base implements CustomizedSerializable {
+class ContextSerializeSuper extends Base implements CustomSerializable {
     bar = 'SuperProperty';
 
     [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
@@ -47,7 +47,7 @@ class ContextSerializeSuper extends Base implements CustomizedSerializable {
 }
 
 @ccclassAutoNamed(__filename)
-class ContextSerializeSuper1 extends Base implements CustomizedSerializable {
+class ContextSerializeSuper1 extends Base implements CustomSerializable {
     bar = 'SuperProperty';
 
     [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
@@ -57,7 +57,7 @@ class ContextSerializeSuper1 extends Base implements CustomizedSerializable {
 }
 
 @ccclassAutoNamed(__filename)
-class ContextSerializeSuper2 extends Base implements CustomizedSerializable {
+class ContextSerializeSuper2 extends Base implements CustomSerializable {
     bar = 'SuperProperty';
 
     [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {

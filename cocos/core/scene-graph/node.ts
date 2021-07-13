@@ -46,7 +46,7 @@ import { Component } from '../components';
 import { NativeNode } from '../renderer/scene/native-scene';
 import { FloatArray } from '../math/type-define';
 import { NodeEventType } from './node-event';
-import { CustomizedSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { CustomSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -135,7 +135,7 @@ const reserveContentsForAllSyncablePrefabTag = Symbol('ReserveContentsForAllSync
  * * 维护 3D 空间左边变换（坐标、旋转、缩放）信息
  */
 @ccclass('cc.Node')
-export class Node extends BaseNode implements CustomizedSerializable {
+export class Node extends BaseNode implements CustomSerializable {
     /**
      * @en Event types emitted by Node
      * @zh 节点可能发出的事件类型

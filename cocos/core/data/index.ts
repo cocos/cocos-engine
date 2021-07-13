@@ -48,5 +48,5 @@ export type {
     SerializationInput,
     SerializationOutput,
     SerializationContext,
-    CustomizedSerializable,
+    CustomSerializable,
 } from './serialization-symbols';

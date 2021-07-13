@@ -56,7 +56,7 @@ export type DeserializationContext = {
     deserializeSuper(): void;
 };
 
-export interface CustomizedSerializable {
+export interface CustomSerializable {
     [serializeTag](output: SerializationOutput, context: SerializationContext): void;
 
     [deserializeTag]?(input: SerializationInput, context: DeserializationContext): void;
