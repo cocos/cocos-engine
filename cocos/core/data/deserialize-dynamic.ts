@@ -139,8 +139,8 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor):
         }
 
         let accessorToGet = accessorToSet;
-        if (attrs[`${propName}${POSTFIX_FORMERLY_SERIALIZED_AS}`]) {
-            const propNameToRead = attrs[`${propName}${POSTFIX_FORMERLY_SERIALIZED_AS}`] as string;
+        if (attrs[propName + POSTFIX_FORMERLY_SERIALIZED_AS]) {
+            const propNameToRead = attrs[propName + POSTFIX_FORMERLY_SERIALIZED_AS] as string;
             if (CCClass.IDENTIFIER_RE.test(propNameToRead)) {
                 accessorToGet = `.${propNameToRead}`;
             } else {
@@ -193,7 +193,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor):
         // deep copy original serialized data
         sources.push('o._$erialized=JSON.parse(JSON.stringify(d));');
         // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
-        sources.push('s._deserializePrimitiveObject(o._$erialized,d);');
+        sources.push('s._fillPlainObject(o._$erialized,d);');
     }
     // eslint-disable-next-line @typescript-eslint/no-implied-eval, no-new-func
     return Function('s', 'o', 'd', 'k', sources.join('')) as CompiledDeserializeFn;
@@ -295,7 +295,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             // deep copy original serialized data
             o._$erialized = JSON.parse(JSON.stringify(d));
             // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
-            s._deserializePrimitiveObject(o._$erialized as Record<PropertyKey, unknown>, d);
+            s._fillPlainObject(o._$erialized as Record<PropertyKey, unknown>, d);
         }
     };
 }
@@ -531,7 +531,7 @@ class _Deserializer {
 
     private _deserializePlainObject (value: Record<string, unknown>) {
         const obj = {};
-        this._deserializePrimitiveObject(obj, value);
+        this._fillPlainObject(obj, value);
         return obj;
     }
 
@@ -629,7 +629,7 @@ class _Deserializer {
 
         const context: DeserializationContext = {
             deserializeThis: () => {
-                this._deserializeInto(value, object, constructor);
+                this._deserializeInto(value, object, constructor, true);
             },
 
             deserializeSuper: () => {
@@ -705,7 +705,7 @@ class _Deserializer {
         }
     }
 
-    private _deserializePrimitiveObject (instance: Record<string, unknown>, serialized: Record<string, unknown>) {
+    private _fillPlainObject (instance: Record<string, unknown>, serialized: Record<string, unknown>) {
         for (const propName in serialized) {
             // eslint-disable-next-line no-prototype-builtins
             if (!serialized.hasOwnProperty(propName)) {
