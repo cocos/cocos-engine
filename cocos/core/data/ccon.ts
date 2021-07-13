@@ -26,11 +26,11 @@ interface CCONPreface {
     chunks: string[];
 }
 
-export function encodeCCONJson (ccon: CCON, chunks: string[]) {
+export function encodeCCONJson (ccon: CCON, chunkURLs: string[]) {
     return {
         version: VERSION,
         document: ccon.document,
-        chunks,
+        chunks: chunkURLs,
     } as unknown;
 }
 
