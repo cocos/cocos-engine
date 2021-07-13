@@ -6,7 +6,7 @@ export interface Port {
     name: string;
     serializeOptions: {
         compiled?: boolean;
-        ccon?: boolean;
+        useCCON?: boolean;
     };
     deserializeOptions: {
     };
@@ -29,7 +29,7 @@ export const PORT_COMPILED: Readonly<Port> = {
 export const PORT_CCOB: Readonly<Port> = {
     name: 'CCON',
     serializeOptions: {
-        ccon: true,
+        useCCON: true,
     },
     deserializeOptions: {
     },

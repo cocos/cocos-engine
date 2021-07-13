@@ -14,7 +14,7 @@ export const runTest: RunTest = async (caseModulePath, port, value, verify) => {
     const snapshot = JSON.parse(await fs.readFile(snapshotPath, 'utf8'));
 
     let serialized: unknown;
-    if (!port.serializeOptions.ccon) {
+    if (!port.serializeOptions.useCCON) {
         serialized = snapshot;
     } else {
         const { document, chunks } = snapshot;
