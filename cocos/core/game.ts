@@ -28,8 +28,8 @@
  * @module core
  */
 
-import { EDITOR, JSB, PREVIEW, RUNTIME_BASED } from 'internal:constants';
-import { system } from 'pal/system';
+import { EDITOR, JSB, PREVIEW, RUNTIME_BASED, TEST } from 'internal:constants';
+import { systemInfo } from 'pal/system-info';
 import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
@@ -44,11 +44,18 @@ import { bindingMappingInfo } from './pipeline/define';
 import { SplashScreen } from './splash-screen';
 import { RenderPipeline } from './pipeline';
 import { Node } from './scene-graph/node';
-import { BrowserType } from '../../pal/system/enum-type';
+import { BrowserType } from '../../pal/system-info/enum-type';
+import { Layers } from './scene-graph';
+import { log2 } from './math/bits';
 
 interface ISceneInfo {
     url: string;
     uuid: string;
+}
+
+export interface LayerItem {
+    name: string;
+    value: number;
 }
 
 /**
@@ -129,16 +136,6 @@ export interface IGameConfig {
     /**
      * For internal use.
      */
-    collisionMatrix?: never[];
-
-    /**
-     * For internal use.
-     */
-    groupList?: any[];
-
-    /**
-     * For internal use.
-     */
     jsList?: string[];
 
     /**
@@ -160,6 +157,21 @@ export interface IGameConfig {
      * Physics system config
      */
     physics?: IPhysicsConfig;
+
+    /**
+     * User layers config
+     */
+    layers?: LayerItem[];
+
+    /**
+     * The adapter stores various platform-related objects.
+     */
+    adapter?: {
+        canvas: HTMLCanvasElement,
+        frame: HTMLDivElement,
+        container: HTMLDivElement,
+        [x: string]: any,
+    };
 }
 
 /**
@@ -251,7 +263,7 @@ export class Game extends EventTarget {
      * @en The outer frame of the game canvas; parent of game container.
      * @zh 游戏画布的外框，container 的父容器。
      */
-    public frame: Record<string, unknown> | null = null;
+    public frame: HTMLDivElement | null = null;
     /**
      * @en The container of game canvas.
      * @zh 游戏画布的容器。
@@ -297,29 +309,75 @@ export class Game extends EventTarget {
         return this._inited;
     }
 
-    public get frameTime () {
-        return this._frameTime;
+    /**
+     * @en Expected frame rate of the game.
+     * @zh 游戏的设定帧率。
+     */
+    public get frameRate () {
+        return this._frameRate;
     }
+    public set frameRate (frameRate: number | string) {
+        if (typeof frameRate !== 'number') {
+            frameRate = parseInt(frameRate, 10);
+            if (Number.isNaN(frameRate)) {
+                frameRate = 60;
+            }
+        }
+        this._frameRate = frameRate;
+        this.frameTime = 1000 / frameRate;
+        this._setAnimFrame();
+    }
+
+    /**
+     * @en The delta time since last frame, unit: s.
+     * @zh 获取上一帧的增量时间，以秒为单位。
+     */
+     public get deltaTime () {
+        return this._deltaTime;
+    }
+
+    /**
+     * @en The total passed time since game start, unit: ms
+     * @zh 获取从游戏开始到现在总共经过的时间，以毫秒为单位
+     */
+    public get totalTime () {
+        return performance.now() - this._initTime;
+    }
+
+    /**
+     * @en The start time of the current frame.
+     * @zh 获取当前帧开始的时间。
+     */
+    public get frameStartTime () {
+        return this._startTime;
+    }
+
+    /**
+     * @en The expected delta time of each frame
+     * @zh 期望帧率对应的每帧时间
+     */
+    public frameTime = 1000/60;
 
     public collisionMatrix = [];
     public groupList: any[] = [];
 
     public _persistRootNodes = {};
 
+    private _gfxDevice: Device | null = null;
     // states
-    public _paused = true; // whether the game is paused
     public _configLoaded = false; // whether config loaded
     public _isCloning = false;    // deserializing or instantiating
-
     private _inited = false;
     private _engineInited = false; // whether the engine has inited
     private _rendererInitialized = false;
-    private _gfxDevice: Device | null = null;
-
-    private _intervalId: number | null = null; // interval target of main
-
-    private declare _lastTime: number;
-    private declare _frameTime: number;
+    private _paused = true;
+    // frame control
+    private _frameRate = 60;
+    private _intervalId = 0; // interval target of main
+    private _initTime = 0;
+    private _startTime = 0;
+    private _deltaTime = 0.0;
+    private declare _frameCB: (time: number) => void;
 
     // @Methods
 
@@ -328,36 +386,28 @@ export class Game extends EventTarget {
     /**
      * @en Set frame rate of game.
      * @zh 设置游戏帧率。
+     * @deprecated since v3.3.0 please use [[game.frameRate]]
      */
     public setFrameRate (frameRate: number | string) {
-        const config = this.config;
-        if (typeof frameRate !== 'number') {
-            frameRate = parseInt(frameRate, 10);
-            if (Number.isNaN(frameRate)) {
-                frameRate = 60;
-            }
-        }
-        config.frameRate = frameRate;
-        this._paused = true;
-        this._setAnimFrame();
-        this._runMainLoop();
+        this.frameRate = frameRate;
     }
 
     /**
      * @en Get frame rate set for the game, it doesn't represent the real frame rate.
      * @zh 获取设置的游戏帧率（不等同于实际帧率）。
      * @return frame rate
+     * @deprecated since v3.3.0 please use [[game.frameRate]]
      */
     public getFrameRate (): number {
-        return this.config.frameRate || 0;
+        return this.frameRate as number;
     }
 
     /**
-     * @en Run the game frame by frame.
-     * @zh 执行一帧游戏循环。
+     * @en Run the game frame by frame with a fixed delta time correspond to frame rate.
+     * @zh 以固定帧间隔执行一帧游戏循环，帧间隔与设定的帧率匹配。
      */
     public step () {
-        legacyCC.director.mainLoop();
+        legacyCC.director.tick(this.frameTime);
     }
 
     /**
@@ -369,7 +419,6 @@ export class Game extends EventTarget {
     public pause () {
         if (this._paused) { return; }
         this._paused = true;
-        // Pause main loop
         if (this._intervalId) {
             window.cAF(this._intervalId);
             this._intervalId = 0;
@@ -383,8 +432,13 @@ export class Game extends EventTarget {
      */
     public resume () {
         if (!this._paused) { return; }
-        // Resume main loop
-        this._runMainLoop();
+        if (this._intervalId) {
+            window.cAF(this._intervalId);
+            this._intervalId = 0;
+        }
+        this._paused = false;
+        this._updateCallback();
+        this._intervalId = window.rAF(this._frameCB);
     }
 
     /**
@@ -424,11 +478,7 @@ export class Game extends EventTarget {
      * @zh 退出游戏
      */
     public end () {
-        if (this._gfxDevice) {
-            this._gfxDevice.destroy();
-            this._gfxDevice = null;
-        }
-        window.close();
+        systemInfo.close();
     }
 
     /**
@@ -447,8 +497,10 @@ export class Game extends EventTarget {
      */
     public on (type: string, callback: () => void, target?: any, once?: boolean): any {
         // Make sure EVENT_ENGINE_INITED callbacks to be invoked
-        if (this._engineInited && type === Game.EVENT_ENGINE_INITED) {
-            return callback.call(target);
+        if ((this._engineInited && type === Game.EVENT_ENGINE_INITED)
+        || (this._inited && type === Game.EVENT_GAME_INITED)
+        || (this._rendererInitialized && type === Game.EVENT_RENDERER_INITED)) {
+            callback.call(target);
         }
         return this.eventTargetOn(type, callback, target, once);
     }
@@ -485,12 +537,21 @@ export class Game extends EventTarget {
             legacyCC.assetManager.init(this.config.assetOptions);
         }
 
+        if (this.config.layers) {
+            const userLayers: LayerItem[] = this.config.layers;
+            for (let i = 0; i < userLayers.length; i++) {
+                const layer = userLayers[i];
+                const bitNum = log2(layer.value);
+                Layers.addLayer(layer.name, bitNum);
+            }
+        }
+
         return this._initEngine().then(() => {
             if (!EDITOR) {
                 this._initEvents();
             }
 
-            if (legacyCC.director.root.dataPoolManager) {
+            if (legacyCC.director.root && legacyCC.director.root.dataPoolManager) {
                 legacyCC.director.root.dataPoolManager.jointTexturePool.registerCustomTextureLayouts(config.customJointTextureLayouts);
             }
             return this._engineInited;
@@ -502,7 +563,7 @@ export class Game extends EventTarget {
      * @zh 运行游戏，并且指定引擎配置和 onStart 的回调。
      * @param onStart - function to be executed after game initialized
      */
-    public run (onStart?: Game.OnStart): Promise<void>;
+    public run(onStart?: Game.OnStart): Promise<void>;
 
     public run (configOrCallback?: Game.OnStart | IGameConfig, onStart?: Game.OnStart) {
         // To compatible with older version,
@@ -595,7 +656,7 @@ export class Game extends EventTarget {
             debug.log(`Cocos Creator v${VERSION}`);
             this.emit(Game.EVENT_ENGINE_INITED);
             this._engineInited = true;
-            legacyCC.internal.dynamicAtlasManager.enabled = !macro.CLEANUP_IMAGE_CACHE;
+            if (legacyCC.internal.dynamicAtlasManager) { legacyCC.internal.dynamicAtlasManager.enabled = !macro.CLEANUP_IMAGE_CACHE; }
         });
     }
 
@@ -603,31 +664,23 @@ export class Game extends EventTarget {
 
     //  @Time ticker section
     private _setAnimFrame () {
-        this._lastTime = performance.now();
-        const frameRate = this.config.frameRate;
-        this._frameTime = 1000 / frameRate;
+        const frameRate = this._frameRate;
         if (JSB) {
             // @ts-expect-error JSB Call
             jsb.setPreferredFramesPerSecond(frameRate);
             window.rAF = window.requestAnimationFrame;
             window.cAF = window.cancelAnimationFrame;
         } else {
-            if (this._intervalId) {
-                window.cAF(this._intervalId);
-                this._intervalId = 0;
-            }
-
             const rAF = window.requestAnimationFrame = window.requestAnimationFrame
                      || window.webkitRequestAnimationFrame
                      || window.mozRequestAnimationFrame
                      || window.oRequestAnimationFrame
                      || window.msRequestAnimationFrame;
             if (frameRate !== 60 && frameRate !== 30) {
-                // @ts-expect-error Compatibility
-                window.rAF = rAF ? this._stTimeWithRAF : this._stTime;
+                window.rAF = this._stTime.bind(this);
                 window.cAF = this._ctTime;
             } else {
-                window.rAF = rAF || this._stTime;
+                window.rAF = rAF || this._stTime.bind(this);
                 window.cAF = window.cancelAnimationFrame
                     || window.cancelRequestAnimationFrame
                     || window.msCancelRequestAnimationFrame
@@ -639,32 +692,51 @@ export class Game extends EventTarget {
                     || window.webkitCancelAnimationFrame
                     || window.ocancelAnimationFrame
                     || this._ctTime;
+
+                // update callback function for 30 fps version
+                this._updateCallback();
             }
         }
     }
-
-    private _stTimeWithRAF (callback) {
-        const currTime = performance.now();
-        const elapseTime = Math.max(0, (currTime - game._lastTime));
-        const timeToCall = Math.max(0, game._frameTime - elapseTime);
-        const id = window.setTimeout(() => {
-            window.requestAnimationFrame(callback);
-        }, timeToCall);
-        game._lastTime = currTime + timeToCall;
-        return id;
-    }
-
     private _stTime (callback: () => void) {
         const currTime = performance.now();
-        const elapseTime = Math.max(0, (currTime - game._lastTime));
-        const timeToCall = Math.max(0, game._frameTime - elapseTime);
+        const elapseTime = Math.max(0, (currTime - this._startTime));
+        const timeToCall = Math.max(0, this.frameTime - elapseTime);
         const id = window.setTimeout(callback, timeToCall);
-        game._lastTime = currTime + timeToCall;
         return id;
     }
     private _ctTime (id: number | undefined) {
         window.clearTimeout(id);
     }
+    private _calculateDT (now?: number) {
+        if (!now) now = performance.now();
+        this._deltaTime = now > this._startTime ? (now - this._startTime) / 1000 : 0;
+        this._startTime = now;
+        return this._deltaTime;
+    }
+
+    private _updateCallback () {
+        const director = legacyCC.director;
+        let callback;
+        if (!JSB && !RUNTIME_BASED && this._frameRate === 30) {
+            let skip = true;
+            callback = (time: number) => {
+                this._intervalId = window.rAF(this._frameCB);
+                skip = !skip;
+                if (skip) {
+                    return;
+                }
+                director.tick(this._calculateDT(time));
+            };
+        } else {
+            callback = (time: number) => {
+                director.tick(this._calculateDT(time));
+                this._intervalId = window.rAF(this._frameCB);
+            };
+        }
+        this._frameCB = callback;
+    }
+
     // Run game.
     private _runMainLoop () {
         if (!this._inited || (EDITOR && !legacyCC.GAME_VIEW)) {
@@ -672,37 +744,10 @@ export class Game extends EventTarget {
         }
         const config = this.config;
         const director = legacyCC.director;
-        const frameRate = config.frameRate;
 
         debug.setDisplayStats(!!config.showFPS);
-
         director.startAnimation();
-
-        let callback;
-        if (!JSB && !RUNTIME_BASED && frameRate === 30) {
-            let skip = true;
-            callback = (time: number) => {
-                this._intervalId = window.rAF(callback);
-                skip = !skip;
-                if (skip) {
-                    return;
-                }
-                director.mainLoop(time);
-            };
-        } else {
-            callback = (time: number) => {
-                this._intervalId = window.rAF(callback);
-                director.mainLoop(time);
-            };
-        }
-
-        if (this._intervalId) {
-            window.cAF(this._intervalId);
-            this._intervalId = 0;
-        }
-
-        this._intervalId = window.rAF(callback);
-        this._paused = false;
+        this.resume();
     }
 
     // @Game loading section
@@ -724,16 +769,12 @@ export class Game extends EventTarget {
         }
         config.showFPS = !!config.showFPS;
 
-        // Collide Map and Group List
-        this.collisionMatrix = config.collisionMatrix || [];
-        this.groupList = config.groupList || [];
-
         debug._resetDebugSetting(config.debugMode);
 
         this.config = config as NormalizedGameConfig;
         this._configLoaded = true;
 
-        this._setAnimFrame();
+        this.frameRate = config.frameRate;
     }
 
     private _determineRenderType () {
@@ -745,17 +786,17 @@ export class Game extends EventTarget {
         let supportRender = false;
 
         if (userRenderMode === 0) {
-            if (legacyCC.sys.capabilities.opengl) {
+            if (sys.capabilities.opengl) {
                 this.renderType = Game.RENDER_TYPE_WEBGL;
                 supportRender = true;
-            } else if (legacyCC.sys.capabilities.canvas) {
+            } else if (sys.capabilities.canvas) {
                 this.renderType = Game.RENDER_TYPE_CANVAS;
                 supportRender = true;
             }
-        } else if (userRenderMode === 1 && legacyCC.sys.capabilities.canvas) {
+        } else if (userRenderMode === 1 && sys.capabilities.canvas) {
             this.renderType = Game.RENDER_TYPE_CANVAS;
             supportRender = true;
-        } else if (userRenderMode === 2 && legacyCC.sys.capabilities.opengl) {
+        } else if (userRenderMode === 2 && sys.capabilities.opengl) {
             this.renderType = Game.RENDER_TYPE_WEBGL;
             supportRender = true;
         }
@@ -769,9 +810,16 @@ export class Game extends EventTarget {
         // Avoid setup to be called twice.
         if (this._rendererInitialized) { return; }
 
-        this.canvas = (this.config as any).adapter.canvas;
-        this.frame = (this.config as any).adapter.frame;
-        this.container = (this.config as any).adapter.container;
+        // Obtain platform-related objects through the adapter
+        const adapter = this.config.adapter;
+        if (adapter) {
+            this.canvas = adapter.canvas;
+            this.frame = adapter.frame;
+            this.container = adapter.container;
+        }
+
+        // The test environment does not currently support the renderer
+        if (TEST) return;
 
         this._determineRenderType();
 
@@ -779,13 +827,23 @@ export class Game extends EventTarget {
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<Device>[] = [];
 
+            const opts = new DeviceInfo(
+                this.canvas as HTMLCanvasElement,
+                EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
+                false,
+                window.devicePixelRatio,
+                sys.windowPixelResolution.width,
+                sys.windowPixelResolution.height,
+                bindingMappingInfo,
+            );
+
             if (JSB && window.gfx) {
-                this._gfxDevice = gfx.deviceInstance;
+                this._gfxDevice = gfx.DeviceManager.create(opts);
             } else {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
                 if (userAgent.indexOf('safari') !== -1 && userAgent.indexOf('chrome') === -1
-                    || system.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
+                    || sys.browserType === BrowserType.UC // UC browser implementation doesn't conform to WebGL2 standard
                 ) {
                     useWebGL2 = false;
                 }
@@ -796,15 +854,6 @@ export class Game extends EventTarget {
                     ctors.push(legacyCC.WebGLDevice);
                 }
 
-                const opts = new DeviceInfo(
-                    this.canvas as HTMLCanvasElement,
-                    EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                    false,
-                    window.devicePixelRatio,
-                    sys.windowPixelResolution.width,
-                    sys.windowPixelResolution.height,
-                    bindingMappingInfo,
-                );
                 for (let i = 0; i < ctors.length; i++) {
                     this._gfxDevice = new ctors[i]();
                     if (this._gfxDevice.initialize(opts)) { break; }
@@ -823,8 +872,8 @@ export class Game extends EventTarget {
     }
 
     private _initEvents () {
-        system.onShow(this._onShow.bind(this));
-        system.onHide(this._onHide.bind(this));
+        systemInfo.on('show', this._onShow, this);
+        systemInfo.on('hide', this._onHide, this);
     }
 
     private _onHide () {
@@ -838,11 +887,25 @@ export class Game extends EventTarget {
     }
 
     private _setRenderPipelineNShowSplash () {
+        // The test environment does not currently support the renderer
+        if (TEST) {
+            return Promise.resolve((() => {
+                this._rendererInitialized = true;
+                this._safeEmit(Game.EVENT_RENDERER_INITED);
+                this._inited = true;
+                this._setAnimFrame();
+                this._runMainLoop();
+                this._safeEmit(Game.EVENT_GAME_INITED);
+                if (this.onStart) {
+                    this.onStart();
+                }
+            })());
+        }
         return Promise.resolve(this._setupRenderPipeline()).then(
             () => Promise.resolve(this._showSplashScreen()).then(
                 () => {
                     this._inited = true;
-                    this._setAnimFrame();
+                    this._initTime = performance.now();
                     this._runMainLoop();
                     this._safeEmit(Game.EVENT_GAME_INITED);
                     if (this.onStart) {

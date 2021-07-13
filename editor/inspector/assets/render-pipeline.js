@@ -63,13 +63,15 @@ const Elements = {
         async update() {
             const panel = this;
 
-            this.$.content.innerText = '';
+            const $content = panel.$.content;
+            const oldPropList = Object.keys(panel.$propList);
+            const newPropList = [];
 
             if (panel.$.pipelinesSelect.value === '-1') {
-                panel.$.content.setAttribute('hidden', '');
+                $content.setAttribute('hidden', '');
                 return;
             } else {
-                panel.$.content.removeAttribute('hidden');
+                $content.removeAttribute('hidden');
             }
 
             for (const key in panel.pipeline.value) {
@@ -82,12 +84,29 @@ const Elements = {
                     continue;
                 }
 
-                const prop = document.createElement('ui-prop');
-                this.$.content.appendChild(prop);
+                const id = `${dump.type}:${dump.name}`;
+                newPropList.push(id);
 
-                prop.setAttribute('type', 'dump');
-                prop.render(dump);
-                prop.addEventListener('change-dump', this.dataChange.bind(this));
+                let $prop = this.$propList[id];
+                if (!$prop) {
+                    $prop = document.createElement('ui-prop');
+                    $prop.setAttribute('type', 'dump');
+                    $prop.addEventListener('change-dump', this.dataChange.bind(this));
+
+                    $content.appendChild($prop);
+                    panel.$propList[id] = $prop;
+                }
+
+                $prop.render(dump);
+            }
+
+            for (const id of oldPropList) {
+                if (!newPropList.includes(id)) {
+                    const $prop = panel.$propList[id];
+                    if ($prop && $prop.parentElement) {
+                        $prop.parentElement.removeChild($prop);
+                    }
+                }
             }
         },
     },
@@ -122,6 +141,7 @@ exports.update = async function(assetList, metaList) {
     }
 
     this.setDirtyData();
+    await this.preview();
 };
 
 exports.ready = function() {
@@ -131,6 +151,8 @@ exports.ready = function() {
         origin: '',
         realtime: '',
     };
+
+    this.$propList = {};
 
     for (const prop in Elements) {
         const element = Elements[prop];
@@ -147,9 +169,18 @@ exports.close = function() {
         origin: '',
         realtime: '',
     };
+
+    this.$propList = {};
 };
 
 exports.methods = {
+    async preview() {
+        if (!this.pipeline) {
+            return;
+        }
+        await Editor.Message.request('scene', 'preview-render-pipeline', this.asset.uuid, this.pipeline);
+    },
+
     async query(uuid) {
         return await Editor.Message.request('scene', 'query-render-pipeline', uuid);
     },
@@ -157,6 +188,7 @@ exports.methods = {
     async apply() {
         this.reset();
         await Editor.Message.request('scene', 'apply-render-pipeline', this.asset.uuid, this.pipeline);
+        await this.preview();
     },
     reset() {
         this.dirtyData.origin = this.dirtyData.realtime;
@@ -164,9 +196,14 @@ exports.methods = {
     },
 
     async dataChange() {
-        await Editor.Message.request('scene', 'change-render-pipeline', this.pipeline);
+        this.pipeline = await Editor.Message.request('scene', 'change-render-pipeline', this.pipeline);
+
+        Elements.pipeline.update.call(this);
+
         this.setDirtyData();
         this.dispatch('change');
+
+        await this.preview();
     },
 
     /**

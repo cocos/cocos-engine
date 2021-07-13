@@ -31,7 +31,6 @@
 import { InstancedBuffer } from './instanced-buffer';
 import { Device, RenderPass, PipelineState, CommandBuffer } from '../gfx';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
 import { SetIndex } from './define';
 
 /**
@@ -81,13 +80,13 @@ export class RenderInstancedQueue {
                 for (let b = 0; b < instances.length; ++b) {
                     const instance = instances[b];
                     if (!instance.count) { continue; }
-                    const shader = ShaderPool.get(instance.hShader);
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, instance.ia);
+                    const shader = instance.shader;
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader!, renderPass, instance.ia);
                     if (lastPSO !== pso) {
                         cmdBuff.bindPipelineState(pso);
                         lastPSO = pso;
                     }
-                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, DSPool.get(instance.hDescriptorSet), res.value.dynamicOffsets);
+                    cmdBuff.bindDescriptorSet(SetIndex.LOCAL, instance.descriptorSet, res.value.dynamicOffsets);
                     cmdBuff.bindInputAssembler(instance.ia);
                     cmdBuff.draw(instance.ia);
                 }

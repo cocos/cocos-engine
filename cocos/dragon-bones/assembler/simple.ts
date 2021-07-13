@@ -118,6 +118,9 @@ export const simple: IAssembler = {
     },
 
     updateColor (comp: ArmatureDisplay) {
+        if (!comp) return;
+        _comp = comp;
+        _comp.markForUpdateRenderData();
     },
 
     fillBuffers (comp: ArmatureDisplay, renderer: Batcher2D) {
@@ -408,9 +411,9 @@ function updateComponentRenderData (comp: ArmatureDisplay, batcher: Batcher2D) {
         _handleVal |= NEED_COLOR;
     }
 
-    let worldMat:Mat4|undefined;
+    let worldMat: Mat4 | undefined;
     if (_comp._enableBatch) {
-        worldMat = _node.worldMatrix;
+        worldMat = _node.worldMatrix as Mat4;
         _mustFlush = false;
         _handleVal |= NEED_BATCH;
     }

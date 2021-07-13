@@ -55,6 +55,11 @@ export class MorphModel extends Model {
         );
     }
 
+    public destroy () {
+        super.destroy();
+        this._morphRenderingInstance = null;
+    }
+
     public setSubModelMaterial (subModelIndex: number, material: Material) {
         return super.setSubModelMaterial(subModelIndex, this._launderMaterial(material));
     }

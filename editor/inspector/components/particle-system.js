@@ -35,7 +35,7 @@ exports.template = `
         <ui-prop type="dump" key="rateOverDistance"></ui-prop>
         <ui-prop type="dump" key="bursts"></ui-prop>
         <ui-prop type="dump" key="enableCulling"></ui-prop>
-        <ui-section class="config" key="shapeModule">
+        <ui-section class="config" key="shapeModule" cache-expand="particle-system-shapeModule">
             <ui-prop slot="header" class="header" type="dump" key="shapeModule.value.enable" labelflag="shapeModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -90,10 +90,10 @@ exports.template = `
             <ui-prop type="dump" key="shapeModule.value.randomPositionAmount"></ui-prop>
 
         </ui-section>
-        <ui-section class="config" key="velocityOvertimeModule" autoflag="true"></ui-section>
-        <ui-section class="config" key="forceOvertimeModule" autoflag="true"></ui-section>
+        <ui-section class="config" key="velocityOvertimeModule" autoflag="true" cache-expand="particle-system-velocityOvertimeModule"></ui-section>
+        <ui-section class="config" key="forceOvertimeModule" autoflag="true" cache-expand="particle-system-forceOvertimeModule"></ui-section>
 
-        <ui-section empty="true" class="config" key="sizeOvertimeModule">
+        <ui-section empty="true" class="config" key="sizeOvertimeModule" cache-expand="particle-system-sizeOvertimeModule">
             <ui-prop slot="header" class="header" type="dump" key="sizeOvertimeModule.value.enable"
                 labelflag="sizeOvertimeModule" empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -114,7 +114,7 @@ exports.template = `
 
         </ui-section>
 
-        <ui-section empty="true" class="config" key="rotationOvertimeModule">
+        <ui-section empty="true" class="config" key="rotationOvertimeModule" cache-expand="particle-system-rotationOvertimeModule">
 
             <ui-prop slot="header" class="header" type="dump" key="rotationOvertimeModule.value.enable"
                 labelflag="rotationOvertimeModule" empty="true">
@@ -130,9 +130,9 @@ exports.template = `
             <ui-prop type="dump" key="rotationOvertimeModule.value.z"></ui-prop>
 
         </ui-section>
-        <ui-section class="config" key="colorOverLifetimeModule" autoflag="true"></ui-section>
-        <ui-section class="config" key="textureAnimationModule" autoflag="true"></ui-section>
-        <ui-section type="dump" showflag="!renderer.value.useGPU" key="limitVelocityOvertimeModule" class="config">
+        <ui-section class="config" key="colorOverLifetimeModule" autoflag="true" cache-expand="particle-system-colorOverLifetimeModule"></ui-section>
+        <ui-section class="config" key="textureAnimationModule" autoflag="true" cache-expand="particle-system-textureAnimationModule"></ui-section>
+        <ui-section type="dump" showflag="!renderer.value.useGPU" key="limitVelocityOvertimeModule" class="config" cache-expand="particle-system-limitVelocityOvertimeModule">
             <ui-prop slot="header" class="header" type="dump" key="limitVelocityOvertimeModule.value.enable" labelflag="limitVelocityOvertimeModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -146,7 +146,7 @@ exports.template = `
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitY" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
             <ui-prop type="dump" key="limitVelocityOvertimeModule.value.limitZ" showflag="limitVelocityOvertimeModule.value.separateAxes"></ui-prop>
         </ui-section>
-        <ui-section empty="true" class="config" showflag="!renderer.value.useGPU" key="trailModule">
+        <ui-section empty="true" class="config" showflag="!renderer.value.useGPU" key="trailModule" cache-expand="particle-system-trailModule">
             <ui-prop slot="header" class="header" type="dump" key="trailModule.value.enable" labelflag="trailModule"
                 empty="true">
                 <ui-checkbox></ui-checkbox>
@@ -406,7 +406,7 @@ const uiElements = {
                 const isInput = element.getAttribute('inputflag');
                 const isHeader = element.getAttribute('slot') === 'header';
                 element.addEventListener('change-dump', () => {
-                    uiElements.baseProps.update.call(this);
+                    uiElements.baseProps.update.call(this, key);
                 });
                 if (isEmpty) {
                     if (isHeader) {
@@ -430,7 +430,11 @@ const uiElements = {
                 }
             });
         },
-        update() {
+        /**
+         * 
+         * @param {string} [eventInstigatorKey] 
+         */
+        update(eventInstigatorKey) {
             this.$.baseProps.forEach((element) => {
                 const key = element.getAttribute('key');
                 const isEmpty = element.getAttribute('empty');
@@ -440,24 +444,43 @@ const uiElements = {
                 const displayName = element.getAttribute('displayName');
                 const dump = this.getObjectByKey(this.dump.value, key);
                 const showflag = element.getAttribute('showflag');
-                if (showflag) {
-                    if (typeof showflag === 'string') {
-                        if (showflag.startsWith('checkEnumInSubset')) {
-                            const params = showflag.split(',');
-                            const enumValue = this.getObjectByKey(this.dump.value, params[1]);
-                            const subset = params.slice(2);
-                            isShow = isShow && this.checkEnumInSubset(enumValue, ...subset);
-                        } else if (showflag.startsWith('!')) {
-                            const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
-                            const isInvalid = propUtils.isMultipleInvalid(dump);
-                            isShow = isShow && !isInvalid && !dump.value;
+                if (typeof showflag === 'string') {
+                    if (showflag.startsWith('checkEnumInSubset')) {
+                        const params = showflag.split(',');
+                        const enumValue = this.getObjectByKey(this.dump.value, params[1]);
+                        const subset = params.slice(2);
+                        isShow = isShow && this.checkEnumInSubset(enumValue, ...subset);
+                    } else {
+                        // only update the elements relate to eventInstigator
+                        if (eventInstigatorKey) {
+                            if (showflag.startsWith(`!${eventInstigatorKey}`)) {
+                                const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
+                                const isInvalid = propUtils.isMultipleInvalid(dump);
+                                isShow = isShow && !isInvalid && !dump.value;
+                            } else if (showflag.startsWith(eventInstigatorKey)) {
+                                const dump = this.getObjectByKey(this.dump.value, showflag);
+                                const isInvalid = propUtils.isMultipleInvalid(dump);
+                                isShow = isShow && !isInvalid && dump.value;
+                            } else {
+                                return;
+                            }
                         } else {
-                            const dump = this.getObjectByKey(this.dump.value, showflag);
-                            const isInvalid = propUtils.isMultipleInvalid(dump);
-                            isShow = isShow && !isInvalid && dump.value;
+                            if (showflag.startsWith('!')) {
+                                const dump = this.getObjectByKey(this.dump.value, showflag.slice(1));
+                                const isInvalid = propUtils.isMultipleInvalid(dump);
+                                isShow = isShow && !isInvalid && !dump.value;
+                            } else {
+                                const dump = this.getObjectByKey(this.dump.value, showflag);
+                                const isInvalid = propUtils.isMultipleInvalid(dump);
+                                isShow = isShow && !isInvalid && dump.value;
+                            }
                         }
                     }
+                } else if (eventInstigatorKey) {
+                    // skip all element without showflag
+                    return;
                 }
+
                 dump.displayName = displayName;
                 if (!isEmpty) {
                     if (isShow) {
@@ -496,6 +519,7 @@ const uiElements = {
                 if (prop.dump.visible) {
                     element.render(prop.dump);
                 }
+                element.hidden = !prop.dump.visible;
             }));
         },
     },

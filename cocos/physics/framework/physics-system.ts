@@ -454,6 +454,6 @@ function initPhysicsSystem () {
         }
         const sys = new legacyCC.PhysicsSystem();
         legacyCC.PhysicsSystem._instance = sys;
-        director.registerSystem(PhysicsSystem.ID, sys, 0);
+        director.registerSystem(PhysicsSystem.ID, sys, System.Priority.LOW);
     }
 }

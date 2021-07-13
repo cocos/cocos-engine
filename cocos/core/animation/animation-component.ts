@@ -105,9 +105,11 @@ export class Animation extends Eventify(Component) {
     /**
      * @en
      * Gets or sets the default clip.
+     * Two clips that both have same non-empty UUID are treat as equivalent.
      * @en
      * 获取或设置默认剪辑。
      * 设置时，若指定的剪辑不在 `this.clips` 中则会被自动添加至 `this.clips`。
+     * 具有相同的非空 UUID 的两个动画剪辑将被视为是相同的。
      * @see [[playOnLoad]]
      */
     @type(AnimationClip)
@@ -498,5 +500,5 @@ function equalClips (clip1: AnimationClip | null, clip2: AnimationClip | null) {
     if (clip1 === clip2) {
         return true;
     }
-    return !!clip1 && !!clip2 && (clip1.name === clip2.name || clip1._uuid === clip2._uuid);
+    return !!clip1 && !!clip2 && (clip1._uuid === clip2._uuid) && clip1._uuid;
 }

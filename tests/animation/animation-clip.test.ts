@@ -161,3 +161,8 @@ test('animation state', () => {
 
     mockInstance.mockRestore();
 });
+
+test('default animation clip validation', () => {
+    const validClip = new AnimationClip('valid');
+    expect(validClip.validate()).toEqual(true);
+});

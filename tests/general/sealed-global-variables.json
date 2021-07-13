@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2021-02-08T03:18:26.527Z"
+        "stamp": "2021-07-05T09:43:28.305Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -100,6 +100,8 @@
         "cc.GFXDispatchInfo",
         "cc.GFXDrawInfo",
         "cc.GFXDynamicStateFlagBit",
+        "cc.GFXDynamicStates",
+        "cc.GFXDynamicStencilStates",
         "cc.GFXExtent",
         "cc.GFXFeature",
         "cc.GFXFilter",
@@ -140,6 +142,7 @@
         "cc.GFXRect",
         "cc.GFXRenderPass",
         "cc.GFXRenderPassInfo",
+        "cc.GFXResolveMode",
         "cc.GFXSampleCount",
         "cc.GFXSampler",
         "cc.GFXSamplerInfo",
@@ -153,6 +156,7 @@
         "cc.GFXStencilFace",
         "cc.GFXStencilOp",
         "cc.GFXStoreOp",
+        "cc.GFXSubpassDependency",
         "cc.GFXSubpassInfo",
         "cc.GFXSurfaceTransform",
         "cc.GFXTexture",

@@ -98,7 +98,6 @@ class InputManager {
             }
         }
         if (handleTouches.length > 0) {
-            // this._glView!._convertTouchesWithScale(handleTouches);
             const touchEvent = new EventTouch(handleTouches, false, SystemEventType.TOUCH_START, macro.ENABLE_MULTI_TOUCH ? this._getUsefulTouches() : handleTouches);
             eventManager.dispatchEvent(touchEvent);
         }
@@ -285,7 +284,7 @@ class InputManager {
 
     private _getUnUsedIndex () {
         let temp = this._indexBitsUsed;
-        const now = legacyCC.director.getCurrentTime();
+        const now = legacyCC.game.frameStartTime;
 
         for (let i = 0; i < this._maxTouches; i++) {
             if (!(temp & 0x00000001)) {
@@ -433,11 +432,15 @@ class InputManager {
     }
 
     private _registerKeyboardEvent () {
-        input._keyboard.onDown((inputEvent)  => {
-            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, true));
+        // TODO: to support in Input Module
+        // input._keyboard.onDown((inputEvent) => {
+        //     eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, 'keypress'));
+        // });
+        input._keyboard.onPressing((inputEvent)  => {
+            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, SystemEventType.KEY_DOWN));
         });
         input._keyboard.onUp((inputEvent)  => {
-            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, false));
+            eventManager.dispatchEvent(new EventKeyboard(inputEvent.code, SystemEventType.KEY_UP));
         });
     }
 

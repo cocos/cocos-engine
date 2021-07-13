@@ -1,7 +1,12 @@
 'use strict';
 
 exports.style = `
-:host > .section { height: 200px; display: flex; }
+:host > .section {
+    height: 200px;
+    display: flex;
+    background: var(--color-normal-fill);
+    border-bottom: 1px solid var(--color-normal-border);
+ }
 :host > .section > canvas { flex: 1; min-width: 0; }
 :host > .section > .tools { display: flex; flex-direction: column; padding: 6px 4px; }
 `;

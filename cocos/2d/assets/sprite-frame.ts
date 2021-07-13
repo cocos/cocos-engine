@@ -64,7 +64,7 @@ interface IVertices {
     v: number[];
 }
 
-interface ISpriteFramesSerializeData{
+interface ISpriteFramesSerializeData {
     name: string;
     base: string;
     image: string;
@@ -497,7 +497,7 @@ export class SpriteFrame extends Asset {
     public uv: number[] = [];
     public uvHash = 0;
 
-    public unbiasUV:number[] = [];
+    public unbiasUV: number[] = [];
 
     /**
      * @en UV for sliced 9 vertices
@@ -527,7 +527,7 @@ export class SpriteFrame extends Asset {
     protected _isFlipUVX = false;
 
     // store original info before packed to dynamic atlas
-    protected _original : {
+    protected _original: {
         _texture: TextureBase | RenderTexture,
         _x: number,
         _y: number,
@@ -549,9 +549,11 @@ export class SpriteFrame extends Asset {
      * Returns whether the texture have been loaded.
      * @zh
      * 返回是否已加载精灵帧。
+     *
+     * @deprecated since v3.3
      */
     public textureLoaded () {
-        return this.texture && this.texture.loaded;
+        return !!this.texture;
     }
 
     /**
@@ -701,7 +703,6 @@ export class SpriteFrame extends Asset {
 
         if (info) {
             if (info.texture) {
-                this.loaded = false;
                 this._rect.x = this._rect.y = 0;
                 this._rect.width = info.texture.width;
                 this._rect.height = info.texture.height;
@@ -781,11 +782,6 @@ export class SpriteFrame extends Asset {
         }
 
         return true;
-    }
-
-    public onLoaded () {
-        this.loaded = true;
-        this.emit('load');
     }
 
     public destroy () {
@@ -1142,8 +1138,8 @@ export class SpriteFrame extends Asset {
     // SERIALIZATION
     public _serialize (ctxForExporting: any): any {
         if (EDITOR || TEST) {
-            const rect = this._rect;
-            const offset = this._offset;
+            const rect = { x: this._rect.x, y: this._rect.y, width: this._rect.width, height: this._rect.height };
+            const offset = { x: this._offset.x, y: this._offset.y };
             const originalSize = this._originalSize;
             let texture;
             if (this._texture) {
@@ -1230,7 +1226,7 @@ export class SpriteFrame extends Asset {
         }
     }
 
-    public clone ():SpriteFrame {
+    public clone (): SpriteFrame {
         const sp = new SpriteFrame();
         const v = this.vertices;
         sp.vertices = v ? {
@@ -1258,7 +1254,8 @@ export class SpriteFrame extends Asset {
         return sp;
     }
 
-    protected _textureLoaded () {
+    protected _refreshTexture (texture: TextureBase | RenderTexture) {
+        this._texture = texture;
         const tex = this._texture;
         const config: ISpriteFrameInitInfo = {};
         let isReset = false;
@@ -1282,15 +1279,6 @@ export class SpriteFrame extends Asset {
         }
 
         this._checkPackable();
-    }
-
-    protected _refreshTexture (texture: TextureBase | RenderTexture) {
-        this._texture = texture;
-        if (texture.loaded) {
-            this._textureLoaded();
-        } else {
-            texture.once('load', this._textureLoaded, this);
-        }
     }
 
     public initDefault (uuid?: string) {

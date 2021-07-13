@@ -13,7 +13,7 @@ exports.template = `
         </ui-prop>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.offsetX" tooltip="i18n:ENGINE.assets.spriteFrame.offsetXTip"></ui-label>
-            <ui-num-input slot="content" disabled class="offsetX-input"></ui-num-input>
+            <ui-num-input slot="content" disabled class="offsetX-input" step="1"></ui-num-input>
         </ui-prop>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.offsetY" tooltip="i18n:ENGINE.assets.spriteFrame.offsetYTip"></ui-label>
@@ -25,11 +25,11 @@ exports.template = `
         </ui-prop>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.trimThreshold" tooltip="i18n:ENGINE.assets.spriteFrame.trimThresholdTip"></ui-label>
-            <ui-num-input slot="content" class="trimThreshold-input"></ui-num-input>
+            <ui-num-input slot="content" class="trimThreshold-input" step="1"></ui-num-input>
         </ui-prop>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.trimX" tooltip="i18n:ENGINE.assets.spriteFrame.trimXTip"></ui-label>
-            <ui-num-input slot="content" class="trimX-input"></ui-num-input>
+            <ui-num-input slot="content" class="trimX-input" step="1"></ui-num-input>
         </ui-prop>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.trimY" tooltip="i18n:ENGINE.assets.spriteFrame.trimYTip"></ui-label>
@@ -37,27 +37,27 @@ exports.template = `
         </ui-prop>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.width" tooltip="i18n:ENGINE.assets.spriteFrame.widthTip"></ui-label>
-            <ui-num-input slot="content" class="width-input"></ui-num-input>
+            <ui-num-input slot="content" class="width-input" step="1"></ui-num-input>
         </ui-prop>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.height" tooltip="i18n:ENGINE.assets.spriteFrame.heightTip"></ui-label>
-            <ui-num-input slot="content" class="height-input"></ui-num-input>
+            <ui-num-input slot="content" class="height-input"step="1"></ui-num-input>
         </ui-prop>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.borderTop" tooltip="i18n:ENGINE.assets.spriteFrame.borderTopTip"></ui-label>
-            <ui-num-input slot="content" class="borderTop-input" min="0"></ui-num-input>
+            <ui-num-input slot="content" class="borderTop-input" min="0" step="1"></ui-num-input>
         </ui-prop>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.borderBottom" tooltip="i18n:ENGINE.assets.spriteFrame.borderBottomTip"></ui-label>
-            <ui-num-input slot="content" class="borderBottom-input" min="0"></ui-num-input>
+            <ui-num-input slot="content" class="borderBottom-input" min="0"step="1"></ui-num-input>
         </ui-prop>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.borderLeft" tooltip="i18n:ENGINE.assets.spriteFrame.borderLeftTip"></ui-label>
-            <ui-num-input slot="content" class="borderLeft-input" min="0"></ui-num-input>
+            <ui-num-input slot="content" class="borderLeft-input" min="0" step="1"></ui-num-input>
         </ui-prop>
         <ui-prop>
             <ui-label slot="label" value="i18n:ENGINE.assets.spriteFrame.borderRight" tooltip="i18n:ENGINE.assets.spriteFrame.borderRightTip"></ui-label>
-            <ui-num-input slot="content" class="borderRight-input" min="0"></ui-num-input>
+            <ui-num-input slot="content" class="borderRight-input" min="0" step="1"></ui-num-input>
         </ui-prop>
         <ui-prop class="edit-row">
             <ui-button tabindex="0" class="edit-button">
@@ -331,6 +331,7 @@ const Elements = {
                     meta.userData.borderTop = event.target.value;
                 });
                 panel.dispatch('change');
+                Editor.Message.send('inspector', 'sprite-keys', panel.meta);
             });
         },
         update() {
@@ -353,6 +354,7 @@ const Elements = {
                     meta.userData.borderBottom = event.target.value;
                 });
                 panel.dispatch('change');
+                Editor.Message.send('inspector', 'sprite-keys', panel.meta);
             });
         },
         update() {
@@ -375,6 +377,7 @@ const Elements = {
                     meta.userData.borderLeft = event.target.value;
                 });
                 panel.dispatch('change');
+                Editor.Message.send('inspector', 'sprite-keys', panel.meta);
             });
         },
         update() {
@@ -397,6 +400,7 @@ const Elements = {
                     meta.userData.borderRight = event.target.value;
                 });
                 panel.dispatch('change');
+                Editor.Message.send('inspector', 'sprite-keys', panel.meta);
             });
         },
         update() {
@@ -435,6 +439,11 @@ const Elements = {
                 panel.$.editButton.style.display = 'none';
             } else {
                 panel.$.editButton.style.display = 'inline-block';
+            }
+
+            if (panel.uuidInSpriteEditor !== panel.meta.uuid) {
+                panel.uuidInSpriteEditor = panel.meta.uuid;
+                Editor.Message.send('inspector', 'sprite-keys', panel.meta);
             }
         },
         close() {

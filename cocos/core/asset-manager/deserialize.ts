@@ -32,6 +32,7 @@ import MissingScript from '../components/missing-script';
 import { deserialize, Details } from '../data/deserialize';
 import { error } from '../platform/debug';
 import { js } from '../utils/js';
+import { dependMap, nativeDependMap } from './depend-maps';
 import { decodeUuid } from './helper';
 
 const missingClass = EDITOR && EditorExtends.MissingReporter.classInstance;
@@ -43,7 +44,9 @@ export interface IDependProp {
     type?: Constructor<Asset>;
 }
 
-export default function (json: Record<string, any>, options: Record<string, any>): Asset {
+export default function deserializeAsset (json: Record<string, any>, options: Record<string, any> & {
+    __uuid__?: string;
+}): Asset {
     let classFinder;
     if (EDITOR) {
         classFinder = (type, data, owner, propName): Constructor<unknown> => {
@@ -96,10 +99,10 @@ export default function (json: Record<string, any>, options: Record<string, any>
     }
 
     // non-native deps
-    asset.__depends__ = depends;
+    dependMap.set(asset, depends);
     // native dep
     if (asset._native) {
-        asset.__nativeDepend__ = true;
+        nativeDependMap.add(asset);
     }
     Details.pool.put(tdInfo);
     return asset;

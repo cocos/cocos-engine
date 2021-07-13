@@ -28,14 +28,14 @@
  * @hidden
  */
 
-import { EDITOR, TEST, PREVIEW, BUILD, DEBUG, JSB } from 'internal:constants';
+import { EDITOR, TEST, PREVIEW, BUILD, DEBUG, JSB, DEV } from 'internal:constants';
 import { legacyCC } from '../global-exports';
 import { ValueType } from '../value-types';
 import { Vec2, Vec3, Vec4, Color, Size, Rect, Quat, Mat4 } from '../math';
 import { warnID, errorID, getError } from '../platform/debug';
 import * as js from '../utils/js';
 
-import { deserializeDynamic } from './deserialize-dynamic';
+import { deserializeDynamic, parseUuidDependenciesDynamic } from './deserialize-dynamic';
 import { Asset } from '../assets/asset';
 
 /** **************************************************************************
@@ -369,7 +369,7 @@ type IValueTypeData = [
 ];
 
 type ITRSData = [number, number, number, number, number,
-                        number, number, number, number, number];
+    number, number, number, number, number];
 
 const DICT_JSON_LAYOUT = 0;
 interface IDictData extends Array<any> {
@@ -1098,9 +1098,17 @@ export function hasNativeDep (data: IFileData): boolean {
     }
 }
 
-export function getDependUuidList (json: IFileData): string[] {
+function getDependUuidList (json: IFileData): string[] {
     const sharedUuids = json[File.SharedUuids];
     return json[File.DependUuidIndices].map((index) => sharedUuids[index]);
+}
+
+export function parseUuidDependencies (serialized: unknown) {
+    if (!DEV || isCompiledJson(serialized as object)) {
+        return getDependUuidList(serialized as IFileData);
+    } else {
+        return parseUuidDependenciesDynamic(serialized);
+    }
 }
 
 if (PREVIEW) {

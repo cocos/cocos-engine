@@ -36,4 +36,5 @@ export * from './input-manager';
 export * from './system-event';
 export * from './events';
 export * from './touch';
-export * from './event-enum';
+export * from './key-code';
+export { SystemEventType } from './event-enum';

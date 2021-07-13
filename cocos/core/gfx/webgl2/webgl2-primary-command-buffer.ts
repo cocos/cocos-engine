@@ -40,8 +40,6 @@ import { WebGL2Texture } from './webgl2-texture';
 import { RenderPass } from '../base/render-pass';
 import { WebGL2RenderPass } from './webgl2-render-pass';
 
-const _dynamicOffsets: number[] = [];
-
 export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     public beginRenderPass (
         renderPass: RenderPass,
@@ -134,14 +132,8 @@ export class WebGL2PrimaryCommandBuffer extends WebGL2CommandBuffer {
     }
 
     protected bindStates () {
-        _dynamicOffsets.length = 0;
-        for (let i = 0; i < this._curDynamicOffsets.length; i++) {
-            Array.prototype.push.apply(_dynamicOffsets, this._curDynamicOffsets[i]);
-        }
-        WebGL2CmdFuncBindStates(this._device as WebGL2Device,
-            this._curGPUPipelineState, this._curGPUInputAssembler, this._curGPUDescriptorSets, _dynamicOffsets,
-            this._curViewport, this._curScissor, this._curLineWidth, this._curDepthBias, this._curBlendConstants,
-            this._curDepthBounds, this._curStencilWriteMask, this._curStencilCompareMask);
+        WebGL2CmdFuncBindStates(this._device as WebGL2Device, this._curGPUPipelineState, this._curGPUInputAssembler,
+            this._curGPUDescriptorSets, this._curDynamicOffsets, this._curDynamicStates);
         this._isStateInvalied = false;
     }
 }

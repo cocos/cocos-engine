@@ -31,8 +31,8 @@
  */
 
 import '../data/class';
-import { system } from 'pal/system';
 import { EDITOR, MINIGAME, JSB, RUNTIME_BASED } from 'internal:constants';
+import { screenAdapter } from 'pal/screen-adapter';
 import { EventTarget } from '../event/event-target';
 import '../game';
 import { Rect, Size, Vec2 } from '../math';
@@ -40,66 +40,8 @@ import visibleRect from './visible-rect';
 import { legacyCC } from '../global-exports';
 import { logID, errorID } from './debug';
 import { sys } from './sys';
-import { BrowserType, OS } from '../../../pal/system/enum-type';
-
-class BrowserGetter {
-    public html: HTMLHtmlElement | undefined;
-
-    public meta = {
-        width: 'device-width',
-    };
-
-    public adaptationType: any = legacyCC.sys.browserType;
-
-    public init () {
-        if (!MINIGAME) {
-            this.html = document.getElementsByTagName('html')[0];
-        }
-    }
-
-    public availWidth (frame) {
-        if (legacyCC.sys.isMobile || !frame || frame === this.html) {
-            return window.innerWidth;
-        } else {
-            return frame.clientWidth as number;
-        }
-    }
-
-    public availHeight (frame) {
-        if (legacyCC.sys.isMobile || !frame || frame === this.html) {
-            return window.innerHeight;
-        } else {
-            return frame.clientHeight as number;
-        }
-    }
-}
-
-const __BrowserGetter = new BrowserGetter();
-
-if (system.os === OS.IOS) { // All browsers are WebView
-    __BrowserGetter.adaptationType = BrowserType.SAFARI;
-}
-
-switch (__BrowserGetter.adaptationType) {
-case BrowserType.SAFARI: {
-    __BrowserGetter.meta['minimal-ui'] = 'true';
-    __BrowserGetter.availWidth = (frame) => (frame.clientWidth as number);
-    __BrowserGetter.availHeight = (frame) => (frame.clientHeight as number);
-    break;
-}
-case BrowserType.SOUGOU: {
-    __BrowserGetter.availWidth = (frame) => (frame.clientWidth as number);
-    __BrowserGetter.availHeight = (frame) => (frame.clientHeight as number);
-    break;
-}
-case BrowserType.UC: {
-    __BrowserGetter.availWidth = (frame) => (frame.clientWidth as number);
-    __BrowserGetter.availHeight = (frame) => (frame.clientHeight as number);
-    break;
-}
-default:
-    break;
-}
+import { OS } from '../../../pal/system-info/enum-type';
+import { screen } from './screen';
 
 /**
  * @en View represents the game window.<br/>
@@ -117,11 +59,13 @@ default:
  *  - 控制 Canvas 节点相对于外层 DOM 节点的缩放和偏移。
  * 引擎会自动初始化它的单例对象 {{view}}，所以你不需要实例化任何 View，只需要直接使用 `view.methodName();`
  */
+
+const localWinSize = new Size();
+
 export class View extends EventTarget {
     public static instance: View;
     public _resizeWithBrowserSize: boolean;
     public _designResolutionSize: Size;
-    public _originalDesignResolutionSize: Size;
 
     private _frameSize: Size;
     private _scaleX: number;
@@ -137,7 +81,6 @@ export class View extends EventTarget {
     private _orientationChanging: boolean;
     private _isRotated: boolean;
     private _orientation: any;
-    private _isAdjustViewport: boolean;
     private _resolutionPolicy: ResolutionPolicy;
     private _rpExactFit: ResolutionPolicy;
     private _rpShowAll: ResolutionPolicy;
@@ -156,7 +99,6 @@ export class View extends EventTarget {
 
         // resolution size, it is the size appropriate for the app resources.
         this._designResolutionSize = new Size(0, 0);
-        this._originalDesignResolutionSize = new Size(0, 0);
         this._scaleX = 1;
         this._scaleY = 1;
         // Viewport is the container's rect related to content's coordinates in pixel
@@ -181,7 +123,6 @@ export class View extends EventTarget {
         this._orientationChanging = true;
         this._isRotated = false;
         this._orientation = legacyCC.macro.ORIENTATION_AUTO;
-        this._isAdjustViewport = true;
 
         // Setup system default resolution policies
         this._rpExactFit = new ResolutionPolicy(_strategyer.EQUAL_TO_FRAME, _strategy.EXACT_FIT);
@@ -195,25 +136,21 @@ export class View extends EventTarget {
     }
 
     public init () {
-        __BrowserGetter.init();
-
         this._initFrameSize();
 
         const w = legacyCC.game.canvas.width;
         const h = legacyCC.game.canvas.height;
         this._designResolutionSize.width = w;
         this._designResolutionSize.height = h;
-        this._originalDesignResolutionSize.width = w;
-        this._originalDesignResolutionSize.height = h;
         this._viewportRect.width = w;
         this._viewportRect.height = h;
         this._visibleRect.width = w;
         this._visibleRect.height = h;
 
-        legacyCC.winSize.width = this._visibleRect.width;
-        legacyCC.winSize.height = this._visibleRect.height;
-        if (legacyCC.visibleRect) {
-            legacyCC.visibleRect.init(this._visibleRect);
+        localWinSize.width = this._visibleRect.width;
+        localWinSize.height = this._visibleRect.height;
+        if (visibleRect) {
+            visibleRect.init(this._visibleRect);
         }
     }
 
@@ -230,14 +167,14 @@ export class View extends EventTarget {
             // enable
             if (!this._resizeWithBrowserSize) {
                 this._resizeWithBrowserSize = true;
-                system.onViewResize(this._resizeEvent);
-                system.onOrientationChange(this._orientationChange);
+                screenAdapter.on('window-resize', this._resizeEvent, this);
+                screenAdapter.on('orientation-change', this._orientationChange, this);
             }
         } else if (this._resizeWithBrowserSize) {
             // disable
             this._resizeWithBrowserSize = false;
-            system.offViewResize(this._resizeEvent);
-            system.offOrientationChange(this._orientationChange);
+            screenAdapter.off('window-resize', this._resizeEvent, this);
+            screenAdapter.off('orientation-change', this._orientationChange, this);
         }
     }
 
@@ -290,9 +227,10 @@ export class View extends EventTarget {
      * 即使当它启动时，你仍然能够设置你的 viewport meta，它不会被覆盖。
      * 仅在 Web 模式下有效
      * @param enabled - Enable automatic modification to "viewport" meta
+     * @deprecated since v3.3
      */
     public adjustViewportMeta (enabled: boolean) {
-        this._isAdjustViewport = enabled;
+        // DO NOTHING
     }
 
     /**
@@ -328,17 +266,16 @@ export class View extends EventTarget {
      * @zh 启动时，移动端游戏会在移动端自动尝试进入全屏模式。
      * 你能够传入 true 为参数去启动它，用 false 参数来关闭它。
      * @param enabled - Enable or disable auto full screen on mobile devices
+     *
+     * @deprecated since v3.3
      */
     public enableAutoFullScreen (enabled: boolean) {
-        if (enabled
-            && enabled !== this._autoFullScreen
-            && legacyCC.sys.isMobile
-            && system.browserType !== BrowserType.WECHAT) {
-            // Automatically full screen when user touches on mobile version
-            this._autoFullScreen = true;
-            legacyCC.screen.autoFullScreen(legacyCC.game.frame);
-        } else {
-            this._autoFullScreen = false;
+        if (enabled === this._autoFullScreen) {
+            return;
+        }
+        this._autoFullScreen = enabled;
+        if (enabled) {
+            screen.requestFullScreen().catch((e) => {});
         }
     }
 
@@ -349,6 +286,8 @@ export class View extends EventTarget {
      * @zh 检查自动进入全屏模式是否启动。
      * 仅在 Web 模式下有效。
      * @return Auto full screen enabled or not
+     *
+     * @deprecated since v3.3
      */
     public isAutoFullScreenEnabled (): boolean {
         return this._autoFullScreen;
@@ -522,11 +461,6 @@ export class View extends EventTarget {
             policy.preApply(this);
         }
 
-        // Reinit frame size
-        if (legacyCC.sys.isMobile) {
-            this._adjustViewportMeta();
-        }
-
         // Permit to re-detect the orientation of device.
         this._orientationChanging = true;
         // If resizing, then frame size is already initialized, this logic should be improved
@@ -539,8 +473,8 @@ export class View extends EventTarget {
             return;
         }
 
-        this._originalDesignResolutionSize.width = this._designResolutionSize.width = width;
-        this._originalDesignResolutionSize.height = this._designResolutionSize.height = height;
+        this._designResolutionSize.width = width;
+        this._designResolutionSize.height = height;
 
         const result = policy.apply(this, this._designResolutionSize);
 
@@ -566,8 +500,8 @@ export class View extends EventTarget {
         }
 
         policy.postApply(this);
-        legacyCC.winSize.width = this._visibleRect.width;
-        legacyCC.winSize.height = this._visibleRect.height;
+        localWinSize.width = this._visibleRect.width;
+        localWinSize.height = this._visibleRect.height;
 
         if (visibleRect) {
             visibleRect.init(this._visibleRect);
@@ -603,9 +537,6 @@ export class View extends EventTarget {
      */
     public setRealPixelResolution (width: number, height: number, resolutionPolicy: ResolutionPolicy|number) {
         if (!JSB && !RUNTIME_BASED && !MINIGAME) {
-            // Set viewport's width
-            this._setViewportMeta({ width }, true);
-
             // Set body width to the exact pixel resolution
             document.documentElement.style.width = `${width}px`;
             document.body.style.width = `${width}px`;
@@ -675,12 +606,6 @@ export class View extends EventTarget {
         return result;
     }
 
-    // _convertMouseToLocationInView (in_out_point, relatedPos) {
-    //     var viewport = this._viewportRect, _t = this;
-    //     in_out_point.x = ((_t._devicePixelRatio * (in_out_point.x - relatedPos.left)) - viewport.x) / _t._scaleX;
-    //     in_out_point.y = (_t._devicePixelRatio * (relatedPos.top + relatedPos.height - in_out_point.y) - viewport.y) / _t._scaleY;
-    // }
-
     private _convertPointWithScale (point) {
         const viewport = this._viewportRect;
         point.x = (point.x - viewport.x) / this._scaleX;
@@ -689,53 +614,50 @@ export class View extends EventTarget {
 
     // Resize helper functions
     private _resizeEvent () {
-        const _view = legacyCC.view;
-
         // Check frame size changed or not
-        const prevFrameW = _view._frameSize.width;
-        const prevFrameH = _view._frameSize.height;
-        const prevRotated = _view._isRotated;
+        const prevFrameW = this._frameSize.width;
+        const prevFrameH = this._frameSize.height;
+        const prevRotated = this._isRotated;
         if (legacyCC.sys.isMobile) {
             const containerStyle = legacyCC.game.container.style;
             const margin = containerStyle.margin;
             containerStyle.margin = '0';
             containerStyle.display = 'none';
-            _view._initFrameSize();
+            this._initFrameSize();
             containerStyle.margin = margin;
             containerStyle.display = 'block';
         } else {
-            _view._initFrameSize();
+            this._initFrameSize();
         }
 
-        if (!JSB && !RUNTIME_BASED && !_view._orientationChanging && _view._isRotated === prevRotated && _view._frameSize.width === prevFrameW && _view._frameSize.height === prevFrameH) {
+        if (!JSB && !RUNTIME_BASED && !this._orientationChanging && this._isRotated === prevRotated && this._frameSize.width === prevFrameW && this._frameSize.height === prevFrameH) {
             return;
         }
 
         // Frame size changed, do resize works
-        const width = _view._originalDesignResolutionSize.width;
-        const height = _view._originalDesignResolutionSize.height;
+        const width = this._designResolutionSize.width;
+        const height = this._designResolutionSize.height;
 
-        _view._resizing = true;
+        this._resizing = true;
         if (width > 0) {
-            _view.setDesignResolutionSize(width, height, _view._resolutionPolicy);
+            this.setDesignResolutionSize(width, height, this._resolutionPolicy);
         }
-        _view._resizing = false;
+        this._resizing = false;
 
-        _view.emit('canvas-resize');
-        if (_view._resizeCallback) {
-            _view._resizeCallback.call();
-        }
+        this.emit('canvas-resize');
+        this._resizeCallback?.();
     }
 
     private _orientationChange () {
-        legacyCC.view._orientationChanging = true;
-        legacyCC.view._resizeEvent();
+        this._orientationChanging = true;
+        this._resizeEvent();
     }
 
     private _initFrameSize () {
         const locFrameSize = this._frameSize;
-        const w = __BrowserGetter.availWidth(legacyCC.game.frame);
-        const h = __BrowserGetter.availHeight(legacyCC.game.frame);
+        const windowSize = screenAdapter.windowSize;
+        const w = windowSize.width;
+        const h = windowSize.height;
         const isLandscape: boolean = w >= h;
 
         if (EDITOR || !legacyCC.sys.isMobile
@@ -768,101 +690,6 @@ export class View extends EventTarget {
             setTimeout(() => {
                 legacyCC.view._orientationChanging = false;
             }, 1000);
-        }
-    }
-
-    // hack
-    private _adjustSizeKeepCanvasSize () {
-        const designWidth = this._originalDesignResolutionSize.width;
-        const designHeight = this._originalDesignResolutionSize.height;
-        if (designWidth > 0) {
-            this.setDesignResolutionSize(designWidth, designHeight, this._resolutionPolicy);
-        }
-    }
-
-    private _setViewportMeta (metas, overwrite) {
-        let vp = document.getElementById('cocosMetaElement');
-        if (vp && overwrite) {
-            document.head.removeChild(vp);
-        }
-
-        const elems = document.getElementsByName('viewport');
-        const currentVP = elems ? elems[0] : null;
-        let content;
-        let key;
-        let pattern;
-
-        content = currentVP ? currentVP.content : '';
-        vp = vp || document.createElement('meta');
-        vp.id = 'cocosMetaElement';
-        vp.name = 'viewport';
-        vp.content = '';
-
-        for (key in metas) {
-            if (content.indexOf(key) === -1) {
-                content += `,${key}=${metas[key]}`;
-            } else if (overwrite) {
-                // eslint-disable-next-line no-useless-escape
-                pattern = new RegExp(`${key}\s*=\s*[^,]+`);
-                content = content.replace(pattern, `${key}=${metas[key]}`);
-            }
-        }
-        if (/^,/.test(content)) {
-            content = content.substr(1);
-        }
-
-        vp.content = content;
-        // For adopting certain android devices which don't support second viewport
-        if (currentVP) {
-            currentVP.content = content;
-        }
-
-        document.head.appendChild(vp);
-    }
-
-    private _adjustViewportMeta () {
-        if (this._isAdjustViewport && !JSB && !RUNTIME_BASED && !MINIGAME) {
-            this._setViewportMeta(__BrowserGetter.meta, false);
-            this._isAdjustViewport = false;
-        }
-    }
-
-    private _convertMouseToLocation (in_out_point, relatedPos) {
-        in_out_point.x = this._devicePixelRatio * (in_out_point.x - relatedPos.left);
-        in_out_point.y = this._devicePixelRatio * ((relatedPos.top as number) + (relatedPos.height as number) - in_out_point.y);
-        if (legacyCC.GAME_VIEW) {
-            in_out_point.x /= legacyCC.gameView.canvas.width / legacyCC.game.canvas.width;
-            in_out_point.y /= legacyCC.gameView.canvas.height / legacyCC.game.canvas.height;
-        }
-    }
-
-    private _convertTouchWidthScale (selTouch) {
-        const viewport = this._viewportRect;
-        const scaleX = this._scaleX;
-        const scaleY = this._scaleY;
-
-        selTouch._point.x = (selTouch._point.x - viewport.x) / scaleX;
-        selTouch._point.y = (selTouch._point.y - viewport.y) / scaleY;
-        selTouch._prevPoint.x = (selTouch._prevPoint.x - viewport.x) / scaleX;
-        selTouch._prevPoint.y = (selTouch._prevPoint.y - viewport.y) / scaleY;
-    }
-
-    private _convertTouchesWithScale (touches) {
-        const viewport = this._viewportRect;
-        const scaleX = this._scaleX;
-        const scaleY = this._scaleY;
-        let selPoint;
-        let selPrePoint;
-
-        for (let i = 0; i < touches.length; i++) {
-            const selTouch = touches[i];
-            selPoint = selTouch._point;
-            selPrePoint = selTouch._prevPoint;
-
-            selPoint.x = (selPoint.x - viewport.x) / scaleX;
-            selPoint.y = (selPoint.y - viewport.y) / scaleY;
-            selPrePoint.x = (selPrePoint.x - viewport.x) / scaleX;
-            selPrePoint.y = (selPrePoint.y - viewport.y) / scaleY;
         }
     }
 }
@@ -921,7 +748,7 @@ class ContainerStrategy {
         const locCanvas = legacyCC.game.canvas;
         const locContainer = legacyCC.game.container;
 
-        if (system.os === OS.ANDROID) {
+        if (sys.os === OS.ANDROID || sys.os === OS.OHOS) {
             document.body.style.width = `${_view._isRotated ? h : w}px`;
             document.body.style.height = `${_view._isRotated ? w : h}px`;
         }
@@ -1358,5 +1185,7 @@ export const view = View.instance = legacyCC.view = new View();
 /**
  * @en winSize is the alias object for the size of the current game window.
  * @zh winSize 为当前的游戏窗口的大小。
+ *
+ * @deprecated since v3.3, please use view.getVisibleSize() instead.
  */
-legacyCC.winSize = new Size();
+legacyCC.winSize = localWinSize;

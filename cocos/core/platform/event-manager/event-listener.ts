@@ -360,7 +360,7 @@ export class MouseEventListener extends EventListener {
     }
 
     public _callback (event: EventMouse) {
-        switch (event.eventType) {
+        switch (event.type) {
         case SystemEventType.MOUSE_DOWN:
             if (this.onMouseDown) {
                 this.onMouseDown(event);
@@ -497,8 +497,9 @@ export class AccelerationEventListener extends EventListener {
 
 // Keyboard
 export class KeyboardEventListener extends EventListener {
-    public onKeyPressed: Function | null = null;
-    public onKeyReleased: Function | null = null;
+    public onKeyDown?: Function = undefined;
+    public onKeyPressed?: Function = undefined;  // deprecated
+    public onKeyReleased?: Function = undefined;
 
     constructor () {
         super(EventListener.KEYBOARD, ListenerID.KEYBOARD, null);
@@ -506,24 +507,32 @@ export class KeyboardEventListener extends EventListener {
     }
 
     public _callback (event: EventKeyboard) {
-        if (event.isPressed) {
-            if (this.onKeyPressed) {
-                this.onKeyPressed(event.keyCode, event);
-            }
-        } else if (this.onKeyReleased) {
-            this.onKeyReleased(event.keyCode, event);
+        switch (event.type) {
+        // TODO: to support in Input module
+        // case 'keypress':
+        //     this.onKeyDown?.(event.keyCode, event);
+        //     break;
+        case SystemEventType.KEY_DOWN:
+            this.onKeyPressed?.(event.keyCode, event);
+            break;
+        case SystemEventType.KEY_UP:
+            this.onKeyReleased?.(event.keyCode, event);
+            break;
+        default:
+            break;
         }
     }
 
     public clone () {
         const eventListener = new KeyboardEventListener();
+        eventListener.onKeyDown = this.onKeyDown;
         eventListener.onKeyPressed = this.onKeyPressed;
         eventListener.onKeyReleased = this.onKeyReleased;
         return eventListener;
     }
 
     public checkAvailable () {
-        if (this.onKeyPressed === null && this.onKeyReleased === null) {
+        if (this.onKeyDown === null && this.onKeyPressed === null && this.onKeyReleased === null) {
             logID(1800);
             return false;
         }

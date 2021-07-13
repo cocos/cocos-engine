@@ -33,8 +33,7 @@ import { Rect } from '../math';
 import { legacyCC } from '../global-exports';
 
 /**
- * `visibleRect` is a singleton object which defines the actual visible rect of the current view,
- * it should represent the same rect as `view.getViewportRect()`
+ * `visibleRect` is a singleton object which defines the actual visible rect of the current view
  */
 const visibleRect = {
     /**

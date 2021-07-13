@@ -29,7 +29,7 @@ import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
-import { Shadows, ShadowType } from '../renderer/scene/shadows';
+import { PCFType, Shadows, ShadowType } from '../renderer/scene/shadows';
 import { getShadowWorldMatrix, updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene';
@@ -342,18 +342,26 @@ export class PipelineUBO {
      * @zh 更新全部 UBO。
      */
     public updateGlobalUBO () {
+        const globalDSManager = this._pipeline.globalDSManager;
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
         ds.update();
         PipelineUBO.updateGlobalUBOView(this._pipeline, this._globalUBO);
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOGlobal.BINDING), this._globalUBO);
+
+        globalDSManager.bindBuffer(UBOGlobal.BINDING, ds.getBuffer(UBOGlobal.BINDING));
+        globalDSManager.update();
     }
 
     public updateCameraUBO (camera: Camera) {
+        const globalDSManager = this._pipeline.globalDSManager;
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
         PipelineUBO.updateCameraUBOView(this._pipeline, this._cameraUBO, camera);
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOCamera.BINDING), this._cameraUBO);
+
+        globalDSManager.bindBuffer(UBOCamera.BINDING, ds.getBuffer(UBOCamera.BINDING));
+        globalDSManager.update();
     }
 
     public updateShadowUBO (camera: Camera) {

@@ -26,7 +26,6 @@
 import { RenderPass } from '../../gfx';
 import { PipelineStateManager } from '../pipeline-state-manager';
 import { SetIndex } from '../define';
-import { IAPool, DSPool, ShaderPool, BatchPool2D, BatchView2D } from '../../renderer/core/memory-pools';
 import { Camera } from '../../renderer/scene/camera';
 import { ForwardPipeline } from './forward-pipeline';
 import { RenderPipeline } from '../render-pipeline';
@@ -54,21 +53,19 @@ export class UIPhase {
             }
 
             if (!visible) continue;
-            const handle = batch.handle;
-            const count = BatchPool2D.get(handle, BatchView2D.PASS_COUNT);
+            const count = batch.passes.length;
             for (let j = 0; j < count; j++) {
                 const pass = batch.passes[j];
                 if (pass.phase !== this._phaseID) continue;
-                const shaderHandle = BatchPool2D.get(handle, BatchView2D.SHADER_0 + j);
-                const shader = ShaderPool.get(shaderHandle);
-                const inputAssembler = IAPool.get(batch.hInputAssembler);
-                const ds = DSPool.get(batch.hDescriptorSet);
-                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
+                const shader = batch.shaders[j];
+                const inputAssembler = batch.inputAssembler;
+                const ds = batch.descriptorSet;
+                const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler!);
                 cmdBuff.bindPipelineState(pso);
                 cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);
-                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds);
-                cmdBuff.bindInputAssembler(inputAssembler);
-                cmdBuff.draw(inputAssembler);
+                cmdBuff.bindDescriptorSet(SetIndex.LOCAL, ds!);
+                cmdBuff.bindInputAssembler(inputAssembler!);
+                cmdBuff.draw(inputAssembler!);
             }
         }
     }

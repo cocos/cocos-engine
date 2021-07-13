@@ -37,7 +37,7 @@ import { Scheduler } from '../scheduler';
 import { MutableForwardIterator, remove } from '../utils/array';
 import { BlendStateBuffer } from '../../3d/skeletal-animation/skeletal-animation-blending';
 import { AnimationState } from './animation-state';
-import { CrossFade } from './cross-fade';
+import type { CrossFade } from './cross-fade';
 import { legacyCC } from '../global-exports';
 import { IJointTransform, deleteTransform, getTransform, getWorldMatrix } from './skeletal-animation-utils';
 import { Socket } from '../../3d/skeletal-animation/skeletal-animation';
@@ -55,29 +55,42 @@ export class AnimationManager extends System {
 
     public static ID = 'animation';
     private _anims = new MutableForwardIterator<AnimationState>([]);
+    private _crossFades = new MutableForwardIterator<CrossFade>([]);
     private _delayEvents: {
-        fn: Function;
+        fn: (...args: any[]) => void;
         thisArg: any;
         args: any[];
     }[] = [];
     private _blendStateBuffer: BlendStateBuffer = new BlendStateBuffer();
-    private _crossFades: CrossFade[] = [];
     private _sockets: ISocketData[] = [];
 
     public addCrossFade (crossFade: CrossFade) {
-        this._crossFades.push(crossFade);
+        const index = this._crossFades.array.indexOf(crossFade);
+        if (index === -1) {
+            this._crossFades.push(crossFade);
+        }
     }
 
     public removeCrossFade (crossFade: CrossFade) {
-        remove(this._crossFades, crossFade);
+        const index = this._crossFades.array.indexOf(crossFade);
+        if (index >= 0) {
+            this._crossFades.fastRemoveAt(index);
+        } else {
+            errorID(3907);
+        }
     }
 
     public update (dt: number) {
-        const { _delayEvents, _crossFades, _sockets } = this;
+        const { _delayEvents, _crossFades: crossFadesIter, _sockets } = this;
 
-        for (let i = 0, l = _crossFades.length; i < l; i++) {
-            _crossFades[i].update(dt);
+        { // Update cross fades
+            const crossFades = crossFadesIter.array;
+            for (crossFadesIter.i = 0; crossFadesIter.i < crossFades.length; ++crossFadesIter.i) {
+                const crossFade = crossFades[crossFadesIter.i];
+                crossFade.update(dt);
+            }
         }
+
         const iterator = this._anims;
         const array = iterator.array;
         for (iterator.i = 0; iterator.i < array.length; ++iterator.i) {
@@ -121,7 +134,7 @@ export class AnimationManager extends System {
         }
     }
 
-    public pushDelayEvent (fn: Function, thisArg: any, args: any[]) {
+    public pushDelayEvent (fn: (...args: any[]) => void, thisArg: any, args: any[]) {
         this._delayEvents.push({
             fn,
             thisArg,
@@ -159,7 +172,7 @@ export class AnimationManager extends System {
 
 director.on(Director.EVENT_INIT, () => {
     const animationManager = new AnimationManager();
-    director.registerSystem(AnimationManager.ID, animationManager, Scheduler.PRIORITY_SYSTEM);
+    director.registerSystem(AnimationManager.ID, animationManager, System.Priority.HIGH);
 });
 
 legacyCC.AnimationManager = AnimationManager;

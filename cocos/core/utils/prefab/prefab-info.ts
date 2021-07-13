@@ -1,7 +1,7 @@
 import { ccclass, serializable, editable, type } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { legacyCC } from '../../global-exports';
-import Prefab from '../../assets/prefab';
+import { Prefab } from '../../assets';
 import { CCObject } from '../../data/object';
 import { Component } from '../../components/component';
 import { Node } from '../../scene-graph/node';
@@ -176,7 +176,6 @@ export class PrefabInfo {
     // 所属的 prefab 资源对象 (cc.Prefab)
     // In Editor, only asset._uuid is usable because asset will be changed.
     @serializable
-    @type(legacyCC.Prefab)
     public asset?: Prefab;
 
     // 用来标识别该节点在 prefab 资源中的位置，因此这个 ID 只需要保证在 Assets 里不重复就行

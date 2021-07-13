@@ -39,11 +39,11 @@ export function loadAudioPlayer (url: string, options: IDownloadParseOptions, on
         audioLoadMode: options.audioLoadMode,
     }).then((player) => {
         const audioMeta: AudioMeta = {
+            player,
             url,
             duration: player.duration,
             type: player.type,
         };
-        player.destroy();
         onComplete(null, audioMeta);
     }).catch((err) => {
         onComplete(err);

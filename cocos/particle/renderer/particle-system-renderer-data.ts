@@ -32,6 +32,7 @@ import ParticleSystemRendererGPU from './particle-system-renderer-gpu';
 import { director } from '../../core/director';
 import { Device, Feature } from '../../core/gfx';
 import { legacyCC } from '../../core/global-exports';
+import { errorID } from '../../core';
 
 function isSupportGPUParticle () {
     const device: Device = director.root!.device;
@@ -203,11 +204,25 @@ export default class ParticleSystemRenderer {
 
     private _particleSystem: any = null!; // ParticleSystem
 
-    onInit (ps: any) {
-        this._particleSystem = ps;
-        const useGPU = this._useGPU && isSupportGPUParticle();
-        this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
-        this._particleSystem.processor.onInit(ps);
+    create (ps) {
+        // if particle system is null we run the old routine
+        // else if particle system is not null we do nothing
+        if (this._particleSystem === null) {
+            this._particleSystem = ps;
+        } else if (this._particleSystem !== ps) {
+            errorID(6033);
+        }
+    }
+
+    onInit (ps) {
+        this.create(ps);
+        if (!this._particleSystem.processor) {
+            const useGPU = this._useGPU && isSupportGPUParticle();
+            this._particleSystem.processor = useGPU ? new ParticleSystemRendererGPU(this) : new ParticleSystemRendererCPU(this);
+            this._particleSystem.processor.onInit(ps);
+        } else {
+            errorID(6034);
+        }
     }
 
     private _switchProcessor () {

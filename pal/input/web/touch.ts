@@ -1,9 +1,9 @@
 import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
-import { system } from 'pal/system';
 import { TEST } from 'internal:constants';
 import { Rect, Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
+import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 
 export class TouchInputSource {
@@ -30,8 +30,8 @@ export class TouchInputSource {
         this._canvas?.addEventListener('touchcancel', this._createCallback(SystemEventType.TOUCH_CANCEL));
     }
 
-    private _createCallback (eventType: string) {
-        return (event: TouchEvent) => {
+    private _createCallback (eventType: SystemEvent.EventType) {
+        return (event: any) => {
             const canvasRect = this._getCanvasRect();
             const touchDataList: TouchData[] = [];
             const length = event.changedTouches.length;

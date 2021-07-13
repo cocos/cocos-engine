@@ -21,9 +21,10 @@ type InnerAudioContextPolyfillConfig = {
  * This method is to create a polyfill on minigame platform when the innerAudioContext callback doesn't work.
  * @param minigameEnv Specify the minigame enviroment such as `wx`, `swan` etc.
  * @param polyfillConfig Specify the field, if it's true, the polyfill callback will be applied.
+ * @param isAsynchronous Specify whether the callback is called asynchronous.
  * @returns A polyfilled createInnerAudioContext method.
  */
-export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfig: InnerAudioContextPolyfillConfig) {
+export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfig: InnerAudioContextPolyfillConfig, isAsynchronous = false) {
     return () => {
         const audioContext: InnerAudioContext = minigameEnv.createInnerAudioContext();
 
@@ -41,7 +42,13 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
                 configurable: true,
                 value () {
                     originalPlay.call(audioContext);
-                    _onPlayCB?.();
+                    if (_onPlayCB) {
+                        if (isAsynchronous) {
+                            setTimeout(_onPlayCB, 0);
+                        } else {
+                            _onPlayCB();
+                        }
+                    }
                 },
             });
         }
@@ -60,7 +67,13 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
                 configurable: true,
                 value () {
                     originalPause.call(audioContext);
-                    _onPauseCB?.();
+                    if (_onPauseCB) {
+                        if (isAsynchronous) {
+                            setTimeout(_onPauseCB, 0);
+                        } else {
+                            _onPauseCB();
+                        }
+                    }
                 },
             });
         }
@@ -79,7 +92,13 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
                 configurable: true,
                 value () {
                     originalStop.call(audioContext);
-                    _onStopCB?.();
+                    if (_onStopCB) {
+                        if (isAsynchronous) {
+                            setTimeout(_onStopCB, 0);
+                        } else {
+                            _onStopCB();
+                        }
+                    }
                 },
             });
         }
@@ -98,11 +117,43 @@ export function createInnerAudioContextPolyfill (minigameEnv: any, polyfillConfi
                 configurable: true,
                 value (time: number) {
                     originalSeek.call(audioContext, time);
-                    _onSeekCB?.();
+                    if (_onSeekCB) {
+                        if (isAsynchronous) {
+                            setTimeout(_onSeekCB, 0);
+                        } else {
+                            _onSeekCB();
+                        }
+                    }
                 },
             });
         }
 
         return audioContext;
     };
+}
+
+/**
+ * Compare two version, version should in pattern like 3.0.0.
+ * If versionA > versionB, return number larger than 0.
+ * If versionA = versionB, return number euqal to 0.
+ * If versionA < versionB, return number smaller than 0.
+ * @param versionA
+ * @param versionB
+ */
+export function versionCompare (versionA: string, versionB: string): number {
+    const versionRegExp = /\d+\.\d+\.\d+/;
+    if (!(versionRegExp.test(versionA) && versionRegExp.test(versionB))) {
+        console.warn('wrong format of version when compare version');
+        return 0;
+    }
+    const versionNumbersA = versionA.split('.').map((num: string) => Number.parseInt(num));
+    const versionNumbersB = versionB.split('.').map((num: string) => Number.parseInt(num));
+    for (let i = 0; i < 3; ++i) {
+        const numberA = versionNumbersA[i];
+        const numberB = versionNumbersB[i];
+        if (numberA !== numberB) {
+            return numberA - numberB;
+        }
+    }
+    return 0;
 }

@@ -96,7 +96,7 @@ export declare namespace AnimationClip {
     export interface IEvent {
         frame: number;
         func: string;
-        params: string[];
+        params: any[];
     }
 
     export namespace _impl {
@@ -438,10 +438,6 @@ export class AnimationClip extends Asset {
                 curve.data.values = curve.data.values.decompress(binaryBuffer);
             }
         }
-    }
-
-    public validate () {
-        return this.keys.length > 0 && this.curves.length > 0;
     }
 }
 

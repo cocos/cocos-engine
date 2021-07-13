@@ -50,12 +50,14 @@ struct StandardSurface {
   float roughness;
   float metallic;
   float occlusion;
+  float SpecularIntensity;
 };
 
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   // Calculate diffuse & specular
   vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
-  vec3 specular = mix(vec3(0.04), s.albedo.rgb, s.metallic);
+ 
+  vec3 specular = mix(vec3(0.08 * s.SpecularIntensity), s.albedo.rgb, s.metallic);
 
   vec3 N = normalize(s.normal);
   vec3 V = normalize(cc_cameraPos.xyz - s.position);
@@ -80,12 +82,16 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
 
   // Cook-Torrance Microfacet Specular BRDF
   vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
+  vec3 dirlightContrib = (diffuseContrib + specularContrib);
+  #if CC_RECEIVE_SHADOW
+    CC_SHADOW_FACTOR_BASE(dirlightContrib, NL, shadowPos, L, N);
+  #endif
 
-  finalColor *= (diffuseContrib + specularContrib);
+  finalColor *= dirlightContrib;
 
   float fAmb = 0.5 - N.y * 0.5;
   vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
-  finalColor += (ambDiff.rgb * diffuse);
+  finalColor += (ambDiff.rgb * diffuse) * s.occlusion;
 
   #if CC_USE_IBL
     vec3 R = normalize(reflect(-V, N));
@@ -95,19 +101,13 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #else
       vec3 env = SRGBToLinear(envmap.rgb);
     #endif
-    finalColor += env * cc_ambientSky.w * specular;
+    finalColor += env * cc_ambientSky.w * specular * s.occlusion;
   #endif
-
-  finalColor = finalColor * s.occlusion;
 
   #if CC_USE_HDR
     s.emissive *= cc_exposure.w;
   #endif
   finalColor += s.emissive;
-
-  #if CC_RECEIVE_SHADOW
-    CC_SHADOW_FACTOR_BASE(finalColor, NL, shadowPos, L, N);
-  #endif
 
   return vec4(finalColor, s.albedo.a);
 }
