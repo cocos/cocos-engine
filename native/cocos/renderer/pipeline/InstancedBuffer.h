@@ -61,6 +61,7 @@ public:
     static constexpr uint   MAX_CAPACITY     = 1024;
     static InstancedBuffer *get(scene::Pass *pass);
     static InstancedBuffer *get(scene::Pass *, uint extraKey);
+    static void             destroyInstancedBuffer();
 
     explicit InstancedBuffer(const scene::Pass *pass);
     ~InstancedBuffer() override;

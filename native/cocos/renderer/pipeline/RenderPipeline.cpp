@@ -31,6 +31,7 @@
 #include "gfx-base/GFXDescriptorSetLayout.h"
 #include "gfx-base/GFXDevice.h"
 #include "gfx-base/GFXTexture.h"
+#include "InstancedBuffer.h"
 
 namespace cc {
 namespace pipeline {
@@ -117,6 +118,7 @@ void RenderPipeline::destroy() {
 
     SamplerLib::destroyAll();
     PipelineStateManager::destroyAll();
+    InstancedBuffer::destroyInstancedBuffer();
 }
 
 void RenderPipeline::setPipelineSharedSceneData(scene::PipelineSharedSceneData *data) {
