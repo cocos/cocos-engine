@@ -148,7 +148,7 @@ export class Factory {
         }
     }
 
-    public create (id: string, data: any, type: string, options: IRemoteOptions, onComplete: CompleteCallback<Asset | Bundle>): void {
+    public create (id: string, data: any, type: string, options: IRemoteOptions, onComplete: CompleteCallback<Asset>): void {
         const handler = this._producers[type] || this._producers.default;
         const asset = assets.get(id);
         if (!options.reloadAsset && asset) {
@@ -163,7 +163,7 @@ export class Factory {
 
         this._creating.add(id, [onComplete]);
         handler(id, data, options, (err, result) => {
-            if (!err && result instanceof Asset) {
+            if (!err && result) {
                 result._uuid = id;
                 cache(id, result, options.cacheAsset);
             }

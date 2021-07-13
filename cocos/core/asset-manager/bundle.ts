@@ -28,7 +28,7 @@
  */
 import { Asset } from '../assets/asset';
 import SceneAsset from '../assets/scene-asset';
-import { GCObject } from '../data';
+import { ccclass } from '../data/decorators';
 import { legacyCC } from '../global-exports';
 import { error, errorID } from '../platform/debug';
 import Config, { IAddressableInfo, IAssetInfo, IConfigOption, ISceneInfo } from './config';
@@ -44,7 +44,8 @@ import { parseLoadResArgs, parseParameters } from './utilities';
  * 一个包含一定数量资源（包括场景）的包，你可以加载，预加载，释放此包内的资源
  *
  */
-export default class Bundle extends GCObject {
+@ccclass('cc.AssetManager.Bundle')
+export default class Bundle extends Asset {
     private _config: Config = new Config();
 
     /**
@@ -546,6 +547,7 @@ export default class Bundle extends GCObject {
     public destroy () {
         this._config.destroy();
         bundles.remove(this.name);
+        return super.destroy();
     }
 }
 
