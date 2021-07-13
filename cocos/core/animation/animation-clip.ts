@@ -439,10 +439,6 @@ export class AnimationClip extends Asset {
             }
         }
     }
-
-    public validate () {
-        return this.keys.length > 0 && this.curves.length > 0;
-    }
 }
 
 legacyCC.AnimationClip = AnimationClip;
