@@ -40,6 +40,7 @@ import { Asset } from '../assets/asset';
 
 import { deserializeSymbol } from './serialization-symbols';
 import type { CCON } from './ccon';
+import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 
 /** **************************************************************************
  * BUILT-IN TYPES / CONSTAINTS
@@ -507,8 +508,10 @@ interface ICustomHandler {
     customEnv: any,
 }
 type ClassFinder = (type: string) => AnyCtor;
+
 interface IOptions extends Partial<ICustomHandler> {
     classFinder?: ClassFinder;
+    reportMissingClass: ReportMissingClass;
     _version?: number;
 }
 interface ICustomClass {
@@ -864,13 +867,13 @@ function parseInstances (data: IFileData): RootInstanceIndex {
 //     }
 // }
 
-function getMissingClass (hasCustomFinder, type) {
+function getMissingClass (hasCustomFinder, type, reportMissingClass: deserialize.ReportMissingClass) {
     if (!hasCustomFinder) {
-        deserialize.reportMissingClass(type);
+        reportMissingClass(type);
     }
     return Object;
 }
-function doLookupClass (classFinder, type: string, container: any[], index: number, silent: boolean, hasCustomFinder) {
+function doLookupClass (classFinder, type: string, container: any[], index: number, silent: boolean, hasCustomFinder, reportMissingClass: deserialize.ReportMissingClass) {
     let klass = classFinder(type);
     if (!klass) {
         // if (klass.__FSA__) {
@@ -879,19 +882,19 @@ function doLookupClass (classFinder, type: string, container: any[], index: numb
         if (silent) {
             // generate a lazy proxy for ctor
             container[index] = ((c, i, t) => function proxy () {
-                const actualClass = classFinder(t) || getMissingClass(hasCustomFinder, t);
+                const actualClass = classFinder(t) || getMissingClass(hasCustomFinder, t, reportMissingClass);
                 c[i] = actualClass;
                 return new actualClass();
             })(container, index, type);
             return;
         } else {
-            klass = getMissingClass(hasCustomFinder, type);
+            klass = getMissingClass(hasCustomFinder, type, reportMissingClass);
         }
     }
     container[index] = klass;
 }
 
-function lookupClasses (data: IPackedFileData, silent: boolean, customFinder?: ClassFinder) {
+function lookupClasses (data: IPackedFileData, silent: boolean, customFinder: ClassFinder | undefined, reportMissingClass: deserialize.ReportMissingClass) {
     const classFinder = customFinder || js._getClassById;
     const classes = data[File.SharedClasses];
     for (let i = 0; i < classes.length; ++i) {
@@ -903,9 +906,9 @@ function lookupClasses (data: IPackedFileData, silent: boolean, customFinder?: C
                 }
             }
             const type: string = klassLayout[CLASS_TYPE];
-            doLookupClass(classFinder, type, klassLayout as IClass, CLASS_TYPE, silent, customFinder);
+            doLookupClass(classFinder, type, klassLayout as IClass, CLASS_TYPE, silent, customFinder, reportMissingClass);
         } else {
-            doLookupClass(classFinder, klassLayout, classes, i, silent, customFinder);
+            doLookupClass(classFinder, klassLayout, classes, i, silent, customFinder, reportMissingClass);
         }
     }
 }
@@ -1010,7 +1013,7 @@ export function deserialize (data: IFileData | string | CCON | any, details: Det
         data[File.Context] = options;
 
         if (!preprocessed) {
-            lookupClasses(data, false, options.classFinder);
+            lookupClasses(data, false, options.classFinder, options.reportMissingClass ?? deserialize.reportMissingClass);
             cacheMasks(data);
         }
 
@@ -1046,6 +1049,8 @@ export function deserialize (data: IFileData | string | CCON | any, details: Det
 export declare namespace deserialize {
     export type SerializableClassConstructor = new () => unknown;
 
+    export type ReportMissingClass = (id: string) => void;
+
     export type ClassFinder = {
         (id: string, serialized: unknown, owner?: unknown[] | Record<PropertyKey, unknown>, propName?: string): SerializableClassConstructor | undefined;
 
@@ -1054,14 +1059,7 @@ export declare namespace deserialize {
 }
 
 deserialize.Details = Details;
-deserialize.reportMissingClass = (id: string) => {
-    if (EDITOR && EditorExtends.UuidUtils.isUuid(id)) {
-        id = EditorExtends.UuidUtils.decompressUuid(id);
-        warnID(5301, id);
-    } else {
-        warnID(5302, id);
-    }
-};
+deserialize.reportMissingClass = defaultReportMissingClass;
 
 class FileInfo {
     declare version: number;
@@ -1071,11 +1069,11 @@ class FileInfo {
     }
 }
 
-export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder): IFileData[] {
+export function unpackJSONs (data: IPackedFileData, classFinder?: ClassFinder, reportMissingClass?: deserialize.ReportMissingClass): IFileData[] {
     if (data[File.Version] < SUPPORT_MIN_FORMAT_VERSION) {
         throw new Error(getError(5304, data[File.Version]));
     }
-    lookupClasses(data, true, classFinder);
+    lookupClasses(data, true, classFinder, reportMissingClass ?? deserialize.reportMissingClass);
     cacheMasks(data);
 
     const version = new FileInfo(data[File.Version]);

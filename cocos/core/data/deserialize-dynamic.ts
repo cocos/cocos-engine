@@ -43,6 +43,7 @@ import { CustomizedSerializable, DeserializationContext, deserializeSymbol, Seri
 import type { deserialize } from './deserialize';
 import { CCON } from './ccon';
 import { assertIsTrue } from './utils/asserts';
+import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 
 function compileObjectTypeJit (
     sources: string[],
@@ -72,6 +73,8 @@ if (prop) {
 `);
     }
 }
+
+type ReportMissingClass = deserialize.ReportMissingClass;
 
 type ClassFinder = deserialize.ClassFinder;
 
@@ -368,13 +371,13 @@ class DeserializerPool extends js.Pool<_Deserializer> {
         }, 1);
     }
 
-    public get (details: Details, classFinder: ClassFinder, customEnv: unknown, ignoreEditorOnly: boolean | undefined) {
+    public get (details: Details, classFinder: ClassFinder, reportMissingClass: ReportMissingClass, customEnv: unknown, ignoreEditorOnly: boolean | undefined) {
         const cache = this._get();
         if (cache) {
-            cache.reset(details, classFinder, customEnv, ignoreEditorOnly);
+            cache.reset(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
             return cache;
         } else {
-            return new _Deserializer(details, classFinder, customEnv, ignoreEditorOnly);
+            return new _Deserializer(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
         }
     }
 }
@@ -387,27 +390,30 @@ class _Deserializer {
     public deserializedList: Array<Record<PropertyKey, unknown> | undefined>;
     public deserializedData: any;
     private declare _classFinder: ClassFinder;
+    private declare _reportMissingClass: ReportMissingClass;
     private declare _onDereferenced: ClassFinder['onDereferenced'];
     private _ignoreEditorOnly: any;
     private declare _mainBinChunk;
     private declare _serializedData: SerializedObject | SerializedObject[];
 
-    constructor (result: Details, classFinder: ClassFinder, customEnv: unknown, ignoreEditorOnly: unknown) {
+    constructor (result: Details, classFinder: ClassFinder, reportMissingClass: ReportMissingClass, customEnv: unknown, ignoreEditorOnly: unknown) {
         this.result = result;
         this.customEnv = customEnv;
         this.deserializedList = [];
         this.deserializedData = null;
         this._classFinder = classFinder;
+        this._reportMissingClass = reportMissingClass;
         this._onDereferenced = classFinder?.onDereferenced;
         if (DEV) {
             this._ignoreEditorOnly = ignoreEditorOnly;
         }
     }
 
-    public reset (result: Details, classFinder: ClassFinder, customEnv: unknown, ignoreEditorOnly: unknown) {
+    public reset (result: Details, classFinder: ClassFinder, reportMissingClass: ReportMissingClass, customEnv: unknown, ignoreEditorOnly: unknown) {
         this.result = result;
         this.customEnv = customEnv;
         this._classFinder = classFinder;
+        this._reportMissingClass = reportMissingClass;
         this._onDereferenced = classFinder?.onDereferenced;
         if (DEV) {
             this._ignoreEditorOnly = ignoreEditorOnly;
@@ -420,6 +426,7 @@ class _Deserializer {
         this.deserializedList.length = 0;
         this.deserializedData = null;
         this._classFinder = null!;
+        this._reportMissingClass = null!;
         this._onDereferenced = null!;
     }
 
@@ -540,7 +547,7 @@ class _Deserializer {
         if (!klass) {
             const notReported = this._classFinder === js._getClassById;
             if (notReported) {
-                legacyCC.deserialize.reportMissingClass(type);
+                this._reportMissingClass(type);
             }
             return null;
         }
@@ -565,7 +572,7 @@ class _Deserializer {
                 return obj;
             } catch (e: unknown) {
                 console.error(`deserialize ${klass.name} failed, ${(e as { stack: string; }).stack}`);
-                legacyCC.deserialize.reportMissingClass(type);
+                this._reportMissingClass(type);
                 const obj = createObject(MissingScript);
                 this._deserializeInto(value, obj, MissingScript);
                 return obj;
@@ -782,18 +789,20 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
     ignoreEditorOnly?: boolean;
     createAssetRefs?: boolean;
     customEnv?: unknown;
+    reportMissingClass?: ReportMissingClass;
 }) {
     options = options || {};
     const classFinder = options.classFinder || js._getClassById;
     const createAssetRefs = options.createAssetRefs || sys.platform === Platform.EDITOR_CORE;
     const customEnv = options.customEnv;
     const ignoreEditorOnly = options.ignoreEditorOnly;
+    const reportMissingClass = options.reportMissingClass ?? legacyCC.deserialize.reportMissingClass;
 
     // var oldJson = JSON.stringify(data, null, 2);
 
     details.init();
 
-    const deserializer = _Deserializer.pool.get(details, classFinder, customEnv, ignoreEditorOnly);
+    const deserializer = _Deserializer.pool.get(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
 
     legacyCC.game._isCloning = true;
     const res = deserializer.deserialize(data);
