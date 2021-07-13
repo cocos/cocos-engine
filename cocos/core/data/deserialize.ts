@@ -977,7 +977,7 @@ export function isCompiledJson (json: unknown): boolean {
 
 /**
  * @en Deserializes a previously serialized object to reconstruct it to the original.
- * @zh 将序列化后的对象进行反序列化已使其复原。
+ * @zh 将序列化后的对象进行反序列化以使其复原。
  *
  * @param data Serialized data.
  * @param details - Additional loading result.

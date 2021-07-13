@@ -1,8 +1,8 @@
 import { TEST } from 'internal:constants';
 
-export const serializeSymbol = Symbol('[[deserialize]]');
+export const serializeSymbol = Symbol('[[Serialize]]');
 
-export const deserializeSymbol = Symbol('[[deserialize]]');
+export const deserializeSymbol = Symbol('[[Deserialize]]');
 
 export interface SerializationInput {
     /**

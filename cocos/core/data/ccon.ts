@@ -164,7 +164,7 @@ function encodeJson (input: string) {
             buffer.length,
         );
     } else {
-        throw new Error(`Sorry, we can not decode UTF-8 string from array buffer`);
+        throw new Error(`Cannot encode ${input} as JSON.`);
     }
 }
 
@@ -176,7 +176,7 @@ function decodeJson (data: Uint8Array) {
         // eslint-disable-next-line no-buffer-constructor
         return Buffer.from(data.buffer, data.byteOffset, data.byteLength).toString();
     } else {
-        throw new Error(`Sorry, we can not decode UTF-8 string from array buffer`);
+        throw new Error(`Cannot decode CCON json.`);
     }
 }
 

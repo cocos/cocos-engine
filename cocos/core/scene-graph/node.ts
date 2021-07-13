@@ -31,7 +31,7 @@
 import {
     ccclass, editable, serializable, type,
 } from 'cc.decorator';
-import { JSB } from 'internal:constants';
+import { EDITOR, JSB } from 'internal:constants';
 import { Layers } from './layers';
 import { NodeUIProperties } from './node-ui-properties';
 import { eventManager } from '../platform/event-manager/event-manager';
@@ -484,14 +484,20 @@ export class Node extends BaseNode implements CustomizedSerializable {
     }
 
     public [serializeSymbol] (serializationOutput: SerializationOutput, context: SerializationContext) {
-        // 用于检测当前节点是否是一个PrefabInstance中的Mounted的节点，后面可以考虑优化一下
+        if (!EDITOR) {
+            context.serializeThis();
+            return;
+        }
+
+        // Detects if this node is mounted node of `PrefabInstance`
+        // TODO: optimize
         const isMountedChild = () => !!(this[editorExtrasTag] as any)?.mountedRoot;
 
-        // 是否是PrefabInstance中的节点
+        // Returns if this node is under `PrefabInstance`
         // eslint-disable-next-line arrow-body-style
         const isSyncPrefab = () => {
-            // 1. 在PrefabInstance下的非Mounted节点
-            // 2. 如果Mounted节点是一个PrefabInstance，那它也是一个syncPrefab
+            // 1. Under `PrefabInstance`, but not mounted
+            // 2. If the mounted node is a `PrefabInstance`, it's also a "sync prefab".
             return this._prefab?.root?._prefab?.instance && (this?._prefab?.instance || !isMountedChild());
         };
 
@@ -511,10 +517,6 @@ export class Node extends BaseNode implements CustomizedSerializable {
         } else {
             context.serializeThis();
         }
-    }
-
-    public [deserializeSymbol] (serializationInput: SerializationInput) {
-
     }
 
     // ===============================
