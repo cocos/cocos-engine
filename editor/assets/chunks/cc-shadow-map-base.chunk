@@ -50,23 +50,25 @@
     vec2 oneTap = 1.0 / cc_shadowWHPBInfo.xy;
     vec2 clipPos_offset = clipPos.xy + oneTap;
 
-    vec4 block;
+    float block0, block1, block2, block3;
     if (cc_shadowLPNNInfo.y > 0.000001) {
-      block.x = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y))));
-      block.y = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos.y))));
-      block.z = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset.y))));
-      block.w = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos_offset.y))));
+      block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y))));
+      block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos.y))));
+      block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset.y))));
+      block3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos_offset.y))));
     } else {
-      block.x = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos.y)).x);
-      block.y = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos.y)).x);
-      block.z = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset.y)).x);
-      block.w = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos_offset.y)).x);
+      block0 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos.y)).x);
+      block1 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos.y)).x);
+      block2 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset.y)).x);
+      block3 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset.x, clipPos_offset.y)).x);
     }
-    float coefX = mod(clipPos.x, oneTap.x) * cc_shadowWHPBInfo.x;
-    vec2 resultX = mix(block.xz, block.yw, vec2(coefX));
-    float coefY = mod(clipPos.y, oneTap.y) * cc_shadowWHPBInfo.y;
 
-    return mix(resultX.x, resultX.y, coefY);
+    float coefX   = mod(clipPos.x, oneTap.x) * cc_shadowWHPBInfo.x;
+    float resultX = mix(block0, block1, coefX);
+    float resultY = mix(block2, block3, coefX);
+    float coefY   = mod(clipPos.y, oneTap.y) * cc_shadowWHPBInfo.y;
+
+    return mix(resultX, resultY, coefY);
   }
 
   float CCGetShadowFactorSoft2X (vec4 shadowPos) {
@@ -85,49 +87,48 @@
     float clipPos_offset_U = clipPos.y - oneTap.y;
     float clipPos_offset_D = clipPos.y + oneTap.y;
 
-    float point_0, point_1, point_2, point_3, point_4, point_5, point_6, point_7, point_8;
+    float block0, block1, block2, block3, block4, block5, block6, block7, block8;
     if (cc_shadowLPNNInfo.y > 0.000001) {
-      point_0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_U))));
-      point_1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_U))));
-      point_2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_U))));
-      point_3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos.y))));
-      point_4 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y))));
-      point_5 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos.y))));
-      point_6 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_D))));
-      point_7 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_D))));
-      point_8 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_D))));
+      block0 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_U))));
+      block1 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_U))));
+      block2 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_U))));
+      block3 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos.y))));
+      block4 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos.y))));
+      block5 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos.y))));
+      block6 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_D))));
+      block7 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_D))));
+      block8 = step(offsetDepth, unpackRGBAToDepth(texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_D))));
     } else {
-      point_0 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_U)).x);
-      point_1 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_U)).x);
-      point_2 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_U)).x);
-      point_3 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos.y)).x);
-      point_4 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos.y)).x);
-      point_5 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos.y)).x);
-      point_6 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_D)).x);
-      point_7 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_D)).x);
-      point_8 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_D)).x);
+      block0 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_U)).x);
+      block1 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_U)).x);
+      block2 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_U)).x);
+      block3 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos.y)).x);
+      block4 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos.y)).x);
+      block5 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos.y)).x);
+      block6 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_L, clipPos_offset_D)).x);
+      block7 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos.x, clipPos_offset_D)).x);
+      block8 = step(offsetDepth, texture(cc_shadowMap, vec2(clipPos_offset_R, clipPos_offset_D)).x);
     }
-
-    vec4 block_0 = vec4(point_0, point_1, point_3, point_4);
-    vec4 block_1 = vec4(point_1, point_2, point_4, point_5);
-    vec4 block_2 = vec4(point_3, point_4, point_6, point_7);
-    vec4 block_3 = vec4(point_4, point_5, point_7, point_8);
 
     float coefX = mod(clipPos.x, oneTap.x) * mapSize.x;
     float coefY = mod(clipPos.y, oneTap.y) * mapSize.y;
 
     float shadow = 0.0;
-    vec2 resultX = mix(block_0.xz, block_0.yw, vec2(coefX));
-    shadow += mix(resultX.x , resultX.y, coefY);
+    float resultX = mix(block0, block1, coefX);
+    float resultY = mix(block3, block4, coefX);
+    shadow += mix(resultX , resultY, coefY);
 
-    resultX = mix(block_1.xz, block_1.yw, vec2(coefX));
-    shadow += mix(resultX.x , resultX.y, coefY);
+    resultX = mix(block1, block2, coefX);
+    resultY = mix(block4, block5, coefX);
+    shadow += mix(resultX , resultY, coefY);
 
-    resultX = mix(block_2.xz, block_2.yw, vec2(coefX));
-    shadow += mix(resultX.x , resultX.y, coefY);
+    resultX = mix(block3, block4, coefX);
+    resultY = mix(block6, block7, coefX);
+    shadow += mix(resultX, resultY, coefY);
 
-    resultX = mix(block_3.xz, block_3.yw, vec2(coefX));
-    shadow += mix(resultX.x , resultX.y, coefY);
+    resultX = mix(block4, block5, coefX);
+    resultY = mix(block7, block8, coefX);
+    shadow += mix(resultX, resultY, coefY);
 
     return shadow * 0.25;
   }
