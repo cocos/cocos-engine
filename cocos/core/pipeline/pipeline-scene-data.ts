@@ -32,8 +32,6 @@ import { IRenderObject } from './define';
 import { Device, Framebuffer } from '../gfx';
 import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
-import { builtinResMgr } from '../builtin/builtin-res-mgr';
-import { Material } from '../assets';
 import { NativePipelineSharedSceneData } from '../renderer/scene';
 
 export class PipelineSceneData {
@@ -114,6 +112,9 @@ export class PipelineSceneData {
         this._device = device;
         this._pipeline = pipeline;
         return true;
+    }
+
+    public onGlobalPipelineStateChanged () {
     }
 
     public destroy () {
