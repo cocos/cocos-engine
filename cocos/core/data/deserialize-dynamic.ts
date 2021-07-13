@@ -40,7 +40,7 @@ import { Details } from './deserialize';
 import { Platform } from '../../../pal/system-info/enum-type';
 import { sys } from '../platform/sys';
 import { CustomSerializable, DeserializationContext, deserializeTag, SerializationContext, SerializationInput } from './serialization-symbols';
-import type { deserialize } from './deserialize';
+import type { deserialize, CCClassConstructor } from './deserialize';
 import { CCON } from './ccon';
 import { assertIsTrue } from './utils/asserts';
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
@@ -80,12 +80,7 @@ type ClassFinder = deserialize.ClassFinder;
 
 type SerializableClassConstructor = deserialize.SerializableClassConstructor;
 
-type CCClassConstructor = SerializableClassConstructor & {
-    __values__: string[];
-    __deserialize__?: CompiledDeserializeFn;
-};
-
-type CompiledDeserializeFn = (
+export type CompiledDeserializeFn = (
     deserializer: _Deserializer,
     object: Record<string, unknown>,
     deserialized: Record<string, unknown>,
@@ -111,7 +106,7 @@ type AttrResult = {
         typeof K extends AttributeEditorOnly ? boolean : never;
 };
 
-function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor): CompiledDeserializeFn {
+function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
     const attrs: AttrResult = Attr.getClassAttrs(klass);
 
     const props = klass.__values__;
@@ -199,7 +194,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor):
     return Function('s', 'o', 'd', 'k', sources.join('')) as CompiledDeserializeFn;
 }
 
-function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstructor): CompiledDeserializeFn {
+function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstructor<unknown>): CompiledDeserializeFn {
     const fastMode = misc.BUILTIN_CLASSID_RE.test(js._getClassId(klass));
     const shouldCopyId = js.isChildClassOf(klass, legacyCC._BaseNode) || js.isChildClassOf(klass, legacyCC.Component);
     let shouldCopyRawData = false;
@@ -393,7 +388,7 @@ class _Deserializer {
     private declare _reportMissingClass: ReportMissingClass;
     private declare _onDereferenced: ClassFinder['onDereferenced'];
     private _ignoreEditorOnly: any;
-    private declare _mainBinChunk;
+    private declare _mainBinChunk: Uint8Array;
     private declare _serializedData: SerializedObject | SerializedObject[];
 
     constructor (result: Details, classFinder: ClassFinder, reportMissingClass: ReportMissingClass, customEnv: unknown, ignoreEditorOnly: unknown) {
@@ -605,7 +600,7 @@ class _Deserializer {
         }
 
         if (legacyCC.Class._isCCClass(constructor)) {
-            this._deserializeFireClass(object, value, constructor as CCClassConstructor);
+            this._deserializeFireClass(object, value, constructor as CCClassConstructor<unknown>);
         } else {
             this._deserializeTypedObject(object, value, constructor);
         }
@@ -643,7 +638,7 @@ class _Deserializer {
         object[deserializeTag]!(serializationInput, context);
     }
 
-    private _deserializeFireClass (obj: Record<PropertyKey, unknown>, serialized: SerializedGeneralTypedObject, klass: CCClassConstructor) {
+    private _deserializeFireClass (obj: Record<PropertyKey, unknown>, serialized: SerializedGeneralTypedObject, klass: CCClassConstructor<unknown>) {
         let deserialize: CompiledDeserializeFn;
         // eslint-disable-next-line no-prototype-builtins
         if (klass.hasOwnProperty('__deserialize__')) {

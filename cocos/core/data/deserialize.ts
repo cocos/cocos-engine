@@ -41,6 +41,7 @@ import { Asset } from '../assets/asset';
 import { deserializeTag } from './serialization-symbols';
 import type { CCON } from './ccon';
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
+import type { CompiledDeserializeFn } from './deserialize-dynamic';
 
 /** **************************************************************************
  * BUILT-IN TYPES / CONSTAINTS
@@ -300,11 +301,12 @@ type OtherObjectTypeID = Bnot<number, PrimitiveObjectTypeID>;
 
 type Ctor<T> = new() => T;
 // Includes normal CCClass and fast defined class
-interface CCClass<T> extends Ctor<T> {
+export interface CCClassConstructor<T> extends Ctor<T> {
     __values__: string[]
+    __deserialize__?: CompiledDeserializeFn;
 }
 type AnyCtor = Ctor<Object>;
-type AnyCCClass = CCClass<Object>;
+type AnyCCClass = CCClassConstructor<Object>;
 
 export declare namespace deserialize.Internal {
     export type AnyData_ = AnyData;
@@ -511,7 +513,7 @@ type ClassFinder = (type: string) => AnyCtor;
 
 interface IOptions extends Partial<ICustomHandler> {
     classFinder?: ClassFinder;
-    reportMissingClass: ReportMissingClass;
+    reportMissingClass: deserialize.ReportMissingClass;
     _version?: number;
 }
 interface ICustomClass {
@@ -732,7 +734,7 @@ function parseClass (data: IFileData, owner: any, key: string, value: IClassObje
 }
 
 function parseCustomClass (data: IFileData, owner: any, key: string, value: ICustomObjectData) {
-    const ctor = data[File.SharedClasses][value[CUSTOM_OBJ_DATA_CLASS]] as CCClass<ICustomClass>;
+    const ctor = data[File.SharedClasses][value[CUSTOM_OBJ_DATA_CLASS]] as CCClassConstructor<ICustomClass>;
     owner[key] = deserializeCustomCCObject(data, ctor, value[CUSTOM_OBJ_DATA_CONTENT]);
 }
 
@@ -834,7 +836,7 @@ function parseInstances (data: IFileData): RootInstanceIndex {
         if (type >= 0) {
             // class index for DataTypeID.CustomizedClass
 
-            const ctor = classes[type] as CCClass<ICustomClass>;  // class
+            const ctor = classes[type] as CCClassConstructor<ICustomClass>;  // class
             instances[insIndex] = deserializeCustomCCObject(data, ctor, eachData);
         } else {
             // Other
