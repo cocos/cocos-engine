@@ -28,11 +28,10 @@
     let middlewareMgr = middleware.MiddlewareManager.getInstance();
     let reference = 0;
     let director = cc.director;
+    let game = cc.game;
 
     let nativeXYZUVC = middleware.vfmtPosUvColor = 9;
     let nativeXYZUVCC = middleware.vfmtPosUvTwoColor = 13;
-    let bytesXYZUVC = nativeXYZUVC * 4;
-    let bytesXYZUVCC = nativeXYZUVCC * 4;
 
     let vfmtPosUvColor = cc.internal.vfmtPosUvColor;
     let vfmtPosUvTwoColor = cc.internal.vfmtPosUvTwoColor;
@@ -115,12 +114,12 @@
 
     director.on(cc.Director.EVENT_BEFORE_UPDATE, function () {
         if (reference === 0) return;
-        middlewareMgr.update(director._deltaTime);
+        middlewareMgr.update(game.deltaTime);
     });
 
     director.on(cc.Director.EVENT_BEFORE_DRAW, function () {
         if (reference === 0) return;
-        middlewareMgr.render(director._deltaTime);
+        middlewareMgr.render(game.deltaTime);
 
         // reset render order
         middleware.renderOrder = 0;
