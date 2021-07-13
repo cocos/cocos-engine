@@ -1,4 +1,4 @@
-import { BufferBuilder, CCON, decodeCCONBinary, decodeCCONJson, encodeCCONBinary, encodeCCONJson, InvalidCCONError } from "../../cocos/core/data/ccon";
+import { BufferBuilder, CCON, decodeCCONBinary, parseCCONJson, encodeCCONBinary, encodeCCONJson, InvalidCCONError } from "../../cocos/core/data/ccon";
 import { TextEncoder } from 'util';
 
 describe(`CCON`, () => {
@@ -7,7 +7,7 @@ describe(`CCON`, () => {
             expect(chunks).toHaveLength(chunkURLs.length);
             const ccon = new CCON(document, chunks);
             const cconJson = JSON.parse(JSON.stringify(encodeCCONJson(ccon, chunkURLs)));
-            const decoded = decodeCCONJson(cconJson);
+            const decoded = parseCCONJson(cconJson);
             expect(decoded.chunks).toStrictEqual(chunkURLs);
             expect(decoded.document).toStrictEqual(document);
         }

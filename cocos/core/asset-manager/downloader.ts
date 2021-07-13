@@ -39,7 +39,7 @@ import { CompleteCallback, CompleteCallbackNoData, IBundleOptions, IDownloadPars
 import { retry, RetryFunction, urlAppendTimestamp } from './utilities';
 import { legacyCC } from '../global-exports';
 import { IConfigOption } from './config';
-import { CCON, decodeCCONJson, decodeCCONBinary } from '../data/ccon';
+import { CCON, parseCCONJson, decodeCCONBinary } from '../data/ccon';
 
 export type DownloadHandler = (url: string, opitons: IDownloadParseOptions, onComplete: CompleteCallback) => void;
 

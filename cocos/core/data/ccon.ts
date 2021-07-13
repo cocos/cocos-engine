@@ -34,7 +34,7 @@ export function encodeCCONJson (ccon: CCON, chunkURLs: string[]) {
     } as unknown;
 }
 
-export function decodeCCONJson (json: unknown) {
+export function parseCCONJson (json: unknown) {
     const cconPreface = json as CCONPreface;
 
     return {
