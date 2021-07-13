@@ -69,7 +69,7 @@ private:
 };
 
 // cc.PlistParser.getInstance()
-static bool js_PlistParser_getInstance(se::State &s) { // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_PlistParser_getInstance(se::State &s) { // NOLINT(readability-identifier-naming)
     JSPlistDelegator *delegator = JSPlistDelegator::getInstance();
     cc::SAXParser *parser = delegator->getParser();
 
@@ -82,7 +82,7 @@ static bool js_PlistParser_getInstance(se::State &s) { // NOLINT(readability-ide
 SE_BIND_FUNC(js_PlistParser_getInstance) // NOLINT(readability-identifier-naming)
 
 // cc.PlistParser.getInstance().parse(text)
-static bool js_PlistParser_parse(se::State &s) { // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_PlistParser_parse(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     JSPlistDelegator *delegator = JSPlistDelegator::getInstance();
@@ -200,7 +200,7 @@ static bool register_plist_parser(se::Object */*obj*/) { // NOLINT(readability-i
 
 // cc.sys.localStorage
 
-static bool JSB_localStorageGetItem(se::State &s) { // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool JSB_localStorageGetItem(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -276,7 +276,7 @@ static bool JSB_localStorageClear(const se::State &s) { // NOLINT(readability-id
 }
 SE_BIND_FUNC(JSB_localStorageClear) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorageKey(se::State &s) { // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool JSB_localStorageKey(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 1) {
@@ -295,7 +295,7 @@ static bool JSB_localStorageKey(se::State &s) { // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(JSB_localStorageKey) // NOLINT(readability-identifier-naming)
 
-static bool JSB_localStorage_getLength(se::State &s) { // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool JSB_localStorage_getLength(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     size_t argc = args.size();
     if (argc == 0) {
@@ -343,7 +343,7 @@ static bool register_sys_localStorage(se::Object *obj) { // NOLINT(readability-i
 }
 
 //IDEA:  move to auto bindings.
-static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State &s) { // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::CanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback : Invalid Native Object");
     const auto &args = s.args();
@@ -423,7 +423,7 @@ static void setCanvasRenderingContext2DProps(cc::CanvasRenderingContext2D *conte
     if (!propVal.isUndefined()) context->setGlobalCompositeOperation(propVal.toString());
 }
 
-static bool js_engine_CanvasRenderingContext2D_measureText(se::State &s) { // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_engine_CanvasRenderingContext2D_measureText(se::State &s) { // NOLINT(readability-identifier-naming)
     auto *cobj = static_cast<cc::CanvasRenderingContext2D *>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_engine_CanvasRenderingContext2D_measureText : Invalid Native Object");
     const auto &args = s.args();
@@ -535,7 +535,7 @@ static bool js_engine_CanvasRenderingContext2D_strokeText(const se::State &s) { 
 SE_BIND_FUNC(js_engine_CanvasRenderingContext2D_strokeText) // NOLINT(readability-identifier-naming)
 
 static se::Object *deviceMotionObject = nullptr;
-static bool JSB_getDeviceMotionValue(se::State &s) { // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool JSB_getDeviceMotionValue(se::State &s) { // NOLINT(readability-identifier-naming)
     if (deviceMotionObject == nullptr) {
         deviceMotionObject = se::Object::createArrayObject(9);
         deviceMotionObject->root();
@@ -576,7 +576,7 @@ static bool register_device(se::Object */*obj*/) { // NOLINT(readability-identif
     return true;
 }
 
-static bool register_canvas_context2d(se::Object */*obj*/) { // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool register_canvas_context2d(se::Object */*obj*/) { // NOLINT(readability-identifier-naming)
     __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("_setCanvasBufferUpdatedCallback", _SE(js_CanvasRenderingContext2D_setCanvasBufferUpdatedCallback));
     __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("fillText", _SE(js_engine_CanvasRenderingContext2D_fillText));
     __jsb_cc_CanvasRenderingContext2D_proto->defineFunction("strokeText", _SE(js_engine_CanvasRenderingContext2D_strokeText));
@@ -613,7 +613,7 @@ static bool js_engine_FileUtils_listFilesRecursively(const se::State &s) { // NO
 }
 SE_BIND_FUNC(js_engine_FileUtils_listFilesRecursively) // NOLINT(readability-identifier-naming)
 
-static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_se_setExceptionCallback(se::State &s) { // NOLINT(readability-identifier-naming)
     const auto &args = s.args();
     if (args.size() != 1 || !args[0].isObject() || !args[0].toObject()->isFunction()) {
         SE_REPORT_ERROR("expect 1 arguments of Function type, %d provided", (int)args.size());

@@ -89,11 +89,11 @@ This is where the `Command Runner` extension comes in and saves the day: we can 
 
     Also note that by invoking `clang-tidy`, this is an unavoidably time-consuming process.
 
-* For `clang-format` issues, there will be no in-place editor suggestions, but all issues are strictly auto-fixable, and if the environment set up above goes smoothly, it is as simple as executing the `Format Document` command. (By default `Shift + Alt + F` on Windows)
+* For `clang-format` issues, there are no in-place editor suggestions, but all issues are strictly auto-fixable, and if the environment set up above goes smoothly, it is as simple as executing the `Format Document` command. (By default `Shift + Alt + F` on Windows)
 
     ![](imgs/format.png)
 
-    This functionality is provided by the `cland` extension too.
+    This functionality is provided by the `clangd` extension too.
 
     ![](imgs/auto-format.gif)
 

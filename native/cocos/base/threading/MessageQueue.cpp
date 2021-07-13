@@ -30,7 +30,6 @@
 namespace cc {
 
 namespace {
-uint32_t constexpr MEMORY_CHUNK_SIZE               = 4096 * 16;
 uint32_t constexpr MEMORY_CHUNK_POOL_CAPACITY      = 64;
 uint32_t constexpr SWITCH_CHUNK_MEMORY_REQUIREMENT = sizeof(MemoryChunkSwitchMessage) + sizeof(DummyMessage);
 } // namespace
@@ -100,10 +99,6 @@ MessageQueue::MessageQueue() {
     --_reader.newMessageCount;
 }
 
-uint32_t MessageQueue::getChunckSize() {
-    return MEMORY_CHUNK_SIZE;
-}
-
 void MessageQueue::kick() noexcept {
     pushMessages();
     _event.signal();
@@ -148,7 +143,7 @@ void MessageQueue::terminateConsumerThread() noexcept {
     event.wait();
 }
 
-void MessageQueue::finishWriting(bool wait) noexcept {
+void MessageQueue::finishWriting() noexcept {
     if (!_immediateMode) {
         bool *const flushingFinished = &_reader.flushingFinished;
 
@@ -158,11 +153,7 @@ void MessageQueue::finishWriting(bool wait) noexcept {
                               *flushingFinished = true;
                           });
 
-        if (wait) {
-            kickAndWait();
-        } else {
-            kick();
-        }
+        kick();
     }
 }
 

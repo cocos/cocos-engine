@@ -1375,7 +1375,7 @@ void cmdFuncGLES2CreateFramebuffer(GLES2Device *device, GLES2GPUFramebuffer *gpu
         for (uint i = 0U; i < gpuFBO->gpuColorTextures.size(); ++i) {
             const auto *gpuTexture = gpuFBO->gpuColorTextures[i];
             if (!gpuTexture || gpuTexture->memoryless) continue;
-            if (GFX_FORMAT_INFOS[static_cast<uint>(gpuTexture->format)].hasDepth) continue;
+            if (GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].hasDepth) continue;
             gpuFBO->uberColorAttachmentIndices.push_back(i);
         }
         doCreateFramebufferInstance(device, gpuFBO, gpuFBO->uberColorAttachmentIndices, gpuFBO->gpuColorTextures.size(), &gpuFBO->uberInstance);
@@ -2320,7 +2320,7 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     if ((cache->dss.stencilRefFront != front.reference) ||
                         (cache->dss.stencilReadMaskFront != front.compareMask)) {
                         GL_CHECK(glStencilFuncSeparate(GL_FRONT,
-                                                       GLES2_CMP_FUNCS[static_cast<uint>(cache->dss.stencilFuncFront)],
+                                                       GLES2_CMP_FUNCS[toNumber(cache->dss.stencilFuncFront)],
                                                        front.reference,
                                                        front.compareMask));
                         cache->dss.stencilRefFront      = front.reference;
@@ -2329,7 +2329,7 @@ void cmdFuncGLES2BindState(GLES2Device *device, GLES2GPUPipelineState *gpuPipeli
                     if ((cache->dss.stencilRefBack != back.reference) ||
                         (cache->dss.stencilReadMaskBack != back.compareMask)) {
                         GL_CHECK(glStencilFuncSeparate(GL_BACK,
-                                                       GLES2_CMP_FUNCS[static_cast<uint>(cache->dss.stencilFuncBack)],
+                                                       GLES2_CMP_FUNCS[toNumber(cache->dss.stencilFuncBack)],
                                                        back.reference,
                                                        back.compareMask));
                         cache->dss.stencilRefBack      = back.reference;

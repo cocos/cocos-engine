@@ -2,7 +2,7 @@
 
 SE_DECLARE_FINALIZE_FUNC(js_${underlined_class_name}_finalize)
 
-static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor_overloaded.c
+static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming) constructor_overloaded.c
 {
 #if $is_skip_constructor
     //#1 ${namespaced_class_name}: is_skip_construtor ${is_skip_constructor}

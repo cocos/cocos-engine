@@ -26,12 +26,12 @@
 #pragma once
 
 #include "base/Agent.h"
+#include "base/threading/MessageQueue.h"
 #include "gfx-base/GFXBuffer.h"
 
 namespace cc {
 
 class ThreadSafeLinearAllocator;
-class MessageQueue;
 
 namespace gfx {
 
@@ -41,17 +41,18 @@ public:
     ~BufferAgent() override;
 
     void update(const void *buffer, uint size) override;
-    
-    void update(const void *buffer, uint size, MessageQueue* msgQ);
 
-protected:
+    void update(const void *buffer, uint size, MessageQueue *mq);
+
+private:
     void doInit(const BufferInfo &info) override;
     void doInit(const BufferViewInfo &info) override;
     void doResize(uint size, uint count) override;
     void doDestroy() override;
-    
-private:
-    ThreadSafeLinearAllocator* _allocator[MAX_CPU_FRAME_AHEAD + 1] = {nullptr, nullptr};
+
+    static constexpr uint STAGING_BUFFER_THRESHOLD = MessageQueue::MEMORY_CHUNK_SIZE / 2;
+
+    vector<uint8_t *> _stagingBuffers;
 };
 
 } // namespace gfx

@@ -27,9 +27,9 @@
 
 #pragma once
 
+#include <functional>
 #include <string>
 #include <unordered_map>
-#include <functional>
 #include "base/Macros.h"
 #include "base/Map.h"
 
@@ -59,7 +59,7 @@ public:
      * @return SocketIO* the instance of SocketIO.
      */
     static SocketIO *getInstance();
-    static void destroyInstance();
+    static void      destroyInstance();
 
     /**
      * The delegate class to process socket.io events.
@@ -68,7 +68,7 @@ public:
     class SIODelegate {
     public:
         /** Destructor of SIODelegate. */
-        virtual ~SIODelegate() {}
+        virtual ~SIODelegate() = default;
         /**
          * This is kept for backwards compatibility, connect is now fired as a socket.io event "connect"
          *
@@ -76,7 +76,7 @@ public:
          *
          * @param client the connected SIOClient object.
          */
-        virtual void onConnect(SIOClient *client) { CC_LOG_DEBUG("SIODelegate onConnect fired"); };
+        virtual void onConnect(SIOClient * /*client*/) { CC_LOG_DEBUG("SIODelegate onConnect fired"); };
         /**
          * This is kept for backwards compatibility, message is now fired as a socket.io event "message"
          *
@@ -85,7 +85,7 @@ public:
          * @param client the connected SIOClient object.
          * @param data the message,it could be json message
          */
-        virtual void onMessage(SIOClient *client, const std::string &data) { CC_LOG_DEBUG("SIODelegate onMessage fired with data: %s", data.c_str()); };
+        virtual void onMessage(SIOClient * /*client*/, const std::string &data) { CC_LOG_DEBUG("SIODelegate onMessage fired with data: %s", data.c_str()); };
         /**
          * Pure virtual callback function, this function should be overridden by the subclass.
          *
@@ -110,7 +110,7 @@ public:
          * @param eventName the event's name.
          * @param data the event's data information.
          */
-        virtual void fireEventToScript(SIOClient *client, const std::string &eventName, const std::string &data) { CC_LOG_DEBUG("SIODelegate event '%s' fired with data: %s", eventName.c_str(), data.c_str()); };
+        virtual void fireEventToScript(SIOClient * /*client*/, const std::string &eventName, const std::string &data) { CC_LOG_DEBUG("SIODelegate event '%s' fired with data: %s", eventName.c_str(), data.c_str()); };
     };
 
     /**
@@ -142,24 +142,24 @@ private:
     SocketIO();
     virtual ~SocketIO();
 
-    static SocketIO *_inst;
+    static SocketIO *inst;
 
     cc::Map<std::string, SIOClientImpl *> _sockets;
 
     SIOClientImpl *getSocket(const std::string &uri);
-    void addSocket(const std::string &uri, SIOClientImpl *socket);
-    void removeSocket(const std::string &uri);
+    void           addSocket(const std::string &uri, SIOClientImpl *socket);
+    void           removeSocket(const std::string &uri);
 
     friend class SIOClientImpl;
 
-private:
-    CC_DISALLOW_COPY_AND_ASSIGN(SocketIO)
+    DISABLE_COPY_SEMANTICS(SocketIO)
+    DISABLE_MOVE_SEMANTICS(SocketIO)
 };
 
 //c++11 style callbacks entities will be created using CC_CALLBACK (which uses std::bind)
-typedef std::function<void(SIOClient *, const std::string &)> SIOEvent;
+using SIOEvent = std::function<void(SIOClient *, const std::string &)>;
 //c++11 map to callbacks
-typedef std::unordered_map<std::string, SIOEvent> EventRegistry;
+using EventRegistry = std::unordered_map<std::string, SIOEvent>;
 
 /**
  * A single connection to a socket.io endpoint.
@@ -171,14 +171,14 @@ class CC_DLL SIOClient
 private:
     friend class SocketIO; // Only SocketIO class could contruct a SIOClient instance.
 
-    std::string _path, _tag;
-    bool _connected;
+    std::string    _path, _tag;
+    bool           _connected;
     SIOClientImpl *_socket;
 
     SocketIO::SIODelegate *_delegate;
 
     EventRegistry _eventRegistry;
-    uint32_t _instanceId;
+    uint32_t      _instanceId;
 
     void fireEvent(const std::string &eventName, const std::string &data);
 
@@ -197,11 +197,11 @@ private:
      * @param impl the SIOClientImpl object.
      * @param delegate the SIODelegate object.
      */
-    SIOClient(const std::string &path, SIOClientImpl *impl, SocketIO::SIODelegate &delegate);
+    SIOClient(std::string path, SIOClientImpl *impl, SocketIO::SIODelegate &delegate);
     /**
      * Destructor of SIOClient class.
      */
-    virtual ~SIOClient();
+    ~SIOClient() override;
 
 public:
     /**

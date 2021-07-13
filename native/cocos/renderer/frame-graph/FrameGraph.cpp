@@ -25,44 +25,63 @@
 
 #include "FrameGraph.h"
 
-#include "PassNodeBuilder.h"
-#include "Resource.h"
 #include <algorithm>
 #include <fstream>
 #include <set>
+#include "PassNodeBuilder.h"
+#include "Resource.h"
 
 namespace cc {
 namespace framegraph {
 
 namespace {
-StringPool stringPool;
+// using function scoped static member
+// to ensure correct initialization order
+StringPool &getStringPool() {
+    static StringPool pool;
+    return pool;
 }
+} // namespace
 
 FrameGraph::~FrameGraph() {
     gc(0);
 }
 
 StringHandle FrameGraph::stringToHandle(const char *const name) {
-    return stringPool.stringToHandle(name);
+    return getStringPool().stringToHandle(name);
 }
 
 const char *FrameGraph::handleToString(const StringHandle &handle) noexcept {
-    return stringPool.handleToString(handle);
+    return getStringPool().handleToString(handle);
 }
 
-void FrameGraph::present(const Handle &input) {
-    struct PassDataPresent {};
+void FrameGraph::present(const TextureHandle &input) {
     static const StringHandle S_NAME_PRESENT = FrameGraph::stringToHandle("Present");
-    const ResourceNode &      resourceNode = getResourceNode(input);
+    const ResourceNode &      resourceNode   = getResourceNode(input);
     CC_ASSERT(resourceNode.writer);
+
+    struct PassDataPresent {
+        TextureHandle input;
+    };
 
     addPass<PassDataPresent>(
         resourceNode.writer->_insertPoint, S_NAME_PRESENT,
-        [&](PassNodeBuilder &builder, PassDataPresent & /*data*/) {
-            builder.read(input);
+        [&](PassNodeBuilder &builder, PassDataPresent &data) {
+            data.input = builder.read(input);
             builder.sideEffect();
         },
         [](const PassDataPresent &data, const DevicePassResourceTable &table) {
+            auto *cmdBuff = gfx::Device::getInstance()->getCommandBuffer();
+
+            gfx::Texture *input = table.getRead(data.input);
+            if (input) {
+                gfx::TextureBlit region;
+                region.srcExtent.width  = input->getWidth();
+                region.srcExtent.height = input->getHeight();
+                region.dstExtent.width  = input->getWidth();
+                region.dstExtent.height = input->getHeight();
+                cmdBuff->blitTexture(input, nullptr, &region, 1, gfx::Filter::POINT);
+            }
         });
 }
 
@@ -72,11 +91,11 @@ void FrameGraph::presentLastVersion(const VirtualResource *const virtualResource
     });
 
     CC_ASSERT(it != _resourceNodes.rend());
-    present(Handle(static_cast<Handle::IndexType>(it.base() - _resourceNodes.begin() - 1)));
+    present(TextureHandle(static_cast<Handle::IndexType>(it.base() - _resourceNodes.begin() - 1)));
 }
 
 void FrameGraph::presentFromBlackboard(const StringHandle &inputName) {
-    present(Handle(_blackboard.get(inputName)));
+    present(TextureHandle(_blackboard.get(inputName)));
 }
 
 void FrameGraph::compile() {
@@ -335,7 +354,6 @@ void FrameGraph::computeStoreActionAndMemoryless() {
         lastPassSubPassEnable = passNode->_subpass && !passNode->_subpassEnd;
     }
 
-    const PassNode *                   lastPassNode = nullptr;
     static std::set<VirtualResource *> renderTargets;
     renderTargets.clear();
 
@@ -423,14 +441,11 @@ void FrameGraph::generateDevicePasses() {
     }
 
     CC_ASSERT(subPassNodes.size() == 1);
-    static const StringHandle S_NAME_PRESENT = FrameGraph::stringToHandle("Present");
 
-    if (subPassNodes.back()->_name != S_NAME_PRESENT) {
-        _devicePasses.emplace_back(new DevicePass(*this, subPassNodes));
+    _devicePasses.emplace_back(new DevicePass(*this, subPassNodes));
 
-        for (PassNode *const p : subPassNodes) {
-            p->releaseTransientResources();
-        }
+    for (PassNode *const p : subPassNodes) {
+        p->releaseTransientResources();
     }
 }
 
@@ -520,7 +535,8 @@ void FrameGraph::exportGraphViz(const std::string &path) {
         }
 
         out << "\", style=filled, fillcolor="
-            << ((node.virtualResource->isImported()) ? (node.virtualResource->_refCount ? "palegreen" : "palegreen4") : node.version == 0 ? "pink" : (node.virtualResource->_refCount ? "skyblue" : "skyblue4"))
+            << ((node.virtualResource->isImported()) ? (node.virtualResource->_refCount ? "palegreen" : "palegreen4") : node.version == 0 ? "pink"
+                                                                                                                                          : (node.virtualResource->_refCount ? "skyblue" : "skyblue4"))
             << "]\n";
     }
 

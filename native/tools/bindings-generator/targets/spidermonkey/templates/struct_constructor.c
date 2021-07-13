@@ -27,7 +27,7 @@ bool sevalue_to_native(const se::Value &from, ${namespaced_class_name} * to, se:
 
 SE_DECLARE_FINALIZE_FUNC(js_${underlined_class_name}_finalize)
 
-static bool ${struct_constructor_name}(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool ${struct_constructor_name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();

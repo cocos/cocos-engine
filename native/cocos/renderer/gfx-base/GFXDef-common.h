@@ -102,12 +102,14 @@ enum class ObjectType {
     TEXTURE_BARRIER,
     BUFFER_BARRIER,
 };
+CC_ENUM_CONVERSION_OPERATOR(ObjectType);
 
 enum class Status {
     UNREADY,
     FAILED,
     SUCCESS,
 };
+CC_ENUM_CONVERSION_OPERATOR(Status);
 
 enum class API {
     UNKNOWN,
@@ -119,6 +121,7 @@ enum class API {
     WEBGL2,
     WEBGPU,
 };
+CC_ENUM_CONVERSION_OPERATOR(API);
 
 enum class SurfaceTransform {
     IDENTITY,
@@ -126,6 +129,7 @@ enum class SurfaceTransform {
     ROTATE_180,
     ROTATE_270,
 };
+CC_ENUM_CONVERSION_OPERATOR(SurfaceTransform);
 
 enum class Feature {
     COLOR_FLOAT,
@@ -149,6 +153,7 @@ enum class Feature {
     COMPUTE_SHADER,
     COUNT,
 };
+CC_ENUM_CONVERSION_OPERATOR(Feature);
 
 enum class Format {
 
@@ -307,6 +312,7 @@ enum class Format {
     // Total count
     COUNT,
 };
+CC_ENUM_CONVERSION_OPERATOR(Format);
 
 enum class FormatType {
     NONE,
@@ -317,6 +323,7 @@ enum class FormatType {
     UFLOAT,
     FLOAT,
 };
+CC_ENUM_CONVERSION_OPERATOR(FormatType);
 
 enum class Type {
     UNKNOWN,
@@ -372,6 +379,8 @@ enum class Type {
     SUBPASS_INPUT,
     COUNT,
 };
+CC_ENUM_CONVERSION_OPERATOR(Type);
+
 bool isCombinedImageSampler(Type type);
 bool isSampledImage(Type type);
 bool isStorageImage(Type type);
@@ -387,13 +396,13 @@ enum class BufferUsageBit : FlagBits {
     INDIRECT     = 0x40,
 };
 using BufferUsage = BufferUsageBit;
-CC_ENUM_OPERATORS(BufferUsageBit);
+CC_ENUM_BITWISE_OPERATORS(BufferUsageBit);
 
 enum class BufferFlagBit : FlagBits {
     NONE = 0,
 };
 using BufferFlags = BufferFlagBit;
-CC_ENUM_OPERATORS(BufferFlagBit);
+CC_ENUM_BITWISE_OPERATORS(BufferFlagBit);
 
 enum class MemoryAccessBit : FlagBits {
     NONE       = 0,
@@ -402,6 +411,7 @@ enum class MemoryAccessBit : FlagBits {
     READ_WRITE = READ_ONLY | WRITE_ONLY,
 };
 using MemoryAccess = MemoryAccessBit;
+CC_ENUM_CONVERSION_OPERATOR(MemoryAccessBit);
 
 enum class MemoryUsageBit : FlagBits {
     NONE   = 0,
@@ -409,7 +419,7 @@ enum class MemoryUsageBit : FlagBits {
     HOST   = 0x2,
 };
 using MemoryUsage = MemoryUsageBit;
-CC_ENUM_OPERATORS(MemoryUsageBit);
+CC_ENUM_BITWISE_OPERATORS(MemoryUsageBit);
 
 enum class TextureType {
     TEX1D,
@@ -419,6 +429,7 @@ enum class TextureType {
     TEX1D_ARRAY,
     TEX2D_ARRAY,
 };
+CC_ENUM_CONVERSION_OPERATOR(TextureType);
 
 enum class TextureUsageBit : FlagBits {
     NONE                     = 0,
@@ -431,7 +442,7 @@ enum class TextureUsageBit : FlagBits {
     INPUT_ATTACHMENT         = 0x40,
 };
 using TextureUsage = TextureUsageBit;
-CC_ENUM_OPERATORS(TextureUsageBit);
+CC_ENUM_BITWISE_OPERATORS(TextureUsageBit);
 
 enum class TextureFlagBit : FlagBits {
     NONE           = 0,
@@ -440,7 +451,7 @@ enum class TextureFlagBit : FlagBits {
     GENERAL_LAYOUT = 0x4,
 };
 using TextureFlags = TextureFlagBit;
-CC_ENUM_OPERATORS(TextureFlagBit);
+CC_ENUM_BITWISE_OPERATORS(TextureFlagBit);
 
 enum class SampleCount {
     X1  = 0x1,
@@ -451,6 +462,7 @@ enum class SampleCount {
     X32 = 0x20,
     X64 = 0x40,
 };
+CC_ENUM_CONVERSION_OPERATOR(SampleCount);
 
 enum class Filter {
     NONE,
@@ -458,6 +470,7 @@ enum class Filter {
     LINEAR,
     ANISOTROPIC,
 };
+CC_ENUM_CONVERSION_OPERATOR(Filter);
 
 enum class Address {
     WRAP,
@@ -465,6 +478,7 @@ enum class Address {
     CLAMP,
     BORDER,
 };
+CC_ENUM_CONVERSION_OPERATOR(Address);
 
 enum class ComparisonFunc {
     NEVER,
@@ -476,6 +490,7 @@ enum class ComparisonFunc {
     GREATER_EQUAL,
     ALWAYS,
 };
+CC_ENUM_CONVERSION_OPERATOR(ComparisonFunc);
 
 enum class StencilOp {
     ZERO,
@@ -487,6 +502,7 @@ enum class StencilOp {
     INCR_WRAP,
     DECR_WRAP,
 };
+CC_ENUM_CONVERSION_OPERATOR(StencilOp);
 
 enum class BlendFactor {
     ZERO,
@@ -505,6 +521,7 @@ enum class BlendFactor {
     CONSTANT_ALPHA,
     ONE_MINUS_CONSTANT_ALPHA,
 };
+CC_ENUM_CONVERSION_OPERATOR(BlendFactor);
 
 enum class BlendOp {
     ADD,
@@ -513,6 +530,7 @@ enum class BlendOp {
     MIN,
     MAX,
 };
+CC_ENUM_CONVERSION_OPERATOR(BlendOp);
 
 enum class ColorMask : FlagBits {
     NONE = 0x0,
@@ -522,7 +540,7 @@ enum class ColorMask : FlagBits {
     A    = 0x8,
     ALL  = R | G | B | A,
 };
-CC_ENUM_OPERATORS(ColorMask);
+CC_ENUM_BITWISE_OPERATORS(ColorMask);
 
 enum class ShaderStageFlagBit : FlagBits {
     NONE       = 0x0,
@@ -535,18 +553,20 @@ enum class ShaderStageFlagBit : FlagBits {
     ALL        = 0x3f,
 };
 using ShaderStageFlags = ShaderStageFlagBit;
-CC_ENUM_OPERATORS(ShaderStageFlagBit);
+CC_ENUM_BITWISE_OPERATORS(ShaderStageFlagBit);
 
 enum class LoadOp {
     LOAD,    // Load the contents from the fbo from previous
     CLEAR,   // Clear the fbo
     DISCARD, // Ignore writing to the fbo and keep old data
 };
+CC_ENUM_CONVERSION_OPERATOR(LoadOp);
 
 enum class StoreOp {
     STORE,   // Write the source to the destination
     DISCARD, // Don't write the source to the destination
 };
+CC_ENUM_CONVERSION_OPERATOR(StoreOp);
 
 enum class AccessType {
     NONE,
@@ -582,6 +602,7 @@ enum class AccessType {
     HOST_PREINITIALIZED,            // Data pre-filled by host before device access starts
     HOST_WRITE,                     // Written on the host
 };
+CC_ENUM_CONVERSION_OPERATOR(AccessType);
 
 using AccessTypeList = std::vector<AccessType>;
 
@@ -592,12 +613,14 @@ enum class ResolveMode {
     MIN,
     MAX,
 };
+CC_ENUM_CONVERSION_OPERATOR(ResolveMode);
 
 enum class PipelineBindPoint {
     GRAPHICS,
     COMPUTE,
     RAY_TRACING,
 };
+CC_ENUM_CONVERSION_OPERATOR(PipelineBindPoint);
 
 enum class PrimitiveMode {
     POINT_LIST,
@@ -616,23 +639,27 @@ enum class PrimitiveMode {
     TRIANGLE_PATCH_ADJACENCY,
     QUAD_PATCH_LIST,
 };
+CC_ENUM_CONVERSION_OPERATOR(PrimitiveMode);
 
 enum class PolygonMode {
     FILL,
     POINT,
     LINE,
 };
+CC_ENUM_CONVERSION_OPERATOR(PolygonMode);
 
 enum class ShadeModel {
     GOURAND,
     FLAT,
 };
+CC_ENUM_CONVERSION_OPERATOR(ShadeModel);
 
 enum class CullMode {
     NONE,
     FRONT,
     BACK,
 };
+CC_ENUM_CONVERSION_OPERATOR(CullMode);
 
 enum class DynamicStateFlagBit : FlagBits {
     NONE                 = 0x0,
@@ -646,7 +673,7 @@ enum class DynamicStateFlagBit : FlagBits {
     STENCIL_COMPARE_MASK = 0x80,
 };
 using DynamicStateFlags = DynamicStateFlagBit;
-CC_ENUM_OPERATORS(DynamicStateFlagBit);
+CC_ENUM_BITWISE_OPERATORS(DynamicStateFlagBit);
 
 using DynamicStateList = vector<DynamicStateFlagBit>;
 
@@ -655,7 +682,7 @@ enum class StencilFace {
     BACK  = 0x2,
     ALL   = 0x3,
 };
-CC_ENUM_OPERATORS(StencilFace);
+CC_ENUM_BITWISE_OPERATORS(StencilFace);
 
 enum class DescriptorType : FlagBits {
     UNKNOWN                = 0,
@@ -669,18 +696,20 @@ enum class DescriptorType : FlagBits {
     STORAGE_IMAGE          = 0x80,
     INPUT_ATTACHMENT       = 0x100,
 };
-CC_ENUM_OPERATORS(DescriptorType);
+CC_ENUM_BITWISE_OPERATORS(DescriptorType);
 
 enum class QueueType {
     GRAPHICS,
     COMPUTE,
     TRANSFER,
 };
+CC_ENUM_CONVERSION_OPERATOR(QueueType);
 
 enum class CommandBufferType {
     PRIMARY,
     SECONDARY,
 };
+CC_ENUM_CONVERSION_OPERATOR(CommandBufferType);
 
 enum class ClearFlagBit : FlagBits {
     NONE          = 0,
@@ -691,7 +720,7 @@ enum class ClearFlagBit : FlagBits {
     ALL           = COLOR | DEPTH | STENCIL,
 };
 using ClearFlags = ClearFlagBit;
-CC_ENUM_OPERATORS(ClearFlagBit);
+CC_ENUM_BITWISE_OPERATORS(ClearFlagBit);
 
 struct Size {
     uint x = 0U;

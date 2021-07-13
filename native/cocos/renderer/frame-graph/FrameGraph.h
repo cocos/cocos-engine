@@ -53,7 +53,7 @@ public:
     static StringHandle stringToHandle(const char *name);
     static const char * handleToString(const StringHandle &handle) noexcept;
 
-    void        present(const Handle &input);
+    void        present(const TextureHandle &input);
     void        presentLastVersion(const VirtualResource *virtualResource);
     void        presentFromBlackboard(const StringHandle &inputName);
     void        compile();
@@ -132,13 +132,13 @@ void FrameGraph::enableMerge(bool const enable) noexcept {
 //////////////////////////////////////////////////////////////////////////
 
 template <typename ResourceType>
-void PassNodeBuilder::create(TypedHandle<ResourceType> &handle, const StringHandle &name, const typename ResourceType::Descriptor &desc) const noexcept {
-    handle = _graph.create<ResourceType>(name, desc);
+TypedHandle<ResourceType> PassNodeBuilder::create(const StringHandle &name, const typename ResourceType::Descriptor &desc) const noexcept {
+    return _graph.create<ResourceType>(name, desc);
 }
 
 template <typename ResourceType>
-void PassNodeBuilder::importExternal(TypedHandle<ResourceType> &handle, const StringHandle &name, ResourceType &resource) const noexcept {
-    handle = _graph.importExternal(name, resource);
+TypedHandle<ResourceType> PassNodeBuilder::importExternal(const StringHandle &name, ResourceType &resource) const noexcept {
+    return _graph.importExternal(name, resource);
 }
 
 } // namespace framegraph

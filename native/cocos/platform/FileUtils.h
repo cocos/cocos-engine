@@ -343,9 +343,9 @@ public:
     /**
      *  Gets the array of search paths.
      *
-     *  @return The array of search paths which may contain the prefix of default resource root path. 
+     *  @return The array of search paths which may contain the prefix of default resource root path.
      *  @note In best practise, getter function should return the value of setter function passes in.
-     *        But since we should not break the compatibility, we keep using the old logic. 
+     *        But since we should not break the compatibility, we keep using the old logic.
      *        Therefore, If you want to get the original search paths, please call 'getOriginalSearchPaths()' instead.
      *  @see fullPathForFilename(const char*).
      *  @lua NA
@@ -640,8 +640,8 @@ protected:
     /**
      *  Remove null value key (for iOS)
      */
-    virtual void valueMapCompact(ValueMap &valueMap); // NOLINT(google-runtime-references)
-    virtual void valueVectorCompact(ValueVector &valueVector); // NOLINT(google-runtime-references)
+    virtual void valueMapCompact(ValueMap &valueMap);
+    virtual void valueVectorCompact(ValueVector &valueVector);
 };
 
 // end of support group

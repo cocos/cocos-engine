@@ -30,8 +30,6 @@
 
 namespace cc {
 
-static constexpr uint MAX_CPU_FRAME_AHEAD = 1U;
-
 template <typename Actor>
 class CC_DLL Agent : public Actor {
 public:

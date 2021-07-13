@@ -212,19 +212,19 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
 
     ///////////////////// Gather Device Properties /////////////////////
 
-    _features[static_cast<uint>(Feature::COLOR_FLOAT)]               = true;
-    _features[static_cast<uint>(Feature::COLOR_HALF_FLOAT)]          = true;
-    _features[static_cast<uint>(Feature::TEXTURE_FLOAT)]             = true;
-    _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)]        = true;
-    _features[static_cast<uint>(Feature::TEXTURE_FLOAT_LINEAR)]      = true;
-    _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
-    _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)]         = true;
-    _features[static_cast<uint>(Feature::FORMAT_SRGB)]               = true;
-    _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)]        = true;
-    _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)]          = true;
-    _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)]   = true;
-    _features[static_cast<uint>(Feature::BLEND_MINMAX)]              = true;
-    _features[static_cast<uint>(Feature::COMPUTE_SHADER)]            = true;
+    _features[toNumber(Feature::COLOR_FLOAT)]               = true;
+    _features[toNumber(Feature::COLOR_HALF_FLOAT)]          = true;
+    _features[toNumber(Feature::TEXTURE_FLOAT)]             = true;
+    _features[toNumber(Feature::TEXTURE_HALF_FLOAT)]        = true;
+    _features[toNumber(Feature::TEXTURE_FLOAT_LINEAR)]      = true;
+    _features[toNumber(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
+    _features[toNumber(Feature::FORMAT_R11G11B10F)]         = true;
+    _features[toNumber(Feature::FORMAT_SRGB)]               = true;
+    _features[toNumber(Feature::ELEMENT_INDEX_UINT)]        = true;
+    _features[toNumber(Feature::INSTANCED_ARRAYS)]          = true;
+    _features[toNumber(Feature::MULTIPLE_RENDER_TARGETS)]   = true;
+    _features[toNumber(Feature::BLEND_MINMAX)]              = true;
+    _features[toNumber(Feature::COMPUTE_SHADER)]            = true;
 
     _gpuDevice->useMultiDrawIndirect        = deviceFeatures.multiDrawIndirect;
     _gpuDevice->useDescriptorUpdateTemplate = _gpuDevice->minorVersion > 0 || checkExtension(VK_KHR_DESCRIPTOR_UPDATE_TEMPLATE_EXTENSION_NAME);
@@ -241,16 +241,16 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
     VkFormatProperties   formatProperties;
     vkGetPhysicalDeviceFormatProperties(gpuContext->physicalDevice, VK_FORMAT_R8G8B8_UNORM, &formatProperties);
     if (formatProperties.optimalTilingFeatures & requiredFeatures) {
-        _features[static_cast<uint>(Feature::FORMAT_RGB8)] = true;
+        _features[toNumber(Feature::FORMAT_RGB8)] = true;
     }
 
     String compressedFmts;
     if (deviceFeatures.textureCompressionETC2) {
-        _features[static_cast<uint>(Feature::FORMAT_ETC2)] = true;
+        _features[toNumber(Feature::FORMAT_ETC2)] = true;
         compressedFmts += "etc2 ";
     }
     if (deviceFeatures.textureCompressionASTC_LDR) {
-        _features[static_cast<uint>(Feature::FORMAT_ASTC)] = true;
+        _features[toNumber(Feature::FORMAT_ASTC)] = true;
         compressedFmts += "astc ";
     }
 
@@ -372,7 +372,7 @@ bool CCVKDevice::doInit(const DeviceInfo &info) {
 
     ThsvsImageBarrier barrier{};
     barrier.nextAccessCount             = 1;
-    barrier.pNextAccesses               = &THSVS_ACCESS_TYPES[static_cast<uint>(AccessType::VERTEX_SHADER_READ_TEXTURE)];
+    barrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::VERTEX_SHADER_READ_TEXTURE)];
     barrier.image                       = _gpuDevice->defaultTexture.vkImage;
     barrier.srcQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
     barrier.dstQueueFamilyIndex         = VK_QUEUE_FAMILY_IGNORED;
@@ -557,8 +557,9 @@ void CCVKDevice::acquire() {
                                    acquireSemaphore, VK_NULL_HANDLE, &_gpuSwapchain->curImageIndex));
 
 #if !defined(VK_USE_PLATFORM_METAL_EXT)
-    assert(_gpuDevice->curBackBufferIndex == _gpuSwapchain->curImageIndex); // MoltenVK seems to be not consistent
-#endif                                                                      // defined(VK_USE_PLATFORM_METAL_EXT)
+    // MoltenVK seems to be not consistent on this index
+    CCASSERT(_gpuDevice->curBackBufferIndex == _gpuSwapchain->curImageIndex, "wrong image index?");
+#endif // defined(VK_USE_PLATFORM_METAL_EXT)
 
     queue->gpuQueue()->nextWaitSemaphore   = acquireSemaphore;
     queue->gpuQueue()->nextSignalSemaphore = _gpuSemaphorePool->alloc();
@@ -603,12 +604,12 @@ CCVKGPUStagingBufferPool *CCVKDevice::gpuStagingBufferPool() { return _gpuStagin
 
 void CCVKDevice::waitAllFences() {
     vector<VkFence> fences;
-    for(auto* fencePool : _gpuFencePools) {
+    for (auto *fencePool : _gpuFencePools) {
         fences.insert(fences.end(), fencePool->data(), fencePool->data() + fencePool->size());
     }
-    if(!fences.empty()) {
+    if (!fences.empty()) {
         VK_CHECK(vkWaitForFences(_gpuDevice->vkDevice, fences.size(), fences.data(), VK_TRUE, DEFAULT_TIMEOUT));
-        for(auto* fencePool : _gpuFencePools) {
+        for (auto *fencePool : _gpuFencePools) {
             fencePool->reset();
         }
     }
@@ -730,8 +731,6 @@ bool CCVKDevice::checkSwapchainStatus() {
     VkSwapchainKHR vkSwapchain = VK_NULL_HANDLE;
     VK_CHECK(vkCreateSwapchainKHR(_gpuDevice->vkDevice, &context->swapchainCreateInfo, nullptr, &vkSwapchain));
 
-
-
     destroySwapchain();
 
     _gpuDevice->curBackBufferIndex = 0U;
@@ -742,7 +741,8 @@ bool CCVKDevice::checkSwapchainStatus() {
     VK_CHECK(vkGetSwapchainImagesKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, nullptr));
     _gpuSwapchain->swapchainImages.resize(imageCount);
     VK_CHECK(vkGetSwapchainImagesKHR(_gpuDevice->vkDevice, _gpuSwapchain->vkSwapchain, &imageCount, _gpuSwapchain->swapchainImages.data()));
-    assert(imageCount == context->swapchainCreateInfo.minImageCount); // assert if swapchain image count assumption is broken
+
+    CCASSERT(imageCount == context->swapchainCreateInfo.minImageCount, "swapchain image count assumption is broken");
 
     _gpuSwapchain->vkSwapchainImageViews.resize(imageCount);
     for (uint i = 0U; i < imageCount; i++) {
@@ -761,7 +761,7 @@ bool CCVKDevice::checkSwapchainStatus() {
         VK_CHECK(vkCreateImageView(_gpuDevice->vkDevice, &imageViewCreateInfo, nullptr, &_gpuSwapchain->vkSwapchainImageViews[i]));
     }
 
-    bool                         hasStencil = GFX_FORMAT_INFOS[static_cast<uint>(_context->getDepthStencilFormat())].hasStencil;
+    bool                         hasStencil = GFX_FORMAT_INFOS[toNumber(_context->getDepthStencilFormat())].hasStencil;
     vector<VkImageMemoryBarrier> barriers(imageCount * 2, VkImageMemoryBarrier{});
     VkPipelineStageFlags         srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
     VkPipelineStageFlags         dstStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
@@ -774,7 +774,7 @@ bool CCVKDevice::checkSwapchainStatus() {
     VkPipelineStageFlags tempDstStageMask   = 0;
     for (uint i = 0U; i < imageCount; i++) {
         tempBarrier.nextAccessCount             = 1;
-        tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[static_cast<uint>(AccessType::COLOR_ATTACHMENT_WRITE)];
+        tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::COLOR_ATTACHMENT_WRITE)];
         tempBarrier.image                       = _gpuSwapchain->swapchainImages[i];
         tempBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         thsvsGetVulkanImageMemoryBarrier(tempBarrier, &tempSrcStageMask, &tempDstStageMask, &barriers[i]);
@@ -782,7 +782,7 @@ bool CCVKDevice::checkSwapchainStatus() {
         dstStageMask |= tempDstStageMask;
 
         tempBarrier.nextAccessCount             = 1;
-        tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[static_cast<uint>(AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE)];
+        tempBarrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE)];
         tempBarrier.image                       = _gpuSwapchain->depthStencilImages[i];
         tempBarrier.subresourceRange.aspectMask = hasStencil ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT : VK_IMAGE_ASPECT_DEPTH_BIT;
         thsvsGetVulkanImageMemoryBarrier(tempBarrier, &tempSrcStageMask, &tempDstStageMask, &barriers[imageCount + i]);
@@ -807,7 +807,6 @@ bool CCVKDevice::checkSwapchainStatus() {
 
 void CCVKDevice::destroySwapchain() {
     if (_gpuSwapchain->vkSwapchain != VK_NULL_HANDLE) {
-
         _gpuSwapchain->swapchainImageAccessTypes.clear();
         _gpuSwapchain->depthStencilImageAccessTypes.clear();
 

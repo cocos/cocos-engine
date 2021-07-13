@@ -113,7 +113,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
     VkFormatProperties   formatProperties;
     vkGetPhysicalDeviceFormatProperties(device->gpuContext()->physicalDevice, format, &formatProperties);
     if (!(formatProperties.optimalTilingFeatures & features)) {
-        const char *formatName = GFX_FORMAT_INFOS[static_cast<uint>(gpuTexture->format)].name.c_str();
+        const char *formatName = GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].name.c_str();
         CC_LOG_ERROR("cmdFuncCCVKCreateTexture: The specified usage for %s is not supported on this platform", formatName);
         return;
     }
@@ -163,7 +163,7 @@ void cmdFuncCCVKCreateTexture(CCVKDevice *device, CCVKGPUTexture *gpuTexture) {
 void cmdFuncCCVKCreateTextureView(CCVKDevice *device, CCVKGPUTextureView *gpuTextureView) {
     if (!gpuTextureView->gpuTexture || !gpuTextureView->gpuTexture->vkImage) return;
 
-    auto formatInfo = GFX_FORMAT_INFOS[static_cast<uint>(gpuTextureView->format)];
+    auto formatInfo = GFX_FORMAT_INFOS[toNumber(gpuTextureView->format)];
 
     VkImageAspectFlags aspect = VK_IMAGE_ASPECT_COLOR_BIT;
     if (formatInfo.hasDepth) aspect = VK_IMAGE_ASPECT_DEPTH_BIT;
@@ -188,17 +188,17 @@ void cmdFuncCCVKCreateSampler(CCVKDevice *device, CCVKGPUSampler *gpuSampler) {
     CCVKGPUContext *    context       = device->gpuContext();
     float               maxAnisotropy = context->physicalDeviceProperties.limits.maxSamplerAnisotropy;
 
-    createInfo.magFilter        = VK_FILTERS[static_cast<uint>(gpuSampler->magFilter)];
-    createInfo.minFilter        = VK_FILTERS[static_cast<uint>(gpuSampler->minFilter)];
-    createInfo.mipmapMode       = VK_SAMPLER_MIPMAP_MODES[static_cast<uint>(gpuSampler->mipFilter)];
-    createInfo.addressModeU     = VK_SAMPLER_ADDRESS_MODES[static_cast<uint>(gpuSampler->addressU)];
-    createInfo.addressModeV     = VK_SAMPLER_ADDRESS_MODES[static_cast<uint>(gpuSampler->addressV)];
-    createInfo.addressModeW     = VK_SAMPLER_ADDRESS_MODES[static_cast<uint>(gpuSampler->addressW)];
+    createInfo.magFilter        = VK_FILTERS[toNumber(gpuSampler->magFilter)];
+    createInfo.minFilter        = VK_FILTERS[toNumber(gpuSampler->minFilter)];
+    createInfo.mipmapMode       = VK_SAMPLER_MIPMAP_MODES[toNumber(gpuSampler->mipFilter)];
+    createInfo.addressModeU     = VK_SAMPLER_ADDRESS_MODES[toNumber(gpuSampler->addressU)];
+    createInfo.addressModeV     = VK_SAMPLER_ADDRESS_MODES[toNumber(gpuSampler->addressV)];
+    createInfo.addressModeW     = VK_SAMPLER_ADDRESS_MODES[toNumber(gpuSampler->addressW)];
     createInfo.mipLodBias       = gpuSampler->mipLODBias;
     createInfo.anisotropyEnable = gpuSampler->maxAnisotropy && context->physicalDeviceFeatures.samplerAnisotropy;
     createInfo.maxAnisotropy    = std::min(maxAnisotropy, static_cast<float>(gpuSampler->maxAnisotropy));
     createInfo.compareEnable    = gpuSampler->cmpFunc != ComparisonFunc::ALWAYS;
-    createInfo.compareOp        = VK_CMP_FUNCS[static_cast<uint>(gpuSampler->cmpFunc)];
+    createInfo.compareOp        = VK_CMP_FUNCS[toNumber(gpuSampler->cmpFunc)];
     createInfo.minLod           = 0.0;               // UNASSIGNED-BestPractices-vkCreateSampler-lod-clamping
     createInfo.maxLod           = VK_LOD_CLAMP_NONE; // UNASSIGNED-BestPractices-vkCreateSampler-lod-clamping
     //createInfo.borderColor;
@@ -275,10 +275,10 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         CCVKAccessInfo &         endAccessInfo   = endAccessInfos[i];
 
         for (AccessType type : attachment.beginAccesses) {
-            beginAccesses.push_back(THSVS_ACCESS_TYPES[static_cast<uint>(type)]);
+            beginAccesses.push_back(THSVS_ACCESS_TYPES[toNumber(type)]);
         }
         for (AccessType type : attachment.endAccesses) {
-            endAccesses.push_back(THSVS_ACCESS_TYPES[static_cast<uint>(type)]);
+            endAccesses.push_back(THSVS_ACCESS_TYPES[toNumber(type)]);
         }
         thsvsGetAccessInfo(utils::toUint(beginAccesses.size()), beginAccesses.data(), &beginAccessInfo.stageMask,
                            &beginAccessInfo.accessMask, &beginAccessInfo.imageLayout, &beginAccessInfo.hasWriteAccess);
@@ -305,10 +305,10 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         CCVKAccessInfo &         endAccessInfo   = endAccessInfos[colorAttachmentCount];
 
         for (AccessType type : depthStencilAttachment.beginAccesses) {
-            beginAccesses.push_back(THSVS_ACCESS_TYPES[static_cast<uint>(type)]);
+            beginAccesses.push_back(THSVS_ACCESS_TYPES[toNumber(type)]);
         }
         for (AccessType type : depthStencilAttachment.endAccesses) {
-            endAccesses.push_back(THSVS_ACCESS_TYPES[static_cast<uint>(type)]);
+            endAccesses.push_back(THSVS_ACCESS_TYPES[toNumber(type)]);
         }
         thsvsGetAccessInfo(utils::toUint(beginAccesses.size()), beginAccesses.data(), &beginAccessInfo.stageMask,
                            &beginAccessInfo.accessMask, &beginAccessInfo.imageLayout, &beginAccessInfo.hasWriteAccess);
@@ -367,7 +367,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
                 sampleCount                                = std::max(sampleCount, attachment.samples);
             }
 
-            VkImageAspectFlags aspect = GFX_FORMAT_INFOS[static_cast<uint>(dsFormat)].hasStencil
+            VkImageAspectFlags aspect = GFX_FORMAT_INFOS[toNumber(dsFormat)].hasStencil
                                             ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT
                                             : VK_IMAGE_ASPECT_DEPTH_BIT;
             VkImageLayout      layout = isGeneralLayout ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -378,7 +378,7 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         if (subpassInfo.depthStencilResolve != INVALID_BINDING) {
             const ColorAttachment &desc = gpuRenderPass->colorAttachments[subpassInfo.depthStencilResolve];
 
-            VkImageAspectFlags aspect = GFX_FORMAT_INFOS[static_cast<uint>(desc.format)].hasStencil
+            VkImageAspectFlags aspect = GFX_FORMAT_INFOS[toNumber(desc.format)].hasStencil
                                             ? VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT
                                             : VK_IMAGE_ASPECT_DEPTH_BIT;
             VkImageLayout      layout = desc.isGeneralLayout ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
@@ -426,8 +426,8 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
         if (subpassInfo.depthStencilResolve != INVALID_BINDING) {
             VkSubpassDescriptionDepthStencilResolve &resolveDesc{depthStencilResolves[i]};
 
-            VkResolveModeFlagBits depthResolveMode   = VK_RESOLVE_MODES[static_cast<uint>(subpassInfo.depthResolveMode)];
-            VkResolveModeFlagBits stencilResolveMode = VK_RESOLVE_MODES[static_cast<uint>(subpassInfo.stencilResolveMode)];
+            VkResolveModeFlagBits depthResolveMode   = VK_RESOLVE_MODES[toNumber(subpassInfo.depthResolveMode)];
+            VkResolveModeFlagBits stencilResolveMode = VK_RESOLVE_MODES[toNumber(subpassInfo.stencilResolveMode)];
 
             if ((depthResolveMode & prop.supportedDepthResolveModes) == 0) depthResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
             if ((stencilResolveMode & prop.supportedStencilResolveModes) == 0) stencilResolveMode = VK_RESOLVE_MODE_SAMPLE_ZERO_BIT;
@@ -453,10 +453,10 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
     if (dependencyCount) {
         for (const auto &dependency : gpuRenderPass->dependencies) {
             for (AccessType type : dependency.srcAccesses) {
-                accessTypeCaches.push_back(THSVS_ACCESS_TYPES[static_cast<uint>(type)]);
+                accessTypeCaches.push_back(THSVS_ACCESS_TYPES[toNumber(type)]);
             }
             for (AccessType type : dependency.dstAccesses) {
-                accessTypeCaches.push_back(THSVS_ACCESS_TYPES[static_cast<uint>(type)]);
+                accessTypeCaches.push_back(THSVS_ACCESS_TYPES[toNumber(type)]);
             }
         }
 
@@ -641,7 +641,7 @@ void cmdFuncCCVKCreateFramebuffer(CCVKDevice *device, CCVKGPUFramebuffer *gpuFra
         for (size_t i = 0U; i < swapchainImageCount; ++i) {
             for (size_t j = 0U; j < colorViewCount; ++j) {
                 if (swapchainImageIndices & (1 << j)) {
-                    attachments[j] = GFX_FORMAT_INFOS[static_cast<uint>(gpuFramebuffer->gpuRenderPass->colorAttachments[j].format)].hasDepth
+                    attachments[j] = GFX_FORMAT_INFOS[toNumber(gpuFramebuffer->gpuRenderPass->colorAttachments[j].format)].hasDepth
                                          ? gpuFramebuffer->swapchain->depthStencilImageViews[i]
                                          : gpuFramebuffer->swapchain->vkSwapchainImageViews[i];
                 }
@@ -796,7 +796,7 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
     }
     for (size_t i = 0U; i < attributeCount; ++i) {
         const Attribute &attr = attributes[i];
-        bindingDescriptions[attr.stream].stride += GFX_FORMAT_INFOS[static_cast<uint>(attr.format)].size;
+        bindingDescriptions[attr.stream].stride += GFX_FORMAT_INFOS[toNumber(attr.format)].size;
         if (attr.isInstanced) {
             bindingDescriptions[attr.stream].inputRate = VK_VERTEX_INPUT_RATE_INSTANCE;
         }
@@ -818,7 +818,7 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
                 attributeFound                    = true;
                 break;
             }
-            offsets[attr.stream] += GFX_FORMAT_INFOS[static_cast<uint>(attr.format)].size;
+            offsets[attr.stream] += GFX_FORMAT_INFOS[toNumber(attr.format)].size;
         }
         if (!attributeFound) { // handle absent attribute
             attributeDescriptions[i].location = shaderAttrs[i].location;
@@ -838,7 +838,7 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
     ///////////////////// Input Asembly State /////////////////////
 
     VkPipelineInputAssemblyStateCreateInfo inputAssembly{VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO};
-    inputAssembly.topology         = VK_PRIMITIVE_MODES[static_cast<uint>(gpuPipelineState->primitive)];
+    inputAssembly.topology         = VK_PRIMITIVE_MODES[toNumber(gpuPipelineState->primitive)];
     createInfo.pInputAssemblyState = &inputAssembly;
 
     ///////////////////// Dynamic State /////////////////////
@@ -864,8 +864,8 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
 
     //rasterizationState.depthClampEnable;
     rasterizationState.rasterizerDiscardEnable = gpuPipelineState->rs.isDiscard;
-    rasterizationState.polygonMode             = VK_POLYGON_MODES[static_cast<uint>(gpuPipelineState->rs.polygonMode)];
-    rasterizationState.cullMode                = VK_CULL_MODES[static_cast<uint>(gpuPipelineState->rs.cullMode)];
+    rasterizationState.polygonMode             = VK_POLYGON_MODES[toNumber(gpuPipelineState->rs.polygonMode)];
+    rasterizationState.cullMode                = VK_CULL_MODES[toNumber(gpuPipelineState->rs.cullMode)];
     rasterizationState.frontFace               = gpuPipelineState->rs.isFrontFaceCCW ? VK_FRONT_FACE_COUNTER_CLOCKWISE : VK_FRONT_FACE_CLOCKWISE;
     rasterizationState.depthBiasEnable         = gpuPipelineState->rs.depthBiasEnabled;
     rasterizationState.depthBiasConstantFactor = gpuPipelineState->rs.depthBias;
@@ -890,23 +890,23 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
     VkPipelineDepthStencilStateCreateInfo depthStencilState = {VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO};
     depthStencilState.depthTestEnable                       = gpuPipelineState->dss.depthTest;
     depthStencilState.depthWriteEnable                      = gpuPipelineState->dss.depthWrite;
-    depthStencilState.depthCompareOp                        = VK_CMP_FUNCS[static_cast<uint>(gpuPipelineState->dss.depthFunc)];
+    depthStencilState.depthCompareOp                        = VK_CMP_FUNCS[toNumber(gpuPipelineState->dss.depthFunc)];
     depthStencilState.stencilTestEnable                     = gpuPipelineState->dss.stencilTestFront;
 
     depthStencilState.front = {
-        VK_STENCIL_OPS[static_cast<uint>(gpuPipelineState->dss.stencilFailOpFront)],
-        VK_STENCIL_OPS[static_cast<uint>(gpuPipelineState->dss.stencilPassOpFront)],
-        VK_STENCIL_OPS[static_cast<uint>(gpuPipelineState->dss.stencilZFailOpFront)],
-        VK_CMP_FUNCS[static_cast<uint>(gpuPipelineState->dss.stencilFuncFront)],
+        VK_STENCIL_OPS[toNumber(gpuPipelineState->dss.stencilFailOpFront)],
+        VK_STENCIL_OPS[toNumber(gpuPipelineState->dss.stencilPassOpFront)],
+        VK_STENCIL_OPS[toNumber(gpuPipelineState->dss.stencilZFailOpFront)],
+        VK_CMP_FUNCS[toNumber(gpuPipelineState->dss.stencilFuncFront)],
         gpuPipelineState->dss.stencilReadMaskFront,
         gpuPipelineState->dss.stencilWriteMaskFront,
         gpuPipelineState->dss.stencilRefFront,
     };
     depthStencilState.back = {
-        VK_STENCIL_OPS[static_cast<uint>(gpuPipelineState->dss.stencilFailOpBack)],
-        VK_STENCIL_OPS[static_cast<uint>(gpuPipelineState->dss.stencilPassOpBack)],
-        VK_STENCIL_OPS[static_cast<uint>(gpuPipelineState->dss.stencilZFailOpBack)],
-        VK_CMP_FUNCS[static_cast<uint>(gpuPipelineState->dss.stencilFuncBack)],
+        VK_STENCIL_OPS[toNumber(gpuPipelineState->dss.stencilFailOpBack)],
+        VK_STENCIL_OPS[toNumber(gpuPipelineState->dss.stencilPassOpBack)],
+        VK_STENCIL_OPS[toNumber(gpuPipelineState->dss.stencilZFailOpBack)],
+        VK_CMP_FUNCS[toNumber(gpuPipelineState->dss.stencilFuncBack)],
         gpuPipelineState->dss.stencilReadMaskBack,
         gpuPipelineState->dss.stencilWriteMaskBack,
         gpuPipelineState->dss.stencilRefBack,
@@ -927,12 +927,12 @@ void cmdFuncCCVKCreateGraphicsPipelineState(CCVKDevice *device, CCVKGPUPipelineS
                                   : gpuPipelineState->bs.targets[i];
 
         blendTargets[i].blendEnable         = target.blend;
-        blendTargets[i].srcColorBlendFactor = VK_BLEND_FACTORS[static_cast<uint>(target.blendSrc)];
-        blendTargets[i].dstColorBlendFactor = VK_BLEND_FACTORS[static_cast<uint>(target.blendDst)];
-        blendTargets[i].colorBlendOp        = VK_BLEND_OPS[static_cast<uint>(target.blendEq)];
-        blendTargets[i].srcAlphaBlendFactor = VK_BLEND_FACTORS[static_cast<uint>(target.blendSrcAlpha)];
-        blendTargets[i].dstAlphaBlendFactor = VK_BLEND_FACTORS[static_cast<uint>(target.blendDstAlpha)];
-        blendTargets[i].alphaBlendOp        = VK_BLEND_OPS[static_cast<uint>(target.blendAlphaEq)];
+        blendTargets[i].srcColorBlendFactor = VK_BLEND_FACTORS[toNumber(target.blendSrc)];
+        blendTargets[i].dstColorBlendFactor = VK_BLEND_FACTORS[toNumber(target.blendDst)];
+        blendTargets[i].colorBlendOp        = VK_BLEND_OPS[toNumber(target.blendEq)];
+        blendTargets[i].srcAlphaBlendFactor = VK_BLEND_FACTORS[toNumber(target.blendSrcAlpha)];
+        blendTargets[i].dstAlphaBlendFactor = VK_BLEND_FACTORS[toNumber(target.blendDstAlpha)];
+        blendTargets[i].alphaBlendOp        = VK_BLEND_OPS[toNumber(target.blendAlphaEq)];
         blendTargets[i].colorWriteMask      = mapVkColorComponentFlags(target.blendColorMask);
     }
     Color &blendColor = gpuPipelineState->bs.blendColor;
@@ -1062,7 +1062,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
     barrier.prevAccessCount             = utils::toUint(curTypes.size());
     barrier.pPrevAccesses               = curTypes.data();
     barrier.nextAccessCount             = 1;
-    barrier.pNextAccesses               = &THSVS_ACCESS_TYPES[static_cast<uint>(AccessType::TRANSFER_WRITE)];
+    barrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::TRANSFER_WRITE)];
 
     if (gpuTexture->transferAccess != THSVS_ACCESS_TRANSFER_WRITE) {
         cmdFuncCCVKImageMemoryBarrier(gpuCommandBuffer, barrier);
@@ -1088,7 +1088,7 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
 
     CCVKGPUBuffer stagingBuffer;
     stagingBuffer.size = totalSize;
-    uint texelSize     = GFX_FORMAT_INFOS[static_cast<uint>(gpuTexture->format)].size;
+    uint texelSize     = GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].size;
     device->gpuStagingBufferPool()->alloc(&stagingBuffer, texelSize);
 
     vector<VkBufferImageCopy> stagingRegions(count);
@@ -1128,8 +1128,8 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
             blitInfo.dstOffsets[1]              = {std::max(width >> 1, 1), std::max(height >> 1, 1), 1};
             barrier.subresourceRange.levelCount = 1;
             barrier.prevAccessCount             = 1;
-            barrier.pPrevAccesses               = &THSVS_ACCESS_TYPES[static_cast<uint>(AccessType::TRANSFER_WRITE)];
-            barrier.pNextAccesses               = &THSVS_ACCESS_TYPES[static_cast<uint>(AccessType::TRANSFER_READ)];
+            barrier.pPrevAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::TRANSFER_WRITE)];
+            barrier.pNextAccesses               = &THSVS_ACCESS_TYPES[toNumber(AccessType::TRANSFER_READ)];
 
             for (uint i = 1U; i < gpuTexture->mipLevels; ++i) {
                 barrier.subresourceRange.baseMipLevel = i - 1;
@@ -1148,12 +1148,12 @@ void cmdFuncCCVKCopyBuffersToTexture(CCVKDevice *device, const uint8_t *const *b
 
             barrier.subresourceRange.baseMipLevel = 0;
             barrier.subresourceRange.levelCount   = gpuTexture->mipLevels - 1;
-            barrier.pPrevAccesses                 = &THSVS_ACCESS_TYPES[static_cast<uint>(AccessType::TRANSFER_READ)];
-            barrier.pNextAccesses                 = &THSVS_ACCESS_TYPES[static_cast<uint>(AccessType::TRANSFER_WRITE)];
+            barrier.pPrevAccesses                 = &THSVS_ACCESS_TYPES[toNumber(AccessType::TRANSFER_READ)];
+            barrier.pNextAccesses                 = &THSVS_ACCESS_TYPES[toNumber(AccessType::TRANSFER_WRITE)];
 
             cmdFuncCCVKImageMemoryBarrier(gpuCommandBuffer, barrier);
         } else {
-            const char *formatName = GFX_FORMAT_INFOS[static_cast<uint>(gpuTexture->format)].name.c_str();
+            const char *formatName = GFX_FORMAT_INFOS[toNumber(gpuTexture->format)].name.c_str();
             CC_LOG_WARNING("cmdFuncCCVKCopyBuffersToTexture: generate mipmap for %s is not supported on this platform", formatName);
         }
     }
@@ -1335,7 +1335,7 @@ VkSampleCountFlagBits CCVKGPUContext::getSampleCountForAttachments(Format format
 
     static unordered_map<Format, VkSampleCountFlags> cacheMap;
     if (!cacheMap.count(format)) {
-        bool              hasDepth = GFX_FORMAT_INFOS[static_cast<uint>(format)].hasDepth;
+        bool              hasDepth = GFX_FORMAT_INFOS[toNumber(format)].hasDepth;
         VkImageUsageFlags usages   = hasDepth ? VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT : VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
         VkImageFormatProperties properties;
@@ -1346,7 +1346,7 @@ VkSampleCountFlagBits CCVKGPUContext::getSampleCountForAttachments(Format format
 
     VkSampleCountFlags availableSampleCounts = cacheMap[format];
 
-    auto requestedSampleCount = static_cast<uint>(sampleCount);
+    auto requestedSampleCount = toNumber(sampleCount);
     if (requestedSampleCount >= 64 && (availableSampleCounts & VK_SAMPLE_COUNT_64_BIT)) return VK_SAMPLE_COUNT_64_BIT;
     if (requestedSampleCount >= 32 && (availableSampleCounts & VK_SAMPLE_COUNT_32_BIT)) return VK_SAMPLE_COUNT_32_BIT;
     if (requestedSampleCount >= 16 && (availableSampleCounts & VK_SAMPLE_COUNT_16_BIT)) return VK_SAMPLE_COUNT_16_BIT;

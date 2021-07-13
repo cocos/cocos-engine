@@ -63,7 +63,7 @@ void writeCommand(int8_t cmd) {
     write(pipeWrite, &cmd, sizeof(cmd));
 }
 
-int readCommand(int8_t &cmd) { //NOLINT(google-runtime-references)
+int readCommand(int8_t &cmd) {
     return read(pipeRead, &cmd, sizeof(cmd));
 }
 

@@ -1,6 +1,6 @@
 ## ===== instance function implementation template - for overloaded functions
 
-static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);

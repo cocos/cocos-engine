@@ -70,15 +70,10 @@ struct RenderTargetAttachment final {
 };
 
 inline bool RenderTargetAttachment::Sorter::operator()(const RenderTargetAttachment &a1, const RenderTargetAttachment &a2) const noexcept {
-    bool res = false;
-    if (a1.desc.usage < a2.desc.usage) {
-        res = true;
-    } else if (a1.desc.usage == a2.desc.usage) {
-        res = a1.desc.slot < a2.desc.slot;
-    } else {
-        res = false;
+    if (a1.desc.usage == a2.desc.usage) {
+        return a1.desc.slot < a2.desc.slot;
     }
-    return res;
+    return a1.desc.usage < a2.desc.usage;
 }
 
 } // namespace framegraph

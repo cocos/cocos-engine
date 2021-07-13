@@ -1,8 +1,8 @@
 /****************************************************************************
  Copyright (c) 2021 Xiamen Yaji Software Co., Ltd.
- 
+
  http://www.cocos.com
- 
+
  Permission is hereby granted, free of charge, to any person obtaining a copy
  of this software and associated engine source code (the "Software"), a limited,
  worldwide, royalty-free, non-assignable, revocable and non-exclusive license
@@ -10,10 +10,10 @@
  not use Cocos Creator software for developing other software or tools that's
  used for developing games. You are not granted to publish, distribute,
  sublicense, and/or sell copies of Cocos Creator.
- 
+
  The software or tools in this License Agreement are licensed, not sold.
  Xiamen Yaji Software Co., Ltd. reserves all rights not expressly granted to you.
- 
+
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -36,7 +36,7 @@
     #define JSB_FREE(ptr) delete ptr
 #endif
 
-static bool js_scene_Pass_setRootBufferAndBlock(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setRootBufferAndBlock(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setRootBlock : Invalid Native Object");
@@ -54,9 +54,9 @@ static bool js_scene_Pass_setRootBufferAndBlock(se::State& s) // NOLINT(readabil
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_scene_Pass_setRootBufferAndBlock) // NOLINT(readability-identifier-naming, google-runtime-references)
+SE_BIND_FUNC(js_scene_Pass_setRootBufferAndBlock) // NOLINT(readability-identifier-naming)
 
-static bool js_scene_RenderScene_updateBatches(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_updateBatches(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_updateBatches : Invalid Native Object");
@@ -73,9 +73,9 @@ static bool js_scene_RenderScene_updateBatches(se::State& s) // NOLINT(readabili
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_scene_RenderScene_updateBatches) // NOLINT(readability-identifier-naming, google-runtime-references)
+SE_BIND_FUNC(js_scene_RenderScene_updateBatches) // NOLINT(readability-identifier-naming)
 
-static bool js_scene_Model_setInstancedAttrBlock(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_setInstancedAttrBlock(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = static_cast<cc::scene::Model*>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_scene_Model_setInstancedAttrBlock : Invalid Native Object");
@@ -123,9 +123,9 @@ static bool js_scene_Model_setInstancedAttrBlock(se::State& s) // NOLINT(readabi
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_scene_Model_setInstancedAttrBlock) // NOLINT(readability-identifier-naming, google-runtime-references)
+SE_BIND_FUNC(js_scene_Model_setInstancedAttrBlock) // NOLINT(readability-identifier-naming)
 
-static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto*          cobj = static_cast<cc::scene::Node*>(s.nativeThisObject());
     CC_UNUSED bool ok   = true;
@@ -145,9 +145,9 @@ static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-ident
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_scene_Node_initWithData) // NOLINT(readability-identifier-naming, google-runtime-references)
+SE_BIND_FUNC(js_scene_Node_initWithData) // NOLINT(readability-identifier-naming)
 
-static bool js_scene_Pass_initWithData(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_initWithData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto*          cobj = static_cast<cc::scene::Pass*>(s.nativeThisObject());
     CC_UNUSED bool ok   = true;
@@ -167,9 +167,9 @@ static bool js_scene_Pass_initWithData(se::State& s) // NOLINT(readability-ident
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_scene_Pass_initWithData) // NOLINT(readability-identifier-naming, google-runtime-references)
+SE_BIND_FUNC(js_scene_Pass_initWithData) // NOLINT(readability-identifier-naming)
 
-static bool js_scene_SubModel_setSubMeshBuffers(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_setSubMeshBuffers(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = static_cast<cc::scene::SubModel*>(s.nativeThisObject());
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setSubMeshBuffers : Invalid Native Object");
@@ -220,9 +220,9 @@ static bool js_scene_SubModel_setSubMeshBuffers(se::State& s) // NOLINT(readabil
     SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
     return false;
 }
-SE_BIND_FUNC(js_scene_SubModel_setSubMeshBuffers) // NOLINT(readability-identifier-naming, google-runtime-references)
+SE_BIND_FUNC(js_scene_SubModel_setSubMeshBuffers) // NOLINT(readability-identifier-naming)
 
-bool register_all_scene_manual(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool register_all_scene_manual(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     // Get the ns
     se::Value nsVal;

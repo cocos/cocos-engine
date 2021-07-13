@@ -254,7 +254,7 @@ static bool webSocketFinalize(const se::State &s) {
 }
 SE_BIND_FINALIZE_FUNC(webSocketFinalize)
 
-static bool webSocketConstructor(se::State &s) { // NOLINT (google-runtime-references)
+static bool webSocketConstructor(se::State &s) {
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
 
@@ -393,7 +393,7 @@ static bool webSocketSend(const se::State &s) {
 }
 SE_BIND_FUNC(webSocketSend)
 
-static bool webSocketClose(se::State &s) { // NOLINT (google-runtime-references)
+static bool webSocketClose(se::State &s) {
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
 
@@ -436,7 +436,7 @@ static bool webSocketClose(se::State &s) { // NOLINT (google-runtime-references)
 }
 SE_BIND_FUNC(webSocketClose)
 
-static bool webSocketGetReadyState(se::State &s) { // NOLINT (google-runtime-references)
+static bool webSocketGetReadyState(se::State &s) {
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
 
@@ -450,7 +450,7 @@ static bool webSocketGetReadyState(se::State &s) { // NOLINT (google-runtime-ref
 }
 SE_BIND_PROP_GET(webSocketGetReadyState)
 
-static bool webSocketGetBufferedAmount(se::State &s) { // NOLINT (google-runtime-references)
+static bool webSocketGetBufferedAmount(se::State &s) {
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
 
@@ -464,7 +464,7 @@ static bool webSocketGetBufferedAmount(se::State &s) { // NOLINT (google-runtime
 }
 SE_BIND_PROP_GET(webSocketGetBufferedAmount)
 
-static bool webSocketGetExtensions(se::State &s) { // NOLINT (google-runtime-references)
+static bool webSocketGetExtensions(se::State &s) {
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
 

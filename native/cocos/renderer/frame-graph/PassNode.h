@@ -100,7 +100,7 @@ void PassNode::sideEffect() noexcept {
     _sideEffect = true;
 }
 
-void PassNode::subpass(bool clearActionIgnoreable, bool const end) noexcept {
+void PassNode::subpass(bool clearActionIgnoreable, bool end) noexcept {
     _subpass               = true;
     _clearActionIgnoreable = clearActionIgnoreable;
     _subpassEnd            = end;

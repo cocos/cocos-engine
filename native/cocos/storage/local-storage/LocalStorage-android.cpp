@@ -50,7 +50,7 @@
 using namespace cc; //NOLINT
 static int gInitialized = 0;
 
-static void splitFilename(std::string &str) { //NOLINT(google-runtime-references)
+static void splitFilename(std::string &str) {
     size_t found = 0;
     found        = str.find_last_of("/\\");
     if (found != std::string::npos) {
@@ -92,7 +92,7 @@ bool localStorageGetItem(const std::string &key, std::string *outItem) {
 
     if (JniHelper::getStaticMethodInfo(t, JCLS_LOCALSTORAGE, "getItem", "(Ljava/lang/String;)Ljava/lang/String;")) {
         jstring jkey = t.env->NewStringUTF(key.c_str());
-        auto    jret = static_cast<jstring>(t.env->CallStaticObjectMethod(t.classID, t.methodID, jkey));
+        auto *  jret = static_cast<jstring>(t.env->CallStaticObjectMethod(t.classID, t.methodID, jkey));
         if (jret == nullptr) {
             ccDeleteLocalRef(t.env, jret);
             ccDeleteLocalRef(t.env, jkey);

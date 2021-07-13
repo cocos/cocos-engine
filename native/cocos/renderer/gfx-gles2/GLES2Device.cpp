@@ -101,46 +101,46 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     _multithreadedSubmission = false;
 
     if (checkExtension("EXT_sRGB")) {
-        _features[static_cast<uint>(Feature::FORMAT_SRGB)] = true;
+        _features[toNumber(Feature::FORMAT_SRGB)] = true;
     }
 
     if (checkExtension("GL_OES_texture_float")) {
-        _features[static_cast<uint>(Feature::TEXTURE_FLOAT)] = true;
+        _features[toNumber(Feature::TEXTURE_FLOAT)] = true;
     }
 
     if (checkExtension("GL_OES_texture_half_float")) {
-        _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT)] = true;
+        _features[toNumber(Feature::TEXTURE_HALF_FLOAT)] = true;
     }
 
-    _features[static_cast<uint>(Feature::FORMAT_R11G11B10F)] = true;
+    _features[toNumber(Feature::FORMAT_R11G11B10F)] = true;
 
     if (checkExtension("GL_OES_element_index_uint")) {
-        _features[static_cast<uint>(Feature::ELEMENT_INDEX_UINT)] = true;
+        _features[toNumber(Feature::ELEMENT_INDEX_UINT)] = true;
     }
 
     if (checkExtension("color_buffer_float")) {
-        _features[static_cast<uint>(Feature::COLOR_FLOAT)] = true;
+        _features[toNumber(Feature::COLOR_FLOAT)] = true;
     }
 
     if (checkExtension("color_buffer_half_float")) {
-        _features[static_cast<uint>(Feature::COLOR_HALF_FLOAT)] = true;
+        _features[toNumber(Feature::COLOR_HALF_FLOAT)] = true;
     }
 
     if (checkExtension("texture_float_linear")) {
-        _features[static_cast<uint>(Feature::TEXTURE_FLOAT_LINEAR)] = true;
+        _features[toNumber(Feature::TEXTURE_FLOAT_LINEAR)] = true;
     }
 
     if (checkExtension("texture_half_float_linear")) {
-        _features[static_cast<uint>(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
+        _features[toNumber(Feature::TEXTURE_HALF_FLOAT_LINEAR)] = true;
     }
 
     if (checkExtension("draw_buffers")) {
-        _features[static_cast<uint>(Feature::MULTIPLE_RENDER_TARGETS)] = true;
+        _features[toNumber(Feature::MULTIPLE_RENDER_TARGETS)] = true;
         glGetIntegerv(GL_MAX_DRAW_BUFFERS_EXT, reinterpret_cast<GLint *>(&_caps.maxColorRenderTargets));
     }
 
     if (checkExtension("blend_minmax")) {
-        _features[static_cast<uint>(Feature::BLEND_MINMAX)] = true;
+        _features[toNumber(Feature::BLEND_MINMAX)] = true;
     }
 
     _gpuConstantRegistry->useVAO                = checkExtension("vertex_array_object");
@@ -148,7 +148,7 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     _gpuConstantRegistry->useInstancedArrays    = checkExtension("instanced_arrays");
     _gpuConstantRegistry->useDiscardFramebuffer = checkExtension("discard_framebuffer");
 
-    _features[static_cast<uint>(Feature::INSTANCED_ARRAYS)] = _gpuConstantRegistry->useInstancedArrays;
+    _features[toNumber(Feature::INSTANCED_ARRAYS)] = _gpuConstantRegistry->useInstancedArrays;
 
 #if CC_PLATFORM != CC_PLATFORM_WINDOWS && CC_PLATFORM != CC_PLATFORM_MAC_OSX || ALLOW_MULTISAMPLED_RENDER_TO_TEXTURE_ON_DESKTOP
     if (checkExtension("multisampled_render_to_texture")) {
@@ -187,25 +187,25 @@ bool GLES2Device::doInit(const DeviceInfo &info) {
     String compressedFmts;
 
     if (checkExtension("compressed_ETC1")) {
-        _features[static_cast<uint>(Feature::FORMAT_ETC1)] = true;
+        _features[toNumber(Feature::FORMAT_ETC1)] = true;
         compressedFmts += "etc1 ";
     }
 
     if (checkForETC2()) {
-        _features[static_cast<uint>(Feature::FORMAT_ETC2)] = true;
+        _features[toNumber(Feature::FORMAT_ETC2)] = true;
         compressedFmts += "etc2 ";
     }
 
     if (checkExtension("texture_compression_pvrtc")) {
-        _features[static_cast<uint>(Feature::FORMAT_PVRTC)] = true;
+        _features[toNumber(Feature::FORMAT_PVRTC)] = true;
         compressedFmts += "pvrtc ";
     }
 
     if (checkExtension("texture_compression_astc")) {
-        _features[static_cast<uint>(Feature::FORMAT_ASTC)] = true;
+        _features[toNumber(Feature::FORMAT_ASTC)] = true;
         compressedFmts += "astc ";
     }
-    _features[static_cast<uint>(Feature::FORMAT_RGB8)] = true;
+    _features[toNumber(Feature::FORMAT_RGB8)] = true;
 
     _renderer = reinterpret_cast<const char *>(glGetString(GL_RENDERER));
     _vendor   = reinterpret_cast<const char *>(glGetString(GL_VENDOR));

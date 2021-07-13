@@ -2,7 +2,7 @@
 #set fields = $current_class.fields
 
 template<>
-bool sevalue_to_native(const se::Value &from, ${current_class.namespaced_class_name} *to, se::Object *ctx) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool sevalue_to_native(const se::Value &from, ${current_class.namespaced_class_name} *to, se::Object *ctx) // NOLINT(readability-identifier-naming)
 {
     typedef typename std::underlying_type_t<${current_class.namespaced_class_name}>  under_type;
     under_type tmp;
@@ -10,7 +10,7 @@ bool sevalue_to_native(const se::Value &from, ${current_class.namespaced_class_n
     return false;
 }
 
-int js_register_${generator.prefix}_${current_class.class_name}(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+int js_register_${generator.prefix}_${current_class.class_name}(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto enum_kls = se::Object::createPlainObject();
     #for m in fields

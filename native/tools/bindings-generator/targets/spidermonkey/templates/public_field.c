@@ -1,6 +1,6 @@
 ## ===== member implementation template
 
-static bool ${signature_name}_get_${name}(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool ${signature_name}_get_${name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);
     SE_PRECONDITION2(cobj, false, "${signature_name}_get_${name} : Invalid Native Object");
@@ -33,7 +33,7 @@ static bool ${signature_name}_get_${name}(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_GET(${signature_name}_get_${name})
 
-static bool ${signature_name}_set_${name}(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool ${signature_name}_set_${name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<${namespaced_class_name}>(s);

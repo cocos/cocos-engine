@@ -122,7 +122,7 @@ se::Value oldConsoleWarn;
 se::Value oldConsoleError;
 se::Value oldConsoleAssert;
 
-bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) { //NOLINT(google-runtime-references)
+bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) {
     if (msgIndex < 0) {
         return false;
     }
@@ -150,42 +150,42 @@ bool jsbConsoleFormatLog(State &state, const char *prefix, int msgIndex = 0) { /
     return true;
 }
 
-bool jsbConsoleLog(State &s) { //NOLINT(google-runtime-references)
+bool jsbConsoleLog(State &s) {
     jsbConsoleFormatLog(s, "");
     oldConsoleLog.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleLog)
 
-bool jsbConsoleDebug(State &s) { //NOLINT(google-runtime-references)
+bool jsbConsoleDebug(State &s) {
     jsbConsoleFormatLog(s, "[DEBUG]: ");
     oldConsoleDebug.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleDebug)
 
-bool jsbConsoleInfo(State &s) { //NOLINT(google-runtime-references)
+bool jsbConsoleInfo(State &s) {
     jsbConsoleFormatLog(s, "[INFO]: ");
     oldConsoleInfo.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleInfo)
 
-bool jsbConsoleWarn(State &s) { //NOLINT(google-runtime-references)
+bool jsbConsoleWarn(State &s) {
     jsbConsoleFormatLog(s, "[WARN]: ");
     oldConsoleWarn.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleWarn)
 
-bool jsbConsoleError(State &s) { //NOLINT(google-runtime-references)
+bool jsbConsoleError(State &s) {
     jsbConsoleFormatLog(s, "[ERROR]: ");
     oldConsoleError.toObject()->call(s.args(), s.thisObject());
     return true;
 }
 SE_BIND_FUNC(jsbConsoleError)
 
-bool jsbConsoleAssert(State &s) { //NOLINT(google-runtime-references)
+bool jsbConsoleAssert(State &s) {
     const auto &args = s.args();
     if (!args.empty()) {
         if (args[0].isBoolean() && !args[0].toBoolean()) {

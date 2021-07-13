@@ -148,7 +148,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
         for (size_t i = 0U; i < attachmentCount - 1; ++i) {
             clearValues[i].color = {{colors[i].x, colors[i].y, colors[i].z, colors[i].w}};
         }
-        clearValues[attachmentCount - 1].depthStencil = {depth, static_cast<uint>(stencil)};
+        clearValues[attachmentCount - 1].depthStencil = {depth, stencil};
     }
     auto *                device = CCVKDevice::getInstance();
     VkRenderPassBeginInfo passBeginInfo{VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO};
@@ -203,7 +203,7 @@ void CCVKCommandBuffer::bindPipelineState(PipelineState *pso) {
     CCVKGPUPipelineState *gpuPipelineState = static_cast<CCVKPipelineState *>(pso)->gpuPipelineState();
 
     if (_curGPUPipelineState != gpuPipelineState) {
-        vkCmdBindPipeline(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_BIND_POINTS[static_cast<uint>(gpuPipelineState->bindPoint)], gpuPipelineState->vkPipeline);
+        vkCmdBindPipeline(_gpuCommandBuffer->vkCommandBuffer, VK_PIPELINE_BIND_POINTS[toNumber(gpuPipelineState->bindPoint)], gpuPipelineState->vkPipeline);
         _curGPUPipelineState = gpuPipelineState;
     }
 }
@@ -486,6 +486,19 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
     } else {
         dstAspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
         dstImage      = swapchain->swapchainImages[swapchain->curImageIndex];
+
+        VkImageMemoryBarrier barrier{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
+        barrier.dstAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.newLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.srcQueueFamilyIndex = barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+        barrier.image                       = dstImage;
+        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier.subresourceRange.levelCount = barrier.subresourceRange.layerCount = 1;
+
+        vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer,
+                             VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, VK_DEPENDENCY_BY_REGION_BIT,
+                             0, nullptr, 0, nullptr, 1, &barrier);
     }
 
     _blitRegions.resize(count);
@@ -517,7 +530,24 @@ void CCVKCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, co
     vkCmdBlitImage(_gpuCommandBuffer->vkCommandBuffer,
                    srcImage, srcImageLayout,
                    dstImage, dstImageLayout,
-                   count, _blitRegions.data(), VK_FILTERS[static_cast<uint>(filter)]);
+                   count, _blitRegions.data(), VK_FILTERS[toNumber(filter)]);
+
+    if (!dstTexture) {
+        VkImageMemoryBarrier barrier{VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER};
+        barrier.srcAccessMask       = VK_ACCESS_TRANSFER_WRITE_BIT;
+        barrier.dstAccessMask       = 0;
+        barrier.oldLayout           = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+        barrier.newLayout           = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+        barrier.srcQueueFamilyIndex = barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+        barrier.image                       = dstImage;
+        barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+        barrier.subresourceRange.levelCount = barrier.subresourceRange.layerCount = 1;
+
+        vkCmdPipelineBarrier(_gpuCommandBuffer->vkCommandBuffer,
+                             VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_DEPENDENCY_BY_REGION_BIT,
+                             0, nullptr, 0, nullptr, 1, &barrier);
+    }
 }
 
 void CCVKCommandBuffer::bindDescriptorSets(VkPipelineBindPoint bindPoint) {

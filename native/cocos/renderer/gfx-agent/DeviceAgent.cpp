@@ -87,8 +87,8 @@ bool DeviceAgent::doInit(const DeviceInfo &info) {
 
 void DeviceAgent::doDestroy() {
     ENQUEUE_MESSAGE_1(
-        getMessageQueue(), DeviceDestroy,
-        actor, getActor(),
+        _mainMessageQueue, DeviceDestroy,
+        actor, _actor,
         {
             actor->destroy();
         });
@@ -107,13 +107,12 @@ void DeviceAgent::doDestroy() {
 
     _mainMessageQueue->terminateConsumerThread();
     CC_SAFE_DELETE(_mainMessageQueue);
-
 }
 
 void DeviceAgent::resize(uint width, uint height) {
     ENQUEUE_MESSAGE_3(
-        getMessageQueue(), DeviceResize,
-        actor, getActor(),
+        _mainMessageQueue, DeviceResize,
+        actor, _actor,
         width, width,
         height, height,
         {
@@ -124,7 +123,7 @@ void DeviceAgent::resize(uint width, uint height) {
 void DeviceAgent::acquire() {
     ENQUEUE_MESSAGE_1(
         _mainMessageQueue, DeviceAcquire,
-        actor, getActor(),
+        actor, _actor,
         {
             actor->acquire();
         });
@@ -133,7 +132,7 @@ void DeviceAgent::acquire() {
 void DeviceAgent::present() {
     ENQUEUE_MESSAGE_2(
         _mainMessageQueue, DevicePresent,
-        actor, getActor(),
+        actor, _actor,
         frameBoundarySemaphore, &_frameBoundarySemaphore,
         {
             actor->present();
@@ -142,7 +141,7 @@ void DeviceAgent::present() {
 
     MessageQueue::freeChunksInFreeQueue(_mainMessageQueue);
     _mainMessageQueue->finishWriting();
-    _currentIndex = (_currentIndex + 1) % (MAX_CPU_FRAME_AHEAD + 1);
+    _currentIndex = (_currentIndex + 1) % MAX_FRAME_INDEX;
     _frameBoundarySemaphore.wait();
 }
 
@@ -307,7 +306,7 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 
     ENQUEUE_MESSAGE_6(
         _mainMessageQueue, DeviceCopyBuffersToTexture,
-        actor, getActor(),
+        actor, _actor,
         buffers, actorBuffers,
         dst, static_cast<TextureAgent *>(dst)->getActor(),
         regions, actorRegions,
@@ -322,7 +321,7 @@ void DeviceAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
 void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
     if (!_multithreaded) return; // all command buffers are immediately executed
 
-    auto **agentCmdBuffs = getMessageQueue()->allocate<CommandBufferAgent *>(count);
+    auto **agentCmdBuffs = _mainMessageQueue->allocate<CommandBufferAgent *>(count);
 
     for (uint i = 0; i < count; ++i) {
         agentCmdBuffs[i] = static_cast<CommandBufferAgent *const>(cmdBuffs[i]);
@@ -334,7 +333,7 @@ void DeviceAgent::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
         _mainMessageQueue, DeviceFlushCommands,
         count, count,
         cmdBuffs, agentCmdBuffs,
-        multiThreaded, getActor()->_multithreadedSubmission,
+        multiThreaded, _actor->_multithreadedSubmission,
         {
             CommandBufferAgent::flushCommands(count, cmdBuffs, multiThreaded);
         });

@@ -66,7 +66,8 @@ void DevicePass::execute() {
 
     begin(cmdBuff);
 
-    for (Subpass &subPass : _subpasses) {
+    for (size_t i = 0; i < _subpasses.size(); ++i) {
+        Subpass &subPass = _subpasses[i];
         for (LogicPass &pass : subPass.logicPasses) {
             gfx::Viewport &viewport = pass.customViewport ? pass.viewport : _viewport;
             gfx::Rect &    scissor  = pass.customViewport ? pass.scissor : _scissor;
@@ -83,7 +84,7 @@ void DevicePass::execute() {
             pass.pass->execute(_resourceTable);
         }
 
-        next(cmdBuff);
+        if (i < _subpasses.size() - 1) next(cmdBuff);
     }
 
     end(cmdBuff);
@@ -188,6 +189,9 @@ void DevicePass::begin(gfx::CommandBuffer *cmdBuff) {
 }
 
 void DevicePass::next(gfx::CommandBuffer *cmdBuff) noexcept {
+    if (!_renderPass.get() || !_fbo.get()) return;
+
+    cmdBuff->nextSubpass();
 }
 
 void DevicePass::end(gfx::CommandBuffer *cmdBuff) {

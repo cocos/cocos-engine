@@ -1,6 +1,6 @@
 ## ===== static function implementation template
 
-static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool ${signature_name}(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
