@@ -15,7 +15,7 @@
 se::Object* __jsb_cc_middleware_Texture2D_proto = nullptr;
 se::Class* __jsb_cc_middleware_Texture2D_class = nullptr;
 
-static bool js_editor_support_Texture2D_getPixelsHigh(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_Texture2D_getPixelsHigh(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_getPixelsHigh : Invalid Native Object");
@@ -34,7 +34,7 @@ static bool js_editor_support_Texture2D_getPixelsHigh(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_editor_support_Texture2D_getPixelsHigh)
 
-static bool js_editor_support_Texture2D_getPixelsWide(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_Texture2D_getPixelsWide(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_getPixelsWide : Invalid Native Object");
@@ -53,7 +53,7 @@ static bool js_editor_support_Texture2D_getPixelsWide(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_editor_support_Texture2D_getPixelsWide)
 
-static bool js_editor_support_Texture2D_getRealTextureIndex(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_Texture2D_getRealTextureIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_getRealTextureIndex : Invalid Native Object");
@@ -72,7 +72,7 @@ static bool js_editor_support_Texture2D_getRealTextureIndex(se::State& s) // NOL
 }
 SE_BIND_FUNC(js_editor_support_Texture2D_getRealTextureIndex)
 
-static bool js_editor_support_Texture2D_setPixelsHigh(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_Texture2D_setPixelsHigh(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setPixelsHigh : Invalid Native Object");
@@ -91,7 +91,7 @@ static bool js_editor_support_Texture2D_setPixelsHigh(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_editor_support_Texture2D_setPixelsHigh)
 
-static bool js_editor_support_Texture2D_setPixelsWide(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_Texture2D_setPixelsWide(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setPixelsWide : Invalid Native Object");
@@ -110,7 +110,7 @@ static bool js_editor_support_Texture2D_setPixelsWide(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_editor_support_Texture2D_setPixelsWide)
 
-static bool js_editor_support_Texture2D_setRealTextureIndex(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_Texture2D_setRealTextureIndex(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setRealTextureIndex : Invalid Native Object");
@@ -129,7 +129,7 @@ static bool js_editor_support_Texture2D_setRealTextureIndex(se::State& s) // NOL
 }
 SE_BIND_FUNC(js_editor_support_Texture2D_setRealTextureIndex)
 
-static bool js_editor_support_Texture2D_setTexParamCallback(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_Texture2D_setTexParamCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_Texture2D_setTexParamCallback : Invalid Native Object");
@@ -183,7 +183,7 @@ SE_BIND_FUNC(js_editor_support_Texture2D_setTexParamCallback)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_middleware_Texture2D_finalize)
 
-static bool js_editor_support_Texture2D_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_editor_support_Texture2D_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::middleware::Texture2D* cobj = JSB_ALLOC(cc::middleware::Texture2D);
     s.thisObject()->setPrivateData(cobj);
@@ -193,7 +193,7 @@ SE_BIND_CTOR(js_editor_support_Texture2D_constructor, __jsb_cc_middleware_Textur
 
 
 
-static bool js_cc_middleware_Texture2D_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_middleware_Texture2D_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj =SE_THIS_OBJECT<cc::middleware::Texture2D>(s);
     cobj->release();
@@ -201,7 +201,7 @@ static bool js_cc_middleware_Texture2D_finalize(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FINALIZE_FUNC(js_cc_middleware_Texture2D_finalize)
 
-bool js_register_editor_support_Texture2D(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_editor_support_Texture2D(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Texture2D", obj, nullptr, _SE(js_editor_support_Texture2D_constructor));
 
@@ -225,7 +225,7 @@ bool js_register_editor_support_Texture2D(se::Object* obj) // NOLINT(readability
 se::Object* __jsb_cc_middleware_SharedBufferManager_proto = nullptr;
 se::Class* __jsb_cc_middleware_SharedBufferManager_class = nullptr;
 
-static bool js_editor_support_SharedBufferManager_getSharedBuffer(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_SharedBufferManager_getSharedBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::SharedBufferManager>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_SharedBufferManager_getSharedBuffer : Invalid Native Object");
@@ -244,7 +244,7 @@ static bool js_editor_support_SharedBufferManager_getSharedBuffer(se::State& s) 
 }
 SE_BIND_FUNC(js_editor_support_SharedBufferManager_getSharedBuffer)
 
-static bool js_editor_support_SharedBufferManager_setResizeCallback(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_SharedBufferManager_setResizeCallback(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::SharedBufferManager>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_SharedBufferManager_setResizeCallback : Invalid Native Object");
@@ -290,7 +290,7 @@ SE_BIND_FUNC(js_editor_support_SharedBufferManager_setResizeCallback)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_middleware_SharedBufferManager_finalize)
 
-static bool js_editor_support_SharedBufferManager_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_editor_support_SharedBufferManager_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -306,7 +306,7 @@ SE_BIND_CTOR(js_editor_support_SharedBufferManager_constructor, __jsb_cc_middlew
 
 
 
-static bool js_cc_middleware_SharedBufferManager_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_middleware_SharedBufferManager_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::middleware::SharedBufferManager>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -319,7 +319,7 @@ static bool js_cc_middleware_SharedBufferManager_finalize(se::State& s) // NOLIN
 }
 SE_BIND_FINALIZE_FUNC(js_cc_middleware_SharedBufferManager_finalize)
 
-bool js_register_editor_support_SharedBufferManager(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_editor_support_SharedBufferManager(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("SharedBufferManager", obj, nullptr, _SE(js_editor_support_SharedBufferManager_constructor));
 
@@ -338,7 +338,7 @@ bool js_register_editor_support_SharedBufferManager(se::Object* obj) // NOLINT(r
 se::Object* __jsb_cc_middleware_MiddlewareManager_proto = nullptr;
 se::Class* __jsb_cc_middleware_MiddlewareManager_class = nullptr;
 
-static bool js_editor_support_MiddlewareManager_getAttachInfoMgr(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_getAttachInfoMgr(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getAttachInfoMgr : Invalid Native Object");
@@ -357,7 +357,7 @@ static bool js_editor_support_MiddlewareManager_getAttachInfoMgr(se::State& s) /
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_getAttachInfoMgr)
 
-static bool js_editor_support_MiddlewareManager_getBufferCount(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_getBufferCount(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getBufferCount : Invalid Native Object");
@@ -379,7 +379,7 @@ static bool js_editor_support_MiddlewareManager_getBufferCount(se::State& s) // 
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_getBufferCount)
 
-static bool js_editor_support_MiddlewareManager_getIBTypedArray(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_getIBTypedArray(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getIBTypedArray : Invalid Native Object");
@@ -403,7 +403,7 @@ static bool js_editor_support_MiddlewareManager_getIBTypedArray(se::State& s) //
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_getIBTypedArray)
 
-static bool js_editor_support_MiddlewareManager_getIBTypedArrayLength(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_getIBTypedArrayLength(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getIBTypedArrayLength : Invalid Native Object");
@@ -427,7 +427,7 @@ static bool js_editor_support_MiddlewareManager_getIBTypedArrayLength(se::State&
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_getIBTypedArrayLength)
 
-static bool js_editor_support_MiddlewareManager_getRenderInfoMgr(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_getRenderInfoMgr(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getRenderInfoMgr : Invalid Native Object");
@@ -446,7 +446,7 @@ static bool js_editor_support_MiddlewareManager_getRenderInfoMgr(se::State& s) /
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_getRenderInfoMgr)
 
-static bool js_editor_support_MiddlewareManager_getVBTypedArray(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_getVBTypedArray(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getVBTypedArray : Invalid Native Object");
@@ -470,7 +470,7 @@ static bool js_editor_support_MiddlewareManager_getVBTypedArray(se::State& s) //
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_getVBTypedArray)
 
-static bool js_editor_support_MiddlewareManager_getVBTypedArrayLength(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_getVBTypedArrayLength(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_getVBTypedArrayLength : Invalid Native Object");
@@ -494,7 +494,7 @@ static bool js_editor_support_MiddlewareManager_getVBTypedArrayLength(se::State&
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_getVBTypedArrayLength)
 
-static bool js_editor_support_MiddlewareManager_render(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_render(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_render : Invalid Native Object");
@@ -513,7 +513,7 @@ static bool js_editor_support_MiddlewareManager_render(se::State& s) // NOLINT(r
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_render)
 
-static bool js_editor_support_MiddlewareManager_update(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s);
     SE_PRECONDITION2(cobj, false, "js_editor_support_MiddlewareManager_update : Invalid Native Object");
@@ -532,7 +532,7 @@ static bool js_editor_support_MiddlewareManager_update(se::State& s) // NOLINT(r
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_update)
 
-static bool js_editor_support_MiddlewareManager_destroyInstance(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_destroyInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -545,7 +545,7 @@ static bool js_editor_support_MiddlewareManager_destroyInstance(se::State& s) //
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_destroyInstance)
 
-static bool js_editor_support_MiddlewareManager_generateModuleID(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_generateModuleID(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -562,7 +562,7 @@ static bool js_editor_support_MiddlewareManager_generateModuleID(se::State& s) /
 }
 SE_BIND_FUNC(js_editor_support_MiddlewareManager_generateModuleID)
 
-static bool js_editor_support_MiddlewareManager_getInstance(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_editor_support_MiddlewareManager_getInstance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     size_t argc = args.size();
@@ -581,7 +581,7 @@ SE_BIND_FUNC(js_editor_support_MiddlewareManager_getInstance)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_middleware_MiddlewareManager_finalize)
 
-static bool js_editor_support_MiddlewareManager_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_editor_support_MiddlewareManager_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::middleware::MiddlewareManager* cobj = JSB_ALLOC(cc::middleware::MiddlewareManager);
     s.thisObject()->setPrivateData(cobj);
@@ -592,7 +592,7 @@ SE_BIND_CTOR(js_editor_support_MiddlewareManager_constructor, __jsb_cc_middlewar
 
 
 
-static bool js_cc_middleware_MiddlewareManager_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_middleware_MiddlewareManager_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::middleware::MiddlewareManager>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -605,7 +605,7 @@ static bool js_cc_middleware_MiddlewareManager_finalize(se::State& s) // NOLINT(
 }
 SE_BIND_FINALIZE_FUNC(js_cc_middleware_MiddlewareManager_finalize)
 
-bool js_register_editor_support_MiddlewareManager(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_editor_support_MiddlewareManager(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("MiddlewareManager", obj, nullptr, _SE(js_editor_support_MiddlewareManager_constructor));
 

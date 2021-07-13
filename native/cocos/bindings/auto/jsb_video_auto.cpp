@@ -14,7 +14,7 @@
 se::Object* __jsb_cc_VideoPlayer_proto = nullptr;
 se::Class* __jsb_cc_VideoPlayer_class = nullptr;
 
-static bool js_video_VideoPlayer_addEventListener(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_addEventListener(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_addEventListener : Invalid Native Object");
@@ -60,7 +60,7 @@ static bool js_video_VideoPlayer_addEventListener(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC(js_video_VideoPlayer_addEventListener)
 
-static bool js_video_VideoPlayer_currentTime(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_currentTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_currentTime : Invalid Native Object");
@@ -79,7 +79,7 @@ static bool js_video_VideoPlayer_currentTime(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_video_VideoPlayer_currentTime)
 
-static bool js_video_VideoPlayer_duration(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_duration(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_duration : Invalid Native Object");
@@ -98,7 +98,7 @@ static bool js_video_VideoPlayer_duration(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_video_VideoPlayer_duration)
 
-static bool js_video_VideoPlayer_isKeepAspectRatioEnabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_isKeepAspectRatioEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_isKeepAspectRatioEnabled : Invalid Native Object");
@@ -117,7 +117,7 @@ static bool js_video_VideoPlayer_isKeepAspectRatioEnabled(se::State& s) // NOLIN
 }
 SE_BIND_FUNC(js_video_VideoPlayer_isKeepAspectRatioEnabled)
 
-static bool js_video_VideoPlayer_onPlayEvent(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_onPlayEvent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_onPlayEvent : Invalid Native Object");
@@ -136,7 +136,7 @@ static bool js_video_VideoPlayer_onPlayEvent(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_video_VideoPlayer_onPlayEvent)
 
-static bool js_video_VideoPlayer_pause(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_pause(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_pause : Invalid Native Object");
@@ -151,7 +151,7 @@ static bool js_video_VideoPlayer_pause(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC(js_video_VideoPlayer_pause)
 
-static bool js_video_VideoPlayer_play(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_play(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_play : Invalid Native Object");
@@ -166,7 +166,7 @@ static bool js_video_VideoPlayer_play(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_video_VideoPlayer_play)
 
-static bool js_video_VideoPlayer_seekTo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_seekTo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_seekTo : Invalid Native Object");
@@ -185,7 +185,7 @@ static bool js_video_VideoPlayer_seekTo(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_video_VideoPlayer_seekTo)
 
-static bool js_video_VideoPlayer_setFrame(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_setFrame(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_setFrame : Invalid Native Object");
@@ -210,7 +210,7 @@ static bool js_video_VideoPlayer_setFrame(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_video_VideoPlayer_setFrame)
 
-static bool js_video_VideoPlayer_setFullScreenEnabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_setFullScreenEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_setFullScreenEnabled : Invalid Native Object");
@@ -229,7 +229,7 @@ static bool js_video_VideoPlayer_setFullScreenEnabled(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_video_VideoPlayer_setFullScreenEnabled)
 
-static bool js_video_VideoPlayer_setKeepAspectRatioEnabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_setKeepAspectRatioEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_setKeepAspectRatioEnabled : Invalid Native Object");
@@ -248,7 +248,7 @@ static bool js_video_VideoPlayer_setKeepAspectRatioEnabled(se::State& s) // NOLI
 }
 SE_BIND_FUNC(js_video_VideoPlayer_setKeepAspectRatioEnabled)
 
-static bool js_video_VideoPlayer_setURL(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_setURL(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_setURL : Invalid Native Object");
@@ -267,7 +267,7 @@ static bool js_video_VideoPlayer_setURL(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_video_VideoPlayer_setURL)
 
-static bool js_video_VideoPlayer_setVisible(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_setVisible(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_setVisible : Invalid Native Object");
@@ -286,7 +286,7 @@ static bool js_video_VideoPlayer_setVisible(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_video_VideoPlayer_setVisible)
 
-static bool js_video_VideoPlayer_stop(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_video_VideoPlayer_stop(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     SE_PRECONDITION2(cobj, false, "js_video_VideoPlayer_stop : Invalid Native Object");
@@ -303,7 +303,7 @@ SE_BIND_FUNC(js_video_VideoPlayer_stop)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_VideoPlayer_finalize)
 
-static bool js_video_VideoPlayer_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_video_VideoPlayer_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::VideoPlayer* cobj = JSB_ALLOC(cc::VideoPlayer);
     s.thisObject()->setPrivateData(cobj);
@@ -313,14 +313,14 @@ SE_BIND_CTOR(js_video_VideoPlayer_constructor, __jsb_cc_VideoPlayer_class, js_cc
 
 
 
-static bool js_cc_VideoPlayer_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_VideoPlayer_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     // destructor is skipped
     return true;
 }
 SE_BIND_FINALIZE_FUNC(js_cc_VideoPlayer_finalize)
 
-static bool js_cc_VideoPlayer_destroy(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_VideoPlayer_destroy(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::VideoPlayer>(s);
     cobj->release();
@@ -333,7 +333,7 @@ static bool js_cc_VideoPlayer_destroy(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_cc_VideoPlayer_destroy)
 
-bool js_register_video_VideoPlayer(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_video_VideoPlayer(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("VideoPlayer", obj, nullptr, _SE(js_video_VideoPlayer_constructor));
 

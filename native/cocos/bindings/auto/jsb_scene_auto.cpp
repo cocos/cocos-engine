@@ -26,7 +26,7 @@
 se::Object* __jsb_cc_scene_Node_proto = nullptr;
 se::Class* __jsb_cc_scene_Node_class = nullptr;
 
-static bool js_scene_Node_setParent(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Node_setParent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Node>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Node_setParent : Invalid Native Object");
@@ -47,7 +47,7 @@ SE_BIND_FUNC(js_scene_Node_setParent)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Node_finalize)
 
-static bool js_scene_Node_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_scene_Node_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::scene::Node* cobj = JSB_ALLOC(cc::scene::Node);
     s.thisObject()->setPrivateData(cobj);
@@ -58,7 +58,7 @@ SE_BIND_CTOR(js_scene_Node_constructor, __jsb_cc_scene_Node_class, js_cc_scene_N
 
 
 
-static bool js_cc_scene_Node_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_Node_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Node>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -71,7 +71,7 @@ static bool js_cc_scene_Node_finalize(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_Node_finalize)
 
-bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Node", obj, nullptr, _SE(js_scene_Node_constructor));
 
@@ -89,7 +89,7 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
 se::Object* __jsb_cc_scene_Light_proto = nullptr;
 se::Class* __jsb_cc_scene_Light_class = nullptr;
 
-static bool js_scene_Light_setColor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Light_setColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Light_setColor : Invalid Native Object");
@@ -108,7 +108,7 @@ static bool js_scene_Light_setColor(se::State& s) // NOLINT(readability-identifi
 }
 SE_BIND_FUNC(js_scene_Light_setColor)
 
-static bool js_scene_Light_setColorTemperatureRGB(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Light_setColorTemperatureRGB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Light_setColorTemperatureRGB : Invalid Native Object");
@@ -127,7 +127,7 @@ static bool js_scene_Light_setColorTemperatureRGB(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC(js_scene_Light_setColorTemperatureRGB)
 
-static bool js_scene_Light_setNode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Light_setNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Light_setNode : Invalid Native Object");
@@ -146,7 +146,7 @@ static bool js_scene_Light_setNode(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC(js_scene_Light_setNode)
 
-static bool js_scene_Light_setType(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Light_setType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Light_setType : Invalid Native Object");
@@ -165,7 +165,7 @@ static bool js_scene_Light_setType(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC(js_scene_Light_setType)
 
-static bool js_scene_Light_setUseColorTemperature(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Light_setUseColorTemperature(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Light_setUseColorTemperature : Invalid Native Object");
@@ -184,7 +184,7 @@ static bool js_scene_Light_setUseColorTemperature(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC(js_scene_Light_setUseColorTemperature)
 
-static bool js_scene_Light_update(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Light_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Light>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Light_update : Invalid Native Object");
@@ -201,7 +201,7 @@ SE_BIND_FUNC(js_scene_Light_update)
 
 
 
-bool js_register_scene_Light(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Light(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Light", obj, nullptr, nullptr);
 
@@ -223,7 +223,7 @@ bool js_register_scene_Light(se::Object* obj) // NOLINT(readability-identifier-n
 se::Object* __jsb_cc_scene_DirectionalLight_proto = nullptr;
 se::Class* __jsb_cc_scene_DirectionalLight_class = nullptr;
 
-static bool js_scene_DirectionalLight_setDirection(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DirectionalLight_setDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setDirection : Invalid Native Object");
@@ -242,7 +242,7 @@ static bool js_scene_DirectionalLight_setDirection(se::State& s) // NOLINT(reada
 }
 SE_BIND_FUNC(js_scene_DirectionalLight_setDirection)
 
-static bool js_scene_DirectionalLight_setIlluminance(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DirectionalLight_setIlluminance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DirectionalLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_DirectionalLight_setIlluminance : Invalid Native Object");
@@ -263,7 +263,7 @@ SE_BIND_FUNC(js_scene_DirectionalLight_setIlluminance)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_DirectionalLight_finalize)
 
-static bool js_scene_DirectionalLight_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_scene_DirectionalLight_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::scene::DirectionalLight* cobj = JSB_ALLOC(cc::scene::DirectionalLight);
     s.thisObject()->setPrivateData(cobj);
@@ -274,7 +274,7 @@ SE_BIND_CTOR(js_scene_DirectionalLight_constructor, __jsb_cc_scene_DirectionalLi
 
 
 
-static bool js_cc_scene_DirectionalLight_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_DirectionalLight_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::DirectionalLight>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -287,7 +287,7 @@ static bool js_cc_scene_DirectionalLight_finalize(se::State& s) // NOLINT(readab
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_DirectionalLight_finalize)
 
-bool js_register_scene_DirectionalLight(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_DirectionalLight(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("DirectionalLight", obj, __jsb_cc_scene_Light_proto, _SE(js_scene_DirectionalLight_constructor));
 
@@ -306,7 +306,7 @@ bool js_register_scene_DirectionalLight(se::Object* obj) // NOLINT(readability-i
 se::Object* __jsb_cc_scene_Plane_proto = nullptr;
 se::Class* __jsb_cc_scene_Plane_class = nullptr;
 
-static bool js_scene_Plane_get_d(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Plane_get_d(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Plane>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Plane_get_d : Invalid Native Object");
@@ -320,7 +320,7 @@ static bool js_scene_Plane_get_d(se::State& s) // NOLINT(readability-identifier-
 }
 SE_BIND_PROP_GET(js_scene_Plane_get_d)
 
-static bool js_scene_Plane_set_d(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Plane_set_d(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Plane>(s);
@@ -333,7 +333,7 @@ static bool js_scene_Plane_set_d(se::State& s) // NOLINT(readability-identifier-
 }
 SE_BIND_PROP_SET(js_scene_Plane_set_d)
 
-static bool js_scene_Plane_get_n(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Plane_get_n(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Plane>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Plane_get_n : Invalid Native Object");
@@ -347,7 +347,7 @@ static bool js_scene_Plane_get_n(se::State& s) // NOLINT(readability-identifier-
 }
 SE_BIND_PROP_GET(js_scene_Plane_get_n)
 
-static bool js_scene_Plane_set_n(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Plane_set_n(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Plane>(s);
@@ -386,7 +386,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Plane * to, se::Object 
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Plane_finalize)
 
-static bool js_scene_Plane_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Plane_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -440,7 +440,7 @@ SE_BIND_CTOR(js_scene_Plane_constructor, __jsb_cc_scene_Plane_class, js_cc_scene
 
 
 
-static bool js_cc_scene_Plane_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_Plane_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Plane>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -453,7 +453,7 @@ static bool js_cc_scene_Plane_finalize(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_Plane_finalize)
 
-bool js_register_scene_Plane(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Plane(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Plane", obj, nullptr, _SE(js_scene_Plane_constructor));
 
@@ -472,7 +472,7 @@ bool js_register_scene_Plane(se::Object* obj) // NOLINT(readability-identifier-n
 se::Object* __jsb_cc_scene_Frustum_proto = nullptr;
 se::Class* __jsb_cc_scene_Frustum_class = nullptr;
 
-static bool js_scene_Frustum_get_vertices(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Frustum_get_vertices(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Frustum>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Frustum_get_vertices : Invalid Native Object");
@@ -486,7 +486,7 @@ static bool js_scene_Frustum_get_vertices(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_GET(js_scene_Frustum_get_vertices)
 
-static bool js_scene_Frustum_set_vertices(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Frustum_set_vertices(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Frustum>(s);
@@ -499,7 +499,7 @@ static bool js_scene_Frustum_set_vertices(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_SET(js_scene_Frustum_set_vertices)
 
-static bool js_scene_Frustum_get_planes(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Frustum_get_planes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Frustum>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Frustum_get_planes : Invalid Native Object");
@@ -513,7 +513,7 @@ static bool js_scene_Frustum_get_planes(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_scene_Frustum_get_planes)
 
-static bool js_scene_Frustum_set_planes(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Frustum_set_planes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Frustum>(s);
@@ -556,7 +556,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Frustum * to, se::Objec
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Frustum_finalize)
 
-static bool js_scene_Frustum_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Frustum_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -613,7 +613,7 @@ SE_BIND_CTOR(js_scene_Frustum_constructor, __jsb_cc_scene_Frustum_class, js_cc_s
 
 
 
-static bool js_cc_scene_Frustum_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_Frustum_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Frustum>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -626,7 +626,7 @@ static bool js_cc_scene_Frustum_finalize(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_Frustum_finalize)
 
-bool js_register_scene_Frustum(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Frustum(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Frustum", obj, nullptr, _SE(js_scene_Frustum_constructor));
 
@@ -645,7 +645,7 @@ bool js_register_scene_Frustum(se::Object* obj) // NOLINT(readability-identifier
 se::Object* __jsb_cc_scene_AABB_proto = nullptr;
 se::Class* __jsb_cc_scene_AABB_class = nullptr;
 
-static bool js_scene_AABB_getLayout(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_AABB_getLayout(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AABB>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_AABB_getLayout : Invalid Native Object");
@@ -664,7 +664,7 @@ static bool js_scene_AABB_getLayout(se::State& s) // NOLINT(readability-identifi
 }
 SE_BIND_FUNC(js_scene_AABB_getLayout)
 
-static bool js_scene_AABB_initWithData(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_AABB_initWithData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::AABB>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_AABB_initWithData : Invalid Native Object");
@@ -685,7 +685,7 @@ SE_BIND_FUNC(js_scene_AABB_initWithData)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_AABB_finalize)
 
-static bool js_scene_AABB_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_scene_AABB_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::scene::AABB* cobj = JSB_ALLOC(cc::scene::AABB);
     s.thisObject()->setPrivateData(cobj);
@@ -696,7 +696,7 @@ SE_BIND_CTOR(js_scene_AABB_constructor, __jsb_cc_scene_AABB_class, js_cc_scene_A
 
 
 
-static bool js_cc_scene_AABB_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_AABB_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::AABB>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -709,7 +709,7 @@ static bool js_cc_scene_AABB_finalize(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_AABB_finalize)
 
-bool js_register_scene_AABB(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_AABB(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("AABB", obj, nullptr, _SE(js_scene_AABB_constructor));
 
@@ -728,7 +728,7 @@ bool js_register_scene_AABB(se::Object* obj) // NOLINT(readability-identifier-na
 se::Object* __jsb_cc_scene_SpotLight_proto = nullptr;
 se::Class* __jsb_cc_scene_SpotLight_class = nullptr;
 
-static bool js_scene_SpotLight_setAABB(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SpotLight_setAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setAABB : Invalid Native Object");
@@ -747,7 +747,7 @@ static bool js_scene_SpotLight_setAABB(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC(js_scene_SpotLight_setAABB)
 
-static bool js_scene_SpotLight_setAngle(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SpotLight_setAngle(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setAngle : Invalid Native Object");
@@ -766,7 +766,7 @@ static bool js_scene_SpotLight_setAngle(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_SpotLight_setAngle)
 
-static bool js_scene_SpotLight_setAspect(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SpotLight_setAspect(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setAspect : Invalid Native Object");
@@ -785,7 +785,7 @@ static bool js_scene_SpotLight_setAspect(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_scene_SpotLight_setAspect)
 
-static bool js_scene_SpotLight_setDirection(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SpotLight_setDirection(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setDirection : Invalid Native Object");
@@ -804,7 +804,7 @@ static bool js_scene_SpotLight_setDirection(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_SpotLight_setDirection)
 
-static bool js_scene_SpotLight_setFrustum(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SpotLight_setFrustum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setFrustum : Invalid Native Object");
@@ -823,7 +823,7 @@ static bool js_scene_SpotLight_setFrustum(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_SpotLight_setFrustum)
 
-static bool js_scene_SpotLight_setIlluminance(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SpotLight_setIlluminance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setIlluminance : Invalid Native Object");
@@ -842,7 +842,7 @@ static bool js_scene_SpotLight_setIlluminance(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_SpotLight_setIlluminance)
 
-static bool js_scene_SpotLight_setNeedUpdate(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SpotLight_setNeedUpdate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setNeedUpdate : Invalid Native Object");
@@ -861,7 +861,7 @@ static bool js_scene_SpotLight_setNeedUpdate(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_scene_SpotLight_setNeedUpdate)
 
-static bool js_scene_SpotLight_setPosition(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SpotLight_setPosition(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setPosition : Invalid Native Object");
@@ -880,7 +880,7 @@ static bool js_scene_SpotLight_setPosition(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FUNC(js_scene_SpotLight_setPosition)
 
-static bool js_scene_SpotLight_setRange(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SpotLight_setRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setRange : Invalid Native Object");
@@ -899,7 +899,7 @@ static bool js_scene_SpotLight_setRange(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_SpotLight_setRange)
 
-static bool js_scene_SpotLight_setSize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SpotLight_setSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SpotLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SpotLight_setSize : Invalid Native Object");
@@ -920,7 +920,7 @@ SE_BIND_FUNC(js_scene_SpotLight_setSize)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_SpotLight_finalize)
 
-static bool js_scene_SpotLight_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_scene_SpotLight_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::scene::SpotLight* cobj = JSB_ALLOC(cc::scene::SpotLight);
     s.thisObject()->setPrivateData(cobj);
@@ -931,7 +931,7 @@ SE_BIND_CTOR(js_scene_SpotLight_constructor, __jsb_cc_scene_SpotLight_class, js_
 
 
 
-static bool js_cc_scene_SpotLight_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_SpotLight_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::SpotLight>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -944,7 +944,7 @@ static bool js_cc_scene_SpotLight_finalize(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_SpotLight_finalize)
 
-bool js_register_scene_SpotLight(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_SpotLight(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("SpotLight", obj, __jsb_cc_scene_Light_proto, _SE(js_scene_SpotLight_constructor));
 
@@ -971,7 +971,7 @@ bool js_register_scene_SpotLight(se::Object* obj) // NOLINT(readability-identifi
 se::Object* __jsb_cc_scene_SphereLight_proto = nullptr;
 se::Class* __jsb_cc_scene_SphereLight_class = nullptr;
 
-static bool js_scene_SphereLight_setAABB(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SphereLight_setAABB(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_setAABB : Invalid Native Object");
@@ -990,7 +990,7 @@ static bool js_scene_SphereLight_setAABB(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_scene_SphereLight_setAABB)
 
-static bool js_scene_SphereLight_setIlluminance(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SphereLight_setIlluminance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_setIlluminance : Invalid Native Object");
@@ -1009,7 +1009,7 @@ static bool js_scene_SphereLight_setIlluminance(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_scene_SphereLight_setIlluminance)
 
-static bool js_scene_SphereLight_setPosition(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SphereLight_setPosition(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_setPosition : Invalid Native Object");
@@ -1028,7 +1028,7 @@ static bool js_scene_SphereLight_setPosition(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_scene_SphereLight_setPosition)
 
-static bool js_scene_SphereLight_setRange(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SphereLight_setRange(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_setRange : Invalid Native Object");
@@ -1047,7 +1047,7 @@ static bool js_scene_SphereLight_setRange(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_SphereLight_setRange)
 
-static bool js_scene_SphereLight_setSize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SphereLight_setSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SphereLight>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SphereLight_setSize : Invalid Native Object");
@@ -1068,7 +1068,7 @@ SE_BIND_FUNC(js_scene_SphereLight_setSize)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_SphereLight_finalize)
 
-static bool js_scene_SphereLight_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_scene_SphereLight_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::scene::SphereLight* cobj = JSB_ALLOC(cc::scene::SphereLight);
     s.thisObject()->setPrivateData(cobj);
@@ -1079,7 +1079,7 @@ SE_BIND_CTOR(js_scene_SphereLight_constructor, __jsb_cc_scene_SphereLight_class,
 
 
 
-static bool js_cc_scene_SphereLight_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_SphereLight_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::SphereLight>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1092,7 +1092,7 @@ static bool js_cc_scene_SphereLight_finalize(se::State& s) // NOLINT(readability
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_SphereLight_finalize)
 
-bool js_register_scene_SphereLight(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_SphereLight(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("SphereLight", obj, __jsb_cc_scene_Light_proto, _SE(js_scene_SphereLight_constructor));
 
@@ -1114,7 +1114,7 @@ bool js_register_scene_SphereLight(se::Object* obj) // NOLINT(readability-identi
 se::Object* __jsb_cc_scene_Model_proto = nullptr;
 se::Class* __jsb_cc_scene_Model_class = nullptr;
 
-static bool js_scene_Model_addSubModel(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_addSubModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_addSubModel : Invalid Native Object");
@@ -1133,7 +1133,7 @@ static bool js_scene_Model_addSubModel(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC(js_scene_Model_addSubModel)
 
-static bool js_scene_Model_getCastShadow(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getCastShadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getCastShadow : Invalid Native Object");
@@ -1152,7 +1152,7 @@ static bool js_scene_Model_getCastShadow(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_scene_Model_getCastShadow)
 
-static bool js_scene_Model_getEnabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getEnabled : Invalid Native Object");
@@ -1171,7 +1171,7 @@ static bool js_scene_Model_getEnabled(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_scene_Model_getEnabled)
 
-static bool js_scene_Model_getInstMatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getInstMatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstMatWorldIdx : Invalid Native Object");
@@ -1190,7 +1190,7 @@ static bool js_scene_Model_getInstMatWorldIdx(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_Model_getInstMatWorldIdx)
 
-static bool js_scene_Model_getInstanceAttributes(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getInstanceAttributes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstanceAttributes : Invalid Native Object");
@@ -1209,7 +1209,7 @@ static bool js_scene_Model_getInstanceAttributes(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_scene_Model_getInstanceAttributes)
 
-static bool js_scene_Model_getInstancedAttributeBlock(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getInstancedAttributeBlock(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstancedAttributeBlock : Invalid Native Object");
@@ -1228,7 +1228,7 @@ static bool js_scene_Model_getInstancedAttributeBlock(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_scene_Model_getInstancedAttributeBlock)
 
-static bool js_scene_Model_getInstancedBuffer(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getInstancedBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstancedBuffer : Invalid Native Object");
@@ -1247,7 +1247,7 @@ static bool js_scene_Model_getInstancedBuffer(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_Model_getInstancedBuffer)
 
-static bool js_scene_Model_getInstancedBufferSize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getInstancedBufferSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getInstancedBufferSize : Invalid Native Object");
@@ -1266,7 +1266,7 @@ static bool js_scene_Model_getInstancedBufferSize(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC(js_scene_Model_getInstancedBufferSize)
 
-static bool js_scene_Model_getLocalData(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getLocalData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getLocalData : Invalid Native Object");
@@ -1285,7 +1285,7 @@ static bool js_scene_Model_getLocalData(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_Model_getLocalData)
 
-static bool js_scene_Model_getNode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getNode : Invalid Native Object");
@@ -1304,7 +1304,7 @@ static bool js_scene_Model_getNode(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC(js_scene_Model_getNode)
 
-static bool js_scene_Model_getReceiveShadow(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getReceiveShadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getReceiveShadow : Invalid Native Object");
@@ -1323,7 +1323,7 @@ static bool js_scene_Model_getReceiveShadow(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Model_getReceiveShadow)
 
-static bool js_scene_Model_getSubModels(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getSubModels(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getSubModels : Invalid Native Object");
@@ -1342,7 +1342,7 @@ static bool js_scene_Model_getSubModels(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_Model_getSubModels)
 
-static bool js_scene_Model_getTransform(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getTransform : Invalid Native Object");
@@ -1361,7 +1361,7 @@ static bool js_scene_Model_getTransform(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_Model_getTransform)
 
-static bool js_scene_Model_getTransformUpdated(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getTransformUpdated(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getTransformUpdated : Invalid Native Object");
@@ -1380,7 +1380,7 @@ static bool js_scene_Model_getTransformUpdated(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_scene_Model_getTransformUpdated)
 
-static bool js_scene_Model_getUpdatStamp(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getUpdatStamp(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getUpdatStamp : Invalid Native Object");
@@ -1399,7 +1399,7 @@ static bool js_scene_Model_getUpdatStamp(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_scene_Model_getUpdatStamp)
 
-static bool js_scene_Model_getVisFlags(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_getVisFlags(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_getVisFlags : Invalid Native Object");
@@ -1418,7 +1418,7 @@ static bool js_scene_Model_getVisFlags(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC(js_scene_Model_getVisFlags)
 
-static bool js_scene_Model_seVisFlag(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_seVisFlag(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_seVisFlag : Invalid Native Object");
@@ -1437,7 +1437,7 @@ static bool js_scene_Model_seVisFlag(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_scene_Model_seVisFlag)
 
-static bool js_scene_Model_setBounds(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_setBounds(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_setBounds : Invalid Native Object");
@@ -1456,7 +1456,7 @@ static bool js_scene_Model_setBounds(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FUNC(js_scene_Model_setBounds)
 
-static bool js_scene_Model_setCastShadow(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_setCastShadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_setCastShadow : Invalid Native Object");
@@ -1475,7 +1475,7 @@ static bool js_scene_Model_setCastShadow(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_scene_Model_setCastShadow)
 
-static bool js_scene_Model_setEnabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_setEnabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_setEnabled : Invalid Native Object");
@@ -1494,7 +1494,7 @@ static bool js_scene_Model_setEnabled(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_scene_Model_setEnabled)
 
-static bool js_scene_Model_setInstMatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_setInstMatWorldIdx(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_setInstMatWorldIdx : Invalid Native Object");
@@ -1513,7 +1513,7 @@ static bool js_scene_Model_setInstMatWorldIdx(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_Model_setInstMatWorldIdx)
 
-static bool js_scene_Model_setLocalBuffer(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_setLocalBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_setLocalBuffer : Invalid Native Object");
@@ -1532,7 +1532,7 @@ static bool js_scene_Model_setLocalBuffer(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_Model_setLocalBuffer)
 
-static bool js_scene_Model_setNode(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_setNode(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_setNode : Invalid Native Object");
@@ -1551,7 +1551,7 @@ static bool js_scene_Model_setNode(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC(js_scene_Model_setNode)
 
-static bool js_scene_Model_setReceiveShadow(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_setReceiveShadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_setReceiveShadow : Invalid Native Object");
@@ -1570,7 +1570,7 @@ static bool js_scene_Model_setReceiveShadow(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Model_setReceiveShadow)
 
-static bool js_scene_Model_setTransform(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_setTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_setTransform : Invalid Native Object");
@@ -1589,7 +1589,7 @@ static bool js_scene_Model_setTransform(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_Model_setTransform)
 
-static bool js_scene_Model_updateTransform(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_updateTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_updateTransform : Invalid Native Object");
@@ -1608,7 +1608,7 @@ static bool js_scene_Model_updateTransform(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FUNC(js_scene_Model_updateTransform)
 
-static bool js_scene_Model_updateUBOs(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Model_updateUBOs(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Model_updateUBOs : Invalid Native Object");
@@ -1629,7 +1629,7 @@ SE_BIND_FUNC(js_scene_Model_updateUBOs)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Model_finalize)
 
-static bool js_scene_Model_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_scene_Model_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::scene::Model* cobj = JSB_ALLOC(cc::scene::Model);
     s.thisObject()->setPrivateData(cobj);
@@ -1640,7 +1640,7 @@ SE_BIND_CTOR(js_scene_Model_constructor, __jsb_cc_scene_Model_class, js_cc_scene
 
 
 
-static bool js_cc_scene_Model_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_Model_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Model>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -1653,7 +1653,7 @@ static bool js_cc_scene_Model_finalize(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_Model_finalize)
 
-bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Model", obj, nullptr, _SE(js_scene_Model_constructor));
 
@@ -1697,7 +1697,7 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
 se::Object* __jsb_cc_scene_Fog_proto = nullptr;
 se::Class* __jsb_cc_scene_Fog_class = nullptr;
 
-static bool js_scene_Fog_get_enabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_get_enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Fog_get_enabled : Invalid Native Object");
@@ -1711,7 +1711,7 @@ static bool js_scene_Fog_get_enabled(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_GET(js_scene_Fog_get_enabled)
 
-static bool js_scene_Fog_set_enabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_set_enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
@@ -1724,7 +1724,7 @@ static bool js_scene_Fog_set_enabled(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_SET(js_scene_Fog_set_enabled)
 
-static bool js_scene_Fog_get_type(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_get_type(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Fog_get_type : Invalid Native Object");
@@ -1738,7 +1738,7 @@ static bool js_scene_Fog_get_type(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_PROP_GET(js_scene_Fog_get_type)
 
-static bool js_scene_Fog_set_type(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_set_type(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
@@ -1751,7 +1751,7 @@ static bool js_scene_Fog_set_type(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_PROP_SET(js_scene_Fog_set_type)
 
-static bool js_scene_Fog_get_density(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_get_density(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Fog_get_density : Invalid Native Object");
@@ -1765,7 +1765,7 @@ static bool js_scene_Fog_get_density(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_GET(js_scene_Fog_get_density)
 
-static bool js_scene_Fog_set_density(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_set_density(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
@@ -1778,7 +1778,7 @@ static bool js_scene_Fog_set_density(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_SET(js_scene_Fog_set_density)
 
-static bool js_scene_Fog_get_start(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_get_start(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Fog_get_start : Invalid Native Object");
@@ -1792,7 +1792,7 @@ static bool js_scene_Fog_get_start(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_PROP_GET(js_scene_Fog_get_start)
 
-static bool js_scene_Fog_set_start(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_set_start(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
@@ -1805,7 +1805,7 @@ static bool js_scene_Fog_set_start(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_PROP_SET(js_scene_Fog_set_start)
 
-static bool js_scene_Fog_get_end(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_get_end(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Fog_get_end : Invalid Native Object");
@@ -1819,7 +1819,7 @@ static bool js_scene_Fog_get_end(se::State& s) // NOLINT(readability-identifier-
 }
 SE_BIND_PROP_GET(js_scene_Fog_get_end)
 
-static bool js_scene_Fog_set_end(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_set_end(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
@@ -1832,7 +1832,7 @@ static bool js_scene_Fog_set_end(se::State& s) // NOLINT(readability-identifier-
 }
 SE_BIND_PROP_SET(js_scene_Fog_set_end)
 
-static bool js_scene_Fog_get_atten(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_get_atten(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Fog_get_atten : Invalid Native Object");
@@ -1846,7 +1846,7 @@ static bool js_scene_Fog_get_atten(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_PROP_GET(js_scene_Fog_get_atten)
 
-static bool js_scene_Fog_set_atten(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_set_atten(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
@@ -1859,7 +1859,7 @@ static bool js_scene_Fog_set_atten(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_PROP_SET(js_scene_Fog_set_atten)
 
-static bool js_scene_Fog_get_top(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_get_top(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Fog_get_top : Invalid Native Object");
@@ -1873,7 +1873,7 @@ static bool js_scene_Fog_get_top(se::State& s) // NOLINT(readability-identifier-
 }
 SE_BIND_PROP_GET(js_scene_Fog_get_top)
 
-static bool js_scene_Fog_set_top(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_set_top(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
@@ -1886,7 +1886,7 @@ static bool js_scene_Fog_set_top(se::State& s) // NOLINT(readability-identifier-
 }
 SE_BIND_PROP_SET(js_scene_Fog_set_top)
 
-static bool js_scene_Fog_get_range(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_get_range(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Fog_get_range : Invalid Native Object");
@@ -1900,7 +1900,7 @@ static bool js_scene_Fog_get_range(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_PROP_GET(js_scene_Fog_get_range)
 
-static bool js_scene_Fog_set_range(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_set_range(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
@@ -1913,7 +1913,7 @@ static bool js_scene_Fog_set_range(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_PROP_SET(js_scene_Fog_set_range)
 
-static bool js_scene_Fog_get_color(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_get_color(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Fog_get_color : Invalid Native Object");
@@ -1927,7 +1927,7 @@ static bool js_scene_Fog_get_color(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_PROP_GET(js_scene_Fog_get_color)
 
-static bool js_scene_Fog_set_color(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_set_color(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Fog>(s);
@@ -1994,7 +1994,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Fog * to, se::Object *c
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Fog_finalize)
 
-static bool js_scene_Fog_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Fog_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -2069,7 +2069,7 @@ SE_BIND_CTOR(js_scene_Fog_constructor, __jsb_cc_scene_Fog_class, js_cc_scene_Fog
 
 
 
-static bool js_cc_scene_Fog_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_Fog_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Fog>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -2082,7 +2082,7 @@ static bool js_cc_scene_Fog_finalize(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_Fog_finalize)
 
-bool js_register_scene_Fog(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Fog(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Fog", obj, nullptr, _SE(js_scene_Fog_constructor));
 
@@ -2108,7 +2108,7 @@ bool js_register_scene_Fog(se::Object* obj) // NOLINT(readability-identifier-nam
 se::Object* __jsb_cc_scene_Shadow_proto = nullptr;
 se::Class* __jsb_cc_scene_Shadow_class = nullptr;
 
-static bool js_scene_Shadow_get_enabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_enabled : Invalid Native Object");
@@ -2122,7 +2122,7 @@ static bool js_scene_Shadow_get_enabled(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_enabled)
 
-static bool js_scene_Shadow_set_enabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2135,7 +2135,7 @@ static bool js_scene_Shadow_set_enabled(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_enabled)
 
-static bool js_scene_Shadow_get_dirty(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_dirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_dirty : Invalid Native Object");
@@ -2149,7 +2149,7 @@ static bool js_scene_Shadow_get_dirty(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_dirty)
 
-static bool js_scene_Shadow_set_dirty(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_dirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2162,7 +2162,7 @@ static bool js_scene_Shadow_set_dirty(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_dirty)
 
-static bool js_scene_Shadow_get_shadowMapDirty(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_shadowMapDirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_shadowMapDirty : Invalid Native Object");
@@ -2176,7 +2176,7 @@ static bool js_scene_Shadow_get_shadowMapDirty(se::State& s) // NOLINT(readabili
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_shadowMapDirty)
 
-static bool js_scene_Shadow_set_shadowMapDirty(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_shadowMapDirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2189,7 +2189,7 @@ static bool js_scene_Shadow_set_shadowMapDirty(se::State& s) // NOLINT(readabili
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_shadowMapDirty)
 
-static bool js_scene_Shadow_get_selfShadow(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_selfShadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_selfShadow : Invalid Native Object");
@@ -2203,7 +2203,7 @@ static bool js_scene_Shadow_get_selfShadow(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_selfShadow)
 
-static bool js_scene_Shadow_set_selfShadow(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_selfShadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2216,7 +2216,7 @@ static bool js_scene_Shadow_set_selfShadow(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_selfShadow)
 
-static bool js_scene_Shadow_get_autoAdapt(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_autoAdapt(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_autoAdapt : Invalid Native Object");
@@ -2230,7 +2230,7 @@ static bool js_scene_Shadow_get_autoAdapt(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_autoAdapt)
 
-static bool js_scene_Shadow_set_autoAdapt(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_autoAdapt(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2243,7 +2243,7 @@ static bool js_scene_Shadow_set_autoAdapt(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_autoAdapt)
 
-static bool js_scene_Shadow_get_shadowType(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_shadowType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_shadowType : Invalid Native Object");
@@ -2257,7 +2257,7 @@ static bool js_scene_Shadow_get_shadowType(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_shadowType)
 
-static bool js_scene_Shadow_set_shadowType(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_shadowType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2270,7 +2270,7 @@ static bool js_scene_Shadow_set_shadowType(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_shadowType)
 
-static bool js_scene_Shadow_get_distance(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_distance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_distance : Invalid Native Object");
@@ -2284,7 +2284,7 @@ static bool js_scene_Shadow_get_distance(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_distance)
 
-static bool js_scene_Shadow_set_distance(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_distance(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2297,7 +2297,7 @@ static bool js_scene_Shadow_set_distance(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_distance)
 
-static bool js_scene_Shadow_get_instancePass(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_instancePass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_instancePass : Invalid Native Object");
@@ -2311,7 +2311,7 @@ static bool js_scene_Shadow_get_instancePass(se::State& s) // NOLINT(readability
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_instancePass)
 
-static bool js_scene_Shadow_set_instancePass(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_instancePass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2324,7 +2324,7 @@ static bool js_scene_Shadow_set_instancePass(se::State& s) // NOLINT(readability
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_instancePass)
 
-static bool js_scene_Shadow_get_planarPass(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_planarPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_planarPass : Invalid Native Object");
@@ -2338,7 +2338,7 @@ static bool js_scene_Shadow_get_planarPass(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_planarPass)
 
-static bool js_scene_Shadow_set_planarPass(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_planarPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2351,7 +2351,7 @@ static bool js_scene_Shadow_set_planarPass(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_planarPass)
 
-static bool js_scene_Shadow_get_nearValue(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_nearValue(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_nearValue : Invalid Native Object");
@@ -2365,7 +2365,7 @@ static bool js_scene_Shadow_get_nearValue(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_nearValue)
 
-static bool js_scene_Shadow_set_nearValue(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_nearValue(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2378,7 +2378,7 @@ static bool js_scene_Shadow_set_nearValue(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_nearValue)
 
-static bool js_scene_Shadow_get_farValue(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_farValue(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_farValue : Invalid Native Object");
@@ -2392,7 +2392,7 @@ static bool js_scene_Shadow_get_farValue(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_farValue)
 
-static bool js_scene_Shadow_set_farValue(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_farValue(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2405,7 +2405,7 @@ static bool js_scene_Shadow_set_farValue(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_farValue)
 
-static bool js_scene_Shadow_get_aspect(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_aspect(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_aspect : Invalid Native Object");
@@ -2419,7 +2419,7 @@ static bool js_scene_Shadow_get_aspect(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_aspect)
 
-static bool js_scene_Shadow_set_aspect(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_aspect(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2432,7 +2432,7 @@ static bool js_scene_Shadow_set_aspect(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_aspect)
 
-static bool js_scene_Shadow_get_pcfType(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_pcfType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_pcfType : Invalid Native Object");
@@ -2446,7 +2446,7 @@ static bool js_scene_Shadow_get_pcfType(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_pcfType)
 
-static bool js_scene_Shadow_set_pcfType(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_pcfType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2459,7 +2459,7 @@ static bool js_scene_Shadow_set_pcfType(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_pcfType)
 
-static bool js_scene_Shadow_get_bias(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_bias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_bias : Invalid Native Object");
@@ -2473,7 +2473,7 @@ static bool js_scene_Shadow_get_bias(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_bias)
 
-static bool js_scene_Shadow_set_bias(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_bias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2486,7 +2486,7 @@ static bool js_scene_Shadow_set_bias(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_bias)
 
-static bool js_scene_Shadow_get_packing(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_packing(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_packing : Invalid Native Object");
@@ -2500,7 +2500,7 @@ static bool js_scene_Shadow_get_packing(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_packing)
 
-static bool js_scene_Shadow_set_packing(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_packing(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2513,7 +2513,7 @@ static bool js_scene_Shadow_set_packing(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_packing)
 
-static bool js_scene_Shadow_get_linear(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_linear(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_linear : Invalid Native Object");
@@ -2527,7 +2527,7 @@ static bool js_scene_Shadow_get_linear(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_linear)
 
-static bool js_scene_Shadow_set_linear(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_linear(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2540,7 +2540,7 @@ static bool js_scene_Shadow_set_linear(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_linear)
 
-static bool js_scene_Shadow_get_normalBias(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_normalBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_normalBias : Invalid Native Object");
@@ -2554,7 +2554,7 @@ static bool js_scene_Shadow_get_normalBias(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_normalBias)
 
-static bool js_scene_Shadow_set_normalBias(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_normalBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2567,7 +2567,7 @@ static bool js_scene_Shadow_set_normalBias(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_normalBias)
 
-static bool js_scene_Shadow_get_orthoSize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_orthoSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_orthoSize : Invalid Native Object");
@@ -2581,7 +2581,7 @@ static bool js_scene_Shadow_get_orthoSize(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_orthoSize)
 
-static bool js_scene_Shadow_set_orthoSize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_orthoSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2594,7 +2594,7 @@ static bool js_scene_Shadow_set_orthoSize(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_orthoSize)
 
-static bool js_scene_Shadow_get_color(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_color(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_color : Invalid Native Object");
@@ -2608,7 +2608,7 @@ static bool js_scene_Shadow_get_color(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_color)
 
-static bool js_scene_Shadow_set_color(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_color(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2621,7 +2621,7 @@ static bool js_scene_Shadow_set_color(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_color)
 
-static bool js_scene_Shadow_get_size(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_size(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_size : Invalid Native Object");
@@ -2635,7 +2635,7 @@ static bool js_scene_Shadow_get_size(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_size)
 
-static bool js_scene_Shadow_set_size(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_size(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2648,7 +2648,7 @@ static bool js_scene_Shadow_set_size(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_size)
 
-static bool js_scene_Shadow_get_normal(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_normal(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_normal : Invalid Native Object");
@@ -2662,7 +2662,7 @@ static bool js_scene_Shadow_get_normal(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_normal)
 
-static bool js_scene_Shadow_set_normal(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_normal(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2675,7 +2675,7 @@ static bool js_scene_Shadow_set_normal(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_normal)
 
-static bool js_scene_Shadow_get_matLight(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_get_matLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_matLight : Invalid Native Object");
@@ -2689,7 +2689,7 @@ static bool js_scene_Shadow_get_matLight(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_GET(js_scene_Shadow_get_matLight)
 
-static bool js_scene_Shadow_set_matLight(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_set_matLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2808,7 +2808,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Shadow * to, se::Object
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Shadow_finalize)
 
-static bool js_scene_Shadow_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Shadow_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -2922,7 +2922,7 @@ SE_BIND_CTOR(js_scene_Shadow_constructor, __jsb_cc_scene_Shadow_class, js_cc_sce
 
 
 
-static bool js_cc_scene_Shadow_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_Shadow_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Shadow>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -2935,7 +2935,7 @@ static bool js_cc_scene_Shadow_finalize(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_Shadow_finalize)
 
-bool js_register_scene_Shadow(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Shadow(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Shadow", obj, nullptr, _SE(js_scene_Shadow_constructor));
 
@@ -2974,7 +2974,7 @@ bool js_register_scene_Shadow(se::Object* obj) // NOLINT(readability-identifier-
 se::Object* __jsb_cc_scene_Skybox_proto = nullptr;
 se::Class* __jsb_cc_scene_Skybox_class = nullptr;
 
-static bool js_scene_Skybox_get_enabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Skybox_get_enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Skybox_get_enabled : Invalid Native Object");
@@ -2988,7 +2988,7 @@ static bool js_scene_Skybox_get_enabled(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_scene_Skybox_get_enabled)
 
-static bool js_scene_Skybox_set_enabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Skybox_set_enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
@@ -3001,7 +3001,7 @@ static bool js_scene_Skybox_set_enabled(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_SET(js_scene_Skybox_set_enabled)
 
-static bool js_scene_Skybox_get_isRGBE(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Skybox_get_isRGBE(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Skybox_get_isRGBE : Invalid Native Object");
@@ -3015,7 +3015,7 @@ static bool js_scene_Skybox_get_isRGBE(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_GET(js_scene_Skybox_get_isRGBE)
 
-static bool js_scene_Skybox_set_isRGBE(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Skybox_set_isRGBE(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
@@ -3028,7 +3028,7 @@ static bool js_scene_Skybox_set_isRGBE(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_SET(js_scene_Skybox_set_isRGBE)
 
-static bool js_scene_Skybox_get_useIBL(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Skybox_get_useIBL(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Skybox_get_useIBL : Invalid Native Object");
@@ -3042,7 +3042,7 @@ static bool js_scene_Skybox_get_useIBL(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_GET(js_scene_Skybox_get_useIBL)
 
-static bool js_scene_Skybox_set_useIBL(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Skybox_set_useIBL(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
@@ -3055,7 +3055,7 @@ static bool js_scene_Skybox_set_useIBL(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_SET(js_scene_Skybox_set_useIBL)
 
-static bool js_scene_Skybox_get_model(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Skybox_get_model(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Skybox_get_model : Invalid Native Object");
@@ -3069,7 +3069,7 @@ static bool js_scene_Skybox_get_model(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_PROP_GET(js_scene_Skybox_get_model)
 
-static bool js_scene_Skybox_set_model(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Skybox_set_model(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Skybox>(s);
@@ -3116,7 +3116,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Skybox * to, se::Object
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Skybox_finalize)
 
-static bool js_scene_Skybox_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Skybox_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -3176,7 +3176,7 @@ SE_BIND_CTOR(js_scene_Skybox_constructor, __jsb_cc_scene_Skybox_class, js_cc_sce
 
 
 
-static bool js_cc_scene_Skybox_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_Skybox_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Skybox>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -3189,7 +3189,7 @@ static bool js_cc_scene_Skybox_finalize(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_Skybox_finalize)
 
-bool js_register_scene_Skybox(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Skybox(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Skybox", obj, nullptr, _SE(js_scene_Skybox_constructor));
 
@@ -3210,7 +3210,7 @@ bool js_register_scene_Skybox(se::Object* obj) // NOLINT(readability-identifier-
 se::Object* __jsb_cc_scene_Ambient_proto = nullptr;
 se::Class* __jsb_cc_scene_Ambient_class = nullptr;
 
-static bool js_scene_Ambient_get_enabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Ambient_get_enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Ambient_get_enabled : Invalid Native Object");
@@ -3224,7 +3224,7 @@ static bool js_scene_Ambient_get_enabled(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_GET(js_scene_Ambient_get_enabled)
 
-static bool js_scene_Ambient_set_enabled(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Ambient_set_enabled(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
@@ -3237,7 +3237,7 @@ static bool js_scene_Ambient_set_enabled(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_SET(js_scene_Ambient_set_enabled)
 
-static bool js_scene_Ambient_get_skyIllum(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Ambient_get_skyIllum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Ambient_get_skyIllum : Invalid Native Object");
@@ -3251,7 +3251,7 @@ static bool js_scene_Ambient_get_skyIllum(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_GET(js_scene_Ambient_get_skyIllum)
 
-static bool js_scene_Ambient_set_skyIllum(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Ambient_set_skyIllum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
@@ -3264,7 +3264,7 @@ static bool js_scene_Ambient_set_skyIllum(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_SET(js_scene_Ambient_set_skyIllum)
 
-static bool js_scene_Ambient_get_skyColor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Ambient_get_skyColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Ambient_get_skyColor : Invalid Native Object");
@@ -3278,7 +3278,7 @@ static bool js_scene_Ambient_get_skyColor(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_GET(js_scene_Ambient_get_skyColor)
 
-static bool js_scene_Ambient_set_skyColor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Ambient_set_skyColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
@@ -3291,7 +3291,7 @@ static bool js_scene_Ambient_set_skyColor(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_SET(js_scene_Ambient_set_skyColor)
 
-static bool js_scene_Ambient_get_groundAlbedo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Ambient_get_groundAlbedo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Ambient_get_groundAlbedo : Invalid Native Object");
@@ -3305,7 +3305,7 @@ static bool js_scene_Ambient_get_groundAlbedo(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_PROP_GET(js_scene_Ambient_get_groundAlbedo)
 
-static bool js_scene_Ambient_set_groundAlbedo(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Ambient_set_groundAlbedo(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Ambient>(s);
@@ -3352,7 +3352,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Ambient * to, se::Objec
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Ambient_finalize)
 
-static bool js_scene_Ambient_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Ambient_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -3412,7 +3412,7 @@ SE_BIND_CTOR(js_scene_Ambient_constructor, __jsb_cc_scene_Ambient_class, js_cc_s
 
 
 
-static bool js_cc_scene_Ambient_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_Ambient_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Ambient>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -3425,7 +3425,7 @@ static bool js_cc_scene_Ambient_finalize(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_Ambient_finalize)
 
-bool js_register_scene_Ambient(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Ambient(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Ambient", obj, nullptr, _SE(js_scene_Ambient_constructor));
 
@@ -3446,7 +3446,7 @@ bool js_register_scene_Ambient(se::Object* obj) // NOLINT(readability-identifier
 se::Object* __jsb_cc_scene_PipelineSharedSceneData_proto = nullptr;
 se::Class* __jsb_cc_scene_PipelineSharedSceneData_class = nullptr;
 
-static bool js_scene_PipelineSharedSceneData_get_isHDR(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_get_isHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_isHDR : Invalid Native Object");
@@ -3460,7 +3460,7 @@ static bool js_scene_PipelineSharedSceneData_get_isHDR(se::State& s) // NOLINT(r
 }
 SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_isHDR)
 
-static bool js_scene_PipelineSharedSceneData_set_isHDR(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_set_isHDR(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
@@ -3473,7 +3473,7 @@ static bool js_scene_PipelineSharedSceneData_set_isHDR(se::State& s) // NOLINT(r
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_isHDR)
 
-static bool js_scene_PipelineSharedSceneData_get_shadingScale(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_get_shadingScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_shadingScale : Invalid Native Object");
@@ -3487,7 +3487,7 @@ static bool js_scene_PipelineSharedSceneData_get_shadingScale(se::State& s) // N
 }
 SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_shadingScale)
 
-static bool js_scene_PipelineSharedSceneData_set_shadingScale(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_set_shadingScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
@@ -3500,7 +3500,7 @@ static bool js_scene_PipelineSharedSceneData_set_shadingScale(se::State& s) // N
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_shadingScale)
 
-static bool js_scene_PipelineSharedSceneData_get_fpScale(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_get_fpScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_fpScale : Invalid Native Object");
@@ -3514,7 +3514,7 @@ static bool js_scene_PipelineSharedSceneData_get_fpScale(se::State& s) // NOLINT
 }
 SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_fpScale)
 
-static bool js_scene_PipelineSharedSceneData_set_fpScale(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_set_fpScale(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
@@ -3527,7 +3527,7 @@ static bool js_scene_PipelineSharedSceneData_set_fpScale(se::State& s) // NOLINT
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_fpScale)
 
-static bool js_scene_PipelineSharedSceneData_get_ambient(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_get_ambient(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_ambient : Invalid Native Object");
@@ -3541,7 +3541,7 @@ static bool js_scene_PipelineSharedSceneData_get_ambient(se::State& s) // NOLINT
 }
 SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_ambient)
 
-static bool js_scene_PipelineSharedSceneData_set_ambient(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_set_ambient(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
@@ -3554,7 +3554,7 @@ static bool js_scene_PipelineSharedSceneData_set_ambient(se::State& s) // NOLINT
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_ambient)
 
-static bool js_scene_PipelineSharedSceneData_get_shadow(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_get_shadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_shadow : Invalid Native Object");
@@ -3568,7 +3568,7 @@ static bool js_scene_PipelineSharedSceneData_get_shadow(se::State& s) // NOLINT(
 }
 SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_shadow)
 
-static bool js_scene_PipelineSharedSceneData_set_shadow(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_set_shadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
@@ -3581,7 +3581,7 @@ static bool js_scene_PipelineSharedSceneData_set_shadow(se::State& s) // NOLINT(
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_shadow)
 
-static bool js_scene_PipelineSharedSceneData_get_skybox(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_get_skybox(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_skybox : Invalid Native Object");
@@ -3595,7 +3595,7 @@ static bool js_scene_PipelineSharedSceneData_get_skybox(se::State& s) // NOLINT(
 }
 SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_skybox)
 
-static bool js_scene_PipelineSharedSceneData_set_skybox(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_set_skybox(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
@@ -3608,7 +3608,7 @@ static bool js_scene_PipelineSharedSceneData_set_skybox(se::State& s) // NOLINT(
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_skybox)
 
-static bool js_scene_PipelineSharedSceneData_get_fog(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_get_fog(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_fog : Invalid Native Object");
@@ -3622,7 +3622,7 @@ static bool js_scene_PipelineSharedSceneData_get_fog(se::State& s) // NOLINT(rea
 }
 SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_fog)
 
-static bool js_scene_PipelineSharedSceneData_set_fog(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_set_fog(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
@@ -3635,7 +3635,7 @@ static bool js_scene_PipelineSharedSceneData_set_fog(se::State& s) // NOLINT(rea
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_fog)
 
-static bool js_scene_PipelineSharedSceneData_get_deferredLightPass(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_get_deferredLightPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_deferredLightPass : Invalid Native Object");
@@ -3649,7 +3649,7 @@ static bool js_scene_PipelineSharedSceneData_get_deferredLightPass(se::State& s)
 }
 SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_deferredLightPass)
 
-static bool js_scene_PipelineSharedSceneData_set_deferredLightPass(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_set_deferredLightPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
@@ -3662,7 +3662,7 @@ static bool js_scene_PipelineSharedSceneData_set_deferredLightPass(se::State& s)
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_deferredLightPass)
 
-static bool js_scene_PipelineSharedSceneData_get_deferredLightPassShader(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_get_deferredLightPassShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_deferredLightPassShader : Invalid Native Object");
@@ -3676,7 +3676,7 @@ static bool js_scene_PipelineSharedSceneData_get_deferredLightPassShader(se::Sta
 }
 SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_deferredLightPassShader)
 
-static bool js_scene_PipelineSharedSceneData_set_deferredLightPassShader(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_set_deferredLightPassShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
@@ -3689,7 +3689,7 @@ static bool js_scene_PipelineSharedSceneData_set_deferredLightPassShader(se::Sta
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_deferredLightPassShader)
 
-static bool js_scene_PipelineSharedSceneData_get_deferredPostPass(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_get_deferredPostPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_deferredPostPass : Invalid Native Object");
@@ -3703,7 +3703,7 @@ static bool js_scene_PipelineSharedSceneData_get_deferredPostPass(se::State& s) 
 }
 SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_deferredPostPass)
 
-static bool js_scene_PipelineSharedSceneData_set_deferredPostPass(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_set_deferredPostPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
@@ -3716,7 +3716,7 @@ static bool js_scene_PipelineSharedSceneData_set_deferredPostPass(se::State& s) 
 }
 SE_BIND_PROP_SET(js_scene_PipelineSharedSceneData_set_deferredPostPass)
 
-static bool js_scene_PipelineSharedSceneData_get_deferredPostPassShader(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_get_deferredPostPassShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_PipelineSharedSceneData_get_deferredPostPassShader : Invalid Native Object");
@@ -3730,7 +3730,7 @@ static bool js_scene_PipelineSharedSceneData_get_deferredPostPassShader(se::Stat
 }
 SE_BIND_PROP_GET(js_scene_PipelineSharedSceneData_get_deferredPostPassShader)
 
-static bool js_scene_PipelineSharedSceneData_set_deferredPostPassShader(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_set_deferredPostPassShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s);
@@ -3805,7 +3805,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::PipelineSharedSceneData
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_PipelineSharedSceneData_finalize)
 
-static bool js_scene_PipelineSharedSceneData_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_PipelineSharedSceneData_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -3886,7 +3886,7 @@ SE_BIND_CTOR(js_scene_PipelineSharedSceneData_constructor, __jsb_cc_scene_Pipeli
 
 
 
-static bool js_cc_scene_PipelineSharedSceneData_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_PipelineSharedSceneData_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::PipelineSharedSceneData>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -3899,7 +3899,7 @@ static bool js_cc_scene_PipelineSharedSceneData_finalize(se::State& s) // NOLINT
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_PipelineSharedSceneData_finalize)
 
-bool js_register_scene_PipelineSharedSceneData(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_PipelineSharedSceneData(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("PipelineSharedSceneData", obj, nullptr, _SE(js_scene_PipelineSharedSceneData_constructor));
 
@@ -3927,7 +3927,7 @@ bool js_register_scene_PipelineSharedSceneData(se::Object* obj) // NOLINT(readab
 se::Object* __jsb_cc_scene_Root_proto = nullptr;
 se::Class* __jsb_cc_scene_Root_class = nullptr;
 
-static bool js_scene_Root_get_cumulativeTime(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Root_get_cumulativeTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Root>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Root_get_cumulativeTime : Invalid Native Object");
@@ -3941,7 +3941,7 @@ static bool js_scene_Root_get_cumulativeTime(se::State& s) // NOLINT(readability
 }
 SE_BIND_PROP_GET(js_scene_Root_get_cumulativeTime)
 
-static bool js_scene_Root_set_cumulativeTime(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Root_set_cumulativeTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Root>(s);
@@ -3954,7 +3954,7 @@ static bool js_scene_Root_set_cumulativeTime(se::State& s) // NOLINT(readability
 }
 SE_BIND_PROP_SET(js_scene_Root_set_cumulativeTime)
 
-static bool js_scene_Root_get_frameTime(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Root_get_frameTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Root>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Root_get_frameTime : Invalid Native Object");
@@ -3968,7 +3968,7 @@ static bool js_scene_Root_get_frameTime(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_scene_Root_get_frameTime)
 
-static bool js_scene_Root_set_frameTime(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Root_set_frameTime(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Root>(s);
@@ -4007,7 +4007,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Root * to, se::Object *
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Root_finalize)
 
-static bool js_scene_Root_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Root_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -4061,7 +4061,7 @@ SE_BIND_CTOR(js_scene_Root_constructor, __jsb_cc_scene_Root_class, js_cc_scene_R
 
 
 
-static bool js_cc_scene_Root_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_Root_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Root>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -4074,7 +4074,7 @@ static bool js_cc_scene_Root_finalize(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_Root_finalize)
 
-bool js_register_scene_Root(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Root(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Root", obj, nullptr, _SE(js_scene_Root_constructor));
 
@@ -4093,7 +4093,7 @@ bool js_register_scene_Root(se::Object* obj) // NOLINT(readability-identifier-na
 se::Object* __jsb_cc_scene_SubModel_proto = nullptr;
 se::Class* __jsb_cc_scene_SubModel_class = nullptr;
 
-static bool js_scene_SubModel_getPass(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_getPass(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getPass : Invalid Native Object");
@@ -4115,7 +4115,7 @@ static bool js_scene_SubModel_getPass(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_scene_SubModel_getPass)
 
-static bool js_scene_SubModel_getPasses(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_getPasses(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getPasses : Invalid Native Object");
@@ -4134,7 +4134,7 @@ static bool js_scene_SubModel_getPasses(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_SubModel_getPasses)
 
-static bool js_scene_SubModel_getPlanarInstanceShader(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_getPlanarInstanceShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getPlanarInstanceShader : Invalid Native Object");
@@ -4153,7 +4153,7 @@ static bool js_scene_SubModel_getPlanarInstanceShader(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_scene_SubModel_getPlanarInstanceShader)
 
-static bool js_scene_SubModel_getPlanarShader(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_getPlanarShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getPlanarShader : Invalid Native Object");
@@ -4172,7 +4172,7 @@ static bool js_scene_SubModel_getPlanarShader(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_SubModel_getPlanarShader)
 
-static bool js_scene_SubModel_getPriority(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_getPriority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getPriority : Invalid Native Object");
@@ -4191,7 +4191,7 @@ static bool js_scene_SubModel_getPriority(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_SubModel_getPriority)
 
-static bool js_scene_SubModel_getShader(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_getShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_getShader : Invalid Native Object");
@@ -4213,7 +4213,7 @@ static bool js_scene_SubModel_getShader(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_SubModel_getShader)
 
-static bool js_scene_SubModel_setDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_setDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setDescriptorSet : Invalid Native Object");
@@ -4232,7 +4232,7 @@ static bool js_scene_SubModel_setDescriptorSet(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_scene_SubModel_setDescriptorSet)
 
-static bool js_scene_SubModel_setInputAssembler(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_setInputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setInputAssembler : Invalid Native Object");
@@ -4251,7 +4251,7 @@ static bool js_scene_SubModel_setInputAssembler(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_scene_SubModel_setInputAssembler)
 
-static bool js_scene_SubModel_setPasses(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_setPasses(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setPasses : Invalid Native Object");
@@ -4270,7 +4270,7 @@ static bool js_scene_SubModel_setPasses(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_SubModel_setPasses)
 
-static bool js_scene_SubModel_setPlanarInstanceShader(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_setPlanarInstanceShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setPlanarInstanceShader : Invalid Native Object");
@@ -4289,7 +4289,7 @@ static bool js_scene_SubModel_setPlanarInstanceShader(se::State& s) // NOLINT(re
 }
 SE_BIND_FUNC(js_scene_SubModel_setPlanarInstanceShader)
 
-static bool js_scene_SubModel_setPlanarShader(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_setPlanarShader(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setPlanarShader : Invalid Native Object");
@@ -4308,7 +4308,7 @@ static bool js_scene_SubModel_setPlanarShader(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_SubModel_setPlanarShader)
 
-static bool js_scene_SubModel_setPriority(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_setPriority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setPriority : Invalid Native Object");
@@ -4327,7 +4327,7 @@ static bool js_scene_SubModel_setPriority(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_SubModel_setPriority)
 
-static bool js_scene_SubModel_setShaders(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_setShaders(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_setShaders : Invalid Native Object");
@@ -4346,7 +4346,7 @@ static bool js_scene_SubModel_setShaders(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_scene_SubModel_setShaders)
 
-static bool js_scene_SubModel_update(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SubModel_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SubModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SubModel_update : Invalid Native Object");
@@ -4363,7 +4363,7 @@ SE_BIND_FUNC(js_scene_SubModel_update)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_SubModel_finalize)
 
-static bool js_scene_SubModel_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_scene_SubModel_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::scene::SubModel* cobj = JSB_ALLOC(cc::scene::SubModel);
     s.thisObject()->setPrivateData(cobj);
@@ -4374,7 +4374,7 @@ SE_BIND_CTOR(js_scene_SubModel_constructor, __jsb_cc_scene_SubModel_class, js_cc
 
 
 
-static bool js_cc_scene_SubModel_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_SubModel_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::SubModel>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -4387,7 +4387,7 @@ static bool js_cc_scene_SubModel_finalize(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_SubModel_finalize)
 
-bool js_register_scene_SubModel(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_SubModel(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("SubModel", obj, nullptr, _SE(js_scene_SubModel_constructor));
 
@@ -4418,7 +4418,7 @@ bool js_register_scene_SubModel(se::Object* obj) // NOLINT(readability-identifie
 se::Object* __jsb_cc_scene_Pass_proto = nullptr;
 se::Class* __jsb_cc_scene_Pass_class = nullptr;
 
-static bool js_scene_Pass_getBatchingScheme(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getBatchingScheme(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getBatchingScheme : Invalid Native Object");
@@ -4437,7 +4437,7 @@ static bool js_scene_Pass_getBatchingScheme(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Pass_getBatchingScheme)
 
-static bool js_scene_Pass_getBlendState(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getBlendState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getBlendState : Invalid Native Object");
@@ -4456,7 +4456,7 @@ static bool js_scene_Pass_getBlendState(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_Pass_getBlendState)
 
-static bool js_scene_Pass_getDepthStencilState(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getDepthStencilState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getDepthStencilState : Invalid Native Object");
@@ -4475,7 +4475,7 @@ static bool js_scene_Pass_getDepthStencilState(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_scene_Pass_getDepthStencilState)
 
-static bool js_scene_Pass_getDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getDescriptorSet : Invalid Native Object");
@@ -4494,7 +4494,7 @@ static bool js_scene_Pass_getDescriptorSet(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FUNC(js_scene_Pass_getDescriptorSet)
 
-static bool js_scene_Pass_getDynamicState(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getDynamicState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getDynamicState : Invalid Native Object");
@@ -4513,7 +4513,7 @@ static bool js_scene_Pass_getDynamicState(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_Pass_getDynamicState)
 
-static bool js_scene_Pass_getHash(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getHash : Invalid Native Object");
@@ -4532,7 +4532,7 @@ static bool js_scene_Pass_getHash(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_scene_Pass_getHash)
 
-static bool js_scene_Pass_getPhase(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getPhase(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getPhase : Invalid Native Object");
@@ -4551,7 +4551,7 @@ static bool js_scene_Pass_getPhase(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC(js_scene_Pass_getPhase)
 
-static bool js_scene_Pass_getPipelineLayout(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getPipelineLayout(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getPipelineLayout : Invalid Native Object");
@@ -4570,7 +4570,7 @@ static bool js_scene_Pass_getPipelineLayout(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Pass_getPipelineLayout)
 
-static bool js_scene_Pass_getPrimitive(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getPrimitive(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getPrimitive : Invalid Native Object");
@@ -4589,7 +4589,7 @@ static bool js_scene_Pass_getPrimitive(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC(js_scene_Pass_getPrimitive)
 
-static bool js_scene_Pass_getPriority(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getPriority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getPriority : Invalid Native Object");
@@ -4608,7 +4608,7 @@ static bool js_scene_Pass_getPriority(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_scene_Pass_getPriority)
 
-static bool js_scene_Pass_getRasterizerState(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getRasterizerState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getRasterizerState : Invalid Native Object");
@@ -4627,7 +4627,7 @@ static bool js_scene_Pass_getRasterizerState(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_scene_Pass_getRasterizerState)
 
-static bool js_scene_Pass_getStage(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_getStage(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_getStage : Invalid Native Object");
@@ -4646,7 +4646,7 @@ static bool js_scene_Pass_getStage(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC(js_scene_Pass_getStage)
 
-static bool js_scene_Pass_setBatchingScheme(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setBatchingScheme(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setBatchingScheme : Invalid Native Object");
@@ -4665,7 +4665,7 @@ static bool js_scene_Pass_setBatchingScheme(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Pass_setBatchingScheme)
 
-static bool js_scene_Pass_setBlendState(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setBlendState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setBlendState : Invalid Native Object");
@@ -4684,7 +4684,7 @@ static bool js_scene_Pass_setBlendState(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FUNC(js_scene_Pass_setBlendState)
 
-static bool js_scene_Pass_setDepthStencilState(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setDepthStencilState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setDepthStencilState : Invalid Native Object");
@@ -4703,7 +4703,7 @@ static bool js_scene_Pass_setDepthStencilState(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_scene_Pass_setDepthStencilState)
 
-static bool js_scene_Pass_setDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setDescriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setDescriptorSet : Invalid Native Object");
@@ -4722,7 +4722,7 @@ static bool js_scene_Pass_setDescriptorSet(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FUNC(js_scene_Pass_setDescriptorSet)
 
-static bool js_scene_Pass_setDynamicState(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setDynamicState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setDynamicState : Invalid Native Object");
@@ -4741,7 +4741,7 @@ static bool js_scene_Pass_setDynamicState(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_Pass_setDynamicState)
 
-static bool js_scene_Pass_setHash(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setHash(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setHash : Invalid Native Object");
@@ -4760,7 +4760,7 @@ static bool js_scene_Pass_setHash(se::State& s) // NOLINT(readability-identifier
 }
 SE_BIND_FUNC(js_scene_Pass_setHash)
 
-static bool js_scene_Pass_setPhase(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setPhase(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setPhase : Invalid Native Object");
@@ -4779,7 +4779,7 @@ static bool js_scene_Pass_setPhase(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC(js_scene_Pass_setPhase)
 
-static bool js_scene_Pass_setPipelineLayout(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setPipelineLayout(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setPipelineLayout : Invalid Native Object");
@@ -4798,7 +4798,7 @@ static bool js_scene_Pass_setPipelineLayout(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Pass_setPipelineLayout)
 
-static bool js_scene_Pass_setPrimitive(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setPrimitive(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setPrimitive : Invalid Native Object");
@@ -4817,7 +4817,7 @@ static bool js_scene_Pass_setPrimitive(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_FUNC(js_scene_Pass_setPrimitive)
 
-static bool js_scene_Pass_setPriority(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setPriority(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setPriority : Invalid Native Object");
@@ -4836,7 +4836,7 @@ static bool js_scene_Pass_setPriority(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FUNC(js_scene_Pass_setPriority)
 
-static bool js_scene_Pass_setRasterizerState(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setRasterizerState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setRasterizerState : Invalid Native Object");
@@ -4855,7 +4855,7 @@ static bool js_scene_Pass_setRasterizerState(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_scene_Pass_setRasterizerState)
 
-static bool js_scene_Pass_setRootBufferDirty(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setRootBufferDirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setRootBufferDirty : Invalid Native Object");
@@ -4874,7 +4874,7 @@ static bool js_scene_Pass_setRootBufferDirty(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_scene_Pass_setRootBufferDirty)
 
-static bool js_scene_Pass_setStage(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setStage(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setStage : Invalid Native Object");
@@ -4893,7 +4893,7 @@ static bool js_scene_Pass_setStage(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC(js_scene_Pass_setStage)
 
-static bool js_scene_Pass_setState(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_setState(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_setState : Invalid Native Object");
@@ -4918,7 +4918,7 @@ static bool js_scene_Pass_setState(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC(js_scene_Pass_setState)
 
-static bool js_scene_Pass_update(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Pass_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Pass_update : Invalid Native Object");
@@ -4935,7 +4935,7 @@ SE_BIND_FUNC(js_scene_Pass_update)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Pass_finalize)
 
-static bool js_scene_Pass_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_scene_Pass_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::scene::Pass* cobj = JSB_ALLOC(cc::scene::Pass);
     s.thisObject()->setPrivateData(cobj);
@@ -4946,7 +4946,7 @@ SE_BIND_CTOR(js_scene_Pass_constructor, __jsb_cc_scene_Pass_class, js_cc_scene_P
 
 
 
-static bool js_cc_scene_Pass_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_Pass_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Pass>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -4959,7 +4959,7 @@ static bool js_cc_scene_Pass_finalize(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_Pass_finalize)
 
-bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Pass", obj, nullptr, _SE(js_scene_Pass_constructor));
 
@@ -5003,7 +5003,7 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
 se::Object* __jsb_cc_scene_BakedAnimInfo_proto = nullptr;
 se::Class* __jsb_cc_scene_BakedAnimInfo_class = nullptr;
 
-static bool js_scene_BakedAnimInfo_getDirty(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_BakedAnimInfo_getDirty(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::BakedAnimInfo>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_BakedAnimInfo_getDirty : Invalid Native Object");
@@ -5052,7 +5052,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::BakedAnimInfo * to, se:
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_BakedAnimInfo_finalize)
 
-static bool js_scene_BakedAnimInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_BakedAnimInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -5109,7 +5109,7 @@ SE_BIND_CTOR(js_scene_BakedAnimInfo_constructor, __jsb_cc_scene_BakedAnimInfo_cl
 
 
 
-static bool js_cc_scene_BakedAnimInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_BakedAnimInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::BakedAnimInfo>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -5122,7 +5122,7 @@ static bool js_cc_scene_BakedAnimInfo_finalize(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_BakedAnimInfo_finalize)
 
-bool js_register_scene_BakedAnimInfo(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_BakedAnimInfo(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("BakedAnimInfo", obj, nullptr, _SE(js_scene_BakedAnimInfo_constructor));
 
@@ -5174,7 +5174,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::BakedJointInfo * to, se
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_BakedJointInfo_finalize)
 
-static bool js_scene_BakedJointInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_BakedJointInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -5234,7 +5234,7 @@ SE_BIND_CTOR(js_scene_BakedJointInfo_constructor, __jsb_cc_scene_BakedJointInfo_
 
 
 
-static bool js_cc_scene_BakedJointInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_BakedJointInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::BakedJointInfo>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -5247,7 +5247,7 @@ static bool js_cc_scene_BakedJointInfo_finalize(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_BakedJointInfo_finalize)
 
-bool js_register_scene_BakedJointInfo(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_BakedJointInfo(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("BakedJointInfo", obj, nullptr, _SE(js_scene_BakedJointInfo_constructor));
 
@@ -5264,7 +5264,7 @@ bool js_register_scene_BakedJointInfo(se::Object* obj) // NOLINT(readability-ide
 se::Object* __jsb_cc_scene_BakedSkinningModel_proto = nullptr;
 se::Class* __jsb_cc_scene_BakedSkinningModel_class = nullptr;
 
-static bool js_scene_BakedSkinningModel_setAnimInfoIdx(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_BakedSkinningModel_setAnimInfoIdx(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::BakedSkinningModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_BakedSkinningModel_setAnimInfoIdx : Invalid Native Object");
@@ -5283,7 +5283,7 @@ static bool js_scene_BakedSkinningModel_setAnimInfoIdx(se::State& s) // NOLINT(r
 }
 SE_BIND_FUNC(js_scene_BakedSkinningModel_setAnimInfoIdx)
 
-static bool js_scene_BakedSkinningModel_setJointMedium(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_BakedSkinningModel_setJointMedium(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::BakedSkinningModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_BakedSkinningModel_setJointMedium : Invalid Native Object");
@@ -5306,7 +5306,7 @@ SE_BIND_FUNC(js_scene_BakedSkinningModel_setJointMedium)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_BakedSkinningModel_finalize)
 
-static bool js_scene_BakedSkinningModel_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_scene_BakedSkinningModel_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::scene::BakedSkinningModel* cobj = JSB_ALLOC(cc::scene::BakedSkinningModel);
     s.thisObject()->setPrivateData(cobj);
@@ -5317,7 +5317,7 @@ SE_BIND_CTOR(js_scene_BakedSkinningModel_constructor, __jsb_cc_scene_BakedSkinni
 
 
 
-static bool js_cc_scene_BakedSkinningModel_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_BakedSkinningModel_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::BakedSkinningModel>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -5330,7 +5330,7 @@ static bool js_cc_scene_BakedSkinningModel_finalize(se::State& s) // NOLINT(read
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_BakedSkinningModel_finalize)
 
-bool js_register_scene_BakedSkinningModel(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_BakedSkinningModel(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("BakedSkinningModel", obj, __jsb_cc_scene_Model_proto, _SE(js_scene_BakedSkinningModel_constructor));
 
@@ -5349,7 +5349,7 @@ bool js_register_scene_BakedSkinningModel(se::Object* obj) // NOLINT(readability
 se::Object* __jsb_cc_scene_DrawBatch2D_proto = nullptr;
 se::Class* __jsb_cc_scene_DrawBatch2D_class = nullptr;
 
-static bool js_scene_DrawBatch2D_get_visFlags(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DrawBatch2D_get_visFlags(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_get_visFlags : Invalid Native Object");
@@ -5363,7 +5363,7 @@ static bool js_scene_DrawBatch2D_get_visFlags(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_PROP_GET(js_scene_DrawBatch2D_get_visFlags)
 
-static bool js_scene_DrawBatch2D_set_visFlags(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DrawBatch2D_set_visFlags(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
@@ -5376,7 +5376,7 @@ static bool js_scene_DrawBatch2D_set_visFlags(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_PROP_SET(js_scene_DrawBatch2D_set_visFlags)
 
-static bool js_scene_DrawBatch2D_get_descriptorSet(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DrawBatch2D_get_descriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_get_descriptorSet : Invalid Native Object");
@@ -5390,7 +5390,7 @@ static bool js_scene_DrawBatch2D_get_descriptorSet(se::State& s) // NOLINT(reada
 }
 SE_BIND_PROP_GET(js_scene_DrawBatch2D_get_descriptorSet)
 
-static bool js_scene_DrawBatch2D_set_descriptorSet(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DrawBatch2D_set_descriptorSet(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
@@ -5403,7 +5403,7 @@ static bool js_scene_DrawBatch2D_set_descriptorSet(se::State& s) // NOLINT(reada
 }
 SE_BIND_PROP_SET(js_scene_DrawBatch2D_set_descriptorSet)
 
-static bool js_scene_DrawBatch2D_get_inputAssembler(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DrawBatch2D_get_inputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_get_inputAssembler : Invalid Native Object");
@@ -5417,7 +5417,7 @@ static bool js_scene_DrawBatch2D_get_inputAssembler(se::State& s) // NOLINT(read
 }
 SE_BIND_PROP_GET(js_scene_DrawBatch2D_get_inputAssembler)
 
-static bool js_scene_DrawBatch2D_set_inputAssembler(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DrawBatch2D_set_inputAssembler(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
@@ -5430,7 +5430,7 @@ static bool js_scene_DrawBatch2D_set_inputAssembler(se::State& s) // NOLINT(read
 }
 SE_BIND_PROP_SET(js_scene_DrawBatch2D_set_inputAssembler)
 
-static bool js_scene_DrawBatch2D_get_passes(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DrawBatch2D_get_passes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_get_passes : Invalid Native Object");
@@ -5444,7 +5444,7 @@ static bool js_scene_DrawBatch2D_get_passes(se::State& s) // NOLINT(readability-
 }
 SE_BIND_PROP_GET(js_scene_DrawBatch2D_get_passes)
 
-static bool js_scene_DrawBatch2D_set_passes(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DrawBatch2D_set_passes(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
@@ -5457,7 +5457,7 @@ static bool js_scene_DrawBatch2D_set_passes(se::State& s) // NOLINT(readability-
 }
 SE_BIND_PROP_SET(js_scene_DrawBatch2D_set_passes)
 
-static bool js_scene_DrawBatch2D_get_shaders(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DrawBatch2D_get_shaders(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_DrawBatch2D_get_shaders : Invalid Native Object");
@@ -5471,7 +5471,7 @@ static bool js_scene_DrawBatch2D_get_shaders(se::State& s) // NOLINT(readability
 }
 SE_BIND_PROP_GET(js_scene_DrawBatch2D_get_shaders)
 
-static bool js_scene_DrawBatch2D_set_shaders(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DrawBatch2D_set_shaders(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s);
@@ -5522,7 +5522,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::DrawBatch2D * to, se::O
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_DrawBatch2D_finalize)
 
-static bool js_scene_DrawBatch2D_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_DrawBatch2D_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -5585,7 +5585,7 @@ SE_BIND_CTOR(js_scene_DrawBatch2D_constructor, __jsb_cc_scene_DrawBatch2D_class,
 
 
 
-static bool js_cc_scene_DrawBatch2D_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_DrawBatch2D_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::DrawBatch2D>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -5598,7 +5598,7 @@ static bool js_cc_scene_DrawBatch2D_finalize(se::State& s) // NOLINT(readability
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_DrawBatch2D_finalize)
 
-bool js_register_scene_DrawBatch2D(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_DrawBatch2D(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("DrawBatch2D", obj, nullptr, _SE(js_scene_DrawBatch2D_constructor));
 
@@ -5654,7 +5654,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::JointTransform * to, se
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_JointTransform_finalize)
 
-static bool js_scene_JointTransform_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_JointTransform_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -5714,7 +5714,7 @@ SE_BIND_CTOR(js_scene_JointTransform_constructor, __jsb_cc_scene_JointTransform_
 
 
 
-static bool js_cc_scene_JointTransform_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_JointTransform_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::JointTransform>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -5727,7 +5727,7 @@ static bool js_cc_scene_JointTransform_finalize(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_JointTransform_finalize)
 
-bool js_register_scene_JointTransform(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_JointTransform(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("JointTransform", obj, nullptr, _SE(js_scene_JointTransform_constructor));
 
@@ -5790,7 +5790,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::JointInfo * to, se::Obj
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_JointInfo_finalize)
 
-static bool js_scene_JointInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_JointInfo_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -5859,7 +5859,7 @@ SE_BIND_CTOR(js_scene_JointInfo_constructor, __jsb_cc_scene_JointInfo_class, js_
 
 
 
-static bool js_cc_scene_JointInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_JointInfo_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::JointInfo>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -5872,7 +5872,7 @@ static bool js_cc_scene_JointInfo_finalize(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_JointInfo_finalize)
 
-bool js_register_scene_JointInfo(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_JointInfo(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("JointInfo", obj, nullptr, _SE(js_scene_JointInfo_constructor));
 
@@ -5889,7 +5889,7 @@ bool js_register_scene_JointInfo(se::Object* obj) // NOLINT(readability-identifi
 se::Object* __jsb_cc_scene_SkinningModel_proto = nullptr;
 se::Class* __jsb_cc_scene_SkinningModel_class = nullptr;
 
-static bool js_scene_SkinningModel_setBuffers(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SkinningModel_setBuffers(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkinningModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SkinningModel_setBuffers : Invalid Native Object");
@@ -5908,7 +5908,7 @@ static bool js_scene_SkinningModel_setBuffers(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_SkinningModel_setBuffers)
 
-static bool js_scene_SkinningModel_setIndicesAndJoints(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SkinningModel_setIndicesAndJoints(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkinningModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SkinningModel_setIndicesAndJoints : Invalid Native Object");
@@ -5929,7 +5929,7 @@ static bool js_scene_SkinningModel_setIndicesAndJoints(se::State& s) // NOLINT(r
 }
 SE_BIND_FUNC(js_scene_SkinningModel_setIndicesAndJoints)
 
-static bool js_scene_SkinningModel_setNeedUpdate(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SkinningModel_setNeedUpdate(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkinningModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SkinningModel_setNeedUpdate : Invalid Native Object");
@@ -5948,7 +5948,7 @@ static bool js_scene_SkinningModel_setNeedUpdate(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_scene_SkinningModel_setNeedUpdate)
 
-static bool js_scene_SkinningModel_updateLocalDescriptors(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_SkinningModel_updateLocalDescriptors(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::SkinningModel>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_SkinningModel_updateLocalDescriptors : Invalid Native Object");
@@ -5971,7 +5971,7 @@ SE_BIND_FUNC(js_scene_SkinningModel_updateLocalDescriptors)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_SkinningModel_finalize)
 
-static bool js_scene_SkinningModel_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_scene_SkinningModel_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::scene::SkinningModel* cobj = JSB_ALLOC(cc::scene::SkinningModel);
     s.thisObject()->setPrivateData(cobj);
@@ -5982,7 +5982,7 @@ SE_BIND_CTOR(js_scene_SkinningModel_constructor, __jsb_cc_scene_SkinningModel_cl
 
 
 
-static bool js_cc_scene_SkinningModel_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_SkinningModel_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::SkinningModel>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -5995,7 +5995,7 @@ static bool js_cc_scene_SkinningModel_finalize(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_SkinningModel_finalize)
 
-bool js_register_scene_SkinningModel(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_SkinningModel(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("SkinningModel", obj, __jsb_cc_scene_Model_proto, _SE(js_scene_SkinningModel_constructor));
 
@@ -6016,7 +6016,7 @@ bool js_register_scene_SkinningModel(se::Object* obj) // NOLINT(readability-iden
 se::Object* __jsb_cc_scene_RenderScene_proto = nullptr;
 se::Class* __jsb_cc_scene_RenderScene_class = nullptr;
 
-static bool js_scene_RenderScene_addBakedSkinningModel(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_addBakedSkinningModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addBakedSkinningModel : Invalid Native Object");
@@ -6035,7 +6035,7 @@ static bool js_scene_RenderScene_addBakedSkinningModel(se::State& s) // NOLINT(r
 }
 SE_BIND_FUNC(js_scene_RenderScene_addBakedSkinningModel)
 
-static bool js_scene_RenderScene_addBatch(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_addBatch(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addBatch : Invalid Native Object");
@@ -6054,7 +6054,7 @@ static bool js_scene_RenderScene_addBatch(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_RenderScene_addBatch)
 
-static bool js_scene_RenderScene_addModel(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_addModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addModel : Invalid Native Object");
@@ -6073,7 +6073,7 @@ static bool js_scene_RenderScene_addModel(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_FUNC(js_scene_RenderScene_addModel)
 
-static bool js_scene_RenderScene_addSkinningModel(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_addSkinningModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addSkinningModel : Invalid Native Object");
@@ -6092,7 +6092,7 @@ static bool js_scene_RenderScene_addSkinningModel(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC(js_scene_RenderScene_addSkinningModel)
 
-static bool js_scene_RenderScene_addSphereLight(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_addSphereLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addSphereLight : Invalid Native Object");
@@ -6111,7 +6111,7 @@ static bool js_scene_RenderScene_addSphereLight(se::State& s) // NOLINT(readabil
 }
 SE_BIND_FUNC(js_scene_RenderScene_addSphereLight)
 
-static bool js_scene_RenderScene_addSpotLight(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_addSpotLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_addSpotLight : Invalid Native Object");
@@ -6130,7 +6130,7 @@ static bool js_scene_RenderScene_addSpotLight(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_RenderScene_addSpotLight)
 
-static bool js_scene_RenderScene_getDrawBatch2Ds(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_getDrawBatch2Ds(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getDrawBatch2Ds : Invalid Native Object");
@@ -6149,7 +6149,7 @@ static bool js_scene_RenderScene_getDrawBatch2Ds(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_scene_RenderScene_getDrawBatch2Ds)
 
-static bool js_scene_RenderScene_getMainLight(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_getMainLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getMainLight : Invalid Native Object");
@@ -6168,7 +6168,7 @@ static bool js_scene_RenderScene_getMainLight(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_RenderScene_getMainLight)
 
-static bool js_scene_RenderScene_getModels(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_getModels(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getModels : Invalid Native Object");
@@ -6187,7 +6187,7 @@ static bool js_scene_RenderScene_getModels(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_FUNC(js_scene_RenderScene_getModels)
 
-static bool js_scene_RenderScene_getSphereLights(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_getSphereLights(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getSphereLights : Invalid Native Object");
@@ -6206,7 +6206,7 @@ static bool js_scene_RenderScene_getSphereLights(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_scene_RenderScene_getSphereLights)
 
-static bool js_scene_RenderScene_getSpotLights(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_getSpotLights(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_getSpotLights : Invalid Native Object");
@@ -6225,7 +6225,7 @@ static bool js_scene_RenderScene_getSpotLights(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_scene_RenderScene_getSpotLights)
 
-static bool js_scene_RenderScene_removeBatch(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_removeBatch(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
@@ -6259,7 +6259,7 @@ static bool js_scene_RenderScene_removeBatch(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_scene_RenderScene_removeBatch)
 
-static bool js_scene_RenderScene_removeBatches(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_removeBatches(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeBatches : Invalid Native Object");
@@ -6274,7 +6274,7 @@ static bool js_scene_RenderScene_removeBatches(se::State& s) // NOLINT(readabili
 }
 SE_BIND_FUNC(js_scene_RenderScene_removeBatches)
 
-static bool js_scene_RenderScene_removeModel(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_removeModel(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeModel : Invalid Native Object");
@@ -6293,7 +6293,7 @@ static bool js_scene_RenderScene_removeModel(se::State& s) // NOLINT(readability
 }
 SE_BIND_FUNC(js_scene_RenderScene_removeModel)
 
-static bool js_scene_RenderScene_removeModels(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_removeModels(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeModels : Invalid Native Object");
@@ -6308,7 +6308,7 @@ static bool js_scene_RenderScene_removeModels(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_RenderScene_removeModels)
 
-static bool js_scene_RenderScene_removeSphereLight(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_removeSphereLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeSphereLight : Invalid Native Object");
@@ -6327,7 +6327,7 @@ static bool js_scene_RenderScene_removeSphereLight(se::State& s) // NOLINT(reada
 }
 SE_BIND_FUNC(js_scene_RenderScene_removeSphereLight)
 
-static bool js_scene_RenderScene_removeSphereLights(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_removeSphereLights(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeSphereLights : Invalid Native Object");
@@ -6342,7 +6342,7 @@ static bool js_scene_RenderScene_removeSphereLights(se::State& s) // NOLINT(read
 }
 SE_BIND_FUNC(js_scene_RenderScene_removeSphereLights)
 
-static bool js_scene_RenderScene_removeSpotLight(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_removeSpotLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeSpotLight : Invalid Native Object");
@@ -6361,7 +6361,7 @@ static bool js_scene_RenderScene_removeSpotLight(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_scene_RenderScene_removeSpotLight)
 
-static bool js_scene_RenderScene_removeSpotLights(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_removeSpotLights(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_removeSpotLights : Invalid Native Object");
@@ -6376,7 +6376,7 @@ static bool js_scene_RenderScene_removeSpotLights(se::State& s) // NOLINT(readab
 }
 SE_BIND_FUNC(js_scene_RenderScene_removeSpotLights)
 
-static bool js_scene_RenderScene_setMainLight(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_setMainLight(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_setMainLight : Invalid Native Object");
@@ -6395,7 +6395,7 @@ static bool js_scene_RenderScene_setMainLight(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FUNC(js_scene_RenderScene_setMainLight)
 
-static bool js_scene_RenderScene_update(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderScene_update(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderScene>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderScene_update : Invalid Native Object");
@@ -6416,7 +6416,7 @@ SE_BIND_FUNC(js_scene_RenderScene_update)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_RenderScene_finalize)
 
-static bool js_scene_RenderScene_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references) constructor.c
+static bool js_scene_RenderScene_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
 {
     cc::scene::RenderScene* cobj = JSB_ALLOC(cc::scene::RenderScene);
     s.thisObject()->setPrivateData(cobj);
@@ -6427,7 +6427,7 @@ SE_BIND_CTOR(js_scene_RenderScene_constructor, __jsb_cc_scene_RenderScene_class,
 
 
 
-static bool js_cc_scene_RenderScene_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_RenderScene_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::RenderScene>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -6440,7 +6440,7 @@ static bool js_cc_scene_RenderScene_finalize(se::State& s) // NOLINT(readability
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_RenderScene_finalize)
 
-bool js_register_scene_RenderScene(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_RenderScene(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("RenderScene", obj, nullptr, _SE(js_scene_RenderScene_constructor));
 
@@ -6478,7 +6478,7 @@ bool js_register_scene_RenderScene(se::Object* obj) // NOLINT(readability-identi
 se::Object* __jsb_cc_scene_RenderWindow_proto = nullptr;
 se::Class* __jsb_cc_scene_RenderWindow_class = nullptr;
 
-static bool js_scene_RenderWindow_get_hasOnScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderWindow_get_hasOnScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_get_hasOnScreenAttachments : Invalid Native Object");
@@ -6492,7 +6492,7 @@ static bool js_scene_RenderWindow_get_hasOnScreenAttachments(se::State& s) // NO
 }
 SE_BIND_PROP_GET(js_scene_RenderWindow_get_hasOnScreenAttachments)
 
-static bool js_scene_RenderWindow_set_hasOnScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderWindow_set_hasOnScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
@@ -6505,7 +6505,7 @@ static bool js_scene_RenderWindow_set_hasOnScreenAttachments(se::State& s) // NO
 }
 SE_BIND_PROP_SET(js_scene_RenderWindow_set_hasOnScreenAttachments)
 
-static bool js_scene_RenderWindow_get_hasOffScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderWindow_get_hasOffScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_get_hasOffScreenAttachments : Invalid Native Object");
@@ -6519,7 +6519,7 @@ static bool js_scene_RenderWindow_get_hasOffScreenAttachments(se::State& s) // N
 }
 SE_BIND_PROP_GET(js_scene_RenderWindow_get_hasOffScreenAttachments)
 
-static bool js_scene_RenderWindow_set_hasOffScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderWindow_set_hasOffScreenAttachments(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
@@ -6532,7 +6532,7 @@ static bool js_scene_RenderWindow_set_hasOffScreenAttachments(se::State& s) // N
 }
 SE_BIND_PROP_SET(js_scene_RenderWindow_set_hasOffScreenAttachments)
 
-static bool js_scene_RenderWindow_get_frameBuffer(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderWindow_get_frameBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_RenderWindow_get_frameBuffer : Invalid Native Object");
@@ -6546,7 +6546,7 @@ static bool js_scene_RenderWindow_get_frameBuffer(se::State& s) // NOLINT(readab
 }
 SE_BIND_PROP_GET(js_scene_RenderWindow_get_frameBuffer)
 
-static bool js_scene_RenderWindow_set_frameBuffer(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderWindow_set_frameBuffer(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::RenderWindow>(s);
@@ -6589,7 +6589,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::RenderWindow * to, se::
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_RenderWindow_finalize)
 
-static bool js_scene_RenderWindow_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_RenderWindow_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -6646,7 +6646,7 @@ SE_BIND_CTOR(js_scene_RenderWindow_constructor, __jsb_cc_scene_RenderWindow_clas
 
 
 
-static bool js_cc_scene_RenderWindow_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_RenderWindow_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::RenderWindow>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -6659,7 +6659,7 @@ static bool js_cc_scene_RenderWindow_finalize(se::State& s) // NOLINT(readabilit
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_RenderWindow_finalize)
 
-bool js_register_scene_RenderWindow(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_RenderWindow(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("RenderWindow", obj, nullptr, _SE(js_scene_RenderWindow_constructor));
 
@@ -6679,7 +6679,7 @@ bool js_register_scene_RenderWindow(se::Object* obj) // NOLINT(readability-ident
 se::Object* __jsb_cc_scene_Camera_proto = nullptr;
 se::Class* __jsb_cc_scene_Camera_class = nullptr;
 
-static bool js_scene_Camera_get_width(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_width(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_width : Invalid Native Object");
@@ -6693,7 +6693,7 @@ static bool js_scene_Camera_get_width(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_width)
 
-static bool js_scene_Camera_set_width(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_width(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -6706,7 +6706,7 @@ static bool js_scene_Camera_set_width(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_width)
 
-static bool js_scene_Camera_get_height(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_height(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_height : Invalid Native Object");
@@ -6720,7 +6720,7 @@ static bool js_scene_Camera_get_height(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_height)
 
-static bool js_scene_Camera_set_height(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_height(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -6733,7 +6733,7 @@ static bool js_scene_Camera_set_height(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_height)
 
-static bool js_scene_Camera_get_clearFlag(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_clearFlag(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_clearFlag : Invalid Native Object");
@@ -6747,7 +6747,7 @@ static bool js_scene_Camera_get_clearFlag(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_clearFlag)
 
-static bool js_scene_Camera_set_clearFlag(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_clearFlag(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -6760,7 +6760,7 @@ static bool js_scene_Camera_set_clearFlag(se::State& s) // NOLINT(readability-id
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_clearFlag)
 
-static bool js_scene_Camera_get_exposure(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_exposure(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_exposure : Invalid Native Object");
@@ -6774,7 +6774,7 @@ static bool js_scene_Camera_get_exposure(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_exposure)
 
-static bool js_scene_Camera_set_exposure(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_exposure(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -6787,7 +6787,7 @@ static bool js_scene_Camera_set_exposure(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_exposure)
 
-static bool js_scene_Camera_get_clearDepth(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_clearDepth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_clearDepth : Invalid Native Object");
@@ -6801,7 +6801,7 @@ static bool js_scene_Camera_get_clearDepth(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_clearDepth)
 
-static bool js_scene_Camera_set_clearDepth(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_clearDepth(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -6814,7 +6814,7 @@ static bool js_scene_Camera_set_clearDepth(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_clearDepth)
 
-static bool js_scene_Camera_get_viewPort(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_viewPort(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_viewPort : Invalid Native Object");
@@ -6828,7 +6828,7 @@ static bool js_scene_Camera_get_viewPort(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_viewPort)
 
-static bool js_scene_Camera_set_viewPort(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_viewPort(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -6841,7 +6841,7 @@ static bool js_scene_Camera_set_viewPort(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_viewPort)
 
-static bool js_scene_Camera_get_clearStencil(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_clearStencil(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_clearStencil : Invalid Native Object");
@@ -6855,7 +6855,7 @@ static bool js_scene_Camera_get_clearStencil(se::State& s) // NOLINT(readability
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_clearStencil)
 
-static bool js_scene_Camera_set_clearStencil(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_clearStencil(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -6868,7 +6868,7 @@ static bool js_scene_Camera_set_clearStencil(se::State& s) // NOLINT(readability
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_clearStencil)
 
-static bool js_scene_Camera_get_visibility(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_visibility(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_visibility : Invalid Native Object");
@@ -6882,7 +6882,7 @@ static bool js_scene_Camera_get_visibility(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_visibility)
 
-static bool js_scene_Camera_set_visibility(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_visibility(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -6895,7 +6895,7 @@ static bool js_scene_Camera_set_visibility(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_visibility)
 
-static bool js_scene_Camera_get_node(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_node(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_node : Invalid Native Object");
@@ -6909,7 +6909,7 @@ static bool js_scene_Camera_get_node(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_node)
 
-static bool js_scene_Camera_set_node(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_node(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -6922,7 +6922,7 @@ static bool js_scene_Camera_set_node(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_node)
 
-static bool js_scene_Camera_get_scene(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_scene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_scene : Invalid Native Object");
@@ -6936,7 +6936,7 @@ static bool js_scene_Camera_get_scene(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_scene)
 
-static bool js_scene_Camera_set_scene(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_scene(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -6949,7 +6949,7 @@ static bool js_scene_Camera_set_scene(se::State& s) // NOLINT(readability-identi
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_scene)
 
-static bool js_scene_Camera_get_window(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_window(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_window : Invalid Native Object");
@@ -6963,7 +6963,7 @@ static bool js_scene_Camera_get_window(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_window)
 
-static bool js_scene_Camera_set_window(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_window(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -6976,7 +6976,7 @@ static bool js_scene_Camera_set_window(se::State& s) // NOLINT(readability-ident
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_window)
 
-static bool js_scene_Camera_get_frustum(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_frustum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_frustum : Invalid Native Object");
@@ -6990,7 +6990,7 @@ static bool js_scene_Camera_get_frustum(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_frustum)
 
-static bool js_scene_Camera_set_frustum(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_frustum(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7003,7 +7003,7 @@ static bool js_scene_Camera_set_frustum(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_frustum)
 
-static bool js_scene_Camera_get_forward(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_forward(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_forward : Invalid Native Object");
@@ -7017,7 +7017,7 @@ static bool js_scene_Camera_get_forward(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_forward)
 
-static bool js_scene_Camera_set_forward(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_forward(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7030,7 +7030,7 @@ static bool js_scene_Camera_set_forward(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_forward)
 
-static bool js_scene_Camera_get_position(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_position(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_position : Invalid Native Object");
@@ -7044,7 +7044,7 @@ static bool js_scene_Camera_get_position(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_position)
 
-static bool js_scene_Camera_set_position(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_position(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7057,7 +7057,7 @@ static bool js_scene_Camera_set_position(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_position)
 
-static bool js_scene_Camera_get_clearColor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_clearColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_clearColor : Invalid Native Object");
@@ -7071,7 +7071,7 @@ static bool js_scene_Camera_get_clearColor(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_clearColor)
 
-static bool js_scene_Camera_set_clearColor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_clearColor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7084,7 +7084,7 @@ static bool js_scene_Camera_set_clearColor(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_clearColor)
 
-static bool js_scene_Camera_get_matView(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_matView(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_matView : Invalid Native Object");
@@ -7098,7 +7098,7 @@ static bool js_scene_Camera_get_matView(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_matView)
 
-static bool js_scene_Camera_set_matView(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_matView(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7111,7 +7111,7 @@ static bool js_scene_Camera_set_matView(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_matView)
 
-static bool js_scene_Camera_get_matViewProj(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_matViewProj(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_matViewProj : Invalid Native Object");
@@ -7125,7 +7125,7 @@ static bool js_scene_Camera_get_matViewProj(se::State& s) // NOLINT(readability-
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_matViewProj)
 
-static bool js_scene_Camera_set_matViewProj(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_matViewProj(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7138,7 +7138,7 @@ static bool js_scene_Camera_set_matViewProj(se::State& s) // NOLINT(readability-
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_matViewProj)
 
-static bool js_scene_Camera_get_matViewProjInv(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_matViewProjInv(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_matViewProjInv : Invalid Native Object");
@@ -7152,7 +7152,7 @@ static bool js_scene_Camera_get_matViewProjInv(se::State& s) // NOLINT(readabili
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_matViewProjInv)
 
-static bool js_scene_Camera_set_matViewProjInv(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_matViewProjInv(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7165,7 +7165,7 @@ static bool js_scene_Camera_set_matViewProjInv(se::State& s) // NOLINT(readabili
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_matViewProjInv)
 
-static bool js_scene_Camera_get_matProj(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_matProj(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_matProj : Invalid Native Object");
@@ -7179,7 +7179,7 @@ static bool js_scene_Camera_get_matProj(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_matProj)
 
-static bool js_scene_Camera_set_matProj(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_matProj(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7192,7 +7192,7 @@ static bool js_scene_Camera_set_matProj(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_matProj)
 
-static bool js_scene_Camera_get_matProjInv(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_matProjInv(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_matProjInv : Invalid Native Object");
@@ -7206,7 +7206,7 @@ static bool js_scene_Camera_get_matProjInv(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_matProjInv)
 
-static bool js_scene_Camera_set_matProjInv(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_matProjInv(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7219,7 +7219,7 @@ static bool js_scene_Camera_set_matProjInv(se::State& s) // NOLINT(readability-i
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_matProjInv)
 
-static bool js_scene_Camera_get_matViewProjOffscreen(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_matViewProjOffscreen(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_matViewProjOffscreen : Invalid Native Object");
@@ -7233,7 +7233,7 @@ static bool js_scene_Camera_get_matViewProjOffscreen(se::State& s) // NOLINT(rea
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_matViewProjOffscreen)
 
-static bool js_scene_Camera_set_matViewProjOffscreen(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_matViewProjOffscreen(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7246,7 +7246,7 @@ static bool js_scene_Camera_set_matViewProjOffscreen(se::State& s) // NOLINT(rea
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_matViewProjOffscreen)
 
-static bool js_scene_Camera_get_matViewProjInvOffscreen(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_matViewProjInvOffscreen(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_matViewProjInvOffscreen : Invalid Native Object");
@@ -7260,7 +7260,7 @@ static bool js_scene_Camera_get_matViewProjInvOffscreen(se::State& s) // NOLINT(
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_matViewProjInvOffscreen)
 
-static bool js_scene_Camera_set_matViewProjInvOffscreen(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_matViewProjInvOffscreen(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7273,7 +7273,7 @@ static bool js_scene_Camera_set_matViewProjInvOffscreen(se::State& s) // NOLINT(
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_matViewProjInvOffscreen)
 
-static bool js_scene_Camera_get_matProjOffscreen(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_matProjOffscreen(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_matProjOffscreen : Invalid Native Object");
@@ -7287,7 +7287,7 @@ static bool js_scene_Camera_get_matProjOffscreen(se::State& s) // NOLINT(readabi
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_matProjOffscreen)
 
-static bool js_scene_Camera_set_matProjOffscreen(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_matProjOffscreen(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7300,7 +7300,7 @@ static bool js_scene_Camera_set_matProjOffscreen(se::State& s) // NOLINT(readabi
 }
 SE_BIND_PROP_SET(js_scene_Camera_set_matProjOffscreen)
 
-static bool js_scene_Camera_get_matProjInvOffscreen(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_get_matProjInvOffscreen(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
     SE_PRECONDITION2(cobj, false, "js_scene_Camera_get_matProjInvOffscreen : Invalid Native Object");
@@ -7314,7 +7314,7 @@ static bool js_scene_Camera_get_matProjInvOffscreen(se::State& s) // NOLINT(read
 }
 SE_BIND_PROP_GET(js_scene_Camera_get_matProjInvOffscreen)
 
-static bool js_scene_Camera_set_matProjInvOffscreen(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_set_matProjInvOffscreen(se::State& s) // NOLINT(readability-identifier-naming)
 {
     const auto& args = s.args();
     auto* cobj = SE_THIS_OBJECT<cc::scene::Camera>(s);
@@ -7441,7 +7441,7 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Camera * to, se::Object
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Camera_finalize)
 
-static bool js_scene_Camera_constructor(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_scene_Camera_constructor(se::State& s) // NOLINT(readability-identifier-naming)
 {
     CC_UNUSED bool ok = true;
     const auto& args = s.args();
@@ -7561,7 +7561,7 @@ SE_BIND_CTOR(js_scene_Camera_constructor, __jsb_cc_scene_Camera_class, js_cc_sce
 
 
 
-static bool js_cc_scene_Camera_finalize(se::State& s) // NOLINT(readability-identifier-naming, google-runtime-references)
+static bool js_cc_scene_Camera_finalize(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Camera>(s));
     if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
@@ -7574,7 +7574,7 @@ static bool js_cc_scene_Camera_finalize(se::State& s) // NOLINT(readability-iden
 }
 SE_BIND_FINALIZE_FUNC(js_cc_scene_Camera_finalize)
 
-bool js_register_scene_Camera(se::Object* obj) // NOLINT(readability-identifier-naming, google-runtime-references)
+bool js_register_scene_Camera(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
     auto* cls = se::Class::create("Camera", obj, nullptr, _SE(js_scene_Camera_constructor));
 
