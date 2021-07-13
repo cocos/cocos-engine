@@ -85,7 +85,7 @@ void BufferAgent::doResize(uint size, uint /*count*/) {
     auto *mq = DeviceAgent::getInstance()->getMessageQueue();
 
     if (!_stagingBuffers.empty()) {
-        auto *oldStagingBuffers = mq->allocate<uint8_t *>(STAGING_BUFFER_THRESHOLD);
+        auto *oldStagingBuffers = mq->allocate<uint8_t *>(DeviceAgent::MAX_FRAME_INDEX);
         for (size_t i = 0; i < DeviceAgent::MAX_FRAME_INDEX; ++i) {
             oldStagingBuffers[i] = _stagingBuffers[i];
         }
