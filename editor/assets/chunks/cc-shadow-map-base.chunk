@@ -27,7 +27,7 @@
         clipPos.z <-1.0 || clipPos.z > 1.0) { return 1.0; }
     CC_HANDLE_NDC_SAMPLE_FLIP(clipPos.xy);
 
-    float shadow = 1.0;
+    float shadow = 0.0;
     float closestDepth = 0.0;
     if (cc_shadowLPNNInfo.y > 0.000001) {
       closestDepth = unpackRGBAToDepth(texture(cc_shadowMap, clipPos.xy));
