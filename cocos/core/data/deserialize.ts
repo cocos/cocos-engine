@@ -38,7 +38,7 @@ import * as js from '../utils/js';
 import { deserializeDynamic, parseUuidDependenciesDynamic } from './deserialize-dynamic';
 import { Asset } from '../assets/asset';
 
-import { deserializeSymbol } from './serialization-symbols';
+import { deserializeTag } from './serialization-symbols';
 import type { CCON } from './ccon';
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 
@@ -515,7 +515,7 @@ interface IOptions extends Partial<ICustomHandler> {
     _version?: number;
 }
 interface ICustomClass {
-    [deserializeSymbol]?: (content: any, context: ICustomHandler) => void;
+    [deserializeTag]?: (content: any, context: ICustomHandler) => void;
     _deserialize?: (content: any, context: ICustomHandler) => void;
 }
 
@@ -688,7 +688,7 @@ function deserializeCCObject (data: IFileData, objectData: IClassObjectData) {
 
 function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, value: ICustomObjectDataContent) {
     const obj = new ctor();
-    const customDeserialize = obj[deserializeSymbol] ?? obj._deserialize;
+    const customDeserialize = obj[deserializeTag] ?? obj._deserialize;
     if (customDeserialize) {
         customDeserialize(value, data[File.Context]);
     } else {

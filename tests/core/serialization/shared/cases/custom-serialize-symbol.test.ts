@@ -1,7 +1,7 @@
 import {
     _decorator,
-    serializeSymbol,
-    deserializeSymbol,
+    serializeTag,
+    deserializeTag,
     CustomizedSerializable,
     SerializationOutput,
     SerializationInput,
@@ -18,11 +18,11 @@ class SerializationOutputProperty implements CustomizedSerializable {
 
     z = 0.3;
 
-    [serializeSymbol](serializationOutput: SerializationOutput, _context: SerializationContext) {
+    [serializeTag](serializationOutput: SerializationOutput, _context: SerializationContext) {
         serializationOutput.property('values', [this.x, this.y, this.z]);
     }
 
-    [deserializeSymbol](serializationInput: SerializationInput) {
+    [deserializeTag](serializationInput: SerializationInput) {
         const values = serializationInput.property('values') as number[];
         this.x = values[0];
         this.y = values[1];
@@ -40,7 +40,7 @@ class Base {
 class ContextSerializeSuper extends Base implements CustomizedSerializable {
     bar = 'SuperProperty';
 
-    [serializeSymbol](serializationOutput: SerializationOutput, context: SerializationContext) {
+    [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
         context.serializeSuper();
         serializationOutput.property('bar', this.bar);
     }
@@ -50,7 +50,7 @@ class ContextSerializeSuper extends Base implements CustomizedSerializable {
 class ContextSerializeSuper1 extends Base implements CustomizedSerializable {
     bar = 'SuperProperty';
 
-    [serializeSymbol](serializationOutput: SerializationOutput, context: SerializationContext) {
+    [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
         context.serializeSuper();
         serializationOutput.property('baseProperty', 'CustomOverrideSuper');
     }
@@ -60,7 +60,7 @@ class ContextSerializeSuper1 extends Base implements CustomizedSerializable {
 class ContextSerializeSuper2 extends Base implements CustomizedSerializable {
     bar = 'SuperProperty';
 
-    [serializeSymbol](serializationOutput: SerializationOutput, context: SerializationContext) {
+    [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
         serializationOutput.property('baseProperty', 'CustomOverrideSuper');
         context.serializeSuper();
     }
@@ -71,7 +71,7 @@ class ContextSerializeThis {
     @_decorator.property
     foo = 1;
 
-    [serializeSymbol](serializationOutput: SerializationOutput, context: SerializationContext) {
+    [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
         context.serializeThis();
     }
 }
@@ -81,7 +81,7 @@ class ContextSerializeThis1 {
     @_decorator.property
     foo = 'Original';
 
-    [serializeSymbol](serializationOutput: SerializationOutput, context: SerializationContext) {
+    [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
         serializationOutput.property('foo', 'CustomOverride');
         context.serializeThis();
     }
@@ -92,7 +92,7 @@ class ContextSerializeThis2 {
     @_decorator.property
     foo = 'Original';
 
-    [serializeSymbol](serializationOutput: SerializationOutput, context: SerializationContext) {
+    [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
         context.serializeThis();
         serializationOutput.property('foo', 'CustomOverride');
     }

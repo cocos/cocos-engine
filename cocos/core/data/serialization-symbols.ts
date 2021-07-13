@@ -1,8 +1,8 @@
 import { TEST } from 'internal:constants';
 
-export const serializeSymbol = Symbol('[[Serialize]]');
+export const serializeTag = Symbol('[[Serialize]]');
 
-export const deserializeSymbol = Symbol('[[Deserialize]]');
+export const deserializeTag = Symbol('[[Deserialize]]');
 
 export interface SerializationInput {
     /**
@@ -57,7 +57,7 @@ export type DeserializationContext = {
 };
 
 export interface CustomizedSerializable {
-    [serializeSymbol](output: SerializationOutput, context: SerializationContext): void;
+    [serializeTag](output: SerializationOutput, context: SerializationContext): void;
 
-    [deserializeSymbol]?(input: SerializationInput, context: DeserializationContext): void;
+    [deserializeTag]?(input: SerializationInput, context: DeserializationContext): void;
 }

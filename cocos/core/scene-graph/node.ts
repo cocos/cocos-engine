@@ -46,7 +46,7 @@ import { Component } from '../components';
 import { NativeNode } from '../renderer/scene/native-scene';
 import { FloatArray } from '../math/type-define';
 import { NodeEventType } from './node-event';
-import { CustomizedSerializable, deserializeSymbol, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeSymbol } from '../data';
+import { CustomizedSerializable, deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 
 const v3_a = new Vec3();
 const q_a = new Quat();
@@ -483,7 +483,7 @@ export class Node extends BaseNode implements CustomizedSerializable {
         }
     }
 
-    public [serializeSymbol] (serializationOutput: SerializationOutput, context: SerializationContext) {
+    public [serializeTag] (serializationOutput: SerializationOutput, context: SerializationContext) {
         if (!EDITOR) {
             context.serializeThis();
             return;

@@ -39,7 +39,7 @@ import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
 import { Platform } from '../../../pal/system-info/enum-type';
 import { sys } from '../platform/sys';
-import { CustomizedSerializable, DeserializationContext, deserializeSymbol, SerializationContext, SerializationInput } from './serialization-symbols';
+import { CustomizedSerializable, DeserializationContext, deserializeTag, SerializationContext, SerializationInput } from './serialization-symbols';
 import type { deserialize } from './deserialize';
 import { CCON } from './ccon';
 import { assertIsTrue } from './utils/asserts';
@@ -586,7 +586,7 @@ class _Deserializer {
         constructor: deserialize.SerializableClassConstructor,
         skipCustomized = false,
     ) {
-        if (!skipCustomized && (object as Partial<CustomizedSerializable>)[deserializeSymbol]) {
+        if (!skipCustomized && (object as Partial<CustomizedSerializable>)[deserializeTag]) {
             this._runCustomizedDeserialize(
                 value,
                 object as Record<PropertyKey, unknown> & CustomizedSerializable,
@@ -640,7 +640,7 @@ class _Deserializer {
             },
         };
 
-        object[deserializeSymbol]!(serializationInput, context);
+        object[deserializeTag]!(serializationInput, context);
     }
 
     private _deserializeFireClass (obj: Record<PropertyKey, unknown>, serialized: SerializedGeneralTypedObject, klass: CCClassConstructor) {
