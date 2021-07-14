@@ -1029,8 +1029,8 @@ export class ParticleSystem2D extends Renderable2D {
         this.duration = parseFloat(dict.duration || 0);
 
         // blend function // remove when component remove blend function
-        // this._srcBlendFactor = parseInt(dict.blendFuncSource || BlendFactor.SRC_ALPHA);
-        // this._dstBlendFactor = parseInt(dict.blendFuncDestination || BlendFactor.ONE_MINUS_SRC_ALPHA);
+        this._srcBlendFactor = parseInt(dict.blendFuncSource || BlendFactor.SRC_ALPHA);
+        this._dstBlendFactor = parseInt(dict.blendFuncDestination || BlendFactor.ONE_MINUS_SRC_ALPHA);
 
         // color
         const locStartColor = this._startColor;
@@ -1156,23 +1156,7 @@ export class ParticleSystem2D extends Renderable2D {
 
     public _updateMaterial () {
         const mat = this.getMaterialInstance(0);
-        if (mat) {
-            mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
-
-            if (this._dict != null) {
-                // blend function
-                const src = this._dict.blendFuncSource || BlendFactor.SRC_ALPHA;
-                const dst = this._dict.blendFuncDestination || BlendFactor.ONE_MINUS_SRC_ALPHA;
-                mat.overridePipelineStates({
-                    blendState: {
-                        targets: [{
-                            blendSrc: src,
-                            blendDst: dst,
-                        }],
-                    },
-                });
-            }
-        }
+        if (mat) mat.recompileShaders({ USE_LOCAL: this._positionType !== PositionType.FREE });
     }
 
     public _finishedSimulation () {
