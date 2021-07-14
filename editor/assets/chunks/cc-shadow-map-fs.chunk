@@ -5,5 +5,5 @@ in highp vec4 v_shadowPos;
 #include <cc-shadow-map-base>
 
 #define CC_SHADOW_POSITION v_shadowPos
-#define CC_SPOT_SHADOW_FACTOR(finalColor, worldPos, lightPos, normal) CC_SPOT_SHADOW_FACTOR_BASE(finalColor, v_shadowPos, worldPos, lightPos, normal)
-#define CC_SHADOW_FACTOR(finalColor, atten, lightDir, normal) CC_SHADOW_FACTOR_BASE(finalColor, atten, v_shadowPos, lightDir, normal)
+#define CC_SPOT_SHADOW_FACTOR(realtimeShadow, worldPos, lightPos, normal) CC_SPOT_SHADOW_FACTOR_BASE(realtimeShadow, v_shadowPos, worldPos, lightPos, normal)
+#define CC_SHADOW_FACTOR(realtimeShadow, N, NL) CC_SHADOW_FACTOR_BASE(realtimeShadow, v_shadowPos, N, NL)
