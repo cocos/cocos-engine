@@ -41,7 +41,7 @@ class ContextSerializeSuper extends Base implements CustomSerializable {
     bar = 'SuperProperty';
 
     [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
-        context.serializeSuper();
+        serializationOutput.serializeSuper();
         serializationOutput.property('bar', this.bar);
     }
 }
@@ -51,7 +51,7 @@ class ContextSerializeSuper1 extends Base implements CustomSerializable {
     bar = 'SuperProperty';
 
     [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
-        context.serializeSuper();
+        serializationOutput.serializeSuper();
         serializationOutput.property('baseProperty', 'CustomOverrideSuper');
     }
 }
@@ -62,7 +62,7 @@ class ContextSerializeSuper2 extends Base implements CustomSerializable {
 
     [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
         serializationOutput.property('baseProperty', 'CustomOverrideSuper');
-        context.serializeSuper();
+        serializationOutput.serializeSuper();
     }
 }
 
@@ -72,7 +72,7 @@ class ContextSerializeThis {
     foo = 1;
 
     [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
-        context.serializeThis();
+        serializationOutput.serializeThis();
     }
 }
 
@@ -83,7 +83,7 @@ class ContextSerializeThis1 {
 
     [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
         serializationOutput.property('foo', 'CustomOverride');
-        context.serializeThis();
+        serializationOutput.serializeThis();
     }
 }
 
@@ -93,7 +93,7 @@ class ContextSerializeThis2 {
     foo = 'Original';
 
     [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
-        context.serializeThis();
+        serializationOutput.serializeThis();
         serializationOutput.property('foo', 'CustomOverride');
     }
 }

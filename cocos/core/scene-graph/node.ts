@@ -485,7 +485,7 @@ export class Node extends BaseNode implements CustomSerializable {
 
     public [serializeTag] (serializationOutput: SerializationOutput, context: SerializationContext) {
         if (!EDITOR) {
-            context.serializeThis();
+            serializationOutput.serializeThis();
             return;
         }
 
@@ -501,7 +501,7 @@ export class Node extends BaseNode implements CustomSerializable {
             return this._prefab?.root?._prefab?.instance && (this?._prefab?.instance || !isMountedChild());
         };
 
-        const canDiscardByPrefabRoot = () => !(context.customizedArguments[(reserveContentsForAllSyncablePrefabTag) as any]
+        const canDiscardByPrefabRoot = () => !(context.customArguments[(reserveContentsForAllSyncablePrefabTag) as any]
             || !isSyncPrefab() || context.root === this);
 
         if (canDiscardByPrefabRoot()) {
@@ -515,7 +515,7 @@ export class Node extends BaseNode implements CustomSerializable {
                 // should not serialize child node of synchronizable prefab
             }
         } else {
-            context.serializeThis();
+            serializationOutput.serializeThis();
         }
     }
 

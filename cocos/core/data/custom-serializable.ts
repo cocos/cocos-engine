@@ -11,6 +11,16 @@ export interface SerializationInput {
      * @returns The property's value, after deserialized.
      */
     property(name: string): unknown;
+
+    /**
+     * Deserializes this object according to the original procedure.
+     */
+    deserializeThis(): void;
+
+    /**
+      * Deserializes super according to the original procedure.
+      */
+    deserializeSuper(): void;
 }
 
 export interface SerializationOutput {
@@ -20,13 +30,6 @@ export interface SerializationOutput {
      * @param value Property value.
      */
     property(name: string, value: unknown): void;
-}
-
-export type SerializationContext = {
-    /**
-     * The root value passed to serialization procedure.
-     */
-    root: unknown;
 
     /**
      * Serialize this object according to the original procedure.
@@ -37,23 +40,21 @@ export type SerializationContext = {
      * Serialize super according to the original procedure.
      */
     serializeSuper(): void;
+}
+
+export type SerializationContext = {
+    /**
+     * The root value passed to serialization procedure.
+     */
+    root: unknown;
 
     /**
      * Customized arguments passed to serialization procedure.
      */
-    customizedArguments: Record<PropertyKey, unknown>
+    customArguments: Record<PropertyKey, unknown>
 };
 
 export type DeserializationContext = {
-    /**
-     * Deserializes this object according to the original procedure.
-     */
-    deserializeThis(): void;
-
-    /**
-     * Deserializes super according to the original procedure.
-     */
-    deserializeSuper(): void;
 };
 
 export interface CustomSerializable {

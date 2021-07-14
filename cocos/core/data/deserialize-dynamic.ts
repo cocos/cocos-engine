@@ -620,9 +620,7 @@ class _Deserializer {
                     return this._deserializeObjectField(serializedField) as unknown;
                 }
             },
-        };
 
-        const context: DeserializationContext = {
             deserializeThis: () => {
                 this._deserializeInto(value, object, constructor, true);
             },
@@ -633,6 +631,9 @@ class _Deserializer {
                     this._deserializeInto(value, object, superConstructor);
                 }
             },
+        };
+
+        const context: DeserializationContext = {
         };
 
         object[deserializeTag]!(serializationInput, context);
