@@ -5637,7 +5637,7 @@ static bool js_dragonbones_CCArmatureDisplay_getDebugData(se::State& s) // NOLIN
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        se_object_ptr result = cobj->getDebugData();
+        se::Object* result = cobj->getDebugData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_getDebugData : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -5656,7 +5656,7 @@ static bool js_dragonbones_CCArmatureDisplay_getParamsBuffer(se::State& s) // NO
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        se_object_ptr result = cobj->getParamsBuffer();
+        se::Object* result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_getParamsBuffer : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -5694,7 +5694,7 @@ static bool js_dragonbones_CCArmatureDisplay_getSharedBufferOffset(se::State& s)
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        se_object_ptr result = cobj->getSharedBufferOffset();
+        se::Object* result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureDisplay_getSharedBufferOffset : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -6230,7 +6230,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getParamsBuffer(se::State& s) 
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        se_object_ptr result = cobj->getParamsBuffer();
+        se::Object* result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureCacheDisplay_getParamsBuffer : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -6249,7 +6249,7 @@ static bool js_dragonbones_CCArmatureCacheDisplay_getSharedBufferOffset(se::Stat
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        se_object_ptr result = cobj->getSharedBufferOffset();
+        se::Object* result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_dragonbones_CCArmatureCacheDisplay_getSharedBufferOffset : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());

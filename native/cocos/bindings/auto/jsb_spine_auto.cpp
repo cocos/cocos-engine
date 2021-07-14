@@ -13169,7 +13169,7 @@ static bool js_spine_SkeletonRenderer_getDebugData(se::State& s) // NOLINT(reada
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        se_object_ptr result = cobj->getDebugData();
+        se::Object* result = cobj->getDebugData();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_getDebugData : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -13188,7 +13188,7 @@ static bool js_spine_SkeletonRenderer_getParamsBuffer(se::State& s) // NOLINT(re
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        se_object_ptr result = cobj->getParamsBuffer();
+        se::Object* result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_getParamsBuffer : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -13207,7 +13207,7 @@ static bool js_spine_SkeletonRenderer_getSharedBufferOffset(se::State& s) // NOL
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        se_object_ptr result = cobj->getSharedBufferOffset();
+        se::Object* result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonRenderer_getSharedBufferOffset : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -15234,7 +15234,7 @@ static bool js_spine_SkeletonCacheAnimation_getParamsBuffer(se::State& s) // NOL
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        se_object_ptr result = cobj->getParamsBuffer();
+        se::Object* result = cobj->getParamsBuffer();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_getParamsBuffer : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
@@ -15253,7 +15253,7 @@ static bool js_spine_SkeletonCacheAnimation_getSharedBufferOffset(se::State& s) 
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 0) {
-        se_object_ptr result = cobj->getSharedBufferOffset();
+        se::Object* result = cobj->getSharedBufferOffset();
         ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
         SE_PRECONDITION2(ok, false, "js_spine_SkeletonCacheAnimation_getSharedBufferOffset : Error processing arguments");
         SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
