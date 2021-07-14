@@ -1,5 +1,6 @@
 CCEffect %{
-  hideInEditor: true
+  editor:
+    hide: true
   techniques:
   - passes:
     - vert: light-vs:vert
@@ -36,7 +37,7 @@ CCProgram light-vs %{
 CCProgram light-fs %{
   precision mediump float;
   #include <output>
-  
+
   uniform Constant {
     vec4 mainColor;
     vec4 intensitySize; // x: intensity, y: glow
