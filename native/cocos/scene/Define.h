@@ -41,12 +41,12 @@ class Pass;
 struct Fog {
     bool     enabled{false};
     uint32_t type{0};
-    float    density{0};
-    float    start{0};
-    float    end{0};
-    float    atten{0};
-    float    top{0};
-    float    range{0};
+    float    density{0.0F};
+    float    start{0.0F};
+    float    end{0.0F};
+    float    atten{0.0F};
+    float    top{0.0F};
+    float    range{0.0F};
     Vec4     color;
 };
 
@@ -69,21 +69,18 @@ struct Shadow {
     bool       enabled{false};
     bool       dirty{false};
     bool       shadowMapDirty{false};
-    bool       selfShadow{false};
     bool       autoAdapt{false};
     ShadowType shadowType{ShadowType::PLANAR};
-    float      distance{0};
+    float      distance{0.0F};
     Pass *     instancePass{nullptr};
     Pass *     planarPass{nullptr};
-    float      nearValue{0};
-    float      farValue{0};
-    float      aspect{0};
+    float      nearValue{0.0F};
+    float      farValue{0.0F};
     uint32_t   pcfType{0};
-    float      bias{0};
-    uint32_t   packing{0};
-    uint32_t   linear{0};
-    float      normalBias{0};
-    float      orthoSize{0};
+    float      bias{0.0F};
+    float      normalBias{0.0F};
+    float      saturation{0.0F};
+    float      orthoSize{0.0F};
 
     Vec4 color;
     Vec2 size;
@@ -100,15 +97,15 @@ struct Skybox {
 
 struct Ambient {
     bool  enabled{false};
-    float skyIllum{0};
+    float skyIllum{0.0F};
     Vec4  skyColor;
     Vec4  groundAlbedo;
 };
 
 struct PipelineSharedSceneData {
     bool         isHDR{false};
-    float        shadingScale{0};
-    float        fpScale{0};
+    float        shadingScale{0.0F};
+    float        fpScale{0.0F};
     Ambient *    ambient{nullptr};
     Shadow *     shadow{nullptr};
     Skybox *     skybox{nullptr};

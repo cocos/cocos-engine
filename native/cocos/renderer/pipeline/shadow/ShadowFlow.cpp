@@ -74,6 +74,10 @@ void ShadowFlow::render(scene::Camera *camera) {
         return;
     }
 
+    if (shadowInfo->shadowMapDirty) {
+        resizeShadowMap(&shadowInfo);
+    }
+
     const auto &shadowFramebufferMap = sceneData->getShadowFramebufferMap();
     for (const auto *light : _validLights) {
         if (!shadowFramebufferMap.count(light)) {
@@ -81,9 +85,7 @@ void ShadowFlow::render(scene::Camera *camera) {
         }
 
         auto *shadowFrameBuffer = shadowFramebufferMap.at(light);
-        if (shadowInfo->shadowMapDirty) {
-            resizeShadowMap(light, &shadowInfo);
-        }
+
         for (auto *stage : _stages) {
             auto *shadowStage = dynamic_cast<ShadowStage *>(stage);
             shadowStage->setUseData(light, shadowFrameBuffer);
@@ -113,20 +115,18 @@ void ShadowFlow::clearShadowMap(scene::Camera *camera) {
     }
 }
 
-void ShadowFlow::resizeShadowMap(const scene::Light *light, scene::Shadow **shadowInfo) {
+void ShadowFlow::resizeShadowMap(scene::Shadow **shadowInfo) {
     auto *     sceneData = _pipeline->getPipelineSceneData();
     auto *     device    = gfx::Device::getInstance();
     const auto width     = static_cast<uint>((*shadowInfo)->size.x);
     const auto height    = static_cast<uint>((*shadowInfo)->size.y);
-    const auto format    = supportsHalfFloatTexture(device)
-                               ? ((*shadowInfo)->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
-                               : gfx::Format::RGBA8;
+    const auto format    = supportsHalfFloatTexture(device) ? gfx::Format::R16F : gfx::Format::RGBA8;
 
-    if (sceneData->getShadowFramebufferMap().count(light)) {
-        auto *framebuffer = sceneData->getShadowFramebufferMap().at(light);
+    for (const auto &pair : sceneData->getShadowFramebufferMap()) {
+        gfx::Framebuffer *framebuffer = pair.second;
 
         if (!framebuffer) {
-            return;
+            continue;
         }
 
         auto renderTargets = framebuffer->getColorTextures();
@@ -174,10 +174,8 @@ void ShadowFlow::initShadowFrameBuffer(RenderPipeline *pipeline, const scene::Li
     const auto  shadowMapSize = shadowInfo->size;
     const auto  width         = static_cast<uint>(shadowMapSize.x);
     const auto  height        = static_cast<uint>(shadowMapSize.y);
-    const auto  format        = supportsHalfFloatTexture(device)
-                                    ? (shadowInfo->packing ? gfx::Format::RGBA8 : gfx::Format::RGBA16F)
-                                    : gfx::Format::RGBA8;
-
+    const auto  format        = supportsHalfFloatTexture(device) ? gfx::Format::R16F : gfx::Format::RGBA8;
+    
     const gfx::ColorAttachment colorAttachment = {
         format,
         gfx::SampleCount::X1,

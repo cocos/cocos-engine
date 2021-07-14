@@ -310,9 +310,9 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
     auto *              shadowInfo         = sceneData->getSharedData()->shadow;
     const auto *const   scene              = camera->scene;
     auto *              device             = gfx::Device::getInstance();
-    const auto          isTextureHalfFloat = device->hasFeature(cc::gfx::Feature::TEXTURE_HALF_FLOAT);
-    const auto          linear             = (static_cast<bool>(shadowInfo->linear) && isTextureHalfFloat) ? 1.0F : 0.0F;
-    const auto          packing            = static_cast<bool>(shadowInfo->packing) ? 1.0F : (isTextureHalfFloat ? 0.0F : 1.0F);
+    const bool          hFTexture          = supportsHalfFloatTexture(device);
+    const float         linear             = hFTexture ? 1.0F : 0.0F;
+    const float         packing            = hFTexture ? 0.0F : 1.0F;
     const scene::Light *mainLight          = scene->getMainLight();
 
     for (uint i = 0; i < _validLights.size(); ++i) {
@@ -358,8 +358,8 @@ void RenderAdditiveLightQueue::updateLightDescriptorSet(const scene::Camera *cam
                 memcpy(_shadowUBO.data() + UBOShadow::MAT_LIGHT_VIEW_PROJ_OFFSET, matShadowViewProj.m, sizeof(matShadowViewProj));
 
                 // shadow info
-                float shadowNFLSInfos[4] = {0.1F, spotLight->getRange(), linear, static_cast<float>(shadowInfo->selfShadow)};
-                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
+                float shadowNFLSInfos[4] = {0.1F, spotLight->getRange(), linear, 1.0F - shadowInfo->saturation};
+                memcpy(_shadowUBO.data() + UBOShadow::SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET, &shadowNFLSInfos, sizeof(shadowNFLSInfos));
 
                 float shadowWHPBInfos[4] = {shadowInfo->size.x, shadowInfo->size.y, static_cast<float>(shadowInfo->pcfType), shadowInfo->bias};
                 memcpy(_shadowUBO.data() + UBOShadow::SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET, &shadowWHPBInfos, sizeof(shadowWHPBInfos));
