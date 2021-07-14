@@ -403,6 +403,8 @@ export class ShadowsInfo {
     @serializable
     protected _far = 30;
     @serializable
+    protected _range = 2000.0;
+    @serializable
     protected _orthoSize = 5;
     @serializable
     protected _maxReceived = 4;
@@ -620,6 +622,23 @@ export class ShadowsInfo {
     }
     get far () {
         return this._far;
+    }
+
+    /**
+     * @en get or set shadow camera far
+     * @zh 获取或者设置阴影相机远裁剪面
+     */
+    @type(CCFloat)
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._autoAdapt === false; })
+    set range (val: number) {
+        this._range = val;
+        if (this._resource) {
+            this._resource.range = val;
+            this._resource.rangeDirty = true;
+        }
+    }
+    get range () {
+        return this._range;
     }
 
     /**

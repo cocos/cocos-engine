@@ -31,6 +31,7 @@
 import { Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
 import { AABB } from './aabb';
+import { sphere } from '../../primitive';
 
 const _v3_tmp = new Vec3();
 const _offset = new Vec3();
@@ -102,6 +103,29 @@ export class Sphere {
     public static fromPoints (out: Sphere, minPos: Vec3, maxPos: Vec3): Sphere {
         Vec3.multiplyScalar(out.center, Vec3.add(_v3_tmp, minPos, maxPos), 0.5);
         out.radius = Vec3.subtract(_v3_tmp, maxPos, minPos).length() * 0.5;
+        return out;
+    }
+
+    /**
+     * @en
+     * @zh
+     * @param out -
+     * @param minPos -
+     * @param maxPos -
+     * @returns {Sphere}
+     */
+    public static fromPointArray (out: Sphere, s: Sphere, points: Vec3[]): Sphere {
+        const length = points.length;
+        if (length < 1) return out;
+
+        // clear
+        out.center.set(0.0, 0.0, 0.0);
+        out.radius = 0.0;
+
+        for (let i = 0; i < length; i++) {
+            this.mergePoint(out, s, points[i]);
+        }
+
         return out;
     }
 

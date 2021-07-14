@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import { AABB, intersect, Sphere } from '../geometry';
+import { AABB, Frustum, intersect, Sphere } from '../geometry';
 import { Model } from '../renderer/scene/model';
 import { Camera, SKYBOX_FLAG } from '../renderer/scene/camera';
 import { Vec3, Mat4, Quat, Color } from '../math';
@@ -189,6 +189,22 @@ export function lightCollecting (camera: Camera, lightNumber: number) {
     }
 
     return _validLights;
+}
+
+export function preDirLightCulling (pipeline: RenderPipeline, camera: Camera) {
+    const scene = camera.scene!;
+    const mainLight = scene.mainLight!;
+    const models = scene.models;
+    const sceneData = pipeline.pipelineSceneData;
+    const shadows = sceneData.shadows;
+    const cameraBoundingSphere = shadows.cameraBoundingSphere;
+
+    if (mainLight) {
+        mainLight.update();
+        if (shadows.enabled && mainLight.dirDirty) {
+            Frustum.toBoundingSphere(cameraBoundingSphere, cameraBoundingSphere, camera.frustum);
+        }
+    }
 }
 
 export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {

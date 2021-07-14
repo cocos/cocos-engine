@@ -35,12 +35,23 @@ const _v3 = new Vec3();
 export class DirectionalLight extends Light {
     protected _dir: Vec3 = new Vec3(1.0, -1.0, -1.0);
     protected _illuminance: number = Ambient.SUN_ILLUM;
+    protected _dirDirty = true;
+
+    set dirDirty (val: boolean) {
+        this._dirDirty = val;
+    }
+
+    get dirDirty (): boolean {
+        return this._dirDirty;
+    }
 
     set direction (dir: Vec3) {
         Vec3.normalize(this._dir, dir);
         if (JSB) {
             (this._nativeObj as NativeDirectionalLight).setDirection(dir);
         }
+
+        this._dirDirty = true;
     }
 
     get direction (): Vec3 {

@@ -31,6 +31,7 @@
 import { Mat4, Vec3 } from '../math';
 import enums from './enums';
 import { Plane } from './plane';
+import { Sphere } from './sphere';
 
 const _v = new Array(8);
 _v[0] = new Vec3(1, 1, 1);
@@ -58,6 +59,10 @@ export class Frustum {
      */
     set accurate (b: boolean) {
         this._type = b ? enums.SHAPE_FRUSTUM_ACCURATE : enums.SHAPE_FRUSTUM;
+    }
+
+    static toBoundingSphere (out: Sphere, s: Sphere, a: Readonly<Frustum>) {
+        Sphere.fromPointArray(out, s, a.vertices);
     }
 
     /**

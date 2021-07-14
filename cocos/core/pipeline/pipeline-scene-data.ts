@@ -34,7 +34,7 @@ import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
 import { builtinResMgr } from '../builtin/builtin-res-mgr';
 import { Material } from '../assets';
-import { NativePipelineSharedSceneData } from '../renderer/scene';
+import { Model, NativePipelineSharedSceneData } from '../renderer/scene';
 
 export class PipelineSceneData {
     private _init (): void {
@@ -94,6 +94,7 @@ export class PipelineSceneData {
      * @en The list for render objects, only available after the scene culling of the current frame.
      * @zh 渲染对象数组，仅在当前帧的场景剔除完成后有效。
      */
+    public allShadowModels: Model[] = [];
     public renderObjects: IRenderObject[] = [];
     public shadowObjects: IRenderObject[] = [];
     public shadowFrameBufferMap: Map<Light, Framebuffer> = new Map();

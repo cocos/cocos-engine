@@ -25,7 +25,7 @@
 
 import { JSB } from 'internal:constants';
 import { Material } from '../../assets/material';
-import { Sphere } from '../../geometry';
+import { Frustum, Sphere } from '../../geometry';
 import { Color, Mat4, Vec3, Vec2 } from '../../math';
 import { legacyCC } from '../../global-exports';
 import { Enum } from '../../value-types';
@@ -196,6 +196,34 @@ export class Shadows {
     }
 
     /**
+     * @en get or set shadow range.
+     * @zh 控制阴影产生的范围。
+     */
+    public get range (): number {
+        return this._range;
+    }
+    public set range (val: number) {
+        this._range = val;
+        if (JSB) {
+            this._nativeObj!.range = val;
+        }
+    }
+
+    /**
+     * @en get or set shadow range.
+     * @zh 控制阴影产生的范围。
+     */
+    public get rangeDirty (): boolean {
+        return this._rangeDirty;
+    }
+    public set rangeDirty (val: boolean) {
+        this.rangeDirty = val;
+        if (JSB) {
+            this._nativeObj!.rangeDirty = val;
+        }
+    }
+
+    /**
      * @en Shadow type.
      * @zh 阴影类型。
      */
@@ -355,8 +383,26 @@ export class Shadows {
         return this._material!;
     }
 
+    /**
+     * @en get or set shadow frustum.
+     * @zh 获取或者设置阴影相机的视景体.
+     */
+    public get mainLightFrustum (): Frustum {
+        return this._mainLightFrustum;
+    }
+    public set mainLightFrustum (val: Frustum) {
+        this._mainLightFrustum = val;
+    }
+
     public get instancingMaterial (): Material {
         return this._instancingMaterial!;
+    }
+
+    public get cameraBoundingSphere (): Sphere {
+        return this._cameraBoundingSphere;
+    }
+    public set cameraBoundingSphere (val: Sphere) {
+        this._cameraBoundingSphere = val;
     }
 
     /**
@@ -382,6 +428,8 @@ export class Shadows {
     protected _type = SHADOW_TYPE_NONE;
     protected _near = 0;
     protected _far = 0;
+    protected _range = 2000.0;
+    protected _rangeDirty = false;
     protected _orthoSize = 1;
     protected _pcf = 0;
     protected _shadowMapDirty = false;
@@ -389,7 +437,11 @@ export class Shadows {
     protected _normalBias = 0;
     protected _autoAdapt = true;
     protected _saturation = 0.75;
+    protected _mainLightFrustum: Frustum;
     protected declare _nativeObj: NativeShadow | null;
+
+    // local
+    protected _cameraBoundingSphere: Sphere = new Sphere();
 
     get native (): NativeShadow {
         return this._nativeObj!;
@@ -399,6 +451,8 @@ export class Shadows {
         if (JSB) {
             this._nativeObj = new NativeShadow();
         }
+
+        this._mainLightFrustum = new Frustum();
     }
 
     public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {
