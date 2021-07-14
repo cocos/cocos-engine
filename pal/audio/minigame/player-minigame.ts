@@ -109,16 +109,23 @@ export class AudioPlayerMinigame implements OperationQueueable {
         if (this._state === AudioState.PLAYING) {
             this.pause().then(() => {
                 this._state = AudioState.INTERRUPTED;
+                this._readyToHandleOnShow = true;
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
             }).catch((e) => {});
         }
     }
     private _onShow () {
+        // We don't know whether onShow or resolve callback in pause promise is called at first.
+        if (!this._readyToHandleOnShow) {
+            this._eventTarget.once(AudioEvent.INTERRUPTION_BEGIN, this._onShow, this);
+            return;
+        }
         if (this._state === AudioState.INTERRUPTED) {
             this.play().then(() => {
                 this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
             }).catch((e) => {});
         }
+        this._readyToHandleOnShow = false;
     }
     private _offEvent (eventName: string) {
         if (this[`_on${eventName}`]) {
