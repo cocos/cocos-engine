@@ -30,5 +30,6 @@ export type RunTest = (
     port: Readonly<Port>,
     value: unknown,
     verify?: (serialized: any) => void | Promise<void>,
+    env?: Record<string, any>,
 ) => Promise<void>;
 

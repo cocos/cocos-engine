@@ -20,5 +20,8 @@ testEachPort(PORTS_BOTH_DYNAMIC_COMPILED, async (port) => {
         (serialized: typeof value) => {
             expect(serialized.numberOfCalls).toBe(1);
         },
+        {
+            JSB: true,
+        },
     );
 });
