@@ -599,7 +599,7 @@ uint getPhaseID(const String &phase) {
     args.push_back(se::Value(phase));
     se::Value nrResult;
     nrPhase.toObject()->call(args, nullptr, &nrResult);
-    return nrResult.toUint();
+    return nrResult.toUint32();
 }
 } // namespace pipeline
 } // namespace cc

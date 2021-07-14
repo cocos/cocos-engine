@@ -67,9 +67,7 @@ bool js_gfx_Device_copyBuffersToTexture(se::State &s) { // NOLINT(readability-id
                             assert(false);
                         }
                     } else {
-                        unsigned long address = 0; //NOLINT(google-runtime-int)
-                        seval_to_ulong(value, &address);
-                        ptr = reinterpret_cast<uint8_t *>(address);
+                        ptr = reinterpret_cast<uint8_t *>(value.asPtr());
                     }
 
                     arg0[i] = ptr;
@@ -111,12 +109,11 @@ bool js_gfx_Device_copyTexImagesToTexture(se::State &s) { // NOLINT(readability-
             for (uint32_t i = 0; i < length; ++i) {
                 if (dataObj->getArrayElement(i, &value)) {
                     if (value.isObject()) {
-
-                        uint8_t *        address    = nullptr;
+                        uint8_t *address = nullptr;
                         value.toObject()->getTypedArrayData(&address, &dataLength);
                         arg0[i] = address;
                     } else {
-                        arg0[i] = reinterpret_cast<uint8_t *>(value.toUIntptr_t());
+                        arg0[i] = reinterpret_cast<uint8_t *>(value.asPtr());
                     }
                 }
             }

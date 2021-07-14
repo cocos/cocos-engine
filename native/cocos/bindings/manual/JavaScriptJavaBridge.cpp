@@ -437,7 +437,7 @@ bool JavaScriptJavaBridge::convertReturnValue(ReturnValue retValue, ValueType ty
             ret->setInt32(retValue.intValue);
             break;
         case JavaScriptJavaBridge::ValueType::LONG:
-            ret->setLong(retValue.longValue); //NOLINT(bugprone-narrowing-conversions)
+            ret->setDouble(static_cast<double>(retValue.longValue));
             break;
         case JavaScriptJavaBridge::ValueType::FLOAT:
             ret->setFloat(retValue.floatValue);

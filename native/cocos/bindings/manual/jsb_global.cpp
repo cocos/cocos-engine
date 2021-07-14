@@ -493,7 +493,7 @@ static bool getOrCreatePlainObject_r(const char *name, se::Object *parent, se::O
 static bool js_performance_now(se::State &s) { //NOLINT
     auto now   = std::chrono::steady_clock::now();
     auto micro = std::chrono::duration_cast<std::chrono::microseconds>(now - se::ScriptEngine::getInstance()->getStartTime()).count();
-    s.rval().setNumber(static_cast<double>(micro) * 0.001);
+    s.rval().setDouble(static_cast<double>(micro) * 0.001);
     return true;
 }
 SE_BIND_FUNC(js_performance_now)
@@ -626,7 +626,7 @@ bool jsb_global_load_image(const std::string &path, const se::Value &callbackVal
 
                 if (loadSucceed) {
                     se::HandleObject retObj(se::Object::createPlainObject());
-                    dataVal.setUIntptr_t(reinterpret_cast<uintptr_t>(imgInfo->data));
+                    dataVal.setUint64(reinterpret_cast<uintptr_t>(imgInfo->data));
                     retObj->setProperty("data", dataVal);
                     retObj->setProperty("width", se::Value(imgInfo->width));
                     retObj->setProperty("height", se::Value(imgInfo->height));
@@ -698,7 +698,7 @@ static bool js_destroyImage(se::State &s) { //NOLINT
     size_t         argc = args.size();
     CC_UNUSED bool ok   = true;
     if (argc == 1) {
-        auto *data = reinterpret_cast<char *>(args[0].toUIntptr_t());
+        auto *data = reinterpret_cast<char *>(args[0].asPtr());
         SE_PRECONDITION2(ok, false, "js_destroyImage : Error processing arguments");
         free(data);
         return true;

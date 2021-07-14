@@ -126,7 +126,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
                     int val = arg.toInt32();
                     [invocation setArgument:&val atIndex:i];
                 } else if (argumentType == @encode(long)) {
-                    long val = arg.toLong();
+                    long val = static_cast<long>(arg.toDouble());
                     [invocation setArgument:&val atIndex:i];
                 } else if (argumentType == @encode(short)) {
                     short val = arg.toInt16();
@@ -135,7 +135,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
                     unsigned int val = arg.toUint32();
                     [invocation setArgument:&val atIndex:i];
                 } else if (argumentType == @encode(unsigned long)) {
-                    unsigned long val = arg.toUlong();
+                    unsigned long val = static_cast<unsigned long>(arg.toDouble());
                     [invocation setArgument:&val atIndex:i];
                 } else if (argumentType == @encode(unsigned short)) {
                     unsigned short val = arg.toUint16();
@@ -144,7 +144,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
                     float val = arg.toFloat();
                     [invocation setArgument:&val atIndex:i];
                 } else if (argumentType == @encode(double)) {
-                    double val = arg.toNumber();
+                    double val = arg.toDouble();
                     [invocation setArgument:&val atIndex:i];
                 } else if (argumentType == @encode(char)) {
                     char val = arg.toInt8();
@@ -153,7 +153,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
                     unsigned char val = arg.toUint8();
                     [invocation setArgument:&val atIndex:i];
                 } else if (argumentType == "@") { // NSNumber*
-                    NSNumber *number = [NSNumber numberWithDouble:arg.toNumber()];
+                    NSNumber *number = [NSNumber numberWithDouble:arg.toDouble()];
                     [invocation setArgument:&number atIndex:i];
                 } else {
                     NSLog(@"Unsupported argument type: %s", argumentType.c_str());
@@ -201,7 +201,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
             } else if (returnType == @encode(long)) {
                 long ret;
                 [invocation getReturnValue:&ret];
-                rval.setLong(ret);
+                rval.setDouble(static_cast<long>(ret));
             } else if (returnType == @encode(short)) {
                 short ret;
                 [invocation getReturnValue:&ret];
@@ -213,7 +213,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
             } else if (returnType == @encode(unsigned long)) {
                 unsigned long ret;
                 [invocation getReturnValue:&ret];
-                rval.setUlong(ret);
+                rval.setDouble(static_cast<double>(ret));
             } else if (returnType == @encode(unsigned short)) {
                 unsigned short ret;
                 [invocation getReturnValue:&ret];
@@ -225,7 +225,7 @@ bool JavaScriptObjCBridge::CallInfo::execute(const se::ValueArray &argv, se::Val
             } else if (returnType == @encode(double)) {
                 double ret;
                 [invocation getReturnValue:&ret];
-                rval.setNumber(ret);
+                rval.setDouble(ret);
             } else if (returnType == @encode(char)) {
                 int8_t ret;
                 [invocation getReturnValue:&ret];
@@ -260,7 +260,7 @@ se::Value JavaScriptObjCBridge::CallInfo::objc_to_seval(id objcVal) {
         if (numberType == @encode(BOOL) || numberType == @encode(bool)) {
             ret.setBoolean([number boolValue]);
         } else if (numberType == @encode(int) || numberType == @encode(long) || numberType == @encode(short) || numberType == @encode(unsigned int) || numberType == @encode(unsigned long) || numberType == @encode(unsigned short) || numberType == @encode(float) || numberType == @encode(double) || numberType == @encode(char) || numberType == @encode(unsigned char)) {
-            ret.setNumber([number doubleValue]);
+            ret.setDouble([number doubleValue]);
         } else {
             CC_LOG_ERROR("Unknown number type: %s", numberType.c_str());
         }

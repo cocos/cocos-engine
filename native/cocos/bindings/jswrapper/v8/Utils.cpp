@@ -59,7 +59,7 @@ void seToJsValue(v8::Isolate *isolate, const Value &v, v8::Local<v8::Value> *out
     assert(outJsVal != nullptr);
     switch (v.getType()) {
         case Value::Type::Number:
-            *outJsVal = v8::Number::New(isolate, v.toNumber());
+            *outJsVal = v8::Number::New(isolate, v.toDouble());
             break;
         case Value::Type::String: {
             v8::MaybeLocal<v8::String> str = v8::String::NewFromUtf8(isolate, v.toString().data(), v8::NewStringType::kNormal, static_cast<int>(v.toString().length()));
@@ -81,7 +81,9 @@ void seToJsValue(v8::Isolate *isolate, const Value &v, v8::Local<v8::Value> *out
         case Value::Type::Undefined:
             *outJsVal = v8::Undefined(isolate);
             break;
-
+        case Value::Type::BigInt:
+            *outJsVal = v8::BigInt::New(isolate, v.toInt64());
+            break;
         default:
             assert(false);
             break;
@@ -99,7 +101,15 @@ void jsToSeValue(v8::Isolate *isolate, v8::Local<v8::Value> jsval, Value *v) {
     } else if (jsval->IsNumber()) {
         v8::MaybeLocal<v8::Number> jsNumber = jsval->ToNumber(isolate->GetCurrentContext());
         if (!jsNumber.IsEmpty()) {
-            v->setNumber(jsNumber.ToLocalChecked()->Value());
+            v->setDouble(jsNumber.ToLocalChecked()->Value());
+        } else {
+            v->setUndefined();
+        }
+    } else if (jsval->IsBigInt()) {
+        v8::MaybeLocal<v8::BigInt> jsBigInt = jsval->ToBigInt(isolate->GetCurrentContext());
+        if (!jsBigInt.IsEmpty()) {
+            auto bigInt = jsBigInt.ToLocalChecked();
+            v->setInt64(bigInt->Int64Value());
         } else {
             v->setUndefined();
         }
@@ -140,7 +150,9 @@ void setReturnValueTemplate(const Value &data, const T &argv) {
     } else if (data.getType() == Value::Type::Null) {
         argv.GetReturnValue().Set(v8::Null(argv.GetIsolate()));
     } else if (data.getType() == Value::Type::Number) {
-        argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), data.toNumber()));
+        argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), data.toDouble()));
+    } else if (data.getType() == Value::Type::BigInt) {
+        argv.GetReturnValue().Set(v8::BigInt::New(argv.GetIsolate(), data.toInt64()));
     } else if (data.getType() == Value::Type::String) {
         v8::MaybeLocal<v8::String> value = v8::String::NewFromUtf8(argv.GetIsolate(), data.toString().c_str(), v8::NewStringType::kNormal);
         assert(!value.IsEmpty());

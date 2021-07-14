@@ -62,20 +62,6 @@ bool seval_to_uint32(const se::Value &v, uint32_t *ret) {
     return false;
 }
 
-bool seval_to_uint(const se::Value &v, unsigned int *ret) {
-    assert(ret != nullptr);
-    if (v.isNumber()) {
-        *ret = v.toUint();
-        return true;
-    }
-    if (v.isBoolean()) {
-        *ret = v.toBoolean() ? 1 : 0;
-        return true;
-    }
-    *ret = 0;
-    return false;
-}
-
 bool seval_to_int8(const se::Value &v, int8_t *ret) {
     assert(ret != nullptr);
     if (v.isNumber()) {
@@ -166,7 +152,7 @@ bool seval_to_float(const se::Value &v, float *ret) {
 
 bool seval_to_double(const se::Value &v, double *ret) {
     if (v.isNumber()) {
-        *ret = v.toNumber();
+        *ret = v.toDouble();
         if (!std::isnan(*ret)) {
             return true;
         }
@@ -175,40 +161,10 @@ bool seval_to_double(const se::Value &v, double *ret) {
     return false;
 }
 
-bool seval_to_long(const se::Value &v, long *ret) {
-    assert(ret != nullptr);
-    if (v.isNumber()) {
-        *ret = v.toLong();
-        return true;
-    }
-    *ret = 0L;
-    return false;
-}
-
-bool seval_to_ulong(const se::Value &v, unsigned long *ret) {
-    assert(ret != nullptr);
-    if (v.isNumber()) {
-        *ret = v.toUlong();
-        return true;
-    }
-    *ret = 0UL;
-    return false;
-}
-
-bool seval_to_longlong(const se::Value &v, long long *ret) {
-    assert(ret != nullptr);
-    if (v.isNumber()) {
-        *ret = static_cast<long long>(v.toLong());
-        return true;
-    }
-    *ret = 0LL;
-    return false;
-}
-
 bool seval_to_size(const se::Value &v, size_t *ret) {
     assert(ret != nullptr);
     if (v.isNumber()) {
-        *ret = static_cast<size_t>(v.toLong());
+        *ret = v.toSize();
         return true;
     }
     *ret = 0;
@@ -277,7 +233,7 @@ bool seval_to_Uint8Array(const se::Value &v, uint8_t *ret) {
 bool seval_to_uintptr_t(const se::Value &v, uintptr_t *ret) {
     assert(ret != nullptr);
     if (v.isNumber()) {
-        *ret = v.toUIntptr_t();
+        *ret = static_cast<uintptr_t>(v.toDouble());
         return true;
     }
     *ret = 0UL;
@@ -321,7 +277,7 @@ bool seval_to_ccvalue(const se::Value &v, cc::Value *ret) {
     } else if (v.isString()) {
         *ret = v.toString();
     } else if (v.isNumber()) {
-        *ret = v.toNumber();
+        *ret = v.toDouble();
     } else if (v.isBoolean()) {
         *ret = v.toBoolean();
     } else if (v.isNullOrUndefined()) {
@@ -727,32 +683,17 @@ bool float_to_seval(float v, se::Value *ret) {
 }
 
 bool double_to_seval(double v, se::Value *ret) {
-    ret->setNumber(v);
-    return true;
-}
-
-bool long_to_seval(long v, se::Value *ret) {
-    ret->setLong(v);
-    return true;
-}
-
-bool ulong_to_seval(unsigned long v, se::Value *ret) {
-    ret->setUlong(v);
-    return true;
-}
-
-bool longlong_to_seval(long long v, se::Value *ret) {
-    ret->setLong(static_cast<long>(v));
+    ret->setDouble(v);
     return true;
 }
 
 bool uintptr_t_to_seval(uintptr_t v, se::Value *ret) {
-    ret->setUIntptr_t(v);
+    ret->setDouble(v);
     return true;
 }
 
 bool size_to_seval(size_t v, se::Value *ret) {
-    ret->setLong(static_cast<unsigned long>(v));
+    ret->setSize(v);
     return true;
 }
 
@@ -842,7 +783,7 @@ bool ccvalue_to_seval(const cc::Value &v, se::Value *ret) {
             break;
         case cc::Value::Type::FLOAT:
         case cc::Value::Type::DOUBLE:
-            ret->setNumber(v.asDouble());
+            ret->setDouble(v.asDouble());
             break;
         case cc::Value::Type::INTEGER:
             ret->setInt32(v.asInt());

@@ -29,4 +29,4 @@ namespace se {
 class Object;
 }
 
-bool register_all_xmlhttprequest(se::Object *global);
+bool register_all_xmlhttprequest(se::Object *global); // NOLINT (readability-identifier-naming)

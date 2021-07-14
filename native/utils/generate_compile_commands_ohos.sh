@@ -20,7 +20,9 @@ cmake -Bbuild \
     -DCMAKE_CXX_FLAGS="-I$ndk_path/llvm/include/c++/v1" \
     -DCMAKE_C_FLAGS="-I$ndk_path/llvm/include/c++/v1" \
     -DCMAKE_MAKE_PROGRAM="$ndk_path/build-tools/cmake/bin/ninja" \
-    -GNinja
+    -GNinja \
+    -DUSE_SOCKET=ON \
+    -DUSE_WEBSOCKET_SERVER=ON
 
     
 

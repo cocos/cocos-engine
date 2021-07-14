@@ -55,9 +55,9 @@ static bool jsb_BufferPool_constructor(se::State &s) { // NOLINT
         uint bytesPerEntry = 0;
 
         bool ok = true;
-        ok &= seval_to_uint(args[0], &poolType);
-        ok &= seval_to_uint(args[1], &entryBits);
-        ok &= seval_to_uint(args[2], &bytesPerEntry);
+        ok &= seval_to_uint32(args[0], &poolType);
+        ok &= seval_to_uint32(args[1], &entryBits);
+        ok &= seval_to_uint32(args[2], &bytesPerEntry);
         if (!ok) {
             SE_REPORT_ERROR("jsb_BufferPool_constructor: argument convertion error");
             return false;
@@ -141,9 +141,9 @@ static bool jsb_BufferAllocator_alloc(se::State &s) { // NOLINT
     size_t      argc = args.size();
     if (argc == 2) {
         uint index = 0;
-        seval_to_uint(args[0], &index);
+        seval_to_uint32(args[0], &index);
         uint bytes = 0;
-        seval_to_uint(args[1], &bytes);
+        seval_to_uint32(args[1], &bytes);
         s.rval().setObject(bufferAllocator->alloc(index, bytes));
         return true;
     }
@@ -161,7 +161,7 @@ static bool jsb_BufferAllocator_free(se::State &s) { // NOLINT
     size_t      argc = args.size();
     if (argc == 1) {
         uint index = 0;
-        seval_to_uint(args[0], &index);
+        seval_to_uint32(args[0], &index);
         bufferAllocator->free(index);
         return true;
     }

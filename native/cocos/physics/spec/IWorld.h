@@ -25,25 +25,25 @@
 
 #pragma once
 
-#include "bindings/manual/jsb_conversions.h"
-#include "base/TypeDef.h"
-#include <memory>
 #include <cstdint>
+#include <memory>
 #include <vector>
+#include "base/TypeDef.h"
+#include "bindings/manual/jsb_conversions.h"
 
 namespace cc {
 namespace physics {
 
 enum class ETouchState : uint8_t {
     ENTER = 0,
-    STAY = 1,
-    EXIT = 2,
+    STAY  = 1,
+    EXIT  = 2,
 };
 
 struct TriggerEventPair {
-    uintptr_t shapeA;
-    uintptr_t shapeB;
-    ETouchState state;
+    uintptr_t                shapeA;
+    uintptr_t                shapeB;
+    ETouchState              state;
     static constexpr uint8_t COUNT = 3;
     TriggerEventPair(const uintptr_t a, const uintptr_t b)
     : shapeA(a),
@@ -52,21 +52,21 @@ struct TriggerEventPair {
 };
 
 struct ContactPoint {
-    Vec3 position;
-    float separation;
-    Vec3 normal;
-    uint32_t internalFaceIndex0;
-    Vec3 impulse;
-    uint32_t internalFaceIndex1;
+    Vec3                     position;
+    float                    separation;
+    Vec3                     normal;
+    uint32_t                 internalFaceIndex0;
+    Vec3                     impulse;
+    uint32_t                 internalFaceIndex1;
     static constexpr uint8_t COUNT = 12;
 };
 
 struct ContactEventPair {
-    uintptr_t shapeA;
-    uintptr_t shapeB;
-    ETouchState state;
+    uintptr_t                 shapeA;
+    uintptr_t                 shapeB;
+    ETouchState               state;
     std::vector<ContactPoint> contacts;
-    static constexpr uint8_t COUNT = 4;
+    static constexpr uint8_t  COUNT = 4;
     ContactEventPair(const uintptr_t a, const uintptr_t b)
     : shapeA(a),
       shapeB(b),
@@ -74,60 +74,61 @@ struct ContactEventPair {
 };
 
 struct ConvexDesc {
-    void *positions;
+    void *   positions;
     uint32_t positionLength;
 };
 
 struct TrimeshDesc : ConvexDesc {
-    void *triangles;
+    void *   triangles;
     uint32_t triangleLength;
-    bool isU16;
+    bool     isU16;
 };
 
 struct HeightFieldDesc {
     uint32_t rows;
     uint32_t columns;
-    void *samples;
+    void *   samples;
 };
 
 struct RaycastOptions {
     cc::Vec3 origin;
-    float distance;
+    float    distance;
     cc::Vec3 unitDir;
     uint32_t mask;
-    bool queryTrigger;
+    bool     queryTrigger;
 };
 
 struct RaycastResult {
     uintptr_t shape{0};
-    cc::Vec3 hitPoint;
-    float distance;
-    cc::Vec3 hitNormal;
+    cc::Vec3  hitPoint;
+    float     distance;
+    cc::Vec3  hitNormal;
     RaycastResult() = default;
 };
 
 class IPhysicsWorld {
 public:
-    virtual ~IPhysicsWorld()= default;;
-    virtual void setGravity(float x, float y, float z) = 0;
-    virtual void setAllowSleep(bool v) = 0;
-    virtual void step(float s) = 0;
-    virtual void emitEvents() = 0;
-    virtual void syncSceneToPhysics() = 0;
-    virtual void syncSceneWithCheck() = 0;
-    virtual void destroy() = 0;
-    virtual void setCollisionMatrix(uint32_t i, uint32_t m) = 0;
-    virtual std::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs() = 0;
-    virtual std::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs() = 0;
-    virtual bool raycast(RaycastOptions &opt) = 0;
-    virtual bool raycastClosest(RaycastOptions &opt) = 0;
-    virtual std::vector<RaycastResult> &raycastResult() = 0;
-    virtual RaycastResult &raycastClosestResult() = 0;
-    virtual uintptr_t createConvex(ConvexDesc &desc) = 0;
-    virtual uintptr_t createTrimesh(TrimeshDesc &desc) = 0;
-    virtual uintptr_t createHeightField(HeightFieldDesc &desc) = 0;
-    virtual uintptr_t createMaterial(uint16_t id, float f, float df, float r,
-                                    uint8_t m0, uint8_t m1) = 0;
+    virtual ~IPhysicsWorld() = default;
+    ;
+    virtual void                                            setGravity(float x, float y, float z)      = 0;
+    virtual void                                            setAllowSleep(bool v)                      = 0;
+    virtual void                                            step(float s)                              = 0;
+    virtual void                                            emitEvents()                               = 0;
+    virtual void                                            syncSceneToPhysics()                       = 0;
+    virtual void                                            syncSceneWithCheck()                       = 0;
+    virtual void                                            destroy()                                  = 0;
+    virtual void                                            setCollisionMatrix(uint32_t i, uint32_t m) = 0;
+    virtual std::vector<std::shared_ptr<TriggerEventPair>> &getTriggerEventPairs()                     = 0;
+    virtual std::vector<std::shared_ptr<ContactEventPair>> &getContactEventPairs()                     = 0;
+    virtual bool                                            raycast(RaycastOptions &opt)               = 0;
+    virtual bool                                            raycastClosest(RaycastOptions &opt)        = 0;
+    virtual std::vector<RaycastResult> &                    raycastResult()                            = 0;
+    virtual RaycastResult &                                 raycastClosestResult()                     = 0;
+    virtual uintptr_t                                       createConvex(ConvexDesc &desc)             = 0;
+    virtual uintptr_t                                       createTrimesh(TrimeshDesc &desc)           = 0;
+    virtual uintptr_t                                       createHeightField(HeightFieldDesc &desc)   = 0;
+    virtual uintptr_t                                       createMaterial(uint16_t id, float f, float df, float r,
+                                                                           uint8_t m0, uint8_t m1)     = 0;
 };
 
 } // namespace physics
@@ -138,8 +139,8 @@ inline bool nativevalue_to_se(const std::vector<std::shared_ptr<cc::physics::Tri
     se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::TriggerEventPair::COUNT));
     for (size_t i = 0; i < from.size(); i++) {
         auto t = i * cc::physics::TriggerEventPair::COUNT;
-        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->shapeA));
-        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shapeB));
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(static_cast<double>(from[i]->shapeA)));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(static_cast<double>(from[i]->shapeB)));
         array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
     }
     to.setObject(array);
@@ -148,10 +149,10 @@ inline bool nativevalue_to_se(const std::vector<std::shared_ptr<cc::physics::Tri
 
 template <>
 inline bool nativevalue_to_se(const std::vector<cc::physics::ContactPoint> &from, se::Value &to, se::Object * /*ctx*/) {
-    const auto contactCount = from.size();
+    const auto       contactCount = from.size();
     se::HandleObject array(se::Object::createArrayObject(contactCount));
     for (size_t i = 0; i < contactCount; i++) {
-        auto t = i * cc::physics::ContactPoint::COUNT;
+        auto     t = i * cc::physics::ContactPoint::COUNT;
         uint32_t j = 0;
         array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].position.x));
         array->setArrayElement(static_cast<uint>(t + j++), se::Value(from[i].position.y));
@@ -175,8 +176,8 @@ inline bool nativevalue_to_se(const std::vector<std::shared_ptr<cc::physics::Con
     se::HandleObject array(se::Object::createArrayObject(from.size() * cc::physics::ContactEventPair::COUNT));
     for (size_t i = 0; i < from.size(); i++) {
         auto t = i * cc::physics::ContactEventPair::COUNT;
-        array->setArrayElement(static_cast<uint>(t + 0), se::Value(from[i]->shapeA));
-        array->setArrayElement(static_cast<uint>(t + 1), se::Value(from[i]->shapeB));
+        array->setArrayElement(static_cast<uint>(t + 0), se::Value(static_cast<double>(from[i]->shapeA)));
+        array->setArrayElement(static_cast<uint>(t + 1), se::Value(static_cast<double>(from[i]->shapeB)));
         array->setArrayElement(static_cast<uint>(t + 2), se::Value(static_cast<uint8_t>(from[i]->state)));
         array->setArrayElement(static_cast<uint>(t + 3), [&]() -> se::Value {
             auto obj = se::Value();
@@ -191,7 +192,7 @@ inline bool nativevalue_to_se(const std::vector<std::shared_ptr<cc::physics::Con
 template <>
 inline bool nativevalue_to_se(const cc::physics::RaycastResult &from, se::Value &to, se::Object *ctx) {
     se::HandleObject obj(se::Object::createPlainObject());
-    obj->setProperty("shape", se::Value(from.shape));
+    obj->setProperty("shape", se::Value(static_cast<double>(from.shape)));
     obj->setProperty("distance", se::Value(from.distance));
     se::Value tmp;
     if (nativevalue_to_se(from.hitPoint, tmp, ctx)) obj->setProperty("hitPoint", tmp);
@@ -204,14 +205,14 @@ template <>
 inline bool sevalue_to_native(const se::Value &from, cc::physics::ConvexDesc *to, se::Object *ctx) {
     assert(from.isObject());
     se::Object *json = from.toObject();
-    auto *data = static_cast<cc::physics::ConvexDesc *>(json->getPrivateData());
+    auto *      data = static_cast<cc::physics::ConvexDesc *>(json->getPrivateData());
     if (data) {
         *to = *data;
         return true;
     }
 
     se::Value field;
-    bool ok = true;
+    bool      ok = true;
 
     json->getProperty("positionLength", &field);
     if (!field.isNullOrUndefined()) ok &= sevalue_to_native(field, &to->positionLength, ctx);
@@ -241,13 +242,13 @@ inline bool sevalue_to_native(const se::Value &from, cc::physics::TrimeshDesc *t
 
     assert(from.isObject());
     se::Object *json = from.toObject();
-    auto *data = static_cast<cc::physics::TrimeshDesc *>(json->getPrivateData());
+    auto *      data = static_cast<cc::physics::TrimeshDesc *>(json->getPrivateData());
     if (data) {
         *to = *data;
         return true;
     }
     se::Value field;
-    bool ok = true;
+    bool      ok = true;
 
     json->getProperty("triangleLength", &field);
     if (!field.isNullOrUndefined()) ok &= sevalue_to_native(field, &(to->triangleLength), ctx);
@@ -277,14 +278,14 @@ template <>
 inline bool sevalue_to_native(const se::Value &from, cc::physics::HeightFieldDesc *to, se::Object *ctx) {
     assert(from.isObject());
     se::Object *json = from.toObject();
-    auto *data = static_cast<cc::physics::HeightFieldDesc *>(json->getPrivateData());
+    auto *      data = static_cast<cc::physics::HeightFieldDesc *>(json->getPrivateData());
     if (data) {
         *to = *data;
         return true;
     }
 
     se::Value field;
-    bool ok = true;
+    bool      ok = true;
 
     json->getProperty("rows", &field);
     if (!field.isNullOrUndefined()) ok &= sevalue_to_native(field, &to->rows, ctx);
@@ -313,14 +314,14 @@ template <>
 inline bool sevalue_to_native(const se::Value &from, cc::physics::RaycastOptions *to, se::Object *ctx) {
     assert(from.isObject());
     se::Object *json = from.toObject();
-    auto *data = static_cast<cc::physics::RaycastOptions *>(json->getPrivateData());
+    auto *      data = static_cast<cc::physics::RaycastOptions *>(json->getPrivateData());
     if (data) {
         *to = *data;
         return true;
     }
 
     se::Value field;
-    bool ok = true;
+    bool      ok = true;
 
     json->getProperty("origin", &field);
     if (!field.isNullOrUndefined()) ok &= sevalue_to_native(field, &to->origin, ctx);

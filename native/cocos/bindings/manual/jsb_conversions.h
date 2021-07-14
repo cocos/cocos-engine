@@ -161,7 +161,6 @@ struct InputAssemblerInfo;
 // se value -> native value
 bool seval_to_int32(const se::Value &v, int32_t *ret);                                   // NOLINT(readability-identifier-naming)
 bool seval_to_uint32(const se::Value &v, uint32_t *ret);                                 // NOLINT(readability-identifier-naming)
-bool seval_to_uint(const se::Value &v, unsigned int *ret);                               // NOLINT(readability-identifier-naming)
 bool seval_to_int8(const se::Value &v, int8_t *ret);                                     // NOLINT(readability-identifier-naming)
 bool seval_to_uint8(const se::Value &v, uint8_t *ret);                                   // NOLINT(readability-identifier-naming)
 bool seval_to_int16(const se::Value &v, int16_t *ret);                                   // NOLINT(readability-identifier-naming)
@@ -169,9 +168,6 @@ bool seval_to_uint16(const se::Value &v, uint16_t *ret);                        
 bool seval_to_boolean(const se::Value &v, bool *ret);                                    // NOLINT(readability-identifier-naming)
 bool seval_to_float(const se::Value &v, float *ret);                                     // NOLINT(readability-identifier-naming)
 bool seval_to_double(const se::Value &v, double *ret);                                   // NOLINT(readability-identifier-naming)
-bool seval_to_long(const se::Value &v, long *ret);                                       // NOLINT(readability-identifier-naming)
-bool seval_to_ulong(const se::Value &v, unsigned long *ret);                             // NOLINT(readability-identifier-naming)
-bool seval_to_longlong(const se::Value &v, long long *ret);                              // NOLINT(readability-identifier-naming)
 bool seval_to_size(const se::Value &v, size_t *ret);                                     // NOLINT(readability-identifier-naming)
 bool seval_to_std_string(const se::Value &v, std::string *ret);                          // NOLINT(readability-identifier-naming)
 bool seval_to_Vec2(const se::Value &v, cc::Vec2 *pt);                                    // NOLINT(readability-identifier-naming)
@@ -884,7 +880,7 @@ inline bool sevalue_to_native(const se::Value &from, std::string *to, se::Object
 ///// integers
 template <>
 inline bool sevalue_to_native(const se::Value &from, bool *to, se::Object * /*ctx*/) {
-    *to = from.isNullOrUndefined() ? false : (from.isNumber() ? from.toNumber() != 0 : from.toBoolean());
+    *to = from.isNullOrUndefined() ? false : (from.isNumber() ? from.toDouble() != 0 : from.toBoolean());
     return true;
 }
 
@@ -923,20 +919,20 @@ inline bool sevalue_to_native(const se::Value &from, uint8_t *to, se::Object * /
 
 template <>
 inline bool sevalue_to_native(const se::Value &from, uint64_t *to, se::Object * /*ctx*/) {
-    *to = from.toUIntptr_t();
+    *to = from.toUint64();
     return true;
 }
 
 template <>
 inline bool sevalue_to_native(const se::Value &from, int64_t *to, se::Object * /*ctx*/) {
-    *to = static_cast<int64_t>(from.toNumber());
+    *to = from.toInt64();
     return true;
 }
 
 #if CC_PLATFORM == CC_PLATFORM_MAC_IOS || CC_PLATFORM == CC_PLATFORM_MAC_OSX
 template <>
-inline bool sevalue_to_native(const se::Value &from, uintptr_t *to, se::Object *ctx) {
-    *to = (uintptr_t)from.toNumber();
+inline bool sevalue_to_native(const se::Value &from, unsigned long *to, se::Object * /*ctx*/) {
+    *to = static_cast<unsigned long>(from.toDouble());
     return true;
 }
 #endif
@@ -947,7 +943,7 @@ inline bool sevalue_to_native(const se::Value &from, float *to, se::Object * /*c
     return true;
 }
 inline bool sevalue_to_native(const se::Value &from, double *to, se::Object * /*unused*/) {
-    *to = from.toNumber();
+    *to = from.toDouble();
     return true;
 }
 
@@ -1037,13 +1033,13 @@ sevalue_to_native(const se::Value &from, T to, se::Object * /*ctx*/) { // NOLINT
     } else if CC_CONSTEXPR (std::is_arithmetic<Value>::value) {
         se::Object *array = from.toObject();
         if (array->isTypedArray()) {
-            uint8_t* data = nullptr;
+            uint8_t *data = nullptr;
             array->getTypedArrayData(&data, nullptr);
-            *to = reinterpret_cast<Value*>(data);
+            *to = reinterpret_cast<Value *>(data);
         } else if (array->isArrayBuffer()) {
-            uint8_t* data = nullptr;
+            uint8_t *data = nullptr;
             array->getArrayBufferData(&data, nullptr);
-            *to = reinterpret_cast<Value*>(data);
+            *to = reinterpret_cast<Value *>(data);
         } else {
             assert(false);
             return false;
@@ -1316,8 +1312,11 @@ inline bool nativevalue_to_se(const T &from, se::Value &to, se::Object *ctx) { /
         return native_ptr_to_seval(from, &to);
     } else if CC_CONSTEXPR (is_jsb_object_v<T>) {
         return native_ptr_to_seval(from, &to);
+    } else if CC_CONSTEXPR (std::is_same<T, int64_t>::value || std::is_same<T, uint64_t>::value) {
+        to.setInt64(static_cast<int64_t>(from));
+        return true;
     } else if CC_CONSTEXPR (std::is_arithmetic<T>::value) {
-        to.setNumber(static_cast<double>(from));
+        to.setDouble(static_cast<double>(from));
         return true;
     } else {
         return nativevalue_to_se<typename std::conditional_t<std::is_const<T>::value, T, typename std::add_const<T>::type>>(from, to, ctx);
@@ -1421,13 +1420,13 @@ inline bool nativevalue_to_se(const std::array<float, N> &from, se::Value &to, s
 
 template <>
 inline bool nativevalue_to_se(const int64_t &from, se::Value &to, se::Object * /*ctx*/) {
-    to.setLong(static_cast<long>(from));
+    to.setInt64(from);
     return true;
 }
 
 template <>
 inline bool nativevalue_to_se(const uint64_t &from, se::Value &to, se::Object * /*ctx*/) {
-    to.setUlong(static_cast<unsigned long>(from));
+    to.setUint64(from);
     return true;
 }
 
@@ -1464,18 +1463,6 @@ inline bool nativevalue_to_se(const uint8_t &from, se::Value &to, se::Object * /
     to.setUint8(from);
     return true;
 }
-
-#if CC_PLATFORM == CC_PLATFORM_WINDOWS
-template <>
-inline bool nativevalue_to_se(const long &from, se::Value &to, se::Object *ctx) {
-    if (sizeof(long) == 4) {
-        to.setInt32(from);
-    } else {
-        to.setNumber(static_cast<double>(from));
-    }
-    return true;
-}
-#endif
 
 template <>
 inline bool nativevalue_to_se(const std::string &from, se::Value &to, se::Object * /*ctx*/) {
