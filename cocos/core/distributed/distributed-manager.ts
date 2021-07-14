@@ -29,12 +29,12 @@
  */
 
 import { js } from '../utils/js';
-import { CCObject } from './object';
+import { CCObject } from '../data/object';
 import { Component } from '../components/component';
 import { BaseNode } from '../scene-graph/base-node';
 import { Node } from '../scene-graph/node';
 import { Prefab } from '../assets/prefab';
-import { instantiate } from './instantiate';
+import { instantiate } from '../data/instantiate';
 import { legacyCC } from '../global-exports';
 import { EventTarget } from '../event/event-target';
 

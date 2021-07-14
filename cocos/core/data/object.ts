@@ -34,7 +34,7 @@ import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
-import { DistributedManager } from './distributed-manager';
+import { DistributedManager } from '../distributed/distributed-manager';
 
 // definitions for CCObject.Flags
 

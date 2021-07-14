@@ -28,5 +28,6 @@
  * @module core/distributed
  */
 
-export * from './decorators/distributed-property';
+export * from './distributed-manager';
 export * from './distribute-system';
+export * from './decorators/distributed-property';
