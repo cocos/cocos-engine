@@ -2189,33 +2189,6 @@ static bool js_scene_Shadow_set_shadowMapDirty(se::State& s) // NOLINT(readabili
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_shadowMapDirty)
 
-static bool js_scene_Shadow_get_selfShadow(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_selfShadow : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->selfShadow, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->selfShadow, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_Shadow_get_selfShadow)
-
-static bool js_scene_Shadow_set_selfShadow(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Shadow_set_selfShadow : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->selfShadow, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_Shadow_set_selfShadow : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_Shadow_set_selfShadow)
-
 static bool js_scene_Shadow_get_autoAdapt(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2405,33 +2378,6 @@ static bool js_scene_Shadow_set_farValue(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_farValue)
 
-static bool js_scene_Shadow_get_aspect(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_aspect : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->aspect, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->aspect, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_Shadow_get_aspect)
-
-static bool js_scene_Shadow_set_aspect(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Shadow_set_aspect : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->aspect, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_Shadow_set_aspect : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_Shadow_set_aspect)
-
 static bool js_scene_Shadow_get_pcfType(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2486,60 +2432,6 @@ static bool js_scene_Shadow_set_bias(se::State& s) // NOLINT(readability-identif
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_bias)
 
-static bool js_scene_Shadow_get_packing(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_packing : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->packing, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->packing, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_Shadow_get_packing)
-
-static bool js_scene_Shadow_set_packing(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Shadow_set_packing : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->packing, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_Shadow_set_packing : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_Shadow_set_packing)
-
-static bool js_scene_Shadow_get_linear(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_linear : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    se::Value jsret;
-    ok &= nativevalue_to_se(cobj->linear, jsret, s.thisObject() /*ctx*/);
-    s.rval() = jsret;
-    SE_HOLD_RETURN_VALUE(cobj->linear, s.thisObject(), s.rval());
-    return true;
-}
-SE_BIND_PROP_GET(js_scene_Shadow_get_linear)
-
-static bool js_scene_Shadow_set_linear(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    const auto& args = s.args();
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Shadow_set_linear : Invalid Native Object");
-
-    CC_UNUSED bool ok = true;
-    ok &= sevalue_to_native(args[0], &cobj->linear, s.thisObject());
-    SE_PRECONDITION2(ok, false, "js_scene_Shadow_set_linear : Error processing new value");
-    return true;
-}
-SE_BIND_PROP_SET(js_scene_Shadow_set_linear)
-
 static bool js_scene_Shadow_get_normalBias(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
@@ -2566,6 +2458,33 @@ static bool js_scene_Shadow_set_normalBias(se::State& s) // NOLINT(readability-i
     return true;
 }
 SE_BIND_PROP_SET(js_scene_Shadow_set_normalBias)
+
+static bool js_scene_Shadow_get_saturation(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Shadow_get_saturation : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    se::Value jsret;
+    ok &= nativevalue_to_se(cobj->saturation, jsret, s.thisObject() /*ctx*/);
+    s.rval() = jsret;
+    SE_HOLD_RETURN_VALUE(cobj->saturation, s.thisObject(), s.rval());
+    return true;
+}
+SE_BIND_PROP_GET(js_scene_Shadow_get_saturation)
+
+static bool js_scene_Shadow_set_saturation(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    const auto& args = s.args();
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Shadow>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Shadow_set_saturation : Invalid Native Object");
+
+    CC_UNUSED bool ok = true;
+    ok &= sevalue_to_native(args[0], &cobj->saturation, s.thisObject());
+    SE_PRECONDITION2(ok, false, "js_scene_Shadow_set_saturation : Error processing new value");
+    return true;
+}
+SE_BIND_PROP_SET(js_scene_Shadow_set_saturation)
 
 static bool js_scene_Shadow_get_orthoSize(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -2727,10 +2646,6 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Shadow * to, se::Object
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->shadowMapDirty), ctx);
     }
-    json->getProperty("selfShadow", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->selfShadow), ctx);
-    }
     json->getProperty("autoAdapt", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->autoAdapt), ctx);
@@ -2759,10 +2674,6 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Shadow * to, se::Object
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->farValue), ctx);
     }
-    json->getProperty("aspect", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->aspect), ctx);
-    }
     json->getProperty("pcfType", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->pcfType), ctx);
@@ -2771,17 +2682,13 @@ bool sevalue_to_native(const se::Value &from, cc::scene::Shadow * to, se::Object
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->bias), ctx);
     }
-    json->getProperty("packing", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->packing), ctx);
-    }
-    json->getProperty("linear", &field);
-    if(!field.isNullOrUndefined()) {
-        ok &= sevalue_to_native(field, &(to->linear), ctx);
-    }
     json->getProperty("normalBias", &field);
     if(!field.isNullOrUndefined()) {
         ok &= sevalue_to_native(field, &(to->normalBias), ctx);
+    }
+    json->getProperty("saturation", &field);
+    if(!field.isNullOrUndefined()) {
+        ok &= sevalue_to_native(field, &(to->saturation), ctx);
     }
     json->getProperty("orthoSize", &field);
     if(!field.isNullOrUndefined()) {
@@ -2851,61 +2758,52 @@ static bool js_scene_Shadow_constructor(se::State& s) // NOLINT(readability-iden
         ok &= sevalue_to_native(args[2], &(cobj->shadowMapDirty), nullptr);
     }
     if (argc > 3 && !args[3].isUndefined()) {
-        ok &= sevalue_to_native(args[3], &(cobj->selfShadow), nullptr);
+        ok &= sevalue_to_native(args[3], &(cobj->autoAdapt), nullptr);
     }
     if (argc > 4 && !args[4].isUndefined()) {
-        ok &= sevalue_to_native(args[4], &(cobj->autoAdapt), nullptr);
+        ok &= sevalue_to_native(args[4], &(cobj->shadowType), nullptr);
     }
     if (argc > 5 && !args[5].isUndefined()) {
-        ok &= sevalue_to_native(args[5], &(cobj->shadowType), nullptr);
+        ok &= sevalue_to_native(args[5], &(cobj->distance), nullptr);
     }
     if (argc > 6 && !args[6].isUndefined()) {
-        ok &= sevalue_to_native(args[6], &(cobj->distance), nullptr);
+        ok &= sevalue_to_native(args[6], &(cobj->instancePass), nullptr);
     }
     if (argc > 7 && !args[7].isUndefined()) {
-        ok &= sevalue_to_native(args[7], &(cobj->instancePass), nullptr);
+        ok &= sevalue_to_native(args[7], &(cobj->planarPass), nullptr);
     }
     if (argc > 8 && !args[8].isUndefined()) {
-        ok &= sevalue_to_native(args[8], &(cobj->planarPass), nullptr);
+        ok &= sevalue_to_native(args[8], &(cobj->nearValue), nullptr);
     }
     if (argc > 9 && !args[9].isUndefined()) {
-        ok &= sevalue_to_native(args[9], &(cobj->nearValue), nullptr);
+        ok &= sevalue_to_native(args[9], &(cobj->farValue), nullptr);
     }
     if (argc > 10 && !args[10].isUndefined()) {
-        ok &= sevalue_to_native(args[10], &(cobj->farValue), nullptr);
+        ok &= sevalue_to_native(args[10], &(cobj->pcfType), nullptr);
     }
     if (argc > 11 && !args[11].isUndefined()) {
-        ok &= sevalue_to_native(args[11], &(cobj->aspect), nullptr);
+        ok &= sevalue_to_native(args[11], &(cobj->bias), nullptr);
     }
     if (argc > 12 && !args[12].isUndefined()) {
-        ok &= sevalue_to_native(args[12], &(cobj->pcfType), nullptr);
+        ok &= sevalue_to_native(args[12], &(cobj->normalBias), nullptr);
     }
     if (argc > 13 && !args[13].isUndefined()) {
-        ok &= sevalue_to_native(args[13], &(cobj->bias), nullptr);
+        ok &= sevalue_to_native(args[13], &(cobj->saturation), nullptr);
     }
     if (argc > 14 && !args[14].isUndefined()) {
-        ok &= sevalue_to_native(args[14], &(cobj->packing), nullptr);
+        ok &= sevalue_to_native(args[14], &(cobj->orthoSize), nullptr);
     }
     if (argc > 15 && !args[15].isUndefined()) {
-        ok &= sevalue_to_native(args[15], &(cobj->linear), nullptr);
+        ok &= sevalue_to_native(args[15], &(cobj->color), nullptr);
     }
     if (argc > 16 && !args[16].isUndefined()) {
-        ok &= sevalue_to_native(args[16], &(cobj->normalBias), nullptr);
+        ok &= sevalue_to_native(args[16], &(cobj->size), nullptr);
     }
     if (argc > 17 && !args[17].isUndefined()) {
-        ok &= sevalue_to_native(args[17], &(cobj->orthoSize), nullptr);
+        ok &= sevalue_to_native(args[17], &(cobj->normal), nullptr);
     }
     if (argc > 18 && !args[18].isUndefined()) {
-        ok &= sevalue_to_native(args[18], &(cobj->color), nullptr);
-    }
-    if (argc > 19 && !args[19].isUndefined()) {
-        ok &= sevalue_to_native(args[19], &(cobj->size), nullptr);
-    }
-    if (argc > 20 && !args[20].isUndefined()) {
-        ok &= sevalue_to_native(args[20], &(cobj->normal), nullptr);
-    }
-    if (argc > 21 && !args[21].isUndefined()) {
-        ok &= sevalue_to_native(args[21], &(cobj->matLight), nullptr);
+        ok &= sevalue_to_native(args[18], &(cobj->matLight), nullptr);
     }
 
     if(!ok) {
@@ -2942,7 +2840,6 @@ bool js_register_scene_Shadow(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineProperty("enabled", _SE(js_scene_Shadow_get_enabled), _SE(js_scene_Shadow_set_enabled));
     cls->defineProperty("dirty", _SE(js_scene_Shadow_get_dirty), _SE(js_scene_Shadow_set_dirty));
     cls->defineProperty("shadowMapDirty", _SE(js_scene_Shadow_get_shadowMapDirty), _SE(js_scene_Shadow_set_shadowMapDirty));
-    cls->defineProperty("selfShadow", _SE(js_scene_Shadow_get_selfShadow), _SE(js_scene_Shadow_set_selfShadow));
     cls->defineProperty("autoAdapt", _SE(js_scene_Shadow_get_autoAdapt), _SE(js_scene_Shadow_set_autoAdapt));
     cls->defineProperty("shadowType", _SE(js_scene_Shadow_get_shadowType), _SE(js_scene_Shadow_set_shadowType));
     cls->defineProperty("distance", _SE(js_scene_Shadow_get_distance), _SE(js_scene_Shadow_set_distance));
@@ -2950,12 +2847,10 @@ bool js_register_scene_Shadow(se::Object* obj) // NOLINT(readability-identifier-
     cls->defineProperty("planarPass", _SE(js_scene_Shadow_get_planarPass), _SE(js_scene_Shadow_set_planarPass));
     cls->defineProperty("nearValue", _SE(js_scene_Shadow_get_nearValue), _SE(js_scene_Shadow_set_nearValue));
     cls->defineProperty("farValue", _SE(js_scene_Shadow_get_farValue), _SE(js_scene_Shadow_set_farValue));
-    cls->defineProperty("aspect", _SE(js_scene_Shadow_get_aspect), _SE(js_scene_Shadow_set_aspect));
     cls->defineProperty("pcfType", _SE(js_scene_Shadow_get_pcfType), _SE(js_scene_Shadow_set_pcfType));
     cls->defineProperty("bias", _SE(js_scene_Shadow_get_bias), _SE(js_scene_Shadow_set_bias));
-    cls->defineProperty("packing", _SE(js_scene_Shadow_get_packing), _SE(js_scene_Shadow_set_packing));
-    cls->defineProperty("linear", _SE(js_scene_Shadow_get_linear), _SE(js_scene_Shadow_set_linear));
     cls->defineProperty("normalBias", _SE(js_scene_Shadow_get_normalBias), _SE(js_scene_Shadow_set_normalBias));
+    cls->defineProperty("saturation", _SE(js_scene_Shadow_get_saturation), _SE(js_scene_Shadow_set_saturation));
     cls->defineProperty("orthoSize", _SE(js_scene_Shadow_get_orthoSize), _SE(js_scene_Shadow_set_orthoSize));
     cls->defineProperty("color", _SE(js_scene_Shadow_get_color), _SE(js_scene_Shadow_set_color));
     cls->defineProperty("size", _SE(js_scene_Shadow_get_size), _SE(js_scene_Shadow_set_size));
