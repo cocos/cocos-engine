@@ -119,6 +119,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
 
     for (let p = 0; p < props.length; p++) {
         const propName = props[p];
+        // @ts-expect-error 2341
         if ((PREVIEW || (EDITOR && self._ignoreEditorOnly)) && attrs[propName + POSTFIX_EDITOR_ONLY]) {
             continue;   // skip editor only if in preview
         }
@@ -175,6 +176,7 @@ function compileDeserializeJIT (self: _Deserializer, klass: CCClassConstructor<u
         sources.push('}');
     }
     if (legacyCC.js.isChildClassOf(klass, legacyCC._BaseNode) || legacyCC.js.isChildClassOf(klass, legacyCC.Component)) {
+        // @ts-expect-error 2341
         if (PREVIEW || (EDITOR && self._ignoreEditorOnly)) {
             const mayUsedInPersistRoot = js.isChildClassOf(klass, legacyCC.Node);
             if (mayUsedInPersistRoot) {
@@ -272,11 +274,13 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
                 const valueTypeCtor = advancedPropsValueType[i];
                 if (valueTypeCtor) {
                     if (fastMode || prop) {
+                        // @ts-expect-error 2341
                         s._deserializeTypedObject(o[propName] as Record<PropertyKey, unknown>, prop as SerializedGeneralTypedObject, valueTypeCtor);
                     } else {
                         o[propName] = null;
                     }
                 } else if (prop) {
+                    // @ts-expect-error 2341
                     s._deserializeAndAssignField(o, prop, propName);
                 } else {
                     o[propName] = null;
@@ -290,6 +294,7 @@ function compileDeserializeNative (_self: _Deserializer, klass: CCClassConstruct
             // deep copy original serialized data
             o._$erialized = JSON.parse(JSON.stringify(d));
             // parse the serialized data as primitive javascript object, so its __id__ will be dereferenced
+            // @ts-expect-error 2341
             s._fillPlainObject(o._$erialized as Record<PropertyKey, unknown>, d);
         }
     };
@@ -366,7 +371,14 @@ class DeserializerPool extends js.Pool<_Deserializer> {
         }, 1);
     }
 
-    public get (details: Details, classFinder: ClassFinder, reportMissingClass: ReportMissingClass, customEnv: unknown, ignoreEditorOnly: boolean | undefined) {
+    // @ts-expect-error We only use this signature.
+    public get (
+        details: Details,
+        classFinder: ClassFinder,
+        reportMissingClass: ReportMissingClass,
+        customEnv: unknown,
+        ignoreEditorOnly: boolean | undefined,
+    ) {
         const cache = this._get();
         if (cache) {
             cache.reset(details, classFinder, reportMissingClass, customEnv, ignoreEditorOnly);
@@ -651,7 +663,11 @@ class _Deserializer {
         deserialize(this, obj, serialized, klass);
     }
 
-    private _deserializeAndAssignField (obj: Record<PropertyKey, unknown> | unknown[], serializedField: SerializedFieldObjectValue, propName: string) {
+    private _deserializeAndAssignField (
+        obj: Record<PropertyKey, unknown> | unknown[],
+        serializedField: SerializedFieldObjectValue,
+        propName: string,
+    ) {
         const id = (serializedField as Partial<SerializedObjectReference>).__id__;
         if (id) {
             const field = this.deserializedList[id];
@@ -756,6 +772,7 @@ class _Deserializer {
         }
 
         const attrs = Attr.getClassAttrs(klass);
+        // @ts-expect-error 2339
         const fastDefinedProps: string[] = klass.__props__ || Object.keys(instance);    // 遍历 instance，如果具有类型，才不会把 __type__ 也读进来
 
         for (let i = 0; i < fastDefinedProps.length; i++) {
