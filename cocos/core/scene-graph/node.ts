@@ -485,7 +485,7 @@ export class Node extends BaseNode implements CustomSerializable {
 
     public [serializeTag] (serializationOutput: SerializationOutput, context: SerializationContext) {
         if (!EDITOR) {
-            serializationOutput.serializeThis();
+            serializationOutput.writeThis();
             return;
         }
 
@@ -508,14 +508,14 @@ export class Node extends BaseNode implements CustomSerializable {
             // discard props disallow to synchronize
             const isRoot = this._prefab?.root === this;
             if (isRoot) {
-                serializationOutput.property('_objFlags', this._objFlags);
-                serializationOutput.property('_parent', this._parent);
-                serializationOutput.property('_prefab', this._prefab);
+                serializationOutput.writeProperty('_objFlags', this._objFlags);
+                serializationOutput.writeProperty('_parent', this._parent);
+                serializationOutput.writeProperty('_prefab', this._prefab);
             } else {
                 // should not serialize child node of synchronizable prefab
             }
         } else {
-            serializationOutput.serializeThis();
+            serializationOutput.writeThis();
         }
     }
 

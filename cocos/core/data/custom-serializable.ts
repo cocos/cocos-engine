@@ -10,17 +10,17 @@ export interface SerializationInput {
      * @param name Property name.
      * @returns The property's value, after deserialized.
      */
-    property(name: string): unknown;
+    readProperty(name: string): unknown;
 
     /**
      * Deserializes this object according to the original procedure.
      */
-    deserializeThis(): void;
+    readThis(): void;
 
     /**
       * Deserializes super according to the original procedure.
       */
-    deserializeSuper(): void;
+    readSuper(): void;
 }
 
 export interface SerializationOutput {
@@ -29,17 +29,17 @@ export interface SerializationOutput {
      * @param name Property name.
      * @param value Property value.
      */
-    property(name: string, value: unknown): void;
+    writeProperty(name: string, value: unknown): void;
 
     /**
      * Serialize this object according to the original procedure.
      */
-    serializeThis(): void;
+    writeThis(): void;
 
     /**
      * Serialize super according to the original procedure.
      */
-    serializeSuper(): void;
+    writeSuper(): void;
 }
 
 export type SerializationContext = {

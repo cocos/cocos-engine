@@ -612,7 +612,7 @@ class _Deserializer {
         constructor: deserialize.SerializableClassConstructor,
     ) {
         const serializationInput: SerializationInput = {
-            property: (name: string) => {
+            readProperty: (name: string) => {
                 const serializedField = value[name];
                 if (typeof serializedField !== 'object' || !serializedField) {
                     return serializedField as unknown;
@@ -621,11 +621,11 @@ class _Deserializer {
                 }
             },
 
-            deserializeThis: () => {
+            readThis: () => {
                 this._deserializeInto(value, object, constructor, true);
             },
 
-            deserializeSuper: () => {
+            readSuper: () => {
                 const superConstructor = js.getSuper(constructor);
                 if (superConstructor) {
                     this._deserializeInto(value, object, superConstructor);
