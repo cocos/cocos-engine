@@ -27,10 +27,11 @@
 declare const nr: any;
 
 import { getPhaseID } from './pass-phase'
-import { setClassName } from '../../core/utils/js';
+import { setClassName, mixin } from '../../core/utils/js';
 import { PipelineSceneData } from './pipeline-scene-data';
 import { DeferredPipelineSceneData } from './deferred/deferred-pipeline-scene-data';
 import { legacyCC } from '../../core/global-exports';
+import { Asset } from '../assets/asset';
 
 nr.getPhaseID = getPhaseID;
 
@@ -92,8 +93,16 @@ export class ForwardPipeline extends nr.ForwardPipeline {
         super.destroy();
     }
 }
+
+mixin(ForwardPipeline, Asset);
+
+const ForwardOnLoaded = ForwardPipeline.prototype.onLoaded;
+
 // hook to invoke init after deserialization
-ForwardPipeline.prototype.onAfterDeserialize_JSB = ForwardPipeline.prototype.init;
+ForwardPipeline.prototype.onLoaded = function () {
+  if (ForwardOnLoaded) ForwardOnLoaded.call(this);
+  this.init();
+}
 
 export class ForwardFlow extends nr.ForwardFlow {
     constructor() {
@@ -218,8 +227,15 @@ export class DeferredPipeline extends nr.DeferredPipeline {
 
 }
 
+mixin(DeferredPipeline, Asset);
+
+const DeferredOnLoaded = DeferredPipeline.prototype.onLoaded;
+
 // hook to invoke init after deserialization
-DeferredPipeline.prototype.onAfterDeserialize_JSB = DeferredPipeline.prototype.init;
+DeferredPipeline.prototype.onLoaded = function () {
+  if (DeferredOnLoaded) DeferredOnLoaded.call(this);
+  this.init();
+}
 
 export class GbufferFlow extends nr.GbufferFlow {
   constructor() {
