@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @module core/data
+ * @module core/distributed
  */
 
 import { js } from '../utils/js';

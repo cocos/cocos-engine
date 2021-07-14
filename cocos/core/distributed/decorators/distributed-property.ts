@@ -25,7 +25,7 @@
 
 /**
  * @packageDocumentation
- * @module decorator
+ * @module core/distributed
  */
 
  import { SERVER_MODE } from 'internal:constants';
