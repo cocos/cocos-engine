@@ -85,7 +85,7 @@ void PostprocessStage::destroy() {
 void PostprocessStage::render(scene::Camera *camera) {
     auto *pp = dynamic_cast<DeferredPipeline *>(_pipeline);
     assert(pp != nullptr);
-    gfx::CommandBuffer *cmdBf  = pp->getCommandBuffers()[0];
+    gfx::CommandBuffer *cmdBf = pp->getCommandBuffers()[0];
 
     _pipeline->getPipelineUBO()->updateCameraUBO(camera);
     gfx::Rect renderArea = pp->getRenderArea(camera);
@@ -120,33 +120,6 @@ void PostprocessStage::render(scene::Camera *camera) {
         cmdBf->bindPipelineState(pso);
         cmdBf->bindInputAssembler(ia);
         cmdBf->draw(ia);
-    }
-
-    // transparent
-    for (auto *queue : _renderQueues) {
-        queue->clear();
-    }
-
-    uint   m = 0;
-    uint   p = 0;
-    size_t k = 0;
-    for (auto ro : renderObjects) {
-        const auto *const model = ro.model;
-
-        for (auto *subModel : model->getSubModels()) {
-            for (auto *pass : subModel->getPasses()) {
-                // TODO(xwx): need fallback of ulit and gizmo material.
-                if (pass->getPhase() != _phaseID) continue;
-                for (k = 0; k < _renderQueues.size(); k++) {
-                    _renderQueues[k]->insertRenderPass(ro, m, p);
-                }
-            }
-        }
-    }
-
-    for (auto *queue : _renderQueues) {
-        queue->sort();
-        queue->recordCommandBuffer(_device, rp, cmdBf);
     }
 
     _uiPhase->render(camera, rp);

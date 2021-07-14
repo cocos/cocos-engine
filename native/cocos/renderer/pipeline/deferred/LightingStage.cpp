@@ -78,7 +78,8 @@ LightingStage::~LightingStage() {
 bool LightingStage::initialize(const RenderStageInfo &info) {
     RenderStage::initialize(info);
     _renderQueueDescriptors = info.renderQueues;
-    _phaseID                = getPhaseID("deferred");
+    _phaseID                = getPhaseID("default");
+    _defPhaseID             = getPhaseID("deferred");
     _reflectionPhaseID      = getPhaseID("reflection");
     return true;
 }

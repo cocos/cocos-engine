@@ -373,7 +373,7 @@ void DeferredPipeline::generateDeferredRenderData() {
     gfx::TextureInfo info = {
         gfx::TextureType::TEX2D,
         gfx::TextureUsageBit::COLOR_ATTACHMENT | gfx::TextureUsageBit::SAMPLED,
-        gfx::Format::RGBA8,
+        gfx::Format::RGBA16F,
         _width,
         _height,
     };
