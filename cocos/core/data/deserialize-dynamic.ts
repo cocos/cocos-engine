@@ -39,7 +39,7 @@ import MissingScript from '../components/missing-script';
 import { Details } from './deserialize';
 import { Platform } from '../../../pal/system-info/enum-type';
 import { sys } from '../platform/sys';
-import { CustomSerializable, DeserializationContext, deserializeTag, SerializationContext, SerializationInput } from './serialization-symbols';
+import { CustomSerializable, DeserializationContext, deserializeTag, SerializationContext, SerializationInput } from './custom-serializable';
 import type { deserialize, CCClassConstructor } from './deserialize';
 import { CCON } from './ccon';
 import { assertIsTrue } from './utils/asserts';

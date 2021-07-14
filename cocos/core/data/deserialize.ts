@@ -38,7 +38,7 @@ import * as js from '../utils/js';
 import { deserializeDynamic, parseUuidDependenciesDynamic } from './deserialize-dynamic';
 import { Asset } from '../assets/asset';
 
-import { deserializeTag } from './serialization-symbols';
+import { deserializeTag } from './custom-serializable';
 import type { CCON } from './ccon';
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 import type { CompiledDeserializeFn } from './deserialize-dynamic';
