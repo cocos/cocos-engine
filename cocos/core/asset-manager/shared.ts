@@ -117,6 +117,8 @@ export enum RequestType {
     URL = 'url',
 
     SCENE = 'scene',
+
+    BUNDLE = 'bundle',
 }
 
 export const presets: Record<string, Record<string, any>> = {
