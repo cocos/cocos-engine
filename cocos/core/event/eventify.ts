@@ -31,7 +31,7 @@
 import { CallbacksInvoker } from './callbacks-invoker';
 import { createMap } from '../utils/js';
 
-type Constructor<T = {}> = new (...args: any[]) => T;
+type Constructor<T> = new (...args: any[]) => T;
 
 type EventType = string | number;
 
