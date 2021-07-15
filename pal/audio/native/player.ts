@@ -199,7 +199,7 @@ export class AudioPlayer implements OperationQueueable {
     play (): Promise<void> {
         return new Promise((resolve) => {
             if (this._isValid) {
-                if (this._state === AudioState.PAUSED) {
+                if (this._state === AudioState.PAUSED || this._state === AudioState.INTERRUPTED) {
                     audioEngine.resume(this._id);
                 } else if (this._state === AudioState.PLAYING) {
                     audioEngine.pause(this._id);
