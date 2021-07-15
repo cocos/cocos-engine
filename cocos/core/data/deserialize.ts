@@ -517,7 +517,6 @@ interface IOptions extends Partial<ICustomHandler> {
     _version?: number;
 }
 interface ICustomClass {
-    [deserializeTag]?: (content: any, context: ICustomHandler) => void;
     _deserialize?: (content: any, context: ICustomHandler) => void;
 }
 
@@ -690,9 +689,8 @@ function deserializeCCObject (data: IFileData, objectData: IClassObjectData) {
 
 function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, value: ICustomObjectDataContent) {
     const obj = new ctor();
-    const customDeserialize = obj[deserializeTag] ?? obj._deserialize;
-    if (customDeserialize) {
-        customDeserialize(value, data[File.Context]);
+    if (obj._deserialize) {
+        obj._deserialize(value, data[File.Context]);
     } else {
         errorID(5303, js.getClassName(ctor));
     }
