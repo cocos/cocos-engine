@@ -28,7 +28,7 @@
  * @module core/data
  */
 
-import { SUPPORT_JIT, EDITOR, TEST, DEBUG } from 'internal:constants';
+import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
@@ -47,7 +47,6 @@ const DontDestroy = 1 << 6;
 const Destroying = 1 << 7;
 const Deactivating = 1 << 8;
 const LockedInEditor = 1 << 9;
-// var HideInGame = 1 << 9;
 const HideInHierarchy = 1 << 10;
 
 const IsOnEnableCalled = 1 << 11;
@@ -62,6 +61,10 @@ const IsScaleLocked = 1 << 18;
 const IsAnchorLocked = 1 << 19;
 const IsSizeLocked = 1 << 20;
 const IsPositionLocked = 1 << 21;
+
+// Distributed
+const IsReplicated = 1 << 22;
+const IsClientLoad = 1 << 23;
 
 // var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
@@ -238,6 +241,17 @@ class CCObject implements EditorExtendableObject {
     }
     public get hideFlags () {
         return this._objFlags & CCObject.Flags.AllHideMasks;
+    }
+
+    public set replicated (value: boolean) {
+        if (value) {
+            this._objFlags |= IsReplicated;
+        } else {
+            this._objFlags &= ~IsReplicated;
+        }
+    }
+    public get replicated () {
+        return !!(this._objFlags & IsReplicated);
     }
 
     /**
@@ -582,6 +596,9 @@ declare namespace CCObject {
         IsScaleLocked,
         IsAnchorLocked,
         IsSizeLocked,
+
+        IsReplicated,
+        IsClientLoad,
     }
 
     // for @ccclass

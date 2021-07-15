@@ -7,5 +7,9 @@
     ".json"
   ],
   "subMetas": {},
-  "userData": {}
+  "userData": {
+    "editor": {
+      "hide": true
+    }
+  }
 }
