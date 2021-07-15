@@ -747,8 +747,6 @@ export class ParticleSystem2D extends Renderable2D {
     private declare _plistFile;
     private declare _tiffReader;
 
-    private _dict: any = null;
-
     constructor () {
         super();
         this.initProperties();
@@ -1009,8 +1007,6 @@ export class ParticleSystem2D extends Renderable2D {
 
     // parsing process
     public _initWithDictionary (dict: any) {
-        this._dict = dict;
-
         this.totalParticles = parseInt(dict.maxParticles || 0);
 
         // life span
