@@ -61,7 +61,7 @@ import {
     QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy,
 } from '../base/define';
 import {
-    GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer,
+    GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGL2CmdFuncBlitFramebuffer, WebGL2CmdFuncCopyTextureToBuffers,
     WebGL2CmdFuncCopyBuffersToTexture, WebGL2CmdFuncCopyTexImagesToTexture,
 } from './webgl2-commands';
 import { GlobalBarrier } from '../base/global-barrier';
@@ -595,6 +595,15 @@ export class WebGL2Device extends Device {
             buffers,
             (texture as WebGL2Texture).gpuTexture,
             regions,
+        );
+    }
+
+    public copyTextureToBuffers(texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {
+        WebGL2CmdFuncCopyTextureToBuffers(
+            this,
+            (texture as WebGL2Texture).gpuTexture,
+            buffers,
+            regions
         );
     }
 

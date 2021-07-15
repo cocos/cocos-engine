@@ -2666,6 +2666,44 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     }
 }
 
+export function WebGL2CmdFuncCopyTextureToBuffers (
+    device: WebGL2Device,
+    gpuTexture: IWebGL2GPUTexture,
+    buffers: ArrayBufferView[],
+    regions: BufferTextureCopy[],
+) {
+    const { gl } = device;
+    const cache = device.stateCache;
+
+    let framebuffer= gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    let x = 0;
+    let y = 0;
+    let w = 1;
+    let h = 1;
+
+    switch (gpuTexture.glTarget) {
+        case gl.TEXTURE_2D: {
+            for (let k = 0; k < regions.length; k++) {
+                const region = regions[k];
+                gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gpuTexture.glTarget, gpuTexture.glTexture, region.texSubres.mipLevel);
+                x = region.texOffset.x;
+                y = region.texOffset.y;
+                w = region.texExtent.width;
+                h = region.texExtent.height;
+                gl.readPixels(x, y, w, h, gpuTexture.glFormat, gpuTexture.glType, buffers[k]);
+            }
+            break;
+        }
+        default: {
+            console.error('Unsupported GL texture type, copy texture to buffers failed.');
+        }
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    cache.glFramebuffer = null;
+    gl.deleteFramebuffer(framebuffer);
+}
+
 export function WebGL2CmdFuncBlitFramebuffer (
     device: WebGL2Device,
     src: IWebGL2GPUFramebuffer,

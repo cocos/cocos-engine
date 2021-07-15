@@ -63,7 +63,7 @@ import {
     QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy, Rect,
 } from '../base/define';
 import {
-    GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
+    GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTextureToBuffers,
     WebGLCmdFuncCopyTexImagesToTexture,
 } from './webgl-commands';
 import { GlobalBarrier } from '../base/global-barrier';
@@ -728,6 +728,15 @@ export class WebGLDevice extends Device {
             buffers,
             (texture as WebGLTexture).gpuTexture,
             regions,
+        );
+    }
+
+    public copyTextureToBuffers(texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {
+        WebGLCmdFuncCopyTextureToBuffers(
+            this,
+            (texture as WebGLTexture).gpuTexture,
+            buffers,
+            regions
         );
     }
 

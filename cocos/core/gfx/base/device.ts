@@ -369,6 +369,16 @@ export abstract class Device {
     public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void;
 
     /**
+     * 
+     * @en Copy texture to buffers
+     * @zh 拷贝纹理到缓冲
+     * @param texture The texture to be copied.
+     * @param buffers The buffer to copy to.
+     * @param regions The region descriptions
+     */
+    public abstract copyTextureToBuffers(texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]): void;
+
+    /**
      * @en Copy texture images to texture.
      * @zh 拷贝图像到纹理。
      * @param texImages The texture to be copied.
