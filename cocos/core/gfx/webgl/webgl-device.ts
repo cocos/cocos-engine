@@ -731,12 +731,12 @@ export class WebGLDevice extends Device {
         );
     }
 
-    public copyTextureToBuffers(texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {
+    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {
         WebGLCmdFuncCopyTextureToBuffers(
             this,
             (texture as WebGLTexture).gpuTexture,
             buffers,
-            regions
+            regions,
         );
     }
 

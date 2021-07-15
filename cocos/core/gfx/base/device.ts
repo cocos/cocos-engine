@@ -369,7 +369,7 @@ export abstract class Device {
     public abstract copyBuffersToTexture (buffers: ArrayBufferView[], texture: Texture, regions: BufferTextureCopy[]): void;
 
     /**
-     * 
+     *
      * @en Copy texture to buffers
      * @zh 拷贝纹理到缓冲
      * @param texture The texture to be copied.
