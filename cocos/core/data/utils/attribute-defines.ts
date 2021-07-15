@@ -24,7 +24,7 @@
  */
 
 type GroupOptions = { name: string; } & Partial<{
-    key: string;
+    id: string;
     name: string;
     displayOrder: number;
     style: string;
