@@ -37,15 +37,17 @@ import { Pool } from '../memop';
 import { IRenderObject, UBOShadow } from './define';
 import { ShadowType, Shadows } from '../renderer/scene/shadows';
 import { SphereLight, DirectionalLight, Light } from '../renderer/scene';
+import { max, min } from '../math/bits';
 
 const _tempVec3 = new Vec3();
 const _dir_negate = new Vec3();
 const _vec3_p = new Vec3();
 const _mat4_trans = new Mat4();
-const _castWorldBounds = new AABB();
-let _castBoundsInited = false;
 const _validLights: Light[] = [];
 const _sphere = Sphere.create(0, 0, 0, 1);
+const _vec3_near = new Vec3();
+const _vec3_far = new Vec3();
+const frustumVertexes: Vec3[] = [];
 
 const roPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
 const shadowPool = new Pool<IRenderObject>(() => ({ model: null!, depth: 0 }), 128);
@@ -72,19 +74,6 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
     ro.model = model;
     ro.depth = depth;
     return ro;
-}
-
-export function getShadowWorldMatrix (pipeline: RenderPipeline, rotation: Quat, dir: Vec3, out: Vec3) {
-    const shadows = pipeline.pipelineSceneData.shadows;
-    Vec3.negate(_dir_negate, dir);
-    const distance: number = shadows.sphere.radius * Shadows.COEFFICIENT_OF_EXPANSION;
-    Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
-    Vec3.add(_vec3_p, _vec3_p, shadows.sphere.center);
-    out.set(_vec3_p);
-
-    Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
-
-    return _mat4_trans;
 }
 
 function updateSphereLight (pipeline: RenderPipeline, light: SphereLight) {
@@ -191,20 +180,12 @@ export function lightCollecting (camera: Camera, lightNumber: number) {
     return _validLights;
 }
 
-export function preDirLightCulling (pipeline: RenderPipeline, camera: Camera) {
-    const scene = camera.scene!;
-    const mainLight = scene.mainLight!;
-    const models = scene.models;
-    const sceneData = pipeline.pipelineSceneData;
-    const shadows = sceneData.shadows;
-    const cameraBoundingSphere = shadows.cameraBoundingSphere;
-
-    if (mainLight) {
-        mainLight.update();
-        if (shadows.enabled && mainLight.dirDirty) {
-            Frustum.toBoundingSphere(cameraBoundingSphere, cameraBoundingSphere, camera.frustum);
-        }
-    }
+export function updateDirFrustum (cameraBoundingSphere: Sphere, rotation: Quat, range: number, dirLightFrustum: Frustum) {
+    const position = cameraBoundingSphere.center;
+    const radius = cameraBoundingSphere.radius;
+    const radius_2x = radius * 2.0;
+    Mat4.fromRT(_mat4_trans, rotation, position);
+    Frustum.createOrtho(dirLightFrustum, radius_2x, radius_2x, -range, radius, _mat4_trans);
 }
 
 export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
@@ -213,17 +194,35 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
     const sceneData = pipeline.pipelineSceneData;
     const shadows = sceneData.shadows;
     const skybox = sceneData.skybox;
+    const dirLightFrustum = shadows.dirLightFrustum;
 
     const renderObjects = sceneData.renderObjects;
     roPool.freeArray(renderObjects); renderObjects.length = 0;
 
     let shadowObjects: IRenderObject[] | null = null;
-    _castBoundsInited = false;
     if (shadows.enabled) {
         pipeline.pipelineUBO.updateShadowUBORange(UBOShadow.SHADOW_COLOR_OFFSET, shadows.shadowColor);
         if (shadows.type === ShadowType.ShadowMap) {
             shadowObjects = pipeline.pipelineSceneData.shadowObjects;
             shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
+
+            // update dirLightFrustum
+            // but not every time
+            if (mainLight && mainLight.node) {
+                cameraToFrustumVertexes(camera, frustumVertexes);
+                const rotation = mainLight.node.getWorldRotation();
+                const range = shadows.range;
+                const cameraBoundingSphere = shadows.cameraBoundingSphere;
+                if (mainLight.dirDirty) {
+                    Sphere.fromPointArray(cameraBoundingSphere, cameraBoundingSphere, frustumVertexes);
+                    updateDirFrustum(cameraBoundingSphere, rotation, range, dirLightFrustum);
+                    mainLight.dirDirty = false;
+                } else if (shadows.rangeDirty) {
+                    Sphere.fromPointArray(cameraBoundingSphere, cameraBoundingSphere, frustumVertexes);
+                    updateDirFrustum(cameraBoundingSphere, rotation, range, dirLightFrustum);
+                    shadows.rangeDirty = false;
+                }
+            }
         }
     }
 
@@ -249,12 +248,10 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
                 || (visibility & model.visFlags)) {
                 // shadow render Object
                 if (shadowObjects != null && model.castShadow && model.worldBounds) {
-                    if (!_castBoundsInited) {
-                        _castWorldBounds.copy(model.worldBounds);
-                        _castBoundsInited = true;
+                    // frustum culling
+                    if (!intersect.aabbFrustum(model.worldBounds, dirLightFrustum)) {
+                        shadowObjects.push(getCastShadowRenderObject(model, camera));
                     }
-                    AABB.merge(_castWorldBounds, _castWorldBounds, model.worldBounds);
-                    shadowObjects.push(getCastShadowRenderObject(model, camera));
                 }
                 // frustum culling
                 if (model.worldBounds && !intersect.aabbFrustum(model.worldBounds, camera.frustum)) {
@@ -265,5 +262,38 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             }
         }
     }
-    if (_castWorldBounds) { AABB.toBoundingSphere(shadows.sphere, _castWorldBounds); }
+}
+
+export function cameraToFrustumVertexes (camera: Camera, frustumVertexes: Vec3[]) {
+    const nearZ = max(camera.nearClip, 0.0);
+    const farZ = min(camera.farClip, 50.0);
+    const halfViewSize = Math.tan(camera.fov * (Math.PI / 360.0));
+    const transform = camera.node.getWorldMatrix();
+
+    _vec3_near.z = nearZ;
+    _vec3_near.y = _vec3_near.z * halfViewSize;
+    _vec3_near.x = _vec3_near.y * camera.aspect;
+
+    _vec3_far.z = farZ;
+    _vec3_far.y = _vec3_far.z * halfViewSize;
+    _vec3_far.x = _vec3_far.y * camera.aspect;
+
+    getFrustumVertexes(frustumVertexes, _vec3_near, _vec3_far, transform);
+}
+
+const _vec3_Tmp = new Vec3();
+export function getFrustumVertexes (frustumVertexes: Vec3[], near: Vec3, far: Vec3, transform: Mat4) {
+    frustumVertexes.length = 0;
+    for (let i = 0; i < 8; i++) {
+        frustumVertexes.push(_vec3_Tmp);
+    }
+
+    Vec3.transformMat4(frustumVertexes[0], near, transform);
+    Vec3.transformMat4(frustumVertexes[1], _vec3_Tmp.set(near.x, -near.y, near.z), transform);
+    Vec3.transformMat4(frustumVertexes[2], _vec3_Tmp.set(-near.x, -near.y, near.z), transform);
+    Vec3.transformMat4(frustumVertexes[3], _vec3_Tmp.set(-near.x, near.y, near.z), transform);
+    Vec3.transformMat4(frustumVertexes[4], far, transform);
+    Vec3.transformMat4(frustumVertexes[5], _vec3_Tmp.set(far.x, -far.y, far.z), transform);
+    Vec3.transformMat4(frustumVertexes[6], _vec3_Tmp.set(-far.x, -far.y, far.z), transform);
+    Vec3.transformMat4(frustumVertexes[7], _vec3_Tmp.set(-far.x, far.y, far.z), transform);
 }

@@ -87,26 +87,31 @@ export class RenderShadowMapBatchedQueue {
         this.clear();
         const shadowInfo = this._pipeline.pipelineSceneData.shadows;
         const shadowObjects = this._pipeline.pipelineSceneData.shadowObjects;
+        const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
             this._pipeline.pipelineUBO.updateShadowUBOLight(light);
 
-            for (let i = 0; i < shadowObjects.length; i++) {
-                const ro = shadowObjects[i];
-                const model = ro.model;
-                if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
-
-                switch (light.type) {
-                case LightType.DIRECTIONAL:
+            switch (light.type) {
+            case LightType.DIRECTIONAL:
+                for (let i = 0; i < shadowObjects.length; i++) {
+                    const ro = shadowObjects[i];
+                    const model = ro.model;
+                    if (!getShadowPassIndex(model.subModels, _shadowPassIndices)) { continue; }
                     this.add(model, cmdBuff, _shadowPassIndices);
-                    break;
-                case LightType.SPOT:
-                    if ((model.worldBounds
-                                && (!intersect.aabbWithAABB(model.worldBounds, (light as SpotLight).aabb)
-                                    || !intersect.aabbFrustum(model.worldBounds, (light as SpotLight).frustum)))) continue;
-                    this.add(model, cmdBuff, _shadowPassIndices);
-                    break;
-                default:
                 }
+                break;
+            case LightType.SPOT:
+                for (let i = 0; i < renderObjects.length; i++) {
+                    const ro = renderObjects[i];
+                    const model = ro.model;
+                    if (!getShadowPassIndex(model.subModels, _shadowPassIndices) || !model.castShadow) { continue; }
+                    if ((model.worldBounds
+                            && (!intersect.aabbWithAABB(model.worldBounds, (light as SpotLight).aabb)
+                                || !intersect.aabbFrustum(model.worldBounds, (light as SpotLight).frustum)))) continue;
+                    this.add(model, cmdBuff, _shadowPassIndices);
+                }
+                break;
+            default:
             }
         }
     }

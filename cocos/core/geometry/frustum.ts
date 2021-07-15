@@ -61,10 +61,6 @@ export class Frustum {
         this._type = b ? enums.SHAPE_FRUSTUM_ACCURATE : enums.SHAPE_FRUSTUM;
     }
 
-    static toBoundingSphere (out: Sphere, s: Sphere, a: Readonly<Frustum>) {
-        Sphere.fromPointArray(out, s, a.vertices);
-    }
-
     /**
      * @en
      * Create a ortho frustum.

@@ -387,11 +387,11 @@ export class Shadows {
      * @en get or set shadow frustum.
      * @zh 获取或者设置阴影相机的视景体.
      */
-    public get mainLightFrustum (): Frustum {
-        return this._mainLightFrustum;
+    public get dirLightFrustum (): Frustum {
+        return this._dirLightFrustum;
     }
-    public set mainLightFrustum (val: Frustum) {
-        this._mainLightFrustum = val;
+    public set dirLightFrustum (val: Frustum) {
+        this._dirLightFrustum = val;
     }
 
     public get instancingMaterial (): Material {
@@ -404,12 +404,6 @@ export class Shadows {
     public set cameraBoundingSphere (val: Sphere) {
         this._cameraBoundingSphere = val;
     }
-
-    /**
-     * @en The bounding sphere of the shadow map.
-     * @zh 用于计算阴影 Shadow map 的场景包围球.
-     */
-    public sphere: Sphere = new Sphere(0.0, 0.0, 0.0, 0.01);
 
     /**
      * @en get or set shadow max received.
@@ -437,11 +431,11 @@ export class Shadows {
     protected _normalBias = 0;
     protected _autoAdapt = true;
     protected _saturation = 0.75;
-    protected _mainLightFrustum: Frustum;
     protected declare _nativeObj: NativeShadow | null;
 
     // local
     protected _cameraBoundingSphere: Sphere = new Sphere();
+    protected _dirLightFrustum: Frustum = new Frustum();
 
     get native (): NativeShadow {
         return this._nativeObj!;
@@ -451,8 +445,6 @@ export class Shadows {
         if (JSB) {
             this._nativeObj = new NativeShadow();
         }
-
-        this._mainLightFrustum = new Frustum();
     }
 
     public getPlanarShader (patches: IMacroPatch[] | null): Shader | null {
@@ -571,8 +563,6 @@ export class Shadows {
         if (this._instancingMaterial) {
             this._instancingMaterial.destroy();
         }
-
-        this.sphere.destroy();
     }
 }
 
