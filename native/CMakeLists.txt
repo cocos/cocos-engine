@@ -2065,6 +2065,7 @@ if(APPLE)
         "-framework Metal"
         "-framework MetalKit"
         "-framework QuartzCore"
+        "-framework MetalPerformanceShaders"
         "-lsqlite3"
         "-framework Security"
         "-framework SystemConfiguration"
@@ -2086,6 +2087,7 @@ if(APPLE)
     elseif(IOS)
         target_link_libraries(cocos2d PUBLIC
             "-framework QuartzCore"
+            "-framework MetalPerformanceShaders"
             "-framework UIKit"
             "-framework AVKit"
             "-framework WebKit"

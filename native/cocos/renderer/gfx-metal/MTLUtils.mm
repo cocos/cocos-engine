@@ -34,6 +34,7 @@
 #include "StandAlone/ResourceLimits.h"
 #include "glslang/SPIRV/GlslangToSpv.h"
 #include "spirv_cross/spirv_msl.hpp"
+#include "TargetConditionals.h"
 
 namespace cc {
 namespace gfx {
@@ -101,14 +102,13 @@ const vector<unsigned int> GLSL2SPIRV(ShaderStageFlagBit type, const String &sou
     shader.setEnvClient(glslang::EShClientVulkan, clientVersion);
     shader.setEnvTarget(glslang::EShTargetSpv, targetVersion);
 
-    EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+    EShMessages messages = EShMsgRelaxedErrors;
 
     if (!shader.parse(&glslang::DefaultTBuiltInResource, clientInputSemanticsVersion, false, messages)) {
         CC_LOG_ERROR("GLSL Parsing Failed:\n%s\n%s", shader.getInfoLog(), shader.getInfoDebugLog());
         CC_LOG_ERROR("%s", string);
         return spirv;
     }
-
     glslang::TProgram program;
     program.addShader(&shader);
 
@@ -797,17 +797,16 @@ MTLTextureUsage mu::toMTLTextureUsage(TextureUsage usage) {
 
     MTLTextureUsage ret = MTLTextureUsageUnknown;
     if (hasFlag(usage, TextureUsage::TRANSFER_SRC))
-        ret |= MTLTextureUsageShaderRead | MTLTextureUsagePixelFormatView;
+        ret |= MTLTextureUsageShaderRead;
     if (hasFlag(usage, TextureUsage::TRANSFER_DST))
         ret |= MTLTextureUsageShaderWrite;
-    if (hasFlag(usage, TextureUsage::SAMPLED))
+    if (hasFlag(usage, TextureUsage::SAMPLED) || hasFlag(usage, TextureUsageBit::INPUT_ATTACHMENT))
         ret |= MTLTextureUsageShaderRead;
     if (hasFlag(usage, TextureUsage::STORAGE))
         ret |= MTLTextureUsageShaderWrite;
     if (hasFlag(usage, TextureUsage::COLOR_ATTACHMENT) ||
-        hasFlag(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT) ||
-        hasFlag(usage, TextureUsage::INPUT_ATTACHMENT)) {
-        ret |= MTLTextureUsageRenderTarget;
+        hasFlag(usage, TextureUsage::DEPTH_STENCIL_ATTACHMENT)) {
+        ret |= MTLTextureUsageRenderTarget | MTLTextureUsageShaderWrite;
     }
 
     return ret;
@@ -881,6 +880,26 @@ MTLSamplerMipFilter mu::toMTLSamplerMipFilter(Filter filter) {
     }
 }
 
+bool mu::isImageBlockSupported() {
+    //implicit imageblocks
+    if(!mu::isFramebufferFetchSupported()) {
+        return false;
+    }
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) || TARGET_CPU_ARM64
+    return true;
+#else
+    return false;
+#endif
+}
+
+bool mu::isFramebufferFetchSupported() {
+#if (CC_PLATFORM == CC_PLATFORM_MAC_IOS) || TARGET_CPU_ARM64
+    return true;
+#else
+    return false;
+#endif
+}
+
 String mu::compileGLSLShader2Msl(const String &src,
                                  ShaderStageFlagBit shaderType,
                                  Device *device,
@@ -891,7 +910,7 @@ String mu::compileGLSLShader2Msl(const String &src,
     const auto &spv = GLSL2SPIRV(shaderType, shaderSource);
     if (spv.size() == 0)
         return "";
-
+    
     spirv_cross::CompilerMSL msl(std::move(spv));
 
     // The SPIR-V is now parsed, and we can perform reflection on it.
@@ -901,6 +920,24 @@ String mu::compileGLSLShader2Msl(const String &src,
     auto active = msl.get_active_interface_variables();
     spirv_cross::ShaderResources resources = msl.get_shader_resources(active);
     msl.set_enabled_interface_variables(std::move(active));
+    
+    // Set some options.
+    spirv_cross::CompilerMSL::Options options;
+    options.enable_decoration_binding = true;
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+    options.platform = spirv_cross::CompilerMSL::Options::Platform::macOS;
+#elif (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
+    options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
+#endif
+    options.emulate_subgroups = true;
+    options.pad_fragment_output_components = true;
+    if(isFramebufferFetchSupported()) {
+        options.use_framebuffer_fetch_subpasses = true;
+#if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)
+        options.set_msl_version(2, 3, 0);
+#endif
+    }
+    msl.set_msl_options(options);
 
     // TODO: bindings from shader just kind of validation, cannot be directly input
     // Get all uniform buffers in the shader.
@@ -988,18 +1025,45 @@ String mu::compileGLSLShader2Msl(const String &src,
             samplerIndex++;
         }
     }
-    // Set some options.
-    spirv_cross::CompilerMSL::Options options;
-    //    options.set_msl_version(2, 0);
-    #if (CC_PLATFORM == CC_PLATFORM_MAC_IOS)
-    options.platform = spirv_cross::CompilerMSL::Options::Platform::iOS;
-    #else
-    options.platform = spirv_cross::CompilerMSL::Options::Platform::macOS;
-    #endif
-    msl.set_msl_options(options);
+    
+    if(executionModel == spv::ExecutionModelFragment) {
+        gpuShader->outputs.resize(resources.stage_outputs.size());
+        for(size_t i = 0; i < resources.stage_outputs.size(); i++) {
+            const auto& stageOutput = resources.stage_outputs[i];
+            auto set = msl.get_decoration(stageOutput.id, spv::DecorationDescriptorSet);
+            auto attachmentIndex = static_cast<uint32_t>(i);
+            msl.set_decoration(stageOutput.id, spv::DecorationLocation, attachmentIndex);
+            gpuShader->outputs[i].name = stageOutput.name;
+            gpuShader->outputs[i].set = set;
+            gpuShader->outputs[i].binding = attachmentIndex;
+        }
+        
+        if(!resources.subpass_inputs.empty()) {
+            gpuShader->inputs.resize(resources.subpass_inputs.size());
+            for(size_t i = 0; i < resources.subpass_inputs.size(); i++) {
+                const auto& attachment = resources.subpass_inputs[i];
+                gpuShader->inputs[i].name = attachment.name;
+                auto set = msl.get_decoration(attachment.id, spv::DecorationDescriptorSet);
+                auto index = msl.get_decoration(attachment.id, spv::DecorationInputAttachmentIndex);
+                msl.set_decoration(attachment.id, spv::DecorationBinding,index);
+                gpuShader->inputs[i].binding = index;
+                gpuShader->inputs[i].set = set;
+            }
+        }
+    }
 
     // Compile to MSL, ready to give to metal driver.
     String output = msl.compile();
+    if(executionModel == spv::ExecutionModelFragment) {
+        // add custom function constant to achieve delay binding for color attachment.
+        auto customCodingPos = output.find("using namespace metal;");
+        int32_t maxIndex = static_cast<int32_t>(resources.stage_outputs.size() - 1);
+        for(int i = maxIndex; i >=0; --i) {
+            String indexStr = std::to_string(i);
+            output.insert(customCodingPos, "\nconstant int indexOffset" + indexStr + " [[ function_constant(" + indexStr + ") ]];\n");
+            output.replace(output.find("color(" + indexStr + ")"), 8, "color(indexOffset" + indexStr + ")");
+        }
+    }
     if (!output.size()) {
         CC_LOG_ERROR("Compile to MSL failed.");
         CC_LOG_ERROR("%s", shaderSource.c_str());

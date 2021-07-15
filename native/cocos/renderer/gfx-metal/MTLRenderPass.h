@@ -46,11 +46,16 @@ public:
     inline MTLRenderPassDescriptor *getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }
     inline uint getColorRenderTargetNums() const { return _colorRenderTargetNums; }
     inline const vector<Vec2> &getRenderTargetSizes() const { return _renderTargetSizes; }
+    inline void nextSubpass() { _currentSubpassIndex++; }
+    inline uint getCurrentSubpassIndex() { return _currentSubpassIndex; }
+    inline void reset() { _currentSubpassIndex = 0; }
 
 protected:
     void doInit(const RenderPassInfo &info) override;
     void doDestroy() override;
 
+    uint _outputAttachmentOffset = 0;
+    uint _currentSubpassIndex = 0;
     MTLRenderPassDescriptor *_mtlRenderPassDescriptor = nil;
     uint _colorRenderTargetNums = 0;
     vector<Vec2> _renderTargetSizes;

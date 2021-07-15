@@ -104,6 +104,12 @@ protected:
     id<MTLParallelRenderCommandEncoder> _parallelEncoder = nil;
     CCMTLInputAssembler *_inputAssembler = nullptr;
     MTLPrimitiveType _mtlPrimitiveType = MTLPrimitiveType::MTLPrimitiveTypeTriangle;
+    
+    //state cache
+    RenderPass *_curRenderPass = nullptr;
+    Framebuffer *_curFBO = nullptr;
+    uint _curSubpassIndex = 0;
+    
 };
 
 } // namespace gfx

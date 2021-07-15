@@ -45,21 +45,24 @@ public:
     CCMTLPipelineState &operator=(CCMTLPipelineState &&)=delete;
 
     inline CCMTLGPUPipelineState *getGPUPipelineState() const { return _GPUPipelineState; }
+    
+    void check();
 
 protected:
     void doInit(const PipelineStateInfo &info) override;
     void doDestroy() override;
 
+    bool initRenderPipeline();
     bool createMTLDepthStencilState();
     bool createGPUPipelineState();
     bool createMTLComputePipelineState();
     bool createMTLRenderPipelineState();
     void setVertexDescriptor(MTLRenderPipelineDescriptor *);
-    void setMTLFunctions(MTLRenderPipelineDescriptor *);
-    void setFormats(MTLRenderPipelineDescriptor *);
+    void setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *);
     void setBlendStates(MTLRenderPipelineDescriptor *);
     bool createMTLRenderPipeline(MTLRenderPipelineDescriptor *);
 
+    bool _renderPipelineReady = false;
     id<MTLRenderPipelineState> _mtlRenderPipelineState = nil;
     id<MTLDepthStencilState> _mtlDepthStencilState = nil;
     id<MTLComputePipelineState> _mtlComputePipeline = nil;

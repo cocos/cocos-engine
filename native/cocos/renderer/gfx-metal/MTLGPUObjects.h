@@ -82,10 +82,19 @@ struct CCMTLGPUSamplerBlock {
     uint count = 0;
 };
 
+struct CCMTLGPUSubpassAttachment {
+    String name;
+    uint set = INVALID_BINDING;
+    uint binding = INVALID_BINDING;
+};
+
 class CCMTLGPUShader : public Object {
 public:
     unordered_map<uint, CCMTLGPUUniformBlock> blocks;
     unordered_map<uint, CCMTLGPUSamplerBlock> samplers;
+    
+    vector<CCMTLGPUSubpassAttachment> inputs;
+    vector<CCMTLGPUSubpassAttachment> outputs;
 };
 
 struct CCMTLGPUPipelineState {
