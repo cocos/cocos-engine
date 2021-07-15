@@ -45,21 +45,84 @@ enum EventType {
     COMPONENT_REMOVE,
     PROPERTY_CHANGE,
     PREFAB_INSTANTIATE,
+    SERVER_OBJECT_CREATE,
+    SERVER_COMPONENT_ADD,
+    SERVER_PROPERTY_CHANGE,
+    RPC,
+    BROADCAST_RPC,
+    END,
+}
+
+enum ValueType {
+    UUID,
+    OBJECT
+}
+
+export class ValueCapsule {
+    public static ValueType = ValueType;
+    public type = ValueType.OBJECT;
+    public value: any = undefined;
 }
 
 export class DistributedManager extends EventTarget {
     public static EventType = EventType;
 
+    /**
+     * @zh 开启事件队列，开启后所有事件会被推入队列中，直到 [[flushEvents]] 被调用才会真正派发事件
+     * @en Enable event queue, after enabled, all events will be pushed into an internal queue,
+     * events will only be emitted until [[flushEvents]] invoked.
+     */
+    public get enableEventQueue () {
+        return this._enableEventQueue;
+    }
+    public set enableEventQueue (enabled: boolean) {
+        this._enableEventQueue = enabled;
+        // flush previous queue messages
+        if (!enabled) {
+            this.flushEvents();
+        }
+    }
+
     private _objectMap = new Map<string, CCObject>();
+    private _enableEventQueue = false;
+    private _queue = new Array<Array<any>>();
+
+    private _enqueue (...args) {
+        const eventType = args[0];
+        if (!isNaN(eventType) && eventType >= 0 && eventType < EventType.END) {
+            // TODO: potential memory leak, check compiled js code
+            this._queue.push(args);
+        }
+    }
+
+    /**
+     * @zh 派发所有事件队列中的事件
+     * @en Emit all events in the event queue
+     */
+    public flushEvents () {
+        let entry;
+        for (let i = 0, l = this._queue.length; i < l; ++i) {
+            entry = this._queue[i];
+            // Emit support maximum 5 arguments
+            this.emit(entry[0], entry[1], entry[2], entry[3], entry[4], entry[5]);
+        }
+        this._queue.length = 0;
+    }
 
     /**
      * @zh 触发对象创建事件
      * @en Fire object create event
      */
-    fireObjectCreateEvent (obj: CCObject) {
+    public fireObjectCreateEvent (obj: CCObject, fromServer: boolean = false) {
         if (!this._objectMap.has(obj.uuid)) {
             this._objectMap.set(obj.uuid, obj);
-            this.emit(EventType.OBJECT_CREATE, obj);
+            const eventType = fromServer ? EventType.SERVER_OBJECT_CREATE : EventType.OBJECT_CREATE;
+            if (this.enableEventQueue) {
+                this._enqueue(eventType, obj);
+            }
+            else {
+                this.emit(eventType, obj);
+            }
         }
     }
 
@@ -67,18 +130,28 @@ export class DistributedManager extends EventTarget {
      * @zh 触发预制件实例化事件
      * @en Fire prefab inst event
      */
-    firePrefabInstantiate (obj: BaseNode, prefab: Prefab) {
-        this.emit(EventType.PREFAB_INSTANTIATE, obj, prefab);
+    public firePrefabInstantiate (obj: BaseNode, prefab: Prefab) {
+        if (this.enableEventQueue) {
+            this._enqueue(EventType.PREFAB_INSTANTIATE, obj, prefab);
+        }
+        else {
+            this.emit(EventType.PREFAB_INSTANTIATE, obj, prefab);
+        }
     }
 
     /**
      * @zh 触发对象删除事件
      * @en Fire destroy object event
      */
-    fireObjectDestroyEvent (obj: CCObject) {
+    public fireObjectDestroyEvent (obj: CCObject) {
         if (this._objectMap.has(obj.uuid)) {
             this._objectMap.delete(obj.uuid);
-            this.emit(EventType.OBJECT_DESTROY, obj);
+            if (this.enableEventQueue) {
+                this._enqueue(EventType.OBJECT_DESTROY, obj);
+            }
+            else {
+                this.emit(EventType.OBJECT_DESTROY, obj);
+            }
         }
     }
 
@@ -86,24 +159,68 @@ export class DistributedManager extends EventTarget {
      * @zh 触发添加组件事件
      * @en Fire add component event
      */
-    fireAddComponentEvent (node: BaseNode, cp: Component) {
-        this.emit(EventType.COMPONENT_ADD, node, cp);
+    public fireAddComponentEvent (node: BaseNode, cp: Component, fromServer: boolean = false) {
+        const eventType = fromServer ? EventType.SERVER_COMPONENT_ADD : EventType.COMPONENT_ADD;
+        if (this.enableEventQueue) {
+            this._enqueue(eventType, node, cp);
+        }
+        else {
+            this.emit(eventType, node, cp);
+        }
     }
 
     /**
      * @zh 触发移除组件事件
      * @en Fire remove component event
      */
-    fireRemoveComponentEvent (node: BaseNode, cp: Component) {
-        this.emit(EventType.COMPONENT_ADD, node, cp);
+    public fireRemoveComponentEvent (node: BaseNode, cp: Component) {
+        if (this.enableEventQueue) {
+            this._enqueue(EventType.COMPONENT_ADD, node, cp);
+        }
+        else {
+            this.emit(EventType.COMPONENT_ADD, node, cp);
+        }
     }
 
     /**
      * @zh 触发属性变更事件
      * @en Fire property change event
      */
-    firePropertyChangedEvent (obj: CCObject, name: string) {
-        this.emit(EventType.PROPERTY_CHANGE, obj, name);
+    public firePropertyChangedEvent (obj: CCObject, name: string, value?: any, fromServer: boolean = false) {
+        const eventType = fromServer ? EventType.SERVER_PROPERTY_CHANGE : EventType.PROPERTY_CHANGE;
+        let capsule;
+        if (value) {
+            capsule = new ValueCapsule();
+            // Value with uuid being set from server, need to be synced to client
+            if (fromServer && value instanceof CCObject && value.replicated) {
+                capsule.type = ValueType.UUID;
+                capsule.value = value.uuid;
+            }
+            else {
+                capsule.type = ValueType.OBJECT;
+                capsule.value = value;
+            }
+        }
+        if (this.enableEventQueue) {
+            this._enqueue(eventType, obj, name, capsule);
+        }
+        else {
+            this.emit(eventType, obj, name, capsule);
+        }
+    }
+
+    /**
+     * Remote procedure call event
+     */
+    public fireRPCEvent (obj: CCObject, method: string, ...params: any[]) {
+        if (obj.replicated) {
+            if (this.enableEventQueue) {
+                this._enqueue(EventType.RPC, obj.uuid, method, ...params);
+            }
+            else {
+                this.emit(EventType.RPC, obj.uuid, method, ...params);
+            }
+        }
     }
 
     /**
@@ -289,7 +406,7 @@ export class DistributedManager extends EventTarget {
         // @ts-ignore
         obj[name] = value;
 
-        this.firePropertyChangedEvent(obj, name);
+        this.firePropertyChangedEvent(obj, name, value);
 
         return true;
     }

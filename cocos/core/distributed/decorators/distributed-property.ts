@@ -29,8 +29,7 @@
  */
 
  import { SERVER_MODE } from 'internal:constants';
-import { director } from '../../director';
-import { DistributeEventSystem } from '../distribute-system';
+import { CCObject, distributedManager } from '../../data/object';
 
 export enum ReplicateType {
     SERVER_ONLY,
@@ -39,10 +38,9 @@ export enum ReplicateType {
     ALL_CLIENTS,
 }
 
-function onServerSet (target: any, key: string, value: any) {
+function onServerSet (target: CCObject, key: string, value: any) {
     if (target.replicated) {
-        const sys = director.getSystem(DistributeEventSystem.ID) as DistributeEventSystem;
-        sys.enqueueEvent('property-update', target, key, value);
+        distributedManager.firePropertyChangedEvent(target, key, value, true);
     }
 }
 
