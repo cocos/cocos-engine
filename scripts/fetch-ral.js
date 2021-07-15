@@ -10,6 +10,31 @@ function join (...paths) {
 }
 let ralPath = join(__dirname, 'runtime-web-adapter-for-creator-3');
 
+function checkCache () {
+    console.log('Checking ral cache...\n');
+    const distDir = join(__dirname, '../platforms/runtime');
+    // check web adapter
+    const webAdapters = ['web-adapter.js', 'web-adapter.min.js'];
+    for (const webAdapter of webAdapters) {
+        const dst = join(distDir, 'common', webAdapter);
+        if (!fs.existsSync(dst)) {
+            return false;
+        }
+    }
+    // check ral
+    const platformNames = ['cocos-play', 'huawei-quick-game', 'link-sure', 'oppo-mini-game', 'qtt', 'vivo-mini-game'];
+    const rals = ['ral.js', 'ral.min.js'];
+    for (const platformName of platformNames) {
+        for (const ral of rals) {
+            const dst = join(distDir, 'platforms', platformName, ral);
+            if (!fs.existsSync(dst)) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 /**
  * @param {string} downloadUrl 
  * @returns {Promise<void>}
@@ -88,6 +113,14 @@ async function removeDir (dirPath) {
 
 (async () => {
     try {
+        const forceFetch = process.argv[2] === 'force';
+        if (!forceFetch && checkCache()) {
+            console.log('Skip fetching ral !\n');
+            return process.exit(0);
+        }
+        if (forceFetch) {
+            console.log('Force fetching ral...\n');
+        }
         await cleanOldAdapter();
         await removeDir(ralPath);
         await downloadAndExtractRepo('https://codeload.github.com/yangws/runtime-web-adapter/zip/refs/heads/for-creator-3');
