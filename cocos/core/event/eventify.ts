@@ -183,5 +183,5 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
         }
     }
 
-    return Eventified as unknown as any;
+    return Eventified as unknown as Constructor<TBase & IEventified>;;
 }

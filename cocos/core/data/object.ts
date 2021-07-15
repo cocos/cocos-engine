@@ -246,8 +246,7 @@ class CCObject implements EditorExtendableObject {
     public set replicated (value: boolean) {
         if (value) {
             this._objFlags |= IsReplicated;
-        }
-        else {
+        } else {
             this._objFlags &= ~IsReplicated;
         }
     }
@@ -258,8 +257,7 @@ class CCObject implements EditorExtendableObject {
     public set clientLoad (value: boolean) {
         if (value) {
             this._objFlags |= IsClientLoad;
-        }
-        else {
+        } else {
             this._objFlags &= ~IsClientLoad;
         }
     }
@@ -609,7 +607,7 @@ declare namespace CCObject {
         IsScaleLocked,
         IsAnchorLocked,
         IsSizeLocked,
-        
+
         IsReplicated,
         IsClientLoad,
     }
