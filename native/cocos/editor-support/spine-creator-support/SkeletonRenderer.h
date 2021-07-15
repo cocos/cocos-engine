@@ -53,10 +53,10 @@ public:
     static SkeletonRenderer *createWithData(SkeletonData *skeletonData, bool ownsSkeletonData = false);
     static SkeletonRenderer *createWithFile(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
 
-    virtual void update(float deltaTime) override {}
-    virtual void render(float deltaTime) override;
+    void update(float deltaTime) override {}
+    void render(float deltaTime) override;
     virtual cc::Rect getBoundingBox() const;
-    virtual uint32_t getRenderOrder() const override;
+    uint32_t getRenderOrder() const override;
 
     Skeleton *getSkeleton() const;
 
@@ -130,11 +130,11 @@ public:
     void onDisable();
 
     SkeletonRenderer();
-    SkeletonRenderer(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false, bool ownsAtlas = false);
-    SkeletonRenderer(SkeletonData *skeletonData, bool ownsSkeletonData = false);
+    explicit SkeletonRenderer(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false, bool ownsAtlas = false);
+    explicit SkeletonRenderer(SkeletonData *skeletonData, bool ownsSkeletonData = false);
     SkeletonRenderer(const std::string &skeletonDataFile, const std::string &atlasFile, float scale = 1);
 
-    virtual ~SkeletonRenderer();
+    ~SkeletonRenderer() override;
 
     void initWithUUID(const std::string &uuid);
     void initWithSkeleton(Skeleton *skeleton, bool ownsSkeleton = false, bool ownsSkeletonData = false, bool ownsAtlas = false);
@@ -168,7 +168,7 @@ protected:
     bool _premultipliedAlpha = false;
     SkeletonClipping *_clipper = nullptr;
     bool _useTint = false;
-    std::string _uuid = "";
+    std::string _uuid;
 
     int _startSlotIndex = -1;
     int _endSlotIndex = -1;
