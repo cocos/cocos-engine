@@ -155,6 +155,12 @@ export class OneOffInvoker extends LifeCycleInvoker {
             compsPos.array.length = 0;
         }
     }
+
+    public resetIndexes () {
+        this._zero.i = -1;
+        this._neg.i = -1;
+        this._pos.i = -1;
+    }
 }
 
 // for update: sort every time new component registered, invoke many times

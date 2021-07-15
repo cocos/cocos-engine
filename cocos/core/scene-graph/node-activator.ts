@@ -39,6 +39,12 @@ import { distributedManager } from '../distributed/distributed-manager';
 
 const MAX_POOL_SIZE = 4;
 
+interface IActivateTask {
+    preload: UnsortedInvoker,
+    onLoad: OneOffInvoker,
+    onEnable: OneOffInvoker,
+}
+
 const IsPreloadStarted = CCObject.Flags.IsPreloadStarted;
 const IsOnLoadStarted = CCObject.Flags.IsOnLoadStarted;
 const IsOnLoadCalled = CCObject.Flags.IsOnLoadCalled;
@@ -73,6 +79,9 @@ class UnsortedInvoker extends LifeCycleInvoker {
         this._invoke(this._zero);
         this._zero.array.length = 0;
     }
+    public resetIndexes () {
+        this._zero.i = -1;
+    }
 }
 
 const invokePreload = SUPPORT_JIT ? createInvokeImplJit('c.__preload();')
@@ -102,25 +111,18 @@ const invokeOnLoad = SUPPORT_JIT ? createInvokeImplJit(`c.onLoad();c._objFlags|=
         IsOnLoadCalled,
     );
 
-const activateTasksPool = new Pool(MAX_POOL_SIZE);
+const activateTasksPool = new Pool<IActivateTask>(MAX_POOL_SIZE);
 activateTasksPool.get = function getActivateTask () {
-    const task: any = this._get() || {
+    const task: IActivateTask = this._get() || {
         preload: new UnsortedInvoker(invokePreload),
         onLoad: new OneOffInvoker(invokeOnLoad),
         onEnable: new OneOffInvoker(invokeOnEnable),
     };
 
     // reset index to -1 so we can skip invoked component in cancelInactive
-    task.preload._zero.i = -1;
-    let invoker = task.onLoad;
-    invoker._zero.i = -1;
-    invoker._neg.i = -1;
-    invoker._pos.i = -1;
-    invoker = task.onEnable;
-    invoker._zero.i = -1;
-    invoker._neg.i = -1;
-    invoker._pos.i = -1;
-
+    task.preload.resetIndexes();
+    task.onLoad.resetIndexes();
+    task.onEnable.resetIndexes();
     return task;
 };
 
@@ -138,7 +140,7 @@ function _componentCorrupted (node, comp, index) {
 
 function _onLoadInEditor (comp) {
     if (comp.onLoad && !legacyCC.GAME_VIEW) {
-        // @ts-expect-error
+        // @ts-expect-error Editor api usage
         const focused = Editor.Selection.getLastSelected('node') === comp.node.uuid;
         if (focused) {
             if (comp.onFocusInEditor && callOnFocusInTryCatch) {
@@ -149,7 +151,7 @@ function _onLoadInEditor (comp) {
         }
     }
     if (!TEST) {
-        // @ts-expect-error
+        // @ts-expect-error Editor api usage
         _Scene.AssetsWatcher.start(comp);
     }
 }
