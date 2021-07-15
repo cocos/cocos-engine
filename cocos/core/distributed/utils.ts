@@ -37,14 +37,3 @@ export function setClientLoad (obj: CCObject, value: boolean) {
         obj._objFlags &= ~Flags.IsClientLoad;
     }
 }
-
-export function isReplicated (obj: CCObject) {
-    return !!(obj._objFlags & Flags.IsReplicated);
-}
-export function setReplicated (obj: CCObject, value: boolean) {
-    if (value) {
-        obj._objFlags |= Flags.IsReplicated;
-    } else {
-        obj._objFlags &= ~Flags.IsReplicated;
-    }
-}

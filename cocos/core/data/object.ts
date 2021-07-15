@@ -243,6 +243,17 @@ class CCObject implements EditorExtendableObject {
         return this._objFlags & CCObject.Flags.AllHideMasks;
     }
 
+    public set replicated (value: boolean) {
+        if (value) {
+            this._objFlags |= IsReplicated;
+        } else {
+            this._objFlags &= ~IsReplicated;
+        }
+    }
+    public get replicated () {
+        return !!(this._objFlags & IsReplicated);
+    }
+
     /**
      * @en
      * Indicates whether the object is not yet destroyed. (It will not be available after being destroyed)<br>
