@@ -34,7 +34,6 @@ import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 import { EditorExtendableObject, editorExtrasTag } from './editor-extras-tag';
-import { DistributedManager } from '../distributed/distributed-manager';
 
 // definitions for CCObject.Flags
 
@@ -201,9 +200,9 @@ class CCObject implements EditorExtendableObject {
      * @default 0
      * @private
      */
-    public _objFlags: number = 0;
+    public _objFlags = 0;
     protected _name: string;
-    protected _id: string = '';
+    protected _id = '';
 
     constructor (name = '') {
         this._name = name;
@@ -251,8 +250,7 @@ class CCObject implements EditorExtendableObject {
     public set replicated (value: boolean) {
         if (value) {
             this._objFlags |= IsReplicated;
-        }
-        else {
+        } else {
             this._objFlags &= ~IsReplicated;
         }
     }
@@ -263,8 +261,7 @@ class CCObject implements EditorExtendableObject {
     public set clientLoad (value: boolean) {
         if (value) {
             this._objFlags |= IsClientLoad;
-        }
-        else {
+        } else {
             this._objFlags &= ~IsClientLoad;
         }
     }
@@ -614,7 +611,7 @@ declare namespace CCObject {
         IsScaleLocked,
         IsAnchorLocked,
         IsSizeLocked,
-        
+
         IsReplicated,
         IsClientLoad,
     }
@@ -670,10 +667,7 @@ if (EDITOR || TEST) {
     });
 }
 
-const distributedManager = new DistributedManager();
-
 legacyCC.Object = CCObject;
 export {
     CCObject,
-    distributedManager,
 };

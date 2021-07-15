@@ -28,8 +28,9 @@
  * @module core/distributed
  */
 
- import { SERVER_MODE } from 'internal:constants';
-import { CCObject, distributedManager } from '../../data/object';
+import { SERVER_MODE } from 'internal:constants';
+import { CCObject } from '../../data/object';
+import { distributedManager } from '../distributed-manager';
 
 export enum ReplicateType {
     SERVER_ONLY,

@@ -32,7 +32,7 @@ import { ccclass, editable, serializable } from 'cc.decorator';
 import { DEV, DEBUG, EDITOR } from 'internal:constants';
 import { Component } from '../components/component';
 import { property } from '../data/decorators/property';
-import { CCObject, distributedManager } from '../data/object';
+import { CCObject } from '../data/object';
 import { Event } from '../event';
 import { errorID, warnID, error, log, getError } from '../platform/debug';
 import { ISchedulable } from '../scheduler';
@@ -44,6 +44,7 @@ import { Node } from './node';
 import type { Scene } from './scene';
 import { PrefabInfo } from '../utils/prefab/prefab-info';
 import { NodeEventType } from './node-event';
+import { distributedManager } from '../distributed/distributed-manager';
 
 const Destroying = CCObject.Flags.Destroying;
 const DontDestroy = CCObject.Flags.DontDestroy;

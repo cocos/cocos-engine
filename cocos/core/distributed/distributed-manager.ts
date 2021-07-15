@@ -89,7 +89,7 @@ export class DistributedManager extends EventTarget {
 
     private _enqueue (...args) {
         const eventType = args[0];
-        if (!isNaN(eventType) && eventType >= 0 && eventType < EventType.END) {
+        if (!Number.isNaN(eventType) && eventType >= 0 && eventType < EventType.END) {
             // TODO: potential memory leak, check compiled js code
             this._queue.push(args);
         }
@@ -113,14 +113,13 @@ export class DistributedManager extends EventTarget {
      * @zh 触发对象创建事件
      * @en Fire object create event
      */
-    public fireObjectCreateEvent (obj: CCObject, fromServer: boolean = false) {
+    public fireObjectCreateEvent (obj: CCObject, fromServer = false) {
         if (!this._objectMap.has(obj.uuid)) {
             this._objectMap.set(obj.uuid, obj);
             const eventType = fromServer ? EventType.SERVER_OBJECT_CREATE : EventType.OBJECT_CREATE;
             if (this.enableEventQueue) {
                 this._enqueue(eventType, obj);
-            }
-            else {
+            } else {
                 this.emit(eventType, obj);
             }
         }
@@ -133,8 +132,7 @@ export class DistributedManager extends EventTarget {
     public firePrefabInstantiate (obj: BaseNode, prefab: Prefab) {
         if (this.enableEventQueue) {
             this._enqueue(EventType.PREFAB_INSTANTIATE, obj, prefab);
-        }
-        else {
+        } else {
             this.emit(EventType.PREFAB_INSTANTIATE, obj, prefab);
         }
     }
@@ -148,8 +146,7 @@ export class DistributedManager extends EventTarget {
             this._objectMap.delete(obj.uuid);
             if (this.enableEventQueue) {
                 this._enqueue(EventType.OBJECT_DESTROY, obj);
-            }
-            else {
+            } else {
                 this.emit(EventType.OBJECT_DESTROY, obj);
             }
         }
@@ -159,12 +156,11 @@ export class DistributedManager extends EventTarget {
      * @zh 触发添加组件事件
      * @en Fire add component event
      */
-    public fireAddComponentEvent (node: BaseNode, cp: Component, fromServer: boolean = false) {
+    public fireAddComponentEvent (node: BaseNode, cp: Component, fromServer = false) {
         const eventType = fromServer ? EventType.SERVER_COMPONENT_ADD : EventType.COMPONENT_ADD;
         if (this.enableEventQueue) {
             this._enqueue(eventType, node, cp);
-        }
-        else {
+        } else {
             this.emit(eventType, node, cp);
         }
     }
@@ -176,8 +172,7 @@ export class DistributedManager extends EventTarget {
     public fireRemoveComponentEvent (node: BaseNode, cp: Component) {
         if (this.enableEventQueue) {
             this._enqueue(EventType.COMPONENT_ADD, node, cp);
-        }
-        else {
+        } else {
             this.emit(EventType.COMPONENT_ADD, node, cp);
         }
     }
@@ -186,7 +181,7 @@ export class DistributedManager extends EventTarget {
      * @zh 触发属性变更事件
      * @en Fire property change event
      */
-    public firePropertyChangedEvent (obj: CCObject, name: string, value?: any, fromServer: boolean = false) {
+    public firePropertyChangedEvent (obj: CCObject, name: string, value?: any, fromServer = false) {
         const eventType = fromServer ? EventType.SERVER_PROPERTY_CHANGE : EventType.PROPERTY_CHANGE;
         let capsule;
         if (value) {
@@ -195,16 +190,14 @@ export class DistributedManager extends EventTarget {
             if (fromServer && value instanceof CCObject && value.replicated) {
                 capsule.type = ValueType.UUID;
                 capsule.value = value.uuid;
-            }
-            else {
+            } else {
                 capsule.type = ValueType.OBJECT;
                 capsule.value = value;
             }
         }
         if (this.enableEventQueue) {
             this._enqueue(eventType, obj, name, capsule);
-        }
-        else {
+        } else {
             this.emit(eventType, obj, name, capsule);
         }
     }
@@ -216,8 +209,7 @@ export class DistributedManager extends EventTarget {
         if (obj.replicated) {
             if (this.enableEventQueue) {
                 this._enqueue(EventType.RPC, obj.uuid, method, ...params);
-            }
-            else {
+            } else {
                 this.emit(EventType.RPC, obj.uuid, method, ...params);
             }
         }
@@ -252,8 +244,8 @@ export class DistributedManager extends EventTarget {
      * @en Create object
      */
     public createObject (className: string, id: string, data: string) {
-        const type = js.getClassByName(className);
-        if (!type) {
+        const Type = js.getClassByName(className);
+        if (!Type) {
             console.log(`Object type not found, class: ${className}`);
             return null;
         }
@@ -265,12 +257,9 @@ export class DistributedManager extends EventTarget {
                 console.log(`Deserialize object failed, id: ${id}`, `, class: ${className}`);
                 return null;
             }
-
-            // @ts-ignore
-            obj = Object.assign(new type(), json);
+            obj = Object.assign(new Type(), json);
         } else {
-            // @ts-ignore
-            obj = new type();
+            obj = new Type() as any;
         }
 
         if (!obj) {
@@ -331,6 +320,7 @@ export class DistributedManager extends EventTarget {
         const path_key =  path[index];
         console.log('============ update ======= ', path_key, target_value);
         obj[path_key] = target_value;
+        return true;
     }
     /**
      * @zh 调用对象方法
@@ -342,8 +332,6 @@ export class DistributedManager extends EventTarget {
             console.log(`Object not found, id: ${id}`);
             return false;
         }
-
-        // @ts-ignore
         const method = obj[func];
         if (!method || typeof method !== 'function') {
             console.log(`Invalid method, id: ${id}`, `, method: ${func}`);
@@ -367,10 +355,8 @@ export class DistributedManager extends EventTarget {
 
         console.log('========== ', args.length, args, js.getClassName(obj), obj.uuid);
         if (args.length === 0) {
-            // @ts-ignore
             obj[func]();
         } else {
-            // @ts-ignore
             obj[func](...args);
         }
 
@@ -387,8 +373,6 @@ export class DistributedManager extends EventTarget {
             console.log(`Object not found, id: ${id}`);
             return false;
         }
-
-        // @ts-ignore
         const property = obj[name];
         if (property === undefined || typeof property === 'function') {
             console.log(`Invalid property, id: ${id}`, `, property: ${name}`);
@@ -402,8 +386,6 @@ export class DistributedManager extends EventTarget {
         }
 
         const value = json;
-
-        // @ts-ignore
         obj[name] = value;
 
         this.firePropertyChangedEvent(obj, name, value);
@@ -447,3 +429,8 @@ export class DistributedManager extends EventTarget {
         });
     }
 }
+
+const distributedManager = new DistributedManager();
+export {
+    distributedManager,
+};

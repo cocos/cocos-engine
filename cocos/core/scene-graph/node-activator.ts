@@ -29,12 +29,13 @@
  */
 
 import { EDITOR, DEV, TEST, SUPPORT_JIT } from 'internal:constants';
-import { CCObject, distributedManager, isValid } from '../data/object';
+import { CCObject, isValid } from '../data/object';
 import { array, Pool } from '../utils/js';
 import { tryCatchFunctor_EDITOR } from '../utils/misc';
 import { invokeOnEnable, createInvokeImpl, createInvokeImplJit, OneOffInvoker, LifeCycleInvoker } from './component-scheduler';
 import { legacyCC } from '../global-exports';
 import { assert, errorID } from '../platform/debug';
+import { distributedManager } from '../distributed/distributed-manager';
 
 const MAX_POOL_SIZE = 4;
 
