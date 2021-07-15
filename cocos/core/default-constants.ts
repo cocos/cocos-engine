@@ -61,3 +61,4 @@ export const OPPO = tryDefineGlobal('CC_OPPO', false);
 export const VIVO = tryDefineGlobal('CC_VIVO', false);
 // @ts-expect-error
 export const SUPPORT_JIT = tryDefineGlobal('CC_SUPPORT_JIT', ('function' === typeof loadRuntime));
+export const SERVER_MODE = false;
