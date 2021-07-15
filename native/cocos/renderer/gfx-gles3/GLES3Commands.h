@@ -272,6 +272,11 @@ CC_GLES3_API void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *            devi
                                                    GLES3GPUTexture *        gpuTexture,
                                                    const BufferTextureCopy *regions,
                                                    uint                     count);
+CC_GLES3_API void cmdFuncGLES3CopyTextureToBuffers(GLES3Device *            device,
+                                                   GLES3GPUTexture *        gpuTexture,
+                                                   uint8_t *const *         buffers,
+                                                   const BufferTextureCopy *regions,
+                                                   uint                     count);
 
 CC_GLES3_API void cmdFuncGLES3BlitTexture(GLES3Device *      device,
                                           GLES3GPUTexture *  gpuTextureSrc,

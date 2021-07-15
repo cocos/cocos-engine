@@ -89,6 +89,7 @@ public:
     inline TextureBarrier *     createTextureBarrier(const TextureBarrierInfo &info);
 
     virtual void copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) = 0;
+    virtual void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) = 0;
 
     inline void copyBuffersToTexture(const BufferDataList &buffers, Texture *dst, const BufferTextureCopyList &regions);
     inline void flushCommands(const vector<CommandBuffer *> &cmdBuffs);

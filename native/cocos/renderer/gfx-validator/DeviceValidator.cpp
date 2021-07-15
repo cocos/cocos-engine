@@ -236,6 +236,11 @@ void DeviceValidator::copyBuffersToTexture(const uint8_t *const *buffers, Textur
     _actor->copyBuffersToTexture(buffers, textureValidator->getActor(), regions, count);
 }
 
+void DeviceValidator::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
+    auto *textureValidator = static_cast<TextureValidator *>(src);
+    _actor->copyTextureToBuffers(textureValidator->getActor(), buffers, regions, count);
+}
+
 void DeviceValidator::flushCommands(CommandBuffer *const *cmdBuffs, uint count) {
     if (!count) return;
 

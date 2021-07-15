@@ -390,5 +390,9 @@ void GLES3Device::copyBuffersToTexture(const uint8_t *const *buffers, Texture *d
     cmdFuncGLES3CopyBuffersToTexture(this, buffers, static_cast<GLES3Texture *>(dst)->gpuTexture(), regions, count);
 }
 
+void GLES3Device::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
+    cmdFuncGLES3CopyTextureToBuffers(this, srcTexture ? static_cast<GLES3Texture*>(srcTexture)->gpuTexture() : nullptr, buffers, regions, count);
+}
+
 } // namespace gfx
 } // namespace cc

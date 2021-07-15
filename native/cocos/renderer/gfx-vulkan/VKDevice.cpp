@@ -681,6 +681,37 @@ void CCVKDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *ds
     });
 }
 
+void CCVKDevice::copyTextureToBuffers(Texture *srcTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
+    uint                          totalSize = 0U;
+    Format                        format    = srcTexture->getFormat();
+    vector<std::pair<uint, uint>> regionOffsetSizes(count);
+    for (size_t i = 0U; i < count; ++i) {
+        const BufferTextureCopy &region     = regions[i];
+        uint                     w          = region.buffStride > 0 ? region.buffStride : region.texExtent.width;
+        uint                     h          = region.buffTexHeight > 0 ? region.buffTexHeight : region.texExtent.height;
+        uint                     regionSize = formatSize(format, w, h, region.texExtent.depth);
+        regionOffsetSizes[i]                = {totalSize, regionSize};
+        totalSize += regionSize;
+    }
+    CCVKGPUBuffer stagingBuffer;
+    stagingBuffer.size = totalSize;
+    uint          texelSize = GFX_FORMAT_INFOS[static_cast<uint>(format)].size;
+    gpuStagingBufferPool()->alloc(&stagingBuffer, texelSize);
+
+    waitAllFences();
+    _gpuTransportHub->checkIn(
+        [&](CCVKGPUCommandBuffer *cmdBuffer) {
+            cmdFuncCCVKCopyTextureToBuffers(this, static_cast<CCVKTexture *>(srcTexture)->gpuTexture(), &stagingBuffer, regions, count, cmdBuffer);
+        },
+        true);
+    for (uint i = 0; i < count; ++i) {
+        uint regionOffset                  = 0;
+        uint regionSize                    = 0;
+        std::tie(regionOffset, regionSize) = regionOffsetSizes[i];
+        memcpy(buffers[i], stagingBuffer.mappedData + regionOffset, regionSize);
+    }
+}
+
 bool CCVKDevice::checkSwapchainStatus() {
     CCVKGPUContext *context = static_cast<CCVKContext *>(_context)->gpuContext();
 

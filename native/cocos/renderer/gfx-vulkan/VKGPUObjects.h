@@ -757,7 +757,7 @@ public:
             buffer = &_pool.back();
             VkBufferCreateInfo bufferInfo{VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO};
             bufferInfo.size  = CHUNK_SIZE;
-            bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+            bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             VmaAllocationCreateInfo allocInfo{};
             allocInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
             allocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;

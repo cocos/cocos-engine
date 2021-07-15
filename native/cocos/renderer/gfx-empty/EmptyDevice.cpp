@@ -164,5 +164,8 @@ TextureBarrier *EmptyDevice::createTextureBarrier() {
 void EmptyDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *dst, const BufferTextureCopy *regions, uint count) {
 }
 
+void EmptyDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
+}
+
 } // namespace gfx
 } // namespace cc

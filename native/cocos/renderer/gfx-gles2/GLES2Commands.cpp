@@ -2609,6 +2609,25 @@ void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *device, const uint8_t *const 
     }
 }
 
+CC_GLES2_API void cmdFuncGLES2CopyTextureToBuffers(GLES2Device *device, GLES2GPUTexture *gpuTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
+    GLuint framebuffer = device->framebufferCacheMap()->getFramebufferFromTexture(gpuTexture);
+    auto    glFormat    = mapGLFormat(gpuTexture->format);
+    auto    glType      = formatToGLType(gpuTexture->format);
+
+    if (device->stateCache()->glFramebuffer != framebuffer) {
+        GL_CHECK(glBindFramebuffer(GL_FRAMEBUFFER, framebuffer));
+        device->stateCache()->glFramebuffer = framebuffer;
+    }
+    for(uint32_t i = 0; i < count; ++i) {
+        auto region = regions[i];
+        auto w          = region.texExtent.width;
+        auto h          = region.texExtent.height;
+        auto memSize    = static_cast<GLsizei>(formatSize(gpuTexture->format, w, h, 1));
+        uint8_t* copyDst = buffers[i];
+        GL_CHECK(glReadPixels(region.texOffset.x, region.texOffset.y, region.texExtent.width, region.texExtent.height, glFormat, glType, copyDst));
+    }
+}
+
 void cmdFuncGLES2BlitTexture(GLES2Device *device, GLES2GPUTexture *gpuTextureSrc, GLES2GPUTexture *gpuTextureDst, const TextureBlit *regions, uint count, Filter filter) {
     GLES2GPUStateCache *cache = device->stateCache();
 

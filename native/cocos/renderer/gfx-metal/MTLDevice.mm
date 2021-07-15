@@ -363,6 +363,9 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
     static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyBuffersToTexture(buffers, texture, regions, count);
 }
 
+void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
+}
+
 void CCMTLDevice::onMemoryWarning() {
     for (int i = 0; i < MAX_FRAMES_IN_FLIGHT; ++i) {
         _gpuStagingBufferPools[i]->shrinkSize();

@@ -240,6 +240,12 @@ CC_GLES2_API void cmdFuncGLES2CopyBuffersToTexture(GLES2Device *            devi
                                                    const BufferTextureCopy *regions,
                                                    uint                     count);
 
+CC_GLES2_API void cmdFuncGLES2CopyTextureToBuffers(GLES2Device *            device,
+                                                   GLES2GPUTexture *        gpuTexture,
+                                                   uint8_t *const *         buffers,
+                                                   const BufferTextureCopy *regions,
+                                                   uint                     count);
+
 CC_GLES2_API void cmdFuncGLES2BlitTexture(GLES2Device *      device,
                                           GLES2GPUTexture *  gpuTextureSrc,
                                           GLES2GPUTexture *  gpuTextureDst,
