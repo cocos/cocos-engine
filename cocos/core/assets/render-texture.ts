@@ -77,8 +77,6 @@ export class RenderTexture extends Asset {
     private _height = 1;
 
     private _textureHash = 0;
-    private _id: string;
-
     private _window: RenderWindow | null = null;
 
     constructor () {
