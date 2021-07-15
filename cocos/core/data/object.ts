@@ -62,7 +62,7 @@ const IsAnchorLocked = 1 << 19;
 const IsSizeLocked = 1 << 20;
 const IsPositionLocked = 1 << 21;
 
-// Online game
+// Distributed
 const IsReplicated = 1 << 22;
 const IsClientLoad = 1 << 23;
 
@@ -241,28 +241,6 @@ class CCObject implements EditorExtendableObject {
     }
     public get hideFlags () {
         return this._objFlags & CCObject.Flags.AllHideMasks;
-    }
-
-    public set replicated (value: boolean) {
-        if (value) {
-            this._objFlags |= IsReplicated;
-        } else {
-            this._objFlags &= ~IsReplicated;
-        }
-    }
-    public get replicated () {
-        return !!(this._objFlags & IsReplicated);
-    }
-
-    public set clientLoad (value: boolean) {
-        if (value) {
-            this._objFlags |= IsClientLoad;
-        } else {
-            this._objFlags &= ~IsClientLoad;
-        }
-    }
-    public get clientLoad () {
-        return !!(this._objFlags & IsClientLoad);
     }
 
     /**
