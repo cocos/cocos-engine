@@ -50,6 +50,11 @@ import { Stage } from '../renderer/stencil-manager';
 export class UIComponent extends Component {
     protected _lastParent: Node | null = null;
 
+    private _isRender2D = false;
+    get isRender2D () {
+        return this._isRender2D;
+    }
+
     public __preload () {
         this.node._uiProps.uiComp = this;
     }

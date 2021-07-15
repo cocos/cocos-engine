@@ -311,6 +311,11 @@ export class Renderable2D extends RenderableComponent {
     protected _colorDirty = true;
     protected _cacheAlpha = 1;
 
+    private _isRender2D = true;
+    get isRender2D () {
+        return this._isRender2D;
+    }
+
     get blendHash () {
         return this._blendHash;
     }
