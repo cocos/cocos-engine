@@ -1,6 +1,5 @@
 
 import { Quat, QuaternionCurve, QuaternionInterpMode, QuaternionKeyframeValue } from '../../cocos/core';
-import { deserializeSymbol, serializeSymbol } from '../../cocos/core/data/serialization-symbols';
 
 describe('Curve', () => {
     test('Evaluate an empty curve', () => {

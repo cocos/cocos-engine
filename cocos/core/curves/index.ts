@@ -7,10 +7,6 @@ export {
 } from './curve';
 
 export {
-    IntegerCurve,
-} from './integer-curve';
-
-export {
     QuaternionCurve,
     QuaternionKeyframeValue,
     QuaternionInterpMode,

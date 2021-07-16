@@ -2,7 +2,6 @@ import { toRadian } from '../../cocos/core';
 import { RealCurve, RealInterpMode } from '../../cocos/core/curves';
 import { RealKeyframeValue } from '../../cocos/core/curves/curve';
 import { ExtrapMode, TangentWeightMode } from '../../cocos/core/curves/real-curve-param';
-import { deserializeSymbol, serializeSymbol } from '../../cocos/core/data/serialization-symbols';
 
 describe('Curve', () => {
     test('assign sorted', () => {

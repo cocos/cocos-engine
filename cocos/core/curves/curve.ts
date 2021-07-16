@@ -2,11 +2,12 @@ import { assertIsTrue } from '../data/utils/asserts';
 import { approx, lerp, pingPong, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
 import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
-import { deserializeSymbol, serializeSymbol } from '../data/serialization-symbols';
 import { RealInterpMode, ExtrapMode, TangentWeightMode } from './real-curve-param';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { solveCubic } from './solve-cubic';
 import { EditorExtendableMixin } from '../data/editor-extendable';
+import { deserializeTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { DeserializationContext } from '../data/custom-serializable';
 
 export { RealInterpMode, ExtrapMode, TangentWeightMode };
 
@@ -216,7 +217,12 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
         return this._values.every((frame) => approx(frame.value, firstVal, tolerance));
     }
 
-    public [serializeSymbol] () {
+    public [serializeTag] (output: SerializationOutput, context: SerializationContext) {
+        if (!context.toCCON) {
+            output.writeThis();
+            return;
+        }
+
         const {
             _times: times,
             _values: keyframeValues,
@@ -249,11 +255,19 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
             currentOffset = saveRealKeyFrameValue(dataView, keyframeValue, currentOffset);
         }
 
-        return new Uint8Array(dataView.buffer, 0, currentOffset);
+        const bytes = new Uint8Array(dataView.buffer, 0, currentOffset);
+        output.writeProperty('bytes', bytes);
     }
 
-    public [deserializeSymbol] (serialized: ReturnType<RealCurve[typeof serializeSymbol]>) {
-        const dataView = new DataView(serialized.buffer, serialized.byteOffset, serialized.byteLength);
+    public [deserializeTag] (input: SerializationInput, context: DeserializationContext) {
+        if (!context.fromCCON) {
+            input.readThis();
+            return;
+        }
+
+        const bytes = input.readProperty('bytes') as Uint8Array;
+
+        const dataView = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
         let currentOffset = 0;
 
         // Overflow operations
@@ -276,7 +290,7 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
             keyframeValues[iKeyFrame] = keyframeValue;
         }
 
-        assertIsTrue(currentOffset === serialized.byteLength);
+        assertIsTrue(currentOffset === bytes.byteLength);
 
         this._times = times;
         this._values = keyframeValues;

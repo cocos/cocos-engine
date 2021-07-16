@@ -1,6 +1,6 @@
 import { ccclass, serializable, uniquelyReferenced } from 'cc.decorator';
 import type { Component } from '../../components';
-import type { IntegerCurve, ObjectCurve, QuaternionCurve, RealCurve } from '../../curves';
+import type { ObjectCurve, QuaternionCurve, RealCurve } from '../../curves';
 import { assertIsTrue } from '../../data/utils/asserts';
 import { error, warn } from '../../platform';
 import { Node } from '../../scene-graph';
@@ -72,7 +72,7 @@ export interface TrackEval {
     evaluate(time: number, runtimeBinding: RuntimeBinding): unknown;
 }
 
-export type Curve = RealCurve | IntegerCurve | QuaternionCurve | ObjectCurve<unknown>;
+export type Curve = RealCurve | QuaternionCurve | ObjectCurve<unknown>;
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}Channel`)
 export class Channel<T = Curve> {
@@ -80,7 +80,9 @@ export class Channel<T = Curve> {
         this._curve = curve;
     }
 
-    // @serializable
+    /**
+     * Not used for now.
+     */
     public name = '';
 
     get curve () {
@@ -92,8 +94,6 @@ export class Channel<T = Curve> {
 }
 
 export type RealChannel = Channel<RealCurve>;
-
-export type IntegerChannel = Channel<IntegerCurve>;
 
 export type QuaternionChannel = Channel<QuaternionCurve>;
 

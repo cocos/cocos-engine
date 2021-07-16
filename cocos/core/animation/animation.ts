@@ -35,7 +35,6 @@ export { MorphWeightValueProxy, MorphWeightsValueProxy, MorphWeightsAllValueProx
 export * from './cubic-spline-value';
 export { Track, TrackPath } from './tracks/track';
 export { RealTrack } from './tracks/real-track';
-export { IntegerTrack } from './tracks/integer-track';
 export { VectorTrack } from './tracks/vector-track';
 export { QuaternionTrack } from './tracks/quat-track';
 export { ColorTrack } from './tracks/color-track';

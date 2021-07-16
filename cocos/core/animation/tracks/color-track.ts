@@ -1,8 +1,8 @@
 import { ccclass, serializable } from 'cc.decorator';
-import { IntegerCurve, RealCurve } from '../../curves';
+import { RealCurve } from '../../curves';
 import { Color } from '../../math';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
-import { Channel, IntegerChannel, RuntimeBinding, Track } from './track';
+import { Channel, RealChannel, RuntimeBinding, Track } from './track';
 import { maskIfEmpty } from './utils';
 
 const CHANNEL_NAMES: ReadonlyArray<string> = ['Red', 'Green', 'Blue', 'Alpha'];
@@ -13,7 +13,7 @@ export class ColorTrack extends Track {
         super();
         this._channels = new Array(4) as ColorTrack['_channels'];
         for (let i = 0; i < this._channels.length; ++i) {
-            const channel = new Channel<IntegerCurve>(new IntegerCurve());
+            const channel = new Channel<RealCurve>(new RealCurve());
             channel.name = CHANNEL_NAMES[i];
             this._channels[i] = channel;
         }
@@ -33,15 +33,15 @@ export class ColorTrack extends Track {
     }
 
     @serializable
-    private _channels: [IntegerChannel, IntegerChannel, IntegerChannel, IntegerChannel];
+    private _channels: [RealChannel, RealChannel, RealChannel, RealChannel];
 }
 
-export class ColorTrackEval<TCurve extends IntegerCurve | RealCurve = IntegerCurve> {
+export class ColorTrackEval {
     constructor (
-        private _x: TCurve | undefined,
-        private _y: TCurve | undefined,
-        private _z: TCurve | undefined,
-        private _w: TCurve | undefined,
+        private _x: RealCurve | undefined,
+        private _y: RealCurve | undefined,
+        private _z: RealCurve | undefined,
+        private _w: RealCurve | undefined,
     ) {
 
     }

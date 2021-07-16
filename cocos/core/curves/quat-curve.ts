@@ -4,7 +4,8 @@ import { KeyframeCurve } from './keyframe-curve';
 import { ExtrapMode } from './curve';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
-import { deserializeSymbol, serializeSymbol } from '../data/serialization-symbols';
+import { deserializeTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { DeserializationContext } from '../data/custom-serializable';
 
 @ccclass('cc.QuaternionKeyframeValue')
 @uniquelyReferenced
@@ -176,7 +177,12 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
         return super.addKeyFrame(time, keyframeValue);
     }
 
-    public [serializeSymbol] () {
+    public [serializeTag] (output: SerializationOutput, context: SerializationContext) {
+        if (!context.toCCON) {
+            output.writeThis();
+            return;
+        }
+
         const {
             _times: times,
             _values: keyframeValues,
@@ -237,11 +243,19 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
             if (!interpModeRepeated) { pInterpMode += INTERP_MODE_BYTES; }
         });
 
-        return new Uint8Array(dataView.buffer);
+        const bytes = new Uint8Array(dataView.buffer);
+        output.writeProperty('bytes', bytes);
     }
 
-    public [deserializeSymbol] (serialized: ReturnType<QuaternionCurve[typeof serializeSymbol]>) {
-        const dataView = new DataView(serialized.buffer, serialized.byteOffset, serialized.byteLength);
+    public [deserializeTag] (input: SerializationInput, context: DeserializationContext) {
+        if (!context.fromCCON) {
+            input.readThis();
+            return;
+        }
+
+        const bytes = input.readProperty('bytes') as Uint8Array;
+
+        const dataView = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
         let P = 0;
 
         // Flags
