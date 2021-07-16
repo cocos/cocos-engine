@@ -77,8 +77,12 @@ void Model::updateUBOs(uint32_t stamp) {
     }
 }
 
-void Model::addSubModel(SubModel *subModel) {
-    _subModels.push_back(subModel);
+void Model::setSubModel(uint32_t idx, SubModel *subModel) {
+    if (idx >= static_cast<uint32_t>(_subModels.size())) {
+        _subModels.emplace_back(subModel);
+        return;
+    }
+    _subModels[idx] = subModel;
 }
 
 } // namespace scene

@@ -96,7 +96,7 @@ void RenderScene::addSkinningModel(SkinningModel *skinModel) {
 }
 
 void RenderScene::removeModel(uint32_t idx) {
-    if (idx >= _models.size()) {
+    if (idx >= static_cast<uint32_t>(_models.size())) {
         CC_LOG_WARNING("Try to remove invalid model.");
         return;
     }

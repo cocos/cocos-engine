@@ -63,7 +63,7 @@ public:
     virtual void updateTransform(uint32_t stamp);
     virtual void updateUBOs(uint32_t stamp);
 
-    void addSubModel(SubModel *subModel);
+    void setSubModel(uint32_t idx, SubModel *subModel);
 
     inline void setCastShadow(bool value) { _castShadow = value; }
     inline void setEnabled(bool value) { _enabled = value; }

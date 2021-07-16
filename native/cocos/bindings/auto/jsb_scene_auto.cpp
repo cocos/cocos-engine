@@ -1114,25 +1114,6 @@ bool js_register_scene_SphereLight(se::Object* obj) // NOLINT(readability-identi
 se::Object* __jsb_cc_scene_Model_proto = nullptr;
 se::Class* __jsb_cc_scene_Model_class = nullptr;
 
-static bool js_scene_Model_addSubModel(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Model_addSubModel : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::scene::SubModel*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Model_addSubModel : Error processing arguments");
-        cobj->addSubModel(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Model_addSubModel)
-
 static bool js_scene_Model_getCastShadow(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -1570,6 +1551,27 @@ static bool js_scene_Model_setReceiveShadow(se::State& s) // NOLINT(readability-
 }
 SE_BIND_FUNC(js_scene_Model_setReceiveShadow)
 
+static bool js_scene_Model_setSubModel(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Model_setSubModel : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 2) {
+        HolderType<unsigned int, false> arg0 = {};
+        HolderType<cc::scene::SubModel*, false> arg1 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Model_setSubModel : Error processing arguments");
+        cobj->setSubModel(arg0.value(), arg1.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Model_setSubModel)
+
 static bool js_scene_Model_setTransform(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Model>(s);
@@ -1657,7 +1659,6 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
 {
     auto* cls = se::Class::create("Model", obj, nullptr, _SE(js_scene_Model_constructor));
 
-    cls->defineFunction("addSubModel", _SE(js_scene_Model_addSubModel));
     cls->defineFunction("getCastShadow", _SE(js_scene_Model_getCastShadow));
     cls->defineFunction("getEnabled", _SE(js_scene_Model_getEnabled));
     cls->defineFunction("getInstMatWorldIdx", _SE(js_scene_Model_getInstMatWorldIdx));
@@ -1681,6 +1682,7 @@ bool js_register_scene_Model(se::Object* obj) // NOLINT(readability-identifier-n
     cls->defineFunction("setLocalBuffer", _SE(js_scene_Model_setLocalBuffer));
     cls->defineFunction("setNode", _SE(js_scene_Model_setNode));
     cls->defineFunction("setReceiveShadow", _SE(js_scene_Model_setReceiveShadow));
+    cls->defineFunction("setSubModel", _SE(js_scene_Model_setSubModel));
     cls->defineFunction("setTransform", _SE(js_scene_Model_setTransform));
     cls->defineFunction("updateTransform", _SE(js_scene_Model_updateTransform));
     cls->defineFunction("updateUBOs", _SE(js_scene_Model_updateUBOs));
