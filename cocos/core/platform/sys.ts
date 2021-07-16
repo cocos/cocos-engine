@@ -45,7 +45,7 @@ const pixelRatio = systemInfo.pixelRatio;
  * @zh 一系列系统相关环境变量
  * @main
  */
-export const sys: Record<string, any> = {
+export const sys = {
     /**
      * @en
      * Network type enumeration
@@ -194,7 +194,7 @@ export const sys: Record<string, any> = {
      * @en It is a local storage component based on HTML5 localStorage API, on web platform, it's equal to window.localStorage
      * @zh HTML5 标准中的 localStorage 的本地存储功能，在 Web 端等价于 window.localStorage
      */
-    localStorage: null,
+    localStorage: {} as Storage,
 
     /**
      * @en Get the network type of current device, return `sys.NetworkType.LAN` if failure.
@@ -313,55 +313,54 @@ export const sys: Record<string, any> = {
         const height = rightTop.y - leftBottom.y;
         return new Rect(x, y, width, height);
     },
-
-    __init () {
-        try {
-            let localStorage: Storage | null = sys.localStorage = window.localStorage;
-            localStorage.setItem('storage', '');
-            localStorage.removeItem('storage');
-            localStorage = null;
-        } catch (e) {
-            const warn = function () {
-                warnID(5200);
-            };
-            sys.localStorage = {
-                getItem: warn,
-                setItem: warn,
-                removeItem: warn,
-                clear: warn,
-            };
-        }
-
-        // TODO: move into pal/input
-        const win = window; const nav = win.navigator; const doc = document; const docEle = doc.documentElement;
-        const capabilities = sys.capabilities;
-        if (docEle.ontouchstart !== undefined || doc.ontouchstart !== undefined || nav.msPointerEnabled) {
-            capabilities.touches = true;
-        }
-        if (docEle.onmouseup !== undefined) {
-            capabilities.mouse = true;
-        }
-        if (docEle.onkeyup !== undefined) {
-            capabilities.keyboard = true;
-        }
-        if (win.DeviceMotionEvent || win.DeviceOrientationEvent) {
-            capabilities.accelerometer = true;
-        }
-
-        // HACK: this private property only needed on web
-        sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
-            && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
-
-        screenAdapter.on('window-resize', () => {
-            const windowSize = screenAdapter.windowSize;
-            sys.windowPixelResolution = {
-                width: Math.round(windowSize.width * pixelRatio),
-                height: Math.round(windowSize.height * pixelRatio),
-            };
-        });
-    },
 };
 
-sys.__init();
+(function initSys () {
+    try {
+        let localStorage: Storage | null = sys.localStorage = window.localStorage;
+        localStorage.setItem('storage', '');
+        localStorage.removeItem('storage');
+        localStorage = null;
+    } catch (e) {
+        const warn = function () {
+            warnID(5200);
+        };
+        sys.localStorage = {
+            // @ts-expect-error Type '() => void' is not assignable to type '(key: string) => string | null'
+            getItem: warn,
+            setItem: warn,
+            clear: warn,
+            removeItem: warn,
+        };
+    }
+
+    // TODO: move into pal/input
+    const win = window; const nav = win.navigator; const doc = document; const docEle = doc.documentElement;
+    const capabilities = sys.capabilities;
+    if (docEle.ontouchstart !== undefined || doc.ontouchstart !== undefined || nav.msPointerEnabled) {
+        capabilities.touches = true;
+    }
+    if (docEle.onmouseup !== undefined) {
+        capabilities.mouse = true;
+    }
+    if (docEle.onkeyup !== undefined) {
+        capabilities.keyboard = true;
+    }
+    if (win.DeviceMotionEvent || win.DeviceOrientationEvent) {
+        capabilities.accelerometer = true;
+    }
+
+    // @ts-expect-error HACK: this private property only needed on web
+    sys.__isWebIOS14OrIPadOS14Env = (sys.os === OS.IOS || sys.os === OS.OSX) && systemInfo.isBrowser
+        && /(OS 1[4-9])|(Version\/1[4-9])/.test(window.navigator.userAgent);
+
+    screenAdapter.on('window-resize', () => {
+        const windowSize = screenAdapter.windowSize;
+        sys.windowPixelResolution = {
+            width: Math.round(windowSize.width * pixelRatio),
+            height: Math.round(windowSize.height * pixelRatio),
+        };
+    });
+}());
 
 legacyCC.sys = sys;
