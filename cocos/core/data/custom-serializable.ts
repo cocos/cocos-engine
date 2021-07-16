@@ -1,4 +1,4 @@
-import { assertIsTrue } from './utils/asserts';
+import { assertIsNonNullable, assertIsTrue } from './utils/asserts';
 
 /**
  * Tag to define the custom serialization method.
@@ -91,7 +91,7 @@ export const enableIfCCON: MethodDecorator = <T>(
     descriptor: TypedPropertyDescriptor<T>,
 ): TypedPropertyDescriptor<T> | void => {
     const original = descriptor.value;
-    assertIsTrue(original);
+    assertIsNonNullable(original);
     if (propertyKey === serializeTag) {
         return {
             ...descriptor,
