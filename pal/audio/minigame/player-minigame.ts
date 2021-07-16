@@ -86,7 +86,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
         this._onSeeked = () => { eventTarget.emit(AudioEvent.SEEKED); };
         innerAudioContext.onSeeked(this._onSeeked);
         this._onEnded = () => {
-            this._audioTimer?.stop();
+            this._audioTimer.stop();
             this._state = AudioState.INIT;
             eventTarget.emit(AudioEvent.ENDED);
         };
@@ -216,15 +216,12 @@ export class AudioPlayerMinigame implements OperationQueueable {
             time = clamp(time, 0, this.duration);
             this._eventTarget.once(AudioEvent.SEEKED, resolve);
             this._innerAudioContext.seek(time);
-            this._audioTimer?.seek(time);
+            this._audioTimer.seek(time);
         });
     }
 
     @enqueueOperation
     play (): Promise<void> {
-        // NOTE: on WeChat platform, duration is 0 when audio is loaded.
-        // so we can't initiate audio timer on constructor.
-        this._audioTimer = this._audioTimer || new AudioTimer(this._innerAudioContext.duration);
         return new Promise((resolve) => {
             this._eventTarget.once(AudioEvent.PLAYED, resolve);
             this._innerAudioContext.play();
