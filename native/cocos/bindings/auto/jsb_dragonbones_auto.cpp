@@ -3790,7 +3790,7 @@ SE_BIND_PROP_SET(js_dragonbones_Slot_set__zOrder)
 
 bool js_register_dragonbones_Slot(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("Slot", obj, nullptr, nullptr);
+    auto* cls = se::Class::create("Slot", obj, __jsb_dragonBones_TransformObject_proto, nullptr);
 
     cls->defineProperty("displayController", _SE(js_dragonbones_Slot_get_displayController), _SE(js_dragonbones_Slot_set_displayController));
     cls->defineProperty("_zOrder", _SE(js_dragonbones_Slot_get__zOrder), _SE(js_dragonbones_Slot_set__zOrder));
@@ -7179,10 +7179,11 @@ bool register_all_dragonbones(se::Object* obj)
     }
     se::Object* ns = nsVal.toObject();
 
+    js_register_dragonbones_BaseObject(ns);
+    js_register_dragonbones_TransformObject(ns);
     js_register_dragonbones_Slot(ns);
     js_register_dragonbones_Matrix(ns);
     js_register_dragonbones_Transform(ns);
-    js_register_dragonbones_BaseObject(ns);
     js_register_dragonbones_Animation(ns);
     js_register_dragonbones_TextureData(ns);
     js_register_dragonbones_CCTextureData(ns);
@@ -7196,7 +7197,6 @@ bool register_all_dragonbones(se::Object* obj)
     js_register_dragonbones_BoneData(ns);
     js_register_dragonbones_ArmatureData(ns);
     js_register_dragonbones_CCTextureAtlasData(ns);
-    js_register_dragonbones_TransformObject(ns);
     js_register_dragonbones_CCSlot(ns);
     js_register_dragonbones_Armature(ns);
     js_register_dragonbones_Bone(ns);
