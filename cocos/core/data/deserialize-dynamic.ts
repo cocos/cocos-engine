@@ -453,7 +453,9 @@ class _Deserializer {
         }
 
         this._serializedData = jsonObj;
-        this._context.fromCCON = fromCCON;
+        this._context = {
+            fromCCON,
+        };
 
         const serializedRootObject = Array.isArray(jsonObj) ? jsonObj[0] : jsonObj;
 
