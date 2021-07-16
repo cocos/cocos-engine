@@ -36,6 +36,8 @@
     #define JSB_FREE(ptr) delete ptr
 #endif
 
+extern bool register_all_drawbatch2d_ext_manual(se::Object* obj); //NOLINT
+
 static bool js_scene_Pass_setRootBufferAndBlock(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
@@ -239,5 +241,9 @@ bool register_all_scene_manual(se::Object* obj) // NOLINT(readability-identifier
     __jsb_cc_scene_SubModel_proto->defineFunction("setSubMeshBuffers", _SE(js_scene_SubModel_setSubMeshBuffers));
     __jsb_cc_scene_Pass_proto->defineFunction("setRootBufferAndBlock", _SE(js_scene_Pass_setRootBufferAndBlock));
     __jsb_cc_scene_RenderScene_proto->defineFunction("updateBatches", _SE(js_scene_RenderScene_updateBatches));
+
+    // Impl MQ for DrawBatch2D
+    register_all_drawbatch2d_ext_manual(obj);
+
     return true;
 }

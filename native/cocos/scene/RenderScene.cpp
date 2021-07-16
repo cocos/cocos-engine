@@ -28,10 +28,14 @@
 #include <utility>
 #include "base/Log.h"
 
+extern void jsbFlushFastMQ();
+
 namespace cc {
 namespace scene {
 
 void RenderScene::update(uint32_t stamp) {
+    jsbFlushFastMQ();
+
     if (_directionalLight) {
         _directionalLight->update();
     }

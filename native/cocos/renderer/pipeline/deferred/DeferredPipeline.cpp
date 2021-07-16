@@ -221,7 +221,7 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer **quadIB, gfx::Buffe
 
 gfx::Rect DeferredPipeline::getRenderArea(scene::Camera *camera) {
     gfx::Rect renderArea;
-    
+
     uint w = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
     uint h = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
 
@@ -266,7 +266,7 @@ bool DeferredPipeline::activeRenderer() {
         {},
         {},
     };
-    const uint  samplerHash = SamplerLib::genSamplerHash(info);
+    const uint          samplerHash = SamplerLib::genSamplerHash(info);
     gfx::Sampler *const sampler     = SamplerLib::getSampler(samplerHash);
 
     // Main light sampler binding

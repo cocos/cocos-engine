@@ -24,9 +24,9 @@
 ****************************************************************************/
 
 #include "ForwardPipeline.h"
+#include "../SceneCulling.h"
 #include "../shadow/ShadowFlow.h"
 #include "ForwardFlow.h"
-#include "../SceneCulling.h"
 #include "gfx-base/GFXBuffer.h"
 #include "gfx-base/GFXCommandBuffer.h"
 #include "gfx-base/GFXDescriptorSet.h"
@@ -57,19 +57,19 @@ gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFla
         return _renderPasses[clearFlags];
     }
 
-    auto *device = gfx::Device::getInstance();
-    gfx::ColorAttachment colorAttachment;
+    auto *                      device = gfx::Device::getInstance();
+    gfx::ColorAttachment        colorAttachment;
     gfx::DepthStencilAttachment depthStencilAttachment;
-    colorAttachment.format = device->getColorFormat();
-    depthStencilAttachment.format = device->getDepthStencilFormat();
+    colorAttachment.format                = device->getColorFormat();
+    depthStencilAttachment.format         = device->getDepthStencilFormat();
     depthStencilAttachment.stencilStoreOp = gfx::StoreOp::STORE;
-    depthStencilAttachment.depthStoreOp = gfx::StoreOp::STORE;
+    depthStencilAttachment.depthStoreOp   = gfx::StoreOp::STORE;
 
     if (!hasFlag(clearFlags, gfx::ClearFlagBit::COLOR)) {
         if (hasFlag(clearFlags, static_cast<gfx::ClearFlagBit>(skyboxFlag))) {
             colorAttachment.loadOp = gfx::LoadOp::DISCARD;
         } else {
-            colorAttachment.loadOp = gfx::LoadOp::LOAD;
+            colorAttachment.loadOp        = gfx::LoadOp::LOAD;
             colorAttachment.beginAccesses = {gfx::AccessType::PRESENT};
         }
     }
@@ -80,10 +80,10 @@ gfx::RenderPass *ForwardPipeline::getOrCreateRenderPass(gfx::ClearFlags clearFla
         depthStencilAttachment.beginAccesses = {gfx::AccessType::DEPTH_STENCIL_ATTACHMENT_WRITE};
     }
 
-    auto *renderPass = device->createRenderPass({
+    auto *renderPass          = device->createRenderPass({
         {colorAttachment},
         depthStencilAttachment,
-                                                 {},
+        {},
 
     });
     _renderPasses[clearFlags] = renderPass;
@@ -121,7 +121,6 @@ bool ForwardPipeline::activate() {
     return true;
 }
 
-
 void ForwardPipeline::render(const vector<scene::Camera *> &cameras) {
     _commandBuffers[0]->begin();
     _pipelineUBO->updateGlobalUBO();
@@ -154,7 +153,7 @@ bool ForwardPipeline::activeRenderer() {
         {},
         {},
     };
-    const uint shadowMapSamplerHash = SamplerLib::genSamplerHash(info);
+    const uint          shadowMapSamplerHash = SamplerLib::genSamplerHash(info);
     gfx::Sampler *const shadowMapSampler     = SamplerLib::getSampler(shadowMapSamplerHash);
 
     // Main light sampler binding

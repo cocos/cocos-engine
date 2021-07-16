@@ -458,6 +458,7 @@ void Object::setPrivateData(void *data) {
     internal::setPrivate(__isolate, _obj, data, &_internalData);
     NativePtrToObjectMap::emplace(data, this);
     _privateData = data;
+    setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(data))));
 }
 
 void *Object::getPrivateData() const {
@@ -473,6 +474,7 @@ void Object::clearPrivateData(bool clearMapping) {
             NativePtrToObjectMap::erase(_privateData);
         }
         internal::clearPrivate(__isolate, _obj);
+        setProperty("__native_ptr__", se::Value(static_cast<uint64_t>(reinterpret_cast<uintptr_t>(nullptr))));
         _privateData = nullptr;
     }
 }

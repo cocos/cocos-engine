@@ -1646,6 +1646,7 @@ cocos_source_files(
                  cocos/bindings/manual/jsb_module_register.h
                  cocos/bindings/manual/jsb_platform.h
     NO_WERROR    cocos/bindings/manual/jsb_scene_manual.cpp
+    NO_WERROR    cocos/bindings/manual/jsb_scene_manual_ext.cpp
                  cocos/bindings/manual/jsb_scene_manual.h
     NO_WERROR    cocos/bindings/manual/jsb_network_manual.cpp
                  cocos/bindings/manual/jsb_network_manual.h
