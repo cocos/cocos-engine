@@ -8,7 +8,7 @@ import {
     SerializationContext,
     DeserializationContext,
 } from 'cc';
-import { PORTS_BOTH_DYNAMIC_COMPILED, testEachPort } from "../port";
+import { PORTS_BOTH_DYNAMIC_COMPILED, PORT_CCOB, testEachPort } from "../port";
 import { ccclassAutoNamed, runTest } from '../utils';
 
 @ccclassAutoNamed(__filename)
@@ -22,7 +22,7 @@ class Foo implements CustomSerializable {
     }
 
     [deserializeTag](serializationInput: SerializationInput, _context: DeserializationContext) {
-        if (_context.toCCON) {
+        if (_context.fromCCON) {
             this.bar = serializationInput.readProperty('bar');
         }
     }
@@ -30,7 +30,7 @@ class Foo implements CustomSerializable {
 
 export const value = new Foo();
 
-testEachPort(PORTS_BOTH_DYNAMIC_COMPILED, async (port) => {
+testEachPort([PORT_CCOB], async (port) => {
     await runTest(
         __filename,
         port,

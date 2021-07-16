@@ -673,7 +673,7 @@ class _Deserializer {
         propName: string,
     ) {
         const id = (serializedField as Partial<SerializedObjectReference>).__id__;
-        if (id) {
+        if (typeof id === 'number') {
             const field = this.deserializedList[id];
             if (field) {
                 obj[propName] = field;
@@ -700,7 +700,7 @@ class _Deserializer {
 
     private _deserializeObjectField (serializedField: SerializedFieldObjectValue) {
         const id = (serializedField as Partial<SerializedObjectReference>).__id__;
-        if (id) {
+        if (typeof id === 'number') {
             const field = this.deserializedList[id];
             if (field) {
                 return field;
@@ -842,7 +842,7 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 export function parseUuidDependenciesDynamic (serialized: unknown) {
     const depends = [];
     const parseDependRecursively = (data: any, out: string[]) => {
-        if (!data || typeof data !== 'object' || data.__id__) { return; }
+        if (!data || typeof data !== 'object' || typeof data.__id__ === 'number') { return; }
         const uuid = data.__uuid__;
         if (Array.isArray(data)) {
             for (let i = 0, l = data.length; i < l; i++) {
