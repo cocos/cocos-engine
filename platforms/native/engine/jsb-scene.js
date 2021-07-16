@@ -45,6 +45,9 @@ function beginTrans(fn, minBytes) {
         dataView = new DataView(__fastMQ__[__fastMQIdx__]);
         startPos = 8;
         commands = 0;
+        if(__fastMQIdx__ > 5) {
+            console.warn(`Too many pending commands in __fastMQ__, forget to flush?`);
+        }
     }
 
     let offset = 4;         // reserved for block total length
