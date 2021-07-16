@@ -34,6 +34,10 @@
 #include <stdlib.h>
 #include <memory>
 
+#ifdef _WIN64
+	#define GWL_WNDPROC (-4)
+#endif
+
 extern std::shared_ptr<cc::View> cc_get_application_view();
 
 namespace cc {
