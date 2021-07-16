@@ -20,6 +20,9 @@
     },
     "contextSerializeThis2": {
       "__id__": 7
+    },
+    "readOrWriteMultiReferenceProperty": {
+      "__id__": 8
     }
   },
   {
@@ -54,5 +57,17 @@
   {
     "__type__": "custom-serialize-symbol.ContextSerializeThis2",
     "foo": "CustomOverride"
+  },
+  {
+    "__type__": "custom-serialize-symbol.ReadOrWriteMultiReferenceProperty",
+    "child": {
+      "__id__": 9
+    }
+  },
+  {
+    "__type__": "custom-serialize-symbol.ReadOrWriteMultiReferenceProperty_MemberClass",
+    "parent": {
+      "__id__": 8
+    }
   }
 ]
