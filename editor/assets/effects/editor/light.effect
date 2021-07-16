@@ -1,5 +1,6 @@
 CCEffect %{
-  hideInEditor: true
+  editor:
+    hide: true
   techniques:
   - passes:
     - vert: light-vs:vert

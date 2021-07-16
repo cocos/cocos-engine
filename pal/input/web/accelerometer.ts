@@ -1,9 +1,9 @@
 import { AccelerometerCallback, AccelerometerInputEvent } from 'pal/input';
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/system-info';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { BrowserType, OS } from '../../system/enum-type';
+import { BrowserType, OS } from '../../system-info/enum-type';
 import { legacyCC } from '../../../cocos/core/global-exports';
-import { DeviceEvent } from '../../../cocos/core/platform/event-manager/event-enum';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 
 export class AccelerometerInputSource {
     public support: boolean;
@@ -21,7 +21,7 @@ export class AccelerometerInputSource {
         // init event name
         this._globalEventClass = window.DeviceMotionEvent || window.DeviceOrientationEvent;
         // TODO fix DeviceMotionEvent bug on QQ Browser version 4.1 and below.
-        if (system.browserType === BrowserType.MOBILE_QQ) {
+        if (systemInfo.browserType === BrowserType.MOBILE_QQ) {
             this._globalEventClass = window.DeviceOrientationEvent;
         }
         this._deviceEventName = this._globalEventClass === window.DeviceMotionEvent ? 'devicemotion' : 'deviceorientation';
@@ -87,20 +87,20 @@ export class AccelerometerInputSource {
         }
 
         // fix android acc values are opposite
-        if (system.os === OS.ANDROID
-            && system.browserType !== BrowserType.MOBILE_QQ) {
+        if (systemInfo.os === OS.ANDROID
+            && systemInfo.browserType !== BrowserType.MOBILE_QQ) {
             x = -x;
             y = -y;
         }
         const accelerometer: AccelerometerInputEvent = {
-            type: DeviceEvent.DEVICEMOTION,
+            type: SystemEventType.DEVICEMOTION,
             x,
             y,
             z,
             timestamp: performance.now(),
         };
 
-        this._eventTarget.emit(DeviceEvent.DEVICEMOTION, accelerometer);
+        this._eventTarget.emit(SystemEventType.DEVICEMOTION, accelerometer);
     }
 
     public start () {
@@ -113,6 +113,6 @@ export class AccelerometerInputSource {
         this._intervalInMileseconds = intervalInMileseconds;
     }
     public onChange (cb: AccelerometerCallback) {
-        this._eventTarget.on(DeviceEvent.DEVICEMOTION, cb);
+        this._eventTarget.on(SystemEventType.DEVICEMOTION, cb);
     }
 }

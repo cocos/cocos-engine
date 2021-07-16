@@ -170,8 +170,6 @@ export class TextureCube extends SimpleTexture {
 
     public onLoaded () {
         this.mipmaps = this._mipmaps;
-        this.loaded = true;
-        this.emit('load');
     }
 
     /**

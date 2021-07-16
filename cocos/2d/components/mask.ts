@@ -175,11 +175,6 @@ export class Mask extends Renderable2D {
     }
 
     set inverted (value) {
-        if (legacyCC.game.renderType === Game.RENDER_TYPE_CANVAS) {
-            warnID(4202);
-            return;
-        }
-
         this._inverted = value;
         this.stencilStage = Stage.DISABLED;
         if (this._graphics) {

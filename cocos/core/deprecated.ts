@@ -28,14 +28,16 @@
  * @hidden
  */
 
-import { replaceProperty, removeProperty } from './utils/x-deprecated';
+import { replaceProperty, removeProperty, markAsWarning } from './utils/x-deprecated';
 import * as math from './math';
 import { Scheduler } from './scheduler';
 import { EventTouch } from './platform/event-manager/events';
 import { legacyCC } from './global-exports';
 import { SubModel } from './renderer/scene/submodel';
 import { Root } from './root';
+import { game } from './game';
 import System from './components/system';
+import { Director } from './director';
 
 // VMATH
 
@@ -263,5 +265,70 @@ replaceProperty(Root.prototype, 'Root.prototype', [
     {
         name: 'ui',
         newName: 'batcher2D',
+    },
+]);
+
+// game
+
+markAsWarning(game, 'game', [
+    {
+        name: 'collisionMatrix',
+    },
+    {
+        name: 'groupList',
+    },
+]);
+
+// Director
+
+markAsWarning(Director.prototype, 'director', [
+    {
+        name: 'calculateDeltaTime',
+    },
+    {
+        name: 'getDeltaTime',
+        suggest: 'Use game.deltaTime instead',
+    },
+    {
+        name: 'getTotalTime',
+        suggest: 'Use game.totalTime instead',
+    },
+    {
+        name: 'getCurrentTime',
+        suggest: 'Use game.frameStartTime instead',
+    },
+]);
+
+removeProperty(Director.prototype, 'director', [
+    {
+        name: 'setAnimationInterval',
+        suggest: 'please use game.frameRate instead',
+    },
+    {
+        name: 'getAnimationInterval',
+        suggest: 'please use game.frameRate instead',
+    },
+    {
+        name: 'getRunningScene',
+        suggest: 'please use getScene instead',
+    },
+    {
+        name: 'setDepthTest',
+        suggest: 'please use camera API instead',
+    },
+    {
+        name: 'setClearColor',
+        suggest: 'please use camera API instead',
+    },
+    {
+        name: 'getWinSize',
+        suggest: 'please use view.getVisibleSize instead',
+    },
+    {
+        name: 'getWinSizeInPixels',
+    },
+    {
+        name: 'purgeCachedData',
+        suggest: 'please use assetManager.releaseAll instead',
     },
 ]);

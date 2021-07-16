@@ -177,8 +177,6 @@ export class RenderTexture extends Asset {
 
     public onLoaded () {
         this._initWindow();
-        this.loaded = true;
-        this.emit('load');
     }
 
     protected _initWindow (info?: IRenderTextureCreateInfo) {

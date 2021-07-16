@@ -56,16 +56,6 @@ const WebGLWraps: GLenum[] = [
     0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE
 ];
 
-const SAMPLES: number[] = [
-    1,
-    2,
-    4,
-    8,
-    16,
-    32,
-    64,
-];
-
 const _f32v4 = new Float32Array(4);
 
 function CmpF32NotEuqal (a: number, b: number): boolean {
@@ -1082,7 +1072,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                     device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
                 }
 
-                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
+                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, gpuTexture.samples,
                     gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
             }
         }
@@ -1160,10 +1150,6 @@ export function WebGL2CmdFuncDestroyTexture (device: WebGL2Device, gpuTexture: I
 export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IWebGL2GPUTexture) {
     const { gl } = device;
 
-    gpuTexture.glInternalFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format, gl);
-    gpuTexture.glFormat = GFXFormatToWebGLFormat(gpuTexture.format, gl);
-    gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format, gl);
-
     let w = gpuTexture.width;
     let h = gpuTexture.height;
 
@@ -1199,18 +1185,14 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                     h = Math.max(1, h >> 1);
                 }
             }
-        } else {
-            const glRenderbuffer = gl.createRenderbuffer();
-            if (glRenderbuffer && gpuTexture.size > 0) {
-                gpuTexture.glRenderbuffer = glRenderbuffer;
-                if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
-                    gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
-                    device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
-                }
-
-                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
-                    gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
+        } else if (gpuTexture.glRenderbuffer && gpuTexture.size > 0) {
+            if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
+                gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
+                device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
             }
+
+            gl.renderbufferStorageMultisample(gl.RENDERBUFFER, gpuTexture.samples,
+                gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
         }
         break;
     }

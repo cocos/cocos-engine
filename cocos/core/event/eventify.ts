@@ -31,9 +31,9 @@
 import { CallbacksInvoker } from './callbacks-invoker';
 import { createMap } from '../utils/js';
 
-type Constructor<T = {}> = new (...args: any[]) => T;
+type Constructor<T> = new (...args: any[]) => T;
 
-type EventType = string;
+type EventType = string | number;
 
 /**
  * @zh
@@ -183,5 +183,5 @@ export function Eventify<TBase> (base: Constructor<TBase>): Constructor<TBase & 
         }
     }
 
-    return Eventified as unknown as any;
+    return Eventified as unknown as Constructor<TBase & IEventified>;
 }

@@ -6,7 +6,7 @@ import b2 from '@cocos/box2d';
 import { EDITOR } from 'internal:constants';
 
 import { IPhysicsWorld } from '../spec/i-physics-world';
-import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, Node, game, CCObject, find, director } from '../../core';
+import { IVec2Like, Vec3, Quat, toRadian, Vec2, toDegree, Rect, Node, game, CCObject, find, director, Layers } from '../../core';
 import { PHYSICS_2D_PTM_RATIO, ERaycast2DType, ERigidBody2DType } from '../framework/physics-types';
 import { array } from '../../core/utils/js';
 import { Canvas } from '../../2d/framework';
@@ -34,6 +34,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
     protected _world: b2.World;
     protected _bodies: b2RigidBody2D[] = [];
     protected _animatedBodies: b2RigidBody2D[] = [];
+    protected _rotationAxis: Vec3 = new Vec3();
 
     protected _contactListener: PhysicsContactListener;
     protected _aabbQueryCallback: PhysicsAABBQueryCallback;
@@ -98,6 +99,7 @@ export class b2PhysicsWorld implements IPhysicsWorld {
             node.hideFlags |= CCObject.Flags.DontSave;
             node.parent = canvas;
             node.worldPosition = Vec3.ZERO;
+            node.layer = Layers.Enum.UI_2D;
 
             this._debugGraphics = node.addComponent(Graphics);
             this._debugGraphics.lineWidth = 2;
@@ -250,8 +252,8 @@ export class b2PhysicsWorld implements IPhysicsWorld {
         const pos = node.worldPosition;
         bodyDef.position.Set(pos.x / PHYSICS_2D_PTM_RATIO, pos.y / PHYSICS_2D_PTM_RATIO);
 
-        Quat.toEuler(tempVec3, node.worldRotation);
-        bodyDef.angle = toRadian(tempVec3.z);
+        tempVec3.z = Quat.getAxisAngle(this._rotationAxis, node.worldRotation);
+        bodyDef.angle = tempVec3.z;
 
         bodyDef.awake = comp.awakeOnLoad;
 

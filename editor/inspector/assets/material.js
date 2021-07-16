@@ -251,6 +251,7 @@ exports.methods = {
  * @param metaList
  */
 exports.update = async function(assetList, metaList) {
+
     this.assetList = assetList;
     this.metaList = metaList;
     this.asset = assetList[0];
@@ -260,13 +261,15 @@ exports.update = async function(assetList, metaList) {
     if (notOnlyOne) {
         return;
     }
+    if (!this.dirtyData) {
+        return;
+    }
     if (this.dirtyData.uuid !== this.asset.uuid) {
         this.dirtyData.uuid = this.asset.uuid;
         this.dirtyData.origin = '';
     }
 
     this.material = await Editor.Message.request('scene', 'query-material', this.asset.uuid);
-    await Editor.Message.request('scene', 'preview-material', this.asset.uuid);
 
     // effect <select> tag
     this.$.effect.value = this.material.effect;
@@ -277,8 +280,12 @@ exports.update = async function(assetList, metaList) {
     setDisabled(this.asset.readonly, this.$.technique);
 
     this.updateTechniqueOptions();
-    this.updatePasses();
     this.setDirtyData();
+
+    // optimize calculate speed when edit multiple materials in node mode
+    requestIdleCallback(() => {
+        this.updatePasses();
+    });
 };
 
 /**

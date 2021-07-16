@@ -25,7 +25,7 @@ export const NativeModel: Constructor<{
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
-    addSubModel (val: NativeSubModel): void;
+    setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
@@ -42,7 +42,7 @@ export const NativeSkinningModel: Constructor<{
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
-    addSubModel (val: NativeSubModel): void;
+    setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
@@ -77,7 +77,7 @@ export const NativeBakedSkinningModel: Constructor<{
     setCastShadow (val: boolean): void;
     setLocalBuffer (buf: Buffer | null): void;
     setBounds (val: NativeAABB | null): void;
-    addSubModel (val: NativeSubModel): void;
+    setSubModel (idx: number, val: NativeSubModel): void;
     setInstMatWorldIdx (idx: number): void;
     setInstancedBuffer (buffer: ArrayBuffer): void;
     setInstanceAttributes (attrs: Attribute[]): void;
@@ -228,7 +228,7 @@ export const NativeRenderScene: Constructor<{
     removeSphereLights (): void;
     removeSpotLights (): void;
     addModel (m: NativeModel): void;
-    removeModel (m: NativeModel): void;
+    removeModel (i: number): void;
     removeModels (): void;
     addBatch (batch: NativeDrawBatch2D): void;
     updateBatches (batches: NativeDrawBatch2D[]): void;
@@ -253,21 +253,18 @@ export const NativeShadow: Constructor<{
     color: Color;
     nearValue: number;
     farValue: number;
-    aspect: number;
     orthoSize: number;
     size: Vec2;
     pcfType: number;
     shadowMapDirty: boolean;
     bias: number;
-    packing: boolean;
-    linear: boolean;
-    selfShadow: boolean;
     normalBias: number;
     autoAdapt: boolean;
     planarPass: NativePass;
     instancePass: NativePass;
     enabled: boolean;
     shadowType: number;
+    saturation: number;
 }> = null!;
 export type NativeShadow = InstanceType<typeof NativeShadow>;
 

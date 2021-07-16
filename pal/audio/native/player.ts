@@ -1,10 +1,10 @@
-import { system } from 'pal/system';
+import { systemInfo } from 'pal/system-info';
 import { AudioType, AudioState, AudioEvent } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
-import { Platform } from '../../system/enum-type';
+import { Platform } from '../../system-info/enum-type';
 
 const urlCount: Record<string, number> = {};
 const audioEngine = jsb.AudioEngine;
@@ -54,9 +54,6 @@ export class AudioPlayer implements OperationQueueable {
     private _id: number = INVALID_AUDIO_ID;
     private _state: AudioState = AudioState.INIT;
 
-    private _onHide?: () => void;
-    private _onShow?: () => void;
-
     // NOTE: the implemented interface properties need to be public access
     public _eventTarget: EventTarget = new EventTarget();
     public _operationQueue: OperationInfo[] = [];
@@ -72,36 +69,29 @@ export class AudioPlayer implements OperationQueueable {
         this._url = url;
 
         // event
-        // TODO: should not call engine API in pal
-        this._onHide = () => {
-            if (this._state === AudioState.PLAYING) {
-                this.pause().then(() => {
-                    this._state = AudioState.INTERRUPTED;
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-                }).catch((e) => {});
-            }
-        };
-        legacyCC.game.on(legacyCC.Game.EVENT_HIDE, this._onHide);
-        this._onShow = () => {
-            if (this._state === AudioState.INTERRUPTED) {
-                this.play().then(() => {
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-                }).catch((e) => {});
-            }
-        };
-        legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
+        systemInfo.on('hide', this._onHide, this);
+        systemInfo.on('show', this._onShow, this);
     }
     destroy () {
-        if (this._onShow) {
-            legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
-            this._onShow = undefined;
-        }
-        if (this._onHide) {
-            legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
-            this._onHide = undefined;
-        }
+        systemInfo.on('hide', this._onHide, this);
+        systemInfo.on('show', this._onShow, this);
         if (--urlCount[this._url] <= 0) {
             audioEngine.uncache(this._url);
+        }
+    }
+    private _onHide () {
+        if (this._state === AudioState.PLAYING) {
+            this.pause().then(() => {
+                this._state = AudioState.INTERRUPTED;
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
+            }).catch((e) => {});
+        }
+    }
+    private _onShow () {
+        if (this._state === AudioState.INTERRUPTED) {
+            this.play().then(() => {
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
+            }).catch((e) => {});
         }
     }
     static load (url: string): Promise<AudioPlayer> {
@@ -113,7 +103,7 @@ export class AudioPlayer implements OperationQueueable {
     }
     static loadNative (url: string): Promise<unknown> {
         return new Promise((resolve, reject) => {
-            if (system.platform === Platform.WIN32) {
+            if (systemInfo.platform === Platform.WIN32) {
                 // NOTE: audioEngine.preload() not works well on Win32 platform.
                 // Especially when there is not audio output device.
                 resolve(url);

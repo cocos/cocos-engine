@@ -13,42 +13,11 @@ Object.assign(game, {
         else {
             this._paused = true;
             this._setAnimFrame();
-            this._runMainLoop();
         }
     },
 
     getFrameRate () {
         return _frameRate;
-    },
-
-    _runMainLoop () {
-        var self = this, callback, config = self.config,
-            director = cc.director,
-            skip = true, frameRate = config.frameRate;
-
-        cc.debug.setDisplayStats(config.showFPS);
-
-        director.startAnimation();
-
-        callback = function (time) {
-            if (!self._paused) {
-                self._intervalId = window.rAF(callback);
-                if (_frameRate === 30  && !__globalAdapter.setPreferredFramesPerSecond) {
-                    if (skip = !skip) {
-                        return;
-                    }
-                }
-                director.mainLoop(time);
-            }
-        };
-
-        if (self._intervalId) {
-            window.cAF(self._intervalId);
-            self._intervalId = 0;
-        }
-
-        self._intervalId = window.rAF(callback);
-        self._paused = false;
     },
 
     _initEvents () {

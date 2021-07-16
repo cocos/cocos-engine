@@ -248,7 +248,6 @@ export class TerrainAsset extends Asset {
 
     constructor () {
         super();
-        this.loaded = false;
     }
 
     get _nativeAsset (): ArrayBuffer {
@@ -263,8 +262,6 @@ export class TerrainAsset extends Asset {
         }
 
         this._loadNativeData(this._data);
-        this.loaded = true;
-        this.emit('load');
     }
 
     /**
