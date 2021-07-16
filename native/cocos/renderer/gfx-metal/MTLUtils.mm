@@ -40,7 +40,8 @@ namespace cc {
 namespace gfx {
 namespace {
 
-std::unordered_map<uint, PipelineState*> renderPassMap;
+std::unordered_map<uint, PipelineState*> pipelineMap;
+std::unordered_map<uint, RenderPass*> renderPassMap;
 
 EShLanguage getShaderStage(ShaderStageFlagBit type) {
     switch (type) {
@@ -401,14 +402,58 @@ gfx::Shader *createShader(CCMTLDevice *device) {
     return device->createShader(shaderInfo);
 }
 
-CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass *renderPass) {
-    uint rpHash = renderPass->getHash();
-    const auto iter = renderPassMap.find(rpHash);
-    if(iter != renderPassMap.end()) {
+CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, RenderPass * curPass) {
+    uint rpHash = curPass->getHash();
+    const auto iter = pipelineMap.find(rpHash);
+    if(iter != pipelineMap.end()) {
         auto *ccMtlPiplineState = static_cast<CCMTLPipelineState *>(iter->second);
         return ccMtlPiplineState->getGPUPipelineState();
     }
-
+    
+    RenderPass* renderPass = nullptr;
+    const auto rpIter = renderPassMap.find(rpHash);
+    if(rpIter != renderPassMap.end()) {
+        renderPass = rpIter->second;
+    } else {
+        const ColorAttachmentList& originAttachments = curPass->getColorAttachments();
+        const SubpassInfoList& subpasses = curPass->getSubpasses();
+        uint32_t curSubpassIndex = static_cast<CCMTLRenderPass*>(curPass)->getCurrentSubpassIndex();
+        if(!subpasses.empty()) {
+            gfx::ColorAttachmentList colorAttachments;
+            gfx::DepthStencilAttachment depthStencilAttachment;
+            for (size_t i = 0; i < subpasses[curSubpassIndex].colors.size(); i++) {
+                uint32_t color = subpasses[curSubpassIndex].colors[i];
+                colorAttachments.push_back(originAttachments[color]);
+            }
+            
+            uint32_t depthStencil = subpasses[curSubpassIndex].depthStencil;
+            if(depthStencil >= subpasses[curSubpassIndex].colors.size()) {
+                depthStencilAttachment = curPass->getDepthStencilAttachment();
+            } else {
+                const ColorAttachment& dsa = originAttachments[depthStencil];
+                depthStencilAttachment.depthLoadOp = dsa.loadOp;
+                depthStencilAttachment.depthStoreOp = dsa.storeOp;
+                depthStencilAttachment.stencilLoadOp = dsa.loadOp;
+                depthStencilAttachment.stencilStoreOp = dsa.storeOp;
+                depthStencilAttachment.beginAccesses = dsa.beginAccesses;
+                depthStencilAttachment.endAccesses = dsa.endAccesses;
+                depthStencilAttachment.format = dsa.format;
+                depthStencilAttachment.sampleCount = dsa.sampleCount;
+            }
+            renderPass = device->createRenderPass({
+                colorAttachments,
+                depthStencilAttachment,
+                {},
+            });
+        } else {
+            renderPass = device->createRenderPass({
+                originAttachments,
+                curPass->getDepthStencilAttachment(),
+                {},
+            });
+        }
+    }
+    
     gfx::Attribute position = {"a_position", gfx::Format::RG32F, false, 0, false};
     gfx::PipelineStateInfo pipelineInfo;
     pipelineInfo.primitive = gfx::PrimitiveMode::TRIANGLE_LIST;
@@ -418,7 +463,9 @@ CCMTLGPUPipelineState *getClearRenderPassPipelineState(CCMTLDevice *device, Rend
 
     PipelineState *pipelineState = device->createPipelineState(std::move(pipelineInfo));
     CC_DELETE(pipelineInfo.shader);
-    renderPassMap.emplace(std::make_pair(renderPass->getHash(), pipelineState));
+    pipelineMap.emplace(std::make_pair(curPass->getHash(), pipelineState));
+    renderPassMap.emplace(std::make_pair(curPass->getHash(), renderPass));
+    ((CCMTLPipelineState*)pipelineState)->check();
     return static_cast<CCMTLPipelineState *>(pipelineState)->getGPUPipelineState();
 }
 }
@@ -451,8 +498,40 @@ MTLStoreAction mu::toMTLStoreAction(StoreOp op) {
     }
 }
 
+MTLStoreAction mu::toMTLMSAAStoreAction(StoreOp op) {
+    switch (op) {
+        case StoreOp::STORE: return MTLStoreActionMultisampleResolve;
+        case StoreOp::DISCARD: return MTLStoreActionStoreAndMultisampleResolve;
+        default: return MTLStoreActionUnknown;
+    }
+}
+
 MTLClearColor mu::toMTLClearColor(const Color &clearColor) {
     return MTLClearColorMake(clearColor.x, clearColor.y, clearColor.z, clearColor.w);
+}
+
+MTLMultisampleDepthResolveFilter mu::toMTLDepthResolveMode(ResolveMode mode) {
+    switch (mode) {
+        case ResolveMode::SAMPLE_ZERO:
+            return MTLMultisampleDepthResolveFilterSample0;
+        case ResolveMode::MIN:
+            return MTLMultisampleDepthResolveFilterMin;
+        case ResolveMode::MAX:
+            return MTLMultisampleDepthResolveFilterMax;
+        default:
+            return MTLMultisampleDepthResolveFilterSample0;
+    }
+}
+
+MTLMultisampleStencilResolveFilter mu::toMTLStencilResolveMode(ResolveMode mode) {
+    switch (mode) {
+        case ResolveMode::SAMPLE_ZERO:
+            return MTLMultisampleStencilResolveFilterSample0;
+        case ResolveMode::MIN:
+        case ResolveMode::MAX:
+        default:
+            return MTLMultisampleStencilResolveFilterDepthResolvedSample;
+    }
 }
 
 MTLVertexFormat mu::toMTLVertexFormat(Format format, bool isNormalized) {
@@ -1646,6 +1725,7 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer
     const auto mtlRenderPass = static_cast<CCMTLRenderPass *>(renderPass);
     uint slot = 0u;
     MTLRenderPassDescriptor *renderPassDescriptor = mtlRenderPass->getMTLRenderPassDescriptor();
+    renderPassDescriptor.colorAttachments[slot].loadAction = MTLLoadActionLoad;
     const auto &renderTargetSizes = mtlRenderPass->getRenderTargetSizes();
     float renderTargetWidth = renderTargetSizes[slot].x;
     float renderTargetHeight = renderTargetSizes[slot].y;
@@ -1698,12 +1778,19 @@ void mu::clearRenderArea(CCMTLDevice *device, id<MTLCommandBuffer> commandBuffer
 
 void mu::clearUtilResource() {
     if(!renderPassMap.empty()) {
-        for (auto pass : renderPassMap) {
+        for (auto& pass : renderPassMap) {
             //TODO: create and destroy not in the same level
             pass.second->destroy();
             CC_DELETE(pass.second);
         }
         renderPassMap.clear();
+    }
+    if(!pipelineMap.empty()) {
+        for (auto& pipeline : pipelineMap) {
+            pipeline.second->destroy();
+            CC_DELETE(pipeline.second);
+        }
+        pipelineMap.clear();
     }
 }
 

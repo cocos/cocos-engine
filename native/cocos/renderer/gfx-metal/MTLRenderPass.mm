@@ -23,11 +23,12 @@
  THE SOFTWARE.
 ****************************************************************************/
 
+#include <QuartzCore/CAMetalLayer.h>
 #include "MTLStd.h"
-
 #include "MTLDevice.h"
 #include "MTLRenderPass.h"
 #include "MTLUtils.h"
+#include "MTLTexture.h"
 
 namespace cc {
 namespace gfx {
@@ -61,7 +62,7 @@ void CCMTLRenderPass::doDestroy() {
     }
 }
 
-void CCMTLRenderPass::setColorAttachment(size_t slot, id<MTLTexture> texture, int level) {
+void CCMTLRenderPass::setColorAttachment(size_t slot, CCMTLTexture* cctex, int level) {
     if (!_mtlRenderPassDescriptor) {
         CC_LOG_ERROR("CCMTLRenderPass: MTLRenderPassDescriptor should not be nullptr.");
         return;
@@ -72,15 +73,29 @@ void CCMTLRenderPass::setColorAttachment(size_t slot, id<MTLTexture> texture, in
         return;
     }
 
+    id<MTLTexture> texture = nil;
+    if(!cctex) {
+        texture = [static_cast<id<CAMetalDrawable>>(CCMTLDevice::getInstance()->getCurrentDrawable()) texture];
+    } else {
+        texture = cctex->getMTLTexture();
+    }
+
     _mtlRenderPassDescriptor.colorAttachments[slot].texture = texture;
     _mtlRenderPassDescriptor.colorAttachments[slot].level = level;
     _renderTargetSizes[slot] = {static_cast<float>(texture.width), static_cast<float>(texture.height)};
 }
 
-void CCMTLRenderPass::setDepthStencilAttachment(id<MTLTexture> texture, int level) {
+void CCMTLRenderPass::setDepthStencilAttachment(CCMTLTexture* cctex, int level) {
     if (!_mtlRenderPassDescriptor) {
         CC_LOG_ERROR("CCMTLRenderPass: MTLRenderPassDescriptor should not be nullptr.");
         return;
+    }
+    
+    id<MTLTexture> texture = nil;
+    if(!cctex) {
+        texture = static_cast<id<MTLTexture>>(CCMTLDevice::getInstance()->getDSTexture());
+    } else {
+        texture = cctex->getMTLTexture();
     }
 
     _mtlRenderPassDescriptor.depthAttachment.texture = texture;

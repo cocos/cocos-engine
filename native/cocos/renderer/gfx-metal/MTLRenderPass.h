@@ -35,13 +35,15 @@
 namespace cc {
 namespace gfx {
 
+class CCMTLTexture;
+
 class CCMTLRenderPass final : public RenderPass {
 public:
     explicit CCMTLRenderPass();
     ~CCMTLRenderPass() override = default;
 
-    void setColorAttachment(size_t slot, id<MTLTexture> texture, int level);
-    void setDepthStencilAttachment(id<MTLTexture> texture, int level);
+    void setColorAttachment(size_t slot, CCMTLTexture* texture, int level);
+    void setDepthStencilAttachment(CCMTLTexture* texture, int level);
 
     inline MTLRenderPassDescriptor *getMTLRenderPassDescriptor() const { return _mtlRenderPassDescriptor; }
     inline uint getColorRenderTargetNums() const { return _colorRenderTargetNums; }

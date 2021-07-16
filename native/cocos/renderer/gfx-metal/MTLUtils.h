@@ -42,9 +42,12 @@ namespace mu {
 MTLResourceOptions toMTLResourceOption(MemoryUsage usage);
 MTLLoadAction toMTLLoadAction(LoadOp op);
 MTLStoreAction toMTLStoreAction(StoreOp op);
+MTLStoreAction toMTLMSAAStoreAction(StoreOp op);
 MTLClearColor toMTLClearColor(const Color &clearColor);
 MTLVertexFormat toMTLVertexFormat(Format, bool);
 MTLPixelFormat toMTLPixelFormat(Format);
+MTLMultisampleDepthResolveFilter toMTLDepthResolveMode(ResolveMode mode);
+MTLMultisampleStencilResolveFilter toMTLStencilResolveMode(ResolveMode mode);
 // Because some pixel format is not supported on metal, so need to convert to supported pixel format.
 Format convertGFXPixelFormat(Format);
 MTLColorWriteMask toMTLColorWriteMask(ColorMask);

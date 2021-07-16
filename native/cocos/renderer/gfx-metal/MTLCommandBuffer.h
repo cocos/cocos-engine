@@ -85,6 +85,7 @@ protected:
     void doDestroy() override;
 
     void bindDescriptorSets();
+    void updateDepthStencilState(uint32_t subPassIndex, MTLRenderPassDescriptor* descriptor);
     static bool isRenderingEntireDrawable(const Rect &rect, const CCMTLRenderPass *renderPass);
 
     CCMTLGPUPipelineState *_gpuPipelineState = nullptr;
@@ -108,7 +109,6 @@ protected:
     //state cache
     RenderPass *_curRenderPass = nullptr;
     Framebuffer *_curFBO = nullptr;
-    uint _curSubpassIndex = 0;
     
 };
 

@@ -259,7 +259,7 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
     const ColorAttachmentList& colorAttachments = _renderPass->getColorAttachments();
     const auto& ccShader = static_cast<CCMTLShader*>(_shader);
     
-    std::vector<uint> bindingIndices;
+    std::vector<uint32_t> bindingIndices;
     std::vector<int> bindingOffsets;
     
     const CCMTLGPUShader* gpuShader = ccShader->gpuShader();
@@ -267,12 +267,13 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
     bindingIndices.reserve(outputNum);
     bindingOffsets.reserve(outputNum);
     MTLPixelFormat mtlPixelFormat;
-    std::set<uint> inputs;
+    std::set<uint32_t> inputs;
+    uint32_t depthStencilTexIndex = INVALID_BINDING;
     if(!subpasses.empty()) {
         for(size_t passIndex = 0; passIndex < subpasses.size(); ++passIndex) {
             const SubpassInfo& subpass = subpasses[passIndex];
             for (size_t i = 0; i < subpass.inputs.size(); ++i) {
-                uint input = subpass.inputs[i];
+                uint32_t input = subpass.inputs[i];
                 if(inputs.find(input) == inputs.end()) {
                     inputs.insert(input);
                     mtlPixelFormat = mu::toMTLPixelFormat(colorAttachments[input].format);
@@ -281,33 +282,49 @@ void CCMTLPipelineState::setMTLFunctionsAndFormats(MTLRenderPipelineDescriptor *
             }
             
             for (size_t i = 0; i < subpass.colors.size(); ++i) {
-                uint output = subpass.colors[i];
+                uint32_t output = subpass.colors[i];
                 mtlPixelFormat = mu::toMTLPixelFormat(colorAttachments[output].format);
                 descriptor.colorAttachments[output].pixelFormat = mtlPixelFormat;
             }
+            depthStencilTexIndex = subpass.depthStencil;
         }
-        const uint curIndex = static_cast<CCMTLRenderPass*>(_renderPass)->getCurrentSubpassIndex();
+        const uint32_t curIndex = static_cast<CCMTLRenderPass*>(_renderPass)->getCurrentSubpassIndex();
         const SubpassInfo& curSubpass = subpasses[curIndex];
         for (size_t i = 0; i < curSubpass.colors.size(); ++i) {
             bindingIndices.emplace_back(i);
             bindingOffsets.emplace_back(curSubpass.colors[i]);
         }
     } else {
-        mtlPixelFormat = mu::toMTLPixelFormat(colorAttachments[0].format);
-        descriptor.colorAttachments[0].pixelFormat = mtlPixelFormat;
-        bindingIndices.emplace_back(0);
-        bindingOffsets.emplace_back(0);
+        for (size_t i = 0; i < colorAttachments.size(); ++i) {
+            mtlPixelFormat = mu::toMTLPixelFormat(colorAttachments[i].format);
+            descriptor.colorAttachments[i].pixelFormat = mtlPixelFormat;
+            bindingIndices.emplace_back(i);
+            bindingOffsets.emplace_back(i);
+            depthStencilTexIndex = INVALID_BINDING;
+        }
     }
-
+    
+    SampleCount sample = SampleCount::X1;
+    Format depthStencilFormat;
+    if(depthStencilTexIndex != INVALID_BINDING) {
+        sample = _renderPass->getColorAttachments()[depthStencilTexIndex].sampleCount;
+        depthStencilFormat = _renderPass->getColorAttachments()[depthStencilTexIndex].format;
+    } else {
+        sample = _renderPass->getDepthStencilAttachment().sampleCount;
+        depthStencilFormat = _renderPass->getDepthStencilAttachment().format;
+    }
+    descriptor.sampleCount = mu::toMTLSampleCount(sample);
+    
     auto *ccMTLShader = static_cast<CCMTLShader*>(_shader);
     descriptor.vertexFunction = ccMTLShader->getVertMTLFunction();
     descriptor.fragmentFunction = ccMTLShader->getSpecializedFragFunction(bindingIndices.data(), bindingOffsets.data(), static_cast<uint32_t>(bindingIndices.size()));
 
-    mtlPixelFormat = mu::toMTLPixelFormat(_renderPass->getDepthStencilAttachment().format);
+    mtlPixelFormat = mu::toMTLPixelFormat(depthStencilFormat);
     if (mtlPixelFormat != MTLPixelFormatInvalid) {
         descriptor.stencilAttachmentPixelFormat = mtlPixelFormat;
         descriptor.depthAttachmentPixelFormat = mtlPixelFormat;
     }
+    
 }
 
 void CCMTLPipelineState::setBlendStates(MTLRenderPipelineDescriptor *descriptor) {

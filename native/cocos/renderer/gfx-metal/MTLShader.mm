@@ -77,7 +77,7 @@ void CCMTLShader::doDestroy() {
     std::function<void(void)> destroyFunc = [=]() {
         if(specFragFuncs.count > 0) {
             for (NSString* key in [specFragFuncs allKeys]) {
-                [[_specializedFragFuncs valueForKey:key] release];
+                [[specFragFuncs valueForKey:key] release];
             }
         }
         [specFragFuncs release];
