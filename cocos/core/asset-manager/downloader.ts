@@ -101,13 +101,13 @@ const downloadCCON = (url: string, options: IDownloadParseOptions, onComplete: C
 };
 
 const downloadCCONB = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<CCON>) => {
-    downloadArrayBuffer(url, options, (err, json) => {
+    downloadArrayBuffer(url, options, (err, arrayBuffer: ArrayBuffer) => {
         if (err) {
             onComplete(err);
             return;
         }
         try {
-            const ccon = decodeCCONBinary(json);
+            const ccon = decodeCCONBinary(new Uint8Array(arrayBuffer));
             onComplete(null, ccon);
         } catch (err) {
             onComplete(err);

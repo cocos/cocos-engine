@@ -48,6 +48,7 @@ export interface IConfigOption {
     redirect: string[];
     debug: boolean;
     types: string[];
+    extensionMap: Record<string, string[]>;
 }
 
 export interface IAssetInfo {
@@ -163,6 +164,8 @@ export default class Config {
 
     public paths = new Cache<IAddressableInfo[]>();
 
+    public extensionMap: Record<string, string> = {};
+
     public init (options: IConfigOption) {
         processOptions(options);
 
@@ -178,6 +181,14 @@ export default class Config {
         this._initPackage(options.packs);
         this._initVersion(options.versions);
         this._initRedirect(options.redirect);
+        for (const ext in options.extensionMap) {
+            if (!Object.prototype.hasOwnProperty.call(options.extensionMap, ext)) {
+                continue;
+            }
+            options.extensionMap[ext].forEach((uuid) => {
+                this.extensionMap[uuid] = ext;
+            });
+        }
     }
 
     public getInfoWithPath (path: string, type?: AssetType | null): IAddressableInfo | null {

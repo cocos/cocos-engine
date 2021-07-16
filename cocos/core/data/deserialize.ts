@@ -43,6 +43,8 @@ import type { CCON } from './ccon';
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 import type { CompiledDeserializeFn } from './deserialize-dynamic';
 
+const FORCE_COMPILED = false; // TODO: BUILD;
+
 /** **************************************************************************
  * BUILT-IN TYPES / CONSTAINTS
  *************************************************************************** */
@@ -559,7 +561,7 @@ export class Details {
      * @param {Object} data
      */
     init (data?: IFileData) {
-        if (BUILD || data) {
+        if (FORCE_COMPILED || data) {
             this.uuidObjList = data![File.DependObjs];
             this.uuidPropList = data![File.DependKeys];
             this.uuidList = data![File.DependUuidIndices];
@@ -579,7 +581,7 @@ export class Details {
      * @method reset
      */
     reset  () {
-        if (BUILD) {
+        if (FORCE_COMPILED) {
             this.uuidList = null;
             this.uuidObjList = null;
             this.uuidPropList = null;
@@ -993,7 +995,7 @@ export function deserialize (data: IFileData | string | CCON | any, details: Det
     details = details || Details.pool.get();
     let res;
 
-    if (!BUILD && !(PREVIEW && isCompiledJson(data))) {
+    if (!FORCE_COMPILED && !isCompiledJson(data)) {
         res = deserializeDynamic(data, details, options);
     } else {
         details.init(data);
