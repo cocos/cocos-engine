@@ -386,7 +386,7 @@ int AudioEngineImpl::play2d(const std::string &filePath, bool loop, float volume
 }
 
 void AudioEngineImpl::play2dImpl(AudioCache *cache, int audioID) {
-    //Note: It may bn in sub thread or main thread :(
+    //Note: It may be in sub thread or main thread :(
     if (!*cache->_isDestroyed && cache->_state == AudioCache::State::READY) {
         _threadMutex.lock();
         auto playerIt = _audioPlayers.find(audioID);
