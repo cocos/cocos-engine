@@ -24,25 +24,38 @@
  ****************************************************************************/
 
 
- // __fastMQ__ in created in engine-native\cocos\bindings\manual\jsb_scene_manual_ext.cpp
-let dataView = new DataView(__fastMQ__);
+// __fastMQ__ in created in engine-native\cocos\bindings\manual\jsb_scene_manual_ext.cpp
+
 const FN_TABLE = ns.DrawBatch2D.fnTable;
 
 // @ts-check
-var isLittleEndian = new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x78;
+let isLittleEndian = new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x78;
 
-function beginTrans(dataView, fn) {
-    const startPos = dataView.getUint32(0, isLittleEndian);
-    const commands = dataView.getUint32(4, isLittleEndian);
+function beginTrans(fn, minBytes) {
+    let dataView = new DataView(__fastMQ__[__fastMQIdx__]);
+    let startPos = dataView.getUint32(0, isLittleEndian);
+    let commands = dataView.getUint32(4, isLittleEndian);
+    if (dataView.byteLength <= startPos + minBytes + 12) {
+        // allocation new ArrayBuffer, same size as __fastMQ__[0]
+        if (!__fastMQ__[__fastMQIdx__ + 1]) {
+            const buffer = new ArrayBuffer(dataView.byteLength);
+            __fastMQ__.push(buffer);
+        }
+        __fastMQIdx__ += 1;
+        dataView = new DataView(__fastMQ__[__fastMQIdx__]);
+        startPos = 8;
+        commands = 0;
+    }
+
     let offset = 4;         // reserved for block total length
     dataView.setBigUint64(startPos + offset, fn, isLittleEndian);
     offset += 8;
-    return { 
-        writeUint32: (value)=>{
+    return {
+        writeUint32: (value) => {
             dataView.setUint32(startPos + offset, value, isLittleEndian);
             offset += 4;
         },
-        writeBigUint64: (value) =>{
+        writeBigUint64: (value) => {
             dataView.setBigUint64(startPos + offset, value, isLittleEndian);
             offset += 8;
         },
@@ -57,7 +70,7 @@ function beginTrans(dataView, fn) {
 
 Object.defineProperty(ns.DrawBatch2D.prototype, "visFlags", {
     set: function (v) {
-        let trans = beginTrans(dataView, FN_TABLE['visFlags']);
+        let trans = beginTrans(FN_TABLE['visFlags'], 12);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeUint32(v);
         trans.commit();
@@ -70,7 +83,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "visFlags", {
 Object.defineProperty(ns.DrawBatch2D.prototype, "descriptorSet", {
     set: function (v) {
         if (!v) return;
-        let trans = beginTrans(dataView, FN_TABLE['descriptorSet']);
+        let trans = beginTrans(FN_TABLE['descriptorSet'], 16);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeBigUint64(v.__native_ptr__);
         trans.commit();
@@ -83,7 +96,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "descriptorSet", {
 Object.defineProperty(ns.DrawBatch2D.prototype, "inputAssembler", {
     set: function (v) {
         if (!v) return;
-        let trans = beginTrans(dataView, FN_TABLE['inputAssembler']);
+        let trans = beginTrans(FN_TABLE['inputAssembler'], 16);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeBigUint64(v.__native_ptr__);
         trans.commit();
@@ -97,7 +110,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "passes", {
     set: function (passes) {
         if (!passes) return;
 
-        let trans = beginTrans(dataView, FN_TABLE['passes']);
+        let trans = beginTrans(FN_TABLE['passes'], 8 + 4 + passes.length * 8);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeUint32(passes.length); // arg
         for (let p of passes) {
@@ -113,7 +126,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "passes", {
 Object.defineProperty(ns.DrawBatch2D.prototype, "shaders", {
     set: function (shaders) {
         if (!shaders) return;
-        let trans = beginTrans(dataView, FN_TABLE['shaders']);
+        let trans = beginTrans(FN_TABLE['shaders'], 8 + 4 + shaders.length * 8);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeUint32(shaders.length); // arg
         for (let p of shaders) {
