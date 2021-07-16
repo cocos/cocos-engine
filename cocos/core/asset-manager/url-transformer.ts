@@ -28,6 +28,7 @@
  */
 import { legacyCC } from '../global-exports';
 import { js, path } from '../utils';
+import { basename } from '../utils/path';
 import Config, { IAddressableInfo, IAssetInfo } from './config';
 import { decodeUuid } from './helper';
 import RequestItem from './request-item';
@@ -51,7 +52,7 @@ export function parse (task: Task) {
             item[options!.__requestType__ || RequestType.UUID] = input[i];
         }
         if (typeof item === 'object') {
-            // local options will overlap glabal options
+            // local options will overlap global options
             js.addon(item, options);
             if (item.preset) {
                 js.addon(item, presets[item.preset]);
@@ -140,6 +141,12 @@ export function parse (task: Task) {
                     break;
                 case '__isNative__':
                     out.isNative = item.__isNative__;
+                    break;
+                case RequestType.BUNDLE:
+                    out.url = item.bundle;
+                    out.uuid = basename(item.bundle);;
+                    out.ext = 'bundle';
+                    out.isNative = true;
                     break;
                 case RequestType.URL:
                     out.url = item.url;

@@ -347,7 +347,7 @@ export class Downloader {
         this._queue.push({
             id,
             priority: options.priority || 0,
-            url: urlAppendTimestamp(url, this.appendTimeStamp),
+            url: this.appendTimeStamp ? urlAppendTimestamp(url) : url,
             options,
             completeCallbacks: [onComplete],
             handler,
@@ -382,17 +382,18 @@ export class Downloader {
         for (let i = this._queue.length - 1; i >= 0; i--) {
             const request = this._queue[i];
             request.delay -= dt;
-            if (request.delay > 0 || request.isDownloading) continue;
-            if (request.isFinished) {
-                this._queue.splice(i, 1);
-                if (!request.err) { files.add(request.id, request.data); }
-                const callbacks = request.completeCallbacks;
-                for (let i = 0, l = callbacks.length; i < l; i++) {
-                    callbacks[i](request.err, request.data);
+            while (!request.isDownloading) {
+                if (request.delay > 0) break;
+                if (request.isFinished) {
+                    this._queue.splice(i, 1);
+                    if (!request.err) { files.add(request.id, request.data); }
+                    const callbacks = request.completeCallbacks;
+                    for (let j = 0, l = callbacks.length; j < l; j++) {
+                        callbacks[j](request.err, request.data);
+                    }
+                    break;
                 }
-                continue;
-            }
-            if (!this.limited || (request.maxConcurrency > this._totalNum && request.maxRequestsPerFrame > this._totalNumThisPeriod)) {
+                if (this.limited && (request.maxConcurrency < this._totalNum || request.maxRequestsPerFrame < this._totalNumThisPeriod)) { break; }
                 this._totalNum++;
                 this._totalNumThisPeriod++;
                 request.isDownloading = true;
@@ -412,6 +413,7 @@ export class Downloader {
                         request.data = data;
                     }
                 });
+                if (!request.isDownloading) { this._totalNumThisPeriod--; }
             }
         }
     }

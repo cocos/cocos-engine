@@ -581,16 +581,8 @@ export class AssetManager {
 
         opts.__isNative__ = true;
         opts.preset = opts.preset || 'remote';
-        this.loadAny({ url }, opts, null, (err, data) => {
-            if (err) {
-                error(err.message, err.stack);
-                if (onComp) { onComp(err, data); }
-            } else {
-                factory.create(url, data, opts.ext || extname(url), opts, (p1, p2) => {
-                    if (onComp) { onComp(p1, p2 as T); }
-                });
-            }
-        });
+        const task = Task.create({ input: { url }, onComplete: onComp, options: opts });
+        pipeline.async(task);
     }
 
     /**
@@ -616,26 +608,9 @@ export class AssetManager {
     public loadBundle (nameOrUrl: string, options?: IBundleOptions | CompleteCallbackWithData<Bundle> | null, onComplete?: CompleteCallbackWithData<Bundle> | null) {
         const { options: opts, onComplete: onComp } = parseParameters<CompleteCallbackWithData<Bundle>>(options, undefined, onComplete);
 
-        const bundleName = basename(nameOrUrl);
-
-        if (this.bundles.has(bundleName)) {
-            asyncify(onComp)(null, this.getBundle(bundleName));
-            return;
-        }
-
         opts.preset = opts.preset || 'bundle';
-        opts.ext = 'bundle';
-        opts.__isNative__ = true;
-        this.loadAny({ url: nameOrUrl }, opts, null, (err, data) => {
-            if (err) {
-                error(err.message, err.stack);
-                if (onComp) { onComp(err, data); }
-            } else {
-                factory.create(nameOrUrl, data, 'bundle', opts, (p1, p2) => {
-                    if (onComp) { onComp(p1, p2 as Bundle); }
-                });
-            }
-        });
+        const task = Task.create({ input: { bundle: nameOrUrl }, onComplete: onComp, options: opts });
+        pipeline.async(task);
     }
 
     /**
@@ -744,6 +719,7 @@ export class AssetManager {
     }
 
     public markDependencies (garbageCollectionContext: GarbageCollectorContext) {
+        this.bundles.forEach((bundle) => garbageCollectionContext.markGCObject(bundle));
         const singleAssetTasks = this.singleAssetLoadPipeline.allTasks;
         for (let i = 0; i < singleAssetTasks.length; i++) {
             const task = singleAssetTasks[i];

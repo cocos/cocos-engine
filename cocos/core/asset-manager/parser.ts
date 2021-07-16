@@ -128,6 +128,18 @@ function readBEUint16 (header, offset: number) {
     return (header[offset] << 8) | header[offset + 1];
 }
 
+interface IParseRequest {
+    id: string;
+    file: string;
+    options: IDownloadParseOptions;
+    completeCallbacks: CompleteCallback[];
+    handler: ParseHandler;
+    isParsing: boolean;
+    isFinished: boolean;
+    err: Error | null;
+    data: any;
+}
+
 export type ParseHandler = (file: any, options: IDownloadParseOptions, onComplete: CompleteCallback) => void;
 
 /**
@@ -135,7 +147,7 @@ export type ParseHandler = (file: any, options: IDownloadParseOptions, onComplet
  * Parse the downloaded file, it's a singleton, all member can be accessed with `cc.assetManager.parser`
  *
  * @zh
- * 解析已下载的文件，parser 是一个单例, 所有成员能通过 `cc.assetManaager.parser` 访问
+ * 解析已下载的文件，parser 是一个单例, 所有成员能通过 `cc.assetManager.parser` 访问
  *
  */
 export class Parser {
@@ -412,6 +424,10 @@ export class Parser {
                 callbacks![i](err, data);
             }
         });
+    }
+
+    public update () {
+
     }
 }
 

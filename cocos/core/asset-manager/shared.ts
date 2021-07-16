@@ -104,6 +104,7 @@ export const pipeline = new Pipeline('normal load', []);
 export const fetchPipeline = new Pipeline('fetch', []);
 export const transformPipeline = new Pipeline('transform url', []);
 export const singleAssetLoadPipeline = new Pipeline<SingleAssetTask>('loadOneAsset', []);
+export const remoteAssetLoadPipeline = new Pipeline('load remote asset', []);
 export const references = EDITOR ? new Cache<any[]>() : null;
 
 export enum RequestType {

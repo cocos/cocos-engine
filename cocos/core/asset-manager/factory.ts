@@ -28,7 +28,6 @@
  * @hidden
  */
 
-import { VideoClip } from '../../video/assets/video-clip';
 import {
     ImageAsset, JsonAsset, TextAsset, Asset,
 } from '../assets';
