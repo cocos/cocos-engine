@@ -69,20 +69,27 @@ exports.methods = {
         this.dirtyData.origin = this.dirtyData.realtime;
         this.dirtyData.uuid = '';
     },
-
-    async updateCustomInspector() {
+    /**
+     * 
+     * @param {string} inspector 
+     */
+    async updateCustomInspector(inspector) {
         this.$.customPanel.hidden = false;
         this.$.section.hidden = true;
         this.$.materialDump.hidden = true;
         try {
-            const relatePath = normalize((await this.getCustomInspector()).replace('packages://', ''));
-            const name = relatePath.split(sep)[0];
-            const packagePath = Editor.Package.getPackages({ name, enable: true })[0].path;
-            const path = join(packagePath, relatePath.split(name)[1]);
-            if (this.$.customPanel.getAttribute('src') !== join(path)) {
-                this.$.customPanel.setAttribute('src', path);
+            if (inspector.startsWith('packages://')) {
+                const relatePath = normalize(inspector.replace('packages://', ''));
+                const name = relatePath.split(sep)[0];
+                const packagePath = Editor.Package.getPackages({ name, enable: true })[0].path;
+                const path = join(packagePath, relatePath.split(name)[1]);
+                if (this.$.customPanel.getAttribute('src') !== join(path)) {
+                    this.$.customPanel.setAttribute('src', path);
+                }
+                this.$.customPanel.update(this.material, this.assetList, this.metaList);
+            } else {
+                throw Editor.I18n.t('ENGINE.assets.material.illegal-inspector-url');
             }
-            this.$.customPanel.update(this.material, this.assetList, this.metaList);
         } catch (error) {
             console.error(error);
             console.error(Editor.I18n.t('ENGINE.assets.material.fail-to-load-custom-inspector', { effect: this.material.effect }));
@@ -113,6 +120,9 @@ exports.methods = {
      * Update the pass data that is finally displayed in the panel
      */
     updatePasses() {
+        if (this.$.customPanel.hasAttribute('src')) {
+            this.$.customPanel.removeAttribute('src');
+        }
         this.$.customPanel.hidden = true;
         this.$.section.hidden = false;
         this.$.materialDump.hidden = false;
@@ -312,8 +322,9 @@ exports.update = async function(assetList, metaList) {
 
     this.updateTechniqueOptions();
     this.setDirtyData();
-    if (await this.getCustomInspector()) {
-        this.updateCustomInspector();
+    const inspector = await this.getCustomInspector();
+    if (inspector) {
+        this.updateCustomInspector(inspector);
     } else {
         // optimize calculate speed when edit multiple materials in node mode
         requestIdleCallback(() => {
@@ -363,8 +374,9 @@ exports.ready = async function() {
         } else {
             this.$.technique.value = this.material.technique;
         }
-        if (await this.getCustomInspector()) {
-            this.updateCustomInspector();
+        const inspector = await this.getCustomInspector();
+        if (inspector) {
+            this.updateCustomInspector(inspector);
         } else {
             this.updatePasses();
         }
@@ -382,8 +394,9 @@ exports.ready = async function() {
     // Event triggered when the technique being used is changed
     this.$.technique.addEventListener('change', async (event) => {
         this.material.technique = event.target.value;
-        if (await this.getCustomInspector()) {
-            this.updateCustomInspector();
+        const inspector = await this.getCustomInspector();
+        if (inspector) {
+            this.updateCustomInspector(inspector);
         } else {
             this.updatePasses();
         }

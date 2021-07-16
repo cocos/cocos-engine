@@ -307,6 +307,7 @@ module.exports = {
         },
         material: {
             'fail-to-load-custom-inspector': 'material: fail to load custom inspector of {effect}',
+            'illegal-inspector-url': "Inspector's URL is not valid",
         },
     },
 };
