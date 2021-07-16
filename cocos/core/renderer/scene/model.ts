@@ -406,8 +406,8 @@ export class Model {
         this._subModels[idx].initPlanarShadowInstanceShader();
 
         this._updateAttributesAndBinding(idx);
-        if (isNewSubModel && JSB) {
-            this._nativeObj!.addSubModel(this._subModels[idx].native);
+        if (JSB) {
+            this._nativeObj!.setSubModel(idx, this._subModels[idx].native);
         }
     }
 
