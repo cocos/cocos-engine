@@ -81,25 +81,29 @@ class InputManager {
     public frameDispatchEvents () {
         const mouseEvents = input.pollMouseEvents();
         // TODO: culling event queue
-        for (const mouseEvent of mouseEvents) {
+        for (let i = 0, length = mouseEvents.length; i < length; ++i) {
+            const mouseEvent = mouseEvents[i];
             this._dispatchMouseEvent(mouseEvent);
         }
 
         const touchEvents = input.pollTouchEvents();
         // TODO: culling event queue
-        for (const touchEvent of touchEvents) {
+        for (let i = 0, length = touchEvents.length; i < length; ++i) {
+            const touchEvent = touchEvents[i];
             this._dispatchTouchEvent(touchEvent);
         }
 
         const keyboardEvents = input.pollKeyboardEvents();
         // TODO: culling event queue
-        for (const keyboardEvent of keyboardEvents) {
+        for (let i = 0, length = keyboardEvents.length; i < length; ++i) {
+            const keyboardEvent = keyboardEvents[i];
             this._dispatchKeyboardEvent(keyboardEvent);
         }
 
         const accelerometerEvents = input.pollAccelerometerEvents();
         // TODO: culling event queue
-        for (const accelerometerEvent of accelerometerEvents) {
+        for (let i = 0, length = accelerometerEvents.length; i < length; ++i) {
+            const accelerometerEvent = accelerometerEvents[i];
             this._dispatchAccelerometerEvent(accelerometerEvent);
         }
     }
