@@ -100,7 +100,7 @@ const downloadCCON = (url: string, options: IDownloadParseOptions, onComplete: C
     });
 };
 
-const downloadCCOBN = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<CCON>) => {
+const downloadCCONB = (url: string, options: IDownloadParseOptions, onComplete: CompleteCallback<CCON>) => {
     downloadArrayBuffer(url, options, (err, json) => {
         if (err) {
             onComplete(err);
@@ -272,7 +272,7 @@ export class Downloader {
         '.plist': downloadText,
 
         '.ccon': downloadCCON,
-        '.ccobn': downloadCCOBN,
+        '.cconb': downloadCCONB,
 
         '.fnt': downloadText,
 

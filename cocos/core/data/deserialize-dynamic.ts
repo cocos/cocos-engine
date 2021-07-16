@@ -402,6 +402,7 @@ class _Deserializer {
     private _ignoreEditorOnly: any;
     private declare _mainBinChunk: Uint8Array;
     private declare _serializedData: SerializedObject | SerializedObject[];
+    private declare _context: DeserializationContext;
 
     constructor (result: Details, classFinder: ClassFinder, reportMissingClass: ReportMissingClass, customEnv: unknown, ignoreEditorOnly: unknown) {
         this.result = result;
@@ -438,8 +439,10 @@ class _Deserializer {
     }
 
     public deserialize (serializedData: SerializedData | CCON) {
+        let fromCCON = false;
         let jsonObj: SerializedData;
         if (serializedData instanceof CCON) {
+            fromCCON = true;
             jsonObj = serializedData.document as SerializedData;
             if (serializedData.chunks.length > 0) {
                 assertIsTrue(serializedData.chunks.length === 1);
@@ -450,6 +453,7 @@ class _Deserializer {
         }
 
         this._serializedData = jsonObj;
+        this._context.fromCCON = fromCCON;
 
         const serializedRootObject = Array.isArray(jsonObj) ? jsonObj[0] : jsonObj;
 
@@ -471,6 +475,7 @@ class _Deserializer {
 
         this._serializedData = undefined!;
         this._mainBinChunk = undefined!;
+        this._context = undefined!;
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.deserializedData;
@@ -645,10 +650,7 @@ class _Deserializer {
             },
         };
 
-        const context: DeserializationContext = {
-        };
-
-        object[deserializeTag]!(serializationInput, context);
+        object[deserializeTag]!(serializationInput, this._context);
     }
 
     private _deserializeFireClass (obj: Record<PropertyKey, unknown>, serialized: SerializedGeneralTypedObject, klass: CCClassConstructor<unknown>) {
