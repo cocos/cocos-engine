@@ -64,7 +64,7 @@ void Model::updateUBOs(uint32_t stamp) {
     Mat4                                         mat4;
     std::array<float, pipeline::UBOLocal::COUNT> bufferView;
     if (idx >= 0) {
-        const std::vector<uint8_t *> &attrs = _instanceAttributeBlock.views;
+        const std::vector<uint8_t *> &attrs = getInstancedAttributeBlock()->views;
         uploadMat4AsVec4x3(worldMatrix,
                            reinterpret_cast<float *>(attrs[idx]),
                            reinterpret_cast<float *>(attrs[idx + 1]),

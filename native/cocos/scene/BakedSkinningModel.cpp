@@ -44,8 +44,8 @@ void BakedSkinningModel::updateUBOs(uint32_t stamp) {
     BakedAnimInfo& info = _jointMedium.animInfo;
     int            idx  = _instAnimInfoIdx;
     if (idx >= 0) {
-        std::vector<uint8_t*>& views = getInstancedAttributeBlock()->views;
-        views[0]                     = info.data;
+        std::vector<uint8_t*>& views        = getInstancedAttributeBlock()->views;
+        *reinterpret_cast<float*>(views[0]) = *reinterpret_cast<float*>(info.data);
     } else if (info.getDirty()) {
         info.buffer->update(info.data, info.buffer->getSize());
         *info.dirty = 0;
