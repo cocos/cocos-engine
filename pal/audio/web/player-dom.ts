@@ -1,7 +1,6 @@
 import { systemInfo } from 'pal/system-info';
 import { AudioEvent, AudioState, AudioType } from '../type';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { legacyCC } from '../../../cocos/core/global-exports';
 import { clamp, clamp01 } from '../../../cocos/core';
 import { enqueueOperation, OperationInfo, OperationQueueable } from '../operation-queue';
 import { BrowserType, OS } from '../../system-info/enum-type';
@@ -66,9 +65,7 @@ export class OneShotAudioDOM {
 export class AudioPlayerDOM implements OperationQueueable {
     private _domAudio: HTMLAudioElement;
     private _state: AudioState = AudioState.INIT;
-    private _onHide?: () => void;
-    private _onShow?: () => void;
-    private _onEnded?: () => void;
+    private _onEnded: () => void;
 
     // NOTE: the implemented interface properties need to be public access
     public _eventTarget: EventTarget = new EventTarget();
@@ -78,24 +75,8 @@ export class AudioPlayerDOM implements OperationQueueable {
         this._domAudio = nativeAudio;
 
         // event
-        // TODO: should not call engine API in pal
-        this._onHide = () => {
-            if (this._state === AudioState.PLAYING) {
-                this.pause().then(() => {
-                    this._state = AudioState.INTERRUPTED;
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
-                }).catch((e) => {});
-            }
-        };
-        legacyCC.game.on(legacyCC.Game.EVENT_HIDE, this._onHide);
-        this._onShow = () => {
-            if (this._state === AudioState.INTERRUPTED) {
-                this.play().then(() => {
-                    this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
-                }).catch((e) => {});
-            }
-        };
-        legacyCC.game.on(legacyCC.Game.EVENT_SHOW, this._onShow);
+        systemInfo.on('hide', this._onHide, this);
+        systemInfo.on('show', this._onShow, this);
         this._onEnded = () => {
             this.seek(0).catch((e) => {});
             this._state = AudioState.INIT;
@@ -105,20 +86,11 @@ export class AudioPlayerDOM implements OperationQueueable {
     }
 
     destroy () {
-        if (this._onShow) {
-            legacyCC.game.off(legacyCC.Game.EVENT_SHOW, this._onShow);
-            this._onShow = undefined;
-        }
-        if (this._onHide) {
-            legacyCC.game.off(legacyCC.Game.EVENT_HIDE, this._onHide);
-            this._onHide = undefined;
-        }
-        if (this._onEnded) {
-            this._domAudio.removeEventListener('ended', this._onEnded);
-            this._onEnded = undefined;
-        }
+        systemInfo.off('hide', this._onHide, this);
+        systemInfo.off('show', this._onShow, this);
+        this._domAudio.removeEventListener('ended', this._onEnded);
         // @ts-expect-error need to release DOM Audio instance
-        this._domAudio = undefined;
+        this._domAudio = null;
     }
     static load (url: string): Promise<AudioPlayerDOM> {
         return new Promise((resolve) => {
@@ -173,6 +145,22 @@ export class AudioPlayerDOM implements OperationQueueable {
                 resolve(oneShotAudio);
             }).catch(reject);
         });
+    }
+
+    private _onHide () {
+        if (this._state === AudioState.PLAYING) {
+            this.pause().then(() => {
+                this._state = AudioState.INTERRUPTED;
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_BEGIN);
+            }).catch((e) => {});
+        }
+    }
+    private _onShow () {
+        if (this._state === AudioState.INTERRUPTED) {
+            this.play().then(() => {
+                this._eventTarget.emit(AudioEvent.INTERRUPTION_END);
+            }).catch((e) => {});
+        }
     }
 
     get src (): string {

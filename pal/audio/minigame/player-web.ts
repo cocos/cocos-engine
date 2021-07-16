@@ -83,7 +83,7 @@ export class AudioPlayerWeb implements OperationQueueable {
         this._audioTimer.destroy();
         if (this._audioBuffer) {
             // @ts-expect-error need to release AudioBuffer instance
-            this._audioBuffer = undefined;
+            this._audioBuffer = null;
         }
         systemInfo.off('hide', this._onHide, this);
         systemInfo.off('show', this._onShow, this);

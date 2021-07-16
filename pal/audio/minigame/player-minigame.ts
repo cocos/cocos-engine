@@ -101,8 +101,8 @@ export class AudioPlayerMinigame implements OperationQueueable {
                 this._offEvent(event);
             });
             this._innerAudioContext.destroy();
-            // @ts-expect-error Type 'undefined' is not assignable to type 'InnerAudioContext'
-            this._innerAudioContext = undefined;
+            // @ts-expect-error Type 'null' is not assignable to type 'InnerAudioContext'
+            this._innerAudioContext = null;
         }
     }
     private _onHide () {
@@ -130,7 +130,7 @@ export class AudioPlayerMinigame implements OperationQueueable {
     private _offEvent (eventName: string) {
         if (this[`_on${eventName}`]) {
             this._innerAudioContext[`off${eventName}`](this[`_on${eventName}`]);
-            this[`_on${eventName}`] = undefined;
+            this[`_on${eventName}`] = null;
         }
     }
 
