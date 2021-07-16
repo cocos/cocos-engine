@@ -534,6 +534,7 @@ export class Batcher2D {
 
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
+        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
         if (sys.__isWebIOS14OrIPadOS14Env && !this._currIsStatic) {
             this._currMeshBuffer = null;
         }
