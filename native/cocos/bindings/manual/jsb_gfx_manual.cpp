@@ -516,6 +516,7 @@ SE_BIND_PROP_GET(js_gfx_get_deviceInstance)
 
 bool register_all_gfx_manual(se::Object *obj) {
     __jsb_cc_gfx_Device_proto->defineFunction("copyBuffersToTexture", _SE(js_gfx_Device_copyBuffersToTexture));
+    __jsb_cc_gfx_Device_proto->defineFunction("copyTextureToBuffers", _SE(js_gfx_Device_copyTextureToBuffers));
     __jsb_cc_gfx_Device_proto->defineFunction("copyTexImagesToTexture", _SE(js_gfx_Device_copyTexImagesToTexture));
 
     __jsb_cc_gfx_Device_proto->defineFunction("createBuffer", _SE(js_gfx_Device_createBuffer));
