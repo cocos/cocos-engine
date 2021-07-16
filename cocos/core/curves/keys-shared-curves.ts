@@ -8,6 +8,10 @@ import { RealInterpMode } from './real-curve-param';
 
 const DEFAULT_EPSILON = 1e-5;
 
+const DefaultFloatArray = Float32Array;
+
+type DefaultFloatArray = InstanceType<typeof DefaultFloatArray>;
+
 /**
  * Considering most of model animations are baked and most of its curves share same times,
  * we do not have to do time searching for many times.
@@ -23,14 +27,14 @@ class KeysSharedCurves {
 
     constructor (times?: number[]) {
         if (!times) {
-            this._times = [];
+            this._times = new DefaultFloatArray();
             return;
         }
 
         const nKeyframes = times.length;
 
         this._keyframesCount = nKeyframes;
-        this._times = times;
+        this._times = DefaultFloatArray.from(times);
 
         if (nKeyframes > 1) {
             const EPSILON = 1e-6;
@@ -47,7 +51,7 @@ class KeysSharedCurves {
             }
             if (mayBeOptimized) {
                 this._optimized = true;
-                this._times = [this._times[0], this._times[1]];
+                this._times = new DefaultFloatArray([this._times[0], this._times[1]]);
             }
         }
     }
@@ -111,7 +115,7 @@ class KeysSharedCurves {
     }
 
     @serializable
-    private _times: number[];
+    private _times: DefaultFloatArray;
 
     @serializable
     private _optimized = false;
@@ -153,7 +157,7 @@ export class KeySharedRealCurves extends KeysSharedCurves {
     public addCurve (curve: RealCurve) {
         assertIsTrue(curve.keyFramesCount === this.keyframesCount);
         this._curves.push({
-            values: Array.from(curve.values()).map(({ value }) => value),
+            values: DefaultFloatArray.from(Array.from(curve.values()).map(({ value }) => value)),
         });
     }
 
@@ -203,9 +207,12 @@ export class KeySharedRealCurves extends KeysSharedCurves {
 
     @serializable
     private _curves: {
-        values: number[];
+        values: DefaultFloatArray;
     }[] = [];
 }
+
+const cacheQuat1 = new Quat();
+const cacheQuat2 = new Quat();
 
 @ccclass('cc.KeySharedQuaternionCurves')
 export class KeySharedQuaternionCurves extends KeysSharedCurves {
@@ -229,8 +236,13 @@ export class KeySharedQuaternionCurves extends KeysSharedCurves {
 
     public addCurve (curve: QuaternionCurve) {
         assertIsTrue(curve.keyFramesCount === this.keyframesCount);
+        const values = new DefaultFloatArray(curve.keyFramesCount * 4);
+        const nKeyframes = curve.keyFramesCount;
+        for (let iKeyframe = 0; iKeyframe < nKeyframes; ++iKeyframe) {
+            Quat.toArray(values, curve.getKeyframeValue(iKeyframe).value, 4 * iKeyframe);
+        }
         this._curves.push({
-            values: Array.from(curve.values()).map(({ value }) => Quat.clone(value)),
+            values,
         });
     }
 
@@ -250,7 +262,7 @@ export class KeySharedQuaternionCurves extends KeysSharedCurves {
         const firstTime = super.getFirstTime();
         if (time <= firstTime) {
             for (let iCurve = 0; iCurve < nCurves; ++iCurve) {
-                Quat.copy(values[iCurve], this._curves[iCurve].values[0]);
+                Quat.fromArray(values[iCurve], this._curves[iCurve].values, 0);
             }
             return;
         }
@@ -259,7 +271,7 @@ export class KeySharedQuaternionCurves extends KeysSharedCurves {
         if (time >= lastTime) {
             const iLastFrame = nKeyframes - 1;
             for (let iCurve = 0; iCurve < nCurves; ++iCurve) {
-                Quat.copy(values[iCurve], this._curves[iCurve].values[iLastFrame]);
+                Quat.fromArray(values[iCurve], this._curves[iCurve].values, iLastFrame * 4);
             }
             return;
         }
@@ -268,18 +280,19 @@ export class KeySharedQuaternionCurves extends KeysSharedCurves {
         if (ratio !== 0.0) {
             for (let iCurve = 0; iCurve < nCurves; ++iCurve) {
                 const { values: curveValues } = this._curves[iCurve];
-                Quat.slerp(values[iCurve], curveValues[previous], curveValues[previous + 1], ratio);
+                const q1 = Quat.fromArray(cacheQuat1, curveValues, previous * 4);
+                const q2 = Quat.fromArray(cacheQuat2, curveValues, (previous + 1) * 4);
+                Quat.slerp(values[iCurve], q1, q2, ratio);
             }
         } else {
             for (let iCurve = 0; iCurve < nCurves; ++iCurve) {
-                const { values: curveValues } = this._curves[iCurve];
-                Quat.copy(values[iCurve], curveValues[previous]);
+                Quat.fromArray(values[iCurve], this._curves[iCurve].values, previous * 4);
             }
         }
     }
 
     @serializable
     private _curves: {
-        values: Quat[];
+        values: DefaultFloatArray;
     }[] = [];
 }

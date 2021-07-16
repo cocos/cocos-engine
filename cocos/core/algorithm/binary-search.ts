@@ -45,7 +45,7 @@ export function binarySearch (array: number[], value: number) {
  * otherwise, a negative number that is the bitwise complement of the index of the next element that is large than the searched value or,
  * if there is no larger element(include the case that the array is empty), the bitwise complement of array's length.
  */
-export function binarySearchEpsilon (array: readonly number[], value: number, EPSILON = 1e-6) {
+export function binarySearchEpsilon (array: Readonly<ArrayLike<number>>, value: number, EPSILON = 1e-6) {
     let low = 0;
     let high = array.length - 1;
     let middle = high >>> 1;
