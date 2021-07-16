@@ -14,4 +14,4 @@ buildscript {
     }
 }
 
-apply from: "${NATIVE_DIR}/build.gradle"
+apply from: NATIVE_DIR +"/build.gradle"

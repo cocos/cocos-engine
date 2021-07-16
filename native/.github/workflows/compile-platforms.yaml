@@ -35,7 +35,7 @@ jobs:
         env:
           COCOS_ENGINE_DEV: 1
         run: |
-          cd $GITHUB_WORKSPACE/templates/win32
+          cd $GITHUB_WORKSPACE/templates/windows
           mkdir -p build-win32/proj
           touch build-win32/proj/cfg.cmake
           echo "set(CC_USE_GLES3 ON)" >> build-win32/proj/cfg.cmake
@@ -44,7 +44,7 @@ jobs:
           echo "set(USE_WEBSOCKET_SERVER ON)" >> build-win32/proj/cfg.cmake
           mkdir build-win32/assets
           cd build-win32
-          RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/win32/build-win32
+          RES_DIR=${GITHUB_WORKSPACE//\\//}/templates/windows/build-win32
           COCOS_X_PATH=${GITHUB_WORKSPACE//\\//}
           cmake ../ -G"Visual Studio 16 2019" -DRES_DIR=$RES_DIR -DCOCOS_X_PATH=$COCOS_X_PATH -Awin32
           cmake --build . --config Release
@@ -90,13 +90,11 @@ jobs:
 
           ASSET_DIR=$COCOS2DX_ROOT/templates/android/build/build-android/
 
-          sed -i "s@\${NATIVE_DIR}@$NATIVE_DIR@g" settings.gradle
-          sed -i "s@\${COCOS_ROOT}@$COCOS2DX_ROOT@g" settings.gradle
-          sed -i "s@\${NATIVE_DIR}@$NATIVE_DIR@g" build.gradle
           sed -i "s@^PROP_NDK_PATH.*@PROP_NDK_PATH=$ANDORID_NDK@g" gradle.properties
           sed -i "s@^APPLICATION_ID.*@APPLICATION_ID=com.cocos.android@g" gradle.properties
           sed -i "s@^RES_PATH.*@RES_PATH=$ASSET_DIR@g" gradle.properties
           sed -i "s@^COCOS_ENGINE_PATH.*@COCOS_ENGINE_PATH=$COCOS2DX_ROOT@g" gradle.properties
+          sed -i "s@^NATIVE_DIR.*@NATIVE_DIR=$NATIVE_DIR@g" gradle.properties
 
           # To speedup CI, compile arm64-v8a only
           # sed -i "s@^PROP_APP_ABI.*@PROP_APP_ABI=armeabi-v7a:arm64-v8a:x86@g" gradle.properties
