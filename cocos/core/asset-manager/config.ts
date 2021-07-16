@@ -57,6 +57,7 @@ export interface IAssetInfo {
     redirect?: string;
     ver?: string;
     nativeVer?: string;
+    extension?: string;
 }
 
 export interface IPackInfo extends IAssetInfo {
@@ -164,8 +165,6 @@ export default class Config {
 
     public paths = new Cache<IAddressableInfo[]>();
 
-    public extensionMap: Record<string, string> = {};
-
     public init (options: IConfigOption) {
         processOptions(options);
 
@@ -186,7 +185,10 @@ export default class Config {
                 continue;
             }
             options.extensionMap[ext].forEach((uuid) => {
-                this.extensionMap[uuid] = ext;
+                const assetInfo = this.assetInfos.get(uuid);
+                if (assetInfo) {
+                    assetInfo.extension = ext;
+                }
             });
         }
     }

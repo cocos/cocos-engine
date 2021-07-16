@@ -75,7 +75,7 @@ export function parse (task: Task) {
                         out.config = config;
                         out.info = info;
                     }
-                    out.ext = item.ext || config?.extensionMap[uuid] || '.json';
+                    out.ext = item.ext || info?.extension || '.json';
                     break;
                 }
                 case '__requestType__':
