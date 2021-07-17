@@ -173,6 +173,7 @@ export class AnimationClip extends Asset {
      * When compression is enabled,
      * both space and performance may be optimized at production phase.
      * The price is that you can not flexible edit the animation at run time.
+     * @internal Do not use this in your code.
      */
     get compressionEnabled () {
         return this._compressionEnabled;
@@ -282,7 +283,8 @@ export class AnimationClip extends Asset {
     /**
      * Creates an event evaluator for this animation.
      * @param targetNode Target node used to fire events.
-     * @returns @internal Do not use this in your code.
+     * @returns
+     * @internal Do not use this in your code.
      */
     public createEventEvaluator (targetNode: Node) {
         return new EventEvaluator(

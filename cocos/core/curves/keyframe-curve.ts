@@ -19,13 +19,6 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
     }
 
     /**
-     * Indicates if this curve has no any key frame.
-     */
-    get empty () {
-        return this._times.length === 0;
-    }
-
-    /**
      * Gets the minimal time.
      */
     get rangeMin () {
