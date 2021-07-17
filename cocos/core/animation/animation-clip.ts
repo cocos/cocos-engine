@@ -46,13 +46,11 @@ import * as legacy from './legacy-clip-data';
 import { BAKE_SKELETON_CURVE_SYMBOL } from './internal-symbols';
 import { Binder, RuntimeBinding, Track, TrackBinding, trackBindingTag, TrackEval, TrackPath, TrsTrackPath } from './tracks/track';
 import { createEvalSymbol } from './define';
-import { VectorTrack } from './tracks/vector-track';
 import { UntypedTrack, UntypedTrackRefine } from './tracks/untyped-track';
 import { Range } from './tracks/utils';
 import { ObjectTrack } from './tracks/object-track';
-import { CompressedData, CompressedDataEvaluator } from './compression/compressed-data';
-import { RealTrack } from './tracks/real-track';
-import { QuaternionTrack } from './tracks/quat-track';
+import type { ExoticAnimation } from './exotic-animation/exotic-animation';
+import './exotic-animation/exotic-animation';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -80,6 +78,8 @@ interface SkeletonAnimationBakeInfo {
         transforms?: Mat4[];
     }>;
 }
+
+export const exoticAnimationTag = Symbol('ExoticAnimation');
 
 /**
  * @zh 动画剪辑表示一段使用动画编辑器编辑的关键帧动画或是外部美术工具生产的骨骼动画。
@@ -168,21 +168,6 @@ export class AnimationClip extends Asset {
         return this._tracks;
     }
 
-    /**
-     * Gets or sets if compression is enabled for this animation.
-     * When compression is enabled,
-     * both space and performance may be optimized at production phase.
-     * The price is that you can not flexible edit the animation at run time.
-     * @internal Do not use this in your code.
-     */
-    get compressionEnabled () {
-        return this._compressionEnabled;
-    }
-
-    set compressionEnabled (value) {
-        this._compressionEnabled = value;
-    }
-
     get hash () {
         // hashes should already be computed offline, but if not, make one
         if (this._hash) { return this._hash; }
@@ -225,6 +210,14 @@ export class AnimationClip extends Asset {
             ratios,
             eventGroups,
         };
+    }
+
+    get [exoticAnimationTag] () {
+        return this._exoticAnimation;
+    }
+
+    set [exoticAnimationTag] (value) {
+        this._exoticAnimation = value;
     }
 
     public onLoaded () {
@@ -317,48 +310,6 @@ export class AnimationClip extends Asset {
         };
 
         return this._createEvalWithBinder(target, binder, context.rootMotion);
-    }
-
-    /**
-     * Compresses this animation.
-     * @internal Do not use this in your code.
-     */
-    public compress () {
-        const compressedData = new CompressedData();
-        const compressedTracks = new Set<Track>();
-        for (const track of this._tracks) {
-            let mayBeCompressed = false;
-            if (track instanceof RealTrack) {
-                mayBeCompressed = compressedData.compressRealTrack(track);
-            } else if (track instanceof VectorTrack) {
-                mayBeCompressed = compressedData.compressVectorTrack(track);
-            } else if (track instanceof QuaternionTrack) {
-                mayBeCompressed = compressedData.compressQuatTrack(track);
-            }
-            if (mayBeCompressed) {
-                compressedTracks.add(track);
-            }
-        }
-        this._compression = {
-            data: compressedData,
-            compressedTracks: Array.from(compressedTracks),
-        };
-    }
-
-    /**
-     * @internal Do not use this in your code.
-     */
-    public purgeCompressedTracks () {
-        const { _compression: compression } = this;
-        if (!compression) {
-            return;
-        }
-        const compressedTracks = compression.compressedTracks;
-        if (!compressedTracks) {
-            return;
-        }
-        this._tracks = this._tracks.filter((track) => !compressedTracks.includes(track));
-        compression.compressedTracks = undefined;
     }
 
     public destroy () {
@@ -583,13 +534,7 @@ export class AnimationClip extends Asset {
     private _tracks: Track[] = [];
 
     @serializable
-    private _compressionEnabled = false;
-
-    @serializable
-    private _compression: {
-        data: CompressedData;
-        compressedTracks: Track[] | undefined;
-    } | undefined = undefined;
+    private _exoticAnimation: ExoticAnimation | null = null;
 
     private _legacyData: legacy.AnimationClipLegacyData | undefined = undefined;
 
@@ -623,12 +568,9 @@ export class AnimationClip extends Asset {
         }
 
         const trackEvalStatues: TrackEvalStatus[] = [];
-        let compressedDataEvaluator: CompressedDataEvaluator | undefined;
+        let exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined;
 
         for (const track of this._tracks) {
-            if (this._compression?.compressedTracks?.includes(track)) {
-                continue;
-            }
             if (rootMotionTrackExcludes.includes(track)) {
                 continue;
             }
@@ -643,13 +585,13 @@ export class AnimationClip extends Asset {
             });
         }
 
-        if (this._compression) {
-            compressedDataEvaluator = this._compression.data.createEval(binder);
+        if (this._exoticAnimation) {
+            exoticAnimationEvaluator = this._exoticAnimation.createEvaluator(binder);
         }
 
         const evaluation = new AnimationClipEvaluation(
             trackEvalStatues,
-            compressedDataEvaluator,
+            exoticAnimationEvaluator,
             rootMotionEvaluation,
         );
 
@@ -791,8 +733,8 @@ export class AnimationClip extends Asset {
             }
         }
 
-        if (this._compression) {
-            for (const joint of this._compression.data.collectAnimatedJoints()) {
+        if (this._exoticAnimation) {
+            for (const joint of this._exoticAnimation.collectAnimatedJoints()) {
                 joints.add(joint);
             }
         }
@@ -803,14 +745,11 @@ export class AnimationClip extends Asset {
 
 legacyCC.AnimationClip = AnimationClip;
 
-// #region Data compression
-
 interface TrackEvalStatus {
     binding: RuntimeBinding;
     trackEval: TrackEval;
 }
 
-// #endregion
 interface AnimationClipEvalContext {
     /**
      * The output pose.
@@ -832,19 +771,19 @@ interface AnimationClipEvalContext {
 interface RootMotionOptions {
 }
 
+type ExoticAnimationEvaluator = ReturnType<ExoticAnimation['createEvaluator']>;
+
 class AnimationClipEvaluation {
     /**
      * @internal
-     * @param trackEvalStatuses
-     * @param compressedDataEvaluator
      */
     constructor (
         trackEvalStatuses: TrackEvalStatus[],
-        compressedDataEvaluator: CompressedDataEvaluator | undefined,
+        exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined,
         rootMotionEvaluation: RootMotionEvaluation | undefined,
     ) {
         this._trackEvalStatues = trackEvalStatuses;
-        this._compressedDataEvaluator = compressedDataEvaluator;
+        this._exoticAnimationEvaluator = exoticAnimationEvaluator;
         this._rootMotionEvaluation = rootMotionEvaluation;
     }
 
@@ -855,7 +794,7 @@ class AnimationClipEvaluation {
     public evaluate (time: number) {
         const {
             _trackEvalStatues: trackEvalStatuses,
-            _compressedDataEvaluator: compressedDataEvaluator,
+            _exoticAnimationEvaluator: exoticAnimationEvaluator,
         } = this;
 
         for (const trackEvalStatus of trackEvalStatuses) {
@@ -863,8 +802,8 @@ class AnimationClipEvaluation {
             trackEvalStatus.binding.setValue(value);
         }
 
-        if (compressedDataEvaluator) {
-            compressedDataEvaluator.evaluate(time);
+        if (exoticAnimationEvaluator) {
+            exoticAnimationEvaluator.evaluate(time);
         }
     }
 
@@ -880,7 +819,7 @@ class AnimationClipEvaluation {
         }
     }
 
-    private _compressedDataEvaluator: CompressedDataEvaluator | undefined;
+    private _exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined;
     private _trackEvalStatues:TrackEvalStatus[] = [];
     private _rootMotionEvaluation: RootMotionEvaluation | undefined = undefined;
 }
