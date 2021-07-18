@@ -60,24 +60,38 @@ if (VIVO) {
 // #endregion SystemInfo
 
 // #region Accelerometer
+let _customAccelerometerCb: AccelerometerChangeCallback | undefined;
+let _innerAccelerometerCb: AccelerometerChangeCallback | undefined;
+let _needHandleAccelerometerCb = false;
 minigame.onAccelerometerChange = function (cb) {
-    ral.onAccelerometerChange((res) => {
-        let x = res.x;
-        let y = res.y;
-        if (minigame.isLandscape) {
-            const orientationFactor = landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
-            const tmp = x;
-            x = -y * orientationFactor;
-            y = tmp * orientationFactor;
-        }
-
-        const resClone = {
-            x,
-            y,
-            z: res.z,
+    if (!_innerAccelerometerCb) {
+        _innerAccelerometerCb = (res) => {
+            if (!_needHandleAccelerometerCb) {
+                return;
+            }
+            let x = res.x;
+            let y = res.y;
+            if (minigame.isLandscape) {
+                const orientationFactor = landscapeOrientation === Orientation.LANDSCAPE_RIGHT ? 1 : -1;
+                const tmp = x;
+                x = -y * orientationFactor;
+                y = tmp * orientationFactor;
+            }
+            const resClone = {
+                x,
+                y,
+                z: res.z,
+            };
+            _customAccelerometerCb?.(resClone);
         };
-        cb(resClone);
-    });
+        ral.onAccelerometerChange(_innerAccelerometerCb);
+    }
+    _needHandleAccelerometerCb = true;
+    _customAccelerometerCb = cb;
+};
+minigame.offAccelerometerChange = function (cb) {
+    _needHandleAccelerometerCb = false;
+    _customAccelerometerCb = undefined;
 };
 // #endregion Accelerometer
 
