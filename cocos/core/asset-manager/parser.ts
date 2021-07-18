@@ -160,7 +160,7 @@ export class Parser {
         import: this.parseImport,
 
         '.ccon': this.parseImport,
-        '.ccobn': this.parseImport,
+        '.cconb': this.parseImport,
     };
 
     public parseImage (file: HTMLImageElement | Blob, options: IDownloadParseOptions, onComplete: CompleteCallback<HTMLImageElement|ImageBitmap>) {
