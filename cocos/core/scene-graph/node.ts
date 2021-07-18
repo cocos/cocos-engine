@@ -511,6 +511,8 @@ export class Node extends BaseNode implements CustomSerializable {
                 serializationOutput.writeProperty('_objFlags', this._objFlags);
                 serializationOutput.writeProperty('_parent', this._parent);
                 serializationOutput.writeProperty('_prefab', this._prefab);
+                // TODO: editorExtrasTag may be a symbol in the future
+                serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
             } else {
                 // should not serialize child node of synchronizable prefab
             }
