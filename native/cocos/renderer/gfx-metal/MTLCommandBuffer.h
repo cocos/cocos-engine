@@ -74,7 +74,7 @@ public:
     void execute(CommandBuffer *const *cmdBuffs, uint32_t count) override;
     void dispatch(const DispatchInfo &info) override;
     void pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) override;
-
+    void copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count);
     inline bool isCommandBufferBegan() const { return _commandBufferBegan; }
     inline id<MTLCommandBuffer> getMTLCommandBuffer() const { return _mtlCommandBuffer; }
 

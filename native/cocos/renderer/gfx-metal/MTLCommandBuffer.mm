@@ -691,7 +691,6 @@ void CCMTLCommandBuffer::blitTexture(Texture *srcTexture, Texture *dstTexture, c
         
         id<MTLDevice> mtlDevice = static_cast<id<MTLDevice>>(_mtlDevice->getMTLDevice());
         MPSImageConversion *conversion = [[MPSImageConversion alloc] initWithDevice: mtlDevice srcAlpha:MPSAlphaTypeNonPremultiplied destAlpha:MPSAlphaTypeNonPremultiplied backgroundColor:nil conversionInfo:nil];
-        
         [conversion encodeToCommandBuffer:_mtlCommandBuffer sourceTexture:src destinationTexture:dst];
         [conversion release];
     }
@@ -712,6 +711,30 @@ void CCMTLCommandBuffer::dispatch(const DispatchInfo &info) {
 
 void CCMTLCommandBuffer::pipelineBarrier(const GlobalBarrier *barrier, const TextureBarrier *const *textureBarriers, const Texture *const *textures, uint textureBarrierCount) {
     // Metal tracks non-heap resources automatically, which means no need to add a barrier same encoder.
+}
+
+void CCMTLCommandBuffer::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
+    auto *ccMTLTexture = static_cast<CCMTLTexture*>(src);
+    Format convertedFormat = ccMTLTexture->getConvertedFormat();
+    id<MTLTexture> mtlTexture = ccMTLTexture->getMTLTexture();
+    
+    for (size_t i = 0; i < count; ++i) {
+        uint32_t width = regions[i].texExtent.width;
+        uint32_t height = regions[i].texExtent.height;
+        uint32_t depth = regions[i].texExtent.depth;
+        uint32_t bytesPerRow = mu::getBytesPerRow(convertedFormat, width);
+        uint32_t bytesPerImage = formatSize(convertedFormat, width, height, depth);
+        const Offset& origin = regions[i].texOffset;
+        const Extent& extent = regions[i].texExtent;
+        
+        [mtlTexture getBytes:buffers[i]
+                 bytesPerRow:bytesPerRow
+               bytesPerImage:bytesPerImage
+                  fromRegion:{MTLOriginMake(origin.x, origin.y, origin.z), MTLSizeMake(extent.width, extent.height, extent.depth)}
+                 mipmapLevel:regions[i].texSubres.mipLevel
+                       slice:regions[i].texSubres.baseArrayLayer];
+
+    }
 }
 
 } // namespace gfx

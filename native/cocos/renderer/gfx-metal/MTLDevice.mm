@@ -365,6 +365,8 @@ void CCMTLDevice::copyBuffersToTexture(const uint8_t *const *buffers, Texture *t
 }
 
 void CCMTLDevice::copyTextureToBuffers(Texture *src, uint8_t *const *buffers, const BufferTextureCopy *region, uint count) {
+    _cmdBuff->begin();
+    static_cast<CCMTLCommandBuffer *>(_cmdBuff)->copyTextureToBuffers(src, buffers, region, count);
 }
 
 void CCMTLDevice::onMemoryWarning() {
