@@ -4,7 +4,7 @@
  */
 
 import { Armature, BlendMode, Matrix } from '@cocos/dragonbones-js';
-import { Color, Mat4, RenderTexture } from '../core';
+import { Color, Mat4 } from '../core';
 import { TextureBase } from '../core/assets/texture-base';
 import { CCArmatureDisplay } from './CCArmatureDisplay';
 import { CCFactory } from './CCFactory';
@@ -60,7 +60,7 @@ export interface ArmatureFrameSegment {
     indexCount: number;
     vfCount: number;
     vertexCount: number;
-    tex: RenderTexture | TextureBase;
+    tex: TextureBase;
     blendMode: BlendMode;
 }
 
@@ -284,7 +284,7 @@ export class AnimationCache {
         let slotMatrix: Mat4;
         let slotColor: Color;
         let colorVal: number;
-        let texture: RenderTexture | TextureBase | null;
+        let texture: TextureBase | null;
         let preSegOffset: number;
         let preSegInfo: ArmatureFrameSegment;
         const bones = armature._bones;
