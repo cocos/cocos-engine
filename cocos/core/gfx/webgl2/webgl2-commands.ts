@@ -28,7 +28,7 @@ import { error, errorID } from '../../platform';
 import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
-    Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates,
+    Color, Rect, BufferTextureCopy, BufferSource, DrawInfo, IndirectBuffer, UniformBlock, DynamicStates, getTypedArrayConstructor,
 } from '../base/define';
 import { WebGLEXT } from '../webgl/webgl-define';
 import { WebGL2CommandAllocator } from './webgl2-command-allocator';
@@ -933,8 +933,8 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWeb
         gl.bindBuffer(gl.UNIFORM_BUFFER, null);
         device.stateCache.glUniformBuffer = null;
     } else if ((gpuBuffer.usage & BufferUsageBit.INDIRECT)
-            || (gpuBuffer.usage & BufferUsageBit.TRANSFER_DST)
-            || (gpuBuffer.usage & BufferUsageBit.TRANSFER_SRC)) {
+        || (gpuBuffer.usage & BufferUsageBit.TRANSFER_DST)
+        || (gpuBuffer.usage & BufferUsageBit.TRANSFER_SRC)) {
         gpuBuffer.glTarget = gl.NONE;
     } else {
         console.error('Unsupported BufferType, create buffer failed.');
@@ -2352,9 +2352,9 @@ export function WebGL2CmdFuncBindStates (
             case DynamicStateFlagBit.VIEWPORT: {
                 const viewport = dynamicStates.viewport;
                 if (cache.viewport.left !== viewport.left
-                    || cache.viewport.top !== viewport.top
-                    || cache.viewport.width !== viewport.width
-                    || cache.viewport.height !== viewport.height) {
+                        || cache.viewport.top !== viewport.top
+                        || cache.viewport.width !== viewport.width
+                        || cache.viewport.height !== viewport.height) {
                     gl.viewport(viewport.left, viewport.top, viewport.width, viewport.height);
 
                     cache.viewport.left = viewport.left;
@@ -2367,9 +2367,9 @@ export function WebGL2CmdFuncBindStates (
             case DynamicStateFlagBit.SCISSOR: {
                 const scissor = dynamicStates.scissor;
                 if (cache.scissorRect.x !== scissor.x
-                    || cache.scissorRect.y !== scissor.y
-                    || cache.scissorRect.width !== scissor.width
-                    || cache.scissorRect.height !== scissor.height) {
+                        || cache.scissorRect.y !== scissor.y
+                        || cache.scissorRect.width !== scissor.width
+                        || cache.scissorRect.height !== scissor.height) {
                     gl.scissor(scissor.x, scissor.y, scissor.width, scissor.height);
 
                     cache.scissorRect.x = scissor.x;
@@ -2388,7 +2388,7 @@ export function WebGL2CmdFuncBindStates (
             }
             case DynamicStateFlagBit.DEPTH_BIAS: {
                 if (cache.rs.depthBias !== dynamicStates.depthBiasConstant
-                    || cache.rs.depthBiasSlop !== dynamicStates.depthBiasSlope) {
+                        || cache.rs.depthBiasSlop !== dynamicStates.depthBiasSlope) {
                     gl.polygonOffset(dynamicStates.depthBiasConstant, dynamicStates.depthBiasSlope);
                     cache.rs.depthBias = dynamicStates.depthBiasConstant;
                     cache.rs.depthBiasSlop = dynamicStates.depthBiasSlope;
@@ -2398,9 +2398,9 @@ export function WebGL2CmdFuncBindStates (
             case DynamicStateFlagBit.BLEND_CONSTANTS: {
                 const blendConstant = dynamicStates.blendConstant;
                 if ((cache.bs.blendColor.x !== blendConstant.x)
-                    || (cache.bs.blendColor.y !== blendConstant.y)
-                    || (cache.bs.blendColor.z !== blendConstant.z)
-                    || (cache.bs.blendColor.w !== blendConstant.w)) {
+                        || (cache.bs.blendColor.y !== blendConstant.y)
+                        || (cache.bs.blendColor.z !== blendConstant.z)
+                        || (cache.bs.blendColor.w !== blendConstant.w)) {
                     gl.blendColor(blendConstant.x, blendConstant.y, blendConstant.z, blendConstant.w);
                     cache.bs.blendColor.copy(blendConstant);
                 }
@@ -2423,13 +2423,13 @@ export function WebGL2CmdFuncBindStates (
                 const front = dynamicStates.stencilStatesFront;
                 const back = dynamicStates.stencilStatesBack;
                 if (cache.dss.stencilRefFront !== front.reference
-                    || cache.dss.stencilReadMaskFront !== front.compareMask) {
+                        || cache.dss.stencilReadMaskFront !== front.compareMask) {
                     gl.stencilFuncSeparate(gl.FRONT, WebGLCmpFuncs[cache.dss.stencilFuncFront], front.reference, front.compareMask);
                     cache.dss.stencilRefFront = front.reference;
                     cache.dss.stencilReadMaskFront = front.compareMask;
                 }
                 if (cache.dss.stencilRefBack !== back.reference
-                    || cache.dss.stencilReadMaskBack !== back.compareMask) {
+                        || cache.dss.stencilReadMaskBack !== back.compareMask) {
                     gl.stencilFuncSeparate(gl.BACK, WebGLCmpFuncs[cache.dss.stencilFuncBack], back.reference, back.compareMask);
                     cache.dss.stencilRefBack = back.reference;
                     cache.dss.stencilReadMaskBack = back.compareMask;
@@ -2508,12 +2508,12 @@ export function WebGL2CmdFuncExecuteCmds (device: WebGL2Device, cmdPackage: WebG
             break;
         }
         /*
-            case WebGL2Cmd.END_RENDER_PASS: {
-                // WebGL 2.0 doesn't support store operation of attachments.
-                // StoreOp.Store is the default GL behavior.
-                break;
-            }
-            */
+                case WebGL2Cmd.END_RENDER_PASS: {
+                    // WebGL 2.0 doesn't support store operation of attachments.
+                    // StoreOp.Store is the default GL behavior.
+                    break;
+                }
+                */
         case WebGL2Cmd.BIND_STATES: {
             const cmd2 = cmdPackage.bindStatesCmds.array[cmdId];
             WebGL2CmdFuncBindStates(device, cmd2.gpuPipelineState, cmd2.gpuInputAssembler,
@@ -2682,6 +2682,9 @@ export function WebGL2CmdFuncCopyTextureToBuffers (
     let w = 1;
     let h = 1;
 
+    const format = gpuTexture.format;
+    const Ctor = getTypedArrayConstructor(FormatInfos[format]);
+
     switch (gpuTexture.glTarget) {
     case gl.TEXTURE_2D: {
         for (let k = 0; k < regions.length; k++) {
@@ -2691,7 +2694,9 @@ export function WebGL2CmdFuncCopyTextureToBuffers (
             y = region.texOffset.y;
             w = region.texExtent.width;
             h = region.texExtent.height;
-            gl.readPixels(x, y, w, h, gpuTexture.glFormat, gpuTexture.glType, buffers[k]);
+
+            const view = new Ctor(buffers[k].buffer);
+            gl.readPixels(x, y, w, h, gpuTexture.glFormat, gpuTexture.glType, view);
         }
         break;
     }

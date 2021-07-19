@@ -35,7 +35,7 @@ import {
 import {
     BufferUsageBit, ClearFlagBit, ClearFlags, ColorMask, CullMode, Format, BufferTextureCopy, Color, Rect,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, ShaderStageFlagBit,
-    TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo, IndirectBuffer, DynamicStates,
+    TextureFlagBit, TextureType, Type, FormatInfo, DynamicStateFlagBit, BufferSource, DrawInfo, IndirectBuffer, DynamicStates, getTypedArrayConstructor,
 } from '../base/define';
 
 export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext): GLenum {
@@ -2753,6 +2753,8 @@ export function WebGLCmdFuncCopyTextureToBuffers (
     let y = 0;
     let w = 1;
     let h = 1;
+    const format = gpuTexture.format;
+    const Ctor = getTypedArrayConstructor(FormatInfos[format]);
 
     switch (gpuTexture.glTarget) {
     case gl.TEXTURE_2D: {
@@ -2763,7 +2765,8 @@ export function WebGLCmdFuncCopyTextureToBuffers (
             y = region.texOffset.y;
             w = region.texExtent.width;
             h = region.texExtent.height;
-            gl.readPixels(x, y, w, h, gpuTexture.glFormat, gpuTexture.glType, buffers[k]);
+            const view = new Ctor(buffers[k].buffer);
+            gl.readPixels(x, y, w, h, gpuTexture.glFormat, gpuTexture.glType, view);
         }
         break;
     }
