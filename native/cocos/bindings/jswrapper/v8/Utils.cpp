@@ -152,7 +152,9 @@ void setReturnValueTemplate(const Value &data, const T &argv) {
     } else if (data.getType() == Value::Type::Number) {
         argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), data.toDouble()));
     } else if (data.getType() == Value::Type::BigInt) {
-        argv.GetReturnValue().Set(v8::BigInt::New(argv.GetIsolate(), data.toInt64()));
+        // Notice: Most return value of type `size_t` should be treated as Number.
+        // argv.GetReturnValue().Set(v8::BigInt::New(argv.GetIsolate(), data.toInt64()));
+        argv.GetReturnValue().Set(v8::Number::New(argv.GetIsolate(), static_cast<double>(data.toInt64())));
     } else if (data.getType() == Value::Type::String) {
         v8::MaybeLocal<v8::String> value = v8::String::NewFromUtf8(argv.GetIsolate(), data.toString().c_str(), v8::NewStringType::kNormal);
         assert(!value.IsEmpty());
