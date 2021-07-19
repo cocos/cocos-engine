@@ -44,7 +44,6 @@ import * as VertexFormat from './vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { DescriptorSetHandle, DSPool, SubModelPool, SubModelView } from '../../core/renderer/core/memory-pools';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
-import { RenderTexture } from '../../core/assets';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
@@ -360,7 +359,7 @@ export class Batcher2D {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | RenderTexture | null, assembler: any, transform: Node | null) {
+    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
         const renderComp = comp;
         let texture;
         let samp;
@@ -549,7 +548,7 @@ export class Batcher2D {
      * @param material - 当前批次的材质。
      * @param sprite - 当前批次的精灵帧。
      */
-    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | RenderTexture | null, renderComp: Renderable2D) {
+    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: Renderable2D) {
         this._currMaterial = material;
 
         if (frame) {

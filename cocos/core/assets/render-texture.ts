@@ -34,7 +34,7 @@ import { legacyCC } from '../global-exports';
 import { RenderWindow, IRenderWindowInfo } from '../renderer/core/render-window';
 
 import { Root } from '../root';
-import { Asset } from './asset';
+import { TextureBase } from './texture-base';
 import { samplerLib, defaultSamplerHash } from '../renderer/core/sampler-lib';
 import { IDGenerator } from '../utils/js';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -65,7 +65,7 @@ const _windowInfo: IRenderWindowInfo = {
  * @zh 渲染贴图是 [[Camera]] 或 [[Canvas]] 组件的渲染目标对象，渲染管线会使用它的 [[RenderWindow]] 作为渲染的目标窗口。
  */
 @ccclass('cc.RenderTexture')
-export class RenderTexture extends Asset {
+export class RenderTexture extends TextureBase {
     @serializable
     @rangeMin(1)
     @rangeMax(2048)
@@ -76,19 +76,11 @@ export class RenderTexture extends Asset {
     @rangeMax(2048)
     private _height = 1;
 
-    private _textureHash = 0;
-    private _id: string;
-
     private _window: RenderWindow | null = null;
 
     constructor () {
         super();
-        this._id = idGenerator.getNewId();
-        this._textureHash = murmurhash2_32_gc(this._id, 666);
-    }
-
-    public getHash () {
-        return this._textureHash;
+        this.loaded = true;
     }
 
     /**
@@ -149,6 +141,12 @@ export class RenderTexture extends Asset {
         }
         this.emit('resize', this._window);
     }
+
+    // HACK
+    // @ts-ignore
+    get _serialize () { return undefined; }
+    // @ts-ignore
+    get _deserialize () { return undefined; }
 
     // To be compatible with material property interface
     /**

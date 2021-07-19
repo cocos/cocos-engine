@@ -31,7 +31,6 @@
 import { ccclass, serializable, type } from 'cc.decorator';
 import { Asset } from './asset';
 import { EffectAsset } from './effect-asset';
-import { RenderTexture } from './render-texture';
 import { RenderableComponent } from '../components/renderable-component';
 import { Texture } from '../gfx';
 import { TextureBase } from './texture-base';
@@ -83,7 +82,7 @@ interface IMaterialInfo {
     states?: PassOverrides | PassOverrides[];
 }
 
-type MaterialPropertyFull = MaterialProperty | TextureBase | RenderTexture | Texture | null;
+type MaterialPropertyFull = MaterialProperty | TextureBase | Texture | null;
 
 /**
  * @en The material asset, specifies in details how a model is drawn on screen.
@@ -449,7 +448,7 @@ export class Material extends Asset {
         const binding = Pass.getBindingFromHandle(handle);
         if (val instanceof Texture) {
             pass.bindTexture(binding, val, index);
-        } else if (val instanceof TextureBase || val instanceof RenderTexture) {
+        } else if (val instanceof TextureBase) {
             const texture: Texture | null = val.getGFXTexture();
             if (!texture || !texture.width || !texture.height) {
                 // console.warn(`material '${this._uuid}' received incomplete texture asset '${val._uuid}'`);
