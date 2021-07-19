@@ -285,7 +285,7 @@ export default class Config {
                 if (isSubAsset) {
                     paths.get(path)!.push(assetInfo);
                 } else {
-                    paths.get(path)!.splice(0, 0, assetInfo);
+                    paths.get(path)!.unshift(assetInfo);
                 }
             } else {
                 paths.add(path, [assetInfo]);
@@ -320,7 +320,7 @@ export default class Config {
                 const assetPacks = assetInfo.packs;
                 if (assetPacks) {
                     if (l === 1) {
-                        assetPacks.splice(0, 0, pack);
+                        assetPacks.unshift(pack);
                     } else {
                         assetPacks.push(pack);
                     }
