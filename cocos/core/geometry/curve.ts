@@ -139,8 +139,8 @@ export class AnimationCurve {
             const legacyKeyframe = new Keyframe();
             legacyKeyframe.time = time;
             legacyKeyframe.value = value.value;
-            legacyKeyframe.inTangent = value.startTangent;
-            legacyKeyframe.outTangent = value.endTangent;
+            legacyKeyframe.inTangent = value.leftTangent;
+            legacyKeyframe.outTangent = value.rightTangent;
             return legacyKeyframe;
         });
     }
@@ -151,8 +151,8 @@ export class AnimationCurve {
             new RealKeyframeValue({
                 interpMode: RealInterpMode.CUBIC,
                 value: legacyCurve.value,
-                startTangent: legacyCurve.inTangent,
-                endTangent: legacyCurve.outTangent,
+                leftTangent: legacyCurve.inTangent,
+                rightTangent: legacyCurve.outTangent,
             }),
         ]));
     }
@@ -197,7 +197,7 @@ export class AnimationCurve {
         } else {
             const curve = new RealCurve();
             this._curve = curve;
-            curve.preExtrap = ExtrapMode.REPEAT;
+            curve.preExtrap = ExtrapMode.LOOP;
             curve.postExtrap = ExtrapMode.CLAMP;
             if (!keyFrames) {
                 curve.assignSorted([
@@ -208,8 +208,8 @@ export class AnimationCurve {
                 curve.assignSorted(keyFrames.map((legacyKeyframe) => [legacyKeyframe.time, new RealKeyframeValue({
                     interpMode: RealInterpMode.CUBIC,
                     value: legacyKeyframe.value,
-                    startTangent: legacyKeyframe.inTangent,
-                    endTangent: legacyKeyframe.outTangent,
+                    leftTangent: legacyKeyframe.inTangent,
+                    rightTangent: legacyKeyframe.outTangent,
                 })]));
             }
         }
@@ -230,8 +230,8 @@ export class AnimationCurve {
             this._curve.addKeyFrame(keyFrame.time, new RealKeyframeValue({
                 interpMode: RealInterpMode.CUBIC,
                 value: keyFrame.value,
-                startTangent: keyFrame.inTangent,
-                endTangent: keyFrame.outTangent,
+                leftTangent: keyFrame.inTangent,
+                rightTangent: keyFrame.outTangent,
             }));
         }
     }
@@ -260,7 +260,7 @@ export class AnimationCurve {
         const startTime = curve.getKeyframeTime(0);
         const endTime = curve.getKeyframeTime(lastKeyframeIndex);
         switch (extrapMode) {
-        case ExtrapMode.REPEAT:
+        case ExtrapMode.LOOP:
             wrappedTime = repeat(time - startTime, endTime - startTime) + startTime;
             break;
         case ExtrapMode.PING_PONG:
@@ -289,8 +289,8 @@ export class AnimationCurve {
     public calcOptimizedKey (optKey: OptimizedKey, leftIndex: number, rightIndex: number) {
         const lhsTime = this._curve.getKeyframeTime(leftIndex);
         const rhsTime = this._curve.getKeyframeTime(rightIndex);
-        const { value: lhsValue, endTangent: lhsOutTangent } = this._curve.getKeyframeValue(leftIndex);
-        const { value: rhsValue, startTangent: rhsInTangent  } = this._curve.getKeyframeValue(rightIndex);
+        const { value: lhsValue, leftTangent: lhsOutTangent } = this._curve.getKeyframeValue(leftIndex);
+        const { value: rhsValue, rightTangent: rhsInTangent  } = this._curve.getKeyframeValue(rightIndex);
         optKey.index = leftIndex;
         optKey.time = lhsTime;
         optKey.endTime = rhsTime;
@@ -356,7 +356,7 @@ function fromLegacyWrapMode (legacyWrapMode: WrapModeMask): ExtrapMode {
     case WrapModeMask.Normal:
     case WrapModeMask.Clamp: return ExtrapMode.CLAMP;
     case WrapModeMask.PingPong: return ExtrapMode.PING_PONG;
-    case WrapModeMask.Loop: return ExtrapMode.REPEAT;
+    case WrapModeMask.Loop: return ExtrapMode.LOOP;
     }
 }
 
@@ -366,7 +366,7 @@ function toLegacyWrapMode (extrapMode: ExtrapMode): WrapModeMask {
     case ExtrapMode.LINEAR:
     case ExtrapMode.CLAMP: return WrapModeMask.Clamp;
     case ExtrapMode.PING_PONG: return WrapModeMask.PingPong;
-    case ExtrapMode.REPEAT: return WrapModeMask.Loop;
+    case ExtrapMode.LOOP: return WrapModeMask.Loop;
     }
 }
 

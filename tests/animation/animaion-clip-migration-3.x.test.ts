@@ -410,21 +410,21 @@ describe('Animation Clip Migration 3.x', () => {
                     interpMode: RealInterpMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.BOTH,
                     value: 1,
-                    startTangent: 14.999999999999998,
-                    startTangentWeight: 0.6013318551349163,
-                    endTangent: 8.333333333333334,
-                    endTangentWeight: 1.0071742649611337,
+                    rightTangent: 14.999999999999998,
+                    rightTangentWeight: 0.6013318551349163,
                 }), new RealKeyframeValue({
                     interpMode: RealInterpMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.BOTH,
                     value: 3,
-                    startTangent: 5.999999999999998,
-                    startTangentWeight: 0.6082762530298218,
-                    endTangent: 3.3333333333333335,
-                    endTangentWeight: 1.044030650891055,
+                    leftTangent: 8.333333333333334,
+                    leftTangentWeight: 1.0071742649611337,
+                    rightTangent: 5.999999999999998,
+                    rightTangentWeight: 0.6082762530298218,
                 }), new RealKeyframeValue({
                     interpMode: RealInterpMode.LINEAR,
                     value: 5,
+                    leftTangent: 3.3333333333333335,
+                    leftTangentWeight: 1.044030650891055,
                 })]);
             }); 
         });
@@ -451,13 +451,13 @@ describe('Animation Clip Migration 3.x', () => {
                     interpMode: RealInterpMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.BOTH,
                     value: 3,
-                    startTangent: 14.999999999999996,
-                    startTangentWeight: 0.6013318551349163,
-                    endTangent: 8.333333333333332,
-                    endTangentWeight: 1.0071742649611337,
+                    rightTangent: 14.999999999999996,
+                    rightTangentWeight: 0.6013318551349163,
                 }), new RealKeyframeValue({
                     interpMode: RealInterpMode.LINEAR,
                     value: 5,
+                    leftTangent: 8.333333333333332,
+                    leftTangentWeight: 1.0071742649611337,
                 })]);
             });
         });
@@ -485,7 +485,7 @@ describe('Animation Clip Migration 3.x', () => {
         };
 
         function testTimeBezierCurveConversion (testCase: TimeBezierTestCase) {
-            const [endTangent, endTangentWeight, startTangent, startTangentWeight] = timeBezierToTangents(
+            const [rightTangent, rightTangentWeight, leftTangent, leftTangentWeight] = timeBezierToTangents(
                 testCase.bezierPoints,
                 testCase.t0,
                 testCase.v0,
@@ -496,17 +496,17 @@ describe('Animation Clip Migration 3.x', () => {
             curve.assignSorted([
                 [testCase.t0, new RealKeyframeValue({
                     value: testCase.v0,
-                    endTangent,
-                    endTangentWeight,
+                    rightTangent,
+                    rightTangentWeight,
                     interpMode: RealInterpMode.CUBIC,
-                    tangentWeightMode: TangentWeightMode.END,
+                    tangentWeightMode: TangentWeightMode.RIGHT,
                 })],
                 [testCase.t1, new RealKeyframeValue({
                     value: testCase.v1,
-                    startTangent,
-                    startTangentWeight,
+                    leftTangent,
+                    leftTangentWeight,
                     interpMode: RealInterpMode.CUBIC,
-                    tangentWeightMode: TangentWeightMode.START,
+                    tangentWeightMode: TangentWeightMode.LEFT,
                 })],
             ]);
 

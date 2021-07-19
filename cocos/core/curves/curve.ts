@@ -18,16 +18,16 @@ export class RealKeyframeValue {
         interpMode,
         tangentWeightMode,
         value,
-        startTangent,
-        startTangentWeight,
-        endTangent,
-        endTangentWeight,
+        rightTangent,
+        rightTangentWeight,
+        leftTangent,
+        leftTangentWeight,
     }:  Partial<RealKeyframeValue> = { }) {
         this.value = value ?? this.value;
-        this.startTangent = startTangent ?? this.startTangent;
-        this.startTangentWeight = startTangentWeight ?? this.startTangentWeight;
-        this.endTangent = endTangent ?? this.endTangent;
-        this.endTangentWeight = endTangentWeight ?? this.endTangentWeight;
+        this.rightTangent = rightTangent ?? this.rightTangent;
+        this.rightTangentWeight = rightTangentWeight ?? this.rightTangentWeight;
+        this.leftTangent = leftTangent ?? this.leftTangent;
+        this.leftTangentWeight = leftTangentWeight ?? this.leftTangentWeight;
         this.interpMode = interpMode ?? this.interpMode;
         this.tangentWeightMode = tangentWeightMode ?? this.tangentWeightMode;
     }
@@ -56,7 +56,7 @@ export class RealKeyframeValue {
      * Meaningless otherwise.
      */
     @serializable
-    public startTangent = 0.0;
+    public rightTangent = 0.0;
 
     /**
      * The x component tangent of this keyframe
@@ -64,7 +64,7 @@ export class RealKeyframeValue {
      * Meaningless otherwise.
      */
     @serializable
-    public startTangentWeight = 0.0;
+    public rightTangentWeight = 0.0;
 
     /**
      * The (y component of) tangent of this keyframe
@@ -72,7 +72,7 @@ export class RealKeyframeValue {
      * Meaningless otherwise.
      */
     @serializable
-    public endTangent = 0.0;
+    public leftTangent = 0.0;
 
     /**
      * The x component of tangent of this keyframe
@@ -80,7 +80,7 @@ export class RealKeyframeValue {
      * Meaningless otherwise.
      */
     @serializable
-    public endTangentWeight = 0.0;
+    public leftTangentWeight = 0.0;
 }
 
 /**
@@ -143,7 +143,7 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
             switch (preExtrap) {
             case ExtrapMode.LINEAR:
                 return linearTrend(firstTime, values[0].value, times[1], values[1].value, time);
-            case ExtrapMode.REPEAT:
+            case ExtrapMode.LOOP:
                 time = wrapRepeat(time, firstTime, lastTime);
                 break;
             case ExtrapMode.PING_PONG:
@@ -162,7 +162,7 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
             switch (postExtrap) {
             case ExtrapMode.LINEAR:
                 return linearTrend(lastTime, preFrame.value, times[nFrames - 2], values[nFrames - 2].value, time);
-            case ExtrapMode.REPEAT:
+            case ExtrapMode.LOOP:
                 time = wrapRepeat(time, firstTime, lastTime);
                 break;
             case ExtrapMode.PING_PONG:
@@ -308,10 +308,10 @@ enum KeyframeValueFlagMask {
     VALUE = 1 << 0,
     INTERP_MODE = 1 << 1,
     TANGENT_WEIGHT_MODE = 1 << 2,
-    START_TANGENT = 1 << 3,
-    START_TANGENT_WEIGHT = 1 << 4,
-    END_TANGENT = 1 << 5,
-    END_TANGENT_WEIGHT = 1 << 6,
+    LEFT_TANGENT = 1 << 3,
+    LEFT_TANGENT_WEIGHT = 1 << 4,
+    RIGHT_TANGENT = 1 << 5,
+    RIGHT_TANGENT_WEIGHT = 1 << 6,
 }
 
 const OVERFLOW_BYTES = 1;
@@ -321,28 +321,28 @@ const KEY_FRAME_VALUE_FLAGS_BYTES = 4;
 const VALUE_BYTES = 4;
 const INTERP_MODE_BYTES = 1;
 const TANGENT_WEIGHT_MODE_BYTES = 1;
-const START_TANGENT_BYTES = 4;
-const START_TANGENT_WEIGHT_BYTES = 4;
-const END_TANGENT_BYTES = 4;
-const END_TANGENT_WEIGHT_BYTES = 4;
+const LEFT_TANGENT_BYTES = 4;
+const LEFT_TANGENT_WEIGHT_BYTES = 4;
+const RIGHT_TANGENT_BYTES = 4;
+const RIGHT_TANGENT_WEIGHT_BYTES = 4;
 
 const {
     interpMode: DEFAULT_INTERP_MODE,
     tangentWeightMode: DEFAULT_TANGENT_WEIGHT_MODE,
-    startTangent: DEFAULT_START_TANGENT,
-    startTangentWeight: DEFAULT_START_TANGENT_WEIGHT,
-    endTangent: DEFAULT_END_TANGENT,
-    endTangentWeight: DEFAULT_END_TANGENT_WEIGHT,
+    leftTangent: DEFAULT_LEFT_TANGENT,
+    leftTangentWeight: DEFAULT_LEFT_TANGENT_WEIGHT,
+    rightTangent: DEFAULT_RIGHT_TANGENT,
+    rightTangentWeight: DEFAULT_RIGHT_TANGENT_WEIGHT,
 } = new RealKeyframeValue({});
 
 const REAL_KEY_FRAME_VALUE_MAX_SIZE = KEY_FRAME_VALUE_FLAGS_BYTES
     + VALUE_BYTES
     + INTERP_MODE_BYTES
-    + INTERP_MODE_BYTES
     + TANGENT_WEIGHT_MODE_BYTES
-    + START_TANGENT_WEIGHT_BYTES
-    + END_TANGENT_BYTES
-    + END_TANGENT_WEIGHT_BYTES
+    + LEFT_TANGENT_BYTES
+    + LEFT_TANGENT_WEIGHT_BYTES
+    + RIGHT_TANGENT_BYTES
+    + RIGHT_TANGENT_WEIGHT_BYTES
     + 0;
 
 function saveRealKeyFrameValue (dataView: DataView, keyframeValue: RealKeyframeValue, offset: number) {
@@ -357,10 +357,10 @@ function saveRealKeyFrameValue (dataView: DataView, keyframeValue: RealKeyframeV
         value,
         interpMode,
         tangentWeightMode,
-        startTangent,
-        startTangentWeight,
-        endTangent,
-        endTangentWeight,
+        rightTangent,
+        rightTangentWeight,
+        leftTangent,
+        leftTangentWeight,
     } = keyframeValue;
 
     dataView.setFloat32(currentOffset, value, true);
@@ -378,28 +378,28 @@ function saveRealKeyFrameValue (dataView: DataView, keyframeValue: RealKeyframeV
         currentOffset += TANGENT_WEIGHT_MODE_BYTES;
     }
 
-    if (startTangent !== DEFAULT_START_TANGENT) {
-        flags |= KeyframeValueFlagMask.START_TANGENT;
-        dataView.setFloat32(currentOffset, startTangent, true);
-        currentOffset += START_TANGENT_BYTES;
+    if (leftTangent !== DEFAULT_LEFT_TANGENT) {
+        flags |= KeyframeValueFlagMask.LEFT_TANGENT;
+        dataView.setFloat32(currentOffset, leftTangent, true);
+        currentOffset += LEFT_TANGENT_BYTES;
     }
 
-    if (startTangentWeight !== DEFAULT_START_TANGENT_WEIGHT) {
-        flags |= KeyframeValueFlagMask.START_TANGENT_WEIGHT;
-        dataView.setFloat32(currentOffset, startTangentWeight, true);
-        currentOffset += START_TANGENT_WEIGHT_BYTES;
+    if (leftTangentWeight !== DEFAULT_LEFT_TANGENT_WEIGHT) {
+        flags |= KeyframeValueFlagMask.LEFT_TANGENT_WEIGHT;
+        dataView.setFloat32(currentOffset, leftTangentWeight, true);
+        currentOffset += LEFT_TANGENT_WEIGHT_BYTES;
     }
 
-    if (endTangent !== DEFAULT_END_TANGENT) {
-        flags |= KeyframeValueFlagMask.END_TANGENT;
-        dataView.setFloat32(currentOffset, endTangent, true);
-        currentOffset += END_TANGENT_BYTES;
+    if (rightTangent !== DEFAULT_RIGHT_TANGENT) {
+        flags |= KeyframeValueFlagMask.RIGHT_TANGENT;
+        dataView.setFloat32(currentOffset, rightTangent, true);
+        currentOffset += RIGHT_TANGENT_BYTES;
     }
 
-    if (endTangentWeight !== DEFAULT_END_TANGENT_WEIGHT) {
-        flags |= KeyframeValueFlagMask.END_TANGENT_WEIGHT;
-        dataView.setFloat32(currentOffset, endTangentWeight, true);
-        currentOffset += END_TANGENT_WEIGHT_BYTES;
+    if (rightTangentWeight !== DEFAULT_RIGHT_TANGENT_WEIGHT) {
+        flags |= KeyframeValueFlagMask.RIGHT_TANGENT_WEIGHT;
+        dataView.setFloat32(currentOffset, rightTangentWeight, true);
+        currentOffset += RIGHT_TANGENT_WEIGHT_BYTES;
     }
 
     dataView.setUint32(pFlags, flags, true);
@@ -426,24 +426,24 @@ function loadRealKeyFrameValue (dataView: DataView, keyframeValue: RealKeyframeV
         currentOffset += TANGENT_WEIGHT_MODE_BYTES;
     }
 
-    if (flags & KeyframeValueFlagMask.START_TANGENT) {
-        keyframeValue.startTangent = dataView.getFloat32(currentOffset, true);
-        currentOffset += START_TANGENT_BYTES;
+    if (flags & KeyframeValueFlagMask.LEFT_TANGENT) {
+        keyframeValue.leftTangent = dataView.getFloat32(currentOffset, true);
+        currentOffset += LEFT_TANGENT_BYTES;
     }
 
-    if (flags & KeyframeValueFlagMask.START_TANGENT_WEIGHT) {
-        keyframeValue.startTangentWeight = dataView.getFloat32(currentOffset, true);
-        currentOffset += START_TANGENT_WEIGHT_BYTES;
+    if (flags & KeyframeValueFlagMask.LEFT_TANGENT_WEIGHT) {
+        keyframeValue.leftTangentWeight = dataView.getFloat32(currentOffset, true);
+        currentOffset += LEFT_TANGENT_WEIGHT_BYTES;
     }
 
-    if (flags & KeyframeValueFlagMask.END_TANGENT) {
-        keyframeValue.endTangent = dataView.getFloat32(currentOffset, true);
-        currentOffset += END_TANGENT_BYTES;
+    if (flags & KeyframeValueFlagMask.RIGHT_TANGENT) {
+        keyframeValue.rightTangent = dataView.getFloat32(currentOffset, true);
+        currentOffset += RIGHT_TANGENT_BYTES;
     }
 
-    if (flags & KeyframeValueFlagMask.END_TANGENT_WEIGHT) {
-        keyframeValue.endTangentWeight = dataView.getFloat32(currentOffset, true);
-        currentOffset += END_TANGENT_WEIGHT_BYTES;
+    if (flags & KeyframeValueFlagMask.RIGHT_TANGENT_WEIGHT) {
+        keyframeValue.rightTangentWeight = dataView.getFloat32(currentOffset, true);
+        currentOffset += RIGHT_TANGENT_WEIGHT_BYTES;
     }
 
     return currentOffset;
@@ -485,15 +485,15 @@ function evalBetweenTwoKeyFrames (
     case RealInterpMode.CUBIC: {
         const ONE_THIRD = 1.0 / 3.0;
         const {
-            endTangent: prevTangent,
-            endTangentWeight: prevTangentWeightSpecified,
+            rightTangent: prevTangent,
+            rightTangentWeight: prevTangentWeightSpecified,
         } = prevValue;
-        const prevTangentWeightEnabled = isEndTangentWeightEnabled(prevValue.tangentWeightMode);
+        const prevTangentWeightEnabled = isRightTangentWeightEnabled(prevValue.tangentWeightMode);
         const {
-            startTangent: nextTangent,
-            startTangentWeight: nextTangentWeightSpecified,
+            leftTangent: nextTangent,
+            leftTangentWeight: nextTangentWeightSpecified,
         } = nextValue;
-        const nextTangentWeightEnabled = isStartTangentWeightEnabled(nextValue.tangentWeightMode);
+        const nextTangentWeightEnabled = isLeftTangentWeightEnabled(nextValue.tangentWeightMode);
 
         if (!prevTangentWeightEnabled && !nextTangentWeightEnabled) {
             // Optimize for the case when both x components of tangents are 1.
@@ -561,12 +561,12 @@ function evalBetweenTwoKeyFrames (
     }
 }
 
-function isStartTangentWeightEnabled (tangentWeightMode: TangentWeightMode) {
-    return (tangentWeightMode & TangentWeightMode.START) !== 0;
+function isLeftTangentWeightEnabled (tangentWeightMode: TangentWeightMode) {
+    return (tangentWeightMode & TangentWeightMode.LEFT) !== 0;
 }
 
-function isEndTangentWeightEnabled (tangentWeightMode: TangentWeightMode) {
-    return (tangentWeightMode & TangentWeightMode.END) !== 0;
+function isRightTangentWeightEnabled (tangentWeightMode: TangentWeightMode) {
+    return (tangentWeightMode & TangentWeightMode.RIGHT) !== 0;
 }
 
 function bezierInterp (p0: number, p1: number, p2: number, p3: number, t: number) {

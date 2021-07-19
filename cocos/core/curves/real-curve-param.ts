@@ -41,7 +41,7 @@ export enum ExtrapMode {
     /**
      * Before evaluation, repeatedly mapping the input time into the allowed range.
      */
-    REPEAT,
+    LOOP,
 
     /**
      * Before evaluation, mapping the input time into the allowed range like ping pong.
@@ -52,9 +52,9 @@ export enum ExtrapMode {
 export enum TangentWeightMode {
     NONE = 0,
 
-    START = 1,
+    LEFT = 1,
 
-    END = 2,
+    RIGHT = 2,
 
     BOTH = 1 | 2,
 }

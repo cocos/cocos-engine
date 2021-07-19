@@ -30,8 +30,8 @@ describe('geometry.AnimationCurve', () => {
                 [0.1, new RealKeyframeValue({
                     interpMode: RealInterpMode.CUBIC,
                     value: 0.1,
-                    startTangent: 0.2,
-                    endTangent: 0.3,
+                    leftTangent: 0.2,
+                    rightTangent: 0.3,
                 })],
                 // Non cubic keyframe
                 [0.2, new RealKeyframeValue({
@@ -42,11 +42,11 @@ describe('geometry.AnimationCurve', () => {
                 [0.3, new RealKeyframeValue({
                     interpMode: RealInterpMode.CUBIC,
                     value: 0.1,
-                    startTangent: 0.2,
-                    endTangent: 0.3,
-                    tangentWeightMode: TangentWeightMode.START,
-                    startTangentWeight: 0.4,
-                    endTangentWeight: 0.5,
+                    leftTangent: 0.2,
+                    rightTangent: 0.3,
+                    tangentWeightMode: TangentWeightMode.RIGHT,
+                    leftTangentWeight: 0.4,
+                    rightTangentWeight: 0.5,
                 })],
             ]);
 
@@ -59,7 +59,7 @@ describe('geometry.AnimationCurve', () => {
         });
 
         test.each([
-            { extrapMode: ExtrapMode.REPEAT, expected: WrapModeMask.Loop },
+            { extrapMode: ExtrapMode.LOOP, expected: WrapModeMask.Loop },
             { extrapMode: ExtrapMode.PING_PONG, expected: WrapModeMask.PingPong },
             { extrapMode: ExtrapMode.CLAMP, expected: WrapModeMask.Clamp },
             { extrapMode: ExtrapMode.LINEAR, expected: WrapModeMask.Clamp },
@@ -75,7 +75,7 @@ describe('geometry.AnimationCurve', () => {
 
     test.each([
         { wrapMode: WrapModeMask.Clamp, extrapMode: ExtrapMode.CLAMP, },
-        { wrapMode: WrapModeMask.Loop, extrapMode: ExtrapMode.REPEAT, },
+        { wrapMode: WrapModeMask.Loop, extrapMode: ExtrapMode.LOOP, },
         { wrapMode: WrapModeMask.PingPong, extrapMode: ExtrapMode.PING_PONG, },
     ])(`Wrap mode $wrapMode`, ({ wrapMode, extrapMode }) => {
         const curve = new AnimationCurve();
@@ -149,8 +149,8 @@ describe('geometry.AnimationCurve', () => {
             [0.1, new RealKeyframeValue({
                 interpMode: RealInterpMode.CUBIC,
                 value: 0.1,
-                startTangent: 0.2,
-                endTangent: 0.3,
+                leftTangent: 0.2,
+                rightTangent: 0.3,
             })],
             // Non cubic keyframe
             [0.2, new RealKeyframeValue({
@@ -161,11 +161,11 @@ describe('geometry.AnimationCurve', () => {
             [0.3, new RealKeyframeValue({
                 interpMode: RealInterpMode.CUBIC,
                 value: 0.1,
-                startTangent: 0.2,
-                endTangent: 0.3,
-                tangentWeightMode: TangentWeightMode.START,
-                startTangentWeight: 0.4,
-                endTangentWeight: 0.5,
+                leftTangent: 0.2,
+                rightTangent: 0.3,
+                tangentWeightMode: TangentWeightMode.RIGHT,
+                leftTangentWeight: 0.4,
+                rightTangentWeight: 0.5,
             })],
         ]);
         expect(curve.keyFrames).toStrictEqual([

@@ -41,14 +41,14 @@ describe('Curve', () => {
         test('Normal', () => {
             const curve = new RealCurve();
             curve.assignSorted([0.1, 0.2, 0.3], [
-                new RealKeyframeValue({ value: 0.4, startTangent: 0.0, endTangent: 0.0, interpMode: RealInterpMode.CONSTANT }),
-                new RealKeyframeValue({ value: 0.5, startTangent: 0.0, endTangent: 0.0, interpMode: RealInterpMode.LINEAR }),
+                new RealKeyframeValue({ value: 0.4, rightTangent: 0.0, leftTangent: 0.0, interpMode: RealInterpMode.CONSTANT }),
+                new RealKeyframeValue({ value: 0.5, rightTangent: 0.0, leftTangent: 0.0, interpMode: RealInterpMode.LINEAR }),
                 new RealKeyframeValue({
                     value: 0.6,
-                    startTangent: 0.487,
-                    startTangentWeight: 0.2,
-                    endTangent: 0.4598,
-                    endTangentWeight: 0.32,
+                    rightTangent: 0.487,
+                    rightTangentWeight: 0.2,
+                    leftTangent: 0.4598,
+                    leftTangentWeight: 0.32,
                     interpMode: RealInterpMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.BOTH,
                 }),
@@ -81,10 +81,10 @@ describe('Curve', () => {
         const keyframeValue = new RealKeyframeValue({});
         expect(keyframeValue.value).toBe(0.0);
         expect(keyframeValue.interpMode).toBe(RealInterpMode.LINEAR);
-        expect(keyframeValue.startTangent).toBe(0.0);
-        expect(keyframeValue.startTangentWeight).toBe(0.0);
-        expect(keyframeValue.endTangent).toBe(0.0);
-        expect(keyframeValue.endTangentWeight).toBe(0.0);
+        expect(keyframeValue.rightTangent).toBe(0.0);
+        expect(keyframeValue.rightTangentWeight).toBe(0.0);
+        expect(keyframeValue.leftTangent).toBe(0.0);
+        expect(keyframeValue.leftTangentWeight).toBe(0.0);
     });
 
     describe('Evaluation', () => {
@@ -118,16 +118,16 @@ describe('Curve', () => {
                     interpMode: RealInterpMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.NONE,
                     value: 0.7,
-                    endTangent: Math.tan(toRadian(30.0)),
+                    rightTangent: Math.tan(toRadian(30.0)),
                 })],
                 [0.4, new RealKeyframeValue({
                     interpMode: RealInterpMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.NONE,
                     value: 0.8,
-                    startTangent: Math.tan(toRadian(30.0)),
+                    leftTangent: Math.tan(toRadian(30.0)),
                 })],
             ]);
-            expect(curve.evaluate(0.28)).toBeCloseTo(0.740742562, 5);
+            expect(curve.evaluate(0.28)).toBeCloseTo(0.74074, 5);
         });
 
         test('Interpolation mode: cubic; Start weight is used', () => {
@@ -135,18 +135,18 @@ describe('Curve', () => {
             curve.assignSorted([
                 [0.2, new RealKeyframeValue({
                     interpMode: RealInterpMode.CUBIC,
-                    tangentWeightMode: TangentWeightMode.END,
+                    tangentWeightMode: TangentWeightMode.RIGHT,
                     value: 0.7,
-                    endTangent: Math.tan(toRadian(30.0)),
+                    rightTangent: Math.tan(toRadian(30.0)),
                 })],
                 [0.4, new RealKeyframeValue({
                     interpMode: RealInterpMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.NONE,
                     value: 0.8,
-                    startTangent: Math.tan(toRadian(30.0)),
+                    leftTangent: Math.tan(toRadian(30.0)),
                 })],
             ]);
-            expect(curve.evaluate(0.28)).toBeCloseTo(0.737992646, 5);
+            expect(curve.evaluate(0.28)).toBeCloseTo(0.73799, 5);
         });
 
         test('Interpolation mode: cubic; End weight is used', () => {
@@ -156,16 +156,16 @@ describe('Curve', () => {
                     interpMode: RealInterpMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.NONE,
                     value: 0.7,
-                    endTangent: Math.tan(toRadian(30.0)),
+                    rightTangent: Math.tan(toRadian(30.0)),
                 })],
                 [0.4, new RealKeyframeValue({
                     interpMode: RealInterpMode.CUBIC,
-                    tangentWeightMode: TangentWeightMode.START,
+                    tangentWeightMode: TangentWeightMode.LEFT,
                     value: 0.8,
-                    startTangent: Math.tan(toRadian(30.0)),
+                    leftTangent: Math.tan(toRadian(30.0)),
                 })],
             ]);
-            expect(curve.evaluate(0.28)).toBeCloseTo(0.7422913, 5);
+            expect(curve.evaluate(0.28)).toBeCloseTo(0.74229, 5);
         });
 
         test('Extrap mode: clamp', () => {
@@ -202,10 +202,10 @@ describe('Curve', () => {
             expect(curve.evaluate(0.46)).toBeCloseTo(5.0);
         });
 
-        test('Extrap mode: repeat', () => {
+        test('Extrap mode: loop', () => {
             const curve = new RealCurve();
-            curve.preExtrap = ExtrapMode.REPEAT;
-            curve.postExtrap = ExtrapMode.REPEAT;
+            curve.preExtrap = ExtrapMode.LOOP;
+            curve.postExtrap = ExtrapMode.LOOP;
 
             curve.assignSorted([
                 [0.2, new RealKeyframeValue({ value: 5.0 })],
@@ -259,10 +259,10 @@ function compareCurves (left: RealCurve, right: RealCurve, numDigits = 2) {
         const leftKeyframeValue = left.getKeyframeValue(iKeyframe);
         const rightKeyframeValue = right.getKeyframeValue(iKeyframe);
         expect(leftKeyframeValue.value).toBeCloseTo(rightKeyframeValue.value, numDigits);
-        expect(leftKeyframeValue.startTangent).toBeCloseTo(rightKeyframeValue.startTangent, numDigits);
-        expect(leftKeyframeValue.startTangentWeight).toBeCloseTo(rightKeyframeValue.startTangentWeight, numDigits);
-        expect(leftKeyframeValue.endTangent).toBeCloseTo(rightKeyframeValue.endTangent, numDigits);
-        expect(leftKeyframeValue.endTangentWeight).toBeCloseTo(rightKeyframeValue.endTangentWeight, numDigits);
+        expect(leftKeyframeValue.rightTangent).toBeCloseTo(rightKeyframeValue.rightTangent, numDigits);
+        expect(leftKeyframeValue.rightTangentWeight).toBeCloseTo(rightKeyframeValue.rightTangentWeight, numDigits);
+        expect(leftKeyframeValue.leftTangent).toBeCloseTo(rightKeyframeValue.leftTangent, numDigits);
+        expect(leftKeyframeValue.leftTangentWeight).toBeCloseTo(rightKeyframeValue.leftTangentWeight, numDigits);
         expect(leftKeyframeValue.interpMode).toStrictEqual(rightKeyframeValue.interpMode);
     }
 }

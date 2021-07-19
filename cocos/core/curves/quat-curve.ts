@@ -113,7 +113,7 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
             // Underflow
             const preValue = values[0];
             switch (preExtrap) {
-            case ExtrapMode.REPEAT:
+            case ExtrapMode.LOOP:
                 time = firstTime + repeat(time - firstTime, lastTime - firstTime);
                 break;
             case ExtrapMode.PING_PONG:
@@ -127,7 +127,7 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
             // Overflow
             const preValue = values[nFrames - 1];
             switch (postExtrap) {
-            case ExtrapMode.REPEAT:
+            case ExtrapMode.LOOP:
                 time = firstTime + repeat(time - firstTime, lastTime - firstTime);
                 break;
             case ExtrapMode.PING_PONG:

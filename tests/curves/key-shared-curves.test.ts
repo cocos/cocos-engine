@@ -19,7 +19,7 @@ describe('Keys shared real curves', () => {
             curve.assignSorted([[0.1, new RealKeyframeValue({
                 value: 0.1,
             })]]);
-            curve.postExtrap = ExtrapMode.REPEAT;
+            curve.postExtrap = ExtrapMode.LOOP;
             expect(KeySharedRealCurves.allowedForCurve(curve)).toBe(false);
         }
 
@@ -28,7 +28,7 @@ describe('Keys shared real curves', () => {
             curve.assignSorted([[0.1, new RealKeyframeValue({
                 value: 0.1,
             })]]);
-            curve.preExtrap = ExtrapMode.REPEAT;
+            curve.preExtrap = ExtrapMode.LOOP;
             expect(KeySharedRealCurves.allowedForCurve(curve)).toBe(false);
         }
 
@@ -133,7 +133,7 @@ describe('Keys shared quaternion curves', () => {
             curve.assignSorted([[0.1, new QuaternionKeyframeValue({
                 value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 },
             })]]);
-            curve.postExtrap = ExtrapMode.REPEAT;
+            curve.postExtrap = ExtrapMode.LOOP;
             expect(KeySharedQuaternionCurves.allowedForCurve(curve)).toBe(false);
         }
 
@@ -142,7 +142,7 @@ describe('Keys shared quaternion curves', () => {
             curve.assignSorted([[0.1, new QuaternionKeyframeValue({
                 value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 },
             })]]);
-            curve.preExtrap = ExtrapMode.REPEAT;
+            curve.preExtrap = ExtrapMode.LOOP;
             expect(KeySharedQuaternionCurves.allowedForCurve(curve)).toBe(false);
         }
 

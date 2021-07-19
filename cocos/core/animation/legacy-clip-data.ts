@@ -355,8 +355,8 @@ export class AnimationClipLegacyData {
                         const interpMethod = interpolate ? RealInterpMode.CUBIC : RealInterpMode.CONSTANT;
                         track.channel.curve.assignSorted(times, (legacyValues as CubicSplineNumberValue[]).map((value) => new RealKeyframeValue({
                             value: value.dataPoint,
-                            startTangent: value.inTangent,
-                            endTangent: value.outTangent,
+                            leftTangent: value.inTangent,
+                            rightTangent: value.outTangent,
                             interpMode: interpMethod,
                         })));
                         newTracks.push(track);
@@ -375,10 +375,10 @@ export class AnimationClipLegacyData {
                         track.componentsCount = components;
                         const [x, y, z, w] = track.channels();
                         const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
-                        const valueToFrame = (value: number, startTangent: number, endTangent: number): RealKeyframeValue => new RealKeyframeValue({
+                        const valueToFrame = (value: number, inTangent: number, outTangent: number): RealKeyframeValue => new RealKeyframeValue({
                             value,
-                            startTangent,
-                            endTangent,
+                            leftTangent: inTangent,
+                            rightTangent: outTangent,
                             interpMode: interpMethod,
                         });
                         switch (components) {
@@ -530,10 +530,10 @@ class LegacyEasingMethodConverter {
                 );
                 currentKeyframeValue.interpMode = RealInterpMode.CUBIC;
                 currentKeyframeValue.tangentWeightMode = TangentWeightMode.BOTH;
-                currentKeyframeValue.startTangent = previousTangent;
-                currentKeyframeValue.startTangentWeight = previousTangentWeight;
-                currentKeyframeValue.endTangent = nextTangent;
-                currentKeyframeValue.endTangentWeight = nextTangentWeight;
+                currentKeyframeValue.rightTangent = previousTangent;
+                currentKeyframeValue.rightTangentWeight = previousTangentWeight;
+                nextKeyframeValue.leftTangent = nextTangent;
+                nextKeyframeValue.leftTangentWeight = nextTangentWeight;
             } else {
                 const bernstein = new Array(4).fill(0);
                 // Easing methods in `easing`
