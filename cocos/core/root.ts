@@ -41,7 +41,7 @@ import { SpotLight } from './renderer/scene/spot-light';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
 import { legacyCC } from './global-exports';
 import { RenderWindow, IRenderWindowInfo } from './renderer/core/render-window';
-import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device } from './gfx';
+import { ColorAttachment, DepthStencilAttachment, RenderPassInfo, StoreOp, Device, Swapchain } from './gfx';
 import { warnID } from './platform/debug';
 
 /**
@@ -268,17 +268,22 @@ export class Root {
     public initialize (info: IRootInfo): Promise<void> {
         this._init();
 
+        const swapchain: Swapchain = legacyCC.game._swapchain;
+
         const colorAttachment = new ColorAttachment();
+        colorAttachment.format = swapchain.colorTexture.format;
         const depthStencilAttachment = new DepthStencilAttachment();
+        depthStencilAttachment.format = swapchain.depthStencilTexture.format;
         depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
         depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
         const renderPassInfo = new RenderPassInfo([colorAttachment], depthStencilAttachment);
+
         this._mainWindow = this.createWindow({
             title: 'rootMainWindow',
-            width: this._device.width,
-            height: this._device.height,
+            width: swapchain.width,
+            height: swapchain.height,
             renderPassInfo,
-            swapchainBufferIndices: -1, // always on screen
+            swapchain,
         });
         this._curWindow = this._mainWindow;
 
@@ -321,12 +326,10 @@ export class Root {
         // const w = width / cc.view._devicePixelRatio;
         // const h = height / cc.view._devicePixelRatio;
 
-        this._device.resize(width, height);
-
         this._mainWindow!.resize(width, height);
 
         for (const window of this._windows) {
-            if (window.shouldSyncSizeWithSwapchain) {
+            if (window.swapchain) {
                 window.resize(width, height);
             }
         }
@@ -439,7 +442,7 @@ export class Root {
         }
 
         if (this._pipeline && cameraList.length > 0) {
-            this._device.acquire();
+            this._device.acquire([legacyCC.game.swapchain]);
             const scenes = this._scenes;
             const stamp = legacyCC.director.getTotalFrames();
             if (this._batcher) this._batcher.uploadBuffers();

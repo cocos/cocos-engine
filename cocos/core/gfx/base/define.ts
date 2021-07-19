@@ -28,11 +28,13 @@
  * @module gfx
  */
 
+import { ccenum } from '../../value-types/enum';
 import { Buffer } from './buffer';
 import { DescriptorSetLayout } from './descriptor-set-layout';
 import { Queue } from './queue';
 import { RenderPass } from './render-pass';
 import { Sampler } from './sampler';
+import { Swapchain } from './swapchain';
 import { Texture } from './texture';
 
 interface ICopyable { copy(info: ICopyable): ICopyable; }
@@ -55,6 +57,7 @@ const deepCopy = <T extends ICopyable>(target: T[], source: T[], Ctor: Construct
 
 export enum ObjectType {
     UNKNOWN,
+    SWAPCHAIN,
     BUFFER,
     TEXTURE,
     RENDER_PASS,
@@ -399,13 +402,34 @@ export enum TextureFlagBit {
 }
 
 export enum SampleCount {
-    X1  = 0x1,
-    X2  = 0x2,
-    X4  = 0x4,
-    X8  = 0x8,
-    X16 = 0x10,
-    X32 = 0x20,
-    X64 = 0x40,
+    ONE,                  // Single sample
+    MULTIPLE_PERFORMANCE, // Multiple samples prioritising performance over quality
+    MULTIPLE_BALANCE,     // Multiple samples leveraging both quality and performance
+    MULTIPLE_QUALITY,     // Multiple samples prioritising quality over performance
+}
+
+export enum VsyncMode {
+    // The application does not synchronizes with the vertical sync.
+    // If application renders faster than the display refreshes, frames are wasted and tearing may be observed.
+    // FPS is uncapped. Maximum power consumption. If unsupported, "ON" value will be used instead. Minimum latency.
+    OFF,
+    // The application is always synchronized with the vertical sync. Tearing does not happen.
+    // FPS is capped to the display's refresh rate. For fast applications, battery life is improved. Always supported.
+    ON,
+    // The application synchronizes with the vertical sync, but only if the application rendering speed is greater than refresh rate.
+    // Compared to OFF, there is no tearing. Compared to ON, the FPS will be improved for "slower" applications.
+    // If unsupported, "ON" value will be used instead. Recommended for most applications. Default if supported.
+    RELAXED,
+    // The presentation engine will always use the latest fully rendered image.
+    // Compared to OFF, no tearing will be observed.
+    // Compared to ON, battery power will be worse, especially for faster applications.
+    // If unsupported,  "OFF" will be attempted next.
+    MAILBOX,
+    // The application is capped to using half the vertical sync time.
+    // FPS artificially capped to Half the display speed (usually 30fps) to maintain battery.
+    // Best possible battery savings. Worst possible performance.
+    // Recommended for specific applications where battery saving is critical.
+    HALF,
 }
 
 export enum Filter {
@@ -680,8 +704,6 @@ export class DeviceCaps {
         public maxUniformBlockSize: number = 0,
         public maxTextureSize: number = 0,
         public maxCubeMapTextureSize: number = 0,
-        public depthBits: number = 0,
-        public stencilBits: number = 0,
         public uboOffsetAlignment: number = 1,
         public maxComputeSharedMemorySize: number = 0,
         public maxComputeWorkGroupInvocations: number = 0,
@@ -706,8 +728,6 @@ export class DeviceCaps {
         this.maxUniformBlockSize = info.maxUniformBlockSize;
         this.maxTextureSize = info.maxTextureSize;
         this.maxCubeMapTextureSize = info.maxCubeMapTextureSize;
-        this.depthBits = info.depthBits;
-        this.stencilBits = info.stencilBits;
         this.uboOffsetAlignment = info.uboOffsetAlignment;
         this.maxComputeSharedMemorySize = info.maxComputeSharedMemorySize;
         this.maxComputeWorkGroupInvocations = info.maxComputeWorkGroupInvocations;
@@ -933,6 +953,40 @@ export class BindingMappingInfo {
     }
 }
 
+export class SwapchainInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public windowHandle: HTMLCanvasElement = null!,
+        public vsyncMode: VsyncMode = VsyncMode.RELAXED,
+        public samples: SampleCount = SampleCount.ONE,
+        public width: number = 0,
+        public height: number = 0,
+    ) {}
+
+    public copy (info: SwapchainInfo) {
+        this.windowHandle = info.windowHandle;
+        this.vsyncMode = info.vsyncMode;
+        this.samples = info.samples;
+        this.width = info.width;
+        this.height = info.height;
+        return this;
+    }
+}
+
+export class DeviceInfo {
+    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
+
+    constructor (
+        public bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo(),
+    ) {}
+
+    public copy (info: DeviceInfo) {
+        this.bindingMappingInfo.copy(info.bindingMappingInfo);
+        return this;
+    }
+}
+
 export class BufferInfo {
     declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
 
@@ -1042,7 +1096,7 @@ export class TextureInfo {
         public flags: TextureFlags = TextureFlagBit.NONE,
         public layerCount: number = 1,
         public levelCount: number = 1,
-        public samples: SampleCount = SampleCount.X1,
+        public samples: SampleCount = SampleCount.ONE,
         public depth: number = 1,
     ) {}
 
@@ -1372,7 +1426,7 @@ export class ColorAttachment {
 
     constructor (
         public format: Format = Format.UNKNOWN,
-        public sampleCount: SampleCount = SampleCount.X1,
+        public sampleCount: SampleCount = SampleCount.ONE,
         public loadOp: LoadOp = LoadOp.CLEAR,
         public storeOp: StoreOp = StoreOp.STORE,
         public beginAccesses: AccessType[] = [],
@@ -1397,7 +1451,7 @@ export class DepthStencilAttachment {
 
     constructor (
         public format: Format = Format.UNKNOWN,
-        public sampleCount: SampleCount = SampleCount.X1,
+        public sampleCount: SampleCount = SampleCount.ONE,
         public depthLoadOp: LoadOp = LoadOp.CLEAR,
         public depthStoreOp: StoreOp = StoreOp.STORE,
         public stencilLoadOp: LoadOp = LoadOp.CLEAR,
@@ -1527,7 +1581,7 @@ export class FramebufferInfo {
 
     constructor (
         public renderPass: RenderPass = null!,
-        public colorTextures: (Texture | null)[] = [],
+        public colorTextures: Texture[] = [],
         public depthStencilTexture: Texture | null = null,
     ) {}
 
@@ -1728,6 +1782,8 @@ export class DynamicStates {
  * ========================= !DO NOT CHANGE THE ABOVE SECTION MANUALLY! =========================
  */
 
+ccenum(Format);
+
 /**
  * @en GFX base object.
  * @zh GFX 基类对象。
@@ -1744,29 +1800,12 @@ export class Obj {
     }
 }
 
-export class DeviceInfo {
-    declare private _token: never; // to make sure all usages must be an instance of this exact class, not assembled from plain object
-
-    constructor (
-        public canvasElm: HTMLElement,
-        public isAntialias: boolean = true,
-        public isPremultipliedAlpha: boolean = true,
-        public devicePixelRatio: number = 1,
-        public width: number = 1,
-        public height: number = 1,
-        /**
-         * For non-vulkan backends, to maintain compatibility and maximize
-         * descriptor cache-locality, descriptor-set-based binding numbers need
-         * to be mapped to backend-specific bindings based on the maximum limit
-         * of available descriptor slots in each set.
-         *
-         * The GFX layer assumes the binding numbers for each descriptor type inside each set
-         * are guaranteed to be consecutive, so the mapping procedure is reduced
-         * to a simple shifting operation. This data structure specifies the
-         * offsets for each descriptor type in each set.
-         */
-        public bindingMappingInfo = new BindingMappingInfo(),
-    ) {}
+export interface ISwapchainTextureInfo {
+    swapchain: Swapchain;
+    format: Format;
+    width: number;
+    height: number;
+    samples: SampleCount;
 }
 
 export interface IUniform {

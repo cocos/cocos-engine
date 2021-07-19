@@ -173,8 +173,8 @@ export class DeferredPipeline extends RenderPipeline {
         const device = this.device;
         const colorAttachment = new ColorAttachment();
         const depthStencilAttachment = new DepthStencilAttachment();
-        colorAttachment.format = device.colorFormat;
-        depthStencilAttachment.format = device.depthStencilFormat;
+        colorAttachment.format = this._swapchain.colorTexture.format;
+        depthStencilAttachment.format = this._swapchain.depthStencilTexture.format;
         depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
         depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
 
@@ -229,7 +229,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._quadVBOffscreen = inputAssemblerDataOffscreen.quadVB;
         this._quadIAOffscreen = inputAssemblerDataOffscreen.quadIA;
 
-        const inputAssemblerDataOnscreen = this.createQuadInputAssembler(device.surfaceTransform);
+        const inputAssemblerDataOnscreen = this.createQuadInputAssembler(this._swapchain.surfaceTransform);
         if (!inputAssemblerDataOnscreen.quadIB || !inputAssemblerDataOnscreen.quadVB || !inputAssemblerDataOnscreen.quadIA) {
             return false;
         }
@@ -258,7 +258,7 @@ export class DeferredPipeline extends RenderPipeline {
             colorAttachment3.storeOp = StoreOp.STORE;
 
             const depthStencilAttachment = new DepthStencilAttachment();
-            depthStencilAttachment.format = device.depthStencilFormat;
+            depthStencilAttachment.format = this._swapchain.depthStencilTexture.format;
             depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.depthStoreOp = StoreOp.STORE;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
@@ -276,7 +276,7 @@ export class DeferredPipeline extends RenderPipeline {
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
 
             const depthStencilAttachment = new DepthStencilAttachment();
-            depthStencilAttachment.format = device.depthStencilFormat;
+            depthStencilAttachment.format = this._swapchain.depthStencilTexture.format;
             depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
             depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
@@ -288,8 +288,8 @@ export class DeferredPipeline extends RenderPipeline {
             this._lightingRenderPass = device.createRenderPass(renderPassInfo);
         }
 
-        this._width = device.width;
-        this._height = device.height;
+        this._width = this._swapchain.width;
+        this._height = this._swapchain.height;
         this._generateDeferredRenderData();
 
         return true;
@@ -425,17 +425,17 @@ export class DeferredPipeline extends RenderPipeline {
         const offData = this.genQuadVertexData(SurfaceTransform.IDENTITY, renderArea);
         this._quadVBOffscreen!.update(offData);
 
-        const onData = this.genQuadVertexData(this.device.surfaceTransform, renderArea);
+        const onData = this.genQuadVertexData(this._swapchain.surfaceTransform, renderArea);
         this._quadVBOnscreen!.update(onData);
     }
 
     protected genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
         const vbData = new Float32Array(4 * 4);
 
-        const minX = renderArea.x / this.device.width;
-        const maxX = (renderArea.x + renderArea.width) / this.device.width;
-        let minY = renderArea.y / this.device.height;
-        let maxY = (renderArea.y + renderArea.height) / this.device.height;
+        const minX = renderArea.x / this._swapchain.width;
+        const maxX = (renderArea.x + renderArea.width) / this._swapchain.width;
+        let minY = renderArea.y / this._swapchain.height;
+        let maxY = (renderArea.y + renderArea.height) / this._swapchain.height;
         if (this.device.capabilities.screenSpaceSignY > 0) {
             const temp = maxY;
             maxY       = minY;
@@ -548,7 +548,7 @@ export class DeferredPipeline extends RenderPipeline {
         data.depthTex = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-            device.depthStencilFormat,
+            this._swapchain.depthStencilTexture.format,
             this._width,
             this._height,
         ));

@@ -36,7 +36,7 @@ import { clamp01 } from './math/utils';
 import {
     Sampler, SamplerInfo, Shader, Texture, TextureInfo, Device, InputAssembler, InputAssemblerInfo, Attribute, Buffer,
     BufferInfo, Rect, Color, BufferTextureCopy, Framebuffer, CommandBuffer, BufferUsageBit, Format,
-    MemoryUsageBit, TextureType, TextureUsageBit, Address, SurfaceTransform,
+    MemoryUsageBit, TextureType, TextureUsageBit, Address, SurfaceTransform, Swapchain,
 } from './gfx';
 import { PipelineStateManager } from './pipeline';
 import { legacyCC } from './global-exports';
@@ -77,8 +77,8 @@ export class SplashScreen {
     private _loadFinish = false;
     private _directCall = false;
 
-    private root!: Root;
     private device!: Device;
+    private swapchain!: Swapchain;
     private shader!: Shader;
     private sampler!: Sampler;
     private cmdBuff!: CommandBuffer;
@@ -136,8 +136,9 @@ export class SplashScreen {
             } else {
                 legacyCC.view.setDesignResolutionSize(960, 640, 4);
             }
-            this.root = root;
             this.device = root.device;
+            this.swapchain = root.mainWindow!.swapchain;
+            this.framebuffer = root.mainWindow!.framebuffer;
             legacyCC.game.once(legacyCC.Game.EVENT_GAME_INITED, () => {
                 legacyCC.director._lateUpdate = performance.now();
             }, legacyCC.director);
@@ -178,9 +179,8 @@ export class SplashScreen {
         // Color manually, or will have problem on native.
         const clearColor = this.settings.clearColor;
         this.clearColors = [new Color(clearColor.x, clearColor.y, clearColor.z, clearColor.w)];
-        const device = this.device;
-        this.renderArea = new Rect(0, 0, device.width, device.height);
-        this.framebuffer = this.root.mainWindow!.framebuffer;
+        const { device, swapchain } = this;
+        this.renderArea = new Rect(0, 0, swapchain.width, swapchain.height);
         this.cmdBuff = device.commandBuffer;
 
         // create input assembler
@@ -213,7 +213,7 @@ export class SplashScreen {
 
         this.projection = new Mat4();
         Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
-            device.capabilities.clipSpaceSignY, device.surfaceTransform);
+            device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
     }
 
     private init () {
@@ -222,10 +222,10 @@ export class SplashScreen {
         const animate = (time: number) => {
             if (this.cancelAnimate) return;
             const settings = this.settings;
-            const device = this.device;
+            const { device, swapchain } = this;
             Mat4.ortho(this.projection, -1, 1, -1, 1, -1, 1, device.capabilities.clipSpaceMinZ,
-                device.capabilities.clipSpaceSignY, device.surfaceTransform);
-            const dw = device.width; const dh = device.height;
+                device.capabilities.clipSpaceSignY, swapchain.surfaceTransform);
+            const dw = swapchain.width; const dh = swapchain.height;
             const refW = dw < dh ? dw : dh;
             // update logo uniform
             if (this.startTime < 0) this.startTime = time;
@@ -237,8 +237,8 @@ export class SplashScreen {
             const logoW = refW * settings.displayRatio;
             let scaleX = logoW * logoTW / logoTH;
             let scaleY = logoW;
-            if (device.surfaceTransform === SurfaceTransform.ROTATE_90
-                || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+            if (swapchain.surfaceTransform === SurfaceTransform.ROTATE_90
+                || swapchain.surfaceTransform === SurfaceTransform.ROTATE_270) {
                 scaleX = logoW * dw / dh;
                 scaleY = logoW * logoTH / logoTW * dh / dw;
             }
@@ -255,8 +255,8 @@ export class SplashScreen {
                 const wartermarkTW = this.watermarkTexture.width; const wartermarkTH = this.watermarkTexture.height;
                 let scaleX = wartermarkW;
                 let scaleY = wartermarkW * wartermarkTH / wartermarkTW;
-                if (device.surfaceTransform === SurfaceTransform.ROTATE_90
-                    || device.surfaceTransform === SurfaceTransform.ROTATE_270) {
+                if (swapchain.surfaceTransform === SurfaceTransform.ROTATE_90
+                    || swapchain.surfaceTransform === SurfaceTransform.ROTATE_270) {
                     scaleX = wartermarkW * 0.5;
                     scaleY = wartermarkW * dw / dh * 0.5;
                 }
@@ -348,15 +348,15 @@ export class SplashScreen {
     }
 
     private frame () {
-        const device = this.device;
-        device.acquire();
+        const { device, swapchain } = this;
+        device.acquire([swapchain]);
         // record command
         const cmdBuff = this.cmdBuff;
         const framebuffer = this.framebuffer;
         const renderArea = this.renderArea;
 
-        renderArea.width = device.width;
-        renderArea.height = device.height;
+        renderArea.width = swapchain.width;
+        renderArea.height = swapchain.height;
 
         cmdBuff.begin();
         cmdBuff.beginRenderPass(framebuffer.renderPass, framebuffer, renderArea, this.clearColors, 1.0, 0);
@@ -387,8 +387,8 @@ export class SplashScreen {
 
     private destroy () {
         this.callBack = null;
-        this.root = null!;
         this.device = null!;
+        this.swapchain = null!;
         this.clearColors = null!;
         if ((this.logoImage as any).destroy) (this.logoImage as any).destroy();
         this.logoImage = null!;

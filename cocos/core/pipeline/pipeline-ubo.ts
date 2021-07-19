@@ -45,18 +45,18 @@ export class PipelineUBO {
         const root = legacyCC.director.root;
         const fv = bufferView;
 
-        const shadingWidth = Math.floor(device.width);
-        const shadingHeight = Math.floor(device.height);
+        const shadingWidth = Math.floor(root.mainWindow.width);
+        const shadingHeight = Math.floor(root.mainWindow.height);
 
         // update UBOGlobal
         fv[UBOGlobal.TIME_OFFSET] = root.cumulativeTime;
         fv[UBOGlobal.TIME_OFFSET + 1] = root.frameTime;
         fv[UBOGlobal.TIME_OFFSET + 2] = legacyCC.director.getTotalFrames();
 
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET] = device.width;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = device.height;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / device.width;
-        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / device.height;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET] = shadingWidth;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 1] = shadingHeight;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 2] = 1.0 / shadingWidth;
+        fv[UBOGlobal.SCREEN_SIZE_OFFSET + 3] = 1.0 / shadingHeight;
 
         fv[UBOGlobal.NATIVE_SIZE_OFFSET] = shadingWidth;
         fv[UBOGlobal.NATIVE_SIZE_OFFSET + 1] = shadingHeight;
@@ -66,14 +66,14 @@ export class PipelineUBO {
 
     public static updateCameraUBOView (pipeline: RenderPipeline, bufferView: Float32Array,
         camera: Camera) {
-        const device = pipeline.device;
+        const root = legacyCC.director.root;
         const scene = camera.scene ? camera.scene : legacyCC.director.getScene().renderScene;
         const mainLight = scene.mainLight;
         const sceneData = pipeline.pipelineSceneData;
         const ambient = sceneData.ambient;
         const fog = sceneData.fog;
-        const shadingWidth = Math.floor(device.width);
-        const shadingHeight = Math.floor(device.height);
+        const shadingWidth = Math.floor(root.mainWindow.width);
+        const shadingHeight = Math.floor(root.mainWindow.height);
         const cv = bufferView;
         const exposure = camera.exposure;
         const isHDR = sceneData.isHDR;

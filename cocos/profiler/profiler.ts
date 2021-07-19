@@ -29,7 +29,7 @@ import { MeshRenderer } from '../3d/framework/mesh-renderer';
 import { Camera } from '../core/components/camera-component';
 import { createMesh } from '../3d/misc';
 import { Material } from '../core/assets/material';
-import { ClearFlagBit, Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy } from '../core/gfx';
+import { ClearFlagBit, Format, TextureType, TextureUsageBit, Texture, TextureInfo, Device, BufferTextureCopy, Swapchain } from '../core/gfx';
 import { Layers } from '../core/scene-graph';
 import { Node } from '../core/scene-graph/node';
 import { ICounterOption } from './counter';
@@ -37,6 +37,7 @@ import { PerfCounter } from './perf-counter';
 import { legacyCC } from '../core/global-exports';
 import { Pass } from '../core/renderer';
 import { preTransforms } from '../core/math/mat4';
+import { Root } from '../core/root';
 
 const _characters = '0123456789. ';
 
@@ -98,6 +99,7 @@ export class Profiler {
 
     private _rootNode: Node | null = null;
     private _device: Device | null = null;
+    private _swapchain: Swapchain | null = null;
     private readonly _canvas: HTMLCanvasElement | null = null;
     private readonly _ctx: CanvasRenderingContext2D | null = null;
     private _texture: Texture | null = null;
@@ -151,7 +153,11 @@ export class Profiler {
 
     public showStats () {
         if (!this._showFPS) {
-            if (!this._device) { this._device = legacyCC.director.root.device; }
+            if (!this._device) {
+                const root = legacyCC.director.root as Root;
+                this._device = root.device;
+                this._swapchain = root.mainWindow!.swapchain;
+            }
             if (!EDITOR) {
                 this.generateCanvas();
             }
@@ -380,7 +386,7 @@ export class Profiler {
         }
 
         if (!EDITOR) {
-            const surfaceTransform = this._device!.surfaceTransform;
+            const surfaceTransform = this._swapchain!.surfaceTransform;
             const clipSpaceSignY = this._device!.capabilities.clipSpaceSignY;
             if (surfaceTransform !== this.offsetData[3]) {
                 const preTransform = preTransforms[surfaceTransform];

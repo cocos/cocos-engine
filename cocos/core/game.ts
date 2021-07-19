@@ -34,7 +34,7 @@ import { IAssetManagerOptions } from './asset-manager/asset-manager';
 import { EventTarget } from './event/event-target';
 import * as debug from './platform/debug';
 import inputManager from './platform/event-manager/input-manager';
-import { Device, DeviceInfo } from './gfx';
+import { Device, DeviceInfo, SampleCount, Swapchain, SwapchainInfo } from './gfx';
 import { sys } from './platform/sys';
 import { macro } from './platform/macro';
 import { ICustomJointTextureLayout } from '../3d/skeletal-animation/skeletal-animation-utils';
@@ -366,7 +366,8 @@ export class Game extends EventTarget {
 
     public _persistRootNodes = {};
 
-    private _gfxDevice: Device | null = null;
+    public _gfxDevice: Device | null = null;
+    public _swapchain: Swapchain | null = null;
     // states
     public _configLoaded = false; // whether config loaded
     public _isCloning = false;    // deserializing or instantiating
@@ -825,18 +826,10 @@ export class Game extends EventTarget {
         if (this.renderType === Game.RENDER_TYPE_WEBGL) {
             const ctors: Constructor<Device>[] = [];
 
-            const opts = new DeviceInfo(
-                this.canvas as HTMLCanvasElement,
-                EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
-                false,
-                window.devicePixelRatio,
-                sys.windowPixelResolution.width,
-                sys.windowPixelResolution.height,
-                bindingMappingInfo,
-            );
+            const deviceInfo = new DeviceInfo(bindingMappingInfo);
 
             if (JSB && window.gfx) {
-                this._gfxDevice = gfx.DeviceManager.create(opts);
+                this._gfxDevice = gfx.DeviceManager.create(deviceInfo);
             } else {
                 let useWebGL2 = (!!window.WebGL2RenderingContext);
                 const userAgent = window.navigator.userAgent.toLowerCase();
@@ -854,7 +847,7 @@ export class Game extends EventTarget {
 
                 for (let i = 0; i < ctors.length; i++) {
                     this._gfxDevice = new ctors[i]();
-                    if (this._gfxDevice.initialize(opts)) { break; }
+                    if (this._gfxDevice.initialize(deviceInfo)) { break; }
                 }
             }
         }
@@ -865,6 +858,12 @@ export class Game extends EventTarget {
             this.renderType = Game.RENDER_TYPE_CANVAS;
             return;
         }
+
+        const swapchainInfo = new SwapchainInfo(this.canvas!);
+        swapchainInfo.samples = EDITOR || macro.ENABLE_WEBGL_ANTIALIAS ? SampleCount.MULTIPLE_BALANCE : SampleCount.ONE;
+        swapchainInfo.width = sys.windowPixelResolution.width;
+        swapchainInfo.height = sys.windowPixelResolution.height;
+        this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);
 
         this.canvas!.oncontextmenu = () => false;
     }

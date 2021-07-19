@@ -23,7 +23,7 @@
  THE SOFTWARE.
  */
 
-import { TextureFlagBit, FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo } from '../base/define';
+import { FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo, FormatInfos, TextureUsageBit } from '../base/define';
 import { Texture } from '../base/texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
@@ -36,7 +36,7 @@ export class WebGL2Texture extends Texture {
 
     private _gpuTexture: IWebGL2GPUTexture | null = null;
 
-    public initialize (info: TextureInfo | TextureViewInfo): boolean {
+    public initialize (info: TextureInfo | TextureViewInfo, isSwapchainTexture?: boolean): boolean {
         if ('texture' in info) {
             console.log('WebGL2 does not support texture view.');
             return false;
@@ -81,6 +81,8 @@ export class WebGL2Texture extends Texture {
             glWrapT: 0,
             glMinFilter: 0,
             glMagFilter: 0,
+
+            isSwapchainTexture: isSwapchainTexture || false,
         };
 
         WebGL2CmdFuncCreateTexture(this._device as WebGL2Device, this._gpuTexture);
@@ -113,5 +115,17 @@ export class WebGL2Texture extends Texture {
             this._device.memoryStatus.textureSize -= oldSize;
             this._device.memoryStatus.textureSize += this._size;
         }
+    }
+
+    // ======================= Swapchain Specific ======================= //
+
+    protected initAsSwapchainTexture (info: ISwapchainTextureInfo): boolean {
+        const texInfo = new TextureInfo();
+        texInfo.format = info.format;
+        texInfo.usage = FormatInfos[info.format].hasDepth ? TextureUsageBit.DEPTH_STENCIL_ATTACHMENT : TextureUsageBit.COLOR_ATTACHMENT;
+        texInfo.width = info.width;
+        texInfo.height = info.height;
+        texInfo.samples = info.samples;
+        return this.initialize(texInfo, true);
     }
 }

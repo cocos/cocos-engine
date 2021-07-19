@@ -78,6 +78,8 @@ export interface IWebGL2GPUTexture {
     glWrapT: GLenum;
     glMinFilter: GLenum;
     glMagFilter: GLenum;
+
+    isSwapchainTexture: boolean;
 }
 
 export interface IWebGL2GPURenderPass {

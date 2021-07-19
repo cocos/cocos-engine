@@ -50,7 +50,8 @@ import { TextureBarrier } from '../base/texture-barrier';
 
 export class WebGLCommandBuffer extends CommandBuffer {
     public cmdPackage: WebGLCmdPackage = new WebGLCmdPackage();
-    protected _webGLAllocator: WebGLCommandAllocator | null = null;
+
+    protected _cmdAllocator: WebGLCommandAllocator = new WebGLCommandAllocator();
     protected _isInRenderPass = false;
     protected _curGPUPipelineState: IWebGLGPUPipelineState | null = null;
     protected _curGPUInputAssembler: IWebGLGPUInputAssembler | null = null;
@@ -63,8 +64,6 @@ export class WebGLCommandBuffer extends CommandBuffer {
         this._type = info.type;
         this._queue = info.queue;
 
-        this._webGLAllocator = (this._device as WebGLDevice).cmdAllocator;
-
         const setCount = (this._device as WebGLDevice).bindingMappingInfo.bufferOffsets.length;
         for (let i = 0; i < setCount; i++) {
             this._curGPUDescriptorSets.push(null!);
@@ -74,14 +73,11 @@ export class WebGLCommandBuffer extends CommandBuffer {
     }
 
     public destroy () {
-        if (this._webGLAllocator) {
-            this._webGLAllocator.clearCmds(this.cmdPackage);
-            this._webGLAllocator = null;
-        }
+        this._cmdAllocator.clearCmds(this.cmdPackage);
     }
 
     public begin (renderPass?: RenderPass, subpass = 0, frameBuffer?: Framebuffer) {
-        this._webGLAllocator!.clearCmds(this.cmdPackage);
+        this._cmdAllocator.clearCmds(this.cmdPackage);
         this._curGPUPipelineState = null;
         this._curGPUInputAssembler = null;
         this._curGPUDescriptorSets.length = 0;
@@ -106,7 +102,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
         clearDepth: number,
         clearStencil: number,
     ) {
-        const cmd = this._webGLAllocator!.beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
+        const cmd = this._cmdAllocator.beginRenderPassCmdPool.alloc(WebGLCmdBeginRenderPass);
         cmd.gpuRenderPass = (renderPass as WebGLRenderPass).gpuRenderPass;
         cmd.gpuFramebuffer = (framebuffer as WebGLFramebuffer).gpuFramebuffer;
         cmd.renderArea = renderArea;
@@ -275,7 +271,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
                 this.bindStates();
             }
 
-            const cmd = this._webGLAllocator!.drawCmdPool.alloc(WebGLCmdDraw);
+            const cmd = this._cmdAllocator.drawCmdPool.alloc(WebGLCmdDraw);
             // cmd.drawInfo = inputAssembler;
             cmd.drawInfo.vertexCount = info.vertexCount;
             cmd.drawInfo.firstVertex = info.firstVertex;
@@ -316,7 +312,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
             || this._type === CommandBufferType.SECONDARY) {
             const gpuBuffer = (buffer as WebGLBuffer).gpuBuffer;
             if (gpuBuffer) {
-                const cmd = this._webGLAllocator!.updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
+                const cmd = this._cmdAllocator.updateBufferCmdPool.alloc(WebGLCmdUpdateBuffer);
 
                 let buffSize = 0;
                 let buff: BufferSource | null = null;
@@ -352,7 +348,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
             || this._type === CommandBufferType.SECONDARY) {
             const gpuTexture = (texture as WebGLTexture).gpuTexture;
             if (gpuTexture) {
-                const cmd = this._webGLAllocator!.copyBufferToTextureCmdPool.alloc(WebGLCmdCopyBufferToTexture);
+                const cmd = this._cmdAllocator.copyBufferToTextureCmdPool.alloc(WebGLCmdCopyBufferToTexture);
                 if (cmd) {
                     cmd.gpuTexture = gpuTexture;
                     cmd.regions = regions;
@@ -419,7 +415,7 @@ export class WebGLCommandBuffer extends CommandBuffer {
     }
 
     protected bindStates () {
-        const bindStatesCmd = this._webGLAllocator!.bindStatesCmdPool.alloc(WebGLCmdBindStates);
+        const bindStatesCmd = this._cmdAllocator.bindStatesCmdPool.alloc(WebGLCmdBindStates);
 
         if (bindStatesCmd) {
             bindStatesCmd.gpuPipelineState = this._curGPUPipelineState;

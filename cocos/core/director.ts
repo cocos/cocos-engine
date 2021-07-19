@@ -793,8 +793,7 @@ export class Director extends EventTarget {
     private _init () {
         // The test environment does not currently support the renderer
         if (TEST) return Promise.resolve();
-        // @ts-expect-error internal api usage
-        this._root = new Root(game._gfxDevice);
+        this._root = new Root(game._gfxDevice!);
         const rootInfo = {};
         return this._root.initialize(rootInfo).catch((error) => {
             errorID(1217);

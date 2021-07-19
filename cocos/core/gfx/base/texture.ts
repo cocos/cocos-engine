@@ -41,6 +41,7 @@ import {
     TextureUsageBit,
     TextureInfo,
     TextureViewInfo,
+    ISwapchainTextureInfo,
 } from './define';
 
 /**
@@ -146,7 +147,7 @@ export abstract class Texture extends Obj {
     protected _depth = 1;
     protected _layerCount = 1;
     protected _levelCount = 1;
-    protected _samples: SampleCount = SampleCount.X1;
+    protected _samples: SampleCount = SampleCount.ONE;
     protected _flags: TextureFlags = TextureFlagBit.NONE;
     protected _isPowerOf2 = false;
     protected _size = 0;
@@ -167,4 +168,6 @@ export abstract class Texture extends Obj {
      * @param height The new height.
      */
     public abstract resize (width: number, height: number): void;
+
+    protected abstract initAsSwapchainTexture (info: ISwapchainTextureInfo): boolean;
 }

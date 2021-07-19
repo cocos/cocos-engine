@@ -25,7 +25,7 @@
 import { JSB } from 'internal:constants';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain,
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera, NativeRenderWindow } from '../scene';
@@ -35,8 +35,7 @@ export interface IRenderWindowInfo {
     width: number;
     height: number;
     renderPassInfo: RenderPassInfo;
-    swapchainBufferIndices?: number;
-    shouldSyncSizeWithSwapchain?: boolean;
+    swapchain?: Swapchain;
 }
 
 /**
@@ -61,31 +60,19 @@ export class RenderWindow {
     }
 
     /**
+     * @en Get the swapchain for this window, if there is one
+     * @zh 如果存在的话，获取此窗口的交换链
+     */
+    get swapchain () {
+        return this._swapchain;
+    }
+
+    /**
      * @en Get window frame buffer.
      * @zh 帧缓冲对象。
      */
     get framebuffer (): Framebuffer {
         return this._framebuffer!;
-    }
-
-    get shouldSyncSizeWithSwapchain () {
-        return this._shouldSyncSizeWithSwapchain;
-    }
-
-    /**
-     * @en Whether it has on screen attachments
-     * @zh 这个渲染窗口是否指向在屏缓冲
-     */
-    get hasOnScreenAttachments () {
-        return this._hasOnScreenAttachments;
-    }
-
-    /**
-     * @en Whether it has off screen attachments
-     * @zh 这个渲染窗口是否指向离屏缓冲
-     */
-    get hasOffScreenAttachments () {
-        return this._hasOffScreenAttachments;
     }
 
     get cameras () {
@@ -102,11 +89,10 @@ export class RenderWindow {
     protected _title = '';
     protected _width = 1;
     protected _height = 1;
+    protected _swapchain: Swapchain = null!;
     protected _renderPass: RenderPass | null = null;
-    protected _colorTextures: (Texture | null)[] = [];
+    protected _colorTextures: Texture[] = [];
     protected _depthStencilTexture: Texture | null = null;
-    protected _swapchainBufferIndices = 0;
-    protected _shouldSyncSizeWithSwapchain = false;
     protected _cameras: Camera[] = [];
     protected _hasOnScreenAttachments = false;
     protected _hasOffScreenAttachments = false;
@@ -117,114 +103,65 @@ export class RenderWindow {
         return this._nativeObj;
     }
 
-    private constructor (root: Root) {
-    }
-
-    private _setHasOffScreenAttachments (val) {
-        this._hasOffScreenAttachments = val;
-        if (JSB) {
-            this._nativeObj!.hasOffScreenAttachments = val;
-        }
-    }
-
-    private _setHasOnScreenAttachments (val) {
-        this._hasOnScreenAttachments = val;
-        if (JSB) {
-            this._nativeObj!.hasOnScreenAttachments = val;
-        }
-    }
-
-    private _createFrameBuffer (device: Device, renderPass) {
-        this._framebuffer = device.createFramebuffer(new FramebufferInfo(
-            renderPass,
-            this._colorTextures,
-            this._depthStencilTexture,
-        ));
-        if (JSB) {
-            this._nativeObj!.frameBuffer = this._framebuffer;
-        }
-    }
-
-    protected _init () {
-        if (JSB) {
-            this._nativeObj = new NativeRenderWindow();
-        }
-    }
+    private constructor (root: Root) {}
 
     public initialize (device: Device, info: IRenderWindowInfo): boolean {
         this._init();
+
         if (info.title !== undefined) {
             this._title = info.title;
         }
 
-        if (info.swapchainBufferIndices !== undefined) {
-            this._swapchainBufferIndices = info.swapchainBufferIndices;
-        }
-
-        if (info.shouldSyncSizeWithSwapchain !== undefined) {
-            this._shouldSyncSizeWithSwapchain = info.shouldSyncSizeWithSwapchain;
+        if (info.swapchain !== undefined) {
+            this._swapchain = info.swapchain;
         }
 
         this._width = info.width;
         this._height = info.height;
-
-        const { colorAttachments, depthStencilAttachment } = info.renderPassInfo;
-        for (let i = 0; i < colorAttachments.length; i++) {
-            if (colorAttachments[i].format === Format.UNKNOWN) {
-                colorAttachments[i].format = device.colorFormat;
-            }
-        }
-        if (depthStencilAttachment && depthStencilAttachment.format === Format.UNKNOWN) {
-            depthStencilAttachment.format = device.depthStencilFormat;
-        }
-
         this._renderPass = device.createRenderPass(info.renderPassInfo);
 
-        for (let i = 0; i < colorAttachments.length; i++) {
-            let colorTex: Texture | null = null;
-            if (!(this._swapchainBufferIndices & (1 << i))) {
-                colorTex = device.createTexture(new TextureInfo(
+        if (info.swapchain) {
+            this._setSwapchain(info.swapchain);
+            this._colorTextures.push(info.swapchain.colorTexture);
+            this._depthStencilTexture = info.swapchain.depthStencilTexture;
+        } else {
+            for (let i = 0; i < info.renderPassInfo.colorAttachments.length; i++) {
+                this._colorTextures.push(device.createTexture(new TextureInfo(
                     TextureType.TEX2D,
                     TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-                    colorAttachments[i].format,
+                    info.renderPassInfo.colorAttachments[i].format,
                     this._width,
                     this._height,
-                ));
-                this._setHasOffScreenAttachments(true);
-            } else {
-                this._setHasOnScreenAttachments(true);
+                )));
             }
-            this._colorTextures.push(colorTex);
-        }
-
-        // Use the sign bit to indicate depth attachment
-        if (depthStencilAttachment) {
-            if (this._swapchainBufferIndices >= 0) {
+            if (info.renderPassInfo.depthStencilAttachment.format !== Format.UNKNOWN) {
                 this._depthStencilTexture = device.createTexture(new TextureInfo(
                     TextureType.TEX2D,
                     TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
-                    depthStencilAttachment.format,
+                    info.renderPassInfo.depthStencilAttachment.format,
                     this._width,
                     this._height,
                 ));
-                this._setHasOffScreenAttachments(true);
             }
-        } else {
-            this._setHasOnScreenAttachments(true);
         }
-        this._createFrameBuffer(device, this._renderPass);
-        return true;
-    }
 
-    protected _destroy () {
-        this.framebuffer.destroy();
-        if (JSB) {
-            this._nativeObj = null;
-        }
+        this._setFrameBuffer(device.createFramebuffer(new FramebufferInfo(
+            this._renderPass,
+            this._colorTextures,
+            this._depthStencilTexture,
+        )));
+
+        return true;
     }
 
     public destroy () {
         this.clearCameras();
+
+        if (this._framebuffer) {
+            this._framebuffer.destroy();
+            this._framebuffer = null;
+        }
+
         if (this._depthStencilTexture) {
             this._depthStencilTexture.destroy();
             this._depthStencilTexture = null;
@@ -237,6 +174,7 @@ export class RenderWindow {
             }
         }
         this._colorTextures.length = 0;
+
         this._destroy();
     }
 
@@ -331,5 +269,33 @@ export class RenderWindow {
 
     public sortCameras () {
         this._cameras.sort((a: Camera, b: Camera) => a.priority - b.priority);
+    }
+
+    // ====================== Native Specific ====================== //
+
+    private _init () {
+        if (JSB) {
+            this._nativeObj = new NativeRenderWindow();
+        }
+    }
+
+    private _destroy () {
+        if (JSB) {
+            this._nativeObj = null;
+        }
+    }
+
+    private _setSwapchain (val: Swapchain) {
+        this._swapchain = val;
+        if (JSB) {
+            this._nativeObj!.swapchain = val;
+        }
+    }
+
+    private _setFrameBuffer (val: Framebuffer) {
+        this._framebuffer = val;
+        if (JSB) {
+            this._nativeObj!.frameBuffer = val;
+        }
     }
 }

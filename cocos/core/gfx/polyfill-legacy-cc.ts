@@ -31,6 +31,7 @@
 import { Buffer } from './base/buffer';
 import { CommandBuffer } from './base/command-buffer';
 import { Device } from './base/device';
+import { Swapchain } from './base/swapchain';
 import { Framebuffer } from './base/framebuffer';
 import { InputAssembler } from './base/input-assembler';
 import { DescriptorSet } from './base/descriptor-set';
@@ -49,6 +50,7 @@ import * as defines from './base/define';
 
 const polyfills: Record<string, unknown> = {
     Device,
+    Swapchain,
     Buffer,
     Texture,
     Sampler,

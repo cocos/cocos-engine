@@ -596,9 +596,9 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
         if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
             if (gpuBuffer.size > 0) {
-                if (device.useVAO) {
+                if (device.extensions.useVAO) {
                     if (cache.glVAO) {
-                        device.OES_vertex_array_object!.bindVertexArrayOES(null);
+                        device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
                         cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                     }
                 }
@@ -620,9 +620,9 @@ export function WebGLCmdFuncCreateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
         if (glBuffer) {
             gpuBuffer.glBuffer = glBuffer;
             if (gpuBuffer.size > 0) {
-                if (device.useVAO) {
+                if (device.extensions.useVAO) {
                     if (cache.glVAO) {
-                        device.OES_vertex_array_object!.bindVertexArrayOES(null);
+                        device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
                         cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                     }
                 }
@@ -669,9 +669,9 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
     const glUsage: GLenum = gpuBuffer.memUsage & MemoryUsageBit.HOST ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW;
 
     if (gpuBuffer.usage & BufferUsageBit.VERTEX) {
-        if (device.useVAO) {
+        if (device.extensions.useVAO) {
             if (cache.glVAO) {
-                device.OES_vertex_array_object!.bindVertexArrayOES(null);
+                device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
                 cache.glVAO = gfxStateCache.gpuInputAssembler = null;
             }
         }
@@ -688,9 +688,9 @@ export function WebGLCmdFuncResizeBuffer (device: WebGLDevice, gpuBuffer: IWebGL
         gl.bindBuffer(gl.ARRAY_BUFFER, null);
         device.stateCache.glArrayBuffer = null;
     } else if (gpuBuffer.usage & BufferUsageBit.INDEX) {
-        if (device.useVAO) {
+        if (device.extensions.useVAO) {
             if (cache.glVAO) {
-                device.OES_vertex_array_object!.bindVertexArrayOES(null);
+                device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
                 cache.glVAO = gfxStateCache.gpuInputAssembler = null;
             }
         }
@@ -738,9 +738,9 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
 
         switch (gpuBuffer.glTarget) {
         case gl.ARRAY_BUFFER: {
-            if (device.useVAO) {
+            if (device.extensions.useVAO) {
                 if (cache.glVAO) {
-                    device.OES_vertex_array_object!.bindVertexArrayOES(null);
+                    device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
                     cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                 }
             }
@@ -752,9 +752,9 @@ export function WebGLCmdFuncUpdateBuffer (device: WebGLDevice, gpuBuffer: IWebGL
             break;
         }
         case gl.ELEMENT_ARRAY_BUFFER: {
-            if (device.useVAO) {
+            if (device.extensions.useVAO) {
                 if (cache.glVAO) {
-                    device.OES_vertex_array_object!.bindVertexArrayOES(null);
+                    device.extensions.OES_vertex_array_object!.bindVertexArrayOES(null);
                     cache.glVAO = gfxStateCache.gpuInputAssembler = null;
                 }
             }
@@ -791,13 +791,14 @@ export function WebGLCmdFuncCreateTexture (device: WebGLDevice, gpuTexture: IWeb
     switch (gpuTexture.type) {
     case TextureType.TEX2D: {
         gpuTexture.glTarget = gl.TEXTURE_2D;
+        if (gpuTexture.isSwapchainTexture) break;
 
         const maxSize = Math.max(w, h);
         if (maxSize > device.capabilities.maxTextureSize) {
             errorID(9100, maxSize, device.capabilities.maxTextureSize);
         }
 
-        if (!device.WEBGL_depth_texture && FormatInfos[gpuTexture.format].hasDepth) {
+        if (!device.extensions.WEBGL_depth_texture && FormatInfos[gpuTexture.format].hasDepth) {
             gpuTexture.glInternalFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format, gl);
             const glRenderbuffer = gl.createRenderbuffer();
             if (glRenderbuffer && gpuTexture.size > 0) {
@@ -1046,7 +1047,12 @@ export function WebGLCmdFuncResizeTexture (device: WebGLDevice, gpuTexture: IWeb
 }
 
 export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuffer: IWebGLGPUFramebuffer) {
-    if (!gpuFramebuffer.gpuColorTextures.length && !gpuFramebuffer.gpuDepthStencilTexture) { return; } // onscreen fbo
+    let isOnscreen = false;
+    for (let i = 0; i < gpuFramebuffer.gpuColorTextures.length; ++i) {
+        if (!gpuFramebuffer.gpuColorTextures[i].glTexture) isOnscreen = true;
+    }
+    if (gpuFramebuffer.gpuDepthStencilTexture && !gpuFramebuffer.gpuDepthStencilTexture.glTexture) isOnscreen = true;
+    if (isOnscreen) return;
 
     const { gl } = device;
     const attachments: GLenum[] = [];
@@ -1104,8 +1110,8 @@ export function WebGLCmdFuncCreateFramebuffer (device: WebGLDevice, gpuFramebuff
             }
         }
 
-        if (device.WEBGL_draw_buffers) {
-            device.WEBGL_draw_buffers.drawBuffersWEBGL(attachments);
+        if (device.extensions.WEBGL_draw_buffers) {
+            device.extensions.WEBGL_draw_buffers.drawBuffersWEBGL(attachments);
         }
 
         const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
@@ -1210,7 +1216,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     gl.linkProgram(gpuShader.glProgram);
 
     // detach & delete immediately
-    if (device.destroyShadersImmediately) {
+    if (device.extensions.destroyShadersImmediately) {
         for (let k = 0; k < gpuShader.gpuStages.length; k++) {
             const gpuStage = gpuShader.gpuStages[k];
             if (gpuStage.glShader) {
@@ -1476,7 +1482,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
 export function WebGLCmdFuncDestroyShader (device: WebGLDevice, gpuShader: IWebGLGPUShader) {
     if (gpuShader.glProgram) {
         const { gl } = device;
-        if (!device.destroyShadersImmediately) {
+        if (!device.extensions.destroyShadersImmediately) {
             for (let k = 0; k < gpuShader.gpuStages.length; k++) {
                 const gpuStage = gpuShader.gpuStages[k];
                 if (gpuStage.glShader) {
@@ -1529,7 +1535,7 @@ export function WebGLCmdFuncDestroyInputAssembler (device: WebGLDevice, gpuInput
     const it = gpuInputAssembler.glVAOs.values();
     let res = it.next();
     while (!res.done) {
-        device.OES_vertex_array_object!.deleteVertexArrayOES(res.value);
+        device.extensions.OES_vertex_array_object!.deleteVertexArrayOES(res.value);
         res = it.next();
     }
     gpuInputAssembler.glVAOs.clear();
@@ -1592,7 +1598,7 @@ export function WebGLCmdFuncBeginRenderPass (
         // const invalidateAttachments: GLenum[] = [];
         let clearCount = clearColors.length;
 
-        if (!device.WEBGL_draw_buffers) {
+        if (!device.extensions.WEBGL_draw_buffers) {
             clearCount = 1;
         }
 
@@ -2182,7 +2188,7 @@ export function WebGLCmdFuncBindStates (
                         if (gpuTexture.glTexture) {
                             gl.bindTexture(gpuTexture.glTarget, gpuTexture.glTexture);
                         } else {
-                            gl.bindTexture(gpuTexture.glTarget, device.nullTex2D!.gpuTexture.glTexture);
+                            gl.bindTexture(gpuTexture.glTarget, device.nullTex2D.gpuTexture.glTexture);
                         }
                         glTexUnit.glTexture = gpuTexture.glTexture;
                     }
@@ -2258,10 +2264,10 @@ export function WebGLCmdFuncBindStates (
     if (gpuInputAssembler && gpuShader
         && (isShaderChanged || gfxStateCache.gpuInputAssembler !== gpuInputAssembler)) {
         gfxStateCache.gpuInputAssembler = gpuInputAssembler;
-        const ia = device.ANGLE_instanced_arrays;
+        const ia = device.extensions.ANGLE_instanced_arrays;
 
-        if (device.useVAO) {
-            const vao = device.OES_vertex_array_object!;
+        if (device.extensions.useVAO) {
+            const vao = device.extensions.OES_vertex_array_object!;
 
             // check vao
             let glVAO = gpuInputAssembler.glVAOs.get(gpuShader.glProgram!);
@@ -2484,7 +2490,7 @@ export function WebGLCmdFuncBindStates (
 
 export function WebGLCmdFuncDraw (device: WebGLDevice, drawInfo: DrawInfo) {
     const { gl } = device;
-    const ia = device.ANGLE_instanced_arrays;
+    const ia = device.extensions.ANGLE_instanced_arrays;
     const { gpuInputAssembler, glPrimitive } = gfxStateCache;
 
     if (gpuInputAssembler) {
@@ -2668,7 +2674,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                 gl.texSubImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                     region.texOffset.x, region.texOffset.y, w, h,
                     gpuTexture.glFormat, gpuTexture.glType, pixels);
-            } else if (gpuTexture.glInternalFmt === WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL || device.noCompressedTexSubImage2D) {
+            } else if (gpuTexture.glInternalFmt === WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL || device.extensions.noCompressedTexSubImage2D) {
                 gl.compressedTexImage2D(gl.TEXTURE_2D, region.texSubres.mipLevel,
                     gpuTexture.glInternalFmt, w, h, 0, pixels);
             } else {
@@ -2694,7 +2700,7 @@ export function WebGLCmdFuncCopyBuffersToTexture (
                     gl.texSubImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
                         region.texOffset.x, region.texOffset.y, w, h,
                         gpuTexture.glFormat, gpuTexture.glType, pixels);
-                } else if (gpuTexture.glInternalFmt === WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL || device.noCompressedTexSubImage2D) {
+                } else if (gpuTexture.glInternalFmt === WebGLEXT.COMPRESSED_RGB_ETC1_WEBGL || device.extensions.noCompressedTexSubImage2D) {
                     gl.compressedTexImage2D(gl.TEXTURE_CUBE_MAP_POSITIVE_X + f, region.texSubres.mipLevel,
                         gpuTexture.glInternalFmt, w, h, 0, pixels);
                 } else {

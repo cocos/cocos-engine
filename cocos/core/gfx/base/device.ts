@@ -28,12 +28,11 @@
  * @module gfx
  */
 
-import { ccenum } from '../../value-types/enum';
 import {
-    API, Feature, Filter, Format, MemoryStatus, SurfaceTransform, Rect,
+    API, Feature, MemoryStatus,
     CommandBufferInfo, BufferInfo, BufferViewInfo, TextureInfo, TextureViewInfo, SamplerInfo, DescriptorSetInfo,
     ShaderInfo, InputAssemblerInfo, RenderPassInfo, FramebufferInfo, DescriptorSetLayoutInfo, PipelineLayoutInfo,
-    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GlobalBarrierInfo, TextureBarrierInfo,
+    QueueInfo, BufferTextureCopy, DeviceInfo, DeviceCaps, GlobalBarrierInfo, TextureBarrierInfo, SwapchainInfo, BindingMappingInfo,
 } from './define';
 import { Buffer } from './buffer';
 import { CommandBuffer } from './command-buffer';
@@ -50,30 +49,13 @@ import { Shader } from './shader';
 import { Texture } from './texture';
 import { GlobalBarrier } from './global-barrier';
 import { TextureBarrier } from './texture-barrier';
-
-ccenum(Format);
+import { Swapchain } from './swapchain';
 
 /**
  * @en GFX Device.
  * @zh GFX 设备。
  */
 export abstract class Device {
-    /**
-     * @en The HTML canvas element.
-     * @zh HTML 画布。
-     */
-    get canvas (): HTMLCanvasElement {
-        return this._canvas as HTMLCanvasElement;
-    }
-
-    /**
-     * @en The HTML canvas element for 2D rendering.
-     * @zh 用于 2D 绘制的 HTML 画布。
-     */
-    get canvas2D (): HTMLCanvasElement {
-        return this._canvas2D as HTMLCanvasElement;
-    }
-
     /**
      * @en Current rendering API.
      * @zh 当前 GFX 使用的渲染 API。
@@ -99,30 +81,6 @@ export abstract class Device {
     }
 
     /**
-     * @en Device pixel ratio.
-     * @zh DPR 设备像素比。
-     */
-    get devicePixelRatio (): number {
-        return this._devicePixelRatio;
-    }
-
-    /**
-     * @en Device pixel width.
-     * @zh 设备像素宽度。
-     */
-    get width (): number {
-        return this._width;
-    }
-
-    /**
-     * @en Device pixel height.
-     * @zh 设备像素高度。
-     */
-    get height (): number {
-        return this._height;
-    }
-
-    /**
      * @en Renderer description.
      * @zh 渲染器描述。
      */
@@ -136,22 +94,6 @@ export abstract class Device {
      */
     get vendor (): string {
         return this._vendor;
-    }
-
-    /**
-     * @en Device color format.
-     * @zh 颜色格式。
-     */
-    get colorFormat (): Format {
-        return this._colorFmt;
-    }
-
-    /**
-     * @en Device depth stencil format.
-     * @zh 深度模板格式。
-     */
-    get depthStencilFormat (): Format {
-        return this._depthStencilFmt;
     }
 
     /**
@@ -188,59 +130,42 @@ export abstract class Device {
 
     /**
      * @en Current device capabilities.
-     * @zh 当前设备能立数据。
+     * @zh 当前设备能力数据。
      */
     get capabilities (): DeviceCaps {
         return this._caps;
     }
 
     /**
-     * @en The surface transform to be applied in projection matrices.
-     * @zh 需要在投影矩阵中应用的表面变换。
+     * @en Current device binding mappings.
+     * @zh 当前设备的绑定槽位映射关系。
      */
-    get surfaceTransform () {
-        return this._transform;
+    get bindingMappingInfo () {
+        return this._bindingMappingInfo;
     }
 
-    protected _canvas: HTMLCanvasElement | null = null;
-    protected _canvas2D: HTMLCanvasElement | null = null;
     protected _gfxAPI = API.UNKNOWN;
-    protected _transform = SurfaceTransform.IDENTITY;
-    protected _deviceName = '';
     protected _renderer = '';
     protected _vendor = '';
-    protected _version = '';
     protected _features = new Array<boolean>(Feature.COUNT);
     protected _queue: Queue | null = null;
     protected _cmdBuff: CommandBuffer | null = null;
-    protected _devicePixelRatio = 1.0;
-    protected _width = 0;
-    protected _height = 0;
-    protected _colorFmt = Format.UNKNOWN;
-    protected _depthStencilFmt = Format.UNKNOWN;
     protected _numDrawCalls = 0;
     protected _numInstances = 0;
     protected _numTris = 0;
     protected _memoryStatus = new MemoryStatus();
     protected _caps = new DeviceCaps();
+    protected _bindingMappingInfo: BindingMappingInfo = new BindingMappingInfo();
 
     public abstract initialize (info: DeviceInfo): boolean;
 
     public abstract destroy (): void;
 
     /**
-     * @en Resize the device.
-     * @zh 重置设备大小。
-     * @param width The device width.
-     * @param height The device height.
-     */
-    public abstract resize (width: number, height: number): void;
-
-    /**
      * @en Acquire next swapchain image.
      * @zh 获取下一个交换链缓冲。
      */
-    public abstract acquire (): void;
+    public abstract acquire (swapchains: Swapchain[]): void;
 
     /**
      * @en Present current swapchain image.
@@ -260,6 +185,13 @@ export abstract class Device {
      * @param info GFX command buffer description info.
      */
     public abstract createCommandBuffer (info: CommandBufferInfo): CommandBuffer;
+
+    /**
+     * @en Create swapchain.
+     * @zh 创建交换链。
+     * @param info GFX swapchain description info.
+     */
+    public abstract createSwapchain (info: SwapchainInfo): Swapchain;
 
     /**
      * @en Create buffer.
@@ -386,15 +318,6 @@ export abstract class Device {
      * @param regions The region descriptions.
      */
     public abstract copyTexImagesToTexture (texImages: TexImageSource[], texture: Texture, regions: BufferTextureCopy[]): void;
-
-    /**
-     * @en Copy frame buffer to buffer.
-     * @zh 拷贝帧缓冲到缓冲。
-     * @param srcFramebuffer The frame buffer to be copied.
-     * @param dstBuffer The buffer to copy to.
-     * @param regions The region descriptions.
-     */
-    public abstract copyFramebufferToBuffer (srcFramebuffer: Framebuffer, dstBuffer: ArrayBuffer, regions: BufferTextureCopy[]): void;
 
     /**
      * @en Whether the device has specific feature.

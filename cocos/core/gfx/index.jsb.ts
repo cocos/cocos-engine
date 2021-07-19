@@ -39,6 +39,7 @@ export * from './base/buffer';
 export * from './base/command-buffer';
 export * from './base/define';
 export * from './base/device';
+export * from './base/swapchain';
 export * from './base/framebuffer';
 export * from './base/input-assembler';
 export * from './base/descriptor-set-layout';
@@ -53,6 +54,7 @@ export * from './base/texture-barrier';
 
 const polyfillCC: Record<string, unknown> = Object.assign({}, defines);
 polyfillCC.Device = gfx.Device;
+polyfillCC.Swapchain = gfx.Swapchain;
 polyfillCC.Buffer = gfx.Buffer;
 polyfillCC.Texture = gfx.Texture;
 polyfillCC.Sampler = gfx.Sampler;

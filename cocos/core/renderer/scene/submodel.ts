@@ -36,6 +36,7 @@ import { Shadows } from './shadows';
 import { NativePass, NativeSubModel } from './native-scene';
 import { getPhaseID } from '../../pipeline/pass-phase';
 import { genSamplerHash, samplerLib } from '../core/sampler-lib';
+import { Root } from '../../root';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const MAX_PASS_COUNT = 8;
@@ -169,7 +170,8 @@ export class SubModel {
     }
 
     public initialize (subMesh: RenderingSubMesh, passes: Pass[], patches: IMacroPatch[] | null = null): void {
-        this._device = legacyCC.director.root.device as Device;
+        const root = legacyCC.director.root as Root;
+        this._device = root.device;
         _dsInfo.layout = passes[0].localSetLayout;
         this._init();
         this._setInputAssembler(subMesh.iaInfo);
@@ -185,8 +187,8 @@ export class SubModel {
 
         // initialize resources for reflection material
         if (passes[0].phase === getPhaseID('reflection')) {
-            let texWidth = this._device.width;
-            let texHeight = this._device.height;
+            let texWidth = root.mainWindow!.width;
+            let texHeight = root.mainWindow!.height;
             const minSize = 512;
 
             if (texHeight < texWidth) {
