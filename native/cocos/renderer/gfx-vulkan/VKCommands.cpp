@@ -372,8 +372,8 @@ void cmdFuncCCVKCreateRenderPass(CCVKDevice *device, CCVKGPURenderPass *gpuRende
                                             : VK_IMAGE_ASPECT_DEPTH_BIT;
             VkImageLayout      layout = isGeneralLayout ? VK_IMAGE_LAYOUT_GENERAL : VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
             attachmentReferences.push_back({VK_STRUCTURE_TYPE_ATTACHMENT_REFERENCE_2, nullptr, subpassInfo.depthStencil, layout, aspect});
-            gpuRenderPass->sampleCounts.push_back(sampleCount);
         }
+        gpuRenderPass->sampleCounts.push_back(sampleCount);
 
         if (subpassInfo.depthStencilResolve != INVALID_BINDING) {
             const ColorAttachment &desc = gpuRenderPass->colorAttachments[subpassInfo.depthStencilResolve];
