@@ -304,6 +304,12 @@ def _check_python_version():
                "Download it here: https://www.python.org/" % (major_ver, sys.version_info[1]))
         return False
 
+    # To make sure TLS 1.2 is supported by python
+    if sys.version_info < (2, 7, 9):
+        print ("The python version is %d.%d.%d. Please install 2.7.9 or higher version of python 2.x\n"
+               "Download it here: https://www.python.org/" % (sys.version_info[0], sys.version_info[1], sys.version_info[2]))
+        return False
+
     return True
 
 
