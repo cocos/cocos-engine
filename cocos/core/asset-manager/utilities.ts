@@ -43,6 +43,10 @@ import Task from './task';
 
 let defaultProgressCallback: ProgressCallback | null = null;
 
+declare class WeakRef {
+    constructor (obj: any);
+}
+
 export function setDefaultProgressCallback (onProgress: ProgressCallback) {
     defaultProgressCallback = onProgress;
 }
@@ -151,7 +155,7 @@ export function setProperties (uuid: string, asset: Asset, assetsMap: Record<str
                         reference = [];
                         references!.add(depend.uuid, reference);
                     }
-                    reference.push([asset, depend.owner, depend.prop]);
+                    reference.push([new WeakRef(asset), new WeakRef(depend.owner), depend.prop]);
                 }
             }
         }
