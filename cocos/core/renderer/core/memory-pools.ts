@@ -184,10 +184,10 @@ class BufferPool<P extends PoolType, E extends BufferManifest> implements IMemor
         bufferViews[chunk][entry].fill(0);
         this._freeLists[chunk].push(entry);
         // free
-        if (this._freeLists[chunk].length === this._entriesPerChunk && this._freeLists.length > 1) {
-            this._freeLists.splice(chunk, 1);
-            this._arrayBuffers.splice(chunk, 1);
-        }
+        // if (this._freeLists[chunk].length === this._entriesPerChunk && this._freeLists.length > 1) {
+        //     this._freeLists.splice(chunk, 1, []);
+        //     this._arrayBuffers.splice(chunk, 1, null);
+        // }
     }
 }
 
