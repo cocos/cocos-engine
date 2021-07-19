@@ -117,27 +117,27 @@ describe('Mesh Renderer', () => {
     //     }
     // });
 
-    function createMeshRenderer (): MeshRenderer {
-        const node = new Node();
-        const meshRenderer = node.addComponent(MeshRenderer);
-        // @ts-expect-error Error
-        return meshRenderer;
-    }
+    // function createMeshRenderer (): MeshRenderer {
+    //     const node = new Node();
+    //     const meshRenderer = node.addComponent(MeshRenderer);
+    //     // @ts-expect-error Error
+    //     return meshRenderer;
+    // }
 
-    function createMeshWithShapeCounts (shapesCounts: number[]): Mesh {
-        const mesh = new Mesh();
-        mesh.struct.morph = {
-            subMeshMorphs: shapesCounts.map((shapeCount) => {
-                return {
-                    targets: Array.from({ length: shapeCount }, (_, index) => {
-                        return {
-                            displacements: [],
-                        };
-                    }),
-                    attributes: [],
-                };
-            }),
-        };
-        return mesh;
-    }
+    // function createMeshWithShapeCounts (shapesCounts: number[]): Mesh {
+    //     const mesh = new Mesh();
+    //     mesh.struct.morph = {
+    //         subMeshMorphs: shapesCounts.map((shapeCount) => {
+    //             return {
+    //                 targets: Array.from({ length: shapeCount }, (_, index) => {
+    //                     return {
+    //                         displacements: [],
+    //                     };
+    //                 }),
+    //                 attributes: [],
+    //             };
+    //         }),
+    //     };
+    //     return mesh;
+    // }
 });

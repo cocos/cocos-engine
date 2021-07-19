@@ -2,6 +2,7 @@ import { toRadian } from '../../cocos/core';
 import { RealCurve, RealInterpMode } from '../../cocos/core/curves';
 import { RealKeyframeValue } from '../../cocos/core/curves/curve';
 import { ExtrapMode, TangentWeightMode } from '../../cocos/core/curves/real-curve-param';
+import { serializeAndDeserialize } from './serialize-and-deserialize-curve';
 
 describe('Curve', () => {
     test('assign sorted', () => {
@@ -52,7 +53,7 @@ describe('Curve', () => {
                     tangentWeightMode: TangentWeightMode.BOTH,
                 }),
             ]);
-            compareCurves(serializeAndDeserialize(curve), curve);
+            compareCurves(serializeAndDeserialize(curve, RealCurve), curve);
         });
 
         test('Optimized for linear curve', () => {
@@ -62,7 +63,7 @@ describe('Curve', () => {
                 realKeyframeWithoutTangent(0.5),
                 realKeyframeWithoutTangent(0.6),
             ]);
-            compareCurves(serializeAndDeserialize(curve), curve);
+            compareCurves(serializeAndDeserialize(curve, RealCurve), curve);
         });
 
         test('Optimized for constant curve', () => {
@@ -72,7 +73,7 @@ describe('Curve', () => {
                 realKeyframeWithoutTangent(0.5, RealInterpMode.CONSTANT),
                 realKeyframeWithoutTangent(0.6, RealInterpMode.CONSTANT),
             ]);
-            compareCurves(serializeAndDeserialize(curve), curve);
+            compareCurves(serializeAndDeserialize(curve, RealCurve), curve);
         });
     });
 
@@ -249,13 +250,6 @@ function realKeyframeWithoutTangent (value: number, interpMode: RealInterpMode =
         value,
         interpMode,
     });
-}
-
-function serializeAndDeserialize (curve: RealCurve) {
-    const serialized = curve[serializeSymbol]();
-    const newCurve = new RealCurve();
-    newCurve[deserializeSymbol](serialized);
-    return newCurve;
 }
 
 function compareCurves (left: RealCurve, right: RealCurve, numDigits = 2) {

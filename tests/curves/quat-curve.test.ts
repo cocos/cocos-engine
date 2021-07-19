@@ -1,5 +1,6 @@
 
 import { Quat, QuaternionCurve, QuaternionInterpMode, QuaternionKeyframeValue } from '../../cocos/core';
+import { serializeAndDeserialize } from './serialize-and-deserialize-curve';
 
 describe('Curve', () => {
     test('Evaluate an empty curve', () => {
@@ -15,7 +16,7 @@ describe('Curve', () => {
                 new QuaternionKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpMode: QuaternionInterpMode.SLERP }),
                 new QuaternionKeyframeValue({ value: { x: 0.9, y: 0.1, z: 0.11, w: 0.12 }, interpMode: QuaternionInterpMode.CONSTANT }),
             ]);
-            compareCurves(serializeAndDeserialize(curve), curve);
+            compareCurves(serializeAndDeserialize(curve, QuaternionCurve), curve);
         });
 
         test('Optimized for linear curve', () => {
@@ -24,7 +25,7 @@ describe('Curve', () => {
                 new QuaternionKeyframeValue({ value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpMode: QuaternionInterpMode.SLERP }),
                 new QuaternionKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpMode: QuaternionInterpMode.SLERP }),
             ]);
-            compareCurves(serializeAndDeserialize(curve), curve);
+            compareCurves(serializeAndDeserialize(curve, QuaternionCurve), curve);
         });
 
         test('Optimized for constant curve', () => {
@@ -33,7 +34,7 @@ describe('Curve', () => {
                 new QuaternionKeyframeValue({ value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpMode: QuaternionInterpMode.CONSTANT }),
                 new QuaternionKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpMode: QuaternionInterpMode.CONSTANT }),
             ]);
-            compareCurves(serializeAndDeserialize(curve), curve);
+            compareCurves(serializeAndDeserialize(curve, QuaternionCurve), curve);
         });
     });
 
@@ -43,13 +44,6 @@ describe('Curve', () => {
         expect(keyframeValue.interpMode).toBe(QuaternionInterpMode.SLERP);
     });
 });
-
-function serializeAndDeserialize (curve: QuaternionCurve) {
-    const serialized = curve[serializeSymbol]();
-    const newCurve = new QuaternionCurve();
-    newCurve[deserializeSymbol](serialized);
-    return newCurve;
-}
 
 function compareCurves (left: QuaternionCurve, right: QuaternionCurve, numDigits = 2) {
     expect(left.keyFramesCount).toBe(right.keyFramesCount);
