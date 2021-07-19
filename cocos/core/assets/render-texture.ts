@@ -78,10 +78,6 @@ export class RenderTexture extends TextureBase {
 
     private _window: RenderWindow | null = null;
 
-    constructor () {
-        super();
-    }
-
     /**
      * @en The pixel width of the render texture
      * @zh 渲染贴图的像素宽度
