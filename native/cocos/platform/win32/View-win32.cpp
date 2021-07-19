@@ -112,6 +112,8 @@ bool View::pollEvent(bool *quit, bool *resume, bool *pause, bool *close) {
                     break;
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
                 case SDL_WINDOWEVENT_RESIZED:
+                    this->_width = wevent.data1;
+                    this->_height = wevent.data2;
                     cc::EventDispatcher::dispatchResizeEvent(wevent.data1, wevent.data2);
                     break;
                 case SDL_WINDOWEVENT_HIDDEN:
@@ -132,6 +134,9 @@ bool View::pollEvent(bool *quit, bool *resume, bool *pause, bool *close) {
             mouse.type                  = MouseEvent::Type::DOWN;
             mouse.x                     = static_cast<float>(event.x);
             mouse.y                     = static_cast<float>(event.y);
+            if (0 > mouse.x || mouse.x > this->_width || 0 > mouse.y || mouse.y > this->_height) {
+                break;
+            }
             mouse.button                = event.button - 1;
             cc::EventDispatcher::dispatchMouseEvent(mouse);
             break;
