@@ -6,7 +6,7 @@ import { LegacyClipCurve, LegacyCommonTarget, LegacyEasingMethod, timeBezierToTa
 import { ComponentPath, HierarchyPath, ICustomTargetPath, TargetPath } from "../../cocos/core/animation/target-path";
 import { RealChannel } from "../../cocos/core/animation/tracks/track";
 import { UntypedTrack } from "../../cocos/core/animation/tracks/untyped-track";
-import { ExtrapMode, RealCurve, RealKeyframeValue, TangentWeightMode } from "../../cocos/core/curves/curve";
+import { EasingMethod, ExtrapMode, RealCurve, RealKeyframeValue, TangentWeightMode } from "../../cocos/core/curves/curve";
 
 class ValueProxyFactorFoo implements IValueProxyFactory {
     forTarget(_target: any): animation.IValueProxy {
@@ -408,7 +408,7 @@ describe('Animation Clip Migration 3.x', () => {
                 expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.8]);
                 expect(Array.from(curve.values())).toStrictEqual([new RealKeyframeValue({
                     interpMode: RealInterpMode.CUBIC,
-                    tangentWeightMode: TangentWeightMode.BOTH,
+                    tangentWeightMode: TangentWeightMode.RIGHT,
                     value: 1,
                     rightTangent: 14.999999999999998,
                     rightTangentWeight: 0.6013318551349163,
@@ -423,10 +423,76 @@ describe('Animation Clip Migration 3.x', () => {
                 }), new RealKeyframeValue({
                     interpMode: RealInterpMode.LINEAR,
                     value: 5,
+                    tangentWeightMode: TangentWeightMode.LEFT,
                     leftTangent: 3.3333333333333335,
                     leftTangentWeight: 1.044030650891055,
                 })]);
-            }); 
+            });
+
+            test(`Easing method name: constant`, () => {
+                const curve = createClipWithEasingMethodsAndConvert(
+                    [0.1, 0.3, 0.8],
+                    [1, 3, 5],
+                    'constant',
+                    undefined,
+                    true,
+                );
+                expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.8]);
+                expect(Array.from(curve.values())).toStrictEqual([new RealKeyframeValue({
+                    interpMode: RealInterpMode.CONSTANT,
+                    value: 1,
+                }), new RealKeyframeValue({
+                    interpMode: RealInterpMode.CONSTANT,
+                    value: 3,
+                }), new RealKeyframeValue({
+                    interpMode: RealInterpMode.LINEAR, // Last frame never converted
+                    value: 5,
+                })]);
+            });
+
+            test(`Easing method name: linear`, () => {
+                const curve = createClipWithEasingMethodsAndConvert(
+                    [0.1, 0.3, 0.8],
+                    [1, 3, 5],
+                    'linear',
+                    undefined,
+                    true,
+                );
+                expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.8]);
+                expect(Array.from(curve.values())).toStrictEqual([new RealKeyframeValue({
+                    interpMode: RealInterpMode.LINEAR,
+                    value: 1,
+                }), new RealKeyframeValue({
+                    interpMode: RealInterpMode.LINEAR,
+                    value: 3,
+                }), new RealKeyframeValue({
+                    interpMode: RealInterpMode.LINEAR,
+                    value: 5,
+                })]);
+            });
+
+            test(`Easing method name: any other`, () => {
+                const curve = createClipWithEasingMethodsAndConvert(
+                    [0.1, 0.3, 0.8],
+                    [1, 3, 5],
+                    'cubicInOut',
+                    undefined,
+                    true,
+                );
+                expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.8]);
+                expect(Array.from(curve.values())).toStrictEqual([new RealKeyframeValue({
+                    interpMode: RealInterpMode.LINEAR,
+                    value: 1,
+                    easingMethod: EasingMethod.CUBIC_IN_OUT,
+                }), new RealKeyframeValue({
+                    interpMode: RealInterpMode.LINEAR,
+                    value: 3,
+                    easingMethod: EasingMethod.CUBIC_IN_OUT,
+                }), new RealKeyframeValue({
+                    interpMode: RealInterpMode.LINEAR, // Last frame never converted
+                    value: 5,
+                })]);
+            });
         });
 
         describe(`Specified through ".easingMethods"`, () => {
@@ -449,13 +515,14 @@ describe('Animation Clip Migration 3.x', () => {
                     value: 1,
                 }), new RealKeyframeValue({
                     interpMode: RealInterpMode.CUBIC,
-                    tangentWeightMode: TangentWeightMode.BOTH,
+                    tangentWeightMode: TangentWeightMode.RIGHT,
                     value: 3,
                     rightTangent: 14.999999999999996,
                     rightTangentWeight: 0.6013318551349163,
                 }), new RealKeyframeValue({
                     interpMode: RealInterpMode.LINEAR,
                     value: 5,
+                    tangentWeightMode: TangentWeightMode.LEFT,
                     leftTangent: 8.333333333333332,
                     leftTangentWeight: 1.0071742649611337,
                 })]);
@@ -485,30 +552,22 @@ describe('Animation Clip Migration 3.x', () => {
         };
 
         function testTimeBezierCurveConversion (testCase: TimeBezierTestCase) {
-            const [rightTangent, rightTangentWeight, leftTangent, leftTangentWeight] = timeBezierToTangents(
-                testCase.bezierPoints,
-                testCase.t0,
-                testCase.v0,
-                testCase.t1,
-                testCase.v1,
-            );
             const curve = new RealCurve();
             curve.assignSorted([
                 [testCase.t0, new RealKeyframeValue({
                     value: testCase.v0,
-                    rightTangent,
-                    rightTangentWeight,
-                    interpMode: RealInterpMode.CUBIC,
-                    tangentWeightMode: TangentWeightMode.RIGHT,
                 })],
                 [testCase.t1, new RealKeyframeValue({
                     value: testCase.v1,
-                    leftTangent,
-                    leftTangentWeight,
-                    interpMode: RealInterpMode.CUBIC,
-                    tangentWeightMode: TangentWeightMode.LEFT,
                 })],
             ]);
+            timeBezierToTangents(
+                testCase.bezierPoints,
+                curve.getKeyframeTime(0),
+                curve.getKeyframeValue(0),
+                curve.getKeyframeTime(1),
+                curve.getKeyframeValue(1),
+            );
 
             for (let inputRatio = 0.0; inputRatio <= 1.0; inputRatio += 0.01) {
                 const ratio = bezierByTime(testCase.bezierPoints, inputRatio);

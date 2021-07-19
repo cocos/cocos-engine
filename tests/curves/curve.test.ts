@@ -1,6 +1,6 @@
 import { toRadian } from '../../cocos/core';
 import { RealCurve, RealInterpMode } from '../../cocos/core/curves';
-import { RealKeyframeValue } from '../../cocos/core/curves/curve';
+import { EasingMethod, RealKeyframeValue } from '../../cocos/core/curves/curve';
 import { ExtrapMode, TangentWeightMode } from '../../cocos/core/curves/real-curve-param';
 import { serializeAndDeserialize } from './serialize-and-deserialize-curve';
 
@@ -51,6 +51,7 @@ describe('Curve', () => {
                     leftTangentWeight: 0.32,
                     interpMode: RealInterpMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.BOTH,
+                    easingMethod: EasingMethod.QUAD_OUT,
                 }),
             ]);
             compareCurves(serializeAndDeserialize(curve, RealCurve), curve);
@@ -85,6 +86,7 @@ describe('Curve', () => {
         expect(keyframeValue.rightTangentWeight).toBe(0.0);
         expect(keyframeValue.leftTangent).toBe(0.0);
         expect(keyframeValue.leftTangentWeight).toBe(0.0);
+        expect(keyframeValue.easingMethod).toBe(EasingMethod.LINEAR);
     });
 
     describe('Evaluation', () => {
@@ -264,5 +266,6 @@ function compareCurves (left: RealCurve, right: RealCurve, numDigits = 2) {
         expect(leftKeyframeValue.leftTangent).toBeCloseTo(rightKeyframeValue.leftTangent, numDigits);
         expect(leftKeyframeValue.leftTangentWeight).toBeCloseTo(rightKeyframeValue.leftTangentWeight, numDigits);
         expect(leftKeyframeValue.interpMode).toStrictEqual(rightKeyframeValue.interpMode);
+        expect(leftKeyframeValue.easingMethod).toStrictEqual(rightKeyframeValue.easingMethod);
     }
 }

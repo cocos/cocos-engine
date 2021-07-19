@@ -11,13 +11,14 @@ import { Track, TrackPath } from './tracks/track';
 import { UntypedTrack } from './tracks/untyped-track';
 import { warn } from '../platform';
 import { RealTrack } from './tracks/real-track';
-import { Color, Quat, Size, Vec2, Vec3, Vec4 } from '../math';
+import { Color, lerp, Quat, Size, Vec2, Vec3, Vec4 } from '../math';
 import { CubicSplineNumberValue, CubicSplineQuatValue, CubicSplineVec2Value, CubicSplineVec3Value, CubicSplineVec4Value } from './cubic-spline-value';
 import { ColorTrack } from './tracks/color-track';
 import { VectorTrack } from './tracks/vector-track';
 import { QuaternionTrack } from './tracks/quat-track';
 import { ObjectTrack } from './tracks/object-track';
 import { SizeTrack } from './tracks/size-track';
+import { EasingMethod } from '../curves/curve';
 
 /**
  * 表示曲线值，曲线值可以是任意类型，但必须符合插值方式的要求。
@@ -519,71 +520,92 @@ class LegacyEasingMethodConverter {
             }
             if (Array.isArray(easingMethod)) {
                 // Time bezier points
-                const currentKeyframeValue = curve.getKeyframeValue(iKeyframe);
-                const nextKeyframeValue = curve.getKeyframeValue(iKeyframe + 1);
-                const [previousTangent, previousTangentWeight, nextTangent, nextTangentWeight] = timeBezierToTangents(
+                timeBezierToTangents(
                     easingMethod,
                     curve.getKeyframeTime(iKeyframe),
-                    currentKeyframeValue.value,
+                    curve.getKeyframeValue(iKeyframe),
                     curve.getKeyframeTime(iKeyframe + 1),
-                    nextKeyframeValue.value,
+                    curve.getKeyframeValue(iKeyframe + 1),
                 );
-                currentKeyframeValue.interpMode = RealInterpMode.CUBIC;
-                currentKeyframeValue.tangentWeightMode = TangentWeightMode.BOTH;
-                currentKeyframeValue.rightTangent = previousTangent;
-                currentKeyframeValue.rightTangentWeight = previousTangentWeight;
-                nextKeyframeValue.leftTangent = nextTangent;
-                nextKeyframeValue.leftTangentWeight = nextTangentWeight;
             } else {
-                const bernstein = new Array(4).fill(0);
-                // Easing methods in `easing`
-                switch (easingMethod) {
-                case 'constant':
-                case 'linear':
-                    break;
-                case 'quadIn':
-                    // k * k
-                    powerToBernstein([0.0, 0.0, 1.0, 0.0], bernstein);
-                    break;
-                case 'quadOut':
-                    // k * (2 - k)
-                    powerToBernstein([0.0, 2.0, -1.0, 0.0], bernstein);
-                    break;
-                case 'cubicIn':
-                    // k * k * k
-                    powerToBernstein([0.0, 0.0, 0.0, 1.0], bernstein);
-                    break;
-                case 'cubicOut':
-                    // --k * k * k + 1;
-                    powerToBernstein([0.0, 0.0, 0.0, 1.0], bernstein);
-                    break;
-                case 'backIn': {
-                    // k * k * ((s + 1) * k - s)
-                    const s = 1.70158;
-                    powerToBernstein([1.0, 0.0, -s, s + 1.0], bernstein);
-                    break;
-                }
-                case 'backOut': {
-                    // k * k * ((s + 1) * k - s)
-                    const s = 1.70158;
-                    powerToBernstein([1.0, 0.0, s, s + 1.0], bernstein);
-                    break;
-                }
-                case 'smooth': {
-                    // k * k * (3 - 2 * k)
-                    powerToBernstein([0.0, 0.0, 3.0, -2.0], bernstein);
-                    break;
-                }
-                default:
-                    // TODO: do sample
-                    assertIsTrue(false);
-                }
+                applyLegacyEasingMethodName(
+                    easingMethod,
+                    curve,
+                    iKeyframe,
+                );
             }
         }
     }
 
     private _easingMethods: LegacyEasingMethod[]  | undefined;
 }
+
+/**
+ * @returns Inserted keyframes count.
+ */
+function applyLegacyEasingMethodName (
+    easingMethodName: LegacyEasingMethodName,
+    curve: RealCurve,
+    keyframeIndex: number,
+) {
+    assertIsTrue(keyframeIndex !== curve.keyFramesCount - 1);
+    assertIsTrue(easingMethodName in easingMethodNameMap);
+    const keyframeValue = curve.getKeyframeValue(keyframeIndex);
+    const easingMethod = easingMethodNameMap[easingMethodName];
+    if (easingMethod === EasingMethod.CONSTANT) {
+        keyframeValue.interpMode = RealInterpMode.CONSTANT;
+    } else {
+        keyframeValue.interpMode = RealInterpMode.LINEAR;
+        keyframeValue.easingMethod = easingMethod;
+    }
+}
+
+const easingMethodNameMap: Record<LegacyEasingMethodName, EasingMethod> = {
+    constant: EasingMethod.CONSTANT,
+    linear: EasingMethod.LINEAR,
+    quadIn: EasingMethod.QUAD_IN,
+    quadOut: EasingMethod.QUAD_OUT,
+    quadInOut: EasingMethod.QUAD_IN_OUT,
+    quadOutIn: EasingMethod.QUAD_OUT_IN,
+    cubicIn: EasingMethod.CUBIC_IN,
+    cubicOut: EasingMethod.CUBIC_OUT,
+    cubicInOut: EasingMethod.CUBIC_IN_OUT,
+    cubicOutIn: EasingMethod.CUBIC_OUT_IN,
+    quartIn: EasingMethod.QUART_IN,
+    quartOut: EasingMethod.QUART_OUT,
+    quartInOut: EasingMethod.QUART_IN_OUT,
+    quartOutIn: EasingMethod.QUART_OUT_IN,
+    quintIn: EasingMethod.QUINT_IN,
+    quintOut: EasingMethod.QUINT_OUT,
+    quintInOut: EasingMethod.QUINT_IN_OUT,
+    quintOutIn: EasingMethod.QUINT_OUT_IN,
+    sineIn: EasingMethod.SINE_IN,
+    sineOut: EasingMethod.SINE_OUT,
+    sineInOut: EasingMethod.SINE_IN_OUT,
+    sineOutIn: EasingMethod.SINE_OUT_IN,
+    expoIn: EasingMethod.EXPO_IN,
+    expoOut: EasingMethod.EXPO_OUT,
+    expoInOut: EasingMethod.EXPO_IN_OUT,
+    expoOutIn: EasingMethod.EXPO_OUT_IN,
+    circIn: EasingMethod.CIRC_IN,
+    circOut: EasingMethod.CIRC_OUT,
+    circInOut: EasingMethod.CIRC_IN_OUT,
+    circOutIn: EasingMethod.CIRC_OUT_IN,
+    elasticIn: EasingMethod.ELASTIC_IN,
+    elasticOut: EasingMethod.ELASTIC_OUT,
+    elasticInOut: EasingMethod.ELASTIC_IN_OUT,
+    elasticOutIn: EasingMethod.ELASTIC_OUT_IN,
+    backIn: EasingMethod.BACK_IN,
+    backOut: EasingMethod.BACK_OUT,
+    backInOut: EasingMethod.BACK_IN_OUT,
+    backOutIn: EasingMethod.BACK_OUT_IN,
+    bounceIn: EasingMethod.BOUNCE_IN,
+    bounceOut: EasingMethod.BOUNCE_OUT,
+    bounceInOut: EasingMethod.BOUNCE_IN_OUT,
+    bounceOutIn: EasingMethod.BOUNCE_OUT_IN,
+    smooth: EasingMethod.SMOOTH,
+    fade: EasingMethod.FADE,
+};
 
 /**
  * Legacy curve uses time based bezier curve interpolation.
@@ -599,11 +621,13 @@ class LegacyEasingMethodConverter {
 export function timeBezierToTangents (
     timeBezierPoints: BezierControlPoints,
     previousTime: number,
-    previousValue: number,
+    previousKeyframe: RealKeyframeValue,
     nextTime: number,
-    nextValue: number,
-): [previousTangent: number, previousTangentWeight: number, nextTangent: number, nextTangentWeight: number] {
+    nextKeyframe: RealKeyframeValue,
+) {
     const [p1X, p1Y, p2X, p2Y] = timeBezierPoints;
+    const { value: previousValue } = previousKeyframe;
+    const { value: nextValue } = nextKeyframe;
     const dValue = nextValue - previousValue;
     const dTime = nextTime - previousTime;
     const fx = 3 * dTime;
@@ -613,18 +637,130 @@ export function timeBezierToTangents (
     const t2x = (1.0 - p2X) * fx;
     const t2y = (1.0 - p2Y) * fy;
     const ONE_THIRD = 1.0 / 3.0;
-    return [
-        t1y / t1x,
-        Math.sqrt(t1x * t1x + t1y * t1y) * ONE_THIRD,
-        t2y / t2x,
-        Math.sqrt(t2x * t2x + t2y * t2y) * ONE_THIRD,
-    ];
+    const previousTangent = t1y / t1x;
+    const previousTangentWeight = Math.sqrt(t1x * t1x + t1y * t1y) * ONE_THIRD;
+    const nextTangent = t2y / t2x;
+    const nextTangentWeight = Math.sqrt(t2x * t2x + t2y * t2y) * ONE_THIRD;
+    previousKeyframe.interpMode = RealInterpMode.CUBIC;
+    previousKeyframe.tangentWeightMode = ensureRightTangentWeightMode(previousKeyframe.tangentWeightMode);
+    previousKeyframe.rightTangent = previousTangent;
+    previousKeyframe.rightTangentWeight = previousTangentWeight;
+    nextKeyframe.tangentWeightMode = ensureLeftTangentWeightMode(nextKeyframe.tangentWeightMode);
+    nextKeyframe.leftTangent = nextTangent;
+    nextKeyframe.leftTangentWeight = nextTangentWeight;
 }
 
-function powerToBernstein ([p0, p1, p2, p3]: [number, number, number, number], bernstein: number[]) {
-    // https://stackoverflow.com/questions/33859199/convert-polynomial-curve-to-bezier-curve-control-points
-    bernstein[0] = p0 + p1 + p2 + p3;
-    bernstein[1] = p1 / 3.0 + p2 * 2.0 / 3.0 + p3;
-    bernstein[2] = p2 / 3.0 + p3;
-    bernstein[3] = p3;
+function ensureLeftTangentWeightMode (tangentWeightMode: TangentWeightMode) {
+    if (tangentWeightMode === TangentWeightMode.NONE) {
+        return TangentWeightMode.LEFT;
+    } else if (tangentWeightMode === TangentWeightMode.RIGHT) {
+        return TangentWeightMode.BOTH;
+    } else {
+        return tangentWeightMode;
+    }
 }
+
+function ensureRightTangentWeightMode (tangentWeightMode: TangentWeightMode) {
+    if (tangentWeightMode === TangentWeightMode.NONE) {
+        return TangentWeightMode.RIGHT;
+    } else if (tangentWeightMode === TangentWeightMode.LEFT) {
+        return TangentWeightMode.BOTH;
+    } else {
+        return tangentWeightMode;
+    }
+}
+
+// #region TODO: convert power easing method
+
+// type Powers = [number, number, number, number];
+
+// const POWERS_QUAD_IN: Powers = [0.0, 0.0, 1.0, 0.0]; // k * k
+// const POWERS_QUAD_OUT: Powers = [0.0, 2.0, -1.0, 0.0]; // k * (2 - k)
+// const POWERS_CUBIC_IN: Powers = [0.0, 0.0, 0.0, 1.0]; // k * k * k
+// const POWERS_CUBIC_OUT: Powers = [0.0, 0.0, 0.0, 1.0]; // --k * k * k + 1
+// const BACK_S = 1.70158;
+// const POWERS_BACK_IN: Powers = [1.0, 0.0, -BACK_S, BACK_S + 1.0]; // k * k * ((s + 1) * k - s)
+// const POWERS_BACK_OUT: Powers = [1.0, 0.0, BACK_S, BACK_S + 1.0]; // k * k * ((s + 1) * k - s)
+// const POWERS_SMOOTH: Powers = [0.0, 0.0, 3.0, -2.0]; // k * k * (3 - 2 * k)
+
+// function convertPowerMethod (curve: RealCurve, keyframeIndex: number, powers: Powers) {
+//     assertIsTrue(keyframeIndex !== curve.keyFramesCount - 1);
+//     const nextKeyframeIndex = keyframeIndex + 1;
+//     powerToTangents(
+//         powers,
+//         curve.getKeyframeTime(keyframeIndex),
+//         curve.getKeyframeValue(keyframeIndex),
+//         curve.getKeyframeTime(nextKeyframeIndex),
+//         curve.getKeyframeValue(nextKeyframeIndex),
+//     );
+//     return 0;
+// };
+
+// function convertInOutPowersMethod (curve: RealCurve, keyframeIndex: number, inPowers: Powers, outPowers: Powers) {
+//     assertIsTrue(keyframeIndex !== curve.keyFramesCount - 1);
+//     const nextKeyframeIndex = keyframeIndex + 1;
+//     const previousTime = curve.getKeyframeTime(keyframeIndex);
+//     const nextTime = curve.getKeyframeTime(nextKeyframeIndex);
+//     const previousKeyframeValue = curve.getKeyframeValue(keyframeIndex);
+//     const nextKeyframeValue = curve.getKeyframeValue(nextKeyframeIndex);
+//     const middleTime = previousTime + (nextTime - previousTime);
+//     const middleValue = previousKeyframeValue.value + (nextKeyframeValue.value - previousKeyframeValue.value);
+//     const middleKeyframeValue = curve.getKeyframeValue(curve.addKeyFrame(middleTime, middleValue));
+//     powerToTangents(
+//         inPowers,
+//         previousTime,
+//         previousKeyframeValue,
+//         middleTime,
+//         middleKeyframeValue,
+//     );
+//     powerToTangents(
+//         outPowers,
+//         middleTime,
+//         middleKeyframeValue,
+//         nextTime,
+//         nextKeyframeValue,
+//     );
+//     return 1;
+// };
+
+// function powerToTangents (
+//     [a, b, c, d]: [number, number, number, number],
+//     previousTime: number,
+//     previousKeyframe: RealKeyframeValue,
+//     nextTime: number,
+//     nextKeyframe: RealKeyframeValue,
+// ) {
+//     const bernstein = powerToBernstein([a, b, c, d]);
+//     const { value: previousValue } = previousKeyframe;
+//     const { value: nextValue } = nextKeyframe;
+//     timeBezierToTangents(
+//         [???????],
+//         previousTime,
+//         previousValue,
+//         nextTime,
+//         nextValue,
+//     );
+// }
+
+// function powerToBernstein ([p0, p1, p2, p3]: [number, number, number, number]) {
+//     // https://stackoverflow.com/questions/33859199/convert-polynomial-curve-to-bezier-curve-control-points
+//     // https://blog.demofox.org/2016/12/08/evaluating-polynomials-with-the-gpu-texture-sampler/
+//     const m00 = p0;
+//     const m01 = p1 / 3.0;
+//     const m02 = p2 / 3.0;
+//     const m03 = p3;
+//     const m10 = m00 + m01;
+//     const m11 = m01 + m02;
+//     const m12 = m02 + m03;
+//     const m20 = m10 + m11;
+//     const m21 = m11 + m12;
+//     const m30 = m20 + m21;
+//     const bernstein = new Float64Array(4);
+//     bernstein[0] = m00;
+//     bernstein[1] = m10;
+//     bernstein[2] = m20;
+//     bernstein[3] = m30;
+//     return bernstein;
+// }
+
+// #endregion
