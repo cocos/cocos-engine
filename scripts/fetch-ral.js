@@ -1,6 +1,5 @@
 const ps = require('path');
 const fs = require('fs');
-const download = require('download');
 const { exec } = require('child_process');
 const del = require('del');
 
@@ -8,7 +7,8 @@ function join (...paths) {
     const result = ps.join(...paths);
     return result.replace(/\\/g, '/');
 }
-let ralPath = join(__dirname, 'runtime-web-adapter-for-creator-3');
+let ralPath = join(__dirname, 'runtime-web-adapter');
+let latestCommitFile = join(__dirname, '../platforms/runtime/latest-commit.md');
 
 function checkCache () {
     console.log('Checking ral cache...\n');
@@ -32,29 +32,23 @@ function checkCache () {
             }
         }
     }
+    // check latest commit file
+    if (!fs.existsSync(latestCommitFile)) {
+        return false;
+    }
     return true;
 }
 
 /**
- * @param {string} downloadUrl 
- * @returns {Promise<void>}
- */
-async function downloadAndExtractRepo (downloadUrl) {
-    console.log(`Downloading from url '${downloadUrl}'\n`);
-    await download(downloadUrl, __dirname, {
-        extract: true,
-    });
-}
-
-/**
  * @param {string} cmd 
+ * @param {string} cwd
  * @returns {Promise<void>}
  */
-function runCommand (cmd) {
+function runCommand (cmd, cwd) {
     return new Promise((resolve, reject) => {
         console.log(`Running command: '${cmd}' in '${ralPath}'\n`);
         const ls = exec(cmd, {
-            cwd: ralPath,
+            cwd,
         });
         ls.stderr.on('data', err => {
             console.error(err)
@@ -102,6 +96,17 @@ async function cleanOldAdapter () {
     await del(delPatterns, { force: true });
 }
 
+async function generateLatestCommitFile () {
+    console.log(`Generate latest commit file to: ${latestCommitFile}\n`);
+    let commitId = await new Promise(resolve => {
+        let ls = exec('git rev-parse HEAD', {
+            cwd: ralPath,
+        });
+        ls.stdout.on('data', resolve)
+    });
+    fs.writeFileSync(latestCommitFile, commitId, 'utf8');
+}
+
 /**
  * @param {string} dirPath 
  * @returns {Promise<void>}
@@ -123,10 +128,12 @@ async function removeDir (dirPath) {
         }
         await cleanOldAdapter();
         await removeDir(ralPath);
-        await downloadAndExtractRepo('https://codeload.github.com/yangws/runtime-web-adapter/zip/refs/heads/for-creator-3');
-        await runCommand('npm install');
-        await runCommand('gulp');
+        await runCommand('git clone https://github.com/yangws/runtime-web-adapter.git', __dirname);
+        await runCommand('git checkout for-creator-3', ralPath);
+        await runCommand('npm install', ralPath);
+        await runCommand('gulp', ralPath);
         copyRal();
+        await generateLatestCommitFile();
         await removeDir(ralPath);
         process.exit(0);
     } catch (err) {
