@@ -24,10 +24,10 @@
  ****************************************************************************/
 
 
-// __fastMQ__ in created in engine-native\cocos\bindings\manual\jsb_scene_manual_ext.cpp
+// __fastMQ__, __fastMQIdx__ are created in engine-native\cocos\bindings\manual\jsb_scene_manual_ext.cpp
 
 const FN_TABLE = ns.DrawBatch2D.fnTable;
-
+const NULL_PTR = BigInt(0);
 // @ts-check
 let isLittleEndian = new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x78;
 
@@ -40,7 +40,7 @@ function beginTrans(fn, minBytes) {
         if (!__fastMQ__[__fastMQIdx__ + 1]) {
             const buffer = new ArrayBuffer(dataView.byteLength);
             __fastMQ__.push(buffer);
-            if(__fastMQIdx__ + 1 > 5) {
+            if (__fastMQIdx__ + 1 > 5) {
                 console.warn(`Too many pending commands in __fastMQ__, forget to flush?`);
             }
         }
@@ -85,10 +85,9 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "visFlags", {
 
 Object.defineProperty(ns.DrawBatch2D.prototype, "descriptorSet", {
     set: function (v) {
-        if (!v) return;
         let trans = beginTrans(FN_TABLE['descriptorSet'], 16);
         trans.writeBigUint64(this.__native_ptr__);
-        trans.writeBigUint64(v.__native_ptr__);
+        trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
         trans.commit();
     },
     enumerable: true,
@@ -98,10 +97,9 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "descriptorSet", {
 
 Object.defineProperty(ns.DrawBatch2D.prototype, "inputAssembler", {
     set: function (v) {
-        if (!v) return;
         let trans = beginTrans(FN_TABLE['inputAssembler'], 16);
         trans.writeBigUint64(this.__native_ptr__);
-        trans.writeBigUint64(v.__native_ptr__);
+        trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
         trans.commit();
     },
     enumerable: true,
@@ -117,7 +115,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "passes", {
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeUint32(passes.length); // arg
         for (let p of passes) {
-            trans.writeBigUint64(p.__native_ptr__);
+            trans.writeBigUint64(p ? p.__native_ptr__ : NULL_PTR);
         }
         trans.commit();
     },
@@ -133,7 +131,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "shaders", {
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeUint32(shaders.length); // arg
         for (let p of shaders) {
-            trans.writeBigUint64(p.__native_ptr__);
+            trans.writeBigUint64(p ? p.__native_ptr__ : NULL_PTR);
         }
         trans.commit();
     },
