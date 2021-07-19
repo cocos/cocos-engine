@@ -38,10 +38,10 @@ import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
 const SerializableTable = [
     ['mode', 'constant', 'multiplier'],
-    ['mode', 'value', 'multiplier'],
-    ['mode', 'min', 'max', 'multiplier'],
+    ['mode', 'spline', 'multiplier'],
+    ['mode', 'splineMin', 'splineMax', 'multiplier'],
     ['mode', 'constantMin', 'constantMax', 'multiplier'],
-];
+] as const;
 
 export const Mode = Enum({
     Constant: 0,
@@ -64,23 +64,23 @@ export default class CurveRange  {
      * @zh 当mode为Curve时，使用的曲线。
      */
     @type(RealCurve)
-    public value = constructLegacyCurveAndConvert();
+    public spline = constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
     @type(RealCurve)
-    public min = constructLegacyCurveAndConvert();
+    public splineMin = constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
     @type(RealCurve)
-    public max = constructLegacyCurveAndConvert();
+    public splineMax = constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为Curve时，使用的曲线。
-     * @deprecated Since V3.2. Use `value` instead.
+     * @deprecated Since V3.3. Use `spline` instead.
      */
     get curve () {
         return this._curve;
@@ -88,12 +88,12 @@ export default class CurveRange  {
 
     set curve (value) {
         this._curve = value;
-        this.value = value._internalCurve;
+        this.spline = value._internalCurve;
     }
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线下限。
-     * @deprecated Since V3.2. Use `min` instead.
+     * @deprecated Since V3.3. Use `splineMin` instead.
      */
     get curveMin () {
         return this._curveMin;
@@ -101,12 +101,12 @@ export default class CurveRange  {
 
     set curveMin (value) {
         this._curveMin = value;
-        this.min = value._internalCurve;
+        this.splineMin = value._internalCurve;
     }
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
-     * @deprecated Since V3.2. Use `max` instead.
+     * @deprecated Since V3.3. Use `splineMax` instead.
      */
     get curveMax () {
         return this._curveMax;
@@ -114,7 +114,7 @@ export default class CurveRange  {
 
     set curveMax (value) {
         this._curveMax = value;
-        this.max = value._internalCurve;
+        this.splineMax = value._internalCurve;
     }
 
     /**
@@ -155,9 +155,9 @@ export default class CurveRange  {
         case Mode.Constant:
             return this.constant;
         case Mode.Curve:
-            return this.value.evaluate(time) * this.multiplier;
+            return this.spline.evaluate(time) * this.multiplier;
         case Mode.TwoCurves:
-            return lerp(this.min.evaluate(time), this.max.evaluate(time), rndRatio) * this.multiplier;
+            return lerp(this.splineMin.evaluate(time), this.splineMax.evaluate(time), rndRatio) * this.multiplier;
         case Mode.TwoConstants:
             return lerp(this.constantMin, this.constantMax, rndRatio);
         }
@@ -182,9 +182,9 @@ export default class CurveRange  {
         return SerializableTable[this.mode];
     }
 
-    private _curve = new AnimationCurve(this.value);
-    private _curveMin = new AnimationCurve(this.min);
-    private _curveMax = new AnimationCurve(this.max);
+    private _curve = new AnimationCurve(this.spline);
+    private _curveMin = new AnimationCurve(this.splineMin);
+    private _curveMax = new AnimationCurve(this.splineMax);
 }
 
 function evaluateCurve (cr: CurveRange, time: number, index: number) {
@@ -192,9 +192,9 @@ function evaluateCurve (cr: CurveRange, time: number, index: number) {
     case Mode.Constant:
         return cr.constant;
     case Mode.Curve:
-        return cr.value.evaluate(time) * cr.multiplier;
+        return cr.spline.evaluate(time) * cr.multiplier;
     case Mode.TwoCurves:
-        return index === 0 ? cr.min.evaluate(time) * cr.multiplier : cr.max.evaluate(time) * cr.multiplier;
+        return index === 0 ? cr.splineMin.evaluate(time) * cr.multiplier : cr.splineMax.evaluate(time) * cr.multiplier;
     case Mode.TwoConstants:
         return index === 0 ? cr.constantMin : cr.constantMax;
     default:
