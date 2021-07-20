@@ -64,7 +64,7 @@ exports.ready = function() {
                     if (event.target.value !== -1) {
                         dump.value = event.target.value;
                         if (dump.values) {
-                            dump.values = dump.values.forEach((_, index) => dump.values[index] = dump.value);
+                            dump.values.forEach((_, index) => dump.values[index] = dump.value);
                         }
                         prop.dispatch('change-dump');
                     }
@@ -115,7 +115,7 @@ exports.ready = function() {
                     if (event.target.value !== -1) {
                         dump.value = event.target.value;
                         if (dump.values) {
-                            dump.values = dump.values.forEach((_, index) => dump.values[index] = dump.value);
+                            dump.values.forEach((_, index) => dump.values[index] = dump.value);
                         }
                         prop.dispatch('change-dump');
                     }
@@ -177,7 +177,7 @@ exports.ready = function() {
                         prop.dump = this.dump.value[style];
                         prop.dump.value = !prop.dump.value;
                         if (prop.dump.values) {
-                            prop.dump.values = prop.dump.values.forEach((_, index) => prop.dump.values[index] = prop.dump.value);
+                            prop.dump.values.forEach((_, index) => prop.dump.values[index] = prop.dump.value);
                         }
                         prop.dispatch('change-dump');
                         this.dump.value[style].value ? label.classList.add('select') : label.classList.remove('select');
@@ -190,7 +190,7 @@ exports.ready = function() {
             update(element, dump) {
                 const parent = element.querySelector('[slot="content"]');
                 for (let index = 0; index < fontStyles.length; index++) {
-                    const div = parent.querySelector(`[key=${fontStyles[index]}]`);
+                    const div = parent.querySelector(`[key="${fontStyles[index]}"]`);
                     const key = fontStyles[index];
                     if (div) {
                         const multipleInvalid = isMultipleInvalid(this.dump.value[key]);
