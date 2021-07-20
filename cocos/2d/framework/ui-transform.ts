@@ -426,6 +426,12 @@ export class UITransform extends Component {
             Vec2.transformMat4(cameraPt, point, _mat4_temp);
 
             this.node.getWorldMatrix(_worldMatrix);
+            // FIX: touch event when scaleZ is 0
+            if (_worldMatrix.m10 === 0) {
+                const tempScale = this.node.getWorldScale().clone();
+                tempScale.z = 1;
+                Mat4.fromRTS(_worldMatrix, this.node.getWorldRotation(), this.node.getWorldPosition(), tempScale);
+            }
             Mat4.invert(_mat4_temp, _worldMatrix);
             if (Mat4.strictEquals(_mat4_temp, _zeroMatrix)) {
                 continue;
