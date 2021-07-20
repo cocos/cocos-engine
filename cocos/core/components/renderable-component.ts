@@ -102,14 +102,14 @@ export class RenderableComponent extends Component {
             this._materialInstances.length = val.length;
         } else if (dLen < 0) {
             for (let i = this._materials.length - dLen; i < this._materials.length; ++i) {
-                this.setMaterialInstance(i, null);
+                this.setMaterialInstance(null, i);
             }
         }
         for (let i = 0; i < this._materialInstances.length; i++) {
             // they could be either undefined or null
             // eslint-disable-next-line eqeqeq
             if (this._materialInstances[i] != val[i]) {
-                this.setMaterialInstance(i, val[i]);
+                this.setMaterialInstance(val[i], i);
             }
         }
     }
@@ -163,7 +163,7 @@ export class RenderableComponent extends Component {
         if (this._materials.length === 1 && this._materials[0] === val) {
             return;
         }
-        this.setMaterialInstance(0, val);
+        this.setMaterialInstance(val, 0);
     }
 
     /**
@@ -180,7 +180,7 @@ export class RenderableComponent extends Component {
             _matInsInfo.owner = this;
             _matInsInfo.subModelIdx = idx;
             const instantiated = new MaterialInstance(_matInsInfo);
-            this.setMaterialInstance(idx, instantiated);
+            this.setMaterialInstance(instantiated, idx);
         }
         return this._materialInstances[idx];
     }
@@ -189,7 +189,14 @@ export class RenderableComponent extends Component {
      * @en Set the material instance of the specified sub-model.
      * @zh 获取指定子模型的材质实例。
      */
-    public setMaterialInstance (index: number, matInst: Material | null) {
+    public setMaterialInstance (matInst: Material | null, index: number) {
+        if (index as any instanceof Material || index === null) {
+            console.warn('This is old usage, please swap the parameters.');
+            const temp: any = matInst;
+            matInst = index as any;
+            index = temp;
+        }
+
         if (matInst && matInst.parent) {
             if (matInst !== this._materialInstances[index]) {
                 this._materialInstances[index] = matInst as MaterialInstance;
