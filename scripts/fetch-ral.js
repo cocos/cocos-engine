@@ -7,12 +7,36 @@ function join (...paths) {
     const result = ps.join(...paths);
     return result.replace(/\\/g, '/');
 }
-let ralPath = join(__dirname, 'runtime-web-adapter');
-let latestCommitFile = join(__dirname, '../platforms/runtime/latest-commit.md');
+function readJsonSync (jsonPath) {
+    const json = fs.readFileSync(jsonPath, 'utf8');
+    return JSON.parse(json);
+}
 
-function checkCache () {
-    console.log('Checking ral cache...\n');
+const repositoryPath = join(__dirname, 'runtime-web-adapter');
+const localCommitFile = join(__dirname, '../platforms/runtime/local-commit.json');
+const targetCommitFile = join(__dirname, '../platforms/runtime/target-commit.json');
+
+function matchCommit () {
+    console.log('Matching commit...\n');
+    const localCommit = readJsonSync(localCommitFile).commit;
+    const targetCommit = readJsonSync(targetCommitFile).commit;
+    return localCommit === targetCommit;
+}
+
+function checkFile () {
+    console.log('Checking ral file...\n');
     const distDir = join(__dirname, '../platforms/runtime');
+
+    if (!fs.existsSync(targetCommitFile)) {
+        console.error('Cannot access to target commit file.');
+        process.exit(1);
+    }
+
+    // check local commit file
+    if (!fs.existsSync(localCommitFile)) {
+        return false;
+    }
+
     // check web adapter
     const webAdapters = ['web-adapter.js', 'web-adapter.min.js'];
     for (const webAdapter of webAdapters) {
@@ -21,6 +45,7 @@ function checkCache () {
             return false;
         }
     }
+
     // check ral
     const platformNames = ['cocos-play', 'huawei-quick-game', 'link-sure', 'oppo-mini-game', 'qtt', 'vivo-mini-game'];
     const rals = ['ral.js', 'ral.min.js'];
@@ -32,10 +57,7 @@ function checkCache () {
             }
         }
     }
-    // check latest commit file
-    if (!fs.existsSync(latestCommitFile)) {
-        return false;
-    }
+
     return true;
 }
 
@@ -46,7 +68,7 @@ function checkCache () {
  */
 function runCommand (cmd, cwd) {
     return new Promise((resolve, reject) => {
-        console.log(`Running command: '${cmd}' in '${ralPath}'\n`);
+        console.log(`Running command: '${cmd}' in '${repositoryPath}'\n`);
         const ls = exec(cmd, {
             cwd,
         });
@@ -59,18 +81,18 @@ function runCommand (cmd, cwd) {
 
 function copyRal () {
     const distDir = join(__dirname, '../platforms/runtime');
-    console.log(`Copy files from '${ralPath}' to '${distDir}'\n`);
+    console.log(`Copy files from '${repositoryPath}' to '${distDir}'\n`);
 
     // copy web-adapter
     ['web-adapter.js', 'web-adapter.min.js'].forEach(fileName => {
-        const src = join(ralPath, 'dist/common', fileName);
+        const src = join(repositoryPath, 'dist/common', fileName);
         const dst = join(distDir, 'common', fileName);
         fs.copyFileSync(src, dst);
     });
     // copy ral
     ['cocos-play', 'huawei-quick-game', 'link-sure', 'oppo-mini-game', 'qtt', 'vivo-mini-game'].forEach(platformName => {
         ['ral.js', 'ral.min.js'].forEach(fileName => {
-            const src = join(ralPath, 'dist/platforms', platformName, fileName);
+            const src = join(repositoryPath, 'dist/platforms', platformName, fileName);
             const dst = join(distDir, 'platforms', platformName, fileName);
             fs.copyFileSync(src, dst);
         });
@@ -81,6 +103,8 @@ async function cleanOldAdapter () {
     console.log('Cleaning old runtime adapter...\n');
     const distDir = join(__dirname, '../platforms/runtime');
     const delPatterns = [];
+    // del local commit
+    delPatterns.push(localCommitFile);
     // del web adapter
     ['web-adapter.js', 'web-adapter.min.js'].forEach(fileName => {
         const dst = join(distDir, 'common', fileName);
@@ -96,15 +120,10 @@ async function cleanOldAdapter () {
     await del(delPatterns, { force: true });
 }
 
-async function generateLatestCommitFile () {
-    console.log(`Generate latest commit file to: ${latestCommitFile}\n`);
-    let commitId = await new Promise(resolve => {
-        let ls = exec('git rev-parse HEAD', {
-            cwd: ralPath,
-        });
-        ls.stdout.on('data', resolve)
-    });
-    fs.writeFileSync(latestCommitFile, commitId, 'utf8');
+async function writeLocalCommitFile () {
+    console.log('Write local commit file\n');
+    const targetCommitJson = fs.readFileSync(targetCommitFile, 'utf8');
+    fs.writeFileSync(localCommitFile, targetCommitJson);
 }
 
 /**
@@ -118,23 +137,20 @@ async function removeDir (dirPath) {
 
 (async () => {
     try {
-        const forceFetch = process.argv[2] === 'force';
-        if (!forceFetch && checkCache()) {
-            console.log('Skip fetching ral !\n');
-            return process.exit(0);
-        }
-        if (forceFetch) {
-            console.log('Force fetching ral...\n');
+        if (checkFile() && matchCommit()) {
+            console.log('Skip fetching ral!\n');
+            process.exit(0);
         }
         await cleanOldAdapter();
-        await removeDir(ralPath);
+        await removeDir(repositoryPath);
         await runCommand('git clone https://github.com/yangws/runtime-web-adapter.git', __dirname);
-        await runCommand('git checkout for-creator-3', ralPath);
-        await runCommand('npm install', ralPath);
-        await runCommand('gulp', ralPath);
+        await runCommand('git checkout for-creator-3', repositoryPath);
+        await runCommand(`git reset --hard ${readJsonSync(targetCommitFile).commit}`, repositoryPath);
+        await runCommand('npm install', repositoryPath);
+        await runCommand('gulp', repositoryPath);
         copyRal();
-        await generateLatestCommitFile();
-        await removeDir(ralPath);
+        writeLocalCommitFile();
+        await removeDir(repositoryPath);
         process.exit(0);
     } catch (err) {
         console.error('Fetch ral failed', err);
