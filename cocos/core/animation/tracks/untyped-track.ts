@@ -10,7 +10,7 @@ import { Vec2TrackEval, Vec3TrackEval, Vec4TrackEval, VectorTrack } from './vect
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}UntypedTrackChannel`)
 class UntypedTrackChannel extends Channel<RealCurve> {
     @serializable
-    public property!: string;
+    public property = '';
 
     constructor () {
         super(new RealCurve());
