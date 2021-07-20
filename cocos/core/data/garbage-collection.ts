@@ -34,7 +34,7 @@ class GarbageCollectionManager {
         if (EDITOR) {
             gcObject._finalizationToken = {};
             const proxy = new Proxy(gcObject, {});
-            this._finalizationRegistry!.register(proxy, gcObject);
+            this._finalizationRegistry!.register(proxy, gcObject, gcObject._finalizationToken);
             return proxy;
         } else {
             return gcObject;

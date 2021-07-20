@@ -127,6 +127,7 @@ export class DrawBatch2D {
         this.isStatic = false;
         this.useLocalData = null;
         this.visFlags = UI_VIS_FLAG;
+        this.renderScene = null;
     }
 
     // object version
