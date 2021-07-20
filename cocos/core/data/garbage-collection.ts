@@ -28,13 +28,13 @@ declare class FinalizationRegistry {
 }
 
 class GarbageCollectionManager {
-    private _finalizationRegistry: FinalizationRegistry | null = null;
+    private _finalizationRegistry: FinalizationRegistry | null = EDITOR ? new FinalizationRegistry(this.finalizationRegistryCallback.bind(this)) : null;
 
     public registerGCObject (gcObject: GCObject): GCObject {
         if (EDITOR) {
             gcObject._finalizationToken = {};
             const proxy = new Proxy(gcObject, {});
-            this._finalizationRegistry!.register(proxy, gcObject, gcObject._finalizationToken);
+            this._finalizationRegistry!.register(proxy, gcObject);
             return proxy;
         } else {
             return gcObject;
@@ -48,7 +48,6 @@ class GarbageCollectionManager {
     }
 
     public init () {
-        if (EDITOR) { this._finalizationRegistry = new FinalizationRegistry(this.finalizationRegistryCallback.bind(this)); }
     }
 
     private finalizationRegistryCallback (gcObject: GCObject) {

@@ -38,6 +38,7 @@ import { GCObject } from '../data/gc-object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { extname } from '../utils/path';
+import { debug } from '../platform/debug';
 
 /**
  * @en
@@ -292,6 +293,11 @@ export class Asset extends Eventify(GCObject) {
 
     public validate (): boolean {
         return true;
+    }
+
+    public destroy () {
+        debug(`Asset ${this._uuid} has been destroy`);
+        return super.destroy();
     }
 }
 
