@@ -140,6 +140,7 @@ async function removeDir (dirPath) {
         console.time('Fetch RAL');
         if (checkFile() && matchCommit()) {
             console.log('Skip fetching ral!\n');
+            console.timeEnd('Fetch RAL');
             process.exit(0);
         }
         await cleanOldRal();
