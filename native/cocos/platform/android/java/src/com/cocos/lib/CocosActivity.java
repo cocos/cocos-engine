@@ -180,6 +180,7 @@ public class CocosActivity extends Activity implements SurfaceHolder.Callback {
         super.onResume();
         mSensorHandler.onResume();
         mOrientationHelper.onResume();
+        Utils.hideVirtualButton();
         onResumeNative();
     }
 
