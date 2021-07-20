@@ -51,6 +51,7 @@ import { Range } from './tracks/utils';
 import { ObjectTrack } from './tracks/object-track';
 import type { ExoticAnimation } from './exotic-animation/exotic-animation';
 import './exotic-animation/exotic-animation';
+import { array } from '../utils/js';
 
 export declare namespace AnimationClip {
     export interface IEvent {
@@ -398,6 +399,7 @@ export class AnimationClip extends Asset {
      */
     public upgradeUntypedTracks (refine: UntypedTrackRefine) {
         const newTracks: Track[] = [];
+        const removals: Track[] = [];
         for (const track of this._tracks) {
             if (!(track instanceof UntypedTrack)) {
                 continue;
@@ -405,8 +407,13 @@ export class AnimationClip extends Asset {
             const newTrack = track.upgrade(refine);
             if (newTrack) {
                 newTracks.push(newTrack);
+                removals.push(track);
             }
         }
+        for (const removal of removals) {
+            array.remove(this._tracks, removal);
+        }
+        this._tracks.push(...newTracks);
     }
 
     /**

@@ -89,6 +89,8 @@ export class UntypedTrack extends Track {
             break;
         case 'vec2': case 'vec3': case 'vec4': {
             const track = new VectorTrack();
+            track.path = this.path;
+            track.proxy = this.proxy;
             track.componentsCount = kind === 'vec2' ? 2 : kind === 'vec3' ? 3 : 4;
             const [x, y, z, w] = track.channels();
             switch (kind) {
