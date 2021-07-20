@@ -22,7 +22,7 @@ ui-tab {
     height: 20px;
     width: 42px;
     text-align: center;
-    line-height: 1;
+    line-height: 20px;
     border: calc(var(--size-normal-border) * 1px) solid var(--color-normal-border);
     background-color: var(--color-default-fill);
     border-radius: calc(var(--size-normal-radius) * 1px);
