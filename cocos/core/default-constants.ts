@@ -46,6 +46,7 @@ export const PREVIEW = tryDefineGlobal('CC_PREVIEW', !EDITOR);
 export const DEV = tryDefineGlobal('CC_DEV', true); // (CC_EDITOR && !CC_BUILD) || CC_PREVIEW || CC_TEST
 export const DEBUG = tryDefineGlobal('CC_DEBUG', true); // CC_DEV || Debug Build
 export const JSB = tryDefineGlobal('CC_JSB', defined('jsb'));
+export const NATIVE = JSB;
 export const HTML5 = false;
 // @ts-expect-error
 export const WECHAT = tryDefineGlobal('CC_WECHAT', !!(defined('wx') && (wx.getSystemInfoSync || wx.getSharedCanvas)));
