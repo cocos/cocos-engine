@@ -127,50 +127,6 @@ static bool js_scene_Model_setInstancedAttrBlock(se::State& s) // NOLINT(readabi
 }
 SE_BIND_FUNC(js_scene_Model_setInstancedAttrBlock) // NOLINT(readability-identifier-naming)
 
-static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto*          cobj = static_cast<cc::scene::Node*>(s.nativeThisObject());
-    CC_UNUSED bool ok   = true;
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    do {
-        if (argc == 1) {
-            SE_PRECONDITION2(args[0].isObject() && args[0].toObject()->isTypedArray(), false, "js_scene_Node_initWithData: expected Typed Array!");
-
-            uint8_t* data{nullptr};
-            size_t   dataBytes = 0;
-            args[0].toObject()->getTypedArrayData(&data, &dataBytes);
-            cobj->initWithData(data);
-            return true;
-        }
-    } while (false);
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_initWithData) // NOLINT(readability-identifier-naming)
-
-static bool js_scene_Pass_initWithData(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto*          cobj = static_cast<cc::scene::Pass*>(s.nativeThisObject());
-    CC_UNUSED bool ok   = true;
-    const auto&    args = s.args();
-    size_t         argc = args.size();
-    do {
-        if (argc == 1) {
-            SE_PRECONDITION2(args[0].isObject() && args[0].toObject()->isTypedArray(), false, "js_scene_Pass_initWithData: expected Typed Array!");
-
-            uint8_t* data{nullptr};
-            size_t   dataBytes = 0;
-            args[0].toObject()->getTypedArrayData(&data, &dataBytes);
-            cobj->initWithData(data);
-            return true;
-        }
-    } while (false);
-    SE_REPORT_ERROR("wrong number of arguments: %d", (int)argc);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Pass_initWithData) // NOLINT(readability-identifier-naming)
-
 static bool js_scene_SubModel_setSubMeshBuffers(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = static_cast<cc::scene::SubModel*>(s.nativeThisObject());
@@ -235,8 +191,6 @@ bool register_all_scene_manual(se::Object* obj) // NOLINT(readability-identifier
     }
 
     __jsb_cc_scene_Model_proto->defineFunction("setInstancedAttrBlock", _SE(js_scene_Model_setInstancedAttrBlock));
-    __jsb_cc_scene_Node_proto->defineFunction("initWithData", _SE(js_scene_Node_initWithData));
-    __jsb_cc_scene_Pass_proto->defineFunction("initWithData", _SE(js_scene_Pass_initWithData));
 
     __jsb_cc_scene_SubModel_proto->defineFunction("setSubMeshBuffers", _SE(js_scene_SubModel_setSubMeshBuffers));
     __jsb_cc_scene_Pass_proto->defineFunction("setRootBufferAndBlock", _SE(js_scene_Pass_setRootBufferAndBlock));

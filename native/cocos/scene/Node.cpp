@@ -100,8 +100,10 @@ void Node::updateWorldRTMatrix() {
     Mat4::fromRT(_nodeLayout->worldRotation, _nodeLayout->worldPosition, &_rtMat);
 }
 
-void Node::initWithData(uint8_t *data) {
+void Node::initWithData(uint8_t *data, uint8_t *flagChunk, uint32_t offset) {
     _nodeLayout = reinterpret_cast<NodeLayout *>(data);
+    _flagChunk  = flagChunk;
+    _flagOffest = offset;
 }
 
 } // namespace scene
