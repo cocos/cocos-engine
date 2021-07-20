@@ -67,6 +67,10 @@ let VideoPlayerImpl = cc.Class({
         this._m13 = 0;
         this._w = 0;
         this._h = 0;
+        this._cache = {
+          localZOrder: 0,
+          stayOnBottom: false,
+        }
         //
         this.__eventListeners = {};
     },
@@ -436,6 +440,17 @@ let VideoPlayerImpl = cc.Class({
             renderCamera.worldMatrixToScreen(_mat4_temp, _mat4_temp, cc.game.canvas.width, cc.game.canvas.height);
         }
 
+        // handling multiple video player layers issue
+        let { localZOrder, stayOnBottom } = this._cache;
+        if (node._localZOrder !== localZOrder || stayOnBottom !== this._stayOnBottom) {
+          localZOrder = node._localZOrder;
+          stayOnBottom = this._stayOnBottom;
+          if (stayOnBottom) {
+            localZOrder = macro.MIN_ZINDEX + localZOrder;
+          }
+          this._video.style['z-index'] = localZOrder;
+        }
+
         let _mat4_tempm = _mat4_temp.m;
         if (!this._forceUpdate &&
             this._m00 === _mat4_tempm[0] && this._m01 === _mat4_tempm[1] &&
@@ -480,7 +495,6 @@ let VideoPlayerImpl = cc.Class({
 
         let appx = (w * _mat4_tempm[0]) * node._anchorPoint.x;
         let appy = (h * _mat4_tempm[5]) * node._anchorPoint.y;
-
 
         let tx = _mat4_tempm[12] * scaleX - appx + offsetX, ty = _mat4_tempm[13] * scaleY - appy + offsetY;
 
