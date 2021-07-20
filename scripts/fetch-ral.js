@@ -99,7 +99,7 @@ function copyRal () {
     });
 }
 
-async function cleanOldAdapter () {
+async function cleanOldRal () {
     console.log('Cleaning old runtime adapter...\n');
     const distDir = join(__dirname, '../platforms/runtime');
     const delPatterns = [];
@@ -141,7 +141,7 @@ async function removeDir (dirPath) {
             console.log('Skip fetching ral!\n');
             process.exit(0);
         }
-        await cleanOldAdapter();
+        await cleanOldRal();
         await removeDir(repositoryPath);
         await runCommand('git clone https://github.com/yangws/runtime-web-adapter.git', __dirname);
         await runCommand('git checkout for-creator-3', repositoryPath);
