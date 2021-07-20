@@ -36,7 +36,7 @@ import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING } from '../define';
 import { ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
-    RenderPassInfo, ClearFlagBit, ClearFlags, Filter, Address, StoreOp, AccessType } from '../../gfx';
+    RenderPassInfo, ClearFlagBit, ClearFlags, Filter, Address, StoreOp, AccessType, Swapchain } from '../../gfx';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../../builtin';
@@ -86,13 +86,13 @@ export class ForwardPipeline extends RenderPipeline {
         return true;
     }
 
-    public activate (): boolean {
+    public activate (swapchain: Swapchain): boolean {
         if (EDITOR) { console.info('Forward render pipeline initialized.'); }
 
         this._macros = { CC_PIPELINE_TYPE: PIPELINE_TYPE };
         this._pipelineSceneData = new PipelineSceneData();
 
-        if (!super.activate()) {
+        if (!super.activate(swapchain)) {
             return false;
         }
 
@@ -122,11 +122,11 @@ export class ForwardPipeline extends RenderPipeline {
         this._device.queue.submit(this._commandBuffers);
     }
 
-    public getRenderPass (clearFlags: ClearFlags): RenderPass {
+    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
 
-        const { device, swapchain } = this;
+        const device = this._device;
         const colorAttachment = new ColorAttachment();
         const depthStencilAttachment = new DepthStencilAttachment();
         colorAttachment.format = swapchain.colorTexture.format;

@@ -122,10 +122,6 @@ export abstract class RenderPipeline extends Asset {
         return this._device;
     }
 
-    get swapchain () {
-        return this._swapchain;
-    }
-
     get globalDSManager () {
         return this._globalDSManager;
     }
@@ -151,7 +147,6 @@ export abstract class RenderPipeline extends Asset {
     }
 
     protected _device!: Device;
-    protected _swapchain!: Swapchain;
     protected _globalDSManager!: GlobalDSManager;
     protected _descriptorSet!: DescriptorSet;
     protected _commandBuffers: CommandBuffer[] = [];
@@ -195,11 +190,12 @@ export abstract class RenderPipeline extends Asset {
     /**
      * @en Activate the render pipeline after loaded, it mainly activate the flows
      * @zh 当渲染管线资源加载完成后，启用管线，主要是启用管线内的 flow
+     * TODO: remove swapchain dependency at this stage
+     * after deferred pipeline can handle multiple swapchains
      */
-    public activate (): boolean {
+    public activate (swapchain: Swapchain): boolean {
         const root = legacyCC.director.root as Root;
         this._device = root.device;
-        this._swapchain = root.mainWindow!.swapchain;
         this._globalDSManager = new GlobalDSManager(this);
         this._descriptorSet = this._globalDSManager.globalDescriptorSet;
         this._pipelineUBO.activate(this._device, this);

@@ -152,7 +152,7 @@ export class GbufferStage extends RenderStage {
         this._instancedQueue.uploadBuffers(cmdBuff);
         this._batchedQueue.uploadBuffers(cmdBuff);
         this._renderArea = pipeline.generateRenderArea(camera);
-        pipeline.updateQuadVertexData(this._renderArea);
+        pipeline.updateQuadVertexData(this._renderArea, camera.window!.swapchain);
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             if (pipeline.pipelineSceneData.isHDR) {
@@ -170,7 +170,7 @@ export class GbufferStage extends RenderStage {
 
         colors[0].w = camera.clearColor.w;
 
-        const deferredData = pipeline.getDeferredRenderData(camera);
+        const deferredData = pipeline.getDeferredRenderData();
         const framebuffer = deferredData.gbufferFrameBuffer!;
         const renderPass = framebuffer.renderPass;
 

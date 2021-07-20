@@ -39,9 +39,10 @@ import { ShadowFlow } from '../shadow/shadow-flow';
 import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, StoreOp, Filter, Address,
     SurfaceTransform, ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType, Framebuffer,
-    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Rect } from '../../gfx';
+    TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Rect, Swapchain } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING,
-    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
+    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING,
+    UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
@@ -127,17 +128,20 @@ export class DeferredPipeline extends RenderPipeline {
         return true;
     }
 
-    public activate (): boolean {
-        if (EDITOR) { console.info('Deferred render pipeline initialized. Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.'); }
+    public activate (swapchain: Swapchain): boolean {
+        if (EDITOR) {
+            console.info('Deferred render pipeline initialized. '
+                + 'Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.');
+        }
 
         this._macros = { CC_PIPELINE_TYPE: PIPELINE_TYPE };
         this._pipelineSceneData = new DeferredPipelineSceneData();
 
-        if (!super.activate()) {
+        if (!super.activate(swapchain)) {
             return false;
         }
 
-        if (!this._activeRenderer()) {
+        if (!this._activeRenderer(swapchain)) {
             errorID(2402);
             return false;
         }
@@ -166,15 +170,15 @@ export class DeferredPipeline extends RenderPipeline {
         this._device.queue.submit(this._commandBuffers);
     }
 
-    public getRenderPass (clearFlags: ClearFlags): RenderPass {
+    public getRenderPass (clearFlags: ClearFlags, swapchain: Swapchain): RenderPass {
         let renderPass = this._renderPasses.get(clearFlags);
         if (renderPass) { return renderPass; }
 
-        const device = this.device;
+        const device = this._device;
         const colorAttachment = new ColorAttachment();
         const depthStencilAttachment = new DepthStencilAttachment();
-        colorAttachment.format = this._swapchain.colorTexture.format;
-        depthStencilAttachment.format = this._swapchain.depthStencilTexture.format;
+        colorAttachment.format = swapchain.colorTexture.format;
+        depthStencilAttachment.format = swapchain.depthStencilTexture.format;
         depthStencilAttachment.stencilStoreOp = StoreOp.DISCARD;
         depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
 
@@ -200,7 +204,7 @@ export class DeferredPipeline extends RenderPipeline {
         return renderPass;
     }
 
-    public getDeferredRenderData (camera): DeferredRenderData {
+    public getDeferredRenderData (): DeferredRenderData {
         if (!this._deferredRenderData) {
             this._generateDeferredRenderData();
         }
@@ -208,7 +212,7 @@ export class DeferredPipeline extends RenderPipeline {
         return this._deferredRenderData!;
     }
 
-    private _activeRenderer () {
+    private _activeRenderer (swapchain: Swapchain) {
         const device = this.device;
 
         this._commandBuffers.push(device.commandBuffer);
@@ -221,7 +225,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._descriptorSet.update();
 
         let inputAssemblerDataOffscreen = new InputAssemblerData();
-        inputAssemblerDataOffscreen = this.createQuadInputAssembler(SurfaceTransform.IDENTITY);
+        inputAssemblerDataOffscreen = this.createQuadInputAssembler();
         if (!inputAssemblerDataOffscreen.quadIB || !inputAssemblerDataOffscreen.quadVB || !inputAssemblerDataOffscreen.quadIA) {
             return false;
         }
@@ -229,7 +233,7 @@ export class DeferredPipeline extends RenderPipeline {
         this._quadVBOffscreen = inputAssemblerDataOffscreen.quadVB;
         this._quadIAOffscreen = inputAssemblerDataOffscreen.quadIA;
 
-        const inputAssemblerDataOnscreen = this.createQuadInputAssembler(this._swapchain.surfaceTransform);
+        const inputAssemblerDataOnscreen = this.createQuadInputAssembler();
         if (!inputAssemblerDataOnscreen.quadIB || !inputAssemblerDataOnscreen.quadVB || !inputAssemblerDataOnscreen.quadIA) {
             return false;
         }
@@ -258,13 +262,15 @@ export class DeferredPipeline extends RenderPipeline {
             colorAttachment3.storeOp = StoreOp.STORE;
 
             const depthStencilAttachment = new DepthStencilAttachment();
-            depthStencilAttachment.format = this._swapchain.depthStencilTexture.format;
+            depthStencilAttachment.format = Format.DEPTH_STENCIL;
             depthStencilAttachment.depthLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.depthStoreOp = StoreOp.STORE;
             depthStencilAttachment.stencilLoadOp = LoadOp.CLEAR;
             depthStencilAttachment.stencilStoreOp = StoreOp.STORE;
-            const renderPassInfo = new RenderPassInfo([colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3],
-                depthStencilAttachment);
+            const renderPassInfo = new RenderPassInfo(
+                [colorAttachment0, colorAttachment1, colorAttachment2, colorAttachment3],
+                depthStencilAttachment,
+            );
             this._gbufferRenderPass = device.createRenderPass(renderPassInfo);
         }
 
@@ -276,7 +282,7 @@ export class DeferredPipeline extends RenderPipeline {
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
 
             const depthStencilAttachment = new DepthStencilAttachment();
-            depthStencilAttachment.format = this._swapchain.depthStencilTexture.format;
+            depthStencilAttachment.format = Format.DEPTH_STENCIL;
             depthStencilAttachment.depthLoadOp = LoadOp.LOAD;
             depthStencilAttachment.depthStoreOp = StoreOp.DISCARD;
             depthStencilAttachment.stencilLoadOp = LoadOp.LOAD;
@@ -288,8 +294,8 @@ export class DeferredPipeline extends RenderPipeline {
             this._lightingRenderPass = device.createRenderPass(renderPassInfo);
         }
 
-        this._width = this._swapchain.width;
-        this._height = this._swapchain.height;
+        this._width = swapchain.width;
+        this._height = swapchain.height;
         this._generateDeferredRenderData();
 
         return true;
@@ -359,7 +365,7 @@ export class DeferredPipeline extends RenderPipeline {
      * @zh
      * 创建四边形输入汇集器。
      */
-    protected createQuadInputAssembler (surfaceTransform: SurfaceTransform): InputAssemblerData {
+    protected createQuadInputAssembler (): InputAssemblerData {
         // create vertex buffer
         const inputAssemblerData = new InputAssemblerData();
 
@@ -416,26 +422,26 @@ export class DeferredPipeline extends RenderPipeline {
         return inputAssemblerData;
     }
 
-    public updateQuadVertexData (renderArea: Rect) {
+    public updateQuadVertexData (renderArea: Rect, swapchain: Swapchain) {
         if (this._lastUsedRenderArea === renderArea) {
             return;
         }
 
         this._lastUsedRenderArea = renderArea;
-        const offData = this.genQuadVertexData(SurfaceTransform.IDENTITY, renderArea);
+        const offData = this.genQuadVertexData(SurfaceTransform.IDENTITY, renderArea, swapchain);
         this._quadVBOffscreen!.update(offData);
 
-        const onData = this.genQuadVertexData(this._swapchain.surfaceTransform, renderArea);
+        const onData = this.genQuadVertexData(swapchain.surfaceTransform, renderArea, swapchain);
         this._quadVBOnscreen!.update(onData);
     }
 
-    protected genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect) : Float32Array {
+    protected genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect, swapchain: Swapchain) : Float32Array {
         const vbData = new Float32Array(4 * 4);
 
-        const minX = renderArea.x / this._swapchain.width;
-        const maxX = (renderArea.x + renderArea.width) / this._swapchain.width;
-        let minY = renderArea.y / this._swapchain.height;
-        let maxY = (renderArea.y + renderArea.height) / this._swapchain.height;
+        const minX = renderArea.x / swapchain.width;
+        const maxX = (renderArea.x + renderArea.width) / swapchain.width;
+        let minY = renderArea.y / swapchain.height;
+        let maxY = (renderArea.y + renderArea.height) / swapchain.height;
         if (this.device.capabilities.screenSpaceSignY > 0) {
             const temp = maxY;
             maxY       = minY;
@@ -548,7 +554,7 @@ export class DeferredPipeline extends RenderPipeline {
         data.depthTex = device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.DEPTH_STENCIL_ATTACHMENT,
-            this._swapchain.depthStencilTexture.format,
+            Format.DEPTH_STENCIL,
             this._width,
             this._height,
         ));

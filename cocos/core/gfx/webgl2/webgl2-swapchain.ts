@@ -165,28 +165,13 @@ export class WebGL2Swapchain extends Swapchain {
         initStates(gl);
 
         const colorFmt = Format.RGBA8;
-        let depthStencilFmt = Format.D24S8;
+        let depthStencilFmt = Format.UNKNOWN;
 
         const depthBits = gl.getParameter(gl.DEPTH_BITS);
         const stencilBits = gl.getParameter(gl.STENCIL_BITS);
 
-        if (depthBits === 32) {
-            if (stencilBits === 8) {
-                depthStencilFmt = Format.D32F_S8;
-            } else {
-                depthStencilFmt = Format.D32F;
-            }
-        } else if (depthBits === 24) {
-            if (stencilBits === 8) {
-                depthStencilFmt = Format.D24S8;
-            } else {
-                depthStencilFmt = Format.D24;
-            }
-        } else if (stencilBits === 8) {
-            depthStencilFmt = Format.D16S8;
-        } else {
-            depthStencilFmt = Format.D16;
-        }
+        if (depthBits && stencilBits) depthStencilFmt = Format.DEPTH_STENCIL;
+        else if (depthBits) depthStencilFmt = Format.DEPTH;
 
         this._colorTexture = new WebGL2Texture(this._device);
         // @ts-expect-error(2445) private initializer

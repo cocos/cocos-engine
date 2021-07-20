@@ -188,12 +188,8 @@ export enum Format {
     RGB9E5,
 
     // Depth-Stencil Format
-    D16,
-    D16S8,
-    D24,
-    D24S8,
-    D32F,
-    D32F_S8,
+    DEPTH,
+    DEPTH_STENCIL,
 
     // Compressed Format
 
@@ -1914,12 +1910,8 @@ export const FormatInfos = Object.freeze([
     new FormatInfo('RGB10A2UI', 2, 4, FormatType.UINT, true, false, false, false),
     new FormatInfo('RGB9E5', 2, 4, FormatType.FLOAT, true, false, false, false),
 
-    new FormatInfo('D16', 2, 1, FormatType.UINT, false, true, false, false),
-    new FormatInfo('D16S8', 3, 2, FormatType.UINT, false, true, true, false),
-    new FormatInfo('D24', 3, 1, FormatType.UINT, false, true, false, false),
-    new FormatInfo('D24S8', 4, 2, FormatType.UINT, false, true, true, false),
-    new FormatInfo('D32F', 4, 1, FormatType.FLOAT, false, true, false, false),
-    new FormatInfo('D32FS8', 5, 2, FormatType.FLOAT, false, true, true, false),
+    new FormatInfo('DEPTH', 4, 1, FormatType.FLOAT, false, true, false, false),
+    new FormatInfo('DEPTH_STENCIL', 5, 2, FormatType.FLOAT, false, true, true, false),
 
     new FormatInfo('BC1', 1, 3, FormatType.UNORM, false, false, false, true),
     new FormatInfo('BC1_ALPHA', 1, 4, FormatType.UNORM, true, false, false, true),

@@ -351,7 +351,7 @@ export class Root {
         }
         this._pipeline = rppl;
 
-        if (!this._pipeline.activate()) {
+        if (!this._pipeline.activate(this._mainWindow!.swapchain)) {
             if (isCreateDefaultPipeline) {
                 this._pipeline.destroy();
             }

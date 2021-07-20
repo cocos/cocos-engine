@@ -104,7 +104,8 @@ export class PostprocessStage extends RenderStage {
         this._renderArea.height = vp.height * camera.height * sceneData.shadingScale;
 
         const framebuffer = camera.window!.framebuffer;
-        const renderPass = camera.window!.swapchain ? pipeline.getRenderPass(camera.clearFlag) : framebuffer.renderPass;
+        const swapchain = camera.window!.swapchain;
+        const renderPass = swapchain ? pipeline.getRenderPass(camera.clearFlag, swapchain) : framebuffer.renderPass;
 
         if (camera.clearFlag & ClearFlagBit.COLOR) {
             colors[0].x = camera.clearColor.x;

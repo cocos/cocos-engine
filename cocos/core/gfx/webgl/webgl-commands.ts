@@ -95,12 +95,8 @@ export function GFXFormatToWebGLType (format: Format, gl: WebGLRenderingContext)
     case Format.RGB10A2UI: return gl.UNSIGNED_INT;
     case Format.RGB9E5: return gl.UNSIGNED_BYTE;
 
-    case Format.D16: return gl.UNSIGNED_SHORT;
-    case Format.D16S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL; // not supported, fallback
-    case Format.D24: return gl.UNSIGNED_INT;
-    case Format.D24S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL;
-    case Format.D32F: return gl.UNSIGNED_INT; // not supported, fallback
-    case Format.D32F_S8: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL; // not supported, fallback
+    case Format.DEPTH: return gl.UNSIGNED_INT;
+    case Format.DEPTH_STENCIL: return WebGLEXT.UNSIGNED_INT_24_8_WEBGL; // not supported, fallback
 
     case Format.BC1: return gl.UNSIGNED_BYTE;
     case Format.BC1_SRGB: return gl.UNSIGNED_BYTE;
@@ -178,12 +174,8 @@ export function GFXFormatToWebGLInternalFormat (format: Format, gl: WebGLRenderi
     case Format.RGBA16F: return WebGLEXT.RGBA16F_EXT;
     case Format.RGBA32F: return WebGLEXT.RGBA32F_EXT;
     case Format.SRGB8_A8: return WebGLEXT.SRGB8_ALPHA8_EXT;
-    case Format.D16: return gl.DEPTH_COMPONENT16;
-    case Format.D16S8: return gl.DEPTH_STENCIL;
-    case Format.D24: return gl.DEPTH_COMPONENT16;
-    case Format.D24S8: return gl.DEPTH_STENCIL;
-    case Format.D32F: return gl.DEPTH_COMPONENT16;
-    case Format.D32F_S8: return gl.DEPTH_STENCIL;
+    case Format.DEPTH: return gl.DEPTH_COMPONENT16;
+    case Format.DEPTH_STENCIL: return gl.DEPTH_STENCIL;
 
     default: {
         console.error('Unsupported Format, convert to WebGL internal format failed.');
@@ -208,12 +200,8 @@ export function GFXFormatToWebGLFormat (format: Format, gl: WebGLRenderingContex
     case Format.R5G6B5: return gl.RGB;
     case Format.RGB5A1: return gl.RGBA;
     case Format.RGBA4: return gl.RGBA;
-    case Format.D16: return gl.DEPTH_COMPONENT;
-    case Format.D16S8: return gl.DEPTH_STENCIL;
-    case Format.D24: return gl.DEPTH_COMPONENT;
-    case Format.D24S8: return gl.DEPTH_STENCIL;
-    case Format.D32F: return gl.DEPTH_COMPONENT;
-    case Format.D32F_S8: return gl.DEPTH_STENCIL;
+    case Format.DEPTH: return gl.DEPTH_COMPONENT;
+    case Format.DEPTH_STENCIL: return gl.DEPTH_STENCIL;
 
     case Format.BC1: return WebGLEXT.COMPRESSED_RGB_S3TC_DXT1_EXT;
     case Format.BC1_ALPHA: return WebGLEXT.COMPRESSED_RGBA_S3TC_DXT1_EXT;
