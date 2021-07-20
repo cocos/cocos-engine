@@ -206,6 +206,9 @@ export class Label extends Renderable2D {
         return this._string;
     }
     set string (value) {
+        if (value === null || value === undefined) {
+            value = '';
+        }
         value += '';
         if (this._string === value) {
             return;
