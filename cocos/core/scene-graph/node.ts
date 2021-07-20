@@ -212,10 +212,12 @@ export class Node extends BaseNode implements CustomSerializable {
     protected declare _hasChangedFlagsOffset: number;
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
-    protected declare _nativeFlag: Uint32Array;
     protected declare _nativeDirtyFlag: Uint32Array;
 
     protected _init () {
+        const [chunk, offset] = bookOfChange.alloc();
+        this._hasChangedFlagsChunk = chunk;
+        this._hasChangedFlagsOffset = offset;
         if (JSB) {
             // new node
             this._nodeHandle = NodePool.alloc();
@@ -229,23 +231,18 @@ export class Node extends BaseNode implements CustomSerializable {
 
             this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
             this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
-            this._nativeFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.FLAGS_CHANGED) as Uint32Array;
             this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
             this._scale.set(1, 1, 1);
             this._lscale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
-            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle));
+            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), chunk.buffer, offset);
         } else {
             this._pos = new Vec3();
             this._rot = new Quat();
             this._scale = new Vec3(1, 1, 1);
             this._mat = new Mat4();
         }
-
-        const [chunk, offset] = bookOfChange.alloc();
-        this._hasChangedFlagsChunk = chunk;
-        this._hasChangedFlagsOffset = offset;
     }
 
     constructor (name?: string) {
@@ -478,9 +475,6 @@ export class Node extends BaseNode implements CustomSerializable {
 
     set hasChangedFlags (val: number) {
         this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] = val;
-        if (JSB) {
-            this._nativeFlag[0] = val;
-        }
     }
 
     public [serializeTag] (serializationOutput: SerializationOutput, context: SerializationContext) {

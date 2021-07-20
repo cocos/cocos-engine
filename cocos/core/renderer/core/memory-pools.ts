@@ -199,21 +199,19 @@ export type NodeHandle = IHandle<PoolType.NODE>;
 
 export enum NodeView {
     DIRTY_FLAG,
-    FLAGS_CHANGED,
     LAYER,
     WORLD_SCALE,        // Vec3
-    WORLD_POSITION = 6, // Vec3
-    WORLD_ROTATION = 9, // Quat
-    WORLD_MATRIX = 13,  // Mat4
-    LOCAL_SCALE = 29,   // Vec3
-    LOCAL_POSITION = 32, // Vec3
-    LOCAL_ROTATION = 35, // Quat
-    COUNT = 39
+    WORLD_POSITION = 5, // Vec3
+    WORLD_ROTATION = 8, // Quat
+    WORLD_MATRIX = 12,  // Mat4
+    LOCAL_SCALE = 28,   // Vec3
+    LOCAL_POSITION = 31, // Vec3
+    LOCAL_ROTATION = 34, // Quat
+    COUNT = 38
 }
 
 const NodeViewDataType: BufferDataTypeManifest<typeof NodeView> = {
     [NodeView.DIRTY_FLAG]: BufferDataType.UINT32,
-    [NodeView.FLAGS_CHANGED]: BufferDataType.UINT32,
     [NodeView.LAYER]: BufferDataType.UINT32,
     [NodeView.WORLD_SCALE]: BufferDataType.FLOAT32,
     [NodeView.WORLD_POSITION]: BufferDataType.FLOAT32,
@@ -226,8 +224,7 @@ const NodeViewDataType: BufferDataTypeManifest<typeof NodeView> = {
 };
 
 const NodeViewDataMembers: BufferDataMembersManifest<typeof NodeView> = {
-    [NodeView.DIRTY_FLAG]: NodeView.FLAGS_CHANGED - NodeView.DIRTY_FLAG,
-    [NodeView.FLAGS_CHANGED]: NodeView.LAYER - NodeView.FLAGS_CHANGED,
+    [NodeView.DIRTY_FLAG]: NodeView.LAYER - NodeView.DIRTY_FLAG,
     [NodeView.LAYER]: NodeView.WORLD_SCALE - NodeView.LAYER,
     [NodeView.WORLD_SCALE]: NodeView.WORLD_POSITION - NodeView.WORLD_SCALE,
     [NodeView.WORLD_POSITION]: NodeView.WORLD_ROTATION - NodeView.WORLD_POSITION,
