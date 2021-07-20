@@ -642,7 +642,7 @@ static bool js_engine_FileUtils_listFilesRecursively(se::State &s) {
         for (uint i = 0; i < static_cast<uint>(arg1.size()); i++) {
             list->setArrayElement(i, se::Value(arg1[i]));
         }
-        list->setProperty("length", se::Value(arg1.size()));
+        list->setProperty("length", se::Value(static_cast<std::uint32_t>(arg1.size())));
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
