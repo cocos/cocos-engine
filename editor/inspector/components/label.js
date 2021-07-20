@@ -9,8 +9,13 @@ ui-tab {
     flex: none;
 }
 
-div.fontStyle:hover {
-    background:var(--color-hover-fill-weaker);
+div.fontStyleParent {
+    display:flex
+}
+
+div.fontStyle:nth-child(2) {
+    margin-left: 5px;
+    margin-right: 5px;
 }
 
 div.fontStyle {
@@ -19,6 +24,7 @@ div.fontStyle {
     text-align: center;
     border: calc(var(--size-normal-border) * 1px) solid var(--color-normal-border);
     background: var(--color-default-fill);
+    border-radius: calc(var(--size-normal-radius) * 1px);
 }
 
 div.fontStyle.invalid {
@@ -29,9 +35,6 @@ div.fontStyle.select {
     background: var(--color-default-fill-emphasis);
 }
 
-ui-image.image {
-    
-}
 `;
 
 exports.ready = function() {
@@ -147,13 +150,12 @@ exports.ready = function() {
                 prop.appendChild(label);
                 const content = document.createElement('div');
                 content.setAttribute('slot', 'content');
-                content.style.display = 'flex';
+                content.classList.add('fontStyleParent');
                 const styles = ['isBold', 'isItalic', 'isUnderline'];
                 const styleDisplayNames = ['B', 'I', 'U'];
                 for (let index = 0; index < styles.length; index++) {
                     const style = styles[index];
                     const div = document.createElement('div');
-                    div.setAttribute('flex', 1);
                     div.innerHTML = styleDisplayNames[index];
                     div.setAttribute('key', style);
                     div.classList.add('fontStyle');
