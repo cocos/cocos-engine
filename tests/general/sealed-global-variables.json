@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2021-07-05T09:43:28.305Z"
+        "stamp": "2021-07-21T08:47:46.858Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -159,6 +159,8 @@
         "cc.GFXSubpassDependency",
         "cc.GFXSubpassInfo",
         "cc.GFXSurfaceTransform",
+        "cc.GFXSwapchain",
+        "cc.GFXSwapchainInfo",
         "cc.GFXTexture",
         "cc.GFXTextureBarrier",
         "cc.GFXTextureBarrierInfo",
@@ -181,6 +183,7 @@
         "cc.GFXUniformStorageImage",
         "cc.GFXUniformTexture",
         "cc.GFXViewport",
+        "cc.GFXVsyncMode",
         "cc.GFX_DRAW_INFO_SIZE",
         "cc.Game",
         "cc.GraphicsComponent",

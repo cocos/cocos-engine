@@ -24,7 +24,7 @@
  */
 
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsHalfFloatTexture } from './define';
-import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, Feature } from '../gfx';
+import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, Feature, Swapchain } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
 import { Mat4, Vec3, Vec4, Color } from '../math';
 import { RenderPipeline } from './render-pipeline';
@@ -40,13 +40,12 @@ const vec3_center = new Vec3();
 const vec4ShadowInfo = new Vec4();
 
 export class PipelineUBO {
-    public static updateGlobalUBOView (pipeline: RenderPipeline, bufferView: Float32Array) {
-        const device = pipeline.device;
+    public static updateGlobalUBOView (swapchain: Swapchain, bufferView: Float32Array) {
         const root = legacyCC.director.root;
         const fv = bufferView;
 
-        const shadingWidth = Math.floor(root.mainWindow.width);
-        const shadingHeight = Math.floor(root.mainWindow.height);
+        const shadingWidth = Math.floor(swapchain.width);
+        const shadingHeight = Math.floor(swapchain.height);
 
         // update UBOGlobal
         fv[UBOGlobal.TIME_OFFSET] = root.cumulativeTime;
@@ -348,12 +347,12 @@ export class PipelineUBO {
      * @en Update all UBOs
      * @zh 更新全部 UBO。
      */
-    public updateGlobalUBO () {
+    public updateGlobalUBO (swapchain: Swapchain) {
         const globalDSManager = this._pipeline.globalDSManager;
         const ds = this._pipeline.descriptorSet;
         const cmdBuffer = this._pipeline.commandBuffers;
         ds.update();
-        PipelineUBO.updateGlobalUBOView(this._pipeline, this._globalUBO);
+        PipelineUBO.updateGlobalUBOView(swapchain, this._globalUBO);
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOGlobal.BINDING), this._globalUBO);
 
         globalDSManager.bindBuffer(UBOGlobal.BINDING, ds.getBuffer(UBOGlobal.BINDING));

@@ -1,28 +1,8 @@
 root: true
 
-parser: '@typescript-eslint/parser'
-
-parserOptions:
-    project: ./tsconfig.json
-
 extends:
     - eslint:recommended
     - airbnb-base
-    - plugin:@typescript-eslint/recommended
-    - plugin:@typescript-eslint/recommended-requiring-type-checking
-
-plugins:
-    - '@typescript-eslint'
-
-settings:
-    import/resolver:
-        node:
-            extensions:
-                - .js
-                - .jsx
-                - .ts
-                - .tsx
-                - .d.ts
 
 env:
     browser: true
@@ -31,14 +11,9 @@ env:
     jest: true
 
 globals:
-    cc: false
-    wx: false
-    Editor: false
-    _Scene: false
-    _ccsg: false
+    cc: readonly
 
 rules:
-
     # https://eslint.org/docs/rules/
     # https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin
 
@@ -96,31 +71,7 @@ rules:
     linebreak-style: off # we don't enforce this on everyone's dev environment for now
     spaced-comment: off # for license declarations
 
-    ##### TYPESCRIPT-SPECIFIC RULE OVERRIDES #####
+    ##### JS SPECIFIC OVERRIDES #####
 
-    '@typescript-eslint/indent': [warn, 4, {
-        SwitchCase: 0
-    }]
-    '@typescript-eslint/no-unused-expressions': warn
-
-    # TODO: this is just too much work
-    '@typescript-eslint/explicit-module-boundary-types': off
-
-    # TODO: sadly we still rely heavily on legacyCC
-    '@typescript-eslint/no-unsafe-assignment': off
-    '@typescript-eslint/no-unsafe-call': off
-    '@typescript-eslint/no-unsafe-member-access': off
-
-    '@typescript-eslint/unbound-method': off # we exploit prototype methods sometimes to acheive better performace
-    '@typescript-eslint/no-explicit-any': off # still relevant for some heavily templated usages
-    '@typescript-eslint/no-empty-function': off # may become useful in some parent classes
-    '@typescript-eslint/no-unused-vars': off # may become useful in some parent classes
-    '@typescript-eslint/no-non-null-assertion': off # sometimes we just know better than the compiler
-    '@typescript-eslint/no-namespace': [warn, { # we need to declare static properties
-        allowDeclarations: true,
-        allowDefinitionFiles: true
-    }]
-    '@typescript-eslint/restrict-template-expressions': [warn, { # concatenations of different types are common, e.g. hash calculations
-        allowNumber: true,
-        allowBoolean: true
-    }]
+    global-require: off # may require different files based on global environment
+    func-names: off # overriding existing functions are common

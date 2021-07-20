@@ -155,7 +155,7 @@ export class DeferredPipeline extends RenderPipeline {
         }
 
         this._commandBuffers[0].begin();
-        this._pipelineUBO.updateGlobalUBO();
+        this._pipelineUBO.updateGlobalUBO(cameras[0].window!.swapchain); // TODO: window size is also camera-specific
         for (let i = 0; i < cameras.length; i++) {
             const camera = cameras[i];
             if (camera.scene) {
