@@ -1,11 +1,18 @@
-import { EDITOR } from 'internal:constants';
+import { EDITOR, TEST } from 'internal:constants';
 import { binarySearchEpsilon } from '../../algorithm/binary-search';
 import { ccclass, serializable } from '../../data/decorators';
 import { assertIsTrue } from '../../data/utils/asserts';
-import { Quat, Vec3 } from '../../math';
+import { clamp, lerp, Quat, Vec3 } from '../../math';
 import { error } from '../../platform/debug';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
 import { Binder, RuntimeBinding, TrackBinding, TrackPath } from '../tracks/track';
+
+const SPLIT_METHOD_ENABLED = TEST || EDITOR;
+
+function throwIfSplitMethodIsNotValid (): never {
+    // TODO: better handling
+    throw new Error(`split() only valid in Editor.`);
+}
 
 /**
  * Animation that:
@@ -31,13 +38,14 @@ export class ExoticAnimation {
     }
 
     public split (from: number, to: number) {
-        if (!EDITOR) {
-            // TODO: better handling
-            error(`split() only valid in Editor.`);
-            return this;
+        if (!SPLIT_METHOD_ENABLED) {
+            throwIfSplitMethodIsNotValid();
         }
+
+        const splitInfoCache = new SplitInfo();
+
         const newAnimation = new ExoticAnimation();
-        newAnimation._nodeAnimations = this._nodeAnimations.map((nodeAnimation) => nodeAnimation.split(from, to));
+        newAnimation._nodeAnimations = this._nodeAnimations.map((nodeAnimation) => nodeAnimation.split(from, to, splitInfoCache));
         return newAnimation;
     }
 
@@ -52,15 +60,15 @@ class ExoticNodeAnimation {
     }
 
     public createPosition (times: FloatArray, values: FloatArray) {
-        this._position = new ExoticVec3Track(times, values);
+        this._position = new ExoticTrack(times, new ExoticVec3TrackValues(values));
     }
 
     public createRotation (times: FloatArray, values: FloatArray) {
-        this._rotation = new ExoticQuatTrack(times, values);
+        this._rotation = new ExoticTrack(times, new ExoticQuatTrackValues(values));
     }
 
     public createScale (times: FloatArray, values: FloatArray) {
-        this._scale = new ExoticVec3Track(times, values);
+        this._scale = new ExoticTrack(times, new ExoticVec3TrackValues(values));
     }
 
     public createEvaluator (binder: Binder) {
@@ -73,12 +81,11 @@ class ExoticNodeAnimation {
         );
     }
 
-    public split (from: number, to: number) {
-        if (!EDITOR) {
-            // TODO: better handling
-            error(`split() only valid in Editor.`);
-            return this;
+    public split (from: number, to: number, splitInfoCache: SplitInfo) {
+        if (!SPLIT_METHOD_ENABLED) {
+            throwIfSplitMethodIsNotValid();
         }
+
         const newAnimation = new ExoticNodeAnimation(this._path);
         const {
             _position: position,
@@ -86,13 +93,13 @@ class ExoticNodeAnimation {
             _scale: scale,
         } = this;
         if (position) {
-            newAnimation._position = position.split(from, to);
+            newAnimation._position = splitVec3Track(position, from, to, splitInfoCache);
         }
         if (rotation) {
-            newAnimation._rotation = rotation.split(from, to);
+            newAnimation._rotation = splitQuatTrack(rotation, from, to, splitInfoCache);
         }
         if (scale) {
-            newAnimation._scale = scale.split(from, to);
+            newAnimation._scale = splitVec3Track(scale, from, to, splitInfoCache);
         }
         return newAnimation;
     }
@@ -114,7 +121,9 @@ class ExoticNodeAnimation {
     private _scale: ExoticVec3Track | null = null;
 }
 
-interface ExoticTrackValues<TValue extends Vec3 | Quat> {
+interface ExoticTrackValues<TValue> {
+    readonly precision: FloatPrecision;
+
     get (index: number, resultValue: TValue): void;
 
     lerp(prevIndex: number,
@@ -127,17 +136,40 @@ interface ExoticTrackValues<TValue extends Vec3 | Quat> {
 
 type MayBeQuantized = FloatArray | QuantizedFloatArray;
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticVec3TrackValues`)
-class ExoticVec3TrackValues implements ExoticTrackValues<Vec3> {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticVectorLikeTrackValues`)
+class ExoticVectorLikeTrackValues {
     constructor (values: FloatArray) {
         this._values = values;
         this._isQuantized = false;
+    }
+
+    get precision () {
+        return this._isQuantized
+            ? (this._values as QuantizedFloatArray).originalPrecision
+            : getFloatArrayPrecision(this._values as FloatArray);
     }
 
     public quantize (type: QuantizationType) {
         assertIsTrue(!this._isQuantized);
         this._values = quantize(this._values as FloatArray, type);
         this._isQuantized = true;
+    }
+
+    @serializable
+    protected _values: MayBeQuantized;
+
+    @serializable
+    protected _isQuantized: boolean;
+}
+
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticVec3TrackValues`)
+class ExoticVec3TrackValues extends ExoticVectorLikeTrackValues implements ExoticTrackValues<Vec3> {
+    public static imitate (values: FloatArray, model: ExoticVec3TrackValues) {
+        const trackValues = new ExoticVec3TrackValues(values);
+        if (model._isQuantized) {
+            trackValues.quantize((model._values as QuantizedFloatArray).quantizationType);
+        }
+        return trackValues;
     }
 
     public get (index: number, resultValue: Vec3): void {
@@ -173,56 +205,16 @@ class ExoticVec3TrackValues implements ExoticTrackValues<Vec3> {
         }
         Vec3.lerp(resultValue, prevValue, nextValue, ratio);
     }
-
-    @serializable
-    private _values: MayBeQuantized;
-
-    @serializable
-    private _isQuantized: boolean;
-}
-
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticVec3Track`)
-class ExoticVec3Track {
-    constructor (times: FloatArray, values: FloatArray) {
-        this._times = times;
-        this._values = new ExoticVec3TrackValues(values);
-    }
-
-    public createEvaluator () {
-        return new ExoticTrackEvaluator<Vec3>(
-            this._times,
-            this._values,
-            Vec3,
-        );
-    }
-
-    public split (from: number, to: number) {
-        if (!EDITOR) {
-            // TODO: better handling
-            error(`split() only valid in Editor.`);
-            return this;
-        }
-        return this;
-    }
-
-    @serializable
-    private _times: FloatArray;
-
-    @serializable
-    private _values: ExoticVec3TrackValues;
 }
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticQuatTrackValues`)
-class ExoticQuatTrackValues implements ExoticTrackValues<Quat> {
-    constructor (values: FloatArray) {
-        this._values = values;
-        this._isQuantized = false;
-    }
-
-    public quantize (type: QuantizationType) {
-        assertIsTrue(!this._isQuantized);
-        this._values = quantize(this._values as FloatArray, type);
-        this._isQuantized = true;
+class ExoticQuatTrackValues extends ExoticVectorLikeTrackValues implements ExoticTrackValues<Quat> {
+    public static imitate (values: FloatArray, model: ExoticQuatTrackValues) {
+        const trackValues = new ExoticQuatTrackValues(values);
+        if (model._isQuantized) {
+            trackValues.quantize((model._values as QuantizedFloatArray).quantizationType);
+        }
+        return trackValues;
     }
 
     public get (index: number, resultValue: Quat): void {
@@ -258,43 +250,273 @@ class ExoticQuatTrackValues implements ExoticTrackValues<Quat> {
         }
         Quat.slerp(resultValue, prevValue, nextValue, ratio);
     }
-
-    @serializable
-    private _values: FloatArray | QuantizedFloatArray;
-
-    @serializable
-    private _isQuantized: boolean;
 }
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticQuatTrack`)
-class ExoticQuatTrack {
-    constructor (times: FloatArray, values: FloatArray) {
-        this._times = times;
-        this._values = new ExoticQuatTrackValues(values);
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}ExoticTrack`)
+class ExoticTrack<TTrackValues> {
+    constructor (times: FloatArray, values: TTrackValues) {
+        this.times = times;
+        this.values = values;
     }
 
-    public createEvaluator () {
-        return new ExoticTrackEvaluator<Quat>(
-            this._times,
-            this._values,
-            Quat,
+    @serializable
+    public times!: FloatArray;
+
+    @serializable
+    public values!: TTrackValues;
+}
+
+type ExoticVec3Track = ExoticTrack<ExoticVec3TrackValues>;
+
+type ExoticQuatTrack = ExoticTrack<ExoticQuatTrackValues>;
+
+function splitVec3Track (track: ExoticVec3Track, from: number, to: number, splitInfoCache: SplitInfo) {
+    const { times, values } = split(
+        track.times,
+        track.values,
+        from,
+        to,
+        3,
+        Vec3,
+        splitInfoCache,
+    );
+
+    const vec3Values = ExoticVec3TrackValues.imitate(values, track.values);
+    return new ExoticTrack<ExoticVec3TrackValues>(
+        times,
+        vec3Values,
+    );
+}
+
+function splitQuatTrack (track: ExoticQuatTrack, from: number, to: number, splitInfoCache: SplitInfo) {
+    const { times, values } = split(
+        track.times,
+        track.values,
+        from,
+        to,
+        4,
+        Quat,
+        splitInfoCache,
+    );
+
+    const quatValues = ExoticQuatTrackValues.imitate(
+        values,
+        track.values,
+    );
+    return new ExoticTrack<ExoticQuatTrackValues>(
+        times,
+        quatValues,
+    );
+}
+
+function split<TValue> (
+    times: FloatArray,
+    values: ExoticTrackValues<TValue>,
+    from: number,
+    to: number,
+    components: number,
+    ValueConstructor: {
+        new (): TValue;
+        toArray(array: ArrayLike<number>, value: TValue, offset: number): void;
+    },
+    splitInfoCache: SplitInfo,
+): {
+        times: FloatArray;
+        values: FloatArray;
+    } {
+    const TimeArrayConstructor = getFloatArrayConstructorWithPrecision(getFloatArrayPrecision(times));
+    const ValueArrayConstructor = getFloatArrayConstructorWithPrecision(values.precision);
+
+    const splitInfo = splitInfoCache;
+    splitInfo.calculate(times, from, to);
+
+    const {
+        preLerpIndex,
+        preLerpRatio,
+        directKeyframesBegin,
+        directKeyframesEnd,
+        postLerpIndex,
+        postLerpRatio,
+    } = splitInfo;
+
+    const nNewKeyframes = splitInfo.keyframesCount;
+
+    if (nNewKeyframes === 0) {
+        return {
+            times: new TimeArrayConstructor(0),
+            values: new ValueArrayConstructor(0),
+        };
+    }
+
+    const prevValue = new ValueConstructor();
+    const nextValue = new ValueConstructor();
+    const resultValue = new ValueConstructor();
+    const newTimes: FloatArray = new TimeArrayConstructor(nNewKeyframes);
+    const newValues: FloatArray = new ValueArrayConstructor(components * nNewKeyframes);
+    const doLerp = (index: number, ratio: number, outputIndex: number) => {
+        assertIsTrue(index < times.length - 1);
+        const iPrevious = index;
+        const iNext = index + 1;
+        values.lerp(
+            iPrevious,
+            iNext,
+            ratio,
+            prevValue,
+            nextValue,
+            resultValue,
         );
+        newTimes[outputIndex] = splitInfo.transformTime(lerp(times[iPrevious], times[iNext], ratio));
+        ValueConstructor.toArray(newValues, resultValue, components * outputIndex);
+    };
+
+    let iKeyframe = 0;
+    if (preLerpIndex >= 0) {
+        doLerp(preLerpIndex, preLerpRatio, iKeyframe);
+        ++iKeyframe;
+    }
+    for (let index = directKeyframesBegin; index < directKeyframesEnd; ++index, ++iKeyframe) {
+        values.get(index, resultValue);
+        newTimes[iKeyframe] = splitInfo.transformTime(times[index]);
+        ValueConstructor.toArray(newValues, resultValue, components * iKeyframe);
+    }
+    if (postLerpIndex >= 0) {
+        doLerp(postLerpIndex, postLerpRatio, iKeyframe);
+        ++iKeyframe;
+    }
+    assertIsTrue(iKeyframe === nNewKeyframes);
+
+    return {
+        times: newTimes,
+        values: newValues,
+    };
+}
+
+class SplitInfo {
+    public declare preLerpIndex: number;
+    public declare preLerpRatio: number;
+    public declare directKeyframesBegin: number;
+    public declare directKeyframesEnd: number;
+    public declare postLerpIndex: number;
+    public declare postLerpRatio: number;
+
+    constructor () {
+        this._reset();
     }
 
-    public split (from: number, to: number) {
-        if (!EDITOR) {
-            // TODO: better handling
-            error(`split() only valid in Editor.`);
-            return this;
+    public get keyframesCount () {
+        const {
+            preLerpIndex,
+            directKeyframesBegin,
+            directKeyframesEnd,
+            postLerpIndex,
+        } = this;
+        return 0
+            + (preLerpIndex < 0 ? 0 : 1)
+            + (directKeyframesEnd - directKeyframesBegin)
+            + (postLerpIndex < 0 ? 0 : 1);
+    }
+
+    public transformTime (input: number) {
+        return input - this._timeOffset;
+    }
+
+    public calculate (times: ArrayLike<number>, from: number, to: number) {
+        this._reset();
+
+        const nKeyframes = times.length;
+        if (!nKeyframes) {
+            return;
         }
-        return this;
+
+        const firstTime = times[0];
+        const lastTime = times[nKeyframes - 1];
+        const fromClamped = clamp(from, firstTime, lastTime);
+        const toClamped = clamp(to, firstTime, lastTime);
+
+        this._timeOffset = fromClamped;
+
+        const {
+            fromIndex,
+            fromRatio,
+            toIndex,
+            toRatio,
+        } = searchRange(times, fromClamped, toClamped);
+        assertIsTrue(toIndex >= fromIndex);
+
+        const fromJust = !fromRatio;
+        const toJust = !toRatio;
+
+        // Handles that from and to are same
+        if (fromIndex === toIndex && fromRatio === toRatio) {
+            if (!fromJust) {
+                this.preLerpIndex = fromIndex;
+                this.preLerpRatio = fromRatio;
+            } else {
+                this.directKeyframesBegin = fromIndex;
+                this.directKeyframesEnd = fromIndex + 1;
+            }
+            return;
+        }
+
+        if (!fromJust) {
+            this.preLerpIndex = fromIndex;
+            this.preLerpRatio = fromRatio;
+        }
+
+        this.directKeyframesBegin = fromJust ? fromIndex : fromIndex + 1;
+        this.directKeyframesEnd = toIndex + 1;
+
+        if (!toJust) {
+            this.postLerpIndex = toIndex;
+            this.postLerpRatio = toRatio;
+        }
     }
 
-    @serializable
-    private _times: FloatArray;
+    private declare _timeOffset: number;
 
-    @serializable
-    private _values: ExoticQuatTrackValues;
+    private _reset () {
+        this.preLerpIndex = -1;
+        this.preLerpRatio = 0.0;
+        this.directKeyframesBegin = 0;
+        this.directKeyframesEnd = 0;
+        this.postLerpIndex = -1;
+        this.postLerpRatio = 0.0;
+        this._timeOffset = 0.0;
+    }
+}
+
+function searchRange (values: ArrayLike<number>, from: number, to: number) {
+    const nValues = values.length;
+    assertIsTrue(nValues !== 0);
+    assertIsTrue(to >= from && from >= values[0] && to <= values[nValues - 1]);
+    const { index: fromIndex, ratio: fromRatio } = binarySearchRatio(values, from);
+    const { index: toIndex, ratio: toRatio } = binarySearchRatio(values, to);
+    return {
+        fromIndex,
+        fromRatio,
+        toIndex,
+        toRatio,
+    };
+}
+
+function binarySearchRatio (values: ArrayLike<number>, value: number) {
+    const nValues = values.length;
+    assertIsTrue(values.length !== 0);
+    let resultIndex = 0;
+    let resultRatio = 0.0;
+    const index0 = binarySearchEpsilon(values, value);
+    if (index0 >= 0) {
+        resultIndex = index0;
+    } else {
+        const iNext = ~index0;
+        assertIsTrue(iNext !== 0 && iNext !== nValues && nValues > 1);
+        const iPrev = iNext - 1;
+        resultIndex = iPrev;
+        const next = values[iNext];
+        const prev = values[iPrev];
+        resultRatio = (value - prev) / (next - prev);
+    }
+    return { index: resultIndex, ratio: resultRatio };
 }
 
 class ExoticTrsAnimationEvaluator {
@@ -320,13 +542,19 @@ class ExoticNodeAnimationEvaluator {
         binder: Binder,
     ) {
         if (position) {
-            this._position = createExoticTrackEvaluationRecord(position, path, 'position', binder);
+            this._position = createExoticTrackEvaluationRecord(
+                position.times, position.values, Vec3, path, 'position', binder,
+            );
         }
         if (rotation) {
-            this._rotation = createExoticTrackEvaluationRecord(rotation, path, 'rotation', binder);
+            this._rotation = createExoticTrackEvaluationRecord(
+                rotation.times, rotation.values, Quat, path, 'rotation', binder,
+            );
         }
         if (scale) {
-            this._scale = createExoticTrackEvaluationRecord(scale, path, 'scale', binder);
+            this._scale = createExoticTrackEvaluationRecord(
+                scale.times, scale.values, Vec3, path, 'scale', binder,
+            );
         }
     }
 
@@ -350,7 +578,7 @@ class ExoticNodeAnimationEvaluator {
     private _scale: ExoticTrackEvaluationRecord<Vec3> | null = null;
 }
 
-class ExoticTrackEvaluator<TValue extends Vec3 | Quat> {
+class ExoticTrackEvaluator<TValue> {
     constructor (times: FloatArray, values: ExoticTrackValues<TValue>, ValueConstructor: new () => TValue) {
         this._times = times;
         this._values = values;
@@ -402,7 +630,7 @@ class ExoticTrackEvaluator<TValue extends Vec3 | Quat> {
     private _resultValue: TValue;
 }
 
-interface ExoticTrackEvaluationRecord<TValue extends Vec3 | Quat> {
+interface ExoticTrackEvaluationRecord<TValue> {
     runtimeBinding: RuntimeBinding;
     evaluator: ExoticTrackEvaluator<TValue>;
 }
@@ -465,8 +693,40 @@ const QUANTIZATION_TYPE_TO_ARRAY_VIEW_CONSTRUCTOR_MAP: Record<QuantizationType, 
     uint16: Uint16Array,
 };
 
+enum FloatPrecision {
+    FLOAT_32,
+    FLOAT_64,
+}
+
+function getFloatArrayPrecision (array: FloatArray) {
+    switch (array.BYTES_PER_ELEMENT) {
+    default:
+        assertIsTrue(false);
+        // fallthrough
+    case 4:
+        return FloatPrecision.FLOAT_32;
+    case 8:
+        return FloatPrecision.FLOAT_64;
+    }
+}
+
+function getFloatArrayConstructorWithPrecision (precision: FloatPrecision) {
+    switch (precision) {
+    default:
+        assertIsTrue(false);
+        // fallthrough
+    case FloatPrecision.FLOAT_32:
+        return Float32Array;
+    case FloatPrecision.FLOAT_64:
+        return Float64Array;
+    }
+}
+
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}QuantizedFloatArray`)
 class QuantizedFloatArray {
+    @serializable
+    public originalPrecision: FloatPrecision;
+
     @serializable
     public min!: number;
 
@@ -476,7 +736,19 @@ class QuantizedFloatArray {
     @serializable
     public values!: UintArray;
 
-    constructor (values: UintArray, extent: number, min = 0.0) {
+    get quantizationType (): QuantizationType {
+        switch (this.values.BYTES_PER_ELEMENT) {
+        default:
+            // fallthrough
+        case 1:
+            return 'uint8';
+        case 2:
+            return 'uint16';
+        }
+    }
+
+    constructor (originalPrecision: FloatPrecision, values: UintArray, extent: number, min = 0.0) {
+        this.originalPrecision = originalPrecision;
         this.values = values;
         this.extent = extent;
         this.min = min;
@@ -495,7 +767,7 @@ function quantize (values: FloatArray, type: QuantizationType) {
     const extent = max - min;
     // Should consider `extent === 0.0`.
     const normalized = TypedArrayViewConstructor.from(values, (value) => (value - min) / extent * MAX);
-    return new QuantizedFloatArray(normalized, extent, min);
+    return new QuantizedFloatArray(getFloatArrayPrecision(values), normalized, extent, min);
 }
 
 function indexQuantized (quantized: QuantizedFloatArray, index: number) {
@@ -504,8 +776,10 @@ function indexQuantized (quantized: QuantizedFloatArray, index: number) {
     return quantizedValue / MAX_VALUE * quantized.extent + quantized.min;
 }
 
-function createExoticTrackEvaluationRecord<T extends ExoticVec3Track | ExoticQuatTrack> (
-    track: T,
+function createExoticTrackEvaluationRecord<TValue> (
+    times: FloatArray,
+    values: ExoticTrackValues<TValue>,
+    ValueConstructor: new () => TValue,
     path: string,
     property: 'position' | 'scale' | 'rotation',
     binder: Binder,
@@ -516,11 +790,11 @@ function createExoticTrackEvaluationRecord<T extends ExoticVec3Track | ExoticQua
     if (!runtimeBinding) {
         return null;
     }
-    const evaluator =  track.createEvaluator();
+    const evaluator =  new ExoticTrackEvaluator(times, values, ValueConstructor);
     return {
         runtimeBinding,
         evaluator,
-    } as (T extends ExoticVec3Track ? ExoticTrackEvaluationRecord<Vec3> : ExoticTrackEvaluationRecord<Quat>);
+    } as ExoticTrackEvaluationRecord<TValue>;
 }
 
 function loadVec3FromQuantized (values: QuantizedFloatArray, index: number, out: Vec3) {

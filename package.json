@@ -50,6 +50,7 @@
     "gulp": "^4.0.2",
     "http-server": "^0.12.3",
     "jest": "^26.6.3",
+    "jest-matcher-deep-close-to": "^2.0.1",
     "path": "^0.12.7",
     "spectorjs": "^0.9.15",
     "stats.js": "^0.17.0",
