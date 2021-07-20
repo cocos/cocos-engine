@@ -1,6 +1,6 @@
-const { getNameFromDump, setHidden, isMultipleInvalid } = require('../utils/prop');
+const { getName, setHidden, isMultipleInvalid, setTooltip, setLabel } = require('../utils/prop');
 const { template, $, update } = require('./base');
-
+const fontStyles = ['isBold', 'isItalic', 'isUnderline'];
 exports.template = template;
 exports.$ = $;
 exports.update = update;
@@ -9,32 +9,44 @@ ui-tab {
     flex: none;
 }
 
-div.fontStyleParent {
+.fontStyleParent {
     display:flex
 }
 
-div.fontStyle:nth-child(2) {
+.fontStyle:nth-child(2) {
     margin-left: 5px;
     margin-right: 5px;
 }
 
-div.fontStyle {
+.fontStyle {
     height: 20px;
     width: 42px;
     text-align: center;
+    line-height: 1;
     border: calc(var(--size-normal-border) * 1px) solid var(--color-normal-border);
-    background: var(--color-default-fill);
+    background-color: var(--color-default-fill);
     border-radius: calc(var(--size-normal-radius) * 1px);
 }
 
-div.fontStyle.invalid {
-    background: var(--color-default-fill);
+.fontStyle.invalid {
+    background-color: var(--color-default-fill);
 }
 
-div.fontStyle.select {
-    background: var(--color-default-fill-emphasis);
+.fontStyle.select {
+    background-color: var(--color-default-fill-emphasis);
 }
 
+.fontStyle.italic {
+    font-style: italic;
+}
+
+.fontStyle.bold {
+    font-weight: bold;
+}
+
+.fontStyle.underline {
+    text-decoration-line: underline;
+}
 `;
 
 exports.ready = function() {
@@ -45,14 +57,14 @@ exports.ready = function() {
                 prop.dump = dump;
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
-                label.setAttribute('value', getNameFromDump(dump));
+                setLabel(label, dump);
                 const content = document.createElement('ui-tab');
                 content.setAttribute('slot', 'content');
                 content.addEventListener('change', (event) => {
                     if (event.target.value !== -1) {
                         dump.value = event.target.value;
                         if (dump.values) {
-                            dump.values = dump.values.map(() => dump.value);
+                            dump.values = dump.values.forEach((_, index) => dump.values[index] = dump.value);
                         }
                         prop.dispatch('change-dump');
                     }
@@ -63,16 +75,16 @@ exports.ready = function() {
                     const image = document.createElement('ui-image');
                     const button = document.createElement('ui-button');
                     const iconName = element.name.toLocaleLowerCase();
-                    if (iconName !== 'center') {
-                        image.setAttribute('value', `packages://scene/static/icons/align-${iconName}.png`);
-                    } else {
+                    if (iconName === 'center') {
                         image.setAttribute('value', `packages://scene/static/icons/align-h-${iconName}.png`);
+                    } else {
+                        image.setAttribute('value', `packages://scene/static/icons/align-${iconName}.png`);
                     }
                     image.style.height = '20px';
                     image.style.width = '22px';
                     image.style.verticalAlign = 'middle';
                     image.setAttribute('fill', true);
-                    image.setAttribute('tooltip', Editor.I18n.t(dump.tooltip.replace('i18n:', '')));
+                    setTooltip(image, dump);
                     image.setAttribute('readonly', true);
                     button.appendChild(image);
                     content.appendChild(button);
@@ -96,14 +108,14 @@ exports.ready = function() {
                 prop.dump = dump;
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
-                label.setAttribute('value', getNameFromDump(dump));
+                setLabel(label, dump);
                 const content = document.createElement('ui-tab');
                 content.setAttribute('slot', 'content');
                 content.addEventListener('change', (event) => {
                     if (event.target.value !== -1) {
                         dump.value = event.target.value;
                         if (dump.values) {
-                            dump.values = dump.values.map(() => dump.value);
+                            dump.values = dump.values.forEach((_, index) => dump.values[index] = dump.value);
                         }
                         prop.dispatch('change-dump');
                     }
@@ -114,10 +126,10 @@ exports.ready = function() {
                     const image = document.createElement('ui-image');
                     const button = document.createElement('ui-button');
                     const iconName = element.name.toLocaleLowerCase();
-                    if (iconName !== 'center') {
-                        image.setAttribute('value', `packages://scene/static/icons/align-${iconName}.png`);
-                    } else {
+                    if (iconName === 'center') {
                         image.setAttribute('value', `packages://scene/static/icons/align-v-${iconName}.png`);
+                    } else {
+                        image.setAttribute('value', `packages://scene/static/icons/align-${iconName}.png`);
                     }
                     image.style.height = '20px';
                     image.style.width = '22px';
@@ -147,44 +159,48 @@ exports.ready = function() {
                 const label = document.createElement('ui-label');
                 label.setAttribute('slot', 'label');
                 label.value = 'FontStyle';
+                label.setAttribute('tooltip', Editor.I18n.t('ENGINE.components.label.font_style_tooltip'));
                 prop.appendChild(label);
                 const content = document.createElement('div');
                 content.setAttribute('slot', 'content');
                 content.classList.add('fontStyleParent');
-                const styles = ['isBold', 'isItalic', 'isUnderline'];
                 const styleDisplayNames = ['B', 'I', 'U'];
-                for (let index = 0; index < styles.length; index++) {
-                    const style = styles[index];
-                    const div = document.createElement('div');
-                    div.innerHTML = styleDisplayNames[index];
-                    div.setAttribute('key', style);
-                    div.classList.add('fontStyle');
-                    div.addEventListener('mouseup', () => {
+                const styleClassNames = ['bold', 'italic', 'underline'];
+                for (let index = 0; index < fontStyles.length; index++) {
+                    const style = fontStyles[index];
+                    const label = document.createElement('ui-label');
+                    label.innerHTML = styleDisplayNames[index];
+                    setTooltip(label, this.dump.value[style]);
+                    label.setAttribute('key', style);
+                    label.classList.add('fontStyle', styleClassNames[index]);
+                    label.addEventListener('mouseup', () => {
                         prop.dump = this.dump.value[style];
                         prop.dump.value = !prop.dump.value;
                         if (prop.dump.values) {
-                            prop.dump.values = prop.dump.values.map(() => prop.dump.value);
+                            prop.dump.values = prop.dump.values.forEach((_, index) => prop.dump.values[index] = prop.dump.value);
                         }
                         prop.dispatch('change-dump');
-                        this.dump.value[style].value ? div.classList.add('select') : div.classList.remove('select');
+                        this.dump.value[style].value ? label.classList.add('select') : label.classList.remove('select');
                     });
-                    content.appendChild(div);
+                    content.appendChild(label);
                 }
                 prop.appendChild(content);
                 return prop;
             },
             update(element, dump) {
                 const parent = element.querySelector('[slot="content"]');
-                for (let index = 0; index < parent.childNodes.length; index++) {
-                    const div = parent.childNodes[index];
-                    const key = div.getAttribute('key');
-                    const multipleInvalid = isMultipleInvalid(this.dump.value[key]);
-                    if (multipleInvalid) {
-                        div.classList.remove('select');
-                        div.classList.add('invalid');
-                    } else {
-                        div.classList.remove('invalid');
-                        this.dump.value[key].value ? div.classList.add('select') : div.classList.remove('select');
+                for (let index = 0; index < fontStyles.length; index++) {
+                    const div = parent.querySelector(`[key=${fontStyles[index]}]`);
+                    const key = fontStyles[index];
+                    if (div) {
+                        const multipleInvalid = isMultipleInvalid(this.dump.value[key]);
+                        if (multipleInvalid) {
+                            div.classList.remove('select');
+                            div.classList.add('invalid');
+                        } else {
+                            div.classList.remove('invalid');
+                            this.dump.value[key].value ? div.classList.add('select') : div.classList.remove('select');
+                        }
                     }
                 }
             },
