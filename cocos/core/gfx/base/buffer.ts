@@ -100,7 +100,6 @@ export abstract class Buffer extends Obj {
     protected _stride = 1;
     protected _count = 0;
     protected _flags: BufferFlags = BufferFlagBit.NONE;
-    protected _indirectBuffer: IndirectBuffer | null = null;
     protected _isBufferView = false;
 
     constructor (device: Device) {

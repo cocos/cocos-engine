@@ -24,7 +24,7 @@
  */
 
 import { Buffer } from '../base/buffer';
-import { BufferUsageBit, BufferSource, BufferInfo, BufferViewInfo, IndirectBuffer } from '../base/define';
+import { BufferUsageBit, BufferSource, BufferInfo, BufferViewInfo } from '../base/define';
 import {
     WebGL2CmdFuncCreateBuffer,
     WebGL2CmdFuncDestroyBuffer,
@@ -32,7 +32,7 @@ import {
     WebGL2CmdFuncUpdateBuffer,
 } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
-import { IWebGL2GPUBuffer } from './webgl2-gpu-objects';
+import { IWebGL2GPUBuffer, WebGL2IndirectDrawInfos } from './webgl2-gpu-objects';
 
 export class WebGL2Buffer extends Buffer {
     get gpuBuffer (): IWebGL2GPUBuffer {
@@ -72,25 +72,17 @@ export class WebGL2Buffer extends Buffer {
             this._count = this._size / this._stride;
             this._flags = info.flags;
 
-            if (this._usage & BufferUsageBit.INDIRECT) {
-                this._indirectBuffer = new IndirectBuffer();
-            }
-
             this._gpuBuffer = {
                 usage: this._usage,
                 memUsage: this._memUsage,
                 size: this._size,
                 stride: this._stride,
                 buffer: null,
-                indirects: [],
+                indirects: new WebGL2IndirectDrawInfos(),
                 glTarget: 0,
                 glBuffer: null,
                 glOffset: 0,
             };
-
-            if (info.usage & BufferUsageBit.INDIRECT) {
-                this._gpuBuffer.indirects = this._indirectBuffer!.drawInfos;
-            }
 
             WebGL2CmdFuncCreateBuffer(this._device as WebGL2Device, this._gpuBuffer);
 

@@ -945,8 +945,11 @@ export function WebGL2CmdFuncResizeBuffer (device: WebGL2Device, gpuBuffer: IWeb
 
 export function WebGL2CmdFuncUpdateBuffer (device: WebGL2Device, gpuBuffer: IWebGL2GPUBuffer, buffer: BufferSource, offset: number, size: number) {
     if (gpuBuffer.usage & BufferUsageBit.INDIRECT) {
-        gpuBuffer.indirects.length = offset;
-        Array.prototype.push.apply(gpuBuffer.indirects, (buffer as IndirectBuffer).drawInfos);
+        gpuBuffer.indirects.clearDraws();
+        const drawInfos = (buffer as IndirectBuffer).drawInfos;
+        for (let i = 0; i < drawInfos.length; ++i) {
+            gpuBuffer.indirects.setDrawInfo(offset + i, drawInfos[i]);
+        }
     } else {
         const buff = buffer as ArrayBuffer;
         const { gl } = device;
@@ -2452,45 +2455,76 @@ export function WebGL2CmdFuncBindStates (
 export function WebGL2CmdFuncDraw (device: WebGL2Device, drawInfo: DrawInfo) {
     const { gl } = device;
     const { gpuInputAssembler, glPrimitive } = gfxStateCache;
+    const md = device.extensions.WEBGL_multi_draw;
 
     if (gpuInputAssembler) {
+        const indexBuffer = gpuInputAssembler.gpuIndexBuffer;
         if (gpuInputAssembler.gpuIndirectBuffer) {
             const { indirects } = gpuInputAssembler.gpuIndirectBuffer;
-            for (let k = 0; k < indirects.length; k++) {
-                const subDrawInfo = indirects[k];
-                const gpuBuffer = gpuInputAssembler.gpuIndexBuffer;
-                if (subDrawInfo.instanceCount) {
-                    if (gpuBuffer) {
-                        if (subDrawInfo.indexCount > 0) {
-                            const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
-                            gl.drawElementsInstanced(glPrimitive, subDrawInfo.indexCount,
-                                gpuInputAssembler.glIndexType, offset, subDrawInfo.instanceCount);
+            if (indirects.drawByIndex) {
+                for (let j = 0; j < indirects.drawCount; j++) {
+                    indirects.byteOffsets[j] = indirects.offsets[j] * indexBuffer!.stride;
+                }
+                if (md) {
+                    if (indirects.instancedDraw) {
+                        md.multiDrawElementsInstancedWEBGL(glPrimitive,
+                            indirects.counts, 0,
+                            gpuInputAssembler.glIndexType,
+                            indirects.byteOffsets, 0,
+                            indirects.instances, 0,
+                            indirects.drawCount);
+                    } else {
+                        md.multiDrawElementsWEBGL(glPrimitive,
+                            indirects.counts, 0,
+                            gpuInputAssembler.glIndexType,
+                            indirects.byteOffsets, 0,
+                            indirects.drawCount);
+                    }
+                } else {
+                    for (let j = 0; j < indirects.drawCount; j++) {
+                        if (indirects.instances[j] > 1) {
+                            gl.drawElementsInstanced(glPrimitive, indirects.counts[j],
+                                gpuInputAssembler.glIndexType, indirects.byteOffsets[j], indirects.instances[j]);
+                        } else {
+                            gl.drawElements(glPrimitive, indirects.counts[j], gpuInputAssembler.glIndexType, indirects.byteOffsets[j]);
                         }
-                    } else if (subDrawInfo.vertexCount > 0) {
-                        gl.drawArraysInstanced(glPrimitive, subDrawInfo.firstVertex, subDrawInfo.vertexCount, subDrawInfo.instanceCount);
                     }
-                } else if (gpuBuffer) {
-                    if (subDrawInfo.indexCount > 0) {
-                        const offset = subDrawInfo.firstIndex * gpuBuffer.stride;
-                        gl.drawElements(glPrimitive, subDrawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
+                }
+            } else if (md) {
+                if (indirects.instancedDraw) {
+                    md.multiDrawArraysInstancedWEBGL(glPrimitive,
+                        indirects.offsets, 0,
+                        indirects.counts, 0,
+                        indirects.instances, 0,
+                        indirects.drawCount);
+                } else {
+                    md.multiDrawArraysWEBGL(glPrimitive,
+                        indirects.offsets, 0,
+                        indirects.counts, 0,
+                        indirects.drawCount);
+                }
+            } else {
+                for (let j = 0; j < indirects.drawCount; j++) {
+                    if (indirects.instances[j] > 1) {
+                        gl.drawArraysInstanced(glPrimitive, indirects.offsets[j], indirects.counts[j], indirects.instances[j]);
+                    } else {
+                        gl.drawArrays(glPrimitive, indirects.offsets[j], indirects.counts[j]);
                     }
-                } else if (subDrawInfo.vertexCount > 0) {
-                    gl.drawArrays(glPrimitive, subDrawInfo.firstVertex, subDrawInfo.vertexCount);
                 }
             }
         } else if (drawInfo.instanceCount) {
-            if (gpuInputAssembler.gpuIndexBuffer) {
+            if (indexBuffer) {
                 if (drawInfo.indexCount > 0) {
-                    const offset = drawInfo.firstIndex * gpuInputAssembler.gpuIndexBuffer.stride;
+                    const offset = drawInfo.firstIndex * indexBuffer.stride;
                     gl.drawElementsInstanced(glPrimitive, drawInfo.indexCount,
                         gpuInputAssembler.glIndexType, offset, drawInfo.instanceCount);
                 }
             } else if (drawInfo.vertexCount > 0) {
                 gl.drawArraysInstanced(glPrimitive, drawInfo.firstVertex, drawInfo.vertexCount, drawInfo.instanceCount);
             }
-        } else if (gpuInputAssembler.gpuIndexBuffer) {
+        } else if (indexBuffer) {
             if (drawInfo.indexCount > 0) {
-                const offset = drawInfo.firstIndex * gpuInputAssembler.gpuIndexBuffer.stride;
+                const offset = drawInfo.firstIndex * indexBuffer.stride;
                 gl.drawElements(glPrimitive, drawInfo.indexCount, gpuInputAssembler.glIndexType, offset);
             }
         } else if (drawInfo.vertexCount > 0) {

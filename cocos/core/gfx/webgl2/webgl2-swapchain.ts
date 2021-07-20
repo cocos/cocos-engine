@@ -88,6 +88,7 @@ export function getExtensions (gl: WebGL2RenderingContext) {
         EXT_texture_filter_anisotropic: getExtension(gl, 'EXT_texture_filter_anisotropic'),
         EXT_color_buffer_half_float: getExtension(gl, 'EXT_color_buffer_half_float'),
         EXT_color_buffer_float: getExtension(gl, 'EXT_color_buffer_float'),
+        WEBGL_multi_draw: getExtension(gl, 'WEBGL_multi_draw'),
         WEBGL_compressed_texture_etc1: getExtension(gl, 'WEBGL_compressed_texture_etc1'),
         WEBGL_compressed_texture_etc: getExtension(gl, 'WEBGL_compressed_texture_etc'),
         WEBGL_compressed_texture_pvrtc: getExtension(gl, 'WEBGL_compressed_texture_pvrtc'),

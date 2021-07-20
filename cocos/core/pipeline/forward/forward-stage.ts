@@ -183,7 +183,7 @@ export class ForwardStage extends RenderStage {
         colors[0].w = camera.clearColor.w;
 
         const framebuffer = camera.window!.framebuffer;
-        const renderPass = framebuffer.colorTextures[0] ? framebuffer.renderPass : pipeline.getRenderPass(camera.clearFlag & this._clearFlag);
+        const renderPass = camera.window!.swapchain ? pipeline.getRenderPass(camera.clearFlag & this._clearFlag) : framebuffer.renderPass;
 
         cmdBuff.beginRenderPass(renderPass, framebuffer, this._renderArea,
             colors, camera.clearDepth, camera.clearStencil);

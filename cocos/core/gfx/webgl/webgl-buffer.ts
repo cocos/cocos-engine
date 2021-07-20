@@ -33,7 +33,7 @@ import {
     WebGLCmdFuncUpdateBuffer,
 } from './webgl-commands';
 import { WebGLDevice } from './webgl-device';
-import { IWebGLGPUBuffer, IWebGLGPUBufferView } from './webgl-gpu-objects';
+import { IWebGLGPUBuffer, IWebGLGPUBufferView, WebGLIndirectDrawInfos } from './webgl-gpu-objects';
 
 export class WebGLBuffer extends Buffer {
     get gpuBuffer (): IWebGLGPUBuffer {
@@ -73,10 +73,6 @@ export class WebGLBuffer extends Buffer {
             this._count = this._size / this._stride;
             this._flags = info.flags;
 
-            if (this._usage & BufferUsageBit.INDIRECT) {
-                this._indirectBuffer = new IndirectBuffer();
-            }
-
             if ((this._usage & BufferUsageBit.UNIFORM) && this._size > 0) {
                 this._uniformBuffer = new Uint8Array(this._size);
             }
@@ -88,14 +84,10 @@ export class WebGLBuffer extends Buffer {
                 stride: this._stride,
                 buffer: null,
                 vf32: null,
-                indirects: [],
+                indirects: new WebGLIndirectDrawInfos(),
                 glTarget: 0,
                 glBuffer: null,
             };
-
-            if (info.usage & BufferUsageBit.INDIRECT) {
-                this._gpuBuffer.indirects = this._indirectBuffer!.drawInfos;
-            }
 
             if (this._usage & BufferUsageBit.UNIFORM) {
                 this._gpuBuffer.buffer = this._uniformBuffer;

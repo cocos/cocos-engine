@@ -104,6 +104,7 @@ export interface IWebGLExtensions {
     EXT_sRGB: EXT_sRGB | null;
     OES_vertex_array_object: OES_vertex_array_object | null;
     EXT_color_buffer_half_float: EXT_color_buffer_half_float | null;
+    WEBGL_multi_draw: WEBGL_multi_draw | null;
     WEBGL_color_buffer_float: WEBGL_color_buffer_float | null;
     WEBGL_compressed_texture_etc1: WEBGL_compressed_texture_etc1 | null;
     WEBGL_compressed_texture_etc: WEBGL_compressed_texture_etc | null;
