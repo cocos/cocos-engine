@@ -37,6 +37,7 @@ import { Component } from './component';
 import { IMaterialInstanceInfo, MaterialInstance } from '../renderer/core/material-instance';
 import { scene } from '../renderer';
 import { Layers } from '../scene-graph/layers';
+import { warnID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -190,8 +191,8 @@ export class RenderableComponent extends Component {
      * @zh 获取指定子模型的材质实例。
      */
     public setMaterialInstance (matInst: Material | null, index: number) {
-        if (index as any instanceof Material || index === null) {
-            console.warn('This is old usage, please swap the parameters.');
+        if (typeof matInst === 'number') {
+            warnID(12007);
             const temp: any = matInst;
             matInst = index as any;
             index = temp;
