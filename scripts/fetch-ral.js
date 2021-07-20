@@ -137,6 +137,7 @@ async function removeDir (dirPath) {
 
 (async () => {
     try {
+        console.time('Fetch RAL');
         if (checkFile() && matchCommit()) {
             console.log('Skip fetching ral!\n');
             process.exit(0);
@@ -151,6 +152,7 @@ async function removeDir (dirPath) {
         copyRal();
         writeLocalCommitFile();
         await removeDir(repositoryPath);
+        console.timeEnd('Fetch RAL');
         process.exit(0);
     } catch (err) {
         console.error('Fetch ral failed', err);
