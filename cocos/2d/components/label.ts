@@ -206,10 +206,11 @@ export class Label extends Renderable2D {
         return this._string;
     }
     set string (value) {
-        if (value === null || value === undefined) {
+        if (value) {
+            value += '';
+        } else {
             value = '';
         }
-        value += '';
         if (this._string === value) {
             return;
         }
