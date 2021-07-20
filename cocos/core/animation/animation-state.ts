@@ -368,10 +368,15 @@ export class AnimationState extends Playable {
     }
 
     public destroy () {
+        if (!this.isMotionless) {
+            legacyCC.director.getAnimationManager().removeAnimation(this);
+        }
         if (this._poseOutput) {
             this._poseOutput.destroy();
             this._poseOutput = null;
         }
+        // TODO: destroy?
+        this._clipEval = undefined!;
     }
 
     /**
