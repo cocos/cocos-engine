@@ -212,7 +212,6 @@ export class Node extends BaseNode implements CustomSerializable {
     protected declare _hasChangedFlagsOffset: number;
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
-    protected declare _nativeFlag: Uint32Array;
     protected declare _nativeDirtyFlag: Uint32Array;
 
     protected _init () {
@@ -232,7 +231,6 @@ export class Node extends BaseNode implements CustomSerializable {
 
             this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
             this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
-            this._nativeFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.FLAGS_CHANGED) as Uint32Array;
             this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
             this._scale.set(1, 1, 1);
             this._lscale.set(1, 1, 1);
