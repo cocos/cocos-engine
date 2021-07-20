@@ -315,7 +315,7 @@ bool DeferredPipeline::activeRenderer() {
     _gbufferRenderPass                 = _device->createRenderPass(gbufferPass);
 
     gfx::ColorAttachment cAttch = {
-        gfx::Format::RGBA8,
+        gfx::Format::RGBA16F,
         gfx::SampleCount::X1,
         gfx::LoadOp::CLEAR,
         gfx::StoreOp::STORE,
