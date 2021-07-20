@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 /*
  Copyright (c) 2020 Xiamen Yaji Software Co., Ltd.
 
@@ -112,58 +113,45 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     private _otherEuler:Vec3 = new Vec3();
 
     private _processRoation (p: Particle, r2d: number) {
+        // Same as the particle-vs-legacy.chunk glsl statemants in remark
         const renderMode = p.particleSystem.processor.getInfo().renderMode;
         if (renderMode !== RenderMode.Mesh) {
-            if (renderMode === RenderMode.Billboard) {
-                this._quatRot.set(this._quatRot.x, this._quatRot.y, this._quatRot.z, this._quatRot.w);
-            } else if (renderMode === RenderMode.StrecthedBillboard) {
-                this._quatRot.set(0, 0, 0, 1);
-            } else {
+            if (renderMode === RenderMode.Billboard) {                                                  // #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
+                this._quatRot.set(this._quatRot.x, this._quatRot.y, this._quatRot.z, this._quatRot.w);  //      vec3 rotEuler = a_texCoord2;
+            } else if (renderMode === RenderMode.StrecthedBillboard) {                                  // #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
+                this._quatRot.set(0, 0, 0, 1);                                                          //      vec3 rotEuler = vec3(0.);
+            } else {                                                                                    // #else
                 Quat.toEuler(this._otherEuler, this._quatRot);
-                this._otherEuler.set(0, 0, this._otherEuler.z);
-                Quat.fromEuler(this._quatRot, this._otherEuler.x * r2d, this._otherEuler.y * r2d, this._otherEuler.z * r2d);
-            }
+                this._otherEuler.set(0, 0, this._otherEuler.z);                                         //      vec3 rotEuler = vec3(0., 0., a_texCoord2.z);
+                Quat.fromEuler(this._quatRot,
+                    this._otherEuler.x * r2d, this._otherEuler.y * r2d, this._otherEuler.z * r2d);
+            }                                                                                           // #endif
         }
 
         Quat.normalize(this._quatRot, this._quatRot);
-        if (this._quatRot.w < 0.0) {
-            this._quatRot.x += Particle.INDENTIFY_NEG_QUAT; // Indentify negative w
+        if (this._quatRot.w < 0.0) { // Use vec3 to save quat so we need identify negative w
+            this._quatRot.x += Particle.INDENTIFY_NEG_QUAT; // Indentify negative w & revert the quat in shader
         }
     }
 
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
+        const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
         if (!this._separateAxes) {
-            const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
-            const r2d = 180.0 / Math.PI;
-            Quat.fromEuler(p.deletaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * r2d);
-            p.deletaMat = Mat4.fromQuat(p.deletaMat, p.deletaQuat);
-            p.localMat = p.localMat.multiply(p.deletaMat);
-
-            this._startMat = Mat4.fromQuat(this._startMat, p.startRotation);
-            this._matRot = this._startMat.multiply(p.localMat);
-
-            Mat4.getRotation(this._quatRot, this._matRot);
-
-            this._processRoation(p, r2d);
-
-            p.rotation.set(this._quatRot.x, this._quatRot.y, this._quatRot.z);
+            Quat.fromEuler(p.deletaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
         } else {
-            // TODO: separateAxes is temporarily not supported!
-            const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
-            // eslint-disable-next-line max-len
             Quat.fromEuler(p.deletaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
-            p.deletaMat = Mat4.fromQuat(p.deletaMat, p.deletaQuat);
-            p.localMat = p.localMat.multiply(p.deletaMat);
-
-            this._startMat = Mat4.fromQuat(this._startMat, p.startRotation);
-            this._matRot = this._startMat.multiply(p.localMat);
-
-            Mat4.getRotation(this._quatRot, this._matRot);
-
-            this._processRoation(p, Particle.R2D);
-
-            p.rotation.set(this._quatRot.x, this._quatRot.y, this._quatRot.z);
         }
+
+        // Rotation-overtime combine with start rotation, after that we get quat from the mat
+        p.deletaMat = Mat4.fromQuat(p.deletaMat, p.deletaQuat);
+        p.localMat = p.localMat.multiply(p.deletaMat); // accumulate rotation
+
+        this._startMat = Mat4.fromQuat(this._startMat, p.startRotation);
+        this._matRot = this._startMat.multiply(p.localMat);
+
+        Mat4.getRotation(this._quatRot, this._matRot);
+        this._processRoation(p, Particle.R2D);
+        p.rotation.set(this._quatRot.x, this._quatRot.y, this._quatRot.z);
     }
 }

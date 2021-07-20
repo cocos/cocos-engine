@@ -49,18 +49,13 @@ vec4 lpvs_main () {
   #if CC_RENDER_MODE != RENDER_MODE_MESH
     vec2 cornerOffset = vec2((a_texCoord.xy - 0.5));
 
-    computeVertPos(pos, cornerOffset, rot, compScale
     #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD || CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD
-      , cc_matViewInv
+      computeVertPos(pos, cornerOffset, rot, compScale, cc_matViewInv);
+    #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
+      computeVertPos(pos, cornerOffset, rot, compScale, cc_cameraPos.xyz, velocity, frameTile_velLenScale.z, frameTile_velLenScale.w, a_texCoord.x);
+    #elif RENDER_MODE_HORIZONTAL_BILLBOARD
+      computeVertPos(pos, cornerOffset, rot, compScale);
     #endif
-    #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
-      , cc_cameraPos.xyz
-      , velocity
-      , frameTile_velLenScale.z
-      , frameTile_velLenScale.w
-      , a_texCoord.x
-    #endif
-    );
 
     color = a_color;
   #else

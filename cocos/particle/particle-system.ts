@@ -828,6 +828,7 @@ export class ParticleSystem extends RenderableComponent {
     }
 
     private _processRotation (particle) {
+        // Same as the particle-vs-legacy.chunk glsl statemants in remark
         const renderMode = this.processor.getInfo().renderMode;
         if (renderMode !== RenderMode.Mesh) {
             if (renderMode === RenderMode.Billboard) {
@@ -843,8 +844,8 @@ export class ParticleSystem extends RenderableComponent {
         Quat.fromEuler(particle.startRotation, particle.startEuler.x * Particle.R2D, particle.startEuler.y * Particle.R2D, particle.startEuler.z * Particle.R2D);
         particle.startRotation = Quat.normalize(particle.startRotation, particle.startRotation);
 
-        if (particle.startRotation.w < 0.0) {
-            particle.startRotation.x += Particle.INDENTIFY_NEG_QUAT; // Indentify negative w
+        if (particle.startRotation.w < 0.0) { // Use vec3 to save quat so we need identify negative w
+            particle.startRotation.x += Particle.INDENTIFY_NEG_QUAT; // Indentify negative w & revert the quat in shader
         }
     }
 
@@ -902,13 +903,11 @@ export class ParticleSystem extends RenderableComponent {
             if (this.startRotation3D) {
                 // eslint-disable-next-line max-len
                 particle.startEuler.set(this.startRotationX.evaluate(delta, rand), this.startRotationY.evaluate(delta, rand), this.startRotationZ.evaluate(delta, rand));
-                this._processRotation(particle);
-                Vec3.set(particle.rotation, particle.startRotation.x, particle.startRotation.y, particle.startRotation.z);
             } else {
                 particle.startEuler.set(0, 0, this.startRotationZ.evaluate(delta, rand));
-                this._processRotation(particle);
-                Vec3.set(particle.rotation, particle.startRotation.x, particle.startRotation.y, particle.startRotation.z);
             }
+            this._processRotation(particle);
+            Vec3.set(particle.rotation, particle.startRotation.x, particle.startRotation.y, particle.startRotation.z);
 
             // apply startSize.
             if (this.startSize3D) {
