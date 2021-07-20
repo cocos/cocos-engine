@@ -24,7 +24,7 @@
  */
 
 import { JSB } from 'internal:constants';
-import { Frustum, Ray } from '../../geometry';
+import { enums, Frustum, Ray } from '../../geometry';
 import { SurfaceTransform, ClearFlagBit, Device, Color, ClearFlags } from '../../gfx';
 import {
     lerp, Mat4, Rect, toRadian, Vec3, IVec4Like,
@@ -172,6 +172,7 @@ export class Camera {
         this._isoValue = ISOS[this._iso];
 
         this._aspect = this.screenScale = 1;
+        this._frustum.accurate = true;
 
         if (!correctionMatrices.length) {
             const ySign = device.capabilities.clipSpaceSignY;

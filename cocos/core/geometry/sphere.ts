@@ -31,7 +31,6 @@
 import { Mat4, Quat, Vec3 } from '../math';
 import enums from './enums';
 import { AABB } from './aabb';
-import { sphere } from '../../primitive';
 
 const _v3_tmp = new Vec3();
 const _offset = new Vec3();
@@ -118,9 +117,8 @@ export class Sphere {
         const length = points.length;
         if (length < 1) return out;
 
-        // clear
-        out.center.set(0.0, 0.0, 0.0);
-        out.radius = 0.0;
+        // Init Invalid Sphere
+        out.radius = -1.0;
 
         for (let i = 0; i < length; i++) {
             this.mergePoint(out, s, points[i]);

@@ -254,14 +254,13 @@ export const NativeShadow: Constructor<{
     nearValue: number;
     farValue: number;
     range: number;
-    rangeDirty: boolean;
     orthoSize: number;
     size: Vec2;
     pcfType: number;
     shadowMapDirty: boolean;
     bias: number;
     normalBias: number;
-    autoAdapt: boolean;
+    fixedArea: boolean;
     planarPass: NativePass;
     instancePass: NativePass;
     enabled: boolean;

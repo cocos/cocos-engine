@@ -155,7 +155,7 @@ export class PipelineUBO {
 
                 // light proj
                 let near = 0.1; let far = 0;
-                if (shadowInfo.autoAdapt) {
+                if (!shadowInfo.fixedArea) {
                     const cameraBoundingSphere = shadowInfo.cameraBoundingSphere;
                     const rotation = (mainLight as any).node.getWorldRotation();
                     const position = cameraBoundingSphere.center;
@@ -219,7 +219,7 @@ export class PipelineUBO {
         let shadowCameraView: Mat4;
         switch (light.type) {
         case LightType.DIRECTIONAL:
-            if (shadowInfo.autoAdapt) {
+            if (!shadowInfo.fixedArea) {
                 const cameraBoundingSphere = shadowInfo.cameraBoundingSphere;
                 const rotation = (light as any).node.getWorldRotation();
                 const position = cameraBoundingSphere.center;

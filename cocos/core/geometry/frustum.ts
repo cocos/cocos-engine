@@ -29,9 +29,9 @@
  */
 
 import { Mat4, Vec3 } from '../math';
+import { Camera } from '../renderer/scene';
 import enums from './enums';
 import { Plane } from './plane';
-import { Sphere } from './sphere';
 
 const _v = new Array(8);
 _v[0] = new Vec3(1, 1, 1);
@@ -42,6 +42,10 @@ _v[4] = new Vec3(1, 1, -1);
 _v[5] = new Vec3(-1, 1, -1);
 _v[6] = new Vec3(-1, -1, -1);
 _v[7] = new Vec3(1, -1, -1);
+
+const _nearTemp = new Vec3();
+const _farTemp = new Vec3();
+const _temp_v3 = new Vec3();
 
 /**
  * @en
@@ -74,36 +78,72 @@ export class Frustum {
      * @param transform 正交视锥体的变换矩阵。
      * @return {Frustum} frustum.
      */
-    public static createOrtho = (() => {
-        const _temp_v3 = new Vec3();
-        return (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) => {
-            const halfWidth = width / 2;
-            const halfHeight = height / 2;
-            Vec3.set(_temp_v3, halfWidth, halfHeight, near);
-            Vec3.transformMat4(out.vertices[0], _temp_v3, transform);
-            Vec3.set(_temp_v3, -halfWidth, halfHeight, near);
-            Vec3.transformMat4(out.vertices[1], _temp_v3, transform);
-            Vec3.set(_temp_v3, -halfWidth, -halfHeight, near);
-            Vec3.transformMat4(out.vertices[2], _temp_v3, transform);
-            Vec3.set(_temp_v3, halfWidth, -halfHeight, near);
-            Vec3.transformMat4(out.vertices[3], _temp_v3, transform);
-            Vec3.set(_temp_v3, halfWidth, halfHeight, far);
-            Vec3.transformMat4(out.vertices[4], _temp_v3, transform);
-            Vec3.set(_temp_v3, -halfWidth, halfHeight, far);
-            Vec3.transformMat4(out.vertices[5], _temp_v3, transform);
-            Vec3.set(_temp_v3, -halfWidth, -halfHeight, far);
-            Vec3.transformMat4(out.vertices[6], _temp_v3, transform);
-            Vec3.set(_temp_v3, halfWidth, -halfHeight, far);
-            Vec3.transformMat4(out.vertices[7], _temp_v3, transform);
+    public static createOrtho = (() => (out: Frustum, width: number, height: number, near: number, far: number, transform: Mat4) => {
+        const halfWidth = width / 2;
+        const halfHeight = height / 2;
+        Vec3.set(_temp_v3, halfWidth, halfHeight, near);
+        Vec3.transformMat4(out.vertices[0], _temp_v3, transform);
+        Vec3.set(_temp_v3, -halfWidth, halfHeight, near);
+        Vec3.transformMat4(out.vertices[1], _temp_v3, transform);
+        Vec3.set(_temp_v3, -halfWidth, -halfHeight, near);
+        Vec3.transformMat4(out.vertices[2], _temp_v3, transform);
+        Vec3.set(_temp_v3, halfWidth, -halfHeight, near);
+        Vec3.transformMat4(out.vertices[3], _temp_v3, transform);
+        Vec3.set(_temp_v3, halfWidth, halfHeight, far);
+        Vec3.transformMat4(out.vertices[4], _temp_v3, transform);
+        Vec3.set(_temp_v3, -halfWidth, halfHeight, far);
+        Vec3.transformMat4(out.vertices[5], _temp_v3, transform);
+        Vec3.set(_temp_v3, -halfWidth, -halfHeight, far);
+        Vec3.transformMat4(out.vertices[6], _temp_v3, transform);
+        Vec3.set(_temp_v3, halfWidth, -halfHeight, far);
+        Vec3.transformMat4(out.vertices[7], _temp_v3, transform);
 
-            Plane.fromPoints(out.planes[0], out.vertices[1], out.vertices[6], out.vertices[5]);
-            Plane.fromPoints(out.planes[1], out.vertices[3], out.vertices[4], out.vertices[7]);
-            Plane.fromPoints(out.planes[2], out.vertices[6], out.vertices[3], out.vertices[7]);
-            Plane.fromPoints(out.planes[3], out.vertices[0], out.vertices[5], out.vertices[4]);
-            Plane.fromPoints(out.planes[4], out.vertices[2], out.vertices[0], out.vertices[3]);
-            Plane.fromPoints(out.planes[0], out.vertices[7], out.vertices[5], out.vertices[6]);
-        };
+        Plane.fromPoints(out.planes[0], out.vertices[1], out.vertices[6], out.vertices[5]);
+        Plane.fromPoints(out.planes[1], out.vertices[3], out.vertices[4], out.vertices[7]);
+        Plane.fromPoints(out.planes[2], out.vertices[6], out.vertices[3], out.vertices[7]);
+        Plane.fromPoints(out.planes[3], out.vertices[0], out.vertices[5], out.vertices[4]);
+        Plane.fromPoints(out.planes[4], out.vertices[2], out.vertices[0], out.vertices[3]);
+        Plane.fromPoints(out.planes[0], out.vertices[7], out.vertices[5], out.vertices[6]);
     })();
+
+    /**
+     * @en
+     * create a new frustum.
+     * @zh
+     * 创建一个新的截锥体。
+     * @return {Frustum} frustum.
+     */
+    public static split (out: Frustum, camera: Camera, m: Mat4, start: number, end: number): Frustum {
+        // 0: cameraNear  1:cameraFar
+        const h = Math.tan(camera.fov * 0.5);
+        const w = h * camera.aspect;
+        _nearTemp.set(start * w,  start * h, start);
+        _farTemp.set(end * w, end * h, end);
+
+        const vertexes = out.vertices;
+        // startHalfWidth startHalfHeight
+        _temp_v3.set(_nearTemp.x, _nearTemp.y, _nearTemp.z);
+        Vec3.transformMat4(vertexes[0], _temp_v3, m);
+        _temp_v3.set(-_nearTemp.x, _nearTemp.y, _nearTemp.z);
+        Vec3.transformMat4(vertexes[1], _temp_v3, m);
+        _temp_v3.set(-_nearTemp.x, -_nearTemp.y, _nearTemp.z);
+        Vec3.transformMat4(vertexes[2], _temp_v3, m);
+        _temp_v3.set(_nearTemp.x, -_nearTemp.y, _nearTemp.z);
+        Vec3.transformMat4(vertexes[3], _temp_v3, m);
+
+        // endHalfWidth, endHalfHeight
+        _temp_v3.set(_farTemp.x, _farTemp.y, _farTemp.z);
+        Vec3.transformMat4(vertexes[4], _temp_v3, m);
+        _temp_v3.set(-_farTemp.x, _farTemp.y, _farTemp.z);
+        Vec3.transformMat4(vertexes[5], _temp_v3, m);
+        _temp_v3.set(-_farTemp.x, -_farTemp.y, _farTemp.z);
+        Vec3.transformMat4(vertexes[6], _temp_v3, m);
+        _temp_v3.set(_farTemp.x, -_farTemp.y, _farTemp.z);
+        Vec3.transformMat4(vertexes[7], _temp_v3, m);
+
+        out.updatePlanes();
+        return out;
+    }
 
     /**
      * @en
@@ -238,5 +278,20 @@ export class Frustum {
         Plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[4], this.vertices[5]);
         Plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[3], this.vertices[0]);
         Plane.fromPoints(this.planes[0], this.vertices[7], this.vertices[6], this.vertices[5]);
+    }
+
+    public updatePlanes () {
+        // left plane
+        Plane.fromPoints(this.planes[0], this.vertices[1], this.vertices[5], this.vertices[6]);
+        // right plane
+        Plane.fromPoints(this.planes[1], this.vertices[3], this.vertices[7], this.vertices[4]);
+        // bottom plane
+        Plane.fromPoints(this.planes[2], this.vertices[6], this.vertices[7], this.vertices[3]);
+        // top plane
+        Plane.fromPoints(this.planes[3], this.vertices[0], this.vertices[4], this.vertices[5]);
+        // near plane
+        Plane.fromPoints(this.planes[4], this.vertices[2], this.vertices[3], this.vertices[0]);
+        // far plane
+        Plane.fromPoints(this.planes[5], this.vertices[7], this.vertices[6], this.vertices[5]);
     }
 }

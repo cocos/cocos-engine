@@ -210,20 +210,6 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow range.
-     * @zh 控制阴影产生的范围。
-     */
-    public get rangeDirty (): boolean {
-        return this._rangeDirty;
-    }
-    public set rangeDirty (val: boolean) {
-        this.rangeDirty = val;
-        if (JSB) {
-            this._nativeObj!.rangeDirty = val;
-        }
-    }
-
-    /**
      * @en Shadow type.
      * @zh 阴影类型。
      */
@@ -362,16 +348,16 @@ export class Shadows {
     }
 
     /**
-     * @en get or set shadow auto control.
-     * @zh 获取或者设置阴影是否自动控制。
+     * @en get or set fixed area shadow
+     * @zh 是否是固定区域阴影
      */
-    public get autoAdapt (): boolean {
-        return this._autoAdapt;
+    public get fixedArea (): boolean {
+        return this._fixedArea;
     }
-    public set autoAdapt (val: boolean) {
-        this._autoAdapt = val;
+    public set fixedArea (val: boolean) {
+        this._fixedArea = val;
         if (JSB) {
-            this._nativeObj!.autoAdapt = val;
+            this._nativeObj!.fixedArea = val;
         }
     }
 
@@ -420,16 +406,15 @@ export class Shadows {
     protected _enabled = false;
     protected _distance = 0;
     protected _type = SHADOW_TYPE_NONE;
-    protected _near = 0;
-    protected _far = 0;
-    protected _range = 2000.0;
-    protected _rangeDirty = false;
+    protected _near = 0.1;
+    protected _far = 30.0;
+    protected _range = 1000.0;
     protected _orthoSize = 1;
     protected _pcf = 0;
     protected _shadowMapDirty = false;
     protected _bias = 0;
     protected _normalBias = 0;
-    protected _autoAdapt = true;
+    protected _fixedArea = false;
     protected _saturation = 0.75;
     protected declare _nativeObj: NativeShadow | null;
 
@@ -498,7 +483,7 @@ export class Shadows {
         this.bias = shadowsInfo.bias;
         this.normalBias = shadowsInfo.normalBias;
         this.maxReceived = shadowsInfo.maxReceived;
-        this.autoAdapt = shadowsInfo.autoAdapt;
+        this.fixedArea = shadowsInfo.fixedArea;
         this._setEnable(shadowsInfo.enabled);
         this._setType(shadowsInfo.type);
         this.saturation = shadowsInfo.saturation;
