@@ -130,8 +130,8 @@ exports.setReadonly = function(data, element) {
 
 /**
  * Tool function: Set the display status
- * @param {object} data  dump | function
- * @param element
+ * @param {Function | boolean} data  dump | function
+ * @param {HTMLElement} element
  */
 exports.setHidden = function(data, element) {
     if (!element) {
@@ -253,4 +253,29 @@ exports.isMultipleInvalid = function(dump) {
     }
 
     return invalid;
+};
+/**
+ * Get the name based on the dump data
+ */
+/**
+ * 
+ * @param {string} dump 
+ * @returns 
+ */
+exports.getNameFromDump = function(dump) {
+    if (!dump) {
+        return '';
+    }
+
+    if (dump.displayName) {
+        return dump.displayName;
+    }
+
+    let name = dump.name || '';
+
+    name = name.replace(/^\S/, (str) => str.toUpperCase());
+    name = name.replace(/_/g, (str) => ' ');
+    name = name.replace(/ \S/g, (str) => ` ${str.toUpperCase()}`);
+
+    return name.trim();
 };
