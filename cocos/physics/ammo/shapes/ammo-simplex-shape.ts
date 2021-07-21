@@ -97,8 +97,8 @@ export class AmmoSimplexShape extends AmmoShape implements ISimplexShape {
         super.onDestroy();
     }
 
-    setScale () {
-        super.setScale();
+    updateScale () {
+        super.updateScale();
         cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
         this._btShape.setLocalScaling(this.scale);
         if (this._btCompound) {

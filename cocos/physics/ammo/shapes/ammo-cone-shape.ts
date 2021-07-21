@@ -82,8 +82,8 @@ export class AmmoConeShape extends AmmoShape implements ICylinderShape {
         this.setRadius(this.collider.radius);
     }
 
-    setScale () {
-        super.setScale();
+    updateScale () {
+        super.updateScale();
         this.setRadius(this.collider.radius);
     }
 

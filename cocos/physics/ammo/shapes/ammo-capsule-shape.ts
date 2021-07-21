@@ -82,8 +82,8 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
         this.setRadius(this.collider.radius);
     }
 
-    setScale () {
-        super.setScale();
+    updateScale () {
+        super.updateScale();
         this.setRadius(this.collider.radius);
     }
 

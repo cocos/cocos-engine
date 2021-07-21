@@ -49,8 +49,8 @@ export class AmmoPlaneShape extends AmmoShape implements IPlaneShape {
         this.updateCompoundTransform();
     }
 
-    setScale () {
-        super.setScale();
+    updateScale () {
+        super.updateScale();
         cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
         this._btShape.setLocalScaling(this.scale);
         this.updateCompoundTransform();
@@ -72,6 +72,6 @@ export class AmmoPlaneShape extends AmmoShape implements IPlaneShape {
         const normal = AmmoConstant.instance.VECTOR3_0;
         cocos2AmmoVec3(normal, this.collider.normal);
         this._btShape = new Ammo.btStaticPlaneShape(normal, this.collider.constant);
-        this.setScale();
+        this.updateScale();
     }
 }

@@ -62,11 +62,11 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
         const minVolumeSize = physics.config.minVolumeSize;
         const unscaledRadius = ws * radius < minVolumeSize ? minVolumeSize / ws : radius;
         this._btShape = new Ammo.btSphereShape(unscaledRadius);
-        this.setScale();
+        this.updateScale();
     }
 
-    setScale () {
-        super.setScale();
+    updateScale () {
+        super.updateScale();
         const scale = this.getMinScale();
         VEC3_0.set(scale, scale, scale);
         cocos2AmmoVec3(this.scale, VEC3_0);
