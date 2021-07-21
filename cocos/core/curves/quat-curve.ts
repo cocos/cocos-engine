@@ -66,26 +66,16 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
      * if input time is less than the time of first keyframe when evaluating this curve.
      * Defaults to `ExtrapolationMode.CLAMP`.
      */
-    get preExtrapolation () {
-        return this._preExtrapolation;
-    }
-
-    set preExtrapolation (value) {
-        this._preExtrapolation = value;
-    }
+    @serializable
+    public preExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     /**
      * Gets or sets the operation should be taken
      * if input time is greater than the time of last keyframe when evaluating this curve.
      * Defaults to `ExtrapolationMode.CLAMP`.
      */
-    get postExtrapolation () {
-        return this._postExtrapolation;
-    }
-
-    set postExtrapolation (value) {
-        this._postExtrapolation = value;
-    }
+    @serializable
+    public postExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     /**
      * Evaluates this curve at specified time.
@@ -98,8 +88,8 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
         const {
             _times: times,
             _values: values,
-            _postExtrapolation: postExtrapolation,
-            _preExtrapolation: preExtrapolation,
+            postExtrapolation,
+            preExtrapolation,
         } = this;
         const nFrames = times.length;
 
@@ -293,13 +283,6 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
         this._times = times;
         this._values = keyframeValues;
     }
-
-    // Always sorted by time
-    @serializable
-    private _preExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
-
-    @serializable
-    private _postExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 }
 
 enum KeyframeValueFlagMask {

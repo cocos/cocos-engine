@@ -149,26 +149,16 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
      * if input time is less than the time of first keyframe when evaluating this curve.
      * Defaults to `ExtrapolationMode.CLAMP`.
      */
-    get preExtrapolation () {
-        return this._preExtrapolation;
-    }
-
-    set preExtrapolation (value) {
-        this._preExtrapolation = value;
-    }
+    @serializable
+    public preExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     /**
      * Gets or sets the operation should be taken
      * if input time is greater than the time of last keyframe when evaluating this curve.
      * Defaults to `ExtrapolationMode.CLAMP`.
      */
-    get postExtrapolation () {
-        return this._postExtrapolation;
-    }
-
-    set postExtrapolation (value) {
-        this._postExtrapolation = value;
-    }
+    @serializable
+    public postExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     /**
      * Evaluates this curve at specified time.
@@ -191,7 +181,7 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
         const lastTime = times[nFrames - 1];
         if (time < firstTime) {
             // Underflow
-            const { _preExtrapolation: preExtrapolation } = this;
+            const { preExtrapolation } = this;
             const preValue = values[0];
             if (preExtrapolation === ExtrapolationMode.CLAMP || nFrames < 2) {
                 return preValue.value;
@@ -210,7 +200,7 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
             }
         } else if (time > lastTime) {
             // Overflow
-            const { _postExtrapolation: postExtrapolation } = this;
+            const { postExtrapolation } = this;
             const preFrame = values[nFrames - 1];
             if (postExtrapolation === ExtrapolationMode.CLAMP || nFrames < 2) {
                 return preFrame.value;
@@ -296,8 +286,8 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
         let currentOffset = 0;
 
         // Overflow operations
-        dataView.setUint8(currentOffset, this._preExtrapolation); currentOffset += OVERFLOW_BYTES;
-        dataView.setUint8(currentOffset, this._postExtrapolation); currentOffset += OVERFLOW_BYTES;
+        dataView.setUint8(currentOffset, this.preExtrapolation); currentOffset += OVERFLOW_BYTES;
+        dataView.setUint8(currentOffset, this.postExtrapolation); currentOffset += OVERFLOW_BYTES;
 
         // Frame count
         dataView.setUint32(currentOffset, nKeyframes, true); currentOffset += FRAME_COUNT_BYTES;
@@ -327,8 +317,8 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
         let currentOffset = 0;
 
         // Overflow operations
-        this._preExtrapolation = dataView.getUint8(currentOffset); currentOffset += OVERFLOW_BYTES;
-        this._postExtrapolation = dataView.getUint8(currentOffset); currentOffset += OVERFLOW_BYTES;
+        this.preExtrapolation = dataView.getUint8(currentOffset); currentOffset += OVERFLOW_BYTES;
+        this.postExtrapolation = dataView.getUint8(currentOffset); currentOffset += OVERFLOW_BYTES;
 
         // Frame count
         const nKeyframes = dataView.getUint32(currentOffset, true); currentOffset += FRAME_COUNT_BYTES;
@@ -351,13 +341,6 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
         this._times = times;
         this._values = keyframeValues;
     }
-
-    // Always sorted by time
-    @serializable
-    private _preExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
-
-    @serializable
-    private _postExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 }
 
 const FLAGS_EASING_METHOD_BITS_START = 8;
