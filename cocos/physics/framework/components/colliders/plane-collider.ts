@@ -69,6 +69,7 @@ export class PlaneCollider extends Collider {
     }
 
     public set normal (value) {
+        if (Vec3.strictEquals(this._normal, value)) return;
         Vec3.copy(this._normal, value);
         if (this._shape) {
             this.shape.setNormal(this._normal);
@@ -88,6 +89,7 @@ export class PlaneCollider extends Collider {
     }
 
     public set constant (v: number) {
+        if (this._constant === v) return;
         this._constant = v;
         if (this._shape) {
             this.shape.setConstant(this._constant);

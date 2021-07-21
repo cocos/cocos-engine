@@ -67,8 +67,7 @@ export class CylinderCollider extends Collider {
 
     public set radius (value) {
         if (this._radius === value) return;
-        if (value < 0) value = 0;
-        this._radius = value;
+        this._radius = Math.abs(value);
         if (this._shape) {
             this.shape.setRadius(value);
         }
@@ -87,8 +86,7 @@ export class CylinderCollider extends Collider {
 
     public set height (value) {
         if (this._height === value) return;
-        if (value < 0) value = 0;
-        this._height = value;
+        this._height = Math.abs(value);
         if (this._shape) {
             this.shape.setHeight(value);
         }
