@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import { EDITOR } from 'internal:constants';
 import { Mat4 } from '../math';
 import { Node } from '../scene-graph/node';
 
@@ -61,6 +62,7 @@ export function getWorldMatrix (transform: IJointTransform | null, stamp: number
         Mat4.fromRTS(transform.local, node.rotation, node.position, node.scale);
         res = Mat4.multiply(transform.world, res, transform.local);
     }
+    if (EDITOR) stack.length = 0;
     return res;
 }
 
@@ -86,6 +88,7 @@ export function getTransform (node: Node, root: Node) {
         child.parent = joint;
         joint = child;
     }
+    if (EDITOR) stack.length = 0;
     return joint;
 }
 

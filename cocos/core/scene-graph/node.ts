@@ -1286,7 +1286,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * 清除节点数组
      */
     public static clearNodeArray () {
-        if (Node.ClearFrame < Node.ClearRound) {
+        if (Node.ClearFrame < Node.ClearRound && !EDITOR) {
             Node.ClearFrame++;
         } else {
             Node.ClearFrame = 0;
