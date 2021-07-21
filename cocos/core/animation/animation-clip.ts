@@ -804,9 +804,11 @@ class AnimationClipEvaluation {
             _exoticAnimationEvaluator: exoticAnimationEvaluator,
         } = this;
 
-        for (const trackEvalStatus of trackEvalStatuses) {
-            const value = trackEvalStatus.trackEval.evaluate(time, trackEvalStatus.binding);
-            trackEvalStatus.binding.setValue(value);
+        const nTrackEvalStatuses = trackEvalStatuses.length;
+        for (let iTrackEvalStatus = 0; iTrackEvalStatus < nTrackEvalStatuses; ++iTrackEvalStatus) {
+            const { trackEval, binding } = trackEvalStatuses[iTrackEvalStatus];
+            const value = trackEval.evaluate(time, binding);
+            binding.setValue(value);
         }
 
         if (exoticAnimationEvaluator) {
@@ -942,9 +944,11 @@ class RootMotionEvaluation {
             _trackEvalStatuses: trackEvalStatuses,
         } = this;
 
-        for (const trackEvalStatus of trackEvalStatuses) {
-            const value = trackEvalStatus.trackEval.evaluate(time, trackEvalStatus.binding);
-            trackEvalStatus.binding.setValue(value);
+        const nTrackEvalStatuses = trackEvalStatuses.length;
+        for (let iTrackEvalStatus = 0; iTrackEvalStatus < nTrackEvalStatuses; ++iTrackEvalStatus) {
+            const { trackEval, binding } = trackEvalStatuses[iTrackEvalStatus];
+            const value = trackEval.evaluate(time, binding);
+            binding.setValue(value);
         }
 
         this._boneTransform.getTransform(outTransform);
