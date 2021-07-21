@@ -314,35 +314,37 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * @zh
      * 重置物理配置。
      */
-    resetConfiguration () {
-        const config = game.config ? game.config.physics as IPhysicsConfig : null;
-        if (config && config.physicsEngine) {
-            Vec3.copy(this._gravity, config.gravity);
-            this._allowSleep = config.allowSleep;
-            this._fixedTimeStep = config.fixedTimeStep;
-            this._maxSubSteps = config.maxSubSteps;
-            this._sleepThreshold = config.sleepThreshold;
-            this.autoSimulation = config.autoSimulation;
+    resetConfiguration (config?: IPhysicsConfig) {
+        const con = config || (game.config ? game.config.physics : null);
+        if (con) {
+            if (typeof con.allowSleep === 'boolean') this._allowSleep = con.allowSleep;
+            if (typeof con.fixedTimeStep === 'number') this._fixedTimeStep = con.fixedTimeStep;
+            if (typeof con.maxSubSteps === 'number') this._maxSubSteps = con.maxSubSteps;
+            if (typeof con.sleepThreshold === 'number') this._sleepThreshold = con.sleepThreshold;
+            if (typeof con.autoSimulation === 'boolean') this.autoSimulation = con.autoSimulation;
+            if (con.gravity) Vec3.copy(this._gravity, con.gravity);
 
-            if (config.defaultMaterial) {
+            if (con.defaultMaterial) {
                 this._material.setValues(
-                    config.defaultMaterial.friction,
-                    config.defaultMaterial.rollingFriction,
-                    config.defaultMaterial.spinningFriction,
-                    config.defaultMaterial.restitution,
+                    con.defaultMaterial.friction,
+                    con.defaultMaterial.rollingFriction,
+                    con.defaultMaterial.spinningFriction,
+                    con.defaultMaterial.restitution,
                 );
             }
 
-            if (config.collisionMatrix) {
-                for (const i in config.collisionMatrix) {
-                    this.collisionMatrix[`${1 << parseInt(i)}`] = config.collisionMatrix[i];
+            if (con.collisionMatrix) {
+                for (const i in con.collisionMatrix) {
+                    this.collisionMatrix[`${1 << parseInt(i)}`] = con.collisionMatrix[i];
                 }
             }
 
-            const cg = config.collisionGroups;
-            if (cg instanceof Array) {
-                cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
-                Enum.update(PhysicsGroup);
+            if (con.collisionGroups) {
+                const cg = con.collisionGroups;
+                if (cg instanceof Array) {
+                    cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
+                    Enum.update(PhysicsGroup);
+                }
             }
         }
 
