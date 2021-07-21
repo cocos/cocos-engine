@@ -232,7 +232,7 @@ const PhysXCallback = {
             const word3 = filterData.word3;
             const shapeFlags = shape.getFlags();
             if ((word3 & EFilterDataWord3.QUERY_CHECK_TRIGGER)
-                && (shapeFlags & PX.ShapeFlag.eTRIGGER_SHAPE)) {
+                && (shapeFlags.isSet(PX.ShapeFlag.eTRIGGER_SHAPE))) {
                 return PX.QueryHitType.eNONE;
             }
             return word3 & EFilterDataWord3.QUERY_SINGLE_HIT ? PX.QueryHitType.eBLOCK : PX.QueryHitType.eTOUCH;
