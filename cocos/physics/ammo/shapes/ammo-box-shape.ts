@@ -29,7 +29,7 @@
  * @hidden
  */
 
-import Ammo from '../ammo-instantiated';
+import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { Vec3 } from '../../../core';
 import { BoxCollider, physics } from '../../../../exports/physics-framework';

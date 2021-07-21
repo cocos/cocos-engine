@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../ammo-instantiated';
+import Ammo from '../instantiated';
 import { Vec3, Quat } from '../../../core/math';
 import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { AmmoWorld } from '../ammo-world';

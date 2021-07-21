@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../ammo-instantiated';
+import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { ConeCollider } from '../../../../exports/physics-framework';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';

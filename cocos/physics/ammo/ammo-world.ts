@@ -29,7 +29,7 @@
  * @hidden
  */
 
-import Ammo from './ammo-instantiated';
+import Ammo from './instantiated';
 import { Vec3 } from '../../core/math';
 import { AmmoSharedBody } from './ammo-shared-body';
 import { AmmoRigidBody } from './ammo-rigid-body';

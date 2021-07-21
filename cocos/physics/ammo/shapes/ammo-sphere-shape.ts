@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../ammo-instantiated';
+import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { physics, SphereCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';

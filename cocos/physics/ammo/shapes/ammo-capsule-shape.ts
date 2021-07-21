@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../ammo-instantiated';
+import Ammo from '../instantiated';
 import { absMax } from '../../../core';
 import { AmmoShape } from './ammo-shape';
 import { CapsuleCollider } from '../../../../exports/physics-framework';

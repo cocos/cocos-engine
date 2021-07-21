@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from './ammo-instantiated';
+import Ammo from './instantiated';
 import { Collider, TriggerEventType, CollisionEventType, IContactEquation } from '../../../exports/physics-framework';
 import { Vec3, Quat } from '../../core';
 

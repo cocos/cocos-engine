@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import Ammo from './ammo-instantiated';
+import Ammo from './instantiated';
 import { Vec3, Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
 import { cocos2AmmoVec3, ammo2CocosVec3 } from './ammo-util';

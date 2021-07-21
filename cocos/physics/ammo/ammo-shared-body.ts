@@ -24,7 +24,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from './ammo-instantiated';
+import Ammo from './instantiated';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
