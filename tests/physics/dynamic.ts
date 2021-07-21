@@ -1,10 +1,11 @@
-import { director, game, Node, Quat, quat, Vec3 } from "../../cocos/core";
-import { physics } from "../../exports/physics-framework";
+import { director, Node, Quat, Vec3 } from "../../cocos/core";
+import { ICollisionEvent, ITriggerEvent, physics } from "../../exports/physics-framework";
 
 /**
  * This function is used to test the api of the RigidBody
  */
 export default function (parent: Node, _steps = 0) {
+    // basic api
     {
         const nodeDynamic = new Node('Dynamic');
         parent.addChild(nodeDynamic);
@@ -85,8 +86,53 @@ export default function (parent: Node, _steps = 0) {
         for (let i = 0; i < 200; i++)director.tick(dt);
         expect(Vec3.equals(nodeDynamic.worldPosition, Vec3.ZERO));
         expect(body.isSleeping).toBe(true);
+        parent.destroyAllChildren();
+        parent.removeAllChildren();
     }
 
-    parent.destroyAllChildren();
-    parent.removeAllChildren();
+    // use ccd
+    {
+        const nodeDynamic = new Node('Dynamic');
+        parent.addChild(nodeDynamic);
+        const sphere = nodeDynamic.addComponent(physics.SphereCollider) as physics.SphereCollider;
+        const body = nodeDynamic.addComponent(physics.RigidBody) as physics.RigidBody;
+        body.useCCD = true;
+        body.useGravity = false;
+        body.setLinearVelocity(new Vec3(500, 0, 0));
+        let isDispatched = false;
+        sphere.on('onCollisionEnter', (event: ICollisionEvent) => {
+            isDispatched = true;
+            expect(event.selfCollider.uuid).toBe(sphere.uuid);
+            expect(event.otherCollider.uuid).toBe(box.uuid);
+        })
+
+        const nodeStatic = new Node('Static');
+        parent.addChild(nodeStatic);
+        const box = nodeStatic.addComponent(physics.BoxCollider) as physics.BoxCollider;
+        nodeStatic.worldPosition = new Vec3(10, 0, 0);
+        nodeStatic.worldRotation = Quat.fromEuler(new Quat(), 10, 20, 30);
+
+        // PhysX/Cannon/Bullet Not enough support currently
+        // const nodeTrigger = new Node('Static');
+        // parent.addChild(nodeTrigger);
+        // const sphereTrigger = nodeTrigger.addComponent(physics.SphereCollider) as physics.SphereCollider;
+        // sphereTrigger.isTrigger = true;
+        // nodeTrigger.worldPosition = new Vec3(5, 0, 0);
+        // nodeTrigger.worldRotation = Quat.fromEuler(new Quat(), -10, 50, 30);
+        // let isTriggered = false;
+        // sphereTrigger.on('onTriggerEnter', (event: ITriggerEvent) => {
+        //     isTriggered = true;
+        //     expect(event.selfCollider.uuid).toBe(sphereTrigger.uuid);
+        //     expect(event.otherCollider.uuid).toBe(sphere.uuid);
+        // })
+
+        const dt = physics.PhysicsSystem.instance.fixedTimeStep;
+        for (let i = 0; i < 100; i++)director.tick(dt);
+
+        expect(isDispatched).toBe(true);
+        // expect(isTriggered).toBe(true);
+
+        parent.destroyAllChildren();
+        parent.removeAllChildren();
+    }
 }
