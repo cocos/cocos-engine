@@ -30,8 +30,7 @@
 
 import { EDITOR } from 'internal:constants';
 import { Vec3 } from '../../core/math';
-import { IPhysicsWorld, IRaycastOptions } from '../spec/i-physics-world';
-import { createPhysicsWorld } from './instance';
+import { IRaycastOptions } from '../spec/i-physics-world';
 import { director, Director } from '../../core/director';
 import { System } from '../../core/components';
 import { PhysicsMaterial } from './assets/physics-material';
@@ -41,7 +40,7 @@ import { PhysicsRayResult } from './physics-ray-result';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
 import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
-import { selector } from './physics-selector';
+import { constructDefaultWorld, selector } from './physics-selector';
 import { legacyCC } from '../../core/global-exports';
 
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
@@ -53,23 +52,23 @@ legacyCC.internal.PhysicsGroup = PhysicsGroup;
  * 物理系统。
  */
 export class PhysicsSystem extends System {
-    static get PHYSICS_NONE () {
+    public static get PHYSICS_NONE () {
         return !selector.id;
     }
 
-    static get PHYSICS_BUILTIN () {
+    public static get PHYSICS_BUILTIN () {
         return selector.id === 'builtin';
     }
 
-    static get PHYSICS_CANNON () {
+    public static get PHYSICS_CANNON () {
         return selector.id === 'cannon.js';
     }
 
-    static get PHYSICS_AMMO () {
+    public static get PHYSICS_AMMO () {
         return selector.id === 'ammo.js';
     }
 
-    static get PHYSICS_PHYSX () {
+    public static get PHYSICS_PHYSX () {
         return selector.id === 'physx';
     }
 
@@ -79,7 +78,7 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取此系统的ID。
      */
-    static readonly ID = 'PHYSICS';
+    public static readonly ID = 'PHYSICS';
 
     /**
      * @en
@@ -87,7 +86,7 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取预定义的物理分组。
      */
-    static get PhysicsGroup () {
+    public static get PhysicsGroup () {
         return PhysicsGroup;
     }
 
@@ -97,11 +96,9 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取物理系统实例。
      */
-    static get instance (): PhysicsSystem {
+    public static get instance (): PhysicsSystem {
         return PhysicsSystem._instance;
     }
-
-    private static readonly _instance: PhysicsSystem;
 
     /**
      * @en
@@ -109,11 +106,11 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取或设置是否启用物理系统，可以用于暂停或继续运行物理系统。
      */
-    get enable (): boolean {
+    public get enable (): boolean {
         return this._enable;
     }
 
-    set enable (value: boolean) {
+    public set enable (value: boolean) {
         this._enable = value;
     }
 
@@ -123,13 +120,13 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取或设置物理系统是否允许自动休眠，默认为 true。
      */
-    get allowSleep (): boolean {
+    public get allowSleep (): boolean {
         return this._allowSleep;
     }
 
-    set allowSleep (v: boolean) {
+    public set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (!EDITOR) {
+        if (this.physicsWorld) {
             this.physicsWorld.setAllowSleep(v);
         }
     }
@@ -140,11 +137,11 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取或设置每帧模拟的最大子步数。
      */
-    get maxSubSteps () {
+    public get maxSubSteps () {
         return this._maxSubSteps;
     }
 
-    set maxSubSteps (value: number) {
+    public set maxSubSteps (value: number) {
         this._maxSubSteps = value;
     }
 
@@ -154,11 +151,11 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取或设置每步模拟消耗的固定时间。
      */
-    get fixedTimeStep () {
+    public get fixedTimeStep () {
         return this._fixedTimeStep;
     }
 
-    set fixedTimeStep (value: number) {
+    public set fixedTimeStep (value: number) {
         this._fixedTimeStep = value;
     }
 
@@ -168,13 +165,13 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取或设置物理世界的重力数值，默认为 (0, -10, 0)。
      */
-    get gravity (): Vec3 {
+    public get gravity (): Vec3 {
         return this._gravity;
     }
 
-    set gravity (gravity: Vec3) {
+    public set gravity (gravity: Vec3) {
         this._gravity.set(gravity);
-        if (!EDITOR) {
+        if (this.physicsWorld) {
             this.physicsWorld.setGravity(gravity);
         }
     }
@@ -185,11 +182,11 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取或设置进入休眠的默认速度临界值。
      */
-    get sleepThreshold (): number {
+    public get sleepThreshold (): number {
         return this._sleepThreshold;
     }
 
-    set sleepThreshold (v: number) {
+    public set sleepThreshold (v: number) {
         this._sleepThreshold = v;
     }
 
@@ -199,11 +196,11 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取或设置是否自动模拟。
      */
-    get autoSimulation () {
+    public get autoSimulation () {
         return this._autoSimulation;
     }
 
-    set autoSimulation (value: boolean) {
+    public set autoSimulation (value: boolean) {
         this._autoSimulation = value;
     }
 
@@ -213,7 +210,7 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取全局的默认物理材质。
      */
-    get defaultMaterial (): PhysicsMaterial {
+    public get defaultMaterial (): PhysicsMaterial {
         return this._material;
     }
 
@@ -223,7 +220,9 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取物理世界的封装对象，通过它你可以访问到实际的底层对象。
      */
-    readonly physicsWorld: IPhysicsWorld;
+    public get physicsWorld () {
+        return selector.physicsWorld;
+    }
 
     /**
      * @en
@@ -231,25 +230,25 @@ export class PhysicsSystem extends System {
      * @zh
      * 获取 raycastClosest 的检测结果。
      */
-    readonly raycastClosestResult = new PhysicsRayResult();
+    public readonly raycastClosestResult = new PhysicsRayResult();
 
     /**
-     * @en
-     * Gets the raycast test results.
-     * @zh
-     * 获取 raycast 的检测结果。
-     */
-    readonly raycastResults: PhysicsRayResult[] = [];
+    * @en
+    * Gets the raycast test results.
+    * @zh
+    * 获取 raycast 的检测结果。
+    */
+    public readonly raycastResults: PhysicsRayResult[] = [];
 
     /**
-     * @en
-     * Gets the collision matrix that used for initialization only.
-     * @zh
-     * 获取碰撞矩阵，它仅用于初始化。
-     */
-    readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix(1) as ICollisionMatrix;
+    * @en
+    * Gets the collision matrix that used for initialization only.
+    * @zh
+    * 获取碰撞矩阵，它仅用于初始化。
+    */
+    public readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix(1) as ICollisionMatrix;
 
-    readonly useNodeChains: boolean = false;
+    public readonly useNodeChains: boolean = false;
 
     private _enable = true;
     private _allowSleep = true;
@@ -261,6 +260,7 @@ export class PhysicsSystem extends System {
     private _sleepThreshold = 0.1;
     private readonly _gravity = new Vec3(0, -10, 0);
     private readonly _material = new PhysicsMaterial();
+    private static readonly _instance: PhysicsSystem;
 
     private readonly raycastOptions: IRaycastOptions = {
         group: -1,
@@ -273,23 +273,18 @@ export class PhysicsSystem extends System {
 
     private constructor () {
         super();
-        this.resetConfiguration();
         this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
-        this.physicsWorld = createPhysicsWorld();
+    }
+
+    init () {
+        this.resetConfiguration();
         this.physicsWorld.setGravity(this._gravity);
         this.physicsWorld.setAllowSleep(this._allowSleep);
         this.physicsWorld.setDefaultMaterial(this._material);
     }
 
-    /**
-     * @en
-     * The lifecycle function is automatically executed after all components `update` and `lateUpadte` are executed.
-     * @zh
-     * 生命周期函数，在所有组件的`update`和`lateUpadte`执行完成后自动执行。
-     * @param deltaTime the time since last frame.
-     */
     postUpdate (deltaTime: number) {
-        if (EDITOR && !legacyCC.GAME_VIEW && !this._executeInEditMode) {
+        if (!this.physicsWorld || EDITOR && !legacyCC.GAME_VIEW && !this._executeInEditMode) {
             return;
         }
 
@@ -350,6 +345,12 @@ export class PhysicsSystem extends System {
                     this.collisionMatrix[`${1 << parseInt(i)}`] = config.collisionMatrix[i];
                 }
             }
+
+            const cg = config.collisionGroups;
+            if (cg instanceof Array) {
+                cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
+                Enum.update(PhysicsGroup);
+            }
         }
     }
 
@@ -371,7 +372,7 @@ export class PhysicsSystem extends System {
      * @param fixedTimeStep
      */
     step (fixedTimeStep: number, deltaTime?: number, maxSubSteps?: number) {
-        this.physicsWorld.step(fixedTimeStep, deltaTime, maxSubSteps);
+        if (this.physicsWorld) this.physicsWorld.step(fixedTimeStep, deltaTime, maxSubSteps);
     }
 
     /**
@@ -381,7 +382,7 @@ export class PhysicsSystem extends System {
      * 同步场景世界的变化信息到物理世界中。
      */
     syncSceneToPhysics () {
-        this.physicsWorld.syncSceneToPhysics();
+        if (this.physicsWorld) this.physicsWorld.syncSceneToPhysics();
     }
 
     /**
@@ -391,7 +392,7 @@ export class PhysicsSystem extends System {
      * 触发`trigger`和`collision`事件。
      */
     emitEvents () {
-        this.physicsWorld.emitEvents();
+        if (this.physicsWorld) this.physicsWorld.emitEvents();
     }
 
     /**
@@ -406,6 +407,7 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycast (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
         this.raycastResultPool.reset();
         this.raycastResults.length = 0;
         this.raycastOptions.mask = mask >>> 0;
@@ -427,6 +429,7 @@ export class PhysicsSystem extends System {
      * @return boolean 表示是否有检测到碰撞盒
      */
     raycastClosest (worldRay: Ray, mask = 0xffffffff, maxDistance = 10000000, queryTrigger = true): boolean {
+        if (!this.physicsWorld) return false;
         this.raycastOptions.mask = mask >>> 0;
         this.raycastOptions.maxDistance = maxDistance;
         this.raycastOptions.queryTrigger = queryTrigger;
@@ -434,33 +437,16 @@ export class PhysicsSystem extends System {
     }
 
     private _updateMaterial () {
-        this.physicsWorld.setDefaultMaterial(this._material);
+        if (this.physicsWorld) this.physicsWorld.setDefaultMaterial(this._material);
     }
 }
 
 director.once(Director.EVENT_INIT, () => {
-    initPhysicsSystem();
-});
-
-function initPhysicsSystem () {
-    if (!EDITOR) {
-        const physics = game.config.physics;
-        if (physics) {
-            const cg = physics.collisionGroups;
-            if (cg instanceof Array) {
-                cg.forEach((v) => {
-                    PhysicsGroup[v.name] = 1 << v.index;
-                });
-                Enum.update(PhysicsGroup);
-            }
-        }
-        const oldIns = PhysicsSystem.instance;
-        if (oldIns) {
-            director.unregisterSystem(oldIns);
-            oldIns.physicsWorld.destroy();
-        }
-        const sys = new legacyCC.PhysicsSystem();
-        legacyCC.PhysicsSystem._instance = sys;
-        director.registerSystem(PhysicsSystem.ID, sys, System.Priority.LOW);
+    const System = PhysicsSystem as any;
+    if (!System._instance) {
+        // Construct physics world and physics system only once
+        constructDefaultWorld();
+        System._instance = new System();
+        director.registerSystem(PhysicsSystem.ID, PhysicsSystem.instance, PhysicsSystem.instance.priority);
     }
-}
+});

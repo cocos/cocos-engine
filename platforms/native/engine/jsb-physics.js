@@ -631,7 +631,7 @@ class RevoluteJoint extends Joint {
     }
 }
 
-cc.physics.selector.select("physx", {
+cc.physics.selector.register("physx", {
     PhysicsWorld: PhysicsWorld,
     RigidBody: RigidBody,
     SphereShape: SphereShape,

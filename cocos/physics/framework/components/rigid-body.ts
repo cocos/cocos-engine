@@ -47,7 +47,7 @@ import { DEBUG, EDITOR } from 'internal:constants';
 import { Vec3 } from '../../../core/math';
 import { Component, error, warn } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';
-import { createRigidBody } from '../instance';
+import { createRigidBody } from '../physics-selector';
 import { ERigidBodyType } from '../physics-enum';
 import { PhysicsSystem } from '../physics-system';
 
