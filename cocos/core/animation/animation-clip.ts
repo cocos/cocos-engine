@@ -231,11 +231,11 @@ export class AnimationClip extends Asset {
      */
     public range () {
         const range: Range = { min: Infinity, max: -Infinity };
-        for (const track of this._tracks) {
+        this._tracks.forEach((track) => {
             const trackRange = track.range();
             range.min = Math.min(range.min, trackRange.min);
             range.max = Math.max(range.max, trackRange.max);
-        }
+        });
         return range;
     }
 
@@ -325,15 +325,16 @@ export class AnimationClip extends Asset {
         const step = 1.0 / samples;
 
         const animatedJoints = this._collectAnimatedJoints();
+        const nAnimatedJoints = animatedJoints.length;
 
         const jointsBakeInfo: Record<string, {
             transforms: Mat4[];
         }> = {};
-        for (const joint of animatedJoints) {
+        animatedJoints.forEach((joint) => {
             jointsBakeInfo[joint] = {
                 transforms: Array.from({ length: frames }, () => new Mat4()),
             };
-        }
+        });
 
         const skeletonFrames = animatedJoints.reduce((result, joint) => {
             result[joint] = new BoneGlobalTransform();
@@ -372,13 +373,15 @@ export class AnimationClip extends Asset {
         for (let iFrame = 0; iFrame < frames; ++iFrame) {
             const time = start + step * iFrame;
             evaluator.evaluate(time);
-            for (const joint of animatedJoints) {
+            for (let iAnimatedJoint = 0; iAnimatedJoint < nAnimatedJoints; ++iAnimatedJoint) {
+                const joint = animatedJoints[iAnimatedJoint];
                 Mat4.copy(
                     jointsBakeInfo[joint].transforms[iFrame],
                     skeletonFrames[joint].globalTransform,
                 );
             }
-            for (const joint of animatedJoints) {
+            for (let iAnimatedJoint = 0; iAnimatedJoint < nAnimatedJoints; ++iAnimatedJoint) {
+                const joint = animatedJoints[iAnimatedJoint];
                 skeletonFrames[joint].invalidate();
             }
         }
@@ -400,19 +403,19 @@ export class AnimationClip extends Asset {
     public upgradeUntypedTracks (refine: UntypedTrackRefine) {
         const newTracks: Track[] = [];
         const removals: Track[] = [];
-        for (const track of this._tracks) {
+        this._tracks.forEach((track) => {
             if (!(track instanceof UntypedTrack)) {
-                continue;
+                return;
             }
             const newTrack = track.upgrade(refine);
             if (newTrack) {
                 newTracks.push(newTrack);
                 removals.push(track);
             }
-        }
-        for (const removal of removals) {
+        });
+        removals.forEach((removal) => {
             array.remove(this._tracks, removal);
-        }
+        });
         this._tracks.push(...newTracks);
     }
 
@@ -577,20 +580,20 @@ export class AnimationClip extends Asset {
         const trackEvalStatues: TrackEvalStatus[] = [];
         let exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined;
 
-        for (const track of this._tracks) {
+        this._tracks.forEach((track) => {
             if (rootMotionTrackExcludes.includes(track)) {
-                continue;
+                return;
             }
             const trackTarget = binder(track[trackBindingTag]);
             if (!trackTarget) {
-                continue;
+                return;
             }
             const trackEval = track[createEvalSymbol](trackTarget);
             trackEvalStatues.push({
                 binding: trackTarget,
                 trackEval,
             });
-        }
+        });
 
         if (this._exoticAnimation) {
             exoticAnimationEvaluator = this._exoticAnimation.createEvaluator(binder);
@@ -631,28 +634,28 @@ export class AnimationClip extends Asset {
 
         const boneTransform = new BoneTransform();
         const rootMotionsTrackEvaluations: TrackEvalStatus[] = [];
-        for (const track of this._tracks) {
+        this._tracks.forEach((track) => {
             const { [trackBindingTag]: trackBinding } = track;
             const trsPath = trackBinding.parseTrsPath();
             if (!trsPath) {
-                continue;
+                return;
             }
             const bonePath = trsPath.node;
             if (bonePath !== rootBonePath) {
-                continue;
+                return;
             }
             rootMotionTrackExcludes.push(track);
             const property = trsPath.property;
             const trackTarget = createBoneTransformBinding(boneTransform, property);
             if (!trackTarget) {
-                continue;
+                return;
             }
             const trackEval = track[createEvalSymbol](trackTarget);
             rootMotionsTrackEvaluations.push({
                 binding: trackTarget,
                 trackEval,
             });
-        }
+        });
         const rootMotionEvaluation = new RootMotionEvaluation(
             rootBone,
             this._duration,
@@ -725,25 +728,25 @@ export class AnimationClip extends Asset {
 
     private _fromLegacy (legacyData: legacy.AnimationClipLegacyData) {
         const newTracks = legacyData.toTracks();
-        for (const track of newTracks) {
+        newTracks.forEach((track) => {
             this.addTrack(track);
-        }
+        });
     }
 
     private _collectAnimatedJoints () {
         const joints = new Set<string>();
 
-        for (const track of this._tracks) {
+        this._tracks.forEach((track) => {
             const trsPath = track[trackBindingTag].parseTrsPath();
             if (trsPath) {
                 joints.add(trsPath.node);
             }
-        }
+        });
 
         if (this._exoticAnimation) {
-            for (const joint of this._exoticAnimation.collectAnimatedJoints()) {
+            this._exoticAnimation.collectAnimatedJoints().forEach((joint) => {
                 joints.add(joint);
-            }
+            });
         }
 
         return Array.from(joints);
@@ -1145,15 +1148,15 @@ class EventEvaluator {
 
         const eventGroup = eventGroups[eventIndex];
         const components = this._targetNode.components;
-        for (const event of eventGroup.events) {
+        eventGroup.events.forEach((event) => {
             const { functionName } = event;
-            for (const component of components) {
+            components.forEach((component) => {
                 const fx = component[functionName];
                 if (typeof fx === 'function') {
                     fx.apply(component, event.parameters);
                 }
-            }
-        }
+            });
+        });
     }
 }
 
