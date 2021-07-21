@@ -284,6 +284,25 @@ export class RigidBody extends Component {
 
     /**
      * @en
+     * Turning on or off continuous collision detection.
+     * @zh
+     * 开启或关闭连续碰撞检测。
+     */
+    public get useCCD ():boolean {
+        if (this._assertOnLoadCalled) {
+            return this._body!.isUseCCD();
+        }
+        return false;
+    }
+
+    public set useCCD (v:boolean) {
+        if (this._assertOnLoadCalled) {
+            this._body!.useCCD(v);
+        }
+    }
+
+    /**
+     * @en
      * Gets whether it is the state of awake.
      * @zh
      * 获取是否是唤醒的状态。

@@ -107,6 +107,15 @@ export class CannonRigidBody implements IRigidBody {
         this._wakeUpIfSleep();
     }
 
+    useCCD (value:boolean) {
+        // TODO: typing
+        (this.impl as any).ccdSpeedThreshold = value ? 0.01 : -1;
+    }
+
+    isUseCCD () {
+        return (this.impl as any).ccdSpeedThreshold !== -1;
+    }
+
     setLinearFactor (value: IVec3Like) {
         Vec3.copy(this.impl.linearFactor, value);
         this._wakeUpIfSleep();

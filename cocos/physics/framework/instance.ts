@@ -138,6 +138,8 @@ const ENTIRE_RIGID_BODY: IRigidBody = {
     getMask: FUNC,
     addMask: FUNC,
     removeMask: FUNC,
+    isUseCCD: FUNC,
+    useCCD: FUNC,
 };
 
 export function createRigidBody (): IRigidBody {

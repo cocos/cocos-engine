@@ -105,6 +105,16 @@ export class AmmoRigidBody implements IRigidBody {
         this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
     }
 
+    useCCD (value:boolean) {
+        this.impl.setCcdMotionThreshold(value ? 0.001 : 0);
+        this.impl.setCcdSweptSphereRadius(value ? 0.1 : 0);
+        this._isUseCCD = value;
+    }
+
+    isUseCCD () {
+        return this._isUseCCD;
+    }
+
     setLinearFactor (value: IVec3Like) {
         this.impl.setLinearFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, value));
         this._wakeUpIfSleep();
@@ -134,6 +144,7 @@ export class AmmoRigidBody implements IRigidBody {
     readonly id: number;
 
     private _isEnabled = false;
+    private _isUseCCD = false;
     private _sharedBody!: AmmoSharedBody;
     private _rigidBody!: RigidBody;
 
