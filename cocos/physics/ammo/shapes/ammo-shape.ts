@@ -41,6 +41,7 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoSharedBody } from '../ammo-shared-body';
 import { AABB, Sphere } from '../../../core/geometry';
 import { AmmoConstant, CC_V3_0 } from '../ammo-const';
+import { AmmoInstance } from '../ammo-instance';
 
 const v3_0 = CC_V3_0;
 
@@ -139,6 +140,15 @@ export class AmmoShape implements IBaseShape {
         this.setWrapper();
     }
 
+    setWrapper () {
+        if (AmmoConstant.isNotEmptyShape(this._btShape)) {
+            AmmoInstance.setWrapper(this);
+            this._btShape.setUserPointerAsInt(Ammo.getPointer(this._btShape));
+            const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
+            (shape as any).wrapped = this;
+        }
+    }
+
     // virtual
     protected onComponentSet () { }
 
@@ -168,7 +178,8 @@ export class AmmoShape implements IBaseShape {
         Ammo.destroy(this.quat);
         Ammo.destroy(this.scale);
         Ammo.destroy(this.transform);
-        if (this._btShape !== AmmoConstant.instance.EMPTY_SHAPE) {
+        if (AmmoConstant.isNotEmptyShape(this._btShape)) {
+            AmmoInstance.delWrapper(this);
             Ammo.destroy(this._btShape);
             ammoDeletePtr(this._btShape, Ammo.btCollisionShape);
         }
@@ -228,11 +239,6 @@ export class AmmoShape implements IBaseShape {
             compound.addChildShape(this.transform, this._btShape);
         }
         this._btCompound = compound;
-    }
-
-    setWrapper () {
-        const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
-        (shape as any).wrapped = this;
     }
 
     updateScale () {

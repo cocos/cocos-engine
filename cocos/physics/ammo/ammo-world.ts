@@ -66,7 +66,7 @@ export class AmmoWorld implements IPhysicsWorld {
         return this._btWorld;
     }
 
-    private readonly _btWorld: Ammo.btDiscreteDynamicsWorld;
+    private readonly _btWorld: Ammo.ccDiscreteDynamicsWorld;
     private readonly _btBroadphase: Ammo.btDbvtBroadphase;
     private readonly _btSolver: Ammo.btSequentialImpulseConstraintSolver;
     private readonly _btDispatcher: Ammo.btCollisionDispatcher;
@@ -90,7 +90,6 @@ export class AmmoWorld implements IPhysicsWorld {
         this._btBroadphase = new Ammo.btDbvtBroadphase();
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
         this._btWorld = new Ammo.ccDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, this._btCollisionConfiguration);
-        this._btWorld.getPairCache().setOverlapFilterCallback(new Ammo.ccOverlapFilterCallback());
         // this._btWorld.setContactBreakingThreshold(0.04);
         const TMP = AmmoConstant.instance.VECTOR3_0;
         TMP.setValue(0, -10, 0);
@@ -152,37 +151,18 @@ export class AmmoWorld implements IPhysicsWorld {
         const from = cocos2AmmoVec3(allHitsCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
         const to = cocos2AmmoVec3(allHitsCB.m_rayToWorld, v3_0);
-        allHitsCB.m_collisionFilterGroup = -1;
-        allHitsCB.m_collisionFilterMask = options.mask;
-        allHitsCB.m_closestHitFraction = 1;
-        allHitsCB.setQueryTrigger(options.queryTrigger);
-        (allHitsCB.m_collisionObject as any) = null;
-        allHitsCB.m_shapeParts.clear();
-        allHitsCB.m_hitFractions.clear();
-        allHitsCB.m_collisionObjects.clear();
-        const hp = allHitsCB.m_hitPointWorld;
-        const hn = allHitsCB.m_hitNormalWorld;
-        hp.clear();
-        hn.clear();
+        allHitsCB.reset(options.mask, options.queryTrigger);
         this._btWorld.rayTest(from, to, allHitsCB);
         if (allHitsCB.hasHit()) {
-            for (let i = 0, n = allHitsCB.m_collisionObjects.size(); i < n; i++) {
-                const btObj = allHitsCB.m_collisionObjects.at(i);
-                const btCs = btObj.getCollisionShape();
-                let shape: AmmoShape;
-                if (btCs.isCompound()) {
-                    const shapeIndex = allHitsCB.m_shapeParts.at(i);
-                    const index = btObj.getUserIndex();
-                    const shared = AmmoInstance.bodyAndGhosts[index];
-                    shape = shared.wrappedShapes[shapeIndex];
-                } else {
-                    shape = (btCs as any).wrapped;
-                }
+            const shapePtrs = allHitsCB.getCollisionShapePtrs();
+            const hp = allHitsCB.getHitPointWorld();
+            const hn = allHitsCB.getHitNormalWorld();
+            for (let i = 0, n = shapePtrs.size(); i < n; i++) {
+                const shape: AmmoShape = AmmoInstance.getWrapperByPtr(shapePtrs.at(i));
                 ammo2CocosVec3(v3_0, hp.at(i));
                 ammo2CocosVec3(v3_1, hn.at(i));
-                const distance = Vec3.distance(worldRay.o, v3_0);
                 const r = pool.add();
-                r._assign(v3_0, distance, shape.collider, v3_1);
+                r._assign(v3_0, Vec3.distance(worldRay.o, v3_0), shape.collider, v3_1);
                 results.push(r);
             }
             return true;
@@ -190,36 +170,18 @@ export class AmmoWorld implements IPhysicsWorld {
         return false;
     }
 
-    // TODO: support query triggers
     raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         const closeHitCB = AmmoWorld.closeHitCB;
         const from = cocos2AmmoVec3(closeHitCB.m_rayFromWorld, worldRay.o);
         worldRay.computeHit(v3_0, options.maxDistance);
         const to = cocos2AmmoVec3(closeHitCB.m_rayToWorld, v3_0);
-
-        closeHitCB.m_collisionFilterGroup = -1;
-        closeHitCB.m_collisionFilterMask = options.mask;
-        closeHitCB.m_closestHitFraction = 1;
-        closeHitCB.setQueryTrigger(options.queryTrigger);
-        (closeHitCB.m_collisionObject as any) = null;
-
+        closeHitCB.reset(options.mask, options.queryTrigger);
         this._btWorld.rayTest(from, to, closeHitCB);
         if (closeHitCB.hasHit()) {
-            const btObj = closeHitCB.m_collisionObject;
-            const btCs = btObj.getCollisionShape();
-            let shape: AmmoShape;
-            if (btCs.isCompound()) {
-                const index = btObj.getUserIndex();
-                const shared = AmmoInstance.bodyAndGhosts[index];
-                const shapeIndex = closeHitCB.m_shapePart;
-                shape = shared.wrappedShapes[shapeIndex];
-            } else {
-                shape = (btCs as any).wrapped;
-            }
-            ammo2CocosVec3(v3_0, closeHitCB.m_hitPointWorld);
-            ammo2CocosVec3(v3_1, closeHitCB.m_hitNormalWorld);
-            const distance = Vec3.distance(worldRay.o, v3_0);
-            result._assign(v3_0, distance, shape.collider, v3_1);
+            const shape: AmmoShape = AmmoInstance.getWrapperByPtr(closeHitCB.getCollisionShapePtr());
+            ammo2CocosVec3(v3_0, closeHitCB.getHitPointWorld());
+            ammo2CocosVec3(v3_1, closeHitCB.getHitNormalWorld());
+            result._assign(v3_0, Vec3.distance(worldRay.o, v3_0), shape.collider, v3_1);
             return true;
         }
         return false;
@@ -280,6 +242,28 @@ export class AmmoWorld implements IPhysicsWorld {
     }
 
     emitEvents () {
+        // trigger with ccd
+        const ccdTriggerRecord = this._btWorld.getCcdTriggerRecorder();
+        const nRecordSize =  ccdTriggerRecord.size();
+        let offset = 0;
+        for (let i = 0; i < nRecordSize; i += offset) {
+            const count = ccdTriggerRecord.at(offset);
+            const shape0: AmmoShape = AmmoInstance.getWrapperByPtr(ccdTriggerRecord.at(offset + 1));
+            for (let j = 0; j < count; j++) {
+                const shape1: AmmoShape = AmmoInstance.getWrapperByPtr(ccdTriggerRecord.at(offset + j + 2));
+                if (shape0.collider.needTriggerEvent || shape1.collider.needTriggerEvent) {
+                    // current contact
+                    let item = this.contactsDic.get<any>(shape0.id, shape1.id);
+                    if (item == null) {
+                        item = this.contactsDic.set(shape0.id, shape1.id,
+                            { shape0, shape1, contacts: [], impl: ccdTriggerRecord });
+                    }
+                }
+            }
+
+            offset += count + 2;
+        }
+
         const numManifolds = this._btDispatcher.getNumManifolds();
         for (let i = 0; i < numManifolds; i++) {
             const manifold = this._btDispatcher.getManifoldByIndexInternal(i);
@@ -292,22 +276,22 @@ export class AmmoWorld implements IPhysicsWorld {
             const numContacts = manifold.getNumContacts();
             for (let j = 0; j < numContacts; j++) {
                 const manifoldPoint: Ammo.btManifoldPoint = manifold.getContactPoint(j);
-                const s0 = manifoldPoint.getShape0();
-                const s1 = manifoldPoint.getShape1();
+                const s0 = body0.getCollisionShape();
+                const s1 = body1.getCollisionShape();
                 let shape0: AmmoShape;
                 let shape1: AmmoShape;
                 if (s0.isCompound()) {
                     const com = Ammo.castObject(s0, Ammo.btCompoundShape);
                     shape0 = (com.getChildShape(manifoldPoint.m_index0) as any).wrapped;
                 } else {
-                    shape0 = (s0 as any).wrapped;
+                    shape0 = s0.wrapped;
                 }
 
                 if (s1.isCompound()) {
                     const com = Ammo.castObject(s1, Ammo.btCompoundShape);
                     shape1 = (com.getChildShape(manifoldPoint.m_index1) as any).wrapped;
                 } else {
-                    shape1 = (s1 as any).wrapped;
+                    shape1 = s1.wrapped;
                 }
 
                 if (!shape0 || !shape1) continue;

@@ -105,7 +105,7 @@ export class AmmoRigidBody implements IRigidBody {
     }
 
     useCCD (value:boolean) {
-        this.impl.setCcdMotionThreshold(value ? 0.001 : 0);
+        this.impl.setCcdMotionThreshold(value ? 0.01 : 0);
         this.impl.setCcdSweptSphereRadius(value ? 0.1 : 0);
         this._isUseCCD = value;
     }

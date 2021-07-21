@@ -52,7 +52,7 @@ export class AmmoTerrainShape extends AmmoShape implements ITerrainShape {
     setTerrain (v: ITerrainAsset | null): void {
         if (!this._isBinding) return;
 
-        if (this._btShape != null && this._btShape !== AmmoConstant.instance.EMPTY_SHAPE) {
+        if (this._btShape != null && AmmoConstant.isNotEmptyShape(this._btShape)) {
             // TODO: change the terrain asset after initialization
             warn('[Physics] Ammo change the terrain asset after initialization is not support.');
         } else {

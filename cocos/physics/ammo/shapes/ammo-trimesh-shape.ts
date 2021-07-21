@@ -51,7 +51,7 @@ export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
     setMesh (v: Mesh | null) {
         if (!this._isBinding) return;
 
-        if (this._btShape != null && this._btShape !== AmmoConstant.instance.EMPTY_SHAPE) {
+        if (this._btShape != null && AmmoConstant.isNotEmptyShape(this._btShape)) {
             // TODO: change the mesh after initialization
             warnID(9620);
         } else {
