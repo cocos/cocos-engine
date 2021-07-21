@@ -44,6 +44,7 @@ import { Light, LightType } from '../renderer/scene/light';
 import { SpotLight } from '../renderer/scene/spot-light';
 import { intersect } from '../geometry';
 import { Model } from '../renderer/scene/model';
+import { Camera } from '../renderer/scene';
 
 const _phaseID = getPhaseID('shadow-caster');
 const _shadowPassIndices: number[] = [];
@@ -83,13 +84,13 @@ export class RenderShadowMapBatchedQueue {
         this._batchedQueue = new RenderBatchedQueue();
     }
 
-    public gatherLightPasses (light: Light, cmdBuff: CommandBuffer) {
+    public gatherLightPasses (light: Light, camera: Camera, cmdBuff: CommandBuffer) {
         this.clear();
         const shadowInfo = this._pipeline.pipelineSceneData.shadows;
         const shadowObjects = this._pipeline.pipelineSceneData.shadowObjects;
         const renderObjects = this._pipeline.pipelineSceneData.renderObjects;
         if (light && shadowInfo.enabled && shadowInfo.type === ShadowType.ShadowMap) {
-            this._pipeline.pipelineUBO.updateShadowUBOLight(light);
+            this._pipeline.pipelineUBO.updateShadowUBOLight(light, camera);
 
             switch (light.type) {
             case LightType.DIRECTIONAL:

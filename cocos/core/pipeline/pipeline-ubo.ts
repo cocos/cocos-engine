@@ -26,18 +26,27 @@
 import { UBOGlobal, UBOShadow, UBOCamera, UNIFORM_SHADOWMAP_BINDING, supportsHalfFloatTexture } from './define';
 import { Device, BufferInfo, BufferUsageBit, MemoryUsageBit, Feature } from '../gfx';
 import { Camera } from '../renderer/scene/camera';
-import { Mat4, Vec3, Vec4, Color } from '../math';
+import { Mat4, Vec2, Vec3, Vec4, Color, mat4 } from '../math';
 import { RenderPipeline } from './render-pipeline';
 import { legacyCC } from '../global-exports';
-import { ShadowType } from '../renderer/scene/shadows';
+import { Shadows, ShadowType } from '../renderer/scene/shadows';
 import { updatePlanarPROJ } from './scene-culling';
 import { Light, LightType } from '../renderer/scene/light';
-import { SpotLight } from '../renderer/scene';
+import { DirectionalLight, SpotLight } from '../renderer/scene';
 
 const mat4Trans = new Mat4();
 const matShadowView = new Mat4();
+const matShadowProj = new Mat4();
 const matShadowViewProj = new Mat4();
+const matShadowViewProjInv = new Mat4();
 const vec4ShadowInfo = new Vec4();
+const projPos = new Vec3();
+const texelSize = new Vec2();
+const projSnap = new Vec3();
+const snap = new Vec3();
+const matWorldTrans = new Mat4();
+const matWorldTransInv = new Mat4();
+const focus = new Vec3();
 
 export class PipelineUBO {
     public static updateGlobalUBOView (pipeline: RenderPipeline, bufferView: Float32Array) {
@@ -141,6 +150,45 @@ export class PipelineUBO {
         cv[UBOCamera.GLOBAL_FOG_ADD_OFFSET + 2] = fog.fogAtten;
     }
 
+    public static QuantizeDirLightShadowCamera (pipeline: RenderPipeline, bufferView: Float32Array, camera: Camera) {
+        const device = pipeline.device;
+        const mainLight = camera.scene!.mainLight;
+        const sceneData = pipeline.pipelineSceneData;
+        const shadowInfo = sceneData.shadows;
+        const shadowMapWidth = shadowInfo.size.x;
+        const cameraBoundingSphere = shadowInfo.cameraBoundingSphere;
+        const radius = cameraBoundingSphere.radius;
+        const position = cameraBoundingSphere.center;
+        const rotation = (mainLight as any).node.getWorldRotation();
+        const range = shadowInfo.range;
+
+        Mat4.fromRT(matWorldTrans, rotation, focus);
+        Mat4.ortho(matShadowProj, -radius, radius, -radius, radius, -range, radius,
+            device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+
+        // snap to whole texels
+        if (shadowMapWidth > 0.0) {
+            Mat4.invert(matWorldTransInv, matWorldTrans);
+            Mat4.multiply(matShadowViewProj, matShadowProj, matWorldTransInv);
+            Vec3.transformMat4(projPos, position, matShadowViewProj);
+            const invActualSize = 2.0 / shadowMapWidth;
+            texelSize.set(invActualSize, invActualSize);
+            const modX = projPos.x % texelSize.x;
+            const modY = projPos.y % texelSize.y;
+            projSnap.set(projPos.x - modX, projPos.y - modY, projPos.z);
+            Mat4.invert(matShadowViewProjInv, matShadowViewProj);
+            Vec3.transformMat4(snap, projSnap, matShadowViewProjInv);
+            Mat4.fromRT(matWorldTrans, rotation, snap);
+            Mat4.ortho(matShadowProj, -radius, radius, -radius, radius, -range, radius,
+                device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+        }
+        Mat4.toArray(bufferView, matWorldTrans, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
+        Mat4.invert(matWorldTransInv, matWorldTrans);
+
+        Mat4.multiply(matShadowViewProj, matShadowProj, matWorldTransInv);
+        Mat4.toArray(bufferView, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
+    }
+
     public static updateShadowUBOView (pipeline: RenderPipeline, bufferView: Float32Array, camera: Camera) {
         const device = pipeline.device;
         const mainLight = camera.scene!.mainLight;
@@ -157,17 +205,11 @@ export class PipelineUBO {
                 let near = 0.1; let far = 0;
                 if (!shadowInfo.fixedArea) {
                     const cameraBoundingSphere = shadowInfo.cameraBoundingSphere;
-                    const rotation = (mainLight as any).node.getWorldRotation();
-                    const position = cameraBoundingSphere.center;
                     const radius = cameraBoundingSphere.radius;
                     const range = shadowInfo.range;
                     near = -range;
                     far = radius;
-                    Mat4.fromRT(mat4Trans, rotation, position);
-                    shadowCameraView = mat4Trans;
-
-                    Mat4.ortho(matShadowViewProj, -radius, radius, -radius, radius, -range, radius,
-                        device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+                    PipelineUBO.QuantizeDirLightShadowCamera(pipeline, bufferView, camera);
                 } else {
                     shadowCameraView = mainLight.node!.getWorldMatrix();
 
@@ -177,13 +219,13 @@ export class PipelineUBO {
                     far = shadowInfo.far;
                     Mat4.ortho(matShadowViewProj, -x, x, -y, y, near, far,
                         device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+
+                    Mat4.toArray(sv, shadowCameraView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
+                    Mat4.invert(matShadowView, shadowCameraView!);
+
+                    Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
+                    Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
                 }
-
-                Mat4.toArray(sv, shadowCameraView, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
-                Mat4.invert(matShadowView, shadowCameraView!);
-
-                Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
-                Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
                 const linear = supportsHalfFloatTexture(device) ? 1.0 : 0.0;
                 const packing = linear ? 0.0 : 1.0;
@@ -209,7 +251,7 @@ export class PipelineUBO {
         }
     }
 
-    public static updateShadowUBOLightView (pipeline: RenderPipeline, bufferView: Float32Array, light: Light) {
+    public static updateShadowUBOLightView (pipeline: RenderPipeline, bufferView: Float32Array, light: Light, camera: Camera) {
         const device = pipeline.device;
         const shadowInfo = pipeline.pipelineSceneData.shadows;
         const sv = bufferView;
@@ -221,17 +263,11 @@ export class PipelineUBO {
         case LightType.DIRECTIONAL:
             if (!shadowInfo.fixedArea) {
                 const cameraBoundingSphere = shadowInfo.cameraBoundingSphere;
-                const rotation = (light as any).node.getWorldRotation();
-                const position = cameraBoundingSphere.center;
                 const radius = cameraBoundingSphere.radius;
                 const range = shadowInfo.range;
                 near = -range;
                 far = radius;
-                Mat4.fromRT(mat4Trans, rotation, position);
-                shadowCameraView = mat4Trans;
-
-                Mat4.ortho(matShadowViewProj, -radius, radius, -radius, radius, -range, radius,
-                    device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+                PipelineUBO.QuantizeDirLightShadowCamera(pipeline, bufferView, camera);
             } else {
                 shadowCameraView = (light as any).node.getWorldMatrix();
 
@@ -242,14 +278,13 @@ export class PipelineUBO {
 
                 Mat4.ortho(matShadowViewProj, -x, x, -y, y, near, far,
                     device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
+
+                Mat4.toArray(sv, shadowCameraView!, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
+                Mat4.invert(matShadowView, shadowCameraView!);
+
+                vec4ShadowInfo.set(near, far, linear, 1.0 - shadowInfo.saturation);
+                Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
             }
-
-            Mat4.toArray(sv, shadowCameraView!, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
-            Mat4.invert(matShadowView, shadowCameraView!);
-
-            vec4ShadowInfo.set(near, far, linear, 1.0 - shadowInfo.saturation);
-            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
-
             vec4ShadowInfo.set(0.0, packing, shadowInfo.normalBias, 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
 
@@ -272,7 +307,6 @@ export class PipelineUBO {
         }
         // light viewProj
         Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
-
         Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
         vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias);
@@ -380,9 +414,9 @@ export class PipelineUBO {
         cmdBuffer[0].updateBuffer(ds.getBuffer(UBOShadow.BINDING), this._shadowUBO);
     }
 
-    public updateShadowUBOLight (light: Light) {
+    public updateShadowUBOLight (light: Light, camera: Camera) {
         const ds = this._pipeline.descriptorSet;
-        PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light);
+        PipelineUBO.updateShadowUBOLightView(this._pipeline, this._shadowUBO, light, camera);
         ds.getBuffer(UBOShadow.BINDING).update(this._shadowUBO);
     }
 
