@@ -7,8 +7,8 @@ const { ccclass, property } = _decorator;
  * Name = <%Name%>
  * DateTime = <%DateTime%>
  * Author = <%Author%>
- * FileBasename = <%FileBaseName%>
- * FileBasenameNoExtension = <%FileBaseNameNoExtension%>
+ * FileBasename = <%FileBasename%>
+ * FileBasenameNoExtension = <%FileBasenameNoExtension%>
  * URL = <%URL%>
  *
  */
