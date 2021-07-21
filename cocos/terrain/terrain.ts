@@ -1157,7 +1157,7 @@ export class Terrain extends Component implements IRenderPipelineCallback {
      get LodEnable () {
          return this._lodEnable;
      }
- 
+
      set LodEnable (val) {
          this._lodEnable = val;
      }
@@ -1170,7 +1170,7 @@ export class Terrain extends Component implements IRenderPipelineCallback {
       get LodBias() {
           return this._lodBias;
       }
-  
+
       set LodBias (val) {
           this._lodBias = val;
       }
