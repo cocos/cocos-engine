@@ -63,7 +63,7 @@
   "dependencies": {
     "@cocos/ammo": "1.1.8",
     "@cocos/box2d": "1.0.1",
-    "@cocos/cannon": "1.2.6-exp.2",
+    "@cocos/cannon": "1.2.8",
     "@cocos/dragonbones-js": "^1.0.1",
     "@cocos/physx": "1.0.7"
   }
