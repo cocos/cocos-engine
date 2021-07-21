@@ -65,6 +65,6 @@
     "@cocos/box2d": "1.0.1",
     "@cocos/cannon": "1.2.6-exp.2",
     "@cocos/dragonbones-js": "^1.0.1",
-    "@cocos/physx": "1.0.4"
+    "@cocos/physx": "1.0.7"
   }
 }
