@@ -84,20 +84,15 @@ export class RigidBody extends Component {
     @displayOrder(-2)
     @tooltip('i18n:physics3d.rigidbody.group')
     public get group (): number {
-        if (EDITOR) {
-            return this._group;
-        } else {
-            return this.getGroup();
-        }
+        return this._group;
     }
 
     public set group (v: number) {
         if (DEBUG && !Number.isInteger(Math.log2(v >>> 0))) warn('[Physics]: The group should only have one bit.');
         this._group = v;
         if (this._body) {
-            // There is a synchronization problem with this data, so only update when it is not the same
-            if (this._body.getGroup() === v) return;
-            this._body.setGroup(v);
+            // The judgment is added here because the data exists in two places
+            if (this._body.getGroup() !== v) this._body.setGroup(v);
         }
     }
 
@@ -117,9 +112,7 @@ export class RigidBody extends Component {
     public set type (v: ERigidBodyType) {
         if (this._type === v) return;
         this._type = v;
-        if (this._body) {
-            this._body.setType(v);
-        }
+        if (this._body) this._body.setType(v);
     }
 
     /**
@@ -128,7 +121,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置刚体的质量。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic; })
+    @visible(isDynamicBody)
     @displayOrder(0)
     @tooltip('i18n:physics3d.rigidbody.mass')
     public get mass () {
@@ -136,12 +129,11 @@ export class RigidBody extends Component {
     }
 
     public set mass (value) {
+        if (DEBUG && value <= 0) warn('[Physics]: The mass should be greater than zero.');
         if (this._mass === value) return;
         value = value <= 0 ? 0.0001 : value;
         this._mass = value;
-        if (this._body) {
-            this._body.setMass(value);
-        }
+        if (this._body) this._body.setMass(value);
     }
 
     /**
@@ -150,7 +142,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置是否允许休眠。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic; })
+    @visible(isDynamicBody)
     @displayOrder(0.5)
     @tooltip('i18n:physics3d.rigidbody.allowSleep')
     public get allowSleep (): boolean {
@@ -159,9 +151,7 @@ export class RigidBody extends Component {
 
     public set allowSleep (v: boolean) {
         this._allowSleep = v;
-        if (this._body) {
-            this._body.setAllowSleep(v);
-        }
+        if (this._body) this._body.setAllowSleep(v);
     }
 
     /**
@@ -170,7 +160,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置线性阻尼。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic; })
+    @visible(isDynamicBody)
     @displayOrder(1)
     @tooltip('i18n:physics3d.rigidbody.linearDamping')
     public get linearDamping () {
@@ -178,10 +168,9 @@ export class RigidBody extends Component {
     }
 
     public set linearDamping (value) {
+        if (DEBUG && (value < 0 || value > 1)) warn('[Physics]: The damping should be between zero to one.');
         this._linearDamping = value;
-        if (this._body) {
-            this._body.setLinearDamping(value);
-        }
+        if (this._body) this._body.setLinearDamping(value);
     }
 
     /**
@@ -190,7 +179,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置旋转阻尼。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic; })
+    @visible(isDynamicBody)
     @displayOrder(2)
     @tooltip('i18n:physics3d.rigidbody.angularDamping')
     public get angularDamping () {
@@ -198,10 +187,9 @@ export class RigidBody extends Component {
     }
 
     public set angularDamping (value) {
+        if (DEBUG && (value < 0 || value > 1)) warn('[Physics]: The damping should be between zero to one.');
         this._angularDamping = value;
-        if (this._body) {
-            this._body.setAngularDamping(value);
-        }
+        if (this._body) this._body.setAngularDamping(value);
     }
 
     /**
@@ -210,7 +198,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置刚体是否使用重力。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic; })
+    @visible(isDynamicBody)
     @displayOrder(4)
     @tooltip('i18n:physics3d.rigidbody.useGravity')
     public get useGravity () {
@@ -219,9 +207,7 @@ export class RigidBody extends Component {
 
     public set useGravity (value) {
         this._useGravity = value;
-        if (this._body) {
-            this._body.useGravity(value);
-        }
+        if (this._body) this._body.useGravity(value);
     }
 
     /**
@@ -230,7 +216,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置线性速度的因子，可以用来控制每个轴方向上的速度的缩放。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic; })
+    @visible(isDynamicBody)
     @displayOrder(6)
     @tooltip('i18n:physics3d.rigidbody.linearFactor')
     public get linearFactor () {
@@ -250,7 +236,7 @@ export class RigidBody extends Component {
      * @zh
      * 获取或设置旋转速度的因子，可以用来控制每个轴方向上的旋转速度的缩放。
      */
-    @visible(function (this: RigidBody) { return this.isDynamic; })
+    @visible(isDynamicBody)
     @displayOrder(7)
     @tooltip('i18n:physics3d.rigidbody.angularFactor')
     public get angularFactor () {
@@ -271,14 +257,14 @@ export class RigidBody extends Component {
      * 获取或设置进入休眠的速度临界值。
      */
     public get sleepThreshold (): number {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             return this._body!.getSleepThreshold();
         }
         return 0;
     }
 
     public set sleepThreshold (v: number) {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._body!.setSleepThreshold(v);
         }
     }
@@ -289,15 +275,15 @@ export class RigidBody extends Component {
      * @zh
      * 开启或关闭连续碰撞检测。
      */
-    public get useCCD ():boolean {
-        if (this._assertOnLoadCalled) {
+    public get useCCD (): boolean {
+        if (this._isInitialized) {
             return this._body!.isUseCCD();
         }
         return false;
     }
 
-    public set useCCD (v:boolean) {
-        if (this._assertOnLoadCalled) {
+    public set useCCD (v: boolean) {
+        if (this._isInitialized) {
             this._body!.useCCD(v);
         }
     }
@@ -309,9 +295,7 @@ export class RigidBody extends Component {
      * 获取是否是唤醒的状态。
      */
     public get isAwake (): boolean {
-        if (this._assertOnLoadCalled) {
-            return this._body!.isAwake;
-        }
+        if (this._isInitialized) return this._body!.isAwake;
         return false;
     }
 
@@ -322,9 +306,7 @@ export class RigidBody extends Component {
      * 获取是否是可进入休眠的状态。
      */
     public get isSleepy (): boolean {
-        if (this._assertOnLoadCalled) {
-            return this._body!.isSleepy;
-        }
+        if (this._isInitialized) return this._body!.isSleepy;
         return false;
     }
 
@@ -335,9 +317,7 @@ export class RigidBody extends Component {
      * 获取是否是正在休眠的状态。
      */
     public get isSleeping (): boolean {
-        if (this._assertOnLoadCalled) {
-            return this._body!.isSleeping;
-        }
+        if (this._isInitialized) return this._body!.isSleeping;
         return false;
     }
 
@@ -427,9 +407,9 @@ export class RigidBody extends Component {
     @serializable
     private _angularFactor: Vec3 = new Vec3(1, 1, 1);
 
-    protected get _assertOnLoadCalled (): boolean {
-        const r = this._isOnLoadCalled === 0;
-        if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
+    protected get _isInitialized (): boolean {
+        const r = this._body === undefined;
+        if (r) { error('[Physics]: This rigid body has not been initialized yet, please make sure the node has been added to the scene.'); }
         return !r;
     }
 
@@ -443,21 +423,15 @@ export class RigidBody extends Component {
     }
 
     protected onEnable () {
-        if (this._body) {
-            this._body.onEnable!();
-        }
+        if (this._body) this._body.onEnable!();
     }
 
     protected onDisable () {
-        if (this._body) {
-            this._body.onDisable!();
-        }
+        if (this._body) this._body.onDisable!();
     }
 
     protected onDestroy () {
-        if (this._body) {
-            this._body.onDestroy!();
-        }
+        if (this._body) this._body.onDestroy!();
     }
 
     /// PUBLIC METHOD ///
@@ -471,9 +445,7 @@ export class RigidBody extends Component {
      * @param relativePoint - 作用点，相对于刚体的质心
      */
     public applyForce (force: Vec3, relativePoint?: Vec3) {
-        if (this._assertOnLoadCalled) {
-            this._body!.applyForce(force, relativePoint);
-        }
+        if (this._isInitialized) this._body!.applyForce(force, relativePoint);
     }
 
     /**
@@ -485,9 +457,7 @@ export class RigidBody extends Component {
      * @param localPoint - 作用点
      */
     public applyLocalForce (force: Vec3, localPoint?: Vec3) {
-        if (this._assertOnLoadCalled) {
-            this._body!.applyLocalForce(force, localPoint);
-        }
+        if (this._isInitialized) this._body!.applyLocalForce(force, localPoint);
     }
 
     /**
@@ -499,9 +469,7 @@ export class RigidBody extends Component {
      * @param relativePoint - 作用点，相对于刚体的中心点
      */
     public applyImpulse (impulse: Vec3, relativePoint?: Vec3) {
-        if (this._assertOnLoadCalled) {
-            this._body!.applyImpulse(impulse, relativePoint);
-        }
+        if (this._isInitialized) this._body!.applyImpulse(impulse, relativePoint);
     }
 
     /**
@@ -513,9 +481,7 @@ export class RigidBody extends Component {
      * @param localPoint - 作用点
      */
     public applyLocalImpulse (impulse: Vec3, localPoint?: Vec3) {
-        if (this._assertOnLoadCalled) {
-            this._body!.applyLocalImpulse(impulse, localPoint);
-        }
+        if (this._isInitialized) this._body!.applyLocalImpulse(impulse, localPoint);
     }
 
     /**
@@ -526,9 +492,7 @@ export class RigidBody extends Component {
      * @param torque - 扭矩
      */
     public applyTorque (torque: Vec3) {
-        if (this._assertOnLoadCalled) {
-            this._body!.applyTorque(torque);
-        }
+        if (this._isInitialized) this._body!.applyTorque(torque);
     }
 
     /**
@@ -537,9 +501,7 @@ export class RigidBody extends Component {
      * @param torque - 扭矩
      */
     public applyLocalTorque (torque: Vec3) {
-        if (this._assertOnLoadCalled) {
-            this._body!.applyLocalTorque(torque);
-        }
+        if (this._isInitialized) this._body!.applyLocalTorque(torque);
     }
 
     /**
@@ -549,9 +511,7 @@ export class RigidBody extends Component {
      * 唤醒刚体。
      */
     public wakeUp () {
-        if (this._assertOnLoadCalled) {
-            this._body!.wakeUp();
-        }
+        if (this._isInitialized) this._body!.wakeUp();
     }
 
     /**
@@ -561,9 +521,7 @@ export class RigidBody extends Component {
      * 休眠刚体。
      */
     public sleep () {
-        if (this._assertOnLoadCalled) {
-            this._body!.sleep();
-        }
+        if (this._isInitialized) this._body!.sleep();
     }
 
     /**
@@ -573,9 +531,7 @@ export class RigidBody extends Component {
      * 清除刚体受到的力和速度。
      */
     public clearState () {
-        if (this._assertOnLoadCalled) {
-            this._body!.clearState();
-        }
+        if (this._isInitialized) this._body!.clearState();
     }
 
     /**
@@ -585,9 +541,7 @@ export class RigidBody extends Component {
      * 清除刚体受到的力。
      */
     public clearForces () {
-        if (this._assertOnLoadCalled) {
-            this._body!.clearForces();
-        }
+        if (this._isInitialized) this._body!.clearForces();
     }
 
     /**
@@ -597,9 +551,7 @@ export class RigidBody extends Component {
      * 清除刚体的速度。
      */
     public clearVelocity () {
-        if (this._assertOnLoadCalled) {
-            this._body!.clearVelocity();
-        }
+        if (this._isInitialized) this._body!.clearVelocity();
     }
 
     /**
@@ -610,9 +562,7 @@ export class RigidBody extends Component {
      * @param out 速度 Vec3
      */
     public getLinearVelocity (out: Vec3) {
-        if (this._assertOnLoadCalled) {
-            this._body!.getLinearVelocity(out);
-        }
+        if (this._isInitialized) this._body!.getLinearVelocity(out);
     }
 
     /**
@@ -623,9 +573,7 @@ export class RigidBody extends Component {
      * @param value 速度 Vec3
      */
     public setLinearVelocity (value: Vec3): void {
-        if (this._assertOnLoadCalled) {
-            this._body!.setLinearVelocity(value);
-        }
+        if (this._isInitialized) this._body!.setLinearVelocity(value);
     }
 
     /**
@@ -636,9 +584,7 @@ export class RigidBody extends Component {
      * @param out 速度 Vec3
      */
     public getAngularVelocity (out: Vec3) {
-        if (this._assertOnLoadCalled) {
-            this._body!.getAngularVelocity(out);
-        }
+        if (this._isInitialized) this._body!.getAngularVelocity(out);
     }
 
     /**
@@ -649,9 +595,7 @@ export class RigidBody extends Component {
      * @param value 速度 Vec3
      */
     public setAngularVelocity (value: Vec3): void {
-        if (this._assertOnLoadCalled) {
-            this._body!.setAngularVelocity(value);
-        }
+        if (this._isInitialized) this._body!.setAngularVelocity(value);
     }
 
     /// GROUP MASK ///
@@ -664,9 +608,7 @@ export class RigidBody extends Component {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getGroup (): number {
-        if (this._assertOnLoadCalled) {
-            return this._body!.getGroup();
-        }
+        if (this._isInitialized) return this._body!.getGroup();
         return 0;
     }
 
@@ -678,9 +620,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setGroup (v: number): void {
-        if (this._assertOnLoadCalled) {
-            this._body!.setGroup(v);
-        }
+        if (this._isInitialized) this._body!.setGroup(v);
     }
 
     /**
@@ -691,9 +631,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addGroup (v: number) {
-        if (this._assertOnLoadCalled) {
-            this._body!.addGroup(v);
-        }
+        if (this._isInitialized) this._body!.addGroup(v);
     }
 
     /**
@@ -704,9 +642,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeGroup (v: number) {
-        if (this._assertOnLoadCalled) {
-            this._body!.removeGroup(v);
-        }
+        if (this._isInitialized) this._body!.removeGroup(v);
     }
 
     /**
@@ -717,9 +653,7 @@ export class RigidBody extends Component {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getMask (): number {
-        if (this._assertOnLoadCalled) {
-            return this._body!.getMask();
-        }
+        if (this._isInitialized) return this._body!.getMask();
         return 0;
     }
 
@@ -731,9 +665,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        if (this._assertOnLoadCalled) {
-            this._body!.setMask(v);
-        }
+        if (this._isInitialized) this._body!.setMask(v);
     }
 
     /**
@@ -744,9 +676,7 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        if (this._assertOnLoadCalled) {
-            this._body!.addMask(v);
-        }
+        if (this._isInitialized) this._body!.addMask(v);
     }
 
     /**
@@ -757,11 +687,11 @@ export class RigidBody extends Component {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        if (this._assertOnLoadCalled) {
-            this._body!.removeMask(v);
-        }
+        if (this._isInitialized) this._body!.removeMask(v);
     }
 }
+
+function isDynamicBody (this: RigidBody) { return this.isDynamic; }
 
 export namespace RigidBody {
     export type Type = EnumAlias<typeof ERigidBodyType>;

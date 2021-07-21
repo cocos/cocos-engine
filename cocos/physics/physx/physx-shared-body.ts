@@ -61,7 +61,7 @@ export class PhysXSharedBody {
         }
         if (wrappedBody) {
             newSB._wrappedBody = wrappedBody;
-            const g = (wrappedBody.rigidBody as any)._group;
+            const g = wrappedBody.rigidBody.group;
             const m = PhysicsSystem.instance.collisionMatrix[g];
             newSB.filterData.word0 = g;
             newSB.filterData.word1 = m;
