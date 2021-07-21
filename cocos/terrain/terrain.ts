@@ -884,7 +884,7 @@ export class TerrainBlock {
         model.inputAssembler.firstIndex = indexData.start;
         model.inputAssembler.indexCount = indexData.size;
     }
-    
+
     private	_getHeight(x: number, y: number, vertecs: Float32Array) {
         const idx = TERRAIN_BLOCK_VERTEX_COMPLEXITY * y + x;
         return vertecs[idx * TERRAIN_BLOCK_VERTEX_SIZE + 1];
