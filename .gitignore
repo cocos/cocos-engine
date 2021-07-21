@@ -23,6 +23,7 @@ scripts/build-engine/dist
 
 tests/core/serialization/ccob-serialized-gallery
 
+platforms/runtime/local-commit.json
 platforms/runtime/common/web-adapter.js
 platforms/runtime/common/web-adapter.min.js
 platforms/runtime/platforms/cocos-play/ral.js
@@ -37,4 +38,4 @@ platforms/runtime/platforms/qtt/ral.js
 platforms/runtime/platforms/qtt/ral.min.js
 platforms/runtime/platforms/vivo-mini-game/ral.js
 platforms/runtime/platforms/vivo-mini-game/ral.min.js
-scripts/runtime-web-adapter-for-creator-3
+scripts/runtime-web-adapter

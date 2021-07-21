@@ -509,7 +509,6 @@ export class Model {
         attrs.buffer = new Uint8Array(size);
         attrs.views.length = attrs.attributes.length = 0;
         let offset = 0;
-        const nativeViews: TypedArray[] = [];
         for (let j = 0; j < attributes.length; j++) {
             const attribute = attributes[j];
             if (!attribute.isInstanced) { continue; }
@@ -524,9 +523,6 @@ export class Model {
 
             const typeViewArray = new (getTypedArrayConstructor(info))(attrs.buffer.buffer, offset, info.count);
             attrs.views.push(typeViewArray);
-            if (JSB) {
-                nativeViews.push(typeViewArray);
-            }
             offset += info.size;
         }
         if (pass.batchingScheme === BatchingSchemes.INSTANCING) { InstancedBuffer.get(pass).destroy(); } // instancing IA changed
@@ -534,7 +530,7 @@ export class Model {
         this._transformUpdated = true;
 
         if (JSB) {
-            this._nativeObj!.setInstancedAttrBlock(attrs.buffer.buffer, nativeViews, attrs.attributes);
+            this._nativeObj!.setInstancedAttrBlock(attrs.buffer.buffer, attrs.views, attrs.attributes);
         }
     }
 

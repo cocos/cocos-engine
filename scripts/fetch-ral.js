@@ -1,6 +1,5 @@
 const ps = require('path');
 const fs = require('fs');
-const download = require('download');
 const { exec } = require('child_process');
 const del = require('del');
 
@@ -8,11 +7,36 @@ function join (...paths) {
     const result = ps.join(...paths);
     return result.replace(/\\/g, '/');
 }
-let ralPath = join(__dirname, 'runtime-web-adapter-for-creator-3');
+function readJsonSync (jsonPath) {
+    const json = fs.readFileSync(jsonPath, 'utf8');
+    return JSON.parse(json);
+}
 
-function checkCache () {
-    console.log('Checking ral cache...\n');
+const repositoryPath = join(__dirname, 'runtime-web-adapter');
+const localCommitFile = join(__dirname, '../platforms/runtime/local-commit.json');
+const targetCommitFile = join(__dirname, '../platforms/runtime/target-commit.json');
+
+function matchCommit () {
+    console.log('Matching commit...\n');
+    const localCommit = readJsonSync(localCommitFile).commit;
+    const targetCommit = readJsonSync(targetCommitFile).commit;
+    return localCommit === targetCommit;
+}
+
+function checkFile () {
+    console.log('Checking ral file...\n');
     const distDir = join(__dirname, '../platforms/runtime');
+
+    if (!fs.existsSync(targetCommitFile)) {
+        console.error('Cannot access to target commit file.');
+        process.exit(1);
+    }
+
+    // check local commit file
+    if (!fs.existsSync(localCommitFile)) {
+        return false;
+    }
+
     // check web adapter
     const webAdapters = ['web-adapter.js', 'web-adapter.min.js'];
     for (const webAdapter of webAdapters) {
@@ -21,6 +45,7 @@ function checkCache () {
             return false;
         }
     }
+
     // check ral
     const platformNames = ['cocos-play', 'huawei-quick-game', 'link-sure', 'oppo-mini-game', 'qtt', 'vivo-mini-game'];
     const rals = ['ral.js', 'ral.min.js'];
@@ -32,29 +57,20 @@ function checkCache () {
             }
         }
     }
+
     return true;
 }
 
 /**
- * @param {string} downloadUrl 
- * @returns {Promise<void>}
- */
-async function downloadAndExtractRepo (downloadUrl) {
-    console.log(`Downloading from url '${downloadUrl}'\n`);
-    await download(downloadUrl, __dirname, {
-        extract: true,
-    });
-}
-
-/**
  * @param {string} cmd 
+ * @param {string} cwd
  * @returns {Promise<void>}
  */
-function runCommand (cmd) {
+function runCommand (cmd, cwd) {
     return new Promise((resolve, reject) => {
-        console.log(`Running command: '${cmd}' in '${ralPath}'\n`);
+        console.log(`Running command: '${cmd}' in '${repositoryPath}'\n`);
         const ls = exec(cmd, {
-            cwd: ralPath,
+            cwd,
         });
         ls.stderr.on('data', err => {
             console.error(err)
@@ -65,28 +81,30 @@ function runCommand (cmd) {
 
 function copyRal () {
     const distDir = join(__dirname, '../platforms/runtime');
-    console.log(`Copy files from '${ralPath}' to '${distDir}'\n`);
+    console.log(`Copy files from '${repositoryPath}' to '${distDir}'\n`);
 
     // copy web-adapter
     ['web-adapter.js', 'web-adapter.min.js'].forEach(fileName => {
-        const src = join(ralPath, 'dist/common', fileName);
+        const src = join(repositoryPath, 'dist/common', fileName);
         const dst = join(distDir, 'common', fileName);
         fs.copyFileSync(src, dst);
     });
     // copy ral
     ['cocos-play', 'huawei-quick-game', 'link-sure', 'oppo-mini-game', 'qtt', 'vivo-mini-game'].forEach(platformName => {
         ['ral.js', 'ral.min.js'].forEach(fileName => {
-            const src = join(ralPath, 'dist/platforms', platformName, fileName);
+            const src = join(repositoryPath, 'dist/platforms', platformName, fileName);
             const dst = join(distDir, 'platforms', platformName, fileName);
             fs.copyFileSync(src, dst);
         });
     });
 }
 
-async function cleanOldAdapter () {
+async function cleanOldRal () {
     console.log('Cleaning old runtime adapter...\n');
     const distDir = join(__dirname, '../platforms/runtime');
     const delPatterns = [];
+    // del local commit
+    delPatterns.push(localCommitFile);
     // del web adapter
     ['web-adapter.js', 'web-adapter.min.js'].forEach(fileName => {
         const dst = join(distDir, 'common', fileName);
@@ -102,6 +120,12 @@ async function cleanOldAdapter () {
     await del(delPatterns, { force: true });
 }
 
+async function writeLocalCommitFile () {
+    console.log('Write local commit file\n');
+    const targetCommitJson = fs.readFileSync(targetCommitFile, 'utf8');
+    fs.writeFileSync(localCommitFile, targetCommitJson);
+}
+
 /**
  * @param {string} dirPath 
  * @returns {Promise<void>}
@@ -113,21 +137,23 @@ async function removeDir (dirPath) {
 
 (async () => {
     try {
-        const forceFetch = process.argv[2] === 'force';
-        if (!forceFetch && checkCache()) {
-            console.log('Skip fetching ral !\n');
-            return process.exit(0);
+        console.time('Fetch RAL');
+        if (checkFile() && matchCommit()) {
+            console.log('Skip fetching ral!\n');
+            console.timeEnd('Fetch RAL');
+            process.exit(0);
         }
-        if (forceFetch) {
-            console.log('Force fetching ral...\n');
-        }
-        await cleanOldAdapter();
-        await removeDir(ralPath);
-        await downloadAndExtractRepo('https://codeload.github.com/yangws/runtime-web-adapter/zip/refs/heads/for-creator-3');
-        await runCommand('npm install');
-        await runCommand('gulp');
+        await cleanOldRal();
+        await removeDir(repositoryPath);
+        await runCommand('git clone https://gitlab.cocos.net/publics/runtime-web-adapter', __dirname);
+        await runCommand('git checkout for-creator-3', repositoryPath);
+        await runCommand(`git reset --hard ${readJsonSync(targetCommitFile).commit}`, repositoryPath);
+        await runCommand('npm install', repositoryPath);
+        await runCommand('gulp', repositoryPath);
         copyRal();
-        await removeDir(ralPath);
+        writeLocalCommitFile();
+        await removeDir(repositoryPath);
+        console.timeEnd('Fetch RAL');
         process.exit(0);
     } catch (err) {
         console.error('Fetch ral failed', err);
