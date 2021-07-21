@@ -40,7 +40,7 @@ import { PhysicsRayResult } from './physics-ray-result';
 import { IPhysicsConfig, ICollisionMatrix } from './physics-config';
 import { CollisionMatrix } from './collision-matrix';
 import { PhysicsGroup } from './physics-enum';
-import { constructDefaultWorld, selector } from './physics-selector';
+import { constructDefaultWorld, IWorldInitData, selector } from './physics-selector';
 import { legacyCC } from '../../core/global-exports';
 
 legacyCC.internal.PhysicsGroup = PhysicsGroup;
@@ -51,7 +51,7 @@ legacyCC.internal.PhysicsGroup = PhysicsGroup;
  * @zh
  * 物理系统。
  */
-export class PhysicsSystem extends System {
+export class PhysicsSystem extends System implements IWorldInitData {
     public static get PHYSICS_NONE () {
         return !selector.id;
     }
@@ -97,7 +97,7 @@ export class PhysicsSystem extends System {
      * 获取物理系统实例。
      */
     public static get instance (): PhysicsSystem {
-        return PhysicsSystem._instance;
+        return PhysicsSystem._instance!;
     }
 
     /**
@@ -260,7 +260,7 @@ export class PhysicsSystem extends System {
     private _sleepThreshold = 0.1;
     private readonly _gravity = new Vec3(0, -10, 0);
     private readonly _material = new PhysicsMaterial();
-    private static readonly _instance: PhysicsSystem;
+    private static readonly _instance: PhysicsSystem | null = null;
 
     private readonly raycastOptions: IRaycastOptions = {
         group: -1,
@@ -274,13 +274,6 @@ export class PhysicsSystem extends System {
     private constructor () {
         super();
         this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
-    }
-
-    init () {
-        this.resetConfiguration();
-        this.physicsWorld.setGravity(this._gravity);
-        this.physicsWorld.setAllowSleep(this._allowSleep);
-        this.physicsWorld.setDefaultMaterial(this._material);
     }
 
     postUpdate (deltaTime: number) {
@@ -351,6 +344,12 @@ export class PhysicsSystem extends System {
                 cg.forEach((v) => { PhysicsGroup[v.name] = 1 << v.index; });
                 Enum.update(PhysicsGroup);
             }
+        }
+
+        if (this.physicsWorld) {
+            this.physicsWorld.setGravity(this._gravity);
+            this.physicsWorld.setAllowSleep(this._allowSleep);
+            this.physicsWorld.setDefaultMaterial(this._material);
         }
     }
 
@@ -439,14 +438,29 @@ export class PhysicsSystem extends System {
     private _updateMaterial () {
         if (this.physicsWorld) this.physicsWorld.setDefaultMaterial(this._material);
     }
+
+    /**
+     * @en
+     * Construct and register the system singleton.
+     * If the module is pre-loaded, it will be executed automatically.
+     * @zh
+     * 构造并注册系统单例。
+     * 预先加载模块的情况下，会自动执行。
+     */
+    static constructAndRegister () {
+        if (!PhysicsSystem._instance) {
+            // Construct physics world and physics system only once
+            const sys = new PhysicsSystem();
+            sys.resetConfiguration();
+            constructDefaultWorld(sys);
+            (PhysicsSystem._instance as unknown as PhysicsSystem) = sys;
+            director.registerSystem(PhysicsSystem.ID, sys, sys.priority);
+        }
+    }
 }
 
-director.once(Director.EVENT_INIT, () => {
-    const System = PhysicsSystem as any;
-    if (!System._instance) {
-        // Construct physics world and physics system only once
-        constructDefaultWorld();
-        System._instance = new System();
-        director.registerSystem(PhysicsSystem.ID, PhysicsSystem.instance, PhysicsSystem.instance.priority);
-    }
-});
+/**
+ * By registering the initialization event, the system can be automatically
+ * constructed and registered when the module is pre-loaded
+ */
+director.once(Director.EVENT_INIT, () => { PhysicsSystem.constructAndRegister(); });

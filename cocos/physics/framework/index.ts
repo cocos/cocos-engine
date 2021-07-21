@@ -57,7 +57,7 @@ import * as utils from '../utils/util';
  * @en
  * This object stores various types of configuration properties.
  * @zh
- * 该对象存储了多种类型的配置属性。
+ * 该对象用于存储多种类型的配置属性。
  */
 const config = {
     /**

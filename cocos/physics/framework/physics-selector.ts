@@ -40,8 +40,9 @@ import {
 } from '../spec/i-physics-shape';
 import { IPhysicsWorld } from '../spec/i-physics-world';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { errorID, warn } from '../../core';
+import { errorID, IVec3Like, warn } from '../../core';
 import { EColliderType, EConstraintType } from './physics-enum';
+import { PhysicsMaterial } from '.';
 
 export type IPhysicsEngineId = 'builtin' | 'cannon.js' | 'ammo.js' | 'physx' | string;
 
@@ -122,7 +123,7 @@ function updateLegacyMacro (id: string) {
 }
 
 function register (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {
-    if (!EDITOR) console.info(`[PHYSICS]: register ${id}.`);
+    if (!EDITOR && !TEST) console.info(`[PHYSICS]: register ${id}.`);
     selector.backend[id] = wrapper;
     if (!selector.physicsWorld || selector.id === id) {
         updateLegacyMacro(id);
@@ -132,18 +133,31 @@ function register (id: IPhysicsEngineId, wrapper: IPhysicsWrapperObject): void {
     }
 }
 
+export interface IWorldInitData {
+    gravity: IVec3Like;
+    allowSleep: boolean;
+    defaultMaterial: PhysicsMaterial;
+}
+let worldInitData: IWorldInitData | null;
+
 function switchTo (id: IPhysicsEngineId) {
     const mutableSelector = selector as Mutable<IPhysicsSelector>;
     if (selector.physicsWorld && id !== selector.id && selector.backend[id] != null) {
         selector.physicsWorld.destroy();
-        console.info(`[PHYSICS]: switch from ${selector.id} to ${id}.`);
+        if (!TEST) console.info(`[PHYSICS]: switch from ${selector.id} to ${id}.`);
         updateLegacyMacro(id);
         mutableSelector.id = id;
         mutableSelector.wrapper = selector.backend[id];
         mutableSelector.physicsWorld = createPhysicsWorld();
     } else {
-        console.info(`[PHYSICS]: using ${id}.`);
+        if (!EDITOR && !TEST) console.info(`[PHYSICS]: using ${id}.`);
         mutableSelector.physicsWorld = createPhysicsWorld();
+    }
+    if (worldInitData) {
+        const world = mutableSelector.physicsWorld;
+        world.setGravity(worldInitData.gravity);
+        world.setAllowSleep(worldInitData.allowSleep);
+        world.setDefaultMaterial(worldInitData.defaultMaterial);
     }
 }
 
@@ -162,11 +176,15 @@ export const selector: IPhysicsSelector = {
     physicsWorld: null as any,
 };
 
-export function constructDefaultWorld () {
+export function constructDefaultWorld (data: IWorldInitData) {
+    if (!worldInitData) worldInitData = data;
     if (!selector.physicsWorld) {
-        console.info(`[PHYSICS]: using ${selector.id}.`);
+        if (!TEST) console.info(`[PHYSICS]: using ${selector.id}.`);
         const mutableSelector = selector as Mutable<IPhysicsSelector>;
-        mutableSelector.physicsWorld = createPhysicsWorld();
+        const world = mutableSelector.physicsWorld = createPhysicsWorld();
+        world.setGravity(worldInitData.gravity);
+        world.setAllowSleep(worldInitData.allowSleep);
+        world.setDefaultMaterial(worldInitData.defaultMaterial);
     }
 }
 
