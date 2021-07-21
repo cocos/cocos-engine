@@ -46,7 +46,7 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
 
     updateRadius () {
         const max = Math.abs(absMaxComponent(this.collider.node.worldScale));
-        this.impl.radius = clamp(v * Math.abs(max), PhysicsSystem.instance.minVolumeSize, Number.MAX_VALUE);
+        this.impl.radius = clamp(this.collider.radius * Math.abs(max), PhysicsSystem.instance.minVolumeSize, Number.MAX_VALUE);
         this.impl.updateBoundingSphereRadius();
         if (this._index !== -1) {
             commitShapeUpdates(this._body);
