@@ -164,7 +164,7 @@ export abstract class RenderPipeline extends Asset {
     protected declare _pipelineSceneData: PipelineSceneData;
 
     protected static _renderCallbacks: IRenderPipelineCallback[] = [];
-    
+
     /**
      * @en Add render callback
      * @zh 添加渲染回掉。
@@ -179,12 +179,12 @@ export abstract class RenderPipeline extends Asset {
      */
     public static removeRenderCallback (callback: IRenderPipelineCallback) {
         for (let i = 0; i < RenderPipeline._renderCallbacks.length; ++i) {
-            if (RenderPipeline._renderCallbacks[i] == callback) {
+            if (RenderPipeline._renderCallbacks[i] === callback) {
                 RenderPipeline._renderCallbacks.slice(i);
             }
         }
     }
-    
+
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
@@ -247,7 +247,7 @@ export abstract class RenderPipeline extends Asset {
         for (let j = 0; j < this.flows.length; j++) {
             for (let i = 0; i < cameras.length; i++) {
                 const camera = cameras[i];
-                
+
                 for (let k = 0; k < RenderPipeline._renderCallbacks.length; ++k) {
                     RenderPipeline._renderCallbacks[k].onPreRender(camera);
                 }

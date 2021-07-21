@@ -586,9 +586,9 @@ export class TerrainBlock {
             if (d <= ld1) {
                 break;
             }
-            
+
             ++this._lodLevel;
-		}
+        }
     }
 
     public setBrushMaterial (mtl: Material|null) {
@@ -828,36 +828,36 @@ export class TerrainBlock {
             const n = this.getTerrain().getBlock(this._index[0] - 1, this._index[1]);
             key.west = n._lodLevel;
             if (key.west < this._lodLevel) {
-				key.west = this._lodLevel;
-			}
+                key.west = this._lodLevel;
+            }
         }
 
         if (this._index[0] < this._terrain.info.blockCount[0] - 1) {
             const n = this.getTerrain().getBlock(this._index[0] + 1, this._index[1]);
             key.east = n._lodLevel;
             if (key.east < this._lodLevel) {
-				key.east = this._lodLevel;
-			}
+                key.east = this._lodLevel;
+            }
         }
 
         if (this._index[1] > 0) {
             const n = this.getTerrain().getBlock(this._index[0], this._index[1] - 1);
             key.north = n._lodLevel;
             if (key.north < this._lodLevel) {
-				key.north = this._lodLevel;
-			}
+                key.north = this._lodLevel;
+            }
         }
 
         if (this._index[1] < this._terrain.info.blockCount[1] - 1) {
             const n = this.getTerrain().getBlock(this._index[0], this._index[1] + 1);
             key.south = n._lodLevel;
             if (key.south < this._lodLevel) {
-				key.south = this._lodLevel;
-			}
+                key.south = this._lodLevel;
+            }
         }
 
         if (this._lodKey.compare(key)) {
-           //return;
+           return;
         }
 
         this._lodKey = key;
@@ -884,7 +884,7 @@ export class TerrainBlock {
         model.inputAssembler.firstIndex = indexData.start;
         model.inputAssembler.indexCount = indexData.size;
     }
-
+    
     private	_getHeight(x: number, y: number, vertecs: Float32Array) {
         const idx = TERRAIN_BLOCK_VERTEX_COMPLEXITY * y + x;
         return vertecs[idx * TERRAIN_BLOCK_VERTEX_SIZE + 1];
@@ -909,7 +909,7 @@ export class TerrainBlock {
         }
     }
 
-	private _calcErrorMetric (level: number, vertecs: Float32Array) {
+    private _calcErrorMetric (level: number, vertecs: Float32Array) {
         let err = 0.0;
         const step = 1 << level;
         const xSectionVerts = TERRAIN_BLOCK_VERTEX_COMPLEXITY;
@@ -1048,7 +1048,7 @@ export class Terrain extends Component implements IRenderPipelineCallback {
     protected _layerList: (TerrainLayer|null)[] = [];
     protected _layerBuffer: number[] = [];
     protected _blocks: TerrainBlock[] = [];
-    protected _lod: TerrainLod = new TerrainLod;
+    protected _lod: TerrainLod = new TerrainLod();
     protected _sharedIndexBuffer: Buffer|null = null;
 
     constructor () {
@@ -1516,11 +1516,7 @@ export class Terrain extends Component implements IRenderPipelineCallback {
         }
     }
 
-    public onPostRender(cam: Camera): void {
-        if (!this.LodEnable) {
-            return;
-        }
-    }
+    public onPostRender(cam: Camera): void {}
 
     /**
      * @en add layer
