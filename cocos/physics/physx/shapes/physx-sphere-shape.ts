@@ -44,7 +44,7 @@ export class PhysXSphereShape extends PhysXShape implements ISphereShape {
         }
     }
 
-    setRadius (v: number): void {
+    updateRadius (): void {
         this.updateScale();
     }
 

@@ -44,7 +44,7 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
         return this._shape as CANNON.Sphere;
     }
 
-    setRadius (v: number) {
+    updateRadius () {
         const max = Math.abs(absMaxComponent(this.collider.node.worldScale));
         this.impl.radius = clamp(v * Math.abs(max), PhysicsSystem.instance.minVolumeSize, Number.MAX_VALUE);
         this.impl.updateBoundingSphereRadius();
@@ -60,11 +60,11 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
 
     onLoad () {
         super.onLoad();
-        this.setRadius(this.collider.radius);
+        this.updateRadius();
     }
 
     setScale (scale: Vec3): void {
         super.setScale(scale);
-        this.setRadius(this.collider.radius);
+        this.updateRadius();
     }
 }

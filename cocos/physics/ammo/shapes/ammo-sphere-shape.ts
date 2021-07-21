@@ -39,7 +39,7 @@ import { absMaxComponent } from '../../../core';
 import { VEC3_0 } from '../../utils/util';
 
 export class AmmoSphereShape extends AmmoShape implements ISphereShape {
-    setRadius (_radius: number) {
+    updateRadius () {
         this.impl.setUnscaledRadius(this.getMinUnscaledRadius());
         this.updateCompoundTransform();
     }

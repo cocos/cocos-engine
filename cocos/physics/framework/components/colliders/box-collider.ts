@@ -73,7 +73,7 @@ export class BoxCollider extends Collider {
         Vec3.copy(this._size, value);
         absolute(this._size);
         if (this._shape) {
-            this.shape.setSize(this._size);
+            this.shape.updateSize();
         }
     }
 

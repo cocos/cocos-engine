@@ -46,7 +46,7 @@ export class PhysXBoxShape extends PhysXShape implements IBoxShape {
         }
     }
 
-    setSize (v: IVec3Like): void {
+    updateSize (): void {
         this.updateScale();
     }
 

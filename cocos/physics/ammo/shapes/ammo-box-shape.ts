@@ -36,12 +36,11 @@ import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framewor
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
-import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoConstant } from '../ammo-const';
 import { absolute, VEC3_0 } from '../../utils/util';
 
 export class AmmoBoxShape extends AmmoShape implements IBoxShape {
-    setSize (size: IVec3Like) {
+    updateSize () {
         const hf = AmmoConstant.instance.VECTOR3_0;
         cocos2AmmoVec3(hf, this.getMinUnscaledHalfExtents(VEC3_0));
         this.impl.setUnscaledHalfExtents(hf);

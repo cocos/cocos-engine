@@ -425,7 +425,7 @@ class Shape {
 
 class SphereShape extends Shape {
     constructor() { super(); this._impl = new jsbPhy.SphereShape(); }
-    setRadius (v) { this._impl.setRadius(v); }
+    updateRadius () { this._impl.setRadius(this.collider.radius); }
     onLoad () {
         super.onLoad();
         this.setRadius(this._com.radius);
@@ -434,7 +434,10 @@ class SphereShape extends Shape {
 
 class BoxShape extends Shape {
     constructor() { super(); this._impl = new jsbPhy.BoxShape(); }
-    setSize (v) { this._impl.setSize(v.x, v.y, v.z); }
+    updateSize () { 
+        const v = this.collider.size;
+        this._impl.setSize(v.x, v.y, v.z); 
+    }
     onLoad () {
         super.onLoad();
         this.setSize(this._com.size);
