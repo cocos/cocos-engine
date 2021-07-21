@@ -364,7 +364,7 @@ class CCObject implements EditorExtendableObject {
             this._onPreDestroy();
         }
 
-        if (!EDITOR) {
+        if (!EDITOR || legacyCC.GAME_VIEW) {
             this._destruct();
         }
 
