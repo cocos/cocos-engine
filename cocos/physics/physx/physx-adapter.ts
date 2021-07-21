@@ -34,6 +34,7 @@
 /* eslint-disable consistent-return */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable no-lonely-if */
+/* eslint-disable import/order */
 
 /**
  * Comment the next line and uncomment the second line, if you want to get a smaller package body on the bytedance platform.
@@ -56,14 +57,34 @@ import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-en
 
 let _px = {};
 const globalThis = legacyCC._global;
-// Use bytedance native physics if tt support getPhy.
-const USE_BYTEDANCE = BYTEDANCE && globalThis.tt && globalThis.tt.getPhy;
+// Use bytedance native or js physics if tt getPhy return non null.
+const USE_BYTEDANCE = BYTEDANCE && globalThis.tt && globalThis.tt.getPhy && globalThis.tt.getPhy();
+const USE_BYTEDANCE_NATIVE = USE_BYTEDANCE && !globalThis.tt.getPhy().js;
 if (USE_BYTEDANCE) {
-    if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX Native Libs in BYTEDANCE.');
-    _px = globalThis.tt.getPhy();
-    initConfigAndCacheObject(_px);
+    if (!EDITOR && !TEST) console.info('[PHYSICS]:', `Use PhysX ${USE_BYTEDANCE_NATIVE ? 'Native' : 'JS'} Libs in BYTEDANCE.`);
+    if (USE_BYTEDANCE_NATIVE) {
+        _px = globalThis.tt.getPhy();
+        initConfigAndCacheObject(_px);
+    } else {
+        // If external PHYSX not given, then set to `globalThis.tt.getPhy()`
+        if (!globalThis.PHYSX) globalThis.PHYSX = globalThis.tt.getPhy();
+        initPhysXWithJsModule();
+    }
 } else {
     if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
+    initPhysXWithJsModule();
+}
+
+export const PX = _px as any;
+
+/**
+ * Extension config for bytedance
+ */
+interface IPhysicsConfigEXT extends IPhysicsConfig {
+    physX: { epsilon: number, multiThread: boolean, subThreadCount: number, }
+}
+
+function initPhysXWithJsModule () {
     // If external PHYSX not given, then try to use internal PhysX libs.
     globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : PhysX;
     if (globalThis.PhysX != null) {
@@ -76,15 +97,6 @@ if (USE_BYTEDANCE) {
     } else {
         if (!EDITOR) console.error('[PHYSICS]:', 'Not Found PhysX js or wasm Libs.');
     }
-}
-
-export const PX = _px as any;
-
-/**
- * Extension config for bytedance
- */
-interface IPhysicsConfigEXT extends IPhysicsConfig {
-    physX: { epsilon: number, multiThread: boolean, subThreadCount: number, }
 }
 
 function initConfigAndCacheObject (PX: any) {
@@ -128,11 +140,11 @@ export const _trans = {
     q: _v4,
 };
 
-export const _pxtrans = USE_BYTEDANCE && PX ? new PX.Transform(_v3, _v4) : _trans;
+export const _pxtrans = USE_BYTEDANCE_NATIVE && PX ? new PX.Transform(_v3, _v4) : _trans;
 
 export function addReference (shape: PhysXShape, impl: any) {
     if (!impl) return;
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         PX.IMPL_PTR[shape.id] = shape;
         impl.setUserData(shape.id);
     } else {
@@ -142,7 +154,7 @@ export function addReference (shape: PhysXShape, impl: any) {
 
 export function removeReference (shape: PhysXShape, impl: any) {
     if (!impl) return;
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         PX.IMPL_PTR[shape.id] = null;
         delete PX.IMPL_PTR[shape.id];
     } else {
@@ -154,7 +166,7 @@ export function removeReference (shape: PhysXShape, impl: any) {
 }
 
 export function getWrapShape<T> (pxShape: any): T {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         return PX.IMPL_PTR[pxShape];
     } else {
         return PX.IMPL_PTR[pxShape.$$.ptr];
@@ -162,7 +174,7 @@ export function getWrapShape<T> (pxShape: any): T {
 }
 
 export function getTempTransform (pos: IVec3Like, quat: IQuatLike): any {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         _pxtrans.setPosition(pos);
         _pxtrans.setQuaternion(quat);
     } else {
@@ -179,7 +191,7 @@ export function getJsTransform (pos: IVec3Like, quat: IQuatLike): any {
 }
 
 export function addActorToScene (scene: any, actor: any) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         scene.addActor(actor);
     } else {
         scene.addActor(actor, null);
@@ -187,7 +199,7 @@ export function addActorToScene (scene: any, actor: any) {
 }
 
 export function setJointActors (joint: any, actor0: any, actor1: any): void {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         // eslint-disable-next-line @typescript-eslint/no-unused-expressions
         actor1 ? joint.setActors(actor0, actor1) : joint.setActors(actor0);
     } else {
@@ -196,7 +208,7 @@ export function setJointActors (joint: any, actor0: any, actor1: any): void {
 }
 
 export function setMassAndUpdateInertia (impl: any, mass: number): void {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         PX.RigidBodyExt.setMassAndUpdateInertia(impl, mass);
     } else {
         impl.setMassAndUpdateInertia(mass);
@@ -208,7 +220,7 @@ export function copyPhysXTransform (node: Node, transform: any): void {
     const wr = node.worldRotation;
     const dontUpdate = physXEqualsCocosVec3(transform, wp) && physXEqualsCocosQuat(transform, wr);
     if (dontUpdate) return;
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         node.setWorldPosition(transform.p);
         node.setWorldRotation(transform.q);
     } else {
@@ -218,23 +230,23 @@ export function copyPhysXTransform (node: Node, transform: any): void {
 }
 
 export function physXEqualsCocosVec3 (trans: any, v3: IVec3Like): boolean {
-    const pos = USE_BYTEDANCE ? trans.p : trans.translation;
+    const pos = USE_BYTEDANCE_NATIVE ? trans.p : trans.translation;
     return Vec3.equals(pos, v3, PX.EPSILON);
 }
 
 export function physXEqualsCocosQuat (trans: any, q: IQuatLike): boolean {
-    const rot = USE_BYTEDANCE ? trans.q : trans.rotation;
+    const rot = USE_BYTEDANCE_NATIVE ? trans.q : trans.rotation;
     return Quat.equals(rot, q, PX.EPSILON);
 }
 
 export function applyImpulse (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IVec3Like) {
     if (isGlobal) {
-        if (USE_BYTEDANCE) {
+        if (USE_BYTEDANCE_NATIVE) {
             PX.RigidBodyExt.applyImpulse(impl, vec, rp);
         } else {
             impl.applyImpulse(vec, rp);
         }
-    } else if (USE_BYTEDANCE) {
+    } else if (USE_BYTEDANCE_NATIVE) {
         PX.RigidBodyExt.applyLocalImpulse(impl, vec, rp);
     } else {
         impl.applyLocalImpulse(vec, rp);
@@ -243,12 +255,12 @@ export function applyImpulse (isGlobal: boolean, impl: any, vec: IVec3Like, rp: 
 
 export function applyForce (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IVec3Like) {
     if (isGlobal) {
-        if (USE_BYTEDANCE) {
+        if (USE_BYTEDANCE_NATIVE) {
             PX.RigidBodyExt.applyForce(impl, vec, rp);
         } else {
             impl.applyForce(vec, rp);
         }
-    } else if (USE_BYTEDANCE) {
+    } else if (USE_BYTEDANCE_NATIVE) {
         PX.RigidBodyExt.applyLocalForce(impl, vec, rp);
     } else {
         impl.applyLocalForce(vec, rp);
@@ -256,7 +268,7 @@ export function applyForce (isGlobal: boolean, impl: any, vec: IVec3Like, rp: IV
 }
 
 export function applyTorqueForce (impl: any, vec: IVec3Like) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         impl.addTorque(vec, PX.ForceMode.eFORCE, true);
     } else {
         impl.addTorque(vec);
@@ -264,7 +276,7 @@ export function applyTorqueForce (impl: any, vec: IVec3Like) {
 }
 
 export function getShapeFlags (isTrigger: boolean): any {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         const flag = (isTrigger ? PX.ShapeFlag.eTRIGGER_SHAPE : PX.ShapeFlag.eSIMULATION_SHAPE)
             | PX.ShapeFlag.eSCENE_QUERY_SHAPE;
         return flag;
@@ -275,7 +287,7 @@ export function getShapeFlags (isTrigger: boolean): any {
 }
 
 export function getShapeWorldBounds (shape: any, actor: any, i = 1.01, out: AABB) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         const b3 = PX.RigidActorExt.getWorldBounds(shape, actor, i);
         AABB.fromPoints(out, b3.minimum, b3.maximum);
     } else {
@@ -285,7 +297,7 @@ export function getShapeWorldBounds (shape: any, actor: any, i = 1.01, out: AABB
 }
 
 export function getShapeMaterials (pxMtl: any) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         return [pxMtl];
     }
     if (PX.VECTOR_MAT.size() > 0) {
@@ -297,7 +309,7 @@ export function getShapeMaterials (pxMtl: any) {
 }
 
 export function setupCommonCookingParam (params: any, skipMeshClean = false, skipEdgedata = false): void {
-    if (!USE_BYTEDANCE) return;
+    if (!USE_BYTEDANCE_NATIVE) return;
     params.setSuppressTriangleMeshRemapTable(true);
     if (!skipMeshClean) {
         params.setMeshPreprocessParams(params.getMeshPreprocessParams() & ~PX.MeshPreprocessingFlag.eDISABLE_CLEAN_MESH);
@@ -314,7 +326,7 @@ export function setupCommonCookingParam (params: any, skipMeshClean = false, ski
 
 export function createConvexMesh (_buffer: Float32Array | number[], cooking: any, physics: any): any {
     const vertices = shrinkPositions(_buffer);
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         const cdesc = new PX.ConvexMeshDesc();
         const verticesF32 = new Float32Array(vertices);
         cdesc.setPointsData(verticesF32);
@@ -337,14 +349,14 @@ export function createConvexMesh (_buffer: Float32Array | number[], cooking: any
 // eTIGHT_BOUNDS = (1<<0) convex
 // eDOUBLE_SIDED = (1<<1) trimesh
 export function createMeshGeometryFlags (flags: number, isConvex: boolean) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         return flags;
     }
     return isConvex ? new PX.PxConvexMeshGeometryFlags(flags) : new PX.PxMeshGeometryFlags(flags);
 }
 
 export function createTriangleMesh (vertices: Float32Array | number[], indices: Uint32Array, cooking: any, physics: any): any {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         const meshDesc = new PX.TriangleMeshDesc();
         meshDesc.setPointsData(vertices);
         // meshDesc.setPointsCount(vertices.length / 3);
@@ -376,7 +388,7 @@ export function createBV33TriangleMesh (vertices: number[], indices: Uint32Array
     skipEdgeData = false,
     cookingPerformance = false,
     meshSizePerfTradeoff = true, inserted = true): any {
-    if (!USE_BYTEDANCE) return;
+    if (!USE_BYTEDANCE_NATIVE) return;
     const meshDesc = new PX.TriangleMeshDesc();
     meshDesc.setPointsData(vertices);
     meshDesc.setTrianglesData(indices);
@@ -402,7 +414,7 @@ export function createBV34TriangleMesh (vertices: number[], indices: Uint32Array
     skipEdgeData = false,
     numTrisPerLeaf = true,
     inserted = true): void {
-    if (!USE_BYTEDANCE) return;
+    if (!USE_BYTEDANCE_NATIVE) return;
     const meshDesc = new PX.TriangleMeshDesc();
     meshDesc.setPointsData(vertices);
     meshDesc.setTrianglesData(indices);
@@ -420,7 +432,7 @@ export function createBV34TriangleMesh (vertices: number[], indices: Uint32Array
 export function createHeightField (terrain: any, heightScale: number, cooking: any, physics: any) {
     const sizeI = terrain.getVertexCountI();
     const sizeJ = terrain.getVertexCountJ();
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         const samples = new PX.HeightFieldSamples(sizeI * sizeJ);
         for (let i = 0; i < sizeI; i++) {
             for (let j = 0; j < sizeJ; j++) {
@@ -449,7 +461,7 @@ export function createHeightField (terrain: any, heightScale: number, cooking: a
 }
 
 export function createHeightFieldGeometry (hf: any, flags: number, hs: number, xs: number, zs: number) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         return new PX.HeightFieldGeometry(hf, hs, xs, zs);
     }
     return new PX.PxHeightFieldGeometry(hf, new PX.PxMeshGeometryFlags(flags),
@@ -457,7 +469,7 @@ export function createHeightFieldGeometry (hf: any, flags: number, hs: number, x
 }
 
 export function simulateScene (scene: any, deltaTime: number) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         scene.simulate(deltaTime);
     } else {
         scene.simulate(deltaTime, true);
@@ -470,7 +482,7 @@ export function raycastAll (world: PhysXWorld, worldRay: Ray, options: IRaycastO
     const flags = PxHitFlag.ePOSITION | PxHitFlag.eNORMAL;
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER);
     const queryFlags = PxQueryFlag.eSTATIC | PxQueryFlag.eDYNAMIC | PxQueryFlag.ePREFILTER | PxQueryFlag.eNO_BLOCK;
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         world.queryfilterData.data.word3 = word3;
         world.queryfilterData.data.word0 = options.mask >>> 0;
         world.queryfilterData.flags = queryFlags;
@@ -518,7 +530,7 @@ export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRayc
     const word3 = EFilterDataWord3.QUERY_FILTER | (options.queryTrigger ? 0 : EFilterDataWord3.QUERY_CHECK_TRIGGER)
         | EFilterDataWord3.QUERY_SINGLE_HIT;
     const queryFlags = PxQueryFlag.eSTATIC | PxQueryFlag.eDYNAMIC | PxQueryFlag.ePREFILTER;
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         world.queryfilterData.data.word3 = word3;
         world.queryfilterData.data.word0 = options.mask >>> 0;
         world.queryfilterData.flags = queryFlags;
@@ -546,7 +558,7 @@ export function raycastClosest (world: PhysXWorld, worldRay: Ray, options: IRayc
 }
 
 export function initializeWorld (world: any) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         initConfigForByteDance();
         hackForMultiThread();
         // const physics = PX.createPhysics();
@@ -605,7 +617,7 @@ export function initializeWorld (world: any) {
  * totoal = 48
  */
 export function getContactPosition (pxContactOrOffset: any, out: IVec3Like, buf: any) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         Vec3.fromArray(out, new Float32Array(buf, pxContactOrOffset, 3));
     } else {
         Vec3.copy(out, pxContactOrOffset.position);
@@ -613,7 +625,7 @@ export function getContactPosition (pxContactOrOffset: any, out: IVec3Like, buf:
 }
 
 export function getContactNormal (pxContactOrOffset: any, out: IVec3Like, buf: any) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         Vec3.fromArray(out, new Float32Array(buf, (pxContactOrOffset as number) + 12, 3));
     } else {
         Vec3.copy(out, pxContactOrOffset.normal);
@@ -621,7 +633,7 @@ export function getContactNormal (pxContactOrOffset: any, out: IVec3Like, buf: a
 }
 
 export function getContactDataOrByteOffset (index: number, offset: number) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         return index * 40 + offset;
     } else {
         const gc = PX.getGContacts();
@@ -632,7 +644,7 @@ export function getContactDataOrByteOffset (index: number, offset: number) {
 }
 
 export function gatherEvents (world: PhysXWorld) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         // contact
         const contactBuf = world.scene.getContactData() as ArrayBuffer;
         if (contactBuf && contactBuf.byteLength > 0) {
@@ -704,7 +716,7 @@ export function gatherEvents (world: PhysXWorld) {
 }
 
 export function syncNoneStaticToSceneIfWaking (actor: any, node: Node) {
-    if (USE_BYTEDANCE) {
+    if (USE_BYTEDANCE_NATIVE) {
         const transform = actor.getGlobalPoseIfWaking();
         if (!transform) return;
         copyPhysXTransform(node, transform);
@@ -727,7 +739,7 @@ function initConfigForByteDance () {
 
 // hack for multi thread mode, should be refactor in future
 function hackForMultiThread () {
-    if (USE_BYTEDANCE && PX.MULTI_THREAD) {
+    if (USE_BYTEDANCE_NATIVE && PX.MULTI_THREAD) {
         PhysicsSystem.prototype.postUpdate = function postUpdate (deltaTime: number) {
             const sys = this as any;
             if (!sys._enable) {
