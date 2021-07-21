@@ -3052,3 +3052,7 @@ This is old usage, please swap the parameters.
 ### 12100
 
 The font size is too big to be fitted into texture atlas. Please switch to other label cache modes or choose a smaller font size.
+
+### 12101
+
+The asset %s has been destroyed!

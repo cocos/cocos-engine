@@ -58,11 +58,11 @@ export function getWorldMatrix (transform: IJointTransform | null, stamp: number
     }
     while (i > 0) {
         transform = stack[--i];
+        stack[i] = null!;
         const node = transform.node;
         Mat4.fromRTS(transform.local, node.rotation, node.position, node.scale);
         res = Mat4.multiply(transform.world, res, transform.local);
     }
-    if (EDITOR) stack.length = 0;
     return res;
 }
 
@@ -85,10 +85,10 @@ export function getTransform (node: Node, root: Node) {
     let child: IJointTransform;
     while (i > 0) {
         child = stack[--i];
+        stack[i] = null!;
         child.parent = joint;
         joint = child;
     }
-    if (EDITOR) stack.length = 0;
     return joint;
 }
 
