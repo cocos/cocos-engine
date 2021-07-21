@@ -39,7 +39,7 @@ import { BYTEDANCE, EDITOR, TEST } from 'internal:constants';
 // Comment the next line and uncomment the second line, if you want to get a smaller package body on the bytedance platform
 import PhysX from '@cocos/physx';
 // import { PhysX } from './export-physx.web';
-import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, sys, Vec3 } from '../../core';
+import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
 import { AABB, Ray } from '../../core/geometry';
@@ -64,23 +64,7 @@ if (USE_BYTEDANCE) {
     if (globalThis.PhysX != null) {
         globalThis.PhysX().then((Instance: any) => {
             if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'PhysX libs loaded.');
-            Instance.VECTOR_MAT = new Instance.PxMaterialVector();
-            Instance.MeshScale = Instance.PxMeshScale;
-            Instance.ShapeFlag = Instance.PxShapeFlag;
-            Instance.ActorFlag = Instance.PxActorFlag;
-            Instance.ForceMode = Instance.PxForceMode;
-            Instance.CombineMode = Instance.PxCombineMode;
-            Instance.BoxGeometry = Instance.PxBoxGeometry;
-            Instance.QueryHitType = Instance.PxQueryHitType;
-            Instance.RigidBodyFlag = Instance.PxRigidBodyFlag;
-            Instance.PlaneGeometry = Instance.PxPlaneGeometry;
-            Instance.SphereGeometry = Instance.PxSphereGeometry;
-            Instance.CapsuleGeometry = Instance.PxCapsuleGeometry;
-            Instance.ConvexMeshGeometry = Instance.PxConvexMeshGeometry;
-            Instance.TriangleMeshGeometry = Instance.PxTriangleMeshGeometry;
-            Instance.RigidDynamicLockFlag = Instance.PxRigidDynamicLockFlag;
-            Instance.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => Instance.PxRevoluteJointCreate(PX.physics, a, b, c, d);
-            Instance.createDistanceJoint = (a: any, b: any, c: any, d: any): any => Instance.PxDistanceJointCreate(PX.physics, a, b, c, d);
+            initAdaptWrapper(Instance);
             Object.assign(_px, Instance);
             initConfigAndCacheObject(_px);
         }, (reason: any) => { console.error('[PHYSICS]:', `PhysX load failed: ${reason}`); });
@@ -88,6 +72,7 @@ if (USE_BYTEDANCE) {
         if (!EDITOR) console.error('[PHYSICS]:', 'Not Found PhysX js or wasm Libs.');
     }
 }
+
 export const PX = _px as any;
 
 /**
@@ -109,10 +94,28 @@ function initConfigAndCacheObject (PX: any) {
     PX.TERRAIN_STATIC = {};
 }
 
-/// adapters ///
+function initAdaptWrapper (obj: any) {
+    obj.VECTOR_MAT = new obj.PxMaterialVector();
+    obj.MeshScale = obj.PxMeshScale;
+    obj.ShapeFlag = obj.PxShapeFlag;
+    obj.ActorFlag = obj.PxActorFlag;
+    obj.ForceMode = obj.PxForceMode;
+    obj.CombineMode = obj.PxCombineMode;
+    obj.BoxGeometry = obj.PxBoxGeometry;
+    obj.QueryHitType = obj.PxQueryHitType;
+    obj.RigidBodyFlag = obj.PxRigidBodyFlag;
+    obj.PlaneGeometry = obj.PxPlaneGeometry;
+    obj.SphereGeometry = obj.PxSphereGeometry;
+    obj.CapsuleGeometry = obj.PxCapsuleGeometry;
+    obj.ConvexMeshGeometry = obj.PxConvexMeshGeometry;
+    obj.TriangleMeshGeometry = obj.PxTriangleMeshGeometry;
+    obj.RigidDynamicLockFlag = obj.PxRigidDynamicLockFlag;
+    obj.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => obj.PxRevoluteJointCreate(PX.physics, a, b, c, d);
+    obj.createDistanceJoint = (a: any, b: any, c: any, d: any): any => obj.PxDistanceJointCreate(PX.physics, a, b, c, d);
+}
 
-const _v3 = { x: 0, y: 0, z: 0 };
-const _v4 = { x: 0, y: 0, z: 0, w: 1 };
+const _v3: IVec3Like = { x: 0, y: 0, z: 0 };
+const _v4: IQuatLike = { x: 0, y: 0, z: 0, w: 1 };
 export const _trans = {
     translation: _v3,
     rotation: _v4,

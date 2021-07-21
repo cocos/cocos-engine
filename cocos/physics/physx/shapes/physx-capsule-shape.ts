@@ -31,7 +31,7 @@
 import { absMax, Quat } from '../../../core';
 import { CapsuleCollider, EAxisDirection } from '../../framework';
 import { ICapsuleShape } from '../../spec/i-physics-shape';
-import { PX } from '../export-physx';
+import { PX } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXCapsuleShape extends PhysXShape implements ICapsuleShape {

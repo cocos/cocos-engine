@@ -31,7 +31,7 @@
 import { absMaxComponent } from '../../../core';
 import { SphereCollider } from '../../framework';
 import { ISphereShape } from '../../spec/i-physics-shape';
-import { PX } from '../export-physx';
+import { PX } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXSphereShape extends PhysXShape implements ISphereShape {

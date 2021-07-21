@@ -32,7 +32,7 @@
 import { IVec3Like, Vec3 } from '../../core';
 import { ERigidBodyType, PhysicsSystem, RigidBody } from '../framework';
 import { IRigidBody } from '../spec/i-rigid-body';
-import { applyForce, applyImpulse, applyTorqueForce, PX, _trans } from './export-physx';
+import { applyForce, applyImpulse, applyTorqueForce, PX, _trans } from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { PhysXWorld } from './physx-world';
 

@@ -32,7 +32,7 @@ import { IVec3Like } from '../../../core';
 import { BoxCollider } from '../../framework';
 import { absolute, VEC3_0 } from '../../utils/util';
 import { IBoxShape } from '../../spec/i-physics-shape';
-import { PX } from '../export-physx';
+import { PX } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXBoxShape extends PhysXShape implements IBoxShape {

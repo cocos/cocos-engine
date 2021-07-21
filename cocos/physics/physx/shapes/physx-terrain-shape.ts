@@ -32,7 +32,7 @@ import { IVec3Like } from '../../../core';
 import { TerrainCollider } from '../../framework';
 import { ITerrainAsset } from '../../spec/i-external';
 import { ITerrainShape } from '../../spec/i-physics-shape';
-import { createHeightField, createHeightFieldGeometry, getTempTransform, PX } from '../export-physx';
+import { createHeightField, createHeightFieldGeometry, getTempTransform, PX } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 
 export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {

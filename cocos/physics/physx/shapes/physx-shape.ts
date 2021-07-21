@@ -34,7 +34,7 @@ import { AABB, Sphere } from '../../../core/geometry';
 import { Collider, RigidBody, PhysicsMaterial, PhysicsSystem } from '../../framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
 import { addReference, getShapeFlags, getShapeMaterials, getShapeWorldBounds, getTempTransform,
-    PX, removeReference, _pxtrans, _trans } from '../export-physx';
+    PX, removeReference, _pxtrans, _trans } from '../physx-adapter';
 import { EFilterDataWord3 } from '../physx-enum';
 import { PhysXSharedBody } from '../physx-shared-body';
 import { PhysXWorld } from '../physx-world';

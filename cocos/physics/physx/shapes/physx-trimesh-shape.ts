@@ -33,7 +33,7 @@ import { Quat, Vec3 } from '../../../core';
 import { Mesh } from '../../../3d/assets';
 import { MeshCollider } from '../../framework';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
-import { createConvexMesh, createMeshGeometryFlags, createTriangleMesh, PX, _trans } from '../export-physx';
+import { createConvexMesh, createMeshGeometryFlags, createTriangleMesh, PX, _trans } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 import { AttributeName } from '../../../core/gfx';
 

@@ -39,7 +39,7 @@ import { PhysXRigidBody } from './physx-rigid-body';
 import {
     addActorToScene, raycastAll, simulateScene, initializeWorld, raycastClosest,
     gatherEvents, getWrapShape, PX, getContactDataOrByteOffset,
-} from './export-physx';
+} from './physx-adapter';
 import { PhysXSharedBody } from './physx-shared-body';
 import { fastRemoveAt } from '../../core/utils/array';
 import { TupleDictionary } from '../utils/tuple-dictionary';
