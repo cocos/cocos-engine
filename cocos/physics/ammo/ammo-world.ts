@@ -147,6 +147,7 @@ export class AmmoWorld implements IPhysicsWorld {
         this.syncSceneToPhysics();
     }
 
+    // TODO: support query triggers
     raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         const allHitsCB = AmmoWorld.allHitsCB;
         const from = cocos2AmmoVec3(allHitsCB.m_rayFromWorld, worldRay.o);
@@ -189,10 +190,7 @@ export class AmmoWorld implements IPhysicsWorld {
         return false;
     }
 
-    /**
-     * Ray cast, and return information of the closest hit.
-     * @return True if any body was hit.
-     */
+    // TODO: support query triggers
     raycastClosest (worldRay: Ray, options: IRaycastOptions, result: PhysicsRayResult): boolean {
         const closeHitCB = AmmoWorld.closeHitCB;
         const from = cocos2AmmoVec3(closeHitCB.m_rayFromWorld, worldRay.o);

@@ -8,9 +8,11 @@ import "../../exports/physics-physx";
 import "../../exports/physics-cannon";
 
 import EventTest from "./event";
+import RaycastTest from "./raycast";
 import SleepTest from "./sleep";
 import StableTest from "./stability";
 import VolumeTest from "./volume";
+import FilterTest from "./filtering";
 
 // Manually construct and register the system
 PhysicsSystem.constructAndRegister();
@@ -29,6 +31,11 @@ for (const id in physics.selector.backend) {
 
         // test events
         EventTest(temp0);
+        temp0.destroyAllChildren();
+        temp0.removeAllChildren();
+
+        // test raycast
+        RaycastTest(temp0);
         temp0.destroyAllChildren();
         temp0.removeAllChildren();
 
@@ -58,8 +65,12 @@ for (const id in physics.selector.backend) {
                 temp0.removeAllChildren();
             });
         }
-        
+
+        // test volume
         VolumeTest(temp0);
+
+        // test filter
+        FilterTest(temp0);
 
         temp0.destroy();
         scene.destroy();
