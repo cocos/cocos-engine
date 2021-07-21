@@ -59,8 +59,8 @@ if (USE_BYTEDANCE) {
     initConfigAndCacheObject(_px);
 } else {
     if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
-    // If external PhysX not given, then try to use internal PhysX libs.
-    if (!globalThis.PhysX) globalThis.PhysX = PhysX;
+    // If external PHYSX not given, then try to use internal PhysX libs.
+    globalThis.PhysX = globalThis.PHYSX ? globalThis.PHYSX : PhysX;
     if (globalThis.PhysX != null) {
         globalThis.PhysX().then((Instance: any) => {
             if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'PhysX libs loaded.');
