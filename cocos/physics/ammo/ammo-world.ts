@@ -89,7 +89,7 @@ export class AmmoWorld implements IPhysicsWorld {
         // this._btDispatcher.setDispatcherFlags(AmmoDispatcherFlags.CD_STATIC_STATIC_REPORTED);
         this._btBroadphase = new Ammo.btDbvtBroadphase();
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
-        this._btWorld = new (Ammo as any).ccDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, this._btCollisionConfiguration);
+        this._btWorld = new Ammo.ccDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, this._btCollisionConfiguration);
         this._btWorld.getPairCache().setOverlapFilterCallback(new Ammo.ccOverlapFilterCallback());
         // this._btWorld.setContactBreakingThreshold(0.04);
         const TMP = AmmoConstant.instance.VECTOR3_0;
@@ -147,7 +147,6 @@ export class AmmoWorld implements IPhysicsWorld {
         this.syncSceneToPhysics();
     }
 
-    // TODO: support query triggers
     raycast (worldRay: Ray, options: IRaycastOptions, pool: RecyclePool<PhysicsRayResult>, results: PhysicsRayResult[]): boolean {
         const allHitsCB = AmmoWorld.allHitsCB;
         const from = cocos2AmmoVec3(allHitsCB.m_rayFromWorld, worldRay.o);
@@ -156,6 +155,7 @@ export class AmmoWorld implements IPhysicsWorld {
         allHitsCB.m_collisionFilterGroup = -1;
         allHitsCB.m_collisionFilterMask = options.mask;
         allHitsCB.m_closestHitFraction = 1;
+        allHitsCB.setQueryTrigger(options.queryTrigger);
         (allHitsCB.m_collisionObject as any) = null;
         allHitsCB.m_shapeParts.clear();
         allHitsCB.m_hitFractions.clear();
@@ -200,6 +200,7 @@ export class AmmoWorld implements IPhysicsWorld {
         closeHitCB.m_collisionFilterGroup = -1;
         closeHitCB.m_collisionFilterMask = options.mask;
         closeHitCB.m_closestHitFraction = 1;
+        closeHitCB.setQueryTrigger(options.queryTrigger);
         (closeHitCB.m_collisionObject as any) = null;
 
         this._btWorld.rayTest(from, to, closeHitCB);
