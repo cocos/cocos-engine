@@ -35,7 +35,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable no-lonely-if */
 
-import { BYTEDANCE, EDITOR } from 'internal:constants';
+import { BYTEDANCE, EDITOR, TEST } from 'internal:constants';
 import { PhysX } from './export-physx.web';
 import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, sys, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
@@ -51,16 +51,16 @@ const globalThis = legacyCC._global;
 let _px = {};
 let USE_BYTEDANCE = false;
 if (BYTEDANCE && sys.os === sys.OS.ANDROID) {
-    console.info('[PHYSICS]:', 'Use PhysX Native Libs in BYTEDANCE.');
+    if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX Native Libs in BYTEDANCE.');
     USE_BYTEDANCE = true;
     if (globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
     initConfigAndCacheObject(_px);
 } else {
-    if (!EDITOR) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
+    if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
     globalThis.PhysX = PhysX;
     if (globalThis.PhysX != null) {
         PhysX().then((PX: any) => {
-            if (!EDITOR) console.info('[PHYSICS]:', 'PhysX libs loaded.');
+            if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'PhysX libs loaded.');
             PX.VECTOR_MAT = new PX.PxMaterialVector();
             PX.MeshScale = PX.PxMeshScale;
             PX.ShapeFlag = PX.PxShapeFlag;
