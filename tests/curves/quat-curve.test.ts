@@ -1,51 +1,51 @@
 
-import { Quat, QuaternionCurve, QuaternionInterpMode, QuaternionKeyframeValue } from '../../cocos/core';
+import { Quat, QuatCurve, QuatInterpolationMode, QuatKeyframeValue } from '../../cocos/core';
 import { serializeAndDeserialize } from './serialize-and-deserialize-curve';
 
 describe('Curve', () => {
     test('Evaluate an empty curve', () => {
-        const curve = new QuaternionCurve();
+        const curve = new QuatCurve();
         expect(curve.evaluate(12.34)).toStrictEqual(Quat.IDENTITY);
     });
 
     describe('serialization', () => {
         test('Normal', () => {
-            const curve = new QuaternionCurve();
+            const curve = new QuatCurve();
             curve.assignSorted([0.1, 0.2, 0.3], [
-                new QuaternionKeyframeValue({ value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpMode: QuaternionInterpMode.CONSTANT }),
-                new QuaternionKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpMode: QuaternionInterpMode.SLERP }),
-                new QuaternionKeyframeValue({ value: { x: 0.9, y: 0.1, z: 0.11, w: 0.12 }, interpMode: QuaternionInterpMode.CONSTANT }),
+                new QuatKeyframeValue({ value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpolationMode: QuatInterpolationMode.CONSTANT }),
+                new QuatKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.SLERP }),
+                new QuatKeyframeValue({ value: { x: 0.9, y: 0.1, z: 0.11, w: 0.12 }, interpolationMode: QuatInterpolationMode.CONSTANT }),
             ]);
-            compareCurves(serializeAndDeserialize(curve, QuaternionCurve), curve);
+            compareCurves(serializeAndDeserialize(curve, QuatCurve), curve);
         });
 
         test('Optimized for linear curve', () => {
-            const curve = new QuaternionCurve();
+            const curve = new QuatCurve();
             curve.assignSorted([0.1, 0.2], [
-                new QuaternionKeyframeValue({ value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpMode: QuaternionInterpMode.SLERP }),
-                new QuaternionKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpMode: QuaternionInterpMode.SLERP }),
+                new QuatKeyframeValue({ value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpolationMode: QuatInterpolationMode.SLERP }),
+                new QuatKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.SLERP }),
             ]);
-            compareCurves(serializeAndDeserialize(curve, QuaternionCurve), curve);
+            compareCurves(serializeAndDeserialize(curve, QuatCurve), curve);
         });
 
         test('Optimized for constant curve', () => {
-            const curve = new QuaternionCurve();
+            const curve = new QuatCurve();
             curve.assignSorted([0.1, 0.2], [
-                new QuaternionKeyframeValue({ value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpMode: QuaternionInterpMode.CONSTANT }),
-                new QuaternionKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpMode: QuaternionInterpMode.CONSTANT }),
+                new QuatKeyframeValue({ value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpolationMode: QuatInterpolationMode.CONSTANT }),
+                new QuatKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.CONSTANT }),
             ]);
-            compareCurves(serializeAndDeserialize(curve, QuaternionCurve), curve);
+            compareCurves(serializeAndDeserialize(curve, QuatCurve), curve);
         });
     });
 
     test('Default keyframe value', () => {
-        const keyframeValue = new QuaternionKeyframeValue({});
+        const keyframeValue = new QuatKeyframeValue({});
         expect(Quat.equals(keyframeValue.value, Quat.IDENTITY)).toBe(true);
-        expect(keyframeValue.interpMode).toBe(QuaternionInterpMode.SLERP);
+        expect(keyframeValue.interpolationMode).toBe(QuatInterpolationMode.SLERP);
     });
 });
 
-function compareCurves (left: QuaternionCurve, right: QuaternionCurve, numDigits = 2) {
+function compareCurves (left: QuatCurve, right: QuatCurve, numDigits = 2) {
     expect(left.keyFramesCount).toBe(right.keyFramesCount);
     for (let iKeyframe = 0; iKeyframe < left.keyFramesCount; ++iKeyframe) {
         expect(left.getKeyframeTime(iKeyframe)).toBeCloseTo(right.getKeyframeTime(iKeyframe), numDigits);
@@ -55,6 +55,6 @@ function compareCurves (left: QuaternionCurve, right: QuaternionCurve, numDigits
         expect(leftKeyframeValue.value.y).toBeCloseTo(rightKeyframeValue.value.y, numDigits);
         expect(leftKeyframeValue.value.z).toBeCloseTo(rightKeyframeValue.value.z, numDigits);
         expect(leftKeyframeValue.value.w).toBeCloseTo(rightKeyframeValue.value.w, numDigits);
-        expect(leftKeyframeValue.interpMode).toStrictEqual(rightKeyframeValue.interpMode);
+        expect(leftKeyframeValue.interpolationMode).toStrictEqual(rightKeyframeValue.interpolationMode);
     }
 }

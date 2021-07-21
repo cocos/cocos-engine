@@ -1,9 +1,9 @@
 
 import { deserializeTag, SerializationInput, SerializationOutput, serializeTag } from '../../cocos/core';
 import type { RealCurve } from '../../cocos/core/curves/curve';
-import type { QuaternionCurve } from '../../cocos/core/curves/quat-curve';
+import type { QuatCurve } from '../../cocos/core/curves/quat-curve';
 
-export function serializeAndDeserialize<T extends RealCurve | QuaternionCurve> (curve: T, CurveConstructor: new () => T) {
+export function serializeAndDeserialize<T extends RealCurve | QuatCurve> (curve: T, CurveConstructor: new () => T) {
     class CurveOutput implements SerializationOutput, SerializationInput {
         public readProperty(name: string): unknown {
             return this._properties[name];

@@ -1,7 +1,7 @@
 /**
  * The method used for interpolation between values of a keyframe and its next keyframe.
  */
-export enum RealInterpMode {
+export enum RealInterpolationMode {
     /**
      * Perform linear interpolation.
      */
@@ -23,7 +23,7 @@ export enum RealInterpMode {
  * if input time is underflow(less than the the first frame time) or
  * overflow(greater than the last frame time) when evaluating an animation curve.
  */
-export enum ExtrapMode {
+export enum ExtrapolationMode {
     /**
      * Compute the result
      * according to the first two frame's linear trend in the case of underflow and

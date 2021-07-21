@@ -1,7 +1,7 @@
 import { assertIsTrue } from '../data/utils/asserts';
 import { IQuatLike, pingPong, Quat, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
-import { ExtrapMode } from './curve';
+import { ExtrapolationMode } from './curve';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
 import { deserializeTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
@@ -9,12 +9,12 @@ import { DeserializationContext } from '../data/custom-serializable';
 
 @ccclass('cc.QuaternionKeyframeValue')
 @uniquelyReferenced
-export class QuaternionKeyframeValue {
+export class QuatKeyframeValue {
     /**
      * Interpolation method used for this keyframe.
      */
     @serializable
-    public interpMode: QuaternionInterpMode = QuaternionInterpMode.SLERP;
+    public interpolationMode: QuatInterpolationMode = QuatInterpolationMode.SLERP;
 
     /**
       * Value of the keyframe.
@@ -24,18 +24,18 @@ export class QuaternionKeyframeValue {
 
     constructor ({
         value,
-        interpMode,
-    }:  Partial<QuaternionKeyframeValue> = {}) {
+        interpolationMode,
+    }:  Partial<QuatKeyframeValue> = {}) {
         // TODO: shall we normalize it?
         this.value = value ? Quat.clone(value) : this.value;
-        this.interpMode = interpMode ?? this.interpMode;
+        this.interpolationMode = interpolationMode ?? this.interpolationMode;
     }
 }
 
 /**
  * The method used for interpolation between values of a keyframe and its next keyframe.
  */
-export enum QuaternionInterpMode {
+export enum QuatInterpolationMode {
     /**
      * Perform spherical linear interpolation.
      */
@@ -59,32 +59,32 @@ export enum QuaternionInterpMode {
 /**
  * Quaternion curve.
  */
-@ccclass('cc.QuaternionCurve')
-export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
+@ccclass('cc.QuatCurve')
+export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
     /**
      * Gets or sets the operation should be taken
      * if input time is less than the time of first keyframe when evaluating this curve.
-     * Defaults to `ExtrapMode.CLAMP`.
+     * Defaults to `ExtrapolationMode.CLAMP`.
      */
-    get preExtrap () {
-        return this._preExtrap;
+    get preExtrapolation () {
+        return this._preExtrapolation;
     }
 
-    set preExtrap (value) {
-        this._preExtrap = value;
+    set preExtrapolation (value) {
+        this._preExtrapolation = value;
     }
 
     /**
      * Gets or sets the operation should be taken
      * if input time is greater than the time of last keyframe when evaluating this curve.
-     * Defaults to `ExtrapMode.CLAMP`.
+     * Defaults to `ExtrapolationMode.CLAMP`.
      */
-    get postExtrap () {
-        return this._postExtrap;
+    get postExtrapolation () {
+        return this._postExtrapolation;
     }
 
-    set postExtrap (value) {
-        this._postExtrap = value;
+    set postExtrapolation (value) {
+        this._postExtrapolation = value;
     }
 
     /**
@@ -98,8 +98,8 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
         const {
             _times: times,
             _values: values,
-            _postExtrap: postExtrap,
-            _preExtrap: preExtrap,
+            _postExtrapolation: postExtrapolation,
+            _preExtrapolation: preExtrapolation,
         } = this;
         const nFrames = times.length;
 
@@ -112,28 +112,28 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
         if (time < firstTime) {
             // Underflow
             const preValue = values[0];
-            switch (preExtrap) {
-            case ExtrapMode.LOOP:
+            switch (preExtrapolation) {
+            case ExtrapolationMode.LOOP:
                 time = firstTime + repeat(time - firstTime, lastTime - firstTime);
                 break;
-            case ExtrapMode.PING_PONG:
+            case ExtrapolationMode.PING_PONG:
                 time = firstTime + pingPong(time - firstTime, lastTime - firstTime);
                 break;
-            case ExtrapMode.CLAMP:
+            case ExtrapolationMode.CLAMP:
             default:
                 return Quat.copy(quat, preValue.value);
             }
         } else if (time > lastTime) {
             // Overflow
             const preValue = values[nFrames - 1];
-            switch (postExtrap) {
-            case ExtrapMode.LOOP:
+            switch (postExtrapolation) {
+            case ExtrapolationMode.LOOP:
                 time = firstTime + repeat(time - firstTime, lastTime - firstTime);
                 break;
-            case ExtrapMode.PING_PONG:
+            case ExtrapolationMode.PING_PONG:
                 time = firstTime + pingPong(time - firstTime, lastTime - firstTime);
                 break;
-            case ExtrapMode.CLAMP:
+            case ExtrapolationMode.CLAMP:
             default:
                 return Quat.copy(quat, preValue.value);
             }
@@ -156,11 +156,11 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
         const dt = nextTime - preTime;
 
         const ratio = (time - preTime) / dt;
-        switch (preValue.interpMode) {
+        switch (preValue.interpolationMode) {
         default:
-        case QuaternionInterpMode.CONSTANT:
+        case QuatInterpolationMode.CONSTANT:
             return Quat.copy(quat, preValue.value);
-        case QuaternionInterpMode.SLERP:
+        case QuatInterpolationMode.SLERP:
             return Quat.slerp(quat, preValue.value, nextValue.value, ratio);
         }
     }
@@ -171,9 +171,9 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
      * @param value Value of the keyframe.
      * @returns The index to the new keyframe.
      */
-    public addKeyFrame (time: number, value: IQuatLike | QuaternionKeyframeValue): number {
-        const keyframeValue = value instanceof QuaternionKeyframeValue
-            ? value : new QuaternionKeyframeValue({ value });
+    public addKeyFrame (time: number, value: IQuatLike | QuatKeyframeValue): number {
+        const keyframeValue = value instanceof QuatKeyframeValue
+            ? value : new QuatKeyframeValue({ value });
         return super.addKeyFrame(time, keyframeValue);
     }
 
@@ -188,17 +188,17 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
             _values: keyframeValues,
         } = this;
 
-        let interpModeRepeated = true;
+        let interpolationModeRepeated = true;
         keyframeValues.forEach((keyframeValue, _index, [firstKeyframeValue]) => {
             // Values are unlikely to be unified.
-            if (interpModeRepeated
-                && keyframeValue.interpMode !== firstKeyframeValue.interpMode) { interpModeRepeated = false; }
+            if (interpolationModeRepeated
+                && keyframeValue.interpolationMode !== firstKeyframeValue.interpolationMode) { interpolationModeRepeated = false; }
         });
 
         const nKeyframes = times.length;
 
         const nFrames = nKeyframes;
-        const interpModesSize = INTERP_MODE_BYTES * (interpModeRepeated ? 1 : nFrames);
+        const interpolationModesSize = INTERPOLATION_MODE_BYTES * (interpolationModeRepeated ? 1 : nFrames);
 
         let dataSize = 0;
         dataSize += (
@@ -206,7 +206,7 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
             + FRAME_COUNT_BYTES
             + TIME_BYTES * nFrames
             + VALUE_BYTES * 4 * nFrames
-            + interpModesSize
+            + interpolationModesSize
             + 0
         );
 
@@ -215,7 +215,7 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
 
         // Flags
         let flags = 0;
-        if (interpModeRepeated) { flags |= KeyframeValueFlagMask.INTERP_MODE; }
+        if (interpolationModeRepeated) { flags |= KeyframeValueFlagMask.INTERPOLATION_MODE; }
         dataView.setUint32(P, flags, true); P += FLAGS_BYTES;
 
         // Frame count
@@ -235,12 +235,12 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
         P += VALUE_BYTES * 4 * nFrames;
 
         // Frame values
-        const INTERP_MODES_START = P; P += interpModesSize;
-        let pInterpMode = INTERP_MODES_START;
-        keyframeValues.forEach(({ interpMode }) => {
-            dataView.setUint8(pInterpMode, interpMode);
+        const INTERPOLATION_MODES_START = P; P += interpolationModesSize;
+        let pInterpolationMode = INTERPOLATION_MODES_START;
+        keyframeValues.forEach(({ interpolationMode }) => {
+            dataView.setUint8(pInterpolationMode, interpolationMode);
 
-            if (!interpModeRepeated) { pInterpMode += INTERP_MODE_BYTES; }
+            if (!interpolationModeRepeated) { pInterpolationMode += INTERPOLATION_MODE_BYTES; }
         });
 
         const bytes = new Uint8Array(dataView.buffer);
@@ -260,7 +260,7 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
 
         // Flags
         const flags = dataView.getUint32(P, true); P += FLAGS_BYTES;
-        const interpModeRepeated = flags & KeyframeValueFlagMask.INTERP_MODE;
+        const interpolationModeRepeated = flags & KeyframeValueFlagMask.INTERPOLATION_MODE;
 
         // Frame count
         const nFrames = dataView.getUint32(P, true); P += FRAME_COUNT_BYTES;
@@ -272,7 +272,7 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
 
         // Frame values
         const P_VALUES = P; P += VALUE_BYTES * 4 * nFrames;
-        let pInterpModes = P;
+        let pInterpolationModes = P;
         const keyframeValues = Array.from({ length: nFrames },
             (_, index) => {
                 const pQuat = P_VALUES + VALUE_BYTES * 4 * index;
@@ -280,12 +280,12 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
                 const y = dataView.getFloat32(pQuat + VALUE_BYTES * 1, true);
                 const z = dataView.getFloat32(pQuat + VALUE_BYTES * 2, true);
                 const w = dataView.getFloat32(pQuat + VALUE_BYTES * 3, true);
-                const keyframeValue = new QuaternionKeyframeValue({
+                const keyframeValue = new QuatKeyframeValue({
                     value: { x, y, z, w },
-                    interpMode: dataView.getUint8(pInterpModes),
+                    interpolationMode: dataView.getUint8(pInterpolationModes),
                 });
-                if (!interpModeRepeated) {
-                    pInterpModes += INTERP_MODE_BYTES;
+                if (!interpolationModeRepeated) {
+                    pInterpolationModes += INTERPOLATION_MODE_BYTES;
                 }
                 return keyframeValue;
             });
@@ -296,18 +296,18 @@ export class QuaternionCurve extends KeyframeCurve<QuaternionKeyframeValue> {
 
     // Always sorted by time
     @serializable
-    private _preExtrap: ExtrapMode = ExtrapMode.CLAMP;
+    private _preExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     @serializable
-    private _postExtrap: ExtrapMode = ExtrapMode.CLAMP;
+    private _postExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 }
 
 enum KeyframeValueFlagMask {
-    INTERP_MODE = 1 << 0,
+    INTERPOLATION_MODE = 1 << 0,
 }
 
 const FLAGS_BYTES = 1;
 const FRAME_COUNT_BYTES = 4;
 const TIME_BYTES = 4;
 const VALUE_BYTES = 4;
-const INTERP_MODE_BYTES = 1;
+const INTERPOLATION_MODE_BYTES = 1;

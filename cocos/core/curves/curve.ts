@@ -2,7 +2,7 @@ import { assertIsTrue } from '../data/utils/asserts';
 import { approx, lerp, pingPong, repeat } from '../math';
 import { KeyframeCurve } from './keyframe-curve';
 import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
-import { RealInterpMode, ExtrapMode, TangentWeightMode } from './real-curve-param';
+import { RealInterpolationMode, ExtrapolationMode, TangentWeightMode } from './real-curve-param';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { solveCubic } from './solve-cubic';
 import { EditorExtendableMixin } from '../data/editor-extendable';
@@ -10,7 +10,7 @@ import { deserializeTag, SerializationContext, SerializationInput, Serialization
 import { DeserializationContext } from '../data/custom-serializable';
 import * as easing from '../animation/easing';
 
-export { RealInterpMode, ExtrapMode, TangentWeightMode };
+export { RealInterpolationMode, ExtrapolationMode, TangentWeightMode };
 
 export enum EasingMethod {
     LINEAR,
@@ -63,7 +63,7 @@ export enum EasingMethod {
 @uniquelyReferenced
 export class RealKeyframeValue {
     constructor ({
-        interpMode,
+        interpolationMode,
         tangentWeightMode,
         value,
         rightTangent,
@@ -77,7 +77,7 @@ export class RealKeyframeValue {
         this.rightTangentWeight = rightTangentWeight ?? this.rightTangentWeight;
         this.leftTangent = leftTangent ?? this.leftTangent;
         this.leftTangentWeight = leftTangentWeight ?? this.leftTangentWeight;
-        this.interpMode = interpMode ?? this.interpMode;
+        this.interpolationMode = interpolationMode ?? this.interpolationMode;
         this.tangentWeightMode = tangentWeightMode ?? this.tangentWeightMode;
         this.easingMethod = easingMethod ?? this.easingMethod;
     }
@@ -86,7 +86,7 @@ export class RealKeyframeValue {
      * Interpolation method used for this keyframe.
      */
     @serializable
-    public interpMode = RealInterpMode.LINEAR;
+    public interpolationMode = RealInterpolationMode.LINEAR;
 
     /**
      * Tangent weight mode.
@@ -147,27 +147,27 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
     /**
      * Gets or sets the operation should be taken
      * if input time is less than the time of first keyframe when evaluating this curve.
-     * Defaults to `ExtrapMode.CLAMP`.
+     * Defaults to `ExtrapolationMode.CLAMP`.
      */
-    get preExtrap () {
-        return this._preExtrap;
+    get preExtrapolation () {
+        return this._preExtrapolation;
     }
 
-    set preExtrap (value) {
-        this._preExtrap = value;
+    set preExtrapolation (value) {
+        this._preExtrapolation = value;
     }
 
     /**
      * Gets or sets the operation should be taken
      * if input time is greater than the time of last keyframe when evaluating this curve.
-     * Defaults to `ExtrapMode.CLAMP`.
+     * Defaults to `ExtrapolationMode.CLAMP`.
      */
-    get postExtrap () {
-        return this._postExtrap;
+    get postExtrapolation () {
+        return this._postExtrapolation;
     }
 
-    set postExtrap (value) {
-        this._postExtrap = value;
+    set postExtrapolation (value) {
+        this._postExtrapolation = value;
     }
 
     /**
@@ -191,18 +191,18 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
         const lastTime = times[nFrames - 1];
         if (time < firstTime) {
             // Underflow
-            const { _preExtrap: preExtrap } = this;
+            const { _preExtrapolation: preExtrapolation } = this;
             const preValue = values[0];
-            if (preExtrap === ExtrapMode.CLAMP || nFrames < 2) {
+            if (preExtrapolation === ExtrapolationMode.CLAMP || nFrames < 2) {
                 return preValue.value;
             }
-            switch (preExtrap) {
-            case ExtrapMode.LINEAR:
+            switch (preExtrapolation) {
+            case ExtrapolationMode.LINEAR:
                 return linearTrend(firstTime, values[0].value, times[1], values[1].value, time);
-            case ExtrapMode.LOOP:
+            case ExtrapolationMode.LOOP:
                 time = wrapRepeat(time, firstTime, lastTime);
                 break;
-            case ExtrapMode.PING_PONG:
+            case ExtrapolationMode.PING_PONG:
                 time = wrapPingPong(time, firstTime, lastTime);
                 break;
             default:
@@ -210,18 +210,18 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
             }
         } else if (time > lastTime) {
             // Overflow
-            const { _postExtrap: postExtrap } = this;
+            const { _postExtrapolation: postExtrapolation } = this;
             const preFrame = values[nFrames - 1];
-            if (postExtrap === ExtrapMode.CLAMP || nFrames < 2) {
+            if (postExtrapolation === ExtrapolationMode.CLAMP || nFrames < 2) {
                 return preFrame.value;
             }
-            switch (postExtrap) {
-            case ExtrapMode.LINEAR:
+            switch (postExtrapolation) {
+            case ExtrapolationMode.LINEAR:
                 return linearTrend(lastTime, preFrame.value, times[nFrames - 2], values[nFrames - 2].value, time);
-            case ExtrapMode.LOOP:
+            case ExtrapolationMode.LOOP:
                 time = wrapRepeat(time, firstTime, lastTime);
                 break;
-            case ExtrapMode.PING_PONG:
+            case ExtrapolationMode.PING_PONG:
                 time = wrapPingPong(time, firstTime, lastTime);
                 break;
             default:
@@ -296,8 +296,8 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
         let currentOffset = 0;
 
         // Overflow operations
-        dataView.setUint8(currentOffset, this._preExtrap); currentOffset += OVERFLOW_BYTES;
-        dataView.setUint8(currentOffset, this._postExtrap); currentOffset += OVERFLOW_BYTES;
+        dataView.setUint8(currentOffset, this._preExtrapolation); currentOffset += OVERFLOW_BYTES;
+        dataView.setUint8(currentOffset, this._postExtrapolation); currentOffset += OVERFLOW_BYTES;
 
         // Frame count
         dataView.setUint32(currentOffset, nKeyframes, true); currentOffset += FRAME_COUNT_BYTES;
@@ -327,8 +327,8 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
         let currentOffset = 0;
 
         // Overflow operations
-        this._preExtrap = dataView.getUint8(currentOffset); currentOffset += OVERFLOW_BYTES;
-        this._postExtrap = dataView.getUint8(currentOffset); currentOffset += OVERFLOW_BYTES;
+        this._preExtrapolation = dataView.getUint8(currentOffset); currentOffset += OVERFLOW_BYTES;
+        this._postExtrapolation = dataView.getUint8(currentOffset); currentOffset += OVERFLOW_BYTES;
 
         // Frame count
         const nKeyframes = dataView.getUint32(currentOffset, true); currentOffset += FRAME_COUNT_BYTES;
@@ -354,10 +354,10 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
 
     // Always sorted by time
     @serializable
-    private _preExtrap: ExtrapMode = ExtrapMode.CLAMP;
+    private _preExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 
     @serializable
-    private _postExtrap: ExtrapMode = ExtrapMode.CLAMP;
+    private _postExtrapolation: ExtrapolationMode = ExtrapolationMode.CLAMP;
 }
 
 const FLAGS_EASING_METHOD_BITS_START = 8;
@@ -365,7 +365,7 @@ const FLAG_EASING_METHOD_MASK = 0xFF << FLAGS_EASING_METHOD_BITS_START; // 8-16 
 
 enum KeyframeValueFlagMask {
     VALUE = 1 << 0,
-    INTERP_MODE = 1 << 1,
+    INTERPOLATION_MODE = 1 << 1,
     TANGENT_WEIGHT_MODE = 1 << 2,
     LEFT_TANGENT = 1 << 3,
     LEFT_TANGENT_WEIGHT = 1 << 4,
@@ -378,7 +378,7 @@ const FRAME_COUNT_BYTES = 4;
 const TIME_BYTES = 4;
 const KEY_FRAME_VALUE_FLAGS_BYTES = 4;
 const VALUE_BYTES = 4;
-const INTERP_MODE_BYTES = 1;
+const INTERPOLATION_MODE_BYTES = 1;
 const TANGENT_WEIGHT_MODE_BYTES = 1;
 const LEFT_TANGENT_BYTES = 4;
 const LEFT_TANGENT_WEIGHT_BYTES = 4;
@@ -386,7 +386,7 @@ const RIGHT_TANGENT_BYTES = 4;
 const RIGHT_TANGENT_WEIGHT_BYTES = 4;
 
 const {
-    interpMode: DEFAULT_INTERP_MODE,
+    interpolationMode: DEFAULT_INTERPOLATION_MODE,
     tangentWeightMode: DEFAULT_TANGENT_WEIGHT_MODE,
     leftTangent: DEFAULT_LEFT_TANGENT,
     leftTangentWeight: DEFAULT_LEFT_TANGENT_WEIGHT,
@@ -396,7 +396,7 @@ const {
 
 const REAL_KEY_FRAME_VALUE_MAX_SIZE = KEY_FRAME_VALUE_FLAGS_BYTES
     + VALUE_BYTES
-    + INTERP_MODE_BYTES
+    + INTERPOLATION_MODE_BYTES
     + TANGENT_WEIGHT_MODE_BYTES
     + LEFT_TANGENT_BYTES
     + LEFT_TANGENT_WEIGHT_BYTES
@@ -414,7 +414,7 @@ function saveRealKeyFrameValue (dataView: DataView, keyframeValue: RealKeyframeV
 
     const {
         value,
-        interpMode,
+        interpolationMode,
         tangentWeightMode,
         rightTangent,
         rightTangentWeight,
@@ -426,10 +426,10 @@ function saveRealKeyFrameValue (dataView: DataView, keyframeValue: RealKeyframeV
     dataView.setFloat32(currentOffset, value, true);
     currentOffset += VALUE_BYTES;
 
-    if (interpMode !== DEFAULT_INTERP_MODE) {
-        flags |= KeyframeValueFlagMask.INTERP_MODE;
-        dataView.setUint8(currentOffset, interpMode);
-        currentOffset += INTERP_MODE_BYTES;
+    if (interpolationMode !== DEFAULT_INTERPOLATION_MODE) {
+        flags |= KeyframeValueFlagMask.INTERPOLATION_MODE;
+        dataView.setUint8(currentOffset, interpolationMode);
+        currentOffset += INTERPOLATION_MODE_BYTES;
     }
 
     if (tangentWeightMode !== DEFAULT_TANGENT_WEIGHT_MODE) {
@@ -478,9 +478,9 @@ function loadRealKeyFrameValue (dataView: DataView, keyframeValue: RealKeyframeV
     keyframeValue.value = dataView.getFloat32(currentOffset, true);
     currentOffset += VALUE_BYTES;
 
-    if (flags & KeyframeValueFlagMask.INTERP_MODE) {
-        keyframeValue.interpMode = dataView.getUint8(currentOffset);
-        currentOffset += INTERP_MODE_BYTES;
+    if (flags & KeyframeValueFlagMask.INTERPOLATION_MODE) {
+        keyframeValue.interpolationMode = dataView.getUint8(currentOffset);
+        currentOffset += INTERPOLATION_MODE_BYTES;
     }
 
     if (flags & KeyframeValueFlagMask.TANGENT_WEIGHT_MODE) {
@@ -541,17 +541,17 @@ function evalBetweenTwoKeyFrames (
     ratio: number,
 ) {
     const dt = nextTime - prevTime;
-    switch (prevValue.interpMode) {
+    switch (prevValue.interpolationMode) {
     default:
-    case RealInterpMode.CONSTANT:
+    case RealInterpolationMode.CONSTANT:
         return prevValue.value;
-    case RealInterpMode.LINEAR: {
+    case RealInterpolationMode.LINEAR: {
         const transformedRatio = prevValue.easingMethod === EasingMethod.LINEAR
             ? ratio
             : getEasingFn(prevValue.easingMethod)(ratio);
         return lerp(prevValue.value, nextValue.value, transformedRatio);
     }
-    case RealInterpMode.CUBIC: {
+    case RealInterpolationMode.CUBIC: {
         const ONE_THIRD = 1.0 / 3.0;
         const {
             rightTangent: prevTangent,
@@ -569,7 +569,7 @@ function evalBetweenTwoKeyFrames (
             // See below.
             const p1 = prevValue.value + ONE_THIRD * prevTangent * dt;
             const p2 = nextValue.value - ONE_THIRD * nextTangent * dt;
-            return bezierInterp(prevValue.value, p1, p2, nextValue.value, ratio);
+            return bezierInterpolate(prevValue.value, p1, p2, nextValue.value, ratio);
         } else {
             let prevTangentWeight = 0.0;
             if (prevTangentWeightEnabled) {
@@ -623,7 +623,7 @@ function evalBetweenTwoKeyFrames (
             const nSolutions = solveCubic(coeff0 - ratio, coeff1, coeff2, coeff3, solutions);
             const param = getParamFromCubicSolution(solutions, nSolutions, ratio);
             // Solves Y.
-            const y = bezierInterp(prevValue.value, u0y, u1y, nextValue.value, param);
+            const y = bezierInterpolate(prevValue.value, u0y, u1y, nextValue.value, param);
             return y;
         }
     }
@@ -638,7 +638,7 @@ function isRightTangentWeightEnabled (tangentWeightMode: TangentWeightMode) {
     return (tangentWeightMode & TangentWeightMode.RIGHT) !== 0;
 }
 
-function bezierInterp (p0: number, p1: number, p2: number, p3: number, t: number) {
+function bezierInterpolate (p0: number, p1: number, p2: number, p3: number, t: number) {
     const u = 1 - t;
     const coeff0 = u * u * u;
     const coeff1 = 3 * u * u * t;

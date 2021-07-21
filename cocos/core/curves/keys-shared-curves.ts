@@ -2,9 +2,9 @@ import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { ccclass, serializable } from '../data/decorators';
 import { assertIsTrue } from '../data/utils/asserts';
 import { approx, IQuatLike, lerp, Quat } from '../math';
-import { RealKeyframeValue, ExtrapMode, RealCurve } from './curve';
-import { QuaternionCurve, QuaternionInterpMode } from './quat-curve';
-import { RealInterpMode } from './real-curve-param';
+import { RealKeyframeValue, ExtrapolationMode, RealCurve } from './curve';
+import { QuatCurve, QuatInterpolationMode } from './quat-curve';
+import { RealInterpolationMode } from './real-curve-param';
 
 const DEFAULT_EPSILON = 1e-5;
 
@@ -137,9 +137,9 @@ const globalLocation: TimeLocation = {
 @ccclass('cc.KeySharedRealCurves')
 export class KeySharedRealCurves extends KeysSharedCurves {
     public static allowedForCurve (curve: RealCurve) {
-        return curve.postExtrap === ExtrapMode.CLAMP
-            && curve.preExtrap === ExtrapMode.CLAMP
-            && Array.from(curve.values()).every((value) => value.interpMode === RealInterpMode.LINEAR);
+        return curve.postExtrapolation === ExtrapolationMode.CLAMP
+            && curve.preExtrapolation === ExtrapolationMode.CLAMP
+            && Array.from(curve.values()).every((value) => value.interpolationMode === RealInterpolationMode.LINEAR);
     }
 
     get curveCount () {
@@ -214,19 +214,19 @@ export class KeySharedRealCurves extends KeysSharedCurves {
 const cacheQuat1 = new Quat();
 const cacheQuat2 = new Quat();
 
-@ccclass('cc.KeySharedQuaternionCurves')
-export class KeySharedQuaternionCurves extends KeysSharedCurves {
-    public static allowedForCurve (curve: QuaternionCurve) {
-        return curve.postExtrap === ExtrapMode.CLAMP
-            && curve.preExtrap === ExtrapMode.CLAMP
-            && Array.from(curve.values()).every((value) => value.interpMode === QuaternionInterpMode.SLERP);
+@ccclass('cc.KeySharedQuatCurves')
+export class KeySharedQuatCurves extends KeysSharedCurves {
+    public static allowedForCurve (curve: QuatCurve) {
+        return curve.postExtrapolation === ExtrapolationMode.CLAMP
+            && curve.preExtrapolation === ExtrapolationMode.CLAMP
+            && Array.from(curve.values()).every((value) => value.interpolationMode === QuatInterpolationMode.SLERP);
     }
 
     get curveCount () {
         return this._curves.length;
     }
 
-    public matchCurve (curve: QuaternionCurve, EPSILON = 1e-5) {
+    public matchCurve (curve: QuatCurve, EPSILON = 1e-5) {
         if (curve.keyFramesCount !== this.keyframesCount) {
             return false;
         }
@@ -234,7 +234,7 @@ export class KeySharedQuaternionCurves extends KeysSharedCurves {
         return super.matchTimes(times, EPSILON);
     }
 
-    public addCurve (curve: QuaternionCurve) {
+    public addCurve (curve: QuatCurve) {
         assertIsTrue(curve.keyFramesCount === this.keyframesCount);
         const values = new DefaultFloatArray(curve.keyFramesCount * 4);
         const nKeyframes = curve.keyFramesCount;

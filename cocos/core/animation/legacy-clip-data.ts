@@ -5,7 +5,7 @@ import { BezierControlPoints } from './bezier';
 import { CompactValueTypeArray } from '../data/utils/compact-value-type-array';
 import { serializable } from '../data/decorators';
 import { AnimCurve, RatioSampler } from './animation-curve';
-import { QuaternionInterpMode, RealCurve, RealInterpMode, RealKeyframeValue, TangentWeightMode } from '../curves';
+import { QuatInterpolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue, TangentWeightMode } from '../curves';
 import { assertIsTrue } from '../data/utils/asserts';
 import { Track, TrackPath } from './tracks/track';
 import { UntypedTrack } from './tracks/untyped-track';
@@ -15,7 +15,7 @@ import { Color, lerp, Quat, Size, Vec2, Vec3, Vec4 } from '../math';
 import { CubicSplineNumberValue, CubicSplineQuatValue, CubicSplineVec2Value, CubicSplineVec3Value, CubicSplineVec4Value } from './cubic-spline-value';
 import { ColorTrack } from './tracks/color-track';
 import { VectorTrack } from './tracks/vector-track';
-import { QuaternionTrack } from './tracks/quat-track';
+import { QuatTrack } from './tracks/quat-track';
 import { ObjectTrack } from './tracks/object-track';
 import { SizeTrack } from './tracks/size-track';
 import { EasingMethod } from '../curves/curve';
@@ -265,9 +265,9 @@ export class AnimationClipLegacyData {
                         newTracks.push(track);
                         realCurve = track.channel.curve;
                     }
-                    const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
+                    const interpolationMethod = interpolate ? RealInterpolationMode.LINEAR : RealInterpolationMode.CONSTANT;
                     realCurve.assignSorted(times, (legacyValues as number[]).map(
-                        (value) => new RealKeyframeValue({ value, interpMode: interpMethod }),
+                        (value) => new RealKeyframeValue({ value, interpolationMode: interpolationMethod }),
                     ));
                     legacyEasingMethodConverter.convert(realCurve);
                     return;
@@ -286,8 +286,8 @@ export class AnimationClipLegacyData {
                         installPathAndSetter(track);
                         track.componentsCount = components;
                         const [{ curve: x }, { curve: y }, { curve: z }, { curve: w }] = track.channels();
-                        const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
-                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpMode: interpMethod });
+                        const interpolationMode = interpolate ? RealInterpolationMode.LINEAR : RealInterpolationMode.CONSTANT;
+                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpolationMode });
                         switch (components) {
                         case 4:
                             w.assignSorted(times, (legacyValues as Vec4plus).map((value) => valueToFrame(value.w)));
@@ -309,12 +309,12 @@ export class AnimationClipLegacyData {
                     }
                     case everyInstanceOf(legacyValues, Quat): {
                         assertIsTrue(legacyEasingMethodConverter.nil);
-                        const track = new QuaternionTrack();
+                        const track = new QuatTrack();
                         installPathAndSetter(track);
-                        const interpMode = interpolate ? QuaternionInterpMode.SLERP : QuaternionInterpMode.CONSTANT;
+                        const interpolationMode = interpolate ? QuatInterpolationMode.SLERP : QuatInterpolationMode.CONSTANT;
                         track.channel.curve.assignSorted(times, (legacyValues as Quat[]).map((value) => ({
                             value: Quat.clone(value),
-                            interpMode,
+                            interpolationMode,
                         })));
                         newTracks.push(track);
                         return;
@@ -323,8 +323,8 @@ export class AnimationClipLegacyData {
                         const track = new ColorTrack();
                         installPathAndSetter(track);
                         const [{ curve: r }, { curve: g }, { curve: b }, { curve: a }] = track.channels();
-                        const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
-                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpMode: interpMethod });
+                        const interpolationMode = interpolate ? RealInterpolationMode.LINEAR : RealInterpolationMode.CONSTANT;
+                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpolationMode });
                         r.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.r)));
                         legacyEasingMethodConverter.convert(r);
                         g.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.g)));
@@ -340,8 +340,8 @@ export class AnimationClipLegacyData {
                         const track = new SizeTrack();
                         installPathAndSetter(track);
                         const [{ curve: width }, { curve: height }] = track.channels();
-                        const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
-                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpMode: interpMethod });
+                        const interpolationMode = interpolate ? RealInterpolationMode.LINEAR : RealInterpolationMode.CONSTANT;
+                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpolationMode });
                         width.assignSorted(times, (legacyValues as Size[]).map((value) => valueToFrame(value.width)));
                         legacyEasingMethodConverter.convert(width);
                         height.assignSorted(times, (legacyValues as Size[]).map((value) => valueToFrame(value.height)));
@@ -353,12 +353,12 @@ export class AnimationClipLegacyData {
                         assertIsTrue(legacyEasingMethodConverter.nil);
                         const track = new RealTrack();
                         installPathAndSetter(track);
-                        const interpMethod = interpolate ? RealInterpMode.CUBIC : RealInterpMode.CONSTANT;
+                        const interpolationMode = interpolate ? RealInterpolationMode.CUBIC : RealInterpolationMode.CONSTANT;
                         track.channel.curve.assignSorted(times, (legacyValues as CubicSplineNumberValue[]).map((value) => new RealKeyframeValue({
                             value: value.dataPoint,
                             leftTangent: value.inTangent,
                             rightTangent: value.outTangent,
-                            interpMode: interpMethod,
+                            interpolationMode,
                         })));
                         newTracks.push(track);
                         return;
@@ -375,12 +375,12 @@ export class AnimationClipLegacyData {
                         installPathAndSetter(track);
                         track.componentsCount = components;
                         const [x, y, z, w] = track.channels();
-                        const interpMethod = interpolate ? RealInterpMode.LINEAR : RealInterpMode.CONSTANT;
+                        const interpolationMode = interpolate ? RealInterpolationMode.LINEAR : RealInterpolationMode.CONSTANT;
                         const valueToFrame = (value: number, inTangent: number, outTangent: number): RealKeyframeValue => new RealKeyframeValue({
                             value,
                             leftTangent: inTangent,
                             rightTangent: outTangent,
-                            interpMode: interpMethod,
+                            interpolationMode,
                         });
                         switch (components) {
                         case 4:
@@ -553,9 +553,9 @@ function applyLegacyEasingMethodName (
     const keyframeValue = curve.getKeyframeValue(keyframeIndex);
     const easingMethod = easingMethodNameMap[easingMethodName];
     if (easingMethod === EasingMethod.CONSTANT) {
-        keyframeValue.interpMode = RealInterpMode.CONSTANT;
+        keyframeValue.interpolationMode = RealInterpolationMode.CONSTANT;
     } else {
-        keyframeValue.interpMode = RealInterpMode.LINEAR;
+        keyframeValue.interpolationMode = RealInterpolationMode.LINEAR;
         keyframeValue.easingMethod = easingMethod;
     }
 }
@@ -641,7 +641,7 @@ export function timeBezierToTangents (
     const previousTangentWeight = Math.sqrt(t1x * t1x + t1y * t1y) * ONE_THIRD;
     const nextTangent = t2y / t2x;
     const nextTangentWeight = Math.sqrt(t2x * t2x + t2y * t2y) * ONE_THIRD;
-    previousKeyframe.interpMode = RealInterpMode.CUBIC;
+    previousKeyframe.interpolationMode = RealInterpolationMode.CUBIC;
     previousKeyframe.tangentWeightMode = ensureRightTangentWeightMode(previousKeyframe.tangentWeightMode);
     previousKeyframe.rightTangent = previousTangent;
     previousKeyframe.rightTangentWeight = previousTangentWeight;

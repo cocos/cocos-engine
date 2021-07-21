@@ -1,7 +1,7 @@
 
-import { ExtrapMode, RealCurve, RealInterpMode, RealKeyframeValue } from '../../cocos/core/curves/curve';
-import { KeySharedQuaternionCurves, KeySharedRealCurves } from '../../cocos/core/curves/keys-shared-curves';
-import { QuaternionCurve, QuaternionInterpMode, QuaternionKeyframeValue } from '../../cocos/core/curves/quat-curve';
+import { ExtrapolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue } from '../../cocos/core/curves/curve';
+import { KeySharedQuatCurves, KeySharedRealCurves } from '../../cocos/core/curves/keys-shared-curves';
+import { QuatCurve, QuatInterpolationMode, QuatKeyframeValue } from '../../cocos/core/curves/quat-curve';
 import { Quat } from '../../cocos/core/math';
 
 describe('Keys shared real curves', () => {
@@ -19,7 +19,7 @@ describe('Keys shared real curves', () => {
             curve.assignSorted([[0.1, new RealKeyframeValue({
                 value: 0.1,
             })]]);
-            curve.postExtrap = ExtrapMode.LOOP;
+            curve.postExtrapolation = ExtrapolationMode.LOOP;
             expect(KeySharedRealCurves.allowedForCurve(curve)).toBe(false);
         }
 
@@ -28,7 +28,7 @@ describe('Keys shared real curves', () => {
             curve.assignSorted([[0.1, new RealKeyframeValue({
                 value: 0.1,
             })]]);
-            curve.preExtrap = ExtrapMode.LOOP;
+            curve.preExtrapolation = ExtrapolationMode.LOOP;
             expect(KeySharedRealCurves.allowedForCurve(curve)).toBe(false);
         }
 
@@ -36,7 +36,7 @@ describe('Keys shared real curves', () => {
             const curve = new RealCurve();
             curve.assignSorted([[0.1, new RealKeyframeValue({
                 value: 0.1,
-                interpMode: RealInterpMode.CUBIC,
+                interpolationMode: RealInterpolationMode.CUBIC,
             })]]);
             expect(KeySharedRealCurves.allowedForCurve(curve)).toBe(false);
         }
@@ -120,67 +120,67 @@ describe('Keys shared real curves', () => {
 describe('Keys shared quaternion curves', () => {
     test('Enabling', () => {
         {
-            const curve = new QuaternionCurve();
-            curve.assignSorted([[0.1, new QuaternionKeyframeValue({
-                interpMode: QuaternionInterpMode.SLERP,
+            const curve = new QuatCurve();
+            curve.assignSorted([[0.1, new QuatKeyframeValue({
+                interpolationMode: QuatInterpolationMode.SLERP,
                 value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 },
             })]]);
-            expect(KeySharedQuaternionCurves.allowedForCurve(curve)).toBe(true);
+            expect(KeySharedQuatCurves.allowedForCurve(curve)).toBe(true);
         }
 
         {
-            const curve = new QuaternionCurve();
-            curve.assignSorted([[0.1, new QuaternionKeyframeValue({
+            const curve = new QuatCurve();
+            curve.assignSorted([[0.1, new QuatKeyframeValue({
                 value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 },
             })]]);
-            curve.postExtrap = ExtrapMode.LOOP;
-            expect(KeySharedQuaternionCurves.allowedForCurve(curve)).toBe(false);
+            curve.postExtrapolation = ExtrapolationMode.LOOP;
+            expect(KeySharedQuatCurves.allowedForCurve(curve)).toBe(false);
         }
 
         {
-            const curve = new QuaternionCurve();
-            curve.assignSorted([[0.1, new QuaternionKeyframeValue({
+            const curve = new QuatCurve();
+            curve.assignSorted([[0.1, new QuatKeyframeValue({
                 value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 },
             })]]);
-            curve.preExtrap = ExtrapMode.LOOP;
-            expect(KeySharedQuaternionCurves.allowedForCurve(curve)).toBe(false);
+            curve.preExtrapolation = ExtrapolationMode.LOOP;
+            expect(KeySharedQuatCurves.allowedForCurve(curve)).toBe(false);
         }
 
         {
-            const curve = new QuaternionCurve();
-            curve.assignSorted([[0.1, new QuaternionKeyframeValue({
+            const curve = new QuatCurve();
+            curve.assignSorted([[0.1, new QuatKeyframeValue({
                 value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 },
-                interpMode: QuaternionInterpMode.CONSTANT,
+                interpolationMode: QuatInterpolationMode.CONSTANT,
             })]]);
-            expect(KeySharedQuaternionCurves.allowedForCurve(curve)).toBe(false);
+            expect(KeySharedQuatCurves.allowedForCurve(curve)).toBe(false);
         }
     });
 
     test('Composite', () => {
-        const curves1 = new KeySharedQuaternionCurves([0.1, 0.7, 0.8]);
+        const curves1 = new KeySharedQuatCurves([0.1, 0.7, 0.8]);
 
-        const curveMatched = new QuaternionCurve();
+        const curveMatched = new QuatCurve();
         curveMatched.assignSorted([0.1, 0.7, 0.8], Array.from({ length: 3 }, () =>
-            new QuaternionKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
+            new QuatKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
         expect(curves1.matchCurve(curveMatched)).toBe(true);
 
-        const curveNonMatched = new QuaternionCurve();
+        const curveNonMatched = new QuatCurve();
         curveNonMatched.assignSorted([0.1, 0.3, 0.8], Array.from({ length: 3 }, () =>
-            new QuaternionKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
+            new QuatKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
         expect(curves1.matchCurve(curveNonMatched)).toBe(false);
     });
 
     test('Composite (may be baked)', () => {
-        const curves1 = new KeySharedQuaternionCurves([0.1, 0.2, 0.3]);
+        const curves1 = new KeySharedQuatCurves([0.1, 0.2, 0.3]);
 
-        const curveMatched = new QuaternionCurve();
+        const curveMatched = new QuatCurve();
         curveMatched.assignSorted([0.1, 0.2, 0.3], Array.from({ length: 3 }, () =>
-            new QuaternionKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
+            new QuatKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
         expect(curves1.matchCurve(curveMatched)).toBe(true);
 
-        const curveNonMatched = new QuaternionCurve();
+        const curveNonMatched = new QuatCurve();
         curveNonMatched.assignSorted([0.2, 0.3, 0.4], Array.from({ length: 3 }, () =>
-            new QuaternionKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
+            new QuatKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
         expect(curves1.matchCurve(curveNonMatched)).toBe(false);
     });
 
@@ -191,11 +191,11 @@ describe('Keys shared quaternion curves', () => {
     ];
 
     test('Evaluate', () => {
-        const curve = new QuaternionCurve();
+        const curve = new QuatCurve();
         curve.assignSorted([0.1, 0.7, 0.8], Array.from({ length: 3 }, (_, index) =>
-            new QuaternionKeyframeValue({ value: Quat.clone(quaternions[index]) })));
+            new QuatKeyframeValue({ value: Quat.clone(quaternions[index]) })));
 
-        const curves = new KeySharedQuaternionCurves(Array.from(curve.times()));
+        const curves = new KeySharedQuatCurves(Array.from(curve.times()));
         curves.addCurve(curve);
         const values = [new Quat()];
         const resetAndEval = (time: number) => {
@@ -217,11 +217,11 @@ describe('Keys shared quaternion curves', () => {
     });
 
     test('Evaluate optimized keys', () => {
-        const curve = new QuaternionCurve();
+        const curve = new QuatCurve();
         curve.assignSorted([0.1, 0.2, 0.3], Array.from({ length: 3 }, (_, index) =>
-            new QuaternionKeyframeValue({ value: Quat.clone(quaternions[index]) })));
+            new QuatKeyframeValue({ value: Quat.clone(quaternions[index]) })));
 
-        const curves = new KeySharedQuaternionCurves(Array.from(curve.times()));
+        const curves = new KeySharedQuatCurves(Array.from(curve.times()));
         curves.addCurve(curve);
         const values = [new Quat()];
         const resetAndEval = (time: number) => {

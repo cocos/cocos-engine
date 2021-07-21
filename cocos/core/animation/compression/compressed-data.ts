@@ -1,9 +1,9 @@
-import { QuaternionCurve, RealCurve } from '../../curves';
-import { KeySharedQuaternionCurves, KeySharedRealCurves } from '../../curves/keys-shared-curves';
+import { QuatCurve, RealCurve } from '../../curves';
+import { KeySharedQuatCurves, KeySharedRealCurves } from '../../curves/keys-shared-curves';
 import { ccclass, serializable } from '../../data/decorators';
 import { Quat, Vec2, Vec3, Vec4 } from '../../math';
 import { CLASS_NAME_PREFIX_ANIM } from '../define';
-import { QuaternionTrack } from '../tracks/quat-track';
+import { QuatTrack } from '../tracks/quat-track';
 import { RealTrack } from '../tracks/real-track';
 import { Binder, RuntimeBinding, TrackBinding, trackBindingTag, TrackPath } from '../tracks/track';
 import { VectorTrack } from '../tracks/vector-track';
@@ -49,15 +49,15 @@ export class CompressedData {
         return true;
     }
 
-    public compressQuatTrack (track: QuaternionTrack) {
+    public compressQuatTrack (track: QuatTrack) {
         const curve = track.channel.curve;
-        const mayBeCompressed = KeySharedQuaternionCurves.allowedForCurve(curve);
+        const mayBeCompressed = KeySharedQuatCurves.allowedForCurve(curve);
         if (!mayBeCompressed) {
             return false;
         }
         this._quatTracks.push({
             binding: track[trackBindingTag],
-            pointer: this._addQuaternionCurve(curve),
+            pointer: this._addQuatCurve(curve),
         });
         return true;
     }
@@ -153,7 +153,7 @@ export class CompressedData {
     private _tracks: CompressedTrack[] = [];
 
     @serializable
-    private _quatCurves: KeySharedQuaternionCurves[] = [];
+    private _quatCurves: KeySharedQuatCurves[] = [];
 
     @serializable
     private _quatTracks: CompressedQuatTrack[] = [];
@@ -174,12 +174,12 @@ export class CompressedData {
         };
     }
 
-    public _addQuaternionCurve (curve: QuaternionCurve): CompressedQuatCurvePointer {
+    public _addQuatCurve (curve: QuatCurve): CompressedQuatCurvePointer {
         const times = Array.from(curve.times());
         let iKeySharedCurves = this._quatCurves.findIndex((shared) => shared.matchCurve(curve));
         if (iKeySharedCurves < 0) {
             iKeySharedCurves = this._quatCurves.length;
-            const keySharedCurves = new KeySharedQuaternionCurves(times);
+            const keySharedCurves = new KeySharedQuatCurves(times);
             this._quatCurves.push(keySharedCurves);
         }
         const iCurve = this._quatCurves[iKeySharedCurves].curveCount;
@@ -296,7 +296,7 @@ interface CompressedDataEvalStatus {
     }>;
 
     keysSharedQuatCurvesEvalStatues: Array<{
-        curves: KeySharedQuaternionCurves;
+        curves: KeySharedQuatCurves;
         result: Quat[];
     }>;
 

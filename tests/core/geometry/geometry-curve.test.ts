@@ -1,5 +1,5 @@
 import { WrapModeMask } from '../../../cocos/core/animation/types';
-import { ExtrapMode, RealCurve, RealInterpMode, RealKeyframeValue, TangentWeightMode } from '../../../cocos/core/curves';
+import { ExtrapolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue, TangentWeightMode } from '../../../cocos/core/curves';
 import { AnimationCurve, Keyframe } from '../../../cocos/core/geometry/curve';
 
 describe('geometry.AnimationCurve', () => {
@@ -28,19 +28,19 @@ describe('geometry.AnimationCurve', () => {
             realCurve.assignSorted([
                 // Non weighted tangent
                 [0.1, new RealKeyframeValue({
-                    interpMode: RealInterpMode.CUBIC,
+                    interpolationMode: RealInterpolationMode.CUBIC,
                     value: 0.1,
                     leftTangent: 0.2,
                     rightTangent: 0.3,
                 })],
                 // Non cubic keyframe
                 [0.2, new RealKeyframeValue({
-                    interpMode: RealInterpMode.LINEAR,
+                    interpolationMode: RealInterpolationMode.LINEAR,
                     value: 0.1,
                 })],
                 // Weighted tangent
                 [0.3, new RealKeyframeValue({
-                    interpMode: RealInterpMode.CUBIC,
+                    interpolationMode: RealInterpolationMode.CUBIC,
                     value: 0.1,
                     leftTangent: 0.2,
                     rightTangent: 0.3,
@@ -59,14 +59,14 @@ describe('geometry.AnimationCurve', () => {
         });
 
         test.each([
-            { extrapMode: ExtrapMode.LOOP, expected: WrapModeMask.Loop },
-            { extrapMode: ExtrapMode.PING_PONG, expected: WrapModeMask.PingPong },
-            { extrapMode: ExtrapMode.CLAMP, expected: WrapModeMask.Clamp },
-            { extrapMode: ExtrapMode.LINEAR, expected: WrapModeMask.Clamp },
-        ])(`new AnimationCurve(realCurve)(INTERNAL): conversion of extrapolation mode $extrapMode`, ({ extrapMode, expected }) => {
+            { extrapolationMode: ExtrapolationMode.LOOP, expected: WrapModeMask.Loop },
+            { extrapolationMode: ExtrapolationMode.PING_PONG, expected: WrapModeMask.PingPong },
+            { extrapolationMode: ExtrapolationMode.CLAMP, expected: WrapModeMask.Clamp },
+            { extrapolationMode: ExtrapolationMode.LINEAR, expected: WrapModeMask.Clamp },
+        ])(`new AnimationCurve(realCurve)(INTERNAL): conversion of extrapolation mode $extrapolationMode`, ({ extrapolationMode, expected }) => {
             const realCurve = new RealCurve();
-            realCurve.preExtrap = extrapMode;
-            realCurve.postExtrap = extrapMode;
+            realCurve.preExtrapolation = extrapolationMode;
+            realCurve.postExtrapolation = extrapolationMode;
             const geometryCurve = new AnimationCurve(realCurve);
             expect(geometryCurve.preWrapMode).toStrictEqual(expected);
             expect(geometryCurve.postWrapMode).toStrictEqual(expected);
@@ -74,19 +74,19 @@ describe('geometry.AnimationCurve', () => {
     });
 
     test.each([
-        { wrapMode: WrapModeMask.Clamp, extrapMode: ExtrapMode.CLAMP, },
-        { wrapMode: WrapModeMask.Loop, extrapMode: ExtrapMode.LOOP, },
-        { wrapMode: WrapModeMask.PingPong, extrapMode: ExtrapMode.PING_PONG, },
-    ])(`Wrap mode $wrapMode`, ({ wrapMode, extrapMode }) => {
+        { wrapMode: WrapModeMask.Clamp, extrapolationMode: ExtrapolationMode.CLAMP, },
+        { wrapMode: WrapModeMask.Loop, extrapolationMode: ExtrapolationMode.LOOP, },
+        { wrapMode: WrapModeMask.PingPong, extrapolationMode: ExtrapolationMode.PING_PONG, },
+    ])(`Wrap mode $wrapMode`, ({ wrapMode, extrapolationMode }) => {
         const curve = new AnimationCurve();
         
         curve.preWrapMode = wrapMode;
         expect(curve.preWrapMode).toStrictEqual(wrapMode);
-        expect(curve._internalCurve.preExtrap).toStrictEqual(extrapMode);
+        expect(curve._internalCurve.preExtrapolation).toStrictEqual(extrapolationMode);
 
         curve.postWrapMode = wrapMode;
         expect(curve.postWrapMode).toStrictEqual(wrapMode);
-        expect(curve._internalCurve.postExtrap).toStrictEqual(extrapMode);
+        expect(curve._internalCurve.postExtrapolation).toStrictEqual(extrapolationMode);
     });
 
     test(`Add key`, () => {
@@ -147,19 +147,19 @@ describe('geometry.AnimationCurve', () => {
         curve._internalCurve.assignSorted([
             // Non weighted tangent
             [0.1, new RealKeyframeValue({
-                interpMode: RealInterpMode.CUBIC,
+                interpolationMode: RealInterpolationMode.CUBIC,
                 value: 0.1,
                 leftTangent: 0.2,
                 rightTangent: 0.3,
             })],
             // Non cubic keyframe
             [0.2, new RealKeyframeValue({
-                interpMode: RealInterpMode.LINEAR,
+                interpolationMode: RealInterpolationMode.LINEAR,
                 value: 0.1,
             })],
             // Weighted tangent
             [0.3, new RealKeyframeValue({
-                interpMode: RealInterpMode.CUBIC,
+                interpolationMode: RealInterpolationMode.CUBIC,
                 value: 0.1,
                 leftTangent: 0.2,
                 rightTangent: 0.3,

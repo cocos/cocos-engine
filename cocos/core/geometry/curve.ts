@@ -31,7 +31,7 @@
 import { CCClass } from '../data/class';
 import { clamp, inverseLerp, pingPong, repeat } from '../math/utils';
 import { WrapModeMask } from '../animation/types';
-import { ExtrapMode, RealCurve, RealInterpMode, RealKeyframeValue } from '../curves';
+import { ExtrapolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue } from '../curves';
 import { ccclass, serializable } from '../data/decorators';
 
 const LOOK_FORWARD = 3;
@@ -149,7 +149,7 @@ export class AnimationCurve {
         this._curve.assignSorted(value.map((legacyCurve) => [
             legacyCurve.time,
             new RealKeyframeValue({
-                interpMode: RealInterpMode.CUBIC,
+                interpolationMode: RealInterpolationMode.CUBIC,
                 value: legacyCurve.value,
                 leftTangent: legacyCurve.inTangent,
                 rightTangent: legacyCurve.outTangent,
@@ -164,11 +164,11 @@ export class AnimationCurve {
      * 当采样时间超出左端时采用的循环模式[[WrapMode]]。
      */
     get preWrapMode () {
-        return toLegacyWrapMode(this._curve.preExtrap);
+        return toLegacyWrapMode(this._curve.preExtrapolation);
     }
 
     set preWrapMode (value) {
-        this._curve.preExtrap = fromLegacyWrapMode(value);
+        this._curve.preExtrapolation = fromLegacyWrapMode(value);
     }
 
     /**
@@ -178,11 +178,11 @@ export class AnimationCurve {
      * 当采样时间超出右端时采用的循环模式[[WrapMode]]。
      */
     get postWrapMode () {
-        return toLegacyWrapMode(this._curve.postExtrap);
+        return toLegacyWrapMode(this._curve.postExtrapolation);
     }
 
     set postWrapMode (value) {
-        this._curve.postExtrap = fromLegacyWrapMode(value);
+        this._curve.postExtrapolation = fromLegacyWrapMode(value);
     }
 
     private cachedKey: OptimizedKey;
@@ -197,16 +197,16 @@ export class AnimationCurve {
         } else {
             const curve = new RealCurve();
             this._curve = curve;
-            curve.preExtrap = ExtrapMode.LOOP;
-            curve.postExtrap = ExtrapMode.CLAMP;
+            curve.preExtrapolation = ExtrapolationMode.LOOP;
+            curve.postExtrapolation = ExtrapolationMode.CLAMP;
             if (!keyFrames) {
                 curve.assignSorted([
-                    [0.0, new RealKeyframeValue({ interpMode: RealInterpMode.CUBIC, value: 1.0 })],
-                    [1.0, new RealKeyframeValue({ interpMode: RealInterpMode.CUBIC, value: 1.0 })],
+                    [0.0, new RealKeyframeValue({ interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 })],
+                    [1.0, new RealKeyframeValue({ interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 })],
                 ]);
             } else {
                 curve.assignSorted(keyFrames.map((legacyKeyframe) => [legacyKeyframe.time, new RealKeyframeValue({
-                    interpMode: RealInterpMode.CUBIC,
+                    interpolationMode: RealInterpolationMode.CUBIC,
                     value: legacyKeyframe.value,
                     leftTangent: legacyKeyframe.inTangent,
                     rightTangent: legacyKeyframe.outTangent,
@@ -228,7 +228,7 @@ export class AnimationCurve {
             this._curve.clear();
         } else {
             this._curve.addKeyFrame(keyFrame.time, new RealKeyframeValue({
-                interpMode: RealInterpMode.CUBIC,
+                interpolationMode: RealInterpolationMode.CUBIC,
                 value: keyFrame.value,
                 leftTangent: keyFrame.inTangent,
                 rightTangent: keyFrame.outTangent,
@@ -256,17 +256,17 @@ export class AnimationCurve {
         const nKeyframes = curve.keyFramesCount;
         const lastKeyframeIndex = nKeyframes - 1;
         let wrappedTime = time;
-        const extrapMode = time < 0 ? curve.preExtrap : curve.postExtrap;
+        const extrapolationMode = time < 0 ? curve.preExtrapolation : curve.postExtrapolation;
         const startTime = curve.getKeyframeTime(0);
         const endTime = curve.getKeyframeTime(lastKeyframeIndex);
-        switch (extrapMode) {
-        case ExtrapMode.LOOP:
+        switch (extrapolationMode) {
+        case ExtrapolationMode.LOOP:
             wrappedTime = repeat(time - startTime, endTime - startTime) + startTime;
             break;
-        case ExtrapMode.PING_PONG:
+        case ExtrapolationMode.PING_PONG:
             wrappedTime = pingPong(time - startTime, endTime - startTime) + startTime;
             break;
-        case ExtrapMode.CLAMP:
+        case ExtrapolationMode.CLAMP:
         default:
             wrappedTime = clamp(time, startTime, endTime);
             break;
@@ -349,24 +349,24 @@ export class AnimationCurve {
     }
 }
 
-function fromLegacyWrapMode (legacyWrapMode: WrapModeMask): ExtrapMode {
+function fromLegacyWrapMode (legacyWrapMode: WrapModeMask): ExtrapolationMode {
     switch (legacyWrapMode) {
     default:
     case WrapModeMask.Default:
     case WrapModeMask.Normal:
-    case WrapModeMask.Clamp: return ExtrapMode.CLAMP;
-    case WrapModeMask.PingPong: return ExtrapMode.PING_PONG;
-    case WrapModeMask.Loop: return ExtrapMode.LOOP;
+    case WrapModeMask.Clamp: return ExtrapolationMode.CLAMP;
+    case WrapModeMask.PingPong: return ExtrapolationMode.PING_PONG;
+    case WrapModeMask.Loop: return ExtrapolationMode.LOOP;
     }
 }
 
-function toLegacyWrapMode (extrapMode: ExtrapMode): WrapModeMask {
-    switch (extrapMode) {
+function toLegacyWrapMode (extrapolationMode: ExtrapolationMode): WrapModeMask {
+    switch (extrapolationMode) {
     default:
-    case ExtrapMode.LINEAR:
-    case ExtrapMode.CLAMP: return WrapModeMask.Clamp;
-    case ExtrapMode.PING_PONG: return WrapModeMask.PingPong;
-    case ExtrapMode.LOOP: return WrapModeMask.Loop;
+    case ExtrapolationMode.LINEAR:
+    case ExtrapolationMode.CLAMP: return WrapModeMask.Clamp;
+    case ExtrapolationMode.PING_PONG: return WrapModeMask.PingPong;
+    case ExtrapolationMode.LOOP: return WrapModeMask.Loop;
     }
 }
 
@@ -376,8 +376,8 @@ function toLegacyWrapMode (extrapMode: ExtrapMode): WrapModeMask {
 export function constructLegacyCurveAndConvert () {
     const curve = new RealCurve();
     curve.assignSorted([
-        [0.0, new RealKeyframeValue({ interpMode: RealInterpMode.CUBIC, value: 1.0 })],
-        [1.0, new RealKeyframeValue({ interpMode: RealInterpMode.CUBIC, value: 1.0 })],
+        [0.0, new RealKeyframeValue({ interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 })],
+        [1.0, new RealKeyframeValue({ interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 })],
     ]);
     return curve;
 }

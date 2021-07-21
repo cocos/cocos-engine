@@ -1,6 +1,6 @@
 import { ccclass, serializable, uniquelyReferenced } from 'cc.decorator';
 import type { Component } from '../../components';
-import type { ObjectCurve, QuaternionCurve, RealCurve } from '../../curves';
+import type { ObjectCurve, QuatCurve, RealCurve } from '../../curves';
 import { assertIsTrue } from '../../data/utils/asserts';
 import { error, warn } from '../../platform';
 import { Node } from '../../scene-graph';
@@ -72,7 +72,7 @@ export interface TrackEval {
     evaluate(time: number, runtimeBinding: RuntimeBinding): unknown;
 }
 
-export type Curve = RealCurve | QuaternionCurve | ObjectCurve<unknown>;
+export type Curve = RealCurve | QuatCurve | ObjectCurve<unknown>;
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}Channel`)
 export class Channel<T = Curve> {
@@ -95,7 +95,7 @@ export class Channel<T = Curve> {
 
 export type RealChannel = Channel<RealCurve>;
 
-export type QuaternionChannel = Channel<QuaternionCurve>;
+export type QuatChannel = Channel<QuatCurve>;
 
 @ccclass(`${CLASS_NAME_PREFIX_ANIM}SingleChannelTrack`)
 export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {

@@ -36,7 +36,7 @@ export * from './cubic-spline-value';
 export { Track, TrackPath } from './tracks/track';
 export { RealTrack } from './tracks/real-track';
 export { VectorTrack } from './tracks/vector-track';
-export { QuaternionTrack } from './tracks/quat-track';
+export { QuatTrack } from './tracks/quat-track';
 export { ColorTrack } from './tracks/color-track';
 export { SizeTrack } from './tracks/size-track';
 export { ObjectTrack } from './tracks/object-track';

@@ -1,13 +1,13 @@
 import { ccclass } from 'cc.decorator';
-import { QuaternionCurve } from '../../curves';
+import { QuatCurve } from '../../curves';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import { SingleChannelTrack } from './track';
 import { Quat } from '../../math';
 
-@ccclass(`${CLASS_NAME_PREFIX_ANIM}QuaternionTrack`)
-export class QuaternionTrack extends SingleChannelTrack<QuaternionCurve> {
+@ccclass(`${CLASS_NAME_PREFIX_ANIM}QuatTrack`)
+export class QuatTrack extends SingleChannelTrack<QuatCurve> {
     protected createCurve () {
-        return new QuaternionCurve();
+        return new QuatCurve();
     }
 
     public [createEvalSymbol] () {
@@ -16,7 +16,7 @@ export class QuaternionTrack extends SingleChannelTrack<QuaternionCurve> {
 }
 
 export class QuatTrackEval {
-    constructor (private _curve: QuaternionCurve) {
+    constructor (private _curve: QuatCurve) {
 
     }
 
