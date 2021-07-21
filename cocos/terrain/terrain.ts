@@ -45,12 +45,12 @@ import { Camera } from '../core/renderer/scene/camera';
 import { Root } from '../core/root';
 import { HeightField } from './height-field';
 import { legacyCC } from '../core/global-exports';
-import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE } from './terrain-lod'
+import { TerrainLod, TerrainLodKey, TERRAIN_LOD_LEVELS, TERRAIN_LOD_MAX_DISTANCE } from './terrain-lod';
 import { TerrainAsset, TerrainLayerInfo, TERRAIN_HEIGHT_BASE, TERRAIN_HEIGHT_FACTORY,
     TERRAIN_BLOCK_TILE_COMPLEXITY, TERRAIN_BLOCK_VERTEX_SIZE, TERRAIN_BLOCK_VERTEX_COMPLEXITY,
     TERRAIN_MAX_LAYER_COUNT, TERRAIN_HEIGHT_FMIN, TERRAIN_HEIGHT_FMAX, TERRAIN_MAX_BLEND_LAYERS, TERRAIN_DATA_VERSION5 } from './terrain-asset';
 import { CCBoolean, CCFloat, CCInteger, Node, RenderPipeline } from '../core';
-import { IRenderPipelineCallback } from 'cocos/core/pipeline/render-pipeline';
+import { IRenderPipelineCallback } from '../core/pipeline/render-pipeline';
 
 /**
  * @en Terrain info
@@ -309,7 +309,7 @@ export class TerrainBlock {
     private _weightMap: Texture2D|null = null;
     private _lightmapInfo: TerrainBlockLightmapInfo|null = null;
     private _lodLevel = 0;
-    private _lodKey: TerrainLodKey = new TerrainLodKey;
+    private _lodKey: TerrainLodKey = new TerrainLodKey();
     private _errorMetrics: number[] = [0, 0, 0, 0];
     private _LevelDistances: number[] = [TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE];
     private _bbMin = new Vec3();
@@ -579,15 +579,15 @@ export class TerrainBlock {
         let d = Math.min(d1, d2);
 
         d -= this._terrain.LodBias;
-        
-		this._lodLevel = 0;
-		while (this._lodLevel < maxLevel) {
-			const ld1 = this._LevelDistances[this._lodLevel + 1];
-			if (d <= ld1) {
-				break;
-			}
 
-			++this._lodLevel;
+        this._lodLevel = 0;
+        while (this._lodLevel < maxLevel) {
+            const ld1 = this._LevelDistances[this._lodLevel + 1];
+            if (d <= ld1) {
+                break;
+            }
+            
+            ++this._lodLevel;
 		}
     }
 
@@ -817,12 +817,12 @@ export class TerrainBlock {
     }
 
     public _updateLod () {
-        const key = new TerrainLodKey;
-		key.level = this._lodLevel;
-		key.north = this._lodLevel;
-		key.south = this._lodLevel;
-		key.west = this._lodLevel;
-		key.east = this._lodLevel;
+        const key = new TerrainLodKey();
+        key.level = this._lodLevel;
+        key.north = this._lodLevel;
+        key.south = this._lodLevel;
+        key.west = this._lodLevel;
+        key.east = this._lodLevel;
 
         if (this._index[0] > 0) {
             const n = this.getTerrain().getBlock(this._index[0] - 1, this._index[1]);
@@ -892,12 +892,12 @@ export class TerrainBlock {
 
     private _updateLodBuffer(vertecs: Float32Array)  {
         this._lodLevel = 0;
-        this._lodKey = new TerrainLodKey;
+        this._lodKey = new TerrainLodKey();
         this._calcErrorMetrics(vertecs);
-		this._calcLevelDistances(vertecs);
+        this._calcLevelDistances(vertecs);
     }
 
-	private _calcErrorMetrics(vertecs: Float32Array) {
+    private _calcErrorMetrics(vertecs: Float32Array) {
         this._errorMetrics[0] = 0;
 
         for (let i = 1; i < TERRAIN_LOD_LEVELS; ++i) {
@@ -905,11 +905,11 @@ export class TerrainBlock {
         }
 
         for (let i = 2; i < TERRAIN_LOD_LEVELS; ++i) {
-            this._errorMetrics[i] = Math.max( this._errorMetrics[i],  this._errorMetrics[i - 1]);
+            this._errorMetrics[i] = Math.max(this._errorMetrics[i],  this._errorMetrics[i - 1]);
         }
     }
 
-	private _calcErrorMetric(level: number, vertecs: Float32Array) {
+	private _calcErrorMetric (level: number, vertecs: Float32Array) {
         let err = 0.0;
         const step = 1 << level;
         const xSectionVerts = TERRAIN_BLOCK_VERTEX_COMPLEXITY;

@@ -50,7 +50,7 @@ export class TerrainIndexPool {
 }
 
 export class TerrainIndexData {
-    public key: TerrainLodKey = new TerrainLodKey;
+    public key: TerrainLodKey = new TerrainLodKey();
     public start = 0;
     public size = 0;
     public buffer: Uint16Array|null = null;
@@ -65,7 +65,7 @@ export class TerrainLod {
     public mBodyIndex: TerrainIndexPool[];
     public mConnecterIndex: TerrainIndexPool[];
     public mIndexMap: TerrainIndexData[] = [];
-    public mIndexBuffer: Uint16Array = new Uint16Array;
+    public mIndexBuffer: Uint16Array = new Uint16Array();
 
     constructor () {
         this.mBodyIndex = new Array<TerrainIndexPool>(TERRAIN_LOD_LEVELS);
@@ -375,27 +375,32 @@ export class TerrainLod {
         if (data != null) {
             return data;
         }
-      
+
         const body = this.mBodyIndex[k.level];
         const north = this._getConnenterIndex(k.level, k.north, TERRAIN_LOD_NORTH_INDEX);
         const south = this._getConnenterIndex(k.level, k.south, TERRAIN_LOD_SOUTH_INDEX);
         const west = this._getConnenterIndex(k.level, k.west, TERRAIN_LOD_WEST_INDEX);
         const east = this._getConnenterIndex(k.level, k.east, TERRAIN_LOD_EAST_INDEX);
 
-        data = new TerrainIndexData;
+        data = new TerrainIndexData();
         data.size = 0;
         data.primCount = 0;
 
-        if (body.indices != null)
+        if (body.indices != null) {
             data.size += body.size;
-        if (north.indices)
+        }
+        if (north.indices) {
             data.size += (north.size - 2) * 3;
-        if (south.indices)
+        }
+        if (south.indices) {
             data.size += (south.size - 2) * 3;
-        if (west.indices)
+        }
+        if (west.indices) {
             data.size += (west.size - 2) * 3;
-        if (east.indices)
+        }
+        if (east.indices) {
             data.size += (east.size - 2) * 3;
+        }
 
         if (data.size === 0) {
             return null;
