@@ -49,6 +49,15 @@ export interface IRenderPipelineInfo {
 }
 
 /**
+ * @en Render pipeline callback
+ * @zh 渲染事件回掉。
+ */
+export interface IRenderPipelineCallback {
+    onPreRender(cam: Camera): void;
+    onPostRender(cam: Camera): void;
+}
+
+/**
  * @en Render pipeline describes how we handle the rendering process for all render objects in the related render scene root.
  * It contains some general pipeline configurations, necessary rendering resources and some [[RenderFlow]]s.
  * The rendering process function [[render]] is invoked by [[Root]] for all [[Camera]]s.
@@ -154,6 +163,28 @@ export abstract class RenderPipeline extends Asset {
     protected _constantMacros = '';
     protected declare _pipelineSceneData: PipelineSceneData;
 
+    protected static _renderCallbacks: IRenderPipelineCallback[] = [];
+    
+    /**
+     * @en Add render callback
+     * @zh 添加渲染回掉。
+     */
+    public static addRenderCallback (callback: IRenderPipelineCallback) {
+        RenderPipeline._renderCallbacks.push(callback);
+    }
+
+    /**
+     * @en Remove render callback
+     * @zh 移除渲染回掉。
+     */
+    public static removeRenderCallback (callback: IRenderPipelineCallback) {
+        for (let i = 0; i < RenderPipeline._renderCallbacks.length; ++i) {
+            if (RenderPipeline._renderCallbacks[i] == callback) {
+                RenderPipeline._renderCallbacks.slice(i);
+            }
+        }
+    }
+    
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
      * @zh 初始化函数，正常情况下不会用到，仅用于程序化生成渲染管线的情况。
@@ -216,7 +247,16 @@ export abstract class RenderPipeline extends Asset {
         for (let j = 0; j < this.flows.length; j++) {
             for (let i = 0; i < cameras.length; i++) {
                 const camera = cameras[i];
+                
+                for (let k = 0; k < RenderPipeline._renderCallbacks.length; ++k) {
+                    RenderPipeline._renderCallbacks[k].onPreRender(camera);
+                }
+
                 this.flows[j].render(camera);
+
+                for (let k = 0; k < RenderPipeline._renderCallbacks.length; ++k) {
+                    RenderPipeline._renderCallbacks[k].onPostRender(camera);
+                }
             }
         }
     }
