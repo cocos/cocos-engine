@@ -94,8 +94,9 @@ export class RigidBody extends Component {
     public set group (v: number) {
         if (DEBUG && !Number.isInteger(Math.log2(v >>> 0))) warn('[Physics]: The group should only have one bit.');
         this._group = v;
-        if (!EDITOR && this.getGroup() === v) return;
         if (this._body) {
+            // There is a synchronization problem with this data, so only update when it is not the same
+            if (this._body.getGroup() === v) return;
             this._body.setGroup(v);
         }
     }
