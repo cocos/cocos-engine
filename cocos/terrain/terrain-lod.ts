@@ -33,11 +33,11 @@ export const TERRAIN_LOD_EAST_INDEX = 3;
 export const TERRAIN_LOD_MAX_DISTANCE = 100000000000000.0;
 
 export class TerrainLodKey {
-    public level: number = 0;
-    public north: number = 0;
-    public south: number = 0;
-    public west: number = 0;
-    public east: number = 0;
+    public level = 0;
+    public north = 0;
+    public south = 0;
+    public west = 0;
+    public east = 0;
 
     public compare (rk: TerrainLodKey) {
         return this.level === rk.level && this.north === rk.north && this.south === rk.south && this.west === rk.west && this.east === rk.east;
@@ -45,20 +45,20 @@ export class TerrainLodKey {
 }
 
 export class TerrainIndexPool {
-    public size: number = 0;
+    public size = 0;
     public indices: Uint16Array|null = null;
 }
 
 export class TerrainIndexData {
     public key: TerrainLodKey = new TerrainLodKey;
-    public start: number = 0;
-    public size: number = 0;
+    public start = 0;
+    public size = 0;
     public buffer: Uint16Array|null = null;
-    public primCount: number = 0;
+    public primCount = 0;
 }
 
 export class TerrainLod {
-    public static ConnecterIndex(i, j, k) {
+    public static ConnecterIndex (i: number, j: number, k: number) {
         return i * (TERRAIN_LOD_LEVELS * TERRAIN_LOD_LEVELS) + j * TERRAIN_LOD_LEVELS + k;
     }
 
@@ -206,7 +206,6 @@ export class TerrainLod {
         const self_step = 1 << level;
         const neighbor_step = 1 << connecter;
         const self_tile = TERRAIN_LOD_TILES >> level;
-        const neighbor_tile = TERRAIN_LOD_TILES >> connecter;
         const count = self_tile * 2 + 2;
 
         let index = 0;
@@ -250,7 +249,6 @@ export class TerrainLod {
         const self_step = 1 << level;
         const neighbor_step = 1 << connecter;
         const self_tile = TERRAIN_LOD_TILES >> level;
-        const neighbor_tile = TERRAIN_LOD_TILES >> connecter;
         const count = self_tile * 2 + 2;
 
         let index = 0;
@@ -294,7 +292,6 @@ export class TerrainLod {
         const self_step = 1 << level;
         const neighbor_step = 1 << connecter;
         const self_tile = TERRAIN_LOD_TILES >> level;
-        const neighbor_tile = TERRAIN_LOD_TILES >> connecter;
         const count = self_tile * 2 + 2;
 
         let index = 0;
@@ -338,7 +335,6 @@ export class TerrainLod {
         const self_step = 1 << level;
         const neighbor_step = 1 << connecter;
         const self_tile = TERRAIN_LOD_TILES >> level;
-        const neighbor_tile = TERRAIN_LOD_TILES >> connecter;
         const count = self_tile * 2 + 2;
 
         let index = 0;
@@ -370,7 +366,7 @@ export class TerrainLod {
         this.mConnecterIndex[connecterIndex].indices = indices;
     }
 
-    private _getConnenterIndex(i, j, k) {
+    private _getConnenterIndex(i: number, j: number, k: number) {
         return this.mConnecterIndex[TerrainLod.ConnecterIndex(i, j, k)];
     }
 

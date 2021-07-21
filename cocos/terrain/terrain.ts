@@ -308,7 +308,7 @@ export class TerrainBlock {
     private _index: number[] = [1, 1];
     private _weightMap: Texture2D|null = null;
     private _lightmapInfo: TerrainBlockLightmapInfo|null = null;
-    private _lodLevel: number = 0;
+    private _lodLevel = 0;
     private _lodKey: TerrainLodKey = new TerrainLodKey;
     private _errorMetrics: number[] = [0, 0, 0, 0];
     private _LevelDistances: number[] = [TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE, TERRAIN_LOD_MAX_DISTANCE];
@@ -910,8 +910,7 @@ export class TerrainBlock {
     }
 
 	private _calcErrorMetric(level: number, vertecs: Float32Array) {
-	    let err = 0.0;
-
+        let err = 0.0;
         const step = 1 << level;
         const xSectionVerts = TERRAIN_BLOCK_VERTEX_COMPLEXITY;
         const ySectionVerts = TERRAIN_BLOCK_VERTEX_COMPLEXITY;
@@ -1518,6 +1517,9 @@ export class Terrain extends Component implements IRenderPipelineCallback {
     }
 
     public onPostRender(cam: Camera): void {
+        if (!this.LodEnable) {
+            return;
+        }
     }
 
     /**
