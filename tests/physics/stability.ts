@@ -30,6 +30,7 @@ export default function (parent: Node, steps = 500, scale = 0.5) {
         }
     }
 
+    const dt = physics.PhysicsSystem.instance.fixedTimeStep;
     const bodies = parent.getComponentsInChildren(physics.RigidBody) as physics.RigidBody[];
     const middle = Math.floor(steps / 2);
     for (let i = 0; i < steps; i++) {
@@ -40,11 +41,14 @@ export default function (parent: Node, steps = 500, scale = 0.5) {
                 expect(v.isAwake).toBe(true);
             });
         }
-        director.mainLoop(1 / 60);
+        director.tick(dt);
     }
 
     bodies.forEach((v) => {
         expect(v.isSleeping).toBe(true);
         expect(v.isAwake).toBe(false);
     })
+    
+    parent.destroyAllChildren();
+    parent.removeAllChildren();
 }

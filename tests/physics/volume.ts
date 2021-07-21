@@ -15,7 +15,7 @@ export default function (parent: Node, steps = 120, ratios = 0.2) {
     parent.addChild(high);
     const highBody = high.addComponent(physics.RigidBody) as physics.RigidBody;
     high.addComponent(physics.BoxCollider);
-    const initPos = new Vec3(0, 0.5 + ratios, 0); 
+    const initPos = new Vec3(0, 0.5 + ratios, 0);
     high.worldPosition = initPos;
 
     const low = new Node('low');
@@ -25,9 +25,13 @@ export default function (parent: Node, steps = 120, ratios = 0.2) {
     low.worldScale = new Vec3(ratios, ratios, ratios);
     low.worldPosition = new Vec3(0, ratios / 2, 0);
 
+    const dt = physics.PhysicsSystem.instance.fixedTimeStep;
     for (let i = 0; i < steps; i++) {
-        director.mainLoop(1 / 60);
+        director.tick(dt);
     }
 
     expect(high.worldPosition.equals(initPos, 0.01)).toBe(true);
+
+    parent.destroyAllChildren();
+    parent.removeAllChildren();
 }

@@ -31,7 +31,7 @@ export default function (parent: Node) {
     expect(isHit).toBe(false);
 
     // physics.PhysicsSystem.instance.syncSceneToPhysics();
-    director.mainLoop(1 / 60);
+    director.tick(physics.PhysicsSystem.instance.fixedTimeStep);
 
     // wrong ray
     ray_t.o.set(0.25, 0.25, -5);
@@ -78,4 +78,7 @@ export default function (parent: Node) {
     ray_t.o.z = box.node.worldPosition.z - box.size.z / 2;
     expect(Vec3.equals(hitClosest.hitPoint, ray_t.o, 0.001)).toBe(true);
     expect(Vec3.equals(hitClosest.hitNormal, physics.PhysicsSystem.PHYSICS_BUILTIN ? Vec3.ZERO : Vec3.FORWARD)).toBe(true);
+    
+    parent.destroyAllChildren();
+    parent.removeAllChildren();
 }

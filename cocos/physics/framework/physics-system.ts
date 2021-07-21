@@ -221,7 +221,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
      * 获取物理世界的封装对象，通过它你可以访问到实际的底层对象。
      */
     public get physicsWorld () {
-        return selector.physicsWorld;
+        return selector.physicsWorld!;
     }
 
     /**
@@ -291,7 +291,7 @@ export class PhysicsSystem extends System implements IWorldInitData {
             this._accumulator += deltaTime;
             director.emit(Director.EVENT_BEFORE_PHYSICS);
             while (this._subStepCount < this._maxSubSteps) {
-                if (this._accumulator > this._fixedTimeStep) {
+                if (this._accumulator >= this._fixedTimeStep) {
                     this.physicsWorld.syncSceneToPhysics();
                     this.physicsWorld.step(this._fixedTimeStep);
                     this._accumulator -= this._fixedTimeStep;

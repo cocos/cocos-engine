@@ -43,7 +43,7 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
-import { DEBUG, EDITOR } from 'internal:constants';
+import { DEBUG } from 'internal:constants';
 import { Vec3 } from '../../../core/math';
 import { Component, error, warn } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';

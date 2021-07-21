@@ -13,6 +13,7 @@ import SleepTest from "./sleep";
 import StableTest from "./stability";
 import VolumeTest from "./volume";
 import FilterTest from "./filtering";
+import DynamicTest from "./dynamic";
 
 // Manually construct and register the system
 PhysicsSystem.constructAndRegister();
@@ -31,13 +32,9 @@ for (const id in physics.selector.backend) {
 
         // test events
         EventTest(temp0);
-        temp0.destroyAllChildren();
-        temp0.removeAllChildren();
 
         // test raycast
         RaycastTest(temp0);
-        temp0.destroyAllChildren();
-        temp0.removeAllChildren();
 
         if (physics.PhysicsSystem.PHYSICS_BUILTIN) {
             temp0.destroy();
@@ -47,23 +44,13 @@ for (const id in physics.selector.backend) {
 
         // test auto sleep state
         SleepTest(temp0);
-        temp0.destroyAllChildren();
-        temp0.removeAllChildren();
 
         // test stable
-        [1, 0.5].forEach((v) => {
-            StableTest(temp0, 500, v);
-            temp0.destroyAllChildren();
-            temp0.removeAllChildren();
-        });
+        [1, 0.5].forEach((v) => { StableTest(temp0, 500, v); });
 
         if (physics.PhysicsSystem.PHYSICS_PHYSX) {
             // test small scale in physx
-            [0.25, 0.15].forEach((v) => {
-                StableTest(temp0, 500, v);
-                temp0.destroyAllChildren();
-                temp0.removeAllChildren();
-            });
+            [0.25, 0.15].forEach((v) => { StableTest(temp0, 500, v); });
         }
 
         // test volume
@@ -71,6 +58,9 @@ for (const id in physics.selector.backend) {
 
         // test filter
         FilterTest(temp0);
+
+        // test rigid body
+        DynamicTest(temp0);
 
         temp0.destroy();
         scene.destroy();

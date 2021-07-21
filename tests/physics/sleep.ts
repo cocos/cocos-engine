@@ -27,6 +27,7 @@ export default function (parent: Node, steps = 300) {
     expect(bodyA.isAwake).toBe(true);
     expect(bodyB.isAwake).toBe(true);
 
+    const dt = physics.PhysicsSystem.instance.fixedTimeStep;
     const middle = Math.floor(steps / 2);
     for (let i = 0; i < steps; i++) {
         if (i === middle) {
@@ -34,11 +35,14 @@ export default function (parent: Node, steps = 300) {
             expect(bodyA.isSleeping).toBe(false);
             expect(bodyA.isAwake).toBe(true);
         }
-        director.mainLoop(1 / 60);
+        director.tick(dt);
     }
 
     expect(bodyA.isSleeping).toBe(true);
     expect(bodyB.isSleeping).toBe(true);
     expect(bodyA.isAwake).toBe(false);
     expect(bodyB.isAwake).toBe(false);
+    
+    parent.destroyAllChildren();
+    parent.removeAllChildren();
 }

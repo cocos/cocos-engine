@@ -36,14 +36,18 @@ export default function (parent: Node, steps = 300) {
     colliderTrigger.on('onTriggerEnter', onTrigger);
     expect(colliderTrigger.needTriggerEvent).toBe(true);
 
+    const dt = physics.PhysicsSystem.instance.fixedTimeStep;
     for (let i = 0; i < steps; i++) {
-        director.mainLoop(1 / 60);
+        director.tick(dt);
     }
 
     colliderDynamic.off('onCollisionEnter', onCollision);
     expect(colliderDynamic.needCollisionEvent).toBe(false);
     colliderTrigger.off('onTriggerEnter', onTrigger);
     expect(colliderTrigger.needTriggerEvent).toBe(false);
+
+    parent.destroyAllChildren();
+    parent.removeAllChildren();
 }
 
 

@@ -82,5 +82,8 @@ export default function (parent: Node, _steps = 0) {
         );
         node2.destroy();
         node2.removeFromParent();
+
+        parent.destroyAllChildren();
+        parent.removeAllChildren();
     }
 }
