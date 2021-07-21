@@ -249,7 +249,7 @@ export class PhysicsSystem extends System {
      */
     readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix(1) as ICollisionMatrix;
 
-    readonly useNodeChains: boolean;
+    readonly useNodeChains: boolean = false;
 
     private _enable = true;
     private _allowSleep = true;
@@ -273,34 +273,8 @@ export class PhysicsSystem extends System {
 
     private constructor () {
         super();
-        const config = game.config ? game.config.physics as IPhysicsConfig : null;
-        if (config && config.physicsEngine) {
-            Vec3.copy(this._gravity, config.gravity);
-            this._allowSleep = config.allowSleep;
-            this._fixedTimeStep = config.fixedTimeStep;
-            this._maxSubSteps = config.maxSubSteps;
-            this._sleepThreshold = config.sleepThreshold;
-            this.autoSimulation = config.autoSimulation;
-            this.useNodeChains = config.useNodeChains;
-
-            if (config.defaultMaterial) {
-                this._material.friction = config.defaultMaterial.friction;
-                this._material.rollingFriction = config.defaultMaterial.rollingFriction;
-                this._material.spinningFriction = config.defaultMaterial.spinningFriction;
-                this._material.restitution = config.defaultMaterial.restitution;
-            }
-
-            if (config.collisionMatrix) {
-                for (const i in config.collisionMatrix) {
-                    const key = 1 << parseInt(i);
-                    this.collisionMatrix[`${key}`] = config.collisionMatrix[i];
-                }
-            }
-        } else {
-            this.useNodeChains = false;
-        }
+        this.resetConfiguration();
         this._material.on('physics_material_update', this._updateMaterial, this);
-
         this.physicsWorld = createPhysicsWorld();
         this.physicsWorld.setGravity(this._gravity);
         this.physicsWorld.setAllowSleep(this._allowSleep);
@@ -343,6 +317,39 @@ export class PhysicsSystem extends System {
                 }
             }
             director.emit(Director.EVENT_AFTER_PHYSICS);
+        }
+    }
+
+    /**
+     * @en
+     * Reset the physics configuration.
+     * @zh
+     * 重置物理配置。
+     */
+    resetConfiguration () {
+        const config = game.config ? game.config.physics as IPhysicsConfig : null;
+        if (config && config.physicsEngine) {
+            Vec3.copy(this._gravity, config.gravity);
+            this._allowSleep = config.allowSleep;
+            this._fixedTimeStep = config.fixedTimeStep;
+            this._maxSubSteps = config.maxSubSteps;
+            this._sleepThreshold = config.sleepThreshold;
+            this.autoSimulation = config.autoSimulation;
+
+            if (config.defaultMaterial) {
+                this._material.setValues(
+                    config.defaultMaterial.friction,
+                    config.defaultMaterial.rollingFriction,
+                    config.defaultMaterial.spinningFriction,
+                    config.defaultMaterial.restitution,
+                );
+            }
+
+            if (config.collisionMatrix) {
+                for (const i in config.collisionMatrix) {
+                    this.collisionMatrix[`${1 << parseInt(i)}`] = config.collisionMatrix[i];
+                }
+            }
         }
     }
 

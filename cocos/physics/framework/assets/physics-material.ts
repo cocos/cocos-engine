@@ -176,4 +176,24 @@ export class PhysicsMaterial extends Asset {
         }
         return false;
     }
+
+    /**
+     * @en
+     * Sets the coefficients values.
+     * @zh
+     * 设置材质相关的系数。
+     * @param friction
+     * @param rollingFriction
+     * @param spinningFriction
+     * @param restitution
+     */
+    public setValues (friction: number, rollingFriction: number, spinningFriction: number, restitution: number) {
+        const emitUpdate = this._friction !== friction || this._rollingFriction !== rollingFriction
+            || this._spinningFriction !== spinningFriction || this._restitution !== restitution;
+        this._friction = friction;
+        this._rollingFriction = rollingFriction;
+        this._spinningFriction = spinningFriction;
+        this._restitution = restitution;
+        if (emitUpdate) this.emit('physics_material_update');
+    }
 }
