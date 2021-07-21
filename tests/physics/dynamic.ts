@@ -82,9 +82,9 @@ export default function (parent: Node, _steps = 0) {
         body.type = physics.RigidBody.Type.DYNAMIC;
         expect(Vec3.equals(nodeDynamic.worldPosition, Vec3.ZERO));
         const dt = physics.PhysicsSystem.instance.fixedTimeStep;
-        for (let i = 0; i < 100; i++)director.tick(dt);
+        for (let i = 0; i < 200; i++)director.tick(dt);
         expect(Vec3.equals(nodeDynamic.worldPosition, Vec3.ZERO));
-        // expect(body.isSleeping).toBe(true);
+        expect(body.isSleeping).toBe(true);
     }
 
     parent.destroyAllChildren();
