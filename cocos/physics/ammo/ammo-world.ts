@@ -53,7 +53,10 @@ const v3_0 = CC_V3_0;
 const v3_1 = CC_V3_1;
 
 export class AmmoWorld implements IPhysicsWorld {
-    setAllowSleep (v: boolean) { }
+    setAllowSleep (v: boolean) {
+        this._btWorld.setAllowSleep(v);
+    }
+
     setDefaultMaterial (v: PhysicsMaterial) { }
 
     setGravity (gravity: IVec3Like) {
