@@ -274,7 +274,7 @@ export class PhysicsSystem extends System {
     private constructor () {
         super();
         this.resetConfiguration();
-        this._material.on('physics_material_update', this._updateMaterial, this);
+        this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
         this.physicsWorld = createPhysicsWorld();
         this.physicsWorld.setGravity(this._gravity);
         this.physicsWorld.setAllowSleep(this._allowSleep);

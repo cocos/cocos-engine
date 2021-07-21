@@ -114,10 +114,10 @@ export class Collider extends Eventify(Component) {
      * 获取或设置此碰撞器的物理材质，共享状态下获取将会生成新的实例。
      */
     public get material () {
-        if (this._isSharedMaterial && this._material != null) {
-            this._material.off('physics_material_update', this._updateMaterial, this);
+        if (this._isSharedMaterial && this._material) {
+            this._material.off(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
             this._material = this._material.clone();
-            this._material.on('physics_material_update', this._updateMaterial, this);
+            this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
             this._isSharedMaterial = false;
         }
         return this._material;
@@ -125,18 +125,18 @@ export class Collider extends Eventify(Component) {
 
     public set material (value) {
         if (this._shape) {
-            if (value != null && this._material != null) {
+            if (value && this._material) {
                 if (this._material.id !== value.id) {
-                    this._material.off('physics_material_update', this._updateMaterial, this);
-                    value.on('physics_material_update', this._updateMaterial, this);
+                    this._material.off(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
+                    value.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
                     this._isSharedMaterial = false;
                     this._material = value;
                 }
-            } else if (value != null && this._material == null) {
-                value.on('physics_material_update', this._updateMaterial, this);
+            } else if (value && !this._material) {
+                value.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
                 this._material = value;
-            } else if (value == null && this._material != null) {
-                this._material.off('physics_material_update', this._updateMaterial, this);
+            } else if (!value && this._material) {
+                this._material.off(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
                 this._material = value;
             }
             this._updateMaterial();
@@ -438,18 +438,14 @@ export class Collider extends Eventify(Component) {
 
     protected onDestroy () {
         if (this._shape) {
-            if (this._material) {
-                this._material.off('physics_material_update', this._updateMaterial, this);
-            }
+            if (this._material) this._material.off(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
             this._shape.onDestroy!();
         }
         if (this._boundingSphere) this._boundingSphere.destroy();
     }
 
     private _updateMaterial () {
-        if (this._shape) {
-            this._shape.setMaterial(this._material);
-        }
+        if (this._shape) this._shape.setMaterial(this._material);
     }
 
     private _updateNeedEvent (type?: string) {

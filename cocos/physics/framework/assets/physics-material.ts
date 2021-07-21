@@ -52,6 +52,15 @@ export class PhysicsMaterial extends Asset {
 
     /**
      * @en
+     * The event which will be triggered when the entity of physics material update.
+     * @zh
+     * 物理材质实例更新时触发的事件。
+     * @event PhysicsMaterial.EVENT_UPDATE
+     */
+    static readonly EVENT_UPDATE = 'event_update';
+
+    /**
+     * @en
      * Friction for this material.
      * @zh
      * 此材质的摩擦系数。
@@ -64,7 +73,7 @@ export class PhysicsMaterial extends Asset {
     set friction (value) {
         if (!math.equals(this._friction, value)) {
             this._friction = value;
-            this.emit('physics_material_update');
+            this.emit(PhysicsMaterial.EVENT_UPDATE);
         }
     }
 
@@ -82,7 +91,7 @@ export class PhysicsMaterial extends Asset {
     set rollingFriction (value) {
         if (!math.equals(this._rollingFriction, value)) {
             this._rollingFriction = value;
-            this.emit('physics_material_update');
+            this.emit(PhysicsMaterial.EVENT_UPDATE);
         }
     }
 
@@ -100,7 +109,7 @@ export class PhysicsMaterial extends Asset {
     set spinningFriction (value) {
         if (!math.equals(this._spinningFriction, value)) {
             this._spinningFriction = value;
-            this.emit('physics_material_update');
+            this.emit(PhysicsMaterial.EVENT_UPDATE);
         }
     }
 
@@ -118,7 +127,7 @@ export class PhysicsMaterial extends Asset {
     set restitution (value) {
         if (!math.equals(this._restitution, value)) {
             this._restitution = value;
-            this.emit('physics_material_update');
+            this.emit(PhysicsMaterial.EVENT_UPDATE);
         }
     }
 
@@ -194,6 +203,6 @@ export class PhysicsMaterial extends Asset {
         this._rollingFriction = rollingFriction;
         this._spinningFriction = spinningFriction;
         this._restitution = restitution;
-        if (emitUpdate) this.emit('physics_material_update');
+        if (emitUpdate) this.emit(PhysicsMaterial.EVENT_UPDATE);
     }
 }
