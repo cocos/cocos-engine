@@ -118,13 +118,20 @@ export abstract class SingleChannelTrack<TCurve extends Curve> extends Track {
 
     public [createEvalSymbol] (_runtimeBinding: RuntimeBinding): TrackEval {
         const { curve } = this._channel;
-        return {
-            evaluate: (time) => curve.evaluate(time),
-        };
+        return new SingleChannelTrackEval(curve);
     }
 
     @serializable
     private _channel: Channel<TCurve>;
+}
+
+class SingleChannelTrackEval<TCurve extends Curve> implements TrackEval {
+    constructor (private _curve: TCurve) {
+    }
+
+    public evaluate (time: number) {
+        return this._curve.evaluate(time);
+    }
 }
 
 export type RuntimeBinding = {

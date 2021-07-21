@@ -479,7 +479,7 @@ export class AnimationState extends Playable {
 
     public sample () {
         const info = this.getWrappedInfo(this.time, this._wrappedInfo);
-        this._sampleCurves(info.ratio);
+        this._sampleCurves(info.time);
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._sampleEvents(info);
         }
@@ -510,12 +510,13 @@ export class AnimationState extends Playable {
         this.emit(EventType.PAUSE, this);
     }
 
-    protected _sampleCurves (ratio: number) {
-        if (this._poseOutput) {
-            this._poseOutput.weight = this.weight;
+    protected _sampleCurves (time: number) {
+        const { _poseOutput: poseOutput, _clipEval: clipEval } = this;
+        if (poseOutput) {
+            poseOutput.weight = this.weight;
         }
-        if (this._clipEval) {
-            this._clipEval.evaluate(this.current);
+        if (clipEval) {
+            clipEval.evaluate(time);
         }
     }
 
@@ -558,8 +559,9 @@ export class AnimationState extends Playable {
 
         let time = this.time % playbackDuration;
         if (time < 0.0) { time += playbackDuration; }
-        const ratio = (playbackStart + time) * this._invDuration;
-        this._sampleCurves(ratio);
+        const realTime = playbackStart + time;
+        const ratio = realTime * this._invDuration;
+        this._sampleCurves(playbackStart + time);
 
         if (!EDITOR || legacyCC.GAME_VIEW) {
             this._sampleEvents(this.getWrappedInfo(this.time, this._wrappedInfo));

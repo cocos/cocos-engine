@@ -175,7 +175,8 @@ export class SkeletalAnimationState extends AnimationState {
         }
     }
 
-    private _sampleCurvesBaked (ratio: number) {
+    private _sampleCurvesBaked (time: number) {
+        const ratio = time / this.duration;
         const info = this._animInfo!;
         const curFrame = (ratio * this._frames + 0.5) | 0;
         if (curFrame === info.data[0]) { return; }
