@@ -29,7 +29,7 @@
  */
 
 import { IVec3Like } from '../../../core';
-import { TerrainCollider } from '../../framework';
+import { PhysicsMaterial, TerrainCollider } from '../../framework';
 import { ITerrainAsset } from '../../spec/i-external';
 import { ITerrainShape } from '../../spec/i-physics-shape';
 import { createHeightField, createHeightFieldGeometry, getTempTransform, PX } from '../physx-adapter';
@@ -55,6 +55,7 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
             const pxmat = this.getSharedMaterial(collider.sharedMaterial!);
             const geometry = createHeightFieldGeometry(hf, 0, PhysXTerrainShape.heightScale, v.tileSize, v.tileSize);
             this._impl = physics.createShape(geometry, pxmat, true, this._flags);
+            this.updateByReAdd();
         }
     }
 
@@ -70,8 +71,29 @@ export class PhysXTerrainShape extends PhysXShape implements ITerrainShape {
         this.setCenter(this._collider.center);
     }
 
-    // overwrite
+    /* override */
+
     setCenter (v: IVec3Like): void {
-        this._impl.setLocalPose(getTempTransform(v, this._rotation));
+        if (this._impl) this._impl.setLocalPose(getTempTransform(v, this._rotation));
+    }
+
+    setMaterial (v: PhysicsMaterial | null) {
+        if (this._impl) super.setMaterial(v);
+    }
+
+    setAsTrigger (v: boolean) {
+        if (this._impl) super.setAsTrigger(v);
+    }
+
+    setFilerData (v: any) {
+        if (this._impl) super.setFilerData(v);
+    }
+
+    addToBody () {
+        if (this._impl) super.addToBody();
+    }
+
+    removeFromBody () {
+        if (this._impl) super.removeFromBody();
     }
 }
