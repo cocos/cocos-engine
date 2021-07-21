@@ -26,6 +26,29 @@
 se::Object* __jsb_cc_scene_Node_proto = nullptr;
 se::Class* __jsb_cc_scene_Node_class = nullptr;
 
+static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Node>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Node_initWithData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 3) {
+        HolderType<unsigned char*, false> arg0 = {};
+        HolderType<unsigned char*, false> arg1 = {};
+        HolderType<unsigned int, false> arg2 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Node_initWithData : Error processing arguments");
+        cobj->initWithData(arg0.value(), arg1.value(), arg2.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Node_initWithData)
+
 static bool js_scene_Node_setParent(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Node>(s);
@@ -75,6 +98,7 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Node", obj, nullptr, _SE(js_scene_Node_constructor));
 
+    cls->defineFunction("initWithData", _SE(js_scene_Node_initWithData));
     cls->defineFunction("setParent", _SE(js_scene_Node_setParent));
     cls->defineFinalizeFunction(_SE(js_cc_scene_Node_finalize));
     cls->install();
@@ -4543,6 +4567,25 @@ static bool js_scene_Pass_getStage(se::State& s) // NOLINT(readability-identifie
 }
 SE_BIND_FUNC(js_scene_Pass_getStage)
 
+static bool js_scene_Pass_initWithData(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Pass_initWithData : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<unsigned char*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Pass_initWithData : Error processing arguments");
+        cobj->initWithData(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Pass_initWithData)
+
 static bool js_scene_Pass_setBatchingScheme(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Pass>(s);
@@ -4872,6 +4915,7 @@ bool js_register_scene_Pass(se::Object* obj) // NOLINT(readability-identifier-na
     cls->defineFunction("getPriority", _SE(js_scene_Pass_getPriority));
     cls->defineFunction("getRasterizerState", _SE(js_scene_Pass_getRasterizerState));
     cls->defineFunction("getStage", _SE(js_scene_Pass_getStage));
+    cls->defineFunction("initWithData", _SE(js_scene_Pass_initWithData));
     cls->defineFunction("setBatchingScheme", _SE(js_scene_Pass_setBatchingScheme));
     cls->defineFunction("setBlendState", _SE(js_scene_Pass_setBlendState));
     cls->defineFunction("setDepthStencilState", _SE(js_scene_Pass_setDepthStencilState));
