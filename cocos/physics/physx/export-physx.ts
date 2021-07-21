@@ -48,44 +48,44 @@ import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
 
 const globalThis = legacyCC._global;
-let _px: any;
+let _px = {};
 let USE_BYTEDANCE = false;
 if (BYTEDANCE && sys.os === sys.OS.ANDROID) {
     console.info('[PHYSICS]:', 'Use PhysX Native Libs in BYTEDANCE.');
     USE_BYTEDANCE = true;
     if (globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
+    initConfigAndCacheObject(_px);
 } else {
     if (!EDITOR) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
     globalThis.PhysX = PhysX;
     if (globalThis.PhysX != null) {
-        _px = (PhysX as any)({
-            onRuntimeInitialized () {
-                if (!EDITOR) console.info('[PHYSICS]:', 'PhysX libs loaded.');
-                // adapt
-                PX.VECTOR_MAT = new PX.PxMaterialVector();
-                PX.QueryHitType = PX.PxQueryHitType;
-                PX.ShapeFlag = PX.PxShapeFlag;
-                PX.ActorFlag = PX.PxActorFlag;
-                PX.RigidBodyFlag = PX.PxRigidBodyFlag;
-                PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
-                PX.CombineMode = PX.PxCombineMode;
-                PX.ForceMode = PX.PxForceMode;
-                PX.SphereGeometry = PX.PxSphereGeometry;
-                PX.BoxGeometry = PX.PxBoxGeometry;
-                PX.CapsuleGeometry = PX.PxCapsuleGeometry;
-                PX.PlaneGeometry = PX.PxPlaneGeometry;
-                PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
-                PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
-                PX.MeshScale = PX.PxMeshScale;
-                PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
-                PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
-            },
-        });
+        PhysX().then((PX: any) => {
+            if (!EDITOR) console.info('[PHYSICS]:', 'PhysX libs loaded.');
+            PX.VECTOR_MAT = new PX.PxMaterialVector();
+            PX.MeshScale = PX.PxMeshScale;
+            PX.ShapeFlag = PX.PxShapeFlag;
+            PX.ActorFlag = PX.PxActorFlag;
+            PX.ForceMode = PX.PxForceMode;
+            PX.CombineMode = PX.PxCombineMode;
+            PX.BoxGeometry = PX.PxBoxGeometry;
+            PX.QueryHitType = PX.PxQueryHitType;
+            PX.RigidBodyFlag = PX.PxRigidBodyFlag;
+            PX.PlaneGeometry = PX.PxPlaneGeometry;
+            PX.SphereGeometry = PX.PxSphereGeometry;
+            PX.CapsuleGeometry = PX.PxCapsuleGeometry;
+            PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
+            PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
+            PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
+            PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
+            PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
+            Object.assign(_px, PX);
+            initConfigAndCacheObject(_px);
+        }, (reason: any) => { console.error('[PHYSICS]:', `PhysX load failed: ${reason}`); });
     } else {
         if (!EDITOR) console.error('[PHYSICS]:', 'Not Found PhysX js or wasm Libs.');
     }
 }
-export const PX = _px;
+export const PX = _px as any;
 
 /**
  * Extension config for bytedance
@@ -94,7 +94,7 @@ interface IPhysicsConfigEXT extends IPhysicsConfig {
     physX: { epsilon: number, multiThread: boolean, subThreadCount: number, }
 }
 
-if (PX) {
+function initConfigAndCacheObject (PX: any) {
     globalThis.PhysX = PX;
     PX.EPSILON = 1e-3;
     PX.MULTI_THREAD = false;
