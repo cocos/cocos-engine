@@ -47,7 +47,7 @@ import { DEBUG, EDITOR } from 'internal:constants';
 import { Vec3 } from '../../../core/math';
 import { Component, error, warn } from '../../../core';
 import { IRigidBody } from '../../spec/i-rigid-body';
-import { createRigidBody } from '../physics-selector';
+import { selector, createRigidBody } from '../physics-selector';
 import { ERigidBodyType } from '../physics-enum';
 import { PhysicsSystem } from '../physics-system';
 
@@ -260,7 +260,7 @@ export class RigidBody extends Component {
         if (this._isInitialized) {
             return this._body!.getSleepThreshold();
         }
-        return 0;
+        return 0.1;
     }
 
     public set sleepThreshold (v: number) {
@@ -416,10 +416,9 @@ export class RigidBody extends Component {
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
-        if (!EDITOR) {
-            this._body = createRigidBody();
-            this._body.initialize(this);
-        }
+        if (!selector.runInEditor) return;
+        this._body = createRigidBody();
+        this._body.initialize(this);
     }
 
     protected onEnable () {

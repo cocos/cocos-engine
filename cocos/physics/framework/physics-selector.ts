@@ -114,6 +114,9 @@ interface IPhysicsSelector {
      * 切换为注册表里对应 id 的物理后端。
      */
     switchTo: (id: IPhysicsEngineId) => void,
+
+    // polyfill
+    [x: string]: any,
 }
 
 function updateLegacyMacro (id: string) {
@@ -141,6 +144,7 @@ export interface IWorldInitData {
 let worldInitData: IWorldInitData | null;
 
 function switchTo (id: IPhysicsEngineId) {
+    if (!selector.runInEditor) return;
     const mutableSelector = selector as Mutable<IPhysicsSelector>;
     if (selector.physicsWorld && id !== selector.id && selector.backend[id] != null) {
         selector.physicsWorld.destroy();
@@ -174,10 +178,14 @@ export const selector: IPhysicsSelector = {
     wrapper: {} as any,
     backend: {} as any,
     physicsWorld: null as any,
+
+    /// hide for now ///
+    runInEditor: !EDITOR,
 };
 
 export function constructDefaultWorld (data: IWorldInitData) {
     if (!worldInitData) worldInitData = data;
+    if (!selector.runInEditor) return;
     if (!selector.physicsWorld) {
         if (!TEST) console.info(`[PHYSICS]: using ${selector.id}.`);
         const mutableSelector = selector as Mutable<IPhysicsSelector>;
@@ -225,7 +233,7 @@ enum ECheckType {
 }
 
 function check (obj: any, type: ECheckType) {
-    if (!TEST && !EDITOR && !legacyCC.GAME_VIEW && obj == null) {
+    if (obj == null) {
         if (selector.id) {
             warn(`${selector.id} physics does not support ${ECheckType[type]}`);
         } else {

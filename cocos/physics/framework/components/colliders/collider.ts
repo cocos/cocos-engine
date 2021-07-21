@@ -41,7 +41,7 @@ import { Component, error, Node } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
 import { AABB, Sphere } from '../../../../core/geometry';
 import { EColliderType, EAxisDirection } from '../../physics-enum';
-import { createShape } from '../../physics-selector';
+import { selector, createShape } from '../../physics-selector';
 
 /**
  * @en
@@ -257,7 +257,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public on<TFunction extends (...any) => void> (type: TriggerEventType | CollisionEventType, callback: TFunction, target?, once?: boolean): any {
+    public on<TFunction extends (...any) => void>(type: TriggerEventType | CollisionEventType, callback: TFunction, target?, once?: boolean): any {
         const ret = super.on(type, callback, target, once);
         this._updateNeedEvent(type);
         return ret;
@@ -286,7 +286,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public once<TFunction extends (...any) => void> (type: TriggerEventType | CollisionEventType, callback: TFunction, target?): any {
+    public once<TFunction extends (...any) => void>(type: TriggerEventType | CollisionEventType, callback: TFunction, target?): any {
         // TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
         const ret = super.once(type, callback, target);
         this._updateNeedEvent(type);
@@ -416,12 +416,11 @@ export class Collider extends Eventify(Component) {
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
-        if (!EDITOR) {
-            this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
-            this._shape = createShape(this.type);
-            this._shape.initialize(this);
-            this._shape.onLoad!();
-        }
+        if (!selector.runInEditor) return;
+        this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+        this._shape = createShape(this.type);
+        this._shape.initialize(this);
+        this._shape.onLoad!();
     }
 
     protected onEnable () {
@@ -459,13 +458,13 @@ export class Collider extends Eventify(Component) {
                 }
             } else {
                 if (!(this.hasEventListener('onTriggerEnter')
-                || this.hasEventListener('onTriggerStay')
-                || this.hasEventListener('onTriggerExit'))) {
+                    || this.hasEventListener('onTriggerStay')
+                    || this.hasEventListener('onTriggerExit'))) {
                     this._needTriggerEvent = false;
                 }
                 if (!(this.hasEventListener('onCollisionEnter')
-                || this.hasEventListener('onCollisionStay')
-                || this.hasEventListener('onCollisionExit'))) {
+                    || this.hasEventListener('onCollisionStay')
+                    || this.hasEventListener('onCollisionExit'))) {
                     this._needCollisionEvent = false;
                 }
             }

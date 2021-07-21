@@ -277,9 +277,9 @@ export class PhysicsSystem extends System implements IWorldInitData {
     }
 
     postUpdate (deltaTime: number) {
-        if (!this.physicsWorld || EDITOR && !legacyCC.GAME_VIEW && !this._executeInEditMode) {
-            return;
-        }
+        if (EDITOR && !this._executeInEditMode && !selector.runInEditor) return;
+
+        if (!this.physicsWorld) return;
 
         if (!this._enable) {
             this.physicsWorld.syncSceneToPhysics();

@@ -35,7 +35,7 @@ import { Component } from '../../../../core';
 import { RigidBody } from '../rigid-body';
 import { Eventify } from '../../../../core/event';
 import { IBaseConstraint } from '../../../spec/i-physics-constraint';
-import { createConstraint } from '../../physics-selector';
+import { selector, createConstraint } from '../../physics-selector';
 import { EConstraintType } from '../../physics-enum';
 
 /**
@@ -131,10 +131,9 @@ export class Constraint extends Eventify(Component) {
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
-        if (!EDITOR) {
-            this._constraint = createConstraint(this.TYPE);
-            this._constraint.initialize(this);
-        }
+        if (!selector.runInEditor) return;
+        this._constraint = createConstraint(this.TYPE);
+        this._constraint.initialize(this);
     }
 
     protected onEnable () {
