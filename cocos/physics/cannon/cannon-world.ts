@@ -86,8 +86,8 @@ export class CannonWorld implements IPhysicsWorld {
 
     destroy (): void {
         if (this.constraints.length || this.bodies.length) error('You should destroy all physics component first.');
-        (this._world as any) = null;
         (this._world.broadphase as any) = null;
+        (this._world as any) = null;
     }
 
     emitEvents (): void {
