@@ -157,8 +157,13 @@ var eventManager = {
         }
         var listeners = this._nodeListenersMap[node._id], i, len;
         if (listeners) {
-            for (i = 0, len = listeners.length; i < len; i++)
-                listeners[i]._setPaused(true);
+            for (i = 0, len = listeners.length; i < len; i++) {
+                const listener = listeners[i];
+                listener._setPaused(true);
+                if (listener._claimedTouches && listener._claimedTouches.includes(this._currentTouch)) {
+                    this._clearCurTouch();
+                }
+            }
         }
         if (recursive === true) {
             var locChildren = node._children;

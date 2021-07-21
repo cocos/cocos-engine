@@ -112,6 +112,9 @@ var AudioClip = cc.Class({
     },
 
     _ensureLoaded (onComplete) {
+        if (!this.isValid) {
+            return;
+        }
         if (this.loaded) {
             return onComplete && onComplete();
         }
