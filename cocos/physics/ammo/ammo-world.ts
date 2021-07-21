@@ -80,8 +80,8 @@ export class AmmoWorld implements IPhysicsWorld {
     readonly contactsDic = new TupleDictionary();
     readonly oldContactsDic = new TupleDictionary();
 
-    static closeHitCB: Ammo.ClosestRayResultCallback;
-    static allHitsCB: Ammo.AllHitsRayResultCallback;
+    static closeHitCB: Ammo.ccClosestRayResultCallback;
+    static allHitsCB: Ammo.ccAllHitsRayResultCallback;
 
     constructor (options?: any) {
         this._btCollisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
@@ -89,16 +89,14 @@ export class AmmoWorld implements IPhysicsWorld {
         // this._btDispatcher.setDispatcherFlags(AmmoDispatcherFlags.CD_STATIC_STATIC_REPORTED);
         this._btBroadphase = new Ammo.btDbvtBroadphase();
         this._btSolver = new Ammo.btSequentialImpulseConstraintSolver();
-        this._btWorld = new Ammo.btDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, this._btCollisionConfiguration);
+        this._btWorld = new (Ammo as any).ccDiscreteDynamicsWorld(this._btDispatcher, this._btBroadphase, this._btSolver, this._btCollisionConfiguration);
         this._btWorld.getPairCache().setOverlapFilterCallback(new Ammo.ccOverlapFilterCallback());
         // this._btWorld.setContactBreakingThreshold(0.04);
         const TMP = AmmoConstant.instance.VECTOR3_0;
         TMP.setValue(0, -10, 0);
         this._btWorld.setGravity(TMP);
-        if (!AmmoWorld.closeHitCB) AmmoWorld.closeHitCB = new Ammo.ClosestRayResultCallback(TMP, TMP);
-        if (!AmmoWorld.allHitsCB) AmmoWorld.allHitsCB = new Ammo.AllHitsRayResultCallback(TMP, TMP);
-        AmmoWorld.closeHitCB.setUseCC(true);
-        AmmoWorld.allHitsCB.setUseCC(true);
+        if (!AmmoWorld.closeHitCB) AmmoWorld.closeHitCB = new Ammo.ccClosestRayResultCallback(TMP, TMP);
+        if (!AmmoWorld.allHitsCB) AmmoWorld.allHitsCB = new Ammo.ccAllHitsRayResultCallback(TMP, TMP);
     }
 
     destroy (): void {
@@ -157,7 +155,6 @@ export class AmmoWorld implements IPhysicsWorld {
         allHitsCB.m_collisionFilterGroup = -1;
         allHitsCB.m_collisionFilterMask = options.mask;
         allHitsCB.m_closestHitFraction = 1;
-        allHitsCB.m_shapePart = -1;
         (allHitsCB.m_collisionObject as any) = null;
         allHitsCB.m_shapeParts.clear();
         allHitsCB.m_hitFractions.clear();
