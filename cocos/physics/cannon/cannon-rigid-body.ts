@@ -91,9 +91,11 @@ export class CannonRigidBody implements IRigidBody {
             this.impl.mass = 0;
             this.impl.allowSleep = true;
             this.impl.updateMassProperties();
+            this.clearState();
             break;
         }
     }
+
     setLinearDamping (value: number) {
         this.impl.linearDamping = value;
     }
