@@ -318,7 +318,8 @@ export class MeshRenderer extends RenderableComponent {
     }
 
     /**
-     * Gets the weight at specified shape of specified sub mesh.
+     * @zh 获取子网格指定外形的权重。
+     * @en Gets the weight at specified shape of specified sub mesh.
      * @param subMeshIndex Index to the sub mesh.
      * @param shapeIndex Index to the shape of the sub mesh.
      * @returns The weight.
@@ -332,6 +333,10 @@ export class MeshRenderer extends RenderableComponent {
     }
 
     /**
+     * @zh
+     * 设置子网格所有外形的权重。
+     * `subMeshIndex` 是无效索引或 `weights` 的长度不匹配子网格的外形数量时，此方法不会生效。
+     * @en
      * Sets weights of each shape of specified sub mesh.
      * If takes no effect if
      * `subMeshIndex` out of bounds or
@@ -353,6 +358,10 @@ export class MeshRenderer extends RenderableComponent {
     }
 
     /**
+     * @zh
+     * 设置子网格指定外形的权重。
+     * `subMeshIndex` 或 `shapeIndex` 是无效索引时，此方法不会生效。
+     * @en
      * Sets the weight at specified shape of specified sub mesh.
      * If takes no effect if
      * `subMeshIndex` or `shapeIndex` out of bounds.
