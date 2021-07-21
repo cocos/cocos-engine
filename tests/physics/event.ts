@@ -4,7 +4,7 @@ import { physics } from "../../exports/physics-framework";
 /**
  * This function is used to test some event callback
  */
-export default function (parent: Node) {
+export default function (parent: Node, steps = 300) {
     const nodeDynamic = new Node('DynamicA');
     parent.addChild(nodeDynamic);
     nodeDynamic.worldPosition = new Vec3(0, 4, 0);
@@ -36,7 +36,7 @@ export default function (parent: Node) {
     colliderTrigger.on('onTriggerEnter', onTrigger);
     expect(colliderTrigger.needTriggerEvent).toBe(true);
 
-    for (let i = 0; i < 1000; i++) {
+    for (let i = 0; i < steps; i++) {
         director.mainLoop(1 / 60);
     }
 

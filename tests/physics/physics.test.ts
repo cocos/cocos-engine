@@ -10,6 +10,7 @@ import "../../exports/physics-cannon";
 import EventTest from "./event";
 import SleepTest from "./sleep";
 import StableTest from "./stability";
+import VolumeTest from "./volume";
 
 // Manually construct and register the system
 PhysicsSystem.constructAndRegister();
@@ -43,9 +44,22 @@ for (const id in physics.selector.backend) {
         temp0.removeAllChildren();
 
         // test stable
-        StableTest(temp0);
-        temp0.destroyAllChildren();
-        temp0.removeAllChildren();
+        [1, 0.5].forEach((v) => {
+            StableTest(temp0, 500, v);
+            temp0.destroyAllChildren();
+            temp0.removeAllChildren();
+        });
+
+        if (physics.PhysicsSystem.PHYSICS_PHYSX) {
+            // test small scale in physx
+            [0.25, 0.15].forEach((v) => {
+                StableTest(temp0, 500, v);
+                temp0.destroyAllChildren();
+                temp0.removeAllChildren();
+            });
+        }
+        
+        VolumeTest(temp0);
 
         temp0.destroy();
         scene.destroy();

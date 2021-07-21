@@ -4,14 +4,13 @@ import { physics } from "../../exports/physics-framework";
 /**
  * This function is used to test stability of the physics
  */
-export default function (parent: Node) {
-
+export default function (parent: Node, steps = 500, scale = 0.5) {
     const nodeStatic = new Node('StaticB');
     parent.addChild(nodeStatic);
     nodeStatic.addComponent(physics.BoxCollider);
-    nodeStatic.worldScale = new Vec3(10, 1, 10);
-    
-    const scale = 0.05;
+    nodeStatic.worldScale = new Vec3(20, 0.01, 20);
+    nodeStatic.worldPosition = new Vec3(0, -0.005, 0);
+
     const size = new Vec3(scale, scale, scale);
     const X = 8, Y = 8, Z = 4;
     let x = 0, y = 0, z = 0;
@@ -20,20 +19,21 @@ export default function (parent: Node) {
         const CX = X - i;
         for (let j = 0; j < CX; j++) {
             x = CX * -size.x / 2 + j * size.x;
-
             for (let k = 0; k < Z; k++) {
                 const nodeDynamic = new Node(`${i}-${j}`);
                 parent.addChild(nodeDynamic);
-                nodeDynamic.worldPosition = new Vec3(x, y, z + k * size.z);
-                const box = nodeDynamic.addComponent(physics.BoxCollider) as physics.BoxCollider;
-                box.size = size;
+                nodeDynamic.worldScale = size;
+                nodeDynamic.worldPosition = new Vec3(x, y, z + k * size.z * 2);
+                nodeDynamic.addComponent(physics.RigidBody);
+                nodeDynamic.addComponent(physics.BoxCollider);
             }
         }
     }
 
     const bodies = parent.getComponentsInChildren(physics.RigidBody) as physics.RigidBody[];
-    for (let i = 0; i < 1000; i++) {
-        if (i === 500) {
+    const middle = Math.floor(steps / 2);
+    for (let i = 0; i < steps; i++) {
+        if (i === middle) {
             bodies.forEach((v) => {
                 v.wakeUp();
                 expect(v.isSleeping).toBe(false);
