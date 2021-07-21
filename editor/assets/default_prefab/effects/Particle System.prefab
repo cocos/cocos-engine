@@ -524,7 +524,7 @@
   },
   {
     "__type__": "cc.CurveRange",
-    "mode": 0,
+    "mode": 1,
     "constant": 0,
     "multiplier": 1
   },
