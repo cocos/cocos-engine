@@ -254,27 +254,4 @@ export class AmmoShape implements IBaseShape {
         if (this._collider.center.equals(Vec3.ZERO)) { return false; }
         return true;
     }
-
-    /** DEBUG */
-    private static _debugTransform: Ammo.btTransform | null;
-    debugTransform (n: Node) {
-        if (AmmoShape._debugTransform == null) {
-            AmmoShape._debugTransform = new Ammo.btTransform();
-        }
-        let wt: Ammo.btTransform;
-        if (this._isTrigger) {
-            wt = this._sharedBody.ghost.getWorldTransform();
-        } else {
-            wt = this._sharedBody.body.getWorldTransform();
-        }
-        const lt = this.transform;
-        AmmoShape._debugTransform.setIdentity();
-        AmmoShape._debugTransform.op_mul(wt).op_mul(lt);
-        const origin = AmmoShape._debugTransform.getOrigin();
-        n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
-        const rotation = AmmoShape._debugTransform.getRotation();
-        n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
-        const scale = this.impl.getLocalScaling();
-        n.scale = new Vec3(scale.x(), scale.y(), scale.z());
-    }
 }
