@@ -75,8 +75,8 @@ export class CannonWorld implements IPhysicsWorld {
 
     constructor () {
         this._world = new CANNON.World();
-        // this._world.broadphase = new CANNON.NaiveBroadphase();
-        this._world.broadphase = new CANNON.SAPBroadphase(this._world);
+        this._world.broadphase = new CANNON.NaiveBroadphase();
+        // this._world.broadphase = new CANNON.SAPBroadphase(this._world);
         this._world.solver.iterations = 10;
         (this._world.solver as any).tolerance = 0.0001;
         this._world.defaultContactMaterial.contactEquationStiffness = 1000000;
