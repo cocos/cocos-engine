@@ -24,6 +24,7 @@ export default function (parent: Node) {
     capsule.setGroup(1 << 2);
     capsule.isTrigger = true;
 
+    // test zero mask
     let isHit = false;
     const hits = physics.PhysicsSystem.instance.raycastResults;
     const ray_t = new geometry.Ray();
@@ -33,22 +34,22 @@ export default function (parent: Node) {
     // physics.PhysicsSystem.instance.syncSceneToPhysics();
     director.tick(physics.PhysicsSystem.instance.fixedTimeStep);
 
-    // wrong ray
+    // test wrong ray
     ray_t.o.set(0.25, 0.25, -5);
     ray_t.d.set(Vec3.UNIT_Y);
     isHit = physics.PhysicsSystem.instance.raycast(ray_t, -1);
     expect(isHit).toBe(false);
 
+    // test distance
     ray_t.d.set(Vec3.UNIT_Z);
-    // distance
     isHit = physics.PhysicsSystem.instance.raycast(ray_t, -1, 5);
     expect(isHit).toBe(true);
     expect(hits.length).toBe(1);
 
-    // // query trigger false
-    // isHit = physics.PhysicsSystem.instance.raycast(ray_t, -1, 100, false);
-    // expect(isHit).toBe(true);
-    // expect(hits.length).toBe(physics.PhysicsSystem.PHYSICS_BUILTIN ? 3 : 2);
+    // query trigger false
+    isHit = physics.PhysicsSystem.instance.raycast(ray_t, -1, 100, false);
+    expect(isHit).toBe(true);
+    expect(hits.length).toBe(physics.PhysicsSystem.PHYSICS_BUILTIN ? 3 : 2);
 
     // query trigger true
     isHit = physics.PhysicsSystem.instance.raycast(ray_t, -1, 100, true);
