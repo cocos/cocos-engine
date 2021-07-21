@@ -188,7 +188,7 @@ export default class Gradient {
         } else if (this.alphaKeys.length === 1) {
             return this.alphaKeys[0].alpha;
         } else {
-            return basicAlpha;
+            return 255;
         }
     }
 }
