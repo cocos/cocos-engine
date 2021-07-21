@@ -248,6 +248,14 @@ export class PhysicsSystem extends System implements IWorldInitData {
     */
     public readonly collisionMatrix: ICollisionMatrix = new CollisionMatrix(1) as ICollisionMatrix;
 
+    /**
+     * @en
+     * The minimum size of the collision body.
+     * @zh
+     * 碰撞体的最小尺寸。
+     */
+    public minVolumeSize = 1e-5;
+
     public readonly useNodeChains: boolean = false;
 
     private _enable = true;

@@ -31,7 +31,7 @@
 /* eslint-disable new-cap */
 import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
-import { physics, SphereCollider } from '../../../../exports/physics-framework';
+import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { ISphereShape } from '../../spec/i-physics-shape';
@@ -59,7 +59,7 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
     onComponentSet () {
         const ws = Math.abs(absMaxComponent(this._collider.node.worldScale));
         const radius = this.collider.radius;
-        const minVolumeSize = physics.config.minVolumeSize;
+        const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
         const unscaledRadius = ws * radius < minVolumeSize ? minVolumeSize / ws : radius;
         this._btShape = new Ammo.btSphereShape(unscaledRadius);
         this.updateScale();
@@ -77,14 +77,14 @@ export class AmmoSphereShape extends AmmoShape implements ISphereShape {
     getMinUnscaledRadius () {
         const radius = this.collider.radius;
         const ws = Math.abs(absMaxComponent(this._collider.node.worldScale));
-        const minVolumeSize = physics.config.minVolumeSize;
+        const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
         return ws * radius < minVolumeSize ? minVolumeSize / ws : radius;
     }
 
     getMinScale () {
         const radius = this.collider.radius;
         const ws = Math.abs(absMaxComponent(this._collider.node.worldScale));
-        const minVolumeSize = physics.config.minVolumeSize;
+        const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
         return ws * radius < minVolumeSize ? minVolumeSize / radius : ws;
     }
 }

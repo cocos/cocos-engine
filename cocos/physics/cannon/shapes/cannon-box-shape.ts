@@ -34,7 +34,7 @@ import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { IBoxShape } from '../../spec/i-physics-shape';
 import { IVec3Like } from '../../../core/math/type-define';
-import { BoxCollider, physics } from '../../../../exports/physics-framework';
+import { BoxCollider, physics, PhysicsSystem } from '../../../../exports/physics-framework';
 import { absolute, VEC3_0 } from '../../utils/util';
 
 export class CannonBoxShape extends CannonShape implements IBoxShape {
@@ -59,9 +59,10 @@ export class CannonBoxShape extends CannonShape implements IBoxShape {
         const x = this.halfExtent.x * ws.x;
         const y = this.halfExtent.y * ws.y;
         const z = this.halfExtent.z * ws.z;
-        this.impl.halfExtents.x = clamp(x, physics.config.minVolumeSize, Number.MAX_VALUE);
-        this.impl.halfExtents.y = clamp(y, physics.config.minVolumeSize, Number.MAX_VALUE);
-        this.impl.halfExtents.z = clamp(z, physics.config.minVolumeSize, Number.MAX_VALUE);
+        const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
+        this.impl.halfExtents.x = clamp(x, minVolumeSize, Number.MAX_VALUE);
+        this.impl.halfExtents.y = clamp(y, minVolumeSize, Number.MAX_VALUE);
+        this.impl.halfExtents.z = clamp(z, minVolumeSize, Number.MAX_VALUE);
         this.impl.updateConvexPolyhedronRepresentation();
         if (this._index !== -1) {
             commitShapeUpdates(this._body);

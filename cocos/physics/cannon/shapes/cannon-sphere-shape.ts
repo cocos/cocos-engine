@@ -33,7 +33,7 @@ import { absMaxComponent, clamp, Vec3 } from '../../../core/math';
 import { commitShapeUpdates } from '../cannon-util';
 import { CannonShape } from './cannon-shape';
 import { ISphereShape } from '../../spec/i-physics-shape';
-import { physics, SphereCollider } from '../../../../exports/physics-framework';
+import { PhysicsSystem, SphereCollider } from '../../../../exports/physics-framework';
 
 export class CannonSphereShape extends CannonShape implements ISphereShape {
     get collider () {
@@ -46,7 +46,7 @@ export class CannonSphereShape extends CannonShape implements ISphereShape {
 
     setRadius (v: number) {
         const max = Math.abs(absMaxComponent(this.collider.node.worldScale));
-        this.impl.radius = clamp(v * Math.abs(max), physics.config.minVolumeSize, Number.MAX_VALUE);
+        this.impl.radius = clamp(v * Math.abs(max), PhysicsSystem.instance.minVolumeSize, Number.MAX_VALUE);
         this.impl.updateBoundingSphereRadius();
         if (this._index !== -1) {
             commitShapeUpdates(this._body);

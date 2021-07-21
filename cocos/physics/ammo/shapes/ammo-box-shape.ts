@@ -32,7 +32,7 @@
 import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { Vec3 } from '../../../core';
-import { BoxCollider, physics } from '../../../../exports/physics-framework';
+import { BoxCollider, PhysicsSystem } from '../../../../exports/physics-framework';
 import { cocos2AmmoVec3 } from '../ammo-util';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
 import { IBoxShape } from '../../spec/i-physics-shape';
@@ -77,7 +77,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     getMinUnscaledHalfExtents (out:Vec3) {
         const size = this.collider.size;
         const ws = absolute(VEC3_0.set(this._collider.node.worldScale));
-        const minVolumeSize = physics.config.minVolumeSize;
+        const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
         const halfSizeX = size.x / 2; const halfSizeY = size.y / 2; const halfSizeZ = size.z / 2;
         const halfX = halfSizeX * ws.x < minVolumeSize ? minVolumeSize / ws.x : halfSizeX;
         const halfY = halfSizeY * ws.y < minVolumeSize ? minVolumeSize / ws.y : halfSizeY;
@@ -89,7 +89,7 @@ export class AmmoBoxShape extends AmmoShape implements IBoxShape {
     getMinScale (out:Vec3) {
         const size = this.collider.size;
         const ws = absolute(VEC3_0.set(this._collider.node.worldScale));
-        const minVolumeSize = physics.config.minVolumeSize;
+        const minVolumeSize = PhysicsSystem.instance.minVolumeSize;
         const halfSizeX = size.x / 2; const halfSizeY = size.y / 2; const halfSizeZ = size.z / 2;
         const scaleX = halfSizeX * ws.x < minVolumeSize ? minVolumeSize / halfSizeX : ws.x;
         const scaleY = halfSizeY * ws.y < minVolumeSize ? minVolumeSize / halfSizeY : ws.y;
