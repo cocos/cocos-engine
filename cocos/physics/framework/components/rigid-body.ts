@@ -408,8 +408,8 @@ export class RigidBody extends Component {
     private _angularFactor: Vec3 = new Vec3(1, 1, 1);
 
     protected get _isInitialized (): boolean {
-        const r = this._body === undefined;
-        if (r) { error('[Physics]: This rigid body has not been initialized yet, please make sure the node has been added to the scene.'); }
+        const r = this._body === null;
+        if (r) { error('[Physics]: This component has not been call onLoad yet, please make sure the node has been added to the scene.'); }
         return !r;
     }
 

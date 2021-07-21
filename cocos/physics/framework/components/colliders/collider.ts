@@ -235,9 +235,9 @@ export class Collider extends Eventify(Component) {
     @serializable
     protected readonly _center: Vec3 = new Vec3();
 
-    protected get _assertOnLoadCalled (): boolean {
-        const r = this._isOnLoadCalled === 0;
-        if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
+    protected get _isInitialized (): boolean {
+        const r = this._shape === null;
+        if (r) { error('[Physics]: This component has not been call onLoad yet, please make sure the node has been added to the scene.'); }
         return !r;
     }
 
@@ -315,7 +315,7 @@ export class Collider extends Eventify(Component) {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getGroup (): number {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             return this._shape!.getGroup();
         }
         return 0;
@@ -329,7 +329,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setGroup (v: number): void {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.setGroup(v);
         }
     }
@@ -342,7 +342,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addGroup (v: number) {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.addGroup(v);
         }
     }
@@ -355,7 +355,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeGroup (v: number) {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.removeGroup(v);
         }
     }
@@ -368,7 +368,7 @@ export class Collider extends Eventify(Component) {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getMask (): number {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             return this._shape!.getMask();
         }
         return 0;
@@ -382,7 +382,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.setMask(v);
         }
     }
@@ -395,7 +395,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.addMask(v);
         }
     }
@@ -408,7 +408,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.removeMask(v);
         }
     }
