@@ -38,7 +38,6 @@ import {
     editable,
     serializable,
 } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
 import { Vec3 } from '../../../../core/math';
 import { Collider } from './collider';
 import { IPlaneShape } from '../../../spec/i-physics-shape';
@@ -71,7 +70,7 @@ export class PlaneCollider extends Collider {
 
     public set normal (value) {
         Vec3.copy(this._normal, value);
-        if (!EDITOR && !TEST) {
+        if (this._shape) {
             this.shape.setNormal(this._normal);
         }
     }
@@ -90,7 +89,7 @@ export class PlaneCollider extends Collider {
 
     public set constant (v: number) {
         this._constant = v;
-        if (!EDITOR && !TEST) {
+        if (this._shape) {
             this.shape.setConstant(this._constant);
         }
     }

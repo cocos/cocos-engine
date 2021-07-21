@@ -36,7 +36,6 @@ import {
     tooltip,
     serializable,
 } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
 import { ISphereShape } from '../../../spec/i-physics-shape';
 import { EColliderType } from '../../physics-enum';
@@ -67,7 +66,7 @@ export class SphereCollider extends Collider {
 
     public set radius (value) {
         this._radius = value;
-        if (!EDITOR && !TEST) {
+        if (this._shape) {
             this.shape.setRadius(this._radius);
         }
     }
