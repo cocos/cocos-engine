@@ -62,26 +62,26 @@ if (USE_BYTEDANCE) {
     // If external PhysX not given, then try to use internal PhysX libs.
     if (!globalThis.PhysX) globalThis.PhysX = PhysX;
     if (globalThis.PhysX != null) {
-        globalThis.PhysX().then((PX: any) => {
+        globalThis.PhysX().then((Instance: any) => {
             if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'PhysX libs loaded.');
-            PX.VECTOR_MAT = new PX.PxMaterialVector();
-            PX.MeshScale = PX.PxMeshScale;
-            PX.ShapeFlag = PX.PxShapeFlag;
-            PX.ActorFlag = PX.PxActorFlag;
-            PX.ForceMode = PX.PxForceMode;
-            PX.CombineMode = PX.PxCombineMode;
-            PX.BoxGeometry = PX.PxBoxGeometry;
-            PX.QueryHitType = PX.PxQueryHitType;
-            PX.RigidBodyFlag = PX.PxRigidBodyFlag;
-            PX.PlaneGeometry = PX.PxPlaneGeometry;
-            PX.SphereGeometry = PX.PxSphereGeometry;
-            PX.CapsuleGeometry = PX.PxCapsuleGeometry;
-            PX.ConvexMeshGeometry = PX.PxConvexMeshGeometry;
-            PX.TriangleMeshGeometry = PX.PxTriangleMeshGeometry;
-            PX.RigidDynamicLockFlag = PX.PxRigidDynamicLockFlag;
-            PX.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => PX.PxRevoluteJointCreate(PX.physics, a, b, c, d);
-            PX.createDistanceJoint = (a: any, b: any, c: any, d: any): any => PX.PxDistanceJointCreate(PX.physics, a, b, c, d);
-            Object.assign(_px, PX);
+            Instance.VECTOR_MAT = new Instance.PxMaterialVector();
+            Instance.MeshScale = Instance.PxMeshScale;
+            Instance.ShapeFlag = Instance.PxShapeFlag;
+            Instance.ActorFlag = Instance.PxActorFlag;
+            Instance.ForceMode = Instance.PxForceMode;
+            Instance.CombineMode = Instance.PxCombineMode;
+            Instance.BoxGeometry = Instance.PxBoxGeometry;
+            Instance.QueryHitType = Instance.PxQueryHitType;
+            Instance.RigidBodyFlag = Instance.PxRigidBodyFlag;
+            Instance.PlaneGeometry = Instance.PxPlaneGeometry;
+            Instance.SphereGeometry = Instance.PxSphereGeometry;
+            Instance.CapsuleGeometry = Instance.PxCapsuleGeometry;
+            Instance.ConvexMeshGeometry = Instance.PxConvexMeshGeometry;
+            Instance.TriangleMeshGeometry = Instance.PxTriangleMeshGeometry;
+            Instance.RigidDynamicLockFlag = Instance.PxRigidDynamicLockFlag;
+            Instance.createRevoluteJoint = (a: any, b: any, c: any, d: any): any => Instance.PxRevoluteJointCreate(PX.physics, a, b, c, d);
+            Instance.createDistanceJoint = (a: any, b: any, c: any, d: any): any => Instance.PxDistanceJointCreate(PX.physics, a, b, c, d);
+            Object.assign(_px, Instance);
             initConfigAndCacheObject(_px);
         }, (reason: any) => { console.error('[PHYSICS]:', `PhysX load failed: ${reason}`); });
     } else {
