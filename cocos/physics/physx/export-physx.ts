@@ -36,7 +36,9 @@
 /* eslint-disable no-lonely-if */
 
 import { BYTEDANCE, EDITOR, TEST } from 'internal:constants';
-import { PhysX } from './export-physx.web';
+// Comment the next line and uncomment the second line, if you want to get a smaller package body on the bytedance platform
+import PhysX from '@cocos/physx';
+// import { PhysX } from './export-physx.web';
 import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, sys, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';
 import { legacyCC } from '../../core/global-exports';
@@ -47,19 +49,20 @@ import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { PxHitFlag, PxPairFlag, PxQueryFlag, EFilterDataWord3 } from './physx-enum';
 
-const globalThis = legacyCC._global;
 let _px = {};
-let USE_BYTEDANCE = false;
-if (BYTEDANCE && sys.os === sys.OS.ANDROID) {
+const globalThis = legacyCC._global;
+// Use bytedance native physics if tt support getPhy.
+const USE_BYTEDANCE = BYTEDANCE && globalThis.tt && globalThis.tt.getPhy;
+if (USE_BYTEDANCE) {
     if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX Native Libs in BYTEDANCE.');
-    USE_BYTEDANCE = true;
-    if (globalThis && globalThis.tt.getPhy) _px = globalThis.tt.getPhy();
+    _px = globalThis.tt.getPhy();
     initConfigAndCacheObject(_px);
 } else {
     if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'Use PhysX js or wasm Libs.');
-    globalThis.PhysX = PhysX;
+    // If external PhysX not given, then try to use internal PhysX libs.
+    if (!globalThis.PhysX) globalThis.PhysX = PhysX;
     if (globalThis.PhysX != null) {
-        PhysX().then((PX: any) => {
+        globalThis.PhysX().then((PX: any) => {
             if (!EDITOR && !TEST) console.info('[PHYSICS]:', 'PhysX libs loaded.');
             PX.VECTOR_MAT = new PX.PxMaterialVector();
             PX.MeshScale = PX.PxMeshScale;
