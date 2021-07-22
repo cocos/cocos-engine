@@ -1,4 +1,4 @@
-import { toRadian } from '../../cocos/core';
+import { editorExtrasTag, toRadian } from '../../cocos/core';
 import { RealCurve, RealInterpolationMode } from '../../cocos/core/curves';
 import { EasingMethod, RealKeyframeValue } from '../../cocos/core/curves/curve';
 import { ExtrapolationMode, TangentWeightMode } from '../../cocos/core/curves/real-curve-param';
@@ -62,6 +62,7 @@ describe('Curve', () => {
                     interpolationMode: RealInterpolationMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.BOTH,
                     easingMethod: EasingMethod.QUAD_OUT,
+                    [editorExtrasTag]: { 'foo': 'bar' },
                 }),
             ]);
             compareCurves(serializeAndDeserialize(curve, RealCurve), curve);
@@ -279,5 +280,6 @@ function compareCurves (left: RealCurve, right: RealCurve, numDigits = 2) {
         expect(leftKeyframeValue.leftTangentWeight).toBeCloseTo(rightKeyframeValue.leftTangentWeight, numDigits);
         expect(leftKeyframeValue.interpolationMode).toStrictEqual(rightKeyframeValue.interpolationMode);
         expect(leftKeyframeValue.easingMethod).toStrictEqual(rightKeyframeValue.easingMethod);
+        expect(leftKeyframeValue[editorExtrasTag]).toStrictEqual(rightKeyframeValue[editorExtrasTag]);
     }
 }

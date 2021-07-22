@@ -5,8 +5,8 @@ import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
 import { RealInterpolationMode, ExtrapolationMode, TangentWeightMode } from './real-curve-param';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { solveCubic } from './solve-cubic';
-import { EditorExtendableMixin } from '../data/editor-extendable';
-import { deserializeTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
+import { EditorExtendable, EditorExtendableMixin } from '../data/editor-extendable';
+import { deserializeTag, editorExtrasTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 import { DeserializationContext } from '../data/custom-serializable';
 import * as easing from '../animation/easing';
 
@@ -65,7 +65,7 @@ export enum EasingMethod {
  */
 @ccclass('cc.RealKeyframeValue')
 @uniquelyReferenced
-class RealKeyframeValue {
+class RealKeyframeValue extends EditorExtendable {
     constructor ({
         interpolationMode,
         tangentWeightMode,
@@ -75,7 +75,9 @@ class RealKeyframeValue {
         leftTangent,
         leftTangentWeight,
         easingMethod,
+        [editorExtrasTag]: editorExtras,
     }:  Partial<RealKeyframeValue> = { }) {
+        super();
         this.value = value ?? this.value;
         this.rightTangent = rightTangent ?? this.rightTangent;
         this.rightTangentWeight = rightTangentWeight ?? this.rightTangentWeight;
@@ -84,6 +86,9 @@ class RealKeyframeValue {
         this.interpolationMode = interpolationMode ?? this.interpolationMode;
         this.tangentWeightMode = tangentWeightMode ?? this.tangentWeightMode;
         this.easingMethod = easingMethod ?? this.easingMethod;
+        if (editorExtras) {
+            this[editorExtrasTag] = editorExtras;
+        }
     }
 
     /**
@@ -164,7 +169,7 @@ function createRealKeyframeValue (params: RealKeyframeValueParameters) {
  * Curve.
  */
 @ccclass('cc.RealCurve')
-export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeValue>>(KeyframeCurve) {
+export class RealCurve extends KeyframeCurve<RealKeyframeValue> {
     /**
      * Gets or sets the operation should be taken
      * if input time is less than the time of first keyframe when evaluating this curve.
@@ -355,6 +360,11 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
 
         const bytes = new Uint8Array(dataView.buffer, 0, currentOffset);
         output.writeProperty('bytes', bytes);
+
+        const keyframeValueEditorExtras = keyframeValues.map((keyframeValue) => keyframeValue[editorExtrasTag]);
+        if (keyframeValueEditorExtras.some((extras) => extras !== undefined)) {
+            output.writeProperty(`keyframeValueEditorExtras`, keyframeValueEditorExtras);
+        }
     }
 
     public [deserializeTag] (input: SerializationInput, context: DeserializationContext) {
@@ -389,6 +399,14 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
         }
 
         assertIsTrue(currentOffset === bytes.byteLength);
+
+        const keyframeValueEditorExtras = input.readProperty(`keyframeValueEditorExtras`) as unknown[];
+        if (keyframeValueEditorExtras) {
+            assertIsTrue(keyframeValueEditorExtras.length === nKeyframes);
+            keyframeValueEditorExtras.forEach(
+                (extras, index) => keyframeValues[index][editorExtrasTag] = extras,
+            );
+        }
 
         this._times = times;
         this._values = keyframeValues;
