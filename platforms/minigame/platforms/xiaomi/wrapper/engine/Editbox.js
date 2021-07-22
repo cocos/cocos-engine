@@ -10,7 +10,6 @@
     const KEYBOARD_HIDE_TIME = 600;
     let _hideKeyboardTimeout = null;
     let _currentEditBoxImpl = null;
-    let _invalidInputCallbackCount = 2;
 
     function getKeyboardReturnType (type) {
         switch (type) {
@@ -79,10 +78,6 @@
             let cbs = this._eventListeners;
 
             cbs.onKeyboardInput = function (res) {
-                // NOTE: Input callback will be invoked twice when show keyboard on Xiaomi platform
-                if (_invalidInputCallbackCount-- > 0) {
-                    return;
-                }
                 if (delegate._string !== res.value) {
                     delegate._editBoxTextChanged(res.value);
                 }
@@ -147,7 +142,6 @@
         _showKeyboard () {
             let delegate = this._delegate;
             let multiline = (delegate.inputMode === EditBoxComp.InputMode.ANY);
-            _invalidInputCallbackCount = 2;
             __globalAdapter.showKeyboard({
                 defaultValue: delegate.string,
                 maxLength: delegate.maxLength < 0 ? MAX_VALUE : delegate.maxLength,
@@ -155,11 +149,7 @@
                 confirmHold: false,
                 confirmType: getKeyboardReturnType(delegate.returnType),
                 success (res) {
-                    // NOTE: pass defaultValue when showKeyboard is invalid on Xiaomi platform
-                    // need to manually update the value
-                    __globalAdapter.updateKeyboard({
-                        value: delegate.string,
-                    });
+
                 },
                 fail (res) {
                     cc.warn(res.errMsg);
