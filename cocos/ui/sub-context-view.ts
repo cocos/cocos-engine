@@ -175,7 +175,7 @@ export class SubContextView extends Component {
     }
 
     private _updateSubContextView () {
-        if (!(this._openDataContext && minigame.getSystemInfoSync)) {
+        if (!this._openDataContext) {
             return;
         }
 
@@ -191,14 +191,16 @@ export class SubContextView extends Component {
         contentTrans.height *= scale;
 
         // update viewport in subContextView
-        const systemInfo = minigame.getSystemInfoSync();
+        const viewportRect = view.getViewportRect();
         const box = contentTrans.getBoundingBoxToWorld();
         const visibleSize = view.getVisibleSize();
+        const dpr = view.getDevicePixelRatio();
 
-        const x = systemInfo.screenWidth * (box.x / visibleSize.width);
-        const y = systemInfo.screenHeight * (box.y / visibleSize.height);
-        const width = systemInfo.screenWidth * (box.width / visibleSize.width);
-        const height = systemInfo.screenHeight * (box.height / visibleSize.height);
+        // TODO: the visibleSize need to be the size of Canvas node where the content node is.
+        const x = (viewportRect.width * (box.x / visibleSize.width) + viewportRect.x) / dpr;
+        const y = (viewportRect.height * (box.y / visibleSize.height) + viewportRect.y) / dpr;
+        const width = viewportRect.width * (box.width / visibleSize.width) / dpr;
+        const height = viewportRect.height * (box.height / visibleSize.height) / dpr;
 
         this._openDataContext.postMessage({
             fromEngine: true,  // compatible deprecated property
