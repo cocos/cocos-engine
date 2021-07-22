@@ -66,10 +66,10 @@ export default function (parent: Node, _steps = 0) {
         body.type = physics.RigidBody.Type.DYNAMIC;
         const v3_0 = new Vec3(1, 1, 1);
         body.setAngularVelocity(v3_0);
-        expect(Quat.equals(nodeDynamic.worldRotation, Quat.IDENTITY));
+        expect(Quat.equals(nodeDynamic.worldRotation, Quat.IDENTITY)).toBe(true);
         const dt = physics.PhysicsSystem.instance.fixedTimeStep;
         director.tick(dt);
-        expect(!Quat.equals(nodeDynamic.worldRotation, Quat.IDENTITY));
+        expect(!Quat.equals(nodeDynamic.worldRotation, Quat.IDENTITY)).toBe(true);
         parent.destroyAllChildren();
         parent.removeAllChildren();
     }
@@ -81,10 +81,10 @@ export default function (parent: Node, _steps = 0) {
         const body = nodeDynamic.addComponent(physics.RigidBody) as physics.RigidBody;
         body.useGravity = false;
         body.type = physics.RigidBody.Type.DYNAMIC;
-        expect(Vec3.equals(nodeDynamic.worldPosition, Vec3.ZERO));
+        expect(Vec3.equals(nodeDynamic.worldPosition, Vec3.ZERO)).toBe(true);
         const dt = physics.PhysicsSystem.instance.fixedTimeStep;
         for (let i = 0; i < 200; i++)director.tick(dt);
-        expect(Vec3.equals(nodeDynamic.worldPosition, Vec3.ZERO));
+        expect(Vec3.equals(nodeDynamic.worldPosition, Vec3.ZERO)).toBe(true);
         expect(body.isSleeping).toBe(true);
         parent.destroyAllChildren();
         parent.removeAllChildren();
