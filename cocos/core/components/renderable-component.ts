@@ -37,6 +37,7 @@ import { Component } from './component';
 import { IMaterialInstanceInfo, MaterialInstance } from '../renderer/core/material-instance';
 import { scene } from '../renderer';
 import { Layers } from '../scene-graph/layers';
+import { warnID } from '../platform/debug';
 import { legacyCC } from '../global-exports';
 
 const _matInsInfo: IMaterialInstanceInfo = {
@@ -88,28 +89,28 @@ export class RenderableComponent extends Component {
      * @en The materials of the model.
      * @zh 模型材质。
      */
-    get materials () {
+    get materials (): (MaterialInstance | null)[] {
         for (let i = 0; i < this._materials.length; i++) {
             this._materialInstances[i] = this.getMaterialInstance(i) as MaterialInstance;
         }
         return this._materialInstances;
     }
 
-    set materials (val) {
+    set materials (val: (Material | MaterialInstance | null)[]) {
         const dLen = val.length - this._materials.length;
         if (dLen > 0) {
             this._materials.length = val.length;
             this._materialInstances.length = val.length;
         } else if (dLen < 0) {
             for (let i = this._materials.length - dLen; i < this._materials.length; ++i) {
-                this.setMaterialInstance(i, null);
+                this.setMaterialInstance(null, i);
             }
         }
         for (let i = 0; i < this._materialInstances.length; i++) {
             // they could be either undefined or null
             // eslint-disable-next-line eqeqeq
             if (this._materialInstances[i] != val[i]) {
-                this.setMaterialInstance(i, val[i]);
+                this.setMaterialInstance(val[i], i);
             }
         }
     }
@@ -145,32 +146,28 @@ export class RenderableComponent extends Component {
         this._materials[index] = material;
         const inst = this._materialInstances[index];
         if (inst) {
-            if (inst.parent !== this._materials[index]) {
-                inst.destroy();
-                this._materialInstances[index] = null;
-                this._onMaterialModified(index, this._materials[index]);
-            }
-        } else {
-            this._onMaterialModified(index, this._materials[index]);
+            inst.destroy();
+            this._materialInstances[index] = null;
         }
+        this._onMaterialModified(index, this._materials[index]);
     }
 
-    get material () {
+    get material (): MaterialInstance | null {
         return this.getMaterialInstance(0);
     }
 
-    set material (val) {
-        if (this._materials.length === 1 && this._materials[0] === val) {
+    set material (val: Material | MaterialInstance | null) {
+        if (this._materials.length === 1 && !this._materialInstances[0] && this._materials[0] === val) {
             return;
         }
-        this.setMaterialInstance(0, val);
+        this.setMaterialInstance(val, 0);
     }
 
     /**
      * @en Get the material instance of the specified sub-model.
      * @zh 获取指定子模型的材质实例。
      */
-    public getMaterialInstance (idx: number): Material | null {
+    public getMaterialInstance (idx: number): MaterialInstance | null {
         const mat = this._materials[idx];
         if (!mat) {
             return null;
@@ -180,7 +177,7 @@ export class RenderableComponent extends Component {
             _matInsInfo.owner = this;
             _matInsInfo.subModelIdx = idx;
             const instantiated = new MaterialInstance(_matInsInfo);
-            this.setMaterialInstance(idx, instantiated);
+            this.setMaterialInstance(instantiated, idx);
         }
         return this._materialInstances[idx];
     }
@@ -189,13 +186,28 @@ export class RenderableComponent extends Component {
      * @en Set the material instance of the specified sub-model.
      * @zh 获取指定子模型的材质实例。
      */
-    public setMaterialInstance (index: number, matInst: Material | null) {
+    public setMaterialInstance (matInst: Material | MaterialInstance | null, index: number) {
+        if (typeof matInst === 'number') {
+            warnID(12007);
+            const temp: any = matInst;
+            matInst = index as any;
+            index = temp;
+        }
+
+        const curInst = this._materialInstances[index];
+
+        // If the new material is an MaterialInstance
         if (matInst && matInst.parent) {
-            if (matInst !== this._materialInstances[index]) {
+            if (matInst !== curInst) {
                 this._materialInstances[index] = matInst as MaterialInstance;
                 this._onMaterialModified(index, matInst);
             }
-        } else if (matInst !== this._materials[index]) {
+            return;
+        }
+
+        // Or else it's a Material proper
+        // Should skip identity check if there is any MaterialInstance
+        if (matInst !== this._materials[index] || curInst) {
             this.setMaterial(matInst as Material, index);
         }
     }

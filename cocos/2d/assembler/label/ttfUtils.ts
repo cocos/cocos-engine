@@ -152,16 +152,7 @@ export const ttfUtils =  {
     _updateFontFamily (comp: Label) {
         if (!comp.useSystemFont) {
             if (comp.font) {
-                if (comp.font._nativeAsset) {
-                    _fontFamily = comp.font._nativeAsset;
-                } else {
-                    assetManager.postLoadNative(comp.font, (err) => {
-                        if (!comp.isValid) { return; }
-                        _fontFamily = comp.font!._nativeAsset || 'Arial';
-                        comp.updateRenderData(true);
-                    });
-                    _fontFamily = 'Arial';
-                }
+                _fontFamily = comp.font._nativeAsset || 'Arial';
             } else {
                 _fontFamily = 'Arial';
             }

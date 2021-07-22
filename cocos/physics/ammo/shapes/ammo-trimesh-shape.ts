@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../ammo-instantiated';
+import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { warnID } from '../../../core';
 import { Mesh } from '../../../3d/assets';
@@ -51,7 +51,7 @@ export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
     setMesh (v: Mesh | null) {
         if (!this._isBinding) return;
 
-        if (this._btShape != null && this._btShape !== AmmoConstant.instance.EMPTY_SHAPE) {
+        if (this._btShape != null && AmmoConstant.isNotEmptyShape(this._btShape)) {
             // TODO: change the mesh after initialization
             warnID(9620);
         } else {
@@ -95,8 +95,8 @@ export class AmmoTrimeshShape extends AmmoShape implements ITrimeshShape {
         this.impl.setUserIndex(this._index);
     }
 
-    setScale () {
-        super.setScale();
+    updateScale () {
+        super.updateScale();
         cocos2AmmoVec3(this.scale, this._collider.node.worldScale);
         this._btShape.setLocalScaling(this.scale);
         this.updateCompoundTransform();

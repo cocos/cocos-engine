@@ -35,7 +35,6 @@ import { basename, extname } from '../utils/path';
 import Bundle from './bundle';
 import Cache from './cache';
 import CacheManager from './cache-manager';
-import { nativeDependMap } from './depend-maps';
 import dependUtil from './depend-util';
 import downloader from './downloader';
 import factory from './factory';
@@ -50,10 +49,8 @@ import releaseManager from './release-manager';
 import RequestItem from './request-item';
 import {
     CompleteCallbackWithData,
-    CompleteCallbackNoData,
     ProgressCallback,
     IBundleOptions,
-    INativeAssetOptions,
     IOptions,
     IRemoteOptions,
     presets,
@@ -189,7 +186,7 @@ export class AssetManager {
 
     /**
      * @en
-     * Whether or not load asset forcely, if it is true, asset will be loaded regardless of error
+     * Whether or not load asset forcibly, if it is true, asset will be loaded regardless of error
      *
      * @zh
      * 是否强制加载资源, 如果为 true ，加载资源将会忽略报错
@@ -372,7 +369,7 @@ export class AssetManager {
 
     /**
      * @en
-     * Remove this bundle. NOTE: The asset whthin this bundle will not be released automatically,
+     * Remove this bundle. NOTE: The asset within this bundle will not be released automatically,
      * you can call {{#crossLink "Bundle/releaseAll:method"}}{{/crossLink}} manually before remove it if you need
      *
      * @zh
@@ -394,7 +391,7 @@ export class AssetManager {
      * effect you want with combination of `requests` and `options`.It is highly recommended that you use more simple API,
      * such as `load`, `loadDir` etc. Every custom parameter in `options` will be distribute to each of `requests`. if request
      * already has same one, the parameter in request will be given priority. Besides, if request has dependencies, `options`
-     * will distribute to dependencies too. Every custom parameter in `requests` will be tranfered to handler of `downloader`
+     * will distribute to dependencies too. Every custom parameter in `requests` will be transferred to handler of `downloader`
      * and `parser` as `options`. You can register you own handler downloader or parser to collect these custom parameters for some effect.
      *
      * Reserved Keyword: `uuid`, `url`, `path`, `dir`, `scene`, `type`, `priority`, `preset`, `audioLoadMode`, `ext`,
@@ -419,7 +416,7 @@ export class AssetManager {
      * @param onProgress.total - The total number of the items
      * @param onProgress.item - The current request item
      * @param onComplete - Callback invoked when finish loading
-     * @param onComplete.err - The error occured in loading process.
+     * @param onComplete.err - The error occurred in loading process.
      * @param onComplete.data - The loaded content
      *
      * @example
@@ -476,7 +473,7 @@ export class AssetManager {
      * @param onProgress.total - The total number of the items
      * @param onProgress.item - The current request item
      * @param onComplete - Callback invoked when finish preloading
-     * @param onComplete.err - The error occured in preloading process.
+     * @param onComplete.err - The error occurred in preloading process.
      * @param onComplete.items - The preloaded content
      *
      * @example
@@ -506,54 +503,6 @@ export class AssetManager {
 
     /**
      * @en
-     * Load native file of asset, if you check the option 'Async Load Assets', you may need to load native file with this before you use the asset
-     *
-     * @zh
-     * 加载资源的原生文件，如果你勾选了'延迟加载资源'选项，你可能需要在使用资源之前调用此方法来加载原生文件
-     *
-     * @param asset - The asset
-     * @param options - Some optional parameters
-     * @param onComplete - Callback invoked when finish loading
-     * @param onComplete.err - The error occured in loading process.
-     *
-     * @example
-     * cc.assetManager.postLoadNative(texture, (err) => console.log(err));
-     *
-     */
-    public postLoadNative (asset: Asset, options: INativeAssetOptions | null, onComplete: CompleteCallbackNoData | null): void;
-    public postLoadNative (asset: Asset, onComplete?: CompleteCallbackNoData | null): void;
-    public postLoadNative (asset: Asset, options?: INativeAssetOptions | CompleteCallbackNoData | null, onComplete?: CompleteCallbackNoData | null) {
-        const { options: opts, onComplete: onComp } = parseParameters<CompleteCallbackNoData>(options, undefined, onComplete);
-
-        if (!asset._native || !nativeDependMap.has(asset)) {
-            asyncify(onComp)(null);
-            return;
-        }
-
-        const depend = dependUtil.getNativeDep(asset._uuid);
-        if (!depend) { return; }
-        if (!bundles.has(depend.bundle)) {
-            const bundle = bundles.find((b) => !!b.getAssetInfo(asset._uuid));
-            if (bundle) {
-                depend.bundle = bundle.name;
-            }
-        }
-
-        this.loadAny(depend, opts, (err, native) => {
-            if (!err) {
-                if (asset.isValid && nativeDependMap.has(asset)) {
-                    asset._nativeAsset = native;
-                    nativeDependMap.delete(asset);
-                }
-            } else {
-                error(err.message, err.stack);
-            }
-            if (onComp) { onComp(err); }
-        });
-    }
-
-    /**
-     * @en
      * Load remote asset with url, such as audio, image, text and so on.
      *
      * @zh
@@ -564,7 +513,7 @@ export class AssetManager {
      * @param options.audioLoadMode - Indicate which mode audio you want to load
      * @param options.ext - If the url does not have a extension name, you can specify one manually.
      * @param onComplete - Callback invoked when finish loading
-     * @param onComplete.err - The error occured in loading process.
+     * @param onComplete.err - The error occurred in loading process.
      * @param onComplete.asset - The loaded texture
      *
      * @example
@@ -608,7 +557,7 @@ export class AssetManager {
      * @param options - Some optional paramter, same like downloader.downloadFile
      * @param options.version - The version of this bundle, you can check config.json in this bundle
      * @param onComplete - Callback when bundle loaded or failed
-     * @param onComplete.err - The occurred error, null indicetes success
+     * @param onComplete.err - The occurred error, null indicates success
      * @param onComplete.bundle - The loaded bundle
      *
      * @example
@@ -668,7 +617,7 @@ export class AssetManager {
 
     /**
      * @en
-     * Release all unused assets. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed informations.
+     * Release all unused assets. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed information.
      *
      * @zh
      * 释放所有没有用到的资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}
@@ -684,7 +633,7 @@ export class AssetManager {
 
     /**
      * @en
-     * Release all assets. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed informations.
+     * Release all assets. Refer to {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}} for detailed information.
      *
      * @zh
      * 释放所有资源。详细信息请参考 {{#crossLink "AssetManager/releaseAsset:method"}}{{/crossLink}}

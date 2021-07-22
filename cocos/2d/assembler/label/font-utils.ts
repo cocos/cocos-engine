@@ -233,8 +233,6 @@ export class LetterRenderTexture extends Texture2D {
             height,
             format,
         });
-        this.loaded = true;
-        this.emit('load');
     }
 
     /**

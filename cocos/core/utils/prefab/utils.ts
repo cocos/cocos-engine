@@ -71,6 +71,7 @@ export function createNodeWithPrefab (node: Node) {
     const _id = node._id;
     // @ts-expect-error: private member access
     const _prefab = node._prefab;
+    const editorExtras = node[editorExtrasTag];
 
     // instantiate prefab
     legacyCC.game._isCloning = true;
@@ -95,6 +96,9 @@ export function createNodeWithPrefab (node: Node) {
     node._parent = _parent;
     // @ts-expect-error: private member access
     node._id = _id;
+    if (EDITOR) {
+        node[editorExtrasTag] = editorExtras;
+    }
 
     // @ts-expect-error: private member access
     if (node._prefab) {

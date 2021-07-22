@@ -47,15 +47,15 @@ export interface ICollisionGroup {
 }
 
 export interface IPhysicsConfig {
-    gravity: IVec3Like;
-    allowSleep: boolean;
-    fixedTimeStep: number;
-    maxSubSteps: number;
-    sleepThreshold: number;
-    collisionMatrix: ICollisionMatrix;
-    collisionGroups: ICollisionGroup[];
-    defaultMaterial: IPhysicsMaterial;
-    autoSimulation: boolean;
-    useNodeChains: boolean;
-    physicsEngine: 'builtin' | 'cannon.js' | 'ammo.js' | string;
+    gravity?: IVec3Like;
+    allowSleep?: boolean;
+    fixedTimeStep?: number;
+    maxSubSteps?: number;
+    sleepThreshold?: number;
+    collisionMatrix?: ICollisionMatrix;
+    collisionGroups?: ICollisionGroup[];
+    defaultMaterial?: IPhysicsMaterial;
+    autoSimulation?: boolean;
+    useNodeChains?: boolean;
+    physicsEngine?: 'builtin' | 'cannon.js' | 'ammo.js' | string;
 }

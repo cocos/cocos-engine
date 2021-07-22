@@ -302,8 +302,8 @@ export class CCLoader {
         completeCallback?: LoadCompleteCallback<T>,
     ) {
         const { type: _type, onProgress, onComplete } = this._parseLoadResArgs(type as any,
-                                                                        progressCallback as LoadProgressCallback,
-                                                                        completeCallback as LoadCompleteCallback<T>);
+            progressCallback as LoadProgressCallback,
+            completeCallback as LoadCompleteCallback<T>);
         const extname = path.extname(url);
         if (extname && !resources.getInfoWithPath(url, _type)) {
             // strip extname
@@ -351,8 +351,8 @@ export class CCLoader {
         completeCallback?: LoadCompleteCallback<T[]>,
     ) {
         const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadCompleteCallback<Asset[]>>(type as any,
-                                                                        progressCallback as LoadProgressCallback,
-                                                                        completeCallback as LoadCompleteCallback<Asset[]>);
+            progressCallback as LoadProgressCallback,
+            completeCallback as LoadCompleteCallback<Asset[]>);
         urls.forEach((url, i) => {
             const extname = path.extname(url);
             if (extname && !resources.getInfoWithPath(url, _type)) {
@@ -438,8 +438,8 @@ export class CCLoader {
         completeCallback?: LoadDirCompleteCallback<T>,
     ) {
         const { type: _type, onProgress, onComplete } = this._parseLoadResArgs<LoadDirCompleteCallback<Asset>>(type as any,
-                                                                        progressCallback as LoadProgressCallback,
-                                                                        completeCallback as LoadDirCompleteCallback<Asset>);
+            progressCallback as LoadProgressCallback,
+            completeCallback as LoadDirCompleteCallback<Asset>);
         resources.loadDir(url, _type, onProgress, (err, out) => {
             let urls: string[] = [];
             if (!err) {
@@ -858,6 +858,7 @@ export const AssetLibrary = {
                 nativeBase: options.nativeBase,
                 paths: options.rawAssets.assets,
                 uuids: Object.keys(options.rawAssets.assets),
+                extensionMap: {},
             });
         }
     },

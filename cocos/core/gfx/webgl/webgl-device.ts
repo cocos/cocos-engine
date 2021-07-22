@@ -23,7 +23,6 @@
  THE SOFTWARE.
  */
 
-import { system } from 'pal/system';
 import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
 import { macro, warnID, warn } from '../../platform';
 import { sys } from '../../platform/sys';
@@ -64,12 +63,12 @@ import {
     QueueType, TextureFlagBit, TextureType, TextureUsageBit, API, Feature, BufferTextureCopy, Rect,
 } from '../base/define';
 import {
-    GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture,
+    GFXFormatToWebGLFormat, GFXFormatToWebGLType, WebGLCmdFuncCopyBuffersToTexture, WebGLCmdFuncCopyTextureToBuffers,
     WebGLCmdFuncCopyTexImagesToTexture,
 } from './webgl-commands';
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
-import { BrowserType, OS } from '../../../../pal/system/enum-type';
+import { BrowserType, OS } from '../../../../pal/system-info/enum-type';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -370,17 +369,17 @@ export class WebGLDevice extends Device {
         // eslint-disable-next-line no-lone-blocks
         {
             // iOS 14 browsers crash on getExtension('WEBGL_compressed_texture_astc')
-            if (system.os !== OS.IOS || sys.osMainVersion !== 14 || !sys.isBrowser) {
+            if (sys.os !== OS.IOS || sys.osMainVersion !== 14 || !sys.isBrowser) {
                 this._WEBGL_compressed_texture_astc = this.getExtension('WEBGL_compressed_texture_astc');
             }
 
             // UC browser instancing implementation doesn't work
-            if (system.browserType === BrowserType.UC) {
+            if (sys.browserType === BrowserType.UC) {
                 this._ANGLE_instanced_arrays = null;
             }
 
             // bytedance ios depth texture implementation doesn't work
-            if (BYTEDANCE && system.os === OS.IOS) {
+            if (BYTEDANCE && sys.os === OS.IOS) {
                 this._WEBGL_depth_texture = null;
             }
 
@@ -392,8 +391,8 @@ export class WebGLDevice extends Device {
             }
 
             // some earlier version of iOS and android wechat implement gl.detachShader incorrectly
-            if ((system.os === OS.IOS && sys.osMainVersion <= 10)
-                || (WECHAT && system.os === OS.ANDROID)) {
+            if ((sys.os === OS.IOS && sys.osMainVersion <= 10)
+                || (WECHAT && sys.os === OS.ANDROID)) {
                 this._destroyShadersImmediately = false;
             }
 
@@ -728,6 +727,15 @@ export class WebGLDevice extends Device {
             this,
             buffers,
             (texture as WebGLTexture).gpuTexture,
+            regions,
+        );
+    }
+
+    public copyTextureToBuffers (texture: Texture, buffers: ArrayBufferView[], regions: BufferTextureCopy[]) {
+        WebGLCmdFuncCopyTextureToBuffers(
+            this,
+            (texture as WebGLTexture).gpuTexture,
+            buffers,
             regions,
         );
     }

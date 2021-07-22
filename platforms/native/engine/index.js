@@ -27,6 +27,7 @@ require('./jsb-assets-manager.js');
 
 require('./jsb-game.js');
 require('./jsb-gfx.js');
+require('./jsb-scene.js');
 require('./jsb-loader.js');
 require('./jsb-videoplayer.js');
 require('./jsb-webview.js');

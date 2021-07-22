@@ -163,34 +163,20 @@ export class SimpleTexture extends TextureBase {
     }
 
     protected _assignImage (image: ImageAsset, level: number, arrayIndex?: number) {
-        const upload = () => {
-            const data = image.data;
-            if (!data) {
-                return;
-            }
-            this.uploadData(data, level, arrayIndex);
-            this._checkTextureLoaded();
+        const data = image.data;
+        if (!data) {
+            return;
+        }
+        this.uploadData(data, level, arrayIndex);
+        this._checkTextureLoaded();
 
-            if (macro.CLEANUP_IMAGE_CACHE) {
-                const deps = dependUtil.getDeps(this._uuid);
-                const index = deps.indexOf(image._uuid);
-                if (index !== -1) {
-                    fastRemoveAt(deps, index);
-                    image.decRef();
-                }
+        if (macro.CLEANUP_IMAGE_CACHE) {
+            const deps = dependUtil.getDeps(this._uuid);
+            const index = deps.indexOf(image._uuid);
+            if (index !== -1) {
+                fastRemoveAt(deps, index);
+                image.decRef();
             }
-        };
-        if (image.loaded) {
-            upload();
-        } else {
-            image.once('load', () => {
-                upload();
-            });
-            if (!this.isCompressed) {
-                const defaultImg = legacyCC.builtinResMgr.get('black-texture').image as ImageAsset;
-                this.uploadData(defaultImg.data as HTMLCanvasElement, level, arrayIndex);
-            }
-            legacyCC.assetManager.postLoadNative(image);
         }
     }
 

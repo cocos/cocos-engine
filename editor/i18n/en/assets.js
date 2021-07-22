@@ -305,5 +305,9 @@ module.exports = {
             modeWarn:
                 "Warning: WebGL 1.0 platform doesn't support 'repeat' filter for non-power-of-two textures(runtime fallback to 'clamp-to-edge'), effectively disabling features like the 'tilingOffset' property in many materials.",
         },
+        material: {
+            'fail-to-load-custom-inspector': 'material: fail to load custom inspector of {effect}',
+            'illegal-inspector-url': "Inspector's URL is not valid",
+        },
     },
 };

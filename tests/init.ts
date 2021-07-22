@@ -18,8 +18,14 @@ jest.mock(
 );
 
 jest.mock(
-    'pal/system',
-    () => jest.requireActual('../pal/system/web/system'),
+    'pal/system-info',
+    () => jest.requireActual('../pal/system-info/web/system-info'),
+    { virtual: true, },
+);
+
+jest.mock(
+    'pal/screen-adapter',
+    () => jest.requireActual('../pal/screen-adapter/web/screen-adapter'),
     { virtual: true, },
 );
 
@@ -38,6 +44,18 @@ jest.mock('../cocos/core/platform/debug', () => {
         result.warnID = jest.fn();
     }
     return result;
+});
+
+jest.mock(
+    'cc',
+    () => jest.requireActual('../exports/base'),
+    { virtual: true, },
+);
+
+jest.mock('serialization-test-helper/run-test', () => {
+    return require('../tests/core/serialization/run-test');
+}, {
+    virtual: true,
 });
 
 import '../exports/base';

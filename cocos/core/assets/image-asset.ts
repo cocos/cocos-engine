@@ -55,9 +55,8 @@ export interface IMemoryImageSource {
  */
 export type ImageSource = HTMLCanvasElement | HTMLImageElement | IMemoryImageSource | ImageBitmap;
 
-function isImageBitmap (imageSource: any): imageSource is ImageBitmap {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-    return legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap;
+function isImageBitmap (imageSource: any): boolean {
+    return !!(legacyCC.sys.capabilities.imageBitmap && imageSource instanceof ImageBitmap);
 }
 
 function fetchImageSource (imageSource: ImageSource) {
@@ -91,6 +90,7 @@ export class ImageAsset extends Asset {
 
     set _nativeAsset (value: ImageSource) {
         if (!(value instanceof HTMLElement) && !isImageBitmap(value)) {
+            // @ts-expect-error internal API usage
             value.format = value.format || this._format;
         }
         this.reset(value);
@@ -165,8 +165,6 @@ export class ImageAsset extends Asset {
     constructor (nativeAsset?: ImageSource) {
         super();
 
-        this.loaded = false;
-
         this._nativeData = {
             _data: null,
             width: 0,
@@ -192,25 +190,13 @@ export class ImageAsset extends Asset {
     public reset (data: ImageSource) {
         if (isImageBitmap(data)) {
             this._nativeData = data;
-            this._onDataComplete();
         } else if (!(data instanceof HTMLElement)) {
             // this._nativeData = Object.create(data);
             this._nativeData = data;
+            // @ts-expect-error internal api usage
             this._format = data.format;
-            this._onDataComplete();
         } else {
             this._nativeData = data;
-            if (MINIGAME || (data as any).complete || data instanceof HTMLCanvasElement) { // todo need adatper
-                this._onDataComplete();
-            } else {
-                this.loaded = false;
-                data.addEventListener('load', () => {
-                    this._onDataComplete();
-                });
-                data.addEventListener('error', (err) => {
-                    warnID(3119, err.message);
-                });
-            }
         }
     }
 
@@ -221,6 +207,7 @@ export class ImageAsset extends Asset {
             // @ts-expect-error JSB element should destroy native data.
             if (JSB) this.data.destroy();
         } else if (isImageBitmap(this.data)) {
+            // @ts-expect-error internal api usage
             this.data.close && this.data.close();
         }
         return super.destroy();
@@ -313,11 +300,6 @@ export class ImageAsset extends Asset {
         }
     }
 
-    public _onDataComplete () {
-        this.loaded = true;
-        this.emit('load');
-    }
-
     private static _sharedPlaceHolderCanvas: HTMLCanvasElement | null = null;
 
     public initDefault (uuid?: string) {
@@ -347,14 +329,4 @@ function _getGlobalDevice (): Device | null {
     }
     return null;
 }
-
-/**
- * @zh
- * 当该资源加载成功后触发该事件。
- * @en
- * This event is emitted when the asset is loaded
- *
- * @event load
- */
-
 legacyCC.ImageAsset = ImageAsset;

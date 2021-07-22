@@ -65,7 +65,7 @@ export class BuiltinSharedBody extends BuiltinObject {
         }
         if (wrappedBody) {
             newSB.wrappedBody = wrappedBody;
-            const g = (wrappedBody.rigidBody as any)._group;
+            const g = wrappedBody.rigidBody.group;
             const m = PhysicsSystem.instance.collisionMatrix[g];
             newSB.collisionFilterGroup = g;
             newSB.collisionFilterMask = m;

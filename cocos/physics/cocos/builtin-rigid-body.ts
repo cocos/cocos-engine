@@ -71,6 +71,8 @@ export class BuiltinRigidBody implements IRigidBody {
     setLinearDamping (v: number) { }
     setAngularDamping (v: number) { }
     useGravity (v: boolean) { }
+    useCCD (v: boolean) { }
+    isUsingCCD () { return false; }
     setLinearFactor (v: IVec3Like) { }
     setAngularFactor (v: IVec3Like) { }
     setAllowSleep (v: boolean) { }

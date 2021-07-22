@@ -206,7 +206,11 @@ export class Label extends Renderable2D {
         return this._string;
     }
     set string (value) {
-        value += '';
+        if (value) {
+            value += '';
+        } else {
+            value = '';
+        }
         if (this._string === value) {
             return;
         }
@@ -690,7 +694,7 @@ export class Label extends Renderable2D {
             this.fontFamily = 'Arial';
         }
 
-        this.updateRenderData(true);
+        this._applyFontTexture();
     }
 
     public onDisable () {
@@ -729,6 +733,9 @@ export class Label extends Renderable2D {
             // Hack: Fixed the bug that richText wants to get the label length by _measureText, _assembler.updateRenderData will update the content size immediately.
             if (this.renderData) this.renderData.vertDirty = true;
             this._applyFontTexture();
+            if (this._assembler) {
+                this._assembler.updateRenderData(this);
+            }
         }
     }
 
@@ -762,7 +769,7 @@ export class Label extends Renderable2D {
         if (font && font instanceof BitmapFont) {
             const spriteFrame = font.spriteFrame;
             // cannot be activated if texture not loaded yet
-            if (!spriteFrame || !spriteFrame.textureLoaded()) {
+            if (!spriteFrame || !spriteFrame.texture) {
                 return false;
             }
         }
@@ -787,23 +794,15 @@ export class Label extends Renderable2D {
     }
 
     protected _applyFontTexture () {
+        this.markForUpdateRenderData();
         const font = this._font;
         if (font instanceof BitmapFont) {
             const spriteFrame = font.spriteFrame;
-            const onBMFontTextureLoaded = () => {
-                // TODO: old texture in material have been released by loader
+            if (spriteFrame && spriteFrame.texture) {
                 this._texture = spriteFrame;
                 this.changeMaterialForDefine();
                 if (this._assembler) {
                     this._assembler.updateRenderData(this);
-                }
-            };
-            // cannot be activated if texture not loaded yet
-            if (spriteFrame) {
-                if (spriteFrame.loaded || spriteFrame.textureLoaded) {
-                    onBMFontTextureLoaded();
-                } else {
-                    spriteFrame.once('load', onBMFontTextureLoaded, this);
                 }
             }
         } else {
@@ -824,7 +823,6 @@ export class Label extends Renderable2D {
                 this._texture = this._ttfSpriteFrame;
             }
             this.changeMaterialForDefine();
-            this._assembler && this._assembler.updateRenderData(this);
         }
     }
 

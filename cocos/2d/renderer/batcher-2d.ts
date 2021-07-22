@@ -43,7 +43,6 @@ import { DrawBatch2D } from './draw-batch';
 import * as VertexFormat from './vertex-format';
 import { legacyCC } from '../../core/global-exports';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
-import { RenderTexture } from '../../core/assets';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
@@ -148,6 +147,7 @@ export class Batcher2D {
     private _currLayer = 0;
     private _currDepthStencilStateStage: any | null = null;
     private _currIsStatic = false;
+    private _currOpacity = 1;
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
 
@@ -340,6 +340,7 @@ export class Batcher2D {
         this._currTransform = null;
         this._currScene = null;
         this._currMeshBuffer = null;
+        this._currOpacity = 1;
         this._meshBufferUseCount.clear();
         this._batches.clear();
         StencilManager.sharedManager!.reset();
@@ -360,7 +361,7 @@ export class Batcher2D {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | RenderTexture | null, assembler: any, transform: Node | null) {
+    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
         const renderComp = comp;
         let texture;
         let samp;
@@ -534,6 +535,7 @@ export class Batcher2D {
 
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
+        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
         if (sys.__isWebIOS14OrIPadOS14Env && !this._currIsStatic) {
             this._currMeshBuffer = null;
         }
@@ -549,7 +551,7 @@ export class Batcher2D {
      * @param material - 当前批次的材质。
      * @param sprite - 当前批次的精灵帧。
      */
-    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | RenderTexture | null, renderComp: Renderable2D) {
+    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: Renderable2D) {
         this._currMaterial = material;
 
         if (frame) {
@@ -603,6 +605,7 @@ export class Batcher2D {
         if (len > 0 && !node._static) {
             const children = node.children;
             for (let i = 0; i < children.length; ++i) {
+                this._currOpacity = node._uiProps.opacity;
                 const child = children[i];
                 this.walk(child, level);
             }
@@ -615,10 +618,8 @@ export class Batcher2D {
 
     private _preProcess (node: Node) {
         const render = node._uiProps.uiComp;
-        if (!render) { // hack for opacity
-            const localAlpha = node._uiProps.localOpacity;
-            node._uiProps.opacity = (node.parent && node.parent._uiProps) ? node.parent._uiProps.opacity * localAlpha : localAlpha;
-        }
+        const localAlpha = node._uiProps.localOpacity;
+        node._uiProps.opacity = this._currOpacity * localAlpha;
         if (!node._uiProps.uiTransformComp) {
             return;
         }

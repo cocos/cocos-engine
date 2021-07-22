@@ -84,7 +84,17 @@ struct ToonSurface {
     float specularMask = step(specularWeight, NH);
     vec3 specular = s.specular.rgb * specularMask;
 
-    vec3 finalColor = lightColor * (diffuse + specular);
+    vec3 dirlightContrib = diffuse + specular;
+
+    float shadow = 1.0;
+    #if CC_RECEIVE_SHADOW
+      if (NL > 0.0) {
+        CC_SHADOW_FACTOR(shadow, N, NL);
+      }
+    #endif
+
+    dirlightContrib *= shadow;
+    vec3 finalColor = lightColor * dirlightContrib;
 
     // TODO: no ambient, no IBL for now
 
@@ -92,10 +102,6 @@ struct ToonSurface {
       s.emissive *= cc_exposure.w;
     #endif
     finalColor += s.emissive;
-
-    #if CC_RECEIVE_SHADOW
-      CC_SHADOW_FACTOR(finalColor, NL, cc_mainLitDir, N);
-    #endif
 
     return vec4(finalColor, s.baseColor.a);
   }

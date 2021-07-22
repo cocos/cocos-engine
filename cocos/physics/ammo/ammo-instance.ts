@@ -28,6 +28,7 @@
  * @hidden
  */
 
+import Ammo from './instantiated';
 import { IAmmoBodyStruct, IAmmoGhostStruct } from './ammo-interface';
 
 export class AmmoInstance {
@@ -41,5 +42,21 @@ export class AmmoInstance {
 
     static get ghostStructs () {
         return this.bodyAndGhosts as { [x: string]: IAmmoGhostStruct };
+    }
+
+    static readonly ptr2WrapObj: {
+        [x: number]: Record<string, unknown>
+    } = {};
+
+    static setWrapper<T extends { impl: Ammo.Type }> (wrap: T) {
+        this.ptr2WrapObj[Ammo.getPointer(wrap.impl)] = wrap;
+    }
+
+    static delWrapper<T extends { impl: Ammo.Type }> (wrap: T) {
+        delete this.ptr2WrapObj[Ammo.getPointer(wrap.impl)];
+    }
+
+    static getWrapperByPtr<T extends { impl: Ammo.Type }> (ptr: number): T {
+        return this.ptr2WrapObj[ptr] as T;
     }
 }

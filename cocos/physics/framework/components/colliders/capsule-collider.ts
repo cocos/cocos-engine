@@ -37,7 +37,6 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
 import { ICapsuleShape } from '../../../spec/i-physics-shape';
 import { EAxisDirection, EColliderType } from '../../physics-enum';
@@ -68,9 +67,9 @@ export class CapsuleCollider extends Collider {
     }
 
     public set radius (value) {
-        if (value < 0) value = 0;
-        this._radius = value;
-        if (!EDITOR && !TEST) {
+        if (this._radius === value) return;
+        this._radius = Math.abs(value);
+        if (this._shape) {
             this.shape.setRadius(value);
         }
     }
@@ -87,9 +86,9 @@ export class CapsuleCollider extends Collider {
     }
 
     public set cylinderHeight (value) {
-        if (value < 0) value = 0;
-        this._cylinderHeight = value;
-        if (!EDITOR && !TEST) {
+        if (this._cylinderHeight === value) return;
+        this._cylinderHeight = Math.abs(value);
+        if (this._shape) {
             this.shape.setCylinderHeight(value);
         }
     }
@@ -109,8 +108,9 @@ export class CapsuleCollider extends Collider {
     public set direction (value: EAxisDirection) {
         value = Math.floor(value);
         if (value < EAxisDirection.X_AXIS || value > EAxisDirection.Z_AXIS) return;
+        if (this._direction === value) return;
         this._direction = value;
-        if (!EDITOR && !TEST) {
+        if (this._shape) {
             this.shape.setDirection(value);
         }
     }

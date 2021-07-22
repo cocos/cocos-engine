@@ -245,6 +245,13 @@ Director.runSceneImmediate: scene is not valid
 ### 1217
 
 Director._initOnEngineInitialized: renderer root initialization failed
+### 1218
+
+Forward render pipeline initialized.
+
+### 1219
+
+Deferred render pipeline initialized. Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.
 
 ### 1300
 
@@ -3037,6 +3044,10 @@ Material already initialized, request aborted.
 ### 12006
 
 Pass already destroyed.
+
+### 12007
+
+This is old usage, please swap the parameters.
 
 ### 12100
 

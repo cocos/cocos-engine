@@ -41,7 +41,7 @@ import { Component, error, Node } from '../../../../core';
 import { IBaseShape } from '../../../spec/i-physics-shape';
 import { AABB, Sphere } from '../../../../core/geometry';
 import { EColliderType, EAxisDirection } from '../../physics-enum';
-import { createShape } from '../../instance';
+import { selector, createShape } from '../../physics-selector';
 
 /**
  * @en
@@ -114,10 +114,10 @@ export class Collider extends Eventify(Component) {
      * 获取或设置此碰撞器的物理材质，共享状态下获取将会生成新的实例。
      */
     public get material () {
-        if (this._isSharedMaterial && this._material != null) {
-            this._material.off('physics_material_update', this._updateMaterial, this);
+        if (this._isSharedMaterial && this._material) {
+            this._material.off(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
             this._material = this._material.clone();
-            this._material.on('physics_material_update', this._updateMaterial, this);
+            this._material.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
             this._isSharedMaterial = false;
         }
         return this._material;
@@ -125,18 +125,18 @@ export class Collider extends Eventify(Component) {
 
     public set material (value) {
         if (this._shape) {
-            if (value != null && this._material != null) {
+            if (value && this._material) {
                 if (this._material.id !== value.id) {
-                    this._material.off('physics_material_update', this._updateMaterial, this);
-                    value.on('physics_material_update', this._updateMaterial, this);
+                    this._material.off(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
+                    value.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
                     this._isSharedMaterial = false;
                     this._material = value;
                 }
-            } else if (value != null && this._material == null) {
-                value.on('physics_material_update', this._updateMaterial, this);
+            } else if (value && !this._material) {
+                value.on(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
                 this._material = value;
-            } else if (value == null && this._material != null) {
-                this._material.off('physics_material_update', this._updateMaterial, this);
+            } else if (!value && this._material) {
+                this._material.off(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
                 this._material = value;
             }
             this._updateMaterial();
@@ -235,9 +235,9 @@ export class Collider extends Eventify(Component) {
     @serializable
     protected readonly _center: Vec3 = new Vec3();
 
-    protected get _assertOnLoadCalled (): boolean {
-        const r = this._isOnLoadCalled === 0;
-        if (r) { error('[Physics]: Please make sure that the node has been added to the scene'); }
+    protected get _isInitialized (): boolean {
+        const r = this._shape === null;
+        if (r) { error('[Physics]: This component has not been call onLoad yet, please make sure the node has been added to the scene.'); }
         return !r;
     }
 
@@ -257,7 +257,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public on<TFunction extends (...any) => void> (type: TriggerEventType | CollisionEventType, callback: TFunction, target?, once?: boolean): any {
+    public on<TFunction extends (...any) => void>(type: TriggerEventType | CollisionEventType, callback: TFunction, target?, once?: boolean): any {
         const ret = super.on(type, callback, target, once);
         this._updateNeedEvent(type);
         return ret;
@@ -286,7 +286,7 @@ export class Collider extends Eventify(Component) {
      * @param callback - The event callback, signature:`(event?:ICollisionEvent|ITriggerEvent)=>void`.
      * @param target - The event callback target.
      */
-    public once<TFunction extends (...any) => void> (type: TriggerEventType | CollisionEventType, callback: TFunction, target?): any {
+    public once<TFunction extends (...any) => void>(type: TriggerEventType | CollisionEventType, callback: TFunction, target?): any {
         // TODO: callback invoker now is a entity, after `once` will not calling the upper `off`.
         const ret = super.once(type, callback, target);
         this._updateNeedEvent(type);
@@ -315,7 +315,7 @@ export class Collider extends Eventify(Component) {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getGroup (): number {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             return this._shape!.getGroup();
         }
         return 0;
@@ -329,7 +329,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setGroup (v: number): void {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.setGroup(v);
         }
     }
@@ -342,7 +342,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addGroup (v: number) {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.addGroup(v);
         }
     }
@@ -355,7 +355,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeGroup (v: number) {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.removeGroup(v);
         }
     }
@@ -368,7 +368,7 @@ export class Collider extends Eventify(Component) {
      * @returns 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public getMask (): number {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             return this._shape!.getMask();
         }
         return 0;
@@ -382,7 +382,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public setMask (v: number) {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.setMask(v);
         }
     }
@@ -395,7 +395,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public addMask (v: number) {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.addMask(v);
         }
     }
@@ -408,7 +408,7 @@ export class Collider extends Eventify(Component) {
      * @param v - 整数，范围为 2 的 0 次方 到 2 的 31 次方
      */
     public removeMask (v: number) {
-        if (this._assertOnLoadCalled) {
+        if (this._isInitialized) {
             this._shape!.removeMask(v);
         }
     }
@@ -416,12 +416,11 @@ export class Collider extends Eventify(Component) {
     /// COMPONENT LIFECYCLE ///
 
     protected onLoad () {
-        if (!EDITOR) {
-            this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
-            this._shape = createShape(this.type);
-            this._shape.initialize(this);
-            this._shape.onLoad!();
-        }
+        if (!selector.runInEditor) return;
+        this.sharedMaterial = this._material == null ? PhysicsSystem.instance.defaultMaterial : this._material;
+        this._shape = createShape(this.type);
+        this._shape.initialize(this);
+        this._shape.onLoad!();
     }
 
     protected onEnable () {
@@ -438,18 +437,14 @@ export class Collider extends Eventify(Component) {
 
     protected onDestroy () {
         if (this._shape) {
-            if (this._material) {
-                this._material.off('physics_material_update', this._updateMaterial, this);
-            }
+            if (this._material) this._material.off(PhysicsMaterial.EVENT_UPDATE, this._updateMaterial, this);
             this._shape.onDestroy!();
         }
         if (this._boundingSphere) this._boundingSphere.destroy();
     }
 
     private _updateMaterial () {
-        if (this._shape) {
-            this._shape.setMaterial(this._material);
-        }
+        if (this._shape) this._shape.setMaterial(this._material);
     }
 
     private _updateNeedEvent (type?: string) {
@@ -463,13 +458,13 @@ export class Collider extends Eventify(Component) {
                 }
             } else {
                 if (!(this.hasEventListener('onTriggerEnter')
-                || this.hasEventListener('onTriggerStay')
-                || this.hasEventListener('onTriggerExit'))) {
+                    || this.hasEventListener('onTriggerStay')
+                    || this.hasEventListener('onTriggerExit'))) {
                     this._needTriggerEvent = false;
                 }
                 if (!(this.hasEventListener('onCollisionEnter')
-                || this.hasEventListener('onCollisionStay')
-                || this.hasEventListener('onCollisionExit'))) {
+                    || this.hasEventListener('onCollisionStay')
+                    || this.hasEventListener('onCollisionExit'))) {
                     this._needCollisionEvent = false;
                 }
             }
