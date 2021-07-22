@@ -199,6 +199,7 @@ id<MTLFunction> CCMTLShader::getSpecializedFragFunction(uint* index, int* val, u
         
         NSError *      error   = nil;
         id<MTLFunction> specFragFunc = [_fragLibrary newFunctionWithName:@"main0" constantValues:constantValues error:&error];
+        [constantValues release];
         if (!specFragFunc) {
             CC_LOG_ERROR("Can not specialize shader: %s", [[error localizedDescription] UTF8String]);
         }
