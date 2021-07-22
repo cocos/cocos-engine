@@ -22,14 +22,3 @@ export const NativeSubModel = ns.SubModel;
 export const NativeRoot = ns.Root;
 export const NativePipelineSharedSceneData = ns.PipelineSharedSceneData;
 export const NativeAABB = ns.AABB;
-
-import { RenderScene } from './render-scene'
-
-RenderScene.prototype.update = function (stamp: number) {
-    const nativeBatches = [];
-    for (let i = 0, len = this._batches.length; i < len; ++i) {
-        nativeBatches.push(this._batches[i].native);
-    }
-    this._nativeObj.updateBatches(nativeBatches);
-    this._nativeObj.update(stamp);
-}
