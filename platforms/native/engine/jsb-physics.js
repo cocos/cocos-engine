@@ -282,7 +282,8 @@ class RigidBody {
     get isSleeping () { return this._impl.isSleeping(); }
     constructor() {
         updateCollisionMatrix();
-        this._impl = new jsbPhy.RigidBody()
+        this._impl = new jsbPhy.RigidBody();
+        this._isUsingCCD = false;
     }
 
     initialize (v) {
@@ -330,6 +331,11 @@ class RigidBody {
     setAngularDamping (v) {        
         const dt = cc.PhysicsSystem.instance.fixedTimeStep;
         this._impl.setAngularDamping((1 - (1 - v) ** dt) / dt);
+    }
+    isUsingCCD () { return this._isUsingCCD; }
+    useCCD (v) { 
+        this._isUsingCCD = v;
+        return this._impl.useCCD(v); 
     }
     useGravity (v) { this._impl.useGravity(v); }
     setLinearFactor (v) { this._impl.setLinearFactor(v.x, v.y, v.z); }
@@ -419,7 +425,7 @@ class Shape {
 
 class SphereShape extends Shape {
     constructor() { super(); this._impl = new jsbPhy.SphereShape(); }
-    setRadius (v) { this._impl.setRadius(v); }
+    updateRadius () { this._impl.setRadius(this.collider.radius); }
     onLoad () {
         super.onLoad();
         this.setRadius(this._com.radius);
@@ -428,7 +434,10 @@ class SphereShape extends Shape {
 
 class BoxShape extends Shape {
     constructor() { super(); this._impl = new jsbPhy.BoxShape(); }
-    setSize (v) { this._impl.setSize(v.x, v.y, v.z); }
+    updateSize () { 
+        const v = this.collider.size;
+        this._impl.setSize(v.x, v.y, v.z); 
+    }
     onLoad () {
         super.onLoad();
         this.setSize(this._com.size);
@@ -625,7 +634,7 @@ class RevoluteJoint extends Joint {
     }
 }
 
-cc.physics.selector.select("physx", {
+cc.physics.selector.register("physx", {
     PhysicsWorld: PhysicsWorld,
     RigidBody: RigidBody,
     SphereShape: SphereShape,
