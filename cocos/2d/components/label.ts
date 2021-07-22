@@ -694,7 +694,7 @@ export class Label extends Renderable2D {
             this.fontFamily = 'Arial';
         }
 
-        this._initRenderData();
+        this._applyFontTexture();
     }
 
     public onDisable () {
@@ -733,13 +733,10 @@ export class Label extends Renderable2D {
             // Hack: Fixed the bug that richText wants to get the label length by _measureText, _assembler.updateRenderData will update the content size immediately.
             if (this.renderData) this.renderData.vertDirty = true;
             this._applyFontTexture();
-            this._applyRenderData();
+            if (this._assembler) {
+                this._assembler.updateRenderData(this);
+            }
         }
-    }
-
-    protected _initRenderData () {
-        this.markForUpdateRenderData();
-        this._applyFontTexture();
     }
 
     protected _render (render: Batcher2D) {
@@ -797,13 +794,16 @@ export class Label extends Renderable2D {
     }
 
     protected _applyFontTexture () {
+        this.markForUpdateRenderData();
         const font = this._font;
         if (font instanceof BitmapFont) {
             const spriteFrame = font.spriteFrame;
             if (spriteFrame && spriteFrame.texture) {
                 this._texture = spriteFrame;
                 this.changeMaterialForDefine();
-                this._applyRenderData();
+                if (this._assembler) {
+                    this._assembler.updateRenderData(this);
+                }
             }
         } else {
             if (this.cacheMode === CacheMode.CHAR) {
@@ -823,12 +823,6 @@ export class Label extends Renderable2D {
                 this._texture = this._ttfSpriteFrame;
             }
             this.changeMaterialForDefine();
-        }
-    }
-
-    protected _applyRenderData () {
-        if (this._assembler) {
-            this._assembler.updateRenderData(this);
         }
     }
 
