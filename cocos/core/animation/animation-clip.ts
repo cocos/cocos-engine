@@ -427,14 +427,14 @@ export class AnimationClip extends Asset {
     }
 
     // #region Legacy area
-    // The following are significantly refactored and deprecated since 3.1.
+    // The following are significantly refactored and deprecated since 3.3.
     // We deprecates the direct exposure of keys, values, events.
     // Instead, we use track to organize them together.
 
     /**
      * @zh 曲线可引用的所有时间轴。
      * @en Frame keys referenced by curves.
-     * @deprecated Since V3.1.
+     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     get keys () {
         return this._getLegacyData().keys;
@@ -448,7 +448,7 @@ export class AnimationClip extends Asset {
     /**
      * @zh 此动画包含的所有曲线。
      * @en Curves this animation contains.
-     * @deprecated Since V3.1.
+     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     get curves () {
         this._legacyDataDirty = true;
@@ -460,7 +460,7 @@ export class AnimationClip extends Asset {
     }
 
     /**
-     * @deprecated Since V3.1.
+     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     get commonTargets () {
         return this._getLegacyData().commonTargets;
@@ -473,7 +473,7 @@ export class AnimationClip extends Asset {
 
     /**
      * 此动画的数据。
-     * @deprecated Since V3.1.
+     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     get data () {
         return this._getLegacyData().data;
@@ -481,7 +481,7 @@ export class AnimationClip extends Asset {
 
     /**
      * @internal
-     * @deprecated Since V3.1.
+     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     public getPropertyCurves () {
         return this._getLegacyData().getPropertyCurves();
@@ -489,7 +489,7 @@ export class AnimationClip extends Asset {
 
     /**
      * @protected
-     * @deprecated Since V3.1.
+     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     get eventGroups (): readonly IAnimationEventGroup[] {
         return this._runtimeEvents.eventGroups;
@@ -502,7 +502,7 @@ export class AnimationClip extends Asset {
      * Commit event data update.
      * You should call this function after you changed the `events` data to take effect.
      * @internal
-     * @deprecated Since V3.1.
+     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     public updateEventDatas () {
         // EMPTY
@@ -521,7 +521,7 @@ export class AnimationClip extends Asset {
      * Migrates legacy data into tracks.
      * @internal This method tend to be used as internal purpose or patch.
      * DO NOT use it in your code since it might be removed for the future at any time.
-     * @deprecated Since V3.1.
+     * @deprecated Since V3.3. Please reference to the track/channel/curve mechanism introduced in V3.3.
      */
     public syncLegacyData () {
         if (this._legacyData) {
