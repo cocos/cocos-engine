@@ -11,7 +11,7 @@ import { DeserializationContext } from '../data/custom-serializable';
  * View to a quaternion frame value.
  * Note, the view may be invalidated due to keyframe change/add/remove.
  */
-@ccclass('cc.QuaternionKeyframeValue')
+@ccclass('cc.QuatKeyframeValue')
 @uniquelyReferenced
 class QuatKeyframeValue {
     /**
