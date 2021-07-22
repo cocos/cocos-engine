@@ -302,11 +302,10 @@ export class PhysicsSystem extends System implements IWorldInitData {
                 if (this._accumulator >= this._fixedTimeStep) {
                     this.physicsWorld.syncSceneToPhysics();
                     this.physicsWorld.step(this._fixedTimeStep);
+                    this.physicsWorld.emitEvents();
+                    this.physicsWorld.syncAfterEvents();
                     this._accumulator -= this._fixedTimeStep;
                     this._subStepCount++;
-                    this.physicsWorld.emitEvents();
-                    // TODO: nesting the dirty flag reset between the syncScenetoPhysics and the simulation to reduce calling syncScenetoPhysics.
-                    this.physicsWorld.syncAfterEvents();
                 } else {
                     this.physicsWorld.syncSceneToPhysics();
                     break;
