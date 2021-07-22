@@ -64,6 +64,8 @@
                     __globalAdapter.updateKeyboard({
                         value: delegate.string,
                     });
+                    // NOTE: need to delay the event registering on Xiaomi platform
+                    // the input event callback is invoked twice when show keyboard.
                     this._registerKeyboardEvent();
                     this._editing = true;
                     _currentEditBoxImpl = this;
