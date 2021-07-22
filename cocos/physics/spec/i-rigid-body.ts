@@ -60,7 +60,7 @@ export interface IRigidBody extends ILifecycle, IGroupMask {
     setSleepThreshold (v: number): void;
     getSleepThreshold (): number;
     useCCD: (v:boolean) => void;
-    isUseCCD: () => boolean;
+    isUsingCCD: () => boolean;
 
     getLinearVelocity (out: IVec3Like): void;
     setLinearVelocity (value: IVec3Like): void;

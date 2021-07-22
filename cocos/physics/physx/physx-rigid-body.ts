@@ -53,7 +53,7 @@ export class PhysXRigidBody implements IRigidBody {
 
     isSleepy = false;
     private _isEnabled = false;
-    private _isUseCCD = false;
+    private _isUsingCCD = false;
     private _rigidBody!: RigidBody;
     private _sharedBody!: PhysXSharedBody;
 
@@ -112,10 +112,10 @@ export class PhysXRigidBody implements IRigidBody {
     useCCD (v: boolean): void {
         if (this.isStatic) return;
         this.impl.setRigidBodyFlag(PX.RigidBodyFlag.eENABLE_CCD, v);
-        this._isUseCCD = v;
+        this._isUsingCCD = v;
     }
 
-    isUseCCD () { return this._isUseCCD; }
+    isUsingCCD () { return this._isUsingCCD; }
 
     setLinearFactor (v: IVec3Like): void {
         if (this.isStatic) return;

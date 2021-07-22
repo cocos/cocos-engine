@@ -107,11 +107,11 @@ export class AmmoRigidBody implements IRigidBody {
     useCCD (value:boolean) {
         this.impl.setCcdMotionThreshold(value ? 0.01 : 0);
         this.impl.setCcdSweptSphereRadius(value ? 0.1 : 0);
-        this._isUseCCD = value;
+        this._isUsingCCD = value;
     }
 
-    isUseCCD () {
-        return this._isUseCCD;
+    isUsingCCD () {
+        return this._isUsingCCD;
     }
 
     setLinearFactor (value: IVec3Like) {
@@ -143,7 +143,7 @@ export class AmmoRigidBody implements IRigidBody {
     readonly id: number;
 
     private _isEnabled = false;
-    private _isUseCCD = false;
+    private _isUsingCCD = false;
     private _sharedBody!: AmmoSharedBody;
     private _rigidBody!: RigidBody;
 

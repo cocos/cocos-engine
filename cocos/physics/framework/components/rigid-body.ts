@@ -277,7 +277,7 @@ export class RigidBody extends Component {
      */
     public get useCCD (): boolean {
         if (this._isInitialized) {
-            return this._body!.isUseCCD();
+            return this._body!.isUsingCCD();
         }
         return false;
     }

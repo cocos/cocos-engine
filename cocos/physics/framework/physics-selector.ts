@@ -294,7 +294,7 @@ const ENTIRE_RIGID_BODY: IRigidBody = {
     getMask: FUNC,
     addMask: FUNC,
     removeMask: FUNC,
-    isUseCCD: FUNC,
+    isUsingCCD: FUNC,
     useCCD: FUNC,
 };
 

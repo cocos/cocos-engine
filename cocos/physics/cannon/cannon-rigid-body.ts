@@ -110,12 +110,11 @@ export class CannonRigidBody implements IRigidBody {
     }
 
     useCCD (value:boolean) {
-        // TODO: typing
-        (this.impl as any).ccdSpeedThreshold = value ? 0.01 : -1;
+        this.impl.ccdSpeedThreshold = value ? 0.01 : -1;
     }
 
-    isUseCCD () {
-        return (this.impl as any).ccdSpeedThreshold !== -1;
+    isUsingCCD () {
+        return this.impl.ccdSpeedThreshold !== -1;
     }
 
     setLinearFactor (value: IVec3Like) {

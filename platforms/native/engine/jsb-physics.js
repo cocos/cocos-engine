@@ -283,7 +283,7 @@ class RigidBody {
     constructor() {
         updateCollisionMatrix();
         this._impl = new jsbPhy.RigidBody();
-        this._isUseCCD = false;
+        this._isUsingCCD = false;
     }
 
     initialize (v) {
@@ -332,9 +332,9 @@ class RigidBody {
         const dt = cc.PhysicsSystem.instance.fixedTimeStep;
         this._impl.setAngularDamping((1 - (1 - v) ** dt) / dt);
     }
-    isUseCCD () { return this._isUseCCD; }
+    isUsingCCD () { return this._isUsingCCD; }
     useCCD (v) { 
-        this._isUseCCD = v;
+        this._isUsingCCD = v;
         return this._impl.useCCD(v); 
     }
     useGravity (v) { this._impl.useGravity(v); }
