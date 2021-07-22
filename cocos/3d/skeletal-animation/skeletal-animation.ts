@@ -145,7 +145,7 @@ export class SkeletalAnimation extends Animation {
         for (let i = 0; i < comps.length; ++i) {
             const comp = comps[i];
             if (comp.skinningRoot === this.node) {
-                comp.setUseBakedAnimation(this._useBakedAnimation);
+                comp.setUseBakedAnimation(this._useBakedAnimation, true);
             }
         }
         if (this._useBakedAnimation) {
