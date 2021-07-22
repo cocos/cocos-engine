@@ -31,7 +31,7 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { Asset } from '../assets/asset';
 import { SpriteFrame } from '../../2d/assets/sprite-frame';
-import { error, errorID, warn } from '../platform/debug';
+import { error, errorID, getError, warn, warnID } from '../platform/debug';
 import { DataPoolManager } from '../../3d/skeletal-animation/data-pool-manager';
 import { binarySearchEpsilon } from '../algorithm/binary-search';
 import { murmurhash2_32_gc } from '../utils/murmurhash2_gc';
@@ -347,7 +347,7 @@ export class AnimationClip extends Asset {
                 const parentJointName = joint.substring(0, parentJoint);
                 const parentJointFrame = skeletonFrames[parentJointName];
                 if (!parentJointFrame) {
-                    warn(`Seems like we have animation for ${joint} but are missing its parent joint ${parentJointName} in animation?`);
+                    warnID(3922, joint, parentJointName);
                 } else {
                     skeletonFrame.parent = parentJointFrame;
                 }
@@ -614,19 +614,19 @@ export class AnimationClip extends Asset {
         rootMotionTrackExcludes: Track[],
     ) {
         if (!(target instanceof Node)) {
-            error(`Current context does not allow root motion.`);
+            errorID(3920);
             return undefined;
         }
 
         const rootBonePath = this._searchForRootBonePath();
         if (!rootBonePath) {
-            warn(`Root motion is ignored since root bone could not be located in animation.`);
+            warnID(3923);
             return undefined;
         }
 
         const rootBone = target.getChildByPath(rootBonePath);
         if (!rootBone) {
-            warn(`Root motion is ignored since the root bone could not be located in scene.`);
+            warnID(3924);
             return undefined;
         }
 

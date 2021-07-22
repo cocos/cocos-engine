@@ -34,7 +34,7 @@ export class SizeTrack extends Track {
     private _channels: [RealChannel, RealChannel];
 }
 
-class SizeTrackEval {
+export class SizeTrackEval {
     constructor (
         private _width: RealCurve | undefined,
         private _height: RealCurve | undefined,

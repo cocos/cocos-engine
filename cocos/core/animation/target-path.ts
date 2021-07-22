@@ -30,7 +30,7 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { Node } from '../scene-graph/node';
-import { warn } from '../platform/debug';
+import { warn, warnID } from '../platform/debug';
 
 export type PropertyPath = string | number;
 
@@ -63,12 +63,12 @@ export class HierarchyPath implements ICustomTargetPath {
 
     public get (target: Node) {
         if (!(target instanceof Node)) {
-            warn(`Target of hierarchy path should be of type Node.`);
+            warnID(3925);
             return null;
         }
         const result = target.getChildByPath(this.path);
         if (!result) {
-            warn(`Node "${target.name}" has no path "${this.path}"`);
+            warnID(3926, target.name, this.path);
             return null;
         }
         return result;
@@ -86,12 +86,12 @@ export class ComponentPath implements ICustomTargetPath {
 
     public get (target: Node) {
         if (!(target instanceof Node)) {
-            warn(`Target of component path should be of type Node.`);
+            warnID(3927);
             return null;
         }
         const result = target.getComponent(this.component);
         if (!result) {
-            warn(`Node "${target.name}" has no component "${this.component}"`);
+            warnID(3928, target.name, this.component);
             return null;
         }
         return result;

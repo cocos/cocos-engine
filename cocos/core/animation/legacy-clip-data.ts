@@ -9,7 +9,7 @@ import { QuatInterpolationMode, RealCurve, RealInterpolationMode, RealKeyframeVa
 import { assertIsTrue } from '../data/utils/asserts';
 import { Track, TrackPath } from './tracks/track';
 import { UntypedTrack } from './tracks/untyped-track';
-import { warn } from '../platform';
+import { warn, warnID } from '../platform';
 import { RealTrack } from './tracks/real-track';
 import { Color, lerp, Quat, Size, Vec2, Vec3, Vec4 } from '../math';
 import { CubicSplineNumberValue, CubicSplineQuatValue, CubicSplineVec2Value, CubicSplineVec3Value, CubicSplineVec4Value } from './cubic-spline-value';
@@ -236,12 +236,12 @@ export class AnimationClipLegacyData {
             if (typeof legacyCurve.commonTarget === 'number') {
                 // Rule: common targets should only target Vectors/`Size`/`Color`.
                 if (!legacyValues.every((value) => typeof value === 'number')) {
-                    warn(`Incorrect curve.`);
+                    warnID(3932);
                     continue;
                 }
                 // Rule: Each curve that has common target should be numeric curve and targets string property.
                 if (legacyCurve.valueAdapter || legacyCurve.modifiers.length !== 1 || typeof legacyCurve.modifiers[0] !== 'string') {
-                    warn(`Incorrect curve.`);
+                    warnID(3933);
                     continue;
                 }
                 const propertyName = legacyCurve.modifiers[0];
@@ -253,7 +253,7 @@ export class AnimationClipLegacyData {
             const convertCurve = () => {
                 if (typeof firstValue === 'number') {
                     if (!legacyValues.every((value) => typeof value === 'number')) {
-                        warn(`Misconfigured curve.`);
+                        warnID(3934);
                         return;
                     }
                     let realCurve: RealCurve;
@@ -406,7 +406,7 @@ export class AnimationClipLegacyData {
                         return;
                     }
                     case legacyValues.every((value) => value instanceof CubicSplineQuatValue): {
-                        warn(`We don't currently support conversion of \`CubicSplineQuatValue\`.`);
+                        warnID(3935);
                         break;
                     }
                     } // End switch

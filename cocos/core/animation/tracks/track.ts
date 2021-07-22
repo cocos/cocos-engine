@@ -2,7 +2,7 @@ import { ccclass, serializable, uniquelyReferenced } from 'cc.decorator';
 import type { Component } from '../../components';
 import type { ObjectCurve, QuatCurve, RealCurve } from '../../curves';
 import { assertIsTrue } from '../../data/utils/asserts';
-import { error, warn } from '../../platform';
+import { error, errorID, warn, warnID } from '../../platform';
 import { Node } from '../../scene-graph';
 import { js } from '../../utils/js';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
@@ -278,7 +278,7 @@ class TrackPath {
             const path = paths[iPath];
             if (isPropertyPath(path)) {
                 if (!(path in (result as any))) {
-                    warn(`Target object has no property "${path}"`);
+                    warnID(3929, path);
                     return null;
                 } else {
                     if (poseOutput && iPath === endIndex - 1 && result instanceof Node && isTrsPropertyName(path)) {
@@ -346,10 +346,7 @@ export class TrackBinding {
                 },
             };
         } else if (!proxy) {
-            error(
-                `You provided a ill-formed track path.`
-                + `The last component of track path should be property key, or the setter should not be empty.`,
-            );
+            errorID(3921);
             return null;
         } else {
             const resultTarget = path[normalizedFollowTag](target, 0, nPaths, poseOutput, isConstant);

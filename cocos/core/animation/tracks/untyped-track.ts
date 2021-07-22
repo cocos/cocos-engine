@@ -1,9 +1,11 @@
 import { ccclass, serializable } from 'cc.decorator';
 import { RealCurve } from '../../curves';
 import { Color, Size, Vec2, Vec3, Vec4 } from '../../math';
+import { getError } from '../../platform';
 import { CLASS_NAME_PREFIX_ANIM, createEvalSymbol } from '../define';
 import { IValueProxyFactory } from '../value-proxy';
 import { ColorTrack, ColorTrackEval } from './color-track';
+import { SizeTrackEval } from './size-track';
 import { Channel, RealChannel, RuntimeBinding, Track, TrackPath } from './track';
 import { Vec2TrackEval, Vec3TrackEval, Vec4TrackEval, VectorTrack } from './vector-track';
 
@@ -28,14 +30,13 @@ export class UntypedTrack extends Track {
 
     public [createEvalSymbol] (runtimeBinding: RuntimeBinding) {
         if (!runtimeBinding.getValue) {
-            throw new Error(`Can not decide type for untyped track: runtime binding does not provide a getter.`);
+            throw new Error(getError(3930));
         }
         const trySearchCurve = (property: string) => this._channels.find((channel) => channel.property === property)?.curve;
         const value = runtimeBinding.getValue();
         switch (true) {
-        case value instanceof Size:
         default:
-            throw new Error(`Can not decide type for untyped track: got a unsupported value from runtime binding.`);
+            throw new Error(getError(3931));
         case value instanceof Vec2:
             return new Vec2TrackEval(
                 trySearchCurve('x'),
@@ -61,6 +62,11 @@ export class UntypedTrack extends Track {
                 trySearchCurve('g'),
                 trySearchCurve('b'),
                 trySearchCurve('a'),
+            );
+        case value instanceof Size:
+            return new SizeTrackEval(
+                trySearchCurve('width'),
+                trySearchCurve('height'),
             );
         }
     }
