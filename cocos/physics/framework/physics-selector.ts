@@ -92,7 +92,7 @@ interface IPhysicsSelector {
 
     /**
      * @en
-     *
+     * An instance of the physical world through which you can access the lowlevel objects.
      * @zh
      * 物理世界实例，通过它可以访问到底层对象。
      */
