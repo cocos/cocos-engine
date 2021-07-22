@@ -156,7 +156,7 @@ void CCVKCommandBuffer::beginRenderPass(RenderPass *renderPass, Framebuffer *fbo
     passBeginInfo.framebuffer     = framebuffer;
     passBeginInfo.clearValueCount = utils::toUint(clearValues.size());
     passBeginInfo.pClearValues    = clearValues.data();
-    passBeginInfo.renderArea      = {{0, 0}, {device->getWidth(), device->getHeight()}};
+    passBeginInfo.renderArea      = {{renderArea.x, renderArea.y}, {renderArea.width, renderArea.height}};
     vkCmdBeginRenderPass(_gpuCommandBuffer->vkCommandBuffer, &passBeginInfo,
                          secondaryCBCount ? VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS : VK_SUBPASS_CONTENTS_INLINE);
 

@@ -334,7 +334,7 @@ void LightingStage::render(scene::Camera *camera) {
     cmdBuff->bindDescriptorSet(static_cast<uint>(SetIndex::LOCAL), _descriptorSet, dynamicOffsets);
 
     // draw quad
-    gfx::Rect renderArea = pipeline->getRenderArea(camera);
+    gfx::Rect renderArea = pipeline->getRenderArea(camera, false);
 
     gfx::Color clearColor = {0.0, 0.0, 0.0, 1.0};
     if (camera->clearFlag & static_cast<uint>(gfx::ClearFlagBit::COLOR)) {

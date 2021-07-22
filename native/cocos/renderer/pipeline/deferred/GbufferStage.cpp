@@ -111,15 +111,15 @@ void GbufferStage::render(scene::Camera *camera) {
     uint   passIdx     = 0;
     size_t k           = 0;
     for (auto ro : renderObjects) {
-        const auto *const model = ro.model;
-        const auto& subModels = model->getSubModels();
-        auto subModelCount = subModels.size();
+        const auto *const model         = ro.model;
+        const auto &      subModels     = model->getSubModels();
+        auto              subModelCount = subModels.size();
         for (subModelIdx = 0; subModelIdx < subModelCount; ++subModelIdx) {
-            const auto& subModel = subModels[subModelIdx];
-            const auto& passes = subModel->getPasses();
-            auto passCount = passes.size();
+            const auto &subModel  = subModels[subModelIdx];
+            const auto &passes    = subModel->getPasses();
+            auto        passCount = passes.size();
             for (passIdx = 0; passIdx < passCount; ++passIdx) {
-                const auto& pass          = passes[passIdx];
+                const auto &pass = passes[passIdx];
                 if (pass->getPhase() != _phaseID) continue;
                 if (pass->getBatchingScheme() == scene::BatchingSchemes::INSTANCING) {
                     auto *instancedBuffer = InstancedBuffer::get(pass);
@@ -147,7 +147,7 @@ void GbufferStage::render(scene::Camera *camera) {
     _batchedQueue->uploadBuffers(cmdBuff);
 
     // render area is not oriented
-    _renderArea = pipeline->getRenderArea(camera);
+    _renderArea = pipeline->getRenderArea(camera, false);
     pipeline->updateQuadVertexData(_renderArea);
     auto *const deferredData = pipeline->getDeferredRenderData();
     auto *      framebuffer  = deferredData->gbufferFrameBuffer;

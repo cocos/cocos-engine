@@ -219,11 +219,18 @@ bool DeferredPipeline::createQuadInputAssembler(gfx::Buffer **quadIB, gfx::Buffe
     return (*quadIA) != nullptr;
 }
 
-gfx::Rect DeferredPipeline::getRenderArea(scene::Camera *camera) {
+gfx::Rect DeferredPipeline::getRenderArea(scene::Camera *camera, bool onScreen) {
     gfx::Rect renderArea;
 
-    uint w = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
-    uint h = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
+    uint w;
+    uint h;
+    if (onScreen) {
+        w = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->height : camera->width;
+        h = camera->window->hasOnScreenAttachments && static_cast<uint>(_device->getSurfaceTransform()) % 2 ? camera->width : camera->height;
+    } else {
+        w = camera->width;
+        h = camera->height;
+    }
 
     const auto &viewport = camera->viewPort;
     renderArea.x         = static_cast<int>(viewport.x * w);
