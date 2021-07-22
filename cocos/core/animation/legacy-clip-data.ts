@@ -267,7 +267,7 @@ export class AnimationClipLegacyData {
                     }
                     const interpolationMethod = interpolate ? RealInterpolationMode.LINEAR : RealInterpolationMode.CONSTANT;
                     realCurve.assignSorted(times, (legacyValues as number[]).map(
-                        (value) => new RealKeyframeValue({ value, interpolationMode: interpolationMethod }),
+                        (value) => ({ value, interpolationMode: interpolationMethod }),
                     ));
                     legacyEasingMethodConverter.convert(realCurve);
                     return;
@@ -287,7 +287,7 @@ export class AnimationClipLegacyData {
                         track.componentsCount = components;
                         const [{ curve: x }, { curve: y }, { curve: z }, { curve: w }] = track.channels();
                         const interpolationMode = interpolate ? RealInterpolationMode.LINEAR : RealInterpolationMode.CONSTANT;
-                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpolationMode });
+                        const valueToFrame = (value: number): Partial<RealKeyframeValue> => ({ value, interpolationMode });
                         switch (components) {
                         case 4:
                             w.assignSorted(times, (legacyValues as Vec4plus).map((value) => valueToFrame(value.w)));
@@ -324,7 +324,7 @@ export class AnimationClipLegacyData {
                         installPathAndSetter(track);
                         const [{ curve: r }, { curve: g }, { curve: b }, { curve: a }] = track.channels();
                         const interpolationMode = interpolate ? RealInterpolationMode.LINEAR : RealInterpolationMode.CONSTANT;
-                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpolationMode });
+                        const valueToFrame = (value: number): Partial<RealKeyframeValue> => ({ value, interpolationMode });
                         r.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.r)));
                         legacyEasingMethodConverter.convert(r);
                         g.assignSorted(times, (legacyValues as Color[]).map((value) => valueToFrame(value.g)));
@@ -341,7 +341,7 @@ export class AnimationClipLegacyData {
                         installPathAndSetter(track);
                         const [{ curve: width }, { curve: height }] = track.channels();
                         const interpolationMode = interpolate ? RealInterpolationMode.LINEAR : RealInterpolationMode.CONSTANT;
-                        const valueToFrame = (value: number): RealKeyframeValue => new RealKeyframeValue({ value, interpolationMode });
+                        const valueToFrame = (value: number): Partial<RealKeyframeValue> => ({ value, interpolationMode });
                         width.assignSorted(times, (legacyValues as Size[]).map((value) => valueToFrame(value.width)));
                         legacyEasingMethodConverter.convert(width);
                         height.assignSorted(times, (legacyValues as Size[]).map((value) => valueToFrame(value.height)));
@@ -354,7 +354,7 @@ export class AnimationClipLegacyData {
                         const track = new RealTrack();
                         installPathAndSetter(track);
                         const interpolationMode = interpolate ? RealInterpolationMode.CUBIC : RealInterpolationMode.CONSTANT;
-                        track.channel.curve.assignSorted(times, (legacyValues as CubicSplineNumberValue[]).map((value) => new RealKeyframeValue({
+                        track.channel.curve.assignSorted(times, (legacyValues as CubicSplineNumberValue[]).map((value) => ({
                             value: value.dataPoint,
                             leftTangent: value.inTangent,
                             rightTangent: value.outTangent,
@@ -376,7 +376,7 @@ export class AnimationClipLegacyData {
                         track.componentsCount = components;
                         const [x, y, z, w] = track.channels();
                         const interpolationMode = interpolate ? RealInterpolationMode.LINEAR : RealInterpolationMode.CONSTANT;
-                        const valueToFrame = (value: number, inTangent: number, outTangent: number): RealKeyframeValue => new RealKeyframeValue({
+                        const valueToFrame = (value: number, inTangent: number, outTangent: number): Partial<RealKeyframeValue> => ({
                             value,
                             leftTangent: inTangent,
                             rightTangent: outTangent,

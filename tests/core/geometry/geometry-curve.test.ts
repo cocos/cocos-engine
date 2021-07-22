@@ -27,19 +27,19 @@ describe('geometry.AnimationCurve', () => {
             const realCurve = new RealCurve();
             realCurve.assignSorted([
                 // Non weighted tangent
-                [0.1, new RealKeyframeValue({
+                [0.1, ({
                     interpolationMode: RealInterpolationMode.CUBIC,
                     value: 0.1,
                     leftTangent: 0.2,
                     rightTangent: 0.3,
                 })],
                 // Non cubic keyframe
-                [0.2, new RealKeyframeValue({
+                [0.2, ({
                     interpolationMode: RealInterpolationMode.LINEAR,
                     value: 0.1,
                 })],
                 // Weighted tangent
-                [0.3, new RealKeyframeValue({
+                [0.3, ({
                     interpolationMode: RealInterpolationMode.CUBIC,
                     value: 0.1,
                     leftTangent: 0.2,
@@ -146,19 +146,19 @@ describe('geometry.AnimationCurve', () => {
 
         curve._internalCurve.assignSorted([
             // Non weighted tangent
-            [0.1, new RealKeyframeValue({
+            [0.1, ({
                 interpolationMode: RealInterpolationMode.CUBIC,
                 value: 0.1,
                 leftTangent: 0.2,
                 rightTangent: 0.3,
             })],
             // Non cubic keyframe
-            [0.2, new RealKeyframeValue({
+            [0.2, ({
                 interpolationMode: RealInterpolationMode.LINEAR,
                 value: 0.1,
             })],
             // Weighted tangent
-            [0.3, new RealKeyframeValue({
+            [0.3, ({
                 interpolationMode: RealInterpolationMode.CUBIC,
                 value: 0.1,
                 leftTangent: 0.2,

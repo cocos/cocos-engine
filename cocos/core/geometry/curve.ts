@@ -148,12 +148,12 @@ export class AnimationCurve {
     set keyFrames (value) {
         this._curve.assignSorted(value.map((legacyCurve) => [
             legacyCurve.time,
-            new RealKeyframeValue({
+            {
                 interpolationMode: RealInterpolationMode.CUBIC,
                 value: legacyCurve.value,
                 leftTangent: legacyCurve.inTangent,
                 rightTangent: legacyCurve.outTangent,
-            }),
+            },
         ]));
     }
 
@@ -201,16 +201,16 @@ export class AnimationCurve {
             curve.postExtrapolation = ExtrapolationMode.CLAMP;
             if (!keyFrames) {
                 curve.assignSorted([
-                    [0.0, new RealKeyframeValue({ interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 })],
-                    [1.0, new RealKeyframeValue({ interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 })],
+                    [0.0, { interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 }],
+                    [1.0, { interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 }],
                 ]);
             } else {
-                curve.assignSorted(keyFrames.map((legacyKeyframe) => [legacyKeyframe.time, new RealKeyframeValue({
+                curve.assignSorted(keyFrames.map((legacyKeyframe) => [legacyKeyframe.time, {
                     interpolationMode: RealInterpolationMode.CUBIC,
                     value: legacyKeyframe.value,
                     leftTangent: legacyKeyframe.inTangent,
                     rightTangent: legacyKeyframe.outTangent,
-                })]));
+                }]));
             }
         }
         this.cachedKey = new OptimizedKey();
@@ -227,12 +227,12 @@ export class AnimationCurve {
         if (!keyFrame) {
             this._curve.clear();
         } else {
-            this._curve.addKeyFrame(keyFrame.time, new RealKeyframeValue({
+            this._curve.addKeyFrame(keyFrame.time, {
                 interpolationMode: RealInterpolationMode.CUBIC,
                 value: keyFrame.value,
                 leftTangent: keyFrame.inTangent,
                 rightTangent: keyFrame.outTangent,
-            }));
+            });
         }
     }
 
@@ -376,8 +376,8 @@ function toLegacyWrapMode (extrapolationMode: ExtrapolationMode): WrapModeMask {
 export function constructLegacyCurveAndConvert () {
     const curve = new RealCurve();
     curve.assignSorted([
-        [0.0, new RealKeyframeValue({ interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 })],
-        [1.0, new RealKeyframeValue({ interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 })],
+        [0.0, { interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 }],
+        [1.0, { interpolationMode: RealInterpolationMode.CUBIC, value: 1.0 }],
     ]);
     return curve;
 }

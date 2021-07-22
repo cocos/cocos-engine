@@ -7,6 +7,7 @@ import { ComponentPath, HierarchyPath, ICustomTargetPath, TargetPath } from "../
 import { RealChannel } from "../../cocos/core/animation/tracks/track";
 import { UntypedTrack } from "../../cocos/core/animation/tracks/untyped-track";
 import { EasingMethod, ExtrapolationMode, RealCurve, RealKeyframeValue, TangentWeightMode } from "../../cocos/core/curves/curve";
+import { createMultipleRealKeyframesWithoutTangent, createRealKeyframeValueLike } from "../curves/curve-test-utils";
 
 class ValueProxyFactorFoo implements IValueProxyFactory {
     forTarget(_target: any): animation.IValueProxy {
@@ -236,7 +237,7 @@ describe('Animation Clip Migration 3.x', () => {
                     const valuesAtChannel = valueType === Number
                         ? values as number[]
                         : values.map((value) => (value as Record<string, number>)[getComponentNameOfChannel(iChannel)]);
-                    expect(Array.from(curve.values())).toStrictEqual(valuesAtChannel.map((value) => new RealKeyframeValue({
+                    expect(Array.from(curve.values())).toStrictEqual(valuesAtChannel.map((value) => createRealKeyframeValueLike({
                         value,
                         interpolationMode,
                     })));
@@ -265,11 +266,11 @@ describe('Animation Clip Migration 3.x', () => {
             const [{ curve: width }, { curve: height }] = track.channels();
             expect(Array.from(width.times())).toStrictEqual([0.0, 0.2, 0.8]);
             expect(Array.from(width.values())).toStrictEqual(
-                createRealKeyframesWithoutTangent([10.8, 20, 30], RealInterpolationMode.LINEAR),
+                createMultipleRealKeyframesWithoutTangent([10.8, 20, 30], RealInterpolationMode.LINEAR),
             );
             expect(Array.from(height.times())).toStrictEqual([0.0, 0.2, 0.8]);
             expect(Array.from(height.values())).toStrictEqual(
-                createRealKeyframesWithoutTangent([-1.3, 50, 60], RealInterpolationMode.LINEAR),
+                createMultipleRealKeyframesWithoutTangent([-1.3, 50, 60], RealInterpolationMode.LINEAR),
             );
         });
     
@@ -333,8 +334,8 @@ describe('Animation Clip Migration 3.x', () => {
         expect(track1.path.isPropertyAt(0)).toBe(true);
         expect(track1.path.parsePropertyAt(0)).toBe('p1');
         expect(track1.channels()).toHaveLength(2);
-        expect(Array.from(track1.channels()[0].curve.keyframes())).toStrictEqual([[1.2, new RealKeyframeValue({ value: 0.1 })]]);
-        expect(Array.from(track1.channels()[1].curve.keyframes())).toStrictEqual([[1.2, new RealKeyframeValue({ value: 0.2 })]]);
+        expect(Array.from(track1.channels()[0].curve.keyframes())).toStrictEqual([[1.2, createRealKeyframeValueLike({ value: 0.1 })]]);
+        expect(Array.from(track1.channels()[1].curve.keyframes())).toStrictEqual([[1.2, createRealKeyframeValueLike({ value: 0.2 })]]);
 
         expect(track2).toBeInstanceOf(UntypedTrack);
         expect(track2.path.length).toBe(1);
@@ -342,7 +343,7 @@ describe('Animation Clip Migration 3.x', () => {
         expect(track2.path.parsePropertyAt(0)).toBe('p2');
         expect(track2.proxy).toBe(valueProxy);
         expect(track2.channels()).toHaveLength(1);
-        expect(Array.from(track2.channels()[0].curve.keyframes())).toStrictEqual([[1.2, new RealKeyframeValue({ value: 0.3 })]]);
+        expect(Array.from(track2.channels()[0].curve.keyframes())).toStrictEqual([[1.2, createRealKeyframeValueLike({ value: 0.3 })]]);
     });
 
     describe(`Easing methods`, () => {
@@ -381,7 +382,7 @@ describe('Animation Clip Migration 3.x', () => {
                 true,
             );
             expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.5]);
-            expect(Array.from(curve.values())).toStrictEqual(createRealKeyframesWithoutTangent([1, 3, 5], RealInterpolationMode.LINEAR));
+            expect(Array.from(curve.values())).toStrictEqual(createMultipleRealKeyframesWithoutTangent([1, 3, 5], RealInterpolationMode.LINEAR));
         });
 
         describe(`Specified through ".easingMethod"`, () => {
@@ -394,7 +395,7 @@ describe('Animation Clip Migration 3.x', () => {
                     true,
                 );
                 expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.8]);
-                expect(Array.from(curve.values())).toStrictEqual(createRealKeyframesWithoutTangent([1, 3, 5], RealInterpolationMode.LINEAR));
+                expect(Array.from(curve.values())).toStrictEqual(createMultipleRealKeyframesWithoutTangent([1, 3, 5], RealInterpolationMode.LINEAR));
             });
     
             test(`Time bezier`, () => {
@@ -406,13 +407,13 @@ describe('Animation Clip Migration 3.x', () => {
                     true,
                 );
                 expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.8]);
-                expect(Array.from(curve.values())).toStrictEqual([new RealKeyframeValue({
+                expect(Array.from(curve.values())).toStrictEqual([createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.RIGHT,
                     value: 1,
                     rightTangent: 14.999999999999998,
                     rightTangentWeight: 0.6013318551349163,
-                }), new RealKeyframeValue({
+                }), createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.BOTH,
                     value: 3,
@@ -420,7 +421,7 @@ describe('Animation Clip Migration 3.x', () => {
                     leftTangentWeight: 1.0071742649611337,
                     rightTangent: 5.999999999999998,
                     rightTangentWeight: 0.6082762530298218,
-                }), new RealKeyframeValue({
+                }), createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.LINEAR,
                     value: 5,
                     tangentWeightMode: TangentWeightMode.LEFT,
@@ -438,13 +439,13 @@ describe('Animation Clip Migration 3.x', () => {
                     true,
                 );
                 expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.8]);
-                expect(Array.from(curve.values())).toStrictEqual([new RealKeyframeValue({
+                expect(Array.from(curve.values())).toStrictEqual([createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.CONSTANT,
                     value: 1,
-                }), new RealKeyframeValue({
+                }), createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.CONSTANT,
                     value: 3,
-                }), new RealKeyframeValue({
+                }), createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.LINEAR, // Last frame never converted
                     value: 5,
                 })]);
@@ -459,13 +460,13 @@ describe('Animation Clip Migration 3.x', () => {
                     true,
                 );
                 expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.8]);
-                expect(Array.from(curve.values())).toStrictEqual([new RealKeyframeValue({
+                expect(Array.from(curve.values())).toStrictEqual([createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.LINEAR,
                     value: 1,
-                }), new RealKeyframeValue({
+                }), createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.LINEAR,
                     value: 3,
-                }), new RealKeyframeValue({
+                }), createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.LINEAR,
                     value: 5,
                 })]);
@@ -480,15 +481,15 @@ describe('Animation Clip Migration 3.x', () => {
                     true,
                 );
                 expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.8]);
-                expect(Array.from(curve.values())).toStrictEqual([new RealKeyframeValue({
+                expect(Array.from(curve.values())).toStrictEqual([createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.LINEAR,
                     value: 1,
                     easingMethod: EasingMethod.CUBIC_IN_OUT,
-                }), new RealKeyframeValue({
+                }), createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.LINEAR,
                     value: 3,
                     easingMethod: EasingMethod.CUBIC_IN_OUT,
-                }), new RealKeyframeValue({
+                }), createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.LINEAR, // Last frame never converted
                     value: 5,
                 })]);
@@ -510,16 +511,16 @@ describe('Animation Clip Migration 3.x', () => {
                     true,
                 );
                 expect(Array.from(curve.times())).toStrictEqual([0.1, 0.3, 0.5]);
-                expect(Array.from(curve.values())).toStrictEqual([new RealKeyframeValue({
+                expect(Array.from(curve.values())).toStrictEqual([createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.LINEAR,
                     value: 1,
-                }), new RealKeyframeValue({
+                }), createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.CUBIC,
                     tangentWeightMode: TangentWeightMode.RIGHT,
                     value: 3,
                     rightTangent: 14.999999999999996,
                     rightTangentWeight: 0.6013318551349163,
-                }), new RealKeyframeValue({
+                }), createRealKeyframeValueLike({
                     interpolationMode: RealInterpolationMode.LINEAR,
                     value: 5,
                     tangentWeightMode: TangentWeightMode.LEFT,
@@ -554,10 +555,10 @@ describe('Animation Clip Migration 3.x', () => {
         function testTimeBezierCurveConversion (testCase: TimeBezierTestCase) {
             const curve = new RealCurve();
             curve.assignSorted([
-                [testCase.t0, new RealKeyframeValue({
+                [testCase.t0, ({
                     value: testCase.v0,
                 })],
-                [testCase.t1, new RealKeyframeValue({
+                [testCase.t1, ({
                     value: testCase.v1,
                 })],
             ]);
@@ -601,13 +602,4 @@ function createClipWithLegacyData ({
     }
     clip.syncLegacyData();
     return clip;
-}
-
-function createRealKeyframesWithoutTangent (values: number[], interpolationMode: RealInterpolationMode): RealKeyframeValue[] {
-    return values.map((value) => {
-        return new RealKeyframeValue({
-            value,
-            interpolationMode,
-        });
-    });
 }

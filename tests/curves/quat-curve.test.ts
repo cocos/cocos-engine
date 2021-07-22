@@ -1,5 +1,5 @@
 
-import { Quat, QuatCurve, QuatInterpolationMode, QuatKeyframeValue } from '../../cocos/core';
+import { Quat, QuatCurve, QuatInterpolationMode } from '../../cocos/core';
 import { serializeAndDeserialize } from './serialize-and-deserialize-curve';
 
 describe('Curve', () => {
@@ -12,9 +12,9 @@ describe('Curve', () => {
         test('Normal', () => {
             const curve = new QuatCurve();
             curve.assignSorted([0.1, 0.2, 0.3], [
-                new QuatKeyframeValue({ value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpolationMode: QuatInterpolationMode.CONSTANT }),
-                new QuatKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.SLERP }),
-                new QuatKeyframeValue({ value: { x: 0.9, y: 0.1, z: 0.11, w: 0.12 }, interpolationMode: QuatInterpolationMode.CONSTANT }),
+                { value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpolationMode: QuatInterpolationMode.CONSTANT },
+                { value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.SLERP },
+                { value: { x: 0.9, y: 0.1, z: 0.11, w: 0.12 }, interpolationMode: QuatInterpolationMode.CONSTANT },
             ]);
             compareCurves(serializeAndDeserialize(curve, QuatCurve), curve);
         });
@@ -22,8 +22,8 @@ describe('Curve', () => {
         test('Optimized for linear curve', () => {
             const curve = new QuatCurve();
             curve.assignSorted([0.1, 0.2], [
-                new QuatKeyframeValue({ value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpolationMode: QuatInterpolationMode.SLERP }),
-                new QuatKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.SLERP }),
+                { value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpolationMode: QuatInterpolationMode.SLERP },
+                { value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.SLERP },
             ]);
             compareCurves(serializeAndDeserialize(curve, QuatCurve), curve);
         });
@@ -31,15 +31,16 @@ describe('Curve', () => {
         test('Optimized for constant curve', () => {
             const curve = new QuatCurve();
             curve.assignSorted([0.1, 0.2], [
-                new QuatKeyframeValue({ value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpolationMode: QuatInterpolationMode.CONSTANT }),
-                new QuatKeyframeValue({ value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.CONSTANT }),
+                { value: { x: 0.1, y: 0.2, z: 0.3, w: 0.4 }, interpolationMode: QuatInterpolationMode.CONSTANT },
+                { value: { x: 0.5, y: -0.6, z: 0.7, w: 0.8 }, interpolationMode: QuatInterpolationMode.CONSTANT },
             ]);
             compareCurves(serializeAndDeserialize(curve, QuatCurve), curve);
         });
     });
 
     test('Default keyframe value', () => {
-        const keyframeValue = new QuatKeyframeValue({});
+        const curve = new QuatCurve();
+        const keyframeValue = curve.getKeyframeValue(curve.addKeyFrame(0.0, {}));
         expect(Quat.equals(keyframeValue.value, Quat.IDENTITY)).toBe(true);
         expect(keyframeValue.interpolationMode).toBe(QuatInterpolationMode.SLERP);
     });

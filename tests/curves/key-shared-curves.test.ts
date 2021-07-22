@@ -1,14 +1,14 @@
 
-import { ExtrapolationMode, RealCurve, RealInterpolationMode, RealKeyframeValue } from '../../cocos/core/curves/curve';
+import { ExtrapolationMode, RealCurve, RealInterpolationMode } from '../../cocos/core/curves/curve';
 import { KeySharedQuatCurves, KeySharedRealCurves } from '../../cocos/core/curves/keys-shared-curves';
-import { QuatCurve, QuatInterpolationMode, QuatKeyframeValue } from '../../cocos/core/curves/quat-curve';
+import { QuatCurve, QuatInterpolationMode } from '../../cocos/core/curves/quat-curve';
 import { Quat } from '../../cocos/core/math';
 
 describe('Keys shared real curves', () => {
     test('Enabling', () => {
         {
             const curve = new RealCurve();
-            curve.assignSorted([[0.1, new RealKeyframeValue({
+            curve.assignSorted([[0.1, ({
                 value: 0.1,
             })]]);
             expect(KeySharedRealCurves.allowedForCurve(curve)).toBe(true);
@@ -16,7 +16,7 @@ describe('Keys shared real curves', () => {
 
         {
             const curve = new RealCurve();
-            curve.assignSorted([[0.1, new RealKeyframeValue({
+            curve.assignSorted([[0.1, ({
                 value: 0.1,
             })]]);
             curve.postExtrapolation = ExtrapolationMode.LOOP;
@@ -25,7 +25,7 @@ describe('Keys shared real curves', () => {
 
         {
             const curve = new RealCurve();
-            curve.assignSorted([[0.1, new RealKeyframeValue({
+            curve.assignSorted([[0.1, ({
                 value: 0.1,
             })]]);
             curve.preExtrapolation = ExtrapolationMode.LOOP;
@@ -34,7 +34,7 @@ describe('Keys shared real curves', () => {
 
         {
             const curve = new RealCurve();
-            curve.assignSorted([[0.1, new RealKeyframeValue({
+            curve.assignSorted([[0.1, ({
                 value: 0.1,
                 interpolationMode: RealInterpolationMode.CUBIC,
             })]]);
@@ -46,11 +46,11 @@ describe('Keys shared real curves', () => {
         const curves1 = new KeySharedRealCurves([0.1, 0.7, 0.8]);
 
         const curveMatched = new RealCurve();
-        curveMatched.assignSorted([0.1, 0.7, 0.8], Array.from({ length: 3 }, () => new RealKeyframeValue({ value: 0.1 })));
+        curveMatched.assignSorted([0.1, 0.7, 0.8], Array.from({ length: 3 }, () => ({ value: 0.1 })));
         expect(curves1.matchCurve(curveMatched)).toBe(true);
 
         const curveNonMatched = new RealCurve();
-        curveNonMatched.assignSorted([0.1, 0.3, 0.8], Array.from({ length: 3 }, () => new RealKeyframeValue({ value: 0.1 })));
+        curveNonMatched.assignSorted([0.1, 0.3, 0.8], Array.from({ length: 3 }, () => ({ value: 0.1 })));
         expect(curves1.matchCurve(curveNonMatched)).toBe(false);
     });
 
@@ -58,17 +58,17 @@ describe('Keys shared real curves', () => {
         const curves1 = new KeySharedRealCurves([0.1, 0.2, 0.3]);
 
         const curveMatched = new RealCurve();
-        curveMatched.assignSorted([0.1, 0.2, 0.3], Array.from({ length: 3 }, () => new RealKeyframeValue({ value: 0.1 })));
+        curveMatched.assignSorted([0.1, 0.2, 0.3], Array.from({ length: 3 }, () => ({ value: 0.1 })));
         expect(curves1.matchCurve(curveMatched)).toBe(true);
 
         const curveNonMatched = new RealCurve();
-        curveNonMatched.assignSorted([0.2, 0.3, 0.4], Array.from({ length: 3 }, () => new RealKeyframeValue({ value: 0.1 })));
+        curveNonMatched.assignSorted([0.2, 0.3, 0.4], Array.from({ length: 3 }, () => ({ value: 0.1 })));
         expect(curves1.matchCurve(curveNonMatched)).toBe(false);
     });
 
     test('Evaluate', () => {
         const curve = new RealCurve();
-        curve.assignSorted([0.1, 0.7, 0.8], Array.from({ length: 3 }, (_, index) => new RealKeyframeValue({ value: index + 1 })));
+        curve.assignSorted([0.1, 0.7, 0.8], Array.from({ length: 3 }, (_, index) => ({ value: index + 1 })));
 
         const curves = new KeySharedRealCurves(Array.from(curve.times()));
         curves.addCurve(curve);
@@ -93,7 +93,7 @@ describe('Keys shared real curves', () => {
 
     test('Evaluate optimized keys', () => {
         const curve = new RealCurve();
-        curve.assignSorted([0.1, 0.2, 0.3], Array.from({ length: 3 }, (_, index) => new RealKeyframeValue({ value: index + 1 })));
+        curve.assignSorted([0.1, 0.2, 0.3], Array.from({ length: 3 }, (_, index) => ({ value: index + 1 })));
 
         const curves = new KeySharedRealCurves(Array.from(curve.times()));
         curves.addCurve(curve);
@@ -121,37 +121,37 @@ describe('Keys shared quaternion curves', () => {
     test('Enabling', () => {
         {
             const curve = new QuatCurve();
-            curve.assignSorted([[0.1, new QuatKeyframeValue({
+            curve.assignSorted([[0.1, {
                 interpolationMode: QuatInterpolationMode.SLERP,
                 value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 },
-            })]]);
+            }]]);
             expect(KeySharedQuatCurves.allowedForCurve(curve)).toBe(true);
         }
 
         {
             const curve = new QuatCurve();
-            curve.assignSorted([[0.1, new QuatKeyframeValue({
+            curve.assignSorted([[0.1, {
                 value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 },
-            })]]);
+            }]]);
             curve.postExtrapolation = ExtrapolationMode.LOOP;
             expect(KeySharedQuatCurves.allowedForCurve(curve)).toBe(false);
         }
 
         {
             const curve = new QuatCurve();
-            curve.assignSorted([[0.1, new QuatKeyframeValue({
+            curve.assignSorted([[0.1, {
                 value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 },
-            })]]);
+            }]]);
             curve.preExtrapolation = ExtrapolationMode.LOOP;
             expect(KeySharedQuatCurves.allowedForCurve(curve)).toBe(false);
         }
 
         {
             const curve = new QuatCurve();
-            curve.assignSorted([[0.1, new QuatKeyframeValue({
+            curve.assignSorted([[0.1, {
                 value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 },
                 interpolationMode: QuatInterpolationMode.CONSTANT,
-            })]]);
+            }]]);
             expect(KeySharedQuatCurves.allowedForCurve(curve)).toBe(false);
         }
     });
@@ -161,12 +161,12 @@ describe('Keys shared quaternion curves', () => {
 
         const curveMatched = new QuatCurve();
         curveMatched.assignSorted([0.1, 0.7, 0.8], Array.from({ length: 3 }, () =>
-            new QuatKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
+            ({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
         expect(curves1.matchCurve(curveMatched)).toBe(true);
 
         const curveNonMatched = new QuatCurve();
         curveNonMatched.assignSorted([0.1, 0.3, 0.8], Array.from({ length: 3 }, () =>
-            new QuatKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
+            ({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
         expect(curves1.matchCurve(curveNonMatched)).toBe(false);
     });
 
@@ -175,12 +175,12 @@ describe('Keys shared quaternion curves', () => {
 
         const curveMatched = new QuatCurve();
         curveMatched.assignSorted([0.1, 0.2, 0.3], Array.from({ length: 3 }, () =>
-            new QuatKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
+            ({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
         expect(curves1.matchCurve(curveMatched)).toBe(true);
 
         const curveNonMatched = new QuatCurve();
         curveNonMatched.assignSorted([0.2, 0.3, 0.4], Array.from({ length: 3 }, () =>
-            new QuatKeyframeValue({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
+            ({ value: { x: -0.542, y: -0.688, z: 0.199, w: -0.439 } })));
         expect(curves1.matchCurve(curveNonMatched)).toBe(false);
     });
 
@@ -193,7 +193,7 @@ describe('Keys shared quaternion curves', () => {
     test('Evaluate', () => {
         const curve = new QuatCurve();
         curve.assignSorted([0.1, 0.7, 0.8], Array.from({ length: 3 }, (_, index) =>
-            new QuatKeyframeValue({ value: Quat.clone(quaternions[index]) })));
+            ({ value: Quat.clone(quaternions[index]) })));
 
         const curves = new KeySharedQuatCurves(Array.from(curve.times()));
         curves.addCurve(curve);
@@ -219,7 +219,7 @@ describe('Keys shared quaternion curves', () => {
     test('Evaluate optimized keys', () => {
         const curve = new QuatCurve();
         curve.assignSorted([0.1, 0.2, 0.3], Array.from({ length: 3 }, (_, index) =>
-            new QuatKeyframeValue({ value: Quat.clone(quaternions[index]) })));
+            ({ value: Quat.clone(quaternions[index]) })));
 
         const curves = new KeySharedQuatCurves(Array.from(curve.times()));
         curves.addCurve(curve);

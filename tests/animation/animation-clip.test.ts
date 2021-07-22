@@ -147,7 +147,7 @@ describe('Custom track setter', () => {
         const track = new VectorTrack();
         track.proxy = valueProxyWithGetSet;
         track.channels().forEach(({ curve }) => {
-            curve.assignSorted([[0.0, new RealKeyframeValue({ value: 0.0 })]]);
+            curve.assignSorted([[0.0, ({ value: 0.0 })]]);
         });
 
         const clip = new AnimationClip();

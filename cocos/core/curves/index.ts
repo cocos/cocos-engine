@@ -1,15 +1,21 @@
 export {
     RealCurve,
-    RealKeyframeValue,
     RealInterpolationMode,
     ExtrapolationMode,
     TangentWeightMode,
 } from './curve';
 
+export type {
+    RealKeyframeValue,
+} from './curve';
+
 export {
     QuatCurve,
-    QuatKeyframeValue,
     QuatInterpolationMode,
+} from './quat-curve';
+
+export type {
+    QuatKeyframeValue,
 } from './quat-curve';
 
 export {

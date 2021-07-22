@@ -59,9 +59,13 @@ export enum EasingMethod {
     FADE,
 }
 
+/**
+ * View to a real frame value.
+ * Note, the view may be invalidated due to keyframe change/add/remove.
+ */
 @ccclass('cc.RealKeyframeValue')
 @uniquelyReferenced
-export class RealKeyframeValue {
+class RealKeyframeValue {
     constructor ({
         interpolationMode,
         tangentWeightMode,
@@ -137,6 +141,23 @@ export class RealKeyframeValue {
      */
     @serializable
     public easingMethod = EasingMethod.LINEAR;
+}
+
+export type { RealKeyframeValue };
+
+/**
+ * The parameter describing a real keyframe value.
+ * In the case of partial keyframe value,
+ * each component of the keyframe value is taken from the parameter.
+ * For unspecified components, default values are taken:
+ * - Interpolation mode: linear
+ * - Tangent weight mode: none
+ * - Value/Tangents/Tangent weights: 0.0
+ */
+type RealKeyframeValueParameters = number | Partial<RealKeyframeValue>;
+
+function createRealKeyframeValue (params: RealKeyframeValueParameters) {
+    return new RealKeyframeValue(typeof params === 'number' ? { value: params } : params);
 }
 
 /**
@@ -245,9 +266,40 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
      * @param value Value of the keyframe.
      * @returns The index to the new keyframe.
      */
-    public addKeyFrame (time: number, value: number | RealKeyframeValue): number {
-        const keyframeValue = typeof value === 'number' ? new RealKeyframeValue({ value }) : value;
-        return super.addKeyFrame(time, keyframeValue);
+    public addKeyFrame (time: number, value: RealKeyframeValueParameters): number {
+        return super.addKeyFrame(time, createRealKeyframeValue(value));
+    }
+
+    /**
+     * Assigns all keyframes.
+     * @param keyframes An iterable to keyframes. The keyframes should be sorted by their time.
+     */
+    public assignSorted (keyframes: Iterable<[number, RealKeyframeValueParameters]>): void;
+
+    /**
+      * Assigns all keyframes.
+      * @param times Times array. Should be sorted.
+      * @param values Values array. Corresponding to each time in `times`.
+      */
+    public assignSorted (times: readonly number[], values: RealKeyframeValueParameters[]): void;
+
+    public assignSorted (
+        times: Iterable<[number, RealKeyframeValueParameters]> | readonly number[],
+        values?: readonly RealKeyframeValueParameters[],
+    ) {
+        if (values !== undefined) {
+            assertIsTrue(Array.isArray(times));
+            this.setKeyframes(
+                times.slice(),
+                values.map((value) => createRealKeyframeValue(value)),
+            );
+        } else {
+            const keyframes = Array.from(times as Iterable<[number, Partial<RealKeyframeValue>]>);
+            this.setKeyframes(
+                keyframes.map(([time]) => time),
+                keyframes.map(([, value]) => createRealKeyframeValue(value)),
+            );
+        }
     }
 
     /**
@@ -331,7 +383,7 @@ export class RealCurve extends EditorExtendableMixin<KeyframeCurve<RealKeyframeV
         // Frame values
         const keyframeValues = new Array<RealKeyframeValue>(nKeyframes);
         for (let iKeyFrame = 0; iKeyFrame < nKeyframes; ++iKeyFrame) {
-            const keyframeValue = new RealKeyframeValue({});
+            const keyframeValue = createRealKeyframeValue({});
             currentOffset = loadRealKeyFrameValue(dataView, keyframeValue, currentOffset);
             keyframeValues[iKeyFrame] = keyframeValue;
         }
@@ -375,7 +427,7 @@ const {
     leftTangentWeight: DEFAULT_LEFT_TANGENT_WEIGHT,
     rightTangent: DEFAULT_RIGHT_TANGENT,
     rightTangentWeight: DEFAULT_RIGHT_TANGENT_WEIGHT,
-} = new RealKeyframeValue({});
+} = createRealKeyframeValue({});
 
 const REAL_KEY_FRAME_VALUE_MAX_SIZE = KEY_FRAME_VALUE_FLAGS_BYTES
     + VALUE_BYTES

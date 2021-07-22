@@ -144,16 +144,17 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
     public assignSorted (times: Iterable<[number, TKeyframeValue]> | readonly number[], values?: readonly TKeyframeValue[]) {
         if (values !== undefined) {
             assertIsTrue(Array.isArray(times));
-            assertIsTrue(times.length === values.length);
-            this._times = times.slice();
-            this._values = values.map((value) => value);
+            this.setKeyframes(
+                times.slice(),
+                values.slice(),
+            );
         } else {
             const keyframes = Array.from(times as Iterable<[number, TKeyframeValue]>);
-            this._times = keyframes.map(([time]) => time);
-            this._values = keyframes.map(([, value]) => value);
+            this.setKeyframes(
+                keyframes.map(([time]) => time),
+                keyframes.map(([, value]) => value),
+            );
         }
-
-        assertIsTrue(isSorted(this._times));
     }
 
     /**
@@ -166,6 +167,13 @@ export class KeyframeCurve<TKeyframeValue> implements CurveBase, Iterable<KeyFra
 
     protected searchKeyframe (time: number) {
         return binarySearchEpsilon(this._times, time);
+    }
+
+    protected setKeyframes (times: number[], values: TKeyframeValue[]) {
+        assertIsTrue(times.length === values.length);
+        assertIsTrue(isSorted(times));
+        this._times = times;
+        this._values = values;
     }
 
     private _insertNewKeyframe (time: number, value: TKeyframeValue) {

@@ -7,9 +7,13 @@ import { ccclass, serializable, uniquelyReferenced } from '../data/decorators';
 import { deserializeTag, SerializationContext, SerializationInput, SerializationOutput, serializeTag } from '../data';
 import { DeserializationContext } from '../data/custom-serializable';
 
+/**
+ * View to a quaternion frame value.
+ * Note, the view may be invalidated due to keyframe change/add/remove.
+ */
 @ccclass('cc.QuaternionKeyframeValue')
 @uniquelyReferenced
-export class QuatKeyframeValue {
+class QuatKeyframeValue {
     /**
      * Interpolation method used for this keyframe.
      */
@@ -30,6 +34,22 @@ export class QuatKeyframeValue {
         this.value = value ? Quat.clone(value) : this.value;
         this.interpolationMode = interpolationMode ?? this.interpolationMode;
     }
+}
+
+export type { QuatKeyframeValue };
+
+/**
+ * The parameter describing a real keyframe value.
+ * In the case of partial keyframe value,
+ * each component of the keyframe value is taken from the parameter.
+ * For unspecified components, default values are taken:
+ * - Interpolation mode: slerp
+ * - Value: Identity quaternion
+ */
+type QuatKeyframeValueParameters = Partial<QuatKeyframeValue>;
+
+function createQuatKeyframeValue (params: QuatKeyframeValueParameters) {
+    return new QuatKeyframeValue(params);
 }
 
 /**
@@ -161,10 +181,41 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
      * @param value Value of the keyframe.
      * @returns The index to the new keyframe.
      */
-    public addKeyFrame (time: number, value: IQuatLike | QuatKeyframeValue): number {
-        const keyframeValue = value instanceof QuatKeyframeValue
-            ? value : new QuatKeyframeValue({ value });
+    public addKeyFrame (time: number, value: QuatKeyframeValueParameters): number {
+        const keyframeValue = new QuatKeyframeValue(value);
         return super.addKeyFrame(time, keyframeValue);
+    }
+
+    /**
+     * Assigns all keyframes.
+     * @param keyframes An iterable to keyframes. The keyframes should be sorted by their time.
+     */
+    public assignSorted (keyframes: Iterable<[number, QuatKeyframeValueParameters]>): void;
+
+    /**
+       * Assigns all keyframes.
+       * @param times Times array. Should be sorted.
+       * @param values Values array. Corresponding to each time in `times`.
+       */
+    public assignSorted (times: readonly number[], values: QuatKeyframeValueParameters[]): void;
+
+    public assignSorted (
+        times: Iterable<[number, QuatKeyframeValueParameters]> | readonly number[],
+        values?: readonly QuatKeyframeValueParameters[],
+    ) {
+        if (values !== undefined) {
+            assertIsTrue(Array.isArray(times));
+            this.setKeyframes(
+                times.slice(),
+                values.map((value) => createQuatKeyframeValue(value)),
+            );
+        } else {
+            const keyframes = Array.from(times as Iterable<[number, QuatKeyframeValueParameters]>);
+            this.setKeyframes(
+                keyframes.map(([time]) => time),
+                keyframes.map(([, value]) => createQuatKeyframeValue(value)),
+            );
+        }
     }
 
     public [serializeTag] (output: SerializationOutput, context: SerializationContext) {
@@ -270,7 +321,7 @@ export class QuatCurve extends KeyframeCurve<QuatKeyframeValue> {
                 const y = dataView.getFloat32(pQuat + VALUE_BYTES * 1, true);
                 const z = dataView.getFloat32(pQuat + VALUE_BYTES * 2, true);
                 const w = dataView.getFloat32(pQuat + VALUE_BYTES * 3, true);
-                const keyframeValue = new QuatKeyframeValue({
+                const keyframeValue = createQuatKeyframeValue({
                     value: { x, y, z, w },
                     interpolationMode: dataView.getUint8(pInterpolationModes),
                 });

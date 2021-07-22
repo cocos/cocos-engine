@@ -73,9 +73,9 @@ describe('Animation Clip', () => {
                 rootBoneTranslationTrack.path = new TrackPath().hierarchy(rootJointName).property('position');
                 const [x, _y, _z] = rootBoneTranslationTrack.channels();
                 x.curve.assignSorted([
-                    [0.4, new RealKeyframeValue({ value: 0.4 })],
-                    [0.6, new RealKeyframeValue({ value: 0.6 })],
-                    [0.8, new RealKeyframeValue({ value: 0.8 })],
+                    [0.4, ({ value: 0.4 })],
+                    [0.6, ({ value: 0.6 })],
+                    [0.8, ({ value: 0.8 })],
                 ]);
             }
 
