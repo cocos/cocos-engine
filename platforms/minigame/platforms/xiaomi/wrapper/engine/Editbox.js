@@ -58,11 +58,17 @@
             }
             this._ensureKeyboardHide(() => {
                 let delegate = this._delegate;
-                this._showKeyboard();
-                this._registerKeyboardEvent();
-                this._editing = true;
-                _currentEditBoxImpl = this;
-                delegate._editBoxEditingDidBegan();
+                this._showKeyboard(() => {
+                    // NOTE: pass defaultValue when showKeyboard is invalid on Xiaomi platform
+                    // need to manually update the value
+                    __globalAdapter.updateKeyboard({
+                        value: delegate.string,
+                    });
+                    this._registerKeyboardEvent();
+                    this._editing = true;
+                    _currentEditBoxImpl = this;
+                    delegate._editBoxEditingDidBegan();
+                });
             });
         },
 
@@ -139,7 +145,7 @@
             }, KEYBOARD_HIDE_TIME);
         },
 
-        _showKeyboard () {
+        _showKeyboard (successCB) {
             let delegate = this._delegate;
             let multiline = (delegate.inputMode === EditBoxComp.InputMode.ANY);
             __globalAdapter.showKeyboard({
@@ -149,7 +155,7 @@
                 confirmHold: false,
                 confirmType: getKeyboardReturnType(delegate.returnType),
                 success (res) {
-
+                    successCB && successCB();
                 },
                 fail (res) {
                     cc.warn(res.errMsg);
