@@ -225,48 +225,8 @@ function visitNode (node: any) {
     }
 }
 
-// if (EDITOR) {
-//     const animationState = {
-//         previewing: false,
-//         time: 0,
-//         animatedSinceLastFrame: false,
-//     };
-// }
-
+// This function will be called on AFTER_SCENE_LAUNCH and AFTER_UPDATE
 function refreshScene () {
-    // check animation editor
-    // if (EDITOR && !Editor.isBuilder) {
-    // var AnimUtils = Editor.require('scene://utils/animation');
-    // var EditMode = Editor.require('scene://edit-mode');
-    // if (AnimUtils && EditMode) {
-    //     var nowPreviewing = (EditMode.curMode().name === 'animation' && !!AnimUtils.Cache.animation);
-    //     if (nowPreviewing !== animationState.previewing) {
-    //         animationState.previewing = nowPreviewing;
-    //         if (nowPreviewing) {
-    //             animationState.animatedSinceLastFrame = true;
-    //             let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
-    //             if (component) {
-    //                 let animation = component.getAnimationState(AnimUtils.Cache.animation);
-    //                 animationState.time = animation.time;
-    //             }
-    //         }
-    //         else {
-    //             animationState.animatedSinceLastFrame = false;
-    //         }
-    //     }
-    //     else if (nowPreviewing) {
-    //         let component = cc.engine.getInstanceById(AnimUtils.Cache.component);
-    //         if (component) {
-    //             let animation = component.getAnimationState(AnimUtils.Cache.animation);
-    //             if (animationState.time !== animation.time) {
-    //                 animationState.animatedSinceLastFrame = true;
-    //                 animationState.time = AnimUtils.Cache.animation.time;
-    //             }
-    //         }
-    //     }
-    // }
-    // }
-
     const scene = director.getScene();
     if (scene) {
         widgetManager.isAligning = true;
@@ -278,31 +238,6 @@ function refreshScene () {
         const i = 0;
         let widget: Widget | null = null;
         const iterator = widgetManager._activeWidgetsIterator;
-        // var AnimUtils;
-        // if (EDITOR &&
-        //     (AnimUtils = Editor.require('scene://utils/animation')) &&
-        //     AnimUtils.Cache.animation) {
-        //     var editingNode = cc.engine.getInstanceById(AnimUtils.Cache.rNode);
-        //     if (editingNode) {
-        //         for (i = activeWidgets.length - 1; i >= 0; i--) {
-        //             widget = activeWidgets[i];
-        //             var node = widget.node;
-        //             if (widget.alignMode !== AlignMode.ALWAYS &&
-        //                 animationState.animatedSinceLastFrame &&
-        //                 node.isChildOf(editingNode)
-        //             ) {
-        //                 // widget contains in activeWidgets should aligned at least once
-        //                 widget.enabled = false;
-        //             }
-        //             else {
-        //                 align(node, widget);
-        //             }
-        //         }
-        //     }
-        // }
-        // else {
-        // loop reversely will not help to prevent out of sync
-        // because user may remove more than one item during a step.
         for (iterator.i = 0; iterator.i < activeWidgets.length; ++iterator.i) {
             widget = activeWidgets[iterator.i];
             if (widget._dirty) {
@@ -310,7 +245,6 @@ function refreshScene () {
                 widget._dirty = false;
             }
         }
-        // }
         widgetManager.isAligning = false;
     }
 
@@ -348,6 +282,7 @@ export const widgetManager = legacyCC._widgetManager = {
     } : null,
 
     init () {
+        director.on(Director.EVENT_AFTER_SCENE_LAUNCH, refreshScene);
         director.on(Director.EVENT_AFTER_UPDATE, refreshScene);
 
         View.instance.on('design-resolution-changed', this.onResized, this);
@@ -467,9 +402,6 @@ export const widgetManager = legacyCC._widgetManager = {
     updateAlignment,
     AlignMode,
     AlignFlags,
-    initScene () {
-        refreshScene();
-    },
 };
 
 director.on(Director.EVENT_INIT, () => {

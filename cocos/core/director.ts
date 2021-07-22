@@ -453,9 +453,6 @@ export class Director extends EventTarget {
             this._root.resetCumulativeTime();
         }
         this.startAnimation();
-        if (legacyCC._widgetManager) {
-            legacyCC._widgetManager.initScene();
-        }
         if (onLaunched) {
             onLaunched(null, scene);
         }
