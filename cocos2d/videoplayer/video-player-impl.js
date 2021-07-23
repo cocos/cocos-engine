@@ -40,7 +40,7 @@ let _mat4_temp = cc.mat4();
 let VideoPlayerImpl = cc.Class({
     name: 'VideoPlayerImpl',
 
-    ctor (staticDomID) {
+    ctor () {
         // 播放结束等事件处理的队列
         this._EventList = {};
 
@@ -62,7 +62,7 @@ let VideoPlayerImpl = cc.Class({
         this._forceUpdate = false;
 
         // use static video
-        this._staticDomID = staticDomID;
+        this._staticDomID = '';
 
         // update matrix cache
         this._m00 = 0;
@@ -75,6 +75,10 @@ let VideoPlayerImpl = cc.Class({
         this._h = 0;
         //
         this.__eventListeners = {};
+    },
+
+    setStaticDomID(id) {
+      this._staticDomID = id;
     },
 
     _bindEvent () {

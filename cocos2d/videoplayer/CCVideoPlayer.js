@@ -327,12 +327,7 @@ let VideoPlayer = cc.Class({
     },
 
     ctor () {
-        if (!staticDomLocker && !CC_EDITOR) {
-            staticDomLocker = this;
-            this._impl = new VideoPlayerImpl(VideoPlayer.staticDomId);
-        } else {
-            this._impl = new VideoPlayerImpl();
-        }
+        this._impl = new VideoPlayerImpl();
         this._currentStatus = EventType.NONE;
     },
 
@@ -359,6 +354,10 @@ let VideoPlayer = cc.Class({
     onLoad () {
         let impl = this._impl;
         if (impl) {
+            if (!staticDomLocker && !CC_EDITOR) {
+                staticDomLocker = this;
+                impl.setStaticDomID && impl.setStaticDomID(VideoPlayer.staticDomId);
+            }
             impl.createDomElementIfNeeded(this._mute || this._volume === 0);
             impl.setStayOnBottom(this._stayOnBottom);
             this._updateVideoSource();
