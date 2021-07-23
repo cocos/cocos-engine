@@ -76,6 +76,7 @@ SE_DECLARE_FUNC(js_physics_RigidBody_setMass);
 SE_DECLARE_FUNC(js_physics_RigidBody_setSleepThreshold);
 SE_DECLARE_FUNC(js_physics_RigidBody_setType);
 SE_DECLARE_FUNC(js_physics_RigidBody_sleep);
+SE_DECLARE_FUNC(js_physics_RigidBody_useCCD);
 SE_DECLARE_FUNC(js_physics_RigidBody_useGravity);
 SE_DECLARE_FUNC(js_physics_RigidBody_wakeUp);
 SE_DECLARE_FUNC(js_physics_RigidBody_RigidBody);
