@@ -296,7 +296,7 @@ export class Asset extends Eventify(GCObject) {
     }
 
     public destroy () {
-        warn(getError(12101, this._uuid));
+        debug(getError(12101, this._uuid));
         return super.destroy();
     }
 }
