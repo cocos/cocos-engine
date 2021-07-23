@@ -32,7 +32,7 @@ import { SphereLight } from './sphere-light';
 import { SpotLight } from './spot-light';
 import { TransformBit } from '../../scene-graph/node-enum';
 import { DrawBatch2D } from '../../../2d/renderer/draw-batch';
-import { NativeRenderScene } from './native-scene';
+import { NativeDrawBatch2D, NativeRenderScene } from './native-scene';
 
 export interface IRenderSceneInfo {
     name: string;
@@ -114,6 +114,15 @@ export class RenderScene {
     }
 
     public update (stamp: number) {
+        if (JSB) {
+            const nativeBatches: NativeDrawBatch2D[]  = [];
+            for (let i = 0, len = this._batches.length; i < len; ++i) {
+                nativeBatches.push(this._batches[i].native);
+            }
+            this._nativeObj!.updateBatches(nativeBatches);
+            this._nativeObj!.update(stamp);
+            return;
+        }
         const mainLight = this._mainLight;
         if (mainLight) {
             mainLight.update();

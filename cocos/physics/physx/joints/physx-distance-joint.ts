@@ -31,7 +31,7 @@
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { PointToPointConstraint } from '../../framework';
 import { IPointToPointConstraint } from '../../spec/i-physics-constraint';
-import { PX, _trans, getTempTransform, _pxtrans } from '../export-physx';
+import { PX, _trans, getTempTransform, _pxtrans } from '../physx-adapter';
 import { PhysXJoint } from './physx-joint';
 
 export class PhysXDistanceJoint extends PhysXJoint implements IPointToPointConstraint {

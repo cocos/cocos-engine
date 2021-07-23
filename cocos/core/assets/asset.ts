@@ -34,10 +34,11 @@ import { EDITOR, PREVIEW } from 'internal:constants';
 import { property } from '../data/decorators/property';
 import { getUrlWithUuid } from '../asset-manager/helper';
 import { Eventify } from '../event';
-import { CCObject } from '../data/object';
+import { GCObject } from '../data/gc-object';
 import { Node } from '../scene-graph';
 import { legacyCC } from '../global-exports';
 import { extname } from '../utils/path';
+import { debug, getError, warn } from '../platform/debug';
 
 /**
  * @en
@@ -61,7 +62,7 @@ import { extname } from '../utils/path';
  * @extends CCObject
  */
 @ccclass('cc.Asset')
-export class Asset extends Eventify(CCObject) {
+export class Asset extends Eventify(GCObject) {
     /**
      * 应 AssetDB 要求提供这个方法。
      * @method deserialize
@@ -131,7 +132,7 @@ export class Asset extends Eventify(CCObject) {
     /**
      * @en
      * The underlying native asset of this asset if one is available.<br>
-     * This property can be used to access additional details or functionality releated to the asset.<br>
+     * This property can be used to access additional details or functionality related to the asset.<br>
      * This property will be initialized by the loader if `_native` is available.
      * @zh
      * 此资源的基础资源（如果有）。 此属性可用于访问与资源相关的其他详细信息或功能。<br>
@@ -148,7 +149,7 @@ export class Asset extends Eventify(CCObject) {
         this._file = obj;
     }
 
-    constructor (...args: ConstructorParameters<typeof CCObject>) {
+    constructor (...args: ConstructorParameters<typeof GCObject>) {
         super(...args);
 
         Object.defineProperty(this, '_uuid', {
@@ -223,7 +224,7 @@ export class Asset extends Eventify(CCObject) {
     /**
      * @en
      * Create a new node using this asset in the scene.<br/>
-     * If this type of asset dont have its corresponding node type, this method should be null.
+     * If this type of asset don't have its corresponding node type, this method should be null.
      * @zh
      * 使用该资源在场景中创建一个新节点。<br/>
      * 如果这类资源没有相应的节点类型，该方法应该是空的。
@@ -292,6 +293,11 @@ export class Asset extends Eventify(CCObject) {
 
     public validate (): boolean {
         return true;
+    }
+
+    public destroy () {
+        debug(getError(12101, this._uuid));
+        return super.destroy();
     }
 }
 

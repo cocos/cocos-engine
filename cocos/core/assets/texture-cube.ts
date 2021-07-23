@@ -76,6 +76,9 @@ enum FaceIndex {
 export class TextureCube extends SimpleTexture {
     public static FaceIndex = FaceIndex;
 
+    @serializable
+    isRGBE = false;
+
     /**
      * @en All levels of mipmap images, be noted, automatically generated mipmaps are not included.
      * When setup mipmap, the size of the texture and pixel format could be modified.
@@ -226,6 +229,7 @@ export class TextureCube extends SimpleTexture {
         if (EDITOR || TEST) {
             return {
                 base: super._serialize(ctxForExporting),
+                rgbe: this.isRGBE,
                 mipmaps: this._mipmaps.map((mipmap) => ((ctxForExporting && ctxForExporting._compressUuid) ? {
                     front: EditorExtends.UuidUtils.compressUuid(mipmap.front._uuid, true),
                     back: EditorExtends.UuidUtils.compressUuid(mipmap.back._uuid, true),
@@ -249,7 +253,7 @@ export class TextureCube extends SimpleTexture {
     public _deserialize (serializedData: ITextureCubeSerializeData, handle: any) {
         const data = serializedData;
         super._deserialize(data.base, handle);
-
+        this.isRGBE = data.rgbe;
         this._mipmaps = new Array(data.mipmaps.length);
         for (let i = 0; i < data.mipmaps.length; ++i) {
             // Prevent resource load failed
@@ -305,6 +309,7 @@ legacyCC.TextureCube = TextureCube;
 
 interface ITextureCubeSerializeData {
     base: string;
+    rgbe: boolean;
     mipmaps: {
         front: string;
         back: string;

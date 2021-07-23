@@ -111,9 +111,9 @@ export class SkinnedMeshRenderer extends MeshRenderer {
         }
     }
 
-    public setUseBakedAnimation (val = true) {
+    public setUseBakedAnimation (val = true, force = false) {
         const modelType = val ? BakedSkinningModel : SkinningModel;
-        if (this._modelType === modelType) { return; }
+        if (!force && this._modelType === modelType) { return; }
         this._modelType = modelType;
         if (this._model) {
             legacyCC.director.root.destroyModel(this._model);

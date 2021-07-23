@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../ammo-instantiated';
+import Ammo from '../instantiated';
 import { Vec3, Quat } from '../../../core/math';
 import { Collider, PhysicsMaterial, PhysicsSystem } from '../../../../exports/physics-framework';
 import { AmmoWorld } from '../ammo-world';
@@ -41,6 +41,7 @@ import { IVec3Like } from '../../../core/math/type-define';
 import { AmmoSharedBody } from '../ammo-shared-body';
 import { AABB, Sphere } from '../../../core/geometry';
 import { AmmoConstant, CC_V3_0 } from '../ammo-const';
+import { AmmoInstance } from '../ammo-instance';
 
 const v3_0 = CC_V3_0;
 
@@ -139,6 +140,15 @@ export class AmmoShape implements IBaseShape {
         this.setWrapper();
     }
 
+    setWrapper () {
+        if (AmmoConstant.isNotEmptyShape(this._btShape)) {
+            AmmoInstance.setWrapper(this);
+            this._btShape.setUserPointerAsInt(Ammo.getPointer(this._btShape));
+            const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
+            (shape as any).wrapped = this;
+        }
+    }
+
     // virtual
     protected onComponentSet () { }
 
@@ -168,7 +178,8 @@ export class AmmoShape implements IBaseShape {
         Ammo.destroy(this.quat);
         Ammo.destroy(this.scale);
         Ammo.destroy(this.transform);
-        if (this._btShape !== AmmoConstant.instance.EMPTY_SHAPE) {
+        if (AmmoConstant.isNotEmptyShape(this._btShape)) {
+            AmmoInstance.delWrapper(this);
             Ammo.destroy(this._btShape);
             ammoDeletePtr(this._btShape, Ammo.btCollisionShape);
         }
@@ -230,12 +241,7 @@ export class AmmoShape implements IBaseShape {
         this._btCompound = compound;
     }
 
-    setWrapper () {
-        const shape = Ammo.castObject(this._btShape, Ammo.btCollisionShape);
-        (shape as any).wrapped = this;
-    }
-
-    setScale () {
+    updateScale () {
         this.setCenter(this._collider.center);
     }
 
@@ -253,28 +259,5 @@ export class AmmoShape implements IBaseShape {
         if (this.type === AmmoBroadphaseNativeTypes.TERRAIN_SHAPE_PROXYTYPE) { return true; }
         if (this._collider.center.equals(Vec3.ZERO)) { return false; }
         return true;
-    }
-
-    /** DEBUG */
-    private static _debugTransform: Ammo.btTransform | null;
-    debugTransform (n: Node) {
-        if (AmmoShape._debugTransform == null) {
-            AmmoShape._debugTransform = new Ammo.btTransform();
-        }
-        let wt: Ammo.btTransform;
-        if (this._isTrigger) {
-            wt = this._sharedBody.ghost.getWorldTransform();
-        } else {
-            wt = this._sharedBody.body.getWorldTransform();
-        }
-        const lt = this.transform;
-        AmmoShape._debugTransform.setIdentity();
-        AmmoShape._debugTransform.op_mul(wt).op_mul(lt);
-        const origin = AmmoShape._debugTransform.getOrigin();
-        n.worldPosition = new Vec3(origin.x(), origin.y(), origin.z());
-        const rotation = AmmoShape._debugTransform.getRotation();
-        n.worldRotation = new Quat(rotation.x(), rotation.y(), rotation.z(), rotation.w());
-        const scale = this.impl.getLocalScaling();
-        n.scale = new Vec3(scale.x(), scale.y(), scale.z());
     }
 }

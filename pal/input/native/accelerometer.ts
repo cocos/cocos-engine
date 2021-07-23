@@ -5,7 +5,6 @@ import { EventTarget } from '../../../cocos/core/event/event-target';
 import { OS } from '../../system-info/enum-type';
 import { Orientation } from '../../screen-adapter/enum-type';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
-import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
 
 export class AccelerometerInputSource {
     public support: boolean;
@@ -84,6 +83,6 @@ export class AccelerometerInputSource {
         }
     }
     public onChange (cb: AccelerometerCallback) {
-        this._eventTarget.on(SystemEvent.EventType.DEVICEMOTION, cb);
+        this._eventTarget.on(SystemEventType.DEVICEMOTION, cb);
     }
 }

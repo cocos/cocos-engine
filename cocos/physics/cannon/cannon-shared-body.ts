@@ -77,7 +77,7 @@ export class CannonSharedBody {
         }
         if (wrappedBody) {
             newSB.wrappedBody = wrappedBody;
-            const g = (wrappedBody.rigidBody as any)._group;
+            const g = wrappedBody.rigidBody.group;
             const m = PhysicsSystem.instance.collisionMatrix[g];
             newSB.body.collisionFilterGroup = g;
             newSB.body.collisionFilterMask = m;

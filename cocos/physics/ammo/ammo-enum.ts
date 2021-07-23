@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import Ammo from './ammo-instantiated';
+import Ammo from './instantiated';
 
 export enum EAmmoSharedBodyDirty {
     BODY_RE_ADD = 1,
