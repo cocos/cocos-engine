@@ -30,7 +30,7 @@
 
 import { ccclass, serializable } from 'cc.decorator';
 import { Node } from '../scene-graph/node';
-import { warn } from '../platform/debug';
+import { warn, warnID } from '../platform/debug';
 
 export type PropertyPath = string | number;
 
@@ -63,12 +63,12 @@ export class HierarchyPath implements ICustomTargetPath {
 
     public get (target: Node) {
         if (!(target instanceof Node)) {
-            warn(`Target of hierarchy path should be of type Node.`);
+            warnID(3925);
             return null;
         }
         const result = target.getChildByPath(this.path);
         if (!result) {
-            warn(`Node "${target.name}" has no path "${this.path}"`);
+            warnID(3926, target.name, this.path);
             return null;
         }
         return result;
@@ -86,40 +86,14 @@ export class ComponentPath implements ICustomTargetPath {
 
     public get (target: Node) {
         if (!(target instanceof Node)) {
-            warn(`Target of component path should be of type Node.`);
+            warnID(3927);
             return null;
         }
         const result = target.getComponent(this.component);
         if (!result) {
-            warn(`Node "${target.name}" has no component "${this.component}"`);
+            warnID(3928, target.name, this.component);
             return null;
         }
         return result;
     }
-}
-
-/**
- * Evaluate a sequence of paths, in order, from specified root.
- * @param root The root object.
- * @param path The path sequence.
- */
-export function evaluatePath (root: any, ...paths: TargetPath[]) {
-    let result = root;
-    for (let iPath = 0; iPath < paths.length; ++iPath) {
-        const path = paths[iPath];
-        if (isPropertyPath(path)) {
-            if (!(path in result)) {
-                warn(`Target object has no property "${path}"`);
-                return null;
-            } else {
-                result = result[path];
-            }
-        } else {
-            result = path.get(result);
-        }
-        if (result === null) {
-            break;
-        }
-    }
-    return result;
 }
