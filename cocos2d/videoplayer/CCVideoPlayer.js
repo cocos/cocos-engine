@@ -93,9 +93,7 @@ const ResourceType = cc.Enum({
     LOCAL: 1
 });
 
-
-let staticDomId = '';
-let needUseStaticDom = false;
+let staticDomLocker = null;
 /**
  * !#en cc.VideoPlayer is a component for playing videos, you can use it for showing videos in your game. Because different platforms have different authorization, API and control methods for VideoPlayer component. And have not yet formed a unified standard, only Web, iOS, and Android platforms are currently supported.
  * !#zh Video 组件，用于在游戏中播放视频。由于不同平台对于 VideoPlayer 组件的授权、API、控制方式都不同，还没有形成统一的标准，所以目前只支持 Web、iOS 和 Android 平台。
@@ -325,16 +323,13 @@ let VideoPlayer = cc.Class({
         EventType: EventType,
         ResourceType: ResourceType,
         Impl: VideoPlayerImpl,
-        setStaticDomId (id) {
-            staticDomId = id;
-            needUseStaticDom = true;
-        }
+        staticDomId: '',
     },
 
     ctor () {
-        if (needUseStaticDom && !CC_EDITOR) {
-            needUseStaticDom = false;
-            this._impl = new VideoPlayerImpl(staticDomId);
+        if (!staticDomLocker && !CC_EDITOR) {
+            staticDomLocker = this;
+            this._impl = new VideoPlayerImpl(VideoPlayer.staticDomId);
         } else {
             this._impl = new VideoPlayerImpl();
         }
@@ -406,6 +401,9 @@ let VideoPlayer = cc.Class({
         if (this._impl) {
             this._impl.destroy();
             this._impl = null;
+            if (staticDomLocker === this) {
+                staticDomLocker = null;
+            }
         }
     },
 
@@ -416,7 +414,7 @@ let VideoPlayer = cc.Class({
      * @returns {Object} The video object
      */
     getVideo() {
-      return this._impl && this._impl._video || null;
+        return this._impl && this._impl._video || null;
     },
 
     /**

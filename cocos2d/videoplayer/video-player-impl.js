@@ -172,9 +172,11 @@ let VideoPlayerImpl = cc.Class({
         if (this._staticDomID) {
             video = document.getElementById(this._staticDomID);
             if (!video) {
-                console.warn(`The video element is not found by id: ${this._staticDomID}`);
+                cc.warnID(7703, this._staticDomID);
+                this._staticDomID = '';
             }
-        } else {
+        }
+        if (!video) {
             video = document.createElement('video');
         }
         video.style.position = "absolute";
@@ -207,11 +209,12 @@ let VideoPlayerImpl = cc.Class({
             if (this._staticDomID) {
                 video.pause();
                 video.currentTime = 0;
-                return;
-            }
-            let hasChild = utils.contains(cc.game.container, video);
-            if (hasChild)
+
+            } else {
+              let hasChild = utils.contains(cc.game.container, video);
+              if (hasChild)
                 cc.game.container.removeChild(video);
+            }
             let cbs = this.__eventListeners;
             video.removeEventListener("loadedmetadata", cbs.loadedmetadata);
             video.removeEventListener("ended", cbs.ended);
