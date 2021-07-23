@@ -373,47 +373,42 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
 
     private _fillMeshData (p: Particle, idx: number, fi: number) {
         const i = idx / 4;
-        let attrNum = 0;
-        this._attrs[attrNum++] = p.position;
+        this._attrs[0] = p.position;
         _tempAttribUV.z = fi;
-        this._attrs[attrNum++] = _tempAttribUV;
-        this._attrs[attrNum++] = p.size;
-        this._attrs[attrNum++] = p.rotation;
-        this._attrs[attrNum++] = p.color._val;
+        this._attrs[1] = _tempAttribUV;
+        this._attrs[2] = p.size;
+        this._attrs[3] = p.rotation;
+        this._attrs[4] = p.color._val;
         this._model!.addParticleVertexData(i, this._attrs);
     }
 
     private _fillStrecthedData (p: Particle, idx: number, fi: number) {
-        let attrNum = 0;
         for (let j = 0; j < 4; ++j) { // four verts per particle.
-            attrNum = 0;
-            this._attrs[attrNum++] = p.position;
+            this._attrs[0] = p.position;
             _tempAttribUV.x = _uvs[2 * j];
             _tempAttribUV.y = _uvs[2 * j + 1];
             _tempAttribUV.z = fi;
-            this._attrs[attrNum++] = _tempAttribUV;
-            this._attrs[attrNum++] = p.size;
-            this._attrs[attrNum++] = p.rotation;
-            this._attrs[attrNum++] = p.color._val;
-            this._attrs[attrNum++] = p.ultimateVelocity;
-            this._attrs[attrNum++] = p.ultimateVelocity;
+            this._attrs[1] = _tempAttribUV;
+            this._attrs[2] = p.size;
+            this._attrs[3] = p.rotation;
+            this._attrs[4] = p.color._val;
+            this._attrs[5] = p.ultimateVelocity;
+            this._attrs[6] = null;
             this._model!.addParticleVertexData(idx++, this._attrs);
         }
     }
 
     private _fillNormalData (p: Particle, idx: number, fi: number) {
-        let attrNum = 0;
         for (let j = 0; j < 4; ++j) { // four verts per particle.
-            attrNum = 0;
-            this._attrs[attrNum++] = p.position;
+            this._attrs[0] = p.position;
             _tempAttribUV.x = _uvs[2 * j];
             _tempAttribUV.y = _uvs[2 * j + 1];
             _tempAttribUV.z = fi;
-            this._attrs[attrNum++] = _tempAttribUV;
-            this._attrs[attrNum++] = p.size;
-            this._attrs[attrNum++] = p.rotation;
-            this._attrs[attrNum++] = p.color._val;
-            this._attrs[attrNum++] = null;
+            this._attrs[1] = _tempAttribUV;
+            this._attrs[2] = p.size;
+            this._attrs[3] = p.rotation;
+            this._attrs[4] = p.color._val;
+            this._attrs[5] = null;
             this._model!.addParticleVertexData(idx++, this._attrs);
         }
     }
