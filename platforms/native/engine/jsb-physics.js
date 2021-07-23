@@ -145,8 +145,13 @@ class PhysicsWorld {
     setDefaultMaterial (v) { }
 
     step (f, t, m) {
-        // books.forEach((v) => { v.syncToNativeTransform(); });
         this._impl.step(f);
+        books.forEach((v) => { 
+            if (!v.isSleeping) {
+                v._com.node.worldPosition = v._impl.getPosition();
+                v._com.node.worldRotation = v._impl.getRotation();
+            }
+        });
     }
 
     raycast (r, o, p, rs) {
@@ -243,14 +248,14 @@ class PhysicsWorld {
     }
 }
 
-function bookNode (v) {
+function bookRigidBody (v) {
     if (v._physicsBookIndex === undefined) {
         v._physicsBookIndex = books.length;
         books.push(v);
     }
 }
 
-function unBookNode (v) {
+function unBookRigidBody (v) {
     const index = v._physicsBookIndex;
     if (index !== undefined) {
         books[index] = books[books.length - 1];
@@ -290,7 +295,7 @@ class RigidBody {
         v.node.updateWorldTransform();
         this._com = v;
         this._impl.initialize(v.node.native, v.type, v._group);
-        bookNode(v.node);
+        bookRigidBody(this);
     }
 
     onEnable () {
@@ -308,7 +313,7 @@ class RigidBody {
     onDisable () { this._impl.onDisable(); }
 
     onDestroy () {
-        unBookNode(this._com.node);
+        unBookRigidBody(this);
         this._impl.onDestroy();
     }
 
@@ -379,7 +384,6 @@ class Shape {
         this._com = v;
         this._impl.initialize(v.node.native);
         ptrToObj[this._impl.getImpl()] = this;
-        bookNode(v.node);
     }
     onLoad () {
         this.setMaterial(this._com.sharedMaterial);
@@ -389,7 +393,6 @@ class Shape {
     onEnable () { this._impl.onEnable(); }
     onDisable () { this._impl.onDisable(); }
     onDestroy () {
-        unBookNode(this._com.node);
         ptrToObj[this._impl.getImpl()] = null
         delete ptrToObj[this._impl.getImpl()];
         this._impl.onDestroy();
