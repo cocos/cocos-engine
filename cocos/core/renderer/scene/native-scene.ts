@@ -173,6 +173,8 @@ export const NativeCamera: Constructor<{
     clearDepth: number;
     clearStencil: number;
     exposure: number;
+    fov: number;
+    aspect: number;
 }> = null!;
 export type NativeCamera = InstanceType<typeof NativeCamera>;
 

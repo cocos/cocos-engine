@@ -172,6 +172,9 @@ export class Camera {
         this._isoValue = ISOS[this._iso];
 
         this._aspect = this.screenScale = 1;
+        if (JSB) {
+            this._nativeObj!.aspect = this._aspect;
+        }
         this._frustum.accurate = true;
 
         if (!correctionMatrices.length) {
@@ -257,6 +260,9 @@ export class Camera {
         this._setWidth(width);
         this._setHeight(height);
         this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
+        if (JSB) {
+            this._nativeObj!.aspect = this._aspect;
+        }
         this._isProjDirty = true;
     }
 
@@ -264,6 +270,9 @@ export class Camera {
         this._setWidth(width);
         this._setHeight(height);
         this._aspect = (width * this._viewport.width) / (height * this._viewport.height);
+        if (JSB) {
+            this._nativeObj!.aspect = this._aspect;
+        }
         this.isWindowSize = false;
     }
 
@@ -376,6 +385,9 @@ export class Camera {
 
     set fov (fov) {
         this._fov = fov;
+        if (JSB) {
+            this._nativeObj!.fov = fov;
+        }
         this._isProjDirty = true;
     }
 
