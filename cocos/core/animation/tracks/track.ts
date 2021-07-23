@@ -225,7 +225,7 @@ class TrackPath {
     public follow (object: unknown, beginIndex?: number, endIndex?: number) {
         beginIndex ??= 0;
         endIndex ??= this._paths.length;
-        return this[normalizedFollowTag](object, beginIndex, endIndex, undefined, false);
+        return this[normalizedFollowTag](object, beginIndex, endIndex);
     }
 
     public [parseTrsPathTag] () {
@@ -271,7 +271,7 @@ class TrackPath {
         return { node: nodePath, property: prs };
     }
 
-    public [normalizedFollowTag] (root: unknown, beginIndex: number, endIndex: number, poseOutput: PoseOutput | undefined, isConstant: boolean) {
+    public [normalizedFollowTag] (root: unknown, beginIndex: number, endIndex: number) {
         const { _paths: paths } = this;
         let result = root;
         for (let iPath = beginIndex; iPath < endIndex; ++iPath) {
@@ -281,10 +281,6 @@ class TrackPath {
                     warnID(3929, path);
                     return null;
                 } else {
-                    if (poseOutput && iPath === endIndex - 1 && result instanceof Node && isTrsPropertyName(path)) {
-                        const blendStateWriter = poseOutput.createPoseWriter(result, path, isConstant);
-                        return blendStateWriter;
-                    }
                     result = (result as any)[path];
                 }
             } else {
@@ -331,9 +327,13 @@ export class TrackBinding {
             const lastPropertyKey = path.isPropertyAt(iLastPath)
                 ? path.parsePropertyAt(iLastPath)
                 : path.parseElementAt(iLastPath);
-            const resultTarget = path[normalizedFollowTag](target, 0, nPaths - 1, poseOutput, isConstant) as any;
+            const resultTarget = path[normalizedFollowTag](target, 0, nPaths - 1) as any;
             if (resultTarget === null) {
                 return null;
+            }
+            if (poseOutput && resultTarget instanceof Node && isTrsPropertyName(lastPropertyKey)) {
+                const blendStateWriter = poseOutput.createPoseWriter(resultTarget, lastPropertyKey, isConstant);
+                return blendStateWriter;
             }
             return {
                 setValue: (value: unknown) => {
@@ -349,7 +349,7 @@ export class TrackBinding {
             errorID(3921);
             return null;
         } else {
-            const resultTarget = path[normalizedFollowTag](target, 0, nPaths, poseOutput, isConstant);
+            const resultTarget = path[normalizedFollowTag](target, 0, nPaths);
             if (resultTarget === null) {
                 return null;
             }
