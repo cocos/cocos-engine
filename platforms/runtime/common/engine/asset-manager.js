@@ -456,11 +456,11 @@ cc.assetManager.transformPipeline.append(function (task) {
         else {
             options.__cacheBundleRoot__ = item.config.name;
         }
-        if (item.ext === '.cconb') {
-            item.url = item.url.replace(item.ext, '.bin');
-        } else if (item.ext === '.ccon') {
-            item.url = item.url.replace(item.ext, '.json');
-        }
+        // if (item.ext === '.cconb') {
+        //     item.url = item.url.replace(item.ext, '.bin');
+        // } else if (item.ext === '.ccon') {
+        //     item.url = item.url.replace(item.ext, '.json');
+        // }
     }
 });
 
