@@ -309,7 +309,7 @@ legacyCC.TextureCube = TextureCube;
 
 interface ITextureCubeSerializeData {
     base: string;
-    isRGBE: boolean;
+    rgbe: boolean;
     mipmaps: {
         front: string;
         back: string;
