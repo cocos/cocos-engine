@@ -1,13 +1,13 @@
-module('Cache');
 
-var cache = new cc.AssetManager.Cache();
+import Cache from '../../cocos/core/asset-manager/cache'
 test('operation', function () {
+    var cache = new Cache();
     cache.add('test 1', {url: 'resources/image'});
-    strictEqual(cache.count, 1, 'should equal to 1');
-    strictEqual(cache.get('test 1').url, 'resources/image', 'should equal to resources/image');
-    ok(!cache.get(''), 'should be undefined');
+    expect(cache.count).toBe(1);
+    expect(cache.get('test 1').url).toBe('resources/image');
+    expect(cache.get('')).toBeNull();
     cache.add('test 1', {url: 'resources/image2'});
-    strictEqual(cache.count, 1, 'should equal to 1');
+    expect(cache.count).toBe(1);
     cache.remove('test 1');
-    strictEqual(cache.count, 0, 'should equal to 0');
+    expect(cache.count).toBe(0);
 });
