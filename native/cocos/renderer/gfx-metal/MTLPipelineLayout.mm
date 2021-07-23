@@ -35,6 +35,10 @@ CCMTLPipelineLayout::CCMTLPipelineLayout() : PipelineLayout() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
+CCMTLPipelineLayout::~CCMTLPipelineLayout() {
+    destroy();
+}
+
 void CCMTLPipelineLayout::doInit(const PipelineLayoutInfo &info) {
     const auto setCount = _setLayouts.size();
     _gpuPipelineLayout = CC_NEW(CCMTLGPUPipelineLayout);

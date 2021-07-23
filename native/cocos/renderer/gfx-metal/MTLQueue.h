@@ -35,7 +35,7 @@ class CCMTLQueue final : public Queue {
 
 public:
     explicit CCMTLQueue();
-    ~CCMTLQueue() override = default;
+    ~CCMTLQueue();
     CCMTLQueue(const CCMTLQueue &)=delete;
     CCMTLQueue(CCMTLQueue &&)=delete;
     CCMTLQueue &operator=(const CCMTLQueue &)=delete;

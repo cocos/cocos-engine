@@ -40,7 +40,7 @@ class CCMTLTexture;
 class CCMTLRenderPass final : public RenderPass {
 public:
     explicit CCMTLRenderPass();
-    ~CCMTLRenderPass() override = default;
+    ~CCMTLRenderPass();
 
     void setColorAttachment(size_t slot, CCMTLTexture* texture, int level);
     void setDepthStencilAttachment(CCMTLTexture* texture, int level);

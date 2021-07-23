@@ -54,6 +54,10 @@ void CCMTLDescriptorSet::doInit(const DescriptorSetInfo &info) {
     }
 }
 
+CCMTLDescriptorSet::~CCMTLDescriptorSet() {
+    destroy();
+}
+
 void CCMTLDescriptorSet::doDestroy() {
     CC_SAFE_DELETE(_gpuDescriptorSet);
 }

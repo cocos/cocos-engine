@@ -39,7 +39,7 @@ public:
     static CCMTLDevice *getInstance();
 
     CCMTLDevice();
-    ~CCMTLDevice() override;
+    ~CCMTLDevice();
 
     CCMTLDevice(const CCMTLDevice &) = delete;
     CCMTLDevice(CCMTLDevice &&) = delete;

@@ -33,7 +33,7 @@ namespace gfx {
 class CCMTLFramebuffer final : public Framebuffer {
 public:
     explicit CCMTLFramebuffer();
-    ~CCMTLFramebuffer() override = default;
+    ~CCMTLFramebuffer();
     CCMTLFramebuffer(const CCMTLFramebuffer &)=delete;
     CCMTLFramebuffer(CCMTLFramebuffer &&)=delete;
     CCMTLFramebuffer &operator=(const CCMTLFramebuffer &)=delete;

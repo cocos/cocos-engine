@@ -35,7 +35,7 @@ namespace gfx {
 class CCMTLTexture final : public Texture {
 public:
     explicit CCMTLTexture();
-    ~CCMTLTexture() override = default;
+    ~CCMTLTexture();
     CCMTLTexture(const CCMTLTexture &) = delete;
     CCMTLTexture(CCMTLTexture &&) = delete;
     CCMTLTexture &operator=(const CCMTLTexture &) = delete;

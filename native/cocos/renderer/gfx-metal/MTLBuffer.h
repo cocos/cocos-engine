@@ -40,7 +40,7 @@ class CCMTLCommandEncoder;
 class CCMTLBuffer final : public Buffer {
 public:
     explicit CCMTLBuffer();
-    ~CCMTLBuffer() override          = default;
+    ~CCMTLBuffer();
     CCMTLBuffer(const CCMTLBuffer &) = delete;
     CCMTLBuffer(CCMTLBuffer &&)      = delete;
     CCMTLBuffer &operator=(const CCMTLBuffer &) = default;

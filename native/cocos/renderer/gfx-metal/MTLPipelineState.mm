@@ -46,6 +46,10 @@ CCMTLPipelineState::CCMTLPipelineState() : PipelineState() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
+CCMTLPipelineState::~CCMTLPipelineState() {
+    destroy();
+}
+
 void CCMTLPipelineState::doInit(const PipelineStateInfo &info) {
     createGPUPipelineState();
 }

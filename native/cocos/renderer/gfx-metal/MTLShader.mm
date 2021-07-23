@@ -37,6 +37,10 @@ CCMTLShader::CCMTLShader() : Shader() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
+CCMTLShader::~CCMTLShader() {
+    destroy();
+}
+
 void CCMTLShader::doInit(const ShaderInfo &info) {
     _gpuShader = CC_NEW(CCMTLGPUShader);
     _specializedFragFuncs = [[NSMutableDictionary alloc] init];

@@ -38,6 +38,10 @@ CCMTLSampler::CCMTLSampler() : Sampler() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
+CCMTLSampler::~CCMTLSampler() {
+    destroy();
+}
+
 void CCMTLSampler::doInit(const SamplerInfo &info) {
     MTLSamplerDescriptor *descriptor = [[MTLSamplerDescriptor alloc] init];
 #if (CC_PLATFORM == CC_PLATFORM_MAC_OSX)

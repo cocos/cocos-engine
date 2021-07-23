@@ -38,7 +38,7 @@ namespace gfx {
 class CCMTLPipelineState final : public PipelineState {
 public:
     explicit CCMTLPipelineState();
-    ~CCMTLPipelineState() override = default;
+    ~CCMTLPipelineState();
     CCMTLPipelineState(const CCMTLPipelineState &)=delete;
     CCMTLPipelineState(CCMTLPipelineState &&)=delete;
     CCMTLPipelineState &operator=(const CCMTLPipelineState &)=delete;

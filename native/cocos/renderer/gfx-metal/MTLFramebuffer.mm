@@ -36,6 +36,10 @@ CCMTLFramebuffer::CCMTLFramebuffer() : Framebuffer() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
+CCMTLFramebuffer::~CCMTLFramebuffer() {
+    destroy();
+}
+
 void CCMTLFramebuffer::doInit(const FramebufferInfo &info) {
     _isOffscreen = (_colorTextures.size() != 0);
 }

@@ -54,6 +54,10 @@ CCMTLCommandBuffer::CCMTLCommandBuffer()
     _indirectDrawSuppotred = _mtlDevice->isIndirectDrawSupported();
 }
 
+CCMTLCommandBuffer::~CCMTLCommandBuffer() {
+    destroy();
+}
+
 void CCMTLCommandBuffer::doInit(const CommandBufferInfo &info) {
 }
 

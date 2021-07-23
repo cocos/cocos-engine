@@ -41,6 +41,10 @@ CCMTLBuffer::CCMTLBuffer() : Buffer() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
+CCMTLBuffer::~CCMTLBuffer() {
+    destroy();
+}
+
 void CCMTLBuffer::doInit(const BufferInfo &info) {
     _isIndirectDrawSupported = CCMTLDevice::getInstance()->isIndirectDrawSupported();
     if (hasFlag(_usage, BufferUsage::INDEX)) {

@@ -37,6 +37,10 @@ CCMTLRenderPass::CCMTLRenderPass() : RenderPass() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
+CCMTLRenderPass::~CCMTLRenderPass() {
+    destroy();
+}
+
 void CCMTLRenderPass::doInit(const RenderPassInfo &info) {
     _renderTargetSizes.resize(_colorAttachments.size());
     _mtlRenderPassDescriptor = [[MTLRenderPassDescriptor alloc] init];

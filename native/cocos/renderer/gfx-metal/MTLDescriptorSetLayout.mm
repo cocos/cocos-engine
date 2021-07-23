@@ -35,6 +35,10 @@ CCMTLDescriptorSetLayout::CCMTLDescriptorSetLayout() : DescriptorSetLayout() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
+CCMTLDescriptorSetLayout::~CCMTLDescriptorSetLayout () {
+    destroy();
+}
+
 void CCMTLDescriptorSetLayout::doInit(const DescriptorSetLayoutInfo &info) {
     _gpuDescriptorSetLayout = CC_NEW(CCMTLGPUDescriptorSetLayout);
 

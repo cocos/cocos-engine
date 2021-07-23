@@ -35,7 +35,7 @@ class CCMTLGPUShader;
 class CCMTLShader final : public Shader {
 public:
     explicit CCMTLShader();
-    ~CCMTLShader() override = default;
+    ~CCMTLShader();
     CCMTLShader(const CCMTLShader &)=delete;
     CCMTLShader(CCMTLShader &&)=delete;
     CCMTLShader &operator=(const CCMTLShader &)=delete;

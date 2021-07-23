@@ -45,7 +45,7 @@ class CCMTLFence;
 class CCMTLCommandBuffer final : public CommandBuffer {
 public:
     explicit CCMTLCommandBuffer();
-    ~CCMTLCommandBuffer() override = default;
+    ~CCMTLCommandBuffer();
     CCMTLCommandBuffer(const CCMTLCommandBuffer &) = delete;
     CCMTLCommandBuffer(CCMTLCommandBuffer &&) = delete;
     CCMTLCommandBuffer &operator=(const CCMTLCommandBuffer &) = delete;

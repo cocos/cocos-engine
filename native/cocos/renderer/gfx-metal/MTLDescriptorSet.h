@@ -35,7 +35,7 @@ class CCMTLGPUDescriptorSet;
 class CCMTLDescriptorSet final : public DescriptorSet {
 public:
     explicit CCMTLDescriptorSet();
-    ~CCMTLDescriptorSet() override = default;
+    ~CCMTLDescriptorSet();
     CCMTLDescriptorSet(const CCMTLDescriptorSet &)=delete;
     CCMTLDescriptorSet(CCMTLDescriptorSet &&)=delete;
     CCMTLDescriptorSet &operator=(const CCMTLDescriptorSet &)=delete;

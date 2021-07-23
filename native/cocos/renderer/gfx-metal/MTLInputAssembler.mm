@@ -36,6 +36,10 @@ CCMTLInputAssembler::CCMTLInputAssembler() : InputAssembler() {
     _typedID = generateObjectID<decltype(this)>();
 }
 
+CCMTLInputAssembler::~CCMTLInputAssembler() {
+    destroy();
+}
+
 void CCMTLInputAssembler::doInit(const InputAssemblerInfo &info) {
     _GPUInputAssembler = CC_NEW(CCMTLGPUInputAssembler);
     if (!_GPUInputAssembler) {
