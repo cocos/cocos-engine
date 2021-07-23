@@ -34,7 +34,7 @@ bool AABB::aabbAabb(AABB *aabb) const {
     Vec3 bMax;
     Vec3::subtract(getCenter(), getHalfExtents(), &aMin);
     Vec3::add(getCenter(), getHalfExtents(), &aMax);
-    Vec3::subtract(getCenter(), aabb->getHalfExtents(), &bMin);
+    Vec3::subtract(aabb->getCenter(), aabb->getHalfExtents(), &bMin);
     Vec3::add(aabb->getCenter(), aabb->getHalfExtents(), &bMax);
     return (aMin.x <= bMax.x && aMax.x >= bMin.x) &&
            (aMin.y <= bMax.y && aMax.y >= bMin.y) &&
