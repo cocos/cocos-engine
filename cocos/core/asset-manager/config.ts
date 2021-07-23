@@ -146,6 +146,18 @@ const processOptions = (options: IConfigOption) => {
             redirect[i + 1] = bundles[redirect[i + 1]];
         }
     }
+
+    const extensionMap = options.extensionMap;
+    if (extensionMap) {
+        for (const ext in options.extensionMap) {
+            if (!Object.prototype.hasOwnProperty.call(options.extensionMap, ext)) {
+                continue;
+            }
+            options.extensionMap[ext].forEach((uuid, index) => {
+                options.extensionMap[ext][index] = uuids[uuid] || uuid;
+            });
+        }
+    }
 };
 
 export default class Config {
