@@ -445,11 +445,11 @@ let VideoPlayerImpl = cc.Class({
         if (node._localZOrder !== localZOrder || stayOnBottom !== this._stayOnBottom) {
           localZOrder = node._localZOrder;
           stayOnBottom = this._stayOnBottom;
+          this._cache.localZOrder = localZOrder;
+          this._cache.stayOnBottom = stayOnBottom;
           if (stayOnBottom) {
             localZOrder = macro.MIN_ZINDEX + localZOrder;
           }
-          this._cache.localZOrder = localZOrder;
-          this._cache.stayOnBottom = stayOnBottom;
           this._video.style['z-index'] = localZOrder;
         }
 
