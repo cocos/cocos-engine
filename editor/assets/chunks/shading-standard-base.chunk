@@ -50,23 +50,25 @@ struct StandardSurface {
   float roughness;
   float metallic;
   float occlusion;
+  float SpecularIntensity;
 };
 
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   // Calculate diffuse & specular
   vec3 diffuse = s.albedo.rgb * (1.0 - s.metallic);
-  vec3 specular = mix(vec3(0.04), s.albedo.rgb, s.metallic);
+ 
+  vec3 specular = mix(vec3(0.08 * s.SpecularIntensity), s.albedo.rgb, s.metallic);
 
   vec3 N = normalize(s.normal);
   vec3 V = normalize(cc_cameraPos.xyz - s.position);
 
-  float NV = max(abs(dot(N, V)), 0.001);
+  float NV = max(abs(dot(N, V)), 0.0);
   specular = BRDFApprox(specular, s.roughness, NV);
 
   vec3 L = normalize(-cc_mainLitDir.xyz);
   vec3 H = normalize(L + V);
   float NH = max(dot(N, H), 0.0);
-  float NL = max(dot(N, L), 0.001);
+  float NL = max(dot(N, L), 0.0);
   vec3 finalColor = NL * cc_mainLitColor.rgb * cc_mainLitColor.w;
   vec3 diffuseContrib = diffuse;
 
@@ -81,15 +83,20 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
   // Cook-Torrance Microfacet Specular BRDF
   vec3 specularContrib = specular * CalcSpecular(s.roughness, NH, H, N);
   vec3 dirlightContrib = (diffuseContrib + specularContrib);
+
+  float shadow = 1.0;
   #if CC_RECEIVE_SHADOW
-    CC_SHADOW_FACTOR_BASE(dirlightContrib, NL, shadowPos, L, N);
+    if (NL > 0.0) {
+      CC_SHADOW_FACTOR_BASE(shadow, shadowPos, N, NL);
+    }
   #endif
 
+  dirlightContrib *= shadow;
   finalColor *= dirlightContrib;
 
   float fAmb = 0.5 - N.y * 0.5;
   vec3 ambDiff = mix(cc_ambientSky.rgb, cc_ambientGround.rgb, fAmb) * cc_ambientSky.w;
-  finalColor += (ambDiff.rgb * diffuse);
+  finalColor += (ambDiff.rgb * diffuse) * s.occlusion;
 
   #if CC_USE_IBL
     vec3 R = normalize(reflect(-V, N));
@@ -99,10 +106,8 @@ vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
     #else
       vec3 env = SRGBToLinear(envmap.rgb);
     #endif
-    finalColor += env * cc_ambientSky.w * specular;
+    finalColor += env * cc_ambientSky.w * specular * s.occlusion;
   #endif
-
-  finalColor = finalColor * s.occlusion;
 
   #if CC_USE_HDR
     s.emissive *= cc_exposure.w;

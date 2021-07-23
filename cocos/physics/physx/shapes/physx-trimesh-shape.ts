@@ -28,12 +28,12 @@
  * @hidden
  */
 
-import { Quat, Vec3 } from '../../../core';
+import { IVec3Like, Quat, Vec3 } from '../../../core';
 
 import { Mesh } from '../../../3d/assets';
-import { MeshCollider } from '../../framework';
+import { MeshCollider, PhysicsMaterial } from '../../framework';
 import { ITrimeshShape } from '../../spec/i-physics-shape';
-import { createConvexMesh, createMeshGeometryFlags, createTriangleMesh, PX, _trans } from '../export-physx';
+import { createConvexMesh, createMeshGeometryFlags, createTriangleMesh, PX, _trans } from '../physx-adapter';
 import { EPhysXShapeType, PhysXShape } from './physx-shape';
 import { AttributeName } from '../../../core/gfx';
 
@@ -73,6 +73,7 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
             }
             this.updateGeometry();
             this._impl = physics.createShape(this.geometry, pxmat, true, this._flags);
+            this.updateByReAdd();
         }
     }
 
@@ -94,5 +95,31 @@ export class PhysXTrimeshShape extends PhysXShape implements ITrimeshShape {
         meshScale.setScale(this.collider.node.worldScale);
         meshScale.setRotation(Quat.IDENTITY);
         this.geometry.setScale(meshScale);
+    }
+
+    /* override */
+
+    setMaterial (v: PhysicsMaterial | null) {
+        if (this._impl) super.setMaterial(v);
+    }
+
+    setCenter (v: IVec3Like) {
+        if (this._impl) super.setCenter(v);
+    }
+
+    setAsTrigger (v: boolean) {
+        if (this._impl) super.setAsTrigger(v);
+    }
+
+    setFilerData (v: any) {
+        if (this._impl) super.setFilerData(v);
+    }
+
+    addToBody () {
+        if (this._impl) super.addToBody();
+    }
+
+    removeFromBody () {
+        if (this._impl) super.removeFromBody();
     }
 }

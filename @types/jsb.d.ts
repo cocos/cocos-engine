@@ -82,6 +82,7 @@ declare namespace jsb {
     export let onOrientationChanged: (event: {orientation: number}) => void | undefined;  // TODO: enum orientation type
     export let onResume: () => void | undefined;
     export let onPause: () => void | undefined;
+    export let onClose: () => void | undefined;
     export function openURL(url: string): void;
     export function garbageCollect(): void;
 

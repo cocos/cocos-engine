@@ -1,6 +1,6 @@
 {
     "thisFile": {
-        "stamp": "2021-05-25T04:22:39.074Z"
+        "stamp": "2021-07-05T09:43:28.305Z"
     },
     "variables": [
         "cc.AffineTransform",
@@ -142,6 +142,7 @@
         "cc.GFXRect",
         "cc.GFXRenderPass",
         "cc.GFXRenderPassInfo",
+        "cc.GFXResolveMode",
         "cc.GFXSampleCount",
         "cc.GFXSampler",
         "cc.GFXSamplerInfo",
@@ -155,6 +156,7 @@
         "cc.GFXStencilFace",
         "cc.GFXStencilOp",
         "cc.GFXStoreOp",
+        "cc.GFXSubpassDependency",
         "cc.GFXSubpassInfo",
         "cc.GFXSurfaceTransform",
         "cc.GFXTexture",
@@ -310,7 +312,6 @@
         "cc.easing",
         "cc.error",
         "cc.errorID",
-        "cc.eventManager",
         "cc.find",
         "cc.game",
         "cc.geometry",

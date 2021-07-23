@@ -1,11 +1,9 @@
 import { EDITOR, TEST } from 'internal:constants';
 import { MouseCallback, MouseInputEvent, MouseWheelCallback, MouseWheelInputEvent } from 'pal/input';
-import { system } from 'pal/system';
+import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 import { EventTarget } from '../../../cocos/core/event/event-target';
 import { Rect, Vec2 } from '../../../cocos/core/math';
-import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
-
-type MouseEventNames = 'mousedown' | 'mouseup' | 'mousemove' | 'wheel';
+import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
 
 export class MouseInputSource {
     public support: boolean;
@@ -35,7 +33,7 @@ export class MouseInputSource {
         return new Rect(0, 0, 0, 0);
     }
 
-    private _getLocation (event: MouseEvent): Vec2 {
+    private _getLocation (event: any): Vec2 {
         return new Vec2(event.clientX, event.clientY);
     }
 
@@ -90,13 +88,12 @@ export class MouseInputSource {
         if ('onpointerlockchange' in document) {
             document.addEventListener('pointerlockchange', lockChangeAlert, false);
         } else if ('onmozpointerlockchange' in document) {
-            // @ts-expect-error undefined mozpointerlockchange event
             document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
         }
     }
 
-    private _createCallback (eventType: string) {
-        return (event: MouseEvent) => {
+    private _createCallback (eventType: SystemEvent.EventType) {
+        return (event: any) => {
             const canvasRect = this._getCanvasRect();
             const location = this._getLocation(event);
             let button = event.button;
@@ -118,8 +115,8 @@ export class MouseInputSource {
             }
             const inputEvent: MouseInputEvent = {
                 type: eventType,
-                x: this._pointLocked ? (this._preMousePos.x + event.movementX) : (location.x - canvasRect.x),
-                y: this._pointLocked ? (this._preMousePos.y - event.movementY) : (canvasRect.y + canvasRect.height - location.y),
+                x: this._pointLocked ? (this._preMousePos.x + <number>event.movementX) : (location.x - canvasRect.x),
+                y: this._pointLocked ? (this._preMousePos.y - <number>event.movementY) : (canvasRect.y + canvasRect.height - location.y),
                 button,
                 timestamp: performance.now(),
                 // this is web only property

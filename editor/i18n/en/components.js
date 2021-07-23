@@ -20,5 +20,8 @@ module.exports = {
                 'This component is used to save the relationship between the node with the referenced prefab asset in the old Prefab system. ' +
                 'When the new Prefab system is complete, it will be automatically migrated to the new Prefab system.',
         },
+        label: {
+            font_style_tooltip: "The style of the text, corresponding to the engine's isBold,isItalic,isUnderline",
+        },
     },
 };

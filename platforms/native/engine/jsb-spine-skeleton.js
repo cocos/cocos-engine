@@ -66,6 +66,7 @@ const cacheManager = require('./jsb-cache-manager');
     let skeletonCacheMgr = spine.SkeletonCacheMgr.getInstance();
     spine.skeletonCacheMgr = skeletonCacheMgr;
     skeletonDataProto.destroy = function () {
+        this.removeRecordTexture();
         this.reset();
         skeletonCacheMgr.removeSkeletonCache(this._uuid);
         cc.Asset.prototype.destroy.call(this);
@@ -96,13 +97,14 @@ const cacheManager = require('./jsb-cache-manager');
             return;
         }
 
-        let skeletonCache = spine.retainSkeletonData(uuid);
-        if (skeletonCache) {
-            this._skeletonCache = skeletonCache;
-            this.width = this._skeletonCache.getWidth();
-            this.height = this._skeletonCache.getHeight();                 
-            return;
-        }
+        // gfxTexture may not exist if this._skeletonCache == null
+        // let skeletonCache = spine.retainSkeletonData(uuid);
+        // if (skeletonCache) {
+        //     this._skeletonCache = skeletonCache;
+        //     this.width = this._skeletonCache.getWidth();
+        //     this.height = this._skeletonCache.getHeight();                 
+        //     return;
+        // }
 
         let atlasText = this.atlasText;
         if (!atlasText) {
@@ -121,6 +123,7 @@ const cacheManager = require('./jsb-cache-manager');
         for (let i = 0; i < textures.length; ++i) {
             let texture = textures[i];
             let textureIdx = this.recordTexture(texture);
+            texture.__textureIndex__ = textureIdx;
             let spTex = new middleware.Texture2D();
             spTex.setRealTextureIndex(textureIdx);
             spTex.setPixelsWide(texture.width);
@@ -141,6 +144,26 @@ const cacheManager = require('./jsb-cache-manager');
             this.height = this._skeletonCache.getHeight();
         }        
     };
+    
+    skeletonDataProto.removeRecordTexture = function () {
+        let textures = this.textures;
+        if (!(textures && textures.length > 0)) {
+            return;
+        }
+        for (let i = 0; i < textures.length; ++i) {
+            let texture = textures[i];
+            if (!texture) return;
+
+            let index = texture.__textureIndex__;
+            if (index) {
+                let texKey = _textureKeyMap[index];
+                if (texKey && _textureMap.has(texKey)) {
+                    _textureMap.delete(texKey);
+                    delete _textureKeyMap[index];
+                }
+            }
+        }
+    }
 
     skeletonDataProto.recordTexture = function (texture) {
         let index = _gTextureIdx;
@@ -436,9 +459,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     };
 
-    let _lateUpdate = skeleton.lateUpdate;
-    skeleton.lateUpdate = function () {
-        if (_lateUpdate) _lateUpdate.call(this);
+    skeleton.updateAnimation = function (dt) {
         let nativeSkeleton = this._nativeSkeleton;
         if (!nativeSkeleton) return;
 
@@ -894,7 +915,7 @@ const cacheManager = require('./jsb-cache-manager');
                 middleware.resetIndicesStart = false;
             }
 
-            ui.commitComp(this, realTexture._texture, this._assembler, null);
+            ui.commitComp(this, realTexture, this._assembler, null);
             this.material = mat;
         }
     }

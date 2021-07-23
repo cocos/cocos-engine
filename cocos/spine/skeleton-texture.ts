@@ -3,13 +3,13 @@
  * @module spine
  */
 
-import { ImageAsset, Material, Texture2D } from '../core';
+import { Material, Texture2D } from '../core';
 import { Filter, WrapMode } from '../core/assets/asset-enum';
 import spine from './lib/spine-core.js';
 
 export class SkeletonTexture extends spine.Texture {
     name = 'sp.SkeletonTexture';
-    _texture: Texture2D|ImageAsset | null = null;
+    _texture: Texture2D | null = null;
     _material: Material | null = null;
 
     constructor (opt:ImageBitmap|HTMLImageElement) {
@@ -22,8 +22,7 @@ export class SkeletonTexture extends spine.Texture {
     }
 
     getRealTexture (): Texture2D|null {
-        if (!this._texture) { return null; }
-        return this._texture instanceof ImageAsset ? this._texture._texture as Texture2D : this._texture;
+        return this._texture;
     }
 
     setFilters (minFilter: spine.TextureFilter, magFilter: spine.TextureFilter) {

@@ -139,7 +139,6 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(11)
     @tooltip('i18n:particle_system.startSpeed')
     public startSpeed = new CurveRange();
@@ -154,7 +153,6 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationX')
@@ -165,7 +163,6 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationY')
@@ -176,7 +173,6 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @formerlySerializedAs('startRotation')
-    @range([-1, 1])
     @radian
     @displayOrder(12)
     @tooltip('i18n:particle_system.startRotationZ')
@@ -274,7 +270,6 @@ export class ParticleSystem extends RenderableComponent {
      */
     @type(CurveRange)
     @serializable
-    @range([-1, 1])
     @displayOrder(13)
     @tooltip('i18n:particle_system.gravityModifier')
     public gravityModifier = new CurveRange();

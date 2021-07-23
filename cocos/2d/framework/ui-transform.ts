@@ -31,7 +31,6 @@
 import { ccclass, help, executeInEditMode, executionOrder, menu, tooltip, displayOrder, serializable, disallowMultiple, visible } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { Component } from '../../core/components';
-import { SystemEventType } from '../../core/platform/event-manager/event-enum';
 import { EventListener } from '../../core/platform/event-manager/event-listener';
 import { Mat4, Rect, Size, Vec2, Vec3 } from '../../core/math';
 import { AABB } from '../../core/geometry';
@@ -39,6 +38,8 @@ import { Node } from '../../core/scene-graph';
 import { legacyCC } from '../../core/global-exports';
 import { Director, director } from '../../core/director';
 import { warnID } from '../../core/platform/debug';
+import { NodeEventType } from '../../core/scene-graph/node-event';
+import visibleRect from '../../core/platform/visible-rect';
 
 const _vec2a = new Vec2();
 const _vec2b = new Vec2();
@@ -88,9 +89,9 @@ export class UITransform extends Component {
         this._contentSize.set(value);
         if (EDITOR) {
             // @ts-expect-error EDITOR condition
-            this.node.emit(SystemEventType.SIZE_CHANGED, clone);
+            this.node.emit(NodeEventType.SIZE_CHANGED, clone);
         } else {
-            this.node.emit(SystemEventType.SIZE_CHANGED);
+            this.node.emit(NodeEventType.SIZE_CHANGED);
         }
         this._markRenderDataDirty();
     }
@@ -112,9 +113,9 @@ export class UITransform extends Component {
         this._contentSize.width = value;
         if (EDITOR) {
             // @ts-expect-error EDITOR condition
-            this.node.emit(SystemEventType.SIZE_CHANGED, clone);
+            this.node.emit(NodeEventType.SIZE_CHANGED, clone);
         } else {
-            this.node.emit(SystemEventType.SIZE_CHANGED);
+            this.node.emit(NodeEventType.SIZE_CHANGED);
         }
         this._markRenderDataDirty();
     }
@@ -136,9 +137,9 @@ export class UITransform extends Component {
         this._contentSize.height = value;
         if (EDITOR) {
             // @ts-expect-error EDITOR condition
-            this.node.emit(SystemEventType.SIZE_CHANGED, clone);
+            this.node.emit(NodeEventType.SIZE_CHANGED, clone);
         } else {
-            this.node.emit(SystemEventType.SIZE_CHANGED);
+            this.node.emit(NodeEventType.SIZE_CHANGED);
         }
         this._markRenderDataDirty();
     }
@@ -163,7 +164,7 @@ export class UITransform extends Component {
         }
 
         this._anchorPoint.set(value);
-        this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this.node.emit(NodeEventType.ANCHOR_CHANGED, this._anchorPoint);
         this._markRenderDataDirty();
     }
 
@@ -177,7 +178,7 @@ export class UITransform extends Component {
         }
 
         this._anchorPoint.x = value;
-        this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this.node.emit(NodeEventType.ANCHOR_CHANGED, this._anchorPoint);
         this._markRenderDataDirty();
     }
 
@@ -191,7 +192,7 @@ export class UITransform extends Component {
         }
 
         this._anchorPoint.y = value;
-        this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this.node.emit(NodeEventType.ANCHOR_CHANGED, this._anchorPoint);
         this._markRenderDataDirty();
     }
 
@@ -245,7 +246,7 @@ export class UITransform extends Component {
         return camera ? camera.priority : 0;
     }
 
-    public static EventType = SystemEventType;
+    public static EventType = NodeEventType;
 
     @serializable
     protected _contentSize = new Size(100, 100);
@@ -263,12 +264,12 @@ export class UITransform extends Component {
     }
 
     public onEnable () {
-        this.node.on(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
+        this.node.on(NodeEventType.PARENT_CHANGED, this._parentChanged, this);
         this._markRenderDataDirty();
     }
 
     public onDisable () {
-        this.node.off(SystemEventType.PARENT_CHANGED, this._parentChanged, this);
+        this.node.off(NodeEventType.PARENT_CHANGED, this._parentChanged, this);
     }
 
     public onDestroy () {
@@ -338,9 +339,9 @@ export class UITransform extends Component {
 
         if (EDITOR) {
             // @ts-expect-error EDITOR condition
-            this.node.emit(SystemEventType.SIZE_CHANGED, clone);
+            this.node.emit(NodeEventType.SIZE_CHANGED, clone);
         } else {
-            this.node.emit(SystemEventType.SIZE_CHANGED);
+            this.node.emit(NodeEventType.SIZE_CHANGED);
         }
 
         this._markRenderDataDirty();
@@ -372,7 +373,7 @@ export class UITransform extends Component {
      * node.setAnchorPoint(1, 1);
      * ```
      */
-    public setAnchorPoint (point: Vec2 | number, y?: number) {
+    public setAnchorPoint (point: Readonly<Vec2> | number, y?: number) {
         const locAnchorPoint = this._anchorPoint;
         if (y === undefined) {
             point = point as Vec2;
@@ -391,7 +392,7 @@ export class UITransform extends Component {
 
         // this.setLocalDirty(LocalDirtyFlag.POSITION);
         // if (this._eventMask & ANCHOR_ON) {
-        this.node.emit(SystemEventType.ANCHOR_CHANGED, this._anchorPoint);
+        this.node.emit(NodeEventType.ANCHOR_CHANGED, this._anchorPoint);
         this._markRenderDataDirty();
         // }
     }
@@ -418,7 +419,7 @@ export class UITransform extends Component {
             camera.node.getWorldRT(_mat4_temp);
             const m12 = _mat4_temp.m12;
             const m13 = _mat4_temp.m13;
-            const center = legacyCC.visibleRect.center;
+            const center = visibleRect.center;
             _mat4_temp.m12 = center.x - (_mat4_temp.m00 * m12 + _mat4_temp.m04 * m13);
             _mat4_temp.m13 = center.y - (_mat4_temp.m01 * m12 + _mat4_temp.m05 * m13);
             Mat4.invert(_mat4_temp, _mat4_temp);

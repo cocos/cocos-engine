@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import Ammo from './ammo-instantiated';
+import Ammo from './instantiated';
 import { Vec3, Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
 import { cocos2AmmoVec3, ammo2CocosVec3 } from './ammo-util';
@@ -63,8 +63,7 @@ export class AmmoRigidBody implements IRigidBody {
     setMass (value: number) {
         if (!this._rigidBody.isDynamic) return;
         // See https://studiofreya.com/game-maker/bullet-physics/bullet-physics-how-to-change-body-mass/
-        const localInertia = AmmoConstant.instance.VECTOR3_0;
-        // const localInertia = this._sharedBody.bodyStruct.localInertia;
+        const localInertia = this._sharedBody.bodyStruct.localInertia;
         localInertia.setValue(1.6666666269302368, 1.6666666269302368, 1.6666666269302368);
         const shape = this.impl.getCollisionShape();
         if (shape.isCompound()) {
@@ -105,6 +104,16 @@ export class AmmoRigidBody implements IRigidBody {
         this._sharedBody.dirty |= EAmmoSharedBodyDirty.BODY_RE_ADD;
     }
 
+    useCCD (value:boolean) {
+        this.impl.setCcdMotionThreshold(value ? 0.01 : 0);
+        this.impl.setCcdSweptSphereRadius(value ? 0.1 : 0);
+        this._isUsingCCD = value;
+    }
+
+    isUsingCCD () {
+        return this._isUsingCCD;
+    }
+
     setLinearFactor (value: IVec3Like) {
         this.impl.setLinearFactor(cocos2AmmoVec3(AmmoConstant.instance.VECTOR3_0, value));
         this._wakeUpIfSleep();
@@ -134,6 +143,7 @@ export class AmmoRigidBody implements IRigidBody {
     readonly id: number;
 
     private _isEnabled = false;
+    private _isUsingCCD = false;
     private _sharedBody!: AmmoSharedBody;
     private _rigidBody!: RigidBody;
 
@@ -208,7 +218,7 @@ export class AmmoRigidBody implements IRigidBody {
         return ammo2CocosVec3(out, this.impl.getLinearVelocity());
     }
 
-    setLinearVelocity (value: Vec3): void {
+    setLinearVelocity (value: Readonly<Vec3>): void {
         this._wakeUpIfSleep();
         cocos2AmmoVec3(this.impl.getLinearVelocity(), value);
     }
@@ -217,7 +227,7 @@ export class AmmoRigidBody implements IRigidBody {
         return ammo2CocosVec3(out, this.impl.getAngularVelocity());
     }
 
-    setAngularVelocity (value: Vec3): void {
+    setAngularVelocity (value: Readonly<Vec3>): void {
         this._wakeUpIfSleep();
         cocos2AmmoVec3(this.impl.getAngularVelocity(), value);
     }

@@ -46,14 +46,8 @@ export interface AudioMeta {
 /**
  * @en
  * The audio clip asset. <br>
- * 'started' event is emitted once the audio began to play. <br>
- * 'ended' event is emitted once the audio stopped. <br>
- * Low-level platform-specific details are handled independently inside each clip.
  * @zh
  * 音频片段资源。<br>
- * 每当音频片段实际开始播放时，会发出 'started' 事件；<br>
- * 每当音频片段自然结束播放时，会发出 'ended' 事件。<br>
- * 每个片段独立处理自己依赖的平台相关的底层细节。
  */
 @ccclass('cc.AudioClip')
 export class AudioClip extends Asset {
@@ -70,7 +64,6 @@ export class AudioClip extends Asset {
 
     constructor () {
         super();
-        this.loaded = false;
     }
 
     public destroy (): boolean {
@@ -82,15 +75,12 @@ export class AudioClip extends Asset {
     set _nativeAsset (meta: AudioMeta | null) {
         this._meta = meta;
         if (meta) {
-            this.loaded = true;
             this._loadMode = meta.type;
             this._player = meta.player;
-            this.emit('load');
         } else {
             this._meta = null;
             this._loadMode = AudioType.UNKNOWN_AUDIO;
             this._duration = 0;
-            this.loaded = false;
         }
     }
 

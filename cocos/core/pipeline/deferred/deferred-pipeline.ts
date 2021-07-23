@@ -28,25 +28,28 @@
  */
 
 import { ccclass, displayOrder, type, serializable } from 'cc.decorator';
+import { EDITOR } from 'internal:constants';
 import { genSamplerHash, samplerLib } from '../../renderer/core/sampler-lib';
 import { builtinResMgr } from '../../builtin/builtin-res-mgr';
 import { Texture2D } from '../../assets/texture-2d';
 import { RenderPipeline, IRenderPipelineInfo } from '../render-pipeline';
 import { GbufferFlow } from './gbuffer-flow';
 import { LightingFlow } from './lighting-flow';
-import { RenderTextureConfig, MaterialConfig } from '../pipeline-serialization';
+import { RenderTextureConfig } from '../pipeline-serialization';
 import { ShadowFlow } from '../shadow/shadow-flow';
 import { BufferUsageBit, Format, MemoryUsageBit, ClearFlagBit, ClearFlags, StoreOp, Filter, Address,
     SurfaceTransform, ColorAttachment, DepthStencilAttachment, RenderPass, LoadOp,
     RenderPassInfo, BufferInfo, Texture, InputAssembler, InputAssemblerInfo, Attribute, Buffer, AccessType, Framebuffer,
     TextureInfo, TextureType, TextureUsageBit, FramebufferInfo, Rect } from '../../gfx';
 import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPOT_LIGHTING_MAP_TEXTURE_BINDING, UNIFORM_GBUFFER_ALBEDOMAP_BINDING,
-    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING,
-    UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
+    UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { sceneCulling } from '../scene-culling';
+import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
+
+const PIPELINE_TYPE = 1;
 
 const _samplerInfo = [
     Filter.POINT,
@@ -95,11 +98,6 @@ export class DeferredPipeline extends RenderPipeline {
     @serializable
     @displayOrder(2)
     protected renderTextures: RenderTextureConfig[] = [];
-
-    @type([MaterialConfig])
-    @serializable
-    @displayOrder(3)
-    protected materials: MaterialConfig[] = [];
     protected _renderPasses = new Map<ClearFlags, RenderPass>();
 
     /**
@@ -135,7 +133,10 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        this._macros.CC_PIPELINE_TYPE = 1;
+        if (EDITOR) { console.info('Deferred render pipeline initialized. Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.'); }
+
+        this._macros = { CC_PIPELINE_TYPE: PIPELINE_TYPE };
+        this._pipelineSceneData = new DeferredPipelineSceneData();
 
         if (!super.activate()) {
             return false;
@@ -274,7 +275,7 @@ export class DeferredPipeline extends RenderPipeline {
 
         if (!this._lightingRenderPass) {
             const colorAttachment = new ColorAttachment();
-            colorAttachment.format = Format.RGBA16F;
+            colorAttachment.format = Format.RGBA8;
             colorAttachment.loadOp = LoadOp.CLEAR; // should clear color attachment
             colorAttachment.storeOp = StoreOp.STORE;
             colorAttachment.endAccesses = [AccessType.COLOR_ATTACHMENT_WRITE];
@@ -295,15 +296,6 @@ export class DeferredPipeline extends RenderPipeline {
         this._width = device.width;
         this._height = device.height;
         this._generateDeferredRenderData();
-
-        if (device.surfaceTransform === SurfaceTransform.IDENTITY
-            || device.surfaceTransform === SurfaceTransform.ROTATE_180) {
-            this._width = device.width;
-            this._height = device.height;
-        } else {
-            this._width = device.height;
-            this._height = device.width;
-        }
 
         return true;
     }
@@ -575,7 +567,7 @@ export class DeferredPipeline extends RenderPipeline {
         data.lightingRenderTargets.push(device.createTexture(new TextureInfo(
             TextureType.TEX2D,
             TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
-            Format.RGBA16F,
+            Format.RGBA8,
             this._width,
             this._height,
         )));

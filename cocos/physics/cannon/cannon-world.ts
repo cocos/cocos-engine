@@ -76,6 +76,7 @@ export class CannonWorld implements IPhysicsWorld {
     constructor () {
         this._world = new CANNON.World();
         this._world.broadphase = new CANNON.NaiveBroadphase();
+        // this._world.broadphase = new CANNON.SAPBroadphase(this._world);
         this._world.solver.iterations = 10;
         (this._world.solver as any).tolerance = 0.0001;
         this._world.defaultContactMaterial.contactEquationStiffness = 1000000;
@@ -86,8 +87,8 @@ export class CannonWorld implements IPhysicsWorld {
 
     destroy (): void {
         if (this.constraints.length || this.bodies.length) error('You should destroy all physics component first.');
-        (this._world as any) = null;
         (this._world.broadphase as any) = null;
+        (this._world as any) = null;
     }
 
     emitEvents (): void {

@@ -49,13 +49,13 @@ export class BuiltinBoxShape extends BuiltinShape implements IBoxShape {
         this._worldShape = new OBB();
     }
 
-    setSize (size: IVec3Like) {
-        Vec3.multiplyScalar(this.localObb.halfExtents, size, 0.5);
+    updateSize () {
+        Vec3.multiplyScalar(this.localObb.halfExtents, this.collider.size, 0.5);
         Vec3.multiply(this.worldObb.halfExtents, this.localObb.halfExtents, this.collider.node.worldScale);
     }
 
     onLoad () {
         super.onLoad();
-        this.setSize(this.collider.size);
+        this.updateSize();
     }
 }

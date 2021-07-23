@@ -41,7 +41,6 @@ import {
     serializable,
     tooltip,
 } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
 import { Vec3 } from '../../../../core/math';
 import { Collider } from './collider';
 import { ISimplexShape } from '../../../spec/i-physics-shape';
@@ -71,7 +70,7 @@ export class SimplexCollider extends Collider {
 
     set shapeType (v) {
         this._shapeType = v;
-        if (!EDITOR && !TEST) {
+        if (this._shape) {
             this.shape.setShapeType(v);
         }
     }
@@ -152,7 +151,7 @@ export class SimplexCollider extends Collider {
     }
 
     updateVertices () {
-        if (!EDITOR && !TEST) {
+        if (this._shape) {
             this.shape.setVertices(this._vertices);
         }
     }

@@ -30,9 +30,8 @@
 
 import { IPassInfo } from '../../assets/effect-asset';
 import { MaterialInstance } from './material-instance';
-import { Pass, PassOverrides } from './pass';
+import { BatchingSchemes, Pass, PassOverrides } from './pass';
 import { overrideMacros, MacroRecord } from './pass-utils';
-import { PassView, PassPool } from './memory-pools';
 
 /**
  * @en A pass instance defines an variant version of the [[Pass]]
@@ -62,7 +61,7 @@ export class PassInstance extends Pass {
             const parentBlock = this._parent.blocks[u.binding];
             block.set(parentBlock);
         }
-        this._rootBufferDirty = true;
+        this._setRootBufferDirty(true);
         const paren = this._parent as PassInstance;
         for (let i = 0; i < this._shaderInfo.samplerTextures.length; i++) {
             const u = this._shaderInfo.samplerTextures[i];
@@ -122,11 +121,11 @@ export class PassInstance extends Pass {
 
     protected _syncBatchingScheme () {
         this._defines.USE_BATCHING = this._defines.USE_INSTANCING = false;
-        this.batchingScheme = 0;
+        this._setBatchingScheme(BatchingSchemes.NONE);
     }
 
     protected _onStateChange () {
-        this.hash = Pass.getPassHash(this, this._hShaderDefault);
+        this._setHash(Pass.getPassHash(this));
         this._owner.onPassStateChange(this._dontNotify);
     }
 }

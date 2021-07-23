@@ -31,7 +31,6 @@
 import { BatchedBuffer } from './batched-buffer';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPass, Device, CommandBuffer } from '../gfx';
-import { DSPool, ShaderPool, PassPool, PassView } from '../renderer/core/memory-pools';
 import { SetIndex } from './define';
 
 /**
@@ -87,8 +86,8 @@ export class RenderBatchedQueue {
                 const batch = res.value.batches[b];
                 if (!batch.mergeCount) { continue; }
                 if (!boundPSO) {
-                    const shader = ShaderPool.get(batch.hShader);
-                    const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.pass, shader, renderPass, batch.ia);
+                    const shader = batch.shader;
+                    const pso = PipelineStateManager.getOrCreatePipelineState(device, batch.pass, shader!, renderPass, batch.ia);
                     cmdBuff.bindPipelineState(pso);
                     cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, batch.pass.descriptorSet);
                     boundPSO = true;

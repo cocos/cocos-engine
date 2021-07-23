@@ -33,6 +33,7 @@ import { CCClass } from '../data/class';
 import { ValueType } from '../value-types/value-type';
 import { ISizeLike } from './type-define';
 import { legacyCC } from '../global-exports';
+import { enumerableProps } from './utils';
 
 /**
  * @en Two dimensional size type representing the width and height.
@@ -51,7 +52,7 @@ export class Size extends ValueType {
      * @param ratio The interpolation coefficient.The range is [0,1].
      * @returns A vector consisting of linear interpolation of the width and height of the current size to the width and height of the target size at a specified interpolation ratio, respectively.
      */
-    public static lerp <Out extends ISizeLike> (out: Out, from: Out, to: Out, ratio: number) {
+    public static lerp <Out extends ISizeLike> (out: Out, from: Readonly<ISizeLike>, to: Readonly<ISizeLike>, ratio: number) {
         out.width = from.width + (to.width - from.width) * ratio;
         out.height = from.height + (to.height - from.height) * ratio;
         return out;
@@ -72,7 +73,7 @@ export class Size extends ValueType {
      * @zh 构造与指定尺寸相等的尺寸。
      * @param other Specified Size.
      */
-    constructor (other: Size);
+    constructor (other: Readonly<Size>);
 
     /**
      * @en Constructor a size with specified values.
@@ -82,7 +83,7 @@ export class Size extends ValueType {
      */
     constructor (width?: number, height?: number);
 
-    constructor (width?: Size | number, height?: number) {
+    constructor (width?: Readonly<Size> | number, height?: number) {
         super();
         if (width && typeof width === 'object') {
             this.width = width.width;
@@ -107,7 +108,7 @@ export class Size extends ValueType {
      * @param other Specified Size.
      * @returns `this`
      */
-    public set (other: Size);
+    public set (other: Readonly<Size>);
 
     /**
      * @en Set the value of each component of the current `Size`.
@@ -135,7 +136,7 @@ export class Size extends ValueType {
      * @param other Specified Size
      * @returns Returns `true' when both dimensions are equal in width and height; otherwise returns `false'.
      */
-    public equals (other: Size) {
+    public equals (other: Readonly<Size>) {
         return this.width === other.width
             && this.height === other.height;
     }
@@ -162,6 +163,7 @@ export class Size extends ValueType {
     }
 }
 
+enumerableProps(Size.prototype, ['x', 'y']);
 CCClass.fastDefine('cc.Size', Size, { width: 0, height: 0 });
 
 /**

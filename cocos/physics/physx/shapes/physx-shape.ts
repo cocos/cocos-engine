@@ -33,7 +33,11 @@ import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { AABB, Sphere } from '../../../core/geometry';
 import { Collider, RigidBody, PhysicsMaterial, PhysicsSystem } from '../../framework';
 import { IBaseShape } from '../../spec/i-physics-shape';
-import { EFilterDataWord3, getShapeFlags, getShapeMaterials, getShapeWorldBounds, getTempTransform, PX, _pxtrans, _trans } from '../export-physx';
+import {
+    addReference, getShapeFlags, getShapeMaterials, getShapeWorldBounds, getTempTransform,
+    PX, removeReference, _pxtrans, _trans,
+} from '../physx-adapter';
+import { EFilterDataWord3 } from '../physx-enum';
 import { PhysXSharedBody } from '../physx-shared-body';
 import { PhysXWorld } from '../physx-world';
 
@@ -71,6 +75,7 @@ export class PhysXShape implements IBaseShape {
     protected _rotation = new Quat(0, 0, 0, 1);
     protected _index = -1;
     protected _word3 = 0;
+    protected _isEnabled = false;
 
     constructor (type: EPhysXShapeType) {
         this.type = type;
@@ -83,13 +88,7 @@ export class PhysXShape implements IBaseShape {
         this._sharedBody = (PhysicsSystem.instance.physicsWorld as PhysXWorld).getSharedBody(v.node);
         this._sharedBody.reference = true;
         this.onComponentSet();
-        if (this._impl) {
-            if (this._impl.$$) {
-                PX.IMPL_PTR[this._impl.$$.ptr] = this;
-            } else {
-                PX.IMPL_PTR[this.id] = this;
-            }
-        }
+        addReference(this, this._impl);
     }
 
     setIndex (v: number): void {
@@ -108,26 +107,26 @@ export class PhysXShape implements IBaseShape {
     }
 
     onEnable (): void {
-        this._sharedBody.addShape(this);
+        this.addToBody();
+        this._isEnabled = true;
         this._sharedBody.enabled = true;
     }
 
     onDisable (): void {
-        this._sharedBody.removeShape(this);
+        this.removeFromBody();
+        this._isEnabled = false;
         this._sharedBody.enabled = false;
     }
 
     onDestroy (): void {
         this._sharedBody.reference = false;
-        if (this._impl.$$) {
-            PX.IMPL_PTR[this._impl.$$.ptr] = null;
-            delete PX.IMPL_PTR[this._impl.$$.ptr];
-        } else {
-            PX.IMPL_PTR[this.id] = null;
-            delete PX.IMPL_PTR[this.id];
+        if (this._impl) {
+            removeReference(this, this._impl);
+            this._impl.release();
+            this._impl = null;
         }
-        this._impl.release();
-        this._impl = null;
+        this._flags = null;
+        this._collider = null as any;
     }
 
     setMaterial (v: PhysicsMaterial | null): void {
@@ -228,13 +227,33 @@ export class PhysXShape implements IBaseShape {
         }
         filterData.word2 = this.id;
         filterData.word3 = this._word3;
+        this.setFilerData(filterData);
+    }
+
+    updateEventListener () {
+        if (this._sharedBody) this.updateFilterData(this._sharedBody.filterData);
+    }
+
+    updateByReAdd () {
+        if (this._isEnabled) {
+            this.removeFromBody();
+            this.addToBody();
+        }
+    }
+
+    // virtual
+    setFilerData (filterData: any) {
         this._impl.setQueryFilterData(filterData);
         this._impl.setSimulationFilterData(filterData);
     }
 
-    updateEventListener () {
-        if (this._sharedBody) {
-            this.updateFilterData(this._sharedBody.filterData);
-        }
+    // virtual
+    addToBody () {
+        this._sharedBody.addShape(this);
+    }
+
+    // virtual
+    removeFromBody () {
+        this._sharedBody.removeShape(this);
     }
 }

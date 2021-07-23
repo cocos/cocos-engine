@@ -44,13 +44,15 @@ export class PipelineStateManager {
         const newHash = hash1 ^ hash2 ^ hash3 ^ hash4;
         let pso = this._PSOHashMap.get(newHash);
         if (!pso) {
+            const pipelineLayout = pass.pipelineLayout;
             const inputState = new InputState(ia.attributes);
             const psoInfo = new PipelineStateInfo(
                 shader, pass.pipelineLayout, renderPass, inputState,
                 pass.rasterizerState,
                 pass.depthStencilState,
                 pass.blendState,
-                pass.primitive, pass.dynamicStates,
+                pass.primitive,
+                pass.dynamicStates,
             );
             pso = device.createPipelineState(psoInfo);
             this._PSOHashMap.set(newHash, pso);

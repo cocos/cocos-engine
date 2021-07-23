@@ -695,10 +695,11 @@ exports.methods = {
         const splitInfo = animInfo.splits[this.splitClipIndex];
 
         if (!animInfo) {
-            return;
+            return null;
         }
 
-        const clipUUID = this.animationNameToUUIDMap.get(animInfo.name);
+        const rawClipUUID = this.animationNameToUUIDMap.get(animInfo.name);
+        const clipUUID = this.animationNameToUUIDMap.get(splitInfo.name);
         let duration = animInfo.duration;
         let fps = animInfo.fps;
         let from = 0;
@@ -717,6 +718,8 @@ exports.methods = {
         }
 
         return {
+            rawClipUUID,
+            rawClipIndex: this.rawClipIndex,
             clipUUID,
             duration,
             fps,
@@ -768,7 +771,6 @@ exports.methods = {
         const durationWidth = (duration / panel.rawClipInfo.duration) * panel.gridTableWith;
         const fps = info.fps !== undefined ? info.fps : panel.rawClipInfo.fps;
         const wrapMode = info.wrapMode ?? panel.rawClipInfo.wrapMode;
-
         panel.currentClipInfo = {
             name: info.name,
             from: info.from * fps,

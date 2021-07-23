@@ -4,7 +4,7 @@
  */
 
 import { BaseObject, TextureAtlasData, TextureData } from '@cocos/dragonbones-js';
-import { RenderTexture, Size, Vec2 } from '../core';
+import { Size, Vec2 } from '../core';
 import { SpriteFrame } from '../2d';
 import { TextureBase } from '../core/assets/texture-base';
 import { ccclass } from '../core/data/decorators';
@@ -47,7 +47,7 @@ export class CCTextureAtlasData extends TextureAtlasData {
         }
     }
 
-    protected _renderTexture: RenderTexture | TextureBase | null = null;
+    protected _renderTexture: TextureBase | null = null;
 
     static toString () {
         return '[class dragonBones.CCTextureAtlasData]';

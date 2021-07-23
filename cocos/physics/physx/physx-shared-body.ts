@@ -35,9 +35,9 @@ import { PhysXWorld } from './physx-world';
 import { PhysXShape } from './shapes/physx-shape';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import {
-    addActorToScene, copyPhysXTransform, getJsTransform, getTempTransform, physXEqualsCocosQuat,
+    addActorToScene, syncNoneStaticToSceneIfWaking, getJsTransform, getTempTransform, physXEqualsCocosQuat,
     physXEqualsCocosVec3, PX, setMassAndUpdateInertia,
-} from './export-physx';
+} from './physx-adapter';
 import { VEC3_0 } from '../utils/util';
 import { ERigidBodyType, PhysicsSystem } from '../framework';
 import { PhysXJoint } from './joints/physx-joint';
@@ -61,7 +61,7 @@ export class PhysXSharedBody {
         }
         if (wrappedBody) {
             newSB._wrappedBody = wrappedBody;
-            const g = (wrappedBody.rigidBody as any)._group;
+            const g = wrappedBody.rigidBody.group;
             const m = PhysicsSystem.instance.collisionMatrix[g];
             newSB.filterData.word0 = g;
             newSB.filterData.word1 = m;
@@ -167,9 +167,9 @@ export class PhysXSharedBody {
             const rb = wb.rigidBody;
             this._dynamicActor.setMass(rb.mass);
             this._dynamicActor.setActorFlag(PX.ActorFlag.eDISABLE_GRAVITY, !rb.useGravity);
+            this.setLinearDamping(rb.linearDamping);
+            this.setAngularDamping(rb.angularDamping);
             this.setRigidBodyFlag(PX.RigidBodyFlag.eKINEMATIC, rb.isKinematic);
-            this._dynamicActor.setLinearDamping(rb.linearDamping);
-            this._dynamicActor.setAngularDamping(rb.angularDamping);
             const lf = rb.linearFactor;
             this._dynamicActor.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_X, !lf.x);
             this._dynamicActor.setRigidDynamicLockFlag(PX.RigidDynamicLockFlag.eLOCK_LINEAR_Y, !lf.y);
@@ -254,6 +254,18 @@ export class PhysXSharedBody {
         }
     }
 
+    setLinearDamping (linDamp:number) {
+        if (!this._dynamicActor) return;
+        const dt = PhysicsSystem.instance.fixedTimeStep;
+        this._dynamicActor.setLinearDamping((1 - (1 - linDamp) ** dt) / dt);
+    }
+
+    setAngularDamping (angDamp:number) {
+        if (!this._dynamicActor) return;
+        const dt = PhysicsSystem.instance.fixedTimeStep;
+        this._dynamicActor.setAngularDamping((1 - (1 - angDamp) ** dt) / dt);
+    }
+
     setMass (v: number): void {
         if (v <= 0) return;
         if (!this.isDynamic) return;
@@ -314,9 +326,8 @@ export class PhysXSharedBody {
     }
 
     syncPhysicsToScene (): void {
-        if (this._isStatic || this._dynamicActor.isSleeping()) return;
-        const transform = this._dynamicActor.getGlobalPose();
-        copyPhysXTransform(this.node, transform);
+        if (!this.isDynamic) return;
+        syncNoneStaticToSceneIfWaking(this._dynamicActor, this.node);
     }
 
     syncScale () {

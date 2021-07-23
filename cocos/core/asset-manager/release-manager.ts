@@ -36,6 +36,7 @@ import { assets, references } from './shared';
 import { ImageAsset } from '../assets/image-asset';
 import { TextureBase } from '../assets/texture-base';
 import { callInNextTick } from '../utils/misc';
+import { js } from '../utils/js';
 
 function visitAsset (asset: Asset, deps: string[]) {
     // Skip assets generated programmatically or by user (e.g. label texture)
@@ -251,7 +252,20 @@ class ReleaseManager {
         }
         dependUtil.remove(uuid);
         if (EDITOR) {
-            references!.remove(uuid);
+            const dependant = references!.get(uuid);
+            if (dependant && dependant.length === 0) {
+                references!.remove(uuid);
+            }
+            references!.forEach((dependance, key) => {
+                for (let i = dependance.length - 1; i >= 0; i--) {
+                    if (dependance[i][0].deref() === asset) {
+                        js.array.fastRemoveAt(dependance, i);
+                    }
+                }
+                if (dependance.length === 0) {
+                    references!.remove(key);
+                }
+            });
         }
     }
 }

@@ -260,7 +260,6 @@ export class Texture2D extends SimpleTexture {
             }
             const mipmapUUID = data.mipmaps[i];
             handle.result.push(this._mipmaps, `${i}`, mipmapUUID, js._getClassId(ImageAsset));
-            this._mipmaps[i]._texture = this;
         }
     }
 
@@ -269,21 +268,6 @@ export class Texture2D extends SimpleTexture {
         texInfo.width = this._width;
         texInfo.height = this._height;
         return Object.assign(texInfo, presumed);
-    }
-
-    protected _checkTextureLoaded () {
-        let ready = true;
-        for (let i = 0; i < this._mipmaps.length; ++i) {
-            const image = this._mipmaps[i];
-            if (!image.loaded) {
-                ready = false;
-                break;
-            }
-        }
-
-        if (ready) {
-            super._textureReady();
-        }
     }
 
     public initDefault (uuid?: string) {

@@ -23,13 +23,11 @@
  THE SOFTWARE.
  */
 
+import { JSB } from 'internal:constants';
 import { AABB, Frustum } from '../../geometry';
 import { Mat4, Quat, Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import {
-    AABBHandle, AABBPool, AABBView, FrustumHandle, FrustumPool, LightPool, LightView, NULL_HANDLE,
-} from '../core/memory-pools';
-import { recordFrustumToSharedMemory } from '../../geometry/frustum';
+import { NativeSpotLight } from './native-scene';
 
 const _forward = new Vec3(0, 0, -1);
 const _qt = new Quat();
@@ -55,38 +53,71 @@ export class SpotLight extends Light {
 
     protected _needUpdate = false;
 
-    protected _hAABB: AABBHandle = NULL_HANDLE;
+    protected _size = 0.15;
 
-    protected _hFrustum: FrustumHandle = NULL_HANDLE;
+    protected _luminance = 0;
+
+    protected _aspect = 0;
+
+    protected _init (): void {
+        super._init();
+        if (JSB) {
+            const nativeSpotLight = this._nativeObj! as NativeSpotLight;
+            nativeSpotLight.setAABB(this._aabb.native);
+            nativeSpotLight.setFrustum(this._frustum);
+            nativeSpotLight.setDirection(this._dir);
+            nativeSpotLight.setPosition(this._pos);
+        }
+    }
+
+    protected _destroy (): void {
+        super._destroy();
+    }
+
+    protected _setDirection (dir: Vec3): void {
+        this._dir.set(dir);
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setDirection(dir);
+        }
+    }
 
     get position () {
         return this._pos;
     }
 
     set size (size: number) {
-        LightPool.set(this._handle, LightView.SIZE, size);
+        this._size = size;
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setSize(size);
+        }
     }
 
     get size (): number {
-        return LightPool.get(this._handle, LightView.SIZE);
+        return this._size;
     }
 
     set range (range: number) {
         this._range = range;
-        LightPool.set(this._handle, LightView.RANGE, range);
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setRange(range);
+        }
+
         this._needUpdate = true;
     }
 
     get range (): number {
-        return LightPool.get(this._handle, LightView.RANGE);
+        return this._range;
     }
 
     set luminance (lum: number) {
-        LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
+        this._luminance = lum;
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setIlluminance(lum);
+        }
     }
 
     get luminance (): number {
-        return LightPool.get(this._handle, LightView.ILLUMINANCE);
+        return this._luminance;
     }
 
     get direction (): Vec3 {
@@ -94,22 +125,30 @@ export class SpotLight extends Light {
     }
 
     get spotAngle () {
-        return LightPool.get(this._handle, LightView.SPOT_ANGLE);
+        return this._spotAngle;
     }
 
     set spotAngle (val: number) {
         this._angle = val;
-        LightPool.set(this._handle, LightView.SPOT_ANGLE, Math.cos(val * 0.5));
+        this._spotAngle = Math.cos(val * 0.5);
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setAngle(this._spotAngle);
+        }
+
         this._needUpdate = true;
     }
 
     set aspect (val: number) {
-        LightPool.set(this._handle, LightView.ASPECT, val);
+        this._aspect = val;
+        if (JSB) {
+            (this._nativeObj! as NativeSpotLight).setAspect(val);
+        }
+
         this._needUpdate = true;
     }
 
     get aspect (): number {
-        return LightPool.get(this._handle, LightView.ASPECT);
+        return this._aspect;
     }
 
     get aabb () {
@@ -125,21 +164,18 @@ export class SpotLight extends Light {
         this._aabb = AABB.create();
         this._frustum = Frustum.create();
         this._pos = new Vec3();
+        this._type = LightType.SPOT;
     }
 
     public initialize () {
         super.initialize();
-        this._hAABB = AABBPool.alloc();
-        this._hFrustum = FrustumPool.alloc();
+
         const size = 0.15;
-        LightPool.set(this._handle, LightView.TYPE, LightType.SPOT);
-        LightPool.set(this._handle, LightView.SIZE, size);
-        LightPool.set(this._handle, LightView.AABB, this._hAABB);
-        LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(size));
-        LightPool.set(this._handle, LightView.RANGE, Math.cos(Math.PI / 6));
-        LightPool.set(this._handle, LightView.ASPECT, 1.0);
-        LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
-        LightPool.set(this._handle, LightView.FRUSTUM, this._hFrustum);
+        this.size = size;
+        this.aspect = 1.0;
+        this.luminance = 1700 / nt2lm(size);
+        this.range = Math.cos(Math.PI / 6);
+        this._setDirection(new Vec3(1.0, -1.0, -1.0));
     }
 
     public update () {
@@ -147,7 +183,7 @@ export class SpotLight extends Light {
             this._node.getWorldPosition(this._pos);
             Vec3.transformQuat(this._dir, _forward, this._node.getWorldRotation(_qt));
             Vec3.normalize(this._dir, this._dir);
-            LightPool.setVec3(this._handle, LightView.DIRECTION, this._dir);
+
             AABB.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, this._range, this._range, this._range);
 
             // view matrix
@@ -161,24 +197,8 @@ export class SpotLight extends Light {
             // Mat4.invert(_matViewProjInv, _matViewProj);
 
             this._frustum.update(_matViewProj, _matViewProjInv);
+
             this._needUpdate = false;
-
-            LightPool.setVec3(this._handle, LightView.POSITION, this._pos);
-            AABBPool.setVec3(this._hAABB, AABBView.CENTER, this._aabb.center);
-            AABBPool.setVec3(this._hAABB, AABBView.HALF_EXTENSION, this._aabb.halfExtents);
-            recordFrustumToSharedMemory(this._hFrustum, this._frustum);
         }
-    }
-
-    public destroy () {
-        if (this._hAABB) {
-            AABBPool.free(this._hAABB);
-            this._hAABB = NULL_HANDLE;
-        }
-        if (this._hFrustum) {
-            FrustumPool.free(this._hFrustum);
-            this._hFrustum = NULL_HANDLE;
-        }
-        return super.destroy();
     }
 }
