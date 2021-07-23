@@ -136,13 +136,13 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
         if (!this._separateAxes) {
-            Quat.fromEuler(p.deletaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+            Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
         } else {
-            Quat.fromEuler(p.deletaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+            Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
         }
 
         // Rotation-overtime combine with start rotation, after that we get quat from the mat
-        p.deletaMat = Mat4.fromQuat(p.deletaMat, p.deletaQuat);
+        p.deletaMat = Mat4.fromQuat(p.deletaMat, p.deltaQuat);
         p.localMat = p.localMat.multiply(p.deletaMat); // accumulate rotation
 
         this._startMat = Mat4.fromQuat(this._startMat, p.startRotation);
