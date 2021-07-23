@@ -191,7 +191,9 @@ export class AnimationClip extends Asset {
         const ratios: number[] = [];
         const eventGroups: IAnimationEventGroup[] = [];
         const events = this.events.sort((a, b) => a.frame - b.frame);
-        for (const eventData of events) {
+        const nEvents = events.length;
+        for (let iEvent = 0; iEvent < nEvents; ++iEvent) {
+            const eventData = events[iEvent];
             const ratio = eventData.frame / this._duration;
             let i = ratios.findIndex((r) => r === ratio);
             if (i < 0) {
@@ -231,11 +233,14 @@ export class AnimationClip extends Asset {
      */
     public range () {
         const range: Range = { min: Infinity, max: -Infinity };
-        this._tracks.forEach((track) => {
+        const { _tracks: tracks } = this;
+        const nTracks = tracks.length;
+        for (let iTrack = 0; iTrack < nTracks; ++iTrack) {
+            const track = tracks[iTrack];
             const trackRange = track.range();
             range.min = Math.min(range.min, trackRange.min);
             range.max = Math.max(range.max, trackRange.max);
-        });
+        }
         return range;
     }
 
@@ -330,17 +335,18 @@ export class AnimationClip extends Asset {
         const jointsBakeInfo: Record<string, {
             transforms: Mat4[];
         }> = {};
-        animatedJoints.forEach((joint) => {
+        for (let iAnimatedJoint = 0; iAnimatedJoint < nAnimatedJoints; ++iAnimatedJoint) {
+            const joint = animatedJoints[iAnimatedJoint];
             jointsBakeInfo[joint] = {
                 transforms: Array.from({ length: frames }, () => new Mat4()),
             };
-        });
+        }
 
         const skeletonFrames = animatedJoints.reduce((result, joint) => {
             result[joint] = new BoneGlobalTransform();
             return result;
         }, {} as Record<string, BoneGlobalTransform>);
-        for (const joint of Object.keys(skeletonFrames)) {
+        for (const joint in skeletonFrames) {
             const skeletonFrame = skeletonFrames[joint];
             const parentJoint = joint.lastIndexOf('/');
             if (parentJoint >= 0) {
@@ -403,20 +409,24 @@ export class AnimationClip extends Asset {
     public upgradeUntypedTracks (refine: UntypedTrackRefine) {
         const newTracks: Track[] = [];
         const removals: Track[] = [];
-        this._tracks.forEach((track) => {
+        const { _tracks: tracks } = this;
+        const nTracks = tracks.length;
+        for (let iTrack = 0; iTrack < nTracks; ++iTrack) {
+            const track = tracks[iTrack];
             if (!(track instanceof UntypedTrack)) {
-                return;
+                continue;
             }
             const newTrack = track.upgrade(refine);
             if (newTrack) {
                 newTracks.push(newTrack);
                 removals.push(track);
             }
-        });
-        removals.forEach((removal) => {
-            array.remove(this._tracks, removal);
-        });
-        this._tracks.push(...newTracks);
+        }
+        const nRemovalTracks = removals.length;
+        for (let iRemovalTrack = 0; iRemovalTrack < nRemovalTracks; ++iRemovalTrack) {
+            array.remove(tracks, removals[iRemovalTrack]);
+        }
+        tracks.push(...newTracks);
     }
 
     /**
@@ -580,20 +590,23 @@ export class AnimationClip extends Asset {
         const trackEvalStatues: TrackEvalStatus[] = [];
         let exoticAnimationEvaluator: ExoticAnimationEvaluator | undefined;
 
-        this._tracks.forEach((track) => {
+        const { _tracks: tracks } = this;
+        const nTracks = tracks.length;
+        for (let iTrack = 0; iTrack < nTracks; ++iTrack) {
+            const track = tracks[iTrack];
             if (rootMotionTrackExcludes.includes(track)) {
-                return;
+                continue;
             }
             const trackTarget = binder(track[trackBindingTag]);
             if (!trackTarget) {
-                return;
+                continue;
             }
             const trackEval = track[createEvalSymbol](trackTarget);
             trackEvalStatues.push({
                 binding: trackTarget,
                 trackEval,
             });
-        });
+        }
 
         if (this._exoticAnimation) {
             exoticAnimationEvaluator = this._exoticAnimation.createEvaluator(binder);
@@ -634,28 +647,31 @@ export class AnimationClip extends Asset {
 
         const boneTransform = new BoneTransform();
         const rootMotionsTrackEvaluations: TrackEvalStatus[] = [];
-        this._tracks.forEach((track) => {
+        const { _tracks: tracks } = this;
+        const nTracks = tracks.length;
+        for (let iTrack = 0; iTrack < nTracks; ++iTrack) {
+            const track = tracks[iTrack];
             const { [trackBindingTag]: trackBinding } = track;
             const trsPath = trackBinding.parseTrsPath();
             if (!trsPath) {
-                return;
+                continue;
             }
             const bonePath = trsPath.node;
             if (bonePath !== rootBonePath) {
-                return;
+                continue;
             }
             rootMotionTrackExcludes.push(track);
             const property = trsPath.property;
             const trackTarget = createBoneTransformBinding(boneTransform, property);
             if (!trackTarget) {
-                return;
+                continue;
             }
             const trackEval = track[createEvalSymbol](trackTarget);
             rootMotionsTrackEvaluations.push({
                 binding: trackTarget,
                 trackEval,
             });
-        });
+        }
         const rootMotionEvaluation = new RootMotionEvaluation(
             rootBone,
             this._duration,
@@ -728,25 +744,31 @@ export class AnimationClip extends Asset {
 
     private _fromLegacy (legacyData: legacy.AnimationClipLegacyData) {
         const newTracks = legacyData.toTracks();
-        newTracks.forEach((track) => {
-            this.addTrack(track);
-        });
+        const nNewTracks = newTracks.length;
+        for (let iNewTrack = 0; iNewTrack < nNewTracks; ++iNewTrack) {
+            this.addTrack(newTracks[iNewTrack]);
+        }
     }
 
     private _collectAnimatedJoints () {
         const joints = new Set<string>();
 
-        this._tracks.forEach((track) => {
+        const { _tracks: tracks } = this;
+        const nTracks = tracks.length;
+        for (let iTrack = 0; iTrack < nTracks; ++iTrack) {
+            const track = tracks[iTrack];
             const trsPath = track[trackBindingTag].parseTrsPath();
             if (trsPath) {
                 joints.add(trsPath.node);
             }
-        });
+        }
 
         if (this._exoticAnimation) {
-            this._exoticAnimation.collectAnimatedJoints().forEach((joint) => {
-                joints.add(joint);
-            });
+            const animatedJoints = this._exoticAnimation.collectAnimatedJoints();
+            const nAnimatedJoints = animatedJoints.length;
+            for (let iAnimatedJoint = 0; iAnimatedJoint < nAnimatedJoints; ++iAnimatedJoint) {
+                joints.add(animatedJoints[iAnimatedJoint]);
+            }
         }
 
         return Array.from(joints);
@@ -1148,15 +1170,19 @@ class EventEvaluator {
 
         const eventGroup = eventGroups[eventIndex];
         const components = this._targetNode.components;
-        eventGroup.events.forEach((event) => {
+        const nEvents = eventGroup.events.length;
+        for (let iEvent = 0; iEvent < nEvents; ++iEvent) {
+            const event = eventGroup.events[iEvent];
             const { functionName } = event;
-            components.forEach((component) => {
+            const nComponents = components.length;
+            for (let iComponent = 0; iComponent < nComponents; ++iComponent) {
+                const component = components[iComponent];
                 const fx = component[functionName];
                 if (typeof fx === 'function') {
                     fx.apply(component, event.parameters);
                 }
-            });
-        });
+            }
+        }
     }
 }
 
