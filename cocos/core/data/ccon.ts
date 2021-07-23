@@ -227,6 +227,6 @@ export class BufferBuilder {
     }
 }
 
-legacyCC.encodeCCONJson = encodeCCONJson;
-legacyCC.encodeCCONBinary = encodeCCONBinary;
-legacyCC.CCON = CCON;
+legacyCC.internal.parseCCONJson = parseCCONJson;
+legacyCC.internal.decodeCCONBinary = decodeCCONBinary;
+legacyCC.internal.CCON = CCON;

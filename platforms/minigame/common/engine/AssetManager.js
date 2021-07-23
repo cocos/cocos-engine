@@ -165,7 +165,7 @@ const downloadCCON = (url, options, onComplete) => {
             onComplete(err);
             return;
         }
-        const cconPreface = cc.parseCCONJson(json);
+        const cconPreface = cc.internal.parseCCONJson(json);
         const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise<Uint8Array>((resolve, reject) => {
             downloadArrayBuffer(`${url}${chunk}`, {}, (errChunk, chunkBuffer) => {
                 if (errChunk) {
@@ -176,7 +176,7 @@ const downloadCCON = (url, options, onComplete) => {
             });
         })));
         chunkPromises.then((chunks) => {
-            const ccon = new cc.CCON(cconPreface.document, chunks);
+            const ccon = new cc.internal.CCON(cconPreface.document, chunks);
             onComplete(null, ccon);
         }).catch((err) => {
             onComplete(err);
@@ -191,7 +191,7 @@ const downloadCCONB = (url, options, onComplete) => {
             return;
         }
         try {
-            const ccon = cc.decodeCCONBinary(new Uint8Array(arrayBuffer));
+            const ccon = cc.internal.decodeCCONBinary(new Uint8Array(arrayBuffer));
             onComplete(null, ccon);
         } catch (err) {
             onComplete(err);
@@ -464,8 +464,10 @@ cc.assetManager.transformPipeline.append(function (task) {
         else {
             options.__cacheBundleRoot__ = item.config.name;
         }
-        if (item.ext === '.ccon' || item.ext === '.cconb') {
+        if (item.ext === '.cconb') {
             item.url = item.url.replace(item.ext, '.bin');
+        } else if (item.ext === '.ccon') {
+            item.url = item.url.replace(item.ext, '.json');
         }
     }
 });
