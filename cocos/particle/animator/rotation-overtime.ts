@@ -116,11 +116,9 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         // Same as the particle-vs-legacy.chunk glsl statemants in remark
         const renderMode = p.particleSystem.processor.getInfo().renderMode;
         if (renderMode !== RenderMode.Mesh) {
-            if (renderMode === RenderMode.Billboard) {                                                  // #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
-                this._quatRot.set(this._quatRot.x, this._quatRot.y, this._quatRot.z, this._quatRot.w);  //      vec3 rotEuler = a_texCoord2;
-            } else if (renderMode === RenderMode.StrecthedBillboard) {                                  // #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
+            if (renderMode === RenderMode.StrecthedBillboard) {                                         // #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
                 this._quatRot.set(0, 0, 0, 1);                                                          //      vec3 rotEuler = vec3(0.);
-            } else {                                                                                    // #else
+            } else if (renderMode !== RenderMode.Billboard) {                                           // #else
                 Quat.toEuler(this._otherEuler, this._quatRot);
                 this._otherEuler.set(0, 0, this._otherEuler.z);                                         //      vec3 rotEuler = vec3(0., 0., a_texCoord2.z);
                 Quat.fromEuler(this._quatRot,

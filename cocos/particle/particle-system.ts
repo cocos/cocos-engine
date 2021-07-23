@@ -831,11 +831,9 @@ export class ParticleSystem extends RenderableComponent {
         // Same as the particle-vs-legacy.chunk glsl statemants in remark
         const renderMode = this.processor.getInfo().renderMode;
         if (renderMode !== RenderMode.Mesh) {
-            if (renderMode === RenderMode.Billboard) {
-                particle.startEuler.set(particle.startEuler.x, particle.startEuler.y, particle.startEuler.z);
-            } else if (renderMode === RenderMode.StrecthedBillboard) {
+            if (renderMode === RenderMode.StrecthedBillboard) {
                 particle.startEuler.set(0, 0, 0);
-            } else {
+            } else if (renderMode !== RenderMode.Billboard) {
                 particle.startEuler.set(0, 0, particle.startEuler.z);
             }
         }
