@@ -36,14 +36,7 @@
 /* eslint-disable no-lonely-if */
 /* eslint-disable import/order */
 
-/**
- * Comment the next line and uncomment the second line, if you want to get a smaller package body on the bytedance platform.
- * because when publish to bytedance platform, the second line will be replaced to `import { PhysX } from './export-physx.tt';`
- * that make npm package `@cocos/physx` will be not packed.
- */
-import PhysX from '@cocos/physx';
-// import { PhysX } from './export-physx.web';
-
+import { PhysX } from './physx.asmjs';
 import { BYTEDANCE, EDITOR, TEST } from 'internal:constants';
 import { Director, director, game, IQuatLike, IVec3Like, Node, Quat, RecyclePool, Vec3 } from '../../core';
 import { shrinkPositions } from '../utils/util';

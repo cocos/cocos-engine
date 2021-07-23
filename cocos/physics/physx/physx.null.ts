@@ -29,7 +29,7 @@
  */
 
 /**
- * export null for BYTEDANCE because it has builtin libs already.
+ * export null for module elimination
  */
 const PhysX = null;
 
