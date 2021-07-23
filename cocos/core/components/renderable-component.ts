@@ -177,6 +177,9 @@ export class RenderableComponent extends Component {
             _matInsInfo.owner = this;
             _matInsInfo.subModelIdx = idx;
             const instantiated = new MaterialInstance(_matInsInfo);
+            _matInsInfo.parent = null!;
+            _matInsInfo.owner = null!;
+            _matInsInfo.subModelIdx = 0!;
             this.setMaterialInstance(instantiated, idx);
         }
         return this._materialInstances[idx];

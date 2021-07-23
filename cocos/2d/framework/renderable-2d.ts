@@ -105,12 +105,6 @@ export enum InstanceMaterialType {
     USE_ALPHA_SEPARATED_AND_GRAY = 4,
 }
 
-const _matInsInfo: IMaterialInstanceInfo = {
-    parent: null!,
-    owner: null!,
-    subModelIdx: 0,
-};
-
 /**
  * @en Base class for 2D components which supports rendering features.
  * This component will setup [[NodeUIProperties.uiComp]] in its owner [[Node]]

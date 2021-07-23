@@ -452,6 +452,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             _matInsInfo.owner = this._particleSystem;
             _matInsInfo.subModelIdx = 0;
             this._defaultMat = new MaterialInstance(_matInsInfo);
+            _matInsInfo.parent = null!;
+            _matInsInfo.owner = null!;
+            _matInsInfo.subModelIdx = 0;
             if (this._renderInfo!.mainTexture !== null) {
                 this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
             }
@@ -516,6 +519,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 _matInsInfo.owner = this._particleSystem;
                 _matInsInfo.subModelIdx = 1;
                 this._defaultTrailMat = new MaterialInstance(_matInsInfo);
+                _matInsInfo.parent = null!;
+                _matInsInfo.owner = null!;
+                _matInsInfo.subModelIdx = 0;
             }
             mat = mat || this._defaultTrailMat;
             mat.recompileShaders(this._trailDefines);

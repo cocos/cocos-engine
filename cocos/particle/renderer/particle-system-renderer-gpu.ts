@@ -418,6 +418,9 @@ export default class ParticleSystemRendererGPU extends ParticleSystemRendererBas
             _matInsInfo.owner = ps;
             _matInsInfo.subModelIdx = 0;
             this._defaultMat = new MaterialInstance(_matInsInfo);
+            _matInsInfo.parent = null!;
+            _matInsInfo.owner = null!;
+            _matInsInfo.subModelIdx = 0;
             if (this._renderInfo!.mainTexture !== null) {
                 this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
             }
