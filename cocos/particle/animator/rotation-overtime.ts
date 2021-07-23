@@ -124,7 +124,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
                 Quat.toEuler(this._otherEuler, this._quatRot);
                 this._otherEuler.set(0, 0, this._otherEuler.z);                                         //      vec3 rotEuler = vec3(0., 0., a_texCoord2.z);
                 Quat.fromEuler(this._quatRot,
-                    this._otherEuler.x * r2d, this._otherEuler.y * r2d, this._otherEuler.z * r2d);
+                    this._otherEuler.x, this._otherEuler.y, this._otherEuler.z);
             }                                                                                           // #endif
         }
 
