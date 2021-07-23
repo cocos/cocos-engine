@@ -39,7 +39,7 @@ export class ExoticAnimation {
 
     public split (from: number, to: number) {
         if (!SPLIT_METHOD_ENABLED) {
-            throwIfSplitMethodIsNotValid();
+            return throwIfSplitMethodIsNotValid();
         }
 
         const splitInfoCache = new SplitInfo();
@@ -83,7 +83,7 @@ class ExoticNodeAnimation {
 
     public split (from: number, to: number, splitInfoCache: SplitInfo) {
         if (!SPLIT_METHOD_ENABLED) {
-            throwIfSplitMethodIsNotValid();
+            return throwIfSplitMethodIsNotValid();
         }
 
         const newAnimation = new ExoticNodeAnimation(this._path);
