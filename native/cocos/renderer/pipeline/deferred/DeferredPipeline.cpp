@@ -241,20 +241,9 @@ gfx::Rect DeferredPipeline::getRenderArea(scene::Camera *camera, bool onScreen) 
 }
 
 void DeferredPipeline::destroyQuadInputAssembler() {
-    if (_quadIB) {
-        _quadIB->destroy();
-        _quadIB = nullptr;
-    }
-
-    if (_quadVBOffscreen) {
-        _quadVBOffscreen->destroy();
-        _quadVBOffscreen = nullptr;
-    }
-
-    if (_quadIAOffscreen) {
-        _quadIAOffscreen->destroy();
-        _quadIAOffscreen = nullptr;
-    }
+    CC_SAFE_DESTROY(_quadIB);
+    CC_SAFE_DESTROY(_quadVBOffscreen);
+    CC_SAFE_DESTROY(_quadIAOffscreen);
 }
 
 bool DeferredPipeline::activeRenderer() {
@@ -432,6 +421,7 @@ void DeferredPipeline::generateDeferredRenderData() {
 
 void DeferredPipeline::destroy() {
     destroyQuadInputAssembler();
+    destroyDeferredData();
 
     if (_descriptorSet) {
         _descriptorSet->getBuffer(UBOGlobal::BINDING)->destroy();
@@ -444,14 +434,14 @@ void DeferredPipeline::destroy() {
     }
 
     for (auto &it : _renderPasses) {
-        it.second->destroy();
+        CC_DESTROY(it.second);
     }
     _renderPasses.clear();
 
     _commandBuffers.clear();
 
-    _gbufferRenderPass  = nullptr;
-    _lightingRenderPass = nullptr;
+    CC_SAFE_DESTROY(_gbufferRenderPass);
+    CC_SAFE_DESTROY(_lightingRenderPass);
 
     RenderPipeline::destroy();
 }
