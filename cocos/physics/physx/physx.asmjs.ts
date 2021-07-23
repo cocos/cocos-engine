@@ -29,7 +29,7 @@
  */
 
 /**
- * export PhysX for WEB platform except BYTEDANCE
+ * export PhysX from internal module
  */
 import PhysX from '@cocos/physx';
 
