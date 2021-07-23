@@ -218,7 +218,7 @@ vec4 Mat3ToQuat(mat3 mat) {
 }
 
 vec4 EulerToQuat(vec3 euler) {
-  vec3 er = euler;
+  vec3 er = euler * 0.5;
   float x = er.x, y = er.y, z = er.z;
   
   float sx = sin(x);
