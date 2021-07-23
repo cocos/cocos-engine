@@ -166,7 +166,7 @@ const downloadCCON = (url, options, onComplete) => {
             return;
         }
         const cconPreface = cc.internal.parseCCONJson(json);
-        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise<Uint8Array>((resolve, reject) => {
+        const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise((resolve, reject) => {
             downloadArrayBuffer(`${url}${chunk}`, {}, (errChunk, chunkBuffer) => {
                 if (errChunk) {
                     reject(errChunk);
