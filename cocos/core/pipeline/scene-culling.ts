@@ -39,7 +39,11 @@ import { ShadowType, Shadows } from '../renderer/scene/shadows';
 import { SphereLight, DirectionalLight, Light } from '../renderer/scene';
 
 const _tempVec3 = new Vec3();
+const _dir_negate = new Vec3();
+const _vec3_p = new Vec3();
 const _mat4_trans = new Mat4();
+const _castWorldBounds = new AABB();
+const _castBoundsInited = false;
 const _validLights: Light[] = [];
 const _sphere = Sphere.create(0, 0, 0, 1);
 const _validFrustum = new  Frustum();
@@ -69,6 +73,19 @@ function getCastShadowRenderObject (model: Model, camera: Camera) {
     ro.model = model;
     ro.depth = depth;
     return ro;
+}
+
+export function getShadowWorldMatrix (pipeline: RenderPipeline, rotation: Quat, dir: Vec3, out: Vec3) {
+    const shadows = pipeline.pipelineSceneData.shadows;
+    Vec3.negate(_dir_negate, dir);
+    const distance: number = shadows.fixedSphere.radius * Shadows.COEFFICIENT_OF_EXPANSION;
+    Vec3.multiplyScalar(_vec3_p, _dir_negate, distance);
+    Vec3.add(_vec3_p, _vec3_p, shadows.fixedSphere.center);
+    out.set(_vec3_p);
+
+    Mat4.fromRT(_mat4_trans, rotation, _vec3_p);
+
+    return _mat4_trans;
 }
 
 function updateSphereLight (pipeline: RenderPipeline, light: SphereLight) {

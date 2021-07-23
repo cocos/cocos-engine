@@ -617,8 +617,8 @@ export class ShadowsInfo {
     @type(CCFloat)
     @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
     set far (val: number) {
-        this._far = Math.min(val, 1000.0);
-        if (this._resource) { this._resource.far = Math.min(val, 1000.0); }
+        this._far = Math.min(val, 2000.0);
+        if (this._resource) { this._resource.far = Math.min(val, 2000.0); }
     }
     get far () {
         return this._far;
@@ -626,10 +626,10 @@ export class ShadowsInfo {
 
     /**
      * @en get or set shadow camera far
-     * @zh 获取或者设置阴影相机远裁剪面
+     * @zh 获取或者设置阴影产生的范围
      */
     @type(CCFloat)
-    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap; })
+    @visible(function (this: ShadowsInfo) { return this._type === ShadowType.ShadowMap && this._fixedArea === false; })
     set range (val: number) {
         this._range = Math.min(val, 2000.0);
         if (this._resource) {

@@ -369,33 +369,25 @@ export class Shadows {
         return this._material!;
     }
 
-    /**
-     * @en get or set shadow frustum.
-     * @zh 获取或者设置阴影相机的视景体.
-     */
-    public get dirLightFrustum (): Frustum {
-        return this._dirLightFrustum;
-    }
-    public set dirLightFrustum (val: Frustum) {
-        this._dirLightFrustum = val;
-    }
-
     public get instancingMaterial (): Material {
         return this._instancingMaterial!;
     }
 
-    public get cameraBoundingSphere (): Sphere {
-        return this._cameraBoundingSphere;
-    }
-    public set cameraBoundingSphere (val: Sphere) {
-        this._cameraBoundingSphere = val;
-    }
+    /**
+     * @en The bounding sphere of the shadow map.
+     * @zh 用于计算固定区域阴影 Shadow map 的场景包围球.
+     */
+    public fixedSphere: Sphere = new Sphere(0.0, 0.0, 0.0, 0.01);
 
     /**
      * @en get or set shadow max received.
      * @zh 阴影接收的最大灯光数量。
      */
     public maxReceived = 4;
+
+    // local
+    public cameraBoundingSphere: Sphere = new Sphere();
+    public dirLightFrustum: Frustum = new Frustum();
 
     protected _normal = new Vec3(0, 1, 0);
     protected _shadowColor = new Color(0, 0, 0, 76);
@@ -417,10 +409,6 @@ export class Shadows {
     protected _fixedArea = false;
     protected _saturation = 0.75;
     protected declare _nativeObj: NativeShadow | null;
-
-    // local
-    protected _cameraBoundingSphere: Sphere = new Sphere();
-    protected _dirLightFrustum: Frustum = new Frustum();
 
     get native (): NativeShadow {
         return this._nativeObj!;
@@ -474,6 +462,7 @@ export class Shadows {
     public initialize (shadowsInfo: ShadowsInfo) {
         this.near = shadowsInfo.near;
         this.far = shadowsInfo.far;
+        this.range = shadowsInfo.range;
         this.orthoSize = shadowsInfo.orthoSize;
         this.size = shadowsInfo.size;
         this.pcf = shadowsInfo.pcf;
@@ -548,6 +537,8 @@ export class Shadows {
         if (this._instancingMaterial) {
             this._instancingMaterial.destroy();
         }
+        this.fixedSphere.destroy();
+        this.cameraBoundingSphere.destroy();
     }
 }
 
