@@ -247,16 +247,16 @@ let VideoPlayerImpl = cc.Class({
         this.removeDom();
         this._url = path;
         this.createDomElementIfNeeded(muted);
-        let video = this._video;
-        if (!video) return;
 
         this._bindEvent();
 
+        let video = this._video;
         video.style["visibility"] = "hidden";
         this._loaded = false;
         this._playing = false;
         this._loadedmeta = false;
 
+        // Since the src of the dynamically set source is not valid, need to set the src of video.
         video.src = path;
         if (!path) {
           this._resetSource(video);
