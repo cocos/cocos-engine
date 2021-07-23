@@ -87,7 +87,7 @@ export class ForwardPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        if (EDITOR) { warnID(1218); }
+        if (EDITOR) { console.info('Forward render pipeline initialized.'); }
 
         this._macros = { CC_PIPELINE_TYPE: PIPELINE_TYPE };
         this._pipelineSceneData = new PipelineSceneData();

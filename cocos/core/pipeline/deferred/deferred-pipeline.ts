@@ -45,7 +45,7 @@ import { UBOGlobal, UBOCamera, UBOShadow, UNIFORM_SHADOWMAP_BINDING, UNIFORM_SPO
     UNIFORM_GBUFFER_POSITIONMAP_BINDING, UNIFORM_GBUFFER_NORMALMAP_BINDING, UNIFORM_GBUFFER_EMISSIVEMAP_BINDING, UNIFORM_LIGHTING_RESULTMAP_BINDING } from '../define';
 import { SKYBOX_FLAG } from '../../renderer/scene/camera';
 import { Camera } from '../../renderer/scene';
-import { errorID, warnID } from '../../platform/debug';
+import { errorID } from '../../platform/debug';
 import { sceneCulling } from '../scene-culling';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
 
@@ -133,7 +133,7 @@ export class DeferredPipeline extends RenderPipeline {
     }
 
     public activate (): boolean {
-        if (EDITOR) { warnID(1219); }
+        if (EDITOR) { console.info('Deferred render pipeline initialized. Note that non-transparent materials with no lighting will not be rendered, such as builtin-unlit.'); }
 
         this._macros = { CC_PIPELINE_TYPE: PIPELINE_TYPE };
         this._pipelineSceneData = new DeferredPipelineSceneData();
