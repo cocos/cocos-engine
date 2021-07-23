@@ -952,7 +952,7 @@ export class ArmatureDisplay extends Renderable2D {
 
     _refresh () {
         this._buildArmature();
-
+        this._indexBoneSockets();
         if (EDITOR) {
             // update inspector
             this._updateArmatureEnum();
