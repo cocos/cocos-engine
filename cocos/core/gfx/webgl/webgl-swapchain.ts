@@ -23,13 +23,13 @@
  THE SOFTWARE.
  */
 
-import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI } from 'internal:constants';
+import { ALIPAY, RUNTIME_BASED, BYTEDANCE, WECHAT, LINKSURE, QTT, COCOSPLAY, HUAWEI, EDITOR } from 'internal:constants';
 import { macro, warnID, warn, debug } from '../../platform';
 import { sys } from '../../platform/sys';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLStateCache } from './webgl-state-cache';
 import { WebGLTexture } from './webgl-texture';
-import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit, BufferTextureCopy, SwapchainInfo, SampleCount } from '../base/define';
+import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit, BufferTextureCopy, SwapchainInfo } from '../base/define';
 import { BrowserType, OS } from '../../../../pal/system-info/enum-type';
 import { Swapchain } from '../base/swapchain';
 import { IWebGLExtensions } from './webgl-define';
@@ -191,7 +191,7 @@ export class WebGLSwapchain extends Swapchain {
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {
                 alpha: macro.ENABLE_TRANSPARENT_CANVAS,
-                antialias: info.samples > SampleCount.ONE,
+                antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 depth: true,
                 stencil: true,
                 premultipliedAlpha: false,
@@ -244,7 +244,6 @@ export class WebGLSwapchain extends Swapchain {
             format: colorFmt,
             width: info.width,
             height: info.height,
-            samples: info.samples,
         });
 
         this._depthStencilTexture = new WebGLTexture(this._device);
@@ -254,7 +253,6 @@ export class WebGLSwapchain extends Swapchain {
             format: depthStencilFmt,
             width: info.width,
             height: info.height,
-            samples: info.samples,
         });
 
         // create default null texture

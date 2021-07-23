@@ -860,7 +860,6 @@ export class Game extends EventTarget {
         }
 
         const swapchainInfo = new SwapchainInfo(this.canvas!);
-        swapchainInfo.samples = EDITOR || macro.ENABLE_WEBGL_ANTIALIAS ? SampleCount.MULTIPLE_BALANCE : SampleCount.ONE;
         swapchainInfo.width = sys.windowPixelResolution.width;
         swapchainInfo.height = sys.windowPixelResolution.height;
         this._swapchain = this._gfxDevice.createSwapchain(swapchainInfo);

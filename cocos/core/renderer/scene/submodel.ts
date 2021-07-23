@@ -205,7 +205,6 @@ export class SubModel {
                 Format.RGBA8,
                 texWidth,
                 texHeight,
-                TextureFlagBit.IMMUTABLE,
             ));
 
             this.descriptorSet.bindTexture(UNIFORM_REFLECTION_TEXTURE_BINDING, this._reflectionTex);

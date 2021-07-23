@@ -125,7 +125,6 @@ export class WebGLTexture extends Texture {
         texInfo.usage = FormatInfos[info.format].hasDepth ? TextureUsageBit.DEPTH_STENCIL_ATTACHMENT : TextureUsageBit.COLOR_ATTACHMENT;
         texInfo.width = info.width;
         texInfo.height = info.height;
-        texInfo.samples = info.samples;
         return this.initialize(texInfo, true);
     }
 }

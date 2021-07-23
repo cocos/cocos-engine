@@ -392,16 +392,16 @@ export enum TextureUsageBit {
 
 export enum TextureFlagBit {
     NONE           = 0,
-    GEN_MIPMAP     = 0x1,
-    IMMUTABLE      = 0x2,
-    GENERAL_LAYOUT = 0x4,
+    GEN_MIPMAP     = 0x1, // Generate mipmaps using bilinear filter
+    RESIZABLE      = 0x2, // Make the texture resizable, should be avoided whenever possible
+    GENERAL_LAYOUT = 0x4, // For inout framebuffer attachments
 }
 
 export enum SampleCount {
     ONE,                  // Single sample
-    MULTIPLE_PERFORMANCE, // Multiple samples prioritising performance over quality
+    MULTIPLE_PERFORMANCE, // Multiple samples prioritizing performance over quality
     MULTIPLE_BALANCE,     // Multiple samples leveraging both quality and performance
-    MULTIPLE_QUALITY,     // Multiple samples prioritising quality over performance
+    MULTIPLE_QUALITY,     // Multiple samples prioritizing quality over performance
 }
 
 export enum VsyncMode {
@@ -955,7 +955,6 @@ export class SwapchainInfo {
     constructor (
         public windowHandle: HTMLCanvasElement = null!,
         public vsyncMode: VsyncMode = VsyncMode.RELAXED,
-        public samples: SampleCount = SampleCount.ONE,
         public width: number = 0,
         public height: number = 0,
     ) {}
@@ -963,7 +962,6 @@ export class SwapchainInfo {
     public copy (info: SwapchainInfo) {
         this.windowHandle = info.windowHandle;
         this.vsyncMode = info.vsyncMode;
-        this.samples = info.samples;
         this.width = info.width;
         this.height = info.height;
         return this;
@@ -1801,7 +1799,6 @@ export interface ISwapchainTextureInfo {
     format: Format;
     width: number;
     height: number;
-    samples: SampleCount;
 }
 
 export interface IUniform {

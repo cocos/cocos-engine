@@ -23,7 +23,8 @@
  THE SOFTWARE.
  */
 
-import { FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo, FormatInfos, TextureUsageBit } from '../base/define';
+import { FormatSurfaceSize, TextureInfo, IsPowerOf2, TextureViewInfo, ISwapchainTextureInfo,
+    FormatInfos, TextureUsageBit, TextureFlagBit } from '../base/define';
 import { Texture } from '../base/texture';
 import { WebGL2CmdFuncCreateTexture, WebGL2CmdFuncDestroyTexture, WebGL2CmdFuncResizeTexture } from './webgl2-commands';
 import { WebGL2Device } from './webgl2-device';
@@ -101,6 +102,10 @@ export class WebGL2Texture extends Texture {
     }
 
     public resize (width: number, height: number) {
+        if (!(this._flags & TextureFlagBit.RESIZABLE)) {
+            console.error('Cannot resize immutable textures');
+        }
+
         const oldSize = this._size;
         this._width = width;
         this._height = height;
@@ -125,7 +130,6 @@ export class WebGL2Texture extends Texture {
         texInfo.usage = FormatInfos[info.format].hasDepth ? TextureUsageBit.DEPTH_STENCIL_ATTACHMENT : TextureUsageBit.COLOR_ATTACHMENT;
         texInfo.width = info.width;
         texInfo.height = info.height;
-        texInfo.samples = info.samples;
         return this.initialize(texInfo, true);
     }
 }

@@ -48,6 +48,7 @@ import { Camera } from '../../renderer/scene';
 import { errorID } from '../../platform/debug';
 import { sceneCulling } from '../scene-culling';
 import { DeferredPipelineSceneData } from './deferred-pipeline-scene-data';
+import { RenderWindow } from '../../renderer/core/render-window';
 
 const PIPELINE_TYPE = 1;
 
@@ -422,26 +423,26 @@ export class DeferredPipeline extends RenderPipeline {
         return inputAssemblerData;
     }
 
-    public updateQuadVertexData (renderArea: Rect, swapchain: Swapchain) {
+    public updateQuadVertexData (renderArea: Rect, window: RenderWindow) {
         if (this._lastUsedRenderArea === renderArea) {
             return;
         }
 
         this._lastUsedRenderArea = renderArea;
-        const offData = this.genQuadVertexData(SurfaceTransform.IDENTITY, renderArea, swapchain);
+        const offData = this.genQuadVertexData(SurfaceTransform.IDENTITY, renderArea, window);
         this._quadVBOffscreen!.update(offData);
 
-        const onData = this.genQuadVertexData(swapchain.surfaceTransform, renderArea, swapchain);
+        const onData = this.genQuadVertexData(window.swapchain && window.swapchain.surfaceTransform || SurfaceTransform.IDENTITY, renderArea, window);
         this._quadVBOnscreen!.update(onData);
     }
 
-    protected genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect, swapchain: Swapchain) : Float32Array {
+    protected genQuadVertexData (surfaceTransform: SurfaceTransform, renderArea: Rect, window: RenderWindow) : Float32Array {
         const vbData = new Float32Array(4 * 4);
 
-        const minX = renderArea.x / swapchain.width;
-        const maxX = (renderArea.x + renderArea.width) / swapchain.width;
-        let minY = renderArea.y / swapchain.height;
-        let maxY = (renderArea.y + renderArea.height) / swapchain.height;
+        const minX = renderArea.x / window.width;
+        const maxX = (renderArea.x + renderArea.width) / window.width;
+        let minY = renderArea.y / window.height;
+        let maxY = (renderArea.y + renderArea.height) / window.height;
         if (this.device.capabilities.screenSpaceSignY > 0) {
             const temp = maxY;
             maxY       = minY;

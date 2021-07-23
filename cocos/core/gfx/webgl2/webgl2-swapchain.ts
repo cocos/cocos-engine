@@ -23,11 +23,11 @@
  THE SOFTWARE.
  */
 
+import { EDITOR } from 'internal:constants';
 import { macro, warnID, warn, debug } from '../../platform';
-import { WebGL2CommandAllocator } from './webgl2-command-allocator';
 import { WebGL2StateCache } from './webgl2-state-cache';
 import { WebGL2Texture } from './webgl2-texture';
-import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit, BufferTextureCopy, SwapchainInfo, SampleCount } from '../base/define';
+import { Format, TextureInfo, TextureFlagBit, TextureType, TextureUsageBit, BufferTextureCopy, SwapchainInfo } from '../base/define';
 import { Swapchain } from '../base/swapchain';
 import { IWebGL2Extensions } from './webgl2-define';
 
@@ -130,7 +130,7 @@ export class WebGL2Swapchain extends Swapchain {
         try {
             const webGLCtxAttribs: WebGLContextAttributes = {
                 alpha: macro.ENABLE_TRANSPARENT_CANVAS,
-                antialias: info.samples > SampleCount.ONE,
+                antialias: EDITOR || macro.ENABLE_WEBGL_ANTIALIAS,
                 depth: true,
                 stencil: true,
                 premultipliedAlpha: false,
@@ -180,7 +180,6 @@ export class WebGL2Swapchain extends Swapchain {
             format: colorFmt,
             width: info.width,
             height: info.height,
-            samples: info.samples,
         });
 
         this._depthStencilTexture = new WebGL2Texture(this._device);
@@ -190,7 +189,6 @@ export class WebGL2Swapchain extends Swapchain {
             format: depthStencilFmt,
             width: info.width,
             height: info.height,
-            samples: info.samples,
         });
 
         // create default null texture

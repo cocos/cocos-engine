@@ -25,7 +25,7 @@
 import { JSB } from 'internal:constants';
 import {
     TextureType, TextureUsageBit, Format, RenderPass, Texture, Framebuffer,
-    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain,
+    RenderPassInfo, Device, TextureInfo, FramebufferInfo, Swapchain, TextureFlagBit,
 } from '../../gfx';
 import { Root } from '../../root';
 import { Camera, NativeRenderWindow } from '../scene';
@@ -188,25 +188,38 @@ export class RenderWindow {
         this._width = width;
         this._height = height;
 
-        let needRebuild = false;
+        if (this._swapchain) {
+            this._swapchain.resize(width, height);
+        } else {
+            if (this._depthStencilTexture) {
+                this._depthStencilTexture.destroy();
+                this._depthStencilTexture.initialize(new TextureInfo(
+                    TextureType.TEX2D,
+                    TextureUsageBit.DEPTH_STENCIL_ATTACHMENT | TextureUsageBit.SAMPLED,
+                    this._renderPass!.depthStencilAttachment!.format,
+                    this._width,
+                    this._height,
+                ));
+            }
 
-        if (this._depthStencilTexture) {
-            this._depthStencilTexture.resize(width, height);
-            needRebuild = true;
-        }
-
-        for (let i = 0; i < this._colorTextures.length; i++) {
-            const colorTex = this._colorTextures[i];
-            if (colorTex) {
-                colorTex.resize(width, height);
-                needRebuild = true;
+            for (let i = 0; i < this._colorTextures.length; i++) {
+                const colorTex = this._colorTextures[i];
+                if (colorTex) {
+                    colorTex.destroy();
+                    colorTex.initialize(new TextureInfo(
+                        TextureType.TEX2D,
+                        TextureUsageBit.COLOR_ATTACHMENT | TextureUsageBit.SAMPLED,
+                        this._renderPass!.colorAttachments[i].format,
+                        this._width,
+                        this._height,
+                    ));
+                }
             }
         }
 
-        const framebuffer = this.framebuffer;
-        if (needRebuild && framebuffer) {
-            framebuffer.destroy();
-            framebuffer.initialize(new FramebufferInfo(
+        if (this.framebuffer) {
+            this.framebuffer.destroy();
+            this.framebuffer.initialize(new FramebufferInfo(
                 this._renderPass!,
                 this._colorTextures,
                 this._depthStencilTexture,
