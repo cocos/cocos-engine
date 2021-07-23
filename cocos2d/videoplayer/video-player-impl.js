@@ -40,13 +40,13 @@ let _mat4_temp = cc.mat4();
 let VideoPlayerImpl = cc.Class({
     name: 'VideoPlayerImpl',
 
-    ctor () {
+    ctor (staticDomID) {
         // 播放结束等事件处理的队列
         this._EventList = {};
 
         this._video = null;
         this._url = '';
-		
+
         this.playerWidth = '0px';
         this.playerHeight = '0px';
 
@@ -60,6 +60,9 @@ let VideoPlayerImpl = cc.Class({
         this._playing = false;
         this._ignorePause = false;
         this._forceUpdate = false;
+
+        // use static video
+        this._staticDomID = staticDomID;
 
         // update matrix cache
         this._m00 = 0;
@@ -76,6 +79,7 @@ let VideoPlayerImpl = cc.Class({
 
     _bindEvent () {
         let video = this._video, self = this;
+        if (!video) return;
         //binding event
         let cbs = this.__eventListeners;
         cbs.loadedmetadata = function () {
@@ -158,13 +162,21 @@ let VideoPlayerImpl = cc.Class({
 
         video.style.width = width + 'px';
         video.style.height = height + 'px';
-		
+
         this.playerWidth = video.style.width;
         this.playerHeight = video.style.height;
     },
 
     _createDom (muted) {
-        let video = document.createElement('video');
+        let video;
+        if (this._staticDomID) {
+            video = document.getElementById(this._staticDomID);
+            if (!video) {
+                console.warn(`The video element is not found by id: ${this._staticDomID}`);
+            }
+        } else {
+            video = document.createElement('video');
+        }
         video.style.position = "absolute";
         video.style.bottom = "0px";
         video.style.left = "0px";
@@ -192,6 +204,11 @@ let VideoPlayerImpl = cc.Class({
     removeDom () {
         let video = this._video;
         if (video) {
+            if (this._staticDomID) {
+                video.pause();
+                video.currentTime = 0;
+                return;
+            }
             let hasChild = utils.contains(cc.game.container, video);
             if (hasChild)
                 cc.game.container.removeChild(video);
@@ -227,27 +244,59 @@ let VideoPlayerImpl = cc.Class({
         this.removeDom();
         this._url = path;
         this.createDomElementIfNeeded(muted);
+        let video = this._video;
+        if (!video) return;
+
         this._bindEvent();
 
-        let video = this._video;
         video.style["visibility"] = "hidden";
         this._loaded = false;
         this._playing = false;
         this._loadedmeta = false;
 
-        source = document.createElement("source");
-        source.src = path;
-        video.appendChild(source);
-
+        video.src = path;
+        if (!path) {
+          this._resetSource(video);
+          return;
+        }
         extname = cc.path.extname(path);
+        source = this._appendSource(video, path, extname);
+
         let polyfill = VideoPlayerImpl._polyfill;
         for (let i = 0; i < polyfill.canPlayType.length; i++) {
-            if (extname !== polyfill.canPlayType[i]) {
-                source = document.createElement("source");
-                source.src = path.replace(extname, polyfill.canPlayType[i]);
-                video.appendChild(source);
+            const type = polyfill.canPlayType[i];
+            if (extname !== type) {
+                source = this._appendSource(video, path ? path.replace(extname, type) : '', type);
             }
         }
+    },
+
+    _resetSource: function (video) {
+        let sources = video.getElementsByTagName('source');
+        for (let i = 0; i < sources.length; i++) {
+            sources[i].src = '';
+        }
+    },
+
+    _appendSource: function(video, path, videoType) {
+        let sources = video.getElementsByTagName('source');
+        let source;
+        let id = `${videoType}-source`;
+        let type = `video/${videoType.substr(1)}`;
+        for (let i = 0; i < sources.length; i++) {
+            if (sources[i].id === id) {
+                source = sources[i];
+                break;
+            }
+        }
+        if (!source) {
+            source = document.createElement("source");
+            source.id = id;
+            source.type = type;
+            video.appendChild(source);
+        }
+        source.src = path;
+        return source;
     },
 
     getURL: function() {
@@ -354,10 +403,10 @@ let VideoPlayerImpl = cc.Class({
             return video.getFrameWidth();
         else if (video.videoWidth !== undefined)
             return video.videoWidth;
-        else 
+        else
             return 0;
     },
-    
+
     getFrameHeight: function () {
         let video = this._video;
         if (!video) return 0;
@@ -498,12 +547,14 @@ let VideoPlayerImpl = cc.Class({
     },
 
     _dispatchEvent: function (event) {
+        if (!this._video) return;
         let callback = this._EventList[event];
         if (callback)
             callback.call(this, this, this._video.src);
     },
 
     onPlayEvent: function () {
+        if (!this._video) return;
         let callback = this._EventList[VideoPlayerImpl.EventType.PLAYING];
         callback.call(this, this, this._video.src);
     },
