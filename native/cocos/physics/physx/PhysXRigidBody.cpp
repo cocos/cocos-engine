@@ -99,6 +99,11 @@ void PhysXRigidBody::useGravity(bool v) {
     getSharedBody().getImpl().rigidDynamic->setActorFlag(PxActorFlag::eDISABLE_GRAVITY, !v);
 }
 
+void PhysXRigidBody::useCCD(bool v) {
+    if (getSharedBody().isStatic()) return;
+    getSharedBody().getImpl().rigidDynamic->setRigidBodyFlag(physx::PxRigidBodyFlag::eENABLE_CCD, v);
+}
+
 void PhysXRigidBody::setLinearFactor(float x, float y, float z) {
     if (getSharedBody().isStatic()) return;
     getSharedBody().getImpl().rigidDynamic->setRigidDynamicLockFlag(physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X, x == 0.);

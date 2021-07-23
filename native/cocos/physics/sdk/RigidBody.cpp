@@ -82,6 +82,10 @@ void RigidBody::setAngularDamping(float v) {
     _impl->setAngularDamping(v);
 }
 
+void RigidBody::useCCD(bool v) {
+    _impl->useCCD(v);
+}
+
 void RigidBody::useGravity(bool v) {
     _impl->useGravity(v);
 }

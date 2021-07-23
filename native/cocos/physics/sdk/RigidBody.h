@@ -48,6 +48,7 @@ public:
     void             setLinearDamping(float v) override;
     void             setAngularDamping(float v) override;
     void             useGravity(bool v) override;
+    void             useCCD(bool v) override;
     void             setLinearFactor(float x, float y, float z) override;
     void             setAngularFactor(float x, float y, float z) override;
     void             setAllowSleep(bool v) override;
