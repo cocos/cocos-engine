@@ -237,7 +237,7 @@ vec4 EulerToQuat(vec3 euler) {
 }
 
 float atan2(float y, float x) {
-    return x == 0.0 ? sign(y) * 3.1416 * 0.5 : atan(y, x);
+  return x == 0.0 ? sign(y) * 3.1416 * 0.5 : atan(y, x);
 }
 
 vec3 QuatToEuler(vec4 q) {

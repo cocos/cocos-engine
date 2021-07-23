@@ -112,7 +112,7 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     private _quatRot:Quat = new Quat();
     private _otherEuler:Vec3 = new Vec3();
 
-    private _processRoation (p: Particle, r2d: number) {
+    private _processRotation (p: Particle, r2d: number) {
         // Same as the particle-vs-legacy.chunk glsl statemants in remark
         const renderMode = p.particleSystem.processor.getInfo().renderMode;
         if (renderMode !== RenderMode.Mesh) {
@@ -142,14 +142,14 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
         }
 
         // Rotation-overtime combine with start rotation, after that we get quat from the mat
-        p.deletaMat = Mat4.fromQuat(p.deletaMat, p.deltaQuat);
-        p.localMat = p.localMat.multiply(p.deletaMat); // accumulate rotation
+        p.deltaMat = Mat4.fromQuat(p.deltaMat, p.deltaQuat);
+        p.localMat = p.localMat.multiply(p.deltaMat); // accumulate rotation
 
         this._startMat = Mat4.fromQuat(this._startMat, p.startRotation);
         this._matRot = this._startMat.multiply(p.localMat);
 
         Mat4.getRotation(this._quatRot, this._matRot);
-        this._processRoation(p, Particle.R2D);
+        this._processRotation(p, Particle.R2D);
         p.rotation.set(this._quatRot.x, this._quatRot.y, this._quatRot.z);
     }
 }
