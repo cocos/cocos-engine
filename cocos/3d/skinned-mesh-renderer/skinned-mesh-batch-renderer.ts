@@ -488,7 +488,6 @@ export class SkinnedMeshBatchRenderer extends SkinnedMeshRenderer {
             height: this.atlasSize,
             format: PixelFormat.RGBA8888,
         });
-        tex.loaded = true;
         this._textures[prop] = tex;
         return tex;
     }

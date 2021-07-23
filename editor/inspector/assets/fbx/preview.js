@@ -1,24 +1,37 @@
 const animation = require('./animation');
+const events = require('./events');
+const eventEditor = require('./event-editor');
 
 exports.template = `
 <div class="preview">
     <div class="animation-info">
-        <ui-button class="button" id="playButton" tooltip="Play">
-            <ui-icon value="play" id="playButtonIcon"></ui-icon>
-        </ui-button>
-        <ui-button class="button" id="stopButton" tooltip="Stop">
-            <ui-icon value="stop"></ui-icon>
-        </ui-button>
-        <ui-slider class="slider" tooltip="Frame"
-            id="animationTimeSlider"
-            step="1"
-        >
-        </ui-slider>
-        <ui-label id="timeLabel" value="Time:0.00"></ui-label>
+        <div class="flex">
+            <div class="toolbar" id="timeCtrl">
+                <ui-icon value="rewind" name="jump_first_frame"></ui-icon>
+                <ui-icon value="prev-play" name="jump_prev_frame"></ui-icon>
+                <ui-icon id="playButtonIcon" value="play" name="play"></ui-icon>
+                <ui-icon value="next-play" name="jump_next_frame"></ui-icon>
+                <ui-icon value="forward" name="jump_last_frame"></ui-icon>
+                <ui-icon value="stop" name="stop"></ui-icon>
+                <ui-icon value="event" name="add_event"></ui-icon>
+            </div>
+            <div class="time flex toolbar f1">
+                <ui-label value="Time"></ui-label>
+                <ui-num-input id="currentTime"></ui-num-input>
+                <div class="duration"></div>
+            </div>
+        </div>
+        <div class="time-line">
+            <ui-scale-plate tooltip="Frame" id="animationTime"></ui-scale-plate>
+            <div class="events"></div>
+        </div>
     </div>
     <div class="model-info">
         <ui-label value="Vertices:0" class="vertices"></ui-label>
         <ui-label value="Triangles:0" class="triangles"></ui-label>
+    </div>
+
+    <div class="event-editor">
     </div>
 
     <div class="image">
@@ -28,6 +41,13 @@ exports.template = `
 `;
 
 exports.style = `
+.flex {
+    display: flex;
+}
+
+.f1 {
+    flex: 1;
+}
 .preview {
     margin-top: 10px;
     border-top: 1px solid var(--color-normal-border);
@@ -49,18 +69,169 @@ exports.style = `
 .preview >.image > .canvas {
     flex: 1;
 }
-.preview .animation-info {
+.preview .toolbar {
     display: flex;
     margin-top: 10px;
+    justify-content: space-between;
 }
-.preview .animation-info .button {
-    padding: 0 5px;
-    line-height: 25px;
-    margin-right: 10px;
-}
-.preview .animation-info .slider {
+
+.preview .toolbar ui-num-input {
+    display: flex;
     flex: 1;
 }
+.preview .toolbar > * {
+    line-height: 25px;
+    margin-right: 5px;
+}
+
+ui-icon {
+    cursor: pointer;
+}
+
+.time-line {
+    position: relative;
+}
+
+.time-line .events {
+    position: absolute;
+    bottom: 5px;
+    box-sizing: border-box;
+    padding: 0 8px;
+    width: 100%;
+}
+.time-line ui-scaleplate {
+    width: 100%;
+}
+
+.events ui-icon {
+    position: absolute;
+    bottom: -4px;
+    color: #f5f06d;
+}
+
+.events ui-icon:hover {
+    color: #f4f189;
+    cursor: pointer;
+}
+
+.mask {
+    position: absolute;
+    z-index: 2;
+    width: 100%;
+    height: 100vh;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: var(--color-normal-fill);
+    opacity: 0.3;
+}
+
+.event-editor {
+    background: var(--color-normal-fill);
+}
+#event-editor {
+    line-height: 24px;
+    width: 100%;
+    height: 70%;
+    overflow: hidden;
+    margin: 0 auto;
+    background: #312f2f;
+    display: flex;
+    flex-direction: column;
+    border: var(--color-normal-fill-emphasis) 1px solid;
+    box-sizing: border-box;
+  }
+  #event-editor > header {
+    display: flex;
+    justify-content: space-between;
+    height: 24px;
+    background: var(--color-normal-fill-emphasis);
+    padding: 5px;
+  }
+  #event-editor > .header .name {
+    margin: 0 5px;
+  }
+  #event-editor > .header .dirty {
+    color: var(--color-focus-fill);
+    margin: 0 2px;
+  }
+  #event-editor > .functions {
+    padding: 10px;
+    overflow-y: auto;
+    flex: 1;
+    height: 100%;
+    padding-top: 0;
+    background: var(--color-normal-fill-normal);
+    margin-bottom: 2px;
+  }
+  #event-editor > .functions .header,
+  #event-editor > .functions .line {
+    display: flex;
+    justify-content: space-between;
+    padding: 0 8px;
+    flex: 1;
+    background: unset;
+  }
+  #event-editor > .functions .line {
+    margin-bottom: 4px;
+  }
+  #event-editor > .functions .line .name {
+    min-width: 8px;
+  }
+  #event-editor > .functions .line > * {
+    margin-right: 5px;
+  }
+  #event-editor > .functions .line .operate {
+    visibility: hidden;
+  }
+  #event-editor > .functions .line:hover .operate {
+    visibility: visible;
+  }
+  #event-editor > .functions .header ui-input {
+    background-color: transparent;
+    border-color: transparent;
+    line-height: 18px;
+  }
+  #event-editor > .functions .header ui-input:hover {
+    background-color: var(--color-normal-fill-emphasis);
+  }
+  #event-editor > .functions > * {
+    margin-top: 10px;
+  }
+  #event-editor ui-input,
+  #event-editor ui-checkbox,
+  #event-editor ui-num-input {
+    width: 100%;
+    height: 25px;
+  }
+  #event-editor ui-section {
+    width: 100%;
+  }
+  #event-editor ui-icon:hover {
+    cursor: pointer;
+    color: #cccccc;
+  }
+  #event-editor .tools {
+    display: flex;
+    border-bottom: 1px solid;
+    padding: 10px 0;
+  }
+  #event-editor .tools ui-icon {
+    margin: 0 5px;
+  }
+  #event-editor .params {
+    border: 1px rgba(136, 136, 136, 0.35) dashed;
+    border-radius: calc(var(--size-normal-radius) * 1px);
+  }
+  #event-editor .header ui-icon,
+  #event-editor .params ui-icon {
+    margin: 0 5px;
+  }
+  #event-editor .empty {
+    font-style: italic;
+    text-align: center;
+  }
 `;
 
 const PLAY_STATE = {
@@ -77,30 +248,16 @@ exports.$ = {
     canvas: '.canvas',
     animationInfo: '.animation-info',
     modelInfo: '.model-info',
-    playButton: '#playButton',
     playButtonIcon: '#playButtonIcon',
-    stopButton: '#stopButton',
-    animationTimeSlider: '#animationTimeSlider',
-    timeLabel: '#timeLabel',
+    animationTime: '#animationTime',
+    currentTime: '#currentTime',
+    events: ".events",
+    duration: ".duration",
+    eventEditor: ".event-editor",
+    timeCtrl: "#timeCtrl",
 };
 
 const Elements = {
-    playButton: {
-        ready() {
-            this.$.playButton.addEventListener('confirm', this.onPlayButtonClick.bind(this));
-        },
-    },
-    stopButton: {
-        ready() {
-            this.$.stopButton.addEventListener('confirm', this.onStopButtonClick.bind(this));
-        },
-    },
-    animationTimeSlider: {
-        ready() {
-            const slider = this.$.animationTimeSlider;
-            slider.addEventListener('change', this.onAnimationTimeSliderChange.bind(this));
-        },
-    },
     preview: {
         ready() {
             const panel = this;
@@ -171,6 +328,24 @@ const Elements = {
             Editor.Message.send('scene', 'hide-model-preview');
         },
     },
+    animationTime: {
+        ready() {
+            const timeline = this.$.animationTime;
+            timeline.addEventListener('change', this.onAnimationTimeChange.bind(this));
+            timeline.addEventListener('transform', this.updateEventInfo.bind(this));
+        },
+    },
+    currentTime: {
+        ready() {
+            const currentTime = this.$.currentTime;
+            currentTime.addEventListener('confirm', this.onAnimationTimeChange.bind(this));
+        },
+    },
+    timeCtrl: {
+        ready() {
+            this.$.timeCtrl.addEventListener('click', this.onTimeCtrlClick.bind(this));
+        },
+    },
 };
 
 exports.update = async function(assetList, metaList) {
@@ -211,9 +386,10 @@ exports.ready = function() {
     this.onTabChangedBind = this.onTabChanged.bind(this);
     this.onModelAnimationUpdateBind = this.onModelAnimationUpdate.bind(this);
     this.onAnimationPlayStateChangedBind = this.onAnimationPlayStateChanged.bind(this);
+
     this.onEditClipInfoChanged = async (clipInfo) => {
         if (clipInfo) {
-            await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setEditClip', clipInfo.clipUUID);
+            await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setEditClip', clipInfo.rawClipUUID, clipInfo.rawClipIndex);
             this.setCurEditClipInfo(clipInfo);
         }
     };
@@ -236,6 +412,13 @@ exports.ready = function() {
 
     panel.resizeObserver = new window.ResizeObserver(observer);
     panel.resizeObserver.observe(panel.$.container);
+
+    this.events = events;
+    this.events.ready.call(this);
+
+    this.eventEditor = eventEditor;
+    this.events.eventsMap = {};
+    this.eventEditor.ready.call(this);
 };
 
 exports.close = function() {
@@ -255,6 +438,10 @@ exports.close = function() {
 };
 
 exports.methods = {
+    async apply() {
+        // save animation event info
+        await this.events.apply.call(this);
+    },
     async refreshPreview() {
         const panel = this;
 
@@ -299,19 +486,57 @@ exports.methods = {
     async onTabChanged(activeTab) {
         if (typeof activeTab === 'string') {
             this.activeTab = activeTab;
-            this.$.animationInfo.style.display = this.activeTab === 'animation' ? 'flex' : 'none';
+            this.$.animationInfo.style.display = this.activeTab === 'animation' ? 'block' : 'none';
             this.$.modelInfo.style.display = this.activeTab === 'model' ? 'block' : 'none';
             await this.stopAnimation();
         }
     },
-    async onStopButtonClick(event) {
-        event.stopPropagation();
-        if (!this.curEditClipInfo) {
+
+    onTimeCtrlClick(event) {
+        const name = event.target.getAttribute('name');
+        if (!name || !this.curEditClipInfo) {
             return;
         }
-
-        await this.stopAnimation();
+        switch (name) {
+            case 'play':
+                this.onPlayButtonClick();
+                break;
+            case 'stop':
+                this.stopAnimation();
+                break;
+            case 'jump_first_frame':
+                this.setCurrentFrame(0);
+                break;
+            case 'jump_next_frame':
+                this.setCurrentFrame(this.$.currentTime.value + 1);
+                break;
+            case 'jump_prev_frame':
+                this.setCurrentFrame(this.$.currentTime.value - 1);
+                break;
+            case 'jump_last_frame':
+                this.setCurrentFrame(this.curTotalFrames);
+                break;
+            case 'add_event':
+                this.addEventToCurTime();
+                break;
+        }
     },
+
+    addEventToCurTime() {
+        this.events.addNewEvent.call(this, this.$.animationTime.value / this.curEditClipInfo.fps);
+    },
+
+    updateEventInfo() {
+        const events = this.curEditClipInfo.userData.events;
+        const eventInfos = events.map((info) => {
+            return {
+                ...info,
+                x: this.$.animationTime.valueToPixel(info.frame * this.curEditClipInfo.fps),
+            };
+        });
+        this.events.update.call(this, eventInfos);
+    },
+
     async stopAnimation() {
         if (!this.curEditClipInfo) {
             return;
@@ -319,8 +544,7 @@ exports.methods = {
 
         await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'stop');
     },
-    async onPlayButtonClick(event) {
-        event.stopPropagation();
+    async onPlayButtonClick() {
         if (!this.curEditClipInfo) {
             return;
         }
@@ -332,7 +556,7 @@ exports.methods = {
                 await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'pause');
                 break;
             case PLAY_STATE.STOP:
-                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'play', this.curEditClipInfo.clipUUID);
+                await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'play', this.curEditClipInfo.rawClipUUID);
                 break;
             default:
                 break;
@@ -340,28 +564,31 @@ exports.methods = {
 
         this.isPreviewDataDirty = true;
     },
-    async onAnimationTimeSliderChange(event) {
+    async onAnimationTimeChange(event) {
         event.stopPropagation();
         if (!this.curEditClipInfo) {
             return;
         }
 
         const frame = event.target.value;
-        const curTime = (frame / this.curTotalFrames) * this.curEditClipInfo.duration;
-        await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setCurEditTime', curTime);
+        await this.setCurrentFrame(frame);
         this.isPreviewDataDirty = true;
+    },
+
+    async setCurrentFrame(frame) {
+        frame = Editor.Utils.Math.clamp(frame, 0, this.curTotalFrames);
+
+        const curTime = frame / this.curEditClipInfo.fps;
+        await Editor.Message.request('scene', 'execute-model-preview-animation-operation', 'setCurEditTime', curTime);
     },
 
     onModelAnimationUpdate(time) {
         if (!this.curEditClipInfo) {
             return;
         }
-
-        if (this.$.animationTimeSlider) {
-            this.$.animationTimeSlider.value = Math.round((time - this.curEditClipInfo.from) * this.curEditClipInfo.fps);
-        }
-        if (this.$.timeLabel) {
-            this.$.timeLabel.value = `Time:${(time - this.curEditClipInfo.from).toFixed(2)}(s)`;
+        if (this.$.animationTime) {
+            this.$.animationTime.value = Math.round((time - this.curEditClipInfo.from) * this.curEditClipInfo.fps);
+            this.$.currentTime.value = this.$.animationTime.value;
         }
 
         this.isPreviewDataDirty = true;
@@ -391,6 +618,15 @@ exports.methods = {
         this.curEditClipInfo = clipInfo;
         if (clipInfo) {
             this.curTotalFrames = Math.round(clipInfo.duration * clipInfo.fps);
+            this.$.animationTime.setConfig({
+                max: this.curTotalFrames,
+            });
+            this.$.duration.innerHTML = `Duration: ${this.curTotalFrames}`;
+            // update animation events
+            const subId = clipInfo.clipUUID.match(/@(.*)/)[1];
+            this.curEditClipInfo.userData = this.meta.subMetas[subId].userData;
+            this.updateEventInfo();
+
             if (this.$.animationTimeSlider) {
                 this.$.animationTimeSlider.max = this.curTotalFrames;
             }

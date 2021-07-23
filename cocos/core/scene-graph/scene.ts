@@ -122,7 +122,7 @@ export class Scene extends BaseNode {
                 children[i].active = false;
             }
         }
-        legacyCC.director.root.destroyScene(this._renderScene);
+        if (this._renderScene) legacyCC.director.root.destroyScene(this._renderScene);
         this._active = false;
         this._activeInHierarchy = false;
         return success;
@@ -265,12 +265,13 @@ export class Scene extends BaseNode {
 
     protected _activate (active: boolean) {
         active = (active !== false);
-        if (EDITOR || TEST) {
+        if (EDITOR) {
             // register all nodes to editor
             this._registerIfAttached!(active);
         }
         legacyCC.director._nodeActivator.activateNode(this, active);
-        this._globals.activate();
+        // The test environment does not currently support the renderer
+        if (!TEST) this._globals.activate();
     }
 }
 

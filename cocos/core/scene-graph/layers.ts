@@ -30,6 +30,7 @@
 
 import { BitMask, Enum } from '../value-types';
 import { legacyCC } from '../global-exports';
+import { log2 } from '../math/bits';
 
 // built-in layers, users can use 0~19 bits, 20~31 are system preserve bits.
 const layerList = {
@@ -129,6 +130,34 @@ export class Layers {
       delete Layers.Enum[bitNum];
       delete Layers.BitMask[Layers.BitMask[bitNum]];
       delete Layers.BitMask[bitNum];
+  }
+
+  /**
+   * @en Given a layer name, returns the layer index as defined by either a Builtin or a User Layer in the Tags and Layers manager.
+   * @zh 给定层名称，返回由标记和层管理器中的内置层或用户层定义的层索引。
+   * @param name layer's name
+   */
+  public static nameToLayer (name: string): number {
+      if (name === undefined) {
+          console.warn('name can\'t be undefined');
+          return -1;
+      }
+
+      return log2(Layers.Enum[name] as number);
+  }
+
+  /**
+   * @en Given a layer number, returns the name of the layer as defined in either a Builtin or a User Layer in the Tags and Layers manager.
+   * @zh 给定层数，返回在标记和层管理器中的内置层或用户层中定义的层名称。
+   * @param bitNum layer's value
+   */
+  public static layerToName (bitNum: number): string {
+      if (bitNum > 31 || bitNum < 0) {
+          console.warn('Unable to access unknown layer.');
+          return '';
+      }
+
+      return Layers.Enum[bitNum] as string;
   }
 }
 export declare namespace Layers {

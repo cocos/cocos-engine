@@ -150,9 +150,9 @@ export abstract class RenderPipeline extends Asset {
     protected _descriptorSet!: DescriptorSet;
     protected _commandBuffers: CommandBuffer[] = [];
     protected _pipelineUBO = new PipelineUBO();
-    protected _pipelineSceneData = new PipelineSceneData();
     protected _macros: MacroRecord = {};
     protected _constantMacros = '';
+    protected declare _pipelineSceneData: PipelineSceneData;
 
     /**
      * @en The initialization process, user shouldn't use it in most case, only useful when need to generate render pipeline programmatically.
@@ -213,10 +213,12 @@ export abstract class RenderPipeline extends Asset {
      * @param view Render view。
      */
     public render (cameras: Camera[]) {
-        for (let j = 0; j < this.flows.length; j++) {
-            for (let i = 0; i < cameras.length; i++) {
-                const camera = cameras[i];
-                this.flows[j].render(camera);
+        for (let i = 0; i < cameras.length; i++) {
+            const camera = cameras[i];
+            if (camera.scene) {
+                for (let j = 0; j < this._flows.length; j++) {
+                    this._flows[j].render(camera);
+                }
             }
         }
     }

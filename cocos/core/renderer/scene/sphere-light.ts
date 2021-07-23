@@ -23,86 +23,97 @@
  THE SOFTWARE.
  */
 
+import { JSB } from 'internal:constants';
 import { AABB } from '../../geometry';
 import { Vec3 } from '../../math';
 import { Light, LightType, nt2lm } from './light';
-import { AABBHandle, AABBPool, AABBView, LightPool, LightView, NULL_HANDLE } from '../core/memory-pools';
+import { NativeSphereLight } from './native-scene';
 
 export class SphereLight extends Light {
-    protected _needUpdate = false;
+    protected _init (): void {
+        super._init();
+        if (JSB) {
+            (this._nativeObj! as NativeSphereLight).setPosition(this._pos);
+            (this._nativeObj! as NativeSphereLight).setAABB(this._aabb.native);
+        }
+    }
+
+    protected _destroy (): void {
+        super._destroy();
+    }
 
     get position () {
         return this._pos;
     }
 
     set size (size: number) {
-        LightPool.set(this._handle, LightView.SIZE, size);
+        this._size = size;
+        if (JSB) {
+            (this._nativeObj! as NativeSphereLight).setSize(size);
+        }
     }
 
     get size (): number {
-        return LightPool.get(this._handle, LightView.SIZE);
+        return this._size;
     }
 
     set range (range: number) {
-        LightPool.set(this._handle, LightView.RANGE, range);
+        this._range = range;
+        if (JSB) {
+            (this._nativeObj! as NativeSphereLight).setRange(range);
+        }
+
         this._needUpdate = true;
     }
 
     get range (): number {
-        return LightPool.get(this._handle, LightView.RANGE);
+        return this._range;
     }
 
     set luminance (lum: number) {
-        LightPool.set(this._handle, LightView.ILLUMINANCE, lum);
+        this._luminance = lum;
+        if (JSB) {
+            (this._nativeObj! as NativeSphereLight).setIlluminance(lum);
+        }
     }
 
     get luminance (): number {
-        return LightPool.get(this._handle, LightView.ILLUMINANCE);
+        return this._luminance;
     }
 
     get aabb () {
         return this._aabb;
     }
 
+    protected _needUpdate = false;
+    protected _size = 0.15;
+    protected _range = 1.0;
+    protected _luminance = 0;
     protected _pos: Vec3;
     protected _aabb: AABB;
-    protected _hAABB: AABBHandle = NULL_HANDLE;
 
     constructor () {
         super();
         this._aabb = AABB.create();
         this._pos = new Vec3();
+        this._type = LightType.SPHERE;
     }
 
     public initialize () {
         super.initialize();
-        this._hAABB = AABBPool.alloc();
+
         const size = 0.15;
-        LightPool.set(this._handle, LightView.TYPE, LightType.SPHERE);
-        LightPool.set(this._handle, LightView.SIZE, size);
-        LightPool.set(this._handle, LightView.RANGE, 1.0);
-        LightPool.set(this._handle, LightView.AABB, this._hAABB);
-        LightPool.set(this._handle, LightView.ILLUMINANCE, 1700 / nt2lm(size));
+        this.size = size;
+        this.range = 1.0;
+        this.luminance = 1700 / nt2lm(size);
     }
 
     public update () {
         if (this._node && (this._node.hasChangedFlags || this._needUpdate)) {
             this._node.getWorldPosition(this._pos);
-            const range = LightPool.get(this._handle, LightView.RANGE);
+            const range = this._range;
             AABB.set(this._aabb, this._pos.x, this._pos.y, this._pos.z, range, range, range);
             this._needUpdate = false;
-
-            LightPool.setVec3(this._handle, LightView.POSITION, this._pos);
-            AABBPool.setVec3(this._hAABB, AABBView.CENTER, this._aabb.center);
-            AABBPool.setVec3(this._hAABB, AABBView.HALF_EXTENSION, this._aabb.halfExtents);
         }
-    }
-
-    public destroy () {
-        if (this._hAABB) {
-            AABBPool.free(this._hAABB);
-            this._hAABB = NULL_HANDLE;
-        }
-        return super.destroy();
     }
 }

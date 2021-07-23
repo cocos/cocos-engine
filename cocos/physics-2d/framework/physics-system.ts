@@ -198,10 +198,10 @@ export class PhysicsSystem2D extends Eventify(System) {
             Vec2.copy(this._gravity, config.gravity as IVec2Like);
             this._gravity.multiplyScalar(PHYSICS_2D_PTM_RATIO);
 
-            this._allowSleep = config.allowSleep;
-            this._fixedTimeStep = config.fixedTimeStep;
-            this._maxSubSteps = config.maxSubSteps;
-            this._autoSimulation = config.autoSimulation;
+            this._allowSleep = config.allowSleep as boolean;
+            this._fixedTimeStep = config.fixedTimeStep as number;
+            this._maxSubSteps = config.maxSubSteps as number;
+            this._autoSimulation = config.autoSimulation as boolean;
 
             if (config.collisionMatrix) {
                 for (const i in config.collisionMatrix) {
@@ -336,6 +336,6 @@ director.once(Director.EVENT_INIT, () => {
 
 function initPhysicsSystem () {
     if (!PhysicsSystem2D.PHYSICS_NONE && !EDITOR) {
-        director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, 0);
+        director.registerSystem(PhysicsSystem2D.ID, PhysicsSystem2D.instance, System.Priority.LOW);
     }
 }

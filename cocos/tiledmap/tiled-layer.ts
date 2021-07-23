@@ -37,7 +37,7 @@ import { Renderable2D } from '../2d/framework/renderable-2d';
 import { SpriteFrame } from '../2d/assets/sprite-frame';
 import { Component } from '../core/components';
 import { TMXMapInfo } from './tmx-xml-parser';
-import { Color, IVec2Like, Mat4, Size, SystemEventType, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean, director } from '../core';
+import { Color, IVec2Like, Mat4, Size, Texture2D, Vec2, Vec3, Node, warn, logID, CCBoolean, director } from '../core';
 import { TiledTile } from './tiled-tile';
 import { MeshRenderData } from '../2d/renderer/render-data';
 import { Batcher2D } from '../2d/renderer/batcher-2d';
@@ -45,7 +45,8 @@ import {
     MixedGID, GID, Orientation, TiledTextureGrids, TMXTilesetInfo, RenderOrder, StaggerAxis, StaggerIndex, TileFlag,
     GIDFlags, TiledGrid, TiledAnimationType, PropertiesInfo, TMXLayerInfo,
 } from './tiled-types';
-import { fillTextureGrids, loadAllTextures } from './tiled-utils';
+import { fillTextureGrids } from './tiled-utils';
+import { NodeEventType } from '../core/scene-graph/node-event';
 
 const _mat4_temp = new Mat4();
 const _vec2_temp = new Vec2();
@@ -229,8 +230,8 @@ export class TiledLayer extends Renderable2D {
         this._positionToRowCol(_vec2_temp.x, _vec2_temp.y, _tempRowCol);
         this._addUserNodeToGrid(dataComp, _tempRowCol);
         this._updateCullingOffsetByUserNode(node);
-        node.on(SystemEventType.TRANSFORM_CHANGED, this._userNodePosChange, dataComp);
-        node.on(SystemEventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
+        node.on(NodeEventType.TRANSFORM_CHANGED, this._userNodePosChange, dataComp);
+        node.on(NodeEventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
         return true;
     }
 
@@ -247,8 +248,8 @@ export class TiledLayer extends Renderable2D {
             warn('CCTiledLayer:removeUserNode node is not exist');
             return false;
         }
-        node.off(SystemEventType.TRANSFORM_CHANGED, this._userNodePosChange, dataComp);
-        node.off(SystemEventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
+        node.off(NodeEventType.TRANSFORM_CHANGED, this._userNodePosChange, dataComp);
+        node.off(NodeEventType.SIZE_CHANGED, this._userNodeSizeChange, dataComp);
         this._removeUserNodeFromGrid(dataComp);
         delete this._userNodeMap[node.uuid];
         node._removeComponent(dataComp);
@@ -394,11 +395,11 @@ export class TiledLayer extends Renderable2D {
 
     onEnable () {
         super.onEnable();
-        this.node.on(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
-        this.node.on(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-        this.node.on(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
-        this.node.parent!.on(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-        this.node.parent!.on(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.on(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.on(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.parent!.on(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.parent!.on(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
         this.markForUpdateRenderData();
         // delay 1 frame, since camera's matrix data is dirty
         this.scheduleOnce(this.updateCulling.bind(this));
@@ -406,11 +407,11 @@ export class TiledLayer extends Renderable2D {
 
     onDisable () {
         super.onDisable();
-        this.node.parent!.off(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
-        this.node.parent!.off(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-        this.node.off(SystemEventType.SIZE_CHANGED, this.updateCulling, this);
-        this.node.off(SystemEventType.TRANSFORM_CHANGED, this.updateCulling, this);
-        this.node.off(SystemEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
+        this.node.parent!.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.parent!.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.off(NodeEventType.SIZE_CHANGED, this.updateCulling, this);
+        this.node.off(NodeEventType.TRANSFORM_CHANGED, this.updateCulling, this);
+        this.node.off(NodeEventType.ANCHOR_CHANGED, this._syncAnchorPoint, this);
     }
 
     protected _syncAnchorPoint () {
@@ -1281,14 +1282,12 @@ export class TiledLayer extends Renderable2D {
             }
         }
 
-        loadAllTextures(textures, () => {
-            for (let i = 0, l = tilesets.length; i < l; ++i) {
-                const tilesetInfo = tilesets[i];
-                if (!tilesetInfo) continue;
-                fillTextureGrids(tilesetInfo, texGrids, tilesetInfo.sourceImage);
-            }
-            this._prepareToRender();
-        });
+        for (let i = 0, l = tilesets.length; i < l; ++i) {
+            const tilesetInfo = tilesets[i];
+            if (!tilesetInfo) continue;
+            fillTextureGrids(tilesetInfo, texGrids, tilesetInfo.sourceImage);
+        }
+        this._prepareToRender();
     }
 
     public init (layerInfo: TMXLayerInfo, mapInfo: TMXMapInfo, tilesets: TMXTilesetInfo[], textures: SpriteFrame[], texGrids: TiledTextureGrids) {

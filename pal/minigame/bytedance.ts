@@ -1,5 +1,5 @@
 import { IMiniGame, SystemInfo } from 'pal/minigame';
-import { Orientation } from '../system/enum-type/orientation';
+import { Orientation } from '../screen-adapter/enum-type';
 import { cloneObject, createInnerAudioContextPolyfill } from '../utils';
 
 declare let tt: any;
@@ -7,6 +7,11 @@ declare let tt: any;
 // @ts-expect-error can't init minigame when it's declared
 const minigame: IMiniGame = {};
 cloneObject(minigame, tt);
+
+// #region platform related
+minigame.tt = {};
+minigame.tt.getAudioContext = tt.getAudioContext?.bind(tt);
+// #endregion platform related
 
 // #region SystemInfo
 const systemInfo = minigame.getSystemInfoSync();

@@ -339,7 +339,6 @@ export class Profiler {
         }
 
         const now = performance.now();
-        (this._stats.frame.counter as PerfCounter).end(now);
         (this._stats.frame.counter as PerfCounter).start(now);
         (this._stats.logic.counter as PerfCounter).start(now);
     }
@@ -393,7 +392,7 @@ export class Profiler {
             }
 
             // @ts-expect-error using private members for efficiency
-            this.pass._rootBufferDirty = true;
+            this.pass._setRootBufferDirty(true);
         }
 
         const now = performance.now();
@@ -406,6 +405,7 @@ export class Profiler {
         }
         const now = performance.now();
 
+        (this._stats.frame.counter as PerfCounter).end(now);
         (this._stats.fps.counter as PerfCounter).frame(now);
         (this._stats.render.counter as PerfCounter).end(now);
 

@@ -28,7 +28,7 @@
  * @module core/data
  */
 
-import { SUPPORT_JIT, EDITOR, TEST, DEBUG } from 'internal:constants';
+import { SUPPORT_JIT, EDITOR, TEST } from 'internal:constants';
 import * as js from '../utils/js';
 import { CCClass } from './class';
 import { errorID, warnID } from '../platform/debug';
@@ -47,7 +47,6 @@ const DontDestroy = 1 << 6;
 const Destroying = 1 << 7;
 const Deactivating = 1 << 8;
 const LockedInEditor = 1 << 9;
-// var HideInGame = 1 << 9;
 const HideInHierarchy = 1 << 10;
 
 const IsOnEnableCalled = 1 << 11;
@@ -62,6 +61,10 @@ const IsScaleLocked = 1 << 18;
 const IsAnchorLocked = 1 << 19;
 const IsSizeLocked = 1 << 20;
 const IsPositionLocked = 1 << 21;
+
+// Distributed
+const IsReplicated = 1 << 22;
+const IsClientLoad = 1 << 23;
 
 // var Hide = HideInGame | HideInEditor;
 // should not clone or serialize these flags
@@ -240,6 +243,17 @@ class CCObject implements EditorExtendableObject {
         return this._objFlags & CCObject.Flags.AllHideMasks;
     }
 
+    public set replicated (value: boolean) {
+        if (value) {
+            this._objFlags |= IsReplicated;
+        } else {
+            this._objFlags &= ~IsReplicated;
+        }
+    }
+    public get replicated () {
+        return !!(this._objFlags & IsReplicated);
+    }
+
     /**
      * @en
      * Indicates whether the object is not yet destroyed. (It will not be available after being destroyed)<br>
@@ -363,6 +377,19 @@ if (EDITOR || TEST) {
     js.get(prototype, 'isRealValid', function (this: CCObject) {
         return !(this._objFlags & RealDestroyed);
     });
+
+    /**
+     * @en After inheriting CCObject objects, control whether you need to hide, lock, serialize, and other functions.
+     * This method is only available for editors and is not recommended for developers
+     * @zh 在继承 CCObject 对象后，控制是否需要隐藏，锁定，序列化等功能(该方法仅提供给编辑器使用，不建议开发者使用)。
+     */
+    js.getset(prototype, 'objFlags',
+        function (this: CCObject) {
+            return this._objFlags;
+        },
+        function (this: CCObject, objFlags: CCObject.Flags) {
+            this._objFlags = objFlags;
+        });
 
     /*
     * @en
@@ -569,6 +596,9 @@ declare namespace CCObject {
         IsScaleLocked,
         IsAnchorLocked,
         IsSizeLocked,
+
+        IsReplicated,
+        IsClientLoad,
     }
 
     // for @ccclass

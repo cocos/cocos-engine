@@ -196,7 +196,7 @@ const cacheManager = require('./jsb-cache-manager');
 
     dbAtlas.removeRecordTexture = function (texture) {
         if (!texture) return;
-        delete _textureIdx2Name[texture.url];
+        delete _textureIdx2Name[texture.image.url];
         let index = texture.__textureIndex__;
         if (index) {
             let texKey = _textureKeyMap[index];
@@ -225,7 +225,7 @@ const cacheManager = require('./jsb-cache-manager');
     };
 
     dbAtlas.updateTextureAtlasData = function (factory) {
-        let url = this._texture.url;
+        let url = this._texture.image.url;
         let preAtlasInfo = _textureIdx2Name[url];
         let index;
 
@@ -335,6 +335,7 @@ const cacheManager = require('./jsb-cache-manager');
     let superProto = cc.internal.Renderable2D.prototype;
     let armatureDisplayProto = cc.internal.ArmatureDisplay.prototype;
     const AnimationCacheMode = cc.internal.ArmatureDisplay.AnimationCacheMode;
+    let armatureSystem = cc.internal.ArmatureSystem;
 
     armatureDisplayProto.initFactory = function () {
         this._factory = dragonBones.CCFactory.getFactory();
@@ -523,18 +524,19 @@ const cacheManager = require('./jsb-cache-manager');
         }
         this.syncTransform(true);
         this._flushAssembler();
+        armatureSystem.getInstance().add(this);
         middleware.retain();
     };
 
-    let _onDisable = superProto.onEnable;
+    let _onDisable = superProto.onDisable;
     armatureDisplayProto.onDisable = function () {
         if(_onDisable) {
             _onDisable.call(this);
         }
-        
         if (this._armature && !this.isAnimationCached()) {
             this._factory.remove(this._armature);
         }
+        armatureSystem.getInstance().remove(this);
         middleware.release();
     };
 
@@ -625,9 +627,7 @@ const cacheManager = require('./jsb-cache-manager');
         }
     }
 
-    const _lateUpdate = armatureDisplayProto.lateUpdate;
-    armatureDisplayProto.lateUpdate = function () {
-        if(_lateUpdate) _lateUpdate.call(this);
+    armatureDisplayProto.updateAnimation = function () {
         let nativeDisplay = this._nativeDisplay;
         if (!nativeDisplay) return;
 
@@ -794,7 +794,7 @@ const cacheManager = require('./jsb-cache-manager');
                 middleware.resetIndicesStart = false;
             }
 
-            ui.commitComp(this, realTexture._texture, this._assembler, null);
+            ui.commitComp(this, realTexture, this._assembler, null);
             this.material = mat;
         }
     }

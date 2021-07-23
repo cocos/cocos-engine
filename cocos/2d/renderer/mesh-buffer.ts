@@ -27,9 +27,8 @@
  * @packageDocumentation
  * @module ui
  */
-import { BufferUsageBit, MemoryUsageBit, InputAssemblerInfo, Attribute, Buffer, BufferInfo } from '../../core/gfx';
+import { BufferUsageBit, MemoryUsageBit, InputAssemblerInfo, Attribute, Buffer, BufferInfo, InputAssembler } from '../../core/gfx';
 import { Batcher2D } from './batcher-2d';
-import { InputAssemblerHandle, NULL_HANDLE, IAPool } from '../../core/renderer/core/memory-pools';
 import { getComponentPerVertex } from './vertex-format';
 
 export class MeshBuffer {
@@ -64,7 +63,7 @@ export class MeshBuffer {
     private _initVDataCount = 0;
     private _initIDataCount = 256 * 6;
     private _outOfCallback: ((...args: number[]) => void) | null = null;
-    private _hInputAssemblers: InputAssemblerHandle[] = [];
+    private _hInputAssemblers: InputAssembler[] = [];
     private _nextFreeIAHandle = 0;
 
     constructor (batcher: Batcher2D) {
@@ -165,28 +164,27 @@ export class MeshBuffer {
         this._indexBuffer = null!;
 
         for (let i = 0; i < this._hInputAssemblers.length; i++) {
-            IAPool.free(this._hInputAssemblers[i]);
+            this._hInputAssemblers[i].destroy();
         }
         this._hInputAssemblers.length = 0;
     }
 
-    public recordBatch (): InputAssemblerHandle {
+    public recordBatch (): InputAssembler | null {
         const vCount = this.indicesOffset - this.indicesStart;
         if (!vCount) {
-            return NULL_HANDLE as InputAssemblerHandle;
+            return null;
         }
 
         if (this._hInputAssemblers.length <= this._nextFreeIAHandle) {
-            this._hInputAssemblers.push(IAPool.alloc(this._batcher.device, this._iaInfo));
+            this._hInputAssemblers.push(this._batcher.device.createInputAssembler(this._iaInfo));
         }
 
-        const hIA = this._hInputAssemblers[this._nextFreeIAHandle++];
+        const ia = this._hInputAssemblers[this._nextFreeIAHandle++];
 
-        const ia = IAPool.get(hIA);
         ia.firstIndex = this.indicesStart;
         ia.indexCount = vCount;
 
-        return hIA;
+        return ia;
     }
 
     public uploadBuffers () {

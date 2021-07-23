@@ -28,7 +28,6 @@
  */
 import { Asset } from '..';
 import { IMemoryImageSource } from '../assets/image-asset';
-import { sys } from '../platform/sys';
 import { js } from '../utils';
 import Cache from './cache';
 import deserialize from './deserialize';
@@ -37,6 +36,7 @@ import plistParser from './plist-parser';
 import { CompleteCallback, IDownloadParseOptions, files, parsed } from './shared';
 
 import { PixelFormat } from '../assets/asset-enum';
+import { CCON } from '../data/ccon';
 
 // PVR constants //
 // https://github.com/toji/texture-tester/blob/master/js/webgl-texture-util.js#L424
@@ -154,15 +154,13 @@ export class Parser {
         '.pvr': this.parsePVRTex,
         '.pkm': this.parsePKMTex,
         '.astc': this.parseASTCTex,
-        // Audio
-        '.mp3': this.parseAudio,
-        '.ogg': this.parseAudio,
-        '.wav': this.parseAudio,
-        '.m4a': this.parseAudio,
 
         // plist
         '.plist': this.parsePlist,
         import: this.parseImport,
+
+        '.ccon': this.parseImport,
+        '.cconb': this.parseImport,
     };
 
     public parseImage (file: HTMLImageElement | Blob, options: IDownloadParseOptions, onComplete: CompleteCallback<HTMLImageElement|ImageBitmap>) {
@@ -175,18 +173,6 @@ export class Parser {
         }, (err) => {
             onComplete(err, null);
         });
-    }
-
-    public parseAudio (file: ArrayBuffer | HTMLAudioElement, options: IDownloadParseOptions, onComplete: CompleteCallback<AudioBuffer|HTMLAudioElement>) {
-        if (file instanceof ArrayBuffer) {
-            sys.__audioSupport.context.decodeAudioData(file, (buffer) => {
-                onComplete(null, buffer);
-            }, (e) => {
-                onComplete(new Error(`Error with decoding audio data${e.err}`), null);
-            });
-        } else {
-            onComplete(null, file);
-        }
     }
 
     public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {
@@ -314,7 +300,7 @@ export class Parser {
         onComplete(err, result);
     }
 
-    public parseImport (file: Record<string, any>, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset>) {
+    public parseImport (file: Record<string, any> | CCON, options: IDownloadParseOptions, onComplete: CompleteCallback<Asset>) {
         if (!file) {
             onComplete(new Error(`The json file of asset ${options.__uuid__ as string} is empty or missing`));
             return;

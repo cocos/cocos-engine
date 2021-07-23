@@ -37,7 +37,6 @@ import {
     serializable,
     tooltip,
 } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
 import { ITerrainShape } from '../../../spec/i-physics-shape';
 import { ITerrainAsset } from '../../../spec/i-external';
@@ -71,7 +70,7 @@ export class TerrainCollider extends Collider {
 
     set terrain (value) {
         this._terrain = value;
-        if (!EDITOR && !TEST) this.shape.setTerrain(this._terrain);
+        if (this._shape) this.shape.setTerrain(this._terrain);
     }
 
     /**

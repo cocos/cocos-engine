@@ -56,16 +56,6 @@ const WebGLWraps: GLenum[] = [
     0x812F, // WebGLRenderingContext.CLAMP_TO_EDGE
 ];
 
-const SAMPLES: number[] = [
-    1,
-    2,
-    4,
-    8,
-    16,
-    32,
-    64,
-];
-
 const _f32v4 = new Float32Array(4);
 
 function CmpF32NotEuqal (a: number, b: number): boolean {
@@ -169,34 +159,34 @@ export function GFXFormatToWebGLType (format: Format, gl: WebGL2RenderingContext
     case Format.PVRTC2_2BPP: return gl.UNSIGNED_BYTE;
     case Format.PVRTC2_4BPP: return gl.UNSIGNED_BYTE;
 
-    case Format.ASTC_RGBA_4x4:
-    case Format.ASTC_RGBA_5x4:
-    case Format.ASTC_RGBA_5x5:
-    case Format.ASTC_RGBA_6x5:
-    case Format.ASTC_RGBA_6x6:
-    case Format.ASTC_RGBA_8x5:
-    case Format.ASTC_RGBA_8x6:
-    case Format.ASTC_RGBA_8x8:
-    case Format.ASTC_RGBA_10x5:
-    case Format.ASTC_RGBA_10x6:
-    case Format.ASTC_RGBA_10x8:
-    case Format.ASTC_RGBA_10x10:
-    case Format.ASTC_RGBA_12x10:
-    case Format.ASTC_RGBA_12x12:
-    case Format.ASTC_SRGBA_4x4:
-    case Format.ASTC_SRGBA_5x4:
-    case Format.ASTC_SRGBA_5x5:
-    case Format.ASTC_SRGBA_6x5:
-    case Format.ASTC_SRGBA_6x6:
-    case Format.ASTC_SRGBA_8x5:
-    case Format.ASTC_SRGBA_8x6:
-    case Format.ASTC_SRGBA_8x8:
-    case Format.ASTC_SRGBA_10x5:
-    case Format.ASTC_SRGBA_10x6:
-    case Format.ASTC_SRGBA_10x8:
-    case Format.ASTC_SRGBA_10x10:
-    case Format.ASTC_SRGBA_12x10:
-    case Format.ASTC_SRGBA_12x12:
+    case Format.ASTC_RGBA_4X4:
+    case Format.ASTC_RGBA_5X4:
+    case Format.ASTC_RGBA_5X5:
+    case Format.ASTC_RGBA_6X5:
+    case Format.ASTC_RGBA_6X6:
+    case Format.ASTC_RGBA_8X5:
+    case Format.ASTC_RGBA_8X6:
+    case Format.ASTC_RGBA_8X8:
+    case Format.ASTC_RGBA_10X5:
+    case Format.ASTC_RGBA_10X6:
+    case Format.ASTC_RGBA_10X8:
+    case Format.ASTC_RGBA_10X10:
+    case Format.ASTC_RGBA_12X10:
+    case Format.ASTC_RGBA_12X12:
+    case Format.ASTC_SRGBA_4X4:
+    case Format.ASTC_SRGBA_5X4:
+    case Format.ASTC_SRGBA_5X5:
+    case Format.ASTC_SRGBA_6X5:
+    case Format.ASTC_SRGBA_6X6:
+    case Format.ASTC_SRGBA_8X5:
+    case Format.ASTC_SRGBA_8X6:
+    case Format.ASTC_SRGBA_8X8:
+    case Format.ASTC_SRGBA_10X5:
+    case Format.ASTC_SRGBA_10X6:
+    case Format.ASTC_SRGBA_10X8:
+    case Format.ASTC_SRGBA_10X10:
+    case Format.ASTC_SRGBA_12X10:
+    case Format.ASTC_SRGBA_12X12:
         return gl.UNSIGNED_BYTE;
 
     default: {
@@ -254,6 +244,8 @@ export function GFXFormatToWebGLInternalFormat (format: Format, gl: WebGL2Render
     case Format.R5G6B5: return gl.RGB565;
     case Format.RGB5A1: return gl.RGB5_A1;
     case Format.RGBA4: return gl.RGBA4;
+    case Format.SRGB8: return gl.SRGB8;
+    case Format.SRGB8_A8: return gl.SRGB8_ALPHA8;
     case Format.RGB10A2: return gl.RGB10_A2;
     case Format.RGB10A2UI: return gl.RGB10_A2UI;
     case Format.R11G11B10F: return gl.R11F_G11F_B10F;
@@ -290,35 +282,35 @@ export function GFXFormatToWebGLInternalFormat (format: Format, gl: WebGL2Render
     case Format.PVRTC_RGB4: return WebGLEXT.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
     case Format.PVRTC_RGBA4: return WebGLEXT.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 
-    case Format.ASTC_RGBA_4x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_4x4_KHR;
-    case Format.ASTC_RGBA_5x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x4_KHR;
-    case Format.ASTC_RGBA_5x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x5_KHR;
-    case Format.ASTC_RGBA_6x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x5_KHR;
-    case Format.ASTC_RGBA_6x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x6_KHR;
-    case Format.ASTC_RGBA_8x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x5_KHR;
-    case Format.ASTC_RGBA_8x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x6_KHR;
-    case Format.ASTC_RGBA_8x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x8_KHR;
-    case Format.ASTC_RGBA_10x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x5_KHR;
-    case Format.ASTC_RGBA_10x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x6_KHR;
-    case Format.ASTC_RGBA_10x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x8_KHR;
-    case Format.ASTC_RGBA_10x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x10_KHR;
-    case Format.ASTC_RGBA_12x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x10_KHR;
-    case Format.ASTC_RGBA_12x12: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x12_KHR;
+    case Format.ASTC_RGBA_4X4: return WebGLEXT.COMPRESSED_RGBA_ASTC_4x4_KHR;
+    case Format.ASTC_RGBA_5X4: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x4_KHR;
+    case Format.ASTC_RGBA_5X5: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x5_KHR;
+    case Format.ASTC_RGBA_6X5: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x5_KHR;
+    case Format.ASTC_RGBA_6X6: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x6_KHR;
+    case Format.ASTC_RGBA_8X5: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x5_KHR;
+    case Format.ASTC_RGBA_8X6: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x6_KHR;
+    case Format.ASTC_RGBA_8X8: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x8_KHR;
+    case Format.ASTC_RGBA_10X5: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x5_KHR;
+    case Format.ASTC_RGBA_10X6: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x6_KHR;
+    case Format.ASTC_RGBA_10X8: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x8_KHR;
+    case Format.ASTC_RGBA_10X10: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x10_KHR;
+    case Format.ASTC_RGBA_12X10: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x10_KHR;
+    case Format.ASTC_RGBA_12X12: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x12_KHR;
 
-    case Format.ASTC_SRGBA_4x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
-    case Format.ASTC_SRGBA_5x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR;
-    case Format.ASTC_SRGBA_5x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR;
-    case Format.ASTC_SRGBA_6x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR;
-    case Format.ASTC_SRGBA_6x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
-    case Format.ASTC_SRGBA_8x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR;
-    case Format.ASTC_SRGBA_8x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR;
-    case Format.ASTC_SRGBA_8x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
-    case Format.ASTC_SRGBA_10x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR;
-    case Format.ASTC_SRGBA_10x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR;
-    case Format.ASTC_SRGBA_10x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR;
-    case Format.ASTC_SRGBA_10x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
-    case Format.ASTC_SRGBA_12x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR;
-    case Format.ASTC_SRGBA_12x12: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
+    case Format.ASTC_SRGBA_4X4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
+    case Format.ASTC_SRGBA_5X4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR;
+    case Format.ASTC_SRGBA_5X5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR;
+    case Format.ASTC_SRGBA_6X5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR;
+    case Format.ASTC_SRGBA_6X6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
+    case Format.ASTC_SRGBA_8X5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR;
+    case Format.ASTC_SRGBA_8X6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR;
+    case Format.ASTC_SRGBA_8X8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
+    case Format.ASTC_SRGBA_10X5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR;
+    case Format.ASTC_SRGBA_10X6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR;
+    case Format.ASTC_SRGBA_10X8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR;
+    case Format.ASTC_SRGBA_10X10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
+    case Format.ASTC_SRGBA_12X10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR;
+    case Format.ASTC_SRGBA_12X12: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
 
     default: {
         console.error('Unsupported Format, convert to WebGL internal format failed.');
@@ -378,6 +370,8 @@ export function GFXFormatToWebGLFormat (format: Format, gl: WebGL2RenderingConte
     case Format.R5G6B5: return gl.RGB;
     case Format.RGB5A1: return gl.RGBA;
     case Format.RGBA4: return gl.RGBA;
+    case Format.SRGB8: return gl.RGB;
+    case Format.SRGB8_A8: return gl.RGBA;
     case Format.D16: return gl.DEPTH_COMPONENT;
     case Format.D16S8: return gl.DEPTH_STENCIL;
     case Format.D24: return gl.DEPTH_COMPONENT;
@@ -411,35 +405,35 @@ export function GFXFormatToWebGLFormat (format: Format, gl: WebGL2RenderingConte
     case Format.PVRTC_RGB4: return WebGLEXT.COMPRESSED_RGB_PVRTC_4BPPV1_IMG;
     case Format.PVRTC_RGBA4: return WebGLEXT.COMPRESSED_RGBA_PVRTC_4BPPV1_IMG;
 
-    case Format.ASTC_RGBA_4x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_4x4_KHR;
-    case Format.ASTC_RGBA_5x4: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x4_KHR;
-    case Format.ASTC_RGBA_5x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x5_KHR;
-    case Format.ASTC_RGBA_6x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x5_KHR;
-    case Format.ASTC_RGBA_6x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x6_KHR;
-    case Format.ASTC_RGBA_8x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x5_KHR;
-    case Format.ASTC_RGBA_8x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x6_KHR;
-    case Format.ASTC_RGBA_8x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x8_KHR;
-    case Format.ASTC_RGBA_10x5: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x5_KHR;
-    case Format.ASTC_RGBA_10x6: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x6_KHR;
-    case Format.ASTC_RGBA_10x8: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x8_KHR;
-    case Format.ASTC_RGBA_10x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x10_KHR;
-    case Format.ASTC_RGBA_12x10: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x10_KHR;
-    case Format.ASTC_RGBA_12x12: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x12_KHR;
+    case Format.ASTC_RGBA_4X4: return WebGLEXT.COMPRESSED_RGBA_ASTC_4x4_KHR;
+    case Format.ASTC_RGBA_5X4: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x4_KHR;
+    case Format.ASTC_RGBA_5X5: return WebGLEXT.COMPRESSED_RGBA_ASTC_5x5_KHR;
+    case Format.ASTC_RGBA_6X5: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x5_KHR;
+    case Format.ASTC_RGBA_6X6: return WebGLEXT.COMPRESSED_RGBA_ASTC_6x6_KHR;
+    case Format.ASTC_RGBA_8X5: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x5_KHR;
+    case Format.ASTC_RGBA_8X6: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x6_KHR;
+    case Format.ASTC_RGBA_8X8: return WebGLEXT.COMPRESSED_RGBA_ASTC_8x8_KHR;
+    case Format.ASTC_RGBA_10X5: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x5_KHR;
+    case Format.ASTC_RGBA_10X6: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x6_KHR;
+    case Format.ASTC_RGBA_10X8: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x8_KHR;
+    case Format.ASTC_RGBA_10X10: return WebGLEXT.COMPRESSED_RGBA_ASTC_10x10_KHR;
+    case Format.ASTC_RGBA_12X10: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x10_KHR;
+    case Format.ASTC_RGBA_12X12: return WebGLEXT.COMPRESSED_RGBA_ASTC_12x12_KHR;
 
-    case Format.ASTC_SRGBA_4x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
-    case Format.ASTC_SRGBA_5x4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR;
-    case Format.ASTC_SRGBA_5x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR;
-    case Format.ASTC_SRGBA_6x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR;
-    case Format.ASTC_SRGBA_6x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
-    case Format.ASTC_SRGBA_8x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR;
-    case Format.ASTC_SRGBA_8x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR;
-    case Format.ASTC_SRGBA_8x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
-    case Format.ASTC_SRGBA_10x5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR;
-    case Format.ASTC_SRGBA_10x6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR;
-    case Format.ASTC_SRGBA_10x8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR;
-    case Format.ASTC_SRGBA_10x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
-    case Format.ASTC_SRGBA_12x10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR;
-    case Format.ASTC_SRGBA_12x12: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
+    case Format.ASTC_SRGBA_4X4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_4x4_KHR;
+    case Format.ASTC_SRGBA_5X4: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x4_KHR;
+    case Format.ASTC_SRGBA_5X5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_5x5_KHR;
+    case Format.ASTC_SRGBA_6X5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x5_KHR;
+    case Format.ASTC_SRGBA_6X6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_6x6_KHR;
+    case Format.ASTC_SRGBA_8X5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x5_KHR;
+    case Format.ASTC_SRGBA_8X6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x6_KHR;
+    case Format.ASTC_SRGBA_8X8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_8x8_KHR;
+    case Format.ASTC_SRGBA_10X5: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x5_KHR;
+    case Format.ASTC_SRGBA_10X6: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x6_KHR;
+    case Format.ASTC_SRGBA_10X8: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x8_KHR;
+    case Format.ASTC_SRGBA_10X10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_10x10_KHR;
+    case Format.ASTC_SRGBA_12X10: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x10_KHR;
+    case Format.ASTC_SRGBA_12X12: return WebGLEXT.COMPRESSED_SRGB8_ALPHA8_ASTC_12x12_KHR;
 
     default: {
         console.error('Unsupported Format, convert to WebGL format failed.');
@@ -1078,7 +1072,7 @@ export function WebGL2CmdFuncCreateTexture (device: WebGL2Device, gpuTexture: IW
                     device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
                 }
 
-                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
+                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, gpuTexture.samples,
                     gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
             }
         }
@@ -1156,10 +1150,6 @@ export function WebGL2CmdFuncDestroyTexture (device: WebGL2Device, gpuTexture: I
 export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IWebGL2GPUTexture) {
     const { gl } = device;
 
-    gpuTexture.glInternalFmt = GFXFormatToWebGLInternalFormat(gpuTexture.format, gl);
-    gpuTexture.glFormat = GFXFormatToWebGLFormat(gpuTexture.format, gl);
-    gpuTexture.glType = GFXFormatToWebGLType(gpuTexture.format, gl);
-
     let w = gpuTexture.width;
     let h = gpuTexture.height;
 
@@ -1195,18 +1185,14 @@ export function WebGL2CmdFuncResizeTexture (device: WebGL2Device, gpuTexture: IW
                     h = Math.max(1, h >> 1);
                 }
             }
-        } else {
-            const glRenderbuffer = gl.createRenderbuffer();
-            if (glRenderbuffer && gpuTexture.size > 0) {
-                gpuTexture.glRenderbuffer = glRenderbuffer;
-                if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
-                    gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
-                    device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
-                }
-
-                gl.renderbufferStorageMultisample(gl.RENDERBUFFER, SAMPLES[gpuTexture.samples],
-                    gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
+        } else if (gpuTexture.glRenderbuffer && gpuTexture.size > 0) {
+            if (device.stateCache.glRenderbuffer !== gpuTexture.glRenderbuffer) {
+                gl.bindRenderbuffer(gl.RENDERBUFFER, gpuTexture.glRenderbuffer);
+                device.stateCache.glRenderbuffer = gpuTexture.glRenderbuffer;
             }
+
+            gl.renderbufferStorageMultisample(gl.RENDERBUFFER, gpuTexture.samples,
+                gpuTexture.glInternalFmt, gpuTexture.width, gpuTexture.height);
         }
         break;
     }
@@ -2678,6 +2664,44 @@ export function WebGL2CmdFuncCopyBuffersToTexture (
     if (gpuTexture.flags & TextureFlagBit.GEN_MIPMAP) {
         gl.generateMipmap(gpuTexture.glTarget);
     }
+}
+
+export function WebGL2CmdFuncCopyTextureToBuffers (
+    device: WebGL2Device,
+    gpuTexture: IWebGL2GPUTexture,
+    buffers: ArrayBufferView[],
+    regions: BufferTextureCopy[],
+) {
+    const { gl } = device;
+    const cache = device.stateCache;
+
+    const framebuffer = gl.createFramebuffer();
+    gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+    let x = 0;
+    let y = 0;
+    let w = 1;
+    let h = 1;
+
+    switch (gpuTexture.glTarget) {
+    case gl.TEXTURE_2D: {
+        for (let k = 0; k < regions.length; k++) {
+            const region = regions[k];
+            gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gpuTexture.glTarget, gpuTexture.glTexture, region.texSubres.mipLevel);
+            x = region.texOffset.x;
+            y = region.texOffset.y;
+            w = region.texExtent.width;
+            h = region.texExtent.height;
+            gl.readPixels(x, y, w, h, gpuTexture.glFormat, gpuTexture.glType, buffers[k]);
+        }
+        break;
+    }
+    default: {
+        console.error('Unsupported GL texture type, copy texture to buffers failed.');
+    }
+    }
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    cache.glFramebuffer = null;
+    gl.deleteFramebuffer(framebuffer);
 }
 
 export function WebGL2CmdFuncBlitFramebuffer (

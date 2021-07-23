@@ -24,7 +24,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from './ammo-instantiated';
+import Ammo from './instantiated';
 import { TransformBit } from '../../core/scene-graph/node-enum';
 import { Node } from '../../core';
 import { AmmoWorld } from './ammo-world';
@@ -73,7 +73,7 @@ export class AmmoSharedBody {
         }
         if (wrappedBody) {
             newSB._wrappedBody = wrappedBody;
-            const g = (wrappedBody.rigidBody as any)._group;
+            const g = wrappedBody.rigidBody.group;
             const m = PhysicsSystem.instance.collisionMatrix[g];
             newSB._collisionFilterGroup = g;
             newSB._collisionFilterMask = m;
@@ -499,7 +499,7 @@ export class AmmoSharedBody {
 
     syncBodyScale () {
         for (let i = 0; i < this.bodyStruct.wrappedShapes.length; i++) {
-            this.bodyStruct.wrappedShapes[i].setScale();
+            this.bodyStruct.wrappedShapes[i].updateScale();
         }
         for (let i = 0; i < this.wrappedJoints0.length; i++) {
             this.wrappedJoints0[i].updateScale0();
@@ -511,7 +511,7 @@ export class AmmoSharedBody {
 
     syncGhostScale () {
         for (let i = 0; i < this.ghostStruct.wrappedShapes.length; i++) {
-            this.ghostStruct.wrappedShapes[i].setScale();
+            this.ghostStruct.wrappedShapes[i].updateScale();
         }
     }
 

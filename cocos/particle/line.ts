@@ -220,6 +220,8 @@ export class Line extends Component {
             _matInsInfo.parent = this._material;
             _matInsInfo.subModelIdx = 0;
             this._materialInstance = new MaterialInstance(_matInsInfo);
+            _matInsInfo.parent = null!;
+            _matInsInfo.subModelIdx = 0;
             this._materialInstance.recompileShaders(define);
         }
         model.updateMaterial(this._materialInstance!);

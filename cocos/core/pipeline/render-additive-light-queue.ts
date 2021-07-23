@@ -33,8 +33,6 @@ import { RenderPipeline } from './render-pipeline';
 import { InstancedBuffer } from './instanced-buffer';
 import { Model } from '../renderer/scene/model';
 import { PipelineStateManager } from './pipeline-state-manager';
-import { DSPool, ShaderPool, PassView, PassPool, SubModelPool, SubModelView,
-    ShaderHandle } from '../renderer/core/memory-pools';
 import { Vec3, nextPow2, Mat4, Color } from '../math';
 import { Sphere, intersect } from '../geometry';
 import { Device, RenderPass, Buffer, BufferUsageBit, MemoryUsageBit,
@@ -220,11 +218,11 @@ export class RenderAdditiveLightQueue {
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
         for (let i = 0; i < this._lightPasses.length; i++) {
             const { subModel, passIdx, dynamicOffsets, lights } = this._lightPasses[i];
-            const shader = ShaderPool.get(SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
             const pass = subModel.passes[passIdx];
+            const shader = subModel.shaders[passIdx];
             const ia = subModel.inputAssembler;
             const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, ia);
-            const matDS = DSPool.get(PassPool.get(pass.handle, PassView.DESCRIPTOR_SET));
+            const matDS = pass.descriptorSet;
             const localDS = subModel.descriptorSet;
 
             cmdBuff.bindPipelineState(pso);
@@ -330,9 +328,8 @@ export class RenderAdditiveLightQueue {
         const shadowInfo = sceneData.shadows;
         const shadowFrameBufferMap = sceneData.shadowFrameBufferMap;
         const mainLight = camera.scene!.mainLight;
-        const isSupportHalfFloat = supportsHalfFloatTexture(device);
-        const linear = (shadowInfo.linear && isSupportHalfFloat) ? 1.0 : 0.0;
-        const packing = shadowInfo.packing ? 1.0 : (isSupportHalfFloat ? 0.0 : 1.0);
+        const linear = supportsHalfFloatTexture(device) ? 1.0 : 0.0;
+        const packing = linear ? 0.0 : 1.0;
         const globalDSManager: GlobalDSManager = this._pipeline.globalDSManager;
 
         for (let i = 0; i < this._validLights.length; i++) {
@@ -374,10 +371,10 @@ export class RenderAdditiveLightQueue {
 
                 Mat4.toArray(this._shadowUBO, _matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 0] = 0.01;
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 1] = (light as SpotLight).range;
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 2] = linear;
-                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SELF_INFO_OFFSET + 3] = shadowInfo.selfShadow ? 1.0 : 0.0;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 0] = 0.01;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 1] = (light as SpotLight).range;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 2] = linear;
+                this._shadowUBO[UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET + 3] = 1.0 - shadowInfo.saturation;
 
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 0] = shadowInfo.size.x;
                 this._shadowUBO[UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET + 1] = shadowInfo.size.y;

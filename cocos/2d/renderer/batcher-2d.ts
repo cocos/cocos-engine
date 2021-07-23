@@ -26,12 +26,12 @@
  * @packageDocumentation
  * @hidden
  */
-
+import { JSB } from 'internal:constants';
 import { Camera, Model } from 'cocos/core/renderer/scene';
 import { UIStaticBatch } from '../components';
 import { Material } from '../../core/assets/material';
 import { RenderRoot2D, Renderable2D, UIComponent } from '../framework';
-import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit } from '../../core/gfx';
+import { Texture, Device, Attribute, Sampler, DescriptorSetInfo, Buffer, BufferInfo, BufferUsageBit, MemoryUsageBit, DescriptorSet } from '../../core/gfx';
 import { Pool, RecyclePool } from '../../core/memop';
 import { CachedArray } from '../../core/memop/cached-array';
 import { RenderScene } from '../../core/renderer/scene/render-scene';
@@ -42,14 +42,13 @@ import { Stage, StencilManager } from './stencil-manager';
 import { DrawBatch2D } from './draw-batch';
 import * as VertexFormat from './vertex-format';
 import { legacyCC } from '../../core/global-exports';
-import { DescriptorSetHandle, DSPool, SubModelPool, SubModelView } from '../../core/renderer/core/memory-pools';
 import { ModelLocalBindings, UBOLocal } from '../../core/pipeline/define';
-import { RenderTexture } from '../../core/assets';
 import { SpriteFrame } from '../assets';
 import { TextureBase } from '../../core/assets/texture-base';
 import { sys } from '../../core/platform/sys';
 import { Mat4 } from '../../core/math';
 import { value } from '../../core/utils/js-typed';
+import { NativeDrawBatch2D } from '../../core/renderer/scene';
 
 const _dsInfo = new DescriptorSetInfo(null!);
 const m4_1 = new Mat4();
@@ -66,7 +65,7 @@ export class Batcher2D {
         return this._currMeshBuffer;
     }
 
-    set currBufferBatch (buffer: MeshBuffer|null) {
+    set currBufferBatch (buffer: MeshBuffer | null) {
         if (buffer) {
             this._currMeshBuffer = buffer;
         }
@@ -132,7 +131,7 @@ export class Batcher2D {
     private _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
     private _meshBufferUseCount: Map<number, number> = new Map();
     private _batches: CachedArray<DrawBatch2D>;
-    private _doUploadBuffersCall: Map<any, ((ui:Batcher2D) => void)> = new Map();
+    private _doUploadBuffersCall: Map<any, ((ui: Batcher2D) => void)> = new Map();
     private _emptyMaterial = new Material();
     private _currScene: RenderScene | null = null;
     private _currMaterial: Material = this._emptyMaterial;
@@ -146,8 +145,9 @@ export class Batcher2D {
     private _currSamplerHash = 0;
     private _currBlendTargetHash = 0;
     private _currLayer = 0;
-    private _currDepthStencilStateStage: any|null = null;
+    private _currDepthStencilStateStage: any | null = null;
     private _currIsStatic = false;
+    private _currOpacity = 1;
     // DescriptorSet Cache Map
     private _descriptorSetCache = new DescriptorSetCache();
 
@@ -235,7 +235,7 @@ export class Batcher2D {
         this._screens.sort(this._screenSort);
     }
 
-    public addUploadBuffersFunc (target: any, func: ((ui:Batcher2D) => void)) {
+    public addUploadBuffersFunc (target: any, func: ((ui: Batcher2D) => void)) {
         this._doUploadBuffersCall.set(target, func);
     }
 
@@ -265,7 +265,7 @@ export class Batcher2D {
                         subModels[j].priority = batchPriority++;
                     }
                 } else {
-                    batch.hDescriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
+                    batch.descriptorSet = this._descriptorSetCache.getDescriptorSet(batch);
                 }
                 batch.renderScene.addBatch(batch);
             }
@@ -340,6 +340,7 @@ export class Batcher2D {
         this._currTransform = null;
         this._currScene = null;
         this._currMeshBuffer = null;
+        this._currOpacity = 1;
         this._meshBufferUseCount.clear();
         this._batches.clear();
         StencilManager.sharedManager!.reset();
@@ -360,7 +361,7 @@ export class Batcher2D {
      * @param frame - 当前执行组件贴图。
      * @param assembler - 当前组件渲染数据组装器。
      */
-    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | RenderTexture | null, assembler: any, transform: Node | null) {
+    public commitComp (comp: Renderable2D, frame: TextureBase | SpriteFrame | null, assembler: any, transform: Node | null) {
         const renderComp = comp;
         let texture;
         let samp;
@@ -384,8 +385,8 @@ export class Batcher2D {
         const depthStencilStateStage = renderComp.stencilStage;
 
         if (this._currScene !== renderScene || this._currLayer !== comp.node.layer || this._currMaterial !== mat
-             || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
-             || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
+            || this._currBlendTargetHash !== blendTargetHash || this._currDepthStencilStateStage !== depthStencilStateStage
+            || this._currTextureHash !== textureHash || this._currSamplerHash !== samplerHash || this._currTransform !== transform) {
             this.autoMergeBatches(this._currComponent!);
             this._currScene = renderScene;
             this._currComponent = renderComp;
@@ -453,8 +454,8 @@ export class Batcher2D {
             curDrawBatch.useLocalData = null;
             if (!depthStencil) { depthStencil = null; }
             curDrawBatch.fillPasses(mat, depthStencil, dssHash, null, 0, subModel.patches);
-            curDrawBatch.hDescriptorSet = SubModelPool.get(subModel.handle, SubModelView.DESCRIPTOR_SET);
-            curDrawBatch.hInputAssembler = SubModelPool.get(subModel.handle, SubModelView.INPUT_ASSEMBLER);
+            curDrawBatch.descriptorSet = subModel.descriptorSet;
+            curDrawBatch.inputAssembler = subModel.inputAssembler;
             curDrawBatch.model!.visFlags = curDrawBatch.visFlags;
             this._batches.push(curDrawBatch);
         }
@@ -494,9 +495,9 @@ export class Batcher2D {
      */
     public autoMergeBatches (renderComp?: Renderable2D) {
         const buffer = this.currBufferBatch;
-        const hIA = buffer?.recordBatch();
+        const ia = buffer?.recordBatch();
         const mat = this._currMaterial;
-        if (!hIA || !mat || !buffer) {
+        if (!ia || !mat || !buffer) {
             return;
         }
         let blendState;
@@ -520,7 +521,7 @@ export class Batcher2D {
         curDrawBatch.bufferBatch = buffer;
         curDrawBatch.texture = this._currTexture!;
         curDrawBatch.sampler = this._currSampler;
-        curDrawBatch.hInputAssembler = hIA;
+        curDrawBatch.inputAssembler = ia;
         curDrawBatch.useLocalData = this._currTransform;
         curDrawBatch.textureHash = this._currTextureHash;
         curDrawBatch.samplerHash = this._currSamplerHash;
@@ -534,6 +535,7 @@ export class Batcher2D {
 
         // HACK: After sharing buffer between drawcalls, the performance degradation a lots on iOS 14 or iPad OS 14 device
         // TODO: Maybe it can be removed after Apple fixes it?
+        // @ts-expect-error Property '__isWebIOS14OrIPadOS14Env' does not exist on 'sys'
         if (sys.__isWebIOS14OrIPadOS14Env && !this._currIsStatic) {
             this._currMeshBuffer = null;
         }
@@ -549,7 +551,7 @@ export class Batcher2D {
      * @param material - 当前批次的材质。
      * @param sprite - 当前批次的精灵帧。
      */
-    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | RenderTexture | null, renderComp: Renderable2D) {
+    public forceMergeBatches (material: Material, frame: TextureBase | SpriteFrame | null, renderComp: Renderable2D) {
         this._currMaterial = material;
 
         if (frame) {
@@ -603,6 +605,7 @@ export class Batcher2D {
         if (len > 0 && !node._static) {
             const children = node.children;
             for (let i = 0; i < children.length; ++i) {
+                this._currOpacity = node._uiProps.opacity;
                 const child = children[i];
                 this.walk(child, level);
             }
@@ -615,10 +618,8 @@ export class Batcher2D {
 
     private _preProcess (node: Node) {
         const render = node._uiProps.uiComp;
-        if (!render) { // hack for opacity
-            const localAlpha = node._uiProps.localOpacity;
-            node._uiProps.opacity = (node.parent && node.parent._uiProps) ? node.parent._uiProps.opacity * localAlpha : localAlpha;
-        }
+        const localAlpha = node._uiProps.localOpacity;
+        node._uiProps.opacity = this._currOpacity * localAlpha;
         if (!node._uiProps.uiTransformComp) {
             return;
         }
@@ -681,17 +682,17 @@ export class Batcher2D {
 }
 
 class LocalDescriptorSet  {
-    public get handle () {
-        return this._handle;
-    }
-    private _handle: DescriptorSetHandle | null = null;
+    private _descriptorSet: DescriptorSet | null = null;
     private _transform: Node | null = null;
     private _textureHash = 0;
     private _samplerHash = 0;
     private _localBuffer: Buffer | null = null;
     private _transformUpdate = true;
     private declare _localData;
-    private declare _descriptorSet;
+
+    public get descriptorSet (): DescriptorSet | null {
+        return this._descriptorSet;
+    }
 
     constructor () {
         const device = legacyCC.director.root.device;
@@ -710,17 +711,12 @@ class LocalDescriptorSet  {
         this._textureHash = batch.textureHash;
         this._samplerHash = batch.samplerHash;
         _dsInfo.layout = batch.passes[0].localSetLayout;
-        if (this._handle) {
-            DSPool.free(this._handle);
-            this._handle = null;
-        }
-        this._handle = DSPool.alloc(device, _dsInfo);
-        this._descriptorSet = DSPool.get(this._handle);
-        this._descriptorSet.bindBuffer(UBOLocal.BINDING, this._localBuffer);
+        this._descriptorSet =  device.createDescriptorSet(_dsInfo);
+        this._descriptorSet!.bindBuffer(UBOLocal.BINDING, this._localBuffer!);
         const binding = ModelLocalBindings.SAMPLER_SPRITE;
-        this._descriptorSet.bindTexture(binding, batch.texture!);
-        this._descriptorSet.bindSampler(binding, batch.sampler!);
-        this._descriptorSet.update();
+        this._descriptorSet!.bindTexture(binding, batch.texture!);
+        this._descriptorSet!.bindSampler(binding, batch.sampler!);
+        this._descriptorSet!.update();
         this._transformUpdate = true;
     }
 
@@ -752,9 +748,9 @@ class LocalDescriptorSet  {
             this._localBuffer = null;
         }
 
-        if (this._handle) {
-            DSPool.free(this._handle);
-            this._handle = null;
+        if (this._descriptorSet) {
+            this._descriptorSet.destroy();
+            this._descriptorSet = null;
         }
 
         this._localData = null;
@@ -771,6 +767,13 @@ class LocalDescriptorSet  {
             const worldMatrix = node._mat;
             Mat4.toArray(this._localData, worldMatrix, UBOLocal.MAT_WORLD_OFFSET);
             Mat4.inverseTranspose(m4_1, worldMatrix);
+            if (!JSB) {
+                // fix precision lost of webGL on android device
+                // scale worldIT mat to around 1.0 by product its sqrt of determinant.
+                const det = Mat4.determinant(m4_1);
+                const factor = 1.0 / Math.sqrt(det);
+                Mat4.multiplyScalar(m4_1, m4_1, factor);
+            }
             Mat4.toArray(this._localData, m4_1, UBOLocal.MAT_WORLD_IT_OFFSET);
             this._localBuffer!.update(this._localData);
             this._transformUpdate = false;
@@ -779,7 +782,7 @@ class LocalDescriptorSet  {
 }
 
 class DescriptorSetCache {
-    private _descriptorSetCache = new Map<number, Map<number, DescriptorSetHandle>>();
+    private _descriptorSetCache = new Map<number, Map<number, DescriptorSet>>();
     private _localDescriptorSetCache: LocalDescriptorSet[] = [];
     private _localCachePool: Pool<LocalDescriptorSet>;
 
@@ -787,39 +790,39 @@ class DescriptorSetCache {
         this._localCachePool = new Pool(() => new LocalDescriptorSet(), 16);
     }
 
-    public getDescriptorSet (batch): DescriptorSetHandle {
+    public getDescriptorSet (batch): DescriptorSet {
         const root = legacyCC.director.root;
         if (batch.useLocalData) {
             const caches = this._localDescriptorSetCache;
             for (let i = 0, len = caches.length; i < len; i++) {
                 const cache: LocalDescriptorSet = caches[i];
                 if (cache.equals(batch.useLocalData, batch.textureHash, batch.samplerHash)) {
-                    return cache.handle as DescriptorSetHandle;
+                    return cache.descriptorSet!;
                 }
             }
             const localDs = this._localCachePool.alloc();
             localDs.initialize(batch);
             this._localDescriptorSetCache.push(localDs);
-            return localDs.handle as DescriptorSetHandle;
+            return localDs.descriptorSet!;
         } else {
             const descriptorSetTextureMap = this._descriptorSetCache.get(batch.textureHash);
             if (descriptorSetTextureMap && descriptorSetTextureMap.has(batch.samplerHash)) {
                 return descriptorSetTextureMap.get(batch.samplerHash)!;
             } else {
+                const device = legacyCC.director.root.device;
                 _dsInfo.layout = batch.passes[0].localSetLayout;
-                const handle = DSPool.alloc(root.device, _dsInfo);
-                const descriptorSet = DSPool.get(handle);
+                const descriptorSet = root.device.createDescriptorSet(_dsInfo);
                 const binding = ModelLocalBindings.SAMPLER_SPRITE;
                 descriptorSet.bindTexture(binding, batch.texture!);
                 descriptorSet.bindSampler(binding, batch.sampler!);
                 descriptorSet.update();
 
                 if (descriptorSetTextureMap) {
-                    this._descriptorSetCache.get(batch.textureHash)!.set(batch.samplerHash, handle);
+                    this._descriptorSetCache.get(batch.textureHash)!.set(batch.samplerHash, descriptorSet);
                 } else {
-                    this._descriptorSetCache.set(batch.textureHash, new Map([[batch.samplerHash, handle]]));
+                    this._descriptorSetCache.set(batch.textureHash, new Map([[batch.samplerHash, descriptorSet]]));
                 }
-                return handle;
+                return descriptorSet as DescriptorSet;
             }
         }
     }
@@ -842,7 +845,7 @@ class DescriptorSetCache {
     public releaseDescriptorSetCache (textureHash) {
         if (this._descriptorSetCache.has(textureHash)) {
             this._descriptorSetCache.get(textureHash)!.forEach((value) => {
-                DSPool.free(value);
+                value.destroy();
             });
             this._descriptorSetCache.delete(textureHash);
         }
@@ -850,8 +853,8 @@ class DescriptorSetCache {
 
     public destroy () {
         this._descriptorSetCache.forEach((value, key, map) => {
-            value.forEach((hDescriptorSet) => {
-                DSPool.free(hDescriptorSet);
+            value.forEach((descriptorSet) => {
+                descriptorSet.destroy();
             });
         });
         this._descriptorSetCache.clear();

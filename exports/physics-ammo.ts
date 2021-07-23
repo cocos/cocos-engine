@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import Ammo from '../cocos/physics/ammo/ammo-instantiated';
+import Ammo from '../cocos/physics/ammo/instantiated';
 import '../cocos/physics/ammo/instantiate';
 
 window.Ammo = Ammo;

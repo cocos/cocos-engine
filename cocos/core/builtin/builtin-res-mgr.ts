@@ -148,7 +148,9 @@ class BuiltinResMgr {
 
         if (legacyCC.SpriteFrame) {
             const spriteFrame = new legacyCC.SpriteFrame() as SpriteFrame;
-            const texture = imgAsset._texture;
+            const image = imgAsset;
+            const texture = new Texture2D();
+            texture.image = image;
             spriteFrame.texture = texture;
             spriteFrame._uuid = 'default-spriteframe';
             resources[spriteFrame._uuid] = spriteFrame;

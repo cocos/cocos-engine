@@ -102,6 +102,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
     private _defines: MacroRecord;
     private _trailDefines: MacroRecord;
     private _frameTile_velLenScale: Vec4;
+    private _tmp_velLenScale: Vec4;
     private _defaultMat: Material | null = null;
     private _node_scale: Vec4;
     private _attrs: any[];
@@ -123,6 +124,7 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         this._model = null;
 
         this._frameTile_velLenScale = new Vec4(1, 1, 0, 0);
+        this._tmp_velLenScale = this._frameTile_velLenScale.clone();
         this._node_scale = new Vec4();
         this._attrs = new Array(5);
         this._defines = {
@@ -445,6 +447,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
             _matInsInfo.owner = this._particleSystem;
             _matInsInfo.subModelIdx = 0;
             this._defaultMat = new MaterialInstance(_matInsInfo);
+            _matInsInfo.parent = null!;
+            _matInsInfo.owner = null!;
+            _matInsInfo.subModelIdx = 0;
             if (this._renderInfo!.mainTexture !== null) {
                 this._defaultMat.setProperty('mainTexture', this._renderInfo!.mainTexture);
             }
@@ -479,8 +484,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
         }
         const textureModule = ps._textureAnimationModule;
         if (textureModule && textureModule.enable) {
-            Vec2.set(vlenScale, textureModule.numTilesX, textureModule.numTilesY);
-            pass.setUniform(this._uLenHandle, vlenScale);
+            Vec4.copy(this._tmp_velLenScale, vlenScale); // fix textureModule switch bug
+            Vec2.set(this._tmp_velLenScale, textureModule.numTilesX, textureModule.numTilesY);
+            pass.setUniform(this._uLenHandle, this._tmp_velLenScale);
         } else {
             pass.setUniform(this._uLenHandle, vlenScale);
         }
@@ -508,6 +514,9 @@ export default class ParticleSystemRendererCPU extends ParticleSystemRendererBas
                 _matInsInfo.owner = this._particleSystem;
                 _matInsInfo.subModelIdx = 1;
                 this._defaultTrailMat = new MaterialInstance(_matInsInfo);
+                _matInsInfo.parent = null!;
+                _matInsInfo.owner = null!;
+                _matInsInfo.subModelIdx = 0;
             }
             mat = mat || this._defaultTrailMat;
             mat.recompileShaders(this._trailDefines);

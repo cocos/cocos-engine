@@ -33,7 +33,6 @@ import { CachedArray } from '../memop/cached-array';
 import { IRenderObject, IRenderPass, IRenderQueueDesc, SetIndex } from './define';
 import { PipelineStateManager } from './pipeline-state-manager';
 import { RenderPass, Device, CommandBuffer } from '../gfx';
-import { SubModelView, SubModelPool, ShaderPool, ShaderHandle } from '../renderer/core/memory-pools';
 import { RenderQueueDesc, RenderQueueSortMode } from './pipeline-serialization';
 import { getPhaseID } from './pass-phase';
 
@@ -104,6 +103,7 @@ export class RenderQueue {
     public insertRenderPass (renderObj: IRenderObject, subModelIdx: number, passIdx: number): boolean {
         const subModel = renderObj.model.subModels[subModelIdx];
         const pass = subModel.passes[passIdx];
+        const shader = subModel.shaders[passIdx];
         const isTransparent = pass.blendState.targets[0].blend;
         if (isTransparent !== this._passDesc.isTransparent || !(pass.phase & this._passDesc.phases)) {
             return false;
@@ -112,7 +112,7 @@ export class RenderQueue {
         const rp = this._passPool.add();
         rp.hash = hash;
         rp.depth = renderObj.depth || 0;
-        rp.shaderId = SubModelPool.get(subModel.handle, SubModelView.SHADER_0 + passIdx) as number;
+        rp.shaderId = shader.id;
         rp.subModel = subModel;
         rp.passIdx = passIdx;
         this.queue.push(rp);
@@ -130,9 +130,9 @@ export class RenderQueue {
     public recordCommandBuffer (device: Device, renderPass: RenderPass, cmdBuff: CommandBuffer) {
         for (let i = 0; i < this.queue.length; ++i) {
             const { subModel, passIdx } = this.queue.array[i];
-            const { inputAssembler, handle: hSubModel } = subModel;
+            const { inputAssembler } = subModel;
             const pass = subModel.passes[passIdx];
-            const shader = ShaderPool.get(SubModelPool.get(hSubModel, SubModelView.SHADER_0 + passIdx) as ShaderHandle);
+            const shader = subModel.shaders[passIdx];
             const pso = PipelineStateManager.getOrCreatePipelineState(device, pass, shader, renderPass, inputAssembler);
             cmdBuff.bindPipelineState(pso);
             cmdBuff.bindDescriptorSet(SetIndex.MATERIAL, pass.descriptorSet);

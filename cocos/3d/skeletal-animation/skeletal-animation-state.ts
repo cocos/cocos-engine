@@ -28,11 +28,12 @@
  * @module animation
  */
 
+import { JSB } from 'internal:constants';
 import { SkinnedMeshRenderer } from '../skinned-mesh-renderer';
 import { Mat4, Quat, Vec3 } from '../../core/math';
 import { IAnimInfo, JointAnimationInfo } from './skeletal-animation-utils';
 import { Node } from '../../core/scene-graph/node';
-import { AnimationClip, IRuntimeCurve } from '../../core/animation/animation-clip';
+import { AnimationClip } from '../../core/animation/animation-clip';
 import { AnimationState } from '../../core/animation/animation-state';
 import { SkeletalAnimation, Socket } from './skeletal-animation';
 import { SkelAnimDataHub } from './skeletal-animation-data-hub';
@@ -51,8 +52,6 @@ interface ISocketData {
     target: Node;
     frames: ITransform[];
 }
-
-const noCurves: IRuntimeCurve[] = [];
 
 export class SkeletalAnimationState extends AnimationState {
     protected _frames = 1;
@@ -88,12 +87,13 @@ export class SkeletalAnimationState extends AnimationState {
         }
         this._parent = root.getComponent('cc.SkeletalAnimation') as SkeletalAnimation;
         const baked = this._parent.useBakedAnimation;
-        super.initialize(root, baked ? noCurves : undefined);
+        this._doNotCreateEval = baked;
+        super.initialize(root);
         this._curvesInited = !baked;
-        const { info } = SkelAnimDataHub.getOrExtract(this.clip);
-        this._frames = info.frames - 1;
+        const { frames, samples } = SkelAnimDataHub.getOrExtract(this.clip);
+        this._frames = frames - 1;
         this._animInfo = this._animInfoMgr.getData(root.uuid);
-        this._bakedDuration = this._frames / info.sample; // last key
+        this._bakedDuration = this._frames / samples; // last key
     }
 
     public onPlay () {
@@ -127,13 +127,13 @@ export class SkeletalAnimationState extends AnimationState {
             if (!socket.target) { continue; }
             const clipData = SkelAnimDataHub.getOrExtract(this.clip);
             let animPath = socket.path;
-            let source = clipData.data[animPath];
+            let source = clipData.joints[animPath];
             let animNode = targetNode;
             let downstream: Mat4 | undefined;
             while (!source) {
                 const idx = animPath.lastIndexOf('/');
                 animPath = animPath.substring(0, idx);
-                source = clipData.data[animPath];
+                source = clipData.joints[animPath];
                 if (animNode) {
                     if (!downstream) { downstream = Mat4.identity(m4_2); }
                     Mat4.fromRTS(m4_1, animNode.rotation, animNode.position, animNode.scale);
@@ -142,8 +142,8 @@ export class SkeletalAnimationState extends AnimationState {
                 }
                 if (idx < 0) { break; }
             }
-            const curveData: Mat4[] | undefined = source && source.worldMatrix.values as Mat4[];
-            const { frames } = clipData.info;
+            const curveData: Mat4[] | undefined = source && source.transforms;
+            const { frames } = clipData;
             const transforms: ITransform[] = [];
             for (let f = 0; f < frames; f++) {
                 let mat: Mat4;
@@ -154,7 +154,7 @@ export class SkeletalAnimationState extends AnimationState {
                 } else if (downstream) { // fallback to default pose if no animation curve can be found upstream
                     mat = downstream;
                 } else { // bottom line: render the original mesh as-is
-                    mat = Mat4.IDENTITY;
+                    mat = new Mat4();
                 }
                 const tfm = { pos: new Vec3(), rot: new Quat(), scale: new Vec3() };
                 Mat4.toRTS(mat, tfm.rot, tfm.pos, tfm.scale);
@@ -167,12 +167,21 @@ export class SkeletalAnimationState extends AnimationState {
         }
     }
 
-    private _sampleCurvesBaked (ratio: number) {
+    private _setAnimInfoDirty (info: IAnimInfo, value: boolean) {
+        info.dirty = value;
+        if (JSB) {
+            const key = 'nativeDirty';
+            info[key].fill(value ? 1 : 0);
+        }
+    }
+
+    private _sampleCurvesBaked (time: number) {
+        const ratio = time / this.duration;
         const info = this._animInfo!;
         const curFrame = (ratio * this._frames + 0.5) | 0;
         if (curFrame === info.data[0]) { return; }
         info.data[0] = curFrame;
-        info.dirty = true;
+        this._setAnimInfoDirty(info, true);
         for (let i = 0; i < this._sockets.length; ++i) {
             const { target, frames } = this._sockets[i];
             const { pos, rot, scale } = frames[curFrame]; // ratio guaranteed to be in [0, 1]

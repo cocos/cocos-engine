@@ -1,9 +1,8 @@
 import { TouchCallback, TouchData, TouchInputEvent } from 'pal/input';
-import { system } from 'pal/system';
-import { Rect, Vec2 } from '../../../cocos/core/math';
+import { screenAdapter } from 'pal/screen-adapter';
+import { Vec2 } from '../../../cocos/core/math';
 import { EventTarget } from '../../../cocos/core/event/event-target';
-import { EventTouch } from '../../../cocos/core/platform/event-manager/events';
-import { legacyCC } from '../../../cocos/core/global-exports';
+import { SystemEvent } from '../../../cocos/core/platform/event-manager/system-event';
 import { SystemEventType } from '../../../cocos/core/platform/event-manager/event-enum';
 
 export class TouchInputSource {
@@ -22,16 +21,16 @@ export class TouchInputSource {
         jsb.onTouchCancel = this._createCallback(SystemEventType.TOUCH_CANCEL);
     }
 
-    private _createCallback (eventType: string) {
+    private _createCallback (eventType: SystemEvent.EventType) {
         return (touchList: TouchList) => {
             const touchDataList: TouchData[] = [];
             const length = touchList.length;
-            const viewSize = system.getViewSize();
+            const windowSize = screenAdapter.windowSize;
             for (let i = 0; i < length; ++i) {
                 const touch = touchList[i];
                 const location = this._getLocation(touch);
                 const x = location.x;
-                const y = viewSize.height - location.y;
+                const y = windowSize.height - location.y;
                 const touchData: TouchData = {
                     identifier: touch.identifier,
                     x,

@@ -34,7 +34,7 @@ import { EDITOR } from 'internal:constants';
 import { SpriteFrame } from '../2d/assets';
 import { Component, EventHandler as ComponentEventHandler } from '../core/components';
 import { UITransform, Renderable2D } from '../2d/framework';
-import { EventMouse, EventTouch, SystemEventType } from '../core/platform';
+import { EventMouse, EventTouch } from '../core/platform';
 import { Color, Vec3 } from '../core/math';
 import { ccenum } from '../core/value-types/enum';
 import { lerp } from '../core/math/utils';
@@ -42,6 +42,7 @@ import { Node } from '../core/scene-graph/node';
 import { Sprite } from '../2d/components/sprite';
 import { legacyCC } from '../core/global-exports';
 import { TransformBit } from '../core/scene-graph/node-enum';
+import { NodeEventType } from '../core/scene-graph/node-event';
 
 const _tempColor = new Color();
 
@@ -657,14 +658,12 @@ export class Button extends Component {
         if (!target) {
             return;
         }
-        const renderComp = target.getComponent(Renderable2D);
-        if (!renderComp) {
-            return;
-        }
-
         const transition = this._transition;
         if (transition === Transition.COLOR && this._interactable) {
-            renderComp.color = this._normalColor;
+            const renderComp = target.getComponent(Renderable2D);
+            if (renderComp) {
+                renderComp.color = this._normalColor;
+            }
         } else if (transition === Transition.SCALE && this._originalScale) {
             target.setScale(this._originalScale);
         }
@@ -672,39 +671,39 @@ export class Button extends Component {
     }
 
     protected _registerNodeEvent () {
-        this.node.on(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.on(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
-        this.node.on(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.on(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+        this.node.on(NodeEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.on(NodeEventType.TOUCH_MOVE, this._onTouchMove, this);
+        this.node.on(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.on(NodeEventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
-        this.node.on(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-        this.node.on(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+        this.node.on(NodeEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+        this.node.on(NodeEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     }
 
     protected _registerTargetEvent (target) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             target.on(Sprite.EventType.SPRITE_FRAME_CHANGED, this._onTargetSpriteFrameChanged, this);
-            target.on(SystemEventType.COLOR_CHANGED, this._onTargetColorChanged, this);
+            target.on(NodeEventType.COLOR_CHANGED, this._onTargetColorChanged, this);
         }
-        target.on(SystemEventType.TRANSFORM_CHANGED, this._onTargetTransformChanged, this);
+        target.on(NodeEventType.TRANSFORM_CHANGED, this._onTargetTransformChanged, this);
     }
 
     protected _unregisterNodeEvent () {
-        this.node.off(SystemEventType.TOUCH_START, this._onTouchBegan, this);
-        this.node.off(SystemEventType.TOUCH_MOVE, this._onTouchMove, this);
-        this.node.off(SystemEventType.TOUCH_END, this._onTouchEnded, this);
-        this.node.off(SystemEventType.TOUCH_CANCEL, this._onTouchCancel, this);
+        this.node.off(NodeEventType.TOUCH_START, this._onTouchBegan, this);
+        this.node.off(NodeEventType.TOUCH_MOVE, this._onTouchMove, this);
+        this.node.off(NodeEventType.TOUCH_END, this._onTouchEnded, this);
+        this.node.off(NodeEventType.TOUCH_CANCEL, this._onTouchCancel, this);
 
-        this.node.off(SystemEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
-        this.node.off(SystemEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
+        this.node.off(NodeEventType.MOUSE_ENTER, this._onMouseMoveIn, this);
+        this.node.off(NodeEventType.MOUSE_LEAVE, this._onMouseMoveOut, this);
     }
 
     protected _unregisterTargetEvent (target) {
         if (EDITOR && !legacyCC.GAME_VIEW) {
             target.off(Sprite.EventType.SPRITE_FRAME_CHANGED);
-            target.off(SystemEventType.COLOR_CHANGED);
+            target.off(NodeEventType.COLOR_CHANGED);
         }
-        target.off(SystemEventType.TRANSFORM_CHANGED);
+        target.off(NodeEventType.TRANSFORM_CHANGED);
     }
 
     protected _getTargetSprite (target: Node | null) {

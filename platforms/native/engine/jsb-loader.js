@@ -197,7 +197,7 @@ function downloadBundle (nameOrUrl, options, onComplete) {
             url = `assets/${bundleName}`;
         }
     }
-    var config = `${url}/config.${version ? version + '.': ''}json`;
+    var config = `${url}/cc.config.${version ? version + '.': ''}json`;
     options.__cacheBundleRoot__ = bundleName;
     downloadJson(config, options, function (err, response) {
         if (err) {
