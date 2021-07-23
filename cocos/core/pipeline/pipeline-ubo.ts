@@ -179,8 +179,6 @@ export class PipelineUBO {
             Mat4.invert(matShadowViewProjInv, matShadowViewProj);
             Vec3.transformMat4(snap, projSnap, matShadowViewProjInv);
             Mat4.fromRT(matWorldTrans, rotation, snap);
-            Mat4.ortho(matShadowProj, -radius, radius, -radius, radius, -range, radius,
-                device.capabilities.clipSpaceMinZ, device.capabilities.clipSpaceSignY);
         }
         Mat4.toArray(bufferView, matWorldTrans, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
         Mat4.invert(matWorldTransInv, matWorldTrans);
