@@ -434,7 +434,7 @@ export class MeshRenderer extends RenderableComponent {
         // derived classes should use a morph-able model type(i.e. model type derived from `MorphModel`).
         // So we should take care of the edge case.
         const modelType = (preferMorphOverPlain && this._modelType === scene.Model) ? MorphModel : this._modelType;
-        const model = this._model! = (legacyCC.director.root as Root).createModel(modelType);
+        const model = this._model = (legacyCC.director.root as Root).createModel(modelType);
         model.visFlags = this.visibility;
         model.node = model.transform = this.node;
         this._models.length = 0;
