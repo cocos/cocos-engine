@@ -74,7 +74,7 @@ export class ShadowStage extends RenderStage {
     private _light: Light | null = null;
 
     public destroy () {
-        this._additiveShadowQueue.clear();
+        this._additiveShadowQueue?.clear();
     }
 
     public clearFramebuffer (camera: Camera) {
