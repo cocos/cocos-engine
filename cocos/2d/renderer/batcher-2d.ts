@@ -117,7 +117,7 @@ export class Batcher2D {
 
         // release the buffer to recycle pool --
         const idx = this._bufferBatchPool.data.indexOf(buffer);
-        if (idx != -1) {
+        if (idx !== -1) {
             buffer.reset();
             this._bufferBatchPool.removeAt(idx);
         }
