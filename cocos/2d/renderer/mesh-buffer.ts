@@ -156,9 +156,6 @@ export class MeshBuffer {
         this._nextFreeIAHandle = 0;
 
         this._dirty = false;
-
-        this._initIDataCount = 256 * 6;
-        this._initVDataCount = 256 * this._vertexFormatBytes;
     }
 
     public destroy () {
