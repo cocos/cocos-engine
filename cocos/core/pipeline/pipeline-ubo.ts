@@ -279,10 +279,10 @@ export class PipelineUBO {
 
                 Mat4.toArray(sv, shadowCameraView!, UBOShadow.MAT_LIGHT_VIEW_OFFSET);
                 Mat4.invert(matShadowView, shadowCameraView!);
-
-                vec4ShadowInfo.set(near, far, linear, 1.0 - shadowInfo.saturation);
-                Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
             }
+            vec4ShadowInfo.set(near, far, linear, 1.0 - shadowInfo.saturation);
+            Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_NEAR_FAR_LINEAR_SATURATION_INFO_OFFSET);
+
             vec4ShadowInfo.set(0.0, packing, shadowInfo.normalBias, 0.0);
             Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_LIGHT_PACKING_NBIAS_NULL_INFO_OFFSET);
 
@@ -300,12 +300,12 @@ export class PipelineUBO {
 
             // light proj
             Mat4.perspective(matShadowViewProj, (light as any).spotAngle, (light as any).aspect, 0.001, (light as any).range);
+            // light viewProj
+            Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
+            Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
             break;
         default:
         }
-        // light viewProj
-        Mat4.multiply(matShadowViewProj, matShadowViewProj, matShadowView);
-        Mat4.toArray(sv, matShadowViewProj, UBOShadow.MAT_LIGHT_VIEW_PROJ_OFFSET);
 
         vec4ShadowInfo.set(shadowInfo.size.x, shadowInfo.size.y, shadowInfo.pcf, shadowInfo.bias);
         Vec4.toArray(sv, vec4ShadowInfo, UBOShadow.SHADOW_WIDTH_HEIGHT_PCF_BIAS_INFO_OFFSET);

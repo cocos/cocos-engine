@@ -230,11 +230,15 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
             shadowPool.freeArray(shadowObjects); shadowObjects.length = 0;
 
             // update dirLightFrustum
-            const cameraBoundingSphere = shadows.cameraBoundingSphere;
-            getCameraWorldMatrix(_mat4_trans, camera);
-            Frustum.split(_validFrustum, camera, _mat4_trans, shadows.near, shadows.far);
-            Sphere.fromPointArray(cameraBoundingSphere, cameraBoundingSphere, _validFrustum.vertices);
-            updateDirFrustum(cameraBoundingSphere, _mat4_trans, shadows.range, dirLightFrustum);
+            if (mainLight && mainLight.node) {
+                const cameraBoundingSphere = shadows.cameraBoundingSphere;
+                getCameraWorldMatrix(_mat4_trans, camera);
+                Frustum.split(_validFrustum, camera, _mat4_trans, shadows.near, shadows.far);
+                Sphere.fromPointArray(cameraBoundingSphere, cameraBoundingSphere, _validFrustum.vertices);
+                updateDirFrustum(cameraBoundingSphere, _mat4_trans, shadows.range, dirLightFrustum);
+            } else {
+                dirLightFrustum.zero();
+            }
         }
     }
 
