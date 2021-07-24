@@ -105,8 +105,9 @@ export class MeshBuffer {
         this._iaInfo = new InputAssemblerInfo(this.attributes, this.vertexBuffers, this.indexBuffer);
 
         // for recycle pool using purpose --
-        if (!this.vData || !this.iData)
+        if (!this.vData || !this.iData) {
             this._reallocBuffer();
+        }
         // ----------
     }
 
