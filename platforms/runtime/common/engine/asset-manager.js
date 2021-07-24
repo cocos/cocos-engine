@@ -228,7 +228,7 @@ const downloadCCON = (url, options, onComplete) => {
         }
         const cconPreface = cc.internal.parseCCONJson(json);
         const chunkPromises = Promise.all(cconPreface.chunks.map((chunk) => new Promise((resolve, reject) => {
-            downloadArrayBuffer(`${url}${chunk}`, {}, (errChunk, chunkBuffer) => {
+            downloadArrayBuffer(`${cc.path.mainFileName(url)}${chunk}`, {}, (errChunk, chunkBuffer) => {
                 if (errChunk) {
                     reject(errChunk);
                 } else {
@@ -456,11 +456,11 @@ cc.assetManager.transformPipeline.append(function (task) {
         else {
             options.__cacheBundleRoot__ = item.config.name;
         }
-        // if (item.ext === '.cconb') {
-        //     item.url = item.url.replace(item.ext, '.bin');
-        // } else if (item.ext === '.ccon') {
-        //     item.url = item.url.replace(item.ext, '.json');
-        // }
+        if (item.ext === '.cconb') {
+            item.url = item.url.replace(item.ext, '.bin');
+        } else if (item.ext === '.ccon') {
+            item.url = item.url.replace(item.ext, '.json');
+        }
     }
 });
 
