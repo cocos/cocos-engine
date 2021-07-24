@@ -33,9 +33,6 @@ import { Device, Framebuffer } from '../gfx';
 import { RenderPipeline } from './render-pipeline';
 import { Light } from '../renderer/scene/light';
 import { NativePipelineSharedSceneData } from '../renderer/scene';
-import { builtinResMgr } from '../builtin/builtin-res-mgr';
-import { Material } from '../assets';
-import { Model, NativePipelineSharedSceneData } from '../renderer/scene';
 
 export class PipelineSceneData {
     private _init (): void {
