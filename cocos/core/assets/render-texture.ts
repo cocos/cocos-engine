@@ -115,7 +115,7 @@ export class RenderTexture extends TextureBase {
     public destroy () {
         if (this._window) {
             const root = legacyCC.director.root as Root;
-            root.destroyWindow(this._window);
+            root?.destroyWindow(this._window);
             this._window = null;
         }
 
