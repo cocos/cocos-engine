@@ -147,7 +147,7 @@ class PhysicsWorld {
     step (f, t, m) {
         this._impl.step(f);
         books.forEach((v) => { 
-            if (!v.isSleeping) {
+            if (v._com.isDynamic && !v.isSleeping) {
                 v._com.node.worldPosition = v._impl.getPosition();
                 v._com.node.worldRotation = v._impl.getRotation();
             }
