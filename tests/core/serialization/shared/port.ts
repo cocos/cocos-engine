@@ -7,6 +7,8 @@ export interface Port {
     serializeOptions: {
         compiled?: boolean;
         useCCON?: boolean;
+        _exporting?: boolean;
+        dontStripDefault?: boolean;
     };
     deserializeOptions: {
     };
