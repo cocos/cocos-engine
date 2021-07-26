@@ -26,7 +26,9 @@ bool js_register_cc_scene_Node(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Node);
+SE_DECLARE_FUNC(js_scene_Node_addChild);
 SE_DECLARE_FUNC(js_scene_Node_initWithData);
+SE_DECLARE_FUNC(js_scene_Node_removeChild);
 SE_DECLARE_FUNC(js_scene_Node_setParent);
 SE_DECLARE_FUNC(js_scene_Node_Node);
 

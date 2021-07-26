@@ -26,6 +26,25 @@
 se::Object* __jsb_cc_scene_Node_proto = nullptr;
 se::Class* __jsb_cc_scene_Node_class = nullptr;
 
+static bool js_scene_Node_addChild(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Node>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Node_addChild : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::scene::Node*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Node_addChild : Error processing arguments");
+        cobj->addChild(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Node_addChild)
+
 static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::scene::Node>(s);
@@ -48,6 +67,25 @@ static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-ident
     return false;
 }
 SE_BIND_FUNC(js_scene_Node_initWithData)
+
+static bool js_scene_Node_removeChild(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::Node>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_Node_removeChild : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 1) {
+        HolderType<cc::scene::Node*, false> arg0 = {};
+        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
+        SE_PRECONDITION2(ok, false, "js_scene_Node_removeChild : Error processing arguments");
+        cobj->removeChild(arg0.value());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
+    return false;
+}
+SE_BIND_FUNC(js_scene_Node_removeChild)
 
 static bool js_scene_Node_setParent(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -98,7 +136,9 @@ bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-na
 {
     auto* cls = se::Class::create("Node", obj, nullptr, _SE(js_scene_Node_constructor));
 
+    cls->defineFunction("addChild", _SE(js_scene_Node_addChild));
     cls->defineFunction("initWithData", _SE(js_scene_Node_initWithData));
+    cls->defineFunction("removeChild", _SE(js_scene_Node_removeChild));
     cls->defineFunction("setParent", _SE(js_scene_Node_setParent));
     cls->defineFinalizeFunction(_SE(js_cc_scene_Node_finalize));
     cls->install();
