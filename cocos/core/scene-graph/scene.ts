@@ -29,9 +29,9 @@
  */
 
 import { ccclass, serializable, editable } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
+import { EDITOR, JSB, TEST } from 'internal:constants';
 import { CCObject } from '../data/object';
-import { Mat4, Quat, Vec3 } from '../math';
+import { FloatArray, Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
 import { BaseNode } from './base-node';
@@ -39,6 +39,8 @@ import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
 import { applyTargetOverrides } from '../utils/prefab/utils';
+import { NodeHandle, NodeView, NodePool, NULL_HANDLE } from '../renderer/core/memory-pools';
+import { NativeNode } from '../renderer/scene/native-scene';
 
 /**
  * @en
@@ -97,8 +99,44 @@ export class Scene extends BaseNode {
 
     protected _dirtyFlags = 0;
 
+    protected _nodeHandle: NodeHandle = NULL_HANDLE;
+    protected declare _nativeObj: NativeNode | null;
+    protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
+    protected declare _hasChangedFlagsOffset: number;
+    protected declare _nativeLayer: Uint32Array;
+    protected declare _nativeDirtyFlag: Uint32Array;
+
     protected _updateScene () {
         this._scene = this;
+    }
+
+    get native (): any {
+        return this._nativeObj;
+    }
+
+    protected _init () {
+        if (JSB) {
+            // new node
+            this._nodeHandle = NodePool.alloc();
+            this._pos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_POSITION) as FloatArray);
+            this._rot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_ROTATION) as FloatArray);
+            this._scale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_SCALE) as FloatArray);
+
+            const _lPos = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_POSITION) as FloatArray);
+            const _lRot = new Quat(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_ROTATION) as FloatArray);
+            const _lScale = new Vec3(NodePool.getTypedArray(this._nodeHandle, NodeView.LOCAL_SCALE) as FloatArray);
+
+            this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
+            this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
+            this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
+            this._scale.set(1, 1, 1);
+            _lScale.set(1, 1, 1);
+            this._nativeLayer[0] = 0;
+            this._nativeObj = new NativeNode();
+            this._hasChangedFlagsChunk = new Uint32Array([0]);
+            this._hasChangedFlagsOffset = 0;
+            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
+        }
     }
 
     constructor (name: string) {
@@ -108,6 +146,7 @@ export class Scene extends BaseNode {
             this._renderScene = legacyCC.director.root.createScene({});
         }
         this._inited = legacyCC.game ? !legacyCC.game._isCloning : true;
+        this._init();
     }
 
     /**
