@@ -145,7 +145,7 @@ class PhysicsWorld {
     setDefaultMaterial (v) { }
 
     step (f, t, m) {
-        books.forEach((v) => { v.syncToNativeTransform(); });
+        // books.forEach((v) => { v.syncToNativeTransform(); });
         this._impl.step(f);
     }
 
@@ -428,7 +428,7 @@ class SphereShape extends Shape {
     updateRadius () { this._impl.setRadius(this.collider.radius); }
     onLoad () {
         super.onLoad();
-        this.setRadius(this._com.radius);
+        this.updateRadius();
     }
 }
 
@@ -440,7 +440,7 @@ class BoxShape extends Shape {
     }
     onLoad () {
         super.onLoad();
-        this.setSize(this._com.size);
+        this.updateSize();
     }
 }
 

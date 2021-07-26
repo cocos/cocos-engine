@@ -47,6 +47,7 @@ import { Node } from './scene-graph/node';
 import { BrowserType } from '../../pal/system-info/enum-type';
 import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
+import { garbageCollectionManager } from './data/garbage-collection';
 
 interface ISceneInfo {
     url: string;
@@ -571,6 +572,7 @@ export class Game extends EventTarget {
         } else {
             this.onStart = configOrCallback ?? null;
         }
+        garbageCollectionManager.init();
 
         return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash());
     }

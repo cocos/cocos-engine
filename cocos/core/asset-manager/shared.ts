@@ -32,6 +32,7 @@ import Bundle from './bundle';
 import Cache from './cache';
 import { Pipeline } from './pipeline';
 import RequestItem from './request-item';
+import WeakCache from './weak-cache';
 
 export type CompleteCallback<T = any> = (err: Error | null, data?: T | null) => void;
 export type CompleteCallbackNoData = (err?: Error | null) => void;
@@ -94,7 +95,7 @@ export interface INativeAssetOptions extends IDownloadParseOptions {
 
 export type AssetType<T = Asset> = Constructor<T>;
 
-export const assets = new Cache<Asset>();
+export const assets = EDITOR ? new WeakCache<Asset>() : new Cache<Asset>();
 export const files = new Cache();
 export const parsed = new Cache();
 export const bundles = new Cache<Bundle>();

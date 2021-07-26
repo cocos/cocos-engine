@@ -29,8 +29,8 @@
  */
 
 /**
- * export PhysX for WEB platform except BYTEDANCE
+ * export null for module elimination
  */
-import PhysX from '@cocos/physx';
+const PhysX = null;
 
 export { PhysX };

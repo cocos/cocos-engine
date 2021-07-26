@@ -743,20 +743,12 @@ export class Label extends Renderable2D {
         render.commitComp(this, this._texture, this._assembler!, null);
     }
 
+    // Cannot use the base class methods directly because BMFont and CHAR cannot be updated in assambler with just color.
     protected _updateColor () {
-        // hack for all type
-        if (this._font instanceof BitmapFont) {
-            this._updateWorldAlpha();
+        this._updateWorldAlpha();
+        if (this._colorDirty) {
+            this.updateRenderData(false);
             this._colorDirty = false;
-        } else {
-            this._updateWorldAlpha();
-            if (this._colorDirty) {
-                this.updateRenderData(false);
-                this._colorDirty = false;
-            } else if ((this._cacheAlpha !== this.node._uiProps.opacity) && this._renderFlag && this._assembler && this._assembler.updateOpacity) {
-                this._assembler.updateOpacity(this);
-                this._cacheAlpha = this.node._uiProps.opacity;
-            }
         }
     }
 

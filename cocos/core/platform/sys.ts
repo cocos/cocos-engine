@@ -35,9 +35,8 @@ import { Rect } from '../math/rect';
 import { warnID, log } from './debug';
 import { NetworkType, Language, OS, Platform, BrowserType } from '../../../pal/system-info/enum-type';
 import { Vec2 } from '../math';
-import { screen } from './screen';
 
-const windowSize = screen.windowSize;
+const windowSize = screenAdapter.windowSize;
 const pixelRatio = systemInfo.pixelRatio;
 
 /**
@@ -292,7 +291,7 @@ export const sys = {
     getSafeAreaRect () {
         const locView = legacyCC.view;
         const edge = screenAdapter.safeAreaEdge;
-        const windowSize = screen.windowSize;
+        const windowSize = screenAdapter.windowSize;
 
         // Get leftBottom and rightTop point in screen coordinates system.
         const leftBottom = new Vec2(edge.left, windowSize.height - edge.bottom);

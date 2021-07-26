@@ -219,7 +219,7 @@ export const NativeDrawBatch2D: Constructor<{
 export type NativeDrawBatch2D = InstanceType<typeof NativeDrawBatch2D>;
 
 export const NativeRenderScene: Constructor<{
-    update(): void;
+    update(stamp: number): void;
     setMainLight (l: NativeLight | null): void;
     addSphereLight (l: NativeLight | null): void;
     removeSphereLight (l: NativeLight | null): void;
