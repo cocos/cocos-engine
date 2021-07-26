@@ -204,7 +204,18 @@ export class Node extends BaseNode implements CustomSerializable {
     @serializable
     protected _euler = new Vec3();
 
-    protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
+    private _dirtyFlagsPri = TransformBit.NONE; // does the world transform need to update?
+
+    protected get _dirtyFlags () {
+        return this._dirtyFlagsPri;
+    }
+
+    protected set _dirtyFlags (flags) {
+        this._dirtyFlagsPri = flags;
+        if (JSB) {
+            this._nativeDirtyFlag[0] = flags;
+        }
+    }
 
     protected _eulerDirty = false;
     protected _nodeHandle: NodeHandle = NULL_HANDLE;
@@ -236,7 +247,8 @@ export class Node extends BaseNode implements CustomSerializable {
             this._lscale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
-            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), chunk.buffer, offset);
+            const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
+            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer);
         } else {
             this._pos = new Vec3();
             this._rot = new Quat();
@@ -557,13 +569,6 @@ export class Node extends BaseNode implements CustomSerializable {
         super._onHierarchyChangedBase(oldParent);
     }
 
-    protected _setDirtyFlags (val: TransformBit) {
-        this._dirtyFlags = val;
-        if (JSB) {
-            this._nativeDirtyFlag[0] = val;
-        }
-    }
-
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
@@ -575,7 +580,7 @@ export class Node extends BaseNode implements CustomSerializable {
         }
 
         this.hasChangedFlags = TransformBit.TRS;
-        this._setDirtyFlags(TransformBit.TRS);
+        this._dirtyFlags |= TransformBit.TRS;
         this._uiProps.uiTransformDirty = true;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
@@ -705,7 +710,7 @@ export class Node extends BaseNode implements CustomSerializable {
             const cur: this = array_a[i--];
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                cur._setDirtyFlags(cur._dirtyFlags | dirtyBit);
+                cur._dirtyFlags |= dirtyBit;
                 cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
                 const children = cur._children;
@@ -773,7 +778,7 @@ export class Node extends BaseNode implements CustomSerializable {
                 }
             }
 
-            child._setDirtyFlags(TransformBit.NONE);
+            child._dirtyFlags = TransformBit.NONE;
             cur = child;
         }
     }
