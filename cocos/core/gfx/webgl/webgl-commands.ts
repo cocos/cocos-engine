@@ -203,9 +203,7 @@ export function GFXFormatToWebGLFormat (format: Format, gl: WebGLRenderingContex
     case Format.BGRA8: return gl.RGBA;
     case Format.RGBA8: return gl.RGBA;
     case Format.SRGB8_A8: return gl.RGBA;
-    case Format.R16F: return gl.RGBA;
     case Format.RGBA16F: return gl.RGBA;
-    case Format.R32F: return gl.RGBA;
     case Format.RGBA32F: return gl.RGBA;
     case Format.R5G6B5: return gl.RGB;
     case Format.RGB5A1: return gl.RGBA;
