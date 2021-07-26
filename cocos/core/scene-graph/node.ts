@@ -529,7 +529,7 @@ export class Node extends BaseNode implements CustomSerializable {
         if (keepWorldTransform) { this.updateWorldTransform(); }
         super.setParent(value, keepWorldTransform);
         if (JSB) {
-            this._nativeObj!.setParent(this.parent?.native);
+            this._nativeObj!.setParent(this.parent ? this.parent.native : null);
         }
     }
 
