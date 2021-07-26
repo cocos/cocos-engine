@@ -41,7 +41,8 @@ enum class ERigidBodyType : uint8_t {
 class IRigidBody : public ILifecycle {
 public:
     ~IRigidBody() override                                                                       = default;
-    virtual uintptr_t getImpl()                                                                  = 0;
+    virtual uintptr_t getImpl()                                                                  = 0;    
+    virtual uintptr_t getNodeHandle()                                                            = 0;
     virtual void      initialize(scene::Node *node, ERigidBodyType t, uint32_t g)                = 0;
     virtual bool      isAwake()                                                                  = 0;
     virtual bool      isSleepy()                                                                 = 0;

@@ -58,10 +58,10 @@ void PhysXJoint::onDestroy() {
     _mSharedBody->reference(false);
 }
 
-void PhysXJoint::setConnectedBody(const scene::Node* node) {
-    if (node) {
+void PhysXJoint::setConnectedBody(uintptr_t v) {
+    if (v) {
         auto& ins       = PhysXWorld::getInstance();
-        _mConnectedBody = ins.getSharedBody(node);
+        _mConnectedBody = ins.getSharedBody(reinterpret_cast<scene::Node*>(v));
     } else {
         _mConnectedBody = nullptr;
     }

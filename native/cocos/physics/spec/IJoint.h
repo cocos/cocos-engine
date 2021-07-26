@@ -34,11 +34,11 @@ namespace physics {
 
 class IBaseJoint : virtual public ILifecycle {
 public:
-    ~IBaseJoint() override                                      = default;
-    virtual void      initialize(scene::Node* node)             = 0;
-    virtual uintptr_t getImpl()                                 = 0;
-    virtual void      setEnableCollision(bool v)                = 0;
-    virtual void      setConnectedBody(const scene::Node* node) = 0;
+    ~IBaseJoint() override                          = default;
+    virtual void      initialize(scene::Node* node) = 0;
+    virtual uintptr_t getImpl()                     = 0;
+    virtual void      setEnableCollision(bool v)    = 0;
+    virtual void      setConnectedBody(uintptr_t v) = 0;
 };
 
 class IDistanceJoint : virtual public IBaseJoint {

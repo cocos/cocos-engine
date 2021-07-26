@@ -45,7 +45,7 @@ public:
     void             onEnable() override;
     void             onDisable() override;
     void             onDestroy() override;
-    void             setConnectedBody(const scene::Node *node) override;
+    void             setConnectedBody(uintptr_t v) override;
     void             setEnableCollision(bool v) override;
     virtual void     updateScale0() = 0;
     virtual void     updateScale1() = 0;

@@ -45,7 +45,7 @@
         void      onDisable() override;                   \
         void      onDestroy() override;                   \
         void      setEnableCollision(bool v) override;    \
-        void      setConnectedBody(const scene::Node* node) override;
+        void      setConnectedBody(uintptr_t v) override;
 
 namespace cc {
 namespace physics {
