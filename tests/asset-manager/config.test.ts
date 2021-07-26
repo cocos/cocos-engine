@@ -22,46 +22,54 @@ describe('config', () => {
             import: ['AAA', 'dswq123sq', 'BBB', 'dsqeqqb', 'ccc', 'eqq123s', 'DDD', '12saqwe'],
             native: ['AAA', 'tester', 'BBB', 'how do you do']
         },
-        uuids: ['AAA', 'BBB', 'ccc', 'DDD', 'EEE']
+        uuids: ['AAA', 'BBB', 'ccc', 'DDD', 'EEE'],
+        importBase: '',
+        nativeBase: '',
+        base: '',
+        name: '',
+        deps: [],
+        redirect: [],
+        debug: false,
+        types: [],
+        extensionMap: {}
     });
 
     test('get asset info', function () {
-        var result = config.getAssetInfo('AAA') as IAddressableInfo;
-        expect(result.path).toBe('images/test');
-        expect(result.ctor).toBe(Texture2D);
-        result = config.getAssetInfo('BBB');
-        expect(result.ver, 'dsqeqqb', 'should equal to dsqeqqb');
-        expect(result.nativeVer, 'how do you do', 'should equal to how do you do');
-        result = config.getAssetInfo('pack A');
-        expect(result.packs[0], 'AAA', 'should equal to AAA');
+        const result1 = config.getAssetInfo('AAA') as IAddressableInfo;
+        expect(result1.path).toBe('images/test');
+        expect(result1.ctor).toBe(Texture2D);
+        const result2 = config.getAssetInfo('BBB');
+        expect(result2.ver).toBe('dsqeqqb');
+        expect(result2.nativeVer).toBe('how do you do');
+        const result3 = config.getAssetInfo('pack A');
+        expect(result3.packs[0]).toBe('AAA');
     });
 
     test('get scene info', function () {
         var result = config.getSceneInfo('Start');
-        expect(result.uuid, 'DDD', 'should equal to DDD');
-        expect(result.ver, '12saqwe', 'should equal to 12saqwe');
-        expect(result.packs.length, 1, 'should equal to 1');
+        expect(result.uuid).toBe('DDD');
+        expect(result.ver).toBe('12saqwe');
+        expect(result.packs.length).toBe(1);
     });
 
     test('get info with path', function () {
         var result = config.getInfoWithPath('images/test', Texture2D);
         expect(result.uuid).toBe('AAA');
         expect(result.ver).toBe('dswq123sq');
-        expect(result.nativeVer, 'tester', 'should equal to tester');
+        expect(result.nativeVer).toBe('tester');
         result = config.getInfoWithPath('images/test', SpriteFrame);
-        expect(result.uuid, 'BBB', 'should equal to BBB');
-        expect(result.packs.length, 1, 'should equal to 1');
+        expect(result.uuid).toBe('BBB');
+        expect(result.packs.length).toBe(1);
         result = config.getInfoWithPath('images/test');
-        expect(result.uuid, 'AAA', 'should equal to AAA');
+        expect(result.uuid).toBe('AAA');
     });
 
     test('get dir with path', function () {
         var result = config.getDirWithPath('images/test');
-        expect(result.length, 2, 'should equal to 2');
+        expect(result.length).toBe(2);
         result = config.getDirWithPath('images/test', Texture2D);
-        expect(result.length, 1, 'should equal to 1');
+        expect(result.length).toBe(1)
         result = config.getDirWithPath('');
-        expect(result.length, 3, 'should equal to 3');
+        expect(result.length).toBe(3);
     });
-
 });
