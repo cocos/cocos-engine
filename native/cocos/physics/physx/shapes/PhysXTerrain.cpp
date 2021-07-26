@@ -34,15 +34,22 @@ namespace physics {
 PhysXTerrain::PhysXTerrain() : _mTerrain(nullptr),
                                _mRowScale(1.F),
                                _mColScale(1.F),
-                               _mHeightScale(1.F){};
+                               _mHeightScale(1.F),
+                               _mIsTrigger(false){};
 
 void PhysXTerrain::setTerrain(uintptr_t handle, float rs, float cs, float hs) {
+    if (_mShape) return;
     if (reinterpret_cast<uintptr_t>(_mTerrain) == handle) return;
     _mTerrain     = reinterpret_cast<physx::PxHeightField *>(handle);
     _mRowScale    = rs;
     _mColScale    = cs;
     _mHeightScale = hs;
-    if (_mShape) {
+    if (_mSharedBody && _mTerrain) {
+        onComponentSet();
+        insertToShapeMap();
+        if (_mEnabled) getSharedBody().addShape(*this);
+        setAsTrigger(_mIsTrigger);
+        updateCenter();
     }
 }
 
@@ -62,7 +69,15 @@ void PhysXTerrain::updateScale() {
 }
 
 void PhysXTerrain::updateCenter() {
+    if (!_mShape) return;
     getShape().setLocalPose(physx::PxTransform{_mCenter, _mRotation});
+}
+
+void PhysXTerrain::setAsTrigger(bool v) {
+    _mIsTrigger = v;
+    if (_mShape) {
+        PhysXShape::setAsTrigger(v);
+    }
 }
 
 } // namespace physics

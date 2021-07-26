@@ -32,20 +32,24 @@ namespace cc {
 namespace physics {
 
 PhysXTrimesh::PhysXTrimesh() : _mMeshHandle(0),
-                               _mConvex(false){};
+                               _mConvex(false),
+                               _mIsTrigger(false){};
 
 void PhysXTrimesh::setMesh(uintptr_t handle) {
+    if (_mShape) return;
     if (_mMeshHandle == handle) return;
     _mMeshHandle = handle;
-    if (_mShape) {
+    if (_mSharedBody && _mMeshHandle) {
+        onComponentSet();
+        insertToShapeMap();
+        if (_mEnabled) getSharedBody().addShape(*this);
+        setAsTrigger(_mIsTrigger);
+        updateCenter();
     }
 }
 
 void PhysXTrimesh::useConvex(bool v) {
-    if (_mConvex == v) return;
     _mConvex = v;
-    if (_mShape) {
-    }
 }
 
 void PhysXTrimesh::onComponentSet() {
@@ -74,7 +78,7 @@ void PhysXTrimesh::updateScale() {
 void PhysXTrimesh::updateGeometry() {
     static physx::PxMeshScale scale;
     scale.rotation = physx::PxQuat{physx::PxIdentity};
-    auto *node = getSharedBody().getNode();
+    auto *node     = getSharedBody().getNode();
     node->updateWorldTransform();
     pxSetVec3Ext(scale.scale, node->getWorldScale());
     const auto &type = _mShape->getGeometryType();
@@ -90,6 +94,13 @@ void PhysXTrimesh::updateGeometry() {
             geom.scale = scale;
             getShape().setGeometry(geom);
         }
+    }
+}
+
+void PhysXTrimesh::setAsTrigger(bool v) {
+    _mIsTrigger = v;
+    if (_mShape) {
+        PhysXShape::setAsTrigger(v);
     }
 }
 

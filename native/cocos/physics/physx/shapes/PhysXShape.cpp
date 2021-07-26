@@ -37,28 +37,29 @@ void PhysXShape::initialize(scene::Node *node) {
     _mSharedBody    = ins.getSharedBody(node);
     getSharedBody().reference(true);
     onComponentSet();
-    getPxShapeMap().insert(std::pair<uintptr_t, uintptr_t>(reinterpret_cast<uintptr_t>(&getShape()), getImpl()));
+    insertToShapeMap();
 }
 
 void PhysXShape::onEnable() {
     _mEnabled = true;
-    getSharedBody().addShape(*this);
+    if (_mShape) getSharedBody().addShape(*this);
     getSharedBody().enabled(true);
 }
 
 void PhysXShape::onDisable() {
     _mEnabled = false;
-    getSharedBody().removeShape(*this);
+    if (_mShape) getSharedBody().removeShape(*this);
     getSharedBody().enabled(false);
 }
 
 void PhysXShape::onDestroy() {
     getSharedBody().reference(false);
-    getPxShapeMap().erase(reinterpret_cast<uintptr_t>(&getShape()));
+    eraseFromShapeMap();
 }
 
 void PhysXShape::setMaterial(uint16_t id, float f, float df, float r,
                              uint8_t m0, uint8_t m1) {
+    if (!_mShape) return;
     auto *mat = reinterpret_cast<physx::PxMaterial *>(getSharedBody().getWorld().createMaterial(id, f, df, r, m0, m1));
     getShape().setMaterials(&mat, 1);
 }
@@ -71,7 +72,7 @@ void PhysXShape::setAsTrigger(bool v) {
         getShape().setFlag(physx::PxShapeFlag::eTRIGGER_SHAPE, v);
         getShape().setFlag(physx::PxShapeFlag::eSIMULATION_SHAPE, !v);
     }
-    if (_mIndex >= 0) {
+    if (_mEnabled) {
         getSharedBody().removeShape(*this);
         getSharedBody().addShape(*this);
     }
@@ -103,15 +104,17 @@ void PhysXShape::updateEventListener(EShapeFilterFlag flag) {
 
 scene::AABB &PhysXShape::getAABB() {
     static scene::AABB aabb;
-    auto bounds = physx::PxShapeExt::getWorldBounds(getShape(), *getSharedBody().getImpl().rigidActor);
-    pxSetVec3Ext(aabb.getLayout()->center, (bounds.maximum + bounds.minimum) / 2);
-    pxSetVec3Ext(aabb.getLayout()->halfExtents, (bounds.maximum - bounds.minimum) / 2);
+    if (_mShape) {
+        auto bounds = physx::PxShapeExt::getWorldBounds(getShape(), *getSharedBody().getImpl().rigidActor);
+        pxSetVec3Ext(aabb.getLayout()->center, (bounds.maximum + bounds.minimum) / 2);
+        pxSetVec3Ext(aabb.getLayout()->halfExtents, (bounds.maximum - bounds.minimum) / 2);
+    }
     return aabb;
 }
 
 scene::Sphere &PhysXShape::getBoundingSphere() {
     static scene::Sphere sphere;
-    sphere.define(getAABB());
+    if (_mShape) sphere.define(getAABB());
     return sphere;
 }
 
@@ -119,12 +122,25 @@ void PhysXShape::updateFilterData(const physx::PxFilterData &data) {
 }
 
 void PhysXShape::updateCenter() {
-    auto &             sb   = getSharedBody();
-    auto *             node = sb.getNode();
+    if (!_mShape) return;
+    auto &sb   = getSharedBody();
+    auto *node = sb.getNode();
     node->updateWorldTransform();
     physx::PxTransform local{_mCenter * node->getWorldScale(), _mRotation};
     getShape().setLocalPose(local);
     if (_mEnabled && !isTrigger()) sb.updateCenterOfMass();
+}
+
+void PhysXShape::insertToShapeMap() {
+    if (_mShape) {
+        getPxShapeMap().insert(std::pair<uintptr_t, uintptr_t>(reinterpret_cast<uintptr_t>(&getShape()), getImpl()));
+    }
+}
+
+void PhysXShape::eraseFromShapeMap() {
+    if (_mShape) {
+        getPxShapeMap().erase(reinterpret_cast<uintptr_t>(&getShape()));
+    }
 }
 
 } // namespace physics

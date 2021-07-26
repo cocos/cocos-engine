@@ -77,11 +77,12 @@ protected:
     physx::PxShape * _mShape{nullptr};
     physx::PxVec3    _mCenter;
     physx::PxQuat    _mRotation;
-    int8_t           _mIndex{-1};
     uint8_t          _mFlag{0};
     bool             _mEnabled{false};
     virtual void     updateCenter();
     virtual void     onComponentSet() = 0;
+    virtual void     insertToShapeMap();
+    virtual void     eraseFromShapeMap();
 };
 
 } // namespace physics

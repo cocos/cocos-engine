@@ -37,13 +37,15 @@ public:
     void setTerrain(uintptr_t handle, float rs, float cs, float hs) override;
     void updateScale() override;
     void updateCenter() override;
+    void setAsTrigger(bool v) override;
 
 private:
     physx::PxHeightField *_mTerrain;
     float                 _mRowScale;
     float                 _mColScale;
     float                 _mHeightScale;
-    void          onComponentSet() override;
+    bool                  _mIsTrigger;
+    void                  onComponentSet() override;
 };
 
 } // namespace physics
