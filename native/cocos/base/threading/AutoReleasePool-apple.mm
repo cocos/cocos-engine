@@ -24,7 +24,7 @@
  ****************************************************************************/
 
 #include "AutoReleasePool.h"
-#import <Foundation/NSAutoReleasePool.h>
+#import <Foundation/NSAutoreleasePool.h>
 
 namespace cc {
 
