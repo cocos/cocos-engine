@@ -347,7 +347,24 @@ void CommandBufferAgent::draw(const DrawInfo &info) {
 
 void CommandBufferAgent::updateBuffer(Buffer *buff, const void *data, uint size) {
     auto *bufferAgent = static_cast<BufferAgent *>(buff);
-    bufferAgent->update(data, size, _messageQueue);
+
+    uint8_t *actorBuffer{nullptr};
+    bool     needFreeing{false};
+
+    BufferAgent::getActorBuffer(bufferAgent, _messageQueue, size, &actorBuffer, &needFreeing);
+    memcpy(actorBuffer, data, size);
+
+    ENQUEUE_MESSAGE_5(
+        _messageQueue, CommandBufferUpdateBuffer,
+        actor, getActor(),
+        buff, bufferAgent->getActor(),
+        data, actorBuffer,
+        size, size,
+        needFreeing, needFreeing,
+        {
+            actor->updateBuffer(buff, data, size);
+            if (needFreeing) free(data);
+        });
 }
 
 void CommandBufferAgent::copyBuffersToTexture(const uint8_t *const *buffers, Texture *texture, const BufferTextureCopy *regions, uint count) {

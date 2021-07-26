@@ -42,7 +42,7 @@ public:
 
     void update(const void *buffer, uint size) override;
 
-    void update(const void *buffer, uint size, MessageQueue *mq);
+    static void getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint size, uint8_t **pActorBuffer, bool *pNeedFreeing);
 
 private:
     void doInit(const BufferInfo &info) override;

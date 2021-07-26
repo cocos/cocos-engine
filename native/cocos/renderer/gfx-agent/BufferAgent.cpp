@@ -141,23 +141,11 @@ void BufferAgent::doDestroy() {
 }
 
 void BufferAgent::update(const void *buffer, uint size) {
-    update(buffer, size, DeviceAgent::getInstance()->getMessageQueue());
-}
-
-void BufferAgent::update(const void *buffer, uint size, MessageQueue *mq) {
     uint8_t *actorBuffer{nullptr};
-    bool     needToFreeActorBuffer{false};
+    bool     needFreeing{false};
+    auto *   mq{DeviceAgent::getInstance()->getMessageQueue()};
 
-    uint frameIndex = DeviceAgent::getInstance()->getCurrentIndex();
-
-    if (!_stagingBuffers.empty()) { // for frequent updates on big buffers
-        actorBuffer = _stagingBuffers[frameIndex];
-    } else if (size > STAGING_BUFFER_THRESHOLD) { // less frequent updates on big buffers
-        actorBuffer           = reinterpret_cast<uint8_t *>(malloc(size));
-        needToFreeActorBuffer = true;
-    } else { // for small enough buffers
-        actorBuffer = mq->allocate<uint8_t>(size);
-    }
+    getActorBuffer(this, mq, size, &actorBuffer, &needFreeing);
     memcpy(actorBuffer, buffer, size);
 
     ENQUEUE_MESSAGE_4(
@@ -165,11 +153,24 @@ void BufferAgent::update(const void *buffer, uint size, MessageQueue *mq) {
         actor, getActor(),
         buffer, actorBuffer,
         size, size,
-        needToFreeActorBuffer, needToFreeActorBuffer,
+        needFreeing, needFreeing,
         {
             actor->update(buffer, size);
-            if (needToFreeActorBuffer) free(buffer);
+            if (needFreeing) free(buffer);
         });
+}
+
+void BufferAgent::getActorBuffer(const BufferAgent *buffer, MessageQueue *mq, uint size, uint8_t **pActorBuffer, bool *pNeedFreeing) {
+    uint frameIndex = DeviceAgent::getInstance()->getCurrentIndex();
+
+    if (!buffer->_stagingBuffers.empty()) { // for frequent updates on big buffers
+        *pActorBuffer = buffer->_stagingBuffers[frameIndex];
+    } else if (size > STAGING_BUFFER_THRESHOLD) { // less frequent updates on big buffers
+        *pActorBuffer = reinterpret_cast<uint8_t *>(malloc(size));
+        *pNeedFreeing = true;
+    } else { // for small enough buffers
+        *pActorBuffer = mq->allocate<uint8_t>(size);
+    }
 }
 
 } // namespace gfx
