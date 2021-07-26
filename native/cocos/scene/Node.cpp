@@ -32,21 +32,20 @@ void Node::updateWorldTransform() {
     if (!getDirtyFlag()) {
         return;
     }
-    uint32_t            i    = 0;
-    Node *              curr = this;
-    Mat3                mat3;
-    Mat3                m43;
-    Quaternion          quat;
-    std::vector<Node *> arrayA;
+    uint32_t   i    = 0;
+    Node *     curr = this;
+    Mat3       mat3;
+    Mat3       m43;
+    Quaternion quat;
     while (curr && curr->getDirtyFlag()) {
         i++;
-        arrayA.push_back(curr);
+        _computeNodes.push_back(curr);
         curr = curr->getParent();
     }
     Node *   child{nullptr};
     uint32_t dirtyBits = 0;
     while (i) {
-        child = arrayA[--i];
+        child = _computeNodes[--i];
         if (!child) {
             continue;
         }
@@ -98,6 +97,70 @@ void Node::updateWorldTransform() {
 void Node::updateWorldRTMatrix() {
     updateWorldTransform();
     Mat4::fromRT(_nodeLayout->worldRotation, _nodeLayout->worldPosition, &_rtMat);
+}
+
+void Node::invalidateChildren(TransformBit dirtyBit) {
+    uint32_t       curDirtyBit{static_cast<uint32_t>(dirtyBit)};
+    const uint32_t childDirtyBit{curDirtyBit | static_cast<uint32_t>(TransformBit::POSITION)};
+    if (static_cast<int>(_computeNodes.size()) == 0) {
+        _computeNodes.resize(1);
+    }
+    _computeNodes[0] = this;
+    int i{0};
+    while (i >= 0) {
+        Node *          cur             = _computeNodes[i--];
+        const uint32_t &hasChangedFlags = cur->getFlagsChanged();
+        if ((cur->getDirtyFlag() & hasChangedFlags & curDirtyBit) != curDirtyBit) {
+            cur->setDirtyFlag(cur->getDirtyFlag() | curDirtyBit);
+            cur->setFlagsChanged(hasChangedFlags | curDirtyBit);
+            int childCount{static_cast<int>(cur->_children.size())};
+            if (childCount > 0) {
+                _computeNodes.resize(i < 0 ? childCount : childCount + i);
+            }
+            for (Node *curChild : cur->_children) {
+                _computeNodes[++i] = curChild;
+            }
+        }
+        curDirtyBit = childDirtyBit;
+    }
+}
+
+void Node::setWorldPosition(float x, float y, float z) {
+    _nodeLayout->worldPosition.set(x, y, z);
+    if (_parent) {
+        Mat4 invertWMat{_parent->getWorldMatrix()};
+        _parent->updateWorldTransform();
+        invertWMat.inverse();
+        _nodeLayout->localPosition.transformMat4(_nodeLayout->worldPosition, invertWMat);
+    } else {
+        _nodeLayout->localPosition.set(_nodeLayout->worldPosition);
+    }
+    invalidateChildren(TransformBit::POSITION);
+}
+
+void Node::setWorldRotation(float x, float y, float z, float w) {
+    _nodeLayout->worldRotation.set(x, y, z, w);
+    if (_parent) {
+        _parent->updateWorldTransform();
+        _nodeLayout->localRotation.set(_parent->_nodeLayout->worldRotation.getConjugated());
+        _nodeLayout->localRotation.multiply(_nodeLayout->worldRotation);
+    } else {
+        _nodeLayout->localRotation.set(_nodeLayout->worldRotation);
+    }
+    invalidateChildren(TransformBit::ROTATION);
+}
+
+void Node::setParent(Node *parent) {
+    if (_parent == parent) {
+        return;
+    }
+    if (_parent != nullptr) {
+        _parent->removeChild(this);
+    }
+    _parent = parent;
+    if (_parent) {
+        _parent->addChild(this);
+    }
 }
 
 void Node::initWithData(uint8_t *data, uint8_t *flagChunk, uint32_t offset) {
