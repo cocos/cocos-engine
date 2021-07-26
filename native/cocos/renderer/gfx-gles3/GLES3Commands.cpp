@@ -1306,7 +1306,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
         glBuffer.set       = INVALID_BINDING;
         glBuffer.binding   = INVALID_BINDING;
         glBuffer.isStorage = true;
-        for (size_t b = 0; b < gpuShader->blocks.size(); ++b) {
+        for (size_t b = 0; b < gpuShader->buffers.size(); ++b) {
             UniformStorageBuffer &buffer = gpuShader->buffers[b];
             if (buffer.name == glBuffer.name) {
                 glBuffer.set     = buffer.set;
