@@ -41,6 +41,8 @@ declare module 'internal:constants' {
     /**
      * Running in native platform (mobile app, desktop app, or simulator).
      */
+    export const NATIVE: boolean;
+
     export const JSB: boolean;
 
     export const HTML5: boolean;

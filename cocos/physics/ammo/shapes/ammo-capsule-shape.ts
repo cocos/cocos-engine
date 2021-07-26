@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../ammo-instantiated';
+import Ammo from '../instantiated';
 import { absMax } from '../../../core';
 import { AmmoShape } from './ammo-shape';
 import { CapsuleCollider } from '../../../../exports/physics-framework';
@@ -82,8 +82,8 @@ export class AmmoCapsuleShape extends AmmoShape implements ICapsuleShape {
         this.setRadius(this.collider.radius);
     }
 
-    setScale () {
-        super.setScale();
+    updateScale () {
+        super.updateScale();
         this.setRadius(this.collider.radius);
     }
 

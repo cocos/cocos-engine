@@ -28,7 +28,6 @@
  */
 import { Asset } from '..';
 import { IMemoryImageSource } from '../assets/image-asset';
-import { sys } from '../platform/sys';
 import { js } from '../utils';
 import Cache from './cache';
 import deserialize from './deserialize';
@@ -155,18 +154,13 @@ export class Parser {
         '.pvr': this.parsePVRTex,
         '.pkm': this.parsePKMTex,
         '.astc': this.parseASTCTex,
-        // Audio
-        '.mp3': this.parseAudio,
-        '.ogg': this.parseAudio,
-        '.wav': this.parseAudio,
-        '.m4a': this.parseAudio,
 
         // plist
         '.plist': this.parsePlist,
         import: this.parseImport,
 
         '.ccon': this.parseImport,
-        '.ccobn': this.parseImport,
+        '.cconb': this.parseImport,
     };
 
     public parseImage (file: HTMLImageElement | Blob, options: IDownloadParseOptions, onComplete: CompleteCallback<HTMLImageElement|ImageBitmap>) {
@@ -179,18 +173,6 @@ export class Parser {
         }, (err) => {
             onComplete(err, null);
         });
-    }
-
-    public parseAudio (file: ArrayBuffer | HTMLAudioElement, options: IDownloadParseOptions, onComplete: CompleteCallback<AudioBuffer|HTMLAudioElement>) {
-        if (file instanceof ArrayBuffer) {
-            sys.__audioSupport.context.decodeAudioData(file, (buffer) => {
-                onComplete(null, buffer);
-            }, (e) => {
-                onComplete(new Error(`Error with decoding audio data${e.err}`), null);
-            });
-        } else {
-            onComplete(null, file);
-        }
     }
 
     public parsePVRTex (file: ArrayBuffer | ArrayBufferView, options: IDownloadParseOptions, onComplete: CompleteCallback<IMemoryImageSource>) {

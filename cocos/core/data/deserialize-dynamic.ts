@@ -402,6 +402,7 @@ class _Deserializer {
     private _ignoreEditorOnly: any;
     private declare _mainBinChunk: Uint8Array;
     private declare _serializedData: SerializedObject | SerializedObject[];
+    private declare _context: DeserializationContext;
 
     constructor (result: Details, classFinder: ClassFinder, reportMissingClass: ReportMissingClass, customEnv: unknown, ignoreEditorOnly: unknown) {
         this.result = result;
@@ -438,8 +439,10 @@ class _Deserializer {
     }
 
     public deserialize (serializedData: SerializedData | CCON) {
+        let fromCCON = false;
         let jsonObj: SerializedData;
         if (serializedData instanceof CCON) {
+            fromCCON = true;
             jsonObj = serializedData.document as SerializedData;
             if (serializedData.chunks.length > 0) {
                 assertIsTrue(serializedData.chunks.length === 1);
@@ -450,6 +453,9 @@ class _Deserializer {
         }
 
         this._serializedData = jsonObj;
+        this._context = {
+            fromCCON,
+        };
 
         const serializedRootObject = Array.isArray(jsonObj) ? jsonObj[0] : jsonObj;
 
@@ -471,6 +477,7 @@ class _Deserializer {
 
         this._serializedData = undefined!;
         this._mainBinChunk = undefined!;
+        this._context = undefined!;
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return this.deserializedData;
@@ -645,10 +652,7 @@ class _Deserializer {
             },
         };
 
-        const context: DeserializationContext = {
-        };
-
-        object[deserializeTag]!(serializationInput, context);
+        object[deserializeTag]!(serializationInput, this._context);
     }
 
     private _deserializeFireClass (obj: Record<PropertyKey, unknown>, serialized: SerializedGeneralTypedObject, klass: CCClassConstructor<unknown>) {
@@ -669,7 +673,7 @@ class _Deserializer {
         propName: string,
     ) {
         const id = (serializedField as Partial<SerializedObjectReference>).__id__;
-        if (id) {
+        if (typeof id === 'number') {
             const field = this.deserializedList[id];
             if (field) {
                 obj[propName] = field;
@@ -696,7 +700,7 @@ class _Deserializer {
 
     private _deserializeObjectField (serializedField: SerializedFieldObjectValue) {
         const id = (serializedField as Partial<SerializedObjectReference>).__id__;
-        if (id) {
+        if (typeof id === 'number') {
             const field = this.deserializedList[id];
             if (field) {
                 return field;
@@ -838,7 +842,7 @@ export function deserializeDynamic (data: SerializedData | CCON, details: Detail
 export function parseUuidDependenciesDynamic (serialized: unknown) {
     const depends = [];
     const parseDependRecursively = (data: any, out: string[]) => {
-        if (!data || typeof data !== 'object' || data.__id__) { return; }
+        if (!data || typeof data !== 'object' || typeof data.__id__ === 'number') { return; }
         const uuid = data.__uuid__;
         if (Array.isArray(data)) {
             for (let i = 0, l = data.length; i < l; i++) {

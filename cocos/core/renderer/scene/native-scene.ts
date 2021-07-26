@@ -6,7 +6,7 @@ import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
 
 export const NativeNode: Constructor<{
-    initWithData (data: TypedArray): void;
+    initWithData (data: TypedArray, chunk: ArrayBuffer, offset: number): void;
     setParent(val: NativeNode | null): void;
 }> = null!;
 export type NativeNode = InstanceType<typeof NativeNode>;
@@ -219,7 +219,7 @@ export const NativeDrawBatch2D: Constructor<{
 export type NativeDrawBatch2D = InstanceType<typeof NativeDrawBatch2D>;
 
 export const NativeRenderScene: Constructor<{
-    update(): void;
+    update(stamp: number): void;
     setMainLight (l: NativeLight | null): void;
     addSphereLight (l: NativeLight | null): void;
     removeSphereLight (l: NativeLight | null): void;

@@ -2,6 +2,17 @@
 import { _decorator, Component, Node } from 'cc';
 const { ccclass, property } = _decorator;
 
+/**
+ * Predefined variables
+ * Name = <%Name%>
+ * DateTime = <%DateTime%>
+ * Author = <%Author%>
+ * FileBasename = <%FileBasename%>
+ * FileBasenameNoExtension = <%FileBasenameNoExtension%>
+ * URL = <%URL%>
+ *
+ */
+ 
 @ccclass('<%Name%>')
 export class <%Name%> extends Component {
     // [1]

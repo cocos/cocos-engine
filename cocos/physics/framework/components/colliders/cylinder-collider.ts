@@ -37,7 +37,6 @@ import {
     type,
     serializable,
 } from 'cc.decorator';
-import { EDITOR, TEST } from 'internal:constants';
 import { Collider } from './collider';
 import { ICylinderShape } from '../../../spec/i-physics-shape';
 import { EAxisDirection, EColliderType } from '../../physics-enum';
@@ -68,9 +67,8 @@ export class CylinderCollider extends Collider {
 
     public set radius (value) {
         if (this._radius === value) return;
-        if (value < 0) value = 0;
-        this._radius = value;
-        if (!EDITOR && !TEST) {
+        this._radius = Math.abs(value);
+        if (this._shape) {
             this.shape.setRadius(value);
         }
     }
@@ -88,9 +86,8 @@ export class CylinderCollider extends Collider {
 
     public set height (value) {
         if (this._height === value) return;
-        if (value < 0) value = 0;
-        this._height = value;
-        if (!EDITOR && !TEST) {
+        this._height = Math.abs(value);
+        if (this._shape) {
             this.shape.setHeight(value);
         }
     }
@@ -111,7 +108,7 @@ export class CylinderCollider extends Collider {
         if (this._direction === value) return;
         if (value < EAxisDirection.X_AXIS || value > EAxisDirection.Z_AXIS) return;
         this._direction = value;
-        if (!EDITOR && !TEST) {
+        if (this._shape) {
             this.shape.setDirection(value);
         }
     }

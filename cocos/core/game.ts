@@ -47,6 +47,7 @@ import { Node } from './scene-graph/node';
 import { BrowserType } from '../../pal/system-info/enum-type';
 import { Layers } from './scene-graph';
 import { log2 } from './math/bits';
+import { garbageCollectionManager } from './data/garbage-collection';
 
 interface ISceneInfo {
     url: string;
@@ -127,11 +128,6 @@ export interface IGameConfig {
      * Include available scenes in the current bundle.
      */
     scenes?: ISceneInfo[];
-
-    /**
-     * For internal use.
-     */
-    registerSystemEvent?: boolean;
 
     /**
      * For internal use.
@@ -332,7 +328,7 @@ export class Game extends EventTarget {
      * @en The delta time since last frame, unit: s.
      * @zh 获取上一帧的增量时间，以秒为单位。
      */
-     public get deltaTime () {
+    public get deltaTime () {
         return this._deltaTime;
     }
 
@@ -356,7 +352,7 @@ export class Game extends EventTarget {
      * @en The expected delta time of each frame
      * @zh 期望帧率对应的每帧时间
      */
-    public frameTime = 1000/60;
+    public frameTime = 1000 / 60;
 
     public collisionMatrix = [];
     public groupList: any[] = [];
@@ -432,6 +428,7 @@ export class Game extends EventTarget {
      */
     public resume () {
         if (!this._paused) { return; }
+        inputManager.clearEvents();
         if (this._intervalId) {
             window.cAF(this._intervalId);
             this._intervalId = 0;
@@ -575,15 +572,9 @@ export class Game extends EventTarget {
         } else {
             this.onStart = configOrCallback ?? null;
         }
+        garbageCollectionManager.init();
 
-        return Promise.resolve(initPromise).then(() => {
-            // register system events
-            if (!EDITOR && game.config.registerSystemEvent) {
-                inputManager.registerSystemEvent();
-            }
-
-            return this._setRenderPipelineNShowSplash();
-        });
+        return Promise.resolve(initPromise).then(() => this._setRenderPipelineNShowSplash());
     }
 
     //  @ Persist root node section
@@ -763,9 +754,6 @@ export class Game extends EventTarget {
         const renderMode = config.renderMode;
         if (typeof renderMode !== 'number' || renderMode > 2 || renderMode < 0) {
             config.renderMode = 0;
-        }
-        if (typeof config.registerSystemEvent !== 'boolean') {
-            config.registerSystemEvent = true;
         }
         config.showFPS = !!config.showFPS;
 

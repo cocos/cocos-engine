@@ -45,7 +45,7 @@ import { CannonPlaneShape } from './shapes/cannon-plane-shape';
 import { CannonPointToPointConstraint } from './constraints/cannon-point-to-point-constraint';
 import { CannonHingeConstraint } from './constraints/cannon-hinge-constraint';
 
-selector.select('cannon.js', {
+selector.register('cannon.js', {
     PhysicsWorld: CannonWorld,
     RigidBody: CannonRigidBody,
 

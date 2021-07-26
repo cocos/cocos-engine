@@ -31,7 +31,7 @@
 import { IVec3Like, Quat, Vec3 } from '../../../core';
 import { HingeConstraint } from '../../framework';
 import { IHingeConstraint } from '../../spec/i-physics-constraint';
-import { getTempTransform, PX, _pxtrans, _trans } from '../export-physx';
+import { getTempTransform, PX, _pxtrans, _trans } from '../physx-adapter';
 import { PhysXJoint } from './physx-joint';
 
 export class PhysXRevoluteJoint extends PhysXJoint implements IHingeConstraint {

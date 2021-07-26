@@ -28,7 +28,7 @@
  * @hidden
  */
 
-import Ammo from './ammo-instantiated';
+import Ammo from './instantiated';
 import { AmmoShape } from './shapes/ammo-shape';
 
 export interface IAmmoBodyStruct {

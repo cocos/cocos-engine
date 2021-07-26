@@ -29,7 +29,7 @@
  */
 
 /* eslint-disable new-cap */
-import Ammo from '../ammo-instantiated';
+import Ammo from '../instantiated';
 import { AmmoShape } from './ammo-shape';
 import { CylinderCollider } from '../../../../exports/physics-framework';
 import { AmmoBroadphaseNativeTypes } from '../ammo-enum';
@@ -85,8 +85,8 @@ export class AmmoCylinderShape extends AmmoShape implements ICylinderShape {
         this.setRadius(this.collider.radius);
     }
 
-    setScale () {
-        super.setScale();
+    updateScale () {
+        super.updateScale();
         this.setRadius(this.collider.radius);
     }
 

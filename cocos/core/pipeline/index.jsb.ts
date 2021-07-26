@@ -94,7 +94,7 @@ export class ForwardPipeline extends nr.ForwardPipeline {
     }
 }
 
-mixin(ForwardPipeline, Asset);
+mixin(ForwardPipeline.prototype, Asset.prototype);
 
 const ForwardOnLoaded = ForwardPipeline.prototype.onLoaded;
 
@@ -227,7 +227,7 @@ export class DeferredPipeline extends nr.DeferredPipeline {
 
 }
 
-mixin(DeferredPipeline, Asset);
+mixin(DeferredPipeline.prototype, Asset.prototype);
 
 const DeferredOnLoaded = DeferredPipeline.prototype.onLoaded;
 

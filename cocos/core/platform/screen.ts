@@ -39,16 +39,17 @@ import { warnID } from './debug';
  * @zh screen 单例对象提供简单的方法来做屏幕管理相关的工作。
  */
 class Screen {
-    /**
-     * @en Get the size of current window.
-     * On Web platform, this should be the size of game frame.
-     * @zh 获取当前窗口尺寸。
-     * 在 Web 平台，这里应该是 game frame 的尺寸
-     * @returns {Size}
-     */
-    public get windowSize (): Size {
-        return screenAdapter.windowSize;
-    }
+    // TODO: windowSize should be physical size, and deprecate sys.windowPixelResolution
+    // /**
+    //  * @en Get the size of current window.
+    //  * On Web platform, this should be the size of game frame.
+    //  * @zh 获取当前窗口尺寸。
+    //  * 在 Web 平台，这里应该是 game frame 的尺寸
+    //  * @returns {Size}
+    //  */
+    // public get windowSize (): Size {
+    //     return screenAdapter.windowSize;
+    // }
 
     /**
      * @en Whether it supports full screen？

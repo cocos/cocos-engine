@@ -98,6 +98,27 @@ class ContextSerializeThis2 {
     }
 }
 
+@ccclassAutoNamed(__filename)
+class ReadOrWriteMultiReferenceProperty {
+    @_decorator.property
+    child!: ReadOrWriteMultiReferenceProperty_MemberClass;
+}
+
+@ccclassAutoNamed(__filename)
+class ReadOrWriteMultiReferenceProperty_MemberClass {
+    @_decorator.property
+    parent!: ReadOrWriteMultiReferenceProperty;
+
+    [serializeTag](serializationOutput: SerializationOutput, context: SerializationContext) {
+        serializationOutput.writeProperty('parent', this.parent);
+    }
+}
+
+const readOrWriteMultiReferenceProperty = new ReadOrWriteMultiReferenceProperty();
+const readOrWriteMultiReferenceProperty_MemberClass =
+    readOrWriteMultiReferenceProperty.child = new ReadOrWriteMultiReferenceProperty_MemberClass();
+readOrWriteMultiReferenceProperty_MemberClass.parent = readOrWriteMultiReferenceProperty;
+
 export const value = {
     serializationOutputProperty: new SerializationOutputProperty(),
     contextSerializeSuper: new ContextSerializeSuper(),
@@ -106,6 +127,7 @@ export const value = {
     contextSerializeThis: new ContextSerializeThis(),
     contextSerializeThis1: new ContextSerializeThis1(),
     contextSerializeThis2: new ContextSerializeThis2(),
+    readOrWriteMultiReferenceProperty,
 };
 
 testEachPort(PORTS_BOTH_DYNAMIC_COMPILED, async (port) => {
@@ -121,6 +143,8 @@ testEachPort(PORTS_BOTH_DYNAMIC_COMPILED, async (port) => {
             expect(serialized.contextSerializeThis).toStrictEqual(value.contextSerializeThis);
             expect(serialized.contextSerializeThis1).toStrictEqual(value.contextSerializeThis1);
             expect(serialized.contextSerializeThis2.foo).toStrictEqual('CustomOverride');
+
+            expect(serialized.readOrWriteMultiReferenceProperty.child.parent).toBe(serialized.readOrWriteMultiReferenceProperty);
         }
     );
 });

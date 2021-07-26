@@ -130,8 +130,8 @@ exports.setReadonly = function(data, element) {
 
 /**
  * Tool function: Set the display status
- * @param {object} data  dump | function
- * @param element
+ * @param {Function | boolean} data  dump | function
+ * @param {HTMLElement} element
  */
 exports.setHidden = function(data, element) {
     if (!element) {
@@ -253,4 +253,62 @@ exports.isMultipleInvalid = function(dump) {
     }
 
     return invalid;
+};
+/**
+ * Get the name based on the dump data
+ */
+/**
+ * 
+ * @param {string} dump 
+ * @returns 
+ */
+exports.getName = function(dump) {
+    if (!dump) {
+        return '';
+    }
+
+    if (dump.displayName) {
+        return dump.displayName;
+    }
+
+    let name = dump.name || '';
+
+    name = name.replace(/^\S/, (str) => str.toUpperCase());
+    name = name.replace(/_/g, (str) => ' ');
+    name = name.replace(/ \S/g, (str) => ` ${str.toUpperCase()}`);
+
+    return name.trim();
+};
+
+exports.setTooltip = function(element, dump) {
+    if (dump.tooltip) {
+        let tooltip = dump.tooltip;
+        if (tooltip.startsWith('i18n:')) {
+            tooltip = Editor.I18n.t('ENGINE.' + tooltip.substr(5));
+            // 如果 ENGINE 翻译不出来，就当成插件的翻译数据，尝试直接翻译
+            if (!tooltip || tooltip === dump.tooltip) {
+                tooltip = Editor.I18n.t(dump.tooltip.substr(5)) || dump.tooltip;
+            }
+        }
+        element.setAttribute('tooltip', tooltip);
+    } else {
+        element.removeAttribute('tooltip');
+    }
+};
+
+/**
+* Sets the generic property Label in prop
+* name and tooltip
+*/
+exports.setLabel = function($label, dump) {
+    if (!dump) {
+        dump = this.dump;
+    }
+
+    if (!$label || !dump) {
+        return;
+    }
+
+    $label.innerHTML = exports.getName(dump);
+    exports.setTooltip($label, dump);
 };
