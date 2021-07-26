@@ -55,6 +55,7 @@ SE_DECLARE_FUNC(js_physics_RigidBody_getGroup);
 SE_DECLARE_FUNC(js_physics_RigidBody_getImpl);
 SE_DECLARE_FUNC(js_physics_RigidBody_getLinearVelocity);
 SE_DECLARE_FUNC(js_physics_RigidBody_getMask);
+SE_DECLARE_FUNC(js_physics_RigidBody_getNodeHandle);
 SE_DECLARE_FUNC(js_physics_RigidBody_getSleepThreshold);
 SE_DECLARE_FUNC(js_physics_RigidBody_initialize);
 SE_DECLARE_FUNC(js_physics_RigidBody_isAwake);

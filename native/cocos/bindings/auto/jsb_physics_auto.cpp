@@ -736,6 +736,25 @@ static bool js_physics_RigidBody_getMask(se::State& s) // NOLINT(readability-ide
 }
 SE_BIND_FUNC(js_physics_RigidBody_getMask)
 
+static bool js_physics_RigidBody_getNodeHandle(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
+    SE_PRECONDITION2(cobj, false, "js_physics_RigidBody_getNodeHandle : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        uintptr_t result = cobj->getNodeHandle();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_physics_RigidBody_getNodeHandle : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_physics_RigidBody_getNodeHandle)
+
 static bool js_physics_RigidBody_getSleepThreshold(se::State& s) // NOLINT(readability-identifier-naming)
 {
     auto* cobj = SE_THIS_OBJECT<cc::physics::RigidBody>(s);
@@ -1236,6 +1255,7 @@ bool js_register_physics_RigidBody(se::Object* obj) // NOLINT(readability-identi
     cls->defineFunction("getImpl", _SE(js_physics_RigidBody_getImpl));
     cls->defineFunction("getLinearVelocity", _SE(js_physics_RigidBody_getLinearVelocity));
     cls->defineFunction("getMask", _SE(js_physics_RigidBody_getMask));
+    cls->defineFunction("getNodeHandle", _SE(js_physics_RigidBody_getNodeHandle));
     cls->defineFunction("getSleepThreshold", _SE(js_physics_RigidBody_getSleepThreshold));
     cls->defineFunction("initialize", _SE(js_physics_RigidBody_initialize));
     cls->defineFunction("isAwake", _SE(js_physics_RigidBody_isAwake));
@@ -4449,7 +4469,7 @@ static bool js_physics_RevoluteJoint_setConnectedBody(se::State& s) // NOLINT(re
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<const cc::scene::Node*, false> arg0 = {};
+        HolderType<uintptr_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_RevoluteJoint_setConnectedBody : Error processing arguments");
         cobj->setConnectedBody(arg0.value());
@@ -4669,7 +4689,7 @@ static bool js_physics_DistanceJoint_setConnectedBody(se::State& s) // NOLINT(re
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<const cc::scene::Node*, false> arg0 = {};
+        HolderType<uintptr_t, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_physics_DistanceJoint_setConnectedBody : Error processing arguments");
         cobj->setConnectedBody(arg0.value());
