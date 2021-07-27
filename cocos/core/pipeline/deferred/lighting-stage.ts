@@ -212,7 +212,7 @@ export class LightingStage extends RenderStage {
     }
 
     public destroy () {
-        this._deferredLitsBufs.destroy();
+        this._deferredLitsBufs?.destroy();
         this._deferredLitsBufs = null!;
         this._descriptorSet = null!;
     }
