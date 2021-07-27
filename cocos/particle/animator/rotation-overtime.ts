@@ -113,17 +113,12 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     private _otherEuler:Vec3 = new Vec3();
 
     private _processRotation (p: Particle, r2d: number) {
-        // Same as the particle-vs-legacy.chunk glsl statemants in remark
+        // Same as the particle-vs-legacy.chunk glsl statemants
         const renderMode = p.particleSystem.processor.getInfo().renderMode;
         if (renderMode !== RenderMode.Mesh) {
-            if (renderMode === RenderMode.StrecthedBillboard) {                                         // #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
-                this._quatRot.set(0, 0, 0, 1);                                                          //      vec3 rotEuler = vec3(0.);
-            } else if (renderMode !== RenderMode.Billboard) {                                           // #else
-                Quat.toEuler(this._otherEuler, this._quatRot);
-                this._otherEuler.set(0, 0, this._otherEuler.z);                                         //      vec3 rotEuler = vec3(0., 0., a_texCoord2.z);
-                Quat.fromEuler(this._quatRot,
-                    this._otherEuler.x, this._otherEuler.y, this._otherEuler.z);
-            }                                                                                           // #endif
+            if (renderMode === RenderMode.StrecthedBillboard) {
+                this._quatRot.set(0, 0, 0, 1);
+            }
         }
 
         Quat.normalize(this._quatRot, this._quatRot);
@@ -135,7 +130,11 @@ export default class RotationOvertimeModule extends ParticleModuleBase {
     public animate (p: Particle, dt: number) {
         const normalizedTime = 1 - p.remainingLifetime / p.startLifetime;
         const rotationRand = pseudoRandom(p.randomSeed + ROTATION_OVERTIME_RAND_OFFSET);
+        const renderMode = p.particleSystem.processor.getInfo().renderMode;
+
         if (!this._separateAxes) {
+            Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
+        } else if (renderMode === RenderMode.VerticalBillboard || renderMode === RenderMode.HorizontalBillboard) {
             Quat.fromEuler(p.deltaQuat, 0, 0, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
         } else {
             Quat.fromEuler(p.deltaQuat, this.x.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.y.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D, this.z.evaluate(normalizedTime, rotationRand)! * dt * Particle.R2D);
