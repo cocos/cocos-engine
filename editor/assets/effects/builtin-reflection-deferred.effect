@@ -226,9 +226,9 @@ CCProgram standard-fs %{
   #pragma builtin(local)
   layout(set = 2, binding = 11) uniform sampler2D cc_reflectionTexture;
 
-  layout(location = 0) out vec4 fragColorX;                        
+  layout(location = 0) out vec4 fragColorX;
 
-  void main () {                                                   
+  void main () {
     StandardSurface s; surf(s);
     vec4 color = CCStandardShadingBase(s, CC_SHADOW_POSITION);
     CC_APPLY_FOG(color);
@@ -239,7 +239,12 @@ CCProgram standard-fs %{
       noise = texture(normalMap, ALBEDO_UV).xy * 0.02;
     #endif
 
-    vec2 resolution = cc_screenSize.xy;
+    vec2 resolution;
+    if (cc_screenSize.x > cc_screenSize.y && gl_FragCoord.x > gl_FragCoord.y) {
+      resolution = cc_screenSize.xy;
+    } else {
+      resolution = cc_screenSize.yx;
+    }
     vec2 uv = (gl_FragCoord.xy / resolution) + noise;
     vec4 reflectionColor = texture(cc_reflectionTexture, uv);
     fragColorX = mix(baseColor, reflectionColor, 0.5);
