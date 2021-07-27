@@ -357,10 +357,10 @@ export class Parser {
      * @param id - The id of file
      * @param file - File
      * @param type - The corresponding type of file, likes '.jpg'.
-     * @param options - Some optional paramters will be transferred to the corresponding handler.
+     * @param options - Some optional parameters will be transferred to the corresponding handler.
      * @param onComplete - callback when finishing downloading
-     * @param onComplete.err - The occurred error, null indicetes success
-     * @param onComplete.contetnt - The parsed file
+     * @param onComplete.err - The occurred error, null indicates success
+     * @param onComplete.content - The parsed file
      *
      * @example
      * downloader.download('test.jpg', 'test.jpg', '.jpg', {}, (err, file) => {

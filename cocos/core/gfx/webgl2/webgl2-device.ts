@@ -66,6 +66,7 @@ import {
 } from './webgl2-commands';
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
+import { debug } from '../../platform/debug';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -203,7 +204,7 @@ export class WebGL2Device extends Device {
 
         this._canvas2D = document.createElement('canvas');
 
-        console.info('WebGL2 device initialized.');
+        debug('WebGL2 device initialized.');
 
         this._gfxAPI = API.WEBGL2;
         this._deviceName = 'WebGL2';
@@ -267,7 +268,7 @@ export class WebGL2Device extends Device {
                 extensions += `${ext} `;
             }
 
-            console.debug(`EXTENSIONS: ${extensions}`);
+            debug(`EXTENSIONS: ${extensions}`);
         }
 
         this._EXT_texture_filter_anisotropic = this.getExtension('EXT_texture_filter_anisotropic');
@@ -336,26 +337,26 @@ export class WebGL2Device extends Device {
             compressedFormat += 'astc ';
         }
 
-        console.info(`RENDERER: ${this._renderer}`);
-        console.info(`VENDOR: ${this._vendor}`);
-        console.info(`VERSION: ${this._version}`);
-        console.info(`DPR: ${this._devicePixelRatio}`);
-        console.info(`SCREEN_SIZE: ${this._width} x ${this._height}`);
-        console.info(`MAX_VERTEX_ATTRIBS: ${this._caps.maxVertexAttributes}`);
-        console.info(`MAX_VERTEX_UNIFORM_VECTORS: ${this._caps.maxVertexUniformVectors}`);
-        console.info(`MAX_FRAGMENT_UNIFORM_VECTORS: ${this._caps.maxFragmentUniformVectors}`);
-        console.info(`MAX_TEXTURE_IMAGE_UNITS: ${this._caps.maxTextureUnits}`);
-        console.info(`MAX_VERTEX_TEXTURE_IMAGE_UNITS: ${this._caps.maxVertexTextureUnits}`);
-        console.info(`MAX_UNIFORM_BUFFER_BINDINGS: ${this._caps.maxUniformBufferBindings}`);
-        console.info(`MAX_UNIFORM_BLOCK_SIZE: ${this._caps.maxUniformBlockSize}`);
-        console.info(`DEPTH_BITS: ${this._caps.depthBits}`);
-        console.info(`STENCIL_BITS: ${this._caps.stencilBits}`);
-        console.info(`UNIFORM_BUFFER_OFFSET_ALIGNMENT: ${this._caps.uboOffsetAlignment}`);
+        debug(`RENDERER: ${this._renderer}`);
+        debug(`VENDOR: ${this._vendor}`);
+        debug(`VERSION: ${this._version}`);
+        debug(`DPR: ${this._devicePixelRatio}`);
+        debug(`SCREEN_SIZE: ${this._width} x ${this._height}`);
+        debug(`MAX_VERTEX_ATTRIBS: ${this._caps.maxVertexAttributes}`);
+        debug(`MAX_VERTEX_UNIFORM_VECTORS: ${this._caps.maxVertexUniformVectors}`);
+        debug(`MAX_FRAGMENT_UNIFORM_VECTORS: ${this._caps.maxFragmentUniformVectors}`);
+        debug(`MAX_TEXTURE_IMAGE_UNITS: ${this._caps.maxTextureUnits}`);
+        debug(`MAX_VERTEX_TEXTURE_IMAGE_UNITS: ${this._caps.maxVertexTextureUnits}`);
+        debug(`MAX_UNIFORM_BUFFER_BINDINGS: ${this._caps.maxUniformBufferBindings}`);
+        debug(`MAX_UNIFORM_BLOCK_SIZE: ${this._caps.maxUniformBlockSize}`);
+        debug(`DEPTH_BITS: ${this._caps.depthBits}`);
+        debug(`STENCIL_BITS: ${this._caps.stencilBits}`);
+        debug(`UNIFORM_BUFFER_OFFSET_ALIGNMENT: ${this._caps.uboOffsetAlignment}`);
         if (this._EXT_texture_filter_anisotropic) {
-            console.info(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
+            debug(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
         }
-        console.info(`USE_VAO: ${this._useVAO}`);
-        console.info(`COMPRESSED_FORMAT: ${compressedFormat}`);
+        debug(`USE_VAO: ${this._useVAO}`);
+        debug(`COMPRESSED_FORMAT: ${compressedFormat}`);
 
         // init states
         this.initStates(gl);
@@ -445,7 +446,7 @@ export class WebGL2Device extends Device {
 
     public resize (width: number, height: number) {
         if (this._width !== width || this._height !== height) {
-            console.info(`Resizing device: ${width}x${height}`);
+            debug(`Resizing device: ${width}x${height}`);
             this._canvas!.width = width;
             this._canvas!.height = height;
             this._width = width;
