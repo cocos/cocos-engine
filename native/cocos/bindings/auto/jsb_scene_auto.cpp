@@ -52,18 +52,16 @@ static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-ident
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 3) {
+    if (argc == 2) {
         HolderType<unsigned char*, false> arg0 = {};
         HolderType<unsigned char*, false> arg1 = {};
-        HolderType<unsigned int, false> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
-        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_Node_initWithData : Error processing arguments");
-        cobj->initWithData(arg0.value(), arg1.value(), arg2.value());
+        cobj->initWithData(arg0.value(), arg1.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
     return false;
 }
 SE_BIND_FUNC(js_scene_Node_initWithData)
