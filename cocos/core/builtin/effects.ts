@@ -98,7 +98,7 @@ export const effects = [
     "shaders": [
       {
         "name": "particle-gpu|particle-vs-gpu:gpvs_main|tinted-fs:add",
-        "hash": 2052306801,
+        "hash": 2772035936,
         "builtins": {
           "statistics": { "CC_EFFECT_USED_VERTEX_UNIFORM_VECTORS": 60, "CC_EFFECT_USED_FRAGMENT_UNIFORM_VECTORS": 38 },
           "globals": { "blocks": [{ "name": "CCGlobal", "defines": [] }, { "name": "CCCamera", "defines": [] }], "samplerTextures": [] },

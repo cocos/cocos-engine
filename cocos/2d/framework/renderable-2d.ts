@@ -453,9 +453,14 @@ export class Renderable2D extends RenderableComponent {
     protected _postCanRender () {}
 
     protected _updateColor () {
+        // Need update rendFlag when opacity changes from 0 to !0
+        const opacityZero = this._cacheAlpha <= 0;
         this._updateWorldAlpha();
         if (this._colorDirty && this._assembler && this._assembler.updateColor) {
             this._assembler.updateColor(this);
+            if (opacityZero) {
+                this._renderFlag = this._canRender();
+            }
             this._colorDirty = false;
         }
     }
