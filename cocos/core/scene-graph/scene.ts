@@ -101,8 +101,6 @@ export class Scene extends BaseNode {
 
     protected _nodeHandle: NodeHandle = NULL_HANDLE;
     protected declare _nativeObj: NativeNode | null;
-    protected declare _hasChangedFlagsChunk: Uint32Array; // has the transform been updated in this frame?
-    protected declare _hasChangedFlagsOffset: number;
     protected declare _nativeLayer: Uint32Array;
     protected declare _nativeDirtyFlag: Uint32Array;
 
@@ -133,9 +131,8 @@ export class Scene extends BaseNode {
             _lScale.set(1, 1, 1);
             this._nativeLayer[0] = 0;
             this._nativeObj = new NativeNode();
-            this._hasChangedFlagsChunk = new Uint32Array([0]);
-            this._hasChangedFlagsOffset = 0;
-            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), this._hasChangedFlagsChunk, this._hasChangedFlagsOffset);
+            const flagBuffer = new Uint32Array([0]);
+            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer);
         }
     }
 
