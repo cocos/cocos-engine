@@ -63,8 +63,9 @@ void DescriptorSetValidator::doDestroy() {
 }
 
 void DescriptorSetValidator::update() {
-    _isDirty = false;
+    if (!_isDirty) return;
 
+    _isDirty = false;
     _actor->update();
 }
 

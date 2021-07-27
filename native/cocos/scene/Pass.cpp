@@ -44,7 +44,7 @@ void Pass::setState(gfx::BlendState *bs, gfx::DepthStencilState *ds, gfx::Raster
     _blendState        = bs;
     _depthStencilState = ds;
     _rasterizerState   = rs;
-    _descriptorSet = descriptorSet;
+    _descriptorSet     = descriptorSet;
 }
 
 } // namespace scene

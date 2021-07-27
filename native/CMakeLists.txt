@@ -1702,6 +1702,7 @@ if(USE_SE_V8)
                      cocos/bindings/jswrapper/v8/Class.cpp
                      cocos/bindings/jswrapper/v8/Class.h
                      cocos/bindings/jswrapper/v8/HelperMacros.h
+                     cocos/bindings/jswrapper/v8/HelperMacros.cpp
                      cocos/bindings/jswrapper/v8/Object.cpp
                      cocos/bindings/jswrapper/v8/Object.h
                      cocos/bindings/jswrapper/v8/ObjectWrap.cpp

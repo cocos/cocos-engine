@@ -148,7 +148,6 @@ void glThreadEntry() {
                                                 "flushTasksOnGameThread");
             game->tick();
         }
-
         if (cc::cocosApp.destroyRequested) break;
     }
 

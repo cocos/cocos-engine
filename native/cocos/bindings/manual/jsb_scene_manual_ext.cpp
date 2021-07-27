@@ -75,11 +75,13 @@ template <typename F>
 uint64_t convertPtr(F *in) {
     return static_cast<uint64_t>(reinterpret_cast<intptr_t>(in));
 }
-bool             mqInitialized{false};
-se::Object *     msgQueue{nullptr};
-se::Object *     globalThis{nullptr};
-constexpr size_t BUFFER_SIZE{1 * 1024 * 1024}; // 1MB
-
+bool                   mqInitialized{false};
+se::Object *           msgQueue{nullptr};
+se::Object *           globalThis{nullptr};
+constexpr size_t       BUFFER_SIZE{1 * 1024 * 1024}; // 1MB;
+se::Object *           msgQueueInfo{nullptr};
+uint32_t *             msgInfoPtr{nullptr};
+std::vector<uint8_t *> msgQueuePtrs;
 } // namespace
 
 /**
@@ -87,25 +89,32 @@ constexpr size_t BUFFER_SIZE{1 * 1024 * 1024}; // 1MB
  *  which sync data to native objects.
  */
 void jsbFlushFastMQ() {
-    if (!mqInitialized) {
+    if (!mqInitialized || !msgInfoPtr || msgInfoPtr[1] == 0) {
         return;
     }
-    se::AutoHandleScope scope;
-    se::Value           maxIdx;
-    se::Value           currentArrayBuffer;
-    se::Object *        arrayBufferObj;
 
-    globalThis->getProperty("__fastMQIdx__", &maxIdx);
-    auto     maxSize = maxIdx.toUint32();
-    uint8_t *mqPtr{nullptr};
+    uint8_t *  mqPtr{nullptr};
+    const auto minSize = msgInfoPtr[0] + 1;
+    if (minSize > msgQueuePtrs.size()) {
+        se::AutoHandleScope scope;
+        se::Value           maxIdx;
+        se::Value           currentArrayBuffer;
+        se::Object *        arrayBufferObj;
+        auto                oldSize = msgQueuePtrs.size();
+        msgQueuePtrs.resize(minSize);
+        for (auto i = oldSize; i < minSize; i++) {
+            msgQueue->getArrayElement(i, &currentArrayBuffer);
+            arrayBufferObj = currentArrayBuffer.toObject();
+            arrayBufferObj->getArrayBufferData(&mqPtr, nullptr);
+            msgQueuePtrs[i] = mqPtr;
+        }
+    }
 
-    for (auto i = 0; i <= maxSize; i++) {
-        msgQueue->getArrayElement(i, &currentArrayBuffer);
-        arrayBufferObj = currentArrayBuffer.toObject();
-        arrayBufferObj->getArrayBufferData(&mqPtr, nullptr);
+    for (auto i = 0; i < minSize; i++) {
+        mqPtr          = msgQueuePtrs[i];
         auto *u32Ptr   = reinterpret_cast<uint32_t *>(mqPtr);
-        auto  offset   = *u32Ptr;
-        auto  commands = *(u32Ptr + 1);
+        auto  offset   = u32Ptr[0];
+        auto  commands = u32Ptr[1];
         assert(offset < BUFFER_SIZE);
         if (commands == 0) return;
 
@@ -113,18 +122,19 @@ void jsbFlushFastMQ() {
 
         uint8_t *p = mqPtr + 8;
         for (uint32_t i = 0; i < commands; i++) {
-            auto *   base   = reinterpret_cast<uint32_t *>(p);
-            uint32_t len    = *base;
-            auto *   fnAddr = reinterpret_cast<uint64_t *>(base + 1);
-            auto *   fn     = reinterpret_cast<FastFunction *>(fnAddr);
+            auto *base   = reinterpret_cast<uint32_t *>(p);
+            auto  len    = base[0];
+            auto *fnAddr = reinterpret_cast<uint64_t *>(base + 1);
+            auto *fn     = reinterpret_cast<FastFunction *>(fnAddr);
             (*fn)(p + 12);
             p += len;
         }
         // reset
-        *u32Ptr       = 8;
-        *(u32Ptr + 1) = 0;
+        u32Ptr[0] = 8;
+        u32Ptr[1] = 0;
     }
-    globalThis->setProperty("__fastMQIdx__", se::Value(0));
+    msgInfoPtr[0] = 0;
+    msgInfoPtr[1] = 0;
 }
 
 bool register_all_drawbatch2d_ext_manual(se::Object *obj) { //NOLINT
@@ -134,16 +144,22 @@ bool register_all_drawbatch2d_ext_manual(se::Object *obj) { //NOLINT
     auto *              msgArrayBuffer = se::Object::createArrayBufferObject(nullptr, BUFFER_SIZE);
     globalThis                         = se::ScriptEngine::getInstance()->getGlobalObject();
     msgQueue                           = se::Object::createArrayObject(1);
+    msgQueueInfo                       = se::Object::createTypedArray(se::Object::TypedArrayType::UINT32, nullptr, sizeof(uint32_t) * 2);
+
     {
         uint8_t *data{nullptr};
         msgArrayBuffer->getArrayBufferData(&data, nullptr);
         auto *int32Data = reinterpret_cast<uint32_t *>(data);
         int32Data[0]    = 8;
         int32Data[1]    = 0;
+        msgQueueInfo->getTypedArrayData(&data, nullptr);
+        msgInfoPtr    = reinterpret_cast<uint32_t *>(data);
+        msgInfoPtr[0] = 0; // current queue index
+        msgInfoPtr[1] = 0; // total message count
     }
     msgQueue->setArrayElement(0, se::Value(msgArrayBuffer));
     globalThis->setProperty("__fastMQ__", se::Value(msgQueue));
-    globalThis->setProperty("__fastMQIdx__", se::Value(0));
+    globalThis->setProperty("__fastMQInfo__", se::Value(msgQueueInfo));
 
     mqInitialized = true;
 

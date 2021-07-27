@@ -1434,7 +1434,7 @@ void cmdFuncGLES3CreateShader(GLES3Device *device, GLES3GPUShader *gpuShader) {
             GL_CHECK(glUseProgram(device->stateCache()->glProgram));
         }
     }
-    gpuShader->glSamplerTextures = glActiveSamplerTextures;
+    gpuShader->glSamplerTextures = std::move(glActiveSamplerTextures);
 
     // create uniform storage images
     if (!gpuShader->images.empty()) {
@@ -2810,8 +2810,8 @@ void cmdFuncGLES3CopyBuffersToTexture(GLES3Device *device, const uint8_t *const 
 }
 
 CC_GLES3_API void cmdFuncGLES3CopyTextureToBuffers(GLES3Device *device, GLES3GPUTexture *gpuTexture, uint8_t *const *buffers, const BufferTextureCopy *regions, uint count) {
-    auto   glFormat    = mapGLFormat(gpuTexture->format);
-    auto   glType      = formatToGLType(gpuTexture->format);
+    auto glFormat = mapGLFormat(gpuTexture->format);
+    auto glType   = formatToGLType(gpuTexture->format);
     for (uint32_t i = 0; i < count; ++i) {
         auto     region      = regions[i];
         auto     w           = region.texExtent.width;
