@@ -413,6 +413,16 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     /**
+     * !#en Sets the texture of the frame.
+     * !#zh 设置使用的纹理实例。
+     * @method refreshTexture
+     * @param {Texture2D} texture
+     */
+    refreshTexture: function (texture) {
+        this._refreshTexture(texture);
+    },
+
+    /**
      * !#en Returns the offset of the frame in the texture.
      * !#zh 获取偏移量
      * @method getOffset
