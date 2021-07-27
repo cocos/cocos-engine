@@ -281,7 +281,7 @@ export class WebGLDevice extends Device {
         this._canvas.addEventListener(eventWebGLContextLost, this._onWebGLContextLost);
 
         this._canvas2D = document.createElement('canvas');
-        debug('WebGL device initialized.');
+        console.info('WebGL device initialized.');
 
         this._gfxAPI = API.WEBGL;
         this._deviceName = 'WebGL';

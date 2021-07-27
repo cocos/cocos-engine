@@ -204,7 +204,7 @@ export class WebGL2Device extends Device {
 
         this._canvas2D = document.createElement('canvas');
 
-        debug('WebGL2 device initialized.');
+        console.info('WebGL2 device initialized.');
 
         this._gfxAPI = API.WEBGL2;
         this._deviceName = 'WebGL2';
