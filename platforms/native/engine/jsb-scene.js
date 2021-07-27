@@ -31,8 +31,16 @@ const NULL_PTR = BigInt(0);
 // @ts-check
 let isLittleEndian = new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x78;
 
+let dataViews = [];
+function getDateView(idx) { 
+    if(!dataViews[idx]) {
+        dataViews[idx] = new DataView(__fastMQ__[idx]);
+    }
+    return dataViews[idx];
+}
+
 function beginTrans(fn, minBytes) {
-    let dataView = new DataView(__fastMQ__[__fastMQInfo__[0]]);
+    let dataView = getDateView(__fastMQInfo__[0]);
     let startPos = dataView.getUint32(0, isLittleEndian);
     let commands = dataView.getUint32(4, isLittleEndian);
     if (dataView.byteLength <= startPos + minBytes + 12) {
@@ -45,7 +53,7 @@ function beginTrans(fn, minBytes) {
             }
         }
         __fastMQInfo__[0] += 1;
-        dataView = new DataView(__fastMQ__[__fastMQInfo__[0]]);
+        dataView = getDateView(__fastMQInfo__[0]);
         startPos = 8;
         commands = 0;
     }
