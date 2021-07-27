@@ -4,6 +4,8 @@ const VERSION = 1;
 
 const MAGIC = 0x4E4F4343;
 
+const CHUNK_ALIGN_AS = 8;
+
 export class CCON {
     constructor (document: unknown, chunks: Uint8Array[]) {
         this._document = document;
@@ -63,7 +65,7 @@ export function encodeCCONBinary (ccon: CCON) {
     ccobBuilder.append(jsonBytes);
 
     for (const chunk of chunks) {
-        ccobBuilder.alignAs(4);
+        ccobBuilder.alignAs(CHUNK_ALIGN_AS);
         ccobBuilder.append(uint32Bytes(chunk.byteLength));
         ccobBuilder.append(chunk);
     }
@@ -121,8 +123,8 @@ export function decodeCCONBinary (bytes: Uint8Array) {
 
     const chunks: Uint8Array[] = [];
     while (chunksStart < dataView.byteLength) {
-        if (chunksStart % 4 !== 0) {
-            const padding = 4 - chunksStart % 4;
+        if (chunksStart % CHUNK_ALIGN_AS !== 0) {
+            const padding = CHUNK_ALIGN_AS - chunksStart % CHUNK_ALIGN_AS;
             chunksStart += padding;
         }
         const chunkDataLength = dataView.getUint32(chunksStart, true);
