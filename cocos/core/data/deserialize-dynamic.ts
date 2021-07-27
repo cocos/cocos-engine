@@ -465,16 +465,6 @@ class _Deserializer {
             this.deserializedData = this._deserializeObject(serializedRootObject, 0);
         }
 
-        if (JSB) {
-            // Invoke hooks
-            const nRefs = this.deserializedList.length;
-            for (let i = 0; i < nRefs; i++) {
-                (this.deserializedList[i] as {
-                    onAfterDeserialize_JSB? (): void;
-                } | undefined)?.onAfterDeserialize_JSB?.();
-            }
-        }
-
         this._serializedData = undefined!;
         this._mainBinChunk = undefined!;
         this._context = undefined!;
