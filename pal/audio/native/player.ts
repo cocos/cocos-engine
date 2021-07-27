@@ -59,7 +59,7 @@ export class AudioPlayer implements OperationQueueable {
     public _operationQueue: OperationInfo[] = [];
 
     private _beforePlaying = {
-        duration: 0, // wrong value before playing
+        duration: 1, // wrong value before playing
         loop: false,
         currentTime: 0,
         volume: 1,
@@ -184,7 +184,8 @@ export class AudioPlayer implements OperationQueueable {
     @enqueueOperation
     seek (time: number): Promise<void> {
         return new Promise((resolve) => {
-            time = clamp(time, 0, this.duration);
+            // Duration is invalid before player
+            // time = clamp(time, 0, this.duration);
             if (!this._isValid) {
                 this._beforePlaying.currentTime = time;
                 return resolve();
@@ -198,7 +199,7 @@ export class AudioPlayer implements OperationQueueable {
     play (): Promise<void> {
         return new Promise((resolve) => {
             if (this._isValid) {
-                if (this._state === AudioState.PAUSED) {
+                if (this._state === AudioState.PAUSED || this._state === AudioState.INTERRUPTED) {
                     audioEngine.resume(this._id);
                 } else if (this._state === AudioState.PLAYING) {
                     audioEngine.pause(this._id);
@@ -210,6 +211,7 @@ export class AudioPlayer implements OperationQueueable {
                 if (this._isValid) {
                     if (this._beforePlaying.currentTime !== 0) {
                         audioEngine.setCurrentTime(this._id, this._beforePlaying.currentTime);
+                        this._beforePlaying.currentTime = 0;
                     }
                     audioEngine.setFinishCallback(this._id, () => {
                         this._id = INVALID_AUDIO_ID;

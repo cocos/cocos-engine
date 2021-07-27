@@ -557,8 +557,8 @@ exports.methods = {
         this.$refs.summitProp.dump = this.dump.value[key];
 
         if ('values' in this.dump.value[key]) {
-            this.dump.value[key].values.forEach((val, index) => {
-                this.dump.value[key].values[index] = value;
+            this.dump.value[key].values.forEach((_, index) => {
+                this.dump.value[key].values[index] = newValue;
             });
         }
 
@@ -813,7 +813,7 @@ exports.methods = {
         Editor.Message.send('scene', 'snapshot');
         const dump = this.dump;
         if (horizontal) {
-            if (dump.value.isAlignLeft.value !== horizontal.isAlignLeft.value) {
+            if (dump.value.isAlignLeft.value !== horizontal.isAlignLeft.value || !this.isHorizontalAlignValid) {
                 dump.value.isAlignLeft.value = horizontal.isAlignLeft.value;
                 this.$refs.summitProp.dump = dump.value.isAlignLeft;
 
@@ -825,7 +825,7 @@ exports.methods = {
 
                 this.$refs.summitProp.dispatch('change-dump');
             }
-            if (dump.value.isAlignRight.value !== horizontal.isAlignRight.value) {
+            if (dump.value.isAlignRight.value !== horizontal.isAlignRight.value || !this.isHorizontalAlignValid) {
                 dump.value.isAlignRight.value = horizontal.isAlignRight.value;
                 this.$refs.summitProp.dump = dump.value.isAlignRight;
 
@@ -837,7 +837,7 @@ exports.methods = {
 
                 this.$refs.summitProp.dispatch('change-dump');
             }
-            if (dump.value.isAlignHorizontalCenter.value !== horizontal.isAlignHorizontalCenter.value) {
+            if (dump.value.isAlignHorizontalCenter.value !== horizontal.isAlignHorizontalCenter.value || !this.isHorizontalAlignValid) {
                 dump.value.isAlignHorizontalCenter.value = horizontal.isAlignHorizontalCenter.value;
                 this.$refs.summitProp.dump = dump.value.isAlignHorizontalCenter;
 
@@ -853,7 +853,7 @@ exports.methods = {
         }
 
         if (vertical) {
-            if (dump.value.isAlignTop.value !== vertical.isAlignTop.value) {
+            if (dump.value.isAlignTop.value !== vertical.isAlignTop.value || !this.isVerticalAlignValid) {
                 dump.value.isAlignTop.value = vertical.isAlignTop.value;
                 this.$refs.summitProp.dump = dump.value.isAlignTop;
 
@@ -865,7 +865,7 @@ exports.methods = {
 
                 this.$refs.summitProp.dispatch('change-dump');
             }
-            if (dump.value.isAlignVerticalCenter.value !== vertical.isAlignVerticalCenter.value) {
+            if (dump.value.isAlignVerticalCenter.value !== vertical.isAlignVerticalCenter.value || !this.isVerticalAlignValid) {
                 dump.value.isAlignVerticalCenter.value = vertical.isAlignVerticalCenter.value;
                 this.$refs.summitProp.dump = dump.value.isAlignVerticalCenter;
 
@@ -877,7 +877,7 @@ exports.methods = {
 
                 this.$refs.summitProp.dispatch('change-dump');
             }
-            if (dump.value.isAlignBottom.value !== vertical.isAlignBottom.value) {
+            if (dump.value.isAlignBottom.value !== vertical.isAlignBottom.value || !this.isVerticalAlignValid) {
                 dump.value.isAlignBottom.value = vertical.isAlignBottom.value;
                 this.$refs.summitProp.dump = dump.value.isAlignBottom;
 
@@ -975,7 +975,7 @@ const uiElements = {
         },
     },
 };
-const template = `
+const template = /* html*/`
 <div class="widget-component" :layout="layout">
     <!--TODO: don't hack-->
     <ui-prop ref="summitProp" style="display:none"></ui-prop>
@@ -1014,28 +1014,28 @@ const template = `
 
             <div class="line">
                 <div class="button-group" @click="select($event)">
-                    <div class="button" dimension="horizontal" :active="dimensionHorizontal === ''">NONE</div>
+                    <div class="button" dimension="horizontal" :active="isHorizontalAlignValid && dimensionHorizontal === ''">NONE</div>
 
-                    <div class="button" dimension="left" :active="dimensionHorizontal === 'left'">
+                    <div class="button" dimension="left" :active="isHorizontalAlignValid && dimensionHorizontal === 'left'">
                         <widget-icon class="left" title="Left"></widget-icon>
                     </div>
 
-                    <div class="button" dimension="center" :active="dimensionHorizontal === 'center'">
+                    <div class="button" dimension="center" :active="isHorizontalAlignValid && dimensionHorizontal === 'center'">
                         <widget-icon class="center" title="Center"></widget-icon>
                     </div>
 
-                    <div class="button" dimension="right" :active="dimensionHorizontal === 'right'">
+                    <div class="button" dimension="right" :active="isHorizontalAlignValid && dimensionHorizontal === 'right'">
                         <widget-icon class="right" title="Right"></widget-icon>
                     </div>
 
-                    <div class="button" dimension="h-stretch" :active="dimensionHorizontal === 'stretch'">
+                    <div class="button" dimension="h-stretch" :active="isHorizontalAlignValid && dimensionHorizontal === 'stretch'">
                         <widget-icon class="horizontal" title="Horizontal Stretch"></widget-icon>
                     </div>
                 </div>
             </div>
 
-            <div class="line inputs" v-if="dimensionHorizontal">
-                <ui-prop empty="true" type="dump" dump-key="editorLeft" :active="dump.value.isAlignLeft.value">
+            <div class="line inputs" v-if="dimensionHorizontal && isHorizontalAlignValid">
+                <ui-prop empty="true" type="dump" dump-key="editorLeft" :active="isHorizontalAlignValid && dump.value.isAlignLeft.value">
                     <div class="direction" v-show="dump.value.isAlignLeft.value">
                         <span class="name">Left</span>
                         <div class="icon" title="Lock left value" @click="toggleLock('left')">
@@ -1051,7 +1051,7 @@ const template = `
                 </ui-prop>
 
                 <ui-prop empty="true" type="dump" dump-key="editorHorizontalCenter"
-                    :active="dump.value.isAlignHorizontalCenter.value">
+                    :active="isHorizontalAlignValid && dump.value.isAlignHorizontalCenter.value">
                     <div class="direction" v-show="dump.value.isAlignHorizontalCenter.value">
                         <span class="name">Center</span>
                         <div class="icon" title="Lock center value" @click="toggleLock('center')">
@@ -1067,7 +1067,7 @@ const template = `
                         @unit-click="changeUnit('editorHorizontalCenter')"></ui-num-input>
                 </ui-prop>
 
-                <ui-prop empty="true" type="dump" dump-key="editorRight" :active="dump.value.isAlignRight.value">
+                <ui-prop empty="true" type="dump" dump-key="editorRight" :active="isHorizontalAlignValid && dump.value.isAlignRight.value">
                     <div class="direction" v-show="dump.value.isAlignRight.value">
                         <span class="name">Right</span>
                         <div class="icon" title="Lock right value" @click="toggleLock('right')">
@@ -1090,28 +1090,28 @@ const template = `
 
             <div class="line">
                 <div class="button-group" @click="select($event)">
-                    <div class="button" dimension="vertical" :active="dimensionVertical === ''">NONE</div>
+                    <div class="button" dimension="vertical" :active="isVerticalAlignValid && dimensionVertical === ''">NONE</div>
 
-                    <div class="button" dimension="top" :active="dimensionVertical === 'top'">
+                    <div class="button" dimension="top" :active="isVerticalAlignValid && dimensionVertical === 'top'">
                         <widget-icon class="top right" title="Top"></widget-icon>
                     </div>
 
-                    <div class="button" dimension="middle" :active="dimensionVertical === 'middle'">
+                    <div class="button" dimension="middle" :active="isVerticalAlignValid && dimensionVertical === 'middle'">
                         <widget-icon class="middle center" title="Middle"></widget-icon>
                     </div>
 
-                    <div class="button" dimension="bottom" :active="dimensionVertical === 'bottom'">
+                    <div class="button" dimension="bottom" :active="isVerticalAlignValid && dimensionVertical === 'bottom'">
                         <widget-icon class="bottom left" title="Bottom"></widget-icon>
                     </div>
 
-                    <div class="button" dimension="v-stretch" :active="dimensionVertical === 'stretch'">
+                    <div class="button" dimension="v-stretch" :active="isVerticalAlignValid && dimensionVertical === 'stretch'">
                         <widget-icon class="vertical horizontal" title="Vertical Stretch"></widget-icon>
                     </div>
                 </div>
             </div>
 
-            <div class="line inputs" v-if="dimensionVertical">
-                <ui-prop empty="true" type="dump" dump-key="editorTop" :active="dump.value.isAlignTop.value">
+            <div class="line inputs" v-if="dimensionVertical && isVerticalAlignValid">
+                <ui-prop empty="true" type="dump" dump-key="editorTop" :active="isVerticalAlignValid && dump.value.isAlignTop.value">
                     <div class="direction" v-show="dump.value.isAlignTop.value">
                         <span class="name">Top</span>
                         <div class="icon" title="Lock top value" @click="toggleLock('top')">
@@ -1127,7 +1127,7 @@ const template = `
                 </ui-prop>
 
                 <ui-prop empty="true" type="dump" dump-key="editorVerticalCenter"
-                    :active="dump.value.isAlignVerticalCenter.value">
+                    :active="isVerticalAlignValid && dump.value.isAlignVerticalCenter.value">
                     <div class="direction" v-show="dump.value.isAlignVerticalCenter.value">
                         <span class="name">Middle</span>
                         <div class="icon" title="Lock middle value" @click="toggleLock('middle')">
@@ -1142,7 +1142,7 @@ const template = `
                         v-show="dump.value.isAlignVerticalCenter.value"></ui-num-input>
                 </ui-prop>
 
-                <ui-prop empty="true" type="dump" dump-key="editorBottom" :active="dump.value.isAlignBottom.value">
+                <ui-prop empty="true" type="dump" dump-key="editorBottom" :active="isVerticalAlignValid && dump.value.isAlignBottom.value">
                     <div class="direction" v-show="dump.value.isAlignBottom.value">
                         <span class="name">Bottom</span>
                         <div class="icon" title="Lock bottom value" @click="toggleLock('bottom')">
@@ -1178,7 +1178,14 @@ const components = {
         `,
     },
 };
-
+const computed = {
+    isHorizontalAlignValid() {
+        return !(this.isInvalid('isAlignLeft') || this.isInvalid('isAlignRight') || this.isInvalid('isAlignHorizontalCenter'));
+    },
+    isVerticalAlignValid() {
+        return !(this.isInvalid('isAlignTop') || this.isInvalid('isAlignBottom') || this.isInvalid('isAlignVerticalCenter'));
+    },
+};
 exports.ready = function() {
     this.resizeObserver = new window.ResizeObserver(() => {
         const rect = this.$this.getBoundingClientRect();
@@ -1214,6 +1221,7 @@ exports.update = function(dump) {
             data: this,
             template,
             components,
+            computed,
             methods: exports.methods,
         });
     }

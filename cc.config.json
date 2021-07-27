@@ -33,7 +33,6 @@
             "test": "context.mode === 'BUILD'",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/core/data/deserialize-dynamic.ts": "cocos/core/data/deserialize-dynamic-empty.ts"
             }
         },
         {
@@ -95,10 +94,10 @@
             }
         },
         {
-            "test": "context.buildTimeConstants && context.buildTimeConstants.BYTEDANCE",
+            "test": "context.buildTimeConstants && context.buildTimeConstants.NOT_PACK_PHYSX_LIBS",
             "isVirtualModule": false,
             "overrides": {
-                "cocos/physics/physx/export-physx.web.ts": "cocos/physics/physx/export-physx.tt.ts"
+                "cocos/physics/physx/physx.asmjs.ts": "cocos/physics/physx/physx.null.ts"
             }
         }
     ]

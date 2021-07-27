@@ -43,6 +43,8 @@ import type { CCON } from './ccon';
 import { reportMissingClass as defaultReportMissingClass } from './report-missing-class';
 import type { CompiledDeserializeFn } from './deserialize-dynamic';
 
+const FORCE_COMPILED = false; // TODO: BUILD;
+
 /** **************************************************************************
  * BUILT-IN TYPES / CONSTAINTS
  *************************************************************************** */
@@ -105,30 +107,31 @@ function serializeBuiltinValueTypes (obj: ValueType): IValueTypeData | null {
     const typeId = BuiltinValueTypes.indexOf(ctor);
     switch (ctor) {
     case Vec2:
-        // @ts-expect-error
+        // @ts-expect-error Complex typing
         return [typeId, obj.x, obj.y];
     case Vec3:
-        // @ts-expect-error
+        // @ts-expect-error Complex typing
         return [typeId, obj.x, obj.y, obj.z];
     case Vec4:
     case Quat:
-        // @ts-expect-error
+        // @ts-expect-error Complex typing
         return [typeId, obj.x, obj.y, obj.z, obj.w];
     case Color:
-        // @ts-expect-error
+        // @ts-expect-error Complex typing
         return [typeId, obj._val];
     case Size:
-        // @ts-expect-error
+        // @ts-expect-error Complex typing
         return [typeId, obj.width, obj.height];
     case Rect:
-        // @ts-expect-error
+        // @ts-expect-error Complex typing
         return [typeId, obj.x, obj.y, obj.width, obj.height];
-    case Mat4:
-        // @ts-expect-error
-        const res: IValueTypeData = new Array(1 + 16);
+    case Mat4: {
+        // @ts-expect-error Complex typing
+        const res: IValueTypeData = new Array<number>(1 + 16);
         res[VALUETYPE_SETTER] = typeId;
         Mat4.toArray(res, obj as Mat4, 1);
         return res;
+    }
     default:
         return null;
     }
@@ -262,6 +265,7 @@ export declare namespace deserialize.Internal {
 }
 
 interface DataTypes {
+    // eslint-disable-next-line @typescript-eslint/ban-types
     [DataTypeID.SimpleType]: number | string | boolean | null | object;
     [DataTypeID.InstanceRef]: InstanceBnotReverseIndex;
     [DataTypeID.Array_InstanceRef]: DataTypes[DataTypeID.InstanceRef][];
@@ -305,7 +309,9 @@ export interface CCClassConstructor<T> extends Ctor<T> {
     __values__: string[]
     __deserialize__?: CompiledDeserializeFn;
 }
+// eslint-disable-next-line @typescript-eslint/ban-types
 type AnyCtor = Ctor<Object>;
+// eslint-disable-next-line @typescript-eslint/ban-types
 type AnyCCClass = CCClassConstructor<Object>;
 
 export declare namespace deserialize.Internal {
@@ -428,6 +434,7 @@ const enum Refs {
 interface IRefs extends Array<number> {
     // owner
     // The owner of all the objects in the front is of type object, starting from OFFSET * 3 are of type InstanceIndex
+    // eslint-disable-next-line @typescript-eslint/ban-types
     [0]: (object | InstanceIndex),
     // property name
     [1]?: StringIndexBnotNumber;
@@ -483,6 +490,7 @@ interface IFileData extends Array<any> {
     // Result area
 
     // Asset-dependent objects that are deserialized and parsed into object arrays
+    // eslint-disable-next-line @typescript-eslint/ban-types
     [File.DependObjs]: (object|InstanceIndex)[];
     // Asset-dependent key name or array index
     [File.DependKeys]: (StringIndexBnotNumber|string)[];
@@ -517,7 +525,6 @@ interface IOptions extends Partial<ICustomHandler> {
     _version?: number;
 }
 interface ICustomClass {
-    [deserializeTag]?: (content: any, context: ICustomHandler) => void;
     _deserialize?: (content: any, context: ICustomHandler) => void;
 }
 
@@ -553,6 +560,7 @@ export class Details {
         obj.reset();
     }, 5);
 
+    // eslint-disable-next-line @typescript-eslint/ban-types
     public declare assignAssetsBy: Function;
 
     /**
@@ -560,7 +568,7 @@ export class Details {
      * @param {Object} data
      */
     init (data?: IFileData) {
-        if (BUILD || data) {
+        if (FORCE_COMPILED || data) {
             this.uuidObjList = data![File.DependObjs];
             this.uuidPropList = data![File.DependKeys];
             this.uuidList = data![File.DependUuidIndices];
@@ -580,7 +588,7 @@ export class Details {
      * @method reset
      */
     reset  () {
-        if (BUILD) {
+        if (FORCE_COMPILED) {
             this.uuidList = null;
             this.uuidObjList = null;
             this.uuidPropList = null;
@@ -602,6 +610,7 @@ export class Details {
      * @param {String} propName
      * @param {String} uuid
      */
+    // eslint-disable-next-line @typescript-eslint/ban-types
     push (obj: object, propName: string, uuid: string, type?: string) {
         this.uuidObjList!.push(obj);
         this.uuidPropList!.push(propName);
@@ -664,6 +673,7 @@ function deserializeCCObject (data: IFileData, objectData: IClassObjectData) {
     //     return null;
     // }
 
+    // eslint-disable-next-line new-cap
     const obj = new ctor();
 
     const keys = clazz[CLASS_KEYS];
@@ -680,6 +690,7 @@ function deserializeCCObject (data: IFileData, objectData: IClassObjectData) {
     // parse advanced type
     for (; i < objectData.length; ++i) {
         const key = keys[mask[i]];
+        // eslint-disable-next-line @typescript-eslint/restrict-plus-operands
         const type = clazz[mask[i] + classTypeOffset];
         const op = ASSIGNMENTS[type];
         op(data, obj, key, objectData[i]);
@@ -689,10 +700,10 @@ function deserializeCCObject (data: IFileData, objectData: IClassObjectData) {
 }
 
 function deserializeCustomCCObject (data: IFileData, ctor: Ctor<ICustomClass>, value: ICustomObjectDataContent) {
+    // eslint-disable-next-line new-cap
     const obj = new ctor();
-    const customDeserialize = obj[deserializeTag] ?? obj._deserialize;
-    if (customDeserialize) {
-        customDeserialize(value, data[File.Context]);
+    if (obj._deserialize) {
+        obj._deserialize(value, data[File.Context]);
     } else {
         errorID(5303, js.getClassName(ctor));
     }
@@ -791,6 +802,7 @@ function parseArray (data: IFileData, owner: any, key: string, value: IArrayData
 
 const ASSIGNMENTS: {
     [K in keyof DataTypes]?: ParseFunction<DataTypes[K]>;
+// eslint-disable-next-line @typescript-eslint/ban-types
 } = new Array(DataTypeID.ARRAY_LENGTH) as {};
 ASSIGNMENTS[DataTypeID.SimpleType] = assignSimple;    // Only be used in the instances array
 ASSIGNMENTS[DataTypeID.InstanceRef] = assignInstanceRef;
@@ -847,6 +859,7 @@ function parseInstances (data: IFileData): RootInstanceIndex {
         }
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return rootIndex;
 }
 
@@ -886,6 +899,7 @@ function doLookupClass (classFinder, type: string, container: any[], index: numb
             container[index] = ((c, i, t) => function proxy () {
                 const actualClass = classFinder(t) || getMissingClass(hasCustomFinder, t, reportMissingClass);
                 c[i] = actualClass;
+                // eslint-disable-next-line @typescript-eslint/no-unsafe-return, new-cap
                 return new actualClass();
             })(container, index, type);
             return;
@@ -921,7 +935,7 @@ function cacheMasks (data: IPackedFileData) {
         const classes = data[File.SharedClasses];
         for (let i = 0; i < masks.length; ++i) {
             const mask = masks[i];
-            // @ts-expect-error
+            // @ts-expect-error Complex typing.
             mask[MASK_CLASS] = classes[mask[MASK_CLASS]];
         }
     }
@@ -995,7 +1009,7 @@ export function deserialize (data: IFileData | string | CCON | any, details: Det
     details = details || Details.pool.get();
     let res;
 
-    if (!BUILD && !(PREVIEW && isCompiledJson(data))) {
+    if (!FORCE_COMPILED && !isCompiledJson(data)) {
         res = deserializeDynamic(data, details, options);
     } else {
         details.init(data);
@@ -1114,10 +1128,12 @@ export function hasNativeDep (data: IFileData): boolean {
 
 function getDependUuidList (json: IFileData): string[] {
     const sharedUuids = json[File.SharedUuids];
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return json[File.DependUuidIndices].map((index) => sharedUuids[index]);
 }
 
 export function parseUuidDependencies (serialized: unknown) {
+    // eslint-disable-next-line @typescript-eslint/ban-types
     if (!DEV || isCompiledJson(serialized as object)) {
         return getDependUuidList(serialized as IFileData);
     } else {

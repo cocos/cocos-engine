@@ -1,3 +1,5 @@
+import legacyCC from '../../../predefine';
+
 const VERSION = 1;
 
 const MAGIC = 0x4E4F4343;
@@ -224,3 +226,7 @@ export class BufferBuilder {
         return result;
     }
 }
+
+legacyCC.internal.parseCCONJson = parseCCONJson;
+legacyCC.internal.decodeCCONBinary = decodeCCONBinary;
+legacyCC.internal.CCON = CCON;

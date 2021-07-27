@@ -658,14 +658,12 @@ export class Button extends Component {
         if (!target) {
             return;
         }
-        const renderComp = target.getComponent(Renderable2D);
-        if (!renderComp) {
-            return;
-        }
-
         const transition = this._transition;
         if (transition === Transition.COLOR && this._interactable) {
-            renderComp.color = this._normalColor;
+            const renderComp = target.getComponent(Renderable2D);
+            if (renderComp) {
+                renderComp.color = this._normalColor;
+            }
         } else if (transition === Transition.SCALE && this._originalScale) {
             target.setScale(this._originalScale);
         }

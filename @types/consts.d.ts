@@ -41,6 +41,8 @@ declare module 'internal:constants' {
     /**
      * Running in native platform (mobile app, desktop app, or simulator).
      */
+    export const NATIVE: boolean;
+
     export const JSB: boolean;
 
     export const HTML5: boolean;
@@ -110,5 +112,13 @@ declare module 'internal:constants' {
      */
     export const RUNTIME_BASED: boolean;
 
+    /**
+     * Environment support JIT, currently iOS native and mini game doesn't support JIT
+     */
     export const SUPPORT_JIT: boolean;
+
+    /**
+     * Running in server mode.
+     */
+    export const SERVER_MODE: boolean;
 }

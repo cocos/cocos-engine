@@ -158,9 +158,12 @@ class EventManager {
         }
         const listeners = this._nodeListenersMap[node.uuid];
         if (listeners) {
-            for (let i = 0; i < listeners.length; ++i) {
+            for (let i = 0, len = listeners.length; i < len; i++) {
                 const listener = listeners[i];
                 listener._setPaused(true);
+                if (listener instanceof TouchOneByOneEventListener && listener._claimedTouches.includes(this._currentTouch)) {
+                    this._clearCurTouch();
+                }
             }
         }
         if (recursive === true) {
@@ -1164,6 +1167,11 @@ class EventManager {
         return a - b;
     }
 
+    private _clearCurTouch () {
+        this._currentTouchListener = null;
+        this._currentTouch = null;
+    }
+
     private _removeListenerInCallback (listeners: EventListener[], callback) {
         if (listeners == null) {
             return false;
@@ -1238,7 +1246,3 @@ class EventManager {
  * @deprecated
  */
 export const eventManager = new EventManager();
-
-legacyCC.eventManager = eventManager;
-
-export default eventManager;

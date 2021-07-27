@@ -165,6 +165,7 @@ export default class Gradient {
     }
 
     private getAlpha (time: number) {
+        const basicAlpha: number = 0; // default alpha is 0
         if (this.alphaKeys.length > 1) {
             time = repeat(time, 1);
             for (let i = 1; i < this.alphaKeys.length; ++i) {
@@ -180,9 +181,9 @@ export default class Gradient {
             }
             const lastIndex = this.alphaKeys.length - 1;
             if (time < this.alphaKeys[0].time) {
-                return lerp(255, this.alphaKeys[0].alpha, time / this.alphaKeys[0].time);
+                return lerp(basicAlpha, this.alphaKeys[0].alpha, time / this.alphaKeys[0].time);
             } else if (time > this.alphaKeys[lastIndex].time) {
-                return lerp(this.alphaKeys[lastIndex].alpha, 255, (time - this.alphaKeys[lastIndex].time) / (1 - this.alphaKeys[lastIndex].time));
+                return lerp(this.alphaKeys[lastIndex].alpha, basicAlpha, (time - this.alphaKeys[lastIndex].time) / (1 - this.alphaKeys[lastIndex].time));
             }
         } else if (this.alphaKeys.length === 1) {
             return this.alphaKeys[0].alpha;

@@ -28,20 +28,20 @@
  * @hidden
  */
 
-import { ccclass, type, serializable, editable } from 'cc.decorator';
+import { ccclass, type, serializable, editable, formerlySerializedAs } from 'cc.decorator';
 import { EDITOR } from 'internal:constants';
 import { lerp } from '../../core/math';
 import { Enum } from '../../core/value-types';
-import { AnimationCurve } from '../../core/geometry';
-import { Texture2D, ImageAsset } from '../../core';
+import { AnimationCurve, constructLegacyCurveAndConvert } from '../../core/geometry/curve';
+import { Texture2D, ImageAsset, RealCurve } from '../../core';
 import { PixelFormat, Filter, WrapMode } from '../../core/assets/asset-enum';
 
-const SerializableTable = EDITOR && [
+const SerializableTable = [
     ['mode', 'constant', 'multiplier'],
-    ['mode', 'curve', 'multiplier'],
-    ['mode', 'curveMin', 'curveMax', 'multiplier'],
+    ['mode', 'spline', 'multiplier'],
+    ['mode', 'splineMin', 'splineMax', 'multiplier'],
     ['mode', 'constantMin', 'constantMax', 'multiplier'],
-];
+] as const;
 
 export const Mode = Enum({
     Constant: 0,
@@ -63,20 +63,59 @@ export default class CurveRange  {
     /**
      * @zh 当mode为Curve时，使用的曲线。
      */
-    @type(AnimationCurve)
-    public curve = new AnimationCurve();
+    @type(RealCurve)
+    public spline = constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线下限。
      */
-    @type(AnimationCurve)
-    public curveMin = new AnimationCurve();
+    @type(RealCurve)
+    public splineMin = constructLegacyCurveAndConvert();
 
     /**
      * @zh 当mode为TwoCurves时，使用的曲线上限。
      */
-    @type(AnimationCurve)
-    public curveMax = new AnimationCurve();
+    @type(RealCurve)
+    public splineMax = constructLegacyCurveAndConvert();
+
+    /**
+     * @zh 当mode为Curve时，使用的曲线。
+     * @deprecated Since V3.3. Use `spline` instead.
+     */
+    get curve () {
+        return this._curve;
+    }
+
+    set curve (value) {
+        this._curve = value;
+        this.spline = value._internalCurve;
+    }
+
+    /**
+     * @zh 当mode为TwoCurves时，使用的曲线下限。
+     * @deprecated Since V3.3. Use `splineMin` instead.
+     */
+    get curveMin () {
+        return this._curveMin;
+    }
+
+    set curveMin (value) {
+        this._curveMin = value;
+        this.splineMin = value._internalCurve;
+    }
+
+    /**
+     * @zh 当mode为TwoCurves时，使用的曲线上限。
+     * @deprecated Since V3.3. Use `splineMax` instead.
+     */
+    get curveMax () {
+        return this._curveMax;
+    }
+
+    set curveMax (value) {
+        this._curveMax = value;
+        this.splineMax = value._internalCurve;
+    }
 
     /**
      * @zh 当mode为Constant时，曲线的值。
@@ -112,12 +151,13 @@ export default class CurveRange  {
 
     public evaluate (time: number, rndRatio: number) {
         switch (this.mode) {
+        default:
         case Mode.Constant:
             return this.constant;
         case Mode.Curve:
-            return this.curve.evaluate(time) * this.multiplier;
+            return this.spline.evaluate(time) * this.multiplier;
         case Mode.TwoCurves:
-            return lerp(this.curveMin.evaluate(time), this.curveMax.evaluate(time), rndRatio) * this.multiplier;
+            return lerp(this.splineMin.evaluate(time), this.splineMax.evaluate(time), rndRatio) * this.multiplier;
         case Mode.TwoConstants:
             return lerp(this.constantMin, this.constantMax, rndRatio);
         }
@@ -125,6 +165,7 @@ export default class CurveRange  {
 
     public getMax (): number {
         switch (this.mode) {
+        default:
         case Mode.Constant:
             return this.constant;
         case Mode.Curve:
@@ -134,12 +175,16 @@ export default class CurveRange  {
         case Mode.TwoCurves:
             return this.multiplier;
         }
-        return 0;
     }
 
     public _onBeforeSerialize (props) {
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
         return SerializableTable[this.mode];
     }
+
+    private _curve = new AnimationCurve(this.spline);
+    private _curveMin = new AnimationCurve(this.splineMin);
+    private _curveMax = new AnimationCurve(this.splineMax);
 }
 
 function evaluateCurve (cr: CurveRange, time: number, index: number) {
@@ -147,9 +192,9 @@ function evaluateCurve (cr: CurveRange, time: number, index: number) {
     case Mode.Constant:
         return cr.constant;
     case Mode.Curve:
-        return cr.curve.evaluate(time) * cr.multiplier;
+        return cr.spline.evaluate(time) * cr.multiplier;
     case Mode.TwoCurves:
-        return index === 0 ? cr.curveMin.evaluate(time) * cr.multiplier : cr.curveMax.evaluate(time) * cr.multiplier;
+        return index === 0 ? cr.splineMin.evaluate(time) * cr.multiplier : cr.splineMax.evaluate(time) * cr.multiplier;
     case Mode.TwoConstants:
         return index === 0 ? cr.constantMin : cr.constantMax;
     default:

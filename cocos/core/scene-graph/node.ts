@@ -204,7 +204,18 @@ export class Node extends BaseNode implements CustomSerializable {
     @serializable
     protected _euler = new Vec3();
 
-    protected _dirtyFlags = TransformBit.NONE; // does the world transform need to update?
+    private _dirtyFlagsPri = TransformBit.NONE; // does the world transform need to update?
+
+    protected get _dirtyFlags () {
+        return this._dirtyFlagsPri;
+    }
+
+    protected set _dirtyFlags (flags) {
+        this._dirtyFlagsPri = flags;
+        if (JSB) {
+            this._nativeDirtyFlag[0] = flags;
+        }
+    }
 
     protected _eulerDirty = false;
     protected _nodeHandle: NodeHandle = NULL_HANDLE;
@@ -212,10 +223,12 @@ export class Node extends BaseNode implements CustomSerializable {
     protected declare _hasChangedFlagsOffset: number;
     protected declare _nativeObj: NativeNode | null;
     protected declare _nativeLayer: Uint32Array;
-    protected declare _nativeFlag: Uint32Array;
     protected declare _nativeDirtyFlag: Uint32Array;
 
     protected _init () {
+        const [chunk, offset] = bookOfChange.alloc();
+        this._hasChangedFlagsChunk = chunk;
+        this._hasChangedFlagsOffset = offset;
         if (JSB) {
             // new node
             this._nodeHandle = NodePool.alloc();
@@ -229,23 +242,19 @@ export class Node extends BaseNode implements CustomSerializable {
 
             this._mat = new Mat4(NodePool.getTypedArray(this._nodeHandle, NodeView.WORLD_MATRIX) as FloatArray);
             this._nativeLayer = NodePool.getTypedArray(this._nodeHandle, NodeView.LAYER) as Uint32Array;
-            this._nativeFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.FLAGS_CHANGED) as Uint32Array;
             this._nativeDirtyFlag = NodePool.getTypedArray(this._nodeHandle, NodeView.DIRTY_FLAG) as Uint32Array;
             this._scale.set(1, 1, 1);
             this._lscale.set(1, 1, 1);
             this._nativeLayer[0] = this._layer;
             this._nativeObj = new NativeNode();
-            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle));
+            const flagBuffer = new Uint32Array(chunk.buffer, chunk.byteOffset + offset * 4, 1);
+            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer);
         } else {
             this._pos = new Vec3();
             this._rot = new Quat();
             this._scale = new Vec3(1, 1, 1);
             this._mat = new Mat4();
         }
-
-        const [chunk, offset] = bookOfChange.alloc();
-        this._hasChangedFlagsChunk = chunk;
-        this._hasChangedFlagsOffset = offset;
     }
 
     constructor (name?: string) {
@@ -478,9 +487,6 @@ export class Node extends BaseNode implements CustomSerializable {
 
     set hasChangedFlags (val: number) {
         this._hasChangedFlagsChunk[this._hasChangedFlagsOffset] = val;
-        if (JSB) {
-            this._nativeFlag[0] = val;
-        }
     }
 
     public [serializeTag] (serializationOutput: SerializationOutput, context: SerializationContext) {
@@ -511,6 +517,8 @@ export class Node extends BaseNode implements CustomSerializable {
                 serializationOutput.writeProperty('_objFlags', this._objFlags);
                 serializationOutput.writeProperty('_parent', this._parent);
                 serializationOutput.writeProperty('_prefab', this._prefab);
+                // TODO: editorExtrasTag may be a symbol in the future
+                serializationOutput.writeProperty(editorExtrasTag, this[editorExtrasTag]);
             } else {
                 // should not serialize child node of synchronizable prefab
             }
@@ -533,7 +541,7 @@ export class Node extends BaseNode implements CustomSerializable {
         if (keepWorldTransform) { this.updateWorldTransform(); }
         super.setParent(value, keepWorldTransform);
         if (JSB) {
-            this._nativeObj!.setParent(this.parent?.native);
+            this._nativeObj!.setParent(this.parent ? this.parent.native : null);
         }
     }
 
@@ -561,13 +569,6 @@ export class Node extends BaseNode implements CustomSerializable {
         super._onHierarchyChangedBase(oldParent);
     }
 
-    protected _setDirtyFlags (val: TransformBit) {
-        this._dirtyFlags = val;
-        if (JSB) {
-            this._nativeDirtyFlag[0] = val;
-        }
-    }
-
     public _onBatchCreated (dontSyncChildPrefab: boolean) {
         if (JSB) {
             this._nativeLayer[0] = this._layer;
@@ -579,7 +580,7 @@ export class Node extends BaseNode implements CustomSerializable {
         }
 
         this.hasChangedFlags = TransformBit.TRS;
-        this._setDirtyFlags(TransformBit.TRS);
+        this._dirtyFlags |= TransformBit.TRS;
         this._uiProps.uiTransformDirty = true;
         const len = this._children.length;
         for (let i = 0; i < len; ++i) {
@@ -709,7 +710,7 @@ export class Node extends BaseNode implements CustomSerializable {
             const cur: this = array_a[i--];
             const hasChangedFlags = cur.hasChangedFlags;
             if (cur.isValid && (cur._dirtyFlags & hasChangedFlags & dirtyBit) !== dirtyBit) {
-                cur._setDirtyFlags(cur._dirtyFlags | dirtyBit);
+                cur._dirtyFlags |= dirtyBit;
                 cur._uiProps.uiTransformDirty = true; // UIOnly TRS dirty
                 cur.hasChangedFlags = hasChangedFlags | dirtyBit;
                 const children = cur._children;
@@ -777,7 +778,7 @@ export class Node extends BaseNode implements CustomSerializable {
                 }
             }
 
-            child._setDirtyFlags(TransformBit.NONE);
+            child._dirtyFlags = TransformBit.NONE;
             cur = child;
         }
     }
@@ -1284,7 +1285,7 @@ export class Node extends BaseNode implements CustomSerializable {
      * 清除节点数组
      */
     public static clearNodeArray () {
-        if (Node.ClearFrame < Node.ClearRound) {
+        if (Node.ClearFrame < Node.ClearRound && !EDITOR) {
             Node.ClearFrame++;
         } else {
             Node.ClearFrame = 0;

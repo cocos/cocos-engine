@@ -51,11 +51,11 @@ export interface IBaseShape extends ILifecycle, IGroupMask {
 }
 
 export interface IBoxShape extends IBaseShape {
-    setSize: (v: IVec3Like) => void;
+    updateSize: () => void;
 }
 
 export interface ISphereShape extends IBaseShape {
-    setRadius: (v: number) => void;
+    updateRadius: () => void;
 }
 
 export interface ICapsuleShape extends IBaseShape {

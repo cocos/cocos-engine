@@ -91,10 +91,10 @@ interface ISpriteFrameOriginal {
  */
 interface ISpriteFrameInitInfo {
     /**
-     * @en The texture of the sprite frame, could be [[TextureBase]] or [[RenderTexture]]
-     * @zh 贴图对象资源，可以是 [[TextureBase]] 或 [[RenderTexture]] 类型
+     * @en The texture of the sprite frame, could be [[TextureBase]]
+     * @zh 贴图对象资源，可以是 [[TextureBase]] 类型
      */
-    texture?: TextureBase | RenderTexture;
+    texture?: TextureBase;
     /**
      * @en The original size of the sprite frame
      * @zh 精灵帧原始尺寸。
@@ -158,7 +158,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *  2. Sliced 9 sprite frame
  *  3. Mesh sprite frame
  * It mainly contains:<br/>
- *  - texture: A [[TextureBase]] or [[RenderTexture]] that will be used by render process<br/>
+ *  - texture: A [[TextureBase]] that will be used by render process<br/>
  *  - rectangle: A rectangle of the texture
  *  - Sliced 9 border insets: The distance of each side from the internal rect to the sprite frame rect
  *  - vertices: Vertex list for the mesh type sprite frame
@@ -172,7 +172,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  *  2. 九宫格精灵帧
  *  3. 网格精灵帧
  * 它主要包含下列数据：<br/>
- *  - 纹理：会被渲染流程使用的 [[TextureBase]] or [[RenderTexture]] 资源。<br/>
+ *  - 纹理：会被渲染流程使用的 [[TextureBase]] 资源。<br/>
  *  - 矩形：在纹理中的矩形区域。
  *  - 九宫格信息：九宫格的内部矩形四个边距离 SpriteFrame 外部矩形的距离
  *  - 网格信息：网格类型精灵帧的所有顶点列表
@@ -213,7 +213,7 @@ const temp_uvs: IUV[] = [{ u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0, v: 0 }, { u: 0,
  * const self = this;
  * const cameraComp = this.getComponent(Camera);
  * const renderTexture = new RenderTexture();
- * rendetTex.reset({
+ * renderTexture.reset({
  *   width: 512,
  *   height: 512,
  *   depthStencilFormat: RenderTexture.DepthStencilFormat.DEPTH_24_STENCIL_8
@@ -391,8 +391,8 @@ export class SpriteFrame extends Asset {
     }
 
     /**
-     * @en The texture of the sprite frame, could be [[TextureBase]] or [[RenderTexture]]
-     * @zh 贴图对象资源，可以是 [[TextureBase]] 或 [[RenderTexture]] 类型
+     * @en The texture of the sprite frame, could be [[TextureBase]]
+     * @zh 贴图对象资源，可以是 [[TextureBase]] 类型
      */
     get texture () {
         return this._texture;
@@ -520,7 +520,7 @@ export class SpriteFrame extends Asset {
 
     protected _atlasUuid = '';
     // @ts-expect-error not set value at there
-    protected _texture: TextureBase | RenderTexture;
+    protected _texture: TextureBase;
 
     protected _isFlipUVY = false;
 
@@ -528,7 +528,7 @@ export class SpriteFrame extends Asset {
 
     // store original info before packed to dynamic atlas
     protected _original: {
-        _texture: TextureBase | RenderTexture,
+        _texture: TextureBase,
         _x: number,
         _y: number,
     } | null = null;
@@ -759,7 +759,7 @@ export class SpriteFrame extends Asset {
      * @zh 判断精灵计算的矩形区域是否越界。
      * @param texture
      */
-    public checkRect (texture: TextureBase | RenderTexture) {
+    public checkRect (texture: TextureBase) {
         const rect = this._rect;
         let maxX = rect.x;
         let maxY = rect.y;
@@ -1254,7 +1254,7 @@ export class SpriteFrame extends Asset {
         return sp;
     }
 
-    protected _refreshTexture (texture: TextureBase | RenderTexture) {
+    protected _refreshTexture (texture: TextureBase) {
         this._texture = texture;
         const tex = this._texture;
         const config: ISpriteFrameInitInfo = {};
