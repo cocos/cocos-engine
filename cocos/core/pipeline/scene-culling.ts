@@ -205,10 +205,13 @@ export function getCameraWorldMatrix (out: Mat4, camera: Camera) {
     out.m10 *= -1.0;
 }
 
-export function updateDirFrustum (cameraBoundingSphere: Sphere, mat4_trans: Mat4, range: number, dirLightFrustum: Frustum) {
+export function updateDirFrustum (out: Frustum, cameraBoundingSphere: Sphere, rotation: Quat, range: number) {
     const radius = cameraBoundingSphere.radius;
-    const radius_2x = radius * 2.0;
-    Frustum.createOrtho(dirLightFrustum, radius_2x, radius_2x, -range, radius, mat4_trans);
+    Mat4.fromRT(_mat4_trans, rotation, cameraBoundingSphere.center);
+    _mat4_trans.m08 *= -1.0;
+    _mat4_trans.m09 *= -1.0;
+    _mat4_trans.m10 *= -1.0;
+    Frustum.createOrtho(out, radius, radius, -range, radius, _mat4_trans);
 }
 
 export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
@@ -231,11 +234,12 @@ export function sceneCulling (pipeline: RenderPipeline, camera: Camera) {
 
             // update dirLightFrustum
             if (mainLight && mainLight.node) {
+                const rotation = mainLight.node.getWorldRotation();
                 const cameraBoundingSphere = shadows.cameraBoundingSphere;
                 getCameraWorldMatrix(_mat4_trans, camera);
                 Frustum.split(_validFrustum, camera, _mat4_trans, shadows.near, shadows.far);
                 Sphere.fromPointArray(cameraBoundingSphere, cameraBoundingSphere, _validFrustum.vertices);
-                updateDirFrustum(cameraBoundingSphere, _mat4_trans, shadows.range, dirLightFrustum);
+                updateDirFrustum(dirLightFrustum, cameraBoundingSphere, rotation, shadows.range);
             } else {
                 dirLightFrustum.zero();
             }
