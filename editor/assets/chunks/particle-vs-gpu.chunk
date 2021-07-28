@@ -148,8 +148,8 @@ vec4 toQuat(vec3 rotation) {
   vec3 rotTmp = rotation;
   float mulFactor = 1.0;
   if (rotTmp.x > INDENTIFY_NEG_QUAT * 0.5) {
-      rotTmp.x -= INDENTIFY_NEG_QUAT;
-      mulFactor = -1.0;
+    rotTmp.x -= INDENTIFY_NEG_QUAT;
+    mulFactor = -1.0;
   }
   vec4 rot = vec4(rotTmp, 0.0);
   rot.w = mulFactor * sqrt(1.0 - rot.x * rot.x - rot.y * rot.y - rot.z * rot.z);
@@ -157,64 +157,59 @@ vec4 toQuat(vec3 rotation) {
 } 
 
 mat3 QuatToMat3(vec4 q) {
-	vec3 m0 = vec3(
-				1.0 - 2.0 * q.y * q.y - 2.0 * q.z * q.z, 
-				2.0 * q.x * q.y + 2.0 * q.w * q.z,
-				2.0 * q.x * q.z - 2.0 * q.w * q.y);
+  vec3 m0 = vec3(
+    1.0 - 2.0 * q.y * q.y - 2.0 * q.z * q.z, 
+    2.0 * q.x * q.y + 2.0 * q.w * q.z,
+    2.0 * q.x * q.z - 2.0 * q.w * q.y);
 	vec3 m1 = vec3(
-				2.0 * q.x * q.y - 2.0 * q.w * q.z,
-				1.0 - 2.0 * q.x * q.x - 2.0 * q.z * q.z,
-				2.0 * q.y * q.z + 2.0 * q.w * q.x);
+    2.0 * q.x * q.y - 2.0 * q.w * q.z,
+    1.0 - 2.0 * q.x * q.x - 2.0 * q.z * q.z,
+    2.0 * q.y * q.z + 2.0 * q.w * q.x);
 	vec3 m2 = vec3(
-				2.0 * q.x * q.z + 2.0 * q.w * q.y,
-				2.0 * q.y * q.z - 2.0 * q.w * q.x, 
-				1.0 - 2.0 * q.x * q.x - 2.0 * q.y * q.y);
-	
-	return mat3(m0, m1, m2);
+    2.0 * q.x * q.z + 2.0 * q.w * q.y,
+    2.0 * q.y * q.z - 2.0 * q.w * q.x, 
+    1.0 - 2.0 * q.x * q.x - 2.0 * q.y * q.y);
+  return mat3(m0, m1, m2);
 }
 
 mat4 QuatToMat4(vec4 q) {
-	mat3 m3 = QuatToMat3(q);
-	return mat4(vec4(m3[0], 0.0), 
-				vec4(m3[1], 0.0), 
-				vec4(m3[2], 0.0), 
-				vec4(0.0, 0.0, 0.0, 1.0)
-			);
+  mat3 m3 = QuatToMat3(q);
+  return mat4(vec4(m3[0], 0.0), vec4(m3[1], 0.0), vec4(m3[2], 0.0), vec4(0.0, 0.0, 0.0, 1.0));
 }
 
 vec4 Mat3ToQuat(mat3 mat) {
-	float tr = mat[0][0] + mat[1][1] + mat[2][2];
+  float tr = mat[0][0] + mat[1][1] + mat[2][2];
 	float qw, qx, qy, qz;
-	if (tr > 0.0) {
-		float S = sqrt(tr + 1.0) * 2.0; // S=4*qw 
-		float invS = 1.0 / S;
-		qw = 0.25 * S;
-		qx = (mat[1][2] - mat[2][1]) * invS;
-		qy = (mat[2][0] - mat[0][2]) * invS;
-		qz = (mat[0][1] - mat[1][0]) * invS;
-	} else if ((mat[0][0] > mat[1][1])&&(mat[0][0] > mat[2][2])) {
-		float S = sqrt(1.0 + mat[0][0] - mat[1][1] - mat[2][2]) * 2.0; // S=4*qx 
-		float invS = 1.0 / S;
-		qw = (mat[1][2] - mat[2][1]) * invS;
-		qx = 0.25 * S;
-		qy = (mat[1][0] + mat[0][1]) * invS;
-		qz = (mat[2][0] + mat[0][2]) * invS;
-	} else if (mat[1][1] > mat[2][2]) {
-		float S = sqrt(1.0 + mat[1][1] - mat[0][0] - mat[2][2]) * 2.0; // S=4*qy
-		float invS = 1.0 / S;
-		qw = (mat[2][0] - mat[0][2]) * invS;
-		qx = (mat[1][0] + mat[0][1]) * invS;
-		qy = 0.25 * S;
-		qz = (mat[2][1] + mat[1][2]) * invS;
-	} else {
-		float S = sqrt(1.0 + mat[2][2] - mat[0][0] - mat[1][1]) * 2.0; // S=4*qz
-		float invS = 1.0 / S;
-		qw = (mat[0][1] - mat[1][0]) * invS;
-		qx = (mat[2][0] + mat[0][2]) * invS;
-		qy = (mat[2][1] + mat[1][2]) * invS;
-		qz = 0.25 * S;
-	}
-	return vec4(qx, qy, qz, qw);
+  if (tr > 0.0) {
+    float S = sqrt(tr + 1.0) * 2.0; // S=4*qw 
+	  float invS = 1.0 / S;
+	  qw = 0.25 * S;
+	  qx = (mat[1][2] - mat[2][1]) * invS;
+	  qy = (mat[2][0] - mat[0][2]) * invS;
+	  qz = (mat[0][1] - mat[1][0]) * invS;
+  } else if ((mat[0][0] > mat[1][1])&&(mat[0][0] > mat[2][2])) {
+    float S = sqrt(1.0 + mat[0][0] - mat[1][1] - mat[2][2]) * 2.0; // S=4*qx 
+	  float invS = 1.0 / S;
+	  qw = (mat[1][2] - mat[2][1]) * invS;
+	  qx = 0.25 * S;
+	  qy = (mat[1][0] + mat[0][1]) * invS;
+	  qz = (mat[2][0] + mat[0][2]) * invS;
+  } else if (mat[1][1] > mat[2][2]) {
+	  float S = sqrt(1.0 + mat[1][1] - mat[0][0] - mat[2][2]) * 2.0; // S=4*qy
+	  float invS = 1.0 / S;
+	  qw = (mat[2][0] - mat[0][2]) * invS;
+	  qx = (mat[1][0] + mat[0][1]) * invS;
+	  qy = 0.25 * S;
+	  qz = (mat[2][1] + mat[1][2]) * invS;
+  } else {
+	  float S = sqrt(1.0 + mat[2][2] - mat[0][0] - mat[1][1]) * 2.0; // S=4*qz
+	  float invS = 1.0 / S;
+	  qw = (mat[0][1] - mat[1][0]) * invS;
+	  qx = (mat[2][0] + mat[0][2]) * invS;
+	  qy = (mat[2][1] + mat[1][2]) * invS;
+	  qz = 0.25 * S;
+  }
+  return vec4(qx, qy, qz, qw);
 }
 
 vec4 EulerToQuat(vec3 euler) {
@@ -358,6 +353,9 @@ vec4 gpvs_main () {
       vec3 rotation_1 = unpackCurveData(rotation_over_time_tex0, timeCoord1);
       float factor_r = pseudoRandom(a_rndSeed + ROTATION_OVERTIME_RAND_OFFSET);
       vec3 euler = mix(rotation_0, rotation_1, factor_r) * normalizedTime * a_dir_life.w;
+      #if CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD || CC_RENDER_MODE == RENDER_MODE_HORIZONTAL_BILLBOARD
+        euler = vec3(0.0, 0.0, euler.z);
+      #endif
       vec4 quat = EulerToQuat(euler);
       mat3 mLocal = QuatToMat3(quat);
       mat3 mStart = QuatToMat3(rot);
@@ -382,13 +380,8 @@ vec4 gpvs_main () {
   #if CC_RENDER_MODE != RENDER_MODE_MESH
     vec2 cornerOffset = vec2((vertIdx - 0.5));
 
-    #if CC_RENDER_MODE == RENDER_MODE_BILLBOARD
-      ;
-    #elif CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
+    #if CC_RENDER_MODE == RENDER_MODE_STRETCHED_BILLBOARD
       rot = vec4(0.0, 0.0, 0.0, 1.0);
-    #else
-      vec3 euler = QuatToEuler(rot);
-      rot = EulerToQuat(vec3(0.0, 0.0, euler.z));
     #endif
 
     computeVertPos(pos, cornerOffset, rot, compScale

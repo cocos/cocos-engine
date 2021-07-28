@@ -46,8 +46,8 @@ void computeVertPos (inout vec4 pos, vec2 vertOffset, vec4 q, vec3 s
   vec3 camY = vec3(0, 0, -1);
   pos.xyz += rotateInLocalSpace(viewSpaceVert, camX, camY, cross(camX, camY), q);
 #elif CC_RENDER_MODE == RENDER_MODE_VERTICAL_BILLBOARD
-  vec2 viewSpaceVert = vec2(vertOffset.x * s.x, vertOffset.y * s.y);
-  rotateCorner(viewSpaceVert, q.z);
+  vec3 viewSpaceVert = vec3(vertOffset.x * s.x, vertOffset.y * s.y, 0.);
+  rotateVecFromQuat(viewSpaceVert, q);
   vec3 camX = normalize(vec3(cc_matView[0][0], cc_matView[1][0], cc_matView[2][0]));
   vec3 camY = vec3(0, 1, 0);
   vec3 offset = camX * viewSpaceVert.x + camY * viewSpaceVert.y;
