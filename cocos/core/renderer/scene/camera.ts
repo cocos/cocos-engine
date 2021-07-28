@@ -172,9 +172,6 @@ export class Camera {
         this._isoValue = ISOS[this._iso];
 
         this._aspect = this.screenScale = 1;
-        if (JSB) {
-            this._nativeObj!.aspect = this._aspect;
-        }
         this._frustum.accurate = true;
 
         if (!correctionMatrices.length) {
@@ -314,6 +311,9 @@ export class Camera {
                 const y = this._orthoHeight;
                 Mat4.ortho(this._matProj, -x, x, -y, y, this._nearClip, this._farClip,
                     this._device.capabilities.clipSpaceMinZ, projectionSignY, orientation);
+            }
+            if (JSB) {
+                this._nativeObj!.aspect = this._aspect;
             }
             Mat4.invert(this._matProjInv, this._matProj);
             if (JSB) {
