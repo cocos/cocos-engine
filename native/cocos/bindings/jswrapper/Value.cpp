@@ -501,4 +501,38 @@ void Value::reset(Type type) {
     }
 }
 
+/////////////////// deprecated methods ////////////////////
+
+void Value::setLong(long v) { // NOLINT(google-runtime-int)
+    setDouble(static_cast<double>(v));
+}
+
+void Value::setUIntptr_t(uintptr_t v) {
+    setDouble(static_cast<double>(v));
+}
+
+void Value::setUlong(unsigned long v) { // NOLINT(google-runtime-int)
+    setDouble(static_cast<double>(v));
+}
+
+void Value::setNumber(double v) {
+    setDouble(v);
+}
+
+unsigned int Value::toUint() const {
+    return static_cast<unsigned int>(toDouble());
+}
+
+long Value::toLong() const {              // NOLINT(google-runtime-int)
+    return static_cast<long>(toDouble()); // NOLINT(google-runtime-int)
+}
+
+unsigned long Value::toUlong() const {             // NOLINT(google-runtime-int)
+    return static_cast<unsigned long>(toDouble()); // NOLINT(google-runtime-int)
+}
+
+double Value::toNumber() const {
+    return toDouble();
+}
+
 } // namespace se

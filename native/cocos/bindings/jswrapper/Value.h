@@ -30,6 +30,7 @@
 #include <vector>
 
 #include "HandleObject.h"
+#include "base/Macros.h"
 
 namespace se {
 
@@ -164,19 +165,70 @@ public:
     Value &operator=(Value &&v) noexcept;
 
     /**
-         *  @brief Sets se::Value to undefined.
+     *  @brief Sets se::Value to a long value.
+     *  @param[in] v The long value to be set.
+     */
+    CC_DEPRECATED(3.3)
+    void setLong(long v); // NOLINT(google-runtime-int)
+
+    /**
+     *  @brief Sets se::Value to a uintptr_t value.
+     *  @param[in] v The uintptr_t value to be set.
+     */
+    CC_DEPRECATED(3.3)
+    void setUIntptr_t(uintptr_t v); // NOLINT(readability-identifier-naming)
+
+    /**
+     *  @brief Sets se::Value to a unsigned long value.
+     *  @param[in] v The unsigned long value to be set.
+     */
+    CC_DEPRECATED(3.3)
+    void setUlong(unsigned long v); // NOLINT(google-runtime-int)
+
+    /**
+     *  @brief Sets se::Value to a double value.
+     *  @param[in] v The double value to be set.
+     */
+    CC_DEPRECATED(3.3, "Use setDouble instead")
+    void setNumber(double v);
+
+    CC_DEPRECATED(3.3)
+    unsigned int toUint() const;
+
+    /**
+     *  @brief Converts se::Value to long.
+     *  @return long integer.
+     */
+    CC_DEPRECATED(3.3)
+    long toLong() const; // NOLINT(google-runtime-int)
+    /**
+         *  @brief Converts se::Value to unsigned long.
+         *  @return unsigned long integer.
          */
+    CC_DEPRECATED(3.3)
+    unsigned long toUlong() const; // NOLINT(google-runtime-int)
+
+    /**
+     *  @brief Converts se::Value to double number.
+     *  @return double number.
+     */
+    CC_DEPRECATED(3.3, "Use toDouble instead")
+    double toNumber() const;
+
+    /**
+     *  @brief Sets se::Value to undefined.
+     */
     void setUndefined();
 
     /**
-         *  @brief Sets se::Value to null.
-         */
+     *  @brief Sets se::Value to null.
+     */
     void setNull();
 
     /**
-         *  @brief Sets se::Value to a boolean value.
-         *  @param[in] v The boolean value to be set.
-         */
+     *  @brief Sets se::Value to a boolean value.
+     *  @param[in] v The boolean value to be set.
+     */
     void setBoolean(bool v);
 
     /**
@@ -326,9 +378,9 @@ public:
     double toDouble() const;
 
     /**
-         *  @brief Converts se::Value to boolean.
-         *  @return boolean.
-         */
+     *  @brief Converts se::Value to boolean.
+     *  @return boolean.
+     */
     bool toBoolean() const;
 
     /**
