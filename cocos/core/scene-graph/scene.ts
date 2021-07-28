@@ -132,7 +132,7 @@ export class Scene extends BaseNode {
             this._nativeLayer[0] = 0;
             this._nativeObj = new NativeNode();
             const flagBuffer = new Uint32Array([0]);
-            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer);
+            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer, []);
         }
     }
 

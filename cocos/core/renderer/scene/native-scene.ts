@@ -6,8 +6,9 @@ import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
 
 export const NativeNode: Constructor<{
-    initWithData (data: TypedArray, chunk: Uint32Array): void;
+    initWithData (data: TypedArray, chunk: Uint32Array, computeNodes: NativeNode[]): void;
     setParent(val: NativeNode | null): void;
+    onPreDestroy(): void;
 }> = null!;
 export type NativeNode = InstanceType<typeof NativeNode>;
 
