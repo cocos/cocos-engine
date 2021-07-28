@@ -72,7 +72,7 @@ export class PackManager {
      * @param json - The content of pack
      * @param options - Some optional parameters
      * @param onComplete - Callback when finish unpacking
-     * @param onComplete.err - The occurred error, null indicetes success
+     * @param onComplete.err - The occurred error, null indicates success
      * @param onComplete.content - The unpacked assets
      *
      * @example
@@ -169,7 +169,7 @@ export class PackManager {
      * @param type - The type indicates that which handler should be used to download, such as '.jpg'
      * @param options - Some optional parameter
      * @param onComplete - callback when finishing unpacking
-     * @param onComplete.err -  The occurred error, null indicetes success
+     * @param onComplete.err -  The occurred error, null indicates success
      * @param onComplete.data - Original assets
      *
      * @example
@@ -198,7 +198,7 @@ export class PackManager {
      * @param item - Some item you want to download
      * @param options - Some optional parameters
      * @param onComplete - Callback when finished
-     * @param onComplete.err - The occurred error, null indicetes success
+     * @param onComplete.err - The occurred error, null indicates success
      * @param onComplete.data - The unpacked data retrieved from package
      *
      * @example

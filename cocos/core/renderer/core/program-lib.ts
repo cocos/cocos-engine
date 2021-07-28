@@ -37,6 +37,7 @@ import { PipelineLayoutInfo, Device, Attribute, UniformBlock, ShaderInfo,
     Uniform, ShaderStage, DESCRIPTOR_SAMPLER_TYPE, DESCRIPTOR_BUFFER_TYPE,
     DescriptorSetLayout, DescriptorSetLayoutBinding, DescriptorSetLayoutInfo,
     DescriptorType, GetTypeSize, ShaderStageFlagBit, API, UniformSamplerTexture, PipelineLayout, Shader } from '../../gfx';
+import { debug } from '../../platform/debug';
 
 const _dsLayoutInfo = new DescriptorSetLayoutInfo();
 
@@ -375,7 +376,7 @@ class ProgramLib {
         for (let i = 0; i < keys.length; i++) {
             const k = keys[i];
             const prog = this._cache[k];
-            console.log(`destroyed shader ${prog.name}`);
+            debug(`destroyed shader ${prog.name}`);
             prog.destroy();
             delete this._cache[k];
         }
