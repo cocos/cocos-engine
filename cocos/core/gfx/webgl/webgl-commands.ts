@@ -24,7 +24,7 @@
  */
 
 import { CachedArray } from '../../memop/cached-array';
-import { error, errorID } from '../../platform/debug';
+import { debug, error, errorID } from '../../platform/debug';
 import { WebGLCommandAllocator } from './webgl-command-allocator';
 import { WebGLEXT } from './webgl-define';
 import { WebGLDevice } from './webgl-device';
@@ -1222,7 +1222,7 @@ export function WebGLCmdFuncCreateShader (device: WebGLDevice, gpuShader: IWebGL
     }
 
     if (gl.getProgramParameter(gpuShader.glProgram, gl.LINK_STATUS)) {
-        console.info(`Shader '${gpuShader.name}' compilation succeeded.`);
+        debug(`Shader '${gpuShader.name}' compilation succeeded.`);
     } else {
         console.error(`Failed to link shader '${gpuShader.name}'.`);
         console.error(gl.getProgramInfoLog(gpuShader.glProgram));
