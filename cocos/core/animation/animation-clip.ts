@@ -225,6 +225,7 @@ export class AnimationClip extends Asset {
 
     public onLoaded () {
         this.frameRate = this.sample;
+        this.events = this._events;
     }
 
     /**
