@@ -74,7 +74,15 @@ void CCMTLBuffer::doInit(const BufferInfo &info) {
 }
 
 void CCMTLBuffer::doInit(const BufferViewInfo &info) {
-    *this = *static_cast<CCMTLBuffer *>(info.buffer);
+    auto* ccBuffer = static_cast<CCMTLBuffer *>(info.buffer);
+    _mtlBuffer = ccBuffer->getMTLBuffer();
+    _indexType = ccBuffer->getIndexType();
+    _mtlResourceOptions = ccBuffer->_mtlResourceOptions;
+    _isIndirectDrawSupported = ccBuffer->_isIndirectDrawSupported;
+    _isDrawIndirectByIndex = ccBuffer->_isDrawIndirectByIndex;
+    _indexedPrimitivesIndirectArguments = ccBuffer->_indexedPrimitivesIndirectArguments;
+    _primitiveIndirectArguments = ccBuffer->_primitiveIndirectArguments;
+    _drawInfos = ccBuffer->_drawInfos;
     _bufferViewOffset = info.offset;
     _isBufferView = true;
 }
