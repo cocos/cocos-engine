@@ -99,7 +99,7 @@ ui-icon {
     padding: 0 8px;
     width: 100%;
 }
-.time-line ui-scaleplate {
+.time-line ui-scale-plate {
     width: 100%;
 }
 
