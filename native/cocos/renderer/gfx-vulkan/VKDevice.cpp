@@ -882,6 +882,10 @@ static VkResult VKAPI_PTR vkCreateRenderPass2KHRFallback(
     static vector<VkSubpassDescription>    subpassDescriptions;
     static vector<VkAttachmentReference>   attachmentReferences;
     static vector<VkSubpassDependency>     subpassDependencies;
+    static vector<size_t>                  inputs;
+    static vector<size_t>                  colors;
+    static vector<size_t>                  resolves;
+    static vector<size_t>                  depths;
 
     attachmentDescriptions.resize(pCreateInfo->attachmentCount);
     for (uint i = 0; i < pCreateInfo->attachmentCount; ++i) {
@@ -900,32 +904,32 @@ static VkResult VKAPI_PTR vkCreateRenderPass2KHRFallback(
 
     subpassDescriptions.resize(pCreateInfo->subpassCount);
     attachmentReferences.clear();
-    size_t input{std::numeric_limits<size_t>::max()};
-    size_t color{std::numeric_limits<size_t>::max()};
-    size_t resolve{std::numeric_limits<size_t>::max()};
-    size_t depth{std::numeric_limits<size_t>::max()};
+    inputs.assign(pCreateInfo->subpassCount, std::numeric_limits<size_t>::max());
+    colors.assign(pCreateInfo->subpassCount, std::numeric_limits<size_t>::max());
+    resolves.assign(pCreateInfo->subpassCount, std::numeric_limits<size_t>::max());
+    depths.assign(pCreateInfo->subpassCount, std::numeric_limits<size_t>::max());
     for (uint i = 0; i < pCreateInfo->subpassCount; ++i) {
         const VkSubpassDescription2 &desc2{pCreateInfo->pSubpasses[i]};
         if (desc2.inputAttachmentCount) {
-            input = attachmentReferences.size();
+            inputs[i] = attachmentReferences.size();
             for (uint j = 0; j < desc2.inputAttachmentCount; ++j) {
                 attachmentReferences.push_back({desc2.pInputAttachments[j].attachment, desc2.pInputAttachments[j].layout});
             }
         }
         if (desc2.colorAttachmentCount) {
-            input = attachmentReferences.size();
+            colors[i] = attachmentReferences.size();
             for (uint j = 0; j < desc2.colorAttachmentCount; ++j) {
                 attachmentReferences.push_back({desc2.pColorAttachments[j].attachment, desc2.pColorAttachments[j].layout});
             }
             if (desc2.pResolveAttachments) {
-                resolve = attachmentReferences.size();
+                resolves[i] = attachmentReferences.size();
                 for (uint j = 0; j < desc2.colorAttachmentCount; ++j) {
                     attachmentReferences.push_back({desc2.pResolveAttachments[j].attachment, desc2.pResolveAttachments[j].layout});
                 }
             }
         }
         if (desc2.pDepthStencilAttachment) {
-            depth = attachmentReferences.size();
+            depths[i] = attachmentReferences.size();
             attachmentReferences.push_back({desc2.pDepthStencilAttachment->attachment, desc2.pDepthStencilAttachment->layout});
         }
     }
@@ -935,11 +939,11 @@ static VkResult VKAPI_PTR vkCreateRenderPass2KHRFallback(
         desc.flags                   = desc2.flags;
         desc.pipelineBindPoint       = desc2.pipelineBindPoint;
         desc.inputAttachmentCount    = desc2.inputAttachmentCount;
-        desc.pInputAttachments       = input > attachmentReferences.size() ? nullptr : &attachmentReferences[input];
+        desc.pInputAttachments       = inputs[i] > attachmentReferences.size() ? nullptr : &attachmentReferences[inputs[i]];
         desc.colorAttachmentCount    = desc2.colorAttachmentCount;
-        desc.pColorAttachments       = color > attachmentReferences.size() ? nullptr : &attachmentReferences[color];
-        desc.pResolveAttachments     = resolve > attachmentReferences.size() ? nullptr : &attachmentReferences[resolve];
-        desc.pDepthStencilAttachment = depth > attachmentReferences.size() ? nullptr : &attachmentReferences[depth];
+        desc.pColorAttachments       = colors[i] > attachmentReferences.size() ? nullptr : &attachmentReferences[colors[i]];
+        desc.pResolveAttachments     = resolves[i] > attachmentReferences.size() ? nullptr : &attachmentReferences[resolves[i]];
+        desc.pDepthStencilAttachment = depths[i] > attachmentReferences.size() ? nullptr : &attachmentReferences[depths[i]];
         desc.preserveAttachmentCount = desc2.preserveAttachmentCount;
         desc.pPreserveAttachments    = desc2.pPreserveAttachments;
     }
@@ -958,11 +962,11 @@ static VkResult VKAPI_PTR vkCreateRenderPass2KHRFallback(
     }
 
     VkRenderPassCreateInfo renderPassCreateInfo{VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO};
-    renderPassCreateInfo.attachmentCount = attachmentDescriptions.size();
+    renderPassCreateInfo.attachmentCount = utils::toUint(attachmentDescriptions.size());
     renderPassCreateInfo.pAttachments    = attachmentDescriptions.data();
-    renderPassCreateInfo.subpassCount    = subpassDescriptions.size();
+    renderPassCreateInfo.subpassCount    = utils::toUint(subpassDescriptions.size());
     renderPassCreateInfo.pSubpasses      = subpassDescriptions.data();
-    renderPassCreateInfo.dependencyCount = subpassDependencies.size();
+    renderPassCreateInfo.dependencyCount = utils::toUint(subpassDependencies.size());
     renderPassCreateInfo.pDependencies   = subpassDependencies.data();
 
     return vkCreateRenderPass(device, &renderPassCreateInfo, pAllocator, pRenderPass);
