@@ -36,7 +36,7 @@ describe('Animation Clip', () => {
             function createClipWithPath (path: TargetPath[]) {
                 const clip = new AnimationClip();
                 const track = new RealTrack();
-                track.path = new TrackPath().hierarchy('Foo');
+                track.path = new TrackPath().toHierarchy('Foo');
                 clip.addTrack(track);
                 return clip;
             }
@@ -47,7 +47,7 @@ describe('Animation Clip', () => {
                 const clip = new AnimationClip();
                 for (const path of paths) {
                     const track = new VectorTrack();
-                    track.path = new TrackPath().hierarchy(path).property('position');
+                    track.path = new TrackPath().toHierarchy(path).toProperty('position');
                     clip.addTrack(track);
                 }
                 return clip[searchForRootBonePathSymbol]();
@@ -70,7 +70,7 @@ describe('Animation Clip', () => {
             const rootBoneTranslationTrack = new VectorTrack();
             {
                 rootBoneTranslationTrack.componentsCount = 3;
-                rootBoneTranslationTrack.path = new TrackPath().hierarchy(rootJointName).property('position');
+                rootBoneTranslationTrack.path = new TrackPath().toHierarchy(rootJointName).toProperty('position');
                 const [x, _y, _z] = rootBoneTranslationTrack.channels();
                 x.curve.assignSorted([
                     [0.4, ({ value: 0.4 })],
