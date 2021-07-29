@@ -10,9 +10,9 @@ const defaultFunc = [
     },
 ];
 
-exports.template = `<section v-if="show" id="event-editor">
+exports.template = `<section v-if="show" id="event-editor" @mousedown.stop>
     <header class="flex">
-        <ui-label class="f1" value="Animation Event"></ui-label>
+        <ui-label class="f1" :value="'Animation Event (frame: ' + RealFrame + ' )'"></ui-label>
         <ui-icon value="close" @click="show = false"></ui-icon>
     </header>
     <div class="functions">
@@ -55,7 +55,9 @@ exports.data = function() {
         value: [],
         dirty: false,
         debounceSave: null,
+        // time value
         frame: 0,
+        RealFrame: 0,
         show: false,
     };
 };

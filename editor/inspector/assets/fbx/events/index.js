@@ -12,6 +12,8 @@ exports.ready = function() {
         data: events.data,
         methods: events.methods,
         components: events.components,
+        mounted: events.mounted,
+        beforeDestroy: events.beforeDestroy,
     });
     this.eventVm.$on('edit', (eventInfo) => {
         if (this.checkDisabledEditEvent()) {
@@ -19,6 +21,7 @@ exports.ready = function() {
         }
         this.eventEditorVm.events = this.eventVm.events;
         this.eventEditorVm.frame = eventInfo.frame;
+        this.eventEditorVm.RealFrame = Math.round(eventInfo && eventInfo.frame * this.curEditClipInfo.fps || 0);
         this.eventEditorVm.refresh();
         this.eventEditorVm.show = true;
     });

@@ -12,7 +12,6 @@ exports.template = `
             :index="index"
             name="event"
             @mousedown="onMouseDown($event, info)"
-            @mousemove="onMouseMove($event, info)"
             @click.right="onPopMenu($event, info)"
             @dblclick="openEventEditor(info)"
         ></ui-icon>
@@ -73,10 +72,6 @@ exports.methods = {
         });
     },
 
-    onMouseMove(event, info) {
-
-    },
-
     onMouseDown(event, info) {
         const that = this;
         event.stopPropagation();
@@ -104,10 +99,18 @@ exports.methods = {
     queryKeyStyle(x) {
         return `transform: translateX(${x | 0 + 3}px);`;
     },
+
+    onDomMouseDown() {
+        this.selectInfo = {
+            frames: [],
+        };
+    },
 };
 
 exports.mounted = function() {
-
+    document.addEventListener('mousedown', this.onDomMouseDown);
 };
 
-// exports.
+exports.beforeDestroy = function() {
+    document.removeEventListener('mousedown', this.onDomMouseDown);
+};
