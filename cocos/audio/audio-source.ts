@@ -224,7 +224,7 @@ export class AudioSource extends Component {
     private _getRootNode (): Node | null | undefined {
         let currentNode = this.node as Node | undefined | null;
         let currentGrandparentNode = currentNode?.parent?.parent;
-        while (currentGrandparentNode !== null && currentGrandparentNode !== undefined) {
+        while (currentGrandparentNode) {
             currentNode = currentNode?.parent;
             currentGrandparentNode = currentNode?.parent?.parent;
         }
