@@ -670,13 +670,14 @@ export class Batcher2D {
         if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
         const meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
 
-        if (meshBufferUseCount >= buffers.length) {
+        this._currMeshBuffer = buffers[meshBufferUseCount];
+        if (!this._currMeshBuffer) {
             this._currMeshBuffer = this._createMeshBuffer(attributes);
-        } else {
-            this._currMeshBuffer = buffers[meshBufferUseCount];
         }
-        this._meshBufferUseCount.set(strideBytes, meshBufferUseCount + 1);
+        this._meshBufferUseCount.set(strideBytes, meshBufferUseCount);
         if (vertexCount && indexCount) {
+            // useCount++ when _recreateMeshBuffer
+            this._meshBufferUseCount.set(strideBytes, meshBufferUseCount + 1);
             this._currMeshBuffer.request(vertexCount, indexCount);
         }
     }

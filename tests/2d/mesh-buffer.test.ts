@@ -3,32 +3,11 @@ import { Batcher2DTest } from "./mesh-buffer-misc";
 import * as VertexFormat from '../../cocos/2d/renderer/vertex-format';
 import { Attribute } from "../../cocos/core/gfx/base/define";
 
-// 几个条件几个创建过程
-// 针对 RecyclePool 的创建和回收
-// 现在完全没回收
-
-// 针对池子的上限操作（数量多于预设之后的添加）
-
-// 针对 acquireBufferBatch 进行的取 buffer 操作
-// 包括 空的时候的初始化
-// attributes 不同时的切换
-// _requireBufferBatch 中的几种边界条件
-// 包括单个 buffer 的扩容操作
-// 包括无法再扩容之后的新建操作（及其判断使用）
-
-// 还有几个边界的条件
-// 池子在循环之后的重复使用问题（因为实际上并没有进行销毁）
-// meshBuffer 的释放检查（目前引擎没有此种设计）
-
-// 这样，用一个 pool 模拟这个行为，来测试整套逻辑
-// 包括边界条件和扩容和取用等
-
 interface renderData {
     vertexCount: number;
     indicesCount: number;
 }
 
-// 需要一个不同 VB IB 的数组
 const renderDataTemp: renderData[] = [
     {vertexCount: 4, indicesCount: 6}, //simple 
     {vertexCount: 16, indicesCount: 54}, // sliced
@@ -75,18 +54,20 @@ test('MeshBuffer Create Same', function () {
         }
         vertexCount = renderDataTemp[dataType].vertexCount;
         indicesCount = renderDataTemp[dataType].indicesCount;
-        buffer.request(vertexCount, indicesCount);
+        batcher._currMeshBuffer.request(vertexCount, indicesCount);
         dataType++;
         compNum++;
     }
     buffersLength = batcher._meshBuffers.get(VertexFormat.getAttributeStride(attributesTemp[1])).length;
-    expect(buffersLength).toBe(2); // ??? 应该是几?
-    // 扩容完毕，然后清空
+    expect(buffersLength).toBe(3);
 
     for (const size of batcher._meshBuffers.keys()) {
         const buffers = batcher._meshBuffers.get(size);
         if (buffers) {
-            buffers.forEach((buffer) => buffer.destroy());
+            buffers.forEach((buffer) => {
+                buffer.reset();
+                buffer.destroy();
+            });
         }
     }
 
@@ -96,20 +77,9 @@ test('MeshBuffer Create Same', function () {
 });
 
 test('MeshBuffer Create diff', function () {
-    const buffer = batcher._createMeshBuffer(attributesTemp[0]);
-    batcher._currMeshBuffer = buffer;
-
     // _bufferBatchPool check
     // cause not clean
-    expect(batcher._bufferBatchPool.length).toBe(4);
-
-    // _buffer check
-    let buffersLength = batcher._meshBuffers.get(VertexFormat.getAttributeStride(attributesTemp[0])).length;
-    expect(buffersLength).toBe(1);
-
-    const initVDataCount = 256 * VertexFormat.getComponentPerVertex(attributesTemp[0]) * Float32Array.BYTES_PER_ELEMENT;
-    // @ts-expect-error for Test
-    expect(buffer._initVDataCount).toBe(initVDataCount);
+    expect(batcher._bufferBatchPool.length).toBe(3);
 
     // buffer add
     // diff attributes
@@ -117,26 +87,41 @@ test('MeshBuffer Create diff', function () {
     let dataType = 0;
     let vertexCount = 4;
     let indicesCount = 6;
+    let attributes = attributesTemp[0];
+    let attributesNum = 0;
+    const tempLength = attributesTemp.length;
 
-    while(compNum < attributesTemp.length * 2) {
+    while(compNum < tempLength * 2) {
         if (dataType >= renderDataTemp.length) {
             dataType = 0;
         }
+        
+        attributesNum = compNum % tempLength;
+        attributes = attributesTemp[attributesNum];
         vertexCount = renderDataTemp[dataType].vertexCount;
         indicesCount = renderDataTemp[dataType].indicesCount;
-        let buffer = batcher.acquireBufferBatch(attributesTemp[compNum]);
+        let buffer = batcher.acquireBufferBatch(attributes);
         buffer.request(vertexCount, indicesCount);
         dataType++;
         compNum++;
     }
     const mapSize = batcher._meshBuffers.size;
-    expect(mapSize).toBe(4);
-    expect(batcher._bufferBatchPool.length).toBe(8);
+    expect(mapSize).toBe(tempLength);
+    expect(batcher._bufferBatchPool.length).toBe(3 + tempLength);
+
+    let buffersLength = 0;
+    for (let i = 0; i < attributesTemp.length; i++) {
+        buffersLength = batcher._meshBuffers.get(VertexFormat.getAttributeStride(attributesTemp[i])).length;
+        expect(buffersLength).toBe(1);
+    }
 
     for (const size of batcher._meshBuffers.keys()) {
         const buffers = batcher._meshBuffers.get(size);
         if (buffers) {
-            buffers.forEach((buffer) => buffer.destroy());
+            buffers.forEach((buffer) => {
+                buffer.reset();
+                buffer.destroy();
+            });
         }
     }
 
@@ -145,5 +130,101 @@ test('MeshBuffer Create diff', function () {
     batcher._currMeshBuffer = null;
 });
 
-// 差一个重复利用 POOL 里数据的测试，也就是用户使用到的那种，也就是不 destroy 只放置回去的情况
+test('CustomBuffer', function () {
+    // _bufferBatchPool check
+    // cause not clean
+    batcher._bufferBatchPool.reset();
+    expect(batcher._bufferBatchPool.length).toBe(0);
 
+    // buffer add
+    // diff attributes
+    let bufferNum = 0;
+    let compNum = 0;
+    let dataType = 0;
+    let vertexCount = 4;
+    let indicesCount = 6;
+    let attributes = attributesTemp[0];
+    let attributesNum = 0;
+    const tempLength = attributesTemp.length;
+
+    while(bufferNum < tempLength * 6) {
+        attributesNum = bufferNum % tempLength;
+        attributes = attributesTemp[attributesNum];
+        let buffer = batcher.registerCustomBuffer(attributes, null);
+        bufferNum++;
+        compNum = 0;
+        while(compNum < 100) {
+            if (dataType >= renderDataTemp.length) {
+                dataType = 0;
+            }
+            vertexCount = renderDataTemp[dataType].vertexCount;
+            indicesCount = renderDataTemp[dataType].indicesCount;
+            buffer.request(vertexCount, indicesCount);
+            dataType++;
+            compNum++;
+        }
+    }
+    expect(batcher._bufferBatchPool.length).toBe(bufferNum);
+    expect(batcher._customMeshBuffers.size).toBe(tempLength);
+
+    for (const size of batcher._customMeshBuffers.keys()) {
+        const buffers = batcher._customMeshBuffers.get(size);
+        if (buffers) {
+            for (let i = buffers.length - 1; i >= 0; i--) {
+                batcher.unRegisterCustomBuffer(buffers[i]);
+            }
+        }
+    }
+    batcher._customMeshBuffers.clear();
+
+    expect(batcher._customMeshBuffers.size).toBe(0);
+
+    // RecyclePool leak
+    expect(batcher._bufferBatchPool.length).toBe(0);
+
+    bufferNum = 0;
+    while(bufferNum < tempLength * 6) {
+        attributesNum = bufferNum % tempLength;
+        attributes = attributesTemp[attributesNum];
+        // 问题在于回收之后，池子中的对象已经是使用过后的了
+        // 数据 _initIDataCount _initVDataCount iData vData 没有清空
+        // 所以在重新申请使用时，this._reallocBuffer() 没有必要
+        // 或者是清空 _initIDataCount _initVDataCount
+        let buffer = batcher.registerCustomBuffer(attributes, null);
+        bufferNum++;
+        compNum = 0;
+        while(compNum < 1) {
+            if (dataType >= renderDataTemp.length) {
+                dataType = 0;
+            }
+            vertexCount = renderDataTemp[dataType].vertexCount;
+            indicesCount = renderDataTemp[dataType].indicesCount;
+            buffer.request(vertexCount, indicesCount);
+            dataType++;
+            compNum++;
+        }
+        // RecyclePool use again
+        // if reset _initIDataCount & _initVDataCount in reset()
+        // @ts-expect-error
+        expect(buffer._initIDataCount).toBe(256 * 6);
+        // @ts-expect-error
+        expect(buffer._initVDataCount).toBe(256 * buffer._vertexFormatBytes);
+    }
+
+    // RecyclePool leak
+    expect(batcher._bufferBatchPool.length).toBe(bufferNum);
+
+    for (const size of batcher._meshBuffers.keys()) {
+        const buffers = batcher._meshBuffers.get(size);
+        if (buffers) {
+            buffers.forEach((buffer) => {
+                buffer.reset();
+                buffer.destroy();
+            });
+        }
+    }
+
+    batcher._meshBuffers.clear();
+    batcher._meshBufferUseCount.clear();
+    batcher._currMeshBuffer = null;
+});

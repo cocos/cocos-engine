@@ -13,6 +13,8 @@ export class Batcher2DTest {
 
     public _currMeshBuffer: MeshBuffer | null = null;
 
+    public _customMeshBuffers: Map<number, MeshBuffer[]> = new Map();
+
     _createMeshBuffer (attributes: Attribute[]) {
         const batch = this._bufferBatchPool.add() as MeshBuffer;
         batch.initialize(attributes, this._requireBufferBatch.bind(this,attributes));
@@ -27,16 +29,15 @@ export class Batcher2DTest {
         const strideBytes = VertexFormat.getAttributeStride(attributes);
         let buffers = this._meshBuffers.get(strideBytes);
         if (!buffers) { buffers = []; this._meshBuffers.set(strideBytes, buffers); }
-        const meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0; // 这儿有问题 // 意义在哪？
+        const meshBufferUseCount = this._meshBufferUseCount.get(strideBytes) || 0;
     
-        if (meshBufferUseCount >= buffers.length) {
+        this._currMeshBuffer = buffers[meshBufferUseCount];
+        if (!this._currMeshBuffer) {
             this._currMeshBuffer = this._createMeshBuffer(attributes);
-        } else {
-            this._currMeshBuffer = buffers[meshBufferUseCount];
         }
-        this._meshBufferUseCount.set(strideBytes, meshBufferUseCount + 1);
+        this._meshBufferUseCount.set(strideBytes, meshBufferUseCount);
         if (vertexCount && indexCount) {
-            // 这儿应该走不到
+            this._meshBufferUseCount.set(strideBytes, meshBufferUseCount + 1);
             this._currMeshBuffer.request(vertexCount, indexCount);
         }
     }
@@ -48,6 +49,33 @@ export class Batcher2DTest {
             return this._currMeshBuffer;
         }
         return this._currMeshBuffer;
+    }
+
+    registerCustomBuffer (attributes: MeshBuffer | Attribute[], callback: ((...args: number[]) => void) | null) {
+        let batch: MeshBuffer;
+        if (attributes instanceof MeshBuffer) {
+            batch = attributes;
+        } else {
+            batch = this._bufferBatchPool.add();
+            batch.initialize(attributes, callback || this._requireBufferBatch.bind(this, attributes));
+        }
+        const strideBytes = batch.vertexFormatBytes;
+        let buffers = this._customMeshBuffers.get(strideBytes);
+        if (!buffers) { buffers = []; this._customMeshBuffers.set(strideBytes, buffers); }
+        buffers.push(batch);
+        return batch;
+    }
+
+    unRegisterCustomBuffer (buffer: MeshBuffer) {
+        const buffers = this._customMeshBuffers.get(buffer.vertexFormatBytes);
+        if (buffers) {
+            for (let i = 0; i < buffers.length; i++) {
+                if (buffers[i] === buffer) {
+                    buffers.splice(i, 1);
+                    break;
+                }
+            }
+        }
     }
 }
 
