@@ -429,6 +429,12 @@ static bool JSB_core_restartVM(se::State &s) { //NOLINT
 }
 SE_BIND_FUNC(JSB_core_restartVM)
 
+static bool JSB_closeWindow(se::State &s) {
+    Application::getInstance()->close();
+    return true;
+}
+SE_BIND_FUNC(JSB_closeWindow)
+
 static bool JSB_isObjectValid(se::State &s) { //NOLINT
     const auto &args = s.args();
     int         argc = static_cast<int>(args.size());
@@ -881,6 +887,7 @@ bool jsb_register_global_variables(se::Object *global) { //NOLINT
     global->defineFunction("__getCurrentLanguage", _SE(JSBCore_getCurrentLanguage));
     global->defineFunction("__getCurrentLanguageCode", _SE(JSBCore_getCurrentLanguageCode));
     global->defineFunction("__restartVM", _SE(JSB_core_restartVM));
+    global->defineFunction("__close", _SE(JSB_closeWindow));
     global->defineFunction("__isObjectValid", _SE(JSB_isObjectValid));
 
     se::HandleObject performanceObj(se::Object::createPlainObject());
