@@ -1,6 +1,7 @@
 import { IFlatBuffer } from '../../assets/rendering-sub-mesh';
 import { Frustum } from '../../geometry';
-import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader } from '../../gfx';
+import { Attribute, Buffer, ClearFlags, Color as GFXColor, DescriptorSet, Framebuffer, InputAssembler, Shader,
+    BlendState, DepthStencilState, RasterizerState } from '../../gfx';
 import { Color, Mat4, Rect, Vec2 } from '../../math';
 import { RenderPriority } from '../../pipeline/define';
 import { LightType } from './light';
@@ -177,6 +178,10 @@ export const NativeCamera: Constructor<{
 export type NativeCamera = InstanceType<typeof NativeCamera>;
 
 export const NativePass: Constructor<{
+    blendState: BlendState;
+    depthStencilState: DepthStencilState;
+    rasterizerState: RasterizerState;
+    descriptorSet: DescriptorSet;
     initWithData(data: TypedArray): void;
     update(): void;
     setPriority(val: number): void;
@@ -186,7 +191,6 @@ export const NativePass: Constructor<{
     setRasterizerState(val): void;
     setDepthStencilState(val): void;
     setBlendState(val): void;
-    setState(bs, dss, rs, ds): void;
     setDescriptorSet(val): void;
     setBatchingScheme(val: number): void;
     setDynamicState(val: number): void;

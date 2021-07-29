@@ -25,8 +25,6 @@
 
 
 // __fastMQ__, __fastMQInfo__ are created in engine-native\cocos\bindings\manual\jsb_scene_manual_ext.cpp
-
-const FN_TABLE = ns.DrawBatch2D.fnTable;
 const NULL_PTR = BigInt(0);
 // @ts-check
 let isLittleEndian = new Uint8Array(new Uint32Array([0x12345678]).buffer)[0] === 0x78;
@@ -79,10 +77,11 @@ function beginTrans(fn, minBytes) {
     };
 }
 
-
+// DrawBatch2D
+const DRAW_BATCH_FN_TABLE = ns.DrawBatch2D.fnTable;
 Object.defineProperty(ns.DrawBatch2D.prototype, "visFlags", {
     set: function (v) {
-        let trans = beginTrans(FN_TABLE['visFlags'], 12);
+        let trans = beginTrans(DRAW_BATCH_FN_TABLE['visFlags'], 12);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeUint32(v);
         trans.commit();
@@ -94,7 +93,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "visFlags", {
 
 Object.defineProperty(ns.DrawBatch2D.prototype, "descriptorSet", {
     set: function (v) {
-        let trans = beginTrans(FN_TABLE['descriptorSet'], 16);
+        let trans = beginTrans(DRAW_BATCH_FN_TABLE['descriptorSet'], 16);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
         trans.commit();
@@ -106,7 +105,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "descriptorSet", {
 
 Object.defineProperty(ns.DrawBatch2D.prototype, "inputAssembler", {
     set: function (v) {
-        let trans = beginTrans(FN_TABLE['inputAssembler'], 16);
+        let trans = beginTrans(DRAW_BATCH_FN_TABLE['inputAssembler'], 16);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
         trans.commit();
@@ -120,7 +119,7 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "passes", {
     set: function (passes) {
         if (!passes) return;
 
-        let trans = beginTrans(FN_TABLE['passes'], 8 + 4 + passes.length * 8);
+        let trans = beginTrans(DRAW_BATCH_FN_TABLE['passes'], 8 + 4 + passes.length * 8);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeUint32(passes.length); // arg
         for (let p of passes) {
@@ -136,12 +135,58 @@ Object.defineProperty(ns.DrawBatch2D.prototype, "passes", {
 Object.defineProperty(ns.DrawBatch2D.prototype, "shaders", {
     set: function (shaders) {
         if (!shaders) return;
-        let trans = beginTrans(FN_TABLE['shaders'], 8 + 4 + shaders.length * 8);
+        let trans = beginTrans(DRAW_BATCH_FN_TABLE['shaders'], 8 + 4 + shaders.length * 8);
         trans.writeBigUint64(this.__native_ptr__);
         trans.writeUint32(shaders.length); // arg
         for (let p of shaders) {
             trans.writeBigUint64(p ? p.__native_ptr__ : NULL_PTR);
         }
+        trans.commit();
+    },
+    enumerable: true,
+    configurable: true
+});
+
+// Pass
+const PASS_FN_TABLE = ns.Pass.fnTable;
+Object.defineProperty(ns.Pass.prototype, "blendState", {
+    set: function (v) {
+        let trans = beginTrans(PASS_FN_TABLE['blendState'], 16);
+        trans.writeBigUint64(this.__native_ptr__);
+        trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
+        trans.commit();
+    },
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(ns.Pass.prototype, "depthStencilState", {
+    set: function (v) {
+        let trans = beginTrans(PASS_FN_TABLE['depthStencilState'], 16);
+        trans.writeBigUint64(this.__native_ptr__);
+        trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
+        trans.commit();
+    },
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(ns.Pass.prototype, "rasterizerState", {
+    set: function (v) {
+        let trans = beginTrans(PASS_FN_TABLE['rasterizerState'], 16);
+        trans.writeBigUint64(this.__native_ptr__);
+        trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
+        trans.commit();
+    },
+    enumerable: true,
+    configurable: true
+});
+
+Object.defineProperty(ns.Pass.prototype, "descriptorSet", {
+    set: function (v) {
+        let trans = beginTrans(PASS_FN_TABLE['descriptorSet'], 16);
+        trans.writeBigUint64(this.__native_ptr__);
+        trans.writeBigUint64(v ? v.__native_ptr__ : NULL_PTR);
         trans.commit();
     },
     enumerable: true,
