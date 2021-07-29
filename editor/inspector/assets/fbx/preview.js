@@ -414,6 +414,9 @@ exports.ready = function() {
     panel.resizeObserver = new window.ResizeObserver(observer);
     panel.resizeObserver.observe(panel.$.container);
 
+    this.onSubAniChangeBind = this.onSubAniChange.bind(this);
+    this.addAssetChangeListener(true);
+
     this.events = events;
     this.events.ready.call(this);
 
@@ -436,6 +439,7 @@ exports.close = function() {
     Editor.Message.removeBroadcastListener('fbx-inspector:animation-change', this.onEditClipInfoChanged);
 
     this.resizeObserver.unobserve(this.$.container);
+    this.addAssetChangeListener(false);
 };
 
 exports.methods = {
@@ -658,5 +662,27 @@ exports.methods = {
     },
     onAnimationPlayStateChanged(state) {
         this.setCurPlayState(state);
+    },
+
+    addAssetChangeListener(add = true) {
+        if (!add && this.hasListenAssetsChange) {
+            Editor.Message.removeBroadcastListener('asset-db:asset-change', this.onSubAniChangeBind);
+            this.hasListenAssetsChange = false;
+            return;
+        }
+        Editor.Message.addBroadcastListener('asset-db:asset-change', this.onSubAniChangeBind);
+        this.hasListenAssetsChange = true;
+    },
+
+    async onSubAniChange(uuid) {
+        if (!this.animationNameToUUIDMap || !this.animationNameToUUIDMap.size) {
+            return;
+        }
+        if (Array.from((this.animationNameToUUIDMap.values())).includes((uuid))) {
+            // 主动更新动画 dump 信息
+            this.meta = await Editor.Message.request('asset-db', 'query-asset-meta', this.asset.uuid);
+            const clipInfo = animation.methods.getCurClipInfo.call(this);
+            await this.onEditClipInfoChanged(clipInfo);
+        }
     },
 };
