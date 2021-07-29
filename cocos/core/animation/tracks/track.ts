@@ -150,28 +150,31 @@ class TrackPath {
         return this._paths.length;
     }
 
-    public property (name: string) {
+    public toProperty (name: string) {
         this._paths.push(name);
         return this;
     }
 
-    public element (index: number) {
+    public toElement (index: number) {
         this._paths.push(index);
         return this;
     }
 
-    public hierarchy (nodePath: string) {
+    public toHierarchy (nodePath: string) {
         this._paths.push(new HierarchyPath(nodePath));
         return this;
     }
 
-    public component<T extends Component> (constructor: Constructor<T> | string) {
+    public toComponent<T extends Component> (constructor: Constructor<T> | string) {
         const path = new ComponentPath(typeof constructor === 'string' ? constructor : js.getClassName(constructor));
         this._paths.push(path);
         return this;
     }
 
-    public customized (resolver: CustomizedTrackPathResolver) {
+    /**
+     * @internal Reserved for backward compatibility. DO NOT USE IT IN YOUR CODE.
+     */
+    public toCustomized (resolver: CustomizedTrackPathResolver) {
         this._paths.push(resolver);
         return this;
     }
@@ -222,7 +225,7 @@ class TrackPath {
         return trackPath;
     }
 
-    public follow (object: unknown, beginIndex?: number, endIndex?: number) {
+    public trace (object: unknown, beginIndex?: number, endIndex?: number) {
         beginIndex ??= 0;
         endIndex ??= this._paths.length;
         return this[normalizedFollowTag](object, beginIndex, endIndex);

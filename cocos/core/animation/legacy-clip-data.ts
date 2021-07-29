@@ -189,15 +189,15 @@ export class AnimationClipLegacyData {
             const trackPath = new TrackPath();
             for (const modifier of modifiers) {
                 if (typeof modifier === 'string') {
-                    trackPath.property(modifier);
+                    trackPath.toProperty(modifier);
                 } else if (typeof modifier === 'number') {
-                    trackPath.element(modifier);
+                    trackPath.toElement(modifier);
                 } else if (modifier instanceof HierarchyPath) {
-                    trackPath.hierarchy(modifier.path);
+                    trackPath.toHierarchy(modifier.path);
                 } else if (modifier instanceof ComponentPath) {
-                    trackPath.component(modifier.component);
+                    trackPath.toComponent(modifier.component);
                 } else {
-                    trackPath.customized(modifier);
+                    trackPath.toCustomized(modifier);
                 }
             }
             track.path = trackPath;
