@@ -1,4 +1,4 @@
-name: 🧪 Unit Test
+name: 🧪 Run Tests
 
 on: [pull_request]
 
@@ -24,9 +24,15 @@ jobs:
           python -m pip install PyYAML Cheetah3
           python ./tools/tojs/genbindings.py
 
-      - name: Build & Run
+      - name: Run Unit Tests
         shell: bash
         run: |
-          cmake -B unit-test/build -S unit-test -G"Visual Studio 16 2019" -A win32
-          cmake --build unit-test/build --config Release
-          ./unit-test/build/src/Release/CocosTest.exe
+          cmake -B tests/unit-test/build -S tests/unit-test -G"Visual Studio 16 2019" -A win32
+          cmake --build tests/unit-test/build --config Release
+          ./tests/unit-test/build/src/Release/CocosTest.exe
+
+      - name: Run Module Tests
+        shell: bash
+        run: |
+          cd tests/module-tests 
+          bash run-test-windows.sh

@@ -1,173 +1,49 @@
 
 
-set(CC_PLATFORM_MAC_IOS 1)
-set(CC_PLATFORM_WINDOWS 2)
-set(CC_PLATFORM_ANDROID 3)
-set(CC_PLATFORM_MAC_OSX 4)
-set(CC_PLATFORM_OHOS    5)
-set(CC_PLATFORM 1)
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
-    set(WINDOWS TRUE)
-    set(PLATFORM_FOLDER win32)
-    set(CC_PLATFORM ${CC_PLATFORM_WINDOWS})
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Android")
-    set(PLATFORM_FOLDER android)
-    set(ANDROID TRUE)
-    set(CC_PLATFORM ${CC_PLATFORM_ANDROID})
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-    set(APPLE TRUE)
-    set(MACOSX TRUE)
-    set(PLATFORM_FOLDER mac)
-    set(CC_PLATFORM ${CC_PLATFORM_MAC_OSX})
-elseif(${CMAKE_SYSTEM_NAME} MATCHES "iOS")
-    set(APPLE TRUE)
-    set(IOS TRUE)
-    set(PLATFORM_FOLDER ios)
-    set(CC_PLATFORM ${CC_PLATFORM_MAC_IOS})
-elseif(OHOS)
-    set(OHOS TRUE)
-    set(CC_PLATFORM ${CC_PLATFORM_OHOS})
-    add_definitions(-D__OHOS__=1)
-    set(PLATFORM_FOLDER ohos)
-else()
-    message(FATAL_ERROR "Unsupported platform '${CMAKE_SYSTEM_NAME}', CMake will exit!")
-    return()
-endif()
-
-# platform macros
-
-add_definitions(-DCC_PLATFORM_WINDOWS=${CC_PLATFORM_WINDOWS})
-add_definitions(-DCC_PLATFORM_MAC_OSX=${CC_PLATFORM_MAC_OSX})
-add_definitions(-DCC_PLATFORM_MAC_IOS=${CC_PLATFORM_MAC_IOS})
-add_definitions(-DCC_PLATFORM_ANDROID=${CC_PLATFORM_ANDROID})
-add_definitions(-DCC_PLATFORM_OHOS=${CC_PLATFORM_OHOS})
-add_definitions(-DCC_PLATFORM=${CC_PLATFORM})
-
-# generators that are capable of organizing into a hierarchy of folders
-set_property(GLOBAL PROPERTY USE_FOLDERS ON)
-# simplify generator condition, please use them everywhere
-if(CMAKE_GENERATOR STREQUAL Xcode)
-    set(XCODE TRUE)
-elseif(CMAKE_GENERATOR MATCHES Visual)
-    set(VS TRUE)
-endif()
-
-
-# set c++ standard
-set(CMAKE_C_STANDARD 99)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/predefine.cmake)
 
 ################################# engine source code ##################################
-
 set(CWD ${CMAKE_CURRENT_LIST_DIR})
 set(COCOS2D_SOURCE_LIST)
-
-if("$ENV{COCOS_ENGINE_DEV}" EQUAL "1")
-    set(WERROR_FLAGS "-Werror")
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
-        set(WERROR_FLAGS "/WX")
-    endif()
-    message(STATUS "Enable NO_WERROR")
-else()
-    set(WERROR_FLAGS "")
-    message(STATUS "Ignore NO_WERROR")
-endif()
 
 # Should be enable someday in the future
 # set(CMAKE_CXX_FLAGS "${WERROR_FLAGS}")
 
-
-function(enable_werror source_list)
-    foreach(src IN LISTS source_list)
-        if("${src}" MATCHES "\\.(cpp|mm|c|m)\$")
-            set_source_files_properties("${src}" PROPERTIES
-                COMPILE_FLAGS "${WERROR_FLAGS}"
-            )
-        endif()
-    endforeach()
-endfunction()
-
-macro(cocos_source_files)
-    set(list_var "${ARGN}")
-    set(TWAE ON)
-    foreach(src IN LISTS list_var)
-
-        if("NO_WERROR" STREQUAL "${src}")
-            set(TWAE OFF)
-        else()
-            set(fp "${CWD}/${src}")
-            if(EXISTS ${fp})
-                if("${src}" MATCHES "\\.(cpp|mm|c|m)\$" AND TWAE)
-                     set_source_files_properties("${CWD}/${src}" PROPERTIES
-                         COMPILE_FLAGS "${WERROR_FLAGS}"
-                     )
-                endif()
-                list(APPEND COCOS2D_SOURCE_LIST "${CWD}/${src}")
-            else()
-                message(FATAL_ERROR "Cocos souce file not exists: ${src} in ${CWD}")
-            endif()
-            set(TWAE ON)
-        endif()
-    endforeach()
-endmacro()
-
-################################# set_if_undefined ###################################
-
-macro(set_if_undefined varname value)
-    if(NOT DEFINED ${varname})
-        set(${varname} ${value})
-    endif()
-endmacro()
-
-################################# inspect_values ###################################
-
-function(inspect_values)
-    set(list_var "${ARGN}")
-    foreach(src IN LISTS list_var)
-        set(opv ${${src}})
-        message(STATUS "OPTION ${src}:\t${opv}")
-    endforeach()
-endfunction()
-
-
 ################################# options ############################################
-
 # default fallback options
-set_if_undefined(USE_SE_V8                ON)
-set_if_undefined(USE_V8_DEBUGGER          ON)
-set_if_undefined(USE_SOCKET               ON)
-set_if_undefined(USE_AUDIO                ON)
-set_if_undefined(USE_EDIT_BOX             ON)
-set_if_undefined(USE_SE_JSC               OFF)
-set_if_undefined(USE_VIDEO                ON)
-set_if_undefined(USE_WEBVIEW              ON)
-set_if_undefined(USE_MIDDLEWARE           ON)
-set_if_undefined(USE_DRAGONBONES          ON)
-set_if_undefined(USE_SPINE                ON)
-set_if_undefined(USE_WEBSOCKET_SERVER     OFF)
-set_if_undefined(USE_JOB_SYSTEM_TASKFLOW  OFF)
-set_if_undefined(USE_JOB_SYSTEM_TBB       OFF)
-set_if_undefined(USE_PHYSICS_PHYSX        OFF)
+cc_set_if_undefined(USE_SE_V8                ON)
+cc_set_if_undefined(USE_V8_DEBUGGER          ON)
+cc_set_if_undefined(USE_SOCKET               ON)
+cc_set_if_undefined(USE_AUDIO                ON)
+cc_set_if_undefined(USE_EDIT_BOX             ON)
+cc_set_if_undefined(USE_SE_JSC               OFF)
+cc_set_if_undefined(USE_VIDEO                ON)
+cc_set_if_undefined(USE_WEBVIEW              ON)
+cc_set_if_undefined(USE_MIDDLEWARE           ON)
+cc_set_if_undefined(USE_DRAGONBONES          ON)
+cc_set_if_undefined(USE_SPINE                ON)
+cc_set_if_undefined(USE_WEBSOCKET_SERVER     OFF)
+cc_set_if_undefined(USE_JOB_SYSTEM_TASKFLOW  OFF)
+cc_set_if_undefined(USE_JOB_SYSTEM_TBB       OFF)
+cc_set_if_undefined(USE_PHYSICS_PHYSX        OFF)
+cc_set_if_undefined(USE_MODULES              OFF)
+
 
 if(ANDROID OR WINDOWS)
-    set_if_undefined(CC_USE_GLES3 ON)
-    set_if_undefined(CC_USE_VULKAN OFF)
-    set_if_undefined(CC_USE_GLES2 OFF)
-    set_if_undefined(CC_USE_METAL OFF)
+    cc_set_if_undefined(CC_USE_GLES3 ON)
+    cc_set_if_undefined(CC_USE_VULKAN OFF)
+    cc_set_if_undefined(CC_USE_GLES2 OFF)
+    cc_set_if_undefined(CC_USE_METAL OFF)
 elseif(MACOSX OR IOS)
-    set_if_undefined(CC_USE_METAL ON)
-    set_if_undefined(CC_USE_VULKAN OFF)
-    set_if_undefined(CC_USE_GLES3 OFF)
-    set_if_undefined(CC_USE_GLES2 OFF)
+    cc_set_if_undefined(CC_USE_METAL ON)
+    cc_set_if_undefined(CC_USE_VULKAN OFF)
+    cc_set_if_undefined(CC_USE_GLES3 OFF)
+    cc_set_if_undefined(CC_USE_GLES2 OFF)
 elseif(OHOS)
-    set_if_undefined(CC_USE_METAL OFF)
-    set_if_undefined(CC_USE_VULKAN OFF)
-    set_if_undefined(CC_USE_GLES3 ON)
-    set_if_undefined(CC_USE_GLES2 OFF)
+    cc_set_if_undefined(CC_USE_METAL OFF)
+    cc_set_if_undefined(CC_USE_VULKAN OFF)
+    cc_set_if_undefined(CC_USE_GLES3 ON)
+    cc_set_if_undefined(CC_USE_GLES2 OFF)
 endif()
 
 if(USE_PHYSICS_PHYSX)
@@ -220,7 +96,8 @@ endif()
 
 ################################# list all option values ##############################
 
-inspect_values(
+cc_inspect_values(
+    USE_MODULES
     CC_USE_METAL
     CC_USE_GLES3
     CC_USE_GLES2
@@ -403,16 +280,12 @@ cocos_source_files(
     cocos/base/CoreStd.h
     cocos/base/csscolorparser.cpp
     cocos/base/csscolorparser.h
-    cocos/base/Data.cpp
-    cocos/base/Data.h
     cocos/base/etc1.cpp
     cocos/base/etc1.h
     cocos/base/etc2.cpp
     cocos/base/etc2.h
     cocos/base/IndexHandle.h
     cocos/base/Locked.h
-    cocos/base/Log.cpp
-    cocos/base/Log.h
     cocos/base/Macros.h
     cocos/base/Map.h
     cocos/base/Object.h
@@ -429,13 +302,17 @@ cocos_source_files(
     cocos/base/ThreadPool.cpp
     cocos/base/ThreadPool.h
     cocos/base/TypeDef.h
-    cocos/base/UTF8.cpp
-    cocos/base/UTF8.h
-    cocos/base/Utils.cpp
-    cocos/base/Utils.h
-    cocos/base/Value.cpp
-    cocos/base/Value.h
     cocos/base/Vector.h
+)
+
+############ module log
+cocos_source_files(MODULE cclog
+    cocos/base/Log.cpp
+    cocos/base/Log.h
+)
+
+############ module log
+cocos_source_files(MODULE ccunzip
     cocos/base/ZipUtils.cpp
     cocos/base/ZipUtils.h
 )
@@ -512,8 +389,8 @@ else()
     )
 endif()
 
-##### math
-cocos_source_files(
+######### module math
+cocos_source_files(MODULE ccmath
     cocos/math/Geometry.cpp
     cocos/math/Geometry.h
     cocos/math/Math.h
@@ -627,23 +504,43 @@ cocos_source_files(
     cocos/platform/Application.cpp
     cocos/platform/CanvasRenderingContext2D.h
     cocos/platform/Device.h
-    cocos/platform/FileUtils.cpp
-    cocos/platform/FileUtils.h
     cocos/platform/Image.cpp
     cocos/platform/Image.h
-    cocos/platform/SAXParser.cpp
-    cocos/platform/SAXParser.h
     cocos/platform/StdC.h
 )
+
+########## module utils
+cocos_source_files(MODULE ccutils
+    cocos/base/Data.cpp
+    cocos/base/Data.h
+    cocos/base/Value.cpp
+    cocos/base/Value.h
+    cocos/base/UTF8.cpp
+    cocos/base/UTF8.h
+    cocos/platform/SAXParser.cpp
+    cocos/platform/SAXParser.h
+    cocos/base/Utils.cpp
+    cocos/base/Utils.h
+)
+
+########## module ccfilesystem
+cocos_source_files(MODULE ccfilesystem
+    cocos/platform/FileUtils.cpp
+    cocos/platform/FileUtils.h
+)
+
+if(WINDOWS)
+    cocos_source_files(MODULE ccutils
+        cocos/platform/win32/Utils-win32.cpp
+        cocos/platform/win32/Utils-win32.h
+    )
+endif()
+
 if(WINDOWS)
     cocos_source_files(
         NO_WERROR    cocos/platform/win32/Application-win32.cpp
         NO_WERROR    cocos/platform/win32/CanvasRenderingContext2D-win32.cpp
                      cocos/platform/win32/Device-win32.cpp
-                     cocos/platform/win32/FileUtils-win32.cpp
-                     cocos/platform/win32/FileUtils-win32.h
-                     cocos/platform/win32/Utils-win32.cpp
-                     cocos/platform/win32/Utils-win32.h
                      cocos/platform/win32/View-win32.cpp
                      cocos/platform/win32/View-win32.h
                      cocos/platform/win32/compat
@@ -651,13 +548,15 @@ if(WINDOWS)
                      cocos/platform/win32/inet_pton_mingw.cpp
                      cocos/platform/win32/inet_pton_mingw.h
     )
+    cocos_source_files(MODULE ccfilesystem
+        cocos/platform/win32/FileUtils-win32.cpp
+        cocos/platform/win32/FileUtils-win32.h
+    )
 elseif(ANDROID)
     cocos_source_files(
         cocos/platform/android/Application-android.cpp
         cocos/platform/java/CanvasRenderingContext2D-java.cpp
         cocos/platform/android/Device-android.cpp
-        cocos/platform/android/FileUtils-android.cpp
-        cocos/platform/android/FileUtils-android.h
         cocos/platform/android/View.cpp
         cocos/platform/android/View.h
     )
@@ -673,13 +572,16 @@ elseif(ANDROID)
         ${CWD}/cocos/platform/java/jni/JniImp.cpp
         ${CWD}/cocos/platform/java/jni/JniImp.h
     )
+    
+    cocos_source_files(MODULE ccfilesystem
+        cocos/platform/android/FileUtils-android.cpp
+        cocos/platform/android/FileUtils-android.h
+    )
 elseif(OHOS)
     cocos_source_files(
         cocos/platform/ohos/Application-ohos.cpp
         cocos/platform/java/CanvasRenderingContext2D-java.cpp
         cocos/platform/ohos/Device-ohos.cpp
-        cocos/platform/ohos/FileUtils-ohos.cpp
-        cocos/platform/ohos/FileUtils-ohos.h
         cocos/platform/ohos/View.cpp
         cocos/platform/ohos/View.h
     )
@@ -693,12 +595,15 @@ elseif(OHOS)
         ${CWD}/cocos/platform/java/jni/JniCocosTouchHandler.cpp
         ${CWD}/cocos/platform/java/jni/JniCocosKeyCodeHandler.cpp
         ${CWD}/cocos/platform/java/jni/JniCocosOrientationHelper.cpp
-        ${CWD}/cocos/platform/ohos/jni/AbilityConsts.h)
+        ${CWD}/cocos/platform/ohos/jni/AbilityConsts.h
+    )
+    cocos_source_files(MODULE ccfilesystem
+        cocos/platform/ohos/FileUtils-ohos.cpp
+        cocos/platform/ohos/FileUtils-ohos.h
+    )
 elseif(APPLE)
     cocos_source_files(
-                     cocos/platform/apple/FileUtils-apple.h
                      cocos/platform/apple/Device-apple.mm
-                     cocos/platform/apple/FileUtils-apple.mm
                      cocos/platform/apple/CanvasRenderingContext2D-apple.mm
                      cocos/platform/apple/Device-apple.h
     )
@@ -706,6 +611,11 @@ elseif(APPLE)
     cocos_source_files(
                      cocos/platform/ios/Reachability.h
                      cocos/platform/ios/Reachability.cpp
+    )
+    
+    cocos_source_files(MODULE ccfilesystem
+        cocos/platform/apple/FileUtils-apple.h
+        cocos/platform/apple/FileUtils-apple.mm
     )
     if(MACOSX)
         cocos_source_files(
@@ -1696,8 +1606,9 @@ elseif(WIN32)
     )
 endif()
 
+############# module bindings 
 if(USE_SE_V8)
-    cocos_source_files(
+    cocos_source_files(MODULE ccbindings
                      cocos/bindings/jswrapper/v8/Base.h
                      cocos/bindings/jswrapper/v8/Class.cpp
                      cocos/bindings/jswrapper/v8/Class.h
@@ -1714,7 +1625,7 @@ if(USE_SE_V8)
                      cocos/bindings/jswrapper/v8/Utils.h
     )
     if(USE_V8_DEBUGGER)
-    cocos_source_files(
+    cocos_source_files(MODULE ccbindings
                      cocos/bindings/jswrapper/v8/debugger/base64.h
         NO_WERROR    cocos/bindings/jswrapper/v8/debugger/env.cpp
                      cocos/bindings/jswrapper/v8/debugger/env.h
@@ -1744,7 +1655,7 @@ if(USE_SE_V8)
 endif()
 
 if(USE_SE_JSC)
-    cocos_source_files(
+    cocos_source_files(MODULE ccbindings
                      cocos/bindings/jswrapper/jsc/Class.h
                      cocos/bindings/jswrapper/jsc/EJConvert.h
                      cocos/bindings/jswrapper/jsc/HelperMacros.h
@@ -1765,7 +1676,7 @@ if(USE_SE_JSC)
     )
 endif()
 
-cocos_source_files(
+cocos_source_files(MODULE ccbindings
                  cocos/bindings/jswrapper/config.cpp
                  cocos/bindings/jswrapper/config.h
                  cocos/bindings/jswrapper/HandleObject.cpp
@@ -1903,10 +1814,107 @@ cocos_source_files(
 
 list(APPEND COCOS2D_SOURCE_LIST ${CC_EXTERNAL_SOURCES})
 
+
+if(USE_MODULES)
+    add_library(ccmath ${ccmath_SOURCE_LIST})
+    add_library(cclog ${cclog_SOURCE_LIST})
+    add_library(ccfilesystem ${ccfilesystem_SOURCE_LIST} ${CC_TINYDIR_SOURCES})
+    add_library(ccutils ${ccutils_SOURCE_LIST} ${CC_FS_SOURCES})
+    add_library(ccunzip ${ccunzip_SOURCE_LIST} ${CC_UNZIP_SOURCES})
+    add_library(ccbindings ${ccbindings_SOURCE_LIST})
+
+    target_include_directories(ccmath PRIVATE
+        ${CWD}/cocos
+    )
+    target_include_directories(ccunzip PRIVATE
+        ${CWD}/external/sources/unzip
+        ${CWD}/external/sources
+        ${CWD}/cocos
+    )
+    target_include_directories(cclog PRIVATE
+        ${CWD}/cocos
+    )
+    target_include_directories(ccfilesystem PRIVATE
+        ${CWD}
+        ${CWD}/cocos
+        ${CWD}/external/sources
+    )
+    target_include_directories(ccutils PRIVATE
+        ${CWD}/cocos
+        ${CWD}/external/sources
+    )
+    target_include_directories(ccbindings PRIVATE
+        ${CWD}/cocos
+        ${CWD}
+        ${CC_EXTERNAL_INCLUDES}
+    )
+    target_link_libraries(ccunzip PUBLIC
+        ${ZLIB}
+    )
+    target_link_libraries(ccfilesystem PUBLIC 
+        ccunzip 
+        ccutils
+        cclog
+    )
+    target_link_libraries(ccbindings PUBLIC 
+        ccfilesystem
+        cclog
+        ${se_libs_name}
+        uv
+    )
+    if(ANDROID)
+        target_link_libraries(ccmath PUBLIC
+            android_platform
+        )
+        target_link_libraries(cclog PUBLIC
+            log
+        )
+        target_link_libraries(ccfilesystem PUBLIC
+            cocos2d_jni
+        )
+    elseif(OHOS)
+        target_link_libraries(cclog PUBLIC
+            hilog_ndk.z
+        )
+        target_link_libraries(ccfilesystem PUBLIC
+            cocos2d_jni
+            rawfile.z
+        )
+    elseif(APPLE)
+        target_link_libraries(ccfilesystem PUBLIC
+        "-framework Foundation"
+        "-framework SystemConfiguration"
+        )
+    endif()
+else()
+    list(APPEND COCOS2D_SOURCE_LIST
+        ${ccmath_SOURCE_LIST}
+        ${cclog_SOURCE_LIST}
+        ${ccfilesystem_SOURCE_LIST}
+        ${ccunzip_SOURCE_LIST}
+        ${ccbindings_SOURCE_LIST}
+        ${ccutils_SOURCE_LIST}
+        ${CC_UNZIP_SOURCES}
+        ${CC_TINYDIR_SOURCES}
+    )
+endif()
+
 add_library(cocos2d ${COCOS2D_SOURCE_LIST})
 
+if(USE_MODULES)
+    target_link_libraries(cocos2d PUBLIC
+        ccmath
+        cclog
+        ccfilesystem
+        ccunzip
+        ccbindings
+        ccutils
+    )
+endif()
+
+
 if(ANDROID OR OHOS)
-    enable_werror("${CC_JNI_SRC_FILES}")
+    cc_enable_werror("${CC_JNI_SRC_FILES}")
     add_library(cocos2d_jni STATIC ${CC_JNI_SRC_FILES})
     target_include_directories(cocos2d_jni PUBLIC
         ${CWD}
@@ -1921,24 +1929,38 @@ if(ANDROID OR OHOS)
     endif()
 endif()
 
+################################# cc_apply_definations ###################################
+function(cc_apply_definations target)
+    target_compile_definitions(${target} PUBLIC
+        $<IF:$<BOOL:${USE_VIDEO}>,USE_VIDEO=1,USE_VIDEO=0>
+        $<IF:$<BOOL:${USE_WEBVIEW}>,USE_WEBVIEW=1,USE_WEBVIEW=0>
+        $<IF:$<BOOL:${USE_AUDIO}>,USE_AUDIO=1,USE_AUDIO=0>
+        $<IF:$<BOOL:${USE_SOCKET}>,USE_SOCKET=1,USE_SOCKET=0>
+        $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,USE_WEBSOCKET_SERVER=1,USE_WEBSOCKET_SERVER=0>
+        $<IF:$<BOOL:${USE_EDIT_BOX}>,CC_USE_EDITBOX=1,CC_USE_EDITBOX=0>
+        $<IF:$<BOOL:${USE_V8_DEBUGGER}>,USE_V8_DEBUGGER=1,USE_V8_DEBUGGER=0>
+        $<IF:$<BOOL:${USE_MIDDLEWARE}>,USE_MIDDLEWARE=1,USE_MIDDLEWARE=0>
+        $<IF:$<BOOL:${USE_SPINE}>,USE_SPINE=1,USE_SPINE=0>
+        $<IF:$<BOOL:${USE_DRAGONBONES}>,USE_DRAGONBONES=1,USE_DRAGONBONES=0>
+        $<IF:$<BOOL:${USE_JOB_SYSTEM_TBB}>,USE_JOB_SYSTEM_TBB=1,USE_JOB_SYSTEM_TBB=0>
+        $<IF:$<BOOL:${USE_JOB_SYSTEM_TASKFLOW}>,USE_JOB_SYSTEM_TASKFLOW=1,USE_JOB_SYSTEM_TASKFLOW=0>
+        $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,USE_PHYSICS_PHYSX=1,USE_PHYSICS_PHYSX=0>
+        $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
+        $<$<CONFIG:Debug>:CC_DEBUG=1>
+    )
+endfunction()
+
 # setup default flags
-target_compile_definitions(cocos2d PUBLIC
-    $<IF:$<BOOL:${USE_VIDEO}>,USE_VIDEO=1,USE_VIDEO=0>
-    $<IF:$<BOOL:${USE_WEBVIEW}>,USE_WEBVIEW=1,USE_WEBVIEW=0>
-    $<IF:$<BOOL:${USE_AUDIO}>,USE_AUDIO=1,USE_AUDIO=0>
-    $<IF:$<BOOL:${USE_SOCKET}>,USE_SOCKET=1,USE_SOCKET=0>
-    $<IF:$<BOOL:${USE_WEBSOCKET_SERVER}>,USE_WEBSOCKET_SERVER=1,USE_WEBSOCKET_SERVER=0>
-    $<IF:$<BOOL:${USE_EDIT_BOX}>,CC_USE_EDITBOX=1,CC_USE_EDITBOX=0>
-    $<IF:$<BOOL:${USE_V8_DEBUGGER}>,USE_V8_DEBUGGER=1,USE_V8_DEBUGGER=0>
-    $<IF:$<BOOL:${USE_MIDDLEWARE}>,USE_MIDDLEWARE=1,USE_MIDDLEWARE=0>
-    $<IF:$<BOOL:${USE_SPINE}>,USE_SPINE=1,USE_SPINE=0>
-    $<IF:$<BOOL:${USE_DRAGONBONES}>,USE_DRAGONBONES=1,USE_DRAGONBONES=0>
-    $<IF:$<BOOL:${USE_JOB_SYSTEM_TBB}>,USE_JOB_SYSTEM_TBB=1,USE_JOB_SYSTEM_TBB=0>
-    $<IF:$<BOOL:${USE_JOB_SYSTEM_TASKFLOW}>,USE_JOB_SYSTEM_TASKFLOW=1,USE_JOB_SYSTEM_TASKFLOW=0>
-    $<IF:$<BOOL:${USE_PHYSICS_PHYSX}>,USE_PHYSICS_PHYSX=1,USE_PHYSICS_PHYSX=0>
-    $<$<BOOL:${USE_SE_JSC}>:SCRIPT_ENGINE_TYPE=3>
-    $<$<CONFIG:Debug>:CC_DEBUG=1>
-)
+cc_apply_definations(cocos2d)
+
+if(USE_MODULES)
+    cc_apply_definations(ccmath)
+    cc_apply_definations(cclog)
+    cc_apply_definations(ccfilesystem)
+    cc_apply_definations(ccunzip)
+    cc_apply_definations(ccbindings)
+    cc_apply_definations(ccutils)
+endif()
 
 if(CC_USE_VULKAN)
 
@@ -2001,21 +2023,25 @@ if(WIN32)
         ws2_32 userenv psapi winmm Iphlpapi
         ${CC_EXTERNAL_LIBS}
     )
+    cc_win32_definations(cocos2d)
 
-    target_compile_definitions(cocos2d PUBLIC
-        CC_STATIC
-        WIN32
-        _WIN32
-        _WINDOWS
-        NOMINMAX
-        UNICODE
-        _UNICODE
-        _USE_MATH_DEFINES
-        _CRT_SECURE_NO_WARNINGS
-        _SCL_SECURE_NO_WARNINGS
-        _USRLIBSIMSTATIC
-        SE_ENABLE_INSPECTOR
-    )
+    if(USE_MODULES)
+        cc_win32_definations(ccmath)
+        cc_win32_definations(cclog)
+        cc_win32_definations(ccunzip)
+        cc_win32_definations(ccfilesystem)
+        cc_win32_definations(ccutils)
+        cc_win32_definations(ccbindings)
+
+        target_link_libraries(ccutils PUBLIC
+            ws2_32 psapi userenv Iphlpapi
+        )
+        target_link_libraries(ccbindings PUBLIC
+            ws2_32
+        )
+    endif()
+
+
 endif()
 
 if(ANDROID)
@@ -2027,7 +2053,6 @@ if(ANDROID)
     find_library(LIB_GLESv2 NAMES GLESv2)
     target_link_libraries(cocos2d PUBLIC
         android
-        log
         OpenSLES
         ${LIB_EGL}
         ${LIB_GLESv2}
@@ -2038,7 +2063,6 @@ endif()
 
 if(OHOS)
     target_link_libraries(cocos2d PUBLIC
-        hilog_ndk.z
         EGL
         GLESv3
         zgraphic.z
@@ -2126,9 +2150,3 @@ if(MSVC)
     endif()
     target_compile_options(cocos2d PUBLIC /MP)
 endif()
-
-#if(COMMAND target_precompile_headers)
-    #target_precompile_headers(cocos2d PUBLIC
-        #$<$<COMPILE_LANGUAGE:CXX>:${CWD}/cocos/cocos2d.h>
-    #)
-#endif()
