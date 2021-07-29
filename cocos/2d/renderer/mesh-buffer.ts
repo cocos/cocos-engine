@@ -62,7 +62,7 @@ export class MeshBuffer {
     private _dirty = false;
     private _vertexFormatBytes = 0;
     private _initVDataCount = 0;
-    private _initIDataCount = 256 * 6; // 默认了创建 256 个？
+    private _initIDataCount = 256 * 6;
     private _outOfCallback: ((...args: number[]) => void) | null = null;
     private _hInputAssemblers: InputAssembler[] = [];
     private _nextFreeIAHandle = 0;
