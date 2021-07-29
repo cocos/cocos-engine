@@ -106,14 +106,15 @@ ui-icon {
 .events ui-icon {
     position: absolute;
     bottom: -4px;
-    color: #f5f06d;
 }
 
 .events ui-icon:hover {
-    color: #f4f189;
+    color: white;
     cursor: pointer;
 }
-
+.events ui-icon[active] {
+    color: var(--color-focus-fill);
+}
 .mask {
     position: absolute;
     z-index: 2;
@@ -517,9 +518,22 @@ exports.methods = {
                 this.setCurrentFrame(this.curTotalFrames);
                 break;
             case 'add_event':
+                if (this.checkDisabledEditEvent()) {
+                    return;
+                }
                 this.addEventToCurTime();
                 break;
         }
+    },
+
+    checkDisabledEditEvent() {
+        if (!this.curEditClipInfo.userData) {
+            Editor.Dialog.info(Editor.I18n.t('ENGINE.assets.fbx.addEvent.shouldSave'), {
+                buttons: [Editor.I18n.t('ENGINE.assets.fbx.addEvent.ok')],
+            });
+            return true;
+        }
+        return false;
     },
 
     addEventToCurTime() {
@@ -622,10 +636,12 @@ exports.methods = {
                 max: this.curTotalFrames,
             });
             this.$.duration.innerHTML = `Duration: ${this.curTotalFrames}`;
-            // update animation events
-            const subId = clipInfo.clipUUID.match(/@(.*)/)[1];
-            this.curEditClipInfo.userData = this.meta.subMetas[subId].userData;
-            this.updateEventInfo();
+            // update animation events, clipInfo.clipUUID may be undefined
+            if (clipInfo.clipUUID) {
+                const subId = clipInfo.clipUUID.match(/@(.*)/)[1];
+                this.curEditClipInfo.userData = this.meta.subMetas[subId].userData;
+                this.updateEventInfo();
+            }
 
             if (this.$.animationTimeSlider) {
                 this.$.animationTimeSlider.max = this.curTotalFrames;
