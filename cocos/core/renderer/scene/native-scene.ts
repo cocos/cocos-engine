@@ -10,6 +10,10 @@ export const NativeNode: Constructor<{
     setParent(val: NativeNode | null): void;
 }> = null!;
 export type NativeNode = InstanceType<typeof NativeNode>;
+export const NativeScene: Constructor<{
+    setParent(val: NativeScene | null): void;
+}> = null!;
+export type NativeScene = InstanceType<typeof NativeScene>;
 
 export const NativeAABB: Constructor<{
     initWithData(data: TypedArray): void;

@@ -50,7 +50,6 @@ const DontDestroy = CCObject.Flags.DontDestroy;
 const Deactivating = CCObject.Flags.Deactivating;
 
 export const TRANSFORM_ON = 1 << 0;
-export const nativeDirtyNodes: any[] = [];
 // const CHILD_ADDED = 'child-added';
 // const CHILD_REMOVED = 'child-removed';
 
