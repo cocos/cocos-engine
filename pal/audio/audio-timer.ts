@@ -68,6 +68,9 @@ export default class AudioTimer {
      * Call this method when audio is paused or interrupted.
      */
     pause () {
+        if (this._isPaused) {
+            return;
+        }
         this._isPaused = true;
         this._startOffset = this._calculateCurrentTime();
     }
