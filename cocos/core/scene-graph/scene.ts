@@ -34,7 +34,7 @@ import { CCObject } from '../data/object';
 import { FloatArray, Mat4, Quat, Vec3 } from '../math';
 import { assert, getError } from '../platform/debug';
 import { RenderScene } from '../renderer/scene/render-scene';
-import { BaseNode } from './base-node';
+import { BaseNode, nativeDirtyNodes } from './base-node';
 import { legacyCC } from '../global-exports';
 import { Component } from '../components/component';
 import { SceneGlobals } from './scene-globals';
@@ -132,7 +132,7 @@ export class Scene extends BaseNode {
             this._nativeLayer[0] = 0;
             this._nativeObj = new NativeNode();
             const flagBuffer = new Uint32Array([0]);
-            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer, []);
+            this._nativeObj.initWithData(NodePool.getBuffer(this._nodeHandle), flagBuffer, nativeDirtyNodes);
         }
     }
 
