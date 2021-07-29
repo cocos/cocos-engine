@@ -855,8 +855,12 @@ cocos_source_files(
                  cocos/scene/Model.h
                  cocos/scene/Model.cpp
                  cocos/scene/MorphModel.h
+                 cocos/scene/BaseNode.h
+                 cocos/scene/BaseNode.cpp
                  cocos/scene/Node.h
                  cocos/scene/Node.cpp
+                 cocos/scene/Scene.h
+                 cocos/scene/Scene.cpp
                  cocos/scene/Pass.h
                  cocos/scene/Pass.cpp
                  cocos/scene/RenderScene.h

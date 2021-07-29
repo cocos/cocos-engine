@@ -26,11 +26,14 @@
 #pragma once
 
 #include <vector>
+#include "cocos/bindings/manual/jsb_conversions.h"
 #include "math/Mat3.h"
 #include "math/Mat4.h"
 #include "math/Quaternion.h"
 #include "math/Vec3.h"
 #include "math/Vec4.h"
+#include "scene/BaseNode.h"
+#include "scene/Scene.h"
 
 namespace cc {
 namespace scene {
@@ -48,68 +51,56 @@ struct NodeLayout {
     cc::Quaternion localRotation;
 };
 
-class Node final {
+class Node final : public BaseNode {
 public:
     Node()             = default;
     Node(const Node &) = delete;
     Node(Node &&)      = delete;
-    ~Node()            = default;
+    ~Node() override   = default;
     Node &operator=(const Node &) = delete;
     Node &operator=(Node &&) = delete;
 
-    void initWithData(uint8_t *, uint8_t *);
+    void initWithData(uint8_t *, uint8_t *, const se::Value &);
     void invalidateChildren(TransformBit dirtyBit);
 
-    void updateWorldTransform();
-    void updateWorldRTMatrix();
+    void updateWorldTransform() override;
+    void updateWorldRTMatrix() override;
 
-    void setWorldPosition(float x, float y, float z);
-    void setWorldRotation(float x, float y, float z, float w);
-    void setParent(Node *parent);
+    void        setWorldPosition(float x, float y, float z) override;
+    void        setWorldRotation(float x, float y, float z, float w) override;
+    static void setDirtyNode(int idx, Node *node);
 
-    inline void addChild(Node *node) { _children.emplace_back(node); }
+    inline void setFlagsChanged(uint32_t value) override { *_flagChunk = value; }
+    inline void setDirtyFlag(uint32_t value) override { _nodeLayout->dirtyFlag = value; }
+    inline void setLayer(uint32_t layer) override { _nodeLayout->layer = layer; }
+    inline void setWorldMatrix(const Mat4 &matrix) override { _nodeLayout->worldMatrix.set(matrix); }
+    inline void setWorldPosition(const Vec3 &pos) override { setWorldPosition(pos.x, pos.y, pos.z); }
+    inline void setWorldRotation(const Quaternion &rotation) override { setWorldRotation(rotation.x, rotation.y, rotation.z, rotation.w); }
+    inline void setWorldScale(const Vec3 &scale) override { _nodeLayout->worldScale.set(scale); }
+    inline void setLocalPosition(const Vec3 &pos) override { _nodeLayout->localPosition.set(pos); }
+    inline void setLocalPosition(float x, float y, float z) override { _nodeLayout->localPosition.set(x, y, z); }
+    inline void setLocalRotation(const Quaternion &rotation) override { _nodeLayout->localRotation.set(rotation); }
+    inline void setLocalRotation(float x, float y, float z, float w) override { _nodeLayout->localRotation.set(x, y, z, w); }
+    inline void setLocalScale(const Vec3 &scale) override { _nodeLayout->localScale.set(scale); }
 
-    inline void removeChild(Node *node) {
-        auto iter = std::find(_children.begin(), _children.end(), node);
-        if (iter != _children.end()) {
-            _children.erase(iter);
-        }
-    }
-
-    inline void setFlagsChanged(uint32_t value) { *_flagChunk = value; }
-    inline void setDirtyFlag(uint32_t value) { _nodeLayout->dirtyFlag = value; }
-    inline void setLayer(uint32_t layer) { _nodeLayout->layer = layer; }
-    inline void setWorldMatrix(const Mat4 &matrix) { _nodeLayout->worldMatrix.set(matrix); }
-    inline void setWorldPosition(const Vec3 &pos) { setWorldPosition(pos.x, pos.y, pos.z); }
-    inline void setWorldRotation(const Quaternion &rotation) { setWorldRotation(rotation.x, rotation.y, rotation.z, rotation.w); }
-    inline void setWorldScale(const Vec3 &scale) { _nodeLayout->worldScale.set(scale); }
-    inline void setLocalPosition(const Vec3 &pos) { _nodeLayout->localPosition.set(pos); }
-    inline void setLocalPosition(float x, float y, float z) { _nodeLayout->localPosition.set(x, y, z); }
-    inline void setLocalRotation(const Quaternion &rotation) { _nodeLayout->localRotation.set(rotation); }
-    inline void setLocalRotation(float x, float y, float z, float w) { _nodeLayout->localRotation.set(x, y, z, w); }
-    inline void setLocalScale(const Vec3 &scale) { _nodeLayout->localScale.set(scale); }
-
-    inline Node *            getParent() const { return _parent; }
-    inline uint32_t          getFlagsChanged() const { return *_flagChunk; }
-    inline uint32_t          getLayer() const { return _nodeLayout->layer; }
-    inline uint32_t          getDirtyFlag() const { return _nodeLayout->dirtyFlag; }
-    inline const Vec3 &      getPosition() const { return _nodeLayout->localPosition; }
-    inline const Vec3 &      getScale() const { return _nodeLayout->localScale; }
-    inline const Quaternion &getRotation() const { return _nodeLayout->localRotation; }
+    inline uint32_t          getFlagsChanged() const override { return *_flagChunk; }
+    inline uint32_t          getLayer() const override { return _nodeLayout->layer; }
+    inline uint32_t          getDirtyFlag() const override { return _nodeLayout->dirtyFlag; }
+    inline const Vec3 &      getPosition() const override { return _nodeLayout->localPosition; }
+    inline const Vec3 &      getScale() const override { return _nodeLayout->localScale; }
+    inline const Quaternion &getRotation() const override { return _nodeLayout->localRotation; }
     inline const NodeLayout *getNodeLayout() const { return _nodeLayout; };
-    inline const Mat4 &      getWorldMatrix() const { return _nodeLayout->worldMatrix; }
-    inline const Vec3 &      getWorldPosition() const { return _nodeLayout->worldPosition; }
-    inline const Quaternion &getWorldRotation() const { return _nodeLayout->worldRotation; }
-    inline const Vec3 &      getWorldScale() const { return _nodeLayout->worldScale; }
-    inline const Mat4 &      getWorldRTMatrix() const { return _rtMat; };
+    inline const Mat4 &      getWorldMatrix() const override { return _nodeLayout->worldMatrix; }
+    inline const Vec3 &      getWorldPosition() const override { return _nodeLayout->worldPosition; }
+    inline const Quaternion &getWorldRotation() const override { return _nodeLayout->worldRotation; }
+    inline const Vec3 &      getWorldScale() const override { return _nodeLayout->worldScale; }
+    inline const Mat4 &      getWorldRTMatrix() const override { return _rtMat; };
+    static Node *            getDirtyNode(int idx);
 
 private:
-    NodeLayout *        _nodeLayout{nullptr};
-    Node *              _parent{nullptr};
-    Mat4                _rtMat;
-    uint32_t *          _flagChunk{nullptr};
-    std::vector<Node *> _children;
-    std::vector<Node *> _computeNodes;
+    NodeLayout *       _nodeLayout{nullptr};
+    uint32_t *         _flagChunk{nullptr};
+    static se::Object *dirtyNodes;
 };
 
 } // namespace scene
