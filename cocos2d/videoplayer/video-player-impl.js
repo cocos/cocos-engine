@@ -46,7 +46,7 @@ let VideoPlayerImpl = cc.Class({
 
         this._video = null;
         this._url = '';
-		
+
         this.playerWidth = '0px';
         this.playerHeight = '0px';
 
@@ -61,6 +61,9 @@ let VideoPlayerImpl = cc.Class({
         this._ignorePause = false;
         this._forceUpdate = false;
 
+        // use static video
+        this._staticDomID = '';
+
         // update matrix cache
         this._m00 = 0;
         this._m01 = 0;
@@ -74,8 +77,13 @@ let VideoPlayerImpl = cc.Class({
         this.__eventListeners = {};
     },
 
+    setStaticDomID(id) {
+      this._staticDomID = id;
+    },
+
     _bindEvent () {
         let video = this._video, self = this;
+        if (!video) return;
         //binding event
         let cbs = this.__eventListeners;
         cbs.loadedmetadata = function () {
@@ -158,13 +166,23 @@ let VideoPlayerImpl = cc.Class({
 
         video.style.width = width + 'px';
         video.style.height = height + 'px';
-		
+
         this.playerWidth = video.style.width;
         this.playerHeight = video.style.height;
     },
 
     _createDom (muted) {
-        let video = document.createElement('video');
+        let video;
+        if (this._staticDomID) {
+            video = document.getElementById(this._staticDomID);
+            if (!video) {
+                cc.warnID(7703, this._staticDomID);
+                this._staticDomID = '';
+            }
+        }
+        if (!video) {
+            video = document.createElement('video');
+        }
         video.style.position = "absolute";
         video.style.bottom = "0px";
         video.style.left = "0px";
@@ -180,7 +198,9 @@ let VideoPlayerImpl = cc.Class({
         }
 
         this._video = video;
-        cc.game.container.appendChild(video);
+        if (!this._staticDomID) {
+            cc.game.container.appendChild(video);
+        }
     },
 
     createDomElementIfNeeded: function (muted) {
@@ -192,9 +212,15 @@ let VideoPlayerImpl = cc.Class({
     removeDom () {
         let video = this._video;
         if (video) {
-            let hasChild = utils.contains(cc.game.container, video);
-            if (hasChild)
+            if (this._staticDomID) {
+                video.pause();
+                video.currentTime = 0;
+
+            } else {
+              let hasChild = utils.contains(cc.game.container, video);
+              if (hasChild)
                 cc.game.container.removeChild(video);
+            }
             let cbs = this.__eventListeners;
             video.removeEventListener("loadedmetadata", cbs.loadedmetadata);
             video.removeEventListener("ended", cbs.ended);
@@ -218,8 +244,6 @@ let VideoPlayerImpl = cc.Class({
     },
 
     setURL (path, muted) {
-        let source, extname;
-
         if (this._url === path) {
             return;
         }
@@ -227,6 +251,7 @@ let VideoPlayerImpl = cc.Class({
         this.removeDom();
         this._url = path;
         this.createDomElementIfNeeded(muted);
+
         this._bindEvent();
 
         let video = this._video;
@@ -235,18 +260,54 @@ let VideoPlayerImpl = cc.Class({
         this._playing = false;
         this._loadedmeta = false;
 
-        source = document.createElement("source");
-        source.src = path;
-        video.appendChild(source);
+        // Since the src of the dynamically set source is not valid, need to set the src of video.
+        video.src = path;
 
-        extname = cc.path.extname(path);
+        //
+        if (!path) {
+            this._resetSource(video);
+            return;
+        }
+        let extname = cc.path.extname(path);
+        this._appendSource(video, path, extname);
+
         let polyfill = VideoPlayerImpl._polyfill;
         for (let i = 0; i < polyfill.canPlayType.length; i++) {
-            if (extname !== polyfill.canPlayType[i]) {
-                source = document.createElement("source");
-                source.src = path.replace(extname, polyfill.canPlayType[i]);
-                video.appendChild(source);
+            const type = polyfill.canPlayType[i];
+            if (extname !== type) {
+                this._appendSource(video, path ? path.replace(extname, type) : '', type);
             }
+        }
+    },
+
+    _resetSource: function (video) {
+        let sources = video.getElementsByTagName('source');
+        for (let i = 0; i < sources.length; i++) {
+            sources[i].src = '';
+        }
+    },
+
+    _appendSource: function(video, path, videoType) {
+        let sources = video.getElementsByTagName('source');
+        let source;
+        let id = `${videoType}-source`;
+        let type = `video/${videoType.substr(1)}`;
+        for (let i = 0; i < sources.length; i++) {
+            if (sources[i].id === id) {
+                source = sources[i];
+                break;
+            }
+        }
+
+        // Use of static dom, don't automatic create of sources
+        if (!source && !this._staticDomID) {
+            source = document.createElement("source");
+            source.id = id;
+            source.type = type;
+            video.appendChild(source);
+        }
+        if (source) {
+            source.src = path;
         }
     },
 
@@ -354,10 +415,10 @@ let VideoPlayerImpl = cc.Class({
             return video.getFrameWidth();
         else if (video.videoWidth !== undefined)
             return video.videoWidth;
-        else 
+        else
             return 0;
     },
-    
+
     getFrameHeight: function () {
         let video = this._video;
         if (!video) return 0;
@@ -498,12 +559,14 @@ let VideoPlayerImpl = cc.Class({
     },
 
     _dispatchEvent: function (event) {
+        if (!this._video) return;
         let callback = this._EventList[event];
         if (callback)
             callback.call(this, this, this._video.src);
     },
 
     onPlayEvent: function () {
+        if (!this._video) return;
         let callback = this._EventList[VideoPlayerImpl.EventType.PLAYING];
         callback.call(this, this, this._video.src);
     },
@@ -537,6 +600,11 @@ let VideoPlayerImpl = cc.Class({
 
     updateMatrix (node) {
         if (!this._video || !this._visible || this._fullScreenEnabled) return;
+
+        // Use of static dom, no handling of layout
+        if (!CC_EDITOR && this._staticDomID) {
+            return;
+        }
 
         node.getWorldMatrix(_mat4_temp);
 

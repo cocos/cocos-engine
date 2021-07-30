@@ -2630,6 +2630,10 @@ Can't know status
 
 Video player's duration is not ready to get now!
 
+### 7703
+
+Cannot get static video element by id: %s.
+
 ### 7800
 
 Web does not support loading

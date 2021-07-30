@@ -93,7 +93,7 @@ const ResourceType = cc.Enum({
     LOCAL: 1
 });
 
-
+let staticDomLocker = null;
 /**
  * !#en cc.VideoPlayer is a component for playing videos, you can use it for showing videos in your game. Because different platforms have different authorization, API and control methods for VideoPlayer component. And have not yet formed a unified standard, only Web, iOS, and Android platforms are currently supported.
  * !#zh Video 组件，用于在游戏中播放视频。由于不同平台对于 VideoPlayer 组件的授权、API、控制方式都不同，还没有形成统一的标准，所以目前只支持 Web、iOS 和 Android 平台。
@@ -322,7 +322,8 @@ let VideoPlayer = cc.Class({
     statics: {
         EventType: EventType,
         ResourceType: ResourceType,
-        Impl: VideoPlayerImpl
+        Impl: VideoPlayerImpl,
+        staticDomId: '',
     },
 
     ctor () {
@@ -353,6 +354,10 @@ let VideoPlayer = cc.Class({
     onLoad () {
         let impl = this._impl;
         if (impl) {
+            if (!staticDomLocker && !CC_EDITOR) {
+                staticDomLocker = this;
+                impl.setStaticDomID && impl.setStaticDomID(VideoPlayer.staticDomId);
+            }
             impl.createDomElementIfNeeded(this._mute || this._volume === 0);
             impl.setStayOnBottom(this._stayOnBottom);
             this._updateVideoSource();
@@ -363,7 +368,7 @@ let VideoPlayer = cc.Class({
                 this.pause();
 
                 impl.setEventListener(EventType.PLAYING, this.onPlaying.bind(this));
-                impl.setEventListener(EventType.PAUSED, this.onPasued.bind(this));
+                impl.setEventListener(EventType.PAUSED, this.onPaused.bind(this));
                 impl.setEventListener(EventType.STOPPED, this.onStopped.bind(this));
                 impl.setEventListener(EventType.COMPLETED, this.onCompleted.bind(this));
                 impl.setEventListener(EventType.META_LOADED, this.onMetaLoaded.bind(this));
@@ -395,7 +400,20 @@ let VideoPlayer = cc.Class({
         if (this._impl) {
             this._impl.destroy();
             this._impl = null;
+            if (staticDomLocker === this) {
+                staticDomLocker = null;
+            }
         }
+    },
+
+    /**
+     * !#en Get video
+     * !#ch 获取视频对象
+     * @method getVideo
+     * @returns {Object} The video object
+     */
+    getVideo() {
+        return this._impl && this._impl._video || null;
     },
 
     /**
@@ -403,7 +421,7 @@ let VideoPlayer = cc.Class({
      * !#ch 获取视频纹理对象
      * @method getTexture
      * @returns {Texture2D} The video texture object
-     */ 
+     */
     getTexture () {
         return this._ccVideoTex;
     },
@@ -420,7 +438,7 @@ let VideoPlayer = cc.Class({
 
     /**
      * !#en Close get texture flag
-     * !#ch 关闭抓取视频帧纹理 
+     * !#ch 关闭抓取视频帧纹理
      * @method disableGrabTexture
      */
     disableGrabTexture () {
@@ -468,7 +486,7 @@ let VideoPlayer = cc.Class({
             }
 
             this._impl.grabFramePixels(this._ccVideoTex);
-            
+
             /* // For demo useage
             let sprite = this.getComponentInChildren(Sprite);
             if (sprite) {
@@ -508,7 +526,7 @@ let VideoPlayer = cc.Class({
         this.node.emit('playing', this);
     },
 
-    onPasued () {
+    onPaused () {
         this._currentStatus = EventType.PAUSED;
         cc.Component.EventHandler.emitEvents(this.videoPlayerEvent, this, EventType.PAUSED);
         this.node.emit('paused', this);
