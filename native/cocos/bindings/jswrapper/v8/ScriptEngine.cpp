@@ -419,9 +419,11 @@ ScriptEngine *ScriptEngine::getInstance() {
 }
 
 void ScriptEngine::destroyInstance() {
-    gSriptEngineInstance->cleanup();
-    delete gSriptEngineInstance;
-    gSriptEngineInstance = nullptr;
+    if (gSriptEngineInstance) {
+        gSriptEngineInstance->cleanup();
+        delete gSriptEngineInstance;
+        gSriptEngineInstance = nullptr;
+    }
 }
 
 ScriptEngine::ScriptEngine()
