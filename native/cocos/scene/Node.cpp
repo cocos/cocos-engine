@@ -53,7 +53,7 @@ void        Node::updateWorldTransform() {
         auto *childLayout = child->_nodeLayout;
         if (curr) {
             if (dirtyBits & static_cast<uint32_t>(TransformBit::POSITION)) {
-                childLayout->worldPosition.transformMat4(childLayout->localPosition, childLayout->worldMatrix);
+                childLayout->worldPosition.transformMat4(childLayout->localPosition, curr->getWorldMatrix());
                 childLayout->worldMatrix.m[12] = childLayout->worldPosition.x;
                 childLayout->worldMatrix.m[13] = childLayout->worldPosition.y;
                 childLayout->worldMatrix.m[14] = childLayout->worldPosition.z;
