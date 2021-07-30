@@ -600,7 +600,12 @@ let VideoPlayerImpl = cc.Class({
     },
 
     updateMatrix (node) {
-        if (!this._video || !this._visible || this._fullScreenEnabled || this._staticDomID) return;
+        if (!this._video || !this._visible || this._fullScreenEnabled) return;
+
+        // Use of static dom, no handling of layout
+        if (!CC_EDITOR && this._staticDomID) {
+            return;
+        }
 
         node.getWorldMatrix(_mat4_temp);
 
