@@ -2,6 +2,8 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/manual/jsb_global.h"
 #include "scene/Node.h"
+#include "scene/BaseNode.h"
+#include "scene/Scene.h"
 #include "scene/Light.h"
 #include "scene/DirectionalLight.h"
 #include "scene/SpotLight.h"
@@ -23,27 +25,134 @@
 #ifndef JSB_FREE
 #define JSB_FREE(ptr) delete ptr
 #endif
-se::Object* __jsb_cc_scene_Node_proto = nullptr;
-se::Class* __jsb_cc_scene_Node_class = nullptr;
+se::Object* __jsb_cc_scene_BaseNode_proto = nullptr;
+se::Class* __jsb_cc_scene_BaseNode_class = nullptr;
 
-static bool js_scene_Node_addChild(se::State& s) // NOLINT(readability-identifier-naming)
+static bool js_scene_BaseNode_getChilds(se::State& s) // NOLINT(readability-identifier-naming)
 {
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_addChild : Invalid Native Object");
+    auto* cobj = SE_THIS_OBJECT<cc::scene::BaseNode>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_BaseNode_getChilds : Invalid Native Object");
+    const auto& args = s.args();
+    size_t argc = args.size();
+    CC_UNUSED bool ok = true;
+    if (argc == 0) {
+        const std::vector<cc::scene::BaseNode *>& result = cobj->getChilds();
+        ok &= nativevalue_to_se(result, s.rval(), nullptr /*ctx*/);
+        SE_PRECONDITION2(ok, false, "js_scene_BaseNode_getChilds : Error processing arguments");
+        SE_HOLD_RETURN_VALUE(result, s.thisObject(), s.rval());
+        return true;
+    }
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 0);
+    return false;
+}
+SE_BIND_FUNC(js_scene_BaseNode_getChilds)
+
+static bool js_scene_BaseNode_setParent(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto* cobj = SE_THIS_OBJECT<cc::scene::BaseNode>(s);
+    SE_PRECONDITION2(cobj, false, "js_scene_BaseNode_setParent : Invalid Native Object");
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
     if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
+        HolderType<cc::scene::BaseNode*, false> arg0 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_addChild : Error processing arguments");
-        cobj->addChild(arg0.value());
+        SE_PRECONDITION2(ok, false, "js_scene_BaseNode_setParent : Error processing arguments");
+        cobj->setParent(arg0.value());
         return true;
     }
     SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
     return false;
 }
-SE_BIND_FUNC(js_scene_Node_addChild)
+SE_BIND_FUNC(js_scene_BaseNode_setParent)
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_scene_BaseNode_finalize)
+
+static bool js_scene_BaseNode_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    cc::scene::BaseNode* cobj = JSB_ALLOC(cc::scene::BaseNode);
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_scene_BaseNode_constructor, __jsb_cc_scene_BaseNode_class, js_cc_scene_BaseNode_finalize)
+
+
+
+static bool js_cc_scene_BaseNode_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::BaseNode>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::scene::BaseNode>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_scene_BaseNode_finalize)
+
+bool js_register_scene_BaseNode(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("BaseNode", obj, nullptr, _SE(js_scene_BaseNode_constructor));
+
+    cls->defineFunction("getChilds", _SE(js_scene_BaseNode_getChilds));
+    cls->defineFunction("setParent", _SE(js_scene_BaseNode_setParent));
+    cls->defineFinalizeFunction(_SE(js_cc_scene_BaseNode_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::scene::BaseNode>(cls);
+
+    __jsb_cc_scene_BaseNode_proto = cls->getProto();
+    __jsb_cc_scene_BaseNode_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_scene_Scene_proto = nullptr;
+se::Class* __jsb_cc_scene_Scene_class = nullptr;
+
+SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Scene_finalize)
+
+static bool js_scene_Scene_constructor(se::State& s) // NOLINT(readability-identifier-naming) constructor.c
+{
+    cc::scene::Scene* cobj = JSB_ALLOC(cc::scene::Scene);
+    s.thisObject()->setPrivateData(cobj);
+    se::NonRefNativePtrCreatedByCtorMap::emplace(cobj);
+    return true;
+}
+SE_BIND_CTOR(js_scene_Scene_constructor, __jsb_cc_scene_Scene_class, js_cc_scene_Scene_finalize)
+
+
+
+static bool js_cc_scene_Scene_finalize(se::State& s) // NOLINT(readability-identifier-naming)
+{
+    auto iter = se::NonRefNativePtrCreatedByCtorMap::find(SE_THIS_OBJECT<cc::scene::Scene>(s));
+    if (iter != se::NonRefNativePtrCreatedByCtorMap::end())
+    {
+        se::NonRefNativePtrCreatedByCtorMap::erase(iter);
+        auto* cobj = SE_THIS_OBJECT<cc::scene::Scene>(s);
+        JSB_FREE(cobj);
+    }
+    return true;
+}
+SE_BIND_FINALIZE_FUNC(js_cc_scene_Scene_finalize)
+
+bool js_register_scene_Scene(se::Object* obj) // NOLINT(readability-identifier-naming)
+{
+    auto* cls = se::Class::create("Scene", obj, __jsb_cc_scene_BaseNode_proto, _SE(js_scene_Scene_constructor));
+
+    cls->defineFinalizeFunction(_SE(js_cc_scene_Scene_finalize));
+    cls->install();
+    JSBClassType::registerClass<cc::scene::Scene>(cls);
+
+    __jsb_cc_scene_Scene_proto = cls->getProto();
+    __jsb_cc_scene_Scene_class = cls;
+
+    se::ScriptEngine::getInstance()->clearException();
+    return true;
+}
+se::Object* __jsb_cc_scene_Node_proto = nullptr;
+se::Class* __jsb_cc_scene_Node_class = nullptr;
 
 static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -52,57 +161,21 @@ static bool js_scene_Node_initWithData(se::State& s) // NOLINT(readability-ident
     const auto& args = s.args();
     size_t argc = args.size();
     CC_UNUSED bool ok = true;
-    if (argc == 2) {
+    if (argc == 3) {
         HolderType<unsigned char*, false> arg0 = {};
         HolderType<unsigned char*, false> arg1 = {};
+        HolderType<se::Value, true> arg2 = {};
         ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
         ok &= sevalue_to_native(args[1], &arg1, s.thisObject());
+        ok &= sevalue_to_native(args[2], &arg2, s.thisObject());
         SE_PRECONDITION2(ok, false, "js_scene_Node_initWithData : Error processing arguments");
-        cobj->initWithData(arg0.value(), arg1.value());
+        cobj->initWithData(arg0.value(), arg1.value(), arg2.value());
         return true;
     }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 2);
+    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 3);
     return false;
 }
 SE_BIND_FUNC(js_scene_Node_initWithData)
-
-static bool js_scene_Node_removeChild(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_removeChild : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_removeChild : Error processing arguments");
-        cobj->removeChild(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_removeChild)
-
-static bool js_scene_Node_setParent(se::State& s) // NOLINT(readability-identifier-naming)
-{
-    auto* cobj = SE_THIS_OBJECT<cc::scene::Node>(s);
-    SE_PRECONDITION2(cobj, false, "js_scene_Node_setParent : Invalid Native Object");
-    const auto& args = s.args();
-    size_t argc = args.size();
-    CC_UNUSED bool ok = true;
-    if (argc == 1) {
-        HolderType<cc::scene::Node*, false> arg0 = {};
-        ok &= sevalue_to_native(args[0], &arg0, s.thisObject());
-        SE_PRECONDITION2(ok, false, "js_scene_Node_setParent : Error processing arguments");
-        cobj->setParent(arg0.value());
-        return true;
-    }
-    SE_REPORT_ERROR("wrong number of arguments: %d, was expecting %d", (int)argc, 1);
-    return false;
-}
-SE_BIND_FUNC(js_scene_Node_setParent)
 
 SE_DECLARE_FINALIZE_FUNC(js_cc_scene_Node_finalize)
 
@@ -132,12 +205,9 @@ SE_BIND_FINALIZE_FUNC(js_cc_scene_Node_finalize)
 
 bool js_register_scene_Node(se::Object* obj) // NOLINT(readability-identifier-naming)
 {
-    auto* cls = se::Class::create("Node", obj, nullptr, _SE(js_scene_Node_constructor));
+    auto* cls = se::Class::create("Node", obj, __jsb_cc_scene_BaseNode_proto, _SE(js_scene_Node_constructor));
 
-    cls->defineFunction("addChild", _SE(js_scene_Node_addChild));
     cls->defineFunction("initWithData", _SE(js_scene_Node_initWithData));
-    cls->defineFunction("removeChild", _SE(js_scene_Node_removeChild));
-    cls->defineFunction("setParent", _SE(js_scene_Node_setParent));
     cls->defineFinalizeFunction(_SE(js_cc_scene_Node_finalize));
     cls->install();
     JSBClassType::registerClass<cc::scene::Node>(cls);
@@ -7466,6 +7536,7 @@ bool register_all_scene(se::Object* obj)
     js_register_scene_RenderScene(ns);
     js_register_scene_Camera(ns);
     js_register_scene_Fog(ns);
+    js_register_scene_BaseNode(ns);
     js_register_scene_Node(ns);
     js_register_scene_Frustum(ns);
     js_register_scene_DrawBatch2D(ns);
@@ -7485,6 +7556,7 @@ bool register_all_scene(se::Object* obj)
     js_register_scene_DirectionalLight(ns);
     js_register_scene_JointInfo(ns);
     js_register_scene_Root(ns);
+    js_register_scene_Scene(ns);
     js_register_scene_BakedAnimInfo(ns);
     js_register_scene_Pass(ns);
     js_register_scene_Skybox(ns);

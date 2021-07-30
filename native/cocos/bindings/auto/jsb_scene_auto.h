@@ -5,6 +5,8 @@
 #include "cocos/bindings/manual/jsb_conversions.h"
 #include "cocos/bindings/auto/jsb_gfx_auto.h"
 #include "cocos/scene/Node.h"
+#include "cocos/scene/BaseNode.h"
+#include "cocos/scene/Scene.h"
 #include "cocos/scene/Light.h"
 #include "cocos/scene/DirectionalLight.h"
 #include "cocos/scene/SpotLight.h"
@@ -19,6 +21,26 @@
 #include "cocos/scene/Camera.h"
 #include "cocos/scene/Define.h"
 
+extern se::Object* __jsb_cc_scene_BaseNode_proto;
+extern se::Class* __jsb_cc_scene_BaseNode_class;
+
+bool js_register_cc_scene_BaseNode(se::Object* obj);
+bool register_all_scene(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::scene::BaseNode);
+SE_DECLARE_FUNC(js_scene_BaseNode_getChilds);
+SE_DECLARE_FUNC(js_scene_BaseNode_setParent);
+SE_DECLARE_FUNC(js_scene_BaseNode_BaseNode);
+
+extern se::Object* __jsb_cc_scene_Scene_proto;
+extern se::Class* __jsb_cc_scene_Scene_class;
+
+bool js_register_cc_scene_Scene(se::Object* obj);
+bool register_all_scene(se::Object* obj);
+
+JSB_REGISTER_OBJECT_TYPE(cc::scene::Scene);
+SE_DECLARE_FUNC(js_scene_Scene_Scene);
+
 extern se::Object* __jsb_cc_scene_Node_proto;
 extern se::Class* __jsb_cc_scene_Node_class;
 
@@ -26,10 +48,7 @@ bool js_register_cc_scene_Node(se::Object* obj);
 bool register_all_scene(se::Object* obj);
 
 JSB_REGISTER_OBJECT_TYPE(cc::scene::Node);
-SE_DECLARE_FUNC(js_scene_Node_addChild);
 SE_DECLARE_FUNC(js_scene_Node_initWithData);
-SE_DECLARE_FUNC(js_scene_Node_removeChild);
-SE_DECLARE_FUNC(js_scene_Node_setParent);
 SE_DECLARE_FUNC(js_scene_Node_Node);
 
 extern se::Object* __jsb_cc_scene_Light_proto;
