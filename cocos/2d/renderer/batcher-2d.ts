@@ -250,6 +250,7 @@ export class Batcher2D {
             if (!screen.enabledInHierarchy) {
                 continue;
             }
+            this._currOpacity = 1;
             this._recursiveScreenNode(screen.node);
         }
 
