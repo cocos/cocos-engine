@@ -69,6 +69,7 @@ import {
 import { GlobalBarrier } from '../base/global-barrier';
 import { TextureBarrier } from '../base/texture-barrier';
 import { BrowserType, OS } from '../../../../pal/system-info/enum-type';
+import { debug } from '../../platform/debug';
 
 const eventWebGLContextLost = 'webglcontextlost';
 
@@ -337,7 +338,7 @@ export class WebGLDevice extends Device {
                 extensions += `${ext} `;
             }
 
-            console.debug(`EXTENSIONS: ${extensions}`);
+            debug(`EXTENSIONS: ${extensions}`);
         }
 
         this._EXT_texture_filter_anisotropic = this.getExtension('EXT_texture_filter_anisotropic');
@@ -481,25 +482,25 @@ export class WebGLDevice extends Device {
             this._useVAO = true;
         }
 
-        console.info(`RENDERER: ${this._renderer}`);
-        console.info(`VENDOR: ${this._vendor}`);
-        console.info(`VERSION: ${this._version}`);
-        console.info(`DPR: ${this._devicePixelRatio}`);
-        console.info(`SCREEN_SIZE: ${this._width} x ${this._height}`);
-        // console.info('COLOR_FORMAT: ' + FormatInfos[this._colorFmt].name);
-        // console.info('DEPTH_STENCIL_FORMAT: ' + FormatInfos[this._depthStencilFmt].name);
-        // console.info('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
-        console.info(`MAX_VERTEX_UNIFORM_VECTORS: ${this._caps.maxVertexUniformVectors}`);
-        // console.info('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
-        // console.info('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
-        // console.info('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
-        console.info(`DEPTH_BITS: ${this._caps.depthBits}`);
-        console.info(`STENCIL_BITS: ${this._caps.stencilBits}`);
+        debug(`RENDERER: ${this._renderer}`);
+        debug(`VENDOR: ${this._vendor}`);
+        debug(`VERSION: ${this._version}`);
+        debug(`DPR: ${this._devicePixelRatio}`);
+        debug(`SCREEN_SIZE: ${this._width} x ${this._height}`);
+        // debug('COLOR_FORMAT: ' + FormatInfos[this._colorFmt].name);
+        // debug('DEPTH_STENCIL_FORMAT: ' + FormatInfos[this._depthStencilFmt].name);
+        // debug('MAX_VERTEX_ATTRIBS: ' + this._maxVertexAttributes);
+        debug(`MAX_VERTEX_UNIFORM_VECTORS: ${this._caps.maxVertexUniformVectors}`);
+        // debug('MAX_FRAGMENT_UNIFORM_VECTORS: ' + this._maxFragmentUniformVectors);
+        // debug('MAX_TEXTURE_IMAGE_UNITS: ' + this._maxTextureUnits);
+        // debug('MAX_VERTEX_TEXTURE_IMAGE_UNITS: ' + this._maxVertexTextureUnits);
+        debug(`DEPTH_BITS: ${this._caps.depthBits}`);
+        debug(`STENCIL_BITS: ${this._caps.stencilBits}`);
         if (this._EXT_texture_filter_anisotropic) {
-            console.info(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
+            debug(`MAX_TEXTURE_MAX_ANISOTROPY_EXT: ${this._EXT_texture_filter_anisotropic.MAX_TEXTURE_MAX_ANISOTROPY_EXT}`);
         }
-        console.info(`USE_VAO: ${this._useVAO}`);
-        console.info(`COMPRESSED_FORMAT: ${compressedFormat}`);
+        debug(`USE_VAO: ${this._useVAO}`);
+        debug(`COMPRESSED_FORMAT: ${compressedFormat}`);
 
         // init states
         this.initStates(gl);
@@ -578,7 +579,7 @@ export class WebGLDevice extends Device {
 
     public resize (width: number, height: number) {
         if (this._width !== width || this._height !== height) {
-            console.info(`Resizing device: ${width}x${height}`);
+            debug(`Resizing device: ${width}x${height}`);
             this._canvas!.width = width;
             this._canvas!.height = height;
             this._width = width;

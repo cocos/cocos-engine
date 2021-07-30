@@ -785,7 +785,7 @@ function createExoticTrackEvaluationRecord<TValue> (
     binder: Binder,
 ) {
     const trackBinding = new TrackBinding();
-    trackBinding.path = new TrackPath().hierarchy(path).property(property);
+    trackBinding.path = new TrackPath().toHierarchy(path).toProperty(property);
     const runtimeBinding = binder(trackBinding);
     if (!runtimeBinding) {
         return null;

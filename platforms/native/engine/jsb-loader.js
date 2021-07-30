@@ -430,6 +430,11 @@ cc.assetManager.transformPipeline.append(function (task) {
         if (item.config) {
             item.options.__cacheBundleRoot__ = item.config.name;
         }
+        if (item.ext === '.cconb') {
+            item.url = item.url.replace(item.ext, '.bin');
+        } else if (item.ext === '.ccon') {
+            item.url = item.url.replace(item.ext, '.json');
+        }
     }
 });
 

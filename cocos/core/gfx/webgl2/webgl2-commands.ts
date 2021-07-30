@@ -25,6 +25,7 @@
 
 import { CachedArray } from '../../memop/cached-array';
 import { error, errorID } from '../../platform';
+import { debug } from '../../platform/debug';
 import {
     BufferUsageBit, ColorMask, CullMode, DynamicStateFlagBit, Filter, Format, TextureType, Type, FormatInfo,
     FormatInfos, FormatSize, LoadOp, MemoryUsageBit, SampleCount, ShaderStageFlagBit, TextureFlagBit,
@@ -1467,7 +1468,7 @@ export function WebGL2CmdFuncCreateShader (device: WebGL2Device, gpuShader: IWeb
     }
 
     if (gl.getProgramParameter(gpuShader.glProgram, gl.LINK_STATUS)) {
-        console.info(`Shader '${gpuShader.name}' compilation succeeded.`);
+        debug(`Shader '${gpuShader.name}' compilation succeeded.`);
     } else {
         console.error(`Failed to link shader '${gpuShader.name}'.`);
         console.error(gl.getProgramInfoLog(gpuShader.glProgram));
