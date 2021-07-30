@@ -246,10 +246,7 @@ class ReleaseManager {
                 }
             }
         }
-        // only release non-gc asset in editor
-        if (!EDITOR || (asset instanceof ImageAsset || asset instanceof TextureBase)) {
-            asset.destroy();
-        }
+        asset.destroy();
         dependUtil.remove(uuid);
         if (EDITOR) {
             const dependant = references!.get(uuid);
