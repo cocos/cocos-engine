@@ -65,7 +65,6 @@ CCProgram lighting-fs %{
     s.metallic = normalMap.w;
     s.emissive = emissiveMap.xyz;
     s.occlusion = emissiveMap.w;
-    s.SpecularIntensity = 0.5;
     // fixme: default value is 0, and give black result
     float fogFactor;
     CC_TRANSFER_FOG_BASE(vec4(s.position, 1), fogFactor);
