@@ -71,6 +71,43 @@ void fastSetShaders(void *buffer) {
     }
 }
 
+// for pass message
+void fastSetPassBlendState(void *buffer) {
+    struct Heap {
+        AlignedPtr<cc::scene::Pass>     selfPtr;
+        AlignedPtr<cc::gfx::BlendState> bsPtr;
+    };
+    Heap *heap = reinterpret_cast<Heap *>(buffer);
+    heap->selfPtr.get()->setBlendState(heap->bsPtr.get());
+}
+
+void fastSetPassDepthStencilState(void *buffer) {
+    struct Heap {
+        AlignedPtr<cc::scene::Pass>            selfPtr;
+        AlignedPtr<cc::gfx::DepthStencilState> dsPtr;
+    };
+    Heap *heap = reinterpret_cast<Heap *>(buffer);
+    heap->selfPtr.get()->setDepthStencilState(heap->dsPtr.get());
+}
+
+void fastSetPassRasterizerState(void *buffer) {
+    struct Heap {
+        AlignedPtr<cc::scene::Pass>          selfPtr;
+        AlignedPtr<cc::gfx::RasterizerState> rsPtr;
+    };
+    Heap *heap = reinterpret_cast<Heap *>(buffer);
+    heap->selfPtr.get()->setRasterizerState(heap->rsPtr.get());
+}
+
+void fastSetPassDescriptorSet(void *buffer) {
+    struct Heap {
+        AlignedPtr<cc::scene::Pass>        selfPtr;
+        AlignedPtr<cc::gfx::DescriptorSet> dsPtr;
+    };
+    Heap *heap = reinterpret_cast<Heap *>(buffer);
+    heap->selfPtr.get()->setDescriptorSet(heap->dsPtr.get());
+}
+
 template <typename F>
 uint64_t convertPtr(F *in) {
     return static_cast<uint64_t>(reinterpret_cast<intptr_t>(in));
@@ -137,7 +174,34 @@ void jsbFlushFastMQ() {
     msgInfoPtr[1] = 0;
 }
 
-bool register_all_drawbatch2d_ext_manual(se::Object *obj) { //NOLINT
+void registerDrawBatch2DFunction(se::Object *cls) {
+    // register function table of DrawBatch2D
+    se::Value jsValue;
+    cls->getProperty("DrawBatch2D", &jsValue);
+    se::Object *jsObj   = jsValue.toObject();
+    se::Object *fnTable = se::Object::createPlainObject();
+    fnTable->setProperty("visFlags", se::Value(convertPtr(fastSetFlag)));
+    fnTable->setProperty("descriptorSet", se::Value(convertPtr(fastSetDescriptorSet)));
+    fnTable->setProperty("inputAssembler", se::Value(convertPtr(fastSetInputAssembler)));
+    fnTable->setProperty("passes", se::Value(convertPtr(fastSetPasses)));
+    fnTable->setProperty("shaders", se::Value(convertPtr(fastSetShaders)));
+    jsObj->setProperty("fnTable", se::Value(fnTable));
+}
+
+void registerPassFunction(se::Object *cls) {
+    // register function table of DrawBatch2D
+    se::Value jsValue;
+    cls->getProperty("Pass", &jsValue);
+    se::Object *jsObj   = jsValue.toObject();
+    se::Object *fnTable = se::Object::createPlainObject();
+    fnTable->setProperty("blendState", se::Value(convertPtr(fastSetPassBlendState)));
+    fnTable->setProperty("depthStencilState", se::Value(convertPtr(fastSetPassDepthStencilState)));
+    fnTable->setProperty("rasterizerState", se::Value(convertPtr(fastSetPassRasterizerState)));
+    fnTable->setProperty("descriptorSet", se::Value(convertPtr(fastSetPassDescriptorSet)));
+    jsObj->setProperty("fnTable", se::Value(fnTable));
+}
+
+bool register_all_scene_ext_manual(se::Object *obj) { //NOLINT
     // allocate global message queue
 
     se::AutoHandleScope scope;
@@ -164,23 +228,14 @@ bool register_all_drawbatch2d_ext_manual(se::Object *obj) { //NOLINT
     mqInitialized = true;
 
     // register function table, serialize to queue
-
-    se::Value   dbJSValue;
     se::Object *nsObj{nullptr};
 
     se::Value nsValue;
     obj->getProperty("ns", &nsValue);
     nsObj = nsValue.toObject();
 
-    nsObj->getProperty("DrawBatch2D", &dbJSValue);
-    se::Object *dbJSObj = dbJSValue.toObject();
-    se::Object *fnTable = se::Object::createPlainObject();
-    fnTable->setProperty("visFlags", se::Value(convertPtr(fastSetFlag)));
-    fnTable->setProperty("descriptorSet", se::Value(convertPtr(fastSetDescriptorSet)));
-    fnTable->setProperty("inputAssembler", se::Value(convertPtr(fastSetInputAssembler)));
-    fnTable->setProperty("passes", se::Value(convertPtr(fastSetPasses)));
-    fnTable->setProperty("shaders", se::Value(convertPtr(fastSetShaders)));
-    dbJSObj->setProperty("fnTable", se::Value(fnTable));
+    registerDrawBatch2DFunction(nsObj);
+    registerPassFunction(nsObj);
 
     return true;
 }

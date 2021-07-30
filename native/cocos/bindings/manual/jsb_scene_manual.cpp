@@ -36,7 +36,7 @@
     #define JSB_FREE(ptr) delete ptr
 #endif
 
-extern bool register_all_drawbatch2d_ext_manual(se::Object* obj); //NOLINT
+extern bool register_all_scene_ext_manual(se::Object* obj); //NOLINT
 
 static bool js_scene_Pass_setRootBufferAndBlock(se::State& s) // NOLINT(readability-identifier-naming)
 {
@@ -197,7 +197,7 @@ bool register_all_scene_manual(se::Object* obj) // NOLINT(readability-identifier
     __jsb_cc_scene_RenderScene_proto->defineFunction("updateBatches", _SE(js_scene_RenderScene_updateBatches));
 
     // Impl MQ for DrawBatch2D
-    register_all_drawbatch2d_ext_manual(obj);
+    register_all_scene_ext_manual(obj);
 
     return true;
 }

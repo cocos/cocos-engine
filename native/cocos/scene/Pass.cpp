@@ -25,10 +25,13 @@
 
 #include "scene/Pass.h"
 
+extern void jsbFlushFastMQ();
+
 namespace cc {
 namespace scene {
 
 void Pass::update() {
+    jsbFlushFastMQ();
     if (_rootBufferDirty && _rootBuffer) {
         _rootBuffer->update(_rootBlock, _rootBuffer->getSize());
         _rootBufferDirty = false;
@@ -38,13 +41,6 @@ void Pass::update() {
 
 void Pass::initWithData(uint8_t *data) {
     _passLayout = reinterpret_cast<PassLayout *>(data);
-}
-
-void Pass::setState(gfx::BlendState *bs, gfx::DepthStencilState *ds, gfx::RasterizerState *rs, gfx::DescriptorSet *descriptorSet) {
-    _blendState        = bs;
-    _depthStencilState = ds;
-    _rasterizerState   = rs;
-    _descriptorSet     = descriptorSet;
 }
 
 } // namespace scene
