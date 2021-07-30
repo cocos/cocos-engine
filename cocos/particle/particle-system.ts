@@ -593,7 +593,7 @@ export class ParticleSystem extends RenderableComponent {
         this._isPaused = false;
         this._isStopped = true;
         this._isEmitting = false;
-        this._needRefresh = false;
+        this._needRefresh = true;
 
         this._time = 0.0;  // playback position in seconds.
         this._emitRateTimeCounter = 0.0;
