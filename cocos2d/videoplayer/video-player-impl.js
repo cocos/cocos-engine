@@ -198,7 +198,9 @@ let VideoPlayerImpl = cc.Class({
         }
 
         this._video = video;
-        cc.game.container.appendChild(video);
+        if (!this._staticDomID) {
+            cc.game.container.appendChild(video);
+        }
     },
 
     createDomElementIfNeeded: function (muted) {
@@ -242,6 +244,8 @@ let VideoPlayerImpl = cc.Class({
     },
 
     setURL (path, muted) {
+        let source, extname;
+
         if (this._url === path) {
             return;
         }
@@ -258,7 +262,54 @@ let VideoPlayerImpl = cc.Class({
         this._playing = false;
         this._loadedmeta = false;
 
+        // Since the src of the dynamically set source is not valid, need to set the src of video.
         video.src = path;
+
+        if (!this._staticDomID) {
+            //
+            if (!path) {
+                this._resetSource(video);
+                return;
+            }
+            extname = cc.path.extname(path);
+            source = this._appendSource(video, path, extname);
+
+            let polyfill = VideoPlayerImpl._polyfill;
+            for (let i = 0; i < polyfill.canPlayType.length; i++) {
+                const type = polyfill.canPlayType[i];
+                if (extname !== type) {
+                    source = this._appendSource(video, path ? path.replace(extname, type) : '', type);
+                }
+            }
+        }
+    },
+
+    _resetSource: function (video) {
+        let sources = video.getElementsByTagName('source');
+        for (let i = 0; i < sources.length; i++) {
+            sources[i].src = '';
+        }
+    },
+
+    _appendSource: function(video, path, videoType) {
+        let sources = video.getElementsByTagName('source');
+        let source;
+        let id = `${videoType}-source`;
+        let type = `video/${videoType.substr(1)}`;
+        for (let i = 0; i < sources.length; i++) {
+            if (sources[i].id === id) {
+                source = sources[i];
+                break;
+            }
+        }
+        if (!source) {
+            source = document.createElement("source");
+            source.id = id;
+            source.type = type;
+            video.appendChild(source);
+        }
+        source.src = path;
+        return source;
     },
 
     getURL: function() {
@@ -549,7 +600,7 @@ let VideoPlayerImpl = cc.Class({
     },
 
     updateMatrix (node) {
-        if (!this._video || !this._visible || this._fullScreenEnabled) return;
+        if (!this._video || !this._visible || this._fullScreenEnabled || this._staticDomID) return;
 
         node.getWorldMatrix(_mat4_temp);
 
