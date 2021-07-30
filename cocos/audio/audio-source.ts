@@ -221,10 +221,12 @@ export class AudioSource extends Component {
         this._player?.destroy();
     }
 
-    private _getRootNode (): Node | null {
+    private _getRootNode (): Node | null | undefined {
         let currentNode = this.node as Node | undefined | null;
-        while (currentNode?.parent?.parent !== null) {
+        let currentGrandparentNode = currentNode?.parent?.parent;
+        while (currentGrandparentNode) {
             currentNode = currentNode?.parent;
+            currentGrandparentNode = currentNode?.parent?.parent;
         }
         return currentNode;
     }
