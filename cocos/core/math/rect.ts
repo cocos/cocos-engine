@@ -32,7 +32,7 @@
 import { CCClass } from '../data/class';
 import { Mat4 } from './mat4';
 import { Size } from './size';
-import { IRectLike, IVec2Like, FloatArray } from './type-define';
+import { IRectLike, FloatArray, IRect, IVec2 } from './type-define';
 import { Vec2 } from './vec2';
 import { legacyCC } from '../global-exports';
 import { MathBase } from './math-base';
@@ -54,7 +54,7 @@ export class Rect extends MathBase {
      * @param v2 Specified point 2.
      * @returns Target rectangle.
      */
-    public static fromMinMax <Out extends IRectLike> (out: Out, v1: Readonly<IVec2Like>, v2: Readonly<IVec2Like>) {
+    public static fromMinMax <Out extends IRectLike> (out: Out, v1: IVec2, v2: IVec2) {
         const minX = Math.min(v1.x, v2.x);
         const minY = Math.min(v1.y, v2.y);
         const maxX = Math.max(v1.x, v2.x);
@@ -75,7 +75,7 @@ export class Rect extends MathBase {
      * @param to Target rect.
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public static lerp <Out extends IRectLike> (out: Out, from: Readonly<IRectLike>, to: Readonly<IRectLike>, ratio: number) {
+    public static lerp <Out extends IRectLike> (out: Out, from: IRect, to: IRect, ratio: number) {
         const x = from.x;
         const y = from.y;
         const w = from.width;
@@ -95,7 +95,7 @@ export class Rect extends MathBase {
      * @param one One of the specify Rect.
      * @param other Another of the specify Rect.
      */
-    public static intersection <Out extends IRectLike> (out: Out, one: Readonly<IRectLike>, other: Readonly<IRectLike>) {
+    public static intersection <Out extends IRectLike> (out: Out, one: IRect, other: IRect) {
         const axMin = one.x;
         const ayMin = one.y;
         const axMax = one.x + one.width;
@@ -119,7 +119,7 @@ export class Rect extends MathBase {
      * @param one One of the specify Rect.
      * @param other Another of the specify Rect.
      */
-    public static union <Out extends IRectLike> (out: Out, one: Readonly<IRectLike>, other: Readonly<IRectLike>) {
+    public static union <Out extends IRectLike> (out: Out, one: IRect, other: IRect) {
         const x = one.x;
         const y = one.y;
         const w = one.width;
@@ -281,7 +281,7 @@ export class Rect extends MathBase {
      * @zh 构造与指定矩形相等的矩形。
      * @param other Specified Rect.
      */
-    constructor (x: Readonly<Rect> | FloatArray);
+    constructor (x: Rect | Readonly<Rect> | FloatArray);
 
     /**
      * @en Constructs a Rect with specified values.
@@ -293,7 +293,7 @@ export class Rect extends MathBase {
      */
     constructor (x?: number, y?: number, width?: number, height?: number);
 
-    constructor (x?: Readonly<Rect> | number | FloatArray, y?: number, width?: number, height?: number) {
+    constructor (x?: Rect | Readonly<Rect> | number | FloatArray, y?: number, width?: number, height?: number) {
         super();
         if (x && typeof x === 'object') {
             if (ArrayBuffer.isView(x)) {
@@ -330,7 +330,7 @@ export class Rect extends MathBase {
      * @param other Specified Rect.
      * @returns `this`
      */
-    public set (other: Readonly<Rect>);
+    public set (other: Rect | Readonly<Rect>);
 
     /**
      * @en Set the value of each component of the current Rect.
@@ -343,7 +343,7 @@ export class Rect extends MathBase {
      */
     public set (x?: number, y?: number, width?: number, height?: number);
 
-    public set (x?: Readonly<Rect> | number, y?: number, width?: number, height?: number) {
+    public set (x?: Rect | Readonly<Rect> | number, y?: number, width?: number, height?: number) {
         if (x && typeof x === 'object') {
             const v = x.array;
             this._array[0] = v[0];
@@ -365,7 +365,7 @@ export class Rect extends MathBase {
      * @param other Specified rectangles.
      * @returns Returns `true' when the minimum and maximum values of both rectangles are equal, respectively; otherwise, returns `false'.
      */
-    public equals (other: Readonly<Rect>) {
+    public equals (other: Rect | Readonly<Rect>) {
         const v = other.array;
         return this._array[0] === v[0]
             && this._array[1] === v[1]
@@ -379,7 +379,7 @@ export class Rect extends MathBase {
      * @param to Target Rect.
      * @param ratio The interpolation coefficient.The range is [0,1].
      */
-    public lerp (to: Readonly<Rect>, ratio: number) {
+    public lerp (to: Rect | Readonly<Rect>, ratio: number) {
         const x = this._array[0];
         const y = this._array[1];
         const w = this._array[2];
@@ -408,7 +408,7 @@ export class Rect extends MathBase {
      * @param other Specified rectangles.
      * @returns If intersected, return `true', otherwise return `false'.
      */
-    public intersects (other: Readonly<Rect>) {
+    public intersects (other: Rect | Readonly<Rect>) {
         const maxax = this._array[0] + this._array[2];
         const maxay = this._array[1] + this._array[3];
         const v = other.array;
@@ -423,7 +423,7 @@ export class Rect extends MathBase {
      * @param point Specified point.
      * @returns The specified point is included in the rectangle and returns `true', otherwise it returns `false'.
      */
-    public contains (point: Readonly<Vec2>) {
+    public contains (point: Vec2 | Readonly<Vec2>) {
         const v = point.array;
         return (this._array[0] <= v[0]
                 && this._array[0] + this._array[2] >= v[0]
@@ -437,7 +437,7 @@ export class Rect extends MathBase {
      * @param other Specified rectangles.
      * @returns Returns `true' if all the points of the specified rectangle are included in the current rectangle, `false' otherwise.
      */
-    public containsRect (other: Readonly<Rect>) {
+    public containsRect (other: Rect | Readonly<Rect>) {
         const v = other.array;
         return (this._array[0] <= v[0]
                 && this._array[0] + this._array[2] >= v[0] + v[2]
@@ -454,7 +454,7 @@ export class Rect extends MathBase {
      * 并将如此构成的新矩形。
      * @param matrix The matrix4
      */
-    public transformMat4 (mat: Readonly<Mat4>) {
+    public transformMat4 (mat: Mat4 | Readonly<Mat4>) {
         const ol = this._array[0];
         const ob = this._array[1];
         const or = ol + this._array[2];
@@ -485,7 +485,7 @@ export class Rect extends MathBase {
     /**
      * 应用矩阵变换到当前矩形，并将结果输出到四个顶点上。
      */
-    public transformMat4ToPoints (mat: Readonly<Mat4>, out_lb: Vec2, out_lt: Vec2, out_rt: Vec2, out_rb: Vec2) {
+    public transformMat4ToPoints (mat: Mat4 | Readonly<Mat4>, out_lb: Vec2, out_lt: Vec2, out_rt: Vec2, out_rb: Vec2) {
         const ol = this.x;
         const ob = this.y;
         const or = ol + this.width;
