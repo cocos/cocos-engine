@@ -244,8 +244,6 @@ let VideoPlayerImpl = cc.Class({
     },
 
     setURL (path, muted) {
-        let source, extname;
-
         if (this._url === path) {
             return;
         }
@@ -265,21 +263,19 @@ let VideoPlayerImpl = cc.Class({
         // Since the src of the dynamically set source is not valid, need to set the src of video.
         video.src = path;
 
-        if (!this._staticDomID) {
-            //
-            if (!path) {
-                this._resetSource(video);
-                return;
-            }
-            extname = cc.path.extname(path);
-            source = this._appendSource(video, path, extname);
+        //
+        if (!path) {
+            this._resetSource(video);
+            return;
+        }
+        let extname = cc.path.extname(path);
+        this._appendSource(video, path, extname);
 
-            let polyfill = VideoPlayerImpl._polyfill;
-            for (let i = 0; i < polyfill.canPlayType.length; i++) {
-                const type = polyfill.canPlayType[i];
-                if (extname !== type) {
-                    source = this._appendSource(video, path ? path.replace(extname, type) : '', type);
-                }
+        let polyfill = VideoPlayerImpl._polyfill;
+        for (let i = 0; i < polyfill.canPlayType.length; i++) {
+            const type = polyfill.canPlayType[i];
+            if (extname !== type) {
+                this._appendSource(video, path ? path.replace(extname, type) : '', type);
             }
         }
     },
@@ -302,14 +298,17 @@ let VideoPlayerImpl = cc.Class({
                 break;
             }
         }
-        if (!source) {
+
+        // Use of static dom, don't automatic create of sources
+        if (!source && !this._staticDomID) {
             source = document.createElement("source");
             source.id = id;
             source.type = type;
             video.appendChild(source);
         }
-        source.src = path;
-        return source;
+        if (source) {
+            source.src = path;
+        }
     },
 
     getURL: function() {
