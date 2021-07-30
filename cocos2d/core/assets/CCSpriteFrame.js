@@ -367,6 +367,10 @@ let SpriteFrame = cc.Class(/** @lends cc.SpriteFrame# */{
     },
 
     _textureLoadedCallback () {
+        if (!this.isValid) {
+            return;
+        }
+
         let self = this;
         let texture = this._texture;
         if (!texture) {
