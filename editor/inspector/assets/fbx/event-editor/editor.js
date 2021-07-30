@@ -111,10 +111,9 @@ exports.methods = {
     async saveData() {
         const that = this;
         const result = that.value.map((item) => {
-           // TODO Animation events recorded in meta need to be unified https://github.com/cocos-creator/3d-tasks/issues/7416
             return {
-                functionName: item.func,
-                parameters: item.params,
+                func: item.func,
+                params: item.params,
                 frame: that.frame,
             };
         });
