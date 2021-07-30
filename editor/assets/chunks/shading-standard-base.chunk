@@ -50,7 +50,6 @@ struct StandardSurface {
   float roughness;
   float metallic;
   float occlusion;
-  float SpecularIntensity;
 };
 
 vec4 CCStandardShadingBase (StandardSurface s, vec4 shadowPos) {
