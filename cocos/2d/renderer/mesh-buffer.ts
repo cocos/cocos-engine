@@ -58,7 +58,7 @@ export class MeshBuffer {
     // NOTE:
     // actually 256 * 4 * (vertexFormat._bytes / 4)
     // include pos, uv, color in ui attributes
-    private _batcher: Batcher2D;
+    private declare _batcher: Batcher2D;
     private _dirty = false;
     private _vertexFormatBytes = 0;
     private _initVDataCount = 0;
