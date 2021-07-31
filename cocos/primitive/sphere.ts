@@ -67,7 +67,7 @@ export default function sphere (radius = 0.5, opts: RecursivePartial<ISphereOpti
         const cosTheta = -Math.cos(theta);
 
         for (let lon = 0; lon <= segments; ++lon) {
-            const phi = lon * 2 * Math.PI / segments - Math.PI / 2.0;
+            const phi = lon * 2 * Math.PI / segments - Math.PI;
             const sinPhi = Math.sin(phi);
             const cosPhi = Math.cos(phi);
 
