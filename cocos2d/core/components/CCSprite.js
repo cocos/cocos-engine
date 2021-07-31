@@ -535,7 +535,7 @@ var Sprite = cc.Class({
 
 if (CC_EDITOR) {
     Sprite.prototype._resizedInEditor = function () {
-        if (this._spriteFrame) {
+        if (this._spriteFrame && this._spriteFrame.isValid) {
             var actualSize = this.node.getContentSize();
             var expectedW = actualSize.width;
             var expectedH = actualSize.height;
