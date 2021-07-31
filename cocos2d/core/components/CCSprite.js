@@ -504,19 +504,13 @@ var Sprite = cc.Class({
     _applySpriteFrame (oldFrame) {
         if (!this.isValid)  return;
 
-        if (oldFrame && !oldFrame.isValid) {
-            oldFrame = null;
-        }
-        let oldTexture = oldFrame && oldFrame.getTexture();
+        let oldTexture = oldFrame && oldFrame.isValid && oldFrame.getTexture();
         if (oldTexture && !oldTexture.loaded) {
             oldFrame.off('load', this._applySpriteSize, this);
         }
 
         let spriteFrame = this._spriteFrame;
-        if (spriteFrame && !spriteFrame.isValid) {
-            spriteFrame = null;
-        }
-        let newTexture = spriteFrame && spriteFrame.getTexture();
+        let newTexture = spriteFrame && spriteFrame.isValid && spriteFrame.getTexture();
 
         if (oldTexture !== newTexture) {
             this._updateMaterial();
@@ -527,7 +521,7 @@ var Sprite = cc.Class({
         }
         else {
             this.disableRender();
-            if (spriteFrame) {
+            if (spriteFrame && spriteFrame.isValid) {
                 spriteFrame.once('load', this._applySpriteSize, this);
             }
         }
